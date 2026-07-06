@@ -196,10 +196,19 @@ func getRecomputeFeaturesValue(p *OfflineQueryParams) any {
 }
 
 func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryParamsResolved) ([]byte, error) {
+	return serializeOfflineQueryParamsWithInput(p, resolved, nil)
+}
+
+func serializeOfflineQueryParamsWithInput(
+	p *OfflineQueryParams,
+	resolved *offlineQueryParamsResolved,
+	queryInputOverride any,
+) ([]byte, error) {
 	var queryInput any
 
-	// Check if rawFileInput is provided
-	if p.rawFileInput != nil && *p.rawFileInput != "" {
+	if queryInputOverride != nil {
+		queryInput = queryInputOverride
+	} else if p.rawFileInput != nil && *p.rawFileInput != "" {
 		// Use OfflineQueryInputUri format
 		queryInput = &internal.OfflineQueryInputUri{
 			ParquetUri: *p.rawFileInput,
@@ -351,7 +360,7 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		CorrelationId:              correlationIdPtr,
 		QueryContext:               p.QueryContext.ToMap(),
 		PlannerOptions:             plannerOptionsPtr,
-		UseMultipleComputers:       p.UseMultipleComputers || p.RunAsynchronously,
+		UseMultipleComputers:       p.UseMultipleComputers || p.RunAsynchronously || p.NumShards != nil || p.NumWorkers != nil,
 		SpineSqlQuery:              spineSqlQueryPtr,
 		RecomputeRequestRevisionId: recomputeRequestRevisionIdPtr,
 		Resources:                  resourcesSerialized,

@@ -349,6 +349,11 @@ type QueryMeta struct {
 	// input/output features will typically have the same hash; changes may be observed
 	// over time as we adjust implementation details.
 	QueryHash string `json:"query_hash"`
+
+	// True if this query's plan had to be computed by the planner rather than served
+	// from a plan cache. Nil when the server did not report plan-cache participation
+	// (e.g. older server versions).
+	MissedPlanCache *bool `json:"missed_plan_cache"`
 }
 
 // OnlineQueryBulkResult holds the result of a bulk online query.
@@ -549,8 +554,14 @@ type OfflineQueryParams struct {
 	// UseMultipleComputers specifies whether to use multiple computers for the query.
 	UseMultipleComputers bool
 
-	// UploadInputAsTable specifies whether to upload the input as a table.
+	// UploadInputAsTable specifies whether to upload inline inputs as a table.
+	// Inline offline inputs over 100 rows or with NumShards / NumWorkers upload
+	// as parquet to match chalkpy's forced upload behavior.
 	UploadInputAsTable bool
+
+	// uploadInputAsTableSet tracks explicit values passed through
+	// WithUploadInputAsTable. The public bool cannot distinguish unset from false.
+	uploadInputAsTableSet *bool
 
 	// EnvOverrides specifies environment variable overrides for the query execution.
 	EnvOverrides map[string]string

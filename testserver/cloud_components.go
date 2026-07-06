@@ -551,6 +551,410 @@ func (h *cloudComponentsServiceHandler) DeleteCloudComponentCluster(
 	return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentClusterResponse)), nil
 }
 
+func (h *cloudComponentsServiceHandler) CreateCloudComponentStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateCloudComponentStorageRequest],
+) (*connect.Response[serverv1.CreateCloudComponentStorageResponse], error) {
+	h.registry.CaptureRequest("CreateCloudComponentStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateCloudComponentStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateCloudComponentStorageResponse)), nil
+	}
+	if err := h.registry.GetError("CreateCloudComponentStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateCloudComponentStorage")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateCloudComponentStorage"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateCloudComponentStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetCloudComponentStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetCloudComponentStorageRequest],
+) (*connect.Response[serverv1.GetCloudComponentStorageResponse], error) {
+	h.registry.CaptureRequest("GetCloudComponentStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("GetCloudComponentStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetCloudComponentStorageResponse)), nil
+	}
+	if err := h.registry.GetError("GetCloudComponentStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetCloudComponentStorage")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetCloudComponentStorage"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetCloudComponentStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteCloudComponentStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteCloudComponentStorageRequest],
+) (*connect.Response[serverv1.DeleteCloudComponentStorageResponse], error) {
+	h.registry.CaptureRequest("DeleteCloudComponentStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteCloudComponentStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentStorageResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteCloudComponentStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteCloudComponentStorage")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteCloudComponentStorageResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) ListCloudComponentStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.ListCloudComponentStorageRequest],
+) (*connect.Response[serverv1.ListCloudComponentStorageResponse], error) {
+	h.registry.CaptureRequest("ListCloudComponentStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("ListCloudComponentStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.ListCloudComponentStorageResponse)), nil
+	}
+	if err := h.registry.GetError("ListCloudComponentStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("ListCloudComponentStorage")
+	if resp == nil {
+		// List has a repeated response; default to empty when unconfigured.
+		return connect.NewResponse(&serverv1.ListCloudComponentStorageResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.ListCloudComponentStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) CreateBindingEnvironmentCloudStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateBindingEnvironmentCloudStorageRequest],
+) (*connect.Response[serverv1.CreateBindingEnvironmentCloudStorageResponse], error) {
+	h.registry.CaptureRequest("CreateBindingEnvironmentCloudStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateBindingEnvironmentCloudStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateBindingEnvironmentCloudStorageResponse)), nil
+	}
+	if err := h.registry.GetError("CreateBindingEnvironmentCloudStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateBindingEnvironmentCloudStorage")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateBindingEnvironmentCloudStorage"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateBindingEnvironmentCloudStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetBindingEnvironmentCloudStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetBindingEnvironmentCloudStorageRequest],
+) (*connect.Response[serverv1.GetBindingEnvironmentCloudStorageResponse], error) {
+	h.registry.CaptureRequest("GetBindingEnvironmentCloudStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("GetBindingEnvironmentCloudStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetBindingEnvironmentCloudStorageResponse)), nil
+	}
+	if err := h.registry.GetError("GetBindingEnvironmentCloudStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetBindingEnvironmentCloudStorage")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetBindingEnvironmentCloudStorage"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetBindingEnvironmentCloudStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteBindingEnvironmentCloudStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteBindingEnvironmentCloudStorageRequest],
+) (*connect.Response[serverv1.DeleteBindingEnvironmentCloudStorageResponse], error) {
+	h.registry.CaptureRequest("DeleteBindingEnvironmentCloudStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteBindingEnvironmentCloudStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteBindingEnvironmentCloudStorageResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteBindingEnvironmentCloudStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteBindingEnvironmentCloudStorage")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteBindingEnvironmentCloudStorageResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteBindingEnvironmentCloudStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) CreateBindingClusterCloudStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateBindingClusterCloudStorageRequest],
+) (*connect.Response[serverv1.CreateBindingClusterCloudStorageResponse], error) {
+	h.registry.CaptureRequest("CreateBindingClusterCloudStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateBindingClusterCloudStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateBindingClusterCloudStorageResponse)), nil
+	}
+	if err := h.registry.GetError("CreateBindingClusterCloudStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateBindingClusterCloudStorage")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateBindingClusterCloudStorage"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateBindingClusterCloudStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetBindingClusterCloudStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetBindingClusterCloudStorageRequest],
+) (*connect.Response[serverv1.GetBindingClusterCloudStorageResponse], error) {
+	h.registry.CaptureRequest("GetBindingClusterCloudStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("GetBindingClusterCloudStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetBindingClusterCloudStorageResponse)), nil
+	}
+	if err := h.registry.GetError("GetBindingClusterCloudStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetBindingClusterCloudStorage")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetBindingClusterCloudStorage"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetBindingClusterCloudStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteBindingClusterCloudStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteBindingClusterCloudStorageRequest],
+) (*connect.Response[serverv1.DeleteBindingClusterCloudStorageResponse], error) {
+	h.registry.CaptureRequest("DeleteBindingClusterCloudStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteBindingClusterCloudStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteBindingClusterCloudStorageResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteBindingClusterCloudStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteBindingClusterCloudStorage")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteBindingClusterCloudStorageResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteBindingClusterCloudStorageResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) CreateCloudComponentContainerRegistry(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateCloudComponentContainerRegistryRequest],
+) (*connect.Response[serverv1.CreateCloudComponentContainerRegistryResponse], error) {
+	h.registry.CaptureRequest("CreateCloudComponentContainerRegistry", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateCloudComponentContainerRegistry"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateCloudComponentContainerRegistryResponse)), nil
+	}
+	if err := h.registry.GetError("CreateCloudComponentContainerRegistry"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateCloudComponentContainerRegistry")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateCloudComponentContainerRegistry"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateCloudComponentContainerRegistryResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetCloudComponentContainerRegistry(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetCloudComponentContainerRegistryRequest],
+) (*connect.Response[serverv1.GetCloudComponentContainerRegistryResponse], error) {
+	h.registry.CaptureRequest("GetCloudComponentContainerRegistry", req.Msg)
+	if behavior := h.registry.GetBehavior("GetCloudComponentContainerRegistry"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetCloudComponentContainerRegistryResponse)), nil
+	}
+	if err := h.registry.GetError("GetCloudComponentContainerRegistry"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetCloudComponentContainerRegistry")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetCloudComponentContainerRegistry"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetCloudComponentContainerRegistryResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) ListCloudComponentContainerRegistry(
+	ctx context.Context,
+	req *connect.Request[serverv1.ListCloudComponentContainerRegistryRequest],
+) (*connect.Response[serverv1.ListCloudComponentContainerRegistryResponse], error) {
+	h.registry.CaptureRequest("ListCloudComponentContainerRegistry", req.Msg)
+	if behavior := h.registry.GetBehavior("ListCloudComponentContainerRegistry"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.ListCloudComponentContainerRegistryResponse)), nil
+	}
+	if err := h.registry.GetError("ListCloudComponentContainerRegistry"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("ListCloudComponentContainerRegistry")
+	if resp == nil {
+		// List has a repeated response; default to empty when unconfigured.
+		return connect.NewResponse(&serverv1.ListCloudComponentContainerRegistryResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.ListCloudComponentContainerRegistryResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteCloudComponentContainerRegistry(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteCloudComponentContainerRegistryRequest],
+) (*connect.Response[serverv1.DeleteCloudComponentContainerRegistryResponse], error) {
+	h.registry.CaptureRequest("DeleteCloudComponentContainerRegistry", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteCloudComponentContainerRegistry"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentContainerRegistryResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteCloudComponentContainerRegistry"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteCloudComponentContainerRegistry")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteCloudComponentContainerRegistryResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentContainerRegistryResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) CreateBindingClusterContainerRegistry(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateBindingClusterContainerRegistryRequest],
+) (*connect.Response[serverv1.CreateBindingClusterContainerRegistryResponse], error) {
+	h.registry.CaptureRequest("CreateBindingClusterContainerRegistry", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateBindingClusterContainerRegistry"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateBindingClusterContainerRegistryResponse)), nil
+	}
+	if err := h.registry.GetError("CreateBindingClusterContainerRegistry"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateBindingClusterContainerRegistry")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateBindingClusterContainerRegistry"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateBindingClusterContainerRegistryResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetBindingClusterContainerRegistry(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetBindingClusterContainerRegistryRequest],
+) (*connect.Response[serverv1.GetBindingClusterContainerRegistryResponse], error) {
+	h.registry.CaptureRequest("GetBindingClusterContainerRegistry", req.Msg)
+	if behavior := h.registry.GetBehavior("GetBindingClusterContainerRegistry"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetBindingClusterContainerRegistryResponse)), nil
+	}
+	if err := h.registry.GetError("GetBindingClusterContainerRegistry"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetBindingClusterContainerRegistry")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetBindingClusterContainerRegistry"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetBindingClusterContainerRegistryResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) ListBindingClusterContainerRegistry(
+	ctx context.Context,
+	req *connect.Request[serverv1.ListBindingClusterContainerRegistryRequest],
+) (*connect.Response[serverv1.ListBindingClusterContainerRegistryResponse], error) {
+	h.registry.CaptureRequest("ListBindingClusterContainerRegistry", req.Msg)
+	if behavior := h.registry.GetBehavior("ListBindingClusterContainerRegistry"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.ListBindingClusterContainerRegistryResponse)), nil
+	}
+	if err := h.registry.GetError("ListBindingClusterContainerRegistry"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("ListBindingClusterContainerRegistry")
+	if resp == nil {
+		// List has a repeated response; default to empty when unconfigured.
+		return connect.NewResponse(&serverv1.ListBindingClusterContainerRegistryResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.ListBindingClusterContainerRegistryResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteBindingClusterContainerRegistry(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteBindingClusterContainerRegistryRequest],
+) (*connect.Response[serverv1.DeleteBindingClusterContainerRegistryResponse], error) {
+	h.registry.CaptureRequest("DeleteBindingClusterContainerRegistry", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteBindingClusterContainerRegistry"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteBindingClusterContainerRegistryResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteBindingClusterContainerRegistry"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteBindingClusterContainerRegistry")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteBindingClusterContainerRegistryResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteBindingClusterContainerRegistryResponse)), nil
+}
+
 // OnCreateCloudComponentVpc configures the CreateCloudComponentVpc RPC method.
 func (s *MockServer) OnCreateCloudComponentVpc() *MethodConfigBuilder[*serverv1.CreateCloudComponentVpcResponse] {
 	return &MethodConfigBuilder[*serverv1.CreateCloudComponentVpcResponse]{

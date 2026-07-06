@@ -152,6 +152,9 @@ const (
 	// BuilderServiceGetNodepoolsProcedure is the fully-qualified name of the BuilderService's
 	// GetNodepools RPC.
 	BuilderServiceGetNodepoolsProcedure = "/chalk.server.v1.BuilderService/GetNodepools"
+	// BuilderServiceGetAvailableChalkMachineTypesProcedure is the fully-qualified name of the
+	// BuilderService's GetAvailableChalkMachineTypes RPC.
+	BuilderServiceGetAvailableChalkMachineTypesProcedure = "/chalk.server.v1.BuilderService/GetAvailableChalkMachineTypes"
 	// BuilderServiceAddNodepoolProcedure is the fully-qualified name of the BuilderService's
 	// AddNodepool RPC.
 	BuilderServiceAddNodepoolProcedure = "/chalk.server.v1.BuilderService/AddNodepool"
@@ -248,6 +251,7 @@ type BuilderServiceClient interface {
 	// Useful for debugging in local development where the auto activation doesn't work b/c no pubsub.
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
 	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
+	// Deprecated: do not use.
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
@@ -295,6 +299,7 @@ type BuilderServiceClient interface {
 	GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error)
 	GetBranchServerStatus(context.Context, *connect.Request[v1.GetBranchServerStatusRequest]) (*connect.Response[v1.GetBranchServerStatusResponse], error)
 	GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error)
+	GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error)
 	AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error)
 	UpdateNodepool(context.Context, *connect.Request[v1.UpdateNodepoolRequest]) (*connect.Response[v1.UpdateNodepoolResponse], error)
 	DeleteNodepool(context.Context, *connect.Request[v1.DeleteNodepoolRequest]) (*connect.Response[v1.DeleteNodepoolResponse], error)
@@ -581,6 +586,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getAvailableChalkMachineTypes: connect.NewClient[v1.GetAvailableChalkMachineTypesRequest, v1.GetAvailableChalkMachineTypesResponse](
+			httpClient,
+			baseURL+BuilderServiceGetAvailableChalkMachineTypesProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetAvailableChalkMachineTypes")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		addNodepool: connect.NewClient[v1.AddNodepoolRequest, v1.AddNodepoolResponse](
 			httpClient,
 			baseURL+BuilderServiceAddNodepoolProcedure,
@@ -791,6 +803,7 @@ type builderServiceClient struct {
 	getBranchProfile                            *connect.Client[v1.GetBranchProfileRequest, v1.GetBranchProfileResponse]
 	getBranchServerStatus                       *connect.Client[v1.GetBranchServerStatusRequest, v1.GetBranchServerStatusResponse]
 	getNodepools                                *connect.Client[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse]
+	getAvailableChalkMachineTypes               *connect.Client[v1.GetAvailableChalkMachineTypesRequest, v1.GetAvailableChalkMachineTypesResponse]
 	addNodepool                                 *connect.Client[v1.AddNodepoolRequest, v1.AddNodepoolResponse]
 	updateNodepool                              *connect.Client[v1.UpdateNodepoolRequest, v1.UpdateNodepoolResponse]
 	deleteNodepool                              *connect.Client[v1.DeleteNodepoolRequest, v1.DeleteNodepoolResponse]
@@ -836,6 +849,8 @@ func (c *builderServiceClient) IndexDeployment(ctx context.Context, req *connect
 }
 
 // ValidateNamedQueries calls chalk.server.v1.BuilderService.ValidateNamedQueries.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) ValidateNamedQueries(ctx context.Context, req *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error) {
 	return c.validateNamedQueries.CallUnary(ctx, req)
 }
@@ -1024,6 +1039,11 @@ func (c *builderServiceClient) GetNodepools(ctx context.Context, req *connect.Re
 	return c.getNodepools.CallUnary(ctx, req)
 }
 
+// GetAvailableChalkMachineTypes calls chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes.
+func (c *builderServiceClient) GetAvailableChalkMachineTypes(ctx context.Context, req *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error) {
+	return c.getAvailableChalkMachineTypes.CallUnary(ctx, req)
+}
+
 // AddNodepool calls chalk.server.v1.BuilderService.AddNodepool.
 func (c *builderServiceClient) AddNodepool(ctx context.Context, req *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error) {
 	return c.addNodepool.CallUnary(ctx, req)
@@ -1178,6 +1198,7 @@ type BuilderServiceHandler interface {
 	// Useful for debugging in local development where the auto activation doesn't work b/c no pubsub.
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
 	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
+	// Deprecated: do not use.
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
@@ -1225,6 +1246,7 @@ type BuilderServiceHandler interface {
 	GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error)
 	GetBranchServerStatus(context.Context, *connect.Request[v1.GetBranchServerStatusRequest]) (*connect.Response[v1.GetBranchServerStatusResponse], error)
 	GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error)
+	GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error)
 	AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error)
 	UpdateNodepool(context.Context, *connect.Request[v1.UpdateNodepoolRequest]) (*connect.Response[v1.UpdateNodepoolResponse], error)
 	DeleteNodepool(context.Context, *connect.Request[v1.DeleteNodepoolRequest]) (*connect.Response[v1.DeleteNodepoolResponse], error)
@@ -1507,6 +1529,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetAvailableChalkMachineTypesHandler := connect.NewUnaryHandler(
+		BuilderServiceGetAvailableChalkMachineTypesProcedure,
+		svc.GetAvailableChalkMachineTypes,
+		connect.WithSchema(builderServiceMethods.ByName("GetAvailableChalkMachineTypes")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceAddNodepoolHandler := connect.NewUnaryHandler(
 		BuilderServiceAddNodepoolProcedure,
 		svc.AddNodepool,
@@ -1753,6 +1782,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetBranchServerStatusHandler.ServeHTTP(w, r)
 		case BuilderServiceGetNodepoolsProcedure:
 			builderServiceGetNodepoolsHandler.ServeHTTP(w, r)
+		case BuilderServiceGetAvailableChalkMachineTypesProcedure:
+			builderServiceGetAvailableChalkMachineTypesHandler.ServeHTTP(w, r)
 		case BuilderServiceAddNodepoolProcedure:
 			builderServiceAddNodepoolHandler.ServeHTTP(w, r)
 		case BuilderServiceUpdateNodepoolProcedure:
@@ -1970,6 +2001,10 @@ func (UnimplementedBuilderServiceHandler) GetBranchServerStatus(context.Context,
 
 func (UnimplementedBuilderServiceHandler) GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetNodepools is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error) {

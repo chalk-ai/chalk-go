@@ -699,8 +699,11 @@ type DataframeRunJobRequest struct {
 	CompressedPlanUriPrefix *string                `protobuf:"bytes,3,opt,name=compressed_plan_uri_prefix,json=compressedPlanUriPrefix,proto3,oneof" json:"compressed_plan_uri_prefix,omitempty"`
 	ShardOperationId        *string                `protobuf:"bytes,4,opt,name=shard_operation_id,json=shardOperationId,proto3,oneof" json:"shard_operation_id,omitempty"`
 	WorkflowManifestUri     *string                `protobuf:"bytes,5,opt,name=workflow_manifest_uri,json=workflowManifestUri,proto3,oneof" json:"workflow_manifest_uri,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// Seconds between periodic performance-summary writes during execution. 0
+	// (default) disables the live summary.
+	UpdatePerformanceSummaryIntervalSecs *float64 `protobuf:"fixed64,6,opt,name=update_performance_summary_interval_secs,json=updatePerformanceSummaryIntervalSecs,proto3,oneof" json:"update_performance_summary_interval_secs,omitempty"`
+	unknownFields                        protoimpl.UnknownFields
+	sizeCache                            protoimpl.SizeCache
 }
 
 func (x *DataframeRunJobRequest) Reset() {
@@ -766,6 +769,13 @@ func (x *DataframeRunJobRequest) GetWorkflowManifestUri() string {
 		return *x.WorkflowManifestUri
 	}
 	return ""
+}
+
+func (x *DataframeRunJobRequest) GetUpdatePerformanceSummaryIntervalSecs() float64 {
+	if x != nil && x.UpdatePerformanceSummaryIntervalSecs != nil {
+		return *x.UpdatePerformanceSummaryIntervalSecs
+	}
+	return 0
 }
 
 type MetaplanRunJobRequest struct {
@@ -3549,8 +3559,19 @@ type PlannerOptions struct {
 	// different as-of times from collapsing into one another's aggregation windows.
 	// See CHA-9429.
 	ExcludeOverlappingInputEventsFromAggs *bool `protobuf:"varint,119,opt,name=exclude_overlapping_input_events_from_aggs,json=excludeOverlappingInputEventsFromAggs,proto3,oneof" json:"exclude_overlapping_input_events_from_aggs,omitempty"`
-	unknownFields                         protoimpl.UnknownFields
-	sizeCache                             protoimpl.SizeCache
+	// FQN of the streaming resolver that triggered an aggregation update plan. The
+	// planner looks up the StreamResolverParsed via the graph to read per-resolver
+	// streaming knobs (e.g. excluded_aggregation_fqns).
+	StreamResolverFqn *string `protobuf:"bytes,120,opt,name=stream_resolver_fqn,json=streamResolverFqn,proto3,oneof" json:"stream_resolver_fqn,omitempty"`
+	// When set, incremental query population unions with a single input skip the union
+	// (and its implicit distinct-on-(pkey, ts)) entirely.
+	SkipIncrementalQueryDistinct *bool `protobuf:"varint,121,opt,name=skip_incremental_query_distinct,json=skipIncrementalQueryDistinct,proto3,oneof" json:"skip_incremental_query_distinct,omitempty"`
+	// When set, the distinct-on-(pkey, ts) over incremental query population is planned
+	// as partition-by + sort-by over the distinct key followed by a pre-grouped
+	// aggregation, letting the engine emit each group as the sorted key advances.
+	UseStreamingDistinctForIncrementalPopulation *bool `protobuf:"varint,122,opt,name=use_streaming_distinct_for_incremental_population,json=useStreamingDistinctForIncrementalPopulation,proto3,oneof" json:"use_streaming_distinct_for_incremental_population,omitempty"`
+	unknownFields                                protoimpl.UnknownFields
+	sizeCache                                    protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -4416,6 +4437,27 @@ func (x *PlannerOptions) GetExcludeOverlappingInputEventsFromAggs() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetStreamResolverFqn() string {
+	if x != nil && x.StreamResolverFqn != nil {
+		return *x.StreamResolverFqn
+	}
+	return ""
+}
+
+func (x *PlannerOptions) GetSkipIncrementalQueryDistinct() bool {
+	if x != nil && x.SkipIncrementalQueryDistinct != nil {
+		return *x.SkipIncrementalQueryDistinct
+	}
+	return false
+}
+
+func (x *PlannerOptions) GetUseStreamingDistinctForIncrementalPopulation() bool {
+	if x != nil && x.UseStreamingDistinctForIncrementalPopulation != nil {
+		return *x.UseStreamingDistinctForIncrementalPopulation
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -4710,18 +4752,20 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x0f_correlation_idB\x0e\n" +
 	"\f_output_pathB\x18\n" +
 	"\x16_workflow_manifest_uriB\x0e\n" +
-	"\f_num_buckets\"\x8e\x03\n" +
+	"\f_num_buckets\"\x98\x04\n" +
 	"\x16DataframeRunJobRequest\x12&\n" +
 	"\foperation_id\x18\x01 \x01(\tH\x00R\voperationId\x88\x01\x01\x12*\n" +
 	"\x0ecorrelation_id\x18\x02 \x01(\tH\x01R\rcorrelationId\x88\x01\x01\x12@\n" +
 	"\x1acompressed_plan_uri_prefix\x18\x03 \x01(\tH\x02R\x17compressedPlanUriPrefix\x88\x01\x01\x121\n" +
 	"\x12shard_operation_id\x18\x04 \x01(\tH\x03R\x10shardOperationId\x88\x01\x01\x127\n" +
-	"\x15workflow_manifest_uri\x18\x05 \x01(\tH\x04R\x13workflowManifestUri\x88\x01\x01B\x0f\n" +
+	"\x15workflow_manifest_uri\x18\x05 \x01(\tH\x04R\x13workflowManifestUri\x88\x01\x01\x12[\n" +
+	"(update_performance_summary_interval_secs\x18\x06 \x01(\x01H\x05R$updatePerformanceSummaryIntervalSecs\x88\x01\x01B\x0f\n" +
 	"\r_operation_idB\x11\n" +
 	"\x0f_correlation_idB\x1d\n" +
 	"\x1b_compressed_plan_uri_prefixB\x15\n" +
 	"\x13_shard_operation_idB\x18\n" +
-	"\x16_workflow_manifest_uri\"\xea\x02\n" +
+	"\x16_workflow_manifest_uriB+\n" +
+	")_update_performance_summary_interval_secs\"\xea\x02\n" +
 	"\x15MetaplanRunJobRequest\x122\n" +
 	"\x15workflow_execution_id\x18\x01 \x01(\tR\x13workflowExecutionId\x12!\n" +
 	"\foperation_id\x18\x02 \x01(\tR\voperationId\x12w\n" +
@@ -5054,7 +5098,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x9ck\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xfdm\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5176,7 +5220,10 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"'omit_replay_during_combine_aggregations\x18t \x01(\bHsR#omitReplayDuringCombineAggregations\x88\x01\x01\x12J\n" +
 	"\x1fdistinct_event_ties_arbitrarily\x18u \x01(\bHtR\x1cdistinctEventTiesArbitrarily\x88\x01\x01\x12H\n" +
 	"\x1eunify_tile_window_aggregations\x18v \x01(\bHuR\x1bunifyTileWindowAggregations\x88\x01\x01\x12^\n" +
-	"*exclude_overlapping_input_events_from_aggs\x18w \x01(\bHvR%excludeOverlappingInputEventsFromAggs\x88\x01\x01B\x1e\n" +
+	"*exclude_overlapping_input_events_from_aggs\x18w \x01(\bHvR%excludeOverlappingInputEventsFromAggs\x88\x01\x01\x123\n" +
+	"\x13stream_resolver_fqn\x18x \x01(\tHwR\x11streamResolverFqn\x88\x01\x01\x12J\n" +
+	"\x1fskip_incremental_query_distinct\x18y \x01(\bHxR\x1cskipIncrementalQueryDistinct\x88\x01\x01\x12l\n" +
+	"1use_streaming_distinct_for_incremental_population\x18z \x01(\bHyR,useStreamingDistinctForIncrementalPopulation\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5295,7 +5342,10 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"(_omit_replay_during_combine_aggregationsB\"\n" +
 	" _distinct_event_ties_arbitrarilyB!\n" +
 	"\x1f_unify_tile_window_aggregationsB-\n" +
-	"+_exclude_overlapping_input_events_from_aggs\"\xd2\x06\n" +
+	"+_exclude_overlapping_input_events_from_aggsB\x16\n" +
+	"\x14_stream_resolver_fqnB\"\n" +
+	" _skip_incremental_query_distinctB4\n" +
+	"2_use_streaming_distinct_for_incremental_population\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

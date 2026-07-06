@@ -1,0 +1,264 @@
+package chalk
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
+
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow/go/v16/parquet/pqarrow"
+	"github.com/chalk-ai/chalk-go/auth"
+	"github.com/chalk-ai/chalk-go/config"
+	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
+	"github.com/chalk-ai/chalk-go/internal"
+	assert "github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+func TestShouldUploadOfflineQueryInputAsTable(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now().UTC()
+	resolved := &offlineQueryParamsResolved{
+		inputs: map[string][]TsFeatureValue{
+			"user.id": {{Value: int64(1), ObservationTime: &now}},
+		},
+	}
+
+	params := OfflineQueryParams{}
+	assert.False(t, shouldUploadOfflineQueryInputAsTable(&params, resolved))
+
+	params = OfflineQueryParams{}
+	complete := OfflineQueryParamsComplete{underlying: params}.WithUploadInputAsTable(true)
+	assert.True(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
+
+	params = OfflineQueryParams{}
+	complete = OfflineQueryParamsComplete{underlying: params}.WithUploadInputAsTable(false)
+	assert.False(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
+
+	manyInputs := make([]TsFeatureValue, offlineQueryInputUploadRowLimit+1)
+	for i := range manyInputs {
+		manyInputs[i] = TsFeatureValue{Value: int64(i), ObservationTime: &now}
+	}
+	resolved.inputs["user.id"] = manyInputs
+	assert.True(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
+
+	numShards := 1
+	resolved.inputs["user.id"] = []TsFeatureValue{{Value: int64(1), ObservationTime: &now}}
+	params = OfflineQueryParams{NumShards: &numShards}
+	complete = OfflineQueryParamsComplete{underlying: params}.WithUploadInputAsTable(false)
+	assert.True(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
+
+	fileInput := "s3://bucket/input.parquet"
+	params = OfflineQueryParams{rawFileInput: &fileInput}
+	assert.False(t, shouldUploadOfflineQueryInputAsTable(&params, resolved))
+}
+
+func TestOfflineQueryInputParquetPartitions(t *testing.T) {
+	t.Parallel()
+
+	ts := time.Date(2026, 6, 30, 12, 0, 0, 0, time.UTC)
+	inputs := map[string][]TsFeatureValue{
+		"user.id": {
+			{Value: int64(101), ObservationTime: &ts},
+			{Value: int64(102), ObservationTime: &ts},
+			{Value: int64(103), ObservationTime: &ts},
+		},
+		"user.name": {
+			{Value: "a", ObservationTime: &ts},
+			{Value: "b", ObservationTime: &ts},
+			{Value: "c", ObservationTime: &ts},
+		},
+	}
+
+	numShards := 2
+	partitions, err := offlineQueryInputParquetPartitions(inputs, &numShards, memory.DefaultAllocator)
+	assert.NoError(t, err)
+	assert.Len(t, partitions, 2)
+
+	first := readParquetTable(t, partitions[0])
+	defer first.Release()
+	assert.Equal(t, int64(2), first.NumRows())
+	assert.Equal(t, []string{"user.id", "user.name", "__ts__", "__index__"}, tableFieldNames(first))
+
+	userID := first.Column(0).Data().Chunk(0).(*array.Int64)
+	assert.Equal(t, int64(101), userID.Value(0))
+	assert.Equal(t, int64(102), userID.Value(1))
+
+	index := first.Column(3).Data().Chunk(0).(*array.Int64)
+	assert.Equal(t, int64(0), index.Value(0))
+	assert.Equal(t, int64(1), index.Value(1))
+
+	second := readParquetTable(t, partitions[1])
+	defer second.Release()
+	assert.Equal(t, int64(1), second.NumRows())
+
+	secondIndex := second.Column(3).Data().Chunk(0).(*array.Int64)
+	assert.Equal(t, int64(2), secondIndex.Value(0))
+
+	uploadedInput := &internal.OfflineQueryInputUploadedParquetSharded{
+		Filenames: []string{"first.parquet", "second.parquet"},
+		Version:   offlineQueryGivensVersionSingleTSColNameWithURIPrefix,
+	}
+	assert.Equal(t, 3, uploadedInput.Version)
+}
+
+func TestSerializeOfflineQueryParamsWithUploadedParquetInput(t *testing.T) {
+	t.Parallel()
+
+	uploadedInput := &internal.OfflineQueryInputUploadedParquetSharded{
+		Filenames: []string{"first.parquet", "second.parquet"},
+		Version:   offlineQueryGivensVersionSingleTSColNameWithURIPrefix,
+	}
+	resolved := &offlineQueryParamsResolved{
+		outputs:         []string{"user.score"},
+		requiredOutputs: []string{},
+	}
+
+	serialized, err := serializeOfflineQueryParamsWithInput(&OfflineQueryParams{}, resolved, uploadedInput)
+	assert.NoError(t, err)
+
+	var result map[string]any
+	err = json.Unmarshal(serialized, &result)
+	assert.NoError(t, err)
+
+	input, ok := result["input"].(map[string]any)
+	assert.True(t, ok)
+	assert.Equal(t, []any{"first.parquet", "second.parquet"}, input["filenames"])
+	assert.Equal(t, float64(3), input["version"])
+	assert.NotContains(t, input, "columns")
+	assert.NotContains(t, input, "values")
+	assert.NotContains(t, input, "parquet_uri")
+}
+
+func TestUploadOfflineQueryInputAsTableRequestsAllPartitionURLs(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	uploadDir := t.TempDir()
+	firstPath := filepath.Join(uploadDir, "shard_0.parquet")
+	secondPath := filepath.Join(uploadDir, "shard_1.parquet")
+
+	var requestedPath string
+	apiServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestedPath = r.URL.Path
+		assert.Equal(t, http.MethodGet, r.Method)
+		assert.Equal(t, "/v1/offline_query_parquet_upload_url/2", r.URL.Path)
+
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(map[string]any{
+			"urls": []map[string]string{
+				{
+					"signed_url": fileURL(firstPath),
+					"filename":   "env_test/upload_abc/givens/shard_0.parquet",
+				},
+				{
+					"signed_url": fileURL(secondPath),
+					"filename":   "env_test/upload_abc/givens/shard_1.parquet",
+				},
+			},
+		})
+		assert.NoError(t, err)
+	}))
+	t.Cleanup(apiServer.Close)
+
+	cfg, err := config.NewManager(ctx, &config.ManagerInputs{
+		APIServer:     apiServer.URL,
+		ClientId:      "client-id",
+		ClientSecret:  "client-secret",
+		EnvironmentId: "test",
+	})
+	assert.NoError(t, err)
+
+	tokenManager, err := auth.NewManager(ctx, &auth.Inputs{
+		Token: &serverv1.GetTokenResponse{
+			AccessToken:         "token",
+			ExpiresAt:           timestamppb.New(time.Now().Add(time.Hour)),
+			PrimaryEnvironment:  ptrTo("test"),
+			EnvironmentIdToName: map[string]string{"test": "Test"},
+			Engines:             map[string]string{},
+			GrpcEngines:         map[string]string{},
+		},
+		HttpClient:                 http.DefaultClient,
+		Config:                     cfg,
+		SkipEnvironmentNameMapping: true,
+		SkipEngineMapping:          true,
+	})
+	assert.NoError(t, err)
+
+	client := &clientImpl{
+		config:       cfg,
+		allocator:    memory.DefaultAllocator,
+		httpClient:   http.DefaultClient,
+		logger:       DefaultLeveledLogger,
+		tokenManager: tokenManager,
+	}
+
+	ts := time.Date(2026, 6, 30, 12, 0, 0, 0, time.UTC)
+	numShards := 2
+	uploadedInput, err := client.uploadOfflineQueryInputAsTable(ctx, &OfflineQueryParams{NumShards: &numShards}, &offlineQueryParamsResolved{
+		inputs: map[string][]TsFeatureValue{
+			"user.id": {
+				{Value: int64(101), ObservationTime: &ts},
+				{Value: int64(102), ObservationTime: &ts},
+				{Value: int64(103), ObservationTime: &ts},
+			},
+		},
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, "/v1/offline_query_parquet_upload_url/2", requestedPath)
+	assert.Equal(t, []string{
+		"env_test/upload_abc/givens/shard_0.parquet",
+		"env_test/upload_abc/givens/shard_1.parquet",
+	}, uploadedInput.Filenames)
+
+	firstBytes, err := os.ReadFile(firstPath)
+	assert.NoError(t, err)
+	first := readParquetTable(t, firstBytes)
+	defer first.Release()
+	assert.Equal(t, int64(2), first.NumRows())
+
+	secondBytes, err := os.ReadFile(secondPath)
+	assert.NoError(t, err)
+	second := readParquetTable(t, secondBytes)
+	defer second.Release()
+	assert.Equal(t, int64(1), second.NumRows())
+}
+
+func readParquetTable(t *testing.T, data []byte) arrow.Table {
+	t.Helper()
+
+	table, err := pqarrow.ReadTable(
+		context.Background(),
+		bytes.NewReader(data),
+		nil,
+		pqarrow.ArrowReadProperties{},
+		memory.DefaultAllocator,
+	)
+	assert.NoError(t, err)
+	return table
+}
+
+func tableFieldNames(table arrow.Table) []string {
+	names := make([]string, table.Schema().NumFields())
+	for i := range names {
+		names[i] = table.Schema().Field(i).Name
+	}
+	return names
+}
+
+func fileURL(path string) string {
+	return "file://" + filepath.ToSlash(path)
+}
+
+func ptrTo[T any](value T) *T {
+	return &value
+}

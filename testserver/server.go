@@ -544,6 +544,150 @@ func (s *MockServer) OnTestOfflineStoreConnection() *MethodConfigBuilder[*server
 	}
 }
 
+// OnCreateCloudComponentStorage configures the CreateCloudComponentStorage RPC method.
+func (s *MockServer) OnCreateCloudComponentStorage() *MethodConfigBuilder[*serverv1.CreateCloudComponentStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateCloudComponentStorageResponse]{
+		methodName: "CreateCloudComponentStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnGetCloudComponentStorage configures the GetCloudComponentStorage RPC method.
+func (s *MockServer) OnGetCloudComponentStorage() *MethodConfigBuilder[*serverv1.GetCloudComponentStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudComponentStorageResponse]{
+		methodName: "GetCloudComponentStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteCloudComponentStorage configures the DeleteCloudComponentStorage RPC method.
+func (s *MockServer) OnDeleteCloudComponentStorage() *MethodConfigBuilder[*serverv1.DeleteCloudComponentStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteCloudComponentStorageResponse]{
+		methodName: "DeleteCloudComponentStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnListCloudComponentStorage configures the ListCloudComponentStorage RPC method.
+func (s *MockServer) OnListCloudComponentStorage() *MethodConfigBuilder[*serverv1.ListCloudComponentStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.ListCloudComponentStorageResponse]{
+		methodName: "ListCloudComponentStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateBindingEnvironmentCloudStorage configures the CreateBindingEnvironmentCloudStorage RPC method.
+func (s *MockServer) OnCreateBindingEnvironmentCloudStorage() *MethodConfigBuilder[*serverv1.CreateBindingEnvironmentCloudStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateBindingEnvironmentCloudStorageResponse]{
+		methodName: "CreateBindingEnvironmentCloudStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnGetBindingEnvironmentCloudStorage configures the GetBindingEnvironmentCloudStorage RPC method.
+func (s *MockServer) OnGetBindingEnvironmentCloudStorage() *MethodConfigBuilder[*serverv1.GetBindingEnvironmentCloudStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.GetBindingEnvironmentCloudStorageResponse]{
+		methodName: "GetBindingEnvironmentCloudStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteBindingEnvironmentCloudStorage configures the DeleteBindingEnvironmentCloudStorage RPC method.
+func (s *MockServer) OnDeleteBindingEnvironmentCloudStorage() *MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentCloudStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentCloudStorageResponse]{
+		methodName: "DeleteBindingEnvironmentCloudStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateBindingClusterCloudStorage configures the CreateBindingClusterCloudStorage RPC method.
+func (s *MockServer) OnCreateBindingClusterCloudStorage() *MethodConfigBuilder[*serverv1.CreateBindingClusterCloudStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateBindingClusterCloudStorageResponse]{
+		methodName: "CreateBindingClusterCloudStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnGetBindingClusterCloudStorage configures the GetBindingClusterCloudStorage RPC method.
+func (s *MockServer) OnGetBindingClusterCloudStorage() *MethodConfigBuilder[*serverv1.GetBindingClusterCloudStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.GetBindingClusterCloudStorageResponse]{
+		methodName: "GetBindingClusterCloudStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteBindingClusterCloudStorage configures the DeleteBindingClusterCloudStorage RPC method.
+func (s *MockServer) OnDeleteBindingClusterCloudStorage() *MethodConfigBuilder[*serverv1.DeleteBindingClusterCloudStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteBindingClusterCloudStorageResponse]{
+		methodName: "DeleteBindingClusterCloudStorage",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateCloudComponentContainerRegistry configures the CreateCloudComponentContainerRegistry RPC method.
+func (s *MockServer) OnCreateCloudComponentContainerRegistry() *MethodConfigBuilder[*serverv1.CreateCloudComponentContainerRegistryResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateCloudComponentContainerRegistryResponse]{
+		methodName: "CreateCloudComponentContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
+// OnGetCloudComponentContainerRegistry configures the GetCloudComponentContainerRegistry RPC method.
+func (s *MockServer) OnGetCloudComponentContainerRegistry() *MethodConfigBuilder[*serverv1.GetCloudComponentContainerRegistryResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudComponentContainerRegistryResponse]{
+		methodName: "GetCloudComponentContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
+// OnListCloudComponentContainerRegistry configures the ListCloudComponentContainerRegistry RPC method.
+func (s *MockServer) OnListCloudComponentContainerRegistry() *MethodConfigBuilder[*serverv1.ListCloudComponentContainerRegistryResponse] {
+	return &MethodConfigBuilder[*serverv1.ListCloudComponentContainerRegistryResponse]{
+		methodName: "ListCloudComponentContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteCloudComponentContainerRegistry configures the DeleteCloudComponentContainerRegistry RPC method.
+func (s *MockServer) OnDeleteCloudComponentContainerRegistry() *MethodConfigBuilder[*serverv1.DeleteCloudComponentContainerRegistryResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteCloudComponentContainerRegistryResponse]{
+		methodName: "DeleteCloudComponentContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateBindingClusterContainerRegistry configures the CreateBindingClusterContainerRegistry RPC method.
+func (s *MockServer) OnCreateBindingClusterContainerRegistry() *MethodConfigBuilder[*serverv1.CreateBindingClusterContainerRegistryResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateBindingClusterContainerRegistryResponse]{
+		methodName: "CreateBindingClusterContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
+// OnGetBindingClusterContainerRegistry configures the GetBindingClusterContainerRegistry RPC method.
+func (s *MockServer) OnGetBindingClusterContainerRegistry() *MethodConfigBuilder[*serverv1.GetBindingClusterContainerRegistryResponse] {
+	return &MethodConfigBuilder[*serverv1.GetBindingClusterContainerRegistryResponse]{
+		methodName: "GetBindingClusterContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
+// OnListBindingClusterContainerRegistry configures the ListBindingClusterContainerRegistry RPC method.
+func (s *MockServer) OnListBindingClusterContainerRegistry() *MethodConfigBuilder[*serverv1.ListBindingClusterContainerRegistryResponse] {
+	return &MethodConfigBuilder[*serverv1.ListBindingClusterContainerRegistryResponse]{
+		methodName: "ListBindingClusterContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteBindingClusterContainerRegistry configures the DeleteBindingClusterContainerRegistry RPC method.
+func (s *MockServer) OnDeleteBindingClusterContainerRegistry() *MethodConfigBuilder[*serverv1.DeleteBindingClusterContainerRegistryResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteBindingClusterContainerRegistryResponse]{
+		methodName: "DeleteBindingClusterContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
 // GetCapturedRequests returns all requests captured for the given method name.
 // This is useful for test assertions.
 func (s *MockServer) GetCapturedRequests(methodName string) []proto.Message {

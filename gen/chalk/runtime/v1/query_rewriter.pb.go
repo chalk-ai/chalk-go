@@ -65,8 +65,11 @@ type GivensQueryRewriter struct {
 	Values                 *Data                  `protobuf:"bytes,1,opt,name=values,proto3" json:"values,omitempty"`
 	JoinColumns            []string               `protobuf:"bytes,2,rep,name=join_columns,json=joinColumns,proto3" json:"join_columns,omitempty"`
 	UsePostgresArrayParams bool                   `protobuf:"varint,3,opt,name=use_postgres_array_params,json=usePostgresArrayParams,proto3" json:"use_postgres_array_params,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Used by native C++ SQL rewriters, which bind givens from the runtime input
+	// batch rather than storing them in this proto.
+	RootNamespace *string `protobuf:"bytes,4,opt,name=root_namespace,json=rootNamespace,proto3,oneof" json:"root_namespace,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GivensQueryRewriter) Reset() {
@@ -118,6 +121,13 @@ func (x *GivensQueryRewriter) GetUsePostgresArrayParams() bool {
 		return x.UsePostgresArrayParams
 	}
 	return false
+}
+
+func (x *GivensQueryRewriter) GetRootNamespace() string {
+	if x != nil && x.RootNamespace != nil {
+		return *x.RootNamespace
+	}
+	return ""
 }
 
 type HighWaterMark struct {
@@ -247,8 +257,11 @@ type ContextualQueryRewriter struct {
 	UpperBound                     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=upper_bound,json=upperBound,proto3,oneof" json:"upper_bound,omitempty"`
 	MaxSamples                     *int64                 `protobuf:"varint,4,opt,name=max_samples,json=maxSamples,proto3,oneof" json:"max_samples,omitempty"`
 	OverrideLowerUpperBoundFeature *v1.FeatureReference   `protobuf:"bytes,5,opt,name=override_lower_upper_bound_feature,json=overrideLowerUpperBoundFeature,proto3,oneof" json:"override_lower_upper_bound_feature,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// Used by native C++ SQL rewriters, where the contextual bounds and max
+	// samples are read from PlanRunContext during execution.
+	AllowRootRowSampling bool `protobuf:"varint,6,opt,name=allow_root_row_sampling,json=allowRootRowSampling,proto3" json:"allow_root_row_sampling,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ContextualQueryRewriter) Reset() {
@@ -314,6 +327,13 @@ func (x *ContextualQueryRewriter) GetOverrideLowerUpperBoundFeature() *v1.Featur
 		return x.OverrideLowerUpperBoundFeature
 	}
 	return nil
+}
+
+func (x *ContextualQueryRewriter) GetAllowRootRowSampling() bool {
+	if x != nil {
+		return x.AllowRootRowSampling
+	}
+	return false
 }
 
 type StaticFilterQueryRewriter struct {
@@ -385,10 +405,13 @@ func (x *StaticFilterQueryRewriter) GetHadGivensBatch() bool {
 }
 
 type DropFieldsRewriter struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DesiredFqns   []string               `protobuf:"bytes,1,rep,name=desired_fqns,json=desiredFqns,proto3" json:"desired_fqns,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"open.v1"`
+	DesiredFqns               []string               `protobuf:"bytes,1,rep,name=desired_fqns,json=desiredFqns,proto3" json:"desired_fqns,omitempty"`
+	CoerceColumnsToFqns       bool                   `protobuf:"varint,2,opt,name=coerce_columns_to_fqns,json=coerceColumnsToFqns,proto3" json:"coerce_columns_to_fqns,omitempty"`
+	CastColumnsToSchema       bool                   `protobuf:"varint,3,opt,name=cast_columns_to_schema,json=castColumnsToSchema,proto3" json:"cast_columns_to_schema,omitempty"`
+	ConvertComplexTypesToJson bool                   `protobuf:"varint,4,opt,name=convert_complex_types_to_json,json=convertComplexTypesToJson,proto3" json:"convert_complex_types_to_json,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *DropFieldsRewriter) Reset() {
@@ -426,6 +449,27 @@ func (x *DropFieldsRewriter) GetDesiredFqns() []string {
 		return x.DesiredFqns
 	}
 	return nil
+}
+
+func (x *DropFieldsRewriter) GetCoerceColumnsToFqns() bool {
+	if x != nil {
+		return x.CoerceColumnsToFqns
+	}
+	return false
+}
+
+func (x *DropFieldsRewriter) GetCastColumnsToSchema() bool {
+	if x != nil {
+		return x.CastColumnsToSchema
+	}
+	return false
+}
+
+func (x *DropFieldsRewriter) GetConvertComplexTypesToJson() bool {
+	if x != nil {
+		return x.ConvertComplexTypesToJson
+	}
+	return false
 }
 
 type LimitOffsetQueryRewriter struct {
@@ -715,11 +759,13 @@ var File_chalk_runtime_v1_query_rewriter_proto protoreflect.FileDescriptor
 const file_chalk_runtime_v1_query_rewriter_proto_rawDesc = "" +
 	"\n" +
 	"%chalk/runtime/v1/query_rewriter.proto\x12\x10chalk.runtime.v1\x1a$chalk/expression/v1/expression.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x1bchalk/runtime/v1/data.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x17\n" +
-	"\x15IdentityQueryRewriter\"\xa3\x01\n" +
+	"\x15IdentityQueryRewriter\"\xe2\x01\n" +
 	"\x13GivensQueryRewriter\x12.\n" +
 	"\x06values\x18\x01 \x01(\v2\x16.chalk.runtime.v1.DataR\x06values\x12!\n" +
 	"\fjoin_columns\x18\x02 \x03(\tR\vjoinColumns\x129\n" +
-	"\x19use_postgres_array_params\x18\x03 \x01(\bR\x16usePostgresArrayParams\"\xf9\x01\n" +
+	"\x19use_postgres_array_params\x18\x03 \x01(\bR\x16usePostgresArrayParams\x12*\n" +
+	"\x0eroot_namespace\x18\x04 \x01(\tH\x00R\rrootNamespace\x88\x01\x01B\x11\n" +
+	"\x0f_root_namespace\"\xf9\x01\n" +
 	"\rHighWaterMark\x12U\n" +
 	"\x16max_ingested_timestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x14maxIngestedTimestamp\x88\x01\x01\x12Y\n" +
 	"\x18last_execution_timestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x16lastExecutionTimestamp\x88\x01\x01B\x19\n" +
@@ -735,7 +781,7 @@ const file_chalk_runtime_v1_query_rewriter_proto_rawDesc = "" +
 	"useSqlglotB\x0e\n" +
 	"\f_upper_boundB\x0e\n" +
 	"\f_lower_boundB\x06\n" +
-	"\x04_hwm\"\xcd\x03\n" +
+	"\x04_hwm\"\x84\x04\n" +
 	"\x17ContextualQueryRewriter\x123\n" +
 	"\x06givens\x18\x01 \x01(\v2\x16.chalk.runtime.v1.DataH\x00R\x06givens\x88\x01\x01\x12@\n" +
 	"\vlower_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
@@ -744,7 +790,8 @@ const file_chalk_runtime_v1_query_rewriter_proto_rawDesc = "" +
 	"upperBound\x88\x01\x01\x12$\n" +
 	"\vmax_samples\x18\x04 \x01(\x03H\x03R\n" +
 	"maxSamples\x88\x01\x01\x12q\n" +
-	"\"override_lower_upper_bound_feature\x18\x05 \x01(\v2 .chalk.graph.v1.FeatureReferenceH\x04R\x1eoverrideLowerUpperBoundFeature\x88\x01\x01B\t\n" +
+	"\"override_lower_upper_bound_feature\x18\x05 \x01(\v2 .chalk.graph.v1.FeatureReferenceH\x04R\x1eoverrideLowerUpperBoundFeature\x88\x01\x01\x125\n" +
+	"\x17allow_root_row_sampling\x18\x06 \x01(\bR\x14allowRootRowSamplingB\t\n" +
 	"\a_givensB\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\x0e\n" +
@@ -758,9 +805,12 @@ const file_chalk_runtime_v1_query_rewriter_proto_rawDesc = "" +
 	"\n" +
 	"\b_min_nowB\n" +
 	"\n" +
-	"\b_max_now\"7\n" +
+	"\b_max_now\"\xe3\x01\n" +
 	"\x12DropFieldsRewriter\x12!\n" +
-	"\fdesired_fqns\x18\x01 \x03(\tR\vdesiredFqns\"g\n" +
+	"\fdesired_fqns\x18\x01 \x03(\tR\vdesiredFqns\x123\n" +
+	"\x16coerce_columns_to_fqns\x18\x02 \x01(\bR\x13coerceColumnsToFqns\x123\n" +
+	"\x16cast_columns_to_schema\x18\x03 \x01(\bR\x13castColumnsToSchema\x12@\n" +
+	"\x1dconvert_complex_types_to_json\x18\x04 \x01(\bR\x19convertComplexTypesToJson\"g\n" +
 	"\x18LimitOffsetQueryRewriter\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x03H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06offset\x18\x02 \x01(\x03H\x01R\x06offset\x88\x01\x01B\b\n" +
@@ -850,6 +900,7 @@ func file_chalk_runtime_v1_query_rewriter_proto_init() {
 		return
 	}
 	file_chalk_runtime_v1_data_proto_init()
+	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[4].OneofWrappers = []any{}

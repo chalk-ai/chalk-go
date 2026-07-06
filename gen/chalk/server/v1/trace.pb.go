@@ -1590,6 +1590,8 @@ type SearchTraceSummariesRequest struct {
 	MaxSpanCount *int64 `protobuf:"varint,14,opt,name=max_span_count,json=maxSpanCount,proto3,oneof" json:"max_span_count,omitempty"`
 	// Filter by root span operation names. A trace matches if any root span name is listed here.
 	RootSpanNames []string `protobuf:"bytes,15,rep,name=root_span_names,json=rootSpanNames,proto3" json:"root_span_names,omitempty"`
+	// Faceted-search query string, AND-combined with the structured filters above.
+	Query         *string `protobuf:"bytes,16,opt,name=query,proto3,oneof" json:"query,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1729,6 +1731,13 @@ func (x *SearchTraceSummariesRequest) GetRootSpanNames() []string {
 	return nil
 }
 
+func (x *SearchTraceSummariesRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
+	}
+	return ""
+}
+
 // SearchTraceSummariesResponse message
 type SearchTraceSummariesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1801,7 +1810,9 @@ type GetTraceCallGraphRequest struct {
 	// Filter by resource attributes. Traces must match ALL specified filters.
 	ResourceAttributeFilters []*AttributeFilter `protobuf:"bytes,6,rep,name=resource_attribute_filters,json=resourceAttributeFilters,proto3" json:"resource_attribute_filters,omitempty"`
 	// Opaque cursor returned by a previous GetTraceCallGraph call.
-	Cursor        *string `protobuf:"bytes,7,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Cursor *string `protobuf:"bytes,7,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	// Faceted-search query string, AND-combined with the structured filters above.
+	Query         *string `protobuf:"bytes,8,opt,name=query,proto3,oneof" json:"query,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1881,6 +1892,13 @@ func (x *GetTraceCallGraphRequest) GetResourceAttributeFilters() []*AttributeFil
 func (x *GetTraceCallGraphRequest) GetCursor() string {
 	if x != nil && x.Cursor != nil {
 		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *GetTraceCallGraphRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
 	}
 	return ""
 }
@@ -2127,8 +2145,10 @@ type ListSpanRequest struct {
 	// Filter by resource attributes
 	// Spans must match ALL specified resource attribute filters
 	ResourceAttributeFilters []*AttributeFilter `protobuf:"bytes,14,rep,name=resource_attribute_filters,json=resourceAttributeFilters,proto3" json:"resource_attribute_filters,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Faceted-search query string, AND-combined with the structured filters above.
+	Query         *string `protobuf:"bytes,15,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSpanRequest) Reset() {
@@ -2257,6 +2277,13 @@ func (x *ListSpanRequest) GetResourceAttributeFilters() []*AttributeFilter {
 		return x.ResourceAttributeFilters
 	}
 	return nil
+}
+
+func (x *ListSpanRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
+	}
+	return ""
 }
 
 // ListSpanResponse message
@@ -2742,11 +2769,13 @@ func (x *GetSpanFacetsResponse) GetFacets() []*SpanFacet {
 
 // GetSpanFacetValuesRequest requests values for a specific span facet
 type GetSpanFacetValuesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
-	Limit         *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Path      string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	Limit     *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Faceted-search query string; scopes the returned values to matching spans.
+	Query         *string `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2807,6 +2836,13 @@ func (x *GetSpanFacetValuesRequest) GetLimit() int32 {
 		return *x.Limit
 	}
 	return 0
+}
+
+func (x *GetSpanFacetValuesRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
+	}
+	return ""
 }
 
 // SpanFacetValue represents a single facet value with its count
@@ -2915,6 +2951,8 @@ type ListSpanAggregatedRequest struct {
 	WindowPeriod  *durationpb.Duration   `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
 	OperationName *string                `protobuf:"bytes,4,opt,name=operation_name,json=operationName,proto3,oneof" json:"operation_name,omitempty"`
 	ServiceName   *string                `protobuf:"bytes,5,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"`
+	// Faceted-search query string, AND-combined with the fields above.
+	Query         *string `protobuf:"bytes,6,opt,name=query,proto3,oneof" json:"query,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2980,6 +3018,13 @@ func (x *ListSpanAggregatedRequest) GetOperationName() string {
 func (x *ListSpanAggregatedRequest) GetServiceName() string {
 	if x != nil && x.ServiceName != nil {
 		return *x.ServiceName
+	}
+	return ""
+}
+
+func (x *ListSpanAggregatedRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
 	}
 	return ""
 }
@@ -3211,6 +3256,341 @@ func (x *GetSpanSourceAggregatesResponse) GetAggregates() []*SpanSourceAggregate
 	return nil
 }
 
+// TraceFacet represents a facet that can be used for filtering trace summaries
+type TraceFacet struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TraceFacet) Reset() {
+	*x = TraceFacet{}
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TraceFacet) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TraceFacet) ProtoMessage() {}
+
+func (x *TraceFacet) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TraceFacet.ProtoReflect.Descriptor instead.
+func (*TraceFacet) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *TraceFacet) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *TraceFacet) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// GetTraceFacetsRequest requests available trace summary facets
+type GetTraceFacetsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StartTime     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
+	EndTime       *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	Limit         *int32                 `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTraceFacetsRequest) Reset() {
+	*x = GetTraceFacetsRequest{}
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTraceFacetsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTraceFacetsRequest) ProtoMessage() {}
+
+func (x *GetTraceFacetsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTraceFacetsRequest.ProtoReflect.Descriptor instead.
+func (*GetTraceFacetsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *GetTraceFacetsRequest) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *GetTraceFacetsRequest) GetEndTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTime
+	}
+	return nil
+}
+
+func (x *GetTraceFacetsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+// GetTraceFacetsResponse returns available trace summary facets
+type GetTraceFacetsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Facets        []*TraceFacet          `protobuf:"bytes,1,rep,name=facets,proto3" json:"facets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTraceFacetsResponse) Reset() {
+	*x = GetTraceFacetsResponse{}
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTraceFacetsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTraceFacetsResponse) ProtoMessage() {}
+
+func (x *GetTraceFacetsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTraceFacetsResponse.ProtoReflect.Descriptor instead.
+func (*GetTraceFacetsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *GetTraceFacetsResponse) GetFacets() []*TraceFacet {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
+// TraceFacetValue represents a single facet value with its count
+type TraceFacetValue struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TraceFacetValue) Reset() {
+	*x = TraceFacetValue{}
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TraceFacetValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TraceFacetValue) ProtoMessage() {}
+
+func (x *TraceFacetValue) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TraceFacetValue.ProtoReflect.Descriptor instead.
+func (*TraceFacetValue) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *TraceFacetValue) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *TraceFacetValue) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+// GetTraceFacetValuesRequest requests values for a specific trace summary facet
+type GetTraceFacetValuesRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Path      string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	Limit     *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Faceted-search query string; scopes the returned values to matching traces.
+	Query         *string `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTraceFacetValuesRequest) Reset() {
+	*x = GetTraceFacetValuesRequest{}
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTraceFacetValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTraceFacetValuesRequest) ProtoMessage() {}
+
+func (x *GetTraceFacetValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTraceFacetValuesRequest.ProtoReflect.Descriptor instead.
+func (*GetTraceFacetValuesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *GetTraceFacetValuesRequest) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *GetTraceFacetValuesRequest) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *GetTraceFacetValuesRequest) GetEndTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTime
+	}
+	return nil
+}
+
+func (x *GetTraceFacetValuesRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *GetTraceFacetValuesRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
+	}
+	return ""
+}
+
+// GetTraceFacetValuesResponse returns values for a specific trace summary facet
+type GetTraceFacetValuesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Values        []*TraceFacetValue     `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTraceFacetValuesResponse) Reset() {
+	*x = GetTraceFacetValuesResponse{}
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTraceFacetValuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTraceFacetValuesResponse) ProtoMessage() {}
+
+func (x *GetTraceFacetValuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTraceFacetValuesResponse.ProtoReflect.Descriptor instead.
+func (*GetTraceFacetValuesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *GetTraceFacetValuesResponse) GetValues() []*TraceFacetValue {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
 var File_chalk_server_v1_trace_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_trace_proto_rawDesc = "" +
@@ -3371,7 +3751,7 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x11ListTraceResponse\x123\n" +
 	"\x06traces\x18\x01 \x03(\v2\x1b.chalk.server.v1.ChalkTraceR\x06traces\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\xd2\a\n" +
+	"\x10_next_page_token\"\xf7\a\n" +
 	"\x1bSearchTraceSummariesRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
@@ -3390,7 +3770,8 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"#root_span_resource_attribute_values\x18\f \x03(\tR\x1frootSpanResourceAttributeValues\x12)\n" +
 	"\x0emin_span_count\x18\r \x01(\x03H\x06R\fminSpanCount\x88\x01\x01\x12)\n" +
 	"\x0emax_span_count\x18\x0e \x01(\x03H\aR\fmaxSpanCount\x88\x01\x01\x12&\n" +
-	"\x0froot_span_names\x18\x0f \x03(\tR\rrootSpanNamesB\r\n" +
+	"\x0froot_span_names\x18\x0f \x03(\tR\rrootSpanNames\x12\x19\n" +
+	"\x05query\x18\x10 \x01(\tH\bR\x05query\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\r\n" +
@@ -3398,11 +3779,12 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x10_min_duration_usB\x12\n" +
 	"\x10_max_duration_usB\x11\n" +
 	"\x0f_min_span_countB\x11\n" +
-	"\x0f_max_span_count\"\xac\x01\n" +
+	"\x0f_max_span_countB\b\n" +
+	"\x06_query\"\xac\x01\n" +
 	"\x1cSearchTraceSummariesResponse\x12K\n" +
 	"\x0ftrace_summaries\x18\x01 \x03(\v2\".chalk.server.v1.ChalkTraceSummaryR\x0etraceSummaries\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\xea\x03\n" +
+	"\x10_next_page_token\"\x8f\x04\n" +
 	"\x18GetTraceCallGraphRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
@@ -3411,12 +3793,14 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\rfunction_name\x18\x04 \x01(\tH\x03R\ffunctionName\x88\x01\x01\x12M\n" +
 	"\x11attribute_filters\x18\x05 \x03(\v2 .chalk.server.v1.AttributeFilterR\x10attributeFilters\x12^\n" +
 	"\x1aresource_attribute_filters\x18\x06 \x03(\v2 .chalk.server.v1.AttributeFilterR\x18resourceAttributeFilters\x12\x1b\n" +
-	"\x06cursor\x18\a \x01(\tH\x04R\x06cursor\x88\x01\x01B\r\n" +
+	"\x06cursor\x18\a \x01(\tH\x04R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05query\x18\b \x01(\tH\x05R\x05query\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\x10\n" +
 	"\x0e_function_nameB\t\n" +
-	"\a_cursor\"\x91\x01\n" +
+	"\a_cursorB\b\n" +
+	"\x06_query\"\x91\x01\n" +
 	"\x19GetTraceCallGraphResponse\x12>\n" +
 	"\n" +
 	"call_graph\x18\x01 \x01(\v2\x1f.chalk.server.v1.TraceCallGraphR\tcallGraph\x12$\n" +
@@ -3431,7 +3815,7 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x0fAttributeFilter\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x19\n" +
 	"\x05value\x18\x02 \x01(\tH\x00R\x05value\x88\x01\x01B\b\n" +
-	"\x06_value\"\xbd\a\n" +
+	"\x06_value\"\xe2\a\n" +
 	"\x0fListSpanRequest\x12\x1e\n" +
 	"\btrace_id\x18\x01 \x01(\tH\x00R\atraceId\x88\x01\x01\x12>\n" +
 	"\n" +
@@ -3451,7 +3835,8 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"R\rmaxDurationUs\x88\x01\x01\x12M\n" +
 	"\x11attribute_filters\x18\f \x03(\v2 .chalk.server.v1.AttributeFilterR\x10attributeFilters\x12@\n" +
 	"\tspan_kind\x18\r \x01(\x0e2\x1e.chalk.server.v1.ChalkSpanKindH\vR\bspanKind\x88\x01\x01\x12^\n" +
-	"\x1aresource_attribute_filters\x18\x0e \x03(\v2 .chalk.server.v1.AttributeFilterR\x18resourceAttributeFiltersB\v\n" +
+	"\x1aresource_attribute_filters\x18\x0e \x03(\v2 .chalk.server.v1.AttributeFilterR\x18resourceAttributeFilters\x12\x19\n" +
+	"\x05query\x18\x0f \x01(\tH\fR\x05query\x88\x01\x01B\v\n" +
 	"\t_trace_idB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
@@ -3464,7 +3849,8 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x10_min_duration_usB\x12\n" +
 	"\x10_max_duration_usB\f\n" +
 	"\n" +
-	"_span_kind\"\x85\x01\n" +
+	"_span_kindB\b\n" +
+	"\x06_query\"\x85\x01\n" +
 	"\x10ListSpanResponse\x120\n" +
 	"\x05spans\x18\x01 \x03(\v2\x1a.chalk.server.v1.ChalkSpanR\x05spans\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
@@ -3502,32 +3888,36 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"\x16\n" +
 	"\x14GetSpanFacetsRequest\"K\n" +
 	"\x15GetSpanFacetsResponse\x122\n" +
-	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.SpanFacetR\x06facets\"\xec\x01\n" +
+	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.SpanFacetR\x06facets\"\x91\x02\n" +
 	"\x19GetSpanFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
-	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01B\r\n" +
+	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
+	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
-	"\x06_limit\"<\n" +
+	"\x06_limitB\b\n" +
+	"\x06_query\"<\n" +
 	"\x0eSpanFacetValue\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x03R\x05count\"U\n" +
 	"\x1aGetSpanFacetValuesResponse\x127\n" +
-	"\x06values\x18\x01 \x03(\v2\x1f.chalk.server.v1.SpanFacetValueR\x06values\"\xeb\x02\n" +
+	"\x06values\x18\x01 \x03(\v2\x1f.chalk.server.v1.SpanFacetValueR\x06values\"\x90\x03\n" +
 	"\x19ListSpanAggregatedRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12>\n" +
 	"\rwindow_period\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12*\n" +
 	"\x0eoperation_name\x18\x04 \x01(\tH\x02R\roperationName\x88\x01\x01\x12&\n" +
-	"\fservice_name\x18\x05 \x01(\tH\x03R\vserviceName\x88\x01\x01B\r\n" +
+	"\fservice_name\x18\x05 \x01(\tH\x03R\vserviceName\x88\x01\x01\x12\x19\n" +
+	"\x05query\x18\x06 \x01(\tH\x04R\x05query\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\x11\n" +
 	"\x0f_operation_nameB\x0f\n" +
-	"\r_service_name\"X\n" +
+	"\r_service_nameB\b\n" +
+	"\x06_query\"X\n" +
 	"\x1aListSpanAggregatedResponse\x12:\n" +
 	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\xba\x01\n" +
 	"\x13SpanSourceAggregate\x12!\n" +
@@ -3547,7 +3937,37 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x1fGetSpanSourceAggregatesResponse\x12D\n" +
 	"\n" +
 	"aggregates\x18\x01 \x03(\v2$.chalk.server.v1.SpanSourceAggregateR\n" +
-	"aggregates*k\n" +
+	"aggregates\"4\n" +
+	"\n" +
+	"TraceFacet\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xd4\x01\n" +
+	"\x15GetTraceFacetsRequest\x12>\n" +
+	"\n" +
+	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
+	"\bend_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x03 \x01(\x05H\x02R\x05limit\x88\x01\x01B\r\n" +
+	"\v_start_timeB\v\n" +
+	"\t_end_timeB\b\n" +
+	"\x06_limit\"M\n" +
+	"\x16GetTraceFacetsResponse\x123\n" +
+	"\x06facets\x18\x01 \x03(\v2\x1b.chalk.server.v1.TraceFacetR\x06facets\"=\n" +
+	"\x0fTraceFacetValue\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
+	"\x05count\x18\x02 \x01(\x03R\x05count\"\x92\x02\n" +
+	"\x1aGetTraceFacetValuesRequest\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
+	"\n" +
+	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
+	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
+	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01B\r\n" +
+	"\v_start_timeB\v\n" +
+	"\t_end_timeB\b\n" +
+	"\x06_limitB\b\n" +
+	"\x06_query\"W\n" +
+	"\x1bGetTraceFacetValuesResponse\x128\n" +
+	"\x06values\x18\x01 \x03(\v2 .chalk.server.v1.TraceFacetValueR\x06values*k\n" +
 	"\x0fChalkStatusCode\x12!\n" +
 	"\x1dCHALK_STATUS_CODE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14CHALK_STATUS_CODE_OK\x10\x01\x12\x1b\n" +
@@ -3558,12 +3978,14 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x16CHALK_SPAN_KIND_CLIENT\x10\x02\x12\x1c\n" +
 	"\x18CHALK_SPAN_KIND_PRODUCER\x10\x03\x12\x1c\n" +
 	"\x18CHALK_SPAN_KIND_CONSUMER\x10\x04\x12\x1c\n" +
-	"\x18CHALK_SPAN_KIND_INTERNAL\x10\x052\xd0\t\n" +
+	"\x18CHALK_SPAN_KIND_INTERNAL\x10\x052\xb5\v\n" +
 	"\fTraceService\x12W\n" +
 	"\bGetTrace\x12 .chalk.server.v1.GetTraceRequest\x1a!.chalk.server.v1.GetTraceResponse\"\x06\x80}\x06\x90\x02\x01\x12Z\n" +
 	"\tListTrace\x12!.chalk.server.v1.ListTraceRequest\x1a\".chalk.server.v1.ListTraceResponse\"\x06\x80}\x06\x90\x02\x01\x12{\n" +
 	"\x14SearchTraceSummaries\x12,.chalk.server.v1.SearchTraceSummariesRequest\x1a-.chalk.server.v1.SearchTraceSummariesResponse\"\x06\x80}\x06\x90\x02\x01\x12r\n" +
-	"\x11GetTraceCallGraph\x12).chalk.server.v1.GetTraceCallGraphRequest\x1a*.chalk.server.v1.GetTraceCallGraphResponse\"\x06\x80}\x06\x90\x02\x01\x12T\n" +
+	"\x11GetTraceCallGraph\x12).chalk.server.v1.GetTraceCallGraphRequest\x1a*.chalk.server.v1.GetTraceCallGraphResponse\"\x06\x80}\x06\x90\x02\x01\x12i\n" +
+	"\x0eGetTraceFacets\x12&.chalk.server.v1.GetTraceFacetsRequest\x1a'.chalk.server.v1.GetTraceFacetsResponse\"\x06\x80}\x06\x90\x02\x01\x12x\n" +
+	"\x13GetTraceFacetValues\x12+.chalk.server.v1.GetTraceFacetValuesRequest\x1a,.chalk.server.v1.GetTraceFacetValuesResponse\"\x06\x80}\x06\x90\x02\x01\x12T\n" +
 	"\aGetSpan\x12\x1f.chalk.server.v1.GetSpanRequest\x1a .chalk.server.v1.GetSpanResponse\"\x06\x80}\x06\x90\x02\x01\x12\x8d\x01\n" +
 	"\x1aGetSpanLatencyDistribution\x122.chalk.server.v1.GetSpanLatencyDistributionRequest\x1a3.chalk.server.v1.GetSpanLatencyDistributionResponse\"\x06\x80}\x06\x90\x02\x01\x12W\n" +
 	"\bListSpan\x12 .chalk.server.v1.ListSpanRequest\x1a!.chalk.server.v1.ListSpanResponse\"\x06\x80}\x06\x90\x02\x01\x12f\n" +
@@ -3587,7 +4009,7 @@ func file_chalk_server_v1_trace_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_trace_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_trace_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
+var file_chalk_server_v1_trace_proto_msgTypes = make([]protoimpl.MessageInfo, 55)
 var file_chalk_server_v1_trace_proto_goTypes = []any{
 	(ChalkStatusCode)(0),                       // 0: chalk.server.v1.ChalkStatusCode
 	(ChalkSpanKind)(0),                         // 1: chalk.server.v1.ChalkSpanKind
@@ -3633,38 +4055,44 @@ var file_chalk_server_v1_trace_proto_goTypes = []any{
 	(*SpanSourceAggregate)(nil),                // 41: chalk.server.v1.SpanSourceAggregate
 	(*GetSpanSourceAggregatesRequest)(nil),     // 42: chalk.server.v1.GetSpanSourceAggregatesRequest
 	(*GetSpanSourceAggregatesResponse)(nil),    // 43: chalk.server.v1.GetSpanSourceAggregatesResponse
-	nil,                                        // 44: chalk.server.v1.ChalkSpan.AttributesEntry
-	nil,                                        // 45: chalk.server.v1.ChalkSpan.ResourceAttributesEntry
-	nil,                                        // 46: chalk.server.v1.ChalkSpanEvent.AttributesEntry
-	nil,                                        // 47: chalk.server.v1.ChalkSpanLink.AttributesEntry
-	nil,                                        // 48: chalk.server.v1.ChalkTrace.ResourceAttributesEntry
-	nil,                                        // 49: chalk.server.v1.ChalkTraceSummaryRootSpan.AttributesEntry
-	nil,                                        // 50: chalk.server.v1.ChalkTraceSummaryRootSpan.ResourceAttributesEntry
-	(*timestamppb.Timestamp)(nil),              // 51: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),                // 52: google.protobuf.Duration
-	(*v1.DenseTimeSeriesChart)(nil),            // 53: chalk.chart.v1.DenseTimeSeriesChart
+	(*TraceFacet)(nil),                         // 44: chalk.server.v1.TraceFacet
+	(*GetTraceFacetsRequest)(nil),              // 45: chalk.server.v1.GetTraceFacetsRequest
+	(*GetTraceFacetsResponse)(nil),             // 46: chalk.server.v1.GetTraceFacetsResponse
+	(*TraceFacetValue)(nil),                    // 47: chalk.server.v1.TraceFacetValue
+	(*GetTraceFacetValuesRequest)(nil),         // 48: chalk.server.v1.GetTraceFacetValuesRequest
+	(*GetTraceFacetValuesResponse)(nil),        // 49: chalk.server.v1.GetTraceFacetValuesResponse
+	nil,                                        // 50: chalk.server.v1.ChalkSpan.AttributesEntry
+	nil,                                        // 51: chalk.server.v1.ChalkSpan.ResourceAttributesEntry
+	nil,                                        // 52: chalk.server.v1.ChalkSpanEvent.AttributesEntry
+	nil,                                        // 53: chalk.server.v1.ChalkSpanLink.AttributesEntry
+	nil,                                        // 54: chalk.server.v1.ChalkTrace.ResourceAttributesEntry
+	nil,                                        // 55: chalk.server.v1.ChalkTraceSummaryRootSpan.AttributesEntry
+	nil,                                        // 56: chalk.server.v1.ChalkTraceSummaryRootSpan.ResourceAttributesEntry
+	(*timestamppb.Timestamp)(nil),              // 57: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                // 58: google.protobuf.Duration
+	(*v1.DenseTimeSeriesChart)(nil),            // 59: chalk.chart.v1.DenseTimeSeriesChart
 }
 var file_chalk_server_v1_trace_proto_depIdxs = []int32{
-	51, // 0: chalk.server.v1.ChalkSpan.start_time:type_name -> google.protobuf.Timestamp
-	51, // 1: chalk.server.v1.ChalkSpan.end_time:type_name -> google.protobuf.Timestamp
-	52, // 2: chalk.server.v1.ChalkSpan.duration:type_name -> google.protobuf.Duration
+	57, // 0: chalk.server.v1.ChalkSpan.start_time:type_name -> google.protobuf.Timestamp
+	57, // 1: chalk.server.v1.ChalkSpan.end_time:type_name -> google.protobuf.Timestamp
+	58, // 2: chalk.server.v1.ChalkSpan.duration:type_name -> google.protobuf.Duration
 	3,  // 3: chalk.server.v1.ChalkSpan.status:type_name -> chalk.server.v1.ChalkSpanStatus
-	44, // 4: chalk.server.v1.ChalkSpan.attributes:type_name -> chalk.server.v1.ChalkSpan.AttributesEntry
+	50, // 4: chalk.server.v1.ChalkSpan.attributes:type_name -> chalk.server.v1.ChalkSpan.AttributesEntry
 	4,  // 5: chalk.server.v1.ChalkSpan.events:type_name -> chalk.server.v1.ChalkSpanEvent
 	5,  // 6: chalk.server.v1.ChalkSpan.links:type_name -> chalk.server.v1.ChalkSpanLink
 	1,  // 7: chalk.server.v1.ChalkSpan.kind:type_name -> chalk.server.v1.ChalkSpanKind
-	45, // 8: chalk.server.v1.ChalkSpan.resource_attributes:type_name -> chalk.server.v1.ChalkSpan.ResourceAttributesEntry
+	51, // 8: chalk.server.v1.ChalkSpan.resource_attributes:type_name -> chalk.server.v1.ChalkSpan.ResourceAttributesEntry
 	0,  // 9: chalk.server.v1.ChalkSpanStatus.code:type_name -> chalk.server.v1.ChalkStatusCode
-	51, // 10: chalk.server.v1.ChalkSpanEvent.timestamp:type_name -> google.protobuf.Timestamp
-	46, // 11: chalk.server.v1.ChalkSpanEvent.attributes:type_name -> chalk.server.v1.ChalkSpanEvent.AttributesEntry
-	47, // 12: chalk.server.v1.ChalkSpanLink.attributes:type_name -> chalk.server.v1.ChalkSpanLink.AttributesEntry
+	57, // 10: chalk.server.v1.ChalkSpanEvent.timestamp:type_name -> google.protobuf.Timestamp
+	52, // 11: chalk.server.v1.ChalkSpanEvent.attributes:type_name -> chalk.server.v1.ChalkSpanEvent.AttributesEntry
+	53, // 12: chalk.server.v1.ChalkSpanLink.attributes:type_name -> chalk.server.v1.ChalkSpanLink.AttributesEntry
 	2,  // 13: chalk.server.v1.ChalkTrace.spans:type_name -> chalk.server.v1.ChalkSpan
-	48, // 14: chalk.server.v1.ChalkTrace.resource_attributes:type_name -> chalk.server.v1.ChalkTrace.ResourceAttributesEntry
-	49, // 15: chalk.server.v1.ChalkTraceSummaryRootSpan.attributes:type_name -> chalk.server.v1.ChalkTraceSummaryRootSpan.AttributesEntry
-	50, // 16: chalk.server.v1.ChalkTraceSummaryRootSpan.resource_attributes:type_name -> chalk.server.v1.ChalkTraceSummaryRootSpan.ResourceAttributesEntry
-	51, // 17: chalk.server.v1.ChalkTraceSummary.start_time:type_name -> google.protobuf.Timestamp
-	51, // 18: chalk.server.v1.ChalkTraceSummary.end_time:type_name -> google.protobuf.Timestamp
-	52, // 19: chalk.server.v1.ChalkTraceSummary.duration:type_name -> google.protobuf.Duration
+	54, // 14: chalk.server.v1.ChalkTrace.resource_attributes:type_name -> chalk.server.v1.ChalkTrace.ResourceAttributesEntry
+	55, // 15: chalk.server.v1.ChalkTraceSummaryRootSpan.attributes:type_name -> chalk.server.v1.ChalkTraceSummaryRootSpan.AttributesEntry
+	56, // 16: chalk.server.v1.ChalkTraceSummaryRootSpan.resource_attributes:type_name -> chalk.server.v1.ChalkTraceSummaryRootSpan.ResourceAttributesEntry
+	57, // 17: chalk.server.v1.ChalkTraceSummary.start_time:type_name -> google.protobuf.Timestamp
+	57, // 18: chalk.server.v1.ChalkTraceSummary.end_time:type_name -> google.protobuf.Timestamp
+	58, // 19: chalk.server.v1.ChalkTraceSummary.duration:type_name -> google.protobuf.Duration
 	7,  // 20: chalk.server.v1.ChalkTraceSummary.root_spans:type_name -> chalk.server.v1.ChalkTraceSummaryRootSpan
 	9,  // 21: chalk.server.v1.TraceCallGraphNode.ai:type_name -> chalk.server.v1.TraceCallGraphAiInfo
 	10, // 22: chalk.server.v1.TraceCallGraphNode.database:type_name -> chalk.server.v1.TraceCallGraphDatabaseInfo
@@ -3674,78 +4102,88 @@ var file_chalk_server_v1_trace_proto_depIdxs = []int32{
 	14, // 26: chalk.server.v1.TraceCallGraph.nodes:type_name -> chalk.server.v1.TraceCallGraphNode
 	15, // 27: chalk.server.v1.TraceCallGraph.edges:type_name -> chalk.server.v1.TraceCallGraphEdge
 	6,  // 28: chalk.server.v1.GetTraceResponse.trace:type_name -> chalk.server.v1.ChalkTrace
-	51, // 29: chalk.server.v1.ListTraceRequest.start_time:type_name -> google.protobuf.Timestamp
-	51, // 30: chalk.server.v1.ListTraceRequest.end_time:type_name -> google.protobuf.Timestamp
+	57, // 29: chalk.server.v1.ListTraceRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 30: chalk.server.v1.ListTraceRequest.end_time:type_name -> google.protobuf.Timestamp
 	6,  // 31: chalk.server.v1.ListTraceResponse.traces:type_name -> chalk.server.v1.ChalkTrace
-	51, // 32: chalk.server.v1.SearchTraceSummariesRequest.start_time:type_name -> google.protobuf.Timestamp
-	51, // 33: chalk.server.v1.SearchTraceSummariesRequest.end_time:type_name -> google.protobuf.Timestamp
+	57, // 32: chalk.server.v1.SearchTraceSummariesRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 33: chalk.server.v1.SearchTraceSummariesRequest.end_time:type_name -> google.protobuf.Timestamp
 	27, // 34: chalk.server.v1.SearchTraceSummariesRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
 	27, // 35: chalk.server.v1.SearchTraceSummariesRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
 	8,  // 36: chalk.server.v1.SearchTraceSummariesResponse.trace_summaries:type_name -> chalk.server.v1.ChalkTraceSummary
-	51, // 37: chalk.server.v1.GetTraceCallGraphRequest.start_time:type_name -> google.protobuf.Timestamp
-	51, // 38: chalk.server.v1.GetTraceCallGraphRequest.end_time:type_name -> google.protobuf.Timestamp
+	57, // 37: chalk.server.v1.GetTraceCallGraphRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 38: chalk.server.v1.GetTraceCallGraphRequest.end_time:type_name -> google.protobuf.Timestamp
 	27, // 39: chalk.server.v1.GetTraceCallGraphRequest.attribute_filters:type_name -> chalk.server.v1.AttributeFilter
 	27, // 40: chalk.server.v1.GetTraceCallGraphRequest.resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
 	16, // 41: chalk.server.v1.GetTraceCallGraphResponse.call_graph:type_name -> chalk.server.v1.TraceCallGraph
 	2,  // 42: chalk.server.v1.GetSpanResponse.span:type_name -> chalk.server.v1.ChalkSpan
-	51, // 43: chalk.server.v1.ListSpanRequest.start_time:type_name -> google.protobuf.Timestamp
-	51, // 44: chalk.server.v1.ListSpanRequest.end_time:type_name -> google.protobuf.Timestamp
+	57, // 43: chalk.server.v1.ListSpanRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 44: chalk.server.v1.ListSpanRequest.end_time:type_name -> google.protobuf.Timestamp
 	0,  // 45: chalk.server.v1.ListSpanRequest.status_code:type_name -> chalk.server.v1.ChalkStatusCode
 	27, // 46: chalk.server.v1.ListSpanRequest.attribute_filters:type_name -> chalk.server.v1.AttributeFilter
 	1,  // 47: chalk.server.v1.ListSpanRequest.span_kind:type_name -> chalk.server.v1.ChalkSpanKind
 	27, // 48: chalk.server.v1.ListSpanRequest.resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
 	2,  // 49: chalk.server.v1.ListSpanResponse.spans:type_name -> chalk.server.v1.ChalkSpan
-	51, // 50: chalk.server.v1.GetSpanLatencyDistributionRequest.start_time:type_name -> google.protobuf.Timestamp
-	51, // 51: chalk.server.v1.GetSpanLatencyDistributionRequest.end_time:type_name -> google.protobuf.Timestamp
-	51, // 52: chalk.server.v1.SpanLatencyDistribution.start_time:type_name -> google.protobuf.Timestamp
-	51, // 53: chalk.server.v1.SpanLatencyDistribution.end_time:type_name -> google.protobuf.Timestamp
-	52, // 54: chalk.server.v1.SpanLatencyDistribution.selected_duration:type_name -> google.protobuf.Duration
-	52, // 55: chalk.server.v1.SpanLatencyDistribution.p50:type_name -> google.protobuf.Duration
-	52, // 56: chalk.server.v1.SpanLatencyDistribution.p75:type_name -> google.protobuf.Duration
-	52, // 57: chalk.server.v1.SpanLatencyDistribution.p90:type_name -> google.protobuf.Duration
-	52, // 58: chalk.server.v1.SpanLatencyDistribution.p95:type_name -> google.protobuf.Duration
-	52, // 59: chalk.server.v1.SpanLatencyDistribution.p99:type_name -> google.protobuf.Duration
-	52, // 60: chalk.server.v1.SpanLatencyDistribution.min_duration:type_name -> google.protobuf.Duration
-	52, // 61: chalk.server.v1.SpanLatencyDistribution.max_duration:type_name -> google.protobuf.Duration
+	57, // 50: chalk.server.v1.GetSpanLatencyDistributionRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 51: chalk.server.v1.GetSpanLatencyDistributionRequest.end_time:type_name -> google.protobuf.Timestamp
+	57, // 52: chalk.server.v1.SpanLatencyDistribution.start_time:type_name -> google.protobuf.Timestamp
+	57, // 53: chalk.server.v1.SpanLatencyDistribution.end_time:type_name -> google.protobuf.Timestamp
+	58, // 54: chalk.server.v1.SpanLatencyDistribution.selected_duration:type_name -> google.protobuf.Duration
+	58, // 55: chalk.server.v1.SpanLatencyDistribution.p50:type_name -> google.protobuf.Duration
+	58, // 56: chalk.server.v1.SpanLatencyDistribution.p75:type_name -> google.protobuf.Duration
+	58, // 57: chalk.server.v1.SpanLatencyDistribution.p90:type_name -> google.protobuf.Duration
+	58, // 58: chalk.server.v1.SpanLatencyDistribution.p95:type_name -> google.protobuf.Duration
+	58, // 59: chalk.server.v1.SpanLatencyDistribution.p99:type_name -> google.protobuf.Duration
+	58, // 60: chalk.server.v1.SpanLatencyDistribution.min_duration:type_name -> google.protobuf.Duration
+	58, // 61: chalk.server.v1.SpanLatencyDistribution.max_duration:type_name -> google.protobuf.Duration
 	31, // 62: chalk.server.v1.GetSpanLatencyDistributionResponse.distributions:type_name -> chalk.server.v1.SpanLatencyDistribution
 	33, // 63: chalk.server.v1.GetSpanFacetsResponse.facets:type_name -> chalk.server.v1.SpanFacet
-	51, // 64: chalk.server.v1.GetSpanFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	51, // 65: chalk.server.v1.GetSpanFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	57, // 64: chalk.server.v1.GetSpanFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 65: chalk.server.v1.GetSpanFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
 	37, // 66: chalk.server.v1.GetSpanFacetValuesResponse.values:type_name -> chalk.server.v1.SpanFacetValue
-	51, // 67: chalk.server.v1.ListSpanAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	51, // 68: chalk.server.v1.ListSpanAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	52, // 69: chalk.server.v1.ListSpanAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	53, // 70: chalk.server.v1.ListSpanAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	51, // 71: chalk.server.v1.GetSpanSourceAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
-	51, // 72: chalk.server.v1.GetSpanSourceAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
+	57, // 67: chalk.server.v1.ListSpanAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 68: chalk.server.v1.ListSpanAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	58, // 69: chalk.server.v1.ListSpanAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	59, // 70: chalk.server.v1.ListSpanAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	57, // 71: chalk.server.v1.GetSpanSourceAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 72: chalk.server.v1.GetSpanSourceAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
 	41, // 73: chalk.server.v1.GetSpanSourceAggregatesResponse.aggregates:type_name -> chalk.server.v1.SpanSourceAggregate
-	17, // 74: chalk.server.v1.TraceService.GetTrace:input_type -> chalk.server.v1.GetTraceRequest
-	19, // 75: chalk.server.v1.TraceService.ListTrace:input_type -> chalk.server.v1.ListTraceRequest
-	21, // 76: chalk.server.v1.TraceService.SearchTraceSummaries:input_type -> chalk.server.v1.SearchTraceSummariesRequest
-	23, // 77: chalk.server.v1.TraceService.GetTraceCallGraph:input_type -> chalk.server.v1.GetTraceCallGraphRequest
-	25, // 78: chalk.server.v1.TraceService.GetSpan:input_type -> chalk.server.v1.GetSpanRequest
-	30, // 79: chalk.server.v1.TraceService.GetSpanLatencyDistribution:input_type -> chalk.server.v1.GetSpanLatencyDistributionRequest
-	28, // 80: chalk.server.v1.TraceService.ListSpan:input_type -> chalk.server.v1.ListSpanRequest
-	34, // 81: chalk.server.v1.TraceService.GetSpanFacets:input_type -> chalk.server.v1.GetSpanFacetsRequest
-	36, // 82: chalk.server.v1.TraceService.GetSpanFacetValues:input_type -> chalk.server.v1.GetSpanFacetValuesRequest
-	39, // 83: chalk.server.v1.TraceService.ListSpanAggregated:input_type -> chalk.server.v1.ListSpanAggregatedRequest
-	42, // 84: chalk.server.v1.TraceService.GetSpanSourceAggregates:input_type -> chalk.server.v1.GetSpanSourceAggregatesRequest
-	18, // 85: chalk.server.v1.TraceService.GetTrace:output_type -> chalk.server.v1.GetTraceResponse
-	20, // 86: chalk.server.v1.TraceService.ListTrace:output_type -> chalk.server.v1.ListTraceResponse
-	22, // 87: chalk.server.v1.TraceService.SearchTraceSummaries:output_type -> chalk.server.v1.SearchTraceSummariesResponse
-	24, // 88: chalk.server.v1.TraceService.GetTraceCallGraph:output_type -> chalk.server.v1.GetTraceCallGraphResponse
-	26, // 89: chalk.server.v1.TraceService.GetSpan:output_type -> chalk.server.v1.GetSpanResponse
-	32, // 90: chalk.server.v1.TraceService.GetSpanLatencyDistribution:output_type -> chalk.server.v1.GetSpanLatencyDistributionResponse
-	29, // 91: chalk.server.v1.TraceService.ListSpan:output_type -> chalk.server.v1.ListSpanResponse
-	35, // 92: chalk.server.v1.TraceService.GetSpanFacets:output_type -> chalk.server.v1.GetSpanFacetsResponse
-	38, // 93: chalk.server.v1.TraceService.GetSpanFacetValues:output_type -> chalk.server.v1.GetSpanFacetValuesResponse
-	40, // 94: chalk.server.v1.TraceService.ListSpanAggregated:output_type -> chalk.server.v1.ListSpanAggregatedResponse
-	43, // 95: chalk.server.v1.TraceService.GetSpanSourceAggregates:output_type -> chalk.server.v1.GetSpanSourceAggregatesResponse
-	85, // [85:96] is the sub-list for method output_type
-	74, // [74:85] is the sub-list for method input_type
-	74, // [74:74] is the sub-list for extension type_name
-	74, // [74:74] is the sub-list for extension extendee
-	0,  // [0:74] is the sub-list for field type_name
+	57, // 74: chalk.server.v1.GetTraceFacetsRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 75: chalk.server.v1.GetTraceFacetsRequest.end_time:type_name -> google.protobuf.Timestamp
+	44, // 76: chalk.server.v1.GetTraceFacetsResponse.facets:type_name -> chalk.server.v1.TraceFacet
+	57, // 77: chalk.server.v1.GetTraceFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 78: chalk.server.v1.GetTraceFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	47, // 79: chalk.server.v1.GetTraceFacetValuesResponse.values:type_name -> chalk.server.v1.TraceFacetValue
+	17, // 80: chalk.server.v1.TraceService.GetTrace:input_type -> chalk.server.v1.GetTraceRequest
+	19, // 81: chalk.server.v1.TraceService.ListTrace:input_type -> chalk.server.v1.ListTraceRequest
+	21, // 82: chalk.server.v1.TraceService.SearchTraceSummaries:input_type -> chalk.server.v1.SearchTraceSummariesRequest
+	23, // 83: chalk.server.v1.TraceService.GetTraceCallGraph:input_type -> chalk.server.v1.GetTraceCallGraphRequest
+	45, // 84: chalk.server.v1.TraceService.GetTraceFacets:input_type -> chalk.server.v1.GetTraceFacetsRequest
+	48, // 85: chalk.server.v1.TraceService.GetTraceFacetValues:input_type -> chalk.server.v1.GetTraceFacetValuesRequest
+	25, // 86: chalk.server.v1.TraceService.GetSpan:input_type -> chalk.server.v1.GetSpanRequest
+	30, // 87: chalk.server.v1.TraceService.GetSpanLatencyDistribution:input_type -> chalk.server.v1.GetSpanLatencyDistributionRequest
+	28, // 88: chalk.server.v1.TraceService.ListSpan:input_type -> chalk.server.v1.ListSpanRequest
+	34, // 89: chalk.server.v1.TraceService.GetSpanFacets:input_type -> chalk.server.v1.GetSpanFacetsRequest
+	36, // 90: chalk.server.v1.TraceService.GetSpanFacetValues:input_type -> chalk.server.v1.GetSpanFacetValuesRequest
+	39, // 91: chalk.server.v1.TraceService.ListSpanAggregated:input_type -> chalk.server.v1.ListSpanAggregatedRequest
+	42, // 92: chalk.server.v1.TraceService.GetSpanSourceAggregates:input_type -> chalk.server.v1.GetSpanSourceAggregatesRequest
+	18, // 93: chalk.server.v1.TraceService.GetTrace:output_type -> chalk.server.v1.GetTraceResponse
+	20, // 94: chalk.server.v1.TraceService.ListTrace:output_type -> chalk.server.v1.ListTraceResponse
+	22, // 95: chalk.server.v1.TraceService.SearchTraceSummaries:output_type -> chalk.server.v1.SearchTraceSummariesResponse
+	24, // 96: chalk.server.v1.TraceService.GetTraceCallGraph:output_type -> chalk.server.v1.GetTraceCallGraphResponse
+	46, // 97: chalk.server.v1.TraceService.GetTraceFacets:output_type -> chalk.server.v1.GetTraceFacetsResponse
+	49, // 98: chalk.server.v1.TraceService.GetTraceFacetValues:output_type -> chalk.server.v1.GetTraceFacetValuesResponse
+	26, // 99: chalk.server.v1.TraceService.GetSpan:output_type -> chalk.server.v1.GetSpanResponse
+	32, // 100: chalk.server.v1.TraceService.GetSpanLatencyDistribution:output_type -> chalk.server.v1.GetSpanLatencyDistributionResponse
+	29, // 101: chalk.server.v1.TraceService.ListSpan:output_type -> chalk.server.v1.ListSpanResponse
+	35, // 102: chalk.server.v1.TraceService.GetSpanFacets:output_type -> chalk.server.v1.GetSpanFacetsResponse
+	38, // 103: chalk.server.v1.TraceService.GetSpanFacetValues:output_type -> chalk.server.v1.GetSpanFacetValuesResponse
+	40, // 104: chalk.server.v1.TraceService.ListSpanAggregated:output_type -> chalk.server.v1.ListSpanAggregatedResponse
+	43, // 105: chalk.server.v1.TraceService.GetSpanSourceAggregates:output_type -> chalk.server.v1.GetSpanSourceAggregatesResponse
+	93, // [93:106] is the sub-list for method output_type
+	80, // [80:93] is the sub-list for method input_type
+	80, // [80:80] is the sub-list for extension type_name
+	80, // [80:80] is the sub-list for extension extendee
+	0,  // [0:80] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_trace_proto_init() }
@@ -3777,13 +4215,15 @@ func file_chalk_server_v1_trace_proto_init() {
 	file_chalk_server_v1_trace_proto_msgTypes[34].OneofWrappers = []any{}
 	file_chalk_server_v1_trace_proto_msgTypes[37].OneofWrappers = []any{}
 	file_chalk_server_v1_trace_proto_msgTypes[40].OneofWrappers = []any{}
+	file_chalk_server_v1_trace_proto_msgTypes[43].OneofWrappers = []any{}
+	file_chalk_server_v1_trace_proto_msgTypes[46].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_trace_proto_rawDesc), len(file_chalk_server_v1_trace_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   49,
+			NumMessages:   55,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
