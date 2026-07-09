@@ -2586,11 +2586,13 @@ type ChalkHostPool struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Name of the pool.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Number of hypervisor pods in the pool.
+	// Number of hosts in the pool.
 	Count int32 `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
-	// CPU and memory resources for each hypervisor pod.
-	Cpu           *string `protobuf:"bytes,3,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
-	Memory        *string `protobuf:"bytes,4,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
+	// CPU and memory resources for each host (unset => best-effort).
+	Cpu    *string `protobuf:"bytes,3,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
+	Memory *string `protobuf:"bytes,4,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
+	// Machine family for this pool's hosts to run on (unset => internal default is chosen).
+	MachineFamily *string `protobuf:"bytes,5,opt,name=machine_family,json=machineFamily,proto3,oneof" json:"machine_family,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2649,6 +2651,13 @@ func (x *ChalkHostPool) GetCpu() string {
 func (x *ChalkHostPool) GetMemory() string {
 	if x != nil && x.Memory != nil {
 		return *x.Memory
+	}
+	return ""
+}
+
+func (x *ChalkHostPool) GetMachineFamily() string {
+	if x != nil && x.MachineFamily != nil {
+		return *x.MachineFamily
 	}
 	return ""
 }
@@ -8365,14 +8374,16 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"TIER_LARGE\x10\x04B\f\n" +
 	"\n" +
 	"_node_poolB\x17\n" +
-	"\x15_restricted_node_pool\"\x80\x01\n" +
+	"\x15_restricted_node_pool\"\xbf\x01\n" +
 	"\rChalkHostPool\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x05R\x05count\x12\x15\n" +
 	"\x03cpu\x18\x03 \x01(\tH\x00R\x03cpu\x88\x01\x01\x12\x1b\n" +
-	"\x06memory\x18\x04 \x01(\tH\x01R\x06memory\x88\x01\x01B\x06\n" +
+	"\x06memory\x18\x04 \x01(\tH\x01R\x06memory\x88\x01\x01\x12*\n" +
+	"\x0emachine_family\x18\x05 \x01(\tH\x02R\rmachineFamily\x88\x01\x01B\x06\n" +
 	"\x04_cpuB\t\n" +
-	"\a_memory\"\x95\x04\n" +
+	"\a_memoryB\x11\n" +
+	"\x0f_machine_family\"\x95\x04\n" +
 	"\x12DeploymentManifest\x12[\n" +
 	"\x12cluster_deployment\x18\x01 \x01(\v2*.chalk.server.v1.ClusterDeploymentManifestH\x00R\x11clusterDeployment\x12O\n" +
 	"\x0evpc_deployment\x18\x02 \x01(\v2&.chalk.server.v1.VpcDeploymentManifestH\x00R\rvpcDeployment\x12C\n" +
