@@ -648,6 +648,95 @@ func (x *ListDeploymentRevisionsResponse) GetNextCursor() string {
 	return ""
 }
 
+type GetDeploymentRevisionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The revision to fetch, scoped to the request's environment.
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDeploymentRevisionRequest) Reset() {
+	*x = GetDeploymentRevisionRequest{}
+	mi := &file_chalk_server_v1_deployment_revision_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDeploymentRevisionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDeploymentRevisionRequest) ProtoMessage() {}
+
+func (x *GetDeploymentRevisionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_deployment_revision_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDeploymentRevisionRequest.ProtoReflect.Descriptor instead.
+func (*GetDeploymentRevisionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_deployment_revision_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetDeploymentRevisionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetDeploymentRevisionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Revision      *DeploymentRevision    `protobuf:"bytes,1,opt,name=revision,proto3" json:"revision,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDeploymentRevisionResponse) Reset() {
+	*x = GetDeploymentRevisionResponse{}
+	mi := &file_chalk_server_v1_deployment_revision_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDeploymentRevisionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDeploymentRevisionResponse) ProtoMessage() {}
+
+func (x *GetDeploymentRevisionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_deployment_revision_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDeploymentRevisionResponse.ProtoReflect.Descriptor instead.
+func (*GetDeploymentRevisionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_deployment_revision_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetDeploymentRevisionResponse) GetRevision() *DeploymentRevision {
+	if x != nil {
+		return x.Revision
+	}
+	return nil
+}
+
 var File_chalk_server_v1_deployment_revision_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_deployment_revision_proto_rawDesc = "" +
@@ -711,7 +800,11 @@ const file_chalk_server_v1_deployment_revision_proto_rawDesc = "" +
 	"\trevisions\x18\x01 \x03(\v2#.chalk.server.v1.DeploymentRevisionR\trevisions\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor*\xeb\x02\n" +
+	"\f_next_cursor\".\n" +
+	"\x1cGetDeploymentRevisionRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"`\n" +
+	"\x1dGetDeploymentRevisionResponse\x12?\n" +
+	"\brevision\x18\x01 \x01(\v2#.chalk.server.v1.DeploymentRevisionR\brevision*\xeb\x02\n" +
 	"\x19DeploymentRevisionTrigger\x12+\n" +
 	"'DEPLOYMENT_REVISION_TRIGGER_UNSPECIFIED\x10\x00\x12%\n" +
 	"!DEPLOYMENT_REVISION_TRIGGER_APPLY\x10\x01\x12(\n" +
@@ -736,7 +829,7 @@ func file_chalk_server_v1_deployment_revision_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_deployment_revision_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_deployment_revision_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_server_v1_deployment_revision_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_chalk_server_v1_deployment_revision_proto_goTypes = []any{
 	(DeploymentRevisionTrigger)(0),              // 0: chalk.server.v1.DeploymentRevisionTrigger
 	(*DeploymentRevisionIntegration)(nil),       // 1: chalk.server.v1.DeploymentRevisionIntegration
@@ -746,34 +839,37 @@ var file_chalk_server_v1_deployment_revision_proto_goTypes = []any{
 	(*DeploymentRevision)(nil),                  // 5: chalk.server.v1.DeploymentRevision
 	(*ListDeploymentRevisionsRequest)(nil),      // 6: chalk.server.v1.ListDeploymentRevisionsRequest
 	(*ListDeploymentRevisionsResponse)(nil),     // 7: chalk.server.v1.ListDeploymentRevisionsResponse
-	nil,                                         // 8: chalk.server.v1.DeploymentRevisionSpec.FeatureFlagsEntry
-	(*Environment)(nil),                         // 9: chalk.server.v1.Environment
-	(*Deployment)(nil),                          // 10: chalk.server.v1.Deployment
-	(*v1.MountedModelsSpecs)(nil),               // 11: chalk.models.v1.MountedModelsSpecs
-	(DeploymentStatus)(0),                       // 12: chalk.server.v1.DeploymentStatus
-	(*timestamppb.Timestamp)(nil),               // 13: google.protobuf.Timestamp
+	(*GetDeploymentRevisionRequest)(nil),        // 8: chalk.server.v1.GetDeploymentRevisionRequest
+	(*GetDeploymentRevisionResponse)(nil),       // 9: chalk.server.v1.GetDeploymentRevisionResponse
+	nil,                                         // 10: chalk.server.v1.DeploymentRevisionSpec.FeatureFlagsEntry
+	(*Environment)(nil),                         // 11: chalk.server.v1.Environment
+	(*Deployment)(nil),                          // 12: chalk.server.v1.Deployment
+	(*v1.MountedModelsSpecs)(nil),               // 13: chalk.models.v1.MountedModelsSpecs
+	(DeploymentStatus)(0),                       // 14: chalk.server.v1.DeploymentStatus
+	(*timestamppb.Timestamp)(nil),               // 15: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_deployment_revision_proto_depIdxs = []int32{
-	9,  // 0: chalk.server.v1.DeploymentRevisionSpec.environment:type_name -> chalk.server.v1.Environment
-	10, // 1: chalk.server.v1.DeploymentRevisionSpec.deployment:type_name -> chalk.server.v1.Deployment
+	11, // 0: chalk.server.v1.DeploymentRevisionSpec.environment:type_name -> chalk.server.v1.Environment
+	12, // 1: chalk.server.v1.DeploymentRevisionSpec.deployment:type_name -> chalk.server.v1.Deployment
 	1,  // 2: chalk.server.v1.DeploymentRevisionSpec.integrations:type_name -> chalk.server.v1.DeploymentRevisionIntegration
 	2,  // 3: chalk.server.v1.DeploymentRevisionSpec.integration_secrets:type_name -> chalk.server.v1.DeploymentRevisionIntegrationSecret
 	3,  // 4: chalk.server.v1.DeploymentRevisionSpec.environment_secrets:type_name -> chalk.server.v1.DeploymentRevisionEnvironmentSecret
-	11, // 5: chalk.server.v1.DeploymentRevisionSpec.mounted_model_specs:type_name -> chalk.models.v1.MountedModelsSpecs
-	8,  // 6: chalk.server.v1.DeploymentRevisionSpec.feature_flags:type_name -> chalk.server.v1.DeploymentRevisionSpec.FeatureFlagsEntry
+	13, // 5: chalk.server.v1.DeploymentRevisionSpec.mounted_model_specs:type_name -> chalk.models.v1.MountedModelsSpecs
+	10, // 6: chalk.server.v1.DeploymentRevisionSpec.feature_flags:type_name -> chalk.server.v1.DeploymentRevisionSpec.FeatureFlagsEntry
 	0,  // 7: chalk.server.v1.DeploymentRevision.build_trigger:type_name -> chalk.server.v1.DeploymentRevisionTrigger
-	12, // 8: chalk.server.v1.DeploymentRevision.status:type_name -> chalk.server.v1.DeploymentStatus
+	14, // 8: chalk.server.v1.DeploymentRevision.status:type_name -> chalk.server.v1.DeploymentStatus
 	4,  // 9: chalk.server.v1.DeploymentRevision.spec:type_name -> chalk.server.v1.DeploymentRevisionSpec
-	13, // 10: chalk.server.v1.DeploymentRevision.started_at:type_name -> google.protobuf.Timestamp
-	13, // 11: chalk.server.v1.DeploymentRevision.finished_at:type_name -> google.protobuf.Timestamp
-	13, // 12: chalk.server.v1.DeploymentRevision.created_at:type_name -> google.protobuf.Timestamp
-	13, // 13: chalk.server.v1.DeploymentRevision.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 10: chalk.server.v1.DeploymentRevision.started_at:type_name -> google.protobuf.Timestamp
+	15, // 11: chalk.server.v1.DeploymentRevision.finished_at:type_name -> google.protobuf.Timestamp
+	15, // 12: chalk.server.v1.DeploymentRevision.created_at:type_name -> google.protobuf.Timestamp
+	15, // 13: chalk.server.v1.DeploymentRevision.updated_at:type_name -> google.protobuf.Timestamp
 	5,  // 14: chalk.server.v1.ListDeploymentRevisionsResponse.revisions:type_name -> chalk.server.v1.DeploymentRevision
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	5,  // 15: chalk.server.v1.GetDeploymentRevisionResponse.revision:type_name -> chalk.server.v1.DeploymentRevision
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_deployment_revision_proto_init() }
@@ -793,7 +889,7 @@ func file_chalk_server_v1_deployment_revision_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_deployment_revision_proto_rawDesc), len(file_chalk_server_v1_deployment_revision_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

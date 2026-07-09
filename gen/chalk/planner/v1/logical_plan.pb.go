@@ -774,8 +774,10 @@ func (x *LogicalPlanUnorderedDict) GetItems() map[string]*LogicalPlanArgument {
 
 // Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 type BatchUDFV2 struct {
-	state         protoimpl.MessageState         `protogen:"open.v1"`
-	BatchUdfType  string                         `protobuf:"bytes,1,opt,name=batch_udf_type,json=batchUdfType,proto3" json:"batch_udf_type,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
+	BatchUdfType string `protobuf:"bytes,1,opt,name=batch_udf_type,json=batchUdfType,proto3" json:"batch_udf_type,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 	Arguments     map[string]*BatchUDFArgumentV2 `protobuf:"bytes,2,rep,name=arguments,proto3" json:"arguments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -811,6 +813,7 @@ func (*BatchUDFV2) Descriptor() ([]byte, []int) {
 	return file_chalk_planner_v1_logical_plan_proto_rawDescGZIP(), []int{6}
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 func (x *BatchUDFV2) GetBatchUdfType() string {
 	if x != nil {
 		return x.BatchUdfType
@@ -818,6 +821,7 @@ func (x *BatchUDFV2) GetBatchUdfType() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 func (x *BatchUDFV2) GetArguments() map[string]*BatchUDFArgumentV2 {
 	if x != nil {
 		return x.Arguments
@@ -874,6 +878,7 @@ func (x *BatchUDFArgumentV2) GetArg() isBatchUDFArgumentV2_Arg {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 func (x *BatchUDFArgumentV2) GetLogicalPlanArg() *LogicalPlanArgument {
 	if x != nil {
 		if x, ok := x.Arg.(*BatchUDFArgumentV2_LogicalPlanArg); ok {
@@ -883,6 +888,7 @@ func (x *BatchUDFArgumentV2) GetLogicalPlanArg() *LogicalPlanArgument {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 func (x *BatchUDFArgumentV2) GetPyObj() *PyObject {
 	if x != nil {
 		if x, ok := x.Arg.(*BatchUDFArgumentV2_PyObj); ok {
@@ -898,10 +904,13 @@ type isBatchUDFArgumentV2_Arg interface {
 
 type BatchUDFArgumentV2_LogicalPlanArg struct {
 	// types shared with LogicalPlanArgument
+	//
+	// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 	LogicalPlanArg *LogicalPlanArgument `protobuf:"bytes,1,opt,name=logical_plan_arg,json=logicalPlanArg,proto3,oneof"`
 }
 
 type BatchUDFArgumentV2_PyObj struct {
+	// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 	PyObj *PyObject `protobuf:"bytes,2,opt,name=py_obj,json=pyObj,proto3,oneof"`
 }
 
@@ -1000,17 +1009,17 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\n" +
 	"ItemsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12;\n" +
-	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\"\xe5\x01\n" +
+	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\"\xed\x01\n" +
 	"\n" +
-	"BatchUDFV2\x12$\n" +
-	"\x0ebatch_udf_type\x18\x01 \x01(\tR\fbatchUdfType\x12I\n" +
-	"\targuments\x18\x02 \x03(\v2+.chalk.planner.v1.BatchUDFV2.ArgumentsEntryR\targuments\x1ab\n" +
+	"BatchUDFV2\x12(\n" +
+	"\x0ebatch_udf_type\x18\x01 \x01(\tB\x02\x18\x01R\fbatchUdfType\x12M\n" +
+	"\targuments\x18\x02 \x03(\v2+.chalk.planner.v1.BatchUDFV2.ArgumentsEntryB\x02\x18\x01R\targuments\x1ab\n" +
 	"\x0eArgumentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
-	"\x05value\x18\x02 \x01(\v2$.chalk.planner.v1.BatchUDFArgumentV2R\x05value:\x028\x01:\x02\x18\x01\"\xa7\x01\n" +
-	"\x12BatchUDFArgumentV2\x12Q\n" +
-	"\x10logical_plan_arg\x18\x01 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentH\x00R\x0elogicalPlanArg\x123\n" +
-	"\x06py_obj\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectH\x00R\x05pyObj:\x02\x18\x01B\x05\n" +
+	"\x05value\x18\x02 \x01(\v2$.chalk.planner.v1.BatchUDFArgumentV2R\x05value:\x028\x01:\x02\x18\x01\"\xaf\x01\n" +
+	"\x12BatchUDFArgumentV2\x12U\n" +
+	"\x10logical_plan_arg\x18\x01 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentB\x02\x18\x01H\x00R\x0elogicalPlanArg\x127\n" +
+	"\x06py_obj\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectB\x02\x18\x01H\x00R\x05pyObj:\x02\x18\x01B\x05\n" +
 	"\x03arg\"\x1c\n" +
 	"\x1aLogicalPlanArgumentNullOpt*\xbc\t\n" +
 	"\x14LogicalTableNodeType\x12'\n" +
