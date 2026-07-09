@@ -23,8 +23,10 @@ const (
 
 // Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 type BatchUDF struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	BatchUdfType  string                       `protobuf:"bytes,1,opt,name=batch_udf_type,json=batchUdfType,proto3" json:"batch_udf_type,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
+	BatchUdfType string `protobuf:"bytes,1,opt,name=batch_udf_type,json=batchUdfType,proto3" json:"batch_udf_type,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 	Arguments     map[string]*BatchUDFArgument `protobuf:"bytes,2,rep,name=arguments,proto3" json:"arguments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -60,6 +62,7 @@ func (*BatchUDF) Descriptor() ([]byte, []int) {
 	return file_chalk_planner_v1_batch_udf_proto_rawDescGZIP(), []int{0}
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 func (x *BatchUDF) GetBatchUdfType() string {
 	if x != nil {
 		return x.BatchUdfType
@@ -67,6 +70,7 @@ func (x *BatchUDF) GetBatchUdfType() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 func (x *BatchUDF) GetArguments() map[string]*BatchUDFArgument {
 	if x != nil {
 		return x.Arguments
@@ -79,9 +83,9 @@ type BatchUDFArgument struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Arg:
 	//
+	//	*BatchUDFArgument_PyObj
 	//	*BatchUDFArgument_IntValue
 	//	*BatchUDFArgument_StringValue
-	//	*BatchUDFArgument_PyObj
 	Arg           isBatchUDFArgument_Arg `protobuf_oneof:"arg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -124,24 +128,7 @@ func (x *BatchUDFArgument) GetArg() isBatchUDFArgument_Arg {
 	return nil
 }
 
-func (x *BatchUDFArgument) GetIntValue() int64 {
-	if x != nil {
-		if x, ok := x.Arg.(*BatchUDFArgument_IntValue); ok {
-			return x.IntValue
-		}
-	}
-	return 0
-}
-
-func (x *BatchUDFArgument) GetStringValue() string {
-	if x != nil {
-		if x, ok := x.Arg.(*BatchUDFArgument_StringValue); ok {
-			return x.StringValue
-		}
-	}
-	return ""
-}
-
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 func (x *BatchUDFArgument) GetPyObj() *PyObject {
 	if x != nil {
 		if x, ok := x.Arg.(*BatchUDFArgument_PyObj); ok {
@@ -151,30 +138,54 @@ func (x *BatchUDFArgument) GetPyObj() *PyObject {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
+func (x *BatchUDFArgument) GetIntValue() int64 {
+	if x != nil {
+		if x, ok := x.Arg.(*BatchUDFArgument_IntValue); ok {
+			return x.IntValue
+		}
+	}
+	return 0
+}
+
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
+func (x *BatchUDFArgument) GetStringValue() string {
+	if x != nil {
+		if x, ok := x.Arg.(*BatchUDFArgument_StringValue); ok {
+			return x.StringValue
+		}
+	}
+	return ""
+}
+
 type isBatchUDFArgument_Arg interface {
 	isBatchUDFArgument_Arg()
 }
 
+type BatchUDFArgument_PyObj struct {
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
+	PyObj *PyObject `protobuf:"bytes,1,opt,name=py_obj,json=pyObj,proto3,oneof"`
+}
+
 type BatchUDFArgument_IntValue struct {
 	// Primitives
+	//
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 	IntValue int64 `protobuf:"varint,2,opt,name=int_value,json=intValue,proto3,oneof"`
 }
 
 type BatchUDFArgument_StringValue struct {
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 	StringValue string `protobuf:"bytes,3,opt,name=string_value,json=stringValue,proto3,oneof"`
 }
 
-type BatchUDFArgument_PyObj struct {
-	PyObj *PyObject `protobuf:"bytes,1,opt,name=py_obj,json=pyObj,proto3,oneof"`
-}
+func (*BatchUDFArgument_PyObj) isBatchUDFArgument_Arg() {}
 
 func (*BatchUDFArgument_IntValue) isBatchUDFArgument_Arg() {}
 
 func (*BatchUDFArgument_StringValue) isBatchUDFArgument_Arg() {}
 
-func (*BatchUDFArgument_PyObj) isBatchUDFArgument_Arg() {}
-
-// TODO: deprecate these and define replacements in expression.proto
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 type PyObject struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Obj:
@@ -224,6 +235,7 @@ func (x *PyObject) GetObj() isPyObject_Obj {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 func (x *PyObject) GetPyCallable() *PyCallable {
 	if x != nil {
 		if x, ok := x.Obj.(*PyObject_PyCallable); ok {
@@ -233,6 +245,7 @@ func (x *PyObject) GetPyCallable() *PyCallable {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 func (x *PyObject) GetPyInt() int64 {
 	if x != nil {
 		if x, ok := x.Obj.(*PyObject_PyInt); ok {
@@ -242,6 +255,7 @@ func (x *PyObject) GetPyInt() int64 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 func (x *PyObject) GetPyString() string {
 	if x != nil {
 		if x, ok := x.Obj.(*PyObject_PyString); ok {
@@ -256,14 +270,17 @@ type isPyObject_Obj interface {
 }
 
 type PyObject_PyCallable struct {
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 	PyCallable *PyCallable `protobuf:"bytes,1,opt,name=py_callable,json=pyCallable,proto3,oneof"`
 }
 
 type PyObject_PyInt struct {
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 	PyInt int64 `protobuf:"varint,2,opt,name=py_int,json=pyInt,proto3,oneof"`
 }
 
 type PyObject_PyString struct {
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 	PyString string `protobuf:"bytes,3,opt,name=py_string,json=pyString,proto3,oneof"`
 }
 
@@ -273,10 +290,13 @@ func (*PyObject_PyInt) isPyObject_Obj() {}
 
 func (*PyObject_PyString) isPyObject_Obj() {}
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 type PyCallable struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CallableName  string                 `protobuf:"bytes,1,opt,name=callable_name,json=callableName,proto3" json:"callable_name,omitempty"`
-	Kwargs        map[string]*PyObject   `protobuf:"bytes,2,rep,name=kwargs,proto3" json:"kwargs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
+	CallableName string `protobuf:"bytes,1,opt,name=callable_name,json=callableName,proto3" json:"callable_name,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
+	Kwargs        map[string]*PyObject `protobuf:"bytes,2,rep,name=kwargs,proto3" json:"kwargs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -311,6 +331,7 @@ func (*PyCallable) Descriptor() ([]byte, []int) {
 	return file_chalk_planner_v1_batch_udf_proto_rawDescGZIP(), []int{3}
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 func (x *PyCallable) GetCallableName() string {
 	if x != nil {
 		return x.CallableName
@@ -318,6 +339,7 @@ func (x *PyCallable) GetCallableName() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_udf.proto.
 func (x *PyCallable) GetKwargs() map[string]*PyObject {
 	if x != nil {
 		return x.Kwargs
@@ -329,31 +351,31 @@ var File_chalk_planner_v1_batch_udf_proto protoreflect.FileDescriptor
 
 const file_chalk_planner_v1_batch_udf_proto_rawDesc = "" +
 	"\n" +
-	" chalk/planner/v1/batch_udf.proto\x12\x10chalk.planner.v1\"\xdf\x01\n" +
-	"\bBatchUDF\x12$\n" +
-	"\x0ebatch_udf_type\x18\x01 \x01(\tR\fbatchUdfType\x12G\n" +
-	"\targuments\x18\x02 \x03(\v2).chalk.planner.v1.BatchUDF.ArgumentsEntryR\targuments\x1a`\n" +
+	" chalk/planner/v1/batch_udf.proto\x12\x10chalk.planner.v1\"\xe7\x01\n" +
+	"\bBatchUDF\x12(\n" +
+	"\x0ebatch_udf_type\x18\x01 \x01(\tB\x02\x18\x01R\fbatchUdfType\x12K\n" +
+	"\targuments\x18\x02 \x03(\v2).chalk.planner.v1.BatchUDF.ArgumentsEntryB\x02\x18\x01R\targuments\x1a`\n" +
 	"\x0eArgumentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x128\n" +
-	"\x05value\x18\x02 \x01(\v2\".chalk.planner.v1.BatchUDFArgumentR\x05value:\x028\x01:\x02\x18\x01\"\x96\x01\n" +
-	"\x10BatchUDFArgument\x12\x1d\n" +
-	"\tint_value\x18\x02 \x01(\x03H\x00R\bintValue\x12#\n" +
-	"\fstring_value\x18\x03 \x01(\tH\x00R\vstringValue\x123\n" +
-	"\x06py_obj\x18\x01 \x01(\v2\x1a.chalk.planner.v1.PyObjectH\x00R\x05pyObj:\x02\x18\x01B\x05\n" +
-	"\x03arg\"\x8a\x01\n" +
-	"\bPyObject\x12?\n" +
-	"\vpy_callable\x18\x01 \x01(\v2\x1c.chalk.planner.v1.PyCallableH\x00R\n" +
-	"pyCallable\x12\x17\n" +
-	"\x06py_int\x18\x02 \x01(\x03H\x00R\x05pyInt\x12\x1d\n" +
-	"\tpy_string\x18\x03 \x01(\tH\x00R\bpyStringB\x05\n" +
-	"\x03obj\"\xca\x01\n" +
+	"\x05value\x18\x02 \x01(\v2\".chalk.planner.v1.BatchUDFArgumentR\x05value:\x028\x01:\x02\x18\x01\"\xa2\x01\n" +
+	"\x10BatchUDFArgument\x127\n" +
+	"\x06py_obj\x18\x01 \x01(\v2\x1a.chalk.planner.v1.PyObjectB\x02\x18\x01H\x00R\x05pyObj\x12!\n" +
+	"\tint_value\x18\x02 \x01(\x03B\x02\x18\x01H\x00R\bintValue\x12'\n" +
+	"\fstring_value\x18\x03 \x01(\tB\x02\x18\x01H\x00R\vstringValue:\x02\x18\x01B\x05\n" +
+	"\x03arg\"\x9a\x01\n" +
+	"\bPyObject\x12C\n" +
+	"\vpy_callable\x18\x01 \x01(\v2\x1c.chalk.planner.v1.PyCallableB\x02\x18\x01H\x00R\n" +
+	"pyCallable\x12\x1b\n" +
+	"\x06py_int\x18\x02 \x01(\x03B\x02\x18\x01H\x00R\x05pyInt\x12!\n" +
+	"\tpy_string\x18\x03 \x01(\tB\x02\x18\x01H\x00R\bpyString:\x02\x18\x01B\x05\n" +
+	"\x03obj\"\xd6\x01\n" +
 	"\n" +
-	"PyCallable\x12#\n" +
-	"\rcallable_name\x18\x01 \x01(\tR\fcallableName\x12@\n" +
-	"\x06kwargs\x18\x02 \x03(\v2(.chalk.planner.v1.PyCallable.KwargsEntryR\x06kwargs\x1aU\n" +
+	"PyCallable\x12'\n" +
+	"\rcallable_name\x18\x01 \x01(\tB\x02\x18\x01R\fcallableName\x12D\n" +
+	"\x06kwargs\x18\x02 \x03(\v2(.chalk.planner.v1.PyCallable.KwargsEntryB\x02\x18\x01R\x06kwargs\x1aU\n" +
 	"\vKwargsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x120\n" +
-	"\x05value\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectR\x05value:\x028\x01B\xc4\x01\n" +
+	"\x05value\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectR\x05value:\x028\x01:\x02\x18\x01B\xc4\x01\n" +
 	"\x14com.chalk.planner.v1B\rBatchUdfProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (
@@ -397,9 +419,9 @@ func file_chalk_planner_v1_batch_udf_proto_init() {
 		return
 	}
 	file_chalk_planner_v1_batch_udf_proto_msgTypes[1].OneofWrappers = []any{
+		(*BatchUDFArgument_PyObj)(nil),
 		(*BatchUDFArgument_IntValue)(nil),
 		(*BatchUDFArgument_StringValue)(nil),
-		(*BatchUDFArgument_PyObj)(nil),
 	}
 	file_chalk_planner_v1_batch_udf_proto_msgTypes[2].OneofWrappers = []any{
 		(*PyObject_PyCallable)(nil),

@@ -275,7 +275,7 @@ var File_chalk_engine_v1_query_server_proto protoreflect.FileDescriptor
 
 const file_chalk_engine_v1_query_server_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/engine/v1/query_server.proto\x12\x0fchalk.engine.v1\x1a chalk/aggregate/v1/service.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/common/v1/online_query.proto\x1a%chalk/common/v1/upload_features.proto\"\x1f\n" +
+	"\"chalk/engine/v1/query_server.proto\x12\x0fchalk.engine.v1\x1a chalk/aggregate/v1/service.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/common/v1/online_query.proto\x1a%chalk/common/v1/upload_features.proto\x1a\"chalk/engine/v1/bloom_filter.proto\"\x1f\n" +
 	"\vPingRequest\x12\x10\n" +
 	"\x03num\x18\x01 \x01(\x05R\x03num\" \n" +
 	"\fPingResponse\x12\x10\n" +
@@ -291,7 +291,7 @@ const file_chalk_engine_v1_query_server_proto_rawDesc = "" +
 	"\x19PULL_QUERY_STATUS_PENDING\x10\x01\x12\x1f\n" +
 	"\x1bPULL_QUERY_STATUS_COMPLETED\x10\x02\x12\x1c\n" +
 	"\x18PULL_QUERY_STATUS_FAILED\x10\x03\x12\x1f\n" +
-	"\x1bPULL_QUERY_STATUS_NOT_FOUND\x10\x042\xdb\a\n" +
+	"\x1bPULL_QUERY_STATUS_NOT_FOUND\x10\x042\xd5\b\n" +
 	"\fQueryService\x12K\n" +
 	"\x04Ping\x12\x1c.chalk.engine.v1.PingRequest\x1a\x1d.chalk.engine.v1.PingResponse\"\x06\x80}\x01\x90\x02\x01\x12]\n" +
 	"\vOnlineQuery\x12#.chalk.common.v1.OnlineQueryRequest\x1a$.chalk.common.v1.OnlineQueryResponse\"\x03\x80}\x03\x12i\n" +
@@ -301,7 +301,8 @@ const file_chalk_engine_v1_query_server_proto_rawDesc = "" +
 	"\x0eUploadFeatures\x12&.chalk.common.v1.UploadFeaturesRequest\x1a'.chalk.common.v1.UploadFeaturesResponse\"\x03\x80}\x03\x12\x84\x01\n" +
 	"\x15PlanAggregateBackfill\x120.chalk.aggregate.v1.PlanAggregateBackfillRequest\x1a1.chalk.aggregate.v1.PlanAggregateBackfillResponse\"\x06\x80}\f\x90\x02\x01\x12l\n" +
 	"\rGetAggregates\x12(.chalk.aggregate.v1.GetAggregatesRequest\x1a).chalk.aggregate.v1.GetAggregatesResponse\"\x06\x80}\v\x90\x02\x01\x12u\n" +
-	"\x12GetPullQueryResult\x12*.chalk.engine.v1.GetPullQueryResultRequest\x1a+.chalk.engine.v1.GetPullQueryResultResponse\"\x06\x80}\x03\x90\x02\x01B\xc0\x01\n" +
+	"\x12GetPullQueryResult\x12*.chalk.engine.v1.GetPullQueryResultRequest\x1a+.chalk.engine.v1.GetPullQueryResultResponse\"\x06\x80}\x03\x90\x02\x01\x12x\n" +
+	"\x13InspectBloomFilters\x12+.chalk.engine.v1.InspectBloomFiltersRequest\x1a,.chalk.engine.v1.InspectBloomFiltersResponse\"\x06\x80}\x03\x90\x02\x01B\xc0\x01\n" +
 	"\x13com.chalk.engine.v1B\x10QueryServerProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/engine/v1;enginev1\xa2\x02\x03CEX\xaa\x02\x0fChalk.Engine.V1\xca\x02\x0fChalk\\Engine\\V1\xe2\x02\x1bChalk\\Engine\\V1\\GPBMetadata\xea\x02\x11Chalk::Engine::V1b\x06proto3"
 
 var (
@@ -332,12 +333,14 @@ var file_chalk_engine_v1_query_server_proto_goTypes = []any{
 	(*v1.UploadFeaturesRequest)(nil),          // 10: chalk.common.v1.UploadFeaturesRequest
 	(*v11.PlanAggregateBackfillRequest)(nil),  // 11: chalk.aggregate.v1.PlanAggregateBackfillRequest
 	(*v11.GetAggregatesRequest)(nil),          // 12: chalk.aggregate.v1.GetAggregatesRequest
-	(*v1.OnlineQueryResponse)(nil),            // 13: chalk.common.v1.OnlineQueryResponse
-	(*v1.OnlineQueryMultiResponse)(nil),       // 14: chalk.common.v1.OnlineQueryMultiResponse
-	(*v1.UploadFeaturesBulkResponse)(nil),     // 15: chalk.common.v1.UploadFeaturesBulkResponse
-	(*v1.UploadFeaturesResponse)(nil),         // 16: chalk.common.v1.UploadFeaturesResponse
-	(*v11.PlanAggregateBackfillResponse)(nil), // 17: chalk.aggregate.v1.PlanAggregateBackfillResponse
-	(*v11.GetAggregatesResponse)(nil),         // 18: chalk.aggregate.v1.GetAggregatesResponse
+	(*InspectBloomFiltersRequest)(nil),        // 13: chalk.engine.v1.InspectBloomFiltersRequest
+	(*v1.OnlineQueryResponse)(nil),            // 14: chalk.common.v1.OnlineQueryResponse
+	(*v1.OnlineQueryMultiResponse)(nil),       // 15: chalk.common.v1.OnlineQueryMultiResponse
+	(*v1.UploadFeaturesBulkResponse)(nil),     // 16: chalk.common.v1.UploadFeaturesBulkResponse
+	(*v1.UploadFeaturesResponse)(nil),         // 17: chalk.common.v1.UploadFeaturesResponse
+	(*v11.PlanAggregateBackfillResponse)(nil), // 18: chalk.aggregate.v1.PlanAggregateBackfillResponse
+	(*v11.GetAggregatesResponse)(nil),         // 19: chalk.aggregate.v1.GetAggregatesResponse
+	(*InspectBloomFiltersResponse)(nil),       // 20: chalk.engine.v1.InspectBloomFiltersResponse
 }
 var file_chalk_engine_v1_query_server_proto_depIdxs = []int32{
 	0,  // 0: chalk.engine.v1.GetPullQueryResultResponse.status:type_name -> chalk.engine.v1.PullQueryStatus
@@ -351,17 +354,19 @@ var file_chalk_engine_v1_query_server_proto_depIdxs = []int32{
 	11, // 8: chalk.engine.v1.QueryService.PlanAggregateBackfill:input_type -> chalk.aggregate.v1.PlanAggregateBackfillRequest
 	12, // 9: chalk.engine.v1.QueryService.GetAggregates:input_type -> chalk.aggregate.v1.GetAggregatesRequest
 	3,  // 10: chalk.engine.v1.QueryService.GetPullQueryResult:input_type -> chalk.engine.v1.GetPullQueryResultRequest
-	2,  // 11: chalk.engine.v1.QueryService.Ping:output_type -> chalk.engine.v1.PingResponse
-	13, // 12: chalk.engine.v1.QueryService.OnlineQuery:output_type -> chalk.common.v1.OnlineQueryResponse
-	5,  // 13: chalk.engine.v1.QueryService.OnlineQueryBulk:output_type -> chalk.common.v1.OnlineQueryBulkResponse
-	14, // 14: chalk.engine.v1.QueryService.OnlineQueryMulti:output_type -> chalk.common.v1.OnlineQueryMultiResponse
-	15, // 15: chalk.engine.v1.QueryService.UploadFeaturesBulk:output_type -> chalk.common.v1.UploadFeaturesBulkResponse
-	16, // 16: chalk.engine.v1.QueryService.UploadFeatures:output_type -> chalk.common.v1.UploadFeaturesResponse
-	17, // 17: chalk.engine.v1.QueryService.PlanAggregateBackfill:output_type -> chalk.aggregate.v1.PlanAggregateBackfillResponse
-	18, // 18: chalk.engine.v1.QueryService.GetAggregates:output_type -> chalk.aggregate.v1.GetAggregatesResponse
-	4,  // 19: chalk.engine.v1.QueryService.GetPullQueryResult:output_type -> chalk.engine.v1.GetPullQueryResultResponse
-	11, // [11:20] is the sub-list for method output_type
-	2,  // [2:11] is the sub-list for method input_type
+	13, // 11: chalk.engine.v1.QueryService.InspectBloomFilters:input_type -> chalk.engine.v1.InspectBloomFiltersRequest
+	2,  // 12: chalk.engine.v1.QueryService.Ping:output_type -> chalk.engine.v1.PingResponse
+	14, // 13: chalk.engine.v1.QueryService.OnlineQuery:output_type -> chalk.common.v1.OnlineQueryResponse
+	5,  // 14: chalk.engine.v1.QueryService.OnlineQueryBulk:output_type -> chalk.common.v1.OnlineQueryBulkResponse
+	15, // 15: chalk.engine.v1.QueryService.OnlineQueryMulti:output_type -> chalk.common.v1.OnlineQueryMultiResponse
+	16, // 16: chalk.engine.v1.QueryService.UploadFeaturesBulk:output_type -> chalk.common.v1.UploadFeaturesBulkResponse
+	17, // 17: chalk.engine.v1.QueryService.UploadFeatures:output_type -> chalk.common.v1.UploadFeaturesResponse
+	18, // 18: chalk.engine.v1.QueryService.PlanAggregateBackfill:output_type -> chalk.aggregate.v1.PlanAggregateBackfillResponse
+	19, // 19: chalk.engine.v1.QueryService.GetAggregates:output_type -> chalk.aggregate.v1.GetAggregatesResponse
+	4,  // 20: chalk.engine.v1.QueryService.GetPullQueryResult:output_type -> chalk.engine.v1.GetPullQueryResultResponse
+	20, // 21: chalk.engine.v1.QueryService.InspectBloomFilters:output_type -> chalk.engine.v1.InspectBloomFiltersResponse
+	12, // [12:22] is the sub-list for method output_type
+	2,  // [2:12] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
@@ -372,6 +377,7 @@ func file_chalk_engine_v1_query_server_proto_init() {
 	if File_chalk_engine_v1_query_server_proto != nil {
 		return
 	}
+	file_chalk_engine_v1_bloom_filter_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

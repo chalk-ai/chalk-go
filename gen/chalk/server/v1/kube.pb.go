@@ -591,6 +591,191 @@ func (x *GetKubernetesPersistentVolumesResponse) GetVolumes() []*v1.ChalkKuberne
 	return nil
 }
 
+type GetKubernetesStorageClassesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetKubernetesStorageClassesRequest) Reset() {
+	*x = GetKubernetesStorageClassesRequest{}
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetKubernetesStorageClassesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetKubernetesStorageClassesRequest) ProtoMessage() {}
+
+func (x *GetKubernetesStorageClassesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetKubernetesStorageClassesRequest.ProtoReflect.Descriptor instead.
+func (*GetKubernetesStorageClassesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{10}
+}
+
+type GetKubernetesStorageClassesResponse struct {
+	state          protoimpl.MessageState       `protogen:"open.v1"`
+	StorageClasses []*v1.KubernetesStorageClass `protobuf:"bytes,1,rep,name=storage_classes,json=storageClasses,proto3" json:"storage_classes,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetKubernetesStorageClassesResponse) Reset() {
+	*x = GetKubernetesStorageClassesResponse{}
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetKubernetesStorageClassesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetKubernetesStorageClassesResponse) ProtoMessage() {}
+
+func (x *GetKubernetesStorageClassesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetKubernetesStorageClassesResponse.ProtoReflect.Descriptor instead.
+func (*GetKubernetesStorageClassesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetKubernetesStorageClassesResponse) GetStorageClasses() []*v1.KubernetesStorageClass {
+	if x != nil {
+		return x.StorageClasses
+	}
+	return nil
+}
+
+type GetKubernetesPersistentVolumeWithPodsRequest struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	PersistentVolumeName string                 `protobuf:"bytes,1,opt,name=persistent_volume_name,json=persistentVolumeName,proto3" json:"persistent_volume_name,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *GetKubernetesPersistentVolumeWithPodsRequest) Reset() {
+	*x = GetKubernetesPersistentVolumeWithPodsRequest{}
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetKubernetesPersistentVolumeWithPodsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetKubernetesPersistentVolumeWithPodsRequest) ProtoMessage() {}
+
+func (x *GetKubernetesPersistentVolumeWithPodsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetKubernetesPersistentVolumeWithPodsRequest.ProtoReflect.Descriptor instead.
+func (*GetKubernetesPersistentVolumeWithPodsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetKubernetesPersistentVolumeWithPodsRequest) GetPersistentVolumeName() string {
+	if x != nil {
+		return x.PersistentVolumeName
+	}
+	return ""
+}
+
+type GetKubernetesPersistentVolumeWithPodsResponse struct {
+	state  protoimpl.MessageState              `protogen:"open.v1"`
+	Volume *v1.ChalkKubernetesPersistentVolume `protobuf:"bytes,1,opt,name=volume,proto3" json:"volume,omitempty"`
+	// Absent when the volume has no storage class or the class no longer exists.
+	StorageClass  *v1.KubernetesStorageClass `protobuf:"bytes,2,opt,name=storage_class,json=storageClass,proto3,oneof" json:"storage_class,omitempty"`
+	Pods          []*v1.KubernetesPodData    `protobuf:"bytes,3,rep,name=pods,proto3" json:"pods,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetKubernetesPersistentVolumeWithPodsResponse) Reset() {
+	*x = GetKubernetesPersistentVolumeWithPodsResponse{}
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetKubernetesPersistentVolumeWithPodsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetKubernetesPersistentVolumeWithPodsResponse) ProtoMessage() {}
+
+func (x *GetKubernetesPersistentVolumeWithPodsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetKubernetesPersistentVolumeWithPodsResponse.ProtoReflect.Descriptor instead.
+func (*GetKubernetesPersistentVolumeWithPodsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetKubernetesPersistentVolumeWithPodsResponse) GetVolume() *v1.ChalkKubernetesPersistentVolume {
+	if x != nil {
+		return x.Volume
+	}
+	return nil
+}
+
+func (x *GetKubernetesPersistentVolumeWithPodsResponse) GetStorageClass() *v1.KubernetesStorageClass {
+	if x != nil {
+		return x.StorageClass
+	}
+	return nil
+}
+
+func (x *GetKubernetesPersistentVolumeWithPodsResponse) GetPods() []*v1.KubernetesPodData {
+	if x != nil {
+		return x.Pods
+	}
+	return nil
+}
+
 type GetKubernetesServiceAccountsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// defaults to the environment's kube cluster name
@@ -604,7 +789,7 @@ type GetKubernetesServiceAccountsRequest struct {
 
 func (x *GetKubernetesServiceAccountsRequest) Reset() {
 	*x = GetKubernetesServiceAccountsRequest{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -616,7 +801,7 @@ func (x *GetKubernetesServiceAccountsRequest) String() string {
 func (*GetKubernetesServiceAccountsRequest) ProtoMessage() {}
 
 func (x *GetKubernetesServiceAccountsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -629,7 +814,7 @@ func (x *GetKubernetesServiceAccountsRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetKubernetesServiceAccountsRequest.ProtoReflect.Descriptor instead.
 func (*GetKubernetesServiceAccountsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetKubernetesServiceAccountsRequest) GetClusterName() string {
@@ -662,7 +847,7 @@ type GetKubernetesServiceAccountsResponse struct {
 
 func (x *GetKubernetesServiceAccountsResponse) Reset() {
 	*x = GetKubernetesServiceAccountsResponse{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -674,7 +859,7 @@ func (x *GetKubernetesServiceAccountsResponse) String() string {
 func (*GetKubernetesServiceAccountsResponse) ProtoMessage() {}
 
 func (x *GetKubernetesServiceAccountsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -687,7 +872,7 @@ func (x *GetKubernetesServiceAccountsResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetKubernetesServiceAccountsResponse.ProtoReflect.Descriptor instead.
 func (*GetKubernetesServiceAccountsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetKubernetesServiceAccountsResponse) GetServiceAccounts() []*v1.KubernetesServiceAccount {
@@ -710,7 +895,7 @@ type GetKubernetesAutoscalersRequest struct {
 
 func (x *GetKubernetesAutoscalersRequest) Reset() {
 	*x = GetKubernetesAutoscalersRequest{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -722,7 +907,7 @@ func (x *GetKubernetesAutoscalersRequest) String() string {
 func (*GetKubernetesAutoscalersRequest) ProtoMessage() {}
 
 func (x *GetKubernetesAutoscalersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -735,7 +920,7 @@ func (x *GetKubernetesAutoscalersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesAutoscalersRequest.ProtoReflect.Descriptor instead.
 func (*GetKubernetesAutoscalersRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetKubernetesAutoscalersRequest) GetClusterName() string {
@@ -769,7 +954,7 @@ type GetKubernetesAutoscalersResponse struct {
 
 func (x *GetKubernetesAutoscalersResponse) Reset() {
 	*x = GetKubernetesAutoscalersResponse{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -781,7 +966,7 @@ func (x *GetKubernetesAutoscalersResponse) String() string {
 func (*GetKubernetesAutoscalersResponse) ProtoMessage() {}
 
 func (x *GetKubernetesAutoscalersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -794,7 +979,7 @@ func (x *GetKubernetesAutoscalersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesAutoscalersResponse.ProtoReflect.Descriptor instead.
 func (*GetKubernetesAutoscalersResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetKubernetesAutoscalersResponse) GetHpas() []*v1.KubernetesHorizontalPodAutoscaler {
@@ -824,7 +1009,7 @@ type GetKubernetesDeploymentsRequest struct {
 
 func (x *GetKubernetesDeploymentsRequest) Reset() {
 	*x = GetKubernetesDeploymentsRequest{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -836,7 +1021,7 @@ func (x *GetKubernetesDeploymentsRequest) String() string {
 func (*GetKubernetesDeploymentsRequest) ProtoMessage() {}
 
 func (x *GetKubernetesDeploymentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -849,7 +1034,7 @@ func (x *GetKubernetesDeploymentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesDeploymentsRequest.ProtoReflect.Descriptor instead.
 func (*GetKubernetesDeploymentsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetKubernetesDeploymentsRequest) GetEnvironmentId() string {
@@ -882,7 +1067,7 @@ type GetKubernetesDeploymentsResponse struct {
 
 func (x *GetKubernetesDeploymentsResponse) Reset() {
 	*x = GetKubernetesDeploymentsResponse{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -894,7 +1079,7 @@ func (x *GetKubernetesDeploymentsResponse) String() string {
 func (*GetKubernetesDeploymentsResponse) ProtoMessage() {}
 
 func (x *GetKubernetesDeploymentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -907,7 +1092,7 @@ func (x *GetKubernetesDeploymentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesDeploymentsResponse.ProtoReflect.Descriptor instead.
 func (*GetKubernetesDeploymentsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetKubernetesDeploymentsResponse) GetDeployments() []*v1.KubernetesDeployment {
@@ -930,7 +1115,7 @@ type GetKubernetesStatefulSetsRequest struct {
 
 func (x *GetKubernetesStatefulSetsRequest) Reset() {
 	*x = GetKubernetesStatefulSetsRequest{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -942,7 +1127,7 @@ func (x *GetKubernetesStatefulSetsRequest) String() string {
 func (*GetKubernetesStatefulSetsRequest) ProtoMessage() {}
 
 func (x *GetKubernetesStatefulSetsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -955,7 +1140,7 @@ func (x *GetKubernetesStatefulSetsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesStatefulSetsRequest.ProtoReflect.Descriptor instead.
 func (*GetKubernetesStatefulSetsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetKubernetesStatefulSetsRequest) GetEnvironmentId() string {
@@ -988,7 +1173,7 @@ type GetKubernetesStatefulSetsResponse struct {
 
 func (x *GetKubernetesStatefulSetsResponse) Reset() {
 	*x = GetKubernetesStatefulSetsResponse{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1000,7 +1185,7 @@ func (x *GetKubernetesStatefulSetsResponse) String() string {
 func (*GetKubernetesStatefulSetsResponse) ProtoMessage() {}
 
 func (x *GetKubernetesStatefulSetsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1013,7 +1198,7 @@ func (x *GetKubernetesStatefulSetsResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetKubernetesStatefulSetsResponse.ProtoReflect.Descriptor instead.
 func (*GetKubernetesStatefulSetsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetKubernetesStatefulSetsResponse) GetStatefulSets() []*v1.KubernetesStatefulSet {
@@ -1036,7 +1221,7 @@ type GetKubernetesJobsRequest struct {
 
 func (x *GetKubernetesJobsRequest) Reset() {
 	*x = GetKubernetesJobsRequest{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1048,7 +1233,7 @@ func (x *GetKubernetesJobsRequest) String() string {
 func (*GetKubernetesJobsRequest) ProtoMessage() {}
 
 func (x *GetKubernetesJobsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1061,7 +1246,7 @@ func (x *GetKubernetesJobsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesJobsRequest.ProtoReflect.Descriptor instead.
 func (*GetKubernetesJobsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetKubernetesJobsRequest) GetEnvironmentId() string {
@@ -1094,7 +1279,7 @@ type GetKubernetesJobsResponse struct {
 
 func (x *GetKubernetesJobsResponse) Reset() {
 	*x = GetKubernetesJobsResponse{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1106,7 +1291,7 @@ func (x *GetKubernetesJobsResponse) String() string {
 func (*GetKubernetesJobsResponse) ProtoMessage() {}
 
 func (x *GetKubernetesJobsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1119,7 +1304,7 @@ func (x *GetKubernetesJobsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesJobsResponse.ProtoReflect.Descriptor instead.
 func (*GetKubernetesJobsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetKubernetesJobsResponse) GetJobs() []*v1.KubernetesJob {
@@ -1140,7 +1325,7 @@ type GetKubernetesStatefulSetWithPodsRequest struct {
 
 func (x *GetKubernetesStatefulSetWithPodsRequest) Reset() {
 	*x = GetKubernetesStatefulSetWithPodsRequest{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1152,7 +1337,7 @@ func (x *GetKubernetesStatefulSetWithPodsRequest) String() string {
 func (*GetKubernetesStatefulSetWithPodsRequest) ProtoMessage() {}
 
 func (x *GetKubernetesStatefulSetWithPodsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1165,7 +1350,7 @@ func (x *GetKubernetesStatefulSetWithPodsRequest) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GetKubernetesStatefulSetWithPodsRequest.ProtoReflect.Descriptor instead.
 func (*GetKubernetesStatefulSetWithPodsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetKubernetesStatefulSetWithPodsRequest) GetStatefulSetName() string {
@@ -1199,7 +1384,7 @@ type GetKubernetesStatefulSetWithPodsResponse struct {
 
 func (x *GetKubernetesStatefulSetWithPodsResponse) Reset() {
 	*x = GetKubernetesStatefulSetWithPodsResponse{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1211,7 +1396,7 @@ func (x *GetKubernetesStatefulSetWithPodsResponse) String() string {
 func (*GetKubernetesStatefulSetWithPodsResponse) ProtoMessage() {}
 
 func (x *GetKubernetesStatefulSetWithPodsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1224,7 +1409,7 @@ func (x *GetKubernetesStatefulSetWithPodsResponse) ProtoReflect() protoreflect.M
 
 // Deprecated: Use GetKubernetesStatefulSetWithPodsResponse.ProtoReflect.Descriptor instead.
 func (*GetKubernetesStatefulSetWithPodsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetKubernetesStatefulSetWithPodsResponse) GetStatefulSet() *v1.KubernetesStatefulSet {
@@ -1252,7 +1437,7 @@ type GetKubernetesJobWithPodsRequest struct {
 
 func (x *GetKubernetesJobWithPodsRequest) Reset() {
 	*x = GetKubernetesJobWithPodsRequest{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1264,7 +1449,7 @@ func (x *GetKubernetesJobWithPodsRequest) String() string {
 func (*GetKubernetesJobWithPodsRequest) ProtoMessage() {}
 
 func (x *GetKubernetesJobWithPodsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1277,7 +1462,7 @@ func (x *GetKubernetesJobWithPodsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesJobWithPodsRequest.ProtoReflect.Descriptor instead.
 func (*GetKubernetesJobWithPodsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetKubernetesJobWithPodsRequest) GetJobName() string {
@@ -1311,7 +1496,7 @@ type GetKubernetesJobWithPodsResponse struct {
 
 func (x *GetKubernetesJobWithPodsResponse) Reset() {
 	*x = GetKubernetesJobWithPodsResponse{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1323,7 +1508,7 @@ func (x *GetKubernetesJobWithPodsResponse) String() string {
 func (*GetKubernetesJobWithPodsResponse) ProtoMessage() {}
 
 func (x *GetKubernetesJobWithPodsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1336,7 +1521,7 @@ func (x *GetKubernetesJobWithPodsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubernetesJobWithPodsResponse.ProtoReflect.Descriptor instead.
 func (*GetKubernetesJobWithPodsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetKubernetesJobWithPodsResponse) GetJob() *v1.KubernetesJob {
@@ -1367,7 +1552,7 @@ type GetKubernetesDeploymentWithPodsRequest struct {
 
 func (x *GetKubernetesDeploymentWithPodsRequest) Reset() {
 	*x = GetKubernetesDeploymentWithPodsRequest{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1379,7 +1564,7 @@ func (x *GetKubernetesDeploymentWithPodsRequest) String() string {
 func (*GetKubernetesDeploymentWithPodsRequest) ProtoMessage() {}
 
 func (x *GetKubernetesDeploymentWithPodsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1392,7 +1577,7 @@ func (x *GetKubernetesDeploymentWithPodsRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use GetKubernetesDeploymentWithPodsRequest.ProtoReflect.Descriptor instead.
 func (*GetKubernetesDeploymentWithPodsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GetKubernetesDeploymentWithPodsRequest) GetDeploymentName() string {
@@ -1426,7 +1611,7 @@ type GetKubernetesDeploymentWithPodsResponse struct {
 
 func (x *GetKubernetesDeploymentWithPodsResponse) Reset() {
 	*x = GetKubernetesDeploymentWithPodsResponse{}
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1438,7 +1623,7 @@ func (x *GetKubernetesDeploymentWithPodsResponse) String() string {
 func (*GetKubernetesDeploymentWithPodsResponse) ProtoMessage() {}
 
 func (x *GetKubernetesDeploymentWithPodsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_kube_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1451,7 +1636,7 @@ func (x *GetKubernetesDeploymentWithPodsResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GetKubernetesDeploymentWithPodsResponse.ProtoReflect.Descriptor instead.
 func (*GetKubernetesDeploymentWithPodsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_kube_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetKubernetesDeploymentWithPodsResponse) GetDeployment() *v1.KubernetesDeployment {
@@ -1472,7 +1657,7 @@ var File_chalk_server_v1_kube_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_kube_proto_rawDesc = "" +
 	"\n" +
-	"\x1achalk/server/v1/kube.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a%chalk/kubernetes/v1/deployments.proto\x1a chalk/kubernetes/v1/events.proto\x1a1chalk/kubernetes/v1/horizontalpodautoscaler.proto\x1a\x1echalk/kubernetes/v1/jobs.proto\x1a$chalk/kubernetes/v1/namespaces.proto\x1a*chalk/kubernetes/v1/persistentvolume.proto\x1a\x1echalk/kubernetes/v1/pods.proto\x1a&chalk/kubernetes/v1/scaledobject.proto\x1a)chalk/kubernetes/v1/serviceaccounts.proto\x1a&chalk/kubernetes/v1/statefulsets.proto\"\xa2\x01\n" +
+	"\x1achalk/server/v1/kube.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a%chalk/kubernetes/v1/deployments.proto\x1a chalk/kubernetes/v1/events.proto\x1a1chalk/kubernetes/v1/horizontalpodautoscaler.proto\x1a\x1echalk/kubernetes/v1/jobs.proto\x1a$chalk/kubernetes/v1/namespaces.proto\x1a*chalk/kubernetes/v1/persistentvolume.proto\x1a\x1echalk/kubernetes/v1/pods.proto\x1a&chalk/kubernetes/v1/scaledobject.proto\x1a)chalk/kubernetes/v1/serviceaccounts.proto\x1a&chalk/kubernetes/v1/statefulsets.proto\x1a&chalk/kubernetes/v1/storageclass.proto\"\xa2\x01\n" +
 	"\x15GetPodVenvSizeRequest\x12!\n" +
 	"\tnamespace\x18\x01 \x01(\tH\x00R\tnamespace\x88\x01\x01\x12\x19\n" +
 	"\bpod_name\x18\x02 \x01(\tR\apodName\x12*\n" +
@@ -1520,7 +1705,17 @@ const file_chalk_server_v1_kube_proto_rawDesc = "" +
 	"namespaces\"'\n" +
 	"%GetKubernetesPersistentVolumesRequest\"x\n" +
 	"&GetKubernetesPersistentVolumesResponse\x12N\n" +
-	"\avolumes\x18\x01 \x03(\v24.chalk.kubernetes.v1.ChalkKubernetesPersistentVolumeR\avolumes\"\xce\x01\n" +
+	"\avolumes\x18\x01 \x03(\v24.chalk.kubernetes.v1.ChalkKubernetesPersistentVolumeR\avolumes\"$\n" +
+	"\"GetKubernetesStorageClassesRequest\"{\n" +
+	"#GetKubernetesStorageClassesResponse\x12T\n" +
+	"\x0fstorage_classes\x18\x01 \x03(\v2+.chalk.kubernetes.v1.KubernetesStorageClassR\x0estorageClasses\"d\n" +
+	",GetKubernetesPersistentVolumeWithPodsRequest\x124\n" +
+	"\x16persistent_volume_name\x18\x01 \x01(\tR\x14persistentVolumeName\"\xa2\x02\n" +
+	"-GetKubernetesPersistentVolumeWithPodsResponse\x12L\n" +
+	"\x06volume\x18\x01 \x01(\v24.chalk.kubernetes.v1.ChalkKubernetesPersistentVolumeR\x06volume\x12U\n" +
+	"\rstorage_class\x18\x02 \x01(\v2+.chalk.kubernetes.v1.KubernetesStorageClassH\x00R\fstorageClass\x88\x01\x01\x12:\n" +
+	"\x04pods\x18\x03 \x03(\v2&.chalk.kubernetes.v1.KubernetesPodDataR\x04podsB\x10\n" +
+	"\x0e_storage_class\"\xce\x01\n" +
 	"#GetKubernetesServiceAccountsRequest\x12&\n" +
 	"\fcluster_name\x18\x01 \x01(\tH\x00R\vclusterName\x88\x01\x01\x12!\n" +
 	"\tnamespace\x18\x02 \x01(\tH\x01R\tnamespace\x88\x01\x01\x12*\n" +
@@ -1594,13 +1789,15 @@ const file_chalk_server_v1_kube_proto_rawDesc = "" +
 	"\n" +
 	"deployment\x18\x01 \x01(\v2).chalk.kubernetes.v1.KubernetesDeploymentR\n" +
 	"deployment\x12:\n" +
-	"\x04pods\x18\x02 \x03(\v2&.chalk.kubernetes.v1.KubernetesPodDataR\x04pods2\x88\x0e\n" +
+	"\x04pods\x18\x02 \x03(\v2&.chalk.kubernetes.v1.KubernetesPodDataR\x04pods2\xcc\x10\n" +
 	"\vKubeService\x12i\n" +
 	"\x0eGetPodVenvSize\x12&.chalk.server.v1.GetPodVenvSizeRequest\x1a'.chalk.server.v1.GetPodVenvSizeResponse\"\x06\x80}\v\x90\x02\x01\x12{\n" +
 	"\x14GetPodStackTraceDump\x12,.chalk.server.v1.GetPodStackTraceDumpRequest\x1a-.chalk.server.v1.GetPodStackTraceDumpResponse\"\x06\x80}\v\x90\x02\x01\x12x\n" +
 	"\x13GetKubernetesEvents\x12+.chalk.server.v1.GetKubernetesEventsRequest\x1a,.chalk.server.v1.GetKubernetesEventsResponse\"\x06\x80}\v\x90\x02\x01\x12\x84\x01\n" +
 	"\x17GetKubernetesNamespaces\x12/.chalk.server.v1.GetKubernetesNamespacesRequest\x1a0.chalk.server.v1.GetKubernetesNamespacesResponse\"\x06\x80}\v\x90\x02\x01\x12\x99\x01\n" +
-	"\x1eGetKubernetesPersistentVolumes\x126.chalk.server.v1.GetKubernetesPersistentVolumesRequest\x1a7.chalk.server.v1.GetKubernetesPersistentVolumesResponse\"\x06\x80}\v\x90\x02\x01\x12\x93\x01\n" +
+	"\x1eGetKubernetesPersistentVolumes\x126.chalk.server.v1.GetKubernetesPersistentVolumesRequest\x1a7.chalk.server.v1.GetKubernetesPersistentVolumesResponse\"\x06\x80}\v\x90\x02\x01\x12\x90\x01\n" +
+	"\x1bGetKubernetesStorageClasses\x123.chalk.server.v1.GetKubernetesStorageClassesRequest\x1a4.chalk.server.v1.GetKubernetesStorageClassesResponse\"\x06\x80}\v\x90\x02\x01\x12\xae\x01\n" +
+	"%GetKubernetesPersistentVolumeWithPods\x12=.chalk.server.v1.GetKubernetesPersistentVolumeWithPodsRequest\x1a>.chalk.server.v1.GetKubernetesPersistentVolumeWithPodsResponse\"\x06\x80}\v\x90\x02\x01\x12\x93\x01\n" +
 	"\x1cGetKubernetesServiceAccounts\x124.chalk.server.v1.GetKubernetesServiceAccountsRequest\x1a5.chalk.server.v1.GetKubernetesServiceAccountsResponse\"\x06\x80}\v\x90\x02\x01\x12\x87\x01\n" +
 	"\x18GetKubernetesAutoscalers\x120.chalk.server.v1.GetKubernetesAutoscalersRequest\x1a1.chalk.server.v1.GetKubernetesAutoscalersResponse\"\x06\x80}\v\x90\x02\x01\x12\x87\x01\n" +
 	"\x18GetKubernetesDeployments\x120.chalk.server.v1.GetKubernetesDeploymentsRequest\x1a1.chalk.server.v1.GetKubernetesDeploymentsResponse\"\x06\x80}\v\x90\x02\x01\x12\x8a\x01\n" +
@@ -1623,92 +1820,105 @@ func file_chalk_server_v1_kube_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_kube_proto_rawDescData
 }
 
-var file_chalk_server_v1_kube_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_chalk_server_v1_kube_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_chalk_server_v1_kube_proto_goTypes = []any{
-	(*GetPodVenvSizeRequest)(nil),                    // 0: chalk.server.v1.GetPodVenvSizeRequest
-	(*GetPodVenvSizeResponse)(nil),                   // 1: chalk.server.v1.GetPodVenvSizeResponse
-	(*GetPodStackTraceDumpRequest)(nil),              // 2: chalk.server.v1.GetPodStackTraceDumpRequest
-	(*GetPodStackTraceDumpResponse)(nil),             // 3: chalk.server.v1.GetPodStackTraceDumpResponse
-	(*GetKubernetesEventsRequest)(nil),               // 4: chalk.server.v1.GetKubernetesEventsRequest
-	(*GetKubernetesEventsResponse)(nil),              // 5: chalk.server.v1.GetKubernetesEventsResponse
-	(*GetKubernetesNamespacesRequest)(nil),           // 6: chalk.server.v1.GetKubernetesNamespacesRequest
-	(*GetKubernetesNamespacesResponse)(nil),          // 7: chalk.server.v1.GetKubernetesNamespacesResponse
-	(*GetKubernetesPersistentVolumesRequest)(nil),    // 8: chalk.server.v1.GetKubernetesPersistentVolumesRequest
-	(*GetKubernetesPersistentVolumesResponse)(nil),   // 9: chalk.server.v1.GetKubernetesPersistentVolumesResponse
-	(*GetKubernetesServiceAccountsRequest)(nil),      // 10: chalk.server.v1.GetKubernetesServiceAccountsRequest
-	(*GetKubernetesServiceAccountsResponse)(nil),     // 11: chalk.server.v1.GetKubernetesServiceAccountsResponse
-	(*GetKubernetesAutoscalersRequest)(nil),          // 12: chalk.server.v1.GetKubernetesAutoscalersRequest
-	(*GetKubernetesAutoscalersResponse)(nil),         // 13: chalk.server.v1.GetKubernetesAutoscalersResponse
-	(*GetKubernetesDeploymentsRequest)(nil),          // 14: chalk.server.v1.GetKubernetesDeploymentsRequest
-	(*GetKubernetesDeploymentsResponse)(nil),         // 15: chalk.server.v1.GetKubernetesDeploymentsResponse
-	(*GetKubernetesStatefulSetsRequest)(nil),         // 16: chalk.server.v1.GetKubernetesStatefulSetsRequest
-	(*GetKubernetesStatefulSetsResponse)(nil),        // 17: chalk.server.v1.GetKubernetesStatefulSetsResponse
-	(*GetKubernetesJobsRequest)(nil),                 // 18: chalk.server.v1.GetKubernetesJobsRequest
-	(*GetKubernetesJobsResponse)(nil),                // 19: chalk.server.v1.GetKubernetesJobsResponse
-	(*GetKubernetesStatefulSetWithPodsRequest)(nil),  // 20: chalk.server.v1.GetKubernetesStatefulSetWithPodsRequest
-	(*GetKubernetesStatefulSetWithPodsResponse)(nil), // 21: chalk.server.v1.GetKubernetesStatefulSetWithPodsResponse
-	(*GetKubernetesJobWithPodsRequest)(nil),          // 22: chalk.server.v1.GetKubernetesJobWithPodsRequest
-	(*GetKubernetesJobWithPodsResponse)(nil),         // 23: chalk.server.v1.GetKubernetesJobWithPodsResponse
-	(*GetKubernetesDeploymentWithPodsRequest)(nil),   // 24: chalk.server.v1.GetKubernetesDeploymentWithPodsRequest
-	(*GetKubernetesDeploymentWithPodsResponse)(nil),  // 25: chalk.server.v1.GetKubernetesDeploymentWithPodsResponse
-	(*v1.ChalkKubernetesEvent)(nil),                  // 26: chalk.kubernetes.v1.ChalkKubernetesEvent
-	(*v1.KubernetesNamespace)(nil),                   // 27: chalk.kubernetes.v1.KubernetesNamespace
-	(*v1.ChalkKubernetesPersistentVolume)(nil),       // 28: chalk.kubernetes.v1.ChalkKubernetesPersistentVolume
-	(*v1.KubernetesServiceAccount)(nil),              // 29: chalk.kubernetes.v1.KubernetesServiceAccount
-	(*v1.KubernetesHorizontalPodAutoscaler)(nil),     // 30: chalk.kubernetes.v1.KubernetesHorizontalPodAutoscaler
-	(*v1.KubernetesScaledObject)(nil),                // 31: chalk.kubernetes.v1.KubernetesScaledObject
-	(*v1.KubernetesDeployment)(nil),                  // 32: chalk.kubernetes.v1.KubernetesDeployment
-	(*v1.KubernetesStatefulSet)(nil),                 // 33: chalk.kubernetes.v1.KubernetesStatefulSet
-	(*v1.KubernetesJob)(nil),                         // 34: chalk.kubernetes.v1.KubernetesJob
-	(*v1.KubernetesPodData)(nil),                     // 35: chalk.kubernetes.v1.KubernetesPodData
+	(*GetPodVenvSizeRequest)(nil),                         // 0: chalk.server.v1.GetPodVenvSizeRequest
+	(*GetPodVenvSizeResponse)(nil),                        // 1: chalk.server.v1.GetPodVenvSizeResponse
+	(*GetPodStackTraceDumpRequest)(nil),                   // 2: chalk.server.v1.GetPodStackTraceDumpRequest
+	(*GetPodStackTraceDumpResponse)(nil),                  // 3: chalk.server.v1.GetPodStackTraceDumpResponse
+	(*GetKubernetesEventsRequest)(nil),                    // 4: chalk.server.v1.GetKubernetesEventsRequest
+	(*GetKubernetesEventsResponse)(nil),                   // 5: chalk.server.v1.GetKubernetesEventsResponse
+	(*GetKubernetesNamespacesRequest)(nil),                // 6: chalk.server.v1.GetKubernetesNamespacesRequest
+	(*GetKubernetesNamespacesResponse)(nil),               // 7: chalk.server.v1.GetKubernetesNamespacesResponse
+	(*GetKubernetesPersistentVolumesRequest)(nil),         // 8: chalk.server.v1.GetKubernetesPersistentVolumesRequest
+	(*GetKubernetesPersistentVolumesResponse)(nil),        // 9: chalk.server.v1.GetKubernetesPersistentVolumesResponse
+	(*GetKubernetesStorageClassesRequest)(nil),            // 10: chalk.server.v1.GetKubernetesStorageClassesRequest
+	(*GetKubernetesStorageClassesResponse)(nil),           // 11: chalk.server.v1.GetKubernetesStorageClassesResponse
+	(*GetKubernetesPersistentVolumeWithPodsRequest)(nil),  // 12: chalk.server.v1.GetKubernetesPersistentVolumeWithPodsRequest
+	(*GetKubernetesPersistentVolumeWithPodsResponse)(nil), // 13: chalk.server.v1.GetKubernetesPersistentVolumeWithPodsResponse
+	(*GetKubernetesServiceAccountsRequest)(nil),           // 14: chalk.server.v1.GetKubernetesServiceAccountsRequest
+	(*GetKubernetesServiceAccountsResponse)(nil),          // 15: chalk.server.v1.GetKubernetesServiceAccountsResponse
+	(*GetKubernetesAutoscalersRequest)(nil),               // 16: chalk.server.v1.GetKubernetesAutoscalersRequest
+	(*GetKubernetesAutoscalersResponse)(nil),              // 17: chalk.server.v1.GetKubernetesAutoscalersResponse
+	(*GetKubernetesDeploymentsRequest)(nil),               // 18: chalk.server.v1.GetKubernetesDeploymentsRequest
+	(*GetKubernetesDeploymentsResponse)(nil),              // 19: chalk.server.v1.GetKubernetesDeploymentsResponse
+	(*GetKubernetesStatefulSetsRequest)(nil),              // 20: chalk.server.v1.GetKubernetesStatefulSetsRequest
+	(*GetKubernetesStatefulSetsResponse)(nil),             // 21: chalk.server.v1.GetKubernetesStatefulSetsResponse
+	(*GetKubernetesJobsRequest)(nil),                      // 22: chalk.server.v1.GetKubernetesJobsRequest
+	(*GetKubernetesJobsResponse)(nil),                     // 23: chalk.server.v1.GetKubernetesJobsResponse
+	(*GetKubernetesStatefulSetWithPodsRequest)(nil),       // 24: chalk.server.v1.GetKubernetesStatefulSetWithPodsRequest
+	(*GetKubernetesStatefulSetWithPodsResponse)(nil),      // 25: chalk.server.v1.GetKubernetesStatefulSetWithPodsResponse
+	(*GetKubernetesJobWithPodsRequest)(nil),               // 26: chalk.server.v1.GetKubernetesJobWithPodsRequest
+	(*GetKubernetesJobWithPodsResponse)(nil),              // 27: chalk.server.v1.GetKubernetesJobWithPodsResponse
+	(*GetKubernetesDeploymentWithPodsRequest)(nil),        // 28: chalk.server.v1.GetKubernetesDeploymentWithPodsRequest
+	(*GetKubernetesDeploymentWithPodsResponse)(nil),       // 29: chalk.server.v1.GetKubernetesDeploymentWithPodsResponse
+	(*v1.ChalkKubernetesEvent)(nil),                       // 30: chalk.kubernetes.v1.ChalkKubernetesEvent
+	(*v1.KubernetesNamespace)(nil),                        // 31: chalk.kubernetes.v1.KubernetesNamespace
+	(*v1.ChalkKubernetesPersistentVolume)(nil),            // 32: chalk.kubernetes.v1.ChalkKubernetesPersistentVolume
+	(*v1.KubernetesStorageClass)(nil),                     // 33: chalk.kubernetes.v1.KubernetesStorageClass
+	(*v1.KubernetesPodData)(nil),                          // 34: chalk.kubernetes.v1.KubernetesPodData
+	(*v1.KubernetesServiceAccount)(nil),                   // 35: chalk.kubernetes.v1.KubernetesServiceAccount
+	(*v1.KubernetesHorizontalPodAutoscaler)(nil),          // 36: chalk.kubernetes.v1.KubernetesHorizontalPodAutoscaler
+	(*v1.KubernetesScaledObject)(nil),                     // 37: chalk.kubernetes.v1.KubernetesScaledObject
+	(*v1.KubernetesDeployment)(nil),                       // 38: chalk.kubernetes.v1.KubernetesDeployment
+	(*v1.KubernetesStatefulSet)(nil),                      // 39: chalk.kubernetes.v1.KubernetesStatefulSet
+	(*v1.KubernetesJob)(nil),                              // 40: chalk.kubernetes.v1.KubernetesJob
 }
 var file_chalk_server_v1_kube_proto_depIdxs = []int32{
-	26, // 0: chalk.server.v1.GetKubernetesEventsResponse.events:type_name -> chalk.kubernetes.v1.ChalkKubernetesEvent
-	27, // 1: chalk.server.v1.GetKubernetesNamespacesResponse.namespaces:type_name -> chalk.kubernetes.v1.KubernetesNamespace
-	28, // 2: chalk.server.v1.GetKubernetesPersistentVolumesResponse.volumes:type_name -> chalk.kubernetes.v1.ChalkKubernetesPersistentVolume
-	29, // 3: chalk.server.v1.GetKubernetesServiceAccountsResponse.service_accounts:type_name -> chalk.kubernetes.v1.KubernetesServiceAccount
-	30, // 4: chalk.server.v1.GetKubernetesAutoscalersResponse.hpas:type_name -> chalk.kubernetes.v1.KubernetesHorizontalPodAutoscaler
-	31, // 5: chalk.server.v1.GetKubernetesAutoscalersResponse.scaledobjects:type_name -> chalk.kubernetes.v1.KubernetesScaledObject
-	32, // 6: chalk.server.v1.GetKubernetesDeploymentsResponse.deployments:type_name -> chalk.kubernetes.v1.KubernetesDeployment
-	33, // 7: chalk.server.v1.GetKubernetesStatefulSetsResponse.stateful_sets:type_name -> chalk.kubernetes.v1.KubernetesStatefulSet
-	34, // 8: chalk.server.v1.GetKubernetesJobsResponse.jobs:type_name -> chalk.kubernetes.v1.KubernetesJob
-	33, // 9: chalk.server.v1.GetKubernetesStatefulSetWithPodsResponse.stateful_set:type_name -> chalk.kubernetes.v1.KubernetesStatefulSet
-	35, // 10: chalk.server.v1.GetKubernetesStatefulSetWithPodsResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
-	34, // 11: chalk.server.v1.GetKubernetesJobWithPodsResponse.job:type_name -> chalk.kubernetes.v1.KubernetesJob
-	35, // 12: chalk.server.v1.GetKubernetesJobWithPodsResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
-	32, // 13: chalk.server.v1.GetKubernetesDeploymentWithPodsResponse.deployment:type_name -> chalk.kubernetes.v1.KubernetesDeployment
-	35, // 14: chalk.server.v1.GetKubernetesDeploymentWithPodsResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
-	0,  // 15: chalk.server.v1.KubeService.GetPodVenvSize:input_type -> chalk.server.v1.GetPodVenvSizeRequest
-	2,  // 16: chalk.server.v1.KubeService.GetPodStackTraceDump:input_type -> chalk.server.v1.GetPodStackTraceDumpRequest
-	4,  // 17: chalk.server.v1.KubeService.GetKubernetesEvents:input_type -> chalk.server.v1.GetKubernetesEventsRequest
-	6,  // 18: chalk.server.v1.KubeService.GetKubernetesNamespaces:input_type -> chalk.server.v1.GetKubernetesNamespacesRequest
-	8,  // 19: chalk.server.v1.KubeService.GetKubernetesPersistentVolumes:input_type -> chalk.server.v1.GetKubernetesPersistentVolumesRequest
-	10, // 20: chalk.server.v1.KubeService.GetKubernetesServiceAccounts:input_type -> chalk.server.v1.GetKubernetesServiceAccountsRequest
-	12, // 21: chalk.server.v1.KubeService.GetKubernetesAutoscalers:input_type -> chalk.server.v1.GetKubernetesAutoscalersRequest
-	14, // 22: chalk.server.v1.KubeService.GetKubernetesDeployments:input_type -> chalk.server.v1.GetKubernetesDeploymentsRequest
-	16, // 23: chalk.server.v1.KubeService.GetKubernetesStatefulSets:input_type -> chalk.server.v1.GetKubernetesStatefulSetsRequest
-	18, // 24: chalk.server.v1.KubeService.GetKubernetesJobs:input_type -> chalk.server.v1.GetKubernetesJobsRequest
-	24, // 25: chalk.server.v1.KubeService.GetKubernetesDeploymentWithPods:input_type -> chalk.server.v1.GetKubernetesDeploymentWithPodsRequest
-	20, // 26: chalk.server.v1.KubeService.GetKubernetesStatefulSetWithPods:input_type -> chalk.server.v1.GetKubernetesStatefulSetWithPodsRequest
-	22, // 27: chalk.server.v1.KubeService.GetKubernetesJobWithPods:input_type -> chalk.server.v1.GetKubernetesJobWithPodsRequest
-	1,  // 28: chalk.server.v1.KubeService.GetPodVenvSize:output_type -> chalk.server.v1.GetPodVenvSizeResponse
-	3,  // 29: chalk.server.v1.KubeService.GetPodStackTraceDump:output_type -> chalk.server.v1.GetPodStackTraceDumpResponse
-	5,  // 30: chalk.server.v1.KubeService.GetKubernetesEvents:output_type -> chalk.server.v1.GetKubernetesEventsResponse
-	7,  // 31: chalk.server.v1.KubeService.GetKubernetesNamespaces:output_type -> chalk.server.v1.GetKubernetesNamespacesResponse
-	9,  // 32: chalk.server.v1.KubeService.GetKubernetesPersistentVolumes:output_type -> chalk.server.v1.GetKubernetesPersistentVolumesResponse
-	11, // 33: chalk.server.v1.KubeService.GetKubernetesServiceAccounts:output_type -> chalk.server.v1.GetKubernetesServiceAccountsResponse
-	13, // 34: chalk.server.v1.KubeService.GetKubernetesAutoscalers:output_type -> chalk.server.v1.GetKubernetesAutoscalersResponse
-	15, // 35: chalk.server.v1.KubeService.GetKubernetesDeployments:output_type -> chalk.server.v1.GetKubernetesDeploymentsResponse
-	17, // 36: chalk.server.v1.KubeService.GetKubernetesStatefulSets:output_type -> chalk.server.v1.GetKubernetesStatefulSetsResponse
-	19, // 37: chalk.server.v1.KubeService.GetKubernetesJobs:output_type -> chalk.server.v1.GetKubernetesJobsResponse
-	25, // 38: chalk.server.v1.KubeService.GetKubernetesDeploymentWithPods:output_type -> chalk.server.v1.GetKubernetesDeploymentWithPodsResponse
-	21, // 39: chalk.server.v1.KubeService.GetKubernetesStatefulSetWithPods:output_type -> chalk.server.v1.GetKubernetesStatefulSetWithPodsResponse
-	23, // 40: chalk.server.v1.KubeService.GetKubernetesJobWithPods:output_type -> chalk.server.v1.GetKubernetesJobWithPodsResponse
-	28, // [28:41] is the sub-list for method output_type
-	15, // [15:28] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	30, // 0: chalk.server.v1.GetKubernetesEventsResponse.events:type_name -> chalk.kubernetes.v1.ChalkKubernetesEvent
+	31, // 1: chalk.server.v1.GetKubernetesNamespacesResponse.namespaces:type_name -> chalk.kubernetes.v1.KubernetesNamespace
+	32, // 2: chalk.server.v1.GetKubernetesPersistentVolumesResponse.volumes:type_name -> chalk.kubernetes.v1.ChalkKubernetesPersistentVolume
+	33, // 3: chalk.server.v1.GetKubernetesStorageClassesResponse.storage_classes:type_name -> chalk.kubernetes.v1.KubernetesStorageClass
+	32, // 4: chalk.server.v1.GetKubernetesPersistentVolumeWithPodsResponse.volume:type_name -> chalk.kubernetes.v1.ChalkKubernetesPersistentVolume
+	33, // 5: chalk.server.v1.GetKubernetesPersistentVolumeWithPodsResponse.storage_class:type_name -> chalk.kubernetes.v1.KubernetesStorageClass
+	34, // 6: chalk.server.v1.GetKubernetesPersistentVolumeWithPodsResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
+	35, // 7: chalk.server.v1.GetKubernetesServiceAccountsResponse.service_accounts:type_name -> chalk.kubernetes.v1.KubernetesServiceAccount
+	36, // 8: chalk.server.v1.GetKubernetesAutoscalersResponse.hpas:type_name -> chalk.kubernetes.v1.KubernetesHorizontalPodAutoscaler
+	37, // 9: chalk.server.v1.GetKubernetesAutoscalersResponse.scaledobjects:type_name -> chalk.kubernetes.v1.KubernetesScaledObject
+	38, // 10: chalk.server.v1.GetKubernetesDeploymentsResponse.deployments:type_name -> chalk.kubernetes.v1.KubernetesDeployment
+	39, // 11: chalk.server.v1.GetKubernetesStatefulSetsResponse.stateful_sets:type_name -> chalk.kubernetes.v1.KubernetesStatefulSet
+	40, // 12: chalk.server.v1.GetKubernetesJobsResponse.jobs:type_name -> chalk.kubernetes.v1.KubernetesJob
+	39, // 13: chalk.server.v1.GetKubernetesStatefulSetWithPodsResponse.stateful_set:type_name -> chalk.kubernetes.v1.KubernetesStatefulSet
+	34, // 14: chalk.server.v1.GetKubernetesStatefulSetWithPodsResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
+	40, // 15: chalk.server.v1.GetKubernetesJobWithPodsResponse.job:type_name -> chalk.kubernetes.v1.KubernetesJob
+	34, // 16: chalk.server.v1.GetKubernetesJobWithPodsResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
+	38, // 17: chalk.server.v1.GetKubernetesDeploymentWithPodsResponse.deployment:type_name -> chalk.kubernetes.v1.KubernetesDeployment
+	34, // 18: chalk.server.v1.GetKubernetesDeploymentWithPodsResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
+	0,  // 19: chalk.server.v1.KubeService.GetPodVenvSize:input_type -> chalk.server.v1.GetPodVenvSizeRequest
+	2,  // 20: chalk.server.v1.KubeService.GetPodStackTraceDump:input_type -> chalk.server.v1.GetPodStackTraceDumpRequest
+	4,  // 21: chalk.server.v1.KubeService.GetKubernetesEvents:input_type -> chalk.server.v1.GetKubernetesEventsRequest
+	6,  // 22: chalk.server.v1.KubeService.GetKubernetesNamespaces:input_type -> chalk.server.v1.GetKubernetesNamespacesRequest
+	8,  // 23: chalk.server.v1.KubeService.GetKubernetesPersistentVolumes:input_type -> chalk.server.v1.GetKubernetesPersistentVolumesRequest
+	10, // 24: chalk.server.v1.KubeService.GetKubernetesStorageClasses:input_type -> chalk.server.v1.GetKubernetesStorageClassesRequest
+	12, // 25: chalk.server.v1.KubeService.GetKubernetesPersistentVolumeWithPods:input_type -> chalk.server.v1.GetKubernetesPersistentVolumeWithPodsRequest
+	14, // 26: chalk.server.v1.KubeService.GetKubernetesServiceAccounts:input_type -> chalk.server.v1.GetKubernetesServiceAccountsRequest
+	16, // 27: chalk.server.v1.KubeService.GetKubernetesAutoscalers:input_type -> chalk.server.v1.GetKubernetesAutoscalersRequest
+	18, // 28: chalk.server.v1.KubeService.GetKubernetesDeployments:input_type -> chalk.server.v1.GetKubernetesDeploymentsRequest
+	20, // 29: chalk.server.v1.KubeService.GetKubernetesStatefulSets:input_type -> chalk.server.v1.GetKubernetesStatefulSetsRequest
+	22, // 30: chalk.server.v1.KubeService.GetKubernetesJobs:input_type -> chalk.server.v1.GetKubernetesJobsRequest
+	28, // 31: chalk.server.v1.KubeService.GetKubernetesDeploymentWithPods:input_type -> chalk.server.v1.GetKubernetesDeploymentWithPodsRequest
+	24, // 32: chalk.server.v1.KubeService.GetKubernetesStatefulSetWithPods:input_type -> chalk.server.v1.GetKubernetesStatefulSetWithPodsRequest
+	26, // 33: chalk.server.v1.KubeService.GetKubernetesJobWithPods:input_type -> chalk.server.v1.GetKubernetesJobWithPodsRequest
+	1,  // 34: chalk.server.v1.KubeService.GetPodVenvSize:output_type -> chalk.server.v1.GetPodVenvSizeResponse
+	3,  // 35: chalk.server.v1.KubeService.GetPodStackTraceDump:output_type -> chalk.server.v1.GetPodStackTraceDumpResponse
+	5,  // 36: chalk.server.v1.KubeService.GetKubernetesEvents:output_type -> chalk.server.v1.GetKubernetesEventsResponse
+	7,  // 37: chalk.server.v1.KubeService.GetKubernetesNamespaces:output_type -> chalk.server.v1.GetKubernetesNamespacesResponse
+	9,  // 38: chalk.server.v1.KubeService.GetKubernetesPersistentVolumes:output_type -> chalk.server.v1.GetKubernetesPersistentVolumesResponse
+	11, // 39: chalk.server.v1.KubeService.GetKubernetesStorageClasses:output_type -> chalk.server.v1.GetKubernetesStorageClassesResponse
+	13, // 40: chalk.server.v1.KubeService.GetKubernetesPersistentVolumeWithPods:output_type -> chalk.server.v1.GetKubernetesPersistentVolumeWithPodsResponse
+	15, // 41: chalk.server.v1.KubeService.GetKubernetesServiceAccounts:output_type -> chalk.server.v1.GetKubernetesServiceAccountsResponse
+	17, // 42: chalk.server.v1.KubeService.GetKubernetesAutoscalers:output_type -> chalk.server.v1.GetKubernetesAutoscalersResponse
+	19, // 43: chalk.server.v1.KubeService.GetKubernetesDeployments:output_type -> chalk.server.v1.GetKubernetesDeploymentsResponse
+	21, // 44: chalk.server.v1.KubeService.GetKubernetesStatefulSets:output_type -> chalk.server.v1.GetKubernetesStatefulSetsResponse
+	23, // 45: chalk.server.v1.KubeService.GetKubernetesJobs:output_type -> chalk.server.v1.GetKubernetesJobsResponse
+	29, // 46: chalk.server.v1.KubeService.GetKubernetesDeploymentWithPods:output_type -> chalk.server.v1.GetKubernetesDeploymentWithPodsResponse
+	25, // 47: chalk.server.v1.KubeService.GetKubernetesStatefulSetWithPods:output_type -> chalk.server.v1.GetKubernetesStatefulSetWithPodsResponse
+	27, // 48: chalk.server.v1.KubeService.GetKubernetesJobWithPods:output_type -> chalk.server.v1.GetKubernetesJobWithPodsResponse
+	34, // [34:49] is the sub-list for method output_type
+	19, // [19:34] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_kube_proto_init() }
@@ -1724,18 +1934,19 @@ func file_chalk_server_v1_kube_proto_init() {
 	}
 	file_chalk_server_v1_kube_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_server_v1_kube_proto_msgTypes[6].OneofWrappers = []any{}
-	file_chalk_server_v1_kube_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_server_v1_kube_proto_msgTypes[12].OneofWrappers = []any{}
+	file_chalk_server_v1_kube_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_server_v1_kube_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_kube_proto_msgTypes[16].OneofWrappers = []any{}
 	file_chalk_server_v1_kube_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_server_v1_kube_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_server_v1_kube_proto_msgTypes[22].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_kube_proto_rawDesc), len(file_chalk_server_v1_kube_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   26,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

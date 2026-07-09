@@ -2101,6 +2101,97 @@ func (x *SelfServiceCreateTeamResponse) GetProjectId() string {
 	return ""
 }
 
+type GetTeamOnboardingStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TeamId        string                 `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTeamOnboardingStatusRequest) Reset() {
+	*x = GetTeamOnboardingStatusRequest{}
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamOnboardingStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamOnboardingStatusRequest) ProtoMessage() {}
+
+func (x *GetTeamOnboardingStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamOnboardingStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetTeamOnboardingStatusRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *GetTeamOnboardingStatusRequest) GetTeamId() string {
+	if x != nil {
+		return x.TeamId
+	}
+	return ""
+}
+
+type GetTeamOnboardingStatusResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// True when the team has at least one non-archived environment in any of its projects.
+	// The frontend uses this to decide whether to force self-service users into the
+	// environment-creation onboarding step.
+	HasEnvironments bool `protobuf:"varint,1,opt,name=has_environments,json=hasEnvironments,proto3" json:"has_environments,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GetTeamOnboardingStatusResponse) Reset() {
+	*x = GetTeamOnboardingStatusResponse{}
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamOnboardingStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamOnboardingStatusResponse) ProtoMessage() {}
+
+func (x *GetTeamOnboardingStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamOnboardingStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetTeamOnboardingStatusResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *GetTeamOnboardingStatusResponse) GetHasEnvironments() bool {
+	if x != nil {
+		return x.HasEnvironments
+	}
+	return false
+}
+
 type GetTokenRequest struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	ClientId     string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
@@ -2118,7 +2209,7 @@ type GetTokenRequest struct {
 
 func (x *GetTokenRequest) Reset() {
 	*x = GetTokenRequest{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2130,7 +2221,7 @@ func (x *GetTokenRequest) String() string {
 func (*GetTokenRequest) ProtoMessage() {}
 
 func (x *GetTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2143,7 +2234,7 @@ func (x *GetTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTokenRequest.ProtoReflect.Descriptor instead.
 func (*GetTokenRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{39}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *GetTokenRequest) GetClientId() string {
@@ -2200,7 +2291,7 @@ type GetTokenResponse struct {
 
 func (x *GetTokenResponse) Reset() {
 	*x = GetTokenResponse{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2212,7 +2303,7 @@ func (x *GetTokenResponse) String() string {
 func (*GetTokenResponse) ProtoMessage() {}
 
 func (x *GetTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2225,7 +2316,7 @@ func (x *GetTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTokenResponse.ProtoReflect.Descriptor instead.
 func (*GetTokenResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{40}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *GetTokenResponse) GetAccessToken() string {
@@ -2302,7 +2393,7 @@ type UpdateLinkSessionRequest struct {
 
 func (x *UpdateLinkSessionRequest) Reset() {
 	*x = UpdateLinkSessionRequest{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2314,7 +2405,7 @@ func (x *UpdateLinkSessionRequest) String() string {
 func (*UpdateLinkSessionRequest) ProtoMessage() {}
 
 func (x *UpdateLinkSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2327,7 +2418,7 @@ func (x *UpdateLinkSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateLinkSessionRequest.ProtoReflect.Descriptor instead.
 func (*UpdateLinkSessionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{41}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *UpdateLinkSessionRequest) GetStatus() string {
@@ -2360,7 +2451,7 @@ type UpdateLinkSessionResponse struct {
 
 func (x *UpdateLinkSessionResponse) Reset() {
 	*x = UpdateLinkSessionResponse{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[42]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2372,7 +2463,7 @@ func (x *UpdateLinkSessionResponse) String() string {
 func (*UpdateLinkSessionResponse) ProtoMessage() {}
 
 func (x *UpdateLinkSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[42]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2385,7 +2476,7 @@ func (x *UpdateLinkSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateLinkSessionResponse.ProtoReflect.Descriptor instead.
 func (*UpdateLinkSessionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{42}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *UpdateLinkSessionResponse) GetId() string {
@@ -2405,7 +2496,7 @@ type GetProjectInfoRequest struct {
 
 func (x *GetProjectInfoRequest) Reset() {
 	*x = GetProjectInfoRequest{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[43]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2417,7 +2508,7 @@ func (x *GetProjectInfoRequest) String() string {
 func (*GetProjectInfoRequest) ProtoMessage() {}
 
 func (x *GetProjectInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[43]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2430,7 +2521,7 @@ func (x *GetProjectInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectInfoRequest.ProtoReflect.Descriptor instead.
 func (*GetProjectInfoRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{43}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *GetProjectInfoRequest) GetProjectId() string {
@@ -2452,7 +2543,7 @@ type ProjectInfo struct {
 
 func (x *ProjectInfo) Reset() {
 	*x = ProjectInfo{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[44]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2464,7 +2555,7 @@ func (x *ProjectInfo) String() string {
 func (*ProjectInfo) ProtoMessage() {}
 
 func (x *ProjectInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[44]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2477,7 +2568,7 @@ func (x *ProjectInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectInfo.ProtoReflect.Descriptor instead.
 func (*ProjectInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{44}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ProjectInfo) GetId() string {
@@ -2511,7 +2602,7 @@ type GetProjectInfoResponse struct {
 
 func (x *GetProjectInfoResponse) Reset() {
 	*x = GetProjectInfoResponse{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[45]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2523,7 +2614,7 @@ func (x *GetProjectInfoResponse) String() string {
 func (*GetProjectInfoResponse) ProtoMessage() {}
 
 func (x *GetProjectInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[45]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2536,7 +2627,7 @@ func (x *GetProjectInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectInfoResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectInfoResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{45}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *GetProjectInfoResponse) GetProject() *ProjectInfo {
@@ -2555,7 +2646,7 @@ type GetInternalWorkingTokenRequest struct {
 
 func (x *GetInternalWorkingTokenRequest) Reset() {
 	*x = GetInternalWorkingTokenRequest{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[46]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2567,7 +2658,7 @@ func (x *GetInternalWorkingTokenRequest) String() string {
 func (*GetInternalWorkingTokenRequest) ProtoMessage() {}
 
 func (x *GetInternalWorkingTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[46]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2580,7 +2671,7 @@ func (x *GetInternalWorkingTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInternalWorkingTokenRequest.ProtoReflect.Descriptor instead.
 func (*GetInternalWorkingTokenRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{46}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *GetInternalWorkingTokenRequest) GetRequestedPermissions() []v1.Permission {
@@ -2603,7 +2694,7 @@ type GetInternalWorkingTokenResponse struct {
 
 func (x *GetInternalWorkingTokenResponse) Reset() {
 	*x = GetInternalWorkingTokenResponse{}
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[47]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2615,7 +2706,7 @@ func (x *GetInternalWorkingTokenResponse) String() string {
 func (*GetInternalWorkingTokenResponse) ProtoMessage() {}
 
 func (x *GetInternalWorkingTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_auth_proto_msgTypes[47]
+	mi := &file_chalk_server_v1_auth_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2628,7 +2719,7 @@ func (x *GetInternalWorkingTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInternalWorkingTokenResponse.ProtoReflect.Descriptor instead.
 func (*GetInternalWorkingTokenResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{47}
+	return file_chalk_server_v1_auth_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetInternalWorkingTokenResponse) GetAccessToken() string {
@@ -2849,7 +2940,11 @@ const file_chalk_server_v1_auth_proto_rawDesc = "" +
 	"\x1dSelfServiceCreateTeamResponse\x12\x17\n" +
 	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\tR\tprojectId\"\xeb\x01\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\"9\n" +
+	"\x1eGetTeamOnboardingStatusRequest\x12\x17\n" +
+	"\ateam_id\x18\x01 \x01(\tR\x06teamId\"L\n" +
+	"\x1fGetTeamOnboardingStatusResponse\x12)\n" +
+	"\x10has_environments\x18\x01 \x01(\bR\x0fhasEnvironments\"\xeb\x01\n" +
 	"\x0fGetTokenRequest\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12)\n" +
 	"\rclient_secret\x18\x02 \x01(\tB\x04ء'\x01R\fclientSecret\x12\x1d\n" +
@@ -2917,7 +3012,7 @@ const file_chalk_server_v1_auth_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aF\n" +
 	"\x18EnvironmentIdToNameEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xab\x16\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xb2\x17\n" +
 	"\vAuthService\x12\x82\x01\n" +
 	"\bGetToken\x12 .chalk.server.v1.GetTokenRequest\x1a!.chalk.server.v1.GetTokenResponse\"1\x80}\x01\x8a\xd3\x0e*\b\x01\x12&Exchanged client credentials for token\x12\xb7\x01\n" +
 	"\x11CreateLinkSession\x12).chalk.server.v1.CreateLinkSessionRequest\x1a*.chalk.server.v1.CreateLinkSessionResponse\"K\x80}\x01\x8a\xd3\x0eD\b\x01\x12@Initiated a request to link a terminal to the user's credentials\x12f\n" +
@@ -2939,7 +3034,8 @@ const file_chalk_server_v1_auth_proto_rawDesc = "" +
 	"\x17CreateVerificationToken\x12/.chalk.server.v1.CreateVerificationTokenRequest\x1a0.chalk.server.v1.CreateVerificationTokenResponse\"\x03\x80}\x1d\x12x\n" +
 	"\x14UseVerificationToken\x12,.chalk.server.v1.UseVerificationTokenRequest\x1a-.chalk.server.v1.UseVerificationTokenResponse\"\x03\x80}\x1d\x12\xa0\x01\n" +
 	"\x11UpsertUserByEmail\x12).chalk.server.v1.UpsertUserByEmailRequest\x1a*.chalk.server.v1.UpsertUserByEmailResponse\"4\x80}\x1d\x8a\xd3\x0e-\b\x01\x12)Created or updated a user record by email\x12\x81\x01\n" +
-	"\x15SelfServiceCreateTeam\x12-.chalk.server.v1.SelfServiceCreateTeamRequest\x1a..chalk.server.v1.SelfServiceCreateTeamResponse\"\t\x80}\x1d\x8a\xd3\x0e\x02\b\x02\x12f\n" +
+	"\x15SelfServiceCreateTeam\x12-.chalk.server.v1.SelfServiceCreateTeamRequest\x1a..chalk.server.v1.SelfServiceCreateTeamResponse\"\t\x80}\x1d\x8a\xd3\x0e\x02\b\x02\x12\x84\x01\n" +
+	"\x17GetTeamOnboardingStatus\x12/.chalk.server.v1.GetTeamOnboardingStatusRequest\x1a0.chalk.server.v1.GetTeamOnboardingStatusResponse\"\x06\x80}\x1d\x90\x02\x01\x12f\n" +
 	"\x0eGetProjectInfo\x12&.chalk.server.v1.GetProjectInfoRequest\x1a'.chalk.server.v1.GetProjectInfoResponse\"\x03\x80}\x1d\x12\x81\x01\n" +
 	"\x17GetInternalWorkingToken\x12/.chalk.server.v1.GetInternalWorkingTokenRequest\x1a0.chalk.server.v1.GetInternalWorkingTokenResponse\"\x03\x80}\"B\xb9\x01\n" +
 	"\x13com.chalk.server.v1B\tAuthProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
@@ -2956,7 +3052,7 @@ func file_chalk_server_v1_auth_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_auth_proto_rawDescData
 }
 
-var file_chalk_server_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
+var file_chalk_server_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
 var file_chalk_server_v1_auth_proto_goTypes = []any{
 	(*AdapterUser)(nil),                     // 0: chalk.server.v1.AdapterUser
 	(*AdapterUserNoId)(nil),                 // 1: chalk.server.v1.AdapterUserNoId
@@ -2997,38 +3093,40 @@ var file_chalk_server_v1_auth_proto_goTypes = []any{
 	(*UpsertUserByEmailResponse)(nil),       // 36: chalk.server.v1.UpsertUserByEmailResponse
 	(*SelfServiceCreateTeamRequest)(nil),    // 37: chalk.server.v1.SelfServiceCreateTeamRequest
 	(*SelfServiceCreateTeamResponse)(nil),   // 38: chalk.server.v1.SelfServiceCreateTeamResponse
-	(*GetTokenRequest)(nil),                 // 39: chalk.server.v1.GetTokenRequest
-	(*GetTokenResponse)(nil),                // 40: chalk.server.v1.GetTokenResponse
-	(*UpdateLinkSessionRequest)(nil),        // 41: chalk.server.v1.UpdateLinkSessionRequest
-	(*UpdateLinkSessionResponse)(nil),       // 42: chalk.server.v1.UpdateLinkSessionResponse
-	(*GetProjectInfoRequest)(nil),           // 43: chalk.server.v1.GetProjectInfoRequest
-	(*ProjectInfo)(nil),                     // 44: chalk.server.v1.ProjectInfo
-	(*GetProjectInfoResponse)(nil),          // 45: chalk.server.v1.GetProjectInfoResponse
-	(*GetInternalWorkingTokenRequest)(nil),  // 46: chalk.server.v1.GetInternalWorkingTokenRequest
-	(*GetInternalWorkingTokenResponse)(nil), // 47: chalk.server.v1.GetInternalWorkingTokenResponse
-	nil,                                     // 48: chalk.server.v1.GetTokenResponse.EnginesEntry
-	nil,                                     // 49: chalk.server.v1.GetTokenResponse.GrpcEnginesEntry
-	nil,                                     // 50: chalk.server.v1.GetTokenResponse.EnvironmentIdToNameEntry
-	nil,                                     // 51: chalk.server.v1.GetInternalWorkingTokenResponse.EnginesEntry
-	nil,                                     // 52: chalk.server.v1.GetInternalWorkingTokenResponse.GrpcEnginesEntry
-	nil,                                     // 53: chalk.server.v1.GetInternalWorkingTokenResponse.EnvironmentIdToNameEntry
-	(*timestamppb.Timestamp)(nil),           // 54: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),             // 55: google.protobuf.Duration
-	(v1.Permission)(0),                      // 56: chalk.auth.v1.Permission
-	(*CreateLinkSessionRequest)(nil),        // 57: chalk.server.v1.CreateLinkSessionRequest
-	(*GetLinkSessionRequest)(nil),           // 58: chalk.server.v1.GetLinkSessionRequest
-	(*CreateLinkSessionResponse)(nil),       // 59: chalk.server.v1.CreateLinkSessionResponse
-	(*GetLinkSessionResponse)(nil),          // 60: chalk.server.v1.GetLinkSessionResponse
+	(*GetTeamOnboardingStatusRequest)(nil),  // 39: chalk.server.v1.GetTeamOnboardingStatusRequest
+	(*GetTeamOnboardingStatusResponse)(nil), // 40: chalk.server.v1.GetTeamOnboardingStatusResponse
+	(*GetTokenRequest)(nil),                 // 41: chalk.server.v1.GetTokenRequest
+	(*GetTokenResponse)(nil),                // 42: chalk.server.v1.GetTokenResponse
+	(*UpdateLinkSessionRequest)(nil),        // 43: chalk.server.v1.UpdateLinkSessionRequest
+	(*UpdateLinkSessionResponse)(nil),       // 44: chalk.server.v1.UpdateLinkSessionResponse
+	(*GetProjectInfoRequest)(nil),           // 45: chalk.server.v1.GetProjectInfoRequest
+	(*ProjectInfo)(nil),                     // 46: chalk.server.v1.ProjectInfo
+	(*GetProjectInfoResponse)(nil),          // 47: chalk.server.v1.GetProjectInfoResponse
+	(*GetInternalWorkingTokenRequest)(nil),  // 48: chalk.server.v1.GetInternalWorkingTokenRequest
+	(*GetInternalWorkingTokenResponse)(nil), // 49: chalk.server.v1.GetInternalWorkingTokenResponse
+	nil,                                     // 50: chalk.server.v1.GetTokenResponse.EnginesEntry
+	nil,                                     // 51: chalk.server.v1.GetTokenResponse.GrpcEnginesEntry
+	nil,                                     // 52: chalk.server.v1.GetTokenResponse.EnvironmentIdToNameEntry
+	nil,                                     // 53: chalk.server.v1.GetInternalWorkingTokenResponse.EnginesEntry
+	nil,                                     // 54: chalk.server.v1.GetInternalWorkingTokenResponse.GrpcEnginesEntry
+	nil,                                     // 55: chalk.server.v1.GetInternalWorkingTokenResponse.EnvironmentIdToNameEntry
+	(*timestamppb.Timestamp)(nil),           // 56: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),             // 57: google.protobuf.Duration
+	(v1.Permission)(0),                      // 58: chalk.auth.v1.Permission
+	(*CreateLinkSessionRequest)(nil),        // 59: chalk.server.v1.CreateLinkSessionRequest
+	(*GetLinkSessionRequest)(nil),           // 60: chalk.server.v1.GetLinkSessionRequest
+	(*CreateLinkSessionResponse)(nil),       // 61: chalk.server.v1.CreateLinkSessionResponse
+	(*GetLinkSessionResponse)(nil),          // 62: chalk.server.v1.GetLinkSessionResponse
 }
 var file_chalk_server_v1_auth_proto_depIdxs = []int32{
-	54, // 0: chalk.server.v1.AdapterUser.email_verified:type_name -> google.protobuf.Timestamp
-	54, // 1: chalk.server.v1.AdapterUserNoId.email_verified:type_name -> google.protobuf.Timestamp
-	54, // 2: chalk.server.v1.AdapterSession.expires:type_name -> google.protobuf.Timestamp
-	54, // 3: chalk.server.v1.AdapterCreateSession.expires:type_name -> google.protobuf.Timestamp
-	54, // 4: chalk.server.v1.UpdateAdapterSession.expires:type_name -> google.protobuf.Timestamp
-	54, // 5: chalk.server.v1.VerificationToken.expires:type_name -> google.protobuf.Timestamp
+	56, // 0: chalk.server.v1.AdapterUser.email_verified:type_name -> google.protobuf.Timestamp
+	56, // 1: chalk.server.v1.AdapterUserNoId.email_verified:type_name -> google.protobuf.Timestamp
+	56, // 2: chalk.server.v1.AdapterSession.expires:type_name -> google.protobuf.Timestamp
+	56, // 3: chalk.server.v1.AdapterCreateSession.expires:type_name -> google.protobuf.Timestamp
+	56, // 4: chalk.server.v1.UpdateAdapterSession.expires:type_name -> google.protobuf.Timestamp
+	56, // 5: chalk.server.v1.VerificationToken.expires:type_name -> google.protobuf.Timestamp
 	1,  // 6: chalk.server.v1.CreateUserRequest.user:type_name -> chalk.server.v1.AdapterUserNoId
-	54, // 7: chalk.server.v1.UpdateUserFields.email_verified:type_name -> google.protobuf.Timestamp
+	56, // 7: chalk.server.v1.UpdateUserFields.email_verified:type_name -> google.protobuf.Timestamp
 	13, // 8: chalk.server.v1.UpdateUserRequest.fields:type_name -> chalk.server.v1.UpdateUserFields
 	5,  // 9: chalk.server.v1.LinkAccountRequest.account:type_name -> chalk.server.v1.NextAccount
 	3,  // 10: chalk.server.v1.CreateSessionRequest.session:type_name -> chalk.server.v1.AdapterCreateSession
@@ -3036,7 +3134,7 @@ var file_chalk_server_v1_auth_proto_depIdxs = []int32{
 	0,  // 12: chalk.server.v1.GetSessionAndUserResponse.user:type_name -> chalk.server.v1.AdapterUser
 	4,  // 13: chalk.server.v1.UpdateSessionRequest.session:type_name -> chalk.server.v1.UpdateAdapterSession
 	6,  // 14: chalk.server.v1.CreateVerificationTokenRequest.verification_token:type_name -> chalk.server.v1.VerificationToken
-	54, // 15: chalk.server.v1.UpsertUserByEmailFields.email_verified:type_name -> google.protobuf.Timestamp
+	56, // 15: chalk.server.v1.UpsertUserByEmailFields.email_verified:type_name -> google.protobuf.Timestamp
 	23, // 16: chalk.server.v1.UpsertUserByEmailRequest.fields:type_name -> chalk.server.v1.UpsertUserByEmailFields
 	0,  // 17: chalk.server.v1.CreateUserResponse.user:type_name -> chalk.server.v1.AdapterUser
 	0,  // 18: chalk.server.v1.GetUserByIdResponse.user:type_name -> chalk.server.v1.AdapterUser
@@ -3050,21 +3148,21 @@ var file_chalk_server_v1_auth_proto_depIdxs = []int32{
 	6,  // 26: chalk.server.v1.CreateVerificationTokenResponse.verification_token:type_name -> chalk.server.v1.VerificationToken
 	6,  // 27: chalk.server.v1.UseVerificationTokenResponse.verification_token:type_name -> chalk.server.v1.VerificationToken
 	0,  // 28: chalk.server.v1.UpsertUserByEmailResponse.user:type_name -> chalk.server.v1.AdapterUser
-	55, // 29: chalk.server.v1.GetTokenRequest.expires_at:type_name -> google.protobuf.Duration
-	54, // 30: chalk.server.v1.GetTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	48, // 31: chalk.server.v1.GetTokenResponse.engines:type_name -> chalk.server.v1.GetTokenResponse.EnginesEntry
-	49, // 32: chalk.server.v1.GetTokenResponse.grpc_engines:type_name -> chalk.server.v1.GetTokenResponse.GrpcEnginesEntry
-	50, // 33: chalk.server.v1.GetTokenResponse.environment_id_to_name:type_name -> chalk.server.v1.GetTokenResponse.EnvironmentIdToNameEntry
-	44, // 34: chalk.server.v1.GetProjectInfoResponse.project:type_name -> chalk.server.v1.ProjectInfo
-	56, // 35: chalk.server.v1.GetInternalWorkingTokenRequest.requested_permissions:type_name -> chalk.auth.v1.Permission
-	54, // 36: chalk.server.v1.GetInternalWorkingTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	51, // 37: chalk.server.v1.GetInternalWorkingTokenResponse.engines:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnginesEntry
-	52, // 38: chalk.server.v1.GetInternalWorkingTokenResponse.grpc_engines:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.GrpcEnginesEntry
-	53, // 39: chalk.server.v1.GetInternalWorkingTokenResponse.environment_id_to_name:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnvironmentIdToNameEntry
-	39, // 40: chalk.server.v1.AuthService.GetToken:input_type -> chalk.server.v1.GetTokenRequest
-	57, // 41: chalk.server.v1.AuthService.CreateLinkSession:input_type -> chalk.server.v1.CreateLinkSessionRequest
-	58, // 42: chalk.server.v1.AuthService.GetLinkSession:input_type -> chalk.server.v1.GetLinkSessionRequest
-	41, // 43: chalk.server.v1.AuthService.UpdateLinkSession:input_type -> chalk.server.v1.UpdateLinkSessionRequest
+	57, // 29: chalk.server.v1.GetTokenRequest.expires_at:type_name -> google.protobuf.Duration
+	56, // 30: chalk.server.v1.GetTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
+	50, // 31: chalk.server.v1.GetTokenResponse.engines:type_name -> chalk.server.v1.GetTokenResponse.EnginesEntry
+	51, // 32: chalk.server.v1.GetTokenResponse.grpc_engines:type_name -> chalk.server.v1.GetTokenResponse.GrpcEnginesEntry
+	52, // 33: chalk.server.v1.GetTokenResponse.environment_id_to_name:type_name -> chalk.server.v1.GetTokenResponse.EnvironmentIdToNameEntry
+	46, // 34: chalk.server.v1.GetProjectInfoResponse.project:type_name -> chalk.server.v1.ProjectInfo
+	58, // 35: chalk.server.v1.GetInternalWorkingTokenRequest.requested_permissions:type_name -> chalk.auth.v1.Permission
+	56, // 36: chalk.server.v1.GetInternalWorkingTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
+	53, // 37: chalk.server.v1.GetInternalWorkingTokenResponse.engines:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnginesEntry
+	54, // 38: chalk.server.v1.GetInternalWorkingTokenResponse.grpc_engines:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.GrpcEnginesEntry
+	55, // 39: chalk.server.v1.GetInternalWorkingTokenResponse.environment_id_to_name:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnvironmentIdToNameEntry
+	41, // 40: chalk.server.v1.AuthService.GetToken:input_type -> chalk.server.v1.GetTokenRequest
+	59, // 41: chalk.server.v1.AuthService.CreateLinkSession:input_type -> chalk.server.v1.CreateLinkSessionRequest
+	60, // 42: chalk.server.v1.AuthService.GetLinkSession:input_type -> chalk.server.v1.GetLinkSessionRequest
+	43, // 43: chalk.server.v1.AuthService.UpdateLinkSession:input_type -> chalk.server.v1.UpdateLinkSessionRequest
 	7,  // 44: chalk.server.v1.AuthService.CheckTeamInvites:input_type -> chalk.server.v1.CheckTeamInvitesRequest
 	9,  // 45: chalk.server.v1.AuthService.CreateUser:input_type -> chalk.server.v1.CreateUserRequest
 	10, // 46: chalk.server.v1.AuthService.GetUserById:input_type -> chalk.server.v1.GetUserByIdRequest
@@ -3080,31 +3178,33 @@ var file_chalk_server_v1_auth_proto_depIdxs = []int32{
 	22, // 56: chalk.server.v1.AuthService.UseVerificationToken:input_type -> chalk.server.v1.UseVerificationTokenRequest
 	24, // 57: chalk.server.v1.AuthService.UpsertUserByEmail:input_type -> chalk.server.v1.UpsertUserByEmailRequest
 	37, // 58: chalk.server.v1.AuthService.SelfServiceCreateTeam:input_type -> chalk.server.v1.SelfServiceCreateTeamRequest
-	43, // 59: chalk.server.v1.AuthService.GetProjectInfo:input_type -> chalk.server.v1.GetProjectInfoRequest
-	46, // 60: chalk.server.v1.AuthService.GetInternalWorkingToken:input_type -> chalk.server.v1.GetInternalWorkingTokenRequest
-	40, // 61: chalk.server.v1.AuthService.GetToken:output_type -> chalk.server.v1.GetTokenResponse
-	59, // 62: chalk.server.v1.AuthService.CreateLinkSession:output_type -> chalk.server.v1.CreateLinkSessionResponse
-	60, // 63: chalk.server.v1.AuthService.GetLinkSession:output_type -> chalk.server.v1.GetLinkSessionResponse
-	42, // 64: chalk.server.v1.AuthService.UpdateLinkSession:output_type -> chalk.server.v1.UpdateLinkSessionResponse
-	8,  // 65: chalk.server.v1.AuthService.CheckTeamInvites:output_type -> chalk.server.v1.CheckTeamInvitesResponse
-	25, // 66: chalk.server.v1.AuthService.CreateUser:output_type -> chalk.server.v1.CreateUserResponse
-	26, // 67: chalk.server.v1.AuthService.GetUserById:output_type -> chalk.server.v1.GetUserByIdResponse
-	27, // 68: chalk.server.v1.AuthService.GetUserByEmail:output_type -> chalk.server.v1.GetUserByEmailResponse
-	28, // 69: chalk.server.v1.AuthService.GetUserByAccount:output_type -> chalk.server.v1.GetUserByAccountResponse
-	29, // 70: chalk.server.v1.AuthService.UpdateUser:output_type -> chalk.server.v1.UpdateUserResponse
-	30, // 71: chalk.server.v1.AuthService.LinkAccount:output_type -> chalk.server.v1.LinkAccountResponse
-	31, // 72: chalk.server.v1.AuthService.CreateSession:output_type -> chalk.server.v1.CreateSessionResponse
-	18, // 73: chalk.server.v1.AuthService.GetSessionAndUser:output_type -> chalk.server.v1.GetSessionAndUserResponse
-	32, // 74: chalk.server.v1.AuthService.UpdateSession:output_type -> chalk.server.v1.UpdateSessionResponse
-	33, // 75: chalk.server.v1.AuthService.DeleteSession:output_type -> chalk.server.v1.DeleteSessionResponse
-	34, // 76: chalk.server.v1.AuthService.CreateVerificationToken:output_type -> chalk.server.v1.CreateVerificationTokenResponse
-	35, // 77: chalk.server.v1.AuthService.UseVerificationToken:output_type -> chalk.server.v1.UseVerificationTokenResponse
-	36, // 78: chalk.server.v1.AuthService.UpsertUserByEmail:output_type -> chalk.server.v1.UpsertUserByEmailResponse
-	38, // 79: chalk.server.v1.AuthService.SelfServiceCreateTeam:output_type -> chalk.server.v1.SelfServiceCreateTeamResponse
-	45, // 80: chalk.server.v1.AuthService.GetProjectInfo:output_type -> chalk.server.v1.GetProjectInfoResponse
-	47, // 81: chalk.server.v1.AuthService.GetInternalWorkingToken:output_type -> chalk.server.v1.GetInternalWorkingTokenResponse
-	61, // [61:82] is the sub-list for method output_type
-	40, // [40:61] is the sub-list for method input_type
+	39, // 59: chalk.server.v1.AuthService.GetTeamOnboardingStatus:input_type -> chalk.server.v1.GetTeamOnboardingStatusRequest
+	45, // 60: chalk.server.v1.AuthService.GetProjectInfo:input_type -> chalk.server.v1.GetProjectInfoRequest
+	48, // 61: chalk.server.v1.AuthService.GetInternalWorkingToken:input_type -> chalk.server.v1.GetInternalWorkingTokenRequest
+	42, // 62: chalk.server.v1.AuthService.GetToken:output_type -> chalk.server.v1.GetTokenResponse
+	61, // 63: chalk.server.v1.AuthService.CreateLinkSession:output_type -> chalk.server.v1.CreateLinkSessionResponse
+	62, // 64: chalk.server.v1.AuthService.GetLinkSession:output_type -> chalk.server.v1.GetLinkSessionResponse
+	44, // 65: chalk.server.v1.AuthService.UpdateLinkSession:output_type -> chalk.server.v1.UpdateLinkSessionResponse
+	8,  // 66: chalk.server.v1.AuthService.CheckTeamInvites:output_type -> chalk.server.v1.CheckTeamInvitesResponse
+	25, // 67: chalk.server.v1.AuthService.CreateUser:output_type -> chalk.server.v1.CreateUserResponse
+	26, // 68: chalk.server.v1.AuthService.GetUserById:output_type -> chalk.server.v1.GetUserByIdResponse
+	27, // 69: chalk.server.v1.AuthService.GetUserByEmail:output_type -> chalk.server.v1.GetUserByEmailResponse
+	28, // 70: chalk.server.v1.AuthService.GetUserByAccount:output_type -> chalk.server.v1.GetUserByAccountResponse
+	29, // 71: chalk.server.v1.AuthService.UpdateUser:output_type -> chalk.server.v1.UpdateUserResponse
+	30, // 72: chalk.server.v1.AuthService.LinkAccount:output_type -> chalk.server.v1.LinkAccountResponse
+	31, // 73: chalk.server.v1.AuthService.CreateSession:output_type -> chalk.server.v1.CreateSessionResponse
+	18, // 74: chalk.server.v1.AuthService.GetSessionAndUser:output_type -> chalk.server.v1.GetSessionAndUserResponse
+	32, // 75: chalk.server.v1.AuthService.UpdateSession:output_type -> chalk.server.v1.UpdateSessionResponse
+	33, // 76: chalk.server.v1.AuthService.DeleteSession:output_type -> chalk.server.v1.DeleteSessionResponse
+	34, // 77: chalk.server.v1.AuthService.CreateVerificationToken:output_type -> chalk.server.v1.CreateVerificationTokenResponse
+	35, // 78: chalk.server.v1.AuthService.UseVerificationToken:output_type -> chalk.server.v1.UseVerificationTokenResponse
+	36, // 79: chalk.server.v1.AuthService.UpsertUserByEmail:output_type -> chalk.server.v1.UpsertUserByEmailResponse
+	38, // 80: chalk.server.v1.AuthService.SelfServiceCreateTeam:output_type -> chalk.server.v1.SelfServiceCreateTeamResponse
+	40, // 81: chalk.server.v1.AuthService.GetTeamOnboardingStatus:output_type -> chalk.server.v1.GetTeamOnboardingStatusResponse
+	47, // 82: chalk.server.v1.AuthService.GetProjectInfo:output_type -> chalk.server.v1.GetProjectInfoResponse
+	49, // 83: chalk.server.v1.AuthService.GetInternalWorkingToken:output_type -> chalk.server.v1.GetInternalWorkingTokenResponse
+	62, // [62:84] is the sub-list for method output_type
+	40, // [40:62] is the sub-list for method input_type
 	40, // [40:40] is the sub-list for extension type_name
 	40, // [40:40] is the sub-list for extension extendee
 	0,  // [0:40] is the sub-list for field type_name
@@ -3131,15 +3231,15 @@ func file_chalk_server_v1_auth_proto_init() {
 	file_chalk_server_v1_auth_proto_msgTypes[34].OneofWrappers = []any{}
 	file_chalk_server_v1_auth_proto_msgTypes[35].OneofWrappers = []any{}
 	file_chalk_server_v1_auth_proto_msgTypes[36].OneofWrappers = []any{}
-	file_chalk_server_v1_auth_proto_msgTypes[39].OneofWrappers = []any{}
-	file_chalk_server_v1_auth_proto_msgTypes[40].OneofWrappers = []any{}
+	file_chalk_server_v1_auth_proto_msgTypes[41].OneofWrappers = []any{}
+	file_chalk_server_v1_auth_proto_msgTypes[42].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_auth_proto_rawDesc), len(file_chalk_server_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   54,
+			NumMessages:   56,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

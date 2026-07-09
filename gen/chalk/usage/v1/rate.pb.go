@@ -167,15 +167,17 @@ func (x *MachineRate) GetGpus() float64 {
 }
 
 type CloudInstanceType struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MachineType   string                 `protobuf:"bytes,1,opt,name=machine_type,json=machineType,proto3" json:"machine_type,omitempty"`
-	Cpus          float64                `protobuf:"fixed64,2,opt,name=cpus,proto3" json:"cpus,omitempty"`
-	MemoryGb      float64                `protobuf:"fixed64,3,opt,name=memory_gb,json=memoryGb,proto3" json:"memory_gb,omitempty"`
-	Cloud         BillingCloud           `protobuf:"varint,4,opt,name=cloud,proto3,enum=chalk.usage.v1.BillingCloud" json:"cloud,omitempty"`
-	MachineFamily string                 `protobuf:"bytes,5,opt,name=machine_family,json=machineFamily,proto3" json:"machine_family,omitempty"`
-	Gpus          *float64               `protobuf:"fixed64,6,opt,name=gpus,proto3,oneof" json:"gpus,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	MachineType    string                 `protobuf:"bytes,1,opt,name=machine_type,json=machineType,proto3" json:"machine_type,omitempty"`
+	Cpus           float64                `protobuf:"fixed64,2,opt,name=cpus,proto3" json:"cpus,omitempty"`
+	MemoryGb       float64                `protobuf:"fixed64,3,opt,name=memory_gb,json=memoryGb,proto3" json:"memory_gb,omitempty"`
+	Cloud          BillingCloud           `protobuf:"varint,4,opt,name=cloud,proto3,enum=chalk.usage.v1.BillingCloud" json:"cloud,omitempty"`
+	MachineFamily  string                 `protobuf:"bytes,5,opt,name=machine_family,json=machineFamily,proto3" json:"machine_family,omitempty"`
+	Gpus           *float64               `protobuf:"fixed64,6,opt,name=gpus,proto3,oneof" json:"gpus,omitempty"`
+	LocalSsdCount  int32                  `protobuf:"varint,7,opt,name=local_ssd_count,json=localSsdCount,proto3" json:"local_ssd_count,omitempty"`
+	LocalSsdSizeGb int32                  `protobuf:"varint,8,opt,name=local_ssd_size_gb,json=localSsdSizeGb,proto3" json:"local_ssd_size_gb,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CloudInstanceType) Reset() {
@@ -250,6 +252,20 @@ func (x *CloudInstanceType) GetGpus() float64 {
 	return 0
 }
 
+func (x *CloudInstanceType) GetLocalSsdCount() int32 {
+	if x != nil {
+		return x.LocalSsdCount
+	}
+	return 0
+}
+
+func (x *CloudInstanceType) GetLocalSsdSizeGb() int32 {
+	if x != nil {
+		return x.LocalSsdSizeGb
+	}
+	return 0
+}
+
 var File_chalk_usage_v1_rate_proto protoreflect.FileDescriptor
 
 const file_chalk_usage_v1_rate_proto_rawDesc = "" +
@@ -263,14 +279,16 @@ const file_chalk_usage_v1_rate_proto_rawDesc = "" +
 	"\x05cloud\x18\x05 \x01(\x0e2\x1c.chalk.usage.v1.BillingCloudR\x05cloud\x12%\n" +
 	"\x0emachine_family\x18\x06 \x01(\tR\rmachineFamily\x12\x17\n" +
 	"\x04gpus\x18\a \x01(\x01H\x00R\x04gpus\x88\x01\x01B\a\n" +
-	"\x05_gpus\"\xe4\x01\n" +
+	"\x05_gpus\"\xb7\x02\n" +
 	"\x11CloudInstanceType\x12!\n" +
 	"\fmachine_type\x18\x01 \x01(\tR\vmachineType\x12\x12\n" +
 	"\x04cpus\x18\x02 \x01(\x01R\x04cpus\x12\x1b\n" +
 	"\tmemory_gb\x18\x03 \x01(\x01R\bmemoryGb\x122\n" +
 	"\x05cloud\x18\x04 \x01(\x0e2\x1c.chalk.usage.v1.BillingCloudR\x05cloud\x12%\n" +
 	"\x0emachine_family\x18\x05 \x01(\tR\rmachineFamily\x12\x17\n" +
-	"\x04gpus\x18\x06 \x01(\x01H\x00R\x04gpus\x88\x01\x01B\a\n" +
+	"\x04gpus\x18\x06 \x01(\x01H\x00R\x04gpus\x88\x01\x01\x12&\n" +
+	"\x0flocal_ssd_count\x18\a \x01(\x05R\rlocalSsdCount\x12)\n" +
+	"\x11local_ssd_size_gb\x18\b \x01(\x05R\x0elocalSsdSizeGbB\a\n" +
 	"\x05_gpus*t\n" +
 	"\fBillingCloud\x12\x1d\n" +
 	"\x19BILLING_CLOUD_UNSPECIFIED\x10\x00\x12\x15\n" +
