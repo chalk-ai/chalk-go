@@ -649,6 +649,7 @@ type ModelArtifactSpec struct {
 	PythonDependencies []string `protobuf:"bytes,9,rep,name=python_dependencies,json=pythonDependencies,proto3" json:"python_dependencies,omitempty"` //  string python_version = 10;
 	// Docker image for model serving
 	ModelImage    *string `protobuf:"bytes,11,opt,name=model_image,json=modelImage,proto3,oneof" json:"model_image,omitempty"`
+	ModelVolume   *string `protobuf:"bytes,12,opt,name=model_volume,json=modelVolume,proto3,oneof" json:"model_volume,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -753,6 +754,13 @@ func (x *ModelArtifactSpec) GetModelImage() string {
 	return ""
 }
 
+func (x *ModelArtifactSpec) GetModelVolume() string {
+	if x != nil && x.ModelVolume != nil {
+		return *x.ModelVolume
+	}
+	return ""
+}
+
 var File_chalk_models_v1_model_artifact_proto protoreflect.FileDescriptor
 
 const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
@@ -784,7 +792,7 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"\tModelFile\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x17\n" +
 	"\asize_kb\x18\x02 \x01(\x03R\x06sizeKb\x12\x1b\n" +
-	"\tfile_hash\x18\x03 \x01(\fR\bfileHash\"\xbb\x04\n" +
+	"\tfile_hash\x18\x03 \x01(\fR\bfileHash\"\xf4\x04\n" +
 	"\x11ModelArtifactSpec\x12;\n" +
 	"\vmodel_files\x18\x01 \x03(\v2\x1a.chalk.models.v1.ModelFileR\n" +
 	"modelFiles\x12E\n" +
@@ -799,8 +807,10 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"\x0foutput_features\x18\b \x03(\tR\x0eoutputFeatures\x12/\n" +
 	"\x13python_dependencies\x18\t \x03(\tR\x12pythonDependencies\x12$\n" +
 	"\vmodel_image\x18\v \x01(\tH\x00R\n" +
-	"modelImage\x88\x01\x01B\x0e\n" +
-	"\f_model_image*\xd1\x01\n" +
+	"modelImage\x88\x01\x01\x12&\n" +
+	"\fmodel_volume\x18\f \x01(\tH\x01R\vmodelVolume\x88\x01\x01B\x0e\n" +
+	"\f_model_imageB\x0f\n" +
+	"\r_model_volume*\xd1\x01\n" +
 	"\tModelType\x12\x1a\n" +
 	"\x16MODEL_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12MODEL_TYPE_PYTORCH\x10\x01\x12\x16\n" +

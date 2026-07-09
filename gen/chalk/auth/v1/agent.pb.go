@@ -628,8 +628,11 @@ type TenantAgent struct {
 	EnvironmentId string `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	// Present only when the agent authenticated via an exchange token.
 	ExchangeTokenDetails *ExchangeTokenDetails `protobuf:"bytes,4,opt,name=exchange_token_details,json=exchangeTokenDetails,proto3,oneof" json:"exchange_token_details,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Optional cluster scope. Used to authorize cluster-scoped infrastructure
+	// writes (e.g. dataplane-controller container/scaling-group status updates).
+	ClusterId     string `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *TenantAgent) Reset() {
@@ -688,6 +691,13 @@ func (x *TenantAgent) GetExchangeTokenDetails() *ExchangeTokenDetails {
 		return x.ExchangeTokenDetails
 	}
 	return nil
+}
+
+func (x *TenantAgent) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
 }
 
 type Agent struct {
@@ -866,12 +876,14 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\x17requestable_permissions\x18\x01 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x16requestablePermissions\x12+\n" +
 	"\x11generation_number\x18\x02 \x01(\x05R\x10generationNumber\x12\x18\n" +
 	"\asubject\x18\x03 \x01(\tR\asubject\x12%\n" +
-	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\"\x85\x02\n" +
+	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\"\xa4\x02\n" +
 	"\vTenantAgent\x12\x17\n" +
 	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12;\n" +
 	"\vpermissions\x18\x02 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\x12%\n" +
 	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x12^\n" +
-	"\x16exchange_token_details\x18\x04 \x01(\v2#.chalk.auth.v1.ExchangeTokenDetailsH\x00R\x14exchangeTokenDetails\x88\x01\x01B\x19\n" +
+	"\x16exchange_token_details\x18\x04 \x01(\v2#.chalk.auth.v1.ExchangeTokenDetailsH\x00R\x14exchangeTokenDetails\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x05 \x01(\tR\tclusterIdB\x19\n" +
 	"\x17_exchange_token_details\"\xfe\x02\n" +
 	"\x05Agent\x129\n" +
 	"\n" +

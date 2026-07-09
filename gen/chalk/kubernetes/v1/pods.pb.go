@@ -220,9 +220,12 @@ type KubernetesPodData_Volume struct {
 	// name of the volume.
 	// Must be a DNS_LABEL and unique within the pod.
 	// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Set when the volume is backed by a PersistentVolumeClaim, naming that
+	// claim in the pod's namespace. Used to associate pods with PersistentVolumes.
+	PersistentVolumeClaimName *string `protobuf:"bytes,3,opt,name=persistent_volume_claim_name,json=persistentVolumeClaimName,proto3,oneof" json:"persistent_volume_claim_name,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *KubernetesPodData_Volume) Reset() {
@@ -258,6 +261,13 @@ func (*KubernetesPodData_Volume) Descriptor() ([]byte, []int) {
 func (x *KubernetesPodData_Volume) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_Volume) GetPersistentVolumeClaimName() string {
+	if x != nil && x.PersistentVolumeClaimName != nil {
+		return *x.PersistentVolumeClaimName
 	}
 	return ""
 }
@@ -3367,7 +3377,7 @@ var File_chalk_kubernetes_v1_pods_proto protoreflect.FileDescriptor
 
 const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/kubernetes/v1/pods.proto\x12\x13chalk.kubernetes.v1\"\xab]\n" +
+	"\x1echalk/kubernetes/v1/pods.proto\x12\x13chalk.kubernetes.v1\"\x93^\n" +
 	"\x11KubernetesPodData\x12\x12\n" +
 	"\x04team\x18\x01 \x01(\tR\x04team\x12\x10\n" +
 	"\x03app\x18\x02 \x01(\tR\x03app\x12\x1c\n" +
@@ -3386,9 +3396,11 @@ const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\x03uid\x18\x18 \x01(\tR\x03uid\x12\x12\n" +
 	"\x04name\x18\x19 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x1a \x01(\tR\tnamespace\x12c\n" +
-	"\x0fowner_reference\x18\x1b \x01(\v25.chalk.kubernetes.v1.KubernetesPodData.OwnerReferenceH\x00R\x0eownerReference\x88\x01\x01\x1a\x1c\n" +
+	"\x0fowner_reference\x18\x1b \x01(\v25.chalk.kubernetes.v1.KubernetesPodData.OwnerReferenceH\x00R\x0eownerReference\x88\x01\x01\x1a\x83\x01\n" +
 	"\x06Volume\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\xc1\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12D\n" +
+	"\x1cpersistent_volume_claim_name\x18\x03 \x01(\tH\x00R\x19persistentVolumeClaimName\x88\x01\x01B\x1f\n" +
+	"\x1d_persistent_volume_claim_name\x1a\xc1\x01\n" +
 	"\vClaimSource\x123\n" +
 	"\x13resource_claim_name\x18\x01 \x01(\tH\x00R\x11resourceClaimName\x88\x01\x01\x12D\n" +
 	"\x1cresource_claim_template_name\x18\x02 \x01(\tH\x01R\x19resourceClaimTemplateName\x88\x01\x01B\x16\n" +
@@ -3843,6 +3855,7 @@ func file_chalk_kubernetes_v1_pods_proto_init() {
 		return
 	}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[0].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[10].OneofWrappers = []any{}
