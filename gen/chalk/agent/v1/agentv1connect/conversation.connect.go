@@ -48,6 +48,9 @@ const (
 	// AgentConversationServiceDeleteConversationProcedure is the fully-qualified name of the
 	// AgentConversationService's DeleteConversation RPC.
 	AgentConversationServiceDeleteConversationProcedure = "/chalk.agent.v1.AgentConversationService/DeleteConversation"
+	// AgentConversationServiceForkConversationProcedure is the fully-qualified name of the
+	// AgentConversationService's ForkConversation RPC.
+	AgentConversationServiceForkConversationProcedure = "/chalk.agent.v1.AgentConversationService/ForkConversation"
 	// AgentConversationServiceAddMessageProcedure is the fully-qualified name of the
 	// AgentConversationService's AddMessage RPC.
 	AgentConversationServiceAddMessageProcedure = "/chalk.agent.v1.AgentConversationService/AddMessage"
@@ -70,6 +73,7 @@ type AgentConversationServiceClient interface {
 	ListConversations(context.Context, *connect.Request[v1.ListConversationsRequest]) (*connect.Response[v1.ListConversationsResponse], error)
 	UpdateConversation(context.Context, *connect.Request[v1.UpdateConversationRequest]) (*connect.Response[v1.UpdateConversationResponse], error)
 	DeleteConversation(context.Context, *connect.Request[v1.DeleteConversationRequest]) (*connect.Response[v1.DeleteConversationResponse], error)
+	ForkConversation(context.Context, *connect.Request[v1.ForkConversationRequest]) (*connect.Response[v1.ForkConversationResponse], error)
 	AddMessage(context.Context, *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error)
 	UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error)
 	ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error)
@@ -121,6 +125,12 @@ func NewAgentConversationServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		forkConversation: connect.NewClient[v1.ForkConversationRequest, v1.ForkConversationResponse](
+			httpClient,
+			baseURL+AgentConversationServiceForkConversationProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("ForkConversation")),
+			connect.WithClientOptions(opts...),
+		),
 		addMessage: connect.NewClient[v1.AddMessageRequest, v1.AddMessageResponse](
 			httpClient,
 			baseURL+AgentConversationServiceAddMessageProcedure,
@@ -157,6 +167,7 @@ type agentConversationServiceClient struct {
 	listConversations   *connect.Client[v1.ListConversationsRequest, v1.ListConversationsResponse]
 	updateConversation  *connect.Client[v1.UpdateConversationRequest, v1.UpdateConversationResponse]
 	deleteConversation  *connect.Client[v1.DeleteConversationRequest, v1.DeleteConversationResponse]
+	forkConversation    *connect.Client[v1.ForkConversationRequest, v1.ForkConversationResponse]
 	addMessage          *connect.Client[v1.AddMessageRequest, v1.AddMessageResponse]
 	updateMessageStatus *connect.Client[v1.UpdateMessageStatusRequest, v1.UpdateMessageStatusResponse]
 	listMessages        *connect.Client[v1.ListMessagesRequest, v1.ListMessagesResponse]
@@ -188,6 +199,11 @@ func (c *agentConversationServiceClient) DeleteConversation(ctx context.Context,
 	return c.deleteConversation.CallUnary(ctx, req)
 }
 
+// ForkConversation calls chalk.agent.v1.AgentConversationService.ForkConversation.
+func (c *agentConversationServiceClient) ForkConversation(ctx context.Context, req *connect.Request[v1.ForkConversationRequest]) (*connect.Response[v1.ForkConversationResponse], error) {
+	return c.forkConversation.CallUnary(ctx, req)
+}
+
 // AddMessage calls chalk.agent.v1.AgentConversationService.AddMessage.
 func (c *agentConversationServiceClient) AddMessage(ctx context.Context, req *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error) {
 	return c.addMessage.CallUnary(ctx, req)
@@ -216,6 +232,7 @@ type AgentConversationServiceHandler interface {
 	ListConversations(context.Context, *connect.Request[v1.ListConversationsRequest]) (*connect.Response[v1.ListConversationsResponse], error)
 	UpdateConversation(context.Context, *connect.Request[v1.UpdateConversationRequest]) (*connect.Response[v1.UpdateConversationResponse], error)
 	DeleteConversation(context.Context, *connect.Request[v1.DeleteConversationRequest]) (*connect.Response[v1.DeleteConversationResponse], error)
+	ForkConversation(context.Context, *connect.Request[v1.ForkConversationRequest]) (*connect.Response[v1.ForkConversationResponse], error)
 	AddMessage(context.Context, *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error)
 	UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error)
 	ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error)
@@ -263,6 +280,12 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	agentConversationServiceForkConversationHandler := connect.NewUnaryHandler(
+		AgentConversationServiceForkConversationProcedure,
+		svc.ForkConversation,
+		connect.WithSchema(agentConversationServiceMethods.ByName("ForkConversation")),
+		connect.WithHandlerOptions(opts...),
+	)
 	agentConversationServiceAddMessageHandler := connect.NewUnaryHandler(
 		AgentConversationServiceAddMessageProcedure,
 		svc.AddMessage,
@@ -301,6 +324,8 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 			agentConversationServiceUpdateConversationHandler.ServeHTTP(w, r)
 		case AgentConversationServiceDeleteConversationProcedure:
 			agentConversationServiceDeleteConversationHandler.ServeHTTP(w, r)
+		case AgentConversationServiceForkConversationProcedure:
+			agentConversationServiceForkConversationHandler.ServeHTTP(w, r)
 		case AgentConversationServiceAddMessageProcedure:
 			agentConversationServiceAddMessageHandler.ServeHTTP(w, r)
 		case AgentConversationServiceUpdateMessageStatusProcedure:
@@ -336,6 +361,10 @@ func (UnimplementedAgentConversationServiceHandler) UpdateConversation(context.C
 
 func (UnimplementedAgentConversationServiceHandler) DeleteConversation(context.Context, *connect.Request[v1.DeleteConversationRequest]) (*connect.Response[v1.DeleteConversationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.DeleteConversation is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) ForkConversation(context.Context, *connect.Request[v1.ForkConversationRequest]) (*connect.Response[v1.ForkConversationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.ForkConversation is not implemented"))
 }
 
 func (UnimplementedAgentConversationServiceHandler) AddMessage(context.Context, *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error) {

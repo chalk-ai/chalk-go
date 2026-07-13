@@ -48,6 +48,12 @@ const (
 	// DashboardServiceDeleteDashboardProcedure is the fully-qualified name of the DashboardService's
 	// DeleteDashboard RPC.
 	DashboardServiceDeleteDashboardProcedure = "/chalk.server.v1.DashboardService/DeleteDashboard"
+	// DashboardServiceExportDashboardProcedure is the fully-qualified name of the DashboardService's
+	// ExportDashboard RPC.
+	DashboardServiceExportDashboardProcedure = "/chalk.server.v1.DashboardService/ExportDashboard"
+	// DashboardServiceImportDashboardProcedure is the fully-qualified name of the DashboardService's
+	// ImportDashboard RPC.
+	DashboardServiceImportDashboardProcedure = "/chalk.server.v1.DashboardService/ImportDashboard"
 )
 
 // DashboardServiceClient is a client for the chalk.server.v1.DashboardService service.
@@ -57,6 +63,8 @@ type DashboardServiceClient interface {
 	ListDashboards(context.Context, *connect.Request[v1.ListDashboardsRequest]) (*connect.Response[v1.ListDashboardsResponse], error)
 	UpdateDashboard(context.Context, *connect.Request[v1.UpdateDashboardRequest]) (*connect.Response[v1.UpdateDashboardResponse], error)
 	DeleteDashboard(context.Context, *connect.Request[v1.DeleteDashboardRequest]) (*connect.Response[v1.DeleteDashboardResponse], error)
+	ExportDashboard(context.Context, *connect.Request[v1.ExportDashboardRequest]) (*connect.Response[v1.ExportDashboardResponse], error)
+	ImportDashboard(context.Context, *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error)
 }
 
 // NewDashboardServiceClient constructs a client for the chalk.server.v1.DashboardService service.
@@ -100,6 +108,18 @@ func NewDashboardServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(dashboardServiceMethods.ByName("DeleteDashboard")),
 			connect.WithClientOptions(opts...),
 		),
+		exportDashboard: connect.NewClient[v1.ExportDashboardRequest, v1.ExportDashboardResponse](
+			httpClient,
+			baseURL+DashboardServiceExportDashboardProcedure,
+			connect.WithSchema(dashboardServiceMethods.ByName("ExportDashboard")),
+			connect.WithClientOptions(opts...),
+		),
+		importDashboard: connect.NewClient[v1.ImportDashboardRequest, v1.ImportDashboardResponse](
+			httpClient,
+			baseURL+DashboardServiceImportDashboardProcedure,
+			connect.WithSchema(dashboardServiceMethods.ByName("ImportDashboard")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -110,6 +130,8 @@ type dashboardServiceClient struct {
 	listDashboards  *connect.Client[v1.ListDashboardsRequest, v1.ListDashboardsResponse]
 	updateDashboard *connect.Client[v1.UpdateDashboardRequest, v1.UpdateDashboardResponse]
 	deleteDashboard *connect.Client[v1.DeleteDashboardRequest, v1.DeleteDashboardResponse]
+	exportDashboard *connect.Client[v1.ExportDashboardRequest, v1.ExportDashboardResponse]
+	importDashboard *connect.Client[v1.ImportDashboardRequest, v1.ImportDashboardResponse]
 }
 
 // CreateDashboard calls chalk.server.v1.DashboardService.CreateDashboard.
@@ -137,6 +159,16 @@ func (c *dashboardServiceClient) DeleteDashboard(ctx context.Context, req *conne
 	return c.deleteDashboard.CallUnary(ctx, req)
 }
 
+// ExportDashboard calls chalk.server.v1.DashboardService.ExportDashboard.
+func (c *dashboardServiceClient) ExportDashboard(ctx context.Context, req *connect.Request[v1.ExportDashboardRequest]) (*connect.Response[v1.ExportDashboardResponse], error) {
+	return c.exportDashboard.CallUnary(ctx, req)
+}
+
+// ImportDashboard calls chalk.server.v1.DashboardService.ImportDashboard.
+func (c *dashboardServiceClient) ImportDashboard(ctx context.Context, req *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error) {
+	return c.importDashboard.CallUnary(ctx, req)
+}
+
 // DashboardServiceHandler is an implementation of the chalk.server.v1.DashboardService service.
 type DashboardServiceHandler interface {
 	CreateDashboard(context.Context, *connect.Request[v1.CreateDashboardRequest]) (*connect.Response[v1.CreateDashboardResponse], error)
@@ -144,6 +176,8 @@ type DashboardServiceHandler interface {
 	ListDashboards(context.Context, *connect.Request[v1.ListDashboardsRequest]) (*connect.Response[v1.ListDashboardsResponse], error)
 	UpdateDashboard(context.Context, *connect.Request[v1.UpdateDashboardRequest]) (*connect.Response[v1.UpdateDashboardResponse], error)
 	DeleteDashboard(context.Context, *connect.Request[v1.DeleteDashboardRequest]) (*connect.Response[v1.DeleteDashboardResponse], error)
+	ExportDashboard(context.Context, *connect.Request[v1.ExportDashboardRequest]) (*connect.Response[v1.ExportDashboardResponse], error)
+	ImportDashboard(context.Context, *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error)
 }
 
 // NewDashboardServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -183,6 +217,18 @@ func NewDashboardServiceHandler(svc DashboardServiceHandler, opts ...connect.Han
 		connect.WithSchema(dashboardServiceMethods.ByName("DeleteDashboard")),
 		connect.WithHandlerOptions(opts...),
 	)
+	dashboardServiceExportDashboardHandler := connect.NewUnaryHandler(
+		DashboardServiceExportDashboardProcedure,
+		svc.ExportDashboard,
+		connect.WithSchema(dashboardServiceMethods.ByName("ExportDashboard")),
+		connect.WithHandlerOptions(opts...),
+	)
+	dashboardServiceImportDashboardHandler := connect.NewUnaryHandler(
+		DashboardServiceImportDashboardProcedure,
+		svc.ImportDashboard,
+		connect.WithSchema(dashboardServiceMethods.ByName("ImportDashboard")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DashboardService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DashboardServiceCreateDashboardProcedure:
@@ -195,6 +241,10 @@ func NewDashboardServiceHandler(svc DashboardServiceHandler, opts ...connect.Han
 			dashboardServiceUpdateDashboardHandler.ServeHTTP(w, r)
 		case DashboardServiceDeleteDashboardProcedure:
 			dashboardServiceDeleteDashboardHandler.ServeHTTP(w, r)
+		case DashboardServiceExportDashboardProcedure:
+			dashboardServiceExportDashboardHandler.ServeHTTP(w, r)
+		case DashboardServiceImportDashboardProcedure:
+			dashboardServiceImportDashboardHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -222,4 +272,12 @@ func (UnimplementedDashboardServiceHandler) UpdateDashboard(context.Context, *co
 
 func (UnimplementedDashboardServiceHandler) DeleteDashboard(context.Context, *connect.Request[v1.DeleteDashboardRequest]) (*connect.Response[v1.DeleteDashboardResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.DeleteDashboard is not implemented"))
+}
+
+func (UnimplementedDashboardServiceHandler) ExportDashboard(context.Context, *connect.Request[v1.ExportDashboardRequest]) (*connect.Response[v1.ExportDashboardResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.ExportDashboard is not implemented"))
+}
+
+func (UnimplementedDashboardServiceHandler) ImportDashboard(context.Context, *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.ImportDashboard is not implemented"))
 }

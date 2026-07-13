@@ -1545,6 +1545,7 @@ type Environment struct {
 	VectorDbSecret                *string                         `protobuf:"bytes,61,opt,name=vector_db_secret,json=vectorDbSecret,proto3,oneof" json:"vector_db_secret,omitempty"`
 	InternalMetadata              map[string]*structpb.Value      `protobuf:"bytes,62,rep,name=internal_metadata,json=internalMetadata,proto3" json:"internal_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	CustomerMetadata              map[string]*structpb.Value      `protobuf:"bytes,63,rep,name=customer_metadata,json=customerMetadata,proto3" json:"customer_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	DataplaneDbDirectSecret       *string                         `protobuf:"bytes,65,opt,name=dataplane_db_direct_secret,json=dataplaneDbDirectSecret,proto3,oneof" json:"dataplane_db_direct_secret,omitempty"`
 	unknownFields                 protoimpl.UnknownFields
 	sizeCache                     protoimpl.SizeCache
 }
@@ -2025,6 +2026,13 @@ func (x *Environment) GetCustomerMetadata() map[string]*structpb.Value {
 		return x.CustomerMetadata
 	}
 	return nil
+}
+
+func (x *Environment) GetDataplaneDbDirectSecret() string {
+	if x != nil && x.DataplaneDbDirectSecret != nil {
+		return *x.DataplaneDbDirectSecret
+	}
+	return ""
 }
 
 type CreateEnvironmentV2Request struct {
@@ -2743,7 +2751,7 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x0edataset_bucket\x18\x01 \x01(\tR\rdatasetBucket\x12,\n" +
 	"\x12plan_stages_bucket\x18\x02 \x01(\tR\x10planStagesBucket\x120\n" +
 	"\x14source_bundle_bucket\x18\x03 \x01(\tR\x12sourceBundleBucket\x122\n" +
-	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xf1,\n" +
+	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xd7-\n" +
 	"\vEnvironment\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x05R\x04name\x12\"\n" +
 	"\n" +
@@ -2816,7 +2824,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x0evector_db_kind\x18< \x01(\x0e2\x1d.chalk.server.v1.VectorDBKindB\x03\xe0A\x03H2R\fvectorDbKind\x88\x01\x01\x122\n" +
 	"\x10vector_db_secret\x18= \x01(\tB\x03\xe0A\x03H3R\x0evectorDbSecret\x88\x01\x01\x12d\n" +
 	"\x11internal_metadata\x18> \x03(\v22.chalk.server.v1.Environment.InternalMetadataEntryB\x03\xe0A\x03R\x10internalMetadata\x12_\n" +
-	"\x11customer_metadata\x18? \x03(\v22.chalk.server.v1.Environment.CustomerMetadataEntryR\x10customerMetadata\x1aD\n" +
+	"\x11customer_metadata\x18? \x03(\v22.chalk.server.v1.Environment.CustomerMetadataEntryR\x10customerMetadata\x12E\n" +
+	"\x1adataplane_db_direct_secret\x18A \x01(\tB\x03\xe0A\x03H4R\x17dataplaneDbDirectSecret\x88\x01\x01\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aH\n" +
@@ -2885,7 +2894,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\r_suspended_atB\x18\n" +
 	"\x16_default_build_profileB\x11\n" +
 	"\x0f_vector_db_kindB\x13\n" +
-	"\x11_vector_db_secret\"\\\n" +
+	"\x11_vector_db_secretB\x1d\n" +
+	"\x1b_dataplane_db_direct_secret\"\\\n" +
 	"\x1aCreateEnvironmentV2Request\x12>\n" +
 	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"]\n" +
 	"\x1bCreateEnvironmentV2Response\x12>\n" +

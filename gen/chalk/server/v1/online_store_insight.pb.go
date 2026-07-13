@@ -1305,9 +1305,13 @@ type GetElasticacheMetricsRequest struct {
 	// Cluster id (replication group id) to fetch metrics for.
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	// Time range. Defaults to 24H if UNSPECIFIED.
-	TimeRange     MetricsTimeRange `protobuf:"varint,2,opt,name=time_range,json=timeRange,proto3,enum=chalk.server.v1.MetricsTimeRange" json:"time_range,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	TimeRange MetricsTimeRange `protobuf:"varint,2,opt,name=time_range,json=timeRange,proto3,enum=chalk.server.v1.MetricsTimeRange" json:"time_range,omitempty"`
+	// When true, each chart carries a single series aggregated across every
+	// node in the cluster (SUM for counters, AVG for gauges) instead of one
+	// series per node.
+	AggregateNodes bool `protobuf:"varint,3,opt,name=aggregate_nodes,json=aggregateNodes,proto3" json:"aggregate_nodes,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetElasticacheMetricsRequest) Reset() {
@@ -1352,6 +1356,13 @@ func (x *GetElasticacheMetricsRequest) GetTimeRange() MetricsTimeRange {
 		return x.TimeRange
 	}
 	return MetricsTimeRange_METRICS_TIME_RANGE_UNSPECIFIED
+}
+
+func (x *GetElasticacheMetricsRequest) GetAggregateNodes() bool {
+	if x != nil {
+		return x.AggregateNodes
+	}
+	return false
 }
 
 type GetElasticacheMetricsResponse struct {
@@ -1870,12 +1881,13 @@ const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\bclusters\x18\x01 \x03(\v2#.chalk.server.v1.ElasticacheClusterR\bclusters\x12\x16\n" +
 	"\x06region\x18\x02 \x01(\tR\x06region\x12\x1d\n" +
 	"\n" +
-	"account_id\x18\x03 \x01(\tR\taccountId\"\x7f\n" +
+	"account_id\x18\x03 \x01(\tR\taccountId\"\xa8\x01\n" +
 	"\x1cGetElasticacheMetricsRequest\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12@\n" +
 	"\n" +
-	"time_range\x18\x02 \x01(\x0e2!.chalk.server.v1.MetricsTimeRangeR\ttimeRange\"O\n" +
+	"time_range\x18\x02 \x01(\x0e2!.chalk.server.v1.MetricsTimeRangeR\ttimeRange\x12'\n" +
+	"\x0faggregate_nodes\x18\x03 \x01(\bR\x0eaggregateNodes\"O\n" +
 	"\x1dGetElasticacheMetricsResponse\x12.\n" +
 	"\x06charts\x18\x01 \x03(\v2\x16.chalk.server.v1.ChartR\x06charts\"\xfd\x04\n" +
 	"\x18MemorystoreValkeyCluster\x12\x12\n" +
