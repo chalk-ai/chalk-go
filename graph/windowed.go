@@ -133,6 +133,9 @@ type MaterializationOptions struct {
 	// If not provided, the data will be updated using the resolver that would run
 	// for an online query.
 	ContinuousResolver string
+	// If true, changes to the filter expression do not invalidate data present in the
+	// online store.
+	AllowFilterMigration bool
 }
 
 func (w *WindowedFeatureBuilder) WithBucketDuration(duration time.Duration) *WindowedFeatureBuilder {
@@ -146,6 +149,12 @@ func (w *WindowedFeatureBuilder) WithDurationForWindows(duration time.Duration, 
 	for _, d := range windows {
 		w.Materialization.BucketDurations[d] = duration
 	}
+	return w
+}
+
+func (w *WindowedFeatureBuilder) WithAllowFilterMigration(allowFilterMigration bool) *WindowedFeatureBuilder {
+	w.isMaterialized = true
+	w.Materialization.AllowFilterMigration = allowFilterMigration
 	return w
 }
 
@@ -342,6 +351,7 @@ func (w *WindowedFeatureBuilder) appendFeatures(features []*graphv1.FeatureType,
 				BackfillLookbackDuration: durationProto(m.BackfillLookbackDuration),
 				BackfillStartTime:        timeProto(m.BackfillStartTime),
 				ContinuousResolver:       maybeStr(m.ContinuousResolver),
+				AllowFilterMigration:     m.AllowFilterMigration,
 			},
 		}
 		scalar.Expression = exprProto
