@@ -2601,6 +2601,7 @@ type WindowAggregation struct {
 	// support ignore this field (descriptor-guarded), so deploys carrying it
 	// require a new engine.
 	AggregateOnExpressions []*v11.LogicalExprNode `protobuf:"bytes,19,rep,name=aggregate_on_expressions,json=aggregateOnExpressions,proto3" json:"aggregate_on_expressions,omitempty"`
+	AllowFilterMigration   bool                   `protobuf:"varint,20,opt,name=allow_filter_migration,json=allowFilterMigration,proto3" json:"allow_filter_migration,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -2767,6 +2768,13 @@ func (x *WindowAggregation) GetAggregateOnExpressions() []*v11.LogicalExprNode {
 		return x.AggregateOnExpressions
 	}
 	return nil
+}
+
+func (x *WindowAggregation) GetAllowFilterMigration() bool {
+	if x != nil {
+		return x.AllowFilterMigration
+	}
+	return false
 }
 
 // Represents one tag set for a scheduled aggregate backfill run.
@@ -7638,7 +7646,7 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x0eattribute_name\x18\x05 \x01(\tR\rattributeName\x12<\n" +
 	"\x1aunversioned_attribute_name\x18\x06 \x01(\tR\x18unversionedAttributeName\x124\n" +
 	"\x13auxiliary_namespace\x18\a \x01(\tH\x00R\x12auxiliaryNamespace\x88\x01\x01B\x16\n" +
-	"\x14_auxiliary_namespace\"\xd0\v\n" +
+	"\x14_auxiliary_namespace\"\x86\f\n" +
 	"\x11WindowAggregation\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12;\n" +
 	"\bgroup_by\x18\x02 \x03(\v2 .chalk.graph.v1.FeatureReferenceR\agroupBy\x12B\n" +
@@ -7660,7 +7668,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x11backfill_tag_sets\x18\x10 \x03(\v2\x1e.chalk.graph.v1.BackfillTagSetR\x0fbackfillTagSets\x12T\n" +
 	"\x15aggregate_on_features\x18\x11 \x03(\v2 .chalk.graph.v1.FeatureReferenceR\x13aggregateOnFeatures\x12;\n" +
 	"\x17cache_aggregated_values\x18\x12 \x01(\bH\bR\x15cacheAggregatedValues\x88\x01\x01\x12^\n" +
-	"\x18aggregate_on_expressions\x18\x13 \x03(\v2$.chalk.expression.v1.LogicalExprNodeR\x16aggregateOnExpressionsB\x0f\n" +
+	"\x18aggregate_on_expressions\x18\x13 \x03(\v2$.chalk.expression.v1.LogicalExprNodeR\x16aggregateOnExpressions\x124\n" +
+	"\x16allow_filter_migration\x18\x14 \x01(\bR\x14allowFilterMigrationB\x0f\n" +
 	"\r_aggregate_onB\x14\n" +
 	"\x12_backfill_resolverB\x1d\n" +
 	"\x1b_backfill_lookback_durationB\x16\n" +

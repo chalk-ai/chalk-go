@@ -119,6 +119,7 @@ const (
 	MetricKind_METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO          MetricKind = 89
 	MetricKind_METRIC_KIND_HYPERVISOR_CONTAINER_CPU_UTILIZATION   MetricKind = 90
 	MetricKind_METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES      MetricKind = 91
+	MetricKind_METRIC_KIND_QUERY_PLAN_LATENCY                     MetricKind = 92
 )
 
 // Enum value maps for MetricKind.
@@ -216,6 +217,7 @@ var (
 		89: "METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO",
 		90: "METRIC_KIND_HYPERVISOR_CONTAINER_CPU_UTILIZATION",
 		91: "METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES",
+		92: "METRIC_KIND_QUERY_PLAN_LATENCY",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -310,6 +312,7 @@ var (
 		"METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO":           89,
 		"METRIC_KIND_HYPERVISOR_CONTAINER_CPU_UTILIZATION":    90,
 		"METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES":       91,
+		"METRIC_KIND_QUERY_PLAN_LATENCY":                      92,
 	}
 )
 
@@ -370,6 +373,8 @@ const (
 	FilterKind_FILTER_KIND_SERVICE_KIND        FilterKind = 24
 	FilterKind_FILTER_KIND_CONSUMER_GROUP      FilterKind = 25
 	FilterKind_FILTER_KIND_CONTAINER_ID        FilterKind = 26
+	FilterKind_FILTER_KIND_PLANNER             FilterKind = 27
+	FilterKind_FILTER_KIND_PLAN_REASON         FilterKind = 28
 )
 
 // Enum value maps for FilterKind.
@@ -402,6 +407,8 @@ var (
 		24: "FILTER_KIND_SERVICE_KIND",
 		25: "FILTER_KIND_CONSUMER_GROUP",
 		26: "FILTER_KIND_CONTAINER_ID",
+		27: "FILTER_KIND_PLANNER",
+		28: "FILTER_KIND_PLAN_REASON",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":         0,
@@ -431,6 +438,8 @@ var (
 		"FILTER_KIND_SERVICE_KIND":        24,
 		"FILTER_KIND_CONSUMER_GROUP":      25,
 		"FILTER_KIND_CONTAINER_ID":        26,
+		"FILTER_KIND_PLANNER":             27,
+		"FILTER_KIND_PLAN_REASON":         28,
 	}
 )
 
@@ -616,6 +625,8 @@ const (
 	GroupByKind_GROUP_BY_KIND_FUNCTION_NAME     GroupByKind = 18
 	GroupByKind_GROUP_BY_KIND_SERVICE_KIND      GroupByKind = 19
 	GroupByKind_GROUP_BY_KIND_CONSUMER_GROUP    GroupByKind = 20
+	GroupByKind_GROUP_BY_KIND_PLANNER           GroupByKind = 21
+	GroupByKind_GROUP_BY_KIND_PLAN_REASON       GroupByKind = 22
 )
 
 // Enum value maps for GroupByKind.
@@ -642,6 +653,8 @@ var (
 		18: "GROUP_BY_KIND_FUNCTION_NAME",
 		19: "GROUP_BY_KIND_SERVICE_KIND",
 		20: "GROUP_BY_KIND_CONSUMER_GROUP",
+		21: "GROUP_BY_KIND_PLANNER",
+		22: "GROUP_BY_KIND_PLAN_REASON",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":       0,
@@ -665,6 +678,8 @@ var (
 		"GROUP_BY_KIND_FUNCTION_NAME":     18,
 		"GROUP_BY_KIND_SERVICE_KIND":      19,
 		"GROUP_BY_KIND_CONSUMER_GROUP":    20,
+		"GROUP_BY_KIND_PLANNER":           21,
+		"GROUP_BY_KIND_PLAN_REASON":       22,
 	}
 )
 
@@ -1576,7 +1591,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xf3\x1c\n" +
+	"_entity_id*\x97\x1d\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -1671,7 +1686,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"!METRIC_KIND_SCHEDULED_QUERY_COUNT\x10X\x12-\n" +
 	")METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO\x10Y\x124\n" +
 	"0METRIC_KIND_HYPERVISOR_CONTAINER_CPU_UTILIZATION\x10Z\x121\n" +
-	"-METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES\x10[*\xc1\x06\n" +
+	"-METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES\x10[\x12\"\n" +
+	"\x1eMETRIC_KIND_QUERY_PLAN_LATENCY\x10\\*\xf7\x06\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -1701,7 +1717,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x19FILTER_KIND_FUNCTION_NAME\x10\x17\x12\x1c\n" +
 	"\x18FILTER_KIND_SERVICE_KIND\x10\x18\x12\x1e\n" +
 	"\x1aFILTER_KIND_CONSUMER_GROUP\x10\x19\x12\x1c\n" +
-	"\x18FILTER_KIND_CONTAINER_ID\x10\x1a*~\n" +
+	"\x18FILTER_KIND_CONTAINER_ID\x10\x1a\x12\x17\n" +
+	"\x13FILTER_KIND_PLANNER\x10\x1b\x12\x1b\n" +
+	"\x17FILTER_KIND_PLAN_REASON\x10\x1c*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -1721,7 +1739,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xaf\x05\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xe9\x05\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -1744,7 +1762,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1cGROUP_BY_KIND_PARTITION_NAME\x10\x11\x12\x1f\n" +
 	"\x1bGROUP_BY_KIND_FUNCTION_NAME\x10\x12\x12\x1e\n" +
 	"\x1aGROUP_BY_KIND_SERVICE_KIND\x10\x13\x12 \n" +
-	"\x1cGROUP_BY_KIND_CONSUMER_GROUP\x10\x14*\x81\x03\n" +
+	"\x1cGROUP_BY_KIND_CONSUMER_GROUP\x10\x14\x12\x19\n" +
+	"\x15GROUP_BY_KIND_PLANNER\x10\x15\x12\x1d\n" +
+	"\x19GROUP_BY_KIND_PLAN_REASON\x10\x16*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +
