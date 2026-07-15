@@ -2230,8 +2230,10 @@ type SandboxInfo struct {
 	BuildId *string `protobuf:"bytes,5,opt,name=build_id,json=buildId,proto3,oneof" json:"build_id,omitempty"`
 	// Optional upper bound on the freshness of data the sandboxed agent can fetch.
 	KnowledgeCutoff *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=knowledge_cutoff,json=knowledgeCutoff,proto3,oneof" json:"knowledge_cutoff,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Optional status message with more details about the current state.
+	StatusMessage *string `protobuf:"bytes,7,opt,name=status_message,json=statusMessage,proto3,oneof" json:"status_message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SandboxInfo) Reset() {
@@ -2304,6 +2306,13 @@ func (x *SandboxInfo) GetKnowledgeCutoff() *timestamppb.Timestamp {
 		return x.KnowledgeCutoff
 	}
 	return nil
+}
+
+func (x *SandboxInfo) GetStatusMessage() string {
+	if x != nil && x.StatusMessage != nil {
+		return *x.StatusMessage
+	}
+	return ""
 }
 
 // Request to get the status of a custom image build by its build ID.
@@ -2691,7 +2700,10 @@ type CustomImageBuildSummary struct {
 	BuildId *string `protobuf:"bytes,4,opt,name=build_id,json=buildId,proto3,oneof" json:"build_id,omitempty"`
 	// Live build status when resolvable: "building", "succeeded", "failed", or
 	// "exists". Empty when the build is no longer queryable.
-	Status        *string `protobuf:"bytes,5,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	Status *string `protobuf:"bytes,5,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	// Base image the build derives from, taken from the recorded ImageSpec.
+	// Empty when the spec was not retained for this ref.
+	BaseImage     *string `protobuf:"bytes,6,opt,name=base_image,json=baseImage,proto3,oneof" json:"base_image,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2757,6 +2769,13 @@ func (x *CustomImageBuildSummary) GetBuildId() string {
 func (x *CustomImageBuildSummary) GetStatus() string {
 	if x != nil && x.Status != nil {
 		return *x.Status
+	}
+	return ""
+}
+
+func (x *CustomImageBuildSummary) GetBaseImage() string {
+	if x != nil && x.BaseImage != nil {
+		return *x.BaseImage
 	}
 	return ""
 }
@@ -3835,7 +3854,7 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\tsandboxes\x18\x01 \x03(\v2\x1d.chalk.sandbox.v1.SandboxInfoR\tsandboxes\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\x82\x02\n" +
+	"\f_next_cursor\"\xc1\x02\n" +
 	"\vSandboxInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12\x1d\n" +
@@ -3843,10 +3862,12 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"created_at\x18\x03 \x01(\tR\tcreatedAt\x12\x17\n" +
 	"\x04name\x18\x04 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1e\n" +
 	"\bbuild_id\x18\x05 \x01(\tH\x01R\abuildId\x88\x01\x01\x12J\n" +
-	"\x10knowledge_cutoff\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\x0fknowledgeCutoff\x88\x01\x01B\a\n" +
+	"\x10knowledge_cutoff\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\x0fknowledgeCutoff\x88\x01\x01\x12*\n" +
+	"\x0estatus_message\x18\a \x01(\tH\x03R\rstatusMessage\x88\x01\x01B\a\n" +
 	"\x05_nameB\v\n" +
 	"\t_build_idB\x13\n" +
-	"\x11_knowledge_cutoff\"2\n" +
+	"\x11_knowledge_cutoffB\x11\n" +
+	"\x0f_status_message\"2\n" +
 	"\x15GetCustomImageRequest\x12\x19\n" +
 	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\x86\x01\n" +
 	"\x16GetCustomImageResponse\x12\x19\n" +
@@ -3873,16 +3894,19 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12\x19\n" +
 	"\x05error\x18\x03 \x01(\tH\x00R\x05error\x88\x01\x01\x12\x18\n" +
 	"\amessage\x18\x04 \x01(\tR\amessageB\b\n" +
-	"\x06_error\"\xe9\x01\n" +
+	"\x06_error\"\x9c\x02\n" +
 	"\x17CustomImageBuildSummary\x12!\n" +
 	"\fcontent_hash\x18\x01 \x01(\tR\vcontentHash\x12\x1b\n" +
 	"\timage_ref\x18\x02 \x01(\tR\bimageRef\x129\n" +
 	"\n" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1e\n" +
 	"\bbuild_id\x18\x04 \x01(\tH\x00R\abuildId\x88\x01\x01\x12\x1b\n" +
-	"\x06status\x18\x05 \x01(\tH\x01R\x06status\x88\x01\x01B\v\n" +
+	"\x06status\x18\x05 \x01(\tH\x01R\x06status\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"base_image\x18\x06 \x01(\tH\x02R\tbaseImage\x88\x01\x01B\v\n" +
 	"\t_build_idB\t\n" +
-	"\a_status\"k\n" +
+	"\a_statusB\r\n" +
+	"\v_base_image\"k\n" +
 	"\x1cListCustomImageBuildsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +

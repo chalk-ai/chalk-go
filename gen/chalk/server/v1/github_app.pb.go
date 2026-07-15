@@ -361,6 +361,178 @@ func (x *GitHubRepository) GetHtmlUrl() string {
 	return ""
 }
 
+// Associates a Chalk project with a GitHub repository reachable through a
+// GitHub App installation. At most one link per project.
+type GitHubProjectRepoLink struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TeamId    string                 `protobuf:"bytes,2,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	ProjectId string                 `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	// References GitHubAppInstallation.id (Chalk's row id, not GitHub's numeric
+	// installation id).
+	InstallationId string                 `protobuf:"bytes,4,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
+	RepoOwner      string                 `protobuf:"bytes,5,opt,name=repo_owner,json=repoOwner,proto3" json:"repo_owner,omitempty"`
+	RepoName       string                 `protobuf:"bytes,6,opt,name=repo_name,json=repoName,proto3" json:"repo_name,omitempty"`
+	DefaultBranch  string                 `protobuf:"bytes,7,opt,name=default_branch,json=defaultBranch,proto3" json:"default_branch,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GitHubProjectRepoLink) Reset() {
+	*x = GitHubProjectRepoLink{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GitHubProjectRepoLink) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GitHubProjectRepoLink) ProtoMessage() {}
+
+func (x *GitHubProjectRepoLink) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GitHubProjectRepoLink.ProtoReflect.Descriptor instead.
+func (*GitHubProjectRepoLink) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GitHubProjectRepoLink) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GitHubProjectRepoLink) GetTeamId() string {
+	if x != nil {
+		return x.TeamId
+	}
+	return ""
+}
+
+func (x *GitHubProjectRepoLink) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *GitHubProjectRepoLink) GetInstallationId() string {
+	if x != nil {
+		return x.InstallationId
+	}
+	return ""
+}
+
+func (x *GitHubProjectRepoLink) GetRepoOwner() string {
+	if x != nil {
+		return x.RepoOwner
+	}
+	return ""
+}
+
+func (x *GitHubProjectRepoLink) GetRepoName() string {
+	if x != nil {
+		return x.RepoName
+	}
+	return ""
+}
+
+func (x *GitHubProjectRepoLink) GetDefaultBranch() string {
+	if x != nil {
+		return x.DefaultBranch
+	}
+	return ""
+}
+
+func (x *GitHubProjectRepoLink) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *GitHubProjectRepoLink) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+type GitHubBranch struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	CommitSha     string                 `protobuf:"bytes,2,opt,name=commit_sha,json=commitSha,proto3" json:"commit_sha,omitempty"`
+	Protected     bool                   `protobuf:"varint,3,opt,name=protected,proto3" json:"protected,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GitHubBranch) Reset() {
+	*x = GitHubBranch{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GitHubBranch) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GitHubBranch) ProtoMessage() {}
+
+func (x *GitHubBranch) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GitHubBranch.ProtoReflect.Descriptor instead.
+func (*GitHubBranch) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GitHubBranch) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GitHubBranch) GetCommitSha() string {
+	if x != nil {
+		return x.CommitSha
+	}
+	return ""
+}
+
+func (x *GitHubBranch) GetProtected() bool {
+	if x != nil {
+		return x.Protected
+	}
+	return false
+}
+
 type GitHubPullRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -380,7 +552,7 @@ type GitHubPullRequest struct {
 
 func (x *GitHubPullRequest) Reset() {
 	*x = GitHubPullRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -392,7 +564,7 @@ func (x *GitHubPullRequest) String() string {
 func (*GitHubPullRequest) ProtoMessage() {}
 
 func (x *GitHubPullRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -405,7 +577,7 @@ func (x *GitHubPullRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GitHubPullRequest.ProtoReflect.Descriptor instead.
 func (*GitHubPullRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GitHubPullRequest) GetId() int64 {
@@ -499,7 +671,7 @@ type UpsertGitHubAppConfigRequest struct {
 
 func (x *UpsertGitHubAppConfigRequest) Reset() {
 	*x = UpsertGitHubAppConfigRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -511,7 +683,7 @@ func (x *UpsertGitHubAppConfigRequest) String() string {
 func (*UpsertGitHubAppConfigRequest) ProtoMessage() {}
 
 func (x *UpsertGitHubAppConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -524,7 +696,7 @@ func (x *UpsertGitHubAppConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertGitHubAppConfigRequest.ProtoReflect.Descriptor instead.
 func (*UpsertGitHubAppConfigRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpsertGitHubAppConfigRequest) GetAppId() int64 {
@@ -578,7 +750,7 @@ type UpsertGitHubAppConfigResponse struct {
 
 func (x *UpsertGitHubAppConfigResponse) Reset() {
 	*x = UpsertGitHubAppConfigResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -590,7 +762,7 @@ func (x *UpsertGitHubAppConfigResponse) String() string {
 func (*UpsertGitHubAppConfigResponse) ProtoMessage() {}
 
 func (x *UpsertGitHubAppConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +775,7 @@ func (x *UpsertGitHubAppConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertGitHubAppConfigResponse.ProtoReflect.Descriptor instead.
 func (*UpsertGitHubAppConfigResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpsertGitHubAppConfigResponse) GetConfig() *GitHubAppConfig {
@@ -621,7 +793,7 @@ type GetGitHubAppConfigRequest struct {
 
 func (x *GetGitHubAppConfigRequest) Reset() {
 	*x = GetGitHubAppConfigRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -633,7 +805,7 @@ func (x *GetGitHubAppConfigRequest) String() string {
 func (*GetGitHubAppConfigRequest) ProtoMessage() {}
 
 func (x *GetGitHubAppConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -646,7 +818,7 @@ func (x *GetGitHubAppConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGitHubAppConfigRequest.ProtoReflect.Descriptor instead.
 func (*GetGitHubAppConfigRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{8}
 }
 
 type GetGitHubAppConfigResponse struct {
@@ -658,7 +830,7 @@ type GetGitHubAppConfigResponse struct {
 
 func (x *GetGitHubAppConfigResponse) Reset() {
 	*x = GetGitHubAppConfigResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -670,7 +842,7 @@ func (x *GetGitHubAppConfigResponse) String() string {
 func (*GetGitHubAppConfigResponse) ProtoMessage() {}
 
 func (x *GetGitHubAppConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -683,7 +855,7 @@ func (x *GetGitHubAppConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGitHubAppConfigResponse.ProtoReflect.Descriptor instead.
 func (*GetGitHubAppConfigResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetGitHubAppConfigResponse) GetConfig() *GitHubAppConfig {
@@ -701,7 +873,7 @@ type DeleteGitHubAppConfigRequest struct {
 
 func (x *DeleteGitHubAppConfigRequest) Reset() {
 	*x = DeleteGitHubAppConfigRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -713,7 +885,7 @@ func (x *DeleteGitHubAppConfigRequest) String() string {
 func (*DeleteGitHubAppConfigRequest) ProtoMessage() {}
 
 func (x *DeleteGitHubAppConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,7 +898,7 @@ func (x *DeleteGitHubAppConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGitHubAppConfigRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGitHubAppConfigRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{10}
 }
 
 type DeleteGitHubAppConfigResponse struct {
@@ -737,7 +909,7 @@ type DeleteGitHubAppConfigResponse struct {
 
 func (x *DeleteGitHubAppConfigResponse) Reset() {
 	*x = DeleteGitHubAppConfigResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +921,7 @@ func (x *DeleteGitHubAppConfigResponse) String() string {
 func (*DeleteGitHubAppConfigResponse) ProtoMessage() {}
 
 func (x *DeleteGitHubAppConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +934,7 @@ func (x *DeleteGitHubAppConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGitHubAppConfigResponse.ProtoReflect.Descriptor instead.
 func (*DeleteGitHubAppConfigResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{11}
 }
 
 type GetGitHubAppInstallUrlRequest struct {
@@ -773,7 +945,7 @@ type GetGitHubAppInstallUrlRequest struct {
 
 func (x *GetGitHubAppInstallUrlRequest) Reset() {
 	*x = GetGitHubAppInstallUrlRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -785,7 +957,7 @@ func (x *GetGitHubAppInstallUrlRequest) String() string {
 func (*GetGitHubAppInstallUrlRequest) ProtoMessage() {}
 
 func (x *GetGitHubAppInstallUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -798,7 +970,7 @@ func (x *GetGitHubAppInstallUrlRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGitHubAppInstallUrlRequest.ProtoReflect.Descriptor instead.
 func (*GetGitHubAppInstallUrlRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{12}
 }
 
 type GetGitHubAppInstallUrlResponse struct {
@@ -810,7 +982,7 @@ type GetGitHubAppInstallUrlResponse struct {
 
 func (x *GetGitHubAppInstallUrlResponse) Reset() {
 	*x = GetGitHubAppInstallUrlResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -822,7 +994,7 @@ func (x *GetGitHubAppInstallUrlResponse) String() string {
 func (*GetGitHubAppInstallUrlResponse) ProtoMessage() {}
 
 func (x *GetGitHubAppInstallUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -835,7 +1007,7 @@ func (x *GetGitHubAppInstallUrlResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGitHubAppInstallUrlResponse.ProtoReflect.Descriptor instead.
 func (*GetGitHubAppInstallUrlResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetGitHubAppInstallUrlResponse) GetUrl() string {
@@ -855,7 +1027,7 @@ type CompleteGitHubAppInstallationRequest struct {
 
 func (x *CompleteGitHubAppInstallationRequest) Reset() {
 	*x = CompleteGitHubAppInstallationRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -867,7 +1039,7 @@ func (x *CompleteGitHubAppInstallationRequest) String() string {
 func (*CompleteGitHubAppInstallationRequest) ProtoMessage() {}
 
 func (x *CompleteGitHubAppInstallationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -880,7 +1052,7 @@ func (x *CompleteGitHubAppInstallationRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use CompleteGitHubAppInstallationRequest.ProtoReflect.Descriptor instead.
 func (*CompleteGitHubAppInstallationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CompleteGitHubAppInstallationRequest) GetInstallationId() int64 {
@@ -906,7 +1078,7 @@ type CompleteGitHubAppInstallationResponse struct {
 
 func (x *CompleteGitHubAppInstallationResponse) Reset() {
 	*x = CompleteGitHubAppInstallationResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -918,7 +1090,7 @@ func (x *CompleteGitHubAppInstallationResponse) String() string {
 func (*CompleteGitHubAppInstallationResponse) ProtoMessage() {}
 
 func (x *CompleteGitHubAppInstallationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -931,7 +1103,7 @@ func (x *CompleteGitHubAppInstallationResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use CompleteGitHubAppInstallationResponse.ProtoReflect.Descriptor instead.
 func (*CompleteGitHubAppInstallationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *CompleteGitHubAppInstallationResponse) GetInstallation() *GitHubAppInstallation {
@@ -949,7 +1121,7 @@ type ListGitHubAppInstallationsRequest struct {
 
 func (x *ListGitHubAppInstallationsRequest) Reset() {
 	*x = ListGitHubAppInstallationsRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -961,7 +1133,7 @@ func (x *ListGitHubAppInstallationsRequest) String() string {
 func (*ListGitHubAppInstallationsRequest) ProtoMessage() {}
 
 func (x *ListGitHubAppInstallationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -974,7 +1146,7 @@ func (x *ListGitHubAppInstallationsRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListGitHubAppInstallationsRequest.ProtoReflect.Descriptor instead.
 func (*ListGitHubAppInstallationsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{16}
 }
 
 type ListGitHubAppInstallationsResponse struct {
@@ -986,7 +1158,7 @@ type ListGitHubAppInstallationsResponse struct {
 
 func (x *ListGitHubAppInstallationsResponse) Reset() {
 	*x = ListGitHubAppInstallationsResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -998,7 +1170,7 @@ func (x *ListGitHubAppInstallationsResponse) String() string {
 func (*ListGitHubAppInstallationsResponse) ProtoMessage() {}
 
 func (x *ListGitHubAppInstallationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1011,7 +1183,7 @@ func (x *ListGitHubAppInstallationsResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListGitHubAppInstallationsResponse.ProtoReflect.Descriptor instead.
 func (*ListGitHubAppInstallationsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListGitHubAppInstallationsResponse) GetInstallations() []*GitHubAppInstallation {
@@ -1030,7 +1202,7 @@ type DeleteGitHubAppInstallationRequest struct {
 
 func (x *DeleteGitHubAppInstallationRequest) Reset() {
 	*x = DeleteGitHubAppInstallationRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1042,7 +1214,7 @@ func (x *DeleteGitHubAppInstallationRequest) String() string {
 func (*DeleteGitHubAppInstallationRequest) ProtoMessage() {}
 
 func (x *DeleteGitHubAppInstallationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1055,7 +1227,7 @@ func (x *DeleteGitHubAppInstallationRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DeleteGitHubAppInstallationRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGitHubAppInstallationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DeleteGitHubAppInstallationRequest) GetId() string {
@@ -1073,7 +1245,7 @@ type DeleteGitHubAppInstallationResponse struct {
 
 func (x *DeleteGitHubAppInstallationResponse) Reset() {
 	*x = DeleteGitHubAppInstallationResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1085,7 +1257,7 @@ func (x *DeleteGitHubAppInstallationResponse) String() string {
 func (*DeleteGitHubAppInstallationResponse) ProtoMessage() {}
 
 func (x *DeleteGitHubAppInstallationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1098,7 +1270,7 @@ func (x *DeleteGitHubAppInstallationResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DeleteGitHubAppInstallationResponse.ProtoReflect.Descriptor instead.
 func (*DeleteGitHubAppInstallationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{19}
 }
 
 type SyncGitHubAppInstallationsRequest struct {
@@ -1109,7 +1281,7 @@ type SyncGitHubAppInstallationsRequest struct {
 
 func (x *SyncGitHubAppInstallationsRequest) Reset() {
 	*x = SyncGitHubAppInstallationsRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1121,7 +1293,7 @@ func (x *SyncGitHubAppInstallationsRequest) String() string {
 func (*SyncGitHubAppInstallationsRequest) ProtoMessage() {}
 
 func (x *SyncGitHubAppInstallationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1134,7 +1306,7 @@ func (x *SyncGitHubAppInstallationsRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use SyncGitHubAppInstallationsRequest.ProtoReflect.Descriptor instead.
 func (*SyncGitHubAppInstallationsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{20}
 }
 
 type SyncGitHubAppInstallationsResponse struct {
@@ -1146,7 +1318,7 @@ type SyncGitHubAppInstallationsResponse struct {
 
 func (x *SyncGitHubAppInstallationsResponse) Reset() {
 	*x = SyncGitHubAppInstallationsResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1158,7 +1330,7 @@ func (x *SyncGitHubAppInstallationsResponse) String() string {
 func (*SyncGitHubAppInstallationsResponse) ProtoMessage() {}
 
 func (x *SyncGitHubAppInstallationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1171,7 +1343,7 @@ func (x *SyncGitHubAppInstallationsResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use SyncGitHubAppInstallationsResponse.ProtoReflect.Descriptor instead.
 func (*SyncGitHubAppInstallationsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SyncGitHubAppInstallationsResponse) GetInstallations() []*GitHubAppInstallation {
@@ -1192,7 +1364,7 @@ type ListGitHubRepositoriesRequest struct {
 
 func (x *ListGitHubRepositoriesRequest) Reset() {
 	*x = ListGitHubRepositoriesRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1204,7 +1376,7 @@ func (x *ListGitHubRepositoriesRequest) String() string {
 func (*ListGitHubRepositoriesRequest) ProtoMessage() {}
 
 func (x *ListGitHubRepositoriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1217,7 +1389,7 @@ func (x *ListGitHubRepositoriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGitHubRepositoriesRequest.ProtoReflect.Descriptor instead.
 func (*ListGitHubRepositoriesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListGitHubRepositoriesRequest) GetInstallationId() string {
@@ -1250,7 +1422,7 @@ type ListGitHubRepositoriesResponse struct {
 
 func (x *ListGitHubRepositoriesResponse) Reset() {
 	*x = ListGitHubRepositoriesResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1262,7 +1434,7 @@ func (x *ListGitHubRepositoriesResponse) String() string {
 func (*ListGitHubRepositoriesResponse) ProtoMessage() {}
 
 func (x *ListGitHubRepositoriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1275,7 +1447,7 @@ func (x *ListGitHubRepositoriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGitHubRepositoriesResponse.ProtoReflect.Descriptor instead.
 func (*ListGitHubRepositoriesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ListGitHubRepositoriesResponse) GetRepositories() []*GitHubRepository {
@@ -1299,7 +1471,7 @@ type ListGitHubPullRequestsRequest struct {
 
 func (x *ListGitHubPullRequestsRequest) Reset() {
 	*x = ListGitHubPullRequestsRequest{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1311,7 +1483,7 @@ func (x *ListGitHubPullRequestsRequest) String() string {
 func (*ListGitHubPullRequestsRequest) ProtoMessage() {}
 
 func (x *ListGitHubPullRequestsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1324,7 +1496,7 @@ func (x *ListGitHubPullRequestsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGitHubPullRequestsRequest.ProtoReflect.Descriptor instead.
 func (*ListGitHubPullRequestsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListGitHubPullRequestsRequest) GetInstallationId() string {
@@ -1378,7 +1550,7 @@ type ListGitHubPullRequestsResponse struct {
 
 func (x *ListGitHubPullRequestsResponse) Reset() {
 	*x = ListGitHubPullRequestsResponse{}
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1390,7 +1562,7 @@ func (x *ListGitHubPullRequestsResponse) String() string {
 func (*ListGitHubPullRequestsResponse) ProtoMessage() {}
 
 func (x *ListGitHubPullRequestsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_github_app_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1403,12 +1575,617 @@ func (x *ListGitHubPullRequestsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGitHubPullRequestsResponse.ProtoReflect.Descriptor instead.
 func (*ListGitHubPullRequestsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListGitHubPullRequestsResponse) GetPullRequests() []*GitHubPullRequest {
 	if x != nil {
 		return x.PullRequests
+	}
+	return nil
+}
+
+type LinkProjectToGitHubRepositoryRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	// GitHubAppInstallation.id (Chalk's row id).
+	InstallationId string `protobuf:"bytes,2,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
+	RepoOwner      string `protobuf:"bytes,3,opt,name=repo_owner,json=repoOwner,proto3" json:"repo_owner,omitempty"`
+	RepoName       string `protobuf:"bytes,4,opt,name=repo_name,json=repoName,proto3" json:"repo_name,omitempty"`
+	// Defaults to the repository's default branch when unset.
+	DefaultBranch *string `protobuf:"bytes,5,opt,name=default_branch,json=defaultBranch,proto3,oneof" json:"default_branch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LinkProjectToGitHubRepositoryRequest) Reset() {
+	*x = LinkProjectToGitHubRepositoryRequest{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LinkProjectToGitHubRepositoryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LinkProjectToGitHubRepositoryRequest) ProtoMessage() {}
+
+func (x *LinkProjectToGitHubRepositoryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LinkProjectToGitHubRepositoryRequest.ProtoReflect.Descriptor instead.
+func (*LinkProjectToGitHubRepositoryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *LinkProjectToGitHubRepositoryRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *LinkProjectToGitHubRepositoryRequest) GetInstallationId() string {
+	if x != nil {
+		return x.InstallationId
+	}
+	return ""
+}
+
+func (x *LinkProjectToGitHubRepositoryRequest) GetRepoOwner() string {
+	if x != nil {
+		return x.RepoOwner
+	}
+	return ""
+}
+
+func (x *LinkProjectToGitHubRepositoryRequest) GetRepoName() string {
+	if x != nil {
+		return x.RepoName
+	}
+	return ""
+}
+
+func (x *LinkProjectToGitHubRepositoryRequest) GetDefaultBranch() string {
+	if x != nil && x.DefaultBranch != nil {
+		return *x.DefaultBranch
+	}
+	return ""
+}
+
+type LinkProjectToGitHubRepositoryResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Link          *GitHubProjectRepoLink `protobuf:"bytes,1,opt,name=link,proto3" json:"link,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LinkProjectToGitHubRepositoryResponse) Reset() {
+	*x = LinkProjectToGitHubRepositoryResponse{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LinkProjectToGitHubRepositoryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LinkProjectToGitHubRepositoryResponse) ProtoMessage() {}
+
+func (x *LinkProjectToGitHubRepositoryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LinkProjectToGitHubRepositoryResponse.ProtoReflect.Descriptor instead.
+func (*LinkProjectToGitHubRepositoryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *LinkProjectToGitHubRepositoryResponse) GetLink() *GitHubProjectRepoLink {
+	if x != nil {
+		return x.Link
+	}
+	return nil
+}
+
+type UnlinkProjectFromGitHubRepositoryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnlinkProjectFromGitHubRepositoryRequest) Reset() {
+	*x = UnlinkProjectFromGitHubRepositoryRequest{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnlinkProjectFromGitHubRepositoryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnlinkProjectFromGitHubRepositoryRequest) ProtoMessage() {}
+
+func (x *UnlinkProjectFromGitHubRepositoryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnlinkProjectFromGitHubRepositoryRequest.ProtoReflect.Descriptor instead.
+func (*UnlinkProjectFromGitHubRepositoryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *UnlinkProjectFromGitHubRepositoryRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+type UnlinkProjectFromGitHubRepositoryResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnlinkProjectFromGitHubRepositoryResponse) Reset() {
+	*x = UnlinkProjectFromGitHubRepositoryResponse{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnlinkProjectFromGitHubRepositoryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnlinkProjectFromGitHubRepositoryResponse) ProtoMessage() {}
+
+func (x *UnlinkProjectFromGitHubRepositoryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnlinkProjectFromGitHubRepositoryResponse.ProtoReflect.Descriptor instead.
+func (*UnlinkProjectFromGitHubRepositoryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{29}
+}
+
+type GetProjectGitHubRepoLinkRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId     string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectGitHubRepoLinkRequest) Reset() {
+	*x = GetProjectGitHubRepoLinkRequest{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectGitHubRepoLinkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectGitHubRepoLinkRequest) ProtoMessage() {}
+
+func (x *GetProjectGitHubRepoLinkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectGitHubRepoLinkRequest.ProtoReflect.Descriptor instead.
+func (*GetProjectGitHubRepoLinkRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *GetProjectGitHubRepoLinkRequest) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+type GetProjectGitHubRepoLinkResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Link          *GitHubProjectRepoLink `protobuf:"bytes,1,opt,name=link,proto3,oneof" json:"link,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProjectGitHubRepoLinkResponse) Reset() {
+	*x = GetProjectGitHubRepoLinkResponse{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProjectGitHubRepoLinkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProjectGitHubRepoLinkResponse) ProtoMessage() {}
+
+func (x *GetProjectGitHubRepoLinkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProjectGitHubRepoLinkResponse.ProtoReflect.Descriptor instead.
+func (*GetProjectGitHubRepoLinkResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *GetProjectGitHubRepoLinkResponse) GetLink() *GitHubProjectRepoLink {
+	if x != nil {
+		return x.Link
+	}
+	return nil
+}
+
+type ListProjectGitHubRepoLinksRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListProjectGitHubRepoLinksRequest) Reset() {
+	*x = ListProjectGitHubRepoLinksRequest{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListProjectGitHubRepoLinksRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProjectGitHubRepoLinksRequest) ProtoMessage() {}
+
+func (x *ListProjectGitHubRepoLinksRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProjectGitHubRepoLinksRequest.ProtoReflect.Descriptor instead.
+func (*ListProjectGitHubRepoLinksRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{32}
+}
+
+type ListProjectGitHubRepoLinksResponse struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Links         []*GitHubProjectRepoLink `protobuf:"bytes,1,rep,name=links,proto3" json:"links,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListProjectGitHubRepoLinksResponse) Reset() {
+	*x = ListProjectGitHubRepoLinksResponse{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListProjectGitHubRepoLinksResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProjectGitHubRepoLinksResponse) ProtoMessage() {}
+
+func (x *ListProjectGitHubRepoLinksResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProjectGitHubRepoLinksResponse.ProtoReflect.Descriptor instead.
+func (*ListProjectGitHubRepoLinksResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *ListProjectGitHubRepoLinksResponse) GetLinks() []*GitHubProjectRepoLink {
+	if x != nil {
+		return x.Links
+	}
+	return nil
+}
+
+type ListGitHubBranchesRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	InstallationId string                 `protobuf:"bytes,1,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
+	Owner          string                 `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repo           string                 `protobuf:"bytes,3,opt,name=repo,proto3" json:"repo,omitempty"`
+	Page           *int32                 `protobuf:"varint,4,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	PerPage        *int32                 `protobuf:"varint,5,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ListGitHubBranchesRequest) Reset() {
+	*x = ListGitHubBranchesRequest{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGitHubBranchesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGitHubBranchesRequest) ProtoMessage() {}
+
+func (x *ListGitHubBranchesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGitHubBranchesRequest.ProtoReflect.Descriptor instead.
+func (*ListGitHubBranchesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *ListGitHubBranchesRequest) GetInstallationId() string {
+	if x != nil {
+		return x.InstallationId
+	}
+	return ""
+}
+
+func (x *ListGitHubBranchesRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *ListGitHubBranchesRequest) GetRepo() string {
+	if x != nil {
+		return x.Repo
+	}
+	return ""
+}
+
+func (x *ListGitHubBranchesRequest) GetPage() int32 {
+	if x != nil && x.Page != nil {
+		return *x.Page
+	}
+	return 0
+}
+
+func (x *ListGitHubBranchesRequest) GetPerPage() int32 {
+	if x != nil && x.PerPage != nil {
+		return *x.PerPage
+	}
+	return 0
+}
+
+type ListGitHubBranchesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Branches      []*GitHubBranch        `protobuf:"bytes,1,rep,name=branches,proto3" json:"branches,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGitHubBranchesResponse) Reset() {
+	*x = ListGitHubBranchesResponse{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGitHubBranchesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGitHubBranchesResponse) ProtoMessage() {}
+
+func (x *ListGitHubBranchesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGitHubBranchesResponse.ProtoReflect.Descriptor instead.
+func (*ListGitHubBranchesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *ListGitHubBranchesResponse) GetBranches() []*GitHubBranch {
+	if x != nil {
+		return x.Branches
+	}
+	return nil
+}
+
+type GetGitHubRepositoryArchiveRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	InstallationId string                 `protobuf:"bytes,1,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
+	Owner          string                 `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repo           string                 `protobuf:"bytes,3,opt,name=repo,proto3" json:"repo,omitempty"`
+	// Branch, tag, or commit SHA. Empty uses the repository's default branch.
+	Ref           *string `protobuf:"bytes,4,opt,name=ref,proto3,oneof" json:"ref,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGitHubRepositoryArchiveRequest) Reset() {
+	*x = GetGitHubRepositoryArchiveRequest{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGitHubRepositoryArchiveRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGitHubRepositoryArchiveRequest) ProtoMessage() {}
+
+func (x *GetGitHubRepositoryArchiveRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGitHubRepositoryArchiveRequest.ProtoReflect.Descriptor instead.
+func (*GetGitHubRepositoryArchiveRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *GetGitHubRepositoryArchiveRequest) GetInstallationId() string {
+	if x != nil {
+		return x.InstallationId
+	}
+	return ""
+}
+
+func (x *GetGitHubRepositoryArchiveRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *GetGitHubRepositoryArchiveRequest) GetRepo() string {
+	if x != nil {
+		return x.Repo
+	}
+	return ""
+}
+
+func (x *GetGitHubRepositoryArchiveRequest) GetRef() string {
+	if x != nil && x.Ref != nil {
+		return *x.Ref
+	}
+	return ""
+}
+
+type GetGitHubRepositoryArchiveResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A chunk of the repository's zip archive (GitHub zipball). Concatenate all
+	// chunks in stream order to reconstruct the archive.
+	Data          []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGitHubRepositoryArchiveResponse) Reset() {
+	*x = GetGitHubRepositoryArchiveResponse{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGitHubRepositoryArchiveResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGitHubRepositoryArchiveResponse) ProtoMessage() {}
+
+func (x *GetGitHubRepositoryArchiveResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGitHubRepositoryArchiveResponse.ProtoReflect.Descriptor instead.
+func (*GetGitHubRepositoryArchiveResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *GetGitHubRepositoryArchiveResponse) GetData() []byte {
+	if x != nil {
+		return x.Data
 	}
 	return nil
 }
@@ -1461,7 +2238,26 @@ const file_chalk_server_v1_github_app_proto_rawDesc = "" +
 	"\x05owner\x18\x04 \x01(\tR\x05owner\x12\x18\n" +
 	"\aprivate\x18\x05 \x01(\bR\aprivate\x12%\n" +
 	"\x0edefault_branch\x18\x06 \x01(\tR\rdefaultBranch\x12\x19\n" +
-	"\bhtml_url\x18\a \x01(\tR\ahtmlUrl\"\xad\x03\n" +
+	"\bhtml_url\x18\a \x01(\tR\ahtmlUrl\"\xe1\x02\n" +
+	"\x15GitHubProjectRepoLink\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x03 \x01(\tR\tprojectId\x12'\n" +
+	"\x0finstallation_id\x18\x04 \x01(\tR\x0einstallationId\x12\x1d\n" +
+	"\n" +
+	"repo_owner\x18\x05 \x01(\tR\trepoOwner\x12\x1b\n" +
+	"\trepo_name\x18\x06 \x01(\tR\brepoName\x12%\n" +
+	"\x0edefault_branch\x18\a \x01(\tR\rdefaultBranch\x129\n" +
+	"\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"_\n" +
+	"\fGitHubBranch\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"commit_sha\x18\x02 \x01(\tR\tcommitSha\x12\x1c\n" +
+	"\tprotected\x18\x03 \x01(\bR\tprotected\"\xad\x03\n" +
 	"\x11GitHubPullRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x05R\x06number\x12\x14\n" +
@@ -1536,7 +2332,49 @@ const file_chalk_server_v1_github_app_proto_rawDesc = "" +
 	"\x05_pageB\v\n" +
 	"\t_per_page\"i\n" +
 	"\x1eListGitHubPullRequestsResponse\x12G\n" +
-	"\rpull_requests\x18\x01 \x03(\v2\".chalk.server.v1.GitHubPullRequestR\fpullRequests2\xad\f\n" +
+	"\rpull_requests\x18\x01 \x03(\v2\".chalk.server.v1.GitHubPullRequestR\fpullRequests\"\xe9\x01\n" +
+	"$LinkProjectToGitHubRepositoryRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\x12'\n" +
+	"\x0finstallation_id\x18\x02 \x01(\tR\x0einstallationId\x12\x1d\n" +
+	"\n" +
+	"repo_owner\x18\x03 \x01(\tR\trepoOwner\x12\x1b\n" +
+	"\trepo_name\x18\x04 \x01(\tR\brepoName\x12*\n" +
+	"\x0edefault_branch\x18\x05 \x01(\tH\x00R\rdefaultBranch\x88\x01\x01B\x11\n" +
+	"\x0f_default_branch\"c\n" +
+	"%LinkProjectToGitHubRepositoryResponse\x12:\n" +
+	"\x04link\x18\x01 \x01(\v2&.chalk.server.v1.GitHubProjectRepoLinkR\x04link\"I\n" +
+	"(UnlinkProjectFromGitHubRepositoryRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\"+\n" +
+	")UnlinkProjectFromGitHubRepositoryResponse\"@\n" +
+	"\x1fGetProjectGitHubRepoLinkRequest\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\"l\n" +
+	" GetProjectGitHubRepoLinkResponse\x12?\n" +
+	"\x04link\x18\x01 \x01(\v2&.chalk.server.v1.GitHubProjectRepoLinkH\x00R\x04link\x88\x01\x01B\a\n" +
+	"\x05_link\"#\n" +
+	"!ListProjectGitHubRepoLinksRequest\"b\n" +
+	"\"ListProjectGitHubRepoLinksResponse\x12<\n" +
+	"\x05links\x18\x01 \x03(\v2&.chalk.server.v1.GitHubProjectRepoLinkR\x05links\"\xbd\x01\n" +
+	"\x19ListGitHubBranchesRequest\x12'\n" +
+	"\x0finstallation_id\x18\x01 \x01(\tR\x0einstallationId\x12\x14\n" +
+	"\x05owner\x18\x02 \x01(\tR\x05owner\x12\x12\n" +
+	"\x04repo\x18\x03 \x01(\tR\x04repo\x12\x17\n" +
+	"\x04page\x18\x04 \x01(\x05H\x00R\x04page\x88\x01\x01\x12\x1e\n" +
+	"\bper_page\x18\x05 \x01(\x05H\x01R\aperPage\x88\x01\x01B\a\n" +
+	"\x05_pageB\v\n" +
+	"\t_per_page\"W\n" +
+	"\x1aListGitHubBranchesResponse\x129\n" +
+	"\bbranches\x18\x01 \x03(\v2\x1d.chalk.server.v1.GitHubBranchR\bbranches\"\x95\x01\n" +
+	"!GetGitHubRepositoryArchiveRequest\x12'\n" +
+	"\x0finstallation_id\x18\x01 \x01(\tR\x0einstallationId\x12\x14\n" +
+	"\x05owner\x18\x02 \x01(\tR\x05owner\x12\x12\n" +
+	"\x04repo\x18\x03 \x01(\tR\x04repo\x12\x15\n" +
+	"\x03ref\x18\x04 \x01(\tH\x00R\x03ref\x88\x01\x01B\x06\n" +
+	"\x04_ref\"8\n" +
+	"\"GetGitHubRepositoryArchiveResponse\x12\x12\n" +
+	"\x04data\x18\x01 \x01(\fR\x04data2\xf2\x13\n" +
 	"\x10GitHubAppService\x12\xa7\x01\n" +
 	"\x15UpsertGitHubAppConfig\x12-.chalk.server.v1.UpsertGitHubAppConfigRequest\x1a..chalk.server.v1.UpsertGitHubAppConfigResponse\"/\x80}\n" +
 	"\x8a\xd3\x0e%\b\x02\x12!Upserted GitHub App configuration\x90\x02\x02\x12u\n" +
@@ -1552,7 +2390,13 @@ const file_chalk_server_v1_github_app_proto_rawDesc = "" +
 	"\x1aSyncGitHubAppInstallations\x122.chalk.server.v1.SyncGitHubAppInstallationsRequest\x1a3.chalk.server.v1.SyncGitHubAppInstallationsResponse\"6\x80}\n" +
 	"\x8a\xd3\x0e/\b\x02\x12+Synced GitHub App installations from GitHub\x12\x81\x01\n" +
 	"\x16ListGitHubRepositories\x12..chalk.server.v1.ListGitHubRepositoriesRequest\x1a/.chalk.server.v1.ListGitHubRepositoriesResponse\"\x06\x80}\x02\x90\x02\x01\x12\x81\x01\n" +
-	"\x16ListGitHubPullRequests\x12..chalk.server.v1.ListGitHubPullRequestsRequest\x1a/.chalk.server.v1.ListGitHubPullRequestsResponse\"\x06\x80}\x02\x90\x02\x01B\xbe\x01\n" +
+	"\x16ListGitHubPullRequests\x12..chalk.server.v1.ListGitHubPullRequestsRequest\x1a/.chalk.server.v1.ListGitHubPullRequestsResponse\"\x06\x80}\x02\x90\x02\x01\x12u\n" +
+	"\x12ListGitHubBranches\x12*.chalk.server.v1.ListGitHubBranchesRequest\x1a+.chalk.server.v1.ListGitHubBranchesResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8f\x01\n" +
+	"\x1aGetGitHubRepositoryArchive\x122.chalk.server.v1.GetGitHubRepositoryArchiveRequest\x1a3.chalk.server.v1.GetGitHubRepositoryArchiveResponse\"\x06\x80}\x02\x90\x02\x010\x01\x12\xc5\x01\n" +
+	"\x1dLinkProjectToGitHubRepository\x125.chalk.server.v1.LinkProjectToGitHubRepositoryRequest\x1a6.chalk.server.v1.LinkProjectToGitHubRepositoryResponse\"5\x88}\x1a\x8a\xd3\x0e+\b\x02\x12'Linked a project to a GitHub repository\x90\x02\x02\x12\xd7\x01\n" +
+	"!UnlinkProjectFromGitHubRepository\x129.chalk.server.v1.UnlinkProjectFromGitHubRepositoryRequest\x1a:.chalk.server.v1.UnlinkProjectFromGitHubRepositoryResponse\";\x88}\x1a\x8a\xd3\x0e1\b\x02\x12-Unlinked a project from its GitHub repository\x90\x02\x02\x12\x87\x01\n" +
+	"\x18GetProjectGitHubRepoLink\x120.chalk.server.v1.GetProjectGitHubRepoLinkRequest\x1a1.chalk.server.v1.GetProjectGitHubRepoLinkResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8d\x01\n" +
+	"\x1aListProjectGitHubRepoLinks\x122.chalk.server.v1.ListProjectGitHubRepoLinksRequest\x1a3.chalk.server.v1.ListProjectGitHubRepoLinksResponse\"\x06\x80}\x02\x90\x02\x01B\xbe\x01\n" +
 	"\x13com.chalk.server.v1B\x0eGithubAppProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -1567,75 +2411,107 @@ func file_chalk_server_v1_github_app_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_github_app_proto_rawDescData
 }
 
-var file_chalk_server_v1_github_app_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_chalk_server_v1_github_app_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
 var file_chalk_server_v1_github_app_proto_goTypes = []any{
-	(*GitHubAppConfig)(nil),                       // 0: chalk.server.v1.GitHubAppConfig
-	(*GitHubAppInstallation)(nil),                 // 1: chalk.server.v1.GitHubAppInstallation
-	(*GitHubRepository)(nil),                      // 2: chalk.server.v1.GitHubRepository
-	(*GitHubPullRequest)(nil),                     // 3: chalk.server.v1.GitHubPullRequest
-	(*UpsertGitHubAppConfigRequest)(nil),          // 4: chalk.server.v1.UpsertGitHubAppConfigRequest
-	(*UpsertGitHubAppConfigResponse)(nil),         // 5: chalk.server.v1.UpsertGitHubAppConfigResponse
-	(*GetGitHubAppConfigRequest)(nil),             // 6: chalk.server.v1.GetGitHubAppConfigRequest
-	(*GetGitHubAppConfigResponse)(nil),            // 7: chalk.server.v1.GetGitHubAppConfigResponse
-	(*DeleteGitHubAppConfigRequest)(nil),          // 8: chalk.server.v1.DeleteGitHubAppConfigRequest
-	(*DeleteGitHubAppConfigResponse)(nil),         // 9: chalk.server.v1.DeleteGitHubAppConfigResponse
-	(*GetGitHubAppInstallUrlRequest)(nil),         // 10: chalk.server.v1.GetGitHubAppInstallUrlRequest
-	(*GetGitHubAppInstallUrlResponse)(nil),        // 11: chalk.server.v1.GetGitHubAppInstallUrlResponse
-	(*CompleteGitHubAppInstallationRequest)(nil),  // 12: chalk.server.v1.CompleteGitHubAppInstallationRequest
-	(*CompleteGitHubAppInstallationResponse)(nil), // 13: chalk.server.v1.CompleteGitHubAppInstallationResponse
-	(*ListGitHubAppInstallationsRequest)(nil),     // 14: chalk.server.v1.ListGitHubAppInstallationsRequest
-	(*ListGitHubAppInstallationsResponse)(nil),    // 15: chalk.server.v1.ListGitHubAppInstallationsResponse
-	(*DeleteGitHubAppInstallationRequest)(nil),    // 16: chalk.server.v1.DeleteGitHubAppInstallationRequest
-	(*DeleteGitHubAppInstallationResponse)(nil),   // 17: chalk.server.v1.DeleteGitHubAppInstallationResponse
-	(*SyncGitHubAppInstallationsRequest)(nil),     // 18: chalk.server.v1.SyncGitHubAppInstallationsRequest
-	(*SyncGitHubAppInstallationsResponse)(nil),    // 19: chalk.server.v1.SyncGitHubAppInstallationsResponse
-	(*ListGitHubRepositoriesRequest)(nil),         // 20: chalk.server.v1.ListGitHubRepositoriesRequest
-	(*ListGitHubRepositoriesResponse)(nil),        // 21: chalk.server.v1.ListGitHubRepositoriesResponse
-	(*ListGitHubPullRequestsRequest)(nil),         // 22: chalk.server.v1.ListGitHubPullRequestsRequest
-	(*ListGitHubPullRequestsResponse)(nil),        // 23: chalk.server.v1.ListGitHubPullRequestsResponse
-	(*timestamppb.Timestamp)(nil),                 // 24: google.protobuf.Timestamp
+	(*GitHubAppConfig)(nil),                           // 0: chalk.server.v1.GitHubAppConfig
+	(*GitHubAppInstallation)(nil),                     // 1: chalk.server.v1.GitHubAppInstallation
+	(*GitHubRepository)(nil),                          // 2: chalk.server.v1.GitHubRepository
+	(*GitHubProjectRepoLink)(nil),                     // 3: chalk.server.v1.GitHubProjectRepoLink
+	(*GitHubBranch)(nil),                              // 4: chalk.server.v1.GitHubBranch
+	(*GitHubPullRequest)(nil),                         // 5: chalk.server.v1.GitHubPullRequest
+	(*UpsertGitHubAppConfigRequest)(nil),              // 6: chalk.server.v1.UpsertGitHubAppConfigRequest
+	(*UpsertGitHubAppConfigResponse)(nil),             // 7: chalk.server.v1.UpsertGitHubAppConfigResponse
+	(*GetGitHubAppConfigRequest)(nil),                 // 8: chalk.server.v1.GetGitHubAppConfigRequest
+	(*GetGitHubAppConfigResponse)(nil),                // 9: chalk.server.v1.GetGitHubAppConfigResponse
+	(*DeleteGitHubAppConfigRequest)(nil),              // 10: chalk.server.v1.DeleteGitHubAppConfigRequest
+	(*DeleteGitHubAppConfigResponse)(nil),             // 11: chalk.server.v1.DeleteGitHubAppConfigResponse
+	(*GetGitHubAppInstallUrlRequest)(nil),             // 12: chalk.server.v1.GetGitHubAppInstallUrlRequest
+	(*GetGitHubAppInstallUrlResponse)(nil),            // 13: chalk.server.v1.GetGitHubAppInstallUrlResponse
+	(*CompleteGitHubAppInstallationRequest)(nil),      // 14: chalk.server.v1.CompleteGitHubAppInstallationRequest
+	(*CompleteGitHubAppInstallationResponse)(nil),     // 15: chalk.server.v1.CompleteGitHubAppInstallationResponse
+	(*ListGitHubAppInstallationsRequest)(nil),         // 16: chalk.server.v1.ListGitHubAppInstallationsRequest
+	(*ListGitHubAppInstallationsResponse)(nil),        // 17: chalk.server.v1.ListGitHubAppInstallationsResponse
+	(*DeleteGitHubAppInstallationRequest)(nil),        // 18: chalk.server.v1.DeleteGitHubAppInstallationRequest
+	(*DeleteGitHubAppInstallationResponse)(nil),       // 19: chalk.server.v1.DeleteGitHubAppInstallationResponse
+	(*SyncGitHubAppInstallationsRequest)(nil),         // 20: chalk.server.v1.SyncGitHubAppInstallationsRequest
+	(*SyncGitHubAppInstallationsResponse)(nil),        // 21: chalk.server.v1.SyncGitHubAppInstallationsResponse
+	(*ListGitHubRepositoriesRequest)(nil),             // 22: chalk.server.v1.ListGitHubRepositoriesRequest
+	(*ListGitHubRepositoriesResponse)(nil),            // 23: chalk.server.v1.ListGitHubRepositoriesResponse
+	(*ListGitHubPullRequestsRequest)(nil),             // 24: chalk.server.v1.ListGitHubPullRequestsRequest
+	(*ListGitHubPullRequestsResponse)(nil),            // 25: chalk.server.v1.ListGitHubPullRequestsResponse
+	(*LinkProjectToGitHubRepositoryRequest)(nil),      // 26: chalk.server.v1.LinkProjectToGitHubRepositoryRequest
+	(*LinkProjectToGitHubRepositoryResponse)(nil),     // 27: chalk.server.v1.LinkProjectToGitHubRepositoryResponse
+	(*UnlinkProjectFromGitHubRepositoryRequest)(nil),  // 28: chalk.server.v1.UnlinkProjectFromGitHubRepositoryRequest
+	(*UnlinkProjectFromGitHubRepositoryResponse)(nil), // 29: chalk.server.v1.UnlinkProjectFromGitHubRepositoryResponse
+	(*GetProjectGitHubRepoLinkRequest)(nil),           // 30: chalk.server.v1.GetProjectGitHubRepoLinkRequest
+	(*GetProjectGitHubRepoLinkResponse)(nil),          // 31: chalk.server.v1.GetProjectGitHubRepoLinkResponse
+	(*ListProjectGitHubRepoLinksRequest)(nil),         // 32: chalk.server.v1.ListProjectGitHubRepoLinksRequest
+	(*ListProjectGitHubRepoLinksResponse)(nil),        // 33: chalk.server.v1.ListProjectGitHubRepoLinksResponse
+	(*ListGitHubBranchesRequest)(nil),                 // 34: chalk.server.v1.ListGitHubBranchesRequest
+	(*ListGitHubBranchesResponse)(nil),                // 35: chalk.server.v1.ListGitHubBranchesResponse
+	(*GetGitHubRepositoryArchiveRequest)(nil),         // 36: chalk.server.v1.GetGitHubRepositoryArchiveRequest
+	(*GetGitHubRepositoryArchiveResponse)(nil),        // 37: chalk.server.v1.GetGitHubRepositoryArchiveResponse
+	(*timestamppb.Timestamp)(nil),                     // 38: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_github_app_proto_depIdxs = []int32{
-	24, // 0: chalk.server.v1.GitHubAppConfig.created_at:type_name -> google.protobuf.Timestamp
-	24, // 1: chalk.server.v1.GitHubAppConfig.updated_at:type_name -> google.protobuf.Timestamp
-	24, // 2: chalk.server.v1.GitHubAppInstallation.suspended_at:type_name -> google.protobuf.Timestamp
-	24, // 3: chalk.server.v1.GitHubAppInstallation.created_at:type_name -> google.protobuf.Timestamp
-	24, // 4: chalk.server.v1.GitHubAppInstallation.updated_at:type_name -> google.protobuf.Timestamp
-	24, // 5: chalk.server.v1.GitHubPullRequest.created_at:type_name -> google.protobuf.Timestamp
-	24, // 6: chalk.server.v1.GitHubPullRequest.updated_at:type_name -> google.protobuf.Timestamp
-	24, // 7: chalk.server.v1.GitHubPullRequest.merged_at:type_name -> google.protobuf.Timestamp
-	0,  // 8: chalk.server.v1.UpsertGitHubAppConfigResponse.config:type_name -> chalk.server.v1.GitHubAppConfig
-	0,  // 9: chalk.server.v1.GetGitHubAppConfigResponse.config:type_name -> chalk.server.v1.GitHubAppConfig
-	1,  // 10: chalk.server.v1.CompleteGitHubAppInstallationResponse.installation:type_name -> chalk.server.v1.GitHubAppInstallation
-	1,  // 11: chalk.server.v1.ListGitHubAppInstallationsResponse.installations:type_name -> chalk.server.v1.GitHubAppInstallation
-	1,  // 12: chalk.server.v1.SyncGitHubAppInstallationsResponse.installations:type_name -> chalk.server.v1.GitHubAppInstallation
-	2,  // 13: chalk.server.v1.ListGitHubRepositoriesResponse.repositories:type_name -> chalk.server.v1.GitHubRepository
-	3,  // 14: chalk.server.v1.ListGitHubPullRequestsResponse.pull_requests:type_name -> chalk.server.v1.GitHubPullRequest
-	4,  // 15: chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig:input_type -> chalk.server.v1.UpsertGitHubAppConfigRequest
-	6,  // 16: chalk.server.v1.GitHubAppService.GetGitHubAppConfig:input_type -> chalk.server.v1.GetGitHubAppConfigRequest
-	8,  // 17: chalk.server.v1.GitHubAppService.DeleteGitHubAppConfig:input_type -> chalk.server.v1.DeleteGitHubAppConfigRequest
-	10, // 18: chalk.server.v1.GitHubAppService.GetGitHubAppInstallUrl:input_type -> chalk.server.v1.GetGitHubAppInstallUrlRequest
-	12, // 19: chalk.server.v1.GitHubAppService.CompleteGitHubAppInstallation:input_type -> chalk.server.v1.CompleteGitHubAppInstallationRequest
-	14, // 20: chalk.server.v1.GitHubAppService.ListGitHubAppInstallations:input_type -> chalk.server.v1.ListGitHubAppInstallationsRequest
-	16, // 21: chalk.server.v1.GitHubAppService.DeleteGitHubAppInstallation:input_type -> chalk.server.v1.DeleteGitHubAppInstallationRequest
-	18, // 22: chalk.server.v1.GitHubAppService.SyncGitHubAppInstallations:input_type -> chalk.server.v1.SyncGitHubAppInstallationsRequest
-	20, // 23: chalk.server.v1.GitHubAppService.ListGitHubRepositories:input_type -> chalk.server.v1.ListGitHubRepositoriesRequest
-	22, // 24: chalk.server.v1.GitHubAppService.ListGitHubPullRequests:input_type -> chalk.server.v1.ListGitHubPullRequestsRequest
-	5,  // 25: chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig:output_type -> chalk.server.v1.UpsertGitHubAppConfigResponse
-	7,  // 26: chalk.server.v1.GitHubAppService.GetGitHubAppConfig:output_type -> chalk.server.v1.GetGitHubAppConfigResponse
-	9,  // 27: chalk.server.v1.GitHubAppService.DeleteGitHubAppConfig:output_type -> chalk.server.v1.DeleteGitHubAppConfigResponse
-	11, // 28: chalk.server.v1.GitHubAppService.GetGitHubAppInstallUrl:output_type -> chalk.server.v1.GetGitHubAppInstallUrlResponse
-	13, // 29: chalk.server.v1.GitHubAppService.CompleteGitHubAppInstallation:output_type -> chalk.server.v1.CompleteGitHubAppInstallationResponse
-	15, // 30: chalk.server.v1.GitHubAppService.ListGitHubAppInstallations:output_type -> chalk.server.v1.ListGitHubAppInstallationsResponse
-	17, // 31: chalk.server.v1.GitHubAppService.DeleteGitHubAppInstallation:output_type -> chalk.server.v1.DeleteGitHubAppInstallationResponse
-	19, // 32: chalk.server.v1.GitHubAppService.SyncGitHubAppInstallations:output_type -> chalk.server.v1.SyncGitHubAppInstallationsResponse
-	21, // 33: chalk.server.v1.GitHubAppService.ListGitHubRepositories:output_type -> chalk.server.v1.ListGitHubRepositoriesResponse
-	23, // 34: chalk.server.v1.GitHubAppService.ListGitHubPullRequests:output_type -> chalk.server.v1.ListGitHubPullRequestsResponse
-	25, // [25:35] is the sub-list for method output_type
-	15, // [15:25] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	38, // 0: chalk.server.v1.GitHubAppConfig.created_at:type_name -> google.protobuf.Timestamp
+	38, // 1: chalk.server.v1.GitHubAppConfig.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 2: chalk.server.v1.GitHubAppInstallation.suspended_at:type_name -> google.protobuf.Timestamp
+	38, // 3: chalk.server.v1.GitHubAppInstallation.created_at:type_name -> google.protobuf.Timestamp
+	38, // 4: chalk.server.v1.GitHubAppInstallation.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 5: chalk.server.v1.GitHubProjectRepoLink.created_at:type_name -> google.protobuf.Timestamp
+	38, // 6: chalk.server.v1.GitHubProjectRepoLink.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 7: chalk.server.v1.GitHubPullRequest.created_at:type_name -> google.protobuf.Timestamp
+	38, // 8: chalk.server.v1.GitHubPullRequest.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 9: chalk.server.v1.GitHubPullRequest.merged_at:type_name -> google.protobuf.Timestamp
+	0,  // 10: chalk.server.v1.UpsertGitHubAppConfigResponse.config:type_name -> chalk.server.v1.GitHubAppConfig
+	0,  // 11: chalk.server.v1.GetGitHubAppConfigResponse.config:type_name -> chalk.server.v1.GitHubAppConfig
+	1,  // 12: chalk.server.v1.CompleteGitHubAppInstallationResponse.installation:type_name -> chalk.server.v1.GitHubAppInstallation
+	1,  // 13: chalk.server.v1.ListGitHubAppInstallationsResponse.installations:type_name -> chalk.server.v1.GitHubAppInstallation
+	1,  // 14: chalk.server.v1.SyncGitHubAppInstallationsResponse.installations:type_name -> chalk.server.v1.GitHubAppInstallation
+	2,  // 15: chalk.server.v1.ListGitHubRepositoriesResponse.repositories:type_name -> chalk.server.v1.GitHubRepository
+	5,  // 16: chalk.server.v1.ListGitHubPullRequestsResponse.pull_requests:type_name -> chalk.server.v1.GitHubPullRequest
+	3,  // 17: chalk.server.v1.LinkProjectToGitHubRepositoryResponse.link:type_name -> chalk.server.v1.GitHubProjectRepoLink
+	3,  // 18: chalk.server.v1.GetProjectGitHubRepoLinkResponse.link:type_name -> chalk.server.v1.GitHubProjectRepoLink
+	3,  // 19: chalk.server.v1.ListProjectGitHubRepoLinksResponse.links:type_name -> chalk.server.v1.GitHubProjectRepoLink
+	4,  // 20: chalk.server.v1.ListGitHubBranchesResponse.branches:type_name -> chalk.server.v1.GitHubBranch
+	6,  // 21: chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig:input_type -> chalk.server.v1.UpsertGitHubAppConfigRequest
+	8,  // 22: chalk.server.v1.GitHubAppService.GetGitHubAppConfig:input_type -> chalk.server.v1.GetGitHubAppConfigRequest
+	10, // 23: chalk.server.v1.GitHubAppService.DeleteGitHubAppConfig:input_type -> chalk.server.v1.DeleteGitHubAppConfigRequest
+	12, // 24: chalk.server.v1.GitHubAppService.GetGitHubAppInstallUrl:input_type -> chalk.server.v1.GetGitHubAppInstallUrlRequest
+	14, // 25: chalk.server.v1.GitHubAppService.CompleteGitHubAppInstallation:input_type -> chalk.server.v1.CompleteGitHubAppInstallationRequest
+	16, // 26: chalk.server.v1.GitHubAppService.ListGitHubAppInstallations:input_type -> chalk.server.v1.ListGitHubAppInstallationsRequest
+	18, // 27: chalk.server.v1.GitHubAppService.DeleteGitHubAppInstallation:input_type -> chalk.server.v1.DeleteGitHubAppInstallationRequest
+	20, // 28: chalk.server.v1.GitHubAppService.SyncGitHubAppInstallations:input_type -> chalk.server.v1.SyncGitHubAppInstallationsRequest
+	22, // 29: chalk.server.v1.GitHubAppService.ListGitHubRepositories:input_type -> chalk.server.v1.ListGitHubRepositoriesRequest
+	24, // 30: chalk.server.v1.GitHubAppService.ListGitHubPullRequests:input_type -> chalk.server.v1.ListGitHubPullRequestsRequest
+	34, // 31: chalk.server.v1.GitHubAppService.ListGitHubBranches:input_type -> chalk.server.v1.ListGitHubBranchesRequest
+	36, // 32: chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive:input_type -> chalk.server.v1.GetGitHubRepositoryArchiveRequest
+	26, // 33: chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository:input_type -> chalk.server.v1.LinkProjectToGitHubRepositoryRequest
+	28, // 34: chalk.server.v1.GitHubAppService.UnlinkProjectFromGitHubRepository:input_type -> chalk.server.v1.UnlinkProjectFromGitHubRepositoryRequest
+	30, // 35: chalk.server.v1.GitHubAppService.GetProjectGitHubRepoLink:input_type -> chalk.server.v1.GetProjectGitHubRepoLinkRequest
+	32, // 36: chalk.server.v1.GitHubAppService.ListProjectGitHubRepoLinks:input_type -> chalk.server.v1.ListProjectGitHubRepoLinksRequest
+	7,  // 37: chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig:output_type -> chalk.server.v1.UpsertGitHubAppConfigResponse
+	9,  // 38: chalk.server.v1.GitHubAppService.GetGitHubAppConfig:output_type -> chalk.server.v1.GetGitHubAppConfigResponse
+	11, // 39: chalk.server.v1.GitHubAppService.DeleteGitHubAppConfig:output_type -> chalk.server.v1.DeleteGitHubAppConfigResponse
+	13, // 40: chalk.server.v1.GitHubAppService.GetGitHubAppInstallUrl:output_type -> chalk.server.v1.GetGitHubAppInstallUrlResponse
+	15, // 41: chalk.server.v1.GitHubAppService.CompleteGitHubAppInstallation:output_type -> chalk.server.v1.CompleteGitHubAppInstallationResponse
+	17, // 42: chalk.server.v1.GitHubAppService.ListGitHubAppInstallations:output_type -> chalk.server.v1.ListGitHubAppInstallationsResponse
+	19, // 43: chalk.server.v1.GitHubAppService.DeleteGitHubAppInstallation:output_type -> chalk.server.v1.DeleteGitHubAppInstallationResponse
+	21, // 44: chalk.server.v1.GitHubAppService.SyncGitHubAppInstallations:output_type -> chalk.server.v1.SyncGitHubAppInstallationsResponse
+	23, // 45: chalk.server.v1.GitHubAppService.ListGitHubRepositories:output_type -> chalk.server.v1.ListGitHubRepositoriesResponse
+	25, // 46: chalk.server.v1.GitHubAppService.ListGitHubPullRequests:output_type -> chalk.server.v1.ListGitHubPullRequestsResponse
+	35, // 47: chalk.server.v1.GitHubAppService.ListGitHubBranches:output_type -> chalk.server.v1.ListGitHubBranchesResponse
+	37, // 48: chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive:output_type -> chalk.server.v1.GetGitHubRepositoryArchiveResponse
+	27, // 49: chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository:output_type -> chalk.server.v1.LinkProjectToGitHubRepositoryResponse
+	29, // 50: chalk.server.v1.GitHubAppService.UnlinkProjectFromGitHubRepository:output_type -> chalk.server.v1.UnlinkProjectFromGitHubRepositoryResponse
+	31, // 51: chalk.server.v1.GitHubAppService.GetProjectGitHubRepoLink:output_type -> chalk.server.v1.GetProjectGitHubRepoLinkResponse
+	33, // 52: chalk.server.v1.GitHubAppService.ListProjectGitHubRepoLinks:output_type -> chalk.server.v1.ListProjectGitHubRepoLinksResponse
+	37, // [37:53] is the sub-list for method output_type
+	21, // [21:37] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_github_app_proto_init() }
@@ -1645,19 +2521,23 @@ func file_chalk_server_v1_github_app_proto_init() {
 	}
 	file_chalk_server_v1_github_app_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_server_v1_github_app_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_server_v1_github_app_proto_msgTypes[4].OneofWrappers = []any{}
-	file_chalk_server_v1_github_app_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_server_v1_github_app_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_server_v1_github_app_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[24].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[26].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[31].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[34].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[36].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_github_app_proto_rawDesc), len(file_chalk_server_v1_github_app_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   24,
+			NumMessages:   38,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

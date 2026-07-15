@@ -23,188 +23,70 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type TriggerThreshold struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	SeverityKind   AlertSeverityKind      `protobuf:"varint,1,opt,name=severity_kind,json=severityKind,proto3,enum=chalk.artifacts.v1.AlertSeverityKind" json:"severity_kind,omitempty"`
-	ThresholdKind  ThresholdKind          `protobuf:"varint,2,opt,name=threshold_kind,json=thresholdKind,proto3,enum=chalk.artifacts.v1.ThresholdKind" json:"threshold_kind,omitempty"`
-	ThresholdValue float32                `protobuf:"fixed32,3,opt,name=threshold_value,json=thresholdValue,proto3" json:"threshold_value,omitempty"`
-	Description    *string                `protobuf:"bytes,4,opt,name=description,proto3,oneof" json:"description,omitempty"` // each trigger range gets unique description
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
+type MonitorType int32
 
-func (x *TriggerThreshold) Reset() {
-	*x = TriggerThreshold{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
+const (
+	MonitorType_MONITOR_TYPE_UNSPECIFIED MonitorType = 0
+	MonitorType_MONITOR_TYPE_CHART       MonitorType = 1
+	MonitorType_MONITOR_TYPE_LOG         MonitorType = 2
+	MonitorType_MONITOR_TYPE_HEALTHCHECK MonitorType = 3
+)
 
-func (x *TriggerThreshold) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TriggerThreshold) ProtoMessage() {}
-
-func (x *TriggerThreshold) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+// Enum value maps for MonitorType.
+var (
+	MonitorType_name = map[int32]string{
+		0: "MONITOR_TYPE_UNSPECIFIED",
+		1: "MONITOR_TYPE_CHART",
+		2: "MONITOR_TYPE_LOG",
+		3: "MONITOR_TYPE_HEALTHCHECK",
 	}
-	return mi.MessageOf(x)
+	MonitorType_value = map[string]int32{
+		"MONITOR_TYPE_UNSPECIFIED": 0,
+		"MONITOR_TYPE_CHART":       1,
+		"MONITOR_TYPE_LOG":         2,
+		"MONITOR_TYPE_HEALTHCHECK": 3,
+	}
+)
+
+func (x MonitorType) Enum() *MonitorType {
+	p := new(MonitorType)
+	*p = x
+	return p
 }
 
-// Deprecated: Use TriggerThreshold.ProtoReflect.Descriptor instead.
-func (*TriggerThreshold) Descriptor() ([]byte, []int) {
+func (x MonitorType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MonitorType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_artifacts_v1_monitor_proto_enumTypes[0].Descriptor()
+}
+
+func (MonitorType) Type() protoreflect.EnumType {
+	return &file_chalk_artifacts_v1_monitor_proto_enumTypes[0]
+}
+
+func (x MonitorType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MonitorType.Descriptor instead.
+func (MonitorType) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *TriggerThreshold) GetSeverityKind() AlertSeverityKind {
-	if x != nil {
-		return x.SeverityKind
-	}
-	return AlertSeverityKind_ALERT_SEVERITY_KIND_UNSPECIFIED
-}
-
-func (x *TriggerThreshold) GetThresholdKind() ThresholdKind {
-	if x != nil {
-		return x.ThresholdKind
-	}
-	return ThresholdKind_THRESHOLD_KIND_UNSPECIFIED
-}
-
-func (x *TriggerThreshold) GetThresholdValue() float32 {
-	if x != nil {
-		return x.ThresholdValue
-	}
-	return 0
-}
-
-func (x *TriggerThreshold) GetDescription() string {
-	if x != nil && x.Description != nil {
-		return *x.Description
-	}
-	return ""
-}
-
-// dispatches alerts in tiers
-// > 3 triggers warning
-// > 5 triggers error
-type TieredFrequencyTrigger struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Different severities for different threshold values
-	TriggerThresholds []*TriggerThreshold `protobuf:"bytes,1,rep,name=trigger_thresholds,json=triggerThresholds,proto3" json:"trigger_thresholds,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *TieredFrequencyTrigger) Reset() {
-	*x = TieredFrequencyTrigger{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TieredFrequencyTrigger) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TieredFrequencyTrigger) ProtoMessage() {}
-
-func (x *TieredFrequencyTrigger) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TieredFrequencyTrigger.ProtoReflect.Descriptor instead.
-func (*TieredFrequencyTrigger) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *TieredFrequencyTrigger) GetTriggerThresholds() []*TriggerThreshold {
-	if x != nil {
-		return x.TriggerThresholds
-	}
-	return nil
-}
-
-// Monitored entity passes or fails
-type BooleanTrigger struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SeverityKind  AlertSeverityKind      `protobuf:"varint,1,opt,name=severity_kind,json=severityKind,proto3,enum=chalk.artifacts.v1.AlertSeverityKind" json:"severity_kind,omitempty"`
-	Description   *string                `protobuf:"bytes,2,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BooleanTrigger) Reset() {
-	*x = BooleanTrigger{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BooleanTrigger) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BooleanTrigger) ProtoMessage() {}
-
-func (x *BooleanTrigger) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BooleanTrigger.ProtoReflect.Descriptor instead.
-func (*BooleanTrigger) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *BooleanTrigger) GetSeverityKind() AlertSeverityKind {
-	if x != nil {
-		return x.SeverityKind
-	}
-	return AlertSeverityKind_ALERT_SEVERITY_KIND_UNSPECIFIED
-}
-
-func (x *BooleanTrigger) GetDescription() string {
-	if x != nil && x.Description != nil {
-		return *x.Description
-	}
-	return ""
-}
-
 type LogsMonitor struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	QueryString   string                  `protobuf:"bytes,1,opt,name=query_string,json=queryString,proto3" json:"query_string,omitempty"`                                          // literal or regex matching
-	Tags          map[string]string       `protobuf:"bytes,2,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // tags to filter on
-	WindowPeriod  string                  `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`                                       // window period to aggregate logs
-	Trigger       *TieredFrequencyTrigger `protobuf:"bytes,100,opt,name=trigger,proto3" json:"trigger,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	QueryString   string                 `protobuf:"bytes,1,opt,name=query_string,json=queryString,proto3" json:"query_string,omitempty"`                                          // literal or regex matching
+	Tags          map[string]string      `protobuf:"bytes,2,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // tags to filter on
+	WindowPeriod  string                 `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`                                       // window period to aggregate logs
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *LogsMonitor) Reset() {
 	*x = LogsMonitor{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -216,7 +98,7 @@ func (x *LogsMonitor) String() string {
 func (*LogsMonitor) ProtoMessage() {}
 
 func (x *LogsMonitor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -229,7 +111,7 @@ func (x *LogsMonitor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogsMonitor.ProtoReflect.Descriptor instead.
 func (*LogsMonitor) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{3}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *LogsMonitor) GetQueryString() string {
@@ -253,24 +135,16 @@ func (x *LogsMonitor) GetWindowPeriod() string {
 	return ""
 }
 
-func (x *LogsMonitor) GetTrigger() *TieredFrequencyTrigger {
-	if x != nil {
-		return x.Trigger
-	}
-	return nil
-}
-
 type HealthcheckMonitor struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	HealthcheckName string                 `protobuf:"bytes,1,opt,name=healthcheck_name,json=healthcheckName,proto3" json:"healthcheck_name,omitempty"` // which healthcheck to run
-	Trigger         *BooleanTrigger        `protobuf:"bytes,100,opt,name=trigger,proto3" json:"trigger,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *HealthcheckMonitor) Reset() {
 	*x = HealthcheckMonitor{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -282,7 +156,7 @@ func (x *HealthcheckMonitor) String() string {
 func (*HealthcheckMonitor) ProtoMessage() {}
 
 func (x *HealthcheckMonitor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -295,7 +169,7 @@ func (x *HealthcheckMonitor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthcheckMonitor.ProtoReflect.Descriptor instead.
 func (*HealthcheckMonitor) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{4}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *HealthcheckMonitor) GetHealthcheckName() string {
@@ -305,25 +179,16 @@ func (x *HealthcheckMonitor) GetHealthcheckName() string {
 	return ""
 }
 
-func (x *HealthcheckMonitor) GetTrigger() *BooleanTrigger {
-	if x != nil {
-		return x.Trigger
-	}
-	return nil
-}
-
 type ChartMonitor struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	ChartId       string                  `protobuf:"bytes,1,opt,name=chart_id,json=chartId,proto3" json:"chart_id,omitempty"`
-	SeriesName    string                  `protobuf:"bytes,2,opt,name=series_name,json=seriesName,proto3" json:"series_name,omitempty"`
-	Trigger       *TieredFrequencyTrigger `protobuf:"bytes,100,opt,name=trigger,proto3" json:"trigger,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ChartId       string                 `protobuf:"bytes,1,opt,name=chart_id,json=chartId,proto3" json:"chart_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChartMonitor) Reset() {
 	*x = ChartMonitor{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -335,7 +200,7 @@ func (x *ChartMonitor) String() string {
 func (*ChartMonitor) ProtoMessage() {}
 
 func (x *ChartMonitor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -348,7 +213,7 @@ func (x *ChartMonitor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChartMonitor.ProtoReflect.Descriptor instead.
 func (*ChartMonitor) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{5}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ChartMonitor) GetChartId() string {
@@ -358,36 +223,232 @@ func (x *ChartMonitor) GetChartId() string {
 	return ""
 }
 
-func (x *ChartMonitor) GetSeriesName() string {
+type MonitorSeries struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	MetricSeries   []*MetricConfigSeries  `protobuf:"bytes,1,rep,name=metric_series,json=metricSeries,proto3" json:"metric_series,omitempty"`
+	MetricFormulas *MetricFormula         `protobuf:"bytes,2,opt,name=metric_formulas,json=metricFormulas,proto3,oneof" json:"metric_formulas,omitempty"`
+	WindowPeriod   string                 `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *MonitorSeries) Reset() {
+	*x = MonitorSeries{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MonitorSeries) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MonitorSeries) ProtoMessage() {}
+
+func (x *MonitorSeries) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
 	if x != nil {
-		return x.SeriesName
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MonitorSeries.ProtoReflect.Descriptor instead.
+func (*MonitorSeries) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *MonitorSeries) GetMetricSeries() []*MetricConfigSeries {
+	if x != nil {
+		return x.MetricSeries
+	}
+	return nil
+}
+
+func (x *MonitorSeries) GetMetricFormulas() *MetricFormula {
+	if x != nil {
+		return x.MetricFormulas
+	}
+	return nil
+}
+
+func (x *MonitorSeries) GetWindowPeriod() string {
+	if x != nil {
+		return x.WindowPeriod
 	}
 	return ""
 }
 
-func (x *ChartMonitor) GetTrigger() *TieredFrequencyTrigger {
+type AlertChannel struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	EntityKind AlertChannelKind       `protobuf:"varint,1,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.artifacts.v1.AlertChannelKind" json:"entity_kind,omitempty"`
+	// Types that are valid to be assigned to EntityIdentifier:
+	//
+	//	*AlertChannel_EntityId
+	//	*AlertChannel_EntityName
+	EntityIdentifier isAlertChannel_EntityIdentifier `protobuf_oneof:"entity_identifier"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *AlertChannel) Reset() {
+	*x = AlertChannel{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AlertChannel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AlertChannel) ProtoMessage() {}
+
+func (x *AlertChannel) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
 	if x != nil {
-		return x.Trigger
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AlertChannel.ProtoReflect.Descriptor instead.
+func (*AlertChannel) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AlertChannel) GetEntityKind() AlertChannelKind {
+	if x != nil {
+		return x.EntityKind
+	}
+	return AlertChannelKind_ALERT_CHANNEL_KIND_UNSPECIFIED
+}
+
+func (x *AlertChannel) GetEntityIdentifier() isAlertChannel_EntityIdentifier {
+	if x != nil {
+		return x.EntityIdentifier
+	}
+	return nil
+}
+
+func (x *AlertChannel) GetEntityId() string {
+	if x != nil {
+		if x, ok := x.EntityIdentifier.(*AlertChannel_EntityId); ok {
+			return x.EntityId
+		}
+	}
+	return ""
+}
+
+func (x *AlertChannel) GetEntityName() string {
+	if x != nil {
+		if x, ok := x.EntityIdentifier.(*AlertChannel_EntityName); ok {
+			return x.EntityName
+		}
+	}
+	return ""
+}
+
+type isAlertChannel_EntityIdentifier interface {
+	isAlertChannel_EntityIdentifier()
+}
+
+type AlertChannel_EntityId struct {
+	EntityId string `protobuf:"bytes,2,opt,name=entity_id,json=entityId,proto3,oneof"`
+}
+
+type AlertChannel_EntityName struct {
+	EntityName string `protobuf:"bytes,3,opt,name=entity_name,json=entityName,proto3,oneof"`
+}
+
+func (*AlertChannel_EntityId) isAlertChannel_EntityIdentifier() {}
+
+func (*AlertChannel_EntityName) isAlertChannel_EntityIdentifier() {}
+
+type Threshold struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ThresholdKind  ThresholdKind          `protobuf:"varint,6,opt,name=threshold_kind,json=thresholdKind,proto3,enum=chalk.artifacts.v1.ThresholdKind" json:"threshold_kind,omitempty"`
+	ThresholdValue float32                `protobuf:"fixed32,7,opt,name=threshold_value,json=thresholdValue,proto3" json:"threshold_value,omitempty"`
+	AlertChannels  []*AlertChannel        `protobuf:"bytes,8,rep,name=alert_channels,json=alertChannels,proto3" json:"alert_channels,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *Threshold) Reset() {
+	*x = Threshold{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Threshold) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Threshold) ProtoMessage() {}
+
+func (x *Threshold) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Threshold.ProtoReflect.Descriptor instead.
+func (*Threshold) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Threshold) GetThresholdKind() ThresholdKind {
+	if x != nil {
+		return x.ThresholdKind
+	}
+	return ThresholdKind_THRESHOLD_KIND_UNSPECIFIED
+}
+
+func (x *Threshold) GetThresholdValue() float32 {
+	if x != nil {
+		return x.ThresholdValue
+	}
+	return 0
+}
+
+func (x *Threshold) GetAlertChannels() []*AlertChannel {
+	if x != nil {
+		return x.AlertChannels
 	}
 	return nil
 }
 
 type Monitor struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	AlertOwners   []string               `protobuf:"bytes,3,rep,name=alert_owners,json=alertOwners,proto3" json:"alert_owners,omitempty"`
-	AlertChannels []string               `protobuf:"bytes,4,rep,name=alert_channels,json=alertChannels,proto3" json:"alert_channels,omitempty"`
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
-	CreatedBy     string                 `protobuf:"bytes,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type        string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Name        string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Description string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	CreatedBy   string                 `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	Threshold   *Threshold             `protobuf:"bytes,6,opt,name=threshold,proto3" json:"threshold,omitempty"`
 	// Types that are valid to be assigned to MonitoredEntity:
 	//
 	//	*Monitor_ChartMonitor
 	//	*Monitor_HealthcheckMonitor
 	//	*Monitor_LogsMonitor
 	MonitoredEntity isMonitor_MonitoredEntity `protobuf_oneof:"monitored_entity"`
-	CreatedAt       *timestamppb.Timestamp    `protobuf:"bytes,100,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt       *timestamppb.Timestamp    `protobuf:"bytes,101,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt       *timestamppb.Timestamp    `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *timestamppb.Timestamp    `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -436,23 +497,16 @@ func (x *Monitor) GetType() string {
 	return ""
 }
 
-func (x *Monitor) GetAlertOwners() []string {
-	if x != nil {
-		return x.AlertOwners
-	}
-	return nil
-}
-
-func (x *Monitor) GetAlertChannels() []string {
-	if x != nil {
-		return x.AlertChannels
-	}
-	return nil
-}
-
 func (x *Monitor) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *Monitor) GetDescription() string {
+	if x != nil {
+		return x.Description
 	}
 	return ""
 }
@@ -462,6 +516,13 @@ func (x *Monitor) GetCreatedBy() string {
 		return x.CreatedBy
 	}
 	return ""
+}
+
+func (x *Monitor) GetThreshold() *Threshold {
+	if x != nil {
+		return x.Threshold
+	}
+	return nil
 }
 
 func (x *Monitor) GetMonitoredEntity() isMonitor_MonitoredEntity {
@@ -517,15 +578,15 @@ type isMonitor_MonitoredEntity interface {
 }
 
 type Monitor_ChartMonitor struct {
-	ChartMonitor *ChartMonitor `protobuf:"bytes,7,opt,name=chart_monitor,json=chartMonitor,proto3,oneof"`
+	ChartMonitor *ChartMonitor `protobuf:"bytes,100,opt,name=chart_monitor,json=chartMonitor,proto3,oneof"`
 }
 
 type Monitor_HealthcheckMonitor struct {
-	HealthcheckMonitor *HealthcheckMonitor `protobuf:"bytes,8,opt,name=healthcheck_monitor,json=healthcheckMonitor,proto3,oneof"`
+	HealthcheckMonitor *HealthcheckMonitor `protobuf:"bytes,101,opt,name=healthcheck_monitor,json=healthcheckMonitor,proto3,oneof"`
 }
 
 type Monitor_LogsMonitor struct {
-	LogsMonitor *LogsMonitor `protobuf:"bytes,9,opt,name=logs_monitor,json=logsMonitor,proto3,oneof"`
+	LogsMonitor *LogsMonitor `protobuf:"bytes,102,opt,name=logs_monitor,json=logsMonitor,proto3,oneof"`
 }
 
 func (*Monitor_ChartMonitor) isMonitor_MonitoredEntity() {}
@@ -538,51 +599,55 @@ var File_chalk_artifacts_v1_monitor_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\n" +
-	" chalk/artifacts/v1/monitor.proto\x12\x12chalk.artifacts.v1\x1a\x1echalk/artifacts/v1/chart.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x88\x02\n" +
-	"\x10TriggerThreshold\x12J\n" +
-	"\rseverity_kind\x18\x01 \x01(\x0e2%.chalk.artifacts.v1.AlertSeverityKindR\fseverityKind\x12H\n" +
-	"\x0ethreshold_kind\x18\x02 \x01(\x0e2!.chalk.artifacts.v1.ThresholdKindR\rthresholdKind\x12'\n" +
-	"\x0fthreshold_value\x18\x03 \x01(\x02R\x0ethresholdValue\x12%\n" +
-	"\vdescription\x18\x04 \x01(\tH\x00R\vdescription\x88\x01\x01B\x0e\n" +
-	"\f_description\"m\n" +
-	"\x16TieredFrequencyTrigger\x12S\n" +
-	"\x12trigger_thresholds\x18\x01 \x03(\v2$.chalk.artifacts.v1.TriggerThresholdR\x11triggerThresholds\"\x93\x01\n" +
-	"\x0eBooleanTrigger\x12J\n" +
-	"\rseverity_kind\x18\x01 \x01(\x0e2%.chalk.artifacts.v1.AlertSeverityKindR\fseverityKind\x12%\n" +
-	"\vdescription\x18\x02 \x01(\tH\x00R\vdescription\x88\x01\x01B\x0e\n" +
-	"\f_description\"\x93\x02\n" +
+	" chalk/artifacts/v1/monitor.proto\x12\x12chalk.artifacts.v1\x1a&chalk/artifacts/v1/alert_channel.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcd\x01\n" +
 	"\vLogsMonitor\x12!\n" +
 	"\fquery_string\x18\x01 \x01(\tR\vqueryString\x12=\n" +
 	"\x04tags\x18\x02 \x03(\v2).chalk.artifacts.v1.LogsMonitor.TagsEntryR\x04tags\x12#\n" +
-	"\rwindow_period\x18\x03 \x01(\tR\fwindowPeriod\x12D\n" +
-	"\atrigger\x18d \x01(\v2*.chalk.artifacts.v1.TieredFrequencyTriggerR\atrigger\x1a7\n" +
+	"\rwindow_period\x18\x03 \x01(\tR\fwindowPeriod\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"}\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"?\n" +
 	"\x12HealthcheckMonitor\x12)\n" +
-	"\x10healthcheck_name\x18\x01 \x01(\tR\x0fhealthcheckName\x12<\n" +
-	"\atrigger\x18d \x01(\v2\".chalk.artifacts.v1.BooleanTriggerR\atrigger\"\x90\x01\n" +
+	"\x10healthcheck_name\x18\x01 \x01(\tR\x0fhealthcheckName\")\n" +
 	"\fChartMonitor\x12\x19\n" +
-	"\bchart_id\x18\x01 \x01(\tR\achartId\x12\x1f\n" +
-	"\vseries_name\x18\x02 \x01(\tR\n" +
-	"seriesName\x12D\n" +
-	"\atrigger\x18d \x01(\v2*.chalk.artifacts.v1.TieredFrequencyTriggerR\atrigger\"\xb2\x04\n" +
+	"\bchart_id\x18\x01 \x01(\tR\achartId\"\xe6\x01\n" +
+	"\rMonitorSeries\x12K\n" +
+	"\rmetric_series\x18\x01 \x03(\v2&.chalk.artifacts.v1.MetricConfigSeriesR\fmetricSeries\x12O\n" +
+	"\x0fmetric_formulas\x18\x02 \x01(\v2!.chalk.artifacts.v1.MetricFormulaH\x00R\x0emetricFormulas\x88\x01\x01\x12#\n" +
+	"\rwindow_period\x18\x03 \x01(\tR\fwindowPeriodB\x12\n" +
+	"\x10_metric_formulas\"\xac\x01\n" +
+	"\fAlertChannel\x12E\n" +
+	"\ventity_kind\x18\x01 \x01(\x0e2$.chalk.artifacts.v1.AlertChannelKindR\n" +
+	"entityKind\x12\x1d\n" +
+	"\tentity_id\x18\x02 \x01(\tH\x00R\bentityId\x12!\n" +
+	"\ventity_name\x18\x03 \x01(\tH\x00R\n" +
+	"entityNameB\x13\n" +
+	"\x11entity_identifier\"\xc7\x01\n" +
+	"\tThreshold\x12H\n" +
+	"\x0ethreshold_kind\x18\x06 \x01(\x0e2!.chalk.artifacts.v1.ThresholdKindR\rthresholdKind\x12'\n" +
+	"\x0fthreshold_value\x18\a \x01(\x02R\x0ethresholdValue\x12G\n" +
+	"\x0ealert_channels\x18\b \x03(\v2 .chalk.artifacts.v1.AlertChannelR\ralertChannels\"\xc9\x04\n" +
 	"\aMonitor\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x12\n" +
-	"\x04type\x18\x02 \x01(\tR\x04type\x12!\n" +
-	"\falert_owners\x18\x03 \x03(\tR\valertOwners\x12%\n" +
-	"\x0ealert_channels\x18\x04 \x03(\tR\ralertChannels\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name\x12\"\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\"\n" +
 	"\n" +
-	"created_by\x18\x06 \x01(\tB\x03\xe0A\x03R\tcreatedBy\x12G\n" +
-	"\rchart_monitor\x18\a \x01(\v2 .chalk.artifacts.v1.ChartMonitorH\x00R\fchartMonitor\x12Y\n" +
-	"\x13healthcheck_monitor\x18\b \x01(\v2&.chalk.artifacts.v1.HealthcheckMonitorH\x00R\x12healthcheckMonitor\x12D\n" +
-	"\flogs_monitor\x18\t \x01(\v2\x1f.chalk.artifacts.v1.LogsMonitorH\x00R\vlogsMonitor\x12>\n" +
+	"created_by\x18\x05 \x01(\tB\x03\xe0A\x03R\tcreatedBy\x12;\n" +
+	"\tthreshold\x18\x06 \x01(\v2\x1d.chalk.artifacts.v1.ThresholdR\tthreshold\x12G\n" +
+	"\rchart_monitor\x18d \x01(\v2 .chalk.artifacts.v1.ChartMonitorH\x00R\fchartMonitor\x12Y\n" +
+	"\x13healthcheck_monitor\x18e \x01(\v2&.chalk.artifacts.v1.HealthcheckMonitorH\x00R\x12healthcheckMonitor\x12D\n" +
+	"\flogs_monitor\x18f \x01(\v2\x1f.chalk.artifacts.v1.LogsMonitorH\x00R\vlogsMonitor\x12?\n" +
 	"\n" +
-	"created_at\x18d \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
+	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12?\n" +
 	"\n" +
-	"updated_at\x18e \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAtB\x12\n" +
-	"\x10monitored_entityB\xd1\x01\n" +
+	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAtB\x12\n" +
+	"\x10monitored_entity*w\n" +
+	"\vMonitorType\x12\x1c\n" +
+	"\x18MONITOR_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12MONITOR_TYPE_CHART\x10\x01\x12\x14\n" +
+	"\x10MONITOR_TYPE_LOG\x10\x02\x12\x1c\n" +
+	"\x18MONITOR_TYPE_HEALTHCHECK\x10\x03B\xd1\x01\n" +
 	"\x16com.chalk.artifacts.v1B\fMonitorProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (
@@ -597,39 +662,42 @@ func file_chalk_artifacts_v1_monitor_proto_rawDescGZIP() []byte {
 	return file_chalk_artifacts_v1_monitor_proto_rawDescData
 }
 
+var file_chalk_artifacts_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_chalk_artifacts_v1_monitor_proto_goTypes = []any{
-	(*TriggerThreshold)(nil),       // 0: chalk.artifacts.v1.TriggerThreshold
-	(*TieredFrequencyTrigger)(nil), // 1: chalk.artifacts.v1.TieredFrequencyTrigger
-	(*BooleanTrigger)(nil),         // 2: chalk.artifacts.v1.BooleanTrigger
-	(*LogsMonitor)(nil),            // 3: chalk.artifacts.v1.LogsMonitor
-	(*HealthcheckMonitor)(nil),     // 4: chalk.artifacts.v1.HealthcheckMonitor
-	(*ChartMonitor)(nil),           // 5: chalk.artifacts.v1.ChartMonitor
-	(*Monitor)(nil),                // 6: chalk.artifacts.v1.Monitor
-	nil,                            // 7: chalk.artifacts.v1.LogsMonitor.TagsEntry
-	(AlertSeverityKind)(0),         // 8: chalk.artifacts.v1.AlertSeverityKind
-	(ThresholdKind)(0),             // 9: chalk.artifacts.v1.ThresholdKind
-	(*timestamppb.Timestamp)(nil),  // 10: google.protobuf.Timestamp
+	(MonitorType)(0),              // 0: chalk.artifacts.v1.MonitorType
+	(*LogsMonitor)(nil),           // 1: chalk.artifacts.v1.LogsMonitor
+	(*HealthcheckMonitor)(nil),    // 2: chalk.artifacts.v1.HealthcheckMonitor
+	(*ChartMonitor)(nil),          // 3: chalk.artifacts.v1.ChartMonitor
+	(*MonitorSeries)(nil),         // 4: chalk.artifacts.v1.MonitorSeries
+	(*AlertChannel)(nil),          // 5: chalk.artifacts.v1.AlertChannel
+	(*Threshold)(nil),             // 6: chalk.artifacts.v1.Threshold
+	(*Monitor)(nil),               // 7: chalk.artifacts.v1.Monitor
+	nil,                           // 8: chalk.artifacts.v1.LogsMonitor.TagsEntry
+	(*MetricConfigSeries)(nil),    // 9: chalk.artifacts.v1.MetricConfigSeries
+	(*MetricFormula)(nil),         // 10: chalk.artifacts.v1.MetricFormula
+	(AlertChannelKind)(0),         // 11: chalk.artifacts.v1.AlertChannelKind
+	(ThresholdKind)(0),            // 12: chalk.artifacts.v1.ThresholdKind
+	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_monitor_proto_depIdxs = []int32{
-	8,  // 0: chalk.artifacts.v1.TriggerThreshold.severity_kind:type_name -> chalk.artifacts.v1.AlertSeverityKind
-	9,  // 1: chalk.artifacts.v1.TriggerThreshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
-	0,  // 2: chalk.artifacts.v1.TieredFrequencyTrigger.trigger_thresholds:type_name -> chalk.artifacts.v1.TriggerThreshold
-	8,  // 3: chalk.artifacts.v1.BooleanTrigger.severity_kind:type_name -> chalk.artifacts.v1.AlertSeverityKind
-	7,  // 4: chalk.artifacts.v1.LogsMonitor.tags:type_name -> chalk.artifacts.v1.LogsMonitor.TagsEntry
-	1,  // 5: chalk.artifacts.v1.LogsMonitor.trigger:type_name -> chalk.artifacts.v1.TieredFrequencyTrigger
-	2,  // 6: chalk.artifacts.v1.HealthcheckMonitor.trigger:type_name -> chalk.artifacts.v1.BooleanTrigger
-	1,  // 7: chalk.artifacts.v1.ChartMonitor.trigger:type_name -> chalk.artifacts.v1.TieredFrequencyTrigger
-	5,  // 8: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
-	4,  // 9: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
-	3,  // 10: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
-	10, // 11: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
-	10, // 12: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	8,  // 0: chalk.artifacts.v1.LogsMonitor.tags:type_name -> chalk.artifacts.v1.LogsMonitor.TagsEntry
+	9,  // 1: chalk.artifacts.v1.MonitorSeries.metric_series:type_name -> chalk.artifacts.v1.MetricConfigSeries
+	10, // 2: chalk.artifacts.v1.MonitorSeries.metric_formulas:type_name -> chalk.artifacts.v1.MetricFormula
+	11, // 3: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	12, // 4: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
+	5,  // 5: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
+	6,  // 6: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
+	3,  // 7: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
+	2,  // 8: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
+	1,  // 9: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
+	13, // 10: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
+	13, // 11: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_monitor_proto_init() }
@@ -637,9 +705,13 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 	if File_chalk_artifacts_v1_monitor_proto != nil {
 		return
 	}
+	file_chalk_artifacts_v1_alert_channel_proto_init()
 	file_chalk_artifacts_v1_chart_proto_init()
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[4].OneofWrappers = []any{
+		(*AlertChannel_EntityId)(nil),
+		(*AlertChannel_EntityName)(nil),
+	}
 	file_chalk_artifacts_v1_monitor_proto_msgTypes[6].OneofWrappers = []any{
 		(*Monitor_ChartMonitor)(nil),
 		(*Monitor_HealthcheckMonitor)(nil),
@@ -650,13 +722,14 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_monitor_proto_rawDesc), len(file_chalk_artifacts_v1_monitor_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_chalk_artifacts_v1_monitor_proto_goTypes,
 		DependencyIndexes: file_chalk_artifacts_v1_monitor_proto_depIdxs,
+		EnumInfos:         file_chalk_artifacts_v1_monitor_proto_enumTypes,
 		MessageInfos:      file_chalk_artifacts_v1_monitor_proto_msgTypes,
 	}.Build()
 	File_chalk_artifacts_v1_monitor_proto = out.File

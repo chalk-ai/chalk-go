@@ -273,6 +273,18 @@ const (
 	NotebookInputKind_NOTEBOOK_INPUT_KIND_DATE        NotebookInputKind = 4
 	NotebookInputKind_NOTEBOOK_INPUT_KIND_SELECT      NotebookInputKind = 5
 	NotebookInputKind_NOTEBOOK_INPUT_KIND_MULTISELECT NotebookInputKind = 6
+	// Display-only element showing one value derived from a kernel variable.
+	// Never bound into the kernel (no prelude binding is emitted).
+	NotebookInputKind_NOTEBOOK_INPUT_KIND_SINGLE_VALUE NotebookInputKind = 7
+	// Section header: a titled, collapsible grouping over the cells that
+	// reference it via NotebookCell.section_id. Modeled as a cell (not a
+	// NotebookCellGroup) so empty sections hold a position in the flat cell
+	// order; `label` carries the title and the view state's source_collapsed
+	// flag carries the collapse. Never bound into the kernel.
+	NotebookInputKind_NOTEBOOK_INPUT_KIND_SECTION NotebookInputKind = 8
+	// Bool input rendered as a switch (CHECKBOX renders as a real checkbox);
+	// binds exactly like CHECKBOX (checkbox_value -> bool).
+	NotebookInputKind_NOTEBOOK_INPUT_KIND_TOGGLE NotebookInputKind = 9
 )
 
 // Enum value maps for NotebookInputKind.
@@ -285,15 +297,21 @@ var (
 		4: "NOTEBOOK_INPUT_KIND_DATE",
 		5: "NOTEBOOK_INPUT_KIND_SELECT",
 		6: "NOTEBOOK_INPUT_KIND_MULTISELECT",
+		7: "NOTEBOOK_INPUT_KIND_SINGLE_VALUE",
+		8: "NOTEBOOK_INPUT_KIND_SECTION",
+		9: "NOTEBOOK_INPUT_KIND_TOGGLE",
 	}
 	NotebookInputKind_value = map[string]int32{
-		"NOTEBOOK_INPUT_KIND_UNSPECIFIED": 0,
-		"NOTEBOOK_INPUT_KIND_TEXT":        1,
-		"NOTEBOOK_INPUT_KIND_NUMBER":      2,
-		"NOTEBOOK_INPUT_KIND_CHECKBOX":    3,
-		"NOTEBOOK_INPUT_KIND_DATE":        4,
-		"NOTEBOOK_INPUT_KIND_SELECT":      5,
-		"NOTEBOOK_INPUT_KIND_MULTISELECT": 6,
+		"NOTEBOOK_INPUT_KIND_UNSPECIFIED":  0,
+		"NOTEBOOK_INPUT_KIND_TEXT":         1,
+		"NOTEBOOK_INPUT_KIND_NUMBER":       2,
+		"NOTEBOOK_INPUT_KIND_CHECKBOX":     3,
+		"NOTEBOOK_INPUT_KIND_DATE":         4,
+		"NOTEBOOK_INPUT_KIND_SELECT":       5,
+		"NOTEBOOK_INPUT_KIND_MULTISELECT":  6,
+		"NOTEBOOK_INPUT_KIND_SINGLE_VALUE": 7,
+		"NOTEBOOK_INPUT_KIND_SECTION":      8,
+		"NOTEBOOK_INPUT_KIND_TOGGLE":       9,
 	}
 )
 
@@ -322,6 +340,277 @@ func (x NotebookInputKind) Number() protoreflect.EnumNumber {
 // Deprecated: Use NotebookInputKind.Descriptor instead.
 func (NotebookInputKind) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{4}
+}
+
+// SECTION cells: title typography. UNSPECIFIED = "Auto" (sized by nesting
+// depth; Heading 1 while sections do not nest).
+type NotebookSectionHeadingSize int32
+
+const (
+	NotebookSectionHeadingSize_NOTEBOOK_SECTION_HEADING_SIZE_UNSPECIFIED NotebookSectionHeadingSize = 0
+	NotebookSectionHeadingSize_NOTEBOOK_SECTION_HEADING_SIZE_H1          NotebookSectionHeadingSize = 1
+	NotebookSectionHeadingSize_NOTEBOOK_SECTION_HEADING_SIZE_H2          NotebookSectionHeadingSize = 2
+	NotebookSectionHeadingSize_NOTEBOOK_SECTION_HEADING_SIZE_H3          NotebookSectionHeadingSize = 3
+	NotebookSectionHeadingSize_NOTEBOOK_SECTION_HEADING_SIZE_LABEL       NotebookSectionHeadingSize = 4
+)
+
+// Enum value maps for NotebookSectionHeadingSize.
+var (
+	NotebookSectionHeadingSize_name = map[int32]string{
+		0: "NOTEBOOK_SECTION_HEADING_SIZE_UNSPECIFIED",
+		1: "NOTEBOOK_SECTION_HEADING_SIZE_H1",
+		2: "NOTEBOOK_SECTION_HEADING_SIZE_H2",
+		3: "NOTEBOOK_SECTION_HEADING_SIZE_H3",
+		4: "NOTEBOOK_SECTION_HEADING_SIZE_LABEL",
+	}
+	NotebookSectionHeadingSize_value = map[string]int32{
+		"NOTEBOOK_SECTION_HEADING_SIZE_UNSPECIFIED": 0,
+		"NOTEBOOK_SECTION_HEADING_SIZE_H1":          1,
+		"NOTEBOOK_SECTION_HEADING_SIZE_H2":          2,
+		"NOTEBOOK_SECTION_HEADING_SIZE_H3":          3,
+		"NOTEBOOK_SECTION_HEADING_SIZE_LABEL":       4,
+	}
+)
+
+func (x NotebookSectionHeadingSize) Enum() *NotebookSectionHeadingSize {
+	p := new(NotebookSectionHeadingSize)
+	*p = x
+	return p
+}
+
+func (x NotebookSectionHeadingSize) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookSectionHeadingSize) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_notebook_v1_document_proto_enumTypes[5].Descriptor()
+}
+
+func (NotebookSectionHeadingSize) Type() protoreflect.EnumType {
+	return &file_chalk_notebook_v1_document_proto_enumTypes[5]
+}
+
+func (x NotebookSectionHeadingSize) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookSectionHeadingSize.Descriptor instead.
+func (NotebookSectionHeadingSize) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{5}
+}
+
+// SINGLE_VALUE: how the element picks its value out of a dataframe variable.
+type NotebookSingleValueSelector int32
+
+const (
+	// Legacy/unset; treated as ROW.
+	NotebookSingleValueSelector_NOTEBOOK_SINGLE_VALUE_SELECTOR_UNSPECIFIED NotebookSingleValueSelector = 0
+	NotebookSingleValueSelector_NOTEBOOK_SINGLE_VALUE_SELECTOR_ROW         NotebookSingleValueSelector = 1
+	NotebookSingleValueSelector_NOTEBOOK_SINGLE_VALUE_SELECTOR_AGGREGATE   NotebookSingleValueSelector = 2
+)
+
+// Enum value maps for NotebookSingleValueSelector.
+var (
+	NotebookSingleValueSelector_name = map[int32]string{
+		0: "NOTEBOOK_SINGLE_VALUE_SELECTOR_UNSPECIFIED",
+		1: "NOTEBOOK_SINGLE_VALUE_SELECTOR_ROW",
+		2: "NOTEBOOK_SINGLE_VALUE_SELECTOR_AGGREGATE",
+	}
+	NotebookSingleValueSelector_value = map[string]int32{
+		"NOTEBOOK_SINGLE_VALUE_SELECTOR_UNSPECIFIED": 0,
+		"NOTEBOOK_SINGLE_VALUE_SELECTOR_ROW":         1,
+		"NOTEBOOK_SINGLE_VALUE_SELECTOR_AGGREGATE":   2,
+	}
+)
+
+func (x NotebookSingleValueSelector) Enum() *NotebookSingleValueSelector {
+	p := new(NotebookSingleValueSelector)
+	*p = x
+	return p
+}
+
+func (x NotebookSingleValueSelector) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookSingleValueSelector) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_notebook_v1_document_proto_enumTypes[6].Descriptor()
+}
+
+func (NotebookSingleValueSelector) Type() protoreflect.EnumType {
+	return &file_chalk_notebook_v1_document_proto_enumTypes[6]
+}
+
+func (x NotebookSingleValueSelector) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookSingleValueSelector.Descriptor instead.
+func (NotebookSingleValueSelector) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{6}
+}
+
+// SINGLE_VALUE: how a dataframe column reduces to one value.
+type NotebookSingleValueAggregation int32
+
+const (
+	NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_UNSPECIFIED    NotebookSingleValueAggregation = 0
+	NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_MIN            NotebookSingleValueAggregation = 1
+	NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_MAX            NotebookSingleValueAggregation = 2
+	NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_MEAN           NotebookSingleValueAggregation = 3
+	NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_SUM            NotebookSingleValueAggregation = 4
+	NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_MEDIAN         NotebookSingleValueAggregation = 5
+	NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_COUNT          NotebookSingleValueAggregation = 6
+	NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_COUNT_DISTINCT NotebookSingleValueAggregation = 7
+)
+
+// Enum value maps for NotebookSingleValueAggregation.
+var (
+	NotebookSingleValueAggregation_name = map[int32]string{
+		0: "NOTEBOOK_SINGLE_VALUE_AGGREGATION_UNSPECIFIED",
+		1: "NOTEBOOK_SINGLE_VALUE_AGGREGATION_MIN",
+		2: "NOTEBOOK_SINGLE_VALUE_AGGREGATION_MAX",
+		3: "NOTEBOOK_SINGLE_VALUE_AGGREGATION_MEAN",
+		4: "NOTEBOOK_SINGLE_VALUE_AGGREGATION_SUM",
+		5: "NOTEBOOK_SINGLE_VALUE_AGGREGATION_MEDIAN",
+		6: "NOTEBOOK_SINGLE_VALUE_AGGREGATION_COUNT",
+		7: "NOTEBOOK_SINGLE_VALUE_AGGREGATION_COUNT_DISTINCT",
+	}
+	NotebookSingleValueAggregation_value = map[string]int32{
+		"NOTEBOOK_SINGLE_VALUE_AGGREGATION_UNSPECIFIED":    0,
+		"NOTEBOOK_SINGLE_VALUE_AGGREGATION_MIN":            1,
+		"NOTEBOOK_SINGLE_VALUE_AGGREGATION_MAX":            2,
+		"NOTEBOOK_SINGLE_VALUE_AGGREGATION_MEAN":           3,
+		"NOTEBOOK_SINGLE_VALUE_AGGREGATION_SUM":            4,
+		"NOTEBOOK_SINGLE_VALUE_AGGREGATION_MEDIAN":         5,
+		"NOTEBOOK_SINGLE_VALUE_AGGREGATION_COUNT":          6,
+		"NOTEBOOK_SINGLE_VALUE_AGGREGATION_COUNT_DISTINCT": 7,
+	}
+)
+
+func (x NotebookSingleValueAggregation) Enum() *NotebookSingleValueAggregation {
+	p := new(NotebookSingleValueAggregation)
+	*p = x
+	return p
+}
+
+func (x NotebookSingleValueAggregation) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookSingleValueAggregation) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_notebook_v1_document_proto_enumTypes[7].Descriptor()
+}
+
+func (NotebookSingleValueAggregation) Type() protoreflect.EnumType {
+	return &file_chalk_notebook_v1_document_proto_enumTypes[7]
+}
+
+func (x NotebookSingleValueAggregation) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookSingleValueAggregation.Descriptor instead.
+func (NotebookSingleValueAggregation) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{7}
+}
+
+// How SELECT/MULTISELECT choices are sourced.
+type NotebookInputValuesMode int32
+
+const (
+	// Legacy documents predate this field; treated as STATIC.
+	NotebookInputValuesMode_NOTEBOOK_INPUT_VALUES_MODE_UNSPECIFIED NotebookInputValuesMode = 0
+	NotebookInputValuesMode_NOTEBOOK_INPUT_VALUES_MODE_STATIC      NotebookInputValuesMode = 1
+	NotebookInputValuesMode_NOTEBOOK_INPUT_VALUES_MODE_DYNAMIC     NotebookInputValuesMode = 2
+)
+
+// Enum value maps for NotebookInputValuesMode.
+var (
+	NotebookInputValuesMode_name = map[int32]string{
+		0: "NOTEBOOK_INPUT_VALUES_MODE_UNSPECIFIED",
+		1: "NOTEBOOK_INPUT_VALUES_MODE_STATIC",
+		2: "NOTEBOOK_INPUT_VALUES_MODE_DYNAMIC",
+	}
+	NotebookInputValuesMode_value = map[string]int32{
+		"NOTEBOOK_INPUT_VALUES_MODE_UNSPECIFIED": 0,
+		"NOTEBOOK_INPUT_VALUES_MODE_STATIC":      1,
+		"NOTEBOOK_INPUT_VALUES_MODE_DYNAMIC":     2,
+	}
+)
+
+func (x NotebookInputValuesMode) Enum() *NotebookInputValuesMode {
+	p := new(NotebookInputValuesMode)
+	*p = x
+	return p
+}
+
+func (x NotebookInputValuesMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookInputValuesMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_notebook_v1_document_proto_enumTypes[8].Descriptor()
+}
+
+func (NotebookInputValuesMode) Type() protoreflect.EnumType {
+	return &file_chalk_notebook_v1_document_proto_enumTypes[8]
+}
+
+func (x NotebookInputValuesMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookInputValuesMode.Descriptor instead.
+func (NotebookInputValuesMode) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{8}
+}
+
+type NotebookCellGroupKind int32
+
+const (
+	NotebookCellGroupKind_NOTEBOOK_CELL_GROUP_KIND_UNSPECIFIED NotebookCellGroupKind = 0
+	// Members lay out side by side in one horizontal row.
+	NotebookCellGroupKind_NOTEBOOK_CELL_GROUP_KIND_ROW NotebookCellGroupKind = 1
+)
+
+// Enum value maps for NotebookCellGroupKind.
+var (
+	NotebookCellGroupKind_name = map[int32]string{
+		0: "NOTEBOOK_CELL_GROUP_KIND_UNSPECIFIED",
+		1: "NOTEBOOK_CELL_GROUP_KIND_ROW",
+	}
+	NotebookCellGroupKind_value = map[string]int32{
+		"NOTEBOOK_CELL_GROUP_KIND_UNSPECIFIED": 0,
+		"NOTEBOOK_CELL_GROUP_KIND_ROW":         1,
+	}
+)
+
+func (x NotebookCellGroupKind) Enum() *NotebookCellGroupKind {
+	p := new(NotebookCellGroupKind)
+	*p = x
+	return p
+}
+
+func (x NotebookCellGroupKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookCellGroupKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_notebook_v1_document_proto_enumTypes[9].Descriptor()
+}
+
+func (NotebookCellGroupKind) Type() protoreflect.EnumType {
+	return &file_chalk_notebook_v1_document_proto_enumTypes[9]
+}
+
+func (x NotebookCellGroupKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookCellGroupKind.Descriptor instead.
+func (NotebookCellGroupKind) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{9}
 }
 
 type NotebookSQLDatasourceRef struct {
@@ -913,6 +1202,16 @@ type NotebookInputCell struct {
 	Options []string `protobuf:"bytes,4,rep,name=options,proto3" json:"options,omitempty"`
 	// Whether SELECT allows clearing back to no selection.
 	AllowClear bool `protobuf:"varint,5,opt,name=allow_clear,json=allowClear,proto3" json:"allow_clear,omitempty"`
+	// How SELECT/MULTISELECT choices are sourced: static `options` (the
+	// default) or a dataframe variable in kernel scope.
+	ValuesMode NotebookInputValuesMode `protobuf:"varint,6,opt,name=values_mode,json=valuesMode,proto3,enum=chalk.notebook.v1.NotebookInputValuesMode" json:"values_mode,omitempty"`
+	// DYNAMIC mode: kernel variable holding an Arrow-backed dataframe.
+	DynamicValuesVariable *string `protobuf:"bytes,7,opt,name=dynamic_values_variable,json=dynamicValuesVariable,proto3,oneof" json:"dynamic_values_variable,omitempty"`
+	// DYNAMIC mode: column whose values become the option values.
+	DynamicValueColumn *string `protobuf:"bytes,8,opt,name=dynamic_value_column,json=dynamicValueColumn,proto3,oneof" json:"dynamic_value_column,omitempty"`
+	// DYNAMIC mode: column shown as the option label; falls back to the value
+	// column when unset.
+	DynamicDisplayColumn *string `protobuf:"bytes,9,opt,name=dynamic_display_column,json=dynamicDisplayColumn,proto3,oneof" json:"dynamic_display_column,omitempty"`
 	// Current value; the populated field must match `kind`.
 	TextValue     *string  `protobuf:"bytes,10,opt,name=text_value,json=textValue,proto3,oneof" json:"text_value,omitempty"`
 	NumberValue   *float64 `protobuf:"fixed64,11,opt,name=number_value,json=numberValue,proto3,oneof" json:"number_value,omitempty"`
@@ -921,8 +1220,25 @@ type NotebookInputCell struct {
 	DateValue *string `protobuf:"bytes,13,opt,name=date_value,json=dateValue,proto3,oneof" json:"date_value,omitempty"`
 	// SELECT uses element 0; MULTISELECT uses all elements.
 	SelectedOptions []string `protobuf:"bytes,14,rep,name=selected_options,json=selectedOptions,proto3" json:"selected_options,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// SINGLE_VALUE display element (kind = SINGLE_VALUE): the value is derived
+	// client-side from a kernel variable; `label` doubles as the caption shown
+	// under the value. The value fields above and the binding fields
+	// (result_variable_name) are unused for this kind.
+	// Kernel variable the value is read from (a scalar or a dataframe).
+	SingleValueVariable *string `protobuf:"bytes,15,opt,name=single_value_variable,json=singleValueVariable,proto3,oneof" json:"single_value_variable,omitempty"`
+	// Dataframe variables: column the value/aggregate is taken from.
+	SingleValueColumn *string `protobuf:"bytes,16,opt,name=single_value_column,json=singleValueColumn,proto3,oneof" json:"single_value_column,omitempty"`
+	// Dataframe variables: whether one row or an aggregate is shown.
+	SingleValueSelector NotebookSingleValueSelector `protobuf:"varint,17,opt,name=single_value_selector,json=singleValueSelector,proto3,enum=chalk.notebook.v1.NotebookSingleValueSelector" json:"single_value_selector,omitempty"`
+	// SELECTOR_ROW: row index; negative counts from the end (python-style).
+	SingleValueRow         int64                          `protobuf:"varint,18,opt,name=single_value_row,json=singleValueRow,proto3" json:"single_value_row,omitempty"`
+	SingleValueAggregation NotebookSingleValueAggregation `protobuf:"varint,19,opt,name=single_value_aggregation,json=singleValueAggregation,proto3,enum=chalk.notebook.v1.NotebookSingleValueAggregation" json:"single_value_aggregation,omitempty"`
+	// SECTION cells: title typography (`label` carries the title).
+	SectionHeadingSize NotebookSectionHeadingSize `protobuf:"varint,20,opt,name=section_heading_size,json=sectionHeadingSize,proto3,enum=chalk.notebook.v1.NotebookSectionHeadingSize" json:"section_heading_size,omitempty"`
+	// Caption under the control, editable in place (TOGGLE/CHECKBOX today).
+	Description   *string `protobuf:"bytes,21,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *NotebookInputCell) Reset() {
@@ -990,6 +1306,34 @@ func (x *NotebookInputCell) GetAllowClear() bool {
 	return false
 }
 
+func (x *NotebookInputCell) GetValuesMode() NotebookInputValuesMode {
+	if x != nil {
+		return x.ValuesMode
+	}
+	return NotebookInputValuesMode_NOTEBOOK_INPUT_VALUES_MODE_UNSPECIFIED
+}
+
+func (x *NotebookInputCell) GetDynamicValuesVariable() string {
+	if x != nil && x.DynamicValuesVariable != nil {
+		return *x.DynamicValuesVariable
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetDynamicValueColumn() string {
+	if x != nil && x.DynamicValueColumn != nil {
+		return *x.DynamicValueColumn
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetDynamicDisplayColumn() string {
+	if x != nil && x.DynamicDisplayColumn != nil {
+		return *x.DynamicDisplayColumn
+	}
+	return ""
+}
+
 func (x *NotebookInputCell) GetTextValue() string {
 	if x != nil && x.TextValue != nil {
 		return *x.TextValue
@@ -1023,6 +1367,55 @@ func (x *NotebookInputCell) GetSelectedOptions() []string {
 		return x.SelectedOptions
 	}
 	return nil
+}
+
+func (x *NotebookInputCell) GetSingleValueVariable() string {
+	if x != nil && x.SingleValueVariable != nil {
+		return *x.SingleValueVariable
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetSingleValueColumn() string {
+	if x != nil && x.SingleValueColumn != nil {
+		return *x.SingleValueColumn
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetSingleValueSelector() NotebookSingleValueSelector {
+	if x != nil {
+		return x.SingleValueSelector
+	}
+	return NotebookSingleValueSelector_NOTEBOOK_SINGLE_VALUE_SELECTOR_UNSPECIFIED
+}
+
+func (x *NotebookInputCell) GetSingleValueRow() int64 {
+	if x != nil {
+		return x.SingleValueRow
+	}
+	return 0
+}
+
+func (x *NotebookInputCell) GetSingleValueAggregation() NotebookSingleValueAggregation {
+	if x != nil {
+		return x.SingleValueAggregation
+	}
+	return NotebookSingleValueAggregation_NOTEBOOK_SINGLE_VALUE_AGGREGATION_UNSPECIFIED
+}
+
+func (x *NotebookInputCell) GetSectionHeadingSize() NotebookSectionHeadingSize {
+	if x != nil {
+		return x.SectionHeadingSize
+	}
+	return NotebookSectionHeadingSize_NOTEBOOK_SECTION_HEADING_SIZE_UNSPECIFIED
+}
+
+func (x *NotebookInputCell) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
 }
 
 type NotebookOnlineQueryCell struct {
@@ -1189,6 +1582,72 @@ func (x *NotebookCellViewState) GetResultHeightPx() int32 {
 	return 0
 }
 
+// A grouping over cells, referenced by NotebookCell.group_id. Cells keep
+// their single flat document order; a ROW group manifests as the maximal run
+// of ADJACENT cells sharing the group id (non-adjacent members render as
+// ordinary cells). Future grouping kinds (e.g. titled sections) extend the
+// kind enum and use the same membership model.
+type NotebookCellGroup struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Kind  NotebookCellGroupKind  `protobuf:"varint,2,opt,name=kind,proto3,enum=chalk.notebook.v1.NotebookCellGroupKind" json:"kind,omitempty"`
+	// Display title for future grouping kinds (e.g. sections); unused for ROW.
+	Title         string `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookCellGroup) Reset() {
+	*x = NotebookCellGroup{}
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookCellGroup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookCellGroup) ProtoMessage() {}
+
+func (x *NotebookCellGroup) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookCellGroup.ProtoReflect.Descriptor instead.
+func (*NotebookCellGroup) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *NotebookCellGroup) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *NotebookCellGroup) GetKind() NotebookCellGroupKind {
+	if x != nil {
+		return x.Kind
+	}
+	return NotebookCellGroupKind_NOTEBOOK_CELL_GROUP_KIND_UNSPECIFIED
+}
+
+func (x *NotebookCellGroup) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
 type NotebookCell struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -1199,6 +1658,14 @@ type NotebookCell struct {
 	CreatedBy  string                 `protobuf:"bytes,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	UpdatedBy  string                 `protobuf:"bytes,7,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
 	RevisionId string                 `protobuf:"bytes,8,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	// Membership in a NotebookDocument.cell_groups entry; absent for ungrouped
+	// cells (normal full-width flow).
+	GroupId *string `protobuf:"bytes,9,opt,name=group_id,json=groupId,proto3,oneof" json:"group_id,omitempty"`
+	// Membership in a section: the id of the SECTION input cell this cell
+	// belongs to. Orthogonal to group_id, so a row can live inside a section.
+	// Like rows, membership manifests only while the member sits contiguously
+	// after its section header in the flat cell order.
+	SectionId *string `protobuf:"bytes,10,opt,name=section_id,json=sectionId,proto3,oneof" json:"section_id,omitempty"`
 	// Types that are valid to be assigned to Body:
 	//
 	//	*NotebookCell_Python
@@ -1215,7 +1682,7 @@ type NotebookCell struct {
 
 func (x *NotebookCell) Reset() {
 	*x = NotebookCell{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[13]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1227,7 +1694,7 @@ func (x *NotebookCell) String() string {
 func (*NotebookCell) ProtoMessage() {}
 
 func (x *NotebookCell) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[13]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1240,7 +1707,7 @@ func (x *NotebookCell) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookCell.ProtoReflect.Descriptor instead.
 func (*NotebookCell) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{13}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *NotebookCell) GetId() string {
@@ -1295,6 +1762,20 @@ func (x *NotebookCell) GetUpdatedBy() string {
 func (x *NotebookCell) GetRevisionId() string {
 	if x != nil {
 		return x.RevisionId
+	}
+	return ""
+}
+
+func (x *NotebookCell) GetGroupId() string {
+	if x != nil && x.GroupId != nil {
+		return *x.GroupId
+	}
+	return ""
+}
+
+func (x *NotebookCell) GetSectionId() string {
+	if x != nil && x.SectionId != nil {
+		return *x.SectionId
 	}
 	return ""
 }
@@ -1443,13 +1924,16 @@ type NotebookDocument struct {
 	// The requesting user's most recent open of this notebook. Absent (null) when
 	// this user has never opened it.
 	ViewerLastViewedAt *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=viewer_last_viewed_at,json=viewerLastViewedAt,proto3" json:"viewer_last_viewed_at,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Cell groupings referenced by NotebookCell.group_id (rows today; future
+	// grouping kinds reuse this registry).
+	CellGroups    []*NotebookCellGroup `protobuf:"bytes,19,rep,name=cell_groups,json=cellGroups,proto3" json:"cell_groups,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *NotebookDocument) Reset() {
 	*x = NotebookDocument{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[14]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1461,7 +1945,7 @@ func (x *NotebookDocument) String() string {
 func (*NotebookDocument) ProtoMessage() {}
 
 func (x *NotebookDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[14]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1474,7 +1958,7 @@ func (x *NotebookDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookDocument.ProtoReflect.Descriptor instead.
 func (*NotebookDocument) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{14}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *NotebookDocument) GetId() string {
@@ -1596,6 +2080,13 @@ func (x *NotebookDocument) GetViewerLastViewedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *NotebookDocument) GetCellGroups() []*NotebookCellGroup {
+	if x != nil {
+		return x.CellGroups
+	}
+	return nil
+}
+
 // Metadata for one persisted document revision. Revision content is fetched
 // via GetNotebookDocument with revision_id set.
 type NotebookDocumentRevision struct {
@@ -1612,7 +2103,7 @@ type NotebookDocumentRevision struct {
 
 func (x *NotebookDocumentRevision) Reset() {
 	*x = NotebookDocumentRevision{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[15]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1624,7 +2115,7 @@ func (x *NotebookDocumentRevision) String() string {
 func (*NotebookDocumentRevision) ProtoMessage() {}
 
 func (x *NotebookDocumentRevision) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[15]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1637,7 +2128,7 @@ func (x *NotebookDocumentRevision) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookDocumentRevision.ProtoReflect.Descriptor instead.
 func (*NotebookDocumentRevision) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{15}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *NotebookDocumentRevision) GetRevisionId() string {
@@ -1695,7 +2186,7 @@ type NotebookSecret struct {
 
 func (x *NotebookSecret) Reset() {
 	*x = NotebookSecret{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[16]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1707,7 +2198,7 @@ func (x *NotebookSecret) String() string {
 func (*NotebookSecret) ProtoMessage() {}
 
 func (x *NotebookSecret) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[16]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1720,7 +2211,7 @@ func (x *NotebookSecret) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookSecret.ProtoReflect.Descriptor instead.
 func (*NotebookSecret) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{16}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *NotebookSecret) GetId() string {
@@ -1769,7 +2260,7 @@ type NotebookSecretValue struct {
 
 func (x *NotebookSecretValue) Reset() {
 	*x = NotebookSecretValue{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[17]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1781,7 +2272,7 @@ func (x *NotebookSecretValue) String() string {
 func (*NotebookSecretValue) ProtoMessage() {}
 
 func (x *NotebookSecretValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[17]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1794,7 +2285,7 @@ func (x *NotebookSecretValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookSecretValue.ProtoReflect.Descriptor instead.
 func (*NotebookSecretValue) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{17}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *NotebookSecretValue) GetName() string {
@@ -1869,27 +2360,47 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x10NotebookTextCell\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\".\n" +
 	"\x14NotebookMarkdownCell\x12\x16\n" +
-	"\x06source\x18\x01 \x01(\tR\x06source\"\xf7\x03\n" +
+	"\x06source\x18\x01 \x01(\tR\x06source\"\xf6\n" +
+	"\n" +
 	"\x11NotebookInputCell\x128\n" +
 	"\x04kind\x18\x01 \x01(\x0e2$.chalk.notebook.v1.NotebookInputKindR\x04kind\x125\n" +
 	"\x14result_variable_name\x18\x02 \x01(\tH\x00R\x12resultVariableName\x88\x01\x01\x12\x14\n" +
 	"\x05label\x18\x03 \x01(\tR\x05label\x12\x18\n" +
 	"\aoptions\x18\x04 \x03(\tR\aoptions\x12\x1f\n" +
 	"\vallow_clear\x18\x05 \x01(\bR\n" +
-	"allowClear\x12\"\n" +
+	"allowClear\x12K\n" +
+	"\vvalues_mode\x18\x06 \x01(\x0e2*.chalk.notebook.v1.NotebookInputValuesModeR\n" +
+	"valuesMode\x12;\n" +
+	"\x17dynamic_values_variable\x18\a \x01(\tH\x01R\x15dynamicValuesVariable\x88\x01\x01\x125\n" +
+	"\x14dynamic_value_column\x18\b \x01(\tH\x02R\x12dynamicValueColumn\x88\x01\x01\x129\n" +
+	"\x16dynamic_display_column\x18\t \x01(\tH\x03R\x14dynamicDisplayColumn\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"text_value\x18\n" +
-	" \x01(\tH\x01R\ttextValue\x88\x01\x01\x12&\n" +
-	"\fnumber_value\x18\v \x01(\x01H\x02R\vnumberValue\x88\x01\x01\x12*\n" +
-	"\x0echeckbox_value\x18\f \x01(\bH\x03R\rcheckboxValue\x88\x01\x01\x12\"\n" +
+	" \x01(\tH\x04R\ttextValue\x88\x01\x01\x12&\n" +
+	"\fnumber_value\x18\v \x01(\x01H\x05R\vnumberValue\x88\x01\x01\x12*\n" +
+	"\x0echeckbox_value\x18\f \x01(\bH\x06R\rcheckboxValue\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"date_value\x18\r \x01(\tH\x04R\tdateValue\x88\x01\x01\x12)\n" +
-	"\x10selected_options\x18\x0e \x03(\tR\x0fselectedOptionsB\x17\n" +
-	"\x15_result_variable_nameB\r\n" +
+	"date_value\x18\r \x01(\tH\aR\tdateValue\x88\x01\x01\x12)\n" +
+	"\x10selected_options\x18\x0e \x03(\tR\x0fselectedOptions\x127\n" +
+	"\x15single_value_variable\x18\x0f \x01(\tH\bR\x13singleValueVariable\x88\x01\x01\x123\n" +
+	"\x13single_value_column\x18\x10 \x01(\tH\tR\x11singleValueColumn\x88\x01\x01\x12b\n" +
+	"\x15single_value_selector\x18\x11 \x01(\x0e2..chalk.notebook.v1.NotebookSingleValueSelectorR\x13singleValueSelector\x12(\n" +
+	"\x10single_value_row\x18\x12 \x01(\x03R\x0esingleValueRow\x12k\n" +
+	"\x18single_value_aggregation\x18\x13 \x01(\x0e21.chalk.notebook.v1.NotebookSingleValueAggregationR\x16singleValueAggregation\x12_\n" +
+	"\x14section_heading_size\x18\x14 \x01(\x0e2-.chalk.notebook.v1.NotebookSectionHeadingSizeR\x12sectionHeadingSize\x12%\n" +
+	"\vdescription\x18\x15 \x01(\tH\n" +
+	"R\vdescription\x88\x01\x01B\x17\n" +
+	"\x15_result_variable_nameB\x1a\n" +
+	"\x18_dynamic_values_variableB\x17\n" +
+	"\x15_dynamic_value_columnB\x19\n" +
+	"\x17_dynamic_display_columnB\r\n" +
 	"\v_text_valueB\x0f\n" +
 	"\r_number_valueB\x11\n" +
 	"\x0f_checkbox_valueB\r\n" +
-	"\v_date_value\"\xa4\x01\n" +
+	"\v_date_valueB\x18\n" +
+	"\x16_single_value_variableB\x16\n" +
+	"\x14_single_value_columnB\x0e\n" +
+	"\f_description\"\xa4\x01\n" +
 	"\x17NotebookOnlineQueryCell\x129\n" +
 	"\x05query\x18\x01 \x01(\v2#.chalk.common.v1.GenericSingleQueryR\x05query\x125\n" +
 	"\x14result_variable_name\x18\x02 \x01(\tH\x00R\x12resultVariableName\x88\x01\x01B\x17\n" +
@@ -1902,7 +2413,11 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x10source_collapsed\x18\x01 \x01(\bR\x0fsourceCollapsed\x12)\n" +
 	"\x10result_collapsed\x18\x02 \x01(\bR\x0fresultCollapsed\x12-\n" +
 	"\x10result_height_px\x18\x03 \x01(\x05H\x00R\x0eresultHeightPx\x88\x01\x01B\x13\n" +
-	"\x11_result_height_px\"\xb6\x06\n" +
+	"\x11_result_height_px\"w\n" +
+	"\x11NotebookCellGroup\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12<\n" +
+	"\x04kind\x18\x02 \x01(\x0e2(.chalk.notebook.v1.NotebookCellGroupKindR\x04kind\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\"\x96\a\n" +
 	"\fNotebookCell\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12G\n" +
@@ -1917,7 +2432,11 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\n" +
 	"updated_by\x18\a \x01(\tR\tupdatedBy\x12\x1f\n" +
 	"\vrevision_id\x18\b \x01(\tR\n" +
-	"revisionId\x12?\n" +
+	"revisionId\x12\x1e\n" +
+	"\bgroup_id\x18\t \x01(\tH\x01R\agroupId\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"section_id\x18\n" +
+	" \x01(\tH\x02R\tsectionId\x88\x01\x01\x12?\n" +
 	"\x06python\x18\x14 \x01(\v2%.chalk.notebook.v1.NotebookPythonCellH\x00R\x06python\x126\n" +
 	"\x03sql\x18\x15 \x01(\v2\".chalk.notebook.v1.NotebookSQLCellH\x00R\x03sql\x129\n" +
 	"\x04text\x18\x16 \x01(\v2#.chalk.notebook.v1.NotebookTextCellH\x00R\x04text\x12E\n" +
@@ -1925,7 +2444,9 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\fonline_query\x18\x18 \x01(\v2*.chalk.notebook.v1.NotebookOnlineQueryCellH\x00R\vonlineQuery\x12R\n" +
 	"\roffline_query\x18\x19 \x01(\v2+.chalk.notebook.v1.NotebookOfflineQueryCellH\x00R\fofflineQuery\x12<\n" +
 	"\x05input\x18\x1a \x01(\v2$.chalk.notebook.v1.NotebookInputCellH\x00R\x05inputB\x06\n" +
-	"\x04body\"\xf3\x05\n" +
+	"\x04bodyB\v\n" +
+	"\t_group_idB\r\n" +
+	"\v_section_id\"\xba\x06\n" +
 	"\x10NotebookDocument\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -1953,7 +2474,9 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\varchived_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"archivedAt\x12(\n" +
 	"\x10total_view_count\x18\x11 \x01(\x03R\x0etotalViewCount\x12M\n" +
-	"\x15viewer_last_viewed_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\x12viewerLastViewedAtJ\x04\b\x0f\x10\x10R\brevision\"\xeb\x01\n" +
+	"\x15viewer_last_viewed_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\x12viewerLastViewedAt\x12E\n" +
+	"\vcell_groups\x18\x13 \x03(\v2$.chalk.notebook.v1.NotebookCellGroupR\n" +
+	"cellGroupsJ\x04\b\x0f\x10\x10R\brevision\"\xeb\x01\n" +
 	"\x18NotebookDocumentRevision\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
 	"revisionId\x12\x1f\n" +
@@ -2005,7 +2528,7 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"'NOTEBOOK_SQL_EXECUTION_MODE_UNSPECIFIED\x10\x00\x12$\n" +
 	" NOTEBOOK_SQL_EXECUTION_MODE_SYNC\x10\x01\x120\n" +
 	",NOTEBOOK_SQL_EXECUTION_MODE_IN_PROCESS_ASYNC\x10\x02\x12%\n" +
-	"!NOTEBOOK_SQL_EXECUTION_MODE_ASYNC\x10\x03*\xfb\x01\n" +
+	"!NOTEBOOK_SQL_EXECUTION_MODE_ASYNC\x10\x03*\xe2\x02\n" +
 	"\x11NotebookInputKind\x12#\n" +
 	"\x1fNOTEBOOK_INPUT_KIND_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18NOTEBOOK_INPUT_KIND_TEXT\x10\x01\x12\x1e\n" +
@@ -2013,7 +2536,36 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x1cNOTEBOOK_INPUT_KIND_CHECKBOX\x10\x03\x12\x1c\n" +
 	"\x18NOTEBOOK_INPUT_KIND_DATE\x10\x04\x12\x1e\n" +
 	"\x1aNOTEBOOK_INPUT_KIND_SELECT\x10\x05\x12#\n" +
-	"\x1fNOTEBOOK_INPUT_KIND_MULTISELECT\x10\x06B\xcb\x01\n" +
+	"\x1fNOTEBOOK_INPUT_KIND_MULTISELECT\x10\x06\x12$\n" +
+	" NOTEBOOK_INPUT_KIND_SINGLE_VALUE\x10\a\x12\x1f\n" +
+	"\x1bNOTEBOOK_INPUT_KIND_SECTION\x10\b\x12\x1e\n" +
+	"\x1aNOTEBOOK_INPUT_KIND_TOGGLE\x10\t*\xe6\x01\n" +
+	"\x1aNotebookSectionHeadingSize\x12-\n" +
+	")NOTEBOOK_SECTION_HEADING_SIZE_UNSPECIFIED\x10\x00\x12$\n" +
+	" NOTEBOOK_SECTION_HEADING_SIZE_H1\x10\x01\x12$\n" +
+	" NOTEBOOK_SECTION_HEADING_SIZE_H2\x10\x02\x12$\n" +
+	" NOTEBOOK_SECTION_HEADING_SIZE_H3\x10\x03\x12'\n" +
+	"#NOTEBOOK_SECTION_HEADING_SIZE_LABEL\x10\x04*\xa3\x01\n" +
+	"\x1bNotebookSingleValueSelector\x12.\n" +
+	"*NOTEBOOK_SINGLE_VALUE_SELECTOR_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"NOTEBOOK_SINGLE_VALUE_SELECTOR_ROW\x10\x01\x12,\n" +
+	"(NOTEBOOK_SINGLE_VALUE_SELECTOR_AGGREGATE\x10\x02*\x91\x03\n" +
+	"\x1eNotebookSingleValueAggregation\x121\n" +
+	"-NOTEBOOK_SINGLE_VALUE_AGGREGATION_UNSPECIFIED\x10\x00\x12)\n" +
+	"%NOTEBOOK_SINGLE_VALUE_AGGREGATION_MIN\x10\x01\x12)\n" +
+	"%NOTEBOOK_SINGLE_VALUE_AGGREGATION_MAX\x10\x02\x12*\n" +
+	"&NOTEBOOK_SINGLE_VALUE_AGGREGATION_MEAN\x10\x03\x12)\n" +
+	"%NOTEBOOK_SINGLE_VALUE_AGGREGATION_SUM\x10\x04\x12,\n" +
+	"(NOTEBOOK_SINGLE_VALUE_AGGREGATION_MEDIAN\x10\x05\x12+\n" +
+	"'NOTEBOOK_SINGLE_VALUE_AGGREGATION_COUNT\x10\x06\x124\n" +
+	"0NOTEBOOK_SINGLE_VALUE_AGGREGATION_COUNT_DISTINCT\x10\a*\x94\x01\n" +
+	"\x17NotebookInputValuesMode\x12*\n" +
+	"&NOTEBOOK_INPUT_VALUES_MODE_UNSPECIFIED\x10\x00\x12%\n" +
+	"!NOTEBOOK_INPUT_VALUES_MODE_STATIC\x10\x01\x12&\n" +
+	"\"NOTEBOOK_INPUT_VALUES_MODE_DYNAMIC\x10\x02*c\n" +
+	"\x15NotebookCellGroupKind\x12(\n" +
+	"$NOTEBOOK_CELL_GROUP_KIND_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cNOTEBOOK_CELL_GROUP_KIND_ROW\x10\x01B\xcb\x01\n" +
 	"\x15com.chalk.notebook.v1B\rDocumentProtoP\x01Z=github.com/chalk-ai/chalk-go/gen/chalk/notebook/v1;notebookv1\xa2\x02\x03CNX\xaa\x02\x11Chalk.Notebook.V1\xca\x02\x11Chalk\\Notebook\\V1\xe2\x02\x1dChalk\\Notebook\\V1\\GPBMetadata\xea\x02\x13Chalk::Notebook::V1b\x06proto3"
 
 var (
@@ -2028,73 +2580,85 @@ func file_chalk_notebook_v1_document_proto_rawDescGZIP() []byte {
 	return file_chalk_notebook_v1_document_proto_rawDescData
 }
 
-var file_chalk_notebook_v1_document_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_chalk_notebook_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_chalk_notebook_v1_document_proto_enumTypes = make([]protoimpl.EnumInfo, 10)
+var file_chalk_notebook_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chalk_notebook_v1_document_proto_goTypes = []any{
 	(NotebookCellExecutionStatus)(0),       // 0: chalk.notebook.v1.NotebookCellExecutionStatus
 	(NotebookRunScope)(0),                  // 1: chalk.notebook.v1.NotebookRunScope
 	(NotebookComputePreset)(0),             // 2: chalk.notebook.v1.NotebookComputePreset
 	(NotebookSQLExecutionMode)(0),          // 3: chalk.notebook.v1.NotebookSQLExecutionMode
 	(NotebookInputKind)(0),                 // 4: chalk.notebook.v1.NotebookInputKind
-	(*NotebookSQLDatasourceRef)(nil),       // 5: chalk.notebook.v1.NotebookSQLDatasourceRef
-	(*NotebookImageRef)(nil),               // 6: chalk.notebook.v1.NotebookImageRef
-	(*NotebookDocumentDefaults)(nil),       // 7: chalk.notebook.v1.NotebookDocumentDefaults
-	(*NotebookPythonExecutionOptions)(nil), // 8: chalk.notebook.v1.NotebookPythonExecutionOptions
-	(*NotebookSQLExecutionOptions)(nil),    // 9: chalk.notebook.v1.NotebookSQLExecutionOptions
-	(*NotebookPythonCell)(nil),             // 10: chalk.notebook.v1.NotebookPythonCell
-	(*NotebookSQLCell)(nil),                // 11: chalk.notebook.v1.NotebookSQLCell
-	(*NotebookTextCell)(nil),               // 12: chalk.notebook.v1.NotebookTextCell
-	(*NotebookMarkdownCell)(nil),           // 13: chalk.notebook.v1.NotebookMarkdownCell
-	(*NotebookInputCell)(nil),              // 14: chalk.notebook.v1.NotebookInputCell
-	(*NotebookOnlineQueryCell)(nil),        // 15: chalk.notebook.v1.NotebookOnlineQueryCell
-	(*NotebookOfflineQueryCell)(nil),       // 16: chalk.notebook.v1.NotebookOfflineQueryCell
-	(*NotebookCellViewState)(nil),          // 17: chalk.notebook.v1.NotebookCellViewState
-	(*NotebookCell)(nil),                   // 18: chalk.notebook.v1.NotebookCell
-	(*NotebookDocument)(nil),               // 19: chalk.notebook.v1.NotebookDocument
-	(*NotebookDocumentRevision)(nil),       // 20: chalk.notebook.v1.NotebookDocumentRevision
-	(*NotebookSecret)(nil),                 // 21: chalk.notebook.v1.NotebookSecret
-	(*NotebookSecretValue)(nil),            // 22: chalk.notebook.v1.NotebookSecretValue
-	(*v1.GenericSingleQuery)(nil),          // 23: chalk.common.v1.GenericSingleQuery
-	(*v1.OfflineQueryRequest)(nil),         // 24: chalk.common.v1.OfflineQueryRequest
-	(*timestamppb.Timestamp)(nil),          // 25: google.protobuf.Timestamp
-	(v11.SecretSource)(0),                  // 26: chalk.server.v1.SecretSource
+	(NotebookSectionHeadingSize)(0),        // 5: chalk.notebook.v1.NotebookSectionHeadingSize
+	(NotebookSingleValueSelector)(0),       // 6: chalk.notebook.v1.NotebookSingleValueSelector
+	(NotebookSingleValueAggregation)(0),    // 7: chalk.notebook.v1.NotebookSingleValueAggregation
+	(NotebookInputValuesMode)(0),           // 8: chalk.notebook.v1.NotebookInputValuesMode
+	(NotebookCellGroupKind)(0),             // 9: chalk.notebook.v1.NotebookCellGroupKind
+	(*NotebookSQLDatasourceRef)(nil),       // 10: chalk.notebook.v1.NotebookSQLDatasourceRef
+	(*NotebookImageRef)(nil),               // 11: chalk.notebook.v1.NotebookImageRef
+	(*NotebookDocumentDefaults)(nil),       // 12: chalk.notebook.v1.NotebookDocumentDefaults
+	(*NotebookPythonExecutionOptions)(nil), // 13: chalk.notebook.v1.NotebookPythonExecutionOptions
+	(*NotebookSQLExecutionOptions)(nil),    // 14: chalk.notebook.v1.NotebookSQLExecutionOptions
+	(*NotebookPythonCell)(nil),             // 15: chalk.notebook.v1.NotebookPythonCell
+	(*NotebookSQLCell)(nil),                // 16: chalk.notebook.v1.NotebookSQLCell
+	(*NotebookTextCell)(nil),               // 17: chalk.notebook.v1.NotebookTextCell
+	(*NotebookMarkdownCell)(nil),           // 18: chalk.notebook.v1.NotebookMarkdownCell
+	(*NotebookInputCell)(nil),              // 19: chalk.notebook.v1.NotebookInputCell
+	(*NotebookOnlineQueryCell)(nil),        // 20: chalk.notebook.v1.NotebookOnlineQueryCell
+	(*NotebookOfflineQueryCell)(nil),       // 21: chalk.notebook.v1.NotebookOfflineQueryCell
+	(*NotebookCellViewState)(nil),          // 22: chalk.notebook.v1.NotebookCellViewState
+	(*NotebookCellGroup)(nil),              // 23: chalk.notebook.v1.NotebookCellGroup
+	(*NotebookCell)(nil),                   // 24: chalk.notebook.v1.NotebookCell
+	(*NotebookDocument)(nil),               // 25: chalk.notebook.v1.NotebookDocument
+	(*NotebookDocumentRevision)(nil),       // 26: chalk.notebook.v1.NotebookDocumentRevision
+	(*NotebookSecret)(nil),                 // 27: chalk.notebook.v1.NotebookSecret
+	(*NotebookSecretValue)(nil),            // 28: chalk.notebook.v1.NotebookSecretValue
+	(*v1.GenericSingleQuery)(nil),          // 29: chalk.common.v1.GenericSingleQuery
+	(*v1.OfflineQueryRequest)(nil),         // 30: chalk.common.v1.OfflineQueryRequest
+	(*timestamppb.Timestamp)(nil),          // 31: google.protobuf.Timestamp
+	(v11.SecretSource)(0),                  // 32: chalk.server.v1.SecretSource
 }
 var file_chalk_notebook_v1_document_proto_depIdxs = []int32{
-	5,  // 0: chalk.notebook.v1.NotebookDocumentDefaults.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
+	10, // 0: chalk.notebook.v1.NotebookDocumentDefaults.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
 	2,  // 1: chalk.notebook.v1.NotebookDocumentDefaults.compute_preset:type_name -> chalk.notebook.v1.NotebookComputePreset
-	6,  // 2: chalk.notebook.v1.NotebookDocumentDefaults.image:type_name -> chalk.notebook.v1.NotebookImageRef
+	11, // 2: chalk.notebook.v1.NotebookDocumentDefaults.image:type_name -> chalk.notebook.v1.NotebookImageRef
 	3,  // 3: chalk.notebook.v1.NotebookSQLExecutionOptions.execution_mode:type_name -> chalk.notebook.v1.NotebookSQLExecutionMode
-	8,  // 4: chalk.notebook.v1.NotebookPythonCell.execution_options:type_name -> chalk.notebook.v1.NotebookPythonExecutionOptions
-	5,  // 5: chalk.notebook.v1.NotebookSQLCell.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
-	9,  // 6: chalk.notebook.v1.NotebookSQLCell.execution_options:type_name -> chalk.notebook.v1.NotebookSQLExecutionOptions
+	13, // 4: chalk.notebook.v1.NotebookPythonCell.execution_options:type_name -> chalk.notebook.v1.NotebookPythonExecutionOptions
+	10, // 5: chalk.notebook.v1.NotebookSQLCell.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
+	14, // 6: chalk.notebook.v1.NotebookSQLCell.execution_options:type_name -> chalk.notebook.v1.NotebookSQLExecutionOptions
 	4,  // 7: chalk.notebook.v1.NotebookInputCell.kind:type_name -> chalk.notebook.v1.NotebookInputKind
-	23, // 8: chalk.notebook.v1.NotebookOnlineQueryCell.query:type_name -> chalk.common.v1.GenericSingleQuery
-	24, // 9: chalk.notebook.v1.NotebookOfflineQueryCell.query:type_name -> chalk.common.v1.OfflineQueryRequest
-	17, // 10: chalk.notebook.v1.NotebookCell.view_state:type_name -> chalk.notebook.v1.NotebookCellViewState
-	25, // 11: chalk.notebook.v1.NotebookCell.created_at:type_name -> google.protobuf.Timestamp
-	25, // 12: chalk.notebook.v1.NotebookCell.updated_at:type_name -> google.protobuf.Timestamp
-	10, // 13: chalk.notebook.v1.NotebookCell.python:type_name -> chalk.notebook.v1.NotebookPythonCell
-	11, // 14: chalk.notebook.v1.NotebookCell.sql:type_name -> chalk.notebook.v1.NotebookSQLCell
-	12, // 15: chalk.notebook.v1.NotebookCell.text:type_name -> chalk.notebook.v1.NotebookTextCell
-	13, // 16: chalk.notebook.v1.NotebookCell.markdown:type_name -> chalk.notebook.v1.NotebookMarkdownCell
-	15, // 17: chalk.notebook.v1.NotebookCell.online_query:type_name -> chalk.notebook.v1.NotebookOnlineQueryCell
-	16, // 18: chalk.notebook.v1.NotebookCell.offline_query:type_name -> chalk.notebook.v1.NotebookOfflineQueryCell
-	14, // 19: chalk.notebook.v1.NotebookCell.input:type_name -> chalk.notebook.v1.NotebookInputCell
-	18, // 20: chalk.notebook.v1.NotebookDocument.cells:type_name -> chalk.notebook.v1.NotebookCell
-	7,  // 21: chalk.notebook.v1.NotebookDocument.defaults:type_name -> chalk.notebook.v1.NotebookDocumentDefaults
-	25, // 22: chalk.notebook.v1.NotebookDocument.created_at:type_name -> google.protobuf.Timestamp
-	25, // 23: chalk.notebook.v1.NotebookDocument.updated_at:type_name -> google.protobuf.Timestamp
-	25, // 24: chalk.notebook.v1.NotebookDocument.archived_at:type_name -> google.protobuf.Timestamp
-	25, // 25: chalk.notebook.v1.NotebookDocument.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
-	25, // 26: chalk.notebook.v1.NotebookDocumentRevision.created_at:type_name -> google.protobuf.Timestamp
-	26, // 27: chalk.notebook.v1.NotebookSecret.source:type_name -> chalk.server.v1.SecretSource
-	25, // 28: chalk.notebook.v1.NotebookSecret.updated_at:type_name -> google.protobuf.Timestamp
-	26, // 29: chalk.notebook.v1.NotebookSecretValue.source:type_name -> chalk.server.v1.SecretSource
-	30, // [30:30] is the sub-list for method output_type
-	30, // [30:30] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	8,  // 8: chalk.notebook.v1.NotebookInputCell.values_mode:type_name -> chalk.notebook.v1.NotebookInputValuesMode
+	6,  // 9: chalk.notebook.v1.NotebookInputCell.single_value_selector:type_name -> chalk.notebook.v1.NotebookSingleValueSelector
+	7,  // 10: chalk.notebook.v1.NotebookInputCell.single_value_aggregation:type_name -> chalk.notebook.v1.NotebookSingleValueAggregation
+	5,  // 11: chalk.notebook.v1.NotebookInputCell.section_heading_size:type_name -> chalk.notebook.v1.NotebookSectionHeadingSize
+	29, // 12: chalk.notebook.v1.NotebookOnlineQueryCell.query:type_name -> chalk.common.v1.GenericSingleQuery
+	30, // 13: chalk.notebook.v1.NotebookOfflineQueryCell.query:type_name -> chalk.common.v1.OfflineQueryRequest
+	9,  // 14: chalk.notebook.v1.NotebookCellGroup.kind:type_name -> chalk.notebook.v1.NotebookCellGroupKind
+	22, // 15: chalk.notebook.v1.NotebookCell.view_state:type_name -> chalk.notebook.v1.NotebookCellViewState
+	31, // 16: chalk.notebook.v1.NotebookCell.created_at:type_name -> google.protobuf.Timestamp
+	31, // 17: chalk.notebook.v1.NotebookCell.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 18: chalk.notebook.v1.NotebookCell.python:type_name -> chalk.notebook.v1.NotebookPythonCell
+	16, // 19: chalk.notebook.v1.NotebookCell.sql:type_name -> chalk.notebook.v1.NotebookSQLCell
+	17, // 20: chalk.notebook.v1.NotebookCell.text:type_name -> chalk.notebook.v1.NotebookTextCell
+	18, // 21: chalk.notebook.v1.NotebookCell.markdown:type_name -> chalk.notebook.v1.NotebookMarkdownCell
+	20, // 22: chalk.notebook.v1.NotebookCell.online_query:type_name -> chalk.notebook.v1.NotebookOnlineQueryCell
+	21, // 23: chalk.notebook.v1.NotebookCell.offline_query:type_name -> chalk.notebook.v1.NotebookOfflineQueryCell
+	19, // 24: chalk.notebook.v1.NotebookCell.input:type_name -> chalk.notebook.v1.NotebookInputCell
+	24, // 25: chalk.notebook.v1.NotebookDocument.cells:type_name -> chalk.notebook.v1.NotebookCell
+	12, // 26: chalk.notebook.v1.NotebookDocument.defaults:type_name -> chalk.notebook.v1.NotebookDocumentDefaults
+	31, // 27: chalk.notebook.v1.NotebookDocument.created_at:type_name -> google.protobuf.Timestamp
+	31, // 28: chalk.notebook.v1.NotebookDocument.updated_at:type_name -> google.protobuf.Timestamp
+	31, // 29: chalk.notebook.v1.NotebookDocument.archived_at:type_name -> google.protobuf.Timestamp
+	31, // 30: chalk.notebook.v1.NotebookDocument.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
+	23, // 31: chalk.notebook.v1.NotebookDocument.cell_groups:type_name -> chalk.notebook.v1.NotebookCellGroup
+	31, // 32: chalk.notebook.v1.NotebookDocumentRevision.created_at:type_name -> google.protobuf.Timestamp
+	32, // 33: chalk.notebook.v1.NotebookSecret.source:type_name -> chalk.server.v1.SecretSource
+	31, // 34: chalk.notebook.v1.NotebookSecret.updated_at:type_name -> google.protobuf.Timestamp
+	32, // 35: chalk.notebook.v1.NotebookSecretValue.source:type_name -> chalk.server.v1.SecretSource
+	36, // [36:36] is the sub-list for method output_type
+	36, // [36:36] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_document_proto_init() }
@@ -2111,7 +2675,7 @@ func file_chalk_notebook_v1_document_proto_init() {
 	file_chalk_notebook_v1_document_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_notebook_v1_document_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_notebook_v1_document_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_proto_msgTypes[13].OneofWrappers = []any{
+	file_chalk_notebook_v1_document_proto_msgTypes[14].OneofWrappers = []any{
 		(*NotebookCell_Python)(nil),
 		(*NotebookCell_Sql)(nil),
 		(*NotebookCell_Text)(nil),
@@ -2125,8 +2689,8 @@ func file_chalk_notebook_v1_document_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_notebook_v1_document_proto_rawDesc), len(file_chalk_notebook_v1_document_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   18,
+			NumEnums:      10,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

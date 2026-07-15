@@ -51,6 +51,18 @@ const (
 	// AgentConversationServiceForkConversationProcedure is the fully-qualified name of the
 	// AgentConversationService's ForkConversation RPC.
 	AgentConversationServiceForkConversationProcedure = "/chalk.agent.v1.AgentConversationService/ForkConversation"
+	// AgentConversationServiceLinkArtifactProcedure is the fully-qualified name of the
+	// AgentConversationService's LinkArtifact RPC.
+	AgentConversationServiceLinkArtifactProcedure = "/chalk.agent.v1.AgentConversationService/LinkArtifact"
+	// AgentConversationServiceUnlinkArtifactProcedure is the fully-qualified name of the
+	// AgentConversationService's UnlinkArtifact RPC.
+	AgentConversationServiceUnlinkArtifactProcedure = "/chalk.agent.v1.AgentConversationService/UnlinkArtifact"
+	// AgentConversationServiceListArtifactsProcedure is the fully-qualified name of the
+	// AgentConversationService's ListArtifacts RPC.
+	AgentConversationServiceListArtifactsProcedure = "/chalk.agent.v1.AgentConversationService/ListArtifacts"
+	// AgentConversationServiceListConversationsForArtifactProcedure is the fully-qualified name of the
+	// AgentConversationService's ListConversationsForArtifact RPC.
+	AgentConversationServiceListConversationsForArtifactProcedure = "/chalk.agent.v1.AgentConversationService/ListConversationsForArtifact"
 	// AgentConversationServiceAddMessageProcedure is the fully-qualified name of the
 	// AgentConversationService's AddMessage RPC.
 	AgentConversationServiceAddMessageProcedure = "/chalk.agent.v1.AgentConversationService/AddMessage"
@@ -74,6 +86,10 @@ type AgentConversationServiceClient interface {
 	UpdateConversation(context.Context, *connect.Request[v1.UpdateConversationRequest]) (*connect.Response[v1.UpdateConversationResponse], error)
 	DeleteConversation(context.Context, *connect.Request[v1.DeleteConversationRequest]) (*connect.Response[v1.DeleteConversationResponse], error)
 	ForkConversation(context.Context, *connect.Request[v1.ForkConversationRequest]) (*connect.Response[v1.ForkConversationResponse], error)
+	LinkArtifact(context.Context, *connect.Request[v1.LinkArtifactRequest]) (*connect.Response[v1.LinkArtifactResponse], error)
+	UnlinkArtifact(context.Context, *connect.Request[v1.UnlinkArtifactRequest]) (*connect.Response[v1.UnlinkArtifactResponse], error)
+	ListArtifacts(context.Context, *connect.Request[v1.ListArtifactsRequest]) (*connect.Response[v1.ListArtifactsResponse], error)
+	ListConversationsForArtifact(context.Context, *connect.Request[v1.ListConversationsForArtifactRequest]) (*connect.Response[v1.ListConversationsForArtifactResponse], error)
 	AddMessage(context.Context, *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error)
 	UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error)
 	ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error)
@@ -131,6 +147,34 @@ func NewAgentConversationServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithSchema(agentConversationServiceMethods.ByName("ForkConversation")),
 			connect.WithClientOptions(opts...),
 		),
+		linkArtifact: connect.NewClient[v1.LinkArtifactRequest, v1.LinkArtifactResponse](
+			httpClient,
+			baseURL+AgentConversationServiceLinkArtifactProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("LinkArtifact")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		unlinkArtifact: connect.NewClient[v1.UnlinkArtifactRequest, v1.UnlinkArtifactResponse](
+			httpClient,
+			baseURL+AgentConversationServiceUnlinkArtifactProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("UnlinkArtifact")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		listArtifacts: connect.NewClient[v1.ListArtifactsRequest, v1.ListArtifactsResponse](
+			httpClient,
+			baseURL+AgentConversationServiceListArtifactsProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("ListArtifacts")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listConversationsForArtifact: connect.NewClient[v1.ListConversationsForArtifactRequest, v1.ListConversationsForArtifactResponse](
+			httpClient,
+			baseURL+AgentConversationServiceListConversationsForArtifactProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("ListConversationsForArtifact")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		addMessage: connect.NewClient[v1.AddMessageRequest, v1.AddMessageResponse](
 			httpClient,
 			baseURL+AgentConversationServiceAddMessageProcedure,
@@ -162,16 +206,20 @@ func NewAgentConversationServiceClient(httpClient connect.HTTPClient, baseURL st
 
 // agentConversationServiceClient implements AgentConversationServiceClient.
 type agentConversationServiceClient struct {
-	createConversation  *connect.Client[v1.CreateConversationRequest, v1.CreateConversationResponse]
-	getConversation     *connect.Client[v1.GetConversationRequest, v1.GetConversationResponse]
-	listConversations   *connect.Client[v1.ListConversationsRequest, v1.ListConversationsResponse]
-	updateConversation  *connect.Client[v1.UpdateConversationRequest, v1.UpdateConversationResponse]
-	deleteConversation  *connect.Client[v1.DeleteConversationRequest, v1.DeleteConversationResponse]
-	forkConversation    *connect.Client[v1.ForkConversationRequest, v1.ForkConversationResponse]
-	addMessage          *connect.Client[v1.AddMessageRequest, v1.AddMessageResponse]
-	updateMessageStatus *connect.Client[v1.UpdateMessageStatusRequest, v1.UpdateMessageStatusResponse]
-	listMessages        *connect.Client[v1.ListMessagesRequest, v1.ListMessagesResponse]
-	addToolResult       *connect.Client[v1.AddToolResultRequest, v1.AddToolResultResponse]
+	createConversation           *connect.Client[v1.CreateConversationRequest, v1.CreateConversationResponse]
+	getConversation              *connect.Client[v1.GetConversationRequest, v1.GetConversationResponse]
+	listConversations            *connect.Client[v1.ListConversationsRequest, v1.ListConversationsResponse]
+	updateConversation           *connect.Client[v1.UpdateConversationRequest, v1.UpdateConversationResponse]
+	deleteConversation           *connect.Client[v1.DeleteConversationRequest, v1.DeleteConversationResponse]
+	forkConversation             *connect.Client[v1.ForkConversationRequest, v1.ForkConversationResponse]
+	linkArtifact                 *connect.Client[v1.LinkArtifactRequest, v1.LinkArtifactResponse]
+	unlinkArtifact               *connect.Client[v1.UnlinkArtifactRequest, v1.UnlinkArtifactResponse]
+	listArtifacts                *connect.Client[v1.ListArtifactsRequest, v1.ListArtifactsResponse]
+	listConversationsForArtifact *connect.Client[v1.ListConversationsForArtifactRequest, v1.ListConversationsForArtifactResponse]
+	addMessage                   *connect.Client[v1.AddMessageRequest, v1.AddMessageResponse]
+	updateMessageStatus          *connect.Client[v1.UpdateMessageStatusRequest, v1.UpdateMessageStatusResponse]
+	listMessages                 *connect.Client[v1.ListMessagesRequest, v1.ListMessagesResponse]
+	addToolResult                *connect.Client[v1.AddToolResultRequest, v1.AddToolResultResponse]
 }
 
 // CreateConversation calls chalk.agent.v1.AgentConversationService.CreateConversation.
@@ -204,6 +252,27 @@ func (c *agentConversationServiceClient) ForkConversation(ctx context.Context, r
 	return c.forkConversation.CallUnary(ctx, req)
 }
 
+// LinkArtifact calls chalk.agent.v1.AgentConversationService.LinkArtifact.
+func (c *agentConversationServiceClient) LinkArtifact(ctx context.Context, req *connect.Request[v1.LinkArtifactRequest]) (*connect.Response[v1.LinkArtifactResponse], error) {
+	return c.linkArtifact.CallUnary(ctx, req)
+}
+
+// UnlinkArtifact calls chalk.agent.v1.AgentConversationService.UnlinkArtifact.
+func (c *agentConversationServiceClient) UnlinkArtifact(ctx context.Context, req *connect.Request[v1.UnlinkArtifactRequest]) (*connect.Response[v1.UnlinkArtifactResponse], error) {
+	return c.unlinkArtifact.CallUnary(ctx, req)
+}
+
+// ListArtifacts calls chalk.agent.v1.AgentConversationService.ListArtifacts.
+func (c *agentConversationServiceClient) ListArtifacts(ctx context.Context, req *connect.Request[v1.ListArtifactsRequest]) (*connect.Response[v1.ListArtifactsResponse], error) {
+	return c.listArtifacts.CallUnary(ctx, req)
+}
+
+// ListConversationsForArtifact calls
+// chalk.agent.v1.AgentConversationService.ListConversationsForArtifact.
+func (c *agentConversationServiceClient) ListConversationsForArtifact(ctx context.Context, req *connect.Request[v1.ListConversationsForArtifactRequest]) (*connect.Response[v1.ListConversationsForArtifactResponse], error) {
+	return c.listConversationsForArtifact.CallUnary(ctx, req)
+}
+
 // AddMessage calls chalk.agent.v1.AgentConversationService.AddMessage.
 func (c *agentConversationServiceClient) AddMessage(ctx context.Context, req *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error) {
 	return c.addMessage.CallUnary(ctx, req)
@@ -233,6 +302,10 @@ type AgentConversationServiceHandler interface {
 	UpdateConversation(context.Context, *connect.Request[v1.UpdateConversationRequest]) (*connect.Response[v1.UpdateConversationResponse], error)
 	DeleteConversation(context.Context, *connect.Request[v1.DeleteConversationRequest]) (*connect.Response[v1.DeleteConversationResponse], error)
 	ForkConversation(context.Context, *connect.Request[v1.ForkConversationRequest]) (*connect.Response[v1.ForkConversationResponse], error)
+	LinkArtifact(context.Context, *connect.Request[v1.LinkArtifactRequest]) (*connect.Response[v1.LinkArtifactResponse], error)
+	UnlinkArtifact(context.Context, *connect.Request[v1.UnlinkArtifactRequest]) (*connect.Response[v1.UnlinkArtifactResponse], error)
+	ListArtifacts(context.Context, *connect.Request[v1.ListArtifactsRequest]) (*connect.Response[v1.ListArtifactsResponse], error)
+	ListConversationsForArtifact(context.Context, *connect.Request[v1.ListConversationsForArtifactRequest]) (*connect.Response[v1.ListConversationsForArtifactResponse], error)
 	AddMessage(context.Context, *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error)
 	UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error)
 	ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error)
@@ -286,6 +359,34 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 		connect.WithSchema(agentConversationServiceMethods.ByName("ForkConversation")),
 		connect.WithHandlerOptions(opts...),
 	)
+	agentConversationServiceLinkArtifactHandler := connect.NewUnaryHandler(
+		AgentConversationServiceLinkArtifactProcedure,
+		svc.LinkArtifact,
+		connect.WithSchema(agentConversationServiceMethods.ByName("LinkArtifact")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	agentConversationServiceUnlinkArtifactHandler := connect.NewUnaryHandler(
+		AgentConversationServiceUnlinkArtifactProcedure,
+		svc.UnlinkArtifact,
+		connect.WithSchema(agentConversationServiceMethods.ByName("UnlinkArtifact")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	agentConversationServiceListArtifactsHandler := connect.NewUnaryHandler(
+		AgentConversationServiceListArtifactsProcedure,
+		svc.ListArtifacts,
+		connect.WithSchema(agentConversationServiceMethods.ByName("ListArtifacts")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	agentConversationServiceListConversationsForArtifactHandler := connect.NewUnaryHandler(
+		AgentConversationServiceListConversationsForArtifactProcedure,
+		svc.ListConversationsForArtifact,
+		connect.WithSchema(agentConversationServiceMethods.ByName("ListConversationsForArtifact")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	agentConversationServiceAddMessageHandler := connect.NewUnaryHandler(
 		AgentConversationServiceAddMessageProcedure,
 		svc.AddMessage,
@@ -326,6 +427,14 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 			agentConversationServiceDeleteConversationHandler.ServeHTTP(w, r)
 		case AgentConversationServiceForkConversationProcedure:
 			agentConversationServiceForkConversationHandler.ServeHTTP(w, r)
+		case AgentConversationServiceLinkArtifactProcedure:
+			agentConversationServiceLinkArtifactHandler.ServeHTTP(w, r)
+		case AgentConversationServiceUnlinkArtifactProcedure:
+			agentConversationServiceUnlinkArtifactHandler.ServeHTTP(w, r)
+		case AgentConversationServiceListArtifactsProcedure:
+			agentConversationServiceListArtifactsHandler.ServeHTTP(w, r)
+		case AgentConversationServiceListConversationsForArtifactProcedure:
+			agentConversationServiceListConversationsForArtifactHandler.ServeHTTP(w, r)
 		case AgentConversationServiceAddMessageProcedure:
 			agentConversationServiceAddMessageHandler.ServeHTTP(w, r)
 		case AgentConversationServiceUpdateMessageStatusProcedure:
@@ -365,6 +474,22 @@ func (UnimplementedAgentConversationServiceHandler) DeleteConversation(context.C
 
 func (UnimplementedAgentConversationServiceHandler) ForkConversation(context.Context, *connect.Request[v1.ForkConversationRequest]) (*connect.Response[v1.ForkConversationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.ForkConversation is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) LinkArtifact(context.Context, *connect.Request[v1.LinkArtifactRequest]) (*connect.Response[v1.LinkArtifactResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.LinkArtifact is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) UnlinkArtifact(context.Context, *connect.Request[v1.UnlinkArtifactRequest]) (*connect.Response[v1.UnlinkArtifactResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.UnlinkArtifact is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) ListArtifacts(context.Context, *connect.Request[v1.ListArtifactsRequest]) (*connect.Response[v1.ListArtifactsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.ListArtifacts is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) ListConversationsForArtifact(context.Context, *connect.Request[v1.ListConversationsForArtifactRequest]) (*connect.Response[v1.ListConversationsForArtifactResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.ListConversationsForArtifact is not implemented"))
 }
 
 func (UnimplementedAgentConversationServiceHandler) AddMessage(context.Context, *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error) {

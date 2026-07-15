@@ -81,6 +81,9 @@ const (
 	// NotebookDocumentServiceFetchNotebookDataframeRowsProcedure is the fully-qualified name of the
 	// NotebookDocumentService's FetchNotebookDataframeRows RPC.
 	NotebookDocumentServiceFetchNotebookDataframeRowsProcedure = "/chalk.notebook.v1.NotebookDocumentService/FetchNotebookDataframeRows"
+	// NotebookDocumentServiceAggregateNotebookDataframeProcedure is the fully-qualified name of the
+	// NotebookDocumentService's AggregateNotebookDataframe RPC.
+	NotebookDocumentServiceAggregateNotebookDataframeProcedure = "/chalk.notebook.v1.NotebookDocumentService/AggregateNotebookDataframe"
 	// NotebookDocumentServiceDownloadNotebookDataframeProcedure is the fully-qualified name of the
 	// NotebookDocumentService's DownloadNotebookDataframe RPC.
 	NotebookDocumentServiceDownloadNotebookDataframeProcedure = "/chalk.notebook.v1.NotebookDocumentService/DownloadNotebookDataframe"
@@ -164,6 +167,10 @@ type NotebookDocumentServiceClient interface {
 	// Arrow artifacts, inline previews, SQL results), beyond the persisted
 	// preview rows.
 	FetchNotebookDataframeRows(context.Context, *connect.Request[v1.FetchNotebookDataframeRowsRequest]) (*connect.Response[v1.FetchNotebookDataframeRowsResponse], error)
+	// Reduces one column of a dataframe output chunk to a single value over the
+	// FULL backing artifact (blob-backed Arrow, inline arrow bytes) — used by
+	// single-value elements whose source is larger than the persisted preview.
+	AggregateNotebookDataframe(context.Context, *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error)
 	// Streams the complete dataframe behind an output chunk for download —
 	// the full backing data, never just the preview rows.
 	DownloadNotebookDataframe(context.Context, *connect.Request[v1.DownloadNotebookDataframeRequest]) (*connect.ServerStreamForClient[v1.DownloadNotebookDataframeResponse], error)
@@ -314,6 +321,12 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 			connect.WithSchema(notebookDocumentServiceMethods.ByName("FetchNotebookDataframeRows")),
 			connect.WithClientOptions(opts...),
 		),
+		aggregateNotebookDataframe: connect.NewClient[v1.AggregateNotebookDataframeRequest, v1.AggregateNotebookDataframeResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceAggregateNotebookDataframeProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("AggregateNotebookDataframe")),
+			connect.WithClientOptions(opts...),
+		),
 		downloadNotebookDataframe: connect.NewClient[v1.DownloadNotebookDataframeRequest, v1.DownloadNotebookDataframeResponse](
 			httpClient,
 			baseURL+NotebookDocumentServiceDownloadNotebookDataframeProcedure,
@@ -437,6 +450,7 @@ type notebookDocumentServiceClient struct {
 	interruptNotebookRun          *connect.Client[v1.InterruptNotebookRunRequest, v1.InterruptNotebookRunResponse]
 	listNotebookCellResults       *connect.Client[v1.ListNotebookCellResultsRequest, v1.ListNotebookCellResultsResponse]
 	fetchNotebookDataframeRows    *connect.Client[v1.FetchNotebookDataframeRowsRequest, v1.FetchNotebookDataframeRowsResponse]
+	aggregateNotebookDataframe    *connect.Client[v1.AggregateNotebookDataframeRequest, v1.AggregateNotebookDataframeResponse]
 	downloadNotebookDataframe     *connect.Client[v1.DownloadNotebookDataframeRequest, v1.DownloadNotebookDataframeResponse]
 	listNotebookCellRunHistory    *connect.Client[v1.ListNotebookCellRunHistoryRequest, v1.ListNotebookCellRunHistoryResponse]
 	listNotebookDocumentRevisions *connect.Client[v1.ListNotebookDocumentRevisionsRequest, v1.ListNotebookDocumentRevisionsResponse]
@@ -536,6 +550,12 @@ func (c *notebookDocumentServiceClient) ListNotebookCellResults(ctx context.Cont
 // chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows.
 func (c *notebookDocumentServiceClient) FetchNotebookDataframeRows(ctx context.Context, req *connect.Request[v1.FetchNotebookDataframeRowsRequest]) (*connect.Response[v1.FetchNotebookDataframeRowsResponse], error) {
 	return c.fetchNotebookDataframeRows.CallUnary(ctx, req)
+}
+
+// AggregateNotebookDataframe calls
+// chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe.
+func (c *notebookDocumentServiceClient) AggregateNotebookDataframe(ctx context.Context, req *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error) {
+	return c.aggregateNotebookDataframe.CallUnary(ctx, req)
 }
 
 // DownloadNotebookDataframe calls
@@ -661,6 +681,10 @@ type NotebookDocumentServiceHandler interface {
 	// Arrow artifacts, inline previews, SQL results), beyond the persisted
 	// preview rows.
 	FetchNotebookDataframeRows(context.Context, *connect.Request[v1.FetchNotebookDataframeRowsRequest]) (*connect.Response[v1.FetchNotebookDataframeRowsResponse], error)
+	// Reduces one column of a dataframe output chunk to a single value over the
+	// FULL backing artifact (blob-backed Arrow, inline arrow bytes) — used by
+	// single-value elements whose source is larger than the persisted preview.
+	AggregateNotebookDataframe(context.Context, *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error)
 	// Streams the complete dataframe behind an output chunk for download —
 	// the full backing data, never just the preview rows.
 	DownloadNotebookDataframe(context.Context, *connect.Request[v1.DownloadNotebookDataframeRequest], *connect.ServerStream[v1.DownloadNotebookDataframeResponse]) error
@@ -807,6 +831,12 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 		connect.WithSchema(notebookDocumentServiceMethods.ByName("FetchNotebookDataframeRows")),
 		connect.WithHandlerOptions(opts...),
 	)
+	notebookDocumentServiceAggregateNotebookDataframeHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceAggregateNotebookDataframeProcedure,
+		svc.AggregateNotebookDataframe,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("AggregateNotebookDataframe")),
+		connect.WithHandlerOptions(opts...),
+	)
 	notebookDocumentServiceDownloadNotebookDataframeHandler := connect.NewServerStreamHandler(
 		NotebookDocumentServiceDownloadNotebookDataframeProcedure,
 		svc.DownloadNotebookDataframe,
@@ -943,6 +973,8 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 			notebookDocumentServiceListNotebookCellResultsHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceFetchNotebookDataframeRowsProcedure:
 			notebookDocumentServiceFetchNotebookDataframeRowsHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceAggregateNotebookDataframeProcedure:
+			notebookDocumentServiceAggregateNotebookDataframeHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceDownloadNotebookDataframeProcedure:
 			notebookDocumentServiceDownloadNotebookDataframeHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceListNotebookCellRunHistoryProcedure:
@@ -1048,6 +1080,10 @@ func (UnimplementedNotebookDocumentServiceHandler) ListNotebookCellResults(conte
 
 func (UnimplementedNotebookDocumentServiceHandler) FetchNotebookDataframeRows(context.Context, *connect.Request[v1.FetchNotebookDataframeRowsRequest]) (*connect.Response[v1.FetchNotebookDataframeRowsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) AggregateNotebookDataframe(context.Context, *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe is not implemented"))
 }
 
 func (UnimplementedNotebookDocumentServiceHandler) DownloadNotebookDataframe(context.Context, *connect.Request[v1.DownloadNotebookDataframeRequest], *connect.ServerStream[v1.DownloadNotebookDataframeResponse]) error {
