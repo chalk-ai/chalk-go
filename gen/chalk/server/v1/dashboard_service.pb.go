@@ -78,7 +78,7 @@ func (DashboardAnnotation) EnumDescriptor() ([]byte, []int) {
 }
 
 // Dashboard-wide view controls. Server-owned and UI-set, kept separate from the dashboard artifact:
-// `chalk apply` reconciles the artifact (name + elements) and must never touch these, so they
+// `chalk apply` reconciles the artifact (name + widgets) and must never touch these, so they
 // cannot live inside the artifact. The saved defaults only; the active viewing state is carried in
 // the URL on the frontend and is not persisted here.
 type DashboardControls struct {
@@ -137,7 +137,7 @@ func (x *DashboardControls) GetAnnotations() []DashboardAnnotation {
 
 type CreateDashboardRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Only `name` and `elements` on the artifact are read; OUTPUT_ONLY fields are server-populated.
+	// Only `name` and `widgets` on the artifact are read; OUTPUT_ONLY fields are server-populated.
 	Dashboard *v1.Dashboard `protobuf:"bytes,1,opt,name=dashboard,proto3" json:"dashboard,omitempty"`
 	// Optional initial view controls; omit to create the dashboard without any.
 	Controls      *DashboardControls `protobuf:"bytes,2,opt,name=controls,proto3,oneof" json:"controls,omitempty"`
@@ -460,7 +460,7 @@ func (x *ListDashboardsResponse) GetNextCursor() string {
 type UpdateDashboardRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// `dashboard.id` identifies the target. `update_mask` governs the artifact only and its paths are
-	// rooted at `dashboard` — `name` and/or `elements` (`elements` is a full replacement). `controls`
+	// rooted at `dashboard` — `name` and/or `widgets` (`widgets` is a full replacement). `controls`
 	// is replace-if-present: set it to overwrite the saved controls, omit it to leave them unchanged
 	Dashboard     *v1.Dashboard          `protobuf:"bytes,1,opt,name=dashboard,proto3" json:"dashboard,omitempty"`
 	Controls      *DashboardControls     `protobuf:"bytes,2,opt,name=controls,proto3,oneof" json:"controls,omitempty"`

@@ -2460,6 +2460,8 @@ type BatchProgress struct {
 	Start          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start,proto3,oneof" json:"start,omitempty"`
 	End            *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end,proto3,oneof" json:"end,omitempty"`
 	TotalDurationS float64                `protobuf:"fixed64,6,opt,name=total_duration_s,json=totalDurationS,proto3" json:"total_duration_s,omitempty"`
+	StoredOnline   string                 `protobuf:"bytes,7,opt,name=stored_online,json=storedOnline,proto3" json:"stored_online,omitempty"`
+	StoredOffline  string                 `protobuf:"bytes,8,opt,name=stored_offline,json=storedOffline,proto3" json:"stored_offline,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2534,6 +2536,20 @@ func (x *BatchProgress) GetTotalDurationS() float64 {
 		return x.TotalDurationS
 	}
 	return 0
+}
+
+func (x *BatchProgress) GetStoredOnline() string {
+	if x != nil {
+		return x.StoredOnline
+	}
+	return ""
+}
+
+func (x *BatchProgress) GetStoredOffline() string {
+	if x != nil {
+		return x.StoredOffline
+	}
+	return ""
 }
 
 type ChunkReport struct {
@@ -3305,14 +3321,16 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\x1eRetryOfflineQueryShardResponse\"J\n" +
 	"\x1eCancelAsyncOfflineQueryRequest\x12(\n" +
 	"\x10offline_query_id\x18\x01 \x01(\tR\x0eofflineQueryId\"!\n" +
-	"\x1fCancelAsyncOfflineQueryResponse\"\xff\x01\n" +
+	"\x1fCancelAsyncOfflineQueryResponse\"\xcb\x02\n" +
 	"\rBatchProgress\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\tR\x05total\x12\x1a\n" +
 	"\bcomputed\x18\x02 \x01(\tR\bcomputed\x12\x16\n" +
 	"\x06failed\x18\x03 \x01(\tR\x06failed\x125\n" +
 	"\x05start\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x05start\x88\x01\x01\x121\n" +
 	"\x03end\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x03end\x88\x01\x01\x12(\n" +
-	"\x10total_duration_s\x18\x06 \x01(\x01R\x0etotalDurationSB\b\n" +
+	"\x10total_duration_s\x18\x06 \x01(\x01R\x0etotalDurationS\x12#\n" +
+	"\rstored_online\x18\a \x01(\tR\fstoredOnline\x12%\n" +
+	"\x0estored_offline\x18\b \x01(\tR\rstoredOfflineB\b\n" +
 	"\x06_startB\x06\n" +
 	"\x04_end\"\x88\x01\n" +
 	"\vChunkReport\x12:\n" +

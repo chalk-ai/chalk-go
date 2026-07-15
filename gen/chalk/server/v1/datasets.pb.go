@@ -3823,7 +3823,7 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\x80}\x04\x92}\x01$\x90\x02\x01\x12y\n" +
 	"\x12GetDatasetRevision\x12*.chalk.server.v1.GetDatasetRevisionRequest\x1a+.chalk.server.v1.GetDatasetRevisionResponse\"\n" +
 	"\x80}\x04\x92}\x01$\x90\x02\x01\x12\x9c\x01\n" +
-	"\x1fGetDatasetRevisionDownloadLinks\x127.chalk.server.v1.GetDatasetRevisionDownloadLinksRequest\x1a8.chalk.server.v1.GetDatasetRevisionDownloadLinksResponse\"\x06\x80}\x04\x90\x02\x01\x12\xa7\x01\n" +
+	"\x1fGetDatasetRevisionDownloadLinks\x127.chalk.server.v1.GetDatasetRevisionDownloadLinksRequest\x1a8.chalk.server.v1.GetDatasetRevisionDownloadLinksResponse\"\x06\x80}$\x90\x02\x01\x12\xa7\x01\n" +
 	"\"StreamDatasetRevisionDownloadLinks\x12:.chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest\x1a;.chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse\"\x06\x80}\x04\x90\x02\x010\x01\x12f\n" +
 	"\rRenameDataset\x12%.chalk.server.v1.RenameDatasetRequest\x1a&.chalk.server.v1.RenameDatasetResponse\"\x06\x80}\x04\x90\x02\x02\x12\x84\x01\n" +
 	"\x16ArchiveDatasetRevision\x12..chalk.server.v1.ArchiveDatasetRevisionRequest\x1a/.chalk.server.v1.ArchiveDatasetRevisionResponse\"\t\x80}\x04\x88\x02\x01\x90\x02\x02\x12\x84\x01\n" +

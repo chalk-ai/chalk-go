@@ -22,6 +22,67 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// PageContext identifies the UI surface the client submitted a turn from, so
+// the runner can adapt tool behavior to what that surface can render. Today it
+// decides whether notebook edit tools propose changes for in-notebook review
+// or persist them directly.
+type PageContext int32
+
+const (
+	// Unset (older clients): the runner keeps its default propose-first
+	// behavior for notebook edits.
+	PageContext_PAGE_CONTEXT_UNSPECIFIED PageContext = 0
+	// A notebook editor is attached (the docked agent sidebar on a notebook
+	// page): notebook edits are proposed and reviewed in the notebook UI before
+	// persisting.
+	PageContext_PAGE_CONTEXT_NOTEBOOK PageContext = 1
+	// A standalone conversation surface (the /agent-conversations pages, or the
+	// sidebar away from any notebook): no notebook UI can render proposals, so
+	// notebook edits persist directly.
+	PageContext_PAGE_CONTEXT_AGENT_CONVERSATION PageContext = 2
+)
+
+// Enum value maps for PageContext.
+var (
+	PageContext_name = map[int32]string{
+		0: "PAGE_CONTEXT_UNSPECIFIED",
+		1: "PAGE_CONTEXT_NOTEBOOK",
+		2: "PAGE_CONTEXT_AGENT_CONVERSATION",
+	}
+	PageContext_value = map[string]int32{
+		"PAGE_CONTEXT_UNSPECIFIED":        0,
+		"PAGE_CONTEXT_NOTEBOOK":           1,
+		"PAGE_CONTEXT_AGENT_CONVERSATION": 2,
+	}
+)
+
+func (x PageContext) Enum() *PageContext {
+	p := new(PageContext)
+	*p = x
+	return p
+}
+
+func (x PageContext) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PageContext) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_runner_proto_enumTypes[0].Descriptor()
+}
+
+func (PageContext) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_runner_proto_enumTypes[0]
+}
+
+func (x PageContext) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PageContext.Descriptor instead.
+func (PageContext) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{0}
+}
+
 // RunTurnRequest asks the server to advance a conversation by one or more
 // model turns (a turn may include several tool-call rounds). The server reads
 // the persisted message history for `conversation_id`, calls the configured
@@ -41,6 +102,8 @@ type RunTurnRequest struct {
 	// will execute before forcibly stopping. Defaults to a server-side cap
 	// (currently 10) when zero or unset.
 	MaxIterations int32 `protobuf:"varint,3,opt,name=max_iterations,json=maxIterations,proto3" json:"max_iterations,omitempty"`
+	// The UI surface this turn was submitted from. See PageContext.
+	PageContext   PageContext `protobuf:"varint,4,opt,name=page_context,json=pageContext,proto3,enum=chalk.agent.v1.PageContext" json:"page_context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -94,6 +157,13 @@ func (x *RunTurnRequest) GetMaxIterations() int32 {
 		return x.MaxIterations
 	}
 	return 0
+}
+
+func (x *RunTurnRequest) GetPageContext() PageContext {
+	if x != nil {
+		return x.PageContext
+	}
+	return PageContext_PAGE_CONTEXT_UNSPECIFIED
 }
 
 // AssistantTextDelta is emitted as the model streams tokens for the active
@@ -538,11 +608,12 @@ var File_chalk_agent_v1_runner_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\n" +
-	"\x1bchalk/agent/v1/runner.proto\x12\x0echalk.agent.v1\x1a!chalk/agent/v1/conversation.proto\x1a\x1fchalk/auth/v1/permissions.proto\"v\n" +
+	"\x1bchalk/agent/v1/runner.proto\x12\x0echalk.agent.v1\x1a!chalk/agent/v1/conversation.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\xb6\x01\n" +
 	"\x0eRunTurnRequest\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x14\n" +
 	"\x05model\x18\x02 \x01(\tR\x05model\x12%\n" +
-	"\x0emax_iterations\x18\x03 \x01(\x05R\rmaxIterations\"I\n" +
+	"\x0emax_iterations\x18\x03 \x01(\x05R\rmaxIterations\x12>\n" +
+	"\fpage_context\x18\x04 \x01(\x0e2\x1b.chalk.agent.v1.PageContextR\vpageContext\"I\n" +
 	"\x12AssistantTextDelta\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x14\n" +
@@ -568,7 +639,11 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\x12tool_result_posted\x18\x04 \x01(\v2 .chalk.agent.v1.ToolResultPostedH\x00R\x10toolResultPosted\x12<\n" +
 	"\tcompleted\x18\x05 \x01(\v2\x1c.chalk.agent.v1.RunCompletedH\x00R\tcompleted\x123\n" +
 	"\x06failed\x18\x06 \x01(\v2\x19.chalk.agent.v1.RunFailedH\x00R\x06failedB\a\n" +
-	"\x05event2g\n" +
+	"\x05event*k\n" +
+	"\vPageContext\x12\x1c\n" +
+	"\x18PAGE_CONTEXT_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15PAGE_CONTEXT_NOTEBOOK\x10\x01\x12#\n" +
+	"\x1fPAGE_CONTEXT_AGENT_CONVERSATION\x10\x022g\n" +
 	"\x12AgentRunnerService\x12Q\n" +
 	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"\x03\x80}\x020\x01B\xb4\x01\n" +
 	"\x12com.chalk.agent.v1B\vRunnerProtoP\x01Z7github.com/chalk-ai/chalk-go/gen/chalk/agent/v1;agentv1\xa2\x02\x03CAX\xaa\x02\x0eChalk.Agent.V1\xca\x02\x0eChalk\\Agent\\V1\xe2\x02\x1aChalk\\Agent\\V1\\GPBMetadata\xea\x02\x10Chalk::Agent::V1b\x06proto3"
@@ -585,37 +660,40 @@ func file_chalk_agent_v1_runner_proto_rawDescGZIP() []byte {
 	return file_chalk_agent_v1_runner_proto_rawDescData
 }
 
+var file_chalk_agent_v1_runner_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_chalk_agent_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_chalk_agent_v1_runner_proto_goTypes = []any{
-	(*RunTurnRequest)(nil),     // 0: chalk.agent.v1.RunTurnRequest
-	(*AssistantTextDelta)(nil), // 1: chalk.agent.v1.AssistantTextDelta
-	(*MessageFinalized)(nil),   // 2: chalk.agent.v1.MessageFinalized
-	(*ToolCallStarted)(nil),    // 3: chalk.agent.v1.ToolCallStarted
-	(*ToolResultPosted)(nil),   // 4: chalk.agent.v1.ToolResultPosted
-	(*RunCompleted)(nil),       // 5: chalk.agent.v1.RunCompleted
-	(*RunFailed)(nil),          // 6: chalk.agent.v1.RunFailed
-	(*RunTurnResponse)(nil),    // 7: chalk.agent.v1.RunTurnResponse
-	(*AgentMessage)(nil),       // 8: chalk.agent.v1.AgentMessage
-	(*AgentToolCall)(nil),      // 9: chalk.agent.v1.AgentToolCall
-	(*AgentToolResult)(nil),    // 10: chalk.agent.v1.AgentToolResult
+	(PageContext)(0),           // 0: chalk.agent.v1.PageContext
+	(*RunTurnRequest)(nil),     // 1: chalk.agent.v1.RunTurnRequest
+	(*AssistantTextDelta)(nil), // 2: chalk.agent.v1.AssistantTextDelta
+	(*MessageFinalized)(nil),   // 3: chalk.agent.v1.MessageFinalized
+	(*ToolCallStarted)(nil),    // 4: chalk.agent.v1.ToolCallStarted
+	(*ToolResultPosted)(nil),   // 5: chalk.agent.v1.ToolResultPosted
+	(*RunCompleted)(nil),       // 6: chalk.agent.v1.RunCompleted
+	(*RunFailed)(nil),          // 7: chalk.agent.v1.RunFailed
+	(*RunTurnResponse)(nil),    // 8: chalk.agent.v1.RunTurnResponse
+	(*AgentMessage)(nil),       // 9: chalk.agent.v1.AgentMessage
+	(*AgentToolCall)(nil),      // 10: chalk.agent.v1.AgentToolCall
+	(*AgentToolResult)(nil),    // 11: chalk.agent.v1.AgentToolResult
 }
 var file_chalk_agent_v1_runner_proto_depIdxs = []int32{
-	8,  // 0: chalk.agent.v1.MessageFinalized.message:type_name -> chalk.agent.v1.AgentMessage
-	9,  // 1: chalk.agent.v1.ToolCallStarted.tool_call:type_name -> chalk.agent.v1.AgentToolCall
-	10, // 2: chalk.agent.v1.ToolResultPosted.tool_result:type_name -> chalk.agent.v1.AgentToolResult
-	1,  // 3: chalk.agent.v1.RunTurnResponse.text_delta:type_name -> chalk.agent.v1.AssistantTextDelta
-	2,  // 4: chalk.agent.v1.RunTurnResponse.message_finalized:type_name -> chalk.agent.v1.MessageFinalized
-	3,  // 5: chalk.agent.v1.RunTurnResponse.tool_call_started:type_name -> chalk.agent.v1.ToolCallStarted
-	4,  // 6: chalk.agent.v1.RunTurnResponse.tool_result_posted:type_name -> chalk.agent.v1.ToolResultPosted
-	5,  // 7: chalk.agent.v1.RunTurnResponse.completed:type_name -> chalk.agent.v1.RunCompleted
-	6,  // 8: chalk.agent.v1.RunTurnResponse.failed:type_name -> chalk.agent.v1.RunFailed
-	0,  // 9: chalk.agent.v1.AgentRunnerService.RunTurn:input_type -> chalk.agent.v1.RunTurnRequest
-	7,  // 10: chalk.agent.v1.AgentRunnerService.RunTurn:output_type -> chalk.agent.v1.RunTurnResponse
-	10, // [10:11] is the sub-list for method output_type
-	9,  // [9:10] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	0,  // 0: chalk.agent.v1.RunTurnRequest.page_context:type_name -> chalk.agent.v1.PageContext
+	9,  // 1: chalk.agent.v1.MessageFinalized.message:type_name -> chalk.agent.v1.AgentMessage
+	10, // 2: chalk.agent.v1.ToolCallStarted.tool_call:type_name -> chalk.agent.v1.AgentToolCall
+	11, // 3: chalk.agent.v1.ToolResultPosted.tool_result:type_name -> chalk.agent.v1.AgentToolResult
+	2,  // 4: chalk.agent.v1.RunTurnResponse.text_delta:type_name -> chalk.agent.v1.AssistantTextDelta
+	3,  // 5: chalk.agent.v1.RunTurnResponse.message_finalized:type_name -> chalk.agent.v1.MessageFinalized
+	4,  // 6: chalk.agent.v1.RunTurnResponse.tool_call_started:type_name -> chalk.agent.v1.ToolCallStarted
+	5,  // 7: chalk.agent.v1.RunTurnResponse.tool_result_posted:type_name -> chalk.agent.v1.ToolResultPosted
+	6,  // 8: chalk.agent.v1.RunTurnResponse.completed:type_name -> chalk.agent.v1.RunCompleted
+	7,  // 9: chalk.agent.v1.RunTurnResponse.failed:type_name -> chalk.agent.v1.RunFailed
+	1,  // 10: chalk.agent.v1.AgentRunnerService.RunTurn:input_type -> chalk.agent.v1.RunTurnRequest
+	8,  // 11: chalk.agent.v1.AgentRunnerService.RunTurn:output_type -> chalk.agent.v1.RunTurnResponse
+	11, // [11:12] is the sub-list for method output_type
+	10, // [10:11] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_runner_proto_init() }
@@ -637,13 +715,14 @@ func file_chalk_agent_v1_runner_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_runner_proto_rawDesc), len(file_chalk_agent_v1_runner_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_agent_v1_runner_proto_goTypes,
 		DependencyIndexes: file_chalk_agent_v1_runner_proto_depIdxs,
+		EnumInfos:         file_chalk_agent_v1_runner_proto_enumTypes,
 		MessageInfos:      file_chalk_agent_v1_runner_proto_msgTypes,
 	}.Build()
 	File_chalk_agent_v1_runner_proto = out.File
