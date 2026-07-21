@@ -75,6 +75,12 @@ const (
 	// AgentConversationServiceAddToolResultProcedure is the fully-qualified name of the
 	// AgentConversationService's AddToolResult RPC.
 	AgentConversationServiceAddToolResultProcedure = "/chalk.agent.v1.AgentConversationService/AddToolResult"
+	// AgentConversationServiceReplaceConversationTranscriptProcedure is the fully-qualified name of the
+	// AgentConversationService's ReplaceConversationTranscript RPC.
+	AgentConversationServiceReplaceConversationTranscriptProcedure = "/chalk.agent.v1.AgentConversationService/ReplaceConversationTranscript"
+	// AgentConversationServiceSetConversationNotebookProcedure is the fully-qualified name of the
+	// AgentConversationService's SetConversationNotebook RPC.
+	AgentConversationServiceSetConversationNotebookProcedure = "/chalk.agent.v1.AgentConversationService/SetConversationNotebook"
 )
 
 // AgentConversationServiceClient is a client for the chalk.agent.v1.AgentConversationService
@@ -94,6 +100,10 @@ type AgentConversationServiceClient interface {
 	UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error)
 	ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error)
 	AddToolResult(context.Context, *connect.Request[v1.AddToolResultRequest]) (*connect.Response[v1.AddToolResultResponse], error)
+	// Admin-only transcript editing, for re-working conversations (e.g. demos).
+	ReplaceConversationTranscript(context.Context, *connect.Request[v1.ReplaceConversationTranscriptRequest]) (*connect.Response[v1.ReplaceConversationTranscriptResponse], error)
+	// Admin-only: re-point (or detach) the notebook a conversation is bound to.
+	SetConversationNotebook(context.Context, *connect.Request[v1.SetConversationNotebookRequest]) (*connect.Response[v1.SetConversationNotebookResponse], error)
 }
 
 // NewAgentConversationServiceClient constructs a client for the
@@ -201,25 +211,41 @@ func NewAgentConversationServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithSchema(agentConversationServiceMethods.ByName("AddToolResult")),
 			connect.WithClientOptions(opts...),
 		),
+		replaceConversationTranscript: connect.NewClient[v1.ReplaceConversationTranscriptRequest, v1.ReplaceConversationTranscriptResponse](
+			httpClient,
+			baseURL+AgentConversationServiceReplaceConversationTranscriptProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("ReplaceConversationTranscript")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		setConversationNotebook: connect.NewClient[v1.SetConversationNotebookRequest, v1.SetConversationNotebookResponse](
+			httpClient,
+			baseURL+AgentConversationServiceSetConversationNotebookProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("SetConversationNotebook")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // agentConversationServiceClient implements AgentConversationServiceClient.
 type agentConversationServiceClient struct {
-	createConversation           *connect.Client[v1.CreateConversationRequest, v1.CreateConversationResponse]
-	getConversation              *connect.Client[v1.GetConversationRequest, v1.GetConversationResponse]
-	listConversations            *connect.Client[v1.ListConversationsRequest, v1.ListConversationsResponse]
-	updateConversation           *connect.Client[v1.UpdateConversationRequest, v1.UpdateConversationResponse]
-	deleteConversation           *connect.Client[v1.DeleteConversationRequest, v1.DeleteConversationResponse]
-	forkConversation             *connect.Client[v1.ForkConversationRequest, v1.ForkConversationResponse]
-	linkArtifact                 *connect.Client[v1.LinkArtifactRequest, v1.LinkArtifactResponse]
-	unlinkArtifact               *connect.Client[v1.UnlinkArtifactRequest, v1.UnlinkArtifactResponse]
-	listArtifacts                *connect.Client[v1.ListArtifactsRequest, v1.ListArtifactsResponse]
-	listConversationsForArtifact *connect.Client[v1.ListConversationsForArtifactRequest, v1.ListConversationsForArtifactResponse]
-	addMessage                   *connect.Client[v1.AddMessageRequest, v1.AddMessageResponse]
-	updateMessageStatus          *connect.Client[v1.UpdateMessageStatusRequest, v1.UpdateMessageStatusResponse]
-	listMessages                 *connect.Client[v1.ListMessagesRequest, v1.ListMessagesResponse]
-	addToolResult                *connect.Client[v1.AddToolResultRequest, v1.AddToolResultResponse]
+	createConversation            *connect.Client[v1.CreateConversationRequest, v1.CreateConversationResponse]
+	getConversation               *connect.Client[v1.GetConversationRequest, v1.GetConversationResponse]
+	listConversations             *connect.Client[v1.ListConversationsRequest, v1.ListConversationsResponse]
+	updateConversation            *connect.Client[v1.UpdateConversationRequest, v1.UpdateConversationResponse]
+	deleteConversation            *connect.Client[v1.DeleteConversationRequest, v1.DeleteConversationResponse]
+	forkConversation              *connect.Client[v1.ForkConversationRequest, v1.ForkConversationResponse]
+	linkArtifact                  *connect.Client[v1.LinkArtifactRequest, v1.LinkArtifactResponse]
+	unlinkArtifact                *connect.Client[v1.UnlinkArtifactRequest, v1.UnlinkArtifactResponse]
+	listArtifacts                 *connect.Client[v1.ListArtifactsRequest, v1.ListArtifactsResponse]
+	listConversationsForArtifact  *connect.Client[v1.ListConversationsForArtifactRequest, v1.ListConversationsForArtifactResponse]
+	addMessage                    *connect.Client[v1.AddMessageRequest, v1.AddMessageResponse]
+	updateMessageStatus           *connect.Client[v1.UpdateMessageStatusRequest, v1.UpdateMessageStatusResponse]
+	listMessages                  *connect.Client[v1.ListMessagesRequest, v1.ListMessagesResponse]
+	addToolResult                 *connect.Client[v1.AddToolResultRequest, v1.AddToolResultResponse]
+	replaceConversationTranscript *connect.Client[v1.ReplaceConversationTranscriptRequest, v1.ReplaceConversationTranscriptResponse]
+	setConversationNotebook       *connect.Client[v1.SetConversationNotebookRequest, v1.SetConversationNotebookResponse]
 }
 
 // CreateConversation calls chalk.agent.v1.AgentConversationService.CreateConversation.
@@ -293,6 +319,17 @@ func (c *agentConversationServiceClient) AddToolResult(ctx context.Context, req 
 	return c.addToolResult.CallUnary(ctx, req)
 }
 
+// ReplaceConversationTranscript calls
+// chalk.agent.v1.AgentConversationService.ReplaceConversationTranscript.
+func (c *agentConversationServiceClient) ReplaceConversationTranscript(ctx context.Context, req *connect.Request[v1.ReplaceConversationTranscriptRequest]) (*connect.Response[v1.ReplaceConversationTranscriptResponse], error) {
+	return c.replaceConversationTranscript.CallUnary(ctx, req)
+}
+
+// SetConversationNotebook calls chalk.agent.v1.AgentConversationService.SetConversationNotebook.
+func (c *agentConversationServiceClient) SetConversationNotebook(ctx context.Context, req *connect.Request[v1.SetConversationNotebookRequest]) (*connect.Response[v1.SetConversationNotebookResponse], error) {
+	return c.setConversationNotebook.CallUnary(ctx, req)
+}
+
 // AgentConversationServiceHandler is an implementation of the
 // chalk.agent.v1.AgentConversationService service.
 type AgentConversationServiceHandler interface {
@@ -310,6 +347,10 @@ type AgentConversationServiceHandler interface {
 	UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error)
 	ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error)
 	AddToolResult(context.Context, *connect.Request[v1.AddToolResultRequest]) (*connect.Response[v1.AddToolResultResponse], error)
+	// Admin-only transcript editing, for re-working conversations (e.g. demos).
+	ReplaceConversationTranscript(context.Context, *connect.Request[v1.ReplaceConversationTranscriptRequest]) (*connect.Response[v1.ReplaceConversationTranscriptResponse], error)
+	// Admin-only: re-point (or detach) the notebook a conversation is bound to.
+	SetConversationNotebook(context.Context, *connect.Request[v1.SetConversationNotebookRequest]) (*connect.Response[v1.SetConversationNotebookResponse], error)
 }
 
 // NewAgentConversationServiceHandler builds an HTTP handler from the service implementation. It
@@ -413,6 +454,20 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 		connect.WithSchema(agentConversationServiceMethods.ByName("AddToolResult")),
 		connect.WithHandlerOptions(opts...),
 	)
+	agentConversationServiceReplaceConversationTranscriptHandler := connect.NewUnaryHandler(
+		AgentConversationServiceReplaceConversationTranscriptProcedure,
+		svc.ReplaceConversationTranscript,
+		connect.WithSchema(agentConversationServiceMethods.ByName("ReplaceConversationTranscript")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	agentConversationServiceSetConversationNotebookHandler := connect.NewUnaryHandler(
+		AgentConversationServiceSetConversationNotebookProcedure,
+		svc.SetConversationNotebook,
+		connect.WithSchema(agentConversationServiceMethods.ByName("SetConversationNotebook")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.agent.v1.AgentConversationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AgentConversationServiceCreateConversationProcedure:
@@ -443,6 +498,10 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 			agentConversationServiceListMessagesHandler.ServeHTTP(w, r)
 		case AgentConversationServiceAddToolResultProcedure:
 			agentConversationServiceAddToolResultHandler.ServeHTTP(w, r)
+		case AgentConversationServiceReplaceConversationTranscriptProcedure:
+			agentConversationServiceReplaceConversationTranscriptHandler.ServeHTTP(w, r)
+		case AgentConversationServiceSetConversationNotebookProcedure:
+			agentConversationServiceSetConversationNotebookHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -506,4 +565,12 @@ func (UnimplementedAgentConversationServiceHandler) ListMessages(context.Context
 
 func (UnimplementedAgentConversationServiceHandler) AddToolResult(context.Context, *connect.Request[v1.AddToolResultRequest]) (*connect.Response[v1.AddToolResultResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.AddToolResult is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) ReplaceConversationTranscript(context.Context, *connect.Request[v1.ReplaceConversationTranscriptRequest]) (*connect.Response[v1.ReplaceConversationTranscriptResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.ReplaceConversationTranscript is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) SetConversationNotebook(context.Context, *connect.Request[v1.SetConversationNotebookRequest]) (*connect.Response[v1.SetConversationNotebookResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.SetConversationNotebook is not implemented"))
 }
