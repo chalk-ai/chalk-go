@@ -197,11 +197,14 @@ type GetProjectNavbarCountsResponse struct {
 	// (matches "Scheduled runs"; run history excluded).
 	ActiveScheduledQueries int64 `protobuf:"varint,4,opt,name=active_scheduled_queries,json=activeScheduledQueries,proto3" json:"active_scheduled_queries,omitempty"`
 	// Compute resources.
-	ScalingGroups int64 `protobuf:"varint,5,opt,name=scaling_groups,json=scalingGroups,proto3" json:"scaling_groups,omitempty"`
-	Containers    int64 `protobuf:"varint,6,opt,name=containers,proto3" json:"containers,omitempty"`
-	Notebooks     int64 `protobuf:"varint,7,opt,name=notebooks,proto3" json:"notebooks,omitempty"`
-	Functions     int64 `protobuf:"varint,8,opt,name=functions,proto3" json:"functions,omitempty"`
-	Snapshots     int64 `protobuf:"varint,9,opt,name=snapshots,proto3" json:"snapshots,omitempty"`
+	ScalingGroups   int64 `protobuf:"varint,5,opt,name=scaling_groups,json=scalingGroups,proto3" json:"scaling_groups,omitempty"`
+	Containers      int64 `protobuf:"varint,6,opt,name=containers,proto3" json:"containers,omitempty"`
+	Sandboxes       int64 `protobuf:"varint,20,opt,name=sandboxes,proto3" json:"sandboxes,omitempty"`
+	Notebooks       int64 `protobuf:"varint,7,opt,name=notebooks,proto3" json:"notebooks,omitempty"`
+	Functions       int64 `protobuf:"varint,8,opt,name=functions,proto3" json:"functions,omitempty"`
+	Snapshots       int64 `protobuf:"varint,9,opt,name=snapshots,proto3" json:"snapshots,omitempty"`
+	NotebookKernels int64 `protobuf:"varint,21,opt,name=notebook_kernels,json=notebookKernels,proto3" json:"notebook_kernels,omitempty"`
+	Images          int64 `protobuf:"varint,22,opt,name=images,proto3" json:"images,omitempty"`
 	// Environment registry models (environment-scoped, not deployment-scoped).
 	Models        int64 `protobuf:"varint,10,opt,name=models,proto3" json:"models,omitempty"`
 	OpenIncidents int64 `protobuf:"varint,11,opt,name=open_incidents,json=openIncidents,proto3" json:"open_incidents,omitempty"`
@@ -211,6 +214,11 @@ type GetProjectNavbarCountsResponse struct {
 	Secrets                 int64 `protobuf:"varint,14,opt,name=secrets,proto3" json:"secrets,omitempty"`
 	OfflineStoreConnections int64 `protobuf:"varint,15,opt,name=offline_store_connections,json=offlineStoreConnections,proto3" json:"offline_store_connections,omitempty"`
 	NamedPrompts            int64 `protobuf:"varint,16,opt,name=named_prompts,json=namedPrompts,proto3" json:"named_prompts,omitempty"`
+	// online_stores/vector_databases are single configs today, so each is 0 or 1.
+	OnlineStores    int64 `protobuf:"varint,17,opt,name=online_stores,json=onlineStores,proto3" json:"online_stores,omitempty"`
+	VectorDatabases int64 `protobuf:"varint,18,opt,name=vector_databases,json=vectorDatabases,proto3" json:"vector_databases,omitempty"`
+	ConfigVariables int64 `protobuf:"varint,19,opt,name=config_variables,json=configVariables,proto3" json:"config_variables,omitempty"`
+	Evaluations     int64 `protobuf:"varint,23,opt,name=evaluations,proto3" json:"evaluations,omitempty"`
 	// Environment-scoped service tokens.
 	AccessTokens  int64 `protobuf:"varint,30,opt,name=access_tokens,json=accessTokens,proto3" json:"access_tokens,omitempty"`
 	AiConnections int64 `protobuf:"varint,31,opt,name=ai_connections,json=aiConnections,proto3" json:"ai_connections,omitempty"`
@@ -292,6 +300,13 @@ func (x *GetProjectNavbarCountsResponse) GetContainers() int64 {
 	return 0
 }
 
+func (x *GetProjectNavbarCountsResponse) GetSandboxes() int64 {
+	if x != nil {
+		return x.Sandboxes
+	}
+	return 0
+}
+
 func (x *GetProjectNavbarCountsResponse) GetNotebooks() int64 {
 	if x != nil {
 		return x.Notebooks
@@ -309,6 +324,20 @@ func (x *GetProjectNavbarCountsResponse) GetFunctions() int64 {
 func (x *GetProjectNavbarCountsResponse) GetSnapshots() int64 {
 	if x != nil {
 		return x.Snapshots
+	}
+	return 0
+}
+
+func (x *GetProjectNavbarCountsResponse) GetNotebookKernels() int64 {
+	if x != nil {
+		return x.NotebookKernels
+	}
+	return 0
+}
+
+func (x *GetProjectNavbarCountsResponse) GetImages() int64 {
+	if x != nil {
+		return x.Images
 	}
 	return 0
 }
@@ -362,6 +391,34 @@ func (x *GetProjectNavbarCountsResponse) GetNamedPrompts() int64 {
 	return 0
 }
 
+func (x *GetProjectNavbarCountsResponse) GetOnlineStores() int64 {
+	if x != nil {
+		return x.OnlineStores
+	}
+	return 0
+}
+
+func (x *GetProjectNavbarCountsResponse) GetVectorDatabases() int64 {
+	if x != nil {
+		return x.VectorDatabases
+	}
+	return 0
+}
+
+func (x *GetProjectNavbarCountsResponse) GetConfigVariables() int64 {
+	if x != nil {
+		return x.ConfigVariables
+	}
+	return 0
+}
+
+func (x *GetProjectNavbarCountsResponse) GetEvaluations() int64 {
+	if x != nil {
+		return x.Evaluations
+	}
+	return 0
+}
+
 func (x *GetProjectNavbarCountsResponse) GetAccessTokens() int64 {
 	if x != nil {
 		return x.AccessTokens
@@ -401,7 +458,7 @@ const file_chalk_server_v1_inventory_proto_rawDesc = "" +
 	"\x05_vpcsB\n" +
 	"\n" +
 	"\b_storage\"\x1f\n" +
-	"\x1dGetProjectNavbarCountsRequest\"\xba\x05\n" +
+	"\x1dGetProjectNavbarCountsRequest\"\xb8\a\n" +
 	"\x1eGetProjectNavbarCountsResponse\x12\x1c\n" +
 	"\tresolvers\x18\x01 \x01(\x03R\tresolvers\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x01(\x03R\bfeatures\x12#\n" +
@@ -411,9 +468,12 @@ const file_chalk_server_v1_inventory_proto_rawDesc = "" +
 	"\n" +
 	"containers\x18\x06 \x01(\x03R\n" +
 	"containers\x12\x1c\n" +
+	"\tsandboxes\x18\x14 \x01(\x03R\tsandboxes\x12\x1c\n" +
 	"\tnotebooks\x18\a \x01(\x03R\tnotebooks\x12\x1c\n" +
 	"\tfunctions\x18\b \x01(\x03R\tfunctions\x12\x1c\n" +
-	"\tsnapshots\x18\t \x01(\x03R\tsnapshots\x12\x16\n" +
+	"\tsnapshots\x18\t \x01(\x03R\tsnapshots\x12)\n" +
+	"\x10notebook_kernels\x18\x15 \x01(\x03R\x0fnotebookKernels\x12\x16\n" +
+	"\x06images\x18\x16 \x01(\x03R\x06images\x12\x16\n" +
 	"\x06models\x18\n" +
 	" \x01(\x03R\x06models\x12%\n" +
 	"\x0eopen_incidents\x18\v \x01(\x03R\ropenIncidents\x12\x1a\n" +
@@ -422,6 +482,10 @@ const file_chalk_server_v1_inventory_proto_rawDesc = "" +
 	"\asecrets\x18\x0e \x01(\x03R\asecrets\x12:\n" +
 	"\x19offline_store_connections\x18\x0f \x01(\x03R\x17offlineStoreConnections\x12#\n" +
 	"\rnamed_prompts\x18\x10 \x01(\x03R\fnamedPrompts\x12#\n" +
+	"\ronline_stores\x18\x11 \x01(\x03R\fonlineStores\x12)\n" +
+	"\x10vector_databases\x18\x12 \x01(\x03R\x0fvectorDatabases\x12)\n" +
+	"\x10config_variables\x18\x13 \x01(\x03R\x0fconfigVariables\x12 \n" +
+	"\vevaluations\x18\x17 \x01(\x03R\vevaluations\x12#\n" +
 	"\raccess_tokens\x18\x1e \x01(\x03R\faccessTokens\x12%\n" +
 	"\x0eai_connections\x18\x1f \x01(\x03R\raiConnections\x12\x18\n" +
 	"\abuckets\x18  \x01(\x03R\abuckets2\x90\x02\n" +

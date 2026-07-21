@@ -98,6 +98,7 @@ const (
 	JobQueueKind_JOB_QUEUE_KIND_SCRIPT_TASK         JobQueueKind = 3
 	JobQueueKind_JOB_QUEUE_KIND_CHALKSQL_RUN        JobQueueKind = 4
 	JobQueueKind_JOB_QUEUE_KIND_DATAFRAME_RUN       JobQueueKind = 5
+	JobQueueKind_JOB_QUEUE_KIND_FILL_WIDE_TABLES    JobQueueKind = 6
 )
 
 // Enum value maps for JobQueueKind.
@@ -109,6 +110,7 @@ var (
 		3: "JOB_QUEUE_KIND_SCRIPT_TASK",
 		4: "JOB_QUEUE_KIND_CHALKSQL_RUN",
 		5: "JOB_QUEUE_KIND_DATAFRAME_RUN",
+		6: "JOB_QUEUE_KIND_FILL_WIDE_TABLES",
 	}
 	JobQueueKind_value = map[string]int32{
 		"JOB_QUEUE_KIND_UNSPECIFIED":         0,
@@ -117,6 +119,7 @@ var (
 		"JOB_QUEUE_KIND_SCRIPT_TASK":         3,
 		"JOB_QUEUE_KIND_CHALKSQL_RUN":        4,
 		"JOB_QUEUE_KIND_DATAFRAME_RUN":       5,
+		"JOB_QUEUE_KIND_FILL_WIDE_TABLES":    6,
 	}
 )
 
@@ -2930,14 +2933,15 @@ const file_chalk_server_v1_dataplanejobqueue_proto_rawDesc = "" +
 	"\x16JOB_QUEUE_STATE_FAILED\x10\x04\x12\x1c\n" +
 	"\x18JOB_QUEUE_STATE_CANCELED\x10\x05\x12\x1d\n" +
 	"\x19JOB_QUEUE_STATE_NOT_READY\x10\x06\x12\x1b\n" +
-	"\x17JOB_QUEUE_STATE_WAITING\x10\a*\xdd\x01\n" +
+	"\x17JOB_QUEUE_STATE_WAITING\x10\a*\x82\x02\n" +
 	"\fJobQueueKind\x12\x1e\n" +
 	"\x1aJOB_QUEUE_KIND_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"JOB_QUEUE_KIND_ASYNC_OFFLINE_QUERY\x10\x01\x12\"\n" +
 	"\x1eJOB_QUEUE_KIND_SCHEDULED_QUERY\x10\x02\x12\x1e\n" +
 	"\x1aJOB_QUEUE_KIND_SCRIPT_TASK\x10\x03\x12\x1f\n" +
 	"\x1bJOB_QUEUE_KIND_CHALKSQL_RUN\x10\x04\x12 \n" +
-	"\x1cJOB_QUEUE_KIND_DATAFRAME_RUN\x10\x052\xc0\v\n" +
+	"\x1cJOB_QUEUE_KIND_DATAFRAME_RUN\x10\x05\x12#\n" +
+	"\x1fJOB_QUEUE_KIND_FILL_WIDE_TABLES\x10\x062\xc0\v\n" +
 	"\x18DataPlaneJobQueueService\x12{\n" +
 	"\x14GetDataPlaneJobQueue\x12,.chalk.server.v1.GetDataPlaneJobQueueRequest\x1a-.chalk.server.v1.GetDataPlaneJobQueueResponse\"\x06\x80}\x10\x90\x02\x01\x12~\n" +
 	"\x15ListDataPlaneJobQueue\x12-.chalk.server.v1.ListDataPlaneJobQueueRequest\x1a..chalk.server.v1.ListDataPlaneJobQueueResponse\"\x06\x80}\x10\x90\x02\x01\x12\x96\x01\n" +

@@ -104,11 +104,14 @@ const (
 	OperatorType_OPERATOR_TYPE_SUB_PLAN_JOIN                        OperatorType = 63
 	OperatorType_OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK         OperatorType = 64
 	OperatorType_OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR OperatorType = 75
+	OperatorType_OPERATOR_TYPE_TABLE_WRITE_OPERATOR                 OperatorType = 79
 	OperatorType_OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR  OperatorType = 65
 	OperatorType_OPERATOR_TYPE_UNION_OPERATOR                       OperatorType = 66
 	OperatorType_OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN               OperatorType = 71
 	OperatorType_OPERATOR_TYPE_VALUES_PERSISTER                     OperatorType = 67
 	OperatorType_OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR              OperatorType = 74
+	OperatorType_OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN        OperatorType = 77
+	OperatorType_OPERATOR_TYPE_ICEBERG_TABLE_WRITER                 OperatorType = 78
 )
 
 // Enum value maps for OperatorType.
@@ -186,11 +189,14 @@ var (
 		63: "OPERATOR_TYPE_SUB_PLAN_JOIN",
 		64: "OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK",
 		75: "OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR",
+		79: "OPERATOR_TYPE_TABLE_WRITE_OPERATOR",
 		65: "OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR",
 		66: "OPERATOR_TYPE_UNION_OPERATOR",
 		71: "OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN",
 		67: "OPERATOR_TYPE_VALUES_PERSISTER",
 		74: "OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR",
+		77: "OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN",
+		78: "OPERATOR_TYPE_ICEBERG_TABLE_WRITER",
 	}
 	OperatorType_value = map[string]int32{
 		"OPERATOR_TYPE_UNSPECIFIED":                                    0,
@@ -265,11 +271,14 @@ var (
 		"OPERATOR_TYPE_SUB_PLAN_JOIN":                                  63,
 		"OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK":                   64,
 		"OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR":           75,
+		"OPERATOR_TYPE_TABLE_WRITE_OPERATOR":                           79,
 		"OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR":            65,
 		"OPERATOR_TYPE_UNION_OPERATOR":                                 66,
 		"OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN":                         71,
 		"OPERATOR_TYPE_VALUES_PERSISTER":                               67,
 		"OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR":                        74,
+		"OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN":                  77,
+		"OPERATOR_TYPE_ICEBERG_TABLE_WRITER":                           78,
 	}
 )
 
@@ -2144,7 +2153,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\bbehavior\" \n" +
 	"\x1eResolverRootUnderscoreBehavior\"f\n" +
 	"$StreamResolverRootUnderscoreBehavior\x12>\n" +
-	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xfc\x18\n" +
+	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xfd\x19\n" +
 	"\fOperatorType\x12\x1d\n" +
 	"\x19OPERATOR_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
 	"!OPERATOR_TYPE_ADD_CHILD_INDEX_COL\x10\x01\x12\x1f\n" +
@@ -2218,12 +2227,15 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x1dOPERATOR_TYPE_SUB_PLAN_FILTER\x10>\x12\x1f\n" +
 	"\x1bOPERATOR_TYPE_SUB_PLAN_JOIN\x10?\x12.\n" +
 	"*OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK\x10@\x126\n" +
-	"2OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR\x10K\x125\n" +
+	"2OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR\x10K\x12&\n" +
+	"\"OPERATOR_TYPE_TABLE_WRITE_OPERATOR\x10O\x125\n" +
 	"1OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR\x10A\x12 \n" +
 	"\x1cOPERATOR_TYPE_UNION_OPERATOR\x10B\x12(\n" +
 	"$OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN\x10G\x12\"\n" +
 	"\x1eOPERATOR_TYPE_VALUES_PERSISTER\x10C\x12)\n" +
-	"%OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR\x10JB\xc9\x01\n" +
+	"%OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR\x10J\x12/\n" +
+	"+OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN\x10M\x12&\n" +
+	"\"OPERATOR_TYPE_ICEBERG_TABLE_WRITER\x10NB\xc9\x01\n" +
 	"\x14com.chalk.planner.v1B\x12BatchOperatorProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

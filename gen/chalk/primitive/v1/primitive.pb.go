@@ -44,6 +44,7 @@ type Primitive struct {
 	//	*Primitive_TimestampValue
 	//	*Primitive_ArrowSchema
 	//	*Primitive_ArrowField
+	//	*Primitive_ArrowType
 	//	*Primitive_ListValue
 	//	*Primitive_UnorderedDictValue
 	Arg           isPrimitive_Arg `protobuf_oneof:"arg"`
@@ -187,6 +188,15 @@ func (x *Primitive) GetArrowField() *v1.Field {
 	return nil
 }
 
+func (x *Primitive) GetArrowType() *v1.ArrowType {
+	if x != nil {
+		if x, ok := x.Arg.(*Primitive_ArrowType); ok {
+			return x.ArrowType
+		}
+	}
+	return nil
+}
+
 func (x *Primitive) GetListValue() *PrimitiveList {
 	if x != nil {
 		if x, ok := x.Arg.(*Primitive_ListValue); ok {
@@ -255,6 +265,10 @@ type Primitive_ArrowField struct {
 	ArrowField *v1.Field `protobuf:"bytes,11,opt,name=arrow_field,json=arrowField,proto3,oneof"`
 }
 
+type Primitive_ArrowType struct {
+	ArrowType *v1.ArrowType `protobuf:"bytes,14,opt,name=arrow_type,json=arrowType,proto3,oneof"`
+}
+
 type Primitive_ListValue struct {
 	// Recursive Containers
 	ListValue *PrimitiveList `protobuf:"bytes,12,opt,name=list_value,json=listValue,proto3,oneof"`
@@ -285,6 +299,8 @@ func (*Primitive_TimestampValue) isPrimitive_Arg() {}
 func (*Primitive_ArrowSchema) isPrimitive_Arg() {}
 
 func (*Primitive_ArrowField) isPrimitive_Arg() {}
+
+func (*Primitive_ArrowType) isPrimitive_Arg() {}
 
 func (*Primitive_ListValue) isPrimitive_Arg() {}
 
@@ -418,7 +434,7 @@ var File_chalk_primitive_v1_primitive_proto protoreflect.FileDescriptor
 
 const file_chalk_primitive_v1_primitive_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/primitive/v1/primitive.proto\x12\x12chalk.primitive.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd5\x05\n" +
+	"\"chalk/primitive/v1/primitive.proto\x12\x12chalk.primitive.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x91\x06\n" +
 	"\tPrimitive\x12E\n" +
 	"\n" +
 	"null_value\x18\x01 \x01(\v2$.chalk.primitive.v1.PrimitiveNullOptH\x00R\tnullValue\x12\x1f\n" +
@@ -436,7 +452,9 @@ const file_chalk_primitive_v1_primitive_proto_rawDesc = "" +
 	"\farrow_schema\x18\n" +
 	" \x01(\v2\x16.chalk.arrow.v1.SchemaH\x00R\varrowSchema\x128\n" +
 	"\varrow_field\x18\v \x01(\v2\x15.chalk.arrow.v1.FieldH\x00R\n" +
-	"arrowField\x12B\n" +
+	"arrowField\x12:\n" +
+	"\n" +
+	"arrow_type\x18\x0e \x01(\v2\x19.chalk.arrow.v1.ArrowTypeH\x00R\tarrowType\x12B\n" +
 	"\n" +
 	"list_value\x18\f \x01(\v2!.chalk.primitive.v1.PrimitiveListH\x00R\tlistValue\x12^\n" +
 	"\x14unordered_dict_value\x18\r \x01(\v2*.chalk.primitive.v1.PrimitiveUnorderedDictH\x00R\x12unorderedDictValueB\x05\n" +
@@ -475,6 +493,7 @@ var file_chalk_primitive_v1_primitive_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
 	(*v1.Schema)(nil),              // 7: chalk.arrow.v1.Schema
 	(*v1.Field)(nil),               // 8: chalk.arrow.v1.Field
+	(*v1.ArrowType)(nil),           // 9: chalk.arrow.v1.ArrowType
 }
 var file_chalk_primitive_v1_primitive_proto_depIdxs = []int32{
 	1,  // 0: chalk.primitive.v1.Primitive.null_value:type_name -> chalk.primitive.v1.PrimitiveNullOpt
@@ -482,16 +501,17 @@ var file_chalk_primitive_v1_primitive_proto_depIdxs = []int32{
 	6,  // 2: chalk.primitive.v1.Primitive.timestamp_value:type_name -> google.protobuf.Timestamp
 	7,  // 3: chalk.primitive.v1.Primitive.arrow_schema:type_name -> chalk.arrow.v1.Schema
 	8,  // 4: chalk.primitive.v1.Primitive.arrow_field:type_name -> chalk.arrow.v1.Field
-	2,  // 5: chalk.primitive.v1.Primitive.list_value:type_name -> chalk.primitive.v1.PrimitiveList
-	3,  // 6: chalk.primitive.v1.Primitive.unordered_dict_value:type_name -> chalk.primitive.v1.PrimitiveUnorderedDict
-	0,  // 7: chalk.primitive.v1.PrimitiveList.values:type_name -> chalk.primitive.v1.Primitive
-	4,  // 8: chalk.primitive.v1.PrimitiveUnorderedDict.items:type_name -> chalk.primitive.v1.PrimitiveUnorderedDict.ItemsEntry
-	0,  // 9: chalk.primitive.v1.PrimitiveUnorderedDict.ItemsEntry.value:type_name -> chalk.primitive.v1.Primitive
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	9,  // 5: chalk.primitive.v1.Primitive.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	2,  // 6: chalk.primitive.v1.Primitive.list_value:type_name -> chalk.primitive.v1.PrimitiveList
+	3,  // 7: chalk.primitive.v1.Primitive.unordered_dict_value:type_name -> chalk.primitive.v1.PrimitiveUnorderedDict
+	0,  // 8: chalk.primitive.v1.PrimitiveList.values:type_name -> chalk.primitive.v1.Primitive
+	4,  // 9: chalk.primitive.v1.PrimitiveUnorderedDict.items:type_name -> chalk.primitive.v1.PrimitiveUnorderedDict.ItemsEntry
+	0,  // 10: chalk.primitive.v1.PrimitiveUnorderedDict.ItemsEntry.value:type_name -> chalk.primitive.v1.Primitive
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_chalk_primitive_v1_primitive_proto_init() }
@@ -511,6 +531,7 @@ func file_chalk_primitive_v1_primitive_proto_init() {
 		(*Primitive_TimestampValue)(nil),
 		(*Primitive_ArrowSchema)(nil),
 		(*Primitive_ArrowField)(nil),
+		(*Primitive_ArrowType)(nil),
 		(*Primitive_ListValue)(nil),
 		(*Primitive_UnorderedDictValue)(nil),
 	}

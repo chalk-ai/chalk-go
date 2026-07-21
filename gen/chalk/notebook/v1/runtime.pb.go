@@ -154,6 +154,7 @@ const (
 	NotebookOutputChunkKind_NOTEBOOK_OUTPUT_CHUNK_KIND_DATAFRAME   NotebookOutputChunkKind = 6
 	NotebookOutputChunkKind_NOTEBOOK_OUTPUT_CHUNK_KIND_STATUS      NotebookOutputChunkKind = 7
 	NotebookOutputChunkKind_NOTEBOOK_OUTPUT_CHUNK_KIND_VARIABLES   NotebookOutputChunkKind = 8
+	NotebookOutputChunkKind_NOTEBOOK_OUTPUT_CHUNK_KIND_CHART       NotebookOutputChunkKind = 9
 )
 
 // Enum value maps for NotebookOutputChunkKind.
@@ -168,6 +169,7 @@ var (
 		6: "NOTEBOOK_OUTPUT_CHUNK_KIND_DATAFRAME",
 		7: "NOTEBOOK_OUTPUT_CHUNK_KIND_STATUS",
 		8: "NOTEBOOK_OUTPUT_CHUNK_KIND_VARIABLES",
+		9: "NOTEBOOK_OUTPUT_CHUNK_KIND_CHART",
 	}
 	NotebookOutputChunkKind_value = map[string]int32{
 		"NOTEBOOK_OUTPUT_CHUNK_KIND_UNSPECIFIED": 0,
@@ -179,6 +181,7 @@ var (
 		"NOTEBOOK_OUTPUT_CHUNK_KIND_DATAFRAME":   6,
 		"NOTEBOOK_OUTPUT_CHUNK_KIND_STATUS":      7,
 		"NOTEBOOK_OUTPUT_CHUNK_KIND_VARIABLES":   8,
+		"NOTEBOOK_OUTPUT_CHUNK_KIND_CHART":       9,
 	}
 )
 
@@ -803,9 +806,69 @@ func (x *NotebookOutputBlobRef) GetContentSha256() string {
 	return ""
 }
 
+// Provenance for a SQL result served from cache. Presence on a dataframe
+// output signals a cache hit; there is deliberately no from_cache boolean.
+type NotebookSqlCacheInfo struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// When the warehouse actually executed the query (the freshness clock shown
+	// as the result-age indicator).
+	WarehouseExecutedAt *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=warehouse_executed_at,json=warehouseExecutedAt,proto3" json:"warehouse_executed_at,omitempty"`
+	// The prior cell run whose persisted result blob was copied into this run.
+	SourceCellRunId string `protobuf:"bytes,2,opt,name=source_cell_run_id,json=sourceCellRunId,proto3" json:"source_cell_run_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *NotebookSqlCacheInfo) Reset() {
+	*x = NotebookSqlCacheInfo{}
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookSqlCacheInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookSqlCacheInfo) ProtoMessage() {}
+
+func (x *NotebookSqlCacheInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookSqlCacheInfo.ProtoReflect.Descriptor instead.
+func (*NotebookSqlCacheInfo) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *NotebookSqlCacheInfo) GetWarehouseExecutedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.WarehouseExecutedAt
+	}
+	return nil
+}
+
+func (x *NotebookSqlCacheInfo) GetSourceCellRunId() string {
+	if x != nil {
+		return x.SourceCellRunId
+	}
+	return ""
+}
+
 type NotebookOutputDataframe struct {
 	state   protoimpl.MessageState          `protogen:"open.v1"`
 	Preview *NotebookOutputDataframePreview `protobuf:"bytes,1,opt,name=preview,proto3" json:"preview,omitempty"`
+	// Present iff this result was served from cache rather than executed.
+	// Persisted with the output chunk, so the age indicator survives reloads.
+	CacheInfo *NotebookSqlCacheInfo `protobuf:"bytes,2,opt,name=cache_info,json=cacheInfo,proto3" json:"cache_info,omitempty"`
 	// Types that are valid to be assigned to Backing:
 	//
 	//	*NotebookOutputDataframe_Inline
@@ -820,7 +883,7 @@ type NotebookOutputDataframe struct {
 
 func (x *NotebookOutputDataframe) Reset() {
 	*x = NotebookOutputDataframe{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[8]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -832,7 +895,7 @@ func (x *NotebookOutputDataframe) String() string {
 func (*NotebookOutputDataframe) ProtoMessage() {}
 
 func (x *NotebookOutputDataframe) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[8]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -845,12 +908,19 @@ func (x *NotebookOutputDataframe) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOutputDataframe.ProtoReflect.Descriptor instead.
 func (*NotebookOutputDataframe) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{8}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *NotebookOutputDataframe) GetPreview() *NotebookOutputDataframePreview {
 	if x != nil {
 		return x.Preview
+	}
+	return nil
+}
+
+func (x *NotebookOutputDataframe) GetCacheInfo() *NotebookSqlCacheInfo {
+	if x != nil {
+		return x.CacheInfo
 	}
 	return nil
 }
@@ -951,7 +1021,7 @@ type NotebookOutputText struct {
 
 func (x *NotebookOutputText) Reset() {
 	*x = NotebookOutputText{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[9]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -963,7 +1033,7 @@ func (x *NotebookOutputText) String() string {
 func (*NotebookOutputText) ProtoMessage() {}
 
 func (x *NotebookOutputText) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[9]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -976,7 +1046,7 @@ func (x *NotebookOutputText) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOutputText.ProtoReflect.Descriptor instead.
 func (*NotebookOutputText) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{9}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *NotebookOutputText) GetText() string {
@@ -993,6 +1063,80 @@ func (x *NotebookOutputText) GetMimeType() string {
 	return ""
 }
 
+// A chart produced by a cell (e.g. a plotly figure the kernel translated into
+// Chalk's chart format), tracked as a first-class output kind like dataframes.
+// The payload is the protojson encoding of chalk.chart.v3.TabularChart with
+// its Arrow data inline (base64 per protojson bytes rules). protojson rather
+// than a typed field keeps intermediate services pass-through: the chart is
+// produced by the in-kernel Python translator and consumed by the frontend
+// renderer; the kernel, orchestrator, and persistence treat it as opaque.
+type NotebookOutputChart struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// protojson-encoded chalk.chart.v3.TabularChart.
+	TabularChartJson string `protobuf:"bytes,1,opt,name=tabular_chart_json,json=tabularChartJson,proto3" json:"tabular_chart_json,omitempty"`
+	// The producing translator, e.g. "plotly" or "altair".
+	Source string `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	// A raw Vega-Lite spec (JSON with inline data) passed through untranslated,
+	// set instead of tabular_chart_json for sources whose native format IS a
+	// declarative spec (altair). The frontend translates a supported subset
+	// into a chalk chart and falls back to a vega renderer for the rest, so
+	// the kernel and intermediate services stay pass-through here too.
+	VegaLiteJson  string `protobuf:"bytes,3,opt,name=vega_lite_json,json=vegaLiteJson,proto3" json:"vega_lite_json,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookOutputChart) Reset() {
+	*x = NotebookOutputChart{}
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookOutputChart) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookOutputChart) ProtoMessage() {}
+
+func (x *NotebookOutputChart) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookOutputChart.ProtoReflect.Descriptor instead.
+func (*NotebookOutputChart) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *NotebookOutputChart) GetTabularChartJson() string {
+	if x != nil {
+		return x.TabularChartJson
+	}
+	return ""
+}
+
+func (x *NotebookOutputChart) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *NotebookOutputChart) GetVegaLiteJson() string {
+	if x != nil {
+		return x.VegaLiteJson
+	}
+	return ""
+}
+
 type NotebookOutputDisplay struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MimeType      string                 `protobuf:"bytes,1,opt,name=mime_type,json=mimeType,proto3" json:"mime_type,omitempty"`
@@ -1004,7 +1148,7 @@ type NotebookOutputDisplay struct {
 
 func (x *NotebookOutputDisplay) Reset() {
 	*x = NotebookOutputDisplay{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[10]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1016,7 +1160,7 @@ func (x *NotebookOutputDisplay) String() string {
 func (*NotebookOutputDisplay) ProtoMessage() {}
 
 func (x *NotebookOutputDisplay) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[10]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1029,7 +1173,7 @@ func (x *NotebookOutputDisplay) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOutputDisplay.ProtoReflect.Descriptor instead.
 func (*NotebookOutputDisplay) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{10}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *NotebookOutputDisplay) GetMimeType() string {
@@ -1063,7 +1207,7 @@ type NotebookPythonStackFrameContextLine struct {
 
 func (x *NotebookPythonStackFrameContextLine) Reset() {
 	*x = NotebookPythonStackFrameContextLine{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[11]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1075,7 +1219,7 @@ func (x *NotebookPythonStackFrameContextLine) String() string {
 func (*NotebookPythonStackFrameContextLine) ProtoMessage() {}
 
 func (x *NotebookPythonStackFrameContextLine) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[11]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1088,7 +1232,7 @@ func (x *NotebookPythonStackFrameContextLine) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use NotebookPythonStackFrameContextLine.ProtoReflect.Descriptor instead.
 func (*NotebookPythonStackFrameContextLine) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{11}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *NotebookPythonStackFrameContextLine) GetLine() int32 {
@@ -1120,7 +1264,7 @@ type NotebookPythonStackFrame struct {
 
 func (x *NotebookPythonStackFrame) Reset() {
 	*x = NotebookPythonStackFrame{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[12]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1132,7 +1276,7 @@ func (x *NotebookPythonStackFrame) String() string {
 func (*NotebookPythonStackFrame) ProtoMessage() {}
 
 func (x *NotebookPythonStackFrame) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[12]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1145,7 +1289,7 @@ func (x *NotebookPythonStackFrame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookPythonStackFrame.ProtoReflect.Descriptor instead.
 func (*NotebookPythonStackFrame) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{12}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *NotebookPythonStackFrame) GetFile() string {
@@ -1210,7 +1354,7 @@ type NotebookOutputError struct {
 
 func (x *NotebookOutputError) Reset() {
 	*x = NotebookOutputError{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[13]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1222,7 +1366,7 @@ func (x *NotebookOutputError) String() string {
 func (*NotebookOutputError) ProtoMessage() {}
 
 func (x *NotebookOutputError) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[13]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1235,7 +1379,7 @@ func (x *NotebookOutputError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOutputError.ProtoReflect.Descriptor instead.
 func (*NotebookOutputError) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{13}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *NotebookOutputError) GetErrorName() string {
@@ -1282,7 +1426,7 @@ type NotebookOutputStatus struct {
 
 func (x *NotebookOutputStatus) Reset() {
 	*x = NotebookOutputStatus{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[14]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1294,7 +1438,7 @@ func (x *NotebookOutputStatus) String() string {
 func (*NotebookOutputStatus) ProtoMessage() {}
 
 func (x *NotebookOutputStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[14]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1307,7 +1451,7 @@ func (x *NotebookOutputStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOutputStatus.ProtoReflect.Descriptor instead.
 func (*NotebookOutputStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{14}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *NotebookOutputStatus) GetText() string {
@@ -1344,7 +1488,7 @@ type NotebookOutputVariable struct {
 
 func (x *NotebookOutputVariable) Reset() {
 	*x = NotebookOutputVariable{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[15]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1356,7 +1500,7 @@ func (x *NotebookOutputVariable) String() string {
 func (*NotebookOutputVariable) ProtoMessage() {}
 
 func (x *NotebookOutputVariable) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[15]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1369,7 +1513,7 @@ func (x *NotebookOutputVariable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOutputVariable.ProtoReflect.Descriptor instead.
 func (*NotebookOutputVariable) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{15}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *NotebookOutputVariable) GetName() string {
@@ -1437,7 +1581,7 @@ type NotebookOutputVariables struct {
 
 func (x *NotebookOutputVariables) Reset() {
 	*x = NotebookOutputVariables{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[16]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1449,7 +1593,7 @@ func (x *NotebookOutputVariables) String() string {
 func (*NotebookOutputVariables) ProtoMessage() {}
 
 func (x *NotebookOutputVariables) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[16]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1462,7 +1606,7 @@ func (x *NotebookOutputVariables) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOutputVariables.ProtoReflect.Descriptor instead.
 func (*NotebookOutputVariables) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{16}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *NotebookOutputVariables) GetVariables() []*NotebookOutputVariable {
@@ -1486,6 +1630,12 @@ type NotebookOutputChunk struct {
 	ResultVariableName string                  `protobuf:"bytes,10,opt,name=result_variable_name,json=resultVariableName,proto3" json:"result_variable_name,omitempty"`
 	RowCount           int64                   `protobuf:"varint,11,opt,name=row_count,json=rowCount,proto3" json:"row_count,omitempty"`
 	CreatedAt          *timestamppb.Timestamp  `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Set only on chunks produced by evaluating a template expression
+	// (RunPythonCellSpec.template_expressions); carries that expression's key so
+	// renderers can place the value (or error) at its `{{ }}` site. Empty for
+	// ordinary cell output, including stdout printed *during* template
+	// evaluation — side-effect output is deliberately not attributed to a site.
+	ExpressionKey string `protobuf:"bytes,13,opt,name=expression_key,json=expressionKey,proto3" json:"expression_key,omitempty"`
 	// Types that are valid to be assigned to Payload:
 	//
 	//	*NotebookOutputChunk_TextOutput
@@ -1494,6 +1644,7 @@ type NotebookOutputChunk struct {
 	//	*NotebookOutputChunk_Dataframe
 	//	*NotebookOutputChunk_StatusOutput
 	//	*NotebookOutputChunk_Variables
+	//	*NotebookOutputChunk_Chart
 	Payload       isNotebookOutputChunk_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1501,7 +1652,7 @@ type NotebookOutputChunk struct {
 
 func (x *NotebookOutputChunk) Reset() {
 	*x = NotebookOutputChunk{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[17]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1513,7 +1664,7 @@ func (x *NotebookOutputChunk) String() string {
 func (*NotebookOutputChunk) ProtoMessage() {}
 
 func (x *NotebookOutputChunk) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[17]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1526,7 +1677,7 @@ func (x *NotebookOutputChunk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOutputChunk.ProtoReflect.Descriptor instead.
 func (*NotebookOutputChunk) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{17}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *NotebookOutputChunk) GetId() string {
@@ -1592,6 +1743,13 @@ func (x *NotebookOutputChunk) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *NotebookOutputChunk) GetExpressionKey() string {
+	if x != nil {
+		return x.ExpressionKey
+	}
+	return ""
+}
+
 func (x *NotebookOutputChunk) GetPayload() isNotebookOutputChunk_Payload {
 	if x != nil {
 		return x.Payload
@@ -1653,6 +1811,15 @@ func (x *NotebookOutputChunk) GetVariables() *NotebookOutputVariables {
 	return nil
 }
 
+func (x *NotebookOutputChunk) GetChart() *NotebookOutputChart {
+	if x != nil {
+		if x, ok := x.Payload.(*NotebookOutputChunk_Chart); ok {
+			return x.Chart
+		}
+	}
+	return nil
+}
+
 type isNotebookOutputChunk_Payload interface {
 	isNotebookOutputChunk_Payload()
 }
@@ -1681,6 +1848,10 @@ type NotebookOutputChunk_Variables struct {
 	Variables *NotebookOutputVariables `protobuf:"bytes,25,opt,name=variables,proto3,oneof"`
 }
 
+type NotebookOutputChunk_Chart struct {
+	Chart *NotebookOutputChart `protobuf:"bytes,26,opt,name=chart,proto3,oneof"`
+}
+
 func (*NotebookOutputChunk_TextOutput) isNotebookOutputChunk_Payload() {}
 
 func (*NotebookOutputChunk_Display) isNotebookOutputChunk_Payload() {}
@@ -1692,6 +1863,8 @@ func (*NotebookOutputChunk_Dataframe) isNotebookOutputChunk_Payload() {}
 func (*NotebookOutputChunk_StatusOutput) isNotebookOutputChunk_Payload() {}
 
 func (*NotebookOutputChunk_Variables) isNotebookOutputChunk_Payload() {}
+
+func (*NotebookOutputChunk_Chart) isNotebookOutputChunk_Payload() {}
 
 type NotebookRunEvent struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
@@ -1713,7 +1886,7 @@ type NotebookRunEvent struct {
 
 func (x *NotebookRunEvent) Reset() {
 	*x = NotebookRunEvent{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[18]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1725,7 +1898,7 @@ func (x *NotebookRunEvent) String() string {
 func (*NotebookRunEvent) ProtoMessage() {}
 
 func (x *NotebookRunEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[18]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1738,7 +1911,7 @@ func (x *NotebookRunEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookRunEvent.ProtoReflect.Descriptor instead.
 func (*NotebookRunEvent) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{18}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *NotebookRunEvent) GetRunId() string {
@@ -1821,7 +1994,7 @@ type NotebookCellResult struct {
 
 func (x *NotebookCellResult) Reset() {
 	*x = NotebookCellResult{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[19]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1833,7 +2006,7 @@ func (x *NotebookCellResult) String() string {
 func (*NotebookCellResult) ProtoMessage() {}
 
 func (x *NotebookCellResult) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[19]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1846,7 +2019,7 @@ func (x *NotebookCellResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookCellResult.ProtoReflect.Descriptor instead.
 func (*NotebookCellResult) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{19}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *NotebookCellResult) GetNotebookId() string {
@@ -1933,7 +2106,7 @@ type NotebookRunSummary struct {
 
 func (x *NotebookRunSummary) Reset() {
 	*x = NotebookRunSummary{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[20]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1945,7 +2118,7 @@ func (x *NotebookRunSummary) String() string {
 func (*NotebookRunSummary) ProtoMessage() {}
 
 func (x *NotebookRunSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[20]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1958,7 +2131,7 @@ func (x *NotebookRunSummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookRunSummary.ProtoReflect.Descriptor instead.
 func (*NotebookRunSummary) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{20}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *NotebookRunSummary) GetRunId() string {
@@ -2053,7 +2226,7 @@ type NotebookCellRunHistoryEntry struct {
 
 func (x *NotebookCellRunHistoryEntry) Reset() {
 	*x = NotebookCellRunHistoryEntry{}
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[21]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2065,7 +2238,7 @@ func (x *NotebookCellRunHistoryEntry) String() string {
 func (*NotebookCellRunHistoryEntry) ProtoMessage() {}
 
 func (x *NotebookCellRunHistoryEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[21]
+	mi := &file_chalk_notebook_v1_runtime_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2078,7 +2251,7 @@ func (x *NotebookCellRunHistoryEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookCellRunHistoryEntry.ProtoReflect.Descriptor instead.
 func (*NotebookCellRunHistoryEntry) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{21}
+	return file_chalk_notebook_v1_runtime_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *NotebookCellRunHistoryEntry) GetNotebookId() string {
@@ -2215,9 +2388,14 @@ const file_chalk_notebook_v1_runtime_proto_rawDesc = "" +
 	"\x06format\x18\x02 \x01(\tR\x06format\x12!\n" +
 	"\fcontent_type\x18\x03 \x01(\tR\vcontentType\x12\x1b\n" +
 	"\tbyte_size\x18\x04 \x01(\x03R\bbyteSize\x12%\n" +
-	"\x0econtent_sha256\x18\x05 \x01(\tR\rcontentSha256\"\xfc\x03\n" +
+	"\x0econtent_sha256\x18\x05 \x01(\tR\rcontentSha256\"\x93\x01\n" +
+	"\x14NotebookSqlCacheInfo\x12N\n" +
+	"\x15warehouse_executed_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x13warehouseExecutedAt\x12+\n" +
+	"\x12source_cell_run_id\x18\x02 \x01(\tR\x0fsourceCellRunId\"\xc4\x04\n" +
 	"\x17NotebookOutputDataframe\x12K\n" +
-	"\apreview\x18\x01 \x01(\v21.chalk.notebook.v1.NotebookOutputDataframePreviewR\apreview\x12J\n" +
+	"\apreview\x18\x01 \x01(\v21.chalk.notebook.v1.NotebookOutputDataframePreviewR\apreview\x12F\n" +
+	"\n" +
+	"cache_info\x18\x02 \x01(\v2'.chalk.notebook.v1.NotebookSqlCacheInfoR\tcacheInfo\x12J\n" +
 	"\x06inline\x18\n" +
 	" \x01(\v20.chalk.notebook.v1.NotebookOutputInlineDataframeH\x00R\x06inline\x12T\n" +
 	"\x0edataset_output\x18\v \x01(\v2+.chalk.notebook.v1.NotebookOutputDatasetRefH\x00R\rdatasetOutput\x12N\n" +
@@ -2228,7 +2406,11 @@ const file_chalk_notebook_v1_runtime_proto_rawDesc = "" +
 	"\abacking\"E\n" +
 	"\x12NotebookOutputText\x12\x12\n" +
 	"\x04text\x18\x01 \x01(\tR\x04text\x12\x1b\n" +
-	"\tmime_type\x18\x02 \x01(\tR\bmimeType\"\\\n" +
+	"\tmime_type\x18\x02 \x01(\tR\bmimeType\"\x81\x01\n" +
+	"\x13NotebookOutputChart\x12,\n" +
+	"\x12tabular_chart_json\x18\x01 \x01(\tR\x10tabularChartJson\x12\x16\n" +
+	"\x06source\x18\x02 \x01(\tR\x06source\x12$\n" +
+	"\x0evega_lite_json\x18\x03 \x01(\tR\fvegaLiteJson\"\\\n" +
 	"\x15NotebookOutputDisplay\x12\x1b\n" +
 	"\tmime_type\x18\x01 \x01(\tR\bmimeType\x12\x12\n" +
 	"\x04data\x18\x02 \x01(\tR\x04data\x12\x12\n" +
@@ -2271,7 +2453,7 @@ const file_chalk_notebook_v1_runtime_proto_rawDesc = "" +
 	"\x11dataframe_preview\x18\b \x01(\v21.chalk.notebook.v1.NotebookOutputDataframePreviewR\x10dataframePreviewB\x0f\n" +
 	"\r_scalar_value\"b\n" +
 	"\x17NotebookOutputVariables\x12G\n" +
-	"\tvariables\x18\x01 \x03(\v2).chalk.notebook.v1.NotebookOutputVariableR\tvariables\"\x9e\x06\n" +
+	"\tvariables\x18\x01 \x03(\v2).chalk.notebook.v1.NotebookOutputVariableR\tvariables\"\x85\a\n" +
 	"\x13NotebookOutputChunk\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x1e\n" +
@@ -2283,14 +2465,16 @@ const file_chalk_notebook_v1_runtime_proto_rawDesc = "" +
 	" \x01(\tR\x12resultVariableName\x12\x1b\n" +
 	"\trow_count\x18\v \x01(\x03R\browCount\x129\n" +
 	"\n" +
-	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12H\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12%\n" +
+	"\x0eexpression_key\x18\r \x01(\tR\rexpressionKey\x12H\n" +
 	"\vtext_output\x18\x14 \x01(\v2%.chalk.notebook.v1.NotebookOutputTextH\x00R\n" +
 	"textOutput\x12D\n" +
 	"\adisplay\x18\x15 \x01(\v2(.chalk.notebook.v1.NotebookOutputDisplayH\x00R\adisplay\x12>\n" +
 	"\x05error\x18\x16 \x01(\v2&.chalk.notebook.v1.NotebookOutputErrorH\x00R\x05error\x12J\n" +
 	"\tdataframe\x18\x17 \x01(\v2*.chalk.notebook.v1.NotebookOutputDataframeH\x00R\tdataframe\x12N\n" +
 	"\rstatus_output\x18\x18 \x01(\v2'.chalk.notebook.v1.NotebookOutputStatusH\x00R\fstatusOutput\x12J\n" +
-	"\tvariables\x18\x19 \x01(\v2*.chalk.notebook.v1.NotebookOutputVariablesH\x00R\tvariablesB\t\n" +
+	"\tvariables\x18\x19 \x01(\v2*.chalk.notebook.v1.NotebookOutputVariablesH\x00R\tvariables\x12>\n" +
+	"\x05chart\x18\x1a \x01(\v2&.chalk.notebook.v1.NotebookOutputChartH\x00R\x05chartB\t\n" +
 	"\apayload\"\xaa\x03\n" +
 	"\x10NotebookRunEvent\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x1e\n" +
@@ -2368,7 +2552,7 @@ const file_chalk_notebook_v1_runtime_proto_rawDesc = "" +
 	"$NOTEBOOK_RUN_EVENT_TYPE_CELL_STARTED\x10\x03\x12(\n" +
 	"$NOTEBOOK_RUN_EVENT_TYPE_OUTPUT_CHUNK\x10\x04\x12)\n" +
 	"%NOTEBOOK_RUN_EVENT_TYPE_CELL_FINISHED\x10\x05\x12(\n" +
-	"$NOTEBOOK_RUN_EVENT_TYPE_RUN_FINISHED\x10\x06*\x83\x03\n" +
+	"$NOTEBOOK_RUN_EVENT_TYPE_RUN_FINISHED\x10\x06*\xa9\x03\n" +
 	"\x17NotebookOutputChunkKind\x12*\n" +
 	"&NOTEBOOK_OUTPUT_CHUNK_KIND_UNSPECIFIED\x10\x00\x12%\n" +
 	"!NOTEBOOK_OUTPUT_CHUNK_KIND_STDOUT\x10\x01\x12%\n" +
@@ -2378,7 +2562,8 @@ const file_chalk_notebook_v1_runtime_proto_rawDesc = "" +
 	" NOTEBOOK_OUTPUT_CHUNK_KIND_ERROR\x10\x05\x12(\n" +
 	"$NOTEBOOK_OUTPUT_CHUNK_KIND_DATAFRAME\x10\x06\x12%\n" +
 	"!NOTEBOOK_OUTPUT_CHUNK_KIND_STATUS\x10\a\x12(\n" +
-	"$NOTEBOOK_OUTPUT_CHUNK_KIND_VARIABLES\x10\b*\xdf\x02\n" +
+	"$NOTEBOOK_OUTPUT_CHUNK_KIND_VARIABLES\x10\b\x12$\n" +
+	" NOTEBOOK_OUTPUT_CHUNK_KIND_CHART\x10\t*\xdf\x02\n" +
 	"\x14NotebookVariableKind\x12&\n" +
 	"\"NOTEBOOK_VARIABLE_KIND_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dNOTEBOOK_VARIABLE_KIND_SCALAR\x10\x01\x12%\n" +
@@ -2404,7 +2589,7 @@ func file_chalk_notebook_v1_runtime_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_notebook_v1_runtime_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chalk_notebook_v1_runtime_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_chalk_notebook_v1_runtime_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_chalk_notebook_v1_runtime_proto_goTypes = []any{
 	(NotebookRunStatus)(0),                      // 0: chalk.notebook.v1.NotebookRunStatus
 	(NotebookRunEventType)(0),                   // 1: chalk.notebook.v1.NotebookRunEventType
@@ -2418,68 +2603,73 @@ var file_chalk_notebook_v1_runtime_proto_goTypes = []any{
 	(*NotebookOutputSqlResultRef)(nil),          // 9: chalk.notebook.v1.NotebookOutputSqlResultRef
 	(*NotebookOutputPythonObjectRef)(nil),       // 10: chalk.notebook.v1.NotebookOutputPythonObjectRef
 	(*NotebookOutputBlobRef)(nil),               // 11: chalk.notebook.v1.NotebookOutputBlobRef
-	(*NotebookOutputDataframe)(nil),             // 12: chalk.notebook.v1.NotebookOutputDataframe
-	(*NotebookOutputText)(nil),                  // 13: chalk.notebook.v1.NotebookOutputText
-	(*NotebookOutputDisplay)(nil),               // 14: chalk.notebook.v1.NotebookOutputDisplay
-	(*NotebookPythonStackFrameContextLine)(nil), // 15: chalk.notebook.v1.NotebookPythonStackFrameContextLine
-	(*NotebookPythonStackFrame)(nil),            // 16: chalk.notebook.v1.NotebookPythonStackFrame
-	(*NotebookOutputError)(nil),                 // 17: chalk.notebook.v1.NotebookOutputError
-	(*NotebookOutputStatus)(nil),                // 18: chalk.notebook.v1.NotebookOutputStatus
-	(*NotebookOutputVariable)(nil),              // 19: chalk.notebook.v1.NotebookOutputVariable
-	(*NotebookOutputVariables)(nil),             // 20: chalk.notebook.v1.NotebookOutputVariables
-	(*NotebookOutputChunk)(nil),                 // 21: chalk.notebook.v1.NotebookOutputChunk
-	(*NotebookRunEvent)(nil),                    // 22: chalk.notebook.v1.NotebookRunEvent
-	(*NotebookCellResult)(nil),                  // 23: chalk.notebook.v1.NotebookCellResult
-	(*NotebookRunSummary)(nil),                  // 24: chalk.notebook.v1.NotebookRunSummary
-	(*NotebookCellRunHistoryEntry)(nil),         // 25: chalk.notebook.v1.NotebookCellRunHistoryEntry
-	(*v1.ScalarValue)(nil),                      // 26: chalk.arrow.v1.ScalarValue
-	(*timestamppb.Timestamp)(nil),               // 27: google.protobuf.Timestamp
+	(*NotebookSqlCacheInfo)(nil),                // 12: chalk.notebook.v1.NotebookSqlCacheInfo
+	(*NotebookOutputDataframe)(nil),             // 13: chalk.notebook.v1.NotebookOutputDataframe
+	(*NotebookOutputText)(nil),                  // 14: chalk.notebook.v1.NotebookOutputText
+	(*NotebookOutputChart)(nil),                 // 15: chalk.notebook.v1.NotebookOutputChart
+	(*NotebookOutputDisplay)(nil),               // 16: chalk.notebook.v1.NotebookOutputDisplay
+	(*NotebookPythonStackFrameContextLine)(nil), // 17: chalk.notebook.v1.NotebookPythonStackFrameContextLine
+	(*NotebookPythonStackFrame)(nil),            // 18: chalk.notebook.v1.NotebookPythonStackFrame
+	(*NotebookOutputError)(nil),                 // 19: chalk.notebook.v1.NotebookOutputError
+	(*NotebookOutputStatus)(nil),                // 20: chalk.notebook.v1.NotebookOutputStatus
+	(*NotebookOutputVariable)(nil),              // 21: chalk.notebook.v1.NotebookOutputVariable
+	(*NotebookOutputVariables)(nil),             // 22: chalk.notebook.v1.NotebookOutputVariables
+	(*NotebookOutputChunk)(nil),                 // 23: chalk.notebook.v1.NotebookOutputChunk
+	(*NotebookRunEvent)(nil),                    // 24: chalk.notebook.v1.NotebookRunEvent
+	(*NotebookCellResult)(nil),                  // 25: chalk.notebook.v1.NotebookCellResult
+	(*NotebookRunSummary)(nil),                  // 26: chalk.notebook.v1.NotebookRunSummary
+	(*NotebookCellRunHistoryEntry)(nil),         // 27: chalk.notebook.v1.NotebookCellRunHistoryEntry
+	(*timestamppb.Timestamp)(nil),               // 28: google.protobuf.Timestamp
+	(*v1.ScalarValue)(nil),                      // 29: chalk.arrow.v1.ScalarValue
 }
 var file_chalk_notebook_v1_runtime_proto_depIdxs = []int32{
 	4,  // 0: chalk.notebook.v1.NotebookOutputDataframePreview.columns:type_name -> chalk.notebook.v1.NotebookOutputDataframeColumn
 	4,  // 1: chalk.notebook.v1.NotebookOutputInlineDataframe.columns:type_name -> chalk.notebook.v1.NotebookOutputDataframeColumn
 	7,  // 2: chalk.notebook.v1.NotebookOutputDatasetRef.revisions:type_name -> chalk.notebook.v1.NotebookOutputDatasetRevisionRef
-	5,  // 3: chalk.notebook.v1.NotebookOutputDataframe.preview:type_name -> chalk.notebook.v1.NotebookOutputDataframePreview
-	6,  // 4: chalk.notebook.v1.NotebookOutputDataframe.inline:type_name -> chalk.notebook.v1.NotebookOutputInlineDataframe
-	8,  // 5: chalk.notebook.v1.NotebookOutputDataframe.dataset_output:type_name -> chalk.notebook.v1.NotebookOutputDatasetRef
-	9,  // 6: chalk.notebook.v1.NotebookOutputDataframe.sql_result:type_name -> chalk.notebook.v1.NotebookOutputSqlResultRef
-	10, // 7: chalk.notebook.v1.NotebookOutputDataframe.python_object:type_name -> chalk.notebook.v1.NotebookOutputPythonObjectRef
-	11, // 8: chalk.notebook.v1.NotebookOutputDataframe.blob:type_name -> chalk.notebook.v1.NotebookOutputBlobRef
-	15, // 9: chalk.notebook.v1.NotebookPythonStackFrame.context_lines:type_name -> chalk.notebook.v1.NotebookPythonStackFrameContextLine
-	16, // 10: chalk.notebook.v1.NotebookOutputError.stack_frames:type_name -> chalk.notebook.v1.NotebookPythonStackFrame
-	26, // 11: chalk.notebook.v1.NotebookOutputVariable.scalar_value:type_name -> chalk.arrow.v1.ScalarValue
-	3,  // 12: chalk.notebook.v1.NotebookOutputVariable.variable_kind:type_name -> chalk.notebook.v1.NotebookVariableKind
-	5,  // 13: chalk.notebook.v1.NotebookOutputVariable.dataframe_preview:type_name -> chalk.notebook.v1.NotebookOutputDataframePreview
-	19, // 14: chalk.notebook.v1.NotebookOutputVariables.variables:type_name -> chalk.notebook.v1.NotebookOutputVariable
-	2,  // 15: chalk.notebook.v1.NotebookOutputChunk.kind:type_name -> chalk.notebook.v1.NotebookOutputChunkKind
-	27, // 16: chalk.notebook.v1.NotebookOutputChunk.created_at:type_name -> google.protobuf.Timestamp
-	13, // 17: chalk.notebook.v1.NotebookOutputChunk.text_output:type_name -> chalk.notebook.v1.NotebookOutputText
-	14, // 18: chalk.notebook.v1.NotebookOutputChunk.display:type_name -> chalk.notebook.v1.NotebookOutputDisplay
-	17, // 19: chalk.notebook.v1.NotebookOutputChunk.error:type_name -> chalk.notebook.v1.NotebookOutputError
-	12, // 20: chalk.notebook.v1.NotebookOutputChunk.dataframe:type_name -> chalk.notebook.v1.NotebookOutputDataframe
-	18, // 21: chalk.notebook.v1.NotebookOutputChunk.status_output:type_name -> chalk.notebook.v1.NotebookOutputStatus
-	20, // 22: chalk.notebook.v1.NotebookOutputChunk.variables:type_name -> chalk.notebook.v1.NotebookOutputVariables
-	1,  // 23: chalk.notebook.v1.NotebookRunEvent.event_type:type_name -> chalk.notebook.v1.NotebookRunEventType
-	0,  // 24: chalk.notebook.v1.NotebookRunEvent.status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	27, // 25: chalk.notebook.v1.NotebookRunEvent.occurred_at:type_name -> google.protobuf.Timestamp
-	21, // 26: chalk.notebook.v1.NotebookRunEvent.output:type_name -> chalk.notebook.v1.NotebookOutputChunk
-	0,  // 27: chalk.notebook.v1.NotebookCellResult.status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	27, // 28: chalk.notebook.v1.NotebookCellResult.started_at:type_name -> google.protobuf.Timestamp
-	27, // 29: chalk.notebook.v1.NotebookCellResult.finished_at:type_name -> google.protobuf.Timestamp
-	21, // 30: chalk.notebook.v1.NotebookCellResult.outputs:type_name -> chalk.notebook.v1.NotebookOutputChunk
-	0,  // 31: chalk.notebook.v1.NotebookRunSummary.status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	27, // 32: chalk.notebook.v1.NotebookRunSummary.created_at:type_name -> google.protobuf.Timestamp
-	27, // 33: chalk.notebook.v1.NotebookRunSummary.started_at:type_name -> google.protobuf.Timestamp
-	27, // 34: chalk.notebook.v1.NotebookRunSummary.finished_at:type_name -> google.protobuf.Timestamp
-	0,  // 35: chalk.notebook.v1.NotebookCellRunHistoryEntry.status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	27, // 36: chalk.notebook.v1.NotebookCellRunHistoryEntry.started_at:type_name -> google.protobuf.Timestamp
-	27, // 37: chalk.notebook.v1.NotebookCellRunHistoryEntry.finished_at:type_name -> google.protobuf.Timestamp
-	27, // 38: chalk.notebook.v1.NotebookCellRunHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
-	39, // [39:39] is the sub-list for method output_type
-	39, // [39:39] is the sub-list for method input_type
-	39, // [39:39] is the sub-list for extension type_name
-	39, // [39:39] is the sub-list for extension extendee
-	0,  // [0:39] is the sub-list for field type_name
+	28, // 3: chalk.notebook.v1.NotebookSqlCacheInfo.warehouse_executed_at:type_name -> google.protobuf.Timestamp
+	5,  // 4: chalk.notebook.v1.NotebookOutputDataframe.preview:type_name -> chalk.notebook.v1.NotebookOutputDataframePreview
+	12, // 5: chalk.notebook.v1.NotebookOutputDataframe.cache_info:type_name -> chalk.notebook.v1.NotebookSqlCacheInfo
+	6,  // 6: chalk.notebook.v1.NotebookOutputDataframe.inline:type_name -> chalk.notebook.v1.NotebookOutputInlineDataframe
+	8,  // 7: chalk.notebook.v1.NotebookOutputDataframe.dataset_output:type_name -> chalk.notebook.v1.NotebookOutputDatasetRef
+	9,  // 8: chalk.notebook.v1.NotebookOutputDataframe.sql_result:type_name -> chalk.notebook.v1.NotebookOutputSqlResultRef
+	10, // 9: chalk.notebook.v1.NotebookOutputDataframe.python_object:type_name -> chalk.notebook.v1.NotebookOutputPythonObjectRef
+	11, // 10: chalk.notebook.v1.NotebookOutputDataframe.blob:type_name -> chalk.notebook.v1.NotebookOutputBlobRef
+	17, // 11: chalk.notebook.v1.NotebookPythonStackFrame.context_lines:type_name -> chalk.notebook.v1.NotebookPythonStackFrameContextLine
+	18, // 12: chalk.notebook.v1.NotebookOutputError.stack_frames:type_name -> chalk.notebook.v1.NotebookPythonStackFrame
+	29, // 13: chalk.notebook.v1.NotebookOutputVariable.scalar_value:type_name -> chalk.arrow.v1.ScalarValue
+	3,  // 14: chalk.notebook.v1.NotebookOutputVariable.variable_kind:type_name -> chalk.notebook.v1.NotebookVariableKind
+	5,  // 15: chalk.notebook.v1.NotebookOutputVariable.dataframe_preview:type_name -> chalk.notebook.v1.NotebookOutputDataframePreview
+	21, // 16: chalk.notebook.v1.NotebookOutputVariables.variables:type_name -> chalk.notebook.v1.NotebookOutputVariable
+	2,  // 17: chalk.notebook.v1.NotebookOutputChunk.kind:type_name -> chalk.notebook.v1.NotebookOutputChunkKind
+	28, // 18: chalk.notebook.v1.NotebookOutputChunk.created_at:type_name -> google.protobuf.Timestamp
+	14, // 19: chalk.notebook.v1.NotebookOutputChunk.text_output:type_name -> chalk.notebook.v1.NotebookOutputText
+	16, // 20: chalk.notebook.v1.NotebookOutputChunk.display:type_name -> chalk.notebook.v1.NotebookOutputDisplay
+	19, // 21: chalk.notebook.v1.NotebookOutputChunk.error:type_name -> chalk.notebook.v1.NotebookOutputError
+	13, // 22: chalk.notebook.v1.NotebookOutputChunk.dataframe:type_name -> chalk.notebook.v1.NotebookOutputDataframe
+	20, // 23: chalk.notebook.v1.NotebookOutputChunk.status_output:type_name -> chalk.notebook.v1.NotebookOutputStatus
+	22, // 24: chalk.notebook.v1.NotebookOutputChunk.variables:type_name -> chalk.notebook.v1.NotebookOutputVariables
+	15, // 25: chalk.notebook.v1.NotebookOutputChunk.chart:type_name -> chalk.notebook.v1.NotebookOutputChart
+	1,  // 26: chalk.notebook.v1.NotebookRunEvent.event_type:type_name -> chalk.notebook.v1.NotebookRunEventType
+	0,  // 27: chalk.notebook.v1.NotebookRunEvent.status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	28, // 28: chalk.notebook.v1.NotebookRunEvent.occurred_at:type_name -> google.protobuf.Timestamp
+	23, // 29: chalk.notebook.v1.NotebookRunEvent.output:type_name -> chalk.notebook.v1.NotebookOutputChunk
+	0,  // 30: chalk.notebook.v1.NotebookCellResult.status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	28, // 31: chalk.notebook.v1.NotebookCellResult.started_at:type_name -> google.protobuf.Timestamp
+	28, // 32: chalk.notebook.v1.NotebookCellResult.finished_at:type_name -> google.protobuf.Timestamp
+	23, // 33: chalk.notebook.v1.NotebookCellResult.outputs:type_name -> chalk.notebook.v1.NotebookOutputChunk
+	0,  // 34: chalk.notebook.v1.NotebookRunSummary.status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	28, // 35: chalk.notebook.v1.NotebookRunSummary.created_at:type_name -> google.protobuf.Timestamp
+	28, // 36: chalk.notebook.v1.NotebookRunSummary.started_at:type_name -> google.protobuf.Timestamp
+	28, // 37: chalk.notebook.v1.NotebookRunSummary.finished_at:type_name -> google.protobuf.Timestamp
+	0,  // 38: chalk.notebook.v1.NotebookCellRunHistoryEntry.status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	28, // 39: chalk.notebook.v1.NotebookCellRunHistoryEntry.started_at:type_name -> google.protobuf.Timestamp
+	28, // 40: chalk.notebook.v1.NotebookCellRunHistoryEntry.finished_at:type_name -> google.protobuf.Timestamp
+	28, // 41: chalk.notebook.v1.NotebookCellRunHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
+	42, // [42:42] is the sub-list for method output_type
+	42, // [42:42] is the sub-list for method input_type
+	42, // [42:42] is the sub-list for extension type_name
+	42, // [42:42] is the sub-list for extension extendee
+	0,  // [0:42] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_runtime_proto_init() }
@@ -2487,22 +2677,23 @@ func file_chalk_notebook_v1_runtime_proto_init() {
 	if File_chalk_notebook_v1_runtime_proto != nil {
 		return
 	}
-	file_chalk_notebook_v1_runtime_proto_msgTypes[8].OneofWrappers = []any{
+	file_chalk_notebook_v1_runtime_proto_msgTypes[9].OneofWrappers = []any{
 		(*NotebookOutputDataframe_Inline)(nil),
 		(*NotebookOutputDataframe_DatasetOutput)(nil),
 		(*NotebookOutputDataframe_SqlResult)(nil),
 		(*NotebookOutputDataframe_PythonObject)(nil),
 		(*NotebookOutputDataframe_Blob)(nil),
 	}
-	file_chalk_notebook_v1_runtime_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_notebook_v1_runtime_proto_msgTypes[15].OneofWrappers = []any{}
-	file_chalk_notebook_v1_runtime_proto_msgTypes[17].OneofWrappers = []any{
+	file_chalk_notebook_v1_runtime_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_notebook_v1_runtime_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_notebook_v1_runtime_proto_msgTypes[19].OneofWrappers = []any{
 		(*NotebookOutputChunk_TextOutput)(nil),
 		(*NotebookOutputChunk_Display)(nil),
 		(*NotebookOutputChunk_Error)(nil),
 		(*NotebookOutputChunk_Dataframe)(nil),
 		(*NotebookOutputChunk_StatusOutput)(nil),
 		(*NotebookOutputChunk_Variables)(nil),
+		(*NotebookOutputChunk_Chart)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2510,7 +2701,7 @@ func file_chalk_notebook_v1_runtime_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_notebook_v1_runtime_proto_rawDesc), len(file_chalk_notebook_v1_runtime_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   22,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

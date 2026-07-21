@@ -52,6 +52,15 @@ const (
 	// OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure is the fully-qualified name of
 	// the OfflineQueryMetadataService's GetOfflineQueryProfileSummary RPC.
 	OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetOfflineQueryProfileSummary"
+	// OfflineQueryMetadataServiceGetOfflineQueryUtilizationSummariesProcedure is the fully-qualified
+	// name of the OfflineQueryMetadataService's GetOfflineQueryUtilizationSummaries RPC.
+	OfflineQueryMetadataServiceGetOfflineQueryUtilizationSummariesProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetOfflineQueryUtilizationSummaries"
+	// OfflineQueryMetadataServiceGetResourceGroupUtilizationTimeseriesProcedure is the fully-qualified
+	// name of the OfflineQueryMetadataService's GetResourceGroupUtilizationTimeseries RPC.
+	OfflineQueryMetadataServiceGetResourceGroupUtilizationTimeseriesProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetResourceGroupUtilizationTimeseries"
+	// OfflineQueryMetadataServiceGetResourceGroupJobTimeseriesProcedure is the fully-qualified name of
+	// the OfflineQueryMetadataService's GetResourceGroupJobTimeseries RPC.
+	OfflineQueryMetadataServiceGetResourceGroupJobTimeseriesProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetResourceGroupJobTimeseries"
 	// OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure is the
 	// fully-qualified name of the OfflineQueryMetadataService's
 	// ListOfflineQueryShardPerformanceSummaries RPC.
@@ -88,6 +97,9 @@ type OfflineQueryMetadataServiceClient interface {
 	GetOfflineQueryShardsAggregated(context.Context, *connect.Request[v1.GetOfflineQueryShardsAggregatedRequest]) (*connect.Response[v1.GetOfflineQueryShardsAggregatedResponse], error)
 	GetOfflineQueryInfraSummary(context.Context, *connect.Request[v1.GetOfflineQueryInfraSummaryRequest]) (*connect.Response[v1.GetOfflineQueryInfraSummaryResponse], error)
 	GetOfflineQueryProfileSummary(context.Context, *connect.Request[v1.GetOfflineQueryProfileSummaryRequest]) (*connect.Response[v1.GetOfflineQueryProfileSummaryResponse], error)
+	GetOfflineQueryUtilizationSummaries(context.Context, *connect.Request[v1.GetOfflineQueryUtilizationSummariesRequest]) (*connect.Response[v1.GetOfflineQueryUtilizationSummariesResponse], error)
+	GetResourceGroupUtilizationTimeseries(context.Context, *connect.Request[v1.GetResourceGroupUtilizationTimeseriesRequest]) (*connect.Response[v1.GetResourceGroupUtilizationTimeseriesResponse], error)
+	GetResourceGroupJobTimeseries(context.Context, *connect.Request[v1.GetResourceGroupJobTimeseriesRequest]) (*connect.Response[v1.GetResourceGroupJobTimeseriesResponse], error)
 	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
 	CreateOfflineQueryJob(context.Context, *connect.Request[v1.CreateOfflineQueryJobRequest]) (*connect.Response[v1.CreateOfflineQueryJobResponse], error)
 	// Deprecated: do not use.
@@ -153,6 +165,27 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getOfflineQueryUtilizationSummaries: connect.NewClient[v1.GetOfflineQueryUtilizationSummariesRequest, v1.GetOfflineQueryUtilizationSummariesResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceGetOfflineQueryUtilizationSummariesProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryUtilizationSummaries")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getResourceGroupUtilizationTimeseries: connect.NewClient[v1.GetResourceGroupUtilizationTimeseriesRequest, v1.GetResourceGroupUtilizationTimeseriesResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceGetResourceGroupUtilizationTimeseriesProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetResourceGroupUtilizationTimeseries")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getResourceGroupJobTimeseries: connect.NewClient[v1.GetResourceGroupJobTimeseriesRequest, v1.GetResourceGroupJobTimeseriesResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceGetResourceGroupJobTimeseriesProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetResourceGroupJobTimeseries")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		listOfflineQueryShardPerformanceSummaries: connect.NewClient[v1.ListOfflineQueryShardPerformanceSummariesRequest, v1.ListOfflineQueryShardPerformanceSummariesResponse](
 			httpClient,
 			baseURL+OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure,
@@ -215,6 +248,9 @@ type offlineQueryMetadataServiceClient struct {
 	getOfflineQueryShardsAggregated           *connect.Client[v1.GetOfflineQueryShardsAggregatedRequest, v1.GetOfflineQueryShardsAggregatedResponse]
 	getOfflineQueryInfraSummary               *connect.Client[v1.GetOfflineQueryInfraSummaryRequest, v1.GetOfflineQueryInfraSummaryResponse]
 	getOfflineQueryProfileSummary             *connect.Client[v1.GetOfflineQueryProfileSummaryRequest, v1.GetOfflineQueryProfileSummaryResponse]
+	getOfflineQueryUtilizationSummaries       *connect.Client[v1.GetOfflineQueryUtilizationSummariesRequest, v1.GetOfflineQueryUtilizationSummariesResponse]
+	getResourceGroupUtilizationTimeseries     *connect.Client[v1.GetResourceGroupUtilizationTimeseriesRequest, v1.GetResourceGroupUtilizationTimeseriesResponse]
+	getResourceGroupJobTimeseries             *connect.Client[v1.GetResourceGroupJobTimeseriesRequest, v1.GetResourceGroupJobTimeseriesResponse]
 	listOfflineQueryShardPerformanceSummaries *connect.Client[v1.ListOfflineQueryShardPerformanceSummariesRequest, v1.ListOfflineQueryShardPerformanceSummariesResponse]
 	createOfflineQueryJob                     *connect.Client[v1.CreateOfflineQueryJobRequest, v1.CreateOfflineQueryJobResponse]
 	createModelTrainingJob                    *connect.Client[v1.CreateModelTrainingJobRequest, v1.CreateModelTrainingJobResponse]
@@ -256,6 +292,24 @@ func (c *offlineQueryMetadataServiceClient) GetOfflineQueryInfraSummary(ctx cont
 // chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary.
 func (c *offlineQueryMetadataServiceClient) GetOfflineQueryProfileSummary(ctx context.Context, req *connect.Request[v1.GetOfflineQueryProfileSummaryRequest]) (*connect.Response[v1.GetOfflineQueryProfileSummaryResponse], error) {
 	return c.getOfflineQueryProfileSummary.CallUnary(ctx, req)
+}
+
+// GetOfflineQueryUtilizationSummaries calls
+// chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryUtilizationSummaries.
+func (c *offlineQueryMetadataServiceClient) GetOfflineQueryUtilizationSummaries(ctx context.Context, req *connect.Request[v1.GetOfflineQueryUtilizationSummariesRequest]) (*connect.Response[v1.GetOfflineQueryUtilizationSummariesResponse], error) {
+	return c.getOfflineQueryUtilizationSummaries.CallUnary(ctx, req)
+}
+
+// GetResourceGroupUtilizationTimeseries calls
+// chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupUtilizationTimeseries.
+func (c *offlineQueryMetadataServiceClient) GetResourceGroupUtilizationTimeseries(ctx context.Context, req *connect.Request[v1.GetResourceGroupUtilizationTimeseriesRequest]) (*connect.Response[v1.GetResourceGroupUtilizationTimeseriesResponse], error) {
+	return c.getResourceGroupUtilizationTimeseries.CallUnary(ctx, req)
+}
+
+// GetResourceGroupJobTimeseries calls
+// chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupJobTimeseries.
+func (c *offlineQueryMetadataServiceClient) GetResourceGroupJobTimeseries(ctx context.Context, req *connect.Request[v1.GetResourceGroupJobTimeseriesRequest]) (*connect.Response[v1.GetResourceGroupJobTimeseriesResponse], error) {
+	return c.getResourceGroupJobTimeseries.CallUnary(ctx, req)
 }
 
 // ListOfflineQueryShardPerformanceSummaries calls
@@ -311,6 +365,9 @@ type OfflineQueryMetadataServiceHandler interface {
 	GetOfflineQueryShardsAggregated(context.Context, *connect.Request[v1.GetOfflineQueryShardsAggregatedRequest]) (*connect.Response[v1.GetOfflineQueryShardsAggregatedResponse], error)
 	GetOfflineQueryInfraSummary(context.Context, *connect.Request[v1.GetOfflineQueryInfraSummaryRequest]) (*connect.Response[v1.GetOfflineQueryInfraSummaryResponse], error)
 	GetOfflineQueryProfileSummary(context.Context, *connect.Request[v1.GetOfflineQueryProfileSummaryRequest]) (*connect.Response[v1.GetOfflineQueryProfileSummaryResponse], error)
+	GetOfflineQueryUtilizationSummaries(context.Context, *connect.Request[v1.GetOfflineQueryUtilizationSummariesRequest]) (*connect.Response[v1.GetOfflineQueryUtilizationSummariesResponse], error)
+	GetResourceGroupUtilizationTimeseries(context.Context, *connect.Request[v1.GetResourceGroupUtilizationTimeseriesRequest]) (*connect.Response[v1.GetResourceGroupUtilizationTimeseriesResponse], error)
+	GetResourceGroupJobTimeseries(context.Context, *connect.Request[v1.GetResourceGroupJobTimeseriesRequest]) (*connect.Response[v1.GetResourceGroupJobTimeseriesResponse], error)
 	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
 	CreateOfflineQueryJob(context.Context, *connect.Request[v1.CreateOfflineQueryJobRequest]) (*connect.Response[v1.CreateOfflineQueryJobResponse], error)
 	// Deprecated: do not use.
@@ -368,6 +425,27 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 		OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure,
 		svc.GetOfflineQueryProfileSummary,
 		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryProfileSummary")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineQueryMetadataServiceGetOfflineQueryUtilizationSummariesHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceGetOfflineQueryUtilizationSummariesProcedure,
+		svc.GetOfflineQueryUtilizationSummaries,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryUtilizationSummaries")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineQueryMetadataServiceGetResourceGroupUtilizationTimeseriesHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceGetResourceGroupUtilizationTimeseriesProcedure,
+		svc.GetResourceGroupUtilizationTimeseries,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetResourceGroupUtilizationTimeseries")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineQueryMetadataServiceGetResourceGroupJobTimeseriesHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceGetResourceGroupJobTimeseriesProcedure,
+		svc.GetResourceGroupJobTimeseries,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetResourceGroupJobTimeseries")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -436,6 +514,12 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 			offlineQueryMetadataServiceGetOfflineQueryInfraSummaryHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure:
 			offlineQueryMetadataServiceGetOfflineQueryProfileSummaryHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceGetOfflineQueryUtilizationSummariesProcedure:
+			offlineQueryMetadataServiceGetOfflineQueryUtilizationSummariesHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceGetResourceGroupUtilizationTimeseriesProcedure:
+			offlineQueryMetadataServiceGetResourceGroupUtilizationTimeseriesHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceGetResourceGroupJobTimeseriesProcedure:
+			offlineQueryMetadataServiceGetResourceGroupJobTimeseriesHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure:
 			offlineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceCreateOfflineQueryJobProcedure:
@@ -483,6 +567,18 @@ func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQueryInfraSumma
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQueryProfileSummary(context.Context, *connect.Request[v1.GetOfflineQueryProfileSummaryRequest]) (*connect.Response[v1.GetOfflineQueryProfileSummaryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQueryUtilizationSummaries(context.Context, *connect.Request[v1.GetOfflineQueryUtilizationSummariesRequest]) (*connect.Response[v1.GetOfflineQueryUtilizationSummariesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryUtilizationSummaries is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) GetResourceGroupUtilizationTimeseries(context.Context, *connect.Request[v1.GetResourceGroupUtilizationTimeseriesRequest]) (*connect.Response[v1.GetResourceGroupUtilizationTimeseriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupUtilizationTimeseries is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) GetResourceGroupJobTimeseries(context.Context, *connect.Request[v1.GetResourceGroupJobTimeseriesRequest]) (*connect.Response[v1.GetResourceGroupJobTimeseriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupJobTimeseries is not implemented"))
 }
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error) {

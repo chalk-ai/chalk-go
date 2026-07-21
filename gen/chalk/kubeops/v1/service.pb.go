@@ -349,6 +349,96 @@ func (*DeletePodResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{3}
 }
 
+type DeleteNodeRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The Kubernetes cluster name
+	ClusterName string `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
+	// The name of the node to delete
+	NodeName      string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteNodeRequest) Reset() {
+	*x = DeleteNodeRequest{}
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteNodeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteNodeRequest) ProtoMessage() {}
+
+func (x *DeleteNodeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteNodeRequest.ProtoReflect.Descriptor instead.
+func (*DeleteNodeRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DeleteNodeRequest) GetClusterName() string {
+	if x != nil {
+		return x.ClusterName
+	}
+	return ""
+}
+
+func (x *DeleteNodeRequest) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
+}
+
+type DeleteNodeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteNodeResponse) Reset() {
+	*x = DeleteNodeResponse{}
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteNodeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteNodeResponse) ProtoMessage() {}
+
+func (x *DeleteNodeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteNodeResponse.ProtoReflect.Descriptor instead.
+func (*DeleteNodeResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{5}
+}
+
 type RolloutRestartRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The Kubernetes cluster name
@@ -365,7 +455,7 @@ type RolloutRestartRequest struct {
 
 func (x *RolloutRestartRequest) Reset() {
 	*x = RolloutRestartRequest{}
-	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -377,7 +467,7 @@ func (x *RolloutRestartRequest) String() string {
 func (*RolloutRestartRequest) ProtoMessage() {}
 
 func (x *RolloutRestartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,7 +480,7 @@ func (x *RolloutRestartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RolloutRestartRequest.ProtoReflect.Descriptor instead.
 func (*RolloutRestartRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RolloutRestartRequest) GetClusterName() string {
@@ -429,7 +519,7 @@ type RolloutRestartResponse struct {
 
 func (x *RolloutRestartResponse) Reset() {
 	*x = RolloutRestartResponse{}
-	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -441,7 +531,7 @@ func (x *RolloutRestartResponse) String() string {
 func (*RolloutRestartResponse) ProtoMessage() {}
 
 func (x *RolloutRestartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -454,7 +544,7 @@ func (x *RolloutRestartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RolloutRestartResponse.ProtoReflect.Descriptor instead.
 func (*RolloutRestartResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{5}
+	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{7}
 }
 
 var File_chalk_kubeops_v1_service_proto protoreflect.FileDescriptor
@@ -487,7 +577,11 @@ const file_chalk_kubeops_v1_service_proto_rawDesc = "" +
 	"\x05force\x18\x05 \x01(\bH\x01R\x05force\x88\x01\x01B\x17\n" +
 	"\x15_grace_period_secondsB\b\n" +
 	"\x06_force\"\x13\n" +
-	"\x11DeletePodResponse\"\xa0\x01\n" +
+	"\x11DeletePodResponse\"S\n" +
+	"\x11DeleteNodeRequest\x12!\n" +
+	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x12\x1b\n" +
+	"\tnode_name\x18\x02 \x01(\tR\bnodeName\"\x14\n" +
+	"\x12DeleteNodeResponse\"\xa0\x01\n" +
 	"\x15RolloutRestartRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x12\n" +
@@ -497,10 +591,12 @@ const file_chalk_kubeops_v1_service_proto_rawDesc = "" +
 	"\fWorkloadKind\x12\x1d\n" +
 	"\x19WORKLOAD_KIND_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18WORKLOAD_KIND_DEPLOYMENT\x10\x01\x12\x1e\n" +
-	"\x1aWORKLOAD_KIND_STATEFUL_SET\x10\x022\xb0\x02\n" +
+	"\x1aWORKLOAD_KIND_STATEFUL_SET\x10\x022\x8e\x03\n" +
 	"\x0eKubeOpsService\x12Y\n" +
 	"\tDrainNode\x12\".chalk.kubeops.v1.DrainNodeRequest\x1a#.chalk.kubeops.v1.DrainNodeResponse\"\x03\x80}\x0e\x12Y\n" +
-	"\tDeletePod\x12\".chalk.kubeops.v1.DeletePodRequest\x1a#.chalk.kubeops.v1.DeletePodResponse\"\x03\x80}\x0e\x12h\n" +
+	"\tDeletePod\x12\".chalk.kubeops.v1.DeletePodRequest\x1a#.chalk.kubeops.v1.DeletePodResponse\"\x03\x80}\x0e\x12\\\n" +
+	"\n" +
+	"DeleteNode\x12#.chalk.kubeops.v1.DeleteNodeRequest\x1a$.chalk.kubeops.v1.DeleteNodeResponse\"\x03\x80}\x0e\x12h\n" +
 	"\x0eRolloutRestart\x12'.chalk.kubeops.v1.RolloutRestartRequest\x1a(.chalk.kubeops.v1.RolloutRestartResponse\"\x03\x80}\x0eB\xc3\x01\n" +
 	"\x14com.chalk.kubeops.v1B\fServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/kubeops/v1;kubeopsv1\xa2\x02\x03CKX\xaa\x02\x10Chalk.Kubeops.V1\xca\x02\x10Chalk\\Kubeops\\V1\xe2\x02\x1cChalk\\Kubeops\\V1\\GPBMetadata\xea\x02\x12Chalk::Kubeops::V1b\x06proto3"
 
@@ -517,26 +613,30 @@ func file_chalk_kubeops_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_kubeops_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_kubeops_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_kubeops_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_chalk_kubeops_v1_service_proto_goTypes = []any{
 	(WorkloadKind)(0),              // 0: chalk.kubeops.v1.WorkloadKind
 	(*DrainNodeRequest)(nil),       // 1: chalk.kubeops.v1.DrainNodeRequest
 	(*DrainNodeResponse)(nil),      // 2: chalk.kubeops.v1.DrainNodeResponse
 	(*DeletePodRequest)(nil),       // 3: chalk.kubeops.v1.DeletePodRequest
 	(*DeletePodResponse)(nil),      // 4: chalk.kubeops.v1.DeletePodResponse
-	(*RolloutRestartRequest)(nil),  // 5: chalk.kubeops.v1.RolloutRestartRequest
-	(*RolloutRestartResponse)(nil), // 6: chalk.kubeops.v1.RolloutRestartResponse
+	(*DeleteNodeRequest)(nil),      // 5: chalk.kubeops.v1.DeleteNodeRequest
+	(*DeleteNodeResponse)(nil),     // 6: chalk.kubeops.v1.DeleteNodeResponse
+	(*RolloutRestartRequest)(nil),  // 7: chalk.kubeops.v1.RolloutRestartRequest
+	(*RolloutRestartResponse)(nil), // 8: chalk.kubeops.v1.RolloutRestartResponse
 }
 var file_chalk_kubeops_v1_service_proto_depIdxs = []int32{
 	0, // 0: chalk.kubeops.v1.RolloutRestartRequest.kind:type_name -> chalk.kubeops.v1.WorkloadKind
 	1, // 1: chalk.kubeops.v1.KubeOpsService.DrainNode:input_type -> chalk.kubeops.v1.DrainNodeRequest
 	3, // 2: chalk.kubeops.v1.KubeOpsService.DeletePod:input_type -> chalk.kubeops.v1.DeletePodRequest
-	5, // 3: chalk.kubeops.v1.KubeOpsService.RolloutRestart:input_type -> chalk.kubeops.v1.RolloutRestartRequest
-	2, // 4: chalk.kubeops.v1.KubeOpsService.DrainNode:output_type -> chalk.kubeops.v1.DrainNodeResponse
-	4, // 5: chalk.kubeops.v1.KubeOpsService.DeletePod:output_type -> chalk.kubeops.v1.DeletePodResponse
-	6, // 6: chalk.kubeops.v1.KubeOpsService.RolloutRestart:output_type -> chalk.kubeops.v1.RolloutRestartResponse
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
+	5, // 3: chalk.kubeops.v1.KubeOpsService.DeleteNode:input_type -> chalk.kubeops.v1.DeleteNodeRequest
+	7, // 4: chalk.kubeops.v1.KubeOpsService.RolloutRestart:input_type -> chalk.kubeops.v1.RolloutRestartRequest
+	2, // 5: chalk.kubeops.v1.KubeOpsService.DrainNode:output_type -> chalk.kubeops.v1.DrainNodeResponse
+	4, // 6: chalk.kubeops.v1.KubeOpsService.DeletePod:output_type -> chalk.kubeops.v1.DeletePodResponse
+	6, // 7: chalk.kubeops.v1.KubeOpsService.DeleteNode:output_type -> chalk.kubeops.v1.DeleteNodeResponse
+	8, // 8: chalk.kubeops.v1.KubeOpsService.RolloutRestart:output_type -> chalk.kubeops.v1.RolloutRestartResponse
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -555,7 +655,7 @@ func file_chalk_kubeops_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_kubeops_v1_service_proto_rawDesc), len(file_chalk_kubeops_v1_service_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

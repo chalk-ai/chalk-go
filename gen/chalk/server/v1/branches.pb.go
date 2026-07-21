@@ -194,8 +194,11 @@ type BranchWithLatestDeployment struct {
 	LatestDeploymentCreated *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=latest_deployment_created,json=latestDeploymentCreated,proto3" json:"latest_deployment_created,omitempty"`
 	LatestDeploymentUpdated *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=latest_deployment_updated,json=latestDeploymentUpdated,proto3" json:"latest_deployment_updated,omitempty"`
 	LatestDeploymentId      *string                `protobuf:"bytes,5,opt,name=latest_deployment_id,json=latestDeploymentId,proto3,oneof" json:"latest_deployment_id,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// User id that triggered the branch's latest deployment (the deployment's
+	// `triggered_by`); unset for system-triggered or pre-tracking deployments.
+	LatestDeploymentTriggeredBy *string `protobuf:"bytes,6,opt,name=latest_deployment_triggered_by,json=latestDeploymentTriggeredBy,proto3,oneof" json:"latest_deployment_triggered_by,omitempty"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *BranchWithLatestDeployment) Reset() {
@@ -259,6 +262,13 @@ func (x *BranchWithLatestDeployment) GetLatestDeploymentUpdated() *timestamppb.T
 func (x *BranchWithLatestDeployment) GetLatestDeploymentId() string {
 	if x != nil && x.LatestDeploymentId != nil {
 		return *x.LatestDeploymentId
+	}
+	return ""
+}
+
+func (x *BranchWithLatestDeployment) GetLatestDeploymentTriggeredBy() string {
+	if x != nil && x.LatestDeploymentTriggeredBy != nil {
+		return *x.LatestDeploymentTriggeredBy
 	}
 	return ""
 }
@@ -566,14 +576,16 @@ const file_chalk_server_v1_branches_proto_rawDesc = "" +
 	"\fpackage_name\x18\x01 \x01(\tR\vpackageName\x12'\n" +
 	"\x0fpackage_version\x18\x02 \x01(\tR\x0epackageVersion\"S\n" +
 	"\fVenvPackages\x12C\n" +
-	"\rvenv_packages\x18\x01 \x03(\v2\x1e.chalk.server.v1.PythonPackageR\fvenvPackages\"\xaa\x03\n" +
+	"\rvenv_packages\x18\x01 \x03(\v2\x1e.chalk.server.v1.PythonPackageR\fvenvPackages\"\x97\x04\n" +
 	"\x1aBranchWithLatestDeployment\x12/\n" +
 	"\x06branch\x18\x01 \x01(\v2\x17.chalk.server.v1.BranchR\x06branch\x12[\n" +
 	"\x18latest_deployment_status\x18\x02 \x01(\x0e2!.chalk.server.v1.DeploymentStatusR\x16latestDeploymentStatus\x12V\n" +
 	"\x19latest_deployment_created\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x17latestDeploymentCreated\x12V\n" +
 	"\x19latest_deployment_updated\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x17latestDeploymentUpdated\x125\n" +
-	"\x14latest_deployment_id\x18\x05 \x01(\tH\x00R\x12latestDeploymentId\x88\x01\x01B\x17\n" +
-	"\x15_latest_deployment_id\":\n" +
+	"\x14latest_deployment_id\x18\x05 \x01(\tH\x00R\x12latestDeploymentId\x88\x01\x01\x12H\n" +
+	"\x1elatest_deployment_triggered_by\x18\x06 \x01(\tH\x01R\x1blatestDeploymentTriggeredBy\x88\x01\x01B\x17\n" +
+	"\x15_latest_deployment_idB!\n" +
+	"\x1f_latest_deployment_triggered_by\":\n" +
 	"$GetBranchWithLatestDeploymentRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x97\x01\n" +
 	"%GetBranchWithLatestDeploymentResponse\x12n\n" +

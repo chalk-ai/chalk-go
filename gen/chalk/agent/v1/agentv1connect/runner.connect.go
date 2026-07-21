@@ -36,6 +36,12 @@ const (
 	// AgentRunnerServiceRunTurnProcedure is the fully-qualified name of the AgentRunnerService's
 	// RunTurn RPC.
 	AgentRunnerServiceRunTurnProcedure = "/chalk.agent.v1.AgentRunnerService/RunTurn"
+	// AgentRunnerServiceStopTurnProcedure is the fully-qualified name of the AgentRunnerService's
+	// StopTurn RPC.
+	AgentRunnerServiceStopTurnProcedure = "/chalk.agent.v1.AgentRunnerService/StopTurn"
+	// AgentRunnerServiceGenerateInlineCompletionProcedure is the fully-qualified name of the
+	// AgentRunnerService's GenerateInlineCompletion RPC.
+	AgentRunnerServiceGenerateInlineCompletionProcedure = "/chalk.agent.v1.AgentRunnerService/GenerateInlineCompletion"
 )
 
 // AgentRunnerServiceClient is a client for the chalk.agent.v1.AgentRunnerService service.
@@ -44,6 +50,13 @@ type AgentRunnerServiceClient interface {
 	// events for tokens, tool calls, and tool results. The stream terminates
 	// with either RunCompleted or RunFailed.
 	RunTurn(context.Context, *connect.Request[v1.RunTurnRequest]) (*connect.ServerStreamForClient[v1.RunTurnResponse], error)
+	// StopTurn cancels the in-flight RunTurn on a conversation, if any. The
+	// turn's RunTurn stream ends with RunFailed("Turn stopped by user.").
+	StopTurn(context.Context, *connect.Request[v1.StopTurnRequest]) (*connect.Response[v1.StopTurnResponse], error)
+	// GenerateInlineCompletion returns a short model-generated continuation of
+	// in-progress notebook cell code ("AI typeahead"). Stateless and
+	// best-effort: callers should treat failures as "no suggestion".
+	GenerateInlineCompletion(context.Context, *connect.Request[v1.GenerateInlineCompletionRequest]) (*connect.Response[v1.GenerateInlineCompletionResponse], error)
 }
 
 // NewAgentRunnerServiceClient constructs a client for the chalk.agent.v1.AgentRunnerService
@@ -63,17 +76,42 @@ func NewAgentRunnerServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(agentRunnerServiceMethods.ByName("RunTurn")),
 			connect.WithClientOptions(opts...),
 		),
+		stopTurn: connect.NewClient[v1.StopTurnRequest, v1.StopTurnResponse](
+			httpClient,
+			baseURL+AgentRunnerServiceStopTurnProcedure,
+			connect.WithSchema(agentRunnerServiceMethods.ByName("StopTurn")),
+			connect.WithClientOptions(opts...),
+		),
+		generateInlineCompletion: connect.NewClient[v1.GenerateInlineCompletionRequest, v1.GenerateInlineCompletionResponse](
+			httpClient,
+			baseURL+AgentRunnerServiceGenerateInlineCompletionProcedure,
+			connect.WithSchema(agentRunnerServiceMethods.ByName("GenerateInlineCompletion")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // agentRunnerServiceClient implements AgentRunnerServiceClient.
 type agentRunnerServiceClient struct {
-	runTurn *connect.Client[v1.RunTurnRequest, v1.RunTurnResponse]
+	runTurn                  *connect.Client[v1.RunTurnRequest, v1.RunTurnResponse]
+	stopTurn                 *connect.Client[v1.StopTurnRequest, v1.StopTurnResponse]
+	generateInlineCompletion *connect.Client[v1.GenerateInlineCompletionRequest, v1.GenerateInlineCompletionResponse]
 }
 
 // RunTurn calls chalk.agent.v1.AgentRunnerService.RunTurn.
 func (c *agentRunnerServiceClient) RunTurn(ctx context.Context, req *connect.Request[v1.RunTurnRequest]) (*connect.ServerStreamForClient[v1.RunTurnResponse], error) {
 	return c.runTurn.CallServerStream(ctx, req)
+}
+
+// StopTurn calls chalk.agent.v1.AgentRunnerService.StopTurn.
+func (c *agentRunnerServiceClient) StopTurn(ctx context.Context, req *connect.Request[v1.StopTurnRequest]) (*connect.Response[v1.StopTurnResponse], error) {
+	return c.stopTurn.CallUnary(ctx, req)
+}
+
+// GenerateInlineCompletion calls chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion.
+func (c *agentRunnerServiceClient) GenerateInlineCompletion(ctx context.Context, req *connect.Request[v1.GenerateInlineCompletionRequest]) (*connect.Response[v1.GenerateInlineCompletionResponse], error) {
+	return c.generateInlineCompletion.CallUnary(ctx, req)
 }
 
 // AgentRunnerServiceHandler is an implementation of the chalk.agent.v1.AgentRunnerService service.
@@ -82,6 +120,13 @@ type AgentRunnerServiceHandler interface {
 	// events for tokens, tool calls, and tool results. The stream terminates
 	// with either RunCompleted or RunFailed.
 	RunTurn(context.Context, *connect.Request[v1.RunTurnRequest], *connect.ServerStream[v1.RunTurnResponse]) error
+	// StopTurn cancels the in-flight RunTurn on a conversation, if any. The
+	// turn's RunTurn stream ends with RunFailed("Turn stopped by user.").
+	StopTurn(context.Context, *connect.Request[v1.StopTurnRequest]) (*connect.Response[v1.StopTurnResponse], error)
+	// GenerateInlineCompletion returns a short model-generated continuation of
+	// in-progress notebook cell code ("AI typeahead"). Stateless and
+	// best-effort: callers should treat failures as "no suggestion".
+	GenerateInlineCompletion(context.Context, *connect.Request[v1.GenerateInlineCompletionRequest]) (*connect.Response[v1.GenerateInlineCompletionResponse], error)
 }
 
 // NewAgentRunnerServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -97,10 +142,27 @@ func NewAgentRunnerServiceHandler(svc AgentRunnerServiceHandler, opts ...connect
 		connect.WithSchema(agentRunnerServiceMethods.ByName("RunTurn")),
 		connect.WithHandlerOptions(opts...),
 	)
+	agentRunnerServiceStopTurnHandler := connect.NewUnaryHandler(
+		AgentRunnerServiceStopTurnProcedure,
+		svc.StopTurn,
+		connect.WithSchema(agentRunnerServiceMethods.ByName("StopTurn")),
+		connect.WithHandlerOptions(opts...),
+	)
+	agentRunnerServiceGenerateInlineCompletionHandler := connect.NewUnaryHandler(
+		AgentRunnerServiceGenerateInlineCompletionProcedure,
+		svc.GenerateInlineCompletion,
+		connect.WithSchema(agentRunnerServiceMethods.ByName("GenerateInlineCompletion")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.agent.v1.AgentRunnerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AgentRunnerServiceRunTurnProcedure:
 			agentRunnerServiceRunTurnHandler.ServeHTTP(w, r)
+		case AgentRunnerServiceStopTurnProcedure:
+			agentRunnerServiceStopTurnHandler.ServeHTTP(w, r)
+		case AgentRunnerServiceGenerateInlineCompletionProcedure:
+			agentRunnerServiceGenerateInlineCompletionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -112,4 +174,12 @@ type UnimplementedAgentRunnerServiceHandler struct{}
 
 func (UnimplementedAgentRunnerServiceHandler) RunTurn(context.Context, *connect.Request[v1.RunTurnRequest], *connect.ServerStream[v1.RunTurnResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentRunnerService.RunTurn is not implemented"))
+}
+
+func (UnimplementedAgentRunnerServiceHandler) StopTurn(context.Context, *connect.Request[v1.StopTurnRequest]) (*connect.Response[v1.StopTurnResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentRunnerService.StopTurn is not implemented"))
+}
+
+func (UnimplementedAgentRunnerServiceHandler) GenerateInlineCompletion(context.Context, *connect.Request[v1.GenerateInlineCompletionRequest]) (*connect.Response[v1.GenerateInlineCompletionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion is not implemented"))
 }

@@ -8,6 +8,7 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -22,6 +23,64 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type SecretScopeType int32
+
+const (
+	SecretScopeType_SECRET_SCOPE_TYPE_UNSPECIFIED   SecretScopeType = 0
+	SecretScopeType_SECRET_SCOPE_TYPE_ENVIRONMENT   SecretScopeType = 1
+	SecretScopeType_SECRET_SCOPE_TYPE_SANDBOX       SecretScopeType = 2
+	SecretScopeType_SECRET_SCOPE_TYPE_SCALING_GROUP SecretScopeType = 3
+	SecretScopeType_SECRET_SCOPE_TYPE_FUNCTION      SecretScopeType = 4
+	SecretScopeType_SECRET_SCOPE_TYPE_NOTEBOOK      SecretScopeType = 5
+)
+
+// Enum value maps for SecretScopeType.
+var (
+	SecretScopeType_name = map[int32]string{
+		0: "SECRET_SCOPE_TYPE_UNSPECIFIED",
+		1: "SECRET_SCOPE_TYPE_ENVIRONMENT",
+		2: "SECRET_SCOPE_TYPE_SANDBOX",
+		3: "SECRET_SCOPE_TYPE_SCALING_GROUP",
+		4: "SECRET_SCOPE_TYPE_FUNCTION",
+		5: "SECRET_SCOPE_TYPE_NOTEBOOK",
+	}
+	SecretScopeType_value = map[string]int32{
+		"SECRET_SCOPE_TYPE_UNSPECIFIED":   0,
+		"SECRET_SCOPE_TYPE_ENVIRONMENT":   1,
+		"SECRET_SCOPE_TYPE_SANDBOX":       2,
+		"SECRET_SCOPE_TYPE_SCALING_GROUP": 3,
+		"SECRET_SCOPE_TYPE_FUNCTION":      4,
+		"SECRET_SCOPE_TYPE_NOTEBOOK":      5,
+	}
+)
+
+func (x SecretScopeType) Enum() *SecretScopeType {
+	p := new(SecretScopeType)
+	*p = x
+	return p
+}
+
+func (x SecretScopeType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SecretScopeType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_environment_secrets_proto_enumTypes[0].Descriptor()
+}
+
+func (SecretScopeType) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_environment_secrets_proto_enumTypes[0]
+}
+
+func (x SecretScopeType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SecretScopeType.Descriptor instead.
+func (SecretScopeType) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{0}
+}
 
 type SecretSource int32
 
@@ -56,11 +115,11 @@ func (x SecretSource) String() string {
 }
 
 func (SecretSource) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_environment_secrets_proto_enumTypes[0].Descriptor()
+	return file_chalk_server_v1_environment_secrets_proto_enumTypes[1].Descriptor()
 }
 
 func (SecretSource) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_environment_secrets_proto_enumTypes[0]
+	return &file_chalk_server_v1_environment_secrets_proto_enumTypes[1]
 }
 
 func (x SecretSource) Number() protoreflect.EnumNumber {
@@ -69,7 +128,7 @@ func (x SecretSource) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SecretSource.Descriptor instead.
 func (SecretSource) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{0}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{1}
 }
 
 type Secret struct {
@@ -79,6 +138,11 @@ type Secret struct {
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	IntegrationId *string                `protobuf:"bytes,4,opt,name=integration_id,json=integrationId,proto3,oneof" json:"integration_id,omitempty"`
 	Source        SecretSource           `protobuf:"varint,5,opt,name=source,proto3,enum=chalk.server.v1.SecretSource" json:"source,omitempty"`
+	// Owning scope. Unset means the secret is environment-wide.
+	Scope *SecretScope `protobuf:"bytes,6,opt,name=scope,proto3,oneof" json:"scope,omitempty"`
+	// Scopes this environment-wide secret has been granted to by reference.
+	// Populated only when ListSecretsRequest.include_scoped is set.
+	GrantedScopes []*SecretScope `protobuf:"bytes,7,rep,name=granted_scopes,json=grantedScopes,proto3" json:"granted_scopes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -148,6 +212,75 @@ func (x *Secret) GetSource() SecretSource {
 	return SecretSource_SECRET_SOURCE_UNSPECIFIED
 }
 
+func (x *Secret) GetScope() *SecretScope {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
+}
+
+func (x *Secret) GetGrantedScopes() []*SecretScope {
+	if x != nil {
+		return x.GrantedScopes
+	}
+	return nil
+}
+
+// Consumer a secret is owned by or granted to. Secrets owned by a
+// non-ENVIRONMENT scope are invisible to environment-wide consumers.
+type SecretScope struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Type  SecretScopeType        `protobuf:"varint,1,opt,name=type,proto3,enum=chalk.server.v1.SecretScopeType" json:"type,omitempty"`
+	// Required for every type except ENVIRONMENT, which must leave it empty.
+	Ref           *string `protobuf:"bytes,2,opt,name=ref,proto3,oneof" json:"ref,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SecretScope) Reset() {
+	*x = SecretScope{}
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SecretScope) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SecretScope) ProtoMessage() {}
+
+func (x *SecretScope) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SecretScope.ProtoReflect.Descriptor instead.
+func (*SecretScope) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SecretScope) GetType() SecretScopeType {
+	if x != nil {
+		return x.Type
+	}
+	return SecretScopeType_SECRET_SCOPE_TYPE_UNSPECIFIED
+}
+
+func (x *SecretScope) GetRef() string {
+	if x != nil && x.Ref != nil {
+		return *x.Ref
+	}
+	return ""
+}
+
 type SecretValue struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -159,7 +292,7 @@ type SecretValue struct {
 
 func (x *SecretValue) Reset() {
 	*x = SecretValue{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -171,7 +304,7 @@ func (x *SecretValue) String() string {
 func (*SecretValue) ProtoMessage() {}
 
 func (x *SecretValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -184,7 +317,7 @@ func (x *SecretValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecretValue.ProtoReflect.Descriptor instead.
 func (*SecretValue) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{1}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SecretValue) GetName() string {
@@ -221,7 +354,7 @@ type SecretConfigValue struct {
 
 func (x *SecretConfigValue) Reset() {
 	*x = SecretConfigValue{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +366,7 @@ func (x *SecretConfigValue) String() string {
 func (*SecretConfigValue) ProtoMessage() {}
 
 func (x *SecretConfigValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +379,7 @@ func (x *SecretConfigValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecretConfigValue.ProtoReflect.Descriptor instead.
 func (*SecretConfigValue) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SecretConfigValue) GetValue() isSecretConfigValue_Value {
@@ -304,7 +437,7 @@ type SecretWithValue struct {
 
 func (x *SecretWithValue) Reset() {
 	*x = SecretWithValue{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -316,7 +449,7 @@ func (x *SecretWithValue) String() string {
 func (*SecretWithValue) ProtoMessage() {}
 
 func (x *SecretWithValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,7 +462,7 @@ func (x *SecretWithValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SecretWithValue.ProtoReflect.Descriptor instead.
 func (*SecretWithValue) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SecretWithValue) GetId() string {
@@ -375,14 +508,18 @@ func (x *SecretWithValue) GetSource() SecretSource {
 }
 
 type ListSecretsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Also return scope-owned secrets (with Secret.scope set) and populate
+	// Secret.granted_scopes on environment-wide secrets. Defaults to false so
+	// existing consumers keep seeing only environment-wide secrets.
+	IncludeScoped bool `protobuf:"varint,1,opt,name=include_scoped,json=includeScoped,proto3" json:"include_scoped,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSecretsRequest) Reset() {
 	*x = ListSecretsRequest{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -394,7 +531,7 @@ func (x *ListSecretsRequest) String() string {
 func (*ListSecretsRequest) ProtoMessage() {}
 
 func (x *ListSecretsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -407,7 +544,14 @@ func (x *ListSecretsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSecretsRequest.ProtoReflect.Descriptor instead.
 func (*ListSecretsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListSecretsRequest) GetIncludeScoped() bool {
+	if x != nil {
+		return x.IncludeScoped
+	}
+	return false
 }
 
 type ListSecretsResponse struct {
@@ -419,7 +563,7 @@ type ListSecretsResponse struct {
 
 func (x *ListSecretsResponse) Reset() {
 	*x = ListSecretsResponse{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -431,7 +575,7 @@ func (x *ListSecretsResponse) String() string {
 func (*ListSecretsResponse) ProtoMessage() {}
 
 func (x *ListSecretsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -444,7 +588,7 @@ func (x *ListSecretsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSecretsResponse.ProtoReflect.Descriptor instead.
 func (*ListSecretsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListSecretsResponse) GetSecrets() []*Secret {
@@ -463,7 +607,7 @@ type GetSecretValueRequest struct {
 
 func (x *GetSecretValueRequest) Reset() {
 	*x = GetSecretValueRequest{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -475,7 +619,7 @@ func (x *GetSecretValueRequest) String() string {
 func (*GetSecretValueRequest) ProtoMessage() {}
 
 func (x *GetSecretValueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -488,7 +632,7 @@ func (x *GetSecretValueRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretValueRequest.ProtoReflect.Descriptor instead.
 func (*GetSecretValueRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetSecretValueRequest) GetId() string {
@@ -507,7 +651,7 @@ type GetSecretValueResponse struct {
 
 func (x *GetSecretValueResponse) Reset() {
 	*x = GetSecretValueResponse{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -519,7 +663,7 @@ func (x *GetSecretValueResponse) String() string {
 func (*GetSecretValueResponse) ProtoMessage() {}
 
 func (x *GetSecretValueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -532,7 +676,7 @@ func (x *GetSecretValueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretValueResponse.ProtoReflect.Descriptor instead.
 func (*GetSecretValueResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetSecretValueResponse) GetSecretValue() *SecretValue {
@@ -546,15 +690,20 @@ type UpsertSecretRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/server/v1/environment_secrets.proto.
-	Value         string             `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-	Config        *SecretConfigValue `protobuf:"bytes,3,opt,name=config,proto3" json:"config,omitempty"`
+	Value  string             `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	Config *SecretConfigValue `protobuf:"bytes,3,opt,name=config,proto3" json:"config,omitempty"`
+	// Omitted/ENVIRONMENT: environment-wide upsert. Non-ENVIRONMENT with a
+	// config/value: upsert a secret owned by that scope; names are unique per
+	// scope. Non-ENVIRONMENT without config/value: grant the environment-wide
+	// secret with this name to the scope by reference (NOT_FOUND if absent).
+	Scope         *SecretScope `protobuf:"bytes,4,opt,name=scope,proto3,oneof" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpsertSecretRequest) Reset() {
 	*x = UpsertSecretRequest{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -566,7 +715,7 @@ func (x *UpsertSecretRequest) String() string {
 func (*UpsertSecretRequest) ProtoMessage() {}
 
 func (x *UpsertSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -579,7 +728,7 @@ func (x *UpsertSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertSecretRequest.ProtoReflect.Descriptor instead.
 func (*UpsertSecretRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpsertSecretRequest) GetName() string {
@@ -604,6 +753,13 @@ func (x *UpsertSecretRequest) GetConfig() *SecretConfigValue {
 	return nil
 }
 
+func (x *UpsertSecretRequest) GetScope() *SecretScope {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
+}
+
 type UpsertSecretResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Secrets       []*Secret              `protobuf:"bytes,1,rep,name=secrets,proto3" json:"secrets,omitempty"`
@@ -613,7 +769,7 @@ type UpsertSecretResponse struct {
 
 func (x *UpsertSecretResponse) Reset() {
 	*x = UpsertSecretResponse{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -625,7 +781,7 @@ func (x *UpsertSecretResponse) String() string {
 func (*UpsertSecretResponse) ProtoMessage() {}
 
 func (x *UpsertSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -638,7 +794,7 @@ func (x *UpsertSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertSecretResponse.ProtoReflect.Descriptor instead.
 func (*UpsertSecretResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpsertSecretResponse) GetSecrets() []*Secret {
@@ -649,15 +805,19 @@ func (x *UpsertSecretResponse) GetSecrets() []*Secret {
 }
 
 type DeleteSecretRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Omitted/ENVIRONMENT: queue the environment-wide secret for deletion.
+	// Non-ENVIRONMENT: delete the scope's own secret with this name, or if it
+	// has none, revoke the scope's grant on the environment-wide secret.
+	Scope         *SecretScope `protobuf:"bytes,2,opt,name=scope,proto3,oneof" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteSecretRequest) Reset() {
 	*x = DeleteSecretRequest{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -669,7 +829,7 @@ func (x *DeleteSecretRequest) String() string {
 func (*DeleteSecretRequest) ProtoMessage() {}
 
 func (x *DeleteSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -682,7 +842,7 @@ func (x *DeleteSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSecretRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSecretRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DeleteSecretRequest) GetName() string {
@@ -690,6 +850,13 @@ func (x *DeleteSecretRequest) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *DeleteSecretRequest) GetScope() *SecretScope {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
 }
 
 type DeleteSecretResponse struct {
@@ -701,7 +868,7 @@ type DeleteSecretResponse struct {
 
 func (x *DeleteSecretResponse) Reset() {
 	*x = DeleteSecretResponse{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -713,7 +880,7 @@ func (x *DeleteSecretResponse) String() string {
 func (*DeleteSecretResponse) ProtoMessage() {}
 
 func (x *DeleteSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,7 +893,7 @@ func (x *DeleteSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSecretResponse.ProtoReflect.Descriptor instead.
 func (*DeleteSecretResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DeleteSecretResponse) GetSecrets() []*Secret {
@@ -744,7 +911,7 @@ type GetAllSecretValuesRequest struct {
 
 func (x *GetAllSecretValuesRequest) Reset() {
 	*x = GetAllSecretValuesRequest{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -756,7 +923,7 @@ func (x *GetAllSecretValuesRequest) String() string {
 func (*GetAllSecretValuesRequest) ProtoMessage() {}
 
 func (x *GetAllSecretValuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -769,14 +936,15 @@ func (x *GetAllSecretValuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllSecretValuesRequest.ProtoReflect.Descriptor instead.
 func (*GetAllSecretValuesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{13}
 }
 
 type GetAllSecretValuesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Secret name -> plaintext value, for every active secret in the
-	// current environment. Used by the engine at startup to populate the
-	// process-global map that backs `F.read_secret(name)`.
+	// Secret name -> plaintext value, for every active environment-wide
+	// secret in the current environment (scope-owned secrets are excluded).
+	// Used by the engine at startup to populate the process-global map that
+	// backs `F.read_secret(name)`.
 	Values        map[string]string `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -784,7 +952,7 @@ type GetAllSecretValuesResponse struct {
 
 func (x *GetAllSecretValuesResponse) Reset() {
 	*x = GetAllSecretValuesResponse{}
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -796,7 +964,7 @@ func (x *GetAllSecretValuesResponse) String() string {
 func (*GetAllSecretValuesResponse) ProtoMessage() {}
 
 func (x *GetAllSecretValuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -809,7 +977,7 @@ func (x *GetAllSecretValuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllSecretValuesResponse.ProtoReflect.Descriptor instead.
 func (*GetAllSecretValuesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetAllSecretValuesResponse) GetValues() map[string]string {
@@ -823,21 +991,28 @@ var File_chalk_server_v1_environment_secrets_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_environment_secrets_proto_rawDesc = "" +
 	"\n" +
-	")chalk/server/v1/environment_secrets.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdd\x01\n" +
+	")chalk/server/v1/environment_secrets.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe5\x02\n" +
 	"\x06Secret\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
 	"\n" +
 	"updated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12*\n" +
 	"\x0eintegration_id\x18\x04 \x01(\tH\x00R\rintegrationId\x88\x01\x01\x125\n" +
-	"\x06source\x18\x05 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06sourceB\x11\n" +
-	"\x0f_integration_id\"n\n" +
+	"\x06source\x18\x05 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06source\x127\n" +
+	"\x05scope\x18\x06 \x01(\v2\x1c.chalk.server.v1.SecretScopeH\x01R\x05scope\x88\x01\x01\x12C\n" +
+	"\x0egranted_scopes\x18\a \x03(\v2\x1c.chalk.server.v1.SecretScopeR\rgrantedScopesB\x11\n" +
+	"\x0f_integration_idB\b\n" +
+	"\x06_scope\"b\n" +
+	"\vSecretScope\x124\n" +
+	"\x04type\x18\x01 \x01(\x0e2 .chalk.server.v1.SecretScopeTypeR\x04type\x12\x15\n" +
+	"\x03ref\x18\x02 \x01(\tH\x00R\x03ref\x88\x01\x01B\x06\n" +
+	"\x04_ref\"n\n" +
 	"\vSecretValue\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x125\n" +
-	"\x06source\x18\x03 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06source\"W\n" +
-	"\x11SecretConfigValue\x12\x1a\n" +
-	"\aliteral\x18\x01 \x01(\tH\x00R\aliteral\x12\x1d\n" +
+	"\x06source\x18\x03 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06source\"]\n" +
+	"\x11SecretConfigValue\x12 \n" +
+	"\aliteral\x18\x01 \x01(\tB\x04ء'\x01H\x00R\aliteral\x12\x1d\n" +
 	"\tsecret_id\x18\x02 \x01(\tH\x00R\bsecretIdB\a\n" +
 	"\x05value\"\xe9\x01\n" +
 	"\x0fSecretWithValue\x12\x0e\n" +
@@ -848,23 +1023,28 @@ const file_chalk_server_v1_environment_secrets_proto_rawDesc = "" +
 	"\tfull_name\x18\x04 \x01(\tR\bfullName\x12\x19\n" +
 	"\x05value\x18\x05 \x01(\tH\x00R\x05value\x88\x01\x01\x125\n" +
 	"\x06source\x18\x06 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06sourceB\b\n" +
-	"\x06_value\"\x14\n" +
-	"\x12ListSecretsRequest\"H\n" +
+	"\x06_value\";\n" +
+	"\x12ListSecretsRequest\x12%\n" +
+	"\x0einclude_scoped\x18\x01 \x01(\bR\rincludeScoped\"H\n" +
 	"\x13ListSecretsResponse\x121\n" +
 	"\asecrets\x18\x01 \x03(\v2\x17.chalk.server.v1.SecretR\asecrets\"'\n" +
 	"\x15GetSecretValueRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"o\n" +
 	"\x16GetSecretValueResponse\x12D\n" +
 	"\fsecret_value\x18\x01 \x01(\v2\x1c.chalk.server.v1.SecretValueH\x00R\vsecretValue\x88\x01\x01B\x0f\n" +
-	"\r_secret_value\"\x7f\n" +
+	"\r_secret_value\"\xc6\x01\n" +
 	"\x13UpsertSecretRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
-	"\x05value\x18\x02 \x01(\tB\x02\x18\x01R\x05value\x12:\n" +
-	"\x06config\x18\x03 \x01(\v2\".chalk.server.v1.SecretConfigValueR\x06config\"I\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
+	"\x05value\x18\x02 \x01(\tB\x06ء'\x01\x18\x01R\x05value\x12:\n" +
+	"\x06config\x18\x03 \x01(\v2\".chalk.server.v1.SecretConfigValueR\x06config\x127\n" +
+	"\x05scope\x18\x04 \x01(\v2\x1c.chalk.server.v1.SecretScopeH\x00R\x05scope\x88\x01\x01B\b\n" +
+	"\x06_scope\"I\n" +
 	"\x14UpsertSecretResponse\x121\n" +
-	"\asecrets\x18\x01 \x03(\v2\x17.chalk.server.v1.SecretR\asecrets\")\n" +
+	"\asecrets\x18\x01 \x03(\v2\x17.chalk.server.v1.SecretR\asecrets\"l\n" +
 	"\x13DeleteSecretRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"I\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x127\n" +
+	"\x05scope\x18\x02 \x01(\v2\x1c.chalk.server.v1.SecretScopeH\x00R\x05scope\x88\x01\x01B\b\n" +
+	"\x06_scope\"I\n" +
 	"\x14DeleteSecretResponse\x121\n" +
 	"\asecrets\x18\x01 \x03(\v2\x17.chalk.server.v1.SecretR\asecrets\"\x1b\n" +
 	"\x19GetAllSecretValuesRequest\"\xa8\x01\n" +
@@ -872,17 +1052,24 @@ const file_chalk_server_v1_environment_secrets_proto_rawDesc = "" +
 	"\x06values\x18\x01 \x03(\v27.chalk.server.v1.GetAllSecretValuesResponse.ValuesEntryR\x06values\x1a9\n" +
 	"\vValuesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*d\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xdb\x01\n" +
+	"\x0fSecretScopeType\x12!\n" +
+	"\x1dSECRET_SCOPE_TYPE_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dSECRET_SCOPE_TYPE_ENVIRONMENT\x10\x01\x12\x1d\n" +
+	"\x19SECRET_SCOPE_TYPE_SANDBOX\x10\x02\x12#\n" +
+	"\x1fSECRET_SCOPE_TYPE_SCALING_GROUP\x10\x03\x12\x1e\n" +
+	"\x1aSECRET_SCOPE_TYPE_FUNCTION\x10\x04\x12\x1e\n" +
+	"\x1aSECRET_SCOPE_TYPE_NOTEBOOK\x10\x05*d\n" +
 	"\fSecretSource\x12\x1d\n" +
 	"\x19SECRET_SOURCE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15SECRET_SOURCE_MANAGED\x10\x01\x12\x1a\n" +
-	"\x16SECRET_SOURCE_EXTERNAL\x10\x022\x9a\x04\n" +
+	"\x16SECRET_SOURCE_EXTERNAL\x10\x022\xf5\x04\n" +
 	"\x19EnvironmentSecretsService\x12]\n" +
 	"\vListSecrets\x12#.chalk.server.v1.ListSecretsRequest\x1a$.chalk.server.v1.ListSecretsResponse\"\x03\x80}\x14\x12f\n" +
 	"\x0eGetSecretValue\x12&.chalk.server.v1.GetSecretValueRequest\x1a'.chalk.server.v1.GetSecretValueResponse\"\x03\x80}\x13\x12r\n" +
-	"\x12GetAllSecretValues\x12*.chalk.server.v1.GetAllSecretValuesRequest\x1a+.chalk.server.v1.GetAllSecretValuesResponse\"\x03\x80}\x13\x12`\n" +
-	"\fUpsertSecret\x12$.chalk.server.v1.UpsertSecretRequest\x1a%.chalk.server.v1.UpsertSecretResponse\"\x03\x80}\x12\x12`\n" +
-	"\fDeleteSecret\x12$.chalk.server.v1.DeleteSecretRequest\x1a%.chalk.server.v1.DeleteSecretResponse\"\x03\x80}\x12B\xc7\x01\n" +
+	"\x12GetAllSecretValues\x12*.chalk.server.v1.GetAllSecretValuesRequest\x1a+.chalk.server.v1.GetAllSecretValuesResponse\"\x03\x80}\x13\x12\x91\x01\n" +
+	"\fUpsertSecret\x12$.chalk.server.v1.UpsertSecretRequest\x1a%.chalk.server.v1.UpsertSecretResponse\"4\x80}\x12\x8a\xd3\x0e-\b\x02\x12)Added or updated a user-configured secret\x12\x88\x01\n" +
+	"\fDeleteSecret\x12$.chalk.server.v1.DeleteSecretRequest\x1a%.chalk.server.v1.DeleteSecretResponse\"+\x80}\x12\x8a\xd3\x0e$\b\x02\x12 Deleted a user-configured secretB\xc7\x01\n" +
 	"\x13com.chalk.server.v1B\x17EnvironmentSecretsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -897,54 +1084,61 @@ func file_chalk_server_v1_environment_secrets_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_environment_secrets_proto_rawDescData
 }
 
-var file_chalk_server_v1_environment_secrets_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_environment_secrets_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_server_v1_environment_secrets_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_server_v1_environment_secrets_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_chalk_server_v1_environment_secrets_proto_goTypes = []any{
-	(SecretSource)(0),                  // 0: chalk.server.v1.SecretSource
-	(*Secret)(nil),                     // 1: chalk.server.v1.Secret
-	(*SecretValue)(nil),                // 2: chalk.server.v1.SecretValue
-	(*SecretConfigValue)(nil),          // 3: chalk.server.v1.SecretConfigValue
-	(*SecretWithValue)(nil),            // 4: chalk.server.v1.SecretWithValue
-	(*ListSecretsRequest)(nil),         // 5: chalk.server.v1.ListSecretsRequest
-	(*ListSecretsResponse)(nil),        // 6: chalk.server.v1.ListSecretsResponse
-	(*GetSecretValueRequest)(nil),      // 7: chalk.server.v1.GetSecretValueRequest
-	(*GetSecretValueResponse)(nil),     // 8: chalk.server.v1.GetSecretValueResponse
-	(*UpsertSecretRequest)(nil),        // 9: chalk.server.v1.UpsertSecretRequest
-	(*UpsertSecretResponse)(nil),       // 10: chalk.server.v1.UpsertSecretResponse
-	(*DeleteSecretRequest)(nil),        // 11: chalk.server.v1.DeleteSecretRequest
-	(*DeleteSecretResponse)(nil),       // 12: chalk.server.v1.DeleteSecretResponse
-	(*GetAllSecretValuesRequest)(nil),  // 13: chalk.server.v1.GetAllSecretValuesRequest
-	(*GetAllSecretValuesResponse)(nil), // 14: chalk.server.v1.GetAllSecretValuesResponse
-	nil,                                // 15: chalk.server.v1.GetAllSecretValuesResponse.ValuesEntry
-	(*timestamppb.Timestamp)(nil),      // 16: google.protobuf.Timestamp
+	(SecretScopeType)(0),               // 0: chalk.server.v1.SecretScopeType
+	(SecretSource)(0),                  // 1: chalk.server.v1.SecretSource
+	(*Secret)(nil),                     // 2: chalk.server.v1.Secret
+	(*SecretScope)(nil),                // 3: chalk.server.v1.SecretScope
+	(*SecretValue)(nil),                // 4: chalk.server.v1.SecretValue
+	(*SecretConfigValue)(nil),          // 5: chalk.server.v1.SecretConfigValue
+	(*SecretWithValue)(nil),            // 6: chalk.server.v1.SecretWithValue
+	(*ListSecretsRequest)(nil),         // 7: chalk.server.v1.ListSecretsRequest
+	(*ListSecretsResponse)(nil),        // 8: chalk.server.v1.ListSecretsResponse
+	(*GetSecretValueRequest)(nil),      // 9: chalk.server.v1.GetSecretValueRequest
+	(*GetSecretValueResponse)(nil),     // 10: chalk.server.v1.GetSecretValueResponse
+	(*UpsertSecretRequest)(nil),        // 11: chalk.server.v1.UpsertSecretRequest
+	(*UpsertSecretResponse)(nil),       // 12: chalk.server.v1.UpsertSecretResponse
+	(*DeleteSecretRequest)(nil),        // 13: chalk.server.v1.DeleteSecretRequest
+	(*DeleteSecretResponse)(nil),       // 14: chalk.server.v1.DeleteSecretResponse
+	(*GetAllSecretValuesRequest)(nil),  // 15: chalk.server.v1.GetAllSecretValuesRequest
+	(*GetAllSecretValuesResponse)(nil), // 16: chalk.server.v1.GetAllSecretValuesResponse
+	nil,                                // 17: chalk.server.v1.GetAllSecretValuesResponse.ValuesEntry
+	(*timestamppb.Timestamp)(nil),      // 18: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_environment_secrets_proto_depIdxs = []int32{
-	16, // 0: chalk.server.v1.Secret.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 1: chalk.server.v1.Secret.source:type_name -> chalk.server.v1.SecretSource
-	0,  // 2: chalk.server.v1.SecretValue.source:type_name -> chalk.server.v1.SecretSource
-	16, // 3: chalk.server.v1.SecretWithValue.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 4: chalk.server.v1.SecretWithValue.source:type_name -> chalk.server.v1.SecretSource
-	1,  // 5: chalk.server.v1.ListSecretsResponse.secrets:type_name -> chalk.server.v1.Secret
-	2,  // 6: chalk.server.v1.GetSecretValueResponse.secret_value:type_name -> chalk.server.v1.SecretValue
-	3,  // 7: chalk.server.v1.UpsertSecretRequest.config:type_name -> chalk.server.v1.SecretConfigValue
-	1,  // 8: chalk.server.v1.UpsertSecretResponse.secrets:type_name -> chalk.server.v1.Secret
-	1,  // 9: chalk.server.v1.DeleteSecretResponse.secrets:type_name -> chalk.server.v1.Secret
-	15, // 10: chalk.server.v1.GetAllSecretValuesResponse.values:type_name -> chalk.server.v1.GetAllSecretValuesResponse.ValuesEntry
-	5,  // 11: chalk.server.v1.EnvironmentSecretsService.ListSecrets:input_type -> chalk.server.v1.ListSecretsRequest
-	7,  // 12: chalk.server.v1.EnvironmentSecretsService.GetSecretValue:input_type -> chalk.server.v1.GetSecretValueRequest
-	13, // 13: chalk.server.v1.EnvironmentSecretsService.GetAllSecretValues:input_type -> chalk.server.v1.GetAllSecretValuesRequest
-	9,  // 14: chalk.server.v1.EnvironmentSecretsService.UpsertSecret:input_type -> chalk.server.v1.UpsertSecretRequest
-	11, // 15: chalk.server.v1.EnvironmentSecretsService.DeleteSecret:input_type -> chalk.server.v1.DeleteSecretRequest
-	6,  // 16: chalk.server.v1.EnvironmentSecretsService.ListSecrets:output_type -> chalk.server.v1.ListSecretsResponse
-	8,  // 17: chalk.server.v1.EnvironmentSecretsService.GetSecretValue:output_type -> chalk.server.v1.GetSecretValueResponse
-	14, // 18: chalk.server.v1.EnvironmentSecretsService.GetAllSecretValues:output_type -> chalk.server.v1.GetAllSecretValuesResponse
-	10, // 19: chalk.server.v1.EnvironmentSecretsService.UpsertSecret:output_type -> chalk.server.v1.UpsertSecretResponse
-	12, // 20: chalk.server.v1.EnvironmentSecretsService.DeleteSecret:output_type -> chalk.server.v1.DeleteSecretResponse
-	16, // [16:21] is the sub-list for method output_type
-	11, // [11:16] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	18, // 0: chalk.server.v1.Secret.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 1: chalk.server.v1.Secret.source:type_name -> chalk.server.v1.SecretSource
+	3,  // 2: chalk.server.v1.Secret.scope:type_name -> chalk.server.v1.SecretScope
+	3,  // 3: chalk.server.v1.Secret.granted_scopes:type_name -> chalk.server.v1.SecretScope
+	0,  // 4: chalk.server.v1.SecretScope.type:type_name -> chalk.server.v1.SecretScopeType
+	1,  // 5: chalk.server.v1.SecretValue.source:type_name -> chalk.server.v1.SecretSource
+	18, // 6: chalk.server.v1.SecretWithValue.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 7: chalk.server.v1.SecretWithValue.source:type_name -> chalk.server.v1.SecretSource
+	2,  // 8: chalk.server.v1.ListSecretsResponse.secrets:type_name -> chalk.server.v1.Secret
+	4,  // 9: chalk.server.v1.GetSecretValueResponse.secret_value:type_name -> chalk.server.v1.SecretValue
+	5,  // 10: chalk.server.v1.UpsertSecretRequest.config:type_name -> chalk.server.v1.SecretConfigValue
+	3,  // 11: chalk.server.v1.UpsertSecretRequest.scope:type_name -> chalk.server.v1.SecretScope
+	2,  // 12: chalk.server.v1.UpsertSecretResponse.secrets:type_name -> chalk.server.v1.Secret
+	3,  // 13: chalk.server.v1.DeleteSecretRequest.scope:type_name -> chalk.server.v1.SecretScope
+	2,  // 14: chalk.server.v1.DeleteSecretResponse.secrets:type_name -> chalk.server.v1.Secret
+	17, // 15: chalk.server.v1.GetAllSecretValuesResponse.values:type_name -> chalk.server.v1.GetAllSecretValuesResponse.ValuesEntry
+	7,  // 16: chalk.server.v1.EnvironmentSecretsService.ListSecrets:input_type -> chalk.server.v1.ListSecretsRequest
+	9,  // 17: chalk.server.v1.EnvironmentSecretsService.GetSecretValue:input_type -> chalk.server.v1.GetSecretValueRequest
+	15, // 18: chalk.server.v1.EnvironmentSecretsService.GetAllSecretValues:input_type -> chalk.server.v1.GetAllSecretValuesRequest
+	11, // 19: chalk.server.v1.EnvironmentSecretsService.UpsertSecret:input_type -> chalk.server.v1.UpsertSecretRequest
+	13, // 20: chalk.server.v1.EnvironmentSecretsService.DeleteSecret:input_type -> chalk.server.v1.DeleteSecretRequest
+	8,  // 21: chalk.server.v1.EnvironmentSecretsService.ListSecrets:output_type -> chalk.server.v1.ListSecretsResponse
+	10, // 22: chalk.server.v1.EnvironmentSecretsService.GetSecretValue:output_type -> chalk.server.v1.GetSecretValueResponse
+	16, // 23: chalk.server.v1.EnvironmentSecretsService.GetAllSecretValues:output_type -> chalk.server.v1.GetAllSecretValuesResponse
+	12, // 24: chalk.server.v1.EnvironmentSecretsService.UpsertSecret:output_type -> chalk.server.v1.UpsertSecretResponse
+	14, // 25: chalk.server.v1.EnvironmentSecretsService.DeleteSecret:output_type -> chalk.server.v1.DeleteSecretResponse
+	21, // [21:26] is the sub-list for method output_type
+	16, // [16:21] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_environment_secrets_proto_init() }
@@ -953,19 +1147,22 @@ func file_chalk_server_v1_environment_secrets_proto_init() {
 		return
 	}
 	file_chalk_server_v1_environment_secrets_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_secrets_proto_msgTypes[2].OneofWrappers = []any{
+	file_chalk_server_v1_environment_secrets_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_server_v1_environment_secrets_proto_msgTypes[3].OneofWrappers = []any{
 		(*SecretConfigValue_Literal)(nil),
 		(*SecretConfigValue_SecretId)(nil),
 	}
-	file_chalk_server_v1_environment_secrets_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_secrets_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_server_v1_environment_secrets_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_server_v1_environment_secrets_proto_msgTypes[8].OneofWrappers = []any{}
+	file_chalk_server_v1_environment_secrets_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_environment_secrets_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_environment_secrets_proto_rawDesc), len(file_chalk_server_v1_environment_secrets_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   15,
+			NumEnums:      2,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

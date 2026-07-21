@@ -11,6 +11,7 @@ import (
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -285,21 +286,26 @@ const (
 	// Bool input rendered as a switch (CHECKBOX renders as a real checkbox);
 	// binds exactly like CHECKBOX (checkbox_value -> bool).
 	NotebookInputKind_NOTEBOOK_INPUT_KIND_TOGGLE NotebookInputKind = 9
+	// Legacy: table cells were briefly modeled as an input kind. Superseded by
+	// the first-class NotebookTableCell body case; readers map documents with
+	// this kind forward and writers never emit it.
+	NotebookInputKind_NOTEBOOK_INPUT_KIND_TABLE NotebookInputKind = 10
 )
 
 // Enum value maps for NotebookInputKind.
 var (
 	NotebookInputKind_name = map[int32]string{
-		0: "NOTEBOOK_INPUT_KIND_UNSPECIFIED",
-		1: "NOTEBOOK_INPUT_KIND_TEXT",
-		2: "NOTEBOOK_INPUT_KIND_NUMBER",
-		3: "NOTEBOOK_INPUT_KIND_CHECKBOX",
-		4: "NOTEBOOK_INPUT_KIND_DATE",
-		5: "NOTEBOOK_INPUT_KIND_SELECT",
-		6: "NOTEBOOK_INPUT_KIND_MULTISELECT",
-		7: "NOTEBOOK_INPUT_KIND_SINGLE_VALUE",
-		8: "NOTEBOOK_INPUT_KIND_SECTION",
-		9: "NOTEBOOK_INPUT_KIND_TOGGLE",
+		0:  "NOTEBOOK_INPUT_KIND_UNSPECIFIED",
+		1:  "NOTEBOOK_INPUT_KIND_TEXT",
+		2:  "NOTEBOOK_INPUT_KIND_NUMBER",
+		3:  "NOTEBOOK_INPUT_KIND_CHECKBOX",
+		4:  "NOTEBOOK_INPUT_KIND_DATE",
+		5:  "NOTEBOOK_INPUT_KIND_SELECT",
+		6:  "NOTEBOOK_INPUT_KIND_MULTISELECT",
+		7:  "NOTEBOOK_INPUT_KIND_SINGLE_VALUE",
+		8:  "NOTEBOOK_INPUT_KIND_SECTION",
+		9:  "NOTEBOOK_INPUT_KIND_TOGGLE",
+		10: "NOTEBOOK_INPUT_KIND_TABLE",
 	}
 	NotebookInputKind_value = map[string]int32{
 		"NOTEBOOK_INPUT_KIND_UNSPECIFIED":  0,
@@ -312,6 +318,7 @@ var (
 		"NOTEBOOK_INPUT_KIND_SINGLE_VALUE": 7,
 		"NOTEBOOK_INPUT_KIND_SECTION":      8,
 		"NOTEBOOK_INPUT_KIND_TOGGLE":       9,
+		"NOTEBOOK_INPUT_KIND_TABLE":        10,
 	}
 )
 
@@ -340,6 +347,60 @@ func (x NotebookInputKind) Number() protoreflect.EnumNumber {
 // Deprecated: Use NotebookInputKind.Descriptor instead.
 func (NotebookInputKind) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{4}
+}
+
+// TABLE cells: which of the table_* source field groups is authoritative.
+type NotebookTableSourceKind int32
+
+const (
+	// No source chosen yet; the cell renders its empty state.
+	NotebookTableSourceKind_NOTEBOOK_TABLE_SOURCE_KIND_UNSPECIFIED NotebookTableSourceKind = 0
+	NotebookTableSourceKind_NOTEBOOK_TABLE_SOURCE_KIND_VARIABLE    NotebookTableSourceKind = 1
+	NotebookTableSourceKind_NOTEBOOK_TABLE_SOURCE_KIND_DATASET     NotebookTableSourceKind = 2
+	NotebookTableSourceKind_NOTEBOOK_TABLE_SOURCE_KIND_SQL_TABLE   NotebookTableSourceKind = 3
+)
+
+// Enum value maps for NotebookTableSourceKind.
+var (
+	NotebookTableSourceKind_name = map[int32]string{
+		0: "NOTEBOOK_TABLE_SOURCE_KIND_UNSPECIFIED",
+		1: "NOTEBOOK_TABLE_SOURCE_KIND_VARIABLE",
+		2: "NOTEBOOK_TABLE_SOURCE_KIND_DATASET",
+		3: "NOTEBOOK_TABLE_SOURCE_KIND_SQL_TABLE",
+	}
+	NotebookTableSourceKind_value = map[string]int32{
+		"NOTEBOOK_TABLE_SOURCE_KIND_UNSPECIFIED": 0,
+		"NOTEBOOK_TABLE_SOURCE_KIND_VARIABLE":    1,
+		"NOTEBOOK_TABLE_SOURCE_KIND_DATASET":     2,
+		"NOTEBOOK_TABLE_SOURCE_KIND_SQL_TABLE":   3,
+	}
+)
+
+func (x NotebookTableSourceKind) Enum() *NotebookTableSourceKind {
+	p := new(NotebookTableSourceKind)
+	*p = x
+	return p
+}
+
+func (x NotebookTableSourceKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookTableSourceKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_notebook_v1_document_proto_enumTypes[5].Descriptor()
+}
+
+func (NotebookTableSourceKind) Type() protoreflect.EnumType {
+	return &file_chalk_notebook_v1_document_proto_enumTypes[5]
+}
+
+func (x NotebookTableSourceKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookTableSourceKind.Descriptor instead.
+func (NotebookTableSourceKind) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{5}
 }
 
 // SECTION cells: title typography. UNSPECIFIED = "Auto" (sized by nesting
@@ -383,11 +444,11 @@ func (x NotebookSectionHeadingSize) String() string {
 }
 
 func (NotebookSectionHeadingSize) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_notebook_v1_document_proto_enumTypes[5].Descriptor()
+	return file_chalk_notebook_v1_document_proto_enumTypes[6].Descriptor()
 }
 
 func (NotebookSectionHeadingSize) Type() protoreflect.EnumType {
-	return &file_chalk_notebook_v1_document_proto_enumTypes[5]
+	return &file_chalk_notebook_v1_document_proto_enumTypes[6]
 }
 
 func (x NotebookSectionHeadingSize) Number() protoreflect.EnumNumber {
@@ -396,7 +457,7 @@ func (x NotebookSectionHeadingSize) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NotebookSectionHeadingSize.Descriptor instead.
 func (NotebookSectionHeadingSize) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{5}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{6}
 }
 
 // SINGLE_VALUE: how the element picks its value out of a dataframe variable.
@@ -434,11 +495,11 @@ func (x NotebookSingleValueSelector) String() string {
 }
 
 func (NotebookSingleValueSelector) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_notebook_v1_document_proto_enumTypes[6].Descriptor()
+	return file_chalk_notebook_v1_document_proto_enumTypes[7].Descriptor()
 }
 
 func (NotebookSingleValueSelector) Type() protoreflect.EnumType {
-	return &file_chalk_notebook_v1_document_proto_enumTypes[6]
+	return &file_chalk_notebook_v1_document_proto_enumTypes[7]
 }
 
 func (x NotebookSingleValueSelector) Number() protoreflect.EnumNumber {
@@ -447,7 +508,7 @@ func (x NotebookSingleValueSelector) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NotebookSingleValueSelector.Descriptor instead.
 func (NotebookSingleValueSelector) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{6}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{7}
 }
 
 // SINGLE_VALUE: how a dataframe column reduces to one value.
@@ -499,11 +560,11 @@ func (x NotebookSingleValueAggregation) String() string {
 }
 
 func (NotebookSingleValueAggregation) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_notebook_v1_document_proto_enumTypes[7].Descriptor()
+	return file_chalk_notebook_v1_document_proto_enumTypes[8].Descriptor()
 }
 
 func (NotebookSingleValueAggregation) Type() protoreflect.EnumType {
-	return &file_chalk_notebook_v1_document_proto_enumTypes[7]
+	return &file_chalk_notebook_v1_document_proto_enumTypes[8]
 }
 
 func (x NotebookSingleValueAggregation) Number() protoreflect.EnumNumber {
@@ -512,7 +573,7 @@ func (x NotebookSingleValueAggregation) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NotebookSingleValueAggregation.Descriptor instead.
 func (NotebookSingleValueAggregation) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{7}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{8}
 }
 
 // How SELECT/MULTISELECT choices are sourced.
@@ -550,11 +611,11 @@ func (x NotebookInputValuesMode) String() string {
 }
 
 func (NotebookInputValuesMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_notebook_v1_document_proto_enumTypes[8].Descriptor()
+	return file_chalk_notebook_v1_document_proto_enumTypes[9].Descriptor()
 }
 
 func (NotebookInputValuesMode) Type() protoreflect.EnumType {
-	return &file_chalk_notebook_v1_document_proto_enumTypes[8]
+	return &file_chalk_notebook_v1_document_proto_enumTypes[9]
 }
 
 func (x NotebookInputValuesMode) Number() protoreflect.EnumNumber {
@@ -563,7 +624,7 @@ func (x NotebookInputValuesMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NotebookInputValuesMode.Descriptor instead.
 func (NotebookInputValuesMode) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{8}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{9}
 }
 
 type NotebookCellGroupKind int32
@@ -597,11 +658,11 @@ func (x NotebookCellGroupKind) String() string {
 }
 
 func (NotebookCellGroupKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_notebook_v1_document_proto_enumTypes[9].Descriptor()
+	return file_chalk_notebook_v1_document_proto_enumTypes[10].Descriptor()
 }
 
 func (NotebookCellGroupKind) Type() protoreflect.EnumType {
-	return &file_chalk_notebook_v1_document_proto_enumTypes[9]
+	return &file_chalk_notebook_v1_document_proto_enumTypes[10]
 }
 
 func (x NotebookCellGroupKind) Number() protoreflect.EnumNumber {
@@ -610,7 +671,63 @@ func (x NotebookCellGroupKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NotebookCellGroupKind.Descriptor instead.
 func (NotebookCellGroupKind) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{9}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{10}
+}
+
+// Where a listed notebook secret comes from. GRANTED entries are read-only
+// through the notebook surface: they are injected into runs but cannot be
+// edited, deleted, or have their value read via the notebook secret RPCs
+// (manage them from the environment secrets page instead). A notebook-owned
+// secret with the same name shadows a granted one at runtime.
+type NotebookSecretOrigin int32
+
+const (
+	NotebookSecretOrigin_NOTEBOOK_SECRET_ORIGIN_UNSPECIFIED NotebookSecretOrigin = 0
+	// Owned by the notebook's scope.
+	NotebookSecretOrigin_NOTEBOOK_SECRET_ORIGIN_OWN NotebookSecretOrigin = 1
+	// An environment-wide secret granted to the notebook's scope by reference.
+	NotebookSecretOrigin_NOTEBOOK_SECRET_ORIGIN_GRANTED NotebookSecretOrigin = 2
+)
+
+// Enum value maps for NotebookSecretOrigin.
+var (
+	NotebookSecretOrigin_name = map[int32]string{
+		0: "NOTEBOOK_SECRET_ORIGIN_UNSPECIFIED",
+		1: "NOTEBOOK_SECRET_ORIGIN_OWN",
+		2: "NOTEBOOK_SECRET_ORIGIN_GRANTED",
+	}
+	NotebookSecretOrigin_value = map[string]int32{
+		"NOTEBOOK_SECRET_ORIGIN_UNSPECIFIED": 0,
+		"NOTEBOOK_SECRET_ORIGIN_OWN":         1,
+		"NOTEBOOK_SECRET_ORIGIN_GRANTED":     2,
+	}
+)
+
+func (x NotebookSecretOrigin) Enum() *NotebookSecretOrigin {
+	p := new(NotebookSecretOrigin)
+	*p = x
+	return p
+}
+
+func (x NotebookSecretOrigin) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookSecretOrigin) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_notebook_v1_document_proto_enumTypes[11].Descriptor()
+}
+
+func (NotebookSecretOrigin) Type() protoreflect.EnumType {
+	return &file_chalk_notebook_v1_document_proto_enumTypes[11]
+}
+
+func (x NotebookSecretOrigin) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookSecretOrigin.Descriptor instead.
+func (NotebookSecretOrigin) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{11}
 }
 
 type NotebookSQLDatasourceRef struct {
@@ -763,9 +880,12 @@ type NotebookDocumentDefaults struct {
 	// the kernel container is provisioned from the referenced custom image
 	// (chalk_nb_server base + user layers) instead of the server default runtime
 	// image. Absent or unresolvable -> the default runtime image (never wedges).
-	Image         *NotebookImageRef `protobuf:"bytes,7,opt,name=image,proto3,oneof" json:"image,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Image *NotebookImageRef `protobuf:"bytes,7,opt,name=image,proto3,oneof" json:"image,omitempty"`
+	// Notebook-level default max staleness for SQL result caching. Absent =
+	// inherit from environment/team settings. 0 = caching off for this notebook.
+	SqlMaxStaleness *durationpb.Duration `protobuf:"bytes,8,opt,name=sql_max_staleness,json=sqlMaxStaleness,proto3,oneof" json:"sql_max_staleness,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *NotebookDocumentDefaults) Reset() {
@@ -840,6 +960,13 @@ func (x *NotebookDocumentDefaults) GetImage() *NotebookImageRef {
 	return nil
 }
 
+func (x *NotebookDocumentDefaults) GetSqlMaxStaleness() *durationpb.Duration {
+	if x != nil {
+		return x.SqlMaxStaleness
+	}
+	return nil
+}
+
 type NotebookPythonExecutionOptions struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ResourceGroup *string                `protobuf:"bytes,1,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
@@ -901,8 +1028,13 @@ type NotebookSQLExecutionOptions struct {
 	MaxMemoryBytes             *int64                   `protobuf:"varint,3,opt,name=max_memory_bytes,json=maxMemoryBytes,proto3,oneof" json:"max_memory_bytes,omitempty"`
 	PersistResults             bool                     `protobuf:"varint,4,opt,name=persist_results,json=persistResults,proto3" json:"persist_results,omitempty"`
 	GeneratePerformanceSummary bool                     `protobuf:"varint,5,opt,name=generate_performance_summary,json=generatePerformanceSummary,proto3" json:"generate_performance_summary,omitempty"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	// Per-cell cache opinion: reuse this cell's prior result if it is younger
+	// than this. 0 = always execute fresh (never serve from cache). Absent =
+	// inherit (notebook -> environment -> team -> server default). Deliberately
+	// excluded from the cache fingerprint so tuning it never busts the cache.
+	MaxStaleness  *durationpb.Duration `protobuf:"bytes,6,opt,name=max_staleness,json=maxStaleness,proto3,oneof" json:"max_staleness,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *NotebookSQLExecutionOptions) Reset() {
@@ -968,6 +1100,13 @@ func (x *NotebookSQLExecutionOptions) GetGeneratePerformanceSummary() bool {
 		return x.GeneratePerformanceSummary
 	}
 	return false
+}
+
+func (x *NotebookSQLExecutionOptions) GetMaxStaleness() *durationpb.Duration {
+	if x != nil {
+		return x.MaxStaleness
+	}
+	return nil
 }
 
 type NotebookPythonCell struct {
@@ -1236,9 +1375,24 @@ type NotebookInputCell struct {
 	// SECTION cells: title typography (`label` carries the title).
 	SectionHeadingSize NotebookSectionHeadingSize `protobuf:"varint,20,opt,name=section_heading_size,json=sectionHeadingSize,proto3,enum=chalk.notebook.v1.NotebookSectionHeadingSize" json:"section_heading_size,omitempty"`
 	// Caption under the control, editable in place (TOGGLE/CHECKBOX today).
-	Description   *string `protobuf:"bytes,21,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Description *string `protobuf:"bytes,21,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	// SINGLE_VALUE display format id, from the frontend's shared column-format
+	// menu (e.g. "currency", "relative-time"). Kept as a string so the format
+	// list stays frontend-owned; unset/unknown values render as "automatic".
+	SingleValueFormat *string `protobuf:"bytes,22,opt,name=single_value_format,json=singleValueFormat,proto3,oneof" json:"single_value_format,omitempty"`
+	// Legacy TABLE input cells (kind = TABLE): superseded by the first-class
+	// NotebookTableCell body case. Readers map these fields forward; writers
+	// never emit them.
+	TableSourceKind        NotebookTableSourceKind `protobuf:"varint,23,opt,name=table_source_kind,json=tableSourceKind,proto3,enum=chalk.notebook.v1.NotebookTableSourceKind" json:"table_source_kind,omitempty"`
+	TableVariable          *string                 `protobuf:"bytes,24,opt,name=table_variable,json=tableVariable,proto3,oneof" json:"table_variable,omitempty"`
+	TableDatasetName       *string                 `protobuf:"bytes,25,opt,name=table_dataset_name,json=tableDatasetName,proto3,oneof" json:"table_dataset_name,omitempty"`
+	TableDatasetRevisionId *string                 `protobuf:"bytes,26,opt,name=table_dataset_revision_id,json=tableDatasetRevisionId,proto3,oneof" json:"table_dataset_revision_id,omitempty"`
+	TableSqlDatasource     *string                 `protobuf:"bytes,27,opt,name=table_sql_datasource,json=tableSqlDatasource,proto3,oneof" json:"table_sql_datasource,omitempty"`
+	TableSqlCatalog        *string                 `protobuf:"bytes,28,opt,name=table_sql_catalog,json=tableSqlCatalog,proto3,oneof" json:"table_sql_catalog,omitempty"`
+	TableSqlSchema         *string                 `protobuf:"bytes,29,opt,name=table_sql_schema,json=tableSqlSchema,proto3,oneof" json:"table_sql_schema,omitempty"`
+	TableSqlTable          *string                 `protobuf:"bytes,30,opt,name=table_sql_table,json=tableSqlTable,proto3,oneof" json:"table_sql_table,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *NotebookInputCell) Reset() {
@@ -1418,6 +1572,350 @@ func (x *NotebookInputCell) GetDescription() string {
 	return ""
 }
 
+func (x *NotebookInputCell) GetSingleValueFormat() string {
+	if x != nil && x.SingleValueFormat != nil {
+		return *x.SingleValueFormat
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetTableSourceKind() NotebookTableSourceKind {
+	if x != nil {
+		return x.TableSourceKind
+	}
+	return NotebookTableSourceKind_NOTEBOOK_TABLE_SOURCE_KIND_UNSPECIFIED
+}
+
+func (x *NotebookInputCell) GetTableVariable() string {
+	if x != nil && x.TableVariable != nil {
+		return *x.TableVariable
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetTableDatasetName() string {
+	if x != nil && x.TableDatasetName != nil {
+		return *x.TableDatasetName
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetTableDatasetRevisionId() string {
+	if x != nil && x.TableDatasetRevisionId != nil {
+		return *x.TableDatasetRevisionId
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetTableSqlDatasource() string {
+	if x != nil && x.TableSqlDatasource != nil {
+		return *x.TableSqlDatasource
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetTableSqlCatalog() string {
+	if x != nil && x.TableSqlCatalog != nil {
+		return *x.TableSqlCatalog
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetTableSqlSchema() string {
+	if x != nil && x.TableSqlSchema != nil {
+		return *x.TableSqlSchema
+	}
+	return ""
+}
+
+func (x *NotebookInputCell) GetTableSqlTable() string {
+	if x != nil && x.TableSqlTable != nil {
+		return *x.TableSqlTable
+	}
+	return ""
+}
+
+// Kernel variable holding an Arrow-backed dataframe.
+type NotebookTableVariableSource struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Variable      string                 `protobuf:"bytes,1,opt,name=variable,proto3" json:"variable,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookTableVariableSource) Reset() {
+	*x = NotebookTableVariableSource{}
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookTableVariableSource) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookTableVariableSource) ProtoMessage() {}
+
+func (x *NotebookTableVariableSource) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookTableVariableSource.ProtoReflect.Descriptor instead.
+func (*NotebookTableVariableSource) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *NotebookTableVariableSource) GetVariable() string {
+	if x != nil {
+		return x.Variable
+	}
+	return ""
+}
+
+// Chalk dataset: display name plus the revision the preview reads from
+// (GetDatasetRevisionPreview keys on revision id).
+type NotebookTableDatasetSource struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DatasetName   string                 `protobuf:"bytes,1,opt,name=dataset_name,json=datasetName,proto3" json:"dataset_name,omitempty"`
+	RevisionId    string                 `protobuf:"bytes,2,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookTableDatasetSource) Reset() {
+	*x = NotebookTableDatasetSource{}
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookTableDatasetSource) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookTableDatasetSource) ProtoMessage() {}
+
+func (x *NotebookTableDatasetSource) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookTableDatasetSource.ProtoReflect.Descriptor instead.
+func (*NotebookTableDatasetSource) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *NotebookTableDatasetSource) GetDatasetName() string {
+	if x != nil {
+		return x.DatasetName
+	}
+	return ""
+}
+
+func (x *NotebookTableDatasetSource) GetRevisionId() string {
+	if x != nil {
+		return x.RevisionId
+	}
+	return ""
+}
+
+// Fully-qualified table identity within a configured SQL datasource
+// (catalog/schema may be empty for sources without that level).
+type NotebookTableSqlTableSource struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Datasource    string                 `protobuf:"bytes,1,opt,name=datasource,proto3" json:"datasource,omitempty"`
+	Catalog       string                 `protobuf:"bytes,2,opt,name=catalog,proto3" json:"catalog,omitempty"`
+	DbSchema      string                 `protobuf:"bytes,3,opt,name=db_schema,json=dbSchema,proto3" json:"db_schema,omitempty"`
+	Table         string                 `protobuf:"bytes,4,opt,name=table,proto3" json:"table,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookTableSqlTableSource) Reset() {
+	*x = NotebookTableSqlTableSource{}
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookTableSqlTableSource) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookTableSqlTableSource) ProtoMessage() {}
+
+func (x *NotebookTableSqlTableSource) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookTableSqlTableSource.ProtoReflect.Descriptor instead.
+func (*NotebookTableSqlTableSource) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *NotebookTableSqlTableSource) GetDatasource() string {
+	if x != nil {
+		return x.Datasource
+	}
+	return ""
+}
+
+func (x *NotebookTableSqlTableSource) GetCatalog() string {
+	if x != nil {
+		return x.Catalog
+	}
+	return ""
+}
+
+func (x *NotebookTableSqlTableSource) GetDbSchema() string {
+	if x != nil {
+		return x.DbSchema
+	}
+	return ""
+}
+
+func (x *NotebookTableSqlTableSource) GetTable() string {
+	if x != nil {
+		return x.Table
+	}
+	return ""
+}
+
+// Display-only cell rendering a dataframe as a full-width table. Never
+// executed and never bound into the kernel; resolved client-side.
+type NotebookTableCell struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Where the rows come from; unset renders the cell's empty "choose a data
+	// source" state.
+	//
+	// Types that are valid to be assigned to Source:
+	//
+	//	*NotebookTableCell_Variable
+	//	*NotebookTableCell_Dataset
+	//	*NotebookTableCell_SqlTable
+	Source isNotebookTableCell_Source `protobuf_oneof:"source"`
+	// Caption shown under the table.
+	Label         string `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookTableCell) Reset() {
+	*x = NotebookTableCell{}
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookTableCell) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookTableCell) ProtoMessage() {}
+
+func (x *NotebookTableCell) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookTableCell.ProtoReflect.Descriptor instead.
+func (*NotebookTableCell) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *NotebookTableCell) GetSource() isNotebookTableCell_Source {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *NotebookTableCell) GetVariable() *NotebookTableVariableSource {
+	if x != nil {
+		if x, ok := x.Source.(*NotebookTableCell_Variable); ok {
+			return x.Variable
+		}
+	}
+	return nil
+}
+
+func (x *NotebookTableCell) GetDataset() *NotebookTableDatasetSource {
+	if x != nil {
+		if x, ok := x.Source.(*NotebookTableCell_Dataset); ok {
+			return x.Dataset
+		}
+	}
+	return nil
+}
+
+func (x *NotebookTableCell) GetSqlTable() *NotebookTableSqlTableSource {
+	if x != nil {
+		if x, ok := x.Source.(*NotebookTableCell_SqlTable); ok {
+			return x.SqlTable
+		}
+	}
+	return nil
+}
+
+func (x *NotebookTableCell) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+type isNotebookTableCell_Source interface {
+	isNotebookTableCell_Source()
+}
+
+type NotebookTableCell_Variable struct {
+	Variable *NotebookTableVariableSource `protobuf:"bytes,1,opt,name=variable,proto3,oneof"`
+}
+
+type NotebookTableCell_Dataset struct {
+	Dataset *NotebookTableDatasetSource `protobuf:"bytes,2,opt,name=dataset,proto3,oneof"`
+}
+
+type NotebookTableCell_SqlTable struct {
+	SqlTable *NotebookTableSqlTableSource `protobuf:"bytes,3,opt,name=sql_table,json=sqlTable,proto3,oneof"`
+}
+
+func (*NotebookTableCell_Variable) isNotebookTableCell_Source() {}
+
+func (*NotebookTableCell_Dataset) isNotebookTableCell_Source() {}
+
+func (*NotebookTableCell_SqlTable) isNotebookTableCell_Source() {}
+
 type NotebookOnlineQueryCell struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	Query              *v1.GenericSingleQuery `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
@@ -1428,7 +1926,7 @@ type NotebookOnlineQueryCell struct {
 
 func (x *NotebookOnlineQueryCell) Reset() {
 	*x = NotebookOnlineQueryCell{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[10]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1440,7 +1938,7 @@ func (x *NotebookOnlineQueryCell) String() string {
 func (*NotebookOnlineQueryCell) ProtoMessage() {}
 
 func (x *NotebookOnlineQueryCell) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[10]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1453,7 +1951,7 @@ func (x *NotebookOnlineQueryCell) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOnlineQueryCell.ProtoReflect.Descriptor instead.
 func (*NotebookOnlineQueryCell) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{10}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *NotebookOnlineQueryCell) GetQuery() *v1.GenericSingleQuery {
@@ -1480,7 +1978,7 @@ type NotebookOfflineQueryCell struct {
 
 func (x *NotebookOfflineQueryCell) Reset() {
 	*x = NotebookOfflineQueryCell{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[11]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1492,7 +1990,7 @@ func (x *NotebookOfflineQueryCell) String() string {
 func (*NotebookOfflineQueryCell) ProtoMessage() {}
 
 func (x *NotebookOfflineQueryCell) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[11]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1505,7 +2003,7 @@ func (x *NotebookOfflineQueryCell) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookOfflineQueryCell.ProtoReflect.Descriptor instead.
 func (*NotebookOfflineQueryCell) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{11}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *NotebookOfflineQueryCell) GetQuery() *v1.OfflineQueryRequest {
@@ -1533,7 +2031,7 @@ type NotebookCellViewState struct {
 
 func (x *NotebookCellViewState) Reset() {
 	*x = NotebookCellViewState{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[12]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1545,7 +2043,7 @@ func (x *NotebookCellViewState) String() string {
 func (*NotebookCellViewState) ProtoMessage() {}
 
 func (x *NotebookCellViewState) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[12]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1558,7 +2056,7 @@ func (x *NotebookCellViewState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookCellViewState.ProtoReflect.Descriptor instead.
 func (*NotebookCellViewState) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{12}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *NotebookCellViewState) GetSourceCollapsed() bool {
@@ -1599,7 +2097,7 @@ type NotebookCellGroup struct {
 
 func (x *NotebookCellGroup) Reset() {
 	*x = NotebookCellGroup{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[13]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1611,7 +2109,7 @@ func (x *NotebookCellGroup) String() string {
 func (*NotebookCellGroup) ProtoMessage() {}
 
 func (x *NotebookCellGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[13]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1624,7 +2122,7 @@ func (x *NotebookCellGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookCellGroup.ProtoReflect.Descriptor instead.
 func (*NotebookCellGroup) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{13}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *NotebookCellGroup) GetId() string {
@@ -1675,6 +2173,7 @@ type NotebookCell struct {
 	//	*NotebookCell_OnlineQuery
 	//	*NotebookCell_OfflineQuery
 	//	*NotebookCell_Input
+	//	*NotebookCell_Table
 	Body          isNotebookCell_Body `protobuf_oneof:"body"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1682,7 +2181,7 @@ type NotebookCell struct {
 
 func (x *NotebookCell) Reset() {
 	*x = NotebookCell{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[14]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1694,7 +2193,7 @@ func (x *NotebookCell) String() string {
 func (*NotebookCell) ProtoMessage() {}
 
 func (x *NotebookCell) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[14]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1707,7 +2206,7 @@ func (x *NotebookCell) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookCell.ProtoReflect.Descriptor instead.
 func (*NotebookCell) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{14}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *NotebookCell) GetId() string {
@@ -1850,6 +2349,15 @@ func (x *NotebookCell) GetInput() *NotebookInputCell {
 	return nil
 }
 
+func (x *NotebookCell) GetTable() *NotebookTableCell {
+	if x != nil {
+		if x, ok := x.Body.(*NotebookCell_Table); ok {
+			return x.Table
+		}
+	}
+	return nil
+}
+
 type isNotebookCell_Body interface {
 	isNotebookCell_Body()
 }
@@ -1882,6 +2390,10 @@ type NotebookCell_Input struct {
 	Input *NotebookInputCell `protobuf:"bytes,26,opt,name=input,proto3,oneof"`
 }
 
+type NotebookCell_Table struct {
+	Table *NotebookTableCell `protobuf:"bytes,27,opt,name=table,proto3,oneof"`
+}
+
 func (*NotebookCell_Python) isNotebookCell_Body() {}
 
 func (*NotebookCell_Sql) isNotebookCell_Body() {}
@@ -1895,6 +2407,8 @@ func (*NotebookCell_OnlineQuery) isNotebookCell_Body() {}
 func (*NotebookCell_OfflineQuery) isNotebookCell_Body() {}
 
 func (*NotebookCell_Input) isNotebookCell_Body() {}
+
+func (*NotebookCell_Table) isNotebookCell_Body() {}
 
 type NotebookDocument struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
@@ -1926,14 +2440,23 @@ type NotebookDocument struct {
 	ViewerLastViewedAt *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=viewer_last_viewed_at,json=viewerLastViewedAt,proto3" json:"viewer_last_viewed_at,omitempty"`
 	// Cell groupings referenced by NotebookCell.group_id (rows today; future
 	// grouping kinds reuse this registry).
-	CellGroups    []*NotebookCellGroup `protobuf:"bytes,19,rep,name=cell_groups,json=cellGroups,proto3" json:"cell_groups,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CellGroups []*NotebookCellGroup `protobuf:"bytes,19,rep,name=cell_groups,json=cellGroups,proto3" json:"cell_groups,omitempty"`
+	// Id of the chalk.artifacts.v1.Dashboard row backing this notebook's app
+	// view. On the live document this is the mutable layout
+	// (owner_type="notebook", owner_id=this document's id), server-set via
+	// EnsureNotebookApp and absent until the app is first created. On a
+	// historical read (GetNotebookDocument with revision_id) it is instead that
+	// revision's immutable layout snapshot (owner_type="notebook_version"), or
+	// absent for revisions predating the app. A soft string ref by design:
+	// layout persistence stays with the dashboard service.
+	AppDashboardId *string `protobuf:"bytes,20,opt,name=app_dashboard_id,json=appDashboardId,proto3,oneof" json:"app_dashboard_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *NotebookDocument) Reset() {
 	*x = NotebookDocument{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[15]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1945,7 +2468,7 @@ func (x *NotebookDocument) String() string {
 func (*NotebookDocument) ProtoMessage() {}
 
 func (x *NotebookDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[15]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1958,7 +2481,7 @@ func (x *NotebookDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookDocument.ProtoReflect.Descriptor instead.
 func (*NotebookDocument) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{15}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *NotebookDocument) GetId() string {
@@ -2087,23 +2610,35 @@ func (x *NotebookDocument) GetCellGroups() []*NotebookCellGroup {
 	return nil
 }
 
+func (x *NotebookDocument) GetAppDashboardId() string {
+	if x != nil && x.AppDashboardId != nil {
+		return *x.AppDashboardId
+	}
+	return ""
+}
+
 // Metadata for one persisted document revision. Revision content is fetched
 // via GetNotebookDocument with revision_id set.
 type NotebookDocumentRevision struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RevisionId    string                 `protobuf:"bytes,1,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
-	NotebookId    string                 `protobuf:"bytes,2,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
-	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	CellCount     int32                  `protobuf:"varint,4,opt,name=cell_count,json=cellCount,proto3" json:"cell_count,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	CreatedBy     string                 `protobuf:"bytes,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	RevisionId string                 `protobuf:"bytes,1,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	NotebookId string                 `protobuf:"bytes,2,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	Title      string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	CellCount  int32                  `protobuf:"varint,4,opt,name=cell_count,json=cellCount,proto3" json:"cell_count,omitempty"`
+	CreatedAt  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedBy  string                 `protobuf:"bytes,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// App-layout snapshot as of this revision: id of an immutable Dashboard row
+	// (owner_type="notebook_version"). Revisions whose layout did not change
+	// share their predecessor's snapshot row. Absent for revisions that predate
+	// the notebook's app.
+	AppDashboardId *string `protobuf:"bytes,7,opt,name=app_dashboard_id,json=appDashboardId,proto3,oneof" json:"app_dashboard_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *NotebookDocumentRevision) Reset() {
 	*x = NotebookDocumentRevision{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[16]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2115,7 +2650,7 @@ func (x *NotebookDocumentRevision) String() string {
 func (*NotebookDocumentRevision) ProtoMessage() {}
 
 func (x *NotebookDocumentRevision) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[16]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2128,7 +2663,7 @@ func (x *NotebookDocumentRevision) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookDocumentRevision.ProtoReflect.Descriptor instead.
 func (*NotebookDocumentRevision) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{16}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *NotebookDocumentRevision) GetRevisionId() string {
@@ -2173,6 +2708,13 @@ func (x *NotebookDocumentRevision) GetCreatedBy() string {
 	return ""
 }
 
+func (x *NotebookDocumentRevision) GetAppDashboardId() string {
+	if x != nil && x.AppDashboardId != nil {
+		return *x.AppDashboardId
+	}
+	return ""
+}
+
 type NotebookSecret struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -2180,13 +2722,14 @@ type NotebookSecret struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Source        v11.SecretSource       `protobuf:"varint,4,opt,name=source,proto3,enum=chalk.server.v1.SecretSource" json:"source,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Origin        NotebookSecretOrigin   `protobuf:"varint,6,opt,name=origin,proto3,enum=chalk.notebook.v1.NotebookSecretOrigin" json:"origin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *NotebookSecret) Reset() {
 	*x = NotebookSecret{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[17]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2198,7 +2741,7 @@ func (x *NotebookSecret) String() string {
 func (*NotebookSecret) ProtoMessage() {}
 
 func (x *NotebookSecret) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[17]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2211,7 +2754,7 @@ func (x *NotebookSecret) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookSecret.ProtoReflect.Descriptor instead.
 func (*NotebookSecret) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{17}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *NotebookSecret) GetId() string {
@@ -2249,6 +2792,13 @@ func (x *NotebookSecret) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *NotebookSecret) GetOrigin() NotebookSecretOrigin {
+	if x != nil {
+		return x.Origin
+	}
+	return NotebookSecretOrigin_NOTEBOOK_SECRET_ORIGIN_UNSPECIFIED
+}
+
 type NotebookSecretValue struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -2260,7 +2810,7 @@ type NotebookSecretValue struct {
 
 func (x *NotebookSecretValue) Reset() {
 	*x = NotebookSecretValue{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[18]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2272,7 +2822,7 @@ func (x *NotebookSecretValue) String() string {
 func (*NotebookSecretValue) ProtoMessage() {}
 
 func (x *NotebookSecretValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[18]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2285,7 +2835,7 @@ func (x *NotebookSecretValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookSecretValue.ProtoReflect.Descriptor instead.
 func (*NotebookSecretValue) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{18}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *NotebookSecretValue) GetName() string {
@@ -2313,7 +2863,7 @@ var File_chalk_notebook_v1_document_proto protoreflect.FileDescriptor
 
 const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\n" +
-	" chalk/notebook/v1/document.proto\x12\x11chalk.notebook.v1\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"p\n" +
+	" chalk/notebook/v1/document.proto\x12\x11chalk.notebook.v1\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"p\n" +
 	"\x18NotebookSQLDatasourceRef\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -2321,31 +2871,35 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x06schema\x18\x04 \x01(\tR\x06schema\"P\n" +
 	"\x10NotebookImageRef\x12!\n" +
 	"\fcontent_hash\x18\x01 \x01(\tR\vcontentHash\x12\x19\n" +
-	"\bbuild_id\x18\x02 \x01(\tR\abuildId\"\xdc\x03\n" +
+	"\bbuild_id\x18\x02 \x01(\tR\abuildId\"\xbe\x04\n" +
 	"\x18NotebookDocumentDefaults\x12R\n" +
 	"\x0esql_datasource\x18\x01 \x01(\v2+.chalk.notebook.v1.NotebookSQLDatasourceRefR\rsqlDatasource\x12*\n" +
 	"\x0eresource_group\x18\x02 \x01(\tH\x00R\rresourceGroup\x88\x01\x01\x12O\n" +
 	"\x0ecompute_preset\x18\x03 \x01(\x0e2(.chalk.notebook.v1.NotebookComputePresetR\rcomputePreset\x125\n" +
 	"\x14idle_timeout_seconds\x18\x04 \x01(\x05H\x01R\x12idleTimeoutSeconds\x88\x01\x01\x12\x1f\n" +
 	"\btimezone\x18\x05 \x01(\tH\x02R\btimezone\x88\x01\x01\x12>\n" +
-	"\x05image\x18\a \x01(\v2#.chalk.notebook.v1.NotebookImageRefH\x03R\x05image\x88\x01\x01B\x11\n" +
+	"\x05image\x18\a \x01(\v2#.chalk.notebook.v1.NotebookImageRefH\x03R\x05image\x88\x01\x01\x12J\n" +
+	"\x11sql_max_staleness\x18\b \x01(\v2\x19.google.protobuf.DurationH\x04R\x0fsqlMaxStaleness\x88\x01\x01B\x11\n" +
 	"\x0f_resource_groupB\x17\n" +
 	"\x15_idle_timeout_secondsB\v\n" +
 	"\t_timezoneB\b\n" +
-	"\x06_imageJ\x04\b\x06\x10\aR\x0epython_version\"\xa1\x01\n" +
+	"\x06_imageB\x14\n" +
+	"\x12_sql_max_stalenessJ\x04\b\x06\x10\aR\x0epython_version\"\xa1\x01\n" +
 	"\x1eNotebookPythonExecutionOptions\x12*\n" +
 	"\x0eresource_group\x18\x01 \x01(\tH\x00R\rresourceGroup\x88\x01\x01\x12,\n" +
 	"\x0ftimeout_seconds\x18\x02 \x01(\x05H\x01R\x0etimeoutSeconds\x88\x01\x01B\x11\n" +
 	"\x0f_resource_groupB\x12\n" +
-	"\x10_timeout_seconds\"\xdf\x02\n" +
+	"\x10_timeout_seconds\"\xb6\x03\n" +
 	"\x1bNotebookSQLExecutionOptions\x12*\n" +
 	"\x0eresource_group\x18\x01 \x01(\tH\x00R\rresourceGroup\x88\x01\x01\x12R\n" +
 	"\x0eexecution_mode\x18\x02 \x01(\x0e2+.chalk.notebook.v1.NotebookSQLExecutionModeR\rexecutionMode\x12-\n" +
 	"\x10max_memory_bytes\x18\x03 \x01(\x03H\x01R\x0emaxMemoryBytes\x88\x01\x01\x12'\n" +
 	"\x0fpersist_results\x18\x04 \x01(\bR\x0epersistResults\x12@\n" +
-	"\x1cgenerate_performance_summary\x18\x05 \x01(\bR\x1ageneratePerformanceSummaryB\x11\n" +
+	"\x1cgenerate_performance_summary\x18\x05 \x01(\bR\x1ageneratePerformanceSummary\x12C\n" +
+	"\rmax_staleness\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x02R\fmaxStaleness\x88\x01\x01B\x11\n" +
 	"\x0f_resource_groupB\x13\n" +
-	"\x11_max_memory_bytes\"\xdc\x01\n" +
+	"\x11_max_memory_bytesB\x10\n" +
+	"\x0e_max_staleness\"\xdc\x01\n" +
 	"\x12NotebookPythonCell\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x125\n" +
 	"\x14result_variable_name\x18\x02 \x01(\tH\x00R\x12resultVariableName\x88\x01\x01\x12^\n" +
@@ -2360,8 +2914,7 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x10NotebookTextCell\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\".\n" +
 	"\x14NotebookMarkdownCell\x12\x16\n" +
-	"\x06source\x18\x01 \x01(\tR\x06source\"\xf6\n" +
-	"\n" +
+	"\x06source\x18\x01 \x01(\tR\x06source\"\x9e\x10\n" +
 	"\x11NotebookInputCell\x128\n" +
 	"\x04kind\x18\x01 \x01(\x0e2$.chalk.notebook.v1.NotebookInputKindR\x04kind\x125\n" +
 	"\x14result_variable_name\x18\x02 \x01(\tH\x00R\x12resultVariableName\x88\x01\x01\x12\x14\n" +
@@ -2389,7 +2942,16 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x18single_value_aggregation\x18\x13 \x01(\x0e21.chalk.notebook.v1.NotebookSingleValueAggregationR\x16singleValueAggregation\x12_\n" +
 	"\x14section_heading_size\x18\x14 \x01(\x0e2-.chalk.notebook.v1.NotebookSectionHeadingSizeR\x12sectionHeadingSize\x12%\n" +
 	"\vdescription\x18\x15 \x01(\tH\n" +
-	"R\vdescription\x88\x01\x01B\x17\n" +
+	"R\vdescription\x88\x01\x01\x123\n" +
+	"\x13single_value_format\x18\x16 \x01(\tH\vR\x11singleValueFormat\x88\x01\x01\x12V\n" +
+	"\x11table_source_kind\x18\x17 \x01(\x0e2*.chalk.notebook.v1.NotebookTableSourceKindR\x0ftableSourceKind\x12*\n" +
+	"\x0etable_variable\x18\x18 \x01(\tH\fR\rtableVariable\x88\x01\x01\x121\n" +
+	"\x12table_dataset_name\x18\x19 \x01(\tH\rR\x10tableDatasetName\x88\x01\x01\x12>\n" +
+	"\x19table_dataset_revision_id\x18\x1a \x01(\tH\x0eR\x16tableDatasetRevisionId\x88\x01\x01\x125\n" +
+	"\x14table_sql_datasource\x18\x1b \x01(\tH\x0fR\x12tableSqlDatasource\x88\x01\x01\x12/\n" +
+	"\x11table_sql_catalog\x18\x1c \x01(\tH\x10R\x0ftableSqlCatalog\x88\x01\x01\x12-\n" +
+	"\x10table_sql_schema\x18\x1d \x01(\tH\x11R\x0etableSqlSchema\x88\x01\x01\x12+\n" +
+	"\x0ftable_sql_table\x18\x1e \x01(\tH\x12R\rtableSqlTable\x88\x01\x01B\x17\n" +
 	"\x15_result_variable_nameB\x1a\n" +
 	"\x18_dynamic_values_variableB\x17\n" +
 	"\x15_dynamic_value_columnB\x19\n" +
@@ -2400,7 +2962,34 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\v_date_valueB\x18\n" +
 	"\x16_single_value_variableB\x16\n" +
 	"\x14_single_value_columnB\x0e\n" +
-	"\f_description\"\xa4\x01\n" +
+	"\f_descriptionB\x16\n" +
+	"\x14_single_value_formatB\x11\n" +
+	"\x0f_table_variableB\x15\n" +
+	"\x13_table_dataset_nameB\x1c\n" +
+	"\x1a_table_dataset_revision_idB\x17\n" +
+	"\x15_table_sql_datasourceB\x14\n" +
+	"\x12_table_sql_catalogB\x13\n" +
+	"\x11_table_sql_schemaB\x12\n" +
+	"\x10_table_sql_table\"9\n" +
+	"\x1bNotebookTableVariableSource\x12\x1a\n" +
+	"\bvariable\x18\x01 \x01(\tR\bvariable\"`\n" +
+	"\x1aNotebookTableDatasetSource\x12!\n" +
+	"\fdataset_name\x18\x01 \x01(\tR\vdatasetName\x12\x1f\n" +
+	"\vrevision_id\x18\x02 \x01(\tR\n" +
+	"revisionId\"\x8a\x01\n" +
+	"\x1bNotebookTableSqlTableSource\x12\x1e\n" +
+	"\n" +
+	"datasource\x18\x01 \x01(\tR\n" +
+	"datasource\x12\x18\n" +
+	"\acatalog\x18\x02 \x01(\tR\acatalog\x12\x1b\n" +
+	"\tdb_schema\x18\x03 \x01(\tR\bdbSchema\x12\x14\n" +
+	"\x05table\x18\x04 \x01(\tR\x05table\"\x9b\x02\n" +
+	"\x11NotebookTableCell\x12L\n" +
+	"\bvariable\x18\x01 \x01(\v2..chalk.notebook.v1.NotebookTableVariableSourceH\x00R\bvariable\x12I\n" +
+	"\adataset\x18\x02 \x01(\v2-.chalk.notebook.v1.NotebookTableDatasetSourceH\x00R\adataset\x12M\n" +
+	"\tsql_table\x18\x03 \x01(\v2..chalk.notebook.v1.NotebookTableSqlTableSourceH\x00R\bsqlTable\x12\x14\n" +
+	"\x05label\x18\x04 \x01(\tR\x05labelB\b\n" +
+	"\x06source\"\xa4\x01\n" +
 	"\x17NotebookOnlineQueryCell\x129\n" +
 	"\x05query\x18\x01 \x01(\v2#.chalk.common.v1.GenericSingleQueryR\x05query\x125\n" +
 	"\x14result_variable_name\x18\x02 \x01(\tH\x00R\x12resultVariableName\x88\x01\x01B\x17\n" +
@@ -2417,7 +3006,7 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x11NotebookCellGroup\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12<\n" +
 	"\x04kind\x18\x02 \x01(\x0e2(.chalk.notebook.v1.NotebookCellGroupKindR\x04kind\x12\x14\n" +
-	"\x05title\x18\x03 \x01(\tR\x05title\"\x96\a\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\"\xd4\a\n" +
 	"\fNotebookCell\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12G\n" +
@@ -2443,10 +3032,11 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\bmarkdown\x18\x17 \x01(\v2'.chalk.notebook.v1.NotebookMarkdownCellH\x00R\bmarkdown\x12O\n" +
 	"\fonline_query\x18\x18 \x01(\v2*.chalk.notebook.v1.NotebookOnlineQueryCellH\x00R\vonlineQuery\x12R\n" +
 	"\roffline_query\x18\x19 \x01(\v2+.chalk.notebook.v1.NotebookOfflineQueryCellH\x00R\fofflineQuery\x12<\n" +
-	"\x05input\x18\x1a \x01(\v2$.chalk.notebook.v1.NotebookInputCellH\x00R\x05inputB\x06\n" +
+	"\x05input\x18\x1a \x01(\v2$.chalk.notebook.v1.NotebookInputCellH\x00R\x05input\x12<\n" +
+	"\x05table\x18\x1b \x01(\v2$.chalk.notebook.v1.NotebookTableCellH\x00R\x05tableB\x06\n" +
 	"\x04bodyB\v\n" +
 	"\t_group_idB\r\n" +
-	"\v_section_id\"\xba\x06\n" +
+	"\v_section_id\"\xfe\x06\n" +
 	"\x10NotebookDocument\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -2476,7 +3066,9 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x10total_view_count\x18\x11 \x01(\x03R\x0etotalViewCount\x12M\n" +
 	"\x15viewer_last_viewed_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\x12viewerLastViewedAt\x12E\n" +
 	"\vcell_groups\x18\x13 \x03(\v2$.chalk.notebook.v1.NotebookCellGroupR\n" +
-	"cellGroupsJ\x04\b\x0f\x10\x10R\brevision\"\xeb\x01\n" +
+	"cellGroups\x12-\n" +
+	"\x10app_dashboard_id\x18\x14 \x01(\tH\x00R\x0eappDashboardId\x88\x01\x01B\x13\n" +
+	"\x11_app_dashboard_idJ\x04\b\x0f\x10\x10R\brevision\"\xaf\x02\n" +
 	"\x18NotebookDocumentRevision\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
 	"revisionId\x12\x1f\n" +
@@ -2488,7 +3080,9 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"created_by\x18\x06 \x01(\tR\tcreatedBy\"\xc7\x01\n" +
+	"created_by\x18\x06 \x01(\tR\tcreatedBy\x12-\n" +
+	"\x10app_dashboard_id\x18\a \x01(\tH\x00R\x0eappDashboardId\x88\x01\x01B\x13\n" +
+	"\x11_app_dashboard_id\"\x88\x02\n" +
 	"\x0eNotebookSecret\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vnotebook_id\x18\x02 \x01(\tR\n" +
@@ -2496,7 +3090,8 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x125\n" +
 	"\x06source\x18\x04 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06source\x129\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"v\n" +
+	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12?\n" +
+	"\x06origin\x18\x06 \x01(\x0e2'.chalk.notebook.v1.NotebookSecretOriginR\x06origin\"v\n" +
 	"\x13NotebookSecretValue\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x125\n" +
@@ -2528,7 +3123,7 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"'NOTEBOOK_SQL_EXECUTION_MODE_UNSPECIFIED\x10\x00\x12$\n" +
 	" NOTEBOOK_SQL_EXECUTION_MODE_SYNC\x10\x01\x120\n" +
 	",NOTEBOOK_SQL_EXECUTION_MODE_IN_PROCESS_ASYNC\x10\x02\x12%\n" +
-	"!NOTEBOOK_SQL_EXECUTION_MODE_ASYNC\x10\x03*\xe2\x02\n" +
+	"!NOTEBOOK_SQL_EXECUTION_MODE_ASYNC\x10\x03*\x81\x03\n" +
 	"\x11NotebookInputKind\x12#\n" +
 	"\x1fNOTEBOOK_INPUT_KIND_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18NOTEBOOK_INPUT_KIND_TEXT\x10\x01\x12\x1e\n" +
@@ -2539,7 +3134,14 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\x1fNOTEBOOK_INPUT_KIND_MULTISELECT\x10\x06\x12$\n" +
 	" NOTEBOOK_INPUT_KIND_SINGLE_VALUE\x10\a\x12\x1f\n" +
 	"\x1bNOTEBOOK_INPUT_KIND_SECTION\x10\b\x12\x1e\n" +
-	"\x1aNOTEBOOK_INPUT_KIND_TOGGLE\x10\t*\xe6\x01\n" +
+	"\x1aNOTEBOOK_INPUT_KIND_TOGGLE\x10\t\x12\x1d\n" +
+	"\x19NOTEBOOK_INPUT_KIND_TABLE\x10\n" +
+	"*\xc0\x01\n" +
+	"\x17NotebookTableSourceKind\x12*\n" +
+	"&NOTEBOOK_TABLE_SOURCE_KIND_UNSPECIFIED\x10\x00\x12'\n" +
+	"#NOTEBOOK_TABLE_SOURCE_KIND_VARIABLE\x10\x01\x12&\n" +
+	"\"NOTEBOOK_TABLE_SOURCE_KIND_DATASET\x10\x02\x12(\n" +
+	"$NOTEBOOK_TABLE_SOURCE_KIND_SQL_TABLE\x10\x03*\xe6\x01\n" +
 	"\x1aNotebookSectionHeadingSize\x12-\n" +
 	")NOTEBOOK_SECTION_HEADING_SIZE_UNSPECIFIED\x10\x00\x12$\n" +
 	" NOTEBOOK_SECTION_HEADING_SIZE_H1\x10\x01\x12$\n" +
@@ -2565,7 +3167,11 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\"NOTEBOOK_INPUT_VALUES_MODE_DYNAMIC\x10\x02*c\n" +
 	"\x15NotebookCellGroupKind\x12(\n" +
 	"$NOTEBOOK_CELL_GROUP_KIND_UNSPECIFIED\x10\x00\x12 \n" +
-	"\x1cNOTEBOOK_CELL_GROUP_KIND_ROW\x10\x01B\xcb\x01\n" +
+	"\x1cNOTEBOOK_CELL_GROUP_KIND_ROW\x10\x01*\x82\x01\n" +
+	"\x14NotebookSecretOrigin\x12&\n" +
+	"\"NOTEBOOK_SECRET_ORIGIN_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aNOTEBOOK_SECRET_ORIGIN_OWN\x10\x01\x12\"\n" +
+	"\x1eNOTEBOOK_SECRET_ORIGIN_GRANTED\x10\x02B\xcb\x01\n" +
 	"\x15com.chalk.notebook.v1B\rDocumentProtoP\x01Z=github.com/chalk-ai/chalk-go/gen/chalk/notebook/v1;notebookv1\xa2\x02\x03CNX\xaa\x02\x11Chalk.Notebook.V1\xca\x02\x11Chalk\\Notebook\\V1\xe2\x02\x1dChalk\\Notebook\\V1\\GPBMetadata\xea\x02\x13Chalk::Notebook::V1b\x06proto3"
 
 var (
@@ -2580,85 +3186,100 @@ func file_chalk_notebook_v1_document_proto_rawDescGZIP() []byte {
 	return file_chalk_notebook_v1_document_proto_rawDescData
 }
 
-var file_chalk_notebook_v1_document_proto_enumTypes = make([]protoimpl.EnumInfo, 10)
-var file_chalk_notebook_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_chalk_notebook_v1_document_proto_enumTypes = make([]protoimpl.EnumInfo, 12)
+var file_chalk_notebook_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_chalk_notebook_v1_document_proto_goTypes = []any{
 	(NotebookCellExecutionStatus)(0),       // 0: chalk.notebook.v1.NotebookCellExecutionStatus
 	(NotebookRunScope)(0),                  // 1: chalk.notebook.v1.NotebookRunScope
 	(NotebookComputePreset)(0),             // 2: chalk.notebook.v1.NotebookComputePreset
 	(NotebookSQLExecutionMode)(0),          // 3: chalk.notebook.v1.NotebookSQLExecutionMode
 	(NotebookInputKind)(0),                 // 4: chalk.notebook.v1.NotebookInputKind
-	(NotebookSectionHeadingSize)(0),        // 5: chalk.notebook.v1.NotebookSectionHeadingSize
-	(NotebookSingleValueSelector)(0),       // 6: chalk.notebook.v1.NotebookSingleValueSelector
-	(NotebookSingleValueAggregation)(0),    // 7: chalk.notebook.v1.NotebookSingleValueAggregation
-	(NotebookInputValuesMode)(0),           // 8: chalk.notebook.v1.NotebookInputValuesMode
-	(NotebookCellGroupKind)(0),             // 9: chalk.notebook.v1.NotebookCellGroupKind
-	(*NotebookSQLDatasourceRef)(nil),       // 10: chalk.notebook.v1.NotebookSQLDatasourceRef
-	(*NotebookImageRef)(nil),               // 11: chalk.notebook.v1.NotebookImageRef
-	(*NotebookDocumentDefaults)(nil),       // 12: chalk.notebook.v1.NotebookDocumentDefaults
-	(*NotebookPythonExecutionOptions)(nil), // 13: chalk.notebook.v1.NotebookPythonExecutionOptions
-	(*NotebookSQLExecutionOptions)(nil),    // 14: chalk.notebook.v1.NotebookSQLExecutionOptions
-	(*NotebookPythonCell)(nil),             // 15: chalk.notebook.v1.NotebookPythonCell
-	(*NotebookSQLCell)(nil),                // 16: chalk.notebook.v1.NotebookSQLCell
-	(*NotebookTextCell)(nil),               // 17: chalk.notebook.v1.NotebookTextCell
-	(*NotebookMarkdownCell)(nil),           // 18: chalk.notebook.v1.NotebookMarkdownCell
-	(*NotebookInputCell)(nil),              // 19: chalk.notebook.v1.NotebookInputCell
-	(*NotebookOnlineQueryCell)(nil),        // 20: chalk.notebook.v1.NotebookOnlineQueryCell
-	(*NotebookOfflineQueryCell)(nil),       // 21: chalk.notebook.v1.NotebookOfflineQueryCell
-	(*NotebookCellViewState)(nil),          // 22: chalk.notebook.v1.NotebookCellViewState
-	(*NotebookCellGroup)(nil),              // 23: chalk.notebook.v1.NotebookCellGroup
-	(*NotebookCell)(nil),                   // 24: chalk.notebook.v1.NotebookCell
-	(*NotebookDocument)(nil),               // 25: chalk.notebook.v1.NotebookDocument
-	(*NotebookDocumentRevision)(nil),       // 26: chalk.notebook.v1.NotebookDocumentRevision
-	(*NotebookSecret)(nil),                 // 27: chalk.notebook.v1.NotebookSecret
-	(*NotebookSecretValue)(nil),            // 28: chalk.notebook.v1.NotebookSecretValue
-	(*v1.GenericSingleQuery)(nil),          // 29: chalk.common.v1.GenericSingleQuery
-	(*v1.OfflineQueryRequest)(nil),         // 30: chalk.common.v1.OfflineQueryRequest
-	(*timestamppb.Timestamp)(nil),          // 31: google.protobuf.Timestamp
-	(v11.SecretSource)(0),                  // 32: chalk.server.v1.SecretSource
+	(NotebookTableSourceKind)(0),           // 5: chalk.notebook.v1.NotebookTableSourceKind
+	(NotebookSectionHeadingSize)(0),        // 6: chalk.notebook.v1.NotebookSectionHeadingSize
+	(NotebookSingleValueSelector)(0),       // 7: chalk.notebook.v1.NotebookSingleValueSelector
+	(NotebookSingleValueAggregation)(0),    // 8: chalk.notebook.v1.NotebookSingleValueAggregation
+	(NotebookInputValuesMode)(0),           // 9: chalk.notebook.v1.NotebookInputValuesMode
+	(NotebookCellGroupKind)(0),             // 10: chalk.notebook.v1.NotebookCellGroupKind
+	(NotebookSecretOrigin)(0),              // 11: chalk.notebook.v1.NotebookSecretOrigin
+	(*NotebookSQLDatasourceRef)(nil),       // 12: chalk.notebook.v1.NotebookSQLDatasourceRef
+	(*NotebookImageRef)(nil),               // 13: chalk.notebook.v1.NotebookImageRef
+	(*NotebookDocumentDefaults)(nil),       // 14: chalk.notebook.v1.NotebookDocumentDefaults
+	(*NotebookPythonExecutionOptions)(nil), // 15: chalk.notebook.v1.NotebookPythonExecutionOptions
+	(*NotebookSQLExecutionOptions)(nil),    // 16: chalk.notebook.v1.NotebookSQLExecutionOptions
+	(*NotebookPythonCell)(nil),             // 17: chalk.notebook.v1.NotebookPythonCell
+	(*NotebookSQLCell)(nil),                // 18: chalk.notebook.v1.NotebookSQLCell
+	(*NotebookTextCell)(nil),               // 19: chalk.notebook.v1.NotebookTextCell
+	(*NotebookMarkdownCell)(nil),           // 20: chalk.notebook.v1.NotebookMarkdownCell
+	(*NotebookInputCell)(nil),              // 21: chalk.notebook.v1.NotebookInputCell
+	(*NotebookTableVariableSource)(nil),    // 22: chalk.notebook.v1.NotebookTableVariableSource
+	(*NotebookTableDatasetSource)(nil),     // 23: chalk.notebook.v1.NotebookTableDatasetSource
+	(*NotebookTableSqlTableSource)(nil),    // 24: chalk.notebook.v1.NotebookTableSqlTableSource
+	(*NotebookTableCell)(nil),              // 25: chalk.notebook.v1.NotebookTableCell
+	(*NotebookOnlineQueryCell)(nil),        // 26: chalk.notebook.v1.NotebookOnlineQueryCell
+	(*NotebookOfflineQueryCell)(nil),       // 27: chalk.notebook.v1.NotebookOfflineQueryCell
+	(*NotebookCellViewState)(nil),          // 28: chalk.notebook.v1.NotebookCellViewState
+	(*NotebookCellGroup)(nil),              // 29: chalk.notebook.v1.NotebookCellGroup
+	(*NotebookCell)(nil),                   // 30: chalk.notebook.v1.NotebookCell
+	(*NotebookDocument)(nil),               // 31: chalk.notebook.v1.NotebookDocument
+	(*NotebookDocumentRevision)(nil),       // 32: chalk.notebook.v1.NotebookDocumentRevision
+	(*NotebookSecret)(nil),                 // 33: chalk.notebook.v1.NotebookSecret
+	(*NotebookSecretValue)(nil),            // 34: chalk.notebook.v1.NotebookSecretValue
+	(*durationpb.Duration)(nil),            // 35: google.protobuf.Duration
+	(*v1.GenericSingleQuery)(nil),          // 36: chalk.common.v1.GenericSingleQuery
+	(*v1.OfflineQueryRequest)(nil),         // 37: chalk.common.v1.OfflineQueryRequest
+	(*timestamppb.Timestamp)(nil),          // 38: google.protobuf.Timestamp
+	(v11.SecretSource)(0),                  // 39: chalk.server.v1.SecretSource
 }
 var file_chalk_notebook_v1_document_proto_depIdxs = []int32{
-	10, // 0: chalk.notebook.v1.NotebookDocumentDefaults.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
+	12, // 0: chalk.notebook.v1.NotebookDocumentDefaults.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
 	2,  // 1: chalk.notebook.v1.NotebookDocumentDefaults.compute_preset:type_name -> chalk.notebook.v1.NotebookComputePreset
-	11, // 2: chalk.notebook.v1.NotebookDocumentDefaults.image:type_name -> chalk.notebook.v1.NotebookImageRef
-	3,  // 3: chalk.notebook.v1.NotebookSQLExecutionOptions.execution_mode:type_name -> chalk.notebook.v1.NotebookSQLExecutionMode
-	13, // 4: chalk.notebook.v1.NotebookPythonCell.execution_options:type_name -> chalk.notebook.v1.NotebookPythonExecutionOptions
-	10, // 5: chalk.notebook.v1.NotebookSQLCell.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
-	14, // 6: chalk.notebook.v1.NotebookSQLCell.execution_options:type_name -> chalk.notebook.v1.NotebookSQLExecutionOptions
-	4,  // 7: chalk.notebook.v1.NotebookInputCell.kind:type_name -> chalk.notebook.v1.NotebookInputKind
-	8,  // 8: chalk.notebook.v1.NotebookInputCell.values_mode:type_name -> chalk.notebook.v1.NotebookInputValuesMode
-	6,  // 9: chalk.notebook.v1.NotebookInputCell.single_value_selector:type_name -> chalk.notebook.v1.NotebookSingleValueSelector
-	7,  // 10: chalk.notebook.v1.NotebookInputCell.single_value_aggregation:type_name -> chalk.notebook.v1.NotebookSingleValueAggregation
-	5,  // 11: chalk.notebook.v1.NotebookInputCell.section_heading_size:type_name -> chalk.notebook.v1.NotebookSectionHeadingSize
-	29, // 12: chalk.notebook.v1.NotebookOnlineQueryCell.query:type_name -> chalk.common.v1.GenericSingleQuery
-	30, // 13: chalk.notebook.v1.NotebookOfflineQueryCell.query:type_name -> chalk.common.v1.OfflineQueryRequest
-	9,  // 14: chalk.notebook.v1.NotebookCellGroup.kind:type_name -> chalk.notebook.v1.NotebookCellGroupKind
-	22, // 15: chalk.notebook.v1.NotebookCell.view_state:type_name -> chalk.notebook.v1.NotebookCellViewState
-	31, // 16: chalk.notebook.v1.NotebookCell.created_at:type_name -> google.protobuf.Timestamp
-	31, // 17: chalk.notebook.v1.NotebookCell.updated_at:type_name -> google.protobuf.Timestamp
-	15, // 18: chalk.notebook.v1.NotebookCell.python:type_name -> chalk.notebook.v1.NotebookPythonCell
-	16, // 19: chalk.notebook.v1.NotebookCell.sql:type_name -> chalk.notebook.v1.NotebookSQLCell
-	17, // 20: chalk.notebook.v1.NotebookCell.text:type_name -> chalk.notebook.v1.NotebookTextCell
-	18, // 21: chalk.notebook.v1.NotebookCell.markdown:type_name -> chalk.notebook.v1.NotebookMarkdownCell
-	20, // 22: chalk.notebook.v1.NotebookCell.online_query:type_name -> chalk.notebook.v1.NotebookOnlineQueryCell
-	21, // 23: chalk.notebook.v1.NotebookCell.offline_query:type_name -> chalk.notebook.v1.NotebookOfflineQueryCell
-	19, // 24: chalk.notebook.v1.NotebookCell.input:type_name -> chalk.notebook.v1.NotebookInputCell
-	24, // 25: chalk.notebook.v1.NotebookDocument.cells:type_name -> chalk.notebook.v1.NotebookCell
-	12, // 26: chalk.notebook.v1.NotebookDocument.defaults:type_name -> chalk.notebook.v1.NotebookDocumentDefaults
-	31, // 27: chalk.notebook.v1.NotebookDocument.created_at:type_name -> google.protobuf.Timestamp
-	31, // 28: chalk.notebook.v1.NotebookDocument.updated_at:type_name -> google.protobuf.Timestamp
-	31, // 29: chalk.notebook.v1.NotebookDocument.archived_at:type_name -> google.protobuf.Timestamp
-	31, // 30: chalk.notebook.v1.NotebookDocument.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
-	23, // 31: chalk.notebook.v1.NotebookDocument.cell_groups:type_name -> chalk.notebook.v1.NotebookCellGroup
-	31, // 32: chalk.notebook.v1.NotebookDocumentRevision.created_at:type_name -> google.protobuf.Timestamp
-	32, // 33: chalk.notebook.v1.NotebookSecret.source:type_name -> chalk.server.v1.SecretSource
-	31, // 34: chalk.notebook.v1.NotebookSecret.updated_at:type_name -> google.protobuf.Timestamp
-	32, // 35: chalk.notebook.v1.NotebookSecretValue.source:type_name -> chalk.server.v1.SecretSource
-	36, // [36:36] is the sub-list for method output_type
-	36, // [36:36] is the sub-list for method input_type
-	36, // [36:36] is the sub-list for extension type_name
-	36, // [36:36] is the sub-list for extension extendee
-	0,  // [0:36] is the sub-list for field type_name
+	13, // 2: chalk.notebook.v1.NotebookDocumentDefaults.image:type_name -> chalk.notebook.v1.NotebookImageRef
+	35, // 3: chalk.notebook.v1.NotebookDocumentDefaults.sql_max_staleness:type_name -> google.protobuf.Duration
+	3,  // 4: chalk.notebook.v1.NotebookSQLExecutionOptions.execution_mode:type_name -> chalk.notebook.v1.NotebookSQLExecutionMode
+	35, // 5: chalk.notebook.v1.NotebookSQLExecutionOptions.max_staleness:type_name -> google.protobuf.Duration
+	15, // 6: chalk.notebook.v1.NotebookPythonCell.execution_options:type_name -> chalk.notebook.v1.NotebookPythonExecutionOptions
+	12, // 7: chalk.notebook.v1.NotebookSQLCell.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
+	16, // 8: chalk.notebook.v1.NotebookSQLCell.execution_options:type_name -> chalk.notebook.v1.NotebookSQLExecutionOptions
+	4,  // 9: chalk.notebook.v1.NotebookInputCell.kind:type_name -> chalk.notebook.v1.NotebookInputKind
+	9,  // 10: chalk.notebook.v1.NotebookInputCell.values_mode:type_name -> chalk.notebook.v1.NotebookInputValuesMode
+	7,  // 11: chalk.notebook.v1.NotebookInputCell.single_value_selector:type_name -> chalk.notebook.v1.NotebookSingleValueSelector
+	8,  // 12: chalk.notebook.v1.NotebookInputCell.single_value_aggregation:type_name -> chalk.notebook.v1.NotebookSingleValueAggregation
+	6,  // 13: chalk.notebook.v1.NotebookInputCell.section_heading_size:type_name -> chalk.notebook.v1.NotebookSectionHeadingSize
+	5,  // 14: chalk.notebook.v1.NotebookInputCell.table_source_kind:type_name -> chalk.notebook.v1.NotebookTableSourceKind
+	22, // 15: chalk.notebook.v1.NotebookTableCell.variable:type_name -> chalk.notebook.v1.NotebookTableVariableSource
+	23, // 16: chalk.notebook.v1.NotebookTableCell.dataset:type_name -> chalk.notebook.v1.NotebookTableDatasetSource
+	24, // 17: chalk.notebook.v1.NotebookTableCell.sql_table:type_name -> chalk.notebook.v1.NotebookTableSqlTableSource
+	36, // 18: chalk.notebook.v1.NotebookOnlineQueryCell.query:type_name -> chalk.common.v1.GenericSingleQuery
+	37, // 19: chalk.notebook.v1.NotebookOfflineQueryCell.query:type_name -> chalk.common.v1.OfflineQueryRequest
+	10, // 20: chalk.notebook.v1.NotebookCellGroup.kind:type_name -> chalk.notebook.v1.NotebookCellGroupKind
+	28, // 21: chalk.notebook.v1.NotebookCell.view_state:type_name -> chalk.notebook.v1.NotebookCellViewState
+	38, // 22: chalk.notebook.v1.NotebookCell.created_at:type_name -> google.protobuf.Timestamp
+	38, // 23: chalk.notebook.v1.NotebookCell.updated_at:type_name -> google.protobuf.Timestamp
+	17, // 24: chalk.notebook.v1.NotebookCell.python:type_name -> chalk.notebook.v1.NotebookPythonCell
+	18, // 25: chalk.notebook.v1.NotebookCell.sql:type_name -> chalk.notebook.v1.NotebookSQLCell
+	19, // 26: chalk.notebook.v1.NotebookCell.text:type_name -> chalk.notebook.v1.NotebookTextCell
+	20, // 27: chalk.notebook.v1.NotebookCell.markdown:type_name -> chalk.notebook.v1.NotebookMarkdownCell
+	26, // 28: chalk.notebook.v1.NotebookCell.online_query:type_name -> chalk.notebook.v1.NotebookOnlineQueryCell
+	27, // 29: chalk.notebook.v1.NotebookCell.offline_query:type_name -> chalk.notebook.v1.NotebookOfflineQueryCell
+	21, // 30: chalk.notebook.v1.NotebookCell.input:type_name -> chalk.notebook.v1.NotebookInputCell
+	25, // 31: chalk.notebook.v1.NotebookCell.table:type_name -> chalk.notebook.v1.NotebookTableCell
+	30, // 32: chalk.notebook.v1.NotebookDocument.cells:type_name -> chalk.notebook.v1.NotebookCell
+	14, // 33: chalk.notebook.v1.NotebookDocument.defaults:type_name -> chalk.notebook.v1.NotebookDocumentDefaults
+	38, // 34: chalk.notebook.v1.NotebookDocument.created_at:type_name -> google.protobuf.Timestamp
+	38, // 35: chalk.notebook.v1.NotebookDocument.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 36: chalk.notebook.v1.NotebookDocument.archived_at:type_name -> google.protobuf.Timestamp
+	38, // 37: chalk.notebook.v1.NotebookDocument.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
+	29, // 38: chalk.notebook.v1.NotebookDocument.cell_groups:type_name -> chalk.notebook.v1.NotebookCellGroup
+	38, // 39: chalk.notebook.v1.NotebookDocumentRevision.created_at:type_name -> google.protobuf.Timestamp
+	39, // 40: chalk.notebook.v1.NotebookSecret.source:type_name -> chalk.server.v1.SecretSource
+	38, // 41: chalk.notebook.v1.NotebookSecret.updated_at:type_name -> google.protobuf.Timestamp
+	11, // 42: chalk.notebook.v1.NotebookSecret.origin:type_name -> chalk.notebook.v1.NotebookSecretOrigin
+	39, // 43: chalk.notebook.v1.NotebookSecretValue.source:type_name -> chalk.server.v1.SecretSource
+	44, // [44:44] is the sub-list for method output_type
+	44, // [44:44] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_document_proto_init() }
@@ -2672,10 +3293,15 @@ func file_chalk_notebook_v1_document_proto_init() {
 	file_chalk_notebook_v1_document_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_notebook_v1_document_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_notebook_v1_document_proto_msgTypes[9].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_proto_msgTypes[11].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_proto_msgTypes[14].OneofWrappers = []any{
+	file_chalk_notebook_v1_document_proto_msgTypes[13].OneofWrappers = []any{
+		(*NotebookTableCell_Variable)(nil),
+		(*NotebookTableCell_Dataset)(nil),
+		(*NotebookTableCell_SqlTable)(nil),
+	}
+	file_chalk_notebook_v1_document_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_proto_msgTypes[18].OneofWrappers = []any{
 		(*NotebookCell_Python)(nil),
 		(*NotebookCell_Sql)(nil),
 		(*NotebookCell_Text)(nil),
@@ -2683,14 +3309,17 @@ func file_chalk_notebook_v1_document_proto_init() {
 		(*NotebookCell_OnlineQuery)(nil),
 		(*NotebookCell_OfflineQuery)(nil),
 		(*NotebookCell_Input)(nil),
+		(*NotebookCell_Table)(nil),
 	}
+	file_chalk_notebook_v1_document_proto_msgTypes[19].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_proto_msgTypes[20].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_notebook_v1_document_proto_rawDesc), len(file_chalk_notebook_v1_document_proto_rawDesc)),
-			NumEnums:      10,
-			NumMessages:   19,
+			NumEnums:      12,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -969,7 +969,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x123\n" +
 	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors2\xee\b\n" +
 	"\x10AggregateService\x12\xc3\x01\n" +
-	"\x15PlanAggregateBackfill\x120.chalk.aggregate.v1.PlanAggregateBackfillRequest\x1a1.chalk.aggregate.v1.PlanAggregateBackfillResponse\"E\x80}\f\x8a\xd3\x0e;\b\x02\x127Estimated the resources needed to backfill an aggregate\x90\x02\x01\x12\xae\x01\n" +
+	"\x15PlanAggregateBackfill\x120.chalk.aggregate.v1.PlanAggregateBackfillRequest\x1a1.chalk.aggregate.v1.PlanAggregateBackfillResponse\"E\x80}\x04\x8a\xd3\x0e;\b\x02\x127Estimated the resources needed to backfill an aggregate\x90\x02\x01\x12\xae\x01\n" +
 	"\rGetAggregates\x12(.chalk.aggregate.v1.GetAggregatesRequest\x1a).chalk.aggregate.v1.GetAggregatesResponse\"H\x80}\v\x8a\xd3\x0e>\b\x02\x12:Retrieved aggregate time series for the requested features\x90\x02\x01\x12\x8d\x01\n" +
 	"\x18GetAggregateBackfillJobs\x123.chalk.aggregate.v1.GetAggregateBackfillJobsRequest\x1a4.chalk.aggregate.v1.GetAggregateBackfillJobsResponse\"\x06\x80}\v\x90\x02\x01\x12\x8a\x01\n" +
 	"\x17GetAggregateBackfillJob\x122.chalk.aggregate.v1.GetAggregateBackfillJobRequest\x1a3.chalk.aggregate.v1.GetAggregateBackfillJobResponse\"\x06\x80}\v\x90\x02\x01\x12\x8d\x01\n" +
