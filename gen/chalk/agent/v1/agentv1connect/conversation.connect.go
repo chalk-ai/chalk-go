@@ -81,6 +81,9 @@ const (
 	// AgentConversationServiceSetConversationNotebookProcedure is the fully-qualified name of the
 	// AgentConversationService's SetConversationNotebook RPC.
 	AgentConversationServiceSetConversationNotebookProcedure = "/chalk.agent.v1.AgentConversationService/SetConversationNotebook"
+	// AgentConversationServiceUploadAgentTraceProcedure is the fully-qualified name of the
+	// AgentConversationService's UploadAgentTrace RPC.
+	AgentConversationServiceUploadAgentTraceProcedure = "/chalk.agent.v1.AgentConversationService/UploadAgentTrace"
 )
 
 // AgentConversationServiceClient is a client for the chalk.agent.v1.AgentConversationService
@@ -104,6 +107,9 @@ type AgentConversationServiceClient interface {
 	ReplaceConversationTranscript(context.Context, *connect.Request[v1.ReplaceConversationTranscriptRequest]) (*connect.Response[v1.ReplaceConversationTranscriptResponse], error)
 	// Admin-only: re-point (or detach) the notebook a conversation is bound to.
 	SetConversationNotebook(context.Context, *connect.Request[v1.SetConversationNotebookRequest]) (*connect.Response[v1.SetConversationNotebookResponse], error)
+	// Admin-only: insert a pre-built agent trace into the environment's
+	// telemetry store (demo re-working).
+	UploadAgentTrace(context.Context, *connect.Request[v1.UploadAgentTraceRequest]) (*connect.Response[v1.UploadAgentTraceResponse], error)
 }
 
 // NewAgentConversationServiceClient constructs a client for the
@@ -225,6 +231,12 @@ func NewAgentConversationServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		uploadAgentTrace: connect.NewClient[v1.UploadAgentTraceRequest, v1.UploadAgentTraceResponse](
+			httpClient,
+			baseURL+AgentConversationServiceUploadAgentTraceProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("UploadAgentTrace")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -246,6 +258,7 @@ type agentConversationServiceClient struct {
 	addToolResult                 *connect.Client[v1.AddToolResultRequest, v1.AddToolResultResponse]
 	replaceConversationTranscript *connect.Client[v1.ReplaceConversationTranscriptRequest, v1.ReplaceConversationTranscriptResponse]
 	setConversationNotebook       *connect.Client[v1.SetConversationNotebookRequest, v1.SetConversationNotebookResponse]
+	uploadAgentTrace              *connect.Client[v1.UploadAgentTraceRequest, v1.UploadAgentTraceResponse]
 }
 
 // CreateConversation calls chalk.agent.v1.AgentConversationService.CreateConversation.
@@ -330,6 +343,11 @@ func (c *agentConversationServiceClient) SetConversationNotebook(ctx context.Con
 	return c.setConversationNotebook.CallUnary(ctx, req)
 }
 
+// UploadAgentTrace calls chalk.agent.v1.AgentConversationService.UploadAgentTrace.
+func (c *agentConversationServiceClient) UploadAgentTrace(ctx context.Context, req *connect.Request[v1.UploadAgentTraceRequest]) (*connect.Response[v1.UploadAgentTraceResponse], error) {
+	return c.uploadAgentTrace.CallUnary(ctx, req)
+}
+
 // AgentConversationServiceHandler is an implementation of the
 // chalk.agent.v1.AgentConversationService service.
 type AgentConversationServiceHandler interface {
@@ -351,6 +369,9 @@ type AgentConversationServiceHandler interface {
 	ReplaceConversationTranscript(context.Context, *connect.Request[v1.ReplaceConversationTranscriptRequest]) (*connect.Response[v1.ReplaceConversationTranscriptResponse], error)
 	// Admin-only: re-point (or detach) the notebook a conversation is bound to.
 	SetConversationNotebook(context.Context, *connect.Request[v1.SetConversationNotebookRequest]) (*connect.Response[v1.SetConversationNotebookResponse], error)
+	// Admin-only: insert a pre-built agent trace into the environment's
+	// telemetry store (demo re-working).
+	UploadAgentTrace(context.Context, *connect.Request[v1.UploadAgentTraceRequest]) (*connect.Response[v1.UploadAgentTraceResponse], error)
 }
 
 // NewAgentConversationServiceHandler builds an HTTP handler from the service implementation. It
@@ -468,6 +489,12 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	agentConversationServiceUploadAgentTraceHandler := connect.NewUnaryHandler(
+		AgentConversationServiceUploadAgentTraceProcedure,
+		svc.UploadAgentTrace,
+		connect.WithSchema(agentConversationServiceMethods.ByName("UploadAgentTrace")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.agent.v1.AgentConversationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AgentConversationServiceCreateConversationProcedure:
@@ -502,6 +529,8 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 			agentConversationServiceReplaceConversationTranscriptHandler.ServeHTTP(w, r)
 		case AgentConversationServiceSetConversationNotebookProcedure:
 			agentConversationServiceSetConversationNotebookHandler.ServeHTTP(w, r)
+		case AgentConversationServiceUploadAgentTraceProcedure:
+			agentConversationServiceUploadAgentTraceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -573,4 +602,8 @@ func (UnimplementedAgentConversationServiceHandler) ReplaceConversationTranscrip
 
 func (UnimplementedAgentConversationServiceHandler) SetConversationNotebook(context.Context, *connect.Request[v1.SetConversationNotebookRequest]) (*connect.Response[v1.SetConversationNotebookResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.SetConversationNotebook is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) UploadAgentTrace(context.Context, *connect.Request[v1.UploadAgentTraceRequest]) (*connect.Response[v1.UploadAgentTraceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.UploadAgentTrace is not implemented"))
 }
