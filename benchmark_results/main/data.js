@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784152208191,
+  "lastUpdate": 1784598857601,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -43314,6 +43314,156 @@ window.BENCHMARK_DATA = {
             "value": 195.5,
             "unit": "ms/op",
             "extra": "8 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "beab1e9b588a39f18f7159601510492af5e796a9",
+          "message": "regen agent/v1 conversation protos: ReplaceConversationTranscript + SetConversationNotebook (#695)\n\nChalk-admin RPCs added to AgentConversationService in chalk-private #38990.\n\nClaude-Session: https://claude.ai/code/session_01B7mMawjmsctt1n39a73PT2\n\nCo-authored-by: andy <andy@chalk.ai>",
+          "timestamp": "2026-07-21T01:52:56Z",
+          "tree_id": "aa4a558c95f98ffcbd4825c40ea98290933df850",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/beab1e9b588a39f18f7159601510492af5e796a9"
+        },
+        "date": 1784598857456,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.155,
+            "unit": "ms/op",
+            "extra": "1131 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 115.7,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 34.58,
+            "unit": "ms/op",
+            "extra": "39 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 195,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 285.2,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle",
+            "value": 0.03182,
+            "unit": "ms/op",
+            "extra": "46474 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.405,
+            "unit": "ms/op",
+            "extra": "3614 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 48.35,
+            "unit": "ms/op",
+            "extra": "42 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.1924,
+            "unit": "ms/op",
+            "extra": "7633 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 23.6,
+            "unit": "ms/op",
+            "extra": "85 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesSingle",
+            "value": 0.2679,
+            "unit": "ms/op",
+            "extra": "5584 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesParallel",
+            "value": 36.62,
+            "unit": "ms/op",
+            "extra": "55 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesSingle",
+            "value": 0.4108,
+            "unit": "ms/op",
+            "extra": "3428 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesParallel",
+            "value": 52.87,
+            "unit": "ms/op",
+            "extra": "36 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesSingle",
+            "value": 1.322,
+            "unit": "ms/op",
+            "extra": "1081 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesParallel",
+            "value": 139.5,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesSingle",
+            "value": 0.1195,
+            "unit": "ms/op",
+            "extra": "10000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesParallel",
+            "value": 16.02,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalHasOnes",
+            "value": 29.71,
+            "unit": "ms/op",
+            "extra": "81 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneHasOnes",
+            "value": 16.58,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkHasOnes",
+            "value": 209.6,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
           }
         ]
       }
