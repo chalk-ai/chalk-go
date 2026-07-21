@@ -604,6 +604,256 @@ func (*RunTurnResponse_Completed) isRunTurnResponse_Event() {}
 
 func (*RunTurnResponse_Failed) isRunTurnResponse_Event() {}
 
+// StopTurnRequest asks the server to stop the in-flight turn on a
+// conversation where it currently stands: the model stream and any running
+// tool dispatch are cancelled, work persisted so far stays, and the
+// conversation returns to awaiting-user-input.
+type StopTurnRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *StopTurnRequest) Reset() {
+	*x = StopTurnRequest{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopTurnRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopTurnRequest) ProtoMessage() {}
+
+func (x *StopTurnRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopTurnRequest.ProtoReflect.Descriptor instead.
+func (*StopTurnRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *StopTurnRequest) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+type StopTurnResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// True when an in-flight turn was found and cancelled. False when nothing
+	// was running for this conversation on the server that handled the call —
+	// turn cancellation state is per-server, so a stop that races a turn's
+	// natural end (or lands on a different replica than its RunTurn stream)
+	// reports false.
+	Stopped       bool `protobuf:"varint,1,opt,name=stopped,proto3" json:"stopped,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopTurnResponse) Reset() {
+	*x = StopTurnResponse{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopTurnResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopTurnResponse) ProtoMessage() {}
+
+func (x *StopTurnResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopTurnResponse.ProtoReflect.Descriptor instead.
+func (*StopTurnResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *StopTurnResponse) GetStopped() bool {
+	if x != nil {
+		return x.Stopped
+	}
+	return false
+}
+
+// GenerateInlineCompletionRequest asks the model for a short continuation of
+// the code being typed in a notebook cell, rendered by the client as inline
+// "ghost text" at the cursor. Unlike RunTurn this is a stateless one-shot
+// call: nothing is persisted and no conversation is involved.
+type GenerateInlineCompletionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The notebook the cell belongs to. Informational (tracing/logging); the
+	// server does not read the notebook.
+	NotebookId string `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	// The editor language at the cursor, e.g. "python" or "sql".
+	Language string `protobuf:"bytes,2,opt,name=language,proto3" json:"language,omitempty"`
+	// Cell text before the cursor.
+	Prefix string `protobuf:"bytes,3,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	// Cell text after the cursor.
+	Suffix string `protobuf:"bytes,4,opt,name=suffix,proto3" json:"suffix,omitempty"`
+	// Optional additional notebook context assembled by the client (e.g. the
+	// sources of other cells). Included in the prompt verbatim.
+	NotebookContext string `protobuf:"bytes,5,opt,name=notebook_context,json=notebookContext,proto3" json:"notebook_context,omitempty"`
+	// Optional AiProviderConnection to route the call through. Empty uses the
+	// process-wide default client.
+	AiProviderConnectionId string `protobuf:"bytes,6,opt,name=ai_provider_connection_id,json=aiProviderConnectionId,proto3" json:"ai_provider_connection_id,omitempty"`
+	// Optional model identifier. When empty, the server-configured default is
+	// used.
+	Model         string `protobuf:"bytes,7,opt,name=model,proto3" json:"model,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateInlineCompletionRequest) Reset() {
+	*x = GenerateInlineCompletionRequest{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateInlineCompletionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateInlineCompletionRequest) ProtoMessage() {}
+
+func (x *GenerateInlineCompletionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateInlineCompletionRequest.ProtoReflect.Descriptor instead.
+func (*GenerateInlineCompletionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GenerateInlineCompletionRequest) GetNotebookId() string {
+	if x != nil {
+		return x.NotebookId
+	}
+	return ""
+}
+
+func (x *GenerateInlineCompletionRequest) GetLanguage() string {
+	if x != nil {
+		return x.Language
+	}
+	return ""
+}
+
+func (x *GenerateInlineCompletionRequest) GetPrefix() string {
+	if x != nil {
+		return x.Prefix
+	}
+	return ""
+}
+
+func (x *GenerateInlineCompletionRequest) GetSuffix() string {
+	if x != nil {
+		return x.Suffix
+	}
+	return ""
+}
+
+func (x *GenerateInlineCompletionRequest) GetNotebookContext() string {
+	if x != nil {
+		return x.NotebookContext
+	}
+	return ""
+}
+
+func (x *GenerateInlineCompletionRequest) GetAiProviderConnectionId() string {
+	if x != nil {
+		return x.AiProviderConnectionId
+	}
+	return ""
+}
+
+func (x *GenerateInlineCompletionRequest) GetModel() string {
+	if x != nil {
+		return x.Model
+	}
+	return ""
+}
+
+type GenerateInlineCompletionResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The text to insert at the cursor. Empty when the model produced no useful
+	// continuation.
+	Completion    string `protobuf:"bytes,1,opt,name=completion,proto3" json:"completion,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenerateInlineCompletionResponse) Reset() {
+	*x = GenerateInlineCompletionResponse{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateInlineCompletionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateInlineCompletionResponse) ProtoMessage() {}
+
+func (x *GenerateInlineCompletionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateInlineCompletionResponse.ProtoReflect.Descriptor instead.
+func (*GenerateInlineCompletionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GenerateInlineCompletionResponse) GetCompletion() string {
+	if x != nil {
+		return x.Completion
+	}
+	return ""
+}
+
 var File_chalk_agent_v1_runner_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_runner_proto_rawDesc = "" +
@@ -639,13 +889,32 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\x12tool_result_posted\x18\x04 \x01(\v2 .chalk.agent.v1.ToolResultPostedH\x00R\x10toolResultPosted\x12<\n" +
 	"\tcompleted\x18\x05 \x01(\v2\x1c.chalk.agent.v1.RunCompletedH\x00R\tcompleted\x123\n" +
 	"\x06failed\x18\x06 \x01(\v2\x19.chalk.agent.v1.RunFailedH\x00R\x06failedB\a\n" +
-	"\x05event*k\n" +
+	"\x05event\":\n" +
+	"\x0fStopTurnRequest\x12'\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\",\n" +
+	"\x10StopTurnResponse\x12\x18\n" +
+	"\astopped\x18\x01 \x01(\bR\astopped\"\x8a\x02\n" +
+	"\x1fGenerateInlineCompletionRequest\x12\x1f\n" +
+	"\vnotebook_id\x18\x01 \x01(\tR\n" +
+	"notebookId\x12\x1a\n" +
+	"\blanguage\x18\x02 \x01(\tR\blanguage\x12\x16\n" +
+	"\x06prefix\x18\x03 \x01(\tR\x06prefix\x12\x16\n" +
+	"\x06suffix\x18\x04 \x01(\tR\x06suffix\x12)\n" +
+	"\x10notebook_context\x18\x05 \x01(\tR\x0fnotebookContext\x129\n" +
+	"\x19ai_provider_connection_id\x18\x06 \x01(\tR\x16aiProviderConnectionId\x12\x14\n" +
+	"\x05model\x18\a \x01(\tR\x05model\"B\n" +
+	" GenerateInlineCompletionResponse\x12\x1e\n" +
+	"\n" +
+	"completion\x18\x01 \x01(\tR\n" +
+	"completion*k\n" +
 	"\vPageContext\x12\x1c\n" +
 	"\x18PAGE_CONTEXT_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15PAGE_CONTEXT_NOTEBOOK\x10\x01\x12#\n" +
-	"\x1fPAGE_CONTEXT_AGENT_CONVERSATION\x10\x022g\n" +
+	"\x1fPAGE_CONTEXT_AGENT_CONVERSATION\x10\x022\xc3\x02\n" +
 	"\x12AgentRunnerService\x12Q\n" +
-	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"\x03\x80}\x020\x01B\xb4\x01\n" +
+	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"\x03\x80}\x020\x01\x12R\n" +
+	"\bStopTurn\x12\x1f.chalk.agent.v1.StopTurnRequest\x1a .chalk.agent.v1.StopTurnResponse\"\x03\x80}\x02\x12\x85\x01\n" +
+	"\x18GenerateInlineCompletion\x12/.chalk.agent.v1.GenerateInlineCompletionRequest\x1a0.chalk.agent.v1.GenerateInlineCompletionResponse\"\x06\x80}\x02\x90\x02\x01B\xb4\x01\n" +
 	"\x12com.chalk.agent.v1B\vRunnerProtoP\x01Z7github.com/chalk-ai/chalk-go/gen/chalk/agent/v1;agentv1\xa2\x02\x03CAX\xaa\x02\x0eChalk.Agent.V1\xca\x02\x0eChalk\\Agent\\V1\xe2\x02\x1aChalk\\Agent\\V1\\GPBMetadata\xea\x02\x10Chalk::Agent::V1b\x06proto3"
 
 var (
@@ -661,26 +930,30 @@ func file_chalk_agent_v1_runner_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_agent_v1_runner_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_agent_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_agent_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_agent_v1_runner_proto_goTypes = []any{
-	(PageContext)(0),           // 0: chalk.agent.v1.PageContext
-	(*RunTurnRequest)(nil),     // 1: chalk.agent.v1.RunTurnRequest
-	(*AssistantTextDelta)(nil), // 2: chalk.agent.v1.AssistantTextDelta
-	(*MessageFinalized)(nil),   // 3: chalk.agent.v1.MessageFinalized
-	(*ToolCallStarted)(nil),    // 4: chalk.agent.v1.ToolCallStarted
-	(*ToolResultPosted)(nil),   // 5: chalk.agent.v1.ToolResultPosted
-	(*RunCompleted)(nil),       // 6: chalk.agent.v1.RunCompleted
-	(*RunFailed)(nil),          // 7: chalk.agent.v1.RunFailed
-	(*RunTurnResponse)(nil),    // 8: chalk.agent.v1.RunTurnResponse
-	(*AgentMessage)(nil),       // 9: chalk.agent.v1.AgentMessage
-	(*AgentToolCall)(nil),      // 10: chalk.agent.v1.AgentToolCall
-	(*AgentToolResult)(nil),    // 11: chalk.agent.v1.AgentToolResult
+	(PageContext)(0),                         // 0: chalk.agent.v1.PageContext
+	(*RunTurnRequest)(nil),                   // 1: chalk.agent.v1.RunTurnRequest
+	(*AssistantTextDelta)(nil),               // 2: chalk.agent.v1.AssistantTextDelta
+	(*MessageFinalized)(nil),                 // 3: chalk.agent.v1.MessageFinalized
+	(*ToolCallStarted)(nil),                  // 4: chalk.agent.v1.ToolCallStarted
+	(*ToolResultPosted)(nil),                 // 5: chalk.agent.v1.ToolResultPosted
+	(*RunCompleted)(nil),                     // 6: chalk.agent.v1.RunCompleted
+	(*RunFailed)(nil),                        // 7: chalk.agent.v1.RunFailed
+	(*RunTurnResponse)(nil),                  // 8: chalk.agent.v1.RunTurnResponse
+	(*StopTurnRequest)(nil),                  // 9: chalk.agent.v1.StopTurnRequest
+	(*StopTurnResponse)(nil),                 // 10: chalk.agent.v1.StopTurnResponse
+	(*GenerateInlineCompletionRequest)(nil),  // 11: chalk.agent.v1.GenerateInlineCompletionRequest
+	(*GenerateInlineCompletionResponse)(nil), // 12: chalk.agent.v1.GenerateInlineCompletionResponse
+	(*AgentMessage)(nil),                     // 13: chalk.agent.v1.AgentMessage
+	(*AgentToolCall)(nil),                    // 14: chalk.agent.v1.AgentToolCall
+	(*AgentToolResult)(nil),                  // 15: chalk.agent.v1.AgentToolResult
 }
 var file_chalk_agent_v1_runner_proto_depIdxs = []int32{
 	0,  // 0: chalk.agent.v1.RunTurnRequest.page_context:type_name -> chalk.agent.v1.PageContext
-	9,  // 1: chalk.agent.v1.MessageFinalized.message:type_name -> chalk.agent.v1.AgentMessage
-	10, // 2: chalk.agent.v1.ToolCallStarted.tool_call:type_name -> chalk.agent.v1.AgentToolCall
-	11, // 3: chalk.agent.v1.ToolResultPosted.tool_result:type_name -> chalk.agent.v1.AgentToolResult
+	13, // 1: chalk.agent.v1.MessageFinalized.message:type_name -> chalk.agent.v1.AgentMessage
+	14, // 2: chalk.agent.v1.ToolCallStarted.tool_call:type_name -> chalk.agent.v1.AgentToolCall
+	15, // 3: chalk.agent.v1.ToolResultPosted.tool_result:type_name -> chalk.agent.v1.AgentToolResult
 	2,  // 4: chalk.agent.v1.RunTurnResponse.text_delta:type_name -> chalk.agent.v1.AssistantTextDelta
 	3,  // 5: chalk.agent.v1.RunTurnResponse.message_finalized:type_name -> chalk.agent.v1.MessageFinalized
 	4,  // 6: chalk.agent.v1.RunTurnResponse.tool_call_started:type_name -> chalk.agent.v1.ToolCallStarted
@@ -688,9 +961,13 @@ var file_chalk_agent_v1_runner_proto_depIdxs = []int32{
 	6,  // 8: chalk.agent.v1.RunTurnResponse.completed:type_name -> chalk.agent.v1.RunCompleted
 	7,  // 9: chalk.agent.v1.RunTurnResponse.failed:type_name -> chalk.agent.v1.RunFailed
 	1,  // 10: chalk.agent.v1.AgentRunnerService.RunTurn:input_type -> chalk.agent.v1.RunTurnRequest
-	8,  // 11: chalk.agent.v1.AgentRunnerService.RunTurn:output_type -> chalk.agent.v1.RunTurnResponse
-	11, // [11:12] is the sub-list for method output_type
-	10, // [10:11] is the sub-list for method input_type
+	9,  // 11: chalk.agent.v1.AgentRunnerService.StopTurn:input_type -> chalk.agent.v1.StopTurnRequest
+	11, // 12: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:input_type -> chalk.agent.v1.GenerateInlineCompletionRequest
+	8,  // 13: chalk.agent.v1.AgentRunnerService.RunTurn:output_type -> chalk.agent.v1.RunTurnResponse
+	10, // 14: chalk.agent.v1.AgentRunnerService.StopTurn:output_type -> chalk.agent.v1.StopTurnResponse
+	12, // 15: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:output_type -> chalk.agent.v1.GenerateInlineCompletionResponse
+	13, // [13:16] is the sub-list for method output_type
+	10, // [10:13] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name
 	10, // [10:10] is the sub-list for extension extendee
 	0,  // [0:10] is the sub-list for field type_name
@@ -716,7 +993,7 @@ func file_chalk_agent_v1_runner_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_runner_proto_rawDesc), len(file_chalk_agent_v1_runner_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

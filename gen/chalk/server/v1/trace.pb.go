@@ -2788,8 +2788,10 @@ type GetSpanFacetValuesRequest struct {
 	// Count-table mode: keep empty values as a "(none)" row and append an "(other)" row summing
 	// everything beyond the limit. Off for the facets sidebar.
 	IncludeSyntheticRows *bool `protobuf:"varint,6,opt,name=include_synthetic_rows,json=includeSyntheticRows,proto3,oneof" json:"include_synthetic_rows,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Multi-facet COUNT BY: SpanFacet.paths to group by (non-empty → `path` ignored, one `values` per facet per row).
+	Facets        []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetSpanFacetValuesRequest) Reset() {
@@ -2864,11 +2866,20 @@ func (x *GetSpanFacetValuesRequest) GetIncludeSyntheticRows() bool {
 	return false
 }
 
+func (x *GetSpanFacetValuesRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
 // SpanFacetValue represents a single facet value with its count
 type SpanFacetValue struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
-	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Value string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Count int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	// One value per requested facet, index-aligned to request `facets`. Empty in single-`path` mode (scalar `value` set instead).
+	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2915,6 +2926,13 @@ func (x *SpanFacetValue) GetCount() int64 {
 		return x.Count
 	}
 	return 0
+}
+
+func (x *SpanFacetValue) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
 }
 
 // GetSpanFacetValuesResponse returns values for a specific span facet
@@ -2972,8 +2990,7 @@ type ListSpanAggregatedRequest struct {
 	ServiceName   *string                `protobuf:"bytes,5,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"`
 	// Faceted-search query string, AND-combined with the fields above.
 	Query *string `protobuf:"bytes,6,opt,name=query,proto3,oneof" json:"query,omitempty"`
-	// SpanFacet.paths to break down by; unset → status code. Repeated for forward-compat with
-	// multi-facet; only the first is used today.
+	// SpanFacet.paths to break down by; unset → status code. Multi-facet → one series per value tuple.
 	Facets []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
 	// Cap on faceted series; the tail folds into "(other)". Unset → a small default.
 	Limit         *int32 `protobuf:"varint,8,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
@@ -3927,7 +3944,7 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\tgroupable\x18\x03 \x01(\bR\tgroupable\"\x16\n" +
 	"\x14GetSpanFacetsRequest\"K\n" +
 	"\x15GetSpanFacetsResponse\x122\n" +
-	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.SpanFacetR\x06facets\"\xe7\x02\n" +
+	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.SpanFacetR\x06facets\"\xff\x02\n" +
 	"\x19GetSpanFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
@@ -3935,15 +3952,17 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
 	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01\x129\n" +
-	"\x16include_synthetic_rows\x18\x06 \x01(\bH\x04R\x14includeSyntheticRows\x88\x01\x01B\r\n" +
+	"\x16include_synthetic_rows\x18\x06 \x01(\bH\x04R\x14includeSyntheticRows\x88\x01\x01\x12\x16\n" +
+	"\x06facets\x18\a \x03(\tR\x06facetsB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
 	"\x06_queryB\x19\n" +
-	"\x17_include_synthetic_rows\"<\n" +
+	"\x17_include_synthetic_rows\"T\n" +
 	"\x0eSpanFacetValue\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x03R\x05count\"U\n" +
+	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x16\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\"U\n" +
 	"\x1aGetSpanFacetValuesResponse\x127\n" +
 	"\x06values\x18\x01 \x03(\v2\x1f.chalk.server.v1.SpanFacetValueR\x06values\"\xcd\x03\n" +
 	"\x19ListSpanAggregatedRequest\x12>\n" +

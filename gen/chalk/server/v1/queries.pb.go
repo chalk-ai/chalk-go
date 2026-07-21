@@ -1516,9 +1516,20 @@ type ListMetaQueryRunsRequest struct {
 	// timescale it is a base64-encoded ListMetaQueryRunsPageToken wrapping the created_at
 	// cursor. When set, it takes precedence over the legacy `cursor` field, which remains
 	// supported for existing callers.
-	PageToken     *string `protobuf:"bytes,21,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PageToken *string `protobuf:"bytes,21,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	// Multi-value ("is any of") variants of the single-value filters above: a run matches a
+	// filter when its column equals ANY of the values, and the filters AND together with
+	// everything else on the request. When a single-value field and its repeated variant are
+	// both set, both apply (AND). Unlike the single meta_query_name, query_versions applies
+	// even without a name filter on the timescale/clickhouse backends; the query_log backend
+	// cannot express a version-only filter and drops it.
+	MetaQueryNames []string `protobuf:"bytes,22,rep,name=meta_query_names,json=metaQueryNames,proto3" json:"meta_query_names,omitempty"`
+	QueryVersions  []string `protobuf:"bytes,23,rep,name=query_versions,json=queryVersions,proto3" json:"query_versions,omitempty"`
+	BranchFilters  []string `protobuf:"bytes,24,rep,name=branch_filters,json=branchFilters,proto3" json:"branch_filters,omitempty"`
+	AgentIds       []string `protobuf:"bytes,25,rep,name=agent_ids,json=agentIds,proto3" json:"agent_ids,omitempty"`
+	ResourceGroups []string `protobuf:"bytes,26,rep,name=resource_groups,json=resourceGroups,proto3" json:"resource_groups,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ListMetaQueryRunsRequest) Reset() {
@@ -1696,6 +1707,41 @@ func (x *ListMetaQueryRunsRequest) GetPageToken() string {
 		return *x.PageToken
 	}
 	return ""
+}
+
+func (x *ListMetaQueryRunsRequest) GetMetaQueryNames() []string {
+	if x != nil {
+		return x.MetaQueryNames
+	}
+	return nil
+}
+
+func (x *ListMetaQueryRunsRequest) GetQueryVersions() []string {
+	if x != nil {
+		return x.QueryVersions
+	}
+	return nil
+}
+
+func (x *ListMetaQueryRunsRequest) GetBranchFilters() []string {
+	if x != nil {
+		return x.BranchFilters
+	}
+	return nil
+}
+
+func (x *ListMetaQueryRunsRequest) GetAgentIds() []string {
+	if x != nil {
+		return x.AgentIds
+	}
+	return nil
+}
+
+func (x *ListMetaQueryRunsRequest) GetResourceGroups() []string {
+	if x != nil {
+		return x.ResourceGroups
+	}
+	return nil
 }
 
 // Opaque pagination token for the timescale-backed ListMetaQueryRuns. Wraps the created_at
@@ -4117,7 +4163,8 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x03run\x18\x02 \x01(\v2\x1d.chalk.server.v1.MetaQueryRunR\x03run\x12\x1d\n" +
 	"\alatency\x18\x03 \x01(\x01H\x00R\alatency\x88\x01\x01B\n" +
 	"\n" +
-	"\b_latency\"\xb2\t\n" +
+	"\b_latency\"\xf0\n" +
+	"\n" +
 	"\x18ListMetaQueryRunsRequest\x12'\n" +
 	"\x0finclude_latency\x18\x01 \x01(\bR\x0eincludeLatency\x12)\n" +
 	"\x0emin_latency_ms\x18\x02 \x01(\x01H\x00R\fminLatencyMs\x88\x01\x01\x12'\n" +
@@ -4144,7 +4191,12 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x11deployment_filter\x18\x13 \x01(\tH\x11R\x10deploymentFilter\x88\x01\x01\x12<\n" +
 	"\x06source\x18\x14 \x01(\x0e2$.chalk.server.v1.MetaQueryRunsSourceR\x06source\x12\"\n" +
 	"\n" +
-	"page_token\x18\x15 \x01(\tH\x12R\tpageToken\x88\x01\x01B\x11\n" +
+	"page_token\x18\x15 \x01(\tH\x12R\tpageToken\x88\x01\x01\x12(\n" +
+	"\x10meta_query_names\x18\x16 \x03(\tR\x0emetaQueryNames\x12%\n" +
+	"\x0equery_versions\x18\x17 \x03(\tR\rqueryVersions\x12%\n" +
+	"\x0ebranch_filters\x18\x18 \x03(\tR\rbranchFilters\x12\x1b\n" +
+	"\tagent_ids\x18\x19 \x03(\tR\bagentIds\x12'\n" +
+	"\x0fresource_groups\x18\x1a \x03(\tR\x0eresourceGroupsB\x11\n" +
 	"\x0f_min_latency_msB\x10\n" +
 	"\x0e_query_plan_idB\x10\n" +
 	"\x0e_meta_query_idB\x12\n" +

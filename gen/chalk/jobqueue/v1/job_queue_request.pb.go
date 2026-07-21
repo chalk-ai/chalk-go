@@ -234,21 +234,29 @@ func (*JobQueueRequest_ScriptTaskRequest) isJobQueueRequest_Payload() {}
 
 func (*JobQueueRequest_FillWideTablesRequest) isJobQueueRequest_Payload() {}
 
-// Config for the FillWideTablesFromSkinnyTables batch job, derived from a
-// MaterializedFeatureView. The subprocess resolves skinny source tables, the
-// target wide table, and the incremental floor (from the high_water_marks
-// table) itself, so only the MFV-specified parameters travel in this message.
+// Config for the FillWideTablesFromSkinnyTables batch job. Namespace is the only
+// per-run input; the subprocess (Rust OfflineStore) derives the skinny source
+// tables, the target wide table, the incremental floor (from the high_water_marks
+// table), and the timing config from the graph's MaterializedFeatureView itself.
 type FillWideTablesJobRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Namespace      string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	TimeResolution *durationpb.Duration   `protobuf:"bytes,2,opt,name=time_resolution,json=timeResolution,proto3" json:"time_resolution,omitempty"`
-	// ISO-8601 static floor for the first run when no high-water mark exists yet
-	// (MaterializedFeatureView.lower_bound). String to match the time-bound
-	// convention used elsewhere in this file (e.g. AggregationBackfillJobRequest).
-	LowerBound              *string              `protobuf:"bytes,3,opt,name=lower_bound,json=lowerBound,proto3,oneof" json:"lower_bound,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Deprecated: the timing config is now derived from the graph's
+	// MaterializedFeatureView inside the Rust OfflineStore, not carried here. These
+	// fields already shipped, so they stay (deprecated) rather than being removed.
+	//
+	// Deprecated: Marked as deprecated in chalk/jobqueue/v1/job_queue_request.proto.
+	TimeResolution *durationpb.Duration `protobuf:"bytes,2,opt,name=time_resolution,json=timeResolution,proto3" json:"time_resolution,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/jobqueue/v1/job_queue_request.proto.
+	LowerBound *string `protobuf:"bytes,3,opt,name=lower_bound,json=lowerBound,proto3,oneof" json:"lower_bound,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/jobqueue/v1/job_queue_request.proto.
 	LookbackRetentionPeriod *durationpb.Duration `protobuf:"bytes,4,opt,name=lookback_retention_period,json=lookbackRetentionPeriod,proto3,oneof" json:"lookback_retention_period,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// Id of the offline_storage_wide_table_run row that go-api-server inserted when
+	// it enqueued this job; the engine updates that row's status and watermarks as
+	// the fill executes. Empty only on jobs enqueued before the run table existed.
+	JobId         string `protobuf:"bytes,5,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *FillWideTablesJobRequest) Reset() {
@@ -288,6 +296,7 @@ func (x *FillWideTablesJobRequest) GetNamespace() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/jobqueue/v1/job_queue_request.proto.
 func (x *FillWideTablesJobRequest) GetTimeResolution() *durationpb.Duration {
 	if x != nil {
 		return x.TimeResolution
@@ -295,6 +304,7 @@ func (x *FillWideTablesJobRequest) GetTimeResolution() *durationpb.Duration {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/jobqueue/v1/job_queue_request.proto.
 func (x *FillWideTablesJobRequest) GetLowerBound() string {
 	if x != nil && x.LowerBound != nil {
 		return *x.LowerBound
@@ -302,11 +312,19 @@ func (x *FillWideTablesJobRequest) GetLowerBound() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/jobqueue/v1/job_queue_request.proto.
 func (x *FillWideTablesJobRequest) GetLookbackRetentionPeriod() *durationpb.Duration {
 	if x != nil {
 		return x.LookbackRetentionPeriod
 	}
 	return nil
+}
+
+func (x *FillWideTablesJobRequest) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
 }
 
 type OfflineQueryJobRequest struct {
@@ -2760,8 +2778,10 @@ type OfflineQueryJobBody struct {
 	PreferredResolver                *string                              `protobuf:"bytes,67,opt,name=preferred_resolver,json=preferredResolver,proto3,oneof" json:"preferred_resolver,omitempty"`
 	PersistGivens                    bool                                 `protobuf:"varint,68,opt,name=persist_givens,json=persistGivens,proto3" json:"persist_givens,omitempty"`
 	RequesterId                      *string                              `protobuf:"bytes,69,opt,name=requester_id,json=requesterId,proto3,oneof" json:"requester_id,omitempty"`
-	unknownFields                    protoimpl.UnknownFields
-	sizeCache                        protoimpl.SizeCache
+	// Optional destination to write query outputs to directly.
+	WriteTo       *v1.OfflineQueryWriteTo `protobuf:"bytes,72,opt,name=write_to,json=writeTo,proto3,oneof" json:"write_to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *OfflineQueryJobBody) Reset() {
@@ -3284,6 +3304,13 @@ func (x *OfflineQueryJobBody) GetRequesterId() string {
 	return ""
 }
 
+func (x *OfflineQueryJobBody) GetWriteTo() *v1.OfflineQueryWriteTo {
+	if x != nil {
+		return x.WriteTo
+	}
+	return nil
+}
+
 type OfflineQueryWorkerIdentifier struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	RevisionId      string                 `protobuf:"bytes,1,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
@@ -3669,8 +3696,13 @@ type PlannerOptions struct {
 	// as partition-by + sort-by over the distinct key followed by a pre-grouped
 	// aggregation, letting the engine emit each group as the sorted key advances.
 	UseStreamingDistinctForIncrementalPopulation *bool `protobuf:"varint,122,opt,name=use_streaming_distinct_for_incremental_population,json=useStreamingDistinctForIncrementalPopulation,proto3,oneof" json:"use_streaming_distinct_for_incremental_population,omitempty"`
-	unknownFields                                protoimpl.UnknownFields
-	sizeCache                                    protoimpl.SizeCache
+	// When set, the DatasetScan operator plans a fully static
+	// ChalkTable.table_scan_parquet (a native TableScanNode) plus a static cast
+	// projection instead of the parquet-reader UDF followed by a Python microbatch
+	// pa_cast UDF.
+	StaticDatasetScan *bool `protobuf:"varint,123,opt,name=static_dataset_scan,json=staticDatasetScan,proto3,oneof" json:"static_dataset_scan,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -4557,6 +4589,13 @@ func (x *PlannerOptions) GetUseStreamingDistinctForIncrementalPopulation() bool 
 	return false
 }
 
+func (x *PlannerOptions) GetStaticDatasetScan() bool {
+	if x != nil && x.StaticDatasetScan != nil {
+		return *x.StaticDatasetScan
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -4789,13 +4828,14 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x17unload_resolver_request\x18\b \x01(\v2+.chalk.jobqueue.v1.UnloadResolverJobRequestH\x00R\x15unloadResolverRequest\x12Y\n" +
 	"\x13script_task_request\x18\x0f \x01(\v2'.chalk.jobqueue.v1.ScriptTaskJobRequestH\x00R\x11scriptTaskRequest\x12f\n" +
 	"\x18fill_wide_tables_request\x18\x10 \x01(\v2+.chalk.jobqueue.v1.FillWideTablesJobRequestH\x00R\x15fillWideTablesRequestB\t\n" +
-	"\apayloadJ\x04\b\t\x10\x0f\"\xac\x02\n" +
+	"\apayloadJ\x04\b\t\x10\x0f\"\xcf\x02\n" +
 	"\x18FillWideTablesJobRequest\x12\x1c\n" +
-	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12B\n" +
-	"\x0ftime_resolution\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x0etimeResolution\x12$\n" +
-	"\vlower_bound\x18\x03 \x01(\tH\x00R\n" +
-	"lowerBound\x88\x01\x01\x12Z\n" +
-	"\x19lookback_retention_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x01R\x17lookbackRetentionPeriod\x88\x01\x01B\x0e\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12F\n" +
+	"\x0ftime_resolution\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x02\x18\x01R\x0etimeResolution\x12(\n" +
+	"\vlower_bound\x18\x03 \x01(\tB\x02\x18\x01H\x00R\n" +
+	"lowerBound\x88\x01\x01\x12^\n" +
+	"\x19lookback_retention_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationB\x02\x18\x01H\x01R\x17lookbackRetentionPeriod\x88\x01\x01\x12\x15\n" +
+	"\x06job_id\x18\x05 \x01(\tR\x05jobIdB\x0e\n" +
 	"\f_lower_boundB\x1c\n" +
 	"\x1a_lookback_retention_period\"\xb8\x02\n" +
 	"\x16OfflineQueryJobRequest\x12B\n" +
@@ -5052,7 +5092,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x19OfflineQueryHwmIdentifier\x12(\n" +
 	"\x0fcron_query_name\x18\x01 \x01(\tH\x00R\rcronQueryName\x12#\n" +
 	"\fresolver_fqn\x18\x02 \x01(\tH\x00R\vresolverFqnB\a\n" +
-	"\x05value\"\xcf%\n" +
+	"\x05value\"\xa2&\n" +
 	"\x13OfflineQueryJobBody\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12output_expressions\x18\x02 \x03(\tR\x11outputExpressions\x12'\n" +
@@ -5133,7 +5173,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x13incremental_sources\x18B \x03(\tR\x12incrementalSources\x122\n" +
 	"\x12preferred_resolver\x18C \x01(\tH'R\x11preferredResolver\x88\x01\x01\x12%\n" +
 	"\x0epersist_givens\x18D \x01(\bR\rpersistGivens\x12&\n" +
-	"\frequester_id\x18E \x01(\tH(R\vrequesterId\x88\x01\x01\x1al\n" +
+	"\frequester_id\x18E \x01(\tH(R\vrequesterId\x88\x01\x01\x12D\n" +
+	"\bwrite_to\x18H \x01(\v2$.chalk.common.v1.OfflineQueryWriteToH)R\awriteTo\x88\x01\x01\x1al\n" +
 	"\x11QueryContextEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12A\n" +
 	"\x05value\x18\x02 \x01(\v2+.chalk.jobqueue.v1.OfflineQueryContextValueR\x05value:\x028\x01\x1a?\n" +
@@ -5184,7 +5225,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\n" +
 	"_cron_nameB\x15\n" +
 	"\x13_preferred_resolverB\x0f\n" +
-	"\r_requester_id\"\xbe\x03\n" +
+	"\r_requester_idB\v\n" +
+	"\t_write_to\"\xbe\x03\n" +
 	"\x1cOfflineQueryWorkerIdentifier\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
 	"revisionId\x12\x1d\n" +
@@ -5208,7 +5250,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xfdm\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xcan\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5333,7 +5375,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"*exclude_overlapping_input_events_from_aggs\x18w \x01(\bHvR%excludeOverlappingInputEventsFromAggs\x88\x01\x01\x123\n" +
 	"\x13stream_resolver_fqn\x18x \x01(\tHwR\x11streamResolverFqn\x88\x01\x01\x12J\n" +
 	"\x1fskip_incremental_query_distinct\x18y \x01(\bHxR\x1cskipIncrementalQueryDistinct\x88\x01\x01\x12l\n" +
-	"1use_streaming_distinct_for_incremental_population\x18z \x01(\bHyR,useStreamingDistinctForIncrementalPopulation\x88\x01\x01B\x1e\n" +
+	"1use_streaming_distinct_for_incremental_population\x18z \x01(\bHyR,useStreamingDistinctForIncrementalPopulation\x88\x01\x01\x123\n" +
+	"\x13static_dataset_scan\x18{ \x01(\bHzR\x11staticDatasetScan\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5455,7 +5498,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"+_exclude_overlapping_input_events_from_aggsB\x16\n" +
 	"\x14_stream_resolver_fqnB\"\n" +
 	" _skip_incremental_query_distinctB4\n" +
-	"2_use_streaming_distinct_for_incremental_population\"\xd2\x06\n" +
+	"2_use_streaming_distinct_for_incremental_populationB\x16\n" +
+	"\x14_static_dataset_scan\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +
@@ -5552,7 +5596,8 @@ var file_chalk_jobqueue_v1_job_queue_request_proto_goTypes = []any{
 	(*v1.FeatureEncodingOptions)(nil),               // 45: chalk.common.v1.FeatureEncodingOptions
 	(*structpb.ListValue)(nil),                      // 46: google.protobuf.ListValue
 	(*v1.ResourceRequests)(nil),                     // 47: chalk.common.v1.ResourceRequests
-	(*v1.ScriptTaskRequest)(nil),                    // 48: chalk.common.v1.ScriptTaskRequest
+	(*v1.OfflineQueryWriteTo)(nil),                  // 48: chalk.common.v1.OfflineQueryWriteTo
+	(*v1.ScriptTaskRequest)(nil),                    // 49: chalk.common.v1.ScriptTaskRequest
 }
 var file_chalk_jobqueue_v1_job_queue_request_proto_depIdxs = []int32{
 	2,  // 0: chalk.jobqueue.v1.JobQueueRequest.offline_query_request:type_name -> chalk.jobqueue.v1.OfflineQueryJobRequest
@@ -5610,25 +5655,26 @@ var file_chalk_jobqueue_v1_job_queue_request_proto_depIdxs = []int32{
 	15, // 52: chalk.jobqueue.v1.OfflineQueryJobBody.completion_deadline:type_name -> chalk.jobqueue.v1.OfflineQueryDeadlineOptions
 	27, // 53: chalk.jobqueue.v1.OfflineQueryJobBody.persistence_settings:type_name -> chalk.jobqueue.v1.OfflineQueryPersistenceSettings
 	28, // 54: chalk.jobqueue.v1.OfflineQueryJobBody.hwm_identifier:type_name -> chalk.jobqueue.v1.OfflineQueryHwmIdentifier
-	47, // 55: chalk.jobqueue.v1.OfflineQueryWorkerIdentifier.resources:type_name -> chalk.common.v1.ResourceRequests
-	32, // 56: chalk.jobqueue.v1.PlannerOptionsStringPairs.values:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPair
-	31, // 57: chalk.jobqueue.v1.PlannerOptions.skip_rewriter_inputs_for_resolvers_override:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	31, // 58: chalk.jobqueue.v1.PlannerOptions.persist_values_parquet_partition_by:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	31, // 59: chalk.jobqueue.v1.PlannerOptions.use_materialized_offline_query_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	31, // 60: chalk.jobqueue.v1.PlannerOptions.disable_continuous_queries_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	33, // 61: chalk.jobqueue.v1.PlannerOptions.extra_compilation_options:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPairs
-	31, // 62: chalk.jobqueue.v1.PlannerOptions.excluded_offline_store_operation_kinds:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	47, // 63: chalk.jobqueue.v1.UnloadResolverJobRequest.resources:type_name -> chalk.common.v1.ResourceRequests
-	34, // 64: chalk.jobqueue.v1.UnloadResolverJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
-	30, // 65: chalk.jobqueue.v1.UnloadResolverJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
-	48, // 66: chalk.jobqueue.v1.ScriptTaskJobRequest.request:type_name -> chalk.common.v1.ScriptTaskRequest
-	13, // 67: chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryFeatureName
-	14, // 68: chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryContextValue
-	69, // [69:69] is the sub-list for method output_type
-	69, // [69:69] is the sub-list for method input_type
-	69, // [69:69] is the sub-list for extension type_name
-	69, // [69:69] is the sub-list for extension extendee
-	0,  // [0:69] is the sub-list for field type_name
+	48, // 55: chalk.jobqueue.v1.OfflineQueryJobBody.write_to:type_name -> chalk.common.v1.OfflineQueryWriteTo
+	47, // 56: chalk.jobqueue.v1.OfflineQueryWorkerIdentifier.resources:type_name -> chalk.common.v1.ResourceRequests
+	32, // 57: chalk.jobqueue.v1.PlannerOptionsStringPairs.values:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPair
+	31, // 58: chalk.jobqueue.v1.PlannerOptions.skip_rewriter_inputs_for_resolvers_override:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	31, // 59: chalk.jobqueue.v1.PlannerOptions.persist_values_parquet_partition_by:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	31, // 60: chalk.jobqueue.v1.PlannerOptions.use_materialized_offline_query_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	31, // 61: chalk.jobqueue.v1.PlannerOptions.disable_continuous_queries_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	33, // 62: chalk.jobqueue.v1.PlannerOptions.extra_compilation_options:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPairs
+	31, // 63: chalk.jobqueue.v1.PlannerOptions.excluded_offline_store_operation_kinds:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	47, // 64: chalk.jobqueue.v1.UnloadResolverJobRequest.resources:type_name -> chalk.common.v1.ResourceRequests
+	34, // 65: chalk.jobqueue.v1.UnloadResolverJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
+	30, // 66: chalk.jobqueue.v1.UnloadResolverJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
+	49, // 67: chalk.jobqueue.v1.ScriptTaskJobRequest.request:type_name -> chalk.common.v1.ScriptTaskRequest
+	13, // 68: chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryFeatureName
+	14, // 69: chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryContextValue
+	70, // [70:70] is the sub-list for method output_type
+	70, // [70:70] is the sub-list for method input_type
+	70, // [70:70] is the sub-list for extension type_name
+	70, // [70:70] is the sub-list for extension extendee
+	0,  // [0:70] is the sub-list for field type_name
 }
 
 func init() { file_chalk_jobqueue_v1_job_queue_request_proto_init() }

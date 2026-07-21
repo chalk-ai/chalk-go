@@ -1608,7 +1608,8 @@ type VolumeMount struct {
 	MountPath string `protobuf:"bytes,2,opt,name=mount_path,json=mountPath,proto3" json:"mount_path,omitempty"`
 	// Type of volume: "empty_dir", "shared_memory", or "chalkfs"
 	Type string `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
-	// Size limit for the volume (e.g., "2Gi"). Required for empty_dir and shared_memory.
+	// Size limit for the volume (e.g., "2Gi"). Optional for empty_dir: when omitted
+	// or zero the platform applies a configured default cap. Used by shared_memory.
 	SizeLimit     *string `protobuf:"bytes,4,opt,name=size_limit,json=sizeLimit,proto3,oneof" json:"size_limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2024,10 +2025,11 @@ func (*TerminateSandboxResponse) Descriptor() ([]byte, []int) {
 
 // Request to get a sandbox by ID
 type GetSandboxRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SandboxId     string                 `protobuf:"bytes,1,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	SandboxId         string                 `protobuf:"bytes,1,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
+	IncludeTerminated *bool                  `protobuf:"varint,2,opt,name=include_terminated,json=includeTerminated,proto3,oneof" json:"include_terminated,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *GetSandboxRequest) Reset() {
@@ -2065,6 +2067,13 @@ func (x *GetSandboxRequest) GetSandboxId() string {
 		return x.SandboxId
 	}
 	return ""
+}
+
+func (x *GetSandboxRequest) GetIncludeTerminated() bool {
+	if x != nil && x.IncludeTerminated != nil {
+		return *x.IncludeTerminated
+	}
+	return false
 }
 
 // Response containing sandbox info
@@ -2114,11 +2123,12 @@ func (x *GetSandboxResponse) GetSandbox() *SandboxInfo {
 
 // Request to list sandboxes
 type ListSandboxesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Limit         *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Cursor            *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit             *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	IncludeTerminated *bool                  `protobuf:"varint,3,opt,name=include_terminated,json=includeTerminated,proto3,oneof" json:"include_terminated,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListSandboxesRequest) Reset() {
@@ -2163,6 +2173,13 @@ func (x *ListSandboxesRequest) GetLimit() int32 {
 		return *x.Limit
 	}
 	return 0
+}
+
+func (x *ListSandboxesRequest) GetIncludeTerminated() bool {
+	if x != nil && x.IncludeTerminated != nil {
+		return *x.IncludeTerminated
+	}
+	return false
 }
 
 // Response containing a list of sandboxes
@@ -3839,17 +3856,21 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\x125\n" +
 	"\x14grace_period_seconds\x18\x02 \x01(\x05H\x00R\x12gracePeriodSeconds\x88\x01\x01B\x17\n" +
 	"\x15_grace_period_seconds\"\x1a\n" +
-	"\x18TerminateSandboxResponse\"2\n" +
+	"\x18TerminateSandboxResponse\"}\n" +
 	"\x11GetSandboxRequest\x12\x1d\n" +
 	"\n" +
-	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\"M\n" +
+	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\x122\n" +
+	"\x12include_terminated\x18\x02 \x01(\bH\x00R\x11includeTerminated\x88\x01\x01B\x15\n" +
+	"\x13_include_terminated\"M\n" +
 	"\x12GetSandboxResponse\x127\n" +
-	"\asandbox\x18\x01 \x01(\v2\x1d.chalk.sandbox.v1.SandboxInfoR\asandbox\"c\n" +
+	"\asandbox\x18\x01 \x01(\v2\x1d.chalk.sandbox.v1.SandboxInfoR\asandbox\"\xae\x01\n" +
 	"\x14ListSandboxesRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
-	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x122\n" +
+	"\x12include_terminated\x18\x03 \x01(\bH\x02R\x11includeTerminated\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
-	"\x06_limit\"\x8a\x01\n" +
+	"\x06_limitB\x15\n" +
+	"\x13_include_terminated\"\x8a\x01\n" +
 	"\x15ListSandboxesResponse\x12;\n" +
 	"\tsandboxes\x18\x01 \x03(\v2\x1d.chalk.sandbox.v1.SandboxInfoR\tsandboxes\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
@@ -4196,6 +4217,7 @@ func file_chalk_sandbox_v1_service_proto_init() {
 	}
 	file_chalk_sandbox_v1_service_proto_msgTypes[24].OneofWrappers = []any{}
 	file_chalk_sandbox_v1_service_proto_msgTypes[26].OneofWrappers = []any{}
+	file_chalk_sandbox_v1_service_proto_msgTypes[28].OneofWrappers = []any{}
 	file_chalk_sandbox_v1_service_proto_msgTypes[30].OneofWrappers = []any{}
 	file_chalk_sandbox_v1_service_proto_msgTypes[31].OneofWrappers = []any{}
 	file_chalk_sandbox_v1_service_proto_msgTypes[32].OneofWrappers = []any{}

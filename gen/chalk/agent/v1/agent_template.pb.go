@@ -23,6 +23,60 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// The surface conversations created from a template open in. GENERAL agents
+// run as plain conversations; NOTEBOOK agents get a notebook created and
+// attached at conversation start, so their tools default to that notebook and
+// the UI opens on the notebook page. UNSPECIFIED reads as GENERAL, keeping
+// rows written before this field existed valid.
+type AgentTemplateKind int32
+
+const (
+	AgentTemplateKind_AGENT_TEMPLATE_KIND_UNSPECIFIED AgentTemplateKind = 0
+	AgentTemplateKind_AGENT_TEMPLATE_KIND_GENERAL     AgentTemplateKind = 1
+	AgentTemplateKind_AGENT_TEMPLATE_KIND_NOTEBOOK    AgentTemplateKind = 2
+)
+
+// Enum value maps for AgentTemplateKind.
+var (
+	AgentTemplateKind_name = map[int32]string{
+		0: "AGENT_TEMPLATE_KIND_UNSPECIFIED",
+		1: "AGENT_TEMPLATE_KIND_GENERAL",
+		2: "AGENT_TEMPLATE_KIND_NOTEBOOK",
+	}
+	AgentTemplateKind_value = map[string]int32{
+		"AGENT_TEMPLATE_KIND_UNSPECIFIED": 0,
+		"AGENT_TEMPLATE_KIND_GENERAL":     1,
+		"AGENT_TEMPLATE_KIND_NOTEBOOK":    2,
+	}
+)
+
+func (x AgentTemplateKind) Enum() *AgentTemplateKind {
+	p := new(AgentTemplateKind)
+	*p = x
+	return p
+}
+
+func (x AgentTemplateKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AgentTemplateKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_agent_template_proto_enumTypes[0].Descriptor()
+}
+
+func (AgentTemplateKind) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_agent_template_proto_enumTypes[0]
+}
+
+func (x AgentTemplateKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AgentTemplateKind.Descriptor instead.
+func (AgentTemplateKind) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{0}
+}
+
 // AgentTemplate is a reusable agent configuration a conversation can be
 // created from: a system prompt, a preferred model, and the set of tools the
 // agent is allowed to call. Tools are referenced by the chalk-mcp-gateway's
@@ -62,7 +116,8 @@ type AgentTemplate struct {
 	// list means unrestricted — restriction is opt-in. Advisory today: stored
 	// and surfaced in the dashboard, but not yet enforced by the runner's
 	// query/SQL tools.
-	AllowedDatasources []string `protobuf:"bytes,11,rep,name=allowed_datasources,json=allowedDatasources,proto3" json:"allowed_datasources,omitempty"`
+	AllowedDatasources []string          `protobuf:"bytes,11,rep,name=allowed_datasources,json=allowedDatasources,proto3" json:"allowed_datasources,omitempty"`
+	Kind               AgentTemplateKind `protobuf:"varint,12,opt,name=kind,proto3,enum=chalk.agent.v1.AgentTemplateKind" json:"kind,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -174,6 +229,13 @@ func (x *AgentTemplate) GetAllowedDatasources() []string {
 	return nil
 }
 
+func (x *AgentTemplate) GetKind() AgentTemplateKind {
+	if x != nil {
+		return x.Kind
+	}
+	return AgentTemplateKind_AGENT_TEMPLATE_KIND_UNSPECIFIED
+}
+
 type CreateAgentTemplateRequest struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	Name                   string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -183,8 +245,10 @@ type CreateAgentTemplateRequest struct {
 	AiProviderConnectionId string                 `protobuf:"bytes,5,opt,name=ai_provider_connection_id,json=aiProviderConnectionId,proto3" json:"ai_provider_connection_id,omitempty"`
 	AllowedTools           []string               `protobuf:"bytes,6,rep,name=allowed_tools,json=allowedTools,proto3" json:"allowed_tools,omitempty"`
 	AllowedDatasources     []string               `protobuf:"bytes,7,rep,name=allowed_datasources,json=allowedDatasources,proto3" json:"allowed_datasources,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// UNSPECIFIED creates a GENERAL template.
+	Kind          AgentTemplateKind `protobuf:"varint,8,opt,name=kind,proto3,enum=chalk.agent.v1.AgentTemplateKind" json:"kind,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateAgentTemplateRequest) Reset() {
@@ -264,6 +328,13 @@ func (x *CreateAgentTemplateRequest) GetAllowedDatasources() []string {
 		return x.AllowedDatasources
 	}
 	return nil
+}
+
+func (x *CreateAgentTemplateRequest) GetKind() AgentTemplateKind {
+	if x != nil {
+		return x.Kind
+	}
+	return AgentTemplateKind_AGENT_TEMPLATE_KIND_UNSPECIFIED
 }
 
 type CreateAgentTemplateResponse struct {
@@ -496,8 +567,11 @@ type UpdateAgentTemplateRequest struct {
 	// so a template can be updated back to the empty (unrestricted) list.
 	AllowedDatasources    []string `protobuf:"bytes,9,rep,name=allowed_datasources,json=allowedDatasources,proto3" json:"allowed_datasources,omitempty"`
 	HasAllowedDatasources bool     `protobuf:"varint,10,opt,name=has_allowed_datasources,json=hasAllowedDatasources,proto3" json:"has_allowed_datasources,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// Like the scalar fields, only applied when not UNSPECIFIED; pass GENERAL
+	// to switch a notebook agent back.
+	Kind          AgentTemplateKind `protobuf:"varint,11,opt,name=kind,proto3,enum=chalk.agent.v1.AgentTemplateKind" json:"kind,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateAgentTemplateRequest) Reset() {
@@ -598,6 +672,13 @@ func (x *UpdateAgentTemplateRequest) GetHasAllowedDatasources() bool {
 		return x.HasAllowedDatasources
 	}
 	return false
+}
+
+func (x *UpdateAgentTemplateRequest) GetKind() AgentTemplateKind {
+	if x != nil {
+		return x.Kind
+	}
+	return AgentTemplateKind_AGENT_TEMPLATE_KIND_UNSPECIFIED
 }
 
 type UpdateAgentTemplateResponse struct {
@@ -728,7 +809,7 @@ var File_chalk_agent_v1_agent_template_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/agent/v1/agent_template.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\x03\n" +
+	"#chalk/agent/v1/agent_template.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfe\x03\n" +
 	"\rAgentTemplate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x12\n" +
@@ -744,7 +825,8 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12/\n" +
-	"\x13allowed_datasources\x18\v \x03(\tR\x12allowedDatasources\"\xa7\x02\n" +
+	"\x13allowed_datasources\x18\v \x03(\tR\x12allowedDatasources\x125\n" +
+	"\x04kind\x18\f \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\"\xde\x02\n" +
 	"\x1aCreateAgentTemplateRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12#\n" +
@@ -753,7 +835,8 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"model_name\x18\x04 \x01(\tR\tmodelName\x129\n" +
 	"\x19ai_provider_connection_id\x18\x05 \x01(\tR\x16aiProviderConnectionId\x12#\n" +
 	"\rallowed_tools\x18\x06 \x03(\tR\fallowedTools\x12/\n" +
-	"\x13allowed_datasources\x18\a \x03(\tR\x12allowedDatasources\"X\n" +
+	"\x13allowed_datasources\x18\a \x03(\tR\x12allowedDatasources\x125\n" +
+	"\x04kind\x18\b \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\"X\n" +
 	"\x1bCreateAgentTemplateResponse\x129\n" +
 	"\btemplate\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentTemplateR\btemplate\")\n" +
 	"\x17GetAgentTemplateRequest\x12\x0e\n" +
@@ -762,7 +845,7 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\btemplate\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentTemplateR\btemplate\"\x1b\n" +
 	"\x19ListAgentTemplatesRequest\"Y\n" +
 	"\x1aListAgentTemplatesResponse\x12;\n" +
-	"\ttemplates\x18\x01 \x03(\v2\x1d.chalk.agent.v1.AgentTemplateR\ttemplates\"\x9b\x03\n" +
+	"\ttemplates\x18\x01 \x03(\v2\x1d.chalk.agent.v1.AgentTemplateR\ttemplates\"\xd2\x03\n" +
 	"\x1aUpdateAgentTemplateRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -775,12 +858,17 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\x11has_allowed_tools\x18\b \x01(\bR\x0fhasAllowedTools\x12/\n" +
 	"\x13allowed_datasources\x18\t \x03(\tR\x12allowedDatasources\x126\n" +
 	"\x17has_allowed_datasources\x18\n" +
-	" \x01(\bR\x15hasAllowedDatasources\"X\n" +
+	" \x01(\bR\x15hasAllowedDatasources\x125\n" +
+	"\x04kind\x18\v \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\"X\n" +
 	"\x1bUpdateAgentTemplateResponse\x129\n" +
 	"\btemplate\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentTemplateR\btemplate\",\n" +
 	"\x1aDeleteAgentTemplateRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x1d\n" +
-	"\x1bDeleteAgentTemplateResponse2\xdf\x04\n" +
+	"\x1bDeleteAgentTemplateResponse*{\n" +
+	"\x11AgentTemplateKind\x12#\n" +
+	"\x1fAGENT_TEMPLATE_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bAGENT_TEMPLATE_KIND_GENERAL\x10\x01\x12 \n" +
+	"\x1cAGENT_TEMPLATE_KIND_NOTEBOOK\x10\x022\xdf\x04\n" +
 	"\x14AgentTemplateService\x12s\n" +
 	"\x13CreateAgentTemplate\x12*.chalk.agent.v1.CreateAgentTemplateRequest\x1a+.chalk.agent.v1.CreateAgentTemplateResponse\"\x03\x80}\x02\x12m\n" +
 	"\x10GetAgentTemplate\x12'.chalk.agent.v1.GetAgentTemplateRequest\x1a(.chalk.agent.v1.GetAgentTemplateResponse\"\x06\x80}\x02\x90\x02\x01\x12s\n" +
@@ -801,43 +889,48 @@ func file_chalk_agent_v1_agent_template_proto_rawDescGZIP() []byte {
 	return file_chalk_agent_v1_agent_template_proto_rawDescData
 }
 
+var file_chalk_agent_v1_agent_template_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_chalk_agent_v1_agent_template_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_chalk_agent_v1_agent_template_proto_goTypes = []any{
-	(*AgentTemplate)(nil),               // 0: chalk.agent.v1.AgentTemplate
-	(*CreateAgentTemplateRequest)(nil),  // 1: chalk.agent.v1.CreateAgentTemplateRequest
-	(*CreateAgentTemplateResponse)(nil), // 2: chalk.agent.v1.CreateAgentTemplateResponse
-	(*GetAgentTemplateRequest)(nil),     // 3: chalk.agent.v1.GetAgentTemplateRequest
-	(*GetAgentTemplateResponse)(nil),    // 4: chalk.agent.v1.GetAgentTemplateResponse
-	(*ListAgentTemplatesRequest)(nil),   // 5: chalk.agent.v1.ListAgentTemplatesRequest
-	(*ListAgentTemplatesResponse)(nil),  // 6: chalk.agent.v1.ListAgentTemplatesResponse
-	(*UpdateAgentTemplateRequest)(nil),  // 7: chalk.agent.v1.UpdateAgentTemplateRequest
-	(*UpdateAgentTemplateResponse)(nil), // 8: chalk.agent.v1.UpdateAgentTemplateResponse
-	(*DeleteAgentTemplateRequest)(nil),  // 9: chalk.agent.v1.DeleteAgentTemplateRequest
-	(*DeleteAgentTemplateResponse)(nil), // 10: chalk.agent.v1.DeleteAgentTemplateResponse
-	(*timestamppb.Timestamp)(nil),       // 11: google.protobuf.Timestamp
+	(AgentTemplateKind)(0),              // 0: chalk.agent.v1.AgentTemplateKind
+	(*AgentTemplate)(nil),               // 1: chalk.agent.v1.AgentTemplate
+	(*CreateAgentTemplateRequest)(nil),  // 2: chalk.agent.v1.CreateAgentTemplateRequest
+	(*CreateAgentTemplateResponse)(nil), // 3: chalk.agent.v1.CreateAgentTemplateResponse
+	(*GetAgentTemplateRequest)(nil),     // 4: chalk.agent.v1.GetAgentTemplateRequest
+	(*GetAgentTemplateResponse)(nil),    // 5: chalk.agent.v1.GetAgentTemplateResponse
+	(*ListAgentTemplatesRequest)(nil),   // 6: chalk.agent.v1.ListAgentTemplatesRequest
+	(*ListAgentTemplatesResponse)(nil),  // 7: chalk.agent.v1.ListAgentTemplatesResponse
+	(*UpdateAgentTemplateRequest)(nil),  // 8: chalk.agent.v1.UpdateAgentTemplateRequest
+	(*UpdateAgentTemplateResponse)(nil), // 9: chalk.agent.v1.UpdateAgentTemplateResponse
+	(*DeleteAgentTemplateRequest)(nil),  // 10: chalk.agent.v1.DeleteAgentTemplateRequest
+	(*DeleteAgentTemplateResponse)(nil), // 11: chalk.agent.v1.DeleteAgentTemplateResponse
+	(*timestamppb.Timestamp)(nil),       // 12: google.protobuf.Timestamp
 }
 var file_chalk_agent_v1_agent_template_proto_depIdxs = []int32{
-	11, // 0: chalk.agent.v1.AgentTemplate.created_at:type_name -> google.protobuf.Timestamp
-	11, // 1: chalk.agent.v1.AgentTemplate.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 2: chalk.agent.v1.CreateAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
-	0,  // 3: chalk.agent.v1.GetAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
-	0,  // 4: chalk.agent.v1.ListAgentTemplatesResponse.templates:type_name -> chalk.agent.v1.AgentTemplate
-	0,  // 5: chalk.agent.v1.UpdateAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
-	1,  // 6: chalk.agent.v1.AgentTemplateService.CreateAgentTemplate:input_type -> chalk.agent.v1.CreateAgentTemplateRequest
-	3,  // 7: chalk.agent.v1.AgentTemplateService.GetAgentTemplate:input_type -> chalk.agent.v1.GetAgentTemplateRequest
-	5,  // 8: chalk.agent.v1.AgentTemplateService.ListAgentTemplates:input_type -> chalk.agent.v1.ListAgentTemplatesRequest
-	7,  // 9: chalk.agent.v1.AgentTemplateService.UpdateAgentTemplate:input_type -> chalk.agent.v1.UpdateAgentTemplateRequest
-	9,  // 10: chalk.agent.v1.AgentTemplateService.DeleteAgentTemplate:input_type -> chalk.agent.v1.DeleteAgentTemplateRequest
-	2,  // 11: chalk.agent.v1.AgentTemplateService.CreateAgentTemplate:output_type -> chalk.agent.v1.CreateAgentTemplateResponse
-	4,  // 12: chalk.agent.v1.AgentTemplateService.GetAgentTemplate:output_type -> chalk.agent.v1.GetAgentTemplateResponse
-	6,  // 13: chalk.agent.v1.AgentTemplateService.ListAgentTemplates:output_type -> chalk.agent.v1.ListAgentTemplatesResponse
-	8,  // 14: chalk.agent.v1.AgentTemplateService.UpdateAgentTemplate:output_type -> chalk.agent.v1.UpdateAgentTemplateResponse
-	10, // 15: chalk.agent.v1.AgentTemplateService.DeleteAgentTemplate:output_type -> chalk.agent.v1.DeleteAgentTemplateResponse
-	11, // [11:16] is the sub-list for method output_type
-	6,  // [6:11] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	12, // 0: chalk.agent.v1.AgentTemplate.created_at:type_name -> google.protobuf.Timestamp
+	12, // 1: chalk.agent.v1.AgentTemplate.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 2: chalk.agent.v1.AgentTemplate.kind:type_name -> chalk.agent.v1.AgentTemplateKind
+	0,  // 3: chalk.agent.v1.CreateAgentTemplateRequest.kind:type_name -> chalk.agent.v1.AgentTemplateKind
+	1,  // 4: chalk.agent.v1.CreateAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
+	1,  // 5: chalk.agent.v1.GetAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
+	1,  // 6: chalk.agent.v1.ListAgentTemplatesResponse.templates:type_name -> chalk.agent.v1.AgentTemplate
+	0,  // 7: chalk.agent.v1.UpdateAgentTemplateRequest.kind:type_name -> chalk.agent.v1.AgentTemplateKind
+	1,  // 8: chalk.agent.v1.UpdateAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
+	2,  // 9: chalk.agent.v1.AgentTemplateService.CreateAgentTemplate:input_type -> chalk.agent.v1.CreateAgentTemplateRequest
+	4,  // 10: chalk.agent.v1.AgentTemplateService.GetAgentTemplate:input_type -> chalk.agent.v1.GetAgentTemplateRequest
+	6,  // 11: chalk.agent.v1.AgentTemplateService.ListAgentTemplates:input_type -> chalk.agent.v1.ListAgentTemplatesRequest
+	8,  // 12: chalk.agent.v1.AgentTemplateService.UpdateAgentTemplate:input_type -> chalk.agent.v1.UpdateAgentTemplateRequest
+	10, // 13: chalk.agent.v1.AgentTemplateService.DeleteAgentTemplate:input_type -> chalk.agent.v1.DeleteAgentTemplateRequest
+	3,  // 14: chalk.agent.v1.AgentTemplateService.CreateAgentTemplate:output_type -> chalk.agent.v1.CreateAgentTemplateResponse
+	5,  // 15: chalk.agent.v1.AgentTemplateService.GetAgentTemplate:output_type -> chalk.agent.v1.GetAgentTemplateResponse
+	7,  // 16: chalk.agent.v1.AgentTemplateService.ListAgentTemplates:output_type -> chalk.agent.v1.ListAgentTemplatesResponse
+	9,  // 17: chalk.agent.v1.AgentTemplateService.UpdateAgentTemplate:output_type -> chalk.agent.v1.UpdateAgentTemplateResponse
+	11, // 18: chalk.agent.v1.AgentTemplateService.DeleteAgentTemplate:output_type -> chalk.agent.v1.DeleteAgentTemplateResponse
+	14, // [14:19] is the sub-list for method output_type
+	9,  // [9:14] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_agent_template_proto_init() }
@@ -850,13 +943,14 @@ func file_chalk_agent_v1_agent_template_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_agent_template_proto_rawDesc), len(file_chalk_agent_v1_agent_template_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_agent_v1_agent_template_proto_goTypes,
 		DependencyIndexes: file_chalk_agent_v1_agent_template_proto_depIdxs,
+		EnumInfos:         file_chalk_agent_v1_agent_template_proto_enumTypes,
 		MessageInfos:      file_chalk_agent_v1_agent_template_proto_msgTypes,
 	}.Build()
 	File_chalk_agent_v1_agent_template_proto = out.File

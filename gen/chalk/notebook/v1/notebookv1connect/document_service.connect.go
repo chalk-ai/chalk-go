@@ -45,6 +45,9 @@ const (
 	// NotebookDocumentServiceUpdateNotebookDocumentProcedure is the fully-qualified name of the
 	// NotebookDocumentService's UpdateNotebookDocument RPC.
 	NotebookDocumentServiceUpdateNotebookDocumentProcedure = "/chalk.notebook.v1.NotebookDocumentService/UpdateNotebookDocument"
+	// NotebookDocumentServiceEnsureNotebookAppProcedure is the fully-qualified name of the
+	// NotebookDocumentService's EnsureNotebookApp RPC.
+	NotebookDocumentServiceEnsureNotebookAppProcedure = "/chalk.notebook.v1.NotebookDocumentService/EnsureNotebookApp"
 	// NotebookDocumentServiceDeleteNotebookDocumentProcedure is the fully-qualified name of the
 	// NotebookDocumentService's DeleteNotebookDocument RPC.
 	NotebookDocumentServiceDeleteNotebookDocumentProcedure = "/chalk.notebook.v1.NotebookDocumentService/DeleteNotebookDocument"
@@ -102,6 +105,12 @@ const (
 	// NotebookDocumentServiceClearNotebookCellResultsProcedure is the fully-qualified name of the
 	// NotebookDocumentService's ClearNotebookCellResults RPC.
 	NotebookDocumentServiceClearNotebookCellResultsProcedure = "/chalk.notebook.v1.NotebookDocumentService/ClearNotebookCellResults"
+	// NotebookDocumentServiceGetNotebookSqlCacheSettingsProcedure is the fully-qualified name of the
+	// NotebookDocumentService's GetNotebookSqlCacheSettings RPC.
+	NotebookDocumentServiceGetNotebookSqlCacheSettingsProcedure = "/chalk.notebook.v1.NotebookDocumentService/GetNotebookSqlCacheSettings"
+	// NotebookDocumentServiceUpdateNotebookSqlCacheSettingsProcedure is the fully-qualified name of the
+	// NotebookDocumentService's UpdateNotebookSqlCacheSettings RPC.
+	NotebookDocumentServiceUpdateNotebookSqlCacheSettingsProcedure = "/chalk.notebook.v1.NotebookDocumentService/UpdateNotebookSqlCacheSettings"
 	// NotebookDocumentServiceStartNotebookRuntimeProcedure is the fully-qualified name of the
 	// NotebookDocumentService's StartNotebookRuntime RPC.
 	NotebookDocumentServiceStartNotebookRuntimeProcedure = "/chalk.notebook.v1.NotebookDocumentService/StartNotebookRuntime"
@@ -144,6 +153,10 @@ type NotebookDocumentServiceClient interface {
 	GetNotebookDocument(context.Context, *connect.Request[v1.GetNotebookDocumentRequest]) (*connect.Response[v1.GetNotebookDocumentResponse], error)
 	ListNotebookDocuments(context.Context, *connect.Request[v1.ListNotebookDocumentsRequest]) (*connect.Response[v1.ListNotebookDocumentsResponse], error)
 	UpdateNotebookDocument(context.Context, *connect.Request[v1.UpdateNotebookDocumentRequest]) (*connect.Response[v1.UpdateNotebookDocumentResponse], error)
+	// Returns the id of the Dashboard row backing this notebook's app view,
+	// creating it (empty, owner_type="notebook") and linking it to the document
+	// in one transaction on first call. Idempotent.
+	EnsureNotebookApp(context.Context, *connect.Request[v1.EnsureNotebookAppRequest]) (*connect.Response[v1.EnsureNotebookAppResponse], error)
 	DeleteNotebookDocument(context.Context, *connect.Request[v1.DeleteNotebookDocumentRequest]) (*connect.Response[v1.DeleteNotebookDocumentResponse], error)
 	// Archives or restores a notebook by setting/clearing archived_at. Archived
 	// notebooks are excluded from the default list (ListNotebookDocuments with
@@ -179,6 +192,10 @@ type NotebookDocumentServiceClient interface {
 	ListNotebookRuns(context.Context, *connect.Request[v1.ListNotebookRunsRequest]) (*connect.Response[v1.ListNotebookRunsResponse], error)
 	GetNotebookRunDetails(context.Context, *connect.Request[v1.GetNotebookRunDetailsRequest]) (*connect.Response[v1.GetNotebookRunDetailsResponse], error)
 	ClearNotebookCellResults(context.Context, *connect.Request[v1.ClearNotebookCellResultsRequest]) (*connect.Response[v1.ClearNotebookCellResultsResponse], error)
+	GetNotebookSqlCacheSettings(context.Context, *connect.Request[v1.GetNotebookSqlCacheSettingsRequest]) (*connect.Response[v1.GetNotebookSqlCacheSettingsResponse], error)
+	// Environment-wide cache policy is the admin knob; notebook/cell overrides
+	// ride UpdateNotebookDocument/UpdateNotebookCell at editor tier.
+	UpdateNotebookSqlCacheSettings(context.Context, *connect.Request[v1.UpdateNotebookSqlCacheSettingsRequest]) (*connect.Response[v1.UpdateNotebookSqlCacheSettingsResponse], error)
 	// Provisions (or returns the existing) kernel runtime for a notebook: a
 	// notebooks runtime row plus a chalk_nb_server container bound to this
 	// notebook's session id. Idempotent — a second call returns the current
@@ -247,6 +264,12 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 			httpClient,
 			baseURL+NotebookDocumentServiceUpdateNotebookDocumentProcedure,
 			connect.WithSchema(notebookDocumentServiceMethods.ByName("UpdateNotebookDocument")),
+			connect.WithClientOptions(opts...),
+		),
+		ensureNotebookApp: connect.NewClient[v1.EnsureNotebookAppRequest, v1.EnsureNotebookAppResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceEnsureNotebookAppProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("EnsureNotebookApp")),
 			connect.WithClientOptions(opts...),
 		),
 		deleteNotebookDocument: connect.NewClient[v1.DeleteNotebookDocumentRequest, v1.DeleteNotebookDocumentResponse](
@@ -363,6 +386,18 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 			connect.WithSchema(notebookDocumentServiceMethods.ByName("ClearNotebookCellResults")),
 			connect.WithClientOptions(opts...),
 		),
+		getNotebookSqlCacheSettings: connect.NewClient[v1.GetNotebookSqlCacheSettingsRequest, v1.GetNotebookSqlCacheSettingsResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceGetNotebookSqlCacheSettingsProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("GetNotebookSqlCacheSettings")),
+			connect.WithClientOptions(opts...),
+		),
+		updateNotebookSqlCacheSettings: connect.NewClient[v1.UpdateNotebookSqlCacheSettingsRequest, v1.UpdateNotebookSqlCacheSettingsResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceUpdateNotebookSqlCacheSettingsProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("UpdateNotebookSqlCacheSettings")),
+			connect.WithClientOptions(opts...),
+		),
 		startNotebookRuntime: connect.NewClient[v1.StartNotebookRuntimeRequest, v1.StartNotebookRuntimeResponse](
 			httpClient,
 			baseURL+NotebookDocumentServiceStartNotebookRuntimeProcedure,
@@ -434,40 +469,43 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 
 // notebookDocumentServiceClient implements NotebookDocumentServiceClient.
 type notebookDocumentServiceClient struct {
-	createNotebookDocument        *connect.Client[v1.CreateNotebookDocumentRequest, v1.CreateNotebookDocumentResponse]
-	getNotebookDocument           *connect.Client[v1.GetNotebookDocumentRequest, v1.GetNotebookDocumentResponse]
-	listNotebookDocuments         *connect.Client[v1.ListNotebookDocumentsRequest, v1.ListNotebookDocumentsResponse]
-	updateNotebookDocument        *connect.Client[v1.UpdateNotebookDocumentRequest, v1.UpdateNotebookDocumentResponse]
-	deleteNotebookDocument        *connect.Client[v1.DeleteNotebookDocumentRequest, v1.DeleteNotebookDocumentResponse]
-	setNotebookArchived           *connect.Client[v1.SetNotebookArchivedRequest, v1.SetNotebookArchivedResponse]
-	addNotebookCell               *connect.Client[v1.AddNotebookCellRequest, v1.AddNotebookCellResponse]
-	updateNotebookCell            *connect.Client[v1.UpdateNotebookCellRequest, v1.UpdateNotebookCellResponse]
-	deleteNotebookCell            *connect.Client[v1.DeleteNotebookCellRequest, v1.DeleteNotebookCellResponse]
-	moveNotebookCell              *connect.Client[v1.MoveNotebookCellRequest, v1.MoveNotebookCellResponse]
-	batchUpdateNotebookCells      *connect.Client[v1.BatchUpdateNotebookCellsRequest, v1.BatchUpdateNotebookCellsResponse]
-	startNotebookRun              *connect.Client[v1.StartNotebookRunRequest, v1.StartNotebookRunResponse]
-	watchNotebookRun              *connect.Client[v1.WatchNotebookRunRequest, v1.WatchNotebookRunResponse]
-	interruptNotebookRun          *connect.Client[v1.InterruptNotebookRunRequest, v1.InterruptNotebookRunResponse]
-	listNotebookCellResults       *connect.Client[v1.ListNotebookCellResultsRequest, v1.ListNotebookCellResultsResponse]
-	fetchNotebookDataframeRows    *connect.Client[v1.FetchNotebookDataframeRowsRequest, v1.FetchNotebookDataframeRowsResponse]
-	aggregateNotebookDataframe    *connect.Client[v1.AggregateNotebookDataframeRequest, v1.AggregateNotebookDataframeResponse]
-	downloadNotebookDataframe     *connect.Client[v1.DownloadNotebookDataframeRequest, v1.DownloadNotebookDataframeResponse]
-	listNotebookCellRunHistory    *connect.Client[v1.ListNotebookCellRunHistoryRequest, v1.ListNotebookCellRunHistoryResponse]
-	listNotebookDocumentRevisions *connect.Client[v1.ListNotebookDocumentRevisionsRequest, v1.ListNotebookDocumentRevisionsResponse]
-	listNotebookRuns              *connect.Client[v1.ListNotebookRunsRequest, v1.ListNotebookRunsResponse]
-	getNotebookRunDetails         *connect.Client[v1.GetNotebookRunDetailsRequest, v1.GetNotebookRunDetailsResponse]
-	clearNotebookCellResults      *connect.Client[v1.ClearNotebookCellResultsRequest, v1.ClearNotebookCellResultsResponse]
-	startNotebookRuntime          *connect.Client[v1.StartNotebookRuntimeRequest, v1.StartNotebookRuntimeResponse]
-	stopNotebookRuntime           *connect.Client[v1.StopNotebookRuntimeRequest, v1.StopNotebookRuntimeResponse]
-	getNotebookRuntimeStatus      *connect.Client[v1.GetNotebookRuntimeStatusRequest, v1.GetNotebookRuntimeStatusResponse]
-	watchNotebookRuntimeStatus    *connect.Client[v1.WatchNotebookRuntimeStatusRequest, v1.WatchNotebookRuntimeStatusResponse]
-	listNotebookRuntimes          *connect.Client[v1.ListNotebookRuntimesRequest, v1.ListNotebookRuntimesResponse]
-	listNotebookKernelPackages    *connect.Client[v1.ListNotebookKernelPackagesRequest, v1.ListNotebookKernelPackagesResponse]
-	getNotebookDependencyGraph    *connect.Client[v1.GetNotebookDependencyGraphRequest, v1.GetNotebookDependencyGraphResponse]
-	listNotebookSecrets           *connect.Client[v1.ListNotebookSecretsRequest, v1.ListNotebookSecretsResponse]
-	getNotebookSecretValue        *connect.Client[v1.GetNotebookSecretValueRequest, v1.GetNotebookSecretValueResponse]
-	upsertNotebookSecret          *connect.Client[v1.UpsertNotebookSecretRequest, v1.UpsertNotebookSecretResponse]
-	deleteNotebookSecret          *connect.Client[v1.DeleteNotebookSecretRequest, v1.DeleteNotebookSecretResponse]
+	createNotebookDocument         *connect.Client[v1.CreateNotebookDocumentRequest, v1.CreateNotebookDocumentResponse]
+	getNotebookDocument            *connect.Client[v1.GetNotebookDocumentRequest, v1.GetNotebookDocumentResponse]
+	listNotebookDocuments          *connect.Client[v1.ListNotebookDocumentsRequest, v1.ListNotebookDocumentsResponse]
+	updateNotebookDocument         *connect.Client[v1.UpdateNotebookDocumentRequest, v1.UpdateNotebookDocumentResponse]
+	ensureNotebookApp              *connect.Client[v1.EnsureNotebookAppRequest, v1.EnsureNotebookAppResponse]
+	deleteNotebookDocument         *connect.Client[v1.DeleteNotebookDocumentRequest, v1.DeleteNotebookDocumentResponse]
+	setNotebookArchived            *connect.Client[v1.SetNotebookArchivedRequest, v1.SetNotebookArchivedResponse]
+	addNotebookCell                *connect.Client[v1.AddNotebookCellRequest, v1.AddNotebookCellResponse]
+	updateNotebookCell             *connect.Client[v1.UpdateNotebookCellRequest, v1.UpdateNotebookCellResponse]
+	deleteNotebookCell             *connect.Client[v1.DeleteNotebookCellRequest, v1.DeleteNotebookCellResponse]
+	moveNotebookCell               *connect.Client[v1.MoveNotebookCellRequest, v1.MoveNotebookCellResponse]
+	batchUpdateNotebookCells       *connect.Client[v1.BatchUpdateNotebookCellsRequest, v1.BatchUpdateNotebookCellsResponse]
+	startNotebookRun               *connect.Client[v1.StartNotebookRunRequest, v1.StartNotebookRunResponse]
+	watchNotebookRun               *connect.Client[v1.WatchNotebookRunRequest, v1.WatchNotebookRunResponse]
+	interruptNotebookRun           *connect.Client[v1.InterruptNotebookRunRequest, v1.InterruptNotebookRunResponse]
+	listNotebookCellResults        *connect.Client[v1.ListNotebookCellResultsRequest, v1.ListNotebookCellResultsResponse]
+	fetchNotebookDataframeRows     *connect.Client[v1.FetchNotebookDataframeRowsRequest, v1.FetchNotebookDataframeRowsResponse]
+	aggregateNotebookDataframe     *connect.Client[v1.AggregateNotebookDataframeRequest, v1.AggregateNotebookDataframeResponse]
+	downloadNotebookDataframe      *connect.Client[v1.DownloadNotebookDataframeRequest, v1.DownloadNotebookDataframeResponse]
+	listNotebookCellRunHistory     *connect.Client[v1.ListNotebookCellRunHistoryRequest, v1.ListNotebookCellRunHistoryResponse]
+	listNotebookDocumentRevisions  *connect.Client[v1.ListNotebookDocumentRevisionsRequest, v1.ListNotebookDocumentRevisionsResponse]
+	listNotebookRuns               *connect.Client[v1.ListNotebookRunsRequest, v1.ListNotebookRunsResponse]
+	getNotebookRunDetails          *connect.Client[v1.GetNotebookRunDetailsRequest, v1.GetNotebookRunDetailsResponse]
+	clearNotebookCellResults       *connect.Client[v1.ClearNotebookCellResultsRequest, v1.ClearNotebookCellResultsResponse]
+	getNotebookSqlCacheSettings    *connect.Client[v1.GetNotebookSqlCacheSettingsRequest, v1.GetNotebookSqlCacheSettingsResponse]
+	updateNotebookSqlCacheSettings *connect.Client[v1.UpdateNotebookSqlCacheSettingsRequest, v1.UpdateNotebookSqlCacheSettingsResponse]
+	startNotebookRuntime           *connect.Client[v1.StartNotebookRuntimeRequest, v1.StartNotebookRuntimeResponse]
+	stopNotebookRuntime            *connect.Client[v1.StopNotebookRuntimeRequest, v1.StopNotebookRuntimeResponse]
+	getNotebookRuntimeStatus       *connect.Client[v1.GetNotebookRuntimeStatusRequest, v1.GetNotebookRuntimeStatusResponse]
+	watchNotebookRuntimeStatus     *connect.Client[v1.WatchNotebookRuntimeStatusRequest, v1.WatchNotebookRuntimeStatusResponse]
+	listNotebookRuntimes           *connect.Client[v1.ListNotebookRuntimesRequest, v1.ListNotebookRuntimesResponse]
+	listNotebookKernelPackages     *connect.Client[v1.ListNotebookKernelPackagesRequest, v1.ListNotebookKernelPackagesResponse]
+	getNotebookDependencyGraph     *connect.Client[v1.GetNotebookDependencyGraphRequest, v1.GetNotebookDependencyGraphResponse]
+	listNotebookSecrets            *connect.Client[v1.ListNotebookSecretsRequest, v1.ListNotebookSecretsResponse]
+	getNotebookSecretValue         *connect.Client[v1.GetNotebookSecretValueRequest, v1.GetNotebookSecretValueResponse]
+	upsertNotebookSecret           *connect.Client[v1.UpsertNotebookSecretRequest, v1.UpsertNotebookSecretResponse]
+	deleteNotebookSecret           *connect.Client[v1.DeleteNotebookSecretRequest, v1.DeleteNotebookSecretResponse]
 }
 
 // CreateNotebookDocument calls chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument.
@@ -488,6 +526,11 @@ func (c *notebookDocumentServiceClient) ListNotebookDocuments(ctx context.Contex
 // UpdateNotebookDocument calls chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument.
 func (c *notebookDocumentServiceClient) UpdateNotebookDocument(ctx context.Context, req *connect.Request[v1.UpdateNotebookDocumentRequest]) (*connect.Response[v1.UpdateNotebookDocumentResponse], error) {
 	return c.updateNotebookDocument.CallUnary(ctx, req)
+}
+
+// EnsureNotebookApp calls chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp.
+func (c *notebookDocumentServiceClient) EnsureNotebookApp(ctx context.Context, req *connect.Request[v1.EnsureNotebookAppRequest]) (*connect.Response[v1.EnsureNotebookAppResponse], error) {
+	return c.ensureNotebookApp.CallUnary(ctx, req)
 }
 
 // DeleteNotebookDocument calls chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument.
@@ -592,6 +635,18 @@ func (c *notebookDocumentServiceClient) ClearNotebookCellResults(ctx context.Con
 	return c.clearNotebookCellResults.CallUnary(ctx, req)
 }
 
+// GetNotebookSqlCacheSettings calls
+// chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings.
+func (c *notebookDocumentServiceClient) GetNotebookSqlCacheSettings(ctx context.Context, req *connect.Request[v1.GetNotebookSqlCacheSettingsRequest]) (*connect.Response[v1.GetNotebookSqlCacheSettingsResponse], error) {
+	return c.getNotebookSqlCacheSettings.CallUnary(ctx, req)
+}
+
+// UpdateNotebookSqlCacheSettings calls
+// chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings.
+func (c *notebookDocumentServiceClient) UpdateNotebookSqlCacheSettings(ctx context.Context, req *connect.Request[v1.UpdateNotebookSqlCacheSettingsRequest]) (*connect.Response[v1.UpdateNotebookSqlCacheSettingsResponse], error) {
+	return c.updateNotebookSqlCacheSettings.CallUnary(ctx, req)
+}
+
 // StartNotebookRuntime calls chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime.
 func (c *notebookDocumentServiceClient) StartNotebookRuntime(ctx context.Context, req *connect.Request[v1.StartNotebookRuntimeRequest]) (*connect.Response[v1.StartNotebookRuntimeResponse], error) {
 	return c.startNotebookRuntime.CallUnary(ctx, req)
@@ -658,6 +713,10 @@ type NotebookDocumentServiceHandler interface {
 	GetNotebookDocument(context.Context, *connect.Request[v1.GetNotebookDocumentRequest]) (*connect.Response[v1.GetNotebookDocumentResponse], error)
 	ListNotebookDocuments(context.Context, *connect.Request[v1.ListNotebookDocumentsRequest]) (*connect.Response[v1.ListNotebookDocumentsResponse], error)
 	UpdateNotebookDocument(context.Context, *connect.Request[v1.UpdateNotebookDocumentRequest]) (*connect.Response[v1.UpdateNotebookDocumentResponse], error)
+	// Returns the id of the Dashboard row backing this notebook's app view,
+	// creating it (empty, owner_type="notebook") and linking it to the document
+	// in one transaction on first call. Idempotent.
+	EnsureNotebookApp(context.Context, *connect.Request[v1.EnsureNotebookAppRequest]) (*connect.Response[v1.EnsureNotebookAppResponse], error)
 	DeleteNotebookDocument(context.Context, *connect.Request[v1.DeleteNotebookDocumentRequest]) (*connect.Response[v1.DeleteNotebookDocumentResponse], error)
 	// Archives or restores a notebook by setting/clearing archived_at. Archived
 	// notebooks are excluded from the default list (ListNotebookDocuments with
@@ -693,6 +752,10 @@ type NotebookDocumentServiceHandler interface {
 	ListNotebookRuns(context.Context, *connect.Request[v1.ListNotebookRunsRequest]) (*connect.Response[v1.ListNotebookRunsResponse], error)
 	GetNotebookRunDetails(context.Context, *connect.Request[v1.GetNotebookRunDetailsRequest]) (*connect.Response[v1.GetNotebookRunDetailsResponse], error)
 	ClearNotebookCellResults(context.Context, *connect.Request[v1.ClearNotebookCellResultsRequest]) (*connect.Response[v1.ClearNotebookCellResultsResponse], error)
+	GetNotebookSqlCacheSettings(context.Context, *connect.Request[v1.GetNotebookSqlCacheSettingsRequest]) (*connect.Response[v1.GetNotebookSqlCacheSettingsResponse], error)
+	// Environment-wide cache policy is the admin knob; notebook/cell overrides
+	// ride UpdateNotebookDocument/UpdateNotebookCell at editor tier.
+	UpdateNotebookSqlCacheSettings(context.Context, *connect.Request[v1.UpdateNotebookSqlCacheSettingsRequest]) (*connect.Response[v1.UpdateNotebookSqlCacheSettingsResponse], error)
 	// Provisions (or returns the existing) kernel runtime for a notebook: a
 	// notebooks runtime row plus a chalk_nb_server container bound to this
 	// notebook's session id. Idempotent — a second call returns the current
@@ -757,6 +820,12 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 		NotebookDocumentServiceUpdateNotebookDocumentProcedure,
 		svc.UpdateNotebookDocument,
 		connect.WithSchema(notebookDocumentServiceMethods.ByName("UpdateNotebookDocument")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceEnsureNotebookAppHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceEnsureNotebookAppProcedure,
+		svc.EnsureNotebookApp,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("EnsureNotebookApp")),
 		connect.WithHandlerOptions(opts...),
 	)
 	notebookDocumentServiceDeleteNotebookDocumentHandler := connect.NewUnaryHandler(
@@ -873,6 +942,18 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 		connect.WithSchema(notebookDocumentServiceMethods.ByName("ClearNotebookCellResults")),
 		connect.WithHandlerOptions(opts...),
 	)
+	notebookDocumentServiceGetNotebookSqlCacheSettingsHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceGetNotebookSqlCacheSettingsProcedure,
+		svc.GetNotebookSqlCacheSettings,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("GetNotebookSqlCacheSettings")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceUpdateNotebookSqlCacheSettingsHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceUpdateNotebookSqlCacheSettingsProcedure,
+		svc.UpdateNotebookSqlCacheSettings,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("UpdateNotebookSqlCacheSettings")),
+		connect.WithHandlerOptions(opts...),
+	)
 	notebookDocumentServiceStartNotebookRuntimeHandler := connect.NewUnaryHandler(
 		NotebookDocumentServiceStartNotebookRuntimeProcedure,
 		svc.StartNotebookRuntime,
@@ -949,6 +1030,8 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 			notebookDocumentServiceListNotebookDocumentsHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceUpdateNotebookDocumentProcedure:
 			notebookDocumentServiceUpdateNotebookDocumentHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceEnsureNotebookAppProcedure:
+			notebookDocumentServiceEnsureNotebookAppHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceDeleteNotebookDocumentProcedure:
 			notebookDocumentServiceDeleteNotebookDocumentHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceSetNotebookArchivedProcedure:
@@ -987,6 +1070,10 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 			notebookDocumentServiceGetNotebookRunDetailsHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceClearNotebookCellResultsProcedure:
 			notebookDocumentServiceClearNotebookCellResultsHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceGetNotebookSqlCacheSettingsProcedure:
+			notebookDocumentServiceGetNotebookSqlCacheSettingsHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceUpdateNotebookSqlCacheSettingsProcedure:
+			notebookDocumentServiceUpdateNotebookSqlCacheSettingsHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceStartNotebookRuntimeProcedure:
 			notebookDocumentServiceStartNotebookRuntimeHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceStopNotebookRuntimeProcedure:
@@ -1032,6 +1119,10 @@ func (UnimplementedNotebookDocumentServiceHandler) ListNotebookDocuments(context
 
 func (UnimplementedNotebookDocumentServiceHandler) UpdateNotebookDocument(context.Context, *connect.Request[v1.UpdateNotebookDocumentRequest]) (*connect.Response[v1.UpdateNotebookDocumentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) EnsureNotebookApp(context.Context, *connect.Request[v1.EnsureNotebookAppRequest]) (*connect.Response[v1.EnsureNotebookAppResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp is not implemented"))
 }
 
 func (UnimplementedNotebookDocumentServiceHandler) DeleteNotebookDocument(context.Context, *connect.Request[v1.DeleteNotebookDocumentRequest]) (*connect.Response[v1.DeleteNotebookDocumentResponse], error) {
@@ -1108,6 +1199,14 @@ func (UnimplementedNotebookDocumentServiceHandler) GetNotebookRunDetails(context
 
 func (UnimplementedNotebookDocumentServiceHandler) ClearNotebookCellResults(context.Context, *connect.Request[v1.ClearNotebookCellResultsRequest]) (*connect.Response[v1.ClearNotebookCellResultsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) GetNotebookSqlCacheSettings(context.Context, *connect.Request[v1.GetNotebookSqlCacheSettingsRequest]) (*connect.Response[v1.GetNotebookSqlCacheSettingsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) UpdateNotebookSqlCacheSettings(context.Context, *connect.Request[v1.UpdateNotebookSqlCacheSettingsRequest]) (*connect.Response[v1.UpdateNotebookSqlCacheSettingsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings is not implemented"))
 }
 
 func (UnimplementedNotebookDocumentServiceHandler) StartNotebookRuntime(context.Context, *connect.Request[v1.StartNotebookRuntimeRequest]) (*connect.Response[v1.StartNotebookRuntimeResponse], error) {

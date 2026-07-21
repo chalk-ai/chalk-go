@@ -536,8 +536,10 @@ type GetKubeEventFacetValuesRequest struct {
 	// Count-table mode: keep empty values as a "(none)" row and append an "(other)" row summing
 	// everything beyond the limit. Off for the facets sidebar.
 	IncludeSyntheticRows *bool `protobuf:"varint,6,opt,name=include_synthetic_rows,json=includeSyntheticRows,proto3,oneof" json:"include_synthetic_rows,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Non-empty → count value combinations across these facets (in order); `path` is ignored. Empty → single-`path`.
+	Facets        []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetKubeEventFacetValuesRequest) Reset() {
@@ -612,10 +614,19 @@ func (x *GetKubeEventFacetValuesRequest) GetIncludeSyntheticRows() bool {
 	return false
 }
 
+func (x *GetKubeEventFacetValuesRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
 type KubeEventFacetValue struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
-	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Value string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Count int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	// One value per requested facet, index-aligned to request `facets`. Empty in single-`path` mode (scalar `value` set instead).
+	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -662,6 +673,13 @@ func (x *KubeEventFacetValue) GetCount() int64 {
 		return x.Count
 	}
 	return 0
+}
+
+func (x *KubeEventFacetValue) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
 }
 
 type GetKubeEventFacetValuesResponse struct {
@@ -892,7 +910,7 @@ const file_chalk_server_v1_kube_events_proto_rawDesc = "" +
 	"\tgroupable\x18\x03 \x01(\bR\tgroupable\"\x1b\n" +
 	"\x19GetKubeEventFacetsRequest\"U\n" +
 	"\x1aGetKubeEventFacetsResponse\x127\n" +
-	"\x06facets\x18\x01 \x03(\v2\x1f.chalk.server.v1.KubeEventFacetR\x06facets\"\xec\x02\n" +
+	"\x06facets\x18\x01 \x03(\v2\x1f.chalk.server.v1.KubeEventFacetR\x06facets\"\x84\x03\n" +
 	"\x1eGetKubeEventFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
@@ -900,15 +918,17 @@ const file_chalk_server_v1_kube_events_proto_rawDesc = "" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
 	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01\x129\n" +
-	"\x16include_synthetic_rows\x18\x06 \x01(\bH\x04R\x14includeSyntheticRows\x88\x01\x01B\r\n" +
+	"\x16include_synthetic_rows\x18\x06 \x01(\bH\x04R\x14includeSyntheticRows\x88\x01\x01\x12\x16\n" +
+	"\x06facets\x18\a \x03(\tR\x06facetsB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
 	"\x06_queryB\x19\n" +
-	"\x17_include_synthetic_rows\"A\n" +
+	"\x17_include_synthetic_rows\"Y\n" +
 	"\x13KubeEventFacetValue\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x03R\x05count\"_\n" +
+	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x16\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\"_\n" +
 	"\x1fGetKubeEventFacetValuesResponse\x12<\n" +
 	"\x06values\x18\x01 \x03(\v2$.chalk.server.v1.KubeEventFacetValueR\x06values\"\xb5\x02\n" +
 	"\x1fListKubeEventsAggregatedRequest\x12\x19\n" +
