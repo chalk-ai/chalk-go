@@ -590,10 +590,28 @@ type OfflineQueryParams struct {
 	// ObservedAtLowerBound specifies the lower bound for the observation time.
 	// Features will be queried as of this time or later.
 	ObservedAtLowerBound *time.Time
+	// ObservedAtLowerBoundDuration specifies the same bound relative to query execution time.
+	// It is mutually exclusive with ObservedAtLowerBound.
+	ObservedAtLowerBoundDuration *time.Duration
 
 	// ObservedAtUpperBound specifies the upper bound for the observation time.
 	// Features will be queried as of this time or earlier.
 	ObservedAtUpperBound *time.Time
+	// ObservedAtUpperBoundDuration specifies the same bound relative to query execution time.
+	// It is mutually exclusive with ObservedAtUpperBound.
+	ObservedAtUpperBoundDuration *time.Duration
+
+	// InsertedAtLowerBound filters rows written to the offline store at this time or later.
+	InsertedAtLowerBound *time.Time
+	// InsertedAtLowerBoundDuration specifies the same bound relative to query execution time.
+	// It is mutually exclusive with InsertedAtLowerBound.
+	InsertedAtLowerBoundDuration *time.Duration
+
+	// InsertedAtUpperBound filters rows written to the offline store at this time or earlier.
+	InsertedAtUpperBound *time.Time
+	// InsertedAtUpperBoundDuration specifies the same bound relative to query execution time.
+	// It is mutually exclusive with InsertedAtUpperBound.
+	InsertedAtUpperBoundDuration *time.Duration
 
 	// SampleFeatures is a list of features to sample.
 	SampleFeatures []string

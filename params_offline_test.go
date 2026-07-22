@@ -40,6 +40,25 @@ func TestOfflineQueryParamsAllTypes(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestOfflineQueryDurationBoundSetters(t *testing.T) {
+	t.Parallel()
+
+	observedAt := time.Now()
+	params := OfflineQueryParams{}.
+		WithOutputs("test.feature").
+		WithObservedAtLowerBound(observedAt).
+		WithObservedAtLowerBoundDuration(-7 * 24 * time.Hour).
+		WithObservedAtUpperBoundDuration(-time.Hour).
+		WithInsertedAtLowerBoundDuration(-30 * time.Minute).
+		WithInsertedAtUpperBoundDuration(-time.Minute)
+
+	assert.Nil(t, params.underlying.ObservedAtLowerBound)
+	assert.Equal(t, -7*24*time.Hour, *params.underlying.ObservedAtLowerBoundDuration)
+	assert.Equal(t, -time.Hour, *params.underlying.ObservedAtUpperBoundDuration)
+	assert.Equal(t, -30*time.Minute, *params.underlying.InsertedAtLowerBoundDuration)
+	assert.Equal(t, -time.Minute, *params.underlying.InsertedAtUpperBoundDuration)
+}
+
 func TestOfflineQueryInputParamInteger(t *testing.T) {
 	t.Parallel()
 	// Tests passing an integer as input feature reference. Should fail.

@@ -174,12 +174,56 @@ func (p OfflineQueryParamsComplete) WithExplain(explain bool) OfflineQueryParams
 // WithObservedAtLowerBound returns a copy of Offline Query parameters with the specified observed at lower bound set.
 func (p OfflineQueryParamsComplete) WithObservedAtLowerBound(lowerBound time.Time) OfflineQueryParamsComplete {
 	p.underlying.ObservedAtLowerBound = &lowerBound
+	p.underlying.ObservedAtLowerBoundDuration = nil
+	return p
+}
+
+// WithObservedAtLowerBoundDuration returns a copy with a lower observation-time bound relative to query execution time.
+func (p OfflineQueryParamsComplete) WithObservedAtLowerBoundDuration(lowerBound time.Duration) OfflineQueryParamsComplete {
+	p.underlying.ObservedAtLowerBound = nil
+	p.underlying.ObservedAtLowerBoundDuration = &lowerBound
 	return p
 }
 
 // WithObservedAtUpperBound returns a copy of Offline Query parameters with the specified observed at upper bound set.
 func (p OfflineQueryParamsComplete) WithObservedAtUpperBound(upperBound time.Time) OfflineQueryParamsComplete {
 	p.underlying.ObservedAtUpperBound = &upperBound
+	p.underlying.ObservedAtUpperBoundDuration = nil
+	return p
+}
+
+// WithObservedAtUpperBoundDuration returns a copy with an upper observation-time bound relative to query execution time.
+func (p OfflineQueryParamsComplete) WithObservedAtUpperBoundDuration(upperBound time.Duration) OfflineQueryParamsComplete {
+	p.underlying.ObservedAtUpperBound = nil
+	p.underlying.ObservedAtUpperBoundDuration = &upperBound
+	return p
+}
+
+// WithInsertedAtLowerBound returns a copy with the specified offline-store insertion-time lower bound set.
+func (p OfflineQueryParamsComplete) WithInsertedAtLowerBound(lowerBound time.Time) OfflineQueryParamsComplete {
+	p.underlying.InsertedAtLowerBound = &lowerBound
+	p.underlying.InsertedAtLowerBoundDuration = nil
+	return p
+}
+
+// WithInsertedAtLowerBoundDuration returns a copy with a lower insertion-time bound relative to query execution time.
+func (p OfflineQueryParamsComplete) WithInsertedAtLowerBoundDuration(lowerBound time.Duration) OfflineQueryParamsComplete {
+	p.underlying.InsertedAtLowerBound = nil
+	p.underlying.InsertedAtLowerBoundDuration = &lowerBound
+	return p
+}
+
+// WithInsertedAtUpperBound returns a copy with the specified offline-store insertion-time upper bound set.
+func (p OfflineQueryParamsComplete) WithInsertedAtUpperBound(upperBound time.Time) OfflineQueryParamsComplete {
+	p.underlying.InsertedAtUpperBound = &upperBound
+	p.underlying.InsertedAtUpperBoundDuration = nil
+	return p
+}
+
+// WithInsertedAtUpperBoundDuration returns a copy with an upper insertion-time bound relative to query execution time.
+func (p OfflineQueryParamsComplete) WithInsertedAtUpperBoundDuration(upperBound time.Duration) OfflineQueryParamsComplete {
+	p.underlying.InsertedAtUpperBound = nil
+	p.underlying.InsertedAtUpperBoundDuration = &upperBound
 	return p
 }
 
