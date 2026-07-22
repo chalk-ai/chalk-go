@@ -35,25 +35,25 @@ func TestTimeDeltaCanPopulateGRPCOfflineQueryBounds(t *testing.T) {
 	t.Parallel()
 
 	request := &commonv1.OfflineQueryRequest{
-		ObservedAtLowerBound: TimeDelta(-30 * 24 * time.Hour),
-		ObservedAtUpperBound: TimeDelta(-24 * time.Hour),
-		InsertedAtLowerBound: TimeDelta(-12 * time.Hour),
-		InsertedAtUpperBound: TimeDelta(-time.Hour),
+		ObservedAtLowerBound: TimeDelta(30 * 24 * time.Hour),
+		ObservedAtUpperBound: TimeDelta(24 * time.Hour),
+		InsertedAtLowerBound: TimeDelta(12 * time.Hour),
+		InsertedAtUpperBound: TimeDelta(time.Hour),
 	}
 
-	assert.Equal(t, "delta:-30d", request.GetObservedAtLowerBound())
-	assert.Equal(t, "delta:-1d", request.GetObservedAtUpperBound())
-	assert.Equal(t, "delta:-12h", request.GetInsertedAtLowerBound())
-	assert.Equal(t, "delta:-1h", request.GetInsertedAtUpperBound())
+	assert.Equal(t, "delta:30d", request.GetObservedAtLowerBound())
+	assert.Equal(t, "delta:1d", request.GetObservedAtUpperBound())
+	assert.Equal(t, "delta:12h", request.GetInsertedAtLowerBound())
+	assert.Equal(t, "delta:1h", request.GetInsertedAtUpperBound())
 }
 
 func TestHTTPOfflineQuerySerializesDurationBounds(t *testing.T) {
 	t.Parallel()
 
-	observedLower := -30 * 24 * time.Hour
-	observedUpper := -24 * time.Hour
-	insertedLower := -12 * time.Hour
-	insertedUpper := -time.Hour
+	observedLower := 30 * 24 * time.Hour
+	observedUpper := 24 * time.Hour
+	insertedLower := 12 * time.Hour
+	insertedUpper := time.Hour
 	params := &OfflineQueryParams{
 		ObservedAtLowerBoundDuration: &observedLower,
 		ObservedAtUpperBoundDuration: &observedUpper,
@@ -76,10 +76,10 @@ func TestHTTPOfflineQuerySerializesDurationBounds(t *testing.T) {
 		InsertedAtUpperBound *string `json:"inserted_at_upper_bound"`
 	}
 	assert.NoError(t, json.Unmarshal(serialized, &payload))
-	assert.Equal(t, "delta:-30d", *payload.ObservedAtLowerBound)
-	assert.Equal(t, "delta:-1d", *payload.ObservedAtUpperBound)
-	assert.Equal(t, "delta:-12h", *payload.InsertedAtLowerBound)
-	assert.Equal(t, "delta:-1h", *payload.InsertedAtUpperBound)
+	assert.Equal(t, "delta:30d", *payload.ObservedAtLowerBound)
+	assert.Equal(t, "delta:1d", *payload.ObservedAtUpperBound)
+	assert.Equal(t, "delta:12h", *payload.InsertedAtLowerBound)
+	assert.Equal(t, "delta:1h", *payload.InsertedAtUpperBound)
 }
 
 func TestHTTPOfflineQueryRejectsConflictingBounds(t *testing.T) {
