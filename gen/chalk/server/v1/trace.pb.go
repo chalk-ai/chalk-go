@@ -2634,9 +2634,11 @@ func (x *GetSpanLatencyDistributionResponse) GetDistributions() []*SpanLatencyDi
 
 // SpanFacet represents a facet that can be used for filtering spans
 type SpanFacet struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Path  string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Whether the facet can drive the COUNT BY histogram breakdown.
+	Groupable     bool `protobuf:"varint,3,opt,name=groupable,proto3" json:"groupable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2683,6 +2685,13 @@ func (x *SpanFacet) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *SpanFacet) GetGroupable() bool {
+	if x != nil {
+		return x.Groupable
+	}
+	return false
 }
 
 // GetSpanFacetsRequest requests available span facets
@@ -2775,7 +2784,12 @@ type GetSpanFacetValuesRequest struct {
 	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
 	Limit     *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	// Faceted-search query string; scopes the returned values to matching spans.
-	Query         *string `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	Query *string `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	// Count-table mode: keep empty values as a "(none)" row and append an "(other)" row summing
+	// everything beyond the limit. Off for the facets sidebar.
+	IncludeSyntheticRows *bool `protobuf:"varint,6,opt,name=include_synthetic_rows,json=includeSyntheticRows,proto3,oneof" json:"include_synthetic_rows,omitempty"`
+	// Multi-facet COUNT BY: SpanFacet.paths to group by (non-empty → `path` ignored, one `values` per facet per row).
+	Facets        []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2845,11 +2859,27 @@ func (x *GetSpanFacetValuesRequest) GetQuery() string {
 	return ""
 }
 
+func (x *GetSpanFacetValuesRequest) GetIncludeSyntheticRows() bool {
+	if x != nil && x.IncludeSyntheticRows != nil {
+		return *x.IncludeSyntheticRows
+	}
+	return false
+}
+
+func (x *GetSpanFacetValuesRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
 // SpanFacetValue represents a single facet value with its count
 type SpanFacetValue struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
-	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Value string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Count int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	// One value per requested facet, index-aligned to request `facets`. Empty in single-`path` mode (scalar `value` set instead).
+	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2896,6 +2926,13 @@ func (x *SpanFacetValue) GetCount() int64 {
 		return x.Count
 	}
 	return 0
+}
+
+func (x *SpanFacetValue) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
 }
 
 // GetSpanFacetValuesResponse returns values for a specific span facet
@@ -2952,7 +2989,11 @@ type ListSpanAggregatedRequest struct {
 	OperationName *string                `protobuf:"bytes,4,opt,name=operation_name,json=operationName,proto3,oneof" json:"operation_name,omitempty"`
 	ServiceName   *string                `protobuf:"bytes,5,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"`
 	// Faceted-search query string, AND-combined with the fields above.
-	Query         *string `protobuf:"bytes,6,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	Query *string `protobuf:"bytes,6,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	// SpanFacet.paths to break down by; unset → status code. Multi-facet → one series per value tuple.
+	Facets []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
+	// Cap on faceted series; the tail folds into "(other)". Unset → a small default.
+	Limit         *int32 `protobuf:"varint,8,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3027,6 +3068,20 @@ func (x *ListSpanAggregatedRequest) GetQuery() string {
 		return *x.Query
 	}
 	return ""
+}
+
+func (x *ListSpanAggregatedRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
+func (x *ListSpanAggregatedRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
 }
 
 // ListSpanAggregatedResponse returns a chart of aggregated span data
@@ -3882,29 +3937,34 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\fmax_duration\x18\x0e \x01(\v2\x19.google.protobuf.DurationR\vmaxDuration\x12/\n" +
 	"\x13selected_percentile\x18\x0f \x01(\x01R\x12selectedPercentile\"t\n" +
 	"\"GetSpanLatencyDistributionResponse\x12N\n" +
-	"\rdistributions\x18\x01 \x03(\v2(.chalk.server.v1.SpanLatencyDistributionR\rdistributions\"3\n" +
+	"\rdistributions\x18\x01 \x03(\v2(.chalk.server.v1.SpanLatencyDistributionR\rdistributions\"Q\n" +
 	"\tSpanFacet\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x16\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1c\n" +
+	"\tgroupable\x18\x03 \x01(\bR\tgroupable\"\x16\n" +
 	"\x14GetSpanFacetsRequest\"K\n" +
 	"\x15GetSpanFacetsResponse\x122\n" +
-	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.SpanFacetR\x06facets\"\x91\x02\n" +
+	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.SpanFacetR\x06facets\"\xff\x02\n" +
 	"\x19GetSpanFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
-	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01B\r\n" +
+	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01\x129\n" +
+	"\x16include_synthetic_rows\x18\x06 \x01(\bH\x04R\x14includeSyntheticRows\x88\x01\x01\x12\x16\n" +
+	"\x06facets\x18\a \x03(\tR\x06facetsB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
-	"\x06_query\"<\n" +
+	"\x06_queryB\x19\n" +
+	"\x17_include_synthetic_rows\"T\n" +
 	"\x0eSpanFacetValue\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x03R\x05count\"U\n" +
+	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x16\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\"U\n" +
 	"\x1aGetSpanFacetValuesResponse\x127\n" +
-	"\x06values\x18\x01 \x03(\v2\x1f.chalk.server.v1.SpanFacetValueR\x06values\"\x90\x03\n" +
+	"\x06values\x18\x01 \x03(\v2\x1f.chalk.server.v1.SpanFacetValueR\x06values\"\xcd\x03\n" +
 	"\x19ListSpanAggregatedRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
@@ -3912,12 +3972,15 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\rwindow_period\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12*\n" +
 	"\x0eoperation_name\x18\x04 \x01(\tH\x02R\roperationName\x88\x01\x01\x12&\n" +
 	"\fservice_name\x18\x05 \x01(\tH\x03R\vserviceName\x88\x01\x01\x12\x19\n" +
-	"\x05query\x18\x06 \x01(\tH\x04R\x05query\x88\x01\x01B\r\n" +
+	"\x05query\x18\x06 \x01(\tH\x04R\x05query\x88\x01\x01\x12\x16\n" +
+	"\x06facets\x18\a \x03(\tR\x06facets\x12\x19\n" +
+	"\x05limit\x18\b \x01(\x05H\x05R\x05limit\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\x11\n" +
 	"\x0f_operation_nameB\x0f\n" +
 	"\r_service_nameB\b\n" +
-	"\x06_query\"X\n" +
+	"\x06_queryB\b\n" +
+	"\x06_limit\"X\n" +
 	"\x1aListSpanAggregatedResponse\x12:\n" +
 	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\xba\x01\n" +
 	"\x13SpanSourceAggregate\x12!\n" +

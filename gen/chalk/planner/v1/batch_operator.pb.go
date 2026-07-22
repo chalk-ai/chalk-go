@@ -38,6 +38,7 @@ const (
 	OperatorType_OPERATOR_TYPE_BATCH_DWHAGG_OPERATOR                          OperatorType = 4
 	OperatorType_OPERATOR_TYPE_BATCH_RENAME                                   OperatorType = 5
 	OperatorType_OPERATOR_TYPE_BIGTABLE_CACHE_LOOKUP                          OperatorType = 6
+	OperatorType_OPERATOR_TYPE_BLOOM_FILTER_PERSIST_OPERATOR                  OperatorType = 76
 	OperatorType_OPERATOR_TYPE_CACHE_LOOKUP                                   OperatorType = 7
 	OperatorType_OPERATOR_TYPE_CACHE_LOOKUP_HAS_MANY                          OperatorType = 8
 	OperatorType_OPERATOR_TYPE_COMPUTE_CRON_OUTPUT_SUMMARY                    OperatorType = 9
@@ -68,43 +69,49 @@ const (
 	OperatorType_OPERATOR_TYPE_LIFT_RESULT_TO_GROUP                           OperatorType = 32
 	OperatorType_OPERATOR_TYPE_LIGHTNING_REDIS_CACHE_LOOKUP                   OperatorType = 33
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-	OperatorType_OPERATOR_TYPE_MERGE_JOIN_OPERATOR                 OperatorType = 34
-	OperatorType_OPERATOR_TYPE_METRICS_PUBLISHER                   OperatorType = 35
-	OperatorType_OPERATOR_TYPE_NARY_MERGE_JOIN_OPERATOR            OperatorType = 70
-	OperatorType_OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN      OperatorType = 36
-	OperatorType_OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR     OperatorType = 37
-	OperatorType_OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP            OperatorType = 38
-	OperatorType_OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR            OperatorType = 39
-	OperatorType_OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER               OperatorType = 40
-	OperatorType_OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER          OperatorType = 41
-	OperatorType_OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER             OperatorType = 42
-	OperatorType_OPERATOR_TYPE_ONLINE_VECTOR_SEARCH                OperatorType = 43
-	OperatorType_OPERATOR_TYPE_OPTIMISTIC_LOAD                     OperatorType = 44
-	OperatorType_OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR          OperatorType = 45
-	OperatorType_OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS            OperatorType = 46
-	OperatorType_OPERATOR_TYPE_PARQUET_WRITER                      OperatorType = 47
-	OperatorType_OPERATOR_TYPE_PRELOADED_TABLE_OPERATOR            OperatorType = 72
-	OperatorType_OPERATOR_TYPE_PROJECT                             OperatorType = 48
-	OperatorType_OPERATOR_TYPE_PROMOTE_SPINE                       OperatorType = 49
-	OperatorType_OPERATOR_TYPE_PUSH_DFTO_RESULT                    OperatorType = 50
-	OperatorType_OPERATOR_TYPE_PUSH_HAS_MANY_TO_RESULT             OperatorType = 51
-	OperatorType_OPERATOR_TYPE_REMOVE_LARGE_LISTS_FROM_SCHEMA      OperatorType = 52
-	OperatorType_OPERATOR_TYPE_RENAME_INDEX_COLUMN_OPERATOR        OperatorType = 53
-	OperatorType_OPERATOR_TYPE_REPLAY                              OperatorType = 54
-	OperatorType_OPERATOR_TYPE_RESULT_BUS_PERSIST_OPERATOR_V2      OperatorType = 55
-	OperatorType_OPERATOR_TYPE_RUN_IN_BACKGROUND                   OperatorType = 56
-	OperatorType_OPERATOR_TYPE_SQLDATAFRAME_RESOLVER_OPERATOR      OperatorType = 57
-	OperatorType_OPERATOR_TYPE_SQLLATERAL_JOIN_RESOLVER_OPERATOR   OperatorType = 58
-	OperatorType_OPERATOR_TYPE_SQLSCALAR_RESOLVER_OPERATOR         OperatorType = 59
-	OperatorType_OPERATOR_TYPE_STATS_COLLECTOR                     OperatorType = 60
-	OperatorType_OPERATOR_TYPE_STREAMING_AGG_WRITE_OPERATOR        OperatorType = 61
-	OperatorType_OPERATOR_TYPE_SUB_PLAN_FILTER                     OperatorType = 62
-	OperatorType_OPERATOR_TYPE_SUB_PLAN_JOIN                       OperatorType = 63
-	OperatorType_OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK        OperatorType = 64
-	OperatorType_OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR OperatorType = 65
-	OperatorType_OPERATOR_TYPE_UNION_OPERATOR                      OperatorType = 66
-	OperatorType_OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN              OperatorType = 71
-	OperatorType_OPERATOR_TYPE_VALUES_PERSISTER                    OperatorType = 67
+	OperatorType_OPERATOR_TYPE_MERGE_JOIN_OPERATOR                  OperatorType = 34
+	OperatorType_OPERATOR_TYPE_METRICS_PUBLISHER                    OperatorType = 35
+	OperatorType_OPERATOR_TYPE_NARY_MERGE_JOIN_OPERATOR             OperatorType = 70
+	OperatorType_OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN       OperatorType = 36
+	OperatorType_OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR      OperatorType = 37
+	OperatorType_OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP             OperatorType = 38
+	OperatorType_OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR             OperatorType = 39
+	OperatorType_OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER                OperatorType = 40
+	OperatorType_OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER           OperatorType = 41
+	OperatorType_OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR              OperatorType = 73
+	OperatorType_OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER              OperatorType = 42
+	OperatorType_OPERATOR_TYPE_ONLINE_VECTOR_SEARCH                 OperatorType = 43
+	OperatorType_OPERATOR_TYPE_OPTIMISTIC_LOAD                      OperatorType = 44
+	OperatorType_OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR           OperatorType = 45
+	OperatorType_OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS             OperatorType = 46
+	OperatorType_OPERATOR_TYPE_PARQUET_WRITER                       OperatorType = 47
+	OperatorType_OPERATOR_TYPE_PRELOADED_TABLE_OPERATOR             OperatorType = 72
+	OperatorType_OPERATOR_TYPE_PROJECT                              OperatorType = 48
+	OperatorType_OPERATOR_TYPE_PROMOTE_SPINE                        OperatorType = 49
+	OperatorType_OPERATOR_TYPE_PUSH_DFTO_RESULT                     OperatorType = 50
+	OperatorType_OPERATOR_TYPE_PUSH_HAS_MANY_TO_RESULT              OperatorType = 51
+	OperatorType_OPERATOR_TYPE_REMOVE_LARGE_LISTS_FROM_SCHEMA       OperatorType = 52
+	OperatorType_OPERATOR_TYPE_RENAME_INDEX_COLUMN_OPERATOR         OperatorType = 53
+	OperatorType_OPERATOR_TYPE_REPLAY                               OperatorType = 54
+	OperatorType_OPERATOR_TYPE_RESULT_BUS_PERSIST_OPERATOR_V2       OperatorType = 55
+	OperatorType_OPERATOR_TYPE_RUN_IN_BACKGROUND                    OperatorType = 56
+	OperatorType_OPERATOR_TYPE_SQLDATAFRAME_RESOLVER_OPERATOR       OperatorType = 57
+	OperatorType_OPERATOR_TYPE_SQLLATERAL_JOIN_RESOLVER_OPERATOR    OperatorType = 58
+	OperatorType_OPERATOR_TYPE_SQLSCALAR_RESOLVER_OPERATOR          OperatorType = 59
+	OperatorType_OPERATOR_TYPE_STATS_COLLECTOR                      OperatorType = 60
+	OperatorType_OPERATOR_TYPE_STREAMING_AGG_WRITE_OPERATOR         OperatorType = 61
+	OperatorType_OPERATOR_TYPE_SUB_PLAN_FILTER                      OperatorType = 62
+	OperatorType_OPERATOR_TYPE_SUB_PLAN_JOIN                        OperatorType = 63
+	OperatorType_OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK         OperatorType = 64
+	OperatorType_OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR OperatorType = 75
+	OperatorType_OPERATOR_TYPE_TABLE_WRITE_OPERATOR                 OperatorType = 79
+	OperatorType_OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR  OperatorType = 65
+	OperatorType_OPERATOR_TYPE_UNION_OPERATOR                       OperatorType = 66
+	OperatorType_OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN               OperatorType = 71
+	OperatorType_OPERATOR_TYPE_VALUES_PERSISTER                     OperatorType = 67
+	OperatorType_OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR              OperatorType = 74
+	OperatorType_OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN        OperatorType = 77
+	OperatorType_OPERATOR_TYPE_ICEBERG_TABLE_WRITER                 OperatorType = 78
 )
 
 // Enum value maps for OperatorType.
@@ -117,6 +124,7 @@ var (
 		4:  "OPERATOR_TYPE_BATCH_DWHAGG_OPERATOR",
 		5:  "OPERATOR_TYPE_BATCH_RENAME",
 		6:  "OPERATOR_TYPE_BIGTABLE_CACHE_LOOKUP",
+		76: "OPERATOR_TYPE_BLOOM_FILTER_PERSIST_OPERATOR",
 		7:  "OPERATOR_TYPE_CACHE_LOOKUP",
 		8:  "OPERATOR_TYPE_CACHE_LOOKUP_HAS_MANY",
 		9:  "OPERATOR_TYPE_COMPUTE_CRON_OUTPUT_SUMMARY",
@@ -155,6 +163,7 @@ var (
 		39: "OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR",
 		40: "OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER",
 		41: "OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER",
+		73: "OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR",
 		42: "OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER",
 		43: "OPERATOR_TYPE_ONLINE_VECTOR_SEARCH",
 		44: "OPERATOR_TYPE_OPTIMISTIC_LOAD",
@@ -179,10 +188,15 @@ var (
 		62: "OPERATOR_TYPE_SUB_PLAN_FILTER",
 		63: "OPERATOR_TYPE_SUB_PLAN_JOIN",
 		64: "OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK",
+		75: "OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR",
+		79: "OPERATOR_TYPE_TABLE_WRITE_OPERATOR",
 		65: "OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR",
 		66: "OPERATOR_TYPE_UNION_OPERATOR",
 		71: "OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN",
 		67: "OPERATOR_TYPE_VALUES_PERSISTER",
+		74: "OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR",
+		77: "OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN",
+		78: "OPERATOR_TYPE_ICEBERG_TABLE_WRITER",
 	}
 	OperatorType_value = map[string]int32{
 		"OPERATOR_TYPE_UNSPECIFIED":                                    0,
@@ -192,6 +206,7 @@ var (
 		"OPERATOR_TYPE_BATCH_DWHAGG_OPERATOR":                          4,
 		"OPERATOR_TYPE_BATCH_RENAME":                                   5,
 		"OPERATOR_TYPE_BIGTABLE_CACHE_LOOKUP":                          6,
+		"OPERATOR_TYPE_BLOOM_FILTER_PERSIST_OPERATOR":                  76,
 		"OPERATOR_TYPE_CACHE_LOOKUP":                                   7,
 		"OPERATOR_TYPE_CACHE_LOOKUP_HAS_MANY":                          8,
 		"OPERATOR_TYPE_COMPUTE_CRON_OUTPUT_SUMMARY":                    9,
@@ -230,6 +245,7 @@ var (
 		"OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR":                       39,
 		"OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER":                          40,
 		"OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER":                     41,
+		"OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR":                        73,
 		"OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER":                        42,
 		"OPERATOR_TYPE_ONLINE_VECTOR_SEARCH":                           43,
 		"OPERATOR_TYPE_OPTIMISTIC_LOAD":                                44,
@@ -254,10 +270,15 @@ var (
 		"OPERATOR_TYPE_SUB_PLAN_FILTER":                                62,
 		"OPERATOR_TYPE_SUB_PLAN_JOIN":                                  63,
 		"OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK":                   64,
+		"OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR":           75,
+		"OPERATOR_TYPE_TABLE_WRITE_OPERATOR":                           79,
 		"OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR":            65,
 		"OPERATOR_TYPE_UNION_OPERATOR":                                 66,
 		"OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN":                         71,
 		"OPERATOR_TYPE_VALUES_PERSISTER":                               67,
+		"OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR":                        74,
+		"OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN":                  77,
+		"OPERATOR_TYPE_ICEBERG_TABLE_WRITER":                           78,
 	}
 )
 
@@ -2132,7 +2153,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\bbehavior\" \n" +
 	"\x1eResolverRootUnderscoreBehavior\"f\n" +
 	"$StreamResolverRootUnderscoreBehavior\x12>\n" +
-	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xbd\x17\n" +
+	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xfd\x19\n" +
 	"\fOperatorType\x12\x1d\n" +
 	"\x19OPERATOR_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
 	"!OPERATOR_TYPE_ADD_CHILD_INDEX_COL\x10\x01\x12\x1f\n" +
@@ -2140,7 +2161,8 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	" OPERATOR_TYPE_BATCH_AGG_OPERATOR\x10\x03\x12'\n" +
 	"#OPERATOR_TYPE_BATCH_DWHAGG_OPERATOR\x10\x04\x12\x1e\n" +
 	"\x1aOPERATOR_TYPE_BATCH_RENAME\x10\x05\x12'\n" +
-	"#OPERATOR_TYPE_BIGTABLE_CACHE_LOOKUP\x10\x06\x12\x1e\n" +
+	"#OPERATOR_TYPE_BIGTABLE_CACHE_LOOKUP\x10\x06\x12/\n" +
+	"+OPERATOR_TYPE_BLOOM_FILTER_PERSIST_OPERATOR\x10L\x12\x1e\n" +
 	"\x1aOPERATOR_TYPE_CACHE_LOOKUP\x10\a\x12'\n" +
 	"#OPERATOR_TYPE_CACHE_LOOKUP_HAS_MANY\x10\b\x12-\n" +
 	")OPERATOR_TYPE_COMPUTE_CRON_OUTPUT_SUMMARY\x10\t\x12+\n" +
@@ -2180,6 +2202,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"&OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR\x10'\x12'\n" +
 	"#OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER\x10(\x12,\n" +
 	"(OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER\x10)\x12)\n" +
+	"%OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR\x10I\x12)\n" +
 	"%OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER\x10*\x12&\n" +
 	"\"OPERATOR_TYPE_ONLINE_VECTOR_SEARCH\x10+\x12!\n" +
 	"\x1dOPERATOR_TYPE_OPTIMISTIC_LOAD\x10,\x12,\n" +
@@ -2203,11 +2226,16 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"*OPERATOR_TYPE_STREAMING_AGG_WRITE_OPERATOR\x10=\x12!\n" +
 	"\x1dOPERATOR_TYPE_SUB_PLAN_FILTER\x10>\x12\x1f\n" +
 	"\x1bOPERATOR_TYPE_SUB_PLAN_JOIN\x10?\x12.\n" +
-	"*OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK\x10@\x125\n" +
+	"*OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK\x10@\x126\n" +
+	"2OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR\x10K\x12&\n" +
+	"\"OPERATOR_TYPE_TABLE_WRITE_OPERATOR\x10O\x125\n" +
 	"1OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR\x10A\x12 \n" +
 	"\x1cOPERATOR_TYPE_UNION_OPERATOR\x10B\x12(\n" +
 	"$OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN\x10G\x12\"\n" +
-	"\x1eOPERATOR_TYPE_VALUES_PERSISTER\x10CB\xc9\x01\n" +
+	"\x1eOPERATOR_TYPE_VALUES_PERSISTER\x10C\x12)\n" +
+	"%OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR\x10J\x12/\n" +
+	"+OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN\x10M\x12&\n" +
+	"\"OPERATOR_TYPE_ICEBERG_TABLE_WRITER\x10NB\xc9\x01\n" +
 	"\x14com.chalk.planner.v1B\x12BatchOperatorProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

@@ -3,6 +3,7 @@ package graph
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/chalk-ai/chalk-go/expr"
 	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
@@ -161,6 +162,105 @@ func TestWindowedCount(t *testing.T) {
 		"user":                 20,
 		"eval_record_accttxns": 24,
 	})
+}
+
+func TestWindowedWithMaterialization(t *testing.T) {
+	bucketStart := time.Date(2026, time.January, 2, 3, 4, 5, 0, time.UTC)
+	backfillStart := time.Date(2026, time.January, 3, 4, 5, 6, 0, time.UTC)
+
+	graph, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Transaction"}.
+			WithPrimary("id", Int).
+			WithForeignKey("user_id", "User").
+			With("amount", Float).
+			With("at", Datetime),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int).
+			With("transactions", DataFrame("Transaction")).
+			With("total_spend", Windowed(Float, Days(30)).
+				WithExpr(expr.DataFrame("transactions").
+					Filter(expr.Col("at").Gt(expr.ChalkWindow())).
+					Filter(expr.Col("at").Lt(expr.ChalkNow())).
+					Select(expr.Col("amount")).
+					Agg("sum")).
+				WithMaterialization(MaterializationOptions{
+					BucketDurations: map[time.Duration]time.Duration{
+						Days(30): Hours(6),
+					},
+					DefaultBucketDuration:    Hours(12),
+					ContinuousBufferDuration: Minutes(30),
+					BackfillSchedule:         "0 * * * *",
+					BucketStart:              bucketStart,
+					BackfillResolver:         "backfill_total_spend",
+					BackfillLookbackDuration: Hours(2),
+					BackfillStartTime:        backfillStart,
+					ContinuousResolver:       "continuous_total_spend",
+				})),
+	).ToGraph()
+	assert.NoError(t, err)
+
+	windowed := getWindowAggregation(t, graph, "user", "total_spend__2592000__")
+	if assert.NotNil(t, windowed) {
+		assert.Equal(t, 6*time.Hour, windowed.GetBucketDuration().AsDuration())
+		assert.Equal(t, 30*time.Minute, windowed.GetContinuousBufferDuration().AsDuration())
+		assert.Equal(t, "0 * * * *", windowed.GetBackfillSchedule())
+		assert.True(t, windowed.GetBucketStart().AsTime().Equal(bucketStart))
+		assert.Equal(t, "backfill_total_spend", windowed.GetBackfillResolver())
+		assert.Equal(t, 2*time.Hour, windowed.GetBackfillLookbackDuration().AsDuration())
+		assert.True(t, windowed.GetBackfillStartTime().AsTime().Equal(backfillStart))
+		assert.Equal(t, "continuous_total_spend", windowed.GetContinuousResolver())
+		assert.False(t, windowed.GetAllowFilterMigration())
+	}
+}
+
+func TestWindowedWithAllowFilterMigration(t *testing.T) {
+	graph, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Transaction"}.
+			WithPrimary("id", Int).
+			WithForeignKey("user_id", "User").
+			With("amount", Float).
+			With("at", Datetime),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int).
+			With("transactions", DataFrame("Transaction")).
+			With("total_spend", Windowed(Float, Days(30)).
+				WithExpr(expr.DataFrame("transactions").
+					Filter(expr.Col("at").Gt(expr.ChalkWindow())).
+					Filter(expr.Col("at").Lt(expr.ChalkNow())).
+					Select(expr.Col("amount")).
+					Agg("sum")).
+				WithAllowFilterMigration(true)),
+	).ToGraph()
+	assert.NoError(t, err)
+
+	windowed := getWindowAggregation(t, graph, "user", "total_spend__2592000__")
+	if assert.NotNil(t, windowed) {
+		assert.True(t, windowed.GetAllowFilterMigration())
+	}
+}
+
+func getWindowAggregation(t *testing.T, graph *graphv1.Graph, featureSetName, featureName string) *graphv1.WindowAggregation {
+	t.Helper()
+
+	userFS := getFeatureSetNamed(graph, featureSetName)
+	if !assert.NotNil(t, userFS) {
+		return nil
+	}
+
+	for _, feature := range userFS.Features {
+		if FeatureName(feature) != featureName {
+			continue
+		}
+		scalar := feature.GetScalar()
+		if scalar == nil || scalar.GetWindowInfo() == nil {
+			return nil
+		}
+		return scalar.GetWindowInfo().GetAggregation()
+	}
+
+	return nil
 }
 
 func checkCorrectNumFeatures(t *testing.T, graph *graphv1.Graph, nameToNumFeatures map[string]int) {

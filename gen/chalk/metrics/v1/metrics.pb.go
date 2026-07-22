@@ -167,6 +167,14 @@ const (
 	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_OPERATOR_OUTPUT_BYTES        Metrics1ProtoRepresentationName = 57
 	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_OPERATOR_ROWS_PROCESSED      Metrics1ProtoRepresentationName = 58
 	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_DATASET_SIZE_BYTES           Metrics1ProtoRepresentationName = 59
+	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_FLUSHED_BYTES          Metrics1ProtoRepresentationName = 60
+	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_RECLAIMED_BYTES        Metrics1ProtoRepresentationName = 61
+	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_BUFFERED_BYTES         Metrics1ProtoRepresentationName = 62
+	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_OUTSTANDING_CHUNKS     Metrics1ProtoRepresentationName = 63
+	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_SPILLED_BYTES                Metrics1ProtoRepresentationName = 64
+	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_SPILLED_ROWS                 Metrics1ProtoRepresentationName = 65
+	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_SPILL_OUTSTANDING_BYTES      Metrics1ProtoRepresentationName = 66
+	Metrics1ProtoRepresentationName_METRICS1_PROTO_REPRESENTATION_NAME_SPILL_TIME_MS                Metrics1ProtoRepresentationName = 67
 )
 
 // Enum value maps for Metrics1ProtoRepresentationName.
@@ -232,6 +240,14 @@ var (
 		57: "METRICS1_PROTO_REPRESENTATION_NAME_OPERATOR_OUTPUT_BYTES",
 		58: "METRICS1_PROTO_REPRESENTATION_NAME_OPERATOR_ROWS_PROCESSED",
 		59: "METRICS1_PROTO_REPRESENTATION_NAME_DATASET_SIZE_BYTES",
+		60: "METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_FLUSHED_BYTES",
+		61: "METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_RECLAIMED_BYTES",
+		62: "METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_BUFFERED_BYTES",
+		63: "METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_OUTSTANDING_CHUNKS",
+		64: "METRICS1_PROTO_REPRESENTATION_NAME_SPILLED_BYTES",
+		65: "METRICS1_PROTO_REPRESENTATION_NAME_SPILLED_ROWS",
+		66: "METRICS1_PROTO_REPRESENTATION_NAME_SPILL_OUTSTANDING_BYTES",
+		67: "METRICS1_PROTO_REPRESENTATION_NAME_SPILL_TIME_MS",
 	}
 	Metrics1ProtoRepresentationName_value = map[string]int32{
 		"METRICS1_PROTO_REPRESENTATION_NAME_UNSPECIFIED":                  0,
@@ -294,6 +310,14 @@ var (
 		"METRICS1_PROTO_REPRESENTATION_NAME_OPERATOR_OUTPUT_BYTES":        57,
 		"METRICS1_PROTO_REPRESENTATION_NAME_OPERATOR_ROWS_PROCESSED":      58,
 		"METRICS1_PROTO_REPRESENTATION_NAME_DATASET_SIZE_BYTES":           59,
+		"METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_FLUSHED_BYTES":          60,
+		"METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_RECLAIMED_BYTES":        61,
+		"METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_BUFFERED_BYTES":         62,
+		"METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_OUTSTANDING_CHUNKS":     63,
+		"METRICS1_PROTO_REPRESENTATION_NAME_SPILLED_BYTES":                64,
+		"METRICS1_PROTO_REPRESENTATION_NAME_SPILLED_ROWS":                 65,
+		"METRICS1_PROTO_REPRESENTATION_NAME_SPILL_OUTSTANDING_BYTES":      66,
+		"METRICS1_PROTO_REPRESENTATION_NAME_SPILL_TIME_MS":                67,
 	}
 )
 
@@ -660,6 +684,55 @@ func (Metrics1ProtoRepresentationTag6) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_metrics_v1_metrics_proto_rawDescGZIP(), []int{7}
 }
 
+type Metrics1ProtoRepresentationTag7 int32
+
+const (
+	Metrics1ProtoRepresentationTag7_METRICS1_PROTO_REPRESENTATION_TAG7_UNSPECIFIED Metrics1ProtoRepresentationTag7 = 0
+	Metrics1ProtoRepresentationTag7_METRICS1_PROTO_REPRESENTATION_TAG7_SYNC        Metrics1ProtoRepresentationTag7 = 1
+	Metrics1ProtoRepresentationTag7_METRICS1_PROTO_REPRESENTATION_TAG7_ASYNC       Metrics1ProtoRepresentationTag7 = 2
+)
+
+// Enum value maps for Metrics1ProtoRepresentationTag7.
+var (
+	Metrics1ProtoRepresentationTag7_name = map[int32]string{
+		0: "METRICS1_PROTO_REPRESENTATION_TAG7_UNSPECIFIED",
+		1: "METRICS1_PROTO_REPRESENTATION_TAG7_SYNC",
+		2: "METRICS1_PROTO_REPRESENTATION_TAG7_ASYNC",
+	}
+	Metrics1ProtoRepresentationTag7_value = map[string]int32{
+		"METRICS1_PROTO_REPRESENTATION_TAG7_UNSPECIFIED": 0,
+		"METRICS1_PROTO_REPRESENTATION_TAG7_SYNC":        1,
+		"METRICS1_PROTO_REPRESENTATION_TAG7_ASYNC":       2,
+	}
+)
+
+func (x Metrics1ProtoRepresentationTag7) Enum() *Metrics1ProtoRepresentationTag7 {
+	p := new(Metrics1ProtoRepresentationTag7)
+	*p = x
+	return p
+}
+
+func (x Metrics1ProtoRepresentationTag7) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Metrics1ProtoRepresentationTag7) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_metrics_v1_metrics_proto_enumTypes[8].Descriptor()
+}
+
+func (Metrics1ProtoRepresentationTag7) Type() protoreflect.EnumType {
+	return &file_chalk_metrics_v1_metrics_proto_enumTypes[8]
+}
+
+func (x Metrics1ProtoRepresentationTag7) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Metrics1ProtoRepresentationTag7.Descriptor instead.
+func (Metrics1ProtoRepresentationTag7) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_metrics_v1_metrics_proto_rawDescGZIP(), []int{8}
+}
+
 type Metrics1ProtoAggregationType int32
 
 const (
@@ -705,11 +778,11 @@ func (x Metrics1ProtoAggregationType) String() string {
 }
 
 func (Metrics1ProtoAggregationType) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_metrics_v1_metrics_proto_enumTypes[8].Descriptor()
+	return file_chalk_metrics_v1_metrics_proto_enumTypes[9].Descriptor()
 }
 
 func (Metrics1ProtoAggregationType) Type() protoreflect.EnumType {
-	return &file_chalk_metrics_v1_metrics_proto_enumTypes[8]
+	return &file_chalk_metrics_v1_metrics_proto_enumTypes[9]
 }
 
 func (x Metrics1ProtoAggregationType) Number() protoreflect.EnumNumber {
@@ -718,7 +791,7 @@ func (x Metrics1ProtoAggregationType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Metrics1ProtoAggregationType.Descriptor instead.
 func (Metrics1ProtoAggregationType) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_metrics_v1_metrics_proto_rawDescGZIP(), []int{8}
+	return file_chalk_metrics_v1_metrics_proto_rawDescGZIP(), []int{9}
 }
 
 type MetricBatch struct {
@@ -885,6 +958,7 @@ type Metric struct {
 	Tag5            *Metrics1ProtoRepresentationTag5 `protobuf:"varint,16,opt,name=tag5,proto3,enum=chalk.metrics.v1.Metrics1ProtoRepresentationTag5,oneof" json:"tag5,omitempty"`
 	AggregationType *Metrics1ProtoAggregationType    `protobuf:"varint,17,opt,name=aggregation_type,json=aggregationType,proto3,enum=chalk.metrics.v1.Metrics1ProtoAggregationType,oneof" json:"aggregation_type,omitempty"`
 	Tag6            *Metrics1ProtoRepresentationTag6 `protobuf:"varint,18,opt,name=tag6,proto3,enum=chalk.metrics.v1.Metrics1ProtoRepresentationTag6,oneof" json:"tag6,omitempty"`
+	Tag7            *Metrics1ProtoRepresentationTag7 `protobuf:"varint,19,opt,name=tag7,proto3,enum=chalk.metrics.v1.Metrics1ProtoRepresentationTag7,oneof" json:"tag7,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1056,6 +1130,13 @@ func (x *Metric) GetTag6() Metrics1ProtoRepresentationTag6 {
 	return Metrics1ProtoRepresentationTag6_METRICS1_PROTO_REPRESENTATION_TAG6_UNSPECIFIED
 }
 
+func (x *Metric) GetTag7() Metrics1ProtoRepresentationTag7 {
+	if x != nil && x.Tag7 != nil {
+		return *x.Tag7
+	}
+	return Metrics1ProtoRepresentationTag7_METRICS1_PROTO_REPRESENTATION_TAG7_UNSPECIFIED
+}
+
 type isMetric_Value interface {
 	isMetric_Value()
 }
@@ -1169,7 +1250,8 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"statistics\x18\x02 \x01(\v2\".chalk.metrics.v1.MetricStatisticsR\n" +
 	"statistics\"%\n" +
 	"\rNumericMetric\x12\x14\n" +
-	"\x05value\x18\x01 \x01(\x01R\x05value\"\xda\t\n" +
+	"\x05value\x18\x01 \x01(\x01R\x05value\"\xaf\n" +
+	"\n" +
 	"\x06Metric\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\x03H\x01R\x02id\x88\x01\x01\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12#\n" +
@@ -1192,7 +1274,8 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"\x04tag5\x18\x10 \x01(\x0e21.chalk.metrics.v1.Metrics1ProtoRepresentationTag5H\bR\x04tag5\x88\x01\x01\x12^\n" +
 	"\x10aggregation_type\x18\x11 \x01(\x0e2..chalk.metrics.v1.Metrics1ProtoAggregationTypeH\tR\x0faggregationType\x88\x01\x01\x12J\n" +
 	"\x04tag6\x18\x12 \x01(\x0e21.chalk.metrics.v1.Metrics1ProtoRepresentationTag6H\n" +
-	"R\x04tag6\x88\x01\x01B\a\n" +
+	"R\x04tag6\x88\x01\x01\x12J\n" +
+	"\x04tag7\x18\x13 \x01(\x0e21.chalk.metrics.v1.Metrics1ProtoRepresentationTag7H\vR\x04tag7\x88\x01\x01B\a\n" +
 	"\x05valueB\x05\n" +
 	"\x03_idB\x0f\n" +
 	"\r_operation_idB\x11\n" +
@@ -1203,7 +1286,8 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"\x05_tag4B\a\n" +
 	"\x05_tag5B\x13\n" +
 	"\x11_aggregation_typeB\a\n" +
-	"\x05_tag6\"\x9b\x01\n" +
+	"\x05_tag6B\a\n" +
+	"\x05_tag7\"\x9b\x01\n" +
 	"\x10MetricStatistics\x12\x10\n" +
 	"\x03min\x18\x01 \x01(\x01R\x03min\x12\x10\n" +
 	"\x03max\x18\x02 \x01(\x01R\x03max\x12\x14\n" +
@@ -1227,7 +1311,7 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"\x127\n" +
 	"3METRICS1_PROTO_REPRESENTATION_NAMESPACE_QUERY_QUEUE\x10\v\x129\n" +
 	"5METRICS1_PROTO_REPRESENTATION_NAMESPACE_FUNCTION_CALL\x10\f\x12:\n" +
-	"6METRICS1_PROTO_REPRESENTATION_NAMESPACE_QUERY_PROGRESS\x10\r*\x98\x1a\n" +
+	"6METRICS1_PROTO_REPRESENTATION_NAMESPACE_QUERY_PROGRESS\x10\r*\xf1\x1d\n" +
 	"\x1fMetrics1ProtoRepresentationName\x122\n" +
 	".METRICS1_PROTO_REPRESENTATION_NAME_UNSPECIFIED\x10\x00\x12.\n" +
 	"*METRICS1_PROTO_REPRESENTATION_NAME_LATENCY\x10\x01\x12.\n" +
@@ -1289,7 +1373,15 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"9METRICS1_PROTO_REPRESENTATION_NAME_RESOLVER_ROWS_RETURNED\x108\x12<\n" +
 	"8METRICS1_PROTO_REPRESENTATION_NAME_OPERATOR_OUTPUT_BYTES\x109\x12>\n" +
 	":METRICS1_PROTO_REPRESENTATION_NAME_OPERATOR_ROWS_PROCESSED\x10:\x129\n" +
-	"5METRICS1_PROTO_REPRESENTATION_NAME_DATASET_SIZE_BYTES\x10;*\x95\x02\n" +
+	"5METRICS1_PROTO_REPRESENTATION_NAME_DATASET_SIZE_BYTES\x10;\x12:\n" +
+	"6METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_FLUSHED_BYTES\x10<\x12<\n" +
+	"8METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_RECLAIMED_BYTES\x10=\x12;\n" +
+	"7METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_BUFFERED_BYTES\x10>\x12?\n" +
+	";METRICS1_PROTO_REPRESENTATION_NAME_SPOOL_OUTSTANDING_CHUNKS\x10?\x124\n" +
+	"0METRICS1_PROTO_REPRESENTATION_NAME_SPILLED_BYTES\x10@\x123\n" +
+	"/METRICS1_PROTO_REPRESENTATION_NAME_SPILLED_ROWS\x10A\x12>\n" +
+	":METRICS1_PROTO_REPRESENTATION_NAME_SPILL_OUTSTANDING_BYTES\x10B\x124\n" +
+	"0METRICS1_PROTO_REPRESENTATION_NAME_SPILL_TIME_MS\x10C*\x95\x02\n" +
 	"\x1fMetrics1ProtoRepresentationTag1\x122\n" +
 	".METRICS1_PROTO_REPRESENTATION_TAG1_UNSPECIFIED\x10\x00\x12.\n" +
 	"*METRICS1_PROTO_REPRESENTATION_TAG1_FAILURE\x10\x01\x12.\n" +
@@ -1328,7 +1420,11 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	".METRICS1_PROTO_REPRESENTATION_TAG6_UNSPECIFIED\x10\x00\x12-\n" +
 	")METRICS1_PROTO_REPRESENTATION_TAG6_SCALAR\x10\x01\x12/\n" +
 	"+METRICS1_PROTO_REPRESENTATION_TAG6_HAS_MANY\x10\x02\x120\n" +
-	",METRICS1_PROTO_REPRESENTATION_TAG6_DATAFRAME\x10\x03*\xd7\x02\n" +
+	",METRICS1_PROTO_REPRESENTATION_TAG6_DATAFRAME\x10\x03*\xb0\x01\n" +
+	"\x1fMetrics1ProtoRepresentationTag7\x122\n" +
+	".METRICS1_PROTO_REPRESENTATION_TAG7_UNSPECIFIED\x10\x00\x12+\n" +
+	"'METRICS1_PROTO_REPRESENTATION_TAG7_SYNC\x10\x01\x12,\n" +
+	"(METRICS1_PROTO_REPRESENTATION_TAG7_ASYNC\x10\x02*\xd7\x02\n" +
 	"\x1cMetrics1ProtoAggregationType\x12/\n" +
 	"+METRICS1_PROTO_AGGREGATION_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
 	"#METRICS1_PROTO_AGGREGATION_TYPE_SUM\x10\x01\x12*\n" +
@@ -1351,7 +1447,7 @@ func file_chalk_metrics_v1_metrics_proto_rawDescGZIP() []byte {
 	return file_chalk_metrics_v1_metrics_proto_rawDescData
 }
 
-var file_chalk_metrics_v1_metrics_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
+var file_chalk_metrics_v1_metrics_proto_enumTypes = make([]protoimpl.EnumInfo, 10)
 var file_chalk_metrics_v1_metrics_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_chalk_metrics_v1_metrics_proto_goTypes = []any{
 	(Metrics1ProtoRepresentationNamespace)(0), // 0: chalk.metrics.v1.Metrics1ProtoRepresentationNamespace
@@ -1362,34 +1458,36 @@ var file_chalk_metrics_v1_metrics_proto_goTypes = []any{
 	(Metrics1ProtoRepresentationTag4)(0),      // 5: chalk.metrics.v1.Metrics1ProtoRepresentationTag4
 	(Metrics1ProtoRepresentationTag5)(0),      // 6: chalk.metrics.v1.Metrics1ProtoRepresentationTag5
 	(Metrics1ProtoRepresentationTag6)(0),      // 7: chalk.metrics.v1.Metrics1ProtoRepresentationTag6
-	(Metrics1ProtoAggregationType)(0),         // 8: chalk.metrics.v1.Metrics1ProtoAggregationType
-	(*MetricBatch)(nil),                       // 9: chalk.metrics.v1.MetricBatch
-	(*SketchMetric)(nil),                      // 10: chalk.metrics.v1.SketchMetric
-	(*NumericMetric)(nil),                     // 11: chalk.metrics.v1.NumericMetric
-	(*Metric)(nil),                            // 12: chalk.metrics.v1.Metric
-	(*MetricStatistics)(nil),                  // 13: chalk.metrics.v1.MetricStatistics
-	(*timestamppb.Timestamp)(nil),             // 14: google.protobuf.Timestamp
+	(Metrics1ProtoRepresentationTag7)(0),      // 8: chalk.metrics.v1.Metrics1ProtoRepresentationTag7
+	(Metrics1ProtoAggregationType)(0),         // 9: chalk.metrics.v1.Metrics1ProtoAggregationType
+	(*MetricBatch)(nil),                       // 10: chalk.metrics.v1.MetricBatch
+	(*SketchMetric)(nil),                      // 11: chalk.metrics.v1.SketchMetric
+	(*NumericMetric)(nil),                     // 12: chalk.metrics.v1.NumericMetric
+	(*Metric)(nil),                            // 13: chalk.metrics.v1.Metric
+	(*MetricStatistics)(nil),                  // 14: chalk.metrics.v1.MetricStatistics
+	(*timestamppb.Timestamp)(nil),             // 15: google.protobuf.Timestamp
 }
 var file_chalk_metrics_v1_metrics_proto_depIdxs = []int32{
-	12, // 0: chalk.metrics.v1.MetricBatch.metrics:type_name -> chalk.metrics.v1.Metric
-	13, // 1: chalk.metrics.v1.SketchMetric.statistics:type_name -> chalk.metrics.v1.MetricStatistics
-	14, // 2: chalk.metrics.v1.Metric.observed_at:type_name -> google.protobuf.Timestamp
+	13, // 0: chalk.metrics.v1.MetricBatch.metrics:type_name -> chalk.metrics.v1.Metric
+	14, // 1: chalk.metrics.v1.SketchMetric.statistics:type_name -> chalk.metrics.v1.MetricStatistics
+	15, // 2: chalk.metrics.v1.Metric.observed_at:type_name -> google.protobuf.Timestamp
 	0,  // 3: chalk.metrics.v1.Metric.namespace:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationNamespace
 	1,  // 4: chalk.metrics.v1.Metric.metric_name:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationName
-	10, // 5: chalk.metrics.v1.Metric.sketch:type_name -> chalk.metrics.v1.SketchMetric
-	11, // 6: chalk.metrics.v1.Metric.numeric:type_name -> chalk.metrics.v1.NumericMetric
+	11, // 5: chalk.metrics.v1.Metric.sketch:type_name -> chalk.metrics.v1.SketchMetric
+	12, // 6: chalk.metrics.v1.Metric.numeric:type_name -> chalk.metrics.v1.NumericMetric
 	2,  // 7: chalk.metrics.v1.Metric.tag1:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationTag1
 	3,  // 8: chalk.metrics.v1.Metric.tag2:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationTag2
 	4,  // 9: chalk.metrics.v1.Metric.tag3:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationTag3
 	5,  // 10: chalk.metrics.v1.Metric.tag4:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationTag4
 	6,  // 11: chalk.metrics.v1.Metric.tag5:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationTag5
-	8,  // 12: chalk.metrics.v1.Metric.aggregation_type:type_name -> chalk.metrics.v1.Metrics1ProtoAggregationType
+	9,  // 12: chalk.metrics.v1.Metric.aggregation_type:type_name -> chalk.metrics.v1.Metrics1ProtoAggregationType
 	7,  // 13: chalk.metrics.v1.Metric.tag6:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationTag6
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	8,  // 14: chalk.metrics.v1.Metric.tag7:type_name -> chalk.metrics.v1.Metrics1ProtoRepresentationTag7
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chalk_metrics_v1_metrics_proto_init() }
@@ -1406,7 +1504,7 @@ func file_chalk_metrics_v1_metrics_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_metrics_v1_metrics_proto_rawDesc), len(file_chalk_metrics_v1_metrics_proto_rawDesc)),
-			NumEnums:      9,
+			NumEnums:      10,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,

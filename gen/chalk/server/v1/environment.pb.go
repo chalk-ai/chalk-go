@@ -293,6 +293,59 @@ func (DiscoveredBucketSource) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{3}
 }
 
+// Whether a discovered bucket is configured per-environment or shared at the
+// cluster level. Environment-scoped config applies to a single environment;
+// cluster-scoped config is shared by every environment on the cluster (e.g. a
+// cluster cloud_storage_binding or a cluster-manager env var).
+type DiscoveredBucketScope int32
+
+const (
+	DiscoveredBucketScope_DISCOVERED_BUCKET_SCOPE_UNSPECIFIED DiscoveredBucketScope = 0
+	DiscoveredBucketScope_DISCOVERED_BUCKET_SCOPE_ENVIRONMENT DiscoveredBucketScope = 1
+	DiscoveredBucketScope_DISCOVERED_BUCKET_SCOPE_CLUSTER     DiscoveredBucketScope = 2
+)
+
+// Enum value maps for DiscoveredBucketScope.
+var (
+	DiscoveredBucketScope_name = map[int32]string{
+		0: "DISCOVERED_BUCKET_SCOPE_UNSPECIFIED",
+		1: "DISCOVERED_BUCKET_SCOPE_ENVIRONMENT",
+		2: "DISCOVERED_BUCKET_SCOPE_CLUSTER",
+	}
+	DiscoveredBucketScope_value = map[string]int32{
+		"DISCOVERED_BUCKET_SCOPE_UNSPECIFIED": 0,
+		"DISCOVERED_BUCKET_SCOPE_ENVIRONMENT": 1,
+		"DISCOVERED_BUCKET_SCOPE_CLUSTER":     2,
+	}
+)
+
+func (x DiscoveredBucketScope) Enum() *DiscoveredBucketScope {
+	p := new(DiscoveredBucketScope)
+	*p = x
+	return p
+}
+
+func (x DiscoveredBucketScope) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DiscoveredBucketScope) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_environment_proto_enumTypes[4].Descriptor()
+}
+
+func (DiscoveredBucketScope) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_environment_proto_enumTypes[4]
+}
+
+func (x DiscoveredBucketScope) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DiscoveredBucketScope.Descriptor instead.
+func (DiscoveredBucketScope) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{4}
+}
+
 // The purpose / role of a bucket within the Chalk deployment. Used so the UI
 // can render a stable label per bucket regardless of the underlying name.
 type DiscoveredBucketRole int32
@@ -355,11 +408,11 @@ func (x DiscoveredBucketRole) String() string {
 }
 
 func (DiscoveredBucketRole) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_environment_proto_enumTypes[4].Descriptor()
+	return file_chalk_server_v1_environment_proto_enumTypes[5].Descriptor()
 }
 
 func (DiscoveredBucketRole) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_environment_proto_enumTypes[4]
+	return &file_chalk_server_v1_environment_proto_enumTypes[5]
 }
 
 func (x DiscoveredBucketRole) Number() protoreflect.EnumNumber {
@@ -368,7 +421,7 @@ func (x DiscoveredBucketRole) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DiscoveredBucketRole.Descriptor instead.
 func (DiscoveredBucketRole) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{5}
 }
 
 type AWSCloudWatchConfig struct {
@@ -1468,30 +1521,33 @@ type Environment struct {
 	// Null if the environment is hosted by Chalk.
 	CloudConfig *CloudConfig `protobuf:"bytes,42,opt,name=cloud_config,json=cloudConfig,proto3,oneof" json:"cloud_config,omitempty"`
 	// TODO: really a structured object.
-	SpecConfigJson                    map[string]*structpb.Value      `protobuf:"bytes,40,rep,name=spec_config_json,json=specConfigJson,proto3" json:"spec_config_json,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ArchivedAt                        *timestamppb.Timestamp          `protobuf:"bytes,43,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
-	MetadataServerMetricsStoreSecret  *string                         `protobuf:"bytes,44,opt,name=metadata_server_metrics_store_secret,json=metadataServerMetricsStoreSecret,proto3,oneof" json:"metadata_server_metrics_store_secret,omitempty"`
-	QueryServerMetricsStoreSecret     *string                         `protobuf:"bytes,45,opt,name=query_server_metrics_store_secret,json=queryServerMetricsStoreSecret,proto3,oneof" json:"query_server_metrics_store_secret,omitempty"`
-	PinnedBaseImage                   *string                         `protobuf:"bytes,46,opt,name=pinned_base_image,json=pinnedBaseImage,proto3,oneof" json:"pinned_base_image,omitempty"`
-	ClusterGatewayId                  *string                         `protobuf:"bytes,47,opt,name=cluster_gateway_id,json=clusterGatewayId,proto3,oneof" json:"cluster_gateway_id,omitempty"`
-	ClusterTimescaledbId              *string                         `protobuf:"bytes,48,opt,name=cluster_timescaledb_id,json=clusterTimescaledbId,proto3,oneof" json:"cluster_timescaledb_id,omitempty"`
-	BackgroundPersistenceDeploymentId *string                         `protobuf:"bytes,49,opt,name=background_persistence_deployment_id,json=backgroundPersistenceDeploymentId,proto3,oneof" json:"background_persistence_deployment_id,omitempty"`
-	EnvironmentBuckets                *EnvironmentObjectStorageConfig `protobuf:"bytes,50,opt,name=environment_buckets,json=environmentBuckets,proto3,oneof" json:"environment_buckets,omitempty"`
-	ClusterTimescaledbSecret          *string                         `protobuf:"bytes,51,opt,name=cluster_timescaledb_secret,json=clusterTimescaledbSecret,proto3,oneof" json:"cluster_timescaledb_secret,omitempty"`
-	GrpcEngineUrl                     *string                         `protobuf:"bytes,52,opt,name=grpc_engine_url,json=grpcEngineUrl,proto3,oneof" json:"grpc_engine_url,omitempty"`
-	KubeClusterMode                   *string                         `protobuf:"bytes,53,opt,name=kube_cluster_mode,json=kubeClusterMode,proto3,oneof" json:"kube_cluster_mode,omitempty"` // Can be set and updated only for unmanaged environments
-	DashboardUrl                      *string                         `protobuf:"bytes,54,opt,name=dashboard_url,json=dashboardUrl,proto3,oneof" json:"dashboard_url,omitempty"`
-	KubeClusterId                     *string                         `protobuf:"bytes,55,opt,name=kube_cluster_id,json=kubeClusterId,proto3,oneof" json:"kube_cluster_id,omitempty"`
-	Managed                           *bool                           `protobuf:"varint,56,opt,name=managed,proto3,oneof" json:"managed,omitempty"`
-	TelemetryDeploymentId             *string                         `protobuf:"bytes,57,opt,name=telemetry_deployment_id,json=telemetryDeploymentId,proto3,oneof" json:"telemetry_deployment_id,omitempty"`
-	SuspendedAt                       *timestamppb.Timestamp          `protobuf:"bytes,58,opt,name=suspended_at,json=suspendedAt,proto3,oneof" json:"suspended_at,omitempty"`
-	DefaultBuildProfile               *DeploymentBuildProfile         `protobuf:"varint,59,opt,name=default_build_profile,json=defaultBuildProfile,proto3,enum=chalk.server.v1.DeploymentBuildProfile,oneof" json:"default_build_profile,omitempty"`
-	VectorDbKind                      *VectorDBKind                   `protobuf:"varint,60,opt,name=vector_db_kind,json=vectorDbKind,proto3,enum=chalk.server.v1.VectorDBKind,oneof" json:"vector_db_kind,omitempty"`
-	VectorDbSecret                    *string                         `protobuf:"bytes,61,opt,name=vector_db_secret,json=vectorDbSecret,proto3,oneof" json:"vector_db_secret,omitempty"`
-	InternalMetadata                  map[string]*structpb.Value      `protobuf:"bytes,62,rep,name=internal_metadata,json=internalMetadata,proto3" json:"internal_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	CustomerMetadata                  map[string]*structpb.Value      `protobuf:"bytes,63,rep,name=customer_metadata,json=customerMetadata,proto3" json:"customer_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields                     protoimpl.UnknownFields
-	sizeCache                         protoimpl.SizeCache
+	SpecConfigJson                    map[string]*structpb.Value `protobuf:"bytes,40,rep,name=spec_config_json,json=specConfigJson,proto3" json:"spec_config_json,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ArchivedAt                        *timestamppb.Timestamp     `protobuf:"bytes,43,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
+	MetadataServerMetricsStoreSecret  *string                    `protobuf:"bytes,44,opt,name=metadata_server_metrics_store_secret,json=metadataServerMetricsStoreSecret,proto3,oneof" json:"metadata_server_metrics_store_secret,omitempty"`
+	QueryServerMetricsStoreSecret     *string                    `protobuf:"bytes,45,opt,name=query_server_metrics_store_secret,json=queryServerMetricsStoreSecret,proto3,oneof" json:"query_server_metrics_store_secret,omitempty"`
+	PinnedBaseImage                   *string                    `protobuf:"bytes,46,opt,name=pinned_base_image,json=pinnedBaseImage,proto3,oneof" json:"pinned_base_image,omitempty"`
+	ClusterGatewayId                  *string                    `protobuf:"bytes,47,opt,name=cluster_gateway_id,json=clusterGatewayId,proto3,oneof" json:"cluster_gateway_id,omitempty"`
+	ClusterTimescaledbId              *string                    `protobuf:"bytes,48,opt,name=cluster_timescaledb_id,json=clusterTimescaledbId,proto3,oneof" json:"cluster_timescaledb_id,omitempty"`
+	BackgroundPersistenceDeploymentId *string                    `protobuf:"bytes,49,opt,name=background_persistence_deployment_id,json=backgroundPersistenceDeploymentId,proto3,oneof" json:"background_persistence_deployment_id,omitempty"`
+	// Workflow Orchestrator Engine deployment linked to this environment.
+	ClusterWorkflowOrchestratorId *string                         `protobuf:"bytes,64,opt,name=cluster_workflow_orchestrator_id,json=clusterWorkflowOrchestratorId,proto3,oneof" json:"cluster_workflow_orchestrator_id,omitempty"`
+	EnvironmentBuckets            *EnvironmentObjectStorageConfig `protobuf:"bytes,50,opt,name=environment_buckets,json=environmentBuckets,proto3,oneof" json:"environment_buckets,omitempty"`
+	ClusterTimescaledbSecret      *string                         `protobuf:"bytes,51,opt,name=cluster_timescaledb_secret,json=clusterTimescaledbSecret,proto3,oneof" json:"cluster_timescaledb_secret,omitempty"`
+	GrpcEngineUrl                 *string                         `protobuf:"bytes,52,opt,name=grpc_engine_url,json=grpcEngineUrl,proto3,oneof" json:"grpc_engine_url,omitempty"`
+	KubeClusterMode               *string                         `protobuf:"bytes,53,opt,name=kube_cluster_mode,json=kubeClusterMode,proto3,oneof" json:"kube_cluster_mode,omitempty"` // Can be set and updated only for unmanaged environments
+	DashboardUrl                  *string                         `protobuf:"bytes,54,opt,name=dashboard_url,json=dashboardUrl,proto3,oneof" json:"dashboard_url,omitempty"`
+	KubeClusterId                 *string                         `protobuf:"bytes,55,opt,name=kube_cluster_id,json=kubeClusterId,proto3,oneof" json:"kube_cluster_id,omitempty"`
+	Managed                       *bool                           `protobuf:"varint,56,opt,name=managed,proto3,oneof" json:"managed,omitempty"`
+	TelemetryDeploymentId         *string                         `protobuf:"bytes,57,opt,name=telemetry_deployment_id,json=telemetryDeploymentId,proto3,oneof" json:"telemetry_deployment_id,omitempty"`
+	SuspendedAt                   *timestamppb.Timestamp          `protobuf:"bytes,58,opt,name=suspended_at,json=suspendedAt,proto3,oneof" json:"suspended_at,omitempty"`
+	DefaultBuildProfile           *DeploymentBuildProfile         `protobuf:"varint,59,opt,name=default_build_profile,json=defaultBuildProfile,proto3,enum=chalk.server.v1.DeploymentBuildProfile,oneof" json:"default_build_profile,omitempty"`
+	VectorDbKind                  *VectorDBKind                   `protobuf:"varint,60,opt,name=vector_db_kind,json=vectorDbKind,proto3,enum=chalk.server.v1.VectorDBKind,oneof" json:"vector_db_kind,omitempty"`
+	VectorDbSecret                *string                         `protobuf:"bytes,61,opt,name=vector_db_secret,json=vectorDbSecret,proto3,oneof" json:"vector_db_secret,omitempty"`
+	InternalMetadata              map[string]*structpb.Value      `protobuf:"bytes,62,rep,name=internal_metadata,json=internalMetadata,proto3" json:"internal_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CustomerMetadata              map[string]*structpb.Value      `protobuf:"bytes,63,rep,name=customer_metadata,json=customerMetadata,proto3" json:"customer_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	DataplaneDbDirectSecret       *string                         `protobuf:"bytes,65,opt,name=dataplane_db_direct_secret,json=dataplaneDbDirectSecret,proto3,oneof" json:"dataplane_db_direct_secret,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *Environment) Reset() {
@@ -1867,6 +1923,13 @@ func (x *Environment) GetBackgroundPersistenceDeploymentId() string {
 	return ""
 }
 
+func (x *Environment) GetClusterWorkflowOrchestratorId() string {
+	if x != nil && x.ClusterWorkflowOrchestratorId != nil {
+		return *x.ClusterWorkflowOrchestratorId
+	}
+	return ""
+}
+
 func (x *Environment) GetEnvironmentBuckets() *EnvironmentObjectStorageConfig {
 	if x != nil {
 		return x.EnvironmentBuckets
@@ -1963,6 +2026,13 @@ func (x *Environment) GetCustomerMetadata() map[string]*structpb.Value {
 		return x.CustomerMetadata
 	}
 	return nil
+}
+
+func (x *Environment) GetDataplaneDbDirectSecret() string {
+	if x != nil && x.DataplaneDbDirectSecret != nil {
+		return *x.DataplaneDbDirectSecret
+	}
+	return ""
 }
 
 type CreateEnvironmentV2Request struct {
@@ -2399,7 +2469,9 @@ type DiscoveredBucket struct {
 	// Probe of read permission against this bucket (e.g. HeadBucket on S3).
 	Read *DiscoveredBucketProbe `protobuf:"bytes,6,opt,name=read,proto3" json:"read,omitempty"`
 	// Probe of write permission against this bucket (small write+delete).
-	Write         *DiscoveredBucketProbe `protobuf:"bytes,7,opt,name=write,proto3" json:"write,omitempty"`
+	Write *DiscoveredBucketProbe `protobuf:"bytes,7,opt,name=write,proto3" json:"write,omitempty"`
+	// Whether this bucket is configured per-environment or shared at the cluster level.
+	Scope         DiscoveredBucketScope `protobuf:"varint,8,opt,name=scope,proto3,enum=chalk.server.v1.DiscoveredBucketScope" json:"scope,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2481,6 +2553,13 @@ func (x *DiscoveredBucket) GetWrite() *DiscoveredBucketProbe {
 		return x.Write
 	}
 	return nil
+}
+
+func (x *DiscoveredBucket) GetScope() DiscoveredBucketScope {
+	if x != nil {
+		return x.Scope
+	}
+	return DiscoveredBucketScope_DISCOVERED_BUCKET_SCOPE_UNSPECIFIED
 }
 
 type DiscoverEnvironmentBucketsRequest struct {
@@ -2672,7 +2751,7 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x0edataset_bucket\x18\x01 \x01(\tR\rdatasetBucket\x12,\n" +
 	"\x12plan_stages_bucket\x18\x02 \x01(\tR\x10planStagesBucket\x120\n" +
 	"\x14source_bundle_bucket\x18\x03 \x01(\tR\x12sourceBundleBucket\x122\n" +
-	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xf9+\n" +
+	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xd7-\n" +
 	"\vEnvironment\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x05R\x04name\x12\"\n" +
 	"\n" +
@@ -2730,21 +2809,23 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x11pinned_base_image\x18. \x01(\tH#R\x0fpinnedBaseImage\x88\x01\x01\x126\n" +
 	"\x12cluster_gateway_id\x18/ \x01(\tB\x03\xe0A\x03H$R\x10clusterGatewayId\x88\x01\x01\x12>\n" +
 	"\x16cluster_timescaledb_id\x180 \x01(\tB\x03\xe0A\x03H%R\x14clusterTimescaledbId\x88\x01\x01\x12Y\n" +
-	"$background_persistence_deployment_id\x181 \x01(\tB\x03\xe0A\x03H&R!backgroundPersistenceDeploymentId\x88\x01\x01\x12e\n" +
-	"\x13environment_buckets\x182 \x01(\v2/.chalk.server.v1.EnvironmentObjectStorageConfigH'R\x12environmentBuckets\x88\x01\x01\x12F\n" +
-	"\x1acluster_timescaledb_secret\x183 \x01(\tB\x03\xe0A\x03H(R\x18clusterTimescaledbSecret\x88\x01\x01\x120\n" +
-	"\x0fgrpc_engine_url\x184 \x01(\tB\x03\xe0A\x03H)R\rgrpcEngineUrl\x88\x01\x01\x12/\n" +
-	"\x11kube_cluster_mode\x185 \x01(\tH*R\x0fkubeClusterMode\x88\x01\x01\x12-\n" +
-	"\rdashboard_url\x186 \x01(\tB\x03\xe0A\x03H+R\fdashboardUrl\x88\x01\x01\x120\n" +
-	"\x0fkube_cluster_id\x187 \x01(\tB\x03\xe0A\x05H,R\rkubeClusterId\x88\x01\x01\x12\"\n" +
-	"\amanaged\x188 \x01(\bB\x03\xe0A\x05H-R\amanaged\x88\x01\x01\x12@\n" +
-	"\x17telemetry_deployment_id\x189 \x01(\tB\x03\xe0A\x03H.R\x15telemetryDeploymentId\x88\x01\x01\x12G\n" +
-	"\fsuspended_at\x18: \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03H/R\vsuspendedAt\x88\x01\x01\x12`\n" +
-	"\x15default_build_profile\x18; \x01(\x0e2'.chalk.server.v1.DeploymentBuildProfileH0R\x13defaultBuildProfile\x88\x01\x01\x12M\n" +
-	"\x0evector_db_kind\x18< \x01(\x0e2\x1d.chalk.server.v1.VectorDBKindB\x03\xe0A\x03H1R\fvectorDbKind\x88\x01\x01\x122\n" +
-	"\x10vector_db_secret\x18= \x01(\tB\x03\xe0A\x03H2R\x0evectorDbSecret\x88\x01\x01\x12d\n" +
+	"$background_persistence_deployment_id\x181 \x01(\tB\x03\xe0A\x03H&R!backgroundPersistenceDeploymentId\x88\x01\x01\x12Q\n" +
+	" cluster_workflow_orchestrator_id\x18@ \x01(\tB\x03\xe0A\x03H'R\x1dclusterWorkflowOrchestratorId\x88\x01\x01\x12e\n" +
+	"\x13environment_buckets\x182 \x01(\v2/.chalk.server.v1.EnvironmentObjectStorageConfigH(R\x12environmentBuckets\x88\x01\x01\x12F\n" +
+	"\x1acluster_timescaledb_secret\x183 \x01(\tB\x03\xe0A\x03H)R\x18clusterTimescaledbSecret\x88\x01\x01\x120\n" +
+	"\x0fgrpc_engine_url\x184 \x01(\tB\x03\xe0A\x03H*R\rgrpcEngineUrl\x88\x01\x01\x12/\n" +
+	"\x11kube_cluster_mode\x185 \x01(\tH+R\x0fkubeClusterMode\x88\x01\x01\x12-\n" +
+	"\rdashboard_url\x186 \x01(\tB\x03\xe0A\x03H,R\fdashboardUrl\x88\x01\x01\x120\n" +
+	"\x0fkube_cluster_id\x187 \x01(\tB\x03\xe0A\x05H-R\rkubeClusterId\x88\x01\x01\x12\"\n" +
+	"\amanaged\x188 \x01(\bB\x03\xe0A\x05H.R\amanaged\x88\x01\x01\x12@\n" +
+	"\x17telemetry_deployment_id\x189 \x01(\tB\x03\xe0A\x03H/R\x15telemetryDeploymentId\x88\x01\x01\x12G\n" +
+	"\fsuspended_at\x18: \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03H0R\vsuspendedAt\x88\x01\x01\x12`\n" +
+	"\x15default_build_profile\x18; \x01(\x0e2'.chalk.server.v1.DeploymentBuildProfileH1R\x13defaultBuildProfile\x88\x01\x01\x12M\n" +
+	"\x0evector_db_kind\x18< \x01(\x0e2\x1d.chalk.server.v1.VectorDBKindB\x03\xe0A\x03H2R\fvectorDbKind\x88\x01\x01\x122\n" +
+	"\x10vector_db_secret\x18= \x01(\tB\x03\xe0A\x03H3R\x0evectorDbSecret\x88\x01\x01\x12d\n" +
 	"\x11internal_metadata\x18> \x03(\v22.chalk.server.v1.Environment.InternalMetadataEntryB\x03\xe0A\x03R\x10internalMetadata\x12_\n" +
-	"\x11customer_metadata\x18? \x03(\v22.chalk.server.v1.Environment.CustomerMetadataEntryR\x10customerMetadata\x1aD\n" +
+	"\x11customer_metadata\x18? \x03(\v22.chalk.server.v1.Environment.CustomerMetadataEntryR\x10customerMetadata\x12E\n" +
+	"\x1adataplane_db_direct_secret\x18A \x01(\tB\x03\xe0A\x03H4R\x17dataplaneDbDirectSecret\x88\x01\x01\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aH\n" +
@@ -2799,7 +2880,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x12_pinned_base_imageB\x15\n" +
 	"\x13_cluster_gateway_idB\x19\n" +
 	"\x17_cluster_timescaledb_idB'\n" +
-	"%_background_persistence_deployment_idB\x16\n" +
+	"%_background_persistence_deployment_idB#\n" +
+	"!_cluster_workflow_orchestrator_idB\x16\n" +
 	"\x14_environment_bucketsB\x1d\n" +
 	"\x1b_cluster_timescaledb_secretB\x12\n" +
 	"\x10_grpc_engine_urlB\x14\n" +
@@ -2812,7 +2894,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\r_suspended_atB\x18\n" +
 	"\x16_default_build_profileB\x11\n" +
 	"\x0f_vector_db_kindB\x13\n" +
-	"\x11_vector_db_secret\"\\\n" +
+	"\x11_vector_db_secretB\x1d\n" +
+	"\x1b_dataplane_db_direct_secret\"\\\n" +
 	"\x1aCreateEnvironmentV2Request\x12>\n" +
 	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"]\n" +
 	"\x1bCreateEnvironmentV2Response\x12>\n" +
@@ -2833,7 +2916,7 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x15DiscoveredBucketProbe\x12\x0e\n" +
 	"\x02ok\x18\x01 \x01(\bR\x02ok\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12\x18\n" +
-	"\askipped\x18\x03 \x01(\bR\askipped\"\xda\x02\n" +
+	"\askipped\x18\x03 \x01(\bR\askipped\"\x98\x03\n" +
 	"\x10DiscoveredBucket\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x129\n" +
 	"\x04role\x18\x02 \x01(\x0e2%.chalk.server.v1.DiscoveredBucketRoleR\x04role\x12\x1d\n" +
@@ -2843,7 +2926,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\n" +
 	"config_key\x18\x05 \x01(\tR\tconfigKey\x12:\n" +
 	"\x04read\x18\x06 \x01(\v2&.chalk.server.v1.DiscoveredBucketProbeR\x04read\x12<\n" +
-	"\x05write\x18\a \x01(\v2&.chalk.server.v1.DiscoveredBucketProbeR\x05write\"D\n" +
+	"\x05write\x18\a \x01(\v2&.chalk.server.v1.DiscoveredBucketProbeR\x05write\x12<\n" +
+	"\x05scope\x18\b \x01(\x0e2&.chalk.server.v1.DiscoveredBucketScopeR\x05scope\"D\n" +
 	"!DiscoverEnvironmentBucketsRequest\x12\x1f\n" +
 	"\vskip_probes\x18\x01 \x01(\bR\n" +
 	"skipProbes\"a\n" +
@@ -2885,7 +2969,11 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"$DISCOVERED_BUCKET_SOURCE_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fDISCOVERED_BUCKET_SOURCE_ENGINE\x10\x01\x12+\n" +
 	"'DISCOVERED_BUCKET_SOURCE_METADATA_PLANE\x10\x02\x12,\n" +
-	"(DISCOVERED_BUCKET_SOURCE_CLUSTER_MANAGER\x10\x03*\xf5\x03\n" +
+	"(DISCOVERED_BUCKET_SOURCE_CLUSTER_MANAGER\x10\x03*\x8e\x01\n" +
+	"\x15DiscoveredBucketScope\x12'\n" +
+	"#DISCOVERED_BUCKET_SCOPE_UNSPECIFIED\x10\x00\x12'\n" +
+	"#DISCOVERED_BUCKET_SCOPE_ENVIRONMENT\x10\x01\x12#\n" +
+	"\x1fDISCOVERED_BUCKET_SCOPE_CLUSTER\x10\x02*\xf5\x03\n" +
 	"\x14DiscoveredBucketRole\x12&\n" +
 	"\"DISCOVERED_BUCKET_ROLE_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eDISCOVERED_BUCKET_ROLE_DATASET\x10\x01\x12&\n" +
@@ -2920,115 +3008,117 @@ func file_chalk_server_v1_environment_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_environment_proto_rawDescData
 }
 
-var file_chalk_server_v1_environment_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_chalk_server_v1_environment_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_chalk_server_v1_environment_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_chalk_server_v1_environment_proto_goTypes = []any{
 	(CloudProviderKind)(0),                     // 0: chalk.server.v1.CloudProviderKind
 	(VectorDBKind)(0),                          // 1: chalk.server.v1.VectorDBKind
 	(DeploymentBuildProfile)(0),                // 2: chalk.server.v1.DeploymentBuildProfile
 	(DiscoveredBucketSource)(0),                // 3: chalk.server.v1.DiscoveredBucketSource
-	(DiscoveredBucketRole)(0),                  // 4: chalk.server.v1.DiscoveredBucketRole
-	(*AWSCloudWatchConfig)(nil),                // 5: chalk.server.v1.AWSCloudWatchConfig
-	(*AWSSecretManagerConfig)(nil),             // 6: chalk.server.v1.AWSSecretManagerConfig
-	(*GCPSecretReplicationReplica)(nil),        // 7: chalk.server.v1.GCPSecretReplicationReplica
-	(*GCPRegionConfig)(nil),                    // 8: chalk.server.v1.GCPRegionConfig
-	(*GCPSecretManagerConfig)(nil),             // 9: chalk.server.v1.GCPSecretManagerConfig
-	(*GCPWorkloadIdentity)(nil),                // 10: chalk.server.v1.GCPWorkloadIdentity
-	(*DockerBuildConfig)(nil),                  // 11: chalk.server.v1.DockerBuildConfig
-	(*ElasticsearchLogConfig)(nil),             // 12: chalk.server.v1.ElasticsearchLogConfig
-	(*AWSCloudConfig)(nil),                     // 13: chalk.server.v1.AWSCloudConfig
-	(*GCPCloudConfig)(nil),                     // 14: chalk.server.v1.GCPCloudConfig
-	(*AzureContainerRegistryConfig)(nil),       // 15: chalk.server.v1.AzureContainerRegistryConfig
-	(*AzureKeyVaultConfig)(nil),                // 16: chalk.server.v1.AzureKeyVaultConfig
-	(*AzureCloudConfig)(nil),                   // 17: chalk.server.v1.AzureCloudConfig
-	(*CloudConfig)(nil),                        // 18: chalk.server.v1.CloudConfig
-	(*EnvironmentObjectStorageConfig)(nil),     // 19: chalk.server.v1.EnvironmentObjectStorageConfig
-	(*Environment)(nil),                        // 20: chalk.server.v1.Environment
-	(*CreateEnvironmentV2Request)(nil),         // 21: chalk.server.v1.CreateEnvironmentV2Request
-	(*CreateEnvironmentV2Response)(nil),        // 22: chalk.server.v1.CreateEnvironmentV2Response
-	(*UpdateEnvironmentV2Request)(nil),         // 23: chalk.server.v1.UpdateEnvironmentV2Request
-	(*UpdateEnvironmentV2Response)(nil),        // 24: chalk.server.v1.UpdateEnvironmentV2Response
-	(*DeleteEnvironmentRequest)(nil),           // 25: chalk.server.v1.DeleteEnvironmentRequest
-	(*DeleteEnvironmentResponse)(nil),          // 26: chalk.server.v1.DeleteEnvironmentResponse
-	(*SetDefaultEnvironmentRequest)(nil),       // 27: chalk.server.v1.SetDefaultEnvironmentRequest
-	(*SetDefaultEnvironmentResponse)(nil),      // 28: chalk.server.v1.SetDefaultEnvironmentResponse
-	(*DiscoveredBucketProbe)(nil),              // 29: chalk.server.v1.DiscoveredBucketProbe
-	(*DiscoveredBucket)(nil),                   // 30: chalk.server.v1.DiscoveredBucket
-	(*DiscoverEnvironmentBucketsRequest)(nil),  // 31: chalk.server.v1.DiscoverEnvironmentBucketsRequest
-	(*DiscoverEnvironmentBucketsResponse)(nil), // 32: chalk.server.v1.DiscoverEnvironmentBucketsResponse
-	nil,                           // 33: chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
-	nil,                           // 34: chalk.server.v1.Environment.AdditionalEnvVarsEntry
-	nil,                           // 35: chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
-	nil,                           // 36: chalk.server.v1.Environment.SpecConfigJsonEntry
-	nil,                           // 37: chalk.server.v1.Environment.InternalMetadataEntry
-	nil,                           // 38: chalk.server.v1.Environment.CustomerMetadataEntry
-	(*timestamppb.Timestamp)(nil), // 39: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil), // 40: google.protobuf.FieldMask
-	(*v1.FieldChange)(nil),        // 41: chalk.utils.v1.FieldChange
-	(*structpb.Value)(nil),        // 42: google.protobuf.Value
+	(DiscoveredBucketScope)(0),                 // 4: chalk.server.v1.DiscoveredBucketScope
+	(DiscoveredBucketRole)(0),                  // 5: chalk.server.v1.DiscoveredBucketRole
+	(*AWSCloudWatchConfig)(nil),                // 6: chalk.server.v1.AWSCloudWatchConfig
+	(*AWSSecretManagerConfig)(nil),             // 7: chalk.server.v1.AWSSecretManagerConfig
+	(*GCPSecretReplicationReplica)(nil),        // 8: chalk.server.v1.GCPSecretReplicationReplica
+	(*GCPRegionConfig)(nil),                    // 9: chalk.server.v1.GCPRegionConfig
+	(*GCPSecretManagerConfig)(nil),             // 10: chalk.server.v1.GCPSecretManagerConfig
+	(*GCPWorkloadIdentity)(nil),                // 11: chalk.server.v1.GCPWorkloadIdentity
+	(*DockerBuildConfig)(nil),                  // 12: chalk.server.v1.DockerBuildConfig
+	(*ElasticsearchLogConfig)(nil),             // 13: chalk.server.v1.ElasticsearchLogConfig
+	(*AWSCloudConfig)(nil),                     // 14: chalk.server.v1.AWSCloudConfig
+	(*GCPCloudConfig)(nil),                     // 15: chalk.server.v1.GCPCloudConfig
+	(*AzureContainerRegistryConfig)(nil),       // 16: chalk.server.v1.AzureContainerRegistryConfig
+	(*AzureKeyVaultConfig)(nil),                // 17: chalk.server.v1.AzureKeyVaultConfig
+	(*AzureCloudConfig)(nil),                   // 18: chalk.server.v1.AzureCloudConfig
+	(*CloudConfig)(nil),                        // 19: chalk.server.v1.CloudConfig
+	(*EnvironmentObjectStorageConfig)(nil),     // 20: chalk.server.v1.EnvironmentObjectStorageConfig
+	(*Environment)(nil),                        // 21: chalk.server.v1.Environment
+	(*CreateEnvironmentV2Request)(nil),         // 22: chalk.server.v1.CreateEnvironmentV2Request
+	(*CreateEnvironmentV2Response)(nil),        // 23: chalk.server.v1.CreateEnvironmentV2Response
+	(*UpdateEnvironmentV2Request)(nil),         // 24: chalk.server.v1.UpdateEnvironmentV2Request
+	(*UpdateEnvironmentV2Response)(nil),        // 25: chalk.server.v1.UpdateEnvironmentV2Response
+	(*DeleteEnvironmentRequest)(nil),           // 26: chalk.server.v1.DeleteEnvironmentRequest
+	(*DeleteEnvironmentResponse)(nil),          // 27: chalk.server.v1.DeleteEnvironmentResponse
+	(*SetDefaultEnvironmentRequest)(nil),       // 28: chalk.server.v1.SetDefaultEnvironmentRequest
+	(*SetDefaultEnvironmentResponse)(nil),      // 29: chalk.server.v1.SetDefaultEnvironmentResponse
+	(*DiscoveredBucketProbe)(nil),              // 30: chalk.server.v1.DiscoveredBucketProbe
+	(*DiscoveredBucket)(nil),                   // 31: chalk.server.v1.DiscoveredBucket
+	(*DiscoverEnvironmentBucketsRequest)(nil),  // 32: chalk.server.v1.DiscoverEnvironmentBucketsRequest
+	(*DiscoverEnvironmentBucketsResponse)(nil), // 33: chalk.server.v1.DiscoverEnvironmentBucketsResponse
+	nil,                           // 34: chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
+	nil,                           // 35: chalk.server.v1.Environment.AdditionalEnvVarsEntry
+	nil,                           // 36: chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
+	nil,                           // 37: chalk.server.v1.Environment.SpecConfigJsonEntry
+	nil,                           // 38: chalk.server.v1.Environment.InternalMetadataEntry
+	nil,                           // 39: chalk.server.v1.Environment.CustomerMetadataEntry
+	(*timestamppb.Timestamp)(nil), // 40: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil), // 41: google.protobuf.FieldMask
+	(*v1.FieldChange)(nil),        // 42: chalk.utils.v1.FieldChange
+	(*structpb.Value)(nil),        // 43: google.protobuf.Value
 }
 var file_chalk_server_v1_environment_proto_depIdxs = []int32{
-	33, // 0: chalk.server.v1.AWSSecretManagerConfig.secret_tags:type_name -> chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
-	7,  // 1: chalk.server.v1.GCPSecretManagerConfig.replicas:type_name -> chalk.server.v1.GCPSecretReplicationReplica
-	5,  // 2: chalk.server.v1.AWSCloudConfig.deprecated_cloud_watch_config:type_name -> chalk.server.v1.AWSCloudWatchConfig
-	6,  // 3: chalk.server.v1.AWSCloudConfig.deprecated_secret_manager_config:type_name -> chalk.server.v1.AWSSecretManagerConfig
-	10, // 4: chalk.server.v1.AWSCloudConfig.workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
-	11, // 5: chalk.server.v1.AWSCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
-	12, // 6: chalk.server.v1.AWSCloudConfig.elasticsearch_log_config:type_name -> chalk.server.v1.ElasticsearchLogConfig
-	5,  // 7: chalk.server.v1.AWSCloudConfig.cloudwatch_config:type_name -> chalk.server.v1.AWSCloudWatchConfig
-	6,  // 8: chalk.server.v1.AWSCloudConfig.secretmanager_config:type_name -> chalk.server.v1.AWSSecretManagerConfig
-	10, // 9: chalk.server.v1.AWSCloudConfig.gcp_workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
-	11, // 10: chalk.server.v1.GCPCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
-	9,  // 11: chalk.server.v1.GCPCloudConfig.secretmanager_config:type_name -> chalk.server.v1.GCPSecretManagerConfig
-	8,  // 12: chalk.server.v1.GCPCloudConfig.region_config:type_name -> chalk.server.v1.GCPRegionConfig
-	11, // 13: chalk.server.v1.AzureCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
-	15, // 14: chalk.server.v1.AzureCloudConfig.container_registry_config:type_name -> chalk.server.v1.AzureContainerRegistryConfig
-	16, // 15: chalk.server.v1.AzureCloudConfig.key_vault_config:type_name -> chalk.server.v1.AzureKeyVaultConfig
-	10, // 16: chalk.server.v1.AzureCloudConfig.gcp_workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
-	13, // 17: chalk.server.v1.CloudConfig.aws:type_name -> chalk.server.v1.AWSCloudConfig
-	14, // 18: chalk.server.v1.CloudConfig.gcp:type_name -> chalk.server.v1.GCPCloudConfig
-	17, // 19: chalk.server.v1.CloudConfig.azure:type_name -> chalk.server.v1.AzureCloudConfig
-	34, // 20: chalk.server.v1.Environment.additional_env_vars:type_name -> chalk.server.v1.Environment.AdditionalEnvVarsEntry
-	35, // 21: chalk.server.v1.Environment.additional_cron_env_vars:type_name -> chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
+	34, // 0: chalk.server.v1.AWSSecretManagerConfig.secret_tags:type_name -> chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
+	8,  // 1: chalk.server.v1.GCPSecretManagerConfig.replicas:type_name -> chalk.server.v1.GCPSecretReplicationReplica
+	6,  // 2: chalk.server.v1.AWSCloudConfig.deprecated_cloud_watch_config:type_name -> chalk.server.v1.AWSCloudWatchConfig
+	7,  // 3: chalk.server.v1.AWSCloudConfig.deprecated_secret_manager_config:type_name -> chalk.server.v1.AWSSecretManagerConfig
+	11, // 4: chalk.server.v1.AWSCloudConfig.workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
+	12, // 5: chalk.server.v1.AWSCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
+	13, // 6: chalk.server.v1.AWSCloudConfig.elasticsearch_log_config:type_name -> chalk.server.v1.ElasticsearchLogConfig
+	6,  // 7: chalk.server.v1.AWSCloudConfig.cloudwatch_config:type_name -> chalk.server.v1.AWSCloudWatchConfig
+	7,  // 8: chalk.server.v1.AWSCloudConfig.secretmanager_config:type_name -> chalk.server.v1.AWSSecretManagerConfig
+	11, // 9: chalk.server.v1.AWSCloudConfig.gcp_workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
+	12, // 10: chalk.server.v1.GCPCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
+	10, // 11: chalk.server.v1.GCPCloudConfig.secretmanager_config:type_name -> chalk.server.v1.GCPSecretManagerConfig
+	9,  // 12: chalk.server.v1.GCPCloudConfig.region_config:type_name -> chalk.server.v1.GCPRegionConfig
+	12, // 13: chalk.server.v1.AzureCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
+	16, // 14: chalk.server.v1.AzureCloudConfig.container_registry_config:type_name -> chalk.server.v1.AzureContainerRegistryConfig
+	17, // 15: chalk.server.v1.AzureCloudConfig.key_vault_config:type_name -> chalk.server.v1.AzureKeyVaultConfig
+	11, // 16: chalk.server.v1.AzureCloudConfig.gcp_workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
+	14, // 17: chalk.server.v1.CloudConfig.aws:type_name -> chalk.server.v1.AWSCloudConfig
+	15, // 18: chalk.server.v1.CloudConfig.gcp:type_name -> chalk.server.v1.GCPCloudConfig
+	18, // 19: chalk.server.v1.CloudConfig.azure:type_name -> chalk.server.v1.AzureCloudConfig
+	35, // 20: chalk.server.v1.Environment.additional_env_vars:type_name -> chalk.server.v1.Environment.AdditionalEnvVarsEntry
+	36, // 21: chalk.server.v1.Environment.additional_cron_env_vars:type_name -> chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
 	0,  // 22: chalk.server.v1.Environment.cloud_provider:type_name -> chalk.server.v1.CloudProviderKind
-	18, // 23: chalk.server.v1.Environment.cloud_config:type_name -> chalk.server.v1.CloudConfig
-	36, // 24: chalk.server.v1.Environment.spec_config_json:type_name -> chalk.server.v1.Environment.SpecConfigJsonEntry
-	39, // 25: chalk.server.v1.Environment.archived_at:type_name -> google.protobuf.Timestamp
-	19, // 26: chalk.server.v1.Environment.environment_buckets:type_name -> chalk.server.v1.EnvironmentObjectStorageConfig
-	39, // 27: chalk.server.v1.Environment.suspended_at:type_name -> google.protobuf.Timestamp
+	19, // 23: chalk.server.v1.Environment.cloud_config:type_name -> chalk.server.v1.CloudConfig
+	37, // 24: chalk.server.v1.Environment.spec_config_json:type_name -> chalk.server.v1.Environment.SpecConfigJsonEntry
+	40, // 25: chalk.server.v1.Environment.archived_at:type_name -> google.protobuf.Timestamp
+	20, // 26: chalk.server.v1.Environment.environment_buckets:type_name -> chalk.server.v1.EnvironmentObjectStorageConfig
+	40, // 27: chalk.server.v1.Environment.suspended_at:type_name -> google.protobuf.Timestamp
 	2,  // 28: chalk.server.v1.Environment.default_build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
 	1,  // 29: chalk.server.v1.Environment.vector_db_kind:type_name -> chalk.server.v1.VectorDBKind
-	37, // 30: chalk.server.v1.Environment.internal_metadata:type_name -> chalk.server.v1.Environment.InternalMetadataEntry
-	38, // 31: chalk.server.v1.Environment.customer_metadata:type_name -> chalk.server.v1.Environment.CustomerMetadataEntry
-	20, // 32: chalk.server.v1.CreateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
-	20, // 33: chalk.server.v1.CreateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
-	20, // 34: chalk.server.v1.UpdateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
-	40, // 35: chalk.server.v1.UpdateEnvironmentV2Request.update_mask:type_name -> google.protobuf.FieldMask
-	20, // 36: chalk.server.v1.UpdateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
-	41, // 37: chalk.server.v1.UpdateEnvironmentV2Response.field_changes:type_name -> chalk.utils.v1.FieldChange
-	4,  // 38: chalk.server.v1.DiscoveredBucket.role:type_name -> chalk.server.v1.DiscoveredBucketRole
+	38, // 30: chalk.server.v1.Environment.internal_metadata:type_name -> chalk.server.v1.Environment.InternalMetadataEntry
+	39, // 31: chalk.server.v1.Environment.customer_metadata:type_name -> chalk.server.v1.Environment.CustomerMetadataEntry
+	21, // 32: chalk.server.v1.CreateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
+	21, // 33: chalk.server.v1.CreateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
+	21, // 34: chalk.server.v1.UpdateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
+	41, // 35: chalk.server.v1.UpdateEnvironmentV2Request.update_mask:type_name -> google.protobuf.FieldMask
+	21, // 36: chalk.server.v1.UpdateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
+	42, // 37: chalk.server.v1.UpdateEnvironmentV2Response.field_changes:type_name -> chalk.utils.v1.FieldChange
+	5,  // 38: chalk.server.v1.DiscoveredBucket.role:type_name -> chalk.server.v1.DiscoveredBucketRole
 	3,  // 39: chalk.server.v1.DiscoveredBucket.source:type_name -> chalk.server.v1.DiscoveredBucketSource
-	29, // 40: chalk.server.v1.DiscoveredBucket.read:type_name -> chalk.server.v1.DiscoveredBucketProbe
-	29, // 41: chalk.server.v1.DiscoveredBucket.write:type_name -> chalk.server.v1.DiscoveredBucketProbe
-	30, // 42: chalk.server.v1.DiscoverEnvironmentBucketsResponse.buckets:type_name -> chalk.server.v1.DiscoveredBucket
-	42, // 43: chalk.server.v1.Environment.SpecConfigJsonEntry.value:type_name -> google.protobuf.Value
-	42, // 44: chalk.server.v1.Environment.InternalMetadataEntry.value:type_name -> google.protobuf.Value
-	42, // 45: chalk.server.v1.Environment.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
-	21, // 46: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:input_type -> chalk.server.v1.CreateEnvironmentV2Request
-	23, // 47: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:input_type -> chalk.server.v1.UpdateEnvironmentV2Request
-	25, // 48: chalk.server.v1.EnvironmentService.DeleteEnvironment:input_type -> chalk.server.v1.DeleteEnvironmentRequest
-	27, // 49: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:input_type -> chalk.server.v1.SetDefaultEnvironmentRequest
-	31, // 50: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:input_type -> chalk.server.v1.DiscoverEnvironmentBucketsRequest
-	22, // 51: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:output_type -> chalk.server.v1.CreateEnvironmentV2Response
-	24, // 52: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:output_type -> chalk.server.v1.UpdateEnvironmentV2Response
-	26, // 53: chalk.server.v1.EnvironmentService.DeleteEnvironment:output_type -> chalk.server.v1.DeleteEnvironmentResponse
-	28, // 54: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:output_type -> chalk.server.v1.SetDefaultEnvironmentResponse
-	32, // 55: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:output_type -> chalk.server.v1.DiscoverEnvironmentBucketsResponse
-	51, // [51:56] is the sub-list for method output_type
-	46, // [46:51] is the sub-list for method input_type
-	46, // [46:46] is the sub-list for extension type_name
-	46, // [46:46] is the sub-list for extension extendee
-	0,  // [0:46] is the sub-list for field type_name
+	30, // 40: chalk.server.v1.DiscoveredBucket.read:type_name -> chalk.server.v1.DiscoveredBucketProbe
+	30, // 41: chalk.server.v1.DiscoveredBucket.write:type_name -> chalk.server.v1.DiscoveredBucketProbe
+	4,  // 42: chalk.server.v1.DiscoveredBucket.scope:type_name -> chalk.server.v1.DiscoveredBucketScope
+	31, // 43: chalk.server.v1.DiscoverEnvironmentBucketsResponse.buckets:type_name -> chalk.server.v1.DiscoveredBucket
+	43, // 44: chalk.server.v1.Environment.SpecConfigJsonEntry.value:type_name -> google.protobuf.Value
+	43, // 45: chalk.server.v1.Environment.InternalMetadataEntry.value:type_name -> google.protobuf.Value
+	43, // 46: chalk.server.v1.Environment.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
+	22, // 47: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:input_type -> chalk.server.v1.CreateEnvironmentV2Request
+	24, // 48: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:input_type -> chalk.server.v1.UpdateEnvironmentV2Request
+	26, // 49: chalk.server.v1.EnvironmentService.DeleteEnvironment:input_type -> chalk.server.v1.DeleteEnvironmentRequest
+	28, // 50: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:input_type -> chalk.server.v1.SetDefaultEnvironmentRequest
+	32, // 51: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:input_type -> chalk.server.v1.DiscoverEnvironmentBucketsRequest
+	23, // 52: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:output_type -> chalk.server.v1.CreateEnvironmentV2Response
+	25, // 53: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:output_type -> chalk.server.v1.UpdateEnvironmentV2Response
+	27, // 54: chalk.server.v1.EnvironmentService.DeleteEnvironment:output_type -> chalk.server.v1.DeleteEnvironmentResponse
+	29, // 55: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:output_type -> chalk.server.v1.SetDefaultEnvironmentResponse
+	33, // 56: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:output_type -> chalk.server.v1.DiscoverEnvironmentBucketsResponse
+	52, // [52:57] is the sub-list for method output_type
+	47, // [47:52] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_environment_proto_init() }
@@ -3055,7 +3145,7 @@ func file_chalk_server_v1_environment_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_environment_proto_rawDesc), len(file_chalk_server_v1_environment_proto_rawDesc)),
-			NumEnums:      5,
+			NumEnums:      6,
 			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,

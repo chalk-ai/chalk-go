@@ -7,6 +7,7 @@
 package serverv1
 
 import (
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -23,58 +24,6 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
-
-type AlertChannelKind int32
-
-const (
-	AlertChannelKind_ALERT_CHANNEL_KIND_UNSPECIFIED        AlertChannelKind = 0
-	AlertChannelKind_ALERT_CHANNEL_KIND_SLACK_CHANNEL      AlertChannelKind = 1
-	AlertChannelKind_ALERT_CHANNEL_KIND_PAGERDUTY_SERVICE  AlertChannelKind = 2
-	AlertChannelKind_ALERT_CHANNEL_KIND_INCIDENTIO_SERVICE AlertChannelKind = 3
-)
-
-// Enum value maps for AlertChannelKind.
-var (
-	AlertChannelKind_name = map[int32]string{
-		0: "ALERT_CHANNEL_KIND_UNSPECIFIED",
-		1: "ALERT_CHANNEL_KIND_SLACK_CHANNEL",
-		2: "ALERT_CHANNEL_KIND_PAGERDUTY_SERVICE",
-		3: "ALERT_CHANNEL_KIND_INCIDENTIO_SERVICE",
-	}
-	AlertChannelKind_value = map[string]int32{
-		"ALERT_CHANNEL_KIND_UNSPECIFIED":        0,
-		"ALERT_CHANNEL_KIND_SLACK_CHANNEL":      1,
-		"ALERT_CHANNEL_KIND_PAGERDUTY_SERVICE":  2,
-		"ALERT_CHANNEL_KIND_INCIDENTIO_SERVICE": 3,
-	}
-)
-
-func (x AlertChannelKind) Enum() *AlertChannelKind {
-	p := new(AlertChannelKind)
-	*p = x
-	return p
-}
-
-func (x AlertChannelKind) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (AlertChannelKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_monitoring_proto_enumTypes[0].Descriptor()
-}
-
-func (AlertChannelKind) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_monitoring_proto_enumTypes[0]
-}
-
-func (x AlertChannelKind) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use AlertChannelKind.Descriptor instead.
-func (AlertChannelKind) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_monitoring_proto_rawDescGZIP(), []int{0}
-}
 
 type PagerDutySeverity int32
 
@@ -115,11 +64,11 @@ func (x PagerDutySeverity) String() string {
 }
 
 func (PagerDutySeverity) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_monitoring_proto_enumTypes[1].Descriptor()
+	return file_chalk_server_v1_monitoring_proto_enumTypes[0].Descriptor()
 }
 
 func (PagerDutySeverity) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_monitoring_proto_enumTypes[1]
+	return &file_chalk_server_v1_monitoring_proto_enumTypes[0]
 }
 
 func (x PagerDutySeverity) Number() protoreflect.EnumNumber {
@@ -128,7 +77,7 @@ func (x PagerDutySeverity) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PagerDutySeverity.Descriptor instead.
 func (PagerDutySeverity) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_monitoring_proto_rawDescGZIP(), []int{1}
+	return file_chalk_server_v1_monitoring_proto_rawDescGZIP(), []int{0}
 }
 
 type PagerDutyEventAction int32
@@ -167,11 +116,11 @@ func (x PagerDutyEventAction) String() string {
 }
 
 func (PagerDutyEventAction) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_monitoring_proto_enumTypes[2].Descriptor()
+	return file_chalk_server_v1_monitoring_proto_enumTypes[1].Descriptor()
 }
 
 func (PagerDutyEventAction) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_monitoring_proto_enumTypes[2]
+	return &file_chalk_server_v1_monitoring_proto_enumTypes[1]
 }
 
 func (x PagerDutyEventAction) Number() protoreflect.EnumNumber {
@@ -180,7 +129,7 @@ func (x PagerDutyEventAction) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PagerDutyEventAction.Descriptor instead.
 func (PagerDutyEventAction) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_monitoring_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_monitoring_proto_rawDescGZIP(), []int{1}
 }
 
 type PagerDutyEventV2Payload struct {
@@ -2072,7 +2021,7 @@ type AlertChannel struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	EntityKind    AlertChannelKind       `protobuf:"varint,3,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.server.v1.AlertChannelKind" json:"entity_kind,omitempty"`
+	EntityKind    v1.AlertChannelKind    `protobuf:"varint,3,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.artifacts.v1.AlertChannelKind" json:"entity_kind,omitempty"`
 	EntityId      string                 `protobuf:"bytes,4,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
@@ -2126,11 +2075,11 @@ func (x *AlertChannel) GetName() string {
 	return ""
 }
 
-func (x *AlertChannel) GetEntityKind() AlertChannelKind {
+func (x *AlertChannel) GetEntityKind() v1.AlertChannelKind {
 	if x != nil {
 		return x.EntityKind
 	}
-	return AlertChannelKind_ALERT_CHANNEL_KIND_UNSPECIFIED
+	return v1.AlertChannelKind(0)
 }
 
 func (x *AlertChannel) GetEntityId() string {
@@ -2310,7 +2259,7 @@ func (x *EditNamedAlertChannelsRequest) GetAfterEdits() []*EditAlertChannelEntry
 
 type AddAlertChannelEntry struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	EntityKind    AlertChannelKind       `protobuf:"varint,1,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.server.v1.AlertChannelKind" json:"entity_kind,omitempty"`
+	EntityKind    v1.AlertChannelKind    `protobuf:"varint,1,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.artifacts.v1.AlertChannelKind" json:"entity_kind,omitempty"`
 	EntityId      string                 `protobuf:"bytes,2,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	ChannelName   string                 `protobuf:"bytes,3,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
 	Default       *bool                  `protobuf:"varint,4,opt,name=default,proto3,oneof" json:"default,omitempty"`
@@ -2349,11 +2298,11 @@ func (*AddAlertChannelEntry) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_monitoring_proto_rawDescGZIP(), []int{38}
 }
 
-func (x *AddAlertChannelEntry) GetEntityKind() AlertChannelKind {
+func (x *AddAlertChannelEntry) GetEntityKind() v1.AlertChannelKind {
 	if x != nil {
 		return x.EntityKind
 	}
-	return AlertChannelKind_ALERT_CHANNEL_KIND_UNSPECIFIED
+	return v1.AlertChannelKind(0)
 }
 
 func (x *AddAlertChannelEntry) GetEntityId() string {
@@ -2387,7 +2336,7 @@ func (x *AddAlertChannelEntry) GetSubscriptions() []string {
 type EditAlertChannelEntry struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	EntityKind    AlertChannelKind       `protobuf:"varint,2,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.server.v1.AlertChannelKind" json:"entity_kind,omitempty"`
+	EntityKind    v1.AlertChannelKind    `protobuf:"varint,2,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.artifacts.v1.AlertChannelKind" json:"entity_kind,omitempty"`
 	EntityId      string                 `protobuf:"bytes,3,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	ChannelName   string                 `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
 	Default       *bool                  `protobuf:"varint,5,opt,name=default,proto3,oneof" json:"default,omitempty"`
@@ -2433,11 +2382,11 @@ func (x *EditAlertChannelEntry) GetId() string {
 	return ""
 }
 
-func (x *EditAlertChannelEntry) GetEntityKind() AlertChannelKind {
+func (x *EditAlertChannelEntry) GetEntityKind() v1.AlertChannelKind {
 	if x != nil {
 		return x.EntityKind
 	}
-	return AlertChannelKind_ALERT_CHANNEL_KIND_UNSPECIFIED
+	return v1.AlertChannelKind(0)
 }
 
 func (x *EditAlertChannelEntry) GetEntityId() string {
@@ -3416,7 +3365,7 @@ var File_chalk_server_v1_monitoring_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\n" +
-	" chalk/server/v1/monitoring.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/server/v1/incident.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf9\x03\n" +
+	" chalk/server/v1/monitoring.proto\x12\x0fchalk.server.v1\x1a&chalk/artifacts/v1/alert_channel.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/server/v1/incident.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf9\x03\n" +
 	"\x17PagerDutyEventV2Payload\x12\x18\n" +
 	"\asummary\x18\x01 \x01(\tR\asummary\x12=\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\ttimestamp\x88\x01\x01\x12>\n" +
@@ -3580,11 +3529,11 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\vintegration\x18\x01 \x01(\v2&.chalk.server.v1.IncidentIoIntegrationR\vintegration\"%\n" +
 	"#GetAllIncidentIoIntegrationsRequest\"r\n" +
 	"$GetAllIncidentIoIntegrationsResponse\x12J\n" +
-	"\fintegrations\x18\x01 \x03(\v2&.chalk.server.v1.IncidentIoIntegrationR\fintegrations\"\xee\x02\n" +
+	"\fintegrations\x18\x01 \x03(\v2&.chalk.server.v1.IncidentIoIntegrationR\fintegrations\"\xf1\x02\n" +
 	"\fAlertChannel\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12B\n" +
-	"\ventity_kind\x18\x03 \x01(\x0e2!.chalk.server.v1.AlertChannelKindR\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12E\n" +
+	"\ventity_kind\x18\x03 \x01(\x0e2$.chalk.artifacts.v1.AlertChannelKindR\n" +
 	"entityKind\x12\x1b\n" +
 	"\tentity_id\x18\x04 \x01(\tR\bentityId\x129\n" +
 	"\n" +
@@ -3603,19 +3552,19 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\foriginal_ids\x18\x01 \x03(\tR\voriginalIds\x12;\n" +
 	"\x05added\x18\x02 \x03(\v2%.chalk.server.v1.AddAlertChannelEntryR\x05added\x12G\n" +
 	"\vafter_edits\x18\x03 \x03(\v2&.chalk.server.v1.EditAlertChannelEntryR\n" +
-	"afterEdits\"\xeb\x01\n" +
-	"\x14AddAlertChannelEntry\x12B\n" +
-	"\ventity_kind\x18\x01 \x01(\x0e2!.chalk.server.v1.AlertChannelKindR\n" +
+	"afterEdits\"\xee\x01\n" +
+	"\x14AddAlertChannelEntry\x12E\n" +
+	"\ventity_kind\x18\x01 \x01(\x0e2$.chalk.artifacts.v1.AlertChannelKindR\n" +
 	"entityKind\x12\x1b\n" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12!\n" +
 	"\fchannel_name\x18\x03 \x01(\tR\vchannelName\x12\x1d\n" +
 	"\adefault\x18\x04 \x01(\bH\x00R\adefault\x88\x01\x01\x12$\n" +
 	"\rsubscriptions\x18\x05 \x03(\tR\rsubscriptionsB\n" +
 	"\n" +
-	"\b_default\"\xfc\x01\n" +
+	"\b_default\"\xff\x01\n" +
 	"\x15EditAlertChannelEntry\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12B\n" +
-	"\ventity_kind\x18\x02 \x01(\x0e2!.chalk.server.v1.AlertChannelKindR\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12E\n" +
+	"\ventity_kind\x18\x02 \x01(\x0e2$.chalk.artifacts.v1.AlertChannelKindR\n" +
 	"entityKind\x12\x1b\n" +
 	"\tentity_id\x18\x03 \x01(\tR\bentityId\x12!\n" +
 	"\fchannel_name\x18\x04 \x01(\tR\vchannelName\x12\x1d\n" +
@@ -3667,12 +3616,7 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\achannel\x18\x01 \x01(\tH\x00R\achannel\x88\x01\x01B\n" +
 	"\n" +
 	"\b_channel\"#\n" +
-	"!UpsertDefaultSlackChannelResponse*\xb1\x01\n" +
-	"\x10AlertChannelKind\x12\"\n" +
-	"\x1eALERT_CHANNEL_KIND_UNSPECIFIED\x10\x00\x12$\n" +
-	" ALERT_CHANNEL_KIND_SLACK_CHANNEL\x10\x01\x12(\n" +
-	"$ALERT_CHANNEL_KIND_PAGERDUTY_SERVICE\x10\x02\x12)\n" +
-	"%ALERT_CHANNEL_KIND_INCIDENTIO_SERVICE\x10\x03*\xb8\x01\n" +
+	"!UpsertDefaultSlackChannelResponse*\xb8\x01\n" +
 	"\x11PagerDutySeverity\x12#\n" +
 	"\x1fPAGER_DUTY_SEVERITY_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18PAGER_DUTY_SEVERITY_INFO\x10\x01\x12\x1f\n" +
@@ -3727,76 +3671,76 @@ func file_chalk_server_v1_monitoring_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_monitoring_proto_rawDescData
 }
 
-var file_chalk_server_v1_monitoring_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_chalk_server_v1_monitoring_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_server_v1_monitoring_proto_msgTypes = make([]protoimpl.MessageInfo, 63)
 var file_chalk_server_v1_monitoring_proto_goTypes = []any{
-	(AlertChannelKind)(0),                          // 0: chalk.server.v1.AlertChannelKind
-	(PagerDutySeverity)(0),                         // 1: chalk.server.v1.PagerDutySeverity
-	(PagerDutyEventAction)(0),                      // 2: chalk.server.v1.PagerDutyEventAction
-	(*PagerDutyEventV2Payload)(nil),                // 3: chalk.server.v1.PagerDutyEventV2Payload
-	(*PagerDutyEventV2Link)(nil),                   // 4: chalk.server.v1.PagerDutyEventV2Link
-	(*PagerDutyEventV2Image)(nil),                  // 5: chalk.server.v1.PagerDutyEventV2Image
-	(*PagerDutyEventV2)(nil),                       // 6: chalk.server.v1.PagerDutyEventV2
-	(*SlackIntegration)(nil),                       // 7: chalk.server.v1.SlackIntegration
-	(*PagerDutyIntegration)(nil),                   // 8: chalk.server.v1.PagerDutyIntegration
-	(*IncidentIoIntegration)(nil),                  // 9: chalk.server.v1.IncidentIoIntegration
-	(*IncidentIoEventV2)(nil),                      // 10: chalk.server.v1.IncidentIoEventV2
-	(*TestPagerDutyIntegrationRequest)(nil),        // 11: chalk.server.v1.TestPagerDutyIntegrationRequest
-	(*GetPagerDutyIntegrationRequest)(nil),         // 12: chalk.server.v1.GetPagerDutyIntegrationRequest
-	(*GetPagerDutyIntegrationResponse)(nil),        // 13: chalk.server.v1.GetPagerDutyIntegrationResponse
-	(*TestPagerDutyIntegrationResponse)(nil),       // 14: chalk.server.v1.TestPagerDutyIntegrationResponse
-	(*AddPagerDutyIntegrationRequest)(nil),         // 15: chalk.server.v1.AddPagerDutyIntegrationRequest
-	(*AddPagerDutyIntegrationResponse)(nil),        // 16: chalk.server.v1.AddPagerDutyIntegrationResponse
-	(*DeletePagerDutyIntegrationRequest)(nil),      // 17: chalk.server.v1.DeletePagerDutyIntegrationRequest
-	(*DeletePagerDutyIntegrationResponse)(nil),     // 18: chalk.server.v1.DeletePagerDutyIntegrationResponse
-	(*UpdatePagerDutyIntegrationRequest)(nil),      // 19: chalk.server.v1.UpdatePagerDutyIntegrationRequest
-	(*UpdatePagerDutyIntegrationResponse)(nil),     // 20: chalk.server.v1.UpdatePagerDutyIntegrationResponse
-	(*SetDefaultPagerDutyIntegrationRequest)(nil),  // 21: chalk.server.v1.SetDefaultPagerDutyIntegrationRequest
-	(*SetDefaultPagerDutyIntegrationResponse)(nil), // 22: chalk.server.v1.SetDefaultPagerDutyIntegrationResponse
-	(*GetAllPagerDutyIntegrationsRequest)(nil),     // 23: chalk.server.v1.GetAllPagerDutyIntegrationsRequest
-	(*GetAllPagerDutyIntegrationsResponse)(nil),    // 24: chalk.server.v1.GetAllPagerDutyIntegrationsResponse
-	(*TestIncidentIoIntegrationRequest)(nil),       // 25: chalk.server.v1.TestIncidentIoIntegrationRequest
-	(*TestIncidentIoIntegrationResponse)(nil),      // 26: chalk.server.v1.TestIncidentIoIntegrationResponse
-	(*GetIncidentIoIntegrationRequest)(nil),        // 27: chalk.server.v1.GetIncidentIoIntegrationRequest
-	(*GetIncidentIoIntegrationResponse)(nil),       // 28: chalk.server.v1.GetIncidentIoIntegrationResponse
-	(*AddIncidentIoIntegrationRequest)(nil),        // 29: chalk.server.v1.AddIncidentIoIntegrationRequest
-	(*AddIncidentIoIntegrationResponse)(nil),       // 30: chalk.server.v1.AddIncidentIoIntegrationResponse
-	(*DeleteIncidentIoIntegrationRequest)(nil),     // 31: chalk.server.v1.DeleteIncidentIoIntegrationRequest
-	(*DeleteIncidentIoIntegrationResponse)(nil),    // 32: chalk.server.v1.DeleteIncidentIoIntegrationResponse
-	(*UpdateIncidentIoIntegrationRequest)(nil),     // 33: chalk.server.v1.UpdateIncidentIoIntegrationRequest
-	(*UpdateIncidentIoIntegrationResponse)(nil),    // 34: chalk.server.v1.UpdateIncidentIoIntegrationResponse
-	(*GetAllIncidentIoIntegrationsRequest)(nil),    // 35: chalk.server.v1.GetAllIncidentIoIntegrationsRequest
-	(*GetAllIncidentIoIntegrationsResponse)(nil),   // 36: chalk.server.v1.GetAllIncidentIoIntegrationsResponse
-	(*AlertChannel)(nil),                           // 37: chalk.server.v1.AlertChannel
-	(*ListAlertChannelsRequest)(nil),               // 38: chalk.server.v1.ListAlertChannelsRequest
-	(*ListAlertChannelsResponse)(nil),              // 39: chalk.server.v1.ListAlertChannelsResponse
-	(*EditNamedAlertChannelsRequest)(nil),          // 40: chalk.server.v1.EditNamedAlertChannelsRequest
-	(*AddAlertChannelEntry)(nil),                   // 41: chalk.server.v1.AddAlertChannelEntry
-	(*EditAlertChannelEntry)(nil),                  // 42: chalk.server.v1.EditAlertChannelEntry
-	(*EditNamedAlertChannelsResponse)(nil),         // 43: chalk.server.v1.EditNamedAlertChannelsResponse
-	(*DeleteNamedAlertChannelsRequest)(nil),        // 44: chalk.server.v1.DeleteNamedAlertChannelsRequest
-	(*DeleteNamedAlertChannelsResponse)(nil),       // 45: chalk.server.v1.DeleteNamedAlertChannelsResponse
-	(*TestNamedAlertChannelsRequest)(nil),          // 46: chalk.server.v1.TestNamedAlertChannelsRequest
-	(*TestNamedAlertChannelsResponse)(nil),         // 47: chalk.server.v1.TestNamedAlertChannelsResponse
-	(*SetDefaultAlertChannelsRequest)(nil),         // 48: chalk.server.v1.SetDefaultAlertChannelsRequest
-	(*SetDefaultAlertChannelsResponse)(nil),        // 49: chalk.server.v1.SetDefaultAlertChannelsResponse
-	(*GetSlackIntegrationRequest)(nil),             // 50: chalk.server.v1.GetSlackIntegrationRequest
-	(*GetSlackIntegrationResponse)(nil),            // 51: chalk.server.v1.GetSlackIntegrationResponse
-	(*SimpleSlackConversation)(nil),                // 52: chalk.server.v1.SimpleSlackConversation
-	(*GetSlackChannelsRequest)(nil),                // 53: chalk.server.v1.GetSlackChannelsRequest
-	(*GetSlackChannelsResponse)(nil),               // 54: chalk.server.v1.GetSlackChannelsResponse
-	(*UpsertSlackIntegrationRequest)(nil),          // 55: chalk.server.v1.UpsertSlackIntegrationRequest
-	(*UpsertSlackIntegrationResponse)(nil),         // 56: chalk.server.v1.UpsertSlackIntegrationResponse
-	(*DeleteSlackIntegrationRequest)(nil),          // 57: chalk.server.v1.DeleteSlackIntegrationRequest
-	(*DeleteSlackIntegrationResponse)(nil),         // 58: chalk.server.v1.DeleteSlackIntegrationResponse
-	(*TestSlackIntegrationRequest)(nil),            // 59: chalk.server.v1.TestSlackIntegrationRequest
-	(*TestSlackIntegrationResponse)(nil),           // 60: chalk.server.v1.TestSlackIntegrationResponse
-	(*UpdateSlackChannelsRequest)(nil),             // 61: chalk.server.v1.UpdateSlackChannelsRequest
-	(*UpdateSlackChannelsResponse)(nil),            // 62: chalk.server.v1.UpdateSlackChannelsResponse
-	(*UpsertDefaultSlackChannelRequest)(nil),       // 63: chalk.server.v1.UpsertDefaultSlackChannelRequest
-	(*UpsertDefaultSlackChannelResponse)(nil),      // 64: chalk.server.v1.UpsertDefaultSlackChannelResponse
-	nil,                                    // 65: chalk.server.v1.PagerDutyEventV2Payload.CustomDetailsEntry
-	(*timestamppb.Timestamp)(nil),          // 66: google.protobuf.Timestamp
+	(PagerDutySeverity)(0),                         // 0: chalk.server.v1.PagerDutySeverity
+	(PagerDutyEventAction)(0),                      // 1: chalk.server.v1.PagerDutyEventAction
+	(*PagerDutyEventV2Payload)(nil),                // 2: chalk.server.v1.PagerDutyEventV2Payload
+	(*PagerDutyEventV2Link)(nil),                   // 3: chalk.server.v1.PagerDutyEventV2Link
+	(*PagerDutyEventV2Image)(nil),                  // 4: chalk.server.v1.PagerDutyEventV2Image
+	(*PagerDutyEventV2)(nil),                       // 5: chalk.server.v1.PagerDutyEventV2
+	(*SlackIntegration)(nil),                       // 6: chalk.server.v1.SlackIntegration
+	(*PagerDutyIntegration)(nil),                   // 7: chalk.server.v1.PagerDutyIntegration
+	(*IncidentIoIntegration)(nil),                  // 8: chalk.server.v1.IncidentIoIntegration
+	(*IncidentIoEventV2)(nil),                      // 9: chalk.server.v1.IncidentIoEventV2
+	(*TestPagerDutyIntegrationRequest)(nil),        // 10: chalk.server.v1.TestPagerDutyIntegrationRequest
+	(*GetPagerDutyIntegrationRequest)(nil),         // 11: chalk.server.v1.GetPagerDutyIntegrationRequest
+	(*GetPagerDutyIntegrationResponse)(nil),        // 12: chalk.server.v1.GetPagerDutyIntegrationResponse
+	(*TestPagerDutyIntegrationResponse)(nil),       // 13: chalk.server.v1.TestPagerDutyIntegrationResponse
+	(*AddPagerDutyIntegrationRequest)(nil),         // 14: chalk.server.v1.AddPagerDutyIntegrationRequest
+	(*AddPagerDutyIntegrationResponse)(nil),        // 15: chalk.server.v1.AddPagerDutyIntegrationResponse
+	(*DeletePagerDutyIntegrationRequest)(nil),      // 16: chalk.server.v1.DeletePagerDutyIntegrationRequest
+	(*DeletePagerDutyIntegrationResponse)(nil),     // 17: chalk.server.v1.DeletePagerDutyIntegrationResponse
+	(*UpdatePagerDutyIntegrationRequest)(nil),      // 18: chalk.server.v1.UpdatePagerDutyIntegrationRequest
+	(*UpdatePagerDutyIntegrationResponse)(nil),     // 19: chalk.server.v1.UpdatePagerDutyIntegrationResponse
+	(*SetDefaultPagerDutyIntegrationRequest)(nil),  // 20: chalk.server.v1.SetDefaultPagerDutyIntegrationRequest
+	(*SetDefaultPagerDutyIntegrationResponse)(nil), // 21: chalk.server.v1.SetDefaultPagerDutyIntegrationResponse
+	(*GetAllPagerDutyIntegrationsRequest)(nil),     // 22: chalk.server.v1.GetAllPagerDutyIntegrationsRequest
+	(*GetAllPagerDutyIntegrationsResponse)(nil),    // 23: chalk.server.v1.GetAllPagerDutyIntegrationsResponse
+	(*TestIncidentIoIntegrationRequest)(nil),       // 24: chalk.server.v1.TestIncidentIoIntegrationRequest
+	(*TestIncidentIoIntegrationResponse)(nil),      // 25: chalk.server.v1.TestIncidentIoIntegrationResponse
+	(*GetIncidentIoIntegrationRequest)(nil),        // 26: chalk.server.v1.GetIncidentIoIntegrationRequest
+	(*GetIncidentIoIntegrationResponse)(nil),       // 27: chalk.server.v1.GetIncidentIoIntegrationResponse
+	(*AddIncidentIoIntegrationRequest)(nil),        // 28: chalk.server.v1.AddIncidentIoIntegrationRequest
+	(*AddIncidentIoIntegrationResponse)(nil),       // 29: chalk.server.v1.AddIncidentIoIntegrationResponse
+	(*DeleteIncidentIoIntegrationRequest)(nil),     // 30: chalk.server.v1.DeleteIncidentIoIntegrationRequest
+	(*DeleteIncidentIoIntegrationResponse)(nil),    // 31: chalk.server.v1.DeleteIncidentIoIntegrationResponse
+	(*UpdateIncidentIoIntegrationRequest)(nil),     // 32: chalk.server.v1.UpdateIncidentIoIntegrationRequest
+	(*UpdateIncidentIoIntegrationResponse)(nil),    // 33: chalk.server.v1.UpdateIncidentIoIntegrationResponse
+	(*GetAllIncidentIoIntegrationsRequest)(nil),    // 34: chalk.server.v1.GetAllIncidentIoIntegrationsRequest
+	(*GetAllIncidentIoIntegrationsResponse)(nil),   // 35: chalk.server.v1.GetAllIncidentIoIntegrationsResponse
+	(*AlertChannel)(nil),                           // 36: chalk.server.v1.AlertChannel
+	(*ListAlertChannelsRequest)(nil),               // 37: chalk.server.v1.ListAlertChannelsRequest
+	(*ListAlertChannelsResponse)(nil),              // 38: chalk.server.v1.ListAlertChannelsResponse
+	(*EditNamedAlertChannelsRequest)(nil),          // 39: chalk.server.v1.EditNamedAlertChannelsRequest
+	(*AddAlertChannelEntry)(nil),                   // 40: chalk.server.v1.AddAlertChannelEntry
+	(*EditAlertChannelEntry)(nil),                  // 41: chalk.server.v1.EditAlertChannelEntry
+	(*EditNamedAlertChannelsResponse)(nil),         // 42: chalk.server.v1.EditNamedAlertChannelsResponse
+	(*DeleteNamedAlertChannelsRequest)(nil),        // 43: chalk.server.v1.DeleteNamedAlertChannelsRequest
+	(*DeleteNamedAlertChannelsResponse)(nil),       // 44: chalk.server.v1.DeleteNamedAlertChannelsResponse
+	(*TestNamedAlertChannelsRequest)(nil),          // 45: chalk.server.v1.TestNamedAlertChannelsRequest
+	(*TestNamedAlertChannelsResponse)(nil),         // 46: chalk.server.v1.TestNamedAlertChannelsResponse
+	(*SetDefaultAlertChannelsRequest)(nil),         // 47: chalk.server.v1.SetDefaultAlertChannelsRequest
+	(*SetDefaultAlertChannelsResponse)(nil),        // 48: chalk.server.v1.SetDefaultAlertChannelsResponse
+	(*GetSlackIntegrationRequest)(nil),             // 49: chalk.server.v1.GetSlackIntegrationRequest
+	(*GetSlackIntegrationResponse)(nil),            // 50: chalk.server.v1.GetSlackIntegrationResponse
+	(*SimpleSlackConversation)(nil),                // 51: chalk.server.v1.SimpleSlackConversation
+	(*GetSlackChannelsRequest)(nil),                // 52: chalk.server.v1.GetSlackChannelsRequest
+	(*GetSlackChannelsResponse)(nil),               // 53: chalk.server.v1.GetSlackChannelsResponse
+	(*UpsertSlackIntegrationRequest)(nil),          // 54: chalk.server.v1.UpsertSlackIntegrationRequest
+	(*UpsertSlackIntegrationResponse)(nil),         // 55: chalk.server.v1.UpsertSlackIntegrationResponse
+	(*DeleteSlackIntegrationRequest)(nil),          // 56: chalk.server.v1.DeleteSlackIntegrationRequest
+	(*DeleteSlackIntegrationResponse)(nil),         // 57: chalk.server.v1.DeleteSlackIntegrationResponse
+	(*TestSlackIntegrationRequest)(nil),            // 58: chalk.server.v1.TestSlackIntegrationRequest
+	(*TestSlackIntegrationResponse)(nil),           // 59: chalk.server.v1.TestSlackIntegrationResponse
+	(*UpdateSlackChannelsRequest)(nil),             // 60: chalk.server.v1.UpdateSlackChannelsRequest
+	(*UpdateSlackChannelsResponse)(nil),            // 61: chalk.server.v1.UpdateSlackChannelsResponse
+	(*UpsertDefaultSlackChannelRequest)(nil),       // 62: chalk.server.v1.UpsertDefaultSlackChannelRequest
+	(*UpsertDefaultSlackChannelResponse)(nil),      // 63: chalk.server.v1.UpsertDefaultSlackChannelResponse
+	nil,                                    // 64: chalk.server.v1.PagerDutyEventV2Payload.CustomDetailsEntry
+	(*timestamppb.Timestamp)(nil),          // 65: google.protobuf.Timestamp
+	(v1.AlertChannelKind)(0),               // 66: chalk.artifacts.v1.AlertChannelKind
 	(*ListIncidentsRequest)(nil),           // 67: chalk.server.v1.ListIncidentsRequest
 	(*GetIncidentRequest)(nil),             // 68: chalk.server.v1.GetIncidentRequest
 	(*GetIncidentAlertsChartRequest)(nil),  // 69: chalk.server.v1.GetIncidentAlertsChartRequest
@@ -3805,90 +3749,90 @@ var file_chalk_server_v1_monitoring_proto_goTypes = []any{
 	(*GetIncidentAlertsChartResponse)(nil), // 72: chalk.server.v1.GetIncidentAlertsChartResponse
 }
 var file_chalk_server_v1_monitoring_proto_depIdxs = []int32{
-	66, // 0: chalk.server.v1.PagerDutyEventV2Payload.timestamp:type_name -> google.protobuf.Timestamp
-	1,  // 1: chalk.server.v1.PagerDutyEventV2Payload.severity:type_name -> chalk.server.v1.PagerDutySeverity
-	65, // 2: chalk.server.v1.PagerDutyEventV2Payload.custom_details:type_name -> chalk.server.v1.PagerDutyEventV2Payload.CustomDetailsEntry
-	3,  // 3: chalk.server.v1.PagerDutyEventV2.payload:type_name -> chalk.server.v1.PagerDutyEventV2Payload
-	2,  // 4: chalk.server.v1.PagerDutyEventV2.event_action:type_name -> chalk.server.v1.PagerDutyEventAction
-	4,  // 5: chalk.server.v1.PagerDutyEventV2.links:type_name -> chalk.server.v1.PagerDutyEventV2Link
-	5,  // 6: chalk.server.v1.PagerDutyEventV2.images:type_name -> chalk.server.v1.PagerDutyEventV2Image
-	66, // 7: chalk.server.v1.SlackIntegration.created_at:type_name -> google.protobuf.Timestamp
-	66, // 8: chalk.server.v1.SlackIntegration.updated_at:type_name -> google.protobuf.Timestamp
-	8,  // 9: chalk.server.v1.GetPagerDutyIntegrationResponse.integration:type_name -> chalk.server.v1.PagerDutyIntegration
-	8,  // 10: chalk.server.v1.AddPagerDutyIntegrationResponse.integration:type_name -> chalk.server.v1.PagerDutyIntegration
-	8,  // 11: chalk.server.v1.UpdatePagerDutyIntegrationResponse.integration:type_name -> chalk.server.v1.PagerDutyIntegration
-	8,  // 12: chalk.server.v1.GetAllPagerDutyIntegrationsResponse.integrations:type_name -> chalk.server.v1.PagerDutyIntegration
-	9,  // 13: chalk.server.v1.GetIncidentIoIntegrationResponse.integration:type_name -> chalk.server.v1.IncidentIoIntegration
-	9,  // 14: chalk.server.v1.AddIncidentIoIntegrationResponse.integration:type_name -> chalk.server.v1.IncidentIoIntegration
-	9,  // 15: chalk.server.v1.UpdateIncidentIoIntegrationResponse.integration:type_name -> chalk.server.v1.IncidentIoIntegration
-	9,  // 16: chalk.server.v1.GetAllIncidentIoIntegrationsResponse.integrations:type_name -> chalk.server.v1.IncidentIoIntegration
-	0,  // 17: chalk.server.v1.AlertChannel.entity_kind:type_name -> chalk.server.v1.AlertChannelKind
-	66, // 18: chalk.server.v1.AlertChannel.created_at:type_name -> google.protobuf.Timestamp
-	66, // 19: chalk.server.v1.AlertChannel.updated_at:type_name -> google.protobuf.Timestamp
-	37, // 20: chalk.server.v1.ListAlertChannelsResponse.channels:type_name -> chalk.server.v1.AlertChannel
-	41, // 21: chalk.server.v1.EditNamedAlertChannelsRequest.added:type_name -> chalk.server.v1.AddAlertChannelEntry
-	42, // 22: chalk.server.v1.EditNamedAlertChannelsRequest.after_edits:type_name -> chalk.server.v1.EditAlertChannelEntry
-	0,  // 23: chalk.server.v1.AddAlertChannelEntry.entity_kind:type_name -> chalk.server.v1.AlertChannelKind
-	0,  // 24: chalk.server.v1.EditAlertChannelEntry.entity_kind:type_name -> chalk.server.v1.AlertChannelKind
-	7,  // 25: chalk.server.v1.GetSlackIntegrationResponse.integration:type_name -> chalk.server.v1.SlackIntegration
-	52, // 26: chalk.server.v1.GetSlackChannelsResponse.channels:type_name -> chalk.server.v1.SimpleSlackConversation
-	7,  // 27: chalk.server.v1.UpsertSlackIntegrationResponse.integration:type_name -> chalk.server.v1.SlackIntegration
-	11, // 28: chalk.server.v1.MonitoringService.TestPagerDutyIntegration:input_type -> chalk.server.v1.TestPagerDutyIntegrationRequest
-	15, // 29: chalk.server.v1.MonitoringService.AddPagerDutyIntegration:input_type -> chalk.server.v1.AddPagerDutyIntegrationRequest
-	17, // 30: chalk.server.v1.MonitoringService.DeletePagerDutyIntegration:input_type -> chalk.server.v1.DeletePagerDutyIntegrationRequest
-	21, // 31: chalk.server.v1.MonitoringService.SetDefaultPagerDutyIntegration:input_type -> chalk.server.v1.SetDefaultPagerDutyIntegrationRequest
-	19, // 32: chalk.server.v1.MonitoringService.UpdatePagerDutyIntegration:input_type -> chalk.server.v1.UpdatePagerDutyIntegrationRequest
-	23, // 33: chalk.server.v1.MonitoringService.GetAllPagerDutyIntegrations:input_type -> chalk.server.v1.GetAllPagerDutyIntegrationsRequest
-	12, // 34: chalk.server.v1.MonitoringService.GetPagerDutyIntegration:input_type -> chalk.server.v1.GetPagerDutyIntegrationRequest
-	25, // 35: chalk.server.v1.MonitoringService.TestIncidentIoIntegration:input_type -> chalk.server.v1.TestIncidentIoIntegrationRequest
-	29, // 36: chalk.server.v1.MonitoringService.AddIncidentIoIntegration:input_type -> chalk.server.v1.AddIncidentIoIntegrationRequest
-	31, // 37: chalk.server.v1.MonitoringService.DeleteIncidentIoIntegration:input_type -> chalk.server.v1.DeleteIncidentIoIntegrationRequest
-	33, // 38: chalk.server.v1.MonitoringService.UpdateIncidentIoIntegration:input_type -> chalk.server.v1.UpdateIncidentIoIntegrationRequest
-	35, // 39: chalk.server.v1.MonitoringService.GetAllIncidentIoIntegrations:input_type -> chalk.server.v1.GetAllIncidentIoIntegrationsRequest
-	27, // 40: chalk.server.v1.MonitoringService.GetIncidentIoIntegration:input_type -> chalk.server.v1.GetIncidentIoIntegrationRequest
+	65, // 0: chalk.server.v1.PagerDutyEventV2Payload.timestamp:type_name -> google.protobuf.Timestamp
+	0,  // 1: chalk.server.v1.PagerDutyEventV2Payload.severity:type_name -> chalk.server.v1.PagerDutySeverity
+	64, // 2: chalk.server.v1.PagerDutyEventV2Payload.custom_details:type_name -> chalk.server.v1.PagerDutyEventV2Payload.CustomDetailsEntry
+	2,  // 3: chalk.server.v1.PagerDutyEventV2.payload:type_name -> chalk.server.v1.PagerDutyEventV2Payload
+	1,  // 4: chalk.server.v1.PagerDutyEventV2.event_action:type_name -> chalk.server.v1.PagerDutyEventAction
+	3,  // 5: chalk.server.v1.PagerDutyEventV2.links:type_name -> chalk.server.v1.PagerDutyEventV2Link
+	4,  // 6: chalk.server.v1.PagerDutyEventV2.images:type_name -> chalk.server.v1.PagerDutyEventV2Image
+	65, // 7: chalk.server.v1.SlackIntegration.created_at:type_name -> google.protobuf.Timestamp
+	65, // 8: chalk.server.v1.SlackIntegration.updated_at:type_name -> google.protobuf.Timestamp
+	7,  // 9: chalk.server.v1.GetPagerDutyIntegrationResponse.integration:type_name -> chalk.server.v1.PagerDutyIntegration
+	7,  // 10: chalk.server.v1.AddPagerDutyIntegrationResponse.integration:type_name -> chalk.server.v1.PagerDutyIntegration
+	7,  // 11: chalk.server.v1.UpdatePagerDutyIntegrationResponse.integration:type_name -> chalk.server.v1.PagerDutyIntegration
+	7,  // 12: chalk.server.v1.GetAllPagerDutyIntegrationsResponse.integrations:type_name -> chalk.server.v1.PagerDutyIntegration
+	8,  // 13: chalk.server.v1.GetIncidentIoIntegrationResponse.integration:type_name -> chalk.server.v1.IncidentIoIntegration
+	8,  // 14: chalk.server.v1.AddIncidentIoIntegrationResponse.integration:type_name -> chalk.server.v1.IncidentIoIntegration
+	8,  // 15: chalk.server.v1.UpdateIncidentIoIntegrationResponse.integration:type_name -> chalk.server.v1.IncidentIoIntegration
+	8,  // 16: chalk.server.v1.GetAllIncidentIoIntegrationsResponse.integrations:type_name -> chalk.server.v1.IncidentIoIntegration
+	66, // 17: chalk.server.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	65, // 18: chalk.server.v1.AlertChannel.created_at:type_name -> google.protobuf.Timestamp
+	65, // 19: chalk.server.v1.AlertChannel.updated_at:type_name -> google.protobuf.Timestamp
+	36, // 20: chalk.server.v1.ListAlertChannelsResponse.channels:type_name -> chalk.server.v1.AlertChannel
+	40, // 21: chalk.server.v1.EditNamedAlertChannelsRequest.added:type_name -> chalk.server.v1.AddAlertChannelEntry
+	41, // 22: chalk.server.v1.EditNamedAlertChannelsRequest.after_edits:type_name -> chalk.server.v1.EditAlertChannelEntry
+	66, // 23: chalk.server.v1.AddAlertChannelEntry.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	66, // 24: chalk.server.v1.EditAlertChannelEntry.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	6,  // 25: chalk.server.v1.GetSlackIntegrationResponse.integration:type_name -> chalk.server.v1.SlackIntegration
+	51, // 26: chalk.server.v1.GetSlackChannelsResponse.channels:type_name -> chalk.server.v1.SimpleSlackConversation
+	6,  // 27: chalk.server.v1.UpsertSlackIntegrationResponse.integration:type_name -> chalk.server.v1.SlackIntegration
+	10, // 28: chalk.server.v1.MonitoringService.TestPagerDutyIntegration:input_type -> chalk.server.v1.TestPagerDutyIntegrationRequest
+	14, // 29: chalk.server.v1.MonitoringService.AddPagerDutyIntegration:input_type -> chalk.server.v1.AddPagerDutyIntegrationRequest
+	16, // 30: chalk.server.v1.MonitoringService.DeletePagerDutyIntegration:input_type -> chalk.server.v1.DeletePagerDutyIntegrationRequest
+	20, // 31: chalk.server.v1.MonitoringService.SetDefaultPagerDutyIntegration:input_type -> chalk.server.v1.SetDefaultPagerDutyIntegrationRequest
+	18, // 32: chalk.server.v1.MonitoringService.UpdatePagerDutyIntegration:input_type -> chalk.server.v1.UpdatePagerDutyIntegrationRequest
+	22, // 33: chalk.server.v1.MonitoringService.GetAllPagerDutyIntegrations:input_type -> chalk.server.v1.GetAllPagerDutyIntegrationsRequest
+	11, // 34: chalk.server.v1.MonitoringService.GetPagerDutyIntegration:input_type -> chalk.server.v1.GetPagerDutyIntegrationRequest
+	24, // 35: chalk.server.v1.MonitoringService.TestIncidentIoIntegration:input_type -> chalk.server.v1.TestIncidentIoIntegrationRequest
+	28, // 36: chalk.server.v1.MonitoringService.AddIncidentIoIntegration:input_type -> chalk.server.v1.AddIncidentIoIntegrationRequest
+	30, // 37: chalk.server.v1.MonitoringService.DeleteIncidentIoIntegration:input_type -> chalk.server.v1.DeleteIncidentIoIntegrationRequest
+	32, // 38: chalk.server.v1.MonitoringService.UpdateIncidentIoIntegration:input_type -> chalk.server.v1.UpdateIncidentIoIntegrationRequest
+	34, // 39: chalk.server.v1.MonitoringService.GetAllIncidentIoIntegrations:input_type -> chalk.server.v1.GetAllIncidentIoIntegrationsRequest
+	26, // 40: chalk.server.v1.MonitoringService.GetIncidentIoIntegration:input_type -> chalk.server.v1.GetIncidentIoIntegrationRequest
 	67, // 41: chalk.server.v1.MonitoringService.ListIncidents:input_type -> chalk.server.v1.ListIncidentsRequest
 	68, // 42: chalk.server.v1.MonitoringService.GetIncident:input_type -> chalk.server.v1.GetIncidentRequest
 	69, // 43: chalk.server.v1.MonitoringService.GetIncidentAlertsChart:input_type -> chalk.server.v1.GetIncidentAlertsChartRequest
-	46, // 44: chalk.server.v1.MonitoringService.TestNamedAlertChannels:input_type -> chalk.server.v1.TestNamedAlertChannelsRequest
-	40, // 45: chalk.server.v1.MonitoringService.EditNamedAlertChannels:input_type -> chalk.server.v1.EditNamedAlertChannelsRequest
-	44, // 46: chalk.server.v1.MonitoringService.DeleteNamedAlertChannels:input_type -> chalk.server.v1.DeleteNamedAlertChannelsRequest
-	48, // 47: chalk.server.v1.MonitoringService.SetDefaultAlertChannels:input_type -> chalk.server.v1.SetDefaultAlertChannelsRequest
-	38, // 48: chalk.server.v1.MonitoringService.ListAlertChannels:input_type -> chalk.server.v1.ListAlertChannelsRequest
-	59, // 49: chalk.server.v1.MonitoringService.TestSlackIntegration:input_type -> chalk.server.v1.TestSlackIntegrationRequest
-	50, // 50: chalk.server.v1.MonitoringService.GetSlackIntegration:input_type -> chalk.server.v1.GetSlackIntegrationRequest
-	55, // 51: chalk.server.v1.MonitoringService.UpsertSlackIntegration:input_type -> chalk.server.v1.UpsertSlackIntegrationRequest
-	57, // 52: chalk.server.v1.MonitoringService.DeleteSlackIntegration:input_type -> chalk.server.v1.DeleteSlackIntegrationRequest
-	53, // 53: chalk.server.v1.MonitoringService.GetSlackChannels:input_type -> chalk.server.v1.GetSlackChannelsRequest
-	61, // 54: chalk.server.v1.MonitoringService.UpdateSlackChannels:input_type -> chalk.server.v1.UpdateSlackChannelsRequest
-	63, // 55: chalk.server.v1.MonitoringService.UpsertDefaultSlackChannel:input_type -> chalk.server.v1.UpsertDefaultSlackChannelRequest
-	14, // 56: chalk.server.v1.MonitoringService.TestPagerDutyIntegration:output_type -> chalk.server.v1.TestPagerDutyIntegrationResponse
-	16, // 57: chalk.server.v1.MonitoringService.AddPagerDutyIntegration:output_type -> chalk.server.v1.AddPagerDutyIntegrationResponse
-	18, // 58: chalk.server.v1.MonitoringService.DeletePagerDutyIntegration:output_type -> chalk.server.v1.DeletePagerDutyIntegrationResponse
-	22, // 59: chalk.server.v1.MonitoringService.SetDefaultPagerDutyIntegration:output_type -> chalk.server.v1.SetDefaultPagerDutyIntegrationResponse
-	20, // 60: chalk.server.v1.MonitoringService.UpdatePagerDutyIntegration:output_type -> chalk.server.v1.UpdatePagerDutyIntegrationResponse
-	24, // 61: chalk.server.v1.MonitoringService.GetAllPagerDutyIntegrations:output_type -> chalk.server.v1.GetAllPagerDutyIntegrationsResponse
-	13, // 62: chalk.server.v1.MonitoringService.GetPagerDutyIntegration:output_type -> chalk.server.v1.GetPagerDutyIntegrationResponse
-	26, // 63: chalk.server.v1.MonitoringService.TestIncidentIoIntegration:output_type -> chalk.server.v1.TestIncidentIoIntegrationResponse
-	30, // 64: chalk.server.v1.MonitoringService.AddIncidentIoIntegration:output_type -> chalk.server.v1.AddIncidentIoIntegrationResponse
-	32, // 65: chalk.server.v1.MonitoringService.DeleteIncidentIoIntegration:output_type -> chalk.server.v1.DeleteIncidentIoIntegrationResponse
-	34, // 66: chalk.server.v1.MonitoringService.UpdateIncidentIoIntegration:output_type -> chalk.server.v1.UpdateIncidentIoIntegrationResponse
-	36, // 67: chalk.server.v1.MonitoringService.GetAllIncidentIoIntegrations:output_type -> chalk.server.v1.GetAllIncidentIoIntegrationsResponse
-	28, // 68: chalk.server.v1.MonitoringService.GetIncidentIoIntegration:output_type -> chalk.server.v1.GetIncidentIoIntegrationResponse
+	45, // 44: chalk.server.v1.MonitoringService.TestNamedAlertChannels:input_type -> chalk.server.v1.TestNamedAlertChannelsRequest
+	39, // 45: chalk.server.v1.MonitoringService.EditNamedAlertChannels:input_type -> chalk.server.v1.EditNamedAlertChannelsRequest
+	43, // 46: chalk.server.v1.MonitoringService.DeleteNamedAlertChannels:input_type -> chalk.server.v1.DeleteNamedAlertChannelsRequest
+	47, // 47: chalk.server.v1.MonitoringService.SetDefaultAlertChannels:input_type -> chalk.server.v1.SetDefaultAlertChannelsRequest
+	37, // 48: chalk.server.v1.MonitoringService.ListAlertChannels:input_type -> chalk.server.v1.ListAlertChannelsRequest
+	58, // 49: chalk.server.v1.MonitoringService.TestSlackIntegration:input_type -> chalk.server.v1.TestSlackIntegrationRequest
+	49, // 50: chalk.server.v1.MonitoringService.GetSlackIntegration:input_type -> chalk.server.v1.GetSlackIntegrationRequest
+	54, // 51: chalk.server.v1.MonitoringService.UpsertSlackIntegration:input_type -> chalk.server.v1.UpsertSlackIntegrationRequest
+	56, // 52: chalk.server.v1.MonitoringService.DeleteSlackIntegration:input_type -> chalk.server.v1.DeleteSlackIntegrationRequest
+	52, // 53: chalk.server.v1.MonitoringService.GetSlackChannels:input_type -> chalk.server.v1.GetSlackChannelsRequest
+	60, // 54: chalk.server.v1.MonitoringService.UpdateSlackChannels:input_type -> chalk.server.v1.UpdateSlackChannelsRequest
+	62, // 55: chalk.server.v1.MonitoringService.UpsertDefaultSlackChannel:input_type -> chalk.server.v1.UpsertDefaultSlackChannelRequest
+	13, // 56: chalk.server.v1.MonitoringService.TestPagerDutyIntegration:output_type -> chalk.server.v1.TestPagerDutyIntegrationResponse
+	15, // 57: chalk.server.v1.MonitoringService.AddPagerDutyIntegration:output_type -> chalk.server.v1.AddPagerDutyIntegrationResponse
+	17, // 58: chalk.server.v1.MonitoringService.DeletePagerDutyIntegration:output_type -> chalk.server.v1.DeletePagerDutyIntegrationResponse
+	21, // 59: chalk.server.v1.MonitoringService.SetDefaultPagerDutyIntegration:output_type -> chalk.server.v1.SetDefaultPagerDutyIntegrationResponse
+	19, // 60: chalk.server.v1.MonitoringService.UpdatePagerDutyIntegration:output_type -> chalk.server.v1.UpdatePagerDutyIntegrationResponse
+	23, // 61: chalk.server.v1.MonitoringService.GetAllPagerDutyIntegrations:output_type -> chalk.server.v1.GetAllPagerDutyIntegrationsResponse
+	12, // 62: chalk.server.v1.MonitoringService.GetPagerDutyIntegration:output_type -> chalk.server.v1.GetPagerDutyIntegrationResponse
+	25, // 63: chalk.server.v1.MonitoringService.TestIncidentIoIntegration:output_type -> chalk.server.v1.TestIncidentIoIntegrationResponse
+	29, // 64: chalk.server.v1.MonitoringService.AddIncidentIoIntegration:output_type -> chalk.server.v1.AddIncidentIoIntegrationResponse
+	31, // 65: chalk.server.v1.MonitoringService.DeleteIncidentIoIntegration:output_type -> chalk.server.v1.DeleteIncidentIoIntegrationResponse
+	33, // 66: chalk.server.v1.MonitoringService.UpdateIncidentIoIntegration:output_type -> chalk.server.v1.UpdateIncidentIoIntegrationResponse
+	35, // 67: chalk.server.v1.MonitoringService.GetAllIncidentIoIntegrations:output_type -> chalk.server.v1.GetAllIncidentIoIntegrationsResponse
+	27, // 68: chalk.server.v1.MonitoringService.GetIncidentIoIntegration:output_type -> chalk.server.v1.GetIncidentIoIntegrationResponse
 	70, // 69: chalk.server.v1.MonitoringService.ListIncidents:output_type -> chalk.server.v1.ListIncidentsResponse
 	71, // 70: chalk.server.v1.MonitoringService.GetIncident:output_type -> chalk.server.v1.GetIncidentResponse
 	72, // 71: chalk.server.v1.MonitoringService.GetIncidentAlertsChart:output_type -> chalk.server.v1.GetIncidentAlertsChartResponse
-	47, // 72: chalk.server.v1.MonitoringService.TestNamedAlertChannels:output_type -> chalk.server.v1.TestNamedAlertChannelsResponse
-	43, // 73: chalk.server.v1.MonitoringService.EditNamedAlertChannels:output_type -> chalk.server.v1.EditNamedAlertChannelsResponse
-	45, // 74: chalk.server.v1.MonitoringService.DeleteNamedAlertChannels:output_type -> chalk.server.v1.DeleteNamedAlertChannelsResponse
-	49, // 75: chalk.server.v1.MonitoringService.SetDefaultAlertChannels:output_type -> chalk.server.v1.SetDefaultAlertChannelsResponse
-	39, // 76: chalk.server.v1.MonitoringService.ListAlertChannels:output_type -> chalk.server.v1.ListAlertChannelsResponse
-	60, // 77: chalk.server.v1.MonitoringService.TestSlackIntegration:output_type -> chalk.server.v1.TestSlackIntegrationResponse
-	51, // 78: chalk.server.v1.MonitoringService.GetSlackIntegration:output_type -> chalk.server.v1.GetSlackIntegrationResponse
-	56, // 79: chalk.server.v1.MonitoringService.UpsertSlackIntegration:output_type -> chalk.server.v1.UpsertSlackIntegrationResponse
-	58, // 80: chalk.server.v1.MonitoringService.DeleteSlackIntegration:output_type -> chalk.server.v1.DeleteSlackIntegrationResponse
-	54, // 81: chalk.server.v1.MonitoringService.GetSlackChannels:output_type -> chalk.server.v1.GetSlackChannelsResponse
-	62, // 82: chalk.server.v1.MonitoringService.UpdateSlackChannels:output_type -> chalk.server.v1.UpdateSlackChannelsResponse
-	64, // 83: chalk.server.v1.MonitoringService.UpsertDefaultSlackChannel:output_type -> chalk.server.v1.UpsertDefaultSlackChannelResponse
+	46, // 72: chalk.server.v1.MonitoringService.TestNamedAlertChannels:output_type -> chalk.server.v1.TestNamedAlertChannelsResponse
+	42, // 73: chalk.server.v1.MonitoringService.EditNamedAlertChannels:output_type -> chalk.server.v1.EditNamedAlertChannelsResponse
+	44, // 74: chalk.server.v1.MonitoringService.DeleteNamedAlertChannels:output_type -> chalk.server.v1.DeleteNamedAlertChannelsResponse
+	48, // 75: chalk.server.v1.MonitoringService.SetDefaultAlertChannels:output_type -> chalk.server.v1.SetDefaultAlertChannelsResponse
+	38, // 76: chalk.server.v1.MonitoringService.ListAlertChannels:output_type -> chalk.server.v1.ListAlertChannelsResponse
+	59, // 77: chalk.server.v1.MonitoringService.TestSlackIntegration:output_type -> chalk.server.v1.TestSlackIntegrationResponse
+	50, // 78: chalk.server.v1.MonitoringService.GetSlackIntegration:output_type -> chalk.server.v1.GetSlackIntegrationResponse
+	55, // 79: chalk.server.v1.MonitoringService.UpsertSlackIntegration:output_type -> chalk.server.v1.UpsertSlackIntegrationResponse
+	57, // 80: chalk.server.v1.MonitoringService.DeleteSlackIntegration:output_type -> chalk.server.v1.DeleteSlackIntegrationResponse
+	53, // 81: chalk.server.v1.MonitoringService.GetSlackChannels:output_type -> chalk.server.v1.GetSlackChannelsResponse
+	61, // 82: chalk.server.v1.MonitoringService.UpdateSlackChannels:output_type -> chalk.server.v1.UpdateSlackChannelsResponse
+	63, // 83: chalk.server.v1.MonitoringService.UpsertDefaultSlackChannel:output_type -> chalk.server.v1.UpsertDefaultSlackChannelResponse
 	56, // [56:84] is the sub-list for method output_type
 	28, // [28:56] is the sub-list for method input_type
 	28, // [28:28] is the sub-list for extension type_name
@@ -3925,7 +3869,7 @@ func file_chalk_server_v1_monitoring_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_monitoring_proto_rawDesc), len(file_chalk_server_v1_monitoring_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      2,
 			NumMessages:   63,
 			NumExtensions: 0,
 			NumServices:   1,

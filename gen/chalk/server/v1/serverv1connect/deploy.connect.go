@@ -48,6 +48,9 @@ const (
 	// DeployServiceListDeploymentRevisionsProcedure is the fully-qualified name of the DeployService's
 	// ListDeploymentRevisions RPC.
 	DeployServiceListDeploymentRevisionsProcedure = "/chalk.server.v1.DeployService/ListDeploymentRevisions"
+	// DeployServiceGetDeploymentRevisionProcedure is the fully-qualified name of the DeployService's
+	// GetDeploymentRevision RPC.
+	DeployServiceGetDeploymentRevisionProcedure = "/chalk.server.v1.DeployService/GetDeploymentRevision"
 	// DeployServiceGetActiveDeploymentsProcedure is the fully-qualified name of the DeployService's
 	// GetActiveDeployments RPC.
 	DeployServiceGetActiveDeploymentsProcedure = "/chalk.server.v1.DeployService/GetActiveDeployments"
@@ -75,6 +78,7 @@ type DeployServiceClient interface {
 	GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error)
 	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
 	ListDeploymentRevisions(context.Context, *connect.Request[v1.ListDeploymentRevisionsRequest]) (*connect.Response[v1.ListDeploymentRevisionsResponse], error)
+	GetDeploymentRevision(context.Context, *connect.Request[v1.GetDeploymentRevisionRequest]) (*connect.Response[v1.GetDeploymentRevisionResponse], error)
 	GetActiveDeployments(context.Context, *connect.Request[v1.GetActiveDeploymentsRequest]) (*connect.Response[v1.GetActiveDeploymentsResponse], error)
 	SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error)
 	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
@@ -125,6 +129,13 @@ func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getDeploymentRevision: connect.NewClient[v1.GetDeploymentRevisionRequest, v1.GetDeploymentRevisionResponse](
+			httpClient,
+			baseURL+DeployServiceGetDeploymentRevisionProcedure,
+			connect.WithSchema(deployServiceMethods.ByName("GetDeploymentRevision")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getActiveDeployments: connect.NewClient[v1.GetActiveDeploymentsRequest, v1.GetActiveDeploymentsResponse](
 			httpClient,
 			baseURL+DeployServiceGetActiveDeploymentsProcedure,
@@ -171,6 +182,7 @@ type deployServiceClient struct {
 	getDeployment                    *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
 	listDeployments                  *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
 	listDeploymentRevisions          *connect.Client[v1.ListDeploymentRevisionsRequest, v1.ListDeploymentRevisionsResponse]
+	getDeploymentRevision            *connect.Client[v1.GetDeploymentRevisionRequest, v1.GetDeploymentRevisionResponse]
 	getActiveDeployments             *connect.Client[v1.GetActiveDeploymentsRequest, v1.GetActiveDeploymentsResponse]
 	suspendDeployment                *connect.Client[v1.SuspendDeploymentRequest, v1.SuspendDeploymentResponse]
 	scaleDeployment                  *connect.Client[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse]
@@ -203,6 +215,11 @@ func (c *deployServiceClient) ListDeployments(ctx context.Context, req *connect.
 // ListDeploymentRevisions calls chalk.server.v1.DeployService.ListDeploymentRevisions.
 func (c *deployServiceClient) ListDeploymentRevisions(ctx context.Context, req *connect.Request[v1.ListDeploymentRevisionsRequest]) (*connect.Response[v1.ListDeploymentRevisionsResponse], error) {
 	return c.listDeploymentRevisions.CallUnary(ctx, req)
+}
+
+// GetDeploymentRevision calls chalk.server.v1.DeployService.GetDeploymentRevision.
+func (c *deployServiceClient) GetDeploymentRevision(ctx context.Context, req *connect.Request[v1.GetDeploymentRevisionRequest]) (*connect.Response[v1.GetDeploymentRevisionResponse], error) {
+	return c.getDeploymentRevision.CallUnary(ctx, req)
 }
 
 // GetActiveDeployments calls chalk.server.v1.DeployService.GetActiveDeployments.
@@ -242,6 +259,7 @@ type DeployServiceHandler interface {
 	GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error)
 	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
 	ListDeploymentRevisions(context.Context, *connect.Request[v1.ListDeploymentRevisionsRequest]) (*connect.Response[v1.ListDeploymentRevisionsResponse], error)
+	GetDeploymentRevision(context.Context, *connect.Request[v1.GetDeploymentRevisionRequest]) (*connect.Response[v1.GetDeploymentRevisionResponse], error)
 	GetActiveDeployments(context.Context, *connect.Request[v1.GetActiveDeploymentsRequest]) (*connect.Response[v1.GetActiveDeploymentsResponse], error)
 	SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error)
 	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
@@ -285,6 +303,13 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 		DeployServiceListDeploymentRevisionsProcedure,
 		svc.ListDeploymentRevisions,
 		connect.WithSchema(deployServiceMethods.ByName("ListDeploymentRevisions")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	deployServiceGetDeploymentRevisionHandler := connect.NewUnaryHandler(
+		DeployServiceGetDeploymentRevisionProcedure,
+		svc.GetDeploymentRevision,
+		connect.WithSchema(deployServiceMethods.ByName("GetDeploymentRevision")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -336,6 +361,8 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 			deployServiceListDeploymentsHandler.ServeHTTP(w, r)
 		case DeployServiceListDeploymentRevisionsProcedure:
 			deployServiceListDeploymentRevisionsHandler.ServeHTTP(w, r)
+		case DeployServiceGetDeploymentRevisionProcedure:
+			deployServiceGetDeploymentRevisionHandler.ServeHTTP(w, r)
 		case DeployServiceGetActiveDeploymentsProcedure:
 			deployServiceGetActiveDeploymentsHandler.ServeHTTP(w, r)
 		case DeployServiceSuspendDeploymentProcedure:
@@ -375,6 +402,10 @@ func (UnimplementedDeployServiceHandler) ListDeployments(context.Context, *conne
 
 func (UnimplementedDeployServiceHandler) ListDeploymentRevisions(context.Context, *connect.Request[v1.ListDeploymentRevisionsRequest]) (*connect.Response[v1.ListDeploymentRevisionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.ListDeploymentRevisions is not implemented"))
+}
+
+func (UnimplementedDeployServiceHandler) GetDeploymentRevision(context.Context, *connect.Request[v1.GetDeploymentRevisionRequest]) (*connect.Response[v1.GetDeploymentRevisionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.GetDeploymentRevision is not implemented"))
 }
 
 func (UnimplementedDeployServiceHandler) GetActiveDeployments(context.Context, *connect.Request[v1.GetActiveDeploymentsRequest]) (*connect.Response[v1.GetActiveDeploymentsResponse], error) {

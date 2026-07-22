@@ -74,16 +74,17 @@ func (x *ChalkKubernetesPersistentVolume) GetMetrics() *ChalkKubernetesPersisten
 }
 
 type ChalkKubernetesPersistentVolumeSpec struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	StorageClass  string                 `protobuf:"bytes,1,opt,name=storage_class,json=storageClass,proto3" json:"storage_class,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	AccessModes   []string               `protobuf:"bytes,3,rep,name=access_modes,json=accessModes,proto3" json:"access_modes,omitempty"`
-	Capacity      string                 `protobuf:"bytes,4,opt,name=capacity,proto3" json:"capacity,omitempty"`
-	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	ReclaimPolicy string                 `protobuf:"bytes,6,opt,name=reclaim_policy,json=reclaimPolicy,proto3" json:"reclaim_policy,omitempty"`
-	Claim         string                 `protobuf:"bytes,7,opt,name=claim,proto3" json:"claim,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	StorageClass   string                 `protobuf:"bytes,1,opt,name=storage_class,json=storageClass,proto3" json:"storage_class,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	AccessModes    []string               `protobuf:"bytes,3,rep,name=access_modes,json=accessModes,proto3" json:"access_modes,omitempty"`
+	Capacity       string                 `protobuf:"bytes,4,opt,name=capacity,proto3" json:"capacity,omitempty"`
+	Status         string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	ReclaimPolicy  string                 `protobuf:"bytes,6,opt,name=reclaim_policy,json=reclaimPolicy,proto3" json:"reclaim_policy,omitempty"`
+	Claim          string                 `protobuf:"bytes,7,opt,name=claim,proto3" json:"claim,omitempty"`
+	ClaimNamespace string                 `protobuf:"bytes,8,opt,name=claim_namespace,json=claimNamespace,proto3" json:"claim_namespace,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ChalkKubernetesPersistentVolumeSpec) Reset() {
@@ -165,6 +166,13 @@ func (x *ChalkKubernetesPersistentVolumeSpec) GetClaim() string {
 	return ""
 }
 
+func (x *ChalkKubernetesPersistentVolumeSpec) GetClaimNamespace() string {
+	if x != nil {
+		return x.ClaimNamespace
+	}
+	return ""
+}
+
 type ChalkKubernetesPersistentVolumeMetrics struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	CapacityBytes  float64                `protobuf:"fixed64,1,opt,name=capacity_bytes,json=capacityBytes,proto3" json:"capacity_bytes,omitempty"` // Double to match prometheus type
@@ -232,7 +240,7 @@ const file_chalk_kubernetes_v1_persistentvolume_proto_rawDesc = "" +
 	"*chalk/kubernetes/v1/persistentvolume.proto\x12\x13chalk.kubernetes.v1\"\xc6\x01\n" +
 	"\x1fChalkKubernetesPersistentVolume\x12L\n" +
 	"\x04spec\x18\x01 \x01(\v28.chalk.kubernetes.v1.ChalkKubernetesPersistentVolumeSpecR\x04spec\x12U\n" +
-	"\ametrics\x18\x02 \x01(\v2;.chalk.kubernetes.v1.ChalkKubernetesPersistentVolumeMetricsR\ametrics\"\xf2\x01\n" +
+	"\ametrics\x18\x02 \x01(\v2;.chalk.kubernetes.v1.ChalkKubernetesPersistentVolumeMetricsR\ametrics\"\x9b\x02\n" +
 	"#ChalkKubernetesPersistentVolumeSpec\x12#\n" +
 	"\rstorage_class\x18\x01 \x01(\tR\fstorageClass\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12!\n" +
@@ -240,7 +248,8 @@ const file_chalk_kubernetes_v1_persistentvolume_proto_rawDesc = "" +
 	"\bcapacity\x18\x04 \x01(\tR\bcapacity\x12\x16\n" +
 	"\x06status\x18\x05 \x01(\tR\x06status\x12%\n" +
 	"\x0ereclaim_policy\x18\x06 \x01(\tR\rreclaimPolicy\x12\x14\n" +
-	"\x05claim\x18\a \x01(\tR\x05claim\"\x97\x01\n" +
+	"\x05claim\x18\a \x01(\tR\x05claim\x12'\n" +
+	"\x0fclaim_namespace\x18\b \x01(\tR\x0eclaimNamespace\"\x97\x01\n" +
 	"&ChalkKubernetesPersistentVolumeMetrics\x12%\n" +
 	"\x0ecapacity_bytes\x18\x01 \x01(\x01R\rcapacityBytes\x12\x1d\n" +
 	"\n" +

@@ -100,9 +100,17 @@ type CronQuery struct {
 	UnloadResolvers      []*v1.UnloadResolverSpec `protobuf:"bytes,20,rep,name=unload_resolvers,json=unloadResolvers,proto3" json:"unload_resolvers,omitempty"`
 	MaxRetries           *int32                   `protobuf:"varint,21,opt,name=max_retries,json=maxRetries,proto3,oneof" json:"max_retries,omitempty"`
 	Resources            *v1.ResourceRequests     `protobuf:"bytes,22,opt,name=resources,proto3,oneof" json:"resources,omitempty"`
-	EnvironmentOverride  *string                  `protobuf:"bytes,23,opt,name=environment_override,json=environmentOverride,proto3,oneof" json:"environment_override,omitempty"` // implies "target environment in which to execute"
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	EnvironmentOverride  *string                  `protobuf:"bytes,23,opt,name=environment_override,json=environmentOverride,proto3,oneof" json:"environment_override,omitempty"`
+	// Name of the dataset that recurring runs write to. Carried so the
+	// metadata store can persist the same CronQuerySchedule.dataset_name
+	// column the legacy GraphQL apply path wrote.
+	DatasetName *string `protobuf:"bytes,24,opt,name=dataset_name,json=datasetName,proto3,oneof" json:"dataset_name,omitempty"`
+	// Optional destination each run's output rows are written to directly
+	// (e.g. a storage URI usable as a velox TableWriteNode target), in
+	// addition to online/offline store persistence.
+	WriteTo       *v1.OfflineQueryWriteTo `protobuf:"bytes,25,opt,name=write_to,json=writeTo,proto3,oneof" json:"write_to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CronQuery) Reset() {
@@ -296,6 +304,20 @@ func (x *CronQuery) GetEnvironmentOverride() string {
 	return ""
 }
 
+func (x *CronQuery) GetDatasetName() string {
+	if x != nil && x.DatasetName != nil {
+		return *x.DatasetName
+	}
+	return ""
+}
+
+func (x *CronQuery) GetWriteTo() *v1.OfflineQueryWriteTo {
+	if x != nil {
+		return x.WriteTo
+	}
+	return nil
+}
+
 var File_chalk_artifacts_v1_cron_query_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
@@ -303,8 +325,7 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"#chalk/artifacts/v1/cron_query.proto\x12\x12chalk.artifacts.v1\x1a#chalk/common/v1/offline_query.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Y\n" +
 	"\x11RecomputeSettings\x12!\n" +
 	"\ffeature_fqns\x18\x01 \x03(\tR\vfeatureFqns\x12!\n" +
-	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xab\n" +
-	"\n" +
+	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xb7\v\n" +
 	"\tCronQuery\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04cron\x18\x02 \x01(\tR\x04cron\x12\x1b\n" +
@@ -335,7 +356,10 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"\vmax_retries\x18\x15 \x01(\x05H\x06R\n" +
 	"maxRetries\x88\x01\x01\x12D\n" +
 	"\tresources\x18\x16 \x01(\v2!.chalk.common.v1.ResourceRequestsH\aR\tresources\x88\x01\x01\x126\n" +
-	"\x14environment_override\x18\x17 \x01(\tH\bR\x13environmentOverride\x88\x01\x01\x1aA\n" +
+	"\x14environment_override\x18\x17 \x01(\tH\bR\x13environmentOverride\x88\x01\x01\x12&\n" +
+	"\fdataset_name\x18\x18 \x01(\tH\tR\vdatasetName\x88\x01\x01\x12D\n" +
+	"\bwrite_to\x18\x19 \x01(\v2$.chalk.common.v1.OfflineQueryWriteToH\n" +
+	"R\awriteTo\x88\x01\x01\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
@@ -349,7 +373,9 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"\f_max_retriesB\f\n" +
 	"\n" +
 	"_resourcesB\x17\n" +
-	"\x15_environment_overrideB\xd3\x01\n" +
+	"\x15_environment_overrideB\x0f\n" +
+	"\r_dataset_nameB\v\n" +
+	"\t_write_toB\xd3\x01\n" +
 	"\x16com.chalk.artifacts.v1B\x0eCronQueryProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (
@@ -366,13 +392,14 @@ func file_chalk_artifacts_v1_cron_query_proto_rawDescGZIP() []byte {
 
 var file_chalk_artifacts_v1_cron_query_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_chalk_artifacts_v1_cron_query_proto_goTypes = []any{
-	(*RecomputeSettings)(nil),     // 0: chalk.artifacts.v1.RecomputeSettings
-	(*CronQuery)(nil),             // 1: chalk.artifacts.v1.CronQuery
-	nil,                           // 2: chalk.artifacts.v1.CronQuery.PlannerOptionsEntry
-	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
-	(*v1.UnloadResolverSpec)(nil), // 5: chalk.common.v1.UnloadResolverSpec
-	(*v1.ResourceRequests)(nil),   // 6: chalk.common.v1.ResourceRequests
+	(*RecomputeSettings)(nil),      // 0: chalk.artifacts.v1.RecomputeSettings
+	(*CronQuery)(nil),              // 1: chalk.artifacts.v1.CronQuery
+	nil,                            // 2: chalk.artifacts.v1.CronQuery.PlannerOptionsEntry
+	(*timestamppb.Timestamp)(nil),  // 3: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),    // 4: google.protobuf.Duration
+	(*v1.UnloadResolverSpec)(nil),  // 5: chalk.common.v1.UnloadResolverSpec
+	(*v1.ResourceRequests)(nil),    // 6: chalk.common.v1.ResourceRequests
+	(*v1.OfflineQueryWriteTo)(nil), // 7: chalk.common.v1.OfflineQueryWriteTo
 }
 var file_chalk_artifacts_v1_cron_query_proto_depIdxs = []int32{
 	0, // 0: chalk.artifacts.v1.CronQuery.recompute:type_name -> chalk.artifacts.v1.RecomputeSettings
@@ -382,11 +409,12 @@ var file_chalk_artifacts_v1_cron_query_proto_depIdxs = []int32{
 	4, // 4: chalk.artifacts.v1.CronQuery.completion_deadline:type_name -> google.protobuf.Duration
 	5, // 5: chalk.artifacts.v1.CronQuery.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
 	6, // 6: chalk.artifacts.v1.CronQuery.resources:type_name -> chalk.common.v1.ResourceRequests
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	7, // 7: chalk.artifacts.v1.CronQuery.write_to:type_name -> chalk.common.v1.OfflineQueryWriteTo
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_cron_query_proto_init() }

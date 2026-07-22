@@ -189,12 +189,15 @@ type MetricIncident struct {
 	StartedAt    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
 	ClosedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=closed_at,json=closedAt,proto3" json:"closed_at,omitempty"`
 	MetricConfig *v1.MetricConfig       `protobuf:"bytes,4,opt,name=metric_config,json=metricConfig,proto3" json:"metric_config,omitempty"`
-	LinkedEntity *IncidentLinkedEntity  `protobuf:"bytes,5,opt,name=linked_entity,json=linkedEntity,proto3,oneof" json:"linked_entity,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/incident.proto.
+	LinkedEntity *IncidentLinkedEntity `protobuf:"bytes,5,opt,name=linked_entity,json=linkedEntity,proto3,oneof" json:"linked_entity,omitempty"`
 	// ID used to deduplicate alerts when sent to pagerduty, datadog, etc.
-	DedupeKey     string           `protobuf:"bytes,6,opt,name=dedupe_key,json=dedupeKey,proto3" json:"dedupe_key,omitempty"`
-	Groups        []*IncidentGroup `protobuf:"bytes,7,rep,name=groups,proto3" json:"groups,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	DedupeKey string           `protobuf:"bytes,6,opt,name=dedupe_key,json=dedupeKey,proto3" json:"dedupe_key,omitempty"`
+	Groups    []*IncidentGroup `protobuf:"bytes,7,rep,name=groups,proto3" json:"groups,omitempty"`
+	// 'Group By' clauses could lead to multiple linked entities
+	LinkedEntities []*IncidentLinkedEntity `protobuf:"bytes,8,rep,name=linked_entities,json=linkedEntities,proto3" json:"linked_entities,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *MetricIncident) Reset() {
@@ -255,6 +258,7 @@ func (x *MetricIncident) GetMetricConfig() *v1.MetricConfig {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/incident.proto.
 func (x *MetricIncident) GetLinkedEntity() *IncidentLinkedEntity {
 	if x != nil {
 		return x.LinkedEntity
@@ -272,6 +276,13 @@ func (x *MetricIncident) GetDedupeKey() string {
 func (x *MetricIncident) GetGroups() []*IncidentGroup {
 	if x != nil {
 		return x.Groups
+	}
+	return nil
+}
+
+func (x *MetricIncident) GetLinkedEntities() []*IncidentLinkedEntity {
+	if x != nil {
+		return x.LinkedEntities
 	}
 	return nil
 }
@@ -718,17 +729,18 @@ const file_chalk_server_v1_incident_proto_rawDesc = "" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\"B\n" +
 	"\rIncidentGroup\x12\x1b\n" +
 	"\tgroup_key\x18\x01 \x01(\tR\bgroupKey\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"\x95\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\xe9\x03\n" +
 	"\x0eMetricIncident\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
 	"started_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x127\n" +
 	"\tclosed_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\x12E\n" +
-	"\rmetric_config\x18\x04 \x01(\v2 .chalk.artifacts.v1.MetricConfigR\fmetricConfig\x12O\n" +
-	"\rlinked_entity\x18\x05 \x01(\v2%.chalk.server.v1.IncidentLinkedEntityH\x00R\flinkedEntity\x88\x01\x01\x12\x1d\n" +
+	"\rmetric_config\x18\x04 \x01(\v2 .chalk.artifacts.v1.MetricConfigR\fmetricConfig\x12S\n" +
+	"\rlinked_entity\x18\x05 \x01(\v2%.chalk.server.v1.IncidentLinkedEntityB\x02\x18\x01H\x00R\flinkedEntity\x88\x01\x01\x12\x1d\n" +
 	"\n" +
 	"dedupe_key\x18\x06 \x01(\tR\tdedupeKey\x126\n" +
-	"\x06groups\x18\a \x03(\v2\x1e.chalk.server.v1.IncidentGroupR\x06groupsB\x10\n" +
+	"\x06groups\x18\a \x03(\v2\x1e.chalk.server.v1.IncidentGroupR\x06groups\x12N\n" +
+	"\x0flinked_entities\x18\b \x03(\v2%.chalk.server.v1.IncidentLinkedEntityR\x0elinkedEntitiesB\x10\n" +
 	"\x0e_linked_entity\"5\n" +
 	"\x12GetIncidentRequest\x12\x1f\n" +
 	"\vincident_id\x18\x01 \x01(\tR\n" +
@@ -816,19 +828,20 @@ var file_chalk_server_v1_incident_proto_depIdxs = []int32{
 	13, // 3: chalk.server.v1.MetricIncident.metric_config:type_name -> chalk.artifacts.v1.MetricConfig
 	1,  // 4: chalk.server.v1.MetricIncident.linked_entity:type_name -> chalk.server.v1.IncidentLinkedEntity
 	2,  // 5: chalk.server.v1.MetricIncident.groups:type_name -> chalk.server.v1.IncidentGroup
-	3,  // 6: chalk.server.v1.GetIncidentResponse.incident:type_name -> chalk.server.v1.MetricIncident
-	14, // 7: chalk.server.v1.GetIncidentAlertsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	12, // 8: chalk.server.v1.ListIncidentsPageToken.created_at_hwm:type_name -> google.protobuf.Timestamp
-	12, // 9: chalk.server.v1.ListIncidentsFilters.created_at_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
-	12, // 10: chalk.server.v1.ListIncidentsFilters.created_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
-	0,  // 11: chalk.server.v1.ListIncidentsFilters.linked_entity_kind_filter:type_name -> chalk.server.v1.IncidentEntityKind
-	9,  // 12: chalk.server.v1.ListIncidentsRequest.filters:type_name -> chalk.server.v1.ListIncidentsFilters
-	3,  // 13: chalk.server.v1.ListIncidentsResponse.incidents:type_name -> chalk.server.v1.MetricIncident
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	1,  // 6: chalk.server.v1.MetricIncident.linked_entities:type_name -> chalk.server.v1.IncidentLinkedEntity
+	3,  // 7: chalk.server.v1.GetIncidentResponse.incident:type_name -> chalk.server.v1.MetricIncident
+	14, // 8: chalk.server.v1.GetIncidentAlertsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	12, // 9: chalk.server.v1.ListIncidentsPageToken.created_at_hwm:type_name -> google.protobuf.Timestamp
+	12, // 10: chalk.server.v1.ListIncidentsFilters.created_at_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
+	12, // 11: chalk.server.v1.ListIncidentsFilters.created_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	0,  // 12: chalk.server.v1.ListIncidentsFilters.linked_entity_kind_filter:type_name -> chalk.server.v1.IncidentEntityKind
+	9,  // 13: chalk.server.v1.ListIncidentsRequest.filters:type_name -> chalk.server.v1.ListIncidentsFilters
+	3,  // 14: chalk.server.v1.ListIncidentsResponse.incidents:type_name -> chalk.server.v1.MetricIncident
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_incident_proto_init() }

@@ -528,6 +528,28 @@ func (h *cloudComponentsServiceHandler) GetCloudComponentCluster(
 	return connect.NewResponse(resp.(*serverv1.GetCloudComponentClusterResponse)), nil
 }
 
+func (h *cloudComponentsServiceHandler) UpdateCloudComponentCluster(
+	ctx context.Context,
+	req *connect.Request[serverv1.UpdateCloudComponentClusterRequest],
+) (*connect.Response[serverv1.UpdateCloudComponentClusterResponse], error) {
+	h.registry.CaptureRequest("UpdateCloudComponentCluster", req.Msg)
+	if behavior := h.registry.GetBehavior("UpdateCloudComponentCluster"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.UpdateCloudComponentClusterResponse)), nil
+	}
+	if err := h.registry.GetError("UpdateCloudComponentCluster"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("UpdateCloudComponentCluster")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for UpdateCloudComponentCluster"))
+	}
+	return connect.NewResponse(resp.(*serverv1.UpdateCloudComponentClusterResponse)), nil
+}
+
 func (h *cloudComponentsServiceHandler) DeleteCloudComponentCluster(
 	ctx context.Context,
 	req *connect.Request[serverv1.DeleteCloudComponentClusterRequest],
@@ -991,6 +1013,14 @@ func (s *MockServer) OnCreateCloudComponentCluster() *MethodConfigBuilder[*serve
 func (s *MockServer) OnGetCloudComponentCluster() *MethodConfigBuilder[*serverv1.GetCloudComponentClusterResponse] {
 	return &MethodConfigBuilder[*serverv1.GetCloudComponentClusterResponse]{
 		methodName: "GetCloudComponentCluster",
+		registry:   s.registry,
+	}
+}
+
+// OnUpdateCloudComponentCluster configures the UpdateCloudComponentCluster RPC method.
+func (s *MockServer) OnUpdateCloudComponentCluster() *MethodConfigBuilder[*serverv1.UpdateCloudComponentClusterResponse] {
+	return &MethodConfigBuilder[*serverv1.UpdateCloudComponentClusterResponse]{
+		methodName: "UpdateCloudComponentCluster",
 		registry:   s.registry,
 	}
 }

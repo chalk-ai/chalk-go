@@ -980,11 +980,15 @@ func (x *StreamSearchAccessLogEntriesResponse) GetNextPageToken() *SearchAccessL
 }
 
 type SearchLogEntriesAggregatedRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Query         *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	WindowPeriod  *durationpb.Duration   `protobuf:"bytes,4,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Query        *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	StartTime    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	WindowPeriod *durationpb.Duration   `protobuf:"bytes,4,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	// LogFacet.paths to break down by; unset → severity. All facets are used: one series per value tuple.
+	Facets []string `protobuf:"bytes,5,rep,name=facets,proto3" json:"facets,omitempty"`
+	// Cap on faceted series; the tail folds into "(other)". Unset → a small default.
+	Limit         *int32 `protobuf:"varint,6,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1045,6 +1049,20 @@ func (x *SearchLogEntriesAggregatedRequest) GetWindowPeriod() *durationpb.Durati
 		return x.WindowPeriod
 	}
 	return nil
+}
+
+func (x *SearchLogEntriesAggregatedRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
+func (x *SearchLogEntriesAggregatedRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
 }
 
 type SearchLogEntriesAggregatedResponse struct {
@@ -1128,10 +1146,12 @@ func (*GetLogFacetsRequest) Descriptor() ([]byte, []int) {
 }
 
 type LogFacet struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	FacetType     LogFacetType           `protobuf:"varint,3,opt,name=facet_type,json=facetType,proto3,enum=chalk.server.v1.LogFacetType" json:"facet_type,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Path      string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Name      string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	FacetType LogFacetType           `protobuf:"varint,3,opt,name=facet_type,json=facetType,proto3,enum=chalk.server.v1.LogFacetType" json:"facet_type,omitempty"`
+	// Whether this facet may be used as a COUNT BY / chart group-by dimension.
+	Groupable     bool `protobuf:"varint,4,opt,name=groupable,proto3" json:"groupable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1187,6 +1207,13 @@ func (x *LogFacet) GetFacetType() LogFacetType {
 	return LogFacetType_LOG_FACET_TYPE_UNSPECIFIED
 }
 
+func (x *LogFacet) GetGroupable() bool {
+	if x != nil {
+		return x.Groupable
+	}
+	return false
+}
+
 type GetLogFacetsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Facets        []*LogFacet            `protobuf:"bytes,1,rep,name=facets,proto3" json:"facets,omitempty"`
@@ -1232,12 +1259,17 @@ func (x *GetLogFacetsResponse) GetFacets() []*LogFacet {
 }
 
 type GetLogFacetValuesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
-	Limit         *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Query         *string                `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Path      string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	Limit     *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Query     *string                `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	// Count-table mode: keep empty values as a "(none)" row and append an "(other)" row summing
+	// everything beyond the limit, so every log is accounted for. Off for the facets sidebar.
+	IncludeSyntheticRows *bool `protobuf:"varint,6,opt,name=include_synthetic_rows,json=includeSyntheticRows,proto3,oneof" json:"include_synthetic_rows,omitempty"`
+	// Non-empty → count value combinations across these facets (in order); `path` is ignored. Empty → single-`path`.
+	Facets        []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1307,10 +1339,26 @@ func (x *GetLogFacetValuesRequest) GetQuery() string {
 	return ""
 }
 
+func (x *GetLogFacetValuesRequest) GetIncludeSyntheticRows() bool {
+	if x != nil && x.IncludeSyntheticRows != nil {
+		return *x.IncludeSyntheticRows
+	}
+	return false
+}
+
+func (x *GetLogFacetValuesRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
 type LogFacetValue struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
-	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Value string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Count int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	// One value per requested facet, index-aligned to request `facets`. Empty in single-`path` mode (scalar `value` set instead).
+	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1357,6 +1405,13 @@ func (x *LogFacetValue) GetCount() int64 {
 		return x.Count
 	}
 	return 0
+}
+
+func (x *LogFacetValue) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
 }
 
 type GetLogFacetValuesResponse struct {
@@ -1412,7 +1467,11 @@ type SearchAccessLogEntriesAggregatedRequest struct {
 	// When set, queries the scaling_group_access_logs materialized view filtered by this ID.
 	ScalingGroupId *string `protobuf:"bytes,5,opt,name=scaling_group_id,json=scalingGroupId,proto3,oneof" json:"scaling_group_id,omitempty"`
 	// When set, queries the container_access_logs materialized view filtered by this ID.
-	ContainerId   *string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	ContainerId *string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	// LogFacet.paths to break down by; unset → status code. Multi-facet → one series per value tuple.
+	Facets []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
+	// Cap on faceted series; the tail folds into "(other)". Unset → a small default.
+	Limit         *int32 `protobuf:"varint,8,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1487,6 +1546,20 @@ func (x *SearchAccessLogEntriesAggregatedRequest) GetContainerId() string {
 		return *x.ContainerId
 	}
 	return ""
+}
+
+func (x *SearchAccessLogEntriesAggregatedRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
+func (x *SearchAccessLogEntriesAggregatedRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
 }
 
 type SearchAccessLogEntriesAggregatedResponse struct {
@@ -1623,7 +1696,12 @@ type GetAccessLogFacetValuesRequest struct {
 	// When set, queries the scaling_group_access_logs materialized view filtered by this ID.
 	ScalingGroupId *string `protobuf:"bytes,6,opt,name=scaling_group_id,json=scalingGroupId,proto3,oneof" json:"scaling_group_id,omitempty"`
 	// When set, queries the container_access_logs materialized view filtered by this ID.
-	ContainerId   *string `protobuf:"bytes,7,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	ContainerId *string `protobuf:"bytes,7,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	// Count-table mode: keep empty values as a "(none)" row and append an "(other)" row summing
+	// everything beyond the limit. Off for the facets sidebar.
+	IncludeSyntheticRows *bool `protobuf:"varint,8,opt,name=include_synthetic_rows,json=includeSyntheticRows,proto3,oneof" json:"include_synthetic_rows,omitempty"`
+	// Multi-facet COUNT BY: LogFacet.paths to group by (non-empty → `path` ignored, one `values` per facet per row).
+	Facets        []string `protobuf:"bytes,9,rep,name=facets,proto3" json:"facets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1705,6 +1783,20 @@ func (x *GetAccessLogFacetValuesRequest) GetContainerId() string {
 		return *x.ContainerId
 	}
 	return ""
+}
+
+func (x *GetAccessLogFacetValuesRequest) GetIncludeSyntheticRows() bool {
+	if x != nil && x.IncludeSyntheticRows != nil {
+		return *x.IncludeSyntheticRows
+	}
+	return false
+}
+
+func (x *GetAccessLogFacetValuesRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
 }
 
 type GetAccessLogFacetValuesResponse struct {
@@ -1876,40 +1968,48 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"$StreamSearchAccessLogEntriesResponse\x12M\n" +
 	"\x12access_log_entries\x18\x01 \x03(\v2\x1f.chalk.server.v1.AccessLogEntryR\x10accessLogEntries\x12]\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v20.chalk.server.v1.SearchAccessLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\xfa\x01\n" +
+	"\x10_next_page_token\"\xb7\x02\n" +
 	"!SearchLogEntriesAggregatedRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12>\n" +
-	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriodB\b\n" +
-	"\x06_query\"`\n" +
+	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12\x16\n" +
+	"\x06facets\x18\x05 \x03(\tR\x06facets\x12\x19\n" +
+	"\x05limit\x18\x06 \x01(\x05H\x01R\x05limit\x88\x01\x01B\b\n" +
+	"\x06_queryB\b\n" +
+	"\x06_limit\"`\n" +
 	"\"SearchLogEntriesAggregatedResponse\x12:\n" +
 	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\x15\n" +
-	"\x13GetLogFacetsRequest\"p\n" +
+	"\x13GetLogFacetsRequest\"\x8e\x01\n" +
 	"\bLogFacet\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12<\n" +
 	"\n" +
-	"facet_type\x18\x03 \x01(\x0e2\x1d.chalk.server.v1.LogFacetTypeR\tfacetType\"I\n" +
+	"facet_type\x18\x03 \x01(\x0e2\x1d.chalk.server.v1.LogFacetTypeR\tfacetType\x12\x1c\n" +
+	"\tgroupable\x18\x04 \x01(\bR\tgroupable\"I\n" +
 	"\x14GetLogFacetsResponse\x121\n" +
-	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\x90\x02\n" +
+	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\xfe\x02\n" +
 	"\x18GetLogFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
-	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01B\r\n" +
+	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01\x129\n" +
+	"\x16include_synthetic_rows\x18\x06 \x01(\bH\x04R\x14includeSyntheticRows\x88\x01\x01\x12\x16\n" +
+	"\x06facets\x18\a \x03(\tR\x06facetsB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
-	"\x06_query\";\n" +
+	"\x06_queryB\x19\n" +
+	"\x17_include_synthetic_rows\"S\n" +
 	"\rLogFacetValue\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x03R\x05count\"S\n" +
+	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x16\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\"S\n" +
 	"\x19GetLogFacetValuesResponse\x126\n" +
-	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values\"\xfd\x02\n" +
+	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values\"\xba\x03\n" +
 	"'SearchAccessLogEntriesAggregatedRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
 	"\n" +
@@ -1917,15 +2017,18 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12>\n" +
 	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12-\n" +
 	"\x10scaling_group_id\x18\x05 \x01(\tH\x01R\x0escalingGroupId\x88\x01\x01\x12&\n" +
-	"\fcontainer_id\x18\x06 \x01(\tH\x02R\vcontainerId\x88\x01\x01B\b\n" +
+	"\fcontainer_id\x18\x06 \x01(\tH\x02R\vcontainerId\x88\x01\x01\x12\x16\n" +
+	"\x06facets\x18\a \x03(\tR\x06facets\x12\x19\n" +
+	"\x05limit\x18\b \x01(\x05H\x03R\x05limit\x88\x01\x01B\b\n" +
 	"\x06_queryB\x13\n" +
 	"\x11_scaling_group_idB\x0f\n" +
-	"\r_container_id\"f\n" +
+	"\r_container_idB\b\n" +
+	"\x06_limit\"f\n" +
 	"(SearchAccessLogEntriesAggregatedResponse\x12:\n" +
 	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\x1b\n" +
 	"\x19GetAccessLogFacetsRequest\"O\n" +
 	"\x1aGetAccessLogFacetsResponse\x121\n" +
-	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\x93\x03\n" +
+	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\x81\x04\n" +
 	"\x1eGetAccessLogFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
@@ -1934,13 +2037,16 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
 	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01\x12-\n" +
 	"\x10scaling_group_id\x18\x06 \x01(\tH\x04R\x0escalingGroupId\x88\x01\x01\x12&\n" +
-	"\fcontainer_id\x18\a \x01(\tH\x05R\vcontainerId\x88\x01\x01B\r\n" +
+	"\fcontainer_id\x18\a \x01(\tH\x05R\vcontainerId\x88\x01\x01\x129\n" +
+	"\x16include_synthetic_rows\x18\b \x01(\bH\x06R\x14includeSyntheticRows\x88\x01\x01\x12\x16\n" +
+	"\x06facets\x18\t \x03(\tR\x06facetsB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
 	"\x06_queryB\x13\n" +
 	"\x11_scaling_group_idB\x0f\n" +
-	"\r_container_id\"Y\n" +
+	"\r_container_idB\x19\n" +
+	"\x17_include_synthetic_rows\"Y\n" +
 	"\x1fGetAccessLogFacetValuesResponse\x126\n" +
 	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values*a\n" +
 	"\fLogFacetType\x12\x1e\n" +

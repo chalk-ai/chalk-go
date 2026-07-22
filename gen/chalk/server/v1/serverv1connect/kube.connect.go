@@ -48,6 +48,12 @@ const (
 	// KubeServiceGetKubernetesPersistentVolumesProcedure is the fully-qualified name of the
 	// KubeService's GetKubernetesPersistentVolumes RPC.
 	KubeServiceGetKubernetesPersistentVolumesProcedure = "/chalk.server.v1.KubeService/GetKubernetesPersistentVolumes"
+	// KubeServiceGetKubernetesStorageClassesProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesStorageClasses RPC.
+	KubeServiceGetKubernetesStorageClassesProcedure = "/chalk.server.v1.KubeService/GetKubernetesStorageClasses"
+	// KubeServiceGetKubernetesPersistentVolumeWithPodsProcedure is the fully-qualified name of the
+	// KubeService's GetKubernetesPersistentVolumeWithPods RPC.
+	KubeServiceGetKubernetesPersistentVolumeWithPodsProcedure = "/chalk.server.v1.KubeService/GetKubernetesPersistentVolumeWithPods"
 	// KubeServiceGetKubernetesServiceAccountsProcedure is the fully-qualified name of the KubeService's
 	// GetKubernetesServiceAccounts RPC.
 	KubeServiceGetKubernetesServiceAccountsProcedure = "/chalk.server.v1.KubeService/GetKubernetesServiceAccounts"
@@ -84,6 +90,10 @@ type KubeServiceClient interface {
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
 	GetKubernetesNamespaces(context.Context, *connect.Request[v1.GetKubernetesNamespacesRequest]) (*connect.Response[v1.GetKubernetesNamespacesResponse], error)
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
+	GetKubernetesStorageClasses(context.Context, *connect.Request[v1.GetKubernetesStorageClassesRequest]) (*connect.Response[v1.GetKubernetesStorageClassesResponse], error)
+	// GetKubernetesPersistentVolumeWithPods fetches a single persistent volume,
+	// its storage class, and the pods whose PVCs bind to it.
+	GetKubernetesPersistentVolumeWithPods(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumeWithPodsRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumeWithPodsResponse], error)
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
 	GetKubernetesDeployments(context.Context, *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error)
@@ -139,6 +149,20 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+KubeServiceGetKubernetesPersistentVolumesProcedure,
 			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesPersistentVolumes")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesStorageClasses: connect.NewClient[v1.GetKubernetesStorageClassesRequest, v1.GetKubernetesStorageClassesResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesStorageClassesProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesStorageClasses")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesPersistentVolumeWithPods: connect.NewClient[v1.GetKubernetesPersistentVolumeWithPodsRequest, v1.GetKubernetesPersistentVolumeWithPodsResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesPersistentVolumeWithPodsProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesPersistentVolumeWithPods")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -203,19 +227,21 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // kubeServiceClient implements KubeServiceClient.
 type kubeServiceClient struct {
-	getPodVenvSize                   *connect.Client[v1.GetPodVenvSizeRequest, v1.GetPodVenvSizeResponse]
-	getPodStackTraceDump             *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
-	getKubernetesEvents              *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
-	getKubernetesNamespaces          *connect.Client[v1.GetKubernetesNamespacesRequest, v1.GetKubernetesNamespacesResponse]
-	getKubernetesPersistentVolumes   *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
-	getKubernetesServiceAccounts     *connect.Client[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse]
-	getKubernetesAutoscalers         *connect.Client[v1.GetKubernetesAutoscalersRequest, v1.GetKubernetesAutoscalersResponse]
-	getKubernetesDeployments         *connect.Client[v1.GetKubernetesDeploymentsRequest, v1.GetKubernetesDeploymentsResponse]
-	getKubernetesStatefulSets        *connect.Client[v1.GetKubernetesStatefulSetsRequest, v1.GetKubernetesStatefulSetsResponse]
-	getKubernetesJobs                *connect.Client[v1.GetKubernetesJobsRequest, v1.GetKubernetesJobsResponse]
-	getKubernetesDeploymentWithPods  *connect.Client[v1.GetKubernetesDeploymentWithPodsRequest, v1.GetKubernetesDeploymentWithPodsResponse]
-	getKubernetesStatefulSetWithPods *connect.Client[v1.GetKubernetesStatefulSetWithPodsRequest, v1.GetKubernetesStatefulSetWithPodsResponse]
-	getKubernetesJobWithPods         *connect.Client[v1.GetKubernetesJobWithPodsRequest, v1.GetKubernetesJobWithPodsResponse]
+	getPodVenvSize                        *connect.Client[v1.GetPodVenvSizeRequest, v1.GetPodVenvSizeResponse]
+	getPodStackTraceDump                  *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
+	getKubernetesEvents                   *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
+	getKubernetesNamespaces               *connect.Client[v1.GetKubernetesNamespacesRequest, v1.GetKubernetesNamespacesResponse]
+	getKubernetesPersistentVolumes        *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
+	getKubernetesStorageClasses           *connect.Client[v1.GetKubernetesStorageClassesRequest, v1.GetKubernetesStorageClassesResponse]
+	getKubernetesPersistentVolumeWithPods *connect.Client[v1.GetKubernetesPersistentVolumeWithPodsRequest, v1.GetKubernetesPersistentVolumeWithPodsResponse]
+	getKubernetesServiceAccounts          *connect.Client[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse]
+	getKubernetesAutoscalers              *connect.Client[v1.GetKubernetesAutoscalersRequest, v1.GetKubernetesAutoscalersResponse]
+	getKubernetesDeployments              *connect.Client[v1.GetKubernetesDeploymentsRequest, v1.GetKubernetesDeploymentsResponse]
+	getKubernetesStatefulSets             *connect.Client[v1.GetKubernetesStatefulSetsRequest, v1.GetKubernetesStatefulSetsResponse]
+	getKubernetesJobs                     *connect.Client[v1.GetKubernetesJobsRequest, v1.GetKubernetesJobsResponse]
+	getKubernetesDeploymentWithPods       *connect.Client[v1.GetKubernetesDeploymentWithPodsRequest, v1.GetKubernetesDeploymentWithPodsResponse]
+	getKubernetesStatefulSetWithPods      *connect.Client[v1.GetKubernetesStatefulSetWithPodsRequest, v1.GetKubernetesStatefulSetWithPodsResponse]
+	getKubernetesJobWithPods              *connect.Client[v1.GetKubernetesJobWithPodsRequest, v1.GetKubernetesJobWithPodsResponse]
 }
 
 // GetPodVenvSize calls chalk.server.v1.KubeService.GetPodVenvSize.
@@ -241,6 +267,17 @@ func (c *kubeServiceClient) GetKubernetesNamespaces(ctx context.Context, req *co
 // GetKubernetesPersistentVolumes calls chalk.server.v1.KubeService.GetKubernetesPersistentVolumes.
 func (c *kubeServiceClient) GetKubernetesPersistentVolumes(ctx context.Context, req *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error) {
 	return c.getKubernetesPersistentVolumes.CallUnary(ctx, req)
+}
+
+// GetKubernetesStorageClasses calls chalk.server.v1.KubeService.GetKubernetesStorageClasses.
+func (c *kubeServiceClient) GetKubernetesStorageClasses(ctx context.Context, req *connect.Request[v1.GetKubernetesStorageClassesRequest]) (*connect.Response[v1.GetKubernetesStorageClassesResponse], error) {
+	return c.getKubernetesStorageClasses.CallUnary(ctx, req)
+}
+
+// GetKubernetesPersistentVolumeWithPods calls
+// chalk.server.v1.KubeService.GetKubernetesPersistentVolumeWithPods.
+func (c *kubeServiceClient) GetKubernetesPersistentVolumeWithPods(ctx context.Context, req *connect.Request[v1.GetKubernetesPersistentVolumeWithPodsRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumeWithPodsResponse], error) {
+	return c.getKubernetesPersistentVolumeWithPods.CallUnary(ctx, req)
 }
 
 // GetKubernetesServiceAccounts calls chalk.server.v1.KubeService.GetKubernetesServiceAccounts.
@@ -295,6 +332,10 @@ type KubeServiceHandler interface {
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
 	GetKubernetesNamespaces(context.Context, *connect.Request[v1.GetKubernetesNamespacesRequest]) (*connect.Response[v1.GetKubernetesNamespacesResponse], error)
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
+	GetKubernetesStorageClasses(context.Context, *connect.Request[v1.GetKubernetesStorageClassesRequest]) (*connect.Response[v1.GetKubernetesStorageClassesResponse], error)
+	// GetKubernetesPersistentVolumeWithPods fetches a single persistent volume,
+	// its storage class, and the pods whose PVCs bind to it.
+	GetKubernetesPersistentVolumeWithPods(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumeWithPodsRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumeWithPodsResponse], error)
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
 	GetKubernetesDeployments(context.Context, *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error)
@@ -346,6 +387,20 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 		KubeServiceGetKubernetesPersistentVolumesProcedure,
 		svc.GetKubernetesPersistentVolumes,
 		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesPersistentVolumes")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesStorageClassesHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesStorageClassesProcedure,
+		svc.GetKubernetesStorageClasses,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesStorageClasses")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesPersistentVolumeWithPodsHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesPersistentVolumeWithPodsProcedure,
+		svc.GetKubernetesPersistentVolumeWithPods,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesPersistentVolumeWithPods")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -417,6 +472,10 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 			kubeServiceGetKubernetesNamespacesHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesPersistentVolumesProcedure:
 			kubeServiceGetKubernetesPersistentVolumesHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesStorageClassesProcedure:
+			kubeServiceGetKubernetesStorageClassesHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesPersistentVolumeWithPodsProcedure:
+			kubeServiceGetKubernetesPersistentVolumeWithPodsHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesServiceAccountsProcedure:
 			kubeServiceGetKubernetesServiceAccountsHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesAutoscalersProcedure:
@@ -460,6 +519,14 @@ func (UnimplementedKubeServiceHandler) GetKubernetesNamespaces(context.Context, 
 
 func (UnimplementedKubeServiceHandler) GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesPersistentVolumes is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesStorageClasses(context.Context, *connect.Request[v1.GetKubernetesStorageClassesRequest]) (*connect.Response[v1.GetKubernetesStorageClassesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesStorageClasses is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesPersistentVolumeWithPods(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumeWithPodsRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumeWithPodsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesPersistentVolumeWithPods is not implemented"))
 }
 
 func (UnimplementedKubeServiceHandler) GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error) {

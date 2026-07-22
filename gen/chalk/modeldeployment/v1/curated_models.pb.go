@@ -250,8 +250,15 @@ type DeployCuratedModelRequest struct {
 	MinReplicas                    *int32 `protobuf:"varint,4,opt,name=min_replicas,json=minReplicas,proto3,oneof" json:"min_replicas,omitempty"`
 	MaxReplicas                    *int32 `protobuf:"varint,5,opt,name=max_replicas,json=maxReplicas,proto3,oneof" json:"max_replicas,omitempty"`
 	TargetCpuUtilizationPercentage *int32 `protobuf:"varint,6,opt,name=target_cpu_utilization_percentage,json=targetCpuUtilizationPercentage,proto3,oneof" json:"target_cpu_utilization_percentage,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// Optional inference overrides for text-generation (LLM) models. Each maps to
+	// a container env var consumed by chalk_model_runtime; unset keeps the model
+	// image's baked-in default. Ignored by non-LLM (e.g. embedding) models.
+	// enable_thinking overrides the chat template's reasoning mode (CHALK_ENABLE_THINKING).
+	EnableThinking *bool `protobuf:"varint,7,opt,name=enable_thinking,json=enableThinking,proto3,oneof" json:"enable_thinking,omitempty"`
+	// Max tokens generated per response (CHALK_MAX_TOKENS). Must be > 0 if set.
+	MaxTokens     *int32 `protobuf:"varint,8,opt,name=max_tokens,json=maxTokens,proto3,oneof" json:"max_tokens,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeployCuratedModelRequest) Reset() {
@@ -322,6 +329,20 @@ func (x *DeployCuratedModelRequest) GetMaxReplicas() int32 {
 func (x *DeployCuratedModelRequest) GetTargetCpuUtilizationPercentage() int32 {
 	if x != nil && x.TargetCpuUtilizationPercentage != nil {
 		return *x.TargetCpuUtilizationPercentage
+	}
+	return 0
+}
+
+func (x *DeployCuratedModelRequest) GetEnableThinking() bool {
+	if x != nil && x.EnableThinking != nil {
+		return *x.EnableThinking
+	}
+	return false
+}
+
+func (x *DeployCuratedModelRequest) GetMaxTokens() int32 {
+	if x != nil && x.MaxTokens != nil {
+		return *x.MaxTokens
 	}
 	return 0
 }
@@ -406,18 +427,23 @@ const file_chalk_modeldeployment_v1_curated_models_proto_rawDesc = "" +
 	" \x01(\v2\".chalk.container.v1.ResourceLimitsR\x10defaultResources\"\x1a\n" +
 	"\x18ListCuratedModelsRequest\"[\n" +
 	"\x19ListCuratedModelsResponse\x12>\n" +
-	"\x06models\x18\x01 \x03(\v2&.chalk.modeldeployment.v1.CuratedModelR\x06models\"\xfa\x02\n" +
+	"\x06models\x18\x01 \x03(\v2&.chalk.modeldeployment.v1.CuratedModelR\x06models\"\xef\x03\n" +
 	"\x19DeployCuratedModelRequest\x12(\n" +
 	"\x10curated_model_id\x18\x01 \x01(\tR\x0ecuratedModelId\x12,\n" +
 	"\x12scaling_group_name\x18\x02 \x01(\tR\x10scalingGroupName\x12\x15\n" +
 	"\x03gpu\x18\x03 \x01(\tH\x00R\x03gpu\x88\x01\x01\x12&\n" +
 	"\fmin_replicas\x18\x04 \x01(\x05H\x01R\vminReplicas\x88\x01\x01\x12&\n" +
 	"\fmax_replicas\x18\x05 \x01(\x05H\x02R\vmaxReplicas\x88\x01\x01\x12N\n" +
-	"!target_cpu_utilization_percentage\x18\x06 \x01(\x05H\x03R\x1etargetCpuUtilizationPercentage\x88\x01\x01B\x06\n" +
+	"!target_cpu_utilization_percentage\x18\x06 \x01(\x05H\x03R\x1etargetCpuUtilizationPercentage\x88\x01\x01\x12,\n" +
+	"\x0fenable_thinking\x18\a \x01(\bH\x04R\x0eenableThinking\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"max_tokens\x18\b \x01(\x05H\x05R\tmaxTokens\x88\x01\x01B\x06\n" +
 	"\x04_gpuB\x0f\n" +
 	"\r_min_replicasB\x0f\n" +
 	"\r_max_replicasB$\n" +
-	"\"_target_cpu_utilization_percentage\"\xde\x01\n" +
+	"\"_target_cpu_utilization_percentageB\x12\n" +
+	"\x10_enable_thinkingB\r\n" +
+	"\v_max_tokens\"\xde\x01\n" +
 	"\x1aDeployCuratedModelResponse\x12I\n" +
 	"\x0emodel_artifact\x18\x01 \x01(\v2\".chalk.models.v1.ModelArtifactSpecR\rmodelArtifact\x12#\n" +
 	"\rmodel_version\x18\x02 \x01(\x04R\fmodelVersion\x12P\n" +

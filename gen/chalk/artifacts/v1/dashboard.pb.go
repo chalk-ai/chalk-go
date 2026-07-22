@@ -23,7 +23,60 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Placement of a single element on the dashboard's 12-column grid, in grid cells: x/y are the
+// Coarse rendering mode for a notebook cell widget: the cell's output, its source, or both.
+type NotebookCellDisplayMode int32
+
+const (
+	NotebookCellDisplayMode_NOTEBOOK_CELL_DISPLAY_MODE_UNSPECIFIED       NotebookCellDisplayMode = 0 // treated as OUTPUT
+	NotebookCellDisplayMode_NOTEBOOK_CELL_DISPLAY_MODE_OUTPUT            NotebookCellDisplayMode = 1
+	NotebookCellDisplayMode_NOTEBOOK_CELL_DISPLAY_MODE_SOURCE            NotebookCellDisplayMode = 2
+	NotebookCellDisplayMode_NOTEBOOK_CELL_DISPLAY_MODE_SOURCE_AND_OUTPUT NotebookCellDisplayMode = 3
+)
+
+// Enum value maps for NotebookCellDisplayMode.
+var (
+	NotebookCellDisplayMode_name = map[int32]string{
+		0: "NOTEBOOK_CELL_DISPLAY_MODE_UNSPECIFIED",
+		1: "NOTEBOOK_CELL_DISPLAY_MODE_OUTPUT",
+		2: "NOTEBOOK_CELL_DISPLAY_MODE_SOURCE",
+		3: "NOTEBOOK_CELL_DISPLAY_MODE_SOURCE_AND_OUTPUT",
+	}
+	NotebookCellDisplayMode_value = map[string]int32{
+		"NOTEBOOK_CELL_DISPLAY_MODE_UNSPECIFIED":       0,
+		"NOTEBOOK_CELL_DISPLAY_MODE_OUTPUT":            1,
+		"NOTEBOOK_CELL_DISPLAY_MODE_SOURCE":            2,
+		"NOTEBOOK_CELL_DISPLAY_MODE_SOURCE_AND_OUTPUT": 3,
+	}
+)
+
+func (x NotebookCellDisplayMode) Enum() *NotebookCellDisplayMode {
+	p := new(NotebookCellDisplayMode)
+	*p = x
+	return p
+}
+
+func (x NotebookCellDisplayMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotebookCellDisplayMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_artifacts_v1_dashboard_proto_enumTypes[0].Descriptor()
+}
+
+func (NotebookCellDisplayMode) Type() protoreflect.EnumType {
+	return &file_chalk_artifacts_v1_dashboard_proto_enumTypes[0]
+}
+
+func (x NotebookCellDisplayMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotebookCellDisplayMode.Descriptor instead.
+func (NotebookCellDisplayMode) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{0}
+}
+
+// Placement of a single widget on the dashboard's 12-column grid, in grid cells: x/y are the
 // top-left position (columns/rows) and w/h are the size (column/row span).
 type GridPosition struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -93,36 +146,37 @@ func (x *GridPosition) GetH() int32 {
 	return 0
 }
 
-// A single item placed on a dashboard: where it sits (`position`) plus what it is (`definition`).
-// The element type is the set `definition` variant — new types (markdown, title, stat, log
-// table, ...) are added as new variants in later milestones.
-type DashboardElement struct {
+// A single widget placed on a dashboard: where it sits (`position`) plus what it is (`definition`).
+type DashboardWidget struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Stable, client-generated id, unique within a dashboard.
 	Id       string        `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Position *GridPosition `protobuf:"bytes,2,opt,name=position,proto3" json:"position,omitempty"`
 	// Types that are valid to be assigned to Definition:
 	//
-	//	*DashboardElement_Chart
-	Definition    isDashboardElement_Definition `protobuf_oneof:"definition"`
+	//	*DashboardWidget_DataWidget
+	//	*DashboardWidget_Markdown
+	//	*DashboardWidget_SectionTitle
+	//	*DashboardWidget_NotebookCell
+	Definition    isDashboardWidget_Definition `protobuf_oneof:"definition"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DashboardElement) Reset() {
-	*x = DashboardElement{}
+func (x *DashboardWidget) Reset() {
+	*x = DashboardWidget{}
 	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DashboardElement) String() string {
+func (x *DashboardWidget) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DashboardElement) ProtoMessage() {}
+func (*DashboardWidget) ProtoMessage() {}
 
-func (x *DashboardElement) ProtoReflect() protoreflect.Message {
+func (x *DashboardWidget) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -134,85 +188,122 @@ func (x *DashboardElement) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DashboardElement.ProtoReflect.Descriptor instead.
-func (*DashboardElement) Descriptor() ([]byte, []int) {
+// Deprecated: Use DashboardWidget.ProtoReflect.Descriptor instead.
+func (*DashboardWidget) Descriptor() ([]byte, []int) {
 	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *DashboardElement) GetId() string {
+func (x *DashboardWidget) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *DashboardElement) GetPosition() *GridPosition {
+func (x *DashboardWidget) GetPosition() *GridPosition {
 	if x != nil {
 		return x.Position
 	}
 	return nil
 }
 
-func (x *DashboardElement) GetDefinition() isDashboardElement_Definition {
+func (x *DashboardWidget) GetDefinition() isDashboardWidget_Definition {
 	if x != nil {
 		return x.Definition
 	}
 	return nil
 }
 
-func (x *DashboardElement) GetChart() *DashboardChart {
+func (x *DashboardWidget) GetDataWidget() *DashboardDataWidget {
 	if x != nil {
-		if x, ok := x.Definition.(*DashboardElement_Chart); ok {
-			return x.Chart
+		if x, ok := x.Definition.(*DashboardWidget_DataWidget); ok {
+			return x.DataWidget
 		}
 	}
 	return nil
 }
 
-type isDashboardElement_Definition interface {
-	isDashboardElement_Definition()
+func (x *DashboardWidget) GetMarkdown() *DashboardMarkdownWidget {
+	if x != nil {
+		if x, ok := x.Definition.(*DashboardWidget_Markdown); ok {
+			return x.Markdown
+		}
+	}
+	return nil
 }
 
-type DashboardElement_Chart struct {
-	Chart *DashboardChart `protobuf:"bytes,3,opt,name=chart,proto3,oneof"`
+func (x *DashboardWidget) GetSectionTitle() *DashboardSectionTitleWidget {
+	if x != nil {
+		if x, ok := x.Definition.(*DashboardWidget_SectionTitle); ok {
+			return x.SectionTitle
+		}
+	}
+	return nil
 }
 
-func (*DashboardElement_Chart) isDashboardElement_Definition() {}
-
-// A dashboard-owned chart, embedded inline. The dashboard is the sole writer: this is NOT a
-// reference to a Chart/MetricConfig row, so there is no shared-row coupling and no hydration step.
-//
-// `series` and `formulas` reuse the exact MetricConfigSeries / MetricFormula types charts use
-// today, so the query content has one representation to evolve. The rest of MetricConfig — its
-// alerting/identity envelope (trigger, id, graph_generated) — is deliberately omitted: a dashboard
-// chart never alerts (that is a Monitor) and is never code-generated, so those states must not be
-// representable here. To draw it, the server projects these fields into a MetricConfig for the
-// existing GetChartSnapshot path; that is a flat copy (series/formulas carry over by reference).
-type DashboardChart struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Name                string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	WindowPeriod        string                 `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
-	Series              []*MetricConfigSeries  `protobuf:"bytes,3,rep,name=series,proto3" json:"series,omitempty"`
-	Formulas            []*MetricFormula       `protobuf:"bytes,4,rep,name=formulas,proto3" json:"formulas,omitempty"`
-	DisplayWindowPeriod *string                `protobuf:"bytes,5,opt,name=display_window_period,json=displayWindowPeriod,proto3,oneof" json:"display_window_period,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+func (x *DashboardWidget) GetNotebookCell() *DashboardNotebookCellWidget {
+	if x != nil {
+		if x, ok := x.Definition.(*DashboardWidget_NotebookCell); ok {
+			return x.NotebookCell
+		}
+	}
+	return nil
 }
 
-func (x *DashboardChart) Reset() {
-	*x = DashboardChart{}
+type isDashboardWidget_Definition interface {
+	isDashboardWidget_Definition()
+}
+
+type DashboardWidget_DataWidget struct {
+	DataWidget *DashboardDataWidget `protobuf:"bytes,3,opt,name=data_widget,json=dataWidget,proto3,oneof"`
+}
+
+type DashboardWidget_Markdown struct {
+	Markdown *DashboardMarkdownWidget `protobuf:"bytes,4,opt,name=markdown,proto3,oneof"`
+}
+
+type DashboardWidget_SectionTitle struct {
+	SectionTitle *DashboardSectionTitleWidget `protobuf:"bytes,5,opt,name=section_title,json=sectionTitle,proto3,oneof"`
+}
+
+type DashboardWidget_NotebookCell struct {
+	NotebookCell *DashboardNotebookCellWidget `protobuf:"bytes,6,opt,name=notebook_cell,json=notebookCell,proto3,oneof"`
+}
+
+func (*DashboardWidget_DataWidget) isDashboardWidget_Definition() {}
+
+func (*DashboardWidget_Markdown) isDashboardWidget_Definition() {}
+
+func (*DashboardWidget_SectionTitle) isDashboardWidget_Definition() {}
+
+func (*DashboardWidget_NotebookCell) isDashboardWidget_Definition() {}
+
+// Per-placement rendering options for a notebook cell widget. The zero message means "show the
+// cell's output with default presentation"; every future field's default must preserve that so
+// existing widgets never change appearance when fields are added. Future options (output
+// selection, title override, table/chart fit, run pinning) are added as siblings of `mode`,
+// not as enum values.
+type NotebookCellDisplay struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Mode          NotebookCellDisplayMode `protobuf:"varint,1,opt,name=mode,proto3,enum=chalk.artifacts.v1.NotebookCellDisplayMode" json:"mode,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookCellDisplay) Reset() {
+	*x = NotebookCellDisplay{}
 	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DashboardChart) String() string {
+func (x *NotebookCellDisplay) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DashboardChart) ProtoMessage() {}
+func (*NotebookCellDisplay) ProtoMessage() {}
 
-func (x *DashboardChart) ProtoReflect() protoreflect.Message {
+func (x *NotebookCellDisplay) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -224,65 +315,558 @@ func (x *DashboardChart) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DashboardChart.ProtoReflect.Descriptor instead.
-func (*DashboardChart) Descriptor() ([]byte, []int) {
+// Deprecated: Use NotebookCellDisplay.ProtoReflect.Descriptor instead.
+func (*NotebookCellDisplay) Descriptor() ([]byte, []int) {
 	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *DashboardChart) GetName() string {
+func (x *NotebookCellDisplay) GetMode() NotebookCellDisplayMode {
+	if x != nil {
+		return x.Mode
+	}
+	return NotebookCellDisplayMode_NOTEBOOK_CELL_DISPLAY_MODE_UNSPECIFIED
+}
+
+// A widget that renders a notebook cell. Soft string refs; the service owning the referenced
+// notebook validates them. In a standalone dashboard the widget renders the cell's latest
+// persisted run output (no kernel, no live inputs). Inside a notebook app's backing dashboard,
+// notebook_id must equal the owning notebook and the host supplies live run results.
+type DashboardNotebookCellWidget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NotebookId    string                 `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	CellId        string                 `protobuf:"bytes,2,opt,name=cell_id,json=cellId,proto3" json:"cell_id,omitempty"`
+	Display       *NotebookCellDisplay   `protobuf:"bytes,3,opt,name=display,proto3" json:"display,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DashboardNotebookCellWidget) Reset() {
+	*x = DashboardNotebookCellWidget{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardNotebookCellWidget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardNotebookCellWidget) ProtoMessage() {}
+
+func (x *DashboardNotebookCellWidget) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardNotebookCellWidget.ProtoReflect.Descriptor instead.
+func (*DashboardNotebookCellWidget) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DashboardNotebookCellWidget) GetNotebookId() string {
+	if x != nil {
+		return x.NotebookId
+	}
+	return ""
+}
+
+func (x *DashboardNotebookCellWidget) GetCellId() string {
+	if x != nil {
+		return x.CellId
+	}
+	return ""
+}
+
+func (x *DashboardNotebookCellWidget) GetDisplay() *NotebookCellDisplay {
+	if x != nil {
+		return x.Display
+	}
+	return nil
+}
+
+// A query-backed dashboard widget: the data it pulls (`query`) and how it renders (`visualization`),
+// chosen independently. Not every combination is drawable, so the server enforces the
+// compatibility matrix on write: metric_query -> timeseries; source_query(logs) -> timeseries | table.
+type DashboardDataWidget struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// metric_query is planned to deprecate into source_query once a string metrics query
+	// language exists; new string-queryable sources are just new data_source values.
+	//
+	// Types that are valid to be assigned to DataQuery:
+	//
+	//	*DashboardDataWidget_MetricQuery
+	//	*DashboardDataWidget_SourceQuery
+	DataQuery isDashboardDataWidget_DataQuery `protobuf_oneof:"data_query"`
+	// New renderings (e.g. a stat/"big number") are added as variants here.
+	//
+	// Types that are valid to be assigned to Visualization:
+	//
+	//	*DashboardDataWidget_Timeseries
+	//	*DashboardDataWidget_Table
+	Visualization isDashboardDataWidget_Visualization `protobuf_oneof:"visualization"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DashboardDataWidget) Reset() {
+	*x = DashboardDataWidget{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardDataWidget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardDataWidget) ProtoMessage() {}
+
+func (x *DashboardDataWidget) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardDataWidget.ProtoReflect.Descriptor instead.
+func (*DashboardDataWidget) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DashboardDataWidget) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *DashboardChart) GetWindowPeriod() string {
+func (x *DashboardDataWidget) GetDataQuery() isDashboardDataWidget_DataQuery {
+	if x != nil {
+		return x.DataQuery
+	}
+	return nil
+}
+
+func (x *DashboardDataWidget) GetMetricQuery() *DashboardMetricQuery {
+	if x != nil {
+		if x, ok := x.DataQuery.(*DashboardDataWidget_MetricQuery); ok {
+			return x.MetricQuery
+		}
+	}
+	return nil
+}
+
+func (x *DashboardDataWidget) GetSourceQuery() *DashboardSourceQuery {
+	if x != nil {
+		if x, ok := x.DataQuery.(*DashboardDataWidget_SourceQuery); ok {
+			return x.SourceQuery
+		}
+	}
+	return nil
+}
+
+func (x *DashboardDataWidget) GetVisualization() isDashboardDataWidget_Visualization {
+	if x != nil {
+		return x.Visualization
+	}
+	return nil
+}
+
+func (x *DashboardDataWidget) GetTimeseries() *DashboardTimeseriesViz {
+	if x != nil {
+		if x, ok := x.Visualization.(*DashboardDataWidget_Timeseries); ok {
+			return x.Timeseries
+		}
+	}
+	return nil
+}
+
+func (x *DashboardDataWidget) GetTable() *DashboardTableViz {
+	if x != nil {
+		if x, ok := x.Visualization.(*DashboardDataWidget_Table); ok {
+			return x.Table
+		}
+	}
+	return nil
+}
+
+type isDashboardDataWidget_DataQuery interface {
+	isDashboardDataWidget_DataQuery()
+}
+
+type DashboardDataWidget_MetricQuery struct {
+	MetricQuery *DashboardMetricQuery `protobuf:"bytes,2,opt,name=metric_query,json=metricQuery,proto3,oneof"`
+}
+
+type DashboardDataWidget_SourceQuery struct {
+	SourceQuery *DashboardSourceQuery `protobuf:"bytes,3,opt,name=source_query,json=sourceQuery,proto3,oneof"`
+}
+
+func (*DashboardDataWidget_MetricQuery) isDashboardDataWidget_DataQuery() {}
+
+func (*DashboardDataWidget_SourceQuery) isDashboardDataWidget_DataQuery() {}
+
+type isDashboardDataWidget_Visualization interface {
+	isDashboardDataWidget_Visualization()
+}
+
+type DashboardDataWidget_Timeseries struct {
+	Timeseries *DashboardTimeseriesViz `protobuf:"bytes,4,opt,name=timeseries,proto3,oneof"`
+}
+
+type DashboardDataWidget_Table struct {
+	Table *DashboardTableViz `protobuf:"bytes,5,opt,name=table,proto3,oneof"`
+}
+
+func (*DashboardDataWidget_Timeseries) isDashboardDataWidget_Visualization() {}
+
+func (*DashboardDataWidget_Table) isDashboardDataWidget_Visualization() {}
+
+// A structured metrics query, reusing the MetricConfigSeries/MetricFormula types charts and
+// monitors use today. MetricConfig's alerting/identity envelope (trigger, id, graph_generated) is
+// deliberately omitted — a data widget never alerts (that is a Monitor) and is never code-generated.
+// The server projects these fields into a MetricConfig for the existing GetChartSnapshot path.
+type DashboardMetricQuery struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Evaluation bucket, e.g. "5m".
+	WindowPeriod string                `protobuf:"bytes,1,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	Series       []*MetricConfigSeries `protobuf:"bytes,2,rep,name=series,proto3" json:"series,omitempty"`
+	Formulas     []*MetricFormula      `protobuf:"bytes,3,rep,name=formulas,proto3" json:"formulas,omitempty"`
+	// Display re-bucketing override; empty => frontend default.
+	DisplayWindowPeriod *string `protobuf:"bytes,4,opt,name=display_window_period,json=displayWindowPeriod,proto3,oneof" json:"display_window_period,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *DashboardMetricQuery) Reset() {
+	*x = DashboardMetricQuery{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardMetricQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardMetricQuery) ProtoMessage() {}
+
+func (x *DashboardMetricQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardMetricQuery.ProtoReflect.Descriptor instead.
+func (*DashboardMetricQuery) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *DashboardMetricQuery) GetWindowPeriod() string {
 	if x != nil {
 		return x.WindowPeriod
 	}
 	return ""
 }
 
-func (x *DashboardChart) GetSeries() []*MetricConfigSeries {
+func (x *DashboardMetricQuery) GetSeries() []*MetricConfigSeries {
 	if x != nil {
 		return x.Series
 	}
 	return nil
 }
 
-func (x *DashboardChart) GetFormulas() []*MetricFormula {
+func (x *DashboardMetricQuery) GetFormulas() []*MetricFormula {
 	if x != nil {
 		return x.Formulas
 	}
 	return nil
 }
 
-func (x *DashboardChart) GetDisplayWindowPeriod() string {
+func (x *DashboardMetricQuery) GetDisplayWindowPeriod() string {
 	if x != nil && x.DisplayWindowPeriod != nil {
 		return *x.DisplayWindowPeriod
 	}
 	return ""
 }
 
-// A dashboard artifact: an environment-scoped collection of elements. This is the code-definable
-// content — name + elements — so it lives in artifacts/v1 alongside MetricConfig, ready to be
-// emitted by the SDK and reconciled by `chalk apply` when code-defined dashboards land.
+// A query against any source whose query language is a string. The server validates data_source
+// against a closed set on write, and re-parses `query` so an unparseable query is never persisted.
+type DashboardSourceQuery struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Which backend evaluates `query`
+	DataSource    string `protobuf:"bytes,1,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
+	Query         string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DashboardSourceQuery) Reset() {
+	*x = DashboardSourceQuery{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardSourceQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardSourceQuery) ProtoMessage() {}
+
+func (x *DashboardSourceQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardSourceQuery.ProtoReflect.Descriptor instead.
+func (*DashboardSourceQuery) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DashboardSourceQuery) GetDataSource() string {
+	if x != nil {
+		return x.DataSource
+	}
+	return ""
+}
+
+func (x *DashboardSourceQuery) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+// Renders a time-series frame as a chart.
+type DashboardTimeseriesViz struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PlotStyle     string                 `protobuf:"bytes,1,opt,name=plot_style,json=plotStyle,proto3" json:"plot_style,omitempty"` // frontend MetricChartPlotStyle union; empty => "line"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DashboardTimeseriesViz) Reset() {
+	*x = DashboardTimeseriesViz{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardTimeseriesViz) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardTimeseriesViz) ProtoMessage() {}
+
+func (x *DashboardTimeseriesViz) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardTimeseriesViz.ProtoReflect.Descriptor instead.
+func (*DashboardTimeseriesViz) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DashboardTimeseriesViz) GetPlotStyle() string {
+	if x != nil {
+		return x.PlotStyle
+	}
+	return ""
+}
+
+// Renders result rows as a table. Column presentation is a frontend concern, so this carries no
+// options yet.
+type DashboardTableViz struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DashboardTableViz) Reset() {
+	*x = DashboardTableViz{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardTableViz) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardTableViz) ProtoMessage() {}
+
+func (x *DashboardTableViz) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardTableViz.ProtoReflect.Descriptor instead.
+func (*DashboardTableViz) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{8}
+}
+
+// A free-form text widget rendered as GitHub-flavored markdown.
+type DashboardMarkdownWidget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Content       string                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DashboardMarkdownWidget) Reset() {
+	*x = DashboardMarkdownWidget{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardMarkdownWidget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardMarkdownWidget) ProtoMessage() {}
+
+func (x *DashboardMarkdownWidget) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardMarkdownWidget.ProtoReflect.Descriptor instead.
+func (*DashboardMarkdownWidget) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DashboardMarkdownWidget) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+// A section divider row: an optional title and a rule that visually groups the widgets below it.
+type DashboardSectionTitleWidget struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DashboardSectionTitleWidget) Reset() {
+	*x = DashboardSectionTitleWidget{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardSectionTitleWidget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardSectionTitleWidget) ProtoMessage() {}
+
+func (x *DashboardSectionTitleWidget) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardSectionTitleWidget.ProtoReflect.Descriptor instead.
+func (*DashboardSectionTitleWidget) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DashboardSectionTitleWidget) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+// A dashboard artifact: environment-scoped name + widgets. Lives in artifacts/v1 so the SDK can
+// emit it and `chalk apply` can reconcile it when code-defined dashboards land.
 type Dashboard struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Elements      []*DashboardElement    `protobuf:"bytes,4,rep,name=elements,proto3" json:"elements,omitempty"`
+	Widgets       []*DashboardWidget     `protobuf:"bytes,4,rep,name=widgets,proto3" json:"widgets,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	CreatedBy     string                 `protobuf:"bytes,7,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// Set together when another resource owns this dashboard as its backing layout (e.g.
+	// owner_type="notebook" for a notebook app's live layout, "notebook_version" for an immutable
+	// layout snapshot pinned by a notebook version). The dashboard service attaches no meaning to
+	// the values beyond: owned dashboards are excluded from ListDashboards, and their lifecycle
+	// (creation, deletion, snapshotting) is driven by the owning service, never from the dashboards
+	// surface. Both are rejected on external Create/Update; the owning service writes them through
+	// the store.
+	OwnerType *string `protobuf:"bytes,8,opt,name=owner_type,json=ownerType,proto3,oneof" json:"owner_type,omitempty"`
+	OwnerId   *string `protobuf:"bytes,9,opt,name=owner_id,json=ownerId,proto3,oneof" json:"owner_id,omitempty"`
+	// Frozen at create by the owning service (layout snapshots). UpdateDashboard rejects writes to
+	// read-only dashboards.
+	ReadOnly      bool `protobuf:"varint,10,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Dashboard) Reset() {
 	*x = Dashboard{}
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[3]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -294,7 +878,7 @@ func (x *Dashboard) String() string {
 func (*Dashboard) ProtoMessage() {}
 
 func (x *Dashboard) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[3]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -307,7 +891,7 @@ func (x *Dashboard) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Dashboard.ProtoReflect.Descriptor instead.
 func (*Dashboard) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{3}
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Dashboard) GetId() string {
@@ -331,9 +915,9 @@ func (x *Dashboard) GetName() string {
 	return ""
 }
 
-func (x *Dashboard) GetElements() []*DashboardElement {
+func (x *Dashboard) GetWidgets() []*DashboardWidget {
 	if x != nil {
-		return x.Elements
+		return x.Widgets
 	}
 	return nil
 }
@@ -359,6 +943,27 @@ func (x *Dashboard) GetCreatedBy() string {
 	return ""
 }
 
+func (x *Dashboard) GetOwnerType() string {
+	if x != nil && x.OwnerType != nil {
+		return *x.OwnerType
+	}
+	return ""
+}
+
+func (x *Dashboard) GetOwnerId() string {
+	if x != nil && x.OwnerId != nil {
+		return *x.OwnerId
+	}
+	return ""
+}
+
+func (x *Dashboard) GetReadOnly() bool {
+	if x != nil {
+		return x.ReadOnly
+	}
+	return false
+}
+
 var File_chalk_artifacts_v1_dashboard_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
@@ -368,31 +973,76 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\x01x\x18\x01 \x01(\x05R\x01x\x12\f\n" +
 	"\x01y\x18\x02 \x01(\x05R\x01y\x12\f\n" +
 	"\x01w\x18\x03 \x01(\x05R\x01w\x12\f\n" +
-	"\x01h\x18\x04 \x01(\x05R\x01h\"\xaa\x01\n" +
-	"\x10DashboardElement\x12\x0e\n" +
+	"\x01h\x18\x04 \x01(\x05R\x01h\"\xb4\x03\n" +
+	"\x0fDashboardWidget\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12<\n" +
-	"\bposition\x18\x02 \x01(\v2 .chalk.artifacts.v1.GridPositionR\bposition\x12:\n" +
-	"\x05chart\x18\x03 \x01(\v2\".chalk.artifacts.v1.DashboardChartH\x00R\x05chartB\f\n" +
+	"\bposition\x18\x02 \x01(\v2 .chalk.artifacts.v1.GridPositionR\bposition\x12J\n" +
+	"\vdata_widget\x18\x03 \x01(\v2'.chalk.artifacts.v1.DashboardDataWidgetH\x00R\n" +
+	"dataWidget\x12I\n" +
+	"\bmarkdown\x18\x04 \x01(\v2+.chalk.artifacts.v1.DashboardMarkdownWidgetH\x00R\bmarkdown\x12V\n" +
+	"\rsection_title\x18\x05 \x01(\v2/.chalk.artifacts.v1.DashboardSectionTitleWidgetH\x00R\fsectionTitle\x12V\n" +
+	"\rnotebook_cell\x18\x06 \x01(\v2/.chalk.artifacts.v1.DashboardNotebookCellWidgetH\x00R\fnotebookCellB\f\n" +
 	"\n" +
-	"definition\"\x9b\x02\n" +
-	"\x0eDashboardChart\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
-	"\rwindow_period\x18\x02 \x01(\tR\fwindowPeriod\x12>\n" +
-	"\x06series\x18\x03 \x03(\v2&.chalk.artifacts.v1.MetricConfigSeriesR\x06series\x12=\n" +
-	"\bformulas\x18\x04 \x03(\v2!.chalk.artifacts.v1.MetricFormulaR\bformulas\x127\n" +
-	"\x15display_window_period\x18\x05 \x01(\tH\x00R\x13displayWindowPeriod\x88\x01\x01B\x18\n" +
-	"\x16_display_window_period\"\xc6\x02\n" +
+	"definition\"V\n" +
+	"\x13NotebookCellDisplay\x12?\n" +
+	"\x04mode\x18\x01 \x01(\x0e2+.chalk.artifacts.v1.NotebookCellDisplayModeR\x04mode\"\x9a\x01\n" +
+	"\x1bDashboardNotebookCellWidget\x12\x1f\n" +
+	"\vnotebook_id\x18\x01 \x01(\tR\n" +
+	"notebookId\x12\x17\n" +
+	"\acell_id\x18\x02 \x01(\tR\x06cellId\x12A\n" +
+	"\adisplay\x18\x03 \x01(\v2'.chalk.artifacts.v1.NotebookCellDisplayR\adisplay\"\xf3\x02\n" +
+	"\x13DashboardDataWidget\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12M\n" +
+	"\fmetric_query\x18\x02 \x01(\v2(.chalk.artifacts.v1.DashboardMetricQueryH\x00R\vmetricQuery\x12M\n" +
+	"\fsource_query\x18\x03 \x01(\v2(.chalk.artifacts.v1.DashboardSourceQueryH\x00R\vsourceQuery\x12L\n" +
+	"\n" +
+	"timeseries\x18\x04 \x01(\v2*.chalk.artifacts.v1.DashboardTimeseriesVizH\x01R\n" +
+	"timeseries\x12=\n" +
+	"\x05table\x18\x05 \x01(\v2%.chalk.artifacts.v1.DashboardTableVizH\x01R\x05tableB\f\n" +
+	"\n" +
+	"data_queryB\x0f\n" +
+	"\rvisualization\"\x8d\x02\n" +
+	"\x14DashboardMetricQuery\x12#\n" +
+	"\rwindow_period\x18\x01 \x01(\tR\fwindowPeriod\x12>\n" +
+	"\x06series\x18\x02 \x03(\v2&.chalk.artifacts.v1.MetricConfigSeriesR\x06series\x12=\n" +
+	"\bformulas\x18\x03 \x03(\v2!.chalk.artifacts.v1.MetricFormulaR\bformulas\x127\n" +
+	"\x15display_window_period\x18\x04 \x01(\tH\x00R\x13displayWindowPeriod\x88\x01\x01B\x18\n" +
+	"\x16_display_window_period\"M\n" +
+	"\x14DashboardSourceQuery\x12\x1f\n" +
+	"\vdata_source\x18\x01 \x01(\tR\n" +
+	"dataSource\x12\x14\n" +
+	"\x05query\x18\x02 \x01(\tR\x05query\"7\n" +
+	"\x16DashboardTimeseriesViz\x12\x1d\n" +
+	"\n" +
+	"plot_style\x18\x01 \x01(\tR\tplotStyle\"\x13\n" +
+	"\x11DashboardTableViz\"3\n" +
+	"\x17DashboardMarkdownWidget\x12\x18\n" +
+	"\acontent\x18\x01 \x01(\tR\acontent\"3\n" +
+	"\x1bDashboardSectionTitleWidget\x12\x14\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\"\xcf\x03\n" +
 	"\tDashboard\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12*\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tB\x03\xe0A\x03R\renvironmentId\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12@\n" +
-	"\belements\x18\x04 \x03(\v2$.chalk.artifacts.v1.DashboardElementR\belements\x12>\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12=\n" +
+	"\awidgets\x18\x04 \x03(\v2#.chalk.artifacts.v1.DashboardWidgetR\awidgets\x12>\n" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
 	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\x12\"\n" +
 	"\n" +
-	"created_by\x18\a \x01(\tB\x03\xe0A\x03R\tcreatedByB\xd3\x01\n" +
+	"created_by\x18\a \x01(\tB\x03\xe0A\x03R\tcreatedBy\x12'\n" +
+	"\n" +
+	"owner_type\x18\b \x01(\tB\x03\xe0A\x03H\x00R\townerType\x88\x01\x01\x12#\n" +
+	"\bowner_id\x18\t \x01(\tB\x03\xe0A\x03H\x01R\aownerId\x88\x01\x01\x12 \n" +
+	"\tread_only\x18\n" +
+	" \x01(\bB\x03\xe0A\x03R\breadOnlyB\r\n" +
+	"\v_owner_typeB\v\n" +
+	"\t_owner_id*\xc5\x01\n" +
+	"\x17NotebookCellDisplayMode\x12*\n" +
+	"&NOTEBOOK_CELL_DISPLAY_MODE_UNSPECIFIED\x10\x00\x12%\n" +
+	"!NOTEBOOK_CELL_DISPLAY_MODE_OUTPUT\x10\x01\x12%\n" +
+	"!NOTEBOOK_CELL_DISPLAY_MODE_SOURCE\x10\x02\x120\n" +
+	",NOTEBOOK_CELL_DISPLAY_MODE_SOURCE_AND_OUTPUT\x10\x03B\xd3\x01\n" +
 	"\x16com.chalk.artifacts.v1B\x0eDashboardProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (
@@ -407,29 +1057,48 @@ func file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP() []byte {
 	return file_chalk_artifacts_v1_dashboard_proto_rawDescData
 }
 
-var file_chalk_artifacts_v1_dashboard_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chalk_artifacts_v1_dashboard_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_artifacts_v1_dashboard_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_artifacts_v1_dashboard_proto_goTypes = []any{
-	(*GridPosition)(nil),          // 0: chalk.artifacts.v1.GridPosition
-	(*DashboardElement)(nil),      // 1: chalk.artifacts.v1.DashboardElement
-	(*DashboardChart)(nil),        // 2: chalk.artifacts.v1.DashboardChart
-	(*Dashboard)(nil),             // 3: chalk.artifacts.v1.Dashboard
-	(*MetricConfigSeries)(nil),    // 4: chalk.artifacts.v1.MetricConfigSeries
-	(*MetricFormula)(nil),         // 5: chalk.artifacts.v1.MetricFormula
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(NotebookCellDisplayMode)(0),        // 0: chalk.artifacts.v1.NotebookCellDisplayMode
+	(*GridPosition)(nil),                // 1: chalk.artifacts.v1.GridPosition
+	(*DashboardWidget)(nil),             // 2: chalk.artifacts.v1.DashboardWidget
+	(*NotebookCellDisplay)(nil),         // 3: chalk.artifacts.v1.NotebookCellDisplay
+	(*DashboardNotebookCellWidget)(nil), // 4: chalk.artifacts.v1.DashboardNotebookCellWidget
+	(*DashboardDataWidget)(nil),         // 5: chalk.artifacts.v1.DashboardDataWidget
+	(*DashboardMetricQuery)(nil),        // 6: chalk.artifacts.v1.DashboardMetricQuery
+	(*DashboardSourceQuery)(nil),        // 7: chalk.artifacts.v1.DashboardSourceQuery
+	(*DashboardTimeseriesViz)(nil),      // 8: chalk.artifacts.v1.DashboardTimeseriesViz
+	(*DashboardTableViz)(nil),           // 9: chalk.artifacts.v1.DashboardTableViz
+	(*DashboardMarkdownWidget)(nil),     // 10: chalk.artifacts.v1.DashboardMarkdownWidget
+	(*DashboardSectionTitleWidget)(nil), // 11: chalk.artifacts.v1.DashboardSectionTitleWidget
+	(*Dashboard)(nil),                   // 12: chalk.artifacts.v1.Dashboard
+	(*MetricConfigSeries)(nil),          // 13: chalk.artifacts.v1.MetricConfigSeries
+	(*MetricFormula)(nil),               // 14: chalk.artifacts.v1.MetricFormula
+	(*timestamppb.Timestamp)(nil),       // 15: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
-	0, // 0: chalk.artifacts.v1.DashboardElement.position:type_name -> chalk.artifacts.v1.GridPosition
-	2, // 1: chalk.artifacts.v1.DashboardElement.chart:type_name -> chalk.artifacts.v1.DashboardChart
-	4, // 2: chalk.artifacts.v1.DashboardChart.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
-	5, // 3: chalk.artifacts.v1.DashboardChart.formulas:type_name -> chalk.artifacts.v1.MetricFormula
-	1, // 4: chalk.artifacts.v1.Dashboard.elements:type_name -> chalk.artifacts.v1.DashboardElement
-	6, // 5: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
-	6, // 6: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	1,  // 0: chalk.artifacts.v1.DashboardWidget.position:type_name -> chalk.artifacts.v1.GridPosition
+	5,  // 1: chalk.artifacts.v1.DashboardWidget.data_widget:type_name -> chalk.artifacts.v1.DashboardDataWidget
+	10, // 2: chalk.artifacts.v1.DashboardWidget.markdown:type_name -> chalk.artifacts.v1.DashboardMarkdownWidget
+	11, // 3: chalk.artifacts.v1.DashboardWidget.section_title:type_name -> chalk.artifacts.v1.DashboardSectionTitleWidget
+	4,  // 4: chalk.artifacts.v1.DashboardWidget.notebook_cell:type_name -> chalk.artifacts.v1.DashboardNotebookCellWidget
+	0,  // 5: chalk.artifacts.v1.NotebookCellDisplay.mode:type_name -> chalk.artifacts.v1.NotebookCellDisplayMode
+	3,  // 6: chalk.artifacts.v1.DashboardNotebookCellWidget.display:type_name -> chalk.artifacts.v1.NotebookCellDisplay
+	6,  // 7: chalk.artifacts.v1.DashboardDataWidget.metric_query:type_name -> chalk.artifacts.v1.DashboardMetricQuery
+	7,  // 8: chalk.artifacts.v1.DashboardDataWidget.source_query:type_name -> chalk.artifacts.v1.DashboardSourceQuery
+	8,  // 9: chalk.artifacts.v1.DashboardDataWidget.timeseries:type_name -> chalk.artifacts.v1.DashboardTimeseriesViz
+	9,  // 10: chalk.artifacts.v1.DashboardDataWidget.table:type_name -> chalk.artifacts.v1.DashboardTableViz
+	13, // 11: chalk.artifacts.v1.DashboardMetricQuery.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
+	14, // 12: chalk.artifacts.v1.DashboardMetricQuery.formulas:type_name -> chalk.artifacts.v1.MetricFormula
+	2,  // 13: chalk.artifacts.v1.Dashboard.widgets:type_name -> chalk.artifacts.v1.DashboardWidget
+	15, // 14: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
+	15, // 15: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_dashboard_proto_init() }
@@ -439,21 +1108,32 @@ func file_chalk_artifacts_v1_dashboard_proto_init() {
 	}
 	file_chalk_artifacts_v1_chart_proto_init()
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[1].OneofWrappers = []any{
-		(*DashboardElement_Chart)(nil),
+		(*DashboardWidget_DataWidget)(nil),
+		(*DashboardWidget_Markdown)(nil),
+		(*DashboardWidget_SectionTitle)(nil),
+		(*DashboardWidget_NotebookCell)(nil),
 	}
-	file_chalk_artifacts_v1_dashboard_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_dashboard_proto_msgTypes[4].OneofWrappers = []any{
+		(*DashboardDataWidget_MetricQuery)(nil),
+		(*DashboardDataWidget_SourceQuery)(nil),
+		(*DashboardDataWidget_Timeseries)(nil),
+		(*DashboardDataWidget_Table)(nil),
+	}
+	file_chalk_artifacts_v1_dashboard_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_dashboard_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_dashboard_proto_rawDesc), len(file_chalk_artifacts_v1_dashboard_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_chalk_artifacts_v1_dashboard_proto_goTypes,
 		DependencyIndexes: file_chalk_artifacts_v1_dashboard_proto_depIdxs,
+		EnumInfos:         file_chalk_artifacts_v1_dashboard_proto_enumTypes,
 		MessageInfos:      file_chalk_artifacts_v1_dashboard_proto_msgTypes,
 	}.Build()
 	File_chalk_artifacts_v1_dashboard_proto = out.File

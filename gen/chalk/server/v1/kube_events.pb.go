@@ -386,9 +386,11 @@ func (x *ListKubeEventsResponse) GetNextPageToken() *ListKubeEventsPageToken {
 }
 
 type KubeEventFacet struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Path  string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Whether the facet can drive the COUNT BY histogram breakdown.
+	Groupable     bool `protobuf:"varint,3,opt,name=groupable,proto3" json:"groupable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -435,6 +437,13 @@ func (x *KubeEventFacet) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *KubeEventFacet) GetGroupable() bool {
+	if x != nil {
+		return x.Groupable
+	}
+	return false
 }
 
 type GetKubeEventFacetsRequest struct {
@@ -518,12 +527,17 @@ func (x *GetKubeEventFacetsResponse) GetFacets() []*KubeEventFacet {
 }
 
 type GetKubeEventFacetValuesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
-	Limit         *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Query         *string                `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Path      string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	Limit     *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Query     *string                `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	// Count-table mode: keep empty values as a "(none)" row and append an "(other)" row summing
+	// everything beyond the limit. Off for the facets sidebar.
+	IncludeSyntheticRows *bool `protobuf:"varint,6,opt,name=include_synthetic_rows,json=includeSyntheticRows,proto3,oneof" json:"include_synthetic_rows,omitempty"`
+	// Non-empty → count value combinations across these facets (in order); `path` is ignored. Empty → single-`path`.
+	Facets        []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -593,10 +607,26 @@ func (x *GetKubeEventFacetValuesRequest) GetQuery() string {
 	return ""
 }
 
+func (x *GetKubeEventFacetValuesRequest) GetIncludeSyntheticRows() bool {
+	if x != nil && x.IncludeSyntheticRows != nil {
+		return *x.IncludeSyntheticRows
+	}
+	return false
+}
+
+func (x *GetKubeEventFacetValuesRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
 type KubeEventFacetValue struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
-	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Value string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Count int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	// One value per requested facet, index-aligned to request `facets`. Empty in single-`path` mode (scalar `value` set instead).
+	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -645,6 +675,13 @@ func (x *KubeEventFacetValue) GetCount() int64 {
 	return 0
 }
 
+func (x *KubeEventFacetValue) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
 type GetKubeEventFacetValuesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Values        []*KubeEventFacetValue `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty"`
@@ -690,11 +727,16 @@ func (x *GetKubeEventFacetValuesResponse) GetValues() []*KubeEventFacetValue {
 }
 
 type ListKubeEventsAggregatedRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Query         *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	WindowPeriod  *durationpb.Duration   `protobuf:"bytes,4,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Query        *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	StartTime    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	WindowPeriod *durationpb.Duration   `protobuf:"bytes,4,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	// KubeEventFacet.paths to break down by; unset → severity. Repeated for forward-compat with
+	// multi-facet; only the first is used today.
+	Facets []string `protobuf:"bytes,5,rep,name=facets,proto3" json:"facets,omitempty"`
+	// Cap on faceted series; the tail folds into "(other)". Unset → a small default.
+	Limit         *int32 `protobuf:"varint,6,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -755,6 +797,20 @@ func (x *ListKubeEventsAggregatedRequest) GetWindowPeriod() *durationpb.Duration
 		return x.WindowPeriod
 	}
 	return nil
+}
+
+func (x *ListKubeEventsAggregatedRequest) GetFacets() []string {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
+func (x *ListKubeEventsAggregatedRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
 }
 
 type ListKubeEventsAggregatedResponse struct {
@@ -847,36 +903,44 @@ const file_chalk_server_v1_kube_events_proto_rawDesc = "" +
 	"\x16ListKubeEventsResponse\x122\n" +
 	"\x06events\x18\x01 \x03(\v2\x1a.chalk.server.v1.KubeEventR\x06events\x12U\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v2(.chalk.server.v1.ListKubeEventsPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"8\n" +
+	"\x10_next_page_token\"V\n" +
 	"\x0eKubeEventFacet\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x1b\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1c\n" +
+	"\tgroupable\x18\x03 \x01(\bR\tgroupable\"\x1b\n" +
 	"\x19GetKubeEventFacetsRequest\"U\n" +
 	"\x1aGetKubeEventFacetsResponse\x127\n" +
-	"\x06facets\x18\x01 \x03(\v2\x1f.chalk.server.v1.KubeEventFacetR\x06facets\"\x96\x02\n" +
+	"\x06facets\x18\x01 \x03(\v2\x1f.chalk.server.v1.KubeEventFacetR\x06facets\"\x84\x03\n" +
 	"\x1eGetKubeEventFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
-	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01B\r\n" +
+	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01\x129\n" +
+	"\x16include_synthetic_rows\x18\x06 \x01(\bH\x04R\x14includeSyntheticRows\x88\x01\x01\x12\x16\n" +
+	"\x06facets\x18\a \x03(\tR\x06facetsB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
-	"\x06_query\"A\n" +
+	"\x06_queryB\x19\n" +
+	"\x17_include_synthetic_rows\"Y\n" +
 	"\x13KubeEventFacetValue\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x03R\x05count\"_\n" +
+	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x16\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\"_\n" +
 	"\x1fGetKubeEventFacetValuesResponse\x12<\n" +
-	"\x06values\x18\x01 \x03(\v2$.chalk.server.v1.KubeEventFacetValueR\x06values\"\xf8\x01\n" +
+	"\x06values\x18\x01 \x03(\v2$.chalk.server.v1.KubeEventFacetValueR\x06values\"\xb5\x02\n" +
 	"\x1fListKubeEventsAggregatedRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12>\n" +
-	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriodB\b\n" +
-	"\x06_query\"^\n" +
+	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12\x16\n" +
+	"\x06facets\x18\x05 \x03(\tR\x06facets\x12\x19\n" +
+	"\x05limit\x18\x06 \x01(\x05H\x01R\x05limit\x88\x01\x01B\b\n" +
+	"\x06_queryB\b\n" +
+	"\x06_limit\"^\n" +
 	" ListKubeEventsAggregatedResponse\x12:\n" +
 	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart2\x86\x04\n" +
 	"\x11KubeEventsService\x12i\n" +

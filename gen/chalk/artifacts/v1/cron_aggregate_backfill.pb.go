@@ -87,6 +87,7 @@ type CronAggregateBackfill struct {
 	AllowEmptyTiles *bool                         `protobuf:"varint,11,opt,name=allow_empty_tiles,json=allowEmptyTiles,proto3,oneof" json:"allow_empty_tiles,omitempty"`
 	Targets         []CronAggregateBackfillTarget `protobuf:"varint,12,rep,packed,name=targets,proto3,enum=chalk.artifacts.v1.CronAggregateBackfillTarget" json:"targets,omitempty"`
 	Environment     *string                       `protobuf:"bytes,13,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	PlannerOptions  map[string]string             `protobuf:"bytes,14,rep,name=planner_options,json=plannerOptions,proto3" json:"planner_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -212,11 +213,18 @@ func (x *CronAggregateBackfill) GetEnvironment() string {
 	return ""
 }
 
+func (x *CronAggregateBackfill) GetPlannerOptions() map[string]string {
+	if x != nil {
+		return x.PlannerOptions
+	}
+	return nil
+}
+
 var File_chalk_artifacts_v1_cron_aggregate_backfill_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\n" +
-	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x88\x05\n" +
+	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb3\x06\n" +
 	"\x15CronAggregateBackfill\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bschedule\x18\x02 \x01(\tR\bschedule\x12\x1b\n" +
@@ -234,7 +242,11 @@ const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"upperBound\x12/\n" +
 	"\x11allow_empty_tiles\x18\v \x01(\bH\x01R\x0fallowEmptyTiles\x88\x01\x01\x12I\n" +
 	"\atargets\x18\f \x03(\x0e2/.chalk.artifacts.v1.CronAggregateBackfillTargetR\atargets\x12%\n" +
-	"\venvironment\x18\r \x01(\tH\x02R\venvironment\x88\x01\x01B\x11\n" +
+	"\venvironment\x18\r \x01(\tH\x02R\venvironment\x88\x01\x01\x12f\n" +
+	"\x0fplanner_options\x18\x0e \x03(\v2=.chalk.artifacts.v1.CronAggregateBackfill.PlannerOptionsEntryR\x0eplannerOptions\x1aA\n" +
+	"\x13PlannerOptionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x11\n" +
 	"\x0f_resource_groupB\x14\n" +
 	"\x12_allow_empty_tilesB\x0e\n" +
 	"\f_environment*\xa4\x01\n" +
@@ -257,22 +269,24 @@ func file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDescGZIP() []byte 
 }
 
 var file_chalk_artifacts_v1_cron_aggregate_backfill_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_artifacts_v1_cron_aggregate_backfill_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_chalk_artifacts_v1_cron_aggregate_backfill_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_chalk_artifacts_v1_cron_aggregate_backfill_proto_goTypes = []any{
 	(CronAggregateBackfillTarget)(0), // 0: chalk.artifacts.v1.CronAggregateBackfillTarget
 	(*CronAggregateBackfill)(nil),    // 1: chalk.artifacts.v1.CronAggregateBackfill
-	(*timestamppb.Timestamp)(nil),    // 2: google.protobuf.Timestamp
+	nil,                              // 2: chalk.artifacts.v1.CronAggregateBackfill.PlannerOptionsEntry
+	(*timestamppb.Timestamp)(nil),    // 3: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_cron_aggregate_backfill_proto_depIdxs = []int32{
 	0, // 0: chalk.artifacts.v1.CronAggregateBackfill.target:type_name -> chalk.artifacts.v1.CronAggregateBackfillTarget
-	2, // 1: chalk.artifacts.v1.CronAggregateBackfill.lower_bound:type_name -> google.protobuf.Timestamp
-	2, // 2: chalk.artifacts.v1.CronAggregateBackfill.upper_bound:type_name -> google.protobuf.Timestamp
+	3, // 1: chalk.artifacts.v1.CronAggregateBackfill.lower_bound:type_name -> google.protobuf.Timestamp
+	3, // 2: chalk.artifacts.v1.CronAggregateBackfill.upper_bound:type_name -> google.protobuf.Timestamp
 	0, // 3: chalk.artifacts.v1.CronAggregateBackfill.targets:type_name -> chalk.artifacts.v1.CronAggregateBackfillTarget
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2, // 4: chalk.artifacts.v1.CronAggregateBackfill.planner_options:type_name -> chalk.artifacts.v1.CronAggregateBackfill.PlannerOptionsEntry
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_cron_aggregate_backfill_proto_init() }
@@ -287,7 +301,7 @@ func file_chalk_artifacts_v1_cron_aggregate_backfill_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc), len(file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

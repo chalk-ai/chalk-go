@@ -7,6 +7,7 @@
 package serverv1
 
 import (
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -624,6 +625,118 @@ func (x *ManualTriggerScheduledQueryResponse) GetScheduledQueryRun() *ScheduledQ
 	return nil
 }
 
+type ManualTriggerScheduledAggregateBackfillRequest struct {
+	state                          protoimpl.MessageState     `protogen:"open.v1"`
+	ScheduledAggregateBackfillName string                     `protobuf:"bytes,1,opt,name=scheduled_aggregate_backfill_name,json=scheduledAggregateBackfillName,proto3" json:"scheduled_aggregate_backfill_name,omitempty"`
+	PlannerOptions                 map[string]*structpb.Value `protobuf:"bytes,2,rep,name=planner_options,json=plannerOptions,proto3" json:"planner_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	EnvOverrides                   map[string]string          `protobuf:"bytes,3,rep,name=env_overrides,json=envOverrides,proto3" json:"env_overrides,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillRequest) Reset() {
+	*x = ManualTriggerScheduledAggregateBackfillRequest{}
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ManualTriggerScheduledAggregateBackfillRequest) ProtoMessage() {}
+
+func (x *ManualTriggerScheduledAggregateBackfillRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ManualTriggerScheduledAggregateBackfillRequest.ProtoReflect.Descriptor instead.
+func (*ManualTriggerScheduledAggregateBackfillRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillRequest) GetScheduledAggregateBackfillName() string {
+	if x != nil {
+		return x.ScheduledAggregateBackfillName
+	}
+	return ""
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillRequest) GetPlannerOptions() map[string]*structpb.Value {
+	if x != nil {
+		return x.PlannerOptions
+	}
+	return nil
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillRequest) GetEnvOverrides() map[string]string {
+	if x != nil {
+		return x.EnvOverrides
+	}
+	return nil
+}
+
+type ManualTriggerScheduledAggregateBackfillResponse struct {
+	state                protoimpl.MessageState    `protogen:"open.v1"`
+	AggregateBackfillJob *v11.AggregateBackfillJob `protobuf:"bytes,1,opt,name=aggregate_backfill_job,json=aggregateBackfillJob,proto3" json:"aggregate_backfill_job,omitempty"`
+	ProgressUrl          string                    `protobuf:"bytes,2,opt,name=progress_url,json=progressUrl,proto3" json:"progress_url,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillResponse) Reset() {
+	*x = ManualTriggerScheduledAggregateBackfillResponse{}
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ManualTriggerScheduledAggregateBackfillResponse) ProtoMessage() {}
+
+func (x *ManualTriggerScheduledAggregateBackfillResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ManualTriggerScheduledAggregateBackfillResponse.ProtoReflect.Descriptor instead.
+func (*ManualTriggerScheduledAggregateBackfillResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillResponse) GetAggregateBackfillJob() *v11.AggregateBackfillJob {
+	if x != nil {
+		return x.AggregateBackfillJob
+	}
+	return nil
+}
+
+func (x *ManualTriggerScheduledAggregateBackfillResponse) GetProgressUrl() string {
+	if x != nil {
+		return x.ProgressUrl
+	}
+	return ""
+}
+
 type GetScheduledResolverRunRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -633,7 +746,7 @@ type GetScheduledResolverRunRequest struct {
 
 func (x *GetScheduledResolverRunRequest) Reset() {
 	*x = GetScheduledResolverRunRequest{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -645,7 +758,7 @@ func (x *GetScheduledResolverRunRequest) String() string {
 func (*GetScheduledResolverRunRequest) ProtoMessage() {}
 
 func (x *GetScheduledResolverRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -658,7 +771,7 @@ func (x *GetScheduledResolverRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetScheduledResolverRunRequest.ProtoReflect.Descriptor instead.
 func (*GetScheduledResolverRunRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetScheduledResolverRunRequest) GetId() string {
@@ -677,7 +790,7 @@ type GetScheduledResolverRunResponse struct {
 
 func (x *GetScheduledResolverRunResponse) Reset() {
 	*x = GetScheduledResolverRunResponse{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -689,7 +802,7 @@ func (x *GetScheduledResolverRunResponse) String() string {
 func (*GetScheduledResolverRunResponse) ProtoMessage() {}
 
 func (x *GetScheduledResolverRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -702,7 +815,7 @@ func (x *GetScheduledResolverRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetScheduledResolverRunResponse.ProtoReflect.Descriptor instead.
 func (*GetScheduledResolverRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetScheduledResolverRunResponse) GetRun() *CronResolverRun {
@@ -729,7 +842,7 @@ type ListScheduledResolverRunsRequest struct {
 
 func (x *ListScheduledResolverRunsRequest) Reset() {
 	*x = ListScheduledResolverRunsRequest{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -741,7 +854,7 @@ func (x *ListScheduledResolverRunsRequest) String() string {
 func (*ListScheduledResolverRunsRequest) ProtoMessage() {}
 
 func (x *ListScheduledResolverRunsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -754,7 +867,7 @@ func (x *ListScheduledResolverRunsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduledResolverRunsRequest.ProtoReflect.Descriptor instead.
 func (*ListScheduledResolverRunsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{9}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/scheduler.proto.
@@ -824,7 +937,7 @@ type ListScheduledResolverRunsResponse struct {
 
 func (x *ListScheduledResolverRunsResponse) Reset() {
 	*x = ListScheduledResolverRunsResponse{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -836,7 +949,7 @@ func (x *ListScheduledResolverRunsResponse) String() string {
 func (*ListScheduledResolverRunsResponse) ProtoMessage() {}
 
 func (x *ListScheduledResolverRunsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -849,7 +962,7 @@ func (x *ListScheduledResolverRunsResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListScheduledResolverRunsResponse.ProtoReflect.Descriptor instead.
 func (*ListScheduledResolverRunsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListScheduledResolverRunsResponse) GetRuns() []*CronResolverRun {
@@ -875,7 +988,7 @@ type CancelScheduledResolverRunRequest struct {
 
 func (x *CancelScheduledResolverRunRequest) Reset() {
 	*x = CancelScheduledResolverRunRequest{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -887,7 +1000,7 @@ func (x *CancelScheduledResolverRunRequest) String() string {
 func (*CancelScheduledResolverRunRequest) ProtoMessage() {}
 
 func (x *CancelScheduledResolverRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -900,7 +1013,7 @@ func (x *CancelScheduledResolverRunRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use CancelScheduledResolverRunRequest.ProtoReflect.Descriptor instead.
 func (*CancelScheduledResolverRunRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CancelScheduledResolverRunRequest) GetRunId() string {
@@ -919,7 +1032,7 @@ type CancelScheduledResolverRunResponse struct {
 
 func (x *CancelScheduledResolverRunResponse) Reset() {
 	*x = CancelScheduledResolverRunResponse{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -931,7 +1044,7 @@ func (x *CancelScheduledResolverRunResponse) String() string {
 func (*CancelScheduledResolverRunResponse) ProtoMessage() {}
 
 func (x *CancelScheduledResolverRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -944,7 +1057,7 @@ func (x *CancelScheduledResolverRunResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use CancelScheduledResolverRunResponse.ProtoReflect.Descriptor instead.
 func (*CancelScheduledResolverRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CancelScheduledResolverRunResponse) GetCronRun() *CronResolverRun {
@@ -962,7 +1075,7 @@ type GetActiveScheduledResolversRequest struct {
 
 func (x *GetActiveScheduledResolversRequest) Reset() {
 	*x = GetActiveScheduledResolversRequest{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -974,7 +1087,7 @@ func (x *GetActiveScheduledResolversRequest) String() string {
 func (*GetActiveScheduledResolversRequest) ProtoMessage() {}
 
 func (x *GetActiveScheduledResolversRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -987,7 +1100,7 @@ func (x *GetActiveScheduledResolversRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetActiveScheduledResolversRequest.ProtoReflect.Descriptor instead.
 func (*GetActiveScheduledResolversRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{13}
 }
 
 type ScheduledResolverRunInfo struct {
@@ -1001,7 +1114,7 @@ type ScheduledResolverRunInfo struct {
 
 func (x *ScheduledResolverRunInfo) Reset() {
 	*x = ScheduledResolverRunInfo{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1013,7 +1126,7 @@ func (x *ScheduledResolverRunInfo) String() string {
 func (*ScheduledResolverRunInfo) ProtoMessage() {}
 
 func (x *ScheduledResolverRunInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1026,7 +1139,7 @@ func (x *ScheduledResolverRunInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduledResolverRunInfo.ProtoReflect.Descriptor instead.
 func (*ScheduledResolverRunInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ScheduledResolverRunInfo) GetId() string {
@@ -1062,7 +1175,7 @@ type ScheduledResolverInfo struct {
 
 func (x *ScheduledResolverInfo) Reset() {
 	*x = ScheduledResolverInfo{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1074,7 +1187,7 @@ func (x *ScheduledResolverInfo) String() string {
 func (*ScheduledResolverInfo) ProtoMessage() {}
 
 func (x *ScheduledResolverInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1087,7 +1200,7 @@ func (x *ScheduledResolverInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduledResolverInfo.ProtoReflect.Descriptor instead.
 func (*ScheduledResolverInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ScheduledResolverInfo) GetResolverFqn() string {
@@ -1127,7 +1240,7 @@ type GetActiveScheduledResolversResponse struct {
 
 func (x *GetActiveScheduledResolversResponse) Reset() {
 	*x = GetActiveScheduledResolversResponse{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1139,7 +1252,7 @@ func (x *GetActiveScheduledResolversResponse) String() string {
 func (*GetActiveScheduledResolversResponse) ProtoMessage() {}
 
 func (x *GetActiveScheduledResolversResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1152,7 +1265,7 @@ func (x *GetActiveScheduledResolversResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetActiveScheduledResolversResponse.ProtoReflect.Descriptor instead.
 func (*GetActiveScheduledResolversResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetActiveScheduledResolversResponse) GetScheduledResolvers() []*ScheduledResolverInfo {
@@ -1171,7 +1284,7 @@ type GetScheduledResolverControlRequest struct {
 
 func (x *GetScheduledResolverControlRequest) Reset() {
 	*x = GetScheduledResolverControlRequest{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1183,7 +1296,7 @@ func (x *GetScheduledResolverControlRequest) String() string {
 func (*GetScheduledResolverControlRequest) ProtoMessage() {}
 
 func (x *GetScheduledResolverControlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1196,7 +1309,7 @@ func (x *GetScheduledResolverControlRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetScheduledResolverControlRequest.ProtoReflect.Descriptor instead.
 func (*GetScheduledResolverControlRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetScheduledResolverControlRequest) GetResolverFqn() string {
@@ -1220,7 +1333,7 @@ type ScheduledResolverControl struct {
 
 func (x *ScheduledResolverControl) Reset() {
 	*x = ScheduledResolverControl{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1232,7 +1345,7 @@ func (x *ScheduledResolverControl) String() string {
 func (*ScheduledResolverControl) ProtoMessage() {}
 
 func (x *ScheduledResolverControl) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1245,7 +1358,7 @@ func (x *ScheduledResolverControl) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduledResolverControl.ProtoReflect.Descriptor instead.
 func (*ScheduledResolverControl) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ScheduledResolverControl) GetResolverFqn() string {
@@ -1299,7 +1412,7 @@ type GetScheduledResolverControlResponse struct {
 
 func (x *GetScheduledResolverControlResponse) Reset() {
 	*x = GetScheduledResolverControlResponse{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1311,7 +1424,7 @@ func (x *GetScheduledResolverControlResponse) String() string {
 func (*GetScheduledResolverControlResponse) ProtoMessage() {}
 
 func (x *GetScheduledResolverControlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1324,7 +1437,7 @@ func (x *GetScheduledResolverControlResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetScheduledResolverControlResponse.ProtoReflect.Descriptor instead.
 func (*GetScheduledResolverControlResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetScheduledResolverControlResponse) GetControl() *ScheduledResolverControl {
@@ -1344,7 +1457,7 @@ type UpdateScheduledResolverControlOperation struct {
 
 func (x *UpdateScheduledResolverControlOperation) Reset() {
 	*x = UpdateScheduledResolverControlOperation{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1356,7 +1469,7 @@ func (x *UpdateScheduledResolverControlOperation) String() string {
 func (*UpdateScheduledResolverControlOperation) ProtoMessage() {}
 
 func (x *UpdateScheduledResolverControlOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1369,7 +1482,7 @@ func (x *UpdateScheduledResolverControlOperation) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use UpdateScheduledResolverControlOperation.ProtoReflect.Descriptor instead.
 func (*UpdateScheduledResolverControlOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UpdateScheduledResolverControlOperation) GetStatus() CronControlStatus {
@@ -1397,7 +1510,7 @@ type UpdateScheduledResolverControlRequest struct {
 
 func (x *UpdateScheduledResolverControlRequest) Reset() {
 	*x = UpdateScheduledResolverControlRequest{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1409,7 +1522,7 @@ func (x *UpdateScheduledResolverControlRequest) String() string {
 func (*UpdateScheduledResolverControlRequest) ProtoMessage() {}
 
 func (x *UpdateScheduledResolverControlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1422,7 +1535,7 @@ func (x *UpdateScheduledResolverControlRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use UpdateScheduledResolverControlRequest.ProtoReflect.Descriptor instead.
 func (*UpdateScheduledResolverControlRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UpdateScheduledResolverControlRequest) GetResolverFqn() string {
@@ -1455,7 +1568,7 @@ type UpdateScheduledResolverControlResponse struct {
 
 func (x *UpdateScheduledResolverControlResponse) Reset() {
 	*x = UpdateScheduledResolverControlResponse{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1467,7 +1580,7 @@ func (x *UpdateScheduledResolverControlResponse) String() string {
 func (*UpdateScheduledResolverControlResponse) ProtoMessage() {}
 
 func (x *UpdateScheduledResolverControlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1480,7 +1593,7 @@ func (x *UpdateScheduledResolverControlResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use UpdateScheduledResolverControlResponse.ProtoReflect.Descriptor instead.
 func (*UpdateScheduledResolverControlResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *UpdateScheduledResolverControlResponse) GetControl() *ScheduledResolverControl {
@@ -1499,7 +1612,7 @@ type GetLatestHighWaterMarkRequest struct {
 
 func (x *GetLatestHighWaterMarkRequest) Reset() {
 	*x = GetLatestHighWaterMarkRequest{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1511,7 +1624,7 @@ func (x *GetLatestHighWaterMarkRequest) String() string {
 func (*GetLatestHighWaterMarkRequest) ProtoMessage() {}
 
 func (x *GetLatestHighWaterMarkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1524,7 +1637,7 @@ func (x *GetLatestHighWaterMarkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLatestHighWaterMarkRequest.ProtoReflect.Descriptor instead.
 func (*GetLatestHighWaterMarkRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetLatestHighWaterMarkRequest) GetResolverFqn() string {
@@ -1547,7 +1660,7 @@ type HighWaterMark struct {
 
 func (x *HighWaterMark) Reset() {
 	*x = HighWaterMark{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1559,7 +1672,7 @@ func (x *HighWaterMark) String() string {
 func (*HighWaterMark) ProtoMessage() {}
 
 func (x *HighWaterMark) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1572,7 +1685,7 @@ func (x *HighWaterMark) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HighWaterMark.ProtoReflect.Descriptor instead.
 func (*HighWaterMark) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *HighWaterMark) GetId() int32 {
@@ -1619,7 +1732,7 @@ type GetLatestHighWaterMarkResponse struct {
 
 func (x *GetLatestHighWaterMarkResponse) Reset() {
 	*x = GetLatestHighWaterMarkResponse{}
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1631,7 +1744,7 @@ func (x *GetLatestHighWaterMarkResponse) String() string {
 func (*GetLatestHighWaterMarkResponse) ProtoMessage() {}
 
 func (x *GetLatestHighWaterMarkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_scheduler_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1644,7 +1757,7 @@ func (x *GetLatestHighWaterMarkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLatestHighWaterMarkResponse.ProtoReflect.Descriptor instead.
 func (*GetLatestHighWaterMarkResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetLatestHighWaterMarkResponse) GetHighWaterMark() *HighWaterMark {
@@ -1658,7 +1771,7 @@ var File_chalk_server_v1_scheduler_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/server/v1/scheduler.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a#chalk/common/v1/offline_query.proto\x1a\x1bchalk/server/v1/batch.proto\x1a)chalk/server/v1/scheduled_query_run.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe8\x06\n" +
+	"\x1fchalk/server/v1/scheduler.proto\x12\x0fchalk.server.v1\x1a!chalk/aggregate/v1/backfill.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a#chalk/common/v1/offline_query.proto\x1a\x1bchalk/server/v1/batch.proto\x1a)chalk/server/v1/scheduled_query_run.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe8\x06\n" +
 	"\x0fCronResolverRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12!\n" +
@@ -1736,7 +1849,20 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"\x06targetB\x0e\n" +
 	"\f_max_samples\"y\n" +
 	"#ManualTriggerScheduledQueryResponse\x12R\n" +
-	"\x13scheduled_query_run\x18\x01 \x01(\v2\".chalk.server.v1.ScheduledQueryRunR\x11scheduledQueryRun\"0\n" +
+	"\x13scheduled_query_run\x18\x01 \x01(\v2\".chalk.server.v1.ScheduledQueryRunR\x11scheduledQueryRun\"\x8d\x04\n" +
+	".ManualTriggerScheduledAggregateBackfillRequest\x12I\n" +
+	"!scheduled_aggregate_backfill_name\x18\x01 \x01(\tR\x1escheduledAggregateBackfillName\x12|\n" +
+	"\x0fplanner_options\x18\x02 \x03(\v2S.chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntryR\x0eplannerOptions\x12v\n" +
+	"\renv_overrides\x18\x03 \x03(\v2Q.chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.EnvOverridesEntryR\fenvOverrides\x1aY\n" +
+	"\x13PlannerOptionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a?\n" +
+	"\x11EnvOverridesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x01\n" +
+	"/ManualTriggerScheduledAggregateBackfillResponse\x12^\n" +
+	"\x16aggregate_backfill_job\x18\x01 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobR\x14aggregateBackfillJob\x12!\n" +
+	"\fprogress_url\x18\x02 \x01(\tR\vprogressUrl\"0\n" +
 	"\x1eGetScheduledResolverRunRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"U\n" +
 	"\x1fGetScheduledResolverRunResponse\x122\n" +
@@ -1832,11 +1958,11 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"!CRON_RUN_TRIGGER_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cCRON_RUN_TRIGGER_KIND_MANUAL\x10\x01\x12\x1d\n" +
 	"\x19CRON_RUN_TRIGGER_KIND_API\x10\x02\x12\x1e\n" +
-	"\x1aCRON_RUN_TRIGGER_KIND_CRON\x10\x032\x80\n" +
-	"\n" +
+	"\x1aCRON_RUN_TRIGGER_KIND_CRON\x10\x032\xb4\v\n" +
 	"\x10SchedulerService\x12\x87\x01\n" +
 	"\x19ManualTriggerCronResolver\x121.chalk.server.v1.ManualTriggerCronResolverRequest\x1a2.chalk.server.v1.ManualTriggerCronResolverResponse\"\x03\x80}\x11\x12\x8d\x01\n" +
-	"\x1bManualTriggerScheduledQuery\x123.chalk.server.v1.ManualTriggerScheduledQueryRequest\x1a4.chalk.server.v1.ManualTriggerScheduledQueryResponse\"\x03\x80}\x11\x12\x81\x01\n" +
+	"\x1bManualTriggerScheduledQuery\x123.chalk.server.v1.ManualTriggerScheduledQueryRequest\x1a4.chalk.server.v1.ManualTriggerScheduledQueryResponse\"\x03\x80}\x11\x12\xb1\x01\n" +
+	"'ManualTriggerScheduledAggregateBackfill\x12?.chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest\x1a@.chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse\"\x03\x80}\x11\x12\x81\x01\n" +
 	"\x17GetScheduledResolverRun\x12/.chalk.server.v1.GetScheduledResolverRunRequest\x1a0.chalk.server.v1.GetScheduledResolverRunResponse\"\x03\x80}\x10\x12\x87\x01\n" +
 	"\x19ListScheduledResolverRuns\x121.chalk.server.v1.ListScheduledResolverRunsRequest\x1a2.chalk.server.v1.ListScheduledResolverRunsResponse\"\x03\x80}\x10\x12\x8a\x01\n" +
 	"\x1aCancelScheduledResolverRun\x122.chalk.server.v1.CancelScheduledResolverRunRequest\x1a3.chalk.server.v1.CancelScheduledResolverRunResponse\"\x03\x80}\x11\x12\x8d\x01\n" +
@@ -1859,109 +1985,120 @@ func file_chalk_server_v1_scheduler_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_scheduler_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_scheduler_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_chalk_server_v1_scheduler_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_chalk_server_v1_scheduler_proto_goTypes = []any{
-	(CronRunTriggerKind)(0),                         // 0: chalk.server.v1.CronRunTriggerKind
-	(*CronResolverRun)(nil),                         // 1: chalk.server.v1.CronResolverRun
-	(*ManualTriggerCronResolverRequest)(nil),        // 2: chalk.server.v1.ManualTriggerCronResolverRequest
-	(*ManualTriggerCronResolverResponse)(nil),       // 3: chalk.server.v1.ManualTriggerCronResolverResponse
-	(*ManualTriggerScheduledQueryRequest)(nil),      // 4: chalk.server.v1.ManualTriggerScheduledQueryRequest
-	(*ManualTriggerScheduledQueryResponse)(nil),     // 5: chalk.server.v1.ManualTriggerScheduledQueryResponse
-	(*GetScheduledResolverRunRequest)(nil),          // 6: chalk.server.v1.GetScheduledResolverRunRequest
-	(*GetScheduledResolverRunResponse)(nil),         // 7: chalk.server.v1.GetScheduledResolverRunResponse
-	(*ListScheduledResolverRunsRequest)(nil),        // 8: chalk.server.v1.ListScheduledResolverRunsRequest
-	(*ListScheduledResolverRunsResponse)(nil),       // 9: chalk.server.v1.ListScheduledResolverRunsResponse
-	(*CancelScheduledResolverRunRequest)(nil),       // 10: chalk.server.v1.CancelScheduledResolverRunRequest
-	(*CancelScheduledResolverRunResponse)(nil),      // 11: chalk.server.v1.CancelScheduledResolverRunResponse
-	(*GetActiveScheduledResolversRequest)(nil),      // 12: chalk.server.v1.GetActiveScheduledResolversRequest
-	(*ScheduledResolverRunInfo)(nil),                // 13: chalk.server.v1.ScheduledResolverRunInfo
-	(*ScheduledResolverInfo)(nil),                   // 14: chalk.server.v1.ScheduledResolverInfo
-	(*GetActiveScheduledResolversResponse)(nil),     // 15: chalk.server.v1.GetActiveScheduledResolversResponse
-	(*GetScheduledResolverControlRequest)(nil),      // 16: chalk.server.v1.GetScheduledResolverControlRequest
-	(*ScheduledResolverControl)(nil),                // 17: chalk.server.v1.ScheduledResolverControl
-	(*GetScheduledResolverControlResponse)(nil),     // 18: chalk.server.v1.GetScheduledResolverControlResponse
-	(*UpdateScheduledResolverControlOperation)(nil), // 19: chalk.server.v1.UpdateScheduledResolverControlOperation
-	(*UpdateScheduledResolverControlRequest)(nil),   // 20: chalk.server.v1.UpdateScheduledResolverControlRequest
-	(*UpdateScheduledResolverControlResponse)(nil),  // 21: chalk.server.v1.UpdateScheduledResolverControlResponse
-	(*GetLatestHighWaterMarkRequest)(nil),           // 22: chalk.server.v1.GetLatestHighWaterMarkRequest
-	(*HighWaterMark)(nil),                           // 23: chalk.server.v1.HighWaterMark
-	(*GetLatestHighWaterMarkResponse)(nil),          // 24: chalk.server.v1.GetLatestHighWaterMarkResponse
-	nil,                                             // 25: chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry
-	nil,                                             // 26: chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntry
-	(*timestamppb.Timestamp)(nil),                   // 27: google.protobuf.Timestamp
-	(*BatchOperation)(nil),                          // 28: chalk.server.v1.BatchOperation
-	(*v1.PersistenceSettings)(nil),                  // 29: chalk.common.v1.PersistenceSettings
-	(*v1.UnloadResolverSpec)(nil),                   // 30: chalk.common.v1.UnloadResolverSpec
-	(*ScheduledQueryRun)(nil),                       // 31: chalk.server.v1.ScheduledQueryRun
-	(OperationStatus)(0),                            // 32: chalk.server.v1.OperationStatus
-	(*ResolverOperation)(nil),                       // 33: chalk.server.v1.ResolverOperation
-	(CronControlStatus)(0),                          // 34: chalk.server.v1.CronControlStatus
-	(*fieldmaskpb.FieldMask)(nil),                   // 35: google.protobuf.FieldMask
-	(*structpb.Value)(nil),                          // 36: google.protobuf.Value
+	(CronRunTriggerKind)(0),                                 // 0: chalk.server.v1.CronRunTriggerKind
+	(*CronResolverRun)(nil),                                 // 1: chalk.server.v1.CronResolverRun
+	(*ManualTriggerCronResolverRequest)(nil),                // 2: chalk.server.v1.ManualTriggerCronResolverRequest
+	(*ManualTriggerCronResolverResponse)(nil),               // 3: chalk.server.v1.ManualTriggerCronResolverResponse
+	(*ManualTriggerScheduledQueryRequest)(nil),              // 4: chalk.server.v1.ManualTriggerScheduledQueryRequest
+	(*ManualTriggerScheduledQueryResponse)(nil),             // 5: chalk.server.v1.ManualTriggerScheduledQueryResponse
+	(*ManualTriggerScheduledAggregateBackfillRequest)(nil),  // 6: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest
+	(*ManualTriggerScheduledAggregateBackfillResponse)(nil), // 7: chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse
+	(*GetScheduledResolverRunRequest)(nil),                  // 8: chalk.server.v1.GetScheduledResolverRunRequest
+	(*GetScheduledResolverRunResponse)(nil),                 // 9: chalk.server.v1.GetScheduledResolverRunResponse
+	(*ListScheduledResolverRunsRequest)(nil),                // 10: chalk.server.v1.ListScheduledResolverRunsRequest
+	(*ListScheduledResolverRunsResponse)(nil),               // 11: chalk.server.v1.ListScheduledResolverRunsResponse
+	(*CancelScheduledResolverRunRequest)(nil),               // 12: chalk.server.v1.CancelScheduledResolverRunRequest
+	(*CancelScheduledResolverRunResponse)(nil),              // 13: chalk.server.v1.CancelScheduledResolverRunResponse
+	(*GetActiveScheduledResolversRequest)(nil),              // 14: chalk.server.v1.GetActiveScheduledResolversRequest
+	(*ScheduledResolverRunInfo)(nil),                        // 15: chalk.server.v1.ScheduledResolverRunInfo
+	(*ScheduledResolverInfo)(nil),                           // 16: chalk.server.v1.ScheduledResolverInfo
+	(*GetActiveScheduledResolversResponse)(nil),             // 17: chalk.server.v1.GetActiveScheduledResolversResponse
+	(*GetScheduledResolverControlRequest)(nil),              // 18: chalk.server.v1.GetScheduledResolverControlRequest
+	(*ScheduledResolverControl)(nil),                        // 19: chalk.server.v1.ScheduledResolverControl
+	(*GetScheduledResolverControlResponse)(nil),             // 20: chalk.server.v1.GetScheduledResolverControlResponse
+	(*UpdateScheduledResolverControlOperation)(nil),         // 21: chalk.server.v1.UpdateScheduledResolverControlOperation
+	(*UpdateScheduledResolverControlRequest)(nil),           // 22: chalk.server.v1.UpdateScheduledResolverControlRequest
+	(*UpdateScheduledResolverControlResponse)(nil),          // 23: chalk.server.v1.UpdateScheduledResolverControlResponse
+	(*GetLatestHighWaterMarkRequest)(nil),                   // 24: chalk.server.v1.GetLatestHighWaterMarkRequest
+	(*HighWaterMark)(nil),                                   // 25: chalk.server.v1.HighWaterMark
+	(*GetLatestHighWaterMarkResponse)(nil),                  // 26: chalk.server.v1.GetLatestHighWaterMarkResponse
+	nil,                                                     // 27: chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry
+	nil,                                                     // 28: chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntry
+	nil,                                                     // 29: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry
+	nil,                                                     // 30: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.EnvOverridesEntry
+	(*timestamppb.Timestamp)(nil),                           // 31: google.protobuf.Timestamp
+	(*BatchOperation)(nil),                                  // 32: chalk.server.v1.BatchOperation
+	(*v1.PersistenceSettings)(nil),                          // 33: chalk.common.v1.PersistenceSettings
+	(*v1.UnloadResolverSpec)(nil),                           // 34: chalk.common.v1.UnloadResolverSpec
+	(*ScheduledQueryRun)(nil),                               // 35: chalk.server.v1.ScheduledQueryRun
+	(*v11.AggregateBackfillJob)(nil),                        // 36: chalk.aggregate.v1.AggregateBackfillJob
+	(OperationStatus)(0),                                    // 37: chalk.server.v1.OperationStatus
+	(*ResolverOperation)(nil),                               // 38: chalk.server.v1.ResolverOperation
+	(CronControlStatus)(0),                                  // 39: chalk.server.v1.CronControlStatus
+	(*fieldmaskpb.FieldMask)(nil),                           // 40: google.protobuf.FieldMask
+	(*structpb.Value)(nil),                                  // 41: google.protobuf.Value
 }
 var file_chalk_server_v1_scheduler_proto_depIdxs = []int32{
-	27, // 0: chalk.server.v1.CronResolverRun.created_at:type_name -> google.protobuf.Timestamp
-	27, // 1: chalk.server.v1.CronResolverRun.end:type_name -> google.protobuf.Timestamp
-	28, // 2: chalk.server.v1.CronResolverRun.batch:type_name -> chalk.server.v1.BatchOperation
+	31, // 0: chalk.server.v1.CronResolverRun.created_at:type_name -> google.protobuf.Timestamp
+	31, // 1: chalk.server.v1.CronResolverRun.end:type_name -> google.protobuf.Timestamp
+	32, // 2: chalk.server.v1.CronResolverRun.batch:type_name -> chalk.server.v1.BatchOperation
 	0,  // 3: chalk.server.v1.CronResolverRun.trigger_kind:type_name -> chalk.server.v1.CronRunTriggerKind
-	27, // 4: chalk.server.v1.CronResolverRun.lower_bound:type_name -> google.protobuf.Timestamp
-	27, // 5: chalk.server.v1.CronResolverRun.upper_bound:type_name -> google.protobuf.Timestamp
-	27, // 6: chalk.server.v1.ManualTriggerCronResolverRequest.lower_bound:type_name -> google.protobuf.Timestamp
-	27, // 7: chalk.server.v1.ManualTriggerCronResolverRequest.upper_bound:type_name -> google.protobuf.Timestamp
-	29, // 8: chalk.server.v1.ManualTriggerCronResolverRequest.persistence_settings:type_name -> chalk.common.v1.PersistenceSettings
+	31, // 4: chalk.server.v1.CronResolverRun.lower_bound:type_name -> google.protobuf.Timestamp
+	31, // 5: chalk.server.v1.CronResolverRun.upper_bound:type_name -> google.protobuf.Timestamp
+	31, // 6: chalk.server.v1.ManualTriggerCronResolverRequest.lower_bound:type_name -> google.protobuf.Timestamp
+	31, // 7: chalk.server.v1.ManualTriggerCronResolverRequest.upper_bound:type_name -> google.protobuf.Timestamp
+	33, // 8: chalk.server.v1.ManualTriggerCronResolverRequest.persistence_settings:type_name -> chalk.common.v1.PersistenceSettings
 	1,  // 9: chalk.server.v1.ManualTriggerCronResolverResponse.cron_resolver_run:type_name -> chalk.server.v1.CronResolverRun
-	25, // 10: chalk.server.v1.ManualTriggerScheduledQueryRequest.planner_options:type_name -> chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry
-	26, // 11: chalk.server.v1.ManualTriggerScheduledQueryRequest.env_overrides:type_name -> chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntry
-	30, // 12: chalk.server.v1.ManualTriggerScheduledQueryRequest.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
-	31, // 13: chalk.server.v1.ManualTriggerScheduledQueryResponse.scheduled_query_run:type_name -> chalk.server.v1.ScheduledQueryRun
-	1,  // 14: chalk.server.v1.GetScheduledResolverRunResponse.run:type_name -> chalk.server.v1.CronResolverRun
-	27, // 15: chalk.server.v1.ListScheduledResolverRunsRequest.cursor:type_name -> google.protobuf.Timestamp
-	32, // 16: chalk.server.v1.ListScheduledResolverRunsRequest.status_filter:type_name -> chalk.server.v1.OperationStatus
-	27, // 17: chalk.server.v1.ListScheduledResolverRunsRequest.start:type_name -> google.protobuf.Timestamp
-	27, // 18: chalk.server.v1.ListScheduledResolverRunsRequest.end:type_name -> google.protobuf.Timestamp
-	1,  // 19: chalk.server.v1.ListScheduledResolverRunsResponse.runs:type_name -> chalk.server.v1.CronResolverRun
-	1,  // 20: chalk.server.v1.CancelScheduledResolverRunResponse.cron_run:type_name -> chalk.server.v1.CronResolverRun
-	32, // 21: chalk.server.v1.ScheduledResolverRunInfo.status:type_name -> chalk.server.v1.OperationStatus
-	33, // 22: chalk.server.v1.ScheduledResolverRunInfo.resolvers:type_name -> chalk.server.v1.ResolverOperation
-	17, // 23: chalk.server.v1.ScheduledResolverInfo.control:type_name -> chalk.server.v1.ScheduledResolverControl
-	13, // 24: chalk.server.v1.ScheduledResolverInfo.latest_run:type_name -> chalk.server.v1.ScheduledResolverRunInfo
-	14, // 25: chalk.server.v1.GetActiveScheduledResolversResponse.scheduled_resolvers:type_name -> chalk.server.v1.ScheduledResolverInfo
-	34, // 26: chalk.server.v1.ScheduledResolverControl.status:type_name -> chalk.server.v1.CronControlStatus
-	27, // 27: chalk.server.v1.ScheduledResolverControl.created_at:type_name -> google.protobuf.Timestamp
-	27, // 28: chalk.server.v1.ScheduledResolverControl.updated_at:type_name -> google.protobuf.Timestamp
-	17, // 29: chalk.server.v1.GetScheduledResolverControlResponse.control:type_name -> chalk.server.v1.ScheduledResolverControl
-	34, // 30: chalk.server.v1.UpdateScheduledResolverControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
-	19, // 31: chalk.server.v1.UpdateScheduledResolverControlRequest.update:type_name -> chalk.server.v1.UpdateScheduledResolverControlOperation
-	35, // 32: chalk.server.v1.UpdateScheduledResolverControlRequest.update_mask:type_name -> google.protobuf.FieldMask
-	17, // 33: chalk.server.v1.UpdateScheduledResolverControlResponse.control:type_name -> chalk.server.v1.ScheduledResolverControl
-	27, // 34: chalk.server.v1.HighWaterMark.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
-	27, // 35: chalk.server.v1.HighWaterMark.last_execution_timestamp:type_name -> google.protobuf.Timestamp
-	27, // 36: chalk.server.v1.HighWaterMark.created_at:type_name -> google.protobuf.Timestamp
-	23, // 37: chalk.server.v1.GetLatestHighWaterMarkResponse.high_water_mark:type_name -> chalk.server.v1.HighWaterMark
-	36, // 38: chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
-	2,  // 39: chalk.server.v1.SchedulerService.ManualTriggerCronResolver:input_type -> chalk.server.v1.ManualTriggerCronResolverRequest
-	4,  // 40: chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery:input_type -> chalk.server.v1.ManualTriggerScheduledQueryRequest
-	6,  // 41: chalk.server.v1.SchedulerService.GetScheduledResolverRun:input_type -> chalk.server.v1.GetScheduledResolverRunRequest
-	8,  // 42: chalk.server.v1.SchedulerService.ListScheduledResolverRuns:input_type -> chalk.server.v1.ListScheduledResolverRunsRequest
-	10, // 43: chalk.server.v1.SchedulerService.CancelScheduledResolverRun:input_type -> chalk.server.v1.CancelScheduledResolverRunRequest
-	12, // 44: chalk.server.v1.SchedulerService.GetActiveScheduledResolvers:input_type -> chalk.server.v1.GetActiveScheduledResolversRequest
-	16, // 45: chalk.server.v1.SchedulerService.GetScheduledResolverControl:input_type -> chalk.server.v1.GetScheduledResolverControlRequest
-	20, // 46: chalk.server.v1.SchedulerService.UpdateScheduledResolverControl:input_type -> chalk.server.v1.UpdateScheduledResolverControlRequest
-	22, // 47: chalk.server.v1.SchedulerService.GetLatestHighWaterMark:input_type -> chalk.server.v1.GetLatestHighWaterMarkRequest
-	3,  // 48: chalk.server.v1.SchedulerService.ManualTriggerCronResolver:output_type -> chalk.server.v1.ManualTriggerCronResolverResponse
-	5,  // 49: chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery:output_type -> chalk.server.v1.ManualTriggerScheduledQueryResponse
-	7,  // 50: chalk.server.v1.SchedulerService.GetScheduledResolverRun:output_type -> chalk.server.v1.GetScheduledResolverRunResponse
-	9,  // 51: chalk.server.v1.SchedulerService.ListScheduledResolverRuns:output_type -> chalk.server.v1.ListScheduledResolverRunsResponse
-	11, // 52: chalk.server.v1.SchedulerService.CancelScheduledResolverRun:output_type -> chalk.server.v1.CancelScheduledResolverRunResponse
-	15, // 53: chalk.server.v1.SchedulerService.GetActiveScheduledResolvers:output_type -> chalk.server.v1.GetActiveScheduledResolversResponse
-	18, // 54: chalk.server.v1.SchedulerService.GetScheduledResolverControl:output_type -> chalk.server.v1.GetScheduledResolverControlResponse
-	21, // 55: chalk.server.v1.SchedulerService.UpdateScheduledResolverControl:output_type -> chalk.server.v1.UpdateScheduledResolverControlResponse
-	24, // 56: chalk.server.v1.SchedulerService.GetLatestHighWaterMark:output_type -> chalk.server.v1.GetLatestHighWaterMarkResponse
-	48, // [48:57] is the sub-list for method output_type
-	39, // [39:48] is the sub-list for method input_type
-	39, // [39:39] is the sub-list for extension type_name
-	39, // [39:39] is the sub-list for extension extendee
-	0,  // [0:39] is the sub-list for field type_name
+	27, // 10: chalk.server.v1.ManualTriggerScheduledQueryRequest.planner_options:type_name -> chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry
+	28, // 11: chalk.server.v1.ManualTriggerScheduledQueryRequest.env_overrides:type_name -> chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntry
+	34, // 12: chalk.server.v1.ManualTriggerScheduledQueryRequest.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
+	35, // 13: chalk.server.v1.ManualTriggerScheduledQueryResponse.scheduled_query_run:type_name -> chalk.server.v1.ScheduledQueryRun
+	29, // 14: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.planner_options:type_name -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry
+	30, // 15: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.env_overrides:type_name -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.EnvOverridesEntry
+	36, // 16: chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse.aggregate_backfill_job:type_name -> chalk.aggregate.v1.AggregateBackfillJob
+	1,  // 17: chalk.server.v1.GetScheduledResolverRunResponse.run:type_name -> chalk.server.v1.CronResolverRun
+	31, // 18: chalk.server.v1.ListScheduledResolverRunsRequest.cursor:type_name -> google.protobuf.Timestamp
+	37, // 19: chalk.server.v1.ListScheduledResolverRunsRequest.status_filter:type_name -> chalk.server.v1.OperationStatus
+	31, // 20: chalk.server.v1.ListScheduledResolverRunsRequest.start:type_name -> google.protobuf.Timestamp
+	31, // 21: chalk.server.v1.ListScheduledResolverRunsRequest.end:type_name -> google.protobuf.Timestamp
+	1,  // 22: chalk.server.v1.ListScheduledResolverRunsResponse.runs:type_name -> chalk.server.v1.CronResolverRun
+	1,  // 23: chalk.server.v1.CancelScheduledResolverRunResponse.cron_run:type_name -> chalk.server.v1.CronResolverRun
+	37, // 24: chalk.server.v1.ScheduledResolverRunInfo.status:type_name -> chalk.server.v1.OperationStatus
+	38, // 25: chalk.server.v1.ScheduledResolverRunInfo.resolvers:type_name -> chalk.server.v1.ResolverOperation
+	19, // 26: chalk.server.v1.ScheduledResolverInfo.control:type_name -> chalk.server.v1.ScheduledResolverControl
+	15, // 27: chalk.server.v1.ScheduledResolverInfo.latest_run:type_name -> chalk.server.v1.ScheduledResolverRunInfo
+	16, // 28: chalk.server.v1.GetActiveScheduledResolversResponse.scheduled_resolvers:type_name -> chalk.server.v1.ScheduledResolverInfo
+	39, // 29: chalk.server.v1.ScheduledResolverControl.status:type_name -> chalk.server.v1.CronControlStatus
+	31, // 30: chalk.server.v1.ScheduledResolverControl.created_at:type_name -> google.protobuf.Timestamp
+	31, // 31: chalk.server.v1.ScheduledResolverControl.updated_at:type_name -> google.protobuf.Timestamp
+	19, // 32: chalk.server.v1.GetScheduledResolverControlResponse.control:type_name -> chalk.server.v1.ScheduledResolverControl
+	39, // 33: chalk.server.v1.UpdateScheduledResolverControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
+	21, // 34: chalk.server.v1.UpdateScheduledResolverControlRequest.update:type_name -> chalk.server.v1.UpdateScheduledResolverControlOperation
+	40, // 35: chalk.server.v1.UpdateScheduledResolverControlRequest.update_mask:type_name -> google.protobuf.FieldMask
+	19, // 36: chalk.server.v1.UpdateScheduledResolverControlResponse.control:type_name -> chalk.server.v1.ScheduledResolverControl
+	31, // 37: chalk.server.v1.HighWaterMark.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
+	31, // 38: chalk.server.v1.HighWaterMark.last_execution_timestamp:type_name -> google.protobuf.Timestamp
+	31, // 39: chalk.server.v1.HighWaterMark.created_at:type_name -> google.protobuf.Timestamp
+	25, // 40: chalk.server.v1.GetLatestHighWaterMarkResponse.high_water_mark:type_name -> chalk.server.v1.HighWaterMark
+	41, // 41: chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
+	41, // 42: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
+	2,  // 43: chalk.server.v1.SchedulerService.ManualTriggerCronResolver:input_type -> chalk.server.v1.ManualTriggerCronResolverRequest
+	4,  // 44: chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery:input_type -> chalk.server.v1.ManualTriggerScheduledQueryRequest
+	6,  // 45: chalk.server.v1.SchedulerService.ManualTriggerScheduledAggregateBackfill:input_type -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest
+	8,  // 46: chalk.server.v1.SchedulerService.GetScheduledResolverRun:input_type -> chalk.server.v1.GetScheduledResolverRunRequest
+	10, // 47: chalk.server.v1.SchedulerService.ListScheduledResolverRuns:input_type -> chalk.server.v1.ListScheduledResolverRunsRequest
+	12, // 48: chalk.server.v1.SchedulerService.CancelScheduledResolverRun:input_type -> chalk.server.v1.CancelScheduledResolverRunRequest
+	14, // 49: chalk.server.v1.SchedulerService.GetActiveScheduledResolvers:input_type -> chalk.server.v1.GetActiveScheduledResolversRequest
+	18, // 50: chalk.server.v1.SchedulerService.GetScheduledResolverControl:input_type -> chalk.server.v1.GetScheduledResolverControlRequest
+	22, // 51: chalk.server.v1.SchedulerService.UpdateScheduledResolverControl:input_type -> chalk.server.v1.UpdateScheduledResolverControlRequest
+	24, // 52: chalk.server.v1.SchedulerService.GetLatestHighWaterMark:input_type -> chalk.server.v1.GetLatestHighWaterMarkRequest
+	3,  // 53: chalk.server.v1.SchedulerService.ManualTriggerCronResolver:output_type -> chalk.server.v1.ManualTriggerCronResolverResponse
+	5,  // 54: chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery:output_type -> chalk.server.v1.ManualTriggerScheduledQueryResponse
+	7,  // 55: chalk.server.v1.SchedulerService.ManualTriggerScheduledAggregateBackfill:output_type -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse
+	9,  // 56: chalk.server.v1.SchedulerService.GetScheduledResolverRun:output_type -> chalk.server.v1.GetScheduledResolverRunResponse
+	11, // 57: chalk.server.v1.SchedulerService.ListScheduledResolverRuns:output_type -> chalk.server.v1.ListScheduledResolverRunsResponse
+	13, // 58: chalk.server.v1.SchedulerService.CancelScheduledResolverRun:output_type -> chalk.server.v1.CancelScheduledResolverRunResponse
+	17, // 59: chalk.server.v1.SchedulerService.GetActiveScheduledResolvers:output_type -> chalk.server.v1.GetActiveScheduledResolversResponse
+	20, // 60: chalk.server.v1.SchedulerService.GetScheduledResolverControl:output_type -> chalk.server.v1.GetScheduledResolverControlResponse
+	23, // 61: chalk.server.v1.SchedulerService.UpdateScheduledResolverControl:output_type -> chalk.server.v1.UpdateScheduledResolverControlResponse
+	26, // 62: chalk.server.v1.SchedulerService.GetLatestHighWaterMark:output_type -> chalk.server.v1.GetLatestHighWaterMarkResponse
+	53, // [53:63] is the sub-list for method output_type
+	43, // [43:53] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_scheduler_proto_init() }
@@ -1978,22 +2115,22 @@ func file_chalk_server_v1_scheduler_proto_init() {
 		(*ManualTriggerScheduledQueryRequest_BranchId)(nil),
 		(*ManualTriggerScheduledQueryRequest_DeploymentId)(nil),
 	}
-	file_chalk_server_v1_scheduler_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_server_v1_scheduler_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_server_v1_scheduler_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_server_v1_scheduler_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_server_v1_scheduler_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_server_v1_scheduler_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_scheduler_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_server_v1_scheduler_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_server_v1_scheduler_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_server_v1_scheduler_proto_msgTypes[18].OneofWrappers = []any{}
-	file_chalk_server_v1_scheduler_proto_msgTypes[21].OneofWrappers = []any{}
-	file_chalk_server_v1_scheduler_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_server_v1_scheduler_proto_msgTypes[20].OneofWrappers = []any{}
 	file_chalk_server_v1_scheduler_proto_msgTypes[23].OneofWrappers = []any{}
+	file_chalk_server_v1_scheduler_proto_msgTypes[24].OneofWrappers = []any{}
+	file_chalk_server_v1_scheduler_proto_msgTypes[25].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_scheduler_proto_rawDesc), len(file_chalk_server_v1_scheduler_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   26,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

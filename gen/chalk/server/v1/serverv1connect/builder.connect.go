@@ -125,6 +125,24 @@ const (
 	// BuilderServiceMigrateClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's MigrateClusterTimescaleDB RPC.
 	BuilderServiceMigrateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/MigrateClusterTimescaleDB"
+	// BuilderServiceGetClusterWorkflowOrchestratorProcedure is the fully-qualified name of the
+	// BuilderService's GetClusterWorkflowOrchestrator RPC.
+	BuilderServiceGetClusterWorkflowOrchestratorProcedure = "/chalk.server.v1.BuilderService/GetClusterWorkflowOrchestrator"
+	// BuilderServiceGetClusterWorkflowOrchestratorDefaultProcedure is the fully-qualified name of the
+	// BuilderService's GetClusterWorkflowOrchestratorDefault RPC.
+	BuilderServiceGetClusterWorkflowOrchestratorDefaultProcedure = "/chalk.server.v1.BuilderService/GetClusterWorkflowOrchestratorDefault"
+	// BuilderServiceCreateClusterWorkflowOrchestratorProcedure is the fully-qualified name of the
+	// BuilderService's CreateClusterWorkflowOrchestrator RPC.
+	BuilderServiceCreateClusterWorkflowOrchestratorProcedure = "/chalk.server.v1.BuilderService/CreateClusterWorkflowOrchestrator"
+	// BuilderServiceUpdateClusterWorkflowOrchestratorProcedure is the fully-qualified name of the
+	// BuilderService's UpdateClusterWorkflowOrchestrator RPC.
+	BuilderServiceUpdateClusterWorkflowOrchestratorProcedure = "/chalk.server.v1.BuilderService/UpdateClusterWorkflowOrchestrator"
+	// BuilderServiceDeleteClusterWorkflowOrchestratorProcedure is the fully-qualified name of the
+	// BuilderService's DeleteClusterWorkflowOrchestrator RPC.
+	BuilderServiceDeleteClusterWorkflowOrchestratorProcedure = "/chalk.server.v1.BuilderService/DeleteClusterWorkflowOrchestrator"
+	// BuilderServiceMigrateClusterWorkflowOrchestratorProcedure is the fully-qualified name of the
+	// BuilderService's MigrateClusterWorkflowOrchestrator RPC.
+	BuilderServiceMigrateClusterWorkflowOrchestratorProcedure = "/chalk.server.v1.BuilderService/MigrateClusterWorkflowOrchestrator"
 	// BuilderServiceCreateClusterGatewayProcedure is the fully-qualified name of the BuilderService's
 	// CreateClusterGateway RPC.
 	BuilderServiceCreateClusterGatewayProcedure = "/chalk.server.v1.BuilderService/CreateClusterGateway"
@@ -277,6 +295,7 @@ type BuilderServiceClient interface {
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
 	ListClusterBackgroundPersistenceDeployments(context.Context, *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error)
+	// Deprecated: do not use.
 	ListStreamingKafkaKedaConfigs(context.Context, *connect.Request[v1.ListStreamingKafkaKedaConfigsRequest]) (*connect.Response[v1.ListStreamingKafkaKedaConfigsResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error)
@@ -285,8 +304,18 @@ type BuilderServiceClient interface {
 	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
 	DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error)
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
+	// ----- Workflow Orchestrator Engine -----
+	// All workflow-orchestrator RPCs resolve the target environment from the
+	// caller's auth context, never from the request payload.
+	GetClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.GetClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorResponse], error)
+	GetClusterWorkflowOrchestratorDefault(context.Context, *connect.Request[v1.GetClusterWorkflowOrchestratorDefaultRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorDefaultResponse], error)
+	CreateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.CreateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.CreateClusterWorkflowOrchestratorResponse], error)
+	UpdateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.UpdateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.UpdateClusterWorkflowOrchestratorResponse], error)
+	DeleteClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.DeleteClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.DeleteClusterWorkflowOrchestratorResponse], error)
+	MigrateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.MigrateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.MigrateClusterWorkflowOrchestratorResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
+	// Deprecated: do not use.
 	UpdateStreamingKafkaKedaConfig(context.Context, *connect.Request[v1.UpdateStreamingKafkaKedaConfigRequest]) (*connect.Response[v1.UpdateStreamingKafkaKedaConfigResponse], error)
 	// Deprecated: do not use.
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
@@ -528,6 +557,42 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceMigrateClusterTimescaleDBProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("MigrateClusterTimescaleDB")),
+			connect.WithClientOptions(opts...),
+		),
+		getClusterWorkflowOrchestrator: connect.NewClient[v1.GetClusterWorkflowOrchestratorRequest, v1.GetClusterWorkflowOrchestratorResponse](
+			httpClient,
+			baseURL+BuilderServiceGetClusterWorkflowOrchestratorProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterWorkflowOrchestrator")),
+			connect.WithClientOptions(opts...),
+		),
+		getClusterWorkflowOrchestratorDefault: connect.NewClient[v1.GetClusterWorkflowOrchestratorDefaultRequest, v1.GetClusterWorkflowOrchestratorDefaultResponse](
+			httpClient,
+			baseURL+BuilderServiceGetClusterWorkflowOrchestratorDefaultProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterWorkflowOrchestratorDefault")),
+			connect.WithClientOptions(opts...),
+		),
+		createClusterWorkflowOrchestrator: connect.NewClient[v1.CreateClusterWorkflowOrchestratorRequest, v1.CreateClusterWorkflowOrchestratorResponse](
+			httpClient,
+			baseURL+BuilderServiceCreateClusterWorkflowOrchestratorProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("CreateClusterWorkflowOrchestrator")),
+			connect.WithClientOptions(opts...),
+		),
+		updateClusterWorkflowOrchestrator: connect.NewClient[v1.UpdateClusterWorkflowOrchestratorRequest, v1.UpdateClusterWorkflowOrchestratorResponse](
+			httpClient,
+			baseURL+BuilderServiceUpdateClusterWorkflowOrchestratorProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("UpdateClusterWorkflowOrchestrator")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteClusterWorkflowOrchestrator: connect.NewClient[v1.DeleteClusterWorkflowOrchestratorRequest, v1.DeleteClusterWorkflowOrchestratorResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteClusterWorkflowOrchestratorProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteClusterWorkflowOrchestrator")),
+			connect.WithClientOptions(opts...),
+		),
+		migrateClusterWorkflowOrchestrator: connect.NewClient[v1.MigrateClusterWorkflowOrchestratorRequest, v1.MigrateClusterWorkflowOrchestratorResponse](
+			httpClient,
+			baseURL+BuilderServiceMigrateClusterWorkflowOrchestratorProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("MigrateClusterWorkflowOrchestrator")),
 			connect.WithClientOptions(opts...),
 		),
 		createClusterGateway: connect.NewClient[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse](
@@ -794,6 +859,12 @@ type builderServiceClient struct {
 	createEnvironmentCloudResources             *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
 	deleteEnvironmentCloudResources             *connect.Client[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse]
 	migrateClusterTimescaleDB                   *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
+	getClusterWorkflowOrchestrator              *connect.Client[v1.GetClusterWorkflowOrchestratorRequest, v1.GetClusterWorkflowOrchestratorResponse]
+	getClusterWorkflowOrchestratorDefault       *connect.Client[v1.GetClusterWorkflowOrchestratorDefaultRequest, v1.GetClusterWorkflowOrchestratorDefaultResponse]
+	createClusterWorkflowOrchestrator           *connect.Client[v1.CreateClusterWorkflowOrchestratorRequest, v1.CreateClusterWorkflowOrchestratorResponse]
+	updateClusterWorkflowOrchestrator           *connect.Client[v1.UpdateClusterWorkflowOrchestratorRequest, v1.UpdateClusterWorkflowOrchestratorResponse]
+	deleteClusterWorkflowOrchestrator           *connect.Client[v1.DeleteClusterWorkflowOrchestratorRequest, v1.DeleteClusterWorkflowOrchestratorResponse]
+	migrateClusterWorkflowOrchestrator          *connect.Client[v1.MigrateClusterWorkflowOrchestratorRequest, v1.MigrateClusterWorkflowOrchestratorResponse]
 	createClusterGateway                        *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
 	createClusterBackgroundPersistence          *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
 	updateStreamingKafkaKedaConfig              *connect.Client[v1.UpdateStreamingKafkaKedaConfigRequest, v1.UpdateStreamingKafkaKedaConfigResponse]
@@ -949,6 +1020,8 @@ func (c *builderServiceClient) ListClusterBackgroundPersistenceDeployments(ctx c
 }
 
 // ListStreamingKafkaKedaConfigs calls chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) ListStreamingKafkaKedaConfigs(ctx context.Context, req *connect.Request[v1.ListStreamingKafkaKedaConfigsRequest]) (*connect.Response[v1.ListStreamingKafkaKedaConfigsResponse], error) {
 	return c.listStreamingKafkaKedaConfigs.CallUnary(ctx, req)
 }
@@ -990,6 +1063,42 @@ func (c *builderServiceClient) MigrateClusterTimescaleDB(ctx context.Context, re
 	return c.migrateClusterTimescaleDB.CallUnary(ctx, req)
 }
 
+// GetClusterWorkflowOrchestrator calls
+// chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator.
+func (c *builderServiceClient) GetClusterWorkflowOrchestrator(ctx context.Context, req *connect.Request[v1.GetClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorResponse], error) {
+	return c.getClusterWorkflowOrchestrator.CallUnary(ctx, req)
+}
+
+// GetClusterWorkflowOrchestratorDefault calls
+// chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault.
+func (c *builderServiceClient) GetClusterWorkflowOrchestratorDefault(ctx context.Context, req *connect.Request[v1.GetClusterWorkflowOrchestratorDefaultRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorDefaultResponse], error) {
+	return c.getClusterWorkflowOrchestratorDefault.CallUnary(ctx, req)
+}
+
+// CreateClusterWorkflowOrchestrator calls
+// chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator.
+func (c *builderServiceClient) CreateClusterWorkflowOrchestrator(ctx context.Context, req *connect.Request[v1.CreateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.CreateClusterWorkflowOrchestratorResponse], error) {
+	return c.createClusterWorkflowOrchestrator.CallUnary(ctx, req)
+}
+
+// UpdateClusterWorkflowOrchestrator calls
+// chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator.
+func (c *builderServiceClient) UpdateClusterWorkflowOrchestrator(ctx context.Context, req *connect.Request[v1.UpdateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.UpdateClusterWorkflowOrchestratorResponse], error) {
+	return c.updateClusterWorkflowOrchestrator.CallUnary(ctx, req)
+}
+
+// DeleteClusterWorkflowOrchestrator calls
+// chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator.
+func (c *builderServiceClient) DeleteClusterWorkflowOrchestrator(ctx context.Context, req *connect.Request[v1.DeleteClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.DeleteClusterWorkflowOrchestratorResponse], error) {
+	return c.deleteClusterWorkflowOrchestrator.CallUnary(ctx, req)
+}
+
+// MigrateClusterWorkflowOrchestrator calls
+// chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator.
+func (c *builderServiceClient) MigrateClusterWorkflowOrchestrator(ctx context.Context, req *connect.Request[v1.MigrateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.MigrateClusterWorkflowOrchestratorResponse], error) {
+	return c.migrateClusterWorkflowOrchestrator.CallUnary(ctx, req)
+}
+
 // CreateClusterGateway calls chalk.server.v1.BuilderService.CreateClusterGateway.
 func (c *builderServiceClient) CreateClusterGateway(ctx context.Context, req *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error) {
 	return c.createClusterGateway.CallUnary(ctx, req)
@@ -1003,6 +1112,8 @@ func (c *builderServiceClient) CreateClusterBackgroundPersistence(ctx context.Co
 
 // UpdateStreamingKafkaKedaConfig calls
 // chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) UpdateStreamingKafkaKedaConfig(ctx context.Context, req *connect.Request[v1.UpdateStreamingKafkaKedaConfigRequest]) (*connect.Response[v1.UpdateStreamingKafkaKedaConfigResponse], error) {
 	return c.updateStreamingKafkaKedaConfig.CallUnary(ctx, req)
 }
@@ -1224,6 +1335,7 @@ type BuilderServiceHandler interface {
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
 	ListClusterBackgroundPersistenceDeployments(context.Context, *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error)
+	// Deprecated: do not use.
 	ListStreamingKafkaKedaConfigs(context.Context, *connect.Request[v1.ListStreamingKafkaKedaConfigsRequest]) (*connect.Response[v1.ListStreamingKafkaKedaConfigsResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error)
@@ -1232,8 +1344,18 @@ type BuilderServiceHandler interface {
 	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
 	DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error)
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
+	// ----- Workflow Orchestrator Engine -----
+	// All workflow-orchestrator RPCs resolve the target environment from the
+	// caller's auth context, never from the request payload.
+	GetClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.GetClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorResponse], error)
+	GetClusterWorkflowOrchestratorDefault(context.Context, *connect.Request[v1.GetClusterWorkflowOrchestratorDefaultRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorDefaultResponse], error)
+	CreateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.CreateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.CreateClusterWorkflowOrchestratorResponse], error)
+	UpdateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.UpdateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.UpdateClusterWorkflowOrchestratorResponse], error)
+	DeleteClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.DeleteClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.DeleteClusterWorkflowOrchestratorResponse], error)
+	MigrateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.MigrateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.MigrateClusterWorkflowOrchestratorResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
+	// Deprecated: do not use.
 	UpdateStreamingKafkaKedaConfig(context.Context, *connect.Request[v1.UpdateStreamingKafkaKedaConfigRequest]) (*connect.Response[v1.UpdateStreamingKafkaKedaConfigResponse], error)
 	// Deprecated: do not use.
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
@@ -1471,6 +1593,42 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceMigrateClusterTimescaleDBProcedure,
 		svc.MigrateClusterTimescaleDB,
 		connect.WithSchema(builderServiceMethods.ByName("MigrateClusterTimescaleDB")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceGetClusterWorkflowOrchestratorHandler := connect.NewUnaryHandler(
+		BuilderServiceGetClusterWorkflowOrchestratorProcedure,
+		svc.GetClusterWorkflowOrchestrator,
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterWorkflowOrchestrator")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceGetClusterWorkflowOrchestratorDefaultHandler := connect.NewUnaryHandler(
+		BuilderServiceGetClusterWorkflowOrchestratorDefaultProcedure,
+		svc.GetClusterWorkflowOrchestratorDefault,
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterWorkflowOrchestratorDefault")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceCreateClusterWorkflowOrchestratorHandler := connect.NewUnaryHandler(
+		BuilderServiceCreateClusterWorkflowOrchestratorProcedure,
+		svc.CreateClusterWorkflowOrchestrator,
+		connect.WithSchema(builderServiceMethods.ByName("CreateClusterWorkflowOrchestrator")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceUpdateClusterWorkflowOrchestratorHandler := connect.NewUnaryHandler(
+		BuilderServiceUpdateClusterWorkflowOrchestratorProcedure,
+		svc.UpdateClusterWorkflowOrchestrator,
+		connect.WithSchema(builderServiceMethods.ByName("UpdateClusterWorkflowOrchestrator")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDeleteClusterWorkflowOrchestratorHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteClusterWorkflowOrchestratorProcedure,
+		svc.DeleteClusterWorkflowOrchestrator,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteClusterWorkflowOrchestrator")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceMigrateClusterWorkflowOrchestratorHandler := connect.NewUnaryHandler(
+		BuilderServiceMigrateClusterWorkflowOrchestratorProcedure,
+		svc.MigrateClusterWorkflowOrchestrator,
+		connect.WithSchema(builderServiceMethods.ByName("MigrateClusterWorkflowOrchestrator")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceCreateClusterGatewayHandler := connect.NewUnaryHandler(
@@ -1764,6 +1922,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceDeleteEnvironmentCloudResourcesHandler.ServeHTTP(w, r)
 		case BuilderServiceMigrateClusterTimescaleDBProcedure:
 			builderServiceMigrateClusterTimescaleDBHandler.ServeHTTP(w, r)
+		case BuilderServiceGetClusterWorkflowOrchestratorProcedure:
+			builderServiceGetClusterWorkflowOrchestratorHandler.ServeHTTP(w, r)
+		case BuilderServiceGetClusterWorkflowOrchestratorDefaultProcedure:
+			builderServiceGetClusterWorkflowOrchestratorDefaultHandler.ServeHTTP(w, r)
+		case BuilderServiceCreateClusterWorkflowOrchestratorProcedure:
+			builderServiceCreateClusterWorkflowOrchestratorHandler.ServeHTTP(w, r)
+		case BuilderServiceUpdateClusterWorkflowOrchestratorProcedure:
+			builderServiceUpdateClusterWorkflowOrchestratorHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteClusterWorkflowOrchestratorProcedure:
+			builderServiceDeleteClusterWorkflowOrchestratorHandler.ServeHTTP(w, r)
+		case BuilderServiceMigrateClusterWorkflowOrchestratorProcedure:
+			builderServiceMigrateClusterWorkflowOrchestratorHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterGatewayProcedure:
 			builderServiceCreateClusterGatewayHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterBackgroundPersistenceProcedure:
@@ -1965,6 +2135,30 @@ func (UnimplementedBuilderServiceHandler) DeleteEnvironmentCloudResources(contex
 
 func (UnimplementedBuilderServiceHandler) MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.MigrateClusterTimescaleDB is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.GetClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetClusterWorkflowOrchestratorDefault(context.Context, *connect.Request[v1.GetClusterWorkflowOrchestratorDefaultRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorDefaultResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) CreateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.CreateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.CreateClusterWorkflowOrchestratorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UpdateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.UpdateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.UpdateClusterWorkflowOrchestratorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.DeleteClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.DeleteClusterWorkflowOrchestratorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) MigrateClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.MigrateClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.MigrateClusterWorkflowOrchestratorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error) {

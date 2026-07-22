@@ -21,6 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Representation of a serialized bloom filter
 type BloomFilter struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	Environment string                 `protobuf:"bytes,1,opt,name=environment,proto3" json:"environment,omitempty"`
@@ -115,6 +116,290 @@ func (x *BloomFilter) GetData() []byte {
 	return nil
 }
 
+// Configuration necessary to create the bloom filter binary config
+// This determines the hash function(s) and size in bytes
+type BloomFilterDataConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Expected number of items in the dataset
+	NumExpectedEntries uint64 `protobuf:"varint,1,opt,name=num_expected_entries,json=numExpectedEntries,proto3" json:"num_expected_entries,omitempty"`
+	// Chance that two entries will collide (assuming the above # of entries) -- i.e. rate of a false positive
+	TargetCollisionRate float64 `protobuf:"fixed64,2,opt,name=target_collision_rate,json=targetCollisionRate,proto3" json:"target_collision_rate,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *BloomFilterDataConfig) Reset() {
+	*x = BloomFilterDataConfig{}
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BloomFilterDataConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BloomFilterDataConfig) ProtoMessage() {}
+
+func (x *BloomFilterDataConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BloomFilterDataConfig.ProtoReflect.Descriptor instead.
+func (*BloomFilterDataConfig) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_bloom_filter_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *BloomFilterDataConfig) GetNumExpectedEntries() uint64 {
+	if x != nil {
+		return x.NumExpectedEntries
+	}
+	return 0
+}
+
+func (x *BloomFilterDataConfig) GetTargetCollisionRate() float64 {
+	if x != nil {
+		return x.TargetCollisionRate
+	}
+	return 0
+}
+
+type BloomFilterDataStats struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	FilterSizeBytes uint64                 `protobuf:"varint,1,opt,name=filter_size_bytes,json=filterSizeBytes,proto3" json:"filter_size_bytes,omitempty"`
+	// Number of set bits in the dataset -- this can be used to estimate # of entries, collision rate, etc.
+	// (if this is too high the error rate will be higher than configured)
+	NumBitsSet                 uint64  `protobuf:"varint,2,opt,name=num_bits_set,json=numBitsSet,proto3" json:"num_bits_set,omitempty"`
+	EstimatedNumEntries        uint64  `protobuf:"varint,3,opt,name=estimated_num_entries,json=estimatedNumEntries,proto3" json:"estimated_num_entries,omitempty"`
+	EstimatedErrorRate         float64 `protobuf:"fixed64,4,opt,name=estimated_error_rate,json=estimatedErrorRate,proto3" json:"estimated_error_rate,omitempty"`
+	EmpiricalFalsePositiveRate float64 `protobuf:"fixed64,5,opt,name=empirical_false_positive_rate,json=empiricalFalsePositiveRate,proto3" json:"empirical_false_positive_rate,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
+}
+
+func (x *BloomFilterDataStats) Reset() {
+	*x = BloomFilterDataStats{}
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BloomFilterDataStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BloomFilterDataStats) ProtoMessage() {}
+
+func (x *BloomFilterDataStats) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BloomFilterDataStats.ProtoReflect.Descriptor instead.
+func (*BloomFilterDataStats) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_bloom_filter_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BloomFilterDataStats) GetFilterSizeBytes() uint64 {
+	if x != nil {
+		return x.FilterSizeBytes
+	}
+	return 0
+}
+
+func (x *BloomFilterDataStats) GetNumBitsSet() uint64 {
+	if x != nil {
+		return x.NumBitsSet
+	}
+	return 0
+}
+
+func (x *BloomFilterDataStats) GetEstimatedNumEntries() uint64 {
+	if x != nil {
+		return x.EstimatedNumEntries
+	}
+	return 0
+}
+
+func (x *BloomFilterDataStats) GetEstimatedErrorRate() float64 {
+	if x != nil {
+		return x.EstimatedErrorRate
+	}
+	return 0
+}
+
+func (x *BloomFilterDataStats) GetEmpiricalFalsePositiveRate() float64 {
+	if x != nil {
+		return x.EmpiricalFalsePositiveRate
+	}
+	return 0
+}
+
+// Information about a bloom filter loaded from memory
+type ActiveBloomFilterInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Config        *BloomFilterDataConfig `protobuf:"bytes,2,opt,name=config,proto3" json:"config,omitempty"`
+	Stats         *BloomFilterDataStats  `protobuf:"bytes,3,opt,name=stats,proto3,oneof" json:"stats,omitempty"` // TODO need to track original s3 URI, time range, etc.
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ActiveBloomFilterInfo) Reset() {
+	*x = ActiveBloomFilterInfo{}
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ActiveBloomFilterInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ActiveBloomFilterInfo) ProtoMessage() {}
+
+func (x *ActiveBloomFilterInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ActiveBloomFilterInfo.ProtoReflect.Descriptor instead.
+func (*ActiveBloomFilterInfo) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_bloom_filter_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ActiveBloomFilterInfo) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *ActiveBloomFilterInfo) GetConfig() *BloomFilterDataConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+func (x *ActiveBloomFilterInfo) GetStats() *BloomFilterDataStats {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
+type InspectBloomFiltersRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// If non-empty, filter response to only these namespaces
+	Namespaces    []string `protobuf:"bytes,1,rep,name=namespaces,proto3" json:"namespaces,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InspectBloomFiltersRequest) Reset() {
+	*x = InspectBloomFiltersRequest{}
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InspectBloomFiltersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InspectBloomFiltersRequest) ProtoMessage() {}
+
+func (x *InspectBloomFiltersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InspectBloomFiltersRequest.ProtoReflect.Descriptor instead.
+func (*InspectBloomFiltersRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_bloom_filter_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *InspectBloomFiltersRequest) GetNamespaces() []string {
+	if x != nil {
+		return x.Namespaces
+	}
+	return nil
+}
+
+type InspectBloomFiltersResponse struct {
+	state              protoimpl.MessageState   `protogen:"open.v1"`
+	ActiveBloomFilters []*ActiveBloomFilterInfo `protobuf:"bytes,1,rep,name=active_bloom_filters,json=activeBloomFilters,proto3" json:"active_bloom_filters,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *InspectBloomFiltersResponse) Reset() {
+	*x = InspectBloomFiltersResponse{}
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InspectBloomFiltersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InspectBloomFiltersResponse) ProtoMessage() {}
+
+func (x *InspectBloomFiltersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_bloom_filter_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InspectBloomFiltersResponse.ProtoReflect.Descriptor instead.
+func (*InspectBloomFiltersResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_bloom_filter_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *InspectBloomFiltersResponse) GetActiveBloomFilters() []*ActiveBloomFilterInfo {
+	if x != nil {
+		return x.ActiveBloomFilters
+	}
+	return nil
+}
+
 var File_chalk_engine_v1_bloom_filter_proto protoreflect.FileDescriptor
 
 const file_chalk_engine_v1_bloom_filter_proto_rawDesc = "" +
@@ -130,7 +415,28 @@ const file_chalk_engine_v1_bloom_filter_proto_rawDesc = "" +
 	"num_hashes\x18\x05 \x01(\x04R\tnumHashes\x12\x1d\n" +
 	"\n" +
 	"size_bytes\x18\x06 \x01(\x04R\tsizeBytes\x12\x12\n" +
-	"\x04data\x18\a \x01(\fR\x04dataB\xc0\x01\n" +
+	"\x04data\x18\a \x01(\fR\x04data\"}\n" +
+	"\x15BloomFilterDataConfig\x120\n" +
+	"\x14num_expected_entries\x18\x01 \x01(\x04R\x12numExpectedEntries\x122\n" +
+	"\x15target_collision_rate\x18\x02 \x01(\x01R\x13targetCollisionRate\"\x8d\x02\n" +
+	"\x14BloomFilterDataStats\x12*\n" +
+	"\x11filter_size_bytes\x18\x01 \x01(\x04R\x0ffilterSizeBytes\x12 \n" +
+	"\fnum_bits_set\x18\x02 \x01(\x04R\n" +
+	"numBitsSet\x122\n" +
+	"\x15estimated_num_entries\x18\x03 \x01(\x04R\x13estimatedNumEntries\x120\n" +
+	"\x14estimated_error_rate\x18\x04 \x01(\x01R\x12estimatedErrorRate\x12A\n" +
+	"\x1dempirical_false_positive_rate\x18\x05 \x01(\x01R\x1aempiricalFalsePositiveRate\"\xc1\x01\n" +
+	"\x15ActiveBloomFilterInfo\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12>\n" +
+	"\x06config\x18\x02 \x01(\v2&.chalk.engine.v1.BloomFilterDataConfigR\x06config\x12@\n" +
+	"\x05stats\x18\x03 \x01(\v2%.chalk.engine.v1.BloomFilterDataStatsH\x00R\x05stats\x88\x01\x01B\b\n" +
+	"\x06_stats\"<\n" +
+	"\x1aInspectBloomFiltersRequest\x12\x1e\n" +
+	"\n" +
+	"namespaces\x18\x01 \x03(\tR\n" +
+	"namespaces\"w\n" +
+	"\x1bInspectBloomFiltersResponse\x12X\n" +
+	"\x14active_bloom_filters\x18\x01 \x03(\v2&.chalk.engine.v1.ActiveBloomFilterInfoR\x12activeBloomFiltersB\xc0\x01\n" +
 	"\x13com.chalk.engine.v1B\x10BloomFilterProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/engine/v1;enginev1\xa2\x02\x03CEX\xaa\x02\x0fChalk.Engine.V1\xca\x02\x0fChalk\\Engine\\V1\xe2\x02\x1bChalk\\Engine\\V1\\GPBMetadata\xea\x02\x11Chalk::Engine::V1b\x06proto3"
 
 var (
@@ -145,16 +451,24 @@ func file_chalk_engine_v1_bloom_filter_proto_rawDescGZIP() []byte {
 	return file_chalk_engine_v1_bloom_filter_proto_rawDescData
 }
 
-var file_chalk_engine_v1_bloom_filter_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_chalk_engine_v1_bloom_filter_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_engine_v1_bloom_filter_proto_goTypes = []any{
-	(*BloomFilter)(nil), // 0: chalk.engine.v1.BloomFilter
+	(*BloomFilter)(nil),                 // 0: chalk.engine.v1.BloomFilter
+	(*BloomFilterDataConfig)(nil),       // 1: chalk.engine.v1.BloomFilterDataConfig
+	(*BloomFilterDataStats)(nil),        // 2: chalk.engine.v1.BloomFilterDataStats
+	(*ActiveBloomFilterInfo)(nil),       // 3: chalk.engine.v1.ActiveBloomFilterInfo
+	(*InspectBloomFiltersRequest)(nil),  // 4: chalk.engine.v1.InspectBloomFiltersRequest
+	(*InspectBloomFiltersResponse)(nil), // 5: chalk.engine.v1.InspectBloomFiltersResponse
 }
 var file_chalk_engine_v1_bloom_filter_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	1, // 0: chalk.engine.v1.ActiveBloomFilterInfo.config:type_name -> chalk.engine.v1.BloomFilterDataConfig
+	2, // 1: chalk.engine.v1.ActiveBloomFilterInfo.stats:type_name -> chalk.engine.v1.BloomFilterDataStats
+	3, // 2: chalk.engine.v1.InspectBloomFiltersResponse.active_bloom_filters:type_name -> chalk.engine.v1.ActiveBloomFilterInfo
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_chalk_engine_v1_bloom_filter_proto_init() }
@@ -162,13 +476,14 @@ func file_chalk_engine_v1_bloom_filter_proto_init() {
 	if File_chalk_engine_v1_bloom_filter_proto != nil {
 		return
 	}
+	file_chalk_engine_v1_bloom_filter_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_engine_v1_bloom_filter_proto_rawDesc), len(file_chalk_engine_v1_bloom_filter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

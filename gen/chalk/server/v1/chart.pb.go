@@ -1802,6 +1802,104 @@ func (x *GetChartResponse) GetActiveIncidents() []*MetricIncident {
 	return nil
 }
 
+// Deprecated
+type GetChartByIdOnlyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ChartId       string                 `protobuf:"bytes,1,opt,name=chart_id,json=chartId,proto3" json:"chart_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetChartByIdOnlyRequest) Reset() {
+	*x = GetChartByIdOnlyRequest{}
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetChartByIdOnlyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetChartByIdOnlyRequest) ProtoMessage() {}
+
+func (x *GetChartByIdOnlyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetChartByIdOnlyRequest.ProtoReflect.Descriptor instead.
+func (*GetChartByIdOnlyRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetChartByIdOnlyRequest) GetChartId() string {
+	if x != nil {
+		return x.ChartId
+	}
+	return ""
+}
+
+// Deprecated
+type GetChartByIdOnlyResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Chart           *v1.Chart              `protobuf:"bytes,1,opt,name=chart,proto3" json:"chart,omitempty"`
+	ActiveIncidents []*MetricIncident      `protobuf:"bytes,2,rep,name=active_incidents,json=activeIncidents,proto3" json:"active_incidents,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GetChartByIdOnlyResponse) Reset() {
+	*x = GetChartByIdOnlyResponse{}
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetChartByIdOnlyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetChartByIdOnlyResponse) ProtoMessage() {}
+
+func (x *GetChartByIdOnlyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetChartByIdOnlyResponse.ProtoReflect.Descriptor instead.
+func (*GetChartByIdOnlyResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *GetChartByIdOnlyResponse) GetChart() *v1.Chart {
+	if x != nil {
+		return x.Chart
+	}
+	return nil
+}
+
+func (x *GetChartByIdOnlyResponse) GetActiveIncidents() []*MetricIncident {
+	if x != nil {
+		return x.ActiveIncidents
+	}
+	return nil
+}
+
 type GetChartOptionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1810,7 +1908,7 @@ type GetChartOptionsRequest struct {
 
 func (x *GetChartOptionsRequest) Reset() {
 	*x = GetChartOptionsRequest{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1822,7 +1920,7 @@ func (x *GetChartOptionsRequest) String() string {
 func (*GetChartOptionsRequest) ProtoMessage() {}
 
 func (x *GetChartOptionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1835,7 +1933,7 @@ func (x *GetChartOptionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChartOptionsRequest.ProtoReflect.Descriptor instead.
 func (*GetChartOptionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{26}
 }
 
 type FilterOptionNamespace struct {
@@ -1848,7 +1946,7 @@ type FilterOptionNamespace struct {
 
 func (x *FilterOptionNamespace) Reset() {
 	*x = FilterOptionNamespace{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1860,7 +1958,7 @@ func (x *FilterOptionNamespace) String() string {
 func (*FilterOptionNamespace) ProtoMessage() {}
 
 func (x *FilterOptionNamespace) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1873,7 +1971,7 @@ func (x *FilterOptionNamespace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterOptionNamespace.ProtoReflect.Descriptor instead.
 func (*FilterOptionNamespace) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *FilterOptionNamespace) GetNamespace() string {
@@ -1901,7 +1999,7 @@ type FilterOption struct {
 
 func (x *FilterOption) Reset() {
 	*x = FilterOption{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1913,7 +2011,7 @@ func (x *FilterOption) String() string {
 func (*FilterOption) ProtoMessage() {}
 
 func (x *FilterOption) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1926,7 +2024,7 @@ func (x *FilterOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterOption.ProtoReflect.Descriptor instead.
 func (*FilterOption) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *FilterOption) GetDisplayName() string {
@@ -1960,7 +2058,7 @@ type GroupOption struct {
 
 func (x *GroupOption) Reset() {
 	*x = GroupOption{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1972,7 +2070,7 @@ func (x *GroupOption) String() string {
 func (*GroupOption) ProtoMessage() {}
 
 func (x *GroupOption) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1985,7 +2083,7 @@ func (x *GroupOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GroupOption.ProtoReflect.Descriptor instead.
 func (*GroupOption) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GroupOption) GetDisplayName() string {
@@ -2012,7 +2110,7 @@ type WindowFunctionOption struct {
 
 func (x *WindowFunctionOption) Reset() {
 	*x = WindowFunctionOption{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2024,7 +2122,7 @@ func (x *WindowFunctionOption) String() string {
 func (*WindowFunctionOption) ProtoMessage() {}
 
 func (x *WindowFunctionOption) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2037,7 +2135,7 @@ func (x *WindowFunctionOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindowFunctionOption.ProtoReflect.Descriptor instead.
 func (*WindowFunctionOption) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *WindowFunctionOption) GetDisplayName() string {
@@ -2069,7 +2167,7 @@ type MetricOptions struct {
 
 func (x *MetricOptions) Reset() {
 	*x = MetricOptions{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2081,7 +2179,7 @@ func (x *MetricOptions) String() string {
 func (*MetricOptions) ProtoMessage() {}
 
 func (x *MetricOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2094,7 +2192,7 @@ func (x *MetricOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricOptions.ProtoReflect.Descriptor instead.
 func (*MetricOptions) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *MetricOptions) GetKind() v1.MetricKind {
@@ -2142,7 +2240,7 @@ type MetricFormulaFeatureOperandInput struct {
 
 func (x *MetricFormulaFeatureOperandInput) Reset() {
 	*x = MetricFormulaFeatureOperandInput{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2154,7 +2252,7 @@ func (x *MetricFormulaFeatureOperandInput) String() string {
 func (*MetricFormulaFeatureOperandInput) ProtoMessage() {}
 
 func (x *MetricFormulaFeatureOperandInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2167,7 +2265,7 @@ func (x *MetricFormulaFeatureOperandInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricFormulaFeatureOperandInput.ProtoReflect.Descriptor instead.
 func (*MetricFormulaFeatureOperandInput) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *MetricFormulaFeatureOperandInput) GetNamespace() string {
@@ -2197,7 +2295,7 @@ type MetricFormulaFeatureOperandList struct {
 
 func (x *MetricFormulaFeatureOperandList) Reset() {
 	*x = MetricFormulaFeatureOperandList{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2209,7 +2307,7 @@ func (x *MetricFormulaFeatureOperandList) String() string {
 func (*MetricFormulaFeatureOperandList) ProtoMessage() {}
 
 func (x *MetricFormulaFeatureOperandList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2222,7 +2320,7 @@ func (x *MetricFormulaFeatureOperandList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricFormulaFeatureOperandList.ProtoReflect.Descriptor instead.
 func (*MetricFormulaFeatureOperandList) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{33}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/chart.proto.
@@ -2259,7 +2357,7 @@ type MetricFormulaDatasetOperandInput struct {
 
 func (x *MetricFormulaDatasetOperandInput) Reset() {
 	*x = MetricFormulaDatasetOperandInput{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2271,7 +2369,7 @@ func (x *MetricFormulaDatasetOperandInput) String() string {
 func (*MetricFormulaDatasetOperandInput) ProtoMessage() {}
 
 func (x *MetricFormulaDatasetOperandInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2284,7 +2382,7 @@ func (x *MetricFormulaDatasetOperandInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricFormulaDatasetOperandInput.ProtoReflect.Descriptor instead.
 func (*MetricFormulaDatasetOperandInput) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *MetricFormulaDatasetOperandInput) GetId() string {
@@ -2319,7 +2417,7 @@ type MetricFormulaDatasetOperandList struct {
 
 func (x *MetricFormulaDatasetOperandList) Reset() {
 	*x = MetricFormulaDatasetOperandList{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2331,7 +2429,7 @@ func (x *MetricFormulaDatasetOperandList) String() string {
 func (*MetricFormulaDatasetOperandList) ProtoMessage() {}
 
 func (x *MetricFormulaDatasetOperandList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2344,7 +2442,7 @@ func (x *MetricFormulaDatasetOperandList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricFormulaDatasetOperandList.ProtoReflect.Descriptor instead.
 func (*MetricFormulaDatasetOperandList) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{35}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/chart.proto.
@@ -2376,7 +2474,7 @@ type MetricFormulaOperand struct {
 
 func (x *MetricFormulaOperand) Reset() {
 	*x = MetricFormulaOperand{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2388,7 +2486,7 @@ func (x *MetricFormulaOperand) String() string {
 func (*MetricFormulaOperand) ProtoMessage() {}
 
 func (x *MetricFormulaOperand) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2401,7 +2499,7 @@ func (x *MetricFormulaOperand) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricFormulaOperand.ProtoReflect.Descriptor instead.
 func (*MetricFormulaOperand) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *MetricFormulaOperand) GetKind() MetricFormulaOperandKind {
@@ -2463,7 +2561,7 @@ type MetricFormulaOption struct {
 
 func (x *MetricFormulaOption) Reset() {
 	*x = MetricFormulaOption{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2475,7 +2573,7 @@ func (x *MetricFormulaOption) String() string {
 func (*MetricFormulaOption) ProtoMessage() {}
 
 func (x *MetricFormulaOption) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2488,7 +2586,7 @@ func (x *MetricFormulaOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricFormulaOption.ProtoReflect.Descriptor instead.
 func (*MetricFormulaOption) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{35}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *MetricFormulaOption) GetDisplayName() string {
@@ -2522,7 +2620,7 @@ type GetChartOptionsResponse struct {
 
 func (x *GetChartOptionsResponse) Reset() {
 	*x = GetChartOptionsResponse{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2534,7 +2632,7 @@ func (x *GetChartOptionsResponse) String() string {
 func (*GetChartOptionsResponse) ProtoMessage() {}
 
 func (x *GetChartOptionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2547,7 +2645,7 @@ func (x *GetChartOptionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChartOptionsResponse.ProtoReflect.Descriptor instead.
 func (*GetChartOptionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{36}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GetChartOptionsResponse) GetMetrics() []*MetricOptions {
@@ -2574,7 +2672,7 @@ type MetricHealthCheck struct {
 
 func (x *MetricHealthCheck) Reset() {
 	*x = MetricHealthCheck{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2586,7 +2684,7 @@ func (x *MetricHealthCheck) String() string {
 func (*MetricHealthCheck) ProtoMessage() {}
 
 func (x *MetricHealthCheck) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2599,7 +2697,7 @@ func (x *MetricHealthCheck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricHealthCheck.ProtoReflect.Descriptor instead.
 func (*MetricHealthCheck) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{37}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *MetricHealthCheck) GetStatus() MetricHealthStatus {
@@ -2626,7 +2724,7 @@ type SparkPoint struct {
 
 func (x *SparkPoint) Reset() {
 	*x = SparkPoint{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2638,7 +2736,7 @@ func (x *SparkPoint) String() string {
 func (*SparkPoint) ProtoMessage() {}
 
 func (x *SparkPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2651,7 +2749,7 @@ func (x *SparkPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SparkPoint.ProtoReflect.Descriptor instead.
 func (*SparkPoint) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{38}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *SparkPoint) GetX() float64 {
@@ -2678,7 +2776,7 @@ type SparkSeries struct {
 
 func (x *SparkSeries) Reset() {
 	*x = SparkSeries{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2690,7 +2788,7 @@ func (x *SparkSeries) String() string {
 func (*SparkSeries) ProtoMessage() {}
 
 func (x *SparkSeries) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2703,7 +2801,7 @@ func (x *SparkSeries) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SparkSeries.ProtoReflect.Descriptor instead.
 func (*SparkSeries) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{39}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *SparkSeries) GetName() string {
@@ -2732,7 +2830,7 @@ type EntityMetrics struct {
 
 func (x *EntityMetrics) Reset() {
 	*x = EntityMetrics{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2744,7 +2842,7 @@ func (x *EntityMetrics) String() string {
 func (*EntityMetrics) ProtoMessage() {}
 
 func (x *EntityMetrics) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2757,7 +2855,7 @@ func (x *EntityMetrics) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EntityMetrics.ProtoReflect.Descriptor instead.
 func (*EntityMetrics) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{40}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *EntityMetrics) GetFqn() string {
@@ -2797,7 +2895,7 @@ type GetFeatureMetricsRequest struct {
 
 func (x *GetFeatureMetricsRequest) Reset() {
 	*x = GetFeatureMetricsRequest{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2809,7 +2907,7 @@ func (x *GetFeatureMetricsRequest) String() string {
 func (*GetFeatureMetricsRequest) ProtoMessage() {}
 
 func (x *GetFeatureMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2822,7 +2920,7 @@ func (x *GetFeatureMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFeatureMetricsRequest.ProtoReflect.Descriptor instead.
 func (*GetFeatureMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{41}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *GetFeatureMetricsRequest) GetFqns() []string {
@@ -2841,7 +2939,7 @@ type GetFeatureMetricsResponse struct {
 
 func (x *GetFeatureMetricsResponse) Reset() {
 	*x = GetFeatureMetricsResponse{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[42]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2853,7 +2951,7 @@ func (x *GetFeatureMetricsResponse) String() string {
 func (*GetFeatureMetricsResponse) ProtoMessage() {}
 
 func (x *GetFeatureMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[42]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2866,7 +2964,7 @@ func (x *GetFeatureMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFeatureMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetFeatureMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{42}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *GetFeatureMetricsResponse) GetMetrics() []*EntityMetrics {
@@ -2885,7 +2983,7 @@ type GetResolverMetricsRequest struct {
 
 func (x *GetResolverMetricsRequest) Reset() {
 	*x = GetResolverMetricsRequest{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[43]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2897,7 +2995,7 @@ func (x *GetResolverMetricsRequest) String() string {
 func (*GetResolverMetricsRequest) ProtoMessage() {}
 
 func (x *GetResolverMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[43]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2910,7 +3008,7 @@ func (x *GetResolverMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetResolverMetricsRequest.ProtoReflect.Descriptor instead.
 func (*GetResolverMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{43}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *GetResolverMetricsRequest) GetFqns() []string {
@@ -2929,7 +3027,7 @@ type GetResolverMetricsResponse struct {
 
 func (x *GetResolverMetricsResponse) Reset() {
 	*x = GetResolverMetricsResponse{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[44]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2941,7 +3039,7 @@ func (x *GetResolverMetricsResponse) String() string {
 func (*GetResolverMetricsResponse) ProtoMessage() {}
 
 func (x *GetResolverMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[44]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2954,7 +3052,7 @@ func (x *GetResolverMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetResolverMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetResolverMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{44}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *GetResolverMetricsResponse) GetMetrics() []*EntityMetrics {
@@ -2973,7 +3071,7 @@ type GetQueryMetricsRequest struct {
 
 func (x *GetQueryMetricsRequest) Reset() {
 	*x = GetQueryMetricsRequest{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[45]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2985,7 +3083,7 @@ func (x *GetQueryMetricsRequest) String() string {
 func (*GetQueryMetricsRequest) ProtoMessage() {}
 
 func (x *GetQueryMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[45]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2998,7 +3096,7 @@ func (x *GetQueryMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetQueryMetricsRequest.ProtoReflect.Descriptor instead.
 func (*GetQueryMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{45}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *GetQueryMetricsRequest) GetFqns() []string {
@@ -3017,7 +3115,7 @@ type GetQueryMetricsResponse struct {
 
 func (x *GetQueryMetricsResponse) Reset() {
 	*x = GetQueryMetricsResponse{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[46]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3029,7 +3127,7 @@ func (x *GetQueryMetricsResponse) String() string {
 func (*GetQueryMetricsResponse) ProtoMessage() {}
 
 func (x *GetQueryMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[46]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3042,7 +3140,7 @@ func (x *GetQueryMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetQueryMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetQueryMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{46}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *GetQueryMetricsResponse) GetMetrics() []*EntityMetrics {
@@ -3061,7 +3159,7 @@ type GetMetricOptionsRequest struct {
 
 func (x *GetMetricOptionsRequest) Reset() {
 	*x = GetMetricOptionsRequest{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[47]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3073,7 +3171,7 @@ func (x *GetMetricOptionsRequest) String() string {
 func (*GetMetricOptionsRequest) ProtoMessage() {}
 
 func (x *GetMetricOptionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[47]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3086,7 +3184,7 @@ func (x *GetMetricOptionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetricOptionsRequest.ProtoReflect.Descriptor instead.
 func (*GetMetricOptionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{47}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetMetricOptionsRequest) GetMetricKind() v1.MetricKind {
@@ -3105,7 +3203,7 @@ type GetMetricOptionsResponse struct {
 
 func (x *GetMetricOptionsResponse) Reset() {
 	*x = GetMetricOptionsResponse{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[48]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3117,7 +3215,7 @@ func (x *GetMetricOptionsResponse) String() string {
 func (*GetMetricOptionsResponse) ProtoMessage() {}
 
 func (x *GetMetricOptionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[48]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3130,7 +3228,7 @@ func (x *GetMetricOptionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetricOptionsResponse.ProtoReflect.Descriptor instead.
 func (*GetMetricOptionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{48}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *GetMetricOptionsResponse) GetMetricOptions() *MetricOptions {
@@ -3149,7 +3247,7 @@ type GetFormulaOptionsRequest struct {
 
 func (x *GetFormulaOptionsRequest) Reset() {
 	*x = GetFormulaOptionsRequest{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[49]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3161,7 +3259,7 @@ func (x *GetFormulaOptionsRequest) String() string {
 func (*GetFormulaOptionsRequest) ProtoMessage() {}
 
 func (x *GetFormulaOptionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[49]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3174,7 +3272,7 @@ func (x *GetFormulaOptionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFormulaOptionsRequest.ProtoReflect.Descriptor instead.
 func (*GetFormulaOptionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{49}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *GetFormulaOptionsRequest) GetFormulaKind() v1.MetricFormulaKind {
@@ -3193,7 +3291,7 @@ type GetFormulaOptionsResponse struct {
 
 func (x *GetFormulaOptionsResponse) Reset() {
 	*x = GetFormulaOptionsResponse{}
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[50]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3205,7 +3303,7 @@ func (x *GetFormulaOptionsResponse) String() string {
 func (*GetFormulaOptionsResponse) ProtoMessage() {}
 
 func (x *GetFormulaOptionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_chart_proto_msgTypes[50]
+	mi := &file_chalk_server_v1_chart_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3218,7 +3316,7 @@ func (x *GetFormulaOptionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFormulaOptionsResponse.ProtoReflect.Descriptor instead.
 func (*GetFormulaOptionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{50}
+	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *GetFormulaOptionsResponse) GetFormulaOptions() *MetricFormulaOption {
@@ -3374,6 +3472,11 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"\bchart_id\x18\x01 \x01(\tR\achartId\"\x8f\x01\n" +
 	"\x10GetChartResponse\x12/\n" +
 	"\x05chart\x18\x01 \x01(\v2\x19.chalk.artifacts.v1.ChartR\x05chart\x12J\n" +
+	"\x10active_incidents\x18\x02 \x03(\v2\x1f.chalk.server.v1.MetricIncidentR\x0factiveIncidents\"4\n" +
+	"\x17GetChartByIdOnlyRequest\x12\x19\n" +
+	"\bchart_id\x18\x01 \x01(\tR\achartId\"\x97\x01\n" +
+	"\x18GetChartByIdOnlyResponse\x12/\n" +
+	"\x05chart\x18\x01 \x01(\v2\x19.chalk.artifacts.v1.ChartR\x05chart\x12J\n" +
 	"\x10active_incidents\x18\x02 \x03(\v2\x1f.chalk.server.v1.MetricIncidentR\x0factiveIncidents\"\x18\n" +
 	"\x16GetChartOptionsRequest\"M\n" +
 	"\x15FilterOptionNamespace\x12\x1c\n" +
@@ -3486,7 +3589,7 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	" METRIC_HEALTH_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cMETRIC_HEALTH_STATUS_HEALTHY\x10\x01\x12\"\n" +
 	"\x1eMETRIC_HEALTH_STATUS_UNHEALTHY\x10\x02\x12\"\n" +
-	"\x1eMETRIC_HEALTH_STATUS_NO_CHECKS\x10\x032\x86\f\n" +
+	"\x1eMETRIC_HEALTH_STATUS_NO_CHECKS\x10\x032\xf4\f\n" +
 	"\rChartsService\x12Z\n" +
 	"\n" +
 	"ListCharts\x12\".chalk.server.v1.ListChartsRequest\x1a#.chalk.server.v1.ListChartsResponse\"\x03\x80}\x06\x12l\n" +
@@ -3495,7 +3598,8 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"\x12UpdateMetricConfig\x12*.chalk.server.v1.UpdateMetricConfigRequest\x1a+.chalk.server.v1.UpdateMetricConfigResponse\"\x03\x80}\x05\x12]\n" +
 	"\vCreateChart\x12#.chalk.server.v1.CreateChartRequest\x1a$.chalk.server.v1.CreateChartResponse\"\x03\x80}\x05\x12]\n" +
 	"\vDeleteChart\x12#.chalk.server.v1.DeleteChartRequest\x1a$.chalk.server.v1.DeleteChartResponse\"\x03\x80}\x05\x12T\n" +
-	"\bGetChart\x12 .chalk.server.v1.GetChartRequest\x1a!.chalk.server.v1.GetChartResponse\"\x03\x80}\x06\x12i\n" +
+	"\bGetChart\x12 .chalk.server.v1.GetChartRequest\x1a!.chalk.server.v1.GetChartResponse\"\x03\x80}\x06\x12l\n" +
+	"\x10GetChartByIdOnly\x12(.chalk.server.v1.GetChartByIdOnlyRequest\x1a).chalk.server.v1.GetChartByIdOnlyResponse\"\x03\x80}\x06\x12i\n" +
 	"\x0fGetChartOptions\x12'.chalk.server.v1.GetChartOptionsRequest\x1a(.chalk.server.v1.GetChartOptionsResponse\"\x03\x80}\x06\x12o\n" +
 	"\x11GetFeatureMetrics\x12).chalk.server.v1.GetFeatureMetricsRequest\x1a*.chalk.server.v1.GetFeatureMetricsResponse\"\x03\x80}\x06\x12r\n" +
 	"\x12GetResolverMetrics\x12*.chalk.server.v1.GetResolverMetricsRequest\x1a+.chalk.server.v1.GetResolverMetricsResponse\"\x03\x80}\x06\x12i\n" +
@@ -3519,7 +3623,7 @@ func file_chalk_server_v1_chart_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_chart_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chalk_server_v1_chart_proto_msgTypes = make([]protoimpl.MessageInfo, 51)
+var file_chalk_server_v1_chart_proto_msgTypes = make([]protoimpl.MessageInfo, 53)
 var file_chalk_server_v1_chart_proto_goTypes = []any{
 	(ChartMetricsBackend)(0),                 // 0: chalk.server.v1.ChartMetricsBackend
 	(MetricKindGroup)(0),                     // 1: chalk.server.v1.MetricKindGroup
@@ -3549,153 +3653,159 @@ var file_chalk_server_v1_chart_proto_goTypes = []any{
 	(*DeleteChartResponse)(nil),              // 25: chalk.server.v1.DeleteChartResponse
 	(*GetChartRequest)(nil),                  // 26: chalk.server.v1.GetChartRequest
 	(*GetChartResponse)(nil),                 // 27: chalk.server.v1.GetChartResponse
-	(*GetChartOptionsRequest)(nil),           // 28: chalk.server.v1.GetChartOptionsRequest
-	(*FilterOptionNamespace)(nil),            // 29: chalk.server.v1.FilterOptionNamespace
-	(*FilterOption)(nil),                     // 30: chalk.server.v1.FilterOption
-	(*GroupOption)(nil),                      // 31: chalk.server.v1.GroupOption
-	(*WindowFunctionOption)(nil),             // 32: chalk.server.v1.WindowFunctionOption
-	(*MetricOptions)(nil),                    // 33: chalk.server.v1.MetricOptions
-	(*MetricFormulaFeatureOperandInput)(nil), // 34: chalk.server.v1.MetricFormulaFeatureOperandInput
-	(*MetricFormulaFeatureOperandList)(nil),  // 35: chalk.server.v1.MetricFormulaFeatureOperandList
-	(*MetricFormulaDatasetOperandInput)(nil), // 36: chalk.server.v1.MetricFormulaDatasetOperandInput
-	(*MetricFormulaDatasetOperandList)(nil),  // 37: chalk.server.v1.MetricFormulaDatasetOperandList
-	(*MetricFormulaOperand)(nil),             // 38: chalk.server.v1.MetricFormulaOperand
-	(*MetricFormulaOption)(nil),              // 39: chalk.server.v1.MetricFormulaOption
-	(*GetChartOptionsResponse)(nil),          // 40: chalk.server.v1.GetChartOptionsResponse
-	(*MetricHealthCheck)(nil),                // 41: chalk.server.v1.MetricHealthCheck
-	(*SparkPoint)(nil),                       // 42: chalk.server.v1.SparkPoint
-	(*SparkSeries)(nil),                      // 43: chalk.server.v1.SparkSeries
-	(*EntityMetrics)(nil),                    // 44: chalk.server.v1.EntityMetrics
-	(*GetFeatureMetricsRequest)(nil),         // 45: chalk.server.v1.GetFeatureMetricsRequest
-	(*GetFeatureMetricsResponse)(nil),        // 46: chalk.server.v1.GetFeatureMetricsResponse
-	(*GetResolverMetricsRequest)(nil),        // 47: chalk.server.v1.GetResolverMetricsRequest
-	(*GetResolverMetricsResponse)(nil),       // 48: chalk.server.v1.GetResolverMetricsResponse
-	(*GetQueryMetricsRequest)(nil),           // 49: chalk.server.v1.GetQueryMetricsRequest
-	(*GetQueryMetricsResponse)(nil),          // 50: chalk.server.v1.GetQueryMetricsResponse
-	(*GetMetricOptionsRequest)(nil),          // 51: chalk.server.v1.GetMetricOptionsRequest
-	(*GetMetricOptionsResponse)(nil),         // 52: chalk.server.v1.GetMetricOptionsResponse
-	(*GetFormulaOptionsRequest)(nil),         // 53: chalk.server.v1.GetFormulaOptionsRequest
-	(*GetFormulaOptionsResponse)(nil),        // 54: chalk.server.v1.GetFormulaOptionsResponse
-	(*timestamppb.Timestamp)(nil),            // 55: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),              // 56: google.protobuf.Duration
-	(v1.ChartLinkKind)(0),                    // 57: chalk.artifacts.v1.ChartLinkKind
-	(*v1.MetricConfig)(nil),                  // 58: chalk.artifacts.v1.MetricConfig
-	(*v1.Chart)(nil),                         // 59: chalk.artifacts.v1.Chart
-	(*v1.MetricConfigSeries)(nil),            // 60: chalk.artifacts.v1.MetricConfigSeries
-	(*v1.MetricFormula)(nil),                 // 61: chalk.artifacts.v1.MetricFormula
-	(*v1.AlertTrigger)(nil),                  // 62: chalk.artifacts.v1.AlertTrigger
-	(*fieldmaskpb.FieldMask)(nil),            // 63: google.protobuf.FieldMask
-	(*v11.DenseTimeSeriesChart)(nil),         // 64: chalk.chart.v1.DenseTimeSeriesChart
-	(*MetricIncident)(nil),                   // 65: chalk.server.v1.MetricIncident
-	(v1.FilterKind)(0),                       // 66: chalk.artifacts.v1.FilterKind
-	(v1.GroupByKind)(0),                      // 67: chalk.artifacts.v1.GroupByKind
-	(v1.WindowFunctionKind)(0),               // 68: chalk.artifacts.v1.WindowFunctionKind
-	(v1.MetricKind)(0),                       // 69: chalk.artifacts.v1.MetricKind
-	(v1.MetricFormulaKind)(0),                // 70: chalk.artifacts.v1.MetricFormulaKind
+	(*GetChartByIdOnlyRequest)(nil),          // 28: chalk.server.v1.GetChartByIdOnlyRequest
+	(*GetChartByIdOnlyResponse)(nil),         // 29: chalk.server.v1.GetChartByIdOnlyResponse
+	(*GetChartOptionsRequest)(nil),           // 30: chalk.server.v1.GetChartOptionsRequest
+	(*FilterOptionNamespace)(nil),            // 31: chalk.server.v1.FilterOptionNamespace
+	(*FilterOption)(nil),                     // 32: chalk.server.v1.FilterOption
+	(*GroupOption)(nil),                      // 33: chalk.server.v1.GroupOption
+	(*WindowFunctionOption)(nil),             // 34: chalk.server.v1.WindowFunctionOption
+	(*MetricOptions)(nil),                    // 35: chalk.server.v1.MetricOptions
+	(*MetricFormulaFeatureOperandInput)(nil), // 36: chalk.server.v1.MetricFormulaFeatureOperandInput
+	(*MetricFormulaFeatureOperandList)(nil),  // 37: chalk.server.v1.MetricFormulaFeatureOperandList
+	(*MetricFormulaDatasetOperandInput)(nil), // 38: chalk.server.v1.MetricFormulaDatasetOperandInput
+	(*MetricFormulaDatasetOperandList)(nil),  // 39: chalk.server.v1.MetricFormulaDatasetOperandList
+	(*MetricFormulaOperand)(nil),             // 40: chalk.server.v1.MetricFormulaOperand
+	(*MetricFormulaOption)(nil),              // 41: chalk.server.v1.MetricFormulaOption
+	(*GetChartOptionsResponse)(nil),          // 42: chalk.server.v1.GetChartOptionsResponse
+	(*MetricHealthCheck)(nil),                // 43: chalk.server.v1.MetricHealthCheck
+	(*SparkPoint)(nil),                       // 44: chalk.server.v1.SparkPoint
+	(*SparkSeries)(nil),                      // 45: chalk.server.v1.SparkSeries
+	(*EntityMetrics)(nil),                    // 46: chalk.server.v1.EntityMetrics
+	(*GetFeatureMetricsRequest)(nil),         // 47: chalk.server.v1.GetFeatureMetricsRequest
+	(*GetFeatureMetricsResponse)(nil),        // 48: chalk.server.v1.GetFeatureMetricsResponse
+	(*GetResolverMetricsRequest)(nil),        // 49: chalk.server.v1.GetResolverMetricsRequest
+	(*GetResolverMetricsResponse)(nil),       // 50: chalk.server.v1.GetResolverMetricsResponse
+	(*GetQueryMetricsRequest)(nil),           // 51: chalk.server.v1.GetQueryMetricsRequest
+	(*GetQueryMetricsResponse)(nil),          // 52: chalk.server.v1.GetQueryMetricsResponse
+	(*GetMetricOptionsRequest)(nil),          // 53: chalk.server.v1.GetMetricOptionsRequest
+	(*GetMetricOptionsResponse)(nil),         // 54: chalk.server.v1.GetMetricOptionsResponse
+	(*GetFormulaOptionsRequest)(nil),         // 55: chalk.server.v1.GetFormulaOptionsRequest
+	(*GetFormulaOptionsResponse)(nil),        // 56: chalk.server.v1.GetFormulaOptionsResponse
+	(*timestamppb.Timestamp)(nil),            // 57: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),              // 58: google.protobuf.Duration
+	(v1.ChartLinkKind)(0),                    // 59: chalk.artifacts.v1.ChartLinkKind
+	(*v1.MetricConfig)(nil),                  // 60: chalk.artifacts.v1.MetricConfig
+	(*v1.Chart)(nil),                         // 61: chalk.artifacts.v1.Chart
+	(*v1.MetricConfigSeries)(nil),            // 62: chalk.artifacts.v1.MetricConfigSeries
+	(*v1.MetricFormula)(nil),                 // 63: chalk.artifacts.v1.MetricFormula
+	(*v1.AlertTrigger)(nil),                  // 64: chalk.artifacts.v1.AlertTrigger
+	(*fieldmaskpb.FieldMask)(nil),            // 65: google.protobuf.FieldMask
+	(*v11.DenseTimeSeriesChart)(nil),         // 66: chalk.chart.v1.DenseTimeSeriesChart
+	(*MetricIncident)(nil),                   // 67: chalk.server.v1.MetricIncident
+	(v1.FilterKind)(0),                       // 68: chalk.artifacts.v1.FilterKind
+	(v1.GroupByKind)(0),                      // 69: chalk.artifacts.v1.GroupByKind
+	(v1.WindowFunctionKind)(0),               // 70: chalk.artifacts.v1.WindowFunctionKind
+	(v1.MetricKind)(0),                       // 71: chalk.artifacts.v1.MetricKind
+	(v1.MetricFormulaKind)(0),                // 72: chalk.artifacts.v1.MetricFormulaKind
 }
 var file_chalk_server_v1_chart_proto_depIdxs = []int32{
 	4,  // 0: chalk.server.v1.Chart.series:type_name -> chalk.server.v1.Series
 	6,  // 1: chalk.server.v1.TimeSeries.points:type_name -> chalk.server.v1.Point
 	7,  // 2: chalk.server.v1.TimeSeriesChart.series:type_name -> chalk.server.v1.TimeSeries
-	55, // 3: chalk.server.v1.TimeSeriesChart.x_series:type_name -> google.protobuf.Timestamp
-	56, // 4: chalk.server.v1.TimeSeriesChart.window_period:type_name -> google.protobuf.Duration
-	57, // 5: chalk.server.v1.ListChartsFilters.link_entity_kind:type_name -> chalk.artifacts.v1.ChartLinkKind
-	55, // 6: chalk.server.v1.ListChartPageToken.created_at_hwm:type_name -> google.protobuf.Timestamp
+	57, // 3: chalk.server.v1.TimeSeriesChart.x_series:type_name -> google.protobuf.Timestamp
+	58, // 4: chalk.server.v1.TimeSeriesChart.window_period:type_name -> google.protobuf.Duration
+	59, // 5: chalk.server.v1.ListChartsFilters.link_entity_kind:type_name -> chalk.artifacts.v1.ChartLinkKind
+	57, // 6: chalk.server.v1.ListChartPageToken.created_at_hwm:type_name -> google.protobuf.Timestamp
 	9,  // 7: chalk.server.v1.ListChartsRequest.filters:type_name -> chalk.server.v1.ListChartsFilters
-	58, // 8: chalk.server.v1.ListChartsResponse.charts:type_name -> chalk.artifacts.v1.MetricConfig
-	59, // 9: chalk.server.v1.ListChartsResponse.charts_with_links:type_name -> chalk.artifacts.v1.Chart
-	59, // 10: chalk.server.v1.ListChartsWithCronAlertsResponse.charts:type_name -> chalk.artifacts.v1.Chart
-	60, // 11: chalk.server.v1.UpdateMetricConfigOperation.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
-	61, // 12: chalk.server.v1.UpdateMetricConfigOperation.formulas:type_name -> chalk.artifacts.v1.MetricFormula
-	62, // 13: chalk.server.v1.UpdateMetricConfigOperation.trigger:type_name -> chalk.artifacts.v1.AlertTrigger
-	60, // 14: chalk.server.v1.CreateChartRequest.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
-	61, // 15: chalk.server.v1.CreateChartRequest.formulas:type_name -> chalk.artifacts.v1.MetricFormula
-	62, // 16: chalk.server.v1.CreateChartRequest.trigger:type_name -> chalk.artifacts.v1.AlertTrigger
-	57, // 17: chalk.server.v1.CreateChartRequest.link_entity_kind:type_name -> chalk.artifacts.v1.ChartLinkKind
-	59, // 18: chalk.server.v1.CreateChartResponse.chart:type_name -> chalk.artifacts.v1.Chart
+	60, // 8: chalk.server.v1.ListChartsResponse.charts:type_name -> chalk.artifacts.v1.MetricConfig
+	61, // 9: chalk.server.v1.ListChartsResponse.charts_with_links:type_name -> chalk.artifacts.v1.Chart
+	61, // 10: chalk.server.v1.ListChartsWithCronAlertsResponse.charts:type_name -> chalk.artifacts.v1.Chart
+	62, // 11: chalk.server.v1.UpdateMetricConfigOperation.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
+	63, // 12: chalk.server.v1.UpdateMetricConfigOperation.formulas:type_name -> chalk.artifacts.v1.MetricFormula
+	64, // 13: chalk.server.v1.UpdateMetricConfigOperation.trigger:type_name -> chalk.artifacts.v1.AlertTrigger
+	62, // 14: chalk.server.v1.CreateChartRequest.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
+	63, // 15: chalk.server.v1.CreateChartRequest.formulas:type_name -> chalk.artifacts.v1.MetricFormula
+	64, // 16: chalk.server.v1.CreateChartRequest.trigger:type_name -> chalk.artifacts.v1.AlertTrigger
+	59, // 17: chalk.server.v1.CreateChartRequest.link_entity_kind:type_name -> chalk.artifacts.v1.ChartLinkKind
+	61, // 18: chalk.server.v1.CreateChartResponse.chart:type_name -> chalk.artifacts.v1.Chart
 	15, // 19: chalk.server.v1.UpdateMetricConfigRequest.update:type_name -> chalk.server.v1.UpdateMetricConfigOperation
-	63, // 20: chalk.server.v1.UpdateMetricConfigRequest.update_mask:type_name -> google.protobuf.FieldMask
-	58, // 21: chalk.server.v1.UpdateMetricConfigResponse.metric_config:type_name -> chalk.artifacts.v1.MetricConfig
-	58, // 22: chalk.server.v1.GetChartSnapshotRequest.metric_config:type_name -> chalk.artifacts.v1.MetricConfig
-	55, // 23: chalk.server.v1.GetChartSnapshotRequest.start_time:type_name -> google.protobuf.Timestamp
-	55, // 24: chalk.server.v1.GetChartSnapshotRequest.end_time:type_name -> google.protobuf.Timestamp
+	65, // 20: chalk.server.v1.UpdateMetricConfigRequest.update_mask:type_name -> google.protobuf.FieldMask
+	60, // 21: chalk.server.v1.UpdateMetricConfigResponse.metric_config:type_name -> chalk.artifacts.v1.MetricConfig
+	60, // 22: chalk.server.v1.GetChartSnapshotRequest.metric_config:type_name -> chalk.artifacts.v1.MetricConfig
+	57, // 23: chalk.server.v1.GetChartSnapshotRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 24: chalk.server.v1.GetChartSnapshotRequest.end_time:type_name -> google.protobuf.Timestamp
 	0,  // 25: chalk.server.v1.GetChartSnapshotRequest.metrics_backend:type_name -> chalk.server.v1.ChartMetricsBackend
-	64, // 26: chalk.server.v1.GetChartSnapshotResponse.charts:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	55, // 27: chalk.server.v1.GetChartSnapshotResponse.x_series:type_name -> google.protobuf.Timestamp
-	56, // 28: chalk.server.v1.GetChartSnapshotResponse.window_period:type_name -> google.protobuf.Duration
+	66, // 26: chalk.server.v1.GetChartSnapshotResponse.charts:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	57, // 27: chalk.server.v1.GetChartSnapshotResponse.x_series:type_name -> google.protobuf.Timestamp
+	58, // 28: chalk.server.v1.GetChartSnapshotResponse.window_period:type_name -> google.protobuf.Duration
 	0,  // 29: chalk.server.v1.GetChartSnapshotResponse.metrics_backend:type_name -> chalk.server.v1.ChartMetricsBackend
-	55, // 30: chalk.server.v1.GetChartSnapshotByQueryRequest.start_time:type_name -> google.protobuf.Timestamp
-	55, // 31: chalk.server.v1.GetChartSnapshotByQueryRequest.end_time:type_name -> google.protobuf.Timestamp
+	57, // 30: chalk.server.v1.GetChartSnapshotByQueryRequest.start_time:type_name -> google.protobuf.Timestamp
+	57, // 31: chalk.server.v1.GetChartSnapshotByQueryRequest.end_time:type_name -> google.protobuf.Timestamp
 	0,  // 32: chalk.server.v1.GetChartSnapshotByQueryRequest.metrics_backend:type_name -> chalk.server.v1.ChartMetricsBackend
-	64, // 33: chalk.server.v1.GetChartSnapshotByQueryResponse.charts:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	55, // 34: chalk.server.v1.GetChartSnapshotByQueryResponse.x_series:type_name -> google.protobuf.Timestamp
-	56, // 35: chalk.server.v1.GetChartSnapshotByQueryResponse.window_period:type_name -> google.protobuf.Duration
-	58, // 36: chalk.server.v1.GetChartSnapshotByQueryResponse.compiled_metric_config:type_name -> chalk.artifacts.v1.MetricConfig
-	59, // 37: chalk.server.v1.GetChartResponse.chart:type_name -> chalk.artifacts.v1.Chart
-	65, // 38: chalk.server.v1.GetChartResponse.active_incidents:type_name -> chalk.server.v1.MetricIncident
-	66, // 39: chalk.server.v1.FilterOption.kind:type_name -> chalk.artifacts.v1.FilterKind
-	29, // 40: chalk.server.v1.FilterOption.namespaced_values:type_name -> chalk.server.v1.FilterOptionNamespace
-	67, // 41: chalk.server.v1.GroupOption.kind:type_name -> chalk.artifacts.v1.GroupByKind
-	68, // 42: chalk.server.v1.WindowFunctionOption.window_function:type_name -> chalk.artifacts.v1.WindowFunctionKind
-	69, // 43: chalk.server.v1.MetricOptions.kind:type_name -> chalk.artifacts.v1.MetricKind
-	30, // 44: chalk.server.v1.MetricOptions.filters:type_name -> chalk.server.v1.FilterOption
-	31, // 45: chalk.server.v1.MetricOptions.groups:type_name -> chalk.server.v1.GroupOption
-	32, // 46: chalk.server.v1.MetricOptions.window_functions:type_name -> chalk.server.v1.WindowFunctionOption
-	1,  // 47: chalk.server.v1.MetricOptions.metric_kind_group:type_name -> chalk.server.v1.MetricKindGroup
-	34, // 48: chalk.server.v1.MetricFormulaFeatureOperandList.features:type_name -> chalk.server.v1.MetricFormulaFeatureOperandInput
-	36, // 49: chalk.server.v1.MetricFormulaDatasetOperandList.datasets:type_name -> chalk.server.v1.MetricFormulaDatasetOperandInput
-	2,  // 50: chalk.server.v1.MetricFormulaOperand.kind:type_name -> chalk.server.v1.MetricFormulaOperandKind
-	37, // 51: chalk.server.v1.MetricFormulaOperand.dataset_operands:type_name -> chalk.server.v1.MetricFormulaDatasetOperandList
-	35, // 52: chalk.server.v1.MetricFormulaOperand.feature_operands:type_name -> chalk.server.v1.MetricFormulaFeatureOperandList
-	70, // 53: chalk.server.v1.MetricFormulaOption.kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
-	38, // 54: chalk.server.v1.MetricFormulaOption.operands:type_name -> chalk.server.v1.MetricFormulaOperand
-	33, // 55: chalk.server.v1.GetChartOptionsResponse.metrics:type_name -> chalk.server.v1.MetricOptions
-	39, // 56: chalk.server.v1.GetChartOptionsResponse.formulas:type_name -> chalk.server.v1.MetricFormulaOption
-	3,  // 57: chalk.server.v1.MetricHealthCheck.status:type_name -> chalk.server.v1.MetricHealthStatus
-	42, // 58: chalk.server.v1.SparkSeries.points:type_name -> chalk.server.v1.SparkPoint
-	43, // 59: chalk.server.v1.EntityMetrics.successful_requests:type_name -> chalk.server.v1.SparkSeries
-	43, // 60: chalk.server.v1.EntityMetrics.failed_requests:type_name -> chalk.server.v1.SparkSeries
-	41, // 61: chalk.server.v1.EntityMetrics.health:type_name -> chalk.server.v1.MetricHealthCheck
-	44, // 62: chalk.server.v1.GetFeatureMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
-	44, // 63: chalk.server.v1.GetResolverMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
-	44, // 64: chalk.server.v1.GetQueryMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
-	69, // 65: chalk.server.v1.GetMetricOptionsRequest.metric_kind:type_name -> chalk.artifacts.v1.MetricKind
-	33, // 66: chalk.server.v1.GetMetricOptionsResponse.metric_options:type_name -> chalk.server.v1.MetricOptions
-	70, // 67: chalk.server.v1.GetFormulaOptionsRequest.formula_kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
-	39, // 68: chalk.server.v1.GetFormulaOptionsResponse.formula_options:type_name -> chalk.server.v1.MetricFormulaOption
-	11, // 69: chalk.server.v1.ChartsService.ListCharts:input_type -> chalk.server.v1.ListChartsRequest
-	20, // 70: chalk.server.v1.ChartsService.GetChartSnapshot:input_type -> chalk.server.v1.GetChartSnapshotRequest
-	22, // 71: chalk.server.v1.ChartsService.GetChartSnapshotByQuery:input_type -> chalk.server.v1.GetChartSnapshotByQueryRequest
-	18, // 72: chalk.server.v1.ChartsService.UpdateMetricConfig:input_type -> chalk.server.v1.UpdateMetricConfigRequest
-	16, // 73: chalk.server.v1.ChartsService.CreateChart:input_type -> chalk.server.v1.CreateChartRequest
-	24, // 74: chalk.server.v1.ChartsService.DeleteChart:input_type -> chalk.server.v1.DeleteChartRequest
-	26, // 75: chalk.server.v1.ChartsService.GetChart:input_type -> chalk.server.v1.GetChartRequest
-	28, // 76: chalk.server.v1.ChartsService.GetChartOptions:input_type -> chalk.server.v1.GetChartOptionsRequest
-	45, // 77: chalk.server.v1.ChartsService.GetFeatureMetrics:input_type -> chalk.server.v1.GetFeatureMetricsRequest
-	47, // 78: chalk.server.v1.ChartsService.GetResolverMetrics:input_type -> chalk.server.v1.GetResolverMetricsRequest
-	49, // 79: chalk.server.v1.ChartsService.GetQueryMetrics:input_type -> chalk.server.v1.GetQueryMetricsRequest
-	51, // 80: chalk.server.v1.ChartsService.GetMetricOptions:input_type -> chalk.server.v1.GetMetricOptionsRequest
-	53, // 81: chalk.server.v1.ChartsService.GetFormulaOptions:input_type -> chalk.server.v1.GetFormulaOptionsRequest
-	13, // 82: chalk.server.v1.ChartsService.ListChartsWithCronAlerts:input_type -> chalk.server.v1.ListChartsWithCronAlertsRequest
-	12, // 83: chalk.server.v1.ChartsService.ListCharts:output_type -> chalk.server.v1.ListChartsResponse
-	21, // 84: chalk.server.v1.ChartsService.GetChartSnapshot:output_type -> chalk.server.v1.GetChartSnapshotResponse
-	23, // 85: chalk.server.v1.ChartsService.GetChartSnapshotByQuery:output_type -> chalk.server.v1.GetChartSnapshotByQueryResponse
-	19, // 86: chalk.server.v1.ChartsService.UpdateMetricConfig:output_type -> chalk.server.v1.UpdateMetricConfigResponse
-	17, // 87: chalk.server.v1.ChartsService.CreateChart:output_type -> chalk.server.v1.CreateChartResponse
-	25, // 88: chalk.server.v1.ChartsService.DeleteChart:output_type -> chalk.server.v1.DeleteChartResponse
-	27, // 89: chalk.server.v1.ChartsService.GetChart:output_type -> chalk.server.v1.GetChartResponse
-	40, // 90: chalk.server.v1.ChartsService.GetChartOptions:output_type -> chalk.server.v1.GetChartOptionsResponse
-	46, // 91: chalk.server.v1.ChartsService.GetFeatureMetrics:output_type -> chalk.server.v1.GetFeatureMetricsResponse
-	48, // 92: chalk.server.v1.ChartsService.GetResolverMetrics:output_type -> chalk.server.v1.GetResolverMetricsResponse
-	50, // 93: chalk.server.v1.ChartsService.GetQueryMetrics:output_type -> chalk.server.v1.GetQueryMetricsResponse
-	52, // 94: chalk.server.v1.ChartsService.GetMetricOptions:output_type -> chalk.server.v1.GetMetricOptionsResponse
-	54, // 95: chalk.server.v1.ChartsService.GetFormulaOptions:output_type -> chalk.server.v1.GetFormulaOptionsResponse
-	14, // 96: chalk.server.v1.ChartsService.ListChartsWithCronAlerts:output_type -> chalk.server.v1.ListChartsWithCronAlertsResponse
-	83, // [83:97] is the sub-list for method output_type
-	69, // [69:83] is the sub-list for method input_type
-	69, // [69:69] is the sub-list for extension type_name
-	69, // [69:69] is the sub-list for extension extendee
-	0,  // [0:69] is the sub-list for field type_name
+	66, // 33: chalk.server.v1.GetChartSnapshotByQueryResponse.charts:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	57, // 34: chalk.server.v1.GetChartSnapshotByQueryResponse.x_series:type_name -> google.protobuf.Timestamp
+	58, // 35: chalk.server.v1.GetChartSnapshotByQueryResponse.window_period:type_name -> google.protobuf.Duration
+	60, // 36: chalk.server.v1.GetChartSnapshotByQueryResponse.compiled_metric_config:type_name -> chalk.artifacts.v1.MetricConfig
+	61, // 37: chalk.server.v1.GetChartResponse.chart:type_name -> chalk.artifacts.v1.Chart
+	67, // 38: chalk.server.v1.GetChartResponse.active_incidents:type_name -> chalk.server.v1.MetricIncident
+	61, // 39: chalk.server.v1.GetChartByIdOnlyResponse.chart:type_name -> chalk.artifacts.v1.Chart
+	67, // 40: chalk.server.v1.GetChartByIdOnlyResponse.active_incidents:type_name -> chalk.server.v1.MetricIncident
+	68, // 41: chalk.server.v1.FilterOption.kind:type_name -> chalk.artifacts.v1.FilterKind
+	31, // 42: chalk.server.v1.FilterOption.namespaced_values:type_name -> chalk.server.v1.FilterOptionNamespace
+	69, // 43: chalk.server.v1.GroupOption.kind:type_name -> chalk.artifacts.v1.GroupByKind
+	70, // 44: chalk.server.v1.WindowFunctionOption.window_function:type_name -> chalk.artifacts.v1.WindowFunctionKind
+	71, // 45: chalk.server.v1.MetricOptions.kind:type_name -> chalk.artifacts.v1.MetricKind
+	32, // 46: chalk.server.v1.MetricOptions.filters:type_name -> chalk.server.v1.FilterOption
+	33, // 47: chalk.server.v1.MetricOptions.groups:type_name -> chalk.server.v1.GroupOption
+	34, // 48: chalk.server.v1.MetricOptions.window_functions:type_name -> chalk.server.v1.WindowFunctionOption
+	1,  // 49: chalk.server.v1.MetricOptions.metric_kind_group:type_name -> chalk.server.v1.MetricKindGroup
+	36, // 50: chalk.server.v1.MetricFormulaFeatureOperandList.features:type_name -> chalk.server.v1.MetricFormulaFeatureOperandInput
+	38, // 51: chalk.server.v1.MetricFormulaDatasetOperandList.datasets:type_name -> chalk.server.v1.MetricFormulaDatasetOperandInput
+	2,  // 52: chalk.server.v1.MetricFormulaOperand.kind:type_name -> chalk.server.v1.MetricFormulaOperandKind
+	39, // 53: chalk.server.v1.MetricFormulaOperand.dataset_operands:type_name -> chalk.server.v1.MetricFormulaDatasetOperandList
+	37, // 54: chalk.server.v1.MetricFormulaOperand.feature_operands:type_name -> chalk.server.v1.MetricFormulaFeatureOperandList
+	72, // 55: chalk.server.v1.MetricFormulaOption.kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
+	40, // 56: chalk.server.v1.MetricFormulaOption.operands:type_name -> chalk.server.v1.MetricFormulaOperand
+	35, // 57: chalk.server.v1.GetChartOptionsResponse.metrics:type_name -> chalk.server.v1.MetricOptions
+	41, // 58: chalk.server.v1.GetChartOptionsResponse.formulas:type_name -> chalk.server.v1.MetricFormulaOption
+	3,  // 59: chalk.server.v1.MetricHealthCheck.status:type_name -> chalk.server.v1.MetricHealthStatus
+	44, // 60: chalk.server.v1.SparkSeries.points:type_name -> chalk.server.v1.SparkPoint
+	45, // 61: chalk.server.v1.EntityMetrics.successful_requests:type_name -> chalk.server.v1.SparkSeries
+	45, // 62: chalk.server.v1.EntityMetrics.failed_requests:type_name -> chalk.server.v1.SparkSeries
+	43, // 63: chalk.server.v1.EntityMetrics.health:type_name -> chalk.server.v1.MetricHealthCheck
+	46, // 64: chalk.server.v1.GetFeatureMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
+	46, // 65: chalk.server.v1.GetResolverMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
+	46, // 66: chalk.server.v1.GetQueryMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
+	71, // 67: chalk.server.v1.GetMetricOptionsRequest.metric_kind:type_name -> chalk.artifacts.v1.MetricKind
+	35, // 68: chalk.server.v1.GetMetricOptionsResponse.metric_options:type_name -> chalk.server.v1.MetricOptions
+	72, // 69: chalk.server.v1.GetFormulaOptionsRequest.formula_kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
+	41, // 70: chalk.server.v1.GetFormulaOptionsResponse.formula_options:type_name -> chalk.server.v1.MetricFormulaOption
+	11, // 71: chalk.server.v1.ChartsService.ListCharts:input_type -> chalk.server.v1.ListChartsRequest
+	20, // 72: chalk.server.v1.ChartsService.GetChartSnapshot:input_type -> chalk.server.v1.GetChartSnapshotRequest
+	22, // 73: chalk.server.v1.ChartsService.GetChartSnapshotByQuery:input_type -> chalk.server.v1.GetChartSnapshotByQueryRequest
+	18, // 74: chalk.server.v1.ChartsService.UpdateMetricConfig:input_type -> chalk.server.v1.UpdateMetricConfigRequest
+	16, // 75: chalk.server.v1.ChartsService.CreateChart:input_type -> chalk.server.v1.CreateChartRequest
+	24, // 76: chalk.server.v1.ChartsService.DeleteChart:input_type -> chalk.server.v1.DeleteChartRequest
+	26, // 77: chalk.server.v1.ChartsService.GetChart:input_type -> chalk.server.v1.GetChartRequest
+	28, // 78: chalk.server.v1.ChartsService.GetChartByIdOnly:input_type -> chalk.server.v1.GetChartByIdOnlyRequest
+	30, // 79: chalk.server.v1.ChartsService.GetChartOptions:input_type -> chalk.server.v1.GetChartOptionsRequest
+	47, // 80: chalk.server.v1.ChartsService.GetFeatureMetrics:input_type -> chalk.server.v1.GetFeatureMetricsRequest
+	49, // 81: chalk.server.v1.ChartsService.GetResolverMetrics:input_type -> chalk.server.v1.GetResolverMetricsRequest
+	51, // 82: chalk.server.v1.ChartsService.GetQueryMetrics:input_type -> chalk.server.v1.GetQueryMetricsRequest
+	53, // 83: chalk.server.v1.ChartsService.GetMetricOptions:input_type -> chalk.server.v1.GetMetricOptionsRequest
+	55, // 84: chalk.server.v1.ChartsService.GetFormulaOptions:input_type -> chalk.server.v1.GetFormulaOptionsRequest
+	13, // 85: chalk.server.v1.ChartsService.ListChartsWithCronAlerts:input_type -> chalk.server.v1.ListChartsWithCronAlertsRequest
+	12, // 86: chalk.server.v1.ChartsService.ListCharts:output_type -> chalk.server.v1.ListChartsResponse
+	21, // 87: chalk.server.v1.ChartsService.GetChartSnapshot:output_type -> chalk.server.v1.GetChartSnapshotResponse
+	23, // 88: chalk.server.v1.ChartsService.GetChartSnapshotByQuery:output_type -> chalk.server.v1.GetChartSnapshotByQueryResponse
+	19, // 89: chalk.server.v1.ChartsService.UpdateMetricConfig:output_type -> chalk.server.v1.UpdateMetricConfigResponse
+	17, // 90: chalk.server.v1.ChartsService.CreateChart:output_type -> chalk.server.v1.CreateChartResponse
+	25, // 91: chalk.server.v1.ChartsService.DeleteChart:output_type -> chalk.server.v1.DeleteChartResponse
+	27, // 92: chalk.server.v1.ChartsService.GetChart:output_type -> chalk.server.v1.GetChartResponse
+	29, // 93: chalk.server.v1.ChartsService.GetChartByIdOnly:output_type -> chalk.server.v1.GetChartByIdOnlyResponse
+	42, // 94: chalk.server.v1.ChartsService.GetChartOptions:output_type -> chalk.server.v1.GetChartOptionsResponse
+	48, // 95: chalk.server.v1.ChartsService.GetFeatureMetrics:output_type -> chalk.server.v1.GetFeatureMetricsResponse
+	50, // 96: chalk.server.v1.ChartsService.GetResolverMetrics:output_type -> chalk.server.v1.GetResolverMetricsResponse
+	52, // 97: chalk.server.v1.ChartsService.GetQueryMetrics:output_type -> chalk.server.v1.GetQueryMetricsResponse
+	54, // 98: chalk.server.v1.ChartsService.GetMetricOptions:output_type -> chalk.server.v1.GetMetricOptionsResponse
+	56, // 99: chalk.server.v1.ChartsService.GetFormulaOptions:output_type -> chalk.server.v1.GetFormulaOptionsResponse
+	14, // 100: chalk.server.v1.ChartsService.ListChartsWithCronAlerts:output_type -> chalk.server.v1.ListChartsWithCronAlertsResponse
+	86, // [86:101] is the sub-list for method output_type
+	71, // [71:86] is the sub-list for method input_type
+	71, // [71:71] is the sub-list for extension type_name
+	71, // [71:71] is the sub-list for extension extendee
+	0,  // [0:71] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_chart_proto_init() }
@@ -3716,19 +3826,19 @@ func file_chalk_server_v1_chart_proto_init() {
 	file_chalk_server_v1_chart_proto_msgTypes[16].OneofWrappers = []any{}
 	file_chalk_server_v1_chart_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_chart_proto_msgTypes[18].OneofWrappers = []any{}
-	file_chalk_server_v1_chart_proto_msgTypes[34].OneofWrappers = []any{
+	file_chalk_server_v1_chart_proto_msgTypes[36].OneofWrappers = []any{
 		(*MetricFormulaOperand_DatasetOperands)(nil),
 		(*MetricFormulaOperand_FeatureOperands)(nil),
 	}
-	file_chalk_server_v1_chart_proto_msgTypes[38].OneofWrappers = []any{}
 	file_chalk_server_v1_chart_proto_msgTypes[40].OneofWrappers = []any{}
+	file_chalk_server_v1_chart_proto_msgTypes[42].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_chart_proto_rawDesc), len(file_chalk_server_v1_chart_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   51,
+			NumMessages:   53,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

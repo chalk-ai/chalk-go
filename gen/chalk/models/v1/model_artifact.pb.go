@@ -641,14 +641,15 @@ type ModelArtifactSpec struct {
 	// e.g. "pickle", "joblib", etc.
 	ModelEncoding ModelEncoding `protobuf:"varint,4,opt,name=model_encoding,json=modelEncoding,proto3,enum=chalk.models.v1.ModelEncoding" json:"model_encoding,omitempty"`
 	// e.g. classifier, regressor, etc.
-	ModelClass     string          `protobuf:"bytes,5,opt,name=model_class,json=modelClass,proto3" json:"model_class,omitempty"`
-	ModelSignature *ModelSignature `protobuf:"bytes,6,opt,name=model_signature,json=modelSignature,proto3" json:"model_signature,omitempty"`
-	InputFeatures  []string        `protobuf:"bytes,7,rep,name=input_features,json=inputFeatures,proto3" json:"input_features,omitempty"`
-	OutputFeatures []string        `protobuf:"bytes,8,rep,name=output_features,json=outputFeatures,proto3" json:"output_features,omitempty"`
-	// introduce when we can handle this
-	PythonDependencies []string `protobuf:"bytes,9,rep,name=python_dependencies,json=pythonDependencies,proto3" json:"python_dependencies,omitempty"` //  string python_version = 10;
+	ModelClass         string          `protobuf:"bytes,5,opt,name=model_class,json=modelClass,proto3" json:"model_class,omitempty"`
+	ModelSignature     *ModelSignature `protobuf:"bytes,6,opt,name=model_signature,json=modelSignature,proto3" json:"model_signature,omitempty"`
+	InputFeatures      []string        `protobuf:"bytes,7,rep,name=input_features,json=inputFeatures,proto3" json:"input_features,omitempty"`
+	OutputFeatures     []string        `protobuf:"bytes,8,rep,name=output_features,json=outputFeatures,proto3" json:"output_features,omitempty"`
+	PythonDependencies []string        `protobuf:"bytes,9,rep,name=python_dependencies,json=pythonDependencies,proto3" json:"python_dependencies,omitempty"`
+	PythonVersion      *string         `protobuf:"bytes,10,opt,name=python_version,json=pythonVersion,proto3,oneof" json:"python_version,omitempty"`
 	// Docker image for model serving
 	ModelImage    *string `protobuf:"bytes,11,opt,name=model_image,json=modelImage,proto3,oneof" json:"model_image,omitempty"`
+	ModelVolume   *string `protobuf:"bytes,12,opt,name=model_volume,json=modelVolume,proto3,oneof" json:"model_volume,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -746,9 +747,23 @@ func (x *ModelArtifactSpec) GetPythonDependencies() []string {
 	return nil
 }
 
+func (x *ModelArtifactSpec) GetPythonVersion() string {
+	if x != nil && x.PythonVersion != nil {
+		return *x.PythonVersion
+	}
+	return ""
+}
+
 func (x *ModelArtifactSpec) GetModelImage() string {
 	if x != nil && x.ModelImage != nil {
 		return *x.ModelImage
+	}
+	return ""
+}
+
+func (x *ModelArtifactSpec) GetModelVolume() string {
+	if x != nil && x.ModelVolume != nil {
+		return *x.ModelVolume
 	}
 	return ""
 }
@@ -784,7 +799,7 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"\tModelFile\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x17\n" +
 	"\asize_kb\x18\x02 \x01(\x03R\x06sizeKb\x12\x1b\n" +
-	"\tfile_hash\x18\x03 \x01(\fR\bfileHash\"\xbb\x04\n" +
+	"\tfile_hash\x18\x03 \x01(\fR\bfileHash\"\xb3\x05\n" +
 	"\x11ModelArtifactSpec\x12;\n" +
 	"\vmodel_files\x18\x01 \x03(\v2\x1a.chalk.models.v1.ModelFileR\n" +
 	"modelFiles\x12E\n" +
@@ -797,10 +812,15 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"\x0fmodel_signature\x18\x06 \x01(\v2\x1f.chalk.models.v1.ModelSignatureR\x0emodelSignature\x12%\n" +
 	"\x0einput_features\x18\a \x03(\tR\rinputFeatures\x12'\n" +
 	"\x0foutput_features\x18\b \x03(\tR\x0eoutputFeatures\x12/\n" +
-	"\x13python_dependencies\x18\t \x03(\tR\x12pythonDependencies\x12$\n" +
-	"\vmodel_image\x18\v \x01(\tH\x00R\n" +
-	"modelImage\x88\x01\x01B\x0e\n" +
-	"\f_model_image*\xd1\x01\n" +
+	"\x13python_dependencies\x18\t \x03(\tR\x12pythonDependencies\x12*\n" +
+	"\x0epython_version\x18\n" +
+	" \x01(\tH\x00R\rpythonVersion\x88\x01\x01\x12$\n" +
+	"\vmodel_image\x18\v \x01(\tH\x01R\n" +
+	"modelImage\x88\x01\x01\x12&\n" +
+	"\fmodel_volume\x18\f \x01(\tH\x02R\vmodelVolume\x88\x01\x01B\x11\n" +
+	"\x0f_python_versionB\x0e\n" +
+	"\f_model_imageB\x0f\n" +
+	"\r_model_volume*\xd1\x01\n" +
 	"\tModelType\x12\x1a\n" +
 	"\x16MODEL_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12MODEL_TYPE_PYTORCH\x10\x01\x12\x16\n" +

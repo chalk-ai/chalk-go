@@ -39,6 +39,9 @@ const (
 	// SchedulerServiceManualTriggerScheduledQueryProcedure is the fully-qualified name of the
 	// SchedulerService's ManualTriggerScheduledQuery RPC.
 	SchedulerServiceManualTriggerScheduledQueryProcedure = "/chalk.server.v1.SchedulerService/ManualTriggerScheduledQuery"
+	// SchedulerServiceManualTriggerScheduledAggregateBackfillProcedure is the fully-qualified name of
+	// the SchedulerService's ManualTriggerScheduledAggregateBackfill RPC.
+	SchedulerServiceManualTriggerScheduledAggregateBackfillProcedure = "/chalk.server.v1.SchedulerService/ManualTriggerScheduledAggregateBackfill"
 	// SchedulerServiceGetScheduledResolverRunProcedure is the fully-qualified name of the
 	// SchedulerService's GetScheduledResolverRun RPC.
 	SchedulerServiceGetScheduledResolverRunProcedure = "/chalk.server.v1.SchedulerService/GetScheduledResolverRun"
@@ -66,6 +69,7 @@ const (
 type SchedulerServiceClient interface {
 	ManualTriggerCronResolver(context.Context, *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error)
 	ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error)
+	ManualTriggerScheduledAggregateBackfill(context.Context, *connect.Request[v1.ManualTriggerScheduledAggregateBackfillRequest]) (*connect.Response[v1.ManualTriggerScheduledAggregateBackfillResponse], error)
 	GetScheduledResolverRun(context.Context, *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error)
 	ListScheduledResolverRuns(context.Context, *connect.Request[v1.ListScheduledResolverRunsRequest]) (*connect.Response[v1.ListScheduledResolverRunsResponse], error)
 	CancelScheduledResolverRun(context.Context, *connect.Request[v1.CancelScheduledResolverRunRequest]) (*connect.Response[v1.CancelScheduledResolverRunResponse], error)
@@ -96,6 +100,12 @@ func NewSchedulerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			httpClient,
 			baseURL+SchedulerServiceManualTriggerScheduledQueryProcedure,
 			connect.WithSchema(schedulerServiceMethods.ByName("ManualTriggerScheduledQuery")),
+			connect.WithClientOptions(opts...),
+		),
+		manualTriggerScheduledAggregateBackfill: connect.NewClient[v1.ManualTriggerScheduledAggregateBackfillRequest, v1.ManualTriggerScheduledAggregateBackfillResponse](
+			httpClient,
+			baseURL+SchedulerServiceManualTriggerScheduledAggregateBackfillProcedure,
+			connect.WithSchema(schedulerServiceMethods.ByName("ManualTriggerScheduledAggregateBackfill")),
 			connect.WithClientOptions(opts...),
 		),
 		getScheduledResolverRun: connect.NewClient[v1.GetScheduledResolverRunRequest, v1.GetScheduledResolverRunResponse](
@@ -145,15 +155,16 @@ func NewSchedulerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 
 // schedulerServiceClient implements SchedulerServiceClient.
 type schedulerServiceClient struct {
-	manualTriggerCronResolver      *connect.Client[v1.ManualTriggerCronResolverRequest, v1.ManualTriggerCronResolverResponse]
-	manualTriggerScheduledQuery    *connect.Client[v1.ManualTriggerScheduledQueryRequest, v1.ManualTriggerScheduledQueryResponse]
-	getScheduledResolverRun        *connect.Client[v1.GetScheduledResolverRunRequest, v1.GetScheduledResolverRunResponse]
-	listScheduledResolverRuns      *connect.Client[v1.ListScheduledResolverRunsRequest, v1.ListScheduledResolverRunsResponse]
-	cancelScheduledResolverRun     *connect.Client[v1.CancelScheduledResolverRunRequest, v1.CancelScheduledResolverRunResponse]
-	getActiveScheduledResolvers    *connect.Client[v1.GetActiveScheduledResolversRequest, v1.GetActiveScheduledResolversResponse]
-	getScheduledResolverControl    *connect.Client[v1.GetScheduledResolverControlRequest, v1.GetScheduledResolverControlResponse]
-	updateScheduledResolverControl *connect.Client[v1.UpdateScheduledResolverControlRequest, v1.UpdateScheduledResolverControlResponse]
-	getLatestHighWaterMark         *connect.Client[v1.GetLatestHighWaterMarkRequest, v1.GetLatestHighWaterMarkResponse]
+	manualTriggerCronResolver               *connect.Client[v1.ManualTriggerCronResolverRequest, v1.ManualTriggerCronResolverResponse]
+	manualTriggerScheduledQuery             *connect.Client[v1.ManualTriggerScheduledQueryRequest, v1.ManualTriggerScheduledQueryResponse]
+	manualTriggerScheduledAggregateBackfill *connect.Client[v1.ManualTriggerScheduledAggregateBackfillRequest, v1.ManualTriggerScheduledAggregateBackfillResponse]
+	getScheduledResolverRun                 *connect.Client[v1.GetScheduledResolverRunRequest, v1.GetScheduledResolverRunResponse]
+	listScheduledResolverRuns               *connect.Client[v1.ListScheduledResolverRunsRequest, v1.ListScheduledResolverRunsResponse]
+	cancelScheduledResolverRun              *connect.Client[v1.CancelScheduledResolverRunRequest, v1.CancelScheduledResolverRunResponse]
+	getActiveScheduledResolvers             *connect.Client[v1.GetActiveScheduledResolversRequest, v1.GetActiveScheduledResolversResponse]
+	getScheduledResolverControl             *connect.Client[v1.GetScheduledResolverControlRequest, v1.GetScheduledResolverControlResponse]
+	updateScheduledResolverControl          *connect.Client[v1.UpdateScheduledResolverControlRequest, v1.UpdateScheduledResolverControlResponse]
+	getLatestHighWaterMark                  *connect.Client[v1.GetLatestHighWaterMarkRequest, v1.GetLatestHighWaterMarkResponse]
 }
 
 // ManualTriggerCronResolver calls chalk.server.v1.SchedulerService.ManualTriggerCronResolver.
@@ -164,6 +175,12 @@ func (c *schedulerServiceClient) ManualTriggerCronResolver(ctx context.Context, 
 // ManualTriggerScheduledQuery calls chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery.
 func (c *schedulerServiceClient) ManualTriggerScheduledQuery(ctx context.Context, req *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error) {
 	return c.manualTriggerScheduledQuery.CallUnary(ctx, req)
+}
+
+// ManualTriggerScheduledAggregateBackfill calls
+// chalk.server.v1.SchedulerService.ManualTriggerScheduledAggregateBackfill.
+func (c *schedulerServiceClient) ManualTriggerScheduledAggregateBackfill(ctx context.Context, req *connect.Request[v1.ManualTriggerScheduledAggregateBackfillRequest]) (*connect.Response[v1.ManualTriggerScheduledAggregateBackfillResponse], error) {
+	return c.manualTriggerScheduledAggregateBackfill.CallUnary(ctx, req)
 }
 
 // GetScheduledResolverRun calls chalk.server.v1.SchedulerService.GetScheduledResolverRun.
@@ -206,6 +223,7 @@ func (c *schedulerServiceClient) GetLatestHighWaterMark(ctx context.Context, req
 type SchedulerServiceHandler interface {
 	ManualTriggerCronResolver(context.Context, *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error)
 	ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error)
+	ManualTriggerScheduledAggregateBackfill(context.Context, *connect.Request[v1.ManualTriggerScheduledAggregateBackfillRequest]) (*connect.Response[v1.ManualTriggerScheduledAggregateBackfillResponse], error)
 	GetScheduledResolverRun(context.Context, *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error)
 	ListScheduledResolverRuns(context.Context, *connect.Request[v1.ListScheduledResolverRunsRequest]) (*connect.Response[v1.ListScheduledResolverRunsResponse], error)
 	CancelScheduledResolverRun(context.Context, *connect.Request[v1.CancelScheduledResolverRunRequest]) (*connect.Response[v1.CancelScheduledResolverRunResponse], error)
@@ -232,6 +250,12 @@ func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.Han
 		SchedulerServiceManualTriggerScheduledQueryProcedure,
 		svc.ManualTriggerScheduledQuery,
 		connect.WithSchema(schedulerServiceMethods.ByName("ManualTriggerScheduledQuery")),
+		connect.WithHandlerOptions(opts...),
+	)
+	schedulerServiceManualTriggerScheduledAggregateBackfillHandler := connect.NewUnaryHandler(
+		SchedulerServiceManualTriggerScheduledAggregateBackfillProcedure,
+		svc.ManualTriggerScheduledAggregateBackfill,
+		connect.WithSchema(schedulerServiceMethods.ByName("ManualTriggerScheduledAggregateBackfill")),
 		connect.WithHandlerOptions(opts...),
 	)
 	schedulerServiceGetScheduledResolverRunHandler := connect.NewUnaryHandler(
@@ -282,6 +306,8 @@ func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.Han
 			schedulerServiceManualTriggerCronResolverHandler.ServeHTTP(w, r)
 		case SchedulerServiceManualTriggerScheduledQueryProcedure:
 			schedulerServiceManualTriggerScheduledQueryHandler.ServeHTTP(w, r)
+		case SchedulerServiceManualTriggerScheduledAggregateBackfillProcedure:
+			schedulerServiceManualTriggerScheduledAggregateBackfillHandler.ServeHTTP(w, r)
 		case SchedulerServiceGetScheduledResolverRunProcedure:
 			schedulerServiceGetScheduledResolverRunHandler.ServeHTTP(w, r)
 		case SchedulerServiceListScheduledResolverRunsProcedure:
@@ -311,6 +337,10 @@ func (UnimplementedSchedulerServiceHandler) ManualTriggerCronResolver(context.Co
 
 func (UnimplementedSchedulerServiceHandler) ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery is not implemented"))
+}
+
+func (UnimplementedSchedulerServiceHandler) ManualTriggerScheduledAggregateBackfill(context.Context, *connect.Request[v1.ManualTriggerScheduledAggregateBackfillRequest]) (*connect.Response[v1.ManualTriggerScheduledAggregateBackfillResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.ManualTriggerScheduledAggregateBackfill is not implemented"))
 }
 
 func (UnimplementedSchedulerServiceHandler) GetScheduledResolverRun(context.Context, *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error) {

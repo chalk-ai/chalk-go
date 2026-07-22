@@ -63,6 +63,24 @@ const (
 	// GitHubAppServiceListGitHubPullRequestsProcedure is the fully-qualified name of the
 	// GitHubAppService's ListGitHubPullRequests RPC.
 	GitHubAppServiceListGitHubPullRequestsProcedure = "/chalk.server.v1.GitHubAppService/ListGitHubPullRequests"
+	// GitHubAppServiceListGitHubBranchesProcedure is the fully-qualified name of the GitHubAppService's
+	// ListGitHubBranches RPC.
+	GitHubAppServiceListGitHubBranchesProcedure = "/chalk.server.v1.GitHubAppService/ListGitHubBranches"
+	// GitHubAppServiceGetGitHubRepositoryArchiveProcedure is the fully-qualified name of the
+	// GitHubAppService's GetGitHubRepositoryArchive RPC.
+	GitHubAppServiceGetGitHubRepositoryArchiveProcedure = "/chalk.server.v1.GitHubAppService/GetGitHubRepositoryArchive"
+	// GitHubAppServiceLinkProjectToGitHubRepositoryProcedure is the fully-qualified name of the
+	// GitHubAppService's LinkProjectToGitHubRepository RPC.
+	GitHubAppServiceLinkProjectToGitHubRepositoryProcedure = "/chalk.server.v1.GitHubAppService/LinkProjectToGitHubRepository"
+	// GitHubAppServiceUnlinkProjectFromGitHubRepositoryProcedure is the fully-qualified name of the
+	// GitHubAppService's UnlinkProjectFromGitHubRepository RPC.
+	GitHubAppServiceUnlinkProjectFromGitHubRepositoryProcedure = "/chalk.server.v1.GitHubAppService/UnlinkProjectFromGitHubRepository"
+	// GitHubAppServiceGetProjectGitHubRepoLinkProcedure is the fully-qualified name of the
+	// GitHubAppService's GetProjectGitHubRepoLink RPC.
+	GitHubAppServiceGetProjectGitHubRepoLinkProcedure = "/chalk.server.v1.GitHubAppService/GetProjectGitHubRepoLink"
+	// GitHubAppServiceListProjectGitHubRepoLinksProcedure is the fully-qualified name of the
+	// GitHubAppService's ListProjectGitHubRepoLinks RPC.
+	GitHubAppServiceListProjectGitHubRepoLinksProcedure = "/chalk.server.v1.GitHubAppService/ListProjectGitHubRepoLinks"
 )
 
 // GitHubAppServiceClient is a client for the chalk.server.v1.GitHubAppService service.
@@ -77,6 +95,13 @@ type GitHubAppServiceClient interface {
 	SyncGitHubAppInstallations(context.Context, *connect.Request[v1.SyncGitHubAppInstallationsRequest]) (*connect.Response[v1.SyncGitHubAppInstallationsResponse], error)
 	ListGitHubRepositories(context.Context, *connect.Request[v1.ListGitHubRepositoriesRequest]) (*connect.Response[v1.ListGitHubRepositoriesResponse], error)
 	ListGitHubPullRequests(context.Context, *connect.Request[v1.ListGitHubPullRequestsRequest]) (*connect.Response[v1.ListGitHubPullRequestsResponse], error)
+	ListGitHubBranches(context.Context, *connect.Request[v1.ListGitHubBranchesRequest]) (*connect.Response[v1.ListGitHubBranchesResponse], error)
+	// Streams the repository's zip archive (GitHub zipball) at the requested ref.
+	GetGitHubRepositoryArchive(context.Context, *connect.Request[v1.GetGitHubRepositoryArchiveRequest]) (*connect.ServerStreamForClient[v1.GetGitHubRepositoryArchiveResponse], error)
+	LinkProjectToGitHubRepository(context.Context, *connect.Request[v1.LinkProjectToGitHubRepositoryRequest]) (*connect.Response[v1.LinkProjectToGitHubRepositoryResponse], error)
+	UnlinkProjectFromGitHubRepository(context.Context, *connect.Request[v1.UnlinkProjectFromGitHubRepositoryRequest]) (*connect.Response[v1.UnlinkProjectFromGitHubRepositoryResponse], error)
+	GetProjectGitHubRepoLink(context.Context, *connect.Request[v1.GetProjectGitHubRepoLinkRequest]) (*connect.Response[v1.GetProjectGitHubRepoLinkResponse], error)
+	ListProjectGitHubRepoLinks(context.Context, *connect.Request[v1.ListProjectGitHubRepoLinksRequest]) (*connect.Response[v1.ListProjectGitHubRepoLinksResponse], error)
 }
 
 // NewGitHubAppServiceClient constructs a client for the chalk.server.v1.GitHubAppService service.
@@ -156,21 +181,69 @@ func NewGitHubAppServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listGitHubBranches: connect.NewClient[v1.ListGitHubBranchesRequest, v1.ListGitHubBranchesResponse](
+			httpClient,
+			baseURL+GitHubAppServiceListGitHubBranchesProcedure,
+			connect.WithSchema(gitHubAppServiceMethods.ByName("ListGitHubBranches")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getGitHubRepositoryArchive: connect.NewClient[v1.GetGitHubRepositoryArchiveRequest, v1.GetGitHubRepositoryArchiveResponse](
+			httpClient,
+			baseURL+GitHubAppServiceGetGitHubRepositoryArchiveProcedure,
+			connect.WithSchema(gitHubAppServiceMethods.ByName("GetGitHubRepositoryArchive")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		linkProjectToGitHubRepository: connect.NewClient[v1.LinkProjectToGitHubRepositoryRequest, v1.LinkProjectToGitHubRepositoryResponse](
+			httpClient,
+			baseURL+GitHubAppServiceLinkProjectToGitHubRepositoryProcedure,
+			connect.WithSchema(gitHubAppServiceMethods.ByName("LinkProjectToGitHubRepository")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		unlinkProjectFromGitHubRepository: connect.NewClient[v1.UnlinkProjectFromGitHubRepositoryRequest, v1.UnlinkProjectFromGitHubRepositoryResponse](
+			httpClient,
+			baseURL+GitHubAppServiceUnlinkProjectFromGitHubRepositoryProcedure,
+			connect.WithSchema(gitHubAppServiceMethods.ByName("UnlinkProjectFromGitHubRepository")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		getProjectGitHubRepoLink: connect.NewClient[v1.GetProjectGitHubRepoLinkRequest, v1.GetProjectGitHubRepoLinkResponse](
+			httpClient,
+			baseURL+GitHubAppServiceGetProjectGitHubRepoLinkProcedure,
+			connect.WithSchema(gitHubAppServiceMethods.ByName("GetProjectGitHubRepoLink")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listProjectGitHubRepoLinks: connect.NewClient[v1.ListProjectGitHubRepoLinksRequest, v1.ListProjectGitHubRepoLinksResponse](
+			httpClient,
+			baseURL+GitHubAppServiceListProjectGitHubRepoLinksProcedure,
+			connect.WithSchema(gitHubAppServiceMethods.ByName("ListProjectGitHubRepoLinks")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // gitHubAppServiceClient implements GitHubAppServiceClient.
 type gitHubAppServiceClient struct {
-	upsertGitHubAppConfig         *connect.Client[v1.UpsertGitHubAppConfigRequest, v1.UpsertGitHubAppConfigResponse]
-	getGitHubAppConfig            *connect.Client[v1.GetGitHubAppConfigRequest, v1.GetGitHubAppConfigResponse]
-	deleteGitHubAppConfig         *connect.Client[v1.DeleteGitHubAppConfigRequest, v1.DeleteGitHubAppConfigResponse]
-	getGitHubAppInstallUrl        *connect.Client[v1.GetGitHubAppInstallUrlRequest, v1.GetGitHubAppInstallUrlResponse]
-	completeGitHubAppInstallation *connect.Client[v1.CompleteGitHubAppInstallationRequest, v1.CompleteGitHubAppInstallationResponse]
-	listGitHubAppInstallations    *connect.Client[v1.ListGitHubAppInstallationsRequest, v1.ListGitHubAppInstallationsResponse]
-	deleteGitHubAppInstallation   *connect.Client[v1.DeleteGitHubAppInstallationRequest, v1.DeleteGitHubAppInstallationResponse]
-	syncGitHubAppInstallations    *connect.Client[v1.SyncGitHubAppInstallationsRequest, v1.SyncGitHubAppInstallationsResponse]
-	listGitHubRepositories        *connect.Client[v1.ListGitHubRepositoriesRequest, v1.ListGitHubRepositoriesResponse]
-	listGitHubPullRequests        *connect.Client[v1.ListGitHubPullRequestsRequest, v1.ListGitHubPullRequestsResponse]
+	upsertGitHubAppConfig             *connect.Client[v1.UpsertGitHubAppConfigRequest, v1.UpsertGitHubAppConfigResponse]
+	getGitHubAppConfig                *connect.Client[v1.GetGitHubAppConfigRequest, v1.GetGitHubAppConfigResponse]
+	deleteGitHubAppConfig             *connect.Client[v1.DeleteGitHubAppConfigRequest, v1.DeleteGitHubAppConfigResponse]
+	getGitHubAppInstallUrl            *connect.Client[v1.GetGitHubAppInstallUrlRequest, v1.GetGitHubAppInstallUrlResponse]
+	completeGitHubAppInstallation     *connect.Client[v1.CompleteGitHubAppInstallationRequest, v1.CompleteGitHubAppInstallationResponse]
+	listGitHubAppInstallations        *connect.Client[v1.ListGitHubAppInstallationsRequest, v1.ListGitHubAppInstallationsResponse]
+	deleteGitHubAppInstallation       *connect.Client[v1.DeleteGitHubAppInstallationRequest, v1.DeleteGitHubAppInstallationResponse]
+	syncGitHubAppInstallations        *connect.Client[v1.SyncGitHubAppInstallationsRequest, v1.SyncGitHubAppInstallationsResponse]
+	listGitHubRepositories            *connect.Client[v1.ListGitHubRepositoriesRequest, v1.ListGitHubRepositoriesResponse]
+	listGitHubPullRequests            *connect.Client[v1.ListGitHubPullRequestsRequest, v1.ListGitHubPullRequestsResponse]
+	listGitHubBranches                *connect.Client[v1.ListGitHubBranchesRequest, v1.ListGitHubBranchesResponse]
+	getGitHubRepositoryArchive        *connect.Client[v1.GetGitHubRepositoryArchiveRequest, v1.GetGitHubRepositoryArchiveResponse]
+	linkProjectToGitHubRepository     *connect.Client[v1.LinkProjectToGitHubRepositoryRequest, v1.LinkProjectToGitHubRepositoryResponse]
+	unlinkProjectFromGitHubRepository *connect.Client[v1.UnlinkProjectFromGitHubRepositoryRequest, v1.UnlinkProjectFromGitHubRepositoryResponse]
+	getProjectGitHubRepoLink          *connect.Client[v1.GetProjectGitHubRepoLinkRequest, v1.GetProjectGitHubRepoLinkResponse]
+	listProjectGitHubRepoLinks        *connect.Client[v1.ListProjectGitHubRepoLinksRequest, v1.ListProjectGitHubRepoLinksResponse]
 }
 
 // UpsertGitHubAppConfig calls chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig.
@@ -224,6 +297,38 @@ func (c *gitHubAppServiceClient) ListGitHubPullRequests(ctx context.Context, req
 	return c.listGitHubPullRequests.CallUnary(ctx, req)
 }
 
+// ListGitHubBranches calls chalk.server.v1.GitHubAppService.ListGitHubBranches.
+func (c *gitHubAppServiceClient) ListGitHubBranches(ctx context.Context, req *connect.Request[v1.ListGitHubBranchesRequest]) (*connect.Response[v1.ListGitHubBranchesResponse], error) {
+	return c.listGitHubBranches.CallUnary(ctx, req)
+}
+
+// GetGitHubRepositoryArchive calls chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive.
+func (c *gitHubAppServiceClient) GetGitHubRepositoryArchive(ctx context.Context, req *connect.Request[v1.GetGitHubRepositoryArchiveRequest]) (*connect.ServerStreamForClient[v1.GetGitHubRepositoryArchiveResponse], error) {
+	return c.getGitHubRepositoryArchive.CallServerStream(ctx, req)
+}
+
+// LinkProjectToGitHubRepository calls
+// chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository.
+func (c *gitHubAppServiceClient) LinkProjectToGitHubRepository(ctx context.Context, req *connect.Request[v1.LinkProjectToGitHubRepositoryRequest]) (*connect.Response[v1.LinkProjectToGitHubRepositoryResponse], error) {
+	return c.linkProjectToGitHubRepository.CallUnary(ctx, req)
+}
+
+// UnlinkProjectFromGitHubRepository calls
+// chalk.server.v1.GitHubAppService.UnlinkProjectFromGitHubRepository.
+func (c *gitHubAppServiceClient) UnlinkProjectFromGitHubRepository(ctx context.Context, req *connect.Request[v1.UnlinkProjectFromGitHubRepositoryRequest]) (*connect.Response[v1.UnlinkProjectFromGitHubRepositoryResponse], error) {
+	return c.unlinkProjectFromGitHubRepository.CallUnary(ctx, req)
+}
+
+// GetProjectGitHubRepoLink calls chalk.server.v1.GitHubAppService.GetProjectGitHubRepoLink.
+func (c *gitHubAppServiceClient) GetProjectGitHubRepoLink(ctx context.Context, req *connect.Request[v1.GetProjectGitHubRepoLinkRequest]) (*connect.Response[v1.GetProjectGitHubRepoLinkResponse], error) {
+	return c.getProjectGitHubRepoLink.CallUnary(ctx, req)
+}
+
+// ListProjectGitHubRepoLinks calls chalk.server.v1.GitHubAppService.ListProjectGitHubRepoLinks.
+func (c *gitHubAppServiceClient) ListProjectGitHubRepoLinks(ctx context.Context, req *connect.Request[v1.ListProjectGitHubRepoLinksRequest]) (*connect.Response[v1.ListProjectGitHubRepoLinksResponse], error) {
+	return c.listProjectGitHubRepoLinks.CallUnary(ctx, req)
+}
+
 // GitHubAppServiceHandler is an implementation of the chalk.server.v1.GitHubAppService service.
 type GitHubAppServiceHandler interface {
 	UpsertGitHubAppConfig(context.Context, *connect.Request[v1.UpsertGitHubAppConfigRequest]) (*connect.Response[v1.UpsertGitHubAppConfigResponse], error)
@@ -236,6 +341,13 @@ type GitHubAppServiceHandler interface {
 	SyncGitHubAppInstallations(context.Context, *connect.Request[v1.SyncGitHubAppInstallationsRequest]) (*connect.Response[v1.SyncGitHubAppInstallationsResponse], error)
 	ListGitHubRepositories(context.Context, *connect.Request[v1.ListGitHubRepositoriesRequest]) (*connect.Response[v1.ListGitHubRepositoriesResponse], error)
 	ListGitHubPullRequests(context.Context, *connect.Request[v1.ListGitHubPullRequestsRequest]) (*connect.Response[v1.ListGitHubPullRequestsResponse], error)
+	ListGitHubBranches(context.Context, *connect.Request[v1.ListGitHubBranchesRequest]) (*connect.Response[v1.ListGitHubBranchesResponse], error)
+	// Streams the repository's zip archive (GitHub zipball) at the requested ref.
+	GetGitHubRepositoryArchive(context.Context, *connect.Request[v1.GetGitHubRepositoryArchiveRequest], *connect.ServerStream[v1.GetGitHubRepositoryArchiveResponse]) error
+	LinkProjectToGitHubRepository(context.Context, *connect.Request[v1.LinkProjectToGitHubRepositoryRequest]) (*connect.Response[v1.LinkProjectToGitHubRepositoryResponse], error)
+	UnlinkProjectFromGitHubRepository(context.Context, *connect.Request[v1.UnlinkProjectFromGitHubRepositoryRequest]) (*connect.Response[v1.UnlinkProjectFromGitHubRepositoryResponse], error)
+	GetProjectGitHubRepoLink(context.Context, *connect.Request[v1.GetProjectGitHubRepoLinkRequest]) (*connect.Response[v1.GetProjectGitHubRepoLinkResponse], error)
+	ListProjectGitHubRepoLinks(context.Context, *connect.Request[v1.ListProjectGitHubRepoLinksRequest]) (*connect.Response[v1.ListProjectGitHubRepoLinksResponse], error)
 }
 
 // NewGitHubAppServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -311,6 +423,48 @@ func NewGitHubAppServiceHandler(svc GitHubAppServiceHandler, opts ...connect.Han
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	gitHubAppServiceListGitHubBranchesHandler := connect.NewUnaryHandler(
+		GitHubAppServiceListGitHubBranchesProcedure,
+		svc.ListGitHubBranches,
+		connect.WithSchema(gitHubAppServiceMethods.ByName("ListGitHubBranches")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	gitHubAppServiceGetGitHubRepositoryArchiveHandler := connect.NewServerStreamHandler(
+		GitHubAppServiceGetGitHubRepositoryArchiveProcedure,
+		svc.GetGitHubRepositoryArchive,
+		connect.WithSchema(gitHubAppServiceMethods.ByName("GetGitHubRepositoryArchive")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	gitHubAppServiceLinkProjectToGitHubRepositoryHandler := connect.NewUnaryHandler(
+		GitHubAppServiceLinkProjectToGitHubRepositoryProcedure,
+		svc.LinkProjectToGitHubRepository,
+		connect.WithSchema(gitHubAppServiceMethods.ByName("LinkProjectToGitHubRepository")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	gitHubAppServiceUnlinkProjectFromGitHubRepositoryHandler := connect.NewUnaryHandler(
+		GitHubAppServiceUnlinkProjectFromGitHubRepositoryProcedure,
+		svc.UnlinkProjectFromGitHubRepository,
+		connect.WithSchema(gitHubAppServiceMethods.ByName("UnlinkProjectFromGitHubRepository")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	gitHubAppServiceGetProjectGitHubRepoLinkHandler := connect.NewUnaryHandler(
+		GitHubAppServiceGetProjectGitHubRepoLinkProcedure,
+		svc.GetProjectGitHubRepoLink,
+		connect.WithSchema(gitHubAppServiceMethods.ByName("GetProjectGitHubRepoLink")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	gitHubAppServiceListProjectGitHubRepoLinksHandler := connect.NewUnaryHandler(
+		GitHubAppServiceListProjectGitHubRepoLinksProcedure,
+		svc.ListProjectGitHubRepoLinks,
+		connect.WithSchema(gitHubAppServiceMethods.ByName("ListProjectGitHubRepoLinks")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.GitHubAppService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GitHubAppServiceUpsertGitHubAppConfigProcedure:
@@ -333,6 +487,18 @@ func NewGitHubAppServiceHandler(svc GitHubAppServiceHandler, opts ...connect.Han
 			gitHubAppServiceListGitHubRepositoriesHandler.ServeHTTP(w, r)
 		case GitHubAppServiceListGitHubPullRequestsProcedure:
 			gitHubAppServiceListGitHubPullRequestsHandler.ServeHTTP(w, r)
+		case GitHubAppServiceListGitHubBranchesProcedure:
+			gitHubAppServiceListGitHubBranchesHandler.ServeHTTP(w, r)
+		case GitHubAppServiceGetGitHubRepositoryArchiveProcedure:
+			gitHubAppServiceGetGitHubRepositoryArchiveHandler.ServeHTTP(w, r)
+		case GitHubAppServiceLinkProjectToGitHubRepositoryProcedure:
+			gitHubAppServiceLinkProjectToGitHubRepositoryHandler.ServeHTTP(w, r)
+		case GitHubAppServiceUnlinkProjectFromGitHubRepositoryProcedure:
+			gitHubAppServiceUnlinkProjectFromGitHubRepositoryHandler.ServeHTTP(w, r)
+		case GitHubAppServiceGetProjectGitHubRepoLinkProcedure:
+			gitHubAppServiceGetProjectGitHubRepoLinkHandler.ServeHTTP(w, r)
+		case GitHubAppServiceListProjectGitHubRepoLinksProcedure:
+			gitHubAppServiceListProjectGitHubRepoLinksHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -380,4 +546,28 @@ func (UnimplementedGitHubAppServiceHandler) ListGitHubRepositories(context.Conte
 
 func (UnimplementedGitHubAppServiceHandler) ListGitHubPullRequests(context.Context, *connect.Request[v1.ListGitHubPullRequestsRequest]) (*connect.Response[v1.ListGitHubPullRequestsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.ListGitHubPullRequests is not implemented"))
+}
+
+func (UnimplementedGitHubAppServiceHandler) ListGitHubBranches(context.Context, *connect.Request[v1.ListGitHubBranchesRequest]) (*connect.Response[v1.ListGitHubBranchesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.ListGitHubBranches is not implemented"))
+}
+
+func (UnimplementedGitHubAppServiceHandler) GetGitHubRepositoryArchive(context.Context, *connect.Request[v1.GetGitHubRepositoryArchiveRequest], *connect.ServerStream[v1.GetGitHubRepositoryArchiveResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive is not implemented"))
+}
+
+func (UnimplementedGitHubAppServiceHandler) LinkProjectToGitHubRepository(context.Context, *connect.Request[v1.LinkProjectToGitHubRepositoryRequest]) (*connect.Response[v1.LinkProjectToGitHubRepositoryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository is not implemented"))
+}
+
+func (UnimplementedGitHubAppServiceHandler) UnlinkProjectFromGitHubRepository(context.Context, *connect.Request[v1.UnlinkProjectFromGitHubRepositoryRequest]) (*connect.Response[v1.UnlinkProjectFromGitHubRepositoryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.UnlinkProjectFromGitHubRepository is not implemented"))
+}
+
+func (UnimplementedGitHubAppServiceHandler) GetProjectGitHubRepoLink(context.Context, *connect.Request[v1.GetProjectGitHubRepoLinkRequest]) (*connect.Response[v1.GetProjectGitHubRepoLinkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.GetProjectGitHubRepoLink is not implemented"))
+}
+
+func (UnimplementedGitHubAppServiceHandler) ListProjectGitHubRepoLinks(context.Context, *connect.Request[v1.ListProjectGitHubRepoLinksRequest]) (*connect.Response[v1.ListProjectGitHubRepoLinksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.ListProjectGitHubRepoLinks is not implemented"))
 }

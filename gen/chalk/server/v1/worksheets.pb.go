@@ -890,8 +890,14 @@ type WorksheetNode struct {
 	ParentNodeId  *string                `protobuf:"bytes,5,opt,name=parent_node_id,json=parentNodeId,proto3,oneof" json:"parent_node_id,omitempty"`
 	Name          string                 `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
 	State         WorksheetNodeState     `protobuf:"varint,7,opt,name=state,proto3,enum=chalk.server.v1.WorksheetNodeState" json:"state,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Total number of opens across all users for this node. Populated on the
+	// single-get response via a left-join view aggregate (0 when never viewed).
+	TotalViewCount int64 `protobuf:"varint,8,opt,name=total_view_count,json=totalViewCount,proto3" json:"total_view_count,omitempty"`
+	// The requesting user's most recent open of this node. Absent (null) when
+	// this user has never opened it.
+	ViewerLastViewedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=viewer_last_viewed_at,json=viewerLastViewedAt,proto3,oneof" json:"viewer_last_viewed_at,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *WorksheetNode) Reset() {
@@ -971,6 +977,20 @@ func (x *WorksheetNode) GetState() WorksheetNodeState {
 		return x.State
 	}
 	return WorksheetNodeState_WORKSHEET_NODE_STATE_UNSPECIFIED
+}
+
+func (x *WorksheetNode) GetTotalViewCount() int64 {
+	if x != nil {
+		return x.TotalViewCount
+	}
+	return 0
+}
+
+func (x *WorksheetNode) GetViewerLastViewedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ViewerLastViewedAt
+	}
+	return nil
 }
 
 type WorksheetCommit struct {
@@ -2471,7 +2491,7 @@ const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\vraw_content\x18\x01 \x01(\v2!.chalk.server.v1.WorksheetContentH\x00R\n" +
 	"rawContent\x12@\n" +
 	"\bdocument\x18\x02 \x01(\v2\".chalk.server.v1.WorksheetDocumentH\x00R\bdocumentB\a\n" +
-	"\x05value\"\xa6\x02\n" +
+	"\x05value\"\xbe\x03\n" +
 	"\rWorksheetNode\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bspace_id\x18\x02 \x01(\tR\aspaceId\x12%\n" +
@@ -2479,8 +2499,11 @@ const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\x04kind\x18\x04 \x01(\x0e2\".chalk.server.v1.WorksheetNodeKindR\x04kind\x12)\n" +
 	"\x0eparent_node_id\x18\x05 \x01(\tH\x00R\fparentNodeId\x88\x01\x01\x12\x12\n" +
 	"\x04name\x18\x06 \x01(\tR\x04name\x129\n" +
-	"\x05state\x18\a \x01(\x0e2#.chalk.server.v1.WorksheetNodeStateR\x05stateB\x11\n" +
-	"\x0f_parent_node_id\"\xe2\x04\n" +
+	"\x05state\x18\a \x01(\x0e2#.chalk.server.v1.WorksheetNodeStateR\x05state\x12(\n" +
+	"\x10total_view_count\x18\b \x01(\x03R\x0etotalViewCount\x12R\n" +
+	"\x15viewer_last_viewed_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x12viewerLastViewedAt\x88\x01\x01B\x11\n" +
+	"\x0f_parent_node_idB\x18\n" +
+	"\x16_viewer_last_viewed_at\"\xe2\x04\n" +
 	"\x0fWorksheetCommit\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +
 	"\bspace_id\x18\x02 \x01(\tR\aspaceId\x12%\n" +
@@ -2711,66 +2734,67 @@ var file_chalk_server_v1_worksheets_proto_depIdxs = []int32{
 	12, // 10: chalk.server.v1.WorksheetContentInput.document:type_name -> chalk.server.v1.WorksheetDocument
 	1,  // 11: chalk.server.v1.WorksheetNode.kind:type_name -> chalk.server.v1.WorksheetNodeKind
 	2,  // 12: chalk.server.v1.WorksheetNode.state:type_name -> chalk.server.v1.WorksheetNodeState
-	42, // 13: chalk.server.v1.WorksheetCommit.created_at:type_name -> google.protobuf.Timestamp
-	3,  // 14: chalk.server.v1.WorksheetCommit.state:type_name -> chalk.server.v1.WorksheetCommitState
-	4,  // 15: chalk.server.v1.WorksheetCommit.operation_kind:type_name -> chalk.server.v1.WorksheetOperationKind
-	2,  // 16: chalk.server.v1.WorksheetCommit.node_state:type_name -> chalk.server.v1.WorksheetNodeState
-	6,  // 17: chalk.server.v1.WorksheetCommit.blob:type_name -> chalk.server.v1.WorksheetBlobRef
-	0,  // 18: chalk.server.v1.CreateWorksheetSpaceRequest.visibility:type_name -> chalk.server.v1.WorksheetSpaceVisibility
-	5,  // 19: chalk.server.v1.CreateWorksheetSpaceResponse.space:type_name -> chalk.server.v1.WorksheetSpace
-	5,  // 20: chalk.server.v1.ListWorksheetSpacesResponse.spaces:type_name -> chalk.server.v1.WorksheetSpace
-	14, // 21: chalk.server.v1.GetWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	14, // 22: chalk.server.v1.ListWorksheetNodesResponse.nodes:type_name -> chalk.server.v1.WorksheetNode
-	1,  // 23: chalk.server.v1.CreateWorksheetNodeRequest.kind:type_name -> chalk.server.v1.WorksheetNodeKind
-	13, // 24: chalk.server.v1.CreateWorksheetNodeRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
-	14, // 25: chalk.server.v1.CreateWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 26: chalk.server.v1.CreateWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	14, // 27: chalk.server.v1.RenameWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 28: chalk.server.v1.RenameWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	14, // 29: chalk.server.v1.MoveWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 30: chalk.server.v1.MoveWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	14, // 31: chalk.server.v1.ArchiveWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 32: chalk.server.v1.ArchiveWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	14, // 33: chalk.server.v1.RestoreWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 34: chalk.server.v1.RestoreWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	13, // 35: chalk.server.v1.AutosaveWorksheetRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
-	15, // 36: chalk.server.v1.AutosaveWorksheetResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	13, // 37: chalk.server.v1.SaveWorksheetRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
-	15, // 38: chalk.server.v1.SaveWorksheetResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	15, // 39: chalk.server.v1.GetWorksheetCommitResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	7,  // 40: chalk.server.v1.GetWorksheetCommitResponse.content:type_name -> chalk.server.v1.WorksheetContent
-	15, // 41: chalk.server.v1.ListWorksheetCommitsResponse.commits:type_name -> chalk.server.v1.WorksheetCommit
-	16, // 42: chalk.server.v1.WorksheetsService.CreateWorksheetSpace:input_type -> chalk.server.v1.CreateWorksheetSpaceRequest
-	18, // 43: chalk.server.v1.WorksheetsService.ListWorksheetSpaces:input_type -> chalk.server.v1.ListWorksheetSpacesRequest
-	20, // 44: chalk.server.v1.WorksheetsService.GetWorksheetNode:input_type -> chalk.server.v1.GetWorksheetNodeRequest
-	22, // 45: chalk.server.v1.WorksheetsService.ListWorksheetNodes:input_type -> chalk.server.v1.ListWorksheetNodesRequest
-	24, // 46: chalk.server.v1.WorksheetsService.CreateWorksheetNode:input_type -> chalk.server.v1.CreateWorksheetNodeRequest
-	26, // 47: chalk.server.v1.WorksheetsService.RenameWorksheetNode:input_type -> chalk.server.v1.RenameWorksheetNodeRequest
-	28, // 48: chalk.server.v1.WorksheetsService.MoveWorksheetNode:input_type -> chalk.server.v1.MoveWorksheetNodeRequest
-	30, // 49: chalk.server.v1.WorksheetsService.ArchiveWorksheetNode:input_type -> chalk.server.v1.ArchiveWorksheetNodeRequest
-	32, // 50: chalk.server.v1.WorksheetsService.RestoreWorksheetNode:input_type -> chalk.server.v1.RestoreWorksheetNodeRequest
-	34, // 51: chalk.server.v1.WorksheetsService.AutosaveWorksheet:input_type -> chalk.server.v1.AutosaveWorksheetRequest
-	36, // 52: chalk.server.v1.WorksheetsService.SaveWorksheet:input_type -> chalk.server.v1.SaveWorksheetRequest
-	38, // 53: chalk.server.v1.WorksheetsService.GetWorksheetCommit:input_type -> chalk.server.v1.GetWorksheetCommitRequest
-	40, // 54: chalk.server.v1.WorksheetsService.ListWorksheetCommits:input_type -> chalk.server.v1.ListWorksheetCommitsRequest
-	17, // 55: chalk.server.v1.WorksheetsService.CreateWorksheetSpace:output_type -> chalk.server.v1.CreateWorksheetSpaceResponse
-	19, // 56: chalk.server.v1.WorksheetsService.ListWorksheetSpaces:output_type -> chalk.server.v1.ListWorksheetSpacesResponse
-	21, // 57: chalk.server.v1.WorksheetsService.GetWorksheetNode:output_type -> chalk.server.v1.GetWorksheetNodeResponse
-	23, // 58: chalk.server.v1.WorksheetsService.ListWorksheetNodes:output_type -> chalk.server.v1.ListWorksheetNodesResponse
-	25, // 59: chalk.server.v1.WorksheetsService.CreateWorksheetNode:output_type -> chalk.server.v1.CreateWorksheetNodeResponse
-	27, // 60: chalk.server.v1.WorksheetsService.RenameWorksheetNode:output_type -> chalk.server.v1.RenameWorksheetNodeResponse
-	29, // 61: chalk.server.v1.WorksheetsService.MoveWorksheetNode:output_type -> chalk.server.v1.MoveWorksheetNodeResponse
-	31, // 62: chalk.server.v1.WorksheetsService.ArchiveWorksheetNode:output_type -> chalk.server.v1.ArchiveWorksheetNodeResponse
-	33, // 63: chalk.server.v1.WorksheetsService.RestoreWorksheetNode:output_type -> chalk.server.v1.RestoreWorksheetNodeResponse
-	35, // 64: chalk.server.v1.WorksheetsService.AutosaveWorksheet:output_type -> chalk.server.v1.AutosaveWorksheetResponse
-	37, // 65: chalk.server.v1.WorksheetsService.SaveWorksheet:output_type -> chalk.server.v1.SaveWorksheetResponse
-	39, // 66: chalk.server.v1.WorksheetsService.GetWorksheetCommit:output_type -> chalk.server.v1.GetWorksheetCommitResponse
-	41, // 67: chalk.server.v1.WorksheetsService.ListWorksheetCommits:output_type -> chalk.server.v1.ListWorksheetCommitsResponse
-	55, // [55:68] is the sub-list for method output_type
-	42, // [42:55] is the sub-list for method input_type
-	42, // [42:42] is the sub-list for extension type_name
-	42, // [42:42] is the sub-list for extension extendee
-	0,  // [0:42] is the sub-list for field type_name
+	42, // 13: chalk.server.v1.WorksheetNode.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
+	42, // 14: chalk.server.v1.WorksheetCommit.created_at:type_name -> google.protobuf.Timestamp
+	3,  // 15: chalk.server.v1.WorksheetCommit.state:type_name -> chalk.server.v1.WorksheetCommitState
+	4,  // 16: chalk.server.v1.WorksheetCommit.operation_kind:type_name -> chalk.server.v1.WorksheetOperationKind
+	2,  // 17: chalk.server.v1.WorksheetCommit.node_state:type_name -> chalk.server.v1.WorksheetNodeState
+	6,  // 18: chalk.server.v1.WorksheetCommit.blob:type_name -> chalk.server.v1.WorksheetBlobRef
+	0,  // 19: chalk.server.v1.CreateWorksheetSpaceRequest.visibility:type_name -> chalk.server.v1.WorksheetSpaceVisibility
+	5,  // 20: chalk.server.v1.CreateWorksheetSpaceResponse.space:type_name -> chalk.server.v1.WorksheetSpace
+	5,  // 21: chalk.server.v1.ListWorksheetSpacesResponse.spaces:type_name -> chalk.server.v1.WorksheetSpace
+	14, // 22: chalk.server.v1.GetWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	14, // 23: chalk.server.v1.ListWorksheetNodesResponse.nodes:type_name -> chalk.server.v1.WorksheetNode
+	1,  // 24: chalk.server.v1.CreateWorksheetNodeRequest.kind:type_name -> chalk.server.v1.WorksheetNodeKind
+	13, // 25: chalk.server.v1.CreateWorksheetNodeRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
+	14, // 26: chalk.server.v1.CreateWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	15, // 27: chalk.server.v1.CreateWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	14, // 28: chalk.server.v1.RenameWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	15, // 29: chalk.server.v1.RenameWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	14, // 30: chalk.server.v1.MoveWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	15, // 31: chalk.server.v1.MoveWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	14, // 32: chalk.server.v1.ArchiveWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	15, // 33: chalk.server.v1.ArchiveWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	14, // 34: chalk.server.v1.RestoreWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	15, // 35: chalk.server.v1.RestoreWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	13, // 36: chalk.server.v1.AutosaveWorksheetRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
+	15, // 37: chalk.server.v1.AutosaveWorksheetResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	13, // 38: chalk.server.v1.SaveWorksheetRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
+	15, // 39: chalk.server.v1.SaveWorksheetResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	15, // 40: chalk.server.v1.GetWorksheetCommitResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	7,  // 41: chalk.server.v1.GetWorksheetCommitResponse.content:type_name -> chalk.server.v1.WorksheetContent
+	15, // 42: chalk.server.v1.ListWorksheetCommitsResponse.commits:type_name -> chalk.server.v1.WorksheetCommit
+	16, // 43: chalk.server.v1.WorksheetsService.CreateWorksheetSpace:input_type -> chalk.server.v1.CreateWorksheetSpaceRequest
+	18, // 44: chalk.server.v1.WorksheetsService.ListWorksheetSpaces:input_type -> chalk.server.v1.ListWorksheetSpacesRequest
+	20, // 45: chalk.server.v1.WorksheetsService.GetWorksheetNode:input_type -> chalk.server.v1.GetWorksheetNodeRequest
+	22, // 46: chalk.server.v1.WorksheetsService.ListWorksheetNodes:input_type -> chalk.server.v1.ListWorksheetNodesRequest
+	24, // 47: chalk.server.v1.WorksheetsService.CreateWorksheetNode:input_type -> chalk.server.v1.CreateWorksheetNodeRequest
+	26, // 48: chalk.server.v1.WorksheetsService.RenameWorksheetNode:input_type -> chalk.server.v1.RenameWorksheetNodeRequest
+	28, // 49: chalk.server.v1.WorksheetsService.MoveWorksheetNode:input_type -> chalk.server.v1.MoveWorksheetNodeRequest
+	30, // 50: chalk.server.v1.WorksheetsService.ArchiveWorksheetNode:input_type -> chalk.server.v1.ArchiveWorksheetNodeRequest
+	32, // 51: chalk.server.v1.WorksheetsService.RestoreWorksheetNode:input_type -> chalk.server.v1.RestoreWorksheetNodeRequest
+	34, // 52: chalk.server.v1.WorksheetsService.AutosaveWorksheet:input_type -> chalk.server.v1.AutosaveWorksheetRequest
+	36, // 53: chalk.server.v1.WorksheetsService.SaveWorksheet:input_type -> chalk.server.v1.SaveWorksheetRequest
+	38, // 54: chalk.server.v1.WorksheetsService.GetWorksheetCommit:input_type -> chalk.server.v1.GetWorksheetCommitRequest
+	40, // 55: chalk.server.v1.WorksheetsService.ListWorksheetCommits:input_type -> chalk.server.v1.ListWorksheetCommitsRequest
+	17, // 56: chalk.server.v1.WorksheetsService.CreateWorksheetSpace:output_type -> chalk.server.v1.CreateWorksheetSpaceResponse
+	19, // 57: chalk.server.v1.WorksheetsService.ListWorksheetSpaces:output_type -> chalk.server.v1.ListWorksheetSpacesResponse
+	21, // 58: chalk.server.v1.WorksheetsService.GetWorksheetNode:output_type -> chalk.server.v1.GetWorksheetNodeResponse
+	23, // 59: chalk.server.v1.WorksheetsService.ListWorksheetNodes:output_type -> chalk.server.v1.ListWorksheetNodesResponse
+	25, // 60: chalk.server.v1.WorksheetsService.CreateWorksheetNode:output_type -> chalk.server.v1.CreateWorksheetNodeResponse
+	27, // 61: chalk.server.v1.WorksheetsService.RenameWorksheetNode:output_type -> chalk.server.v1.RenameWorksheetNodeResponse
+	29, // 62: chalk.server.v1.WorksheetsService.MoveWorksheetNode:output_type -> chalk.server.v1.MoveWorksheetNodeResponse
+	31, // 63: chalk.server.v1.WorksheetsService.ArchiveWorksheetNode:output_type -> chalk.server.v1.ArchiveWorksheetNodeResponse
+	33, // 64: chalk.server.v1.WorksheetsService.RestoreWorksheetNode:output_type -> chalk.server.v1.RestoreWorksheetNodeResponse
+	35, // 65: chalk.server.v1.WorksheetsService.AutosaveWorksheet:output_type -> chalk.server.v1.AutosaveWorksheetResponse
+	37, // 66: chalk.server.v1.WorksheetsService.SaveWorksheet:output_type -> chalk.server.v1.SaveWorksheetResponse
+	39, // 67: chalk.server.v1.WorksheetsService.GetWorksheetCommit:output_type -> chalk.server.v1.GetWorksheetCommitResponse
+	41, // 68: chalk.server.v1.WorksheetsService.ListWorksheetCommits:output_type -> chalk.server.v1.ListWorksheetCommitsResponse
+	56, // [56:69] is the sub-list for method output_type
+	43, // [43:56] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_worksheets_proto_init() }

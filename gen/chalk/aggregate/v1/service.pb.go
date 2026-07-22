@@ -238,6 +238,7 @@ type GetAggregateBackfillJobsRequest struct {
 	Cursor        string                  `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	PlanHash      *string                 `protobuf:"bytes,3,opt,name=plan_hash,json=planHash,proto3,oneof" json:"plan_hash,omitempty"`
 	InitStatus    AggregateBackfillStatus `protobuf:"varint,4,opt,name=init_status,json=initStatus,proto3,enum=chalk.aggregate.v1.AggregateBackfillStatus" json:"init_status,omitempty"`
+	Name          *string                 `protobuf:"bytes,5,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -298,6 +299,13 @@ func (x *GetAggregateBackfillJobsRequest) GetInitStatus() AggregateBackfillStatu
 		return x.InitStatus
 	}
 	return AggregateBackfillStatus_AGGREGATE_BACKFILL_STATUS_UNSPECIFIED
+}
+
+func (x *GetAggregateBackfillJobsRequest) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
 }
 
 type GetAggregateBackfillJobsResponse struct {
@@ -894,15 +902,17 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\ffor_features\x18\x01 \x03(\tR\vforFeatures\"p\n" +
 	"\x15GetAggregatesResponse\x12?\n" +
 	"\x06series\x18\x01 \x03(\v2'.chalk.aggregate.v1.AggregateTimeSeriesR\x06series\x12\x16\n" +
-	"\x06errors\x18\x02 \x03(\tR\x06errors\"\xcd\x01\n" +
+	"\x06errors\x18\x02 \x03(\tR\x06errors\"\xef\x01\n" +
 	"\x1fGetAggregateBackfillJobsRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12 \n" +
 	"\tplan_hash\x18\x03 \x01(\tH\x00R\bplanHash\x88\x01\x01\x12L\n" +
 	"\vinit_status\x18\x04 \x01(\x0e2+.chalk.aggregate.v1.AggregateBackfillStatusR\n" +
-	"initStatusB\f\n" +
+	"initStatus\x12\x17\n" +
+	"\x04name\x18\x05 \x01(\tH\x01R\x04name\x88\x01\x01B\f\n" +
 	"\n" +
-	"_plan_hash\"x\n" +
+	"_plan_hashB\a\n" +
+	"\x05_name\"x\n" +
 	" GetAggregateBackfillJobsResponse\x12<\n" +
 	"\x04jobs\x18\x01 \x03(\v2(.chalk.aggregate.v1.AggregateBackfillJobR\x04jobs\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\"T\n" +
@@ -959,7 +969,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x123\n" +
 	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors2\xee\b\n" +
 	"\x10AggregateService\x12\xc3\x01\n" +
-	"\x15PlanAggregateBackfill\x120.chalk.aggregate.v1.PlanAggregateBackfillRequest\x1a1.chalk.aggregate.v1.PlanAggregateBackfillResponse\"E\x80}\f\x8a\xd3\x0e;\b\x02\x127Estimated the resources needed to backfill an aggregate\x90\x02\x01\x12\xae\x01\n" +
+	"\x15PlanAggregateBackfill\x120.chalk.aggregate.v1.PlanAggregateBackfillRequest\x1a1.chalk.aggregate.v1.PlanAggregateBackfillResponse\"E\x80}\x04\x8a\xd3\x0e;\b\x02\x127Estimated the resources needed to backfill an aggregate\x90\x02\x01\x12\xae\x01\n" +
 	"\rGetAggregates\x12(.chalk.aggregate.v1.GetAggregatesRequest\x1a).chalk.aggregate.v1.GetAggregatesResponse\"H\x80}\v\x8a\xd3\x0e>\b\x02\x12:Retrieved aggregate time series for the requested features\x90\x02\x01\x12\x8d\x01\n" +
 	"\x18GetAggregateBackfillJobs\x123.chalk.aggregate.v1.GetAggregateBackfillJobsRequest\x1a4.chalk.aggregate.v1.GetAggregateBackfillJobsResponse\"\x06\x80}\v\x90\x02\x01\x12\x8a\x01\n" +
 	"\x17GetAggregateBackfillJob\x122.chalk.aggregate.v1.GetAggregateBackfillJobRequest\x1a3.chalk.aggregate.v1.GetAggregateBackfillJobResponse\"\x06\x80}\v\x90\x02\x01\x12\x8d\x01\n" +

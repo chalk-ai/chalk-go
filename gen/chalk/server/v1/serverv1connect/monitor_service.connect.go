@@ -33,9 +33,15 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// MonitorServiceGetMonitorProcedure is the fully-qualified name of the MonitorService's GetMonitor
+	// RPC.
+	MonitorServiceGetMonitorProcedure = "/chalk.server.v1.MonitorService/GetMonitor"
 	// MonitorServiceCreateMonitorProcedure is the fully-qualified name of the MonitorService's
 	// CreateMonitor RPC.
 	MonitorServiceCreateMonitorProcedure = "/chalk.server.v1.MonitorService/CreateMonitor"
+	// MonitorServiceUpdateMonitorProcedure is the fully-qualified name of the MonitorService's
+	// UpdateMonitor RPC.
+	MonitorServiceUpdateMonitorProcedure = "/chalk.server.v1.MonitorService/UpdateMonitor"
 	// MonitorServiceDeleteMonitorProcedure is the fully-qualified name of the MonitorService's
 	// DeleteMonitor RPC.
 	MonitorServiceDeleteMonitorProcedure = "/chalk.server.v1.MonitorService/DeleteMonitor"
@@ -46,7 +52,9 @@ const (
 
 // MonitorServiceClient is a client for the chalk.server.v1.MonitorService service.
 type MonitorServiceClient interface {
+	GetMonitor(context.Context, *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error)
 	CreateMonitor(context.Context, *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error)
+	UpdateMonitor(context.Context, *connect.Request[v1.UpdateMonitorRequest]) (*connect.Response[v1.UpdateMonitorResponse], error)
 	DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error)
 	ListMonitors(context.Context, *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error)
 }
@@ -62,10 +70,22 @@ func NewMonitorServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 	baseURL = strings.TrimRight(baseURL, "/")
 	monitorServiceMethods := v1.File_chalk_server_v1_monitor_service_proto.Services().ByName("MonitorService").Methods()
 	return &monitorServiceClient{
+		getMonitor: connect.NewClient[v1.GetMonitorRequest, v1.GetMonitorResponse](
+			httpClient,
+			baseURL+MonitorServiceGetMonitorProcedure,
+			connect.WithSchema(monitorServiceMethods.ByName("GetMonitor")),
+			connect.WithClientOptions(opts...),
+		),
 		createMonitor: connect.NewClient[v1.CreateMonitorRequest, v1.CreateMonitorResponse](
 			httpClient,
 			baseURL+MonitorServiceCreateMonitorProcedure,
 			connect.WithSchema(monitorServiceMethods.ByName("CreateMonitor")),
+			connect.WithClientOptions(opts...),
+		),
+		updateMonitor: connect.NewClient[v1.UpdateMonitorRequest, v1.UpdateMonitorResponse](
+			httpClient,
+			baseURL+MonitorServiceUpdateMonitorProcedure,
+			connect.WithSchema(monitorServiceMethods.ByName("UpdateMonitor")),
 			connect.WithClientOptions(opts...),
 		),
 		deleteMonitor: connect.NewClient[v1.DeleteMonitorRequest, v1.DeleteMonitorResponse](
@@ -85,14 +105,26 @@ func NewMonitorServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 
 // monitorServiceClient implements MonitorServiceClient.
 type monitorServiceClient struct {
+	getMonitor    *connect.Client[v1.GetMonitorRequest, v1.GetMonitorResponse]
 	createMonitor *connect.Client[v1.CreateMonitorRequest, v1.CreateMonitorResponse]
+	updateMonitor *connect.Client[v1.UpdateMonitorRequest, v1.UpdateMonitorResponse]
 	deleteMonitor *connect.Client[v1.DeleteMonitorRequest, v1.DeleteMonitorResponse]
 	listMonitors  *connect.Client[v1.ListMonitorsRequest, v1.ListMonitorsResponse]
+}
+
+// GetMonitor calls chalk.server.v1.MonitorService.GetMonitor.
+func (c *monitorServiceClient) GetMonitor(ctx context.Context, req *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error) {
+	return c.getMonitor.CallUnary(ctx, req)
 }
 
 // CreateMonitor calls chalk.server.v1.MonitorService.CreateMonitor.
 func (c *monitorServiceClient) CreateMonitor(ctx context.Context, req *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error) {
 	return c.createMonitor.CallUnary(ctx, req)
+}
+
+// UpdateMonitor calls chalk.server.v1.MonitorService.UpdateMonitor.
+func (c *monitorServiceClient) UpdateMonitor(ctx context.Context, req *connect.Request[v1.UpdateMonitorRequest]) (*connect.Response[v1.UpdateMonitorResponse], error) {
+	return c.updateMonitor.CallUnary(ctx, req)
 }
 
 // DeleteMonitor calls chalk.server.v1.MonitorService.DeleteMonitor.
@@ -107,7 +139,9 @@ func (c *monitorServiceClient) ListMonitors(ctx context.Context, req *connect.Re
 
 // MonitorServiceHandler is an implementation of the chalk.server.v1.MonitorService service.
 type MonitorServiceHandler interface {
+	GetMonitor(context.Context, *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error)
 	CreateMonitor(context.Context, *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error)
+	UpdateMonitor(context.Context, *connect.Request[v1.UpdateMonitorRequest]) (*connect.Response[v1.UpdateMonitorResponse], error)
 	DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error)
 	ListMonitors(context.Context, *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error)
 }
@@ -119,10 +153,22 @@ type MonitorServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	monitorServiceMethods := v1.File_chalk_server_v1_monitor_service_proto.Services().ByName("MonitorService").Methods()
+	monitorServiceGetMonitorHandler := connect.NewUnaryHandler(
+		MonitorServiceGetMonitorProcedure,
+		svc.GetMonitor,
+		connect.WithSchema(monitorServiceMethods.ByName("GetMonitor")),
+		connect.WithHandlerOptions(opts...),
+	)
 	monitorServiceCreateMonitorHandler := connect.NewUnaryHandler(
 		MonitorServiceCreateMonitorProcedure,
 		svc.CreateMonitor,
 		connect.WithSchema(monitorServiceMethods.ByName("CreateMonitor")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitorServiceUpdateMonitorHandler := connect.NewUnaryHandler(
+		MonitorServiceUpdateMonitorProcedure,
+		svc.UpdateMonitor,
+		connect.WithSchema(monitorServiceMethods.ByName("UpdateMonitor")),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitorServiceDeleteMonitorHandler := connect.NewUnaryHandler(
@@ -139,8 +185,12 @@ func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.Handler
 	)
 	return "/chalk.server.v1.MonitorService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case MonitorServiceGetMonitorProcedure:
+			monitorServiceGetMonitorHandler.ServeHTTP(w, r)
 		case MonitorServiceCreateMonitorProcedure:
 			monitorServiceCreateMonitorHandler.ServeHTTP(w, r)
+		case MonitorServiceUpdateMonitorProcedure:
+			monitorServiceUpdateMonitorHandler.ServeHTTP(w, r)
 		case MonitorServiceDeleteMonitorProcedure:
 			monitorServiceDeleteMonitorHandler.ServeHTTP(w, r)
 		case MonitorServiceListMonitorsProcedure:
@@ -154,8 +204,16 @@ func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.Handler
 // UnimplementedMonitorServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedMonitorServiceHandler struct{}
 
+func (UnimplementedMonitorServiceHandler) GetMonitor(context.Context, *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.GetMonitor is not implemented"))
+}
+
 func (UnimplementedMonitorServiceHandler) CreateMonitor(context.Context, *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.CreateMonitor is not implemented"))
+}
+
+func (UnimplementedMonitorServiceHandler) UpdateMonitor(context.Context, *connect.Request[v1.UpdateMonitorRequest]) (*connect.Response[v1.UpdateMonitorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.UpdateMonitor is not implemented"))
 }
 
 func (UnimplementedMonitorServiceHandler) DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error) {
