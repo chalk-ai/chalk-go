@@ -86,6 +86,8 @@ type OfflineQueryRequestSerialized struct {
 	MaxCacheAge                *int                        `json:"max_cache_age_secs"`
 	ObservedAtLowerBound       *string                     `json:"observed_at_lower_bound"`
 	ObservedAtUpperBound       *string                     `json:"observed_at_upper_bound"`
+	InsertedAtLowerBound       *string                     `json:"inserted_at_lower_bound"`
+	InsertedAtUpperBound       *string                     `json:"inserted_at_upper_bound"`
 	DatasetName                *string                     `json:"dataset_name"`
 	Branch                     *string                     `json:"branch"`
 	RecomputeFeatures          any                         `json:"recompute_features"`

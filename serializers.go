@@ -322,17 +322,21 @@ func serializeOfflineQueryParamsWithInput(
 		featureForLowerUpperBoundPtr = &p.FeatureForLowerUpperBound
 	}
 
-	// Convert time bounds to string format (using foreign branch's approach)
-	var lowerBoundStr *string
-	if p.ObservedAtLowerBound != nil {
-		formatted := strings.Replace(p.ObservedAtLowerBound.Format(time.RFC3339Nano), "Z", "+00:00", 1)
-		lowerBoundStr = &formatted
+	lowerBoundStr, err := formatOfflineQueryBound(p.ObservedAtLowerBound, p.ObservedAtLowerBoundDuration)
+	if err != nil {
+		return nil, errors.Wrap(err, "formatting observed-at lower bound")
 	}
-
-	var upperBoundStr *string
-	if p.ObservedAtUpperBound != nil {
-		formatted := strings.Replace(p.ObservedAtUpperBound.Format(time.RFC3339Nano), "Z", "+00:00", 1)
-		upperBoundStr = &formatted
+	upperBoundStr, err := formatOfflineQueryBound(p.ObservedAtUpperBound, p.ObservedAtUpperBoundDuration)
+	if err != nil {
+		return nil, errors.Wrap(err, "formatting observed-at upper bound")
+	}
+	insertedAtLowerBoundStr, err := formatOfflineQueryBound(p.InsertedAtLowerBound, p.InsertedAtLowerBoundDuration)
+	if err != nil {
+		return nil, errors.Wrap(err, "formatting inserted-at lower bound")
+	}
+	insertedAtUpperBoundStr, err := formatOfflineQueryBound(p.InsertedAtUpperBound, p.InsertedAtUpperBoundDuration)
+	if err != nil {
+		return nil, errors.Wrap(err, "formatting inserted-at upper bound")
 	}
 
 	// Build the serialized object to match Python structure exactly
@@ -346,9 +350,11 @@ func serializeOfflineQueryParamsWithInput(
 		DestinationFormat:          "PARQUET",
 		JobId:                      nil, // Always nil - server auto-generates
 		MaxSamples:                 p.MaxSamples,
-		MaxCacheAge:                nil,           // Deprecated in Python - always nil
-		ObservedAtLowerBound:       lowerBoundStr, // Using foreign branch's inline approach
-		ObservedAtUpperBound:       upperBoundStr, // Using foreign branch's inline approach
+		MaxCacheAge:                nil, // Deprecated in Python - always nil
+		ObservedAtLowerBound:       lowerBoundStr,
+		ObservedAtUpperBound:       upperBoundStr,
+		InsertedAtLowerBound:       insertedAtLowerBoundStr,
+		InsertedAtUpperBound:       insertedAtUpperBoundStr,
 		DatasetName:                internal.StringOrNil(p.DatasetName),
 		Branch:                     internal.StringOrNil(p.Branch),
 		RecomputeFeatures:          getRecomputeFeaturesValue(p),
@@ -380,6 +386,20 @@ func serializeOfflineQueryParamsWithInput(
 	}
 
 	return json.Marshal(serializedObj)
+}
+
+func formatOfflineQueryBound(timestamp *time.Time, delta *time.Duration) (*string, error) {
+	if timestamp != nil && delta != nil {
+		return nil, errors.New("absolute and relative bounds cannot both be set")
+	}
+	if delta != nil {
+		return TimeDelta(*delta), nil
+	}
+	if timestamp == nil {
+		return nil, nil
+	}
+	formatted := strings.Replace(timestamp.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+	return &formatted, nil
 }
 
 func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
