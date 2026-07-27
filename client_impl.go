@@ -842,9 +842,6 @@ func renameArrowTableColumns(t arrow.Table, fn func(string) string) arrow.Table 
 }
 
 func (c *clientImpl) DeleteFeatures(ctx context.Context, params DeleteFeaturesParams) (DeleteFeaturesResult, error) {
-	if err := params.validate(); err != nil {
-		return DeleteFeaturesResult{}, err
-	}
 	// Feature deletion is not supported against branch deployments, matching chalkpy,
 	// which raises rather than silently deleting from the mainline environment.
 	if c.Branch != "" {
@@ -857,16 +854,9 @@ func (c *clientImpl) DeleteFeatures(ctx context.Context, params DeleteFeaturesPa
 	err := c.sendRequest(
 		ctx,
 		&sendRequestParams{
-			Method: "DELETE",
-			URL:    "v1/features/rows",
-			Body: deleteFeaturesRequest{
-				Namespace:     params.Namespace,
-				Features:      params.Features,
-				Tags:          params.Tags,
-				PrimaryKeys:   params.PrimaryKeys,
-				RetainOffline: params.RetainOffline,
-				RetainOnline:  params.RetainOnline,
-			},
+			Method:   "DELETE",
+			URL:      "v1/features/rows",
+			Body:     deleteFeaturesRequest(params),
 			Response: &response,
 		},
 	)

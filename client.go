@@ -118,8 +118,9 @@ type Client interface {
 	// DeleteFeatures targets feature observation values for deletion and performs the
 	// deletion in both the online and offline stores.
 	//
-	// Params.Features and Params.Tags are mutually exclusive. Leaving both empty targets
-	// every feature in the namespace for the given primary keys.
+	// Params.Features and Params.Tags are mutually exclusive. Leaving both nil targets
+	// every feature in the namespace for the given primary keys. An explicitly empty,
+	// non-nil selector targets no features.
 	//
 	// Deletion may partially succeed, so inspect the returned Errors even when err is nil.
 	// Not supported against branch deployments.
