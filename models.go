@@ -635,6 +635,15 @@ type OfflineQueryParams struct {
 	// A nil value lets the server choose its own default.
 	UseMetaplanner *bool
 
+	// UnloadResolvers names resolvers whose output should be pre-computed and unloaded
+	// to cloud storage before the shard jobs that read it run, instead of each shard
+	// querying the underlying data source itself. Supplying partition expressions
+	// additionally hash-buckets the unloaded output on the join key so each shard reads
+	// only the buckets it owns.
+	//
+	// Use [UnloadAllResolvers] to let the server auto-detect every eligible resolver.
+	UnloadResolvers []UnloadResolver
+
 	// OverlayGraph specifies additional features and resolvers to be used to plan this specific query.
 	OverlayGraph string
 	/***************

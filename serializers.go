@@ -339,6 +339,11 @@ func serializeOfflineQueryParamsWithInput(
 		return nil, errors.Wrap(err, "formatting inserted-at upper bound")
 	}
 
+	unloadResolvers, err := serializeUnloadResolvers(p.UnloadResolvers)
+	if err != nil {
+		return nil, err
+	}
+
 	// Build the serialized object to match Python structure exactly
 	serializedObj := internal.OfflineQueryRequestSerialized{
 		// Core fields
@@ -382,6 +387,7 @@ func serializeOfflineQueryParamsWithInput(
 		MaxRetries:                 p.MaxRetries,
 		UseJobQueue:                p.UseJobQueue,
 		UseMetaplanner:             p.UseMetaplanner,
+		UnloadResolvers:            unloadResolvers,
 		OverlayGraph:               nil,
 	}
 

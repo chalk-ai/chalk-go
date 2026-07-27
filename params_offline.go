@@ -282,6 +282,32 @@ func (p OfflineQueryParamsComplete) WithUseMetaplanner(useMetaplanner bool) Offl
 	return p
 }
 
+// WithUnloadResolvers returns a copy of Offline Query parameters with the specified resolvers
+// marked for unloading. Calling it more than once appends.
+//
+// Supply partition expressions to hash-bucket a resolver's unloaded output on its join key, so
+// each shard of a sharded query reads only the buckets it owns:
+//
+//	params.WithUnloadResolvers(chalk.UnloadResolver{
+//	    Fqn:         "unload_txns",
+//	    PartitionBy: []chalk.UnloadPartition{chalk.PartitionByEquality(Txn.UserId, User.Id)},
+//	})
+//
+// Omit PartitionBy for a flat, unpartitioned unload.
+func (p OfflineQueryParamsComplete) WithUnloadResolvers(resolvers ...UnloadResolver) OfflineQueryParamsComplete {
+	p.underlying.UnloadResolvers = append(p.underlying.UnloadResolvers, resolvers...)
+	return p
+}
+
+// WithUnloadAllResolvers returns a copy of Offline Query parameters asking the server to
+// auto-detect and unload every eligible resolver. Cannot be combined with partition
+// expressions -- name resolvers individually via [OfflineQueryParamsComplete.WithUnloadResolvers]
+// if you need to partition them.
+func (p OfflineQueryParamsComplete) WithUnloadAllResolvers() OfflineQueryParamsComplete {
+	p.underlying.UnloadResolvers = append(p.underlying.UnloadResolvers, UnloadAllResolvers())
+	return p
+}
+
 // WithOverlayGraph returns a copy of Offline Query parameters with the specified overlay graph set.
 func (p OfflineQueryParamsComplete) WithOverlayGraph(overlayGraph string) OfflineQueryParamsComplete {
 	p.underlying.OverlayGraph = overlayGraph
