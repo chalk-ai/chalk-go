@@ -840,3 +840,25 @@ func renameArrowTableColumns(t arrow.Table, fn func(string) string) arrow.Table 
 	}
 	return result
 }
+
+func (c *clientImpl) DeleteFeatures(ctx context.Context, params DeleteFeaturesParams) (DeleteFeaturesResult, error) {
+	// Feature deletion is not supported against branch deployments, matching chalkpy,
+	// which raises rather than silently deleting from the mainline environment.
+	if c.Branch != "" {
+		return DeleteFeaturesResult{}, errors.Newf(
+			"feature deletion is not supported for branch deployments - client is connected to branch %q", c.Branch,
+		)
+	}
+
+	response := DeleteFeaturesResult{}
+	err := c.sendRequest(
+		ctx,
+		&sendRequestParams{
+			Method:   "DELETE",
+			URL:      "v1/features/rows",
+			Body:     deleteFeaturesRequest(params),
+			Response: &response,
+		},
+	)
+	return response, errors.Wrap(err, "sending delete features request")
+}

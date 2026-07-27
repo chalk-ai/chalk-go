@@ -115,6 +115,25 @@ type Client interface {
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	UploadFeatures(ctx context.Context, args UploadFeaturesParams) (UploadFeaturesResult, error)
 
+	// DeleteFeatures targets feature observation values for deletion and performs the
+	// deletion in both the online and offline stores.
+	//
+	// Params.Features and Params.Tags are mutually exclusive. Leaving both nil targets
+	// every feature in the namespace for the given primary keys. An explicitly empty,
+	// non-nil selector targets no features.
+	//
+	// Deletion may partially succeed, so inspect the returned Errors even when err is nil.
+	// Not supported against branch deployments.
+	//
+	// Example:
+	//
+	//		res, err := client.DeleteFeatures(ctx, chalk.DeleteFeaturesParams{
+	//		    Namespace:   "user",
+	//		    Features:    []string{"email"},
+	//		    PrimaryKeys: []string{"1", "2"},
+	//		})
+	DeleteFeatures(ctx context.Context, args DeleteFeaturesParams) (DeleteFeaturesResult, error)
+
 	// OfflineQuery queries feature values from the offline store.
 	// See Dataset for more information.
 	//
