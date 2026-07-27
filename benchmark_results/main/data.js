@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784758967920,
+  "lastUpdate": 1785170497778,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -43914,6 +43914,156 @@ window.BENCHMARK_DATA = {
             "value": 195.8,
             "unit": "ms/op",
             "extra": "7 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1bf90c36485f7a0d5c50e672bc7ce83adda9a40d",
+          "message": "Port unload_resolvers syntax into chalk-go (Q-809) (#699)\n\n`unload_resolvers` existed in chalkpy but had no chalk-go equivalent, so Go\ncallers could not request unloaded (or bucketed) resolvers when creating a\ndataset / running an offline query.\n\nNo proto construction is needed. `UnloadResolverSpec.partition_by` is\n`repeated string`, and the engine decoder (manifest_utils.py::\n_decode_partition_expr) accepts a raw FQN, a plain-text `lhs == rhs` equality,\nor a base64-encoded LogicalExprNode. chalkpy only emits the base64 form; this\nuses plain text, which expresses everything needed including the\ncross-namespace join. The forms cannot be confused: the decoder tries base64\nfirst with validate=True, and `lhs == rhs` is never valid base64 because `=`\nis only accepted as trailing padding.\n\nAPI follows the existing builder style:\n\n    params.WithUnloadResolvers(chalk.UnloadResolver{\n        Fqn:         \"unload_txns\",\n        PartitionBy: []chalk.UnloadPartition{\n            chalk.PartitionByEquality(Txn.UserId, User.Id),\n        },\n    })\n    params.WithUnloadAllResolvers()\n\nFeature references resolve through the existing getFqn helper, so codegen'd\nfeature fields and raw FQN strings both work, matching WithOutputs.\n\nSerialized output is byte-identical to chalkpy's encode_unload_resolvers:\n[{\"fqn\":\"unload_txns\",\"partition_by\":[\"txn.user_id == user.id\"]}], and the key\nis omitted entirely when unset so existing requests are unchanged. Client-side\nerrors mirror chalkpy: \"*\" rejects partition expressions, and missing FQNs and\nnon-feature references fail loudly.\n\nLinear: Q-809\nClaude session: 858cb9f2-811c-4947-a9c2-2ba0e6ec43e1",
+          "timestamp": "2026-07-27T09:40:11-07:00",
+          "tree_id": "dce5c0739e99b0853fbad64c137e7ba779a11275",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/1bf90c36485f7a0d5c50e672bc7ce83adda9a40d"
+        },
+        "date": 1785170497641,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.17,
+            "unit": "ms/op",
+            "extra": "1095 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 101.4,
+            "unit": "ms/op",
+            "extra": "12 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 33.13,
+            "unit": "ms/op",
+            "extra": "39 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 198.1,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 287.2,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle",
+            "value": 0.03119,
+            "unit": "ms/op",
+            "extra": "48892 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.4033,
+            "unit": "ms/op",
+            "extra": "3014 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 45.14,
+            "unit": "ms/op",
+            "extra": "44 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.1913,
+            "unit": "ms/op",
+            "extra": "7447 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 23.05,
+            "unit": "ms/op",
+            "extra": "91 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesSingle",
+            "value": 0.2716,
+            "unit": "ms/op",
+            "extra": "5475 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesParallel",
+            "value": 36.79,
+            "unit": "ms/op",
+            "extra": "55 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesSingle",
+            "value": 0.3929,
+            "unit": "ms/op",
+            "extra": "3780 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesParallel",
+            "value": 53.94,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesSingle",
+            "value": 1.339,
+            "unit": "ms/op",
+            "extra": "1024 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesParallel",
+            "value": 144.2,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesSingle",
+            "value": 0.1133,
+            "unit": "ms/op",
+            "extra": "10000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesParallel",
+            "value": 16.41,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalHasOnes",
+            "value": 29.11,
+            "unit": "ms/op",
+            "extra": "85 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneHasOnes",
+            "value": 17.33,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkHasOnes",
+            "value": 196.4,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
           }
         ]
       }
