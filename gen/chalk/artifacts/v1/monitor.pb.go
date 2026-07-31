@@ -10,6 +10,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -77,9 +78,9 @@ func (MonitorType) EnumDescriptor() ([]byte, []int) {
 
 type LogsMonitor struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	QueryString   string                 `protobuf:"bytes,1,opt,name=query_string,json=queryString,proto3" json:"query_string,omitempty"`                                          // literal or regex matching
-	Tags          map[string]string      `protobuf:"bytes,2,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // tags to filter on
-	WindowPeriod  string                 `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`                                       // window period to aggregate logs
+	QueryString   string                 `protobuf:"bytes,1,opt,name=query_string,json=queryString,proto3" json:"query_string,omitempty"`    // literal or regex matching
+	WindowPeriod  *durationpb.Duration   `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"` // window period to aggregate logs
+	DataSource    string                 `protobuf:"bytes,3,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -121,16 +122,16 @@ func (x *LogsMonitor) GetQueryString() string {
 	return ""
 }
 
-func (x *LogsMonitor) GetTags() map[string]string {
+func (x *LogsMonitor) GetWindowPeriod() *durationpb.Duration {
 	if x != nil {
-		return x.Tags
+		return x.WindowPeriod
 	}
 	return nil
 }
 
-func (x *LogsMonitor) GetWindowPeriod() string {
+func (x *LogsMonitor) GetDataSource() string {
 	if x != nil {
-		return x.WindowPeriod
+		return x.DataSource
 	}
 	return ""
 }
@@ -181,7 +182,8 @@ func (x *HealthcheckMonitor) GetHealthcheckName() string {
 
 type ChartMonitor struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChartId       string                 `protobuf:"bytes,1,opt,name=chart_id,json=chartId,proto3" json:"chart_id,omitempty"`
+	SeriesMql     []string               `protobuf:"bytes,1,rep,name=series_mql,json=seriesMql,proto3" json:"series_mql,omitempty"`
+	FormulaMql    *string                `protobuf:"bytes,2,opt,name=formula_mql,json=formulaMql,proto3,oneof" json:"formula_mql,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -216,69 +218,16 @@ func (*ChartMonitor) Descriptor() ([]byte, []int) {
 	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ChartMonitor) GetChartId() string {
+func (x *ChartMonitor) GetSeriesMql() []string {
 	if x != nil {
-		return x.ChartId
-	}
-	return ""
-}
-
-type MonitorSeries struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	MetricSeries   []*MetricConfigSeries  `protobuf:"bytes,1,rep,name=metric_series,json=metricSeries,proto3" json:"metric_series,omitempty"`
-	MetricFormulas *MetricFormula         `protobuf:"bytes,2,opt,name=metric_formulas,json=metricFormulas,proto3,oneof" json:"metric_formulas,omitempty"`
-	WindowPeriod   string                 `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *MonitorSeries) Reset() {
-	*x = MonitorSeries{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MonitorSeries) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MonitorSeries) ProtoMessage() {}
-
-func (x *MonitorSeries) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MonitorSeries.ProtoReflect.Descriptor instead.
-func (*MonitorSeries) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *MonitorSeries) GetMetricSeries() []*MetricConfigSeries {
-	if x != nil {
-		return x.MetricSeries
+		return x.SeriesMql
 	}
 	return nil
 }
 
-func (x *MonitorSeries) GetMetricFormulas() *MetricFormula {
-	if x != nil {
-		return x.MetricFormulas
-	}
-	return nil
-}
-
-func (x *MonitorSeries) GetWindowPeriod() string {
-	if x != nil {
-		return x.WindowPeriod
+func (x *ChartMonitor) GetFormulaMql() string {
+	if x != nil && x.FormulaMql != nil {
+		return *x.FormulaMql
 	}
 	return ""
 }
@@ -297,7 +246,7 @@ type AlertChannel struct {
 
 func (x *AlertChannel) Reset() {
 	*x = AlertChannel{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -309,7 +258,7 @@ func (x *AlertChannel) String() string {
 func (*AlertChannel) ProtoMessage() {}
 
 func (x *AlertChannel) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -322,7 +271,7 @@ func (x *AlertChannel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertChannel.ProtoReflect.Descriptor instead.
 func (*AlertChannel) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{4}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AlertChannel) GetEntityKind() AlertChannelKind {
@@ -384,7 +333,7 @@ type Threshold struct {
 
 func (x *Threshold) Reset() {
 	*x = Threshold{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -396,7 +345,7 @@ func (x *Threshold) String() string {
 func (*Threshold) ProtoMessage() {}
 
 func (x *Threshold) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -409,7 +358,7 @@ func (x *Threshold) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Threshold.ProtoReflect.Descriptor instead.
 func (*Threshold) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{5}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Threshold) GetThresholdKind() ThresholdKind {
@@ -455,7 +404,7 @@ type Monitor struct {
 
 func (x *Monitor) Reset() {
 	*x = Monitor{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[6]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -467,7 +416,7 @@ func (x *Monitor) String() string {
 func (*Monitor) ProtoMessage() {}
 
 func (x *Monitor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[6]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -480,7 +429,7 @@ func (x *Monitor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Monitor.ProtoReflect.Descriptor instead.
 func (*Monitor) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{6}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Monitor) GetId() string {
@@ -599,23 +548,20 @@ var File_chalk_artifacts_v1_monitor_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\n" +
-	" chalk/artifacts/v1/monitor.proto\x12\x12chalk.artifacts.v1\x1a&chalk/artifacts/v1/alert_channel.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcd\x01\n" +
+	" chalk/artifacts/v1/monitor.proto\x12\x12chalk.artifacts.v1\x1a&chalk/artifacts/v1/alert_channel.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x91\x01\n" +
 	"\vLogsMonitor\x12!\n" +
-	"\fquery_string\x18\x01 \x01(\tR\vqueryString\x12=\n" +
-	"\x04tags\x18\x02 \x03(\v2).chalk.artifacts.v1.LogsMonitor.TagsEntryR\x04tags\x12#\n" +
-	"\rwindow_period\x18\x03 \x01(\tR\fwindowPeriod\x1a7\n" +
-	"\tTagsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"?\n" +
+	"\fquery_string\x18\x01 \x01(\tR\vqueryString\x12>\n" +
+	"\rwindow_period\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12\x1f\n" +
+	"\vdata_source\x18\x03 \x01(\tR\n" +
+	"dataSource\"?\n" +
 	"\x12HealthcheckMonitor\x12)\n" +
-	"\x10healthcheck_name\x18\x01 \x01(\tR\x0fhealthcheckName\")\n" +
-	"\fChartMonitor\x12\x19\n" +
-	"\bchart_id\x18\x01 \x01(\tR\achartId\"\xe6\x01\n" +
-	"\rMonitorSeries\x12K\n" +
-	"\rmetric_series\x18\x01 \x03(\v2&.chalk.artifacts.v1.MetricConfigSeriesR\fmetricSeries\x12O\n" +
-	"\x0fmetric_formulas\x18\x02 \x01(\v2!.chalk.artifacts.v1.MetricFormulaH\x00R\x0emetricFormulas\x88\x01\x01\x12#\n" +
-	"\rwindow_period\x18\x03 \x01(\tR\fwindowPeriodB\x12\n" +
-	"\x10_metric_formulas\"\xac\x01\n" +
+	"\x10healthcheck_name\x18\x01 \x01(\tR\x0fhealthcheckName\"c\n" +
+	"\fChartMonitor\x12\x1d\n" +
+	"\n" +
+	"series_mql\x18\x01 \x03(\tR\tseriesMql\x12$\n" +
+	"\vformula_mql\x18\x02 \x01(\tH\x00R\n" +
+	"formulaMql\x88\x01\x01B\x0e\n" +
+	"\f_formula_mql\"\xac\x01\n" +
 	"\fAlertChannel\x12E\n" +
 	"\ventity_kind\x18\x01 \x01(\x0e2$.chalk.artifacts.v1.AlertChannelKindR\n" +
 	"entityKind\x12\x1d\n" +
@@ -663,41 +609,36 @@ func file_chalk_artifacts_v1_monitor_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_artifacts_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_artifacts_v1_monitor_proto_goTypes = []any{
 	(MonitorType)(0),              // 0: chalk.artifacts.v1.MonitorType
 	(*LogsMonitor)(nil),           // 1: chalk.artifacts.v1.LogsMonitor
 	(*HealthcheckMonitor)(nil),    // 2: chalk.artifacts.v1.HealthcheckMonitor
 	(*ChartMonitor)(nil),          // 3: chalk.artifacts.v1.ChartMonitor
-	(*MonitorSeries)(nil),         // 4: chalk.artifacts.v1.MonitorSeries
-	(*AlertChannel)(nil),          // 5: chalk.artifacts.v1.AlertChannel
-	(*Threshold)(nil),             // 6: chalk.artifacts.v1.Threshold
-	(*Monitor)(nil),               // 7: chalk.artifacts.v1.Monitor
-	nil,                           // 8: chalk.artifacts.v1.LogsMonitor.TagsEntry
-	(*MetricConfigSeries)(nil),    // 9: chalk.artifacts.v1.MetricConfigSeries
-	(*MetricFormula)(nil),         // 10: chalk.artifacts.v1.MetricFormula
-	(AlertChannelKind)(0),         // 11: chalk.artifacts.v1.AlertChannelKind
-	(ThresholdKind)(0),            // 12: chalk.artifacts.v1.ThresholdKind
-	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
+	(*AlertChannel)(nil),          // 4: chalk.artifacts.v1.AlertChannel
+	(*Threshold)(nil),             // 5: chalk.artifacts.v1.Threshold
+	(*Monitor)(nil),               // 6: chalk.artifacts.v1.Monitor
+	(*durationpb.Duration)(nil),   // 7: google.protobuf.Duration
+	(AlertChannelKind)(0),         // 8: chalk.artifacts.v1.AlertChannelKind
+	(ThresholdKind)(0),            // 9: chalk.artifacts.v1.ThresholdKind
+	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_monitor_proto_depIdxs = []int32{
-	8,  // 0: chalk.artifacts.v1.LogsMonitor.tags:type_name -> chalk.artifacts.v1.LogsMonitor.TagsEntry
-	9,  // 1: chalk.artifacts.v1.MonitorSeries.metric_series:type_name -> chalk.artifacts.v1.MetricConfigSeries
-	10, // 2: chalk.artifacts.v1.MonitorSeries.metric_formulas:type_name -> chalk.artifacts.v1.MetricFormula
-	11, // 3: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
-	12, // 4: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
-	5,  // 5: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
-	6,  // 6: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
-	3,  // 7: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
-	2,  // 8: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
-	1,  // 9: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
-	13, // 10: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
-	13, // 11: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	7,  // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
+	8,  // 1: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	9,  // 2: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
+	4,  // 3: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
+	5,  // 4: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
+	3,  // 5: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
+	2,  // 6: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
+	1,  // 7: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
+	10, // 8: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
+	10, // 9: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_monitor_proto_init() }
@@ -707,12 +648,12 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 	}
 	file_chalk_artifacts_v1_alert_channel_proto_init()
 	file_chalk_artifacts_v1_chart_proto_init()
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[4].OneofWrappers = []any{
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[3].OneofWrappers = []any{
 		(*AlertChannel_EntityId)(nil),
 		(*AlertChannel_EntityName)(nil),
 	}
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[6].OneofWrappers = []any{
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[5].OneofWrappers = []any{
 		(*Monitor_ChartMonitor)(nil),
 		(*Monitor_HealthcheckMonitor)(nil),
 		(*Monitor_LogsMonitor)(nil),
@@ -723,7 +664,7 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_monitor_proto_rawDesc), len(file_chalk_artifacts_v1_monitor_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

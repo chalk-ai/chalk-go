@@ -91,6 +91,7 @@ const (
 	VectorDBKind_VECTOR_DB_KIND_MILVUS      VectorDBKind = 3
 	VectorDBKind_VECTOR_DB_KIND_VALKEY      VectorDBKind = 4
 	VectorDBKind_VECTOR_DB_KIND_TURBOPUFFER VectorDBKind = 5
+	VectorDBKind_VECTOR_DB_KIND_S3_VECTORS  VectorDBKind = 6
 )
 
 // Enum value maps for VectorDBKind.
@@ -102,6 +103,7 @@ var (
 		3: "VECTOR_DB_KIND_MILVUS",
 		4: "VECTOR_DB_KIND_VALKEY",
 		5: "VECTOR_DB_KIND_TURBOPUFFER",
+		6: "VECTOR_DB_KIND_S3_VECTORS",
 	}
 	VectorDBKind_value = map[string]int32{
 		"VECTOR_DB_KIND_UNSPECIFIED": 0,
@@ -110,6 +112,7 @@ var (
 		"VECTOR_DB_KIND_MILVUS":      3,
 		"VECTOR_DB_KIND_VALKEY":      4,
 		"VECTOR_DB_KIND_TURBOPUFFER": 5,
+		"VECTOR_DB_KIND_S3_VECTORS":  6,
 	}
 )
 
@@ -424,984 +427,6 @@ func (DiscoveredBucketRole) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{5}
 }
 
-type AWSCloudWatchConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	LogGroupPath  *string                `protobuf:"bytes,1,opt,name=log_group_path,json=logGroupPath,proto3,oneof" json:"log_group_path,omitempty"`
-	LogGroupPaths []string               `protobuf:"bytes,2,rep,name=log_group_paths,json=logGroupPaths,proto3" json:"log_group_paths,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AWSCloudWatchConfig) Reset() {
-	*x = AWSCloudWatchConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AWSCloudWatchConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AWSCloudWatchConfig) ProtoMessage() {}
-
-func (x *AWSCloudWatchConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AWSCloudWatchConfig.ProtoReflect.Descriptor instead.
-func (*AWSCloudWatchConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *AWSCloudWatchConfig) GetLogGroupPath() string {
-	if x != nil && x.LogGroupPath != nil {
-		return *x.LogGroupPath
-	}
-	return ""
-}
-
-func (x *AWSCloudWatchConfig) GetLogGroupPaths() []string {
-	if x != nil {
-		return x.LogGroupPaths
-	}
-	return nil
-}
-
-type AWSSecretManagerConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SecretKmsArn  *string                `protobuf:"bytes,1,opt,name=secret_kms_arn,json=secretKmsArn,proto3,oneof" json:"secret_kms_arn,omitempty"`
-	SecretTags    map[string]string      `protobuf:"bytes,2,rep,name=secret_tags,json=secretTags,proto3" json:"secret_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	SecretPrefix  *string                `protobuf:"bytes,3,opt,name=secret_prefix,json=secretPrefix,proto3,oneof" json:"secret_prefix,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AWSSecretManagerConfig) Reset() {
-	*x = AWSSecretManagerConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AWSSecretManagerConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AWSSecretManagerConfig) ProtoMessage() {}
-
-func (x *AWSSecretManagerConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AWSSecretManagerConfig.ProtoReflect.Descriptor instead.
-func (*AWSSecretManagerConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *AWSSecretManagerConfig) GetSecretKmsArn() string {
-	if x != nil && x.SecretKmsArn != nil {
-		return *x.SecretKmsArn
-	}
-	return ""
-}
-
-func (x *AWSSecretManagerConfig) GetSecretTags() map[string]string {
-	if x != nil {
-		return x.SecretTags
-	}
-	return nil
-}
-
-func (x *AWSSecretManagerConfig) GetSecretPrefix() string {
-	if x != nil && x.SecretPrefix != nil {
-		return *x.SecretPrefix
-	}
-	return ""
-}
-
-type GCPSecretReplicationReplica struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Location      string                 `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GCPSecretReplicationReplica) Reset() {
-	*x = GCPSecretReplicationReplica{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GCPSecretReplicationReplica) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GCPSecretReplicationReplica) ProtoMessage() {}
-
-func (x *GCPSecretReplicationReplica) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GCPSecretReplicationReplica.ProtoReflect.Descriptor instead.
-func (*GCPSecretReplicationReplica) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GCPSecretReplicationReplica) GetLocation() string {
-	if x != nil {
-		return x.Location
-	}
-	return ""
-}
-
-type GCPRegionConfig struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Valid values currently, string for readability:
-	// GLOBAL - default, gcp resources are globally-scoped when possible
-	// SINGLE_REGION - gcp resources are replicated to specific regions, but still globally addressable
-	// STRICT_REGIONAL - gcp resources are strictly region-locked, requiring regional api endpoint configuration
-	ScopeType     *string `protobuf:"bytes,1,opt,name=scope_type,json=scopeType,proto3,oneof" json:"scope_type,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GCPRegionConfig) Reset() {
-	*x = GCPRegionConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GCPRegionConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GCPRegionConfig) ProtoMessage() {}
-
-func (x *GCPRegionConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GCPRegionConfig.ProtoReflect.Descriptor instead.
-func (*GCPRegionConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GCPRegionConfig) GetScopeType() string {
-	if x != nil && x.ScopeType != nil {
-		return *x.ScopeType
-	}
-	return ""
-}
-
-type GCPSecretManagerConfig struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	SecretRegion *string                `protobuf:"bytes,1,opt,name=secret_region,json=secretRegion,proto3,oneof" json:"secret_region,omitempty"`
-	// the intention is that replicas should be empty unless the env
-	// uses a user-managed replication policy with explicit regions
-	Replicas      []*GCPSecretReplicationReplica `protobuf:"bytes,2,rep,name=replicas,proto3" json:"replicas,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GCPSecretManagerConfig) Reset() {
-	*x = GCPSecretManagerConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GCPSecretManagerConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GCPSecretManagerConfig) ProtoMessage() {}
-
-func (x *GCPSecretManagerConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GCPSecretManagerConfig.ProtoReflect.Descriptor instead.
-func (*GCPSecretManagerConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *GCPSecretManagerConfig) GetSecretRegion() string {
-	if x != nil && x.SecretRegion != nil {
-		return *x.SecretRegion
-	}
-	return ""
-}
-
-func (x *GCPSecretManagerConfig) GetReplicas() []*GCPSecretReplicationReplica {
-	if x != nil {
-		return x.Replicas
-	}
-	return nil
-}
-
-type GCPWorkloadIdentity struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	GcpProjectNumber  string                 `protobuf:"bytes,1,opt,name=gcp_project_number,json=gcpProjectNumber,proto3" json:"gcp_project_number,omitempty"`
-	GcpServiceAccount string                 `protobuf:"bytes,2,opt,name=gcp_service_account,json=gcpServiceAccount,proto3" json:"gcp_service_account,omitempty"`
-	PoolId            string                 `protobuf:"bytes,3,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	ProviderId        string                 `protobuf:"bytes,4,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *GCPWorkloadIdentity) Reset() {
-	*x = GCPWorkloadIdentity{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GCPWorkloadIdentity) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GCPWorkloadIdentity) ProtoMessage() {}
-
-func (x *GCPWorkloadIdentity) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GCPWorkloadIdentity.ProtoReflect.Descriptor instead.
-func (*GCPWorkloadIdentity) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *GCPWorkloadIdentity) GetGcpProjectNumber() string {
-	if x != nil {
-		return x.GcpProjectNumber
-	}
-	return ""
-}
-
-func (x *GCPWorkloadIdentity) GetGcpServiceAccount() string {
-	if x != nil {
-		return x.GcpServiceAccount
-	}
-	return ""
-}
-
-func (x *GCPWorkloadIdentity) GetPoolId() string {
-	if x != nil {
-		return x.PoolId
-	}
-	return ""
-}
-
-func (x *GCPWorkloadIdentity) GetProviderId() string {
-	if x != nil {
-		return x.ProviderId
-	}
-	return ""
-}
-
-type DockerBuildConfig struct {
-	state                       protoimpl.MessageState `protogen:"open.v1"`
-	Builder                     string                 `protobuf:"bytes,1,opt,name=builder,proto3" json:"builder,omitempty"`
-	PushRegistryType            string                 `protobuf:"bytes,2,opt,name=push_registry_type,json=pushRegistryType,proto3" json:"push_registry_type,omitempty"`
-	PushRegistryTagPrefix       string                 `protobuf:"bytes,3,opt,name=push_registry_tag_prefix,json=pushRegistryTagPrefix,proto3" json:"push_registry_tag_prefix,omitempty"`
-	RegistryCredentialsSecretId string                 `protobuf:"bytes,4,opt,name=registry_credentials_secret_id,json=registryCredentialsSecretId,proto3" json:"registry_credentials_secret_id,omitempty"`
-	NotificationTopic           string                 `protobuf:"bytes,5,opt,name=notification_topic,json=notificationTopic,proto3" json:"notification_topic,omitempty"`
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
-}
-
-func (x *DockerBuildConfig) Reset() {
-	*x = DockerBuildConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DockerBuildConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DockerBuildConfig) ProtoMessage() {}
-
-func (x *DockerBuildConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DockerBuildConfig.ProtoReflect.Descriptor instead.
-func (*DockerBuildConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *DockerBuildConfig) GetBuilder() string {
-	if x != nil {
-		return x.Builder
-	}
-	return ""
-}
-
-func (x *DockerBuildConfig) GetPushRegistryType() string {
-	if x != nil {
-		return x.PushRegistryType
-	}
-	return ""
-}
-
-func (x *DockerBuildConfig) GetPushRegistryTagPrefix() string {
-	if x != nil {
-		return x.PushRegistryTagPrefix
-	}
-	return ""
-}
-
-func (x *DockerBuildConfig) GetRegistryCredentialsSecretId() string {
-	if x != nil {
-		return x.RegistryCredentialsSecretId
-	}
-	return ""
-}
-
-func (x *DockerBuildConfig) GetNotificationTopic() string {
-	if x != nil {
-		return x.NotificationTopic
-	}
-	return ""
-}
-
-type ElasticsearchLogConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	Endpoint      string                 `protobuf:"bytes,3,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ElasticsearchLogConfig) Reset() {
-	*x = ElasticsearchLogConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ElasticsearchLogConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ElasticsearchLogConfig) ProtoMessage() {}
-
-func (x *ElasticsearchLogConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ElasticsearchLogConfig.ProtoReflect.Descriptor instead.
-func (*ElasticsearchLogConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *ElasticsearchLogConfig) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *ElasticsearchLogConfig) GetPassword() string {
-	if x != nil {
-		return x.Password
-	}
-	return ""
-}
-
-func (x *ElasticsearchLogConfig) GetEndpoint() string {
-	if x != nil {
-		return x.Endpoint
-	}
-	return ""
-}
-
-type AWSCloudConfig struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	AccountId         string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
-	ManagementRoleArn string                 `protobuf:"bytes,2,opt,name=management_role_arn,json=managementRoleArn,proto3" json:"management_role_arn,omitempty"`
-	Region            string                 `protobuf:"bytes,3,opt,name=region,proto3" json:"region,omitempty"`
-	ExternalId        *string                `protobuf:"bytes,4,opt,name=external_id,json=externalId,proto3,oneof" json:"external_id,omitempty"`
-	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
-	DeprecatedCloudWatchConfig *AWSCloudWatchConfig `protobuf:"bytes,5,opt,name=deprecated_cloud_watch_config,json=deprecatedCloudWatchConfig,proto3" json:"deprecated_cloud_watch_config,omitempty"`
-	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
-	DeprecatedSecretManagerConfig *AWSSecretManagerConfig `protobuf:"bytes,6,opt,name=deprecated_secret_manager_config,json=deprecatedSecretManagerConfig,proto3" json:"deprecated_secret_manager_config,omitempty"`
-	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
-	WorkloadIdentity       *GCPWorkloadIdentity    `protobuf:"bytes,7,opt,name=workload_identity,json=workloadIdentity,proto3" json:"workload_identity,omitempty"`
-	DockerBuildConfig      *DockerBuildConfig      `protobuf:"bytes,8,opt,name=docker_build_config,json=dockerBuildConfig,proto3" json:"docker_build_config,omitempty"`
-	ElasticsearchLogConfig *ElasticsearchLogConfig `protobuf:"bytes,9,opt,name=elasticsearch_log_config,json=elasticsearchLogConfig,proto3" json:"elasticsearch_log_config,omitempty"`
-	CloudwatchConfig       *AWSCloudWatchConfig    `protobuf:"bytes,10,opt,name=cloudwatch_config,json=cloudwatchConfig,proto3" json:"cloudwatch_config,omitempty"`
-	SecretmanagerConfig    *AWSSecretManagerConfig `protobuf:"bytes,11,opt,name=secretmanager_config,json=secretmanagerConfig,proto3" json:"secretmanager_config,omitempty"`
-	GcpWorkloadIdentity    *GCPWorkloadIdentity    `protobuf:"bytes,12,opt,name=gcp_workload_identity,json=gcpWorkloadIdentity,proto3" json:"gcp_workload_identity,omitempty"`
-	PermissionsBoundaryArn *string                 `protobuf:"bytes,13,opt,name=permissions_boundary_arn,json=permissionsBoundaryArn,proto3,oneof" json:"permissions_boundary_arn,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *AWSCloudConfig) Reset() {
-	*x = AWSCloudConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AWSCloudConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AWSCloudConfig) ProtoMessage() {}
-
-func (x *AWSCloudConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AWSCloudConfig.ProtoReflect.Descriptor instead.
-func (*AWSCloudConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *AWSCloudConfig) GetAccountId() string {
-	if x != nil {
-		return x.AccountId
-	}
-	return ""
-}
-
-func (x *AWSCloudConfig) GetManagementRoleArn() string {
-	if x != nil {
-		return x.ManagementRoleArn
-	}
-	return ""
-}
-
-func (x *AWSCloudConfig) GetRegion() string {
-	if x != nil {
-		return x.Region
-	}
-	return ""
-}
-
-func (x *AWSCloudConfig) GetExternalId() string {
-	if x != nil && x.ExternalId != nil {
-		return *x.ExternalId
-	}
-	return ""
-}
-
-// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
-func (x *AWSCloudConfig) GetDeprecatedCloudWatchConfig() *AWSCloudWatchConfig {
-	if x != nil {
-		return x.DeprecatedCloudWatchConfig
-	}
-	return nil
-}
-
-// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
-func (x *AWSCloudConfig) GetDeprecatedSecretManagerConfig() *AWSSecretManagerConfig {
-	if x != nil {
-		return x.DeprecatedSecretManagerConfig
-	}
-	return nil
-}
-
-// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
-func (x *AWSCloudConfig) GetWorkloadIdentity() *GCPWorkloadIdentity {
-	if x != nil {
-		return x.WorkloadIdentity
-	}
-	return nil
-}
-
-func (x *AWSCloudConfig) GetDockerBuildConfig() *DockerBuildConfig {
-	if x != nil {
-		return x.DockerBuildConfig
-	}
-	return nil
-}
-
-func (x *AWSCloudConfig) GetElasticsearchLogConfig() *ElasticsearchLogConfig {
-	if x != nil {
-		return x.ElasticsearchLogConfig
-	}
-	return nil
-}
-
-func (x *AWSCloudConfig) GetCloudwatchConfig() *AWSCloudWatchConfig {
-	if x != nil {
-		return x.CloudwatchConfig
-	}
-	return nil
-}
-
-func (x *AWSCloudConfig) GetSecretmanagerConfig() *AWSSecretManagerConfig {
-	if x != nil {
-		return x.SecretmanagerConfig
-	}
-	return nil
-}
-
-func (x *AWSCloudConfig) GetGcpWorkloadIdentity() *GCPWorkloadIdentity {
-	if x != nil {
-		return x.GcpWorkloadIdentity
-	}
-	return nil
-}
-
-func (x *AWSCloudConfig) GetPermissionsBoundaryArn() string {
-	if x != nil && x.PermissionsBoundaryArn != nil {
-		return *x.PermissionsBoundaryArn
-	}
-	return ""
-}
-
-type GCPCloudConfig struct {
-	state                    protoimpl.MessageState  `protogen:"open.v1"`
-	ProjectId                string                  `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Region                   string                  `protobuf:"bytes,2,opt,name=region,proto3" json:"region,omitempty"`
-	ManagementServiceAccount *string                 `protobuf:"bytes,3,opt,name=management_service_account,json=managementServiceAccount,proto3,oneof" json:"management_service_account,omitempty"`
-	DockerBuildConfig        *DockerBuildConfig      `protobuf:"bytes,4,opt,name=docker_build_config,json=dockerBuildConfig,proto3" json:"docker_build_config,omitempty"`
-	SecretmanagerConfig      *GCPSecretManagerConfig `protobuf:"bytes,5,opt,name=secretmanager_config,json=secretmanagerConfig,proto3" json:"secretmanager_config,omitempty"`
-	RegionConfig             *GCPRegionConfig        `protobuf:"bytes,6,opt,name=region_config,json=regionConfig,proto3" json:"region_config,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
-}
-
-func (x *GCPCloudConfig) Reset() {
-	*x = GCPCloudConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GCPCloudConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GCPCloudConfig) ProtoMessage() {}
-
-func (x *GCPCloudConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GCPCloudConfig.ProtoReflect.Descriptor instead.
-func (*GCPCloudConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GCPCloudConfig) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *GCPCloudConfig) GetRegion() string {
-	if x != nil {
-		return x.Region
-	}
-	return ""
-}
-
-func (x *GCPCloudConfig) GetManagementServiceAccount() string {
-	if x != nil && x.ManagementServiceAccount != nil {
-		return *x.ManagementServiceAccount
-	}
-	return ""
-}
-
-func (x *GCPCloudConfig) GetDockerBuildConfig() *DockerBuildConfig {
-	if x != nil {
-		return x.DockerBuildConfig
-	}
-	return nil
-}
-
-func (x *GCPCloudConfig) GetSecretmanagerConfig() *GCPSecretManagerConfig {
-	if x != nil {
-		return x.SecretmanagerConfig
-	}
-	return nil
-}
-
-func (x *GCPCloudConfig) GetRegionConfig() *GCPRegionConfig {
-	if x != nil {
-		return x.RegionConfig
-	}
-	return nil
-}
-
-type AzureContainerRegistryConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RegistryName  *string                `protobuf:"bytes,1,opt,name=registry_name,json=registryName,proto3,oneof" json:"registry_name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AzureContainerRegistryConfig) Reset() {
-	*x = AzureContainerRegistryConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AzureContainerRegistryConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AzureContainerRegistryConfig) ProtoMessage() {}
-
-func (x *AzureContainerRegistryConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AzureContainerRegistryConfig.ProtoReflect.Descriptor instead.
-func (*AzureContainerRegistryConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *AzureContainerRegistryConfig) GetRegistryName() string {
-	if x != nil && x.RegistryName != nil {
-		return *x.RegistryName
-	}
-	return ""
-}
-
-type AzureKeyVaultConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	VaultName     *string                `protobuf:"bytes,1,opt,name=vault_name,json=vaultName,proto3,oneof" json:"vault_name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AzureKeyVaultConfig) Reset() {
-	*x = AzureKeyVaultConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AzureKeyVaultConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AzureKeyVaultConfig) ProtoMessage() {}
-
-func (x *AzureKeyVaultConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AzureKeyVaultConfig.ProtoReflect.Descriptor instead.
-func (*AzureKeyVaultConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *AzureKeyVaultConfig) GetVaultName() string {
-	if x != nil && x.VaultName != nil {
-		return *x.VaultName
-	}
-	return ""
-}
-
-type AzureCloudConfig struct {
-	state                   protoimpl.MessageState        `protogen:"open.v1"`
-	SubscriptionId          string                        `protobuf:"bytes,1,opt,name=subscription_id,json=subscriptionId,proto3" json:"subscription_id,omitempty"`
-	TenantId                string                        `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	Region                  string                        `protobuf:"bytes,3,opt,name=region,proto3" json:"region,omitempty"`
-	ResourceGroup           string                        `protobuf:"bytes,4,opt,name=resource_group,json=resourceGroup,proto3" json:"resource_group,omitempty"`
-	DockerBuildConfig       *DockerBuildConfig            `protobuf:"bytes,6,opt,name=docker_build_config,json=dockerBuildConfig,proto3" json:"docker_build_config,omitempty"`
-	ContainerRegistryConfig *AzureContainerRegistryConfig `protobuf:"bytes,7,opt,name=container_registry_config,json=containerRegistryConfig,proto3" json:"container_registry_config,omitempty"`
-	KeyVaultConfig          *AzureKeyVaultConfig          `protobuf:"bytes,8,opt,name=key_vault_config,json=keyVaultConfig,proto3" json:"key_vault_config,omitempty"`
-	GcpWorkloadIdentity     *GCPWorkloadIdentity          `protobuf:"bytes,9,opt,name=gcp_workload_identity,json=gcpWorkloadIdentity,proto3" json:"gcp_workload_identity,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
-}
-
-func (x *AzureCloudConfig) Reset() {
-	*x = AzureCloudConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AzureCloudConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AzureCloudConfig) ProtoMessage() {}
-
-func (x *AzureCloudConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AzureCloudConfig.ProtoReflect.Descriptor instead.
-func (*AzureCloudConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *AzureCloudConfig) GetSubscriptionId() string {
-	if x != nil {
-		return x.SubscriptionId
-	}
-	return ""
-}
-
-func (x *AzureCloudConfig) GetTenantId() string {
-	if x != nil {
-		return x.TenantId
-	}
-	return ""
-}
-
-func (x *AzureCloudConfig) GetRegion() string {
-	if x != nil {
-		return x.Region
-	}
-	return ""
-}
-
-func (x *AzureCloudConfig) GetResourceGroup() string {
-	if x != nil {
-		return x.ResourceGroup
-	}
-	return ""
-}
-
-func (x *AzureCloudConfig) GetDockerBuildConfig() *DockerBuildConfig {
-	if x != nil {
-		return x.DockerBuildConfig
-	}
-	return nil
-}
-
-func (x *AzureCloudConfig) GetContainerRegistryConfig() *AzureContainerRegistryConfig {
-	if x != nil {
-		return x.ContainerRegistryConfig
-	}
-	return nil
-}
-
-func (x *AzureCloudConfig) GetKeyVaultConfig() *AzureKeyVaultConfig {
-	if x != nil {
-		return x.KeyVaultConfig
-	}
-	return nil
-}
-
-func (x *AzureCloudConfig) GetGcpWorkloadIdentity() *GCPWorkloadIdentity {
-	if x != nil {
-		return x.GcpWorkloadIdentity
-	}
-	return nil
-}
-
-type CloudConfig struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Config:
-	//
-	//	*CloudConfig_Aws
-	//	*CloudConfig_Gcp
-	//	*CloudConfig_Azure
-	Config        isCloudConfig_Config `protobuf_oneof:"config"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CloudConfig) Reset() {
-	*x = CloudConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CloudConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CloudConfig) ProtoMessage() {}
-
-func (x *CloudConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CloudConfig.ProtoReflect.Descriptor instead.
-func (*CloudConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *CloudConfig) GetConfig() isCloudConfig_Config {
-	if x != nil {
-		return x.Config
-	}
-	return nil
-}
-
-func (x *CloudConfig) GetAws() *AWSCloudConfig {
-	if x != nil {
-		if x, ok := x.Config.(*CloudConfig_Aws); ok {
-			return x.Aws
-		}
-	}
-	return nil
-}
-
-func (x *CloudConfig) GetGcp() *GCPCloudConfig {
-	if x != nil {
-		if x, ok := x.Config.(*CloudConfig_Gcp); ok {
-			return x.Gcp
-		}
-	}
-	return nil
-}
-
-func (x *CloudConfig) GetAzure() *AzureCloudConfig {
-	if x != nil {
-		if x, ok := x.Config.(*CloudConfig_Azure); ok {
-			return x.Azure
-		}
-	}
-	return nil
-}
-
-type isCloudConfig_Config interface {
-	isCloudConfig_Config()
-}
-
-type CloudConfig_Aws struct {
-	Aws *AWSCloudConfig `protobuf:"bytes,1,opt,name=aws,proto3,oneof"`
-}
-
-type CloudConfig_Gcp struct {
-	Gcp *GCPCloudConfig `protobuf:"bytes,2,opt,name=gcp,proto3,oneof"`
-}
-
-type CloudConfig_Azure struct {
-	Azure *AzureCloudConfig `protobuf:"bytes,3,opt,name=azure,proto3,oneof"`
-}
-
-func (*CloudConfig_Aws) isCloudConfig_Config() {}
-
-func (*CloudConfig_Gcp) isCloudConfig_Config() {}
-
-func (*CloudConfig_Azure) isCloudConfig_Config() {}
-
 type EnvironmentObjectStorageConfig struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	DatasetBucket       string                 `protobuf:"bytes,1,opt,name=dataset_bucket,json=datasetBucket,proto3" json:"dataset_bucket,omitempty"`
@@ -1414,7 +439,7 @@ type EnvironmentObjectStorageConfig struct {
 
 func (x *EnvironmentObjectStorageConfig) Reset() {
 	*x = EnvironmentObjectStorageConfig{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1426,7 +451,7 @@ func (x *EnvironmentObjectStorageConfig) String() string {
 func (*EnvironmentObjectStorageConfig) ProtoMessage() {}
 
 func (x *EnvironmentObjectStorageConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1439,7 +464,7 @@ func (x *EnvironmentObjectStorageConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentObjectStorageConfig.ProtoReflect.Descriptor instead.
 func (*EnvironmentObjectStorageConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *EnvironmentObjectStorageConfig) GetDatasetBucket() string {
@@ -1546,13 +571,17 @@ type Environment struct {
 	InternalMetadata              map[string]*structpb.Value      `protobuf:"bytes,62,rep,name=internal_metadata,json=internalMetadata,proto3" json:"internal_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	CustomerMetadata              map[string]*structpb.Value      `protobuf:"bytes,63,rep,name=customer_metadata,json=customerMetadata,proto3" json:"customer_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	DataplaneDbDirectSecret       *string                         `protobuf:"bytes,65,opt,name=dataplane_db_direct_secret,json=dataplaneDbDirectSecret,proto3,oneof" json:"dataplane_db_direct_secret,omitempty"`
-	unknownFields                 protoimpl.UnknownFields
-	sizeCache                     protoimpl.SizeCache
+	// Cluster class of this environment's primary (kube) cluster, resolved by joining
+	// kubernetes_clusters on kube_cluster_id. CLUSTER_CLASS_UNSPECIFIED when the environment is not
+	// linked to a cluster. Direct passthrough intended for serverless-environment detection.
+	PrimaryLinkedClusterClass ClusterClass `protobuf:"varint,66,opt,name=primary_linked_cluster_class,json=primaryLinkedClusterClass,proto3,enum=chalk.server.v1.ClusterClass" json:"primary_linked_cluster_class,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *Environment) Reset() {
 	*x = Environment{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1564,7 +593,7 @@ func (x *Environment) String() string {
 func (*Environment) ProtoMessage() {}
 
 func (x *Environment) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +606,7 @@ func (x *Environment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Environment.ProtoReflect.Descriptor instead.
 func (*Environment) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Environment) GetName() string {
@@ -2035,6 +1064,13 @@ func (x *Environment) GetDataplaneDbDirectSecret() string {
 	return ""
 }
 
+func (x *Environment) GetPrimaryLinkedClusterClass() ClusterClass {
+	if x != nil {
+		return x.PrimaryLinkedClusterClass
+	}
+	return ClusterClass_CLUSTER_CLASS_UNSPECIFIED
+}
+
 type CreateEnvironmentV2Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Environment   *Environment           `protobuf:"bytes,1,opt,name=environment,proto3" json:"environment,omitempty"`
@@ -2044,7 +1080,7 @@ type CreateEnvironmentV2Request struct {
 
 func (x *CreateEnvironmentV2Request) Reset() {
 	*x = CreateEnvironmentV2Request{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2056,7 +1092,7 @@ func (x *CreateEnvironmentV2Request) String() string {
 func (*CreateEnvironmentV2Request) ProtoMessage() {}
 
 func (x *CreateEnvironmentV2Request) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2069,7 +1105,7 @@ func (x *CreateEnvironmentV2Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnvironmentV2Request.ProtoReflect.Descriptor instead.
 func (*CreateEnvironmentV2Request) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateEnvironmentV2Request) GetEnvironment() *Environment {
@@ -2088,7 +1124,7 @@ type CreateEnvironmentV2Response struct {
 
 func (x *CreateEnvironmentV2Response) Reset() {
 	*x = CreateEnvironmentV2Response{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2100,7 +1136,7 @@ func (x *CreateEnvironmentV2Response) String() string {
 func (*CreateEnvironmentV2Response) ProtoMessage() {}
 
 func (x *CreateEnvironmentV2Response) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2113,7 +1149,7 @@ func (x *CreateEnvironmentV2Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnvironmentV2Response.ProtoReflect.Descriptor instead.
 func (*CreateEnvironmentV2Response) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateEnvironmentV2Response) GetEnvironment() *Environment {
@@ -2133,7 +1169,7 @@ type UpdateEnvironmentV2Request struct {
 
 func (x *UpdateEnvironmentV2Request) Reset() {
 	*x = UpdateEnvironmentV2Request{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2145,7 +1181,7 @@ func (x *UpdateEnvironmentV2Request) String() string {
 func (*UpdateEnvironmentV2Request) ProtoMessage() {}
 
 func (x *UpdateEnvironmentV2Request) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2158,7 +1194,7 @@ func (x *UpdateEnvironmentV2Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironmentV2Request.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentV2Request) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateEnvironmentV2Request) GetEnvironment() *Environment {
@@ -2185,7 +1221,7 @@ type UpdateEnvironmentV2Response struct {
 
 func (x *UpdateEnvironmentV2Response) Reset() {
 	*x = UpdateEnvironmentV2Response{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2197,7 +1233,7 @@ func (x *UpdateEnvironmentV2Response) String() string {
 func (*UpdateEnvironmentV2Response) ProtoMessage() {}
 
 func (x *UpdateEnvironmentV2Response) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2210,7 +1246,7 @@ func (x *UpdateEnvironmentV2Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironmentV2Response.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentV2Response) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateEnvironmentV2Response) GetEnvironment() *Environment {
@@ -2236,7 +1272,7 @@ type DeleteEnvironmentRequest struct {
 
 func (x *DeleteEnvironmentRequest) Reset() {
 	*x = DeleteEnvironmentRequest{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2248,7 +1284,7 @@ func (x *DeleteEnvironmentRequest) String() string {
 func (*DeleteEnvironmentRequest) ProtoMessage() {}
 
 func (x *DeleteEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2261,7 +1297,7 @@ func (x *DeleteEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteEnvironmentRequest) GetId() string {
@@ -2279,7 +1315,7 @@ type DeleteEnvironmentResponse struct {
 
 func (x *DeleteEnvironmentResponse) Reset() {
 	*x = DeleteEnvironmentResponse{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2291,7 +1327,7 @@ func (x *DeleteEnvironmentResponse) String() string {
 func (*DeleteEnvironmentResponse) ProtoMessage() {}
 
 func (x *DeleteEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2304,7 +1340,7 @@ func (x *DeleteEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{7}
 }
 
 type SetDefaultEnvironmentRequest struct {
@@ -2316,7 +1352,7 @@ type SetDefaultEnvironmentRequest struct {
 
 func (x *SetDefaultEnvironmentRequest) Reset() {
 	*x = SetDefaultEnvironmentRequest{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2328,7 +1364,7 @@ func (x *SetDefaultEnvironmentRequest) String() string {
 func (*SetDefaultEnvironmentRequest) ProtoMessage() {}
 
 func (x *SetDefaultEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2341,7 +1377,7 @@ func (x *SetDefaultEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetDefaultEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*SetDefaultEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetDefaultEnvironmentRequest) GetId() string {
@@ -2359,7 +1395,7 @@ type SetDefaultEnvironmentResponse struct {
 
 func (x *SetDefaultEnvironmentResponse) Reset() {
 	*x = SetDefaultEnvironmentResponse{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2371,7 +1407,7 @@ func (x *SetDefaultEnvironmentResponse) String() string {
 func (*SetDefaultEnvironmentResponse) ProtoMessage() {}
 
 func (x *SetDefaultEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2384,7 +1420,7 @@ func (x *SetDefaultEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetDefaultEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*SetDefaultEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{9}
 }
 
 // Probe result for a single capability against a bucket.
@@ -2403,7 +1439,7 @@ type DiscoveredBucketProbe struct {
 
 func (x *DiscoveredBucketProbe) Reset() {
 	*x = DiscoveredBucketProbe{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2415,7 +1451,7 @@ func (x *DiscoveredBucketProbe) String() string {
 func (*DiscoveredBucketProbe) ProtoMessage() {}
 
 func (x *DiscoveredBucketProbe) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2428,7 +1464,7 @@ func (x *DiscoveredBucketProbe) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DiscoveredBucketProbe.ProtoReflect.Descriptor instead.
 func (*DiscoveredBucketProbe) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DiscoveredBucketProbe) GetOk() bool {
@@ -2478,7 +1514,7 @@ type DiscoveredBucket struct {
 
 func (x *DiscoveredBucket) Reset() {
 	*x = DiscoveredBucket{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2490,7 +1526,7 @@ func (x *DiscoveredBucket) String() string {
 func (*DiscoveredBucket) ProtoMessage() {}
 
 func (x *DiscoveredBucket) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2503,7 +1539,7 @@ func (x *DiscoveredBucket) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DiscoveredBucket.ProtoReflect.Descriptor instead.
 func (*DiscoveredBucket) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DiscoveredBucket) GetName() string {
@@ -2574,7 +1610,7 @@ type DiscoverEnvironmentBucketsRequest struct {
 
 func (x *DiscoverEnvironmentBucketsRequest) Reset() {
 	*x = DiscoverEnvironmentBucketsRequest{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2586,7 +1622,7 @@ func (x *DiscoverEnvironmentBucketsRequest) String() string {
 func (*DiscoverEnvironmentBucketsRequest) ProtoMessage() {}
 
 func (x *DiscoverEnvironmentBucketsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2599,7 +1635,7 @@ func (x *DiscoverEnvironmentBucketsRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use DiscoverEnvironmentBucketsRequest.ProtoReflect.Descriptor instead.
 func (*DiscoverEnvironmentBucketsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DiscoverEnvironmentBucketsRequest) GetSkipProbes() bool {
@@ -2618,7 +1654,7 @@ type DiscoverEnvironmentBucketsResponse struct {
 
 func (x *DiscoverEnvironmentBucketsResponse) Reset() {
 	*x = DiscoverEnvironmentBucketsResponse{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2630,7 +1666,7 @@ func (x *DiscoverEnvironmentBucketsResponse) String() string {
 func (*DiscoverEnvironmentBucketsResponse) ProtoMessage() {}
 
 func (x *DiscoverEnvironmentBucketsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2643,7 +1679,7 @@ func (x *DiscoverEnvironmentBucketsResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DiscoverEnvironmentBucketsResponse.ProtoReflect.Descriptor instead.
 func (*DiscoverEnvironmentBucketsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DiscoverEnvironmentBucketsResponse) GetBuckets() []*DiscoveredBucket {
@@ -2657,101 +1693,12 @@ var File_chalk_server_v1_environment_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/environment.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/utils/v1/field_change.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"{\n" +
-	"\x13AWSCloudWatchConfig\x12)\n" +
-	"\x0elog_group_path\x18\x01 \x01(\tH\x00R\flogGroupPath\x88\x01\x01\x12&\n" +
-	"\x0flog_group_paths\x18\x02 \x03(\tR\rlogGroupPathsB\x11\n" +
-	"\x0f_log_group_path\"\xab\x02\n" +
-	"\x16AWSSecretManagerConfig\x12)\n" +
-	"\x0esecret_kms_arn\x18\x01 \x01(\tH\x00R\fsecretKmsArn\x88\x01\x01\x12X\n" +
-	"\vsecret_tags\x18\x02 \x03(\v27.chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntryR\n" +
-	"secretTags\x12(\n" +
-	"\rsecret_prefix\x18\x03 \x01(\tH\x01R\fsecretPrefix\x88\x01\x01\x1a=\n" +
-	"\x0fSecretTagsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x11\n" +
-	"\x0f_secret_kms_arnB\x10\n" +
-	"\x0e_secret_prefix\"9\n" +
-	"\x1bGCPSecretReplicationReplica\x12\x1a\n" +
-	"\blocation\x18\x01 \x01(\tR\blocation\"D\n" +
-	"\x0fGCPRegionConfig\x12\"\n" +
-	"\n" +
-	"scope_type\x18\x01 \x01(\tH\x00R\tscopeType\x88\x01\x01B\r\n" +
-	"\v_scope_type\"\x9e\x01\n" +
-	"\x16GCPSecretManagerConfig\x12(\n" +
-	"\rsecret_region\x18\x01 \x01(\tH\x00R\fsecretRegion\x88\x01\x01\x12H\n" +
-	"\breplicas\x18\x02 \x03(\v2,.chalk.server.v1.GCPSecretReplicationReplicaR\breplicasB\x10\n" +
-	"\x0e_secret_region\"\xad\x01\n" +
-	"\x13GCPWorkloadIdentity\x12,\n" +
-	"\x12gcp_project_number\x18\x01 \x01(\tR\x10gcpProjectNumber\x12.\n" +
-	"\x13gcp_service_account\x18\x02 \x01(\tR\x11gcpServiceAccount\x12\x17\n" +
-	"\apool_id\x18\x03 \x01(\tR\x06poolId\x12\x1f\n" +
-	"\vprovider_id\x18\x04 \x01(\tR\n" +
-	"providerId\"\x88\x02\n" +
-	"\x11DockerBuildConfig\x12\x18\n" +
-	"\abuilder\x18\x01 \x01(\tR\abuilder\x12,\n" +
-	"\x12push_registry_type\x18\x02 \x01(\tR\x10pushRegistryType\x127\n" +
-	"\x18push_registry_tag_prefix\x18\x03 \x01(\tR\x15pushRegistryTagPrefix\x12C\n" +
-	"\x1eregistry_credentials_secret_id\x18\x04 \x01(\tR\x1bregistryCredentialsSecretId\x12-\n" +
-	"\x12notification_topic\x18\x05 \x01(\tR\x11notificationTopic\"l\n" +
-	"\x16ElasticsearchLogConfig\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1a\n" +
-	"\bendpoint\x18\x03 \x01(\tR\bendpoint\"\x83\b\n" +
-	"\x0eAWSCloudConfig\x12\x1d\n" +
-	"\n" +
-	"account_id\x18\x01 \x01(\tR\taccountId\x12.\n" +
-	"\x13management_role_arn\x18\x02 \x01(\tR\x11managementRoleArn\x12\x16\n" +
-	"\x06region\x18\x03 \x01(\tR\x06region\x12$\n" +
-	"\vexternal_id\x18\x04 \x01(\tH\x00R\n" +
-	"externalId\x88\x01\x01\x12k\n" +
-	"\x1ddeprecated_cloud_watch_config\x18\x05 \x01(\v2$.chalk.server.v1.AWSCloudWatchConfigB\x02\x18\x01R\x1adeprecatedCloudWatchConfig\x12t\n" +
-	" deprecated_secret_manager_config\x18\x06 \x01(\v2'.chalk.server.v1.AWSSecretManagerConfigB\x02\x18\x01R\x1ddeprecatedSecretManagerConfig\x12U\n" +
-	"\x11workload_identity\x18\a \x01(\v2$.chalk.server.v1.GCPWorkloadIdentityB\x02\x18\x01R\x10workloadIdentity\x12R\n" +
-	"\x13docker_build_config\x18\b \x01(\v2\".chalk.server.v1.DockerBuildConfigR\x11dockerBuildConfig\x12a\n" +
-	"\x18elasticsearch_log_config\x18\t \x01(\v2'.chalk.server.v1.ElasticsearchLogConfigR\x16elasticsearchLogConfig\x12Q\n" +
-	"\x11cloudwatch_config\x18\n" +
-	" \x01(\v2$.chalk.server.v1.AWSCloudWatchConfigR\x10cloudwatchConfig\x12Z\n" +
-	"\x14secretmanager_config\x18\v \x01(\v2'.chalk.server.v1.AWSSecretManagerConfigR\x13secretmanagerConfig\x12X\n" +
-	"\x15gcp_workload_identity\x18\f \x01(\v2$.chalk.server.v1.GCPWorkloadIdentityR\x13gcpWorkloadIdentity\x12=\n" +
-	"\x18permissions_boundary_arn\x18\r \x01(\tH\x01R\x16permissionsBoundaryArn\x88\x01\x01B\x0e\n" +
-	"\f_external_idB\x1b\n" +
-	"\x19_permissions_boundary_arn\"\xa0\x03\n" +
-	"\x0eGCPCloudConfig\x12\x1d\n" +
-	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x16\n" +
-	"\x06region\x18\x02 \x01(\tR\x06region\x12A\n" +
-	"\x1amanagement_service_account\x18\x03 \x01(\tH\x00R\x18managementServiceAccount\x88\x01\x01\x12R\n" +
-	"\x13docker_build_config\x18\x04 \x01(\v2\".chalk.server.v1.DockerBuildConfigR\x11dockerBuildConfig\x12Z\n" +
-	"\x14secretmanager_config\x18\x05 \x01(\v2'.chalk.server.v1.GCPSecretManagerConfigR\x13secretmanagerConfig\x12E\n" +
-	"\rregion_config\x18\x06 \x01(\v2 .chalk.server.v1.GCPRegionConfigR\fregionConfigB\x1d\n" +
-	"\x1b_management_service_account\"Z\n" +
-	"\x1cAzureContainerRegistryConfig\x12(\n" +
-	"\rregistry_name\x18\x01 \x01(\tH\x00R\fregistryName\x88\x01\x01B\x10\n" +
-	"\x0e_registry_name\"H\n" +
-	"\x13AzureKeyVaultConfig\x12\"\n" +
-	"\n" +
-	"vault_name\x18\x01 \x01(\tH\x00R\tvaultName\x88\x01\x01B\r\n" +
-	"\v_vault_name\"\x80\x04\n" +
-	"\x10AzureCloudConfig\x12'\n" +
-	"\x0fsubscription_id\x18\x01 \x01(\tR\x0esubscriptionId\x12\x1b\n" +
-	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12\x16\n" +
-	"\x06region\x18\x03 \x01(\tR\x06region\x12%\n" +
-	"\x0eresource_group\x18\x04 \x01(\tR\rresourceGroup\x12R\n" +
-	"\x13docker_build_config\x18\x06 \x01(\v2\".chalk.server.v1.DockerBuildConfigR\x11dockerBuildConfig\x12i\n" +
-	"\x19container_registry_config\x18\a \x01(\v2-.chalk.server.v1.AzureContainerRegistryConfigR\x17containerRegistryConfig\x12N\n" +
-	"\x10key_vault_config\x18\b \x01(\v2$.chalk.server.v1.AzureKeyVaultConfigR\x0ekeyVaultConfig\x12X\n" +
-	"\x15gcp_workload_identity\x18\t \x01(\v2$.chalk.server.v1.GCPWorkloadIdentityR\x13gcpWorkloadIdentity\"\xbc\x01\n" +
-	"\vCloudConfig\x123\n" +
-	"\x03aws\x18\x01 \x01(\v2\x1f.chalk.server.v1.AWSCloudConfigH\x00R\x03aws\x123\n" +
-	"\x03gcp\x18\x02 \x01(\v2\x1f.chalk.server.v1.GCPCloudConfigH\x00R\x03gcp\x129\n" +
-	"\x05azure\x18\x03 \x01(\v2!.chalk.server.v1.AzureCloudConfigH\x00R\x05azureB\b\n" +
-	"\x06config\"\xdb\x01\n" +
+	"!chalk/server/v1/environment.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/server/v1/cloud_config.proto\x1a#chalk/server/v1/cluster_class.proto\x1a!chalk/utils/v1/field_change.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdb\x01\n" +
 	"\x1eEnvironmentObjectStorageConfig\x12%\n" +
 	"\x0edataset_bucket\x18\x01 \x01(\tR\rdatasetBucket\x12,\n" +
 	"\x12plan_stages_bucket\x18\x02 \x01(\tR\x10planStagesBucket\x120\n" +
 	"\x14source_bundle_bucket\x18\x03 \x01(\tR\x12sourceBundleBucket\x122\n" +
-	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xd7-\n" +
+	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xbc.\n" +
 	"\vEnvironment\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x05R\x04name\x12\"\n" +
 	"\n" +
@@ -2825,7 +1772,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x10vector_db_secret\x18= \x01(\tB\x03\xe0A\x03H3R\x0evectorDbSecret\x88\x01\x01\x12d\n" +
 	"\x11internal_metadata\x18> \x03(\v22.chalk.server.v1.Environment.InternalMetadataEntryB\x03\xe0A\x03R\x10internalMetadata\x12_\n" +
 	"\x11customer_metadata\x18? \x03(\v22.chalk.server.v1.Environment.CustomerMetadataEntryR\x10customerMetadata\x12E\n" +
-	"\x1adataplane_db_direct_secret\x18A \x01(\tB\x03\xe0A\x03H4R\x17dataplaneDbDirectSecret\x88\x01\x01\x1aD\n" +
+	"\x1adataplane_db_direct_secret\x18A \x01(\tB\x03\xe0A\x03H4R\x17dataplaneDbDirectSecret\x88\x01\x01\x12c\n" +
+	"\x1cprimary_linked_cluster_class\x18B \x01(\x0e2\x1d.chalk.server.v1.ClusterClassB\x03\xe0A\x03R\x19primaryLinkedClusterClass\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aH\n" +
@@ -2938,14 +1886,15 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x1bCLOUD_PROVIDER_KIND_UNKNOWN\x10\x01\x12\x1b\n" +
 	"\x17CLOUD_PROVIDER_KIND_GCP\x10\x02\x12\x1b\n" +
 	"\x17CLOUD_PROVIDER_KIND_AWS\x10\x03\x12\x1d\n" +
-	"\x19CLOUD_PROVIDER_KIND_AZURE\x10\x04*\xc0\x01\n" +
+	"\x19CLOUD_PROVIDER_KIND_AZURE\x10\x04*\xdf\x01\n" +
 	"\fVectorDBKind\x12\x1e\n" +
 	"\x1aVECTOR_DB_KIND_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19VECTOR_DB_KIND_OPENSEARCH\x10\x01\x12\x1b\n" +
 	"\x17VECTOR_DB_KIND_PGVECTOR\x10\x02\x12\x19\n" +
 	"\x15VECTOR_DB_KIND_MILVUS\x10\x03\x12\x19\n" +
 	"\x15VECTOR_DB_KIND_VALKEY\x10\x04\x12\x1e\n" +
-	"\x1aVECTOR_DB_KIND_TURBOPUFFER\x10\x05*\xe2\x06\n" +
+	"\x1aVECTOR_DB_KIND_TURBOPUFFER\x10\x05\x12\x1d\n" +
+	"\x19VECTOR_DB_KIND_S3_VECTORS\x10\x06*\xe2\x06\n" +
 	"\x16DeploymentBuildProfile\x12(\n" +
 	"$DEPLOYMENT_BUILD_PROFILE_UNSPECIFIED\x10\x00\x12,\n" +
 	"(DEPLOYMENT_BUILD_PROFILE_O3_NO_PROFILING\x10\x01\x12)\n" +
@@ -3009,7 +1958,7 @@ func file_chalk_server_v1_environment_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_environment_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_chalk_server_v1_environment_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_chalk_server_v1_environment_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chalk_server_v1_environment_proto_goTypes = []any{
 	(CloudProviderKind)(0),                     // 0: chalk.server.v1.CloudProviderKind
 	(VectorDBKind)(0),                          // 1: chalk.server.v1.VectorDBKind
@@ -3017,108 +1966,76 @@ var file_chalk_server_v1_environment_proto_goTypes = []any{
 	(DiscoveredBucketSource)(0),                // 3: chalk.server.v1.DiscoveredBucketSource
 	(DiscoveredBucketScope)(0),                 // 4: chalk.server.v1.DiscoveredBucketScope
 	(DiscoveredBucketRole)(0),                  // 5: chalk.server.v1.DiscoveredBucketRole
-	(*AWSCloudWatchConfig)(nil),                // 6: chalk.server.v1.AWSCloudWatchConfig
-	(*AWSSecretManagerConfig)(nil),             // 7: chalk.server.v1.AWSSecretManagerConfig
-	(*GCPSecretReplicationReplica)(nil),        // 8: chalk.server.v1.GCPSecretReplicationReplica
-	(*GCPRegionConfig)(nil),                    // 9: chalk.server.v1.GCPRegionConfig
-	(*GCPSecretManagerConfig)(nil),             // 10: chalk.server.v1.GCPSecretManagerConfig
-	(*GCPWorkloadIdentity)(nil),                // 11: chalk.server.v1.GCPWorkloadIdentity
-	(*DockerBuildConfig)(nil),                  // 12: chalk.server.v1.DockerBuildConfig
-	(*ElasticsearchLogConfig)(nil),             // 13: chalk.server.v1.ElasticsearchLogConfig
-	(*AWSCloudConfig)(nil),                     // 14: chalk.server.v1.AWSCloudConfig
-	(*GCPCloudConfig)(nil),                     // 15: chalk.server.v1.GCPCloudConfig
-	(*AzureContainerRegistryConfig)(nil),       // 16: chalk.server.v1.AzureContainerRegistryConfig
-	(*AzureKeyVaultConfig)(nil),                // 17: chalk.server.v1.AzureKeyVaultConfig
-	(*AzureCloudConfig)(nil),                   // 18: chalk.server.v1.AzureCloudConfig
-	(*CloudConfig)(nil),                        // 19: chalk.server.v1.CloudConfig
-	(*EnvironmentObjectStorageConfig)(nil),     // 20: chalk.server.v1.EnvironmentObjectStorageConfig
-	(*Environment)(nil),                        // 21: chalk.server.v1.Environment
-	(*CreateEnvironmentV2Request)(nil),         // 22: chalk.server.v1.CreateEnvironmentV2Request
-	(*CreateEnvironmentV2Response)(nil),        // 23: chalk.server.v1.CreateEnvironmentV2Response
-	(*UpdateEnvironmentV2Request)(nil),         // 24: chalk.server.v1.UpdateEnvironmentV2Request
-	(*UpdateEnvironmentV2Response)(nil),        // 25: chalk.server.v1.UpdateEnvironmentV2Response
-	(*DeleteEnvironmentRequest)(nil),           // 26: chalk.server.v1.DeleteEnvironmentRequest
-	(*DeleteEnvironmentResponse)(nil),          // 27: chalk.server.v1.DeleteEnvironmentResponse
-	(*SetDefaultEnvironmentRequest)(nil),       // 28: chalk.server.v1.SetDefaultEnvironmentRequest
-	(*SetDefaultEnvironmentResponse)(nil),      // 29: chalk.server.v1.SetDefaultEnvironmentResponse
-	(*DiscoveredBucketProbe)(nil),              // 30: chalk.server.v1.DiscoveredBucketProbe
-	(*DiscoveredBucket)(nil),                   // 31: chalk.server.v1.DiscoveredBucket
-	(*DiscoverEnvironmentBucketsRequest)(nil),  // 32: chalk.server.v1.DiscoverEnvironmentBucketsRequest
-	(*DiscoverEnvironmentBucketsResponse)(nil), // 33: chalk.server.v1.DiscoverEnvironmentBucketsResponse
-	nil,                           // 34: chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
-	nil,                           // 35: chalk.server.v1.Environment.AdditionalEnvVarsEntry
-	nil,                           // 36: chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
-	nil,                           // 37: chalk.server.v1.Environment.SpecConfigJsonEntry
-	nil,                           // 38: chalk.server.v1.Environment.InternalMetadataEntry
-	nil,                           // 39: chalk.server.v1.Environment.CustomerMetadataEntry
-	(*timestamppb.Timestamp)(nil), // 40: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil), // 41: google.protobuf.FieldMask
-	(*v1.FieldChange)(nil),        // 42: chalk.utils.v1.FieldChange
-	(*structpb.Value)(nil),        // 43: google.protobuf.Value
+	(*EnvironmentObjectStorageConfig)(nil),     // 6: chalk.server.v1.EnvironmentObjectStorageConfig
+	(*Environment)(nil),                        // 7: chalk.server.v1.Environment
+	(*CreateEnvironmentV2Request)(nil),         // 8: chalk.server.v1.CreateEnvironmentV2Request
+	(*CreateEnvironmentV2Response)(nil),        // 9: chalk.server.v1.CreateEnvironmentV2Response
+	(*UpdateEnvironmentV2Request)(nil),         // 10: chalk.server.v1.UpdateEnvironmentV2Request
+	(*UpdateEnvironmentV2Response)(nil),        // 11: chalk.server.v1.UpdateEnvironmentV2Response
+	(*DeleteEnvironmentRequest)(nil),           // 12: chalk.server.v1.DeleteEnvironmentRequest
+	(*DeleteEnvironmentResponse)(nil),          // 13: chalk.server.v1.DeleteEnvironmentResponse
+	(*SetDefaultEnvironmentRequest)(nil),       // 14: chalk.server.v1.SetDefaultEnvironmentRequest
+	(*SetDefaultEnvironmentResponse)(nil),      // 15: chalk.server.v1.SetDefaultEnvironmentResponse
+	(*DiscoveredBucketProbe)(nil),              // 16: chalk.server.v1.DiscoveredBucketProbe
+	(*DiscoveredBucket)(nil),                   // 17: chalk.server.v1.DiscoveredBucket
+	(*DiscoverEnvironmentBucketsRequest)(nil),  // 18: chalk.server.v1.DiscoverEnvironmentBucketsRequest
+	(*DiscoverEnvironmentBucketsResponse)(nil), // 19: chalk.server.v1.DiscoverEnvironmentBucketsResponse
+	nil,                           // 20: chalk.server.v1.Environment.AdditionalEnvVarsEntry
+	nil,                           // 21: chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
+	nil,                           // 22: chalk.server.v1.Environment.SpecConfigJsonEntry
+	nil,                           // 23: chalk.server.v1.Environment.InternalMetadataEntry
+	nil,                           // 24: chalk.server.v1.Environment.CustomerMetadataEntry
+	(*CloudConfig)(nil),           // 25: chalk.server.v1.CloudConfig
+	(*timestamppb.Timestamp)(nil), // 26: google.protobuf.Timestamp
+	(ClusterClass)(0),             // 27: chalk.server.v1.ClusterClass
+	(*fieldmaskpb.FieldMask)(nil), // 28: google.protobuf.FieldMask
+	(*v1.FieldChange)(nil),        // 29: chalk.utils.v1.FieldChange
+	(*structpb.Value)(nil),        // 30: google.protobuf.Value
 }
 var file_chalk_server_v1_environment_proto_depIdxs = []int32{
-	34, // 0: chalk.server.v1.AWSSecretManagerConfig.secret_tags:type_name -> chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
-	8,  // 1: chalk.server.v1.GCPSecretManagerConfig.replicas:type_name -> chalk.server.v1.GCPSecretReplicationReplica
-	6,  // 2: chalk.server.v1.AWSCloudConfig.deprecated_cloud_watch_config:type_name -> chalk.server.v1.AWSCloudWatchConfig
-	7,  // 3: chalk.server.v1.AWSCloudConfig.deprecated_secret_manager_config:type_name -> chalk.server.v1.AWSSecretManagerConfig
-	11, // 4: chalk.server.v1.AWSCloudConfig.workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
-	12, // 5: chalk.server.v1.AWSCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
-	13, // 6: chalk.server.v1.AWSCloudConfig.elasticsearch_log_config:type_name -> chalk.server.v1.ElasticsearchLogConfig
-	6,  // 7: chalk.server.v1.AWSCloudConfig.cloudwatch_config:type_name -> chalk.server.v1.AWSCloudWatchConfig
-	7,  // 8: chalk.server.v1.AWSCloudConfig.secretmanager_config:type_name -> chalk.server.v1.AWSSecretManagerConfig
-	11, // 9: chalk.server.v1.AWSCloudConfig.gcp_workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
-	12, // 10: chalk.server.v1.GCPCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
-	10, // 11: chalk.server.v1.GCPCloudConfig.secretmanager_config:type_name -> chalk.server.v1.GCPSecretManagerConfig
-	9,  // 12: chalk.server.v1.GCPCloudConfig.region_config:type_name -> chalk.server.v1.GCPRegionConfig
-	12, // 13: chalk.server.v1.AzureCloudConfig.docker_build_config:type_name -> chalk.server.v1.DockerBuildConfig
-	16, // 14: chalk.server.v1.AzureCloudConfig.container_registry_config:type_name -> chalk.server.v1.AzureContainerRegistryConfig
-	17, // 15: chalk.server.v1.AzureCloudConfig.key_vault_config:type_name -> chalk.server.v1.AzureKeyVaultConfig
-	11, // 16: chalk.server.v1.AzureCloudConfig.gcp_workload_identity:type_name -> chalk.server.v1.GCPWorkloadIdentity
-	14, // 17: chalk.server.v1.CloudConfig.aws:type_name -> chalk.server.v1.AWSCloudConfig
-	15, // 18: chalk.server.v1.CloudConfig.gcp:type_name -> chalk.server.v1.GCPCloudConfig
-	18, // 19: chalk.server.v1.CloudConfig.azure:type_name -> chalk.server.v1.AzureCloudConfig
-	35, // 20: chalk.server.v1.Environment.additional_env_vars:type_name -> chalk.server.v1.Environment.AdditionalEnvVarsEntry
-	36, // 21: chalk.server.v1.Environment.additional_cron_env_vars:type_name -> chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
-	0,  // 22: chalk.server.v1.Environment.cloud_provider:type_name -> chalk.server.v1.CloudProviderKind
-	19, // 23: chalk.server.v1.Environment.cloud_config:type_name -> chalk.server.v1.CloudConfig
-	37, // 24: chalk.server.v1.Environment.spec_config_json:type_name -> chalk.server.v1.Environment.SpecConfigJsonEntry
-	40, // 25: chalk.server.v1.Environment.archived_at:type_name -> google.protobuf.Timestamp
-	20, // 26: chalk.server.v1.Environment.environment_buckets:type_name -> chalk.server.v1.EnvironmentObjectStorageConfig
-	40, // 27: chalk.server.v1.Environment.suspended_at:type_name -> google.protobuf.Timestamp
-	2,  // 28: chalk.server.v1.Environment.default_build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	1,  // 29: chalk.server.v1.Environment.vector_db_kind:type_name -> chalk.server.v1.VectorDBKind
-	38, // 30: chalk.server.v1.Environment.internal_metadata:type_name -> chalk.server.v1.Environment.InternalMetadataEntry
-	39, // 31: chalk.server.v1.Environment.customer_metadata:type_name -> chalk.server.v1.Environment.CustomerMetadataEntry
-	21, // 32: chalk.server.v1.CreateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
-	21, // 33: chalk.server.v1.CreateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
-	21, // 34: chalk.server.v1.UpdateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
-	41, // 35: chalk.server.v1.UpdateEnvironmentV2Request.update_mask:type_name -> google.protobuf.FieldMask
-	21, // 36: chalk.server.v1.UpdateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
-	42, // 37: chalk.server.v1.UpdateEnvironmentV2Response.field_changes:type_name -> chalk.utils.v1.FieldChange
-	5,  // 38: chalk.server.v1.DiscoveredBucket.role:type_name -> chalk.server.v1.DiscoveredBucketRole
-	3,  // 39: chalk.server.v1.DiscoveredBucket.source:type_name -> chalk.server.v1.DiscoveredBucketSource
-	30, // 40: chalk.server.v1.DiscoveredBucket.read:type_name -> chalk.server.v1.DiscoveredBucketProbe
-	30, // 41: chalk.server.v1.DiscoveredBucket.write:type_name -> chalk.server.v1.DiscoveredBucketProbe
-	4,  // 42: chalk.server.v1.DiscoveredBucket.scope:type_name -> chalk.server.v1.DiscoveredBucketScope
-	31, // 43: chalk.server.v1.DiscoverEnvironmentBucketsResponse.buckets:type_name -> chalk.server.v1.DiscoveredBucket
-	43, // 44: chalk.server.v1.Environment.SpecConfigJsonEntry.value:type_name -> google.protobuf.Value
-	43, // 45: chalk.server.v1.Environment.InternalMetadataEntry.value:type_name -> google.protobuf.Value
-	43, // 46: chalk.server.v1.Environment.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
-	22, // 47: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:input_type -> chalk.server.v1.CreateEnvironmentV2Request
-	24, // 48: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:input_type -> chalk.server.v1.UpdateEnvironmentV2Request
-	26, // 49: chalk.server.v1.EnvironmentService.DeleteEnvironment:input_type -> chalk.server.v1.DeleteEnvironmentRequest
-	28, // 50: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:input_type -> chalk.server.v1.SetDefaultEnvironmentRequest
-	32, // 51: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:input_type -> chalk.server.v1.DiscoverEnvironmentBucketsRequest
-	23, // 52: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:output_type -> chalk.server.v1.CreateEnvironmentV2Response
-	25, // 53: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:output_type -> chalk.server.v1.UpdateEnvironmentV2Response
-	27, // 54: chalk.server.v1.EnvironmentService.DeleteEnvironment:output_type -> chalk.server.v1.DeleteEnvironmentResponse
-	29, // 55: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:output_type -> chalk.server.v1.SetDefaultEnvironmentResponse
-	33, // 56: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:output_type -> chalk.server.v1.DiscoverEnvironmentBucketsResponse
-	52, // [52:57] is the sub-list for method output_type
-	47, // [47:52] is the sub-list for method input_type
-	47, // [47:47] is the sub-list for extension type_name
-	47, // [47:47] is the sub-list for extension extendee
-	0,  // [0:47] is the sub-list for field type_name
+	20, // 0: chalk.server.v1.Environment.additional_env_vars:type_name -> chalk.server.v1.Environment.AdditionalEnvVarsEntry
+	21, // 1: chalk.server.v1.Environment.additional_cron_env_vars:type_name -> chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
+	0,  // 2: chalk.server.v1.Environment.cloud_provider:type_name -> chalk.server.v1.CloudProviderKind
+	25, // 3: chalk.server.v1.Environment.cloud_config:type_name -> chalk.server.v1.CloudConfig
+	22, // 4: chalk.server.v1.Environment.spec_config_json:type_name -> chalk.server.v1.Environment.SpecConfigJsonEntry
+	26, // 5: chalk.server.v1.Environment.archived_at:type_name -> google.protobuf.Timestamp
+	6,  // 6: chalk.server.v1.Environment.environment_buckets:type_name -> chalk.server.v1.EnvironmentObjectStorageConfig
+	26, // 7: chalk.server.v1.Environment.suspended_at:type_name -> google.protobuf.Timestamp
+	2,  // 8: chalk.server.v1.Environment.default_build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	1,  // 9: chalk.server.v1.Environment.vector_db_kind:type_name -> chalk.server.v1.VectorDBKind
+	23, // 10: chalk.server.v1.Environment.internal_metadata:type_name -> chalk.server.v1.Environment.InternalMetadataEntry
+	24, // 11: chalk.server.v1.Environment.customer_metadata:type_name -> chalk.server.v1.Environment.CustomerMetadataEntry
+	27, // 12: chalk.server.v1.Environment.primary_linked_cluster_class:type_name -> chalk.server.v1.ClusterClass
+	7,  // 13: chalk.server.v1.CreateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
+	7,  // 14: chalk.server.v1.CreateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
+	7,  // 15: chalk.server.v1.UpdateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
+	28, // 16: chalk.server.v1.UpdateEnvironmentV2Request.update_mask:type_name -> google.protobuf.FieldMask
+	7,  // 17: chalk.server.v1.UpdateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
+	29, // 18: chalk.server.v1.UpdateEnvironmentV2Response.field_changes:type_name -> chalk.utils.v1.FieldChange
+	5,  // 19: chalk.server.v1.DiscoveredBucket.role:type_name -> chalk.server.v1.DiscoveredBucketRole
+	3,  // 20: chalk.server.v1.DiscoveredBucket.source:type_name -> chalk.server.v1.DiscoveredBucketSource
+	16, // 21: chalk.server.v1.DiscoveredBucket.read:type_name -> chalk.server.v1.DiscoveredBucketProbe
+	16, // 22: chalk.server.v1.DiscoveredBucket.write:type_name -> chalk.server.v1.DiscoveredBucketProbe
+	4,  // 23: chalk.server.v1.DiscoveredBucket.scope:type_name -> chalk.server.v1.DiscoveredBucketScope
+	17, // 24: chalk.server.v1.DiscoverEnvironmentBucketsResponse.buckets:type_name -> chalk.server.v1.DiscoveredBucket
+	30, // 25: chalk.server.v1.Environment.SpecConfigJsonEntry.value:type_name -> google.protobuf.Value
+	30, // 26: chalk.server.v1.Environment.InternalMetadataEntry.value:type_name -> google.protobuf.Value
+	30, // 27: chalk.server.v1.Environment.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
+	8,  // 28: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:input_type -> chalk.server.v1.CreateEnvironmentV2Request
+	10, // 29: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:input_type -> chalk.server.v1.UpdateEnvironmentV2Request
+	12, // 30: chalk.server.v1.EnvironmentService.DeleteEnvironment:input_type -> chalk.server.v1.DeleteEnvironmentRequest
+	14, // 31: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:input_type -> chalk.server.v1.SetDefaultEnvironmentRequest
+	18, // 32: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:input_type -> chalk.server.v1.DiscoverEnvironmentBucketsRequest
+	9,  // 33: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:output_type -> chalk.server.v1.CreateEnvironmentV2Response
+	11, // 34: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:output_type -> chalk.server.v1.UpdateEnvironmentV2Response
+	13, // 35: chalk.server.v1.EnvironmentService.DeleteEnvironment:output_type -> chalk.server.v1.DeleteEnvironmentResponse
+	15, // 36: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:output_type -> chalk.server.v1.SetDefaultEnvironmentResponse
+	19, // 37: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:output_type -> chalk.server.v1.DiscoverEnvironmentBucketsResponse
+	33, // [33:38] is the sub-list for method output_type
+	28, // [28:33] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_environment_proto_init() }
@@ -3126,27 +2043,16 @@ func file_chalk_server_v1_environment_proto_init() {
 	if File_chalk_server_v1_environment_proto != nil {
 		return
 	}
-	file_chalk_server_v1_environment_proto_msgTypes[0].OneofWrappers = []any{}
+	file_chalk_server_v1_cloud_config_proto_init()
+	file_chalk_server_v1_cluster_class_proto_init()
 	file_chalk_server_v1_environment_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_proto_msgTypes[4].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_proto_msgTypes[9].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_proto_msgTypes[11].OneofWrappers = []any{}
-	file_chalk_server_v1_environment_proto_msgTypes[13].OneofWrappers = []any{
-		(*CloudConfig_Aws)(nil),
-		(*CloudConfig_Gcp)(nil),
-		(*CloudConfig_Azure)(nil),
-	}
-	file_chalk_server_v1_environment_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_environment_proto_rawDesc), len(file_chalk_server_v1_environment_proto_rawDesc)),
 			NumEnums:      6,
-			NumMessages:   34,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

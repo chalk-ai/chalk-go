@@ -33,6 +33,21 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// NotebookDocumentServiceCreateNotebookCommentProcedure is the fully-qualified name of the
+	// NotebookDocumentService's CreateNotebookComment RPC.
+	NotebookDocumentServiceCreateNotebookCommentProcedure = "/chalk.notebook.v1.NotebookDocumentService/CreateNotebookComment"
+	// NotebookDocumentServiceListNotebookCommentsProcedure is the fully-qualified name of the
+	// NotebookDocumentService's ListNotebookComments RPC.
+	NotebookDocumentServiceListNotebookCommentsProcedure = "/chalk.notebook.v1.NotebookDocumentService/ListNotebookComments"
+	// NotebookDocumentServiceDeleteNotebookCommentProcedure is the fully-qualified name of the
+	// NotebookDocumentService's DeleteNotebookComment RPC.
+	NotebookDocumentServiceDeleteNotebookCommentProcedure = "/chalk.notebook.v1.NotebookDocumentService/DeleteNotebookComment"
+	// NotebookDocumentServiceSetNotebookCommentResolvedProcedure is the fully-qualified name of the
+	// NotebookDocumentService's SetNotebookCommentResolved RPC.
+	NotebookDocumentServiceSetNotebookCommentResolvedProcedure = "/chalk.notebook.v1.NotebookDocumentService/SetNotebookCommentResolved"
+	// NotebookDocumentServiceToggleNotebookCommentReactionProcedure is the fully-qualified name of the
+	// NotebookDocumentService's ToggleNotebookCommentReaction RPC.
+	NotebookDocumentServiceToggleNotebookCommentReactionProcedure = "/chalk.notebook.v1.NotebookDocumentService/ToggleNotebookCommentReaction"
 	// NotebookDocumentServiceCreateNotebookDocumentProcedure is the fully-qualified name of the
 	// NotebookDocumentService's CreateNotebookDocument RPC.
 	NotebookDocumentServiceCreateNotebookDocumentProcedure = "/chalk.notebook.v1.NotebookDocumentService/CreateNotebookDocument"
@@ -75,6 +90,9 @@ const (
 	// NotebookDocumentServiceWatchNotebookRunProcedure is the fully-qualified name of the
 	// NotebookDocumentService's WatchNotebookRun RPC.
 	NotebookDocumentServiceWatchNotebookRunProcedure = "/chalk.notebook.v1.NotebookDocumentService/WatchNotebookRun"
+	// NotebookDocumentServiceWatchNotebookProcedure is the fully-qualified name of the
+	// NotebookDocumentService's WatchNotebook RPC.
+	NotebookDocumentServiceWatchNotebookProcedure = "/chalk.notebook.v1.NotebookDocumentService/WatchNotebook"
 	// NotebookDocumentServiceInterruptNotebookRunProcedure is the fully-qualified name of the
 	// NotebookDocumentService's InterruptNotebookRun RPC.
 	NotebookDocumentServiceInterruptNotebookRunProcedure = "/chalk.notebook.v1.NotebookDocumentService/InterruptNotebookRun"
@@ -149,6 +167,13 @@ const (
 // NotebookDocumentServiceClient is a client for the chalk.notebook.v1.NotebookDocumentService
 // service.
 type NotebookDocumentServiceClient interface {
+	CreateNotebookComment(context.Context, *connect.Request[v1.CreateNotebookCommentRequest]) (*connect.Response[v1.CreateNotebookCommentResponse], error)
+	ListNotebookComments(context.Context, *connect.Request[v1.ListNotebookCommentsRequest]) (*connect.Response[v1.ListNotebookCommentsResponse], error)
+	DeleteNotebookComment(context.Context, *connect.Request[v1.DeleteNotebookCommentRequest]) (*connect.Response[v1.DeleteNotebookCommentResponse], error)
+	SetNotebookCommentResolved(context.Context, *connect.Request[v1.SetNotebookCommentResolvedRequest]) (*connect.Response[v1.SetNotebookCommentResolvedResponse], error)
+	// Adds the caller's reaction with the given emoji, or removes it when the
+	// caller already reacted with that emoji.
+	ToggleNotebookCommentReaction(context.Context, *connect.Request[v1.ToggleNotebookCommentReactionRequest]) (*connect.Response[v1.ToggleNotebookCommentReactionResponse], error)
 	CreateNotebookDocument(context.Context, *connect.Request[v1.CreateNotebookDocumentRequest]) (*connect.Response[v1.CreateNotebookDocumentResponse], error)
 	GetNotebookDocument(context.Context, *connect.Request[v1.GetNotebookDocumentRequest]) (*connect.Response[v1.GetNotebookDocumentResponse], error)
 	ListNotebookDocuments(context.Context, *connect.Request[v1.ListNotebookDocumentsRequest]) (*connect.Response[v1.ListNotebookDocumentsResponse], error)
@@ -174,6 +199,7 @@ type NotebookDocumentServiceClient interface {
 	// run reaches a terminal state. Safe to call repeatedly and from multiple
 	// clients; reconnect with after_sequence to skip already-seen output.
 	WatchNotebookRun(context.Context, *connect.Request[v1.WatchNotebookRunRequest]) (*connect.ServerStreamForClient[v1.WatchNotebookRunResponse], error)
+	WatchNotebook(context.Context, *connect.Request[v1.WatchNotebookRequest]) (*connect.ServerStreamForClient[v1.WatchNotebookResponse], error)
 	InterruptNotebookRun(context.Context, *connect.Request[v1.InterruptNotebookRunRequest]) (*connect.Response[v1.InterruptNotebookRunResponse], error)
 	ListNotebookCellResults(context.Context, *connect.Request[v1.ListNotebookCellResultsRequest]) (*connect.Response[v1.ListNotebookCellResultsResponse], error)
 	// Pages through the full data behind a dataframe output chunk (blob-backed
@@ -242,6 +268,36 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 	baseURL = strings.TrimRight(baseURL, "/")
 	notebookDocumentServiceMethods := v1.File_chalk_notebook_v1_document_service_proto.Services().ByName("NotebookDocumentService").Methods()
 	return &notebookDocumentServiceClient{
+		createNotebookComment: connect.NewClient[v1.CreateNotebookCommentRequest, v1.CreateNotebookCommentResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceCreateNotebookCommentProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("CreateNotebookComment")),
+			connect.WithClientOptions(opts...),
+		),
+		listNotebookComments: connect.NewClient[v1.ListNotebookCommentsRequest, v1.ListNotebookCommentsResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceListNotebookCommentsProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("ListNotebookComments")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteNotebookComment: connect.NewClient[v1.DeleteNotebookCommentRequest, v1.DeleteNotebookCommentResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceDeleteNotebookCommentProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("DeleteNotebookComment")),
+			connect.WithClientOptions(opts...),
+		),
+		setNotebookCommentResolved: connect.NewClient[v1.SetNotebookCommentResolvedRequest, v1.SetNotebookCommentResolvedResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceSetNotebookCommentResolvedProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("SetNotebookCommentResolved")),
+			connect.WithClientOptions(opts...),
+		),
+		toggleNotebookCommentReaction: connect.NewClient[v1.ToggleNotebookCommentReactionRequest, v1.ToggleNotebookCommentReactionResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceToggleNotebookCommentReactionProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("ToggleNotebookCommentReaction")),
+			connect.WithClientOptions(opts...),
+		),
 		createNotebookDocument: connect.NewClient[v1.CreateNotebookDocumentRequest, v1.CreateNotebookDocumentResponse](
 			httpClient,
 			baseURL+NotebookDocumentServiceCreateNotebookDocumentProcedure,
@@ -324,6 +380,12 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 			httpClient,
 			baseURL+NotebookDocumentServiceWatchNotebookRunProcedure,
 			connect.WithSchema(notebookDocumentServiceMethods.ByName("WatchNotebookRun")),
+			connect.WithClientOptions(opts...),
+		),
+		watchNotebook: connect.NewClient[v1.WatchNotebookRequest, v1.WatchNotebookResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceWatchNotebookProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("WatchNotebook")),
 			connect.WithClientOptions(opts...),
 		),
 		interruptNotebookRun: connect.NewClient[v1.InterruptNotebookRunRequest, v1.InterruptNotebookRunResponse](
@@ -469,6 +531,11 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 
 // notebookDocumentServiceClient implements NotebookDocumentServiceClient.
 type notebookDocumentServiceClient struct {
+	createNotebookComment          *connect.Client[v1.CreateNotebookCommentRequest, v1.CreateNotebookCommentResponse]
+	listNotebookComments           *connect.Client[v1.ListNotebookCommentsRequest, v1.ListNotebookCommentsResponse]
+	deleteNotebookComment          *connect.Client[v1.DeleteNotebookCommentRequest, v1.DeleteNotebookCommentResponse]
+	setNotebookCommentResolved     *connect.Client[v1.SetNotebookCommentResolvedRequest, v1.SetNotebookCommentResolvedResponse]
+	toggleNotebookCommentReaction  *connect.Client[v1.ToggleNotebookCommentReactionRequest, v1.ToggleNotebookCommentReactionResponse]
 	createNotebookDocument         *connect.Client[v1.CreateNotebookDocumentRequest, v1.CreateNotebookDocumentResponse]
 	getNotebookDocument            *connect.Client[v1.GetNotebookDocumentRequest, v1.GetNotebookDocumentResponse]
 	listNotebookDocuments          *connect.Client[v1.ListNotebookDocumentsRequest, v1.ListNotebookDocumentsResponse]
@@ -483,6 +550,7 @@ type notebookDocumentServiceClient struct {
 	batchUpdateNotebookCells       *connect.Client[v1.BatchUpdateNotebookCellsRequest, v1.BatchUpdateNotebookCellsResponse]
 	startNotebookRun               *connect.Client[v1.StartNotebookRunRequest, v1.StartNotebookRunResponse]
 	watchNotebookRun               *connect.Client[v1.WatchNotebookRunRequest, v1.WatchNotebookRunResponse]
+	watchNotebook                  *connect.Client[v1.WatchNotebookRequest, v1.WatchNotebookResponse]
 	interruptNotebookRun           *connect.Client[v1.InterruptNotebookRunRequest, v1.InterruptNotebookRunResponse]
 	listNotebookCellResults        *connect.Client[v1.ListNotebookCellResultsRequest, v1.ListNotebookCellResultsResponse]
 	fetchNotebookDataframeRows     *connect.Client[v1.FetchNotebookDataframeRowsRequest, v1.FetchNotebookDataframeRowsResponse]
@@ -506,6 +574,33 @@ type notebookDocumentServiceClient struct {
 	getNotebookSecretValue         *connect.Client[v1.GetNotebookSecretValueRequest, v1.GetNotebookSecretValueResponse]
 	upsertNotebookSecret           *connect.Client[v1.UpsertNotebookSecretRequest, v1.UpsertNotebookSecretResponse]
 	deleteNotebookSecret           *connect.Client[v1.DeleteNotebookSecretRequest, v1.DeleteNotebookSecretResponse]
+}
+
+// CreateNotebookComment calls chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment.
+func (c *notebookDocumentServiceClient) CreateNotebookComment(ctx context.Context, req *connect.Request[v1.CreateNotebookCommentRequest]) (*connect.Response[v1.CreateNotebookCommentResponse], error) {
+	return c.createNotebookComment.CallUnary(ctx, req)
+}
+
+// ListNotebookComments calls chalk.notebook.v1.NotebookDocumentService.ListNotebookComments.
+func (c *notebookDocumentServiceClient) ListNotebookComments(ctx context.Context, req *connect.Request[v1.ListNotebookCommentsRequest]) (*connect.Response[v1.ListNotebookCommentsResponse], error) {
+	return c.listNotebookComments.CallUnary(ctx, req)
+}
+
+// DeleteNotebookComment calls chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment.
+func (c *notebookDocumentServiceClient) DeleteNotebookComment(ctx context.Context, req *connect.Request[v1.DeleteNotebookCommentRequest]) (*connect.Response[v1.DeleteNotebookCommentResponse], error) {
+	return c.deleteNotebookComment.CallUnary(ctx, req)
+}
+
+// SetNotebookCommentResolved calls
+// chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved.
+func (c *notebookDocumentServiceClient) SetNotebookCommentResolved(ctx context.Context, req *connect.Request[v1.SetNotebookCommentResolvedRequest]) (*connect.Response[v1.SetNotebookCommentResolvedResponse], error) {
+	return c.setNotebookCommentResolved.CallUnary(ctx, req)
+}
+
+// ToggleNotebookCommentReaction calls
+// chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction.
+func (c *notebookDocumentServiceClient) ToggleNotebookCommentReaction(ctx context.Context, req *connect.Request[v1.ToggleNotebookCommentReactionRequest]) (*connect.Response[v1.ToggleNotebookCommentReactionResponse], error) {
+	return c.toggleNotebookCommentReaction.CallUnary(ctx, req)
 }
 
 // CreateNotebookDocument calls chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument.
@@ -577,6 +672,11 @@ func (c *notebookDocumentServiceClient) StartNotebookRun(ctx context.Context, re
 // WatchNotebookRun calls chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun.
 func (c *notebookDocumentServiceClient) WatchNotebookRun(ctx context.Context, req *connect.Request[v1.WatchNotebookRunRequest]) (*connect.ServerStreamForClient[v1.WatchNotebookRunResponse], error) {
 	return c.watchNotebookRun.CallServerStream(ctx, req)
+}
+
+// WatchNotebook calls chalk.notebook.v1.NotebookDocumentService.WatchNotebook.
+func (c *notebookDocumentServiceClient) WatchNotebook(ctx context.Context, req *connect.Request[v1.WatchNotebookRequest]) (*connect.ServerStreamForClient[v1.WatchNotebookResponse], error) {
+	return c.watchNotebook.CallServerStream(ctx, req)
 }
 
 // InterruptNotebookRun calls chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun.
@@ -709,6 +809,13 @@ func (c *notebookDocumentServiceClient) DeleteNotebookSecret(ctx context.Context
 // NotebookDocumentServiceHandler is an implementation of the
 // chalk.notebook.v1.NotebookDocumentService service.
 type NotebookDocumentServiceHandler interface {
+	CreateNotebookComment(context.Context, *connect.Request[v1.CreateNotebookCommentRequest]) (*connect.Response[v1.CreateNotebookCommentResponse], error)
+	ListNotebookComments(context.Context, *connect.Request[v1.ListNotebookCommentsRequest]) (*connect.Response[v1.ListNotebookCommentsResponse], error)
+	DeleteNotebookComment(context.Context, *connect.Request[v1.DeleteNotebookCommentRequest]) (*connect.Response[v1.DeleteNotebookCommentResponse], error)
+	SetNotebookCommentResolved(context.Context, *connect.Request[v1.SetNotebookCommentResolvedRequest]) (*connect.Response[v1.SetNotebookCommentResolvedResponse], error)
+	// Adds the caller's reaction with the given emoji, or removes it when the
+	// caller already reacted with that emoji.
+	ToggleNotebookCommentReaction(context.Context, *connect.Request[v1.ToggleNotebookCommentReactionRequest]) (*connect.Response[v1.ToggleNotebookCommentReactionResponse], error)
 	CreateNotebookDocument(context.Context, *connect.Request[v1.CreateNotebookDocumentRequest]) (*connect.Response[v1.CreateNotebookDocumentResponse], error)
 	GetNotebookDocument(context.Context, *connect.Request[v1.GetNotebookDocumentRequest]) (*connect.Response[v1.GetNotebookDocumentResponse], error)
 	ListNotebookDocuments(context.Context, *connect.Request[v1.ListNotebookDocumentsRequest]) (*connect.Response[v1.ListNotebookDocumentsResponse], error)
@@ -734,6 +841,7 @@ type NotebookDocumentServiceHandler interface {
 	// run reaches a terminal state. Safe to call repeatedly and from multiple
 	// clients; reconnect with after_sequence to skip already-seen output.
 	WatchNotebookRun(context.Context, *connect.Request[v1.WatchNotebookRunRequest], *connect.ServerStream[v1.WatchNotebookRunResponse]) error
+	WatchNotebook(context.Context, *connect.Request[v1.WatchNotebookRequest], *connect.ServerStream[v1.WatchNotebookResponse]) error
 	InterruptNotebookRun(context.Context, *connect.Request[v1.InterruptNotebookRunRequest]) (*connect.Response[v1.InterruptNotebookRunResponse], error)
 	ListNotebookCellResults(context.Context, *connect.Request[v1.ListNotebookCellResultsRequest]) (*connect.Response[v1.ListNotebookCellResultsResponse], error)
 	// Pages through the full data behind a dataframe output chunk (blob-backed
@@ -798,6 +906,36 @@ type NotebookDocumentServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	notebookDocumentServiceMethods := v1.File_chalk_notebook_v1_document_service_proto.Services().ByName("NotebookDocumentService").Methods()
+	notebookDocumentServiceCreateNotebookCommentHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceCreateNotebookCommentProcedure,
+		svc.CreateNotebookComment,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("CreateNotebookComment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceListNotebookCommentsHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceListNotebookCommentsProcedure,
+		svc.ListNotebookComments,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("ListNotebookComments")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceDeleteNotebookCommentHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceDeleteNotebookCommentProcedure,
+		svc.DeleteNotebookComment,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("DeleteNotebookComment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceSetNotebookCommentResolvedHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceSetNotebookCommentResolvedProcedure,
+		svc.SetNotebookCommentResolved,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("SetNotebookCommentResolved")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceToggleNotebookCommentReactionHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceToggleNotebookCommentReactionProcedure,
+		svc.ToggleNotebookCommentReaction,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("ToggleNotebookCommentReaction")),
+		connect.WithHandlerOptions(opts...),
+	)
 	notebookDocumentServiceCreateNotebookDocumentHandler := connect.NewUnaryHandler(
 		NotebookDocumentServiceCreateNotebookDocumentProcedure,
 		svc.CreateNotebookDocument,
@@ -880,6 +1018,12 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 		NotebookDocumentServiceWatchNotebookRunProcedure,
 		svc.WatchNotebookRun,
 		connect.WithSchema(notebookDocumentServiceMethods.ByName("WatchNotebookRun")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceWatchNotebookHandler := connect.NewServerStreamHandler(
+		NotebookDocumentServiceWatchNotebookProcedure,
+		svc.WatchNotebook,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("WatchNotebook")),
 		connect.WithHandlerOptions(opts...),
 	)
 	notebookDocumentServiceInterruptNotebookRunHandler := connect.NewUnaryHandler(
@@ -1022,6 +1166,16 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 	)
 	return "/chalk.notebook.v1.NotebookDocumentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case NotebookDocumentServiceCreateNotebookCommentProcedure:
+			notebookDocumentServiceCreateNotebookCommentHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceListNotebookCommentsProcedure:
+			notebookDocumentServiceListNotebookCommentsHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceDeleteNotebookCommentProcedure:
+			notebookDocumentServiceDeleteNotebookCommentHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceSetNotebookCommentResolvedProcedure:
+			notebookDocumentServiceSetNotebookCommentResolvedHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceToggleNotebookCommentReactionProcedure:
+			notebookDocumentServiceToggleNotebookCommentReactionHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceCreateNotebookDocumentProcedure:
 			notebookDocumentServiceCreateNotebookDocumentHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceGetNotebookDocumentProcedure:
@@ -1050,6 +1204,8 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 			notebookDocumentServiceStartNotebookRunHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceWatchNotebookRunProcedure:
 			notebookDocumentServiceWatchNotebookRunHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceWatchNotebookProcedure:
+			notebookDocumentServiceWatchNotebookHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceInterruptNotebookRunProcedure:
 			notebookDocumentServiceInterruptNotebookRunHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceListNotebookCellResultsProcedure:
@@ -1105,6 +1261,26 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 // UnimplementedNotebookDocumentServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedNotebookDocumentServiceHandler struct{}
 
+func (UnimplementedNotebookDocumentServiceHandler) CreateNotebookComment(context.Context, *connect.Request[v1.CreateNotebookCommentRequest]) (*connect.Response[v1.CreateNotebookCommentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) ListNotebookComments(context.Context, *connect.Request[v1.ListNotebookCommentsRequest]) (*connect.Response[v1.ListNotebookCommentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.ListNotebookComments is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) DeleteNotebookComment(context.Context, *connect.Request[v1.DeleteNotebookCommentRequest]) (*connect.Response[v1.DeleteNotebookCommentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) SetNotebookCommentResolved(context.Context, *connect.Request[v1.SetNotebookCommentResolvedRequest]) (*connect.Response[v1.SetNotebookCommentResolvedResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) ToggleNotebookCommentReaction(context.Context, *connect.Request[v1.ToggleNotebookCommentReactionRequest]) (*connect.Response[v1.ToggleNotebookCommentReactionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction is not implemented"))
+}
+
 func (UnimplementedNotebookDocumentServiceHandler) CreateNotebookDocument(context.Context, *connect.Request[v1.CreateNotebookDocumentRequest]) (*connect.Response[v1.CreateNotebookDocumentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument is not implemented"))
 }
@@ -1159,6 +1335,10 @@ func (UnimplementedNotebookDocumentServiceHandler) StartNotebookRun(context.Cont
 
 func (UnimplementedNotebookDocumentServiceHandler) WatchNotebookRun(context.Context, *connect.Request[v1.WatchNotebookRunRequest], *connect.ServerStream[v1.WatchNotebookRunResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) WatchNotebook(context.Context, *connect.Request[v1.WatchNotebookRequest], *connect.ServerStream[v1.WatchNotebookResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.WatchNotebook is not implemented"))
 }
 
 func (UnimplementedNotebookDocumentServiceHandler) InterruptNotebookRun(context.Context, *connect.Request[v1.InterruptNotebookRunRequest]) (*connect.Response[v1.InterruptNotebookRunResponse], error) {

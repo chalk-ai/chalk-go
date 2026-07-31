@@ -158,8 +158,10 @@ type ScheduledQueryRun struct {
 	Status              ScheduledQueryRunStatus `protobuf:"varint,13,opt,name=status,proto3,enum=chalk.server.v1.ScheduledQueryRunStatus" json:"status,omitempty"`
 	BlockerOperationId  *string                 `protobuf:"bytes,14,opt,name=blocker_operation_id,json=blockerOperationId,proto3,oneof" json:"blocker_operation_id,omitempty"`
 	WorkflowExecutionId *string                 `protobuf:"bytes,15,opt,name=workflow_execution_id,json=workflowExecutionId,proto3,oneof" json:"workflow_execution_id,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Deprecated: Marked as deprecated in chalk/server/v1/scheduled_query_run.proto.
+	HasErrors     bool `protobuf:"varint,16,opt,name=has_errors,json=hasErrors,proto3" json:"has_errors,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ScheduledQueryRun) Reset() {
@@ -295,6 +297,14 @@ func (x *ScheduledQueryRun) GetWorkflowExecutionId() string {
 		return *x.WorkflowExecutionId
 	}
 	return ""
+}
+
+// Deprecated: Marked as deprecated in chalk/server/v1/scheduled_query_run.proto.
+func (x *ScheduledQueryRun) GetHasErrors() bool {
+	if x != nil {
+		return x.HasErrors
+	}
+	return false
 }
 
 type GetScheduledQueryRunRequest struct {
@@ -901,7 +911,7 @@ var File_chalk_server_v1_scheduled_query_run_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_scheduled_query_run_proto_rawDesc = "" +
 	"\n" +
-	")chalk/server/v1/scheduled_query_run.proto\x12\x0fchalk.server.v1\x1a#chalk/common/v1/offline_query.proto\x1a%chalk/server/v1/offline_queries.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa4\x06\n" +
+	")chalk/server/v1/scheduled_query_run.proto\x12\x0fchalk.server.v1\x1a#chalk/common/v1/offline_query.proto\x1a%chalk/server/v1/offline_queries.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\x06\n" +
 	"\x11ScheduledQueryRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12(\n" +
@@ -921,7 +931,9 @@ const file_chalk_server_v1_scheduled_query_run_proto_rawDesc = "" +
 	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12@\n" +
 	"\x06status\x18\r \x01(\x0e2(.chalk.server.v1.ScheduledQueryRunStatusR\x06status\x125\n" +
 	"\x14blocker_operation_id\x18\x0e \x01(\tH\x04R\x12blockerOperationId\x88\x01\x01\x127\n" +
-	"\x15workflow_execution_id\x18\x0f \x01(\tH\x05R\x13workflowExecutionId\x88\x01\x01B\x10\n" +
+	"\x15workflow_execution_id\x18\x0f \x01(\tH\x05R\x13workflowExecutionId\x88\x01\x01\x12!\n" +
+	"\n" +
+	"has_errors\x18\x10 \x01(\bB\x02\x18\x01R\thasErrorsB\x10\n" +
 	"\x0e_deployment_idB\t\n" +
 	"\a_run_idB\x13\n" +
 	"\x11_gcr_execution_idB\x0f\n" +

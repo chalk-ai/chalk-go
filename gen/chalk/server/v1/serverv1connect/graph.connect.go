@@ -41,6 +41,12 @@ const (
 	GraphServiceGetFeaturesMetadataProcedure = "/chalk.server.v1.GraphService/GetFeaturesMetadata"
 	// GraphServiceGetGraphProcedure is the fully-qualified name of the GraphService's GetGraph RPC.
 	GraphServiceGetGraphProcedure = "/chalk.server.v1.GraphService/GetGraph"
+	// GraphServiceGetResolverProcedure is the fully-qualified name of the GraphService's GetResolver
+	// RPC.
+	GraphServiceGetResolverProcedure = "/chalk.server.v1.GraphService/GetResolver"
+	// GraphServiceGetStreamResolverProcedure is the fully-qualified name of the GraphService's
+	// GetStreamResolver RPC.
+	GraphServiceGetStreamResolverProcedure = "/chalk.server.v1.GraphService/GetStreamResolver"
 	// GraphServiceUpdateGraphProcedure is the fully-qualified name of the GraphService's UpdateGraph
 	// RPC.
 	GraphServiceUpdateGraphProcedure = "/chalk.server.v1.GraphService/UpdateGraph"
@@ -79,6 +85,12 @@ type GraphServiceClient interface {
 	GetFeatureSQL(context.Context, *connect.Request[v1.GetFeatureSQLRequest]) (*connect.Response[v1.GetFeatureSQLResponse], error)
 	GetFeaturesMetadata(context.Context, *connect.Request[v1.GetFeaturesMetadataRequest]) (*connect.Response[v1.GetFeaturesMetadataResponse], error)
 	GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error)
+	// GetResolver returns a single resolver. Pass a read_mask to fetch just the
+	// large sub-trees (e.g. postprocessing) that GetGraph omits from the bulk payload.
+	GetResolver(context.Context, *connect.Request[v1.GetResolverRequest]) (*connect.Response[v1.GetResolverResponse], error)
+	// GetStreamResolver returns a single stream resolver. Pass a read_mask to fetch
+	// just the large sub-trees (e.g. parse_info) that GetGraph omits from the bulk payload.
+	GetStreamResolver(context.Context, *connect.Request[v1.GetStreamResolverRequest]) (*connect.Response[v1.GetStreamResolverResponse], error)
 	// UpdateGraph uploads the protobuf graph for a given deployment.
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
 	// GetCodegenFeaturesFromGraph returns Chalk features generated from the protograph
@@ -134,6 +146,20 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+GraphServiceGetGraphProcedure,
 			connect.WithSchema(graphServiceMethods.ByName("GetGraph")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getResolver: connect.NewClient[v1.GetResolverRequest, v1.GetResolverResponse](
+			httpClient,
+			baseURL+GraphServiceGetResolverProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("GetResolver")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getStreamResolver: connect.NewClient[v1.GetStreamResolverRequest, v1.GetStreamResolverResponse](
+			httpClient,
+			baseURL+GraphServiceGetStreamResolverProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("GetStreamResolver")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -213,6 +239,8 @@ type graphServiceClient struct {
 	getFeatureSQL               *connect.Client[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse]
 	getFeaturesMetadata         *connect.Client[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse]
 	getGraph                    *connect.Client[v1.GetGraphRequest, v1.GetGraphResponse]
+	getResolver                 *connect.Client[v1.GetResolverRequest, v1.GetResolverResponse]
+	getStreamResolver           *connect.Client[v1.GetStreamResolverRequest, v1.GetStreamResolverResponse]
 	updateGraph                 *connect.Client[v1.UpdateGraphRequest, v1.UpdateGraphResponse]
 	getCodegenFeaturesFromGraph *connect.Client[v1.GetCodegenFeaturesFromGraphRequest, v1.GetCodegenFeaturesFromGraphResponse]
 	applyGraphUpdates           *connect.Client[v1.ApplyGraphUpdatesRequest, v1.ApplyGraphUpdatesResponse]
@@ -238,6 +266,16 @@ func (c *graphServiceClient) GetFeaturesMetadata(ctx context.Context, req *conne
 // GetGraph calls chalk.server.v1.GraphService.GetGraph.
 func (c *graphServiceClient) GetGraph(ctx context.Context, req *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error) {
 	return c.getGraph.CallUnary(ctx, req)
+}
+
+// GetResolver calls chalk.server.v1.GraphService.GetResolver.
+func (c *graphServiceClient) GetResolver(ctx context.Context, req *connect.Request[v1.GetResolverRequest]) (*connect.Response[v1.GetResolverResponse], error) {
+	return c.getResolver.CallUnary(ctx, req)
+}
+
+// GetStreamResolver calls chalk.server.v1.GraphService.GetStreamResolver.
+func (c *graphServiceClient) GetStreamResolver(ctx context.Context, req *connect.Request[v1.GetStreamResolverRequest]) (*connect.Response[v1.GetStreamResolverResponse], error) {
+	return c.getStreamResolver.CallUnary(ctx, req)
 }
 
 // UpdateGraph calls chalk.server.v1.GraphService.UpdateGraph.
@@ -296,6 +334,12 @@ type GraphServiceHandler interface {
 	GetFeatureSQL(context.Context, *connect.Request[v1.GetFeatureSQLRequest]) (*connect.Response[v1.GetFeatureSQLResponse], error)
 	GetFeaturesMetadata(context.Context, *connect.Request[v1.GetFeaturesMetadataRequest]) (*connect.Response[v1.GetFeaturesMetadataResponse], error)
 	GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error)
+	// GetResolver returns a single resolver. Pass a read_mask to fetch just the
+	// large sub-trees (e.g. postprocessing) that GetGraph omits from the bulk payload.
+	GetResolver(context.Context, *connect.Request[v1.GetResolverRequest]) (*connect.Response[v1.GetResolverResponse], error)
+	// GetStreamResolver returns a single stream resolver. Pass a read_mask to fetch
+	// just the large sub-trees (e.g. parse_info) that GetGraph omits from the bulk payload.
+	GetStreamResolver(context.Context, *connect.Request[v1.GetStreamResolverRequest]) (*connect.Response[v1.GetStreamResolverResponse], error)
 	// UpdateGraph uploads the protobuf graph for a given deployment.
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
 	// GetCodegenFeaturesFromGraph returns Chalk features generated from the protograph
@@ -347,6 +391,20 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 		GraphServiceGetGraphProcedure,
 		svc.GetGraph,
 		connect.WithSchema(graphServiceMethods.ByName("GetGraph")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	graphServiceGetResolverHandler := connect.NewUnaryHandler(
+		GraphServiceGetResolverProcedure,
+		svc.GetResolver,
+		connect.WithSchema(graphServiceMethods.ByName("GetResolver")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	graphServiceGetStreamResolverHandler := connect.NewUnaryHandler(
+		GraphServiceGetStreamResolverProcedure,
+		svc.GetStreamResolver,
+		connect.WithSchema(graphServiceMethods.ByName("GetStreamResolver")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -426,6 +484,10 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 			graphServiceGetFeaturesMetadataHandler.ServeHTTP(w, r)
 		case GraphServiceGetGraphProcedure:
 			graphServiceGetGraphHandler.ServeHTTP(w, r)
+		case GraphServiceGetResolverProcedure:
+			graphServiceGetResolverHandler.ServeHTTP(w, r)
+		case GraphServiceGetStreamResolverProcedure:
+			graphServiceGetStreamResolverHandler.ServeHTTP(w, r)
 		case GraphServiceUpdateGraphProcedure:
 			graphServiceUpdateGraphHandler.ServeHTTP(w, r)
 		case GraphServiceGetCodegenFeaturesFromGraphProcedure:
@@ -465,6 +527,14 @@ func (UnimplementedGraphServiceHandler) GetFeaturesMetadata(context.Context, *co
 
 func (UnimplementedGraphServiceHandler) GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetGraph is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) GetResolver(context.Context, *connect.Request[v1.GetResolverRequest]) (*connect.Response[v1.GetResolverResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetResolver is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) GetStreamResolver(context.Context, *connect.Request[v1.GetStreamResolverRequest]) (*connect.Response[v1.GetStreamResolverResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetStreamResolver is not implemented"))
 }
 
 func (UnimplementedGraphServiceHandler) UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error) {

@@ -1279,6 +1279,8 @@ type MetaQueryRun struct {
 	// The run's meta_query.query_name_version slot, sourced via JOIN.
 	QueryNameVersion *string `protobuf:"bytes,15,opt,name=query_name_version,json=queryNameVersion,proto3,oneof" json:"query_name_version,omitempty"`
 	QueryName        *string `protobuf:"bytes,16,opt,name=query_name,json=queryName,proto3,oneof" json:"query_name,omitempty"`
+	NumInputRows     *int32  `protobuf:"varint,17,opt,name=num_input_rows,json=numInputRows,proto3,oneof" json:"num_input_rows,omitempty"`
+	MultiQueryId     *string `protobuf:"bytes,18,opt,name=multi_query_id,json=multiQueryId,proto3,oneof" json:"multi_query_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1421,6 +1423,20 @@ func (x *MetaQueryRun) GetQueryNameVersion() string {
 func (x *MetaQueryRun) GetQueryName() string {
 	if x != nil && x.QueryName != nil {
 		return *x.QueryName
+	}
+	return ""
+}
+
+func (x *MetaQueryRun) GetNumInputRows() int32 {
+	if x != nil && x.NumInputRows != nil {
+		return *x.NumInputRows
+	}
+	return 0
+}
+
+func (x *MetaQueryRun) GetMultiQueryId() string {
+	if x != nil && x.MultiQueryId != nil {
+		return *x.MultiQueryId
 	}
 	return ""
 }
@@ -4124,7 +4140,7 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x1cAggregateQueryErrorsResponse\x12R\n" +
 	"\x11aggregated_errors\x18\x01 \x03(\v2%.chalk.server.v1.AggregatedQueryErrorR\x10aggregatedErrors\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\x95\x06\n" +
+	"\x10_next_page_token\"\x91\a\n" +
 	"\fMetaQueryRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
 	"\rmeta_query_id\x18\x02 \x01(\tR\vmetaQueryId\x12\x1f\n" +
@@ -4147,7 +4163,10 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x0eresource_group\x18\x0e \x01(\tH\aR\rresourceGroup\x88\x01\x01\x121\n" +
 	"\x12query_name_version\x18\x0f \x01(\tH\bR\x10queryNameVersion\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"query_name\x18\x10 \x01(\tH\tR\tqueryName\x88\x01\x01B\x10\n" +
+	"query_name\x18\x10 \x01(\tH\tR\tqueryName\x88\x01\x01\x12)\n" +
+	"\x0enum_input_rows\x18\x11 \x01(\x05H\n" +
+	"R\fnumInputRows\x88\x01\x01\x12)\n" +
+	"\x0emulti_query_id\x18\x12 \x01(\tH\vR\fmultiQueryId\x88\x01\x01B\x10\n" +
 	"\x0e_query_plan_idB\x11\n" +
 	"\x0f_correlation_idB\v\n" +
 	"\t_agent_idB\x0e\n" +
@@ -4157,7 +4176,9 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\t_trace_idB\x11\n" +
 	"\x0f_resource_groupB\x15\n" +
 	"\x13_query_name_versionB\r\n" +
-	"\v_query_name\"\x82\x01\n" +
+	"\v_query_nameB\x11\n" +
+	"\x0f_num_input_rowsB\x11\n" +
+	"\x0f_multi_query_id\"\x82\x01\n" +
 	"\x14MetaQueryRunWithMeta\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12/\n" +
 	"\x03run\x18\x02 \x01(\v2\x1d.chalk.server.v1.MetaQueryRunR\x03run\x12\x1d\n" +

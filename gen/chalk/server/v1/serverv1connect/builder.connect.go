@@ -173,6 +173,15 @@ const (
 	// BuilderServiceGetAvailableChalkMachineTypesProcedure is the fully-qualified name of the
 	// BuilderService's GetAvailableChalkMachineTypes RPC.
 	BuilderServiceGetAvailableChalkMachineTypesProcedure = "/chalk.server.v1.BuilderService/GetAvailableChalkMachineTypes"
+	// BuilderServiceUpsertChalkMachineTypeOverrideProcedure is the fully-qualified name of the
+	// BuilderService's UpsertChalkMachineTypeOverride RPC.
+	BuilderServiceUpsertChalkMachineTypeOverrideProcedure = "/chalk.server.v1.BuilderService/UpsertChalkMachineTypeOverride"
+	// BuilderServiceDeleteChalkMachineTypeOverrideProcedure is the fully-qualified name of the
+	// BuilderService's DeleteChalkMachineTypeOverride RPC.
+	BuilderServiceDeleteChalkMachineTypeOverrideProcedure = "/chalk.server.v1.BuilderService/DeleteChalkMachineTypeOverride"
+	// BuilderServiceGetClusterChalkMachineTypesProcedure is the fully-qualified name of the
+	// BuilderService's GetClusterChalkMachineTypes RPC.
+	BuilderServiceGetClusterChalkMachineTypesProcedure = "/chalk.server.v1.BuilderService/GetClusterChalkMachineTypes"
 	// BuilderServiceAddNodepoolProcedure is the fully-qualified name of the BuilderService's
 	// AddNodepool RPC.
 	BuilderServiceAddNodepoolProcedure = "/chalk.server.v1.BuilderService/AddNodepool"
@@ -329,6 +338,13 @@ type BuilderServiceClient interface {
 	GetBranchServerStatus(context.Context, *connect.Request[v1.GetBranchServerStatusRequest]) (*connect.Response[v1.GetBranchServerStatusResponse], error)
 	GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error)
 	GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error)
+	// ----- Chalk machine type fallback overrides -----
+	// Override CRUD is team-level (cluster-scoped rows are cross-environment configuration), so
+	// requests name the target cluster explicitly and writes are gated on a team-level permission
+	// grant rather than an environment-scoped one — mirroring CloudComponentsService cluster CRUD.
+	UpsertChalkMachineTypeOverride(context.Context, *connect.Request[v1.UpsertChalkMachineTypeOverrideRequest]) (*connect.Response[v1.UpsertChalkMachineTypeOverrideResponse], error)
+	DeleteChalkMachineTypeOverride(context.Context, *connect.Request[v1.DeleteChalkMachineTypeOverrideRequest]) (*connect.Response[v1.DeleteChalkMachineTypeOverrideResponse], error)
+	GetClusterChalkMachineTypes(context.Context, *connect.Request[v1.GetClusterChalkMachineTypesRequest]) (*connect.Response[v1.GetClusterChalkMachineTypesResponse], error)
 	AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error)
 	UpdateNodepool(context.Context, *connect.Request[v1.UpdateNodepoolRequest]) (*connect.Response[v1.UpdateNodepoolResponse], error)
 	DeleteNodepool(context.Context, *connect.Request[v1.DeleteNodepoolRequest]) (*connect.Response[v1.DeleteNodepoolResponse], error)
@@ -658,6 +674,25 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		upsertChalkMachineTypeOverride: connect.NewClient[v1.UpsertChalkMachineTypeOverrideRequest, v1.UpsertChalkMachineTypeOverrideResponse](
+			httpClient,
+			baseURL+BuilderServiceUpsertChalkMachineTypeOverrideProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("UpsertChalkMachineTypeOverride")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteChalkMachineTypeOverride: connect.NewClient[v1.DeleteChalkMachineTypeOverrideRequest, v1.DeleteChalkMachineTypeOverrideResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteChalkMachineTypeOverrideProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteChalkMachineTypeOverride")),
+			connect.WithClientOptions(opts...),
+		),
+		getClusterChalkMachineTypes: connect.NewClient[v1.GetClusterChalkMachineTypesRequest, v1.GetClusterChalkMachineTypesResponse](
+			httpClient,
+			baseURL+BuilderServiceGetClusterChalkMachineTypesProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterChalkMachineTypes")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		addNodepool: connect.NewClient[v1.AddNodepoolRequest, v1.AddNodepoolResponse](
 			httpClient,
 			baseURL+BuilderServiceAddNodepoolProcedure,
@@ -875,6 +910,9 @@ type builderServiceClient struct {
 	getBranchServerStatus                       *connect.Client[v1.GetBranchServerStatusRequest, v1.GetBranchServerStatusResponse]
 	getNodepools                                *connect.Client[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse]
 	getAvailableChalkMachineTypes               *connect.Client[v1.GetAvailableChalkMachineTypesRequest, v1.GetAvailableChalkMachineTypesResponse]
+	upsertChalkMachineTypeOverride              *connect.Client[v1.UpsertChalkMachineTypeOverrideRequest, v1.UpsertChalkMachineTypeOverrideResponse]
+	deleteChalkMachineTypeOverride              *connect.Client[v1.DeleteChalkMachineTypeOverrideRequest, v1.DeleteChalkMachineTypeOverrideResponse]
+	getClusterChalkMachineTypes                 *connect.Client[v1.GetClusterChalkMachineTypesRequest, v1.GetClusterChalkMachineTypesResponse]
 	addNodepool                                 *connect.Client[v1.AddNodepoolRequest, v1.AddNodepoolResponse]
 	updateNodepool                              *connect.Client[v1.UpdateNodepoolRequest, v1.UpdateNodepoolResponse]
 	deleteNodepool                              *connect.Client[v1.DeleteNodepoolRequest, v1.DeleteNodepoolResponse]
@@ -1155,6 +1193,23 @@ func (c *builderServiceClient) GetAvailableChalkMachineTypes(ctx context.Context
 	return c.getAvailableChalkMachineTypes.CallUnary(ctx, req)
 }
 
+// UpsertChalkMachineTypeOverride calls
+// chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride.
+func (c *builderServiceClient) UpsertChalkMachineTypeOverride(ctx context.Context, req *connect.Request[v1.UpsertChalkMachineTypeOverrideRequest]) (*connect.Response[v1.UpsertChalkMachineTypeOverrideResponse], error) {
+	return c.upsertChalkMachineTypeOverride.CallUnary(ctx, req)
+}
+
+// DeleteChalkMachineTypeOverride calls
+// chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride.
+func (c *builderServiceClient) DeleteChalkMachineTypeOverride(ctx context.Context, req *connect.Request[v1.DeleteChalkMachineTypeOverrideRequest]) (*connect.Response[v1.DeleteChalkMachineTypeOverrideResponse], error) {
+	return c.deleteChalkMachineTypeOverride.CallUnary(ctx, req)
+}
+
+// GetClusterChalkMachineTypes calls chalk.server.v1.BuilderService.GetClusterChalkMachineTypes.
+func (c *builderServiceClient) GetClusterChalkMachineTypes(ctx context.Context, req *connect.Request[v1.GetClusterChalkMachineTypesRequest]) (*connect.Response[v1.GetClusterChalkMachineTypesResponse], error) {
+	return c.getClusterChalkMachineTypes.CallUnary(ctx, req)
+}
+
 // AddNodepool calls chalk.server.v1.BuilderService.AddNodepool.
 func (c *builderServiceClient) AddNodepool(ctx context.Context, req *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error) {
 	return c.addNodepool.CallUnary(ctx, req)
@@ -1369,6 +1424,13 @@ type BuilderServiceHandler interface {
 	GetBranchServerStatus(context.Context, *connect.Request[v1.GetBranchServerStatusRequest]) (*connect.Response[v1.GetBranchServerStatusResponse], error)
 	GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error)
 	GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error)
+	// ----- Chalk machine type fallback overrides -----
+	// Override CRUD is team-level (cluster-scoped rows are cross-environment configuration), so
+	// requests name the target cluster explicitly and writes are gated on a team-level permission
+	// grant rather than an environment-scoped one — mirroring CloudComponentsService cluster CRUD.
+	UpsertChalkMachineTypeOverride(context.Context, *connect.Request[v1.UpsertChalkMachineTypeOverrideRequest]) (*connect.Response[v1.UpsertChalkMachineTypeOverrideResponse], error)
+	DeleteChalkMachineTypeOverride(context.Context, *connect.Request[v1.DeleteChalkMachineTypeOverrideRequest]) (*connect.Response[v1.DeleteChalkMachineTypeOverrideResponse], error)
+	GetClusterChalkMachineTypes(context.Context, *connect.Request[v1.GetClusterChalkMachineTypesRequest]) (*connect.Response[v1.GetClusterChalkMachineTypesResponse], error)
 	AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error)
 	UpdateNodepool(context.Context, *connect.Request[v1.UpdateNodepoolRequest]) (*connect.Response[v1.UpdateNodepoolResponse], error)
 	DeleteNodepool(context.Context, *connect.Request[v1.DeleteNodepoolRequest]) (*connect.Response[v1.DeleteNodepoolResponse], error)
@@ -1694,6 +1756,25 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceUpsertChalkMachineTypeOverrideHandler := connect.NewUnaryHandler(
+		BuilderServiceUpsertChalkMachineTypeOverrideProcedure,
+		svc.UpsertChalkMachineTypeOverride,
+		connect.WithSchema(builderServiceMethods.ByName("UpsertChalkMachineTypeOverride")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDeleteChalkMachineTypeOverrideHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteChalkMachineTypeOverrideProcedure,
+		svc.DeleteChalkMachineTypeOverride,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteChalkMachineTypeOverride")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceGetClusterChalkMachineTypesHandler := connect.NewUnaryHandler(
+		BuilderServiceGetClusterChalkMachineTypesProcedure,
+		svc.GetClusterChalkMachineTypes,
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterChalkMachineTypes")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceAddNodepoolHandler := connect.NewUnaryHandler(
 		BuilderServiceAddNodepoolProcedure,
 		svc.AddNodepool,
@@ -1954,6 +2035,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetNodepoolsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetAvailableChalkMachineTypesProcedure:
 			builderServiceGetAvailableChalkMachineTypesHandler.ServeHTTP(w, r)
+		case BuilderServiceUpsertChalkMachineTypeOverrideProcedure:
+			builderServiceUpsertChalkMachineTypeOverrideHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteChalkMachineTypeOverrideProcedure:
+			builderServiceDeleteChalkMachineTypeOverrideHandler.ServeHTTP(w, r)
+		case BuilderServiceGetClusterChalkMachineTypesProcedure:
+			builderServiceGetClusterChalkMachineTypesHandler.ServeHTTP(w, r)
 		case BuilderServiceAddNodepoolProcedure:
 			builderServiceAddNodepoolHandler.ServeHTTP(w, r)
 		case BuilderServiceUpdateNodepoolProcedure:
@@ -2199,6 +2286,18 @@ func (UnimplementedBuilderServiceHandler) GetNodepools(context.Context, *connect
 
 func (UnimplementedBuilderServiceHandler) GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UpsertChalkMachineTypeOverride(context.Context, *connect.Request[v1.UpsertChalkMachineTypeOverrideRequest]) (*connect.Response[v1.UpsertChalkMachineTypeOverrideResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteChalkMachineTypeOverride(context.Context, *connect.Request[v1.DeleteChalkMachineTypeOverrideRequest]) (*connect.Response[v1.DeleteChalkMachineTypeOverrideResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetClusterChalkMachineTypes(context.Context, *connect.Request[v1.GetClusterChalkMachineTypesRequest]) (*connect.Response[v1.GetClusterChalkMachineTypesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterChalkMachineTypes is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error) {

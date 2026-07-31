@@ -69,6 +69,9 @@ const (
 	// DataPlaneJobQueueServiceListRunningJobsProcedure is the fully-qualified name of the
 	// DataPlaneJobQueueService's ListRunningJobs RPC.
 	DataPlaneJobQueueServiceListRunningJobsProcedure = "/chalk.server.v1.DataPlaneJobQueueService/ListRunningJobs"
+	// DataPlaneJobQueueServiceGetJobQueueConsumerTimelineProcedure is the fully-qualified name of the
+	// DataPlaneJobQueueService's GetJobQueueConsumerTimeline RPC.
+	DataPlaneJobQueueServiceGetJobQueueConsumerTimelineProcedure = "/chalk.server.v1.DataPlaneJobQueueService/GetJobQueueConsumerTimeline"
 	// DataPlaneJobEnqueueServiceEnqueueJobProcedure is the fully-qualified name of the
 	// DataPlaneJobEnqueueService's EnqueueJob RPC.
 	DataPlaneJobEnqueueServiceEnqueueJobProcedure = "/chalk.server.v1.DataPlaneJobEnqueueService/EnqueueJob"
@@ -88,6 +91,7 @@ type DataPlaneJobQueueServiceClient interface {
 	ExplainOperationProgress(context.Context, *connect.Request[v1.ExplainOperationProgressRequest]) (*connect.Response[v1.ExplainOperationProgressResponse], error)
 	ListJobQueueConsumers(context.Context, *connect.Request[v1.ListJobQueueConsumersRequest]) (*connect.Response[v1.ListJobQueueConsumersResponse], error)
 	ListRunningJobs(context.Context, *connect.Request[v1.ListRunningJobsRequest]) (*connect.Response[v1.ListRunningJobsResponse], error)
+	GetJobQueueConsumerTimeline(context.Context, *connect.Request[v1.GetJobQueueConsumerTimelineRequest]) (*connect.Response[v1.GetJobQueueConsumerTimelineResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceClient constructs a client for the
@@ -175,6 +179,13 @@ func NewDataPlaneJobQueueServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getJobQueueConsumerTimeline: connect.NewClient[v1.GetJobQueueConsumerTimelineRequest, v1.GetJobQueueConsumerTimelineResponse](
+			httpClient,
+			baseURL+DataPlaneJobQueueServiceGetJobQueueConsumerTimelineProcedure,
+			connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("GetJobQueueConsumerTimeline")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -191,6 +202,7 @@ type dataPlaneJobQueueServiceClient struct {
 	explainOperationProgress      *connect.Client[v1.ExplainOperationProgressRequest, v1.ExplainOperationProgressResponse]
 	listJobQueueConsumers         *connect.Client[v1.ListJobQueueConsumersRequest, v1.ListJobQueueConsumersResponse]
 	listRunningJobs               *connect.Client[v1.ListRunningJobsRequest, v1.ListRunningJobsResponse]
+	getJobQueueConsumerTimeline   *connect.Client[v1.GetJobQueueConsumerTimelineRequest, v1.GetJobQueueConsumerTimelineResponse]
 }
 
 // GetDataPlaneJobQueue calls chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue.
@@ -250,6 +262,12 @@ func (c *dataPlaneJobQueueServiceClient) ListRunningJobs(ctx context.Context, re
 	return c.listRunningJobs.CallUnary(ctx, req)
 }
 
+// GetJobQueueConsumerTimeline calls
+// chalk.server.v1.DataPlaneJobQueueService.GetJobQueueConsumerTimeline.
+func (c *dataPlaneJobQueueServiceClient) GetJobQueueConsumerTimeline(ctx context.Context, req *connect.Request[v1.GetJobQueueConsumerTimelineRequest]) (*connect.Response[v1.GetJobQueueConsumerTimelineResponse], error) {
+	return c.getJobQueueConsumerTimeline.CallUnary(ctx, req)
+}
+
 // DataPlaneJobQueueServiceHandler is an implementation of the
 // chalk.server.v1.DataPlaneJobQueueService service.
 type DataPlaneJobQueueServiceHandler interface {
@@ -264,6 +282,7 @@ type DataPlaneJobQueueServiceHandler interface {
 	ExplainOperationProgress(context.Context, *connect.Request[v1.ExplainOperationProgressRequest]) (*connect.Response[v1.ExplainOperationProgressResponse], error)
 	ListJobQueueConsumers(context.Context, *connect.Request[v1.ListJobQueueConsumersRequest]) (*connect.Response[v1.ListJobQueueConsumersResponse], error)
 	ListRunningJobs(context.Context, *connect.Request[v1.ListRunningJobsRequest]) (*connect.Response[v1.ListRunningJobsResponse], error)
+	GetJobQueueConsumerTimeline(context.Context, *connect.Request[v1.GetJobQueueConsumerTimelineRequest]) (*connect.Response[v1.GetJobQueueConsumerTimelineResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceHandler builds an HTTP handler from the service implementation. It
@@ -347,6 +366,13 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	dataPlaneJobQueueServiceGetJobQueueConsumerTimelineHandler := connect.NewUnaryHandler(
+		DataPlaneJobQueueServiceGetJobQueueConsumerTimelineProcedure,
+		svc.GetJobQueueConsumerTimeline,
+		connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("GetJobQueueConsumerTimeline")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DataPlaneJobQueueService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DataPlaneJobQueueServiceGetDataPlaneJobQueueProcedure:
@@ -371,6 +397,8 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 			dataPlaneJobQueueServiceListJobQueueConsumersHandler.ServeHTTP(w, r)
 		case DataPlaneJobQueueServiceListRunningJobsProcedure:
 			dataPlaneJobQueueServiceListRunningJobsHandler.ServeHTTP(w, r)
+		case DataPlaneJobQueueServiceGetJobQueueConsumerTimelineProcedure:
+			dataPlaneJobQueueServiceGetJobQueueConsumerTimelineHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -422,6 +450,10 @@ func (UnimplementedDataPlaneJobQueueServiceHandler) ListJobQueueConsumers(contex
 
 func (UnimplementedDataPlaneJobQueueServiceHandler) ListRunningJobs(context.Context, *connect.Request[v1.ListRunningJobsRequest]) (*connect.Response[v1.ListRunningJobsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.ListRunningJobs is not implemented"))
+}
+
+func (UnimplementedDataPlaneJobQueueServiceHandler) GetJobQueueConsumerTimeline(context.Context, *connect.Request[v1.GetJobQueueConsumerTimelineRequest]) (*connect.Response[v1.GetJobQueueConsumerTimelineResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.GetJobQueueConsumerTimeline is not implemented"))
 }
 
 // DataPlaneJobEnqueueServiceClient is a client for the chalk.server.v1.DataPlaneJobEnqueueService
