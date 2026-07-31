@@ -7,7 +7,8 @@
 package notebookv1
 
 import (
-	v1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -869,6 +870,12 @@ type NotebookOutputDataframe struct {
 	// Present iff this result was served from cache rather than executed.
 	// Persisted with the output chunk, so the age indicator survives reloads.
 	CacheInfo *NotebookSqlCacheInfo `protobuf:"bytes,2,opt,name=cache_info,json=cacheInfo,proto3" json:"cache_info,omitempty"`
+	// Per-column distributions over the WHOLE dataframe, not the preview: the
+	// kernel computes these while the value is still in hand, since it is the
+	// only layer that always holds every row. One entry per column, in schema
+	// order. `percentiles` may be empty on an entry whose counts are populated —
+	// see chalk.common.v1.ColumnProfile.
+	ColumnProfiles []*v1.ColumnProfile `protobuf:"bytes,3,rep,name=column_profiles,json=columnProfiles,proto3" json:"column_profiles,omitempty"`
 	// Types that are valid to be assigned to Backing:
 	//
 	//	*NotebookOutputDataframe_Inline
@@ -921,6 +928,13 @@ func (x *NotebookOutputDataframe) GetPreview() *NotebookOutputDataframePreview {
 func (x *NotebookOutputDataframe) GetCacheInfo() *NotebookSqlCacheInfo {
 	if x != nil {
 		return x.CacheInfo
+	}
+	return nil
+}
+
+func (x *NotebookOutputDataframe) GetColumnProfiles() []*v1.ColumnProfile {
+	if x != nil {
+		return x.ColumnProfiles
 	}
 	return nil
 }
@@ -1466,10 +1480,10 @@ type NotebookOutputVariable struct {
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Legacy loose string kind ("local"/"module"/"dataframe"). Retained for
 	// back-compat; new consumers should read variable_kind.
-	Kind        string          `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
-	TypeLabel   string          `protobuf:"bytes,3,opt,name=type_label,json=typeLabel,proto3" json:"type_label,omitempty"`
-	ValueLabel  string          `protobuf:"bytes,4,opt,name=value_label,json=valueLabel,proto3" json:"value_label,omitempty"`
-	ScalarValue *v1.ScalarValue `protobuf:"bytes,5,opt,name=scalar_value,json=scalarValue,proto3,oneof" json:"scalar_value,omitempty"`
+	Kind        string           `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
+	TypeLabel   string           `protobuf:"bytes,3,opt,name=type_label,json=typeLabel,proto3" json:"type_label,omitempty"`
+	ValueLabel  string           `protobuf:"bytes,4,opt,name=value_label,json=valueLabel,proto3" json:"value_label,omitempty"`
+	ScalarValue *v11.ScalarValue `protobuf:"bytes,5,opt,name=scalar_value,json=scalarValue,proto3,oneof" json:"scalar_value,omitempty"`
 	// True when this variable was created or changed by the cell that produced
 	// this snapshot. Every run reports the full user namespace (for the variable
 	// explorer); the per-cell view filters to changed=true.
@@ -1544,7 +1558,7 @@ func (x *NotebookOutputVariable) GetValueLabel() string {
 	return ""
 }
 
-func (x *NotebookOutputVariable) GetScalarValue() *v1.ScalarValue {
+func (x *NotebookOutputVariable) GetScalarValue() *v11.ScalarValue {
 	if x != nil {
 		return x.ScalarValue
 	}
@@ -2349,7 +2363,7 @@ var File_chalk_notebook_v1_runtime_proto protoreflect.FileDescriptor
 
 const file_chalk_notebook_v1_runtime_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/notebook/v1/runtime.proto\x12\x11chalk.notebook.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"G\n" +
+	"\x1fchalk/notebook/v1/runtime.proto\x12\x11chalk.notebook.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/common/v1/column_profile.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"G\n" +
 	"\x1dNotebookOutputDataframeColumn\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\"\xb6\x02\n" +
@@ -2391,11 +2405,12 @@ const file_chalk_notebook_v1_runtime_proto_rawDesc = "" +
 	"\x0econtent_sha256\x18\x05 \x01(\tR\rcontentSha256\"\x93\x01\n" +
 	"\x14NotebookSqlCacheInfo\x12N\n" +
 	"\x15warehouse_executed_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x13warehouseExecutedAt\x12+\n" +
-	"\x12source_cell_run_id\x18\x02 \x01(\tR\x0fsourceCellRunId\"\xc4\x04\n" +
+	"\x12source_cell_run_id\x18\x02 \x01(\tR\x0fsourceCellRunId\"\x8d\x05\n" +
 	"\x17NotebookOutputDataframe\x12K\n" +
 	"\apreview\x18\x01 \x01(\v21.chalk.notebook.v1.NotebookOutputDataframePreviewR\apreview\x12F\n" +
 	"\n" +
-	"cache_info\x18\x02 \x01(\v2'.chalk.notebook.v1.NotebookSqlCacheInfoR\tcacheInfo\x12J\n" +
+	"cache_info\x18\x02 \x01(\v2'.chalk.notebook.v1.NotebookSqlCacheInfoR\tcacheInfo\x12G\n" +
+	"\x0fcolumn_profiles\x18\x03 \x03(\v2\x1e.chalk.common.v1.ColumnProfileR\x0ecolumnProfiles\x12J\n" +
 	"\x06inline\x18\n" +
 	" \x01(\v20.chalk.notebook.v1.NotebookOutputInlineDataframeH\x00R\x06inline\x12T\n" +
 	"\x0edataset_output\x18\v \x01(\v2+.chalk.notebook.v1.NotebookOutputDatasetRefH\x00R\rdatasetOutput\x12N\n" +
@@ -2620,7 +2635,8 @@ var file_chalk_notebook_v1_runtime_proto_goTypes = []any{
 	(*NotebookRunSummary)(nil),                  // 26: chalk.notebook.v1.NotebookRunSummary
 	(*NotebookCellRunHistoryEntry)(nil),         // 27: chalk.notebook.v1.NotebookCellRunHistoryEntry
 	(*timestamppb.Timestamp)(nil),               // 28: google.protobuf.Timestamp
-	(*v1.ScalarValue)(nil),                      // 29: chalk.arrow.v1.ScalarValue
+	(*v1.ColumnProfile)(nil),                    // 29: chalk.common.v1.ColumnProfile
+	(*v11.ScalarValue)(nil),                     // 30: chalk.arrow.v1.ScalarValue
 }
 var file_chalk_notebook_v1_runtime_proto_depIdxs = []int32{
 	4,  // 0: chalk.notebook.v1.NotebookOutputDataframePreview.columns:type_name -> chalk.notebook.v1.NotebookOutputDataframeColumn
@@ -2629,47 +2645,48 @@ var file_chalk_notebook_v1_runtime_proto_depIdxs = []int32{
 	28, // 3: chalk.notebook.v1.NotebookSqlCacheInfo.warehouse_executed_at:type_name -> google.protobuf.Timestamp
 	5,  // 4: chalk.notebook.v1.NotebookOutputDataframe.preview:type_name -> chalk.notebook.v1.NotebookOutputDataframePreview
 	12, // 5: chalk.notebook.v1.NotebookOutputDataframe.cache_info:type_name -> chalk.notebook.v1.NotebookSqlCacheInfo
-	6,  // 6: chalk.notebook.v1.NotebookOutputDataframe.inline:type_name -> chalk.notebook.v1.NotebookOutputInlineDataframe
-	8,  // 7: chalk.notebook.v1.NotebookOutputDataframe.dataset_output:type_name -> chalk.notebook.v1.NotebookOutputDatasetRef
-	9,  // 8: chalk.notebook.v1.NotebookOutputDataframe.sql_result:type_name -> chalk.notebook.v1.NotebookOutputSqlResultRef
-	10, // 9: chalk.notebook.v1.NotebookOutputDataframe.python_object:type_name -> chalk.notebook.v1.NotebookOutputPythonObjectRef
-	11, // 10: chalk.notebook.v1.NotebookOutputDataframe.blob:type_name -> chalk.notebook.v1.NotebookOutputBlobRef
-	17, // 11: chalk.notebook.v1.NotebookPythonStackFrame.context_lines:type_name -> chalk.notebook.v1.NotebookPythonStackFrameContextLine
-	18, // 12: chalk.notebook.v1.NotebookOutputError.stack_frames:type_name -> chalk.notebook.v1.NotebookPythonStackFrame
-	29, // 13: chalk.notebook.v1.NotebookOutputVariable.scalar_value:type_name -> chalk.arrow.v1.ScalarValue
-	3,  // 14: chalk.notebook.v1.NotebookOutputVariable.variable_kind:type_name -> chalk.notebook.v1.NotebookVariableKind
-	5,  // 15: chalk.notebook.v1.NotebookOutputVariable.dataframe_preview:type_name -> chalk.notebook.v1.NotebookOutputDataframePreview
-	21, // 16: chalk.notebook.v1.NotebookOutputVariables.variables:type_name -> chalk.notebook.v1.NotebookOutputVariable
-	2,  // 17: chalk.notebook.v1.NotebookOutputChunk.kind:type_name -> chalk.notebook.v1.NotebookOutputChunkKind
-	28, // 18: chalk.notebook.v1.NotebookOutputChunk.created_at:type_name -> google.protobuf.Timestamp
-	14, // 19: chalk.notebook.v1.NotebookOutputChunk.text_output:type_name -> chalk.notebook.v1.NotebookOutputText
-	16, // 20: chalk.notebook.v1.NotebookOutputChunk.display:type_name -> chalk.notebook.v1.NotebookOutputDisplay
-	19, // 21: chalk.notebook.v1.NotebookOutputChunk.error:type_name -> chalk.notebook.v1.NotebookOutputError
-	13, // 22: chalk.notebook.v1.NotebookOutputChunk.dataframe:type_name -> chalk.notebook.v1.NotebookOutputDataframe
-	20, // 23: chalk.notebook.v1.NotebookOutputChunk.status_output:type_name -> chalk.notebook.v1.NotebookOutputStatus
-	22, // 24: chalk.notebook.v1.NotebookOutputChunk.variables:type_name -> chalk.notebook.v1.NotebookOutputVariables
-	15, // 25: chalk.notebook.v1.NotebookOutputChunk.chart:type_name -> chalk.notebook.v1.NotebookOutputChart
-	1,  // 26: chalk.notebook.v1.NotebookRunEvent.event_type:type_name -> chalk.notebook.v1.NotebookRunEventType
-	0,  // 27: chalk.notebook.v1.NotebookRunEvent.status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	28, // 28: chalk.notebook.v1.NotebookRunEvent.occurred_at:type_name -> google.protobuf.Timestamp
-	23, // 29: chalk.notebook.v1.NotebookRunEvent.output:type_name -> chalk.notebook.v1.NotebookOutputChunk
-	0,  // 30: chalk.notebook.v1.NotebookCellResult.status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	28, // 31: chalk.notebook.v1.NotebookCellResult.started_at:type_name -> google.protobuf.Timestamp
-	28, // 32: chalk.notebook.v1.NotebookCellResult.finished_at:type_name -> google.protobuf.Timestamp
-	23, // 33: chalk.notebook.v1.NotebookCellResult.outputs:type_name -> chalk.notebook.v1.NotebookOutputChunk
-	0,  // 34: chalk.notebook.v1.NotebookRunSummary.status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	28, // 35: chalk.notebook.v1.NotebookRunSummary.created_at:type_name -> google.protobuf.Timestamp
-	28, // 36: chalk.notebook.v1.NotebookRunSummary.started_at:type_name -> google.protobuf.Timestamp
-	28, // 37: chalk.notebook.v1.NotebookRunSummary.finished_at:type_name -> google.protobuf.Timestamp
-	0,  // 38: chalk.notebook.v1.NotebookCellRunHistoryEntry.status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	28, // 39: chalk.notebook.v1.NotebookCellRunHistoryEntry.started_at:type_name -> google.protobuf.Timestamp
-	28, // 40: chalk.notebook.v1.NotebookCellRunHistoryEntry.finished_at:type_name -> google.protobuf.Timestamp
-	28, // 41: chalk.notebook.v1.NotebookCellRunHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
-	42, // [42:42] is the sub-list for method output_type
-	42, // [42:42] is the sub-list for method input_type
-	42, // [42:42] is the sub-list for extension type_name
-	42, // [42:42] is the sub-list for extension extendee
-	0,  // [0:42] is the sub-list for field type_name
+	29, // 6: chalk.notebook.v1.NotebookOutputDataframe.column_profiles:type_name -> chalk.common.v1.ColumnProfile
+	6,  // 7: chalk.notebook.v1.NotebookOutputDataframe.inline:type_name -> chalk.notebook.v1.NotebookOutputInlineDataframe
+	8,  // 8: chalk.notebook.v1.NotebookOutputDataframe.dataset_output:type_name -> chalk.notebook.v1.NotebookOutputDatasetRef
+	9,  // 9: chalk.notebook.v1.NotebookOutputDataframe.sql_result:type_name -> chalk.notebook.v1.NotebookOutputSqlResultRef
+	10, // 10: chalk.notebook.v1.NotebookOutputDataframe.python_object:type_name -> chalk.notebook.v1.NotebookOutputPythonObjectRef
+	11, // 11: chalk.notebook.v1.NotebookOutputDataframe.blob:type_name -> chalk.notebook.v1.NotebookOutputBlobRef
+	17, // 12: chalk.notebook.v1.NotebookPythonStackFrame.context_lines:type_name -> chalk.notebook.v1.NotebookPythonStackFrameContextLine
+	18, // 13: chalk.notebook.v1.NotebookOutputError.stack_frames:type_name -> chalk.notebook.v1.NotebookPythonStackFrame
+	30, // 14: chalk.notebook.v1.NotebookOutputVariable.scalar_value:type_name -> chalk.arrow.v1.ScalarValue
+	3,  // 15: chalk.notebook.v1.NotebookOutputVariable.variable_kind:type_name -> chalk.notebook.v1.NotebookVariableKind
+	5,  // 16: chalk.notebook.v1.NotebookOutputVariable.dataframe_preview:type_name -> chalk.notebook.v1.NotebookOutputDataframePreview
+	21, // 17: chalk.notebook.v1.NotebookOutputVariables.variables:type_name -> chalk.notebook.v1.NotebookOutputVariable
+	2,  // 18: chalk.notebook.v1.NotebookOutputChunk.kind:type_name -> chalk.notebook.v1.NotebookOutputChunkKind
+	28, // 19: chalk.notebook.v1.NotebookOutputChunk.created_at:type_name -> google.protobuf.Timestamp
+	14, // 20: chalk.notebook.v1.NotebookOutputChunk.text_output:type_name -> chalk.notebook.v1.NotebookOutputText
+	16, // 21: chalk.notebook.v1.NotebookOutputChunk.display:type_name -> chalk.notebook.v1.NotebookOutputDisplay
+	19, // 22: chalk.notebook.v1.NotebookOutputChunk.error:type_name -> chalk.notebook.v1.NotebookOutputError
+	13, // 23: chalk.notebook.v1.NotebookOutputChunk.dataframe:type_name -> chalk.notebook.v1.NotebookOutputDataframe
+	20, // 24: chalk.notebook.v1.NotebookOutputChunk.status_output:type_name -> chalk.notebook.v1.NotebookOutputStatus
+	22, // 25: chalk.notebook.v1.NotebookOutputChunk.variables:type_name -> chalk.notebook.v1.NotebookOutputVariables
+	15, // 26: chalk.notebook.v1.NotebookOutputChunk.chart:type_name -> chalk.notebook.v1.NotebookOutputChart
+	1,  // 27: chalk.notebook.v1.NotebookRunEvent.event_type:type_name -> chalk.notebook.v1.NotebookRunEventType
+	0,  // 28: chalk.notebook.v1.NotebookRunEvent.status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	28, // 29: chalk.notebook.v1.NotebookRunEvent.occurred_at:type_name -> google.protobuf.Timestamp
+	23, // 30: chalk.notebook.v1.NotebookRunEvent.output:type_name -> chalk.notebook.v1.NotebookOutputChunk
+	0,  // 31: chalk.notebook.v1.NotebookCellResult.status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	28, // 32: chalk.notebook.v1.NotebookCellResult.started_at:type_name -> google.protobuf.Timestamp
+	28, // 33: chalk.notebook.v1.NotebookCellResult.finished_at:type_name -> google.protobuf.Timestamp
+	23, // 34: chalk.notebook.v1.NotebookCellResult.outputs:type_name -> chalk.notebook.v1.NotebookOutputChunk
+	0,  // 35: chalk.notebook.v1.NotebookRunSummary.status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	28, // 36: chalk.notebook.v1.NotebookRunSummary.created_at:type_name -> google.protobuf.Timestamp
+	28, // 37: chalk.notebook.v1.NotebookRunSummary.started_at:type_name -> google.protobuf.Timestamp
+	28, // 38: chalk.notebook.v1.NotebookRunSummary.finished_at:type_name -> google.protobuf.Timestamp
+	0,  // 39: chalk.notebook.v1.NotebookCellRunHistoryEntry.status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	28, // 40: chalk.notebook.v1.NotebookCellRunHistoryEntry.started_at:type_name -> google.protobuf.Timestamp
+	28, // 41: chalk.notebook.v1.NotebookCellRunHistoryEntry.finished_at:type_name -> google.protobuf.Timestamp
+	28, // 42: chalk.notebook.v1.NotebookCellRunHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
+	43, // [43:43] is the sub-list for method output_type
+	43, // [43:43] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_runtime_proto_init() }

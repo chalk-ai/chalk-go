@@ -60,7 +60,9 @@ type SqlQuery struct {
 	// Output URI prefix for the query results
 	OutputUriPrefix *string `protobuf:"bytes,17,opt,name=output_uri_prefix,json=outputUriPrefix,proto3,oneof" json:"output_uri_prefix,omitempty"`
 	// Cloud storage URI for the serialized query plan JSON
-	PlanUri       *string `protobuf:"bytes,18,opt,name=plan_uri,json=planUri,proto3,oneof" json:"plan_uri,omitempty"`
+	PlanUri *string `protobuf:"bytes,18,opt,name=plan_uri,json=planUri,proto3,oneof" json:"plan_uri,omitempty"`
+	// Human-readable failure reason, populated when status=0 (failure)
+	Error         *string `protobuf:"bytes,19,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -217,6 +219,13 @@ func (x *SqlQuery) GetOutputUriPrefix() string {
 func (x *SqlQuery) GetPlanUri() string {
 	if x != nil && x.PlanUri != nil {
 		return *x.PlanUri
+	}
+	return ""
+}
+
+func (x *SqlQuery) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
 	}
 	return ""
 }
@@ -683,7 +692,7 @@ var File_chalk_server_v1_sql_queries_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/sql_queries.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x96\a\n" +
+	"!chalk/server/v1/sql_queries.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbb\a\n" +
 	"\bSqlQuery\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\bagent_id\x18\x02 \x01(\tH\x00R\aagentId\x88\x01\x01\x12%\n" +
@@ -708,7 +717,8 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\x0fquery_plan_json\x18\x10 \x01(\tH\n" +
 	"R\rqueryPlanJson\x88\x01\x01\x12/\n" +
 	"\x11output_uri_prefix\x18\x11 \x01(\tH\vR\x0foutputUriPrefix\x88\x01\x01\x12\x1e\n" +
-	"\bplan_uri\x18\x12 \x01(\tH\fR\aplanUri\x88\x01\x01B\v\n" +
+	"\bplan_uri\x18\x12 \x01(\tH\fR\aplanUri\x88\x01\x01\x12\x19\n" +
+	"\x05error\x18\x13 \x01(\tH\rR\x05error\x88\x01\x01B\v\n" +
 	"\t_agent_idB\x10\n" +
 	"\x0e_deployment_idB\v\n" +
 	"\t_durationB\x11\n" +
@@ -721,7 +731,8 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\x0f_resource_groupB\x12\n" +
 	"\x10_query_plan_jsonB\x14\n" +
 	"\x12_output_uri_prefixB\v\n" +
-	"\t_plan_uri\"\x8d\x04\n" +
+	"\t_plan_uriB\b\n" +
+	"\x06_error\"\x8d\x04\n" +
 	"\x15ListSqlQueriesRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x1e\n" +

@@ -40,6 +40,9 @@ const (
 	// OfflineQueryMetadataServiceGetOfflineQueryProcedure is the fully-qualified name of the
 	// OfflineQueryMetadataService's GetOfflineQuery RPC.
 	OfflineQueryMetadataServiceGetOfflineQueryProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetOfflineQuery"
+	// OfflineQueryMetadataServiceGetOfflineQueryRequestBodyProcedure is the fully-qualified name of the
+	// OfflineQueryMetadataService's GetOfflineQueryRequestBody RPC.
+	OfflineQueryMetadataServiceGetOfflineQueryRequestBodyProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetOfflineQueryRequestBody"
 	// OfflineQueryMetadataServiceListOfflineQueryShardsProcedure is the fully-qualified name of the
 	// OfflineQueryMetadataService's ListOfflineQueryShards RPC.
 	OfflineQueryMetadataServiceListOfflineQueryShardsProcedure = "/chalk.server.v1.OfflineQueryMetadataService/ListOfflineQueryShards"
@@ -93,6 +96,7 @@ const (
 type OfflineQueryMetadataServiceClient interface {
 	ListOfflineQueries(context.Context, *connect.Request[v1.ListOfflineQueriesRequest]) (*connect.Response[v1.ListOfflineQueriesResponse], error)
 	GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error)
+	GetOfflineQueryRequestBody(context.Context, *connect.Request[v1.GetOfflineQueryRequestBodyRequest]) (*connect.Response[v1.GetOfflineQueryRequestBodyResponse], error)
 	ListOfflineQueryShards(context.Context, *connect.Request[v1.ListOfflineQueryShardsRequest]) (*connect.Response[v1.ListOfflineQueryShardsResponse], error)
 	GetOfflineQueryShardsAggregated(context.Context, *connect.Request[v1.GetOfflineQueryShardsAggregatedRequest]) (*connect.Response[v1.GetOfflineQueryShardsAggregatedResponse], error)
 	GetOfflineQueryInfraSummary(context.Context, *connect.Request[v1.GetOfflineQueryInfraSummaryRequest]) (*connect.Response[v1.GetOfflineQueryInfraSummaryResponse], error)
@@ -134,6 +138,13 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 			httpClient,
 			baseURL+OfflineQueryMetadataServiceGetOfflineQueryProcedure,
 			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQuery")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getOfflineQueryRequestBody: connect.NewClient[v1.GetOfflineQueryRequestBodyRequest, v1.GetOfflineQueryRequestBodyResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceGetOfflineQueryRequestBodyProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryRequestBody")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -244,6 +255,7 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 type offlineQueryMetadataServiceClient struct {
 	listOfflineQueries                        *connect.Client[v1.ListOfflineQueriesRequest, v1.ListOfflineQueriesResponse]
 	getOfflineQuery                           *connect.Client[v1.GetOfflineQueryRequest, v1.GetOfflineQueryResponse]
+	getOfflineQueryRequestBody                *connect.Client[v1.GetOfflineQueryRequestBodyRequest, v1.GetOfflineQueryRequestBodyResponse]
 	listOfflineQueryShards                    *connect.Client[v1.ListOfflineQueryShardsRequest, v1.ListOfflineQueryShardsResponse]
 	getOfflineQueryShardsAggregated           *connect.Client[v1.GetOfflineQueryShardsAggregatedRequest, v1.GetOfflineQueryShardsAggregatedResponse]
 	getOfflineQueryInfraSummary               *connect.Client[v1.GetOfflineQueryInfraSummaryRequest, v1.GetOfflineQueryInfraSummaryResponse]
@@ -269,6 +281,12 @@ func (c *offlineQueryMetadataServiceClient) ListOfflineQueries(ctx context.Conte
 // GetOfflineQuery calls chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery.
 func (c *offlineQueryMetadataServiceClient) GetOfflineQuery(ctx context.Context, req *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error) {
 	return c.getOfflineQuery.CallUnary(ctx, req)
+}
+
+// GetOfflineQueryRequestBody calls
+// chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryRequestBody.
+func (c *offlineQueryMetadataServiceClient) GetOfflineQueryRequestBody(ctx context.Context, req *connect.Request[v1.GetOfflineQueryRequestBodyRequest]) (*connect.Response[v1.GetOfflineQueryRequestBodyResponse], error) {
+	return c.getOfflineQueryRequestBody.CallUnary(ctx, req)
 }
 
 // ListOfflineQueryShards calls chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards.
@@ -361,6 +379,7 @@ func (c *offlineQueryMetadataServiceClient) ListOfflineQueryNames(ctx context.Co
 type OfflineQueryMetadataServiceHandler interface {
 	ListOfflineQueries(context.Context, *connect.Request[v1.ListOfflineQueriesRequest]) (*connect.Response[v1.ListOfflineQueriesResponse], error)
 	GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error)
+	GetOfflineQueryRequestBody(context.Context, *connect.Request[v1.GetOfflineQueryRequestBodyRequest]) (*connect.Response[v1.GetOfflineQueryRequestBodyResponse], error)
 	ListOfflineQueryShards(context.Context, *connect.Request[v1.ListOfflineQueryShardsRequest]) (*connect.Response[v1.ListOfflineQueryShardsResponse], error)
 	GetOfflineQueryShardsAggregated(context.Context, *connect.Request[v1.GetOfflineQueryShardsAggregatedRequest]) (*connect.Response[v1.GetOfflineQueryShardsAggregatedResponse], error)
 	GetOfflineQueryInfraSummary(context.Context, *connect.Request[v1.GetOfflineQueryInfraSummaryRequest]) (*connect.Response[v1.GetOfflineQueryInfraSummaryResponse], error)
@@ -397,6 +416,13 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 		OfflineQueryMetadataServiceGetOfflineQueryProcedure,
 		svc.GetOfflineQuery,
 		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQuery")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineQueryMetadataServiceGetOfflineQueryRequestBodyHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceGetOfflineQueryRequestBodyProcedure,
+		svc.GetOfflineQueryRequestBody,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryRequestBody")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -506,6 +532,8 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 			offlineQueryMetadataServiceListOfflineQueriesHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceGetOfflineQueryProcedure:
 			offlineQueryMetadataServiceGetOfflineQueryHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceGetOfflineQueryRequestBodyProcedure:
+			offlineQueryMetadataServiceGetOfflineQueryRequestBodyHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceListOfflineQueryShardsProcedure:
 			offlineQueryMetadataServiceListOfflineQueryShardsHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceGetOfflineQueryShardsAggregatedProcedure:
@@ -551,6 +579,10 @@ func (UnimplementedOfflineQueryMetadataServiceHandler) ListOfflineQueries(contex
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQueryRequestBody(context.Context, *connect.Request[v1.GetOfflineQueryRequestBodyRequest]) (*connect.Response[v1.GetOfflineQueryRequestBodyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryRequestBody is not implemented"))
 }
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) ListOfflineQueryShards(context.Context, *connect.Request[v1.ListOfflineQueryShardsRequest]) (*connect.Response[v1.ListOfflineQueryShardsResponse], error) {

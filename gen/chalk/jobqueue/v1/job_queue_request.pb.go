@@ -3700,9 +3700,10 @@ type PlannerOptions struct {
 	// ChalkTable.table_scan_parquet (a native TableScanNode) plus a static cast
 	// projection instead of the parquet-reader UDF followed by a Python microbatch
 	// pa_cast UDF.
-	StaticDatasetScan *bool `protobuf:"varint,123,opt,name=static_dataset_scan,json=staticDatasetScan,proto3,oneof" json:"static_dataset_scan,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	StaticDatasetScan               *bool `protobuf:"varint,123,opt,name=static_dataset_scan,json=staticDatasetScan,proto3,oneof" json:"static_dataset_scan,omitempty"`
+	CopyHasManyInputsBasedOnJoinKey *bool `protobuf:"varint,124,opt,name=copy_has_many_inputs_based_on_join_key,json=copyHasManyInputsBasedOnJoinKey,proto3,oneof" json:"copy_has_many_inputs_based_on_join_key,omitempty"`
+	unknownFields                   protoimpl.UnknownFields
+	sizeCache                       protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -4596,6 +4597,13 @@ func (x *PlannerOptions) GetStaticDatasetScan() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetCopyHasManyInputsBasedOnJoinKey() bool {
+	if x != nil && x.CopyHasManyInputsBasedOnJoinKey != nil {
+		return *x.CopyHasManyInputsBasedOnJoinKey
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -5250,7 +5258,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xcan\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xcbo\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5376,7 +5384,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x13stream_resolver_fqn\x18x \x01(\tHwR\x11streamResolverFqn\x88\x01\x01\x12J\n" +
 	"\x1fskip_incremental_query_distinct\x18y \x01(\bHxR\x1cskipIncrementalQueryDistinct\x88\x01\x01\x12l\n" +
 	"1use_streaming_distinct_for_incremental_population\x18z \x01(\bHyR,useStreamingDistinctForIncrementalPopulation\x88\x01\x01\x123\n" +
-	"\x13static_dataset_scan\x18{ \x01(\bHzR\x11staticDatasetScan\x88\x01\x01B\x1e\n" +
+	"\x13static_dataset_scan\x18{ \x01(\bHzR\x11staticDatasetScan\x88\x01\x01\x12T\n" +
+	"&copy_has_many_inputs_based_on_join_key\x18| \x01(\bH{R\x1fcopyHasManyInputsBasedOnJoinKey\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5499,7 +5508,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x14_stream_resolver_fqnB\"\n" +
 	" _skip_incremental_query_distinctB4\n" +
 	"2_use_streaming_distinct_for_incremental_populationB\x16\n" +
-	"\x14_static_dataset_scan\"\xd2\x06\n" +
+	"\x14_static_dataset_scanB)\n" +
+	"'_copy_has_many_inputs_based_on_join_key\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

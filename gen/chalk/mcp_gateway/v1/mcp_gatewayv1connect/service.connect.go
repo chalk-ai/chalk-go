@@ -38,6 +38,9 @@ const (
 	// McpGatewayServiceListBackendsProcedure is the fully-qualified name of the McpGatewayService's
 	// ListBackends RPC.
 	McpGatewayServiceListBackendsProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/ListBackends"
+	// McpGatewayServiceGetBackendProcedure is the fully-qualified name of the McpGatewayService's
+	// GetBackend RPC.
+	McpGatewayServiceGetBackendProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/GetBackend"
 	// McpGatewayServiceCallToolProcedure is the fully-qualified name of the McpGatewayService's
 	// CallTool RPC.
 	McpGatewayServiceCallToolProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/CallTool"
@@ -50,6 +53,9 @@ const (
 	// McpGatewayServiceListAgentsProcedure is the fully-qualified name of the McpGatewayService's
 	// ListAgents RPC.
 	McpGatewayServiceListAgentsProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/ListAgents"
+	// McpGatewayServiceGetAgentProcedure is the fully-qualified name of the McpGatewayService's
+	// GetAgent RPC.
+	McpGatewayServiceGetAgentProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/GetAgent"
 	// McpGatewayServiceSetAgentProcedure is the fully-qualified name of the McpGatewayService's
 	// SetAgent RPC.
 	McpGatewayServiceSetAgentProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/SetAgent"
@@ -65,6 +71,9 @@ const (
 	// McpGatewayServiceListServersProcedure is the fully-qualified name of the McpGatewayService's
 	// ListServers RPC.
 	McpGatewayServiceListServersProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/ListServers"
+	// McpGatewayServiceGetServerProcedure is the fully-qualified name of the McpGatewayService's
+	// GetServer RPC.
+	McpGatewayServiceGetServerProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/GetServer"
 	// McpGatewayServiceCreateServerProcedure is the fully-qualified name of the McpGatewayService's
 	// CreateServer RPC.
 	McpGatewayServiceCreateServerProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/CreateServer"
@@ -86,6 +95,9 @@ const (
 	// McpGatewayServiceListPoliciesProcedure is the fully-qualified name of the McpGatewayService's
 	// ListPolicies RPC.
 	McpGatewayServiceListPoliciesProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/ListPolicies"
+	// McpGatewayServiceGetPolicyProcedure is the fully-qualified name of the McpGatewayService's
+	// GetPolicy RPC.
+	McpGatewayServiceGetPolicyProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/GetPolicy"
 	// McpGatewayServiceSetPolicyProcedure is the fully-qualified name of the McpGatewayService's
 	// SetPolicy RPC.
 	McpGatewayServiceSetPolicyProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/SetPolicy"
@@ -98,15 +110,18 @@ const (
 type McpGatewayServiceClient interface {
 	GetMe(context.Context, *connect.Request[v1.GetMeRequest]) (*connect.Response[v1.GetMeResponse], error)
 	ListBackends(context.Context, *connect.Request[v1.ListBackendsRequest]) (*connect.Response[v1.ListBackendsResponse], error)
+	GetBackend(context.Context, *connect.Request[v1.GetBackendRequest]) (*connect.Response[v1.GetBackendResponse], error)
 	CallTool(context.Context, *connect.Request[v1.CallToolRequest]) (*connect.Response[v1.CallToolResponse], error)
 	ReadResource(context.Context, *connect.Request[v1.ReadResourceRequest]) (*connect.Response[v1.ReadResourceResponse], error)
 	GetPrompt(context.Context, *connect.Request[v1.GetPromptRequest]) (*connect.Response[v1.GetPromptResponse], error)
 	ListAgents(context.Context, *connect.Request[v1.ListAgentsRequest]) (*connect.Response[v1.ListAgentsResponse], error)
+	GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error)
 	SetAgent(context.Context, *connect.Request[v1.SetAgentRequest]) (*connect.Response[v1.SetAgentResponse], error)
 	DeleteAgent(context.Context, *connect.Request[v1.DeleteAgentRequest]) (*connect.Response[v1.DeleteAgentResponse], error)
 	ListOauthLinks(context.Context, *connect.Request[v1.ListOauthLinksRequest]) (*connect.Response[v1.ListOauthLinksResponse], error)
 	UnlinkOauth(context.Context, *connect.Request[v1.UnlinkOauthRequest]) (*connect.Response[v1.UnlinkOauthResponse], error)
 	ListServers(context.Context, *connect.Request[v1.ListServersRequest]) (*connect.Response[v1.ListServersResponse], error)
+	GetServer(context.Context, *connect.Request[v1.GetServerRequest]) (*connect.Response[v1.GetServerResponse], error)
 	CreateServer(context.Context, *connect.Request[v1.CreateServerRequest]) (*connect.Response[v1.CreateServerResponse], error)
 	UpdateServer(context.Context, *connect.Request[v1.UpdateServerRequest]) (*connect.Response[v1.UpdateServerResponse], error)
 	DeleteServer(context.Context, *connect.Request[v1.DeleteServerRequest]) (*connect.Response[v1.DeleteServerResponse], error)
@@ -114,6 +129,7 @@ type McpGatewayServiceClient interface {
 	CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error)
 	RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error)
 	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
+	GetPolicy(context.Context, *connect.Request[v1.GetPolicyRequest]) (*connect.Response[v1.GetPolicyResponse], error)
 	SetPolicy(context.Context, *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error)
 	DeletePolicy(context.Context, *connect.Request[v1.DeletePolicyRequest]) (*connect.Response[v1.DeletePolicyResponse], error)
 }
@@ -143,6 +159,13 @@ func NewMcpGatewayServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getBackend: connect.NewClient[v1.GetBackendRequest, v1.GetBackendResponse](
+			httpClient,
+			baseURL+McpGatewayServiceGetBackendProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("GetBackend")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		callTool: connect.NewClient[v1.CallToolRequest, v1.CallToolResponse](
 			httpClient,
 			baseURL+McpGatewayServiceCallToolProcedure,
@@ -167,6 +190,13 @@ func NewMcpGatewayServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			httpClient,
 			baseURL+McpGatewayServiceListAgentsProcedure,
 			connect.WithSchema(mcpGatewayServiceMethods.ByName("ListAgents")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getAgent: connect.NewClient[v1.GetAgentRequest, v1.GetAgentResponse](
+			httpClient,
+			baseURL+McpGatewayServiceGetAgentProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("GetAgent")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -199,6 +229,13 @@ func NewMcpGatewayServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			httpClient,
 			baseURL+McpGatewayServiceListServersProcedure,
 			connect.WithSchema(mcpGatewayServiceMethods.ByName("ListServers")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getServer: connect.NewClient[v1.GetServerRequest, v1.GetServerResponse](
+			httpClient,
+			baseURL+McpGatewayServiceGetServerProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("GetServer")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -247,6 +284,13 @@ func NewMcpGatewayServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getPolicy: connect.NewClient[v1.GetPolicyRequest, v1.GetPolicyResponse](
+			httpClient,
+			baseURL+McpGatewayServiceGetPolicyProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("GetPolicy")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		setPolicy: connect.NewClient[v1.SetPolicyRequest, v1.SetPolicyResponse](
 			httpClient,
 			baseURL+McpGatewayServiceSetPolicyProcedure,
@@ -266,15 +310,18 @@ func NewMcpGatewayServiceClient(httpClient connect.HTTPClient, baseURL string, o
 type mcpGatewayServiceClient struct {
 	getMe          *connect.Client[v1.GetMeRequest, v1.GetMeResponse]
 	listBackends   *connect.Client[v1.ListBackendsRequest, v1.ListBackendsResponse]
+	getBackend     *connect.Client[v1.GetBackendRequest, v1.GetBackendResponse]
 	callTool       *connect.Client[v1.CallToolRequest, v1.CallToolResponse]
 	readResource   *connect.Client[v1.ReadResourceRequest, v1.ReadResourceResponse]
 	getPrompt      *connect.Client[v1.GetPromptRequest, v1.GetPromptResponse]
 	listAgents     *connect.Client[v1.ListAgentsRequest, v1.ListAgentsResponse]
+	getAgent       *connect.Client[v1.GetAgentRequest, v1.GetAgentResponse]
 	setAgent       *connect.Client[v1.SetAgentRequest, v1.SetAgentResponse]
 	deleteAgent    *connect.Client[v1.DeleteAgentRequest, v1.DeleteAgentResponse]
 	listOauthLinks *connect.Client[v1.ListOauthLinksRequest, v1.ListOauthLinksResponse]
 	unlinkOauth    *connect.Client[v1.UnlinkOauthRequest, v1.UnlinkOauthResponse]
 	listServers    *connect.Client[v1.ListServersRequest, v1.ListServersResponse]
+	getServer      *connect.Client[v1.GetServerRequest, v1.GetServerResponse]
 	createServer   *connect.Client[v1.CreateServerRequest, v1.CreateServerResponse]
 	updateServer   *connect.Client[v1.UpdateServerRequest, v1.UpdateServerResponse]
 	deleteServer   *connect.Client[v1.DeleteServerRequest, v1.DeleteServerResponse]
@@ -282,6 +329,7 @@ type mcpGatewayServiceClient struct {
 	checkPolicy    *connect.Client[v1.CheckPolicyRequest, v1.CheckPolicyResponse]
 	recentAudit    *connect.Client[v1.RecentAuditRequest, v1.RecentAuditResponse]
 	listPolicies   *connect.Client[v1.ListPoliciesRequest, v1.ListPoliciesResponse]
+	getPolicy      *connect.Client[v1.GetPolicyRequest, v1.GetPolicyResponse]
 	setPolicy      *connect.Client[v1.SetPolicyRequest, v1.SetPolicyResponse]
 	deletePolicy   *connect.Client[v1.DeletePolicyRequest, v1.DeletePolicyResponse]
 }
@@ -294,6 +342,11 @@ func (c *mcpGatewayServiceClient) GetMe(ctx context.Context, req *connect.Reques
 // ListBackends calls chalk.mcp_gateway.v1.McpGatewayService.ListBackends.
 func (c *mcpGatewayServiceClient) ListBackends(ctx context.Context, req *connect.Request[v1.ListBackendsRequest]) (*connect.Response[v1.ListBackendsResponse], error) {
 	return c.listBackends.CallUnary(ctx, req)
+}
+
+// GetBackend calls chalk.mcp_gateway.v1.McpGatewayService.GetBackend.
+func (c *mcpGatewayServiceClient) GetBackend(ctx context.Context, req *connect.Request[v1.GetBackendRequest]) (*connect.Response[v1.GetBackendResponse], error) {
+	return c.getBackend.CallUnary(ctx, req)
 }
 
 // CallTool calls chalk.mcp_gateway.v1.McpGatewayService.CallTool.
@@ -314,6 +367,11 @@ func (c *mcpGatewayServiceClient) GetPrompt(ctx context.Context, req *connect.Re
 // ListAgents calls chalk.mcp_gateway.v1.McpGatewayService.ListAgents.
 func (c *mcpGatewayServiceClient) ListAgents(ctx context.Context, req *connect.Request[v1.ListAgentsRequest]) (*connect.Response[v1.ListAgentsResponse], error) {
 	return c.listAgents.CallUnary(ctx, req)
+}
+
+// GetAgent calls chalk.mcp_gateway.v1.McpGatewayService.GetAgent.
+func (c *mcpGatewayServiceClient) GetAgent(ctx context.Context, req *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error) {
+	return c.getAgent.CallUnary(ctx, req)
 }
 
 // SetAgent calls chalk.mcp_gateway.v1.McpGatewayService.SetAgent.
@@ -339,6 +397,11 @@ func (c *mcpGatewayServiceClient) UnlinkOauth(ctx context.Context, req *connect.
 // ListServers calls chalk.mcp_gateway.v1.McpGatewayService.ListServers.
 func (c *mcpGatewayServiceClient) ListServers(ctx context.Context, req *connect.Request[v1.ListServersRequest]) (*connect.Response[v1.ListServersResponse], error) {
 	return c.listServers.CallUnary(ctx, req)
+}
+
+// GetServer calls chalk.mcp_gateway.v1.McpGatewayService.GetServer.
+func (c *mcpGatewayServiceClient) GetServer(ctx context.Context, req *connect.Request[v1.GetServerRequest]) (*connect.Response[v1.GetServerResponse], error) {
+	return c.getServer.CallUnary(ctx, req)
 }
 
 // CreateServer calls chalk.mcp_gateway.v1.McpGatewayService.CreateServer.
@@ -376,6 +439,11 @@ func (c *mcpGatewayServiceClient) ListPolicies(ctx context.Context, req *connect
 	return c.listPolicies.CallUnary(ctx, req)
 }
 
+// GetPolicy calls chalk.mcp_gateway.v1.McpGatewayService.GetPolicy.
+func (c *mcpGatewayServiceClient) GetPolicy(ctx context.Context, req *connect.Request[v1.GetPolicyRequest]) (*connect.Response[v1.GetPolicyResponse], error) {
+	return c.getPolicy.CallUnary(ctx, req)
+}
+
 // SetPolicy calls chalk.mcp_gateway.v1.McpGatewayService.SetPolicy.
 func (c *mcpGatewayServiceClient) SetPolicy(ctx context.Context, req *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error) {
 	return c.setPolicy.CallUnary(ctx, req)
@@ -391,15 +459,18 @@ func (c *mcpGatewayServiceClient) DeletePolicy(ctx context.Context, req *connect
 type McpGatewayServiceHandler interface {
 	GetMe(context.Context, *connect.Request[v1.GetMeRequest]) (*connect.Response[v1.GetMeResponse], error)
 	ListBackends(context.Context, *connect.Request[v1.ListBackendsRequest]) (*connect.Response[v1.ListBackendsResponse], error)
+	GetBackend(context.Context, *connect.Request[v1.GetBackendRequest]) (*connect.Response[v1.GetBackendResponse], error)
 	CallTool(context.Context, *connect.Request[v1.CallToolRequest]) (*connect.Response[v1.CallToolResponse], error)
 	ReadResource(context.Context, *connect.Request[v1.ReadResourceRequest]) (*connect.Response[v1.ReadResourceResponse], error)
 	GetPrompt(context.Context, *connect.Request[v1.GetPromptRequest]) (*connect.Response[v1.GetPromptResponse], error)
 	ListAgents(context.Context, *connect.Request[v1.ListAgentsRequest]) (*connect.Response[v1.ListAgentsResponse], error)
+	GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error)
 	SetAgent(context.Context, *connect.Request[v1.SetAgentRequest]) (*connect.Response[v1.SetAgentResponse], error)
 	DeleteAgent(context.Context, *connect.Request[v1.DeleteAgentRequest]) (*connect.Response[v1.DeleteAgentResponse], error)
 	ListOauthLinks(context.Context, *connect.Request[v1.ListOauthLinksRequest]) (*connect.Response[v1.ListOauthLinksResponse], error)
 	UnlinkOauth(context.Context, *connect.Request[v1.UnlinkOauthRequest]) (*connect.Response[v1.UnlinkOauthResponse], error)
 	ListServers(context.Context, *connect.Request[v1.ListServersRequest]) (*connect.Response[v1.ListServersResponse], error)
+	GetServer(context.Context, *connect.Request[v1.GetServerRequest]) (*connect.Response[v1.GetServerResponse], error)
 	CreateServer(context.Context, *connect.Request[v1.CreateServerRequest]) (*connect.Response[v1.CreateServerResponse], error)
 	UpdateServer(context.Context, *connect.Request[v1.UpdateServerRequest]) (*connect.Response[v1.UpdateServerResponse], error)
 	DeleteServer(context.Context, *connect.Request[v1.DeleteServerRequest]) (*connect.Response[v1.DeleteServerResponse], error)
@@ -407,6 +478,7 @@ type McpGatewayServiceHandler interface {
 	CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error)
 	RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error)
 	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
+	GetPolicy(context.Context, *connect.Request[v1.GetPolicyRequest]) (*connect.Response[v1.GetPolicyResponse], error)
 	SetPolicy(context.Context, *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error)
 	DeletePolicy(context.Context, *connect.Request[v1.DeletePolicyRequest]) (*connect.Response[v1.DeletePolicyResponse], error)
 }
@@ -429,6 +501,13 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 		McpGatewayServiceListBackendsProcedure,
 		svc.ListBackends,
 		connect.WithSchema(mcpGatewayServiceMethods.ByName("ListBackends")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	mcpGatewayServiceGetBackendHandler := connect.NewUnaryHandler(
+		McpGatewayServiceGetBackendProcedure,
+		svc.GetBackend,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("GetBackend")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -456,6 +535,13 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 		McpGatewayServiceListAgentsProcedure,
 		svc.ListAgents,
 		connect.WithSchema(mcpGatewayServiceMethods.ByName("ListAgents")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	mcpGatewayServiceGetAgentHandler := connect.NewUnaryHandler(
+		McpGatewayServiceGetAgentProcedure,
+		svc.GetAgent,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("GetAgent")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -488,6 +574,13 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 		McpGatewayServiceListServersProcedure,
 		svc.ListServers,
 		connect.WithSchema(mcpGatewayServiceMethods.ByName("ListServers")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	mcpGatewayServiceGetServerHandler := connect.NewUnaryHandler(
+		McpGatewayServiceGetServerProcedure,
+		svc.GetServer,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("GetServer")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -536,6 +629,13 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	mcpGatewayServiceGetPolicyHandler := connect.NewUnaryHandler(
+		McpGatewayServiceGetPolicyProcedure,
+		svc.GetPolicy,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("GetPolicy")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	mcpGatewayServiceSetPolicyHandler := connect.NewUnaryHandler(
 		McpGatewayServiceSetPolicyProcedure,
 		svc.SetPolicy,
@@ -554,6 +654,8 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 			mcpGatewayServiceGetMeHandler.ServeHTTP(w, r)
 		case McpGatewayServiceListBackendsProcedure:
 			mcpGatewayServiceListBackendsHandler.ServeHTTP(w, r)
+		case McpGatewayServiceGetBackendProcedure:
+			mcpGatewayServiceGetBackendHandler.ServeHTTP(w, r)
 		case McpGatewayServiceCallToolProcedure:
 			mcpGatewayServiceCallToolHandler.ServeHTTP(w, r)
 		case McpGatewayServiceReadResourceProcedure:
@@ -562,6 +664,8 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 			mcpGatewayServiceGetPromptHandler.ServeHTTP(w, r)
 		case McpGatewayServiceListAgentsProcedure:
 			mcpGatewayServiceListAgentsHandler.ServeHTTP(w, r)
+		case McpGatewayServiceGetAgentProcedure:
+			mcpGatewayServiceGetAgentHandler.ServeHTTP(w, r)
 		case McpGatewayServiceSetAgentProcedure:
 			mcpGatewayServiceSetAgentHandler.ServeHTTP(w, r)
 		case McpGatewayServiceDeleteAgentProcedure:
@@ -572,6 +676,8 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 			mcpGatewayServiceUnlinkOauthHandler.ServeHTTP(w, r)
 		case McpGatewayServiceListServersProcedure:
 			mcpGatewayServiceListServersHandler.ServeHTTP(w, r)
+		case McpGatewayServiceGetServerProcedure:
+			mcpGatewayServiceGetServerHandler.ServeHTTP(w, r)
 		case McpGatewayServiceCreateServerProcedure:
 			mcpGatewayServiceCreateServerHandler.ServeHTTP(w, r)
 		case McpGatewayServiceUpdateServerProcedure:
@@ -586,6 +692,8 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 			mcpGatewayServiceRecentAuditHandler.ServeHTTP(w, r)
 		case McpGatewayServiceListPoliciesProcedure:
 			mcpGatewayServiceListPoliciesHandler.ServeHTTP(w, r)
+		case McpGatewayServiceGetPolicyProcedure:
+			mcpGatewayServiceGetPolicyHandler.ServeHTTP(w, r)
 		case McpGatewayServiceSetPolicyProcedure:
 			mcpGatewayServiceSetPolicyHandler.ServeHTTP(w, r)
 		case McpGatewayServiceDeletePolicyProcedure:
@@ -607,6 +715,10 @@ func (UnimplementedMcpGatewayServiceHandler) ListBackends(context.Context, *conn
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.ListBackends is not implemented"))
 }
 
+func (UnimplementedMcpGatewayServiceHandler) GetBackend(context.Context, *connect.Request[v1.GetBackendRequest]) (*connect.Response[v1.GetBackendResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.GetBackend is not implemented"))
+}
+
 func (UnimplementedMcpGatewayServiceHandler) CallTool(context.Context, *connect.Request[v1.CallToolRequest]) (*connect.Response[v1.CallToolResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.CallTool is not implemented"))
 }
@@ -621,6 +733,10 @@ func (UnimplementedMcpGatewayServiceHandler) GetPrompt(context.Context, *connect
 
 func (UnimplementedMcpGatewayServiceHandler) ListAgents(context.Context, *connect.Request[v1.ListAgentsRequest]) (*connect.Response[v1.ListAgentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.ListAgents is not implemented"))
+}
+
+func (UnimplementedMcpGatewayServiceHandler) GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.GetAgent is not implemented"))
 }
 
 func (UnimplementedMcpGatewayServiceHandler) SetAgent(context.Context, *connect.Request[v1.SetAgentRequest]) (*connect.Response[v1.SetAgentResponse], error) {
@@ -641,6 +757,10 @@ func (UnimplementedMcpGatewayServiceHandler) UnlinkOauth(context.Context, *conne
 
 func (UnimplementedMcpGatewayServiceHandler) ListServers(context.Context, *connect.Request[v1.ListServersRequest]) (*connect.Response[v1.ListServersResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.ListServers is not implemented"))
+}
+
+func (UnimplementedMcpGatewayServiceHandler) GetServer(context.Context, *connect.Request[v1.GetServerRequest]) (*connect.Response[v1.GetServerResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.GetServer is not implemented"))
 }
 
 func (UnimplementedMcpGatewayServiceHandler) CreateServer(context.Context, *connect.Request[v1.CreateServerRequest]) (*connect.Response[v1.CreateServerResponse], error) {
@@ -669,6 +789,10 @@ func (UnimplementedMcpGatewayServiceHandler) RecentAudit(context.Context, *conne
 
 func (UnimplementedMcpGatewayServiceHandler) ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.ListPolicies is not implemented"))
+}
+
+func (UnimplementedMcpGatewayServiceHandler) GetPolicy(context.Context, *connect.Request[v1.GetPolicyRequest]) (*connect.Response[v1.GetPolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.GetPolicy is not implemented"))
 }
 
 func (UnimplementedMcpGatewayServiceHandler) SetPolicy(context.Context, *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error) {

@@ -362,9 +362,18 @@ func (x *GetBranchWithLatestDeploymentResponse) GetBranchWithLatestDeployment() 
 }
 
 type ListBranchWithLatestDeploymentsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Limit         *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Cursor *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit  *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Filter to branches whose latest deployment has one of these statuses.
+	// Empty = no status filter.
+	Status []DeploymentStatus `protobuf:"varint,3,rep,packed,name=status,proto3,enum=chalk.server.v1.DeploymentStatus" json:"status,omitempty"`
+	// Filter to branches whose latest deployment was triggered by one of these
+	// agent ids. Empty = no deployed-by filter.
+	DeployedBy []string `protobuf:"bytes,4,rep,name=deployed_by,json=deployedBy,proto3" json:"deployed_by,omitempty"`
+	// Sort direction on the branch's last-activity timestamp (updated_at, the
+	// keyset-pagination key). false/unset = descending (default); true = ascending.
+	SortAscending *bool `protobuf:"varint,5,opt,name=sort_ascending,json=sortAscending,proto3,oneof" json:"sort_ascending,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -411,6 +420,27 @@ func (x *ListBranchWithLatestDeploymentsRequest) GetLimit() int32 {
 		return *x.Limit
 	}
 	return 0
+}
+
+func (x *ListBranchWithLatestDeploymentsRequest) GetStatus() []DeploymentStatus {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *ListBranchWithLatestDeploymentsRequest) GetDeployedBy() []string {
+	if x != nil {
+		return x.DeployedBy
+	}
+	return nil
+}
+
+func (x *ListBranchWithLatestDeploymentsRequest) GetSortAscending() bool {
+	if x != nil && x.SortAscending != nil {
+		return *x.SortAscending
+	}
+	return false
 }
 
 type ListBranchWithLatestDeploymentsResponse struct {
@@ -589,12 +619,17 @@ const file_chalk_server_v1_branches_proto_rawDesc = "" +
 	"$GetBranchWithLatestDeploymentRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x97\x01\n" +
 	"%GetBranchWithLatestDeploymentResponse\x12n\n" +
-	"\x1dbranch_with_latest_deployment\x18\x01 \x01(\v2+.chalk.server.v1.BranchWithLatestDeploymentR\x1abranchWithLatestDeployment\"u\n" +
+	"\x1dbranch_with_latest_deployment\x18\x01 \x01(\v2+.chalk.server.v1.BranchWithLatestDeploymentR\x1abranchWithLatestDeployment\"\x90\x02\n" +
 	"&ListBranchWithLatestDeploymentsRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
-	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x129\n" +
+	"\x06status\x18\x03 \x03(\x0e2!.chalk.server.v1.DeploymentStatusR\x06status\x12\x1f\n" +
+	"\vdeployed_by\x18\x04 \x03(\tR\n" +
+	"deployedBy\x12*\n" +
+	"\x0esort_ascending\x18\x05 \x01(\bH\x02R\rsortAscending\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
-	"\x06_limit\"\xc3\x01\n" +
+	"\x06_limitB\x11\n" +
+	"\x0f_sort_ascending\"\xc3\x01\n" +
 	"'ListBranchWithLatestDeploymentsResponse\x12p\n" +
 	"\x1ebranch_with_latest_deployments\x18\x01 \x03(\v2+.chalk.server.v1.BranchWithLatestDeploymentR\x1bbranchWithLatestDeployments\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +
@@ -649,20 +684,21 @@ var file_chalk_server_v1_branches_proto_depIdxs = []int32{
 	11, // 4: chalk.server.v1.BranchWithLatestDeployment.latest_deployment_created:type_name -> google.protobuf.Timestamp
 	11, // 5: chalk.server.v1.BranchWithLatestDeployment.latest_deployment_updated:type_name -> google.protobuf.Timestamp
 	3,  // 6: chalk.server.v1.GetBranchWithLatestDeploymentResponse.branch_with_latest_deployment:type_name -> chalk.server.v1.BranchWithLatestDeployment
-	3,  // 7: chalk.server.v1.ListBranchWithLatestDeploymentsResponse.branch_with_latest_deployments:type_name -> chalk.server.v1.BranchWithLatestDeployment
-	10, // 8: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.venv_packages_by_name:type_name -> chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry
-	2,  // 9: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry.value:type_name -> chalk.server.v1.VenvPackages
-	4,  // 10: chalk.server.v1.BranchService.GetBranchWithLatestDeployment:input_type -> chalk.server.v1.GetBranchWithLatestDeploymentRequest
-	6,  // 11: chalk.server.v1.BranchService.ListBranchWithLatestDeployments:input_type -> chalk.server.v1.ListBranchWithLatestDeploymentsRequest
-	8,  // 12: chalk.server.v1.BranchService.GetBranchVenvInstalledPackages:input_type -> chalk.server.v1.GetBranchVenvInstalledPackagesRequest
-	5,  // 13: chalk.server.v1.BranchService.GetBranchWithLatestDeployment:output_type -> chalk.server.v1.GetBranchWithLatestDeploymentResponse
-	7,  // 14: chalk.server.v1.BranchService.ListBranchWithLatestDeployments:output_type -> chalk.server.v1.ListBranchWithLatestDeploymentsResponse
-	9,  // 15: chalk.server.v1.BranchService.GetBranchVenvInstalledPackages:output_type -> chalk.server.v1.GetBranchVenvInstalledPackagesResponse
-	13, // [13:16] is the sub-list for method output_type
-	10, // [10:13] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	12, // 7: chalk.server.v1.ListBranchWithLatestDeploymentsRequest.status:type_name -> chalk.server.v1.DeploymentStatus
+	3,  // 8: chalk.server.v1.ListBranchWithLatestDeploymentsResponse.branch_with_latest_deployments:type_name -> chalk.server.v1.BranchWithLatestDeployment
+	10, // 9: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.venv_packages_by_name:type_name -> chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry
+	2,  // 10: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry.value:type_name -> chalk.server.v1.VenvPackages
+	4,  // 11: chalk.server.v1.BranchService.GetBranchWithLatestDeployment:input_type -> chalk.server.v1.GetBranchWithLatestDeploymentRequest
+	6,  // 12: chalk.server.v1.BranchService.ListBranchWithLatestDeployments:input_type -> chalk.server.v1.ListBranchWithLatestDeploymentsRequest
+	8,  // 13: chalk.server.v1.BranchService.GetBranchVenvInstalledPackages:input_type -> chalk.server.v1.GetBranchVenvInstalledPackagesRequest
+	5,  // 14: chalk.server.v1.BranchService.GetBranchWithLatestDeployment:output_type -> chalk.server.v1.GetBranchWithLatestDeploymentResponse
+	7,  // 15: chalk.server.v1.BranchService.ListBranchWithLatestDeployments:output_type -> chalk.server.v1.ListBranchWithLatestDeploymentsResponse
+	9,  // 16: chalk.server.v1.BranchService.GetBranchVenvInstalledPackages:output_type -> chalk.server.v1.GetBranchVenvInstalledPackagesResponse
+	14, // [14:17] is the sub-list for method output_type
+	11, // [11:14] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_branches_proto_init() }

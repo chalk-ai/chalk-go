@@ -23,14 +23,19 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// ApiKeyServiceName is the fully-qualified name of the ApiKeyService service.
 	ApiKeyServiceName = "chalk.router.v1.ApiKeyService"
-	// TeamServiceName is the fully-qualified name of the TeamService service.
-	TeamServiceName = "chalk.router.v1.TeamService"
+	// UsagePoolServiceName is the fully-qualified name of the UsagePoolService service.
+	UsagePoolServiceName = "chalk.router.v1.UsagePoolService"
 	// RateLimitServiceName is the fully-qualified name of the RateLimitService service.
 	RateLimitServiceName = "chalk.router.v1.RateLimitService"
 	// FallbackPolicyServiceName is the fully-qualified name of the FallbackPolicyService service.
 	FallbackPolicyServiceName = "chalk.router.v1.FallbackPolicyService"
-	// SettingsServiceName is the fully-qualified name of the SettingsService service.
-	SettingsServiceName = "chalk.router.v1.SettingsService"
+	// JudgePolicyServiceName is the fully-qualified name of the JudgePolicyService service.
+	JudgePolicyServiceName = "chalk.router.v1.JudgePolicyService"
+	// ProviderConnectionServiceName is the fully-qualified name of the ProviderConnectionService
+	// service.
+	ProviderConnectionServiceName = "chalk.router.v1.ProviderConnectionService"
+	// ModelRouteServiceName is the fully-qualified name of the ModelRouteService service.
+	ModelRouteServiceName = "chalk.router.v1.ModelRouteService"
 	// DebugServiceName is the fully-qualified name of the DebugService service.
 	DebugServiceName = "chalk.router.v1.DebugService"
 	// HealthServiceName is the fully-qualified name of the HealthService service.
@@ -62,12 +67,15 @@ const (
 	// ApiKeyServiceGetUsageHistogramProcedure is the fully-qualified name of the ApiKeyService's
 	// GetUsageHistogram RPC.
 	ApiKeyServiceGetUsageHistogramProcedure = "/chalk.router.v1.ApiKeyService/GetUsageHistogram"
-	// TeamServiceCreateTeamProcedure is the fully-qualified name of the TeamService's CreateTeam RPC.
-	TeamServiceCreateTeamProcedure = "/chalk.router.v1.TeamService/CreateTeam"
-	// TeamServiceListTeamsProcedure is the fully-qualified name of the TeamService's ListTeams RPC.
-	TeamServiceListTeamsProcedure = "/chalk.router.v1.TeamService/ListTeams"
-	// TeamServiceDeleteTeamProcedure is the fully-qualified name of the TeamService's DeleteTeam RPC.
-	TeamServiceDeleteTeamProcedure = "/chalk.router.v1.TeamService/DeleteTeam"
+	// UsagePoolServiceCreateUsagePoolProcedure is the fully-qualified name of the UsagePoolService's
+	// CreateUsagePool RPC.
+	UsagePoolServiceCreateUsagePoolProcedure = "/chalk.router.v1.UsagePoolService/CreateUsagePool"
+	// UsagePoolServiceListUsagePoolsProcedure is the fully-qualified name of the UsagePoolService's
+	// ListUsagePools RPC.
+	UsagePoolServiceListUsagePoolsProcedure = "/chalk.router.v1.UsagePoolService/ListUsagePools"
+	// UsagePoolServiceDeleteUsagePoolProcedure is the fully-qualified name of the UsagePoolService's
+	// DeleteUsagePool RPC.
+	UsagePoolServiceDeleteUsagePoolProcedure = "/chalk.router.v1.UsagePoolService/DeleteUsagePool"
 	// RateLimitServiceCreateRateLimitProcedure is the fully-qualified name of the RateLimitService's
 	// CreateRateLimit RPC.
 	RateLimitServiceCreateRateLimitProcedure = "/chalk.router.v1.RateLimitService/CreateRateLimit"
@@ -86,15 +94,39 @@ const (
 	// FallbackPolicyServiceUpdateFallbackPolicyProcedure is the fully-qualified name of the
 	// FallbackPolicyService's UpdateFallbackPolicy RPC.
 	FallbackPolicyServiceUpdateFallbackPolicyProcedure = "/chalk.router.v1.FallbackPolicyService/UpdateFallbackPolicy"
-	// SettingsServiceGetSettingsProcedure is the fully-qualified name of the SettingsService's
-	// GetSettings RPC.
-	SettingsServiceGetSettingsProcedure = "/chalk.router.v1.SettingsService/GetSettings"
-	// SettingsServiceListProvidersProcedure is the fully-qualified name of the SettingsService's
-	// ListProviders RPC.
-	SettingsServiceListProvidersProcedure = "/chalk.router.v1.SettingsService/ListProviders"
-	// SettingsServiceSetProviderCredentialProcedure is the fully-qualified name of the
-	// SettingsService's SetProviderCredential RPC.
-	SettingsServiceSetProviderCredentialProcedure = "/chalk.router.v1.SettingsService/SetProviderCredential"
+	// JudgePolicyServiceGetJudgePolicyProcedure is the fully-qualified name of the JudgePolicyService's
+	// GetJudgePolicy RPC.
+	JudgePolicyServiceGetJudgePolicyProcedure = "/chalk.router.v1.JudgePolicyService/GetJudgePolicy"
+	// JudgePolicyServiceUpdateJudgePolicyProcedure is the fully-qualified name of the
+	// JudgePolicyService's UpdateJudgePolicy RPC.
+	JudgePolicyServiceUpdateJudgePolicyProcedure = "/chalk.router.v1.JudgePolicyService/UpdateJudgePolicy"
+	// ProviderConnectionServiceListProviderConnectionsProcedure is the fully-qualified name of the
+	// ProviderConnectionService's ListProviderConnections RPC.
+	ProviderConnectionServiceListProviderConnectionsProcedure = "/chalk.router.v1.ProviderConnectionService/ListProviderConnections"
+	// ProviderConnectionServiceCreateProviderConnectionProcedure is the fully-qualified name of the
+	// ProviderConnectionService's CreateProviderConnection RPC.
+	ProviderConnectionServiceCreateProviderConnectionProcedure = "/chalk.router.v1.ProviderConnectionService/CreateProviderConnection"
+	// ProviderConnectionServiceUpdateProviderConnectionProcedure is the fully-qualified name of the
+	// ProviderConnectionService's UpdateProviderConnection RPC.
+	ProviderConnectionServiceUpdateProviderConnectionProcedure = "/chalk.router.v1.ProviderConnectionService/UpdateProviderConnection"
+	// ProviderConnectionServiceDeleteProviderConnectionProcedure is the fully-qualified name of the
+	// ProviderConnectionService's DeleteProviderConnection RPC.
+	ProviderConnectionServiceDeleteProviderConnectionProcedure = "/chalk.router.v1.ProviderConnectionService/DeleteProviderConnection"
+	// ProviderConnectionServiceTestProviderConnectionProcedure is the fully-qualified name of the
+	// ProviderConnectionService's TestProviderConnection RPC.
+	ProviderConnectionServiceTestProviderConnectionProcedure = "/chalk.router.v1.ProviderConnectionService/TestProviderConnection"
+	// ModelRouteServiceListModelRoutesProcedure is the fully-qualified name of the ModelRouteService's
+	// ListModelRoutes RPC.
+	ModelRouteServiceListModelRoutesProcedure = "/chalk.router.v1.ModelRouteService/ListModelRoutes"
+	// ModelRouteServiceCreateModelRouteProcedure is the fully-qualified name of the ModelRouteService's
+	// CreateModelRoute RPC.
+	ModelRouteServiceCreateModelRouteProcedure = "/chalk.router.v1.ModelRouteService/CreateModelRoute"
+	// ModelRouteServiceUpdateModelRouteProcedure is the fully-qualified name of the ModelRouteService's
+	// UpdateModelRoute RPC.
+	ModelRouteServiceUpdateModelRouteProcedure = "/chalk.router.v1.ModelRouteService/UpdateModelRoute"
+	// ModelRouteServiceDeleteModelRouteProcedure is the fully-qualified name of the ModelRouteService's
+	// DeleteModelRoute RPC.
+	ModelRouteServiceDeleteModelRouteProcedure = "/chalk.router.v1.ModelRouteService/DeleteModelRoute"
 	// DebugServiceRecentCompletionsProcedure is the fully-qualified name of the DebugService's
 	// RecentCompletions RPC.
 	DebugServiceRecentCompletionsProcedure = "/chalk.router.v1.DebugService/RecentCompletions"
@@ -336,128 +368,128 @@ func (UnimplementedApiKeyServiceHandler) GetUsageHistogram(context.Context, *con
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ApiKeyService.GetUsageHistogram is not implemented"))
 }
 
-// TeamServiceClient is a client for the chalk.router.v1.TeamService service.
-type TeamServiceClient interface {
-	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
-	ListTeams(context.Context, *connect.Request[v1.ListTeamsRequest]) (*connect.Response[v1.ListTeamsResponse], error)
-	DeleteTeam(context.Context, *connect.Request[v1.DeleteTeamRequest]) (*connect.Response[v1.DeleteTeamResponse], error)
+// UsagePoolServiceClient is a client for the chalk.router.v1.UsagePoolService service.
+type UsagePoolServiceClient interface {
+	CreateUsagePool(context.Context, *connect.Request[v1.CreateUsagePoolRequest]) (*connect.Response[v1.CreateUsagePoolResponse], error)
+	ListUsagePools(context.Context, *connect.Request[v1.ListUsagePoolsRequest]) (*connect.Response[v1.ListUsagePoolsResponse], error)
+	DeleteUsagePool(context.Context, *connect.Request[v1.DeleteUsagePoolRequest]) (*connect.Response[v1.DeleteUsagePoolResponse], error)
 }
 
-// NewTeamServiceClient constructs a client for the chalk.router.v1.TeamService service. By default,
-// it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and
-// sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC()
-// or connect.WithGRPCWeb() options.
+// NewUsagePoolServiceClient constructs a client for the chalk.router.v1.UsagePoolService service.
+// By default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped
+// responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
+// connect.WithGRPC() or connect.WithGRPCWeb() options.
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
-func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) TeamServiceClient {
+func NewUsagePoolServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) UsagePoolServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	teamServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("TeamService").Methods()
-	return &teamServiceClient{
-		createTeam: connect.NewClient[v1.CreateTeamRequest, v1.CreateTeamResponse](
+	usagePoolServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("UsagePoolService").Methods()
+	return &usagePoolServiceClient{
+		createUsagePool: connect.NewClient[v1.CreateUsagePoolRequest, v1.CreateUsagePoolResponse](
 			httpClient,
-			baseURL+TeamServiceCreateTeamProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("CreateTeam")),
+			baseURL+UsagePoolServiceCreateUsagePoolProcedure,
+			connect.WithSchema(usagePoolServiceMethods.ByName("CreateUsagePool")),
 			connect.WithClientOptions(opts...),
 		),
-		listTeams: connect.NewClient[v1.ListTeamsRequest, v1.ListTeamsResponse](
+		listUsagePools: connect.NewClient[v1.ListUsagePoolsRequest, v1.ListUsagePoolsResponse](
 			httpClient,
-			baseURL+TeamServiceListTeamsProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("ListTeams")),
+			baseURL+UsagePoolServiceListUsagePoolsProcedure,
+			connect.WithSchema(usagePoolServiceMethods.ByName("ListUsagePools")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		deleteTeam: connect.NewClient[v1.DeleteTeamRequest, v1.DeleteTeamResponse](
+		deleteUsagePool: connect.NewClient[v1.DeleteUsagePoolRequest, v1.DeleteUsagePoolResponse](
 			httpClient,
-			baseURL+TeamServiceDeleteTeamProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("DeleteTeam")),
+			baseURL+UsagePoolServiceDeleteUsagePoolProcedure,
+			connect.WithSchema(usagePoolServiceMethods.ByName("DeleteUsagePool")),
 			connect.WithClientOptions(opts...),
 		),
 	}
 }
 
-// teamServiceClient implements TeamServiceClient.
-type teamServiceClient struct {
-	createTeam *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
-	listTeams  *connect.Client[v1.ListTeamsRequest, v1.ListTeamsResponse]
-	deleteTeam *connect.Client[v1.DeleteTeamRequest, v1.DeleteTeamResponse]
+// usagePoolServiceClient implements UsagePoolServiceClient.
+type usagePoolServiceClient struct {
+	createUsagePool *connect.Client[v1.CreateUsagePoolRequest, v1.CreateUsagePoolResponse]
+	listUsagePools  *connect.Client[v1.ListUsagePoolsRequest, v1.ListUsagePoolsResponse]
+	deleteUsagePool *connect.Client[v1.DeleteUsagePoolRequest, v1.DeleteUsagePoolResponse]
 }
 
-// CreateTeam calls chalk.router.v1.TeamService.CreateTeam.
-func (c *teamServiceClient) CreateTeam(ctx context.Context, req *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error) {
-	return c.createTeam.CallUnary(ctx, req)
+// CreateUsagePool calls chalk.router.v1.UsagePoolService.CreateUsagePool.
+func (c *usagePoolServiceClient) CreateUsagePool(ctx context.Context, req *connect.Request[v1.CreateUsagePoolRequest]) (*connect.Response[v1.CreateUsagePoolResponse], error) {
+	return c.createUsagePool.CallUnary(ctx, req)
 }
 
-// ListTeams calls chalk.router.v1.TeamService.ListTeams.
-func (c *teamServiceClient) ListTeams(ctx context.Context, req *connect.Request[v1.ListTeamsRequest]) (*connect.Response[v1.ListTeamsResponse], error) {
-	return c.listTeams.CallUnary(ctx, req)
+// ListUsagePools calls chalk.router.v1.UsagePoolService.ListUsagePools.
+func (c *usagePoolServiceClient) ListUsagePools(ctx context.Context, req *connect.Request[v1.ListUsagePoolsRequest]) (*connect.Response[v1.ListUsagePoolsResponse], error) {
+	return c.listUsagePools.CallUnary(ctx, req)
 }
 
-// DeleteTeam calls chalk.router.v1.TeamService.DeleteTeam.
-func (c *teamServiceClient) DeleteTeam(ctx context.Context, req *connect.Request[v1.DeleteTeamRequest]) (*connect.Response[v1.DeleteTeamResponse], error) {
-	return c.deleteTeam.CallUnary(ctx, req)
+// DeleteUsagePool calls chalk.router.v1.UsagePoolService.DeleteUsagePool.
+func (c *usagePoolServiceClient) DeleteUsagePool(ctx context.Context, req *connect.Request[v1.DeleteUsagePoolRequest]) (*connect.Response[v1.DeleteUsagePoolResponse], error) {
+	return c.deleteUsagePool.CallUnary(ctx, req)
 }
 
-// TeamServiceHandler is an implementation of the chalk.router.v1.TeamService service.
-type TeamServiceHandler interface {
-	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
-	ListTeams(context.Context, *connect.Request[v1.ListTeamsRequest]) (*connect.Response[v1.ListTeamsResponse], error)
-	DeleteTeam(context.Context, *connect.Request[v1.DeleteTeamRequest]) (*connect.Response[v1.DeleteTeamResponse], error)
+// UsagePoolServiceHandler is an implementation of the chalk.router.v1.UsagePoolService service.
+type UsagePoolServiceHandler interface {
+	CreateUsagePool(context.Context, *connect.Request[v1.CreateUsagePoolRequest]) (*connect.Response[v1.CreateUsagePoolResponse], error)
+	ListUsagePools(context.Context, *connect.Request[v1.ListUsagePoolsRequest]) (*connect.Response[v1.ListUsagePoolsResponse], error)
+	DeleteUsagePool(context.Context, *connect.Request[v1.DeleteUsagePoolRequest]) (*connect.Response[v1.DeleteUsagePoolResponse], error)
 }
 
-// NewTeamServiceHandler builds an HTTP handler from the service implementation. It returns the path
-// on which to mount the handler and the handler itself.
+// NewUsagePoolServiceHandler builds an HTTP handler from the service implementation. It returns the
+// path on which to mount the handler and the handler itself.
 //
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
-func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	teamServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("TeamService").Methods()
-	teamServiceCreateTeamHandler := connect.NewUnaryHandler(
-		TeamServiceCreateTeamProcedure,
-		svc.CreateTeam,
-		connect.WithSchema(teamServiceMethods.ByName("CreateTeam")),
+func NewUsagePoolServiceHandler(svc UsagePoolServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	usagePoolServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("UsagePoolService").Methods()
+	usagePoolServiceCreateUsagePoolHandler := connect.NewUnaryHandler(
+		UsagePoolServiceCreateUsagePoolProcedure,
+		svc.CreateUsagePool,
+		connect.WithSchema(usagePoolServiceMethods.ByName("CreateUsagePool")),
 		connect.WithHandlerOptions(opts...),
 	)
-	teamServiceListTeamsHandler := connect.NewUnaryHandler(
-		TeamServiceListTeamsProcedure,
-		svc.ListTeams,
-		connect.WithSchema(teamServiceMethods.ByName("ListTeams")),
+	usagePoolServiceListUsagePoolsHandler := connect.NewUnaryHandler(
+		UsagePoolServiceListUsagePoolsProcedure,
+		svc.ListUsagePools,
+		connect.WithSchema(usagePoolServiceMethods.ByName("ListUsagePools")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	teamServiceDeleteTeamHandler := connect.NewUnaryHandler(
-		TeamServiceDeleteTeamProcedure,
-		svc.DeleteTeam,
-		connect.WithSchema(teamServiceMethods.ByName("DeleteTeam")),
+	usagePoolServiceDeleteUsagePoolHandler := connect.NewUnaryHandler(
+		UsagePoolServiceDeleteUsagePoolProcedure,
+		svc.DeleteUsagePool,
+		connect.WithSchema(usagePoolServiceMethods.ByName("DeleteUsagePool")),
 		connect.WithHandlerOptions(opts...),
 	)
-	return "/chalk.router.v1.TeamService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/chalk.router.v1.UsagePoolService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case TeamServiceCreateTeamProcedure:
-			teamServiceCreateTeamHandler.ServeHTTP(w, r)
-		case TeamServiceListTeamsProcedure:
-			teamServiceListTeamsHandler.ServeHTTP(w, r)
-		case TeamServiceDeleteTeamProcedure:
-			teamServiceDeleteTeamHandler.ServeHTTP(w, r)
+		case UsagePoolServiceCreateUsagePoolProcedure:
+			usagePoolServiceCreateUsagePoolHandler.ServeHTTP(w, r)
+		case UsagePoolServiceListUsagePoolsProcedure:
+			usagePoolServiceListUsagePoolsHandler.ServeHTTP(w, r)
+		case UsagePoolServiceDeleteUsagePoolProcedure:
+			usagePoolServiceDeleteUsagePoolHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
 	})
 }
 
-// UnimplementedTeamServiceHandler returns CodeUnimplemented from all methods.
-type UnimplementedTeamServiceHandler struct{}
+// UnimplementedUsagePoolServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedUsagePoolServiceHandler struct{}
 
-func (UnimplementedTeamServiceHandler) CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.TeamService.CreateTeam is not implemented"))
+func (UnimplementedUsagePoolServiceHandler) CreateUsagePool(context.Context, *connect.Request[v1.CreateUsagePoolRequest]) (*connect.Response[v1.CreateUsagePoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.UsagePoolService.CreateUsagePool is not implemented"))
 }
 
-func (UnimplementedTeamServiceHandler) ListTeams(context.Context, *connect.Request[v1.ListTeamsRequest]) (*connect.Response[v1.ListTeamsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.TeamService.ListTeams is not implemented"))
+func (UnimplementedUsagePoolServiceHandler) ListUsagePools(context.Context, *connect.Request[v1.ListUsagePoolsRequest]) (*connect.Response[v1.ListUsagePoolsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.UsagePoolService.ListUsagePools is not implemented"))
 }
 
-func (UnimplementedTeamServiceHandler) DeleteTeam(context.Context, *connect.Request[v1.DeleteTeamRequest]) (*connect.Response[v1.DeleteTeamResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.TeamService.DeleteTeam is not implemented"))
+func (UnimplementedUsagePoolServiceHandler) DeleteUsagePool(context.Context, *connect.Request[v1.DeleteUsagePoolRequest]) (*connect.Response[v1.DeleteUsagePoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.UsagePoolService.DeleteUsagePool is not implemented"))
 }
 
 // RateLimitServiceClient is a client for the chalk.router.v1.RateLimitService service.
@@ -709,130 +741,435 @@ func (UnimplementedFallbackPolicyServiceHandler) UpdateFallbackPolicy(context.Co
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy is not implemented"))
 }
 
-// SettingsServiceClient is a client for the chalk.router.v1.SettingsService service.
-type SettingsServiceClient interface {
-	GetSettings(context.Context, *connect.Request[v1.GetSettingsRequest]) (*connect.Response[v1.GetSettingsResponse], error)
-	ListProviders(context.Context, *connect.Request[v1.ListProvidersRequest]) (*connect.Response[v1.ListProvidersResponse], error)
-	SetProviderCredential(context.Context, *connect.Request[v1.SetProviderCredentialRequest]) (*connect.Response[v1.SetProviderCredentialResponse], error)
+// JudgePolicyServiceClient is a client for the chalk.router.v1.JudgePolicyService service.
+type JudgePolicyServiceClient interface {
+	GetJudgePolicy(context.Context, *connect.Request[v1.GetJudgePolicyRequest]) (*connect.Response[v1.GetJudgePolicyResponse], error)
+	UpdateJudgePolicy(context.Context, *connect.Request[v1.UpdateJudgePolicyRequest]) (*connect.Response[v1.UpdateJudgePolicyResponse], error)
 }
 
-// NewSettingsServiceClient constructs a client for the chalk.router.v1.SettingsService service. By
-// default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses,
-// and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
+// NewJudgePolicyServiceClient constructs a client for the chalk.router.v1.JudgePolicyService
+// service. By default, it uses the Connect protocol with the binary Protobuf Codec, asks for
+// gzipped responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply
+// the connect.WithGRPC() or connect.WithGRPCWeb() options.
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
-func NewSettingsServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) SettingsServiceClient {
+func NewJudgePolicyServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) JudgePolicyServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	settingsServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("SettingsService").Methods()
-	return &settingsServiceClient{
-		getSettings: connect.NewClient[v1.GetSettingsRequest, v1.GetSettingsResponse](
+	judgePolicyServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("JudgePolicyService").Methods()
+	return &judgePolicyServiceClient{
+		getJudgePolicy: connect.NewClient[v1.GetJudgePolicyRequest, v1.GetJudgePolicyResponse](
 			httpClient,
-			baseURL+SettingsServiceGetSettingsProcedure,
-			connect.WithSchema(settingsServiceMethods.ByName("GetSettings")),
+			baseURL+JudgePolicyServiceGetJudgePolicyProcedure,
+			connect.WithSchema(judgePolicyServiceMethods.ByName("GetJudgePolicy")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		listProviders: connect.NewClient[v1.ListProvidersRequest, v1.ListProvidersResponse](
+		updateJudgePolicy: connect.NewClient[v1.UpdateJudgePolicyRequest, v1.UpdateJudgePolicyResponse](
 			httpClient,
-			baseURL+SettingsServiceListProvidersProcedure,
-			connect.WithSchema(settingsServiceMethods.ByName("ListProviders")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
-		setProviderCredential: connect.NewClient[v1.SetProviderCredentialRequest, v1.SetProviderCredentialResponse](
-			httpClient,
-			baseURL+SettingsServiceSetProviderCredentialProcedure,
-			connect.WithSchema(settingsServiceMethods.ByName("SetProviderCredential")),
+			baseURL+JudgePolicyServiceUpdateJudgePolicyProcedure,
+			connect.WithSchema(judgePolicyServiceMethods.ByName("UpdateJudgePolicy")),
 			connect.WithClientOptions(opts...),
 		),
 	}
 }
 
-// settingsServiceClient implements SettingsServiceClient.
-type settingsServiceClient struct {
-	getSettings           *connect.Client[v1.GetSettingsRequest, v1.GetSettingsResponse]
-	listProviders         *connect.Client[v1.ListProvidersRequest, v1.ListProvidersResponse]
-	setProviderCredential *connect.Client[v1.SetProviderCredentialRequest, v1.SetProviderCredentialResponse]
+// judgePolicyServiceClient implements JudgePolicyServiceClient.
+type judgePolicyServiceClient struct {
+	getJudgePolicy    *connect.Client[v1.GetJudgePolicyRequest, v1.GetJudgePolicyResponse]
+	updateJudgePolicy *connect.Client[v1.UpdateJudgePolicyRequest, v1.UpdateJudgePolicyResponse]
 }
 
-// GetSettings calls chalk.router.v1.SettingsService.GetSettings.
-func (c *settingsServiceClient) GetSettings(ctx context.Context, req *connect.Request[v1.GetSettingsRequest]) (*connect.Response[v1.GetSettingsResponse], error) {
-	return c.getSettings.CallUnary(ctx, req)
+// GetJudgePolicy calls chalk.router.v1.JudgePolicyService.GetJudgePolicy.
+func (c *judgePolicyServiceClient) GetJudgePolicy(ctx context.Context, req *connect.Request[v1.GetJudgePolicyRequest]) (*connect.Response[v1.GetJudgePolicyResponse], error) {
+	return c.getJudgePolicy.CallUnary(ctx, req)
 }
 
-// ListProviders calls chalk.router.v1.SettingsService.ListProviders.
-func (c *settingsServiceClient) ListProviders(ctx context.Context, req *connect.Request[v1.ListProvidersRequest]) (*connect.Response[v1.ListProvidersResponse], error) {
-	return c.listProviders.CallUnary(ctx, req)
+// UpdateJudgePolicy calls chalk.router.v1.JudgePolicyService.UpdateJudgePolicy.
+func (c *judgePolicyServiceClient) UpdateJudgePolicy(ctx context.Context, req *connect.Request[v1.UpdateJudgePolicyRequest]) (*connect.Response[v1.UpdateJudgePolicyResponse], error) {
+	return c.updateJudgePolicy.CallUnary(ctx, req)
 }
 
-// SetProviderCredential calls chalk.router.v1.SettingsService.SetProviderCredential.
-func (c *settingsServiceClient) SetProviderCredential(ctx context.Context, req *connect.Request[v1.SetProviderCredentialRequest]) (*connect.Response[v1.SetProviderCredentialResponse], error) {
-	return c.setProviderCredential.CallUnary(ctx, req)
+// JudgePolicyServiceHandler is an implementation of the chalk.router.v1.JudgePolicyService service.
+type JudgePolicyServiceHandler interface {
+	GetJudgePolicy(context.Context, *connect.Request[v1.GetJudgePolicyRequest]) (*connect.Response[v1.GetJudgePolicyResponse], error)
+	UpdateJudgePolicy(context.Context, *connect.Request[v1.UpdateJudgePolicyRequest]) (*connect.Response[v1.UpdateJudgePolicyResponse], error)
 }
 
-// SettingsServiceHandler is an implementation of the chalk.router.v1.SettingsService service.
-type SettingsServiceHandler interface {
-	GetSettings(context.Context, *connect.Request[v1.GetSettingsRequest]) (*connect.Response[v1.GetSettingsResponse], error)
-	ListProviders(context.Context, *connect.Request[v1.ListProvidersRequest]) (*connect.Response[v1.ListProvidersResponse], error)
-	SetProviderCredential(context.Context, *connect.Request[v1.SetProviderCredentialRequest]) (*connect.Response[v1.SetProviderCredentialResponse], error)
-}
-
-// NewSettingsServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
+// NewJudgePolicyServiceHandler builds an HTTP handler from the service implementation. It returns
+// the path on which to mount the handler and the handler itself.
 //
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
-func NewSettingsServiceHandler(svc SettingsServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	settingsServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("SettingsService").Methods()
-	settingsServiceGetSettingsHandler := connect.NewUnaryHandler(
-		SettingsServiceGetSettingsProcedure,
-		svc.GetSettings,
-		connect.WithSchema(settingsServiceMethods.ByName("GetSettings")),
+func NewJudgePolicyServiceHandler(svc JudgePolicyServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	judgePolicyServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("JudgePolicyService").Methods()
+	judgePolicyServiceGetJudgePolicyHandler := connect.NewUnaryHandler(
+		JudgePolicyServiceGetJudgePolicyProcedure,
+		svc.GetJudgePolicy,
+		connect.WithSchema(judgePolicyServiceMethods.ByName("GetJudgePolicy")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	settingsServiceListProvidersHandler := connect.NewUnaryHandler(
-		SettingsServiceListProvidersProcedure,
-		svc.ListProviders,
-		connect.WithSchema(settingsServiceMethods.ByName("ListProviders")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+	judgePolicyServiceUpdateJudgePolicyHandler := connect.NewUnaryHandler(
+		JudgePolicyServiceUpdateJudgePolicyProcedure,
+		svc.UpdateJudgePolicy,
+		connect.WithSchema(judgePolicyServiceMethods.ByName("UpdateJudgePolicy")),
 		connect.WithHandlerOptions(opts...),
 	)
-	settingsServiceSetProviderCredentialHandler := connect.NewUnaryHandler(
-		SettingsServiceSetProviderCredentialProcedure,
-		svc.SetProviderCredential,
-		connect.WithSchema(settingsServiceMethods.ByName("SetProviderCredential")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/chalk.router.v1.SettingsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return "/chalk.router.v1.JudgePolicyService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case SettingsServiceGetSettingsProcedure:
-			settingsServiceGetSettingsHandler.ServeHTTP(w, r)
-		case SettingsServiceListProvidersProcedure:
-			settingsServiceListProvidersHandler.ServeHTTP(w, r)
-		case SettingsServiceSetProviderCredentialProcedure:
-			settingsServiceSetProviderCredentialHandler.ServeHTTP(w, r)
+		case JudgePolicyServiceGetJudgePolicyProcedure:
+			judgePolicyServiceGetJudgePolicyHandler.ServeHTTP(w, r)
+		case JudgePolicyServiceUpdateJudgePolicyProcedure:
+			judgePolicyServiceUpdateJudgePolicyHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
 	})
 }
 
-// UnimplementedSettingsServiceHandler returns CodeUnimplemented from all methods.
-type UnimplementedSettingsServiceHandler struct{}
+// UnimplementedJudgePolicyServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedJudgePolicyServiceHandler struct{}
 
-func (UnimplementedSettingsServiceHandler) GetSettings(context.Context, *connect.Request[v1.GetSettingsRequest]) (*connect.Response[v1.GetSettingsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.SettingsService.GetSettings is not implemented"))
+func (UnimplementedJudgePolicyServiceHandler) GetJudgePolicy(context.Context, *connect.Request[v1.GetJudgePolicyRequest]) (*connect.Response[v1.GetJudgePolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.JudgePolicyService.GetJudgePolicy is not implemented"))
 }
 
-func (UnimplementedSettingsServiceHandler) ListProviders(context.Context, *connect.Request[v1.ListProvidersRequest]) (*connect.Response[v1.ListProvidersResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.SettingsService.ListProviders is not implemented"))
+func (UnimplementedJudgePolicyServiceHandler) UpdateJudgePolicy(context.Context, *connect.Request[v1.UpdateJudgePolicyRequest]) (*connect.Response[v1.UpdateJudgePolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.JudgePolicyService.UpdateJudgePolicy is not implemented"))
 }
 
-func (UnimplementedSettingsServiceHandler) SetProviderCredential(context.Context, *connect.Request[v1.SetProviderCredentialRequest]) (*connect.Response[v1.SetProviderCredentialResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.SettingsService.SetProviderCredential is not implemented"))
+// ProviderConnectionServiceClient is a client for the chalk.router.v1.ProviderConnectionService
+// service.
+type ProviderConnectionServiceClient interface {
+	ListProviderConnections(context.Context, *connect.Request[v1.ListProviderConnectionsRequest]) (*connect.Response[v1.ListProviderConnectionsResponse], error)
+	CreateProviderConnection(context.Context, *connect.Request[v1.CreateProviderConnectionRequest]) (*connect.Response[v1.CreateProviderConnectionResponse], error)
+	UpdateProviderConnection(context.Context, *connect.Request[v1.UpdateProviderConnectionRequest]) (*connect.Response[v1.UpdateProviderConnectionResponse], error)
+	DeleteProviderConnection(context.Context, *connect.Request[v1.DeleteProviderConnectionRequest]) (*connect.Response[v1.DeleteProviderConnectionResponse], error)
+	// Probe a saved connection or an unsaved draft; drafts are never persisted.
+	TestProviderConnection(context.Context, *connect.Request[v1.TestProviderConnectionRequest]) (*connect.Response[v1.TestProviderConnectionResponse], error)
+}
+
+// NewProviderConnectionServiceClient constructs a client for the
+// chalk.router.v1.ProviderConnectionService service. By default, it uses the Connect protocol with
+// the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To use
+// the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewProviderConnectionServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ProviderConnectionServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	providerConnectionServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("ProviderConnectionService").Methods()
+	return &providerConnectionServiceClient{
+		listProviderConnections: connect.NewClient[v1.ListProviderConnectionsRequest, v1.ListProviderConnectionsResponse](
+			httpClient,
+			baseURL+ProviderConnectionServiceListProviderConnectionsProcedure,
+			connect.WithSchema(providerConnectionServiceMethods.ByName("ListProviderConnections")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		createProviderConnection: connect.NewClient[v1.CreateProviderConnectionRequest, v1.CreateProviderConnectionResponse](
+			httpClient,
+			baseURL+ProviderConnectionServiceCreateProviderConnectionProcedure,
+			connect.WithSchema(providerConnectionServiceMethods.ByName("CreateProviderConnection")),
+			connect.WithClientOptions(opts...),
+		),
+		updateProviderConnection: connect.NewClient[v1.UpdateProviderConnectionRequest, v1.UpdateProviderConnectionResponse](
+			httpClient,
+			baseURL+ProviderConnectionServiceUpdateProviderConnectionProcedure,
+			connect.WithSchema(providerConnectionServiceMethods.ByName("UpdateProviderConnection")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteProviderConnection: connect.NewClient[v1.DeleteProviderConnectionRequest, v1.DeleteProviderConnectionResponse](
+			httpClient,
+			baseURL+ProviderConnectionServiceDeleteProviderConnectionProcedure,
+			connect.WithSchema(providerConnectionServiceMethods.ByName("DeleteProviderConnection")),
+			connect.WithClientOptions(opts...),
+		),
+		testProviderConnection: connect.NewClient[v1.TestProviderConnectionRequest, v1.TestProviderConnectionResponse](
+			httpClient,
+			baseURL+ProviderConnectionServiceTestProviderConnectionProcedure,
+			connect.WithSchema(providerConnectionServiceMethods.ByName("TestProviderConnection")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// providerConnectionServiceClient implements ProviderConnectionServiceClient.
+type providerConnectionServiceClient struct {
+	listProviderConnections  *connect.Client[v1.ListProviderConnectionsRequest, v1.ListProviderConnectionsResponse]
+	createProviderConnection *connect.Client[v1.CreateProviderConnectionRequest, v1.CreateProviderConnectionResponse]
+	updateProviderConnection *connect.Client[v1.UpdateProviderConnectionRequest, v1.UpdateProviderConnectionResponse]
+	deleteProviderConnection *connect.Client[v1.DeleteProviderConnectionRequest, v1.DeleteProviderConnectionResponse]
+	testProviderConnection   *connect.Client[v1.TestProviderConnectionRequest, v1.TestProviderConnectionResponse]
+}
+
+// ListProviderConnections calls chalk.router.v1.ProviderConnectionService.ListProviderConnections.
+func (c *providerConnectionServiceClient) ListProviderConnections(ctx context.Context, req *connect.Request[v1.ListProviderConnectionsRequest]) (*connect.Response[v1.ListProviderConnectionsResponse], error) {
+	return c.listProviderConnections.CallUnary(ctx, req)
+}
+
+// CreateProviderConnection calls
+// chalk.router.v1.ProviderConnectionService.CreateProviderConnection.
+func (c *providerConnectionServiceClient) CreateProviderConnection(ctx context.Context, req *connect.Request[v1.CreateProviderConnectionRequest]) (*connect.Response[v1.CreateProviderConnectionResponse], error) {
+	return c.createProviderConnection.CallUnary(ctx, req)
+}
+
+// UpdateProviderConnection calls
+// chalk.router.v1.ProviderConnectionService.UpdateProviderConnection.
+func (c *providerConnectionServiceClient) UpdateProviderConnection(ctx context.Context, req *connect.Request[v1.UpdateProviderConnectionRequest]) (*connect.Response[v1.UpdateProviderConnectionResponse], error) {
+	return c.updateProviderConnection.CallUnary(ctx, req)
+}
+
+// DeleteProviderConnection calls
+// chalk.router.v1.ProviderConnectionService.DeleteProviderConnection.
+func (c *providerConnectionServiceClient) DeleteProviderConnection(ctx context.Context, req *connect.Request[v1.DeleteProviderConnectionRequest]) (*connect.Response[v1.DeleteProviderConnectionResponse], error) {
+	return c.deleteProviderConnection.CallUnary(ctx, req)
+}
+
+// TestProviderConnection calls chalk.router.v1.ProviderConnectionService.TestProviderConnection.
+func (c *providerConnectionServiceClient) TestProviderConnection(ctx context.Context, req *connect.Request[v1.TestProviderConnectionRequest]) (*connect.Response[v1.TestProviderConnectionResponse], error) {
+	return c.testProviderConnection.CallUnary(ctx, req)
+}
+
+// ProviderConnectionServiceHandler is an implementation of the
+// chalk.router.v1.ProviderConnectionService service.
+type ProviderConnectionServiceHandler interface {
+	ListProviderConnections(context.Context, *connect.Request[v1.ListProviderConnectionsRequest]) (*connect.Response[v1.ListProviderConnectionsResponse], error)
+	CreateProviderConnection(context.Context, *connect.Request[v1.CreateProviderConnectionRequest]) (*connect.Response[v1.CreateProviderConnectionResponse], error)
+	UpdateProviderConnection(context.Context, *connect.Request[v1.UpdateProviderConnectionRequest]) (*connect.Response[v1.UpdateProviderConnectionResponse], error)
+	DeleteProviderConnection(context.Context, *connect.Request[v1.DeleteProviderConnectionRequest]) (*connect.Response[v1.DeleteProviderConnectionResponse], error)
+	// Probe a saved connection or an unsaved draft; drafts are never persisted.
+	TestProviderConnection(context.Context, *connect.Request[v1.TestProviderConnectionRequest]) (*connect.Response[v1.TestProviderConnectionResponse], error)
+}
+
+// NewProviderConnectionServiceHandler builds an HTTP handler from the service implementation. It
+// returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewProviderConnectionServiceHandler(svc ProviderConnectionServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	providerConnectionServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("ProviderConnectionService").Methods()
+	providerConnectionServiceListProviderConnectionsHandler := connect.NewUnaryHandler(
+		ProviderConnectionServiceListProviderConnectionsProcedure,
+		svc.ListProviderConnections,
+		connect.WithSchema(providerConnectionServiceMethods.ByName("ListProviderConnections")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	providerConnectionServiceCreateProviderConnectionHandler := connect.NewUnaryHandler(
+		ProviderConnectionServiceCreateProviderConnectionProcedure,
+		svc.CreateProviderConnection,
+		connect.WithSchema(providerConnectionServiceMethods.ByName("CreateProviderConnection")),
+		connect.WithHandlerOptions(opts...),
+	)
+	providerConnectionServiceUpdateProviderConnectionHandler := connect.NewUnaryHandler(
+		ProviderConnectionServiceUpdateProviderConnectionProcedure,
+		svc.UpdateProviderConnection,
+		connect.WithSchema(providerConnectionServiceMethods.ByName("UpdateProviderConnection")),
+		connect.WithHandlerOptions(opts...),
+	)
+	providerConnectionServiceDeleteProviderConnectionHandler := connect.NewUnaryHandler(
+		ProviderConnectionServiceDeleteProviderConnectionProcedure,
+		svc.DeleteProviderConnection,
+		connect.WithSchema(providerConnectionServiceMethods.ByName("DeleteProviderConnection")),
+		connect.WithHandlerOptions(opts...),
+	)
+	providerConnectionServiceTestProviderConnectionHandler := connect.NewUnaryHandler(
+		ProviderConnectionServiceTestProviderConnectionProcedure,
+		svc.TestProviderConnection,
+		connect.WithSchema(providerConnectionServiceMethods.ByName("TestProviderConnection")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.router.v1.ProviderConnectionService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case ProviderConnectionServiceListProviderConnectionsProcedure:
+			providerConnectionServiceListProviderConnectionsHandler.ServeHTTP(w, r)
+		case ProviderConnectionServiceCreateProviderConnectionProcedure:
+			providerConnectionServiceCreateProviderConnectionHandler.ServeHTTP(w, r)
+		case ProviderConnectionServiceUpdateProviderConnectionProcedure:
+			providerConnectionServiceUpdateProviderConnectionHandler.ServeHTTP(w, r)
+		case ProviderConnectionServiceDeleteProviderConnectionProcedure:
+			providerConnectionServiceDeleteProviderConnectionHandler.ServeHTTP(w, r)
+		case ProviderConnectionServiceTestProviderConnectionProcedure:
+			providerConnectionServiceTestProviderConnectionHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedProviderConnectionServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedProviderConnectionServiceHandler struct{}
+
+func (UnimplementedProviderConnectionServiceHandler) ListProviderConnections(context.Context, *connect.Request[v1.ListProviderConnectionsRequest]) (*connect.Response[v1.ListProviderConnectionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ProviderConnectionService.ListProviderConnections is not implemented"))
+}
+
+func (UnimplementedProviderConnectionServiceHandler) CreateProviderConnection(context.Context, *connect.Request[v1.CreateProviderConnectionRequest]) (*connect.Response[v1.CreateProviderConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ProviderConnectionService.CreateProviderConnection is not implemented"))
+}
+
+func (UnimplementedProviderConnectionServiceHandler) UpdateProviderConnection(context.Context, *connect.Request[v1.UpdateProviderConnectionRequest]) (*connect.Response[v1.UpdateProviderConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ProviderConnectionService.UpdateProviderConnection is not implemented"))
+}
+
+func (UnimplementedProviderConnectionServiceHandler) DeleteProviderConnection(context.Context, *connect.Request[v1.DeleteProviderConnectionRequest]) (*connect.Response[v1.DeleteProviderConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ProviderConnectionService.DeleteProviderConnection is not implemented"))
+}
+
+func (UnimplementedProviderConnectionServiceHandler) TestProviderConnection(context.Context, *connect.Request[v1.TestProviderConnectionRequest]) (*connect.Response[v1.TestProviderConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ProviderConnectionService.TestProviderConnection is not implemented"))
+}
+
+// ModelRouteServiceClient is a client for the chalk.router.v1.ModelRouteService service.
+type ModelRouteServiceClient interface {
+	ListModelRoutes(context.Context, *connect.Request[v1.ListModelRoutesRequest]) (*connect.Response[v1.ListModelRoutesResponse], error)
+	CreateModelRoute(context.Context, *connect.Request[v1.CreateModelRouteRequest]) (*connect.Response[v1.CreateModelRouteResponse], error)
+	UpdateModelRoute(context.Context, *connect.Request[v1.UpdateModelRouteRequest]) (*connect.Response[v1.UpdateModelRouteResponse], error)
+	DeleteModelRoute(context.Context, *connect.Request[v1.DeleteModelRouteRequest]) (*connect.Response[v1.DeleteModelRouteResponse], error)
+}
+
+// NewModelRouteServiceClient constructs a client for the chalk.router.v1.ModelRouteService service.
+// By default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped
+// responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
+// connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewModelRouteServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ModelRouteServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	modelRouteServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("ModelRouteService").Methods()
+	return &modelRouteServiceClient{
+		listModelRoutes: connect.NewClient[v1.ListModelRoutesRequest, v1.ListModelRoutesResponse](
+			httpClient,
+			baseURL+ModelRouteServiceListModelRoutesProcedure,
+			connect.WithSchema(modelRouteServiceMethods.ByName("ListModelRoutes")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		createModelRoute: connect.NewClient[v1.CreateModelRouteRequest, v1.CreateModelRouteResponse](
+			httpClient,
+			baseURL+ModelRouteServiceCreateModelRouteProcedure,
+			connect.WithSchema(modelRouteServiceMethods.ByName("CreateModelRoute")),
+			connect.WithClientOptions(opts...),
+		),
+		updateModelRoute: connect.NewClient[v1.UpdateModelRouteRequest, v1.UpdateModelRouteResponse](
+			httpClient,
+			baseURL+ModelRouteServiceUpdateModelRouteProcedure,
+			connect.WithSchema(modelRouteServiceMethods.ByName("UpdateModelRoute")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteModelRoute: connect.NewClient[v1.DeleteModelRouteRequest, v1.DeleteModelRouteResponse](
+			httpClient,
+			baseURL+ModelRouteServiceDeleteModelRouteProcedure,
+			connect.WithSchema(modelRouteServiceMethods.ByName("DeleteModelRoute")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// modelRouteServiceClient implements ModelRouteServiceClient.
+type modelRouteServiceClient struct {
+	listModelRoutes  *connect.Client[v1.ListModelRoutesRequest, v1.ListModelRoutesResponse]
+	createModelRoute *connect.Client[v1.CreateModelRouteRequest, v1.CreateModelRouteResponse]
+	updateModelRoute *connect.Client[v1.UpdateModelRouteRequest, v1.UpdateModelRouteResponse]
+	deleteModelRoute *connect.Client[v1.DeleteModelRouteRequest, v1.DeleteModelRouteResponse]
+}
+
+// ListModelRoutes calls chalk.router.v1.ModelRouteService.ListModelRoutes.
+func (c *modelRouteServiceClient) ListModelRoutes(ctx context.Context, req *connect.Request[v1.ListModelRoutesRequest]) (*connect.Response[v1.ListModelRoutesResponse], error) {
+	return c.listModelRoutes.CallUnary(ctx, req)
+}
+
+// CreateModelRoute calls chalk.router.v1.ModelRouteService.CreateModelRoute.
+func (c *modelRouteServiceClient) CreateModelRoute(ctx context.Context, req *connect.Request[v1.CreateModelRouteRequest]) (*connect.Response[v1.CreateModelRouteResponse], error) {
+	return c.createModelRoute.CallUnary(ctx, req)
+}
+
+// UpdateModelRoute calls chalk.router.v1.ModelRouteService.UpdateModelRoute.
+func (c *modelRouteServiceClient) UpdateModelRoute(ctx context.Context, req *connect.Request[v1.UpdateModelRouteRequest]) (*connect.Response[v1.UpdateModelRouteResponse], error) {
+	return c.updateModelRoute.CallUnary(ctx, req)
+}
+
+// DeleteModelRoute calls chalk.router.v1.ModelRouteService.DeleteModelRoute.
+func (c *modelRouteServiceClient) DeleteModelRoute(ctx context.Context, req *connect.Request[v1.DeleteModelRouteRequest]) (*connect.Response[v1.DeleteModelRouteResponse], error) {
+	return c.deleteModelRoute.CallUnary(ctx, req)
+}
+
+// ModelRouteServiceHandler is an implementation of the chalk.router.v1.ModelRouteService service.
+type ModelRouteServiceHandler interface {
+	ListModelRoutes(context.Context, *connect.Request[v1.ListModelRoutesRequest]) (*connect.Response[v1.ListModelRoutesResponse], error)
+	CreateModelRoute(context.Context, *connect.Request[v1.CreateModelRouteRequest]) (*connect.Response[v1.CreateModelRouteResponse], error)
+	UpdateModelRoute(context.Context, *connect.Request[v1.UpdateModelRouteRequest]) (*connect.Response[v1.UpdateModelRouteResponse], error)
+	DeleteModelRoute(context.Context, *connect.Request[v1.DeleteModelRouteRequest]) (*connect.Response[v1.DeleteModelRouteResponse], error)
+}
+
+// NewModelRouteServiceHandler builds an HTTP handler from the service implementation. It returns
+// the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewModelRouteServiceHandler(svc ModelRouteServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	modelRouteServiceMethods := v1.File_chalk_router_v1_router_proto.Services().ByName("ModelRouteService").Methods()
+	modelRouteServiceListModelRoutesHandler := connect.NewUnaryHandler(
+		ModelRouteServiceListModelRoutesProcedure,
+		svc.ListModelRoutes,
+		connect.WithSchema(modelRouteServiceMethods.ByName("ListModelRoutes")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelRouteServiceCreateModelRouteHandler := connect.NewUnaryHandler(
+		ModelRouteServiceCreateModelRouteProcedure,
+		svc.CreateModelRoute,
+		connect.WithSchema(modelRouteServiceMethods.ByName("CreateModelRoute")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelRouteServiceUpdateModelRouteHandler := connect.NewUnaryHandler(
+		ModelRouteServiceUpdateModelRouteProcedure,
+		svc.UpdateModelRoute,
+		connect.WithSchema(modelRouteServiceMethods.ByName("UpdateModelRoute")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelRouteServiceDeleteModelRouteHandler := connect.NewUnaryHandler(
+		ModelRouteServiceDeleteModelRouteProcedure,
+		svc.DeleteModelRoute,
+		connect.WithSchema(modelRouteServiceMethods.ByName("DeleteModelRoute")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.router.v1.ModelRouteService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case ModelRouteServiceListModelRoutesProcedure:
+			modelRouteServiceListModelRoutesHandler.ServeHTTP(w, r)
+		case ModelRouteServiceCreateModelRouteProcedure:
+			modelRouteServiceCreateModelRouteHandler.ServeHTTP(w, r)
+		case ModelRouteServiceUpdateModelRouteProcedure:
+			modelRouteServiceUpdateModelRouteHandler.ServeHTTP(w, r)
+		case ModelRouteServiceDeleteModelRouteProcedure:
+			modelRouteServiceDeleteModelRouteHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedModelRouteServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedModelRouteServiceHandler struct{}
+
+func (UnimplementedModelRouteServiceHandler) ListModelRoutes(context.Context, *connect.Request[v1.ListModelRoutesRequest]) (*connect.Response[v1.ListModelRoutesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ModelRouteService.ListModelRoutes is not implemented"))
+}
+
+func (UnimplementedModelRouteServiceHandler) CreateModelRoute(context.Context, *connect.Request[v1.CreateModelRouteRequest]) (*connect.Response[v1.CreateModelRouteResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ModelRouteService.CreateModelRoute is not implemented"))
+}
+
+func (UnimplementedModelRouteServiceHandler) UpdateModelRoute(context.Context, *connect.Request[v1.UpdateModelRouteRequest]) (*connect.Response[v1.UpdateModelRouteResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ModelRouteService.UpdateModelRoute is not implemented"))
+}
+
+func (UnimplementedModelRouteServiceHandler) DeleteModelRoute(context.Context, *connect.Request[v1.DeleteModelRouteRequest]) (*connect.Response[v1.DeleteModelRouteResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ModelRouteService.DeleteModelRoute is not implemented"))
 }
 
 // DebugServiceClient is a client for the chalk.router.v1.DebugService service.

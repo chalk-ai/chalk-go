@@ -25,6 +25,62 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Value interpretation for a kube-event facet; see LogFacetType for semantics.
+type KubeEventFacetType int32
+
+const (
+	KubeEventFacetType_KUBE_EVENT_FACET_TYPE_UNSPECIFIED KubeEventFacetType = 0
+	KubeEventFacetType_KUBE_EVENT_FACET_TYPE_LIST        KubeEventFacetType = 1
+	KubeEventFacetType_KUBE_EVENT_FACET_TYPE_RANGE       KubeEventFacetType = 2
+	KubeEventFacetType_KUBE_EVENT_FACET_TYPE_TEXT        KubeEventFacetType = 3
+	KubeEventFacetType_KUBE_EVENT_FACET_TYPE_ID          KubeEventFacetType = 4
+)
+
+// Enum value maps for KubeEventFacetType.
+var (
+	KubeEventFacetType_name = map[int32]string{
+		0: "KUBE_EVENT_FACET_TYPE_UNSPECIFIED",
+		1: "KUBE_EVENT_FACET_TYPE_LIST",
+		2: "KUBE_EVENT_FACET_TYPE_RANGE",
+		3: "KUBE_EVENT_FACET_TYPE_TEXT",
+		4: "KUBE_EVENT_FACET_TYPE_ID",
+	}
+	KubeEventFacetType_value = map[string]int32{
+		"KUBE_EVENT_FACET_TYPE_UNSPECIFIED": 0,
+		"KUBE_EVENT_FACET_TYPE_LIST":        1,
+		"KUBE_EVENT_FACET_TYPE_RANGE":       2,
+		"KUBE_EVENT_FACET_TYPE_TEXT":        3,
+		"KUBE_EVENT_FACET_TYPE_ID":          4,
+	}
+)
+
+func (x KubeEventFacetType) Enum() *KubeEventFacetType {
+	p := new(KubeEventFacetType)
+	*p = x
+	return p
+}
+
+func (x KubeEventFacetType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (KubeEventFacetType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_kube_events_proto_enumTypes[0].Descriptor()
+}
+
+func (KubeEventFacetType) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_kube_events_proto_enumTypes[0]
+}
+
+func (x KubeEventFacetType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use KubeEventFacetType.Descriptor instead.
+func (KubeEventFacetType) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_kube_events_proto_rawDescGZIP(), []int{0}
+}
+
 type KubeEvent struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Timestamp       *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
@@ -390,7 +446,8 @@ type KubeEventFacet struct {
 	Path  string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
 	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Whether the facet can drive the COUNT BY histogram breakdown.
-	Groupable     bool `protobuf:"varint,3,opt,name=groupable,proto3" json:"groupable,omitempty"`
+	Groupable     bool               `protobuf:"varint,3,opt,name=groupable,proto3" json:"groupable,omitempty"`
+	FacetType     KubeEventFacetType `protobuf:"varint,4,opt,name=facet_type,json=facetType,proto3,enum=chalk.server.v1.KubeEventFacetType" json:"facet_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -444,6 +501,13 @@ func (x *KubeEventFacet) GetGroupable() bool {
 		return x.Groupable
 	}
 	return false
+}
+
+func (x *KubeEventFacet) GetFacetType() KubeEventFacetType {
+	if x != nil {
+		return x.FacetType
+	}
+	return KubeEventFacetType_KUBE_EVENT_FACET_TYPE_UNSPECIFIED
 }
 
 type GetKubeEventFacetsRequest struct {
@@ -903,11 +967,13 @@ const file_chalk_server_v1_kube_events_proto_rawDesc = "" +
 	"\x16ListKubeEventsResponse\x122\n" +
 	"\x06events\x18\x01 \x03(\v2\x1a.chalk.server.v1.KubeEventR\x06events\x12U\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v2(.chalk.server.v1.ListKubeEventsPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"V\n" +
+	"\x10_next_page_token\"\x9a\x01\n" +
 	"\x0eKubeEventFacet\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1c\n" +
-	"\tgroupable\x18\x03 \x01(\bR\tgroupable\"\x1b\n" +
+	"\tgroupable\x18\x03 \x01(\bR\tgroupable\x12B\n" +
+	"\n" +
+	"facet_type\x18\x04 \x01(\x0e2#.chalk.server.v1.KubeEventFacetTypeR\tfacetType\"\x1b\n" +
 	"\x19GetKubeEventFacetsRequest\"U\n" +
 	"\x1aGetKubeEventFacetsResponse\x127\n" +
 	"\x06facets\x18\x01 \x03(\v2\x1f.chalk.server.v1.KubeEventFacetR\x06facets\"\x84\x03\n" +
@@ -942,7 +1008,13 @@ const file_chalk_server_v1_kube_events_proto_rawDesc = "" +
 	"\x06_queryB\b\n" +
 	"\x06_limit\"^\n" +
 	" ListKubeEventsAggregatedResponse\x12:\n" +
-	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart2\x86\x04\n" +
+	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart*\xba\x01\n" +
+	"\x12KubeEventFacetType\x12%\n" +
+	"!KUBE_EVENT_FACET_TYPE_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aKUBE_EVENT_FACET_TYPE_LIST\x10\x01\x12\x1f\n" +
+	"\x1bKUBE_EVENT_FACET_TYPE_RANGE\x10\x02\x12\x1e\n" +
+	"\x1aKUBE_EVENT_FACET_TYPE_TEXT\x10\x03\x12\x1c\n" +
+	"\x18KUBE_EVENT_FACET_TYPE_ID\x10\x042\x86\x04\n" +
 	"\x11KubeEventsService\x12i\n" +
 	"\x0eListKubeEvents\x12&.chalk.server.v1.ListKubeEventsRequest\x1a'.chalk.server.v1.ListKubeEventsResponse\"\x06\x80}\v\x90\x02\x01\x12u\n" +
 	"\x12GetKubeEventFacets\x12*.chalk.server.v1.GetKubeEventFacetsRequest\x1a+.chalk.server.v1.GetKubeEventFacetsResponse\"\x06\x80}\v\x90\x02\x01\x12\x84\x01\n" +
@@ -962,54 +1034,57 @@ func file_chalk_server_v1_kube_events_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_kube_events_proto_rawDescData
 }
 
+var file_chalk_server_v1_kube_events_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_chalk_server_v1_kube_events_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_server_v1_kube_events_proto_goTypes = []any{
-	(*KubeEvent)(nil),                        // 0: chalk.server.v1.KubeEvent
-	(*ListKubeEventsPageToken)(nil),          // 1: chalk.server.v1.ListKubeEventsPageToken
-	(*ListKubeEventsRequest)(nil),            // 2: chalk.server.v1.ListKubeEventsRequest
-	(*ListKubeEventsResponse)(nil),           // 3: chalk.server.v1.ListKubeEventsResponse
-	(*KubeEventFacet)(nil),                   // 4: chalk.server.v1.KubeEventFacet
-	(*GetKubeEventFacetsRequest)(nil),        // 5: chalk.server.v1.GetKubeEventFacetsRequest
-	(*GetKubeEventFacetsResponse)(nil),       // 6: chalk.server.v1.GetKubeEventFacetsResponse
-	(*GetKubeEventFacetValuesRequest)(nil),   // 7: chalk.server.v1.GetKubeEventFacetValuesRequest
-	(*KubeEventFacetValue)(nil),              // 8: chalk.server.v1.KubeEventFacetValue
-	(*GetKubeEventFacetValuesResponse)(nil),  // 9: chalk.server.v1.GetKubeEventFacetValuesResponse
-	(*ListKubeEventsAggregatedRequest)(nil),  // 10: chalk.server.v1.ListKubeEventsAggregatedRequest
-	(*ListKubeEventsAggregatedResponse)(nil), // 11: chalk.server.v1.ListKubeEventsAggregatedResponse
-	(*timestamppb.Timestamp)(nil),            // 12: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),              // 13: google.protobuf.Duration
-	(*v1.DenseTimeSeriesChart)(nil),          // 14: chalk.chart.v1.DenseTimeSeriesChart
+	(KubeEventFacetType)(0),                  // 0: chalk.server.v1.KubeEventFacetType
+	(*KubeEvent)(nil),                        // 1: chalk.server.v1.KubeEvent
+	(*ListKubeEventsPageToken)(nil),          // 2: chalk.server.v1.ListKubeEventsPageToken
+	(*ListKubeEventsRequest)(nil),            // 3: chalk.server.v1.ListKubeEventsRequest
+	(*ListKubeEventsResponse)(nil),           // 4: chalk.server.v1.ListKubeEventsResponse
+	(*KubeEventFacet)(nil),                   // 5: chalk.server.v1.KubeEventFacet
+	(*GetKubeEventFacetsRequest)(nil),        // 6: chalk.server.v1.GetKubeEventFacetsRequest
+	(*GetKubeEventFacetsResponse)(nil),       // 7: chalk.server.v1.GetKubeEventFacetsResponse
+	(*GetKubeEventFacetValuesRequest)(nil),   // 8: chalk.server.v1.GetKubeEventFacetValuesRequest
+	(*KubeEventFacetValue)(nil),              // 9: chalk.server.v1.KubeEventFacetValue
+	(*GetKubeEventFacetValuesResponse)(nil),  // 10: chalk.server.v1.GetKubeEventFacetValuesResponse
+	(*ListKubeEventsAggregatedRequest)(nil),  // 11: chalk.server.v1.ListKubeEventsAggregatedRequest
+	(*ListKubeEventsAggregatedResponse)(nil), // 12: chalk.server.v1.ListKubeEventsAggregatedResponse
+	(*timestamppb.Timestamp)(nil),            // 13: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),              // 14: google.protobuf.Duration
+	(*v1.DenseTimeSeriesChart)(nil),          // 15: chalk.chart.v1.DenseTimeSeriesChart
 }
 var file_chalk_server_v1_kube_events_proto_depIdxs = []int32{
-	12, // 0: chalk.server.v1.KubeEvent.timestamp:type_name -> google.protobuf.Timestamp
-	12, // 1: chalk.server.v1.KubeEvent.first_timestamp:type_name -> google.protobuf.Timestamp
-	12, // 2: chalk.server.v1.KubeEvent.last_timestamp:type_name -> google.protobuf.Timestamp
-	12, // 3: chalk.server.v1.ListKubeEventsRequest.start_time:type_name -> google.protobuf.Timestamp
-	12, // 4: chalk.server.v1.ListKubeEventsRequest.end_time:type_name -> google.protobuf.Timestamp
-	1,  // 5: chalk.server.v1.ListKubeEventsRequest.page_token:type_name -> chalk.server.v1.ListKubeEventsPageToken
-	0,  // 6: chalk.server.v1.ListKubeEventsResponse.events:type_name -> chalk.server.v1.KubeEvent
-	1,  // 7: chalk.server.v1.ListKubeEventsResponse.next_page_token:type_name -> chalk.server.v1.ListKubeEventsPageToken
-	4,  // 8: chalk.server.v1.GetKubeEventFacetsResponse.facets:type_name -> chalk.server.v1.KubeEventFacet
-	12, // 9: chalk.server.v1.GetKubeEventFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	12, // 10: chalk.server.v1.GetKubeEventFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
-	8,  // 11: chalk.server.v1.GetKubeEventFacetValuesResponse.values:type_name -> chalk.server.v1.KubeEventFacetValue
-	12, // 12: chalk.server.v1.ListKubeEventsAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	12, // 13: chalk.server.v1.ListKubeEventsAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	13, // 14: chalk.server.v1.ListKubeEventsAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	14, // 15: chalk.server.v1.ListKubeEventsAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	2,  // 16: chalk.server.v1.KubeEventsService.ListKubeEvents:input_type -> chalk.server.v1.ListKubeEventsRequest
-	5,  // 17: chalk.server.v1.KubeEventsService.GetKubeEventFacets:input_type -> chalk.server.v1.GetKubeEventFacetsRequest
-	7,  // 18: chalk.server.v1.KubeEventsService.GetKubeEventFacetValues:input_type -> chalk.server.v1.GetKubeEventFacetValuesRequest
-	10, // 19: chalk.server.v1.KubeEventsService.ListKubeEventsAggregated:input_type -> chalk.server.v1.ListKubeEventsAggregatedRequest
-	3,  // 20: chalk.server.v1.KubeEventsService.ListKubeEvents:output_type -> chalk.server.v1.ListKubeEventsResponse
-	6,  // 21: chalk.server.v1.KubeEventsService.GetKubeEventFacets:output_type -> chalk.server.v1.GetKubeEventFacetsResponse
-	9,  // 22: chalk.server.v1.KubeEventsService.GetKubeEventFacetValues:output_type -> chalk.server.v1.GetKubeEventFacetValuesResponse
-	11, // 23: chalk.server.v1.KubeEventsService.ListKubeEventsAggregated:output_type -> chalk.server.v1.ListKubeEventsAggregatedResponse
-	20, // [20:24] is the sub-list for method output_type
-	16, // [16:20] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	13, // 0: chalk.server.v1.KubeEvent.timestamp:type_name -> google.protobuf.Timestamp
+	13, // 1: chalk.server.v1.KubeEvent.first_timestamp:type_name -> google.protobuf.Timestamp
+	13, // 2: chalk.server.v1.KubeEvent.last_timestamp:type_name -> google.protobuf.Timestamp
+	13, // 3: chalk.server.v1.ListKubeEventsRequest.start_time:type_name -> google.protobuf.Timestamp
+	13, // 4: chalk.server.v1.ListKubeEventsRequest.end_time:type_name -> google.protobuf.Timestamp
+	2,  // 5: chalk.server.v1.ListKubeEventsRequest.page_token:type_name -> chalk.server.v1.ListKubeEventsPageToken
+	1,  // 6: chalk.server.v1.ListKubeEventsResponse.events:type_name -> chalk.server.v1.KubeEvent
+	2,  // 7: chalk.server.v1.ListKubeEventsResponse.next_page_token:type_name -> chalk.server.v1.ListKubeEventsPageToken
+	0,  // 8: chalk.server.v1.KubeEventFacet.facet_type:type_name -> chalk.server.v1.KubeEventFacetType
+	5,  // 9: chalk.server.v1.GetKubeEventFacetsResponse.facets:type_name -> chalk.server.v1.KubeEventFacet
+	13, // 10: chalk.server.v1.GetKubeEventFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	13, // 11: chalk.server.v1.GetKubeEventFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	9,  // 12: chalk.server.v1.GetKubeEventFacetValuesResponse.values:type_name -> chalk.server.v1.KubeEventFacetValue
+	13, // 13: chalk.server.v1.ListKubeEventsAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	13, // 14: chalk.server.v1.ListKubeEventsAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	14, // 15: chalk.server.v1.ListKubeEventsAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	15, // 16: chalk.server.v1.ListKubeEventsAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	3,  // 17: chalk.server.v1.KubeEventsService.ListKubeEvents:input_type -> chalk.server.v1.ListKubeEventsRequest
+	6,  // 18: chalk.server.v1.KubeEventsService.GetKubeEventFacets:input_type -> chalk.server.v1.GetKubeEventFacetsRequest
+	8,  // 19: chalk.server.v1.KubeEventsService.GetKubeEventFacetValues:input_type -> chalk.server.v1.GetKubeEventFacetValuesRequest
+	11, // 20: chalk.server.v1.KubeEventsService.ListKubeEventsAggregated:input_type -> chalk.server.v1.ListKubeEventsAggregatedRequest
+	4,  // 21: chalk.server.v1.KubeEventsService.ListKubeEvents:output_type -> chalk.server.v1.ListKubeEventsResponse
+	7,  // 22: chalk.server.v1.KubeEventsService.GetKubeEventFacets:output_type -> chalk.server.v1.GetKubeEventFacetsResponse
+	10, // 23: chalk.server.v1.KubeEventsService.GetKubeEventFacetValues:output_type -> chalk.server.v1.GetKubeEventFacetValuesResponse
+	12, // 24: chalk.server.v1.KubeEventsService.ListKubeEventsAggregated:output_type -> chalk.server.v1.ListKubeEventsAggregatedResponse
+	21, // [21:25] is the sub-list for method output_type
+	17, // [17:21] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_kube_events_proto_init() }
@@ -1026,13 +1101,14 @@ func file_chalk_server_v1_kube_events_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_kube_events_proto_rawDesc), len(file_chalk_server_v1_kube_events_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_server_v1_kube_events_proto_goTypes,
 		DependencyIndexes: file_chalk_server_v1_kube_events_proto_depIdxs,
+		EnumInfos:         file_chalk_server_v1_kube_events_proto_enumTypes,
 		MessageInfos:      file_chalk_server_v1_kube_events_proto_msgTypes,
 	}.Build()
 	File_chalk_server_v1_kube_events_proto = out.File

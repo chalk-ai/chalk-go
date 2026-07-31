@@ -346,10 +346,12 @@ func (x *GetDashboardResponse) GetControls() *DashboardControls {
 }
 
 type ListDashboardsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	ReadMask      *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=read_mask,json=readMask,proto3,oneof" json:"read_mask,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Limit    *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor   *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	ReadMask *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=read_mask,json=readMask,proto3,oneof" json:"read_mask,omitempty"`
+	// Case-insensitive substring match on dashboard name, applied before pagination.
+	Search        *string `protobuf:"bytes,4,opt,name=search,proto3,oneof" json:"search,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -403,6 +405,13 @@ func (x *ListDashboardsRequest) GetReadMask() *fieldmaskpb.FieldMask {
 		return x.ReadMask
 	}
 	return nil
+}
+
+func (x *ListDashboardsRequest) GetSearch() string {
+	if x != nil && x.Search != nil {
+		return *x.Search
+	}
+	return ""
 }
 
 type ListDashboardsResponse struct {
@@ -460,7 +469,8 @@ func (x *ListDashboardsResponse) GetNextCursor() string {
 type UpdateDashboardRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// `dashboard.id` identifies the target. `update_mask` governs the artifact only and its paths are
-	// rooted at `dashboard` — `name` and/or `widgets` (`widgets` is a full replacement). `controls`
+	// rooted at `dashboard` — `name`, `description`, and/or `widgets` (`widgets` is a full
+	// replacement; `description` is cleared by masking it while leaving it unset). `controls`
 	// is replace-if-present: set it to overwrite the saved controls, omit it to leave them unchanged
 	Dashboard     *v1.Dashboard          `protobuf:"bytes,1,opt,name=dashboard,proto3" json:"dashboard,omitempty"`
 	Controls      *DashboardControls     `protobuf:"bytes,2,opt,name=controls,proto3,oneof" json:"controls,omitempty"`
@@ -872,15 +882,17 @@ const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
 	"_read_mask\"\x93\x01\n" +
 	"\x14GetDashboardResponse\x12;\n" +
 	"\tdashboard\x18\x01 \x01(\v2\x1d.chalk.artifacts.v1.DashboardR\tdashboard\x12>\n" +
-	"\bcontrols\x18\x02 \x01(\v2\".chalk.server.v1.DashboardControlsR\bcontrols\"\xb0\x01\n" +
+	"\bcontrols\x18\x02 \x01(\v2\".chalk.server.v1.DashboardControlsR\bcontrols\"\xd8\x01\n" +
 	"\x15ListDashboardsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12<\n" +
-	"\tread_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskH\x02R\breadMask\x88\x01\x01B\b\n" +
+	"\tread_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskH\x02R\breadMask\x88\x01\x01\x12\x1b\n" +
+	"\x06search\x18\x04 \x01(\tH\x03R\x06search\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
 	"\a_cursorB\f\n" +
 	"\n" +
-	"_read_mask\"\x8d\x01\n" +
+	"_read_maskB\t\n" +
+	"\a_search\"\x8d\x01\n" +
 	"\x16ListDashboardsResponse\x12=\n" +
 	"\n" +
 	"dashboards\x18\x01 \x03(\v2\x1d.chalk.artifacts.v1.DashboardR\n" +

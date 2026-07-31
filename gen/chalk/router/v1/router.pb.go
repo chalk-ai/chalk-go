@@ -10,6 +10,8 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -23,12 +25,136 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ExposurePolicy int32
+
+const (
+	ExposurePolicy_EXPOSURE_POLICY_UNSPECIFIED ExposurePolicy = 0
+	// Callable by prefix; discovered models listed in /v1/models.
+	ExposurePolicy_EXPOSURE_POLICY_DYNAMIC ExposurePolicy = 1
+	// Callable by prefix; omitted from /v1/models.
+	ExposurePolicy_EXPOSURE_POLICY_UNLISTED ExposurePolicy = 2
+	// No prefix routing; reachable only via a model route.
+	ExposurePolicy_EXPOSURE_POLICY_EXPLICIT ExposurePolicy = 3
+)
+
+// Enum value maps for ExposurePolicy.
+var (
+	ExposurePolicy_name = map[int32]string{
+		0: "EXPOSURE_POLICY_UNSPECIFIED",
+		1: "EXPOSURE_POLICY_DYNAMIC",
+		2: "EXPOSURE_POLICY_UNLISTED",
+		3: "EXPOSURE_POLICY_EXPLICIT",
+	}
+	ExposurePolicy_value = map[string]int32{
+		"EXPOSURE_POLICY_UNSPECIFIED": 0,
+		"EXPOSURE_POLICY_DYNAMIC":     1,
+		"EXPOSURE_POLICY_UNLISTED":    2,
+		"EXPOSURE_POLICY_EXPLICIT":    3,
+	}
+)
+
+func (x ExposurePolicy) Enum() *ExposurePolicy {
+	p := new(ExposurePolicy)
+	*p = x
+	return p
+}
+
+func (x ExposurePolicy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ExposurePolicy) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_router_v1_router_proto_enumTypes[0].Descriptor()
+}
+
+func (ExposurePolicy) Type() protoreflect.EnumType {
+	return &file_chalk_router_v1_router_proto_enumTypes[0]
+}
+
+func (x ExposurePolicy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ExposurePolicy.Descriptor instead.
+func (ExposurePolicy) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{0}
+}
+
+type RouteDiagnostic int32
+
+const (
+	RouteDiagnostic_ROUTE_DIAGNOSTIC_UNSPECIFIED        RouteDiagnostic = 0
+	RouteDiagnostic_ROUTE_DIAGNOSTIC_READY              RouteDiagnostic = 1
+	RouteDiagnostic_ROUTE_DIAGNOSTIC_UNCONFIGURED       RouteDiagnostic = 2
+	RouteDiagnostic_ROUTE_DIAGNOSTIC_DISABLED           RouteDiagnostic = 3
+	RouteDiagnostic_ROUTE_DIAGNOSTIC_UNREADABLE         RouteDiagnostic = 4
+	RouteDiagnostic_ROUTE_DIAGNOSTIC_MISSING_CONNECTION RouteDiagnostic = 5
+)
+
+// Enum value maps for RouteDiagnostic.
+var (
+	RouteDiagnostic_name = map[int32]string{
+		0: "ROUTE_DIAGNOSTIC_UNSPECIFIED",
+		1: "ROUTE_DIAGNOSTIC_READY",
+		2: "ROUTE_DIAGNOSTIC_UNCONFIGURED",
+		3: "ROUTE_DIAGNOSTIC_DISABLED",
+		4: "ROUTE_DIAGNOSTIC_UNREADABLE",
+		5: "ROUTE_DIAGNOSTIC_MISSING_CONNECTION",
+	}
+	RouteDiagnostic_value = map[string]int32{
+		"ROUTE_DIAGNOSTIC_UNSPECIFIED":        0,
+		"ROUTE_DIAGNOSTIC_READY":              1,
+		"ROUTE_DIAGNOSTIC_UNCONFIGURED":       2,
+		"ROUTE_DIAGNOSTIC_DISABLED":           3,
+		"ROUTE_DIAGNOSTIC_UNREADABLE":         4,
+		"ROUTE_DIAGNOSTIC_MISSING_CONNECTION": 5,
+	}
+)
+
+func (x RouteDiagnostic) Enum() *RouteDiagnostic {
+	p := new(RouteDiagnostic)
+	*p = x
+	return p
+}
+
+func (x RouteDiagnostic) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RouteDiagnostic) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_router_v1_router_proto_enumTypes[1].Descriptor()
+}
+
+func (RouteDiagnostic) Type() protoreflect.EnumType {
+	return &file_chalk_router_v1_router_proto_enumTypes[1]
+}
+
+func (x RouteDiagnostic) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RouteDiagnostic.Descriptor instead.
+func (RouteDiagnostic) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{1}
+}
+
 type ApiKeyPermission struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// If set, restricts the key to a single provider (e.g. "openai", "anthropic").
+	// If set, restricts the key to a single provider KIND (e.g. "openai",
+	// "anthropic", "openai-compatible"). Matched against the kind only — use
+	// connection_id to scope to one specific connection.
 	Provider *string `protobuf:"bytes,1,opt,name=provider,proto3,oneof" json:"provider,omitempty"`
 	// If set, restricts the key to an explicit allow-list of model names.
-	Models        []string `protobuf:"bytes,2,rep,name=models,proto3" json:"models,omitempty"`
+	Models []string `protobuf:"bytes,2,rep,name=models,proto3" json:"models,omitempty"`
+	// If set, restricts the key to a single stored connection by its immutable id
+	// (survives renames; distinct namespace from provider).
+	ConnectionId *string `protobuf:"bytes,3,opt,name=connection_id,json=connectionId,proto3,oneof" json:"connection_id,omitempty"`
+	// Model-as-judge opt-in, tri-state: unset inherits the judge policy's
+	// default_opt_in; set true/false overrides it for this key.
+	Downgradable *bool `protobuf:"varint,4,opt,name=downgradable,proto3,oneof" json:"downgradable,omitempty"`
+	// Per-key downgrade floor (public model id): the judge never serves this key
+	// anything cheaper. Unset inherits the judge policy's default_floor.
+	ModelFloor    *string `protobuf:"bytes,5,opt,name=model_floor,json=modelFloor,proto3,oneof" json:"model_floor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -75,6 +201,27 @@ func (x *ApiKeyPermission) GetModels() []string {
 		return x.Models
 	}
 	return nil
+}
+
+func (x *ApiKeyPermission) GetConnectionId() string {
+	if x != nil && x.ConnectionId != nil {
+		return *x.ConnectionId
+	}
+	return ""
+}
+
+func (x *ApiKeyPermission) GetDowngradable() bool {
+	if x != nil && x.Downgradable != nil {
+		return *x.Downgradable
+	}
+	return false
+}
+
+func (x *ApiKeyPermission) GetModelFloor() string {
+	if x != nil && x.ModelFloor != nil {
+		return *x.ModelFloor
+	}
+	return ""
 }
 
 type UsageSnapshot struct {
@@ -146,8 +293,9 @@ func (x *UsageSnapshot) GetRequestCount() uint64 {
 }
 
 type ApiKey struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Key              string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// HMAC hash of the key (the identifier); never the raw secret.
+	KeyHash          string                 `protobuf:"bytes,1,opt,name=key_hash,json=keyHash,proto3" json:"key_hash,omitempty"`
 	Description      string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	Permission       *ApiKeyPermission      `protobuf:"bytes,4,opt,name=permission,proto3" json:"permission,omitempty"`
@@ -155,9 +303,11 @@ type ApiKey struct {
 	Usage            *UsageSnapshot         `protobuf:"bytes,6,opt,name=usage,proto3" json:"usage,omitempty"`
 	DailyTokenBudget *uint64                `protobuf:"varint,7,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
 	CostTags         map[string]string      `protobuf:"bytes,8,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	TeamId           *string                `protobuf:"bytes,9,opt,name=team_id,json=teamId,proto3,oneof" json:"team_id,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	UsagePoolId      *string                `protobuf:"bytes,9,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	// Non-secret display prefix, e.g. "ck-1a2b3c4d".
+	KeyPrefix     string `protobuf:"bytes,10,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ApiKey) Reset() {
@@ -190,9 +340,9 @@ func (*ApiKey) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ApiKey) GetKey() string {
+func (x *ApiKey) GetKeyHash() string {
 	if x != nil {
-		return x.Key
+		return x.KeyHash
 	}
 	return ""
 }
@@ -246,9 +396,16 @@ func (x *ApiKey) GetCostTags() map[string]string {
 	return nil
 }
 
-func (x *ApiKey) GetTeamId() string {
-	if x != nil && x.TeamId != nil {
-		return *x.TeamId
+func (x *ApiKey) GetUsagePoolId() string {
+	if x != nil && x.UsagePoolId != nil {
+		return *x.UsagePoolId
+	}
+	return ""
+}
+
+func (x *ApiKey) GetKeyPrefix() string {
+	if x != nil {
+		return x.KeyPrefix
 	}
 	return ""
 }
@@ -260,7 +417,7 @@ type CreateKeyRequest struct {
 	Labels           map[string]string      `protobuf:"bytes,3,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	DailyTokenBudget *uint64                `protobuf:"varint,4,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
 	CostTags         map[string]string      `protobuf:"bytes,5,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	TeamId           *string                `protobuf:"bytes,6,opt,name=team_id,json=teamId,proto3,oneof" json:"team_id,omitempty"`
+	UsagePoolId      *string                `protobuf:"bytes,6,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -330,16 +487,18 @@ func (x *CreateKeyRequest) GetCostTags() map[string]string {
 	return nil
 }
 
-func (x *CreateKeyRequest) GetTeamId() string {
-	if x != nil && x.TeamId != nil {
-		return *x.TeamId
+func (x *CreateKeyRequest) GetUsagePoolId() string {
+	if x != nil && x.UsagePoolId != nil {
+		return *x.UsagePoolId
 	}
 	return ""
 }
 
 type CreateKeyResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           *ApiKey                `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Key   *ApiKey                `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// The raw secret, returned exactly once at creation.
+	RawKey        string `protobuf:"bytes,2,opt,name=raw_key,json=rawKey,proto3" json:"raw_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -381,8 +540,22 @@ func (x *CreateKeyResponse) GetKey() *ApiKey {
 	return nil
 }
 
+func (x *CreateKeyResponse) GetRawKey() string {
+	if x != nil {
+		return x.RawKey
+	}
+	return ""
+}
+
 type ListKeysRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Max rows to return. Unset defaults to 40; must be > 0; clamped to 1000.
+	Limit *int32 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Opaque pagination cursor from a prior response's `next_cursor`. Unset or
+	// empty starts from the most recent key. Unlike the usage-pool and
+	// rate-limit cursors, this one is opaque and encodes (created_at, id), so
+	// rows sharing a timestamp are not skipped at a page boundary.
+	Cursor        *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -417,9 +590,26 @@ func (*ListKeysRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{5}
 }
 
+func (x *ListKeysRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListKeysRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
 type ListKeysResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Keys          []*ApiKey              `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Keys  []*ApiKey              `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
+	// Set iff more rows exist after this page; pass back as `cursor` to
+	// continue. Unset means this was the last page.
+	NextCursor    *string `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -461,25 +651,96 @@ func (x *ListKeysResponse) GetKeys() []*ApiKey {
 	return nil
 }
 
+func (x *ListKeysResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+type UpdateKeyOperation struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Description      *string                `protobuf:"bytes,1,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	DailyTokenBudget *uint64                `protobuf:"varint,2,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
+	UsagePoolId      *string                `protobuf:"bytes,3,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	// Replaces cost_tags wholesale when named in the mask; an empty map clears
+	// every tag. Maps cannot be `optional`, so the mask is the only way to tell
+	// "clear all tags" from "leave tags alone".
+	CostTags      map[string]string `protobuf:"bytes,4,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateKeyOperation) Reset() {
+	*x = UpdateKeyOperation{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateKeyOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateKeyOperation) ProtoMessage() {}
+
+func (x *UpdateKeyOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateKeyOperation.ProtoReflect.Descriptor instead.
+func (*UpdateKeyOperation) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateKeyOperation) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *UpdateKeyOperation) GetDailyTokenBudget() uint64 {
+	if x != nil && x.DailyTokenBudget != nil {
+		return *x.DailyTokenBudget
+	}
+	return 0
+}
+
+func (x *UpdateKeyOperation) GetUsagePoolId() string {
+	if x != nil && x.UsagePoolId != nil {
+		return *x.UsagePoolId
+	}
+	return ""
+}
+
+func (x *UpdateKeyOperation) GetCostTags() map[string]string {
+	if x != nil {
+		return x.CostTags
+	}
+	return nil
+}
+
 type UpdateKeyRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Key   string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Each field is wrapped in a one-of message so callers can distinguish
-	// "do not touch" from "clear this field".
-	Description           *string `protobuf:"bytes,2,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	ClearDailyTokenBudget *bool   `protobuf:"varint,3,opt,name=clear_daily_token_budget,json=clearDailyTokenBudget,proto3,oneof" json:"clear_daily_token_budget,omitempty"`
-	DailyTokenBudget      *uint64 `protobuf:"varint,4,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
-	ClearTeamId           *bool   `protobuf:"varint,5,opt,name=clear_team_id,json=clearTeamId,proto3,oneof" json:"clear_team_id,omitempty"`
-	TeamId                *string `protobuf:"bytes,6,opt,name=team_id,json=teamId,proto3,oneof" json:"team_id,omitempty"`
-	// Replaces cost_tags wholesale when present.
-	CostTags      *CostTagsValue `protobuf:"bytes,7,opt,name=cost_tags,json=costTags,proto3,oneof" json:"cost_tags,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Update        *UpdateKeyOperation    `protobuf:"bytes,2,opt,name=update,proto3" json:"update,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateKeyRequest) Reset() {
 	*x = UpdateKeyRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[7]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -491,7 +752,7 @@ func (x *UpdateKeyRequest) String() string {
 func (*UpdateKeyRequest) ProtoMessage() {}
 
 func (x *UpdateKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[7]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -504,7 +765,7 @@ func (x *UpdateKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateKeyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateKeyRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{7}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateKeyRequest) GetKey() string {
@@ -514,88 +775,16 @@ func (x *UpdateKeyRequest) GetKey() string {
 	return ""
 }
 
-func (x *UpdateKeyRequest) GetDescription() string {
-	if x != nil && x.Description != nil {
-		return *x.Description
-	}
-	return ""
-}
-
-func (x *UpdateKeyRequest) GetClearDailyTokenBudget() bool {
-	if x != nil && x.ClearDailyTokenBudget != nil {
-		return *x.ClearDailyTokenBudget
-	}
-	return false
-}
-
-func (x *UpdateKeyRequest) GetDailyTokenBudget() uint64 {
-	if x != nil && x.DailyTokenBudget != nil {
-		return *x.DailyTokenBudget
-	}
-	return 0
-}
-
-func (x *UpdateKeyRequest) GetClearTeamId() bool {
-	if x != nil && x.ClearTeamId != nil {
-		return *x.ClearTeamId
-	}
-	return false
-}
-
-func (x *UpdateKeyRequest) GetTeamId() string {
-	if x != nil && x.TeamId != nil {
-		return *x.TeamId
-	}
-	return ""
-}
-
-func (x *UpdateKeyRequest) GetCostTags() *CostTagsValue {
+func (x *UpdateKeyRequest) GetUpdate() *UpdateKeyOperation {
 	if x != nil {
-		return x.CostTags
+		return x.Update
 	}
 	return nil
 }
 
-type CostTagsValue struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Tags          map[string]string      `protobuf:"bytes,1,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CostTagsValue) Reset() {
-	*x = CostTagsValue{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CostTagsValue) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CostTagsValue) ProtoMessage() {}
-
-func (x *CostTagsValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[8]
+func (x *UpdateKeyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CostTagsValue.ProtoReflect.Descriptor instead.
-func (*CostTagsValue) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *CostTagsValue) GetTags() map[string]string {
-	if x != nil {
-		return x.Tags
+		return x.UpdateMask
 	}
 	return nil
 }
@@ -688,10 +877,11 @@ func (x *RevokeKeyRequest) GetKey() string {
 	return ""
 }
 
+// Revocation is idempotent: revoking an unknown or already-revoked key
+// succeeds, so there is no boolean to report "it was already gone".
 type RevokeKeyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	Revoked       bool                   `protobuf:"varint,2,opt,name=revoked,proto3" json:"revoked,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -731,13 +921,6 @@ func (x *RevokeKeyResponse) GetKey() string {
 		return x.Key
 	}
 	return ""
-}
-
-func (x *RevokeKeyResponse) GetRevoked() bool {
-	if x != nil {
-		return x.Revoked
-	}
-	return false
 }
 
 type GetKeyUsageRequest struct {
@@ -1109,7 +1292,7 @@ func (x *GetUsageHistogramResponse) GetRows() []*UsageHistogramRow {
 	return nil
 }
 
-type Team struct {
+type UsagePool struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -1118,20 +1301,20 @@ type Team struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Team) Reset() {
-	*x = Team{}
+func (x *UsagePool) Reset() {
+	*x = UsagePool{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Team) String() string {
+func (x *UsagePool) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Team) ProtoMessage() {}
+func (*UsagePool) ProtoMessage() {}
 
-func (x *Team) ProtoReflect() protoreflect.Message {
+func (x *UsagePool) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1143,53 +1326,53 @@ func (x *Team) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Team.ProtoReflect.Descriptor instead.
-func (*Team) Descriptor() ([]byte, []int) {
+// Deprecated: Use UsagePool.ProtoReflect.Descriptor instead.
+func (*UsagePool) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *Team) GetId() string {
+func (x *UsagePool) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Team) GetName() string {
+func (x *UsagePool) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *Team) GetCreatedAt() *timestamppb.Timestamp {
+func (x *UsagePool) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-type CreateTeamRequest struct {
+type CreateUsagePoolRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateTeamRequest) Reset() {
-	*x = CreateTeamRequest{}
+func (x *CreateUsagePoolRequest) Reset() {
+	*x = CreateUsagePoolRequest{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateTeamRequest) String() string {
+func (x *CreateUsagePoolRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateTeamRequest) ProtoMessage() {}
+func (*CreateUsagePoolRequest) ProtoMessage() {}
 
-func (x *CreateTeamRequest) ProtoReflect() protoreflect.Message {
+func (x *CreateUsagePoolRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1201,39 +1384,39 @@ func (x *CreateTeamRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateTeamRequest.ProtoReflect.Descriptor instead.
-func (*CreateTeamRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateUsagePoolRequest.ProtoReflect.Descriptor instead.
+func (*CreateUsagePoolRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *CreateTeamRequest) GetName() string {
+func (x *CreateUsagePoolRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-type CreateTeamResponse struct {
+type CreateUsagePoolResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Team          *Team                  `protobuf:"bytes,1,opt,name=team,proto3" json:"team,omitempty"`
+	Pool          *UsagePool             `protobuf:"bytes,1,opt,name=pool,proto3" json:"pool,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateTeamResponse) Reset() {
-	*x = CreateTeamResponse{}
+func (x *CreateUsagePoolResponse) Reset() {
+	*x = CreateUsagePoolResponse{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateTeamResponse) String() string {
+func (x *CreateUsagePoolResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateTeamResponse) ProtoMessage() {}
+func (*CreateUsagePoolResponse) ProtoMessage() {}
 
-func (x *CreateTeamResponse) ProtoReflect() protoreflect.Message {
+func (x *CreateUsagePoolResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1245,38 +1428,44 @@ func (x *CreateTeamResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateTeamResponse.ProtoReflect.Descriptor instead.
-func (*CreateTeamResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateUsagePoolResponse.ProtoReflect.Descriptor instead.
+func (*CreateUsagePoolResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *CreateTeamResponse) GetTeam() *Team {
+func (x *CreateUsagePoolResponse) GetPool() *UsagePool {
 	if x != nil {
-		return x.Team
+		return x.Pool
 	}
 	return nil
 }
 
-type ListTeamsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+type ListUsagePoolsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Max rows to return. Unset defaults to 40; must be > 0; clamped to 1000.
+	Limit *int32 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Opaque pagination cursor from a prior response's `next_cursor`. Unset or
+	// empty defaults to now() (i.e. start from the most recent pool). Otherwise
+	// must be an RFC 3339 timestamp.
+	Cursor        *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListTeamsRequest) Reset() {
-	*x = ListTeamsRequest{}
+func (x *ListUsagePoolsRequest) Reset() {
+	*x = ListUsagePoolsRequest{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListTeamsRequest) String() string {
+func (x *ListUsagePoolsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListTeamsRequest) ProtoMessage() {}
+func (*ListUsagePoolsRequest) ProtoMessage() {}
 
-func (x *ListTeamsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListUsagePoolsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1288,32 +1477,49 @@ func (x *ListTeamsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListTeamsRequest.ProtoReflect.Descriptor instead.
-func (*ListTeamsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUsagePoolsRequest.ProtoReflect.Descriptor instead.
+func (*ListUsagePoolsRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{22}
 }
 
-type ListTeamsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Teams         []*Team                `protobuf:"bytes,1,rep,name=teams,proto3" json:"teams,omitempty"`
+func (x *ListUsagePoolsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListUsagePoolsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+type ListUsagePoolsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Pools []*UsagePool           `protobuf:"bytes,1,rep,name=pools,proto3" json:"pools,omitempty"`
+	// Set iff more rows exist after this page; pass back as `cursor` to
+	// continue. Unset means this was the last page.
+	NextCursor    *string `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListTeamsResponse) Reset() {
-	*x = ListTeamsResponse{}
+func (x *ListUsagePoolsResponse) Reset() {
+	*x = ListUsagePoolsResponse{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListTeamsResponse) String() string {
+func (x *ListUsagePoolsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListTeamsResponse) ProtoMessage() {}
+func (*ListUsagePoolsResponse) ProtoMessage() {}
 
-func (x *ListTeamsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListUsagePoolsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1325,39 +1531,46 @@ func (x *ListTeamsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListTeamsResponse.ProtoReflect.Descriptor instead.
-func (*ListTeamsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListUsagePoolsResponse.ProtoReflect.Descriptor instead.
+func (*ListUsagePoolsResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *ListTeamsResponse) GetTeams() []*Team {
+func (x *ListUsagePoolsResponse) GetPools() []*UsagePool {
 	if x != nil {
-		return x.Teams
+		return x.Pools
 	}
 	return nil
 }
 
-type DeleteTeamRequest struct {
+func (x *ListUsagePoolsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+type DeleteUsagePoolRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteTeamRequest) Reset() {
-	*x = DeleteTeamRequest{}
+func (x *DeleteUsagePoolRequest) Reset() {
+	*x = DeleteUsagePoolRequest{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteTeamRequest) String() string {
+func (x *DeleteUsagePoolRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteTeamRequest) ProtoMessage() {}
+func (*DeleteUsagePoolRequest) ProtoMessage() {}
 
-func (x *DeleteTeamRequest) ProtoReflect() protoreflect.Message {
+func (x *DeleteUsagePoolRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1369,40 +1582,40 @@ func (x *DeleteTeamRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteTeamRequest.ProtoReflect.Descriptor instead.
-func (*DeleteTeamRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteUsagePoolRequest.ProtoReflect.Descriptor instead.
+func (*DeleteUsagePoolRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{24}
 }
 
-func (x *DeleteTeamRequest) GetId() string {
+func (x *DeleteUsagePoolRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type DeleteTeamResponse struct {
+// Deleting an unknown id succeeds (idempotent), so no boolean is reported.
+type DeleteUsagePoolResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Deleted       bool                   `protobuf:"varint,2,opt,name=deleted,proto3" json:"deleted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteTeamResponse) Reset() {
-	*x = DeleteTeamResponse{}
+func (x *DeleteUsagePoolResponse) Reset() {
+	*x = DeleteUsagePoolResponse{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteTeamResponse) String() string {
+func (x *DeleteUsagePoolResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteTeamResponse) ProtoMessage() {}
+func (*DeleteUsagePoolResponse) ProtoMessage() {}
 
-func (x *DeleteTeamResponse) ProtoReflect() protoreflect.Message {
+func (x *DeleteUsagePoolResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1414,23 +1627,16 @@ func (x *DeleteTeamResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteTeamResponse.ProtoReflect.Descriptor instead.
-func (*DeleteTeamResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteUsagePoolResponse.ProtoReflect.Descriptor instead.
+func (*DeleteUsagePoolResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{25}
 }
 
-func (x *DeleteTeamResponse) GetId() string {
+func (x *DeleteUsagePoolResponse) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
-}
-
-func (x *DeleteTeamResponse) GetDeleted() bool {
-	if x != nil {
-		return x.Deleted
-	}
-	return false
 }
 
 type RateLimitPolicy struct {
@@ -1687,7 +1893,13 @@ func (x *CreateRateLimitResponse) GetPolicy() *RateLimitPolicy {
 }
 
 type ListRateLimitsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Max rows to return. Unset defaults to 40; must be > 0; clamped to 1000.
+	Limit *int32 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Opaque pagination cursor from a prior response's `next_cursor`. Unset or
+	// empty defaults to now() (i.e. start from the most recent policy).
+	// Otherwise must be an RFC 3339 timestamp.
+	Cursor        *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1722,9 +1934,26 @@ func (*ListRateLimitsRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{29}
 }
 
+func (x *ListRateLimitsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListRateLimitsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
 type ListRateLimitsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Policies      []*RateLimitPolicy     `protobuf:"bytes,1,rep,name=policies,proto3" json:"policies,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Policies []*RateLimitPolicy     `protobuf:"bytes,1,rep,name=policies,proto3" json:"policies,omitempty"`
+	// Set iff more rows exist after this page; pass back as `cursor` to
+	// continue. Unset means this was the last page.
+	NextCursor    *string `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1766,17 +1995,69 @@ func (x *ListRateLimitsResponse) GetPolicies() []*RateLimitPolicy {
 	return nil
 }
 
-type UpdateRateLimitRequest struct {
+func (x *ListRateLimitsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+type UpdateRateLimitOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Enabled       *bool                  `protobuf:"varint,2,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,1,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateRateLimitOperation) Reset() {
+	*x = UpdateRateLimitOperation{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRateLimitOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRateLimitOperation) ProtoMessage() {}
+
+func (x *UpdateRateLimitOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRateLimitOperation.ProtoReflect.Descriptor instead.
+func (*UpdateRateLimitOperation) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *UpdateRateLimitOperation) GetEnabled() bool {
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
+	}
+	return false
+}
+
+type UpdateRateLimitRequest struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Id            string                    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Update        *UpdateRateLimitOperation `protobuf:"bytes,2,opt,name=update,proto3" json:"update,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask    `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateRateLimitRequest) Reset() {
 	*x = UpdateRateLimitRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[31]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1788,7 +2069,7 @@ func (x *UpdateRateLimitRequest) String() string {
 func (*UpdateRateLimitRequest) ProtoMessage() {}
 
 func (x *UpdateRateLimitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[31]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1801,7 +2082,7 @@ func (x *UpdateRateLimitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRateLimitRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRateLimitRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{31}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *UpdateRateLimitRequest) GetId() string {
@@ -1811,11 +2092,18 @@ func (x *UpdateRateLimitRequest) GetId() string {
 	return ""
 }
 
-func (x *UpdateRateLimitRequest) GetEnabled() bool {
-	if x != nil && x.Enabled != nil {
-		return *x.Enabled
+func (x *UpdateRateLimitRequest) GetUpdate() *UpdateRateLimitOperation {
+	if x != nil {
+		return x.Update
 	}
-	return false
+	return nil
+}
+
+func (x *UpdateRateLimitRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
 }
 
 type UpdateRateLimitResponse struct {
@@ -1827,7 +2115,7 @@ type UpdateRateLimitResponse struct {
 
 func (x *UpdateRateLimitResponse) Reset() {
 	*x = UpdateRateLimitResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[32]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1839,7 +2127,7 @@ func (x *UpdateRateLimitResponse) String() string {
 func (*UpdateRateLimitResponse) ProtoMessage() {}
 
 func (x *UpdateRateLimitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[32]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1852,7 +2140,7 @@ func (x *UpdateRateLimitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRateLimitResponse.ProtoReflect.Descriptor instead.
 func (*UpdateRateLimitResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{32}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *UpdateRateLimitResponse) GetPolicy() *RateLimitPolicy {
@@ -1871,7 +2159,7 @@ type DeleteRateLimitRequest struct {
 
 func (x *DeleteRateLimitRequest) Reset() {
 	*x = DeleteRateLimitRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[33]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1883,7 +2171,7 @@ func (x *DeleteRateLimitRequest) String() string {
 func (*DeleteRateLimitRequest) ProtoMessage() {}
 
 func (x *DeleteRateLimitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[33]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1896,7 +2184,7 @@ func (x *DeleteRateLimitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRateLimitRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRateLimitRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{33}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *DeleteRateLimitRequest) GetId() string {
@@ -1906,17 +2194,17 @@ func (x *DeleteRateLimitRequest) GetId() string {
 	return ""
 }
 
+// Deleting an unknown id succeeds (idempotent), so no boolean is reported.
 type DeleteRateLimitResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Deleted       bool                   `protobuf:"varint,2,opt,name=deleted,proto3" json:"deleted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteRateLimitResponse) Reset() {
 	*x = DeleteRateLimitResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[34]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1928,7 +2216,7 @@ func (x *DeleteRateLimitResponse) String() string {
 func (*DeleteRateLimitResponse) ProtoMessage() {}
 
 func (x *DeleteRateLimitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[34]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1941,7 +2229,7 @@ func (x *DeleteRateLimitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRateLimitResponse.ProtoReflect.Descriptor instead.
 func (*DeleteRateLimitResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{34}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *DeleteRateLimitResponse) GetId() string {
@@ -1949,13 +2237,6 @@ func (x *DeleteRateLimitResponse) GetId() string {
 		return x.Id
 	}
 	return ""
-}
-
-func (x *DeleteRateLimitResponse) GetDeleted() bool {
-	if x != nil {
-		return x.Deleted
-	}
-	return false
 }
 
 type FallbackList struct {
@@ -1967,7 +2248,7 @@ type FallbackList struct {
 
 func (x *FallbackList) Reset() {
 	*x = FallbackList{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[35]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1979,7 +2260,7 @@ func (x *FallbackList) String() string {
 func (*FallbackList) ProtoMessage() {}
 
 func (x *FallbackList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[35]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1992,7 +2273,7 @@ func (x *FallbackList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FallbackList.ProtoReflect.Descriptor instead.
 func (*FallbackList) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{35}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *FallbackList) GetFallbacks() []string {
@@ -2012,7 +2293,7 @@ type FallbackPolicy struct {
 
 func (x *FallbackPolicy) Reset() {
 	*x = FallbackPolicy{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[36]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2024,7 +2305,7 @@ func (x *FallbackPolicy) String() string {
 func (*FallbackPolicy) ProtoMessage() {}
 
 func (x *FallbackPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[36]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2037,7 +2318,7 @@ func (x *FallbackPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FallbackPolicy.ProtoReflect.Descriptor instead.
 func (*FallbackPolicy) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{36}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *FallbackPolicy) GetFallbacks() map[string]*FallbackList {
@@ -2055,7 +2336,7 @@ type GetFallbackPolicyRequest struct {
 
 func (x *GetFallbackPolicyRequest) Reset() {
 	*x = GetFallbackPolicyRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[37]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2067,7 +2348,7 @@ func (x *GetFallbackPolicyRequest) String() string {
 func (*GetFallbackPolicyRequest) ProtoMessage() {}
 
 func (x *GetFallbackPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[37]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2080,7 +2361,7 @@ func (x *GetFallbackPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFallbackPolicyRequest.ProtoReflect.Descriptor instead.
 func (*GetFallbackPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{37}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{38}
 }
 
 type GetFallbackPolicyResponse struct {
@@ -2092,7 +2373,7 @@ type GetFallbackPolicyResponse struct {
 
 func (x *GetFallbackPolicyResponse) Reset() {
 	*x = GetFallbackPolicyResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[38]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2104,7 +2385,7 @@ func (x *GetFallbackPolicyResponse) String() string {
 func (*GetFallbackPolicyResponse) ProtoMessage() {}
 
 func (x *GetFallbackPolicyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[38]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2117,7 +2398,7 @@ func (x *GetFallbackPolicyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFallbackPolicyResponse.ProtoReflect.Descriptor instead.
 func (*GetFallbackPolicyResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{38}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *GetFallbackPolicyResponse) GetPolicy() *FallbackPolicy {
@@ -2127,16 +2408,61 @@ func (x *GetFallbackPolicyResponse) GetPolicy() *FallbackPolicy {
 	return nil
 }
 
+type UpdateFallbackPolicyOperation struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Fallbacks     map[string]*FallbackList `protobuf:"bytes,1,rep,name=fallbacks,proto3" json:"fallbacks,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateFallbackPolicyOperation) Reset() {
+	*x = UpdateFallbackPolicyOperation{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateFallbackPolicyOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateFallbackPolicyOperation) ProtoMessage() {}
+
+func (x *UpdateFallbackPolicyOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateFallbackPolicyOperation.ProtoReflect.Descriptor instead.
+func (*UpdateFallbackPolicyOperation) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *UpdateFallbackPolicyOperation) GetFallbacks() map[string]*FallbackList {
+	if x != nil {
+		return x.Fallbacks
+	}
+	return nil
+}
+
 type UpdateFallbackPolicyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Policy        *FallbackPolicy        `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"`
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	Update        *UpdateFallbackPolicyOperation `protobuf:"bytes,1,opt,name=update,proto3" json:"update,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask         `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateFallbackPolicyRequest) Reset() {
 	*x = UpdateFallbackPolicyRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[39]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2148,7 +2474,7 @@ func (x *UpdateFallbackPolicyRequest) String() string {
 func (*UpdateFallbackPolicyRequest) ProtoMessage() {}
 
 func (x *UpdateFallbackPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[39]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2161,12 +2487,19 @@ func (x *UpdateFallbackPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateFallbackPolicyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateFallbackPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{39}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{41}
 }
 
-func (x *UpdateFallbackPolicyRequest) GetPolicy() *FallbackPolicy {
+func (x *UpdateFallbackPolicyRequest) GetUpdate() *UpdateFallbackPolicyOperation {
 	if x != nil {
-		return x.Policy
+		return x.Update
+	}
+	return nil
+}
+
+func (x *UpdateFallbackPolicyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
 	}
 	return nil
 }
@@ -2180,7 +2513,7 @@ type UpdateFallbackPolicyResponse struct {
 
 func (x *UpdateFallbackPolicyResponse) Reset() {
 	*x = UpdateFallbackPolicyResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[40]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2192,7 +2525,7 @@ func (x *UpdateFallbackPolicyResponse) String() string {
 func (*UpdateFallbackPolicyResponse) ProtoMessage() {}
 
 func (x *UpdateFallbackPolicyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[40]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2205,7 +2538,7 @@ func (x *UpdateFallbackPolicyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateFallbackPolicyResponse.ProtoReflect.Descriptor instead.
 func (*UpdateFallbackPolicyResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{40}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *UpdateFallbackPolicyResponse) GetPolicy() *FallbackPolicy {
@@ -2215,130 +2548,32 @@ func (x *UpdateFallbackPolicyResponse) GetPolicy() *FallbackPolicy {
 	return nil
 }
 
-type GetSettingsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+// Downgrade ladder for one requested public model.
+type JudgeLadder struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Downgrade targets in ceiling->floor order (cheaper as the list
+	// progresses), as public model ids. Excludes the requested model itself.
+	Targets []string `protobuf:"bytes,1,rep,name=targets,proto3" json:"targets,omitempty"`
+	// Sorted band cut points in (0, 1) separating rungs; empty = equal-width.
+	Boundaries    []float32 `protobuf:"fixed32,2,rep,packed,name=boundaries,proto3" json:"boundaries,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetSettingsRequest) Reset() {
-	*x = GetSettingsRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[41]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetSettingsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetSettingsRequest) ProtoMessage() {}
-
-func (x *GetSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[41]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetSettingsRequest.ProtoReflect.Descriptor instead.
-func (*GetSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{41}
-}
-
-type GetSettingsResponse struct {
-	state                    protoimpl.MessageState `protogen:"open.v1"`
-	AllowUnauthenticated     bool                   `protobuf:"varint,1,opt,name=allow_unauthenticated,json=allowUnauthenticated,proto3" json:"allow_unauthenticated,omitempty"`
-	FallbackPolicyConfigured bool                   `protobuf:"varint,2,opt,name=fallback_policy_configured,json=fallbackPolicyConfigured,proto3" json:"fallback_policy_configured,omitempty"`
-	DefaultApiKeySet         bool                   `protobuf:"varint,3,opt,name=default_api_key_set,json=defaultApiKeySet,proto3" json:"default_api_key_set,omitempty"`
-	OtelEndpoint             *string                `protobuf:"bytes,4,opt,name=otel_endpoint,json=otelEndpoint,proto3,oneof" json:"otel_endpoint,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
-}
-
-func (x *GetSettingsResponse) Reset() {
-	*x = GetSettingsResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[42]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetSettingsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetSettingsResponse) ProtoMessage() {}
-
-func (x *GetSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[42]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetSettingsResponse.ProtoReflect.Descriptor instead.
-func (*GetSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{42}
-}
-
-func (x *GetSettingsResponse) GetAllowUnauthenticated() bool {
-	if x != nil {
-		return x.AllowUnauthenticated
-	}
-	return false
-}
-
-func (x *GetSettingsResponse) GetFallbackPolicyConfigured() bool {
-	if x != nil {
-		return x.FallbackPolicyConfigured
-	}
-	return false
-}
-
-func (x *GetSettingsResponse) GetDefaultApiKeySet() bool {
-	if x != nil {
-		return x.DefaultApiKeySet
-	}
-	return false
-}
-
-func (x *GetSettingsResponse) GetOtelEndpoint() string {
-	if x != nil && x.OtelEndpoint != nil {
-		return *x.OtelEndpoint
-	}
-	return ""
-}
-
-type ListProvidersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListProvidersRequest) Reset() {
-	*x = ListProvidersRequest{}
+func (x *JudgeLadder) Reset() {
+	*x = JudgeLadder{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListProvidersRequest) String() string {
+func (x *JudgeLadder) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListProvidersRequest) ProtoMessage() {}
+func (*JudgeLadder) ProtoMessage() {}
 
-func (x *ListProvidersRequest) ProtoReflect() protoreflect.Message {
+func (x *JudgeLadder) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2350,34 +2585,61 @@ func (x *ListProvidersRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListProvidersRequest.ProtoReflect.Descriptor instead.
-func (*ListProvidersRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use JudgeLadder.ProtoReflect.Descriptor instead.
+func (*JudgeLadder) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{43}
 }
 
-type ProviderInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Configured    bool                   `protobuf:"varint,3,opt,name=configured,proto3" json:"configured,omitempty"`
+func (x *JudgeLadder) GetTargets() []string {
+	if x != nil {
+		return x.Targets
+	}
+	return nil
+}
+
+func (x *JudgeLadder) GetBoundaries() []float32 {
+	if x != nil {
+		return x.Boundaries
+	}
+	return nil
+}
+
+type JudgePolicy struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Master switch; when false the judge never runs.
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// Shadow mode: score + log but never rewrite the served model.
+	Shadow bool `protobuf:"varint,2,opt,name=shadow,proto3" json:"shadow,omitempty"`
+	// Fraction of traffic to shadow-judge, 0.0..=1.0.
+	ShadowSampleRate float32 `protobuf:"fixed32,3,opt,name=shadow_sample_rate,json=shadowSampleRate,proto3" json:"shadow_sample_rate,omitempty"`
+	// The judge model (public model id, e.g. "chalk/haiku").
+	JudgeModel string `protobuf:"bytes,4,opt,name=judge_model,json=judgeModel,proto3" json:"judge_model,omitempty"`
+	// Per-requested-model ladders, keyed by canonicalized public model id.
+	Ladders map[string]*JudgeLadder `protobuf:"bytes,5,rep,name=ladders,proto3" json:"ladders,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Global default opt-in inherited by keys whose permission leaves
+	// `downgradable` unset; any key can still override either way.
+	DefaultOptIn bool `protobuf:"varint,6,opt,name=default_opt_in,json=defaultOptIn,proto3" json:"default_opt_in,omitempty"`
+	// Global default floor (public model id) inherited by keys whose permission
+	// leaves `model_floor` unset.
+	DefaultFloor  *string `protobuf:"bytes,7,opt,name=default_floor,json=defaultFloor,proto3,oneof" json:"default_floor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ProviderInfo) Reset() {
-	*x = ProviderInfo{}
+func (x *JudgePolicy) Reset() {
+	*x = JudgePolicy{}
 	mi := &file_chalk_router_v1_router_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ProviderInfo) String() string {
+func (x *JudgePolicy) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ProviderInfo) ProtoMessage() {}
+func (*JudgePolicy) ProtoMessage() {}
 
-func (x *ProviderInfo) ProtoReflect() protoreflect.Message {
+func (x *JudgePolicy) ProtoReflect() protoreflect.Message {
 	mi := &file_chalk_router_v1_router_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2389,103 +2651,431 @@ func (x *ProviderInfo) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ProviderInfo.ProtoReflect.Descriptor instead.
-func (*ProviderInfo) Descriptor() ([]byte, []int) {
+// Deprecated: Use JudgePolicy.ProtoReflect.Descriptor instead.
+func (*JudgePolicy) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{44}
 }
 
-func (x *ProviderInfo) GetId() string {
+func (x *JudgePolicy) GetEnabled() bool {
 	if x != nil {
-		return x.Id
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *JudgePolicy) GetShadow() bool {
+	if x != nil {
+		return x.Shadow
+	}
+	return false
+}
+
+func (x *JudgePolicy) GetShadowSampleRate() float32 {
+	if x != nil {
+		return x.ShadowSampleRate
+	}
+	return 0
+}
+
+func (x *JudgePolicy) GetJudgeModel() string {
+	if x != nil {
+		return x.JudgeModel
 	}
 	return ""
 }
 
-func (x *ProviderInfo) GetName() string {
+func (x *JudgePolicy) GetLadders() map[string]*JudgeLadder {
 	if x != nil {
-		return x.Name
+		return x.Ladders
+	}
+	return nil
+}
+
+func (x *JudgePolicy) GetDefaultOptIn() bool {
+	if x != nil {
+		return x.DefaultOptIn
+	}
+	return false
+}
+
+func (x *JudgePolicy) GetDefaultFloor() string {
+	if x != nil && x.DefaultFloor != nil {
+		return *x.DefaultFloor
 	}
 	return ""
 }
 
-func (x *ProviderInfo) GetConfigured() bool {
+type GetJudgePolicyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetJudgePolicyRequest) Reset() {
+	*x = GetJudgePolicyRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetJudgePolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetJudgePolicyRequest) ProtoMessage() {}
+
+func (x *GetJudgePolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetJudgePolicyRequest.ProtoReflect.Descriptor instead.
+func (*GetJudgePolicyRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{45}
+}
+
+type GetJudgePolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policy        *JudgePolicy           `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetJudgePolicyResponse) Reset() {
+	*x = GetJudgePolicyResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetJudgePolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetJudgePolicyResponse) ProtoMessage() {}
+
+func (x *GetJudgePolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetJudgePolicyResponse.ProtoReflect.Descriptor instead.
+func (*GetJudgePolicyResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *GetJudgePolicyResponse) GetPolicy() *JudgePolicy {
+	if x != nil {
+		return x.Policy
+	}
+	return nil
+}
+
+type UpdateJudgePolicyOperation struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Enabled          *bool                  `protobuf:"varint,1,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	Shadow           *bool                  `protobuf:"varint,2,opt,name=shadow,proto3,oneof" json:"shadow,omitempty"`
+	ShadowSampleRate *float32               `protobuf:"fixed32,3,opt,name=shadow_sample_rate,json=shadowSampleRate,proto3,oneof" json:"shadow_sample_rate,omitempty"`
+	JudgeModel       *string                `protobuf:"bytes,4,opt,name=judge_model,json=judgeModel,proto3,oneof" json:"judge_model,omitempty"`
+	// Replaces every ladder when named in the mask; an empty map clears them all.
+	Ladders       map[string]*JudgeLadder `protobuf:"bytes,5,rep,name=ladders,proto3" json:"ladders,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	DefaultOptIn  *bool                   `protobuf:"varint,6,opt,name=default_opt_in,json=defaultOptIn,proto3,oneof" json:"default_opt_in,omitempty"`
+	DefaultFloor  *string                 `protobuf:"bytes,7,opt,name=default_floor,json=defaultFloor,proto3,oneof" json:"default_floor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateJudgePolicyOperation) Reset() {
+	*x = UpdateJudgePolicyOperation{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateJudgePolicyOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateJudgePolicyOperation) ProtoMessage() {}
+
+func (x *UpdateJudgePolicyOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateJudgePolicyOperation.ProtoReflect.Descriptor instead.
+func (*UpdateJudgePolicyOperation) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *UpdateJudgePolicyOperation) GetEnabled() bool {
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
+	}
+	return false
+}
+
+func (x *UpdateJudgePolicyOperation) GetShadow() bool {
+	if x != nil && x.Shadow != nil {
+		return *x.Shadow
+	}
+	return false
+}
+
+func (x *UpdateJudgePolicyOperation) GetShadowSampleRate() float32 {
+	if x != nil && x.ShadowSampleRate != nil {
+		return *x.ShadowSampleRate
+	}
+	return 0
+}
+
+func (x *UpdateJudgePolicyOperation) GetJudgeModel() string {
+	if x != nil && x.JudgeModel != nil {
+		return *x.JudgeModel
+	}
+	return ""
+}
+
+func (x *UpdateJudgePolicyOperation) GetLadders() map[string]*JudgeLadder {
+	if x != nil {
+		return x.Ladders
+	}
+	return nil
+}
+
+func (x *UpdateJudgePolicyOperation) GetDefaultOptIn() bool {
+	if x != nil && x.DefaultOptIn != nil {
+		return *x.DefaultOptIn
+	}
+	return false
+}
+
+func (x *UpdateJudgePolicyOperation) GetDefaultFloor() string {
+	if x != nil && x.DefaultFloor != nil {
+		return *x.DefaultFloor
+	}
+	return ""
+}
+
+type UpdateJudgePolicyRequest struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Update        *UpdateJudgePolicyOperation `protobuf:"bytes,1,opt,name=update,proto3" json:"update,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask      `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateJudgePolicyRequest) Reset() {
+	*x = UpdateJudgePolicyRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateJudgePolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateJudgePolicyRequest) ProtoMessage() {}
+
+func (x *UpdateJudgePolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateJudgePolicyRequest.ProtoReflect.Descriptor instead.
+func (*UpdateJudgePolicyRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *UpdateJudgePolicyRequest) GetUpdate() *UpdateJudgePolicyOperation {
+	if x != nil {
+		return x.Update
+	}
+	return nil
+}
+
+func (x *UpdateJudgePolicyRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+type UpdateJudgePolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policy        *JudgePolicy           `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateJudgePolicyResponse) Reset() {
+	*x = UpdateJudgePolicyResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateJudgePolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateJudgePolicyResponse) ProtoMessage() {}
+
+func (x *UpdateJudgePolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateJudgePolicyResponse.ProtoReflect.Descriptor instead.
+func (*UpdateJudgePolicyResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *UpdateJudgePolicyResponse) GetPolicy() *JudgePolicy {
+	if x != nil {
+		return x.Policy
+	}
+	return nil
+}
+
+// Derived, non-persisted state of a connection.
+type ConnectionState struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Credential + endpoint present.
+	Configured bool `protobuf:"varint,1,opt,name=configured,proto3" json:"configured,omitempty"`
+	// Credential present but undecryptable (KEK mismatch).
+	Unreadable bool `protobuf:"varint,2,opt,name=unreadable,proto3" json:"unreadable,omitempty"`
+	// Last probe result; unset => unknown (no probe yet).
+	Healthy       *bool `protobuf:"varint,3,opt,name=healthy,proto3,oneof" json:"healthy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectionState) Reset() {
+	*x = ConnectionState{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectionState) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectionState) ProtoMessage() {}
+
+func (x *ConnectionState) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectionState.ProtoReflect.Descriptor instead.
+func (*ConnectionState) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *ConnectionState) GetConfigured() bool {
 	if x != nil {
 		return x.Configured
 	}
 	return false
 }
 
-type ListProvidersResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Providers     []*ProviderInfo        `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListProvidersResponse) Reset() {
-	*x = ListProvidersResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[45]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListProvidersResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListProvidersResponse) ProtoMessage() {}
-
-func (x *ListProvidersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[45]
+func (x *ConnectionState) GetUnreadable() bool {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+		return x.Unreadable
 	}
-	return mi.MessageOf(x)
+	return false
 }
 
-// Deprecated: Use ListProvidersResponse.ProtoReflect.Descriptor instead.
-func (*ListProvidersResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{45}
-}
-
-func (x *ListProvidersResponse) GetProviders() []*ProviderInfo {
-	if x != nil {
-		return x.Providers
+func (x *ConnectionState) GetHealthy() bool {
+	if x != nil && x.Healthy != nil {
+		return *x.Healthy
 	}
-	return nil
+	return false
 }
 
-type SetProviderCredentialRequest struct {
+type ProviderConnection struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Provider id: "openai", "anthropic", or "gemini".
-	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
-	// The provider API key.
-	ApiKey string `protobuf:"bytes,2,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
-	// Optional base URL override (custom OpenAI-compatible / Gemini endpoint).
-	BaseUrl       *string `protobuf:"bytes,3,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	// uuid
+	Id   string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Built-in kind, or "openai-compatible".
+	ProviderKind string `protobuf:"bytes,3,opt,name=provider_kind,json=providerKind,proto3" json:"provider_kind,omitempty"`
+	// Unset => built-in registry default.
+	BaseUrl *string `protobuf:"bytes,4,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	// e.g. "openai/"; required unless EXPLICIT.
+	Prefix   *string        `protobuf:"bytes,5,opt,name=prefix,proto3,oneof" json:"prefix,omitempty"`
+	Exposure ExposurePolicy `protobuf:"varint,6,opt,name=exposure,proto3,enum=chalk.router.v1.ExposurePolicy" json:"exposure,omitempty"`
+	// Emergency kill switch, independent of exposure.
+	RoutingEnabled bool `protobuf:"varint,7,opt,name=routing_enabled,json=routingEnabled,proto3" json:"routing_enabled,omitempty"`
+	// Subsumes the old has_api_key bool, which upstream removed rather than
+	// reserved (the surface is not live yet), so 8-10 shift down with it.
+	State         *ConnectionState       `protobuf:"bytes,8,opt,name=state,proto3" json:"state,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SetProviderCredentialRequest) Reset() {
-	*x = SetProviderCredentialRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[46]
+func (x *ProviderConnection) Reset() {
+	*x = ProviderConnection{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SetProviderCredentialRequest) String() string {
+func (x *ProviderConnection) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SetProviderCredentialRequest) ProtoMessage() {}
+func (*ProviderConnection) ProtoMessage() {}
 
-func (x *SetProviderCredentialRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[46]
+func (x *ProviderConnection) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2496,55 +3086,109 @@ func (x *SetProviderCredentialRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SetProviderCredentialRequest.ProtoReflect.Descriptor instead.
-func (*SetProviderCredentialRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{46}
+// Deprecated: Use ProviderConnection.ProtoReflect.Descriptor instead.
+func (*ProviderConnection) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{51}
 }
 
-func (x *SetProviderCredentialRequest) GetProvider() string {
+func (x *ProviderConnection) GetId() string {
 	if x != nil {
-		return x.Provider
+		return x.Id
 	}
 	return ""
 }
 
-func (x *SetProviderCredentialRequest) GetApiKey() string {
+func (x *ProviderConnection) GetName() string {
 	if x != nil {
-		return x.ApiKey
+		return x.Name
 	}
 	return ""
 }
 
-func (x *SetProviderCredentialRequest) GetBaseUrl() string {
+func (x *ProviderConnection) GetProviderKind() string {
+	if x != nil {
+		return x.ProviderKind
+	}
+	return ""
+}
+
+func (x *ProviderConnection) GetBaseUrl() string {
 	if x != nil && x.BaseUrl != nil {
 		return *x.BaseUrl
 	}
 	return ""
 }
 
-type SetProviderCredentialResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The provider's status after the update.
-	Provider      *ProviderInfo `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
+func (x *ProviderConnection) GetPrefix() string {
+	if x != nil && x.Prefix != nil {
+		return *x.Prefix
+	}
+	return ""
+}
+
+func (x *ProviderConnection) GetExposure() ExposurePolicy {
+	if x != nil {
+		return x.Exposure
+	}
+	return ExposurePolicy_EXPOSURE_POLICY_UNSPECIFIED
+}
+
+func (x *ProviderConnection) GetRoutingEnabled() bool {
+	if x != nil {
+		return x.RoutingEnabled
+	}
+	return false
+}
+
+func (x *ProviderConnection) GetState() *ConnectionState {
+	if x != nil {
+		return x.State
+	}
+	return nil
+}
+
+func (x *ProviderConnection) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *ProviderConnection) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+// Unsaved connection config for TestProviderConnection; never persisted.
+type ProviderConnectionDraft struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	ProviderKind string                 `protobuf:"bytes,1,opt,name=provider_kind,json=providerKind,proto3" json:"provider_kind,omitempty"`
+	BaseUrl      *string                `protobuf:"bytes,2,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	Prefix       *string                `protobuf:"bytes,3,opt,name=prefix,proto3,oneof" json:"prefix,omitempty"`
+	Exposure     ExposurePolicy         `protobuf:"varint,4,opt,name=exposure,proto3,enum=chalk.router.v1.ExposurePolicy" json:"exposure,omitempty"`
+	// Plaintext; builds a throwaway adapter only.
+	ApiKey        string `protobuf:"bytes,5,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SetProviderCredentialResponse) Reset() {
-	*x = SetProviderCredentialResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[47]
+func (x *ProviderConnectionDraft) Reset() {
+	*x = ProviderConnectionDraft{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SetProviderCredentialResponse) String() string {
+func (x *ProviderConnectionDraft) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SetProviderCredentialResponse) ProtoMessage() {}
+func (*ProviderConnectionDraft) ProtoMessage() {}
 
-func (x *SetProviderCredentialResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[47]
+func (x *ProviderConnectionDraft) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2555,14 +3199,1317 @@ func (x *SetProviderCredentialResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SetProviderCredentialResponse.ProtoReflect.Descriptor instead.
-func (*SetProviderCredentialResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{47}
+// Deprecated: Use ProviderConnectionDraft.ProtoReflect.Descriptor instead.
+func (*ProviderConnectionDraft) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{52}
 }
 
-func (x *SetProviderCredentialResponse) GetProvider() *ProviderInfo {
+func (x *ProviderConnectionDraft) GetProviderKind() string {
 	if x != nil {
-		return x.Provider
+		return x.ProviderKind
+	}
+	return ""
+}
+
+func (x *ProviderConnectionDraft) GetBaseUrl() string {
+	if x != nil && x.BaseUrl != nil {
+		return *x.BaseUrl
+	}
+	return ""
+}
+
+func (x *ProviderConnectionDraft) GetPrefix() string {
+	if x != nil && x.Prefix != nil {
+		return *x.Prefix
+	}
+	return ""
+}
+
+func (x *ProviderConnectionDraft) GetExposure() ExposurePolicy {
+	if x != nil {
+		return x.Exposure
+	}
+	return ExposurePolicy_EXPOSURE_POLICY_UNSPECIFIED
+}
+
+func (x *ProviderConnectionDraft) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+type ListProviderConnectionsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Max rows to return. Unset defaults to 40; must be > 0; clamped to 1000.
+	Limit *int32 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Opaque (created_at, id) pagination cursor from a prior response's
+	// `next_cursor`. Unset or empty starts from the most recent connection.
+	Cursor        *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListProviderConnectionsRequest) Reset() {
+	*x = ListProviderConnectionsRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListProviderConnectionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProviderConnectionsRequest) ProtoMessage() {}
+
+func (x *ListProviderConnectionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProviderConnectionsRequest.ProtoReflect.Descriptor instead.
+func (*ListProviderConnectionsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{53}
+}
+
+func (x *ListProviderConnectionsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListProviderConnectionsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+type ListProviderConnectionsResponse struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Connections []*ProviderConnection  `protobuf:"bytes,1,rep,name=connections,proto3" json:"connections,omitempty"`
+	// Set iff more rows exist after this page; pass back as `cursor` to
+	// continue. Unset means this was the last page.
+	NextCursor    *string `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListProviderConnectionsResponse) Reset() {
+	*x = ListProviderConnectionsResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListProviderConnectionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListProviderConnectionsResponse) ProtoMessage() {}
+
+func (x *ListProviderConnectionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListProviderConnectionsResponse.ProtoReflect.Descriptor instead.
+func (*ListProviderConnectionsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *ListProviderConnectionsResponse) GetConnections() []*ProviderConnection {
+	if x != nil {
+		return x.Connections
+	}
+	return nil
+}
+
+func (x *ListProviderConnectionsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+type CreateProviderConnectionRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	ProviderKind   string                 `protobuf:"bytes,2,opt,name=provider_kind,json=providerKind,proto3" json:"provider_kind,omitempty"`
+	BaseUrl        *string                `protobuf:"bytes,3,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	Prefix         *string                `protobuf:"bytes,4,opt,name=prefix,proto3,oneof" json:"prefix,omitempty"`
+	Exposure       ExposurePolicy         `protobuf:"varint,5,opt,name=exposure,proto3,enum=chalk.router.v1.ExposurePolicy" json:"exposure,omitempty"`
+	RoutingEnabled bool                   `protobuf:"varint,6,opt,name=routing_enabled,json=routingEnabled,proto3" json:"routing_enabled,omitempty"`
+	// Plaintext key; encrypted at rest before storage. Keyless upstreams pass a
+	// placeholder.
+	ApiKey        string `protobuf:"bytes,7,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateProviderConnectionRequest) Reset() {
+	*x = CreateProviderConnectionRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateProviderConnectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateProviderConnectionRequest) ProtoMessage() {}
+
+func (x *CreateProviderConnectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateProviderConnectionRequest.ProtoReflect.Descriptor instead.
+func (*CreateProviderConnectionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *CreateProviderConnectionRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateProviderConnectionRequest) GetProviderKind() string {
+	if x != nil {
+		return x.ProviderKind
+	}
+	return ""
+}
+
+func (x *CreateProviderConnectionRequest) GetBaseUrl() string {
+	if x != nil && x.BaseUrl != nil {
+		return *x.BaseUrl
+	}
+	return ""
+}
+
+func (x *CreateProviderConnectionRequest) GetPrefix() string {
+	if x != nil && x.Prefix != nil {
+		return *x.Prefix
+	}
+	return ""
+}
+
+func (x *CreateProviderConnectionRequest) GetExposure() ExposurePolicy {
+	if x != nil {
+		return x.Exposure
+	}
+	return ExposurePolicy_EXPOSURE_POLICY_UNSPECIFIED
+}
+
+func (x *CreateProviderConnectionRequest) GetRoutingEnabled() bool {
+	if x != nil {
+		return x.RoutingEnabled
+	}
+	return false
+}
+
+func (x *CreateProviderConnectionRequest) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+type CreateProviderConnectionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Connection    *ProviderConnection    `protobuf:"bytes,1,opt,name=connection,proto3" json:"connection,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateProviderConnectionResponse) Reset() {
+	*x = CreateProviderConnectionResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateProviderConnectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateProviderConnectionResponse) ProtoMessage() {}
+
+func (x *CreateProviderConnectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateProviderConnectionResponse.ProtoReflect.Descriptor instead.
+func (*CreateProviderConnectionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *CreateProviderConnectionResponse) GetConnection() *ProviderConnection {
+	if x != nil {
+		return x.Connection
+	}
+	return nil
+}
+
+type UpdateProviderConnectionOperation struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	// Masked and unset falls back to the built-in registry default, which is what
+	// the old clear_base_url boolean meant.
+	BaseUrl        *string         `protobuf:"bytes,2,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	Prefix         *string         `protobuf:"bytes,3,opt,name=prefix,proto3,oneof" json:"prefix,omitempty"`
+	Exposure       *ExposurePolicy `protobuf:"varint,4,opt,name=exposure,proto3,enum=chalk.router.v1.ExposurePolicy,oneof" json:"exposure,omitempty"`
+	RoutingEnabled *bool           `protobuf:"varint,5,opt,name=routing_enabled,json=routingEnabled,proto3,oneof" json:"routing_enabled,omitempty"`
+	// Masked and set rotates the stored key (re-encrypted).
+	ApiKey        *string `protobuf:"bytes,6,opt,name=api_key,json=apiKey,proto3,oneof" json:"api_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProviderConnectionOperation) Reset() {
+	*x = UpdateProviderConnectionOperation{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProviderConnectionOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProviderConnectionOperation) ProtoMessage() {}
+
+func (x *UpdateProviderConnectionOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProviderConnectionOperation.ProtoReflect.Descriptor instead.
+func (*UpdateProviderConnectionOperation) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *UpdateProviderConnectionOperation) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *UpdateProviderConnectionOperation) GetBaseUrl() string {
+	if x != nil && x.BaseUrl != nil {
+		return *x.BaseUrl
+	}
+	return ""
+}
+
+func (x *UpdateProviderConnectionOperation) GetPrefix() string {
+	if x != nil && x.Prefix != nil {
+		return *x.Prefix
+	}
+	return ""
+}
+
+func (x *UpdateProviderConnectionOperation) GetExposure() ExposurePolicy {
+	if x != nil && x.Exposure != nil {
+		return *x.Exposure
+	}
+	return ExposurePolicy_EXPOSURE_POLICY_UNSPECIFIED
+}
+
+func (x *UpdateProviderConnectionOperation) GetRoutingEnabled() bool {
+	if x != nil && x.RoutingEnabled != nil {
+		return *x.RoutingEnabled
+	}
+	return false
+}
+
+func (x *UpdateProviderConnectionOperation) GetApiKey() string {
+	if x != nil && x.ApiKey != nil {
+		return *x.ApiKey
+	}
+	return ""
+}
+
+type UpdateProviderConnectionRequest struct {
+	state         protoimpl.MessageState             `protogen:"open.v1"`
+	Id            string                             `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Update        *UpdateProviderConnectionOperation `protobuf:"bytes,2,opt,name=update,proto3" json:"update,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask             `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProviderConnectionRequest) Reset() {
+	*x = UpdateProviderConnectionRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProviderConnectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProviderConnectionRequest) ProtoMessage() {}
+
+func (x *UpdateProviderConnectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProviderConnectionRequest.ProtoReflect.Descriptor instead.
+func (*UpdateProviderConnectionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{58}
+}
+
+func (x *UpdateProviderConnectionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateProviderConnectionRequest) GetUpdate() *UpdateProviderConnectionOperation {
+	if x != nil {
+		return x.Update
+	}
+	return nil
+}
+
+func (x *UpdateProviderConnectionRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+type UpdateProviderConnectionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Connection    *ProviderConnection    `protobuf:"bytes,1,opt,name=connection,proto3" json:"connection,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProviderConnectionResponse) Reset() {
+	*x = UpdateProviderConnectionResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProviderConnectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProviderConnectionResponse) ProtoMessage() {}
+
+func (x *UpdateProviderConnectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProviderConnectionResponse.ProtoReflect.Descriptor instead.
+func (*UpdateProviderConnectionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{59}
+}
+
+func (x *UpdateProviderConnectionResponse) GetConnection() *ProviderConnection {
+	if x != nil {
+		return x.Connection
+	}
+	return nil
+}
+
+type DeleteProviderConnectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteProviderConnectionRequest) Reset() {
+	*x = DeleteProviderConnectionRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteProviderConnectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteProviderConnectionRequest) ProtoMessage() {}
+
+func (x *DeleteProviderConnectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteProviderConnectionRequest.ProtoReflect.Descriptor instead.
+func (*DeleteProviderConnectionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{60}
+}
+
+func (x *DeleteProviderConnectionRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// Deleting an unknown id succeeds (idempotent). A connection still referenced
+// by a model route fails with FAILED_PRECONDITION instead; only fallback-entry
+// refs are downgraded to warnings.
+type DeleteProviderConnectionResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Warning-only dangling refs (fallback entries still pointing here).
+	Warnings      []string `protobuf:"bytes,2,rep,name=warnings,proto3" json:"warnings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteProviderConnectionResponse) Reset() {
+	*x = DeleteProviderConnectionResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteProviderConnectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteProviderConnectionResponse) ProtoMessage() {}
+
+func (x *DeleteProviderConnectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteProviderConnectionResponse.ProtoReflect.Descriptor instead.
+func (*DeleteProviderConnectionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{61}
+}
+
+func (x *DeleteProviderConnectionResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *DeleteProviderConnectionResponse) GetWarnings() []string {
+	if x != nil {
+		return x.Warnings
+	}
+	return nil
+}
+
+type TestProviderConnectionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Target:
+	//
+	//	*TestProviderConnectionRequest_ConnectionId
+	//	*TestProviderConnectionRequest_Draft
+	Target        isTestProviderConnectionRequest_Target `protobuf_oneof:"target"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TestProviderConnectionRequest) Reset() {
+	*x = TestProviderConnectionRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestProviderConnectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestProviderConnectionRequest) ProtoMessage() {}
+
+func (x *TestProviderConnectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestProviderConnectionRequest.ProtoReflect.Descriptor instead.
+func (*TestProviderConnectionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{62}
+}
+
+func (x *TestProviderConnectionRequest) GetTarget() isTestProviderConnectionRequest_Target {
+	if x != nil {
+		return x.Target
+	}
+	return nil
+}
+
+func (x *TestProviderConnectionRequest) GetConnectionId() string {
+	if x != nil {
+		if x, ok := x.Target.(*TestProviderConnectionRequest_ConnectionId); ok {
+			return x.ConnectionId
+		}
+	}
+	return ""
+}
+
+func (x *TestProviderConnectionRequest) GetDraft() *ProviderConnectionDraft {
+	if x != nil {
+		if x, ok := x.Target.(*TestProviderConnectionRequest_Draft); ok {
+			return x.Draft
+		}
+	}
+	return nil
+}
+
+type isTestProviderConnectionRequest_Target interface {
+	isTestProviderConnectionRequest_Target()
+}
+
+type TestProviderConnectionRequest_ConnectionId struct {
+	ConnectionId string `protobuf:"bytes,1,opt,name=connection_id,json=connectionId,proto3,oneof"`
+}
+
+type TestProviderConnectionRequest_Draft struct {
+	Draft *ProviderConnectionDraft `protobuf:"bytes,2,opt,name=draft,proto3,oneof"`
+}
+
+func (*TestProviderConnectionRequest_ConnectionId) isTestProviderConnectionRequest_Target() {}
+
+func (*TestProviderConnectionRequest_Draft) isTestProviderConnectionRequest_Target() {}
+
+type TestProviderConnectionResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Ok               bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+	Error            *string                `protobuf:"bytes,2,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	DiscoveredModels *uint32                `protobuf:"varint,3,opt,name=discovered_models,json=discoveredModels,proto3,oneof" json:"discovered_models,omitempty"`
+	Latency          *durationpb.Duration   `protobuf:"bytes,4,opt,name=latency,proto3,oneof" json:"latency,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *TestProviderConnectionResponse) Reset() {
+	*x = TestProviderConnectionResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TestProviderConnectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TestProviderConnectionResponse) ProtoMessage() {}
+
+func (x *TestProviderConnectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TestProviderConnectionResponse.ProtoReflect.Descriptor instead.
+func (*TestProviderConnectionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *TestProviderConnectionResponse) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
+func (x *TestProviderConnectionResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *TestProviderConnectionResponse) GetDiscoveredModels() uint32 {
+	if x != nil && x.DiscoveredModels != nil {
+		return *x.DiscoveredModels
+	}
+	return 0
+}
+
+func (x *TestProviderConnectionResponse) GetLatency() *durationpb.Duration {
+	if x != nil {
+		return x.Latency
+	}
+	return nil
+}
+
+type ModelRoute struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uuid
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// chalk/*
+	PublicModelId string `protobuf:"bytes,2,opt,name=public_model_id,json=publicModelId,proto3" json:"public_model_id,omitempty"`
+	// uuid (soft reference)
+	ConnectionId    string                 `protobuf:"bytes,3,opt,name=connection_id,json=connectionId,proto3" json:"connection_id,omitempty"`
+	UpstreamModelId string                 `protobuf:"bytes,4,opt,name=upstream_model_id,json=upstreamModelId,proto3" json:"upstream_model_id,omitempty"`
+	Published       bool                   `protobuf:"varint,5,opt,name=published,proto3" json:"published,omitempty"`
+	Diagnostic      RouteDiagnostic        `protobuf:"varint,6,opt,name=diagnostic,proto3,enum=chalk.router.v1.RouteDiagnostic" json:"diagnostic,omitempty"`
+	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ModelRoute) Reset() {
+	*x = ModelRoute{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelRoute) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelRoute) ProtoMessage() {}
+
+func (x *ModelRoute) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelRoute.ProtoReflect.Descriptor instead.
+func (*ModelRoute) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *ModelRoute) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ModelRoute) GetPublicModelId() string {
+	if x != nil {
+		return x.PublicModelId
+	}
+	return ""
+}
+
+func (x *ModelRoute) GetConnectionId() string {
+	if x != nil {
+		return x.ConnectionId
+	}
+	return ""
+}
+
+func (x *ModelRoute) GetUpstreamModelId() string {
+	if x != nil {
+		return x.UpstreamModelId
+	}
+	return ""
+}
+
+func (x *ModelRoute) GetPublished() bool {
+	if x != nil {
+		return x.Published
+	}
+	return false
+}
+
+func (x *ModelRoute) GetDiagnostic() RouteDiagnostic {
+	if x != nil {
+		return x.Diagnostic
+	}
+	return RouteDiagnostic_ROUTE_DIAGNOSTIC_UNSPECIFIED
+}
+
+func (x *ModelRoute) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *ModelRoute) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+type ListModelRoutesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Max rows to return. Unset defaults to 40; must be > 0; clamped to 1000.
+	Limit *int32 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Opaque (created_at, id) pagination cursor from a prior response's
+	// `next_cursor`. Unset or empty starts from the most recent route.
+	Cursor        *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListModelRoutesRequest) Reset() {
+	*x = ListModelRoutesRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListModelRoutesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListModelRoutesRequest) ProtoMessage() {}
+
+func (x *ListModelRoutesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListModelRoutesRequest.ProtoReflect.Descriptor instead.
+func (*ListModelRoutesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *ListModelRoutesRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListModelRoutesRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+type ListModelRoutesResponse struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Routes []*ModelRoute          `protobuf:"bytes,1,rep,name=routes,proto3" json:"routes,omitempty"`
+	// Set iff more rows exist after this page; pass back as `cursor` to
+	// continue. Unset means this was the last page.
+	NextCursor    *string `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListModelRoutesResponse) Reset() {
+	*x = ListModelRoutesResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListModelRoutesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListModelRoutesResponse) ProtoMessage() {}
+
+func (x *ListModelRoutesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListModelRoutesResponse.ProtoReflect.Descriptor instead.
+func (*ListModelRoutesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *ListModelRoutesResponse) GetRoutes() []*ModelRoute {
+	if x != nil {
+		return x.Routes
+	}
+	return nil
+}
+
+func (x *ListModelRoutesResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+type CreateModelRouteRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Must be chalk/*.
+	PublicModelId   string `protobuf:"bytes,1,opt,name=public_model_id,json=publicModelId,proto3" json:"public_model_id,omitempty"`
+	ConnectionId    string `protobuf:"bytes,2,opt,name=connection_id,json=connectionId,proto3" json:"connection_id,omitempty"`
+	UpstreamModelId string `protobuf:"bytes,3,opt,name=upstream_model_id,json=upstreamModelId,proto3" json:"upstream_model_id,omitempty"`
+	Published       bool   `protobuf:"varint,4,opt,name=published,proto3" json:"published,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CreateModelRouteRequest) Reset() {
+	*x = CreateModelRouteRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateModelRouteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateModelRouteRequest) ProtoMessage() {}
+
+func (x *CreateModelRouteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateModelRouteRequest.ProtoReflect.Descriptor instead.
+func (*CreateModelRouteRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{67}
+}
+
+func (x *CreateModelRouteRequest) GetPublicModelId() string {
+	if x != nil {
+		return x.PublicModelId
+	}
+	return ""
+}
+
+func (x *CreateModelRouteRequest) GetConnectionId() string {
+	if x != nil {
+		return x.ConnectionId
+	}
+	return ""
+}
+
+func (x *CreateModelRouteRequest) GetUpstreamModelId() string {
+	if x != nil {
+		return x.UpstreamModelId
+	}
+	return ""
+}
+
+func (x *CreateModelRouteRequest) GetPublished() bool {
+	if x != nil {
+		return x.Published
+	}
+	return false
+}
+
+type CreateModelRouteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Route         *ModelRoute            `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateModelRouteResponse) Reset() {
+	*x = CreateModelRouteResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateModelRouteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateModelRouteResponse) ProtoMessage() {}
+
+func (x *CreateModelRouteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateModelRouteResponse.ProtoReflect.Descriptor instead.
+func (*CreateModelRouteResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *CreateModelRouteResponse) GetRoute() *ModelRoute {
+	if x != nil {
+		return x.Route
+	}
+	return nil
+}
+
+type UpdateModelRouteOperation struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ConnectionId    *string                `protobuf:"bytes,1,opt,name=connection_id,json=connectionId,proto3,oneof" json:"connection_id,omitempty"`
+	UpstreamModelId *string                `protobuf:"bytes,2,opt,name=upstream_model_id,json=upstreamModelId,proto3,oneof" json:"upstream_model_id,omitempty"`
+	Published       *bool                  `protobuf:"varint,3,opt,name=published,proto3,oneof" json:"published,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *UpdateModelRouteOperation) Reset() {
+	*x = UpdateModelRouteOperation{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateModelRouteOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateModelRouteOperation) ProtoMessage() {}
+
+func (x *UpdateModelRouteOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateModelRouteOperation.ProtoReflect.Descriptor instead.
+func (*UpdateModelRouteOperation) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *UpdateModelRouteOperation) GetConnectionId() string {
+	if x != nil && x.ConnectionId != nil {
+		return *x.ConnectionId
+	}
+	return ""
+}
+
+func (x *UpdateModelRouteOperation) GetUpstreamModelId() string {
+	if x != nil && x.UpstreamModelId != nil {
+		return *x.UpstreamModelId
+	}
+	return ""
+}
+
+func (x *UpdateModelRouteOperation) GetPublished() bool {
+	if x != nil && x.Published != nil {
+		return *x.Published
+	}
+	return false
+}
+
+type UpdateModelRouteRequest struct {
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Id            string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Update        *UpdateModelRouteOperation `protobuf:"bytes,2,opt,name=update,proto3" json:"update,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask     `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateModelRouteRequest) Reset() {
+	*x = UpdateModelRouteRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateModelRouteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateModelRouteRequest) ProtoMessage() {}
+
+func (x *UpdateModelRouteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateModelRouteRequest.ProtoReflect.Descriptor instead.
+func (*UpdateModelRouteRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *UpdateModelRouteRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateModelRouteRequest) GetUpdate() *UpdateModelRouteOperation {
+	if x != nil {
+		return x.Update
+	}
+	return nil
+}
+
+func (x *UpdateModelRouteRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+type UpdateModelRouteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Route         *ModelRoute            `protobuf:"bytes,1,opt,name=route,proto3" json:"route,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateModelRouteResponse) Reset() {
+	*x = UpdateModelRouteResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateModelRouteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateModelRouteResponse) ProtoMessage() {}
+
+func (x *UpdateModelRouteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateModelRouteResponse.ProtoReflect.Descriptor instead.
+func (*UpdateModelRouteResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *UpdateModelRouteResponse) GetRoute() *ModelRoute {
+	if x != nil {
+		return x.Route
+	}
+	return nil
+}
+
+type DeleteModelRouteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteModelRouteRequest) Reset() {
+	*x = DeleteModelRouteRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteModelRouteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteModelRouteRequest) ProtoMessage() {}
+
+func (x *DeleteModelRouteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteModelRouteRequest.ProtoReflect.Descriptor instead.
+func (*DeleteModelRouteRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{72}
+}
+
+func (x *DeleteModelRouteRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// Deleting an unknown id succeeds (idempotent), so no boolean is reported.
+type DeleteModelRouteResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Warning-only dangling refs (fallback entries still referencing this alias).
+	Warnings      []string `protobuf:"bytes,2,rep,name=warnings,proto3" json:"warnings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteModelRouteResponse) Reset() {
+	*x = DeleteModelRouteResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteModelRouteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteModelRouteResponse) ProtoMessage() {}
+
+func (x *DeleteModelRouteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteModelRouteResponse.ProtoReflect.Descriptor instead.
+func (*DeleteModelRouteResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *DeleteModelRouteResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *DeleteModelRouteResponse) GetWarnings() []string {
+	if x != nil {
+		return x.Warnings
 	}
 	return nil
 }
@@ -2578,7 +4525,7 @@ type Usage struct {
 
 func (x *Usage) Reset() {
 	*x = Usage{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[48]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2590,7 +4537,7 @@ func (x *Usage) String() string {
 func (*Usage) ProtoMessage() {}
 
 func (x *Usage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[48]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2603,7 +4550,7 @@ func (x *Usage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Usage.ProtoReflect.Descriptor instead.
 func (*Usage) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{48}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *Usage) GetPromptTokens() uint32 {
@@ -2629,12 +4576,12 @@ func (x *Usage) GetTotalTokens() uint32 {
 
 type DebugCompletionEntry struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Timestamp     string                 `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	Model         string                 `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`
 	MessageCount  uint32                 `protobuf:"varint,3,opt,name=message_count,json=messageCount,proto3" json:"message_count,omitempty"`
 	Streaming     bool                   `protobuf:"varint,4,opt,name=streaming,proto3" json:"streaming,omitempty"`
 	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
-	DurationMs    uint64                 `protobuf:"varint,6,opt,name=duration_ms,json=durationMs,proto3" json:"duration_ms,omitempty"`
+	Duration      *durationpb.Duration   `protobuf:"bytes,6,opt,name=duration,proto3" json:"duration,omitempty"`
 	Usage         *Usage                 `protobuf:"bytes,7,opt,name=usage,proto3,oneof" json:"usage,omitempty"`
 	Error         *string                `protobuf:"bytes,8,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2643,7 +4590,7 @@ type DebugCompletionEntry struct {
 
 func (x *DebugCompletionEntry) Reset() {
 	*x = DebugCompletionEntry{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[49]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2655,7 +4602,7 @@ func (x *DebugCompletionEntry) String() string {
 func (*DebugCompletionEntry) ProtoMessage() {}
 
 func (x *DebugCompletionEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[49]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2668,14 +4615,14 @@ func (x *DebugCompletionEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DebugCompletionEntry.ProtoReflect.Descriptor instead.
 func (*DebugCompletionEntry) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{49}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{75}
 }
 
-func (x *DebugCompletionEntry) GetTimestamp() string {
+func (x *DebugCompletionEntry) GetTimestamp() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Timestamp
 	}
-	return ""
+	return nil
 }
 
 func (x *DebugCompletionEntry) GetModel() string {
@@ -2706,11 +4653,11 @@ func (x *DebugCompletionEntry) GetStatus() string {
 	return ""
 }
 
-func (x *DebugCompletionEntry) GetDurationMs() uint64 {
+func (x *DebugCompletionEntry) GetDuration() *durationpb.Duration {
 	if x != nil {
-		return x.DurationMs
+		return x.Duration
 	}
-	return 0
+	return nil
 }
 
 func (x *DebugCompletionEntry) GetUsage() *Usage {
@@ -2735,7 +4682,7 @@ type RecentCompletionsRequest struct {
 
 func (x *RecentCompletionsRequest) Reset() {
 	*x = RecentCompletionsRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[50]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2747,7 +4694,7 @@ func (x *RecentCompletionsRequest) String() string {
 func (*RecentCompletionsRequest) ProtoMessage() {}
 
 func (x *RecentCompletionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[50]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2760,7 +4707,7 @@ func (x *RecentCompletionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentCompletionsRequest.ProtoReflect.Descriptor instead.
 func (*RecentCompletionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{50}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{76}
 }
 
 type RecentCompletionsResponse struct {
@@ -2773,7 +4720,7 @@ type RecentCompletionsResponse struct {
 
 func (x *RecentCompletionsResponse) Reset() {
 	*x = RecentCompletionsResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[51]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2785,7 +4732,7 @@ func (x *RecentCompletionsResponse) String() string {
 func (*RecentCompletionsResponse) ProtoMessage() {}
 
 func (x *RecentCompletionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[51]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2798,7 +4745,7 @@ func (x *RecentCompletionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentCompletionsResponse.ProtoReflect.Descriptor instead.
 func (*RecentCompletionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{51}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *RecentCompletionsResponse) GetCount() uint32 {
@@ -2826,7 +4773,7 @@ type CheckRequest struct {
 
 func (x *CheckRequest) Reset() {
 	*x = CheckRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[52]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2838,7 +4785,7 @@ func (x *CheckRequest) String() string {
 func (*CheckRequest) ProtoMessage() {}
 
 func (x *CheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[52]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2851,7 +4798,7 @@ func (x *CheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckRequest.ProtoReflect.Descriptor instead.
 func (*CheckRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{52}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{78}
 }
 
 type CheckResponse struct {
@@ -2864,7 +4811,7 @@ type CheckResponse struct {
 
 func (x *CheckResponse) Reset() {
 	*x = CheckResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[53]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2876,7 +4823,7 @@ func (x *CheckResponse) String() string {
 func (*CheckResponse) ProtoMessage() {}
 
 func (x *CheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[53]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2889,7 +4836,7 @@ func (x *CheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckResponse.ProtoReflect.Descriptor instead.
 func (*CheckResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{53}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *CheckResponse) GetProfile() string {
@@ -2910,18 +4857,25 @@ var File_chalk_router_v1_router_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/router/v1/router.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"X\n" +
+	"\x1cchalk/router/v1/router.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x84\x02\n" +
 	"\x10ApiKeyPermission\x12\x1f\n" +
 	"\bprovider\x18\x01 \x01(\tH\x00R\bprovider\x88\x01\x01\x12\x16\n" +
-	"\x06models\x18\x02 \x03(\tR\x06modelsB\v\n" +
-	"\t_provider\"\xa9\x01\n" +
+	"\x06models\x18\x02 \x03(\tR\x06models\x12(\n" +
+	"\rconnection_id\x18\x03 \x01(\tH\x01R\fconnectionId\x88\x01\x01\x12'\n" +
+	"\fdowngradable\x18\x04 \x01(\bH\x02R\fdowngradable\x88\x01\x01\x12$\n" +
+	"\vmodel_floor\x18\x05 \x01(\tH\x03R\n" +
+	"modelFloor\x88\x01\x01B\v\n" +
+	"\t_providerB\x10\n" +
+	"\x0e_connection_idB\x0f\n" +
+	"\r_downgradableB\x0e\n" +
+	"\f_model_floor\"\xa9\x01\n" +
 	"\rUsageSnapshot\x12#\n" +
 	"\rprompt_tokens\x18\x01 \x01(\x04R\fpromptTokens\x12+\n" +
 	"\x11completion_tokens\x18\x02 \x01(\x04R\x10completionTokens\x12!\n" +
 	"\ftotal_tokens\x18\x03 \x01(\x04R\vtotalTokens\x12#\n" +
-	"\rrequest_count\x18\x04 \x01(\x04R\frequestCount\"\xdd\x04\n" +
-	"\x06ApiKey\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12 \n" +
+	"\rrequest_count\x18\x04 \x01(\x04R\frequestCount\"\x96\x05\n" +
+	"\x06ApiKey\x12\x19\n" +
+	"\bkey_hash\x18\x01 \x01(\tR\akeyHash\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x129\n" +
 	"\n" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12A\n" +
@@ -2931,17 +4885,19 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x06labels\x18\x05 \x03(\v2#.chalk.router.v1.ApiKey.LabelsEntryR\x06labels\x124\n" +
 	"\x05usage\x18\x06 \x01(\v2\x1e.chalk.router.v1.UsageSnapshotR\x05usage\x121\n" +
 	"\x12daily_token_budget\x18\a \x01(\x04H\x00R\x10dailyTokenBudget\x88\x01\x01\x12B\n" +
-	"\tcost_tags\x18\b \x03(\v2%.chalk.router.v1.ApiKey.CostTagsEntryR\bcostTags\x12\x1c\n" +
-	"\ateam_id\x18\t \x01(\tH\x01R\x06teamId\x88\x01\x01\x1a9\n" +
+	"\tcost_tags\x18\b \x03(\v2%.chalk.router.v1.ApiKey.CostTagsEntryR\bcostTags\x12'\n" +
+	"\rusage_pool_id\x18\t \x01(\tH\x01R\vusagePoolId\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"key_prefix\x18\n" +
+	" \x01(\tR\tkeyPrefix\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
 	"\rCostTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
-	"\x13_daily_token_budgetB\n" +
-	"\n" +
-	"\b_team_id\"\xf8\x03\n" +
+	"\x13_daily_token_budgetB\x10\n" +
+	"\x0e_usage_pool_id\"\x89\x04\n" +
 	"\x10CreateKeyRequest\x12 \n" +
 	"\vdescription\x18\x01 \x01(\tR\vdescription\x12A\n" +
 	"\n" +
@@ -2949,50 +4905,51 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"permission\x12E\n" +
 	"\x06labels\x18\x03 \x03(\v2-.chalk.router.v1.CreateKeyRequest.LabelsEntryR\x06labels\x121\n" +
 	"\x12daily_token_budget\x18\x04 \x01(\x04H\x00R\x10dailyTokenBudget\x88\x01\x01\x12L\n" +
-	"\tcost_tags\x18\x05 \x03(\v2/.chalk.router.v1.CreateKeyRequest.CostTagsEntryR\bcostTags\x12\x1c\n" +
-	"\ateam_id\x18\x06 \x01(\tH\x01R\x06teamId\x88\x01\x01\x1a9\n" +
+	"\tcost_tags\x18\x05 \x03(\v2/.chalk.router.v1.CreateKeyRequest.CostTagsEntryR\bcostTags\x12'\n" +
+	"\rusage_pool_id\x18\x06 \x01(\tH\x01R\vusagePoolId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
 	"\rCostTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
-	"\x13_daily_token_budgetB\n" +
-	"\n" +
-	"\b_team_id\">\n" +
-	"\x11CreateKeyResponse\x12)\n" +
-	"\x03key\x18\x01 \x01(\v2\x17.chalk.router.v1.ApiKeyR\x03key\"\x11\n" +
-	"\x0fListKeysRequest\"?\n" +
-	"\x10ListKeysResponse\x12+\n" +
-	"\x04keys\x18\x01 \x03(\v2\x17.chalk.router.v1.ApiKeyR\x04keys\"\xb5\x03\n" +
-	"\x10UpdateKeyRequest\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12%\n" +
-	"\vdescription\x18\x02 \x01(\tH\x00R\vdescription\x88\x01\x01\x12<\n" +
-	"\x18clear_daily_token_budget\x18\x03 \x01(\bH\x01R\x15clearDailyTokenBudget\x88\x01\x01\x121\n" +
-	"\x12daily_token_budget\x18\x04 \x01(\x04H\x02R\x10dailyTokenBudget\x88\x01\x01\x12'\n" +
-	"\rclear_team_id\x18\x05 \x01(\bH\x03R\vclearTeamId\x88\x01\x01\x12\x1c\n" +
-	"\ateam_id\x18\x06 \x01(\tH\x04R\x06teamId\x88\x01\x01\x12@\n" +
-	"\tcost_tags\x18\a \x01(\v2\x1e.chalk.router.v1.CostTagsValueH\x05R\bcostTags\x88\x01\x01B\x0e\n" +
-	"\f_descriptionB\x1b\n" +
-	"\x19_clear_daily_token_budgetB\x15\n" +
 	"\x13_daily_token_budgetB\x10\n" +
-	"\x0e_clear_team_idB\n" +
-	"\n" +
-	"\b_team_idB\f\n" +
-	"\n" +
-	"_cost_tags\"\x86\x01\n" +
-	"\rCostTagsValue\x12<\n" +
-	"\x04tags\x18\x01 \x03(\v2(.chalk.router.v1.CostTagsValue.TagsEntryR\x04tags\x1a7\n" +
-	"\tTagsEntry\x12\x10\n" +
+	"\x0e_usage_pool_id\"W\n" +
+	"\x11CreateKeyResponse\x12)\n" +
+	"\x03key\x18\x01 \x01(\v2\x17.chalk.router.v1.ApiKeyR\x03key\x12\x17\n" +
+	"\araw_key\x18\x02 \x01(\tR\x06rawKey\"^\n" +
+	"\x0fListKeysRequest\x12\x19\n" +
+	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_cursor\"u\n" +
+	"\x10ListKeysResponse\x12+\n" +
+	"\x04keys\x18\x01 \x03(\v2\x17.chalk.router.v1.ApiKeyR\x04keys\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"\xdd\x02\n" +
+	"\x12UpdateKeyOperation\x12%\n" +
+	"\vdescription\x18\x01 \x01(\tH\x00R\vdescription\x88\x01\x01\x121\n" +
+	"\x12daily_token_budget\x18\x02 \x01(\x04H\x01R\x10dailyTokenBudget\x88\x01\x01\x12'\n" +
+	"\rusage_pool_id\x18\x03 \x01(\tH\x02R\vusagePoolId\x88\x01\x01\x12N\n" +
+	"\tcost_tags\x18\x04 \x03(\v21.chalk.router.v1.UpdateKeyOperation.CostTagsEntryR\bcostTags\x1a;\n" +
+	"\rCostTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\">\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
+	"\f_descriptionB\x15\n" +
+	"\x13_daily_token_budgetB\x10\n" +
+	"\x0e_usage_pool_id\"\x9e\x01\n" +
+	"\x10UpdateKeyRequest\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12;\n" +
+	"\x06update\x18\x02 \x01(\v2#.chalk.router.v1.UpdateKeyOperationR\x06update\x12;\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\">\n" +
 	"\x11UpdateKeyResponse\x12)\n" +
 	"\x03key\x18\x01 \x01(\v2\x17.chalk.router.v1.ApiKeyR\x03key\"$\n" +
 	"\x10RevokeKeyRequest\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\"?\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\"%\n" +
 	"\x11RevokeKeyResponse\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x18\n" +
-	"\arevoked\x18\x02 \x01(\bR\arevoked\"&\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\"&\n" +
 	"\x12GetKeyUsageRequest\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\"\xc9\x01\n" +
 	"\x13GetKeyUsageResponse\x12\x10\n" +
@@ -3017,24 +4974,30 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x06bucket\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x06bucket\x12!\n" +
 	"\ftotal_tokens\x18\x03 \x01(\x03R\vtotalTokens\"S\n" +
 	"\x19GetUsageHistogramResponse\x126\n" +
-	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageHistogramRowR\x04rows\"e\n" +
-	"\x04Team\x12\x0e\n" +
+	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageHistogramRowR\x04rows\"j\n" +
+	"\tUsagePool\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
 	"\n" +
-	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"'\n" +
-	"\x11CreateTeamRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"?\n" +
-	"\x12CreateTeamResponse\x12)\n" +
-	"\x04team\x18\x01 \x01(\v2\x15.chalk.router.v1.TeamR\x04team\"\x12\n" +
-	"\x10ListTeamsRequest\"@\n" +
-	"\x11ListTeamsResponse\x12+\n" +
-	"\x05teams\x18\x01 \x03(\v2\x15.chalk.router.v1.TeamR\x05teams\"#\n" +
-	"\x11DeleteTeamRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\">\n" +
-	"\x12DeleteTeamResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
-	"\adeleted\x18\x02 \x01(\bR\adeleted\"\xbf\x02\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\",\n" +
+	"\x16CreateUsagePoolRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"I\n" +
+	"\x17CreateUsagePoolResponse\x12.\n" +
+	"\x04pool\x18\x01 \x01(\v2\x1a.chalk.router.v1.UsagePoolR\x04pool\"d\n" +
+	"\x15ListUsagePoolsRequest\x12\x19\n" +
+	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_cursor\"\x80\x01\n" +
+	"\x16ListUsagePoolsResponse\x120\n" +
+	"\x05pools\x18\x01 \x03(\v2\x1a.chalk.router.v1.UsagePoolR\x05pools\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"(\n" +
+	"\x16DeleteUsagePoolRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\")\n" +
+	"\x17DeleteUsagePoolResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\xbf\x02\n" +
 	"\x0fRateLimitPolicy\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -3063,22 +5026,32 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x05scope\x18\x06 \x01(\tR\x05scope\x12\x19\n" +
 	"\bscope_id\x18\a \x01(\tR\ascopeId\"S\n" +
 	"\x17CreateRateLimitResponse\x128\n" +
-	"\x06policy\x18\x01 \x01(\v2 .chalk.router.v1.RateLimitPolicyR\x06policy\"\x17\n" +
-	"\x15ListRateLimitsRequest\"V\n" +
+	"\x06policy\x18\x01 \x01(\v2 .chalk.router.v1.RateLimitPolicyR\x06policy\"d\n" +
+	"\x15ListRateLimitsRequest\x12\x19\n" +
+	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_cursor\"\x8c\x01\n" +
 	"\x16ListRateLimitsResponse\x12<\n" +
-	"\bpolicies\x18\x01 \x03(\v2 .chalk.router.v1.RateLimitPolicyR\bpolicies\"S\n" +
-	"\x16UpdateRateLimitRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
-	"\aenabled\x18\x02 \x01(\bH\x00R\aenabled\x88\x01\x01B\n" +
+	"\bpolicies\x18\x01 \x03(\v2 .chalk.router.v1.RateLimitPolicyR\bpolicies\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"E\n" +
+	"\x18UpdateRateLimitOperation\x12\x1d\n" +
+	"\aenabled\x18\x01 \x01(\bH\x00R\aenabled\x88\x01\x01B\n" +
 	"\n" +
-	"\b_enabled\"S\n" +
+	"\b_enabled\"\xa8\x01\n" +
+	"\x16UpdateRateLimitRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12A\n" +
+	"\x06update\x18\x02 \x01(\v2).chalk.router.v1.UpdateRateLimitOperationR\x06update\x12;\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\"S\n" +
 	"\x17UpdateRateLimitResponse\x128\n" +
 	"\x06policy\x18\x01 \x01(\v2 .chalk.router.v1.RateLimitPolicyR\x06policy\"(\n" +
 	"\x16DeleteRateLimitRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"C\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\")\n" +
 	"\x17DeleteRateLimitResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
-	"\adeleted\x18\x02 \x01(\bR\adeleted\",\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\",\n" +
 	"\fFallbackList\x12\x1c\n" +
 	"\tfallbacks\x18\x01 \x03(\tR\tfallbacks\"\xbb\x01\n" +
 	"\x0eFallbackPolicy\x12L\n" +
@@ -3088,46 +5061,225 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x1d.chalk.router.v1.FallbackListR\x05value:\x028\x01\"\x1a\n" +
 	"\x18GetFallbackPolicyRequest\"T\n" +
 	"\x19GetFallbackPolicyResponse\x127\n" +
-	"\x06policy\x18\x01 \x01(\v2\x1f.chalk.router.v1.FallbackPolicyR\x06policy\"V\n" +
-	"\x1bUpdateFallbackPolicyRequest\x127\n" +
-	"\x06policy\x18\x01 \x01(\v2\x1f.chalk.router.v1.FallbackPolicyR\x06policy\"W\n" +
+	"\x06policy\x18\x01 \x01(\v2\x1f.chalk.router.v1.FallbackPolicyR\x06policy\"\xd9\x01\n" +
+	"\x1dUpdateFallbackPolicyOperation\x12[\n" +
+	"\tfallbacks\x18\x01 \x03(\v2=.chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntryR\tfallbacks\x1a[\n" +
+	"\x0eFallbacksEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x123\n" +
+	"\x05value\x18\x02 \x01(\v2\x1d.chalk.router.v1.FallbackListR\x05value:\x028\x01\"\xa2\x01\n" +
+	"\x1bUpdateFallbackPolicyRequest\x12F\n" +
+	"\x06update\x18\x01 \x01(\v2..chalk.router.v1.UpdateFallbackPolicyOperationR\x06update\x12;\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\"W\n" +
 	"\x1cUpdateFallbackPolicyResponse\x127\n" +
-	"\x06policy\x18\x01 \x01(\v2\x1f.chalk.router.v1.FallbackPolicyR\x06policy\"\x14\n" +
-	"\x12GetSettingsRequest\"\xf3\x01\n" +
-	"\x13GetSettingsResponse\x123\n" +
-	"\x15allow_unauthenticated\x18\x01 \x01(\bR\x14allowUnauthenticated\x12<\n" +
-	"\x1afallback_policy_configured\x18\x02 \x01(\bR\x18fallbackPolicyConfigured\x12-\n" +
-	"\x13default_api_key_set\x18\x03 \x01(\bR\x10defaultApiKeySet\x12(\n" +
-	"\rotel_endpoint\x18\x04 \x01(\tH\x00R\fotelEndpoint\x88\x01\x01B\x10\n" +
-	"\x0e_otel_endpoint\"\x16\n" +
-	"\x14ListProvidersRequest\"R\n" +
-	"\fProviderInfo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1e\n" +
+	"\x06policy\x18\x01 \x01(\v2\x1f.chalk.router.v1.FallbackPolicyR\x06policy\"G\n" +
+	"\vJudgeLadder\x12\x18\n" +
+	"\atargets\x18\x01 \x03(\tR\atargets\x12\x1e\n" +
 	"\n" +
-	"configured\x18\x03 \x01(\bR\n" +
-	"configured\"T\n" +
-	"\x15ListProvidersResponse\x12;\n" +
-	"\tproviders\x18\x01 \x03(\v2\x1d.chalk.router.v1.ProviderInfoR\tproviders\"\x80\x01\n" +
-	"\x1cSetProviderCredentialRequest\x12\x1a\n" +
-	"\bprovider\x18\x01 \x01(\tR\bprovider\x12\x17\n" +
-	"\aapi_key\x18\x02 \x01(\tR\x06apiKey\x12\x1e\n" +
-	"\bbase_url\x18\x03 \x01(\tH\x00R\abaseUrl\x88\x01\x01B\v\n" +
-	"\t_base_url\"Z\n" +
-	"\x1dSetProviderCredentialResponse\x129\n" +
-	"\bprovider\x18\x01 \x01(\v2\x1d.chalk.router.v1.ProviderInfoR\bprovider\"|\n" +
+	"boundaries\x18\x02 \x03(\x02R\n" +
+	"boundaries\"\x8f\x03\n" +
+	"\vJudgePolicy\x12\x18\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\x12\x16\n" +
+	"\x06shadow\x18\x02 \x01(\bR\x06shadow\x12,\n" +
+	"\x12shadow_sample_rate\x18\x03 \x01(\x02R\x10shadowSampleRate\x12\x1f\n" +
+	"\vjudge_model\x18\x04 \x01(\tR\n" +
+	"judgeModel\x12C\n" +
+	"\aladders\x18\x05 \x03(\v2).chalk.router.v1.JudgePolicy.LaddersEntryR\aladders\x12$\n" +
+	"\x0edefault_opt_in\x18\x06 \x01(\bR\fdefaultOptIn\x12(\n" +
+	"\rdefault_floor\x18\a \x01(\tH\x00R\fdefaultFloor\x88\x01\x01\x1aX\n" +
+	"\fLaddersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x122\n" +
+	"\x05value\x18\x02 \x01(\v2\x1c.chalk.router.v1.JudgeLadderR\x05value:\x028\x01B\x10\n" +
+	"\x0e_default_floor\"\x17\n" +
+	"\x15GetJudgePolicyRequest\"N\n" +
+	"\x16GetJudgePolicyResponse\x124\n" +
+	"\x06policy\x18\x01 \x01(\v2\x1c.chalk.router.v1.JudgePolicyR\x06policy\"\x97\x04\n" +
+	"\x1aUpdateJudgePolicyOperation\x12\x1d\n" +
+	"\aenabled\x18\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12\x1b\n" +
+	"\x06shadow\x18\x02 \x01(\bH\x01R\x06shadow\x88\x01\x01\x121\n" +
+	"\x12shadow_sample_rate\x18\x03 \x01(\x02H\x02R\x10shadowSampleRate\x88\x01\x01\x12$\n" +
+	"\vjudge_model\x18\x04 \x01(\tH\x03R\n" +
+	"judgeModel\x88\x01\x01\x12R\n" +
+	"\aladders\x18\x05 \x03(\v28.chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntryR\aladders\x12)\n" +
+	"\x0edefault_opt_in\x18\x06 \x01(\bH\x04R\fdefaultOptIn\x88\x01\x01\x12(\n" +
+	"\rdefault_floor\x18\a \x01(\tH\x05R\fdefaultFloor\x88\x01\x01\x1aX\n" +
+	"\fLaddersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x122\n" +
+	"\x05value\x18\x02 \x01(\v2\x1c.chalk.router.v1.JudgeLadderR\x05value:\x028\x01B\n" +
+	"\n" +
+	"\b_enabledB\t\n" +
+	"\a_shadowB\x15\n" +
+	"\x13_shadow_sample_rateB\x0e\n" +
+	"\f_judge_modelB\x11\n" +
+	"\x0f_default_opt_inB\x10\n" +
+	"\x0e_default_floor\"\x9c\x01\n" +
+	"\x18UpdateJudgePolicyRequest\x12C\n" +
+	"\x06update\x18\x01 \x01(\v2+.chalk.router.v1.UpdateJudgePolicyOperationR\x06update\x12;\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\"Q\n" +
+	"\x19UpdateJudgePolicyResponse\x124\n" +
+	"\x06policy\x18\x01 \x01(\v2\x1c.chalk.router.v1.JudgePolicyR\x06policy\"|\n" +
+	"\x0fConnectionState\x12\x1e\n" +
+	"\n" +
+	"configured\x18\x01 \x01(\bR\n" +
+	"configured\x12\x1e\n" +
+	"\n" +
+	"unreadable\x18\x02 \x01(\bR\n" +
+	"unreadable\x12\x1d\n" +
+	"\ahealthy\x18\x03 \x01(\bH\x00R\ahealthy\x88\x01\x01B\n" +
+	"\n" +
+	"\b_healthy\"\xc6\x03\n" +
+	"\x12ProviderConnection\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
+	"\rprovider_kind\x18\x03 \x01(\tR\fproviderKind\x12\x1e\n" +
+	"\bbase_url\x18\x04 \x01(\tH\x00R\abaseUrl\x88\x01\x01\x12\x1b\n" +
+	"\x06prefix\x18\x05 \x01(\tH\x01R\x06prefix\x88\x01\x01\x12;\n" +
+	"\bexposure\x18\x06 \x01(\x0e2\x1f.chalk.router.v1.ExposurePolicyR\bexposure\x12'\n" +
+	"\x0frouting_enabled\x18\a \x01(\bR\x0eroutingEnabled\x126\n" +
+	"\x05state\x18\b \x01(\v2 .chalk.router.v1.ConnectionStateR\x05state\x129\n" +
+	"\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\v\n" +
+	"\t_base_urlB\t\n" +
+	"\a_prefix\"\xe9\x01\n" +
+	"\x17ProviderConnectionDraft\x12#\n" +
+	"\rprovider_kind\x18\x01 \x01(\tR\fproviderKind\x12\x1e\n" +
+	"\bbase_url\x18\x02 \x01(\tH\x00R\abaseUrl\x88\x01\x01\x12\x1b\n" +
+	"\x06prefix\x18\x03 \x01(\tH\x01R\x06prefix\x88\x01\x01\x12;\n" +
+	"\bexposure\x18\x04 \x01(\x0e2\x1f.chalk.router.v1.ExposurePolicyR\bexposure\x12\x17\n" +
+	"\aapi_key\x18\x05 \x01(\tR\x06apiKeyB\v\n" +
+	"\t_base_urlB\t\n" +
+	"\a_prefix\"m\n" +
+	"\x1eListProviderConnectionsRequest\x12\x19\n" +
+	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_cursor\"\x9e\x01\n" +
+	"\x1fListProviderConnectionsResponse\x12E\n" +
+	"\vconnections\x18\x01 \x03(\v2#.chalk.router.v1.ProviderConnectionR\vconnections\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"\xae\x02\n" +
+	"\x1fCreateProviderConnectionRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
+	"\rprovider_kind\x18\x02 \x01(\tR\fproviderKind\x12\x1e\n" +
+	"\bbase_url\x18\x03 \x01(\tH\x00R\abaseUrl\x88\x01\x01\x12\x1b\n" +
+	"\x06prefix\x18\x04 \x01(\tH\x01R\x06prefix\x88\x01\x01\x12;\n" +
+	"\bexposure\x18\x05 \x01(\x0e2\x1f.chalk.router.v1.ExposurePolicyR\bexposure\x12'\n" +
+	"\x0frouting_enabled\x18\x06 \x01(\bR\x0eroutingEnabled\x12\x17\n" +
+	"\aapi_key\x18\a \x01(\tR\x06apiKeyB\v\n" +
+	"\t_base_urlB\t\n" +
+	"\a_prefix\"g\n" +
+	" CreateProviderConnectionResponse\x12C\n" +
+	"\n" +
+	"connection\x18\x01 \x01(\v2#.chalk.router.v1.ProviderConnectionR\n" +
+	"connection\"\xd5\x02\n" +
+	"!UpdateProviderConnectionOperation\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1e\n" +
+	"\bbase_url\x18\x02 \x01(\tH\x01R\abaseUrl\x88\x01\x01\x12\x1b\n" +
+	"\x06prefix\x18\x03 \x01(\tH\x02R\x06prefix\x88\x01\x01\x12@\n" +
+	"\bexposure\x18\x04 \x01(\x0e2\x1f.chalk.router.v1.ExposurePolicyH\x03R\bexposure\x88\x01\x01\x12,\n" +
+	"\x0frouting_enabled\x18\x05 \x01(\bH\x04R\x0eroutingEnabled\x88\x01\x01\x12\x1c\n" +
+	"\aapi_key\x18\x06 \x01(\tH\x05R\x06apiKey\x88\x01\x01B\a\n" +
+	"\x05_nameB\v\n" +
+	"\t_base_urlB\t\n" +
+	"\a_prefixB\v\n" +
+	"\t_exposureB\x12\n" +
+	"\x10_routing_enabledB\n" +
+	"\n" +
+	"\b_api_key\"\xba\x01\n" +
+	"\x1fUpdateProviderConnectionRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12J\n" +
+	"\x06update\x18\x02 \x01(\v22.chalk.router.v1.UpdateProviderConnectionOperationR\x06update\x12;\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\"g\n" +
+	" UpdateProviderConnectionResponse\x12C\n" +
+	"\n" +
+	"connection\x18\x01 \x01(\v2#.chalk.router.v1.ProviderConnectionR\n" +
+	"connection\"1\n" +
+	"\x1fDeleteProviderConnectionRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"N\n" +
+	" DeleteProviderConnectionResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\bwarnings\x18\x02 \x03(\tR\bwarnings\"\x92\x01\n" +
+	"\x1dTestProviderConnectionRequest\x12%\n" +
+	"\rconnection_id\x18\x01 \x01(\tH\x00R\fconnectionId\x12@\n" +
+	"\x05draft\x18\x02 \x01(\v2(.chalk.router.v1.ProviderConnectionDraftH\x00R\x05draftB\b\n" +
+	"\x06target\"\xe3\x01\n" +
+	"\x1eTestProviderConnectionResponse\x12\x0e\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok\x12\x19\n" +
+	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01\x120\n" +
+	"\x11discovered_models\x18\x03 \x01(\rH\x01R\x10discoveredModels\x88\x01\x01\x128\n" +
+	"\alatency\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x02R\alatency\x88\x01\x01B\b\n" +
+	"\x06_errorB\x14\n" +
+	"\x12_discovered_modelsB\n" +
+	"\n" +
+	"\b_latency\"\xeb\x02\n" +
+	"\n" +
+	"ModelRoute\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
+	"\x0fpublic_model_id\x18\x02 \x01(\tR\rpublicModelId\x12#\n" +
+	"\rconnection_id\x18\x03 \x01(\tR\fconnectionId\x12*\n" +
+	"\x11upstream_model_id\x18\x04 \x01(\tR\x0fupstreamModelId\x12\x1c\n" +
+	"\tpublished\x18\x05 \x01(\bR\tpublished\x12@\n" +
+	"\n" +
+	"diagnostic\x18\x06 \x01(\x0e2 .chalk.router.v1.RouteDiagnosticR\n" +
+	"diagnostic\x129\n" +
+	"\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"e\n" +
+	"\x16ListModelRoutesRequest\x12\x19\n" +
+	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_cursor\"\x84\x01\n" +
+	"\x17ListModelRoutesResponse\x123\n" +
+	"\x06routes\x18\x01 \x03(\v2\x1b.chalk.router.v1.ModelRouteR\x06routes\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"\xb0\x01\n" +
+	"\x17CreateModelRouteRequest\x12&\n" +
+	"\x0fpublic_model_id\x18\x01 \x01(\tR\rpublicModelId\x12#\n" +
+	"\rconnection_id\x18\x02 \x01(\tR\fconnectionId\x12*\n" +
+	"\x11upstream_model_id\x18\x03 \x01(\tR\x0fupstreamModelId\x12\x1c\n" +
+	"\tpublished\x18\x04 \x01(\bR\tpublished\"M\n" +
+	"\x18CreateModelRouteResponse\x121\n" +
+	"\x05route\x18\x01 \x01(\v2\x1b.chalk.router.v1.ModelRouteR\x05route\"\xcf\x01\n" +
+	"\x19UpdateModelRouteOperation\x12(\n" +
+	"\rconnection_id\x18\x01 \x01(\tH\x00R\fconnectionId\x88\x01\x01\x12/\n" +
+	"\x11upstream_model_id\x18\x02 \x01(\tH\x01R\x0fupstreamModelId\x88\x01\x01\x12!\n" +
+	"\tpublished\x18\x03 \x01(\bH\x02R\tpublished\x88\x01\x01B\x10\n" +
+	"\x0e_connection_idB\x14\n" +
+	"\x12_upstream_model_idB\f\n" +
+	"\n" +
+	"_published\"\xaa\x01\n" +
+	"\x17UpdateModelRouteRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12B\n" +
+	"\x06update\x18\x02 \x01(\v2*.chalk.router.v1.UpdateModelRouteOperationR\x06update\x12;\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\"M\n" +
+	"\x18UpdateModelRouteResponse\x121\n" +
+	"\x05route\x18\x01 \x01(\v2\x1b.chalk.router.v1.ModelRouteR\x05route\")\n" +
+	"\x17DeleteModelRouteRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"F\n" +
+	"\x18DeleteModelRouteResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\bwarnings\x18\x02 \x03(\tR\bwarnings\"|\n" +
 	"\x05Usage\x12#\n" +
 	"\rprompt_tokens\x18\x01 \x01(\rR\fpromptTokens\x12+\n" +
 	"\x11completion_tokens\x18\x02 \x01(\rR\x10completionTokens\x12!\n" +
-	"\ftotal_tokens\x18\x03 \x01(\rR\vtotalTokens\"\xa8\x02\n" +
-	"\x14DebugCompletionEntry\x12\x1c\n" +
-	"\ttimestamp\x18\x01 \x01(\tR\ttimestamp\x12\x14\n" +
+	"\ftotal_tokens\x18\x03 \x01(\rR\vtotalTokens\"\xda\x02\n" +
+	"\x14DebugCompletionEntry\x128\n" +
+	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x14\n" +
 	"\x05model\x18\x02 \x01(\tR\x05model\x12#\n" +
 	"\rmessage_count\x18\x03 \x01(\rR\fmessageCount\x12\x1c\n" +
 	"\tstreaming\x18\x04 \x01(\bR\tstreaming\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\x12\x1f\n" +
-	"\vduration_ms\x18\x06 \x01(\x04R\n" +
-	"durationMs\x121\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x125\n" +
+	"\bduration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\bduration\x121\n" +
 	"\x05usage\x18\a \x01(\v2\x16.chalk.router.v1.UsageH\x00R\x05usage\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\b \x01(\tH\x01R\x05error\x88\x01\x01B\b\n" +
 	"\x06_usageB\b\n" +
@@ -3139,7 +5291,19 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\fCheckRequest\"A\n" +
 	"\rCheckResponse\x12\x18\n" +
 	"\aprofile\x18\x01 \x01(\tR\aprofile\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status2\xae\x05\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status*\x8a\x01\n" +
+	"\x0eExposurePolicy\x12\x1f\n" +
+	"\x1bEXPOSURE_POLICY_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17EXPOSURE_POLICY_DYNAMIC\x10\x01\x12\x1c\n" +
+	"\x18EXPOSURE_POLICY_UNLISTED\x10\x02\x12\x1c\n" +
+	"\x18EXPOSURE_POLICY_EXPLICIT\x10\x03*\xdb\x01\n" +
+	"\x0fRouteDiagnostic\x12 \n" +
+	"\x1cROUTE_DIAGNOSTIC_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16ROUTE_DIAGNOSTIC_READY\x10\x01\x12!\n" +
+	"\x1dROUTE_DIAGNOSTIC_UNCONFIGURED\x10\x02\x12\x1d\n" +
+	"\x19ROUTE_DIAGNOSTIC_DISABLED\x10\x03\x12\x1f\n" +
+	"\x1bROUTE_DIAGNOSTIC_UNREADABLE\x10\x04\x12'\n" +
+	"#ROUTE_DIAGNOSTIC_MISSING_CONNECTION\x10\x052\xae\x05\n" +
 	"\rApiKeyService\x12W\n" +
 	"\tCreateKey\x12!.chalk.router.v1.CreateKeyRequest\x1a\".chalk.router.v1.CreateKeyResponse\"\x03\x80}\x02\x12W\n" +
 	"\bListKeys\x12 .chalk.router.v1.ListKeysRequest\x1a!.chalk.router.v1.ListKeysResponse\"\x06\x80}\x02\x90\x02\x01\x12W\n" +
@@ -3147,13 +5311,11 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\tRevokeKey\x12!.chalk.router.v1.RevokeKeyRequest\x1a\".chalk.router.v1.RevokeKeyResponse\"\x03\x80}\x02\x12`\n" +
 	"\vGetKeyUsage\x12#.chalk.router.v1.GetKeyUsageRequest\x1a$.chalk.router.v1.GetKeyUsageResponse\"\x06\x80}\x02\x90\x02\x01\x12c\n" +
 	"\fListAllUsage\x12$.chalk.router.v1.ListAllUsageRequest\x1a%.chalk.router.v1.ListAllUsageResponse\"\x06\x80}\x02\x90\x02\x01\x12r\n" +
-	"\x11GetUsageHistogram\x12).chalk.router.v1.GetUsageHistogramRequest\x1a*.chalk.router.v1.GetUsageHistogramResponse\"\x06\x80}\x02\x90\x02\x012\xa1\x02\n" +
-	"\vTeamService\x12Z\n" +
-	"\n" +
-	"CreateTeam\x12\".chalk.router.v1.CreateTeamRequest\x1a#.chalk.router.v1.CreateTeamResponse\"\x03\x80}\x02\x12Z\n" +
-	"\tListTeams\x12!.chalk.router.v1.ListTeamsRequest\x1a\".chalk.router.v1.ListTeamsResponse\"\x06\x80}\x02\x90\x02\x01\x12Z\n" +
-	"\n" +
-	"DeleteTeam\x12\".chalk.router.v1.DeleteTeamRequest\x1a#.chalk.router.v1.DeleteTeamResponse\"\x03\x80}\x022\xbe\x03\n" +
+	"\x11GetUsageHistogram\x12).chalk.router.v1.GetUsageHistogramRequest\x1a*.chalk.router.v1.GetUsageHistogramResponse\"\x06\x80}\x02\x90\x02\x012\xd3\x02\n" +
+	"\x10UsagePoolService\x12i\n" +
+	"\x0fCreateUsagePool\x12'.chalk.router.v1.CreateUsagePoolRequest\x1a(.chalk.router.v1.CreateUsagePoolResponse\"\x03\x80}\x02\x12i\n" +
+	"\x0eListUsagePools\x12&.chalk.router.v1.ListUsagePoolsRequest\x1a'.chalk.router.v1.ListUsagePoolsResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
+	"\x0fDeleteUsagePool\x12'.chalk.router.v1.DeleteUsagePoolRequest\x1a(.chalk.router.v1.DeleteUsagePoolResponse\"\x03\x80}\x022\xbe\x03\n" +
 	"\x10RateLimitService\x12i\n" +
 	"\x0fCreateRateLimit\x12'.chalk.router.v1.CreateRateLimitRequest\x1a(.chalk.router.v1.CreateRateLimitResponse\"\x03\x80}\x02\x12i\n" +
 	"\x0eListRateLimits\x12&.chalk.router.v1.ListRateLimitsRequest\x1a'.chalk.router.v1.ListRateLimitsResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
@@ -3161,11 +5323,21 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x0fDeleteRateLimit\x12'.chalk.router.v1.DeleteRateLimitRequest\x1a(.chalk.router.v1.DeleteRateLimitResponse\"\x03\x80}\x022\x85\x02\n" +
 	"\x15FallbackPolicyService\x12r\n" +
 	"\x11GetFallbackPolicy\x12).chalk.router.v1.GetFallbackPolicyRequest\x1a*.chalk.router.v1.GetFallbackPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12x\n" +
-	"\x14UpdateFallbackPolicy\x12,.chalk.router.v1.UpdateFallbackPolicyRequest\x1a-.chalk.router.v1.UpdateFallbackPolicyResponse\"\x03\x80}\x022\xd8\x02\n" +
-	"\x0fSettingsService\x12`\n" +
-	"\vGetSettings\x12#.chalk.router.v1.GetSettingsRequest\x1a$.chalk.router.v1.GetSettingsResponse\"\x06\x80}\x02\x90\x02\x01\x12f\n" +
-	"\rListProviders\x12%.chalk.router.v1.ListProvidersRequest\x1a&.chalk.router.v1.ListProvidersResponse\"\x06\x80}\x02\x90\x02\x01\x12{\n" +
-	"\x15SetProviderCredential\x12-.chalk.router.v1.SetProviderCredentialRequest\x1a..chalk.router.v1.SetProviderCredentialResponse\"\x03\x80}\x022\x82\x01\n" +
+	"\x14UpdateFallbackPolicy\x12,.chalk.router.v1.UpdateFallbackPolicyRequest\x1a-.chalk.router.v1.UpdateFallbackPolicyResponse\"\x03\x80}\x022\xf0\x01\n" +
+	"\x12JudgePolicyService\x12i\n" +
+	"\x0eGetJudgePolicy\x12&.chalk.router.v1.GetJudgePolicyRequest\x1a'.chalk.router.v1.GetJudgePolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12o\n" +
+	"\x11UpdateJudgePolicy\x12).chalk.router.v1.UpdateJudgePolicyRequest\x1a*.chalk.router.v1.UpdateJudgePolicyResponse\"\x03\x80}\x022\xb7\x05\n" +
+	"\x19ProviderConnectionService\x12\x84\x01\n" +
+	"\x17ListProviderConnections\x12/.chalk.router.v1.ListProviderConnectionsRequest\x1a0.chalk.router.v1.ListProviderConnectionsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x84\x01\n" +
+	"\x18CreateProviderConnection\x120.chalk.router.v1.CreateProviderConnectionRequest\x1a1.chalk.router.v1.CreateProviderConnectionResponse\"\x03\x80}\x02\x12\x84\x01\n" +
+	"\x18UpdateProviderConnection\x120.chalk.router.v1.UpdateProviderConnectionRequest\x1a1.chalk.router.v1.UpdateProviderConnectionResponse\"\x03\x80}\x02\x12\x84\x01\n" +
+	"\x18DeleteProviderConnection\x120.chalk.router.v1.DeleteProviderConnectionRequest\x1a1.chalk.router.v1.DeleteProviderConnectionResponse\"\x03\x80}\x02\x12~\n" +
+	"\x16TestProviderConnection\x12..chalk.router.v1.TestProviderConnectionRequest\x1a/.chalk.router.v1.TestProviderConnectionResponse\"\x03\x80}\x022\xcb\x03\n" +
+	"\x11ModelRouteService\x12l\n" +
+	"\x0fListModelRoutes\x12'.chalk.router.v1.ListModelRoutesRequest\x1a(.chalk.router.v1.ListModelRoutesResponse\"\x06\x80}\x02\x90\x02\x01\x12l\n" +
+	"\x10CreateModelRoute\x12(.chalk.router.v1.CreateModelRouteRequest\x1a).chalk.router.v1.CreateModelRouteResponse\"\x03\x80}\x02\x12l\n" +
+	"\x10UpdateModelRoute\x12(.chalk.router.v1.UpdateModelRouteRequest\x1a).chalk.router.v1.UpdateModelRouteResponse\"\x03\x80}\x02\x12l\n" +
+	"\x10DeleteModelRoute\x12(.chalk.router.v1.DeleteModelRouteRequest\x1a).chalk.router.v1.DeleteModelRouteResponse\"\x03\x80}\x022\x82\x01\n" +
 	"\fDebugService\x12r\n" +
 	"\x11RecentCompletions\x12).chalk.router.v1.RecentCompletionsRequest\x1a*.chalk.router.v1.RecentCompletionsResponse\"\x06\x80}\x02\x90\x02\x012_\n" +
 	"\rHealthService\x12N\n" +
@@ -3184,153 +5356,239 @@ func file_chalk_router_v1_router_proto_rawDescGZIP() []byte {
 	return file_chalk_router_v1_router_proto_rawDescData
 }
 
-var file_chalk_router_v1_router_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_chalk_router_v1_router_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_router_v1_router_proto_msgTypes = make([]protoimpl.MessageInfo, 89)
 var file_chalk_router_v1_router_proto_goTypes = []any{
-	(*ApiKeyPermission)(nil),              // 0: chalk.router.v1.ApiKeyPermission
-	(*UsageSnapshot)(nil),                 // 1: chalk.router.v1.UsageSnapshot
-	(*ApiKey)(nil),                        // 2: chalk.router.v1.ApiKey
-	(*CreateKeyRequest)(nil),              // 3: chalk.router.v1.CreateKeyRequest
-	(*CreateKeyResponse)(nil),             // 4: chalk.router.v1.CreateKeyResponse
-	(*ListKeysRequest)(nil),               // 5: chalk.router.v1.ListKeysRequest
-	(*ListKeysResponse)(nil),              // 6: chalk.router.v1.ListKeysResponse
-	(*UpdateKeyRequest)(nil),              // 7: chalk.router.v1.UpdateKeyRequest
-	(*CostTagsValue)(nil),                 // 8: chalk.router.v1.CostTagsValue
-	(*UpdateKeyResponse)(nil),             // 9: chalk.router.v1.UpdateKeyResponse
-	(*RevokeKeyRequest)(nil),              // 10: chalk.router.v1.RevokeKeyRequest
-	(*RevokeKeyResponse)(nil),             // 11: chalk.router.v1.RevokeKeyResponse
-	(*GetKeyUsageRequest)(nil),            // 12: chalk.router.v1.GetKeyUsageRequest
-	(*GetKeyUsageResponse)(nil),           // 13: chalk.router.v1.GetKeyUsageResponse
-	(*ListAllUsageRequest)(nil),           // 14: chalk.router.v1.ListAllUsageRequest
-	(*ListAllUsageResponse)(nil),          // 15: chalk.router.v1.ListAllUsageResponse
-	(*GetUsageHistogramRequest)(nil),      // 16: chalk.router.v1.GetUsageHistogramRequest
-	(*UsageHistogramRow)(nil),             // 17: chalk.router.v1.UsageHistogramRow
-	(*GetUsageHistogramResponse)(nil),     // 18: chalk.router.v1.GetUsageHistogramResponse
-	(*Team)(nil),                          // 19: chalk.router.v1.Team
-	(*CreateTeamRequest)(nil),             // 20: chalk.router.v1.CreateTeamRequest
-	(*CreateTeamResponse)(nil),            // 21: chalk.router.v1.CreateTeamResponse
-	(*ListTeamsRequest)(nil),              // 22: chalk.router.v1.ListTeamsRequest
-	(*ListTeamsResponse)(nil),             // 23: chalk.router.v1.ListTeamsResponse
-	(*DeleteTeamRequest)(nil),             // 24: chalk.router.v1.DeleteTeamRequest
-	(*DeleteTeamResponse)(nil),            // 25: chalk.router.v1.DeleteTeamResponse
-	(*RateLimitPolicy)(nil),               // 26: chalk.router.v1.RateLimitPolicy
-	(*CreateRateLimitRequest)(nil),        // 27: chalk.router.v1.CreateRateLimitRequest
-	(*CreateRateLimitResponse)(nil),       // 28: chalk.router.v1.CreateRateLimitResponse
-	(*ListRateLimitsRequest)(nil),         // 29: chalk.router.v1.ListRateLimitsRequest
-	(*ListRateLimitsResponse)(nil),        // 30: chalk.router.v1.ListRateLimitsResponse
-	(*UpdateRateLimitRequest)(nil),        // 31: chalk.router.v1.UpdateRateLimitRequest
-	(*UpdateRateLimitResponse)(nil),       // 32: chalk.router.v1.UpdateRateLimitResponse
-	(*DeleteRateLimitRequest)(nil),        // 33: chalk.router.v1.DeleteRateLimitRequest
-	(*DeleteRateLimitResponse)(nil),       // 34: chalk.router.v1.DeleteRateLimitResponse
-	(*FallbackList)(nil),                  // 35: chalk.router.v1.FallbackList
-	(*FallbackPolicy)(nil),                // 36: chalk.router.v1.FallbackPolicy
-	(*GetFallbackPolicyRequest)(nil),      // 37: chalk.router.v1.GetFallbackPolicyRequest
-	(*GetFallbackPolicyResponse)(nil),     // 38: chalk.router.v1.GetFallbackPolicyResponse
-	(*UpdateFallbackPolicyRequest)(nil),   // 39: chalk.router.v1.UpdateFallbackPolicyRequest
-	(*UpdateFallbackPolicyResponse)(nil),  // 40: chalk.router.v1.UpdateFallbackPolicyResponse
-	(*GetSettingsRequest)(nil),            // 41: chalk.router.v1.GetSettingsRequest
-	(*GetSettingsResponse)(nil),           // 42: chalk.router.v1.GetSettingsResponse
-	(*ListProvidersRequest)(nil),          // 43: chalk.router.v1.ListProvidersRequest
-	(*ProviderInfo)(nil),                  // 44: chalk.router.v1.ProviderInfo
-	(*ListProvidersResponse)(nil),         // 45: chalk.router.v1.ListProvidersResponse
-	(*SetProviderCredentialRequest)(nil),  // 46: chalk.router.v1.SetProviderCredentialRequest
-	(*SetProviderCredentialResponse)(nil), // 47: chalk.router.v1.SetProviderCredentialResponse
-	(*Usage)(nil),                         // 48: chalk.router.v1.Usage
-	(*DebugCompletionEntry)(nil),          // 49: chalk.router.v1.DebugCompletionEntry
-	(*RecentCompletionsRequest)(nil),      // 50: chalk.router.v1.RecentCompletionsRequest
-	(*RecentCompletionsResponse)(nil),     // 51: chalk.router.v1.RecentCompletionsResponse
-	(*CheckRequest)(nil),                  // 52: chalk.router.v1.CheckRequest
-	(*CheckResponse)(nil),                 // 53: chalk.router.v1.CheckResponse
-	nil,                                   // 54: chalk.router.v1.ApiKey.LabelsEntry
-	nil,                                   // 55: chalk.router.v1.ApiKey.CostTagsEntry
-	nil,                                   // 56: chalk.router.v1.CreateKeyRequest.LabelsEntry
-	nil,                                   // 57: chalk.router.v1.CreateKeyRequest.CostTagsEntry
-	nil,                                   // 58: chalk.router.v1.CostTagsValue.TagsEntry
-	nil,                                   // 59: chalk.router.v1.FallbackPolicy.FallbacksEntry
-	(*timestamppb.Timestamp)(nil),         // 60: google.protobuf.Timestamp
+	(ExposurePolicy)(0),                       // 0: chalk.router.v1.ExposurePolicy
+	(RouteDiagnostic)(0),                      // 1: chalk.router.v1.RouteDiagnostic
+	(*ApiKeyPermission)(nil),                  // 2: chalk.router.v1.ApiKeyPermission
+	(*UsageSnapshot)(nil),                     // 3: chalk.router.v1.UsageSnapshot
+	(*ApiKey)(nil),                            // 4: chalk.router.v1.ApiKey
+	(*CreateKeyRequest)(nil),                  // 5: chalk.router.v1.CreateKeyRequest
+	(*CreateKeyResponse)(nil),                 // 6: chalk.router.v1.CreateKeyResponse
+	(*ListKeysRequest)(nil),                   // 7: chalk.router.v1.ListKeysRequest
+	(*ListKeysResponse)(nil),                  // 8: chalk.router.v1.ListKeysResponse
+	(*UpdateKeyOperation)(nil),                // 9: chalk.router.v1.UpdateKeyOperation
+	(*UpdateKeyRequest)(nil),                  // 10: chalk.router.v1.UpdateKeyRequest
+	(*UpdateKeyResponse)(nil),                 // 11: chalk.router.v1.UpdateKeyResponse
+	(*RevokeKeyRequest)(nil),                  // 12: chalk.router.v1.RevokeKeyRequest
+	(*RevokeKeyResponse)(nil),                 // 13: chalk.router.v1.RevokeKeyResponse
+	(*GetKeyUsageRequest)(nil),                // 14: chalk.router.v1.GetKeyUsageRequest
+	(*GetKeyUsageResponse)(nil),               // 15: chalk.router.v1.GetKeyUsageResponse
+	(*ListAllUsageRequest)(nil),               // 16: chalk.router.v1.ListAllUsageRequest
+	(*ListAllUsageResponse)(nil),              // 17: chalk.router.v1.ListAllUsageResponse
+	(*GetUsageHistogramRequest)(nil),          // 18: chalk.router.v1.GetUsageHistogramRequest
+	(*UsageHistogramRow)(nil),                 // 19: chalk.router.v1.UsageHistogramRow
+	(*GetUsageHistogramResponse)(nil),         // 20: chalk.router.v1.GetUsageHistogramResponse
+	(*UsagePool)(nil),                         // 21: chalk.router.v1.UsagePool
+	(*CreateUsagePoolRequest)(nil),            // 22: chalk.router.v1.CreateUsagePoolRequest
+	(*CreateUsagePoolResponse)(nil),           // 23: chalk.router.v1.CreateUsagePoolResponse
+	(*ListUsagePoolsRequest)(nil),             // 24: chalk.router.v1.ListUsagePoolsRequest
+	(*ListUsagePoolsResponse)(nil),            // 25: chalk.router.v1.ListUsagePoolsResponse
+	(*DeleteUsagePoolRequest)(nil),            // 26: chalk.router.v1.DeleteUsagePoolRequest
+	(*DeleteUsagePoolResponse)(nil),           // 27: chalk.router.v1.DeleteUsagePoolResponse
+	(*RateLimitPolicy)(nil),                   // 28: chalk.router.v1.RateLimitPolicy
+	(*CreateRateLimitRequest)(nil),            // 29: chalk.router.v1.CreateRateLimitRequest
+	(*CreateRateLimitResponse)(nil),           // 30: chalk.router.v1.CreateRateLimitResponse
+	(*ListRateLimitsRequest)(nil),             // 31: chalk.router.v1.ListRateLimitsRequest
+	(*ListRateLimitsResponse)(nil),            // 32: chalk.router.v1.ListRateLimitsResponse
+	(*UpdateRateLimitOperation)(nil),          // 33: chalk.router.v1.UpdateRateLimitOperation
+	(*UpdateRateLimitRequest)(nil),            // 34: chalk.router.v1.UpdateRateLimitRequest
+	(*UpdateRateLimitResponse)(nil),           // 35: chalk.router.v1.UpdateRateLimitResponse
+	(*DeleteRateLimitRequest)(nil),            // 36: chalk.router.v1.DeleteRateLimitRequest
+	(*DeleteRateLimitResponse)(nil),           // 37: chalk.router.v1.DeleteRateLimitResponse
+	(*FallbackList)(nil),                      // 38: chalk.router.v1.FallbackList
+	(*FallbackPolicy)(nil),                    // 39: chalk.router.v1.FallbackPolicy
+	(*GetFallbackPolicyRequest)(nil),          // 40: chalk.router.v1.GetFallbackPolicyRequest
+	(*GetFallbackPolicyResponse)(nil),         // 41: chalk.router.v1.GetFallbackPolicyResponse
+	(*UpdateFallbackPolicyOperation)(nil),     // 42: chalk.router.v1.UpdateFallbackPolicyOperation
+	(*UpdateFallbackPolicyRequest)(nil),       // 43: chalk.router.v1.UpdateFallbackPolicyRequest
+	(*UpdateFallbackPolicyResponse)(nil),      // 44: chalk.router.v1.UpdateFallbackPolicyResponse
+	(*JudgeLadder)(nil),                       // 45: chalk.router.v1.JudgeLadder
+	(*JudgePolicy)(nil),                       // 46: chalk.router.v1.JudgePolicy
+	(*GetJudgePolicyRequest)(nil),             // 47: chalk.router.v1.GetJudgePolicyRequest
+	(*GetJudgePolicyResponse)(nil),            // 48: chalk.router.v1.GetJudgePolicyResponse
+	(*UpdateJudgePolicyOperation)(nil),        // 49: chalk.router.v1.UpdateJudgePolicyOperation
+	(*UpdateJudgePolicyRequest)(nil),          // 50: chalk.router.v1.UpdateJudgePolicyRequest
+	(*UpdateJudgePolicyResponse)(nil),         // 51: chalk.router.v1.UpdateJudgePolicyResponse
+	(*ConnectionState)(nil),                   // 52: chalk.router.v1.ConnectionState
+	(*ProviderConnection)(nil),                // 53: chalk.router.v1.ProviderConnection
+	(*ProviderConnectionDraft)(nil),           // 54: chalk.router.v1.ProviderConnectionDraft
+	(*ListProviderConnectionsRequest)(nil),    // 55: chalk.router.v1.ListProviderConnectionsRequest
+	(*ListProviderConnectionsResponse)(nil),   // 56: chalk.router.v1.ListProviderConnectionsResponse
+	(*CreateProviderConnectionRequest)(nil),   // 57: chalk.router.v1.CreateProviderConnectionRequest
+	(*CreateProviderConnectionResponse)(nil),  // 58: chalk.router.v1.CreateProviderConnectionResponse
+	(*UpdateProviderConnectionOperation)(nil), // 59: chalk.router.v1.UpdateProviderConnectionOperation
+	(*UpdateProviderConnectionRequest)(nil),   // 60: chalk.router.v1.UpdateProviderConnectionRequest
+	(*UpdateProviderConnectionResponse)(nil),  // 61: chalk.router.v1.UpdateProviderConnectionResponse
+	(*DeleteProviderConnectionRequest)(nil),   // 62: chalk.router.v1.DeleteProviderConnectionRequest
+	(*DeleteProviderConnectionResponse)(nil),  // 63: chalk.router.v1.DeleteProviderConnectionResponse
+	(*TestProviderConnectionRequest)(nil),     // 64: chalk.router.v1.TestProviderConnectionRequest
+	(*TestProviderConnectionResponse)(nil),    // 65: chalk.router.v1.TestProviderConnectionResponse
+	(*ModelRoute)(nil),                        // 66: chalk.router.v1.ModelRoute
+	(*ListModelRoutesRequest)(nil),            // 67: chalk.router.v1.ListModelRoutesRequest
+	(*ListModelRoutesResponse)(nil),           // 68: chalk.router.v1.ListModelRoutesResponse
+	(*CreateModelRouteRequest)(nil),           // 69: chalk.router.v1.CreateModelRouteRequest
+	(*CreateModelRouteResponse)(nil),          // 70: chalk.router.v1.CreateModelRouteResponse
+	(*UpdateModelRouteOperation)(nil),         // 71: chalk.router.v1.UpdateModelRouteOperation
+	(*UpdateModelRouteRequest)(nil),           // 72: chalk.router.v1.UpdateModelRouteRequest
+	(*UpdateModelRouteResponse)(nil),          // 73: chalk.router.v1.UpdateModelRouteResponse
+	(*DeleteModelRouteRequest)(nil),           // 74: chalk.router.v1.DeleteModelRouteRequest
+	(*DeleteModelRouteResponse)(nil),          // 75: chalk.router.v1.DeleteModelRouteResponse
+	(*Usage)(nil),                             // 76: chalk.router.v1.Usage
+	(*DebugCompletionEntry)(nil),              // 77: chalk.router.v1.DebugCompletionEntry
+	(*RecentCompletionsRequest)(nil),          // 78: chalk.router.v1.RecentCompletionsRequest
+	(*RecentCompletionsResponse)(nil),         // 79: chalk.router.v1.RecentCompletionsResponse
+	(*CheckRequest)(nil),                      // 80: chalk.router.v1.CheckRequest
+	(*CheckResponse)(nil),                     // 81: chalk.router.v1.CheckResponse
+	nil,                                       // 82: chalk.router.v1.ApiKey.LabelsEntry
+	nil,                                       // 83: chalk.router.v1.ApiKey.CostTagsEntry
+	nil,                                       // 84: chalk.router.v1.CreateKeyRequest.LabelsEntry
+	nil,                                       // 85: chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	nil,                                       // 86: chalk.router.v1.UpdateKeyOperation.CostTagsEntry
+	nil,                                       // 87: chalk.router.v1.FallbackPolicy.FallbacksEntry
+	nil,                                       // 88: chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry
+	nil,                                       // 89: chalk.router.v1.JudgePolicy.LaddersEntry
+	nil,                                       // 90: chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry
+	(*timestamppb.Timestamp)(nil),             // 91: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),             // 92: google.protobuf.FieldMask
+	(*durationpb.Duration)(nil),               // 93: google.protobuf.Duration
 }
 var file_chalk_router_v1_router_proto_depIdxs = []int32{
-	60, // 0: chalk.router.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 1: chalk.router.v1.ApiKey.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	54, // 2: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
-	1,  // 3: chalk.router.v1.ApiKey.usage:type_name -> chalk.router.v1.UsageSnapshot
-	55, // 4: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
-	0,  // 5: chalk.router.v1.CreateKeyRequest.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	56, // 6: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
-	57, // 7: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
-	2,  // 8: chalk.router.v1.CreateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
-	2,  // 9: chalk.router.v1.ListKeysResponse.keys:type_name -> chalk.router.v1.ApiKey
-	8,  // 10: chalk.router.v1.UpdateKeyRequest.cost_tags:type_name -> chalk.router.v1.CostTagsValue
-	58, // 11: chalk.router.v1.CostTagsValue.tags:type_name -> chalk.router.v1.CostTagsValue.TagsEntry
-	2,  // 12: chalk.router.v1.UpdateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
-	1,  // 13: chalk.router.v1.GetKeyUsageResponse.usage:type_name -> chalk.router.v1.UsageSnapshot
-	13, // 14: chalk.router.v1.ListAllUsageResponse.keys:type_name -> chalk.router.v1.GetKeyUsageResponse
-	60, // 15: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
-	60, // 16: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
-	60, // 17: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
-	17, // 18: chalk.router.v1.GetUsageHistogramResponse.rows:type_name -> chalk.router.v1.UsageHistogramRow
-	60, // 19: chalk.router.v1.Team.created_at:type_name -> google.protobuf.Timestamp
-	19, // 20: chalk.router.v1.CreateTeamResponse.team:type_name -> chalk.router.v1.Team
-	19, // 21: chalk.router.v1.ListTeamsResponse.teams:type_name -> chalk.router.v1.Team
-	60, // 22: chalk.router.v1.RateLimitPolicy.created_at:type_name -> google.protobuf.Timestamp
-	26, // 23: chalk.router.v1.CreateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
-	26, // 24: chalk.router.v1.ListRateLimitsResponse.policies:type_name -> chalk.router.v1.RateLimitPolicy
-	26, // 25: chalk.router.v1.UpdateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
-	59, // 26: chalk.router.v1.FallbackPolicy.fallbacks:type_name -> chalk.router.v1.FallbackPolicy.FallbacksEntry
-	36, // 27: chalk.router.v1.GetFallbackPolicyResponse.policy:type_name -> chalk.router.v1.FallbackPolicy
-	36, // 28: chalk.router.v1.UpdateFallbackPolicyRequest.policy:type_name -> chalk.router.v1.FallbackPolicy
-	36, // 29: chalk.router.v1.UpdateFallbackPolicyResponse.policy:type_name -> chalk.router.v1.FallbackPolicy
-	44, // 30: chalk.router.v1.ListProvidersResponse.providers:type_name -> chalk.router.v1.ProviderInfo
-	44, // 31: chalk.router.v1.SetProviderCredentialResponse.provider:type_name -> chalk.router.v1.ProviderInfo
-	48, // 32: chalk.router.v1.DebugCompletionEntry.usage:type_name -> chalk.router.v1.Usage
-	49, // 33: chalk.router.v1.RecentCompletionsResponse.entries:type_name -> chalk.router.v1.DebugCompletionEntry
-	35, // 34: chalk.router.v1.FallbackPolicy.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
-	3,  // 35: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
-	5,  // 36: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
-	7,  // 37: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
-	10, // 38: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
-	12, // 39: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
-	14, // 40: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
-	16, // 41: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
-	20, // 42: chalk.router.v1.TeamService.CreateTeam:input_type -> chalk.router.v1.CreateTeamRequest
-	22, // 43: chalk.router.v1.TeamService.ListTeams:input_type -> chalk.router.v1.ListTeamsRequest
-	24, // 44: chalk.router.v1.TeamService.DeleteTeam:input_type -> chalk.router.v1.DeleteTeamRequest
-	27, // 45: chalk.router.v1.RateLimitService.CreateRateLimit:input_type -> chalk.router.v1.CreateRateLimitRequest
-	29, // 46: chalk.router.v1.RateLimitService.ListRateLimits:input_type -> chalk.router.v1.ListRateLimitsRequest
-	31, // 47: chalk.router.v1.RateLimitService.UpdateRateLimit:input_type -> chalk.router.v1.UpdateRateLimitRequest
-	33, // 48: chalk.router.v1.RateLimitService.DeleteRateLimit:input_type -> chalk.router.v1.DeleteRateLimitRequest
-	37, // 49: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:input_type -> chalk.router.v1.GetFallbackPolicyRequest
-	39, // 50: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:input_type -> chalk.router.v1.UpdateFallbackPolicyRequest
-	41, // 51: chalk.router.v1.SettingsService.GetSettings:input_type -> chalk.router.v1.GetSettingsRequest
-	43, // 52: chalk.router.v1.SettingsService.ListProviders:input_type -> chalk.router.v1.ListProvidersRequest
-	46, // 53: chalk.router.v1.SettingsService.SetProviderCredential:input_type -> chalk.router.v1.SetProviderCredentialRequest
-	50, // 54: chalk.router.v1.DebugService.RecentCompletions:input_type -> chalk.router.v1.RecentCompletionsRequest
-	52, // 55: chalk.router.v1.HealthService.Check:input_type -> chalk.router.v1.CheckRequest
-	4,  // 56: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
-	6,  // 57: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
-	9,  // 58: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
-	11, // 59: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
-	13, // 60: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
-	15, // 61: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
-	18, // 62: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
-	21, // 63: chalk.router.v1.TeamService.CreateTeam:output_type -> chalk.router.v1.CreateTeamResponse
-	23, // 64: chalk.router.v1.TeamService.ListTeams:output_type -> chalk.router.v1.ListTeamsResponse
-	25, // 65: chalk.router.v1.TeamService.DeleteTeam:output_type -> chalk.router.v1.DeleteTeamResponse
-	28, // 66: chalk.router.v1.RateLimitService.CreateRateLimit:output_type -> chalk.router.v1.CreateRateLimitResponse
-	30, // 67: chalk.router.v1.RateLimitService.ListRateLimits:output_type -> chalk.router.v1.ListRateLimitsResponse
-	32, // 68: chalk.router.v1.RateLimitService.UpdateRateLimit:output_type -> chalk.router.v1.UpdateRateLimitResponse
-	34, // 69: chalk.router.v1.RateLimitService.DeleteRateLimit:output_type -> chalk.router.v1.DeleteRateLimitResponse
-	38, // 70: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:output_type -> chalk.router.v1.GetFallbackPolicyResponse
-	40, // 71: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:output_type -> chalk.router.v1.UpdateFallbackPolicyResponse
-	42, // 72: chalk.router.v1.SettingsService.GetSettings:output_type -> chalk.router.v1.GetSettingsResponse
-	45, // 73: chalk.router.v1.SettingsService.ListProviders:output_type -> chalk.router.v1.ListProvidersResponse
-	47, // 74: chalk.router.v1.SettingsService.SetProviderCredential:output_type -> chalk.router.v1.SetProviderCredentialResponse
-	51, // 75: chalk.router.v1.DebugService.RecentCompletions:output_type -> chalk.router.v1.RecentCompletionsResponse
-	53, // 76: chalk.router.v1.HealthService.Check:output_type -> chalk.router.v1.CheckResponse
-	56, // [56:77] is the sub-list for method output_type
-	35, // [35:56] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	91,  // 0: chalk.router.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
+	2,   // 1: chalk.router.v1.ApiKey.permission:type_name -> chalk.router.v1.ApiKeyPermission
+	82,  // 2: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
+	3,   // 3: chalk.router.v1.ApiKey.usage:type_name -> chalk.router.v1.UsageSnapshot
+	83,  // 4: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
+	2,   // 5: chalk.router.v1.CreateKeyRequest.permission:type_name -> chalk.router.v1.ApiKeyPermission
+	84,  // 6: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
+	85,  // 7: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	4,   // 8: chalk.router.v1.CreateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
+	4,   // 9: chalk.router.v1.ListKeysResponse.keys:type_name -> chalk.router.v1.ApiKey
+	86,  // 10: chalk.router.v1.UpdateKeyOperation.cost_tags:type_name -> chalk.router.v1.UpdateKeyOperation.CostTagsEntry
+	9,   // 11: chalk.router.v1.UpdateKeyRequest.update:type_name -> chalk.router.v1.UpdateKeyOperation
+	92,  // 12: chalk.router.v1.UpdateKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	4,   // 13: chalk.router.v1.UpdateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
+	3,   // 14: chalk.router.v1.GetKeyUsageResponse.usage:type_name -> chalk.router.v1.UsageSnapshot
+	15,  // 15: chalk.router.v1.ListAllUsageResponse.keys:type_name -> chalk.router.v1.GetKeyUsageResponse
+	91,  // 16: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
+	91,  // 17: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
+	91,  // 18: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
+	19,  // 19: chalk.router.v1.GetUsageHistogramResponse.rows:type_name -> chalk.router.v1.UsageHistogramRow
+	91,  // 20: chalk.router.v1.UsagePool.created_at:type_name -> google.protobuf.Timestamp
+	21,  // 21: chalk.router.v1.CreateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
+	21,  // 22: chalk.router.v1.ListUsagePoolsResponse.pools:type_name -> chalk.router.v1.UsagePool
+	91,  // 23: chalk.router.v1.RateLimitPolicy.created_at:type_name -> google.protobuf.Timestamp
+	28,  // 24: chalk.router.v1.CreateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
+	28,  // 25: chalk.router.v1.ListRateLimitsResponse.policies:type_name -> chalk.router.v1.RateLimitPolicy
+	33,  // 26: chalk.router.v1.UpdateRateLimitRequest.update:type_name -> chalk.router.v1.UpdateRateLimitOperation
+	92,  // 27: chalk.router.v1.UpdateRateLimitRequest.update_mask:type_name -> google.protobuf.FieldMask
+	28,  // 28: chalk.router.v1.UpdateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
+	87,  // 29: chalk.router.v1.FallbackPolicy.fallbacks:type_name -> chalk.router.v1.FallbackPolicy.FallbacksEntry
+	39,  // 30: chalk.router.v1.GetFallbackPolicyResponse.policy:type_name -> chalk.router.v1.FallbackPolicy
+	88,  // 31: chalk.router.v1.UpdateFallbackPolicyOperation.fallbacks:type_name -> chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry
+	42,  // 32: chalk.router.v1.UpdateFallbackPolicyRequest.update:type_name -> chalk.router.v1.UpdateFallbackPolicyOperation
+	92,  // 33: chalk.router.v1.UpdateFallbackPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	39,  // 34: chalk.router.v1.UpdateFallbackPolicyResponse.policy:type_name -> chalk.router.v1.FallbackPolicy
+	89,  // 35: chalk.router.v1.JudgePolicy.ladders:type_name -> chalk.router.v1.JudgePolicy.LaddersEntry
+	46,  // 36: chalk.router.v1.GetJudgePolicyResponse.policy:type_name -> chalk.router.v1.JudgePolicy
+	90,  // 37: chalk.router.v1.UpdateJudgePolicyOperation.ladders:type_name -> chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry
+	49,  // 38: chalk.router.v1.UpdateJudgePolicyRequest.update:type_name -> chalk.router.v1.UpdateJudgePolicyOperation
+	92,  // 39: chalk.router.v1.UpdateJudgePolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	46,  // 40: chalk.router.v1.UpdateJudgePolicyResponse.policy:type_name -> chalk.router.v1.JudgePolicy
+	0,   // 41: chalk.router.v1.ProviderConnection.exposure:type_name -> chalk.router.v1.ExposurePolicy
+	52,  // 42: chalk.router.v1.ProviderConnection.state:type_name -> chalk.router.v1.ConnectionState
+	91,  // 43: chalk.router.v1.ProviderConnection.created_at:type_name -> google.protobuf.Timestamp
+	91,  // 44: chalk.router.v1.ProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
+	0,   // 45: chalk.router.v1.ProviderConnectionDraft.exposure:type_name -> chalk.router.v1.ExposurePolicy
+	53,  // 46: chalk.router.v1.ListProviderConnectionsResponse.connections:type_name -> chalk.router.v1.ProviderConnection
+	0,   // 47: chalk.router.v1.CreateProviderConnectionRequest.exposure:type_name -> chalk.router.v1.ExposurePolicy
+	53,  // 48: chalk.router.v1.CreateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
+	0,   // 49: chalk.router.v1.UpdateProviderConnectionOperation.exposure:type_name -> chalk.router.v1.ExposurePolicy
+	59,  // 50: chalk.router.v1.UpdateProviderConnectionRequest.update:type_name -> chalk.router.v1.UpdateProviderConnectionOperation
+	92,  // 51: chalk.router.v1.UpdateProviderConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	53,  // 52: chalk.router.v1.UpdateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
+	54,  // 53: chalk.router.v1.TestProviderConnectionRequest.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
+	93,  // 54: chalk.router.v1.TestProviderConnectionResponse.latency:type_name -> google.protobuf.Duration
+	1,   // 55: chalk.router.v1.ModelRoute.diagnostic:type_name -> chalk.router.v1.RouteDiagnostic
+	91,  // 56: chalk.router.v1.ModelRoute.created_at:type_name -> google.protobuf.Timestamp
+	91,  // 57: chalk.router.v1.ModelRoute.updated_at:type_name -> google.protobuf.Timestamp
+	66,  // 58: chalk.router.v1.ListModelRoutesResponse.routes:type_name -> chalk.router.v1.ModelRoute
+	66,  // 59: chalk.router.v1.CreateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
+	71,  // 60: chalk.router.v1.UpdateModelRouteRequest.update:type_name -> chalk.router.v1.UpdateModelRouteOperation
+	92,  // 61: chalk.router.v1.UpdateModelRouteRequest.update_mask:type_name -> google.protobuf.FieldMask
+	66,  // 62: chalk.router.v1.UpdateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
+	91,  // 63: chalk.router.v1.DebugCompletionEntry.timestamp:type_name -> google.protobuf.Timestamp
+	93,  // 64: chalk.router.v1.DebugCompletionEntry.duration:type_name -> google.protobuf.Duration
+	76,  // 65: chalk.router.v1.DebugCompletionEntry.usage:type_name -> chalk.router.v1.Usage
+	77,  // 66: chalk.router.v1.RecentCompletionsResponse.entries:type_name -> chalk.router.v1.DebugCompletionEntry
+	38,  // 67: chalk.router.v1.FallbackPolicy.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
+	38,  // 68: chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
+	45,  // 69: chalk.router.v1.JudgePolicy.LaddersEntry.value:type_name -> chalk.router.v1.JudgeLadder
+	45,  // 70: chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry.value:type_name -> chalk.router.v1.JudgeLadder
+	5,   // 71: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
+	7,   // 72: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
+	10,  // 73: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
+	12,  // 74: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
+	14,  // 75: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
+	16,  // 76: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
+	18,  // 77: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
+	22,  // 78: chalk.router.v1.UsagePoolService.CreateUsagePool:input_type -> chalk.router.v1.CreateUsagePoolRequest
+	24,  // 79: chalk.router.v1.UsagePoolService.ListUsagePools:input_type -> chalk.router.v1.ListUsagePoolsRequest
+	26,  // 80: chalk.router.v1.UsagePoolService.DeleteUsagePool:input_type -> chalk.router.v1.DeleteUsagePoolRequest
+	29,  // 81: chalk.router.v1.RateLimitService.CreateRateLimit:input_type -> chalk.router.v1.CreateRateLimitRequest
+	31,  // 82: chalk.router.v1.RateLimitService.ListRateLimits:input_type -> chalk.router.v1.ListRateLimitsRequest
+	34,  // 83: chalk.router.v1.RateLimitService.UpdateRateLimit:input_type -> chalk.router.v1.UpdateRateLimitRequest
+	36,  // 84: chalk.router.v1.RateLimitService.DeleteRateLimit:input_type -> chalk.router.v1.DeleteRateLimitRequest
+	40,  // 85: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:input_type -> chalk.router.v1.GetFallbackPolicyRequest
+	43,  // 86: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:input_type -> chalk.router.v1.UpdateFallbackPolicyRequest
+	47,  // 87: chalk.router.v1.JudgePolicyService.GetJudgePolicy:input_type -> chalk.router.v1.GetJudgePolicyRequest
+	50,  // 88: chalk.router.v1.JudgePolicyService.UpdateJudgePolicy:input_type -> chalk.router.v1.UpdateJudgePolicyRequest
+	55,  // 89: chalk.router.v1.ProviderConnectionService.ListProviderConnections:input_type -> chalk.router.v1.ListProviderConnectionsRequest
+	57,  // 90: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:input_type -> chalk.router.v1.CreateProviderConnectionRequest
+	60,  // 91: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:input_type -> chalk.router.v1.UpdateProviderConnectionRequest
+	62,  // 92: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:input_type -> chalk.router.v1.DeleteProviderConnectionRequest
+	64,  // 93: chalk.router.v1.ProviderConnectionService.TestProviderConnection:input_type -> chalk.router.v1.TestProviderConnectionRequest
+	67,  // 94: chalk.router.v1.ModelRouteService.ListModelRoutes:input_type -> chalk.router.v1.ListModelRoutesRequest
+	69,  // 95: chalk.router.v1.ModelRouteService.CreateModelRoute:input_type -> chalk.router.v1.CreateModelRouteRequest
+	72,  // 96: chalk.router.v1.ModelRouteService.UpdateModelRoute:input_type -> chalk.router.v1.UpdateModelRouteRequest
+	74,  // 97: chalk.router.v1.ModelRouteService.DeleteModelRoute:input_type -> chalk.router.v1.DeleteModelRouteRequest
+	78,  // 98: chalk.router.v1.DebugService.RecentCompletions:input_type -> chalk.router.v1.RecentCompletionsRequest
+	80,  // 99: chalk.router.v1.HealthService.Check:input_type -> chalk.router.v1.CheckRequest
+	6,   // 100: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
+	8,   // 101: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
+	11,  // 102: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
+	13,  // 103: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
+	15,  // 104: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
+	17,  // 105: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
+	20,  // 106: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
+	23,  // 107: chalk.router.v1.UsagePoolService.CreateUsagePool:output_type -> chalk.router.v1.CreateUsagePoolResponse
+	25,  // 108: chalk.router.v1.UsagePoolService.ListUsagePools:output_type -> chalk.router.v1.ListUsagePoolsResponse
+	27,  // 109: chalk.router.v1.UsagePoolService.DeleteUsagePool:output_type -> chalk.router.v1.DeleteUsagePoolResponse
+	30,  // 110: chalk.router.v1.RateLimitService.CreateRateLimit:output_type -> chalk.router.v1.CreateRateLimitResponse
+	32,  // 111: chalk.router.v1.RateLimitService.ListRateLimits:output_type -> chalk.router.v1.ListRateLimitsResponse
+	35,  // 112: chalk.router.v1.RateLimitService.UpdateRateLimit:output_type -> chalk.router.v1.UpdateRateLimitResponse
+	37,  // 113: chalk.router.v1.RateLimitService.DeleteRateLimit:output_type -> chalk.router.v1.DeleteRateLimitResponse
+	41,  // 114: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:output_type -> chalk.router.v1.GetFallbackPolicyResponse
+	44,  // 115: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:output_type -> chalk.router.v1.UpdateFallbackPolicyResponse
+	48,  // 116: chalk.router.v1.JudgePolicyService.GetJudgePolicy:output_type -> chalk.router.v1.GetJudgePolicyResponse
+	51,  // 117: chalk.router.v1.JudgePolicyService.UpdateJudgePolicy:output_type -> chalk.router.v1.UpdateJudgePolicyResponse
+	56,  // 118: chalk.router.v1.ProviderConnectionService.ListProviderConnections:output_type -> chalk.router.v1.ListProviderConnectionsResponse
+	58,  // 119: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:output_type -> chalk.router.v1.CreateProviderConnectionResponse
+	61,  // 120: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:output_type -> chalk.router.v1.UpdateProviderConnectionResponse
+	63,  // 121: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:output_type -> chalk.router.v1.DeleteProviderConnectionResponse
+	65,  // 122: chalk.router.v1.ProviderConnectionService.TestProviderConnection:output_type -> chalk.router.v1.TestProviderConnectionResponse
+	68,  // 123: chalk.router.v1.ModelRouteService.ListModelRoutes:output_type -> chalk.router.v1.ListModelRoutesResponse
+	70,  // 124: chalk.router.v1.ModelRouteService.CreateModelRoute:output_type -> chalk.router.v1.CreateModelRouteResponse
+	73,  // 125: chalk.router.v1.ModelRouteService.UpdateModelRoute:output_type -> chalk.router.v1.UpdateModelRouteResponse
+	75,  // 126: chalk.router.v1.ModelRouteService.DeleteModelRoute:output_type -> chalk.router.v1.DeleteModelRouteResponse
+	79,  // 127: chalk.router.v1.DebugService.RecentCompletions:output_type -> chalk.router.v1.RecentCompletionsResponse
+	81,  // 128: chalk.router.v1.HealthService.Check:output_type -> chalk.router.v1.CheckResponse
+	100, // [100:129] is the sub-list for method output_type
+	71,  // [71:100] is the sub-list for method input_type
+	71,  // [71:71] is the sub-list for extension type_name
+	71,  // [71:71] is the sub-list for extension extendee
+	0,   // [0:71] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_router_proto_init() }
@@ -3341,25 +5599,47 @@ func file_chalk_router_v1_router_proto_init() {
 	file_chalk_router_v1_router_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[23].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[29].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[30].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[31].OneofWrappers = []any{}
-	file_chalk_router_v1_router_proto_msgTypes[42].OneofWrappers = []any{}
-	file_chalk_router_v1_router_proto_msgTypes[46].OneofWrappers = []any{}
-	file_chalk_router_v1_router_proto_msgTypes[49].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[44].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[47].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[50].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[51].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[52].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[53].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[54].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[55].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[57].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[62].OneofWrappers = []any{
+		(*TestProviderConnectionRequest_ConnectionId)(nil),
+		(*TestProviderConnectionRequest_Draft)(nil),
+	}
+	file_chalk_router_v1_router_proto_msgTypes[63].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[65].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[66].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[69].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[75].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_router_v1_router_proto_rawDesc), len(file_chalk_router_v1_router_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   60,
+			NumEnums:      2,
+			NumMessages:   89,
 			NumExtensions: 0,
-			NumServices:   7,
+			NumServices:   9,
 		},
 		GoTypes:           file_chalk_router_v1_router_proto_goTypes,
 		DependencyIndexes: file_chalk_router_v1_router_proto_depIdxs,
+		EnumInfos:         file_chalk_router_v1_router_proto_enumTypes,
 		MessageInfos:      file_chalk_router_v1_router_proto_msgTypes,
 	}.Build()
 	File_chalk_router_v1_router_proto = out.File

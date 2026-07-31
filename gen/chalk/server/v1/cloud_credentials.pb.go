@@ -755,7 +755,7 @@ var File_chalk_server_v1_cloud_credentials_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_cloud_credentials_proto_rawDesc = "" +
 	"\n" +
-	"'chalk/server/v1/cloud_credentials.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/server/v1/environment.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x1d\n" +
+	"'chalk/server/v1/cloud_credentials.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/server/v1/cloud_config.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x1d\n" +
 	"\x1bListCloudCredentialsRequest\"k\n" +
 	"\x1cListCloudCredentialsResponse\x12K\n" +
 	"\vcredentials\x18\x01 \x03(\v2).chalk.server.v1.CloudCredentialsResponseR\vcredentials\"\x93\x02\n" +
@@ -873,7 +873,7 @@ func file_chalk_server_v1_cloud_credentials_proto_init() {
 	if File_chalk_server_v1_cloud_credentials_proto != nil {
 		return
 	}
-	file_chalk_server_v1_environment_proto_init()
+	file_chalk_server_v1_cloud_config_proto_init()
 	file_chalk_server_v1_cloud_credentials_proto_msgTypes[12].OneofWrappers = []any{
 		(*TestCloudCredentialsRequest_Id)(nil),
 		(*TestCloudCredentialsRequest_Config)(nil),

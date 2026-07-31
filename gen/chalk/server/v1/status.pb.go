@@ -136,6 +136,8 @@ const (
 	HealthCheckName_HEALTH_CHECK_NAME_EBS_CSI_DRIVER                         HealthCheckName = 53 // "EBS CSI Driver"
 	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS                       HealthCheckName = 54 // "Victoria Metrics"
 	HealthCheckName_HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY             HealthCheckName = 55 // "Container Registry"
+	HealthCheckName_HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS           HealthCheckName = 56 // "Chalk Machine Type Nodepools"
+	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_NODEPOOL                       HealthCheckName = 57 // "Offline Nodepool"
 )
 
 // Enum value maps for HealthCheckName.
@@ -197,6 +199,8 @@ var (
 		53: "HEALTH_CHECK_NAME_EBS_CSI_DRIVER",
 		54: "HEALTH_CHECK_NAME_VICTORIA_METRICS",
 		55: "HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY",
+		56: "HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS",
+		57: "HEALTH_CHECK_NAME_OFFLINE_NODEPOOL",
 	}
 	HealthCheckName_value = map[string]int32{
 		"HEALTH_CHECK_NAME_UNSPECIFIED":                            0,
@@ -255,6 +259,8 @@ var (
 		"HEALTH_CHECK_NAME_EBS_CSI_DRIVER":                         53,
 		"HEALTH_CHECK_NAME_VICTORIA_METRICS":                       54,
 		"HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY":             55,
+		"HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS":           56,
+		"HEALTH_CHECK_NAME_OFFLINE_NODEPOOL":                       57,
 	}
 )
 
@@ -723,7 +729,7 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\x1fHEALTH_CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16HEALTH_CHECK_STATUS_OK\x10\x01\x12\x1f\n" +
 	"\x1bHEALTH_CHECK_STATUS_FAILING\x10\x02\x12&\n" +
-	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\xb2\x11\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\x8e\x12\n" +
 	"\x0fHealthCheckName\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_HTTP_ENGINE\x10\x01\x12%\n" +
@@ -781,7 +787,9 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\x19HEALTH_CHECK_NAME_VPC_CNI\x104\x12$\n" +
 	" HEALTH_CHECK_NAME_EBS_CSI_DRIVER\x105\x12&\n" +
 	"\"HEALTH_CHECK_NAME_VICTORIA_METRICS\x106\x120\n" +
-	",HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY\x1072\xc1\x02\n" +
+	",HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY\x107\x122\n" +
+	".HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS\x108\x12&\n" +
+	"\"HEALTH_CHECK_NAME_OFFLINE_NODEPOOL\x1092\xc1\x02\n" +
 	"\rHealthService\x12`\n" +
 	"\vCheckHealth\x12#.chalk.server.v1.CheckHealthRequest\x1a$.chalk.server.v1.CheckHealthResponse\"\x06\x80}\x01\x90\x02\x01\x12Z\n" +
 	"\tGetHealth\x12!.chalk.server.v1.GetHealthRequest\x1a\".chalk.server.v1.GetHealthResponse\"\x06\x80}\x02\x90\x02\x01\x12r\n" +

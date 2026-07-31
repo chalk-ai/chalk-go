@@ -46,6 +46,7 @@ const (
 	IntegrationKind_INTEGRATION_KIND_SPANNER     IntegrationKind = 17
 	IntegrationKind_INTEGRATION_KIND_TRINO       IntegrationKind = 18
 	IntegrationKind_INTEGRATION_KIND_MSSQL       IntegrationKind = 19
+	IntegrationKind_INTEGRATION_KIND_HUGGINGFACE IntegrationKind = 20
 )
 
 // Enum value maps for IntegrationKind.
@@ -71,6 +72,7 @@ var (
 		17: "INTEGRATION_KIND_SPANNER",
 		18: "INTEGRATION_KIND_TRINO",
 		19: "INTEGRATION_KIND_MSSQL",
+		20: "INTEGRATION_KIND_HUGGINGFACE",
 	}
 	IntegrationKind_value = map[string]int32{
 		"INTEGRATION_KIND_UNSPECIFIED": 0,
@@ -93,6 +95,7 @@ var (
 		"INTEGRATION_KIND_SPANNER":     17,
 		"INTEGRATION_KIND_TRINO":       18,
 		"INTEGRATION_KIND_MSSQL":       19,
+		"INTEGRATION_KIND_HUGGINGFACE": 20,
 	}
 )
 
@@ -259,6 +262,82 @@ func (x *IntegrationWithSecrets) GetSecrets() []*SecretWithValue {
 	return nil
 }
 
+type DatasourcePermissionTag struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Kind           IntegrationKind        `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.server.v1.IntegrationKind" json:"kind,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	PermissionTags []string               `protobuf:"bytes,3,rep,name=permission_tags,json=permissionTags,proto3" json:"permission_tags,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DatasourcePermissionTag) Reset() {
+	*x = DatasourcePermissionTag{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DatasourcePermissionTag) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DatasourcePermissionTag) ProtoMessage() {}
+
+func (x *DatasourcePermissionTag) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DatasourcePermissionTag.ProtoReflect.Descriptor instead.
+func (*DatasourcePermissionTag) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DatasourcePermissionTag) GetKind() IntegrationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return IntegrationKind_INTEGRATION_KIND_UNSPECIFIED
+}
+
+func (x *DatasourcePermissionTag) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *DatasourcePermissionTag) GetPermissionTags() []string {
+	if x != nil {
+		return x.PermissionTags
+	}
+	return nil
+}
+
+func (x *DatasourcePermissionTag) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *DatasourcePermissionTag) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 type ListIntegrationsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -267,7 +346,7 @@ type ListIntegrationsRequest struct {
 
 func (x *ListIntegrationsRequest) Reset() {
 	*x = ListIntegrationsRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -279,7 +358,7 @@ func (x *ListIntegrationsRequest) String() string {
 func (*ListIntegrationsRequest) ProtoMessage() {}
 
 func (x *ListIntegrationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -292,7 +371,7 @@ func (x *ListIntegrationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIntegrationsRequest.ProtoReflect.Descriptor instead.
 func (*ListIntegrationsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{3}
 }
 
 type ListIntegrationsResponse struct {
@@ -304,7 +383,7 @@ type ListIntegrationsResponse struct {
 
 func (x *ListIntegrationsResponse) Reset() {
 	*x = ListIntegrationsResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -316,7 +395,7 @@ func (x *ListIntegrationsResponse) String() string {
 func (*ListIntegrationsResponse) ProtoMessage() {}
 
 func (x *ListIntegrationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,12 +408,188 @@ func (x *ListIntegrationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIntegrationsResponse.ProtoReflect.Descriptor instead.
 func (*ListIntegrationsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListIntegrationsResponse) GetIntegrations() []*Integration {
 	if x != nil {
 		return x.Integrations
+	}
+	return nil
+}
+
+type ListDatasourcePermissionTagsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListDatasourcePermissionTagsRequest) Reset() {
+	*x = ListDatasourcePermissionTagsRequest{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListDatasourcePermissionTagsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDatasourcePermissionTagsRequest) ProtoMessage() {}
+
+func (x *ListDatasourcePermissionTagsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDatasourcePermissionTagsRequest.ProtoReflect.Descriptor instead.
+func (*ListDatasourcePermissionTagsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{5}
+}
+
+type ListDatasourcePermissionTagsResponse struct {
+	state                    protoimpl.MessageState     `protogen:"open.v1"`
+	DatasourcePermissionTags []*DatasourcePermissionTag `protobuf:"bytes,1,rep,name=datasource_permission_tags,json=datasourcePermissionTags,proto3" json:"datasource_permission_tags,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *ListDatasourcePermissionTagsResponse) Reset() {
+	*x = ListDatasourcePermissionTagsResponse{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListDatasourcePermissionTagsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDatasourcePermissionTagsResponse) ProtoMessage() {}
+
+func (x *ListDatasourcePermissionTagsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDatasourcePermissionTagsResponse.ProtoReflect.Descriptor instead.
+func (*ListDatasourcePermissionTagsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListDatasourcePermissionTagsResponse) GetDatasourcePermissionTags() []*DatasourcePermissionTag {
+	if x != nil {
+		return x.DatasourcePermissionTags
+	}
+	return nil
+}
+
+type GetDatasourcePermissionTagRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          IntegrationKind        `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.server.v1.IntegrationKind" json:"kind,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDatasourcePermissionTagRequest) Reset() {
+	*x = GetDatasourcePermissionTagRequest{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDatasourcePermissionTagRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDatasourcePermissionTagRequest) ProtoMessage() {}
+
+func (x *GetDatasourcePermissionTagRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDatasourcePermissionTagRequest.ProtoReflect.Descriptor instead.
+func (*GetDatasourcePermissionTagRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetDatasourcePermissionTagRequest) GetKind() IntegrationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return IntegrationKind_INTEGRATION_KIND_UNSPECIFIED
+}
+
+func (x *GetDatasourcePermissionTagRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type GetDatasourcePermissionTagResponse struct {
+	state                   protoimpl.MessageState   `protogen:"open.v1"`
+	DatasourcePermissionTag *DatasourcePermissionTag `protobuf:"bytes,1,opt,name=datasource_permission_tag,json=datasourcePermissionTag,proto3" json:"datasource_permission_tag,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *GetDatasourcePermissionTagResponse) Reset() {
+	*x = GetDatasourcePermissionTagResponse{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDatasourcePermissionTagResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDatasourcePermissionTagResponse) ProtoMessage() {}
+
+func (x *GetDatasourcePermissionTagResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDatasourcePermissionTagResponse.ProtoReflect.Descriptor instead.
+func (*GetDatasourcePermissionTagResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetDatasourcePermissionTagResponse) GetDatasourcePermissionTag() *DatasourcePermissionTag {
+	if x != nil {
+		return x.DatasourcePermissionTag
 	}
 	return nil
 }
@@ -348,7 +603,7 @@ type ListIntegrationsAndSecretsRequest struct {
 
 func (x *ListIntegrationsAndSecretsRequest) Reset() {
 	*x = ListIntegrationsAndSecretsRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -360,7 +615,7 @@ func (x *ListIntegrationsAndSecretsRequest) String() string {
 func (*ListIntegrationsAndSecretsRequest) ProtoMessage() {}
 
 func (x *ListIntegrationsAndSecretsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -373,7 +628,7 @@ func (x *ListIntegrationsAndSecretsRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListIntegrationsAndSecretsRequest.ProtoReflect.Descriptor instead.
 func (*ListIntegrationsAndSecretsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListIntegrationsAndSecretsRequest) GetDecrypt() bool {
@@ -393,7 +648,7 @@ type ListIntegrationsAndSecretsResponse struct {
 
 func (x *ListIntegrationsAndSecretsResponse) Reset() {
 	*x = ListIntegrationsAndSecretsResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -405,7 +660,7 @@ func (x *ListIntegrationsAndSecretsResponse) String() string {
 func (*ListIntegrationsAndSecretsResponse) ProtoMessage() {}
 
 func (x *ListIntegrationsAndSecretsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -418,7 +673,7 @@ func (x *ListIntegrationsAndSecretsResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListIntegrationsAndSecretsResponse.ProtoReflect.Descriptor instead.
 func (*ListIntegrationsAndSecretsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListIntegrationsAndSecretsResponse) GetIntegrations() []*IntegrationWithSecrets {
@@ -445,7 +700,7 @@ type GetIntegrationValueRequest struct {
 
 func (x *GetIntegrationValueRequest) Reset() {
 	*x = GetIntegrationValueRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -457,7 +712,7 @@ func (x *GetIntegrationValueRequest) String() string {
 func (*GetIntegrationValueRequest) ProtoMessage() {}
 
 func (x *GetIntegrationValueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -470,7 +725,7 @@ func (x *GetIntegrationValueRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIntegrationValueRequest.ProtoReflect.Descriptor instead.
 func (*GetIntegrationValueRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetIntegrationValueRequest) GetIntegrationId() string {
@@ -496,7 +751,7 @@ type GetIntegrationValueResponse struct {
 
 func (x *GetIntegrationValueResponse) Reset() {
 	*x = GetIntegrationValueResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -508,7 +763,7 @@ func (x *GetIntegrationValueResponse) String() string {
 func (*GetIntegrationValueResponse) ProtoMessage() {}
 
 func (x *GetIntegrationValueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -521,7 +776,7 @@ func (x *GetIntegrationValueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIntegrationValueResponse.ProtoReflect.Descriptor instead.
 func (*GetIntegrationValueResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetIntegrationValueResponse) GetSecretvalue() *SecretValue {
@@ -540,7 +795,7 @@ type GetIntegrationRequest struct {
 
 func (x *GetIntegrationRequest) Reset() {
 	*x = GetIntegrationRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -552,7 +807,7 @@ func (x *GetIntegrationRequest) String() string {
 func (*GetIntegrationRequest) ProtoMessage() {}
 
 func (x *GetIntegrationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -565,7 +820,7 @@ func (x *GetIntegrationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIntegrationRequest.ProtoReflect.Descriptor instead.
 func (*GetIntegrationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetIntegrationRequest) GetIntegrationId() string {
@@ -584,7 +839,7 @@ type GetIntegrationResponse struct {
 
 func (x *GetIntegrationResponse) Reset() {
 	*x = GetIntegrationResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -596,7 +851,7 @@ func (x *GetIntegrationResponse) String() string {
 func (*GetIntegrationResponse) ProtoMessage() {}
 
 func (x *GetIntegrationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -609,7 +864,7 @@ func (x *GetIntegrationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIntegrationResponse.ProtoReflect.Descriptor instead.
 func (*GetIntegrationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetIntegrationResponse) GetIntegrationWithSecrets() *IntegrationWithSecrets {
@@ -628,7 +883,7 @@ type GetIntegrationByNameRequest struct {
 
 func (x *GetIntegrationByNameRequest) Reset() {
 	*x = GetIntegrationByNameRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -640,7 +895,7 @@ func (x *GetIntegrationByNameRequest) String() string {
 func (*GetIntegrationByNameRequest) ProtoMessage() {}
 
 func (x *GetIntegrationByNameRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -653,7 +908,7 @@ func (x *GetIntegrationByNameRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIntegrationByNameRequest.ProtoReflect.Descriptor instead.
 func (*GetIntegrationByNameRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetIntegrationByNameRequest) GetIntegrationName() string {
@@ -672,7 +927,7 @@ type GetIntegrationByNameResponse struct {
 
 func (x *GetIntegrationByNameResponse) Reset() {
 	*x = GetIntegrationByNameResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -684,7 +939,7 @@ func (x *GetIntegrationByNameResponse) String() string {
 func (*GetIntegrationByNameResponse) ProtoMessage() {}
 
 func (x *GetIntegrationByNameResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -697,7 +952,7 @@ func (x *GetIntegrationByNameResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIntegrationByNameResponse.ProtoReflect.Descriptor instead.
 func (*GetIntegrationByNameResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetIntegrationByNameResponse) GetIntegration() *Integration {
@@ -720,7 +975,7 @@ type IntegrationConfigValue struct {
 
 func (x *IntegrationConfigValue) Reset() {
 	*x = IntegrationConfigValue{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -732,7 +987,7 @@ func (x *IntegrationConfigValue) String() string {
 func (*IntegrationConfigValue) ProtoMessage() {}
 
 func (x *IntegrationConfigValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -745,7 +1000,7 @@ func (x *IntegrationConfigValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IntegrationConfigValue.ProtoReflect.Descriptor instead.
 func (*IntegrationConfigValue) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *IntegrationConfigValue) GetValue() isIntegrationConfigValue_Value {
@@ -802,7 +1057,7 @@ type InsertIntegrationRequest struct {
 
 func (x *InsertIntegrationRequest) Reset() {
 	*x = InsertIntegrationRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -814,7 +1069,7 @@ func (x *InsertIntegrationRequest) String() string {
 func (*InsertIntegrationRequest) ProtoMessage() {}
 
 func (x *InsertIntegrationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -827,7 +1082,7 @@ func (x *InsertIntegrationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InsertIntegrationRequest.ProtoReflect.Descriptor instead.
 func (*InsertIntegrationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *InsertIntegrationRequest) GetName() string {
@@ -868,7 +1123,7 @@ type InsertIntegrationResponse struct {
 
 func (x *InsertIntegrationResponse) Reset() {
 	*x = InsertIntegrationResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -880,7 +1135,7 @@ func (x *InsertIntegrationResponse) String() string {
 func (*InsertIntegrationResponse) ProtoMessage() {}
 
 func (x *InsertIntegrationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -893,7 +1148,7 @@ func (x *InsertIntegrationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InsertIntegrationResponse.ProtoReflect.Descriptor instead.
 func (*InsertIntegrationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *InsertIntegrationResponse) GetIntegration() *Integration {
@@ -916,7 +1171,7 @@ type UpdateIntegrationRequest struct {
 
 func (x *UpdateIntegrationRequest) Reset() {
 	*x = UpdateIntegrationRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -928,7 +1183,7 @@ func (x *UpdateIntegrationRequest) String() string {
 func (*UpdateIntegrationRequest) ProtoMessage() {}
 
 func (x *UpdateIntegrationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -941,7 +1196,7 @@ func (x *UpdateIntegrationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateIntegrationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateIntegrationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UpdateIntegrationRequest) GetName() string {
@@ -982,7 +1237,7 @@ type UpdateIntegrationResponse struct {
 
 func (x *UpdateIntegrationResponse) Reset() {
 	*x = UpdateIntegrationResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -994,7 +1249,7 @@ func (x *UpdateIntegrationResponse) String() string {
 func (*UpdateIntegrationResponse) ProtoMessage() {}
 
 func (x *UpdateIntegrationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1007,7 +1262,7 @@ func (x *UpdateIntegrationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateIntegrationResponse.ProtoReflect.Descriptor instead.
 func (*UpdateIntegrationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UpdateIntegrationResponse) GetIntegration() *Integration {
@@ -1026,7 +1281,7 @@ type DeleteIntegrationRequest struct {
 
 func (x *DeleteIntegrationRequest) Reset() {
 	*x = DeleteIntegrationRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1038,7 +1293,7 @@ func (x *DeleteIntegrationRequest) String() string {
 func (*DeleteIntegrationRequest) ProtoMessage() {}
 
 func (x *DeleteIntegrationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1051,7 +1306,7 @@ func (x *DeleteIntegrationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteIntegrationRequest.ProtoReflect.Descriptor instead.
 func (*DeleteIntegrationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *DeleteIntegrationRequest) GetId() string {
@@ -1069,7 +1324,7 @@ type DeleteIntegrationResponse struct {
 
 func (x *DeleteIntegrationResponse) Reset() {
 	*x = DeleteIntegrationResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1081,7 +1336,7 @@ func (x *DeleteIntegrationResponse) String() string {
 func (*DeleteIntegrationResponse) ProtoMessage() {}
 
 func (x *DeleteIntegrationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1094,7 +1349,191 @@ func (x *DeleteIntegrationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteIntegrationResponse.ProtoReflect.Descriptor instead.
 func (*DeleteIntegrationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{23}
+}
+
+type UpsertDatasourcePermissionTagRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Kind           IntegrationKind        `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.server.v1.IntegrationKind" json:"kind,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	PermissionTags []string               `protobuf:"bytes,3,rep,name=permission_tags,json=permissionTags,proto3" json:"permission_tags,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UpsertDatasourcePermissionTagRequest) Reset() {
+	*x = UpsertDatasourcePermissionTagRequest{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpsertDatasourcePermissionTagRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpsertDatasourcePermissionTagRequest) ProtoMessage() {}
+
+func (x *UpsertDatasourcePermissionTagRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpsertDatasourcePermissionTagRequest.ProtoReflect.Descriptor instead.
+func (*UpsertDatasourcePermissionTagRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *UpsertDatasourcePermissionTagRequest) GetKind() IntegrationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return IntegrationKind_INTEGRATION_KIND_UNSPECIFIED
+}
+
+func (x *UpsertDatasourcePermissionTagRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpsertDatasourcePermissionTagRequest) GetPermissionTags() []string {
+	if x != nil {
+		return x.PermissionTags
+	}
+	return nil
+}
+
+type UpsertDatasourcePermissionTagResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpsertDatasourcePermissionTagResponse) Reset() {
+	*x = UpsertDatasourcePermissionTagResponse{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpsertDatasourcePermissionTagResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpsertDatasourcePermissionTagResponse) ProtoMessage() {}
+
+func (x *UpsertDatasourcePermissionTagResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpsertDatasourcePermissionTagResponse.ProtoReflect.Descriptor instead.
+func (*UpsertDatasourcePermissionTagResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{25}
+}
+
+type DeleteDatasourcePermissionTagRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          IntegrationKind        `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.server.v1.IntegrationKind" json:"kind,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteDatasourcePermissionTagRequest) Reset() {
+	*x = DeleteDatasourcePermissionTagRequest{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteDatasourcePermissionTagRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteDatasourcePermissionTagRequest) ProtoMessage() {}
+
+func (x *DeleteDatasourcePermissionTagRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteDatasourcePermissionTagRequest.ProtoReflect.Descriptor instead.
+func (*DeleteDatasourcePermissionTagRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *DeleteDatasourcePermissionTagRequest) GetKind() IntegrationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return IntegrationKind_INTEGRATION_KIND_UNSPECIFIED
+}
+
+func (x *DeleteDatasourcePermissionTagRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type DeleteDatasourcePermissionTagResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteDatasourcePermissionTagResponse) Reset() {
+	*x = DeleteDatasourcePermissionTagResponse{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteDatasourcePermissionTagResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteDatasourcePermissionTagResponse) ProtoMessage() {}
+
+func (x *DeleteDatasourcePermissionTagResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteDatasourcePermissionTagResponse.ProtoReflect.Descriptor instead.
+func (*DeleteDatasourcePermissionTagResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{27}
 }
 
 type PreviewedMessage struct {
@@ -1111,7 +1550,7 @@ type PreviewedMessage struct {
 
 func (x *PreviewedMessage) Reset() {
 	*x = PreviewedMessage{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1123,7 +1562,7 @@ func (x *PreviewedMessage) String() string {
 func (*PreviewedMessage) ProtoMessage() {}
 
 func (x *PreviewedMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1136,7 +1575,7 @@ func (x *PreviewedMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PreviewedMessage.ProtoReflect.Descriptor instead.
 func (*PreviewedMessage) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *PreviewedMessage) GetValueBase64() string {
@@ -1195,7 +1634,7 @@ type TestIntegrationRequest struct {
 
 func (x *TestIntegrationRequest) Reset() {
 	*x = TestIntegrationRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1207,7 +1646,7 @@ func (x *TestIntegrationRequest) String() string {
 func (*TestIntegrationRequest) ProtoMessage() {}
 
 func (x *TestIntegrationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1220,7 +1659,7 @@ func (x *TestIntegrationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestIntegrationRequest.ProtoReflect.Descriptor instead.
 func (*TestIntegrationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *TestIntegrationRequest) GetKind() IntegrationKind {
@@ -1272,7 +1711,7 @@ type TestIntegrationResponse struct {
 
 func (x *TestIntegrationResponse) Reset() {
 	*x = TestIntegrationResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1284,7 +1723,7 @@ func (x *TestIntegrationResponse) String() string {
 func (*TestIntegrationResponse) ProtoMessage() {}
 
 func (x *TestIntegrationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1297,7 +1736,7 @@ func (x *TestIntegrationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestIntegrationResponse.ProtoReflect.Descriptor instead.
 func (*TestIntegrationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *TestIntegrationResponse) GetKind() string {
@@ -1352,10 +1791,26 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\x05_name\"\x94\x01\n" +
 	"\x16IntegrationWithSecrets\x12>\n" +
 	"\vintegration\x18\x01 \x01(\v2\x1c.chalk.server.v1.IntegrationR\vintegration\x12:\n" +
-	"\asecrets\x18\x02 \x03(\v2 .chalk.server.v1.SecretWithValueR\asecrets\"\x19\n" +
+	"\asecrets\x18\x02 \x03(\v2 .chalk.server.v1.SecretWithValueR\asecrets\"\x82\x02\n" +
+	"\x17DatasourcePermissionTag\x124\n" +
+	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12'\n" +
+	"\x0fpermission_tags\x18\x03 \x03(\tR\x0epermissionTags\x129\n" +
+	"\n" +
+	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x19\n" +
 	"\x17ListIntegrationsRequest\"\\\n" +
 	"\x18ListIntegrationsResponse\x12@\n" +
-	"\fintegrations\x18\x01 \x03(\v2\x1c.chalk.server.v1.IntegrationR\fintegrations\"=\n" +
+	"\fintegrations\x18\x01 \x03(\v2\x1c.chalk.server.v1.IntegrationR\fintegrations\"%\n" +
+	"#ListDatasourcePermissionTagsRequest\"\x8e\x01\n" +
+	"$ListDatasourcePermissionTagsResponse\x12f\n" +
+	"\x1adatasource_permission_tags\x18\x01 \x03(\v2(.chalk.server.v1.DatasourcePermissionTagR\x18datasourcePermissionTags\"m\n" +
+	"!GetDatasourcePermissionTagRequest\x124\n" +
+	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x8a\x01\n" +
+	"\"GetDatasourcePermissionTagResponse\x12d\n" +
+	"\x19datasource_permission_tag\x18\x01 \x01(\v2(.chalk.server.v1.DatasourcePermissionTagR\x17datasourcePermissionTag\"=\n" +
 	"!ListIntegrationsAndSecretsRequest\x12\x18\n" +
 	"\adecrypt\x18\x01 \x01(\bR\adecrypt\"\xba\x01\n" +
 	"\"ListIntegrationsAndSecretsResponse\x12K\n" +
@@ -1410,7 +1865,16 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\vintegration\x18\x01 \x01(\v2\x1c.chalk.server.v1.IntegrationR\vintegration\"*\n" +
 	"\x18DeleteIntegrationRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x1b\n" +
-	"\x19DeleteIntegrationResponse\"\xd7\x01\n" +
+	"\x19DeleteIntegrationResponse\"\x99\x01\n" +
+	"$UpsertDatasourcePermissionTagRequest\x124\n" +
+	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12'\n" +
+	"\x0fpermission_tags\x18\x03 \x03(\tR\x0epermissionTags\"'\n" +
+	"%UpsertDatasourcePermissionTagResponse\"p\n" +
+	"$DeleteDatasourcePermissionTagRequest\x124\n" +
+	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"'\n" +
+	"%DeleteDatasourcePermissionTagResponse\"\xd7\x01\n" +
 	"\x10PreviewedMessage\x12!\n" +
 	"\fvalue_base64\x18\x01 \x01(\tR\vvalueBase64\x12\"\n" +
 	"\n" +
@@ -1440,7 +1904,7 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\amessage\x18\x03 \x01(\tR\amessage\x12,\n" +
 	"\x0flatency_seconds\x18\x04 \x01(\x01H\x00R\x0elatencySeconds\x88\x01\x01\x12L\n" +
 	"\x10preview_messages\x18\x05 \x03(\v2!.chalk.server.v1.PreviewedMessageR\x0fpreviewMessagesB\x12\n" +
-	"\x10_latency_seconds*\xe7\x04\n" +
+	"\x10_latency_seconds*\x89\x05\n" +
 	"\x0fIntegrationKind\x12 \n" +
 	"\x1cINTEGRATION_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17INTEGRATION_KIND_ATHENA\x10\x01\x12\x18\n" +
@@ -1462,16 +1926,21 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\x1aINTEGRATION_KIND_SNOWFLAKE\x10\x10\x12\x1c\n" +
 	"\x18INTEGRATION_KIND_SPANNER\x10\x11\x12\x1a\n" +
 	"\x16INTEGRATION_KIND_TRINO\x10\x12\x12\x1a\n" +
-	"\x16INTEGRATION_KIND_MSSQL\x10\x132\x9f\t\n" +
+	"\x16INTEGRATION_KIND_MSSQL\x10\x13\x12 \n" +
+	"\x1cINTEGRATION_KIND_HUGGINGFACE\x10\x142\xc1\x0e\n" +
 	"\x13IntegrationsService\x12l\n" +
-	"\x10ListIntegrations\x12(.chalk.server.v1.ListIntegrationsRequest\x1a).chalk.server.v1.ListIntegrationsResponse\"\x03\x80}\x14\x12\x8a\x01\n" +
+	"\x10ListIntegrations\x12(.chalk.server.v1.ListIntegrationsRequest\x1a).chalk.server.v1.ListIntegrationsResponse\"\x03\x80}\x14\x12\x90\x01\n" +
+	"\x1cListDatasourcePermissionTags\x124.chalk.server.v1.ListDatasourcePermissionTagsRequest\x1a5.chalk.server.v1.ListDatasourcePermissionTagsResponse\"\x03\x80}\x14\x12\x8a\x01\n" +
+	"\x1aGetDatasourcePermissionTag\x122.chalk.server.v1.GetDatasourcePermissionTagRequest\x1a3.chalk.server.v1.GetDatasourcePermissionTagResponse\"\x03\x80}\x14\x12\x8a\x01\n" +
 	"\x1aListIntegrationsAndSecrets\x122.chalk.server.v1.ListIntegrationsAndSecretsRequest\x1a3.chalk.server.v1.ListIntegrationsAndSecretsResponse\"\x03\x80}\x13\x12u\n" +
 	"\x13GetIntegrationValue\x12+.chalk.server.v1.GetIntegrationValueRequest\x1a,.chalk.server.v1.GetIntegrationValueResponse\"\x03\x80}\x13\x12f\n" +
 	"\x0eGetIntegration\x12&.chalk.server.v1.GetIntegrationRequest\x1a'.chalk.server.v1.GetIntegrationResponse\"\x03\x80}\x13\x12x\n" +
 	"\x14GetIntegrationByName\x12,.chalk.server.v1.GetIntegrationByNameRequest\x1a-.chalk.server.v1.GetIntegrationByNameResponse\"\x03\x80}\x14\x12\x96\x01\n" +
 	"\x11InsertIntegration\x12).chalk.server.v1.InsertIntegrationRequest\x1a*.chalk.server.v1.InsertIntegrationResponse\"*\x80}\x12\x8a\xd3\x0e#\b\x02\x12\x1fCreated an external integration\x12\x96\x01\n" +
 	"\x11UpdateIntegration\x12).chalk.server.v1.UpdateIntegrationRequest\x1a*.chalk.server.v1.UpdateIntegrationResponse\"*\x80}\x12\x8a\xd3\x0e#\b\x02\x12\x1fUpdated an external integration\x12\x96\x01\n" +
-	"\x11DeleteIntegration\x12).chalk.server.v1.DeleteIntegrationRequest\x1a*.chalk.server.v1.DeleteIntegrationResponse\"*\x80}\x12\x8a\xd3\x0e#\b\x02\x12\x1fDeleted an external integration\x12i\n" +
+	"\x11DeleteIntegration\x12).chalk.server.v1.DeleteIntegrationRequest\x1a*.chalk.server.v1.DeleteIntegrationResponse\"*\x80}\x12\x8a\xd3\x0e#\b\x02\x12\x1fDeleted an external integration\x12\xbe\x01\n" +
+	"\x1dUpsertDatasourcePermissionTag\x125.chalk.server.v1.UpsertDatasourcePermissionTagRequest\x1a6.chalk.server.v1.UpsertDatasourcePermissionTagResponse\".\x80}\x12\x8a\xd3\x0e'\b\x02\x12#Updated data source permission tags\x12\xbe\x01\n" +
+	"\x1dDeleteDatasourcePermissionTag\x125.chalk.server.v1.DeleteDatasourcePermissionTagRequest\x1a6.chalk.server.v1.DeleteDatasourcePermissionTagResponse\".\x80}\x12\x8a\xd3\x0e'\b\x02\x12#Deleted data source permission tags\x12i\n" +
 	"\x0fTestIntegration\x12'.chalk.server.v1.TestIntegrationRequest\x1a(.chalk.server.v1.TestIntegrationResponse\"\x03\x80}\x14B\xc1\x01\n" +
 	"\x13com.chalk.server.v1B\x11IntegrationsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -1488,90 +1957,115 @@ func file_chalk_server_v1_integrations_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_integrations_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_integrations_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_chalk_server_v1_integrations_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_chalk_server_v1_integrations_proto_goTypes = []any{
-	(IntegrationKind)(0),                       // 0: chalk.server.v1.IntegrationKind
-	(*Integration)(nil),                        // 1: chalk.server.v1.Integration
-	(*IntegrationWithSecrets)(nil),             // 2: chalk.server.v1.IntegrationWithSecrets
-	(*ListIntegrationsRequest)(nil),            // 3: chalk.server.v1.ListIntegrationsRequest
-	(*ListIntegrationsResponse)(nil),           // 4: chalk.server.v1.ListIntegrationsResponse
-	(*ListIntegrationsAndSecretsRequest)(nil),  // 5: chalk.server.v1.ListIntegrationsAndSecretsRequest
-	(*ListIntegrationsAndSecretsResponse)(nil), // 6: chalk.server.v1.ListIntegrationsAndSecretsResponse
-	(*GetIntegrationValueRequest)(nil),         // 7: chalk.server.v1.GetIntegrationValueRequest
-	(*GetIntegrationValueResponse)(nil),        // 8: chalk.server.v1.GetIntegrationValueResponse
-	(*GetIntegrationRequest)(nil),              // 9: chalk.server.v1.GetIntegrationRequest
-	(*GetIntegrationResponse)(nil),             // 10: chalk.server.v1.GetIntegrationResponse
-	(*GetIntegrationByNameRequest)(nil),        // 11: chalk.server.v1.GetIntegrationByNameRequest
-	(*GetIntegrationByNameResponse)(nil),       // 12: chalk.server.v1.GetIntegrationByNameResponse
-	(*IntegrationConfigValue)(nil),             // 13: chalk.server.v1.IntegrationConfigValue
-	(*InsertIntegrationRequest)(nil),           // 14: chalk.server.v1.InsertIntegrationRequest
-	(*InsertIntegrationResponse)(nil),          // 15: chalk.server.v1.InsertIntegrationResponse
-	(*UpdateIntegrationRequest)(nil),           // 16: chalk.server.v1.UpdateIntegrationRequest
-	(*UpdateIntegrationResponse)(nil),          // 17: chalk.server.v1.UpdateIntegrationResponse
-	(*DeleteIntegrationRequest)(nil),           // 18: chalk.server.v1.DeleteIntegrationRequest
-	(*DeleteIntegrationResponse)(nil),          // 19: chalk.server.v1.DeleteIntegrationResponse
-	(*PreviewedMessage)(nil),                   // 20: chalk.server.v1.PreviewedMessage
-	(*TestIntegrationRequest)(nil),             // 21: chalk.server.v1.TestIntegrationRequest
-	(*TestIntegrationResponse)(nil),            // 22: chalk.server.v1.TestIntegrationResponse
-	nil,                                        // 23: chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntry
-	nil,                                        // 24: chalk.server.v1.InsertIntegrationRequest.ConfigEntry
-	nil,                                        // 25: chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntry
-	nil,                                        // 26: chalk.server.v1.UpdateIntegrationRequest.ConfigEntry
-	nil,                                        // 27: chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntry
-	nil,                                        // 28: chalk.server.v1.TestIntegrationRequest.ConfigEntry
-	(*timestamppb.Timestamp)(nil),              // 29: google.protobuf.Timestamp
-	(*SecretWithValue)(nil),                    // 30: chalk.server.v1.SecretWithValue
-	(*SecretValue)(nil),                        // 31: chalk.server.v1.SecretValue
+	(IntegrationKind)(0),                          // 0: chalk.server.v1.IntegrationKind
+	(*Integration)(nil),                           // 1: chalk.server.v1.Integration
+	(*IntegrationWithSecrets)(nil),                // 2: chalk.server.v1.IntegrationWithSecrets
+	(*DatasourcePermissionTag)(nil),               // 3: chalk.server.v1.DatasourcePermissionTag
+	(*ListIntegrationsRequest)(nil),               // 4: chalk.server.v1.ListIntegrationsRequest
+	(*ListIntegrationsResponse)(nil),              // 5: chalk.server.v1.ListIntegrationsResponse
+	(*ListDatasourcePermissionTagsRequest)(nil),   // 6: chalk.server.v1.ListDatasourcePermissionTagsRequest
+	(*ListDatasourcePermissionTagsResponse)(nil),  // 7: chalk.server.v1.ListDatasourcePermissionTagsResponse
+	(*GetDatasourcePermissionTagRequest)(nil),     // 8: chalk.server.v1.GetDatasourcePermissionTagRequest
+	(*GetDatasourcePermissionTagResponse)(nil),    // 9: chalk.server.v1.GetDatasourcePermissionTagResponse
+	(*ListIntegrationsAndSecretsRequest)(nil),     // 10: chalk.server.v1.ListIntegrationsAndSecretsRequest
+	(*ListIntegrationsAndSecretsResponse)(nil),    // 11: chalk.server.v1.ListIntegrationsAndSecretsResponse
+	(*GetIntegrationValueRequest)(nil),            // 12: chalk.server.v1.GetIntegrationValueRequest
+	(*GetIntegrationValueResponse)(nil),           // 13: chalk.server.v1.GetIntegrationValueResponse
+	(*GetIntegrationRequest)(nil),                 // 14: chalk.server.v1.GetIntegrationRequest
+	(*GetIntegrationResponse)(nil),                // 15: chalk.server.v1.GetIntegrationResponse
+	(*GetIntegrationByNameRequest)(nil),           // 16: chalk.server.v1.GetIntegrationByNameRequest
+	(*GetIntegrationByNameResponse)(nil),          // 17: chalk.server.v1.GetIntegrationByNameResponse
+	(*IntegrationConfigValue)(nil),                // 18: chalk.server.v1.IntegrationConfigValue
+	(*InsertIntegrationRequest)(nil),              // 19: chalk.server.v1.InsertIntegrationRequest
+	(*InsertIntegrationResponse)(nil),             // 20: chalk.server.v1.InsertIntegrationResponse
+	(*UpdateIntegrationRequest)(nil),              // 21: chalk.server.v1.UpdateIntegrationRequest
+	(*UpdateIntegrationResponse)(nil),             // 22: chalk.server.v1.UpdateIntegrationResponse
+	(*DeleteIntegrationRequest)(nil),              // 23: chalk.server.v1.DeleteIntegrationRequest
+	(*DeleteIntegrationResponse)(nil),             // 24: chalk.server.v1.DeleteIntegrationResponse
+	(*UpsertDatasourcePermissionTagRequest)(nil),  // 25: chalk.server.v1.UpsertDatasourcePermissionTagRequest
+	(*UpsertDatasourcePermissionTagResponse)(nil), // 26: chalk.server.v1.UpsertDatasourcePermissionTagResponse
+	(*DeleteDatasourcePermissionTagRequest)(nil),  // 27: chalk.server.v1.DeleteDatasourcePermissionTagRequest
+	(*DeleteDatasourcePermissionTagResponse)(nil), // 28: chalk.server.v1.DeleteDatasourcePermissionTagResponse
+	(*PreviewedMessage)(nil),                      // 29: chalk.server.v1.PreviewedMessage
+	(*TestIntegrationRequest)(nil),                // 30: chalk.server.v1.TestIntegrationRequest
+	(*TestIntegrationResponse)(nil),               // 31: chalk.server.v1.TestIntegrationResponse
+	nil,                                           // 32: chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntry
+	nil,                                           // 33: chalk.server.v1.InsertIntegrationRequest.ConfigEntry
+	nil,                                           // 34: chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntry
+	nil,                                           // 35: chalk.server.v1.UpdateIntegrationRequest.ConfigEntry
+	nil,                                           // 36: chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntry
+	nil,                                           // 37: chalk.server.v1.TestIntegrationRequest.ConfigEntry
+	(*timestamppb.Timestamp)(nil),                 // 38: google.protobuf.Timestamp
+	(*SecretWithValue)(nil),                       // 39: chalk.server.v1.SecretWithValue
+	(*SecretValue)(nil),                           // 40: chalk.server.v1.SecretValue
 }
 var file_chalk_server_v1_integrations_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.Integration.kind:type_name -> chalk.server.v1.IntegrationKind
-	29, // 1: chalk.server.v1.Integration.created_at:type_name -> google.protobuf.Timestamp
-	29, // 2: chalk.server.v1.Integration.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 1: chalk.server.v1.Integration.created_at:type_name -> google.protobuf.Timestamp
+	38, // 2: chalk.server.v1.Integration.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 3: chalk.server.v1.IntegrationWithSecrets.integration:type_name -> chalk.server.v1.Integration
-	30, // 4: chalk.server.v1.IntegrationWithSecrets.secrets:type_name -> chalk.server.v1.SecretWithValue
-	1,  // 5: chalk.server.v1.ListIntegrationsResponse.integrations:type_name -> chalk.server.v1.Integration
-	2,  // 6: chalk.server.v1.ListIntegrationsAndSecretsResponse.integrations:type_name -> chalk.server.v1.IntegrationWithSecrets
-	30, // 7: chalk.server.v1.ListIntegrationsAndSecretsResponse.custom_secrets:type_name -> chalk.server.v1.SecretWithValue
-	31, // 8: chalk.server.v1.GetIntegrationValueResponse.secretvalue:type_name -> chalk.server.v1.SecretValue
-	2,  // 9: chalk.server.v1.GetIntegrationResponse.integration_with_secrets:type_name -> chalk.server.v1.IntegrationWithSecrets
-	1,  // 10: chalk.server.v1.GetIntegrationByNameResponse.integration:type_name -> chalk.server.v1.Integration
-	0,  // 11: chalk.server.v1.InsertIntegrationRequest.integration_kind:type_name -> chalk.server.v1.IntegrationKind
-	23, // 12: chalk.server.v1.InsertIntegrationRequest.environment_variables:type_name -> chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntry
-	24, // 13: chalk.server.v1.InsertIntegrationRequest.config:type_name -> chalk.server.v1.InsertIntegrationRequest.ConfigEntry
-	1,  // 14: chalk.server.v1.InsertIntegrationResponse.integration:type_name -> chalk.server.v1.Integration
-	25, // 15: chalk.server.v1.UpdateIntegrationRequest.environment_variables:type_name -> chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntry
-	26, // 16: chalk.server.v1.UpdateIntegrationRequest.config:type_name -> chalk.server.v1.UpdateIntegrationRequest.ConfigEntry
-	1,  // 17: chalk.server.v1.UpdateIntegrationResponse.integration:type_name -> chalk.server.v1.Integration
-	0,  // 18: chalk.server.v1.TestIntegrationRequest.kind:type_name -> chalk.server.v1.IntegrationKind
-	27, // 19: chalk.server.v1.TestIntegrationRequest.environment_variables:type_name -> chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntry
-	28, // 20: chalk.server.v1.TestIntegrationRequest.config:type_name -> chalk.server.v1.TestIntegrationRequest.ConfigEntry
-	20, // 21: chalk.server.v1.TestIntegrationResponse.preview_messages:type_name -> chalk.server.v1.PreviewedMessage
-	13, // 22: chalk.server.v1.InsertIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
-	13, // 23: chalk.server.v1.UpdateIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
-	13, // 24: chalk.server.v1.TestIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
-	3,  // 25: chalk.server.v1.IntegrationsService.ListIntegrations:input_type -> chalk.server.v1.ListIntegrationsRequest
-	5,  // 26: chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets:input_type -> chalk.server.v1.ListIntegrationsAndSecretsRequest
-	7,  // 27: chalk.server.v1.IntegrationsService.GetIntegrationValue:input_type -> chalk.server.v1.GetIntegrationValueRequest
-	9,  // 28: chalk.server.v1.IntegrationsService.GetIntegration:input_type -> chalk.server.v1.GetIntegrationRequest
-	11, // 29: chalk.server.v1.IntegrationsService.GetIntegrationByName:input_type -> chalk.server.v1.GetIntegrationByNameRequest
-	14, // 30: chalk.server.v1.IntegrationsService.InsertIntegration:input_type -> chalk.server.v1.InsertIntegrationRequest
-	16, // 31: chalk.server.v1.IntegrationsService.UpdateIntegration:input_type -> chalk.server.v1.UpdateIntegrationRequest
-	18, // 32: chalk.server.v1.IntegrationsService.DeleteIntegration:input_type -> chalk.server.v1.DeleteIntegrationRequest
-	21, // 33: chalk.server.v1.IntegrationsService.TestIntegration:input_type -> chalk.server.v1.TestIntegrationRequest
-	4,  // 34: chalk.server.v1.IntegrationsService.ListIntegrations:output_type -> chalk.server.v1.ListIntegrationsResponse
-	6,  // 35: chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets:output_type -> chalk.server.v1.ListIntegrationsAndSecretsResponse
-	8,  // 36: chalk.server.v1.IntegrationsService.GetIntegrationValue:output_type -> chalk.server.v1.GetIntegrationValueResponse
-	10, // 37: chalk.server.v1.IntegrationsService.GetIntegration:output_type -> chalk.server.v1.GetIntegrationResponse
-	12, // 38: chalk.server.v1.IntegrationsService.GetIntegrationByName:output_type -> chalk.server.v1.GetIntegrationByNameResponse
-	15, // 39: chalk.server.v1.IntegrationsService.InsertIntegration:output_type -> chalk.server.v1.InsertIntegrationResponse
-	17, // 40: chalk.server.v1.IntegrationsService.UpdateIntegration:output_type -> chalk.server.v1.UpdateIntegrationResponse
-	19, // 41: chalk.server.v1.IntegrationsService.DeleteIntegration:output_type -> chalk.server.v1.DeleteIntegrationResponse
-	22, // 42: chalk.server.v1.IntegrationsService.TestIntegration:output_type -> chalk.server.v1.TestIntegrationResponse
-	34, // [34:43] is the sub-list for method output_type
-	25, // [25:34] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	39, // 4: chalk.server.v1.IntegrationWithSecrets.secrets:type_name -> chalk.server.v1.SecretWithValue
+	0,  // 5: chalk.server.v1.DatasourcePermissionTag.kind:type_name -> chalk.server.v1.IntegrationKind
+	38, // 6: chalk.server.v1.DatasourcePermissionTag.created_at:type_name -> google.protobuf.Timestamp
+	38, // 7: chalk.server.v1.DatasourcePermissionTag.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 8: chalk.server.v1.ListIntegrationsResponse.integrations:type_name -> chalk.server.v1.Integration
+	3,  // 9: chalk.server.v1.ListDatasourcePermissionTagsResponse.datasource_permission_tags:type_name -> chalk.server.v1.DatasourcePermissionTag
+	0,  // 10: chalk.server.v1.GetDatasourcePermissionTagRequest.kind:type_name -> chalk.server.v1.IntegrationKind
+	3,  // 11: chalk.server.v1.GetDatasourcePermissionTagResponse.datasource_permission_tag:type_name -> chalk.server.v1.DatasourcePermissionTag
+	2,  // 12: chalk.server.v1.ListIntegrationsAndSecretsResponse.integrations:type_name -> chalk.server.v1.IntegrationWithSecrets
+	39, // 13: chalk.server.v1.ListIntegrationsAndSecretsResponse.custom_secrets:type_name -> chalk.server.v1.SecretWithValue
+	40, // 14: chalk.server.v1.GetIntegrationValueResponse.secretvalue:type_name -> chalk.server.v1.SecretValue
+	2,  // 15: chalk.server.v1.GetIntegrationResponse.integration_with_secrets:type_name -> chalk.server.v1.IntegrationWithSecrets
+	1,  // 16: chalk.server.v1.GetIntegrationByNameResponse.integration:type_name -> chalk.server.v1.Integration
+	0,  // 17: chalk.server.v1.InsertIntegrationRequest.integration_kind:type_name -> chalk.server.v1.IntegrationKind
+	32, // 18: chalk.server.v1.InsertIntegrationRequest.environment_variables:type_name -> chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntry
+	33, // 19: chalk.server.v1.InsertIntegrationRequest.config:type_name -> chalk.server.v1.InsertIntegrationRequest.ConfigEntry
+	1,  // 20: chalk.server.v1.InsertIntegrationResponse.integration:type_name -> chalk.server.v1.Integration
+	34, // 21: chalk.server.v1.UpdateIntegrationRequest.environment_variables:type_name -> chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntry
+	35, // 22: chalk.server.v1.UpdateIntegrationRequest.config:type_name -> chalk.server.v1.UpdateIntegrationRequest.ConfigEntry
+	1,  // 23: chalk.server.v1.UpdateIntegrationResponse.integration:type_name -> chalk.server.v1.Integration
+	0,  // 24: chalk.server.v1.UpsertDatasourcePermissionTagRequest.kind:type_name -> chalk.server.v1.IntegrationKind
+	0,  // 25: chalk.server.v1.DeleteDatasourcePermissionTagRequest.kind:type_name -> chalk.server.v1.IntegrationKind
+	0,  // 26: chalk.server.v1.TestIntegrationRequest.kind:type_name -> chalk.server.v1.IntegrationKind
+	36, // 27: chalk.server.v1.TestIntegrationRequest.environment_variables:type_name -> chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntry
+	37, // 28: chalk.server.v1.TestIntegrationRequest.config:type_name -> chalk.server.v1.TestIntegrationRequest.ConfigEntry
+	29, // 29: chalk.server.v1.TestIntegrationResponse.preview_messages:type_name -> chalk.server.v1.PreviewedMessage
+	18, // 30: chalk.server.v1.InsertIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	18, // 31: chalk.server.v1.UpdateIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	18, // 32: chalk.server.v1.TestIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	4,  // 33: chalk.server.v1.IntegrationsService.ListIntegrations:input_type -> chalk.server.v1.ListIntegrationsRequest
+	6,  // 34: chalk.server.v1.IntegrationsService.ListDatasourcePermissionTags:input_type -> chalk.server.v1.ListDatasourcePermissionTagsRequest
+	8,  // 35: chalk.server.v1.IntegrationsService.GetDatasourcePermissionTag:input_type -> chalk.server.v1.GetDatasourcePermissionTagRequest
+	10, // 36: chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets:input_type -> chalk.server.v1.ListIntegrationsAndSecretsRequest
+	12, // 37: chalk.server.v1.IntegrationsService.GetIntegrationValue:input_type -> chalk.server.v1.GetIntegrationValueRequest
+	14, // 38: chalk.server.v1.IntegrationsService.GetIntegration:input_type -> chalk.server.v1.GetIntegrationRequest
+	16, // 39: chalk.server.v1.IntegrationsService.GetIntegrationByName:input_type -> chalk.server.v1.GetIntegrationByNameRequest
+	19, // 40: chalk.server.v1.IntegrationsService.InsertIntegration:input_type -> chalk.server.v1.InsertIntegrationRequest
+	21, // 41: chalk.server.v1.IntegrationsService.UpdateIntegration:input_type -> chalk.server.v1.UpdateIntegrationRequest
+	23, // 42: chalk.server.v1.IntegrationsService.DeleteIntegration:input_type -> chalk.server.v1.DeleteIntegrationRequest
+	25, // 43: chalk.server.v1.IntegrationsService.UpsertDatasourcePermissionTag:input_type -> chalk.server.v1.UpsertDatasourcePermissionTagRequest
+	27, // 44: chalk.server.v1.IntegrationsService.DeleteDatasourcePermissionTag:input_type -> chalk.server.v1.DeleteDatasourcePermissionTagRequest
+	30, // 45: chalk.server.v1.IntegrationsService.TestIntegration:input_type -> chalk.server.v1.TestIntegrationRequest
+	5,  // 46: chalk.server.v1.IntegrationsService.ListIntegrations:output_type -> chalk.server.v1.ListIntegrationsResponse
+	7,  // 47: chalk.server.v1.IntegrationsService.ListDatasourcePermissionTags:output_type -> chalk.server.v1.ListDatasourcePermissionTagsResponse
+	9,  // 48: chalk.server.v1.IntegrationsService.GetDatasourcePermissionTag:output_type -> chalk.server.v1.GetDatasourcePermissionTagResponse
+	11, // 49: chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets:output_type -> chalk.server.v1.ListIntegrationsAndSecretsResponse
+	13, // 50: chalk.server.v1.IntegrationsService.GetIntegrationValue:output_type -> chalk.server.v1.GetIntegrationValueResponse
+	15, // 51: chalk.server.v1.IntegrationsService.GetIntegration:output_type -> chalk.server.v1.GetIntegrationResponse
+	17, // 52: chalk.server.v1.IntegrationsService.GetIntegrationByName:output_type -> chalk.server.v1.GetIntegrationByNameResponse
+	20, // 53: chalk.server.v1.IntegrationsService.InsertIntegration:output_type -> chalk.server.v1.InsertIntegrationResponse
+	22, // 54: chalk.server.v1.IntegrationsService.UpdateIntegration:output_type -> chalk.server.v1.UpdateIntegrationResponse
+	24, // 55: chalk.server.v1.IntegrationsService.DeleteIntegration:output_type -> chalk.server.v1.DeleteIntegrationResponse
+	26, // 56: chalk.server.v1.IntegrationsService.UpsertDatasourcePermissionTag:output_type -> chalk.server.v1.UpsertDatasourcePermissionTagResponse
+	28, // 57: chalk.server.v1.IntegrationsService.DeleteDatasourcePermissionTag:output_type -> chalk.server.v1.DeleteDatasourcePermissionTagResponse
+	31, // 58: chalk.server.v1.IntegrationsService.TestIntegration:output_type -> chalk.server.v1.TestIntegrationResponse
+	46, // [46:59] is the sub-list for method output_type
+	33, // [33:46] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_integrations_proto_init() }
@@ -1581,23 +2075,23 @@ func file_chalk_server_v1_integrations_proto_init() {
 	}
 	file_chalk_server_v1_environment_secrets_proto_init()
 	file_chalk_server_v1_integrations_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_server_v1_integrations_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_server_v1_integrations_proto_msgTypes[9].OneofWrappers = []any{}
-	file_chalk_server_v1_integrations_proto_msgTypes[11].OneofWrappers = []any{}
-	file_chalk_server_v1_integrations_proto_msgTypes[12].OneofWrappers = []any{
+	file_chalk_server_v1_integrations_proto_msgTypes[12].OneofWrappers = []any{}
+	file_chalk_server_v1_integrations_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_server_v1_integrations_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_server_v1_integrations_proto_msgTypes[17].OneofWrappers = []any{
 		(*IntegrationConfigValue_Literal)(nil),
 		(*IntegrationConfigValue_SecretId)(nil),
 	}
-	file_chalk_server_v1_integrations_proto_msgTypes[19].OneofWrappers = []any{}
-	file_chalk_server_v1_integrations_proto_msgTypes[20].OneofWrappers = []any{}
-	file_chalk_server_v1_integrations_proto_msgTypes[21].OneofWrappers = []any{}
+	file_chalk_server_v1_integrations_proto_msgTypes[28].OneofWrappers = []any{}
+	file_chalk_server_v1_integrations_proto_msgTypes[29].OneofWrappers = []any{}
+	file_chalk_server_v1_integrations_proto_msgTypes[30].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_integrations_proto_rawDesc), len(file_chalk_server_v1_integrations_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   28,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
