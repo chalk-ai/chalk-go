@@ -575,8 +575,11 @@ type Environment struct {
 	// kubernetes_clusters on kube_cluster_id. CLUSTER_CLASS_UNSPECIFIED when the environment is not
 	// linked to a cluster. Direct passthrough intended for serverless-environment detection.
 	PrimaryLinkedClusterClass ClusterClass `protobuf:"varint,66,opt,name=primary_linked_cluster_class,json=primaryLinkedClusterClass,proto3,enum=chalk.server.v1.ClusterClass" json:"primary_linked_cluster_class,omitempty"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	// Free-form, customer-authored description of the environment, rendered as Markdown
+	// in the dashboard. Unset means "no description".
+	Description   *string `protobuf:"bytes,67,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Environment) Reset() {
@@ -1069,6 +1072,13 @@ func (x *Environment) GetPrimaryLinkedClusterClass() ClusterClass {
 		return x.PrimaryLinkedClusterClass
 	}
 	return ClusterClass_CLUSTER_CLASS_UNSPECIFIED
+}
+
+func (x *Environment) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
 }
 
 type CreateEnvironmentV2Request struct {
@@ -1698,7 +1708,7 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x0edataset_bucket\x18\x01 \x01(\tR\rdatasetBucket\x12,\n" +
 	"\x12plan_stages_bucket\x18\x02 \x01(\tR\x10planStagesBucket\x120\n" +
 	"\x14source_bundle_bucket\x18\x03 \x01(\tR\x12sourceBundleBucket\x122\n" +
-	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xbc.\n" +
+	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xf3.\n" +
 	"\vEnvironment\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x05R\x04name\x12\"\n" +
 	"\n" +
@@ -1773,7 +1783,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x11internal_metadata\x18> \x03(\v22.chalk.server.v1.Environment.InternalMetadataEntryB\x03\xe0A\x03R\x10internalMetadata\x12_\n" +
 	"\x11customer_metadata\x18? \x03(\v22.chalk.server.v1.Environment.CustomerMetadataEntryR\x10customerMetadata\x12E\n" +
 	"\x1adataplane_db_direct_secret\x18A \x01(\tB\x03\xe0A\x03H4R\x17dataplaneDbDirectSecret\x88\x01\x01\x12c\n" +
-	"\x1cprimary_linked_cluster_class\x18B \x01(\x0e2\x1d.chalk.server.v1.ClusterClassB\x03\xe0A\x03R\x19primaryLinkedClusterClass\x1aD\n" +
+	"\x1cprimary_linked_cluster_class\x18B \x01(\x0e2\x1d.chalk.server.v1.ClusterClassB\x03\xe0A\x03R\x19primaryLinkedClusterClass\x12%\n" +
+	"\vdescription\x18C \x01(\tH5R\vdescription\x88\x01\x01\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aH\n" +
@@ -1843,7 +1854,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x16_default_build_profileB\x11\n" +
 	"\x0f_vector_db_kindB\x13\n" +
 	"\x11_vector_db_secretB\x1d\n" +
-	"\x1b_dataplane_db_direct_secret\"\\\n" +
+	"\x1b_dataplane_db_direct_secretB\x0e\n" +
+	"\f_description\"\\\n" +
 	"\x1aCreateEnvironmentV2Request\x12>\n" +
 	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"]\n" +
 	"\x1bCreateEnvironmentV2Response\x12>\n" +
