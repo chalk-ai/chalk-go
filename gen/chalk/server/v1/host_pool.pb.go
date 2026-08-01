@@ -128,6 +128,8 @@ type HostPool struct {
 	Spec          *HostPoolSpec          `protobuf:"bytes,5,opt,name=spec,proto3" json:"spec,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// True for implicit host pools managed by Chalk rather than stored as user configuration.
+	SystemManaged bool `protobuf:"varint,8,opt,name=system_managed,json=systemManaged,proto3" json:"system_managed,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -209,6 +211,13 @@ func (x *HostPool) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *HostPool) GetSystemManaged() bool {
+	if x != nil {
+		return x.SystemManaged
+	}
+	return false
 }
 
 type CreateEnvironmentHostPoolRequest struct {
@@ -990,7 +999,7 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\x03cpu\x18\x05 \x01(\tR\x03cpu\x12\x16\n" +
 	"\x06memory\x18\x06 \x01(\tR\x06memory\x12*\n" +
 	"\x0emachine_family\x18\a \x01(\tH\x00R\rmachineFamily\x88\x01\x01B\x11\n" +
-	"\x0f_machine_family\"\xce\x02\n" +
+	"\x0f_machine_family\"\xf5\x02\n" +
 	"\bHostPool\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12*\n" +
@@ -1001,7 +1010,8 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x11\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12%\n" +
+	"\x0esystem_managed\x18\b \x01(\bR\rsystemManagedB\x11\n" +
 	"\x0f_environment_idB\r\n" +
 	"\v_cluster_id\"U\n" +
 	" CreateEnvironmentHostPoolRequest\x121\n" +

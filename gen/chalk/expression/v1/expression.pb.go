@@ -99,6 +99,10 @@ const (
 	PyObjectType_PY_OBJECT_TYPE_STRUCT_PACKING_INFO                  PyObjectType = 8
 	PyObjectType_PY_OBJECT_TYPE_NONE                                 PyObjectType = 9
 	PyObjectType_PY_OBJECT_TYPE_CHALK_THREAD_POOL_EXECUTOR_BIND_INFO PyObjectType = 10
+	PyObjectType_PY_OBJECT_TYPE_FLOAT                                PyObjectType = 11
+	PyObjectType_PY_OBJECT_TYPE_DATETIME                             PyObjectType = 12
+	PyObjectType_PY_OBJECT_TYPE_TIMEDELTA                            PyObjectType = 13
+	PyObjectType_PY_OBJECT_TYPE_LIST                                 PyObjectType = 14
 )
 
 // Enum value maps for PyObjectType.
@@ -115,6 +119,10 @@ var (
 		8:  "PY_OBJECT_TYPE_STRUCT_PACKING_INFO",
 		9:  "PY_OBJECT_TYPE_NONE",
 		10: "PY_OBJECT_TYPE_CHALK_THREAD_POOL_EXECUTOR_BIND_INFO",
+		11: "PY_OBJECT_TYPE_FLOAT",
+		12: "PY_OBJECT_TYPE_DATETIME",
+		13: "PY_OBJECT_TYPE_TIMEDELTA",
+		14: "PY_OBJECT_TYPE_LIST",
 	}
 	PyObjectType_value = map[string]int32{
 		"PY_OBJECT_TYPE_UNSPECIFIED":                          0,
@@ -128,6 +136,10 @@ var (
 		"PY_OBJECT_TYPE_STRUCT_PACKING_INFO":                  8,
 		"PY_OBJECT_TYPE_NONE":                                 9,
 		"PY_OBJECT_TYPE_CHALK_THREAD_POOL_EXECUTOR_BIND_INFO": 10,
+		"PY_OBJECT_TYPE_FLOAT":                                11,
+		"PY_OBJECT_TYPE_DATETIME":                             12,
+		"PY_OBJECT_TYPE_TIMEDELTA":                            13,
+		"PY_OBJECT_TYPE_LIST":                                 14,
 	}
 )
 
@@ -6448,7 +6460,7 @@ const file_chalk_expression_v1_expression_proto_rawDesc = "" +
 	"\x16EXPR_POLICY_KIND_RETRY\x10\x03\x12\x1c\n" +
 	"\x18EXPR_POLICY_KIND_LOGGING\x10\x04\x12\x1a\n" +
 	"\x16EXPR_POLICY_KIND_CACHE\x10\x05\x12\x1d\n" +
-	"\x19EXPR_POLICY_KIND_BATCHING\x10\x06*\xe7\x02\n" +
+	"\x19EXPR_POLICY_KIND_BATCHING\x10\x06*\xd5\x03\n" +
 	"\fPyObjectType\x12\x1e\n" +
 	"\x1aPY_OBJECT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12PY_OBJECT_TYPE_INT\x10\x01\x12\x19\n" +
@@ -6461,7 +6473,11 @@ const file_chalk_expression_v1_expression_proto_rawDesc = "" +
 	"\"PY_OBJECT_TYPE_STRUCT_PACKING_INFO\x10\b\x12\x17\n" +
 	"\x13PY_OBJECT_TYPE_NONE\x10\t\x127\n" +
 	"3PY_OBJECT_TYPE_CHALK_THREAD_POOL_EXECUTOR_BIND_INFO\x10\n" +
-	"*\xa0\x1f\n" +
+	"\x12\x18\n" +
+	"\x14PY_OBJECT_TYPE_FLOAT\x10\v\x12\x1b\n" +
+	"\x17PY_OBJECT_TYPE_DATETIME\x10\f\x12\x1c\n" +
+	"\x18PY_OBJECT_TYPE_TIMEDELTA\x10\r\x12\x17\n" +
+	"\x13PY_OBJECT_TYPE_LIST\x10\x0e*\xa0\x1f\n" +
 	"\x0eScalarFunction\x12\x1f\n" +
 	"\x1bSCALAR_FUNCTION_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13SCALAR_FUNCTION_ABS\x10\x01\x12\x18\n" +

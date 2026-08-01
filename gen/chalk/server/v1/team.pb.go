@@ -627,8 +627,11 @@ type Project struct {
 	InternalMetadata     map[string]*structpb.Value `protobuf:"bytes,6,rep,name=internal_metadata,json=internalMetadata,proto3" json:"internal_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	CustomerMetadata     map[string]*structpb.Value `protobuf:"bytes,7,rep,name=customer_metadata,json=customerMetadata,proto3" json:"customer_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	DefaultEnvironmentId *string                    `protobuf:"bytes,8,opt,name=default_environment_id,json=defaultEnvironmentId,proto3,oneof" json:"default_environment_id,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Free-form, customer-authored description of the project, rendered as Markdown
+	// in the dashboard. Unset means "no description".
+	Description   *string `protobuf:"bytes,9,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Project) Reset() {
@@ -713,6 +716,13 @@ func (x *Project) GetCustomerMetadata() map[string]*structpb.Value {
 func (x *Project) GetDefaultEnvironmentId() string {
 	if x != nil && x.DefaultEnvironmentId != nil {
 		return *x.DefaultEnvironmentId
+	}
+	return ""
+}
+
+func (x *Project) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
@@ -910,9 +920,11 @@ func (x *CreateProjectResponse) GetProject() *Project {
 }
 
 type UpdateProjectOperation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	GitRepo       *string                `protobuf:"bytes,2,opt,name=git_repo,json=gitRepo,proto3,oneof" json:"git_repo,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Name    *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	GitRepo *string                `protobuf:"bytes,2,opt,name=git_repo,json=gitRepo,proto3,oneof" json:"git_repo,omitempty"`
+	// Markdown description. Present-but-empty clears the description.
+	Description   *string `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -957,6 +969,13 @@ func (x *UpdateProjectOperation) GetName() string {
 func (x *UpdateProjectOperation) GetGitRepo() string {
 	if x != nil && x.GitRepo != nil {
 		return *x.GitRepo
+	}
+	return ""
+}
+
+func (x *UpdateProjectOperation) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
@@ -1306,8 +1325,10 @@ type UpdateEnvironmentOperation struct {
 	EnvironmentBuckets     *EnvironmentObjectStorageConfig `protobuf:"bytes,11,opt,name=environment_buckets,json=environmentBuckets,proto3,oneof" json:"environment_buckets,omitempty"`
 	DefaultBuildProfile    *DeploymentBuildProfile         `protobuf:"varint,14,opt,name=default_build_profile,json=defaultBuildProfile,proto3,enum=chalk.server.v1.DeploymentBuildProfile,oneof" json:"default_build_profile,omitempty"`
 	PinnedBaseImage        *string                         `protobuf:"bytes,15,opt,name=pinned_base_image,json=pinnedBaseImage,proto3,oneof" json:"pinned_base_image,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Markdown description. Present-but-empty clears the description.
+	Description   *string `protobuf:"bytes,16,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateEnvironmentOperation) Reset() {
@@ -1441,6 +1462,13 @@ func (x *UpdateEnvironmentOperation) GetDefaultBuildProfile() DeploymentBuildPro
 func (x *UpdateEnvironmentOperation) GetPinnedBaseImage() string {
 	if x != nil && x.PinnedBaseImage != nil {
 		return *x.PinnedBaseImage
+	}
+	return ""
+}
+
+func (x *UpdateEnvironmentOperation) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
 	return ""
 }
@@ -5455,7 +5483,7 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\a\n" +
 	"\x05_logoB\x10\n" +
-	"\x0e_scim_provider\"\xff\x04\n" +
+	"\x0e_scim_provider\"\xb6\x05\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12\x12\n" +
@@ -5464,7 +5492,8 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\bgit_repo\x18\x05 \x01(\tH\x00R\agitRepo\x88\x01\x01\x12[\n" +
 	"\x11internal_metadata\x18\x06 \x03(\v2..chalk.server.v1.Project.InternalMetadataEntryR\x10internalMetadata\x12[\n" +
 	"\x11customer_metadata\x18\a \x03(\v2..chalk.server.v1.Project.CustomerMetadataEntryR\x10customerMetadata\x129\n" +
-	"\x16default_environment_id\x18\b \x01(\tH\x01R\x14defaultEnvironmentId\x88\x01\x01\x1a[\n" +
+	"\x16default_environment_id\x18\b \x01(\tH\x01R\x14defaultEnvironmentId\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\t \x01(\tH\x02R\vdescription\x88\x01\x01\x1a[\n" +
 	"\x15InternalMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a[\n" +
@@ -5472,7 +5501,8 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\v\n" +
 	"\t_git_repoB\x19\n" +
-	"\x17_default_environment_id\"]\n" +
+	"\x17_default_environment_idB\x0e\n" +
+	"\f_description\"]\n" +
 	"\x11CreateTeamRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x17\n" +
@@ -5483,12 +5513,14 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x14CreateProjectRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"K\n" +
 	"\x15CreateProjectResponse\x122\n" +
-	"\aproject\x18\x01 \x01(\v2\x18.chalk.server.v1.ProjectR\aproject\"g\n" +
+	"\aproject\x18\x01 \x01(\v2\x18.chalk.server.v1.ProjectR\aproject\"\x9e\x01\n" +
 	"\x16UpdateProjectOperation\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1e\n" +
-	"\bgit_repo\x18\x02 \x01(\tH\x01R\agitRepo\x88\x01\x01B\a\n" +
+	"\bgit_repo\x18\x02 \x01(\tH\x01R\agitRepo\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\x03 \x01(\tH\x02R\vdescription\x88\x01\x01B\a\n" +
 	"\x05_nameB\v\n" +
-	"\t_git_repo\"\xa4\x01\n" +
+	"\t_git_repoB\x0e\n" +
+	"\f_description\"\xa4\x01\n" +
 	"\x14UpdateProjectRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12?\n" +
 	"\x06update\x18\x02 \x01(\v2'.chalk.server.v1.UpdateProjectOperationR\x06update\x12;\n" +
@@ -5514,7 +5546,7 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x1c_engine_docker_registry_pathB\x1a\n" +
 	"\x18_environment_id_override\"[\n" +
 	"\x19CreateEnvironmentResponse\x12>\n" +
-	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\x96\n" +
+	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\xcd\n" +
 	"\n" +
 	"\x1aUpdateEnvironmentOperation\x12\"\n" +
 	"\n" +
@@ -5537,7 +5569,8 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"R\x16kubeServiceAccountName\x88\x01\x01\x12e\n" +
 	"\x13environment_buckets\x18\v \x01(\v2/.chalk.server.v1.EnvironmentObjectStorageConfigH\vR\x12environmentBuckets\x88\x01\x01\x12`\n" +
 	"\x15default_build_profile\x18\x0e \x01(\x0e2'.chalk.server.v1.DeploymentBuildProfileH\fR\x13defaultBuildProfile\x88\x01\x01\x12/\n" +
-	"\x11pinned_base_image\x18\x0f \x01(\tH\rR\x0fpinnedBaseImage\x88\x01\x01\x1aD\n" +
+	"\x11pinned_base_image\x18\x0f \x01(\tH\rR\x0fpinnedBaseImage\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\x10 \x01(\tH\x0eR\vdescription\x88\x01\x01\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\r\n" +
@@ -5554,7 +5587,8 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x1a_kube_service_account_nameB\x16\n" +
 	"\x14_environment_bucketsB\x18\n" +
 	"\x16_default_build_profileB\x14\n" +
-	"\x12_pinned_base_image\"\xac\x01\n" +
+	"\x12_pinned_base_imageB\x0e\n" +
+	"\f_description\"\xac\x01\n" +
 	"\x18UpdateEnvironmentRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12C\n" +
 	"\x06update\x18\x02 \x01(\v2+.chalk.server.v1.UpdateEnvironmentOperationR\x06update\x12;\n" +
