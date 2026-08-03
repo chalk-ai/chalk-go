@@ -360,7 +360,7 @@ type VolumeMount struct {
 	// or zero the platform applies a configured default cap. Used by shared_memory.
 	SizeLimit *string `protobuf:"bytes,4,opt,name=size_limit,json=sizeLimit,proto3,oneof" json:"size_limit,omitempty"`
 	// Pins a "versioned_chalkfs" mount to an immutable committed snapshot and
-	// implies a read-only mount.
+	// stages writes locally without committing.
 	VersionId     *uint64 `protobuf:"varint,5,opt,name=version_id,json=versionId,proto3,oneof" json:"version_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
