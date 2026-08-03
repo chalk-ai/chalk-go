@@ -80,6 +80,9 @@ const (
 	// BuilderServiceResolveEngineBaseImageProcedure is the fully-qualified name of the BuilderService's
 	// ResolveEngineBaseImage RPC.
 	BuilderServiceResolveEngineBaseImageProcedure = "/chalk.server.v1.BuilderService/ResolveEngineBaseImage"
+	// BuilderServiceListEngineBaseImagesProcedure is the fully-qualified name of the BuilderService's
+	// ListEngineBaseImages RPC.
+	BuilderServiceListEngineBaseImagesProcedure = "/chalk.server.v1.BuilderService/ListEngineBaseImages"
 	// BuilderServiceGetClusterTimescaleDBProcedure is the fully-qualified name of the BuilderService's
 	// GetClusterTimescaleDB RPC.
 	BuilderServiceGetClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/GetClusterTimescaleDB"
@@ -297,6 +300,7 @@ type BuilderServiceClient interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
+	ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
@@ -478,6 +482,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceResolveEngineBaseImageProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("ResolveEngineBaseImage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listEngineBaseImages: connect.NewClient[v1.ListEngineBaseImagesRequest, v1.ListEngineBaseImagesResponse](
+			httpClient,
+			baseURL+BuilderServiceListEngineBaseImagesProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ListEngineBaseImages")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -879,6 +890,7 @@ type builderServiceClient struct {
 	getDeploymentLogs                           *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
 	getDeploymentDependencies                   *connect.Client[v1.GetDeploymentDependenciesRequest, v1.GetDeploymentDependenciesResponse]
 	resolveEngineBaseImage                      *connect.Client[v1.ResolveEngineBaseImageRequest, v1.ResolveEngineBaseImageResponse]
+	listEngineBaseImages                        *connect.Client[v1.ListEngineBaseImagesRequest, v1.ListEngineBaseImagesResponse]
 	getClusterTimescaleDB                       *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
 	listClusterTimescaleDBs                     *connect.Client[v1.ListClusterTimescaleDBsRequest, v1.ListClusterTimescaleDBsResponse]
 	getClusterGateway                           *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
@@ -1018,6 +1030,11 @@ func (c *builderServiceClient) GetDeploymentDependencies(ctx context.Context, re
 // ResolveEngineBaseImage calls chalk.server.v1.BuilderService.ResolveEngineBaseImage.
 func (c *builderServiceClient) ResolveEngineBaseImage(ctx context.Context, req *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error) {
 	return c.resolveEngineBaseImage.CallUnary(ctx, req)
+}
+
+// ListEngineBaseImages calls chalk.server.v1.BuilderService.ListEngineBaseImages.
+func (c *builderServiceClient) ListEngineBaseImages(ctx context.Context, req *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error) {
+	return c.listEngineBaseImages.CallUnary(ctx, req)
 }
 
 // GetClusterTimescaleDB calls chalk.server.v1.BuilderService.GetClusterTimescaleDB.
@@ -1383,6 +1400,7 @@ type BuilderServiceHandler interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
+	ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
@@ -1560,6 +1578,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceResolveEngineBaseImageProcedure,
 		svc.ResolveEngineBaseImage,
 		connect.WithSchema(builderServiceMethods.ByName("ResolveEngineBaseImage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceListEngineBaseImagesHandler := connect.NewUnaryHandler(
+		BuilderServiceListEngineBaseImagesProcedure,
+		svc.ListEngineBaseImages,
+		connect.WithSchema(builderServiceMethods.ByName("ListEngineBaseImages")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -1973,6 +1998,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetDeploymentDependenciesHandler.ServeHTTP(w, r)
 		case BuilderServiceResolveEngineBaseImageProcedure:
 			builderServiceResolveEngineBaseImageHandler.ServeHTTP(w, r)
+		case BuilderServiceListEngineBaseImagesProcedure:
+			builderServiceListEngineBaseImagesHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterTimescaleDBProcedure:
 			builderServiceGetClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceListClusterTimescaleDBsProcedure:
@@ -2162,6 +2189,10 @@ func (UnimplementedBuilderServiceHandler) GetDeploymentDependencies(context.Cont
 
 func (UnimplementedBuilderServiceHandler) ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ResolveEngineBaseImage is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ListEngineBaseImages is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error) {

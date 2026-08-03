@@ -1624,9 +1624,18 @@ type GetCatalogOverviewRequest struct {
 	SnapshotId *int64 `protobuf:"varint,1,opt,name=snapshot_id,json=snapshotId,proto3,oneof" json:"snapshot_id,omitempty"`
 	// Cap on entities returned. The server applies a default and a maximum, and
 	// reports truncated=true when it stops short.
-	MaxEntities   *int32 `protobuf:"varint,2,opt,name=max_entities,json=maxEntities,proto3,oneof" json:"max_entities,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	MaxEntities *int32 `protobuf:"varint,2,opt,name=max_entities,json=maxEntities,proto3,oneof" json:"max_entities,omitempty"`
+	// Analyze the SQL of the projected SQL file resolvers and attach the result
+	// as a lineage facet on each resolver, so the overview can draw which column
+	// of which table feeds which resolver output. This costs one engine round
+	// trip, which is why it is opt-in.
+	//
+	// Best effort: a failed or unreachable analysis serves the overview without
+	// the facets rather than failing the read, because a map of the catalog is
+	// still worth drawing without its resolver edges.
+	IncludeSqlLineage *bool `protobuf:"varint,3,opt,name=include_sql_lineage,json=includeSqlLineage,proto3,oneof" json:"include_sql_lineage,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *GetCatalogOverviewRequest) Reset() {
@@ -1671,6 +1680,13 @@ func (x *GetCatalogOverviewRequest) GetMaxEntities() int32 {
 		return *x.MaxEntities
 	}
 	return 0
+}
+
+func (x *GetCatalogOverviewRequest) GetIncludeSqlLineage() bool {
+	if x != nil && x.IncludeSqlLineage != nil {
+		return *x.IncludeSqlLineage
+	}
+	return false
 }
 
 type GetCatalogOverviewResponse struct {
@@ -1886,13 +1902,15 @@ const file_chalk_catalog_v1_service_proto_rawDesc = "" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12D\n" +
 	"\n" +
 	"statistics\x18\x02 \x01(\v2$.chalk.catalog.v1.RelationStatisticsR\n" +
-	"statistics\"\x8a\x01\n" +
+	"statistics\"\xd7\x01\n" +
 	"\x19GetCatalogOverviewRequest\x12$\n" +
 	"\vsnapshot_id\x18\x01 \x01(\x03H\x00R\n" +
 	"snapshotId\x88\x01\x01\x12&\n" +
-	"\fmax_entities\x18\x02 \x01(\x05H\x01R\vmaxEntities\x88\x01\x01B\x0e\n" +
+	"\fmax_entities\x18\x02 \x01(\x05H\x01R\vmaxEntities\x88\x01\x01\x123\n" +
+	"\x13include_sql_lineage\x18\x03 \x01(\bH\x02R\x11includeSqlLineage\x88\x01\x01B\x0e\n" +
 	"\f_snapshot_idB\x0f\n" +
-	"\r_max_entities\"\xec\x01\n" +
+	"\r_max_entitiesB\x16\n" +
+	"\x14_include_sql_lineage\"\xec\x01\n" +
 	"\x1aGetCatalogOverviewResponse\x12;\n" +
 	"\bentities\x18\x01 \x03(\v2\x1f.chalk.catalog.v1.CatalogEntityR\bentities\x12B\n" +
 	"\n" +

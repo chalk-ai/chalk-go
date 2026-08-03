@@ -792,8 +792,7 @@ type CreateExternalFunctionVersionRequest struct {
 	Spec              *v11.ScalingGroupSpec  `protobuf:"bytes,4,opt,name=spec,proto3" json:"spec,omitempty"`
 	Config            *FunctionConfig        `protobuf:"bytes,5,opt,name=config,proto3,oneof" json:"config,omitempty"`
 	// Staged volume uploads to commit server-side before the version is
-	// persisted. The server overrides each intent's commit_id with the new
-	// scaling-group revision id and stamps the resulting version_id onto the
+	// persisted. The resulting version_id is stamped onto the
 	// spec volume with the matching name, pinning every replica to that
 	// immutable snapshot.
 	VolumeCommits []*v2.CommitIntent `protobuf:"bytes,6,rep,name=volume_commits,json=volumeCommits,proto3" json:"volume_commits,omitempty"`

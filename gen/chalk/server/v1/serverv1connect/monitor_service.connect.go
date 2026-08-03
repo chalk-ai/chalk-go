@@ -36,6 +36,9 @@ const (
 	// MonitorServiceGetMonitorProcedure is the fully-qualified name of the MonitorService's GetMonitor
 	// RPC.
 	MonitorServiceGetMonitorProcedure = "/chalk.server.v1.MonitorService/GetMonitor"
+	// MonitorServiceGetMonitorEventsProcedure is the fully-qualified name of the MonitorService's
+	// GetMonitorEvents RPC.
+	MonitorServiceGetMonitorEventsProcedure = "/chalk.server.v1.MonitorService/GetMonitorEvents"
 	// MonitorServiceCreateMonitorProcedure is the fully-qualified name of the MonitorService's
 	// CreateMonitor RPC.
 	MonitorServiceCreateMonitorProcedure = "/chalk.server.v1.MonitorService/CreateMonitor"
@@ -53,6 +56,7 @@ const (
 // MonitorServiceClient is a client for the chalk.server.v1.MonitorService service.
 type MonitorServiceClient interface {
 	GetMonitor(context.Context, *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error)
+	GetMonitorEvents(context.Context, *connect.Request[v1.GetMonitorEventsRequest]) (*connect.Response[v1.GetMonitorEventsResponse], error)
 	CreateMonitor(context.Context, *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error)
 	UpdateMonitor(context.Context, *connect.Request[v1.UpdateMonitorRequest]) (*connect.Response[v1.UpdateMonitorResponse], error)
 	DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error)
@@ -74,6 +78,12 @@ func NewMonitorServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+MonitorServiceGetMonitorProcedure,
 			connect.WithSchema(monitorServiceMethods.ByName("GetMonitor")),
+			connect.WithClientOptions(opts...),
+		),
+		getMonitorEvents: connect.NewClient[v1.GetMonitorEventsRequest, v1.GetMonitorEventsResponse](
+			httpClient,
+			baseURL+MonitorServiceGetMonitorEventsProcedure,
+			connect.WithSchema(monitorServiceMethods.ByName("GetMonitorEvents")),
 			connect.WithClientOptions(opts...),
 		),
 		createMonitor: connect.NewClient[v1.CreateMonitorRequest, v1.CreateMonitorResponse](
@@ -105,16 +115,22 @@ func NewMonitorServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 
 // monitorServiceClient implements MonitorServiceClient.
 type monitorServiceClient struct {
-	getMonitor    *connect.Client[v1.GetMonitorRequest, v1.GetMonitorResponse]
-	createMonitor *connect.Client[v1.CreateMonitorRequest, v1.CreateMonitorResponse]
-	updateMonitor *connect.Client[v1.UpdateMonitorRequest, v1.UpdateMonitorResponse]
-	deleteMonitor *connect.Client[v1.DeleteMonitorRequest, v1.DeleteMonitorResponse]
-	listMonitors  *connect.Client[v1.ListMonitorsRequest, v1.ListMonitorsResponse]
+	getMonitor       *connect.Client[v1.GetMonitorRequest, v1.GetMonitorResponse]
+	getMonitorEvents *connect.Client[v1.GetMonitorEventsRequest, v1.GetMonitorEventsResponse]
+	createMonitor    *connect.Client[v1.CreateMonitorRequest, v1.CreateMonitorResponse]
+	updateMonitor    *connect.Client[v1.UpdateMonitorRequest, v1.UpdateMonitorResponse]
+	deleteMonitor    *connect.Client[v1.DeleteMonitorRequest, v1.DeleteMonitorResponse]
+	listMonitors     *connect.Client[v1.ListMonitorsRequest, v1.ListMonitorsResponse]
 }
 
 // GetMonitor calls chalk.server.v1.MonitorService.GetMonitor.
 func (c *monitorServiceClient) GetMonitor(ctx context.Context, req *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error) {
 	return c.getMonitor.CallUnary(ctx, req)
+}
+
+// GetMonitorEvents calls chalk.server.v1.MonitorService.GetMonitorEvents.
+func (c *monitorServiceClient) GetMonitorEvents(ctx context.Context, req *connect.Request[v1.GetMonitorEventsRequest]) (*connect.Response[v1.GetMonitorEventsResponse], error) {
+	return c.getMonitorEvents.CallUnary(ctx, req)
 }
 
 // CreateMonitor calls chalk.server.v1.MonitorService.CreateMonitor.
@@ -140,6 +156,7 @@ func (c *monitorServiceClient) ListMonitors(ctx context.Context, req *connect.Re
 // MonitorServiceHandler is an implementation of the chalk.server.v1.MonitorService service.
 type MonitorServiceHandler interface {
 	GetMonitor(context.Context, *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error)
+	GetMonitorEvents(context.Context, *connect.Request[v1.GetMonitorEventsRequest]) (*connect.Response[v1.GetMonitorEventsResponse], error)
 	CreateMonitor(context.Context, *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error)
 	UpdateMonitor(context.Context, *connect.Request[v1.UpdateMonitorRequest]) (*connect.Response[v1.UpdateMonitorResponse], error)
 	DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error)
@@ -157,6 +174,12 @@ func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.Handler
 		MonitorServiceGetMonitorProcedure,
 		svc.GetMonitor,
 		connect.WithSchema(monitorServiceMethods.ByName("GetMonitor")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitorServiceGetMonitorEventsHandler := connect.NewUnaryHandler(
+		MonitorServiceGetMonitorEventsProcedure,
+		svc.GetMonitorEvents,
+		connect.WithSchema(monitorServiceMethods.ByName("GetMonitorEvents")),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitorServiceCreateMonitorHandler := connect.NewUnaryHandler(
@@ -187,6 +210,8 @@ func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.Handler
 		switch r.URL.Path {
 		case MonitorServiceGetMonitorProcedure:
 			monitorServiceGetMonitorHandler.ServeHTTP(w, r)
+		case MonitorServiceGetMonitorEventsProcedure:
+			monitorServiceGetMonitorEventsHandler.ServeHTTP(w, r)
 		case MonitorServiceCreateMonitorProcedure:
 			monitorServiceCreateMonitorHandler.ServeHTTP(w, r)
 		case MonitorServiceUpdateMonitorProcedure:
@@ -206,6 +231,10 @@ type UnimplementedMonitorServiceHandler struct{}
 
 func (UnimplementedMonitorServiceHandler) GetMonitor(context.Context, *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.GetMonitor is not implemented"))
+}
+
+func (UnimplementedMonitorServiceHandler) GetMonitorEvents(context.Context, *connect.Request[v1.GetMonitorEventsRequest]) (*connect.Response[v1.GetMonitorEventsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.GetMonitorEvents is not implemented"))
 }
 
 func (UnimplementedMonitorServiceHandler) CreateMonitor(context.Context, *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error) {

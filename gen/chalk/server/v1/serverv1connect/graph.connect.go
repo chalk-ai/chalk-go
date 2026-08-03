@@ -62,6 +62,9 @@ const (
 	// GraphServiceGetDataLineageIndexProcedure is the fully-qualified name of the GraphService's
 	// GetDataLineageIndex RPC.
 	GraphServiceGetDataLineageIndexProcedure = "/chalk.server.v1.GraphService/GetDataLineageIndex"
+	// GraphServiceGetScheduledQueryLineageIndexProcedure is the fully-qualified name of the
+	// GraphService's GetScheduledQueryLineageIndex RPC.
+	GraphServiceGetScheduledQueryLineageIndexProcedure = "/chalk.server.v1.GraphService/GetScheduledQueryLineageIndex"
 	// GraphServiceGetOfflineStoreTableProcedure is the fully-qualified name of the GraphService's
 	// GetOfflineStoreTable RPC.
 	GraphServiceGetOfflineStoreTableProcedure = "/chalk.server.v1.GraphService/GetOfflineStoreTable"
@@ -102,6 +105,12 @@ type GraphServiceClient interface {
 	TestGraphMutations(context.Context, *connect.Request[v1.TestGraphMutationsRequest]) (*connect.Response[v1.TestGraphMutationsResponse], error)
 	// GetDataLineageIndex returns a mapping of resolver names to their data lineage information
 	GetDataLineageIndex(context.Context, *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error)
+	// GetScheduledQueryLineageIndex returns, for each scheduled query active on
+	// the environment's active deployment, the resolvers and features its latest
+	// query plan ran. Companion to GetDataLineageIndex: the resolver names line
+	// up, so the lineage graph can hang scheduled queries off the features they
+	// compute.
+	GetScheduledQueryLineageIndex(context.Context, *connect.Request[v1.GetScheduledQueryLineageIndexRequest]) (*connect.Response[v1.GetScheduledQueryLineageIndexResponse], error)
 	// GetOfflineStoreTable returns the offline store table names for a feature
 	GetOfflineStoreTable(context.Context, *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error)
 	// GetAllOfflineStoreTables returns the offline store table name for every
@@ -196,6 +205,13 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getScheduledQueryLineageIndex: connect.NewClient[v1.GetScheduledQueryLineageIndexRequest, v1.GetScheduledQueryLineageIndexResponse](
+			httpClient,
+			baseURL+GraphServiceGetScheduledQueryLineageIndexProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("GetScheduledQueryLineageIndex")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getOfflineStoreTable: connect.NewClient[v1.GetOfflineStoreTableRequest, v1.GetOfflineStoreTableResponse](
 			httpClient,
 			baseURL+GraphServiceGetOfflineStoreTableProcedure,
@@ -236,21 +252,22 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 
 // graphServiceClient implements GraphServiceClient.
 type graphServiceClient struct {
-	getFeatureSQL               *connect.Client[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse]
-	getFeaturesMetadata         *connect.Client[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse]
-	getGraph                    *connect.Client[v1.GetGraphRequest, v1.GetGraphResponse]
-	getResolver                 *connect.Client[v1.GetResolverRequest, v1.GetResolverResponse]
-	getStreamResolver           *connect.Client[v1.GetStreamResolverRequest, v1.GetStreamResolverResponse]
-	updateGraph                 *connect.Client[v1.UpdateGraphRequest, v1.UpdateGraphResponse]
-	getCodegenFeaturesFromGraph *connect.Client[v1.GetCodegenFeaturesFromGraphRequest, v1.GetCodegenFeaturesFromGraphResponse]
-	applyGraphUpdates           *connect.Client[v1.ApplyGraphUpdatesRequest, v1.ApplyGraphUpdatesResponse]
-	testGraphMutations          *connect.Client[v1.TestGraphMutationsRequest, v1.TestGraphMutationsResponse]
-	getDataLineageIndex         *connect.Client[v1.GetDataLineageIndexRequest, v1.GetDataLineageIndexResponse]
-	getOfflineStoreTable        *connect.Client[v1.GetOfflineStoreTableRequest, v1.GetOfflineStoreTableResponse]
-	getAllOfflineStoreTables    *connect.Client[v1.GetAllOfflineStoreTablesRequest, v1.GetAllOfflineStoreTablesResponse]
-	diffDeployments             *connect.Client[v1.DiffDeploymentsRequest, v1.DiffDeploymentsResponse]
-	smartDiffDeployment         *connect.Client[v1.SmartDiffDeploymentRequest, v1.SmartDiffDeploymentResponse]
-	diffCandidate               *connect.Client[v1.DiffCandidateRequest, v1.DiffCandidateResponse]
+	getFeatureSQL                 *connect.Client[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse]
+	getFeaturesMetadata           *connect.Client[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse]
+	getGraph                      *connect.Client[v1.GetGraphRequest, v1.GetGraphResponse]
+	getResolver                   *connect.Client[v1.GetResolverRequest, v1.GetResolverResponse]
+	getStreamResolver             *connect.Client[v1.GetStreamResolverRequest, v1.GetStreamResolverResponse]
+	updateGraph                   *connect.Client[v1.UpdateGraphRequest, v1.UpdateGraphResponse]
+	getCodegenFeaturesFromGraph   *connect.Client[v1.GetCodegenFeaturesFromGraphRequest, v1.GetCodegenFeaturesFromGraphResponse]
+	applyGraphUpdates             *connect.Client[v1.ApplyGraphUpdatesRequest, v1.ApplyGraphUpdatesResponse]
+	testGraphMutations            *connect.Client[v1.TestGraphMutationsRequest, v1.TestGraphMutationsResponse]
+	getDataLineageIndex           *connect.Client[v1.GetDataLineageIndexRequest, v1.GetDataLineageIndexResponse]
+	getScheduledQueryLineageIndex *connect.Client[v1.GetScheduledQueryLineageIndexRequest, v1.GetScheduledQueryLineageIndexResponse]
+	getOfflineStoreTable          *connect.Client[v1.GetOfflineStoreTableRequest, v1.GetOfflineStoreTableResponse]
+	getAllOfflineStoreTables      *connect.Client[v1.GetAllOfflineStoreTablesRequest, v1.GetAllOfflineStoreTablesResponse]
+	diffDeployments               *connect.Client[v1.DiffDeploymentsRequest, v1.DiffDeploymentsResponse]
+	smartDiffDeployment           *connect.Client[v1.SmartDiffDeploymentRequest, v1.SmartDiffDeploymentResponse]
+	diffCandidate                 *connect.Client[v1.DiffCandidateRequest, v1.DiffCandidateResponse]
 }
 
 // GetFeatureSQL calls chalk.server.v1.GraphService.GetFeatureSQL.
@@ -303,6 +320,11 @@ func (c *graphServiceClient) GetDataLineageIndex(ctx context.Context, req *conne
 	return c.getDataLineageIndex.CallUnary(ctx, req)
 }
 
+// GetScheduledQueryLineageIndex calls chalk.server.v1.GraphService.GetScheduledQueryLineageIndex.
+func (c *graphServiceClient) GetScheduledQueryLineageIndex(ctx context.Context, req *connect.Request[v1.GetScheduledQueryLineageIndexRequest]) (*connect.Response[v1.GetScheduledQueryLineageIndexResponse], error) {
+	return c.getScheduledQueryLineageIndex.CallUnary(ctx, req)
+}
+
 // GetOfflineStoreTable calls chalk.server.v1.GraphService.GetOfflineStoreTable.
 func (c *graphServiceClient) GetOfflineStoreTable(ctx context.Context, req *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error) {
 	return c.getOfflineStoreTable.CallUnary(ctx, req)
@@ -351,6 +373,12 @@ type GraphServiceHandler interface {
 	TestGraphMutations(context.Context, *connect.Request[v1.TestGraphMutationsRequest]) (*connect.Response[v1.TestGraphMutationsResponse], error)
 	// GetDataLineageIndex returns a mapping of resolver names to their data lineage information
 	GetDataLineageIndex(context.Context, *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error)
+	// GetScheduledQueryLineageIndex returns, for each scheduled query active on
+	// the environment's active deployment, the resolvers and features its latest
+	// query plan ran. Companion to GetDataLineageIndex: the resolver names line
+	// up, so the lineage graph can hang scheduled queries off the features they
+	// compute.
+	GetScheduledQueryLineageIndex(context.Context, *connect.Request[v1.GetScheduledQueryLineageIndexRequest]) (*connect.Response[v1.GetScheduledQueryLineageIndexResponse], error)
 	// GetOfflineStoreTable returns the offline store table names for a feature
 	GetOfflineStoreTable(context.Context, *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error)
 	// GetAllOfflineStoreTables returns the offline store table name for every
@@ -441,6 +469,13 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	graphServiceGetScheduledQueryLineageIndexHandler := connect.NewUnaryHandler(
+		GraphServiceGetScheduledQueryLineageIndexProcedure,
+		svc.GetScheduledQueryLineageIndex,
+		connect.WithSchema(graphServiceMethods.ByName("GetScheduledQueryLineageIndex")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	graphServiceGetOfflineStoreTableHandler := connect.NewUnaryHandler(
 		GraphServiceGetOfflineStoreTableProcedure,
 		svc.GetOfflineStoreTable,
@@ -498,6 +533,8 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 			graphServiceTestGraphMutationsHandler.ServeHTTP(w, r)
 		case GraphServiceGetDataLineageIndexProcedure:
 			graphServiceGetDataLineageIndexHandler.ServeHTTP(w, r)
+		case GraphServiceGetScheduledQueryLineageIndexProcedure:
+			graphServiceGetScheduledQueryLineageIndexHandler.ServeHTTP(w, r)
 		case GraphServiceGetOfflineStoreTableProcedure:
 			graphServiceGetOfflineStoreTableHandler.ServeHTTP(w, r)
 		case GraphServiceGetAllOfflineStoreTablesProcedure:
@@ -555,6 +592,10 @@ func (UnimplementedGraphServiceHandler) TestGraphMutations(context.Context, *con
 
 func (UnimplementedGraphServiceHandler) GetDataLineageIndex(context.Context, *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetDataLineageIndex is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) GetScheduledQueryLineageIndex(context.Context, *connect.Request[v1.GetScheduledQueryLineageIndexRequest]) (*connect.Response[v1.GetScheduledQueryLineageIndexResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetScheduledQueryLineageIndex is not implemented"))
 }
 
 func (UnimplementedGraphServiceHandler) GetOfflineStoreTable(context.Context, *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error) {

@@ -75,6 +75,9 @@ const (
 	// BillingServiceGetResourceGroupServiceDetailProcedure is the fully-qualified name of the
 	// BillingService's GetResourceGroupServiceDetail RPC.
 	BillingServiceGetResourceGroupServiceDetailProcedure = "/chalk.server.v1.BillingService/GetResourceGroupServiceDetail"
+	// BillingServiceCheckSelfHostedLicenseProcedure is the fully-qualified name of the BillingService's
+	// CheckSelfHostedLicense RPC.
+	BillingServiceCheckSelfHostedLicenseProcedure = "/chalk.server.v1.BillingService/CheckSelfHostedLicense"
 )
 
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
@@ -117,6 +120,10 @@ type BillingServiceClient interface {
 	// GetResourceGroupServiceDetail returns all pods for a given service kind
 	// and resource group within a time range, from the BigQuery usage data.
 	GetResourceGroupServiceDetail(context.Context, *connect.Request[v1.GetResourceGroupServiceDetailRequest]) (*connect.Response[v1.GetResourceGroupServiceDetailResponse], error)
+	// CheckSelfHostedLicense reports the self-hosted license key the caller
+	// authenticated with. A server that federates its billing reads polls this
+	// to verify its configured key still authenticates.
+	CheckSelfHostedLicense(context.Context, *connect.Request[v1.CheckSelfHostedLicenseRequest]) (*connect.Response[v1.CheckSelfHostedLicenseResponse], error)
 }
 
 // NewBillingServiceClient constructs a client for the chalk.server.v1.BillingService service. By
@@ -227,6 +234,13 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		checkSelfHostedLicense: connect.NewClient[v1.CheckSelfHostedLicenseRequest, v1.CheckSelfHostedLicenseResponse](
+			httpClient,
+			baseURL+BillingServiceCheckSelfHostedLicenseProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("CheckSelfHostedLicense")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -246,6 +260,7 @@ type billingServiceClient struct {
 	getNodeTimeRanges             *connect.Client[v1.GetNodeTimeRangesRequest, v1.GetNodeTimeRangesResponse]
 	getNodeDetail                 *connect.Client[v1.GetNodeDetailRequest, v1.GetNodeDetailResponse]
 	getResourceGroupServiceDetail *connect.Client[v1.GetResourceGroupServiceDetailRequest, v1.GetResourceGroupServiceDetailResponse]
+	checkSelfHostedLicense        *connect.Client[v1.CheckSelfHostedLicenseRequest, v1.CheckSelfHostedLicenseResponse]
 }
 
 // GetNodesAndPodsUI calls chalk.server.v1.BillingService.GetNodesAndPodsUI.
@@ -318,6 +333,11 @@ func (c *billingServiceClient) GetResourceGroupServiceDetail(ctx context.Context
 	return c.getResourceGroupServiceDetail.CallUnary(ctx, req)
 }
 
+// CheckSelfHostedLicense calls chalk.server.v1.BillingService.CheckSelfHostedLicense.
+func (c *billingServiceClient) CheckSelfHostedLicense(ctx context.Context, req *connect.Request[v1.CheckSelfHostedLicenseRequest]) (*connect.Response[v1.CheckSelfHostedLicenseResponse], error) {
+	return c.checkSelfHostedLicense.CallUnary(ctx, req)
+}
+
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
 	// GetNodesAndPodsUI returns the nodes and pods for the team by default,
@@ -358,6 +378,10 @@ type BillingServiceHandler interface {
 	// GetResourceGroupServiceDetail returns all pods for a given service kind
 	// and resource group within a time range, from the BigQuery usage data.
 	GetResourceGroupServiceDetail(context.Context, *connect.Request[v1.GetResourceGroupServiceDetailRequest]) (*connect.Response[v1.GetResourceGroupServiceDetailResponse], error)
+	// CheckSelfHostedLicense reports the self-hosted license key the caller
+	// authenticated with. A server that federates its billing reads polls this
+	// to verify its configured key still authenticates.
+	CheckSelfHostedLicense(context.Context, *connect.Request[v1.CheckSelfHostedLicenseRequest]) (*connect.Response[v1.CheckSelfHostedLicenseResponse], error)
 }
 
 // NewBillingServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -464,6 +488,13 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	billingServiceCheckSelfHostedLicenseHandler := connect.NewUnaryHandler(
+		BillingServiceCheckSelfHostedLicenseProcedure,
+		svc.CheckSelfHostedLicense,
+		connect.WithSchema(billingServiceMethods.ByName("CheckSelfHostedLicense")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BillingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BillingServiceGetNodesAndPodsUIProcedure:
@@ -494,6 +525,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetNodeDetailHandler.ServeHTTP(w, r)
 		case BillingServiceGetResourceGroupServiceDetailProcedure:
 			billingServiceGetResourceGroupServiceDetailHandler.ServeHTTP(w, r)
+		case BillingServiceCheckSelfHostedLicenseProcedure:
+			billingServiceCheckSelfHostedLicenseHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -557,4 +590,8 @@ func (UnimplementedBillingServiceHandler) GetNodeDetail(context.Context, *connec
 
 func (UnimplementedBillingServiceHandler) GetResourceGroupServiceDetail(context.Context, *connect.Request[v1.GetResourceGroupServiceDetailRequest]) (*connect.Response[v1.GetResourceGroupServiceDetailResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetResourceGroupServiceDetail is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) CheckSelfHostedLicense(context.Context, *connect.Request[v1.CheckSelfHostedLicenseRequest]) (*connect.Response[v1.CheckSelfHostedLicenseResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.CheckSelfHostedLicense is not implemented"))
 }
