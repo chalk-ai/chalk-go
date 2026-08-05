@@ -85,6 +85,11 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	scalingGroupPath, scalingGroupRPCHandler := scalinggroupv1connect.NewScalingGroupManagerServiceHandler(scalingGroupHandler)
 	mux.Handle(scalingGroupPath, scalingGroupRPCHandler)
 
+	// Register HostPoolService handler
+	hostPoolHandler := newHostPoolServiceHandler(registry)
+	hostPoolPath, hostPoolRPCHandler := serverv1connect.NewHostPoolServiceHandler(hostPoolHandler)
+	mux.Handle(hostPoolPath, hostPoolRPCHandler)
+
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
 
@@ -684,6 +689,70 @@ func (s *MockServer) OnListBindingClusterContainerRegistry() *MethodConfigBuilde
 func (s *MockServer) OnDeleteBindingClusterContainerRegistry() *MethodConfigBuilder[*serverv1.DeleteBindingClusterContainerRegistryResponse] {
 	return &MethodConfigBuilder[*serverv1.DeleteBindingClusterContainerRegistryResponse]{
 		methodName: "DeleteBindingClusterContainerRegistry",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateEnvironmentHostPool configures the CreateEnvironmentHostPool RPC method.
+func (s *MockServer) OnCreateEnvironmentHostPool() *MethodConfigBuilder[*serverv1.CreateEnvironmentHostPoolResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateEnvironmentHostPoolResponse]{
+		methodName: "CreateEnvironmentHostPool",
+		registry:   s.registry,
+	}
+}
+
+// OnUpdateEnvironmentHostPool configures the UpdateEnvironmentHostPool RPC method.
+func (s *MockServer) OnUpdateEnvironmentHostPool() *MethodConfigBuilder[*serverv1.UpdateEnvironmentHostPoolResponse] {
+	return &MethodConfigBuilder[*serverv1.UpdateEnvironmentHostPoolResponse]{
+		methodName: "UpdateEnvironmentHostPool",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteEnvironmentHostPool configures the DeleteEnvironmentHostPool RPC method.
+func (s *MockServer) OnDeleteEnvironmentHostPool() *MethodConfigBuilder[*serverv1.DeleteEnvironmentHostPoolResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteEnvironmentHostPoolResponse]{
+		methodName: "DeleteEnvironmentHostPool",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateClusterHostPool configures the CreateClusterHostPool RPC method.
+func (s *MockServer) OnCreateClusterHostPool() *MethodConfigBuilder[*serverv1.CreateClusterHostPoolResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateClusterHostPoolResponse]{
+		methodName: "CreateClusterHostPool",
+		registry:   s.registry,
+	}
+}
+
+// OnUpdateClusterHostPool configures the UpdateClusterHostPool RPC method.
+func (s *MockServer) OnUpdateClusterHostPool() *MethodConfigBuilder[*serverv1.UpdateClusterHostPoolResponse] {
+	return &MethodConfigBuilder[*serverv1.UpdateClusterHostPoolResponse]{
+		methodName: "UpdateClusterHostPool",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteClusterHostPool configures the DeleteClusterHostPool RPC method.
+func (s *MockServer) OnDeleteClusterHostPool() *MethodConfigBuilder[*serverv1.DeleteClusterHostPoolResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteClusterHostPoolResponse]{
+		methodName: "DeleteClusterHostPool",
+		registry:   s.registry,
+	}
+}
+
+// OnGetHostPool configures the GetHostPool RPC method.
+func (s *MockServer) OnGetHostPool() *MethodConfigBuilder[*serverv1.GetHostPoolResponse] {
+	return &MethodConfigBuilder[*serverv1.GetHostPoolResponse]{
+		methodName: "GetHostPool",
+		registry:   s.registry,
+	}
+}
+
+// OnListHostPools configures the ListHostPools RPC method.
+func (s *MockServer) OnListHostPools() *MethodConfigBuilder[*serverv1.ListHostPoolsResponse] {
+	return &MethodConfigBuilder[*serverv1.ListHostPoolsResponse]{
+		methodName: "ListHostPools",
 		registry:   s.registry,
 	}
 }
