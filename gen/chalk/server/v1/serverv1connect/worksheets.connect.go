@@ -72,6 +72,24 @@ const (
 	// WorksheetsServiceListWorksheetCommitsProcedure is the fully-qualified name of the
 	// WorksheetsService's ListWorksheetCommits RPC.
 	WorksheetsServiceListWorksheetCommitsProcedure = "/chalk.server.v1.WorksheetsService/ListWorksheetCommits"
+	// WorksheetsServiceRunOnlineWorksheetCommitProcedure is the fully-qualified name of the
+	// WorksheetsService's RunOnlineWorksheetCommit RPC.
+	WorksheetsServiceRunOnlineWorksheetCommitProcedure = "/chalk.server.v1.WorksheetsService/RunOnlineWorksheetCommit"
+	// WorksheetsServiceRunOfflineWorksheetCommitProcedure is the fully-qualified name of the
+	// WorksheetsService's RunOfflineWorksheetCommit RPC.
+	WorksheetsServiceRunOfflineWorksheetCommitProcedure = "/chalk.server.v1.WorksheetsService/RunOfflineWorksheetCommit"
+	// WorksheetsServiceRunSqlWorksheetCommitProcedure is the fully-qualified name of the
+	// WorksheetsService's RunSqlWorksheetCommit RPC.
+	WorksheetsServiceRunSqlWorksheetCommitProcedure = "/chalk.server.v1.WorksheetsService/RunSqlWorksheetCommit"
+	// WorksheetsServiceCancelWorksheetRunProcedure is the fully-qualified name of the
+	// WorksheetsService's CancelWorksheetRun RPC.
+	WorksheetsServiceCancelWorksheetRunProcedure = "/chalk.server.v1.WorksheetsService/CancelWorksheetRun"
+	// WorksheetsServiceGetWorksheetRunProcedure is the fully-qualified name of the WorksheetsService's
+	// GetWorksheetRun RPC.
+	WorksheetsServiceGetWorksheetRunProcedure = "/chalk.server.v1.WorksheetsService/GetWorksheetRun"
+	// WorksheetsServiceListWorksheetRunsProcedure is the fully-qualified name of the
+	// WorksheetsService's ListWorksheetRuns RPC.
+	WorksheetsServiceListWorksheetRunsProcedure = "/chalk.server.v1.WorksheetsService/ListWorksheetRuns"
 )
 
 // WorksheetsServiceClient is a client for the chalk.server.v1.WorksheetsService service.
@@ -89,6 +107,12 @@ type WorksheetsServiceClient interface {
 	SaveWorksheet(context.Context, *connect.Request[v1.SaveWorksheetRequest]) (*connect.Response[v1.SaveWorksheetResponse], error)
 	GetWorksheetCommit(context.Context, *connect.Request[v1.GetWorksheetCommitRequest]) (*connect.Response[v1.GetWorksheetCommitResponse], error)
 	ListWorksheetCommits(context.Context, *connect.Request[v1.ListWorksheetCommitsRequest]) (*connect.Response[v1.ListWorksheetCommitsResponse], error)
+	RunOnlineWorksheetCommit(context.Context, *connect.Request[v1.RunOnlineWorksheetCommitRequest]) (*connect.Response[v1.RunOnlineWorksheetCommitResponse], error)
+	RunOfflineWorksheetCommit(context.Context, *connect.Request[v1.RunOfflineWorksheetCommitRequest]) (*connect.Response[v1.RunOfflineWorksheetCommitResponse], error)
+	RunSqlWorksheetCommit(context.Context, *connect.Request[v1.RunSqlWorksheetCommitRequest]) (*connect.Response[v1.RunSqlWorksheetCommitResponse], error)
+	CancelWorksheetRun(context.Context, *connect.Request[v1.CancelWorksheetRunRequest]) (*connect.Response[v1.CancelWorksheetRunResponse], error)
+	GetWorksheetRun(context.Context, *connect.Request[v1.GetWorksheetRunRequest]) (*connect.Response[v1.GetWorksheetRunResponse], error)
+	ListWorksheetRuns(context.Context, *connect.Request[v1.ListWorksheetRunsRequest]) (*connect.Response[v1.ListWorksheetRunsResponse], error)
 }
 
 // NewWorksheetsServiceClient constructs a client for the chalk.server.v1.WorksheetsService service.
@@ -185,24 +209,68 @@ func NewWorksheetsServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		runOnlineWorksheetCommit: connect.NewClient[v1.RunOnlineWorksheetCommitRequest, v1.RunOnlineWorksheetCommitResponse](
+			httpClient,
+			baseURL+WorksheetsServiceRunOnlineWorksheetCommitProcedure,
+			connect.WithSchema(worksheetsServiceMethods.ByName("RunOnlineWorksheetCommit")),
+			connect.WithClientOptions(opts...),
+		),
+		runOfflineWorksheetCommit: connect.NewClient[v1.RunOfflineWorksheetCommitRequest, v1.RunOfflineWorksheetCommitResponse](
+			httpClient,
+			baseURL+WorksheetsServiceRunOfflineWorksheetCommitProcedure,
+			connect.WithSchema(worksheetsServiceMethods.ByName("RunOfflineWorksheetCommit")),
+			connect.WithClientOptions(opts...),
+		),
+		runSqlWorksheetCommit: connect.NewClient[v1.RunSqlWorksheetCommitRequest, v1.RunSqlWorksheetCommitResponse](
+			httpClient,
+			baseURL+WorksheetsServiceRunSqlWorksheetCommitProcedure,
+			connect.WithSchema(worksheetsServiceMethods.ByName("RunSqlWorksheetCommit")),
+			connect.WithClientOptions(opts...),
+		),
+		cancelWorksheetRun: connect.NewClient[v1.CancelWorksheetRunRequest, v1.CancelWorksheetRunResponse](
+			httpClient,
+			baseURL+WorksheetsServiceCancelWorksheetRunProcedure,
+			connect.WithSchema(worksheetsServiceMethods.ByName("CancelWorksheetRun")),
+			connect.WithClientOptions(opts...),
+		),
+		getWorksheetRun: connect.NewClient[v1.GetWorksheetRunRequest, v1.GetWorksheetRunResponse](
+			httpClient,
+			baseURL+WorksheetsServiceGetWorksheetRunProcedure,
+			connect.WithSchema(worksheetsServiceMethods.ByName("GetWorksheetRun")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listWorksheetRuns: connect.NewClient[v1.ListWorksheetRunsRequest, v1.ListWorksheetRunsResponse](
+			httpClient,
+			baseURL+WorksheetsServiceListWorksheetRunsProcedure,
+			connect.WithSchema(worksheetsServiceMethods.ByName("ListWorksheetRuns")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // worksheetsServiceClient implements WorksheetsServiceClient.
 type worksheetsServiceClient struct {
-	createWorksheetSpace *connect.Client[v1.CreateWorksheetSpaceRequest, v1.CreateWorksheetSpaceResponse]
-	listWorksheetSpaces  *connect.Client[v1.ListWorksheetSpacesRequest, v1.ListWorksheetSpacesResponse]
-	getWorksheetNode     *connect.Client[v1.GetWorksheetNodeRequest, v1.GetWorksheetNodeResponse]
-	listWorksheetNodes   *connect.Client[v1.ListWorksheetNodesRequest, v1.ListWorksheetNodesResponse]
-	createWorksheetNode  *connect.Client[v1.CreateWorksheetNodeRequest, v1.CreateWorksheetNodeResponse]
-	renameWorksheetNode  *connect.Client[v1.RenameWorksheetNodeRequest, v1.RenameWorksheetNodeResponse]
-	moveWorksheetNode    *connect.Client[v1.MoveWorksheetNodeRequest, v1.MoveWorksheetNodeResponse]
-	archiveWorksheetNode *connect.Client[v1.ArchiveWorksheetNodeRequest, v1.ArchiveWorksheetNodeResponse]
-	restoreWorksheetNode *connect.Client[v1.RestoreWorksheetNodeRequest, v1.RestoreWorksheetNodeResponse]
-	autosaveWorksheet    *connect.Client[v1.AutosaveWorksheetRequest, v1.AutosaveWorksheetResponse]
-	saveWorksheet        *connect.Client[v1.SaveWorksheetRequest, v1.SaveWorksheetResponse]
-	getWorksheetCommit   *connect.Client[v1.GetWorksheetCommitRequest, v1.GetWorksheetCommitResponse]
-	listWorksheetCommits *connect.Client[v1.ListWorksheetCommitsRequest, v1.ListWorksheetCommitsResponse]
+	createWorksheetSpace      *connect.Client[v1.CreateWorksheetSpaceRequest, v1.CreateWorksheetSpaceResponse]
+	listWorksheetSpaces       *connect.Client[v1.ListWorksheetSpacesRequest, v1.ListWorksheetSpacesResponse]
+	getWorksheetNode          *connect.Client[v1.GetWorksheetNodeRequest, v1.GetWorksheetNodeResponse]
+	listWorksheetNodes        *connect.Client[v1.ListWorksheetNodesRequest, v1.ListWorksheetNodesResponse]
+	createWorksheetNode       *connect.Client[v1.CreateWorksheetNodeRequest, v1.CreateWorksheetNodeResponse]
+	renameWorksheetNode       *connect.Client[v1.RenameWorksheetNodeRequest, v1.RenameWorksheetNodeResponse]
+	moveWorksheetNode         *connect.Client[v1.MoveWorksheetNodeRequest, v1.MoveWorksheetNodeResponse]
+	archiveWorksheetNode      *connect.Client[v1.ArchiveWorksheetNodeRequest, v1.ArchiveWorksheetNodeResponse]
+	restoreWorksheetNode      *connect.Client[v1.RestoreWorksheetNodeRequest, v1.RestoreWorksheetNodeResponse]
+	autosaveWorksheet         *connect.Client[v1.AutosaveWorksheetRequest, v1.AutosaveWorksheetResponse]
+	saveWorksheet             *connect.Client[v1.SaveWorksheetRequest, v1.SaveWorksheetResponse]
+	getWorksheetCommit        *connect.Client[v1.GetWorksheetCommitRequest, v1.GetWorksheetCommitResponse]
+	listWorksheetCommits      *connect.Client[v1.ListWorksheetCommitsRequest, v1.ListWorksheetCommitsResponse]
+	runOnlineWorksheetCommit  *connect.Client[v1.RunOnlineWorksheetCommitRequest, v1.RunOnlineWorksheetCommitResponse]
+	runOfflineWorksheetCommit *connect.Client[v1.RunOfflineWorksheetCommitRequest, v1.RunOfflineWorksheetCommitResponse]
+	runSqlWorksheetCommit     *connect.Client[v1.RunSqlWorksheetCommitRequest, v1.RunSqlWorksheetCommitResponse]
+	cancelWorksheetRun        *connect.Client[v1.CancelWorksheetRunRequest, v1.CancelWorksheetRunResponse]
+	getWorksheetRun           *connect.Client[v1.GetWorksheetRunRequest, v1.GetWorksheetRunResponse]
+	listWorksheetRuns         *connect.Client[v1.ListWorksheetRunsRequest, v1.ListWorksheetRunsResponse]
 }
 
 // CreateWorksheetSpace calls chalk.server.v1.WorksheetsService.CreateWorksheetSpace.
@@ -270,6 +338,36 @@ func (c *worksheetsServiceClient) ListWorksheetCommits(ctx context.Context, req 
 	return c.listWorksheetCommits.CallUnary(ctx, req)
 }
 
+// RunOnlineWorksheetCommit calls chalk.server.v1.WorksheetsService.RunOnlineWorksheetCommit.
+func (c *worksheetsServiceClient) RunOnlineWorksheetCommit(ctx context.Context, req *connect.Request[v1.RunOnlineWorksheetCommitRequest]) (*connect.Response[v1.RunOnlineWorksheetCommitResponse], error) {
+	return c.runOnlineWorksheetCommit.CallUnary(ctx, req)
+}
+
+// RunOfflineWorksheetCommit calls chalk.server.v1.WorksheetsService.RunOfflineWorksheetCommit.
+func (c *worksheetsServiceClient) RunOfflineWorksheetCommit(ctx context.Context, req *connect.Request[v1.RunOfflineWorksheetCommitRequest]) (*connect.Response[v1.RunOfflineWorksheetCommitResponse], error) {
+	return c.runOfflineWorksheetCommit.CallUnary(ctx, req)
+}
+
+// RunSqlWorksheetCommit calls chalk.server.v1.WorksheetsService.RunSqlWorksheetCommit.
+func (c *worksheetsServiceClient) RunSqlWorksheetCommit(ctx context.Context, req *connect.Request[v1.RunSqlWorksheetCommitRequest]) (*connect.Response[v1.RunSqlWorksheetCommitResponse], error) {
+	return c.runSqlWorksheetCommit.CallUnary(ctx, req)
+}
+
+// CancelWorksheetRun calls chalk.server.v1.WorksheetsService.CancelWorksheetRun.
+func (c *worksheetsServiceClient) CancelWorksheetRun(ctx context.Context, req *connect.Request[v1.CancelWorksheetRunRequest]) (*connect.Response[v1.CancelWorksheetRunResponse], error) {
+	return c.cancelWorksheetRun.CallUnary(ctx, req)
+}
+
+// GetWorksheetRun calls chalk.server.v1.WorksheetsService.GetWorksheetRun.
+func (c *worksheetsServiceClient) GetWorksheetRun(ctx context.Context, req *connect.Request[v1.GetWorksheetRunRequest]) (*connect.Response[v1.GetWorksheetRunResponse], error) {
+	return c.getWorksheetRun.CallUnary(ctx, req)
+}
+
+// ListWorksheetRuns calls chalk.server.v1.WorksheetsService.ListWorksheetRuns.
+func (c *worksheetsServiceClient) ListWorksheetRuns(ctx context.Context, req *connect.Request[v1.ListWorksheetRunsRequest]) (*connect.Response[v1.ListWorksheetRunsResponse], error) {
+	return c.listWorksheetRuns.CallUnary(ctx, req)
+}
+
 // WorksheetsServiceHandler is an implementation of the chalk.server.v1.WorksheetsService service.
 type WorksheetsServiceHandler interface {
 	CreateWorksheetSpace(context.Context, *connect.Request[v1.CreateWorksheetSpaceRequest]) (*connect.Response[v1.CreateWorksheetSpaceResponse], error)
@@ -285,6 +383,12 @@ type WorksheetsServiceHandler interface {
 	SaveWorksheet(context.Context, *connect.Request[v1.SaveWorksheetRequest]) (*connect.Response[v1.SaveWorksheetResponse], error)
 	GetWorksheetCommit(context.Context, *connect.Request[v1.GetWorksheetCommitRequest]) (*connect.Response[v1.GetWorksheetCommitResponse], error)
 	ListWorksheetCommits(context.Context, *connect.Request[v1.ListWorksheetCommitsRequest]) (*connect.Response[v1.ListWorksheetCommitsResponse], error)
+	RunOnlineWorksheetCommit(context.Context, *connect.Request[v1.RunOnlineWorksheetCommitRequest]) (*connect.Response[v1.RunOnlineWorksheetCommitResponse], error)
+	RunOfflineWorksheetCommit(context.Context, *connect.Request[v1.RunOfflineWorksheetCommitRequest]) (*connect.Response[v1.RunOfflineWorksheetCommitResponse], error)
+	RunSqlWorksheetCommit(context.Context, *connect.Request[v1.RunSqlWorksheetCommitRequest]) (*connect.Response[v1.RunSqlWorksheetCommitResponse], error)
+	CancelWorksheetRun(context.Context, *connect.Request[v1.CancelWorksheetRunRequest]) (*connect.Response[v1.CancelWorksheetRunResponse], error)
+	GetWorksheetRun(context.Context, *connect.Request[v1.GetWorksheetRunRequest]) (*connect.Response[v1.GetWorksheetRunResponse], error)
+	ListWorksheetRuns(context.Context, *connect.Request[v1.ListWorksheetRunsRequest]) (*connect.Response[v1.ListWorksheetRunsResponse], error)
 }
 
 // NewWorksheetsServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -377,6 +481,44 @@ func NewWorksheetsServiceHandler(svc WorksheetsServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	worksheetsServiceRunOnlineWorksheetCommitHandler := connect.NewUnaryHandler(
+		WorksheetsServiceRunOnlineWorksheetCommitProcedure,
+		svc.RunOnlineWorksheetCommit,
+		connect.WithSchema(worksheetsServiceMethods.ByName("RunOnlineWorksheetCommit")),
+		connect.WithHandlerOptions(opts...),
+	)
+	worksheetsServiceRunOfflineWorksheetCommitHandler := connect.NewUnaryHandler(
+		WorksheetsServiceRunOfflineWorksheetCommitProcedure,
+		svc.RunOfflineWorksheetCommit,
+		connect.WithSchema(worksheetsServiceMethods.ByName("RunOfflineWorksheetCommit")),
+		connect.WithHandlerOptions(opts...),
+	)
+	worksheetsServiceRunSqlWorksheetCommitHandler := connect.NewUnaryHandler(
+		WorksheetsServiceRunSqlWorksheetCommitProcedure,
+		svc.RunSqlWorksheetCommit,
+		connect.WithSchema(worksheetsServiceMethods.ByName("RunSqlWorksheetCommit")),
+		connect.WithHandlerOptions(opts...),
+	)
+	worksheetsServiceCancelWorksheetRunHandler := connect.NewUnaryHandler(
+		WorksheetsServiceCancelWorksheetRunProcedure,
+		svc.CancelWorksheetRun,
+		connect.WithSchema(worksheetsServiceMethods.ByName("CancelWorksheetRun")),
+		connect.WithHandlerOptions(opts...),
+	)
+	worksheetsServiceGetWorksheetRunHandler := connect.NewUnaryHandler(
+		WorksheetsServiceGetWorksheetRunProcedure,
+		svc.GetWorksheetRun,
+		connect.WithSchema(worksheetsServiceMethods.ByName("GetWorksheetRun")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	worksheetsServiceListWorksheetRunsHandler := connect.NewUnaryHandler(
+		WorksheetsServiceListWorksheetRunsProcedure,
+		svc.ListWorksheetRuns,
+		connect.WithSchema(worksheetsServiceMethods.ByName("ListWorksheetRuns")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.WorksheetsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case WorksheetsServiceCreateWorksheetSpaceProcedure:
@@ -405,6 +547,18 @@ func NewWorksheetsServiceHandler(svc WorksheetsServiceHandler, opts ...connect.H
 			worksheetsServiceGetWorksheetCommitHandler.ServeHTTP(w, r)
 		case WorksheetsServiceListWorksheetCommitsProcedure:
 			worksheetsServiceListWorksheetCommitsHandler.ServeHTTP(w, r)
+		case WorksheetsServiceRunOnlineWorksheetCommitProcedure:
+			worksheetsServiceRunOnlineWorksheetCommitHandler.ServeHTTP(w, r)
+		case WorksheetsServiceRunOfflineWorksheetCommitProcedure:
+			worksheetsServiceRunOfflineWorksheetCommitHandler.ServeHTTP(w, r)
+		case WorksheetsServiceRunSqlWorksheetCommitProcedure:
+			worksheetsServiceRunSqlWorksheetCommitHandler.ServeHTTP(w, r)
+		case WorksheetsServiceCancelWorksheetRunProcedure:
+			worksheetsServiceCancelWorksheetRunHandler.ServeHTTP(w, r)
+		case WorksheetsServiceGetWorksheetRunProcedure:
+			worksheetsServiceGetWorksheetRunHandler.ServeHTTP(w, r)
+		case WorksheetsServiceListWorksheetRunsProcedure:
+			worksheetsServiceListWorksheetRunsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -464,4 +618,28 @@ func (UnimplementedWorksheetsServiceHandler) GetWorksheetCommit(context.Context,
 
 func (UnimplementedWorksheetsServiceHandler) ListWorksheetCommits(context.Context, *connect.Request[v1.ListWorksheetCommitsRequest]) (*connect.Response[v1.ListWorksheetCommitsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.ListWorksheetCommits is not implemented"))
+}
+
+func (UnimplementedWorksheetsServiceHandler) RunOnlineWorksheetCommit(context.Context, *connect.Request[v1.RunOnlineWorksheetCommitRequest]) (*connect.Response[v1.RunOnlineWorksheetCommitResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.RunOnlineWorksheetCommit is not implemented"))
+}
+
+func (UnimplementedWorksheetsServiceHandler) RunOfflineWorksheetCommit(context.Context, *connect.Request[v1.RunOfflineWorksheetCommitRequest]) (*connect.Response[v1.RunOfflineWorksheetCommitResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.RunOfflineWorksheetCommit is not implemented"))
+}
+
+func (UnimplementedWorksheetsServiceHandler) RunSqlWorksheetCommit(context.Context, *connect.Request[v1.RunSqlWorksheetCommitRequest]) (*connect.Response[v1.RunSqlWorksheetCommitResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.RunSqlWorksheetCommit is not implemented"))
+}
+
+func (UnimplementedWorksheetsServiceHandler) CancelWorksheetRun(context.Context, *connect.Request[v1.CancelWorksheetRunRequest]) (*connect.Response[v1.CancelWorksheetRunResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.CancelWorksheetRun is not implemented"))
+}
+
+func (UnimplementedWorksheetsServiceHandler) GetWorksheetRun(context.Context, *connect.Request[v1.GetWorksheetRunRequest]) (*connect.Response[v1.GetWorksheetRunResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.GetWorksheetRun is not implemented"))
+}
+
+func (UnimplementedWorksheetsServiceHandler) ListWorksheetRuns(context.Context, *connect.Request[v1.ListWorksheetRunsRequest]) (*connect.Response[v1.ListWorksheetRunsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorksheetsService.ListWorksheetRuns is not implemented"))
 }
