@@ -577,6 +577,8 @@ type ModelFile struct {
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	SizeKb        int64                  `protobuf:"varint,2,opt,name=size_kb,json=sizeKb,proto3" json:"size_kb,omitempty"`
 	FileHash      []byte                 `protobuf:"bytes,3,opt,name=file_hash,json=fileHash,proto3" json:"file_hash,omitempty"`
+	MountPath     *string                `protobuf:"bytes,4,opt,name=mount_path,json=mountPath,proto3,oneof" json:"mount_path,omitempty"`
+	Mode          *uint32                `protobuf:"varint,5,opt,name=mode,proto3,oneof" json:"mode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -632,6 +634,20 @@ func (x *ModelFile) GetFileHash() []byte {
 	return nil
 }
 
+func (x *ModelFile) GetMountPath() string {
+	if x != nil && x.MountPath != nil {
+		return *x.MountPath
+	}
+	return ""
+}
+
+func (x *ModelFile) GetMode() uint32 {
+	if x != nil && x.Mode != nil {
+		return *x.Mode
+	}
+	return 0
+}
+
 type ModelArtifactSpec struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	ModelFiles      []*ModelFile           `protobuf:"bytes,1,rep,name=model_files,json=modelFiles,proto3" json:"model_files,omitempty"`
@@ -650,6 +666,7 @@ type ModelArtifactSpec struct {
 	// Docker image for model serving
 	ModelImage    *string `protobuf:"bytes,11,opt,name=model_image,json=modelImage,proto3,oneof" json:"model_image,omitempty"`
 	ModelVolume   *string `protobuf:"bytes,12,opt,name=model_volume,json=modelVolume,proto3,oneof" json:"model_volume,omitempty"`
+	ImageSpec     []byte  `protobuf:"bytes,13,opt,name=image_spec,json=imageSpec,proto3,oneof" json:"image_spec,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -768,6 +785,13 @@ func (x *ModelArtifactSpec) GetModelVolume() string {
 	return ""
 }
 
+func (x *ModelArtifactSpec) GetImageSpec() []byte {
+	if x != nil {
+		return x.ImageSpec
+	}
+	return nil
+}
+
 var File_chalk_models_v1_model_artifact_proto protoreflect.FileDescriptor
 
 const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
@@ -795,11 +819,16 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"\vschema_type\"~\n" +
 	"\x0eModelSignature\x124\n" +
 	"\x06inputs\x18\x01 \x01(\v2\x1c.chalk.models.v1.ModelSchemaR\x06inputs\x126\n" +
-	"\aoutputs\x18\x02 \x01(\v2\x1c.chalk.models.v1.ModelSchemaR\aoutputs\"U\n" +
+	"\aoutputs\x18\x02 \x01(\v2\x1c.chalk.models.v1.ModelSchemaR\aoutputs\"\xaa\x01\n" +
 	"\tModelFile\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x17\n" +
 	"\asize_kb\x18\x02 \x01(\x03R\x06sizeKb\x12\x1b\n" +
-	"\tfile_hash\x18\x03 \x01(\fR\bfileHash\"\xb3\x05\n" +
+	"\tfile_hash\x18\x03 \x01(\fR\bfileHash\x12\"\n" +
+	"\n" +
+	"mount_path\x18\x04 \x01(\tH\x00R\tmountPath\x88\x01\x01\x12\x17\n" +
+	"\x04mode\x18\x05 \x01(\rH\x01R\x04mode\x88\x01\x01B\r\n" +
+	"\v_mount_pathB\a\n" +
+	"\x05_mode\"\xe6\x05\n" +
 	"\x11ModelArtifactSpec\x12;\n" +
 	"\vmodel_files\x18\x01 \x03(\v2\x1a.chalk.models.v1.ModelFileR\n" +
 	"modelFiles\x12E\n" +
@@ -817,10 +846,13 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	" \x01(\tH\x00R\rpythonVersion\x88\x01\x01\x12$\n" +
 	"\vmodel_image\x18\v \x01(\tH\x01R\n" +
 	"modelImage\x88\x01\x01\x12&\n" +
-	"\fmodel_volume\x18\f \x01(\tH\x02R\vmodelVolume\x88\x01\x01B\x11\n" +
+	"\fmodel_volume\x18\f \x01(\tH\x02R\vmodelVolume\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"image_spec\x18\r \x01(\fH\x03R\timageSpec\x88\x01\x01B\x11\n" +
 	"\x0f_python_versionB\x0e\n" +
 	"\f_model_imageB\x0f\n" +
-	"\r_model_volume*\xd1\x01\n" +
+	"\r_model_volumeB\r\n" +
+	"\v_image_spec*\xd1\x01\n" +
 	"\tModelType\x12\x1a\n" +
 	"\x16MODEL_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12MODEL_TYPE_PYTORCH\x10\x01\x12\x16\n" +
@@ -906,6 +938,7 @@ func file_chalk_models_v1_model_artifact_proto_init() {
 		(*ModelSchema_Tensor)(nil),
 		(*ModelSchema_Tabular)(nil),
 	}
+	file_chalk_models_v1_model_artifact_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_models_v1_model_artifact_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

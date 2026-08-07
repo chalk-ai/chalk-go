@@ -6266,8 +6266,11 @@ type SQLResolverSettings struct {
 	EscapedParamNameToFqn map[string]string      `protobuf:"bytes,4,rep,name=escaped_param_name_to_fqn,json=escapedParamNameToFqn,proto3" json:"escaped_param_name_to_fqn,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	FieldTypes            map[string]string      `protobuf:"bytes,5,rep,name=field_types,json=fieldTypes,proto3" json:"field_types,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	UseNativeSql          *bool                  `protobuf:"varint,6,opt,name=use_native_sql,json=useNativeSql,proto3,oneof" json:"use_native_sql,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// Set by `-- source: chalksql`: the query targets no external datasource, and is compiled
+	// into a logical plan by the engine's own SQL compiler.
+	IsChalkSqlSource bool `protobuf:"varint,7,opt,name=is_chalk_sql_source,json=isChalkSqlSource,proto3" json:"is_chalk_sql_source,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *SQLResolverSettings) Reset() {
@@ -6338,6 +6341,13 @@ func (x *SQLResolverSettings) GetFieldTypes() map[string]string {
 func (x *SQLResolverSettings) GetUseNativeSql() bool {
 	if x != nil && x.UseNativeSql != nil {
 		return *x.UseNativeSql
+	}
+	return false
+}
+
+func (x *SQLResolverSettings) GetIsChalkSqlSource() bool {
+	if x != nil {
+		return x.IsChalkSqlSource
 	}
 	return false
 }
@@ -8189,7 +8199,7 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x05_code\"Y\n" +
 	"\tStreamKey\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
-	"\afeature\x18\x02 \x01(\v2 .chalk.graph.v1.FeatureReferenceR\afeature\"\xfd\x05\n" +
+	"\afeature\x18\x02 \x01(\v2 .chalk.graph.v1.FeatureReferenceR\afeature\"\xac\x06\n" +
 	"\x13SQLResolverSettings\x127\n" +
 	"\tfinalizer\x18\x01 \x01(\x0e2\x19.chalk.graph.v1.FinalizerR\tfinalizer\x12[\n" +
 	"\x14incremental_settings\x18\x02 \x01(\v2#.chalk.graph.v1.IncrementalSettingsH\x00R\x13incrementalSettings\x88\x01\x01\x12^\n" +
@@ -8197,7 +8207,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x19escaped_param_name_to_fqn\x18\x04 \x03(\v2>.chalk.graph.v1.SQLResolverSettings.EscapedParamNameToFqnEntryR\x15escapedParamNameToFqn\x12T\n" +
 	"\vfield_types\x18\x05 \x03(\v23.chalk.graph.v1.SQLResolverSettings.FieldTypesEntryR\n" +
 	"fieldTypes\x12)\n" +
-	"\x0euse_native_sql\x18\x06 \x01(\bH\x01R\fuseNativeSql\x88\x01\x01\x1a@\n" +
+	"\x0euse_native_sql\x18\x06 \x01(\bH\x01R\fuseNativeSql\x88\x01\x01\x12-\n" +
+	"\x13is_chalk_sql_source\x18\a \x01(\bR\x10isChalkSqlSource\x1a@\n" +
 	"\x12FieldsRootFqnEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aH\n" +

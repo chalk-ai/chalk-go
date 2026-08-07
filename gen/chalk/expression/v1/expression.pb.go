@@ -103,6 +103,12 @@ const (
 	PyObjectType_PY_OBJECT_TYPE_DATETIME                             PyObjectType = 12
 	PyObjectType_PY_OBJECT_TYPE_TIMEDELTA                            PyObjectType = 13
 	PyObjectType_PY_OBJECT_TYPE_LIST                                 PyObjectType = 14
+	PyObjectType_PY_OBJECT_TYPE_FILTER_OPERAND                       PyObjectType = 15
+	PyObjectType_PY_OBJECT_TYPE_FILTER_PARSED_REF                    PyObjectType = 16
+	PyObjectType_PY_OBJECT_TYPE_DATAFRAME_REF                        PyObjectType = 17
+	PyObjectType_PY_OBJECT_TYPE_FEATURE_REF                          PyObjectType = 18
+	PyObjectType_PY_OBJECT_TYPE_HAS_MANY_FEATURE_REFS                PyObjectType = 20
+	PyObjectType_PY_OBJECT_TYPE_RESOLVER_FEATURE_SET_REFS            PyObjectType = 21
 )
 
 // Enum value maps for PyObjectType.
@@ -123,6 +129,12 @@ var (
 		12: "PY_OBJECT_TYPE_DATETIME",
 		13: "PY_OBJECT_TYPE_TIMEDELTA",
 		14: "PY_OBJECT_TYPE_LIST",
+		15: "PY_OBJECT_TYPE_FILTER_OPERAND",
+		16: "PY_OBJECT_TYPE_FILTER_PARSED_REF",
+		17: "PY_OBJECT_TYPE_DATAFRAME_REF",
+		18: "PY_OBJECT_TYPE_FEATURE_REF",
+		20: "PY_OBJECT_TYPE_HAS_MANY_FEATURE_REFS",
+		21: "PY_OBJECT_TYPE_RESOLVER_FEATURE_SET_REFS",
 	}
 	PyObjectType_value = map[string]int32{
 		"PY_OBJECT_TYPE_UNSPECIFIED":                          0,
@@ -140,6 +152,12 @@ var (
 		"PY_OBJECT_TYPE_DATETIME":                             12,
 		"PY_OBJECT_TYPE_TIMEDELTA":                            13,
 		"PY_OBJECT_TYPE_LIST":                                 14,
+		"PY_OBJECT_TYPE_FILTER_OPERAND":                       15,
+		"PY_OBJECT_TYPE_FILTER_PARSED_REF":                    16,
+		"PY_OBJECT_TYPE_DATAFRAME_REF":                        17,
+		"PY_OBJECT_TYPE_FEATURE_REF":                          18,
+		"PY_OBJECT_TYPE_HAS_MANY_FEATURE_REFS":                20,
+		"PY_OBJECT_TYPE_RESOLVER_FEATURE_SET_REFS":            21,
 	}
 )
 
@@ -6460,7 +6478,7 @@ const file_chalk_expression_v1_expression_proto_rawDesc = "" +
 	"\x16EXPR_POLICY_KIND_RETRY\x10\x03\x12\x1c\n" +
 	"\x18EXPR_POLICY_KIND_LOGGING\x10\x04\x12\x1a\n" +
 	"\x16EXPR_POLICY_KIND_CACHE\x10\x05\x12\x1d\n" +
-	"\x19EXPR_POLICY_KIND_BATCHING\x10\x06*\xd5\x03\n" +
+	"\x19EXPR_POLICY_KIND_BATCHING\x10\x06*\xb8\x05\n" +
 	"\fPyObjectType\x12\x1e\n" +
 	"\x1aPY_OBJECT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12PY_OBJECT_TYPE_INT\x10\x01\x12\x19\n" +
@@ -6477,7 +6495,13 @@ const file_chalk_expression_v1_expression_proto_rawDesc = "" +
 	"\x14PY_OBJECT_TYPE_FLOAT\x10\v\x12\x1b\n" +
 	"\x17PY_OBJECT_TYPE_DATETIME\x10\f\x12\x1c\n" +
 	"\x18PY_OBJECT_TYPE_TIMEDELTA\x10\r\x12\x17\n" +
-	"\x13PY_OBJECT_TYPE_LIST\x10\x0e*\xa0\x1f\n" +
+	"\x13PY_OBJECT_TYPE_LIST\x10\x0e\x12!\n" +
+	"\x1dPY_OBJECT_TYPE_FILTER_OPERAND\x10\x0f\x12$\n" +
+	" PY_OBJECT_TYPE_FILTER_PARSED_REF\x10\x10\x12 \n" +
+	"\x1cPY_OBJECT_TYPE_DATAFRAME_REF\x10\x11\x12\x1e\n" +
+	"\x1aPY_OBJECT_TYPE_FEATURE_REF\x10\x12\x12(\n" +
+	"$PY_OBJECT_TYPE_HAS_MANY_FEATURE_REFS\x10\x14\x12,\n" +
+	"(PY_OBJECT_TYPE_RESOLVER_FEATURE_SET_REFS\x10\x15*\xa0\x1f\n" +
 	"\x0eScalarFunction\x12\x1f\n" +
 	"\x1bSCALAR_FUNCTION_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13SCALAR_FUNCTION_ABS\x10\x01\x12\x18\n" +

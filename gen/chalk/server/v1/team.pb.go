@@ -1326,9 +1326,12 @@ type UpdateEnvironmentOperation struct {
 	DefaultBuildProfile    *DeploymentBuildProfile         `protobuf:"varint,14,opt,name=default_build_profile,json=defaultBuildProfile,proto3,enum=chalk.server.v1.DeploymentBuildProfile,oneof" json:"default_build_profile,omitempty"`
 	PinnedBaseImage        *string                         `protobuf:"bytes,15,opt,name=pinned_base_image,json=pinnedBaseImage,proto3,oneof" json:"pinned_base_image,omitempty"`
 	// Markdown description. Present-but-empty clears the description.
-	Description   *string `protobuf:"bytes,16,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Description *string `protobuf:"bytes,16,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	// Engine-base image the build profile resolves against. Present-but-empty clears it,
+	// restoring the metadata plane's configured default.
+	DefaultEngineBaseImage *string `protobuf:"bytes,17,opt,name=default_engine_base_image,json=defaultEngineBaseImage,proto3,oneof" json:"default_engine_base_image,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *UpdateEnvironmentOperation) Reset() {
@@ -1469,6 +1472,13 @@ func (x *UpdateEnvironmentOperation) GetPinnedBaseImage() string {
 func (x *UpdateEnvironmentOperation) GetDescription() string {
 	if x != nil && x.Description != nil {
 		return *x.Description
+	}
+	return ""
+}
+
+func (x *UpdateEnvironmentOperation) GetDefaultEngineBaseImage() string {
+	if x != nil && x.DefaultEngineBaseImage != nil {
+		return *x.DefaultEngineBaseImage
 	}
 	return ""
 }
@@ -5546,8 +5556,7 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x1c_engine_docker_registry_pathB\x1a\n" +
 	"\x18_environment_id_override\"[\n" +
 	"\x19CreateEnvironmentResponse\x12>\n" +
-	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\xcd\n" +
-	"\n" +
+	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\xab\v\n" +
 	"\x1aUpdateEnvironmentOperation\x12\"\n" +
 	"\n" +
 	"is_default\x18\x06 \x01(\bH\x00R\tisDefault\x88\x01\x01\x12/\n" +
@@ -5570,7 +5579,8 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x13environment_buckets\x18\v \x01(\v2/.chalk.server.v1.EnvironmentObjectStorageConfigH\vR\x12environmentBuckets\x88\x01\x01\x12`\n" +
 	"\x15default_build_profile\x18\x0e \x01(\x0e2'.chalk.server.v1.DeploymentBuildProfileH\fR\x13defaultBuildProfile\x88\x01\x01\x12/\n" +
 	"\x11pinned_base_image\x18\x0f \x01(\tH\rR\x0fpinnedBaseImage\x88\x01\x01\x12%\n" +
-	"\vdescription\x18\x10 \x01(\tH\x0eR\vdescription\x88\x01\x01\x1aD\n" +
+	"\vdescription\x18\x10 \x01(\tH\x0eR\vdescription\x88\x01\x01\x12>\n" +
+	"\x19default_engine_base_image\x18\x11 \x01(\tH\x0fR\x16defaultEngineBaseImage\x88\x01\x01\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\r\n" +
@@ -5588,7 +5598,8 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x14_environment_bucketsB\x18\n" +
 	"\x16_default_build_profileB\x14\n" +
 	"\x12_pinned_base_imageB\x0e\n" +
-	"\f_description\"\xac\x01\n" +
+	"\f_descriptionB\x1c\n" +
+	"\x1a_default_engine_base_image\"\xac\x01\n" +
 	"\x18UpdateEnvironmentRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12C\n" +
 	"\x06update\x18\x02 \x01(\v2+.chalk.server.v1.UpdateEnvironmentOperationR\x06update\x12;\n" +

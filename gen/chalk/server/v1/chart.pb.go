@@ -1468,8 +1468,11 @@ func (x *GetChartSnapshotResponse) GetStatistic() *StatisticResult {
 }
 
 type GetChartSnapshotByQueryRequest struct {
-	state                       protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/chart.proto.
 	Query                       string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	MqlSeries                   []string               `protobuf:"bytes,9,rep,name=mql_series,json=mqlSeries,proto3" json:"mql_series,omitempty"`
+	MqlFormulae                 []string               `protobuf:"bytes,10,rep,name=mql_formulae,json=mqlFormulae,proto3" json:"mql_formulae,omitempty"`
 	StartTime                   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	EndTime                     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	UseStartAsOrigin            *bool                  `protobuf:"varint,4,opt,name=use_start_as_origin,json=useStartAsOrigin,proto3,oneof" json:"use_start_as_origin,omitempty"`
@@ -1513,11 +1516,26 @@ func (*GetChartSnapshotByQueryRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_chart_proto_rawDescGZIP(), []int{18}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/chart.proto.
 func (x *GetChartSnapshotByQueryRequest) GetQuery() string {
 	if x != nil {
 		return x.Query
 	}
 	return ""
+}
+
+func (x *GetChartSnapshotByQueryRequest) GetMqlSeries() []string {
+	if x != nil {
+		return x.MqlSeries
+	}
+	return nil
+}
+
+func (x *GetChartSnapshotByQueryRequest) GetMqlFormulae() []string {
+	if x != nil {
+		return x.MqlFormulae
+	}
+	return nil
 }
 
 func (x *GetChartSnapshotByQueryRequest) GetStartTime() *timestamppb.Timestamp {
@@ -4079,9 +4097,13 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"\tstatistic\x18\x06 \x01(\v2 .chalk.server.v1.StatisticResultH\x01R\tstatistic\x88\x01\x01B\x12\n" +
 	"\x10_metrics_backendB\f\n" +
 	"\n" +
-	"_statistic\"\xfc\x04\n" +
-	"\x1eGetChartSnapshotByQueryRequest\x12\x14\n" +
-	"\x05query\x18\x01 \x01(\tR\x05query\x129\n" +
+	"_statistic\"\xc2\x05\n" +
+	"\x1eGetChartSnapshotByQueryRequest\x12\x18\n" +
+	"\x05query\x18\x01 \x01(\tB\x02\x18\x01R\x05query\x12\x1d\n" +
+	"\n" +
+	"mql_series\x18\t \x03(\tR\tmqlSeries\x12!\n" +
+	"\fmql_formulae\x18\n" +
+	" \x03(\tR\vmqlFormulae\x129\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x122\n" +

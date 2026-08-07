@@ -79,6 +79,70 @@ func (CronRunTriggerKind) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{0}
 }
 
+type CronRunStatusFilter int32
+
+const (
+	CronRunStatusFilter_CRON_RUN_STATUS_FILTER_UNSPECIFIED CronRunStatusFilter = 0
+	CronRunStatusFilter_CRON_RUN_STATUS_FILTER_COMPLETED   CronRunStatusFilter = 1
+	CronRunStatusFilter_CRON_RUN_STATUS_FILTER_ERRORS      CronRunStatusFilter = 2
+	CronRunStatusFilter_CRON_RUN_STATUS_FILTER_FAILED      CronRunStatusFilter = 3
+	CronRunStatusFilter_CRON_RUN_STATUS_FILTER_WORKING     CronRunStatusFilter = 4
+	CronRunStatusFilter_CRON_RUN_STATUS_FILTER_CANCELED    CronRunStatusFilter = 5
+	CronRunStatusFilter_CRON_RUN_STATUS_FILTER_SKIPPED     CronRunStatusFilter = 6
+	CronRunStatusFilter_CRON_RUN_STATUS_FILTER_QUEUED      CronRunStatusFilter = 7
+)
+
+// Enum value maps for CronRunStatusFilter.
+var (
+	CronRunStatusFilter_name = map[int32]string{
+		0: "CRON_RUN_STATUS_FILTER_UNSPECIFIED",
+		1: "CRON_RUN_STATUS_FILTER_COMPLETED",
+		2: "CRON_RUN_STATUS_FILTER_ERRORS",
+		3: "CRON_RUN_STATUS_FILTER_FAILED",
+		4: "CRON_RUN_STATUS_FILTER_WORKING",
+		5: "CRON_RUN_STATUS_FILTER_CANCELED",
+		6: "CRON_RUN_STATUS_FILTER_SKIPPED",
+		7: "CRON_RUN_STATUS_FILTER_QUEUED",
+	}
+	CronRunStatusFilter_value = map[string]int32{
+		"CRON_RUN_STATUS_FILTER_UNSPECIFIED": 0,
+		"CRON_RUN_STATUS_FILTER_COMPLETED":   1,
+		"CRON_RUN_STATUS_FILTER_ERRORS":      2,
+		"CRON_RUN_STATUS_FILTER_FAILED":      3,
+		"CRON_RUN_STATUS_FILTER_WORKING":     4,
+		"CRON_RUN_STATUS_FILTER_CANCELED":    5,
+		"CRON_RUN_STATUS_FILTER_SKIPPED":     6,
+		"CRON_RUN_STATUS_FILTER_QUEUED":      7,
+	}
+)
+
+func (x CronRunStatusFilter) Enum() *CronRunStatusFilter {
+	p := new(CronRunStatusFilter)
+	*p = x
+	return p
+}
+
+func (x CronRunStatusFilter) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CronRunStatusFilter) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_scheduler_proto_enumTypes[1].Descriptor()
+}
+
+func (CronRunStatusFilter) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_scheduler_proto_enumTypes[1]
+}
+
+func (x CronRunStatusFilter) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CronRunStatusFilter.Descriptor instead.
+func (CronRunStatusFilter) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_scheduler_proto_rawDescGZIP(), []int{1}
+}
+
 type CronResolverRun struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
 	Id                    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -836,6 +900,7 @@ type ListScheduledResolverRunsRequest struct {
 	StatusFilter   *OperationStatus       `protobuf:"varint,6,opt,name=status_filter,json=statusFilter,proto3,enum=chalk.server.v1.OperationStatus,oneof" json:"status_filter,omitempty"`
 	Start          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start,proto3,oneof" json:"start,omitempty"`
 	End            *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end,proto3,oneof" json:"end,omitempty"`
+	StatusFilters  []CronRunStatusFilter  `protobuf:"varint,9,rep,packed,name=status_filters,json=statusFilters,proto3,enum=chalk.server.v1.CronRunStatusFilter" json:"status_filters,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -923,6 +988,13 @@ func (x *ListScheduledResolverRunsRequest) GetStart() *timestamppb.Timestamp {
 func (x *ListScheduledResolverRunsRequest) GetEnd() *timestamppb.Timestamp {
 	if x != nil {
 		return x.End
+	}
+	return nil
+}
+
+func (x *ListScheduledResolverRunsRequest) GetStatusFilters() []CronRunStatusFilter {
+	if x != nil {
+		return x.StatusFilters
 	}
 	return nil
 }
@@ -1866,7 +1938,7 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"\x1eGetScheduledResolverRunRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"U\n" +
 	"\x1fGetScheduledResolverRunResponse\x122\n" +
-	"\x03run\x18\x01 \x01(\v2 .chalk.server.v1.CronResolverRunR\x03run\"\x97\x04\n" +
+	"\x03run\x18\x01 \x01(\v2 .chalk.server.v1.CronResolverRunR\x03run\"\xe4\x04\n" +
 	" ListScheduledResolverRunsRequest\x12;\n" +
 	"\x06cursor\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x02\x18\x01H\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x03 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12\"\n" +
@@ -1876,7 +1948,8 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"\fresolver_fqn\x18\b \x01(\tH\x04R\vresolverFqn\x88\x01\x01\x12J\n" +
 	"\rstatus_filter\x18\x06 \x01(\x0e2 .chalk.server.v1.OperationStatusH\x05R\fstatusFilter\x88\x01\x01\x125\n" +
 	"\x05start\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x06R\x05start\x88\x01\x01\x121\n" +
-	"\x03end\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\aR\x03end\x88\x01\x01B\t\n" +
+	"\x03end\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\aR\x03end\x88\x01\x01\x12K\n" +
+	"\x0estatus_filters\x18\t \x03(\x0e2$.chalk.server.v1.CronRunStatusFilterR\rstatusFiltersB\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\r\n" +
 	"\v_page_tokenB\x12\n" +
@@ -1958,7 +2031,16 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"!CRON_RUN_TRIGGER_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cCRON_RUN_TRIGGER_KIND_MANUAL\x10\x01\x12\x1d\n" +
 	"\x19CRON_RUN_TRIGGER_KIND_API\x10\x02\x12\x1e\n" +
-	"\x1aCRON_RUN_TRIGGER_KIND_CRON\x10\x032\xb4\v\n" +
+	"\x1aCRON_RUN_TRIGGER_KIND_CRON\x10\x03*\xb9\x02\n" +
+	"\x13CronRunStatusFilter\x12&\n" +
+	"\"CRON_RUN_STATUS_FILTER_UNSPECIFIED\x10\x00\x12$\n" +
+	" CRON_RUN_STATUS_FILTER_COMPLETED\x10\x01\x12!\n" +
+	"\x1dCRON_RUN_STATUS_FILTER_ERRORS\x10\x02\x12!\n" +
+	"\x1dCRON_RUN_STATUS_FILTER_FAILED\x10\x03\x12\"\n" +
+	"\x1eCRON_RUN_STATUS_FILTER_WORKING\x10\x04\x12#\n" +
+	"\x1fCRON_RUN_STATUS_FILTER_CANCELED\x10\x05\x12\"\n" +
+	"\x1eCRON_RUN_STATUS_FILTER_SKIPPED\x10\x06\x12!\n" +
+	"\x1dCRON_RUN_STATUS_FILTER_QUEUED\x10\a2\xb4\v\n" +
 	"\x10SchedulerService\x12\x87\x01\n" +
 	"\x19ManualTriggerCronResolver\x121.chalk.server.v1.ManualTriggerCronResolverRequest\x1a2.chalk.server.v1.ManualTriggerCronResolverResponse\"\x03\x80}\x11\x12\x8d\x01\n" +
 	"\x1bManualTriggerScheduledQuery\x123.chalk.server.v1.ManualTriggerScheduledQueryRequest\x1a4.chalk.server.v1.ManualTriggerScheduledQueryResponse\"\x03\x80}\x11\x12\xb1\x01\n" +
@@ -1984,121 +2066,123 @@ func file_chalk_server_v1_scheduler_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_scheduler_proto_rawDescData
 }
 
-var file_chalk_server_v1_scheduler_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_scheduler_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_server_v1_scheduler_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_chalk_server_v1_scheduler_proto_goTypes = []any{
 	(CronRunTriggerKind)(0),                                 // 0: chalk.server.v1.CronRunTriggerKind
-	(*CronResolverRun)(nil),                                 // 1: chalk.server.v1.CronResolverRun
-	(*ManualTriggerCronResolverRequest)(nil),                // 2: chalk.server.v1.ManualTriggerCronResolverRequest
-	(*ManualTriggerCronResolverResponse)(nil),               // 3: chalk.server.v1.ManualTriggerCronResolverResponse
-	(*ManualTriggerScheduledQueryRequest)(nil),              // 4: chalk.server.v1.ManualTriggerScheduledQueryRequest
-	(*ManualTriggerScheduledQueryResponse)(nil),             // 5: chalk.server.v1.ManualTriggerScheduledQueryResponse
-	(*ManualTriggerScheduledAggregateBackfillRequest)(nil),  // 6: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest
-	(*ManualTriggerScheduledAggregateBackfillResponse)(nil), // 7: chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse
-	(*GetScheduledResolverRunRequest)(nil),                  // 8: chalk.server.v1.GetScheduledResolverRunRequest
-	(*GetScheduledResolverRunResponse)(nil),                 // 9: chalk.server.v1.GetScheduledResolverRunResponse
-	(*ListScheduledResolverRunsRequest)(nil),                // 10: chalk.server.v1.ListScheduledResolverRunsRequest
-	(*ListScheduledResolverRunsResponse)(nil),               // 11: chalk.server.v1.ListScheduledResolverRunsResponse
-	(*CancelScheduledResolverRunRequest)(nil),               // 12: chalk.server.v1.CancelScheduledResolverRunRequest
-	(*CancelScheduledResolverRunResponse)(nil),              // 13: chalk.server.v1.CancelScheduledResolverRunResponse
-	(*GetActiveScheduledResolversRequest)(nil),              // 14: chalk.server.v1.GetActiveScheduledResolversRequest
-	(*ScheduledResolverRunInfo)(nil),                        // 15: chalk.server.v1.ScheduledResolverRunInfo
-	(*ScheduledResolverInfo)(nil),                           // 16: chalk.server.v1.ScheduledResolverInfo
-	(*GetActiveScheduledResolversResponse)(nil),             // 17: chalk.server.v1.GetActiveScheduledResolversResponse
-	(*GetScheduledResolverControlRequest)(nil),              // 18: chalk.server.v1.GetScheduledResolverControlRequest
-	(*ScheduledResolverControl)(nil),                        // 19: chalk.server.v1.ScheduledResolverControl
-	(*GetScheduledResolverControlResponse)(nil),             // 20: chalk.server.v1.GetScheduledResolverControlResponse
-	(*UpdateScheduledResolverControlOperation)(nil),         // 21: chalk.server.v1.UpdateScheduledResolverControlOperation
-	(*UpdateScheduledResolverControlRequest)(nil),           // 22: chalk.server.v1.UpdateScheduledResolverControlRequest
-	(*UpdateScheduledResolverControlResponse)(nil),          // 23: chalk.server.v1.UpdateScheduledResolverControlResponse
-	(*GetLatestHighWaterMarkRequest)(nil),                   // 24: chalk.server.v1.GetLatestHighWaterMarkRequest
-	(*HighWaterMark)(nil),                                   // 25: chalk.server.v1.HighWaterMark
-	(*GetLatestHighWaterMarkResponse)(nil),                  // 26: chalk.server.v1.GetLatestHighWaterMarkResponse
-	nil,                                                     // 27: chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry
-	nil,                                                     // 28: chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntry
-	nil,                                                     // 29: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry
-	nil,                                                     // 30: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.EnvOverridesEntry
-	(*timestamppb.Timestamp)(nil),                           // 31: google.protobuf.Timestamp
-	(*BatchOperation)(nil),                                  // 32: chalk.server.v1.BatchOperation
-	(*v1.PersistenceSettings)(nil),                          // 33: chalk.common.v1.PersistenceSettings
-	(*v1.UnloadResolverSpec)(nil),                           // 34: chalk.common.v1.UnloadResolverSpec
-	(*ScheduledQueryRun)(nil),                               // 35: chalk.server.v1.ScheduledQueryRun
-	(*v11.AggregateBackfillJob)(nil),                        // 36: chalk.aggregate.v1.AggregateBackfillJob
-	(OperationStatus)(0),                                    // 37: chalk.server.v1.OperationStatus
-	(*ResolverOperation)(nil),                               // 38: chalk.server.v1.ResolverOperation
-	(CronControlStatus)(0),                                  // 39: chalk.server.v1.CronControlStatus
-	(*fieldmaskpb.FieldMask)(nil),                           // 40: google.protobuf.FieldMask
-	(*structpb.Value)(nil),                                  // 41: google.protobuf.Value
+	(CronRunStatusFilter)(0),                                // 1: chalk.server.v1.CronRunStatusFilter
+	(*CronResolverRun)(nil),                                 // 2: chalk.server.v1.CronResolverRun
+	(*ManualTriggerCronResolverRequest)(nil),                // 3: chalk.server.v1.ManualTriggerCronResolverRequest
+	(*ManualTriggerCronResolverResponse)(nil),               // 4: chalk.server.v1.ManualTriggerCronResolverResponse
+	(*ManualTriggerScheduledQueryRequest)(nil),              // 5: chalk.server.v1.ManualTriggerScheduledQueryRequest
+	(*ManualTriggerScheduledQueryResponse)(nil),             // 6: chalk.server.v1.ManualTriggerScheduledQueryResponse
+	(*ManualTriggerScheduledAggregateBackfillRequest)(nil),  // 7: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest
+	(*ManualTriggerScheduledAggregateBackfillResponse)(nil), // 8: chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse
+	(*GetScheduledResolverRunRequest)(nil),                  // 9: chalk.server.v1.GetScheduledResolverRunRequest
+	(*GetScheduledResolverRunResponse)(nil),                 // 10: chalk.server.v1.GetScheduledResolverRunResponse
+	(*ListScheduledResolverRunsRequest)(nil),                // 11: chalk.server.v1.ListScheduledResolverRunsRequest
+	(*ListScheduledResolverRunsResponse)(nil),               // 12: chalk.server.v1.ListScheduledResolverRunsResponse
+	(*CancelScheduledResolverRunRequest)(nil),               // 13: chalk.server.v1.CancelScheduledResolverRunRequest
+	(*CancelScheduledResolverRunResponse)(nil),              // 14: chalk.server.v1.CancelScheduledResolverRunResponse
+	(*GetActiveScheduledResolversRequest)(nil),              // 15: chalk.server.v1.GetActiveScheduledResolversRequest
+	(*ScheduledResolverRunInfo)(nil),                        // 16: chalk.server.v1.ScheduledResolverRunInfo
+	(*ScheduledResolverInfo)(nil),                           // 17: chalk.server.v1.ScheduledResolverInfo
+	(*GetActiveScheduledResolversResponse)(nil),             // 18: chalk.server.v1.GetActiveScheduledResolversResponse
+	(*GetScheduledResolverControlRequest)(nil),              // 19: chalk.server.v1.GetScheduledResolverControlRequest
+	(*ScheduledResolverControl)(nil),                        // 20: chalk.server.v1.ScheduledResolverControl
+	(*GetScheduledResolverControlResponse)(nil),             // 21: chalk.server.v1.GetScheduledResolverControlResponse
+	(*UpdateScheduledResolverControlOperation)(nil),         // 22: chalk.server.v1.UpdateScheduledResolverControlOperation
+	(*UpdateScheduledResolverControlRequest)(nil),           // 23: chalk.server.v1.UpdateScheduledResolverControlRequest
+	(*UpdateScheduledResolverControlResponse)(nil),          // 24: chalk.server.v1.UpdateScheduledResolverControlResponse
+	(*GetLatestHighWaterMarkRequest)(nil),                   // 25: chalk.server.v1.GetLatestHighWaterMarkRequest
+	(*HighWaterMark)(nil),                                   // 26: chalk.server.v1.HighWaterMark
+	(*GetLatestHighWaterMarkResponse)(nil),                  // 27: chalk.server.v1.GetLatestHighWaterMarkResponse
+	nil,                                                     // 28: chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry
+	nil,                                                     // 29: chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntry
+	nil,                                                     // 30: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry
+	nil,                                                     // 31: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.EnvOverridesEntry
+	(*timestamppb.Timestamp)(nil),                           // 32: google.protobuf.Timestamp
+	(*BatchOperation)(nil),                                  // 33: chalk.server.v1.BatchOperation
+	(*v1.PersistenceSettings)(nil),                          // 34: chalk.common.v1.PersistenceSettings
+	(*v1.UnloadResolverSpec)(nil),                           // 35: chalk.common.v1.UnloadResolverSpec
+	(*ScheduledQueryRun)(nil),                               // 36: chalk.server.v1.ScheduledQueryRun
+	(*v11.AggregateBackfillJob)(nil),                        // 37: chalk.aggregate.v1.AggregateBackfillJob
+	(OperationStatus)(0),                                    // 38: chalk.server.v1.OperationStatus
+	(*ResolverOperation)(nil),                               // 39: chalk.server.v1.ResolverOperation
+	(CronControlStatus)(0),                                  // 40: chalk.server.v1.CronControlStatus
+	(*fieldmaskpb.FieldMask)(nil),                           // 41: google.protobuf.FieldMask
+	(*structpb.Value)(nil),                                  // 42: google.protobuf.Value
 }
 var file_chalk_server_v1_scheduler_proto_depIdxs = []int32{
-	31, // 0: chalk.server.v1.CronResolverRun.created_at:type_name -> google.protobuf.Timestamp
-	31, // 1: chalk.server.v1.CronResolverRun.end:type_name -> google.protobuf.Timestamp
-	32, // 2: chalk.server.v1.CronResolverRun.batch:type_name -> chalk.server.v1.BatchOperation
+	32, // 0: chalk.server.v1.CronResolverRun.created_at:type_name -> google.protobuf.Timestamp
+	32, // 1: chalk.server.v1.CronResolverRun.end:type_name -> google.protobuf.Timestamp
+	33, // 2: chalk.server.v1.CronResolverRun.batch:type_name -> chalk.server.v1.BatchOperation
 	0,  // 3: chalk.server.v1.CronResolverRun.trigger_kind:type_name -> chalk.server.v1.CronRunTriggerKind
-	31, // 4: chalk.server.v1.CronResolverRun.lower_bound:type_name -> google.protobuf.Timestamp
-	31, // 5: chalk.server.v1.CronResolverRun.upper_bound:type_name -> google.protobuf.Timestamp
-	31, // 6: chalk.server.v1.ManualTriggerCronResolverRequest.lower_bound:type_name -> google.protobuf.Timestamp
-	31, // 7: chalk.server.v1.ManualTriggerCronResolverRequest.upper_bound:type_name -> google.protobuf.Timestamp
-	33, // 8: chalk.server.v1.ManualTriggerCronResolverRequest.persistence_settings:type_name -> chalk.common.v1.PersistenceSettings
-	1,  // 9: chalk.server.v1.ManualTriggerCronResolverResponse.cron_resolver_run:type_name -> chalk.server.v1.CronResolverRun
-	27, // 10: chalk.server.v1.ManualTriggerScheduledQueryRequest.planner_options:type_name -> chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry
-	28, // 11: chalk.server.v1.ManualTriggerScheduledQueryRequest.env_overrides:type_name -> chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntry
-	34, // 12: chalk.server.v1.ManualTriggerScheduledQueryRequest.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
-	35, // 13: chalk.server.v1.ManualTriggerScheduledQueryResponse.scheduled_query_run:type_name -> chalk.server.v1.ScheduledQueryRun
-	29, // 14: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.planner_options:type_name -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry
-	30, // 15: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.env_overrides:type_name -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.EnvOverridesEntry
-	36, // 16: chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse.aggregate_backfill_job:type_name -> chalk.aggregate.v1.AggregateBackfillJob
-	1,  // 17: chalk.server.v1.GetScheduledResolverRunResponse.run:type_name -> chalk.server.v1.CronResolverRun
-	31, // 18: chalk.server.v1.ListScheduledResolverRunsRequest.cursor:type_name -> google.protobuf.Timestamp
-	37, // 19: chalk.server.v1.ListScheduledResolverRunsRequest.status_filter:type_name -> chalk.server.v1.OperationStatus
-	31, // 20: chalk.server.v1.ListScheduledResolverRunsRequest.start:type_name -> google.protobuf.Timestamp
-	31, // 21: chalk.server.v1.ListScheduledResolverRunsRequest.end:type_name -> google.protobuf.Timestamp
-	1,  // 22: chalk.server.v1.ListScheduledResolverRunsResponse.runs:type_name -> chalk.server.v1.CronResolverRun
-	1,  // 23: chalk.server.v1.CancelScheduledResolverRunResponse.cron_run:type_name -> chalk.server.v1.CronResolverRun
-	37, // 24: chalk.server.v1.ScheduledResolverRunInfo.status:type_name -> chalk.server.v1.OperationStatus
-	38, // 25: chalk.server.v1.ScheduledResolverRunInfo.resolvers:type_name -> chalk.server.v1.ResolverOperation
-	19, // 26: chalk.server.v1.ScheduledResolverInfo.control:type_name -> chalk.server.v1.ScheduledResolverControl
-	15, // 27: chalk.server.v1.ScheduledResolverInfo.latest_run:type_name -> chalk.server.v1.ScheduledResolverRunInfo
-	16, // 28: chalk.server.v1.GetActiveScheduledResolversResponse.scheduled_resolvers:type_name -> chalk.server.v1.ScheduledResolverInfo
-	39, // 29: chalk.server.v1.ScheduledResolverControl.status:type_name -> chalk.server.v1.CronControlStatus
-	31, // 30: chalk.server.v1.ScheduledResolverControl.created_at:type_name -> google.protobuf.Timestamp
-	31, // 31: chalk.server.v1.ScheduledResolverControl.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 32: chalk.server.v1.GetScheduledResolverControlResponse.control:type_name -> chalk.server.v1.ScheduledResolverControl
-	39, // 33: chalk.server.v1.UpdateScheduledResolverControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
-	21, // 34: chalk.server.v1.UpdateScheduledResolverControlRequest.update:type_name -> chalk.server.v1.UpdateScheduledResolverControlOperation
-	40, // 35: chalk.server.v1.UpdateScheduledResolverControlRequest.update_mask:type_name -> google.protobuf.FieldMask
-	19, // 36: chalk.server.v1.UpdateScheduledResolverControlResponse.control:type_name -> chalk.server.v1.ScheduledResolverControl
-	31, // 37: chalk.server.v1.HighWaterMark.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
-	31, // 38: chalk.server.v1.HighWaterMark.last_execution_timestamp:type_name -> google.protobuf.Timestamp
-	31, // 39: chalk.server.v1.HighWaterMark.created_at:type_name -> google.protobuf.Timestamp
-	25, // 40: chalk.server.v1.GetLatestHighWaterMarkResponse.high_water_mark:type_name -> chalk.server.v1.HighWaterMark
-	41, // 41: chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
-	41, // 42: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
-	2,  // 43: chalk.server.v1.SchedulerService.ManualTriggerCronResolver:input_type -> chalk.server.v1.ManualTriggerCronResolverRequest
-	4,  // 44: chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery:input_type -> chalk.server.v1.ManualTriggerScheduledQueryRequest
-	6,  // 45: chalk.server.v1.SchedulerService.ManualTriggerScheduledAggregateBackfill:input_type -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest
-	8,  // 46: chalk.server.v1.SchedulerService.GetScheduledResolverRun:input_type -> chalk.server.v1.GetScheduledResolverRunRequest
-	10, // 47: chalk.server.v1.SchedulerService.ListScheduledResolverRuns:input_type -> chalk.server.v1.ListScheduledResolverRunsRequest
-	12, // 48: chalk.server.v1.SchedulerService.CancelScheduledResolverRun:input_type -> chalk.server.v1.CancelScheduledResolverRunRequest
-	14, // 49: chalk.server.v1.SchedulerService.GetActiveScheduledResolvers:input_type -> chalk.server.v1.GetActiveScheduledResolversRequest
-	18, // 50: chalk.server.v1.SchedulerService.GetScheduledResolverControl:input_type -> chalk.server.v1.GetScheduledResolverControlRequest
-	22, // 51: chalk.server.v1.SchedulerService.UpdateScheduledResolverControl:input_type -> chalk.server.v1.UpdateScheduledResolverControlRequest
-	24, // 52: chalk.server.v1.SchedulerService.GetLatestHighWaterMark:input_type -> chalk.server.v1.GetLatestHighWaterMarkRequest
-	3,  // 53: chalk.server.v1.SchedulerService.ManualTriggerCronResolver:output_type -> chalk.server.v1.ManualTriggerCronResolverResponse
-	5,  // 54: chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery:output_type -> chalk.server.v1.ManualTriggerScheduledQueryResponse
-	7,  // 55: chalk.server.v1.SchedulerService.ManualTriggerScheduledAggregateBackfill:output_type -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse
-	9,  // 56: chalk.server.v1.SchedulerService.GetScheduledResolverRun:output_type -> chalk.server.v1.GetScheduledResolverRunResponse
-	11, // 57: chalk.server.v1.SchedulerService.ListScheduledResolverRuns:output_type -> chalk.server.v1.ListScheduledResolverRunsResponse
-	13, // 58: chalk.server.v1.SchedulerService.CancelScheduledResolverRun:output_type -> chalk.server.v1.CancelScheduledResolverRunResponse
-	17, // 59: chalk.server.v1.SchedulerService.GetActiveScheduledResolvers:output_type -> chalk.server.v1.GetActiveScheduledResolversResponse
-	20, // 60: chalk.server.v1.SchedulerService.GetScheduledResolverControl:output_type -> chalk.server.v1.GetScheduledResolverControlResponse
-	23, // 61: chalk.server.v1.SchedulerService.UpdateScheduledResolverControl:output_type -> chalk.server.v1.UpdateScheduledResolverControlResponse
-	26, // 62: chalk.server.v1.SchedulerService.GetLatestHighWaterMark:output_type -> chalk.server.v1.GetLatestHighWaterMarkResponse
-	53, // [53:63] is the sub-list for method output_type
-	43, // [43:53] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	32, // 4: chalk.server.v1.CronResolverRun.lower_bound:type_name -> google.protobuf.Timestamp
+	32, // 5: chalk.server.v1.CronResolverRun.upper_bound:type_name -> google.protobuf.Timestamp
+	32, // 6: chalk.server.v1.ManualTriggerCronResolverRequest.lower_bound:type_name -> google.protobuf.Timestamp
+	32, // 7: chalk.server.v1.ManualTriggerCronResolverRequest.upper_bound:type_name -> google.protobuf.Timestamp
+	34, // 8: chalk.server.v1.ManualTriggerCronResolverRequest.persistence_settings:type_name -> chalk.common.v1.PersistenceSettings
+	2,  // 9: chalk.server.v1.ManualTriggerCronResolverResponse.cron_resolver_run:type_name -> chalk.server.v1.CronResolverRun
+	28, // 10: chalk.server.v1.ManualTriggerScheduledQueryRequest.planner_options:type_name -> chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry
+	29, // 11: chalk.server.v1.ManualTriggerScheduledQueryRequest.env_overrides:type_name -> chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntry
+	35, // 12: chalk.server.v1.ManualTriggerScheduledQueryRequest.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
+	36, // 13: chalk.server.v1.ManualTriggerScheduledQueryResponse.scheduled_query_run:type_name -> chalk.server.v1.ScheduledQueryRun
+	30, // 14: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.planner_options:type_name -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry
+	31, // 15: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.env_overrides:type_name -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.EnvOverridesEntry
+	37, // 16: chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse.aggregate_backfill_job:type_name -> chalk.aggregate.v1.AggregateBackfillJob
+	2,  // 17: chalk.server.v1.GetScheduledResolverRunResponse.run:type_name -> chalk.server.v1.CronResolverRun
+	32, // 18: chalk.server.v1.ListScheduledResolverRunsRequest.cursor:type_name -> google.protobuf.Timestamp
+	38, // 19: chalk.server.v1.ListScheduledResolverRunsRequest.status_filter:type_name -> chalk.server.v1.OperationStatus
+	32, // 20: chalk.server.v1.ListScheduledResolverRunsRequest.start:type_name -> google.protobuf.Timestamp
+	32, // 21: chalk.server.v1.ListScheduledResolverRunsRequest.end:type_name -> google.protobuf.Timestamp
+	1,  // 22: chalk.server.v1.ListScheduledResolverRunsRequest.status_filters:type_name -> chalk.server.v1.CronRunStatusFilter
+	2,  // 23: chalk.server.v1.ListScheduledResolverRunsResponse.runs:type_name -> chalk.server.v1.CronResolverRun
+	2,  // 24: chalk.server.v1.CancelScheduledResolverRunResponse.cron_run:type_name -> chalk.server.v1.CronResolverRun
+	38, // 25: chalk.server.v1.ScheduledResolverRunInfo.status:type_name -> chalk.server.v1.OperationStatus
+	39, // 26: chalk.server.v1.ScheduledResolverRunInfo.resolvers:type_name -> chalk.server.v1.ResolverOperation
+	20, // 27: chalk.server.v1.ScheduledResolverInfo.control:type_name -> chalk.server.v1.ScheduledResolverControl
+	16, // 28: chalk.server.v1.ScheduledResolverInfo.latest_run:type_name -> chalk.server.v1.ScheduledResolverRunInfo
+	17, // 29: chalk.server.v1.GetActiveScheduledResolversResponse.scheduled_resolvers:type_name -> chalk.server.v1.ScheduledResolverInfo
+	40, // 30: chalk.server.v1.ScheduledResolverControl.status:type_name -> chalk.server.v1.CronControlStatus
+	32, // 31: chalk.server.v1.ScheduledResolverControl.created_at:type_name -> google.protobuf.Timestamp
+	32, // 32: chalk.server.v1.ScheduledResolverControl.updated_at:type_name -> google.protobuf.Timestamp
+	20, // 33: chalk.server.v1.GetScheduledResolverControlResponse.control:type_name -> chalk.server.v1.ScheduledResolverControl
+	40, // 34: chalk.server.v1.UpdateScheduledResolverControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
+	22, // 35: chalk.server.v1.UpdateScheduledResolverControlRequest.update:type_name -> chalk.server.v1.UpdateScheduledResolverControlOperation
+	41, // 36: chalk.server.v1.UpdateScheduledResolverControlRequest.update_mask:type_name -> google.protobuf.FieldMask
+	20, // 37: chalk.server.v1.UpdateScheduledResolverControlResponse.control:type_name -> chalk.server.v1.ScheduledResolverControl
+	32, // 38: chalk.server.v1.HighWaterMark.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
+	32, // 39: chalk.server.v1.HighWaterMark.last_execution_timestamp:type_name -> google.protobuf.Timestamp
+	32, // 40: chalk.server.v1.HighWaterMark.created_at:type_name -> google.protobuf.Timestamp
+	26, // 41: chalk.server.v1.GetLatestHighWaterMarkResponse.high_water_mark:type_name -> chalk.server.v1.HighWaterMark
+	42, // 42: chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
+	42, // 43: chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
+	3,  // 44: chalk.server.v1.SchedulerService.ManualTriggerCronResolver:input_type -> chalk.server.v1.ManualTriggerCronResolverRequest
+	5,  // 45: chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery:input_type -> chalk.server.v1.ManualTriggerScheduledQueryRequest
+	7,  // 46: chalk.server.v1.SchedulerService.ManualTriggerScheduledAggregateBackfill:input_type -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillRequest
+	9,  // 47: chalk.server.v1.SchedulerService.GetScheduledResolverRun:input_type -> chalk.server.v1.GetScheduledResolverRunRequest
+	11, // 48: chalk.server.v1.SchedulerService.ListScheduledResolverRuns:input_type -> chalk.server.v1.ListScheduledResolverRunsRequest
+	13, // 49: chalk.server.v1.SchedulerService.CancelScheduledResolverRun:input_type -> chalk.server.v1.CancelScheduledResolverRunRequest
+	15, // 50: chalk.server.v1.SchedulerService.GetActiveScheduledResolvers:input_type -> chalk.server.v1.GetActiveScheduledResolversRequest
+	19, // 51: chalk.server.v1.SchedulerService.GetScheduledResolverControl:input_type -> chalk.server.v1.GetScheduledResolverControlRequest
+	23, // 52: chalk.server.v1.SchedulerService.UpdateScheduledResolverControl:input_type -> chalk.server.v1.UpdateScheduledResolverControlRequest
+	25, // 53: chalk.server.v1.SchedulerService.GetLatestHighWaterMark:input_type -> chalk.server.v1.GetLatestHighWaterMarkRequest
+	4,  // 54: chalk.server.v1.SchedulerService.ManualTriggerCronResolver:output_type -> chalk.server.v1.ManualTriggerCronResolverResponse
+	6,  // 55: chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery:output_type -> chalk.server.v1.ManualTriggerScheduledQueryResponse
+	8,  // 56: chalk.server.v1.SchedulerService.ManualTriggerScheduledAggregateBackfill:output_type -> chalk.server.v1.ManualTriggerScheduledAggregateBackfillResponse
+	10, // 57: chalk.server.v1.SchedulerService.GetScheduledResolverRun:output_type -> chalk.server.v1.GetScheduledResolverRunResponse
+	12, // 58: chalk.server.v1.SchedulerService.ListScheduledResolverRuns:output_type -> chalk.server.v1.ListScheduledResolverRunsResponse
+	14, // 59: chalk.server.v1.SchedulerService.CancelScheduledResolverRun:output_type -> chalk.server.v1.CancelScheduledResolverRunResponse
+	18, // 60: chalk.server.v1.SchedulerService.GetActiveScheduledResolvers:output_type -> chalk.server.v1.GetActiveScheduledResolversResponse
+	21, // 61: chalk.server.v1.SchedulerService.GetScheduledResolverControl:output_type -> chalk.server.v1.GetScheduledResolverControlResponse
+	24, // 62: chalk.server.v1.SchedulerService.UpdateScheduledResolverControl:output_type -> chalk.server.v1.UpdateScheduledResolverControlResponse
+	27, // 63: chalk.server.v1.SchedulerService.GetLatestHighWaterMark:output_type -> chalk.server.v1.GetLatestHighWaterMarkResponse
+	54, // [54:64] is the sub-list for method output_type
+	44, // [44:54] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_scheduler_proto_init() }
@@ -2129,7 +2213,7 @@ func file_chalk_server_v1_scheduler_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_scheduler_proto_rawDesc), len(file_chalk_server_v1_scheduler_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,

@@ -33,6 +33,18 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// NotebookDocumentServiceCreateNotebookShareLinkProcedure is the fully-qualified name of the
+	// NotebookDocumentService's CreateNotebookShareLink RPC.
+	NotebookDocumentServiceCreateNotebookShareLinkProcedure = "/chalk.notebook.v1.NotebookDocumentService/CreateNotebookShareLink"
+	// NotebookDocumentServiceListNotebookShareLinksProcedure is the fully-qualified name of the
+	// NotebookDocumentService's ListNotebookShareLinks RPC.
+	NotebookDocumentServiceListNotebookShareLinksProcedure = "/chalk.notebook.v1.NotebookDocumentService/ListNotebookShareLinks"
+	// NotebookDocumentServiceRevokeNotebookShareLinkProcedure is the fully-qualified name of the
+	// NotebookDocumentService's RevokeNotebookShareLink RPC.
+	NotebookDocumentServiceRevokeNotebookShareLinkProcedure = "/chalk.notebook.v1.NotebookDocumentService/RevokeNotebookShareLink"
+	// NotebookDocumentServiceResolveNotebookShareLinkProcedure is the fully-qualified name of the
+	// NotebookDocumentService's ResolveNotebookShareLink RPC.
+	NotebookDocumentServiceResolveNotebookShareLinkProcedure = "/chalk.notebook.v1.NotebookDocumentService/ResolveNotebookShareLink"
 	// NotebookDocumentServiceCreateNotebookCommentProcedure is the fully-qualified name of the
 	// NotebookDocumentService's CreateNotebookComment RPC.
 	NotebookDocumentServiceCreateNotebookCommentProcedure = "/chalk.notebook.v1.NotebookDocumentService/CreateNotebookComment"
@@ -167,6 +179,15 @@ const (
 // NotebookDocumentServiceClient is a client for the chalk.notebook.v1.NotebookDocumentService
 // service.
 type NotebookDocumentServiceClient interface {
+	// Mints a share link. The response carries the only copy of the secret URL.
+	CreateNotebookShareLink(context.Context, *connect.Request[v1.CreateNotebookShareLinkRequest]) (*connect.Response[v1.CreateNotebookShareLinkResponse], error)
+	ListNotebookShareLinks(context.Context, *connect.Request[v1.ListNotebookShareLinksRequest]) (*connect.Response[v1.ListNotebookShareLinksResponse], error)
+	RevokeNotebookShareLink(context.Context, *connect.Request[v1.RevokeNotebookShareLinkRequest]) (*connect.Response[v1.RevokeNotebookShareLinkResponse], error)
+	// The share-link viewer's entry point: exchanges the token in the request
+	// headers for the identity of the notebook it grants. Deliberately the only
+	// way a holder learns that notebook id, which the read RPCs below then
+	// require -- so a token never doubles as a way to enumerate the environment.
+	ResolveNotebookShareLink(context.Context, *connect.Request[v1.ResolveNotebookShareLinkRequest]) (*connect.Response[v1.ResolveNotebookShareLinkResponse], error)
 	CreateNotebookComment(context.Context, *connect.Request[v1.CreateNotebookCommentRequest]) (*connect.Response[v1.CreateNotebookCommentResponse], error)
 	ListNotebookComments(context.Context, *connect.Request[v1.ListNotebookCommentsRequest]) (*connect.Response[v1.ListNotebookCommentsResponse], error)
 	DeleteNotebookComment(context.Context, *connect.Request[v1.DeleteNotebookCommentRequest]) (*connect.Response[v1.DeleteNotebookCommentResponse], error)
@@ -175,6 +196,10 @@ type NotebookDocumentServiceClient interface {
 	// caller already reacted with that emoji.
 	ToggleNotebookCommentReaction(context.Context, *connect.Request[v1.ToggleNotebookCommentReactionRequest]) (*connect.Response[v1.ToggleNotebookCommentReactionResponse], error)
 	CreateNotebookDocument(context.Context, *connect.Request[v1.CreateNotebookDocumentRequest]) (*connect.Response[v1.CreateNotebookDocumentResponse], error)
+	// internal.resource_share_view is accepted IN ADDITION TO deploy.read, so a
+	// share-link holder reads through the same endpoint as a signed-in user. The
+	// permission only decides that a share token may call this RPC; the handler
+	// is what confines it to the one notebook the token names.
 	GetNotebookDocument(context.Context, *connect.Request[v1.GetNotebookDocumentRequest]) (*connect.Response[v1.GetNotebookDocumentResponse], error)
 	ListNotebookDocuments(context.Context, *connect.Request[v1.ListNotebookDocumentsRequest]) (*connect.Response[v1.ListNotebookDocumentsResponse], error)
 	UpdateNotebookDocument(context.Context, *connect.Request[v1.UpdateNotebookDocumentRequest]) (*connect.Response[v1.UpdateNotebookDocumentResponse], error)
@@ -209,6 +234,10 @@ type NotebookDocumentServiceClient interface {
 	// Reduces one column of a dataframe output chunk to a single value over the
 	// FULL backing artifact (blob-backed Arrow, inline arrow bytes) — used by
 	// single-value elements whose source is larger than the persisted preview.
+	// Share tokens need this to render single-value elements whose source is
+	// larger than the persisted preview. DownloadNotebookDataframe deliberately
+	// does NOT accept share tokens: it is a bulk export of the same data, which a
+	// read-only viewer does not need in order to see the notebook.
 	AggregateNotebookDataframe(context.Context, *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error)
 	// Streams the complete dataframe behind an output chunk for download —
 	// the full backing data, never just the preview rows.
@@ -268,6 +297,30 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 	baseURL = strings.TrimRight(baseURL, "/")
 	notebookDocumentServiceMethods := v1.File_chalk_notebook_v1_document_service_proto.Services().ByName("NotebookDocumentService").Methods()
 	return &notebookDocumentServiceClient{
+		createNotebookShareLink: connect.NewClient[v1.CreateNotebookShareLinkRequest, v1.CreateNotebookShareLinkResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceCreateNotebookShareLinkProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("CreateNotebookShareLink")),
+			connect.WithClientOptions(opts...),
+		),
+		listNotebookShareLinks: connect.NewClient[v1.ListNotebookShareLinksRequest, v1.ListNotebookShareLinksResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceListNotebookShareLinksProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("ListNotebookShareLinks")),
+			connect.WithClientOptions(opts...),
+		),
+		revokeNotebookShareLink: connect.NewClient[v1.RevokeNotebookShareLinkRequest, v1.RevokeNotebookShareLinkResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceRevokeNotebookShareLinkProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("RevokeNotebookShareLink")),
+			connect.WithClientOptions(opts...),
+		),
+		resolveNotebookShareLink: connect.NewClient[v1.ResolveNotebookShareLinkRequest, v1.ResolveNotebookShareLinkResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceResolveNotebookShareLinkProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("ResolveNotebookShareLink")),
+			connect.WithClientOptions(opts...),
+		),
 		createNotebookComment: connect.NewClient[v1.CreateNotebookCommentRequest, v1.CreateNotebookCommentResponse](
 			httpClient,
 			baseURL+NotebookDocumentServiceCreateNotebookCommentProcedure,
@@ -531,6 +584,10 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 
 // notebookDocumentServiceClient implements NotebookDocumentServiceClient.
 type notebookDocumentServiceClient struct {
+	createNotebookShareLink        *connect.Client[v1.CreateNotebookShareLinkRequest, v1.CreateNotebookShareLinkResponse]
+	listNotebookShareLinks         *connect.Client[v1.ListNotebookShareLinksRequest, v1.ListNotebookShareLinksResponse]
+	revokeNotebookShareLink        *connect.Client[v1.RevokeNotebookShareLinkRequest, v1.RevokeNotebookShareLinkResponse]
+	resolveNotebookShareLink       *connect.Client[v1.ResolveNotebookShareLinkRequest, v1.ResolveNotebookShareLinkResponse]
 	createNotebookComment          *connect.Client[v1.CreateNotebookCommentRequest, v1.CreateNotebookCommentResponse]
 	listNotebookComments           *connect.Client[v1.ListNotebookCommentsRequest, v1.ListNotebookCommentsResponse]
 	deleteNotebookComment          *connect.Client[v1.DeleteNotebookCommentRequest, v1.DeleteNotebookCommentResponse]
@@ -574,6 +631,27 @@ type notebookDocumentServiceClient struct {
 	getNotebookSecretValue         *connect.Client[v1.GetNotebookSecretValueRequest, v1.GetNotebookSecretValueResponse]
 	upsertNotebookSecret           *connect.Client[v1.UpsertNotebookSecretRequest, v1.UpsertNotebookSecretResponse]
 	deleteNotebookSecret           *connect.Client[v1.DeleteNotebookSecretRequest, v1.DeleteNotebookSecretResponse]
+}
+
+// CreateNotebookShareLink calls chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink.
+func (c *notebookDocumentServiceClient) CreateNotebookShareLink(ctx context.Context, req *connect.Request[v1.CreateNotebookShareLinkRequest]) (*connect.Response[v1.CreateNotebookShareLinkResponse], error) {
+	return c.createNotebookShareLink.CallUnary(ctx, req)
+}
+
+// ListNotebookShareLinks calls chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks.
+func (c *notebookDocumentServiceClient) ListNotebookShareLinks(ctx context.Context, req *connect.Request[v1.ListNotebookShareLinksRequest]) (*connect.Response[v1.ListNotebookShareLinksResponse], error) {
+	return c.listNotebookShareLinks.CallUnary(ctx, req)
+}
+
+// RevokeNotebookShareLink calls chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink.
+func (c *notebookDocumentServiceClient) RevokeNotebookShareLink(ctx context.Context, req *connect.Request[v1.RevokeNotebookShareLinkRequest]) (*connect.Response[v1.RevokeNotebookShareLinkResponse], error) {
+	return c.revokeNotebookShareLink.CallUnary(ctx, req)
+}
+
+// ResolveNotebookShareLink calls
+// chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink.
+func (c *notebookDocumentServiceClient) ResolveNotebookShareLink(ctx context.Context, req *connect.Request[v1.ResolveNotebookShareLinkRequest]) (*connect.Response[v1.ResolveNotebookShareLinkResponse], error) {
+	return c.resolveNotebookShareLink.CallUnary(ctx, req)
 }
 
 // CreateNotebookComment calls chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment.
@@ -809,6 +887,15 @@ func (c *notebookDocumentServiceClient) DeleteNotebookSecret(ctx context.Context
 // NotebookDocumentServiceHandler is an implementation of the
 // chalk.notebook.v1.NotebookDocumentService service.
 type NotebookDocumentServiceHandler interface {
+	// Mints a share link. The response carries the only copy of the secret URL.
+	CreateNotebookShareLink(context.Context, *connect.Request[v1.CreateNotebookShareLinkRequest]) (*connect.Response[v1.CreateNotebookShareLinkResponse], error)
+	ListNotebookShareLinks(context.Context, *connect.Request[v1.ListNotebookShareLinksRequest]) (*connect.Response[v1.ListNotebookShareLinksResponse], error)
+	RevokeNotebookShareLink(context.Context, *connect.Request[v1.RevokeNotebookShareLinkRequest]) (*connect.Response[v1.RevokeNotebookShareLinkResponse], error)
+	// The share-link viewer's entry point: exchanges the token in the request
+	// headers for the identity of the notebook it grants. Deliberately the only
+	// way a holder learns that notebook id, which the read RPCs below then
+	// require -- so a token never doubles as a way to enumerate the environment.
+	ResolveNotebookShareLink(context.Context, *connect.Request[v1.ResolveNotebookShareLinkRequest]) (*connect.Response[v1.ResolveNotebookShareLinkResponse], error)
 	CreateNotebookComment(context.Context, *connect.Request[v1.CreateNotebookCommentRequest]) (*connect.Response[v1.CreateNotebookCommentResponse], error)
 	ListNotebookComments(context.Context, *connect.Request[v1.ListNotebookCommentsRequest]) (*connect.Response[v1.ListNotebookCommentsResponse], error)
 	DeleteNotebookComment(context.Context, *connect.Request[v1.DeleteNotebookCommentRequest]) (*connect.Response[v1.DeleteNotebookCommentResponse], error)
@@ -817,6 +904,10 @@ type NotebookDocumentServiceHandler interface {
 	// caller already reacted with that emoji.
 	ToggleNotebookCommentReaction(context.Context, *connect.Request[v1.ToggleNotebookCommentReactionRequest]) (*connect.Response[v1.ToggleNotebookCommentReactionResponse], error)
 	CreateNotebookDocument(context.Context, *connect.Request[v1.CreateNotebookDocumentRequest]) (*connect.Response[v1.CreateNotebookDocumentResponse], error)
+	// internal.resource_share_view is accepted IN ADDITION TO deploy.read, so a
+	// share-link holder reads through the same endpoint as a signed-in user. The
+	// permission only decides that a share token may call this RPC; the handler
+	// is what confines it to the one notebook the token names.
 	GetNotebookDocument(context.Context, *connect.Request[v1.GetNotebookDocumentRequest]) (*connect.Response[v1.GetNotebookDocumentResponse], error)
 	ListNotebookDocuments(context.Context, *connect.Request[v1.ListNotebookDocumentsRequest]) (*connect.Response[v1.ListNotebookDocumentsResponse], error)
 	UpdateNotebookDocument(context.Context, *connect.Request[v1.UpdateNotebookDocumentRequest]) (*connect.Response[v1.UpdateNotebookDocumentResponse], error)
@@ -851,6 +942,10 @@ type NotebookDocumentServiceHandler interface {
 	// Reduces one column of a dataframe output chunk to a single value over the
 	// FULL backing artifact (blob-backed Arrow, inline arrow bytes) — used by
 	// single-value elements whose source is larger than the persisted preview.
+	// Share tokens need this to render single-value elements whose source is
+	// larger than the persisted preview. DownloadNotebookDataframe deliberately
+	// does NOT accept share tokens: it is a bulk export of the same data, which a
+	// read-only viewer does not need in order to see the notebook.
 	AggregateNotebookDataframe(context.Context, *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error)
 	// Streams the complete dataframe behind an output chunk for download —
 	// the full backing data, never just the preview rows.
@@ -906,6 +1001,30 @@ type NotebookDocumentServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	notebookDocumentServiceMethods := v1.File_chalk_notebook_v1_document_service_proto.Services().ByName("NotebookDocumentService").Methods()
+	notebookDocumentServiceCreateNotebookShareLinkHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceCreateNotebookShareLinkProcedure,
+		svc.CreateNotebookShareLink,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("CreateNotebookShareLink")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceListNotebookShareLinksHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceListNotebookShareLinksProcedure,
+		svc.ListNotebookShareLinks,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("ListNotebookShareLinks")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceRevokeNotebookShareLinkHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceRevokeNotebookShareLinkProcedure,
+		svc.RevokeNotebookShareLink,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("RevokeNotebookShareLink")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceResolveNotebookShareLinkHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceResolveNotebookShareLinkProcedure,
+		svc.ResolveNotebookShareLink,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("ResolveNotebookShareLink")),
+		connect.WithHandlerOptions(opts...),
+	)
 	notebookDocumentServiceCreateNotebookCommentHandler := connect.NewUnaryHandler(
 		NotebookDocumentServiceCreateNotebookCommentProcedure,
 		svc.CreateNotebookComment,
@@ -1166,6 +1285,14 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 	)
 	return "/chalk.notebook.v1.NotebookDocumentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case NotebookDocumentServiceCreateNotebookShareLinkProcedure:
+			notebookDocumentServiceCreateNotebookShareLinkHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceListNotebookShareLinksProcedure:
+			notebookDocumentServiceListNotebookShareLinksHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceRevokeNotebookShareLinkProcedure:
+			notebookDocumentServiceRevokeNotebookShareLinkHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceResolveNotebookShareLinkProcedure:
+			notebookDocumentServiceResolveNotebookShareLinkHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceCreateNotebookCommentProcedure:
 			notebookDocumentServiceCreateNotebookCommentHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceListNotebookCommentsProcedure:
@@ -1260,6 +1387,22 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 
 // UnimplementedNotebookDocumentServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedNotebookDocumentServiceHandler struct{}
+
+func (UnimplementedNotebookDocumentServiceHandler) CreateNotebookShareLink(context.Context, *connect.Request[v1.CreateNotebookShareLinkRequest]) (*connect.Response[v1.CreateNotebookShareLinkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) ListNotebookShareLinks(context.Context, *connect.Request[v1.ListNotebookShareLinksRequest]) (*connect.Response[v1.ListNotebookShareLinksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) RevokeNotebookShareLink(context.Context, *connect.Request[v1.RevokeNotebookShareLinkRequest]) (*connect.Response[v1.RevokeNotebookShareLinkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) ResolveNotebookShareLink(context.Context, *connect.Request[v1.ResolveNotebookShareLinkRequest]) (*connect.Response[v1.ResolveNotebookShareLinkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink is not implemented"))
+}
 
 func (UnimplementedNotebookDocumentServiceHandler) CreateNotebookComment(context.Context, *connect.Request[v1.CreateNotebookCommentRequest]) (*connect.Response[v1.CreateNotebookCommentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment is not implemented"))

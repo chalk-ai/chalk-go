@@ -2149,11 +2149,16 @@ func (x *GetTeamOnboardingStatusRequest) GetTeamId() string {
 type GetTeamOnboardingStatusResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// True when the team has at least one non-archived environment in any of its projects.
-	// The frontend uses this to decide whether to force self-service users into the
-	// environment-creation onboarding step.
 	HasEnvironments bool `protobuf:"varint,1,opt,name=has_environments,json=hasEnvironments,proto3" json:"has_environments,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// True when the user must be pushed through the environment-creation onboarding step
+	// before reaching the dashboard: the team has no environments *and* it was created
+	// through self-service signup. A team Chalk provisioned (or one predating
+	// team_creation_type) whose environments have all been archived is not mid-signup, so it
+	// is deliberately excluded -- forcing those users into onboarding traps them in a flow
+	// that was never meant for them.
+	RequiresEnvironmentOnboarding bool `protobuf:"varint,2,opt,name=requires_environment_onboarding,json=requiresEnvironmentOnboarding,proto3" json:"requires_environment_onboarding,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *GetTeamOnboardingStatusResponse) Reset() {
@@ -2189,6 +2194,13 @@ func (*GetTeamOnboardingStatusResponse) Descriptor() ([]byte, []int) {
 func (x *GetTeamOnboardingStatusResponse) GetHasEnvironments() bool {
 	if x != nil {
 		return x.HasEnvironments
+	}
+	return false
+}
+
+func (x *GetTeamOnboardingStatusResponse) GetRequiresEnvironmentOnboarding() bool {
+	if x != nil {
+		return x.RequiresEnvironmentOnboarding
 	}
 	return false
 }
@@ -3330,9 +3342,10 @@ const file_chalk_server_v1_auth_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tR\tprojectId\"9\n" +
 	"\x1eGetTeamOnboardingStatusRequest\x12\x17\n" +
-	"\ateam_id\x18\x01 \x01(\tR\x06teamId\"L\n" +
+	"\ateam_id\x18\x01 \x01(\tR\x06teamId\"\x94\x01\n" +
 	"\x1fGetTeamOnboardingStatusResponse\x12)\n" +
-	"\x10has_environments\x18\x01 \x01(\bR\x0fhasEnvironments\"\xeb\x01\n" +
+	"\x10has_environments\x18\x01 \x01(\bR\x0fhasEnvironments\x12F\n" +
+	"\x1frequires_environment_onboarding\x18\x02 \x01(\bR\x1drequiresEnvironmentOnboarding\"\xeb\x01\n" +
 	"\x0fGetTokenRequest\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12)\n" +
 	"\rclient_secret\x18\x02 \x01(\tB\x04ء'\x01R\fclientSecret\x12\x1d\n" +
