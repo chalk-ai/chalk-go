@@ -7,6 +7,7 @@
 package pubsubv1
 
 import (
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/gen_bq_schema"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -71,6 +72,8 @@ type QueryMessagePubSub struct {
 	TraceId *string `protobuf:"bytes,21,opt,name=trace_id,json=traceId,proto3,oneof" json:"trace_id,omitempty"`
 	// Resource group that ran this query
 	ResourceGroup *string `protobuf:"bytes,22,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	// Final query status. Absent on messages emitted before status persistence was added.
+	Status        *v1.QueryStatus `protobuf:"varint,23,opt,name=status,proto3,enum=chalk.common.v1.QueryStatus,oneof" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -259,11 +262,18 @@ func (x *QueryMessagePubSub) GetResourceGroup() string {
 	return ""
 }
 
+func (x *QueryMessagePubSub) GetStatus() v1.QueryStatus {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return v1.QueryStatus(0)
+}
+
 var File_chalk_pubsub_v1_queries_proto protoreflect.FileDescriptor
 
 const file_chalk_pubsub_v1_queries_proto_rawDesc = "" +
 	"\n" +
-	"\x1dchalk/pubsub/v1/queries.proto\x12\x0fchalk.pubsub.v1\x1a\x1cgen_bq_schema/bq_field.proto\x1a\x1cgen_bq_schema/bq_table.proto\"\x86\n" +
+	"\x1dchalk/pubsub/v1/queries.proto\x12\x0fchalk.pubsub.v1\x1a\"chalk/common/v1/query_status.proto\x1a\x1cgen_bq_schema/bq_field.proto\x1a\x1cgen_bq_schema/bq_table.proto\"\xcc\n" +
 	"\n" +
 	"\x12QueryMessagePubSub\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12%\n" +
@@ -294,7 +304,8 @@ const file_chalk_pubsub_v1_queries_proto_rawDesc = "" +
 	"\x16query_duration_seconds\x18\x14 \x01(\x02H\n" +
 	"R\x14queryDurationSeconds\x88\x01\x01\x12\x1e\n" +
 	"\btrace_id\x18\x15 \x01(\tH\vR\atraceId\x88\x01\x01\x12*\n" +
-	"\x0eresource_group\x18\x16 \x01(\tH\fR\rresourceGroup\x88\x01\x01\x1a<\n" +
+	"\x0eresource_group\x18\x16 \x01(\tH\fR\rresourceGroup\x88\x01\x01\x129\n" +
+	"\x06status\x18\x17 \x01(\x0e2\x1c.chalk.common.v1.QueryStatusH\rR\x06status\x88\x01\x01\x1a<\n" +
 	"\x0eQueryMetaEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\f\xea?\t\n" +
@@ -311,7 +322,8 @@ const file_chalk_pubsub_v1_queries_proto_rawDesc = "" +
 	"\x10_meta_query_hashB\x19\n" +
 	"\x17_query_duration_secondsB\v\n" +
 	"\t_trace_idB\x11\n" +
-	"\x0f_resource_groupB\xbc\x01\n" +
+	"\x0f_resource_groupB\t\n" +
+	"\a_statusB\xbc\x01\n" +
 	"\x13com.chalk.pubsub.v1B\fQueriesProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/pubsub/v1;pubsubv1\xa2\x02\x03CPX\xaa\x02\x0fChalk.Pubsub.V1\xca\x02\x0fChalk\\Pubsub\\V1\xe2\x02\x1bChalk\\Pubsub\\V1\\GPBMetadata\xea\x02\x11Chalk::Pubsub::V1b\x06proto3"
 
 var (
@@ -330,14 +342,16 @@ var file_chalk_pubsub_v1_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 
 var file_chalk_pubsub_v1_queries_proto_goTypes = []any{
 	(*QueryMessagePubSub)(nil), // 0: chalk.pubsub.v1.QueryMessagePubSub
 	nil,                        // 1: chalk.pubsub.v1.QueryMessagePubSub.QueryMetaEntry
+	(v1.QueryStatus)(0),        // 2: chalk.common.v1.QueryStatus
 }
 var file_chalk_pubsub_v1_queries_proto_depIdxs = []int32{
 	1, // 0: chalk.pubsub.v1.QueryMessagePubSub.query_meta:type_name -> chalk.pubsub.v1.QueryMessagePubSub.QueryMetaEntry
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 1: chalk.pubsub.v1.QueryMessagePubSub.status:type_name -> chalk.common.v1.QueryStatus
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_chalk_pubsub_v1_queries_proto_init() }

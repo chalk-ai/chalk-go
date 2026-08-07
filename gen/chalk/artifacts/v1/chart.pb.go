@@ -142,6 +142,10 @@ const (
 	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_MIXED_RECEIVED  MetricKind = 110
 	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED   MetricKind = 111
 	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED   MetricKind = 112
+	// DCGM framebuffer gauges, stored in bytes. The exporter's default counter set
+	// has no total, so device capacity is used + free (+ a small reserved region).
+	MetricKind_METRIC_KIND_GPU_MEMORY_USED_BYTES MetricKind = 113
+	MetricKind_METRIC_KIND_GPU_MEMORY_FREE_BYTES MetricKind = 114
 )
 
 // Enum value maps for MetricKind.
@@ -260,6 +264,8 @@ var (
 		110: "METRIC_KIND_TELEMETRY_PIPELINE_MIXED_RECEIVED",
 		111: "METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED",
 		112: "METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED",
+		113: "METRIC_KIND_GPU_MEMORY_USED_BYTES",
+		114: "METRIC_KIND_GPU_MEMORY_FREE_BYTES",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -375,6 +381,8 @@ var (
 		"METRIC_KIND_TELEMETRY_PIPELINE_MIXED_RECEIVED":       110,
 		"METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED":        111,
 		"METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED":        112,
+		"METRIC_KIND_GPU_MEMORY_USED_BYTES":                   113,
+		"METRIC_KIND_GPU_MEMORY_FREE_BYTES":                   114,
 	}
 )
 
@@ -443,6 +451,18 @@ const (
 	// offline-query subset survives into VictoriaMetrics, so a chart slicing per
 	// operation must say which it means. See go-api-server/charts/vm_registry.go.
 	FilterKind_FILTER_KIND_OFFLINE_QUERY_OPERATION_ID FilterKind = 30
+	// The remaining computation contexts whose operation IDs VictoriaMetrics
+	// retains, each under its own label. A chart must name the context it means;
+	// FILTER_KIND_OPERATION_ID stays unresolvable there.
+	FilterKind_FILTER_KIND_SCRIPT_TASK_OPERATION_ID FilterKind = 31
+	FilterKind_FILTER_KIND_CRON_OPERATION_ID        FilterKind = 32
+	FilterKind_FILTER_KIND_CHALKSQL_OPERATION_ID    FilterKind = 33
+	// The Kubernetes node a metric was observed on. Distinct from
+	// FILTER_KIND_POD_NAME: both address the `source` column, but the node
+	// namespace stores a bare node name there, with no "namespace/podName"
+	// shape to unpack. The GPU gauges are the node-scoped metrics today —
+	// DCGM reports per device per node, not per pod.
+	FilterKind_FILTER_KIND_NODE_NAME FilterKind = 34
 )
 
 // Enum value maps for FilterKind.
@@ -479,6 +499,10 @@ var (
 		28: "FILTER_KIND_PLAN_REASON",
 		29: "FILTER_KIND_FUNCTION_CALL_MODE",
 		30: "FILTER_KIND_OFFLINE_QUERY_OPERATION_ID",
+		31: "FILTER_KIND_SCRIPT_TASK_OPERATION_ID",
+		32: "FILTER_KIND_CRON_OPERATION_ID",
+		33: "FILTER_KIND_CHALKSQL_OPERATION_ID",
+		34: "FILTER_KIND_NODE_NAME",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -512,6 +536,10 @@ var (
 		"FILTER_KIND_PLAN_REASON":                28,
 		"FILTER_KIND_FUNCTION_CALL_MODE":         29,
 		"FILTER_KIND_OFFLINE_QUERY_OPERATION_ID": 30,
+		"FILTER_KIND_SCRIPT_TASK_OPERATION_ID":   31,
+		"FILTER_KIND_CRON_OPERATION_ID":          32,
+		"FILTER_KIND_CHALKSQL_OPERATION_ID":      33,
+		"FILTER_KIND_NODE_NAME":                  34,
 	}
 )
 
@@ -705,6 +733,11 @@ const (
 	// Per-operation breakdown restricted to offline queries; see
 	// FILTER_KIND_OFFLINE_QUERY_OPERATION_ID.
 	GroupByKind_GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID GroupByKind = 26
+	// Per-operation breakdowns for the other retained contexts; see
+	// FILTER_KIND_SCRIPT_TASK_OPERATION_ID.
+	GroupByKind_GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID GroupByKind = 27
+	GroupByKind_GROUP_BY_KIND_CRON_OPERATION_ID        GroupByKind = 28
+	GroupByKind_GROUP_BY_KIND_CHALKSQL_OPERATION_ID    GroupByKind = 29
 )
 
 // Enum value maps for GroupByKind.
@@ -737,6 +770,9 @@ var (
 		24: "GROUP_BY_KIND_TELEMETRY_PIPELINE_STEP",
 		25: "GROUP_BY_KIND_TELEMETRY_PIPELINE_DROP_SCOPE",
 		26: "GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID",
+		27: "GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID",
+		28: "GROUP_BY_KIND_CRON_OPERATION_ID",
+		29: "GROUP_BY_KIND_CHALKSQL_OPERATION_ID",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":                   0,
@@ -766,6 +802,9 @@ var (
 		"GROUP_BY_KIND_TELEMETRY_PIPELINE_STEP":       24,
 		"GROUP_BY_KIND_TELEMETRY_PIPELINE_DROP_SCOPE": 25,
 		"GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID":    26,
+		"GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID":      27,
+		"GROUP_BY_KIND_CRON_OPERATION_ID":             28,
+		"GROUP_BY_KIND_CHALKSQL_OPERATION_ID":         29,
 	}
 )
 
@@ -2080,7 +2119,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\x89%\n" +
+	"_entity_id*\xd7%\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2196,7 +2235,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	",METRIC_KIND_TELEMETRY_PIPELINE_TRACE_DROPPED\x10m\x121\n" +
 	"-METRIC_KIND_TELEMETRY_PIPELINE_MIXED_RECEIVED\x10n\x120\n" +
 	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED\x10o\x120\n" +
-	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED\x10p*\xc7\a\n" +
+	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED\x10p\x12%\n" +
+	"!METRIC_KIND_GPU_MEMORY_USED_BYTES\x10q\x12%\n" +
+	"!METRIC_KIND_GPU_MEMORY_FREE_BYTES\x10r*\xd6\b\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2230,7 +2271,11 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x13FILTER_KIND_PLANNER\x10\x1b\x12\x1b\n" +
 	"\x17FILTER_KIND_PLAN_REASON\x10\x1c\x12\"\n" +
 	"\x1eFILTER_KIND_FUNCTION_CALL_MODE\x10\x1d\x12*\n" +
-	"&FILTER_KIND_OFFLINE_QUERY_OPERATION_ID\x10\x1e*~\n" +
+	"&FILTER_KIND_OFFLINE_QUERY_OPERATION_ID\x10\x1e\x12(\n" +
+	"$FILTER_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1f\x12!\n" +
+	"\x1dFILTER_KIND_CRON_OPERATION_ID\x10 \x12%\n" +
+	"!FILTER_KIND_CHALKSQL_OPERATION_ID\x10!\x12\x19\n" +
+	"\x15FILTER_KIND_NODE_NAME\x10\"*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -2250,7 +2295,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x9e\a\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x98\b\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -2279,7 +2324,10 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"%GROUP_BY_KIND_TELEMETRY_PIPELINE_ROLE\x10\x17\x12)\n" +
 	"%GROUP_BY_KIND_TELEMETRY_PIPELINE_STEP\x10\x18\x12/\n" +
 	"+GROUP_BY_KIND_TELEMETRY_PIPELINE_DROP_SCOPE\x10\x19\x12,\n" +
-	"(GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID\x10\x1a*\x81\x03\n" +
+	"(GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID\x10\x1a\x12*\n" +
+	"&GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1b\x12#\n" +
+	"\x1fGROUP_BY_KIND_CRON_OPERATION_ID\x10\x1c\x12'\n" +
+	"#GROUP_BY_KIND_CHALKSQL_OPERATION_ID\x10\x1d*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +

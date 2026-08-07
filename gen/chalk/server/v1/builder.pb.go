@@ -1355,8 +1355,12 @@ type RunPostIndexValidationRequest struct {
 	DisablePlanCacheWrites bool `protobuf:"varint,5,opt,name=disable_plan_cache_writes,json=disablePlanCacheWrites,proto3" json:"disable_plan_cache_writes,omitempty"`
 	// Continue after per-query planning failures and report all of them.
 	CollectAllFailures bool `protobuf:"varint,6,opt,name=collect_all_failures,json=collectAllFailures,proto3" json:"collect_all_failures,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Plan every ScheduledQuery on the deployment and write the extracted plan
+	// summaries to the deployment's preplan artifact folder. Independent of
+	// validate_named_queries: the two run in sibling jobs off the same graph.
+	PreplanScheduledQueries bool `protobuf:"varint,7,opt,name=preplan_scheduled_queries,json=preplanScheduledQueries,proto3" json:"preplan_scheduled_queries,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *RunPostIndexValidationRequest) Reset() {
@@ -1427,6 +1431,13 @@ func (x *RunPostIndexValidationRequest) GetDisablePlanCacheWrites() bool {
 func (x *RunPostIndexValidationRequest) GetCollectAllFailures() bool {
 	if x != nil {
 		return x.CollectAllFailures
+	}
+	return false
+}
+
+func (x *RunPostIndexValidationRequest) GetPreplanScheduledQueries() bool {
+	if x != nil {
+		return x.PreplanScheduledQueries
 	}
 	return false
 }
@@ -12129,9 +12140,8 @@ type TelemetryDeploymentSpec struct {
 	// deployment, and ClickHouse resources.
 	GpuTelemetry *GpuTelemetrySpec `protobuf:"bytes,10,opt,name=gpu_telemetry,json=gpuTelemetry,proto3,oneof" json:"gpu_telemetry,omitempty"`
 	// Selects the implementation used for both the node-local telemetry
-	// collector and the telemetry aggregator. Unset defaults to OTEL unless the
-	// default_telemetry_runtime_to_vector feature flag is enabled. Set explicitly
-	// to override the feature-flag default.
+	// collector and the telemetry aggregator. Unset defaults to VECTOR. Set
+	// explicitly to OTEL to use the OpenTelemetry collector runtime.
 	TelemetryRuntime     TelemetryRuntime          `protobuf:"varint,11,opt,name=telemetry_runtime,json=telemetryRuntime,proto3,enum=chalk.server.v1.TelemetryRuntime" json:"telemetry_runtime,omitempty"`
 	VectorClusterMetrics *VectorClusterMetricsSpec `protobuf:"bytes,12,opt,name=vector_cluster_metrics,json=vectorClusterMetrics,proto3,oneof" json:"vector_cluster_metrics,omitempty"`
 	// VictoriaMetrics storage and scrape configuration. Omitting this field leaves
@@ -17833,14 +17843,15 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12\"\n" +
 	"\rshadow_run_id\x18\x02 \x01(\tR\vshadowRunId\"5\n" +
 	"\x1cValidateNamedQueriesResponse\x12\x15\n" +
-	"\x06job_id\x18\x01 \x01(\tR\x05jobId\"\xbf\x02\n" +
+	"\x06job_id\x18\x01 \x01(\tR\x05jobId\"\xfb\x02\n" +
 	"\x1dRunPostIndexValidationRequest\x124\n" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12\"\n" +
 	"\rshadow_run_id\x18\x02 \x01(\tR\vshadowRunId\x12!\n" +
 	"\frun_indexing\x18\x03 \x01(\bR\vrunIndexing\x124\n" +
 	"\x16validate_named_queries\x18\x04 \x01(\bR\x14validateNamedQueries\x129\n" +
 	"\x19disable_plan_cache_writes\x18\x05 \x01(\bR\x16disablePlanCacheWrites\x120\n" +
-	"\x14collect_all_failures\x18\x06 \x01(\bR\x12collectAllFailures\"7\n" +
+	"\x14collect_all_failures\x18\x06 \x01(\bR\x12collectAllFailures\x12:\n" +
+	"\x19preplan_scheduled_queries\x18\a \x01(\bR\x17preplanScheduledQueries\"7\n" +
 	"\x1eRunPostIndexValidationResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\"\xf9\x03\n" +
 	"%StartShadowBuildFromDeploymentRequest\x124\n" +

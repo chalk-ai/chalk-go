@@ -1634,8 +1634,17 @@ type GetCatalogOverviewRequest struct {
 	// the facets rather than failing the read, because a map of the catalog is
 	// still worth drawing without its resolver edges.
 	IncludeSqlLineage *bool `protobuf:"varint,3,opt,name=include_sql_lineage,json=includeSqlLineage,proto3,oneof" json:"include_sql_lineage,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Project the environment's scheduled queries as JOB entities and link them
+	// to the resolvers they ran and the features they produced, read off each
+	// one's latest query plan. Opt-in for the same reason as the field above and
+	// more so: a plan can be tens of megabytes and may live in blob storage, so
+	// this costs a metrics-store query plus a bounded fan-out of object reads.
+	//
+	// Best effort in the same way: a scheduled query whose plan cannot be read is
+	// named in scheduled_queries_without_plan rather than failing the read.
+	IncludeScheduledQueries *bool `protobuf:"varint,4,opt,name=include_scheduled_queries,json=includeScheduledQueries,proto3,oneof" json:"include_scheduled_queries,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *GetCatalogOverviewRequest) Reset() {
@@ -1689,6 +1698,13 @@ func (x *GetCatalogOverviewRequest) GetIncludeSqlLineage() bool {
 	return false
 }
 
+func (x *GetCatalogOverviewRequest) GetIncludeScheduledQueries() bool {
+	if x != nil && x.IncludeScheduledQueries != nil {
+		return *x.IncludeScheduledQueries
+	}
+	return false
+}
+
 type GetCatalogOverviewResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Every entity in the environment's catalog, of every kind, with every facet
@@ -1703,9 +1719,14 @@ type GetCatalogOverviewResponse struct {
 	AsOf *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=as_of,json=asOf,proto3" json:"as_of,omitempty"`
 	// True when max_entities cut the response short, so the caller can say the
 	// graph is partial instead of quietly under-drawing it.
-	Truncated     bool `protobuf:"varint,4,opt,name=truncated,proto3" json:"truncated,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Truncated bool `protobuf:"varint,4,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	// Names of scheduled queries that were projected with no lineage because
+	// their latest plan could not be read -- never run, failed before planning, or
+	// aged out of the plan store. Reported for the same reason as truncated: an
+	// unlinked scheduled query should read as unknown, not as touching nothing.
+	ScheduledQueriesWithoutPlan []string `protobuf:"bytes,5,rep,name=scheduled_queries_without_plan,json=scheduledQueriesWithoutPlan,proto3" json:"scheduled_queries_without_plan,omitempty"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *GetCatalogOverviewResponse) Reset() {
@@ -1764,6 +1785,13 @@ func (x *GetCatalogOverviewResponse) GetTruncated() bool {
 		return x.Truncated
 	}
 	return false
+}
+
+func (x *GetCatalogOverviewResponse) GetScheduledQueriesWithoutPlan() []string {
+	if x != nil {
+		return x.ScheduledQueriesWithoutPlan
+	}
+	return nil
 }
 
 var File_chalk_catalog_v1_service_proto protoreflect.FileDescriptor
@@ -1902,22 +1930,25 @@ const file_chalk_catalog_v1_service_proto_rawDesc = "" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12D\n" +
 	"\n" +
 	"statistics\x18\x02 \x01(\v2$.chalk.catalog.v1.RelationStatisticsR\n" +
-	"statistics\"\xd7\x01\n" +
+	"statistics\"\xb6\x02\n" +
 	"\x19GetCatalogOverviewRequest\x12$\n" +
 	"\vsnapshot_id\x18\x01 \x01(\x03H\x00R\n" +
 	"snapshotId\x88\x01\x01\x12&\n" +
 	"\fmax_entities\x18\x02 \x01(\x05H\x01R\vmaxEntities\x88\x01\x01\x123\n" +
-	"\x13include_sql_lineage\x18\x03 \x01(\bH\x02R\x11includeSqlLineage\x88\x01\x01B\x0e\n" +
+	"\x13include_sql_lineage\x18\x03 \x01(\bH\x02R\x11includeSqlLineage\x88\x01\x01\x12?\n" +
+	"\x19include_scheduled_queries\x18\x04 \x01(\bH\x03R\x17includeScheduledQueries\x88\x01\x01B\x0e\n" +
 	"\f_snapshot_idB\x0f\n" +
 	"\r_max_entitiesB\x16\n" +
-	"\x14_include_sql_lineage\"\xec\x01\n" +
+	"\x14_include_sql_lineageB\x1c\n" +
+	"\x1a_include_scheduled_queries\"\xb1\x02\n" +
 	"\x1aGetCatalogOverviewResponse\x12;\n" +
 	"\bentities\x18\x01 \x03(\v2\x1f.chalk.catalog.v1.CatalogEntityR\bentities\x12B\n" +
 	"\n" +
 	"statistics\x18\x02 \x03(\v2\".chalk.catalog.v1.EntityStatisticsR\n" +
 	"statistics\x12/\n" +
 	"\x05as_of\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04asOf\x12\x1c\n" +
-	"\ttruncated\x18\x04 \x01(\bR\ttruncated*\x93\x01\n" +
+	"\ttruncated\x18\x04 \x01(\bR\ttruncated\x12C\n" +
+	"\x1escheduled_queries_without_plan\x18\x05 \x03(\tR\x1bscheduledQueriesWithoutPlan*\x93\x01\n" +
 	"\x10LineageDirection\x12!\n" +
 	"\x1dLINEAGE_DIRECTION_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aLINEAGE_DIRECTION_UPSTREAM\x10\x01\x12 \n" +

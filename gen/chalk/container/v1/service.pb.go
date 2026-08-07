@@ -600,8 +600,10 @@ type ChalkContainerSpec struct {
 	ReadinessProbe *ReadinessProbe `protobuf:"bytes,19,opt,name=readiness_probe,json=readinessProbe,proto3,oneof" json:"readiness_probe,omitempty"`
 	// Whether to recreate the container after its backing instance terminates.
 	RestartPolicy *RestartPolicy `protobuf:"varint,20,opt,name=restart_policy,json=restartPolicy,proto3,enum=chalk.container.v1.RestartPolicy,oneof" json:"restart_policy,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Gives this container a platform-managed injected Chalk user identity if set.
+	ChalkWorkloadIdentity *ChalkWorkloadIdentity `protobuf:"bytes,21,opt,name=chalk_workload_identity,json=chalkWorkloadIdentity,proto3,oneof" json:"chalk_workload_identity,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ChalkContainerSpec) Reset() {
@@ -772,6 +774,13 @@ func (x *ChalkContainerSpec) GetRestartPolicy() RestartPolicy {
 		return *x.RestartPolicy
 	}
 	return RestartPolicy_RESTART_POLICY_UNSPECIFIED
+}
+
+func (x *ChalkContainerSpec) GetChalkWorkloadIdentity() *ChalkWorkloadIdentity {
+	if x != nil {
+		return x.ChalkWorkloadIdentity
+	}
+	return nil
 }
 
 type StartupProbe struct {
@@ -1434,10 +1443,13 @@ func (x *NetworkPolicyRule) GetForwardUrl() string {
 }
 
 type NetworkTransformer struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Headers       map[string]string      `protobuf:"bytes,1,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Headers map[string]string      `protobuf:"bytes,1,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Request headers whose values come from Chalk Secrets. Keys are header names
+	// and values are Chalk Secret names.
+	HeadersSecrets map[string]string `protobuf:"bytes,2,rep,name=headers_secrets,json=headersSecrets,proto3" json:"headers_secrets,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *NetworkTransformer) Reset() {
@@ -1473,6 +1485,13 @@ func (*NetworkTransformer) Descriptor() ([]byte, []int) {
 func (x *NetworkTransformer) GetHeaders() map[string]string {
 	if x != nil {
 		return x.Headers
+	}
+	return nil
+}
+
+func (x *NetworkTransformer) GetHeadersSecrets() map[string]string {
+	if x != nil {
+		return x.HeadersSecrets
 	}
 	return nil
 }
@@ -2278,12 +2297,26 @@ func (x *GetContainerResponse) GetContainer() *ContainerResponse {
 }
 
 type ListContainersRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Cursor         *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Limit          *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	IncludeStopped *bool                  `protobuf:"varint,3,opt,name=include_stopped,json=includeStopped,proto3,oneof" json:"include_stopped,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Cursor *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit  *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Deprecated in favor of `statuses`: a non-empty `statuses` filter fully
+	// governs stopped inclusion. Retained for old clients; honored only when
+	// `statuses` is empty.
+	IncludeStopped *bool `protobuf:"varint,3,opt,name=include_stopped,json=includeStopped,proto3,oneof" json:"include_stopped,omitempty"`
+	// Server-side filters (empty = no filter). `statuses` matches the effective
+	// status shown in the UI: "Stopped" for stopped containers, otherwise the
+	// raw K8s phase (Pending/Running/Succeeded/Failed/Unknown). `images` matches
+	// the container spec image exactly. `search` is a case-insensitive substring
+	// match on name or id.
+	Statuses []string `protobuf:"bytes,4,rep,name=statuses,proto3" json:"statuses,omitempty"`
+	Images   []string `protobuf:"bytes,5,rep,name=images,proto3" json:"images,omitempty"`
+	Search   *string  `protobuf:"bytes,6,opt,name=search,proto3,oneof" json:"search,omitempty"`
+	// Ascending sweeps oldest-first by created_at; default (unset/false) is
+	// newest-first. Direction is the created_at keyset direction.
+	SortAscending *bool `protobuf:"varint,7,opt,name=sort_ascending,json=sortAscending,proto3,oneof" json:"sort_ascending,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListContainersRequest) Reset() {
@@ -2333,6 +2366,34 @@ func (x *ListContainersRequest) GetLimit() int32 {
 func (x *ListContainersRequest) GetIncludeStopped() bool {
 	if x != nil && x.IncludeStopped != nil {
 		return *x.IncludeStopped
+	}
+	return false
+}
+
+func (x *ListContainersRequest) GetStatuses() []string {
+	if x != nil {
+		return x.Statuses
+	}
+	return nil
+}
+
+func (x *ListContainersRequest) GetImages() []string {
+	if x != nil {
+		return x.Images
+	}
+	return nil
+}
+
+func (x *ListContainersRequest) GetSearch() string {
+	if x != nil && x.Search != nil {
+		return *x.Search
+	}
+	return ""
+}
+
+func (x *ListContainersRequest) GetSortAscending() bool {
+	if x != nil && x.SortAscending != nil {
+		return *x.SortAscending
 	}
 	return false
 }
@@ -5064,6 +5125,43 @@ func (x *CreateContainerDebugTTYResponse) GetClosed() bool {
 	return false
 }
 
+// ChalkWorkloadIdentity configures managed Chalk authentication for a workload.
+type ChalkWorkloadIdentity struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChalkWorkloadIdentity) Reset() {
+	*x = ChalkWorkloadIdentity{}
+	mi := &file_chalk_container_v1_service_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChalkWorkloadIdentity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChalkWorkloadIdentity) ProtoMessage() {}
+
+func (x *ChalkWorkloadIdentity) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_container_v1_service_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChalkWorkloadIdentity.ProtoReflect.Descriptor instead.
+func (*ChalkWorkloadIdentity) Descriptor() ([]byte, []int) {
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{74}
+}
+
 var File_chalk_container_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_container_v1_service_proto_rawDesc = "" +
@@ -5098,7 +5196,7 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
 	"\x06sourceB\t\n" +
-	"\a_prefix\"\xc5\v\n" +
+	"\a_prefix\"\xc9\f\n" +
 	"\x12ChalkContainerSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12\x1e\n" +
@@ -5125,7 +5223,8 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\rstartup_probe\x18\x12 \x01(\v2 .chalk.container.v1.StartupProbeH\n" +
 	"R\fstartupProbe\x88\x01\x01\x12P\n" +
 	"\x0freadiness_probe\x18\x13 \x01(\v2\".chalk.container.v1.ReadinessProbeH\vR\x0ereadinessProbe\x88\x01\x01\x12M\n" +
-	"\x0erestart_policy\x18\x14 \x01(\x0e2!.chalk.container.v1.RestartPolicyH\fR\rrestartPolicy\x88\x01\x01\x1a7\n" +
+	"\x0erestart_policy\x18\x14 \x01(\x0e2!.chalk.container.v1.RestartPolicyH\fR\rrestartPolicy\x88\x01\x01\x12f\n" +
+	"\x17chalk_workload_identity\x18\x15 \x01(\v2).chalk.container.v1.ChalkWorkloadIdentityH\rR\x15chalkWorkloadIdentity\x88\x01\x01\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a:\n" +
@@ -5146,7 +5245,8 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x0e_compute_classB\x10\n" +
 	"\x0e_startup_probeB\x12\n" +
 	"\x10_readiness_probeB\x11\n" +
-	"\x0f_restart_policy\"\x81\x01\n" +
+	"\x0f_restart_policyB\x1a\n" +
+	"\x18_chalk_workload_identity\"\x81\x01\n" +
 	"\fStartupProbe\x123\n" +
 	"\x04http\x18\x01 \x01(\v2\x1d.chalk.container.v1.HttpProbeH\x00R\x04http\x123\n" +
 	"\x04grpc\x18\x02 \x01(\v2\x1d.chalk.container.v1.GrpcProbeH\x00R\x04grpcB\a\n" +
@@ -5197,10 +5297,14 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\vforward_url\x18\x03 \x01(\tH\x01R\n" +
 	"forwardUrl\x88\x01\x01B\b\n" +
 	"\x06_matchB\x0e\n" +
-	"\f_forward_url\"\x9f\x01\n" +
+	"\f_forward_url\"\xc7\x02\n" +
 	"\x12NetworkTransformer\x12M\n" +
-	"\aheaders\x18\x01 \x03(\v23.chalk.container.v1.NetworkTransformer.HeadersEntryR\aheaders\x1a:\n" +
+	"\aheaders\x18\x01 \x03(\v23.chalk.container.v1.NetworkTransformer.HeadersEntryR\aheaders\x12c\n" +
+	"\x0fheaders_secrets\x18\x02 \x03(\v2:.chalk.container.v1.NetworkTransformer.HeadersSecretsEntryR\x0eheadersSecrets\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
+	"\x13HeadersSecretsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x99\x02\n" +
 	"\x12NetworkPolicyMatch\x12A\n" +
@@ -5277,14 +5381,20 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x05_nameB\x12\n" +
 	"\x10_include_stopped\"[\n" +
 	"\x14GetContainerResponse\x12C\n" +
-	"\tcontainer\x18\x01 \x01(\v2%.chalk.container.v1.ContainerResponseR\tcontainer\"\xa6\x01\n" +
+	"\tcontainer\x18\x01 \x01(\v2%.chalk.container.v1.ContainerResponseR\tcontainer\"\xc1\x02\n" +
 	"\x15ListContainersRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12,\n" +
-	"\x0finclude_stopped\x18\x03 \x01(\bH\x02R\x0eincludeStopped\x88\x01\x01B\t\n" +
+	"\x0finclude_stopped\x18\x03 \x01(\bH\x02R\x0eincludeStopped\x88\x01\x01\x12\x1a\n" +
+	"\bstatuses\x18\x04 \x03(\tR\bstatuses\x12\x16\n" +
+	"\x06images\x18\x05 \x03(\tR\x06images\x12\x1b\n" +
+	"\x06search\x18\x06 \x01(\tH\x03R\x06search\x88\x01\x01\x12*\n" +
+	"\x0esort_ascending\x18\a \x01(\bH\x04R\rsortAscending\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\x12\n" +
-	"\x10_include_stopped\"\x95\x01\n" +
+	"\x10_include_stoppedB\t\n" +
+	"\a_searchB\x11\n" +
+	"\x0f_sort_ascending\"\x95\x01\n" +
 	"\x16ListContainersResponse\x12E\n" +
 	"\n" +
 	"containers\x18\x01 \x03(\v2%.chalk.container.v1.ContainerResponseR\n" +
@@ -5496,7 +5606,8 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x04data\x18\x01 \x01(\fR\x04data\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01\x12\x16\n" +
 	"\x06closed\x18\x03 \x01(\bR\x06closedB\b\n" +
-	"\x06_error*\\\n" +
+	"\x06_error\"\x17\n" +
+	"\x15ChalkWorkloadIdentity*\\\n" +
 	"\fComputeClass\x12\x1d\n" +
 	"\x19COMPUTE_CLASS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11COMPUTE_CLASS_K8S\x10\x01\x12\x16\n" +
@@ -5548,7 +5659,7 @@ func file_chalk_container_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_container_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_chalk_container_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 80)
+var file_chalk_container_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 82)
 var file_chalk_container_v1_service_proto_goTypes = []any{
 	(ComputeClass)(0),                          // 0: chalk.container.v1.ComputeClass
 	(RestartPolicy)(0),                         // 1: chalk.container.v1.RestartPolicy
@@ -5629,21 +5740,23 @@ var file_chalk_container_v1_service_proto_goTypes = []any{
 	(*CreateContainerDebugTTYRequest)(nil),     // 76: chalk.container.v1.CreateContainerDebugTTYRequest
 	(*ContainerDebugTTYInitRequest)(nil),       // 77: chalk.container.v1.ContainerDebugTTYInitRequest
 	(*CreateContainerDebugTTYResponse)(nil),    // 78: chalk.container.v1.CreateContainerDebugTTYResponse
-	nil,                                        // 79: chalk.container.v1.SecretRef.AliasesEntry
-	nil,                                        // 80: chalk.container.v1.ChalkContainerSpec.TagsEntry
-	nil,                                        // 81: chalk.container.v1.ChalkContainerSpec.EnvVarsEntry
-	nil,                                        // 82: chalk.container.v1.NetworkPolicy.AllowedHostsEntry
-	nil,                                        // 83: chalk.container.v1.NetworkTransformer.HeadersEntry
-	nil,                                        // 84: chalk.container.v1.NewProcess.EnvEntry
-	(*durationpb.Duration)(nil),                // 85: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),              // 86: google.protobuf.Timestamp
+	(*ChalkWorkloadIdentity)(nil),              // 79: chalk.container.v1.ChalkWorkloadIdentity
+	nil,                                        // 80: chalk.container.v1.SecretRef.AliasesEntry
+	nil,                                        // 81: chalk.container.v1.ChalkContainerSpec.TagsEntry
+	nil,                                        // 82: chalk.container.v1.ChalkContainerSpec.EnvVarsEntry
+	nil,                                        // 83: chalk.container.v1.NetworkPolicy.AllowedHostsEntry
+	nil,                                        // 84: chalk.container.v1.NetworkTransformer.HeadersEntry
+	nil,                                        // 85: chalk.container.v1.NetworkTransformer.HeadersSecretsEntry
+	nil,                                        // 86: chalk.container.v1.NewProcess.EnvEntry
+	(*durationpb.Duration)(nil),                // 87: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil),              // 88: google.protobuf.Timestamp
 }
 var file_chalk_container_v1_service_proto_depIdxs = []int32{
-	79, // 0: chalk.container.v1.SecretRef.aliases:type_name -> chalk.container.v1.SecretRef.AliasesEntry
-	80, // 1: chalk.container.v1.ChalkContainerSpec.tags:type_name -> chalk.container.v1.ChalkContainerSpec.TagsEntry
-	85, // 2: chalk.container.v1.ChalkContainerSpec.lifetime:type_name -> google.protobuf.Duration
+	80, // 0: chalk.container.v1.SecretRef.aliases:type_name -> chalk.container.v1.SecretRef.AliasesEntry
+	81, // 1: chalk.container.v1.ChalkContainerSpec.tags:type_name -> chalk.container.v1.ChalkContainerSpec.TagsEntry
+	87, // 2: chalk.container.v1.ChalkContainerSpec.lifetime:type_name -> google.protobuf.Duration
 	5,  // 3: chalk.container.v1.ChalkContainerSpec.resources:type_name -> chalk.container.v1.ResourceLimits
-	81, // 4: chalk.container.v1.ChalkContainerSpec.env_vars:type_name -> chalk.container.v1.ChalkContainerSpec.EnvVarsEntry
+	82, // 4: chalk.container.v1.ChalkContainerSpec.env_vars:type_name -> chalk.container.v1.ChalkContainerSpec.EnvVarsEntry
 	6,  // 5: chalk.container.v1.ChalkContainerSpec.volumes:type_name -> chalk.container.v1.VolumeMount
 	7,  // 6: chalk.container.v1.ChalkContainerSpec.secret_refs:type_name -> chalk.container.v1.SecretRef
 	14, // 7: chalk.container.v1.ChalkContainerSpec.security_policy:type_name -> chalk.container.v1.ContainerSecurityPolicy
@@ -5652,107 +5765,109 @@ var file_chalk_container_v1_service_proto_depIdxs = []int32{
 	9,  // 10: chalk.container.v1.ChalkContainerSpec.startup_probe:type_name -> chalk.container.v1.StartupProbe
 	12, // 11: chalk.container.v1.ChalkContainerSpec.readiness_probe:type_name -> chalk.container.v1.ReadinessProbe
 	1,  // 12: chalk.container.v1.ChalkContainerSpec.restart_policy:type_name -> chalk.container.v1.RestartPolicy
-	10, // 13: chalk.container.v1.StartupProbe.http:type_name -> chalk.container.v1.HttpProbe
-	11, // 14: chalk.container.v1.StartupProbe.grpc:type_name -> chalk.container.v1.GrpcProbe
-	10, // 15: chalk.container.v1.ReadinessProbe.http:type_name -> chalk.container.v1.HttpProbe
-	13, // 16: chalk.container.v1.ReadinessProbe.grpc:type_name -> chalk.container.v1.GrpcHealthProbe
-	2,  // 17: chalk.container.v1.ContainerSecurityPolicy.kernel_policy:type_name -> chalk.container.v1.KernelPolicy
-	16, // 18: chalk.container.v1.NetworkPolicy.allowed_routes:type_name -> chalk.container.v1.AllowedRoute
-	82, // 19: chalk.container.v1.NetworkPolicy.allowed_hosts:type_name -> chalk.container.v1.NetworkPolicy.AllowedHostsEntry
-	17, // 20: chalk.container.v1.AllowedRoute.port_ranges:type_name -> chalk.container.v1.PortRange
-	19, // 21: chalk.container.v1.NetworkPolicyRuleList.rules:type_name -> chalk.container.v1.NetworkPolicyRule
-	20, // 22: chalk.container.v1.NetworkPolicyRule.transform:type_name -> chalk.container.v1.NetworkTransformer
-	21, // 23: chalk.container.v1.NetworkPolicyRule.match:type_name -> chalk.container.v1.NetworkPolicyMatch
-	83, // 24: chalk.container.v1.NetworkTransformer.headers:type_name -> chalk.container.v1.NetworkTransformer.HeadersEntry
-	23, // 25: chalk.container.v1.NetworkPolicyMatch.path:type_name -> chalk.container.v1.NetworkPolicyMatcher
-	22, // 26: chalk.container.v1.NetworkPolicyMatch.query_string:type_name -> chalk.container.v1.NetworkPolicyKeyValueMatcher
-	22, // 27: chalk.container.v1.NetworkPolicyMatch.headers:type_name -> chalk.container.v1.NetworkPolicyKeyValueMatcher
-	23, // 28: chalk.container.v1.NetworkPolicyKeyValueMatcher.key:type_name -> chalk.container.v1.NetworkPolicyMatcher
-	23, // 29: chalk.container.v1.NetworkPolicyKeyValueMatcher.value:type_name -> chalk.container.v1.NetworkPolicyMatcher
-	8,  // 30: chalk.container.v1.ContainerRequest.spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	8,  // 31: chalk.container.v1.ContainerResponse.spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	86, // 32: chalk.container.v1.ContainerResponse.created_at:type_name -> google.protobuf.Timestamp
-	86, // 33: chalk.container.v1.ContainerResponse.stopped_at:type_name -> google.protobuf.Timestamp
-	25, // 34: chalk.container.v1.ContainerResponse.health_check:type_name -> chalk.container.v1.HealthCheck
-	24, // 35: chalk.container.v1.RunContainerRequest.container:type_name -> chalk.container.v1.ContainerRequest
-	26, // 36: chalk.container.v1.RunContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
-	26, // 37: chalk.container.v1.StopContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
-	26, // 38: chalk.container.v1.GetContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
-	26, // 39: chalk.container.v1.ListContainersResponse.containers:type_name -> chalk.container.v1.ContainerResponse
-	85, // 40: chalk.container.v1.ExecCommandRequest.timeout:type_name -> google.protobuf.Duration
-	40, // 41: chalk.container.v1.SessionRequest.new_process:type_name -> chalk.container.v1.NewProcess
-	42, // 42: chalk.container.v1.SessionRequest.attach_session:type_name -> chalk.container.v1.AttachSession
-	44, // 43: chalk.container.v1.SessionRequest.detach_session:type_name -> chalk.container.v1.DetachSession
-	46, // 44: chalk.container.v1.SessionRequest.stdin_data:type_name -> chalk.container.v1.StdinData
-	47, // 45: chalk.container.v1.SessionRequest.stdin_eof:type_name -> chalk.container.v1.StdinEof
-	48, // 46: chalk.container.v1.SessionRequest.signal:type_name -> chalk.container.v1.SessionSignal
-	41, // 47: chalk.container.v1.SessionRequest.pty_info:type_name -> chalk.container.v1.PtyInfo
-	50, // 48: chalk.container.v1.SessionRequest.get_process_status:type_name -> chalk.container.v1.GetProcessStatus
-	39, // 49: chalk.container.v1.SessionResponse.error:type_name -> chalk.container.v1.SessionError
-	43, // 50: chalk.container.v1.SessionResponse.session_attached:type_name -> chalk.container.v1.SessionAttached
-	49, // 51: chalk.container.v1.SessionResponse.output_data:type_name -> chalk.container.v1.OutputData
-	51, // 52: chalk.container.v1.SessionResponse.process_status:type_name -> chalk.container.v1.ProcessStatus
-	52, // 53: chalk.container.v1.SessionResponse.process_exited:type_name -> chalk.container.v1.ProcessExited
-	45, // 54: chalk.container.v1.SessionResponse.session_detached:type_name -> chalk.container.v1.SessionDetached
-	53, // 55: chalk.container.v1.SessionResponse.process_failed:type_name -> chalk.container.v1.ProcessFailed
-	54, // 56: chalk.container.v1.SessionResponse.process_timed_out:type_name -> chalk.container.v1.ProcessTimedOut
-	84, // 57: chalk.container.v1.NewProcess.env:type_name -> chalk.container.v1.NewProcess.EnvEntry
-	41, // 58: chalk.container.v1.NewProcess.pty_info:type_name -> chalk.container.v1.PtyInfo
-	41, // 59: chalk.container.v1.AttachSession.pty_info:type_name -> chalk.container.v1.PtyInfo
-	4,  // 60: chalk.container.v1.OutputData.stream:type_name -> chalk.container.v1.OutputData.Stream
-	3,  // 61: chalk.container.v1.ProcessStatus.state:type_name -> chalk.container.v1.ProcessState
-	40, // 62: chalk.container.v1.SessionInfo.new_process:type_name -> chalk.container.v1.NewProcess
-	51, // 63: chalk.container.v1.SessionInfo.process_status:type_name -> chalk.container.v1.ProcessStatus
-	55, // 64: chalk.container.v1.GetSessionResponse.session:type_name -> chalk.container.v1.SessionInfo
-	55, // 65: chalk.container.v1.ListSessionsResponse.sessions:type_name -> chalk.container.v1.SessionInfo
-	60, // 66: chalk.container.v1.UpdateContainerStatusRequest.host_info:type_name -> chalk.container.v1.ContainerHostInfo
-	26, // 67: chalk.container.v1.UpdateContainerStatusResponse.container:type_name -> chalk.container.v1.ContainerResponse
-	61, // 68: chalk.container.v1.BatchUpdateContainerStatusRequest.updates:type_name -> chalk.container.v1.UpdateContainerStatusRequest
-	65, // 69: chalk.container.v1.ContainerSnapshotSpec.gke_pod_snapshot:type_name -> chalk.container.v1.GKEPodSnapshot
-	8,  // 70: chalk.container.v1.ContainerSnapshot.container_spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	66, // 71: chalk.container.v1.ContainerSnapshot.snapshot_spec:type_name -> chalk.container.v1.ContainerSnapshotSpec
-	86, // 72: chalk.container.v1.ContainerSnapshot.created_at:type_name -> google.protobuf.Timestamp
-	86, // 73: chalk.container.v1.ContainerSnapshot.completed_at:type_name -> google.protobuf.Timestamp
-	67, // 74: chalk.container.v1.SnapshotContainerResponse.snapshot:type_name -> chalk.container.v1.ContainerSnapshot
-	67, // 75: chalk.container.v1.GetContainerSnapshotResponse.snapshot:type_name -> chalk.container.v1.ContainerSnapshot
-	67, // 76: chalk.container.v1.ListContainerSnapshotsResponse.snapshots:type_name -> chalk.container.v1.ContainerSnapshot
-	75, // 77: chalk.container.v1.ContainerTTYInput.resize:type_name -> chalk.container.v1.ContainerTerminalSize
-	77, // 78: chalk.container.v1.CreateContainerDebugTTYRequest.init_request:type_name -> chalk.container.v1.ContainerDebugTTYInitRequest
-	74, // 79: chalk.container.v1.CreateContainerDebugTTYRequest.input:type_name -> chalk.container.v1.ContainerTTYInput
-	18, // 80: chalk.container.v1.NetworkPolicy.AllowedHostsEntry.value:type_name -> chalk.container.v1.NetworkPolicyRuleList
-	27, // 81: chalk.container.v1.ContainerService.RunContainer:input_type -> chalk.container.v1.RunContainerRequest
-	29, // 82: chalk.container.v1.ContainerService.StopContainer:input_type -> chalk.container.v1.StopContainerRequest
-	31, // 83: chalk.container.v1.ContainerService.GetContainer:input_type -> chalk.container.v1.GetContainerRequest
-	33, // 84: chalk.container.v1.ContainerService.ListContainers:input_type -> chalk.container.v1.ListContainersRequest
-	35, // 85: chalk.container.v1.ContainerService.ExecCommand:input_type -> chalk.container.v1.ExecCommandRequest
-	37, // 86: chalk.container.v1.ContainerService.Session:input_type -> chalk.container.v1.SessionRequest
-	56, // 87: chalk.container.v1.ContainerService.GetSession:input_type -> chalk.container.v1.GetSessionRequest
-	58, // 88: chalk.container.v1.ContainerService.ListSessions:input_type -> chalk.container.v1.ListSessionsRequest
-	61, // 89: chalk.container.v1.ContainerService.UpdateContainerStatus:input_type -> chalk.container.v1.UpdateContainerStatusRequest
-	63, // 90: chalk.container.v1.ContainerService.BatchUpdateContainerStatus:input_type -> chalk.container.v1.BatchUpdateContainerStatusRequest
-	68, // 91: chalk.container.v1.ContainerService.SnapshotContainer:input_type -> chalk.container.v1.SnapshotContainerRequest
-	70, // 92: chalk.container.v1.ContainerService.GetContainerSnapshot:input_type -> chalk.container.v1.GetContainerSnapshotRequest
-	72, // 93: chalk.container.v1.ContainerService.ListContainerSnapshots:input_type -> chalk.container.v1.ListContainerSnapshotsRequest
-	76, // 94: chalk.container.v1.ContainerService.CreateContainerDebugTTY:input_type -> chalk.container.v1.CreateContainerDebugTTYRequest
-	28, // 95: chalk.container.v1.ContainerService.RunContainer:output_type -> chalk.container.v1.RunContainerResponse
-	30, // 96: chalk.container.v1.ContainerService.StopContainer:output_type -> chalk.container.v1.StopContainerResponse
-	32, // 97: chalk.container.v1.ContainerService.GetContainer:output_type -> chalk.container.v1.GetContainerResponse
-	34, // 98: chalk.container.v1.ContainerService.ListContainers:output_type -> chalk.container.v1.ListContainersResponse
-	36, // 99: chalk.container.v1.ContainerService.ExecCommand:output_type -> chalk.container.v1.ExecCommandResponse
-	38, // 100: chalk.container.v1.ContainerService.Session:output_type -> chalk.container.v1.SessionResponse
-	57, // 101: chalk.container.v1.ContainerService.GetSession:output_type -> chalk.container.v1.GetSessionResponse
-	59, // 102: chalk.container.v1.ContainerService.ListSessions:output_type -> chalk.container.v1.ListSessionsResponse
-	62, // 103: chalk.container.v1.ContainerService.UpdateContainerStatus:output_type -> chalk.container.v1.UpdateContainerStatusResponse
-	64, // 104: chalk.container.v1.ContainerService.BatchUpdateContainerStatus:output_type -> chalk.container.v1.BatchUpdateContainerStatusResponse
-	69, // 105: chalk.container.v1.ContainerService.SnapshotContainer:output_type -> chalk.container.v1.SnapshotContainerResponse
-	71, // 106: chalk.container.v1.ContainerService.GetContainerSnapshot:output_type -> chalk.container.v1.GetContainerSnapshotResponse
-	73, // 107: chalk.container.v1.ContainerService.ListContainerSnapshots:output_type -> chalk.container.v1.ListContainerSnapshotsResponse
-	78, // 108: chalk.container.v1.ContainerService.CreateContainerDebugTTY:output_type -> chalk.container.v1.CreateContainerDebugTTYResponse
-	95, // [95:109] is the sub-list for method output_type
-	81, // [81:95] is the sub-list for method input_type
-	81, // [81:81] is the sub-list for extension type_name
-	81, // [81:81] is the sub-list for extension extendee
-	0,  // [0:81] is the sub-list for field type_name
+	79, // 13: chalk.container.v1.ChalkContainerSpec.chalk_workload_identity:type_name -> chalk.container.v1.ChalkWorkloadIdentity
+	10, // 14: chalk.container.v1.StartupProbe.http:type_name -> chalk.container.v1.HttpProbe
+	11, // 15: chalk.container.v1.StartupProbe.grpc:type_name -> chalk.container.v1.GrpcProbe
+	10, // 16: chalk.container.v1.ReadinessProbe.http:type_name -> chalk.container.v1.HttpProbe
+	13, // 17: chalk.container.v1.ReadinessProbe.grpc:type_name -> chalk.container.v1.GrpcHealthProbe
+	2,  // 18: chalk.container.v1.ContainerSecurityPolicy.kernel_policy:type_name -> chalk.container.v1.KernelPolicy
+	16, // 19: chalk.container.v1.NetworkPolicy.allowed_routes:type_name -> chalk.container.v1.AllowedRoute
+	83, // 20: chalk.container.v1.NetworkPolicy.allowed_hosts:type_name -> chalk.container.v1.NetworkPolicy.AllowedHostsEntry
+	17, // 21: chalk.container.v1.AllowedRoute.port_ranges:type_name -> chalk.container.v1.PortRange
+	19, // 22: chalk.container.v1.NetworkPolicyRuleList.rules:type_name -> chalk.container.v1.NetworkPolicyRule
+	20, // 23: chalk.container.v1.NetworkPolicyRule.transform:type_name -> chalk.container.v1.NetworkTransformer
+	21, // 24: chalk.container.v1.NetworkPolicyRule.match:type_name -> chalk.container.v1.NetworkPolicyMatch
+	84, // 25: chalk.container.v1.NetworkTransformer.headers:type_name -> chalk.container.v1.NetworkTransformer.HeadersEntry
+	85, // 26: chalk.container.v1.NetworkTransformer.headers_secrets:type_name -> chalk.container.v1.NetworkTransformer.HeadersSecretsEntry
+	23, // 27: chalk.container.v1.NetworkPolicyMatch.path:type_name -> chalk.container.v1.NetworkPolicyMatcher
+	22, // 28: chalk.container.v1.NetworkPolicyMatch.query_string:type_name -> chalk.container.v1.NetworkPolicyKeyValueMatcher
+	22, // 29: chalk.container.v1.NetworkPolicyMatch.headers:type_name -> chalk.container.v1.NetworkPolicyKeyValueMatcher
+	23, // 30: chalk.container.v1.NetworkPolicyKeyValueMatcher.key:type_name -> chalk.container.v1.NetworkPolicyMatcher
+	23, // 31: chalk.container.v1.NetworkPolicyKeyValueMatcher.value:type_name -> chalk.container.v1.NetworkPolicyMatcher
+	8,  // 32: chalk.container.v1.ContainerRequest.spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	8,  // 33: chalk.container.v1.ContainerResponse.spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	88, // 34: chalk.container.v1.ContainerResponse.created_at:type_name -> google.protobuf.Timestamp
+	88, // 35: chalk.container.v1.ContainerResponse.stopped_at:type_name -> google.protobuf.Timestamp
+	25, // 36: chalk.container.v1.ContainerResponse.health_check:type_name -> chalk.container.v1.HealthCheck
+	24, // 37: chalk.container.v1.RunContainerRequest.container:type_name -> chalk.container.v1.ContainerRequest
+	26, // 38: chalk.container.v1.RunContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
+	26, // 39: chalk.container.v1.StopContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
+	26, // 40: chalk.container.v1.GetContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
+	26, // 41: chalk.container.v1.ListContainersResponse.containers:type_name -> chalk.container.v1.ContainerResponse
+	87, // 42: chalk.container.v1.ExecCommandRequest.timeout:type_name -> google.protobuf.Duration
+	40, // 43: chalk.container.v1.SessionRequest.new_process:type_name -> chalk.container.v1.NewProcess
+	42, // 44: chalk.container.v1.SessionRequest.attach_session:type_name -> chalk.container.v1.AttachSession
+	44, // 45: chalk.container.v1.SessionRequest.detach_session:type_name -> chalk.container.v1.DetachSession
+	46, // 46: chalk.container.v1.SessionRequest.stdin_data:type_name -> chalk.container.v1.StdinData
+	47, // 47: chalk.container.v1.SessionRequest.stdin_eof:type_name -> chalk.container.v1.StdinEof
+	48, // 48: chalk.container.v1.SessionRequest.signal:type_name -> chalk.container.v1.SessionSignal
+	41, // 49: chalk.container.v1.SessionRequest.pty_info:type_name -> chalk.container.v1.PtyInfo
+	50, // 50: chalk.container.v1.SessionRequest.get_process_status:type_name -> chalk.container.v1.GetProcessStatus
+	39, // 51: chalk.container.v1.SessionResponse.error:type_name -> chalk.container.v1.SessionError
+	43, // 52: chalk.container.v1.SessionResponse.session_attached:type_name -> chalk.container.v1.SessionAttached
+	49, // 53: chalk.container.v1.SessionResponse.output_data:type_name -> chalk.container.v1.OutputData
+	51, // 54: chalk.container.v1.SessionResponse.process_status:type_name -> chalk.container.v1.ProcessStatus
+	52, // 55: chalk.container.v1.SessionResponse.process_exited:type_name -> chalk.container.v1.ProcessExited
+	45, // 56: chalk.container.v1.SessionResponse.session_detached:type_name -> chalk.container.v1.SessionDetached
+	53, // 57: chalk.container.v1.SessionResponse.process_failed:type_name -> chalk.container.v1.ProcessFailed
+	54, // 58: chalk.container.v1.SessionResponse.process_timed_out:type_name -> chalk.container.v1.ProcessTimedOut
+	86, // 59: chalk.container.v1.NewProcess.env:type_name -> chalk.container.v1.NewProcess.EnvEntry
+	41, // 60: chalk.container.v1.NewProcess.pty_info:type_name -> chalk.container.v1.PtyInfo
+	41, // 61: chalk.container.v1.AttachSession.pty_info:type_name -> chalk.container.v1.PtyInfo
+	4,  // 62: chalk.container.v1.OutputData.stream:type_name -> chalk.container.v1.OutputData.Stream
+	3,  // 63: chalk.container.v1.ProcessStatus.state:type_name -> chalk.container.v1.ProcessState
+	40, // 64: chalk.container.v1.SessionInfo.new_process:type_name -> chalk.container.v1.NewProcess
+	51, // 65: chalk.container.v1.SessionInfo.process_status:type_name -> chalk.container.v1.ProcessStatus
+	55, // 66: chalk.container.v1.GetSessionResponse.session:type_name -> chalk.container.v1.SessionInfo
+	55, // 67: chalk.container.v1.ListSessionsResponse.sessions:type_name -> chalk.container.v1.SessionInfo
+	60, // 68: chalk.container.v1.UpdateContainerStatusRequest.host_info:type_name -> chalk.container.v1.ContainerHostInfo
+	26, // 69: chalk.container.v1.UpdateContainerStatusResponse.container:type_name -> chalk.container.v1.ContainerResponse
+	61, // 70: chalk.container.v1.BatchUpdateContainerStatusRequest.updates:type_name -> chalk.container.v1.UpdateContainerStatusRequest
+	65, // 71: chalk.container.v1.ContainerSnapshotSpec.gke_pod_snapshot:type_name -> chalk.container.v1.GKEPodSnapshot
+	8,  // 72: chalk.container.v1.ContainerSnapshot.container_spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	66, // 73: chalk.container.v1.ContainerSnapshot.snapshot_spec:type_name -> chalk.container.v1.ContainerSnapshotSpec
+	88, // 74: chalk.container.v1.ContainerSnapshot.created_at:type_name -> google.protobuf.Timestamp
+	88, // 75: chalk.container.v1.ContainerSnapshot.completed_at:type_name -> google.protobuf.Timestamp
+	67, // 76: chalk.container.v1.SnapshotContainerResponse.snapshot:type_name -> chalk.container.v1.ContainerSnapshot
+	67, // 77: chalk.container.v1.GetContainerSnapshotResponse.snapshot:type_name -> chalk.container.v1.ContainerSnapshot
+	67, // 78: chalk.container.v1.ListContainerSnapshotsResponse.snapshots:type_name -> chalk.container.v1.ContainerSnapshot
+	75, // 79: chalk.container.v1.ContainerTTYInput.resize:type_name -> chalk.container.v1.ContainerTerminalSize
+	77, // 80: chalk.container.v1.CreateContainerDebugTTYRequest.init_request:type_name -> chalk.container.v1.ContainerDebugTTYInitRequest
+	74, // 81: chalk.container.v1.CreateContainerDebugTTYRequest.input:type_name -> chalk.container.v1.ContainerTTYInput
+	18, // 82: chalk.container.v1.NetworkPolicy.AllowedHostsEntry.value:type_name -> chalk.container.v1.NetworkPolicyRuleList
+	27, // 83: chalk.container.v1.ContainerService.RunContainer:input_type -> chalk.container.v1.RunContainerRequest
+	29, // 84: chalk.container.v1.ContainerService.StopContainer:input_type -> chalk.container.v1.StopContainerRequest
+	31, // 85: chalk.container.v1.ContainerService.GetContainer:input_type -> chalk.container.v1.GetContainerRequest
+	33, // 86: chalk.container.v1.ContainerService.ListContainers:input_type -> chalk.container.v1.ListContainersRequest
+	35, // 87: chalk.container.v1.ContainerService.ExecCommand:input_type -> chalk.container.v1.ExecCommandRequest
+	37, // 88: chalk.container.v1.ContainerService.Session:input_type -> chalk.container.v1.SessionRequest
+	56, // 89: chalk.container.v1.ContainerService.GetSession:input_type -> chalk.container.v1.GetSessionRequest
+	58, // 90: chalk.container.v1.ContainerService.ListSessions:input_type -> chalk.container.v1.ListSessionsRequest
+	61, // 91: chalk.container.v1.ContainerService.UpdateContainerStatus:input_type -> chalk.container.v1.UpdateContainerStatusRequest
+	63, // 92: chalk.container.v1.ContainerService.BatchUpdateContainerStatus:input_type -> chalk.container.v1.BatchUpdateContainerStatusRequest
+	68, // 93: chalk.container.v1.ContainerService.SnapshotContainer:input_type -> chalk.container.v1.SnapshotContainerRequest
+	70, // 94: chalk.container.v1.ContainerService.GetContainerSnapshot:input_type -> chalk.container.v1.GetContainerSnapshotRequest
+	72, // 95: chalk.container.v1.ContainerService.ListContainerSnapshots:input_type -> chalk.container.v1.ListContainerSnapshotsRequest
+	76, // 96: chalk.container.v1.ContainerService.CreateContainerDebugTTY:input_type -> chalk.container.v1.CreateContainerDebugTTYRequest
+	28, // 97: chalk.container.v1.ContainerService.RunContainer:output_type -> chalk.container.v1.RunContainerResponse
+	30, // 98: chalk.container.v1.ContainerService.StopContainer:output_type -> chalk.container.v1.StopContainerResponse
+	32, // 99: chalk.container.v1.ContainerService.GetContainer:output_type -> chalk.container.v1.GetContainerResponse
+	34, // 100: chalk.container.v1.ContainerService.ListContainers:output_type -> chalk.container.v1.ListContainersResponse
+	36, // 101: chalk.container.v1.ContainerService.ExecCommand:output_type -> chalk.container.v1.ExecCommandResponse
+	38, // 102: chalk.container.v1.ContainerService.Session:output_type -> chalk.container.v1.SessionResponse
+	57, // 103: chalk.container.v1.ContainerService.GetSession:output_type -> chalk.container.v1.GetSessionResponse
+	59, // 104: chalk.container.v1.ContainerService.ListSessions:output_type -> chalk.container.v1.ListSessionsResponse
+	62, // 105: chalk.container.v1.ContainerService.UpdateContainerStatus:output_type -> chalk.container.v1.UpdateContainerStatusResponse
+	64, // 106: chalk.container.v1.ContainerService.BatchUpdateContainerStatus:output_type -> chalk.container.v1.BatchUpdateContainerStatusResponse
+	69, // 107: chalk.container.v1.ContainerService.SnapshotContainer:output_type -> chalk.container.v1.SnapshotContainerResponse
+	71, // 108: chalk.container.v1.ContainerService.GetContainerSnapshot:output_type -> chalk.container.v1.GetContainerSnapshotResponse
+	73, // 109: chalk.container.v1.ContainerService.ListContainerSnapshots:output_type -> chalk.container.v1.ListContainerSnapshotsResponse
+	78, // 110: chalk.container.v1.ContainerService.CreateContainerDebugTTY:output_type -> chalk.container.v1.CreateContainerDebugTTYResponse
+	97, // [97:111] is the sub-list for method output_type
+	83, // [83:97] is the sub-list for method input_type
+	83, // [83:83] is the sub-list for extension type_name
+	83, // [83:83] is the sub-list for extension extendee
+	0,  // [0:83] is the sub-list for field type_name
 }
 
 func init() { file_chalk_container_v1_service_proto_init() }
@@ -5840,7 +5955,7 @@ func file_chalk_container_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_container_v1_service_proto_rawDesc), len(file_chalk_container_v1_service_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   80,
+			NumMessages:   82,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

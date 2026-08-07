@@ -9,6 +9,7 @@ package notebookv1
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -2852,6 +2853,146 @@ func (x *NotebookDocumentRevision) GetAppDashboardId() string {
 	return ""
 }
 
+// A revocable link granting read-only access to exactly one notebook.
+//
+// The row id is public; the secret is a token shown exactly once, at creation,
+// and persisted only as a hash. `require_authentication` decides whether
+// holding the token is sufficient (false -- the token alone is the capability,
+// like a signed URL) or whether the viewer must additionally be a signed-in
+// member of the owning team (true).
+type NotebookShareLink struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	NotebookId    string                 `protobuf:"bytes,2,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	// Human-readable label chosen at creation, so links can be told apart when
+	// deciding which to revoke.
+	Name string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	// When false the link is public and serves anyone holding the token.
+	RequireAuthentication bool                   `protobuf:"varint,5,opt,name=require_authentication,json=requireAuthentication,proto3" json:"require_authentication,omitempty"`
+	CreatedAt             *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedBy             string                 `protobuf:"bytes,7,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// Absent when the link does not expire.
+	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=expires_at,json=expiresAt,proto3,oneof" json:"expires_at,omitempty"`
+	// Set once revoked; a revoked link is never accepted again.
+	RevokedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=revoked_at,json=revokedAt,proto3,oneof" json:"revoked_at,omitempty"`
+	// Most recent successful use. Absent until the link is first opened.
+	LastAccessedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_accessed_at,json=lastAccessedAt,proto3,oneof" json:"last_accessed_at,omitempty"`
+	// The shareable URL, which embeds the secret token. Populated ONLY in
+	// CreateNotebookShareLinkResponse -- list responses leave it empty, because
+	// the server keeps only a hash and cannot reconstruct it.
+	Url           string `protobuf:"bytes,11,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookShareLink) Reset() {
+	*x = NotebookShareLink{}
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookShareLink) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookShareLink) ProtoMessage() {}
+
+func (x *NotebookShareLink) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookShareLink.ProtoReflect.Descriptor instead.
+func (*NotebookShareLink) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *NotebookShareLink) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *NotebookShareLink) GetNotebookId() string {
+	if x != nil {
+		return x.NotebookId
+	}
+	return ""
+}
+
+func (x *NotebookShareLink) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *NotebookShareLink) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *NotebookShareLink) GetRequireAuthentication() bool {
+	if x != nil {
+		return x.RequireAuthentication
+	}
+	return false
+}
+
+func (x *NotebookShareLink) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *NotebookShareLink) GetCreatedBy() string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return ""
+}
+
+func (x *NotebookShareLink) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *NotebookShareLink) GetRevokedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RevokedAt
+	}
+	return nil
+}
+
+func (x *NotebookShareLink) GetLastAccessedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastAccessedAt
+	}
+	return nil
+}
+
+func (x *NotebookShareLink) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
 type NotebookSecret struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -2866,7 +3007,7 @@ type NotebookSecret struct {
 
 func (x *NotebookSecret) Reset() {
 	*x = NotebookSecret{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[23]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2878,7 +3019,7 @@ func (x *NotebookSecret) String() string {
 func (*NotebookSecret) ProtoMessage() {}
 
 func (x *NotebookSecret) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[23]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2891,7 +3032,7 @@ func (x *NotebookSecret) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookSecret.ProtoReflect.Descriptor instead.
 func (*NotebookSecret) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{23}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *NotebookSecret) GetId() string {
@@ -2947,7 +3088,7 @@ type NotebookSecretValue struct {
 
 func (x *NotebookSecretValue) Reset() {
 	*x = NotebookSecretValue{}
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[24]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2959,7 +3100,7 @@ func (x *NotebookSecretValue) String() string {
 func (*NotebookSecretValue) ProtoMessage() {}
 
 func (x *NotebookSecretValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_proto_msgTypes[24]
+	mi := &file_chalk_notebook_v1_document_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2972,7 +3113,7 @@ func (x *NotebookSecretValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookSecretValue.ProtoReflect.Descriptor instead.
 func (*NotebookSecretValue) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{24}
+	return file_chalk_notebook_v1_document_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *NotebookSecretValue) GetName() string {
@@ -3000,7 +3141,7 @@ var File_chalk_notebook_v1_document_proto protoreflect.FileDescriptor
 
 const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\n" +
-	" chalk/notebook/v1/document.proto\x12\x11chalk.notebook.v1\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"p\n" +
+	" chalk/notebook/v1/document.proto\x12\x11chalk.notebook.v1\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"p\n" +
 	"\x18NotebookSQLDatasourceRef\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -3227,7 +3368,28 @@ const file_chalk_notebook_v1_document_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\x06 \x01(\tR\tcreatedBy\x12-\n" +
 	"\x10app_dashboard_id\x18\a \x01(\tH\x00R\x0eappDashboardId\x88\x01\x01B\x13\n" +
-	"\x11_app_dashboard_id\"\x88\x02\n" +
+	"\x11_app_dashboard_id\"\xa6\x04\n" +
+	"\x11NotebookShareLink\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
+	"\vnotebook_id\x18\x02 \x01(\tR\n" +
+	"notebookId\x12%\n" +
+	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x125\n" +
+	"\x16require_authentication\x18\x05 \x01(\bR\x15requireAuthentication\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\a \x01(\tR\tcreatedBy\x12>\n" +
+	"\n" +
+	"expires_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x00R\texpiresAt\x88\x01\x01\x12>\n" +
+	"\n" +
+	"revoked_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x01R\trevokedAt\x88\x01\x01\x12I\n" +
+	"\x10last_accessed_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\x02R\x0elastAccessedAt\x88\x01\x01\x12\x16\n" +
+	"\x03url\x18\v \x01(\tB\x04ء'\x01R\x03urlB\r\n" +
+	"\v_expires_atB\r\n" +
+	"\v_revoked_atB\x13\n" +
+	"\x11_last_accessed_at\"\x88\x02\n" +
 	"\x0eNotebookSecret\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vnotebook_id\x18\x02 \x01(\tR\n" +
@@ -3335,7 +3497,7 @@ func file_chalk_notebook_v1_document_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_notebook_v1_document_proto_enumTypes = make([]protoimpl.EnumInfo, 12)
-var file_chalk_notebook_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_chalk_notebook_v1_document_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_chalk_notebook_v1_document_proto_goTypes = []any{
 	(NotebookCellExecutionStatus)(0),       // 0: chalk.notebook.v1.NotebookCellExecutionStatus
 	(NotebookRunScope)(0),                  // 1: chalk.notebook.v1.NotebookRunScope
@@ -3372,21 +3534,22 @@ var file_chalk_notebook_v1_document_proto_goTypes = []any{
 	(*NotebookCell)(nil),                   // 32: chalk.notebook.v1.NotebookCell
 	(*NotebookDocument)(nil),               // 33: chalk.notebook.v1.NotebookDocument
 	(*NotebookDocumentRevision)(nil),       // 34: chalk.notebook.v1.NotebookDocumentRevision
-	(*NotebookSecret)(nil),                 // 35: chalk.notebook.v1.NotebookSecret
-	(*NotebookSecretValue)(nil),            // 36: chalk.notebook.v1.NotebookSecretValue
-	(*durationpb.Duration)(nil),            // 37: google.protobuf.Duration
-	(*v1.GenericSingleQuery)(nil),          // 38: chalk.common.v1.GenericSingleQuery
-	(*v1.OfflineQueryRequest)(nil),         // 39: chalk.common.v1.OfflineQueryRequest
-	(*timestamppb.Timestamp)(nil),          // 40: google.protobuf.Timestamp
-	(v11.SecretSource)(0),                  // 41: chalk.server.v1.SecretSource
+	(*NotebookShareLink)(nil),              // 35: chalk.notebook.v1.NotebookShareLink
+	(*NotebookSecret)(nil),                 // 36: chalk.notebook.v1.NotebookSecret
+	(*NotebookSecretValue)(nil),            // 37: chalk.notebook.v1.NotebookSecretValue
+	(*durationpb.Duration)(nil),            // 38: google.protobuf.Duration
+	(*v1.GenericSingleQuery)(nil),          // 39: chalk.common.v1.GenericSingleQuery
+	(*v1.OfflineQueryRequest)(nil),         // 40: chalk.common.v1.OfflineQueryRequest
+	(*timestamppb.Timestamp)(nil),          // 41: google.protobuf.Timestamp
+	(v11.SecretSource)(0),                  // 42: chalk.server.v1.SecretSource
 }
 var file_chalk_notebook_v1_document_proto_depIdxs = []int32{
 	12, // 0: chalk.notebook.v1.NotebookDocumentDefaults.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
 	2,  // 1: chalk.notebook.v1.NotebookDocumentDefaults.compute_preset:type_name -> chalk.notebook.v1.NotebookComputePreset
 	13, // 2: chalk.notebook.v1.NotebookDocumentDefaults.image:type_name -> chalk.notebook.v1.NotebookImageRef
-	37, // 3: chalk.notebook.v1.NotebookDocumentDefaults.sql_max_staleness:type_name -> google.protobuf.Duration
+	38, // 3: chalk.notebook.v1.NotebookDocumentDefaults.sql_max_staleness:type_name -> google.protobuf.Duration
 	3,  // 4: chalk.notebook.v1.NotebookSQLExecutionOptions.execution_mode:type_name -> chalk.notebook.v1.NotebookSQLExecutionMode
-	37, // 5: chalk.notebook.v1.NotebookSQLExecutionOptions.max_staleness:type_name -> google.protobuf.Duration
+	38, // 5: chalk.notebook.v1.NotebookSQLExecutionOptions.max_staleness:type_name -> google.protobuf.Duration
 	15, // 6: chalk.notebook.v1.NotebookPythonCell.execution_options:type_name -> chalk.notebook.v1.NotebookPythonExecutionOptions
 	12, // 7: chalk.notebook.v1.NotebookSQLCell.sql_datasource:type_name -> chalk.notebook.v1.NotebookSQLDatasourceRef
 	16, // 8: chalk.notebook.v1.NotebookSQLCell.execution_options:type_name -> chalk.notebook.v1.NotebookSQLExecutionOptions
@@ -3401,12 +3564,12 @@ var file_chalk_notebook_v1_document_proto_depIdxs = []int32{
 	24, // 17: chalk.notebook.v1.NotebookTableCell.variable:type_name -> chalk.notebook.v1.NotebookTableVariableSource
 	25, // 18: chalk.notebook.v1.NotebookTableCell.dataset:type_name -> chalk.notebook.v1.NotebookTableDatasetSource
 	26, // 19: chalk.notebook.v1.NotebookTableCell.sql_table:type_name -> chalk.notebook.v1.NotebookTableSqlTableSource
-	38, // 20: chalk.notebook.v1.NotebookOnlineQueryCell.query:type_name -> chalk.common.v1.GenericSingleQuery
-	39, // 21: chalk.notebook.v1.NotebookOfflineQueryCell.query:type_name -> chalk.common.v1.OfflineQueryRequest
+	39, // 20: chalk.notebook.v1.NotebookOnlineQueryCell.query:type_name -> chalk.common.v1.GenericSingleQuery
+	40, // 21: chalk.notebook.v1.NotebookOfflineQueryCell.query:type_name -> chalk.common.v1.OfflineQueryRequest
 	10, // 22: chalk.notebook.v1.NotebookCellGroup.kind:type_name -> chalk.notebook.v1.NotebookCellGroupKind
 	30, // 23: chalk.notebook.v1.NotebookCell.view_state:type_name -> chalk.notebook.v1.NotebookCellViewState
-	40, // 24: chalk.notebook.v1.NotebookCell.created_at:type_name -> google.protobuf.Timestamp
-	40, // 25: chalk.notebook.v1.NotebookCell.updated_at:type_name -> google.protobuf.Timestamp
+	41, // 24: chalk.notebook.v1.NotebookCell.created_at:type_name -> google.protobuf.Timestamp
+	41, // 25: chalk.notebook.v1.NotebookCell.updated_at:type_name -> google.protobuf.Timestamp
 	17, // 26: chalk.notebook.v1.NotebookCell.python:type_name -> chalk.notebook.v1.NotebookPythonCell
 	18, // 27: chalk.notebook.v1.NotebookCell.sql:type_name -> chalk.notebook.v1.NotebookSQLCell
 	19, // 28: chalk.notebook.v1.NotebookCell.text:type_name -> chalk.notebook.v1.NotebookTextCell
@@ -3417,21 +3580,25 @@ var file_chalk_notebook_v1_document_proto_depIdxs = []int32{
 	27, // 33: chalk.notebook.v1.NotebookCell.table:type_name -> chalk.notebook.v1.NotebookTableCell
 	32, // 34: chalk.notebook.v1.NotebookDocument.cells:type_name -> chalk.notebook.v1.NotebookCell
 	14, // 35: chalk.notebook.v1.NotebookDocument.defaults:type_name -> chalk.notebook.v1.NotebookDocumentDefaults
-	40, // 36: chalk.notebook.v1.NotebookDocument.created_at:type_name -> google.protobuf.Timestamp
-	40, // 37: chalk.notebook.v1.NotebookDocument.updated_at:type_name -> google.protobuf.Timestamp
-	40, // 38: chalk.notebook.v1.NotebookDocument.archived_at:type_name -> google.protobuf.Timestamp
-	40, // 39: chalk.notebook.v1.NotebookDocument.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
+	41, // 36: chalk.notebook.v1.NotebookDocument.created_at:type_name -> google.protobuf.Timestamp
+	41, // 37: chalk.notebook.v1.NotebookDocument.updated_at:type_name -> google.protobuf.Timestamp
+	41, // 38: chalk.notebook.v1.NotebookDocument.archived_at:type_name -> google.protobuf.Timestamp
+	41, // 39: chalk.notebook.v1.NotebookDocument.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
 	31, // 40: chalk.notebook.v1.NotebookDocument.cell_groups:type_name -> chalk.notebook.v1.NotebookCellGroup
-	40, // 41: chalk.notebook.v1.NotebookDocumentRevision.created_at:type_name -> google.protobuf.Timestamp
-	41, // 42: chalk.notebook.v1.NotebookSecret.source:type_name -> chalk.server.v1.SecretSource
-	40, // 43: chalk.notebook.v1.NotebookSecret.updated_at:type_name -> google.protobuf.Timestamp
-	11, // 44: chalk.notebook.v1.NotebookSecret.origin:type_name -> chalk.notebook.v1.NotebookSecretOrigin
-	41, // 45: chalk.notebook.v1.NotebookSecretValue.source:type_name -> chalk.server.v1.SecretSource
-	46, // [46:46] is the sub-list for method output_type
-	46, // [46:46] is the sub-list for method input_type
-	46, // [46:46] is the sub-list for extension type_name
-	46, // [46:46] is the sub-list for extension extendee
-	0,  // [0:46] is the sub-list for field type_name
+	41, // 41: chalk.notebook.v1.NotebookDocumentRevision.created_at:type_name -> google.protobuf.Timestamp
+	41, // 42: chalk.notebook.v1.NotebookShareLink.created_at:type_name -> google.protobuf.Timestamp
+	41, // 43: chalk.notebook.v1.NotebookShareLink.expires_at:type_name -> google.protobuf.Timestamp
+	41, // 44: chalk.notebook.v1.NotebookShareLink.revoked_at:type_name -> google.protobuf.Timestamp
+	41, // 45: chalk.notebook.v1.NotebookShareLink.last_accessed_at:type_name -> google.protobuf.Timestamp
+	42, // 46: chalk.notebook.v1.NotebookSecret.source:type_name -> chalk.server.v1.SecretSource
+	41, // 47: chalk.notebook.v1.NotebookSecret.updated_at:type_name -> google.protobuf.Timestamp
+	11, // 48: chalk.notebook.v1.NotebookSecret.origin:type_name -> chalk.notebook.v1.NotebookSecretOrigin
+	42, // 49: chalk.notebook.v1.NotebookSecretValue.source:type_name -> chalk.server.v1.SecretSource
+	50, // [50:50] is the sub-list for method output_type
+	50, // [50:50] is the sub-list for method input_type
+	50, // [50:50] is the sub-list for extension type_name
+	50, // [50:50] is the sub-list for extension extendee
+	0,  // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_document_proto_init() }
@@ -3465,13 +3632,14 @@ func file_chalk_notebook_v1_document_proto_init() {
 	}
 	file_chalk_notebook_v1_document_proto_msgTypes[21].OneofWrappers = []any{}
 	file_chalk_notebook_v1_document_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_proto_msgTypes[23].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_notebook_v1_document_proto_rawDesc), len(file_chalk_notebook_v1_document_proto_rawDesc)),
 			NumEnums:      12,
-			NumMessages:   25,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
