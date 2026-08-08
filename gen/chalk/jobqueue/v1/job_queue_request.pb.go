@@ -718,16 +718,17 @@ func (x *AggregationBackfillJobRequest) GetPlannerOptions() *PlannerOptions {
 }
 
 type ChalkSqlRunJobRequest struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Query               string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
-	OperationId         *string                `protobuf:"bytes,2,opt,name=operation_id,json=operationId,proto3,oneof" json:"operation_id,omitempty"`
-	CorrelationId       *string                `protobuf:"bytes,3,opt,name=correlation_id,json=correlationId,proto3,oneof" json:"correlation_id,omitempty"`
-	OutputPath          *string                `protobuf:"bytes,4,opt,name=output_path,json=outputPath,proto3,oneof" json:"output_path,omitempty"`
-	WorkflowManifestUri *string                `protobuf:"bytes,5,opt,name=workflow_manifest_uri,json=workflowManifestUri,proto3,oneof" json:"workflow_manifest_uri,omitempty"`
-	PartitionScanKeys   []string               `protobuf:"bytes,6,rep,name=partition_scan_keys,json=partitionScanKeys,proto3" json:"partition_scan_keys,omitempty"`
-	NumBuckets          *int32                 `protobuf:"varint,7,opt,name=num_buckets,json=numBuckets,proto3,oneof" json:"num_buckets,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Query                 string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	OperationId           *string                `protobuf:"bytes,2,opt,name=operation_id,json=operationId,proto3,oneof" json:"operation_id,omitempty"`
+	CorrelationId         *string                `protobuf:"bytes,3,opt,name=correlation_id,json=correlationId,proto3,oneof" json:"correlation_id,omitempty"`
+	OutputPath            *string                `protobuf:"bytes,4,opt,name=output_path,json=outputPath,proto3,oneof" json:"output_path,omitempty"`
+	WorkflowManifestUri   *string                `protobuf:"bytes,5,opt,name=workflow_manifest_uri,json=workflowManifestUri,proto3,oneof" json:"workflow_manifest_uri,omitempty"`
+	PartitionScanKeys     []string               `protobuf:"bytes,6,rep,name=partition_scan_keys,json=partitionScanKeys,proto3" json:"partition_scan_keys,omitempty"`
+	NumBuckets            *int32                 `protobuf:"varint,7,opt,name=num_buckets,json=numBuckets,proto3,oneof" json:"num_buckets,omitempty"`
+	ColumnProfilesEnabled bool                   `protobuf:"varint,8,opt,name=column_profiles_enabled,json=columnProfilesEnabled,proto3" json:"column_profiles_enabled,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ChalkSqlRunJobRequest) Reset() {
@@ -807,6 +808,13 @@ func (x *ChalkSqlRunJobRequest) GetNumBuckets() int32 {
 		return *x.NumBuckets
 	}
 	return 0
+}
+
+func (x *ChalkSqlRunJobRequest) GetColumnProfilesEnabled() bool {
+	if x != nil {
+		return x.ColumnProfilesEnabled
+	}
+	return false
 }
 
 type DataframeRunJobRequest struct {
@@ -3702,8 +3710,18 @@ type PlannerOptions struct {
 	// pa_cast UDF.
 	StaticDatasetScan               *bool `protobuf:"varint,123,opt,name=static_dataset_scan,json=staticDatasetScan,proto3,oneof" json:"static_dataset_scan,omitempty"`
 	CopyHasManyInputsBasedOnJoinKey *bool `protobuf:"varint,124,opt,name=copy_has_many_inputs_based_on_join_key,json=copyHasManyInputsBasedOnJoinKey,proto3,oneof" json:"copy_has_many_inputs_based_on_join_key,omitempty"`
-	unknownFields                   protoimpl.UnknownFields
-	sizeCache                       protoimpl.SizeCache
+	// When set (and static_bulk_persistence is on), the offline-store persist stage writes
+	// per-feature observation tables via a native velox sub-DAG (WriteFeatureTablesUDF -> HiveTarget)
+	// instead of the Python ingester's per-batch, per-feature polars validation loop. Completes the
+	// static_bulk_persistence migration for the offline writer; falls back to the SQL writer when a
+	// feature's validity rule has no native emitter.
+	NativeOfflinePersist *bool `protobuf:"varint,125,opt,name=native_offline_persist,json=nativeOfflinePersist,proto3,oneof" json:"native_offline_persist,omitempty"`
+	// Query-level default max_batch_size for Index-correlated DataFrame
+	// resolvers that don't set their own. Absent/<=0 = unlimited. Does not
+	// apply to legacy (non-Index) DataFrame resolvers.
+	DfResolverDefaultMaxBatchSize *int64 `protobuf:"varint,126,opt,name=df_resolver_default_max_batch_size,json=dfResolverDefaultMaxBatchSize,proto3,oneof" json:"df_resolver_default_max_batch_size,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -4604,6 +4622,20 @@ func (x *PlannerOptions) GetCopyHasManyInputsBasedOnJoinKey() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetNativeOfflinePersist() bool {
+	if x != nil && x.NativeOfflinePersist != nil {
+		return *x.NativeOfflinePersist
+	}
+	return false
+}
+
+func (x *PlannerOptions) GetDfResolverDefaultMaxBatchSize() int64 {
+	if x != nil && x.DfResolverDefaultMaxBatchSize != nil {
+		return *x.DfResolverDefaultMaxBatchSize
+	}
+	return 0
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -4895,7 +4927,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\r_store_onlineB$\n" +
 	"\"_scheduled_aggregate_backfill_nameB\x18\n" +
 	"\x16_workflow_manifest_uriB\x12\n" +
-	"\x10_planner_options\"\x94\x03\n" +
+	"\x10_planner_options\"\xcc\x03\n" +
 	"\x15ChalkSqlRunJobRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12&\n" +
 	"\foperation_id\x18\x02 \x01(\tH\x00R\voperationId\x88\x01\x01\x12*\n" +
@@ -4905,7 +4937,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x15workflow_manifest_uri\x18\x05 \x01(\tH\x03R\x13workflowManifestUri\x88\x01\x01\x12.\n" +
 	"\x13partition_scan_keys\x18\x06 \x03(\tR\x11partitionScanKeys\x12$\n" +
 	"\vnum_buckets\x18\a \x01(\x05H\x04R\n" +
-	"numBuckets\x88\x01\x01B\x0f\n" +
+	"numBuckets\x88\x01\x01\x126\n" +
+	"\x17column_profiles_enabled\x18\b \x01(\bR\x15columnProfilesEnabledB\x0f\n" +
 	"\r_operation_idB\x11\n" +
 	"\x0f_correlation_idB\x0e\n" +
 	"\f_output_pathB\x18\n" +
@@ -5258,7 +5291,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xcbo\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x98q\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5385,7 +5418,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x1fskip_incremental_query_distinct\x18y \x01(\bHxR\x1cskipIncrementalQueryDistinct\x88\x01\x01\x12l\n" +
 	"1use_streaming_distinct_for_incremental_population\x18z \x01(\bHyR,useStreamingDistinctForIncrementalPopulation\x88\x01\x01\x123\n" +
 	"\x13static_dataset_scan\x18{ \x01(\bHzR\x11staticDatasetScan\x88\x01\x01\x12T\n" +
-	"&copy_has_many_inputs_based_on_join_key\x18| \x01(\bH{R\x1fcopyHasManyInputsBasedOnJoinKey\x88\x01\x01B\x1e\n" +
+	"&copy_has_many_inputs_based_on_join_key\x18| \x01(\bH{R\x1fcopyHasManyInputsBasedOnJoinKey\x88\x01\x01\x129\n" +
+	"\x16native_offline_persist\x18} \x01(\bH|R\x14nativeOfflinePersist\x88\x01\x01\x12N\n" +
+	"\"df_resolver_default_max_batch_size\x18~ \x01(\x03H}R\x1ddfResolverDefaultMaxBatchSize\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5509,7 +5544,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	" _skip_incremental_query_distinctB4\n" +
 	"2_use_streaming_distinct_for_incremental_populationB\x16\n" +
 	"\x14_static_dataset_scanB)\n" +
-	"'_copy_has_many_inputs_based_on_join_key\"\xd2\x06\n" +
+	"'_copy_has_many_inputs_based_on_join_keyB\x19\n" +
+	"\x17_native_offline_persistB%\n" +
+	"#_df_resolver_default_max_batch_size\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

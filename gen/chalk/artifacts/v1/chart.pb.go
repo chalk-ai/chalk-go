@@ -146,6 +146,9 @@ const (
 	// has no total, so device capacity is used + free (+ a small reserved region).
 	MetricKind_METRIC_KIND_GPU_MEMORY_USED_BYTES MetricKind = 113
 	MetricKind_METRIC_KIND_GPU_MEMORY_FREE_BYTES MetricKind = 114
+	// Counts pods whose maximum container CPU utilization in a chart bucket is at
+	// or below the fixed low-utilization threshold.
+	MetricKind_METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT MetricKind = 115
 )
 
 // Enum value maps for MetricKind.
@@ -266,6 +269,7 @@ var (
 		112: "METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED",
 		113: "METRIC_KIND_GPU_MEMORY_USED_BYTES",
 		114: "METRIC_KIND_GPU_MEMORY_FREE_BYTES",
+		115: "METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -383,6 +387,7 @@ var (
 		"METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED":        112,
 		"METRIC_KIND_GPU_MEMORY_USED_BYTES":                   113,
 		"METRIC_KIND_GPU_MEMORY_FREE_BYTES":                   114,
+		"METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT":           115,
 	}
 )
 
@@ -2119,7 +2124,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xd7%\n" +
+	"_entity_id*\x86&\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2237,7 +2242,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED\x10o\x120\n" +
 	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED\x10p\x12%\n" +
 	"!METRIC_KIND_GPU_MEMORY_USED_BYTES\x10q\x12%\n" +
-	"!METRIC_KIND_GPU_MEMORY_FREE_BYTES\x10r*\xd6\b\n" +
+	"!METRIC_KIND_GPU_MEMORY_FREE_BYTES\x10r\x12-\n" +
+	")METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT\x10s*\xd6\b\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +

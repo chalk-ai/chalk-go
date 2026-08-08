@@ -1112,6 +1112,7 @@ type OfflineQueryRequest struct {
 	UseMultipleComputers *bool  `protobuf:"varint,206,opt,name=use_multiple_computers,json=useMultipleComputers,proto3,oneof" json:"use_multiple_computers,omitempty"`
 	NumShards            *int32 `protobuf:"varint,207,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
 	NumWorkers           *int32 `protobuf:"varint,208,opt,name=num_workers,json=numWorkers,proto3,oneof" json:"num_workers,omitempty"`
+	UseJobQueue          *bool  `protobuf:"varint,220,opt,name=use_job_queue,json=useJobQueue,proto3,oneof" json:"use_job_queue,omitempty"`
 	// Additional customer-defined context passed in to resolvers (see https://docs.chalk.ai/api-docs#ChalkContext)
 	QueryContext map[string]*structpb.Value `protobuf:"bytes,209,rep,name=query_context,json=queryContext,proto3" json:"query_context,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Additional features and resolvers to be used to plan this specific query
@@ -1352,6 +1353,13 @@ func (x *OfflineQueryRequest) GetNumWorkers() int32 {
 		return *x.NumWorkers
 	}
 	return 0
+}
+
+func (x *OfflineQueryRequest) GetUseJobQueue() bool {
+	if x != nil && x.UseJobQueue != nil {
+		return *x.UseJobQueue
+	}
+	return false
 }
 
 func (x *OfflineQueryRequest) GetQueryContext() map[string]*structpb.Value {
@@ -1947,7 +1955,7 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\a_memoryB\x18\n" +
 	"\x16_ephemeral_volume_sizeB\x14\n" +
 	"\x12_ephemeral_storageB\x11\n" +
-	"\x0f_resource_group\"\x85\x15\n" +
+	"\x0f_resource_group\"\xc1\x15\n" +
 	"\x13OfflineQueryRequest\x12;\n" +
 	"\x06inputs\x18\x01 \x01(\v2#.chalk.common.v1.OfflineQueryInputsR\x06inputs\x12\x18\n" +
 	"\aoutputs\x18\x02 \x03(\tR\aoutputs\x12)\n" +
@@ -1980,16 +1988,17 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\n" +
 	"num_shards\x18\xcf\x01 \x01(\x05H\rR\tnumShards\x88\x01\x01\x12%\n" +
 	"\vnum_workers\x18\xd0\x01 \x01(\x05H\x0eR\n" +
-	"numWorkers\x88\x01\x01\x12\\\n" +
+	"numWorkers\x88\x01\x01\x12(\n" +
+	"\ruse_job_queue\x18\xdc\x01 \x01(\bH\x0fR\vuseJobQueue\x88\x01\x01\x12\\\n" +
 	"\rquery_context\x18\xd1\x01 \x03(\v26.chalk.common.v1.OfflineQueryRequest.QueryContextEntryR\fqueryContext\x12G\n" +
-	"\roverlay_graph\x18\xd2\x01 \x01(\v2\x1c.chalk.graph.v1.OverlayGraphH\x0fR\foverlayGraph\x88\x01\x01\x12#\n" +
+	"\roverlay_graph\x18\xd2\x01 \x01(\v2\x1c.chalk.graph.v1.OverlayGraphH\x10R\foverlayGraph\x88\x01\x01\x12#\n" +
 	"\n" +
-	"query_name\x18\xd3\x01 \x01(\tH\x10R\tqueryName\x88\x01\x01\x122\n" +
-	"\x12query_name_version\x18\xd4\x01 \x01(\tH\x11R\x10queryNameVersion\x88\x01\x01\x12E\n" +
-	"\tresources\x18\xd6\x01 \x01(\v2!.chalk.common.v1.ResourceRequestsH\x12R\tresources\x88\x01\x01\x12O\n" +
+	"query_name\x18\xd3\x01 \x01(\tH\x11R\tqueryName\x88\x01\x01\x122\n" +
+	"\x12query_name_version\x18\xd4\x01 \x01(\tH\x12R\x10queryNameVersion\x88\x01\x01\x12E\n" +
+	"\tresources\x18\xd6\x01 \x01(\v2!.chalk.common.v1.ResourceRequestsH\x13R\tresources\x88\x01\x01\x12O\n" +
 	"\x10unload_resolvers\x18\xd7\x01 \x03(\v2#.chalk.common.v1.UnloadResolverSpecR\x0funloadResolvers\x12-\n" +
-	"\x0fuse_metaplanner\x18\xd8\x01 \x01(\bH\x13R\x0euseMetaplanner\x88\x01\x01\x12E\n" +
-	"\bwrite_to\x18\xdb\x01 \x01(\v2$.chalk.common.v1.OfflineQueryWriteToH\x14R\awriteTo\x88\x01\x01\x1aY\n" +
+	"\x0fuse_metaplanner\x18\xd8\x01 \x01(\bH\x14R\x0euseMetaplanner\x88\x01\x01\x12E\n" +
+	"\bwrite_to\x18\xdb\x01 \x01(\v2$.chalk.common.v1.OfflineQueryWriteToH\x15R\awriteTo\x88\x01\x01\x1aY\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a?\n" +
@@ -2014,6 +2023,7 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\x17_use_multiple_computersB\r\n" +
 	"\v_num_shardsB\x0e\n" +
 	"\f_num_workersB\x10\n" +
+	"\x0e_use_job_queueB\x10\n" +
 	"\x0e_overlay_graphB\r\n" +
 	"\v_query_nameB\x15\n" +
 	"\x13_query_name_versionB\f\n" +

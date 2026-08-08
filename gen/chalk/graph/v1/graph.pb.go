@@ -3610,6 +3610,10 @@ type Resolver struct {
 	RuntimeContract *string `protobuf:"bytes,34,opt,name=runtime_contract,json=runtimeContract,proto3,oneof" json:"runtime_contract,omitempty"`
 	// Per-resolver override for duplicate-row handling.
 	HandleDuplicateOutputs *string `protobuf:"bytes,35,opt,name=handle_duplicate_outputs,json=handleDuplicateOutputs,proto3,oneof" json:"handle_duplicate_outputs,omitempty"`
+	// Max rows per invocation for Index-correlated DataFrame resolvers; the
+	// engine slices the input and invokes the resolver once per chunk.
+	// Absent/0 = unlimited (single invocation over all rows).
+	MaxBatchSize *int64 `protobuf:"varint,36,opt,name=max_batch_size,json=maxBatchSize,proto3,oneof" json:"max_batch_size,omitempty"`
 	// Applied to the results of running a resolver. Currently only enabled for
 	// SQL resolvers.
 	//
@@ -3882,6 +3886,13 @@ func (x *Resolver) GetHandleDuplicateOutputs() string {
 		return *x.HandleDuplicateOutputs
 	}
 	return ""
+}
+
+func (x *Resolver) GetMaxBatchSize() int64 {
+	if x != nil && x.MaxBatchSize != nil {
+		return *x.MaxBatchSize
+	}
+	return 0
 }
 
 func (x *Resolver) GetPostprocessing() isResolver_Postprocessing {
@@ -7942,7 +7953,7 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\n" +
 	"_characterB\v\n" +
 	"\t_end_lineB\x10\n" +
-	"\x0e_end_character\"\x82\x11\n" +
+	"\x0e_end_character\"\xc0\x11\n" +
 	"\bResolver\x12\x10\n" +
 	"\x03fqn\x18\x01 \x01(\tR\x03fqn\x120\n" +
 	"\x04kind\x18\x02 \x01(\x0e2\x1c.chalk.graph.v1.ResolverKindR\x04kind\x125\n" +
@@ -7979,7 +7990,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x14incremental_settings\x18  \x01(\v2#.chalk.graph.v1.IncrementalSettingsH\n" +
 	"R\x13incrementalSettings\x88\x01\x01\x12.\n" +
 	"\x10runtime_contract\x18\" \x01(\tH\vR\x0fruntimeContract\x88\x01\x01\x12=\n" +
-	"\x18handle_duplicate_outputs\x18# \x01(\tH\fR\x16handleDuplicateOutputs\x88\x01\x01\x12O\n" +
+	"\x18handle_duplicate_outputs\x18# \x01(\tH\fR\x16handleDuplicateOutputs\x88\x01\x01\x12)\n" +
+	"\x0emax_batch_size\x18$ \x01(\x03H\rR\fmaxBatchSize\x88\x01\x01\x12O\n" +
 	"\x0funderscore_expr\x18\x1c \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\x0eunderscoreExpr\x12M\n" +
 	"\x0elazyframe_expr\x18\x1d \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\rlazyframeExprB\x10\n" +
 	"\x0epostprocessingB\x0f\n" +
@@ -7994,7 +8006,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x05_venvB\x17\n" +
 	"\x15_incremental_settingsB\x13\n" +
 	"\x11_runtime_contractB\x1b\n" +
-	"\x19_handle_duplicate_outputs\"\xc1\a\n" +
+	"\x19_handle_duplicate_outputsB\x11\n" +
+	"\x0f_max_batch_size\"\xc1\a\n" +
 	"\fSinkResolver\x12\x10\n" +
 	"\x03fqn\x18\x01 \x01(\tR\x03fqn\x125\n" +
 	"\x06inputs\x18\x02 \x03(\v2\x1d.chalk.graph.v1.ResolverInputR\x06inputs\x12$\n" +
