@@ -27,6 +27,7 @@ const (
 	ExchangeTokenKind_EXCHANGE_TOKEN_KIND_UNSPECIFIED      ExchangeTokenKind = 0
 	ExchangeTokenKind_EXCHANGE_TOKEN_KIND_INTERNAL_SERVICE ExchangeTokenKind = 1
 	ExchangeTokenKind_EXCHANGE_TOKEN_KIND_USER             ExchangeTokenKind = 2
+	ExchangeTokenKind_EXCHANGE_TOKEN_KIND_SERVICE_TOKEN    ExchangeTokenKind = 3
 )
 
 // Enum value maps for ExchangeTokenKind.
@@ -35,11 +36,13 @@ var (
 		0: "EXCHANGE_TOKEN_KIND_UNSPECIFIED",
 		1: "EXCHANGE_TOKEN_KIND_INTERNAL_SERVICE",
 		2: "EXCHANGE_TOKEN_KIND_USER",
+		3: "EXCHANGE_TOKEN_KIND_SERVICE_TOKEN",
 	}
 	ExchangeTokenKind_value = map[string]int32{
 		"EXCHANGE_TOKEN_KIND_UNSPECIFIED":      0,
 		"EXCHANGE_TOKEN_KIND_INTERNAL_SERVICE": 1,
 		"EXCHANGE_TOKEN_KIND_USER":             2,
+		"EXCHANGE_TOKEN_KIND_SERVICE_TOKEN":    3,
 	}
 )
 
@@ -1278,11 +1281,12 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\x16metadata_service_agent\x18\x05 \x01(\v2#.chalk.auth.v1.MetadataServiceAgentH\x00R\x14metadataServiceAgent\x12b\n" +
 	"\x19self_hosted_license_agent\x18\x06 \x01(\v2%.chalk.auth.v1.SelfHostedLicenseAgentH\x00R\x16selfHostedLicenseAgent\x12U\n" +
 	"\x14resource_share_agent\x18\a \x01(\v2!.chalk.auth.v1.ResourceShareAgentH\x00R\x12resourceShareAgentB\a\n" +
-	"\x05agent*\x80\x01\n" +
+	"\x05agent*\xa7\x01\n" +
 	"\x11ExchangeTokenKind\x12#\n" +
 	"\x1fEXCHANGE_TOKEN_KIND_UNSPECIFIED\x10\x00\x12(\n" +
 	"$EXCHANGE_TOKEN_KIND_INTERNAL_SERVICE\x10\x01\x12\x1c\n" +
-	"\x18EXCHANGE_TOKEN_KIND_USER\x10\x02*\xec\x01\n" +
+	"\x18EXCHANGE_TOKEN_KIND_USER\x10\x02\x12%\n" +
+	"!EXCHANGE_TOKEN_KIND_SERVICE_TOKEN\x10\x03*\xec\x01\n" +
 	"\tAgentKind\x12\x1a\n" +
 	"\x16AGENT_KIND_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fAGENT_KIND_USER\x10\x01\x12\x1c\n" +

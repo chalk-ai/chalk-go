@@ -2304,11 +2304,10 @@ type ListContainersRequest struct {
 	// governs stopped inclusion. Retained for old clients; honored only when
 	// `statuses` is empty.
 	IncludeStopped *bool `protobuf:"varint,3,opt,name=include_stopped,json=includeStopped,proto3,oneof" json:"include_stopped,omitempty"`
-	// Server-side filters (empty = no filter). `statuses` matches the effective
-	// status shown in the UI: "Stopped" for stopped containers, otherwise the
-	// raw K8s phase (Pending/Running/Succeeded/Failed/Unknown). `images` matches
-	// the container spec image exactly. `search` is a case-insensitive substring
-	// match on name or id.
+	// Server-side filters (empty = no filter). `statuses` matches the stored
+	// execution status, including stopped containers (Pending/Running/Succeeded/
+	// Failed/Unknown/Error). `images` matches the container spec image exactly.
+	// `search` is a case-insensitive substring match on name or id.
 	Statuses []string `protobuf:"bytes,4,rep,name=statuses,proto3" json:"statuses,omitempty"`
 	Images   []string `protobuf:"bytes,5,rep,name=images,proto3" json:"images,omitempty"`
 	Search   *string  `protobuf:"bytes,6,opt,name=search,proto3,oneof" json:"search,omitempty"`

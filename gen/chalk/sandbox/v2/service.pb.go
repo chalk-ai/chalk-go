@@ -34,7 +34,7 @@ const (
 	SandboxStatus_SANDBOX_STATUS_RUNNING     SandboxStatus = 2
 	SandboxStatus_SANDBOX_STATUS_SUCCEEDED   SandboxStatus = 3
 	SandboxStatus_SANDBOX_STATUS_FAILED      SandboxStatus = 4
-	SandboxStatus_SANDBOX_STATUS_TERMINATED  SandboxStatus = 5
+	SandboxStatus_SANDBOX_STATUS_TERMINATED  SandboxStatus = 5 // Deprecated
 	SandboxStatus_SANDBOX_STATUS_ERROR       SandboxStatus = 6
 	SandboxStatus_SANDBOX_STATUS_UNKNOWN     SandboxStatus = 7
 )
@@ -500,10 +500,11 @@ func (x *GetSandboxResponse) GetSandbox() *SandboxInfo {
 }
 
 type ListSandboxesFilters struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Names         []string               `protobuf:"bytes,1,rep,name=names,proto3" json:"names,omitempty"`
-	Statuses      []SandboxStatus        `protobuf:"varint,2,rep,packed,name=statuses,proto3,enum=chalk.sandbox.v2.SandboxStatus" json:"statuses,omitempty"`
-	Images        []string               `protobuf:"bytes,3,rep,name=images,proto3" json:"images,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/sandbox/v2/service.proto.
+	Names         []string        `protobuf:"bytes,1,rep,name=names,proto3" json:"names,omitempty"`
+	Statuses      []SandboxStatus `protobuf:"varint,2,rep,packed,name=statuses,proto3,enum=chalk.sandbox.v2.SandboxStatus" json:"statuses,omitempty"`
+	Images        []string        `protobuf:"bytes,3,rep,name=images,proto3" json:"images,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -538,6 +539,7 @@ func (*ListSandboxesFilters) Descriptor() ([]byte, []int) {
 	return file_chalk_sandbox_v2_service_proto_rawDescGZIP(), []int{5}
 }
 
+// Deprecated: Marked as deprecated in chalk/sandbox/v2/service.proto.
 func (x *ListSandboxesFilters) GetNames() []string {
 	if x != nil {
 		return x.Names
@@ -975,9 +977,9 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"\x11GetSandboxRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"M\n" +
 	"\x12GetSandboxResponse\x127\n" +
-	"\asandbox\x18\x01 \x01(\v2\x1d.chalk.sandbox.v2.SandboxInfoR\asandbox\"\x81\x01\n" +
-	"\x14ListSandboxesFilters\x12\x14\n" +
-	"\x05names\x18\x01 \x03(\tR\x05names\x12;\n" +
+	"\asandbox\x18\x01 \x01(\v2\x1d.chalk.sandbox.v2.SandboxInfoR\asandbox\"\x85\x01\n" +
+	"\x14ListSandboxesFilters\x12\x18\n" +
+	"\x05names\x18\x01 \x03(\tB\x02\x18\x01R\x05names\x12;\n" +
 	"\bstatuses\x18\x02 \x03(\x0e2\x1f.chalk.sandbox.v2.SandboxStatusR\bstatuses\x12\x16\n" +
 	"\x06images\x18\x03 \x03(\tR\x06images\"\xc6\x02\n" +
 	"\x14ListSandboxesRequest\x12\x19\n" +
