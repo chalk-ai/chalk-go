@@ -77,6 +77,107 @@ func (DashboardAnnotation) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{0}
 }
 
+type DashboardSortColumn int32
+
+const (
+	DashboardSortColumn_DASHBOARD_SORT_COLUMN_UNSPECIFIED DashboardSortColumn = 0
+	DashboardSortColumn_DASHBOARD_SORT_COLUMN_NAME        DashboardSortColumn = 1
+	DashboardSortColumn_DASHBOARD_SORT_COLUMN_CREATED_AT  DashboardSortColumn = 2
+	DashboardSortColumn_DASHBOARD_SORT_COLUMN_UPDATED_AT  DashboardSortColumn = 3
+)
+
+// Enum value maps for DashboardSortColumn.
+var (
+	DashboardSortColumn_name = map[int32]string{
+		0: "DASHBOARD_SORT_COLUMN_UNSPECIFIED",
+		1: "DASHBOARD_SORT_COLUMN_NAME",
+		2: "DASHBOARD_SORT_COLUMN_CREATED_AT",
+		3: "DASHBOARD_SORT_COLUMN_UPDATED_AT",
+	}
+	DashboardSortColumn_value = map[string]int32{
+		"DASHBOARD_SORT_COLUMN_UNSPECIFIED": 0,
+		"DASHBOARD_SORT_COLUMN_NAME":        1,
+		"DASHBOARD_SORT_COLUMN_CREATED_AT":  2,
+		"DASHBOARD_SORT_COLUMN_UPDATED_AT":  3,
+	}
+)
+
+func (x DashboardSortColumn) Enum() *DashboardSortColumn {
+	p := new(DashboardSortColumn)
+	*p = x
+	return p
+}
+
+func (x DashboardSortColumn) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DashboardSortColumn) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_dashboard_service_proto_enumTypes[1].Descriptor()
+}
+
+func (DashboardSortColumn) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_dashboard_service_proto_enumTypes[1]
+}
+
+func (x DashboardSortColumn) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DashboardSortColumn.Descriptor instead.
+func (DashboardSortColumn) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{1}
+}
+
+type DashboardSortOrder int32
+
+const (
+	DashboardSortOrder_DASHBOARD_SORT_ORDER_UNSPECIFIED DashboardSortOrder = 0
+	DashboardSortOrder_DASHBOARD_SORT_ORDER_DESC        DashboardSortOrder = 1
+	DashboardSortOrder_DASHBOARD_SORT_ORDER_ASC         DashboardSortOrder = 2
+)
+
+// Enum value maps for DashboardSortOrder.
+var (
+	DashboardSortOrder_name = map[int32]string{
+		0: "DASHBOARD_SORT_ORDER_UNSPECIFIED",
+		1: "DASHBOARD_SORT_ORDER_DESC",
+		2: "DASHBOARD_SORT_ORDER_ASC",
+	}
+	DashboardSortOrder_value = map[string]int32{
+		"DASHBOARD_SORT_ORDER_UNSPECIFIED": 0,
+		"DASHBOARD_SORT_ORDER_DESC":        1,
+		"DASHBOARD_SORT_ORDER_ASC":         2,
+	}
+)
+
+func (x DashboardSortOrder) Enum() *DashboardSortOrder {
+	p := new(DashboardSortOrder)
+	*p = x
+	return p
+}
+
+func (x DashboardSortOrder) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DashboardSortOrder) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_dashboard_service_proto_enumTypes[2].Descriptor()
+}
+
+func (DashboardSortOrder) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_dashboard_service_proto_enumTypes[2]
+}
+
+func (x DashboardSortOrder) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DashboardSortOrder.Descriptor instead.
+func (DashboardSortOrder) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{2}
+}
+
 // Dashboard-wide view controls. Server-owned and UI-set, kept separate from the dashboard artifact:
 // `chalk apply` reconciles the artifact (name + widgets) and must never touch these, so they
 // cannot live inside the artifact. The saved defaults only; the active viewing state is carried in
@@ -346,10 +447,16 @@ func (x *GetDashboardResponse) GetControls() *DashboardControls {
 }
 
 type ListDashboardsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	ReadMask      *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=read_mask,json=readMask,proto3,oneof" json:"read_mask,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Limit    *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor   *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	ReadMask *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=read_mask,json=readMask,proto3,oneof" json:"read_mask,omitempty"`
+	// Case-insensitive substring match on dashboard name, applied before pagination.
+	Search *string `protobuf:"bytes,4,opt,name=search,proto3,oneof" json:"search,omitempty"`
+	// Positive owner filter. An empty list matches all owners.
+	CreatedBy     []string             `protobuf:"bytes,5,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	SortColumn    *DashboardSortColumn `protobuf:"varint,6,opt,name=sort_column,json=sortColumn,proto3,enum=chalk.server.v1.DashboardSortColumn,oneof" json:"sort_column,omitempty"`
+	SortOrder     *DashboardSortOrder  `protobuf:"varint,7,opt,name=sort_order,json=sortOrder,proto3,enum=chalk.server.v1.DashboardSortOrder,oneof" json:"sort_order,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -403,6 +510,34 @@ func (x *ListDashboardsRequest) GetReadMask() *fieldmaskpb.FieldMask {
 		return x.ReadMask
 	}
 	return nil
+}
+
+func (x *ListDashboardsRequest) GetSearch() string {
+	if x != nil && x.Search != nil {
+		return *x.Search
+	}
+	return ""
+}
+
+func (x *ListDashboardsRequest) GetCreatedBy() []string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return nil
+}
+
+func (x *ListDashboardsRequest) GetSortColumn() DashboardSortColumn {
+	if x != nil && x.SortColumn != nil {
+		return *x.SortColumn
+	}
+	return DashboardSortColumn_DASHBOARD_SORT_COLUMN_UNSPECIFIED
+}
+
+func (x *ListDashboardsRequest) GetSortOrder() DashboardSortOrder {
+	if x != nil && x.SortOrder != nil {
+		return *x.SortOrder
+	}
+	return DashboardSortOrder_DASHBOARD_SORT_ORDER_UNSPECIFIED
 }
 
 type ListDashboardsResponse struct {
@@ -460,7 +595,8 @@ func (x *ListDashboardsResponse) GetNextCursor() string {
 type UpdateDashboardRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// `dashboard.id` identifies the target. `update_mask` governs the artifact only and its paths are
-	// rooted at `dashboard` — `name` and/or `widgets` (`widgets` is a full replacement). `controls`
+	// rooted at `dashboard` — `name`, `description`, and/or `widgets` (`widgets` is a full
+	// replacement; `description` is cleared by masking it while leaving it unset). `controls`
 	// is replace-if-present: set it to overwrite the saved controls, omit it to leave them unchanged
 	Dashboard     *v1.Dashboard          `protobuf:"bytes,1,opt,name=dashboard,proto3" json:"dashboard,omitempty"`
 	Controls      *DashboardControls     `protobuf:"bytes,2,opt,name=controls,proto3,oneof" json:"controls,omitempty"`
@@ -872,15 +1008,25 @@ const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
 	"_read_mask\"\x93\x01\n" +
 	"\x14GetDashboardResponse\x12;\n" +
 	"\tdashboard\x18\x01 \x01(\v2\x1d.chalk.artifacts.v1.DashboardR\tdashboard\x12>\n" +
-	"\bcontrols\x18\x02 \x01(\v2\".chalk.server.v1.DashboardControlsR\bcontrols\"\xb0\x01\n" +
+	"\bcontrols\x18\x02 \x01(\v2\".chalk.server.v1.DashboardControlsR\bcontrols\"\xb1\x03\n" +
 	"\x15ListDashboardsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12<\n" +
-	"\tread_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskH\x02R\breadMask\x88\x01\x01B\b\n" +
+	"\tread_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskH\x02R\breadMask\x88\x01\x01\x12\x1b\n" +
+	"\x06search\x18\x04 \x01(\tH\x03R\x06search\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\x05 \x03(\tR\tcreatedBy\x12J\n" +
+	"\vsort_column\x18\x06 \x01(\x0e2$.chalk.server.v1.DashboardSortColumnH\x04R\n" +
+	"sortColumn\x88\x01\x01\x12G\n" +
+	"\n" +
+	"sort_order\x18\a \x01(\x0e2#.chalk.server.v1.DashboardSortOrderH\x05R\tsortOrder\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
 	"\a_cursorB\f\n" +
 	"\n" +
-	"_read_mask\"\x8d\x01\n" +
+	"_read_maskB\t\n" +
+	"\a_searchB\x0e\n" +
+	"\f_sort_columnB\r\n" +
+	"\v_sort_orderJ\x04\b\b\x10\t\"\x8d\x01\n" +
 	"\x16ListDashboardsResponse\x12=\n" +
 	"\n" +
 	"dashboards\x18\x01 \x03(\v2\x1d.chalk.artifacts.v1.DashboardR\n" +
@@ -917,7 +1063,16 @@ const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
 	" DASHBOARD_ANNOTATION_UNSPECIFIED\x10\x00\x12)\n" +
 	"%DASHBOARD_ANNOTATION_INCIDENT_MARKERS\x10\x01\x12(\n" +
 	"$DASHBOARD_ANNOTATION_INCIDENT_RANGES\x10\x02\x12+\n" +
-	"'DASHBOARD_ANNOTATION_DEPLOYMENT_MARKERS\x10\x032\xf3\x05\n" +
+	"'DASHBOARD_ANNOTATION_DEPLOYMENT_MARKERS\x10\x03*\xa8\x01\n" +
+	"\x13DashboardSortColumn\x12%\n" +
+	"!DASHBOARD_SORT_COLUMN_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aDASHBOARD_SORT_COLUMN_NAME\x10\x01\x12$\n" +
+	" DASHBOARD_SORT_COLUMN_CREATED_AT\x10\x02\x12$\n" +
+	" DASHBOARD_SORT_COLUMN_UPDATED_AT\x10\x03*w\n" +
+	"\x12DashboardSortOrder\x12$\n" +
+	" DASHBOARD_SORT_ORDER_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19DASHBOARD_SORT_ORDER_DESC\x10\x01\x12\x1c\n" +
+	"\x18DASHBOARD_SORT_ORDER_ASC\x10\x022\xf3\x05\n" +
 	"\x10DashboardService\x12i\n" +
 	"\x0fCreateDashboard\x12'.chalk.server.v1.CreateDashboardRequest\x1a(.chalk.server.v1.CreateDashboardResponse\"\x03\x80}\x05\x12`\n" +
 	"\fGetDashboard\x12$.chalk.server.v1.GetDashboardRequest\x1a%.chalk.server.v1.GetDashboardResponse\"\x03\x80}\x06\x12f\n" +
@@ -940,64 +1095,68 @@ func file_chalk_server_v1_dashboard_service_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_dashboard_service_proto_rawDescData
 }
 
-var file_chalk_server_v1_dashboard_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_dashboard_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_chalk_server_v1_dashboard_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_server_v1_dashboard_service_proto_goTypes = []any{
 	(DashboardAnnotation)(0),        // 0: chalk.server.v1.DashboardAnnotation
-	(*DashboardControls)(nil),       // 1: chalk.server.v1.DashboardControls
-	(*CreateDashboardRequest)(nil),  // 2: chalk.server.v1.CreateDashboardRequest
-	(*CreateDashboardResponse)(nil), // 3: chalk.server.v1.CreateDashboardResponse
-	(*GetDashboardRequest)(nil),     // 4: chalk.server.v1.GetDashboardRequest
-	(*GetDashboardResponse)(nil),    // 5: chalk.server.v1.GetDashboardResponse
-	(*ListDashboardsRequest)(nil),   // 6: chalk.server.v1.ListDashboardsRequest
-	(*ListDashboardsResponse)(nil),  // 7: chalk.server.v1.ListDashboardsResponse
-	(*UpdateDashboardRequest)(nil),  // 8: chalk.server.v1.UpdateDashboardRequest
-	(*UpdateDashboardResponse)(nil), // 9: chalk.server.v1.UpdateDashboardResponse
-	(*DeleteDashboardRequest)(nil),  // 10: chalk.server.v1.DeleteDashboardRequest
-	(*DeleteDashboardResponse)(nil), // 11: chalk.server.v1.DeleteDashboardResponse
-	(*ExportDashboardRequest)(nil),  // 12: chalk.server.v1.ExportDashboardRequest
-	(*ExportDashboardResponse)(nil), // 13: chalk.server.v1.ExportDashboardResponse
-	(*ImportDashboardRequest)(nil),  // 14: chalk.server.v1.ImportDashboardRequest
-	(*ImportDashboardResponse)(nil), // 15: chalk.server.v1.ImportDashboardResponse
-	(*v1.Dashboard)(nil),            // 16: chalk.artifacts.v1.Dashboard
-	(*fieldmaskpb.FieldMask)(nil),   // 17: google.protobuf.FieldMask
+	(DashboardSortColumn)(0),        // 1: chalk.server.v1.DashboardSortColumn
+	(DashboardSortOrder)(0),         // 2: chalk.server.v1.DashboardSortOrder
+	(*DashboardControls)(nil),       // 3: chalk.server.v1.DashboardControls
+	(*CreateDashboardRequest)(nil),  // 4: chalk.server.v1.CreateDashboardRequest
+	(*CreateDashboardResponse)(nil), // 5: chalk.server.v1.CreateDashboardResponse
+	(*GetDashboardRequest)(nil),     // 6: chalk.server.v1.GetDashboardRequest
+	(*GetDashboardResponse)(nil),    // 7: chalk.server.v1.GetDashboardResponse
+	(*ListDashboardsRequest)(nil),   // 8: chalk.server.v1.ListDashboardsRequest
+	(*ListDashboardsResponse)(nil),  // 9: chalk.server.v1.ListDashboardsResponse
+	(*UpdateDashboardRequest)(nil),  // 10: chalk.server.v1.UpdateDashboardRequest
+	(*UpdateDashboardResponse)(nil), // 11: chalk.server.v1.UpdateDashboardResponse
+	(*DeleteDashboardRequest)(nil),  // 12: chalk.server.v1.DeleteDashboardRequest
+	(*DeleteDashboardResponse)(nil), // 13: chalk.server.v1.DeleteDashboardResponse
+	(*ExportDashboardRequest)(nil),  // 14: chalk.server.v1.ExportDashboardRequest
+	(*ExportDashboardResponse)(nil), // 15: chalk.server.v1.ExportDashboardResponse
+	(*ImportDashboardRequest)(nil),  // 16: chalk.server.v1.ImportDashboardRequest
+	(*ImportDashboardResponse)(nil), // 17: chalk.server.v1.ImportDashboardResponse
+	(*v1.Dashboard)(nil),            // 18: chalk.artifacts.v1.Dashboard
+	(*fieldmaskpb.FieldMask)(nil),   // 19: google.protobuf.FieldMask
 }
 var file_chalk_server_v1_dashboard_service_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.DashboardControls.annotations:type_name -> chalk.server.v1.DashboardAnnotation
-	16, // 1: chalk.server.v1.CreateDashboardRequest.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	1,  // 2: chalk.server.v1.CreateDashboardRequest.controls:type_name -> chalk.server.v1.DashboardControls
-	16, // 3: chalk.server.v1.CreateDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	1,  // 4: chalk.server.v1.CreateDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
-	17, // 5: chalk.server.v1.GetDashboardRequest.read_mask:type_name -> google.protobuf.FieldMask
-	16, // 6: chalk.server.v1.GetDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	1,  // 7: chalk.server.v1.GetDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
-	17, // 8: chalk.server.v1.ListDashboardsRequest.read_mask:type_name -> google.protobuf.FieldMask
-	16, // 9: chalk.server.v1.ListDashboardsResponse.dashboards:type_name -> chalk.artifacts.v1.Dashboard
-	16, // 10: chalk.server.v1.UpdateDashboardRequest.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	1,  // 11: chalk.server.v1.UpdateDashboardRequest.controls:type_name -> chalk.server.v1.DashboardControls
-	17, // 12: chalk.server.v1.UpdateDashboardRequest.update_mask:type_name -> google.protobuf.FieldMask
-	16, // 13: chalk.server.v1.UpdateDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	1,  // 14: chalk.server.v1.UpdateDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
-	16, // 15: chalk.server.v1.ImportDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	2,  // 16: chalk.server.v1.DashboardService.CreateDashboard:input_type -> chalk.server.v1.CreateDashboardRequest
-	4,  // 17: chalk.server.v1.DashboardService.GetDashboard:input_type -> chalk.server.v1.GetDashboardRequest
-	6,  // 18: chalk.server.v1.DashboardService.ListDashboards:input_type -> chalk.server.v1.ListDashboardsRequest
-	8,  // 19: chalk.server.v1.DashboardService.UpdateDashboard:input_type -> chalk.server.v1.UpdateDashboardRequest
-	10, // 20: chalk.server.v1.DashboardService.DeleteDashboard:input_type -> chalk.server.v1.DeleteDashboardRequest
-	12, // 21: chalk.server.v1.DashboardService.ExportDashboard:input_type -> chalk.server.v1.ExportDashboardRequest
-	14, // 22: chalk.server.v1.DashboardService.ImportDashboard:input_type -> chalk.server.v1.ImportDashboardRequest
-	3,  // 23: chalk.server.v1.DashboardService.CreateDashboard:output_type -> chalk.server.v1.CreateDashboardResponse
-	5,  // 24: chalk.server.v1.DashboardService.GetDashboard:output_type -> chalk.server.v1.GetDashboardResponse
-	7,  // 25: chalk.server.v1.DashboardService.ListDashboards:output_type -> chalk.server.v1.ListDashboardsResponse
-	9,  // 26: chalk.server.v1.DashboardService.UpdateDashboard:output_type -> chalk.server.v1.UpdateDashboardResponse
-	11, // 27: chalk.server.v1.DashboardService.DeleteDashboard:output_type -> chalk.server.v1.DeleteDashboardResponse
-	13, // 28: chalk.server.v1.DashboardService.ExportDashboard:output_type -> chalk.server.v1.ExportDashboardResponse
-	15, // 29: chalk.server.v1.DashboardService.ImportDashboard:output_type -> chalk.server.v1.ImportDashboardResponse
-	23, // [23:30] is the sub-list for method output_type
-	16, // [16:23] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	18, // 1: chalk.server.v1.CreateDashboardRequest.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	3,  // 2: chalk.server.v1.CreateDashboardRequest.controls:type_name -> chalk.server.v1.DashboardControls
+	18, // 3: chalk.server.v1.CreateDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	3,  // 4: chalk.server.v1.CreateDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
+	19, // 5: chalk.server.v1.GetDashboardRequest.read_mask:type_name -> google.protobuf.FieldMask
+	18, // 6: chalk.server.v1.GetDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	3,  // 7: chalk.server.v1.GetDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
+	19, // 8: chalk.server.v1.ListDashboardsRequest.read_mask:type_name -> google.protobuf.FieldMask
+	1,  // 9: chalk.server.v1.ListDashboardsRequest.sort_column:type_name -> chalk.server.v1.DashboardSortColumn
+	2,  // 10: chalk.server.v1.ListDashboardsRequest.sort_order:type_name -> chalk.server.v1.DashboardSortOrder
+	18, // 11: chalk.server.v1.ListDashboardsResponse.dashboards:type_name -> chalk.artifacts.v1.Dashboard
+	18, // 12: chalk.server.v1.UpdateDashboardRequest.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	3,  // 13: chalk.server.v1.UpdateDashboardRequest.controls:type_name -> chalk.server.v1.DashboardControls
+	19, // 14: chalk.server.v1.UpdateDashboardRequest.update_mask:type_name -> google.protobuf.FieldMask
+	18, // 15: chalk.server.v1.UpdateDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	3,  // 16: chalk.server.v1.UpdateDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
+	18, // 17: chalk.server.v1.ImportDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	4,  // 18: chalk.server.v1.DashboardService.CreateDashboard:input_type -> chalk.server.v1.CreateDashboardRequest
+	6,  // 19: chalk.server.v1.DashboardService.GetDashboard:input_type -> chalk.server.v1.GetDashboardRequest
+	8,  // 20: chalk.server.v1.DashboardService.ListDashboards:input_type -> chalk.server.v1.ListDashboardsRequest
+	10, // 21: chalk.server.v1.DashboardService.UpdateDashboard:input_type -> chalk.server.v1.UpdateDashboardRequest
+	12, // 22: chalk.server.v1.DashboardService.DeleteDashboard:input_type -> chalk.server.v1.DeleteDashboardRequest
+	14, // 23: chalk.server.v1.DashboardService.ExportDashboard:input_type -> chalk.server.v1.ExportDashboardRequest
+	16, // 24: chalk.server.v1.DashboardService.ImportDashboard:input_type -> chalk.server.v1.ImportDashboardRequest
+	5,  // 25: chalk.server.v1.DashboardService.CreateDashboard:output_type -> chalk.server.v1.CreateDashboardResponse
+	7,  // 26: chalk.server.v1.DashboardService.GetDashboard:output_type -> chalk.server.v1.GetDashboardResponse
+	9,  // 27: chalk.server.v1.DashboardService.ListDashboards:output_type -> chalk.server.v1.ListDashboardsResponse
+	11, // 28: chalk.server.v1.DashboardService.UpdateDashboard:output_type -> chalk.server.v1.UpdateDashboardResponse
+	13, // 29: chalk.server.v1.DashboardService.DeleteDashboard:output_type -> chalk.server.v1.DeleteDashboardResponse
+	15, // 30: chalk.server.v1.DashboardService.ExportDashboard:output_type -> chalk.server.v1.ExportDashboardResponse
+	17, // 31: chalk.server.v1.DashboardService.ImportDashboard:output_type -> chalk.server.v1.ImportDashboardResponse
+	25, // [25:32] is the sub-list for method output_type
+	18, // [18:25] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_dashboard_service_proto_init() }
@@ -1016,7 +1175,7 @@ func file_chalk_server_v1_dashboard_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_dashboard_service_proto_rawDesc), len(file_chalk_server_v1_dashboard_service_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      3,
 			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,

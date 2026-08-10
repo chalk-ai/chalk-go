@@ -644,8 +644,12 @@ type IcebergGlueS3CatalogConfig struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	S3Bucket         string                 `protobuf:"bytes,1,opt,name=s3_bucket,json=s3Bucket,proto3" json:"s3_bucket,omitempty"`
 	GlueDatabaseName string                 `protobuf:"bytes,2,opt,name=glue_database_name,json=glueDatabaseName,proto3" json:"glue_database_name,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// only necessary for cross-account
+	AccountId *string `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
+	// only necessary for cross-account
+	RoleArn       *string `protobuf:"bytes,4,opt,name=role_arn,json=roleArn,proto3,oneof" json:"role_arn,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *IcebergGlueS3CatalogConfig) Reset() {
@@ -688,6 +692,20 @@ func (x *IcebergGlueS3CatalogConfig) GetS3Bucket() string {
 func (x *IcebergGlueS3CatalogConfig) GetGlueDatabaseName() string {
 	if x != nil {
 		return x.GlueDatabaseName
+	}
+	return ""
+}
+
+func (x *IcebergGlueS3CatalogConfig) GetAccountId() string {
+	if x != nil && x.AccountId != nil {
+		return *x.AccountId
+	}
+	return ""
+}
+
+func (x *IcebergGlueS3CatalogConfig) GetRoleArn() string {
+	if x != nil && x.RoleArn != nil {
+		return *x.RoleArn
 	}
 	return ""
 }
@@ -2120,10 +2138,15 @@ const file_chalk_server_v1_offline_store_connection_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1d\n" +
 	"\n" +
-	"dataset_id\x18\x02 \x01(\tR\tdatasetId\"g\n" +
+	"dataset_id\x18\x02 \x01(\tR\tdatasetId\"\xc7\x01\n" +
 	"\x1aIcebergGlueS3CatalogConfig\x12\x1b\n" +
 	"\ts3_bucket\x18\x01 \x01(\tR\bs3Bucket\x12,\n" +
-	"\x12glue_database_name\x18\x02 \x01(\tR\x10glueDatabaseName\"x\n" +
+	"\x12glue_database_name\x18\x02 \x01(\tR\x10glueDatabaseName\x12\"\n" +
+	"\n" +
+	"account_id\x18\x03 \x01(\tH\x00R\taccountId\x88\x01\x01\x12\x1e\n" +
+	"\brole_arn\x18\x04 \x01(\tH\x01R\aroleArn\x88\x01\x01B\r\n" +
+	"\v_account_idB\v\n" +
+	"\t_role_arn\"x\n" +
 	"#IcebergOfflineStoreConnectionConfig\x12F\n" +
 	"\aglue_s3\x18\x01 \x01(\v2+.chalk.server.v1.IcebergGlueS3CatalogConfigH\x00R\x06glueS3B\t\n" +
 	"\acatalog\"\xb1\x02\n" +
@@ -2343,6 +2366,7 @@ func file_chalk_server_v1_offline_store_connection_proto_init() {
 	}
 	file_chalk_server_v1_offline_store_connection_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_store_connection_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_store_connection_proto_msgTypes[9].OneofWrappers = []any{
 		(*IcebergOfflineStoreConnectionConfig_GlueS3)(nil),
 	}

@@ -128,6 +128,27 @@ const (
 	MetricKind_METRIC_KIND_QUERY_PROGRESS_SPILLED_ROWS             MetricKind = 98
 	MetricKind_METRIC_KIND_QUERY_PROGRESS_SPILL_OUTSTANDING_BYTES  MetricKind = 99
 	MetricKind_METRIC_KIND_QUERY_PROGRESS_SPILL_TIME_MS            MetricKind = 100
+	// VM-only cumulative counters emitted by Vector's collector and aggregator
+	// self-observability pipeline.
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_LOG_RECEIVED    MetricKind = 101
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_LOG_EMITTED     MetricKind = 102
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_LOG_DROPPED     MetricKind = 103
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_METRIC_RECEIVED MetricKind = 104
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_METRIC_EMITTED  MetricKind = 105
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_METRIC_DROPPED  MetricKind = 106
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_TRACE_RECEIVED  MetricKind = 107
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_TRACE_EMITTED   MetricKind = 108
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_TRACE_DROPPED   MetricKind = 109
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_MIXED_RECEIVED  MetricKind = 110
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED   MetricKind = 111
+	MetricKind_METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED   MetricKind = 112
+	// DCGM framebuffer gauges, stored in bytes. The exporter's default counter set
+	// has no total, so device capacity is used + free (+ a small reserved region).
+	MetricKind_METRIC_KIND_GPU_MEMORY_USED_BYTES MetricKind = 113
+	MetricKind_METRIC_KIND_GPU_MEMORY_FREE_BYTES MetricKind = 114
+	// Counts pods whose maximum container CPU utilization in a chart bucket is at
+	// or below the fixed low-utilization threshold.
+	MetricKind_METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT MetricKind = 115
 )
 
 // Enum value maps for MetricKind.
@@ -234,6 +255,21 @@ var (
 		98:  "METRIC_KIND_QUERY_PROGRESS_SPILLED_ROWS",
 		99:  "METRIC_KIND_QUERY_PROGRESS_SPILL_OUTSTANDING_BYTES",
 		100: "METRIC_KIND_QUERY_PROGRESS_SPILL_TIME_MS",
+		101: "METRIC_KIND_TELEMETRY_PIPELINE_LOG_RECEIVED",
+		102: "METRIC_KIND_TELEMETRY_PIPELINE_LOG_EMITTED",
+		103: "METRIC_KIND_TELEMETRY_PIPELINE_LOG_DROPPED",
+		104: "METRIC_KIND_TELEMETRY_PIPELINE_METRIC_RECEIVED",
+		105: "METRIC_KIND_TELEMETRY_PIPELINE_METRIC_EMITTED",
+		106: "METRIC_KIND_TELEMETRY_PIPELINE_METRIC_DROPPED",
+		107: "METRIC_KIND_TELEMETRY_PIPELINE_TRACE_RECEIVED",
+		108: "METRIC_KIND_TELEMETRY_PIPELINE_TRACE_EMITTED",
+		109: "METRIC_KIND_TELEMETRY_PIPELINE_TRACE_DROPPED",
+		110: "METRIC_KIND_TELEMETRY_PIPELINE_MIXED_RECEIVED",
+		111: "METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED",
+		112: "METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED",
+		113: "METRIC_KIND_GPU_MEMORY_USED_BYTES",
+		114: "METRIC_KIND_GPU_MEMORY_FREE_BYTES",
+		115: "METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -337,6 +373,21 @@ var (
 		"METRIC_KIND_QUERY_PROGRESS_SPILLED_ROWS":             98,
 		"METRIC_KIND_QUERY_PROGRESS_SPILL_OUTSTANDING_BYTES":  99,
 		"METRIC_KIND_QUERY_PROGRESS_SPILL_TIME_MS":            100,
+		"METRIC_KIND_TELEMETRY_PIPELINE_LOG_RECEIVED":         101,
+		"METRIC_KIND_TELEMETRY_PIPELINE_LOG_EMITTED":          102,
+		"METRIC_KIND_TELEMETRY_PIPELINE_LOG_DROPPED":          103,
+		"METRIC_KIND_TELEMETRY_PIPELINE_METRIC_RECEIVED":      104,
+		"METRIC_KIND_TELEMETRY_PIPELINE_METRIC_EMITTED":       105,
+		"METRIC_KIND_TELEMETRY_PIPELINE_METRIC_DROPPED":       106,
+		"METRIC_KIND_TELEMETRY_PIPELINE_TRACE_RECEIVED":       107,
+		"METRIC_KIND_TELEMETRY_PIPELINE_TRACE_EMITTED":        108,
+		"METRIC_KIND_TELEMETRY_PIPELINE_TRACE_DROPPED":        109,
+		"METRIC_KIND_TELEMETRY_PIPELINE_MIXED_RECEIVED":       110,
+		"METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED":        111,
+		"METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED":        112,
+		"METRIC_KIND_GPU_MEMORY_USED_BYTES":                   113,
+		"METRIC_KIND_GPU_MEMORY_FREE_BYTES":                   114,
+		"METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT":           115,
 	}
 )
 
@@ -399,6 +450,24 @@ const (
 	FilterKind_FILTER_KIND_CONTAINER_ID        FilterKind = 26
 	FilterKind_FILTER_KIND_PLANNER             FilterKind = 27
 	FilterKind_FILTER_KIND_PLAN_REASON         FilterKind = 28
+	FilterKind_FILTER_KIND_FUNCTION_CALL_MODE  FilterKind = 29
+	// The operation ID of an offline query specifically. Distinct from
+	// FILTER_KIND_OPERATION_ID, which spans every computation context: only the
+	// offline-query subset survives into VictoriaMetrics, so a chart slicing per
+	// operation must say which it means. See go-api-server/charts/vm_registry.go.
+	FilterKind_FILTER_KIND_OFFLINE_QUERY_OPERATION_ID FilterKind = 30
+	// The remaining computation contexts whose operation IDs VictoriaMetrics
+	// retains, each under its own label. A chart must name the context it means;
+	// FILTER_KIND_OPERATION_ID stays unresolvable there.
+	FilterKind_FILTER_KIND_SCRIPT_TASK_OPERATION_ID FilterKind = 31
+	FilterKind_FILTER_KIND_CRON_OPERATION_ID        FilterKind = 32
+	FilterKind_FILTER_KIND_CHALKSQL_OPERATION_ID    FilterKind = 33
+	// The Kubernetes node a metric was observed on. Distinct from
+	// FILTER_KIND_POD_NAME: both address the `source` column, but the node
+	// namespace stores a bare node name there, with no "namespace/podName"
+	// shape to unpack. The GPU gauges are the node-scoped metrics today —
+	// DCGM reports per device per node, not per pod.
+	FilterKind_FILTER_KIND_NODE_NAME FilterKind = 34
 )
 
 // Enum value maps for FilterKind.
@@ -433,37 +502,49 @@ var (
 		26: "FILTER_KIND_CONTAINER_ID",
 		27: "FILTER_KIND_PLANNER",
 		28: "FILTER_KIND_PLAN_REASON",
+		29: "FILTER_KIND_FUNCTION_CALL_MODE",
+		30: "FILTER_KIND_OFFLINE_QUERY_OPERATION_ID",
+		31: "FILTER_KIND_SCRIPT_TASK_OPERATION_ID",
+		32: "FILTER_KIND_CRON_OPERATION_ID",
+		33: "FILTER_KIND_CHALKSQL_OPERATION_ID",
+		34: "FILTER_KIND_NODE_NAME",
 	}
 	FilterKind_value = map[string]int32{
-		"FILTER_KIND_UNSPECIFIED":         0,
-		"FILTER_KIND_FEATURE_STATUS":      1,
-		"FILTER_KIND_FEATURE_NAME":        2,
-		"FILTER_KIND_FEATURE_TAG":         3,
-		"FILTER_KIND_RESOLVER_STATUS":     4,
-		"FILTER_KIND_RESOLVER_NAME":       5,
-		"FILTER_KIND_RESOLVER_TAG":        6,
-		"FILTER_KIND_CRON_STATUS":         7,
-		"FILTER_KIND_MIGRATION_STATUS":    8,
-		"FILTER_KIND_ONLINE_OFFLINE":      9,
-		"FILTER_KIND_CACHE_HIT":           10,
-		"FILTER_KIND_OPERATION_ID":        11,
-		"FILTER_KIND_QUERY_NAME":          12,
-		"FILTER_KIND_QUERY_STATUS":        13,
-		"FILTER_KIND_IS_NULL":             14,
-		"FILTER_KIND_USAGE_KIND":          15,
-		"FILTER_KIND_RESOURCE_GROUP":      16,
-		"FILTER_KIND_POD_NAME":            17,
-		"FILTER_KIND_COMPUTATION_CONTEXT": 18,
-		"FILTER_KIND_TOPIC_NAME":          19,
-		"FILTER_KIND_SUBSCRIPTION_NAME":   20,
-		"FILTER_KIND_PARTITION_NAME":      21,
-		"FILTER_KIND_SCALING_GROUP":       22,
-		"FILTER_KIND_FUNCTION_NAME":       23,
-		"FILTER_KIND_SERVICE_KIND":        24,
-		"FILTER_KIND_CONSUMER_GROUP":      25,
-		"FILTER_KIND_CONTAINER_ID":        26,
-		"FILTER_KIND_PLANNER":             27,
-		"FILTER_KIND_PLAN_REASON":         28,
+		"FILTER_KIND_UNSPECIFIED":                0,
+		"FILTER_KIND_FEATURE_STATUS":             1,
+		"FILTER_KIND_FEATURE_NAME":               2,
+		"FILTER_KIND_FEATURE_TAG":                3,
+		"FILTER_KIND_RESOLVER_STATUS":            4,
+		"FILTER_KIND_RESOLVER_NAME":              5,
+		"FILTER_KIND_RESOLVER_TAG":               6,
+		"FILTER_KIND_CRON_STATUS":                7,
+		"FILTER_KIND_MIGRATION_STATUS":           8,
+		"FILTER_KIND_ONLINE_OFFLINE":             9,
+		"FILTER_KIND_CACHE_HIT":                  10,
+		"FILTER_KIND_OPERATION_ID":               11,
+		"FILTER_KIND_QUERY_NAME":                 12,
+		"FILTER_KIND_QUERY_STATUS":               13,
+		"FILTER_KIND_IS_NULL":                    14,
+		"FILTER_KIND_USAGE_KIND":                 15,
+		"FILTER_KIND_RESOURCE_GROUP":             16,
+		"FILTER_KIND_POD_NAME":                   17,
+		"FILTER_KIND_COMPUTATION_CONTEXT":        18,
+		"FILTER_KIND_TOPIC_NAME":                 19,
+		"FILTER_KIND_SUBSCRIPTION_NAME":          20,
+		"FILTER_KIND_PARTITION_NAME":             21,
+		"FILTER_KIND_SCALING_GROUP":              22,
+		"FILTER_KIND_FUNCTION_NAME":              23,
+		"FILTER_KIND_SERVICE_KIND":               24,
+		"FILTER_KIND_CONSUMER_GROUP":             25,
+		"FILTER_KIND_CONTAINER_ID":               26,
+		"FILTER_KIND_PLANNER":                    27,
+		"FILTER_KIND_PLAN_REASON":                28,
+		"FILTER_KIND_FUNCTION_CALL_MODE":         29,
+		"FILTER_KIND_OFFLINE_QUERY_OPERATION_ID": 30,
+		"FILTER_KIND_SCRIPT_TASK_OPERATION_ID":   31,
+		"FILTER_KIND_CRON_OPERATION_ID":          32,
+		"FILTER_KIND_CHALKSQL_OPERATION_ID":      33,
+		"FILTER_KIND_NODE_NAME":                  34,
 	}
 )
 
@@ -628,29 +709,40 @@ func (WindowFunctionKind) EnumDescriptor() ([]byte, []int) {
 type GroupByKind int32
 
 const (
-	GroupByKind_GROUP_BY_KIND_UNSPECIFIED       GroupByKind = 0
-	GroupByKind_GROUP_BY_KIND_FEATURE_STATUS    GroupByKind = 1
-	GroupByKind_GROUP_BY_KIND_FEATURE_NAME      GroupByKind = 2
-	GroupByKind_GROUP_BY_KIND_IS_NULL           GroupByKind = 3
-	GroupByKind_GROUP_BY_KIND_RESOLVER_STATUS   GroupByKind = 4
-	GroupByKind_GROUP_BY_KIND_RESOLVER_NAME     GroupByKind = 5
-	GroupByKind_GROUP_BY_KIND_QUERY_STATUS      GroupByKind = 6
-	GroupByKind_GROUP_BY_KIND_QUERY_NAME        GroupByKind = 7
-	GroupByKind_GROUP_BY_KIND_ONLINE_OFFLINE    GroupByKind = 8
-	GroupByKind_GROUP_BY_KIND_CACHE_HIT         GroupByKind = 9
-	GroupByKind_GROUP_BY_KIND_USAGE_KIND        GroupByKind = 10
-	GroupByKind_GROUP_BY_KIND_RESOURCE_GROUP    GroupByKind = 11
-	GroupByKind_GROUP_BY_KIND_DEPLOYMENT_ID     GroupByKind = 12
-	GroupByKind_GROUP_BY_KIND_OPERATION_ID      GroupByKind = 13
-	GroupByKind_GROUP_BY_KIND_POD_NAME          GroupByKind = 14
-	GroupByKind_GROUP_BY_KIND_TOPIC_NAME        GroupByKind = 15
-	GroupByKind_GROUP_BY_KIND_SUBSCRIPTION_NAME GroupByKind = 16
-	GroupByKind_GROUP_BY_KIND_PARTITION_NAME    GroupByKind = 17
-	GroupByKind_GROUP_BY_KIND_FUNCTION_NAME     GroupByKind = 18
-	GroupByKind_GROUP_BY_KIND_SERVICE_KIND      GroupByKind = 19
-	GroupByKind_GROUP_BY_KIND_CONSUMER_GROUP    GroupByKind = 20
-	GroupByKind_GROUP_BY_KIND_PLANNER           GroupByKind = 21
-	GroupByKind_GROUP_BY_KIND_PLAN_REASON       GroupByKind = 22
+	GroupByKind_GROUP_BY_KIND_UNSPECIFIED                   GroupByKind = 0
+	GroupByKind_GROUP_BY_KIND_FEATURE_STATUS                GroupByKind = 1
+	GroupByKind_GROUP_BY_KIND_FEATURE_NAME                  GroupByKind = 2
+	GroupByKind_GROUP_BY_KIND_IS_NULL                       GroupByKind = 3
+	GroupByKind_GROUP_BY_KIND_RESOLVER_STATUS               GroupByKind = 4
+	GroupByKind_GROUP_BY_KIND_RESOLVER_NAME                 GroupByKind = 5
+	GroupByKind_GROUP_BY_KIND_QUERY_STATUS                  GroupByKind = 6
+	GroupByKind_GROUP_BY_KIND_QUERY_NAME                    GroupByKind = 7
+	GroupByKind_GROUP_BY_KIND_ONLINE_OFFLINE                GroupByKind = 8
+	GroupByKind_GROUP_BY_KIND_CACHE_HIT                     GroupByKind = 9
+	GroupByKind_GROUP_BY_KIND_USAGE_KIND                    GroupByKind = 10
+	GroupByKind_GROUP_BY_KIND_RESOURCE_GROUP                GroupByKind = 11
+	GroupByKind_GROUP_BY_KIND_DEPLOYMENT_ID                 GroupByKind = 12
+	GroupByKind_GROUP_BY_KIND_OPERATION_ID                  GroupByKind = 13
+	GroupByKind_GROUP_BY_KIND_POD_NAME                      GroupByKind = 14
+	GroupByKind_GROUP_BY_KIND_TOPIC_NAME                    GroupByKind = 15
+	GroupByKind_GROUP_BY_KIND_SUBSCRIPTION_NAME             GroupByKind = 16
+	GroupByKind_GROUP_BY_KIND_PARTITION_NAME                GroupByKind = 17
+	GroupByKind_GROUP_BY_KIND_FUNCTION_NAME                 GroupByKind = 18
+	GroupByKind_GROUP_BY_KIND_SERVICE_KIND                  GroupByKind = 19
+	GroupByKind_GROUP_BY_KIND_CONSUMER_GROUP                GroupByKind = 20
+	GroupByKind_GROUP_BY_KIND_PLANNER                       GroupByKind = 21
+	GroupByKind_GROUP_BY_KIND_PLAN_REASON                   GroupByKind = 22
+	GroupByKind_GROUP_BY_KIND_TELEMETRY_PIPELINE_ROLE       GroupByKind = 23
+	GroupByKind_GROUP_BY_KIND_TELEMETRY_PIPELINE_STEP       GroupByKind = 24
+	GroupByKind_GROUP_BY_KIND_TELEMETRY_PIPELINE_DROP_SCOPE GroupByKind = 25
+	// Per-operation breakdown restricted to offline queries; see
+	// FILTER_KIND_OFFLINE_QUERY_OPERATION_ID.
+	GroupByKind_GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID GroupByKind = 26
+	// Per-operation breakdowns for the other retained contexts; see
+	// FILTER_KIND_SCRIPT_TASK_OPERATION_ID.
+	GroupByKind_GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID GroupByKind = 27
+	GroupByKind_GROUP_BY_KIND_CRON_OPERATION_ID        GroupByKind = 28
+	GroupByKind_GROUP_BY_KIND_CHALKSQL_OPERATION_ID    GroupByKind = 29
 )
 
 // Enum value maps for GroupByKind.
@@ -679,31 +771,45 @@ var (
 		20: "GROUP_BY_KIND_CONSUMER_GROUP",
 		21: "GROUP_BY_KIND_PLANNER",
 		22: "GROUP_BY_KIND_PLAN_REASON",
+		23: "GROUP_BY_KIND_TELEMETRY_PIPELINE_ROLE",
+		24: "GROUP_BY_KIND_TELEMETRY_PIPELINE_STEP",
+		25: "GROUP_BY_KIND_TELEMETRY_PIPELINE_DROP_SCOPE",
+		26: "GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID",
+		27: "GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID",
+		28: "GROUP_BY_KIND_CRON_OPERATION_ID",
+		29: "GROUP_BY_KIND_CHALKSQL_OPERATION_ID",
 	}
 	GroupByKind_value = map[string]int32{
-		"GROUP_BY_KIND_UNSPECIFIED":       0,
-		"GROUP_BY_KIND_FEATURE_STATUS":    1,
-		"GROUP_BY_KIND_FEATURE_NAME":      2,
-		"GROUP_BY_KIND_IS_NULL":           3,
-		"GROUP_BY_KIND_RESOLVER_STATUS":   4,
-		"GROUP_BY_KIND_RESOLVER_NAME":     5,
-		"GROUP_BY_KIND_QUERY_STATUS":      6,
-		"GROUP_BY_KIND_QUERY_NAME":        7,
-		"GROUP_BY_KIND_ONLINE_OFFLINE":    8,
-		"GROUP_BY_KIND_CACHE_HIT":         9,
-		"GROUP_BY_KIND_USAGE_KIND":        10,
-		"GROUP_BY_KIND_RESOURCE_GROUP":    11,
-		"GROUP_BY_KIND_DEPLOYMENT_ID":     12,
-		"GROUP_BY_KIND_OPERATION_ID":      13,
-		"GROUP_BY_KIND_POD_NAME":          14,
-		"GROUP_BY_KIND_TOPIC_NAME":        15,
-		"GROUP_BY_KIND_SUBSCRIPTION_NAME": 16,
-		"GROUP_BY_KIND_PARTITION_NAME":    17,
-		"GROUP_BY_KIND_FUNCTION_NAME":     18,
-		"GROUP_BY_KIND_SERVICE_KIND":      19,
-		"GROUP_BY_KIND_CONSUMER_GROUP":    20,
-		"GROUP_BY_KIND_PLANNER":           21,
-		"GROUP_BY_KIND_PLAN_REASON":       22,
+		"GROUP_BY_KIND_UNSPECIFIED":                   0,
+		"GROUP_BY_KIND_FEATURE_STATUS":                1,
+		"GROUP_BY_KIND_FEATURE_NAME":                  2,
+		"GROUP_BY_KIND_IS_NULL":                       3,
+		"GROUP_BY_KIND_RESOLVER_STATUS":               4,
+		"GROUP_BY_KIND_RESOLVER_NAME":                 5,
+		"GROUP_BY_KIND_QUERY_STATUS":                  6,
+		"GROUP_BY_KIND_QUERY_NAME":                    7,
+		"GROUP_BY_KIND_ONLINE_OFFLINE":                8,
+		"GROUP_BY_KIND_CACHE_HIT":                     9,
+		"GROUP_BY_KIND_USAGE_KIND":                    10,
+		"GROUP_BY_KIND_RESOURCE_GROUP":                11,
+		"GROUP_BY_KIND_DEPLOYMENT_ID":                 12,
+		"GROUP_BY_KIND_OPERATION_ID":                  13,
+		"GROUP_BY_KIND_POD_NAME":                      14,
+		"GROUP_BY_KIND_TOPIC_NAME":                    15,
+		"GROUP_BY_KIND_SUBSCRIPTION_NAME":             16,
+		"GROUP_BY_KIND_PARTITION_NAME":                17,
+		"GROUP_BY_KIND_FUNCTION_NAME":                 18,
+		"GROUP_BY_KIND_SERVICE_KIND":                  19,
+		"GROUP_BY_KIND_CONSUMER_GROUP":                20,
+		"GROUP_BY_KIND_PLANNER":                       21,
+		"GROUP_BY_KIND_PLAN_REASON":                   22,
+		"GROUP_BY_KIND_TELEMETRY_PIPELINE_ROLE":       23,
+		"GROUP_BY_KIND_TELEMETRY_PIPELINE_STEP":       24,
+		"GROUP_BY_KIND_TELEMETRY_PIPELINE_DROP_SCOPE": 25,
+		"GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID":    26,
+		"GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID":      27,
+		"GROUP_BY_KIND_CRON_OPERATION_ID":             28,
+		"GROUP_BY_KIND_CHALKSQL_OPERATION_ID":         29,
 	}
 )
 
@@ -984,6 +1090,67 @@ func (ChartLinkKind) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{8}
 }
 
+// RawMetricValueKind is how a raw series' samples combine over a chart bucket.
+type RawMetricValueKind int32
+
+const (
+	RawMetricValueKind_RAW_METRIC_VALUE_KIND_UNSPECIFIED RawMetricValueKind = 0
+	// Instantaneous value; aggregated with avg/min/max/sum_over_time.
+	RawMetricValueKind_RAW_METRIC_VALUE_KIND_GAUGE RawMetricValueKind = 1
+	// Monotonic Prometheus counter; per-bucket values come from increase().
+	RawMetricValueKind_RAW_METRIC_VALUE_KIND_COUNTER RawMetricValueKind = 2
+	// Prometheus/vmrange bucket series; percentiles come from histogram_quantile().
+	RawMetricValueKind_RAW_METRIC_VALUE_KIND_HISTOGRAM RawMetricValueKind = 3
+	// Non-cumulative per-flush increment; summed with sum_over_time(). Never use
+	// increase() on these — the dips between windows would read as counter resets.
+	RawMetricValueKind_RAW_METRIC_VALUE_KIND_DELTA_COUNT RawMetricValueKind = 4
+)
+
+// Enum value maps for RawMetricValueKind.
+var (
+	RawMetricValueKind_name = map[int32]string{
+		0: "RAW_METRIC_VALUE_KIND_UNSPECIFIED",
+		1: "RAW_METRIC_VALUE_KIND_GAUGE",
+		2: "RAW_METRIC_VALUE_KIND_COUNTER",
+		3: "RAW_METRIC_VALUE_KIND_HISTOGRAM",
+		4: "RAW_METRIC_VALUE_KIND_DELTA_COUNT",
+	}
+	RawMetricValueKind_value = map[string]int32{
+		"RAW_METRIC_VALUE_KIND_UNSPECIFIED": 0,
+		"RAW_METRIC_VALUE_KIND_GAUGE":       1,
+		"RAW_METRIC_VALUE_KIND_COUNTER":     2,
+		"RAW_METRIC_VALUE_KIND_HISTOGRAM":   3,
+		"RAW_METRIC_VALUE_KIND_DELTA_COUNT": 4,
+	}
+)
+
+func (x RawMetricValueKind) Enum() *RawMetricValueKind {
+	p := new(RawMetricValueKind)
+	*p = x
+	return p
+}
+
+func (x RawMetricValueKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RawMetricValueKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_artifacts_v1_chart_proto_enumTypes[9].Descriptor()
+}
+
+func (RawMetricValueKind) Type() protoreflect.EnumType {
+	return &file_chalk_artifacts_v1_chart_proto_enumTypes[9]
+}
+
+func (x RawMetricValueKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RawMetricValueKind.Descriptor instead.
+func (RawMetricValueKind) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{9}
+}
+
 type AlertTrigger struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	Name              string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1077,9 +1244,12 @@ func (x *AlertTrigger) GetDescription() string {
 }
 
 type DatasetFeatureOperand struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Dataset       string                 `protobuf:"bytes,1,opt,name=dataset,proto3" json:"dataset,omitempty"`
-	Feature       string                 `protobuf:"bytes,2,opt,name=feature,proto3" json:"feature,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Dataset string                 `protobuf:"bytes,1,opt,name=dataset,proto3" json:"dataset,omitempty"`
+	Feature string                 `protobuf:"bytes,2,opt,name=feature,proto3" json:"feature,omitempty"`
+	// Dataset revision (offline query id) to use as the KS baseline distribution.
+	// When unset, the most recent revision for the dataset is used.
+	RevisionId    *string `protobuf:"bytes,3,opt,name=revision_id,json=revisionId,proto3,oneof" json:"revision_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1124,6 +1294,13 @@ func (x *DatasetFeatureOperand) GetDataset() string {
 func (x *DatasetFeatureOperand) GetFeature() string {
 	if x != nil {
 		return x.Feature
+	}
+	return ""
+}
+
+func (x *DatasetFeatureOperand) GetRevisionId() string {
+	if x != nil && x.RevisionId != nil {
+		return *x.RevisionId
 	}
 	return ""
 }
@@ -1270,6 +1447,164 @@ func (x *MetricFilter) GetValue() []string {
 	return nil
 }
 
+// RawMetricLabelMatcher constrains a raw VictoriaMetrics label to a set of values.
+// Unlike MetricFilter it names the VM label directly, because raw series are not
+// mapped through the MetricKind registry and so have no FilterKind vocabulary.
+type RawMetricLabelMatcher struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`
+	Comparator    ComparatorKind         `protobuf:"varint,2,opt,name=comparator,proto3,enum=chalk.artifacts.v1.ComparatorKind" json:"comparator,omitempty"`
+	Value         []string               `protobuf:"bytes,3,rep,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RawMetricLabelMatcher) Reset() {
+	*x = RawMetricLabelMatcher{}
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RawMetricLabelMatcher) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RawMetricLabelMatcher) ProtoMessage() {}
+
+func (x *RawMetricLabelMatcher) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RawMetricLabelMatcher.ProtoReflect.Descriptor instead.
+func (*RawMetricLabelMatcher) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RawMetricLabelMatcher) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *RawMetricLabelMatcher) GetComparator() ComparatorKind {
+	if x != nil {
+		return x.Comparator
+	}
+	return ComparatorKind_COMPARATOR_KIND_UNSPECIFIED
+}
+
+func (x *RawMetricLabelMatcher) GetValue() []string {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+// RawMetricSeries plots a VictoriaMetrics series by its own name and labels,
+// bypassing the curated MetricKind registry. It exists so Chalk employees can
+// introspect and chart metrics the registry does not (yet) map; see
+// ChartsService.ListRawMetrics for discovery.
+//
+// Access is Chalk-employee-only (PERMISSION_CHALK_ADMIN, enforced in the chart
+// snapshot handler) and raw series are rejected on the chart/alert persistence
+// paths: VM series names are an internal implementation detail, not a stable
+// surface a saved chart should depend on.
+type RawMetricSeries struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// VictoriaMetrics series name, e.g. "chalk_query_plan_latency_bucket". Ignored
+	// when metricsql is set.
+	MetricName string                   `protobuf:"bytes,1,opt,name=metric_name,json=metricName,proto3" json:"metric_name,omitempty"`
+	Matchers   []*RawMetricLabelMatcher `protobuf:"bytes,2,rep,name=matchers,proto3" json:"matchers,omitempty"`
+	// Raw VM label names to group by. Each becomes a `by (...)` label and shows up
+	// as a series tag under its own label name.
+	GroupBy []string `protobuf:"bytes,3,rep,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
+	// Fully free-form MetricsQL, evaluated verbatim as a range query. When set,
+	// metric_name/matchers/group_by are ignored and no environment scoping is
+	// injected, so the query must scope itself.
+	Metricsql *string `protobuf:"bytes,4,opt,name=metricsql,proto3,oneof" json:"metricsql,omitempty"`
+	// Overrides how metric_name is aggregated over each chart bucket. When unset,
+	// the shape is inferred from the series name (a _bucket suffix means a
+	// histogram, _total a cumulative counter, anything else a gauge).
+	ValueKind     *RawMetricValueKind `protobuf:"varint,5,opt,name=value_kind,json=valueKind,proto3,enum=chalk.artifacts.v1.RawMetricValueKind,oneof" json:"value_kind,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RawMetricSeries) Reset() {
+	*x = RawMetricSeries{}
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RawMetricSeries) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RawMetricSeries) ProtoMessage() {}
+
+func (x *RawMetricSeries) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RawMetricSeries.ProtoReflect.Descriptor instead.
+func (*RawMetricSeries) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *RawMetricSeries) GetMetricName() string {
+	if x != nil {
+		return x.MetricName
+	}
+	return ""
+}
+
+func (x *RawMetricSeries) GetMatchers() []*RawMetricLabelMatcher {
+	if x != nil {
+		return x.Matchers
+	}
+	return nil
+}
+
+func (x *RawMetricSeries) GetGroupBy() []string {
+	if x != nil {
+		return x.GroupBy
+	}
+	return nil
+}
+
+func (x *RawMetricSeries) GetMetricsql() string {
+	if x != nil && x.Metricsql != nil {
+		return *x.Metricsql
+	}
+	return ""
+}
+
+func (x *RawMetricSeries) GetValueKind() RawMetricValueKind {
+	if x != nil && x.ValueKind != nil {
+		return *x.ValueKind
+	}
+	return RawMetricValueKind_RAW_METRIC_VALUE_KIND_UNSPECIFIED
+}
+
 type MetricConfigSeries struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Metric         MetricKind             `protobuf:"varint,1,opt,name=metric,proto3,enum=chalk.artifacts.v1.MetricKind" json:"metric,omitempty"`
@@ -1278,14 +1613,17 @@ type MetricConfigSeries struct {
 	WindowFunction WindowFunctionKind     `protobuf:"varint,4,opt,name=window_function,json=windowFunction,proto3,enum=chalk.artifacts.v1.WindowFunctionKind" json:"window_function,omitempty"`
 	GroupBy        []GroupByKind          `protobuf:"varint,5,rep,packed,name=group_by,json=groupBy,proto3,enum=chalk.artifacts.v1.GroupByKind" json:"group_by,omitempty"`
 	// A positive duration by which to shift the time series data backwards.
-	TimeShift     *durationpb.Duration `protobuf:"bytes,6,opt,name=time_shift,json=timeShift,proto3,oneof" json:"time_shift,omitempty"`
+	TimeShift *durationpb.Duration `protobuf:"bytes,6,opt,name=time_shift,json=timeShift,proto3,oneof" json:"time_shift,omitempty"`
+	// When set, this series plots a raw VictoriaMetrics series and `metric`,
+	// `filters` and `group_by` are ignored. Chalk-employee-only; see RawMetricSeries.
+	Raw           *RawMetricSeries `protobuf:"bytes,7,opt,name=raw,proto3,oneof" json:"raw,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MetricConfigSeries) Reset() {
 	*x = MetricConfigSeries{}
-	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[4]
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1297,7 +1635,7 @@ func (x *MetricConfigSeries) String() string {
 func (*MetricConfigSeries) ProtoMessage() {}
 
 func (x *MetricConfigSeries) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[4]
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1310,7 +1648,7 @@ func (x *MetricConfigSeries) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricConfigSeries.ProtoReflect.Descriptor instead.
 func (*MetricConfigSeries) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{4}
+	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MetricConfigSeries) GetMetric() MetricKind {
@@ -1355,6 +1693,92 @@ func (x *MetricConfigSeries) GetTimeShift() *durationpb.Duration {
 	return nil
 }
 
+func (x *MetricConfigSeries) GetRaw() *RawMetricSeries {
+	if x != nil {
+		return x.Raw
+	}
+	return nil
+}
+
+// Marks a time-series (not statistic) config. Empty for now — the render fields
+// (display_window_period) stay at the MetricConfig top level.
+type TimeSeriesVisualizationOptions struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TimeSeriesVisualizationOptions) Reset() {
+	*x = TimeSeriesVisualizationOptions{}
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TimeSeriesVisualizationOptions) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TimeSeriesVisualizationOptions) ProtoMessage() {}
+
+func (x *TimeSeriesVisualizationOptions) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TimeSeriesVisualizationOptions.ProtoReflect.Descriptor instead.
+func (*TimeSeriesVisualizationOptions) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{7}
+}
+
+// When set on a MetricConfig, GetChartSnapshot evaluates the query over the whole range as a single
+// bucket and returns that scalar (GetChartSnapshotResponse.statistic) instead of a time series. The
+// series' own window_function is the aggregation (count/mean/max/…), so there is no separate
+// reduction or bucketing knob. The config must produce exactly one output series (no group_by, no
+// multiple series/formulas).
+type StatisticVisualizationOptions struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StatisticVisualizationOptions) Reset() {
+	*x = StatisticVisualizationOptions{}
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StatisticVisualizationOptions) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatisticVisualizationOptions) ProtoMessage() {}
+
+func (x *StatisticVisualizationOptions) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatisticVisualizationOptions.ProtoReflect.Descriptor instead.
+func (*StatisticVisualizationOptions) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{8}
+}
+
 type MetricConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1363,6 +1787,7 @@ type MetricConfig struct {
 	WindowPeriod string                `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
 	Series       []*MetricConfigSeries `protobuf:"bytes,3,rep,name=series,proto3" json:"series,omitempty"`
 	Formulas     []*MetricFormula      `protobuf:"bytes,4,rep,name=formulas,proto3" json:"formulas,omitempty"`
+	MqlFormulas  []string              `protobuf:"bytes,11,rep,name=mql_formulas,json=mqlFormulas,proto3" json:"mql_formulas,omitempty"`
 	Trigger      *AlertTrigger         `protobuf:"bytes,5,opt,name=trigger,proto3" json:"trigger,omitempty"`
 	// If this is generated as part of their code source and not to be edited otherwise
 	GraphGenerated bool `protobuf:"varint,6,opt,name=graph_generated,json=graphGenerated,proto3" json:"graph_generated,omitempty"`
@@ -1373,13 +1798,20 @@ type MetricConfig struct {
 	// of `window_period`, which is alert-only. Encoded as a chalk duration string (e.g.
 	// "5m", "1h").
 	DisplayWindowPeriod *string `protobuf:"bytes,8,opt,name=display_window_period,json=displayWindowPeriod,proto3,oneof" json:"display_window_period,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Which visualization this config renders as; unset is treated as a time series.
+	//
+	// Types that are valid to be assigned to VisualizationOptions:
+	//
+	//	*MetricConfig_TimeSeriesOptions
+	//	*MetricConfig_StatOptions
+	VisualizationOptions isMetricConfig_VisualizationOptions `protobuf_oneof:"visualization_options"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *MetricConfig) Reset() {
 	*x = MetricConfig{}
-	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1391,7 +1823,7 @@ func (x *MetricConfig) String() string {
 func (*MetricConfig) ProtoMessage() {}
 
 func (x *MetricConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1404,7 +1836,7 @@ func (x *MetricConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricConfig.ProtoReflect.Descriptor instead.
 func (*MetricConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{5}
+	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *MetricConfig) GetName() string {
@@ -1431,6 +1863,13 @@ func (x *MetricConfig) GetSeries() []*MetricConfigSeries {
 func (x *MetricConfig) GetFormulas() []*MetricFormula {
 	if x != nil {
 		return x.Formulas
+	}
+	return nil
+}
+
+func (x *MetricConfig) GetMqlFormulas() []string {
+	if x != nil {
+		return x.MqlFormulas
 	}
 	return nil
 }
@@ -1463,6 +1902,47 @@ func (x *MetricConfig) GetDisplayWindowPeriod() string {
 	return ""
 }
 
+func (x *MetricConfig) GetVisualizationOptions() isMetricConfig_VisualizationOptions {
+	if x != nil {
+		return x.VisualizationOptions
+	}
+	return nil
+}
+
+func (x *MetricConfig) GetTimeSeriesOptions() *TimeSeriesVisualizationOptions {
+	if x != nil {
+		if x, ok := x.VisualizationOptions.(*MetricConfig_TimeSeriesOptions); ok {
+			return x.TimeSeriesOptions
+		}
+	}
+	return nil
+}
+
+func (x *MetricConfig) GetStatOptions() *StatisticVisualizationOptions {
+	if x != nil {
+		if x, ok := x.VisualizationOptions.(*MetricConfig_StatOptions); ok {
+			return x.StatOptions
+		}
+	}
+	return nil
+}
+
+type isMetricConfig_VisualizationOptions interface {
+	isMetricConfig_VisualizationOptions()
+}
+
+type MetricConfig_TimeSeriesOptions struct {
+	TimeSeriesOptions *TimeSeriesVisualizationOptions `protobuf:"bytes,9,opt,name=time_series_options,json=timeSeriesOptions,proto3,oneof"`
+}
+
+type MetricConfig_StatOptions struct {
+	StatOptions *StatisticVisualizationOptions `protobuf:"bytes,10,opt,name=stat_options,json=statOptions,proto3,oneof"`
+}
+
+func (*MetricConfig_TimeSeriesOptions) isMetricConfig_VisualizationOptions() {}
+
+func (*MetricConfig_StatOptions) isMetricConfig_VisualizationOptions() {}
+
 type Chart struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -1481,7 +1961,7 @@ type Chart struct {
 
 func (x *Chart) Reset() {
 	*x = Chart{}
-	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[6]
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1493,7 +1973,7 @@ func (x *Chart) String() string {
 func (*Chart) ProtoMessage() {}
 
 func (x *Chart) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[6]
+	mi := &file_chalk_artifacts_v1_chart_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1506,7 +1986,7 @@ func (x *Chart) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Chart.ProtoReflect.Descriptor instead.
 func (*Chart) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{6}
+	return file_chalk_artifacts_v1_chart_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Chart) GetId() string {
@@ -1567,10 +2047,13 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\vdescription\x18\a \x01(\tH\x02R\vdescription\x88\x01\x01B\x0e\n" +
 	"\f_series_nameB\x0f\n" +
 	"\r_channel_nameB\x0e\n" +
-	"\f_description\"K\n" +
+	"\f_description\"\x81\x01\n" +
 	"\x15DatasetFeatureOperand\x12\x18\n" +
 	"\adataset\x18\x01 \x01(\tR\adataset\x12\x18\n" +
-	"\afeature\x18\x02 \x01(\tR\afeature\"\xdb\x02\n" +
+	"\afeature\x18\x02 \x01(\tR\afeature\x12$\n" +
+	"\vrevision_id\x18\x03 \x01(\tH\x00R\n" +
+	"revisionId\x88\x01\x01B\x0e\n" +
+	"\f_revision_id\"\xdb\x02\n" +
 	"\rMetricFormula\x129\n" +
 	"\x04kind\x18\x01 \x01(\x0e2%.chalk.artifacts.v1.MetricFormulaKindR\x04kind\x129\n" +
 	"\x16single_series_operands\x18\x02 \x01(\x03H\x00R\x14singleSeriesOperands\x88\x01\x01\x122\n" +
@@ -1584,7 +2067,24 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"comparator\x18\x02 \x01(\x0e2\".chalk.artifacts.v1.ComparatorKindR\n" +
 	"comparator\x12\x14\n" +
-	"\x05value\x18\x03 \x03(\tR\x05value\"\x85\x03\n" +
+	"\x05value\x18\x03 \x03(\tR\x05value\"\x87\x01\n" +
+	"\x15RawMetricLabelMatcher\x12\x14\n" +
+	"\x05label\x18\x01 \x01(\tR\x05label\x12B\n" +
+	"\n" +
+	"comparator\x18\x02 \x01(\x0e2\".chalk.artifacts.v1.ComparatorKindR\n" +
+	"comparator\x12\x14\n" +
+	"\x05value\x18\x03 \x03(\tR\x05value\"\xa0\x02\n" +
+	"\x0fRawMetricSeries\x12\x1f\n" +
+	"\vmetric_name\x18\x01 \x01(\tR\n" +
+	"metricName\x12E\n" +
+	"\bmatchers\x18\x02 \x03(\v2).chalk.artifacts.v1.RawMetricLabelMatcherR\bmatchers\x12\x19\n" +
+	"\bgroup_by\x18\x03 \x03(\tR\agroupBy\x12!\n" +
+	"\tmetricsql\x18\x04 \x01(\tH\x00R\tmetricsql\x88\x01\x01\x12J\n" +
+	"\n" +
+	"value_kind\x18\x05 \x01(\x0e2&.chalk.artifacts.v1.RawMetricValueKindH\x01R\tvalueKind\x88\x01\x01B\f\n" +
+	"\n" +
+	"_metricsqlB\r\n" +
+	"\v_value_kind\"\xc9\x03\n" +
 	"\x12MetricConfigSeries\x126\n" +
 	"\x06metric\x18\x01 \x01(\x0e2\x1e.chalk.artifacts.v1.MetricKindR\x06metric\x12:\n" +
 	"\afilters\x18\x02 \x03(\v2 .chalk.artifacts.v1.MetricFilterR\afilters\x12\x17\n" +
@@ -1592,18 +2092,27 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x0fwindow_function\x18\x04 \x01(\x0e2&.chalk.artifacts.v1.WindowFunctionKindR\x0ewindowFunction\x12:\n" +
 	"\bgroup_by\x18\x05 \x03(\x0e2\x1f.chalk.artifacts.v1.GroupByKindR\agroupBy\x12=\n" +
 	"\n" +
-	"time_shift\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\ttimeShift\x88\x01\x01B\a\n" +
+	"time_shift\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\ttimeShift\x88\x01\x01\x12:\n" +
+	"\x03raw\x18\a \x01(\v2#.chalk.artifacts.v1.RawMetricSeriesH\x02R\x03raw\x88\x01\x01B\a\n" +
 	"\x05_nameB\r\n" +
-	"\v_time_shift\"\x8e\x03\n" +
+	"\v_time_shiftB\x06\n" +
+	"\x04_raw\" \n" +
+	"\x1eTimeSeriesVisualizationOptions\"\x1f\n" +
+	"\x1dStatisticVisualizationOptions\"\x88\x05\n" +
 	"\fMetricConfig\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
 	"\rwindow_period\x18\x02 \x01(\tR\fwindowPeriod\x12>\n" +
 	"\x06series\x18\x03 \x03(\v2&.chalk.artifacts.v1.MetricConfigSeriesR\x06series\x12=\n" +
-	"\bformulas\x18\x04 \x03(\v2!.chalk.artifacts.v1.MetricFormulaR\bformulas\x12:\n" +
+	"\bformulas\x18\x04 \x03(\v2!.chalk.artifacts.v1.MetricFormulaR\bformulas\x12!\n" +
+	"\fmql_formulas\x18\v \x03(\tR\vmqlFormulas\x12:\n" +
 	"\atrigger\x18\x05 \x01(\v2 .chalk.artifacts.v1.AlertTriggerR\atrigger\x12'\n" +
 	"\x0fgraph_generated\x18\x06 \x01(\bR\x0egraphGenerated\x12\x0e\n" +
 	"\x02id\x18\a \x01(\tR\x02id\x127\n" +
-	"\x15display_window_period\x18\b \x01(\tH\x00R\x13displayWindowPeriod\x88\x01\x01B\x18\n" +
+	"\x15display_window_period\x18\b \x01(\tH\x01R\x13displayWindowPeriod\x88\x01\x01\x12d\n" +
+	"\x13time_series_options\x18\t \x01(\v22.chalk.artifacts.v1.TimeSeriesVisualizationOptionsH\x00R\x11timeSeriesOptions\x12V\n" +
+	"\fstat_options\x18\n" +
+	" \x01(\v21.chalk.artifacts.v1.StatisticVisualizationOptionsH\x00R\vstatOptionsB\x17\n" +
+	"\x15visualization_optionsB\x18\n" +
 	"\x16_display_window_period\"\x8d\x02\n" +
 	"\x05Chart\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x128\n" +
@@ -1615,7 +2124,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xb0 \n" +
+	"_entity_id*\x86&\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -1719,7 +2228,22 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"(METRIC_KIND_QUERY_PROGRESS_SPILLED_BYTES\x10a\x12+\n" +
 	"'METRIC_KIND_QUERY_PROGRESS_SPILLED_ROWS\x10b\x126\n" +
 	"2METRIC_KIND_QUERY_PROGRESS_SPILL_OUTSTANDING_BYTES\x10c\x12,\n" +
-	"(METRIC_KIND_QUERY_PROGRESS_SPILL_TIME_MS\x10d*\xf7\x06\n" +
+	"(METRIC_KIND_QUERY_PROGRESS_SPILL_TIME_MS\x10d\x12/\n" +
+	"+METRIC_KIND_TELEMETRY_PIPELINE_LOG_RECEIVED\x10e\x12.\n" +
+	"*METRIC_KIND_TELEMETRY_PIPELINE_LOG_EMITTED\x10f\x12.\n" +
+	"*METRIC_KIND_TELEMETRY_PIPELINE_LOG_DROPPED\x10g\x122\n" +
+	".METRIC_KIND_TELEMETRY_PIPELINE_METRIC_RECEIVED\x10h\x121\n" +
+	"-METRIC_KIND_TELEMETRY_PIPELINE_METRIC_EMITTED\x10i\x121\n" +
+	"-METRIC_KIND_TELEMETRY_PIPELINE_METRIC_DROPPED\x10j\x121\n" +
+	"-METRIC_KIND_TELEMETRY_PIPELINE_TRACE_RECEIVED\x10k\x120\n" +
+	",METRIC_KIND_TELEMETRY_PIPELINE_TRACE_EMITTED\x10l\x120\n" +
+	",METRIC_KIND_TELEMETRY_PIPELINE_TRACE_DROPPED\x10m\x121\n" +
+	"-METRIC_KIND_TELEMETRY_PIPELINE_MIXED_RECEIVED\x10n\x120\n" +
+	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_EMITTED\x10o\x120\n" +
+	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED\x10p\x12%\n" +
+	"!METRIC_KIND_GPU_MEMORY_USED_BYTES\x10q\x12%\n" +
+	"!METRIC_KIND_GPU_MEMORY_FREE_BYTES\x10r\x12-\n" +
+	")METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT\x10s*\xd6\b\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -1751,7 +2275,13 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1aFILTER_KIND_CONSUMER_GROUP\x10\x19\x12\x1c\n" +
 	"\x18FILTER_KIND_CONTAINER_ID\x10\x1a\x12\x17\n" +
 	"\x13FILTER_KIND_PLANNER\x10\x1b\x12\x1b\n" +
-	"\x17FILTER_KIND_PLAN_REASON\x10\x1c*~\n" +
+	"\x17FILTER_KIND_PLAN_REASON\x10\x1c\x12\"\n" +
+	"\x1eFILTER_KIND_FUNCTION_CALL_MODE\x10\x1d\x12*\n" +
+	"&FILTER_KIND_OFFLINE_QUERY_OPERATION_ID\x10\x1e\x12(\n" +
+	"$FILTER_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1f\x12!\n" +
+	"\x1dFILTER_KIND_CRON_OPERATION_ID\x10 \x12%\n" +
+	"!FILTER_KIND_CHALKSQL_OPERATION_ID\x10!\x12\x19\n" +
+	"\x15FILTER_KIND_NODE_NAME\x10\"*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -1771,7 +2301,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xe9\x05\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x98\b\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -1796,7 +2326,14 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1aGROUP_BY_KIND_SERVICE_KIND\x10\x13\x12 \n" +
 	"\x1cGROUP_BY_KIND_CONSUMER_GROUP\x10\x14\x12\x19\n" +
 	"\x15GROUP_BY_KIND_PLANNER\x10\x15\x12\x1d\n" +
-	"\x19GROUP_BY_KIND_PLAN_REASON\x10\x16*\x81\x03\n" +
+	"\x19GROUP_BY_KIND_PLAN_REASON\x10\x16\x12)\n" +
+	"%GROUP_BY_KIND_TELEMETRY_PIPELINE_ROLE\x10\x17\x12)\n" +
+	"%GROUP_BY_KIND_TELEMETRY_PIPELINE_STEP\x10\x18\x12/\n" +
+	"+GROUP_BY_KIND_TELEMETRY_PIPELINE_DROP_SCOPE\x10\x19\x12,\n" +
+	"(GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID\x10\x1a\x12*\n" +
+	"&GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1b\x12#\n" +
+	"\x1fGROUP_BY_KIND_CRON_OPERATION_ID\x10\x1c\x12'\n" +
+	"#GROUP_BY_KIND_CHALKSQL_OPERATION_ID\x10\x1d*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +
@@ -1831,7 +2368,13 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x17CHART_LINK_KIND_FEATURE\x10\x02\x12\x19\n" +
 	"\x15CHART_LINK_KIND_QUERY\x10\x03\x12\x1a\n" +
 	"\x16CHART_LINK_KIND_MANUAL\x10\x04\x12#\n" +
-	"\x1fCHART_LINK_KIND_SCHEDULED_QUERY\x10\x05B\xcf\x01\n" +
+	"\x1fCHART_LINK_KIND_SCHEDULED_QUERY\x10\x05*\xcb\x01\n" +
+	"\x12RawMetricValueKind\x12%\n" +
+	"!RAW_METRIC_VALUE_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bRAW_METRIC_VALUE_KIND_GAUGE\x10\x01\x12!\n" +
+	"\x1dRAW_METRIC_VALUE_KIND_COUNTER\x10\x02\x12#\n" +
+	"\x1fRAW_METRIC_VALUE_KIND_HISTOGRAM\x10\x03\x12%\n" +
+	"!RAW_METRIC_VALUE_KIND_DELTA_COUNT\x10\x04B\xcf\x01\n" +
 	"\x16com.chalk.artifacts.v1B\n" +
 	"ChartProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
@@ -1847,49 +2390,60 @@ func file_chalk_artifacts_v1_chart_proto_rawDescGZIP() []byte {
 	return file_chalk_artifacts_v1_chart_proto_rawDescData
 }
 
-var file_chalk_artifacts_v1_chart_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
-var file_chalk_artifacts_v1_chart_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chalk_artifacts_v1_chart_proto_enumTypes = make([]protoimpl.EnumInfo, 10)
+var file_chalk_artifacts_v1_chart_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_chalk_artifacts_v1_chart_proto_goTypes = []any{
-	(MetricKind)(0),               // 0: chalk.artifacts.v1.MetricKind
-	(FilterKind)(0),               // 1: chalk.artifacts.v1.FilterKind
-	(ComparatorKind)(0),           // 2: chalk.artifacts.v1.ComparatorKind
-	(WindowFunctionKind)(0),       // 3: chalk.artifacts.v1.WindowFunctionKind
-	(GroupByKind)(0),              // 4: chalk.artifacts.v1.GroupByKind
-	(MetricFormulaKind)(0),        // 5: chalk.artifacts.v1.MetricFormulaKind
-	(AlertSeverityKind)(0),        // 6: chalk.artifacts.v1.AlertSeverityKind
-	(ThresholdKind)(0),            // 7: chalk.artifacts.v1.ThresholdKind
-	(ChartLinkKind)(0),            // 8: chalk.artifacts.v1.ChartLinkKind
-	(*AlertTrigger)(nil),          // 9: chalk.artifacts.v1.AlertTrigger
-	(*DatasetFeatureOperand)(nil), // 10: chalk.artifacts.v1.DatasetFeatureOperand
-	(*MetricFormula)(nil),         // 11: chalk.artifacts.v1.MetricFormula
-	(*MetricFilter)(nil),          // 12: chalk.artifacts.v1.MetricFilter
-	(*MetricConfigSeries)(nil),    // 13: chalk.artifacts.v1.MetricConfigSeries
-	(*MetricConfig)(nil),          // 14: chalk.artifacts.v1.MetricConfig
-	(*Chart)(nil),                 // 15: chalk.artifacts.v1.Chart
-	(*durationpb.Duration)(nil),   // 16: google.protobuf.Duration
+	(MetricKind)(0),                        // 0: chalk.artifacts.v1.MetricKind
+	(FilterKind)(0),                        // 1: chalk.artifacts.v1.FilterKind
+	(ComparatorKind)(0),                    // 2: chalk.artifacts.v1.ComparatorKind
+	(WindowFunctionKind)(0),                // 3: chalk.artifacts.v1.WindowFunctionKind
+	(GroupByKind)(0),                       // 4: chalk.artifacts.v1.GroupByKind
+	(MetricFormulaKind)(0),                 // 5: chalk.artifacts.v1.MetricFormulaKind
+	(AlertSeverityKind)(0),                 // 6: chalk.artifacts.v1.AlertSeverityKind
+	(ThresholdKind)(0),                     // 7: chalk.artifacts.v1.ThresholdKind
+	(ChartLinkKind)(0),                     // 8: chalk.artifacts.v1.ChartLinkKind
+	(RawMetricValueKind)(0),                // 9: chalk.artifacts.v1.RawMetricValueKind
+	(*AlertTrigger)(nil),                   // 10: chalk.artifacts.v1.AlertTrigger
+	(*DatasetFeatureOperand)(nil),          // 11: chalk.artifacts.v1.DatasetFeatureOperand
+	(*MetricFormula)(nil),                  // 12: chalk.artifacts.v1.MetricFormula
+	(*MetricFilter)(nil),                   // 13: chalk.artifacts.v1.MetricFilter
+	(*RawMetricLabelMatcher)(nil),          // 14: chalk.artifacts.v1.RawMetricLabelMatcher
+	(*RawMetricSeries)(nil),                // 15: chalk.artifacts.v1.RawMetricSeries
+	(*MetricConfigSeries)(nil),             // 16: chalk.artifacts.v1.MetricConfigSeries
+	(*TimeSeriesVisualizationOptions)(nil), // 17: chalk.artifacts.v1.TimeSeriesVisualizationOptions
+	(*StatisticVisualizationOptions)(nil),  // 18: chalk.artifacts.v1.StatisticVisualizationOptions
+	(*MetricConfig)(nil),                   // 19: chalk.artifacts.v1.MetricConfig
+	(*Chart)(nil),                          // 20: chalk.artifacts.v1.Chart
+	(*durationpb.Duration)(nil),            // 21: google.protobuf.Duration
 }
 var file_chalk_artifacts_v1_chart_proto_depIdxs = []int32{
 	6,  // 0: chalk.artifacts.v1.AlertTrigger.severity:type_name -> chalk.artifacts.v1.AlertSeverityKind
 	7,  // 1: chalk.artifacts.v1.AlertTrigger.threshold_position:type_name -> chalk.artifacts.v1.ThresholdKind
 	5,  // 2: chalk.artifacts.v1.MetricFormula.kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
-	10, // 3: chalk.artifacts.v1.MetricFormula.dataset_feature_operands:type_name -> chalk.artifacts.v1.DatasetFeatureOperand
+	11, // 3: chalk.artifacts.v1.MetricFormula.dataset_feature_operands:type_name -> chalk.artifacts.v1.DatasetFeatureOperand
 	1,  // 4: chalk.artifacts.v1.MetricFilter.kind:type_name -> chalk.artifacts.v1.FilterKind
 	2,  // 5: chalk.artifacts.v1.MetricFilter.comparator:type_name -> chalk.artifacts.v1.ComparatorKind
-	0,  // 6: chalk.artifacts.v1.MetricConfigSeries.metric:type_name -> chalk.artifacts.v1.MetricKind
-	12, // 7: chalk.artifacts.v1.MetricConfigSeries.filters:type_name -> chalk.artifacts.v1.MetricFilter
-	3,  // 8: chalk.artifacts.v1.MetricConfigSeries.window_function:type_name -> chalk.artifacts.v1.WindowFunctionKind
-	4,  // 9: chalk.artifacts.v1.MetricConfigSeries.group_by:type_name -> chalk.artifacts.v1.GroupByKind
-	16, // 10: chalk.artifacts.v1.MetricConfigSeries.time_shift:type_name -> google.protobuf.Duration
-	13, // 11: chalk.artifacts.v1.MetricConfig.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
-	11, // 12: chalk.artifacts.v1.MetricConfig.formulas:type_name -> chalk.artifacts.v1.MetricFormula
-	9,  // 13: chalk.artifacts.v1.MetricConfig.trigger:type_name -> chalk.artifacts.v1.AlertTrigger
-	14, // 14: chalk.artifacts.v1.Chart.config:type_name -> chalk.artifacts.v1.MetricConfig
-	8,  // 15: chalk.artifacts.v1.Chart.entity_kind:type_name -> chalk.artifacts.v1.ChartLinkKind
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	2,  // 6: chalk.artifacts.v1.RawMetricLabelMatcher.comparator:type_name -> chalk.artifacts.v1.ComparatorKind
+	14, // 7: chalk.artifacts.v1.RawMetricSeries.matchers:type_name -> chalk.artifacts.v1.RawMetricLabelMatcher
+	9,  // 8: chalk.artifacts.v1.RawMetricSeries.value_kind:type_name -> chalk.artifacts.v1.RawMetricValueKind
+	0,  // 9: chalk.artifacts.v1.MetricConfigSeries.metric:type_name -> chalk.artifacts.v1.MetricKind
+	13, // 10: chalk.artifacts.v1.MetricConfigSeries.filters:type_name -> chalk.artifacts.v1.MetricFilter
+	3,  // 11: chalk.artifacts.v1.MetricConfigSeries.window_function:type_name -> chalk.artifacts.v1.WindowFunctionKind
+	4,  // 12: chalk.artifacts.v1.MetricConfigSeries.group_by:type_name -> chalk.artifacts.v1.GroupByKind
+	21, // 13: chalk.artifacts.v1.MetricConfigSeries.time_shift:type_name -> google.protobuf.Duration
+	15, // 14: chalk.artifacts.v1.MetricConfigSeries.raw:type_name -> chalk.artifacts.v1.RawMetricSeries
+	16, // 15: chalk.artifacts.v1.MetricConfig.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
+	12, // 16: chalk.artifacts.v1.MetricConfig.formulas:type_name -> chalk.artifacts.v1.MetricFormula
+	10, // 17: chalk.artifacts.v1.MetricConfig.trigger:type_name -> chalk.artifacts.v1.AlertTrigger
+	17, // 18: chalk.artifacts.v1.MetricConfig.time_series_options:type_name -> chalk.artifacts.v1.TimeSeriesVisualizationOptions
+	18, // 19: chalk.artifacts.v1.MetricConfig.stat_options:type_name -> chalk.artifacts.v1.StatisticVisualizationOptions
+	19, // 20: chalk.artifacts.v1.Chart.config:type_name -> chalk.artifacts.v1.MetricConfig
+	8,  // 21: chalk.artifacts.v1.Chart.entity_kind:type_name -> chalk.artifacts.v1.ChartLinkKind
+	22, // [22:22] is the sub-list for method output_type
+	22, // [22:22] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_chart_proto_init() }
@@ -1898,17 +2452,22 @@ func file_chalk_artifacts_v1_chart_proto_init() {
 		return
 	}
 	file_chalk_artifacts_v1_chart_proto_msgTypes[0].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_chart_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_chart_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_artifacts_v1_chart_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_chart_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_chart_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_chart_proto_msgTypes[9].OneofWrappers = []any{
+		(*MetricConfig_TimeSeriesOptions)(nil),
+		(*MetricConfig_StatOptions)(nil),
+	}
+	file_chalk_artifacts_v1_chart_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_chart_proto_rawDesc), len(file_chalk_artifacts_v1_chart_proto_rawDesc)),
-			NumEnums:      9,
-			NumMessages:   7,
+			NumEnums:      10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

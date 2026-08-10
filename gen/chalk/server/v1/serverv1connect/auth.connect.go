@@ -94,6 +94,15 @@ const (
 	// AuthServiceGetInternalWorkingTokenProcedure is the fully-qualified name of the AuthService's
 	// GetInternalWorkingToken RPC.
 	AuthServiceGetInternalWorkingTokenProcedure = "/chalk.server.v1.AuthService/GetInternalWorkingToken"
+	// AuthServiceCreateSelfHostedLicenseKeyProcedure is the fully-qualified name of the AuthService's
+	// CreateSelfHostedLicenseKey RPC.
+	AuthServiceCreateSelfHostedLicenseKeyProcedure = "/chalk.server.v1.AuthService/CreateSelfHostedLicenseKey"
+	// AuthServiceRevokeSelfHostedLicenseKeyProcedure is the fully-qualified name of the AuthService's
+	// RevokeSelfHostedLicenseKey RPC.
+	AuthServiceRevokeSelfHostedLicenseKeyProcedure = "/chalk.server.v1.AuthService/RevokeSelfHostedLicenseKey"
+	// AuthServiceListSelfHostedLicenseKeysProcedure is the fully-qualified name of the AuthService's
+	// ListSelfHostedLicenseKeys RPC.
+	AuthServiceListSelfHostedLicenseKeysProcedure = "/chalk.server.v1.AuthService/ListSelfHostedLicenseKeys"
 )
 
 // AuthServiceClient is a client for the chalk.server.v1.AuthService service.
@@ -121,6 +130,9 @@ type AuthServiceClient interface {
 	// Only for use with auto-impersonation
 	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
 	GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error)
+	CreateSelfHostedLicenseKey(context.Context, *connect.Request[v1.CreateSelfHostedLicenseKeyRequest]) (*connect.Response[v1.CreateSelfHostedLicenseKeyResponse], error)
+	RevokeSelfHostedLicenseKey(context.Context, *connect.Request[v1.RevokeSelfHostedLicenseKeyRequest]) (*connect.Response[v1.RevokeSelfHostedLicenseKeyResponse], error)
+	ListSelfHostedLicenseKeys(context.Context, *connect.Request[v1.ListSelfHostedLicenseKeysRequest]) (*connect.Response[v1.ListSelfHostedLicenseKeysResponse], error)
 }
 
 // NewAuthServiceClient constructs a client for the chalk.server.v1.AuthService service. By default,
@@ -267,33 +279,55 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("GetInternalWorkingToken")),
 			connect.WithClientOptions(opts...),
 		),
+		createSelfHostedLicenseKey: connect.NewClient[v1.CreateSelfHostedLicenseKeyRequest, v1.CreateSelfHostedLicenseKeyResponse](
+			httpClient,
+			baseURL+AuthServiceCreateSelfHostedLicenseKeyProcedure,
+			connect.WithSchema(authServiceMethods.ByName("CreateSelfHostedLicenseKey")),
+			connect.WithClientOptions(opts...),
+		),
+		revokeSelfHostedLicenseKey: connect.NewClient[v1.RevokeSelfHostedLicenseKeyRequest, v1.RevokeSelfHostedLicenseKeyResponse](
+			httpClient,
+			baseURL+AuthServiceRevokeSelfHostedLicenseKeyProcedure,
+			connect.WithSchema(authServiceMethods.ByName("RevokeSelfHostedLicenseKey")),
+			connect.WithClientOptions(opts...),
+		),
+		listSelfHostedLicenseKeys: connect.NewClient[v1.ListSelfHostedLicenseKeysRequest, v1.ListSelfHostedLicenseKeysResponse](
+			httpClient,
+			baseURL+AuthServiceListSelfHostedLicenseKeysProcedure,
+			connect.WithSchema(authServiceMethods.ByName("ListSelfHostedLicenseKeys")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // authServiceClient implements AuthServiceClient.
 type authServiceClient struct {
-	getToken                *connect.Client[v1.GetTokenRequest, v1.GetTokenResponse]
-	createLinkSession       *connect.Client[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse]
-	getLinkSession          *connect.Client[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse]
-	updateLinkSession       *connect.Client[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse]
-	checkTeamInvites        *connect.Client[v1.CheckTeamInvitesRequest, v1.CheckTeamInvitesResponse]
-	createUser              *connect.Client[v1.CreateUserRequest, v1.CreateUserResponse]
-	getUserById             *connect.Client[v1.GetUserByIdRequest, v1.GetUserByIdResponse]
-	getUserByEmail          *connect.Client[v1.GetUserByEmailRequest, v1.GetUserByEmailResponse]
-	getUserByAccount        *connect.Client[v1.GetUserByAccountRequest, v1.GetUserByAccountResponse]
-	updateUser              *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
-	linkAccount             *connect.Client[v1.LinkAccountRequest, v1.LinkAccountResponse]
-	createSession           *connect.Client[v1.CreateSessionRequest, v1.CreateSessionResponse]
-	getSessionAndUser       *connect.Client[v1.GetSessionAndUserRequest, v1.GetSessionAndUserResponse]
-	updateSession           *connect.Client[v1.UpdateSessionRequest, v1.UpdateSessionResponse]
-	deleteSession           *connect.Client[v1.DeleteSessionRequest, v1.DeleteSessionResponse]
-	createVerificationToken *connect.Client[v1.CreateVerificationTokenRequest, v1.CreateVerificationTokenResponse]
-	useVerificationToken    *connect.Client[v1.UseVerificationTokenRequest, v1.UseVerificationTokenResponse]
-	upsertUserByEmail       *connect.Client[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse]
-	selfServiceCreateTeam   *connect.Client[v1.SelfServiceCreateTeamRequest, v1.SelfServiceCreateTeamResponse]
-	getTeamOnboardingStatus *connect.Client[v1.GetTeamOnboardingStatusRequest, v1.GetTeamOnboardingStatusResponse]
-	getProjectInfo          *connect.Client[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse]
-	getInternalWorkingToken *connect.Client[v1.GetInternalWorkingTokenRequest, v1.GetInternalWorkingTokenResponse]
+	getToken                   *connect.Client[v1.GetTokenRequest, v1.GetTokenResponse]
+	createLinkSession          *connect.Client[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse]
+	getLinkSession             *connect.Client[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse]
+	updateLinkSession          *connect.Client[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse]
+	checkTeamInvites           *connect.Client[v1.CheckTeamInvitesRequest, v1.CheckTeamInvitesResponse]
+	createUser                 *connect.Client[v1.CreateUserRequest, v1.CreateUserResponse]
+	getUserById                *connect.Client[v1.GetUserByIdRequest, v1.GetUserByIdResponse]
+	getUserByEmail             *connect.Client[v1.GetUserByEmailRequest, v1.GetUserByEmailResponse]
+	getUserByAccount           *connect.Client[v1.GetUserByAccountRequest, v1.GetUserByAccountResponse]
+	updateUser                 *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
+	linkAccount                *connect.Client[v1.LinkAccountRequest, v1.LinkAccountResponse]
+	createSession              *connect.Client[v1.CreateSessionRequest, v1.CreateSessionResponse]
+	getSessionAndUser          *connect.Client[v1.GetSessionAndUserRequest, v1.GetSessionAndUserResponse]
+	updateSession              *connect.Client[v1.UpdateSessionRequest, v1.UpdateSessionResponse]
+	deleteSession              *connect.Client[v1.DeleteSessionRequest, v1.DeleteSessionResponse]
+	createVerificationToken    *connect.Client[v1.CreateVerificationTokenRequest, v1.CreateVerificationTokenResponse]
+	useVerificationToken       *connect.Client[v1.UseVerificationTokenRequest, v1.UseVerificationTokenResponse]
+	upsertUserByEmail          *connect.Client[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse]
+	selfServiceCreateTeam      *connect.Client[v1.SelfServiceCreateTeamRequest, v1.SelfServiceCreateTeamResponse]
+	getTeamOnboardingStatus    *connect.Client[v1.GetTeamOnboardingStatusRequest, v1.GetTeamOnboardingStatusResponse]
+	getProjectInfo             *connect.Client[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse]
+	getInternalWorkingToken    *connect.Client[v1.GetInternalWorkingTokenRequest, v1.GetInternalWorkingTokenResponse]
+	createSelfHostedLicenseKey *connect.Client[v1.CreateSelfHostedLicenseKeyRequest, v1.CreateSelfHostedLicenseKeyResponse]
+	revokeSelfHostedLicenseKey *connect.Client[v1.RevokeSelfHostedLicenseKeyRequest, v1.RevokeSelfHostedLicenseKeyResponse]
+	listSelfHostedLicenseKeys  *connect.Client[v1.ListSelfHostedLicenseKeysRequest, v1.ListSelfHostedLicenseKeysResponse]
 }
 
 // GetToken calls chalk.server.v1.AuthService.GetToken.
@@ -406,6 +440,21 @@ func (c *authServiceClient) GetInternalWorkingToken(ctx context.Context, req *co
 	return c.getInternalWorkingToken.CallUnary(ctx, req)
 }
 
+// CreateSelfHostedLicenseKey calls chalk.server.v1.AuthService.CreateSelfHostedLicenseKey.
+func (c *authServiceClient) CreateSelfHostedLicenseKey(ctx context.Context, req *connect.Request[v1.CreateSelfHostedLicenseKeyRequest]) (*connect.Response[v1.CreateSelfHostedLicenseKeyResponse], error) {
+	return c.createSelfHostedLicenseKey.CallUnary(ctx, req)
+}
+
+// RevokeSelfHostedLicenseKey calls chalk.server.v1.AuthService.RevokeSelfHostedLicenseKey.
+func (c *authServiceClient) RevokeSelfHostedLicenseKey(ctx context.Context, req *connect.Request[v1.RevokeSelfHostedLicenseKeyRequest]) (*connect.Response[v1.RevokeSelfHostedLicenseKeyResponse], error) {
+	return c.revokeSelfHostedLicenseKey.CallUnary(ctx, req)
+}
+
+// ListSelfHostedLicenseKeys calls chalk.server.v1.AuthService.ListSelfHostedLicenseKeys.
+func (c *authServiceClient) ListSelfHostedLicenseKeys(ctx context.Context, req *connect.Request[v1.ListSelfHostedLicenseKeysRequest]) (*connect.Response[v1.ListSelfHostedLicenseKeysResponse], error) {
+	return c.listSelfHostedLicenseKeys.CallUnary(ctx, req)
+}
+
 // AuthServiceHandler is an implementation of the chalk.server.v1.AuthService service.
 type AuthServiceHandler interface {
 	GetToken(context.Context, *connect.Request[v1.GetTokenRequest]) (*connect.Response[v1.GetTokenResponse], error)
@@ -431,6 +480,9 @@ type AuthServiceHandler interface {
 	// Only for use with auto-impersonation
 	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
 	GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error)
+	CreateSelfHostedLicenseKey(context.Context, *connect.Request[v1.CreateSelfHostedLicenseKeyRequest]) (*connect.Response[v1.CreateSelfHostedLicenseKeyResponse], error)
+	RevokeSelfHostedLicenseKey(context.Context, *connect.Request[v1.RevokeSelfHostedLicenseKeyRequest]) (*connect.Response[v1.RevokeSelfHostedLicenseKeyResponse], error)
+	ListSelfHostedLicenseKeys(context.Context, *connect.Request[v1.ListSelfHostedLicenseKeysRequest]) (*connect.Response[v1.ListSelfHostedLicenseKeysResponse], error)
 }
 
 // NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -573,6 +625,25 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("GetInternalWorkingToken")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceCreateSelfHostedLicenseKeyHandler := connect.NewUnaryHandler(
+		AuthServiceCreateSelfHostedLicenseKeyProcedure,
+		svc.CreateSelfHostedLicenseKey,
+		connect.WithSchema(authServiceMethods.ByName("CreateSelfHostedLicenseKey")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceRevokeSelfHostedLicenseKeyHandler := connect.NewUnaryHandler(
+		AuthServiceRevokeSelfHostedLicenseKeyProcedure,
+		svc.RevokeSelfHostedLicenseKey,
+		connect.WithSchema(authServiceMethods.ByName("RevokeSelfHostedLicenseKey")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceListSelfHostedLicenseKeysHandler := connect.NewUnaryHandler(
+		AuthServiceListSelfHostedLicenseKeysProcedure,
+		svc.ListSelfHostedLicenseKeys,
+		connect.WithSchema(authServiceMethods.ByName("ListSelfHostedLicenseKeys")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.AuthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthServiceGetTokenProcedure:
@@ -619,6 +690,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceGetProjectInfoHandler.ServeHTTP(w, r)
 		case AuthServiceGetInternalWorkingTokenProcedure:
 			authServiceGetInternalWorkingTokenHandler.ServeHTTP(w, r)
+		case AuthServiceCreateSelfHostedLicenseKeyProcedure:
+			authServiceCreateSelfHostedLicenseKeyHandler.ServeHTTP(w, r)
+		case AuthServiceRevokeSelfHostedLicenseKeyProcedure:
+			authServiceRevokeSelfHostedLicenseKeyHandler.ServeHTTP(w, r)
+		case AuthServiceListSelfHostedLicenseKeysProcedure:
+			authServiceListSelfHostedLicenseKeysHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -714,4 +791,16 @@ func (UnimplementedAuthServiceHandler) GetProjectInfo(context.Context, *connect.
 
 func (UnimplementedAuthServiceHandler) GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetInternalWorkingToken is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) CreateSelfHostedLicenseKey(context.Context, *connect.Request[v1.CreateSelfHostedLicenseKeyRequest]) (*connect.Response[v1.CreateSelfHostedLicenseKeyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.CreateSelfHostedLicenseKey is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) RevokeSelfHostedLicenseKey(context.Context, *connect.Request[v1.RevokeSelfHostedLicenseKeyRequest]) (*connect.Response[v1.RevokeSelfHostedLicenseKeyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.RevokeSelfHostedLicenseKey is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) ListSelfHostedLicenseKeys(context.Context, *connect.Request[v1.ListSelfHostedLicenseKeysRequest]) (*connect.Response[v1.ListSelfHostedLicenseKeysResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.ListSelfHostedLicenseKeys is not implemented"))
 }

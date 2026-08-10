@@ -47,6 +47,12 @@ const (
 	// VolumeServiceListVolumeVersionsProcedure is the fully-qualified name of the VolumeService's
 	// ListVolumeVersions RPC.
 	VolumeServiceListVolumeVersionsProcedure = "/chalk.volume.v2.VolumeService/ListVolumeVersions"
+	// VolumeServiceCreateRefProcedure is the fully-qualified name of the VolumeService's CreateRef RPC.
+	VolumeServiceCreateRefProcedure = "/chalk.volume.v2.VolumeService/CreateRef"
+	// VolumeServiceListRefsProcedure is the fully-qualified name of the VolumeService's ListRefs RPC.
+	VolumeServiceListRefsProcedure = "/chalk.volume.v2.VolumeService/ListRefs"
+	// VolumeServiceDeleteRefProcedure is the fully-qualified name of the VolumeService's DeleteRef RPC.
+	VolumeServiceDeleteRefProcedure = "/chalk.volume.v2.VolumeService/DeleteRef"
 	// VolumeServiceCommitVersionProcedure is the fully-qualified name of the VolumeService's
 	// CommitVersion RPC.
 	VolumeServiceCommitVersionProcedure = "/chalk.volume.v2.VolumeService/CommitVersion"
@@ -72,6 +78,9 @@ type VolumeServiceClient interface {
 	ListVolumes(context.Context, *connect.Request[v2.ListVolumesRequest]) (*connect.Response[v2.ListVolumesResponse], error)
 	DeleteVolume(context.Context, *connect.Request[v2.DeleteVolumeRequest]) (*connect.Response[v2.DeleteVolumeResponse], error)
 	ListVolumeVersions(context.Context, *connect.Request[v2.ListVolumeVersionsRequest]) (*connect.Response[v2.ListVolumeVersionsResponse], error)
+	CreateRef(context.Context, *connect.Request[v2.CreateRefRequest]) (*connect.Response[v2.CreateRefResponse], error)
+	ListRefs(context.Context, *connect.Request[v2.ListRefsRequest]) (*connect.Response[v2.ListRefsResponse], error)
+	DeleteRef(context.Context, *connect.Request[v2.DeleteRefRequest]) (*connect.Response[v2.DeleteRefResponse], error)
 	CommitVersion(context.Context, *connect.Request[v2.CommitVersionRequest]) (*connect.Response[v2.CommitVersionResponse], error)
 	GetCommitStatus(context.Context, *connect.Request[v2.GetCommitStatusRequest]) (*connect.Response[v2.GetCommitStatusResponse], error)
 	AllocateInodeRange(context.Context, *connect.Request[v2.AllocateInodeRangeRequest]) (*connect.Response[v2.AllocateInodeRangeResponse], error)
@@ -124,6 +133,25 @@ func NewVolumeServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		createRef: connect.NewClient[v2.CreateRefRequest, v2.CreateRefResponse](
+			httpClient,
+			baseURL+VolumeServiceCreateRefProcedure,
+			connect.WithSchema(volumeServiceMethods.ByName("CreateRef")),
+			connect.WithClientOptions(opts...),
+		),
+		listRefs: connect.NewClient[v2.ListRefsRequest, v2.ListRefsResponse](
+			httpClient,
+			baseURL+VolumeServiceListRefsProcedure,
+			connect.WithSchema(volumeServiceMethods.ByName("ListRefs")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteRef: connect.NewClient[v2.DeleteRefRequest, v2.DeleteRefResponse](
+			httpClient,
+			baseURL+VolumeServiceDeleteRefProcedure,
+			connect.WithSchema(volumeServiceMethods.ByName("DeleteRef")),
+			connect.WithClientOptions(opts...),
+		),
 		commitVersion: connect.NewClient[v2.CommitVersionRequest, v2.CommitVersionResponse](
 			httpClient,
 			baseURL+VolumeServiceCommitVersionProcedure,
@@ -174,6 +202,9 @@ type volumeServiceClient struct {
 	listVolumes        *connect.Client[v2.ListVolumesRequest, v2.ListVolumesResponse]
 	deleteVolume       *connect.Client[v2.DeleteVolumeRequest, v2.DeleteVolumeResponse]
 	listVolumeVersions *connect.Client[v2.ListVolumeVersionsRequest, v2.ListVolumeVersionsResponse]
+	createRef          *connect.Client[v2.CreateRefRequest, v2.CreateRefResponse]
+	listRefs           *connect.Client[v2.ListRefsRequest, v2.ListRefsResponse]
+	deleteRef          *connect.Client[v2.DeleteRefRequest, v2.DeleteRefResponse]
 	commitVersion      *connect.Client[v2.CommitVersionRequest, v2.CommitVersionResponse]
 	getCommitStatus    *connect.Client[v2.GetCommitStatusRequest, v2.GetCommitStatusResponse]
 	allocateInodeRange *connect.Client[v2.AllocateInodeRangeRequest, v2.AllocateInodeRangeResponse]
@@ -205,6 +236,21 @@ func (c *volumeServiceClient) DeleteVolume(ctx context.Context, req *connect.Req
 // ListVolumeVersions calls chalk.volume.v2.VolumeService.ListVolumeVersions.
 func (c *volumeServiceClient) ListVolumeVersions(ctx context.Context, req *connect.Request[v2.ListVolumeVersionsRequest]) (*connect.Response[v2.ListVolumeVersionsResponse], error) {
 	return c.listVolumeVersions.CallUnary(ctx, req)
+}
+
+// CreateRef calls chalk.volume.v2.VolumeService.CreateRef.
+func (c *volumeServiceClient) CreateRef(ctx context.Context, req *connect.Request[v2.CreateRefRequest]) (*connect.Response[v2.CreateRefResponse], error) {
+	return c.createRef.CallUnary(ctx, req)
+}
+
+// ListRefs calls chalk.volume.v2.VolumeService.ListRefs.
+func (c *volumeServiceClient) ListRefs(ctx context.Context, req *connect.Request[v2.ListRefsRequest]) (*connect.Response[v2.ListRefsResponse], error) {
+	return c.listRefs.CallUnary(ctx, req)
+}
+
+// DeleteRef calls chalk.volume.v2.VolumeService.DeleteRef.
+func (c *volumeServiceClient) DeleteRef(ctx context.Context, req *connect.Request[v2.DeleteRefRequest]) (*connect.Response[v2.DeleteRefResponse], error) {
+	return c.deleteRef.CallUnary(ctx, req)
 }
 
 // CommitVersion calls chalk.volume.v2.VolumeService.CommitVersion.
@@ -244,6 +290,9 @@ type VolumeServiceHandler interface {
 	ListVolumes(context.Context, *connect.Request[v2.ListVolumesRequest]) (*connect.Response[v2.ListVolumesResponse], error)
 	DeleteVolume(context.Context, *connect.Request[v2.DeleteVolumeRequest]) (*connect.Response[v2.DeleteVolumeResponse], error)
 	ListVolumeVersions(context.Context, *connect.Request[v2.ListVolumeVersionsRequest]) (*connect.Response[v2.ListVolumeVersionsResponse], error)
+	CreateRef(context.Context, *connect.Request[v2.CreateRefRequest]) (*connect.Response[v2.CreateRefResponse], error)
+	ListRefs(context.Context, *connect.Request[v2.ListRefsRequest]) (*connect.Response[v2.ListRefsResponse], error)
+	DeleteRef(context.Context, *connect.Request[v2.DeleteRefRequest]) (*connect.Response[v2.DeleteRefResponse], error)
 	CommitVersion(context.Context, *connect.Request[v2.CommitVersionRequest]) (*connect.Response[v2.CommitVersionResponse], error)
 	GetCommitStatus(context.Context, *connect.Request[v2.GetCommitStatusRequest]) (*connect.Response[v2.GetCommitStatusResponse], error)
 	AllocateInodeRange(context.Context, *connect.Request[v2.AllocateInodeRangeRequest]) (*connect.Response[v2.AllocateInodeRangeResponse], error)
@@ -290,6 +339,25 @@ func NewVolumeServiceHandler(svc VolumeServiceHandler, opts ...connect.HandlerOp
 		svc.ListVolumeVersions,
 		connect.WithSchema(volumeServiceMethods.ByName("ListVolumeVersions")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	volumeServiceCreateRefHandler := connect.NewUnaryHandler(
+		VolumeServiceCreateRefProcedure,
+		svc.CreateRef,
+		connect.WithSchema(volumeServiceMethods.ByName("CreateRef")),
+		connect.WithHandlerOptions(opts...),
+	)
+	volumeServiceListRefsHandler := connect.NewUnaryHandler(
+		VolumeServiceListRefsProcedure,
+		svc.ListRefs,
+		connect.WithSchema(volumeServiceMethods.ByName("ListRefs")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	volumeServiceDeleteRefHandler := connect.NewUnaryHandler(
+		VolumeServiceDeleteRefProcedure,
+		svc.DeleteRef,
+		connect.WithSchema(volumeServiceMethods.ByName("DeleteRef")),
 		connect.WithHandlerOptions(opts...),
 	)
 	volumeServiceCommitVersionHandler := connect.NewUnaryHandler(
@@ -344,6 +412,12 @@ func NewVolumeServiceHandler(svc VolumeServiceHandler, opts ...connect.HandlerOp
 			volumeServiceDeleteVolumeHandler.ServeHTTP(w, r)
 		case VolumeServiceListVolumeVersionsProcedure:
 			volumeServiceListVolumeVersionsHandler.ServeHTTP(w, r)
+		case VolumeServiceCreateRefProcedure:
+			volumeServiceCreateRefHandler.ServeHTTP(w, r)
+		case VolumeServiceListRefsProcedure:
+			volumeServiceListRefsHandler.ServeHTTP(w, r)
+		case VolumeServiceDeleteRefProcedure:
+			volumeServiceDeleteRefHandler.ServeHTTP(w, r)
 		case VolumeServiceCommitVersionProcedure:
 			volumeServiceCommitVersionHandler.ServeHTTP(w, r)
 		case VolumeServiceGetCommitStatusProcedure:
@@ -383,6 +457,18 @@ func (UnimplementedVolumeServiceHandler) DeleteVolume(context.Context, *connect.
 
 func (UnimplementedVolumeServiceHandler) ListVolumeVersions(context.Context, *connect.Request[v2.ListVolumeVersionsRequest]) (*connect.Response[v2.ListVolumeVersionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.ListVolumeVersions is not implemented"))
+}
+
+func (UnimplementedVolumeServiceHandler) CreateRef(context.Context, *connect.Request[v2.CreateRefRequest]) (*connect.Response[v2.CreateRefResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.CreateRef is not implemented"))
+}
+
+func (UnimplementedVolumeServiceHandler) ListRefs(context.Context, *connect.Request[v2.ListRefsRequest]) (*connect.Response[v2.ListRefsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.ListRefs is not implemented"))
+}
+
+func (UnimplementedVolumeServiceHandler) DeleteRef(context.Context, *connect.Request[v2.DeleteRefRequest]) (*connect.Response[v2.DeleteRefResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.DeleteRef is not implemented"))
 }
 
 func (UnimplementedVolumeServiceHandler) CommitVersion(context.Context, *connect.Request[v2.CommitVersionRequest]) (*connect.Response[v2.CommitVersionResponse], error) {

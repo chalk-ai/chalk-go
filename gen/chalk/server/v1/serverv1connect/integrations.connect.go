@@ -36,6 +36,12 @@ const (
 	// IntegrationsServiceListIntegrationsProcedure is the fully-qualified name of the
 	// IntegrationsService's ListIntegrations RPC.
 	IntegrationsServiceListIntegrationsProcedure = "/chalk.server.v1.IntegrationsService/ListIntegrations"
+	// IntegrationsServiceListDatasourcePermissionTagsProcedure is the fully-qualified name of the
+	// IntegrationsService's ListDatasourcePermissionTags RPC.
+	IntegrationsServiceListDatasourcePermissionTagsProcedure = "/chalk.server.v1.IntegrationsService/ListDatasourcePermissionTags"
+	// IntegrationsServiceGetDatasourcePermissionTagProcedure is the fully-qualified name of the
+	// IntegrationsService's GetDatasourcePermissionTag RPC.
+	IntegrationsServiceGetDatasourcePermissionTagProcedure = "/chalk.server.v1.IntegrationsService/GetDatasourcePermissionTag"
 	// IntegrationsServiceListIntegrationsAndSecretsProcedure is the fully-qualified name of the
 	// IntegrationsService's ListIntegrationsAndSecrets RPC.
 	IntegrationsServiceListIntegrationsAndSecretsProcedure = "/chalk.server.v1.IntegrationsService/ListIntegrationsAndSecrets"
@@ -57,14 +63,25 @@ const (
 	// IntegrationsServiceDeleteIntegrationProcedure is the fully-qualified name of the
 	// IntegrationsService's DeleteIntegration RPC.
 	IntegrationsServiceDeleteIntegrationProcedure = "/chalk.server.v1.IntegrationsService/DeleteIntegration"
+	// IntegrationsServiceUpsertDatasourcePermissionTagProcedure is the fully-qualified name of the
+	// IntegrationsService's UpsertDatasourcePermissionTag RPC.
+	IntegrationsServiceUpsertDatasourcePermissionTagProcedure = "/chalk.server.v1.IntegrationsService/UpsertDatasourcePermissionTag"
+	// IntegrationsServiceDeleteDatasourcePermissionTagProcedure is the fully-qualified name of the
+	// IntegrationsService's DeleteDatasourcePermissionTag RPC.
+	IntegrationsServiceDeleteDatasourcePermissionTagProcedure = "/chalk.server.v1.IntegrationsService/DeleteDatasourcePermissionTag"
 	// IntegrationsServiceTestIntegrationProcedure is the fully-qualified name of the
 	// IntegrationsService's TestIntegration RPC.
 	IntegrationsServiceTestIntegrationProcedure = "/chalk.server.v1.IntegrationsService/TestIntegration"
+	// IntegrationsServiceListSnowflakeNamedStagesProcedure is the fully-qualified name of the
+	// IntegrationsService's ListSnowflakeNamedStages RPC.
+	IntegrationsServiceListSnowflakeNamedStagesProcedure = "/chalk.server.v1.IntegrationsService/ListSnowflakeNamedStages"
 )
 
 // IntegrationsServiceClient is a client for the chalk.server.v1.IntegrationsService service.
 type IntegrationsServiceClient interface {
 	ListIntegrations(context.Context, *connect.Request[v1.ListIntegrationsRequest]) (*connect.Response[v1.ListIntegrationsResponse], error)
+	ListDatasourcePermissionTags(context.Context, *connect.Request[v1.ListDatasourcePermissionTagsRequest]) (*connect.Response[v1.ListDatasourcePermissionTagsResponse], error)
+	GetDatasourcePermissionTag(context.Context, *connect.Request[v1.GetDatasourcePermissionTagRequest]) (*connect.Response[v1.GetDatasourcePermissionTagResponse], error)
 	ListIntegrationsAndSecrets(context.Context, *connect.Request[v1.ListIntegrationsAndSecretsRequest]) (*connect.Response[v1.ListIntegrationsAndSecretsResponse], error)
 	GetIntegrationValue(context.Context, *connect.Request[v1.GetIntegrationValueRequest]) (*connect.Response[v1.GetIntegrationValueResponse], error)
 	GetIntegration(context.Context, *connect.Request[v1.GetIntegrationRequest]) (*connect.Response[v1.GetIntegrationResponse], error)
@@ -72,7 +89,13 @@ type IntegrationsServiceClient interface {
 	InsertIntegration(context.Context, *connect.Request[v1.InsertIntegrationRequest]) (*connect.Response[v1.InsertIntegrationResponse], error)
 	UpdateIntegration(context.Context, *connect.Request[v1.UpdateIntegrationRequest]) (*connect.Response[v1.UpdateIntegrationResponse], error)
 	DeleteIntegration(context.Context, *connect.Request[v1.DeleteIntegrationRequest]) (*connect.Response[v1.DeleteIntegrationResponse], error)
+	UpsertDatasourcePermissionTag(context.Context, *connect.Request[v1.UpsertDatasourcePermissionTagRequest]) (*connect.Response[v1.UpsertDatasourcePermissionTagResponse], error)
+	DeleteDatasourcePermissionTag(context.Context, *connect.Request[v1.DeleteDatasourcePermissionTagRequest]) (*connect.Response[v1.DeleteDatasourcePermissionTagResponse], error)
 	TestIntegration(context.Context, *connect.Request[v1.TestIntegrationRequest]) (*connect.Response[v1.TestIntegrationResponse], error)
+	// Introspects a Snowflake data source for the stages its credentials can see. Same
+	// permission as TestIntegration: both connect to the source with the caller-supplied or
+	// saved credentials and return only non-secret metadata.
+	ListSnowflakeNamedStages(context.Context, *connect.Request[v1.ListSnowflakeNamedStagesRequest]) (*connect.Response[v1.ListSnowflakeNamedStagesResponse], error)
 }
 
 // NewIntegrationsServiceClient constructs a client for the chalk.server.v1.IntegrationsService
@@ -90,6 +113,18 @@ func NewIntegrationsServiceClient(httpClient connect.HTTPClient, baseURL string,
 			httpClient,
 			baseURL+IntegrationsServiceListIntegrationsProcedure,
 			connect.WithSchema(integrationsServiceMethods.ByName("ListIntegrations")),
+			connect.WithClientOptions(opts...),
+		),
+		listDatasourcePermissionTags: connect.NewClient[v1.ListDatasourcePermissionTagsRequest, v1.ListDatasourcePermissionTagsResponse](
+			httpClient,
+			baseURL+IntegrationsServiceListDatasourcePermissionTagsProcedure,
+			connect.WithSchema(integrationsServiceMethods.ByName("ListDatasourcePermissionTags")),
+			connect.WithClientOptions(opts...),
+		),
+		getDatasourcePermissionTag: connect.NewClient[v1.GetDatasourcePermissionTagRequest, v1.GetDatasourcePermissionTagResponse](
+			httpClient,
+			baseURL+IntegrationsServiceGetDatasourcePermissionTagProcedure,
+			connect.WithSchema(integrationsServiceMethods.ByName("GetDatasourcePermissionTag")),
 			connect.WithClientOptions(opts...),
 		),
 		listIntegrationsAndSecrets: connect.NewClient[v1.ListIntegrationsAndSecretsRequest, v1.ListIntegrationsAndSecretsResponse](
@@ -134,10 +169,28 @@ func NewIntegrationsServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(integrationsServiceMethods.ByName("DeleteIntegration")),
 			connect.WithClientOptions(opts...),
 		),
+		upsertDatasourcePermissionTag: connect.NewClient[v1.UpsertDatasourcePermissionTagRequest, v1.UpsertDatasourcePermissionTagResponse](
+			httpClient,
+			baseURL+IntegrationsServiceUpsertDatasourcePermissionTagProcedure,
+			connect.WithSchema(integrationsServiceMethods.ByName("UpsertDatasourcePermissionTag")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteDatasourcePermissionTag: connect.NewClient[v1.DeleteDatasourcePermissionTagRequest, v1.DeleteDatasourcePermissionTagResponse](
+			httpClient,
+			baseURL+IntegrationsServiceDeleteDatasourcePermissionTagProcedure,
+			connect.WithSchema(integrationsServiceMethods.ByName("DeleteDatasourcePermissionTag")),
+			connect.WithClientOptions(opts...),
+		),
 		testIntegration: connect.NewClient[v1.TestIntegrationRequest, v1.TestIntegrationResponse](
 			httpClient,
 			baseURL+IntegrationsServiceTestIntegrationProcedure,
 			connect.WithSchema(integrationsServiceMethods.ByName("TestIntegration")),
+			connect.WithClientOptions(opts...),
+		),
+		listSnowflakeNamedStages: connect.NewClient[v1.ListSnowflakeNamedStagesRequest, v1.ListSnowflakeNamedStagesResponse](
+			httpClient,
+			baseURL+IntegrationsServiceListSnowflakeNamedStagesProcedure,
+			connect.WithSchema(integrationsServiceMethods.ByName("ListSnowflakeNamedStages")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -145,20 +198,36 @@ func NewIntegrationsServiceClient(httpClient connect.HTTPClient, baseURL string,
 
 // integrationsServiceClient implements IntegrationsServiceClient.
 type integrationsServiceClient struct {
-	listIntegrations           *connect.Client[v1.ListIntegrationsRequest, v1.ListIntegrationsResponse]
-	listIntegrationsAndSecrets *connect.Client[v1.ListIntegrationsAndSecretsRequest, v1.ListIntegrationsAndSecretsResponse]
-	getIntegrationValue        *connect.Client[v1.GetIntegrationValueRequest, v1.GetIntegrationValueResponse]
-	getIntegration             *connect.Client[v1.GetIntegrationRequest, v1.GetIntegrationResponse]
-	getIntegrationByName       *connect.Client[v1.GetIntegrationByNameRequest, v1.GetIntegrationByNameResponse]
-	insertIntegration          *connect.Client[v1.InsertIntegrationRequest, v1.InsertIntegrationResponse]
-	updateIntegration          *connect.Client[v1.UpdateIntegrationRequest, v1.UpdateIntegrationResponse]
-	deleteIntegration          *connect.Client[v1.DeleteIntegrationRequest, v1.DeleteIntegrationResponse]
-	testIntegration            *connect.Client[v1.TestIntegrationRequest, v1.TestIntegrationResponse]
+	listIntegrations              *connect.Client[v1.ListIntegrationsRequest, v1.ListIntegrationsResponse]
+	listDatasourcePermissionTags  *connect.Client[v1.ListDatasourcePermissionTagsRequest, v1.ListDatasourcePermissionTagsResponse]
+	getDatasourcePermissionTag    *connect.Client[v1.GetDatasourcePermissionTagRequest, v1.GetDatasourcePermissionTagResponse]
+	listIntegrationsAndSecrets    *connect.Client[v1.ListIntegrationsAndSecretsRequest, v1.ListIntegrationsAndSecretsResponse]
+	getIntegrationValue           *connect.Client[v1.GetIntegrationValueRequest, v1.GetIntegrationValueResponse]
+	getIntegration                *connect.Client[v1.GetIntegrationRequest, v1.GetIntegrationResponse]
+	getIntegrationByName          *connect.Client[v1.GetIntegrationByNameRequest, v1.GetIntegrationByNameResponse]
+	insertIntegration             *connect.Client[v1.InsertIntegrationRequest, v1.InsertIntegrationResponse]
+	updateIntegration             *connect.Client[v1.UpdateIntegrationRequest, v1.UpdateIntegrationResponse]
+	deleteIntegration             *connect.Client[v1.DeleteIntegrationRequest, v1.DeleteIntegrationResponse]
+	upsertDatasourcePermissionTag *connect.Client[v1.UpsertDatasourcePermissionTagRequest, v1.UpsertDatasourcePermissionTagResponse]
+	deleteDatasourcePermissionTag *connect.Client[v1.DeleteDatasourcePermissionTagRequest, v1.DeleteDatasourcePermissionTagResponse]
+	testIntegration               *connect.Client[v1.TestIntegrationRequest, v1.TestIntegrationResponse]
+	listSnowflakeNamedStages      *connect.Client[v1.ListSnowflakeNamedStagesRequest, v1.ListSnowflakeNamedStagesResponse]
 }
 
 // ListIntegrations calls chalk.server.v1.IntegrationsService.ListIntegrations.
 func (c *integrationsServiceClient) ListIntegrations(ctx context.Context, req *connect.Request[v1.ListIntegrationsRequest]) (*connect.Response[v1.ListIntegrationsResponse], error) {
 	return c.listIntegrations.CallUnary(ctx, req)
+}
+
+// ListDatasourcePermissionTags calls
+// chalk.server.v1.IntegrationsService.ListDatasourcePermissionTags.
+func (c *integrationsServiceClient) ListDatasourcePermissionTags(ctx context.Context, req *connect.Request[v1.ListDatasourcePermissionTagsRequest]) (*connect.Response[v1.ListDatasourcePermissionTagsResponse], error) {
+	return c.listDatasourcePermissionTags.CallUnary(ctx, req)
+}
+
+// GetDatasourcePermissionTag calls chalk.server.v1.IntegrationsService.GetDatasourcePermissionTag.
+func (c *integrationsServiceClient) GetDatasourcePermissionTag(ctx context.Context, req *connect.Request[v1.GetDatasourcePermissionTagRequest]) (*connect.Response[v1.GetDatasourcePermissionTagResponse], error) {
+	return c.getDatasourcePermissionTag.CallUnary(ctx, req)
 }
 
 // ListIntegrationsAndSecrets calls chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets.
@@ -196,15 +265,34 @@ func (c *integrationsServiceClient) DeleteIntegration(ctx context.Context, req *
 	return c.deleteIntegration.CallUnary(ctx, req)
 }
 
+// UpsertDatasourcePermissionTag calls
+// chalk.server.v1.IntegrationsService.UpsertDatasourcePermissionTag.
+func (c *integrationsServiceClient) UpsertDatasourcePermissionTag(ctx context.Context, req *connect.Request[v1.UpsertDatasourcePermissionTagRequest]) (*connect.Response[v1.UpsertDatasourcePermissionTagResponse], error) {
+	return c.upsertDatasourcePermissionTag.CallUnary(ctx, req)
+}
+
+// DeleteDatasourcePermissionTag calls
+// chalk.server.v1.IntegrationsService.DeleteDatasourcePermissionTag.
+func (c *integrationsServiceClient) DeleteDatasourcePermissionTag(ctx context.Context, req *connect.Request[v1.DeleteDatasourcePermissionTagRequest]) (*connect.Response[v1.DeleteDatasourcePermissionTagResponse], error) {
+	return c.deleteDatasourcePermissionTag.CallUnary(ctx, req)
+}
+
 // TestIntegration calls chalk.server.v1.IntegrationsService.TestIntegration.
 func (c *integrationsServiceClient) TestIntegration(ctx context.Context, req *connect.Request[v1.TestIntegrationRequest]) (*connect.Response[v1.TestIntegrationResponse], error) {
 	return c.testIntegration.CallUnary(ctx, req)
+}
+
+// ListSnowflakeNamedStages calls chalk.server.v1.IntegrationsService.ListSnowflakeNamedStages.
+func (c *integrationsServiceClient) ListSnowflakeNamedStages(ctx context.Context, req *connect.Request[v1.ListSnowflakeNamedStagesRequest]) (*connect.Response[v1.ListSnowflakeNamedStagesResponse], error) {
+	return c.listSnowflakeNamedStages.CallUnary(ctx, req)
 }
 
 // IntegrationsServiceHandler is an implementation of the chalk.server.v1.IntegrationsService
 // service.
 type IntegrationsServiceHandler interface {
 	ListIntegrations(context.Context, *connect.Request[v1.ListIntegrationsRequest]) (*connect.Response[v1.ListIntegrationsResponse], error)
+	ListDatasourcePermissionTags(context.Context, *connect.Request[v1.ListDatasourcePermissionTagsRequest]) (*connect.Response[v1.ListDatasourcePermissionTagsResponse], error)
+	GetDatasourcePermissionTag(context.Context, *connect.Request[v1.GetDatasourcePermissionTagRequest]) (*connect.Response[v1.GetDatasourcePermissionTagResponse], error)
 	ListIntegrationsAndSecrets(context.Context, *connect.Request[v1.ListIntegrationsAndSecretsRequest]) (*connect.Response[v1.ListIntegrationsAndSecretsResponse], error)
 	GetIntegrationValue(context.Context, *connect.Request[v1.GetIntegrationValueRequest]) (*connect.Response[v1.GetIntegrationValueResponse], error)
 	GetIntegration(context.Context, *connect.Request[v1.GetIntegrationRequest]) (*connect.Response[v1.GetIntegrationResponse], error)
@@ -212,7 +300,13 @@ type IntegrationsServiceHandler interface {
 	InsertIntegration(context.Context, *connect.Request[v1.InsertIntegrationRequest]) (*connect.Response[v1.InsertIntegrationResponse], error)
 	UpdateIntegration(context.Context, *connect.Request[v1.UpdateIntegrationRequest]) (*connect.Response[v1.UpdateIntegrationResponse], error)
 	DeleteIntegration(context.Context, *connect.Request[v1.DeleteIntegrationRequest]) (*connect.Response[v1.DeleteIntegrationResponse], error)
+	UpsertDatasourcePermissionTag(context.Context, *connect.Request[v1.UpsertDatasourcePermissionTagRequest]) (*connect.Response[v1.UpsertDatasourcePermissionTagResponse], error)
+	DeleteDatasourcePermissionTag(context.Context, *connect.Request[v1.DeleteDatasourcePermissionTagRequest]) (*connect.Response[v1.DeleteDatasourcePermissionTagResponse], error)
 	TestIntegration(context.Context, *connect.Request[v1.TestIntegrationRequest]) (*connect.Response[v1.TestIntegrationResponse], error)
+	// Introspects a Snowflake data source for the stages its credentials can see. Same
+	// permission as TestIntegration: both connect to the source with the caller-supplied or
+	// saved credentials and return only non-secret metadata.
+	ListSnowflakeNamedStages(context.Context, *connect.Request[v1.ListSnowflakeNamedStagesRequest]) (*connect.Response[v1.ListSnowflakeNamedStagesResponse], error)
 }
 
 // NewIntegrationsServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -226,6 +320,18 @@ func NewIntegrationsServiceHandler(svc IntegrationsServiceHandler, opts ...conne
 		IntegrationsServiceListIntegrationsProcedure,
 		svc.ListIntegrations,
 		connect.WithSchema(integrationsServiceMethods.ByName("ListIntegrations")),
+		connect.WithHandlerOptions(opts...),
+	)
+	integrationsServiceListDatasourcePermissionTagsHandler := connect.NewUnaryHandler(
+		IntegrationsServiceListDatasourcePermissionTagsProcedure,
+		svc.ListDatasourcePermissionTags,
+		connect.WithSchema(integrationsServiceMethods.ByName("ListDatasourcePermissionTags")),
+		connect.WithHandlerOptions(opts...),
+	)
+	integrationsServiceGetDatasourcePermissionTagHandler := connect.NewUnaryHandler(
+		IntegrationsServiceGetDatasourcePermissionTagProcedure,
+		svc.GetDatasourcePermissionTag,
+		connect.WithSchema(integrationsServiceMethods.ByName("GetDatasourcePermissionTag")),
 		connect.WithHandlerOptions(opts...),
 	)
 	integrationsServiceListIntegrationsAndSecretsHandler := connect.NewUnaryHandler(
@@ -270,16 +376,38 @@ func NewIntegrationsServiceHandler(svc IntegrationsServiceHandler, opts ...conne
 		connect.WithSchema(integrationsServiceMethods.ByName("DeleteIntegration")),
 		connect.WithHandlerOptions(opts...),
 	)
+	integrationsServiceUpsertDatasourcePermissionTagHandler := connect.NewUnaryHandler(
+		IntegrationsServiceUpsertDatasourcePermissionTagProcedure,
+		svc.UpsertDatasourcePermissionTag,
+		connect.WithSchema(integrationsServiceMethods.ByName("UpsertDatasourcePermissionTag")),
+		connect.WithHandlerOptions(opts...),
+	)
+	integrationsServiceDeleteDatasourcePermissionTagHandler := connect.NewUnaryHandler(
+		IntegrationsServiceDeleteDatasourcePermissionTagProcedure,
+		svc.DeleteDatasourcePermissionTag,
+		connect.WithSchema(integrationsServiceMethods.ByName("DeleteDatasourcePermissionTag")),
+		connect.WithHandlerOptions(opts...),
+	)
 	integrationsServiceTestIntegrationHandler := connect.NewUnaryHandler(
 		IntegrationsServiceTestIntegrationProcedure,
 		svc.TestIntegration,
 		connect.WithSchema(integrationsServiceMethods.ByName("TestIntegration")),
 		connect.WithHandlerOptions(opts...),
 	)
+	integrationsServiceListSnowflakeNamedStagesHandler := connect.NewUnaryHandler(
+		IntegrationsServiceListSnowflakeNamedStagesProcedure,
+		svc.ListSnowflakeNamedStages,
+		connect.WithSchema(integrationsServiceMethods.ByName("ListSnowflakeNamedStages")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.IntegrationsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case IntegrationsServiceListIntegrationsProcedure:
 			integrationsServiceListIntegrationsHandler.ServeHTTP(w, r)
+		case IntegrationsServiceListDatasourcePermissionTagsProcedure:
+			integrationsServiceListDatasourcePermissionTagsHandler.ServeHTTP(w, r)
+		case IntegrationsServiceGetDatasourcePermissionTagProcedure:
+			integrationsServiceGetDatasourcePermissionTagHandler.ServeHTTP(w, r)
 		case IntegrationsServiceListIntegrationsAndSecretsProcedure:
 			integrationsServiceListIntegrationsAndSecretsHandler.ServeHTTP(w, r)
 		case IntegrationsServiceGetIntegrationValueProcedure:
@@ -294,8 +422,14 @@ func NewIntegrationsServiceHandler(svc IntegrationsServiceHandler, opts ...conne
 			integrationsServiceUpdateIntegrationHandler.ServeHTTP(w, r)
 		case IntegrationsServiceDeleteIntegrationProcedure:
 			integrationsServiceDeleteIntegrationHandler.ServeHTTP(w, r)
+		case IntegrationsServiceUpsertDatasourcePermissionTagProcedure:
+			integrationsServiceUpsertDatasourcePermissionTagHandler.ServeHTTP(w, r)
+		case IntegrationsServiceDeleteDatasourcePermissionTagProcedure:
+			integrationsServiceDeleteDatasourcePermissionTagHandler.ServeHTTP(w, r)
 		case IntegrationsServiceTestIntegrationProcedure:
 			integrationsServiceTestIntegrationHandler.ServeHTTP(w, r)
+		case IntegrationsServiceListSnowflakeNamedStagesProcedure:
+			integrationsServiceListSnowflakeNamedStagesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -307,6 +441,14 @@ type UnimplementedIntegrationsServiceHandler struct{}
 
 func (UnimplementedIntegrationsServiceHandler) ListIntegrations(context.Context, *connect.Request[v1.ListIntegrationsRequest]) (*connect.Response[v1.ListIntegrationsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.ListIntegrations is not implemented"))
+}
+
+func (UnimplementedIntegrationsServiceHandler) ListDatasourcePermissionTags(context.Context, *connect.Request[v1.ListDatasourcePermissionTagsRequest]) (*connect.Response[v1.ListDatasourcePermissionTagsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.ListDatasourcePermissionTags is not implemented"))
+}
+
+func (UnimplementedIntegrationsServiceHandler) GetDatasourcePermissionTag(context.Context, *connect.Request[v1.GetDatasourcePermissionTagRequest]) (*connect.Response[v1.GetDatasourcePermissionTagResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.GetDatasourcePermissionTag is not implemented"))
 }
 
 func (UnimplementedIntegrationsServiceHandler) ListIntegrationsAndSecrets(context.Context, *connect.Request[v1.ListIntegrationsAndSecretsRequest]) (*connect.Response[v1.ListIntegrationsAndSecretsResponse], error) {
@@ -337,6 +479,18 @@ func (UnimplementedIntegrationsServiceHandler) DeleteIntegration(context.Context
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.DeleteIntegration is not implemented"))
 }
 
+func (UnimplementedIntegrationsServiceHandler) UpsertDatasourcePermissionTag(context.Context, *connect.Request[v1.UpsertDatasourcePermissionTagRequest]) (*connect.Response[v1.UpsertDatasourcePermissionTagResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.UpsertDatasourcePermissionTag is not implemented"))
+}
+
+func (UnimplementedIntegrationsServiceHandler) DeleteDatasourcePermissionTag(context.Context, *connect.Request[v1.DeleteDatasourcePermissionTagRequest]) (*connect.Response[v1.DeleteDatasourcePermissionTagResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.DeleteDatasourcePermissionTag is not implemented"))
+}
+
 func (UnimplementedIntegrationsServiceHandler) TestIntegration(context.Context, *connect.Request[v1.TestIntegrationRequest]) (*connect.Response[v1.TestIntegrationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.TestIntegration is not implemented"))
+}
+
+func (UnimplementedIntegrationsServiceHandler) ListSnowflakeNamedStages(context.Context, *connect.Request[v1.ListSnowflakeNamedStagesRequest]) (*connect.Response[v1.ListSnowflakeNamedStagesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.ListSnowflakeNamedStages is not implemented"))
 }

@@ -405,12 +405,13 @@ type DashboardDataWidget struct {
 	//	*DashboardDataWidget_MetricQuery
 	//	*DashboardDataWidget_SourceQuery
 	DataQuery isDashboardDataWidget_DataQuery `protobuf_oneof:"data_query"`
-	// New renderings (e.g. a stat/"big number") are added as variants here.
+	// New renderings (e.g. a statistic tile) are added as variants here.
 	//
 	// Types that are valid to be assigned to Visualization:
 	//
 	//	*DashboardDataWidget_Timeseries
 	//	*DashboardDataWidget_Table
+	//	*DashboardDataWidget_Statistic
 	Visualization isDashboardDataWidget_Visualization `protobuf_oneof:"visualization"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -503,6 +504,15 @@ func (x *DashboardDataWidget) GetTable() *DashboardTableViz {
 	return nil
 }
 
+func (x *DashboardDataWidget) GetStatistic() *DashboardStatisticViz {
+	if x != nil {
+		if x, ok := x.Visualization.(*DashboardDataWidget_Statistic); ok {
+			return x.Statistic
+		}
+	}
+	return nil
+}
+
 type isDashboardDataWidget_DataQuery interface {
 	isDashboardDataWidget_DataQuery()
 }
@@ -531,9 +541,15 @@ type DashboardDataWidget_Table struct {
 	Table *DashboardTableViz `protobuf:"bytes,5,opt,name=table,proto3,oneof"`
 }
 
+type DashboardDataWidget_Statistic struct {
+	Statistic *DashboardStatisticViz `protobuf:"bytes,6,opt,name=statistic,proto3,oneof"`
+}
+
 func (*DashboardDataWidget_Timeseries) isDashboardDataWidget_Visualization() {}
 
 func (*DashboardDataWidget_Table) isDashboardDataWidget_Visualization() {}
+
+func (*DashboardDataWidget_Statistic) isDashboardDataWidget_Visualization() {}
 
 // A structured metrics query, reusing the MetricConfigSeries/MetricFormula types charts and
 // monitors use today. MetricConfig's alerting/identity envelope (trigger, id, graph_generated) is
@@ -545,7 +561,8 @@ type DashboardMetricQuery struct {
 	WindowPeriod string                `protobuf:"bytes,1,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
 	Series       []*MetricConfigSeries `protobuf:"bytes,2,rep,name=series,proto3" json:"series,omitempty"`
 	Formulas     []*MetricFormula      `protobuf:"bytes,3,rep,name=formulas,proto3" json:"formulas,omitempty"`
-	// Display re-bucketing override; empty => frontend default.
+	// Display re-bucketing override; empty => frontend default. Time-series only; a statistic tile
+	// evaluates the whole range as one bucket and ignores it.
 	DisplayWindowPeriod *string `protobuf:"bytes,4,opt,name=display_window_period,json=displayWindowPeriod,proto3,oneof" json:"display_window_period,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -747,6 +764,72 @@ func (*DashboardTableViz) Descriptor() ([]byte, []int) {
 	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{8}
 }
 
+// A single-scalar "statistic" tile, optionally with a percentage-change subtitle. Presentation only:
+// the scalar comes from the backing metrics/logs service, which evaluates the whole range as one
+// bucket and aggregates by the series' window_function.
+type DashboardStatisticViz struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Also evaluate the preceding equal-length window and show the percentage change.
+	CompareToPrevious bool `protobuf:"varint,1,opt,name=compare_to_previous,json=compareToPrevious,proto3" json:"compare_to_previous,omitempty"`
+	// Frontend numeral format (e.g. "0,0", "0.0%"); empty => default.
+	NumberFormat *string `protobuf:"bytes,2,opt,name=number_format,json=numberFormat,proto3,oneof" json:"number_format,omitempty"`
+	// Override for the unit the backend returns on the stat result; unset => use the returned unit.
+	UnitLabel     *string `protobuf:"bytes,3,opt,name=unit_label,json=unitLabel,proto3,oneof" json:"unit_label,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DashboardStatisticViz) Reset() {
+	*x = DashboardStatisticViz{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DashboardStatisticViz) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DashboardStatisticViz) ProtoMessage() {}
+
+func (x *DashboardStatisticViz) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DashboardStatisticViz.ProtoReflect.Descriptor instead.
+func (*DashboardStatisticViz) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DashboardStatisticViz) GetCompareToPrevious() bool {
+	if x != nil {
+		return x.CompareToPrevious
+	}
+	return false
+}
+
+func (x *DashboardStatisticViz) GetNumberFormat() string {
+	if x != nil && x.NumberFormat != nil {
+		return *x.NumberFormat
+	}
+	return ""
+}
+
+func (x *DashboardStatisticViz) GetUnitLabel() string {
+	if x != nil && x.UnitLabel != nil {
+		return *x.UnitLabel
+	}
+	return ""
+}
+
 // A free-form text widget rendered as GitHub-flavored markdown.
 type DashboardMarkdownWidget struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -757,7 +840,7 @@ type DashboardMarkdownWidget struct {
 
 func (x *DashboardMarkdownWidget) Reset() {
 	*x = DashboardMarkdownWidget{}
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[9]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -769,7 +852,7 @@ func (x *DashboardMarkdownWidget) String() string {
 func (*DashboardMarkdownWidget) ProtoMessage() {}
 
 func (x *DashboardMarkdownWidget) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[9]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -782,7 +865,7 @@ func (x *DashboardMarkdownWidget) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DashboardMarkdownWidget.ProtoReflect.Descriptor instead.
 func (*DashboardMarkdownWidget) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{9}
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DashboardMarkdownWidget) GetContent() string {
@@ -802,7 +885,7 @@ type DashboardSectionTitleWidget struct {
 
 func (x *DashboardSectionTitleWidget) Reset() {
 	*x = DashboardSectionTitleWidget{}
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[10]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -814,7 +897,7 @@ func (x *DashboardSectionTitleWidget) String() string {
 func (*DashboardSectionTitleWidget) ProtoMessage() {}
 
 func (x *DashboardSectionTitleWidget) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[10]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -827,7 +910,7 @@ func (x *DashboardSectionTitleWidget) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DashboardSectionTitleWidget.ProtoReflect.Descriptor instead.
 func (*DashboardSectionTitleWidget) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{10}
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DashboardSectionTitleWidget) GetTitle() string {
@@ -845,9 +928,12 @@ type Dashboard struct {
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Widgets       []*DashboardWidget     `protobuf:"bytes,4,rep,name=widgets,proto3" json:"widgets,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	CreatedBy     string                 `protobuf:"bytes,7,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// Free-form summary shown under the dashboard's title. Unset means "no description"; the server
+	// normalizes a blank write to unset, so blank and unset are never two states of the same thing.
+	Description *string                `protobuf:"bytes,13,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt   *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedBy   string                 `protobuf:"bytes,7,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	// Set together when another resource owns this dashboard as its backing layout (e.g.
 	// owner_type="notebook" for a notebook app's live layout, "notebook_version" for an immutable
 	// layout snapshot pinned by a notebook version). The dashboard service attaches no meaning to
@@ -859,14 +945,19 @@ type Dashboard struct {
 	OwnerId   *string `protobuf:"bytes,9,opt,name=owner_id,json=ownerId,proto3,oneof" json:"owner_id,omitempty"`
 	// Frozen at create by the owning service (layout snapshots). UpdateDashboard rejects writes to
 	// read-only dashboards.
-	ReadOnly      bool `protobuf:"varint,10,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ReadOnly bool `protobuf:"varint,10,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
+	// View aggregates from entity_views (context "dashboard"), stamped by the server on reads.
+	// Total opens across all users.
+	TotalViewCount int64 `protobuf:"varint,11,opt,name=total_view_count,json=totalViewCount,proto3" json:"total_view_count,omitempty"`
+	// The requesting user's most recent open; unset if they have never opened it.
+	ViewerLastViewedAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=viewer_last_viewed_at,json=viewerLastViewedAt,proto3" json:"viewer_last_viewed_at,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Dashboard) Reset() {
 	*x = Dashboard{}
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[11]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -878,7 +969,7 @@ func (x *Dashboard) String() string {
 func (*Dashboard) ProtoMessage() {}
 
 func (x *Dashboard) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[11]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -891,7 +982,7 @@ func (x *Dashboard) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Dashboard.ProtoReflect.Descriptor instead.
 func (*Dashboard) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{11}
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Dashboard) GetId() string {
@@ -920,6 +1011,13 @@ func (x *Dashboard) GetWidgets() []*DashboardWidget {
 		return x.Widgets
 	}
 	return nil
+}
+
+func (x *Dashboard) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
 }
 
 func (x *Dashboard) GetCreatedAt() *timestamppb.Timestamp {
@@ -964,6 +1062,20 @@ func (x *Dashboard) GetReadOnly() bool {
 	return false
 }
 
+func (x *Dashboard) GetTotalViewCount() int64 {
+	if x != nil {
+		return x.TotalViewCount
+	}
+	return 0
+}
+
+func (x *Dashboard) GetViewerLastViewedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ViewerLastViewedAt
+	}
+	return nil
+}
+
 var File_chalk_artifacts_v1_dashboard_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
@@ -990,7 +1102,7 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\x12\x17\n" +
 	"\acell_id\x18\x02 \x01(\tR\x06cellId\x12A\n" +
-	"\adisplay\x18\x03 \x01(\v2'.chalk.artifacts.v1.NotebookCellDisplayR\adisplay\"\xf3\x02\n" +
+	"\adisplay\x18\x03 \x01(\v2'.chalk.artifacts.v1.NotebookCellDisplayR\adisplay\"\xbe\x03\n" +
 	"\x13DashboardDataWidget\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12M\n" +
 	"\fmetric_query\x18\x02 \x01(\v2(.chalk.artifacts.v1.DashboardMetricQueryH\x00R\vmetricQuery\x12M\n" +
@@ -998,7 +1110,8 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\n" +
 	"timeseries\x18\x04 \x01(\v2*.chalk.artifacts.v1.DashboardTimeseriesVizH\x01R\n" +
 	"timeseries\x12=\n" +
-	"\x05table\x18\x05 \x01(\v2%.chalk.artifacts.v1.DashboardTableVizH\x01R\x05tableB\f\n" +
+	"\x05table\x18\x05 \x01(\v2%.chalk.artifacts.v1.DashboardTableVizH\x01R\x05table\x12I\n" +
+	"\tstatistic\x18\x06 \x01(\v2).chalk.artifacts.v1.DashboardStatisticVizH\x01R\tstatisticB\f\n" +
 	"\n" +
 	"data_queryB\x0f\n" +
 	"\rvisualization\"\x8d\x02\n" +
@@ -1015,16 +1128,24 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\x16DashboardTimeseriesViz\x12\x1d\n" +
 	"\n" +
 	"plot_style\x18\x01 \x01(\tR\tplotStyle\"\x13\n" +
-	"\x11DashboardTableViz\"3\n" +
+	"\x11DashboardTableViz\"\xb6\x01\n" +
+	"\x15DashboardStatisticViz\x12.\n" +
+	"\x13compare_to_previous\x18\x01 \x01(\bR\x11compareToPrevious\x12(\n" +
+	"\rnumber_format\x18\x02 \x01(\tH\x00R\fnumberFormat\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"unit_label\x18\x03 \x01(\tH\x01R\tunitLabel\x88\x01\x01B\x10\n" +
+	"\x0e_number_formatB\r\n" +
+	"\v_unit_label\"3\n" +
 	"\x17DashboardMarkdownWidget\x12\x18\n" +
 	"\acontent\x18\x01 \x01(\tR\acontent\"3\n" +
 	"\x1bDashboardSectionTitleWidget\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\"\xcf\x03\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\"\x89\x05\n" +
 	"\tDashboard\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12*\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tB\x03\xe0A\x03R\renvironmentId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12=\n" +
-	"\awidgets\x18\x04 \x03(\v2#.chalk.artifacts.v1.DashboardWidgetR\awidgets\x12>\n" +
+	"\awidgets\x18\x04 \x03(\v2#.chalk.artifacts.v1.DashboardWidgetR\awidgets\x12%\n" +
+	"\vdescription\x18\r \x01(\tH\x00R\vdescription\x88\x01\x01\x12>\n" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
 	"\n" +
@@ -1032,10 +1153,13 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\a \x01(\tB\x03\xe0A\x03R\tcreatedBy\x12'\n" +
 	"\n" +
-	"owner_type\x18\b \x01(\tB\x03\xe0A\x03H\x00R\townerType\x88\x01\x01\x12#\n" +
-	"\bowner_id\x18\t \x01(\tB\x03\xe0A\x03H\x01R\aownerId\x88\x01\x01\x12 \n" +
+	"owner_type\x18\b \x01(\tB\x03\xe0A\x03H\x01R\townerType\x88\x01\x01\x12#\n" +
+	"\bowner_id\x18\t \x01(\tB\x03\xe0A\x03H\x02R\aownerId\x88\x01\x01\x12 \n" +
 	"\tread_only\x18\n" +
-	" \x01(\bB\x03\xe0A\x03R\breadOnlyB\r\n" +
+	" \x01(\bB\x03\xe0A\x03R\breadOnly\x12-\n" +
+	"\x10total_view_count\x18\v \x01(\x03B\x03\xe0A\x03R\x0etotalViewCount\x12R\n" +
+	"\x15viewer_last_viewed_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\x12viewerLastViewedAtB\x0e\n" +
+	"\f_descriptionB\r\n" +
 	"\v_owner_typeB\v\n" +
 	"\t_owner_id*\xc5\x01\n" +
 	"\x17NotebookCellDisplayMode\x12*\n" +
@@ -1058,7 +1182,7 @@ func file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_artifacts_v1_dashboard_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_artifacts_v1_dashboard_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_chalk_artifacts_v1_dashboard_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_chalk_artifacts_v1_dashboard_proto_goTypes = []any{
 	(NotebookCellDisplayMode)(0),        // 0: chalk.artifacts.v1.NotebookCellDisplayMode
 	(*GridPosition)(nil),                // 1: chalk.artifacts.v1.GridPosition
@@ -1070,18 +1194,19 @@ var file_chalk_artifacts_v1_dashboard_proto_goTypes = []any{
 	(*DashboardSourceQuery)(nil),        // 7: chalk.artifacts.v1.DashboardSourceQuery
 	(*DashboardTimeseriesViz)(nil),      // 8: chalk.artifacts.v1.DashboardTimeseriesViz
 	(*DashboardTableViz)(nil),           // 9: chalk.artifacts.v1.DashboardTableViz
-	(*DashboardMarkdownWidget)(nil),     // 10: chalk.artifacts.v1.DashboardMarkdownWidget
-	(*DashboardSectionTitleWidget)(nil), // 11: chalk.artifacts.v1.DashboardSectionTitleWidget
-	(*Dashboard)(nil),                   // 12: chalk.artifacts.v1.Dashboard
-	(*MetricConfigSeries)(nil),          // 13: chalk.artifacts.v1.MetricConfigSeries
-	(*MetricFormula)(nil),               // 14: chalk.artifacts.v1.MetricFormula
-	(*timestamppb.Timestamp)(nil),       // 15: google.protobuf.Timestamp
+	(*DashboardStatisticViz)(nil),       // 10: chalk.artifacts.v1.DashboardStatisticViz
+	(*DashboardMarkdownWidget)(nil),     // 11: chalk.artifacts.v1.DashboardMarkdownWidget
+	(*DashboardSectionTitleWidget)(nil), // 12: chalk.artifacts.v1.DashboardSectionTitleWidget
+	(*Dashboard)(nil),                   // 13: chalk.artifacts.v1.Dashboard
+	(*MetricConfigSeries)(nil),          // 14: chalk.artifacts.v1.MetricConfigSeries
+	(*MetricFormula)(nil),               // 15: chalk.artifacts.v1.MetricFormula
+	(*timestamppb.Timestamp)(nil),       // 16: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
 	1,  // 0: chalk.artifacts.v1.DashboardWidget.position:type_name -> chalk.artifacts.v1.GridPosition
 	5,  // 1: chalk.artifacts.v1.DashboardWidget.data_widget:type_name -> chalk.artifacts.v1.DashboardDataWidget
-	10, // 2: chalk.artifacts.v1.DashboardWidget.markdown:type_name -> chalk.artifacts.v1.DashboardMarkdownWidget
-	11, // 3: chalk.artifacts.v1.DashboardWidget.section_title:type_name -> chalk.artifacts.v1.DashboardSectionTitleWidget
+	11, // 2: chalk.artifacts.v1.DashboardWidget.markdown:type_name -> chalk.artifacts.v1.DashboardMarkdownWidget
+	12, // 3: chalk.artifacts.v1.DashboardWidget.section_title:type_name -> chalk.artifacts.v1.DashboardSectionTitleWidget
 	4,  // 4: chalk.artifacts.v1.DashboardWidget.notebook_cell:type_name -> chalk.artifacts.v1.DashboardNotebookCellWidget
 	0,  // 5: chalk.artifacts.v1.NotebookCellDisplay.mode:type_name -> chalk.artifacts.v1.NotebookCellDisplayMode
 	3,  // 6: chalk.artifacts.v1.DashboardNotebookCellWidget.display:type_name -> chalk.artifacts.v1.NotebookCellDisplay
@@ -1089,16 +1214,18 @@ var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
 	7,  // 8: chalk.artifacts.v1.DashboardDataWidget.source_query:type_name -> chalk.artifacts.v1.DashboardSourceQuery
 	8,  // 9: chalk.artifacts.v1.DashboardDataWidget.timeseries:type_name -> chalk.artifacts.v1.DashboardTimeseriesViz
 	9,  // 10: chalk.artifacts.v1.DashboardDataWidget.table:type_name -> chalk.artifacts.v1.DashboardTableViz
-	13, // 11: chalk.artifacts.v1.DashboardMetricQuery.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
-	14, // 12: chalk.artifacts.v1.DashboardMetricQuery.formulas:type_name -> chalk.artifacts.v1.MetricFormula
-	2,  // 13: chalk.artifacts.v1.Dashboard.widgets:type_name -> chalk.artifacts.v1.DashboardWidget
-	15, // 14: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
-	15, // 15: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	10, // 11: chalk.artifacts.v1.DashboardDataWidget.statistic:type_name -> chalk.artifacts.v1.DashboardStatisticViz
+	14, // 12: chalk.artifacts.v1.DashboardMetricQuery.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
+	15, // 13: chalk.artifacts.v1.DashboardMetricQuery.formulas:type_name -> chalk.artifacts.v1.MetricFormula
+	2,  // 14: chalk.artifacts.v1.Dashboard.widgets:type_name -> chalk.artifacts.v1.DashboardWidget
+	16, // 15: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
+	16, // 16: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 17: chalk.artifacts.v1.Dashboard.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_dashboard_proto_init() }
@@ -1118,16 +1245,18 @@ func file_chalk_artifacts_v1_dashboard_proto_init() {
 		(*DashboardDataWidget_SourceQuery)(nil),
 		(*DashboardDataWidget_Timeseries)(nil),
 		(*DashboardDataWidget_Table)(nil),
+		(*DashboardDataWidget_Statistic)(nil),
 	}
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[5].OneofWrappers = []any{}
-	file_chalk_artifacts_v1_dashboard_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_dashboard_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_dashboard_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_dashboard_proto_rawDesc), len(file_chalk_artifacts_v1_dashboard_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

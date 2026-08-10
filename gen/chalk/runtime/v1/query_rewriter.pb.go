@@ -524,6 +524,88 @@ func (x *LimitOffsetQueryRewriter) GetOffset() int64 {
 	return 0
 }
 
+// Replaces `chalk_execution_ts()` sentinel calls anywhere in the query (including nested
+// CTEs/subqueries) with the plan's execution timestamp, resolved at execution time from
+// PlanRunContext. Lets a generated query embed the exec-time `now` (e.g. the offline sampler's
+// `inserted_at <= now` cutoff) without baking a literal at plan-build time, preserving plan-cache reuse.
+type ExecutionTimestampQueryRewriter struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExecutionTimestampQueryRewriter) Reset() {
+	*x = ExecutionTimestampQueryRewriter{}
+	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExecutionTimestampQueryRewriter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExecutionTimestampQueryRewriter) ProtoMessage() {}
+
+func (x *ExecutionTimestampQueryRewriter) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExecutionTimestampQueryRewriter.ProtoReflect.Descriptor instead.
+func (*ExecutionTimestampQueryRewriter) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_query_rewriter_proto_rawDescGZIP(), []int{8}
+}
+
+// Materializes the runtime givens/input batch as a named, JOINABLE relation (a
+// `WITH __chalk_givens_spine(...) AS (VALUES ...)` CTE for inline dialects, or a session temp table
+// for warehouses) instead of a membership `WHERE (join_cols) IN (...)` like GivensQueryRewriter.
+// This lets a generated query JOIN the given rows on an arbitrary predicate (e.g. the offline
+// cache-lookup's per-row as-of `observed_at <= spine.ts`), which a membership filter cannot express.
+// The relation carries the full input batch (bound at execution time), so this message stores nothing.
+type AsOfGivensRewriter struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AsOfGivensRewriter) Reset() {
+	*x = AsOfGivensRewriter{}
+	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AsOfGivensRewriter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AsOfGivensRewriter) ProtoMessage() {}
+
+func (x *AsOfGivensRewriter) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AsOfGivensRewriter.ProtoReflect.Descriptor instead.
+func (*AsOfGivensRewriter) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_query_rewriter_proto_rawDescGZIP(), []int{9}
+}
+
 type ComposedRewriter struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	First         *QueryRewriter         `protobuf:"bytes,1,opt,name=first,proto3" json:"first,omitempty"`
@@ -534,7 +616,7 @@ type ComposedRewriter struct {
 
 func (x *ComposedRewriter) Reset() {
 	*x = ComposedRewriter{}
-	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[8]
+	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -546,7 +628,7 @@ func (x *ComposedRewriter) String() string {
 func (*ComposedRewriter) ProtoMessage() {}
 
 func (x *ComposedRewriter) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[8]
+	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -559,7 +641,7 @@ func (x *ComposedRewriter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComposedRewriter.ProtoReflect.Descriptor instead.
 func (*ComposedRewriter) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_query_rewriter_proto_rawDescGZIP(), []int{8}
+	return file_chalk_runtime_v1_query_rewriter_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ComposedRewriter) GetFirst() *QueryRewriter {
@@ -588,6 +670,8 @@ type QueryRewriter struct {
 	//	*QueryRewriter_DropFields
 	//	*QueryRewriter_Composed
 	//	*QueryRewriter_LimitOffset
+	//	*QueryRewriter_ExecutionTimestamp
+	//	*QueryRewriter_AsOfGivens
 	QueryRewriter isQueryRewriter_QueryRewriter `protobuf_oneof:"query_rewriter"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -595,7 +679,7 @@ type QueryRewriter struct {
 
 func (x *QueryRewriter) Reset() {
 	*x = QueryRewriter{}
-	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[9]
+	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -607,7 +691,7 @@ func (x *QueryRewriter) String() string {
 func (*QueryRewriter) ProtoMessage() {}
 
 func (x *QueryRewriter) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[9]
+	mi := &file_chalk_runtime_v1_query_rewriter_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -620,7 +704,7 @@ func (x *QueryRewriter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryRewriter.ProtoReflect.Descriptor instead.
 func (*QueryRewriter) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_query_rewriter_proto_rawDescGZIP(), []int{9}
+	return file_chalk_runtime_v1_query_rewriter_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *QueryRewriter) GetQueryRewriter() isQueryRewriter_QueryRewriter {
@@ -702,6 +786,24 @@ func (x *QueryRewriter) GetLimitOffset() *LimitOffsetQueryRewriter {
 	return nil
 }
 
+func (x *QueryRewriter) GetExecutionTimestamp() *ExecutionTimestampQueryRewriter {
+	if x != nil {
+		if x, ok := x.QueryRewriter.(*QueryRewriter_ExecutionTimestamp); ok {
+			return x.ExecutionTimestamp
+		}
+	}
+	return nil
+}
+
+func (x *QueryRewriter) GetAsOfGivens() *AsOfGivensRewriter {
+	if x != nil {
+		if x, ok := x.QueryRewriter.(*QueryRewriter_AsOfGivens); ok {
+			return x.AsOfGivens
+		}
+	}
+	return nil
+}
+
 type isQueryRewriter_QueryRewriter interface {
 	isQueryRewriter_QueryRewriter()
 }
@@ -738,6 +840,14 @@ type QueryRewriter_LimitOffset struct {
 	LimitOffset *LimitOffsetQueryRewriter `protobuf:"bytes,8,opt,name=limit_offset,json=limitOffset,proto3,oneof"`
 }
 
+type QueryRewriter_ExecutionTimestamp struct {
+	ExecutionTimestamp *ExecutionTimestampQueryRewriter `protobuf:"bytes,9,opt,name=execution_timestamp,json=executionTimestamp,proto3,oneof"`
+}
+
+type QueryRewriter_AsOfGivens struct {
+	AsOfGivens *AsOfGivensRewriter `protobuf:"bytes,10,opt,name=as_of_givens,json=asOfGivens,proto3,oneof"`
+}
+
 func (*QueryRewriter_Identity) isQueryRewriter_QueryRewriter() {}
 
 func (*QueryRewriter_Givens) isQueryRewriter_QueryRewriter() {}
@@ -753,6 +863,10 @@ func (*QueryRewriter_DropFields) isQueryRewriter_QueryRewriter() {}
 func (*QueryRewriter_Composed) isQueryRewriter_QueryRewriter() {}
 
 func (*QueryRewriter_LimitOffset) isQueryRewriter_QueryRewriter() {}
+
+func (*QueryRewriter_ExecutionTimestamp) isQueryRewriter_QueryRewriter() {}
+
+func (*QueryRewriter_AsOfGivens) isQueryRewriter_QueryRewriter() {}
 
 var File_chalk_runtime_v1_query_rewriter_proto protoreflect.FileDescriptor
 
@@ -815,10 +929,12 @@ const file_chalk_runtime_v1_query_rewriter_proto_rawDesc = "" +
 	"\x05limit\x18\x01 \x01(\x03H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06offset\x18\x02 \x01(\x03H\x01R\x06offset\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_offset\"~\n" +
+	"\a_offset\"!\n" +
+	"\x1fExecutionTimestampQueryRewriter\"\x14\n" +
+	"\x12AsOfGivensRewriter\"~\n" +
 	"\x10ComposedRewriter\x125\n" +
 	"\x05first\x18\x01 \x01(\v2\x1f.chalk.runtime.v1.QueryRewriterR\x05first\x123\n" +
-	"\x04then\x18\x02 \x01(\v2\x1f.chalk.runtime.v1.QueryRewriterR\x04then\"\xe8\x04\n" +
+	"\x04then\x18\x02 \x01(\v2\x1f.chalk.runtime.v1.QueryRewriterR\x04then\"\x98\x06\n" +
 	"\rQueryRewriter\x12E\n" +
 	"\bidentity\x18\x01 \x01(\v2'.chalk.runtime.v1.IdentityQueryRewriterH\x00R\bidentity\x12?\n" +
 	"\x06givens\x18\x02 \x01(\v2%.chalk.runtime.v1.GivensQueryRewriterH\x00R\x06givens\x12M\n" +
@@ -830,7 +946,11 @@ const file_chalk_runtime_v1_query_rewriter_proto_rawDesc = "" +
 	"\vdrop_fields\x18\x06 \x01(\v2$.chalk.runtime.v1.DropFieldsRewriterH\x00R\n" +
 	"dropFields\x12@\n" +
 	"\bcomposed\x18\a \x01(\v2\".chalk.runtime.v1.ComposedRewriterH\x00R\bcomposed\x12O\n" +
-	"\flimit_offset\x18\b \x01(\v2*.chalk.runtime.v1.LimitOffsetQueryRewriterH\x00R\vlimitOffsetB\x10\n" +
+	"\flimit_offset\x18\b \x01(\v2*.chalk.runtime.v1.LimitOffsetQueryRewriterH\x00R\vlimitOffset\x12d\n" +
+	"\x13execution_timestamp\x18\t \x01(\v21.chalk.runtime.v1.ExecutionTimestampQueryRewriterH\x00R\x12executionTimestamp\x12H\n" +
+	"\fas_of_givens\x18\n" +
+	" \x01(\v2$.chalk.runtime.v1.AsOfGivensRewriterH\x00R\n" +
+	"asOfGivensB\x10\n" +
 	"\x0equery_rewriterB\xc9\x01\n" +
 	"\x14com.chalk.runtime.v1B\x12QueryRewriterProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/runtime/v1;runtimev1\xa2\x02\x03CRX\xaa\x02\x10Chalk.Runtime.V1\xca\x02\x10Chalk\\Runtime\\V1\xe2\x02\x1cChalk\\Runtime\\V1\\GPBMetadata\xea\x02\x12Chalk::Runtime::V1b\x06proto3"
 
@@ -846,52 +966,56 @@ func file_chalk_runtime_v1_query_rewriter_proto_rawDescGZIP() []byte {
 	return file_chalk_runtime_v1_query_rewriter_proto_rawDescData
 }
 
-var file_chalk_runtime_v1_query_rewriter_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_chalk_runtime_v1_query_rewriter_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_runtime_v1_query_rewriter_proto_goTypes = []any{
-	(*IdentityQueryRewriter)(nil),     // 0: chalk.runtime.v1.IdentityQueryRewriter
-	(*GivensQueryRewriter)(nil),       // 1: chalk.runtime.v1.GivensQueryRewriter
-	(*HighWaterMark)(nil),             // 2: chalk.runtime.v1.HighWaterMark
-	(*Incrementalizer)(nil),           // 3: chalk.runtime.v1.Incrementalizer
-	(*ContextualQueryRewriter)(nil),   // 4: chalk.runtime.v1.ContextualQueryRewriter
-	(*StaticFilterQueryRewriter)(nil), // 5: chalk.runtime.v1.StaticFilterQueryRewriter
-	(*DropFieldsRewriter)(nil),        // 6: chalk.runtime.v1.DropFieldsRewriter
-	(*LimitOffsetQueryRewriter)(nil),  // 7: chalk.runtime.v1.LimitOffsetQueryRewriter
-	(*ComposedRewriter)(nil),          // 8: chalk.runtime.v1.ComposedRewriter
-	(*QueryRewriter)(nil),             // 9: chalk.runtime.v1.QueryRewriter
-	(*Data)(nil),                      // 10: chalk.runtime.v1.Data
-	(*timestamppb.Timestamp)(nil),     // 11: google.protobuf.Timestamp
-	(*v1.FeatureReference)(nil),       // 12: chalk.graph.v1.FeatureReference
-	(*v11.LogicalExprNode)(nil),       // 13: chalk.expression.v1.LogicalExprNode
+	(*IdentityQueryRewriter)(nil),           // 0: chalk.runtime.v1.IdentityQueryRewriter
+	(*GivensQueryRewriter)(nil),             // 1: chalk.runtime.v1.GivensQueryRewriter
+	(*HighWaterMark)(nil),                   // 2: chalk.runtime.v1.HighWaterMark
+	(*Incrementalizer)(nil),                 // 3: chalk.runtime.v1.Incrementalizer
+	(*ContextualQueryRewriter)(nil),         // 4: chalk.runtime.v1.ContextualQueryRewriter
+	(*StaticFilterQueryRewriter)(nil),       // 5: chalk.runtime.v1.StaticFilterQueryRewriter
+	(*DropFieldsRewriter)(nil),              // 6: chalk.runtime.v1.DropFieldsRewriter
+	(*LimitOffsetQueryRewriter)(nil),        // 7: chalk.runtime.v1.LimitOffsetQueryRewriter
+	(*ExecutionTimestampQueryRewriter)(nil), // 8: chalk.runtime.v1.ExecutionTimestampQueryRewriter
+	(*AsOfGivensRewriter)(nil),              // 9: chalk.runtime.v1.AsOfGivensRewriter
+	(*ComposedRewriter)(nil),                // 10: chalk.runtime.v1.ComposedRewriter
+	(*QueryRewriter)(nil),                   // 11: chalk.runtime.v1.QueryRewriter
+	(*Data)(nil),                            // 12: chalk.runtime.v1.Data
+	(*timestamppb.Timestamp)(nil),           // 13: google.protobuf.Timestamp
+	(*v1.FeatureReference)(nil),             // 14: chalk.graph.v1.FeatureReference
+	(*v11.LogicalExprNode)(nil),             // 15: chalk.expression.v1.LogicalExprNode
 }
 var file_chalk_runtime_v1_query_rewriter_proto_depIdxs = []int32{
-	10, // 0: chalk.runtime.v1.GivensQueryRewriter.values:type_name -> chalk.runtime.v1.Data
-	11, // 1: chalk.runtime.v1.HighWaterMark.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
-	11, // 2: chalk.runtime.v1.HighWaterMark.last_execution_timestamp:type_name -> google.protobuf.Timestamp
-	11, // 3: chalk.runtime.v1.Incrementalizer.upper_bound:type_name -> google.protobuf.Timestamp
-	11, // 4: chalk.runtime.v1.Incrementalizer.lower_bound:type_name -> google.protobuf.Timestamp
+	12, // 0: chalk.runtime.v1.GivensQueryRewriter.values:type_name -> chalk.runtime.v1.Data
+	13, // 1: chalk.runtime.v1.HighWaterMark.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
+	13, // 2: chalk.runtime.v1.HighWaterMark.last_execution_timestamp:type_name -> google.protobuf.Timestamp
+	13, // 3: chalk.runtime.v1.Incrementalizer.upper_bound:type_name -> google.protobuf.Timestamp
+	13, // 4: chalk.runtime.v1.Incrementalizer.lower_bound:type_name -> google.protobuf.Timestamp
 	2,  // 5: chalk.runtime.v1.Incrementalizer.hwm:type_name -> chalk.runtime.v1.HighWaterMark
-	10, // 6: chalk.runtime.v1.ContextualQueryRewriter.givens:type_name -> chalk.runtime.v1.Data
-	11, // 7: chalk.runtime.v1.ContextualQueryRewriter.lower_bound:type_name -> google.protobuf.Timestamp
-	11, // 8: chalk.runtime.v1.ContextualQueryRewriter.upper_bound:type_name -> google.protobuf.Timestamp
-	12, // 9: chalk.runtime.v1.ContextualQueryRewriter.override_lower_upper_bound_feature:type_name -> chalk.graph.v1.FeatureReference
-	13, // 10: chalk.runtime.v1.StaticFilterQueryRewriter.filter:type_name -> chalk.expression.v1.LogicalExprNode
-	11, // 11: chalk.runtime.v1.StaticFilterQueryRewriter.min_now:type_name -> google.protobuf.Timestamp
-	11, // 12: chalk.runtime.v1.StaticFilterQueryRewriter.max_now:type_name -> google.protobuf.Timestamp
-	9,  // 13: chalk.runtime.v1.ComposedRewriter.first:type_name -> chalk.runtime.v1.QueryRewriter
-	9,  // 14: chalk.runtime.v1.ComposedRewriter.then:type_name -> chalk.runtime.v1.QueryRewriter
+	12, // 6: chalk.runtime.v1.ContextualQueryRewriter.givens:type_name -> chalk.runtime.v1.Data
+	13, // 7: chalk.runtime.v1.ContextualQueryRewriter.lower_bound:type_name -> google.protobuf.Timestamp
+	13, // 8: chalk.runtime.v1.ContextualQueryRewriter.upper_bound:type_name -> google.protobuf.Timestamp
+	14, // 9: chalk.runtime.v1.ContextualQueryRewriter.override_lower_upper_bound_feature:type_name -> chalk.graph.v1.FeatureReference
+	15, // 10: chalk.runtime.v1.StaticFilterQueryRewriter.filter:type_name -> chalk.expression.v1.LogicalExprNode
+	13, // 11: chalk.runtime.v1.StaticFilterQueryRewriter.min_now:type_name -> google.protobuf.Timestamp
+	13, // 12: chalk.runtime.v1.StaticFilterQueryRewriter.max_now:type_name -> google.protobuf.Timestamp
+	11, // 13: chalk.runtime.v1.ComposedRewriter.first:type_name -> chalk.runtime.v1.QueryRewriter
+	11, // 14: chalk.runtime.v1.ComposedRewriter.then:type_name -> chalk.runtime.v1.QueryRewriter
 	0,  // 15: chalk.runtime.v1.QueryRewriter.identity:type_name -> chalk.runtime.v1.IdentityQueryRewriter
 	1,  // 16: chalk.runtime.v1.QueryRewriter.givens:type_name -> chalk.runtime.v1.GivensQueryRewriter
 	3,  // 17: chalk.runtime.v1.QueryRewriter.incrementalizer:type_name -> chalk.runtime.v1.Incrementalizer
 	4,  // 18: chalk.runtime.v1.QueryRewriter.contextual:type_name -> chalk.runtime.v1.ContextualQueryRewriter
 	5,  // 19: chalk.runtime.v1.QueryRewriter.static:type_name -> chalk.runtime.v1.StaticFilterQueryRewriter
 	6,  // 20: chalk.runtime.v1.QueryRewriter.drop_fields:type_name -> chalk.runtime.v1.DropFieldsRewriter
-	8,  // 21: chalk.runtime.v1.QueryRewriter.composed:type_name -> chalk.runtime.v1.ComposedRewriter
+	10, // 21: chalk.runtime.v1.QueryRewriter.composed:type_name -> chalk.runtime.v1.ComposedRewriter
 	7,  // 22: chalk.runtime.v1.QueryRewriter.limit_offset:type_name -> chalk.runtime.v1.LimitOffsetQueryRewriter
-	23, // [23:23] is the sub-list for method output_type
-	23, // [23:23] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	8,  // 23: chalk.runtime.v1.QueryRewriter.execution_timestamp:type_name -> chalk.runtime.v1.ExecutionTimestampQueryRewriter
+	9,  // 24: chalk.runtime.v1.QueryRewriter.as_of_givens:type_name -> chalk.runtime.v1.AsOfGivensRewriter
+	25, // [25:25] is the sub-list for method output_type
+	25, // [25:25] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_chalk_runtime_v1_query_rewriter_proto_init() }
@@ -906,7 +1030,7 @@ func file_chalk_runtime_v1_query_rewriter_proto_init() {
 	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[9].OneofWrappers = []any{
+	file_chalk_runtime_v1_query_rewriter_proto_msgTypes[11].OneofWrappers = []any{
 		(*QueryRewriter_Identity)(nil),
 		(*QueryRewriter_Givens)(nil),
 		(*QueryRewriter_Incrementalizer)(nil),
@@ -915,6 +1039,8 @@ func file_chalk_runtime_v1_query_rewriter_proto_init() {
 		(*QueryRewriter_DropFields)(nil),
 		(*QueryRewriter_Composed)(nil),
 		(*QueryRewriter_LimitOffset)(nil),
+		(*QueryRewriter_ExecutionTimestamp)(nil),
+		(*QueryRewriter_AsOfGivens)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -922,7 +1048,7 @@ func file_chalk_runtime_v1_query_rewriter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_runtime_v1_query_rewriter_proto_rawDesc), len(file_chalk_runtime_v1_query_rewriter_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -25,6 +25,57 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Coarse outcome rendered by the Audit Logs table. A missing/zero gRPC code is
+// OK; every non-zero code is ERROR.
+type AuditLogOutcome int32
+
+const (
+	AuditLogOutcome_AUDIT_LOG_OUTCOME_UNSPECIFIED AuditLogOutcome = 0
+	AuditLogOutcome_AUDIT_LOG_OUTCOME_OK          AuditLogOutcome = 1
+	AuditLogOutcome_AUDIT_LOG_OUTCOME_ERROR       AuditLogOutcome = 2
+)
+
+// Enum value maps for AuditLogOutcome.
+var (
+	AuditLogOutcome_name = map[int32]string{
+		0: "AUDIT_LOG_OUTCOME_UNSPECIFIED",
+		1: "AUDIT_LOG_OUTCOME_OK",
+		2: "AUDIT_LOG_OUTCOME_ERROR",
+	}
+	AuditLogOutcome_value = map[string]int32{
+		"AUDIT_LOG_OUTCOME_UNSPECIFIED": 0,
+		"AUDIT_LOG_OUTCOME_OK":          1,
+		"AUDIT_LOG_OUTCOME_ERROR":       2,
+	}
+)
+
+func (x AuditLogOutcome) Enum() *AuditLogOutcome {
+	p := new(AuditLogOutcome)
+	*p = x
+	return p
+}
+
+func (x AuditLogOutcome) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AuditLogOutcome) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_audit_proto_enumTypes[0].Descriptor()
+}
+
+func (AuditLogOutcome) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_audit_proto_enumTypes[0]
+}
+
+func (x AuditLogOutcome) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AuditLogOutcome.Descriptor instead.
+func (AuditLogOutcome) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{0}
+}
+
 type AuditLog struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The agent who made the request.
@@ -161,6 +212,7 @@ type GetAuditLogsRequest struct {
 	TimestampLowerBoundInclusive *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=timestamp_lower_bound_inclusive,json=timestampLowerBoundInclusive,proto3,oneof" json:"timestamp_lower_bound_inclusive,omitempty"`
 	TimestampUpperBoundExclusive *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=timestamp_upper_bound_exclusive,json=timestampUpperBoundExclusive,proto3,oneof" json:"timestamp_upper_bound_exclusive,omitempty"`
 	AgentIdFilter                *string                `protobuf:"bytes,8,opt,name=agent_id_filter,json=agentIdFilter,proto3,oneof" json:"agent_id_filter,omitempty"`
+	OutcomeFilters               []AuditLogOutcome      `protobuf:"varint,9,rep,packed,name=outcome_filters,json=outcomeFilters,proto3,enum=chalk.server.v1.AuditLogOutcome" json:"outcome_filters,omitempty"`
 	unknownFields                protoimpl.UnknownFields
 	sizeCache                    protoimpl.SizeCache
 }
@@ -249,6 +301,13 @@ func (x *GetAuditLogsRequest) GetAgentIdFilter() string {
 		return *x.AgentIdFilter
 	}
 	return ""
+}
+
+func (x *GetAuditLogsRequest) GetOutcomeFilters() []AuditLogOutcome {
+	if x != nil {
+		return x.OutcomeFilters
+	}
+	return nil
 }
 
 type GetAuditLogsResponse struct {
@@ -561,7 +620,7 @@ const file_chalk_server_v1_audit_proto_rawDesc = "" +
 	"\t_trace_idB\a\n" +
 	"\x05_codeB\x05\n" +
 	"\x03_ipB\b\n" +
-	"\x06_error\"\xfc\x04\n" +
+	"\x06_error\"\xc7\x05\n" +
 	"\x13GetAuditLogsRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
@@ -571,7 +630,8 @@ const file_chalk_server_v1_audit_proto_rawDesc = "" +
 	"\x06cursor\x18\x05 \x01(\tH\x03R\x06cursor\x88\x01\x01\x12f\n" +
 	"\x1ftimestamp_lower_bound_inclusive\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x04R\x1ctimestampLowerBoundInclusive\x88\x01\x01\x12f\n" +
 	"\x1ftimestamp_upper_bound_exclusive\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x05R\x1ctimestampUpperBoundExclusive\x88\x01\x01\x12+\n" +
-	"\x0fagent_id_filter\x18\b \x01(\tH\x06R\ragentIdFilter\x88\x01\x01B\r\n" +
+	"\x0fagent_id_filter\x18\b \x01(\tH\x06R\ragentIdFilter\x88\x01\x01\x12I\n" +
+	"\x0foutcome_filters\x18\t \x03(\x0e2 .chalk.server.v1.AuditLogOutcomeR\x0eoutcomeFiltersB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\t\n" +
@@ -597,7 +657,11 @@ const file_chalk_server_v1_audit_proto_rawDesc = "" +
 	"\x0fresponse_fields\x18\a \x03(\v2%.chalk.server.v1.AuditedEndpointFieldR\x0eresponseFields\"\x1c\n" +
 	"\x1aGetAuditedEndpointsRequest\"]\n" +
 	"\x1bGetAuditedEndpointsResponse\x12>\n" +
-	"\tendpoints\x18\x01 \x03(\v2 .chalk.server.v1.AuditedEndpointR\tendpoints2\xe7\x01\n" +
+	"\tendpoints\x18\x01 \x03(\v2 .chalk.server.v1.AuditedEndpointR\tendpoints*k\n" +
+	"\x0fAuditLogOutcome\x12!\n" +
+	"\x1dAUDIT_LOG_OUTCOME_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14AUDIT_LOG_OUTCOME_OK\x10\x01\x12\x1b\n" +
+	"\x17AUDIT_LOG_OUTCOME_ERROR\x10\x022\xe7\x01\n" +
 	"\fAuditService\x12`\n" +
 	"\fGetAuditLogs\x12$.chalk.server.v1.GetAuditLogsRequest\x1a%.chalk.server.v1.GetAuditLogsResponse\"\x03\x80}\x06\x12u\n" +
 	"\x13GetAuditedEndpoints\x12+.chalk.server.v1.GetAuditedEndpointsRequest\x1a,.chalk.server.v1.GetAuditedEndpointsResponse\"\x03\x80}\x06B\xba\x01\n" +
@@ -616,49 +680,52 @@ func file_chalk_server_v1_audit_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_audit_proto_rawDescData
 }
 
+var file_chalk_server_v1_audit_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_chalk_server_v1_audit_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chalk_server_v1_audit_proto_goTypes = []any{
-	(*AuditLog)(nil),                    // 0: chalk.server.v1.AuditLog
-	(*GetAuditLogsRequest)(nil),         // 1: chalk.server.v1.GetAuditLogsRequest
-	(*GetAuditLogsResponse)(nil),        // 2: chalk.server.v1.GetAuditLogsResponse
-	(*AuditedEndpointField)(nil),        // 3: chalk.server.v1.AuditedEndpointField
-	(*AuditedEndpoint)(nil),             // 4: chalk.server.v1.AuditedEndpoint
-	(*GetAuditedEndpointsRequest)(nil),  // 5: chalk.server.v1.GetAuditedEndpointsRequest
-	(*GetAuditedEndpointsResponse)(nil), // 6: chalk.server.v1.GetAuditedEndpointsResponse
-	nil,                                 // 7: chalk.server.v1.AuditLog.RequestEntry
-	nil,                                 // 8: chalk.server.v1.AuditLog.ResponseEntry
-	(*v1.Agent)(nil),                    // 9: chalk.auth.v1.Agent
-	(*timestamppb.Timestamp)(nil),       // 10: google.protobuf.Timestamp
-	(code.Code)(0),                      // 11: google.rpc.Code
-	(v1.AuditLevel)(0),                  // 12: chalk.auth.v1.AuditLevel
-	(*structpb.Value)(nil),              // 13: google.protobuf.Value
+	(AuditLogOutcome)(0),                // 0: chalk.server.v1.AuditLogOutcome
+	(*AuditLog)(nil),                    // 1: chalk.server.v1.AuditLog
+	(*GetAuditLogsRequest)(nil),         // 2: chalk.server.v1.GetAuditLogsRequest
+	(*GetAuditLogsResponse)(nil),        // 3: chalk.server.v1.GetAuditLogsResponse
+	(*AuditedEndpointField)(nil),        // 4: chalk.server.v1.AuditedEndpointField
+	(*AuditedEndpoint)(nil),             // 5: chalk.server.v1.AuditedEndpoint
+	(*GetAuditedEndpointsRequest)(nil),  // 6: chalk.server.v1.GetAuditedEndpointsRequest
+	(*GetAuditedEndpointsResponse)(nil), // 7: chalk.server.v1.GetAuditedEndpointsResponse
+	nil,                                 // 8: chalk.server.v1.AuditLog.RequestEntry
+	nil,                                 // 9: chalk.server.v1.AuditLog.ResponseEntry
+	(*v1.Agent)(nil),                    // 10: chalk.auth.v1.Agent
+	(*timestamppb.Timestamp)(nil),       // 11: google.protobuf.Timestamp
+	(code.Code)(0),                      // 12: google.rpc.Code
+	(v1.AuditLevel)(0),                  // 13: chalk.auth.v1.AuditLevel
+	(*structpb.Value)(nil),              // 14: google.protobuf.Value
 }
 var file_chalk_server_v1_audit_proto_depIdxs = []int32{
-	9,  // 0: chalk.server.v1.AuditLog.agent:type_name -> chalk.auth.v1.Agent
-	10, // 1: chalk.server.v1.AuditLog.at:type_name -> google.protobuf.Timestamp
-	11, // 2: chalk.server.v1.AuditLog.code:type_name -> google.rpc.Code
-	7,  // 3: chalk.server.v1.AuditLog.request:type_name -> chalk.server.v1.AuditLog.RequestEntry
-	8,  // 4: chalk.server.v1.AuditLog.response:type_name -> chalk.server.v1.AuditLog.ResponseEntry
-	10, // 5: chalk.server.v1.GetAuditLogsRequest.start_time:type_name -> google.protobuf.Timestamp
-	10, // 6: chalk.server.v1.GetAuditLogsRequest.end_time:type_name -> google.protobuf.Timestamp
-	10, // 7: chalk.server.v1.GetAuditLogsRequest.timestamp_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
-	10, // 8: chalk.server.v1.GetAuditLogsRequest.timestamp_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
-	0,  // 9: chalk.server.v1.GetAuditLogsResponse.logs:type_name -> chalk.server.v1.AuditLog
-	12, // 10: chalk.server.v1.AuditedEndpoint.level:type_name -> chalk.auth.v1.AuditLevel
-	3,  // 11: chalk.server.v1.AuditedEndpoint.request_fields:type_name -> chalk.server.v1.AuditedEndpointField
-	3,  // 12: chalk.server.v1.AuditedEndpoint.response_fields:type_name -> chalk.server.v1.AuditedEndpointField
-	4,  // 13: chalk.server.v1.GetAuditedEndpointsResponse.endpoints:type_name -> chalk.server.v1.AuditedEndpoint
-	13, // 14: chalk.server.v1.AuditLog.RequestEntry.value:type_name -> google.protobuf.Value
-	13, // 15: chalk.server.v1.AuditLog.ResponseEntry.value:type_name -> google.protobuf.Value
-	1,  // 16: chalk.server.v1.AuditService.GetAuditLogs:input_type -> chalk.server.v1.GetAuditLogsRequest
-	5,  // 17: chalk.server.v1.AuditService.GetAuditedEndpoints:input_type -> chalk.server.v1.GetAuditedEndpointsRequest
-	2,  // 18: chalk.server.v1.AuditService.GetAuditLogs:output_type -> chalk.server.v1.GetAuditLogsResponse
-	6,  // 19: chalk.server.v1.AuditService.GetAuditedEndpoints:output_type -> chalk.server.v1.GetAuditedEndpointsResponse
-	18, // [18:20] is the sub-list for method output_type
-	16, // [16:18] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	10, // 0: chalk.server.v1.AuditLog.agent:type_name -> chalk.auth.v1.Agent
+	11, // 1: chalk.server.v1.AuditLog.at:type_name -> google.protobuf.Timestamp
+	12, // 2: chalk.server.v1.AuditLog.code:type_name -> google.rpc.Code
+	8,  // 3: chalk.server.v1.AuditLog.request:type_name -> chalk.server.v1.AuditLog.RequestEntry
+	9,  // 4: chalk.server.v1.AuditLog.response:type_name -> chalk.server.v1.AuditLog.ResponseEntry
+	11, // 5: chalk.server.v1.GetAuditLogsRequest.start_time:type_name -> google.protobuf.Timestamp
+	11, // 6: chalk.server.v1.GetAuditLogsRequest.end_time:type_name -> google.protobuf.Timestamp
+	11, // 7: chalk.server.v1.GetAuditLogsRequest.timestamp_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
+	11, // 8: chalk.server.v1.GetAuditLogsRequest.timestamp_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	0,  // 9: chalk.server.v1.GetAuditLogsRequest.outcome_filters:type_name -> chalk.server.v1.AuditLogOutcome
+	1,  // 10: chalk.server.v1.GetAuditLogsResponse.logs:type_name -> chalk.server.v1.AuditLog
+	13, // 11: chalk.server.v1.AuditedEndpoint.level:type_name -> chalk.auth.v1.AuditLevel
+	4,  // 12: chalk.server.v1.AuditedEndpoint.request_fields:type_name -> chalk.server.v1.AuditedEndpointField
+	4,  // 13: chalk.server.v1.AuditedEndpoint.response_fields:type_name -> chalk.server.v1.AuditedEndpointField
+	5,  // 14: chalk.server.v1.GetAuditedEndpointsResponse.endpoints:type_name -> chalk.server.v1.AuditedEndpoint
+	14, // 15: chalk.server.v1.AuditLog.RequestEntry.value:type_name -> google.protobuf.Value
+	14, // 16: chalk.server.v1.AuditLog.ResponseEntry.value:type_name -> google.protobuf.Value
+	2,  // 17: chalk.server.v1.AuditService.GetAuditLogs:input_type -> chalk.server.v1.GetAuditLogsRequest
+	6,  // 18: chalk.server.v1.AuditService.GetAuditedEndpoints:input_type -> chalk.server.v1.GetAuditedEndpointsRequest
+	3,  // 19: chalk.server.v1.AuditService.GetAuditLogs:output_type -> chalk.server.v1.GetAuditLogsResponse
+	7,  // 20: chalk.server.v1.AuditService.GetAuditedEndpoints:output_type -> chalk.server.v1.GetAuditedEndpointsResponse
+	19, // [19:21] is the sub-list for method output_type
+	17, // [17:19] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_audit_proto_init() }
@@ -674,13 +741,14 @@ func file_chalk_server_v1_audit_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_audit_proto_rawDesc), len(file_chalk_server_v1_audit_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_server_v1_audit_proto_goTypes,
 		DependencyIndexes: file_chalk_server_v1_audit_proto_depIdxs,
+		EnumInfos:         file_chalk_server_v1_audit_proto_enumTypes,
 		MessageInfos:      file_chalk_server_v1_audit_proto_msgTypes,
 	}.Build()
 	File_chalk_server_v1_audit_proto = out.File

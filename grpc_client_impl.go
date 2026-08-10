@@ -37,6 +37,7 @@ type grpcClientImpl struct {
 	httpClient    connect.HTTPClient
 	timeout       *time.Duration
 
+	featureWriteClient    featureWriteClient
 	queryClient           enginev1connect.QueryServiceClient
 	branchQueryClient     enginev1connect.QueryServiceClient
 	graphClient           serverv1connect.GraphServiceClient
@@ -45,6 +46,30 @@ type grpcClientImpl struct {
 	tokenManager          *auth.Manager
 	metadataInterceptor   connect.UnaryInterceptorFunc
 	engineInterceptor     connect.UnaryInterceptorFunc
+}
+
+type featureWriteClient interface {
+	UploadFeatures(context.Context, UploadFeaturesParams) (UploadFeaturesResult, error)
+	DeleteFeatures(context.Context, DeleteFeaturesParams) (DeleteFeaturesResult, error)
+}
+
+type grpcHTTPClientAdapter struct {
+	connect.HTTPClient
+}
+
+func (c grpcHTTPClientAdapter) Get(url string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	return c.Do(req)
+}
+
+func asHTTPClient(client connect.HTTPClient) HTTPClient {
+	if client, ok := client.(HTTPClient); ok {
+		return client
+	}
+	return grpcHTTPClientAdapter{HTTPClient: client}
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -251,6 +276,18 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		connect.WithInterceptors(cfg.Interceptors...),
 	)
 
+	featureWriteClient := &clientImpl{
+		config:        configManager,
+		allocator:     cfg.Allocator,
+		Branch:        cfg.Branch,
+		DeploymentTag: cfg.DeploymentTag,
+		resourceGroup: resourceGroup,
+		timeout:       timeout,
+		httpClient:    asHTTPClient(cfg.HTTPClient),
+		logger:        cfg.Logger,
+		tokenManager:  tokenManager,
+	}
+
 	return &grpcClientImpl{
 		deploymentTag:         cfg.DeploymentTag,
 		branch:                cfg.Branch,
@@ -258,6 +295,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		logger:                cfg.Logger,
 		config:                configManager,
 		tokenManager:          tokenManager,
+		featureWriteClient:    featureWriteClient,
 		queryClient:           queryClient,
 		branchQueryClient:     branchQueryClient,
 		graphClient:           graphClient,
@@ -455,6 +493,20 @@ func (c *grpcClientImpl) getQueryClient(hasBranch bool) enginev1connect.QuerySer
 		return c.branchQueryClient
 	}
 	return c.queryClient
+}
+
+func (c *grpcClientImpl) UploadFeatures(
+	ctx context.Context,
+	params UploadFeaturesParams,
+) (UploadFeaturesResult, error) {
+	return c.featureWriteClient.UploadFeatures(ctx, params)
+}
+
+func (c *grpcClientImpl) DeleteFeatures(
+	ctx context.Context,
+	params DeleteFeaturesParams,
+) (DeleteFeaturesResult, error) {
+	return c.featureWriteClient.DeleteFeatures(ctx, params)
 }
 
 func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {

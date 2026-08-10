@@ -79,6 +79,12 @@ type GRPCClient interface {
 	GetOnlineQueryBulkRequest(ctx context.Context, params OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error)
 	GetQueryEndpoint() string
 
+	// UploadFeatures synchronously persists feature values to the online and offline stores.
+	UploadFeatures(ctx context.Context, params UploadFeaturesParams) (UploadFeaturesResult, error)
+
+	// DeleteFeatures targets feature observation values for deletion in the online and offline stores.
+	DeleteFeatures(ctx context.Context, params DeleteFeaturesParams) (DeleteFeaturesResult, error)
+
 	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
 	// while updating the corresponding aggregate values themselves.
 	// The `Inputs` parameter should be a map of features to values. The features should either

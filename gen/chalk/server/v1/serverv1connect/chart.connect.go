@@ -33,6 +33,18 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// ChartsServiceListRawMetricsProcedure is the fully-qualified name of the ChartsService's
+	// ListRawMetrics RPC.
+	ChartsServiceListRawMetricsProcedure = "/chalk.server.v1.ChartsService/ListRawMetrics"
+	// ChartsServiceGetRawMetricLabelNamesProcedure is the fully-qualified name of the ChartsService's
+	// GetRawMetricLabelNames RPC.
+	ChartsServiceGetRawMetricLabelNamesProcedure = "/chalk.server.v1.ChartsService/GetRawMetricLabelNames"
+	// ChartsServiceGetRawMetricLabelValuesProcedure is the fully-qualified name of the ChartsService's
+	// GetRawMetricLabelValues RPC.
+	ChartsServiceGetRawMetricLabelValuesProcedure = "/chalk.server.v1.ChartsService/GetRawMetricLabelValues"
+	// ChartsServiceQueryRawMetricsProcedure is the fully-qualified name of the ChartsService's
+	// QueryRawMetrics RPC.
+	ChartsServiceQueryRawMetricsProcedure = "/chalk.server.v1.ChartsService/QueryRawMetrics"
 	// ChartsServiceListChartsProcedure is the fully-qualified name of the ChartsService's ListCharts
 	// RPC.
 	ChartsServiceListChartsProcedure = "/chalk.server.v1.ChartsService/ListCharts"
@@ -53,9 +65,6 @@ const (
 	ChartsServiceDeleteChartProcedure = "/chalk.server.v1.ChartsService/DeleteChart"
 	// ChartsServiceGetChartProcedure is the fully-qualified name of the ChartsService's GetChart RPC.
 	ChartsServiceGetChartProcedure = "/chalk.server.v1.ChartsService/GetChart"
-	// ChartsServiceGetChartByIdOnlyProcedure is the fully-qualified name of the ChartsService's
-	// GetChartByIdOnly RPC.
-	ChartsServiceGetChartByIdOnlyProcedure = "/chalk.server.v1.ChartsService/GetChartByIdOnly"
 	// ChartsServiceGetChartOptionsProcedure is the fully-qualified name of the ChartsService's
 	// GetChartOptions RPC.
 	ChartsServiceGetChartOptionsProcedure = "/chalk.server.v1.ChartsService/GetChartOptions"
@@ -81,6 +90,15 @@ const (
 
 // ChartsServiceClient is a client for the chalk.server.v1.ChartsService service.
 type ChartsServiceClient interface {
+	// ListRawMetrics, GetRawMetricLabelValues and QueryRawMetrics expose the raw
+	// VictoriaMetrics series behind an environment's charts. They are gated on
+	// PERMISSION_CHALK_ADMIN (granted implicitly to @chalk.ai agents) because VM
+	// series names and labels are an internal implementation detail rather than a
+	// stable customer-facing surface.
+	ListRawMetrics(context.Context, *connect.Request[v1.ListRawMetricsRequest]) (*connect.Response[v1.ListRawMetricsResponse], error)
+	GetRawMetricLabelNames(context.Context, *connect.Request[v1.GetRawMetricLabelNamesRequest]) (*connect.Response[v1.GetRawMetricLabelNamesResponse], error)
+	GetRawMetricLabelValues(context.Context, *connect.Request[v1.GetRawMetricLabelValuesRequest]) (*connect.Response[v1.GetRawMetricLabelValuesResponse], error)
+	QueryRawMetrics(context.Context, *connect.Request[v1.QueryRawMetricsRequest]) (*connect.Response[v1.QueryRawMetricsResponse], error)
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
 	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
 	GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error)
@@ -88,8 +106,6 @@ type ChartsServiceClient interface {
 	CreateChart(context.Context, *connect.Request[v1.CreateChartRequest]) (*connect.Response[v1.CreateChartResponse], error)
 	DeleteChart(context.Context, *connect.Request[v1.DeleteChartRequest]) (*connect.Response[v1.DeleteChartResponse], error)
 	GetChart(context.Context, *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error)
-	// Deprecated
-	GetChartByIdOnly(context.Context, *connect.Request[v1.GetChartByIdOnlyRequest]) (*connect.Response[v1.GetChartByIdOnlyResponse], error)
 	GetChartOptions(context.Context, *connect.Request[v1.GetChartOptionsRequest]) (*connect.Response[v1.GetChartOptionsResponse], error)
 	GetFeatureMetrics(context.Context, *connect.Request[v1.GetFeatureMetricsRequest]) (*connect.Response[v1.GetFeatureMetricsResponse], error)
 	GetResolverMetrics(context.Context, *connect.Request[v1.GetResolverMetricsRequest]) (*connect.Response[v1.GetResolverMetricsResponse], error)
@@ -110,6 +126,30 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 	baseURL = strings.TrimRight(baseURL, "/")
 	chartsServiceMethods := v1.File_chalk_server_v1_chart_proto.Services().ByName("ChartsService").Methods()
 	return &chartsServiceClient{
+		listRawMetrics: connect.NewClient[v1.ListRawMetricsRequest, v1.ListRawMetricsResponse](
+			httpClient,
+			baseURL+ChartsServiceListRawMetricsProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("ListRawMetrics")),
+			connect.WithClientOptions(opts...),
+		),
+		getRawMetricLabelNames: connect.NewClient[v1.GetRawMetricLabelNamesRequest, v1.GetRawMetricLabelNamesResponse](
+			httpClient,
+			baseURL+ChartsServiceGetRawMetricLabelNamesProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("GetRawMetricLabelNames")),
+			connect.WithClientOptions(opts...),
+		),
+		getRawMetricLabelValues: connect.NewClient[v1.GetRawMetricLabelValuesRequest, v1.GetRawMetricLabelValuesResponse](
+			httpClient,
+			baseURL+ChartsServiceGetRawMetricLabelValuesProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("GetRawMetricLabelValues")),
+			connect.WithClientOptions(opts...),
+		),
+		queryRawMetrics: connect.NewClient[v1.QueryRawMetricsRequest, v1.QueryRawMetricsResponse](
+			httpClient,
+			baseURL+ChartsServiceQueryRawMetricsProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("QueryRawMetrics")),
+			connect.WithClientOptions(opts...),
+		),
 		listCharts: connect.NewClient[v1.ListChartsRequest, v1.ListChartsResponse](
 			httpClient,
 			baseURL+ChartsServiceListChartsProcedure,
@@ -150,12 +190,6 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			httpClient,
 			baseURL+ChartsServiceGetChartProcedure,
 			connect.WithSchema(chartsServiceMethods.ByName("GetChart")),
-			connect.WithClientOptions(opts...),
-		),
-		getChartByIdOnly: connect.NewClient[v1.GetChartByIdOnlyRequest, v1.GetChartByIdOnlyResponse](
-			httpClient,
-			baseURL+ChartsServiceGetChartByIdOnlyProcedure,
-			connect.WithSchema(chartsServiceMethods.ByName("GetChartByIdOnly")),
 			connect.WithClientOptions(opts...),
 		),
 		getChartOptions: connect.NewClient[v1.GetChartOptionsRequest, v1.GetChartOptionsResponse](
@@ -205,6 +239,10 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // chartsServiceClient implements ChartsServiceClient.
 type chartsServiceClient struct {
+	listRawMetrics           *connect.Client[v1.ListRawMetricsRequest, v1.ListRawMetricsResponse]
+	getRawMetricLabelNames   *connect.Client[v1.GetRawMetricLabelNamesRequest, v1.GetRawMetricLabelNamesResponse]
+	getRawMetricLabelValues  *connect.Client[v1.GetRawMetricLabelValuesRequest, v1.GetRawMetricLabelValuesResponse]
+	queryRawMetrics          *connect.Client[v1.QueryRawMetricsRequest, v1.QueryRawMetricsResponse]
 	listCharts               *connect.Client[v1.ListChartsRequest, v1.ListChartsResponse]
 	getChartSnapshot         *connect.Client[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse]
 	getChartSnapshotByQuery  *connect.Client[v1.GetChartSnapshotByQueryRequest, v1.GetChartSnapshotByQueryResponse]
@@ -212,7 +250,6 @@ type chartsServiceClient struct {
 	createChart              *connect.Client[v1.CreateChartRequest, v1.CreateChartResponse]
 	deleteChart              *connect.Client[v1.DeleteChartRequest, v1.DeleteChartResponse]
 	getChart                 *connect.Client[v1.GetChartRequest, v1.GetChartResponse]
-	getChartByIdOnly         *connect.Client[v1.GetChartByIdOnlyRequest, v1.GetChartByIdOnlyResponse]
 	getChartOptions          *connect.Client[v1.GetChartOptionsRequest, v1.GetChartOptionsResponse]
 	getFeatureMetrics        *connect.Client[v1.GetFeatureMetricsRequest, v1.GetFeatureMetricsResponse]
 	getResolverMetrics       *connect.Client[v1.GetResolverMetricsRequest, v1.GetResolverMetricsResponse]
@@ -220,6 +257,26 @@ type chartsServiceClient struct {
 	getMetricOptions         *connect.Client[v1.GetMetricOptionsRequest, v1.GetMetricOptionsResponse]
 	getFormulaOptions        *connect.Client[v1.GetFormulaOptionsRequest, v1.GetFormulaOptionsResponse]
 	listChartsWithCronAlerts *connect.Client[v1.ListChartsWithCronAlertsRequest, v1.ListChartsWithCronAlertsResponse]
+}
+
+// ListRawMetrics calls chalk.server.v1.ChartsService.ListRawMetrics.
+func (c *chartsServiceClient) ListRawMetrics(ctx context.Context, req *connect.Request[v1.ListRawMetricsRequest]) (*connect.Response[v1.ListRawMetricsResponse], error) {
+	return c.listRawMetrics.CallUnary(ctx, req)
+}
+
+// GetRawMetricLabelNames calls chalk.server.v1.ChartsService.GetRawMetricLabelNames.
+func (c *chartsServiceClient) GetRawMetricLabelNames(ctx context.Context, req *connect.Request[v1.GetRawMetricLabelNamesRequest]) (*connect.Response[v1.GetRawMetricLabelNamesResponse], error) {
+	return c.getRawMetricLabelNames.CallUnary(ctx, req)
+}
+
+// GetRawMetricLabelValues calls chalk.server.v1.ChartsService.GetRawMetricLabelValues.
+func (c *chartsServiceClient) GetRawMetricLabelValues(ctx context.Context, req *connect.Request[v1.GetRawMetricLabelValuesRequest]) (*connect.Response[v1.GetRawMetricLabelValuesResponse], error) {
+	return c.getRawMetricLabelValues.CallUnary(ctx, req)
+}
+
+// QueryRawMetrics calls chalk.server.v1.ChartsService.QueryRawMetrics.
+func (c *chartsServiceClient) QueryRawMetrics(ctx context.Context, req *connect.Request[v1.QueryRawMetricsRequest]) (*connect.Response[v1.QueryRawMetricsResponse], error) {
+	return c.queryRawMetrics.CallUnary(ctx, req)
 }
 
 // ListCharts calls chalk.server.v1.ChartsService.ListCharts.
@@ -255,11 +312,6 @@ func (c *chartsServiceClient) DeleteChart(ctx context.Context, req *connect.Requ
 // GetChart calls chalk.server.v1.ChartsService.GetChart.
 func (c *chartsServiceClient) GetChart(ctx context.Context, req *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error) {
 	return c.getChart.CallUnary(ctx, req)
-}
-
-// GetChartByIdOnly calls chalk.server.v1.ChartsService.GetChartByIdOnly.
-func (c *chartsServiceClient) GetChartByIdOnly(ctx context.Context, req *connect.Request[v1.GetChartByIdOnlyRequest]) (*connect.Response[v1.GetChartByIdOnlyResponse], error) {
-	return c.getChartByIdOnly.CallUnary(ctx, req)
 }
 
 // GetChartOptions calls chalk.server.v1.ChartsService.GetChartOptions.
@@ -299,6 +351,15 @@ func (c *chartsServiceClient) ListChartsWithCronAlerts(ctx context.Context, req 
 
 // ChartsServiceHandler is an implementation of the chalk.server.v1.ChartsService service.
 type ChartsServiceHandler interface {
+	// ListRawMetrics, GetRawMetricLabelValues and QueryRawMetrics expose the raw
+	// VictoriaMetrics series behind an environment's charts. They are gated on
+	// PERMISSION_CHALK_ADMIN (granted implicitly to @chalk.ai agents) because VM
+	// series names and labels are an internal implementation detail rather than a
+	// stable customer-facing surface.
+	ListRawMetrics(context.Context, *connect.Request[v1.ListRawMetricsRequest]) (*connect.Response[v1.ListRawMetricsResponse], error)
+	GetRawMetricLabelNames(context.Context, *connect.Request[v1.GetRawMetricLabelNamesRequest]) (*connect.Response[v1.GetRawMetricLabelNamesResponse], error)
+	GetRawMetricLabelValues(context.Context, *connect.Request[v1.GetRawMetricLabelValuesRequest]) (*connect.Response[v1.GetRawMetricLabelValuesResponse], error)
+	QueryRawMetrics(context.Context, *connect.Request[v1.QueryRawMetricsRequest]) (*connect.Response[v1.QueryRawMetricsResponse], error)
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
 	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
 	GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error)
@@ -306,8 +367,6 @@ type ChartsServiceHandler interface {
 	CreateChart(context.Context, *connect.Request[v1.CreateChartRequest]) (*connect.Response[v1.CreateChartResponse], error)
 	DeleteChart(context.Context, *connect.Request[v1.DeleteChartRequest]) (*connect.Response[v1.DeleteChartResponse], error)
 	GetChart(context.Context, *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error)
-	// Deprecated
-	GetChartByIdOnly(context.Context, *connect.Request[v1.GetChartByIdOnlyRequest]) (*connect.Response[v1.GetChartByIdOnlyResponse], error)
 	GetChartOptions(context.Context, *connect.Request[v1.GetChartOptionsRequest]) (*connect.Response[v1.GetChartOptionsResponse], error)
 	GetFeatureMetrics(context.Context, *connect.Request[v1.GetFeatureMetricsRequest]) (*connect.Response[v1.GetFeatureMetricsResponse], error)
 	GetResolverMetrics(context.Context, *connect.Request[v1.GetResolverMetricsRequest]) (*connect.Response[v1.GetResolverMetricsResponse], error)
@@ -324,6 +383,30 @@ type ChartsServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	chartsServiceMethods := v1.File_chalk_server_v1_chart_proto.Services().ByName("ChartsService").Methods()
+	chartsServiceListRawMetricsHandler := connect.NewUnaryHandler(
+		ChartsServiceListRawMetricsProcedure,
+		svc.ListRawMetrics,
+		connect.WithSchema(chartsServiceMethods.ByName("ListRawMetrics")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceGetRawMetricLabelNamesHandler := connect.NewUnaryHandler(
+		ChartsServiceGetRawMetricLabelNamesProcedure,
+		svc.GetRawMetricLabelNames,
+		connect.WithSchema(chartsServiceMethods.ByName("GetRawMetricLabelNames")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceGetRawMetricLabelValuesHandler := connect.NewUnaryHandler(
+		ChartsServiceGetRawMetricLabelValuesProcedure,
+		svc.GetRawMetricLabelValues,
+		connect.WithSchema(chartsServiceMethods.ByName("GetRawMetricLabelValues")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceQueryRawMetricsHandler := connect.NewUnaryHandler(
+		ChartsServiceQueryRawMetricsProcedure,
+		svc.QueryRawMetrics,
+		connect.WithSchema(chartsServiceMethods.ByName("QueryRawMetrics")),
+		connect.WithHandlerOptions(opts...),
+	)
 	chartsServiceListChartsHandler := connect.NewUnaryHandler(
 		ChartsServiceListChartsProcedure,
 		svc.ListCharts,
@@ -364,12 +447,6 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 		ChartsServiceGetChartProcedure,
 		svc.GetChart,
 		connect.WithSchema(chartsServiceMethods.ByName("GetChart")),
-		connect.WithHandlerOptions(opts...),
-	)
-	chartsServiceGetChartByIdOnlyHandler := connect.NewUnaryHandler(
-		ChartsServiceGetChartByIdOnlyProcedure,
-		svc.GetChartByIdOnly,
-		connect.WithSchema(chartsServiceMethods.ByName("GetChartByIdOnly")),
 		connect.WithHandlerOptions(opts...),
 	)
 	chartsServiceGetChartOptionsHandler := connect.NewUnaryHandler(
@@ -416,6 +493,14 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 	)
 	return "/chalk.server.v1.ChartsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case ChartsServiceListRawMetricsProcedure:
+			chartsServiceListRawMetricsHandler.ServeHTTP(w, r)
+		case ChartsServiceGetRawMetricLabelNamesProcedure:
+			chartsServiceGetRawMetricLabelNamesHandler.ServeHTTP(w, r)
+		case ChartsServiceGetRawMetricLabelValuesProcedure:
+			chartsServiceGetRawMetricLabelValuesHandler.ServeHTTP(w, r)
+		case ChartsServiceQueryRawMetricsProcedure:
+			chartsServiceQueryRawMetricsHandler.ServeHTTP(w, r)
 		case ChartsServiceListChartsProcedure:
 			chartsServiceListChartsHandler.ServeHTTP(w, r)
 		case ChartsServiceGetChartSnapshotProcedure:
@@ -430,8 +515,6 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 			chartsServiceDeleteChartHandler.ServeHTTP(w, r)
 		case ChartsServiceGetChartProcedure:
 			chartsServiceGetChartHandler.ServeHTTP(w, r)
-		case ChartsServiceGetChartByIdOnlyProcedure:
-			chartsServiceGetChartByIdOnlyHandler.ServeHTTP(w, r)
 		case ChartsServiceGetChartOptionsProcedure:
 			chartsServiceGetChartOptionsHandler.ServeHTTP(w, r)
 		case ChartsServiceGetFeatureMetricsProcedure:
@@ -454,6 +537,22 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 
 // UnimplementedChartsServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedChartsServiceHandler struct{}
+
+func (UnimplementedChartsServiceHandler) ListRawMetrics(context.Context, *connect.Request[v1.ListRawMetricsRequest]) (*connect.Response[v1.ListRawMetricsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.ListRawMetrics is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) GetRawMetricLabelNames(context.Context, *connect.Request[v1.GetRawMetricLabelNamesRequest]) (*connect.Response[v1.GetRawMetricLabelNamesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetRawMetricLabelNames is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) GetRawMetricLabelValues(context.Context, *connect.Request[v1.GetRawMetricLabelValuesRequest]) (*connect.Response[v1.GetRawMetricLabelValuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetRawMetricLabelValues is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) QueryRawMetrics(context.Context, *connect.Request[v1.QueryRawMetricsRequest]) (*connect.Response[v1.QueryRawMetricsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.QueryRawMetrics is not implemented"))
+}
 
 func (UnimplementedChartsServiceHandler) ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.ListCharts is not implemented"))
@@ -481,10 +580,6 @@ func (UnimplementedChartsServiceHandler) DeleteChart(context.Context, *connect.R
 
 func (UnimplementedChartsServiceHandler) GetChart(context.Context, *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetChart is not implemented"))
-}
-
-func (UnimplementedChartsServiceHandler) GetChartByIdOnly(context.Context, *connect.Request[v1.GetChartByIdOnlyRequest]) (*connect.Response[v1.GetChartByIdOnlyResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetChartByIdOnly is not implemented"))
 }
 
 func (UnimplementedChartsServiceHandler) GetChartOptions(context.Context, *connect.Request[v1.GetChartOptionsRequest]) (*connect.Response[v1.GetChartOptionsResponse], error) {

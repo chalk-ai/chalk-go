@@ -10,6 +10,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -77,6 +78,257 @@ func (AgentTemplateKind) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{0}
 }
 
+// The value type an agent template input accepts.
+type AgentTemplateInputType int32
+
+const (
+	AgentTemplateInputType_AGENT_TEMPLATE_INPUT_TYPE_UNSPECIFIED AgentTemplateInputType = 0
+	AgentTemplateInputType_AGENT_TEMPLATE_INPUT_TYPE_STRING      AgentTemplateInputType = 1
+	AgentTemplateInputType_AGENT_TEMPLATE_INPUT_TYPE_FLOAT       AgentTemplateInputType = 2
+	AgentTemplateInputType_AGENT_TEMPLATE_INPUT_TYPE_INT         AgentTemplateInputType = 3
+)
+
+// Enum value maps for AgentTemplateInputType.
+var (
+	AgentTemplateInputType_name = map[int32]string{
+		0: "AGENT_TEMPLATE_INPUT_TYPE_UNSPECIFIED",
+		1: "AGENT_TEMPLATE_INPUT_TYPE_STRING",
+		2: "AGENT_TEMPLATE_INPUT_TYPE_FLOAT",
+		3: "AGENT_TEMPLATE_INPUT_TYPE_INT",
+	}
+	AgentTemplateInputType_value = map[string]int32{
+		"AGENT_TEMPLATE_INPUT_TYPE_UNSPECIFIED": 0,
+		"AGENT_TEMPLATE_INPUT_TYPE_STRING":      1,
+		"AGENT_TEMPLATE_INPUT_TYPE_FLOAT":       2,
+		"AGENT_TEMPLATE_INPUT_TYPE_INT":         3,
+	}
+)
+
+func (x AgentTemplateInputType) Enum() *AgentTemplateInputType {
+	p := new(AgentTemplateInputType)
+	*p = x
+	return p
+}
+
+func (x AgentTemplateInputType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AgentTemplateInputType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_agent_template_proto_enumTypes[1].Descriptor()
+}
+
+func (AgentTemplateInputType) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_agent_template_proto_enumTypes[1]
+}
+
+func (x AgentTemplateInputType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AgentTemplateInputType.Descriptor instead.
+func (AgentTemplateInputType) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{1}
+}
+
+// AgentTemplateInput declares one keyed parameter conversations created from
+// the template supply at creation time (CreateConversationRequest
+// .template_inputs). The template's system prompt references an input with the
+// same @-mention token syntax the dashboard uses for other entities —
+// @[name](chalk://input/<name>) — and the runner replaces each token with the
+// supplied value when it formats the system prompt for a turn.
+type AgentTemplateInput struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Key, unique within the template. Restricted to identifier-like names
+	// ([A-Za-z_][A-Za-z0-9_-]*) so it can appear in the chalk://input/ token.
+	Name        string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	// Must be a concrete type (not UNSPECIFIED).
+	Type AgentTemplateInputType `protobuf:"varint,3,opt,name=type,proto3,enum=chalk.agent.v1.AgentTemplateInputType" json:"type,omitempty"`
+	// When true the value may be omitted or explicitly null at conversation
+	// creation; otherwise CreateConversation rejects requests that don't supply
+	// a value of the declared type.
+	Nullable      bool `protobuf:"varint,4,opt,name=nullable,proto3" json:"nullable,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AgentTemplateInput) Reset() {
+	*x = AgentTemplateInput{}
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AgentTemplateInput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AgentTemplateInput) ProtoMessage() {}
+
+func (x *AgentTemplateInput) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AgentTemplateInput.ProtoReflect.Descriptor instead.
+func (*AgentTemplateInput) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *AgentTemplateInput) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *AgentTemplateInput) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *AgentTemplateInput) GetType() AgentTemplateInputType {
+	if x != nil {
+		return x.Type
+	}
+	return AgentTemplateInputType_AGENT_TEMPLATE_INPUT_TYPE_UNSPECIFIED
+}
+
+func (x *AgentTemplateInput) GetNullable() bool {
+	if x != nil {
+		return x.Nullable
+	}
+	return false
+}
+
+// AgentTemplateInputValue is one supplied value for a template-declared
+// input. The variant set must match the declared AgentTemplateInputType;
+// null_value is only legal for nullable inputs.
+type AgentTemplateInputValue struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Value:
+	//
+	//	*AgentTemplateInputValue_StringValue
+	//	*AgentTemplateInputValue_FloatValue
+	//	*AgentTemplateInputValue_IntValue
+	//	*AgentTemplateInputValue_NullValue
+	Value         isAgentTemplateInputValue_Value `protobuf_oneof:"value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AgentTemplateInputValue) Reset() {
+	*x = AgentTemplateInputValue{}
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AgentTemplateInputValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AgentTemplateInputValue) ProtoMessage() {}
+
+func (x *AgentTemplateInputValue) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AgentTemplateInputValue.ProtoReflect.Descriptor instead.
+func (*AgentTemplateInputValue) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *AgentTemplateInputValue) GetValue() isAgentTemplateInputValue_Value {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+func (x *AgentTemplateInputValue) GetStringValue() string {
+	if x != nil {
+		if x, ok := x.Value.(*AgentTemplateInputValue_StringValue); ok {
+			return x.StringValue
+		}
+	}
+	return ""
+}
+
+func (x *AgentTemplateInputValue) GetFloatValue() float64 {
+	if x != nil {
+		if x, ok := x.Value.(*AgentTemplateInputValue_FloatValue); ok {
+			return x.FloatValue
+		}
+	}
+	return 0
+}
+
+func (x *AgentTemplateInputValue) GetIntValue() int64 {
+	if x != nil {
+		if x, ok := x.Value.(*AgentTemplateInputValue_IntValue); ok {
+			return x.IntValue
+		}
+	}
+	return 0
+}
+
+func (x *AgentTemplateInputValue) GetNullValue() structpb.NullValue {
+	if x != nil {
+		if x, ok := x.Value.(*AgentTemplateInputValue_NullValue); ok {
+			return x.NullValue
+		}
+	}
+	return structpb.NullValue(0)
+}
+
+type isAgentTemplateInputValue_Value interface {
+	isAgentTemplateInputValue_Value()
+}
+
+type AgentTemplateInputValue_StringValue struct {
+	StringValue string `protobuf:"bytes,1,opt,name=string_value,json=stringValue,proto3,oneof"`
+}
+
+type AgentTemplateInputValue_FloatValue struct {
+	FloatValue float64 `protobuf:"fixed64,2,opt,name=float_value,json=floatValue,proto3,oneof"`
+}
+
+type AgentTemplateInputValue_IntValue struct {
+	IntValue int64 `protobuf:"varint,3,opt,name=int_value,json=intValue,proto3,oneof"`
+}
+
+type AgentTemplateInputValue_NullValue struct {
+	// Explicit null for a nullable input.
+	NullValue structpb.NullValue `protobuf:"varint,4,opt,name=null_value,json=nullValue,proto3,enum=google.protobuf.NullValue,oneof"`
+}
+
+func (*AgentTemplateInputValue_StringValue) isAgentTemplateInputValue_Value() {}
+
+func (*AgentTemplateInputValue_FloatValue) isAgentTemplateInputValue_Value() {}
+
+func (*AgentTemplateInputValue_IntValue) isAgentTemplateInputValue_Value() {}
+
+func (*AgentTemplateInputValue_NullValue) isAgentTemplateInputValue_Value() {}
+
 // AgentTemplate is a reusable agent configuration a conversation can be
 // created from: a system prompt, a preferred model, and the set of tools the
 // agent is allowed to call. Tools are referenced by the chalk-mcp-gateway's
@@ -118,13 +370,16 @@ type AgentTemplate struct {
 	// query/SQL tools.
 	AllowedDatasources []string          `protobuf:"bytes,11,rep,name=allowed_datasources,json=allowedDatasources,proto3" json:"allowed_datasources,omitempty"`
 	Kind               AgentTemplateKind `protobuf:"varint,12,opt,name=kind,proto3,enum=chalk.agent.v1.AgentTemplateKind" json:"kind,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Keyed parameters conversations created from this template supply at
+	// creation. Order is the display order in the dashboard.
+	Inputs        []*AgentTemplateInput `protobuf:"bytes,13,rep,name=inputs,proto3" json:"inputs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AgentTemplate) Reset() {
 	*x = AgentTemplate{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[0]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -136,7 +391,7 @@ func (x *AgentTemplate) String() string {
 func (*AgentTemplate) ProtoMessage() {}
 
 func (x *AgentTemplate) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[0]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -149,7 +404,7 @@ func (x *AgentTemplate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentTemplate.ProtoReflect.Descriptor instead.
 func (*AgentTemplate) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{0}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AgentTemplate) GetId() string {
@@ -236,6 +491,13 @@ func (x *AgentTemplate) GetKind() AgentTemplateKind {
 	return AgentTemplateKind_AGENT_TEMPLATE_KIND_UNSPECIFIED
 }
 
+func (x *AgentTemplate) GetInputs() []*AgentTemplateInput {
+	if x != nil {
+		return x.Inputs
+	}
+	return nil
+}
+
 type CreateAgentTemplateRequest struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	Name                   string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -246,14 +508,15 @@ type CreateAgentTemplateRequest struct {
 	AllowedTools           []string               `protobuf:"bytes,6,rep,name=allowed_tools,json=allowedTools,proto3" json:"allowed_tools,omitempty"`
 	AllowedDatasources     []string               `protobuf:"bytes,7,rep,name=allowed_datasources,json=allowedDatasources,proto3" json:"allowed_datasources,omitempty"`
 	// UNSPECIFIED creates a GENERAL template.
-	Kind          AgentTemplateKind `protobuf:"varint,8,opt,name=kind,proto3,enum=chalk.agent.v1.AgentTemplateKind" json:"kind,omitempty"`
+	Kind          AgentTemplateKind     `protobuf:"varint,8,opt,name=kind,proto3,enum=chalk.agent.v1.AgentTemplateKind" json:"kind,omitempty"`
+	Inputs        []*AgentTemplateInput `protobuf:"bytes,9,rep,name=inputs,proto3" json:"inputs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateAgentTemplateRequest) Reset() {
 	*x = CreateAgentTemplateRequest{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[1]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -265,7 +528,7 @@ func (x *CreateAgentTemplateRequest) String() string {
 func (*CreateAgentTemplateRequest) ProtoMessage() {}
 
 func (x *CreateAgentTemplateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[1]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -278,7 +541,7 @@ func (x *CreateAgentTemplateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAgentTemplateRequest.ProtoReflect.Descriptor instead.
 func (*CreateAgentTemplateRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{1}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateAgentTemplateRequest) GetName() string {
@@ -337,6 +600,13 @@ func (x *CreateAgentTemplateRequest) GetKind() AgentTemplateKind {
 	return AgentTemplateKind_AGENT_TEMPLATE_KIND_UNSPECIFIED
 }
 
+func (x *CreateAgentTemplateRequest) GetInputs() []*AgentTemplateInput {
+	if x != nil {
+		return x.Inputs
+	}
+	return nil
+}
+
 type CreateAgentTemplateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Template      *AgentTemplate         `protobuf:"bytes,1,opt,name=template,proto3" json:"template,omitempty"`
@@ -346,7 +616,7 @@ type CreateAgentTemplateResponse struct {
 
 func (x *CreateAgentTemplateResponse) Reset() {
 	*x = CreateAgentTemplateResponse{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[2]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -358,7 +628,7 @@ func (x *CreateAgentTemplateResponse) String() string {
 func (*CreateAgentTemplateResponse) ProtoMessage() {}
 
 func (x *CreateAgentTemplateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[2]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -371,7 +641,7 @@ func (x *CreateAgentTemplateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAgentTemplateResponse.ProtoReflect.Descriptor instead.
 func (*CreateAgentTemplateResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{2}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateAgentTemplateResponse) GetTemplate() *AgentTemplate {
@@ -390,7 +660,7 @@ type GetAgentTemplateRequest struct {
 
 func (x *GetAgentTemplateRequest) Reset() {
 	*x = GetAgentTemplateRequest{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[3]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -402,7 +672,7 @@ func (x *GetAgentTemplateRequest) String() string {
 func (*GetAgentTemplateRequest) ProtoMessage() {}
 
 func (x *GetAgentTemplateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[3]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -415,7 +685,7 @@ func (x *GetAgentTemplateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAgentTemplateRequest.ProtoReflect.Descriptor instead.
 func (*GetAgentTemplateRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{3}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetAgentTemplateRequest) GetId() string {
@@ -434,7 +704,7 @@ type GetAgentTemplateResponse struct {
 
 func (x *GetAgentTemplateResponse) Reset() {
 	*x = GetAgentTemplateResponse{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[4]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -446,7 +716,7 @@ func (x *GetAgentTemplateResponse) String() string {
 func (*GetAgentTemplateResponse) ProtoMessage() {}
 
 func (x *GetAgentTemplateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[4]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -459,7 +729,7 @@ func (x *GetAgentTemplateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAgentTemplateResponse.ProtoReflect.Descriptor instead.
 func (*GetAgentTemplateResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{4}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetAgentTemplateResponse) GetTemplate() *AgentTemplate {
@@ -477,7 +747,7 @@ type ListAgentTemplatesRequest struct {
 
 func (x *ListAgentTemplatesRequest) Reset() {
 	*x = ListAgentTemplatesRequest{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[5]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -489,7 +759,7 @@ func (x *ListAgentTemplatesRequest) String() string {
 func (*ListAgentTemplatesRequest) ProtoMessage() {}
 
 func (x *ListAgentTemplatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[5]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -502,7 +772,7 @@ func (x *ListAgentTemplatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAgentTemplatesRequest.ProtoReflect.Descriptor instead.
 func (*ListAgentTemplatesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{5}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{7}
 }
 
 type ListAgentTemplatesResponse struct {
@@ -514,7 +784,7 @@ type ListAgentTemplatesResponse struct {
 
 func (x *ListAgentTemplatesResponse) Reset() {
 	*x = ListAgentTemplatesResponse{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[6]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -526,7 +796,7 @@ func (x *ListAgentTemplatesResponse) String() string {
 func (*ListAgentTemplatesResponse) ProtoMessage() {}
 
 func (x *ListAgentTemplatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[6]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -539,7 +809,7 @@ func (x *ListAgentTemplatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAgentTemplatesResponse.ProtoReflect.Descriptor instead.
 func (*ListAgentTemplatesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{6}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListAgentTemplatesResponse) GetTemplates() []*AgentTemplate {
@@ -569,14 +839,18 @@ type UpdateAgentTemplateRequest struct {
 	HasAllowedDatasources bool     `protobuf:"varint,10,opt,name=has_allowed_datasources,json=hasAllowedDatasources,proto3" json:"has_allowed_datasources,omitempty"`
 	// Like the scalar fields, only applied when not UNSPECIFIED; pass GENERAL
 	// to switch a notebook agent back.
-	Kind          AgentTemplateKind `protobuf:"varint,11,opt,name=kind,proto3,enum=chalk.agent.v1.AgentTemplateKind" json:"kind,omitempty"`
+	Kind AgentTemplateKind `protobuf:"varint,11,opt,name=kind,proto3,enum=chalk.agent.v1.AgentTemplateKind" json:"kind,omitempty"`
+	// inputs is only applied when has_inputs is true, so a template can be
+	// updated to an explicitly-empty input list.
+	Inputs        []*AgentTemplateInput `protobuf:"bytes,12,rep,name=inputs,proto3" json:"inputs,omitempty"`
+	HasInputs     bool                  `protobuf:"varint,13,opt,name=has_inputs,json=hasInputs,proto3" json:"has_inputs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateAgentTemplateRequest) Reset() {
 	*x = UpdateAgentTemplateRequest{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[7]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -588,7 +862,7 @@ func (x *UpdateAgentTemplateRequest) String() string {
 func (*UpdateAgentTemplateRequest) ProtoMessage() {}
 
 func (x *UpdateAgentTemplateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[7]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,7 +875,7 @@ func (x *UpdateAgentTemplateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAgentTemplateRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAgentTemplateRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{7}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateAgentTemplateRequest) GetId() string {
@@ -681,6 +955,20 @@ func (x *UpdateAgentTemplateRequest) GetKind() AgentTemplateKind {
 	return AgentTemplateKind_AGENT_TEMPLATE_KIND_UNSPECIFIED
 }
 
+func (x *UpdateAgentTemplateRequest) GetInputs() []*AgentTemplateInput {
+	if x != nil {
+		return x.Inputs
+	}
+	return nil
+}
+
+func (x *UpdateAgentTemplateRequest) GetHasInputs() bool {
+	if x != nil {
+		return x.HasInputs
+	}
+	return false
+}
+
 type UpdateAgentTemplateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Template      *AgentTemplate         `protobuf:"bytes,1,opt,name=template,proto3" json:"template,omitempty"`
@@ -690,7 +978,7 @@ type UpdateAgentTemplateResponse struct {
 
 func (x *UpdateAgentTemplateResponse) Reset() {
 	*x = UpdateAgentTemplateResponse{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[8]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -702,7 +990,7 @@ func (x *UpdateAgentTemplateResponse) String() string {
 func (*UpdateAgentTemplateResponse) ProtoMessage() {}
 
 func (x *UpdateAgentTemplateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[8]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -715,7 +1003,7 @@ func (x *UpdateAgentTemplateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAgentTemplateResponse.ProtoReflect.Descriptor instead.
 func (*UpdateAgentTemplateResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{8}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateAgentTemplateResponse) GetTemplate() *AgentTemplate {
@@ -734,7 +1022,7 @@ type DeleteAgentTemplateRequest struct {
 
 func (x *DeleteAgentTemplateRequest) Reset() {
 	*x = DeleteAgentTemplateRequest{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[9]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -746,7 +1034,7 @@ func (x *DeleteAgentTemplateRequest) String() string {
 func (*DeleteAgentTemplateRequest) ProtoMessage() {}
 
 func (x *DeleteAgentTemplateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[9]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -759,7 +1047,7 @@ func (x *DeleteAgentTemplateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAgentTemplateRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAgentTemplateRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{9}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DeleteAgentTemplateRequest) GetId() string {
@@ -777,7 +1065,7 @@ type DeleteAgentTemplateResponse struct {
 
 func (x *DeleteAgentTemplateResponse) Reset() {
 	*x = DeleteAgentTemplateResponse{}
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[10]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -789,7 +1077,7 @@ func (x *DeleteAgentTemplateResponse) String() string {
 func (*DeleteAgentTemplateResponse) ProtoMessage() {}
 
 func (x *DeleteAgentTemplateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[10]
+	mi := &file_chalk_agent_v1_agent_template_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -802,14 +1090,27 @@ func (x *DeleteAgentTemplateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAgentTemplateResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAgentTemplateResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{10}
+	return file_chalk_agent_v1_agent_template_proto_rawDescGZIP(), []int{12}
 }
 
 var File_chalk_agent_v1_agent_template_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/agent/v1/agent_template.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfe\x03\n" +
+	"#chalk/agent/v1/agent_template.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x01\n" +
+	"\x12AgentTemplateInput\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12:\n" +
+	"\x04type\x18\x03 \x01(\x0e2&.chalk.agent.v1.AgentTemplateInputTypeR\x04type\x12\x1a\n" +
+	"\bnullable\x18\x04 \x01(\bR\bnullable\"\xc6\x01\n" +
+	"\x17AgentTemplateInputValue\x12#\n" +
+	"\fstring_value\x18\x01 \x01(\tH\x00R\vstringValue\x12!\n" +
+	"\vfloat_value\x18\x02 \x01(\x01H\x00R\n" +
+	"floatValue\x12\x1d\n" +
+	"\tint_value\x18\x03 \x01(\x03H\x00R\bintValue\x12;\n" +
+	"\n" +
+	"null_value\x18\x04 \x01(\x0e2\x1a.google.protobuf.NullValueH\x00R\tnullValueB\a\n" +
+	"\x05value\"\xba\x04\n" +
 	"\rAgentTemplate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x12\n" +
@@ -826,7 +1127,8 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"updated_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12/\n" +
 	"\x13allowed_datasources\x18\v \x03(\tR\x12allowedDatasources\x125\n" +
-	"\x04kind\x18\f \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\"\xde\x02\n" +
+	"\x04kind\x18\f \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\x12:\n" +
+	"\x06inputs\x18\r \x03(\v2\".chalk.agent.v1.AgentTemplateInputR\x06inputs\"\x9a\x03\n" +
 	"\x1aCreateAgentTemplateRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12#\n" +
@@ -836,7 +1138,8 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\x19ai_provider_connection_id\x18\x05 \x01(\tR\x16aiProviderConnectionId\x12#\n" +
 	"\rallowed_tools\x18\x06 \x03(\tR\fallowedTools\x12/\n" +
 	"\x13allowed_datasources\x18\a \x03(\tR\x12allowedDatasources\x125\n" +
-	"\x04kind\x18\b \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\"X\n" +
+	"\x04kind\x18\b \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\x12:\n" +
+	"\x06inputs\x18\t \x03(\v2\".chalk.agent.v1.AgentTemplateInputR\x06inputs\"X\n" +
 	"\x1bCreateAgentTemplateResponse\x129\n" +
 	"\btemplate\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentTemplateR\btemplate\")\n" +
 	"\x17GetAgentTemplateRequest\x12\x0e\n" +
@@ -845,7 +1148,7 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\btemplate\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentTemplateR\btemplate\"\x1b\n" +
 	"\x19ListAgentTemplatesRequest\"Y\n" +
 	"\x1aListAgentTemplatesResponse\x12;\n" +
-	"\ttemplates\x18\x01 \x03(\v2\x1d.chalk.agent.v1.AgentTemplateR\ttemplates\"\xd2\x03\n" +
+	"\ttemplates\x18\x01 \x03(\v2\x1d.chalk.agent.v1.AgentTemplateR\ttemplates\"\xad\x04\n" +
 	"\x1aUpdateAgentTemplateRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -859,7 +1162,10 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\x13allowed_datasources\x18\t \x03(\tR\x12allowedDatasources\x126\n" +
 	"\x17has_allowed_datasources\x18\n" +
 	" \x01(\bR\x15hasAllowedDatasources\x125\n" +
-	"\x04kind\x18\v \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\"X\n" +
+	"\x04kind\x18\v \x01(\x0e2!.chalk.agent.v1.AgentTemplateKindR\x04kind\x12:\n" +
+	"\x06inputs\x18\f \x03(\v2\".chalk.agent.v1.AgentTemplateInputR\x06inputs\x12\x1d\n" +
+	"\n" +
+	"has_inputs\x18\r \x01(\bR\thasInputs\"X\n" +
 	"\x1bUpdateAgentTemplateResponse\x129\n" +
 	"\btemplate\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentTemplateR\btemplate\",\n" +
 	"\x1aDeleteAgentTemplateRequest\x12\x0e\n" +
@@ -868,7 +1174,12 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\x11AgentTemplateKind\x12#\n" +
 	"\x1fAGENT_TEMPLATE_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bAGENT_TEMPLATE_KIND_GENERAL\x10\x01\x12 \n" +
-	"\x1cAGENT_TEMPLATE_KIND_NOTEBOOK\x10\x022\xdf\x04\n" +
+	"\x1cAGENT_TEMPLATE_KIND_NOTEBOOK\x10\x02*\xb1\x01\n" +
+	"\x16AgentTemplateInputType\x12)\n" +
+	"%AGENT_TEMPLATE_INPUT_TYPE_UNSPECIFIED\x10\x00\x12$\n" +
+	" AGENT_TEMPLATE_INPUT_TYPE_STRING\x10\x01\x12#\n" +
+	"\x1fAGENT_TEMPLATE_INPUT_TYPE_FLOAT\x10\x02\x12!\n" +
+	"\x1dAGENT_TEMPLATE_INPUT_TYPE_INT\x10\x032\xdf\x04\n" +
 	"\x14AgentTemplateService\x12s\n" +
 	"\x13CreateAgentTemplate\x12*.chalk.agent.v1.CreateAgentTemplateRequest\x1a+.chalk.agent.v1.CreateAgentTemplateResponse\"\x03\x80}\x02\x12m\n" +
 	"\x10GetAgentTemplate\x12'.chalk.agent.v1.GetAgentTemplateRequest\x1a(.chalk.agent.v1.GetAgentTemplateResponse\"\x06\x80}\x02\x90\x02\x01\x12s\n" +
@@ -889,48 +1200,57 @@ func file_chalk_agent_v1_agent_template_proto_rawDescGZIP() []byte {
 	return file_chalk_agent_v1_agent_template_proto_rawDescData
 }
 
-var file_chalk_agent_v1_agent_template_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_agent_v1_agent_template_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_chalk_agent_v1_agent_template_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_agent_v1_agent_template_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_chalk_agent_v1_agent_template_proto_goTypes = []any{
 	(AgentTemplateKind)(0),              // 0: chalk.agent.v1.AgentTemplateKind
-	(*AgentTemplate)(nil),               // 1: chalk.agent.v1.AgentTemplate
-	(*CreateAgentTemplateRequest)(nil),  // 2: chalk.agent.v1.CreateAgentTemplateRequest
-	(*CreateAgentTemplateResponse)(nil), // 3: chalk.agent.v1.CreateAgentTemplateResponse
-	(*GetAgentTemplateRequest)(nil),     // 4: chalk.agent.v1.GetAgentTemplateRequest
-	(*GetAgentTemplateResponse)(nil),    // 5: chalk.agent.v1.GetAgentTemplateResponse
-	(*ListAgentTemplatesRequest)(nil),   // 6: chalk.agent.v1.ListAgentTemplatesRequest
-	(*ListAgentTemplatesResponse)(nil),  // 7: chalk.agent.v1.ListAgentTemplatesResponse
-	(*UpdateAgentTemplateRequest)(nil),  // 8: chalk.agent.v1.UpdateAgentTemplateRequest
-	(*UpdateAgentTemplateResponse)(nil), // 9: chalk.agent.v1.UpdateAgentTemplateResponse
-	(*DeleteAgentTemplateRequest)(nil),  // 10: chalk.agent.v1.DeleteAgentTemplateRequest
-	(*DeleteAgentTemplateResponse)(nil), // 11: chalk.agent.v1.DeleteAgentTemplateResponse
-	(*timestamppb.Timestamp)(nil),       // 12: google.protobuf.Timestamp
+	(AgentTemplateInputType)(0),         // 1: chalk.agent.v1.AgentTemplateInputType
+	(*AgentTemplateInput)(nil),          // 2: chalk.agent.v1.AgentTemplateInput
+	(*AgentTemplateInputValue)(nil),     // 3: chalk.agent.v1.AgentTemplateInputValue
+	(*AgentTemplate)(nil),               // 4: chalk.agent.v1.AgentTemplate
+	(*CreateAgentTemplateRequest)(nil),  // 5: chalk.agent.v1.CreateAgentTemplateRequest
+	(*CreateAgentTemplateResponse)(nil), // 6: chalk.agent.v1.CreateAgentTemplateResponse
+	(*GetAgentTemplateRequest)(nil),     // 7: chalk.agent.v1.GetAgentTemplateRequest
+	(*GetAgentTemplateResponse)(nil),    // 8: chalk.agent.v1.GetAgentTemplateResponse
+	(*ListAgentTemplatesRequest)(nil),   // 9: chalk.agent.v1.ListAgentTemplatesRequest
+	(*ListAgentTemplatesResponse)(nil),  // 10: chalk.agent.v1.ListAgentTemplatesResponse
+	(*UpdateAgentTemplateRequest)(nil),  // 11: chalk.agent.v1.UpdateAgentTemplateRequest
+	(*UpdateAgentTemplateResponse)(nil), // 12: chalk.agent.v1.UpdateAgentTemplateResponse
+	(*DeleteAgentTemplateRequest)(nil),  // 13: chalk.agent.v1.DeleteAgentTemplateRequest
+	(*DeleteAgentTemplateResponse)(nil), // 14: chalk.agent.v1.DeleteAgentTemplateResponse
+	(structpb.NullValue)(0),             // 15: google.protobuf.NullValue
+	(*timestamppb.Timestamp)(nil),       // 16: google.protobuf.Timestamp
 }
 var file_chalk_agent_v1_agent_template_proto_depIdxs = []int32{
-	12, // 0: chalk.agent.v1.AgentTemplate.created_at:type_name -> google.protobuf.Timestamp
-	12, // 1: chalk.agent.v1.AgentTemplate.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 2: chalk.agent.v1.AgentTemplate.kind:type_name -> chalk.agent.v1.AgentTemplateKind
-	0,  // 3: chalk.agent.v1.CreateAgentTemplateRequest.kind:type_name -> chalk.agent.v1.AgentTemplateKind
-	1,  // 4: chalk.agent.v1.CreateAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
-	1,  // 5: chalk.agent.v1.GetAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
-	1,  // 6: chalk.agent.v1.ListAgentTemplatesResponse.templates:type_name -> chalk.agent.v1.AgentTemplate
-	0,  // 7: chalk.agent.v1.UpdateAgentTemplateRequest.kind:type_name -> chalk.agent.v1.AgentTemplateKind
-	1,  // 8: chalk.agent.v1.UpdateAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
-	2,  // 9: chalk.agent.v1.AgentTemplateService.CreateAgentTemplate:input_type -> chalk.agent.v1.CreateAgentTemplateRequest
-	4,  // 10: chalk.agent.v1.AgentTemplateService.GetAgentTemplate:input_type -> chalk.agent.v1.GetAgentTemplateRequest
-	6,  // 11: chalk.agent.v1.AgentTemplateService.ListAgentTemplates:input_type -> chalk.agent.v1.ListAgentTemplatesRequest
-	8,  // 12: chalk.agent.v1.AgentTemplateService.UpdateAgentTemplate:input_type -> chalk.agent.v1.UpdateAgentTemplateRequest
-	10, // 13: chalk.agent.v1.AgentTemplateService.DeleteAgentTemplate:input_type -> chalk.agent.v1.DeleteAgentTemplateRequest
-	3,  // 14: chalk.agent.v1.AgentTemplateService.CreateAgentTemplate:output_type -> chalk.agent.v1.CreateAgentTemplateResponse
-	5,  // 15: chalk.agent.v1.AgentTemplateService.GetAgentTemplate:output_type -> chalk.agent.v1.GetAgentTemplateResponse
-	7,  // 16: chalk.agent.v1.AgentTemplateService.ListAgentTemplates:output_type -> chalk.agent.v1.ListAgentTemplatesResponse
-	9,  // 17: chalk.agent.v1.AgentTemplateService.UpdateAgentTemplate:output_type -> chalk.agent.v1.UpdateAgentTemplateResponse
-	11, // 18: chalk.agent.v1.AgentTemplateService.DeleteAgentTemplate:output_type -> chalk.agent.v1.DeleteAgentTemplateResponse
-	14, // [14:19] is the sub-list for method output_type
-	9,  // [9:14] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	1,  // 0: chalk.agent.v1.AgentTemplateInput.type:type_name -> chalk.agent.v1.AgentTemplateInputType
+	15, // 1: chalk.agent.v1.AgentTemplateInputValue.null_value:type_name -> google.protobuf.NullValue
+	16, // 2: chalk.agent.v1.AgentTemplate.created_at:type_name -> google.protobuf.Timestamp
+	16, // 3: chalk.agent.v1.AgentTemplate.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 4: chalk.agent.v1.AgentTemplate.kind:type_name -> chalk.agent.v1.AgentTemplateKind
+	2,  // 5: chalk.agent.v1.AgentTemplate.inputs:type_name -> chalk.agent.v1.AgentTemplateInput
+	0,  // 6: chalk.agent.v1.CreateAgentTemplateRequest.kind:type_name -> chalk.agent.v1.AgentTemplateKind
+	2,  // 7: chalk.agent.v1.CreateAgentTemplateRequest.inputs:type_name -> chalk.agent.v1.AgentTemplateInput
+	4,  // 8: chalk.agent.v1.CreateAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
+	4,  // 9: chalk.agent.v1.GetAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
+	4,  // 10: chalk.agent.v1.ListAgentTemplatesResponse.templates:type_name -> chalk.agent.v1.AgentTemplate
+	0,  // 11: chalk.agent.v1.UpdateAgentTemplateRequest.kind:type_name -> chalk.agent.v1.AgentTemplateKind
+	2,  // 12: chalk.agent.v1.UpdateAgentTemplateRequest.inputs:type_name -> chalk.agent.v1.AgentTemplateInput
+	4,  // 13: chalk.agent.v1.UpdateAgentTemplateResponse.template:type_name -> chalk.agent.v1.AgentTemplate
+	5,  // 14: chalk.agent.v1.AgentTemplateService.CreateAgentTemplate:input_type -> chalk.agent.v1.CreateAgentTemplateRequest
+	7,  // 15: chalk.agent.v1.AgentTemplateService.GetAgentTemplate:input_type -> chalk.agent.v1.GetAgentTemplateRequest
+	9,  // 16: chalk.agent.v1.AgentTemplateService.ListAgentTemplates:input_type -> chalk.agent.v1.ListAgentTemplatesRequest
+	11, // 17: chalk.agent.v1.AgentTemplateService.UpdateAgentTemplate:input_type -> chalk.agent.v1.UpdateAgentTemplateRequest
+	13, // 18: chalk.agent.v1.AgentTemplateService.DeleteAgentTemplate:input_type -> chalk.agent.v1.DeleteAgentTemplateRequest
+	6,  // 19: chalk.agent.v1.AgentTemplateService.CreateAgentTemplate:output_type -> chalk.agent.v1.CreateAgentTemplateResponse
+	8,  // 20: chalk.agent.v1.AgentTemplateService.GetAgentTemplate:output_type -> chalk.agent.v1.GetAgentTemplateResponse
+	10, // 21: chalk.agent.v1.AgentTemplateService.ListAgentTemplates:output_type -> chalk.agent.v1.ListAgentTemplatesResponse
+	12, // 22: chalk.agent.v1.AgentTemplateService.UpdateAgentTemplate:output_type -> chalk.agent.v1.UpdateAgentTemplateResponse
+	14, // 23: chalk.agent.v1.AgentTemplateService.DeleteAgentTemplate:output_type -> chalk.agent.v1.DeleteAgentTemplateResponse
+	19, // [19:24] is the sub-list for method output_type
+	14, // [14:19] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_agent_template_proto_init() }
@@ -938,13 +1258,19 @@ func file_chalk_agent_v1_agent_template_proto_init() {
 	if File_chalk_agent_v1_agent_template_proto != nil {
 		return
 	}
+	file_chalk_agent_v1_agent_template_proto_msgTypes[1].OneofWrappers = []any{
+		(*AgentTemplateInputValue_StringValue)(nil),
+		(*AgentTemplateInputValue_FloatValue)(nil),
+		(*AgentTemplateInputValue_IntValue)(nil),
+		(*AgentTemplateInputValue_NullValue)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_agent_template_proto_rawDesc), len(file_chalk_agent_v1_agent_template_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   11,
+			NumEnums:      2,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

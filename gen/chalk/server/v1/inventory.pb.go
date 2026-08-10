@@ -197,7 +197,8 @@ type GetProjectNavbarCountsResponse struct {
 	// (matches "Scheduled runs"; run history excluded).
 	ActiveScheduledQueries int64 `protobuf:"varint,4,opt,name=active_scheduled_queries,json=activeScheduledQueries,proto3" json:"active_scheduled_queries,omitempty"`
 	// Compute resources.
-	ScalingGroups   int64 `protobuf:"varint,5,opt,name=scaling_groups,json=scalingGroups,proto3" json:"scaling_groups,omitempty"`
+	ScalingGroups int64 `protobuf:"varint,5,opt,name=scaling_groups,json=scalingGroups,proto3" json:"scaling_groups,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/inventory.proto.
 	Containers      int64 `protobuf:"varint,6,opt,name=containers,proto3" json:"containers,omitempty"`
 	Sandboxes       int64 `protobuf:"varint,20,opt,name=sandboxes,proto3" json:"sandboxes,omitempty"`
 	Notebooks       int64 `protobuf:"varint,7,opt,name=notebooks,proto3" json:"notebooks,omitempty"`
@@ -293,6 +294,7 @@ func (x *GetProjectNavbarCountsResponse) GetScalingGroups() int64 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/inventory.proto.
 func (x *GetProjectNavbarCountsResponse) GetContainers() int64 {
 	if x != nil {
 		return x.Containers
@@ -458,15 +460,15 @@ const file_chalk_server_v1_inventory_proto_rawDesc = "" +
 	"\x05_vpcsB\n" +
 	"\n" +
 	"\b_storage\"\x1f\n" +
-	"\x1dGetProjectNavbarCountsRequest\"\xb8\a\n" +
+	"\x1dGetProjectNavbarCountsRequest\"\xbc\a\n" +
 	"\x1eGetProjectNavbarCountsResponse\x12\x1c\n" +
 	"\tresolvers\x18\x01 \x01(\x03R\tresolvers\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x01(\x03R\bfeatures\x12#\n" +
 	"\rnamed_queries\x18\x03 \x01(\x03R\fnamedQueries\x128\n" +
 	"\x18active_scheduled_queries\x18\x04 \x01(\x03R\x16activeScheduledQueries\x12%\n" +
-	"\x0escaling_groups\x18\x05 \x01(\x03R\rscalingGroups\x12\x1e\n" +
+	"\x0escaling_groups\x18\x05 \x01(\x03R\rscalingGroups\x12\"\n" +
 	"\n" +
-	"containers\x18\x06 \x01(\x03R\n" +
+	"containers\x18\x06 \x01(\x03B\x02\x18\x01R\n" +
 	"containers\x12\x1c\n" +
 	"\tsandboxes\x18\x14 \x01(\x03R\tsandboxes\x12\x1c\n" +
 	"\tnotebooks\x18\a \x01(\x03R\tnotebooks\x12\x1c\n" +

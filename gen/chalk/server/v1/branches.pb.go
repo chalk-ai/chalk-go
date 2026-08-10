@@ -7,6 +7,7 @@
 package serverv1
 
 import (
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -362,9 +363,18 @@ func (x *GetBranchWithLatestDeploymentResponse) GetBranchWithLatestDeployment() 
 }
 
 type ListBranchWithLatestDeploymentsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Limit         *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Cursor *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit  *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Filter to branches whose latest deployment has one of these statuses.
+	// Empty = no status filter.
+	Status []DeploymentStatus `protobuf:"varint,3,rep,packed,name=status,proto3,enum=chalk.server.v1.DeploymentStatus" json:"status,omitempty"`
+	// Filter to branches whose latest deployment was triggered by one of these
+	// agent ids. Empty = no deployed-by filter.
+	DeployedBy []string `protobuf:"bytes,4,rep,name=deployed_by,json=deployedBy,proto3" json:"deployed_by,omitempty"`
+	// Sort direction on the branch's last-activity timestamp (updated_at, the
+	// keyset-pagination key). false/unset = descending (default); true = ascending.
+	SortAscending *bool `protobuf:"varint,5,opt,name=sort_ascending,json=sortAscending,proto3,oneof" json:"sort_ascending,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -411,6 +421,27 @@ func (x *ListBranchWithLatestDeploymentsRequest) GetLimit() int32 {
 		return *x.Limit
 	}
 	return 0
+}
+
+func (x *ListBranchWithLatestDeploymentsRequest) GetStatus() []DeploymentStatus {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *ListBranchWithLatestDeploymentsRequest) GetDeployedBy() []string {
+	if x != nil {
+		return x.DeployedBy
+	}
+	return nil
+}
+
+func (x *ListBranchWithLatestDeploymentsRequest) GetSortAscending() bool {
+	if x != nil && x.SortAscending != nil {
+		return *x.SortAscending
+	}
+	return false
 }
 
 type ListBranchWithLatestDeploymentsResponse struct {
@@ -561,11 +592,227 @@ func (x *GetBranchVenvInstalledPackagesResponse) GetVenvPackagesByName() map[str
 	return nil
 }
 
+type StartBranchDeploymentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BranchName    string                 `protobuf:"bytes,1,opt,name=branch_name,json=branchName,proto3" json:"branch_name,omitempty"`
+	Archive       []byte                 `protobuf:"bytes,2,opt,name=archive,proto3" json:"archive,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartBranchDeploymentRequest) Reset() {
+	*x = StartBranchDeploymentRequest{}
+	mi := &file_chalk_server_v1_branches_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartBranchDeploymentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartBranchDeploymentRequest) ProtoMessage() {}
+
+func (x *StartBranchDeploymentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_branches_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartBranchDeploymentRequest.ProtoReflect.Descriptor instead.
+func (*StartBranchDeploymentRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_branches_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *StartBranchDeploymentRequest) GetBranchName() string {
+	if x != nil {
+		return x.BranchName
+	}
+	return ""
+}
+
+func (x *StartBranchDeploymentRequest) GetArchive() []byte {
+	if x != nil {
+		return x.Archive
+	}
+	return nil
+}
+
+type StartBranchDeploymentResponse struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Deployment         *Deployment            `protobuf:"bytes,1,opt,name=deployment,proto3" json:"deployment,omitempty"`
+	DeploymentWarnings []string               `protobuf:"bytes,2,rep,name=deployment_warnings,json=deploymentWarnings,proto3" json:"deployment_warnings,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *StartBranchDeploymentResponse) Reset() {
+	*x = StartBranchDeploymentResponse{}
+	mi := &file_chalk_server_v1_branches_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartBranchDeploymentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartBranchDeploymentResponse) ProtoMessage() {}
+
+func (x *StartBranchDeploymentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_branches_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartBranchDeploymentResponse.ProtoReflect.Descriptor instead.
+func (*StartBranchDeploymentResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_branches_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *StartBranchDeploymentResponse) GetDeployment() *Deployment {
+	if x != nil {
+		return x.Deployment
+	}
+	return nil
+}
+
+func (x *StartBranchDeploymentResponse) GetDeploymentWarnings() []string {
+	if x != nil {
+		return x.DeploymentWarnings
+	}
+	return nil
+}
+
+type GetBranchDeploymentStateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BranchName    string                 `protobuf:"bytes,1,opt,name=branch_name,json=branchName,proto3" json:"branch_name,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBranchDeploymentStateRequest) Reset() {
+	*x = GetBranchDeploymentStateRequest{}
+	mi := &file_chalk_server_v1_branches_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBranchDeploymentStateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBranchDeploymentStateRequest) ProtoMessage() {}
+
+func (x *GetBranchDeploymentStateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_branches_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBranchDeploymentStateRequest.ProtoReflect.Descriptor instead.
+func (*GetBranchDeploymentStateRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_branches_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetBranchDeploymentStateRequest) GetBranchName() string {
+	if x != nil {
+		return x.BranchName
+	}
+	return ""
+}
+
+func (x *GetBranchDeploymentStateRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+type GetBranchDeploymentStateResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Deployment      *Deployment            `protobuf:"bytes,1,opt,name=deployment,proto3" json:"deployment,omitempty"`
+	Export          *v1.Export             `protobuf:"bytes,2,opt,name=export,proto3,oneof" json:"export,omitempty"`
+	DeploymentStage *string                `protobuf:"bytes,3,opt,name=deployment_stage,json=deploymentStage,proto3,oneof" json:"deployment_stage,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GetBranchDeploymentStateResponse) Reset() {
+	*x = GetBranchDeploymentStateResponse{}
+	mi := &file_chalk_server_v1_branches_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBranchDeploymentStateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBranchDeploymentStateResponse) ProtoMessage() {}
+
+func (x *GetBranchDeploymentStateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_branches_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBranchDeploymentStateResponse.ProtoReflect.Descriptor instead.
+func (*GetBranchDeploymentStateResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_branches_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetBranchDeploymentStateResponse) GetDeployment() *Deployment {
+	if x != nil {
+		return x.Deployment
+	}
+	return nil
+}
+
+func (x *GetBranchDeploymentStateResponse) GetExport() *v1.Export {
+	if x != nil {
+		return x.Export
+	}
+	return nil
+}
+
+func (x *GetBranchDeploymentStateResponse) GetDeploymentStage() string {
+	if x != nil && x.DeploymentStage != nil {
+		return *x.DeploymentStage
+	}
+	return ""
+}
+
 var File_chalk_server_v1_branches_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_branches_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/server/v1/branches.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/server/v1/deployment.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x92\x01\n" +
+	"\x1echalk/server/v1/branches.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/server/v1/deployment.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x92\x01\n" +
 	"\x06Branch\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
@@ -589,12 +836,17 @@ const file_chalk_server_v1_branches_proto_rawDesc = "" +
 	"$GetBranchWithLatestDeploymentRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x97\x01\n" +
 	"%GetBranchWithLatestDeploymentResponse\x12n\n" +
-	"\x1dbranch_with_latest_deployment\x18\x01 \x01(\v2+.chalk.server.v1.BranchWithLatestDeploymentR\x1abranchWithLatestDeployment\"u\n" +
+	"\x1dbranch_with_latest_deployment\x18\x01 \x01(\v2+.chalk.server.v1.BranchWithLatestDeploymentR\x1abranchWithLatestDeployment\"\x90\x02\n" +
 	"&ListBranchWithLatestDeploymentsRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
-	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x129\n" +
+	"\x06status\x18\x03 \x03(\x0e2!.chalk.server.v1.DeploymentStatusR\x06status\x12\x1f\n" +
+	"\vdeployed_by\x18\x04 \x03(\tR\n" +
+	"deployedBy\x12*\n" +
+	"\x0esort_ascending\x18\x05 \x01(\bH\x02R\rsortAscending\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
-	"\x06_limit\"\xc3\x01\n" +
+	"\x06_limitB\x11\n" +
+	"\x0f_sort_ascending\"\xc3\x01\n" +
 	"'ListBranchWithLatestDeploymentsResponse\x12p\n" +
 	"\x1ebranch_with_latest_deployments\x18\x01 \x03(\v2+.chalk.server.v1.BranchWithLatestDeploymentR\x1bbranchWithLatestDeployments\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +
@@ -606,8 +858,31 @@ const file_chalk_server_v1_branches_proto_rawDesc = "" +
 	"\x15venv_packages_by_name\x18\x01 \x03(\v2O.chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntryR\x12venvPackagesByName\x1ad\n" +
 	"\x17VenvPackagesByNameEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x123\n" +
-	"\x05value\x18\x02 \x01(\v2\x1d.chalk.server.v1.VenvPackagesR\x05value:\x028\x012\xda\x03\n" +
-	"\rBranchService\x12\x93\x01\n" +
+	"\x05value\x18\x02 \x01(\v2\x1d.chalk.server.v1.VenvPackagesR\x05value:\x028\x01\"Y\n" +
+	"\x1cStartBranchDeploymentRequest\x12\x1f\n" +
+	"\vbranch_name\x18\x01 \x01(\tR\n" +
+	"branchName\x12\x18\n" +
+	"\aarchive\x18\x02 \x01(\fR\aarchive\"\x8d\x01\n" +
+	"\x1dStartBranchDeploymentResponse\x12;\n" +
+	"\n" +
+	"deployment\x18\x01 \x01(\v2\x1b.chalk.server.v1.DeploymentR\n" +
+	"deployment\x12/\n" +
+	"\x13deployment_warnings\x18\x02 \x03(\tR\x12deploymentWarnings\"g\n" +
+	"\x1fGetBranchDeploymentStateRequest\x12\x1f\n" +
+	"\vbranch_name\x18\x01 \x01(\tR\n" +
+	"branchName\x12#\n" +
+	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\"\xe8\x01\n" +
+	" GetBranchDeploymentStateResponse\x12;\n" +
+	"\n" +
+	"deployment\x18\x01 \x01(\v2\x1b.chalk.server.v1.DeploymentR\n" +
+	"deployment\x127\n" +
+	"\x06export\x18\x02 \x01(\v2\x1a.chalk.artifacts.v1.ExportH\x00R\x06export\x88\x01\x01\x12.\n" +
+	"\x10deployment_stage\x18\x03 \x01(\tH\x01R\x0fdeploymentStage\x88\x01\x01B\t\n" +
+	"\a_exportB\x13\n" +
+	"\x11_deployment_stage2\xde\x05\n" +
+	"\rBranchService\x12{\n" +
+	"\x15StartBranchDeployment\x12-.chalk.server.v1.StartBranchDeploymentRequest\x1a..chalk.server.v1.StartBranchDeploymentResponse\"\x03\x80}\r\x12\x84\x01\n" +
+	"\x18GetBranchDeploymentState\x120.chalk.server.v1.GetBranchDeploymentStateRequest\x1a1.chalk.server.v1.GetBranchDeploymentStateResponse\"\x03\x80}\v\x12\x93\x01\n" +
 	"\x1dGetBranchWithLatestDeployment\x125.chalk.server.v1.GetBranchWithLatestDeploymentRequest\x1a6.chalk.server.v1.GetBranchWithLatestDeploymentResponse\"\x03\x80}\v\x12\x99\x01\n" +
 	"\x1fListBranchWithLatestDeployments\x127.chalk.server.v1.ListBranchWithLatestDeploymentsRequest\x1a8.chalk.server.v1.ListBranchWithLatestDeploymentsResponse\"\x03\x80}\v\x12\x96\x01\n" +
 	"\x1eGetBranchVenvInstalledPackages\x126.chalk.server.v1.GetBranchVenvInstalledPackagesRequest\x1a7.chalk.server.v1.GetBranchVenvInstalledPackagesResponse\"\x03\x80}\vB\xbd\x01\n" +
@@ -625,7 +900,7 @@ func file_chalk_server_v1_branches_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_branches_proto_rawDescData
 }
 
-var file_chalk_server_v1_branches_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_chalk_server_v1_branches_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_server_v1_branches_proto_goTypes = []any{
 	(*Branch)(nil),                                  // 0: chalk.server.v1.Branch
 	(*PythonPackage)(nil),                           // 1: chalk.server.v1.PythonPackage
@@ -637,32 +912,46 @@ var file_chalk_server_v1_branches_proto_goTypes = []any{
 	(*ListBranchWithLatestDeploymentsResponse)(nil), // 7: chalk.server.v1.ListBranchWithLatestDeploymentsResponse
 	(*GetBranchVenvInstalledPackagesRequest)(nil),   // 8: chalk.server.v1.GetBranchVenvInstalledPackagesRequest
 	(*GetBranchVenvInstalledPackagesResponse)(nil),  // 9: chalk.server.v1.GetBranchVenvInstalledPackagesResponse
-	nil,                           // 10: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry
-	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
-	(DeploymentStatus)(0),         // 12: chalk.server.v1.DeploymentStatus
+	(*StartBranchDeploymentRequest)(nil),            // 10: chalk.server.v1.StartBranchDeploymentRequest
+	(*StartBranchDeploymentResponse)(nil),           // 11: chalk.server.v1.StartBranchDeploymentResponse
+	(*GetBranchDeploymentStateRequest)(nil),         // 12: chalk.server.v1.GetBranchDeploymentStateRequest
+	(*GetBranchDeploymentStateResponse)(nil),        // 13: chalk.server.v1.GetBranchDeploymentStateResponse
+	nil,                                             // 14: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry
+	(*timestamppb.Timestamp)(nil),                   // 15: google.protobuf.Timestamp
+	(DeploymentStatus)(0),                           // 16: chalk.server.v1.DeploymentStatus
+	(*Deployment)(nil),                              // 17: chalk.server.v1.Deployment
+	(*v1.Export)(nil),                               // 18: chalk.artifacts.v1.Export
 }
 var file_chalk_server_v1_branches_proto_depIdxs = []int32{
-	11, // 0: chalk.server.v1.Branch.created_at:type_name -> google.protobuf.Timestamp
+	15, // 0: chalk.server.v1.Branch.created_at:type_name -> google.protobuf.Timestamp
 	1,  // 1: chalk.server.v1.VenvPackages.venv_packages:type_name -> chalk.server.v1.PythonPackage
 	0,  // 2: chalk.server.v1.BranchWithLatestDeployment.branch:type_name -> chalk.server.v1.Branch
-	12, // 3: chalk.server.v1.BranchWithLatestDeployment.latest_deployment_status:type_name -> chalk.server.v1.DeploymentStatus
-	11, // 4: chalk.server.v1.BranchWithLatestDeployment.latest_deployment_created:type_name -> google.protobuf.Timestamp
-	11, // 5: chalk.server.v1.BranchWithLatestDeployment.latest_deployment_updated:type_name -> google.protobuf.Timestamp
+	16, // 3: chalk.server.v1.BranchWithLatestDeployment.latest_deployment_status:type_name -> chalk.server.v1.DeploymentStatus
+	15, // 4: chalk.server.v1.BranchWithLatestDeployment.latest_deployment_created:type_name -> google.protobuf.Timestamp
+	15, // 5: chalk.server.v1.BranchWithLatestDeployment.latest_deployment_updated:type_name -> google.protobuf.Timestamp
 	3,  // 6: chalk.server.v1.GetBranchWithLatestDeploymentResponse.branch_with_latest_deployment:type_name -> chalk.server.v1.BranchWithLatestDeployment
-	3,  // 7: chalk.server.v1.ListBranchWithLatestDeploymentsResponse.branch_with_latest_deployments:type_name -> chalk.server.v1.BranchWithLatestDeployment
-	10, // 8: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.venv_packages_by_name:type_name -> chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry
-	2,  // 9: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry.value:type_name -> chalk.server.v1.VenvPackages
-	4,  // 10: chalk.server.v1.BranchService.GetBranchWithLatestDeployment:input_type -> chalk.server.v1.GetBranchWithLatestDeploymentRequest
-	6,  // 11: chalk.server.v1.BranchService.ListBranchWithLatestDeployments:input_type -> chalk.server.v1.ListBranchWithLatestDeploymentsRequest
-	8,  // 12: chalk.server.v1.BranchService.GetBranchVenvInstalledPackages:input_type -> chalk.server.v1.GetBranchVenvInstalledPackagesRequest
-	5,  // 13: chalk.server.v1.BranchService.GetBranchWithLatestDeployment:output_type -> chalk.server.v1.GetBranchWithLatestDeploymentResponse
-	7,  // 14: chalk.server.v1.BranchService.ListBranchWithLatestDeployments:output_type -> chalk.server.v1.ListBranchWithLatestDeploymentsResponse
-	9,  // 15: chalk.server.v1.BranchService.GetBranchVenvInstalledPackages:output_type -> chalk.server.v1.GetBranchVenvInstalledPackagesResponse
-	13, // [13:16] is the sub-list for method output_type
-	10, // [10:13] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	16, // 7: chalk.server.v1.ListBranchWithLatestDeploymentsRequest.status:type_name -> chalk.server.v1.DeploymentStatus
+	3,  // 8: chalk.server.v1.ListBranchWithLatestDeploymentsResponse.branch_with_latest_deployments:type_name -> chalk.server.v1.BranchWithLatestDeployment
+	14, // 9: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.venv_packages_by_name:type_name -> chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry
+	17, // 10: chalk.server.v1.StartBranchDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
+	17, // 11: chalk.server.v1.GetBranchDeploymentStateResponse.deployment:type_name -> chalk.server.v1.Deployment
+	18, // 12: chalk.server.v1.GetBranchDeploymentStateResponse.export:type_name -> chalk.artifacts.v1.Export
+	2,  // 13: chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntry.value:type_name -> chalk.server.v1.VenvPackages
+	10, // 14: chalk.server.v1.BranchService.StartBranchDeployment:input_type -> chalk.server.v1.StartBranchDeploymentRequest
+	12, // 15: chalk.server.v1.BranchService.GetBranchDeploymentState:input_type -> chalk.server.v1.GetBranchDeploymentStateRequest
+	4,  // 16: chalk.server.v1.BranchService.GetBranchWithLatestDeployment:input_type -> chalk.server.v1.GetBranchWithLatestDeploymentRequest
+	6,  // 17: chalk.server.v1.BranchService.ListBranchWithLatestDeployments:input_type -> chalk.server.v1.ListBranchWithLatestDeploymentsRequest
+	8,  // 18: chalk.server.v1.BranchService.GetBranchVenvInstalledPackages:input_type -> chalk.server.v1.GetBranchVenvInstalledPackagesRequest
+	11, // 19: chalk.server.v1.BranchService.StartBranchDeployment:output_type -> chalk.server.v1.StartBranchDeploymentResponse
+	13, // 20: chalk.server.v1.BranchService.GetBranchDeploymentState:output_type -> chalk.server.v1.GetBranchDeploymentStateResponse
+	5,  // 21: chalk.server.v1.BranchService.GetBranchWithLatestDeployment:output_type -> chalk.server.v1.GetBranchWithLatestDeploymentResponse
+	7,  // 22: chalk.server.v1.BranchService.ListBranchWithLatestDeployments:output_type -> chalk.server.v1.ListBranchWithLatestDeploymentsResponse
+	9,  // 23: chalk.server.v1.BranchService.GetBranchVenvInstalledPackages:output_type -> chalk.server.v1.GetBranchVenvInstalledPackagesResponse
+	19, // [19:24] is the sub-list for method output_type
+	14, // [14:19] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_branches_proto_init() }
@@ -674,13 +963,14 @@ func file_chalk_server_v1_branches_proto_init() {
 	file_chalk_server_v1_branches_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_server_v1_branches_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_server_v1_branches_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_server_v1_branches_proto_msgTypes[13].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_branches_proto_rawDesc), len(file_chalk_server_v1_branches_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

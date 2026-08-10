@@ -69,14 +69,16 @@ const (
 	OperatorType_OPERATOR_TYPE_LIFT_RESULT_TO_GROUP                           OperatorType = 32
 	OperatorType_OPERATOR_TYPE_LIGHTNING_REDIS_CACHE_LOOKUP                   OperatorType = 33
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-	OperatorType_OPERATOR_TYPE_MERGE_JOIN_OPERATOR                  OperatorType = 34
-	OperatorType_OPERATOR_TYPE_METRICS_PUBLISHER                    OperatorType = 35
-	OperatorType_OPERATOR_TYPE_NARY_MERGE_JOIN_OPERATOR             OperatorType = 70
-	OperatorType_OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN       OperatorType = 36
-	OperatorType_OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR      OperatorType = 37
+	OperatorType_OPERATOR_TYPE_MERGE_JOIN_OPERATOR             OperatorType = 34
+	OperatorType_OPERATOR_TYPE_METRICS_PUBLISHER               OperatorType = 35
+	OperatorType_OPERATOR_TYPE_NARY_MERGE_JOIN_OPERATOR        OperatorType = 70
+	OperatorType_OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN  OperatorType = 36
+	OperatorType_OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR OperatorType = 37
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 	OperatorType_OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP             OperatorType = 38
 	OperatorType_OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR             OperatorType = 39
 	OperatorType_OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER                OperatorType = 40
+	OperatorType_OPERATOR_TYPE_OFFLINE_STORE_LOOKUP                 OperatorType = 81
 	OperatorType_OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER           OperatorType = 41
 	OperatorType_OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR              OperatorType = 73
 	OperatorType_OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER              OperatorType = 42
@@ -112,6 +114,8 @@ const (
 	OperatorType_OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR              OperatorType = 74
 	OperatorType_OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN        OperatorType = 77
 	OperatorType_OPERATOR_TYPE_ICEBERG_TABLE_WRITER                 OperatorType = 78
+	OperatorType_OPERATOR_TYPE_PARQUET_TABLE_WRITER                 OperatorType = 80
+	OperatorType_OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER         OperatorType = 82
 )
 
 // Enum value maps for OperatorType.
@@ -162,6 +166,7 @@ var (
 		38: "OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP",
 		39: "OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR",
 		40: "OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER",
+		81: "OPERATOR_TYPE_OFFLINE_STORE_LOOKUP",
 		41: "OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER",
 		73: "OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR",
 		42: "OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER",
@@ -197,6 +202,8 @@ var (
 		74: "OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR",
 		77: "OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN",
 		78: "OPERATOR_TYPE_ICEBERG_TABLE_WRITER",
+		80: "OPERATOR_TYPE_PARQUET_TABLE_WRITER",
+		82: "OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER",
 	}
 	OperatorType_value = map[string]int32{
 		"OPERATOR_TYPE_UNSPECIFIED":                                    0,
@@ -244,6 +251,7 @@ var (
 		"OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP":                       38,
 		"OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR":                       39,
 		"OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER":                          40,
+		"OPERATOR_TYPE_OFFLINE_STORE_LOOKUP":                           81,
 		"OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER":                     41,
 		"OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR":                        73,
 		"OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER":                        42,
@@ -279,6 +287,8 @@ var (
 		"OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR":                        74,
 		"OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN":                  77,
 		"OPERATOR_TYPE_ICEBERG_TABLE_WRITER":                           78,
+		"OPERATOR_TYPE_PARQUET_TABLE_WRITER":                           80,
+		"OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER":                   82,
 	}
 )
 
@@ -2153,7 +2163,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\bbehavior\" \n" +
 	"\x1eResolverRootUnderscoreBehavior\"f\n" +
 	"$StreamResolverRootUnderscoreBehavior\x12>\n" +
-	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xfd\x19\n" +
+	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\x81\x1b\n" +
 	"\fOperatorType\x12\x1d\n" +
 	"\x19OPERATOR_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
 	"!OPERATOR_TYPE_ADD_CHILD_INDEX_COL\x10\x01\x12\x1f\n" +
@@ -2197,10 +2207,11 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x1fOPERATOR_TYPE_METRICS_PUBLISHER\x10#\x12*\n" +
 	"&OPERATOR_TYPE_NARY_MERGE_JOIN_OPERATOR\x10F\x120\n" +
 	",OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN\x10$\x121\n" +
-	"-OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR\x10%\x12*\n" +
-	"&OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP\x10&\x12*\n" +
+	"-OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR\x10%\x12.\n" +
+	"&OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP\x10&\x1a\x02\b\x01\x12*\n" +
 	"&OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR\x10'\x12'\n" +
-	"#OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER\x10(\x12,\n" +
+	"#OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER\x10(\x12&\n" +
+	"\"OPERATOR_TYPE_OFFLINE_STORE_LOOKUP\x10Q\x12,\n" +
 	"(OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER\x10)\x12)\n" +
 	"%OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR\x10I\x12)\n" +
 	"%OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER\x10*\x12&\n" +
@@ -2235,7 +2246,9 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x1eOPERATOR_TYPE_VALUES_PERSISTER\x10C\x12)\n" +
 	"%OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR\x10J\x12/\n" +
 	"+OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN\x10M\x12&\n" +
-	"\"OPERATOR_TYPE_ICEBERG_TABLE_WRITER\x10NB\xc9\x01\n" +
+	"\"OPERATOR_TYPE_ICEBERG_TABLE_WRITER\x10N\x12&\n" +
+	"\"OPERATOR_TYPE_PARQUET_TABLE_WRITER\x10P\x12.\n" +
+	"*OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER\x10RB\xc9\x01\n" +
 	"\x14com.chalk.planner.v1B\x12BatchOperatorProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

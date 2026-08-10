@@ -34,6 +34,10 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// WorkflowOrchestratorServiceGetWorkflowOrchestratorConnectionDetailsProcedure is the
+	// fully-qualified name of the WorkflowOrchestratorService's
+	// GetWorkflowOrchestratorConnectionDetails RPC.
+	WorkflowOrchestratorServiceGetWorkflowOrchestratorConnectionDetailsProcedure = "/chalk.server.v1.WorkflowOrchestratorService/GetWorkflowOrchestratorConnectionDetails"
 	// WorkflowOrchestratorServiceListWorkflowOrchestratorNamespacesProcedure is the fully-qualified
 	// name of the WorkflowOrchestratorService's ListWorkflowOrchestratorNamespaces RPC.
 	WorkflowOrchestratorServiceListWorkflowOrchestratorNamespacesProcedure = "/chalk.server.v1.WorkflowOrchestratorService/ListWorkflowOrchestratorNamespaces"
@@ -51,6 +55,9 @@ const (
 // WorkflowOrchestratorServiceClient is a client for the chalk.server.v1.WorkflowOrchestratorService
 // service.
 type WorkflowOrchestratorServiceClient interface {
+	// Returns how a client (e.g. chalkpy's chalk.workflows) should reach this
+	// environment's Temporal frontend directly to start and await workflows.
+	GetWorkflowOrchestratorConnectionDetails(context.Context, *connect.Request[v1.GetWorkflowOrchestratorConnectionDetailsRequest]) (*connect.Response[v1.GetWorkflowOrchestratorConnectionDetailsResponse], error)
 	ListWorkflowOrchestratorNamespaces(context.Context, *connect.Request[v1.ListWorkflowOrchestratorNamespacesRequest]) (*connect.Response[v1.ListWorkflowOrchestratorNamespacesResponse], error)
 	ListWorkflowOrchestratorWorkflows(context.Context, *connect.Request[v1.ListWorkflowOrchestratorWorkflowsRequest]) (*connect.Response[v1.ListWorkflowOrchestratorWorkflowsResponse], error)
 	DescribeWorkflowOrchestratorWorkflow(context.Context, *connect.Request[v1.DescribeWorkflowOrchestratorWorkflowRequest]) (*connect.Response[v1.DescribeWorkflowOrchestratorWorkflowResponse], error)
@@ -69,6 +76,12 @@ func NewWorkflowOrchestratorServiceClient(httpClient connect.HTTPClient, baseURL
 	baseURL = strings.TrimRight(baseURL, "/")
 	workflowOrchestratorServiceMethods := v1.File_chalk_server_v1_workflow_orchestrator_proto.Services().ByName("WorkflowOrchestratorService").Methods()
 	return &workflowOrchestratorServiceClient{
+		getWorkflowOrchestratorConnectionDetails: connect.NewClient[v1.GetWorkflowOrchestratorConnectionDetailsRequest, v1.GetWorkflowOrchestratorConnectionDetailsResponse](
+			httpClient,
+			baseURL+WorkflowOrchestratorServiceGetWorkflowOrchestratorConnectionDetailsProcedure,
+			connect.WithSchema(workflowOrchestratorServiceMethods.ByName("GetWorkflowOrchestratorConnectionDetails")),
+			connect.WithClientOptions(opts...),
+		),
 		listWorkflowOrchestratorNamespaces: connect.NewClient[v1.ListWorkflowOrchestratorNamespacesRequest, v1.ListWorkflowOrchestratorNamespacesResponse](
 			httpClient,
 			baseURL+WorkflowOrchestratorServiceListWorkflowOrchestratorNamespacesProcedure,
@@ -98,10 +111,17 @@ func NewWorkflowOrchestratorServiceClient(httpClient connect.HTTPClient, baseURL
 
 // workflowOrchestratorServiceClient implements WorkflowOrchestratorServiceClient.
 type workflowOrchestratorServiceClient struct {
-	listWorkflowOrchestratorNamespaces     *connect.Client[v1.ListWorkflowOrchestratorNamespacesRequest, v1.ListWorkflowOrchestratorNamespacesResponse]
-	listWorkflowOrchestratorWorkflows      *connect.Client[v1.ListWorkflowOrchestratorWorkflowsRequest, v1.ListWorkflowOrchestratorWorkflowsResponse]
-	describeWorkflowOrchestratorWorkflow   *connect.Client[v1.DescribeWorkflowOrchestratorWorkflowRequest, v1.DescribeWorkflowOrchestratorWorkflowResponse]
-	getWorkflowOrchestratorWorkflowHistory *connect.Client[v1.GetWorkflowOrchestratorWorkflowHistoryRequest, v1.GetWorkflowOrchestratorWorkflowHistoryResponse]
+	getWorkflowOrchestratorConnectionDetails *connect.Client[v1.GetWorkflowOrchestratorConnectionDetailsRequest, v1.GetWorkflowOrchestratorConnectionDetailsResponse]
+	listWorkflowOrchestratorNamespaces       *connect.Client[v1.ListWorkflowOrchestratorNamespacesRequest, v1.ListWorkflowOrchestratorNamespacesResponse]
+	listWorkflowOrchestratorWorkflows        *connect.Client[v1.ListWorkflowOrchestratorWorkflowsRequest, v1.ListWorkflowOrchestratorWorkflowsResponse]
+	describeWorkflowOrchestratorWorkflow     *connect.Client[v1.DescribeWorkflowOrchestratorWorkflowRequest, v1.DescribeWorkflowOrchestratorWorkflowResponse]
+	getWorkflowOrchestratorWorkflowHistory   *connect.Client[v1.GetWorkflowOrchestratorWorkflowHistoryRequest, v1.GetWorkflowOrchestratorWorkflowHistoryResponse]
+}
+
+// GetWorkflowOrchestratorConnectionDetails calls
+// chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorConnectionDetails.
+func (c *workflowOrchestratorServiceClient) GetWorkflowOrchestratorConnectionDetails(ctx context.Context, req *connect.Request[v1.GetWorkflowOrchestratorConnectionDetailsRequest]) (*connect.Response[v1.GetWorkflowOrchestratorConnectionDetailsResponse], error) {
+	return c.getWorkflowOrchestratorConnectionDetails.CallUnary(ctx, req)
 }
 
 // ListWorkflowOrchestratorNamespaces calls
@@ -131,6 +151,9 @@ func (c *workflowOrchestratorServiceClient) GetWorkflowOrchestratorWorkflowHisto
 // WorkflowOrchestratorServiceHandler is an implementation of the
 // chalk.server.v1.WorkflowOrchestratorService service.
 type WorkflowOrchestratorServiceHandler interface {
+	// Returns how a client (e.g. chalkpy's chalk.workflows) should reach this
+	// environment's Temporal frontend directly to start and await workflows.
+	GetWorkflowOrchestratorConnectionDetails(context.Context, *connect.Request[v1.GetWorkflowOrchestratorConnectionDetailsRequest]) (*connect.Response[v1.GetWorkflowOrchestratorConnectionDetailsResponse], error)
 	ListWorkflowOrchestratorNamespaces(context.Context, *connect.Request[v1.ListWorkflowOrchestratorNamespacesRequest]) (*connect.Response[v1.ListWorkflowOrchestratorNamespacesResponse], error)
 	ListWorkflowOrchestratorWorkflows(context.Context, *connect.Request[v1.ListWorkflowOrchestratorWorkflowsRequest]) (*connect.Response[v1.ListWorkflowOrchestratorWorkflowsResponse], error)
 	DescribeWorkflowOrchestratorWorkflow(context.Context, *connect.Request[v1.DescribeWorkflowOrchestratorWorkflowRequest]) (*connect.Response[v1.DescribeWorkflowOrchestratorWorkflowResponse], error)
@@ -144,6 +167,12 @@ type WorkflowOrchestratorServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewWorkflowOrchestratorServiceHandler(svc WorkflowOrchestratorServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	workflowOrchestratorServiceMethods := v1.File_chalk_server_v1_workflow_orchestrator_proto.Services().ByName("WorkflowOrchestratorService").Methods()
+	workflowOrchestratorServiceGetWorkflowOrchestratorConnectionDetailsHandler := connect.NewUnaryHandler(
+		WorkflowOrchestratorServiceGetWorkflowOrchestratorConnectionDetailsProcedure,
+		svc.GetWorkflowOrchestratorConnectionDetails,
+		connect.WithSchema(workflowOrchestratorServiceMethods.ByName("GetWorkflowOrchestratorConnectionDetails")),
+		connect.WithHandlerOptions(opts...),
+	)
 	workflowOrchestratorServiceListWorkflowOrchestratorNamespacesHandler := connect.NewUnaryHandler(
 		WorkflowOrchestratorServiceListWorkflowOrchestratorNamespacesProcedure,
 		svc.ListWorkflowOrchestratorNamespaces,
@@ -170,6 +199,8 @@ func NewWorkflowOrchestratorServiceHandler(svc WorkflowOrchestratorServiceHandle
 	)
 	return "/chalk.server.v1.WorkflowOrchestratorService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case WorkflowOrchestratorServiceGetWorkflowOrchestratorConnectionDetailsProcedure:
+			workflowOrchestratorServiceGetWorkflowOrchestratorConnectionDetailsHandler.ServeHTTP(w, r)
 		case WorkflowOrchestratorServiceListWorkflowOrchestratorNamespacesProcedure:
 			workflowOrchestratorServiceListWorkflowOrchestratorNamespacesHandler.ServeHTTP(w, r)
 		case WorkflowOrchestratorServiceListWorkflowOrchestratorWorkflowsProcedure:
@@ -186,6 +217,10 @@ func NewWorkflowOrchestratorServiceHandler(svc WorkflowOrchestratorServiceHandle
 
 // UnimplementedWorkflowOrchestratorServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedWorkflowOrchestratorServiceHandler struct{}
+
+func (UnimplementedWorkflowOrchestratorServiceHandler) GetWorkflowOrchestratorConnectionDetails(context.Context, *connect.Request[v1.GetWorkflowOrchestratorConnectionDetailsRequest]) (*connect.Response[v1.GetWorkflowOrchestratorConnectionDetailsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorConnectionDetails is not implemented"))
+}
 
 func (UnimplementedWorkflowOrchestratorServiceHandler) ListWorkflowOrchestratorNamespaces(context.Context, *connect.Request[v1.ListWorkflowOrchestratorNamespacesRequest]) (*connect.Response[v1.ListWorkflowOrchestratorNamespacesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorNamespaces is not implemented"))

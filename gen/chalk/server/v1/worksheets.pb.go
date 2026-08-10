@@ -7,6 +7,7 @@
 package serverv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/protosql/v1"
@@ -295,6 +296,58 @@ func (x WorksheetOperationKind) Number() protoreflect.EnumNumber {
 // Deprecated: Use WorksheetOperationKind.Descriptor instead.
 func (WorksheetOperationKind) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{4}
+}
+
+type WorksheetRunLaunchStatus int32
+
+const (
+	WorksheetRunLaunchStatus_WORKSHEET_RUN_LAUNCH_STATUS_UNSPECIFIED WorksheetRunLaunchStatus = 0
+	WorksheetRunLaunchStatus_WORKSHEET_RUN_LAUNCH_STATUS_PENDING     WorksheetRunLaunchStatus = 1
+	WorksheetRunLaunchStatus_WORKSHEET_RUN_LAUNCH_STATUS_LAUNCHED    WorksheetRunLaunchStatus = 2
+	WorksheetRunLaunchStatus_WORKSHEET_RUN_LAUNCH_STATUS_FAILED      WorksheetRunLaunchStatus = 3
+)
+
+// Enum value maps for WorksheetRunLaunchStatus.
+var (
+	WorksheetRunLaunchStatus_name = map[int32]string{
+		0: "WORKSHEET_RUN_LAUNCH_STATUS_UNSPECIFIED",
+		1: "WORKSHEET_RUN_LAUNCH_STATUS_PENDING",
+		2: "WORKSHEET_RUN_LAUNCH_STATUS_LAUNCHED",
+		3: "WORKSHEET_RUN_LAUNCH_STATUS_FAILED",
+	}
+	WorksheetRunLaunchStatus_value = map[string]int32{
+		"WORKSHEET_RUN_LAUNCH_STATUS_UNSPECIFIED": 0,
+		"WORKSHEET_RUN_LAUNCH_STATUS_PENDING":     1,
+		"WORKSHEET_RUN_LAUNCH_STATUS_LAUNCHED":    2,
+		"WORKSHEET_RUN_LAUNCH_STATUS_FAILED":      3,
+	}
+)
+
+func (x WorksheetRunLaunchStatus) Enum() *WorksheetRunLaunchStatus {
+	p := new(WorksheetRunLaunchStatus)
+	*p = x
+	return p
+}
+
+func (x WorksheetRunLaunchStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (WorksheetRunLaunchStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_worksheets_proto_enumTypes[5].Descriptor()
+}
+
+func (WorksheetRunLaunchStatus) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_worksheets_proto_enumTypes[5]
+}
+
+func (x WorksheetRunLaunchStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use WorksheetRunLaunchStatus.Descriptor instead.
+func (WorksheetRunLaunchStatus) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{5}
 }
 
 type WorksheetSpace struct {
@@ -1133,6 +1186,130 @@ func (x *WorksheetCommit) GetBlob() *WorksheetBlobRef {
 	return nil
 }
 
+type WorksheetRun struct {
+	state                protoimpl.MessageState   `protogen:"open.v1"`
+	Id                   string                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	SpaceId              string                   `protobuf:"bytes,2,opt,name=space_id,json=spaceId,proto3" json:"space_id,omitempty"`
+	EnvironmentId        string                   `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	CommitId             *int64                   `protobuf:"varint,4,opt,name=commit_id,json=commitId,proto3,oneof" json:"commit_id,omitempty"`
+	UserId               string                   `protobuf:"bytes,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CreatedAt            *timestamppb.Timestamp   `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ExecutionOperationId *string                  `protobuf:"bytes,7,opt,name=execution_operation_id,json=executionOperationId,proto3,oneof" json:"execution_operation_id,omitempty"`
+	RequestSchema        string                   `protobuf:"bytes,8,opt,name=request_schema,json=requestSchema,proto3" json:"request_schema,omitempty"`
+	LaunchStatus         WorksheetRunLaunchStatus `protobuf:"varint,9,opt,name=launch_status,json=launchStatus,proto3,enum=chalk.server.v1.WorksheetRunLaunchStatus" json:"launch_status,omitempty"`
+	LaunchedAt           *timestamppb.Timestamp   `protobuf:"bytes,10,opt,name=launched_at,json=launchedAt,proto3,oneof" json:"launched_at,omitempty"`
+	LaunchError          *string                  `protobuf:"bytes,11,opt,name=launch_error,json=launchError,proto3,oneof" json:"launch_error,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *WorksheetRun) Reset() {
+	*x = WorksheetRun{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorksheetRun) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorksheetRun) ProtoMessage() {}
+
+func (x *WorksheetRun) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorksheetRun.ProtoReflect.Descriptor instead.
+func (*WorksheetRun) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *WorksheetRun) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *WorksheetRun) GetSpaceId() string {
+	if x != nil {
+		return x.SpaceId
+	}
+	return ""
+}
+
+func (x *WorksheetRun) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *WorksheetRun) GetCommitId() int64 {
+	if x != nil && x.CommitId != nil {
+		return *x.CommitId
+	}
+	return 0
+}
+
+func (x *WorksheetRun) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *WorksheetRun) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *WorksheetRun) GetExecutionOperationId() string {
+	if x != nil && x.ExecutionOperationId != nil {
+		return *x.ExecutionOperationId
+	}
+	return ""
+}
+
+func (x *WorksheetRun) GetRequestSchema() string {
+	if x != nil {
+		return x.RequestSchema
+	}
+	return ""
+}
+
+func (x *WorksheetRun) GetLaunchStatus() WorksheetRunLaunchStatus {
+	if x != nil {
+		return x.LaunchStatus
+	}
+	return WorksheetRunLaunchStatus_WORKSHEET_RUN_LAUNCH_STATUS_UNSPECIFIED
+}
+
+func (x *WorksheetRun) GetLaunchedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LaunchedAt
+	}
+	return nil
+}
+
+func (x *WorksheetRun) GetLaunchError() string {
+	if x != nil && x.LaunchError != nil {
+		return *x.LaunchError
+	}
+	return ""
+}
+
 type CreateWorksheetSpaceRequest struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	Visibility    WorksheetSpaceVisibility `protobuf:"varint,1,opt,name=visibility,proto3,enum=chalk.server.v1.WorksheetSpaceVisibility" json:"visibility,omitempty"`
@@ -1142,7 +1319,7 @@ type CreateWorksheetSpaceRequest struct {
 
 func (x *CreateWorksheetSpaceRequest) Reset() {
 	*x = CreateWorksheetSpaceRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1154,7 +1331,7 @@ func (x *CreateWorksheetSpaceRequest) String() string {
 func (*CreateWorksheetSpaceRequest) ProtoMessage() {}
 
 func (x *CreateWorksheetSpaceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1167,7 +1344,7 @@ func (x *CreateWorksheetSpaceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWorksheetSpaceRequest.ProtoReflect.Descriptor instead.
 func (*CreateWorksheetSpaceRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CreateWorksheetSpaceRequest) GetVisibility() WorksheetSpaceVisibility {
@@ -1186,7 +1363,7 @@ type CreateWorksheetSpaceResponse struct {
 
 func (x *CreateWorksheetSpaceResponse) Reset() {
 	*x = CreateWorksheetSpaceResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1198,7 +1375,7 @@ func (x *CreateWorksheetSpaceResponse) String() string {
 func (*CreateWorksheetSpaceResponse) ProtoMessage() {}
 
 func (x *CreateWorksheetSpaceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1211,7 +1388,7 @@ func (x *CreateWorksheetSpaceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWorksheetSpaceResponse.ProtoReflect.Descriptor instead.
 func (*CreateWorksheetSpaceResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CreateWorksheetSpaceResponse) GetSpace() *WorksheetSpace {
@@ -1229,7 +1406,7 @@ type ListWorksheetSpacesRequest struct {
 
 func (x *ListWorksheetSpacesRequest) Reset() {
 	*x = ListWorksheetSpacesRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1241,7 +1418,7 @@ func (x *ListWorksheetSpacesRequest) String() string {
 func (*ListWorksheetSpacesRequest) ProtoMessage() {}
 
 func (x *ListWorksheetSpacesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1254,7 +1431,7 @@ func (x *ListWorksheetSpacesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWorksheetSpacesRequest.ProtoReflect.Descriptor instead.
 func (*ListWorksheetSpacesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{14}
 }
 
 type ListWorksheetSpacesResponse struct {
@@ -1266,7 +1443,7 @@ type ListWorksheetSpacesResponse struct {
 
 func (x *ListWorksheetSpacesResponse) Reset() {
 	*x = ListWorksheetSpacesResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1278,7 +1455,7 @@ func (x *ListWorksheetSpacesResponse) String() string {
 func (*ListWorksheetSpacesResponse) ProtoMessage() {}
 
 func (x *ListWorksheetSpacesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1291,7 +1468,7 @@ func (x *ListWorksheetSpacesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWorksheetSpacesResponse.ProtoReflect.Descriptor instead.
 func (*ListWorksheetSpacesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListWorksheetSpacesResponse) GetSpaces() []*WorksheetSpace {
@@ -1310,7 +1487,7 @@ type GetWorksheetNodeRequest struct {
 
 func (x *GetWorksheetNodeRequest) Reset() {
 	*x = GetWorksheetNodeRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1322,7 +1499,7 @@ func (x *GetWorksheetNodeRequest) String() string {
 func (*GetWorksheetNodeRequest) ProtoMessage() {}
 
 func (x *GetWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1335,7 +1512,7 @@ func (x *GetWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWorksheetNodeRequest.ProtoReflect.Descriptor instead.
 func (*GetWorksheetNodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetWorksheetNodeRequest) GetNodeId() string {
@@ -1354,7 +1531,7 @@ type GetWorksheetNodeResponse struct {
 
 func (x *GetWorksheetNodeResponse) Reset() {
 	*x = GetWorksheetNodeResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1366,7 +1543,7 @@ func (x *GetWorksheetNodeResponse) String() string {
 func (*GetWorksheetNodeResponse) ProtoMessage() {}
 
 func (x *GetWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1379,7 +1556,7 @@ func (x *GetWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWorksheetNodeResponse.ProtoReflect.Descriptor instead.
 func (*GetWorksheetNodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetWorksheetNodeResponse) GetNode() *WorksheetNode {
@@ -1400,7 +1577,7 @@ type ListWorksheetNodesRequest struct {
 
 func (x *ListWorksheetNodesRequest) Reset() {
 	*x = ListWorksheetNodesRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1412,7 +1589,7 @@ func (x *ListWorksheetNodesRequest) String() string {
 func (*ListWorksheetNodesRequest) ProtoMessage() {}
 
 func (x *ListWorksheetNodesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1425,7 +1602,7 @@ func (x *ListWorksheetNodesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWorksheetNodesRequest.ProtoReflect.Descriptor instead.
 func (*ListWorksheetNodesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListWorksheetNodesRequest) GetSpaceId() string {
@@ -1458,7 +1635,7 @@ type ListWorksheetNodesResponse struct {
 
 func (x *ListWorksheetNodesResponse) Reset() {
 	*x = ListWorksheetNodesResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1470,7 +1647,7 @@ func (x *ListWorksheetNodesResponse) String() string {
 func (*ListWorksheetNodesResponse) ProtoMessage() {}
 
 func (x *ListWorksheetNodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1483,7 +1660,7 @@ func (x *ListWorksheetNodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWorksheetNodesResponse.ProtoReflect.Descriptor instead.
 func (*ListWorksheetNodesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListWorksheetNodesResponse) GetNodes() []*WorksheetNode {
@@ -1506,7 +1683,7 @@ type CreateWorksheetNodeRequest struct {
 
 func (x *CreateWorksheetNodeRequest) Reset() {
 	*x = CreateWorksheetNodeRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1518,7 +1695,7 @@ func (x *CreateWorksheetNodeRequest) String() string {
 func (*CreateWorksheetNodeRequest) ProtoMessage() {}
 
 func (x *CreateWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1531,7 +1708,7 @@ func (x *CreateWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWorksheetNodeRequest.ProtoReflect.Descriptor instead.
 func (*CreateWorksheetNodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreateWorksheetNodeRequest) GetSpaceId() string {
@@ -1579,7 +1756,7 @@ type CreateWorksheetNodeResponse struct {
 
 func (x *CreateWorksheetNodeResponse) Reset() {
 	*x = CreateWorksheetNodeResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1591,7 +1768,7 @@ func (x *CreateWorksheetNodeResponse) String() string {
 func (*CreateWorksheetNodeResponse) ProtoMessage() {}
 
 func (x *CreateWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1604,7 +1781,7 @@ func (x *CreateWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWorksheetNodeResponse.ProtoReflect.Descriptor instead.
 func (*CreateWorksheetNodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CreateWorksheetNodeResponse) GetNode() *WorksheetNode {
@@ -1631,7 +1808,7 @@ type RenameWorksheetNodeRequest struct {
 
 func (x *RenameWorksheetNodeRequest) Reset() {
 	*x = RenameWorksheetNodeRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1643,7 +1820,7 @@ func (x *RenameWorksheetNodeRequest) String() string {
 func (*RenameWorksheetNodeRequest) ProtoMessage() {}
 
 func (x *RenameWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1656,7 +1833,7 @@ func (x *RenameWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameWorksheetNodeRequest.ProtoReflect.Descriptor instead.
 func (*RenameWorksheetNodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RenameWorksheetNodeRequest) GetNodeId() string {
@@ -1683,7 +1860,7 @@ type RenameWorksheetNodeResponse struct {
 
 func (x *RenameWorksheetNodeResponse) Reset() {
 	*x = RenameWorksheetNodeResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1695,7 +1872,7 @@ func (x *RenameWorksheetNodeResponse) String() string {
 func (*RenameWorksheetNodeResponse) ProtoMessage() {}
 
 func (x *RenameWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1708,7 +1885,7 @@ func (x *RenameWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameWorksheetNodeResponse.ProtoReflect.Descriptor instead.
 func (*RenameWorksheetNodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *RenameWorksheetNodeResponse) GetNode() *WorksheetNode {
@@ -1736,7 +1913,7 @@ type MoveWorksheetNodeRequest struct {
 
 func (x *MoveWorksheetNodeRequest) Reset() {
 	*x = MoveWorksheetNodeRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1748,7 +1925,7 @@ func (x *MoveWorksheetNodeRequest) String() string {
 func (*MoveWorksheetNodeRequest) ProtoMessage() {}
 
 func (x *MoveWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1761,7 +1938,7 @@ func (x *MoveWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveWorksheetNodeRequest.ProtoReflect.Descriptor instead.
 func (*MoveWorksheetNodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *MoveWorksheetNodeRequest) GetNodeId() string {
@@ -1795,7 +1972,7 @@ type MoveWorksheetNodeResponse struct {
 
 func (x *MoveWorksheetNodeResponse) Reset() {
 	*x = MoveWorksheetNodeResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1807,7 +1984,7 @@ func (x *MoveWorksheetNodeResponse) String() string {
 func (*MoveWorksheetNodeResponse) ProtoMessage() {}
 
 func (x *MoveWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1820,7 +1997,7 @@ func (x *MoveWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MoveWorksheetNodeResponse.ProtoReflect.Descriptor instead.
 func (*MoveWorksheetNodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *MoveWorksheetNodeResponse) GetNode() *WorksheetNode {
@@ -1846,7 +2023,7 @@ type ArchiveWorksheetNodeRequest struct {
 
 func (x *ArchiveWorksheetNodeRequest) Reset() {
 	*x = ArchiveWorksheetNodeRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1858,7 +2035,7 @@ func (x *ArchiveWorksheetNodeRequest) String() string {
 func (*ArchiveWorksheetNodeRequest) ProtoMessage() {}
 
 func (x *ArchiveWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1871,7 +2048,7 @@ func (x *ArchiveWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveWorksheetNodeRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveWorksheetNodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ArchiveWorksheetNodeRequest) GetNodeId() string {
@@ -1891,7 +2068,7 @@ type ArchiveWorksheetNodeResponse struct {
 
 func (x *ArchiveWorksheetNodeResponse) Reset() {
 	*x = ArchiveWorksheetNodeResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1903,7 +2080,7 @@ func (x *ArchiveWorksheetNodeResponse) String() string {
 func (*ArchiveWorksheetNodeResponse) ProtoMessage() {}
 
 func (x *ArchiveWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1916,7 +2093,7 @@ func (x *ArchiveWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveWorksheetNodeResponse.ProtoReflect.Descriptor instead.
 func (*ArchiveWorksheetNodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ArchiveWorksheetNodeResponse) GetNode() *WorksheetNode {
@@ -1943,7 +2120,7 @@ type RestoreWorksheetNodeRequest struct {
 
 func (x *RestoreWorksheetNodeRequest) Reset() {
 	*x = RestoreWorksheetNodeRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1955,7 +2132,7 @@ func (x *RestoreWorksheetNodeRequest) String() string {
 func (*RestoreWorksheetNodeRequest) ProtoMessage() {}
 
 func (x *RestoreWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1968,7 +2145,7 @@ func (x *RestoreWorksheetNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreWorksheetNodeRequest.ProtoReflect.Descriptor instead.
 func (*RestoreWorksheetNodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *RestoreWorksheetNodeRequest) GetNodeId() string {
@@ -1995,7 +2172,7 @@ type RestoreWorksheetNodeResponse struct {
 
 func (x *RestoreWorksheetNodeResponse) Reset() {
 	*x = RestoreWorksheetNodeResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2007,7 +2184,7 @@ func (x *RestoreWorksheetNodeResponse) String() string {
 func (*RestoreWorksheetNodeResponse) ProtoMessage() {}
 
 func (x *RestoreWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2020,7 +2197,7 @@ func (x *RestoreWorksheetNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreWorksheetNodeResponse.ProtoReflect.Descriptor instead.
 func (*RestoreWorksheetNodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *RestoreWorksheetNodeResponse) GetNode() *WorksheetNode {
@@ -2047,7 +2224,7 @@ type AutosaveWorksheetRequest struct {
 
 func (x *AutosaveWorksheetRequest) Reset() {
 	*x = AutosaveWorksheetRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2059,7 +2236,7 @@ func (x *AutosaveWorksheetRequest) String() string {
 func (*AutosaveWorksheetRequest) ProtoMessage() {}
 
 func (x *AutosaveWorksheetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2072,7 +2249,7 @@ func (x *AutosaveWorksheetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AutosaveWorksheetRequest.ProtoReflect.Descriptor instead.
 func (*AutosaveWorksheetRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *AutosaveWorksheetRequest) GetNodeId() string {
@@ -2098,7 +2275,7 @@ type AutosaveWorksheetResponse struct {
 
 func (x *AutosaveWorksheetResponse) Reset() {
 	*x = AutosaveWorksheetResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2110,7 +2287,7 @@ func (x *AutosaveWorksheetResponse) String() string {
 func (*AutosaveWorksheetResponse) ProtoMessage() {}
 
 func (x *AutosaveWorksheetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2123,7 +2300,7 @@ func (x *AutosaveWorksheetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AutosaveWorksheetResponse.ProtoReflect.Descriptor instead.
 func (*AutosaveWorksheetResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *AutosaveWorksheetResponse) GetCommit() *WorksheetCommit {
@@ -2143,7 +2320,7 @@ type SaveWorksheetRequest struct {
 
 func (x *SaveWorksheetRequest) Reset() {
 	*x = SaveWorksheetRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2155,7 +2332,7 @@ func (x *SaveWorksheetRequest) String() string {
 func (*SaveWorksheetRequest) ProtoMessage() {}
 
 func (x *SaveWorksheetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2168,7 +2345,7 @@ func (x *SaveWorksheetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveWorksheetRequest.ProtoReflect.Descriptor instead.
 func (*SaveWorksheetRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *SaveWorksheetRequest) GetNodeId() string {
@@ -2194,7 +2371,7 @@ type SaveWorksheetResponse struct {
 
 func (x *SaveWorksheetResponse) Reset() {
 	*x = SaveWorksheetResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2206,7 +2383,7 @@ func (x *SaveWorksheetResponse) String() string {
 func (*SaveWorksheetResponse) ProtoMessage() {}
 
 func (x *SaveWorksheetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2219,7 +2396,7 @@ func (x *SaveWorksheetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveWorksheetResponse.ProtoReflect.Descriptor instead.
 func (*SaveWorksheetResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *SaveWorksheetResponse) GetCommit() *WorksheetCommit {
@@ -2239,7 +2416,7 @@ type GetWorksheetCommitRequest struct {
 
 func (x *GetWorksheetCommitRequest) Reset() {
 	*x = GetWorksheetCommitRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2251,7 +2428,7 @@ func (x *GetWorksheetCommitRequest) String() string {
 func (*GetWorksheetCommitRequest) ProtoMessage() {}
 
 func (x *GetWorksheetCommitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2264,7 +2441,7 @@ func (x *GetWorksheetCommitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWorksheetCommitRequest.ProtoReflect.Descriptor instead.
 func (*GetWorksheetCommitRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GetWorksheetCommitRequest) GetCommitId() int64 {
@@ -2291,7 +2468,7 @@ type GetWorksheetCommitResponse struct {
 
 func (x *GetWorksheetCommitResponse) Reset() {
 	*x = GetWorksheetCommitResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2303,7 +2480,7 @@ func (x *GetWorksheetCommitResponse) String() string {
 func (*GetWorksheetCommitResponse) ProtoMessage() {}
 
 func (x *GetWorksheetCommitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2316,7 +2493,7 @@ func (x *GetWorksheetCommitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWorksheetCommitResponse.ProtoReflect.Descriptor instead.
 func (*GetWorksheetCommitResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetWorksheetCommitResponse) GetCommit() *WorksheetCommit {
@@ -2345,7 +2522,7 @@ type ListWorksheetCommitsRequest struct {
 
 func (x *ListWorksheetCommitsRequest) Reset() {
 	*x = ListWorksheetCommitsRequest{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2357,7 +2534,7 @@ func (x *ListWorksheetCommitsRequest) String() string {
 func (*ListWorksheetCommitsRequest) ProtoMessage() {}
 
 func (x *ListWorksheetCommitsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2370,7 +2547,7 @@ func (x *ListWorksheetCommitsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWorksheetCommitsRequest.ProtoReflect.Descriptor instead.
 func (*ListWorksheetCommitsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{35}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ListWorksheetCommitsRequest) GetNodeId() string {
@@ -2410,7 +2587,7 @@ type ListWorksheetCommitsResponse struct {
 
 func (x *ListWorksheetCommitsResponse) Reset() {
 	*x = ListWorksheetCommitsResponse{}
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2422,7 +2599,7 @@ func (x *ListWorksheetCommitsResponse) String() string {
 func (*ListWorksheetCommitsResponse) ProtoMessage() {}
 
 func (x *ListWorksheetCommitsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2435,7 +2612,7 @@ func (x *ListWorksheetCommitsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWorksheetCommitsResponse.ProtoReflect.Descriptor instead.
 func (*ListWorksheetCommitsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{36}
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListWorksheetCommitsResponse) GetCommits() []*WorksheetCommit {
@@ -2445,11 +2622,619 @@ func (x *ListWorksheetCommitsResponse) GetCommits() []*WorksheetCommit {
 	return nil
 }
 
+type RunOnlineWorksheetCommitRequest struct {
+	state              protoimpl.MessageState  `protogen:"open.v1"`
+	CommitId           int64                   `protobuf:"varint,1,opt,name=commit_id,json=commitId,proto3" json:"commit_id,omitempty"`
+	OnlineQueryRequest *v11.OnlineQueryRequest `protobuf:"bytes,2,opt,name=online_query_request,json=onlineQueryRequest,proto3" json:"online_query_request,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *RunOnlineWorksheetCommitRequest) Reset() {
+	*x = RunOnlineWorksheetCommitRequest{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunOnlineWorksheetCommitRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunOnlineWorksheetCommitRequest) ProtoMessage() {}
+
+func (x *RunOnlineWorksheetCommitRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunOnlineWorksheetCommitRequest.ProtoReflect.Descriptor instead.
+func (*RunOnlineWorksheetCommitRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *RunOnlineWorksheetCommitRequest) GetCommitId() int64 {
+	if x != nil {
+		return x.CommitId
+	}
+	return 0
+}
+
+func (x *RunOnlineWorksheetCommitRequest) GetOnlineQueryRequest() *v11.OnlineQueryRequest {
+	if x != nil {
+		return x.OnlineQueryRequest
+	}
+	return nil
+}
+
+type RunOnlineWorksheetCommitResponse struct {
+	state               protoimpl.MessageState   `protogen:"open.v1"`
+	Run                 *WorksheetRun            `protobuf:"bytes,1,opt,name=run,proto3" json:"run,omitempty"`
+	OnlineQueryResponse *v11.OnlineQueryResponse `protobuf:"bytes,2,opt,name=online_query_response,json=onlineQueryResponse,proto3" json:"online_query_response,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *RunOnlineWorksheetCommitResponse) Reset() {
+	*x = RunOnlineWorksheetCommitResponse{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunOnlineWorksheetCommitResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunOnlineWorksheetCommitResponse) ProtoMessage() {}
+
+func (x *RunOnlineWorksheetCommitResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunOnlineWorksheetCommitResponse.ProtoReflect.Descriptor instead.
+func (*RunOnlineWorksheetCommitResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *RunOnlineWorksheetCommitResponse) GetRun() *WorksheetRun {
+	if x != nil {
+		return x.Run
+	}
+	return nil
+}
+
+func (x *RunOnlineWorksheetCommitResponse) GetOnlineQueryResponse() *v11.OnlineQueryResponse {
+	if x != nil {
+		return x.OnlineQueryResponse
+	}
+	return nil
+}
+
+type RunOfflineWorksheetCommitRequest struct {
+	state               protoimpl.MessageState   `protogen:"open.v1"`
+	CommitId            int64                    `protobuf:"varint,1,opt,name=commit_id,json=commitId,proto3" json:"commit_id,omitempty"`
+	OfflineQueryRequest *v11.OfflineQueryRequest `protobuf:"bytes,2,opt,name=offline_query_request,json=offlineQueryRequest,proto3" json:"offline_query_request,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *RunOfflineWorksheetCommitRequest) Reset() {
+	*x = RunOfflineWorksheetCommitRequest{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunOfflineWorksheetCommitRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunOfflineWorksheetCommitRequest) ProtoMessage() {}
+
+func (x *RunOfflineWorksheetCommitRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunOfflineWorksheetCommitRequest.ProtoReflect.Descriptor instead.
+func (*RunOfflineWorksheetCommitRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *RunOfflineWorksheetCommitRequest) GetCommitId() int64 {
+	if x != nil {
+		return x.CommitId
+	}
+	return 0
+}
+
+func (x *RunOfflineWorksheetCommitRequest) GetOfflineQueryRequest() *v11.OfflineQueryRequest {
+	if x != nil {
+		return x.OfflineQueryRequest
+	}
+	return nil
+}
+
+type RunOfflineWorksheetCommitResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Run             *WorksheetRun          `protobuf:"bytes,1,opt,name=run,proto3" json:"run,omitempty"`
+	DatasetResponse *v11.DatasetResponse   `protobuf:"bytes,2,opt,name=dataset_response,json=datasetResponse,proto3" json:"dataset_response,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *RunOfflineWorksheetCommitResponse) Reset() {
+	*x = RunOfflineWorksheetCommitResponse{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunOfflineWorksheetCommitResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunOfflineWorksheetCommitResponse) ProtoMessage() {}
+
+func (x *RunOfflineWorksheetCommitResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunOfflineWorksheetCommitResponse.ProtoReflect.Descriptor instead.
+func (*RunOfflineWorksheetCommitResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *RunOfflineWorksheetCommitResponse) GetRun() *WorksheetRun {
+	if x != nil {
+		return x.Run
+	}
+	return nil
+}
+
+func (x *RunOfflineWorksheetCommitResponse) GetDatasetResponse() *v11.DatasetResponse {
+	if x != nil {
+		return x.DatasetResponse
+	}
+	return nil
+}
+
+type RunSqlWorksheetCommitRequest struct {
+	state           protoimpl.MessageState     `protogen:"open.v1"`
+	CommitId        int64                      `protobuf:"varint,1,opt,name=commit_id,json=commitId,proto3" json:"commit_id,omitempty"`
+	SqlQueryRequest *v1.ExecuteSqlQueryRequest `protobuf:"bytes,2,opt,name=sql_query_request,json=sqlQueryRequest,proto3" json:"sql_query_request,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *RunSqlWorksheetCommitRequest) Reset() {
+	*x = RunSqlWorksheetCommitRequest{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunSqlWorksheetCommitRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunSqlWorksheetCommitRequest) ProtoMessage() {}
+
+func (x *RunSqlWorksheetCommitRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunSqlWorksheetCommitRequest.ProtoReflect.Descriptor instead.
+func (*RunSqlWorksheetCommitRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *RunSqlWorksheetCommitRequest) GetCommitId() int64 {
+	if x != nil {
+		return x.CommitId
+	}
+	return 0
+}
+
+func (x *RunSqlWorksheetCommitRequest) GetSqlQueryRequest() *v1.ExecuteSqlQueryRequest {
+	if x != nil {
+		return x.SqlQueryRequest
+	}
+	return nil
+}
+
+type RunSqlWorksheetCommitResponse struct {
+	state            protoimpl.MessageState      `protogen:"open.v1"`
+	Run              *WorksheetRun               `protobuf:"bytes,1,opt,name=run,proto3" json:"run,omitempty"`
+	SqlQueryResponse *v1.ExecuteSqlQueryResponse `protobuf:"bytes,2,opt,name=sql_query_response,json=sqlQueryResponse,proto3" json:"sql_query_response,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *RunSqlWorksheetCommitResponse) Reset() {
+	*x = RunSqlWorksheetCommitResponse{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunSqlWorksheetCommitResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunSqlWorksheetCommitResponse) ProtoMessage() {}
+
+func (x *RunSqlWorksheetCommitResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunSqlWorksheetCommitResponse.ProtoReflect.Descriptor instead.
+func (*RunSqlWorksheetCommitResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *RunSqlWorksheetCommitResponse) GetRun() *WorksheetRun {
+	if x != nil {
+		return x.Run
+	}
+	return nil
+}
+
+func (x *RunSqlWorksheetCommitResponse) GetSqlQueryResponse() *v1.ExecuteSqlQueryResponse {
+	if x != nil {
+		return x.SqlQueryResponse
+	}
+	return nil
+}
+
+type CancelWorksheetRunRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RunId         string                 `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelWorksheetRunRequest) Reset() {
+	*x = CancelWorksheetRunRequest{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelWorksheetRunRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelWorksheetRunRequest) ProtoMessage() {}
+
+func (x *CancelWorksheetRunRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelWorksheetRunRequest.ProtoReflect.Descriptor instead.
+func (*CancelWorksheetRunRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *CancelWorksheetRunRequest) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+type CancelWorksheetRunResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Run           *WorksheetRun          `protobuf:"bytes,1,opt,name=run,proto3" json:"run,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelWorksheetRunResponse) Reset() {
+	*x = CancelWorksheetRunResponse{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelWorksheetRunResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelWorksheetRunResponse) ProtoMessage() {}
+
+func (x *CancelWorksheetRunResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelWorksheetRunResponse.ProtoReflect.Descriptor instead.
+func (*CancelWorksheetRunResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *CancelWorksheetRunResponse) GetRun() *WorksheetRun {
+	if x != nil {
+		return x.Run
+	}
+	return nil
+}
+
+type GetWorksheetRunRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RunId         string                 `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorksheetRunRequest) Reset() {
+	*x = GetWorksheetRunRequest{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorksheetRunRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorksheetRunRequest) ProtoMessage() {}
+
+func (x *GetWorksheetRunRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorksheetRunRequest.ProtoReflect.Descriptor instead.
+func (*GetWorksheetRunRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *GetWorksheetRunRequest) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+type GetWorksheetRunResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Run           *WorksheetRun          `protobuf:"bytes,1,opt,name=run,proto3" json:"run,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorksheetRunResponse) Reset() {
+	*x = GetWorksheetRunResponse{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorksheetRunResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorksheetRunResponse) ProtoMessage() {}
+
+func (x *GetWorksheetRunResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorksheetRunResponse.ProtoReflect.Descriptor instead.
+func (*GetWorksheetRunResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *GetWorksheetRunResponse) GetRun() *WorksheetRun {
+	if x != nil {
+		return x.Run
+	}
+	return nil
+}
+
+type ListWorksheetRunsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeId        *string                `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3,oneof" json:"node_id,omitempty"`
+	CommitId      *int64                 `protobuf:"varint,2,opt,name=commit_id,json=commitId,proto3,oneof" json:"commit_id,omitempty"`
+	Limit         *int32                 `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor        *string                `protobuf:"bytes,4,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorksheetRunsRequest) Reset() {
+	*x = ListWorksheetRunsRequest{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorksheetRunsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorksheetRunsRequest) ProtoMessage() {}
+
+func (x *ListWorksheetRunsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorksheetRunsRequest.ProtoReflect.Descriptor instead.
+func (*ListWorksheetRunsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *ListWorksheetRunsRequest) GetNodeId() string {
+	if x != nil && x.NodeId != nil {
+		return *x.NodeId
+	}
+	return ""
+}
+
+func (x *ListWorksheetRunsRequest) GetCommitId() int64 {
+	if x != nil && x.CommitId != nil {
+		return *x.CommitId
+	}
+	return 0
+}
+
+func (x *ListWorksheetRunsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListWorksheetRunsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+type ListWorksheetRunsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Runs          []*WorksheetRun        `protobuf:"bytes,1,rep,name=runs,proto3" json:"runs,omitempty"`
+	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorksheetRunsResponse) Reset() {
+	*x = ListWorksheetRunsResponse{}
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorksheetRunsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorksheetRunsResponse) ProtoMessage() {}
+
+func (x *ListWorksheetRunsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_worksheets_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorksheetRunsResponse.ProtoReflect.Descriptor instead.
+func (*ListWorksheetRunsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_worksheets_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *ListWorksheetRunsResponse) GetRuns() []*WorksheetRun {
+	if x != nil {
+		return x.Runs
+	}
+	return nil
+}
+
+func (x *ListWorksheetRunsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
 var File_chalk_server_v1_worksheets_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\n" +
-	" chalk/server/v1/worksheets.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a#chalk/protosql/v1/sql_service.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcd\x01\n" +
+	" chalk/server/v1/worksheets.proto\x12\x0fchalk.server.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a&chalk/common/v1/dataset_response.proto\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a#chalk/protosql/v1/sql_service.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcd\x01\n" +
 	"\x0eWorksheetSpace\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12I\n" +
@@ -2464,9 +3249,9 @@ const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\x0econtent_schema\x18\x03 \x01(\tR\rcontentSchema\x12!\n" +
 	"\fcontent_hash\x18\x04 \x01(\tR\vcontentHash\x129\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xa2\x01\n" +
-	"\x10WorksheetContent\x12%\n" +
-	"\x0econtent_schema\x18\x01 \x01(\tR\rcontentSchema\x12.\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xab\x01\n" +
+	"\x10WorksheetContent\x12.\n" +
+	"\x0econtent_schema\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\rcontentSchema\x12.\n" +
 	"\x13content_proto_bytes\x18\x02 \x01(\fR\x11contentProtoBytes\x12&\n" +
 	"\fcontent_hash\x18\x03 \x01(\tH\x00R\vcontentHash\x88\x01\x01B\x0f\n" +
 	"\r_content_hash\"`\n" +
@@ -2479,19 +3264,18 @@ const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\x19WorksheetNotebookDocument\x120\n" +
 	"\x14notebook_proto_bytes\x18\x01 \x01(\fR\x12notebookProtoBytes\x12,\n" +
 	"\x0fnotebook_schema\x18\x02 \x01(\tH\x00R\x0enotebookSchema\x88\x01\x01B\x12\n" +
-	"\x10_notebook_schema\"\xdf\x02\n" +
+	"\x10_notebook_schema\"\xe6\x02\n" +
 	"\x11WorksheetDocument\x12I\n" +
 	"\tsql_query\x18\x01 \x01(\v2*.chalk.server.v1.WorksheetSqlQueryDocumentH\x00R\bsqlQuery\x12R\n" +
 	"\fonline_query\x18\x02 \x01(\v2-.chalk.server.v1.WorksheetOnlineQueryDocumentH\x00R\vonlineQuery\x12U\n" +
 	"\roffline_query\x18\x03 \x01(\v2..chalk.server.v1.WorksheetOfflineQueryDocumentH\x00R\fofflineQuery\x12H\n" +
-	"\bnotebook\x18\x04 \x01(\v2*.chalk.server.v1.WorksheetNotebookDocumentH\x00R\bnotebookB\n" +
-	"\n" +
-	"\bdocument\"\xa8\x01\n" +
+	"\bnotebook\x18\x04 \x01(\v2*.chalk.server.v1.WorksheetNotebookDocumentH\x00R\bnotebookB\x11\n" +
+	"\bdocument\x12\x05\xbaH\x02\b\x01\"\xaf\x01\n" +
 	"\x15WorksheetContentInput\x12D\n" +
 	"\vraw_content\x18\x01 \x01(\v2!.chalk.server.v1.WorksheetContentH\x00R\n" +
 	"rawContent\x12@\n" +
-	"\bdocument\x18\x02 \x01(\v2\".chalk.server.v1.WorksheetDocumentH\x00R\bdocumentB\a\n" +
-	"\x05value\"\xbe\x03\n" +
+	"\bdocument\x18\x02 \x01(\v2\".chalk.server.v1.WorksheetDocumentH\x00R\bdocumentB\x0e\n" +
+	"\x05value\x12\x05\xbaH\x02\b\x01\"\xbe\x03\n" +
 	"\rWorksheetNode\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bspace_id\x18\x02 \x01(\tR\aspaceId\x12%\n" +
@@ -2524,7 +3308,27 @@ const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\x0f_parent_node_idB\n" +
 	"\n" +
 	"\b_blob_idB\a\n" +
-	"\x05_blob\"h\n" +
+	"\x05_blob\"\xbc\x04\n" +
+	"\fWorksheetRun\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\bspace_id\x18\x02 \x01(\tR\aspaceId\x12%\n" +
+	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x12 \n" +
+	"\tcommit_id\x18\x04 \x01(\x03H\x00R\bcommitId\x88\x01\x01\x12\x17\n" +
+	"\auser_id\x18\x05 \x01(\tR\x06userId\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\x16execution_operation_id\x18\a \x01(\tH\x01R\x14executionOperationId\x88\x01\x01\x12%\n" +
+	"\x0erequest_schema\x18\b \x01(\tR\rrequestSchema\x12N\n" +
+	"\rlaunch_status\x18\t \x01(\x0e2).chalk.server.v1.WorksheetRunLaunchStatusR\flaunchStatus\x12@\n" +
+	"\vlaunched_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
+	"launchedAt\x88\x01\x01\x12&\n" +
+	"\flaunch_error\x18\v \x01(\tH\x03R\vlaunchError\x88\x01\x01B\f\n" +
+	"\n" +
+	"_commit_idB\x19\n" +
+	"\x17_execution_operation_idB\x0e\n" +
+	"\f_launched_atB\x0f\n" +
+	"\r_launch_error\"h\n" +
 	"\x1bCreateWorksheetSpaceRequest\x12I\n" +
 	"\n" +
 	"visibility\x18\x01 \x01(\x0e2).chalk.server.v1.WorksheetSpaceVisibilityR\n" +
@@ -2533,86 +3337,134 @@ const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\x05space\x18\x01 \x01(\v2\x1f.chalk.server.v1.WorksheetSpaceR\x05space\"\x1c\n" +
 	"\x1aListWorksheetSpacesRequest\"V\n" +
 	"\x1bListWorksheetSpacesResponse\x127\n" +
-	"\x06spaces\x18\x01 \x03(\v2\x1f.chalk.server.v1.WorksheetSpaceR\x06spaces\"2\n" +
-	"\x17GetWorksheetNodeRequest\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\"N\n" +
+	"\x06spaces\x18\x01 \x03(\v2\x1f.chalk.server.v1.WorksheetSpaceR\x06spaces\";\n" +
+	"\x17GetWorksheetNodeRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06nodeId\"N\n" +
 	"\x18GetWorksheetNodeResponse\x122\n" +
-	"\x04node\x18\x01 \x01(\v2\x1e.chalk.server.v1.WorksheetNodeR\x04node\"\x9f\x01\n" +
-	"\x19ListWorksheetNodesRequest\x12\x19\n" +
-	"\bspace_id\x18\x01 \x01(\tR\aspaceId\x12)\n" +
-	"\x0eparent_node_id\x18\x02 \x01(\tH\x00R\fparentNodeId\x88\x01\x01\x12)\n" +
+	"\x04node\x18\x01 \x01(\v2\x1e.chalk.server.v1.WorksheetNodeR\x04node\"\xb1\x01\n" +
+	"\x19ListWorksheetNodesRequest\x12\"\n" +
+	"\bspace_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\aspaceId\x122\n" +
+	"\x0eparent_node_id\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x00R\fparentNodeId\x88\x01\x01\x12)\n" +
 	"\x10include_archived\x18\x03 \x01(\bR\x0fincludeArchivedB\x11\n" +
 	"\x0f_parent_node_id\"R\n" +
 	"\x1aListWorksheetNodesResponse\x124\n" +
-	"\x05nodes\x18\x01 \x03(\v2\x1e.chalk.server.v1.WorksheetNodeR\x05nodes\"\x94\x02\n" +
-	"\x1aCreateWorksheetNodeRequest\x12\x19\n" +
-	"\bspace_id\x18\x01 \x01(\tR\aspaceId\x126\n" +
-	"\x04kind\x18\x02 \x01(\x0e2\".chalk.server.v1.WorksheetNodeKindR\x04kind\x12)\n" +
-	"\x0eparent_node_id\x18\x03 \x01(\tH\x00R\fparentNodeId\x88\x01\x01\x12\x12\n" +
-	"\x04name\x18\x04 \x01(\tR\x04name\x12E\n" +
+	"\x05nodes\x18\x01 \x03(\v2\x1e.chalk.server.v1.WorksheetNodeR\x05nodes\"\xc3\x02\n" +
+	"\x1aCreateWorksheetNodeRequest\x12\"\n" +
+	"\bspace_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\aspaceId\x12B\n" +
+	"\x04kind\x18\x02 \x01(\x0e2\".chalk.server.v1.WorksheetNodeKindB\n" +
+	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04kind\x122\n" +
+	"\x0eparent_node_id\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x00R\fparentNodeId\x88\x01\x01\x12#\n" +
+	"\x04name\x18\x04 \x01(\tB\x0f\xbaH\fr\n" +
+	"\x10\x012\x06.*\\S.*R\x04name\x12E\n" +
 	"\acontent\x18\x05 \x01(\v2&.chalk.server.v1.WorksheetContentInputH\x01R\acontent\x88\x01\x01B\x11\n" +
 	"\x0f_parent_node_idB\n" +
 	"\n" +
 	"\b_content\"\x8b\x01\n" +
 	"\x1bCreateWorksheetNodeResponse\x122\n" +
 	"\x04node\x18\x01 \x01(\v2\x1e.chalk.server.v1.WorksheetNodeR\x04node\x128\n" +
-	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"I\n" +
-	"\x1aRenameWorksheetNodeRequest\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x8b\x01\n" +
+	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"c\n" +
+	"\x1aRenameWorksheetNodeRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06nodeId\x12#\n" +
+	"\x04name\x18\x02 \x01(\tB\x0f\xbaH\fr\n" +
+	"\x10\x012\x06.*\\S.*R\x04name\"\x8b\x01\n" +
 	"\x1bRenameWorksheetNodeResponse\x122\n" +
 	"\x04node\x18\x01 \x01(\v2\x1e.chalk.server.v1.WorksheetNodeR\x04node\x128\n" +
-	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"\x9e\x01\n" +
-	"\x18MoveWorksheetNodeRequest\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12)\n" +
-	"\x0eparent_node_id\x18\x02 \x01(\tH\x00R\fparentNodeId\x88\x01\x01\x12\x1e\n" +
-	"\bspace_id\x18\x03 \x01(\tH\x01R\aspaceId\x88\x01\x01B\x11\n" +
+	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"\xc4\x02\n" +
+	"\x18MoveWorksheetNodeRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06nodeId\x122\n" +
+	"\x0eparent_node_id\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x00R\fparentNodeId\x88\x01\x01\x12'\n" +
+	"\bspace_id\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x01R\aspaceId\x88\x01\x01:\x88\x01\xbaH\x84\x01\x1a\x81\x01\n" +
+	"\x1eworksheet.move.parent_not_self\x12\x1dnode cannot be its own parent\x1a@!has(this.parent_node_id) || this.parent_node_id != this.node_idB\x11\n" +
 	"\x0f_parent_node_idB\v\n" +
 	"\t_space_id\"\x89\x01\n" +
 	"\x19MoveWorksheetNodeResponse\x122\n" +
 	"\x04node\x18\x01 \x01(\v2\x1e.chalk.server.v1.WorksheetNodeR\x04node\x128\n" +
-	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"6\n" +
-	"\x1bArchiveWorksheetNodeRequest\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\"\x8c\x01\n" +
+	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"?\n" +
+	"\x1bArchiveWorksheetNodeRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06nodeId\"\x8c\x01\n" +
 	"\x1cArchiveWorksheetNodeResponse\x122\n" +
 	"\x04node\x18\x01 \x01(\v2\x1e.chalk.server.v1.WorksheetNodeR\x04node\x128\n" +
-	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"t\n" +
-	"\x1bRestoreWorksheetNodeRequest\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12)\n" +
-	"\x0eparent_node_id\x18\x02 \x01(\tH\x00R\fparentNodeId\x88\x01\x01B\x11\n" +
+	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"\x94\x02\n" +
+	"\x1bRestoreWorksheetNodeRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06nodeId\x122\n" +
+	"\x0eparent_node_id\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x00R\fparentNodeId\x88\x01\x01:\x8b\x01\xbaH\x87\x01\x1a\x84\x01\n" +
+	"!worksheet.restore.parent_not_self\x12\x1dnode cannot be its own parent\x1a@!has(this.parent_node_id) || this.parent_node_id != this.node_idB\x11\n" +
 	"\x0f_parent_node_id\"\x8c\x01\n" +
 	"\x1cRestoreWorksheetNodeResponse\x122\n" +
 	"\x04node\x18\x01 \x01(\v2\x1e.chalk.server.v1.WorksheetNodeR\x04node\x128\n" +
-	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"u\n" +
-	"\x18AutosaveWorksheetRequest\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12@\n" +
-	"\acontent\x18\x02 \x01(\v2&.chalk.server.v1.WorksheetContentInputR\acontent\"U\n" +
+	"\x06commit\x18\x02 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"\x86\x01\n" +
+	"\x18AutosaveWorksheetRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06nodeId\x12H\n" +
+	"\acontent\x18\x02 \x01(\v2&.chalk.server.v1.WorksheetContentInputB\x06\xbaH\x03\xc8\x01\x01R\acontent\"U\n" +
 	"\x19AutosaveWorksheetResponse\x128\n" +
-	"\x06commit\x18\x01 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"\x82\x01\n" +
-	"\x14SaveWorksheetRequest\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12E\n" +
+	"\x06commit\x18\x01 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"\x8b\x01\n" +
+	"\x14SaveWorksheetRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06nodeId\x12E\n" +
 	"\acontent\x18\x02 \x01(\v2&.chalk.server.v1.WorksheetContentInputH\x00R\acontent\x88\x01\x01B\n" +
 	"\n" +
 	"\b_content\"Q\n" +
 	"\x15SaveWorksheetResponse\x128\n" +
-	"\x06commit\x18\x01 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"a\n" +
-	"\x19GetWorksheetCommitRequest\x12\x1b\n" +
-	"\tcommit_id\x18\x01 \x01(\x03R\bcommitId\x12'\n" +
+	"\x06commit\x18\x01 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\"j\n" +
+	"\x19GetWorksheetCommitRequest\x12$\n" +
+	"\tcommit_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02 \x00R\bcommitId\x12'\n" +
 	"\x0finclude_content\x18\x02 \x01(\bR\x0eincludeContent\"\xa4\x01\n" +
 	"\x1aGetWorksheetCommitResponse\x128\n" +
 	"\x06commit\x18\x01 \x01(\v2 .chalk.server.v1.WorksheetCommitR\x06commit\x12@\n" +
 	"\acontent\x18\x02 \x01(\v2!.chalk.server.v1.WorksheetContentH\x00R\acontent\x88\x01\x01B\n" +
 	"\n" +
-	"\b_content\"\xc6\x01\n" +
-	"\x1bListWorksheetCommitsRequest\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12%\n" +
-	"\x0einclude_drafts\x18\x02 \x01(\bR\rincludeDrafts\x12-\n" +
-	"\x10before_commit_id\x18\x03 \x01(\x03H\x00R\x0ebeforeCommitId\x88\x01\x01\x12\x19\n" +
+	"\b_content\"\xd8\x01\n" +
+	"\x1bListWorksheetCommitsRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06nodeId\x12%\n" +
+	"\x0einclude_drafts\x18\x02 \x01(\bR\rincludeDrafts\x126\n" +
+	"\x10before_commit_id\x18\x03 \x01(\x03B\a\xbaH\x04\"\x02 \x00H\x00R\x0ebeforeCommitId\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x04 \x01(\x05H\x01R\x05limit\x88\x01\x01B\x13\n" +
 	"\x11_before_commit_idB\b\n" +
 	"\x06_limit\"Z\n" +
 	"\x1cListWorksheetCommitsResponse\x12:\n" +
-	"\acommits\x18\x01 \x03(\v2 .chalk.server.v1.WorksheetCommitR\acommits*\x95\x01\n" +
+	"\acommits\x18\x01 \x03(\v2 .chalk.server.v1.WorksheetCommitR\acommits\"\xa6\x01\n" +
+	"\x1fRunOnlineWorksheetCommitRequest\x12$\n" +
+	"\tcommit_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02 \x00R\bcommitId\x12]\n" +
+	"\x14online_query_request\x18\x02 \x01(\v2#.chalk.common.v1.OnlineQueryRequestB\x06\xbaH\x03\xc8\x01\x01R\x12onlineQueryRequest\"\xad\x01\n" +
+	" RunOnlineWorksheetCommitResponse\x12/\n" +
+	"\x03run\x18\x01 \x01(\v2\x1d.chalk.server.v1.WorksheetRunR\x03run\x12X\n" +
+	"\x15online_query_response\x18\x02 \x01(\v2$.chalk.common.v1.OnlineQueryResponseR\x13onlineQueryResponse\"\xaa\x01\n" +
+	" RunOfflineWorksheetCommitRequest\x12$\n" +
+	"\tcommit_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02 \x00R\bcommitId\x12`\n" +
+	"\x15offline_query_request\x18\x02 \x01(\v2$.chalk.common.v1.OfflineQueryRequestB\x06\xbaH\x03\xc8\x01\x01R\x13offlineQueryRequest\"\xa1\x01\n" +
+	"!RunOfflineWorksheetCommitResponse\x12/\n" +
+	"\x03run\x18\x01 \x01(\v2\x1d.chalk.server.v1.WorksheetRunR\x03run\x12K\n" +
+	"\x10dataset_response\x18\x02 \x01(\v2 .chalk.common.v1.DatasetResponseR\x0fdatasetResponse\"\xa3\x01\n" +
+	"\x1cRunSqlWorksheetCommitRequest\x12$\n" +
+	"\tcommit_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02 \x00R\bcommitId\x12]\n" +
+	"\x11sql_query_request\x18\x02 \x01(\v2).chalk.protosql.v1.ExecuteSqlQueryRequestB\x06\xbaH\x03\xc8\x01\x01R\x0fsqlQueryRequest\"\xaa\x01\n" +
+	"\x1dRunSqlWorksheetCommitResponse\x12/\n" +
+	"\x03run\x18\x01 \x01(\v2\x1d.chalk.server.v1.WorksheetRunR\x03run\x12X\n" +
+	"\x12sql_query_response\x18\x02 \x01(\v2*.chalk.protosql.v1.ExecuteSqlQueryResponseR\x10sqlQueryResponse\";\n" +
+	"\x19CancelWorksheetRunRequest\x12\x1e\n" +
+	"\x06run_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05runId\"M\n" +
+	"\x1aCancelWorksheetRunResponse\x12/\n" +
+	"\x03run\x18\x01 \x01(\v2\x1d.chalk.server.v1.WorksheetRunR\x03run\"8\n" +
+	"\x16GetWorksheetRunRequest\x12\x1e\n" +
+	"\x06run_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05runId\"J\n" +
+	"\x17GetWorksheetRunResponse\x12/\n" +
+	"\x03run\x18\x01 \x01(\v2\x1d.chalk.server.v1.WorksheetRunR\x03run\"\xd9\x02\n" +
+	"\x18ListWorksheetRunsRequest\x12%\n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x00R\x06nodeId\x88\x01\x01\x12)\n" +
+	"\tcommit_id\x18\x02 \x01(\x03B\a\xbaH\x04\"\x02 \x00H\x01R\bcommitId\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x03 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12$\n" +
+	"\x06cursor\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01H\x03R\x06cursor\x88\x01\x01:{\xbaHx\x1av\n" +
+	"\x1dworksheet_runs.node_or_commit\x12+provide exactly one of node_id or commit_id\x1a(has(this.node_id) != has(this.commit_id)B\n" +
+	"\n" +
+	"\b_node_idB\f\n" +
+	"\n" +
+	"_commit_idB\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_cursor\"\x84\x01\n" +
+	"\x19ListWorksheetRunsResponse\x121\n" +
+	"\x04runs\x18\x01 \x03(\v2\x1d.chalk.server.v1.WorksheetRunR\x04runs\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor*\x95\x01\n" +
 	"\x18WorksheetSpaceVisibility\x12*\n" +
 	"&WORKSHEET_SPACE_VISIBILITY_UNSPECIFIED\x10\x00\x12%\n" +
 	"!WORKSHEET_SPACE_VISIBILITY_SHARED\x10\x01\x12&\n" +
@@ -2641,7 +3493,12 @@ const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\x1dWORKSHEET_OPERATION_KIND_MOVE\x10\x05\x12$\n" +
 	" WORKSHEET_OPERATION_KIND_ARCHIVE\x10\x06\x12$\n" +
 	" WORKSHEET_OPERATION_KIND_RESTORE\x10\a\x12&\n" +
-	"\"WORKSHEET_OPERATION_KIND_DUPLICATE\x10\b2\x8c\f\n" +
+	"\"WORKSHEET_OPERATION_KIND_DUPLICATE\x10\b*\xc2\x01\n" +
+	"\x18WorksheetRunLaunchStatus\x12+\n" +
+	"'WORKSHEET_RUN_LAUNCH_STATUS_UNSPECIFIED\x10\x00\x12'\n" +
+	"#WORKSHEET_RUN_LAUNCH_STATUS_PENDING\x10\x01\x12(\n" +
+	"$WORKSHEET_RUN_LAUNCH_STATUS_LAUNCHED\x10\x02\x12&\n" +
+	"\"WORKSHEET_RUN_LAUNCH_STATUS_FAILED\x10\x032\xf0\x11\n" +
 	"\x11WorksheetsService\x12x\n" +
 	"\x14CreateWorksheetSpace\x12,.chalk.server.v1.CreateWorksheetSpaceRequest\x1a-.chalk.server.v1.CreateWorksheetSpaceResponse\"\x03\x80}\x02\x12x\n" +
 	"\x13ListWorksheetSpaces\x12+.chalk.server.v1.ListWorksheetSpacesRequest\x1a,.chalk.server.v1.ListWorksheetSpacesResponse\"\x06\x80}\x02\x90\x02\x01\x12o\n" +
@@ -2655,7 +3512,13 @@ const file_chalk_server_v1_worksheets_proto_rawDesc = "" +
 	"\x11AutosaveWorksheet\x12).chalk.server.v1.AutosaveWorksheetRequest\x1a*.chalk.server.v1.AutosaveWorksheetResponse\"\x03\x80}\x02\x12c\n" +
 	"\rSaveWorksheet\x12%.chalk.server.v1.SaveWorksheetRequest\x1a&.chalk.server.v1.SaveWorksheetResponse\"\x03\x80}\x02\x12u\n" +
 	"\x12GetWorksheetCommit\x12*.chalk.server.v1.GetWorksheetCommitRequest\x1a+.chalk.server.v1.GetWorksheetCommitResponse\"\x06\x80}\x02\x90\x02\x01\x12{\n" +
-	"\x14ListWorksheetCommits\x12,.chalk.server.v1.ListWorksheetCommitsRequest\x1a-.chalk.server.v1.ListWorksheetCommitsResponse\"\x06\x80}\x02\x90\x02\x01B\xbf\x01\n" +
+	"\x14ListWorksheetCommits\x12,.chalk.server.v1.ListWorksheetCommitsRequest\x1a-.chalk.server.v1.ListWorksheetCommitsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x84\x01\n" +
+	"\x18RunOnlineWorksheetCommit\x120.chalk.server.v1.RunOnlineWorksheetCommitRequest\x1a1.chalk.server.v1.RunOnlineWorksheetCommitResponse\"\x03\x80}\x03\x12\x87\x01\n" +
+	"\x19RunOfflineWorksheetCommit\x121.chalk.server.v1.RunOfflineWorksheetCommitRequest\x1a2.chalk.server.v1.RunOfflineWorksheetCommitResponse\"\x03\x80}\x04\x12{\n" +
+	"\x15RunSqlWorksheetCommit\x12-.chalk.server.v1.RunSqlWorksheetCommitRequest\x1a..chalk.server.v1.RunSqlWorksheetCommitResponse\"\x03\x80}\x03\x12r\n" +
+	"\x12CancelWorksheetRun\x12*.chalk.server.v1.CancelWorksheetRunRequest\x1a+.chalk.server.v1.CancelWorksheetRunResponse\"\x03\x80}\x04\x12l\n" +
+	"\x0fGetWorksheetRun\x12'.chalk.server.v1.GetWorksheetRunRequest\x1a(.chalk.server.v1.GetWorksheetRunResponse\"\x06\x80}\x02\x90\x02\x01\x12r\n" +
+	"\x11ListWorksheetRuns\x12).chalk.server.v1.ListWorksheetRunsRequest\x1a*.chalk.server.v1.ListWorksheetRunsResponse\"\x06\x80}\x02\x90\x02\x01B\xbf\x01\n" +
 	"\x13com.chalk.server.v1B\x0fWorksheetsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -2670,131 +3533,175 @@ func file_chalk_server_v1_worksheets_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_worksheets_proto_rawDescData
 }
 
-var file_chalk_server_v1_worksheets_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_chalk_server_v1_worksheets_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
+var file_chalk_server_v1_worksheets_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_chalk_server_v1_worksheets_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
 var file_chalk_server_v1_worksheets_proto_goTypes = []any{
-	(WorksheetSpaceVisibility)(0),         // 0: chalk.server.v1.WorksheetSpaceVisibility
-	(WorksheetNodeKind)(0),                // 1: chalk.server.v1.WorksheetNodeKind
-	(WorksheetNodeState)(0),               // 2: chalk.server.v1.WorksheetNodeState
-	(WorksheetCommitState)(0),             // 3: chalk.server.v1.WorksheetCommitState
-	(WorksheetOperationKind)(0),           // 4: chalk.server.v1.WorksheetOperationKind
-	(*WorksheetSpace)(nil),                // 5: chalk.server.v1.WorksheetSpace
-	(*WorksheetBlobRef)(nil),              // 6: chalk.server.v1.WorksheetBlobRef
-	(*WorksheetContent)(nil),              // 7: chalk.server.v1.WorksheetContent
-	(*WorksheetSqlQueryDocument)(nil),     // 8: chalk.server.v1.WorksheetSqlQueryDocument
-	(*WorksheetOnlineQueryDocument)(nil),  // 9: chalk.server.v1.WorksheetOnlineQueryDocument
-	(*WorksheetOfflineQueryDocument)(nil), // 10: chalk.server.v1.WorksheetOfflineQueryDocument
-	(*WorksheetNotebookDocument)(nil),     // 11: chalk.server.v1.WorksheetNotebookDocument
-	(*WorksheetDocument)(nil),             // 12: chalk.server.v1.WorksheetDocument
-	(*WorksheetContentInput)(nil),         // 13: chalk.server.v1.WorksheetContentInput
-	(*WorksheetNode)(nil),                 // 14: chalk.server.v1.WorksheetNode
-	(*WorksheetCommit)(nil),               // 15: chalk.server.v1.WorksheetCommit
-	(*CreateWorksheetSpaceRequest)(nil),   // 16: chalk.server.v1.CreateWorksheetSpaceRequest
-	(*CreateWorksheetSpaceResponse)(nil),  // 17: chalk.server.v1.CreateWorksheetSpaceResponse
-	(*ListWorksheetSpacesRequest)(nil),    // 18: chalk.server.v1.ListWorksheetSpacesRequest
-	(*ListWorksheetSpacesResponse)(nil),   // 19: chalk.server.v1.ListWorksheetSpacesResponse
-	(*GetWorksheetNodeRequest)(nil),       // 20: chalk.server.v1.GetWorksheetNodeRequest
-	(*GetWorksheetNodeResponse)(nil),      // 21: chalk.server.v1.GetWorksheetNodeResponse
-	(*ListWorksheetNodesRequest)(nil),     // 22: chalk.server.v1.ListWorksheetNodesRequest
-	(*ListWorksheetNodesResponse)(nil),    // 23: chalk.server.v1.ListWorksheetNodesResponse
-	(*CreateWorksheetNodeRequest)(nil),    // 24: chalk.server.v1.CreateWorksheetNodeRequest
-	(*CreateWorksheetNodeResponse)(nil),   // 25: chalk.server.v1.CreateWorksheetNodeResponse
-	(*RenameWorksheetNodeRequest)(nil),    // 26: chalk.server.v1.RenameWorksheetNodeRequest
-	(*RenameWorksheetNodeResponse)(nil),   // 27: chalk.server.v1.RenameWorksheetNodeResponse
-	(*MoveWorksheetNodeRequest)(nil),      // 28: chalk.server.v1.MoveWorksheetNodeRequest
-	(*MoveWorksheetNodeResponse)(nil),     // 29: chalk.server.v1.MoveWorksheetNodeResponse
-	(*ArchiveWorksheetNodeRequest)(nil),   // 30: chalk.server.v1.ArchiveWorksheetNodeRequest
-	(*ArchiveWorksheetNodeResponse)(nil),  // 31: chalk.server.v1.ArchiveWorksheetNodeResponse
-	(*RestoreWorksheetNodeRequest)(nil),   // 32: chalk.server.v1.RestoreWorksheetNodeRequest
-	(*RestoreWorksheetNodeResponse)(nil),  // 33: chalk.server.v1.RestoreWorksheetNodeResponse
-	(*AutosaveWorksheetRequest)(nil),      // 34: chalk.server.v1.AutosaveWorksheetRequest
-	(*AutosaveWorksheetResponse)(nil),     // 35: chalk.server.v1.AutosaveWorksheetResponse
-	(*SaveWorksheetRequest)(nil),          // 36: chalk.server.v1.SaveWorksheetRequest
-	(*SaveWorksheetResponse)(nil),         // 37: chalk.server.v1.SaveWorksheetResponse
-	(*GetWorksheetCommitRequest)(nil),     // 38: chalk.server.v1.GetWorksheetCommitRequest
-	(*GetWorksheetCommitResponse)(nil),    // 39: chalk.server.v1.GetWorksheetCommitResponse
-	(*ListWorksheetCommitsRequest)(nil),   // 40: chalk.server.v1.ListWorksheetCommitsRequest
-	(*ListWorksheetCommitsResponse)(nil),  // 41: chalk.server.v1.ListWorksheetCommitsResponse
-	(*timestamppb.Timestamp)(nil),         // 42: google.protobuf.Timestamp
-	(*v1.ExecuteSqlQueryRequest)(nil),     // 43: chalk.protosql.v1.ExecuteSqlQueryRequest
-	(*v11.OnlineQueryRequest)(nil),        // 44: chalk.common.v1.OnlineQueryRequest
-	(*v11.OfflineQueryRequest)(nil),       // 45: chalk.common.v1.OfflineQueryRequest
+	(WorksheetSpaceVisibility)(0),             // 0: chalk.server.v1.WorksheetSpaceVisibility
+	(WorksheetNodeKind)(0),                    // 1: chalk.server.v1.WorksheetNodeKind
+	(WorksheetNodeState)(0),                   // 2: chalk.server.v1.WorksheetNodeState
+	(WorksheetCommitState)(0),                 // 3: chalk.server.v1.WorksheetCommitState
+	(WorksheetOperationKind)(0),               // 4: chalk.server.v1.WorksheetOperationKind
+	(WorksheetRunLaunchStatus)(0),             // 5: chalk.server.v1.WorksheetRunLaunchStatus
+	(*WorksheetSpace)(nil),                    // 6: chalk.server.v1.WorksheetSpace
+	(*WorksheetBlobRef)(nil),                  // 7: chalk.server.v1.WorksheetBlobRef
+	(*WorksheetContent)(nil),                  // 8: chalk.server.v1.WorksheetContent
+	(*WorksheetSqlQueryDocument)(nil),         // 9: chalk.server.v1.WorksheetSqlQueryDocument
+	(*WorksheetOnlineQueryDocument)(nil),      // 10: chalk.server.v1.WorksheetOnlineQueryDocument
+	(*WorksheetOfflineQueryDocument)(nil),     // 11: chalk.server.v1.WorksheetOfflineQueryDocument
+	(*WorksheetNotebookDocument)(nil),         // 12: chalk.server.v1.WorksheetNotebookDocument
+	(*WorksheetDocument)(nil),                 // 13: chalk.server.v1.WorksheetDocument
+	(*WorksheetContentInput)(nil),             // 14: chalk.server.v1.WorksheetContentInput
+	(*WorksheetNode)(nil),                     // 15: chalk.server.v1.WorksheetNode
+	(*WorksheetCommit)(nil),                   // 16: chalk.server.v1.WorksheetCommit
+	(*WorksheetRun)(nil),                      // 17: chalk.server.v1.WorksheetRun
+	(*CreateWorksheetSpaceRequest)(nil),       // 18: chalk.server.v1.CreateWorksheetSpaceRequest
+	(*CreateWorksheetSpaceResponse)(nil),      // 19: chalk.server.v1.CreateWorksheetSpaceResponse
+	(*ListWorksheetSpacesRequest)(nil),        // 20: chalk.server.v1.ListWorksheetSpacesRequest
+	(*ListWorksheetSpacesResponse)(nil),       // 21: chalk.server.v1.ListWorksheetSpacesResponse
+	(*GetWorksheetNodeRequest)(nil),           // 22: chalk.server.v1.GetWorksheetNodeRequest
+	(*GetWorksheetNodeResponse)(nil),          // 23: chalk.server.v1.GetWorksheetNodeResponse
+	(*ListWorksheetNodesRequest)(nil),         // 24: chalk.server.v1.ListWorksheetNodesRequest
+	(*ListWorksheetNodesResponse)(nil),        // 25: chalk.server.v1.ListWorksheetNodesResponse
+	(*CreateWorksheetNodeRequest)(nil),        // 26: chalk.server.v1.CreateWorksheetNodeRequest
+	(*CreateWorksheetNodeResponse)(nil),       // 27: chalk.server.v1.CreateWorksheetNodeResponse
+	(*RenameWorksheetNodeRequest)(nil),        // 28: chalk.server.v1.RenameWorksheetNodeRequest
+	(*RenameWorksheetNodeResponse)(nil),       // 29: chalk.server.v1.RenameWorksheetNodeResponse
+	(*MoveWorksheetNodeRequest)(nil),          // 30: chalk.server.v1.MoveWorksheetNodeRequest
+	(*MoveWorksheetNodeResponse)(nil),         // 31: chalk.server.v1.MoveWorksheetNodeResponse
+	(*ArchiveWorksheetNodeRequest)(nil),       // 32: chalk.server.v1.ArchiveWorksheetNodeRequest
+	(*ArchiveWorksheetNodeResponse)(nil),      // 33: chalk.server.v1.ArchiveWorksheetNodeResponse
+	(*RestoreWorksheetNodeRequest)(nil),       // 34: chalk.server.v1.RestoreWorksheetNodeRequest
+	(*RestoreWorksheetNodeResponse)(nil),      // 35: chalk.server.v1.RestoreWorksheetNodeResponse
+	(*AutosaveWorksheetRequest)(nil),          // 36: chalk.server.v1.AutosaveWorksheetRequest
+	(*AutosaveWorksheetResponse)(nil),         // 37: chalk.server.v1.AutosaveWorksheetResponse
+	(*SaveWorksheetRequest)(nil),              // 38: chalk.server.v1.SaveWorksheetRequest
+	(*SaveWorksheetResponse)(nil),             // 39: chalk.server.v1.SaveWorksheetResponse
+	(*GetWorksheetCommitRequest)(nil),         // 40: chalk.server.v1.GetWorksheetCommitRequest
+	(*GetWorksheetCommitResponse)(nil),        // 41: chalk.server.v1.GetWorksheetCommitResponse
+	(*ListWorksheetCommitsRequest)(nil),       // 42: chalk.server.v1.ListWorksheetCommitsRequest
+	(*ListWorksheetCommitsResponse)(nil),      // 43: chalk.server.v1.ListWorksheetCommitsResponse
+	(*RunOnlineWorksheetCommitRequest)(nil),   // 44: chalk.server.v1.RunOnlineWorksheetCommitRequest
+	(*RunOnlineWorksheetCommitResponse)(nil),  // 45: chalk.server.v1.RunOnlineWorksheetCommitResponse
+	(*RunOfflineWorksheetCommitRequest)(nil),  // 46: chalk.server.v1.RunOfflineWorksheetCommitRequest
+	(*RunOfflineWorksheetCommitResponse)(nil), // 47: chalk.server.v1.RunOfflineWorksheetCommitResponse
+	(*RunSqlWorksheetCommitRequest)(nil),      // 48: chalk.server.v1.RunSqlWorksheetCommitRequest
+	(*RunSqlWorksheetCommitResponse)(nil),     // 49: chalk.server.v1.RunSqlWorksheetCommitResponse
+	(*CancelWorksheetRunRequest)(nil),         // 50: chalk.server.v1.CancelWorksheetRunRequest
+	(*CancelWorksheetRunResponse)(nil),        // 51: chalk.server.v1.CancelWorksheetRunResponse
+	(*GetWorksheetRunRequest)(nil),            // 52: chalk.server.v1.GetWorksheetRunRequest
+	(*GetWorksheetRunResponse)(nil),           // 53: chalk.server.v1.GetWorksheetRunResponse
+	(*ListWorksheetRunsRequest)(nil),          // 54: chalk.server.v1.ListWorksheetRunsRequest
+	(*ListWorksheetRunsResponse)(nil),         // 55: chalk.server.v1.ListWorksheetRunsResponse
+	(*timestamppb.Timestamp)(nil),             // 56: google.protobuf.Timestamp
+	(*v1.ExecuteSqlQueryRequest)(nil),         // 57: chalk.protosql.v1.ExecuteSqlQueryRequest
+	(*v11.OnlineQueryRequest)(nil),            // 58: chalk.common.v1.OnlineQueryRequest
+	(*v11.OfflineQueryRequest)(nil),           // 59: chalk.common.v1.OfflineQueryRequest
+	(*v11.OnlineQueryResponse)(nil),           // 60: chalk.common.v1.OnlineQueryResponse
+	(*v11.DatasetResponse)(nil),               // 61: chalk.common.v1.DatasetResponse
+	(*v1.ExecuteSqlQueryResponse)(nil),        // 62: chalk.protosql.v1.ExecuteSqlQueryResponse
 }
 var file_chalk_server_v1_worksheets_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.WorksheetSpace.visibility:type_name -> chalk.server.v1.WorksheetSpaceVisibility
-	42, // 1: chalk.server.v1.WorksheetBlobRef.created_at:type_name -> google.protobuf.Timestamp
-	43, // 2: chalk.server.v1.WorksheetSqlQueryDocument.request:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest
-	44, // 3: chalk.server.v1.WorksheetOnlineQueryDocument.request:type_name -> chalk.common.v1.OnlineQueryRequest
-	45, // 4: chalk.server.v1.WorksheetOfflineQueryDocument.request:type_name -> chalk.common.v1.OfflineQueryRequest
-	8,  // 5: chalk.server.v1.WorksheetDocument.sql_query:type_name -> chalk.server.v1.WorksheetSqlQueryDocument
-	9,  // 6: chalk.server.v1.WorksheetDocument.online_query:type_name -> chalk.server.v1.WorksheetOnlineQueryDocument
-	10, // 7: chalk.server.v1.WorksheetDocument.offline_query:type_name -> chalk.server.v1.WorksheetOfflineQueryDocument
-	11, // 8: chalk.server.v1.WorksheetDocument.notebook:type_name -> chalk.server.v1.WorksheetNotebookDocument
-	7,  // 9: chalk.server.v1.WorksheetContentInput.raw_content:type_name -> chalk.server.v1.WorksheetContent
-	12, // 10: chalk.server.v1.WorksheetContentInput.document:type_name -> chalk.server.v1.WorksheetDocument
+	56, // 1: chalk.server.v1.WorksheetBlobRef.created_at:type_name -> google.protobuf.Timestamp
+	57, // 2: chalk.server.v1.WorksheetSqlQueryDocument.request:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest
+	58, // 3: chalk.server.v1.WorksheetOnlineQueryDocument.request:type_name -> chalk.common.v1.OnlineQueryRequest
+	59, // 4: chalk.server.v1.WorksheetOfflineQueryDocument.request:type_name -> chalk.common.v1.OfflineQueryRequest
+	9,  // 5: chalk.server.v1.WorksheetDocument.sql_query:type_name -> chalk.server.v1.WorksheetSqlQueryDocument
+	10, // 6: chalk.server.v1.WorksheetDocument.online_query:type_name -> chalk.server.v1.WorksheetOnlineQueryDocument
+	11, // 7: chalk.server.v1.WorksheetDocument.offline_query:type_name -> chalk.server.v1.WorksheetOfflineQueryDocument
+	12, // 8: chalk.server.v1.WorksheetDocument.notebook:type_name -> chalk.server.v1.WorksheetNotebookDocument
+	8,  // 9: chalk.server.v1.WorksheetContentInput.raw_content:type_name -> chalk.server.v1.WorksheetContent
+	13, // 10: chalk.server.v1.WorksheetContentInput.document:type_name -> chalk.server.v1.WorksheetDocument
 	1,  // 11: chalk.server.v1.WorksheetNode.kind:type_name -> chalk.server.v1.WorksheetNodeKind
 	2,  // 12: chalk.server.v1.WorksheetNode.state:type_name -> chalk.server.v1.WorksheetNodeState
-	42, // 13: chalk.server.v1.WorksheetNode.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
-	42, // 14: chalk.server.v1.WorksheetCommit.created_at:type_name -> google.protobuf.Timestamp
+	56, // 13: chalk.server.v1.WorksheetNode.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
+	56, // 14: chalk.server.v1.WorksheetCommit.created_at:type_name -> google.protobuf.Timestamp
 	3,  // 15: chalk.server.v1.WorksheetCommit.state:type_name -> chalk.server.v1.WorksheetCommitState
 	4,  // 16: chalk.server.v1.WorksheetCommit.operation_kind:type_name -> chalk.server.v1.WorksheetOperationKind
 	2,  // 17: chalk.server.v1.WorksheetCommit.node_state:type_name -> chalk.server.v1.WorksheetNodeState
-	6,  // 18: chalk.server.v1.WorksheetCommit.blob:type_name -> chalk.server.v1.WorksheetBlobRef
-	0,  // 19: chalk.server.v1.CreateWorksheetSpaceRequest.visibility:type_name -> chalk.server.v1.WorksheetSpaceVisibility
-	5,  // 20: chalk.server.v1.CreateWorksheetSpaceResponse.space:type_name -> chalk.server.v1.WorksheetSpace
-	5,  // 21: chalk.server.v1.ListWorksheetSpacesResponse.spaces:type_name -> chalk.server.v1.WorksheetSpace
-	14, // 22: chalk.server.v1.GetWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	14, // 23: chalk.server.v1.ListWorksheetNodesResponse.nodes:type_name -> chalk.server.v1.WorksheetNode
-	1,  // 24: chalk.server.v1.CreateWorksheetNodeRequest.kind:type_name -> chalk.server.v1.WorksheetNodeKind
-	13, // 25: chalk.server.v1.CreateWorksheetNodeRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
-	14, // 26: chalk.server.v1.CreateWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 27: chalk.server.v1.CreateWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	14, // 28: chalk.server.v1.RenameWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 29: chalk.server.v1.RenameWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	14, // 30: chalk.server.v1.MoveWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 31: chalk.server.v1.MoveWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	14, // 32: chalk.server.v1.ArchiveWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 33: chalk.server.v1.ArchiveWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	14, // 34: chalk.server.v1.RestoreWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
-	15, // 35: chalk.server.v1.RestoreWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	13, // 36: chalk.server.v1.AutosaveWorksheetRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
-	15, // 37: chalk.server.v1.AutosaveWorksheetResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	13, // 38: chalk.server.v1.SaveWorksheetRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
-	15, // 39: chalk.server.v1.SaveWorksheetResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	15, // 40: chalk.server.v1.GetWorksheetCommitResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
-	7,  // 41: chalk.server.v1.GetWorksheetCommitResponse.content:type_name -> chalk.server.v1.WorksheetContent
-	15, // 42: chalk.server.v1.ListWorksheetCommitsResponse.commits:type_name -> chalk.server.v1.WorksheetCommit
-	16, // 43: chalk.server.v1.WorksheetsService.CreateWorksheetSpace:input_type -> chalk.server.v1.CreateWorksheetSpaceRequest
-	18, // 44: chalk.server.v1.WorksheetsService.ListWorksheetSpaces:input_type -> chalk.server.v1.ListWorksheetSpacesRequest
-	20, // 45: chalk.server.v1.WorksheetsService.GetWorksheetNode:input_type -> chalk.server.v1.GetWorksheetNodeRequest
-	22, // 46: chalk.server.v1.WorksheetsService.ListWorksheetNodes:input_type -> chalk.server.v1.ListWorksheetNodesRequest
-	24, // 47: chalk.server.v1.WorksheetsService.CreateWorksheetNode:input_type -> chalk.server.v1.CreateWorksheetNodeRequest
-	26, // 48: chalk.server.v1.WorksheetsService.RenameWorksheetNode:input_type -> chalk.server.v1.RenameWorksheetNodeRequest
-	28, // 49: chalk.server.v1.WorksheetsService.MoveWorksheetNode:input_type -> chalk.server.v1.MoveWorksheetNodeRequest
-	30, // 50: chalk.server.v1.WorksheetsService.ArchiveWorksheetNode:input_type -> chalk.server.v1.ArchiveWorksheetNodeRequest
-	32, // 51: chalk.server.v1.WorksheetsService.RestoreWorksheetNode:input_type -> chalk.server.v1.RestoreWorksheetNodeRequest
-	34, // 52: chalk.server.v1.WorksheetsService.AutosaveWorksheet:input_type -> chalk.server.v1.AutosaveWorksheetRequest
-	36, // 53: chalk.server.v1.WorksheetsService.SaveWorksheet:input_type -> chalk.server.v1.SaveWorksheetRequest
-	38, // 54: chalk.server.v1.WorksheetsService.GetWorksheetCommit:input_type -> chalk.server.v1.GetWorksheetCommitRequest
-	40, // 55: chalk.server.v1.WorksheetsService.ListWorksheetCommits:input_type -> chalk.server.v1.ListWorksheetCommitsRequest
-	17, // 56: chalk.server.v1.WorksheetsService.CreateWorksheetSpace:output_type -> chalk.server.v1.CreateWorksheetSpaceResponse
-	19, // 57: chalk.server.v1.WorksheetsService.ListWorksheetSpaces:output_type -> chalk.server.v1.ListWorksheetSpacesResponse
-	21, // 58: chalk.server.v1.WorksheetsService.GetWorksheetNode:output_type -> chalk.server.v1.GetWorksheetNodeResponse
-	23, // 59: chalk.server.v1.WorksheetsService.ListWorksheetNodes:output_type -> chalk.server.v1.ListWorksheetNodesResponse
-	25, // 60: chalk.server.v1.WorksheetsService.CreateWorksheetNode:output_type -> chalk.server.v1.CreateWorksheetNodeResponse
-	27, // 61: chalk.server.v1.WorksheetsService.RenameWorksheetNode:output_type -> chalk.server.v1.RenameWorksheetNodeResponse
-	29, // 62: chalk.server.v1.WorksheetsService.MoveWorksheetNode:output_type -> chalk.server.v1.MoveWorksheetNodeResponse
-	31, // 63: chalk.server.v1.WorksheetsService.ArchiveWorksheetNode:output_type -> chalk.server.v1.ArchiveWorksheetNodeResponse
-	33, // 64: chalk.server.v1.WorksheetsService.RestoreWorksheetNode:output_type -> chalk.server.v1.RestoreWorksheetNodeResponse
-	35, // 65: chalk.server.v1.WorksheetsService.AutosaveWorksheet:output_type -> chalk.server.v1.AutosaveWorksheetResponse
-	37, // 66: chalk.server.v1.WorksheetsService.SaveWorksheet:output_type -> chalk.server.v1.SaveWorksheetResponse
-	39, // 67: chalk.server.v1.WorksheetsService.GetWorksheetCommit:output_type -> chalk.server.v1.GetWorksheetCommitResponse
-	41, // 68: chalk.server.v1.WorksheetsService.ListWorksheetCommits:output_type -> chalk.server.v1.ListWorksheetCommitsResponse
-	56, // [56:69] is the sub-list for method output_type
-	43, // [43:56] is the sub-list for method input_type
-	43, // [43:43] is the sub-list for extension type_name
-	43, // [43:43] is the sub-list for extension extendee
-	0,  // [0:43] is the sub-list for field type_name
+	7,  // 18: chalk.server.v1.WorksheetCommit.blob:type_name -> chalk.server.v1.WorksheetBlobRef
+	56, // 19: chalk.server.v1.WorksheetRun.created_at:type_name -> google.protobuf.Timestamp
+	5,  // 20: chalk.server.v1.WorksheetRun.launch_status:type_name -> chalk.server.v1.WorksheetRunLaunchStatus
+	56, // 21: chalk.server.v1.WorksheetRun.launched_at:type_name -> google.protobuf.Timestamp
+	0,  // 22: chalk.server.v1.CreateWorksheetSpaceRequest.visibility:type_name -> chalk.server.v1.WorksheetSpaceVisibility
+	6,  // 23: chalk.server.v1.CreateWorksheetSpaceResponse.space:type_name -> chalk.server.v1.WorksheetSpace
+	6,  // 24: chalk.server.v1.ListWorksheetSpacesResponse.spaces:type_name -> chalk.server.v1.WorksheetSpace
+	15, // 25: chalk.server.v1.GetWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	15, // 26: chalk.server.v1.ListWorksheetNodesResponse.nodes:type_name -> chalk.server.v1.WorksheetNode
+	1,  // 27: chalk.server.v1.CreateWorksheetNodeRequest.kind:type_name -> chalk.server.v1.WorksheetNodeKind
+	14, // 28: chalk.server.v1.CreateWorksheetNodeRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
+	15, // 29: chalk.server.v1.CreateWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	16, // 30: chalk.server.v1.CreateWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	15, // 31: chalk.server.v1.RenameWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	16, // 32: chalk.server.v1.RenameWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	15, // 33: chalk.server.v1.MoveWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	16, // 34: chalk.server.v1.MoveWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	15, // 35: chalk.server.v1.ArchiveWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	16, // 36: chalk.server.v1.ArchiveWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	15, // 37: chalk.server.v1.RestoreWorksheetNodeResponse.node:type_name -> chalk.server.v1.WorksheetNode
+	16, // 38: chalk.server.v1.RestoreWorksheetNodeResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	14, // 39: chalk.server.v1.AutosaveWorksheetRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
+	16, // 40: chalk.server.v1.AutosaveWorksheetResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	14, // 41: chalk.server.v1.SaveWorksheetRequest.content:type_name -> chalk.server.v1.WorksheetContentInput
+	16, // 42: chalk.server.v1.SaveWorksheetResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	16, // 43: chalk.server.v1.GetWorksheetCommitResponse.commit:type_name -> chalk.server.v1.WorksheetCommit
+	8,  // 44: chalk.server.v1.GetWorksheetCommitResponse.content:type_name -> chalk.server.v1.WorksheetContent
+	16, // 45: chalk.server.v1.ListWorksheetCommitsResponse.commits:type_name -> chalk.server.v1.WorksheetCommit
+	58, // 46: chalk.server.v1.RunOnlineWorksheetCommitRequest.online_query_request:type_name -> chalk.common.v1.OnlineQueryRequest
+	17, // 47: chalk.server.v1.RunOnlineWorksheetCommitResponse.run:type_name -> chalk.server.v1.WorksheetRun
+	60, // 48: chalk.server.v1.RunOnlineWorksheetCommitResponse.online_query_response:type_name -> chalk.common.v1.OnlineQueryResponse
+	59, // 49: chalk.server.v1.RunOfflineWorksheetCommitRequest.offline_query_request:type_name -> chalk.common.v1.OfflineQueryRequest
+	17, // 50: chalk.server.v1.RunOfflineWorksheetCommitResponse.run:type_name -> chalk.server.v1.WorksheetRun
+	61, // 51: chalk.server.v1.RunOfflineWorksheetCommitResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
+	57, // 52: chalk.server.v1.RunSqlWorksheetCommitRequest.sql_query_request:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest
+	17, // 53: chalk.server.v1.RunSqlWorksheetCommitResponse.run:type_name -> chalk.server.v1.WorksheetRun
+	62, // 54: chalk.server.v1.RunSqlWorksheetCommitResponse.sql_query_response:type_name -> chalk.protosql.v1.ExecuteSqlQueryResponse
+	17, // 55: chalk.server.v1.CancelWorksheetRunResponse.run:type_name -> chalk.server.v1.WorksheetRun
+	17, // 56: chalk.server.v1.GetWorksheetRunResponse.run:type_name -> chalk.server.v1.WorksheetRun
+	17, // 57: chalk.server.v1.ListWorksheetRunsResponse.runs:type_name -> chalk.server.v1.WorksheetRun
+	18, // 58: chalk.server.v1.WorksheetsService.CreateWorksheetSpace:input_type -> chalk.server.v1.CreateWorksheetSpaceRequest
+	20, // 59: chalk.server.v1.WorksheetsService.ListWorksheetSpaces:input_type -> chalk.server.v1.ListWorksheetSpacesRequest
+	22, // 60: chalk.server.v1.WorksheetsService.GetWorksheetNode:input_type -> chalk.server.v1.GetWorksheetNodeRequest
+	24, // 61: chalk.server.v1.WorksheetsService.ListWorksheetNodes:input_type -> chalk.server.v1.ListWorksheetNodesRequest
+	26, // 62: chalk.server.v1.WorksheetsService.CreateWorksheetNode:input_type -> chalk.server.v1.CreateWorksheetNodeRequest
+	28, // 63: chalk.server.v1.WorksheetsService.RenameWorksheetNode:input_type -> chalk.server.v1.RenameWorksheetNodeRequest
+	30, // 64: chalk.server.v1.WorksheetsService.MoveWorksheetNode:input_type -> chalk.server.v1.MoveWorksheetNodeRequest
+	32, // 65: chalk.server.v1.WorksheetsService.ArchiveWorksheetNode:input_type -> chalk.server.v1.ArchiveWorksheetNodeRequest
+	34, // 66: chalk.server.v1.WorksheetsService.RestoreWorksheetNode:input_type -> chalk.server.v1.RestoreWorksheetNodeRequest
+	36, // 67: chalk.server.v1.WorksheetsService.AutosaveWorksheet:input_type -> chalk.server.v1.AutosaveWorksheetRequest
+	38, // 68: chalk.server.v1.WorksheetsService.SaveWorksheet:input_type -> chalk.server.v1.SaveWorksheetRequest
+	40, // 69: chalk.server.v1.WorksheetsService.GetWorksheetCommit:input_type -> chalk.server.v1.GetWorksheetCommitRequest
+	42, // 70: chalk.server.v1.WorksheetsService.ListWorksheetCommits:input_type -> chalk.server.v1.ListWorksheetCommitsRequest
+	44, // 71: chalk.server.v1.WorksheetsService.RunOnlineWorksheetCommit:input_type -> chalk.server.v1.RunOnlineWorksheetCommitRequest
+	46, // 72: chalk.server.v1.WorksheetsService.RunOfflineWorksheetCommit:input_type -> chalk.server.v1.RunOfflineWorksheetCommitRequest
+	48, // 73: chalk.server.v1.WorksheetsService.RunSqlWorksheetCommit:input_type -> chalk.server.v1.RunSqlWorksheetCommitRequest
+	50, // 74: chalk.server.v1.WorksheetsService.CancelWorksheetRun:input_type -> chalk.server.v1.CancelWorksheetRunRequest
+	52, // 75: chalk.server.v1.WorksheetsService.GetWorksheetRun:input_type -> chalk.server.v1.GetWorksheetRunRequest
+	54, // 76: chalk.server.v1.WorksheetsService.ListWorksheetRuns:input_type -> chalk.server.v1.ListWorksheetRunsRequest
+	19, // 77: chalk.server.v1.WorksheetsService.CreateWorksheetSpace:output_type -> chalk.server.v1.CreateWorksheetSpaceResponse
+	21, // 78: chalk.server.v1.WorksheetsService.ListWorksheetSpaces:output_type -> chalk.server.v1.ListWorksheetSpacesResponse
+	23, // 79: chalk.server.v1.WorksheetsService.GetWorksheetNode:output_type -> chalk.server.v1.GetWorksheetNodeResponse
+	25, // 80: chalk.server.v1.WorksheetsService.ListWorksheetNodes:output_type -> chalk.server.v1.ListWorksheetNodesResponse
+	27, // 81: chalk.server.v1.WorksheetsService.CreateWorksheetNode:output_type -> chalk.server.v1.CreateWorksheetNodeResponse
+	29, // 82: chalk.server.v1.WorksheetsService.RenameWorksheetNode:output_type -> chalk.server.v1.RenameWorksheetNodeResponse
+	31, // 83: chalk.server.v1.WorksheetsService.MoveWorksheetNode:output_type -> chalk.server.v1.MoveWorksheetNodeResponse
+	33, // 84: chalk.server.v1.WorksheetsService.ArchiveWorksheetNode:output_type -> chalk.server.v1.ArchiveWorksheetNodeResponse
+	35, // 85: chalk.server.v1.WorksheetsService.RestoreWorksheetNode:output_type -> chalk.server.v1.RestoreWorksheetNodeResponse
+	37, // 86: chalk.server.v1.WorksheetsService.AutosaveWorksheet:output_type -> chalk.server.v1.AutosaveWorksheetResponse
+	39, // 87: chalk.server.v1.WorksheetsService.SaveWorksheet:output_type -> chalk.server.v1.SaveWorksheetResponse
+	41, // 88: chalk.server.v1.WorksheetsService.GetWorksheetCommit:output_type -> chalk.server.v1.GetWorksheetCommitResponse
+	43, // 89: chalk.server.v1.WorksheetsService.ListWorksheetCommits:output_type -> chalk.server.v1.ListWorksheetCommitsResponse
+	45, // 90: chalk.server.v1.WorksheetsService.RunOnlineWorksheetCommit:output_type -> chalk.server.v1.RunOnlineWorksheetCommitResponse
+	47, // 91: chalk.server.v1.WorksheetsService.RunOfflineWorksheetCommit:output_type -> chalk.server.v1.RunOfflineWorksheetCommitResponse
+	49, // 92: chalk.server.v1.WorksheetsService.RunSqlWorksheetCommit:output_type -> chalk.server.v1.RunSqlWorksheetCommitResponse
+	51, // 93: chalk.server.v1.WorksheetsService.CancelWorksheetRun:output_type -> chalk.server.v1.CancelWorksheetRunResponse
+	53, // 94: chalk.server.v1.WorksheetsService.GetWorksheetRun:output_type -> chalk.server.v1.GetWorksheetRunResponse
+	55, // 95: chalk.server.v1.WorksheetsService.ListWorksheetRuns:output_type -> chalk.server.v1.ListWorksheetRunsResponse
+	77, // [77:96] is the sub-list for method output_type
+	58, // [58:77] is the sub-list for method input_type
+	58, // [58:58] is the sub-list for extension type_name
+	58, // [58:58] is the sub-list for extension extendee
+	0,  // [0:58] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_worksheets_proto_init() }
@@ -2817,20 +3724,23 @@ func file_chalk_server_v1_worksheets_proto_init() {
 	}
 	file_chalk_server_v1_worksheets_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_server_v1_worksheets_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_server_v1_worksheets_proto_msgTypes[17].OneofWrappers = []any{}
-	file_chalk_server_v1_worksheets_proto_msgTypes[19].OneofWrappers = []any{}
-	file_chalk_server_v1_worksheets_proto_msgTypes[23].OneofWrappers = []any{}
-	file_chalk_server_v1_worksheets_proto_msgTypes[27].OneofWrappers = []any{}
-	file_chalk_server_v1_worksheets_proto_msgTypes[31].OneofWrappers = []any{}
-	file_chalk_server_v1_worksheets_proto_msgTypes[34].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[24].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[28].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[32].OneofWrappers = []any{}
 	file_chalk_server_v1_worksheets_proto_msgTypes[35].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[48].OneofWrappers = []any{}
+	file_chalk_server_v1_worksheets_proto_msgTypes[49].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_worksheets_proto_rawDesc), len(file_chalk_server_v1_worksheets_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   37,
+			NumEnums:      6,
+			NumMessages:   50,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

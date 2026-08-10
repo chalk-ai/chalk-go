@@ -24,6 +24,282 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type WebhookComparatorKind int32
+
+const (
+	WebhookComparatorKind_WEBHOOK_COMPARATOR_KIND_UNSPECIFIED WebhookComparatorKind = 0
+	WebhookComparatorKind_WEBHOOK_COMPARATOR_KIND_EQ          WebhookComparatorKind = 1
+	WebhookComparatorKind_WEBHOOK_COMPARATOR_KIND_NEQ         WebhookComparatorKind = 2
+	WebhookComparatorKind_WEBHOOK_COMPARATOR_KIND_ONE_OF      WebhookComparatorKind = 3
+)
+
+// Enum value maps for WebhookComparatorKind.
+var (
+	WebhookComparatorKind_name = map[int32]string{
+		0: "WEBHOOK_COMPARATOR_KIND_UNSPECIFIED",
+		1: "WEBHOOK_COMPARATOR_KIND_EQ",
+		2: "WEBHOOK_COMPARATOR_KIND_NEQ",
+		3: "WEBHOOK_COMPARATOR_KIND_ONE_OF",
+	}
+	WebhookComparatorKind_value = map[string]int32{
+		"WEBHOOK_COMPARATOR_KIND_UNSPECIFIED": 0,
+		"WEBHOOK_COMPARATOR_KIND_EQ":          1,
+		"WEBHOOK_COMPARATOR_KIND_NEQ":         2,
+		"WEBHOOK_COMPARATOR_KIND_ONE_OF":      3,
+	}
+)
+
+func (x WebhookComparatorKind) Enum() *WebhookComparatorKind {
+	p := new(WebhookComparatorKind)
+	*p = x
+	return p
+}
+
+func (x WebhookComparatorKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (WebhookComparatorKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_webhook_proto_enumTypes[0].Descriptor()
+}
+
+func (WebhookComparatorKind) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_webhook_proto_enumTypes[0]
+}
+
+func (x WebhookComparatorKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use WebhookComparatorKind.Descriptor instead.
+func (WebhookComparatorKind) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{0}
+}
+
+type WebhookSubscriptionFilter struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Comparator    WebhookComparatorKind  `protobuf:"varint,2,opt,name=comparator,proto3,enum=chalk.server.v1.WebhookComparatorKind" json:"comparator,omitempty"`
+	Values        []*structpb.Value      `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WebhookSubscriptionFilter) Reset() {
+	*x = WebhookSubscriptionFilter{}
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WebhookSubscriptionFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WebhookSubscriptionFilter) ProtoMessage() {}
+
+func (x *WebhookSubscriptionFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WebhookSubscriptionFilter.ProtoReflect.Descriptor instead.
+func (*WebhookSubscriptionFilter) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *WebhookSubscriptionFilter) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *WebhookSubscriptionFilter) GetComparator() WebhookComparatorKind {
+	if x != nil {
+		return x.Comparator
+	}
+	return WebhookComparatorKind_WEBHOOK_COMPARATOR_KIND_UNSPECIFIED
+}
+
+func (x *WebhookSubscriptionFilter) GetValues() []*structpb.Value {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+type WebhookSubscription struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Subscription  string                       `protobuf:"bytes,1,opt,name=subscription,proto3" json:"subscription,omitempty"`
+	Filters       []*WebhookSubscriptionFilter `protobuf:"bytes,2,rep,name=filters,proto3" json:"filters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WebhookSubscription) Reset() {
+	*x = WebhookSubscription{}
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WebhookSubscription) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WebhookSubscription) ProtoMessage() {}
+
+func (x *WebhookSubscription) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WebhookSubscription.ProtoReflect.Descriptor instead.
+func (*WebhookSubscription) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *WebhookSubscription) GetSubscription() string {
+	if x != nil {
+		return x.Subscription
+	}
+	return ""
+}
+
+func (x *WebhookSubscription) GetFilters() []*WebhookSubscriptionFilter {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+type WebhookSubscriptionFilterOptionValue struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`
+	Value         *structpb.Value        `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WebhookSubscriptionFilterOptionValue) Reset() {
+	*x = WebhookSubscriptionFilterOptionValue{}
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WebhookSubscriptionFilterOptionValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WebhookSubscriptionFilterOptionValue) ProtoMessage() {}
+
+func (x *WebhookSubscriptionFilterOptionValue) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WebhookSubscriptionFilterOptionValue.ProtoReflect.Descriptor instead.
+func (*WebhookSubscriptionFilterOptionValue) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *WebhookSubscriptionFilterOptionValue) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *WebhookSubscriptionFilterOptionValue) GetValue() *structpb.Value {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+type WebhookSubscriptionFilterOption struct {
+	state         protoimpl.MessageState                  `protogen:"open.v1"`
+	Key           string                                  `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Options       []*WebhookSubscriptionFilterOptionValue `protobuf:"bytes,2,rep,name=options,proto3" json:"options,omitempty"`
+	AllowFreeform bool                                    `protobuf:"varint,3,opt,name=allow_freeform,json=allowFreeform,proto3" json:"allow_freeform,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WebhookSubscriptionFilterOption) Reset() {
+	*x = WebhookSubscriptionFilterOption{}
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WebhookSubscriptionFilterOption) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WebhookSubscriptionFilterOption) ProtoMessage() {}
+
+func (x *WebhookSubscriptionFilterOption) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WebhookSubscriptionFilterOption.ProtoReflect.Descriptor instead.
+func (*WebhookSubscriptionFilterOption) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *WebhookSubscriptionFilterOption) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *WebhookSubscriptionFilterOption) GetOptions() []*WebhookSubscriptionFilterOptionValue {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+func (x *WebhookSubscriptionFilterOption) GetAllowFreeform() bool {
+	if x != nil {
+		return x.AllowFreeform
+	}
+	return false
+}
+
 type Webhook struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -31,18 +307,20 @@ type Webhook struct {
 	TeamId        string                 `protobuf:"bytes,3,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	Url           string                 `protobuf:"bytes,5,opt,name=url,proto3" json:"url,omitempty"`
-	Subscriptions []string               `protobuf:"bytes,6,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
-	Secret        *string                `protobuf:"bytes,7,opt,name=secret,proto3,oneof" json:"secret,omitempty"`
-	Headers       *structpb.Struct       `protobuf:"bytes,8,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Deprecated: Marked as deprecated in chalk/server/v1/webhook.proto.
+	Subscriptions            []string               `protobuf:"bytes,6,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
+	Secret                   *string                `protobuf:"bytes,7,opt,name=secret,proto3,oneof" json:"secret,omitempty"`
+	Headers                  *structpb.Struct       `protobuf:"bytes,8,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
+	CreatedAt                *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt                *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	SubscriptionsWithFilters []*WebhookSubscription `protobuf:"bytes,11,rep,name=subscriptions_with_filters,json=subscriptionsWithFilters,proto3" json:"subscriptions_with_filters,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *Webhook) Reset() {
 	*x = Webhook{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[0]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -54,7 +332,7 @@ func (x *Webhook) String() string {
 func (*Webhook) ProtoMessage() {}
 
 func (x *Webhook) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[0]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -67,7 +345,7 @@ func (x *Webhook) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Webhook.ProtoReflect.Descriptor instead.
 func (*Webhook) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{0}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Webhook) GetId() string {
@@ -105,6 +383,7 @@ func (x *Webhook) GetUrl() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/webhook.proto.
 func (x *Webhook) GetSubscriptions() []string {
 	if x != nil {
 		return x.Subscriptions
@@ -140,21 +419,30 @@ func (x *Webhook) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Webhook) GetSubscriptionsWithFilters() []*WebhookSubscription {
+	if x != nil {
+		return x.SubscriptionsWithFilters
+	}
+	return nil
+}
+
 type CreateWebhookRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EnvironmentId string                 `protobuf:"bytes,1,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Url           string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
-	Subscriptions []string               `protobuf:"bytes,4,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
-	Secret        *string                `protobuf:"bytes,5,opt,name=secret,proto3,oneof" json:"secret,omitempty"`
-	Headers       *structpb.Struct       `protobuf:"bytes,6,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Deprecated: Marked as deprecated in chalk/server/v1/webhook.proto.
+	Subscriptions            []string               `protobuf:"bytes,4,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
+	Secret                   *string                `protobuf:"bytes,5,opt,name=secret,proto3,oneof" json:"secret,omitempty"`
+	Headers                  *structpb.Struct       `protobuf:"bytes,6,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
+	SubscriptionsWithFilters []*WebhookSubscription `protobuf:"bytes,7,rep,name=subscriptions_with_filters,json=subscriptionsWithFilters,proto3" json:"subscriptions_with_filters,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *CreateWebhookRequest) Reset() {
 	*x = CreateWebhookRequest{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -166,7 +454,7 @@ func (x *CreateWebhookRequest) String() string {
 func (*CreateWebhookRequest) ProtoMessage() {}
 
 func (x *CreateWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -179,7 +467,7 @@ func (x *CreateWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWebhookRequest.ProtoReflect.Descriptor instead.
 func (*CreateWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{1}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateWebhookRequest) GetEnvironmentId() string {
@@ -203,6 +491,7 @@ func (x *CreateWebhookRequest) GetUrl() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/webhook.proto.
 func (x *CreateWebhookRequest) GetSubscriptions() []string {
 	if x != nil {
 		return x.Subscriptions
@@ -224,6 +513,13 @@ func (x *CreateWebhookRequest) GetHeaders() *structpb.Struct {
 	return nil
 }
 
+func (x *CreateWebhookRequest) GetSubscriptionsWithFilters() []*WebhookSubscription {
+	if x != nil {
+		return x.SubscriptionsWithFilters
+	}
+	return nil
+}
+
 type CreateWebhookResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Webhook       *Webhook               `protobuf:"bytes,1,opt,name=webhook,proto3" json:"webhook,omitempty"`
@@ -233,7 +529,7 @@ type CreateWebhookResponse struct {
 
 func (x *CreateWebhookResponse) Reset() {
 	*x = CreateWebhookResponse{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +541,7 @@ func (x *CreateWebhookResponse) String() string {
 func (*CreateWebhookResponse) ProtoMessage() {}
 
 func (x *CreateWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +554,7 @@ func (x *CreateWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateWebhookResponse.ProtoReflect.Descriptor instead.
 func (*CreateWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateWebhookResponse) GetWebhook() *Webhook {
@@ -269,20 +565,22 @@ func (x *CreateWebhookResponse) GetWebhook() *Webhook {
 }
 
 type UpdateWebhookRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	Url           *string                `protobuf:"bytes,3,opt,name=url,proto3,oneof" json:"url,omitempty"`
-	Subscriptions []string               `protobuf:"bytes,4,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
-	Secret        *string                `protobuf:"bytes,5,opt,name=secret,proto3,oneof" json:"secret,omitempty"`
-	Headers       *structpb.Struct       `protobuf:"bytes,6,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name  *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Url   *string                `protobuf:"bytes,3,opt,name=url,proto3,oneof" json:"url,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/webhook.proto.
+	Subscriptions            []string               `protobuf:"bytes,4,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
+	Secret                   *string                `protobuf:"bytes,5,opt,name=secret,proto3,oneof" json:"secret,omitempty"`
+	Headers                  *structpb.Struct       `protobuf:"bytes,6,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
+	SubscriptionsWithFilters []*WebhookSubscription `protobuf:"bytes,7,rep,name=subscriptions_with_filters,json=subscriptionsWithFilters,proto3" json:"subscriptions_with_filters,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *UpdateWebhookRequest) Reset() {
 	*x = UpdateWebhookRequest{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -294,7 +592,7 @@ func (x *UpdateWebhookRequest) String() string {
 func (*UpdateWebhookRequest) ProtoMessage() {}
 
 func (x *UpdateWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -307,7 +605,7 @@ func (x *UpdateWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateWebhookRequest.ProtoReflect.Descriptor instead.
 func (*UpdateWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpdateWebhookRequest) GetId() string {
@@ -331,6 +629,7 @@ func (x *UpdateWebhookRequest) GetUrl() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/webhook.proto.
 func (x *UpdateWebhookRequest) GetSubscriptions() []string {
 	if x != nil {
 		return x.Subscriptions
@@ -352,6 +651,13 @@ func (x *UpdateWebhookRequest) GetHeaders() *structpb.Struct {
 	return nil
 }
 
+func (x *UpdateWebhookRequest) GetSubscriptionsWithFilters() []*WebhookSubscription {
+	if x != nil {
+		return x.SubscriptionsWithFilters
+	}
+	return nil
+}
+
 type UpdateWebhookResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Webhook       *Webhook               `protobuf:"bytes,1,opt,name=webhook,proto3" json:"webhook,omitempty"`
@@ -361,7 +667,7 @@ type UpdateWebhookResponse struct {
 
 func (x *UpdateWebhookResponse) Reset() {
 	*x = UpdateWebhookResponse{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -373,7 +679,7 @@ func (x *UpdateWebhookResponse) String() string {
 func (*UpdateWebhookResponse) ProtoMessage() {}
 
 func (x *UpdateWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -386,7 +692,7 @@ func (x *UpdateWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateWebhookResponse.ProtoReflect.Descriptor instead.
 func (*UpdateWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateWebhookResponse) GetWebhook() *Webhook {
@@ -405,7 +711,7 @@ type DeleteWebhookRequest struct {
 
 func (x *DeleteWebhookRequest) Reset() {
 	*x = DeleteWebhookRequest{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -417,7 +723,7 @@ func (x *DeleteWebhookRequest) String() string {
 func (*DeleteWebhookRequest) ProtoMessage() {}
 
 func (x *DeleteWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -430,7 +736,7 @@ func (x *DeleteWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteWebhookRequest.ProtoReflect.Descriptor instead.
 func (*DeleteWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *DeleteWebhookRequest) GetId() string {
@@ -449,7 +755,7 @@ type DeleteWebhookResponse struct {
 
 func (x *DeleteWebhookResponse) Reset() {
 	*x = DeleteWebhookResponse{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -461,7 +767,7 @@ func (x *DeleteWebhookResponse) String() string {
 func (*DeleteWebhookResponse) ProtoMessage() {}
 
 func (x *DeleteWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -474,7 +780,7 @@ func (x *DeleteWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteWebhookResponse.ProtoReflect.Descriptor instead.
 func (*DeleteWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DeleteWebhookResponse) GetWebhook() *Webhook {
@@ -493,7 +799,7 @@ type GetWebhookRequest struct {
 
 func (x *GetWebhookRequest) Reset() {
 	*x = GetWebhookRequest{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -505,7 +811,7 @@ func (x *GetWebhookRequest) String() string {
 func (*GetWebhookRequest) ProtoMessage() {}
 
 func (x *GetWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -518,7 +824,7 @@ func (x *GetWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWebhookRequest.ProtoReflect.Descriptor instead.
 func (*GetWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetWebhookRequest) GetId() string {
@@ -537,7 +843,7 @@ type GetWebhookResponse struct {
 
 func (x *GetWebhookResponse) Reset() {
 	*x = GetWebhookResponse{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -549,7 +855,7 @@ func (x *GetWebhookResponse) String() string {
 func (*GetWebhookResponse) ProtoMessage() {}
 
 func (x *GetWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -562,7 +868,7 @@ func (x *GetWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetWebhookResponse.ProtoReflect.Descriptor instead.
 func (*GetWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetWebhookResponse) GetWebhook() *Webhook {
@@ -581,7 +887,7 @@ type ListWebhooksRequest struct {
 
 func (x *ListWebhooksRequest) Reset() {
 	*x = ListWebhooksRequest{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -593,7 +899,7 @@ func (x *ListWebhooksRequest) String() string {
 func (*ListWebhooksRequest) ProtoMessage() {}
 
 func (x *ListWebhooksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -606,7 +912,7 @@ func (x *ListWebhooksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWebhooksRequest.ProtoReflect.Descriptor instead.
 func (*ListWebhooksRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListWebhooksRequest) GetEnvironmentId() string {
@@ -625,7 +931,7 @@ type ListWebhooksResponse struct {
 
 func (x *ListWebhooksResponse) Reset() {
 	*x = ListWebhooksResponse{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -637,7 +943,7 @@ func (x *ListWebhooksResponse) String() string {
 func (*ListWebhooksResponse) ProtoMessage() {}
 
 func (x *ListWebhooksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -650,7 +956,7 @@ func (x *ListWebhooksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWebhooksResponse.ProtoReflect.Descriptor instead.
 func (*ListWebhooksResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListWebhooksResponse) GetWebhooks() []*Webhook {
@@ -669,7 +975,7 @@ type TestWebhookRequest struct {
 
 func (x *TestWebhookRequest) Reset() {
 	*x = TestWebhookRequest{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -681,7 +987,7 @@ func (x *TestWebhookRequest) String() string {
 func (*TestWebhookRequest) ProtoMessage() {}
 
 func (x *TestWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -694,7 +1000,7 @@ func (x *TestWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestWebhookRequest.ProtoReflect.Descriptor instead.
 func (*TestWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *TestWebhookRequest) GetId() string {
@@ -715,7 +1021,7 @@ type TestWebhookResponse struct {
 
 func (x *TestWebhookResponse) Reset() {
 	*x = TestWebhookResponse{}
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -727,7 +1033,7 @@ func (x *TestWebhookResponse) String() string {
 func (*TestWebhookResponse) ProtoMessage() {}
 
 func (x *TestWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_webhook_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -740,7 +1046,7 @@ func (x *TestWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestWebhookResponse.ProtoReflect.Descriptor instead.
 func (*TestWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *TestWebhookResponse) GetSuccess() bool {
@@ -764,47 +1070,154 @@ func (x *TestWebhookResponse) GetErrorMessage() string {
 	return ""
 }
 
+type GetWebhookSubscriptionFilterOptionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subscription  string                 `protobuf:"bytes,1,opt,name=subscription,proto3" json:"subscription,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWebhookSubscriptionFilterOptionsRequest) Reset() {
+	*x = GetWebhookSubscriptionFilterOptionsRequest{}
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWebhookSubscriptionFilterOptionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWebhookSubscriptionFilterOptionsRequest) ProtoMessage() {}
+
+func (x *GetWebhookSubscriptionFilterOptionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWebhookSubscriptionFilterOptionsRequest.ProtoReflect.Descriptor instead.
+func (*GetWebhookSubscriptionFilterOptionsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetWebhookSubscriptionFilterOptionsRequest) GetSubscription() string {
+	if x != nil {
+		return x.Subscription
+	}
+	return ""
+}
+
+type GetWebhookSubscriptionFilterOptionsResponse struct {
+	state         protoimpl.MessageState             `protogen:"open.v1"`
+	Options       []*WebhookSubscriptionFilterOption `protobuf:"bytes,1,rep,name=options,proto3" json:"options,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWebhookSubscriptionFilterOptionsResponse) Reset() {
+	*x = GetWebhookSubscriptionFilterOptionsResponse{}
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWebhookSubscriptionFilterOptionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWebhookSubscriptionFilterOptionsResponse) ProtoMessage() {}
+
+func (x *GetWebhookSubscriptionFilterOptionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_webhook_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWebhookSubscriptionFilterOptionsResponse.ProtoReflect.Descriptor instead.
+func (*GetWebhookSubscriptionFilterOptionsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_webhook_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetWebhookSubscriptionFilterOptionsResponse) GetOptions() []*WebhookSubscriptionFilterOption {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
 var File_chalk_server_v1_webhook_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_webhook_proto_rawDesc = "" +
 	"\n" +
-	"\x1dchalk/server/v1/webhook.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x87\x03\n" +
+	"\x1dchalk/server/v1/webhook.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa5\x01\n" +
+	"\x19WebhookSubscriptionFilter\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12F\n" +
+	"\n" +
+	"comparator\x18\x02 \x01(\x0e2&.chalk.server.v1.WebhookComparatorKindR\n" +
+	"comparator\x12.\n" +
+	"\x06values\x18\x03 \x03(\v2\x16.google.protobuf.ValueR\x06values\"\x7f\n" +
+	"\x13WebhookSubscription\x12\"\n" +
+	"\fsubscription\x18\x01 \x01(\tR\fsubscription\x12D\n" +
+	"\afilters\x18\x02 \x03(\v2*.chalk.server.v1.WebhookSubscriptionFilterR\afilters\"j\n" +
+	"$WebhookSubscriptionFilterOptionValue\x12\x14\n" +
+	"\x05label\x18\x01 \x01(\tR\x05label\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value\"\xab\x01\n" +
+	"\x1fWebhookSubscriptionFilterOption\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12O\n" +
+	"\aoptions\x18\x02 \x03(\v25.chalk.server.v1.WebhookSubscriptionFilterOptionValueR\aoptions\x12%\n" +
+	"\x0eallow_freeform\x18\x03 \x01(\bR\rallowFreeform\"\xef\x03\n" +
 	"\aWebhook\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x17\n" +
 	"\ateam_id\x18\x03 \x01(\tR\x06teamId\x12\x12\n" +
 	"\x04name\x18\x04 \x01(\tR\x04name\x12\x10\n" +
-	"\x03url\x18\x05 \x01(\tR\x03url\x12$\n" +
-	"\rsubscriptions\x18\x06 \x03(\tR\rsubscriptions\x12\x1b\n" +
+	"\x03url\x18\x05 \x01(\tR\x03url\x12(\n" +
+	"\rsubscriptions\x18\x06 \x03(\tB\x02\x18\x01R\rsubscriptions\x12\x1b\n" +
 	"\x06secret\x18\a \x01(\tH\x00R\x06secret\x88\x01\x01\x126\n" +
 	"\aheaders\x18\b \x01(\v2\x17.google.protobuf.StructH\x01R\aheaders\x88\x01\x01\x129\n" +
 	"\n" +
 	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\t\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12b\n" +
+	"\x1asubscriptions_with_filters\x18\v \x03(\v2$.chalk.server.v1.WebhookSubscriptionR\x18subscriptionsWithFiltersB\t\n" +
 	"\a_secretB\n" +
 	"\n" +
-	"\b_headers\"\xf5\x01\n" +
+	"\b_headers\"\xdd\x02\n" +
 	"\x14CreateWebhookRequest\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
-	"\x03url\x18\x03 \x01(\tR\x03url\x12$\n" +
-	"\rsubscriptions\x18\x04 \x03(\tR\rsubscriptions\x12\x1b\n" +
+	"\x03url\x18\x03 \x01(\tR\x03url\x12(\n" +
+	"\rsubscriptions\x18\x04 \x03(\tB\x02\x18\x01R\rsubscriptions\x12\x1b\n" +
 	"\x06secret\x18\x05 \x01(\tH\x00R\x06secret\x88\x01\x01\x126\n" +
-	"\aheaders\x18\x06 \x01(\v2\x17.google.protobuf.StructH\x01R\aheaders\x88\x01\x01B\t\n" +
+	"\aheaders\x18\x06 \x01(\v2\x17.google.protobuf.StructH\x01R\aheaders\x88\x01\x01\x12b\n" +
+	"\x1asubscriptions_with_filters\x18\a \x03(\v2$.chalk.server.v1.WebhookSubscriptionR\x18subscriptionsWithFiltersB\t\n" +
 	"\a_secretB\n" +
 	"\n" +
 	"\b_headers\"K\n" +
 	"\x15CreateWebhookResponse\x122\n" +
-	"\awebhook\x18\x01 \x01(\v2\x18.chalk.server.v1.WebhookR\awebhook\"\xf9\x01\n" +
+	"\awebhook\x18\x01 \x01(\v2\x18.chalk.server.v1.WebhookR\awebhook\"\xe1\x02\n" +
 	"\x14UpdateWebhookRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x15\n" +
-	"\x03url\x18\x03 \x01(\tH\x01R\x03url\x88\x01\x01\x12$\n" +
-	"\rsubscriptions\x18\x04 \x03(\tR\rsubscriptions\x12\x1b\n" +
+	"\x03url\x18\x03 \x01(\tH\x01R\x03url\x88\x01\x01\x12(\n" +
+	"\rsubscriptions\x18\x04 \x03(\tB\x02\x18\x01R\rsubscriptions\x12\x1b\n" +
 	"\x06secret\x18\x05 \x01(\tH\x02R\x06secret\x88\x01\x01\x126\n" +
-	"\aheaders\x18\x06 \x01(\v2\x17.google.protobuf.StructH\x03R\aheaders\x88\x01\x01B\a\n" +
+	"\aheaders\x18\x06 \x01(\v2\x17.google.protobuf.StructH\x03R\aheaders\x88\x01\x01\x12b\n" +
+	"\x1asubscriptions_with_filters\x18\a \x03(\v2$.chalk.server.v1.WebhookSubscriptionR\x18subscriptionsWithFiltersB\a\n" +
 	"\x05_nameB\x06\n" +
 	"\x04_urlB\t\n" +
 	"\a_secretB\n" +
@@ -830,7 +1243,16 @@ const file_chalk_server_v1_webhook_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1f\n" +
 	"\vstatus_code\x18\x02 \x01(\x05R\n" +
 	"statusCode\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage2\xe2\x04\n" +
+	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"P\n" +
+	"*GetWebhookSubscriptionFilterOptionsRequest\x12\"\n" +
+	"\fsubscription\x18\x01 \x01(\tR\fsubscription\"y\n" +
+	"+GetWebhookSubscriptionFilterOptionsResponse\x12J\n" +
+	"\aoptions\x18\x01 \x03(\v20.chalk.server.v1.WebhookSubscriptionFilterOptionR\aoptions*\xa5\x01\n" +
+	"\x15WebhookComparatorKind\x12'\n" +
+	"#WEBHOOK_COMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aWEBHOOK_COMPARATOR_KIND_EQ\x10\x01\x12\x1f\n" +
+	"\x1bWEBHOOK_COMPARATOR_KIND_NEQ\x10\x02\x12\"\n" +
+	"\x1eWEBHOOK_COMPARATOR_KIND_ONE_OF\x10\x032\x8d\x06\n" +
 	"\x0eWebhookService\x12c\n" +
 	"\rCreateWebhook\x12%.chalk.server.v1.CreateWebhookRequest\x1a&.chalk.server.v1.CreateWebhookResponse\"\x03\x80}\x05\x12c\n" +
 	"\rUpdateWebhook\x12%.chalk.server.v1.UpdateWebhookRequest\x1a&.chalk.server.v1.UpdateWebhookResponse\"\x03\x80}\x05\x12c\n" +
@@ -838,7 +1260,8 @@ const file_chalk_server_v1_webhook_proto_rawDesc = "" +
 	"\n" +
 	"GetWebhook\x12\".chalk.server.v1.GetWebhookRequest\x1a#.chalk.server.v1.GetWebhookResponse\"\x06\x80}\x06\x90\x02\x01\x12c\n" +
 	"\fListWebhooks\x12$.chalk.server.v1.ListWebhooksRequest\x1a%.chalk.server.v1.ListWebhooksResponse\"\x06\x80}\x06\x90\x02\x01\x12]\n" +
-	"\vTestWebhook\x12#.chalk.server.v1.TestWebhookRequest\x1a$.chalk.server.v1.TestWebhookResponse\"\x03\x80}\x05B\xbc\x01\n" +
+	"\vTestWebhook\x12#.chalk.server.v1.TestWebhookRequest\x1a$.chalk.server.v1.TestWebhookResponse\"\x03\x80}\x05\x12\xa8\x01\n" +
+	"#GetWebhookSubscriptionFilterOptions\x12;.chalk.server.v1.GetWebhookSubscriptionFilterOptionsRequest\x1a<.chalk.server.v1.GetWebhookSubscriptionFilterOptionsResponse\"\x06\x80}\x06\x90\x02\x01B\xbc\x01\n" +
 	"\x13com.chalk.server.v1B\fWebhookProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -853,52 +1276,72 @@ func file_chalk_server_v1_webhook_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_webhook_proto_rawDescData
 }
 
-var file_chalk_server_v1_webhook_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_chalk_server_v1_webhook_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_webhook_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chalk_server_v1_webhook_proto_goTypes = []any{
-	(*Webhook)(nil),               // 0: chalk.server.v1.Webhook
-	(*CreateWebhookRequest)(nil),  // 1: chalk.server.v1.CreateWebhookRequest
-	(*CreateWebhookResponse)(nil), // 2: chalk.server.v1.CreateWebhookResponse
-	(*UpdateWebhookRequest)(nil),  // 3: chalk.server.v1.UpdateWebhookRequest
-	(*UpdateWebhookResponse)(nil), // 4: chalk.server.v1.UpdateWebhookResponse
-	(*DeleteWebhookRequest)(nil),  // 5: chalk.server.v1.DeleteWebhookRequest
-	(*DeleteWebhookResponse)(nil), // 6: chalk.server.v1.DeleteWebhookResponse
-	(*GetWebhookRequest)(nil),     // 7: chalk.server.v1.GetWebhookRequest
-	(*GetWebhookResponse)(nil),    // 8: chalk.server.v1.GetWebhookResponse
-	(*ListWebhooksRequest)(nil),   // 9: chalk.server.v1.ListWebhooksRequest
-	(*ListWebhooksResponse)(nil),  // 10: chalk.server.v1.ListWebhooksResponse
-	(*TestWebhookRequest)(nil),    // 11: chalk.server.v1.TestWebhookRequest
-	(*TestWebhookResponse)(nil),   // 12: chalk.server.v1.TestWebhookResponse
-	(*structpb.Struct)(nil),       // 13: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
+	(WebhookComparatorKind)(0),                          // 0: chalk.server.v1.WebhookComparatorKind
+	(*WebhookSubscriptionFilter)(nil),                   // 1: chalk.server.v1.WebhookSubscriptionFilter
+	(*WebhookSubscription)(nil),                         // 2: chalk.server.v1.WebhookSubscription
+	(*WebhookSubscriptionFilterOptionValue)(nil),        // 3: chalk.server.v1.WebhookSubscriptionFilterOptionValue
+	(*WebhookSubscriptionFilterOption)(nil),             // 4: chalk.server.v1.WebhookSubscriptionFilterOption
+	(*Webhook)(nil),                                     // 5: chalk.server.v1.Webhook
+	(*CreateWebhookRequest)(nil),                        // 6: chalk.server.v1.CreateWebhookRequest
+	(*CreateWebhookResponse)(nil),                       // 7: chalk.server.v1.CreateWebhookResponse
+	(*UpdateWebhookRequest)(nil),                        // 8: chalk.server.v1.UpdateWebhookRequest
+	(*UpdateWebhookResponse)(nil),                       // 9: chalk.server.v1.UpdateWebhookResponse
+	(*DeleteWebhookRequest)(nil),                        // 10: chalk.server.v1.DeleteWebhookRequest
+	(*DeleteWebhookResponse)(nil),                       // 11: chalk.server.v1.DeleteWebhookResponse
+	(*GetWebhookRequest)(nil),                           // 12: chalk.server.v1.GetWebhookRequest
+	(*GetWebhookResponse)(nil),                          // 13: chalk.server.v1.GetWebhookResponse
+	(*ListWebhooksRequest)(nil),                         // 14: chalk.server.v1.ListWebhooksRequest
+	(*ListWebhooksResponse)(nil),                        // 15: chalk.server.v1.ListWebhooksResponse
+	(*TestWebhookRequest)(nil),                          // 16: chalk.server.v1.TestWebhookRequest
+	(*TestWebhookResponse)(nil),                         // 17: chalk.server.v1.TestWebhookResponse
+	(*GetWebhookSubscriptionFilterOptionsRequest)(nil),  // 18: chalk.server.v1.GetWebhookSubscriptionFilterOptionsRequest
+	(*GetWebhookSubscriptionFilterOptionsResponse)(nil), // 19: chalk.server.v1.GetWebhookSubscriptionFilterOptionsResponse
+	(*structpb.Value)(nil),                              // 20: google.protobuf.Value
+	(*structpb.Struct)(nil),                             // 21: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),                       // 22: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_webhook_proto_depIdxs = []int32{
-	13, // 0: chalk.server.v1.Webhook.headers:type_name -> google.protobuf.Struct
-	14, // 1: chalk.server.v1.Webhook.created_at:type_name -> google.protobuf.Timestamp
-	14, // 2: chalk.server.v1.Webhook.updated_at:type_name -> google.protobuf.Timestamp
-	13, // 3: chalk.server.v1.CreateWebhookRequest.headers:type_name -> google.protobuf.Struct
-	0,  // 4: chalk.server.v1.CreateWebhookResponse.webhook:type_name -> chalk.server.v1.Webhook
-	13, // 5: chalk.server.v1.UpdateWebhookRequest.headers:type_name -> google.protobuf.Struct
-	0,  // 6: chalk.server.v1.UpdateWebhookResponse.webhook:type_name -> chalk.server.v1.Webhook
-	0,  // 7: chalk.server.v1.DeleteWebhookResponse.webhook:type_name -> chalk.server.v1.Webhook
-	0,  // 8: chalk.server.v1.GetWebhookResponse.webhook:type_name -> chalk.server.v1.Webhook
-	0,  // 9: chalk.server.v1.ListWebhooksResponse.webhooks:type_name -> chalk.server.v1.Webhook
-	1,  // 10: chalk.server.v1.WebhookService.CreateWebhook:input_type -> chalk.server.v1.CreateWebhookRequest
-	3,  // 11: chalk.server.v1.WebhookService.UpdateWebhook:input_type -> chalk.server.v1.UpdateWebhookRequest
-	5,  // 12: chalk.server.v1.WebhookService.DeleteWebhook:input_type -> chalk.server.v1.DeleteWebhookRequest
-	7,  // 13: chalk.server.v1.WebhookService.GetWebhook:input_type -> chalk.server.v1.GetWebhookRequest
-	9,  // 14: chalk.server.v1.WebhookService.ListWebhooks:input_type -> chalk.server.v1.ListWebhooksRequest
-	11, // 15: chalk.server.v1.WebhookService.TestWebhook:input_type -> chalk.server.v1.TestWebhookRequest
-	2,  // 16: chalk.server.v1.WebhookService.CreateWebhook:output_type -> chalk.server.v1.CreateWebhookResponse
-	4,  // 17: chalk.server.v1.WebhookService.UpdateWebhook:output_type -> chalk.server.v1.UpdateWebhookResponse
-	6,  // 18: chalk.server.v1.WebhookService.DeleteWebhook:output_type -> chalk.server.v1.DeleteWebhookResponse
-	8,  // 19: chalk.server.v1.WebhookService.GetWebhook:output_type -> chalk.server.v1.GetWebhookResponse
-	10, // 20: chalk.server.v1.WebhookService.ListWebhooks:output_type -> chalk.server.v1.ListWebhooksResponse
-	12, // 21: chalk.server.v1.WebhookService.TestWebhook:output_type -> chalk.server.v1.TestWebhookResponse
-	16, // [16:22] is the sub-list for method output_type
-	10, // [10:16] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	0,  // 0: chalk.server.v1.WebhookSubscriptionFilter.comparator:type_name -> chalk.server.v1.WebhookComparatorKind
+	20, // 1: chalk.server.v1.WebhookSubscriptionFilter.values:type_name -> google.protobuf.Value
+	1,  // 2: chalk.server.v1.WebhookSubscription.filters:type_name -> chalk.server.v1.WebhookSubscriptionFilter
+	20, // 3: chalk.server.v1.WebhookSubscriptionFilterOptionValue.value:type_name -> google.protobuf.Value
+	3,  // 4: chalk.server.v1.WebhookSubscriptionFilterOption.options:type_name -> chalk.server.v1.WebhookSubscriptionFilterOptionValue
+	21, // 5: chalk.server.v1.Webhook.headers:type_name -> google.protobuf.Struct
+	22, // 6: chalk.server.v1.Webhook.created_at:type_name -> google.protobuf.Timestamp
+	22, // 7: chalk.server.v1.Webhook.updated_at:type_name -> google.protobuf.Timestamp
+	2,  // 8: chalk.server.v1.Webhook.subscriptions_with_filters:type_name -> chalk.server.v1.WebhookSubscription
+	21, // 9: chalk.server.v1.CreateWebhookRequest.headers:type_name -> google.protobuf.Struct
+	2,  // 10: chalk.server.v1.CreateWebhookRequest.subscriptions_with_filters:type_name -> chalk.server.v1.WebhookSubscription
+	5,  // 11: chalk.server.v1.CreateWebhookResponse.webhook:type_name -> chalk.server.v1.Webhook
+	21, // 12: chalk.server.v1.UpdateWebhookRequest.headers:type_name -> google.protobuf.Struct
+	2,  // 13: chalk.server.v1.UpdateWebhookRequest.subscriptions_with_filters:type_name -> chalk.server.v1.WebhookSubscription
+	5,  // 14: chalk.server.v1.UpdateWebhookResponse.webhook:type_name -> chalk.server.v1.Webhook
+	5,  // 15: chalk.server.v1.DeleteWebhookResponse.webhook:type_name -> chalk.server.v1.Webhook
+	5,  // 16: chalk.server.v1.GetWebhookResponse.webhook:type_name -> chalk.server.v1.Webhook
+	5,  // 17: chalk.server.v1.ListWebhooksResponse.webhooks:type_name -> chalk.server.v1.Webhook
+	4,  // 18: chalk.server.v1.GetWebhookSubscriptionFilterOptionsResponse.options:type_name -> chalk.server.v1.WebhookSubscriptionFilterOption
+	6,  // 19: chalk.server.v1.WebhookService.CreateWebhook:input_type -> chalk.server.v1.CreateWebhookRequest
+	8,  // 20: chalk.server.v1.WebhookService.UpdateWebhook:input_type -> chalk.server.v1.UpdateWebhookRequest
+	10, // 21: chalk.server.v1.WebhookService.DeleteWebhook:input_type -> chalk.server.v1.DeleteWebhookRequest
+	12, // 22: chalk.server.v1.WebhookService.GetWebhook:input_type -> chalk.server.v1.GetWebhookRequest
+	14, // 23: chalk.server.v1.WebhookService.ListWebhooks:input_type -> chalk.server.v1.ListWebhooksRequest
+	16, // 24: chalk.server.v1.WebhookService.TestWebhook:input_type -> chalk.server.v1.TestWebhookRequest
+	18, // 25: chalk.server.v1.WebhookService.GetWebhookSubscriptionFilterOptions:input_type -> chalk.server.v1.GetWebhookSubscriptionFilterOptionsRequest
+	7,  // 26: chalk.server.v1.WebhookService.CreateWebhook:output_type -> chalk.server.v1.CreateWebhookResponse
+	9,  // 27: chalk.server.v1.WebhookService.UpdateWebhook:output_type -> chalk.server.v1.UpdateWebhookResponse
+	11, // 28: chalk.server.v1.WebhookService.DeleteWebhook:output_type -> chalk.server.v1.DeleteWebhookResponse
+	13, // 29: chalk.server.v1.WebhookService.GetWebhook:output_type -> chalk.server.v1.GetWebhookResponse
+	15, // 30: chalk.server.v1.WebhookService.ListWebhooks:output_type -> chalk.server.v1.ListWebhooksResponse
+	17, // 31: chalk.server.v1.WebhookService.TestWebhook:output_type -> chalk.server.v1.TestWebhookResponse
+	19, // 32: chalk.server.v1.WebhookService.GetWebhookSubscriptionFilterOptions:output_type -> chalk.server.v1.GetWebhookSubscriptionFilterOptionsResponse
+	26, // [26:33] is the sub-list for method output_type
+	19, // [19:26] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_webhook_proto_init() }
@@ -906,21 +1349,22 @@ func file_chalk_server_v1_webhook_proto_init() {
 	if File_chalk_server_v1_webhook_proto != nil {
 		return
 	}
-	file_chalk_server_v1_webhook_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_server_v1_webhook_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_server_v1_webhook_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_server_v1_webhook_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_server_v1_webhook_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_server_v1_webhook_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_webhook_proto_rawDesc), len(file_chalk_server_v1_webhook_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   13,
+			NumEnums:      1,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_server_v1_webhook_proto_goTypes,
 		DependencyIndexes: file_chalk_server_v1_webhook_proto_depIdxs,
+		EnumInfos:         file_chalk_server_v1_webhook_proto_enumTypes,
 		MessageInfos:      file_chalk_server_v1_webhook_proto_msgTypes,
 	}.Build()
 	File_chalk_server_v1_webhook_proto = out.File

@@ -108,9 +108,13 @@ type CronQuery struct {
 	// Optional destination each run's output rows are written to directly
 	// (e.g. a storage URI usable as a velox TableWriteNode target), in
 	// addition to online/offline store persistence.
-	WriteTo       *v1.OfflineQueryWriteTo `protobuf:"bytes,25,opt,name=write_to,json=writeTo,proto3,oneof" json:"write_to,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	WriteTo *v1.OfflineQueryWriteTo `protobuf:"bytes,25,opt,name=write_to,json=writeTo,proto3,oneof" json:"write_to,omitempty"`
+	// ISO datetime or chalk duration prefixed with "delta:" (e.g. "delta:-7d"); when set, takes
+	// precedence over lower_bound/upper_bound and is resolved at run time.
+	ObservedAtLowerBound *string `protobuf:"bytes,26,opt,name=observed_at_lower_bound,json=observedAtLowerBound,proto3,oneof" json:"observed_at_lower_bound,omitempty"`
+	ObservedAtUpperBound *string `protobuf:"bytes,27,opt,name=observed_at_upper_bound,json=observedAtUpperBound,proto3,oneof" json:"observed_at_upper_bound,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CronQuery) Reset() {
@@ -318,6 +322,20 @@ func (x *CronQuery) GetWriteTo() *v1.OfflineQueryWriteTo {
 	return nil
 }
 
+func (x *CronQuery) GetObservedAtLowerBound() string {
+	if x != nil && x.ObservedAtLowerBound != nil {
+		return *x.ObservedAtLowerBound
+	}
+	return ""
+}
+
+func (x *CronQuery) GetObservedAtUpperBound() string {
+	if x != nil && x.ObservedAtUpperBound != nil {
+		return *x.ObservedAtUpperBound
+	}
+	return ""
+}
+
 var File_chalk_artifacts_v1_cron_query_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
@@ -325,7 +343,7 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"#chalk/artifacts/v1/cron_query.proto\x12\x12chalk.artifacts.v1\x1a#chalk/common/v1/offline_query.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Y\n" +
 	"\x11RecomputeSettings\x12!\n" +
 	"\ffeature_fqns\x18\x01 \x03(\tR\vfeatureFqns\x12!\n" +
-	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xb7\v\n" +
+	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xe7\f\n" +
 	"\tCronQuery\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04cron\x18\x02 \x01(\tR\x04cron\x12\x1b\n" +
@@ -359,7 +377,9 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"\x14environment_override\x18\x17 \x01(\tH\bR\x13environmentOverride\x88\x01\x01\x12&\n" +
 	"\fdataset_name\x18\x18 \x01(\tH\tR\vdatasetName\x88\x01\x01\x12D\n" +
 	"\bwrite_to\x18\x19 \x01(\v2$.chalk.common.v1.OfflineQueryWriteToH\n" +
-	"R\awriteTo\x88\x01\x01\x1aA\n" +
+	"R\awriteTo\x88\x01\x01\x12:\n" +
+	"\x17observed_at_lower_bound\x18\x1a \x01(\tH\vR\x14observedAtLowerBound\x88\x01\x01\x12:\n" +
+	"\x17observed_at_upper_bound\x18\x1b \x01(\tH\fR\x14observedAtUpperBound\x88\x01\x01\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
@@ -375,7 +395,9 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"_resourcesB\x17\n" +
 	"\x15_environment_overrideB\x0f\n" +
 	"\r_dataset_nameB\v\n" +
-	"\t_write_toB\xd3\x01\n" +
+	"\t_write_toB\x1a\n" +
+	"\x18_observed_at_lower_boundB\x1a\n" +
+	"\x18_observed_at_upper_boundB\xd3\x01\n" +
 	"\x16com.chalk.artifacts.v1B\x0eCronQueryProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (

@@ -2205,6 +2205,107 @@ func (x *GetResourceGroupServiceDetailResponse) GetPods() []*ResourceGroupServic
 	return nil
 }
 
+type CheckSelfHostedLicenseRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckSelfHostedLicenseRequest) Reset() {
+	*x = CheckSelfHostedLicenseRequest{}
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckSelfHostedLicenseRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckSelfHostedLicenseRequest) ProtoMessage() {}
+
+func (x *CheckSelfHostedLicenseRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckSelfHostedLicenseRequest.ProtoReflect.Descriptor instead.
+func (*CheckSelfHostedLicenseRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{33}
+}
+
+// CheckSelfHostedLicenseResponse echoes back the license key the caller
+// authenticated with. It is deliberately cheap — no usage data is read — so a
+// federating server can poll it as a healthcheck. A successful response is
+// itself the proof of validity: the auth layer rejects unknown, revoked and
+// expired keys before the handler runs.
+type CheckSelfHostedLicenseResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LicenseKeyId  string                 `protobuf:"bytes,1,opt,name=license_key_id,json=licenseKeyId,proto3" json:"license_key_id,omitempty"`
+	TeamId        string                 `protobuf:"bytes,2,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckSelfHostedLicenseResponse) Reset() {
+	*x = CheckSelfHostedLicenseResponse{}
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckSelfHostedLicenseResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckSelfHostedLicenseResponse) ProtoMessage() {}
+
+func (x *CheckSelfHostedLicenseResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckSelfHostedLicenseResponse.ProtoReflect.Descriptor instead.
+func (*CheckSelfHostedLicenseResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *CheckSelfHostedLicenseResponse) GetLicenseKeyId() string {
+	if x != nil {
+		return x.LicenseKeyId
+	}
+	return ""
+}
+
+func (x *CheckSelfHostedLicenseResponse) GetTeamId() string {
+	if x != nil {
+		return x.TeamId
+	}
+	return ""
+}
+
+func (x *CheckSelfHostedLicenseResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 var File_chalk_server_v1_billing_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_billing_proto_rawDesc = "" +
@@ -2388,7 +2489,12 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"%GetResourceGroupServiceDetailResponse\x12!\n" +
 	"\fservice_kind\x18\x01 \x01(\tR\vserviceKind\x12%\n" +
 	"\x0eresource_group\x18\x02 \x01(\tR\rresourceGroup\x12<\n" +
-	"\x04pods\x18\x03 \x03(\v2(.chalk.server.v1.ResourceGroupServicePodR\x04pods*\x93\x01\n" +
+	"\x04pods\x18\x03 \x03(\v2(.chalk.server.v1.ResourceGroupServicePodR\x04pods\"\x1f\n" +
+	"\x1dCheckSelfHostedLicenseRequest\"s\n" +
+	"\x1eCheckSelfHostedLicenseResponse\x12$\n" +
+	"\x0elicense_key_id\x18\x01 \x01(\tR\flicenseKeyId\x12\x17\n" +
+	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name*\x93\x01\n" +
 	"\x10UsageChartPeriod\x12\"\n" +
 	"\x1eUSAGE_CHART_PERIOD_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18USAGE_CHART_PERIOD_DAILY\x10\x01\x12\x1e\n" +
@@ -2403,7 +2509,7 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"\x13UsageChartTimeRange\x12&\n" +
 	"\"USAGE_CHART_TIME_RANGE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19USAGE_CHART_TIME_RANGE_1D\x10\x01\x12\x1d\n" +
-	"\x19USAGE_CHART_TIME_RANGE_7D\x10\x022\xff\f\n" +
+	"\x19USAGE_CHART_TIME_RANGE_7D\x10\x022\x83\x0e\n" +
 	"\x0eBillingService\x12r\n" +
 	"\x11GetNodesAndPodsUI\x12).chalk.server.v1.GetNodesAndPodsUIRequest\x1a*.chalk.server.v1.GetNodesAndPodsUIResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
 	"\x0fGetNodesAndPods\x12'.chalk.server.v1.GetNodesAndPodsRequest\x1a(.chalk.server.v1.GetNodesAndPodsResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
@@ -2418,7 +2524,8 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"\x10GetPodTimeRanges\x12(.chalk.server.v1.GetPodTimeRangesRequest\x1a).chalk.server.v1.GetPodTimeRangesResponse\"\x06\x80}\x1c\x90\x02\x01\x12r\n" +
 	"\x11GetNodeTimeRanges\x12).chalk.server.v1.GetNodeTimeRangesRequest\x1a*.chalk.server.v1.GetNodeTimeRangesResponse\"\x06\x80}\x1c\x90\x02\x01\x12f\n" +
 	"\rGetNodeDetail\x12%.chalk.server.v1.GetNodeDetailRequest\x1a&.chalk.server.v1.GetNodeDetailResponse\"\x06\x80}\x1c\x90\x02\x01\x12\x96\x01\n" +
-	"\x1dGetResourceGroupServiceDetail\x125.chalk.server.v1.GetResourceGroupServiceDetailRequest\x1a6.chalk.server.v1.GetResourceGroupServiceDetailResponse\"\x06\x80}\x1c\x90\x02\x01B\xbc\x01\n" +
+	"\x1dGetResourceGroupServiceDetail\x125.chalk.server.v1.GetResourceGroupServiceDetailRequest\x1a6.chalk.server.v1.GetResourceGroupServiceDetailResponse\"\x06\x80}\x1c\x90\x02\x01\x12\x81\x01\n" +
+	"\x16CheckSelfHostedLicense\x12..chalk.server.v1.CheckSelfHostedLicenseRequest\x1a/.chalk.server.v1.CheckSelfHostedLicenseResponse\"\x06\x80}\x1c\x90\x02\x01B\xbc\x01\n" +
 	"\x13com.chalk.server.v1B\fBillingProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -2434,7 +2541,7 @@ func file_chalk_server_v1_billing_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_billing_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_server_v1_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_chalk_server_v1_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
 var file_chalk_server_v1_billing_proto_goTypes = []any{
 	(UsageChartPeriod)(0),                         // 0: chalk.server.v1.UsageChartPeriod
 	(UsageChartGrouping)(0),                       // 1: chalk.server.v1.UsageChartGrouping
@@ -2472,59 +2579,61 @@ var file_chalk_server_v1_billing_proto_goTypes = []any{
 	(*GetResourceGroupServiceDetailRequest)(nil),  // 33: chalk.server.v1.GetResourceGroupServiceDetailRequest
 	(*ResourceGroupServicePod)(nil),               // 34: chalk.server.v1.ResourceGroupServicePod
 	(*GetResourceGroupServiceDetailResponse)(nil), // 35: chalk.server.v1.GetResourceGroupServiceDetailResponse
-	(*Chart)(nil),                                 // 36: chalk.server.v1.Chart
-	(*v1.MachineRate)(nil),                        // 37: chalk.usage.v1.MachineRate
-	(*decimal.Decimal)(nil),                       // 38: google.type.Decimal
-	(*v1.CloudInstanceType)(nil),                  // 39: chalk.usage.v1.CloudInstanceType
-	(*v11.NodeStatusPubSub)(nil),                  // 40: chalk.pubsub.v1.NodeStatusPubSub
-	(*v11.PodStatusPubSub)(nil),                   // 41: chalk.pubsub.v1.PodStatusPubSub
-	(*v12.KubernetesNodeData)(nil),                // 42: chalk.kubernetes.v1.KubernetesNodeData
-	(*v12.KubernetesPodData)(nil),                 // 43: chalk.kubernetes.v1.KubernetesPodData
-	(*date.Date)(nil),                             // 44: google.type.Date
-	(*timestamppb.Timestamp)(nil),                 // 45: google.protobuf.Timestamp
-	(*GetPodRequestChartsRequest)(nil),            // 46: chalk.server.v1.GetPodRequestChartsRequest
-	(*GetPodRequestChartsResponse)(nil),           // 47: chalk.server.v1.GetPodRequestChartsResponse
+	(*CheckSelfHostedLicenseRequest)(nil),         // 36: chalk.server.v1.CheckSelfHostedLicenseRequest
+	(*CheckSelfHostedLicenseResponse)(nil),        // 37: chalk.server.v1.CheckSelfHostedLicenseResponse
+	(*Chart)(nil),                                 // 38: chalk.server.v1.Chart
+	(*v1.MachineRate)(nil),                        // 39: chalk.usage.v1.MachineRate
+	(*decimal.Decimal)(nil),                       // 40: google.type.Decimal
+	(*v1.CloudInstanceType)(nil),                  // 41: chalk.usage.v1.CloudInstanceType
+	(*v11.NodeStatusPubSub)(nil),                  // 42: chalk.pubsub.v1.NodeStatusPubSub
+	(*v11.PodStatusPubSub)(nil),                   // 43: chalk.pubsub.v1.PodStatusPubSub
+	(*v12.KubernetesNodeData)(nil),                // 44: chalk.kubernetes.v1.KubernetesNodeData
+	(*v12.KubernetesPodData)(nil),                 // 45: chalk.kubernetes.v1.KubernetesPodData
+	(*date.Date)(nil),                             // 46: google.type.Date
+	(*timestamppb.Timestamp)(nil),                 // 47: google.protobuf.Timestamp
+	(*GetPodRequestChartsRequest)(nil),            // 48: chalk.server.v1.GetPodRequestChartsRequest
+	(*GetPodRequestChartsResponse)(nil),           // 49: chalk.server.v1.GetPodRequestChartsResponse
 }
 var file_chalk_server_v1_billing_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.GetUsageChartRequest.period:type_name -> chalk.server.v1.UsageChartPeriod
 	1,  // 1: chalk.server.v1.GetUsageChartRequest.grouping:type_name -> chalk.server.v1.UsageChartGrouping
 	2,  // 2: chalk.server.v1.GetUsageChartRequest.time_range:type_name -> chalk.server.v1.UsageChartTimeRange
-	36, // 3: chalk.server.v1.GetUsageChartResponse.chart:type_name -> chalk.server.v1.Chart
-	37, // 4: chalk.server.v1.GetUtilizationRatesResponse.rates:type_name -> chalk.usage.v1.MachineRate
-	38, // 5: chalk.server.v1.GetUtilizationRatesResponse.sandbox_credits_per_vcpu_hour:type_name -> google.type.Decimal
-	38, // 6: chalk.server.v1.GetUtilizationRatesResponse.sandbox_credits_per_gb_memory_hour:type_name -> google.type.Decimal
-	39, // 7: chalk.server.v1.GetAvailableInstanceTypesResponse.instance_types:type_name -> chalk.usage.v1.CloudInstanceType
-	40, // 8: chalk.server.v1.GetNodesAndPodsResponse.nodes:type_name -> chalk.pubsub.v1.NodeStatusPubSub
-	41, // 9: chalk.server.v1.GetNodesAndPodsResponse.pods:type_name -> chalk.pubsub.v1.PodStatusPubSub
-	40, // 10: chalk.server.v1.PublishNodeUsageRequest.nodes:type_name -> chalk.pubsub.v1.NodeStatusPubSub
-	42, // 11: chalk.server.v1.GetNodesAndPodsUIResponse.nodes:type_name -> chalk.kubernetes.v1.KubernetesNodeData
-	43, // 12: chalk.server.v1.GetNodesAndPodsUIResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
+	38, // 3: chalk.server.v1.GetUsageChartResponse.chart:type_name -> chalk.server.v1.Chart
+	39, // 4: chalk.server.v1.GetUtilizationRatesResponse.rates:type_name -> chalk.usage.v1.MachineRate
+	40, // 5: chalk.server.v1.GetUtilizationRatesResponse.sandbox_credits_per_vcpu_hour:type_name -> google.type.Decimal
+	40, // 6: chalk.server.v1.GetUtilizationRatesResponse.sandbox_credits_per_gb_memory_hour:type_name -> google.type.Decimal
+	41, // 7: chalk.server.v1.GetAvailableInstanceTypesResponse.instance_types:type_name -> chalk.usage.v1.CloudInstanceType
+	42, // 8: chalk.server.v1.GetNodesAndPodsResponse.nodes:type_name -> chalk.pubsub.v1.NodeStatusPubSub
+	43, // 9: chalk.server.v1.GetNodesAndPodsResponse.pods:type_name -> chalk.pubsub.v1.PodStatusPubSub
+	42, // 10: chalk.server.v1.PublishNodeUsageRequest.nodes:type_name -> chalk.pubsub.v1.NodeStatusPubSub
+	44, // 11: chalk.server.v1.GetNodesAndPodsUIResponse.nodes:type_name -> chalk.kubernetes.v1.KubernetesNodeData
+	45, // 12: chalk.server.v1.GetNodesAndPodsUIResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
 	19, // 13: chalk.server.v1.GetCreditBundlesResponse.bundles:type_name -> chalk.server.v1.CreditBundle
-	44, // 14: chalk.server.v1.CreditBundle.purchase_date:type_name -> google.type.Date
-	44, // 15: chalk.server.v1.CreditBundle.expires_on:type_name -> google.type.Date
-	45, // 16: chalk.server.v1.InstanceUsage.start_time:type_name -> google.protobuf.Timestamp
-	45, // 17: chalk.server.v1.InstanceUsage.end_time:type_name -> google.protobuf.Timestamp
+	46, // 14: chalk.server.v1.CreditBundle.purchase_date:type_name -> google.type.Date
+	46, // 15: chalk.server.v1.CreditBundle.expires_on:type_name -> google.type.Date
+	47, // 16: chalk.server.v1.InstanceUsage.start_time:type_name -> google.protobuf.Timestamp
+	47, // 17: chalk.server.v1.InstanceUsage.end_time:type_name -> google.protobuf.Timestamp
 	21, // 18: chalk.server.v1.GetInstanceUsageResponse.instances:type_name -> chalk.server.v1.InstanceUsage
-	45, // 19: chalk.server.v1.GetPodTimeRangesRequest.start_time:type_name -> google.protobuf.Timestamp
-	45, // 20: chalk.server.v1.GetPodTimeRangesRequest.end_time:type_name -> google.protobuf.Timestamp
-	45, // 21: chalk.server.v1.PodTimeRange.start_time:type_name -> google.protobuf.Timestamp
-	45, // 22: chalk.server.v1.PodTimeRange.end_time:type_name -> google.protobuf.Timestamp
+	47, // 19: chalk.server.v1.GetPodTimeRangesRequest.start_time:type_name -> google.protobuf.Timestamp
+	47, // 20: chalk.server.v1.GetPodTimeRangesRequest.end_time:type_name -> google.protobuf.Timestamp
+	47, // 21: chalk.server.v1.PodTimeRange.start_time:type_name -> google.protobuf.Timestamp
+	47, // 22: chalk.server.v1.PodTimeRange.end_time:type_name -> google.protobuf.Timestamp
 	24, // 23: chalk.server.v1.GetPodTimeRangesResponse.time_ranges:type_name -> chalk.server.v1.PodTimeRange
-	45, // 24: chalk.server.v1.GetNodeTimeRangesRequest.start_time:type_name -> google.protobuf.Timestamp
-	45, // 25: chalk.server.v1.GetNodeTimeRangesRequest.end_time:type_name -> google.protobuf.Timestamp
-	45, // 26: chalk.server.v1.NodeTimeRange.start_time:type_name -> google.protobuf.Timestamp
-	45, // 27: chalk.server.v1.NodeTimeRange.end_time:type_name -> google.protobuf.Timestamp
+	47, // 24: chalk.server.v1.GetNodeTimeRangesRequest.start_time:type_name -> google.protobuf.Timestamp
+	47, // 25: chalk.server.v1.GetNodeTimeRangesRequest.end_time:type_name -> google.protobuf.Timestamp
+	47, // 26: chalk.server.v1.NodeTimeRange.start_time:type_name -> google.protobuf.Timestamp
+	47, // 27: chalk.server.v1.NodeTimeRange.end_time:type_name -> google.protobuf.Timestamp
 	27, // 28: chalk.server.v1.GetNodeTimeRangesResponse.time_ranges:type_name -> chalk.server.v1.NodeTimeRange
-	45, // 29: chalk.server.v1.NodeDetailInfo.start_time:type_name -> google.protobuf.Timestamp
-	45, // 30: chalk.server.v1.NodeDetailInfo.end_time:type_name -> google.protobuf.Timestamp
-	45, // 31: chalk.server.v1.NodeDetailPod.start_time:type_name -> google.protobuf.Timestamp
-	45, // 32: chalk.server.v1.NodeDetailPod.end_time:type_name -> google.protobuf.Timestamp
+	47, // 29: chalk.server.v1.NodeDetailInfo.start_time:type_name -> google.protobuf.Timestamp
+	47, // 30: chalk.server.v1.NodeDetailInfo.end_time:type_name -> google.protobuf.Timestamp
+	47, // 31: chalk.server.v1.NodeDetailPod.start_time:type_name -> google.protobuf.Timestamp
+	47, // 32: chalk.server.v1.NodeDetailPod.end_time:type_name -> google.protobuf.Timestamp
 	30, // 33: chalk.server.v1.GetNodeDetailResponse.node:type_name -> chalk.server.v1.NodeDetailInfo
 	31, // 34: chalk.server.v1.GetNodeDetailResponse.pods:type_name -> chalk.server.v1.NodeDetailPod
-	45, // 35: chalk.server.v1.GetResourceGroupServiceDetailRequest.start_time:type_name -> google.protobuf.Timestamp
-	45, // 36: chalk.server.v1.GetResourceGroupServiceDetailRequest.end_time:type_name -> google.protobuf.Timestamp
-	45, // 37: chalk.server.v1.ResourceGroupServicePod.start_time:type_name -> google.protobuf.Timestamp
-	45, // 38: chalk.server.v1.ResourceGroupServicePod.end_time:type_name -> google.protobuf.Timestamp
+	47, // 35: chalk.server.v1.GetResourceGroupServiceDetailRequest.start_time:type_name -> google.protobuf.Timestamp
+	47, // 36: chalk.server.v1.GetResourceGroupServiceDetailRequest.end_time:type_name -> google.protobuf.Timestamp
+	47, // 37: chalk.server.v1.ResourceGroupServicePod.start_time:type_name -> google.protobuf.Timestamp
+	47, // 38: chalk.server.v1.ResourceGroupServicePod.end_time:type_name -> google.protobuf.Timestamp
 	34, // 39: chalk.server.v1.GetResourceGroupServiceDetailResponse.pods:type_name -> chalk.server.v1.ResourceGroupServicePod
 	13, // 40: chalk.server.v1.BillingService.GetNodesAndPodsUI:input_type -> chalk.server.v1.GetNodesAndPodsUIRequest
 	9,  // 41: chalk.server.v1.BillingService.GetNodesAndPods:input_type -> chalk.server.v1.GetNodesAndPodsRequest
@@ -2532,7 +2641,7 @@ var file_chalk_server_v1_billing_proto_depIdxs = []int32{
 	3,  // 43: chalk.server.v1.BillingService.GetUsageChart:input_type -> chalk.server.v1.GetUsageChartRequest
 	5,  // 44: chalk.server.v1.BillingService.GetUtilizationRates:input_type -> chalk.server.v1.GetUtilizationRatesRequest
 	7,  // 45: chalk.server.v1.BillingService.GetAvailableInstanceTypes:input_type -> chalk.server.v1.GetAvailableInstanceTypesRequest
-	46, // 46: chalk.server.v1.BillingService.GetPodRequestCharts:input_type -> chalk.server.v1.GetPodRequestChartsRequest
+	48, // 46: chalk.server.v1.BillingService.GetPodRequestCharts:input_type -> chalk.server.v1.GetPodRequestChartsRequest
 	15, // 47: chalk.server.v1.BillingService.SyncUtilization:input_type -> chalk.server.v1.SyncUtilizationRequest
 	17, // 48: chalk.server.v1.BillingService.GetCreditBundles:input_type -> chalk.server.v1.GetCreditBundlesRequest
 	20, // 49: chalk.server.v1.BillingService.GetInstanceUsage:input_type -> chalk.server.v1.GetInstanceUsageRequest
@@ -2540,22 +2649,24 @@ var file_chalk_server_v1_billing_proto_depIdxs = []int32{
 	26, // 51: chalk.server.v1.BillingService.GetNodeTimeRanges:input_type -> chalk.server.v1.GetNodeTimeRangesRequest
 	29, // 52: chalk.server.v1.BillingService.GetNodeDetail:input_type -> chalk.server.v1.GetNodeDetailRequest
 	33, // 53: chalk.server.v1.BillingService.GetResourceGroupServiceDetail:input_type -> chalk.server.v1.GetResourceGroupServiceDetailRequest
-	14, // 54: chalk.server.v1.BillingService.GetNodesAndPodsUI:output_type -> chalk.server.v1.GetNodesAndPodsUIResponse
-	10, // 55: chalk.server.v1.BillingService.GetNodesAndPods:output_type -> chalk.server.v1.GetNodesAndPodsResponse
-	12, // 56: chalk.server.v1.BillingService.PublishNodeUsage:output_type -> chalk.server.v1.PublishNodeUsageResponse
-	4,  // 57: chalk.server.v1.BillingService.GetUsageChart:output_type -> chalk.server.v1.GetUsageChartResponse
-	6,  // 58: chalk.server.v1.BillingService.GetUtilizationRates:output_type -> chalk.server.v1.GetUtilizationRatesResponse
-	8,  // 59: chalk.server.v1.BillingService.GetAvailableInstanceTypes:output_type -> chalk.server.v1.GetAvailableInstanceTypesResponse
-	47, // 60: chalk.server.v1.BillingService.GetPodRequestCharts:output_type -> chalk.server.v1.GetPodRequestChartsResponse
-	16, // 61: chalk.server.v1.BillingService.SyncUtilization:output_type -> chalk.server.v1.SyncUtilizationResponse
-	18, // 62: chalk.server.v1.BillingService.GetCreditBundles:output_type -> chalk.server.v1.GetCreditBundlesResponse
-	22, // 63: chalk.server.v1.BillingService.GetInstanceUsage:output_type -> chalk.server.v1.GetInstanceUsageResponse
-	25, // 64: chalk.server.v1.BillingService.GetPodTimeRanges:output_type -> chalk.server.v1.GetPodTimeRangesResponse
-	28, // 65: chalk.server.v1.BillingService.GetNodeTimeRanges:output_type -> chalk.server.v1.GetNodeTimeRangesResponse
-	32, // 66: chalk.server.v1.BillingService.GetNodeDetail:output_type -> chalk.server.v1.GetNodeDetailResponse
-	35, // 67: chalk.server.v1.BillingService.GetResourceGroupServiceDetail:output_type -> chalk.server.v1.GetResourceGroupServiceDetailResponse
-	54, // [54:68] is the sub-list for method output_type
-	40, // [40:54] is the sub-list for method input_type
+	36, // 54: chalk.server.v1.BillingService.CheckSelfHostedLicense:input_type -> chalk.server.v1.CheckSelfHostedLicenseRequest
+	14, // 55: chalk.server.v1.BillingService.GetNodesAndPodsUI:output_type -> chalk.server.v1.GetNodesAndPodsUIResponse
+	10, // 56: chalk.server.v1.BillingService.GetNodesAndPods:output_type -> chalk.server.v1.GetNodesAndPodsResponse
+	12, // 57: chalk.server.v1.BillingService.PublishNodeUsage:output_type -> chalk.server.v1.PublishNodeUsageResponse
+	4,  // 58: chalk.server.v1.BillingService.GetUsageChart:output_type -> chalk.server.v1.GetUsageChartResponse
+	6,  // 59: chalk.server.v1.BillingService.GetUtilizationRates:output_type -> chalk.server.v1.GetUtilizationRatesResponse
+	8,  // 60: chalk.server.v1.BillingService.GetAvailableInstanceTypes:output_type -> chalk.server.v1.GetAvailableInstanceTypesResponse
+	49, // 61: chalk.server.v1.BillingService.GetPodRequestCharts:output_type -> chalk.server.v1.GetPodRequestChartsResponse
+	16, // 62: chalk.server.v1.BillingService.SyncUtilization:output_type -> chalk.server.v1.SyncUtilizationResponse
+	18, // 63: chalk.server.v1.BillingService.GetCreditBundles:output_type -> chalk.server.v1.GetCreditBundlesResponse
+	22, // 64: chalk.server.v1.BillingService.GetInstanceUsage:output_type -> chalk.server.v1.GetInstanceUsageResponse
+	25, // 65: chalk.server.v1.BillingService.GetPodTimeRanges:output_type -> chalk.server.v1.GetPodTimeRangesResponse
+	28, // 66: chalk.server.v1.BillingService.GetNodeTimeRanges:output_type -> chalk.server.v1.GetNodeTimeRangesResponse
+	32, // 67: chalk.server.v1.BillingService.GetNodeDetail:output_type -> chalk.server.v1.GetNodeDetailResponse
+	35, // 68: chalk.server.v1.BillingService.GetResourceGroupServiceDetail:output_type -> chalk.server.v1.GetResourceGroupServiceDetailResponse
+	37, // 69: chalk.server.v1.BillingService.CheckSelfHostedLicense:output_type -> chalk.server.v1.CheckSelfHostedLicenseResponse
+	55, // [55:70] is the sub-list for method output_type
+	40, // [40:55] is the sub-list for method input_type
 	40, // [40:40] is the sub-list for extension type_name
 	40, // [40:40] is the sub-list for extension extendee
 	0,  // [0:40] is the sub-list for field type_name
@@ -2582,7 +2693,7 @@ func file_chalk_server_v1_billing_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_billing_proto_rawDesc), len(file_chalk_server_v1_billing_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   33,
+			NumMessages:   35,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

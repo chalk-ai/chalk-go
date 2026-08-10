@@ -11,6 +11,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -659,11 +660,339 @@ func (x *GetScheduledQueryScheduleResponse) GetSchedule() *ScheduledQuerySchedul
 	return nil
 }
 
+type GetScheduledQueryFeatureStatisticsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Identifier:
+	//
+	//	*GetScheduledQueryFeatureStatisticsRequest_CronQueryId
+	//	*GetScheduledQueryFeatureStatisticsRequest_CronQueryName
+	Identifier isGetScheduledQueryFeatureStatisticsRequest_Identifier `protobuf_oneof:"identifier"`
+	// Only consider scheduled query runs started within [start_time, end_time].
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// Caps the number of runs whose statistics are fetched, newest first. Defaults to 200.
+	MaxRuns       *int32 `protobuf:"varint,5,opt,name=max_runs,json=maxRuns,proto3,oneof" json:"max_runs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) Reset() {
+	*x = GetScheduledQueryFeatureStatisticsRequest{}
+	mi := &file_chalk_server_v1_scheduled_query_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetScheduledQueryFeatureStatisticsRequest) ProtoMessage() {}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_scheduled_query_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetScheduledQueryFeatureStatisticsRequest.ProtoReflect.Descriptor instead.
+func (*GetScheduledQueryFeatureStatisticsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_scheduled_query_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) GetIdentifier() isGetScheduledQueryFeatureStatisticsRequest_Identifier {
+	if x != nil {
+		return x.Identifier
+	}
+	return nil
+}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) GetCronQueryId() int32 {
+	if x != nil {
+		if x, ok := x.Identifier.(*GetScheduledQueryFeatureStatisticsRequest_CronQueryId); ok {
+			return x.CronQueryId
+		}
+	}
+	return 0
+}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) GetCronQueryName() string {
+	if x != nil {
+		if x, ok := x.Identifier.(*GetScheduledQueryFeatureStatisticsRequest_CronQueryName); ok {
+			return x.CronQueryName
+		}
+	}
+	return ""
+}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) GetEndTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTime
+	}
+	return nil
+}
+
+func (x *GetScheduledQueryFeatureStatisticsRequest) GetMaxRuns() int32 {
+	if x != nil && x.MaxRuns != nil {
+		return *x.MaxRuns
+	}
+	return 0
+}
+
+type isGetScheduledQueryFeatureStatisticsRequest_Identifier interface {
+	isGetScheduledQueryFeatureStatisticsRequest_Identifier()
+}
+
+type GetScheduledQueryFeatureStatisticsRequest_CronQueryId struct {
+	CronQueryId int32 `protobuf:"varint,1,opt,name=cron_query_id,json=cronQueryId,proto3,oneof"`
+}
+
+type GetScheduledQueryFeatureStatisticsRequest_CronQueryName struct {
+	CronQueryName string `protobuf:"bytes,2,opt,name=cron_query_name,json=cronQueryName,proto3,oneof"`
+}
+
+func (*GetScheduledQueryFeatureStatisticsRequest_CronQueryId) isGetScheduledQueryFeatureStatisticsRequest_Identifier() {
+}
+
+func (*GetScheduledQueryFeatureStatisticsRequest_CronQueryName) isGetScheduledQueryFeatureStatisticsRequest_Identifier() {
+}
+
+// Per-feature output statistics for one scheduled query run, rolled up across
+// the run's shards.
+type ScheduledQueryFeatureStatistics struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	FeatureFqn string                 `protobuf:"bytes,1,opt,name=feature_fqn,json=featureFqn,proto3" json:"feature_fqn,omitempty"`
+	// Total number of values, including nulls.
+	Count     int64 `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	NullCount int64 `protobuf:"varint,3,opt,name=null_count,json=nullCount,proto3" json:"null_count,omitempty"`
+	// Null for rows written before zero counts were tracked.
+	ZeroCount *int64 `protobuf:"varint,4,opt,name=zero_count,json=zeroCount,proto3,oneof" json:"zero_count,omitempty"`
+	// Null for features whose logical type has no numeric summary.
+	Mean          *float64 `protobuf:"fixed64,5,opt,name=mean,proto3,oneof" json:"mean,omitempty"`
+	Max           *float64 `protobuf:"fixed64,6,opt,name=max,proto3,oneof" json:"max,omitempty"`
+	Min           *float64 `protobuf:"fixed64,7,opt,name=min,proto3,oneof" json:"min,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ScheduledQueryFeatureStatistics) Reset() {
+	*x = ScheduledQueryFeatureStatistics{}
+	mi := &file_chalk_server_v1_scheduled_query_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScheduledQueryFeatureStatistics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScheduledQueryFeatureStatistics) ProtoMessage() {}
+
+func (x *ScheduledQueryFeatureStatistics) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_scheduled_query_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScheduledQueryFeatureStatistics.ProtoReflect.Descriptor instead.
+func (*ScheduledQueryFeatureStatistics) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_scheduled_query_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ScheduledQueryFeatureStatistics) GetFeatureFqn() string {
+	if x != nil {
+		return x.FeatureFqn
+	}
+	return ""
+}
+
+func (x *ScheduledQueryFeatureStatistics) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *ScheduledQueryFeatureStatistics) GetNullCount() int64 {
+	if x != nil {
+		return x.NullCount
+	}
+	return 0
+}
+
+func (x *ScheduledQueryFeatureStatistics) GetZeroCount() int64 {
+	if x != nil && x.ZeroCount != nil {
+		return *x.ZeroCount
+	}
+	return 0
+}
+
+func (x *ScheduledQueryFeatureStatistics) GetMean() float64 {
+	if x != nil && x.Mean != nil {
+		return *x.Mean
+	}
+	return 0
+}
+
+func (x *ScheduledQueryFeatureStatistics) GetMax() float64 {
+	if x != nil && x.Max != nil {
+		return *x.Max
+	}
+	return 0
+}
+
+func (x *ScheduledQueryFeatureStatistics) GetMin() float64 {
+	if x != nil && x.Min != nil {
+		return *x.Min
+	}
+	return 0
+}
+
+type ScheduledQueryRunFeatureStatistics struct {
+	state               protoimpl.MessageState             `protogen:"open.v1"`
+	ScheduledQueryRunId int64                              `protobuf:"varint,1,opt,name=scheduled_query_run_id,json=scheduledQueryRunId,proto3" json:"scheduled_query_run_id,omitempty"`
+	OperationId         string                             `protobuf:"bytes,2,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	RunStartedAt        *timestamppb.Timestamp             `protobuf:"bytes,3,opt,name=run_started_at,json=runStartedAt,proto3" json:"run_started_at,omitempty"`
+	Statistics          []*ScheduledQueryFeatureStatistics `protobuf:"bytes,4,rep,name=statistics,proto3" json:"statistics,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *ScheduledQueryRunFeatureStatistics) Reset() {
+	*x = ScheduledQueryRunFeatureStatistics{}
+	mi := &file_chalk_server_v1_scheduled_query_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScheduledQueryRunFeatureStatistics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScheduledQueryRunFeatureStatistics) ProtoMessage() {}
+
+func (x *ScheduledQueryRunFeatureStatistics) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_scheduled_query_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScheduledQueryRunFeatureStatistics.ProtoReflect.Descriptor instead.
+func (*ScheduledQueryRunFeatureStatistics) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_scheduled_query_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ScheduledQueryRunFeatureStatistics) GetScheduledQueryRunId() int64 {
+	if x != nil {
+		return x.ScheduledQueryRunId
+	}
+	return 0
+}
+
+func (x *ScheduledQueryRunFeatureStatistics) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+func (x *ScheduledQueryRunFeatureStatistics) GetRunStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RunStartedAt
+	}
+	return nil
+}
+
+func (x *ScheduledQueryRunFeatureStatistics) GetStatistics() []*ScheduledQueryFeatureStatistics {
+	if x != nil {
+		return x.Statistics
+	}
+	return nil
+}
+
+type GetScheduledQueryFeatureStatisticsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Ordered oldest run first.
+	Runs          []*ScheduledQueryRunFeatureStatistics `protobuf:"bytes,1,rep,name=runs,proto3" json:"runs,omitempty"`
+	Warnings      []string                              `protobuf:"bytes,2,rep,name=warnings,proto3" json:"warnings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetScheduledQueryFeatureStatisticsResponse) Reset() {
+	*x = GetScheduledQueryFeatureStatisticsResponse{}
+	mi := &file_chalk_server_v1_scheduled_query_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetScheduledQueryFeatureStatisticsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetScheduledQueryFeatureStatisticsResponse) ProtoMessage() {}
+
+func (x *GetScheduledQueryFeatureStatisticsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_scheduled_query_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetScheduledQueryFeatureStatisticsResponse.ProtoReflect.Descriptor instead.
+func (*GetScheduledQueryFeatureStatisticsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_scheduled_query_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetScheduledQueryFeatureStatisticsResponse) GetRuns() []*ScheduledQueryRunFeatureStatistics {
+	if x != nil {
+		return x.Runs
+	}
+	return nil
+}
+
+func (x *GetScheduledQueryFeatureStatisticsResponse) GetWarnings() []string {
+	if x != nil {
+		return x.Warnings
+	}
+	return nil
+}
+
 var File_chalk_server_v1_scheduled_query_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_scheduled_query_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/server/v1/scheduled_query.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/server/v1/scheduled_query_run.proto\x1a google/protobuf/field_mask.proto\"^\n" +
+	"%chalk/server/v1/scheduled_query.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/server/v1/scheduled_query_run.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"^\n" +
 	" GetActiveScheduledQueriesRequest\x12(\n" +
 	"\rdeployment_id\x18\x01 \x01(\tH\x00R\fdeploymentId\x88\x01\x01B\x10\n" +
 	"\x0e_deployment_id\"\x9f\x02\n" +
@@ -711,14 +1040,50 @@ const file_chalk_server_v1_scheduled_query_proto_rawDesc = "" +
 	"\n" +
 	"identifier\"h\n" +
 	"!GetScheduledQueryScheduleResponse\x12C\n" +
-	"\bschedule\x18\x01 \x01(\v2'.chalk.server.v1.ScheduledQueryScheduleR\bschedule2\xb9\x06\n" +
+	"\bschedule\x18\x01 \x01(\v2'.chalk.server.v1.ScheduledQueryScheduleR\bschedule\"\xa8\x02\n" +
+	")GetScheduledQueryFeatureStatisticsRequest\x12$\n" +
+	"\rcron_query_id\x18\x01 \x01(\x05H\x00R\vcronQueryId\x12(\n" +
+	"\x0fcron_query_name\x18\x02 \x01(\tH\x00R\rcronQueryName\x129\n" +
+	"\n" +
+	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\x1e\n" +
+	"\bmax_runs\x18\x05 \x01(\x05H\x01R\amaxRuns\x88\x01\x01B\f\n" +
+	"\n" +
+	"identifierB\v\n" +
+	"\t_max_runs\"\x8a\x02\n" +
+	"\x1fScheduledQueryFeatureStatistics\x12\x1f\n" +
+	"\vfeature_fqn\x18\x01 \x01(\tR\n" +
+	"featureFqn\x12\x14\n" +
+	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x1d\n" +
+	"\n" +
+	"null_count\x18\x03 \x01(\x03R\tnullCount\x12\"\n" +
+	"\n" +
+	"zero_count\x18\x04 \x01(\x03H\x00R\tzeroCount\x88\x01\x01\x12\x17\n" +
+	"\x04mean\x18\x05 \x01(\x01H\x01R\x04mean\x88\x01\x01\x12\x15\n" +
+	"\x03max\x18\x06 \x01(\x01H\x02R\x03max\x88\x01\x01\x12\x15\n" +
+	"\x03min\x18\a \x01(\x01H\x03R\x03min\x88\x01\x01B\r\n" +
+	"\v_zero_countB\a\n" +
+	"\x05_meanB\x06\n" +
+	"\x04_maxB\x06\n" +
+	"\x04_min\"\x90\x02\n" +
+	"\"ScheduledQueryRunFeatureStatistics\x123\n" +
+	"\x16scheduled_query_run_id\x18\x01 \x01(\x03R\x13scheduledQueryRunId\x12!\n" +
+	"\foperation_id\x18\x02 \x01(\tR\voperationId\x12@\n" +
+	"\x0erun_started_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\frunStartedAt\x12P\n" +
+	"\n" +
+	"statistics\x18\x04 \x03(\v20.chalk.server.v1.ScheduledQueryFeatureStatisticsR\n" +
+	"statistics\"\x91\x01\n" +
+	"*GetScheduledQueryFeatureStatisticsResponse\x12G\n" +
+	"\x04runs\x18\x01 \x03(\v23.chalk.server.v1.ScheduledQueryRunFeatureStatisticsR\x04runs\x12\x1a\n" +
+	"\bwarnings\x18\x02 \x03(\tR\bwarnings2\xde\a\n" +
 	"\x15ScheduledQueryService\x12x\n" +
 	"\x14GetScheduledQueryRun\x12,.chalk.server.v1.GetScheduledQueryRunRequest\x1a-.chalk.server.v1.GetScheduledQueryRunResponse\"\x03\x80}\x06\x12{\n" +
 	"\x15GetScheduledQueryRuns\x12-.chalk.server.v1.GetScheduledQueryRunsRequest\x1a..chalk.server.v1.GetScheduledQueryRunsResponse\"\x03\x80}\x10\x12\x87\x01\n" +
 	"\x19GetActiveScheduledQueries\x121.chalk.server.v1.GetActiveScheduledQueriesRequest\x1a2.chalk.server.v1.GetActiveScheduledQueriesResponse\"\x03\x80}\x10\x12\x84\x01\n" +
 	"\x18GetScheduledQueryControl\x120.chalk.server.v1.GetScheduledQueryControlRequest\x1a1.chalk.server.v1.GetScheduledQueryControlResponse\"\x03\x80}\x10\x12\x8d\x01\n" +
 	"\x1bUpdateScheduledQueryControl\x123.chalk.server.v1.UpdateScheduledQueryControlRequest\x1a4.chalk.server.v1.UpdateScheduledQueryControlResponse\"\x03\x80}\x11\x12\x87\x01\n" +
-	"\x19GetScheduledQuerySchedule\x121.chalk.server.v1.GetScheduledQueryScheduleRequest\x1a2.chalk.server.v1.GetScheduledQueryScheduleResponse\"\x03\x80}\x10B\xc3\x01\n" +
+	"\x19GetScheduledQuerySchedule\x121.chalk.server.v1.GetScheduledQueryScheduleRequest\x1a2.chalk.server.v1.GetScheduledQueryScheduleResponse\"\x03\x80}\x10\x12\xa2\x01\n" +
+	"\"GetScheduledQueryFeatureStatistics\x12:.chalk.server.v1.GetScheduledQueryFeatureStatisticsRequest\x1a;.chalk.server.v1.GetScheduledQueryFeatureStatisticsResponse\"\x03\x80}\x10B\xc3\x01\n" +
 	"\x13com.chalk.server.v1B\x13ScheduledQueryProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -733,58 +1098,70 @@ func file_chalk_server_v1_scheduled_query_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_scheduled_query_proto_rawDescData
 }
 
-var file_chalk_server_v1_scheduled_query_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_chalk_server_v1_scheduled_query_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_server_v1_scheduled_query_proto_goTypes = []any{
-	(*GetActiveScheduledQueriesRequest)(nil),     // 0: chalk.server.v1.GetActiveScheduledQueriesRequest
-	(*ScheduledQueryRunInfo)(nil),                // 1: chalk.server.v1.ScheduledQueryRunInfo
-	(*ScheduledQueryInfo)(nil),                   // 2: chalk.server.v1.ScheduledQueryInfo
-	(*GetActiveScheduledQueriesResponse)(nil),    // 3: chalk.server.v1.GetActiveScheduledQueriesResponse
-	(*GetScheduledQueryControlRequest)(nil),      // 4: chalk.server.v1.GetScheduledQueryControlRequest
-	(*GetScheduledQueryControlResponse)(nil),     // 5: chalk.server.v1.GetScheduledQueryControlResponse
-	(*UpdateScheduledQueryControlOperation)(nil), // 6: chalk.server.v1.UpdateScheduledQueryControlOperation
-	(*UpdateScheduledQueryControlRequest)(nil),   // 7: chalk.server.v1.UpdateScheduledQueryControlRequest
-	(*UpdateScheduledQueryControlResponse)(nil),  // 8: chalk.server.v1.UpdateScheduledQueryControlResponse
-	(*GetScheduledQueryScheduleRequest)(nil),     // 9: chalk.server.v1.GetScheduledQueryScheduleRequest
-	(*GetScheduledQueryScheduleResponse)(nil),    // 10: chalk.server.v1.GetScheduledQueryScheduleResponse
-	(ScheduledQueryRunStatus)(0),                 // 11: chalk.server.v1.ScheduledQueryRunStatus
-	(*ScheduledQuerySchedule)(nil),               // 12: chalk.server.v1.ScheduledQuerySchedule
-	(*ScheduledQueryControl)(nil),                // 13: chalk.server.v1.ScheduledQueryControl
-	(CronControlStatus)(0),                       // 14: chalk.server.v1.CronControlStatus
-	(*fieldmaskpb.FieldMask)(nil),                // 15: google.protobuf.FieldMask
-	(*GetScheduledQueryRunRequest)(nil),          // 16: chalk.server.v1.GetScheduledQueryRunRequest
-	(*GetScheduledQueryRunsRequest)(nil),         // 17: chalk.server.v1.GetScheduledQueryRunsRequest
-	(*GetScheduledQueryRunResponse)(nil),         // 18: chalk.server.v1.GetScheduledQueryRunResponse
-	(*GetScheduledQueryRunsResponse)(nil),        // 19: chalk.server.v1.GetScheduledQueryRunsResponse
+	(*GetActiveScheduledQueriesRequest)(nil),           // 0: chalk.server.v1.GetActiveScheduledQueriesRequest
+	(*ScheduledQueryRunInfo)(nil),                      // 1: chalk.server.v1.ScheduledQueryRunInfo
+	(*ScheduledQueryInfo)(nil),                         // 2: chalk.server.v1.ScheduledQueryInfo
+	(*GetActiveScheduledQueriesResponse)(nil),          // 3: chalk.server.v1.GetActiveScheduledQueriesResponse
+	(*GetScheduledQueryControlRequest)(nil),            // 4: chalk.server.v1.GetScheduledQueryControlRequest
+	(*GetScheduledQueryControlResponse)(nil),           // 5: chalk.server.v1.GetScheduledQueryControlResponse
+	(*UpdateScheduledQueryControlOperation)(nil),       // 6: chalk.server.v1.UpdateScheduledQueryControlOperation
+	(*UpdateScheduledQueryControlRequest)(nil),         // 7: chalk.server.v1.UpdateScheduledQueryControlRequest
+	(*UpdateScheduledQueryControlResponse)(nil),        // 8: chalk.server.v1.UpdateScheduledQueryControlResponse
+	(*GetScheduledQueryScheduleRequest)(nil),           // 9: chalk.server.v1.GetScheduledQueryScheduleRequest
+	(*GetScheduledQueryScheduleResponse)(nil),          // 10: chalk.server.v1.GetScheduledQueryScheduleResponse
+	(*GetScheduledQueryFeatureStatisticsRequest)(nil),  // 11: chalk.server.v1.GetScheduledQueryFeatureStatisticsRequest
+	(*ScheduledQueryFeatureStatistics)(nil),            // 12: chalk.server.v1.ScheduledQueryFeatureStatistics
+	(*ScheduledQueryRunFeatureStatistics)(nil),         // 13: chalk.server.v1.ScheduledQueryRunFeatureStatistics
+	(*GetScheduledQueryFeatureStatisticsResponse)(nil), // 14: chalk.server.v1.GetScheduledQueryFeatureStatisticsResponse
+	(ScheduledQueryRunStatus)(0),                       // 15: chalk.server.v1.ScheduledQueryRunStatus
+	(*ScheduledQuerySchedule)(nil),                     // 16: chalk.server.v1.ScheduledQuerySchedule
+	(*ScheduledQueryControl)(nil),                      // 17: chalk.server.v1.ScheduledQueryControl
+	(CronControlStatus)(0),                             // 18: chalk.server.v1.CronControlStatus
+	(*fieldmaskpb.FieldMask)(nil),                      // 19: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),                      // 20: google.protobuf.Timestamp
+	(*GetScheduledQueryRunRequest)(nil),                // 21: chalk.server.v1.GetScheduledQueryRunRequest
+	(*GetScheduledQueryRunsRequest)(nil),               // 22: chalk.server.v1.GetScheduledQueryRunsRequest
+	(*GetScheduledQueryRunResponse)(nil),               // 23: chalk.server.v1.GetScheduledQueryRunResponse
+	(*GetScheduledQueryRunsResponse)(nil),              // 24: chalk.server.v1.GetScheduledQueryRunsResponse
 }
 var file_chalk_server_v1_scheduled_query_proto_depIdxs = []int32{
-	11, // 0: chalk.server.v1.ScheduledQueryRunInfo.status:type_name -> chalk.server.v1.ScheduledQueryRunStatus
-	12, // 1: chalk.server.v1.ScheduledQueryInfo.schedule:type_name -> chalk.server.v1.ScheduledQuerySchedule
-	13, // 2: chalk.server.v1.ScheduledQueryInfo.control:type_name -> chalk.server.v1.ScheduledQueryControl
+	15, // 0: chalk.server.v1.ScheduledQueryRunInfo.status:type_name -> chalk.server.v1.ScheduledQueryRunStatus
+	16, // 1: chalk.server.v1.ScheduledQueryInfo.schedule:type_name -> chalk.server.v1.ScheduledQuerySchedule
+	17, // 2: chalk.server.v1.ScheduledQueryInfo.control:type_name -> chalk.server.v1.ScheduledQueryControl
 	1,  // 3: chalk.server.v1.ScheduledQueryInfo.latest_run:type_name -> chalk.server.v1.ScheduledQueryRunInfo
 	2,  // 4: chalk.server.v1.GetActiveScheduledQueriesResponse.scheduled_queries:type_name -> chalk.server.v1.ScheduledQueryInfo
-	13, // 5: chalk.server.v1.GetScheduledQueryControlResponse.control:type_name -> chalk.server.v1.ScheduledQueryControl
-	14, // 6: chalk.server.v1.UpdateScheduledQueryControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
+	17, // 5: chalk.server.v1.GetScheduledQueryControlResponse.control:type_name -> chalk.server.v1.ScheduledQueryControl
+	18, // 6: chalk.server.v1.UpdateScheduledQueryControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
 	6,  // 7: chalk.server.v1.UpdateScheduledQueryControlRequest.update:type_name -> chalk.server.v1.UpdateScheduledQueryControlOperation
-	15, // 8: chalk.server.v1.UpdateScheduledQueryControlRequest.update_mask:type_name -> google.protobuf.FieldMask
-	13, // 9: chalk.server.v1.UpdateScheduledQueryControlResponse.control:type_name -> chalk.server.v1.ScheduledQueryControl
-	12, // 10: chalk.server.v1.GetScheduledQueryScheduleResponse.schedule:type_name -> chalk.server.v1.ScheduledQuerySchedule
-	16, // 11: chalk.server.v1.ScheduledQueryService.GetScheduledQueryRun:input_type -> chalk.server.v1.GetScheduledQueryRunRequest
-	17, // 12: chalk.server.v1.ScheduledQueryService.GetScheduledQueryRuns:input_type -> chalk.server.v1.GetScheduledQueryRunsRequest
-	0,  // 13: chalk.server.v1.ScheduledQueryService.GetActiveScheduledQueries:input_type -> chalk.server.v1.GetActiveScheduledQueriesRequest
-	4,  // 14: chalk.server.v1.ScheduledQueryService.GetScheduledQueryControl:input_type -> chalk.server.v1.GetScheduledQueryControlRequest
-	7,  // 15: chalk.server.v1.ScheduledQueryService.UpdateScheduledQueryControl:input_type -> chalk.server.v1.UpdateScheduledQueryControlRequest
-	9,  // 16: chalk.server.v1.ScheduledQueryService.GetScheduledQuerySchedule:input_type -> chalk.server.v1.GetScheduledQueryScheduleRequest
-	18, // 17: chalk.server.v1.ScheduledQueryService.GetScheduledQueryRun:output_type -> chalk.server.v1.GetScheduledQueryRunResponse
-	19, // 18: chalk.server.v1.ScheduledQueryService.GetScheduledQueryRuns:output_type -> chalk.server.v1.GetScheduledQueryRunsResponse
-	3,  // 19: chalk.server.v1.ScheduledQueryService.GetActiveScheduledQueries:output_type -> chalk.server.v1.GetActiveScheduledQueriesResponse
-	5,  // 20: chalk.server.v1.ScheduledQueryService.GetScheduledQueryControl:output_type -> chalk.server.v1.GetScheduledQueryControlResponse
-	8,  // 21: chalk.server.v1.ScheduledQueryService.UpdateScheduledQueryControl:output_type -> chalk.server.v1.UpdateScheduledQueryControlResponse
-	10, // 22: chalk.server.v1.ScheduledQueryService.GetScheduledQuerySchedule:output_type -> chalk.server.v1.GetScheduledQueryScheduleResponse
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	19, // 8: chalk.server.v1.UpdateScheduledQueryControlRequest.update_mask:type_name -> google.protobuf.FieldMask
+	17, // 9: chalk.server.v1.UpdateScheduledQueryControlResponse.control:type_name -> chalk.server.v1.ScheduledQueryControl
+	16, // 10: chalk.server.v1.GetScheduledQueryScheduleResponse.schedule:type_name -> chalk.server.v1.ScheduledQuerySchedule
+	20, // 11: chalk.server.v1.GetScheduledQueryFeatureStatisticsRequest.start_time:type_name -> google.protobuf.Timestamp
+	20, // 12: chalk.server.v1.GetScheduledQueryFeatureStatisticsRequest.end_time:type_name -> google.protobuf.Timestamp
+	20, // 13: chalk.server.v1.ScheduledQueryRunFeatureStatistics.run_started_at:type_name -> google.protobuf.Timestamp
+	12, // 14: chalk.server.v1.ScheduledQueryRunFeatureStatistics.statistics:type_name -> chalk.server.v1.ScheduledQueryFeatureStatistics
+	13, // 15: chalk.server.v1.GetScheduledQueryFeatureStatisticsResponse.runs:type_name -> chalk.server.v1.ScheduledQueryRunFeatureStatistics
+	21, // 16: chalk.server.v1.ScheduledQueryService.GetScheduledQueryRun:input_type -> chalk.server.v1.GetScheduledQueryRunRequest
+	22, // 17: chalk.server.v1.ScheduledQueryService.GetScheduledQueryRuns:input_type -> chalk.server.v1.GetScheduledQueryRunsRequest
+	0,  // 18: chalk.server.v1.ScheduledQueryService.GetActiveScheduledQueries:input_type -> chalk.server.v1.GetActiveScheduledQueriesRequest
+	4,  // 19: chalk.server.v1.ScheduledQueryService.GetScheduledQueryControl:input_type -> chalk.server.v1.GetScheduledQueryControlRequest
+	7,  // 20: chalk.server.v1.ScheduledQueryService.UpdateScheduledQueryControl:input_type -> chalk.server.v1.UpdateScheduledQueryControlRequest
+	9,  // 21: chalk.server.v1.ScheduledQueryService.GetScheduledQuerySchedule:input_type -> chalk.server.v1.GetScheduledQueryScheduleRequest
+	11, // 22: chalk.server.v1.ScheduledQueryService.GetScheduledQueryFeatureStatistics:input_type -> chalk.server.v1.GetScheduledQueryFeatureStatisticsRequest
+	23, // 23: chalk.server.v1.ScheduledQueryService.GetScheduledQueryRun:output_type -> chalk.server.v1.GetScheduledQueryRunResponse
+	24, // 24: chalk.server.v1.ScheduledQueryService.GetScheduledQueryRuns:output_type -> chalk.server.v1.GetScheduledQueryRunsResponse
+	3,  // 25: chalk.server.v1.ScheduledQueryService.GetActiveScheduledQueries:output_type -> chalk.server.v1.GetActiveScheduledQueriesResponse
+	5,  // 26: chalk.server.v1.ScheduledQueryService.GetScheduledQueryControl:output_type -> chalk.server.v1.GetScheduledQueryControlResponse
+	8,  // 27: chalk.server.v1.ScheduledQueryService.UpdateScheduledQueryControl:output_type -> chalk.server.v1.UpdateScheduledQueryControlResponse
+	10, // 28: chalk.server.v1.ScheduledQueryService.GetScheduledQuerySchedule:output_type -> chalk.server.v1.GetScheduledQueryScheduleResponse
+	14, // 29: chalk.server.v1.ScheduledQueryService.GetScheduledQueryFeatureStatistics:output_type -> chalk.server.v1.GetScheduledQueryFeatureStatisticsResponse
+	23, // [23:30] is the sub-list for method output_type
+	16, // [16:23] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_scheduled_query_proto_init() }
@@ -805,13 +1182,18 @@ func file_chalk_server_v1_scheduled_query_proto_init() {
 		(*GetScheduledQueryScheduleRequest_ScheduleId)(nil),
 		(*GetScheduledQueryScheduleRequest_CronQueryId)(nil),
 	}
+	file_chalk_server_v1_scheduled_query_proto_msgTypes[11].OneofWrappers = []any{
+		(*GetScheduledQueryFeatureStatisticsRequest_CronQueryId)(nil),
+		(*GetScheduledQueryFeatureStatisticsRequest_CronQueryName)(nil),
+	}
+	file_chalk_server_v1_scheduled_query_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_scheduled_query_proto_rawDesc), len(file_chalk_server_v1_scheduled_query_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

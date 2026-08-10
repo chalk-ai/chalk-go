@@ -851,23 +851,74 @@ func (x *ArgoWorkflowStatus) GetResourcesDuration() *ArgoWorkflowResourcesDurati
 	return nil
 }
 
+// ArgoWorkflowBuild holds Chalk-derived properties (not Argo-native Workflow fields).
+type ArgoWorkflowBuild struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	BaseImage         string                 `protobuf:"bytes,1,opt,name=base_image,json=baseImage,proto3" json:"base_image,omitempty"`
+	ImageDestinations []string               `protobuf:"bytes,2,rep,name=image_destinations,json=imageDestinations,proto3" json:"image_destinations,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ArgoWorkflowBuild) Reset() {
+	*x = ArgoWorkflowBuild{}
+	mi := &file_chalk_argo_v1_workflow_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ArgoWorkflowBuild) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArgoWorkflowBuild) ProtoMessage() {}
+
+func (x *ArgoWorkflowBuild) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_argo_v1_workflow_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArgoWorkflowBuild.ProtoReflect.Descriptor instead.
+func (*ArgoWorkflowBuild) Descriptor() ([]byte, []int) {
+	return file_chalk_argo_v1_workflow_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ArgoWorkflowBuild) GetBaseImage() string {
+	if x != nil {
+		return x.BaseImage
+	}
+	return ""
+}
+
+func (x *ArgoWorkflowBuild) GetImageDestinations() []string {
+	if x != nil {
+		return x.ImageDestinations
+	}
+	return nil
+}
+
 type ArgoWorkflow struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
 	Metadata *ArgoWorkflowMetadata  `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Status   *ArgoWorkflowStatus    `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
 	Spec     *ArgoWorkflowSpec      `protobuf:"bytes,3,opt,name=spec,proto3,oneof" json:"spec,omitempty"`
-	// image_destinations are the fully-qualified container image references that
-	// this workflow pushes to. For build-and-push workflows, this is extracted
-	// from the kaniko --destination=... arguments on the docker-build template.
-	// Empty for workflows that don't push images.
-	ImageDestinations []string `protobuf:"bytes,4,rep,name=image_destinations,json=imageDestinations,proto3" json:"image_destinations,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/argo/v1/workflow.proto.
+	ImageDestinations []string           `protobuf:"bytes,4,rep,name=image_destinations,json=imageDestinations,proto3" json:"image_destinations,omitempty"`
+	Build             *ArgoWorkflowBuild `protobuf:"bytes,5,opt,name=build,proto3,oneof" json:"build,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ArgoWorkflow) Reset() {
 	*x = ArgoWorkflow{}
-	mi := &file_chalk_argo_v1_workflow_proto_msgTypes[11]
+	mi := &file_chalk_argo_v1_workflow_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -879,7 +930,7 @@ func (x *ArgoWorkflow) String() string {
 func (*ArgoWorkflow) ProtoMessage() {}
 
 func (x *ArgoWorkflow) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_argo_v1_workflow_proto_msgTypes[11]
+	mi := &file_chalk_argo_v1_workflow_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -892,7 +943,7 @@ func (x *ArgoWorkflow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgoWorkflow.ProtoReflect.Descriptor instead.
 func (*ArgoWorkflow) Descriptor() ([]byte, []int) {
-	return file_chalk_argo_v1_workflow_proto_rawDescGZIP(), []int{11}
+	return file_chalk_argo_v1_workflow_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ArgoWorkflow) GetMetadata() *ArgoWorkflowMetadata {
@@ -916,9 +967,17 @@ func (x *ArgoWorkflow) GetSpec() *ArgoWorkflowSpec {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/argo/v1/workflow.proto.
 func (x *ArgoWorkflow) GetImageDestinations() []string {
 	if x != nil {
 		return x.ImageDestinations
+	}
+	return nil
+}
+
+func (x *ArgoWorkflow) GetBuild() *ArgoWorkflowBuild {
+	if x != nil {
+		return x.Build
 	}
 	return nil
 }
@@ -1026,13 +1085,19 @@ const file_chalk_argo_v1_workflow_proto_rawDesc = "" +
 	"\v_started_atB\x0e\n" +
 	"\f_finished_atB\v\n" +
 	"\t_progressB\x15\n" +
-	"\x13_resources_duration\"\xfc\x01\n" +
+	"\x13_resources_duration\"a\n" +
+	"\x11ArgoWorkflowBuild\x12\x1d\n" +
+	"\n" +
+	"base_image\x18\x01 \x01(\tR\tbaseImage\x12-\n" +
+	"\x12image_destinations\x18\x02 \x03(\tR\x11imageDestinations\"\xc7\x02\n" +
 	"\fArgoWorkflow\x12?\n" +
 	"\bmetadata\x18\x01 \x01(\v2#.chalk.argo.v1.ArgoWorkflowMetadataR\bmetadata\x129\n" +
 	"\x06status\x18\x02 \x01(\v2!.chalk.argo.v1.ArgoWorkflowStatusR\x06status\x128\n" +
-	"\x04spec\x18\x03 \x01(\v2\x1f.chalk.argo.v1.ArgoWorkflowSpecH\x00R\x04spec\x88\x01\x01\x12-\n" +
-	"\x12image_destinations\x18\x04 \x03(\tR\x11imageDestinationsB\a\n" +
-	"\x05_spec*\x9e\x02\n" +
+	"\x04spec\x18\x03 \x01(\v2\x1f.chalk.argo.v1.ArgoWorkflowSpecH\x00R\x04spec\x88\x01\x01\x121\n" +
+	"\x12image_destinations\x18\x04 \x03(\tB\x02\x18\x01R\x11imageDestinations\x12;\n" +
+	"\x05build\x18\x05 \x01(\v2 .chalk.argo.v1.ArgoWorkflowBuildH\x01R\x05build\x88\x01\x01B\a\n" +
+	"\x05_specB\b\n" +
+	"\x06_build*\x9e\x02\n" +
 	"\x11ArgoWorkflowPhase\x12#\n" +
 	"\x1fARGO_WORKFLOW_PHASE_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bARGO_WORKFLOW_PHASE_PENDING\x10\x01\x12\x1f\n" +
@@ -1057,7 +1122,7 @@ func file_chalk_argo_v1_workflow_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_argo_v1_workflow_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_argo_v1_workflow_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_argo_v1_workflow_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_chalk_argo_v1_workflow_proto_goTypes = []any{
 	(ArgoWorkflowPhase)(0),                  // 0: chalk.argo.v1.ArgoWorkflowPhase
 	(*ArgoWorkflowMetadata)(nil),            // 1: chalk.argo.v1.ArgoWorkflowMetadata
@@ -1071,38 +1136,40 @@ var file_chalk_argo_v1_workflow_proto_goTypes = []any{
 	(*ArgoWorkflowResourcesDuration)(nil),   // 9: chalk.argo.v1.ArgoWorkflowResourcesDuration
 	(*ArgoWorkflowNodeStatus)(nil),          // 10: chalk.argo.v1.ArgoWorkflowNodeStatus
 	(*ArgoWorkflowStatus)(nil),              // 11: chalk.argo.v1.ArgoWorkflowStatus
-	(*ArgoWorkflow)(nil),                    // 12: chalk.argo.v1.ArgoWorkflow
-	nil,                                     // 13: chalk.argo.v1.ArgoWorkflowMetadata.LabelsEntry
-	nil,                                     // 14: chalk.argo.v1.ArgoWorkflowMetadata.AnnotationsEntry
-	nil,                                     // 15: chalk.argo.v1.ArgoWorkflowStatus.NodesEntry
-	(*timestamppb.Timestamp)(nil),           // 16: google.protobuf.Timestamp
+	(*ArgoWorkflowBuild)(nil),               // 12: chalk.argo.v1.ArgoWorkflowBuild
+	(*ArgoWorkflow)(nil),                    // 13: chalk.argo.v1.ArgoWorkflow
+	nil,                                     // 14: chalk.argo.v1.ArgoWorkflowMetadata.LabelsEntry
+	nil,                                     // 15: chalk.argo.v1.ArgoWorkflowMetadata.AnnotationsEntry
+	nil,                                     // 16: chalk.argo.v1.ArgoWorkflowStatus.NodesEntry
+	(*timestamppb.Timestamp)(nil),           // 17: google.protobuf.Timestamp
 }
 var file_chalk_argo_v1_workflow_proto_depIdxs = []int32{
-	16, // 0: chalk.argo.v1.ArgoWorkflowMetadata.creation_timestamp:type_name -> google.protobuf.Timestamp
-	13, // 1: chalk.argo.v1.ArgoWorkflowMetadata.labels:type_name -> chalk.argo.v1.ArgoWorkflowMetadata.LabelsEntry
-	14, // 2: chalk.argo.v1.ArgoWorkflowMetadata.annotations:type_name -> chalk.argo.v1.ArgoWorkflowMetadata.AnnotationsEntry
+	17, // 0: chalk.argo.v1.ArgoWorkflowMetadata.creation_timestamp:type_name -> google.protobuf.Timestamp
+	14, // 1: chalk.argo.v1.ArgoWorkflowMetadata.labels:type_name -> chalk.argo.v1.ArgoWorkflowMetadata.LabelsEntry
+	15, // 2: chalk.argo.v1.ArgoWorkflowMetadata.annotations:type_name -> chalk.argo.v1.ArgoWorkflowMetadata.AnnotationsEntry
 	2,  // 3: chalk.argo.v1.ArgoWorkflowArguments.parameters:type_name -> chalk.argo.v1.ArgoWorkflowParameter
 	3,  // 4: chalk.argo.v1.ArgoWorkflowSpec.arguments:type_name -> chalk.argo.v1.ArgoWorkflowArguments
 	5,  // 5: chalk.argo.v1.ArgoWorkflowNodeOutputs.parameters:type_name -> chalk.argo.v1.ArgoWorkflowNodeOutputParameter
 	7,  // 6: chalk.argo.v1.ArgoWorkflowNodeInputs.parameters:type_name -> chalk.argo.v1.ArgoWorkflowNodeInputParameter
-	16, // 7: chalk.argo.v1.ArgoWorkflowNodeStatus.started_at:type_name -> google.protobuf.Timestamp
-	16, // 8: chalk.argo.v1.ArgoWorkflowNodeStatus.finished_at:type_name -> google.protobuf.Timestamp
+	17, // 7: chalk.argo.v1.ArgoWorkflowNodeStatus.started_at:type_name -> google.protobuf.Timestamp
+	17, // 8: chalk.argo.v1.ArgoWorkflowNodeStatus.finished_at:type_name -> google.protobuf.Timestamp
 	6,  // 9: chalk.argo.v1.ArgoWorkflowNodeStatus.outputs:type_name -> chalk.argo.v1.ArgoWorkflowNodeOutputs
 	9,  // 10: chalk.argo.v1.ArgoWorkflowNodeStatus.resources_duration:type_name -> chalk.argo.v1.ArgoWorkflowResourcesDuration
 	8,  // 11: chalk.argo.v1.ArgoWorkflowNodeStatus.inputs:type_name -> chalk.argo.v1.ArgoWorkflowNodeInputs
-	16, // 12: chalk.argo.v1.ArgoWorkflowStatus.started_at:type_name -> google.protobuf.Timestamp
-	16, // 13: chalk.argo.v1.ArgoWorkflowStatus.finished_at:type_name -> google.protobuf.Timestamp
-	15, // 14: chalk.argo.v1.ArgoWorkflowStatus.nodes:type_name -> chalk.argo.v1.ArgoWorkflowStatus.NodesEntry
+	17, // 12: chalk.argo.v1.ArgoWorkflowStatus.started_at:type_name -> google.protobuf.Timestamp
+	17, // 13: chalk.argo.v1.ArgoWorkflowStatus.finished_at:type_name -> google.protobuf.Timestamp
+	16, // 14: chalk.argo.v1.ArgoWorkflowStatus.nodes:type_name -> chalk.argo.v1.ArgoWorkflowStatus.NodesEntry
 	9,  // 15: chalk.argo.v1.ArgoWorkflowStatus.resources_duration:type_name -> chalk.argo.v1.ArgoWorkflowResourcesDuration
 	1,  // 16: chalk.argo.v1.ArgoWorkflow.metadata:type_name -> chalk.argo.v1.ArgoWorkflowMetadata
 	11, // 17: chalk.argo.v1.ArgoWorkflow.status:type_name -> chalk.argo.v1.ArgoWorkflowStatus
 	4,  // 18: chalk.argo.v1.ArgoWorkflow.spec:type_name -> chalk.argo.v1.ArgoWorkflowSpec
-	10, // 19: chalk.argo.v1.ArgoWorkflowStatus.NodesEntry.value:type_name -> chalk.argo.v1.ArgoWorkflowNodeStatus
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	12, // 19: chalk.argo.v1.ArgoWorkflow.build:type_name -> chalk.argo.v1.ArgoWorkflowBuild
+	10, // 20: chalk.argo.v1.ArgoWorkflowStatus.NodesEntry.value:type_name -> chalk.argo.v1.ArgoWorkflowNodeStatus
+	21, // [21:21] is the sub-list for method output_type
+	21, // [21:21] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chalk_argo_v1_workflow_proto_init() }
@@ -1114,14 +1181,14 @@ func file_chalk_argo_v1_workflow_proto_init() {
 	file_chalk_argo_v1_workflow_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_argo_v1_workflow_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_argo_v1_workflow_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_argo_v1_workflow_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_argo_v1_workflow_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_argo_v1_workflow_proto_rawDesc), len(file_chalk_argo_v1_workflow_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
