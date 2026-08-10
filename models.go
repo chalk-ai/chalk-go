@@ -10,6 +10,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/expr"
+	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
@@ -1001,6 +1002,33 @@ type TriggerResolverRunResult struct {
 
 	// Status is the current status of the resolver run.
 	Status string `json:"status"`
+}
+
+// TriggerAggregateBackfillParams configures an aggregate backfill.
+//
+// Set PlanOnly to inspect the generated plan without creating any jobs.
+type TriggerAggregateBackfillParams struct {
+	Features     []string
+	LowerBound   *time.Time
+	UpperBound   *time.Time
+	Resolver     *string
+	QueryTags    []string
+	StoreOffline *bool
+	// AllowEmptyTiles controls whether empty tile spans are skipped. Nil uses
+	// the server default.
+	AllowEmptyTiles *bool
+	Exact           bool
+	EnableProfiling bool
+	ResourceGroup   *string
+	InputSQL        *string
+	PlanOnly        bool
+}
+
+// TriggerAggregateBackfillResult contains the plan and any jobs created from it.
+// Jobs is empty when PlanOnly is set.
+type TriggerAggregateBackfillResult struct {
+	Plan *aggregatev1.PlanAggregateBackfillResponse
+	Jobs []*aggregatev1.CreateAggregateBackfillJobResponse
 }
 
 type GetRunStatusParams struct {

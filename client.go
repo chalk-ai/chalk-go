@@ -153,6 +153,10 @@ type Client interface {
 	// See https://docs.chalk.ai/docs/runs for more information.
 	TriggerResolverRun(ctx context.Context, args TriggerResolverRunParams) (TriggerResolverRunResult, error)
 
+	// TriggerAggregateBackfill plans aggregate backfills and, unless PlanOnly is
+	// set, submits the resulting jobs.
+	TriggerAggregateBackfill(ctx context.Context, args TriggerAggregateBackfillParams) (*TriggerAggregateBackfillResult, error)
+
 	// GetRunStatus retrieves the status of an offline resolver run.
 	// See https://docs.chalk.ai/docs/runs for more information.
 	GetRunStatus(ctx context.Context, args GetRunStatusParams) (GetRunStatusResult, error)
