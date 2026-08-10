@@ -337,6 +337,10 @@ func (c *clientImpl) TriggerAggregateBackfill(
 	ctx context.Context,
 	params TriggerAggregateBackfillParams,
 ) (*TriggerAggregateBackfillResult, error) {
+	if params.StoreOffline != nil && *params.StoreOffline && (params.LowerBound == nil || params.UpperBound == nil) {
+		return nil, errors.New("lower and upper bounds are required when StoreOffline is true")
+	}
+
 	var lowerBound, upperBound *timestamppb.Timestamp
 	if params.LowerBound != nil {
 		lowerBound = timestamppb.New(*params.LowerBound)
