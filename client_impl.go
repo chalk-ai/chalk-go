@@ -742,10 +742,12 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
-			Token:      nil,
-			HttpClient: httpClient,
-			Config:     manager,
-			Timeout:    timeout,
+			Token:                      cfg.JWT,
+			HttpClient:                 httpClient,
+			Config:                     manager,
+			Timeout:                    timeout,
+			SkipEnvironmentNameMapping: cfg.SkipEnvironmentNameMapping,
+			SkipEngineMapping:          cfg.SkipEngineMapping,
 		},
 	)
 	if err != nil {
