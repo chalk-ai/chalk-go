@@ -10,6 +10,7 @@ import (
 )
 
 type aggregateBackfillService struct {
+	planRequests   int
 	createRequests []*aggregatev1.CreateAggregateBackfillJobRequest
 }
 
@@ -17,6 +18,7 @@ func (h *aggregateBackfillService) PlanAggregateBackfill(
 	_ context.Context,
 	_ *connect.Request[aggregatev1.PlanAggregateBackfillRequest],
 ) (*connect.Response[aggregatev1.PlanAggregateBackfillResponse], error) {
+	h.planRequests++
 	return connect.NewResponse(&aggregatev1.PlanAggregateBackfillResponse{
 		AggregateBackfillId: "aggregate-backfill-id",
 		Backfills: []*aggregatev1.AggregateBackfillWithCostEstimate{{
@@ -29,6 +31,22 @@ func (h *aggregateBackfillService) PlanAggregateBackfill(
 			},
 		}},
 	}), nil
+}
+
+func TestTriggerAggregateBackfillRequiresBoundsForOfflineStorage(t *testing.T) {
+	service := &aggregateBackfillService{}
+	client := &clientImpl{aggregateClient: service}
+	storeOffline := true
+
+	result, err := client.TriggerAggregateBackfill(context.Background(), TriggerAggregateBackfillParams{
+		Features:     []string{"feature.count"},
+		StoreOffline: &storeOffline,
+	})
+
+	require.Nil(t, result)
+	require.EqualError(t, err, "lower and upper bounds are required when StoreOffline is true")
+	require.Zero(t, service.planRequests)
+	require.Empty(t, service.createRequests)
 }
 
 func (h *aggregateBackfillService) CreateAggregateBackfillJob(
