@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/auth"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/cockroachdb/errors"
 )
@@ -323,6 +324,11 @@ type ClientConfig struct {
 	// setting the query server based on the token's engine maps. If true,
 	// the query server will not be automatically resolved from the token.
 	SkipEngineMapping bool
+	// TokenProvider supplies a JWT whenever the cached one goes stale, instead of
+	// running the client-credentials exchange. Use it when the credential rotates:
+	// a JWT on its own is a one-shot snapshot, so the client stops working the
+	// moment it expires. Sufficient on its own; JWT need not also be set.
+	TokenProvider auth.TokenProvider
 }
 
 // NewClient creates a Client with authentication settings configured.

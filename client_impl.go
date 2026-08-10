@@ -743,6 +743,7 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		ctx,
 		&auth.Inputs{
 			Token:                      cfg.JWT,
+			TokenProvider:              cfg.TokenProvider,
 			HttpClient:                 httpClient,
 			Config:                     manager,
 			Timeout:                    timeout,

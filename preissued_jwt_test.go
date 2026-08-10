@@ -10,10 +10,14 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// Every client must be constructible from a pre-issued JWT alone, with no client
-// credentials and no readable chalk.yml. That is the whole point of accepting a
-// JWT: the caller has already authenticated and has deliberately not been given
-// a secret.
+// Every client must be constructible from a pre-issued JWT with no client
+// credentials and no readable chalk.yml. That is the point of accepting a JWT:
+// the caller has already authenticated and deliberately has no secret.
+//
+// Note what else is required. A raw pre-issued JWT carries no EnvironmentIdToName
+// or engine maps, so both Skip flags are needed and EnvironmentId must be given
+// explicitly -- the token cannot supply it. So it is "JWT instead of credentials",
+// not "JWT and nothing else".
 //
 // This used to fail for all three clients, because config.NewManager rejected
 // empty credentials before auth.NewManager ever looked at the token. It only

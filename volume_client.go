@@ -62,7 +62,13 @@ type VolumeClientConfig struct {
 	Timeout                    time.Duration
 	SkipEnvironmentNameMapping bool
 	SkipEngineMapping          bool
-	CommitAuthor               string
+
+	// TokenProvider supplies a JWT whenever the cached one goes stale, instead of
+	// running the client-credentials exchange. Use it when the credential rotates:
+	// a JWT on its own is a one-shot snapshot, so the client stops working the
+	// moment it expires. Sufficient on its own; JWT need not also be set.
+	TokenProvider auth.TokenProvider
+	CommitAuthor  string
 }
 
 // VolumeRef identifies a volume by name or id.
@@ -209,6 +215,7 @@ func NewVolumeClient(ctx context.Context, configs ...*VolumeClientConfig) (Volum
 	}
 	tokenManager, err := auth.NewManager(ctx, &auth.Inputs{
 		Token:                      cfg.JWT,
+		TokenProvider:              cfg.TokenProvider,
 		HttpClient:                 cfg.HTTPClient,
 		Config:                     manager,
 		Timeout:                    timeout,

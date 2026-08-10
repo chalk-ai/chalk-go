@@ -124,6 +124,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		ctx,
 		&auth.Inputs{
 			Token:                      cfg.JWT,
+			TokenProvider:              cfg.TokenProvider,
 			HttpClient:                 cfg.HTTPClient,
 			Config:                     configManager,
 			Timeout:                    timeout,
