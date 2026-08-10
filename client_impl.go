@@ -22,6 +22,8 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/config"
+	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
+	"github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1/aggregatev1connect"
 	"github.com/chalk-ai/chalk-go/gen/chalk/container/v1/containerv1connect"
 	"github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v1/sandboxv1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
@@ -29,6 +31,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type clientImpl struct {
@@ -50,6 +53,7 @@ type clientImpl struct {
 	datasetMetadataClient serverv1connect.DatasetMetadataServiceClient
 	customImageClient     sandboxv1connect.CustomImageServiceClient
 	containerClient       containerv1connect.ContainerServiceClient
+	aggregateClient       aggregatev1connect.AggregateServiceClient
 }
 
 type HTTPClient interface {
@@ -327,6 +331,81 @@ func (c *clientImpl) TriggerResolverRun(ctx context.Context, request TriggerReso
 		},
 	)
 	return response, errors.Wrap(err, "triggering resolver run")
+}
+
+func (c *clientImpl) TriggerAggregateBackfill(
+	ctx context.Context,
+	params TriggerAggregateBackfillParams,
+) (*TriggerAggregateBackfillResult, error) {
+	var lowerBound, upperBound *timestamppb.Timestamp
+	if params.LowerBound != nil {
+		lowerBound = timestamppb.New(*params.LowerBound)
+	}
+	if params.UpperBound != nil {
+		upperBound = timestamppb.New(*params.UpperBound)
+	}
+
+	planResponse, err := c.aggregateClient.PlanAggregateBackfill(ctx, connect.NewRequest(&aggregatev1.PlanAggregateBackfillRequest{
+		Params: &aggregatev1.AggregateBackfillUserParams{
+			Features:   params.Features,
+			LowerBound: lowerBound,
+			UpperBound: upperBound,
+			Resolver:   params.Resolver,
+			Exact:      params.Exact,
+			Tags:       params.QueryTags,
+			InputSql:   params.InputSQL,
+		},
+	}))
+	if err != nil {
+		return nil, errors.Wrap(err, "planning aggregate backfill")
+	}
+	if len(planResponse.Msg.Errors) > 0 {
+		return nil, errors.Newf("planning aggregate backfill: %s", strings.Join(planResponse.Msg.Errors, "; "))
+	}
+
+	result := &TriggerAggregateBackfillResult{Plan: planResponse.Msg}
+	if params.PlanOnly {
+		return result, nil
+	}
+
+	for _, planned := range planResponse.Msg.Backfills {
+		backfill := planned.GetBackfill()
+		if backfill == nil {
+			continue
+		}
+
+		request := &aggregatev1.CreateAggregateBackfillJobRequest{
+			Resolver:            &backfill.Resolver,
+			BucketFeature:       &backfill.DatetimeFeature,
+			LowerBound:          backfill.LowerBound,
+			UpperBound:          backfill.UpperBound,
+			EnableProfiling:     params.EnableProfiling,
+			AggregateBackfillId: &planResponse.Msg.AggregateBackfillId,
+			QueryTags:           params.QueryTags,
+			StoreOffline:        params.StoreOffline,
+			InputSql:            backfill.InputSql,
+		}
+		request.AllowEmptyTiles = params.AllowEmptyTiles
+		if params.ResourceGroup != nil {
+			request.ResourceGroup = params.ResourceGroup
+		}
+		for _, series := range backfill.Series {
+			for _, rule := range series.Rules {
+				request.Features = append(request.Features, rule.DependentFeatures...)
+			}
+		}
+
+		createResponse, err := c.aggregateClient.CreateAggregateBackfillJob(ctx, connect.NewRequest(request))
+		if err != nil {
+			return result, errors.Wrap(err, "creating aggregate backfill job")
+		}
+		if len(createResponse.Msg.Errors) > 0 {
+			return result, errors.New("creating aggregate backfill job failed")
+		}
+		result.Jobs = append(result.Jobs, createResponse.Msg)
+	}
+
+	return result, nil
 }
 
 func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParams) (GetRunStatusResult, error) {
@@ -763,6 +842,10 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 				}
 			}
 			req.Header().Set("x-chalk-server", "go-api")
+			if cfg.Branch != "" {
+				req.Header().Set("x-chalk-branch-id", cfg.Branch)
+				req.Header().Set("x-chalk-deployment-type", "branch-grpc")
+			}
 			req.Header().Set("User-Agent", internal.UserAgent())
 			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
 				req.Header().Set("x-chalk-env-id", envId)
@@ -791,6 +874,12 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		apiServerURL,
 		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
 	)
+	aggregateClient := aggregatev1connect.NewAggregateServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+		connect.WithGRPC(),
+	)
 
 	return &clientImpl{
 		Branch:                cfg.Branch,
@@ -806,6 +895,7 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		datasetMetadataClient: datasetMetadataClient,
 		customImageClient:     customImageClient,
 		containerClient:       containerClient,
+		aggregateClient:       aggregateClient,
 	}, nil
 }
 
