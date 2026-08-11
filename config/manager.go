@@ -2,8 +2,6 @@ package config
 
 import (
 	"context"
-
-	"github.com/cockroachdb/errors"
 )
 
 type Manager struct {
@@ -14,6 +12,15 @@ type Manager struct {
 	ClientSecret    SourcedConfig[ClientSecret]
 	EnvironmentId   SourcedConfig[string]
 	Scope           SourcedConfig[string]
+
+	// projectConfigErr records why chalk.yml could not be read, if it could not.
+	// Resolution proceeds regardless: credentials may come from a flag or the
+	// environment, or a pre-issued JWT may make them unnecessary.
+	projectConfigErr error
+}
+
+func (m *Manager) ProjectConfigErr() error {
+	return m.projectConfigErr
 }
 
 type ManagerInputs struct {
@@ -49,6 +56,10 @@ func (m *Manager) SetJSONQueryServer(server SourcedConfig[string]) {
 }
 
 func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
+	// A failed read is not fatal: credentials may come from a flag or the
+	// environment, or a pre-issued JWT may make them unnecessary entirely. The
+	// error is retained on the Manager so auth can report it if authentication
+	// then turns out to have nothing to use.
 	chalkYamlConfigOrNil, configPath, chalkYamlErr := GetProjectAuthConfig(ctx, inputs.ConfigDir)
 	chalkYamlConfig := ProjectToken{}
 	if chalkYamlConfigOrNil != nil {
@@ -89,17 +100,8 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 			NewFromEnvVar[string](ctx, "_CHALK_ACTIVE_ENVIRONMENT"),
 			NewFromFile(configPath, chalkYamlConfig.ActiveEnvironment),
 		),
-		Scope: GetFirstNonEmpty(NewFromArg(inputs.Scope)),
-	}
-
-	if manager.ClientId.Value == "" || manager.ClientSecret.Value == "" {
-		if chalkYamlErr != nil {
-			return nil, errors.Wrap(
-				chalkYamlErr,
-				"could not read chalk.yml and no client ID and client secret were provided",
-			)
-		}
-		return nil, errors.Newf("could not find values for client id and client secret")
+		Scope:            GetFirstNonEmpty(NewFromArg(inputs.Scope)),
+		projectConfigErr: chalkYamlErr,
 	}
 
 	return manager, nil

@@ -795,18 +795,16 @@ func TestVolumeResolveCommitAuthorInvalidJSON(t *testing.T) {
 	require.Empty(t, client.(*volumeClientImpl).resolveCommitAuthor(context.Background()))
 }
 
-func TestVolumeResolveCommitAuthorUsesBodyEnvID(t *testing.T) {
+func TestVolumeResolveCommitAuthorUsesAuthEnvironment(t *testing.T) {
 	t.Parallel()
 	_, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"user":"bob","environment_id":"env-from-body"}`))
 	})
-	// Create a client normally, then clear envID so the body's environment_id is used.
 	client := newClientWithServer(t, url)
 	impl := client.(*volumeClientImpl)
-	impl.envID = ""
 	author := impl.resolveCommitAuthor(context.Background())
-	require.Equal(t, "chalk:env-from-body:agent:bob", author)
+	require.Equal(t, "chalk:env-test:agent:bob", author)
 }
 
 func TestVolumeDownloadGetFileError(t *testing.T) {

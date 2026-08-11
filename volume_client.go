@@ -63,6 +63,12 @@ type VolumeClientConfig struct {
 	SkipEnvironmentNameMapping bool
 	SkipEngineMapping          bool
 	CommitAuthor               string
+
+	// AuthProvider supplies a JWT and effective environment whenever the cached
+	// credential goes stale. Use it when the credential rotates: a JWT on its own
+	// is a one-shot snapshot, so the client stops working the moment it expires.
+	// Sufficient on its own; JWT need not also be set.
+	AuthProvider auth.AuthProvider
 }
 
 // VolumeRef identifies a volume by name or id.
@@ -169,7 +175,6 @@ type volumeClientImpl struct {
 	httpClient   connect.HTTPClient
 	apiServer    string
 	tokenManager *auth.Manager
-	envID        string
 	timeout      *time.Duration
 	author       string
 	authorOnce   sync.Once
@@ -209,6 +214,7 @@ func NewVolumeClient(ctx context.Context, configs ...*VolumeClientConfig) (Volum
 	}
 	tokenManager, err := auth.NewManager(ctx, &auth.Inputs{
 		Token:                      cfg.JWT,
+		AuthProvider:               cfg.AuthProvider,
 		HttpClient:                 cfg.HTTPClient,
 		Config:                     manager,
 		Timeout:                    timeout,
@@ -219,13 +225,11 @@ func NewVolumeClient(ctx context.Context, configs ...*VolumeClientConfig) (Volum
 		return nil, errors.Wrap(err, "initializing token manager")
 	}
 
-	envID := manager.EnvironmentId.Value
 	apiServer := manager.GetAPIServer().Value
 	client := &volumeClientImpl{
 		httpClient:   cfg.HTTPClient,
 		apiServer:    apiServer,
 		tokenManager: tokenManager,
-		envID:        envID,
 		timeout:      timeout,
 		author:       cfg.CommitAuthor,
 	}
@@ -259,14 +263,12 @@ func (c *volumeClientImpl) authInterceptor() connect.UnaryInterceptorFunc {
 func (c *volumeClientImpl) addAuthHeaders(ctx context.Context, header http.Header) error {
 	header.Set("x-chalk-server", "go-api")
 	header.Set("User-Agent", internal.UserAgent())
-	if c.envID != "" {
-		header.Set("x-chalk-env-id", c.envID)
-	}
-	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
 	if err != nil {
 		return err
 	}
-	header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+	header.Set("x-chalk-env-id", authSnapshot.EnvironmentID)
+	header.Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
 	return nil
 }
 
@@ -763,7 +765,10 @@ func (c *volumeClientImpl) resolveCommitAuthor(ctx context.Context) string {
 		if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
 			return
 		}
-		envID := c.envID
+		// Use the environment that authenticated this exact who-am-i request.
+		// Resolving auth again here could observe a rotation and pair the response
+		// user with an environment that was not actually sent.
+		envID := req.Header.Get("x-chalk-env-id")
 		if envID == "" {
 			envID = body.EnvironmentID
 		}

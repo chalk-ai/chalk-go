@@ -6,6 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/auth"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
@@ -226,6 +227,11 @@ type GRPCClientConfig struct {
 	// setting the query server based on the token's engine maps. If true,
 	// the query server will not be automatically resolved from the token.
 	SkipEngineMapping bool
+	// AuthProvider supplies a JWT and effective environment whenever the cached
+	// credential goes stale. Use it when the credential rotates: a JWT on its own
+	// is a one-shot snapshot, so the client stops working the moment it expires.
+	// Sufficient on its own; JWT need not also be set.
+	AuthProvider auth.AuthProvider
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

@@ -124,6 +124,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		ctx,
 		&auth.Inputs{
 			Token:                      cfg.JWT,
+			AuthProvider:               cfg.AuthProvider,
 			HttpClient:                 cfg.HTTPClient,
 			Config:                     configManager,
 			Timeout:                    timeout,
@@ -200,14 +201,12 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 					req.Header().Set("x-chalk-deployment-tag", cfg.DeploymentTag)
 				}
 
-				if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
-					req.Header().Set("x-chalk-env-id", envId)
-				}
-				token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+				authSnapshot, err := tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
 				if err != nil {
 					return nil, errors.Wrap(err, "error refreshing config")
 				}
-				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+				req.Header().Set("x-chalk-env-id", authSnapshot.EnvironmentID)
+				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
 				return next(ctx, req)
 			}
 		}
@@ -250,14 +249,12 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 			}
 			req.Header().Set("x-chalk-server", "go-api")
 			req.Header().Set("User-Agent", internal.UserAgent())
-			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
-				req.Header().Set("x-chalk-env-id", envId)
-			}
-			token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+			authSnapshot, err := tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
 			if err != nil {
 				return nil, errors.Wrap(err, "error refreshing config")
 			}
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+			req.Header().Set("x-chalk-env-id", authSnapshot.EnvironmentID)
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
 			return next(ctx, req)
 		}
 	}
@@ -663,15 +660,16 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 }
 
 func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
-	res, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
 	if err != nil {
 		return nil, errors.Wrap(err, "getting JWT token")
 	}
+	res := authSnapshot.Token
 
 	return &TokenResult{
 		AccessToken:        res.AccessToken,
 		ValidUntil:         res.ExpiresAt.AsTime(),
-		PrimaryEnvironment: c.config.EnvironmentId.Value,
+		PrimaryEnvironment: authSnapshot.EnvironmentID,
 		Engines:            res.Engines,
 	}, nil
 }

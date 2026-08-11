@@ -484,13 +484,14 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) (err error
 }
 
 func (c *clientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
-	res, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
+	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(1*time.Minute))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+	res := authSnapshot.Token
 	return &TokenResult{
 		AccessToken:        res.AccessToken,
-		PrimaryEnvironment: c.config.EnvironmentId.Value,
+		PrimaryEnvironment: authSnapshot.EnvironmentID,
 		ValidUntil:         res.ExpiresAt.AsTime(),
 		Engines:            res.Engines,
 	}, nil
@@ -533,12 +534,13 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	headers := c.getHeaders(args.Branch, args.ResourceGroupOverride)
 	request.Header = headers
 
-	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
+	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(1*time.Minute))
 	if err != nil {
 		return errors.Wrap(err, "getting JWT for request")
 	}
 
-	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+	request.Header.Set("X-Chalk-Env-Id", authSnapshot.EnvironmentID)
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
 	if args.Versioned {
 		request.Header.Set("X-Chalk-Features-Versioned", "true")
 	}
@@ -618,12 +620,13 @@ func (c *clientImpl) retryRequest(
 		return nil, err
 	}
 	newRequest.Header = originalRequest.Header
-	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
+	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(1*time.Minute))
 	if err != nil {
 		return originalResponse, errors.CombineErrors(originalError, err)
 	}
 
-	newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+	newRequest.Header.Set("X-Chalk-Env-Id", authSnapshot.EnvironmentID)
+	newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
 	res, err := c.httpClient.Do(newRequest)
 	if err != nil {
 		return nil, err
@@ -725,14 +728,12 @@ func (c *clientImpl) CancelOfflineQuery(ctx context.Context, offlineQueryId stri
 			return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
 				req.Header().Set("x-chalk-server", "go-api")
 				req.Header().Set("User-Agent", internal.UserAgent())
-				if envId := c.tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
-					req.Header().Set("x-chalk-env-id", envId)
-				}
-				token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+				authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
 				if err != nil {
 					return nil, errors.Wrap(err, "error refreshing token")
 				}
-				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+				req.Header().Set("x-chalk-env-id", authSnapshot.EnvironmentID)
+				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
 				return next(ctx, req)
 			}
 		})),
@@ -825,10 +826,13 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
-			Token:      nil,
-			HttpClient: httpClient,
-			Config:     manager,
-			Timeout:    timeout,
+			Token:                      cfg.JWT,
+			AuthProvider:               cfg.AuthProvider,
+			HttpClient:                 httpClient,
+			Config:                     manager,
+			Timeout:                    timeout,
+			SkipEnvironmentNameMapping: cfg.SkipEnvironmentNameMapping,
+			SkipEngineMapping:          cfg.SkipEngineMapping,
 		},
 	)
 	if err != nil {
@@ -851,14 +855,12 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 				req.Header().Set("x-chalk-deployment-type", "branch-grpc")
 			}
 			req.Header().Set("User-Agent", internal.UserAgent())
-			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
-				req.Header().Set("x-chalk-env-id", envId)
-			}
-			token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+			authSnapshot, err := tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
 			if err != nil {
 				return nil, errors.Wrap(err, "error refreshing token")
 			}
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+			req.Header().Set("x-chalk-env-id", authSnapshot.EnvironmentID)
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
 			return next(ctx, req)
 		}
 	}

@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/auth"
+	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/cockroachdb/errors"
 )
 
@@ -311,6 +313,26 @@ type ClientConfig struct {
 	// Allocator specifies the allocator to use for creating Arrow objects.
 	// Defaults to `memory.DefaultAllocator`.
 	Allocator memory.Allocator
+
+	// JWT is a valid Chalk JWT that can be used to authenticate requests
+	// uncommon to be used, prefer ClientId and ClientSecret instead.
+	JWT *serverv1.GetTokenResponse
+
+	// SkipEnvironmentNameMapping controls whether the TokenManager should
+	// skip validating and mapping environment names to IDs. If true, the
+	// EnvironmentId will be used verbatim without validation against the
+	// token's EnvironmentIdToName map.
+	SkipEnvironmentNameMapping bool
+
+	// SkipEngineMapping controls whether the TokenManager should skip
+	// setting the query server based on the token's engine maps. If true,
+	// the query server will not be automatically resolved from the token.
+	SkipEngineMapping bool
+	// AuthProvider supplies a JWT and effective environment whenever the cached
+	// credential goes stale. Use it when the credential rotates: a JWT on its own
+	// is a one-shot snapshot, so the client stops working the moment it expires.
+	// Sufficient on its own; JWT need not also be set.
+	AuthProvider auth.AuthProvider
 }
 
 // NewClient creates a Client with authentication settings configured.
