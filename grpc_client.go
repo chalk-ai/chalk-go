@@ -227,11 +227,11 @@ type GRPCClientConfig struct {
 	// setting the query server based on the token's engine maps. If true,
 	// the query server will not be automatically resolved from the token.
 	SkipEngineMapping bool
-	// TokenProvider supplies a JWT whenever the cached one goes stale, instead of
-	// running the client-credentials exchange. Use it when the credential rotates:
-	// a JWT on its own is a one-shot snapshot, so the client stops working the
-	// moment it expires. Sufficient on its own; JWT need not also be set.
-	TokenProvider auth.TokenProvider
+	// AuthProvider supplies a JWT and effective environment whenever the cached
+	// credential goes stale. Use it when the credential rotates: a JWT on its own
+	// is a one-shot snapshot, so the client stops working the moment it expires.
+	// Sufficient on its own; JWT need not also be set.
+	AuthProvider auth.AuthProvider
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

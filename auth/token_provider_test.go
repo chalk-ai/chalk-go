@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// These exercise the TokenProvider path without a network. A provider replaces
+// These exercise the AuthProvider path without a network. A provider replaces
 // the client-credentials exchange entirely, so every assertion here would
 // otherwise require a live api-server to disprove.
 
@@ -22,6 +22,10 @@ func tokenValidFor(d time.Duration) *serverv1.GetTokenResponse {
 		AccessToken: "header.payload.signature",
 		ExpiresAt:   timestamppb.New(time.Now().Add(d)),
 	}
+}
+
+func authValidFor(environmentID string, d time.Duration) *AuthSnapshot {
+	return &AuthSnapshot{Token: tokenValidFor(d), EnvironmentID: environmentID}
 }
 
 // managerWithoutCredentials builds a config.Manager with no credentials from any
@@ -48,26 +52,27 @@ func newManagerForTest(t *testing.T, in *Inputs) (*Manager, error) {
 	return NewManager(t.Context(), in)
 }
 
-func TestTokenProviderSuppliesFirstToken(t *testing.T) {
+func TestAuthProviderSuppliesFirstSnapshot(t *testing.T) {
 	t.Parallel()
 
 	calls := 0
 	m, err := newManagerForTest(t, &Inputs{
-		TokenProvider: func(context.Context) (*serverv1.GetTokenResponse, error) {
+		AuthProvider: func(context.Context) (*AuthSnapshot, error) {
 			calls++
-			return tokenValidFor(time.Hour), nil
+			return authValidFor("env-provider", time.Hour), nil
 		},
 	})
 
 	// A provider alone is sufficient: no Token and no credentials.
 	require.NoError(t, err)
 	assert.Equal(t, 1, calls)
-	token, err := m.GetJWT(t.Context(), time.Now())
+	authSnapshot, err := m.GetAuth(t.Context(), time.Now())
 	assert.NoError(t, err)
-	assert.Equal(t, "header.payload.signature", token.AccessToken)
+	assert.Equal(t, "header.payload.signature", authSnapshot.Token.AccessToken)
+	assert.Equal(t, "env-provider", authSnapshot.EnvironmentID)
 }
 
-func TestTokenProviderRefreshesWhenCachedTokenGoesStale(t *testing.T) {
+func TestAuthProviderRefreshesTokenAndEnvironmentTogether(t *testing.T) {
 	t.Parallel()
 
 	calls := 0
@@ -75,31 +80,32 @@ func TestTokenProviderRefreshesWhenCachedTokenGoesStale(t *testing.T) {
 	// ask for, so the next GetJWT must go back to the provider.
 	m, err := newManagerForTest(t, &Inputs{
 		Token: tokenValidFor(30 * time.Second),
-		TokenProvider: func(context.Context) (*serverv1.GetTokenResponse, error) {
+		AuthProvider: func(context.Context) (*AuthSnapshot, error) {
 			calls++
-			return tokenValidFor(time.Hour), nil
+			return authValidFor("env-rotated", time.Hour), nil
 		},
 	})
 	require.NoError(t, err)
 	assert.Equal(t, 0, calls, "the supplied token should be used as-is at construction")
 
-	_, err = m.GetJWT(t.Context(), time.Now().Add(time.Minute))
+	authSnapshot, err := m.GetAuth(t.Context(), time.Now().Add(time.Minute))
 
 	// Without the provider this would attempt a credentials exchange with two
 	// empty strings and fail against the api-server.
 	assert.NoError(t, err)
 	assert.Equal(t, 1, calls)
+	assert.Equal(t, "env-rotated", authSnapshot.EnvironmentID)
 }
 
-func TestTokenProviderNotCalledWhileTokenIsFresh(t *testing.T) {
+func TestAuthProviderNotCalledWhileSnapshotIsFresh(t *testing.T) {
 	t.Parallel()
 
 	calls := 0
 	m, err := newManagerForTest(t, &Inputs{
 		Token: tokenValidFor(time.Hour),
-		TokenProvider: func(context.Context) (*serverv1.GetTokenResponse, error) {
+		AuthProvider: func(context.Context) (*AuthSnapshot, error) {
 			calls++
-			return tokenValidFor(time.Hour), nil
+			return authValidFor("env-provider", time.Hour), nil
 		},
 	})
 	require.NoError(t, err)
@@ -112,11 +118,11 @@ func TestTokenProviderNotCalledWhileTokenIsFresh(t *testing.T) {
 	assert.Equal(t, 0, calls, "a fresh token must be served from cache")
 }
 
-func TestTokenProviderErrorIsPropagated(t *testing.T) {
+func TestAuthProviderErrorIsPropagated(t *testing.T) {
 	t.Parallel()
 
 	_, err := newManagerForTest(t, &Inputs{
-		TokenProvider: func(context.Context) (*serverv1.GetTokenResponse, error) {
+		AuthProvider: func(context.Context) (*AuthSnapshot, error) {
 			return nil, assert.AnError
 		},
 	})
@@ -125,39 +131,44 @@ func TestTokenProviderErrorIsPropagated(t *testing.T) {
 	assert.Contains(t, err.Error(), "refreshing pre-issued token")
 }
 
-// TestTokenProviderResultIsValidated covers a callback misbehaving. These are
+// TestAuthProviderResultIsValidated covers a callback misbehaving. These are
 // caller-supplied functions, and each of these returns would otherwise be cached
 // and fail much later -- as a nil dereference in an interceptor, or a bare
 // "Bearer " header, or an endless retry loop.
-func TestTokenProviderResultIsValidated(t *testing.T) {
+func TestAuthProviderResultIsValidated(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
 		name     string
-		returned *serverv1.GetTokenResponse
+		returned *AuthSnapshot
 		expected string
 	}{
 		{
 			name:     "nil token",
 			returned: nil,
-			expected: "token is nil",
+			expected: "auth snapshot is nil",
 		},
 		{
 			name:     "empty access token",
-			returned: &serverv1.GetTokenResponse{ExpiresAt: timestamppb.New(time.Now().Add(time.Hour))},
+			returned: &AuthSnapshot{Token: &serverv1.GetTokenResponse{ExpiresAt: timestamppb.New(time.Now().Add(time.Hour))}, EnvironmentID: "env-provider"},
 			expected: "empty access token",
 		},
 		{
 			// A missing ExpiresAt reads as the Unix epoch, so it lands in the
 			// staleness check rather than needing its own rule.
 			name:     "no expiry",
-			returned: &serverv1.GetTokenResponse{AccessToken: "a.b.c"},
+			returned: &AuthSnapshot{Token: &serverv1.GetTokenResponse{AccessToken: "a.b.c"}, EnvironmentID: "env-provider"},
 			expected: "may no longer be refreshed",
 		},
 		{
 			name:     "already expired",
-			returned: tokenValidFor(-time.Hour),
+			returned: authValidFor("env-provider", -time.Hour),
 			expected: "may no longer be refreshed",
+		},
+		{
+			name:     "empty environment",
+			returned: authValidFor("", time.Hour),
+			expected: "empty environment ID",
 		},
 	}
 
@@ -165,7 +176,7 @@ func TestTokenProviderResultIsValidated(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			_, err := newManagerForTest(t, &Inputs{
-				TokenProvider: func(context.Context) (*serverv1.GetTokenResponse, error) {
+				AuthProvider: func(context.Context) (*AuthSnapshot, error) {
 					return tc.returned, nil
 				},
 			})

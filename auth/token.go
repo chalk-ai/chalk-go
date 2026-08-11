@@ -18,28 +18,38 @@ import (
 )
 
 type Manager struct {
-	mu            *sync.Mutex
-	config        *config.Manager
-	token         atomic.Pointer[serverv1.GetTokenResponse]
-	authClient    serverv1connect.AuthServiceClient
-	tokenProvider TokenProvider
+	mu           *sync.Mutex
+	config       *config.Manager
+	auth         atomic.Pointer[AuthSnapshot]
+	authClient   serverv1connect.AuthServiceClient
+	authProvider AuthProvider
 }
 
-// TokenProvider returns a currently-valid Chalk JWT. It is called whenever the
-// cached token goes stale, in place of the client-credentials exchange.
+// AuthSnapshot is the bearer token and effective environment that must be sent
+// together on an authenticated request.
+type AuthSnapshot struct {
+	Token         *serverv1.GetTokenResponse
+	EnvironmentID string
+}
+
+// AuthProvider returns a currently-valid authentication snapshot. It is called
+// whenever the cached token goes stale, in place of the client-credentials
+// exchange. Token and EnvironmentID must be resolved atomically from the same
+// credential state.
 // Implementations must not call back into the client that owns this Manager;
 // they are invoked while its lock is held.
-type TokenProvider func(ctx context.Context) (*serverv1.GetTokenResponse, error)
+type AuthProvider func(ctx context.Context) (*AuthSnapshot, error)
 
 type Inputs struct {
 	// Token is a pre-issued JWT to authenticate with, instead of exchanging client
 	// credentials
 	Token *serverv1.GetTokenResponse
 
-	// TokenProvider supplies a token whenever the cached one goes stale, instead
-	// of running the client-credentials exchange. Sufficient on its own -- the
-	// first token is obtained from it if Token is unset. See TokenProvider.
-	TokenProvider TokenProvider
+	// AuthProvider supplies a token and effective environment whenever the cached
+	// token goes stale, instead of running the client-credentials exchange.
+	// Sufficient on its own -- the first snapshot is obtained from it if Token is
+	// unset. See AuthProvider.
+	AuthProvider AuthProvider
 
 	// HttpClient is used as the underlying http.client. Connect provides an interface for abstracting over the
 	// standard library version of the auth client
@@ -61,13 +71,26 @@ type Inputs struct {
 }
 
 // validatePreIssuedToken rejects a token that cannot authenticate a request at
-// all. Both a caller-supplied Token and a TokenProvider result go through here.
+// all. Both a caller-supplied Token and an AuthProvider result go through here.
 func validatePreIssuedToken(token *serverv1.GetTokenResponse) error {
 	if token == nil {
 		return errors.New("token is nil")
 	}
 	if token.GetAccessToken() == "" {
 		return errors.New("token has an empty access token")
+	}
+	return nil
+}
+
+func validateAuthSnapshot(snapshot *AuthSnapshot) error {
+	if snapshot == nil {
+		return errors.New("auth snapshot is nil")
+	}
+	if err := validatePreIssuedToken(snapshot.Token); err != nil {
+		return err
+	}
+	if snapshot.EnvironmentID == "" {
+		return errors.New("auth snapshot has an empty environment ID")
 	}
 	return nil
 }
@@ -160,24 +183,29 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 				),
 			),
 		),
-		mu:            &sync.Mutex{},
-		tokenProvider: opts.TokenProvider,
+		mu:           &sync.Mutex{},
+		authProvider: opts.AuthProvider,
 	}
-	r.token.Store(opts.Token)
+	if opts.Token != nil {
+		r.auth.Store(&AuthSnapshot{
+			Token:         opts.Token,
+			EnvironmentID: r.config.EnvironmentId.Value,
+		})
+	}
 
-	if token := r.token.Load(); token != nil {
-		if err := validatePreIssuedToken(token); err != nil {
+	if snapshot := r.auth.Load(); snapshot != nil {
+		if err := validatePreIssuedToken(snapshot.Token); err != nil {
 			return nil, errors.Wrap(err, "invalid pre-issued JWT")
 		}
 	}
 
 	var err error
-	if r.token.Load() == nil {
-		// If none of a pre-issued JWT, a token provider, or a complete pair of
+	if r.auth.Load() == nil {
+		// If none of a pre-issued JWT, an auth provider, or a complete pair of
 		// client credentials was given, short-circuit with a clearer error than
 		// letting GetToken fail with "Client ID and secret are invalid" against
 		// the api-server.
-		if r.tokenProvider == nil && (r.config.ClientId.Value == "" || r.config.ClientSecret.Value == "") {
+		if r.authProvider == nil && (r.config.ClientId.Value == "" || r.config.ClientSecret.Value == "") {
 			credentialsErr := errors.New(
 				"no JWT and no ClientId/ClientSecret provided; pass a pre-issued JWT (e.g. --access-token) or set client credentials",
 			)
@@ -186,29 +214,35 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 			}
 			return nil, credentialsErr
 		}
-		token, err := r.GetJWT(ctx, time.Now())
-		if err == nil {
-			r.token.Store(token)
-		}
+		_, err := r.GetAuth(ctx, time.Now())
 		if err != nil {
 			return nil, errors.Wrap(err, "initializing token refresher")
 		}
 	}
 
+	activeAuth := r.auth.Load()
 	if opts.SkipEnvironmentNameMapping {
 		// Use environment ID verbatim without validation or mapping
-		if r.config.EnvironmentId.Value == "" {
+		if activeAuth.EnvironmentID == "" {
 			return nil, errors.New("environment ID is required when SkipEnvironmentNameMapping is enabled")
 		}
+		if r.config.EnvironmentId.Value == "" {
+			r.config.EnvironmentId = config.NewFromArg(activeAuth.EnvironmentID)
+		}
 	} else {
-		r.config.EnvironmentId, err = cleanEnvironmentId(r.config.EnvironmentId, r.token.Load())
+		r.config.EnvironmentId, err = cleanEnvironmentId(r.config.EnvironmentId, activeAuth.Token)
 		if err != nil {
 			return nil, errors.Wrap(err, "initializing environment id")
 		}
+		activeAuth = &AuthSnapshot{
+			Token:         activeAuth.Token,
+			EnvironmentID: r.config.EnvironmentId.Value,
+		}
+		r.auth.Store(activeAuth)
 	}
 
 	if !opts.SkipEngineMapping {
-		activeToken := r.token.Load()
+		activeToken := activeAuth.Token
 		envName := activeToken.EnvironmentIdToName[r.config.EnvironmentId.Value]
 		if e := activeToken.Engines[r.config.EnvironmentId.Value]; r.config.GetJSONQueryServer().Kind == config.DefaultSourceKind && e != "" {
 			r.config.SetJSONQueryServer(config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName)))
@@ -222,17 +256,19 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 	return r, nil
 }
 
-func (r *Manager) GetJWT(
+// GetAuth returns a token and effective environment from the same credential
+// snapshot, refreshing both atomically when the token goes stale.
+func (r *Manager) GetAuth(
 	ctx context.Context,
 	newerThan time.Time,
-) (*serverv1.GetTokenResponse, error) {
-	if to := r.token.Load(); to != nil && to.GetExpiresAt().AsTime().After(newerThan) {
-		return to, nil
+) (*AuthSnapshot, error) {
+	if snapshot := r.auth.Load(); snapshot != nil && snapshot.Token.GetExpiresAt().AsTime().After(newerThan) {
+		return snapshot, nil
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if to := r.token.Load(); to != nil && to.GetExpiresAt().AsTime().After(newerThan) {
-		return to, nil
+	if snapshot := r.auth.Load(); snapshot != nil && snapshot.Token.GetExpiresAt().AsTime().After(newerThan) {
+		return snapshot, nil
 	}
 
 	// A rotating credential is re-read at its source rather than exchanged. There
@@ -240,24 +276,24 @@ func (r *Manager) GetJWT(
 	// the request below would be sent with two empty strings and rejected --
 	// stranding the client the moment its token expires, even though a fresh one
 	// is already available.
-	if r.tokenProvider != nil {
-		token, err := r.tokenProvider(ctx)
+	if r.authProvider != nil {
+		snapshot, err := r.authProvider(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "refreshing pre-issued token")
 		}
-		if err := validatePreIssuedToken(token); err != nil {
+		if err := validateAuthSnapshot(snapshot); err != nil {
 			return nil, errors.Wrap(err, "refreshing pre-issued token")
 		}
 
-		if !token.GetExpiresAt().AsTime().After(newerThan) {
+		if !snapshot.Token.GetExpiresAt().AsTime().After(newerThan) {
 			return nil, errors.Newf(
 				"pre-issued token provider returned a token expiring at %s, which is not valid until %s; the token source may no longer be refreshed",
-				token.GetExpiresAt().AsTime(),
+				snapshot.Token.GetExpiresAt().AsTime(),
 				newerThan,
 			)
 		}
-		r.token.Store(token)
-		return token, nil
+		r.auth.Store(snapshot)
+		return snapshot, nil
 	}
 
 	req := &serverv1.GetTokenRequest{
@@ -274,8 +310,25 @@ func (r *Manager) GetJWT(
 	if err != nil {
 		return nil, errors.Wrap(err, "refreshing token")
 	}
-	r.token.Store(t.Msg)
-	return t.Msg, nil
+	snapshot := &AuthSnapshot{
+		Token:         t.Msg,
+		EnvironmentID: r.config.EnvironmentId.Value,
+	}
+	r.auth.Store(snapshot)
+	return snapshot, nil
+}
+
+// GetJWT is a token-only convenience wrapper. Authenticated request paths
+// should use GetAuth so the token cannot be paired with a stale environment.
+func (r *Manager) GetJWT(
+	ctx context.Context,
+	newerThan time.Time,
+) (*serverv1.GetTokenResponse, error) {
+	snapshot, err := r.GetAuth(ctx, newerThan)
+	if err != nil {
+		return nil, err
+	}
+	return snapshot.Token, nil
 }
 
 func (r *Manager) GetConfig() *config.Manager {
