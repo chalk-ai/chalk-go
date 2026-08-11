@@ -191,7 +191,7 @@ type ScalingSpec struct {
 	WindowSeconds             *int32                            `protobuf:"varint,5,opt,name=window_seconds,json=windowSeconds,proto3,oneof" json:"window_seconds,omitempty"` // Time window in seconds for evaluating the trigger (default: 60)
 	FunctionQueueDepthTrigger *FunctionQueueDepthScalingTrigger `protobuf:"bytes,6,opt,name=function_queue_depth_trigger,json=functionQueueDepthTrigger,proto3,oneof" json:"function_queue_depth_trigger,omitempty"`
 	GpuUtilizationTrigger     *GpuUtilizationScalingTrigger     `protobuf:"bytes,7,opt,name=gpu_utilization_trigger,json=gpuUtilizationTrigger,proto3,oneof" json:"gpu_utilization_trigger,omitempty"`
-	CronScalingConfig         *CronScalingConfig                `protobuf:"bytes,8,opt,name=cron_scaling_config,json=cronScalingConfig,proto3,oneof" json:"cron_scaling_config,omitempty"`
+	CronScalingTrigger        *CronScalingTrigger               `protobuf:"bytes,8,opt,name=cron_scaling_trigger,json=cronScalingTrigger,proto3,oneof" json:"cron_scaling_trigger,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -275,9 +275,9 @@ func (x *ScalingSpec) GetGpuUtilizationTrigger() *GpuUtilizationScalingTrigger {
 	return nil
 }
 
-func (x *ScalingSpec) GetCronScalingConfig() *CronScalingConfig {
+func (x *ScalingSpec) GetCronScalingTrigger() *CronScalingTrigger {
 	if x != nil {
-		return x.CronScalingConfig
+		return x.CronScalingTrigger
 	}
 	return nil
 }
@@ -383,74 +383,18 @@ func (x *GpuUtilizationScalingTrigger) GetTargetUtilizationPercentage() int32 {
 	return 0
 }
 
-type CronScalingConfig struct {
+type CronScalingTrigger struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// IANA timezone (e.g. "America/New_York")
-	Timezone      string                `protobuf:"bytes,1,opt,name=timezone,proto3" json:"timezone,omitempty"`
-	Triggers      []*CronScalingTrigger `protobuf:"bytes,2,rep,name=triggers,proto3" json:"triggers,omitempty"`
+	Timezone      string               `protobuf:"bytes,1,opt,name=timezone,proto3" json:"timezone,omitempty"`
+	Windows       []*CronScalingWindow `protobuf:"bytes,2,rep,name=windows,proto3" json:"windows,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CronScalingConfig) Reset() {
-	*x = CronScalingConfig{}
-	mi := &file_chalk_scalinggroup_v1_service_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CronScalingConfig) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CronScalingConfig) ProtoMessage() {}
-
-func (x *CronScalingConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_scalinggroup_v1_service_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CronScalingConfig.ProtoReflect.Descriptor instead.
-func (*CronScalingConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *CronScalingConfig) GetTimezone() string {
-	if x != nil {
-		return x.Timezone
-	}
-	return ""
-}
-
-func (x *CronScalingConfig) GetTriggers() []*CronScalingTrigger {
-	if x != nil {
-		return x.Triggers
-	}
-	return nil
-}
-
-type CronScalingTrigger struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Cron expression for window start (e.g. "0 8 * * 1-5")
-	Start string `protobuf:"bytes,1,opt,name=start,proto3" json:"start,omitempty"`
-	// Cron expression for window end (e.g. "0 18 * * 1-5")
-	End string `protobuf:"bytes,2,opt,name=end,proto3" json:"end,omitempty"`
-	// Replica floor during the active window. 0 allows scale-to-zero.
-	DesiredReplicas int32 `protobuf:"varint,3,opt,name=desired_replicas,json=desiredReplicas,proto3" json:"desired_replicas,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
 func (x *CronScalingTrigger) Reset() {
 	*x = CronScalingTrigger{}
-	mi := &file_chalk_scalinggroup_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_scalinggroup_v1_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +406,7 @@ func (x *CronScalingTrigger) String() string {
 func (*CronScalingTrigger) ProtoMessage() {}
 
 func (x *CronScalingTrigger) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_scalinggroup_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_scalinggroup_v1_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,24 +419,80 @@ func (x *CronScalingTrigger) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CronScalingTrigger.ProtoReflect.Descriptor instead.
 func (*CronScalingTrigger) Descriptor() ([]byte, []int) {
+	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CronScalingTrigger) GetTimezone() string {
+	if x != nil {
+		return x.Timezone
+	}
+	return ""
+}
+
+func (x *CronScalingTrigger) GetWindows() []*CronScalingWindow {
+	if x != nil {
+		return x.Windows
+	}
+	return nil
+}
+
+type CronScalingWindow struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Cron expression for window start (e.g. "0 8 * * 1-5")
+	Start string `protobuf:"bytes,1,opt,name=start,proto3" json:"start,omitempty"`
+	// Cron expression for window end (e.g. "0 18 * * 1-5")
+	End string `protobuf:"bytes,2,opt,name=end,proto3" json:"end,omitempty"`
+	// Replica floor during the active window. 0 allows scale-to-zero.
+	DesiredReplicas int32 `protobuf:"varint,3,opt,name=desired_replicas,json=desiredReplicas,proto3" json:"desired_replicas,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CronScalingWindow) Reset() {
+	*x = CronScalingWindow{}
+	mi := &file_chalk_scalinggroup_v1_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CronScalingWindow) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CronScalingWindow) ProtoMessage() {}
+
+func (x *CronScalingWindow) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_scalinggroup_v1_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CronScalingWindow.ProtoReflect.Descriptor instead.
+func (*CronScalingWindow) Descriptor() ([]byte, []int) {
 	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *CronScalingTrigger) GetStart() string {
+func (x *CronScalingWindow) GetStart() string {
 	if x != nil {
 		return x.Start
 	}
 	return ""
 }
 
-func (x *CronScalingTrigger) GetEnd() string {
+func (x *CronScalingWindow) GetEnd() string {
 	if x != nil {
 		return x.End
 	}
 	return ""
 }
 
-func (x *CronScalingTrigger) GetDesiredReplicas() int32 {
+func (x *CronScalingWindow) GetDesiredReplicas() int32 {
 	if x != nil {
 		return x.DesiredReplicas
 	}
@@ -1837,7 +1837,7 @@ var File_chalk_scalinggroup_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/scalinggroup/v1/service.proto\x12\x15chalk.scalinggroup.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x83\x06\n" +
+	"#chalk/scalinggroup/v1/service.proto\x12\x15chalk.scalinggroup.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x87\x06\n" +
 	"\vScalingSpec\x12!\n" +
 	"\fmin_replicas\x18\x01 \x01(\x05R\vminReplicas\x12!\n" +
 	"\fmax_replicas\x18\x02 \x01(\x05R\vmaxReplicas\x12N\n" +
@@ -1845,23 +1845,23 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x16shutdown_delay_seconds\x18\x04 \x01(\x05H\x01R\x14shutdownDelaySeconds\x88\x01\x01\x12*\n" +
 	"\x0ewindow_seconds\x18\x05 \x01(\x05H\x02R\rwindowSeconds\x88\x01\x01\x12}\n" +
 	"\x1cfunction_queue_depth_trigger\x18\x06 \x01(\v27.chalk.scalinggroup.v1.FunctionQueueDepthScalingTriggerH\x03R\x19functionQueueDepthTrigger\x88\x01\x01\x12p\n" +
-	"\x17gpu_utilization_trigger\x18\a \x01(\v23.chalk.scalinggroup.v1.GpuUtilizationScalingTriggerH\x04R\x15gpuUtilizationTrigger\x88\x01\x01\x12]\n" +
-	"\x13cron_scaling_config\x18\b \x01(\v2(.chalk.scalinggroup.v1.CronScalingConfigH\x05R\x11cronScalingConfig\x88\x01\x01B$\n" +
+	"\x17gpu_utilization_trigger\x18\a \x01(\v23.chalk.scalinggroup.v1.GpuUtilizationScalingTriggerH\x04R\x15gpuUtilizationTrigger\x88\x01\x01\x12`\n" +
+	"\x14cron_scaling_trigger\x18\b \x01(\v2).chalk.scalinggroup.v1.CronScalingTriggerH\x05R\x12cronScalingTrigger\x88\x01\x01B$\n" +
 	"\"_target_cpu_utilization_percentageB\x19\n" +
 	"\x17_shutdown_delay_secondsB\x11\n" +
 	"\x0f_window_secondsB\x1f\n" +
 	"\x1d_function_queue_depth_triggerB\x1a\n" +
-	"\x18_gpu_utilization_triggerB\x16\n" +
-	"\x14_cron_scaling_config\"u\n" +
+	"\x18_gpu_utilization_triggerB\x17\n" +
+	"\x15_cron_scaling_trigger\"u\n" +
 	" FunctionQueueDepthScalingTrigger\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12,\n" +
 	"\x12target_queue_depth\x18\x02 \x01(\x05R\x10targetQueueDepth\"b\n" +
 	"\x1cGpuUtilizationScalingTrigger\x12B\n" +
-	"\x1dtarget_utilization_percentage\x18\x01 \x01(\x05R\x1btargetUtilizationPercentage\"v\n" +
-	"\x11CronScalingConfig\x12\x1a\n" +
-	"\btimezone\x18\x01 \x01(\tR\btimezone\x12E\n" +
-	"\btriggers\x18\x02 \x03(\v2).chalk.scalinggroup.v1.CronScalingTriggerR\btriggers\"g\n" +
-	"\x12CronScalingTrigger\x12\x14\n" +
+	"\x1dtarget_utilization_percentage\x18\x01 \x01(\x05R\x1btargetUtilizationPercentage\"t\n" +
+	"\x12CronScalingTrigger\x12\x1a\n" +
+	"\btimezone\x18\x01 \x01(\tR\btimezone\x12B\n" +
+	"\awindows\x18\x02 \x03(\v2(.chalk.scalinggroup.v1.CronScalingWindowR\awindows\"f\n" +
+	"\x11CronScalingWindow\x12\x14\n" +
 	"\x05start\x18\x01 \x01(\tR\x05start\x12\x10\n" +
 	"\x03end\x18\x02 \x01(\tR\x03end\x12)\n" +
 	"\x10desired_replicas\x18\x03 \x01(\x05R\x0fdesiredReplicas\"\xa8\x01\n" +
@@ -2036,8 +2036,8 @@ var file_chalk_scalinggroup_v1_service_proto_goTypes = []any{
 	(*ScalingSpec)(nil),                           // 3: chalk.scalinggroup.v1.ScalingSpec
 	(*FunctionQueueDepthScalingTrigger)(nil),      // 4: chalk.scalinggroup.v1.FunctionQueueDepthScalingTrigger
 	(*GpuUtilizationScalingTrigger)(nil),          // 5: chalk.scalinggroup.v1.GpuUtilizationScalingTrigger
-	(*CronScalingConfig)(nil),                     // 6: chalk.scalinggroup.v1.CronScalingConfig
-	(*CronScalingTrigger)(nil),                    // 7: chalk.scalinggroup.v1.CronScalingTrigger
+	(*CronScalingTrigger)(nil),                    // 6: chalk.scalinggroup.v1.CronScalingTrigger
+	(*CronScalingWindow)(nil),                     // 7: chalk.scalinggroup.v1.CronScalingWindow
 	(*ScalingGroupSpec)(nil),                      // 8: chalk.scalinggroup.v1.ScalingGroupSpec
 	(*ScalingGroupResponse)(nil),                  // 9: chalk.scalinggroup.v1.ScalingGroupResponse
 	(*CreateScalingGroupRequest)(nil),             // 10: chalk.scalinggroup.v1.CreateScalingGroupRequest
@@ -2067,8 +2067,8 @@ var file_chalk_scalinggroup_v1_service_proto_goTypes = []any{
 var file_chalk_scalinggroup_v1_service_proto_depIdxs = []int32{
 	4,  // 0: chalk.scalinggroup.v1.ScalingSpec.function_queue_depth_trigger:type_name -> chalk.scalinggroup.v1.FunctionQueueDepthScalingTrigger
 	5,  // 1: chalk.scalinggroup.v1.ScalingSpec.gpu_utilization_trigger:type_name -> chalk.scalinggroup.v1.GpuUtilizationScalingTrigger
-	6,  // 2: chalk.scalinggroup.v1.ScalingSpec.cron_scaling_config:type_name -> chalk.scalinggroup.v1.CronScalingConfig
-	7,  // 3: chalk.scalinggroup.v1.CronScalingConfig.triggers:type_name -> chalk.scalinggroup.v1.CronScalingTrigger
+	6,  // 2: chalk.scalinggroup.v1.ScalingSpec.cron_scaling_trigger:type_name -> chalk.scalinggroup.v1.CronScalingTrigger
+	7,  // 3: chalk.scalinggroup.v1.CronScalingTrigger.windows:type_name -> chalk.scalinggroup.v1.CronScalingWindow
 	30, // 4: chalk.scalinggroup.v1.ScalingGroupSpec.container_spec:type_name -> chalk.container.v1.ChalkContainerSpec
 	3,  // 5: chalk.scalinggroup.v1.ScalingGroupSpec.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
 	8,  // 6: chalk.scalinggroup.v1.ScalingGroupResponse.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
