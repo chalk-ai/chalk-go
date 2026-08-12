@@ -73,6 +73,10 @@ func (h *aggregateBackfillService) GetCronAggregateBackfill(context.Context, *co
 	return nil, nil
 }
 
+func (h *aggregateBackfillService) CreateAggregateBackfillV2(context.Context, *connect.Request[aggregatev1.CreateAggregateBackfillV2Request]) (*connect.Response[aggregatev1.CreateAggregateBackfillV2Response], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, nil)
+}
+
 func (h *aggregateBackfillService) GetActiveCronAggregateBackfills(context.Context, *connect.Request[aggregatev1.GetActiveCronAggregateBackfillsRequest]) (*connect.Response[aggregatev1.GetActiveCronAggregateBackfillsResponse], error) {
 	return nil, nil
 }
