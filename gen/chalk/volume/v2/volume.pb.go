@@ -3348,6 +3348,7 @@ type ListVolumeVersionsRequest struct {
 	Volume        *VolumeRef             `protobuf:"bytes,1,opt,name=volume,proto3" json:"volume,omitempty"`
 	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	Cursor        string                 `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	Ref           *string                `protobuf:"bytes,4,opt,name=ref,proto3,oneof" json:"ref,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3399,6 +3400,13 @@ func (x *ListVolumeVersionsRequest) GetLimit() int32 {
 func (x *ListVolumeVersionsRequest) GetCursor() string {
 	if x != nil {
 		return x.Cursor
+	}
+	return ""
+}
+
+func (x *ListVolumeVersionsRequest) GetRef() string {
+	if x != nil && x.Ref != nil {
+		return *x.Ref
 	}
 	return ""
 }
@@ -4730,11 +4738,13 @@ const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"nextCursor\"I\n" +
 	"\x13DeleteVolumeRequest\x122\n" +
 	"\x06volume\x18\x01 \x01(\v2\x1a.chalk.volume.v2.VolumeRefR\x06volume\"\x16\n" +
-	"\x14DeleteVolumeResponse\"}\n" +
+	"\x14DeleteVolumeResponse\"\x9c\x01\n" +
 	"\x19ListVolumeVersionsRequest\x122\n" +
 	"\x06volume\x18\x01 \x01(\v2\x1a.chalk.volume.v2.VolumeRefR\x06volume\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"w\n" +
+	"\x06cursor\x18\x03 \x01(\tR\x06cursor\x12\x15\n" +
+	"\x03ref\x18\x04 \x01(\tH\x00R\x03ref\x88\x01\x01B\x06\n" +
+	"\x04_ref\"w\n" +
 	"\x1aListVolumeVersionsResponse\x128\n" +
 	"\bversions\x18\x01 \x03(\v2\x1c.chalk.volume.v2.VersionInfoR\bversions\x12\x1f\n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +
@@ -5094,6 +5104,7 @@ func file_chalk_volume_v2_volume_proto_init() {
 		(*CommitIntent_UploadedDeltas)(nil),
 	}
 	file_chalk_volume_v2_volume_proto_msgTypes[41].OneofWrappers = []any{}
+	file_chalk_volume_v2_volume_proto_msgTypes[46].OneofWrappers = []any{}
 	file_chalk_volume_v2_volume_proto_msgTypes[65].OneofWrappers = []any{
 		(*GetFileResponse_Data)(nil),
 		(*GetFileResponse_Packed)(nil),
