@@ -16,6 +16,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"connectrpc.com/connect"
@@ -29,27 +30,52 @@ import (
 	"github.com/fxamacker/cbor/v2"
 	"github.com/zeebo/blake3"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/protobuf/encoding/protodelim"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// VolumeClient provides access to Chalk's versioned volume service.
+// VolumeProgressFunc reports a landed object's size and whether object storage
+// already had it (a dedupe hit).
+type VolumeProgressFunc func(bytes uint64, alreadyExisted bool)
+
+// VolumeClient provides access to Chalk volumes.
 type VolumeClient interface {
-	CreateVolume(ctx context.Context, name string) (*volumev2.CreateVolumeResponse, error)
+	// Volumes.
+	CreateVolume(ctx context.Context, params CreateVolumeParams) (*volumev2.CreateVolumeResponse, error)
 	GetVolume(ctx context.Context, volume VolumeRef, selector *volumev2.VersionSelector) (*volumev2.GetVolumeResponse, error)
-	ListVolumes(ctx context.Context, limit int32, cursor string) (*volumev2.ListVolumesResponse, error)
+	ListVolumes(ctx context.Context, params ListVolumesParams) (*volumev2.ListVolumesResponse, error)
 	DeleteVolume(ctx context.Context, volume VolumeRef) error
-	ListVolumeVersions(ctx context.Context, volume VolumeRef, limit int32, cursor string) (*volumev2.ListVolumeVersionsResponse, error)
-	ListFiles(ctx context.Context, params ListVolumeFilesParams) (*volumev2.ListFilesResponse, error)
-	GetFile(ctx context.Context, volume VolumeRef, path string, selector *volumev2.VersionSelector) (*volumev2.GetFileResponse, error)
-	UploadFiles(ctx context.Context, request VolumeUploadRequest, onProgress func(uint64)) ([]*volumev2.CommitStatus, error)
-	UploadDirectory(ctx context.Context, volumeName string, dir string, config VolumeUploadConfig) ([]*volumev2.CommitStatus, error)
-	RemoveFiles(ctx context.Context, volumeName string, paths []VolumeRemovePath, maxCommitRetries int) (*volumev2.CommitStatus, error)
+	ListVolumeVersions(ctx context.Context, params ListVolumeVersionsParams) (*volumev2.ListVolumeVersionsResponse, error)
+
+	// Refs.
+	CreateRef(ctx context.Context, volume VolumeRef, name string, fromVersionID uint64) (*volumev2.CreateRefResponse, error)
+	ListRefs(ctx context.Context, volume VolumeRef) (*volumev2.ListRefsResponse, error)
+	DeleteRef(ctx context.Context, volume VolumeRef, name string) error
+
+	// Files.
+	ListFiles(ctx context.Context, params ListFilesParams) (*volumev2.ListFilesResponse, error)
+	GetFile(ctx context.Context, params GetFileParams) (*volumev2.GetFileResponse, error)
+
+	// Commits.
+	GetCommitStatus(ctx context.Context, volume VolumeRef, commitID string, includeDiff bool) (*volumev2.GetCommitStatusResponse, error)
+	StageFiles(ctx context.Context, volume VolumeRef, files []VolumeUploadFile, config VolumeUploadConfig, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error)
+	BuildPathIntent(ctx context.Context, volume VolumeRef, upserts []VolumeUploadedFile, removes []VolumeRemovePath, ref string) (*volumev2.CommitIntent, error)
+	CommitPathDeltas(ctx context.Context, volume VolumeRef, upserts []VolumeUploadedFile, removes []VolumeRemovePath, opts VolumeCommitOptions) (*volumev2.CommitStatus, error)
+
+	// Objects.
+	RequestUploadURLs(ctx context.Context, volume VolumeRef, objects []*volumev2.UploadedObjectReference) ([]*volumev2.UploadURLItem, error)
+	AllocateInodeRange(ctx context.Context, volume VolumeRef, count uint64, mountID string) (*volumev2.AllocateInodeRangeResponse, error)
+
+	// Upload and download.
+	UploadFiles(ctx context.Context, request VolumeUploadRequest, onProgress VolumeProgressFunc) ([]*volumev2.CommitStatus, error)
+	UploadDirectory(ctx context.Context, volumeName string, dir string, config VolumeUploadConfig, ref string) ([]*volumev2.CommitStatus, error)
+	RemoveFiles(ctx context.Context, volumeName string, paths []VolumeRemovePath, opts VolumeCommitOptions) (*volumev2.CommitStatus, error)
 	DownloadBytes(ctx context.Context, request VolumeDownloadRequest, onProgress func(uint64)) ([]byte, *volumev2.FileInfo, error)
 	DownloadToFile(ctx context.Context, request VolumeDownloadRequest, localPath string, onProgress func(uint64)) (*volumev2.FileInfo, error)
 	DownloadToDirectory(ctx context.Context, volumeName string, localDir string, selector *volumev2.VersionSelector, config VolumeDownloadConfig) error
 }
 
-// VolumeClientConfig configures a versioned volume client.
+// VolumeClientConfig configures a volume client.
 type VolumeClientConfig struct {
 	ClientId                   string
 	ClientSecret               string
@@ -71,8 +97,30 @@ type VolumeRef struct {
 	ID   string
 }
 
-// ListVolumeFilesParams configures ListFiles.
-type ListVolumeFilesParams struct {
+// CreateVolumeParams configures CreateVolume.
+type CreateVolumeParams struct {
+	Name string
+	Kind volumev2.VolumeKind
+}
+
+// ListVolumesParams configures ListVolumes.
+type ListVolumesParams struct {
+	Limit      int32
+	Cursor     string
+	NamePrefix string
+	Kind       *volumev2.VolumeKind
+}
+
+// ListVolumeVersionsParams configures ListVolumeVersions.
+type ListVolumeVersionsParams struct {
+	Volume VolumeRef
+	Limit  int32
+	Cursor string
+	Ref    *string
+}
+
+// ListFilesParams configures ListFiles.
+type ListFilesParams struct {
 	Volume    VolumeRef
 	Path      string
 	Recursive bool
@@ -81,13 +129,42 @@ type ListVolumeFilesParams struct {
 	Selector  *volumev2.VersionSelector
 }
 
-// VolumeUploadConfig controls upload batching and object-store concurrency.
+// GetFileParams configures GetFile.
+type GetFileParams struct {
+	Volume      VolumeRef
+	Path        string
+	Selector    *volumev2.VersionSelector
+	IfNoneMatch string
+}
+
+// VolumeCommitOptions controls how staged deltas land as a version.
+type VolumeCommitOptions struct {
+	// Ref is the target ref. Empty means "main".
+	Ref string
+	// CommitID is the idempotency key. When set, the caller owns ordering: the
+	// base version and the id are left alone across retries.
+	CommitID string
+	// MaxCommitRetries bounds CommitVersion retries on REBASE_REQUIRED.
+	MaxCommitRetries int
+}
+
+// volumeDataSegmentBytes is the default chunk size and pack cap.
+const volumeDataSegmentBytes = 16 * 1024 * 1024
+
+// VolumeUploadedIntentMinEntries is the delta count at which a commit uploads
+// its deltas as an intent object instead of inlining them.
+const VolumeUploadedIntentMinEntries = 10_000
+
+// volumeIntentFrameMaxEntries caps deltas per intent frame so the server
+// decodes and drops one frame at a time.
+const volumeIntentFrameMaxEntries = 1000
+
+// VolumeUploadConfig controls upload sizing, concurrency, and retries.
 type VolumeUploadConfig struct {
 	ChunkSize           uint64
 	MaxPackBytes        uint64
 	FileConcurrency     int
 	ChunkConcurrency    int
-	BatchSize           int
 	MaxChunkRetries     int
 	MaxRateLimitRetries int
 	MaxCommitRetries    int
@@ -96,11 +173,10 @@ type VolumeUploadConfig struct {
 // DefaultVolumeUploadConfig returns upload settings matching the reference client.
 func DefaultVolumeUploadConfig() VolumeUploadConfig {
 	return VolumeUploadConfig{
-		ChunkSize:           8 * 1024 * 1024,
-		MaxPackBytes:        16 * 1024 * 1024,
+		ChunkSize:           volumeDataSegmentBytes,
+		MaxPackBytes:        volumeDataSegmentBytes,
 		FileConcurrency:     4,
-		ChunkConcurrency:    32,
-		BatchSize:           500,
+		ChunkConcurrency:    16,
 		MaxChunkRetries:     3,
 		MaxRateLimitRetries: 8,
 		MaxCommitRetries:    3,
@@ -126,6 +202,8 @@ type VolumeUploadRequest struct {
 	VolumeName string
 	Files      []VolumeUploadFile
 	Config     VolumeUploadConfig
+	// Ref is the target ref. Empty means "main".
+	Ref string
 }
 
 // VolumeUploadFile is one file to commit into a volume.
@@ -133,6 +211,14 @@ type VolumeUploadFile struct {
 	Path     string
 	Content  VolumeUploadContent
 	Metadata *volumev2.FileMetadata
+}
+
+// VolumeUploadedFile is one file's content, uploaded and ready to commit.
+type VolumeUploadedFile struct {
+	Path            string
+	ContentRef      *volumev2.ContentRef
+	Metadata        *volumev2.FileMetadata
+	UploadedObjects []*volumev2.UploadedObjectReference
 }
 
 // VolumeUploadContent is the source for one uploaded file.
@@ -174,10 +260,13 @@ type volumeClientImpl struct {
 	author       string
 	authorOnce   sync.Once
 
+	// volumeIDs caches name -> volume_id so requests skip the name lookup.
+	volumeIDs sync.Map
+
 	rpc volumev2connect.VolumeServiceClient
 }
 
-// NewVolumeClient creates a versioned volume client using Chalk auth/config resolution.
+// NewVolumeClient creates a volume client using Chalk auth and config resolution.
 func NewVolumeClient(ctx context.Context, configs ...*VolumeClientConfig) (VolumeClient, error) {
 	var cfg *VolumeClientConfig
 	switch len(configs) {
@@ -187,6 +276,9 @@ func NewVolumeClient(ctx context.Context, configs ...*VolumeClientConfig) (Volum
 		cfg = configs[0]
 	default:
 		return nil, errors.Newf("expected at most one VolumeClientConfig, got %d", len(configs))
+	}
+	if cfg == nil {
+		return nil, errors.New("volume client config must not be nil")
 	}
 	if cfg.HTTPClient == nil {
 		cfg.HTTPClient = http.DefaultClient
@@ -232,7 +324,11 @@ func NewVolumeClient(ctx context.Context, configs ...*VolumeClientConfig) (Volum
 	client.rpc = volumev2connect.NewVolumeServiceClient(
 		cfg.HTTPClient,
 		apiServer,
-		connect.WithInterceptors(connect.UnaryInterceptorFunc(client.authInterceptor())),
+		// Retry outside auth so every attempt carries a fresh token.
+		connect.WithInterceptors(
+			connect.UnaryInterceptorFunc(volumeRetryInterceptor()),
+			connect.UnaryInterceptorFunc(client.authInterceptor()),
+		),
 		connect.WithInterceptors(cfg.Interceptors...),
 	)
 	return client, nil
@@ -256,6 +352,24 @@ func (c *volumeClientImpl) authInterceptor() connect.UnaryInterceptorFunc {
 	}
 }
 
+// volumeRetryInterceptor retries RPCs that return Unavailable.
+func volumeRetryInterceptor() connect.UnaryInterceptorFunc {
+	const maxAttempts = 3
+	return func(next connect.UnaryFunc) connect.UnaryFunc {
+		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+			for attempt := 1; ; attempt++ {
+				res, err := next(ctx, req)
+				if err == nil || attempt >= maxAttempts || connect.CodeOf(err) != connect.CodeUnavailable {
+					return res, err
+				}
+				if waitErr := waitVolumeRetry(ctx, time.Duration(rateLimitBackoffMS(attempt-1))*time.Millisecond); waitErr != nil {
+					return res, waitErr
+				}
+			}
+		}
+	}
+}
+
 func (c *volumeClientImpl) addAuthHeaders(ctx context.Context, header http.Header) error {
 	header.Set("x-chalk-server", "go-api")
 	header.Set("User-Agent", internal.UserAgent())
@@ -266,7 +380,7 @@ func (c *volumeClientImpl) addAuthHeaders(ctx context.Context, header http.Heade
 	if err != nil {
 		return err
 	}
-	header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+	header.Set("Authorization", "Bearer "+token.AccessToken)
 	return nil
 }
 
@@ -277,58 +391,200 @@ func rpcMsg[T any](res *connect.Response[T], err error) (*T, error) {
 	return res.Msg, nil
 }
 
-func (c *volumeClientImpl) CreateVolume(ctx context.Context, name string) (*volumev2.CreateVolumeResponse, error) {
-	return rpcMsg(c.rpc.CreateVolume(ctx, connect.NewRequest(&volumev2.CreateVolumeRequest{Name: name})))
+// volumeRef builds a VolumeRef carrying the cached volume_id, if known.
+func (c *volumeClientImpl) volumeRef(name string) *volumev2.VolumeRef {
+	return c.volumeRefProto(VolumeRef{Name: name})
+}
+
+func (c *volumeClientImpl) volumeRefProto(v VolumeRef) *volumev2.VolumeRef {
+	id := v.ID
+	if id == "" && v.Name != "" {
+		if cached, ok := c.volumeIDs.Load(v.Name); ok {
+			id, _ = cached.(string)
+		}
+	}
+	return &volumev2.VolumeRef{VolumeId: id, Name: v.Name}
+}
+
+func (c *volumeClientImpl) cacheVolumeID(name string, id string) {
+	if name == "" || id == "" {
+		return
+	}
+	c.volumeIDs.Store(name, id)
+}
+
+func (c *volumeClientImpl) evictVolumeID(name string) {
+	c.volumeIDs.Delete(name)
+}
+
+// volumeRPC issues an RPC carrying a VolumeRef. NotFound against a cached
+// volume_id means the cache is stale: evict, and retry by name if idempotent.
+func volumeRPC[Req, Resp any](
+	ctx context.Context,
+	c *volumeClientImpl,
+	req *Req,
+	volumeOf func(*Req) *volumev2.VolumeRef,
+	retryOnStale bool,
+	call func(context.Context, *connect.Request[Req]) (*connect.Response[Resp], error),
+) (*Resp, error) {
+	var cachedName string
+	if volume := volumeOf(req); volume.GetVolumeId() != "" {
+		cachedName = volume.GetName()
+	}
+	res, err := call(ctx, connect.NewRequest(req))
+	if err == nil || cachedName == "" || connect.CodeOf(err) != connect.CodeNotFound {
+		return rpcMsg(res, err)
+	}
+	c.evictVolumeID(cachedName)
+	if !retryOnStale {
+		return nil, err
+	}
+	volumeOf(req).VolumeId = ""
+	return rpcMsg(call(ctx, connect.NewRequest(req)))
+}
+
+func (c *volumeClientImpl) CreateVolume(ctx context.Context, params CreateVolumeParams) (*volumev2.CreateVolumeResponse, error) {
+	res, err := rpcMsg(c.rpc.CreateVolume(ctx, connect.NewRequest(&volumev2.CreateVolumeRequest{
+		Name:       params.Name,
+		VolumeType: params.Kind,
+	})))
+	if err != nil {
+		return nil, err
+	}
+	c.cacheVolumeID(res.GetVolume().GetName(), res.GetVolume().GetVolumeId())
+	return res, nil
 }
 
 func (c *volumeClientImpl) GetVolume(ctx context.Context, volume VolumeRef, selector *volumev2.VersionSelector) (*volumev2.GetVolumeResponse, error) {
-	return rpcMsg(c.rpc.GetVolume(ctx, connect.NewRequest(&volumev2.GetVolumeRequest{
-		Volume:   volume.toProto(),
+	res, err := volumeRPC(ctx, c, &volumev2.GetVolumeRequest{
+		Volume:   c.volumeRefProto(volume),
 		Selector: selector,
-	})))
+	}, func(r *volumev2.GetVolumeRequest) *volumev2.VolumeRef { return r.Volume }, true, c.rpc.GetVolume)
+	if err != nil {
+		return nil, err
+	}
+	c.cacheVolumeID(res.GetVolume().GetName(), res.GetVolume().GetVolumeId())
+	return res, nil
 }
 
-func (c *volumeClientImpl) ListVolumes(ctx context.Context, limit int32, cursor string) (*volumev2.ListVolumesResponse, error) {
+func (c *volumeClientImpl) ListVolumes(ctx context.Context, params ListVolumesParams) (*volumev2.ListVolumesResponse, error) {
 	return rpcMsg(c.rpc.ListVolumes(ctx, connect.NewRequest(&volumev2.ListVolumesRequest{
-		Limit:  limit,
-		Cursor: cursor,
+		Limit:      params.Limit,
+		Cursor:     params.Cursor,
+		NamePrefix: params.NamePrefix,
+		VolumeKind: params.Kind,
 	})))
 }
 
 func (c *volumeClientImpl) DeleteVolume(ctx context.Context, volume VolumeRef) error {
-	_, err := c.rpc.DeleteVolume(ctx, connect.NewRequest(&volumev2.DeleteVolumeRequest{Volume: volume.toProto()}))
+	_, err := volumeRPC(ctx, c, &volumev2.DeleteVolumeRequest{Volume: c.volumeRefProto(volume)},
+		func(r *volumev2.DeleteVolumeRequest) *volumev2.VolumeRef { return r.Volume }, false, c.rpc.DeleteVolume)
+	c.evictVolumeID(volume.Name)
 	return err
 }
 
-func (c *volumeClientImpl) ListVolumeVersions(ctx context.Context, volume VolumeRef, limit int32, cursor string) (*volumev2.ListVolumeVersionsResponse, error) {
-	return rpcMsg(c.rpc.ListVolumeVersions(ctx, connect.NewRequest(&volumev2.ListVolumeVersionsRequest{
-		Volume: volume.toProto(),
-		Limit:  limit,
-		Cursor: cursor,
-	})))
+func (c *volumeClientImpl) ListVolumeVersions(ctx context.Context, params ListVolumeVersionsParams) (*volumev2.ListVolumeVersionsResponse, error) {
+	return volumeRPC(ctx, c, &volumev2.ListVolumeVersionsRequest{
+		Volume: c.volumeRefProto(params.Volume),
+		Limit:  params.Limit,
+		Cursor: params.Cursor,
+		Ref:    params.Ref,
+	}, func(r *volumev2.ListVolumeVersionsRequest) *volumev2.VolumeRef { return r.Volume }, true, c.rpc.ListVolumeVersions)
 }
 
-func (c *volumeClientImpl) ListFiles(ctx context.Context, params ListVolumeFilesParams) (*volumev2.ListFilesResponse, error) {
-	return rpcMsg(c.rpc.ListFiles(ctx, connect.NewRequest(&volumev2.ListFilesRequest{
-		Volume:    params.Volume.toProto(),
+func (c *volumeClientImpl) CreateRef(ctx context.Context, volume VolumeRef, name string, fromVersionID uint64) (*volumev2.CreateRefResponse, error) {
+	return volumeRPC(ctx, c, &volumev2.CreateRefRequest{
+		Volume:        c.volumeRefProto(volume),
+		Name:          name,
+		FromVersionId: fromVersionID,
+	}, func(r *volumev2.CreateRefRequest) *volumev2.VolumeRef { return r.Volume }, false, c.rpc.CreateRef)
+}
+
+func (c *volumeClientImpl) ListRefs(ctx context.Context, volume VolumeRef) (*volumev2.ListRefsResponse, error) {
+	return volumeRPC(ctx, c, &volumev2.ListRefsRequest{Volume: c.volumeRefProto(volume)},
+		func(r *volumev2.ListRefsRequest) *volumev2.VolumeRef { return r.Volume }, true, c.rpc.ListRefs)
+}
+
+func (c *volumeClientImpl) DeleteRef(ctx context.Context, volume VolumeRef, name string) error {
+	_, err := volumeRPC(ctx, c, &volumev2.DeleteRefRequest{Volume: c.volumeRefProto(volume), Name: name},
+		func(r *volumev2.DeleteRefRequest) *volumev2.VolumeRef { return r.Volume }, false, c.rpc.DeleteRef)
+	return err
+}
+
+func (c *volumeClientImpl) GetCommitStatus(ctx context.Context, volume VolumeRef, commitID string, includeDiff bool) (*volumev2.GetCommitStatusResponse, error) {
+	res, err := volumeRPC(ctx, c, &volumev2.GetCommitStatusRequest{
+		Volume:      c.volumeRefProto(volume),
+		CommitId:    commitID,
+		IncludeDiff: includeDiff,
+	}, func(r *volumev2.GetCommitStatusRequest) *volumev2.VolumeRef { return r.Volume }, true, c.rpc.GetCommitStatus)
+	if err != nil {
+		return nil, err
+	}
+	c.cacheVolumeID(res.GetStatus().GetVolume().GetName(), res.GetStatus().GetVolume().GetVolumeId())
+	return res, nil
+}
+
+func (c *volumeClientImpl) AllocateInodeRange(ctx context.Context, volume VolumeRef, count uint64, mountID string) (*volumev2.AllocateInodeRangeResponse, error) {
+	return volumeRPC(ctx, c, &volumev2.AllocateInodeRangeRequest{
+		Volume:  c.volumeRefProto(volume),
+		Count:   count,
+		MountId: mountID,
+	}, func(r *volumev2.AllocateInodeRangeRequest) *volumev2.VolumeRef { return r.Volume }, false, c.rpc.AllocateInodeRange)
+}
+
+func (c *volumeClientImpl) ListFiles(ctx context.Context, params ListFilesParams) (*volumev2.ListFilesResponse, error) {
+	return volumeRPC(ctx, c, &volumev2.ListFilesRequest{
+		Volume:    c.volumeRefProto(params.Volume),
 		Path:      params.Path,
 		Recursive: params.Recursive,
 		Limit:     params.Limit,
 		Cursor:    params.Cursor,
 		Selector:  params.Selector,
-	})))
+	}, func(r *volumev2.ListFilesRequest) *volumev2.VolumeRef { return r.Volume }, true, c.rpc.ListFiles)
 }
 
-func (c *volumeClientImpl) GetFile(ctx context.Context, volume VolumeRef, path string, selector *volumev2.VersionSelector) (*volumev2.GetFileResponse, error) {
-	return rpcMsg(c.rpc.GetFile(ctx, connect.NewRequest(&volumev2.GetFileRequest{
-		Volume:   volume.toProto(),
-		Path:     path,
-		Selector: selector,
-	})))
+func (c *volumeClientImpl) GetFile(ctx context.Context, params GetFileParams) (*volumev2.GetFileResponse, error) {
+	return c.getFile(ctx, &volumev2.GetFileRequest{
+		Volume:      c.volumeRefProto(params.Volume),
+		Path:        params.Path,
+		Selector:    params.Selector,
+		IfNoneMatch: params.IfNoneMatch,
+	})
 }
 
-func (v VolumeRef) toProto() *volumev2.VolumeRef {
-	return &volumev2.VolumeRef{VolumeId: v.ID, Name: v.Name}
+func (c *volumeClientImpl) getFile(ctx context.Context, req *volumev2.GetFileRequest) (*volumev2.GetFileResponse, error) {
+	return volumeRPC(ctx, c, req,
+		func(r *volumev2.GetFileRequest) *volumev2.VolumeRef { return r.Volume }, true, c.rpc.GetFile)
+}
+
+func (c *volumeClientImpl) RequestUploadURLs(ctx context.Context, volume VolumeRef, objects []*volumev2.UploadedObjectReference) ([]*volumev2.UploadURLItem, error) {
+	return c.requestUploadURLs(ctx, c.volumeRefProto(volume), objects)
+}
+
+func (c *volumeClientImpl) requestUploadURLs(ctx context.Context, volume *volumev2.VolumeRef, objects []*volumev2.UploadedObjectReference) ([]*volumev2.UploadURLItem, error) {
+	res, err := volumeRPC(ctx, c, &volumev2.RequestUploadURLsRequest{
+		Volume:  volume,
+		Objects: objects,
+	}, func(r *volumev2.RequestUploadURLsRequest) *volumev2.VolumeRef { return r.Volume }, false, c.rpc.RequestUploadURLs)
+	if err != nil {
+		return nil, err
+	}
+	return res.GetUrls(), nil
+}
+
+func (c *volumeClientImpl) commitVersion(ctx context.Context, intent *volumev2.CommitIntent) (*volumev2.CommitStatus, error) {
+	res, err := volumeRPC(ctx, c, &volumev2.CommitVersionRequest{Intent: intent},
+		func(r *volumev2.CommitVersionRequest) *volumev2.VolumeRef { return r.GetIntent().GetVolume() },
+		false, c.rpc.CommitVersion)
+	if err != nil {
+		return nil, err
+	}
+	status := res.GetStatus()
+	if status == nil {
+		return nil, fmt.Errorf("CommitVersion returned no status")
+	}
+	c.cacheVolumeID(status.GetVolume().GetName(), status.GetVolume().GetVolumeId())
+	return status, nil
 }
 
 func VolumeVersionSelector(versionID uint64) *volumev2.VersionSelector {
@@ -339,52 +595,59 @@ func VolumeRefSelector(ref string) *volumev2.VersionSelector {
 	return &volumev2.VersionSelector{Selector: &volumev2.VersionSelector_Ref{Ref: ref}}
 }
 
-func (c *volumeClientImpl) UploadFiles(ctx context.Context, request VolumeUploadRequest, onProgress func(uint64)) ([]*volumev2.CommitStatus, error) {
+// --- Upload -----------------------------------------------------------------
+
+func (c *volumeClientImpl) UploadFiles(ctx context.Context, request VolumeUploadRequest, onProgress VolumeProgressFunc) ([]*volumev2.CommitStatus, error) {
 	cfg := request.Config.withDefaults()
-	if onProgress == nil {
-		onProgress = func(uint64) {}
+	volume := c.volumeRef(request.VolumeName)
+	uploaded, err := c.stageFiles(ctx, volume, request.Files, cfg, onProgress)
+	if err != nil {
+		return nil, err
 	}
-	volume := &volumev2.VolumeRef{Name: request.VolumeName}
-	var statuses []*volumev2.CommitStatus
-	for start := 0; start < len(request.Files); start += cfg.BatchSize {
-		end := min(start+cfg.BatchSize, len(request.Files))
-		uploaded, err := c.uploadBatchFiles(ctx, volume, request.Files[start:end], cfg, onProgress)
-		if err != nil {
-			return nil, err
-		}
-		status, err := c.commitPathDeltas(ctx, volume, uploaded, nil, cfg.MaxCommitRetries)
-		if err != nil {
-			return nil, err
-		}
-		statuses = append(statuses, status)
+	if len(uploaded) == 0 {
+		return nil, nil
 	}
-	return statuses, nil
+	status, err := c.commitPathDeltas(ctx, volume, uploaded, nil, VolumeCommitOptions{
+		Ref:              request.Ref,
+		MaxCommitRetries: cfg.MaxCommitRetries,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return []*volumev2.CommitStatus{status}, nil
 }
 
-func (c *volumeClientImpl) UploadDirectory(ctx context.Context, volumeName string, dir string, config VolumeUploadConfig) ([]*volumev2.CommitStatus, error) {
+func (c *volumeClientImpl) UploadDirectory(ctx context.Context, volumeName string, dir string, config VolumeUploadConfig, ref string) ([]*volumev2.CommitStatus, error) {
 	files, err := collectVolumeLocalFiles(dir)
 	if err != nil {
 		return nil, err
 	}
-	return c.UploadFiles(ctx, VolumeUploadRequest{VolumeName: volumeName, Files: files, Config: config}, nil)
+	return c.UploadFiles(ctx, VolumeUploadRequest{
+		VolumeName: volumeName,
+		Files:      files,
+		Config:     config,
+		Ref:        ref,
+	}, nil)
 }
 
-func (c *volumeClientImpl) RemoveFiles(ctx context.Context, volumeName string, paths []VolumeRemovePath, maxCommitRetries int) (*volumev2.CommitStatus, error) {
-	removes := make([]*volumev2.PathRemoveDelta, 0, len(paths))
-	for _, path := range paths {
-		removes = append(removes, &volumev2.PathRemoveDelta{Path: path.Path, Recursive: path.Recursive})
-	}
-	if maxCommitRetries <= 0 {
-		maxCommitRetries = DefaultVolumeUploadConfig().MaxCommitRetries
-	}
-	return c.commitPathDeltas(ctx, &volumev2.VolumeRef{Name: volumeName}, nil, removes, maxCommitRetries)
+func (c *volumeClientImpl) StageFiles(ctx context.Context, volume VolumeRef, files []VolumeUploadFile, config VolumeUploadConfig, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
+	return c.stageFiles(ctx, c.volumeRefProto(volume), files, config.withDefaults(), onProgress)
 }
 
-type uploadedVolumeFile struct {
-	path            string
-	contentRef      *volumev2.ContentRef
-	metadata        *volumev2.FileMetadata
-	uploadedObjects []*volumev2.UploadedObjectReference
+// stageFiles uploads files without committing them.
+func (c *volumeClientImpl) stageFiles(ctx context.Context, volume *volumev2.VolumeRef, files []VolumeUploadFile, cfg VolumeUploadConfig, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
+	if onProgress == nil {
+		onProgress = func(uint64, bool) {}
+	}
+	throttle := &volumeThrottle{}
+	return c.uploadFiles(ctx, volume, files, cfg, throttle, onProgress)
+}
+
+func (c *volumeClientImpl) RemoveFiles(ctx context.Context, volumeName string, paths []VolumeRemovePath, opts VolumeCommitOptions) (*volumev2.CommitStatus, error) {
+	if opts.MaxCommitRetries <= 0 {
+		opts.MaxCommitRetries = DefaultVolumeUploadConfig().MaxCommitRetries
+	}
+	return c.commitPathDeltas(ctx, c.volumeRef(volumeName), nil, volumeRemoveDeltas(paths), opts)
 }
 
 type sizedVolumeUploadFile struct {
@@ -392,24 +655,25 @@ type sizedVolumeUploadFile struct {
 	size uint64
 }
 
-func (c *volumeClientImpl) uploadBatchFiles(ctx context.Context, volume *volumev2.VolumeRef, files []VolumeUploadFile, cfg VolumeUploadConfig, onProgress func(uint64)) ([]uploadedVolumeFile, error) {
+func (c *volumeClientImpl) uploadFiles(ctx context.Context, volume *volumev2.VolumeRef, files []VolumeUploadFile, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
 	sized := make([]sizedVolumeUploadFile, len(files))
-	eg, egCtx := errgroup.WithContext(ctx)
-	eg.SetLimit(maxInt(cfg.FileConcurrency, 1))
+	var sizeGroup errgroup.Group
+	sizeGroup.SetLimit(max(cfg.FileConcurrency, 1))
 	for i := range files {
-		eg.Go(func() error {
+		sizeGroup.Go(func() error {
 			size, err := files[i].Content.size()
 			if err != nil {
 				return err
 			}
 			sized[i] = sizedVolumeUploadFile{file: files[i], size: size}
-			return egCtx.Err()
+			return nil
 		})
 	}
-	if err := eg.Wait(); err != nil {
+	if err := sizeGroup.Wait(); err != nil {
 		return nil, err
 	}
 
+	// Packable when a pack holding it alone stays under the cap.
 	var perFile []sizedVolumeUploadFile
 	var packable []sizedVolumeUploadFile
 	for _, sf := range sized {
@@ -421,12 +685,12 @@ func (c *volumeClientImpl) uploadBatchFiles(ctx context.Context, volume *volumev
 	}
 
 	var mu sync.Mutex
-	var out []uploadedVolumeFile
-	eg, egCtx = errgroup.WithContext(ctx)
-	eg.SetLimit(maxInt(cfg.FileConcurrency, 1))
+	var out []VolumeUploadedFile
+	uploadGroup, uploadCtx := errgroup.WithContext(ctx)
+	uploadGroup.SetLimit(max(cfg.FileConcurrency, 1))
 	for _, sf := range perFile {
-		eg.Go(func() error {
-			uploaded, err := c.uploadOneFile(egCtx, volume, sf.file, sf.size, cfg, onProgress)
+		uploadGroup.Go(func() error {
+			uploaded, err := c.uploadOneFile(uploadCtx, volume, sf.file, sf.size, cfg, throttle, onProgress)
 			if err != nil {
 				return err
 			}
@@ -436,8 +700,8 @@ func (c *volumeClientImpl) uploadBatchFiles(ctx context.Context, volume *volumev
 			return nil
 		})
 	}
-	eg.Go(func() error {
-		uploaded, err := c.packAndUpload(egCtx, volume, packable, cfg, onProgress)
+	uploadGroup.Go(func() error {
+		uploaded, err := c.packAndUpload(uploadCtx, volume, packable, cfg, throttle, onProgress)
 		if err != nil {
 			return err
 		}
@@ -446,113 +710,216 @@ func (c *volumeClientImpl) uploadBatchFiles(ctx context.Context, volume *volumev
 		mu.Unlock()
 		return nil
 	})
-	if err := eg.Wait(); err != nil {
+	if err := uploadGroup.Wait(); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *volumeClientImpl) uploadOneFile(ctx context.Context, volume *volumev2.VolumeRef, file VolumeUploadFile, size uint64, cfg VolumeUploadConfig, onProgress func(uint64)) (uploadedVolumeFile, error) {
+// volumeUploadPipelineShape splits a chunk concurrency budget into
+// (pipelineDepth, window). Their product never exceeds chunkConcurrency.
+func volumeUploadPipelineShape(chunkConcurrency int) (int, int) {
+	limit := max(chunkConcurrency, 1)
+	if limit == 1 {
+		return 1, 1
+	}
+	return 2, limit / 2
+}
+
+// uploadOneFile chunks a file too large to pack. Windows pipeline, so the next
+// window reads while the previous uploads, and bytes are released once hashed.
+// Peak memory stays near chunkConcurrency * chunkSize, not the file size.
+func (c *volumeClientImpl) uploadOneFile(ctx context.Context, volume *volumev2.VolumeRef, file VolumeUploadFile, size uint64, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) (VolumeUploadedFile, error) {
 	metadata, err := file.metadata()
 	if err != nil {
-		return uploadedVolumeFile{}, err
+		return VolumeUploadedFile{}, err
 	}
 	if size == 0 {
-		onProgress(0)
-		return uploadedVolumeFile{
-			path:       file.Path,
-			contentRef: emptyVolumeContentRef(),
-			metadata:   metadata,
+		onProgress(0, false)
+		return VolumeUploadedFile{
+			Path:       file.Path,
+			ContentRef: emptyVolumeContentRef(),
+			Metadata:   metadata,
 		}, nil
 	}
 
+	depth, windowSize := volumeUploadPipelineShape(cfg.ChunkConcurrency)
 	slices := computeVolumeSlices(size, cfg.ChunkSize)
-	prepared := make([]preparedVolumeSlice, len(slices))
-	eg, egCtx := errgroup.WithContext(ctx)
-	eg.SetLimit(maxInt(cfg.ChunkConcurrency, 1))
-	for i := range slices {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Capacity plus the window being handed off caps windows holding bytes at depth.
+	queue := make(chan chan volumeWindowResult, depth-1)
+	go func() {
+		defer close(queue)
+		for start := 0; start < len(slices); start += windowSize {
+			window := slices[start:min(start+windowSize, len(slices))]
+			done := make(chan volumeWindowResult, 1)
+			go func() {
+				done <- c.uploadWindow(ctx, volume, file.Content, window, cfg, throttle, onProgress)
+			}()
+			select {
+			case queue <- done:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	// blake3.New, not a zero-value Hasher: the zero value digests to nothing.
+	hasher := blake3.New()
+	chunks := make([]*volumev2.ChunkRef, 0, len(slices))
+	uploaded := make([]*volumev2.UploadedObjectReference, 0, len(slices))
+	for done := range queue {
+		result := <-done
+		if result.err != nil {
+			return VolumeUploadedFile{}, result.err
+		}
+		for _, data := range result.bytes {
+			hasher.Write(data)
+		}
+		chunks = append(chunks, result.chunks...)
+		uploaded = append(uploaded, result.uploaded...)
+	}
+	if err := ctx.Err(); err != nil {
+		return VolumeUploadedFile{}, err
+	}
+	return VolumeUploadedFile{
+		Path:            file.Path,
+		ContentRef:      chunkedVolumeContentRef(hex.EncodeToString(hasher.Sum(nil)), size, chunks),
+		Metadata:        metadata,
+		UploadedObjects: uploaded,
+	}, nil
+}
+
+// volumeWindowResult carries one window's refs plus its bytes in offset order,
+// which the caller folds into the whole-file hash and then drops.
+type volumeWindowResult struct {
+	chunks   []*volumev2.ChunkRef
+	uploaded []*volumev2.UploadedObjectReference
+	bytes    [][]byte
+	err      error
+}
+
+func (c *volumeClientImpl) uploadWindow(ctx context.Context, volume *volumev2.VolumeRef, content VolumeUploadContent, window []volumeSlice, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) volumeWindowResult {
+	objects := make([]plannedVolumeObject, len(window))
+	var eg errgroup.Group
+	eg.SetLimit(max(cfg.ChunkConcurrency, 1))
+	for i := range window {
 		eg.Go(func() error {
-			bytes, err := file.Content.readChunk(slices[i].offset, slices[i].size)
+			data, err := content.readChunk(window[i].offset, window[i].size)
 			if err != nil {
 				return err
 			}
-			prepared[i] = preparedVolumeSlice{
-				slice: slices[i],
-				bytes: bytes,
-				hash:  blake3Hex(bytes),
+			hash := blake3Hex(data)
+			objects[i] = plannedVolumeObject{
+				relativeKey: chunkRelativeObjectKey(hash),
+				hash:        hash,
+				bytes:       data,
+				kind:        volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_CHUNK,
 			}
-			return egCtx.Err()
-		})
-	}
-	if err := eg.Wait(); err != nil {
-		return uploadedVolumeFile{}, err
-	}
-
-	objects := make([]*volumev2.UploadedObjectReference, 0, len(prepared))
-	for _, p := range prepared {
-		objects = append(objects, uploadedVolumeObjectRef(chunkRelativeObjectKey(p.hash), p.hash, p.slice.size, volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_CHUNK))
-	}
-	urls, err := c.requestUploadURLs(ctx, volume, objects)
-	if err != nil {
-		return uploadedVolumeFile{}, err
-	}
-	if len(urls) != len(prepared) {
-		return uploadedVolumeFile{}, fmt.Errorf("RequestUploadURLs returned %d items for %d chunks", len(urls), len(prepared))
-	}
-
-	var fileHasher blake3.Hasher
-	var uploadedObjects []*volumev2.UploadedObjectReference
-	chunks := make([]*volumev2.ChunkRef, len(prepared))
-	for _, p := range prepared {
-		fileHasher.Write(p.bytes)
-	}
-	fileHash := hex.EncodeToString(fileHasher.Sum(nil))
-
-	eg, egCtx = errgroup.WithContext(ctx)
-	eg.SetLimit(maxInt(cfg.ChunkConcurrency, 1))
-	for i := range prepared {
-		eg.Go(func() error {
-			p := prepared[i]
-			url := urls[i]
-			object := uploadedVolumeObjectRef(url.ObjectKey, p.hash, p.slice.size, volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_CHUNK)
-			if !url.AlreadyExists {
-				if err := c.signedRequestWithRetry(egCtx, http.MethodPut, url.SignedUploadUri, octetStreamHeaders(), bytes.NewReader(p.bytes), cfg.MaxChunkRetries, cfg.MaxRateLimitRetries, func(ctx context.Context) (string, error) {
-					refreshed, err := c.requestUploadURLs(ctx, volume, []*volumev2.UploadedObjectReference{object})
-					if err != nil {
-						return "", err
-					}
-					if len(refreshed) == 0 {
-						return "", fmt.Errorf("URL refresh returned no items")
-					}
-					return refreshed[0].SignedUploadUri, nil
-				}); err != nil {
-					return err
-				}
-			}
-			onProgress(p.slice.size)
-			chunks[i] = &volumev2.ChunkRef{ObjectKey: object.ObjectKey, Hash: p.hash, Size: p.slice.size, Offset: p.slice.offset}
 			return nil
 		})
 	}
 	if err := eg.Wait(); err != nil {
-		return uploadedVolumeFile{}, err
+		return volumeWindowResult{err: err}
 	}
-	for i := range prepared {
-		p := prepared[i]
-		uploadedObjects = append(uploadedObjects, uploadedVolumeObjectRef(urls[i].ObjectKey, p.hash, p.slice.size, volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_CHUNK))
+
+	landed, err := c.putObjects(ctx, volume, objects, cfg, throttle, onProgress)
+	if err != nil {
+		return volumeWindowResult{err: err}
 	}
-	return uploadedVolumeFile{
-		path:            file.Path,
-		contentRef:      chunkedVolumeContentRef(fileHash, size, chunks),
-		metadata:        metadata,
-		uploadedObjects: uploadedObjects,
-	}, nil
+	result := volumeWindowResult{
+		chunks:   make([]*volumev2.ChunkRef, len(window)),
+		uploaded: make([]*volumev2.UploadedObjectReference, len(window)),
+		bytes:    make([][]byte, len(window)),
+	}
+	for i, object := range objects {
+		result.chunks[i] = &volumev2.ChunkRef{
+			ObjectKey: landed[i],
+			Hash:      object.hash,
+			Size:      window[i].size,
+			Offset:    window[i].offset,
+		}
+		result.uploaded[i] = uploadedVolumeObjectRef(object.relativeKey, object.hash, window[i].size, object.kind)
+		result.bytes[i] = object.bytes
+	}
+	return result
 }
 
-type preparedVolumeSlice struct {
-	slice volumeSlice
-	bytes []byte
-	hash  string
+type plannedVolumeObject struct {
+	relativeKey string
+	hash        string
+	bytes       []byte
+	kind        volumev2.UploadedObjectKind
+}
+
+// putObjects mints signed URLs in one RPC, lands the objects storage lacks, and
+// returns each object's key.
+func (c *volumeClientImpl) putObjects(ctx context.Context, volume *volumev2.VolumeRef, objects []plannedVolumeObject, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) ([]string, error) {
+	if len(objects) == 0 {
+		return nil, nil
+	}
+	requested := make([]*volumev2.UploadedObjectReference, len(objects))
+	for i, object := range objects {
+		requested[i] = uploadedVolumeObjectRef(object.relativeKey, object.hash, uint64(len(object.bytes)), object.kind)
+	}
+	urls, err := c.requestUploadURLs(ctx, volume, requested)
+	if err != nil {
+		return nil, err
+	}
+	if len(urls) != len(objects) {
+		return nil, fmt.Errorf("RequestUploadURLs returned %d items for %d objects", len(urls), len(objects))
+	}
+
+	landed := make([]string, len(objects))
+	eg, egCtx := errgroup.WithContext(ctx)
+	eg.SetLimit(max(cfg.ChunkConcurrency, 1))
+	for i := range objects {
+		eg.Go(func() error {
+			planned, url := objects[i], urls[i]
+			object := uploadedVolumeObjectRef(url.ObjectKey, planned.hash, uint64(len(planned.bytes)), planned.kind)
+			if !url.AlreadyExists {
+				label := "upload chunk"
+				if planned.kind == volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_PACK {
+					label = "upload pack"
+				}
+				if _, err := c.signedRequest(egCtx, volumeSignedRequest{
+					label:   label,
+					method:  http.MethodPut,
+					url:     url.SignedUploadUri,
+					headers: octetStreamHeaders(),
+					body:    planned.bytes,
+				}, volumeRetryPolicy{
+					maxAttempts:         cfg.MaxChunkRetries,
+					throttle:            throttle,
+					maxRateLimitRetries: cfg.MaxRateLimitRetries,
+				}, func(ctx context.Context) (string, error) {
+					return c.refreshUploadURL(ctx, volume, object)
+				}); err != nil {
+					return err
+				}
+			}
+			onProgress(object.ContentSize, url.AlreadyExists)
+			landed[i] = object.ObjectKey
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+	return landed, nil
+}
+
+func (c *volumeClientImpl) refreshUploadURL(ctx context.Context, volume *volumev2.VolumeRef, object *volumev2.UploadedObjectReference) (string, error) {
+	refreshed, err := c.requestUploadURLs(ctx, volume, []*volumev2.UploadedObjectReference{object})
+	if err != nil {
+		return "", err
+	}
+	if len(refreshed) == 0 {
+		return "", fmt.Errorf("URL refresh returned no items")
+	}
+	return refreshed[0].SignedUploadUri, nil
 }
 
 type volumeSlice struct {
@@ -574,155 +941,305 @@ func computeVolumeSlices(total uint64, chunkSize uint64) []volumeSlice {
 	return slices
 }
 
-func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.VolumeRef, files []sizedVolumeUploadFile, cfg VolumeUploadConfig, onProgress func(uint64)) ([]uploadedVolumeFile, error) {
-	if len(files) == 0 {
-		return nil, nil
-	}
-	var out []uploadedVolumeFile
-	builder := newDataPackBuilder()
-	var members []packMember
-	for _, sf := range files {
-		data, err := sf.file.Content.readChunk(0, sf.size)
-		if err != nil {
-			return nil, err
-		}
-		hash := blake3Sum(data)
-		if !builder.isEmpty() && !builder.fits(sf.size, cfg.MaxPackBytes) {
-			uploaded, err := c.uploadOnePack(ctx, volume, builder, members, cfg, onProgress)
-			if err != nil {
-				return nil, err
-			}
-			out = append(out, uploaded...)
-			builder = newDataPackBuilder()
-			members = nil
-		}
-		metadata, err := sf.file.metadata()
-		if err != nil {
-			return nil, err
-		}
-		builder.append(hash, data)
-		members = append(members, packMember{path: sf.file.Path, metadata: metadata, hash: hash})
-	}
-	if !builder.isEmpty() {
-		uploaded, err := c.uploadOnePack(ctx, volume, builder, members, cfg, onProgress)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, uploaded...)
-	}
-	return out, nil
-}
-
 type packMember struct {
 	path     string
 	metadata *volumev2.FileMetadata
 	hash     [32]byte
 }
 
-func (c *volumeClientImpl) uploadOnePack(ctx context.Context, volume *volumev2.VolumeRef, builder *dataPackBuilder, members []packMember, cfg VolumeUploadConfig, onProgress func(uint64)) ([]uploadedVolumeFile, error) {
+type volumeReadResult struct {
+	file sizedVolumeUploadFile
+	data []byte
+	err  error
+}
+
+// packAndUpload bin-packs small files into CDP1 packs in arrival order. Reads
+// are bounded read-ahead and sealed packs upload concurrently, so peak bytes
+// stay near fileConcurrency * maxPackBytes instead of the whole upload.
+func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.VolumeRef, files []sizedVolumeUploadFile, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
+	if len(files) == 0 {
+		return nil, nil
+	}
+	concurrency := max(cfg.FileConcurrency, 1)
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Read ahead in arrival order, so pack membership stays deterministic.
+	queue := make(chan chan volumeReadResult, concurrency-1)
+	go func() {
+		defer close(queue)
+		for _, sf := range files {
+			done := make(chan volumeReadResult, 1)
+			go func() {
+				data, err := sf.file.Content.readChunk(0, sf.size)
+				done <- volumeReadResult{file: sf, data: data, err: err}
+			}()
+			select {
+			case queue <- done:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	var mu sync.Mutex
+	var out []VolumeUploadedFile
+	// eg.Go blocks once `concurrency` packs are in flight, back-pressuring reads.
+	eg, egCtx := errgroup.WithContext(ctx)
+	eg.SetLimit(concurrency)
+	flush := func(builder *dataPackBuilder, members []packMember) {
+		eg.Go(func() error {
+			uploaded, err := c.uploadOnePack(egCtx, volume, builder, members, cfg, throttle, onProgress)
+			if err != nil {
+				return err
+			}
+			mu.Lock()
+			out = append(out, uploaded...)
+			mu.Unlock()
+			return nil
+		})
+	}
+
+	var readErr error
+	builder := newDataPackBuilder()
+	var members []packMember
+	for done := range queue {
+		if egCtx.Err() != nil {
+			break // a pack upload failed; eg.Wait reports it
+		}
+		read := <-done
+		if read.err != nil {
+			readErr = read.err
+			break
+		}
+		metadata, err := read.file.file.metadata()
+		if err != nil {
+			readErr = err
+			break
+		}
+		if !builder.isEmpty() && !builder.fits(read.file.size, cfg.MaxPackBytes) {
+			flush(builder, members)
+			builder, members = newDataPackBuilder(), nil
+		}
+		hash := blake3Sum(read.data)
+		builder.append(hash, read.data)
+		members = append(members, packMember{path: read.file.file.Path, metadata: metadata, hash: hash})
+	}
+	if readErr != nil {
+		cancel()
+	} else if !builder.isEmpty() {
+		flush(builder, members)
+	}
+
+	waitErr := eg.Wait()
+	if readErr != nil {
+		return nil, readErr
+	}
+	if waitErr != nil {
+		return nil, waitErr
+	}
+	return out, nil
+}
+
+func (c *volumeClientImpl) uploadOnePack(ctx context.Context, volume *volumev2.VolumeRef, builder *dataPackBuilder, members []packMember, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
 	sealed, err := builder.seal()
 	if err != nil {
 		return nil, err
 	}
 	packID := hashHex(sealed.chunkID)
-	packObject := uploadedVolumeObjectRef(chunkRelativeObjectKey(packID), packID, uint64(len(sealed.bytes)), volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_PACK)
-	urls, err := c.requestUploadURLs(ctx, volume, []*volumev2.UploadedObjectReference{packObject})
+	relativeKey := chunkRelativeObjectKey(packID)
+	landed, err := c.putObjects(ctx, volume, []plannedVolumeObject{{
+		relativeKey: relativeKey,
+		hash:        packID,
+		bytes:       sealed.bytes,
+		kind:        volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_PACK,
+	}}, cfg, throttle, onProgress)
 	if err != nil {
 		return nil, err
 	}
-	if len(urls) == 0 {
+	if len(landed) == 0 {
 		return nil, fmt.Errorf("RequestUploadURLs returned no item for pack")
 	}
-	if !urls[0].AlreadyExists {
-		if err := c.signedRequestWithRetry(ctx, http.MethodPut, urls[0].SignedUploadUri, octetStreamHeaders(), bytes.NewReader(sealed.bytes), cfg.MaxChunkRetries, cfg.MaxRateLimitRetries, func(ctx context.Context) (string, error) {
-			refreshed, err := c.requestUploadURLs(ctx, volume, []*volumev2.UploadedObjectReference{packObject})
-			if err != nil {
-				return "", err
-			}
-			if len(refreshed) == 0 {
-				return "", fmt.Errorf("URL refresh returned no items")
-			}
-			return refreshed[0].SignedUploadUri, nil
-		}); err != nil {
-			return nil, err
-		}
-	}
-	onProgress(uint64(len(sealed.bytes)))
+	packRef := uploadedVolumeObjectRef(relativeKey, packID, uint64(len(sealed.bytes)),
+		volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_PACK)
 
-	out := make([]uploadedVolumeFile, 0, len(members))
+	out := make([]VolumeUploadedFile, 0, len(members))
 	for _, member := range members {
 		entry, ok := sealed.entryFor(member.hash)
 		if !ok {
 			return nil, fmt.Errorf("sealed pack is missing a member entry")
 		}
-		out = append(out, uploadedVolumeFile{
-			path:            member.path,
-			contentRef:      packedVolumeContentRef(packObject.ObjectKey, packID, entry.offset, entry.length, hashHex(member.hash)),
-			metadata:        member.metadata,
-			uploadedObjects: []*volumev2.UploadedObjectReference{packObject},
+		out = append(out, VolumeUploadedFile{
+			Path:            member.path,
+			ContentRef:      packedVolumeContentRef(landed[0], packID, entry.offset, entry.length, hashHex(member.hash)),
+			Metadata:        member.metadata,
+			UploadedObjects: []*volumev2.UploadedObjectReference{packRef},
 		})
 	}
 	return out, nil
 }
 
-func (c *volumeClientImpl) requestUploadURLs(ctx context.Context, volume *volumev2.VolumeRef, objects []*volumev2.UploadedObjectReference) ([]*volumev2.UploadURLItem, error) {
-	res, err := c.rpc.RequestUploadURLs(ctx, connect.NewRequest(&volumev2.RequestUploadURLsRequest{
-		Volume:  volume,
-		Objects: objects,
-	}))
+// --- Commit -----------------------------------------------------------------
+
+func (c *volumeClientImpl) BuildPathIntent(ctx context.Context, volume VolumeRef, upserts []VolumeUploadedFile, removes []VolumeRemovePath, ref string) (*volumev2.CommitIntent, error) {
+	return c.buildPathIntent(ctx, c.volumeRefProto(volume), upserts, volumeRemoveDeltas(removes), ref)
+}
+
+func (c *volumeClientImpl) buildPathIntent(ctx context.Context, volume *volumev2.VolumeRef, upserts []VolumeUploadedFile, removes []*volumev2.PathRemoveDelta, ref string) (*volumev2.CommitIntent, error) {
+	deltas, err := volumePathDeltas(upserts)
 	if err != nil {
 		return nil, err
 	}
-	return res.Msg.GetUrls(), nil
+	refName := volumeRefName(ref)
+	return &volumev2.CommitIntent{
+		Volume:                   volume,
+		Ref:                      &refName,
+		UploadedObjectReferences: dedupeVolumeObjectRefs(upserts),
+		Author:                   c.resolveCommitAuthor(ctx),
+		Deltas: &volumev2.CommitIntent_PathDeltas{PathDeltas: &volumev2.PathDeltaList{
+			Upserts: deltas,
+			Removes: removes,
+		}},
+	}, nil
 }
 
-func (c *volumeClientImpl) commitPathDeltas(ctx context.Context, volume *volumev2.VolumeRef, upserts []uploadedVolumeFile, removes []*volumev2.PathRemoveDelta, maxCommitRetries int) (*volumev2.CommitStatus, error) {
-	deltas := make([]*volumev2.PathFileDelta, 0, len(upserts))
-	for _, file := range upserts {
-		if file.contentRef.GetInline() != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("inline content is only valid for symlinks, not regular file %q", file.path))
+// buildUploadedPathIntent puts deltas in an intent object rather than the RPC
+// message. The object is keyed by commit id, so the id is fixed up front.
+func (c *volumeClientImpl) buildUploadedPathIntent(ctx context.Context, volume *volumev2.VolumeRef, commitID string, upserts []VolumeUploadedFile, removes []*volumev2.PathRemoveDelta, ref string) (*volumev2.CommitIntent, error) {
+	deltas, err := volumePathDeltas(upserts)
+	if err != nil {
+		return nil, err
+	}
+	frames, err := encodeVolumePathIntentFrames(deltas, removes)
+	if err != nil {
+		return nil, err
+	}
+	reference, err := c.uploadIntentObject(ctx, volume, commitID, frames)
+	if err != nil {
+		return nil, err
+	}
+	refName := volumeRefName(ref)
+	return &volumev2.CommitIntent{
+		Volume:                   volume,
+		CommitId:                 commitID,
+		Ref:                      &refName,
+		UploadedObjectReferences: dedupeVolumeObjectRefs(upserts),
+		Author:                   c.resolveCommitAuthor(ctx),
+		Deltas:                   &volumev2.CommitIntent_UploadedDeltas{UploadedDeltas: reference},
+	}, nil
+}
+
+// uploadIntentObject lands framed deltas as commitID's intent object.
+func (c *volumeClientImpl) uploadIntentObject(ctx context.Context, volume *volumev2.VolumeRef, commitID string, frames []byte) (*volumev2.UploadedObjectReference, error) {
+	if commitID == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("uploaded intents require a non-empty commit_id"))
+	}
+	object := uploadedVolumeObjectRef(commitID, blake3Hex(frames), uint64(len(frames)),
+		volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_INTENT)
+	urls, err := c.requestUploadURLs(ctx, volume, []*volumev2.UploadedObjectReference{object})
+	if err != nil {
+		return nil, err
+	}
+	if len(urls) == 0 {
+		return nil, fmt.Errorf("RequestUploadURLs returned no items")
+	}
+	if !urls[0].AlreadyExists {
+		if _, err := c.signedRequest(ctx, volumeSignedRequest{
+			label:   "upload intent",
+			method:  http.MethodPut,
+			url:     urls[0].SignedUploadUri,
+			headers: octetStreamHeaders(),
+			body:    frames,
+		}, volumeRetryPolicy{maxAttempts: 3}, func(ctx context.Context) (string, error) {
+			return c.refreshUploadURL(ctx, volume, object)
+		}); err != nil {
+			return nil, err
 		}
-		deltas = append(deltas, pathFileDelta(file))
 	}
-	refs := dedupeVolumeObjectRefs(upserts)
-	author := c.resolveCommitAuthor(ctx)
-	if maxCommitRetries <= 0 {
-		maxCommitRetries = 1
+	return object, nil
+}
+
+// encodeVolumePathIntentFrames encodes path deltas as length-delimited
+// CommitDeltasObject frames. Empty deltas still emit one frame.
+func encodeVolumePathIntentFrames(upserts []*volumev2.PathFileDelta, removes []*volumev2.PathRemoveDelta) ([]byte, error) {
+	var frames []*volumev2.PathDeltaList
+	for start := 0; start < len(upserts); start += volumeIntentFrameMaxEntries {
+		frames = append(frames, &volumev2.PathDeltaList{
+			Upserts: upserts[start:min(start+volumeIntentFrameMaxEntries, len(upserts))],
+		})
 	}
-	ref := "main"
+	for start := 0; start < len(removes); start += volumeIntentFrameMaxEntries {
+		frames = append(frames, &volumev2.PathDeltaList{
+			Removes: removes[start:min(start+volumeIntentFrameMaxEntries, len(removes))],
+		})
+	}
+	if len(frames) == 0 {
+		frames = append(frames, &volumev2.PathDeltaList{})
+	}
+	var out bytes.Buffer
+	for _, frame := range frames {
+		if _, err := protodelim.MarshalTo(&out, &volumev2.CommitDeltasObject{
+			Deltas: &volumev2.CommitDeltasObject_PathDeltas{PathDeltas: frame},
+		}); err != nil {
+			return nil, err
+		}
+	}
+	return out.Bytes(), nil
+}
+
+func (c *volumeClientImpl) CommitPathDeltas(ctx context.Context, volume VolumeRef, upserts []VolumeUploadedFile, removes []VolumeRemovePath, opts VolumeCommitOptions) (*volumev2.CommitStatus, error) {
+	return c.commitPathDeltas(ctx, c.volumeRefProto(volume), upserts, volumeRemoveDeltas(removes), opts)
+}
+
+func (c *volumeClientImpl) commitPathDeltas(ctx context.Context, volume *volumev2.VolumeRef, upserts []VolumeUploadedFile, removes []*volumev2.PathRemoveDelta, opts VolumeCommitOptions) (*volumev2.CommitStatus, error) {
+	callerOwnsOrdering := opts.CommitID != ""
+	useUploaded := len(upserts)+len(removes) >= VolumeUploadedIntentMinEntries
+
+	var intent *volumev2.CommitIntent
+	var err error
+	if useUploaded {
+		commitID := opts.CommitID
+		if commitID == "" {
+			commitID = newVolumeCommitID()
+		}
+		intent, err = c.buildUploadedPathIntent(ctx, volume, commitID, upserts, removes, opts.Ref)
+	} else {
+		intent, err = c.buildPathIntent(ctx, volume, upserts, removes, opts.Ref)
+		if err == nil {
+			intent.CommitId = opts.CommitID
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	maxCommitRetries := max(opts.MaxCommitRetries, 1)
 	for attempt := 0; attempt < maxCommitRetries; attempt++ {
-		base, err := c.rpc.GetVolume(ctx, connect.NewRequest(&volumev2.GetVolumeRequest{Volume: volume}))
+		// Each attempt gets a fresh envelope sharing the delta slices, so a sent
+		// intent is never mutated underneath the RPC layer.
+		attemptIntent := &volumev2.CommitIntent{
+			Volume:                   intent.Volume,
+			CommitId:                 intent.CommitId,
+			Ref:                      intent.Ref,
+			UploadedObjectReferences: intent.UploadedObjectReferences,
+			Author:                   intent.Author,
+			Deltas:                   intent.Deltas,
+		}
+		if !callerOwnsOrdering {
+			base, err := c.tipVersion(ctx, volume, opts.Ref)
+			if err != nil {
+				return nil, err
+			}
+			if !useUploaded {
+				attemptIntent.CommitId = newVolumeCommitID()
+			}
+			versionID, sequenceNumber := base.VersionId, base.SequenceNumber
+			attemptIntent.BaseVersionId = &versionID
+			attemptIntent.BaseSequenceNumber = &sequenceNumber
+		}
+		status, err := c.commitVersion(ctx, attemptIntent)
 		if err != nil {
 			return nil, err
-		}
-		version := base.Msg.GetVersion()
-		if version == nil {
-			return nil, fmt.Errorf("GetVolume returned no version on the volume tip")
-		}
-		baseVersionID := version.VersionId
-		baseSequenceNumber := version.SequenceNumber
-		commitID := newVolumeCommitID()
-		res, err := c.rpc.CommitVersion(ctx, connect.NewRequest(&volumev2.CommitVersionRequest{
-			Intent: &volumev2.CommitIntent{
-				Volume:                   volume,
-				CommitId:                 commitID,
-				Ref:                      &ref,
-				BaseVersionId:            &baseVersionID,
-				BaseSequenceNumber:       &baseSequenceNumber,
-				UploadedObjectReferences: refs,
-				Author:                   author,
-				Deltas: &volumev2.CommitIntent_PathDeltas{PathDeltas: &volumev2.PathDeltaList{
-					Upserts: deltas,
-					Removes: removes,
-				}},
-			},
-		}))
-		if err != nil {
-			return nil, err
-		}
-		status := res.Msg.GetStatus()
-		if status == nil {
-			return nil, fmt.Errorf("CommitVersion returned no status")
 		}
 		switch status.Result {
 		case volumev2.CommitResult_COMMIT_RESULT_COMMITTED:
@@ -734,6 +1251,59 @@ func (c *volumeClientImpl) commitPathDeltas(ctx context.Context, volume *volumev
 		}
 	}
 	return nil, connect.NewError(connect.CodeAborted, fmt.Errorf("commit rebased %d times without landing", maxCommitRetries))
+}
+
+// tipVersion returns the ref tip, for stamping a commit intent's base.
+func (c *volumeClientImpl) tipVersion(ctx context.Context, volume *volumev2.VolumeRef, ref string) (*volumev2.VersionInfo, error) {
+	var selector *volumev2.VersionSelector
+	if ref != "" {
+		selector = VolumeRefSelector(ref)
+	}
+	res, err := volumeRPC(ctx, c, &volumev2.GetVolumeRequest{Volume: volume, Selector: selector},
+		func(r *volumev2.GetVolumeRequest) *volumev2.VolumeRef { return r.Volume }, true, c.rpc.GetVolume)
+	if err != nil {
+		return nil, err
+	}
+	c.cacheVolumeID(res.GetVolume().GetName(), res.GetVolume().GetVolumeId())
+	version := res.GetVersion()
+	if version == nil {
+		return nil, fmt.Errorf("GetVolume returned no version on the volume tip")
+	}
+	return version, nil
+}
+
+func volumeRefName(ref string) string {
+	if ref == "" {
+		return "main"
+	}
+	return ref
+}
+
+func volumeRemoveDeltas(paths []VolumeRemovePath) []*volumev2.PathRemoveDelta {
+	if len(paths) == 0 {
+		return nil
+	}
+	out := make([]*volumev2.PathRemoveDelta, 0, len(paths))
+	for _, path := range paths {
+		out = append(out, &volumev2.PathRemoveDelta{Path: path.Path, Recursive: path.Recursive})
+	}
+	return out
+}
+
+// volumePathDeltas turns staged upserts into path deltas, rejecting inline
+// content, which is only valid for symlinks.
+func volumePathDeltas(upserts []VolumeUploadedFile) ([]*volumev2.PathFileDelta, error) {
+	deltas := make([]*volumev2.PathFileDelta, 0, len(upserts))
+	for _, file := range upserts {
+		if file.ContentRef == nil {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("regular file %q has no content reference", file.Path))
+		}
+		if file.ContentRef.GetInline() != nil {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("inline content is only valid for symlinks, not regular file %q", file.Path))
+		}
+		deltas = append(deltas, pathFileDelta(file))
+	}
+	return deltas, nil
 }
 
 func (c *volumeClientImpl) resolveCommitAuthor(ctx context.Context) string {
@@ -774,103 +1344,124 @@ func (c *volumeClientImpl) resolveCommitAuthor(ctx context.Context) string {
 	return c.author
 }
 
-func (c *volumeClientImpl) signedRequestWithRetry(ctx context.Context, method string, url string, headers http.Header, body io.ReadSeeker, maxAttempts int, maxRateLimitRetries int, refresh func(context.Context) (string, error)) error {
-	if maxAttempts <= 0 {
-		maxAttempts = 1
-	}
-	var lastErr error
-	refreshed := false
-	rateAttempts := 0
-	for attempt := 0; attempt < maxAttempts; {
-		if body != nil {
-			if _, err := body.Seek(0, io.SeekStart); err != nil {
-				return err
-			}
-		}
-		req, err := http.NewRequestWithContext(ctx, method, url, body)
-		if err != nil {
-			return err
-		}
-		req.Header = cloneHeader(headers)
-		resp, err := c.httpClient.Do(req)
-		if err == nil && resp != nil {
-			io.Copy(io.Discard, resp.Body)
-			resp.Body.Close()
-		}
-		if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			return nil
-		}
-		if err == nil && (resp.StatusCode == http.StatusBadRequest || resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) && !refreshed {
-			refreshed = true
-			url, err = refresh(ctx)
-			if err != nil {
-				return err
-			}
-			continue
-		}
-		if err == nil && (resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode == http.StatusServiceUnavailable) {
-			if rateAttempts >= maxRateLimitRetries {
-				return fmt.Errorf("%s signed URL request failed: HTTP %d after %d rate-limit backoffs", method, resp.StatusCode, rateAttempts)
-			}
-			time.Sleep(time.Duration(rateLimitBackoffMS(rateAttempts)) * time.Millisecond)
-			rateAttempts++
-			continue
-		}
-		if err != nil {
-			lastErr = err
-		} else {
-			lastErr = fmt.Errorf("%s signed URL request failed: HTTP %d", method, resp.StatusCode)
-		}
-		attempt++
-		if attempt < maxAttempts {
-			time.Sleep(time.Duration(250*attempt) * time.Millisecond)
-		}
-	}
-	return lastErr
+// --- Signed object-store requests -------------------------------------------
+
+// volumeThrottle shares rate-limit backoff across in-flight signed requests.
+// Concurrent observers converge on the largest pending deadline.
+type volumeThrottle struct {
+	pauseUntilMS atomic.Int64
 }
 
-func (c *volumeClientImpl) signedGetWithRetry(ctx context.Context, url string, headers http.Header, maxAttempts int, refresh func(context.Context) (string, error)) ([]byte, error) {
-	if maxAttempts <= 0 {
-		maxAttempts = 1
+func (t *volumeThrottle) waitTurn(ctx context.Context) error {
+	for {
+		now := time.Now().UnixMilli()
+		until := t.pauseUntilMS.Load()
+		if until <= now {
+			return nil
+		}
+		if err := waitVolumeRetry(ctx, time.Duration(until-now)*time.Millisecond); err != nil {
+			return err
+		}
 	}
-	var lastErr error
+}
+
+func (t *volumeThrottle) observeRateLimit(delayMS uint64) {
+	target := time.Now().UnixMilli() + int64(delayMS)
+	for {
+		current := t.pauseUntilMS.Load()
+		if target <= current || t.pauseUntilMS.CompareAndSwap(current, target) {
+			return
+		}
+	}
+}
+
+type volumeSignedRequest struct {
+	label   string
+	method  string
+	url     string
+	headers http.Header
+	body    []byte
+}
+
+// volumeRetryPolicy schedules retries for a signed-URL request. Uploads share a
+// throttle for 429/503; downloads leave it nil and retry like any failure.
+type volumeRetryPolicy struct {
+	maxAttempts         int
+	throttle            *volumeThrottle
+	maxRateLimitRetries int
+}
+
+// signedRequest issues one signed object-store request. A rejected signature
+// (400/401/403) is re-minted once via refresh; other failures retry linearly.
+func (c *volumeClientImpl) signedRequest(ctx context.Context, request volumeSignedRequest, policy volumeRetryPolicy, refresh func(context.Context) (string, error)) ([]byte, error) {
+	maxAttempts := max(policy.maxAttempts, 1)
+	url := request.url
 	refreshed := false
+	rateAttempts := 0
+	var lastErr error
 	for attempt := 0; attempt < maxAttempts; {
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-		if err != nil {
-			return nil, err
-		}
-		req.Header = cloneHeader(headers)
-		resp, err := c.httpClient.Do(req)
-		if err == nil && resp != nil {
-			defer resp.Body.Close()
-		}
-		if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			return io.ReadAll(resp.Body)
-		}
-		if err == nil && (resp.StatusCode == http.StatusBadRequest || resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) && !refreshed {
-			io.Copy(io.Discard, resp.Body)
-			resp.Body.Close()
-			refreshed = true
-			url, err = refresh(ctx)
-			if err != nil {
+		if policy.throttle != nil {
+			if err := policy.throttle.waitTurn(ctx); err != nil {
 				return nil, err
 			}
-			continue
 		}
-		if err != nil {
+		body, status, err := c.doSignedRequest(ctx, request.method, url, request.headers, request.body)
+		switch {
+		case err == nil && status >= 200 && status < 300:
+			return body, nil
+		case err == nil && (status == http.StatusBadRequest || status == http.StatusUnauthorized || status == http.StatusForbidden) && !refreshed:
+			refreshed = true
+			next, refreshErr := refresh(ctx)
+			if refreshErr != nil {
+				return nil, refreshErr
+			}
+			url = next
+			continue
+		case err == nil && (status == http.StatusTooManyRequests || status == http.StatusServiceUnavailable) && policy.throttle != nil:
+			if rateAttempts >= policy.maxRateLimitRetries {
+				return nil, fmt.Errorf("%s failed: HTTP %d after %d rate-limit backoffs", request.label, status, rateAttempts)
+			}
+			policy.throttle.observeRateLimit(rateLimitBackoffMS(rateAttempts))
+			rateAttempts++
+			continue
+		case err != nil:
 			lastErr = err
-		} else {
-			io.Copy(io.Discard, resp.Body)
-			lastErr = fmt.Errorf("GET signed URL request failed: HTTP %d", resp.StatusCode)
+		default:
+			lastErr = fmt.Errorf("%s failed: HTTP %d", request.label, status)
 		}
 		attempt++
 		if attempt < maxAttempts {
-			time.Sleep(time.Duration(250*attempt) * time.Millisecond)
+			if err := waitVolumeRetry(ctx, time.Duration(250*attempt)*time.Millisecond); err != nil {
+				return nil, err
+			}
 		}
 	}
 	return nil, lastErr
 }
+
+func (c *volumeClientImpl) doSignedRequest(ctx context.Context, method string, url string, headers http.Header, body []byte) ([]byte, int, error) {
+	var reader io.Reader
+	if body != nil {
+		reader = bytes.NewReader(body)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, url, reader)
+	if err != nil {
+		return nil, 0, err
+	}
+	req.Header = cloneHeader(headers)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, resp.StatusCode, err
+	}
+	return data, resp.StatusCode, nil
+}
+
+// --- Download ---------------------------------------------------------------
 
 func (c *volumeClientImpl) DownloadBytes(ctx context.Context, request VolumeDownloadRequest, onProgress func(uint64)) ([]byte, *volumev2.FileInfo, error) {
 	var mu sync.Mutex
@@ -878,20 +1469,34 @@ func (c *volumeClientImpl) DownloadBytes(ctx context.Context, request VolumeDown
 	info, err := c.downloadFile(ctx, request, func(offset uint64, data []byte) error {
 		mu.Lock()
 		defer mu.Unlock()
-		end := int(offset) + len(data)
+		start, ok := uint64ToInt(offset)
+		if !ok {
+			return fmt.Errorf("download offset %d exceeds int", offset)
+		}
+		end, ok := checkedIntAdd(start, len(data))
+		if !ok {
+			return fmt.Errorf("download range at offset %d exceeds int", offset)
+		}
 		if len(out) < end {
 			next := make([]byte, end)
 			copy(next, out)
 			out = next
 		}
-		copy(out[int(offset):end], data)
+		copy(out[start:end], data)
 		return nil
 	}, onProgress)
 	if err != nil {
 		return nil, nil, err
 	}
-	if info != nil && uint64(len(out)) > info.Size {
-		out = out[:info.Size]
+	if info != nil {
+		size, ok := uint64ToInt(info.Size)
+		if !ok {
+			return nil, nil, fmt.Errorf("download size %d exceeds int", info.Size)
+		}
+		if short := size - len(out); len(out) < size {
+			out = append(out, make([]byte, short)...)
+		}
+		out = out[:size]
 	}
 	return out, info, nil
 }
@@ -904,7 +1509,6 @@ func (c *volumeClientImpl) DownloadToFile(ctx context.Context, request VolumeDow
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 	var mu sync.Mutex
 	info, err := c.downloadFile(ctx, request, func(offset uint64, data []byte) error {
 		mu.Lock()
@@ -913,10 +1517,16 @@ func (c *volumeClientImpl) DownloadToFile(ctx context.Context, request VolumeDow
 		return err
 	}, onProgress)
 	if err != nil {
+		_ = file.Close()
+		return nil, err
+	}
+	if err := file.Close(); err != nil {
 		return nil, err
 	}
 	if info != nil {
-		applyVolumeFileInfoMetadata(localPath, info)
+		if err := applyVolumeFileInfoMetadata(localPath, info); err != nil {
+			return nil, err
+		}
 	}
 	return info, nil
 }
@@ -948,7 +1558,7 @@ func (c *volumeClientImpl) DownloadToDirectory(ctx context.Context, volumeName s
 				if err := os.MkdirAll(localPath, 0o755); err != nil {
 					return err
 				}
-				applyVolumeFileInfoMetadata(localPath, info)
+				return applyVolumeFileInfoMetadata(localPath, info)
 			}
 			return nil
 		})
@@ -961,46 +1571,38 @@ func (c *volumeClientImpl) downloadFile(ctx context.Context, request VolumeDownl
 	if onProgress == nil {
 		onProgress = func(uint64) {}
 	}
+	policy := volumeRetryPolicy{maxAttempts: cfg.MaxChunkRetries}
 	fileReq := &volumev2.GetFileRequest{
-		Volume:   (&VolumeRef{Name: request.VolumeName}).toProto(),
+		Volume:   c.volumeRef(request.VolumeName),
 		Path:     request.Path,
 		Selector: request.Selector,
 	}
-	resp, err := c.rpc.GetFile(ctx, connect.NewRequest(fileReq))
+	resp, err := c.getFile(ctx, fileReq)
 	if err != nil {
 		return nil, err
 	}
-	info := resp.Msg.GetFile()
-	switch content := resp.Msg.GetContent().(type) {
+	info := resp.GetFile()
+	switch content := resp.GetContent().(type) {
 	case *volumev2.GetFileResponse_Data:
 		if err := onWrite(0, content.Data); err != nil {
 			return nil, err
 		}
 		onProgress(uint64(len(content.Data)))
 	case *volumev2.GetFileResponse_Chunked:
-		pinned, err := pinnedVolumeFileRequest(fileReq, resp.Msg.GetVersion())
+		pinned, err := pinnedVolumeFileRequest(fileReq, resp.GetVersion())
 		if err != nil {
 			return nil, err
 		}
 		eg, egCtx := errgroup.WithContext(ctx)
-		eg.SetLimit(maxInt(cfg.ChunkConcurrency, 1))
+		eg.SetLimit(max(cfg.ChunkConcurrency, 1))
 		for _, chunk := range content.Chunked.Chunks {
 			eg.Go(func() error {
-				data, err := c.signedGetWithRetry(egCtx, chunk.SignedDownloadUri, nil, cfg.MaxChunkRetries, func(ctx context.Context) (string, error) {
-					res, err := c.rpc.GetFile(ctx, connect.NewRequest(pinned))
-					if err != nil {
-						return "", err
-					}
-					chunked := res.Msg.GetChunked()
-					if chunked == nil {
-						return "", fmt.Errorf("URL refresh returned non-chunked content")
-					}
-					for _, candidate := range chunked.Chunks {
-						if candidate.Offset == chunk.Offset && (chunk.Hash == "" || candidate.Hash == chunk.Hash) {
-							return candidate.SignedDownloadUri, nil
-						}
-					}
-					return "", fmt.Errorf("URL refresh returned no matching chunk at offset %d", chunk.Offset)
+				data, err := c.signedRequest(egCtx, volumeSignedRequest{
+					label:  "download chunk",
+					method: http.MethodGet,
+					url:    chunk.SignedDownloadUri,
+				}, policy, func(ctx context.Context) (string, error) {
+					return c.refreshChunkURL(ctx, pinned, chunk)
 				})
 				if err != nil {
 					return err
@@ -1033,7 +1635,7 @@ func (c *volumeClientImpl) downloadFile(ctx context.Context, request VolumeDownl
 			onProgress(0)
 			return info, nil
 		}
-		pinned, err := pinnedVolumeFileRequest(fileReq, resp.Msg.GetVersion())
+		pinned, err := pinnedVolumeFileRequest(fileReq, resp.GetVersion())
 		if err != nil {
 			return nil, err
 		}
@@ -1041,17 +1643,13 @@ func (c *volumeClientImpl) downloadFile(ctx context.Context, request VolumeDownl
 		if !ok {
 			return nil, fmt.Errorf("packed range overflows uint64")
 		}
-		headers := http.Header{"Range": []string{fmt.Sprintf("bytes=%d-%d", pack.Offset, end)}}
-		data, err := c.signedGetWithRetry(ctx, pack.SignedDownloadUri, headers, cfg.MaxChunkRetries, func(ctx context.Context) (string, error) {
-			res, err := c.rpc.GetFile(ctx, connect.NewRequest(pinned))
-			if err != nil {
-				return "", err
-			}
-			refreshed := res.Msg.GetPacked()
-			if refreshed == nil || refreshed.GetPack() == nil {
-				return "", fmt.Errorf("URL refresh returned non-packed content")
-			}
-			return refreshed.GetPack().SignedDownloadUri, nil
+		data, err := c.signedRequest(ctx, volumeSignedRequest{
+			label:   "download pack",
+			method:  http.MethodGet,
+			url:     pack.SignedDownloadUri,
+			headers: http.Header{"Range": []string{fmt.Sprintf("bytes=%d-%d", pack.Offset, end)}},
+		}, policy, func(ctx context.Context) (string, error) {
+			return c.refreshPackedURL(ctx, pinned)
 		})
 		if err != nil {
 			return nil, err
@@ -1068,6 +1666,35 @@ func (c *volumeClientImpl) downloadFile(ctx context.Context, request VolumeDownl
 		onProgress(uint64(len(data)))
 	}
 	return info, nil
+}
+
+func (c *volumeClientImpl) refreshChunkURL(ctx context.Context, pinned *volumev2.GetFileRequest, chunk *volumev2.SignedChunkRef) (string, error) {
+	res, err := c.getFile(ctx, pinned)
+	if err != nil {
+		return "", err
+	}
+	chunked := res.GetChunked()
+	if chunked == nil {
+		return "", fmt.Errorf("URL refresh returned non-chunked content")
+	}
+	for _, candidate := range chunked.Chunks {
+		if candidate.Offset == chunk.Offset && (chunk.Hash == "" || candidate.Hash == chunk.Hash) {
+			return candidate.SignedDownloadUri, nil
+		}
+	}
+	return "", fmt.Errorf("URL refresh returned no matching chunk at offset %d", chunk.Offset)
+}
+
+func (c *volumeClientImpl) refreshPackedURL(ctx context.Context, pinned *volumev2.GetFileRequest) (string, error) {
+	res, err := c.getFile(ctx, pinned)
+	if err != nil {
+		return "", err
+	}
+	refreshed := res.GetPacked()
+	if refreshed == nil || refreshed.GetPack() == nil {
+		return "", fmt.Errorf("URL refresh returned non-packed content")
+	}
+	return refreshed.GetPack().SignedDownloadUri, nil
 }
 
 func pinnedVolumeFileRequest(request *volumev2.GetFileRequest, version *volumev2.VersionInfo) (*volumev2.GetFileRequest, error) {
@@ -1090,7 +1717,7 @@ func (c *volumeClientImpl) listFilesRecursive(ctx context.Context, volumeName st
 		stack = stack[:len(stack)-1]
 		cursor := ""
 		for {
-			res, err := c.ListFiles(ctx, ListVolumeFilesParams{
+			res, err := c.ListFiles(ctx, ListFilesParams{
 				Volume:   VolumeRef{Name: volumeName},
 				Path:     dir,
 				Cursor:   cursor,
@@ -1114,6 +1741,8 @@ func (c *volumeClientImpl) listFilesRecursive(ctx context.Context, volumeName st
 	return out, nil
 }
 
+// --- Local content ----------------------------------------------------------
+
 func (c VolumeUploadContent) size() (uint64, error) {
 	if c.localPath == "" {
 		return uint64(len(c.bytes)), nil
@@ -1127,20 +1756,26 @@ func (c VolumeUploadContent) size() (uint64, error) {
 
 func (c VolumeUploadContent) readChunk(offset uint64, length uint64) ([]byte, error) {
 	if c.localPath == "" {
-		end := offset + length
-		if end > uint64(len(c.bytes)) {
+		end, ok := checkedUint64Add(offset, length)
+		if !ok || end > uint64(len(c.bytes)) {
 			return nil, fmt.Errorf("read_chunk out of range: %d+%d > %d", offset, length, len(c.bytes))
 		}
 		return append([]byte(nil), c.bytes[offset:end]...), nil
+	}
+	lengthInt, ok := uint64ToInt(length)
+	if !ok {
+		return nil, fmt.Errorf("read_chunk length %d exceeds int", length)
+	}
+	if offset > uint64(^uint64(0)>>1) {
+		return nil, fmt.Errorf("read_chunk offset %d exceeds int64", offset)
 	}
 	file, err := os.Open(c.localPath)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
-	buf := make([]byte, length)
-	_, err = file.ReadAt(buf, int64(offset))
-	if err != nil && err != io.EOF {
+	buf := make([]byte, lengthInt)
+	if _, err := file.ReadAt(buf, int64(offset)); err != nil {
 		return nil, err
 	}
 	return buf, nil
@@ -1199,18 +1834,25 @@ func safeVolumeRelativePath(path string) (string, error) {
 	return clean, nil
 }
 
-func applyVolumeFileInfoMetadata(path string, info *volumev2.FileInfo) {
+func applyVolumeFileInfoMetadata(path string, info *volumev2.FileInfo) error {
 	if info == nil {
-		return
+		return nil
 	}
 	if runtime.GOOS != "windows" && info.Mode != nil {
-		_ = os.Chmod(path, os.FileMode(info.GetMode()&0o7777))
+		if err := os.Chmod(path, os.FileMode(info.GetMode()&0o7777)); err != nil {
+			return err
+		}
 	}
 	if info.UpdatedAt != nil {
 		t := info.UpdatedAt.AsTime()
-		_ = os.Chtimes(path, t, t)
+		if err := os.Chtimes(path, t, t); err != nil {
+			return err
+		}
 	}
+	return nil
 }
+
+// --- Content refs -----------------------------------------------------------
 
 func emptyVolumeContentRef() *volumev2.ContentRef {
 	return &volumev2.ContentRef{Content: &volumev2.ContentRef_Empty{Empty: &volumev2.EmptyFileContent{}}}
@@ -1228,13 +1870,13 @@ func packedVolumeContentRef(objectKey string, packID string, offset uint64, leng
 	}}}
 }
 
-func pathFileDelta(file uploadedVolumeFile) *volumev2.PathFileDelta {
+func pathFileDelta(file VolumeUploadedFile) *volumev2.PathFileDelta {
 	return &volumev2.PathFileDelta{
-		Path: file.path,
+		Path: file.Path,
 		Node: &volumev2.FileNode{
-			Metadata: file.metadata,
+			Metadata: file.Metadata,
 			Node: &volumev2.FileNode_File{File: &volumev2.RegularFileNode{
-				Content: file.contentRef,
+				Content: file.ContentRef,
 			}},
 		},
 		Mode: volumev2.PathWriteMode_PATH_WRITE_MODE_UPSERT,
@@ -1245,10 +1887,14 @@ func uploadedVolumeObjectRef(objectKey string, hash string, size uint64, kind vo
 	return &volumev2.UploadedObjectReference{ObjectKey: objectKey, Hash: hash, ContentSize: size, Kind: kind}
 }
 
-func dedupeVolumeObjectRefs(files []uploadedVolumeFile) []*volumev2.UploadedObjectReference {
+func dedupeVolumeObjectRefs(files []VolumeUploadedFile) []*volumev2.UploadedObjectReference {
 	var refs []*volumev2.UploadedObjectReference
 	for _, file := range files {
-		refs = append(refs, file.uploadedObjects...)
+		for _, ref := range file.UploadedObjects {
+			if ref != nil {
+				refs = append(refs, ref)
+			}
+		}
 	}
 	sort.Slice(refs, func(i, j int) bool { return refs[i].ObjectKey < refs[j].ObjectKey })
 	out := refs[:0]
@@ -1281,12 +1927,16 @@ func hashHex(hash [32]byte) string {
 	return hex.EncodeToString(hash[:])
 }
 
+// newVolumeCommitID returns a UUIDv7 idempotency key, time-ordered by prefix.
 func newVolumeCommitID() string {
 	var raw [16]byte
-	if _, err := rand.Read(raw[:]); err != nil {
-		return fmt.Sprintf("commit-%d", time.Now().UnixNano())
-	}
-	return "commit-" + hex.EncodeToString(raw[:])
+	_, _ = rand.Read(raw[:])
+	ms := time.Now().UnixMilli()
+	binary.BigEndian.PutUint16(raw[0:], uint16(ms>>32))
+	binary.BigEndian.PutUint32(raw[2:], uint32(ms))
+	raw[6] = (raw[6] & 0x0f) | 0x70 // version 7
+	raw[8] = (raw[8] & 0x3f) | 0x80 // RFC 4122 variant
+	return fmt.Sprintf("%x-%x-%x-%x-%x", raw[0:4], raw[4:6], raw[6:8], raw[8:10], raw[10:16])
 }
 
 func octetStreamHeaders() http.Header {
@@ -1309,12 +1959,40 @@ func rateLimitBackoffMS(attempt int) uint64 {
 	return delay
 }
 
+func waitVolumeRetry(ctx context.Context, delay time.Duration) error {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-timer.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
 func checkedInclusiveRangeEnd(offset uint64, size uint64) (uint64, bool) {
 	if size == 0 {
 		return offset, true
 	}
 	end := offset + size - 1
 	return end, end >= offset
+}
+
+func checkedUint64Add(a uint64, b uint64) (uint64, bool) {
+	sum := a + b
+	return sum, sum >= a
+}
+
+func uint64ToInt(value uint64) (int, bool) {
+	converted := int(value)
+	return converted, converted >= 0 && uint64(converted) == value
+}
+
+func checkedIntAdd(a int, b int) (int, bool) {
+	if b > int(^uint(0)>>1)-a {
+		return 0, false
+	}
+	return a + b, true
 }
 
 func (cfg VolumeUploadConfig) withDefaults() VolumeUploadConfig {
@@ -1325,22 +2003,19 @@ func (cfg VolumeUploadConfig) withDefaults() VolumeUploadConfig {
 	if cfg.MaxPackBytes == 0 {
 		cfg.MaxPackBytes = defaults.MaxPackBytes
 	}
-	if cfg.FileConcurrency == 0 {
+	if cfg.FileConcurrency <= 0 {
 		cfg.FileConcurrency = defaults.FileConcurrency
 	}
-	if cfg.ChunkConcurrency == 0 {
+	if cfg.ChunkConcurrency <= 0 {
 		cfg.ChunkConcurrency = defaults.ChunkConcurrency
 	}
-	if cfg.BatchSize == 0 {
-		cfg.BatchSize = defaults.BatchSize
-	}
-	if cfg.MaxChunkRetries == 0 {
+	if cfg.MaxChunkRetries <= 0 {
 		cfg.MaxChunkRetries = defaults.MaxChunkRetries
 	}
-	if cfg.MaxRateLimitRetries == 0 {
+	if cfg.MaxRateLimitRetries <= 0 {
 		cfg.MaxRateLimitRetries = defaults.MaxRateLimitRetries
 	}
-	if cfg.MaxCommitRetries == 0 {
+	if cfg.MaxCommitRetries <= 0 {
 		cfg.MaxCommitRetries = defaults.MaxCommitRetries
 	}
 	return cfg
@@ -1348,21 +2023,16 @@ func (cfg VolumeUploadConfig) withDefaults() VolumeUploadConfig {
 
 func (cfg VolumeDownloadConfig) withDefaults() VolumeDownloadConfig {
 	defaults := DefaultVolumeDownloadConfig()
-	if cfg.ChunkConcurrency == 0 {
+	if cfg.ChunkConcurrency <= 0 {
 		cfg.ChunkConcurrency = defaults.ChunkConcurrency
 	}
-	if cfg.MaxChunkRetries == 0 {
+	if cfg.MaxChunkRetries <= 0 {
 		cfg.MaxChunkRetries = defaults.MaxChunkRetries
 	}
 	return cfg
 }
 
-func maxInt(a int, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
+// --- CDP1 data packs --------------------------------------------------------
 
 var (
 	cdp1Magic = []byte("CDP1")
