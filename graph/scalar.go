@@ -121,17 +121,7 @@ func Optional(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 //	  recent_transaction_ids: List[int]
 func List(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
-	scalar.ArrowType = &arrowv1.ArrowType{
-		ArrowTypeEnum: &arrowv1.ArrowType_LargeList{
-			LargeList: &arrowv1.List{
-				FieldType: &arrowv1.Field{
-					Name:      "item",
-					ArrowType: scalar.ArrowType,
-					Nullable:  true,
-				},
-			},
-		},
-	}
+	scalar.ArrowType = expr.ListOf(scalar.ArrowType)
 	scalar.RichTypeInfo.RichTypeName = maybeStr(fmt.Sprintf("list[%s]", *scalar.RichTypeInfo.RichTypeName))
 	return &ScalarFeatureBuilder{
 		proto: scalar,
@@ -197,45 +187,13 @@ func richType(name string) *graphv1.FeatureRichTypeInfo {
 	}
 }
 
-func arrowType(name string) *arrowv1.ArrowType {
-	switch name {
-	case "int":
-		return &arrowv1.ArrowType{
-			ArrowTypeEnum: &arrowv1.ArrowType_Int64{},
-		}
-	case "float":
-		return &arrowv1.ArrowType{
-			ArrowTypeEnum: &arrowv1.ArrowType_Float64{},
-		}
-	case "str":
-		return &arrowv1.ArrowType{
-			ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{},
-		}
-	case "datetime":
-		return &arrowv1.ArrowType{
-			ArrowTypeEnum: &arrowv1.ArrowType_Timestamp{
-				Timestamp: &arrowv1.Timestamp{
-					TimeUnit: arrowv1.TimeUnit_TIME_UNIT_MICROSECOND,
-					Timezone: "UTC",
-				},
-			},
-		}
-	case "bool":
-		return &arrowv1.ArrowType{
-			ArrowTypeEnum: &arrowv1.ArrowType_Bool{},
-		}
-	default:
-		panic(fmt.Sprintf("invalid primitive name %s", name))
-	}
-}
-
 var TRUE = true
 var CENTURY = durationpb.Duration{Seconds: 3153600000}
 
 func primitive(name string) *ScalarFeatureBuilder {
 	return &ScalarFeatureBuilder{
 		proto: &graphv1.ScalarFeatureType{
-			ArrowType:          arrowType(name),
+			ArrowType:          expr.Type(name),
 			CacheStrategy:      graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
 			StoreOnline:        &TRUE,
 			StoreOffline:       &TRUE,
@@ -270,7 +228,7 @@ func arrowStruct(spec map[string]string) *arrowv1.ArrowType {
 	for name, typ := range spec {
 		fields[i] = &arrowv1.Field{
 			Name:      name,
-			ArrowType: arrowType(typ),
+			ArrowType: expr.Type(typ),
 			Nullable:  true,
 		}
 		i++

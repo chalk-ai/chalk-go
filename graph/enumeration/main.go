@@ -43,6 +43,12 @@ func main() {
 			// Null checking operators
 			"is_null_check":     graph.Boolean.Expr(expr.Col("name").IsNull()),
 			"is_not_null_check": graph.Boolean.Expr(expr.Col("name").IsNotNull()),
+
+			// Cast
+			"cast_to_list_check": graph.List(graph.String).Expr(expr.Cast(
+				expr.GetJsonValue(expr.Col("name"), "$.path"),
+				expr.ListOf(expr.Type("str")),
+			)),
 		})
 
 	// Define an Event feature set that will be used for DataFrame aggregations
