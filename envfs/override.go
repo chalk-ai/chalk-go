@@ -47,3 +47,15 @@ func (d *DirectoryOverrideEnvironmentGetter) Stat(name string) (fs.FileInfo, err
 func (d *DirectoryOverrideEnvironmentGetter) ReadFile(name string) ([]byte, error) {
 	return d.base.ReadFile(name)
 }
+
+func (d *DirectoryOverrideEnvironmentGetter) Open(name string) (File, error) {
+	return d.base.Open(name)
+}
+
+func (d *DirectoryOverrideEnvironmentGetter) CreateTemp(dir string, pattern string) (WritableFile, error) {
+	return d.base.CreateTemp(dir, pattern)
+}
+
+func (d *DirectoryOverrideEnvironmentGetter) Remove(name string) error {
+	return d.base.Remove(name)
+}
