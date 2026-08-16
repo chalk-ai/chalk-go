@@ -31,6 +31,18 @@ func (s SystemEnvironmentGetter) ReadFile(name string) ([]byte, error) {
 	return os.ReadFile(name)
 }
 
+func (s SystemEnvironmentGetter) Open(name string) (File, error) {
+	return os.Open(name)
+}
+
+func (s SystemEnvironmentGetter) CreateTemp(dir string, pattern string) (WritableFile, error) {
+	return os.CreateTemp(dir, pattern)
+}
+
+func (s SystemEnvironmentGetter) Remove(name string) error {
+	return os.Remove(name)
+}
+
 // defaultSystemEnvironmentGetter is the default instance used when no custom
 // environment getter is provided via context.
 var defaultSystemEnvironmentGetter = &SystemEnvironmentGetter{}
