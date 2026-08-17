@@ -587,6 +587,26 @@ func TestVolumeUploadObserverReportsChunkedFileLifecycle(t *testing.T) {
 	require.Equal(t, volumeUploadObserverEvent{kind: "completed", path: "chunked.bin", deduplicated: true}, events[3])
 }
 
+func TestVolumeUploadObserverReportsFileFailure(t *testing.T) {
+	t.Parallel()
+	observer := &recordingVolumeUploadObserver{}
+	client := newClientWithRPC(&fakeVolumeRPC{})
+
+	_, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
+		VolumeName: "test-vol",
+		Files:      []VolumeUploadFile{{Path: "missing.bin", Content: VolumeUploadLocalPath(filepath.Join(t.TempDir(), "missing.bin"))}},
+		Observer:   observer,
+	}, nil)
+
+	require.Error(t, err)
+	events := observer.snapshot()
+	require.Len(t, events, 2)
+	require.Equal(t, volumeUploadObserverEvent{kind: "started", path: "missing.bin"}, events[0])
+	require.Equal(t, "failed", events[1].kind)
+	require.Equal(t, "missing.bin", events[1].path)
+	require.Error(t, events[1].err)
+}
+
 func TestVolumeUploadDirectoryPackPath(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
@@ -707,7 +727,11 @@ func TestVolumeDownloadToWriterOrdersChunksAndBoundsConcurrency(t *testing.T) {
 	server, url := testHTTPServer(t, func(w http.ResponseWriter, r *http.Request) {
 		current := active.Add(1)
 		defer active.Add(-1)
-		for current > peak.Load() && !peak.CompareAndSwap(peak.Load(), current) {
+		for {
+			previous := peak.Load()
+			if current <= previous || peak.CompareAndSwap(previous, current) {
+				break
+			}
 		}
 		time.Sleep(10 * time.Millisecond)
 		index := int(r.URL.Path[1] - '0')

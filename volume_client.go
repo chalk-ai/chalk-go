@@ -673,6 +673,10 @@ func (c *volumeClientImpl) uploadFiles(ctx context.Context, volume *volumev2.Vol
 		sizeGroup.Go(func() error {
 			size, err := files[i].Content.size()
 			if err != nil {
+				if observer != nil {
+					observer.FileStarted(files[i].Path, 0)
+					observer.FileFailed(files[i].Path, err)
+				}
 				return err
 			}
 			sized[i] = sizedVolumeUploadFile{file: files[i], size: size}
@@ -1071,6 +1075,11 @@ func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.V
 		members = append(members, packMember{path: read.file.file.Path, size: read.file.size, metadata: metadata, hash: hash})
 	}
 	if readErr != nil {
+		if observer != nil {
+			for _, member := range members {
+				observer.FileFailed(member.path, readErr)
+			}
+		}
 		cancel()
 	} else if !builder.isEmpty() {
 		flush(builder, members)
@@ -1726,6 +1735,7 @@ func (c *volumeClientImpl) downloadChunksOrdered(ctx context.Context, chunks []*
 	ordered := append([]*volumev2.SignedChunkRef(nil), chunks...)
 	sort.Slice(ordered, func(i, j int) bool { return ordered[i].Offset < ordered[j].Offset })
 	windowSize := max(concurrency, 1)
+	nextOffset := uint64(0)
 	for start := 0; start < len(ordered); start += windowSize {
 		window := ordered[start:min(start+windowSize, len(ordered))]
 		data := make([][]byte, len(window))
@@ -1741,10 +1751,18 @@ func (c *volumeClientImpl) downloadChunksOrdered(ctx context.Context, chunks []*
 			return err
 		}
 		for i, chunk := range window {
+			if chunk.Offset != nextOffset {
+				return fmt.Errorf("download chunk at offset %d is not contiguous with offset %d", chunk.Offset, nextOffset)
+			}
 			if err := onWrite(chunk.Offset, data[i]); err != nil {
 				return err
 			}
 			onProgress(chunk.Size)
+			next, ok := checkedUint64Add(nextOffset, chunk.Size)
+			if !ok {
+				return fmt.Errorf("download chunk at offset %d overflows file size", chunk.Offset)
+			}
+			nextOffset = next
 		}
 	}
 	return nil
