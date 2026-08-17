@@ -1243,7 +1243,7 @@ func TestVolumeUploadOnePackEmptyURLsError(t *testing.T) {
 	builder.append(blake3Sum(data), data)
 	_, err := client.uploadOnePack(context.Background(), &volumev2.VolumeRef{Name: "vol"}, builder,
 		[]packMember{{path: "f.bin", hash: blake3Sum(data)}},
-		VolumeUploadConfig{}, nil, func(uint64, bool) {})
+		VolumeUploadConfig{}, nil, func(uint64, bool) {}, nil)
 	require.Error(t, err)
 }
 
@@ -1474,7 +1474,7 @@ func TestVolumeUploadOnePackRequestURLsError(t *testing.T) {
 	builder.append(h, data)
 	_, err := client.uploadOnePack(context.Background(), &volumev2.VolumeRef{Name: "vol"}, builder,
 		[]packMember{{path: "f.bin", hash: h}},
-		VolumeUploadConfig{}, nil, func(uint64, bool) {})
+		VolumeUploadConfig{}, nil, func(uint64, bool) {}, nil)
 	require.Error(t, err)
 }
 
@@ -1497,7 +1497,7 @@ func TestVolumeUploadOnePackPUTFailure(t *testing.T) {
 	builder.append(h, data)
 	_, err := client.uploadOnePack(context.Background(), &volumev2.VolumeRef{Name: "vol"}, builder,
 		[]packMember{{path: "f.bin", hash: h}},
-		VolumeUploadConfig{MaxChunkRetries: 1}, nil, func(uint64, bool) {})
+		VolumeUploadConfig{MaxChunkRetries: 1}, nil, func(uint64, bool) {}, nil)
 	require.Error(t, err)
 }
 
