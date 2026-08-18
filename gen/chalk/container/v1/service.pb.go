@@ -277,7 +277,7 @@ func (x OutputData_Stream) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OutputData_Stream.Descriptor instead.
 func (OutputData_Stream) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{44, 0}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{45, 0}
 }
 
 type ResourceLimits struct {
@@ -546,6 +546,88 @@ func (*SecretRef_IntegrationName) isSecretRef_Source() {}
 
 func (*SecretRef_SecretName) isSecretRef_Source() {}
 
+type ManagedSshDestination struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// DNS hostname or IP address authorized for SSH and used as HostName.
+	Host string `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
+	// Chalk Secret name containing the private key. The public spec stores only
+	// this name; the private-key plaintext is never stored here.
+	PrivateKeySecret string `protobuf:"bytes,2,opt,name=private_key_secret,json=privateKeySecret,proto3" json:"private_key_secret,omitempty"`
+	// SSH host key entries. Empty uses trust on first use for the sandbox lifetime.
+	HostKeys []string `protobuf:"bytes,3,rep,name=host_keys,json=hostKeys,proto3" json:"host_keys,omitempty"`
+	// SSH destination port. Defaults to 22 when omitted.
+	Port *uint32 `protobuf:"varint,4,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	// Optional SSH username written to the generated alias's User setting.
+	Username      *string `protobuf:"bytes,5,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ManagedSshDestination) Reset() {
+	*x = ManagedSshDestination{}
+	mi := &file_chalk_container_v1_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ManagedSshDestination) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ManagedSshDestination) ProtoMessage() {}
+
+func (x *ManagedSshDestination) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_container_v1_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ManagedSshDestination.ProtoReflect.Descriptor instead.
+func (*ManagedSshDestination) Descriptor() ([]byte, []int) {
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ManagedSshDestination) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *ManagedSshDestination) GetPrivateKeySecret() string {
+	if x != nil {
+		return x.PrivateKeySecret
+	}
+	return ""
+}
+
+func (x *ManagedSshDestination) GetHostKeys() []string {
+	if x != nil {
+		return x.HostKeys
+	}
+	return nil
+}
+
+func (x *ManagedSshDestination) GetPort() uint32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
+	}
+	return 0
+}
+
+func (x *ManagedSshDestination) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
 // ChalkContainerSpec contains the immutable specification of what to run
 type ChalkContainerSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -602,13 +684,16 @@ type ChalkContainerSpec struct {
 	RestartPolicy *RestartPolicy `protobuf:"varint,20,opt,name=restart_policy,json=restartPolicy,proto3,enum=chalk.container.v1.RestartPolicy,oneof" json:"restart_policy,omitempty"`
 	// Gives this container a platform-managed injected Chalk user identity if set.
 	ChalkWorkloadIdentity *ChalkWorkloadIdentity `protobuf:"bytes,21,opt,name=chalk_workload_identity,json=chalkWorkloadIdentity,proto3,oneof" json:"chalk_workload_identity,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// Managed SSH aliases backed by Chalk Secrets. Each destination's resolved
+	// IP address and port are authorized independently of network_policy.
+	ManagedSsh    map[string]*ManagedSshDestination `protobuf:"bytes,22,rep,name=managed_ssh,json=managedSsh,proto3" json:"managed_ssh,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChalkContainerSpec) Reset() {
 	*x = ChalkContainerSpec{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[3]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -620,7 +705,7 @@ func (x *ChalkContainerSpec) String() string {
 func (*ChalkContainerSpec) ProtoMessage() {}
 
 func (x *ChalkContainerSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[3]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -633,7 +718,7 @@ func (x *ChalkContainerSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkContainerSpec.ProtoReflect.Descriptor instead.
 func (*ChalkContainerSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ChalkContainerSpec) GetName() string {
@@ -783,6 +868,13 @@ func (x *ChalkContainerSpec) GetChalkWorkloadIdentity() *ChalkWorkloadIdentity {
 	return nil
 }
 
+func (x *ChalkContainerSpec) GetManagedSsh() map[string]*ManagedSshDestination {
+	if x != nil {
+		return x.ManagedSsh
+	}
+	return nil
+}
+
 type StartupProbe struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Check:
@@ -796,7 +888,7 @@ type StartupProbe struct {
 
 func (x *StartupProbe) Reset() {
 	*x = StartupProbe{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -808,7 +900,7 @@ func (x *StartupProbe) String() string {
 func (*StartupProbe) ProtoMessage() {}
 
 func (x *StartupProbe) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -821,7 +913,7 @@ func (x *StartupProbe) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartupProbe.ProtoReflect.Descriptor instead.
 func (*StartupProbe) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *StartupProbe) GetCheck() isStartupProbe_Check {
@@ -875,7 +967,7 @@ type HttpProbe struct {
 
 func (x *HttpProbe) Reset() {
 	*x = HttpProbe{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -887,7 +979,7 @@ func (x *HttpProbe) String() string {
 func (*HttpProbe) ProtoMessage() {}
 
 func (x *HttpProbe) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -900,7 +992,7 @@ func (x *HttpProbe) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HttpProbe.ProtoReflect.Descriptor instead.
 func (*HttpProbe) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{5}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *HttpProbe) GetPath() string {
@@ -922,7 +1014,7 @@ type GrpcProbe struct {
 
 func (x *GrpcProbe) Reset() {
 	*x = GrpcProbe{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[6]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -934,7 +1026,7 @@ func (x *GrpcProbe) String() string {
 func (*GrpcProbe) ProtoMessage() {}
 
 func (x *GrpcProbe) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[6]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -947,7 +1039,7 @@ func (x *GrpcProbe) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcProbe.ProtoReflect.Descriptor instead.
 func (*GrpcProbe) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{6}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GrpcProbe) GetMethod() string {
@@ -976,7 +1068,7 @@ type ReadinessProbe struct {
 
 func (x *ReadinessProbe) Reset() {
 	*x = ReadinessProbe{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -988,7 +1080,7 @@ func (x *ReadinessProbe) String() string {
 func (*ReadinessProbe) ProtoMessage() {}
 
 func (x *ReadinessProbe) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1001,7 +1093,7 @@ func (x *ReadinessProbe) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadinessProbe.ProtoReflect.Descriptor instead.
 func (*ReadinessProbe) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{7}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ReadinessProbe) GetCheck() isReadinessProbe_Check {
@@ -1079,7 +1171,7 @@ type GrpcHealthProbe struct {
 
 func (x *GrpcHealthProbe) Reset() {
 	*x = GrpcHealthProbe{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[8]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1091,7 +1183,7 @@ func (x *GrpcHealthProbe) String() string {
 func (*GrpcHealthProbe) ProtoMessage() {}
 
 func (x *GrpcHealthProbe) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[8]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1104,7 +1196,7 @@ func (x *GrpcHealthProbe) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcHealthProbe.ProtoReflect.Descriptor instead.
 func (*GrpcHealthProbe) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{8}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GrpcHealthProbe) GetService() string {
@@ -1125,7 +1217,7 @@ type ContainerSecurityPolicy struct {
 
 func (x *ContainerSecurityPolicy) Reset() {
 	*x = ContainerSecurityPolicy{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[9]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1137,7 +1229,7 @@ func (x *ContainerSecurityPolicy) String() string {
 func (*ContainerSecurityPolicy) ProtoMessage() {}
 
 func (x *ContainerSecurityPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[9]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1150,7 +1242,7 @@ func (x *ContainerSecurityPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerSecurityPolicy.ProtoReflect.Descriptor instead.
 func (*ContainerSecurityPolicy) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{9}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ContainerSecurityPolicy) GetKernelPolicy() KernelPolicy {
@@ -1176,7 +1268,7 @@ type NetworkPolicy struct {
 
 func (x *NetworkPolicy) Reset() {
 	*x = NetworkPolicy{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[10]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1188,7 +1280,7 @@ func (x *NetworkPolicy) String() string {
 func (*NetworkPolicy) ProtoMessage() {}
 
 func (x *NetworkPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[10]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1201,7 +1293,7 @@ func (x *NetworkPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkPolicy.ProtoReflect.Descriptor instead.
 func (*NetworkPolicy) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{10}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *NetworkPolicy) GetAllowedRoutes() []*AllowedRoute {
@@ -1237,7 +1329,7 @@ type AllowedRoute struct {
 
 func (x *AllowedRoute) Reset() {
 	*x = AllowedRoute{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[11]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1249,7 +1341,7 @@ func (x *AllowedRoute) String() string {
 func (*AllowedRoute) ProtoMessage() {}
 
 func (x *AllowedRoute) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[11]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1262,7 +1354,7 @@ func (x *AllowedRoute) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AllowedRoute.ProtoReflect.Descriptor instead.
 func (*AllowedRoute) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{11}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AllowedRoute) GetRoute() string {
@@ -1291,7 +1383,7 @@ type PortRange struct {
 
 func (x *PortRange) Reset() {
 	*x = PortRange{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[12]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1303,7 +1395,7 @@ func (x *PortRange) String() string {
 func (*PortRange) ProtoMessage() {}
 
 func (x *PortRange) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[12]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1316,7 +1408,7 @@ func (x *PortRange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PortRange.ProtoReflect.Descriptor instead.
 func (*PortRange) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *PortRange) GetStartPort() int32 {
@@ -1342,7 +1434,7 @@ type NetworkPolicyRuleList struct {
 
 func (x *NetworkPolicyRuleList) Reset() {
 	*x = NetworkPolicyRuleList{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[13]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1354,7 +1446,7 @@ func (x *NetworkPolicyRuleList) String() string {
 func (*NetworkPolicyRuleList) ProtoMessage() {}
 
 func (x *NetworkPolicyRuleList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[13]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1367,7 +1459,7 @@ func (x *NetworkPolicyRuleList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkPolicyRuleList.ProtoReflect.Descriptor instead.
 func (*NetworkPolicyRuleList) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{13}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *NetworkPolicyRuleList) GetRules() []*NetworkPolicyRule {
@@ -1393,7 +1485,7 @@ type NetworkPolicyRule struct {
 
 func (x *NetworkPolicyRule) Reset() {
 	*x = NetworkPolicyRule{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[14]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1405,7 +1497,7 @@ func (x *NetworkPolicyRule) String() string {
 func (*NetworkPolicyRule) ProtoMessage() {}
 
 func (x *NetworkPolicyRule) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[14]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1418,7 +1510,7 @@ func (x *NetworkPolicyRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkPolicyRule.ProtoReflect.Descriptor instead.
 func (*NetworkPolicyRule) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{14}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *NetworkPolicyRule) GetTransform() []*NetworkTransformer {
@@ -1454,7 +1546,7 @@ type NetworkTransformer struct {
 
 func (x *NetworkTransformer) Reset() {
 	*x = NetworkTransformer{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[15]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1466,7 +1558,7 @@ func (x *NetworkTransformer) String() string {
 func (*NetworkTransformer) ProtoMessage() {}
 
 func (x *NetworkTransformer) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[15]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1479,7 +1571,7 @@ func (x *NetworkTransformer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkTransformer.ProtoReflect.Descriptor instead.
 func (*NetworkTransformer) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{15}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *NetworkTransformer) GetHeaders() map[string]string {
@@ -1512,7 +1604,7 @@ type NetworkPolicyMatch struct {
 
 func (x *NetworkPolicyMatch) Reset() {
 	*x = NetworkPolicyMatch{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[16]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1524,7 +1616,7 @@ func (x *NetworkPolicyMatch) String() string {
 func (*NetworkPolicyMatch) ProtoMessage() {}
 
 func (x *NetworkPolicyMatch) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[16]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1537,7 +1629,7 @@ func (x *NetworkPolicyMatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkPolicyMatch.ProtoReflect.Descriptor instead.
 func (*NetworkPolicyMatch) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{16}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *NetworkPolicyMatch) GetPath() *NetworkPolicyMatcher {
@@ -1580,7 +1672,7 @@ type NetworkPolicyKeyValueMatcher struct {
 
 func (x *NetworkPolicyKeyValueMatcher) Reset() {
 	*x = NetworkPolicyKeyValueMatcher{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[17]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1592,7 +1684,7 @@ func (x *NetworkPolicyKeyValueMatcher) String() string {
 func (*NetworkPolicyKeyValueMatcher) ProtoMessage() {}
 
 func (x *NetworkPolicyKeyValueMatcher) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[17]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1605,7 +1697,7 @@ func (x *NetworkPolicyKeyValueMatcher) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkPolicyKeyValueMatcher.ProtoReflect.Descriptor instead.
 func (*NetworkPolicyKeyValueMatcher) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{17}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *NetworkPolicyKeyValueMatcher) GetKey() *NetworkPolicyMatcher {
@@ -1636,7 +1728,7 @@ type NetworkPolicyMatcher struct {
 
 func (x *NetworkPolicyMatcher) Reset() {
 	*x = NetworkPolicyMatcher{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[18]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1648,7 +1740,7 @@ func (x *NetworkPolicyMatcher) String() string {
 func (*NetworkPolicyMatcher) ProtoMessage() {}
 
 func (x *NetworkPolicyMatcher) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[18]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1661,7 +1753,7 @@ func (x *NetworkPolicyMatcher) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkPolicyMatcher.ProtoReflect.Descriptor instead.
 func (*NetworkPolicyMatcher) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{18}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *NetworkPolicyMatcher) GetMatcher() isNetworkPolicyMatcher_Matcher {
@@ -1733,7 +1825,7 @@ type ContainerRequest struct {
 
 func (x *ContainerRequest) Reset() {
 	*x = ContainerRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[19]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1745,7 +1837,7 @@ func (x *ContainerRequest) String() string {
 func (*ContainerRequest) ProtoMessage() {}
 
 func (x *ContainerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[19]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1758,7 +1850,7 @@ func (x *ContainerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerRequest.ProtoReflect.Descriptor instead.
 func (*ContainerRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{19}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ContainerRequest) GetSpec() *ChalkContainerSpec {
@@ -1783,7 +1875,7 @@ type HealthCheck struct {
 
 func (x *HealthCheck) Reset() {
 	*x = HealthCheck{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[20]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1795,7 +1887,7 @@ func (x *HealthCheck) String() string {
 func (*HealthCheck) ProtoMessage() {}
 
 func (x *HealthCheck) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[20]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1808,7 +1900,7 @@ func (x *HealthCheck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheck.ProtoReflect.Descriptor instead.
 func (*HealthCheck) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{20}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *HealthCheck) GetHealthy() bool {
@@ -1869,7 +1961,7 @@ type ContainerResponse struct {
 
 func (x *ContainerResponse) Reset() {
 	*x = ContainerResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[21]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1881,7 +1973,7 @@ func (x *ContainerResponse) String() string {
 func (*ContainerResponse) ProtoMessage() {}
 
 func (x *ContainerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[21]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1894,7 +1986,7 @@ func (x *ContainerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerResponse.ProtoReflect.Descriptor instead.
 func (*ContainerResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{21}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ContainerResponse) GetId() string {
@@ -2004,7 +2096,7 @@ type RunContainerRequest struct {
 
 func (x *RunContainerRequest) Reset() {
 	*x = RunContainerRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[22]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2016,7 +2108,7 @@ func (x *RunContainerRequest) String() string {
 func (*RunContainerRequest) ProtoMessage() {}
 
 func (x *RunContainerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[22]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2029,7 +2121,7 @@ func (x *RunContainerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunContainerRequest.ProtoReflect.Descriptor instead.
 func (*RunContainerRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{22}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *RunContainerRequest) GetContainer() *ContainerRequest {
@@ -2048,7 +2140,7 @@ type RunContainerResponse struct {
 
 func (x *RunContainerResponse) Reset() {
 	*x = RunContainerResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[23]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2060,7 +2152,7 @@ func (x *RunContainerResponse) String() string {
 func (*RunContainerResponse) ProtoMessage() {}
 
 func (x *RunContainerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[23]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2073,7 +2165,7 @@ func (x *RunContainerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunContainerResponse.ProtoReflect.Descriptor instead.
 func (*RunContainerResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{23}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *RunContainerResponse) GetContainer() *ContainerResponse {
@@ -2097,7 +2189,7 @@ type StopContainerRequest struct {
 
 func (x *StopContainerRequest) Reset() {
 	*x = StopContainerRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[24]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2109,7 +2201,7 @@ func (x *StopContainerRequest) String() string {
 func (*StopContainerRequest) ProtoMessage() {}
 
 func (x *StopContainerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[24]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2122,7 +2214,7 @@ func (x *StopContainerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopContainerRequest.ProtoReflect.Descriptor instead.
 func (*StopContainerRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{24}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *StopContainerRequest) GetId() string {
@@ -2155,7 +2247,7 @@ type StopContainerResponse struct {
 
 func (x *StopContainerResponse) Reset() {
 	*x = StopContainerResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[25]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2167,7 +2259,7 @@ func (x *StopContainerResponse) String() string {
 func (*StopContainerResponse) ProtoMessage() {}
 
 func (x *StopContainerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[25]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2180,7 +2272,7 @@ func (x *StopContainerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopContainerResponse.ProtoReflect.Descriptor instead.
 func (*StopContainerResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{25}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *StopContainerResponse) GetContainer() *ContainerResponse {
@@ -2203,7 +2295,7 @@ type GetContainerRequest struct {
 
 func (x *GetContainerRequest) Reset() {
 	*x = GetContainerRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[26]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2215,7 +2307,7 @@ func (x *GetContainerRequest) String() string {
 func (*GetContainerRequest) ProtoMessage() {}
 
 func (x *GetContainerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[26]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2228,7 +2320,7 @@ func (x *GetContainerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContainerRequest.ProtoReflect.Descriptor instead.
 func (*GetContainerRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{26}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetContainerRequest) GetId() string {
@@ -2261,7 +2353,7 @@ type GetContainerResponse struct {
 
 func (x *GetContainerResponse) Reset() {
 	*x = GetContainerResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[27]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2273,7 +2365,7 @@ func (x *GetContainerResponse) String() string {
 func (*GetContainerResponse) ProtoMessage() {}
 
 func (x *GetContainerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[27]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2286,7 +2378,7 @@ func (x *GetContainerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContainerResponse.ProtoReflect.Descriptor instead.
 func (*GetContainerResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{27}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GetContainerResponse) GetContainer() *ContainerResponse {
@@ -2320,7 +2412,7 @@ type ListContainersRequest struct {
 
 func (x *ListContainersRequest) Reset() {
 	*x = ListContainersRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[28]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2332,7 +2424,7 @@ func (x *ListContainersRequest) String() string {
 func (*ListContainersRequest) ProtoMessage() {}
 
 func (x *ListContainersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[28]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2345,7 +2437,7 @@ func (x *ListContainersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContainersRequest.ProtoReflect.Descriptor instead.
 func (*ListContainersRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{28}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ListContainersRequest) GetCursor() string {
@@ -2407,7 +2499,7 @@ type ListContainersResponse struct {
 
 func (x *ListContainersResponse) Reset() {
 	*x = ListContainersResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[29]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2419,7 +2511,7 @@ func (x *ListContainersResponse) String() string {
 func (*ListContainersResponse) ProtoMessage() {}
 
 func (x *ListContainersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[29]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2432,7 +2524,7 @@ func (x *ListContainersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContainersResponse.ProtoReflect.Descriptor instead.
 func (*ListContainersResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{29}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ListContainersResponse) GetContainers() []*ContainerResponse {
@@ -2467,7 +2559,7 @@ type ExecCommandRequest struct {
 
 func (x *ExecCommandRequest) Reset() {
 	*x = ExecCommandRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[30]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2479,7 +2571,7 @@ func (x *ExecCommandRequest) String() string {
 func (*ExecCommandRequest) ProtoMessage() {}
 
 func (x *ExecCommandRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[30]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2492,7 +2584,7 @@ func (x *ExecCommandRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecCommandRequest.ProtoReflect.Descriptor instead.
 func (*ExecCommandRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{30}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ExecCommandRequest) GetId() string {
@@ -2544,7 +2636,7 @@ type ExecCommandResponse struct {
 
 func (x *ExecCommandResponse) Reset() {
 	*x = ExecCommandResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[31]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2556,7 +2648,7 @@ func (x *ExecCommandResponse) String() string {
 func (*ExecCommandResponse) ProtoMessage() {}
 
 func (x *ExecCommandResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[31]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2569,7 +2661,7 @@ func (x *ExecCommandResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecCommandResponse.ProtoReflect.Descriptor instead.
 func (*ExecCommandResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{31}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ExecCommandResponse) GetStdout() []byte {
@@ -2614,7 +2706,7 @@ type SessionRequest struct {
 
 func (x *SessionRequest) Reset() {
 	*x = SessionRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[32]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2626,7 +2718,7 @@ func (x *SessionRequest) String() string {
 func (*SessionRequest) ProtoMessage() {}
 
 func (x *SessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[32]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2639,7 +2731,7 @@ func (x *SessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionRequest.ProtoReflect.Descriptor instead.
 func (*SessionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{32}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *SessionRequest) GetCommand() isSessionRequest_Command {
@@ -2800,7 +2892,7 @@ type SessionResponse struct {
 
 func (x *SessionResponse) Reset() {
 	*x = SessionResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[33]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2812,7 +2904,7 @@ func (x *SessionResponse) String() string {
 func (*SessionResponse) ProtoMessage() {}
 
 func (x *SessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[33]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2825,7 +2917,7 @@ func (x *SessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionResponse.ProtoReflect.Descriptor instead.
 func (*SessionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{33}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *SessionResponse) GetEvent() isSessionResponse_Event {
@@ -2978,7 +3070,7 @@ type SessionError struct {
 
 func (x *SessionError) Reset() {
 	*x = SessionError{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[34]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2990,7 +3082,7 @@ func (x *SessionError) String() string {
 func (*SessionError) ProtoMessage() {}
 
 func (x *SessionError) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[34]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3003,7 +3095,7 @@ func (x *SessionError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionError.ProtoReflect.Descriptor instead.
 func (*SessionError) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{34}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *SessionError) GetCode() string {
@@ -3043,7 +3135,7 @@ type NewProcess struct {
 
 func (x *NewProcess) Reset() {
 	*x = NewProcess{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[35]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3055,7 +3147,7 @@ func (x *NewProcess) String() string {
 func (*NewProcess) ProtoMessage() {}
 
 func (x *NewProcess) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[35]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3068,7 +3160,7 @@ func (x *NewProcess) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NewProcess.ProtoReflect.Descriptor instead.
 func (*NewProcess) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{35}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *NewProcess) GetContainerId() string {
@@ -3132,7 +3224,7 @@ type PtyInfo struct {
 
 func (x *PtyInfo) Reset() {
 	*x = PtyInfo{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[36]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3144,7 +3236,7 @@ func (x *PtyInfo) String() string {
 func (*PtyInfo) ProtoMessage() {}
 
 func (x *PtyInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[36]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3157,7 +3249,7 @@ func (x *PtyInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PtyInfo.ProtoReflect.Descriptor instead.
 func (*PtyInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{36}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *PtyInfo) GetCols() uint32 {
@@ -3186,7 +3278,7 @@ type AttachSession struct {
 
 func (x *AttachSession) Reset() {
 	*x = AttachSession{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[37]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3198,7 +3290,7 @@ func (x *AttachSession) String() string {
 func (*AttachSession) ProtoMessage() {}
 
 func (x *AttachSession) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[37]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3211,7 +3303,7 @@ func (x *AttachSession) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AttachSession.ProtoReflect.Descriptor instead.
 func (*AttachSession) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{37}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *AttachSession) GetContainerId() string {
@@ -3244,7 +3336,7 @@ type SessionAttached struct {
 
 func (x *SessionAttached) Reset() {
 	*x = SessionAttached{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[38]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3256,7 +3348,7 @@ func (x *SessionAttached) String() string {
 func (*SessionAttached) ProtoMessage() {}
 
 func (x *SessionAttached) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[38]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3269,7 +3361,7 @@ func (x *SessionAttached) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionAttached.ProtoReflect.Descriptor instead.
 func (*SessionAttached) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{38}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *SessionAttached) GetSessionId() string {
@@ -3287,7 +3379,7 @@ type DetachSession struct {
 
 func (x *DetachSession) Reset() {
 	*x = DetachSession{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[39]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3299,7 +3391,7 @@ func (x *DetachSession) String() string {
 func (*DetachSession) ProtoMessage() {}
 
 func (x *DetachSession) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[39]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3312,7 +3404,7 @@ func (x *DetachSession) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DetachSession.ProtoReflect.Descriptor instead.
 func (*DetachSession) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{39}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{40}
 }
 
 type SessionDetached struct {
@@ -3323,7 +3415,7 @@ type SessionDetached struct {
 
 func (x *SessionDetached) Reset() {
 	*x = SessionDetached{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[40]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3335,7 +3427,7 @@ func (x *SessionDetached) String() string {
 func (*SessionDetached) ProtoMessage() {}
 
 func (x *SessionDetached) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[40]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3348,7 +3440,7 @@ func (x *SessionDetached) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionDetached.ProtoReflect.Descriptor instead.
 func (*SessionDetached) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{40}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{41}
 }
 
 type StdinData struct {
@@ -3360,7 +3452,7 @@ type StdinData struct {
 
 func (x *StdinData) Reset() {
 	*x = StdinData{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[41]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3372,7 +3464,7 @@ func (x *StdinData) String() string {
 func (*StdinData) ProtoMessage() {}
 
 func (x *StdinData) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[41]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3385,7 +3477,7 @@ func (x *StdinData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StdinData.ProtoReflect.Descriptor instead.
 func (*StdinData) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{41}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *StdinData) GetData() []byte {
@@ -3403,7 +3495,7 @@ type StdinEof struct {
 
 func (x *StdinEof) Reset() {
 	*x = StdinEof{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[42]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3415,7 +3507,7 @@ func (x *StdinEof) String() string {
 func (*StdinEof) ProtoMessage() {}
 
 func (x *StdinEof) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[42]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3428,7 +3520,7 @@ func (x *StdinEof) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StdinEof.ProtoReflect.Descriptor instead.
 func (*StdinEof) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{42}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{43}
 }
 
 type SessionSignal struct {
@@ -3440,7 +3532,7 @@ type SessionSignal struct {
 
 func (x *SessionSignal) Reset() {
 	*x = SessionSignal{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[43]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3452,7 +3544,7 @@ func (x *SessionSignal) String() string {
 func (*SessionSignal) ProtoMessage() {}
 
 func (x *SessionSignal) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[43]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3465,7 +3557,7 @@ func (x *SessionSignal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionSignal.ProtoReflect.Descriptor instead.
 func (*SessionSignal) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{43}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *SessionSignal) GetSignal() int32 {
@@ -3485,7 +3577,7 @@ type OutputData struct {
 
 func (x *OutputData) Reset() {
 	*x = OutputData{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[44]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3497,7 +3589,7 @@ func (x *OutputData) String() string {
 func (*OutputData) ProtoMessage() {}
 
 func (x *OutputData) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[44]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3510,7 +3602,7 @@ func (x *OutputData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OutputData.ProtoReflect.Descriptor instead.
 func (*OutputData) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{44}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *OutputData) GetStream() OutputData_Stream {
@@ -3535,7 +3627,7 @@ type GetProcessStatus struct {
 
 func (x *GetProcessStatus) Reset() {
 	*x = GetProcessStatus{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[45]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3547,7 +3639,7 @@ func (x *GetProcessStatus) String() string {
 func (*GetProcessStatus) ProtoMessage() {}
 
 func (x *GetProcessStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[45]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3560,7 +3652,7 @@ func (x *GetProcessStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProcessStatus.ProtoReflect.Descriptor instead.
 func (*GetProcessStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{45}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{46}
 }
 
 type ProcessStatus struct {
@@ -3576,7 +3668,7 @@ type ProcessStatus struct {
 
 func (x *ProcessStatus) Reset() {
 	*x = ProcessStatus{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[46]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3588,7 +3680,7 @@ func (x *ProcessStatus) String() string {
 func (*ProcessStatus) ProtoMessage() {}
 
 func (x *ProcessStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[46]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3601,7 +3693,7 @@ func (x *ProcessStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProcessStatus.ProtoReflect.Descriptor instead.
 func (*ProcessStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{46}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ProcessStatus) GetState() ProcessState {
@@ -3635,7 +3727,7 @@ type ProcessExited struct {
 
 func (x *ProcessExited) Reset() {
 	*x = ProcessExited{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[47]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3647,7 +3739,7 @@ func (x *ProcessExited) String() string {
 func (*ProcessExited) ProtoMessage() {}
 
 func (x *ProcessExited) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[47]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3660,7 +3752,7 @@ func (x *ProcessExited) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProcessExited.ProtoReflect.Descriptor instead.
 func (*ProcessExited) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{47}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ProcessExited) GetExitCode() int32 {
@@ -3686,7 +3778,7 @@ type ProcessFailed struct {
 
 func (x *ProcessFailed) Reset() {
 	*x = ProcessFailed{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[48]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3698,7 +3790,7 @@ func (x *ProcessFailed) String() string {
 func (*ProcessFailed) ProtoMessage() {}
 
 func (x *ProcessFailed) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[48]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3711,7 +3803,7 @@ func (x *ProcessFailed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProcessFailed.ProtoReflect.Descriptor instead.
 func (*ProcessFailed) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{48}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *ProcessFailed) GetMessage() string {
@@ -3731,7 +3823,7 @@ type ProcessTimedOut struct {
 
 func (x *ProcessTimedOut) Reset() {
 	*x = ProcessTimedOut{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[49]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3743,7 +3835,7 @@ func (x *ProcessTimedOut) String() string {
 func (*ProcessTimedOut) ProtoMessage() {}
 
 func (x *ProcessTimedOut) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[49]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3756,7 +3848,7 @@ func (x *ProcessTimedOut) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProcessTimedOut.ProtoReflect.Descriptor instead.
 func (*ProcessTimedOut) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{49}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *ProcessTimedOut) GetExitCode() int32 {
@@ -3784,7 +3876,7 @@ type SessionInfo struct {
 
 func (x *SessionInfo) Reset() {
 	*x = SessionInfo{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[50]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3796,7 +3888,7 @@ func (x *SessionInfo) String() string {
 func (*SessionInfo) ProtoMessage() {}
 
 func (x *SessionInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[50]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3809,7 +3901,7 @@ func (x *SessionInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SessionInfo.ProtoReflect.Descriptor instead.
 func (*SessionInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{50}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *SessionInfo) GetSessionId() string {
@@ -3843,7 +3935,7 @@ type GetSessionRequest struct {
 
 func (x *GetSessionRequest) Reset() {
 	*x = GetSessionRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[51]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3855,7 +3947,7 @@ func (x *GetSessionRequest) String() string {
 func (*GetSessionRequest) ProtoMessage() {}
 
 func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[51]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3868,7 +3960,7 @@ func (x *GetSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionRequest.ProtoReflect.Descriptor instead.
 func (*GetSessionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{51}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *GetSessionRequest) GetContainerId() string {
@@ -3894,7 +3986,7 @@ type GetSessionResponse struct {
 
 func (x *GetSessionResponse) Reset() {
 	*x = GetSessionResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[52]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3906,7 +3998,7 @@ func (x *GetSessionResponse) String() string {
 func (*GetSessionResponse) ProtoMessage() {}
 
 func (x *GetSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[52]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3919,7 +4011,7 @@ func (x *GetSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSessionResponse.ProtoReflect.Descriptor instead.
 func (*GetSessionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{52}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *GetSessionResponse) GetSession() *SessionInfo {
@@ -3938,7 +4030,7 @@ type ListSessionsRequest struct {
 
 func (x *ListSessionsRequest) Reset() {
 	*x = ListSessionsRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[53]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3950,7 +4042,7 @@ func (x *ListSessionsRequest) String() string {
 func (*ListSessionsRequest) ProtoMessage() {}
 
 func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[53]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3963,7 +4055,7 @@ func (x *ListSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{53}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ListSessionsRequest) GetContainerId() string {
@@ -3982,7 +4074,7 @@ type ListSessionsResponse struct {
 
 func (x *ListSessionsResponse) Reset() {
 	*x = ListSessionsResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[54]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3994,7 +4086,7 @@ func (x *ListSessionsResponse) String() string {
 func (*ListSessionsResponse) ProtoMessage() {}
 
 func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[54]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4007,7 +4099,7 @@ func (x *ListSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSessionsResponse.ProtoReflect.Descriptor instead.
 func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{54}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ListSessionsResponse) GetSessions() []*SessionInfo {
@@ -4028,7 +4120,7 @@ type ContainerHostInfo struct {
 
 func (x *ContainerHostInfo) Reset() {
 	*x = ContainerHostInfo{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[55]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4040,7 +4132,7 @@ func (x *ContainerHostInfo) String() string {
 func (*ContainerHostInfo) ProtoMessage() {}
 
 func (x *ContainerHostInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[55]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4053,7 +4145,7 @@ func (x *ContainerHostInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerHostInfo.ProtoReflect.Descriptor instead.
 func (*ContainerHostInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{55}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ContainerHostInfo) GetHostId() string {
@@ -4079,7 +4171,7 @@ type UpdateContainerStatusRequest struct {
 
 func (x *UpdateContainerStatusRequest) Reset() {
 	*x = UpdateContainerStatusRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[56]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4091,7 +4183,7 @@ func (x *UpdateContainerStatusRequest) String() string {
 func (*UpdateContainerStatusRequest) ProtoMessage() {}
 
 func (x *UpdateContainerStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[56]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4104,7 +4196,7 @@ func (x *UpdateContainerStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateContainerStatusRequest.ProtoReflect.Descriptor instead.
 func (*UpdateContainerStatusRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{56}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *UpdateContainerStatusRequest) GetContainerId() string {
@@ -4144,7 +4236,7 @@ type UpdateContainerStatusResponse struct {
 
 func (x *UpdateContainerStatusResponse) Reset() {
 	*x = UpdateContainerStatusResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[57]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4156,7 +4248,7 @@ func (x *UpdateContainerStatusResponse) String() string {
 func (*UpdateContainerStatusResponse) ProtoMessage() {}
 
 func (x *UpdateContainerStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[57]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4169,7 +4261,7 @@ func (x *UpdateContainerStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateContainerStatusResponse.ProtoReflect.Descriptor instead.
 func (*UpdateContainerStatusResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{57}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *UpdateContainerStatusResponse) GetContainer() *ContainerResponse {
@@ -4188,7 +4280,7 @@ type BatchUpdateContainerStatusRequest struct {
 
 func (x *BatchUpdateContainerStatusRequest) Reset() {
 	*x = BatchUpdateContainerStatusRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[58]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4200,7 +4292,7 @@ func (x *BatchUpdateContainerStatusRequest) String() string {
 func (*BatchUpdateContainerStatusRequest) ProtoMessage() {}
 
 func (x *BatchUpdateContainerStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[58]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4213,7 +4305,7 @@ func (x *BatchUpdateContainerStatusRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use BatchUpdateContainerStatusRequest.ProtoReflect.Descriptor instead.
 func (*BatchUpdateContainerStatusRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{58}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *BatchUpdateContainerStatusRequest) GetUpdates() []*UpdateContainerStatusRequest {
@@ -4231,7 +4323,7 @@ type BatchUpdateContainerStatusResponse struct {
 
 func (x *BatchUpdateContainerStatusResponse) Reset() {
 	*x = BatchUpdateContainerStatusResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[59]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4243,7 +4335,7 @@ func (x *BatchUpdateContainerStatusResponse) String() string {
 func (*BatchUpdateContainerStatusResponse) ProtoMessage() {}
 
 func (x *BatchUpdateContainerStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[59]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4256,7 +4348,7 @@ func (x *BatchUpdateContainerStatusResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use BatchUpdateContainerStatusResponse.ProtoReflect.Descriptor instead.
 func (*BatchUpdateContainerStatusResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{59}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{60}
 }
 
 // GKEPodSnapshot captures GKE-specific pod snapshot configuration.
@@ -4273,7 +4365,7 @@ type GKEPodSnapshot struct {
 
 func (x *GKEPodSnapshot) Reset() {
 	*x = GKEPodSnapshot{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[60]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4285,7 +4377,7 @@ func (x *GKEPodSnapshot) String() string {
 func (*GKEPodSnapshot) ProtoMessage() {}
 
 func (x *GKEPodSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[60]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4298,7 +4390,7 @@ func (x *GKEPodSnapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GKEPodSnapshot.ProtoReflect.Descriptor instead.
 func (*GKEPodSnapshot) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{60}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *GKEPodSnapshot) GetStorageBucket() string {
@@ -4328,7 +4420,7 @@ type ContainerSnapshotSpec struct {
 
 func (x *ContainerSnapshotSpec) Reset() {
 	*x = ContainerSnapshotSpec{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[61]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4340,7 +4432,7 @@ func (x *ContainerSnapshotSpec) String() string {
 func (*ContainerSnapshotSpec) ProtoMessage() {}
 
 func (x *ContainerSnapshotSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[61]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4353,7 +4445,7 @@ func (x *ContainerSnapshotSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerSnapshotSpec.ProtoReflect.Descriptor instead.
 func (*ContainerSnapshotSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{61}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *ContainerSnapshotSpec) GetSpec() isContainerSnapshotSpec_Spec {
@@ -4409,7 +4501,7 @@ type ContainerSnapshot struct {
 
 func (x *ContainerSnapshot) Reset() {
 	*x = ContainerSnapshot{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[62]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4421,7 +4513,7 @@ func (x *ContainerSnapshot) String() string {
 func (*ContainerSnapshot) ProtoMessage() {}
 
 func (x *ContainerSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[62]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4434,7 +4526,7 @@ func (x *ContainerSnapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerSnapshot.ProtoReflect.Descriptor instead.
 func (*ContainerSnapshot) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{62}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *ContainerSnapshot) GetId() string {
@@ -4512,7 +4604,7 @@ type SnapshotContainerRequest struct {
 
 func (x *SnapshotContainerRequest) Reset() {
 	*x = SnapshotContainerRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[63]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4524,7 +4616,7 @@ func (x *SnapshotContainerRequest) String() string {
 func (*SnapshotContainerRequest) ProtoMessage() {}
 
 func (x *SnapshotContainerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[63]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4537,7 +4629,7 @@ func (x *SnapshotContainerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SnapshotContainerRequest.ProtoReflect.Descriptor instead.
 func (*SnapshotContainerRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{63}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *SnapshotContainerRequest) GetId() string {
@@ -4563,7 +4655,7 @@ type SnapshotContainerResponse struct {
 
 func (x *SnapshotContainerResponse) Reset() {
 	*x = SnapshotContainerResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[64]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4575,7 +4667,7 @@ func (x *SnapshotContainerResponse) String() string {
 func (*SnapshotContainerResponse) ProtoMessage() {}
 
 func (x *SnapshotContainerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[64]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4588,7 +4680,7 @@ func (x *SnapshotContainerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SnapshotContainerResponse.ProtoReflect.Descriptor instead.
 func (*SnapshotContainerResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{64}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *SnapshotContainerResponse) GetSnapshot() *ContainerSnapshot {
@@ -4608,7 +4700,7 @@ type GetContainerSnapshotRequest struct {
 
 func (x *GetContainerSnapshotRequest) Reset() {
 	*x = GetContainerSnapshotRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[65]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4620,7 +4712,7 @@ func (x *GetContainerSnapshotRequest) String() string {
 func (*GetContainerSnapshotRequest) ProtoMessage() {}
 
 func (x *GetContainerSnapshotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[65]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4633,7 +4725,7 @@ func (x *GetContainerSnapshotRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContainerSnapshotRequest.ProtoReflect.Descriptor instead.
 func (*GetContainerSnapshotRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{65}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *GetContainerSnapshotRequest) GetId() string {
@@ -4652,7 +4744,7 @@ type GetContainerSnapshotResponse struct {
 
 func (x *GetContainerSnapshotResponse) Reset() {
 	*x = GetContainerSnapshotResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[66]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4664,7 +4756,7 @@ func (x *GetContainerSnapshotResponse) String() string {
 func (*GetContainerSnapshotResponse) ProtoMessage() {}
 
 func (x *GetContainerSnapshotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[66]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4677,7 +4769,7 @@ func (x *GetContainerSnapshotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContainerSnapshotResponse.ProtoReflect.Descriptor instead.
 func (*GetContainerSnapshotResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{66}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *GetContainerSnapshotResponse) GetSnapshot() *ContainerSnapshot {
@@ -4699,7 +4791,7 @@ type ListContainerSnapshotsRequest struct {
 
 func (x *ListContainerSnapshotsRequest) Reset() {
 	*x = ListContainerSnapshotsRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[67]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4711,7 +4803,7 @@ func (x *ListContainerSnapshotsRequest) String() string {
 func (*ListContainerSnapshotsRequest) ProtoMessage() {}
 
 func (x *ListContainerSnapshotsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[67]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4724,7 +4816,7 @@ func (x *ListContainerSnapshotsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContainerSnapshotsRequest.ProtoReflect.Descriptor instead.
 func (*ListContainerSnapshotsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{67}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *ListContainerSnapshotsRequest) GetSourceContainerId() string {
@@ -4758,7 +4850,7 @@ type ListContainerSnapshotsResponse struct {
 
 func (x *ListContainerSnapshotsResponse) Reset() {
 	*x = ListContainerSnapshotsResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[68]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4770,7 +4862,7 @@ func (x *ListContainerSnapshotsResponse) String() string {
 func (*ListContainerSnapshotsResponse) ProtoMessage() {}
 
 func (x *ListContainerSnapshotsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[68]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4783,7 +4875,7 @@ func (x *ListContainerSnapshotsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListContainerSnapshotsResponse.ProtoReflect.Descriptor instead.
 func (*ListContainerSnapshotsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{68}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *ListContainerSnapshotsResponse) GetSnapshots() []*ContainerSnapshot {
@@ -4813,7 +4905,7 @@ type ContainerTTYInput struct {
 
 func (x *ContainerTTYInput) Reset() {
 	*x = ContainerTTYInput{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[69]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4825,7 +4917,7 @@ func (x *ContainerTTYInput) String() string {
 func (*ContainerTTYInput) ProtoMessage() {}
 
 func (x *ContainerTTYInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[69]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4838,7 +4930,7 @@ func (x *ContainerTTYInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerTTYInput.ProtoReflect.Descriptor instead.
 func (*ContainerTTYInput) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{69}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *ContainerTTYInput) GetData() []byte {
@@ -4866,7 +4958,7 @@ type ContainerTerminalSize struct {
 
 func (x *ContainerTerminalSize) Reset() {
 	*x = ContainerTerminalSize{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[70]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4878,7 +4970,7 @@ func (x *ContainerTerminalSize) String() string {
 func (*ContainerTerminalSize) ProtoMessage() {}
 
 func (x *ContainerTerminalSize) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[70]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4891,7 +4983,7 @@ func (x *ContainerTerminalSize) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerTerminalSize.ProtoReflect.Descriptor instead.
 func (*ContainerTerminalSize) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{70}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *ContainerTerminalSize) GetRows() uint32 {
@@ -4924,7 +5016,7 @@ type CreateContainerDebugTTYRequest struct {
 
 func (x *CreateContainerDebugTTYRequest) Reset() {
 	*x = CreateContainerDebugTTYRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[71]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4936,7 +5028,7 @@ func (x *CreateContainerDebugTTYRequest) String() string {
 func (*CreateContainerDebugTTYRequest) ProtoMessage() {}
 
 func (x *CreateContainerDebugTTYRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[71]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4949,7 +5041,7 @@ func (x *CreateContainerDebugTTYRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateContainerDebugTTYRequest.ProtoReflect.Descriptor instead.
 func (*CreateContainerDebugTTYRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{71}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *CreateContainerDebugTTYRequest) GetMessage() isCreateContainerDebugTTYRequest_Message {
@@ -5011,7 +5103,7 @@ type ContainerDebugTTYInitRequest struct {
 
 func (x *ContainerDebugTTYInitRequest) Reset() {
 	*x = ContainerDebugTTYInitRequest{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[72]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5023,7 +5115,7 @@ func (x *ContainerDebugTTYInitRequest) String() string {
 func (*ContainerDebugTTYInitRequest) ProtoMessage() {}
 
 func (x *ContainerDebugTTYInitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[72]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5036,7 +5128,7 @@ func (x *ContainerDebugTTYInitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContainerDebugTTYInitRequest.ProtoReflect.Descriptor instead.
 func (*ContainerDebugTTYInitRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{72}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *ContainerDebugTTYInitRequest) GetId() string {
@@ -5075,7 +5167,7 @@ type CreateContainerDebugTTYResponse struct {
 
 func (x *CreateContainerDebugTTYResponse) Reset() {
 	*x = CreateContainerDebugTTYResponse{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[73]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5087,7 +5179,7 @@ func (x *CreateContainerDebugTTYResponse) String() string {
 func (*CreateContainerDebugTTYResponse) ProtoMessage() {}
 
 func (x *CreateContainerDebugTTYResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[73]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5100,7 +5192,7 @@ func (x *CreateContainerDebugTTYResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateContainerDebugTTYResponse.ProtoReflect.Descriptor instead.
 func (*CreateContainerDebugTTYResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{73}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *CreateContainerDebugTTYResponse) GetData() []byte {
@@ -5133,7 +5225,7 @@ type ChalkWorkloadIdentity struct {
 
 func (x *ChalkWorkloadIdentity) Reset() {
 	*x = ChalkWorkloadIdentity{}
-	mi := &file_chalk_container_v1_service_proto_msgTypes[74]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5145,7 +5237,7 @@ func (x *ChalkWorkloadIdentity) String() string {
 func (*ChalkWorkloadIdentity) ProtoMessage() {}
 
 func (x *ChalkWorkloadIdentity) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_container_v1_service_proto_msgTypes[74]
+	mi := &file_chalk_container_v1_service_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5158,7 +5250,7 @@ func (x *ChalkWorkloadIdentity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkWorkloadIdentity.ProtoReflect.Descriptor instead.
 func (*ChalkWorkloadIdentity) Descriptor() ([]byte, []int) {
-	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{74}
+	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{75}
 }
 
 var File_chalk_container_v1_service_proto protoreflect.FileDescriptor
@@ -5195,7 +5287,15 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
 	"\x06sourceB\t\n" +
-	"\a_prefix\"\xc9\f\n" +
+	"\a_prefix\"\xc6\x01\n" +
+	"\x15ManagedSshDestination\x12\x12\n" +
+	"\x04host\x18\x01 \x01(\tR\x04host\x12,\n" +
+	"\x12private_key_secret\x18\x02 \x01(\tR\x10privateKeySecret\x12\x1b\n" +
+	"\thost_keys\x18\x03 \x03(\tR\bhostKeys\x12\x17\n" +
+	"\x04port\x18\x04 \x01(\rH\x00R\x04port\x88\x01\x01\x12\x1f\n" +
+	"\busername\x18\x05 \x01(\tH\x01R\busername\x88\x01\x01B\a\n" +
+	"\x05_portB\v\n" +
+	"\t_username\"\x8c\x0e\n" +
 	"\x12ChalkContainerSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12\x1e\n" +
@@ -5223,13 +5323,18 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"R\fstartupProbe\x88\x01\x01\x12P\n" +
 	"\x0freadiness_probe\x18\x13 \x01(\v2\".chalk.container.v1.ReadinessProbeH\vR\x0ereadinessProbe\x88\x01\x01\x12M\n" +
 	"\x0erestart_policy\x18\x14 \x01(\x0e2!.chalk.container.v1.RestartPolicyH\fR\rrestartPolicy\x88\x01\x01\x12f\n" +
-	"\x17chalk_workload_identity\x18\x15 \x01(\v2).chalk.container.v1.ChalkWorkloadIdentityH\rR\x15chalkWorkloadIdentity\x88\x01\x01\x1a7\n" +
+	"\x17chalk_workload_identity\x18\x15 \x01(\v2).chalk.container.v1.ChalkWorkloadIdentityH\rR\x15chalkWorkloadIdentity\x88\x01\x01\x12W\n" +
+	"\vmanaged_ssh\x18\x16 \x03(\v26.chalk.container.v1.ChalkContainerSpec.ManagedSshEntryR\n" +
+	"managedSsh\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a:\n" +
 	"\fEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ah\n" +
+	"\x0fManagedSshEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12?\n" +
+	"\x05value\x18\x02 \x01(\v2).chalk.container.v1.ManagedSshDestinationR\x05value:\x028\x01B\a\n" +
 	"\x05_portB\v\n" +
 	"\t_lifetimeB\f\n" +
 	"\n" +
@@ -5658,7 +5763,7 @@ func file_chalk_container_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_container_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_chalk_container_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 82)
+var file_chalk_container_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 84)
 var file_chalk_container_v1_service_proto_goTypes = []any{
 	(ComputeClass)(0),                          // 0: chalk.container.v1.ComputeClass
 	(RestartPolicy)(0),                         // 1: chalk.container.v1.RestartPolicy
@@ -5668,205 +5773,209 @@ var file_chalk_container_v1_service_proto_goTypes = []any{
 	(*ResourceLimits)(nil),                     // 5: chalk.container.v1.ResourceLimits
 	(*VolumeMount)(nil),                        // 6: chalk.container.v1.VolumeMount
 	(*SecretRef)(nil),                          // 7: chalk.container.v1.SecretRef
-	(*ChalkContainerSpec)(nil),                 // 8: chalk.container.v1.ChalkContainerSpec
-	(*StartupProbe)(nil),                       // 9: chalk.container.v1.StartupProbe
-	(*HttpProbe)(nil),                          // 10: chalk.container.v1.HttpProbe
-	(*GrpcProbe)(nil),                          // 11: chalk.container.v1.GrpcProbe
-	(*ReadinessProbe)(nil),                     // 12: chalk.container.v1.ReadinessProbe
-	(*GrpcHealthProbe)(nil),                    // 13: chalk.container.v1.GrpcHealthProbe
-	(*ContainerSecurityPolicy)(nil),            // 14: chalk.container.v1.ContainerSecurityPolicy
-	(*NetworkPolicy)(nil),                      // 15: chalk.container.v1.NetworkPolicy
-	(*AllowedRoute)(nil),                       // 16: chalk.container.v1.AllowedRoute
-	(*PortRange)(nil),                          // 17: chalk.container.v1.PortRange
-	(*NetworkPolicyRuleList)(nil),              // 18: chalk.container.v1.NetworkPolicyRuleList
-	(*NetworkPolicyRule)(nil),                  // 19: chalk.container.v1.NetworkPolicyRule
-	(*NetworkTransformer)(nil),                 // 20: chalk.container.v1.NetworkTransformer
-	(*NetworkPolicyMatch)(nil),                 // 21: chalk.container.v1.NetworkPolicyMatch
-	(*NetworkPolicyKeyValueMatcher)(nil),       // 22: chalk.container.v1.NetworkPolicyKeyValueMatcher
-	(*NetworkPolicyMatcher)(nil),               // 23: chalk.container.v1.NetworkPolicyMatcher
-	(*ContainerRequest)(nil),                   // 24: chalk.container.v1.ContainerRequest
-	(*HealthCheck)(nil),                        // 25: chalk.container.v1.HealthCheck
-	(*ContainerResponse)(nil),                  // 26: chalk.container.v1.ContainerResponse
-	(*RunContainerRequest)(nil),                // 27: chalk.container.v1.RunContainerRequest
-	(*RunContainerResponse)(nil),               // 28: chalk.container.v1.RunContainerResponse
-	(*StopContainerRequest)(nil),               // 29: chalk.container.v1.StopContainerRequest
-	(*StopContainerResponse)(nil),              // 30: chalk.container.v1.StopContainerResponse
-	(*GetContainerRequest)(nil),                // 31: chalk.container.v1.GetContainerRequest
-	(*GetContainerResponse)(nil),               // 32: chalk.container.v1.GetContainerResponse
-	(*ListContainersRequest)(nil),              // 33: chalk.container.v1.ListContainersRequest
-	(*ListContainersResponse)(nil),             // 34: chalk.container.v1.ListContainersResponse
-	(*ExecCommandRequest)(nil),                 // 35: chalk.container.v1.ExecCommandRequest
-	(*ExecCommandResponse)(nil),                // 36: chalk.container.v1.ExecCommandResponse
-	(*SessionRequest)(nil),                     // 37: chalk.container.v1.SessionRequest
-	(*SessionResponse)(nil),                    // 38: chalk.container.v1.SessionResponse
-	(*SessionError)(nil),                       // 39: chalk.container.v1.SessionError
-	(*NewProcess)(nil),                         // 40: chalk.container.v1.NewProcess
-	(*PtyInfo)(nil),                            // 41: chalk.container.v1.PtyInfo
-	(*AttachSession)(nil),                      // 42: chalk.container.v1.AttachSession
-	(*SessionAttached)(nil),                    // 43: chalk.container.v1.SessionAttached
-	(*DetachSession)(nil),                      // 44: chalk.container.v1.DetachSession
-	(*SessionDetached)(nil),                    // 45: chalk.container.v1.SessionDetached
-	(*StdinData)(nil),                          // 46: chalk.container.v1.StdinData
-	(*StdinEof)(nil),                           // 47: chalk.container.v1.StdinEof
-	(*SessionSignal)(nil),                      // 48: chalk.container.v1.SessionSignal
-	(*OutputData)(nil),                         // 49: chalk.container.v1.OutputData
-	(*GetProcessStatus)(nil),                   // 50: chalk.container.v1.GetProcessStatus
-	(*ProcessStatus)(nil),                      // 51: chalk.container.v1.ProcessStatus
-	(*ProcessExited)(nil),                      // 52: chalk.container.v1.ProcessExited
-	(*ProcessFailed)(nil),                      // 53: chalk.container.v1.ProcessFailed
-	(*ProcessTimedOut)(nil),                    // 54: chalk.container.v1.ProcessTimedOut
-	(*SessionInfo)(nil),                        // 55: chalk.container.v1.SessionInfo
-	(*GetSessionRequest)(nil),                  // 56: chalk.container.v1.GetSessionRequest
-	(*GetSessionResponse)(nil),                 // 57: chalk.container.v1.GetSessionResponse
-	(*ListSessionsRequest)(nil),                // 58: chalk.container.v1.ListSessionsRequest
-	(*ListSessionsResponse)(nil),               // 59: chalk.container.v1.ListSessionsResponse
-	(*ContainerHostInfo)(nil),                  // 60: chalk.container.v1.ContainerHostInfo
-	(*UpdateContainerStatusRequest)(nil),       // 61: chalk.container.v1.UpdateContainerStatusRequest
-	(*UpdateContainerStatusResponse)(nil),      // 62: chalk.container.v1.UpdateContainerStatusResponse
-	(*BatchUpdateContainerStatusRequest)(nil),  // 63: chalk.container.v1.BatchUpdateContainerStatusRequest
-	(*BatchUpdateContainerStatusResponse)(nil), // 64: chalk.container.v1.BatchUpdateContainerStatusResponse
-	(*GKEPodSnapshot)(nil),                     // 65: chalk.container.v1.GKEPodSnapshot
-	(*ContainerSnapshotSpec)(nil),              // 66: chalk.container.v1.ContainerSnapshotSpec
-	(*ContainerSnapshot)(nil),                  // 67: chalk.container.v1.ContainerSnapshot
-	(*SnapshotContainerRequest)(nil),           // 68: chalk.container.v1.SnapshotContainerRequest
-	(*SnapshotContainerResponse)(nil),          // 69: chalk.container.v1.SnapshotContainerResponse
-	(*GetContainerSnapshotRequest)(nil),        // 70: chalk.container.v1.GetContainerSnapshotRequest
-	(*GetContainerSnapshotResponse)(nil),       // 71: chalk.container.v1.GetContainerSnapshotResponse
-	(*ListContainerSnapshotsRequest)(nil),      // 72: chalk.container.v1.ListContainerSnapshotsRequest
-	(*ListContainerSnapshotsResponse)(nil),     // 73: chalk.container.v1.ListContainerSnapshotsResponse
-	(*ContainerTTYInput)(nil),                  // 74: chalk.container.v1.ContainerTTYInput
-	(*ContainerTerminalSize)(nil),              // 75: chalk.container.v1.ContainerTerminalSize
-	(*CreateContainerDebugTTYRequest)(nil),     // 76: chalk.container.v1.CreateContainerDebugTTYRequest
-	(*ContainerDebugTTYInitRequest)(nil),       // 77: chalk.container.v1.ContainerDebugTTYInitRequest
-	(*CreateContainerDebugTTYResponse)(nil),    // 78: chalk.container.v1.CreateContainerDebugTTYResponse
-	(*ChalkWorkloadIdentity)(nil),              // 79: chalk.container.v1.ChalkWorkloadIdentity
-	nil,                                        // 80: chalk.container.v1.SecretRef.AliasesEntry
-	nil,                                        // 81: chalk.container.v1.ChalkContainerSpec.TagsEntry
-	nil,                                        // 82: chalk.container.v1.ChalkContainerSpec.EnvVarsEntry
-	nil,                                        // 83: chalk.container.v1.NetworkPolicy.AllowedHostsEntry
-	nil,                                        // 84: chalk.container.v1.NetworkTransformer.HeadersEntry
-	nil,                                        // 85: chalk.container.v1.NetworkTransformer.HeadersSecretsEntry
-	nil,                                        // 86: chalk.container.v1.NewProcess.EnvEntry
-	(*durationpb.Duration)(nil),                // 87: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),              // 88: google.protobuf.Timestamp
+	(*ManagedSshDestination)(nil),              // 8: chalk.container.v1.ManagedSshDestination
+	(*ChalkContainerSpec)(nil),                 // 9: chalk.container.v1.ChalkContainerSpec
+	(*StartupProbe)(nil),                       // 10: chalk.container.v1.StartupProbe
+	(*HttpProbe)(nil),                          // 11: chalk.container.v1.HttpProbe
+	(*GrpcProbe)(nil),                          // 12: chalk.container.v1.GrpcProbe
+	(*ReadinessProbe)(nil),                     // 13: chalk.container.v1.ReadinessProbe
+	(*GrpcHealthProbe)(nil),                    // 14: chalk.container.v1.GrpcHealthProbe
+	(*ContainerSecurityPolicy)(nil),            // 15: chalk.container.v1.ContainerSecurityPolicy
+	(*NetworkPolicy)(nil),                      // 16: chalk.container.v1.NetworkPolicy
+	(*AllowedRoute)(nil),                       // 17: chalk.container.v1.AllowedRoute
+	(*PortRange)(nil),                          // 18: chalk.container.v1.PortRange
+	(*NetworkPolicyRuleList)(nil),              // 19: chalk.container.v1.NetworkPolicyRuleList
+	(*NetworkPolicyRule)(nil),                  // 20: chalk.container.v1.NetworkPolicyRule
+	(*NetworkTransformer)(nil),                 // 21: chalk.container.v1.NetworkTransformer
+	(*NetworkPolicyMatch)(nil),                 // 22: chalk.container.v1.NetworkPolicyMatch
+	(*NetworkPolicyKeyValueMatcher)(nil),       // 23: chalk.container.v1.NetworkPolicyKeyValueMatcher
+	(*NetworkPolicyMatcher)(nil),               // 24: chalk.container.v1.NetworkPolicyMatcher
+	(*ContainerRequest)(nil),                   // 25: chalk.container.v1.ContainerRequest
+	(*HealthCheck)(nil),                        // 26: chalk.container.v1.HealthCheck
+	(*ContainerResponse)(nil),                  // 27: chalk.container.v1.ContainerResponse
+	(*RunContainerRequest)(nil),                // 28: chalk.container.v1.RunContainerRequest
+	(*RunContainerResponse)(nil),               // 29: chalk.container.v1.RunContainerResponse
+	(*StopContainerRequest)(nil),               // 30: chalk.container.v1.StopContainerRequest
+	(*StopContainerResponse)(nil),              // 31: chalk.container.v1.StopContainerResponse
+	(*GetContainerRequest)(nil),                // 32: chalk.container.v1.GetContainerRequest
+	(*GetContainerResponse)(nil),               // 33: chalk.container.v1.GetContainerResponse
+	(*ListContainersRequest)(nil),              // 34: chalk.container.v1.ListContainersRequest
+	(*ListContainersResponse)(nil),             // 35: chalk.container.v1.ListContainersResponse
+	(*ExecCommandRequest)(nil),                 // 36: chalk.container.v1.ExecCommandRequest
+	(*ExecCommandResponse)(nil),                // 37: chalk.container.v1.ExecCommandResponse
+	(*SessionRequest)(nil),                     // 38: chalk.container.v1.SessionRequest
+	(*SessionResponse)(nil),                    // 39: chalk.container.v1.SessionResponse
+	(*SessionError)(nil),                       // 40: chalk.container.v1.SessionError
+	(*NewProcess)(nil),                         // 41: chalk.container.v1.NewProcess
+	(*PtyInfo)(nil),                            // 42: chalk.container.v1.PtyInfo
+	(*AttachSession)(nil),                      // 43: chalk.container.v1.AttachSession
+	(*SessionAttached)(nil),                    // 44: chalk.container.v1.SessionAttached
+	(*DetachSession)(nil),                      // 45: chalk.container.v1.DetachSession
+	(*SessionDetached)(nil),                    // 46: chalk.container.v1.SessionDetached
+	(*StdinData)(nil),                          // 47: chalk.container.v1.StdinData
+	(*StdinEof)(nil),                           // 48: chalk.container.v1.StdinEof
+	(*SessionSignal)(nil),                      // 49: chalk.container.v1.SessionSignal
+	(*OutputData)(nil),                         // 50: chalk.container.v1.OutputData
+	(*GetProcessStatus)(nil),                   // 51: chalk.container.v1.GetProcessStatus
+	(*ProcessStatus)(nil),                      // 52: chalk.container.v1.ProcessStatus
+	(*ProcessExited)(nil),                      // 53: chalk.container.v1.ProcessExited
+	(*ProcessFailed)(nil),                      // 54: chalk.container.v1.ProcessFailed
+	(*ProcessTimedOut)(nil),                    // 55: chalk.container.v1.ProcessTimedOut
+	(*SessionInfo)(nil),                        // 56: chalk.container.v1.SessionInfo
+	(*GetSessionRequest)(nil),                  // 57: chalk.container.v1.GetSessionRequest
+	(*GetSessionResponse)(nil),                 // 58: chalk.container.v1.GetSessionResponse
+	(*ListSessionsRequest)(nil),                // 59: chalk.container.v1.ListSessionsRequest
+	(*ListSessionsResponse)(nil),               // 60: chalk.container.v1.ListSessionsResponse
+	(*ContainerHostInfo)(nil),                  // 61: chalk.container.v1.ContainerHostInfo
+	(*UpdateContainerStatusRequest)(nil),       // 62: chalk.container.v1.UpdateContainerStatusRequest
+	(*UpdateContainerStatusResponse)(nil),      // 63: chalk.container.v1.UpdateContainerStatusResponse
+	(*BatchUpdateContainerStatusRequest)(nil),  // 64: chalk.container.v1.BatchUpdateContainerStatusRequest
+	(*BatchUpdateContainerStatusResponse)(nil), // 65: chalk.container.v1.BatchUpdateContainerStatusResponse
+	(*GKEPodSnapshot)(nil),                     // 66: chalk.container.v1.GKEPodSnapshot
+	(*ContainerSnapshotSpec)(nil),              // 67: chalk.container.v1.ContainerSnapshotSpec
+	(*ContainerSnapshot)(nil),                  // 68: chalk.container.v1.ContainerSnapshot
+	(*SnapshotContainerRequest)(nil),           // 69: chalk.container.v1.SnapshotContainerRequest
+	(*SnapshotContainerResponse)(nil),          // 70: chalk.container.v1.SnapshotContainerResponse
+	(*GetContainerSnapshotRequest)(nil),        // 71: chalk.container.v1.GetContainerSnapshotRequest
+	(*GetContainerSnapshotResponse)(nil),       // 72: chalk.container.v1.GetContainerSnapshotResponse
+	(*ListContainerSnapshotsRequest)(nil),      // 73: chalk.container.v1.ListContainerSnapshotsRequest
+	(*ListContainerSnapshotsResponse)(nil),     // 74: chalk.container.v1.ListContainerSnapshotsResponse
+	(*ContainerTTYInput)(nil),                  // 75: chalk.container.v1.ContainerTTYInput
+	(*ContainerTerminalSize)(nil),              // 76: chalk.container.v1.ContainerTerminalSize
+	(*CreateContainerDebugTTYRequest)(nil),     // 77: chalk.container.v1.CreateContainerDebugTTYRequest
+	(*ContainerDebugTTYInitRequest)(nil),       // 78: chalk.container.v1.ContainerDebugTTYInitRequest
+	(*CreateContainerDebugTTYResponse)(nil),    // 79: chalk.container.v1.CreateContainerDebugTTYResponse
+	(*ChalkWorkloadIdentity)(nil),              // 80: chalk.container.v1.ChalkWorkloadIdentity
+	nil,                                        // 81: chalk.container.v1.SecretRef.AliasesEntry
+	nil,                                        // 82: chalk.container.v1.ChalkContainerSpec.TagsEntry
+	nil,                                        // 83: chalk.container.v1.ChalkContainerSpec.EnvVarsEntry
+	nil,                                        // 84: chalk.container.v1.ChalkContainerSpec.ManagedSshEntry
+	nil,                                        // 85: chalk.container.v1.NetworkPolicy.AllowedHostsEntry
+	nil,                                        // 86: chalk.container.v1.NetworkTransformer.HeadersEntry
+	nil,                                        // 87: chalk.container.v1.NetworkTransformer.HeadersSecretsEntry
+	nil,                                        // 88: chalk.container.v1.NewProcess.EnvEntry
+	(*durationpb.Duration)(nil),                // 89: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil),              // 90: google.protobuf.Timestamp
 }
 var file_chalk_container_v1_service_proto_depIdxs = []int32{
-	80, // 0: chalk.container.v1.SecretRef.aliases:type_name -> chalk.container.v1.SecretRef.AliasesEntry
-	81, // 1: chalk.container.v1.ChalkContainerSpec.tags:type_name -> chalk.container.v1.ChalkContainerSpec.TagsEntry
-	87, // 2: chalk.container.v1.ChalkContainerSpec.lifetime:type_name -> google.protobuf.Duration
+	81, // 0: chalk.container.v1.SecretRef.aliases:type_name -> chalk.container.v1.SecretRef.AliasesEntry
+	82, // 1: chalk.container.v1.ChalkContainerSpec.tags:type_name -> chalk.container.v1.ChalkContainerSpec.TagsEntry
+	89, // 2: chalk.container.v1.ChalkContainerSpec.lifetime:type_name -> google.protobuf.Duration
 	5,  // 3: chalk.container.v1.ChalkContainerSpec.resources:type_name -> chalk.container.v1.ResourceLimits
-	82, // 4: chalk.container.v1.ChalkContainerSpec.env_vars:type_name -> chalk.container.v1.ChalkContainerSpec.EnvVarsEntry
+	83, // 4: chalk.container.v1.ChalkContainerSpec.env_vars:type_name -> chalk.container.v1.ChalkContainerSpec.EnvVarsEntry
 	6,  // 5: chalk.container.v1.ChalkContainerSpec.volumes:type_name -> chalk.container.v1.VolumeMount
 	7,  // 6: chalk.container.v1.ChalkContainerSpec.secret_refs:type_name -> chalk.container.v1.SecretRef
-	14, // 7: chalk.container.v1.ChalkContainerSpec.security_policy:type_name -> chalk.container.v1.ContainerSecurityPolicy
-	15, // 8: chalk.container.v1.ChalkContainerSpec.network_policy:type_name -> chalk.container.v1.NetworkPolicy
+	15, // 7: chalk.container.v1.ChalkContainerSpec.security_policy:type_name -> chalk.container.v1.ContainerSecurityPolicy
+	16, // 8: chalk.container.v1.ChalkContainerSpec.network_policy:type_name -> chalk.container.v1.NetworkPolicy
 	0,  // 9: chalk.container.v1.ChalkContainerSpec.compute_class:type_name -> chalk.container.v1.ComputeClass
-	9,  // 10: chalk.container.v1.ChalkContainerSpec.startup_probe:type_name -> chalk.container.v1.StartupProbe
-	12, // 11: chalk.container.v1.ChalkContainerSpec.readiness_probe:type_name -> chalk.container.v1.ReadinessProbe
+	10, // 10: chalk.container.v1.ChalkContainerSpec.startup_probe:type_name -> chalk.container.v1.StartupProbe
+	13, // 11: chalk.container.v1.ChalkContainerSpec.readiness_probe:type_name -> chalk.container.v1.ReadinessProbe
 	1,  // 12: chalk.container.v1.ChalkContainerSpec.restart_policy:type_name -> chalk.container.v1.RestartPolicy
-	79, // 13: chalk.container.v1.ChalkContainerSpec.chalk_workload_identity:type_name -> chalk.container.v1.ChalkWorkloadIdentity
-	10, // 14: chalk.container.v1.StartupProbe.http:type_name -> chalk.container.v1.HttpProbe
-	11, // 15: chalk.container.v1.StartupProbe.grpc:type_name -> chalk.container.v1.GrpcProbe
-	10, // 16: chalk.container.v1.ReadinessProbe.http:type_name -> chalk.container.v1.HttpProbe
-	13, // 17: chalk.container.v1.ReadinessProbe.grpc:type_name -> chalk.container.v1.GrpcHealthProbe
-	2,  // 18: chalk.container.v1.ContainerSecurityPolicy.kernel_policy:type_name -> chalk.container.v1.KernelPolicy
-	16, // 19: chalk.container.v1.NetworkPolicy.allowed_routes:type_name -> chalk.container.v1.AllowedRoute
-	83, // 20: chalk.container.v1.NetworkPolicy.allowed_hosts:type_name -> chalk.container.v1.NetworkPolicy.AllowedHostsEntry
-	17, // 21: chalk.container.v1.AllowedRoute.port_ranges:type_name -> chalk.container.v1.PortRange
-	19, // 22: chalk.container.v1.NetworkPolicyRuleList.rules:type_name -> chalk.container.v1.NetworkPolicyRule
-	20, // 23: chalk.container.v1.NetworkPolicyRule.transform:type_name -> chalk.container.v1.NetworkTransformer
-	21, // 24: chalk.container.v1.NetworkPolicyRule.match:type_name -> chalk.container.v1.NetworkPolicyMatch
-	84, // 25: chalk.container.v1.NetworkTransformer.headers:type_name -> chalk.container.v1.NetworkTransformer.HeadersEntry
-	85, // 26: chalk.container.v1.NetworkTransformer.headers_secrets:type_name -> chalk.container.v1.NetworkTransformer.HeadersSecretsEntry
-	23, // 27: chalk.container.v1.NetworkPolicyMatch.path:type_name -> chalk.container.v1.NetworkPolicyMatcher
-	22, // 28: chalk.container.v1.NetworkPolicyMatch.query_string:type_name -> chalk.container.v1.NetworkPolicyKeyValueMatcher
-	22, // 29: chalk.container.v1.NetworkPolicyMatch.headers:type_name -> chalk.container.v1.NetworkPolicyKeyValueMatcher
-	23, // 30: chalk.container.v1.NetworkPolicyKeyValueMatcher.key:type_name -> chalk.container.v1.NetworkPolicyMatcher
-	23, // 31: chalk.container.v1.NetworkPolicyKeyValueMatcher.value:type_name -> chalk.container.v1.NetworkPolicyMatcher
-	8,  // 32: chalk.container.v1.ContainerRequest.spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	8,  // 33: chalk.container.v1.ContainerResponse.spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	88, // 34: chalk.container.v1.ContainerResponse.created_at:type_name -> google.protobuf.Timestamp
-	88, // 35: chalk.container.v1.ContainerResponse.stopped_at:type_name -> google.protobuf.Timestamp
-	25, // 36: chalk.container.v1.ContainerResponse.health_check:type_name -> chalk.container.v1.HealthCheck
-	24, // 37: chalk.container.v1.RunContainerRequest.container:type_name -> chalk.container.v1.ContainerRequest
-	26, // 38: chalk.container.v1.RunContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
-	26, // 39: chalk.container.v1.StopContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
-	26, // 40: chalk.container.v1.GetContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
-	26, // 41: chalk.container.v1.ListContainersResponse.containers:type_name -> chalk.container.v1.ContainerResponse
-	87, // 42: chalk.container.v1.ExecCommandRequest.timeout:type_name -> google.protobuf.Duration
-	40, // 43: chalk.container.v1.SessionRequest.new_process:type_name -> chalk.container.v1.NewProcess
-	42, // 44: chalk.container.v1.SessionRequest.attach_session:type_name -> chalk.container.v1.AttachSession
-	44, // 45: chalk.container.v1.SessionRequest.detach_session:type_name -> chalk.container.v1.DetachSession
-	46, // 46: chalk.container.v1.SessionRequest.stdin_data:type_name -> chalk.container.v1.StdinData
-	47, // 47: chalk.container.v1.SessionRequest.stdin_eof:type_name -> chalk.container.v1.StdinEof
-	48, // 48: chalk.container.v1.SessionRequest.signal:type_name -> chalk.container.v1.SessionSignal
-	41, // 49: chalk.container.v1.SessionRequest.pty_info:type_name -> chalk.container.v1.PtyInfo
-	50, // 50: chalk.container.v1.SessionRequest.get_process_status:type_name -> chalk.container.v1.GetProcessStatus
-	39, // 51: chalk.container.v1.SessionResponse.error:type_name -> chalk.container.v1.SessionError
-	43, // 52: chalk.container.v1.SessionResponse.session_attached:type_name -> chalk.container.v1.SessionAttached
-	49, // 53: chalk.container.v1.SessionResponse.output_data:type_name -> chalk.container.v1.OutputData
-	51, // 54: chalk.container.v1.SessionResponse.process_status:type_name -> chalk.container.v1.ProcessStatus
-	52, // 55: chalk.container.v1.SessionResponse.process_exited:type_name -> chalk.container.v1.ProcessExited
-	45, // 56: chalk.container.v1.SessionResponse.session_detached:type_name -> chalk.container.v1.SessionDetached
-	53, // 57: chalk.container.v1.SessionResponse.process_failed:type_name -> chalk.container.v1.ProcessFailed
-	54, // 58: chalk.container.v1.SessionResponse.process_timed_out:type_name -> chalk.container.v1.ProcessTimedOut
-	86, // 59: chalk.container.v1.NewProcess.env:type_name -> chalk.container.v1.NewProcess.EnvEntry
-	41, // 60: chalk.container.v1.NewProcess.pty_info:type_name -> chalk.container.v1.PtyInfo
-	41, // 61: chalk.container.v1.AttachSession.pty_info:type_name -> chalk.container.v1.PtyInfo
-	4,  // 62: chalk.container.v1.OutputData.stream:type_name -> chalk.container.v1.OutputData.Stream
-	3,  // 63: chalk.container.v1.ProcessStatus.state:type_name -> chalk.container.v1.ProcessState
-	40, // 64: chalk.container.v1.SessionInfo.new_process:type_name -> chalk.container.v1.NewProcess
-	51, // 65: chalk.container.v1.SessionInfo.process_status:type_name -> chalk.container.v1.ProcessStatus
-	55, // 66: chalk.container.v1.GetSessionResponse.session:type_name -> chalk.container.v1.SessionInfo
-	55, // 67: chalk.container.v1.ListSessionsResponse.sessions:type_name -> chalk.container.v1.SessionInfo
-	60, // 68: chalk.container.v1.UpdateContainerStatusRequest.host_info:type_name -> chalk.container.v1.ContainerHostInfo
-	26, // 69: chalk.container.v1.UpdateContainerStatusResponse.container:type_name -> chalk.container.v1.ContainerResponse
-	61, // 70: chalk.container.v1.BatchUpdateContainerStatusRequest.updates:type_name -> chalk.container.v1.UpdateContainerStatusRequest
-	65, // 71: chalk.container.v1.ContainerSnapshotSpec.gke_pod_snapshot:type_name -> chalk.container.v1.GKEPodSnapshot
-	8,  // 72: chalk.container.v1.ContainerSnapshot.container_spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	66, // 73: chalk.container.v1.ContainerSnapshot.snapshot_spec:type_name -> chalk.container.v1.ContainerSnapshotSpec
-	88, // 74: chalk.container.v1.ContainerSnapshot.created_at:type_name -> google.protobuf.Timestamp
-	88, // 75: chalk.container.v1.ContainerSnapshot.completed_at:type_name -> google.protobuf.Timestamp
-	67, // 76: chalk.container.v1.SnapshotContainerResponse.snapshot:type_name -> chalk.container.v1.ContainerSnapshot
-	67, // 77: chalk.container.v1.GetContainerSnapshotResponse.snapshot:type_name -> chalk.container.v1.ContainerSnapshot
-	67, // 78: chalk.container.v1.ListContainerSnapshotsResponse.snapshots:type_name -> chalk.container.v1.ContainerSnapshot
-	75, // 79: chalk.container.v1.ContainerTTYInput.resize:type_name -> chalk.container.v1.ContainerTerminalSize
-	77, // 80: chalk.container.v1.CreateContainerDebugTTYRequest.init_request:type_name -> chalk.container.v1.ContainerDebugTTYInitRequest
-	74, // 81: chalk.container.v1.CreateContainerDebugTTYRequest.input:type_name -> chalk.container.v1.ContainerTTYInput
-	18, // 82: chalk.container.v1.NetworkPolicy.AllowedHostsEntry.value:type_name -> chalk.container.v1.NetworkPolicyRuleList
-	27, // 83: chalk.container.v1.ContainerService.RunContainer:input_type -> chalk.container.v1.RunContainerRequest
-	29, // 84: chalk.container.v1.ContainerService.StopContainer:input_type -> chalk.container.v1.StopContainerRequest
-	31, // 85: chalk.container.v1.ContainerService.GetContainer:input_type -> chalk.container.v1.GetContainerRequest
-	33, // 86: chalk.container.v1.ContainerService.ListContainers:input_type -> chalk.container.v1.ListContainersRequest
-	35, // 87: chalk.container.v1.ContainerService.ExecCommand:input_type -> chalk.container.v1.ExecCommandRequest
-	37, // 88: chalk.container.v1.ContainerService.Session:input_type -> chalk.container.v1.SessionRequest
-	56, // 89: chalk.container.v1.ContainerService.GetSession:input_type -> chalk.container.v1.GetSessionRequest
-	58, // 90: chalk.container.v1.ContainerService.ListSessions:input_type -> chalk.container.v1.ListSessionsRequest
-	61, // 91: chalk.container.v1.ContainerService.UpdateContainerStatus:input_type -> chalk.container.v1.UpdateContainerStatusRequest
-	63, // 92: chalk.container.v1.ContainerService.BatchUpdateContainerStatus:input_type -> chalk.container.v1.BatchUpdateContainerStatusRequest
-	68, // 93: chalk.container.v1.ContainerService.SnapshotContainer:input_type -> chalk.container.v1.SnapshotContainerRequest
-	70, // 94: chalk.container.v1.ContainerService.GetContainerSnapshot:input_type -> chalk.container.v1.GetContainerSnapshotRequest
-	72, // 95: chalk.container.v1.ContainerService.ListContainerSnapshots:input_type -> chalk.container.v1.ListContainerSnapshotsRequest
-	76, // 96: chalk.container.v1.ContainerService.CreateContainerDebugTTY:input_type -> chalk.container.v1.CreateContainerDebugTTYRequest
-	28, // 97: chalk.container.v1.ContainerService.RunContainer:output_type -> chalk.container.v1.RunContainerResponse
-	30, // 98: chalk.container.v1.ContainerService.StopContainer:output_type -> chalk.container.v1.StopContainerResponse
-	32, // 99: chalk.container.v1.ContainerService.GetContainer:output_type -> chalk.container.v1.GetContainerResponse
-	34, // 100: chalk.container.v1.ContainerService.ListContainers:output_type -> chalk.container.v1.ListContainersResponse
-	36, // 101: chalk.container.v1.ContainerService.ExecCommand:output_type -> chalk.container.v1.ExecCommandResponse
-	38, // 102: chalk.container.v1.ContainerService.Session:output_type -> chalk.container.v1.SessionResponse
-	57, // 103: chalk.container.v1.ContainerService.GetSession:output_type -> chalk.container.v1.GetSessionResponse
-	59, // 104: chalk.container.v1.ContainerService.ListSessions:output_type -> chalk.container.v1.ListSessionsResponse
-	62, // 105: chalk.container.v1.ContainerService.UpdateContainerStatus:output_type -> chalk.container.v1.UpdateContainerStatusResponse
-	64, // 106: chalk.container.v1.ContainerService.BatchUpdateContainerStatus:output_type -> chalk.container.v1.BatchUpdateContainerStatusResponse
-	69, // 107: chalk.container.v1.ContainerService.SnapshotContainer:output_type -> chalk.container.v1.SnapshotContainerResponse
-	71, // 108: chalk.container.v1.ContainerService.GetContainerSnapshot:output_type -> chalk.container.v1.GetContainerSnapshotResponse
-	73, // 109: chalk.container.v1.ContainerService.ListContainerSnapshots:output_type -> chalk.container.v1.ListContainerSnapshotsResponse
-	78, // 110: chalk.container.v1.ContainerService.CreateContainerDebugTTY:output_type -> chalk.container.v1.CreateContainerDebugTTYResponse
-	97, // [97:111] is the sub-list for method output_type
-	83, // [83:97] is the sub-list for method input_type
-	83, // [83:83] is the sub-list for extension type_name
-	83, // [83:83] is the sub-list for extension extendee
-	0,  // [0:83] is the sub-list for field type_name
+	80, // 13: chalk.container.v1.ChalkContainerSpec.chalk_workload_identity:type_name -> chalk.container.v1.ChalkWorkloadIdentity
+	84, // 14: chalk.container.v1.ChalkContainerSpec.managed_ssh:type_name -> chalk.container.v1.ChalkContainerSpec.ManagedSshEntry
+	11, // 15: chalk.container.v1.StartupProbe.http:type_name -> chalk.container.v1.HttpProbe
+	12, // 16: chalk.container.v1.StartupProbe.grpc:type_name -> chalk.container.v1.GrpcProbe
+	11, // 17: chalk.container.v1.ReadinessProbe.http:type_name -> chalk.container.v1.HttpProbe
+	14, // 18: chalk.container.v1.ReadinessProbe.grpc:type_name -> chalk.container.v1.GrpcHealthProbe
+	2,  // 19: chalk.container.v1.ContainerSecurityPolicy.kernel_policy:type_name -> chalk.container.v1.KernelPolicy
+	17, // 20: chalk.container.v1.NetworkPolicy.allowed_routes:type_name -> chalk.container.v1.AllowedRoute
+	85, // 21: chalk.container.v1.NetworkPolicy.allowed_hosts:type_name -> chalk.container.v1.NetworkPolicy.AllowedHostsEntry
+	18, // 22: chalk.container.v1.AllowedRoute.port_ranges:type_name -> chalk.container.v1.PortRange
+	20, // 23: chalk.container.v1.NetworkPolicyRuleList.rules:type_name -> chalk.container.v1.NetworkPolicyRule
+	21, // 24: chalk.container.v1.NetworkPolicyRule.transform:type_name -> chalk.container.v1.NetworkTransformer
+	22, // 25: chalk.container.v1.NetworkPolicyRule.match:type_name -> chalk.container.v1.NetworkPolicyMatch
+	86, // 26: chalk.container.v1.NetworkTransformer.headers:type_name -> chalk.container.v1.NetworkTransformer.HeadersEntry
+	87, // 27: chalk.container.v1.NetworkTransformer.headers_secrets:type_name -> chalk.container.v1.NetworkTransformer.HeadersSecretsEntry
+	24, // 28: chalk.container.v1.NetworkPolicyMatch.path:type_name -> chalk.container.v1.NetworkPolicyMatcher
+	23, // 29: chalk.container.v1.NetworkPolicyMatch.query_string:type_name -> chalk.container.v1.NetworkPolicyKeyValueMatcher
+	23, // 30: chalk.container.v1.NetworkPolicyMatch.headers:type_name -> chalk.container.v1.NetworkPolicyKeyValueMatcher
+	24, // 31: chalk.container.v1.NetworkPolicyKeyValueMatcher.key:type_name -> chalk.container.v1.NetworkPolicyMatcher
+	24, // 32: chalk.container.v1.NetworkPolicyKeyValueMatcher.value:type_name -> chalk.container.v1.NetworkPolicyMatcher
+	9,  // 33: chalk.container.v1.ContainerRequest.spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	9,  // 34: chalk.container.v1.ContainerResponse.spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	90, // 35: chalk.container.v1.ContainerResponse.created_at:type_name -> google.protobuf.Timestamp
+	90, // 36: chalk.container.v1.ContainerResponse.stopped_at:type_name -> google.protobuf.Timestamp
+	26, // 37: chalk.container.v1.ContainerResponse.health_check:type_name -> chalk.container.v1.HealthCheck
+	25, // 38: chalk.container.v1.RunContainerRequest.container:type_name -> chalk.container.v1.ContainerRequest
+	27, // 39: chalk.container.v1.RunContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
+	27, // 40: chalk.container.v1.StopContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
+	27, // 41: chalk.container.v1.GetContainerResponse.container:type_name -> chalk.container.v1.ContainerResponse
+	27, // 42: chalk.container.v1.ListContainersResponse.containers:type_name -> chalk.container.v1.ContainerResponse
+	89, // 43: chalk.container.v1.ExecCommandRequest.timeout:type_name -> google.protobuf.Duration
+	41, // 44: chalk.container.v1.SessionRequest.new_process:type_name -> chalk.container.v1.NewProcess
+	43, // 45: chalk.container.v1.SessionRequest.attach_session:type_name -> chalk.container.v1.AttachSession
+	45, // 46: chalk.container.v1.SessionRequest.detach_session:type_name -> chalk.container.v1.DetachSession
+	47, // 47: chalk.container.v1.SessionRequest.stdin_data:type_name -> chalk.container.v1.StdinData
+	48, // 48: chalk.container.v1.SessionRequest.stdin_eof:type_name -> chalk.container.v1.StdinEof
+	49, // 49: chalk.container.v1.SessionRequest.signal:type_name -> chalk.container.v1.SessionSignal
+	42, // 50: chalk.container.v1.SessionRequest.pty_info:type_name -> chalk.container.v1.PtyInfo
+	51, // 51: chalk.container.v1.SessionRequest.get_process_status:type_name -> chalk.container.v1.GetProcessStatus
+	40, // 52: chalk.container.v1.SessionResponse.error:type_name -> chalk.container.v1.SessionError
+	44, // 53: chalk.container.v1.SessionResponse.session_attached:type_name -> chalk.container.v1.SessionAttached
+	50, // 54: chalk.container.v1.SessionResponse.output_data:type_name -> chalk.container.v1.OutputData
+	52, // 55: chalk.container.v1.SessionResponse.process_status:type_name -> chalk.container.v1.ProcessStatus
+	53, // 56: chalk.container.v1.SessionResponse.process_exited:type_name -> chalk.container.v1.ProcessExited
+	46, // 57: chalk.container.v1.SessionResponse.session_detached:type_name -> chalk.container.v1.SessionDetached
+	54, // 58: chalk.container.v1.SessionResponse.process_failed:type_name -> chalk.container.v1.ProcessFailed
+	55, // 59: chalk.container.v1.SessionResponse.process_timed_out:type_name -> chalk.container.v1.ProcessTimedOut
+	88, // 60: chalk.container.v1.NewProcess.env:type_name -> chalk.container.v1.NewProcess.EnvEntry
+	42, // 61: chalk.container.v1.NewProcess.pty_info:type_name -> chalk.container.v1.PtyInfo
+	42, // 62: chalk.container.v1.AttachSession.pty_info:type_name -> chalk.container.v1.PtyInfo
+	4,  // 63: chalk.container.v1.OutputData.stream:type_name -> chalk.container.v1.OutputData.Stream
+	3,  // 64: chalk.container.v1.ProcessStatus.state:type_name -> chalk.container.v1.ProcessState
+	41, // 65: chalk.container.v1.SessionInfo.new_process:type_name -> chalk.container.v1.NewProcess
+	52, // 66: chalk.container.v1.SessionInfo.process_status:type_name -> chalk.container.v1.ProcessStatus
+	56, // 67: chalk.container.v1.GetSessionResponse.session:type_name -> chalk.container.v1.SessionInfo
+	56, // 68: chalk.container.v1.ListSessionsResponse.sessions:type_name -> chalk.container.v1.SessionInfo
+	61, // 69: chalk.container.v1.UpdateContainerStatusRequest.host_info:type_name -> chalk.container.v1.ContainerHostInfo
+	27, // 70: chalk.container.v1.UpdateContainerStatusResponse.container:type_name -> chalk.container.v1.ContainerResponse
+	62, // 71: chalk.container.v1.BatchUpdateContainerStatusRequest.updates:type_name -> chalk.container.v1.UpdateContainerStatusRequest
+	66, // 72: chalk.container.v1.ContainerSnapshotSpec.gke_pod_snapshot:type_name -> chalk.container.v1.GKEPodSnapshot
+	9,  // 73: chalk.container.v1.ContainerSnapshot.container_spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	67, // 74: chalk.container.v1.ContainerSnapshot.snapshot_spec:type_name -> chalk.container.v1.ContainerSnapshotSpec
+	90, // 75: chalk.container.v1.ContainerSnapshot.created_at:type_name -> google.protobuf.Timestamp
+	90, // 76: chalk.container.v1.ContainerSnapshot.completed_at:type_name -> google.protobuf.Timestamp
+	68, // 77: chalk.container.v1.SnapshotContainerResponse.snapshot:type_name -> chalk.container.v1.ContainerSnapshot
+	68, // 78: chalk.container.v1.GetContainerSnapshotResponse.snapshot:type_name -> chalk.container.v1.ContainerSnapshot
+	68, // 79: chalk.container.v1.ListContainerSnapshotsResponse.snapshots:type_name -> chalk.container.v1.ContainerSnapshot
+	76, // 80: chalk.container.v1.ContainerTTYInput.resize:type_name -> chalk.container.v1.ContainerTerminalSize
+	78, // 81: chalk.container.v1.CreateContainerDebugTTYRequest.init_request:type_name -> chalk.container.v1.ContainerDebugTTYInitRequest
+	75, // 82: chalk.container.v1.CreateContainerDebugTTYRequest.input:type_name -> chalk.container.v1.ContainerTTYInput
+	8,  // 83: chalk.container.v1.ChalkContainerSpec.ManagedSshEntry.value:type_name -> chalk.container.v1.ManagedSshDestination
+	19, // 84: chalk.container.v1.NetworkPolicy.AllowedHostsEntry.value:type_name -> chalk.container.v1.NetworkPolicyRuleList
+	28, // 85: chalk.container.v1.ContainerService.RunContainer:input_type -> chalk.container.v1.RunContainerRequest
+	30, // 86: chalk.container.v1.ContainerService.StopContainer:input_type -> chalk.container.v1.StopContainerRequest
+	32, // 87: chalk.container.v1.ContainerService.GetContainer:input_type -> chalk.container.v1.GetContainerRequest
+	34, // 88: chalk.container.v1.ContainerService.ListContainers:input_type -> chalk.container.v1.ListContainersRequest
+	36, // 89: chalk.container.v1.ContainerService.ExecCommand:input_type -> chalk.container.v1.ExecCommandRequest
+	38, // 90: chalk.container.v1.ContainerService.Session:input_type -> chalk.container.v1.SessionRequest
+	57, // 91: chalk.container.v1.ContainerService.GetSession:input_type -> chalk.container.v1.GetSessionRequest
+	59, // 92: chalk.container.v1.ContainerService.ListSessions:input_type -> chalk.container.v1.ListSessionsRequest
+	62, // 93: chalk.container.v1.ContainerService.UpdateContainerStatus:input_type -> chalk.container.v1.UpdateContainerStatusRequest
+	64, // 94: chalk.container.v1.ContainerService.BatchUpdateContainerStatus:input_type -> chalk.container.v1.BatchUpdateContainerStatusRequest
+	69, // 95: chalk.container.v1.ContainerService.SnapshotContainer:input_type -> chalk.container.v1.SnapshotContainerRequest
+	71, // 96: chalk.container.v1.ContainerService.GetContainerSnapshot:input_type -> chalk.container.v1.GetContainerSnapshotRequest
+	73, // 97: chalk.container.v1.ContainerService.ListContainerSnapshots:input_type -> chalk.container.v1.ListContainerSnapshotsRequest
+	77, // 98: chalk.container.v1.ContainerService.CreateContainerDebugTTY:input_type -> chalk.container.v1.CreateContainerDebugTTYRequest
+	29, // 99: chalk.container.v1.ContainerService.RunContainer:output_type -> chalk.container.v1.RunContainerResponse
+	31, // 100: chalk.container.v1.ContainerService.StopContainer:output_type -> chalk.container.v1.StopContainerResponse
+	33, // 101: chalk.container.v1.ContainerService.GetContainer:output_type -> chalk.container.v1.GetContainerResponse
+	35, // 102: chalk.container.v1.ContainerService.ListContainers:output_type -> chalk.container.v1.ListContainersResponse
+	37, // 103: chalk.container.v1.ContainerService.ExecCommand:output_type -> chalk.container.v1.ExecCommandResponse
+	39, // 104: chalk.container.v1.ContainerService.Session:output_type -> chalk.container.v1.SessionResponse
+	58, // 105: chalk.container.v1.ContainerService.GetSession:output_type -> chalk.container.v1.GetSessionResponse
+	60, // 106: chalk.container.v1.ContainerService.ListSessions:output_type -> chalk.container.v1.ListSessionsResponse
+	63, // 107: chalk.container.v1.ContainerService.UpdateContainerStatus:output_type -> chalk.container.v1.UpdateContainerStatusResponse
+	65, // 108: chalk.container.v1.ContainerService.BatchUpdateContainerStatus:output_type -> chalk.container.v1.BatchUpdateContainerStatusResponse
+	70, // 109: chalk.container.v1.ContainerService.SnapshotContainer:output_type -> chalk.container.v1.SnapshotContainerResponse
+	72, // 110: chalk.container.v1.ContainerService.GetContainerSnapshot:output_type -> chalk.container.v1.GetContainerSnapshotResponse
+	74, // 111: chalk.container.v1.ContainerService.ListContainerSnapshots:output_type -> chalk.container.v1.ListContainerSnapshotsResponse
+	79, // 112: chalk.container.v1.ContainerService.CreateContainerDebugTTY:output_type -> chalk.container.v1.CreateContainerDebugTTYResponse
+	99, // [99:113] is the sub-list for method output_type
+	85, // [85:99] is the sub-list for method input_type
+	85, // [85:85] is the sub-list for extension type_name
+	85, // [85:85] is the sub-list for extension extendee
+	0,  // [0:85] is the sub-list for field type_name
 }
 
 func init() { file_chalk_container_v1_service_proto_init() }
@@ -5881,34 +5990,35 @@ func file_chalk_container_v1_service_proto_init() {
 		(*SecretRef_SecretName)(nil),
 	}
 	file_chalk_container_v1_service_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[4].OneofWrappers = []any{
+	file_chalk_container_v1_service_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[5].OneofWrappers = []any{
 		(*StartupProbe_Http)(nil),
 		(*StartupProbe_Grpc)(nil),
 	}
-	file_chalk_container_v1_service_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[6].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[7].OneofWrappers = []any{
+	file_chalk_container_v1_service_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[8].OneofWrappers = []any{
 		(*ReadinessProbe_Http)(nil),
 		(*ReadinessProbe_Grpc)(nil),
 	}
-	file_chalk_container_v1_service_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[9].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[14].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[17].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[18].OneofWrappers = []any{
+	file_chalk_container_v1_service_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[19].OneofWrappers = []any{
 		(*NetworkPolicyMatcher_Exact)(nil),
 		(*NetworkPolicyMatcher_StartsWith)(nil),
 		(*NetworkPolicyMatcher_Regex)(nil),
 	}
-	file_chalk_container_v1_service_proto_msgTypes[20].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[21].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[24].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[26].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[28].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[25].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[27].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[29].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[30].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[32].OneofWrappers = []any{
+	file_chalk_container_v1_service_proto_msgTypes[31].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[33].OneofWrappers = []any{
 		(*SessionRequest_NewProcess)(nil),
 		(*SessionRequest_AttachSession)(nil),
 		(*SessionRequest_DetachSession)(nil),
@@ -5918,7 +6028,7 @@ func file_chalk_container_v1_service_proto_init() {
 		(*SessionRequest_PtyInfo)(nil),
 		(*SessionRequest_GetProcessStatus)(nil),
 	}
-	file_chalk_container_v1_service_proto_msgTypes[33].OneofWrappers = []any{
+	file_chalk_container_v1_service_proto_msgTypes[34].OneofWrappers = []any{
 		(*SessionResponse_Error)(nil),
 		(*SessionResponse_SessionAttached)(nil),
 		(*SessionResponse_OutputData)(nil),
@@ -5928,33 +6038,33 @@ func file_chalk_container_v1_service_proto_init() {
 		(*SessionResponse_ProcessFailed)(nil),
 		(*SessionResponse_ProcessTimedOut)(nil),
 	}
-	file_chalk_container_v1_service_proto_msgTypes[35].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[37].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[46].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[38].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[47].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[49].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[56].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[61].OneofWrappers = []any{
+	file_chalk_container_v1_service_proto_msgTypes[48].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[50].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[57].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[62].OneofWrappers = []any{
 		(*ContainerSnapshotSpec_GkePodSnapshot)(nil),
 	}
-	file_chalk_container_v1_service_proto_msgTypes[62].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[63].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[67].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[64].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[68].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[69].OneofWrappers = []any{}
-	file_chalk_container_v1_service_proto_msgTypes[71].OneofWrappers = []any{
+	file_chalk_container_v1_service_proto_msgTypes[70].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[72].OneofWrappers = []any{
 		(*CreateContainerDebugTTYRequest_InitRequest)(nil),
 		(*CreateContainerDebugTTYRequest_Input)(nil),
 	}
-	file_chalk_container_v1_service_proto_msgTypes[72].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[73].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[74].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_container_v1_service_proto_rawDesc), len(file_chalk_container_v1_service_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   82,
+			NumMessages:   84,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

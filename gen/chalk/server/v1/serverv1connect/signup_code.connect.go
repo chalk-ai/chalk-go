@@ -48,6 +48,9 @@ const (
 	// SignupCodeServiceGetSignupCodeRedemptionStatusProcedure is the fully-qualified name of the
 	// SignupCodeService's GetSignupCodeRedemptionStatus RPC.
 	SignupCodeServiceGetSignupCodeRedemptionStatusProcedure = "/chalk.server.v1.SignupCodeService/GetSignupCodeRedemptionStatus"
+	// SignupCodeServicePreviewSignupCodeProcedure is the fully-qualified name of the
+	// SignupCodeService's PreviewSignupCode RPC.
+	SignupCodeServicePreviewSignupCodeProcedure = "/chalk.server.v1.SignupCodeService/PreviewSignupCode"
 )
 
 // SignupCodeServiceClient is a client for the chalk.server.v1.SignupCodeService service.
@@ -57,6 +60,22 @@ type SignupCodeServiceClient interface {
 	RevokeSignupCode(context.Context, *connect.Request[v1.RevokeSignupCodeRequest]) (*connect.Response[v1.RevokeSignupCodeResponse], error)
 	RedeemSignupCode(context.Context, *connect.Request[v1.RedeemSignupCodeRequest]) (*connect.Response[v1.RedeemSignupCodeResponse], error)
 	GetSignupCodeRedemptionStatus(context.Context, *connect.Request[v1.GetSignupCodeRedemptionStatusRequest]) (*connect.Response[v1.GetSignupCodeRedemptionStatusResponse], error)
+	// Read-only lookup behind the invite landing page: given a code, say whether it is
+	// still redeemable and hand back its greeting, so a recipient sees "you've been
+	// invited" (or "this link is spent") *before* signing in rather than after.
+	//
+	// This is why an invite link may carry the code in its URL even though redemption
+	// may not. The exposure is real — the path lands in browser history, in a Referer
+	// header on any outbound link from the page, and in intermediary access logs — and
+	// is accepted because a signup code is single-use, short-lived by default, and
+	// grants nothing but the ability to create an empty team. Do not extend the same
+	// treatment to any other credential.
+	//
+	// Answering "is this code real" is technically an oracle, but not a useful one:
+	// guessing a code costs ~160 bits, so the endpoint can only confirm codes the
+	// caller already holds. Rejections are counted for the same reason redemption
+	// counts them — a burst is the visible signal of someone probing.
+	PreviewSignupCode(context.Context, *connect.Request[v1.PreviewSignupCodeRequest]) (*connect.Response[v1.PreviewSignupCodeResponse], error)
 }
 
 // NewSignupCodeServiceClient constructs a client for the chalk.server.v1.SignupCodeService service.
@@ -102,6 +121,13 @@ func NewSignupCodeServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		previewSignupCode: connect.NewClient[v1.PreviewSignupCodeRequest, v1.PreviewSignupCodeResponse](
+			httpClient,
+			baseURL+SignupCodeServicePreviewSignupCodeProcedure,
+			connect.WithSchema(signupCodeServiceMethods.ByName("PreviewSignupCode")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -112,6 +138,7 @@ type signupCodeServiceClient struct {
 	revokeSignupCode              *connect.Client[v1.RevokeSignupCodeRequest, v1.RevokeSignupCodeResponse]
 	redeemSignupCode              *connect.Client[v1.RedeemSignupCodeRequest, v1.RedeemSignupCodeResponse]
 	getSignupCodeRedemptionStatus *connect.Client[v1.GetSignupCodeRedemptionStatusRequest, v1.GetSignupCodeRedemptionStatusResponse]
+	previewSignupCode             *connect.Client[v1.PreviewSignupCodeRequest, v1.PreviewSignupCodeResponse]
 }
 
 // CreateSignupCode calls chalk.server.v1.SignupCodeService.CreateSignupCode.
@@ -140,6 +167,11 @@ func (c *signupCodeServiceClient) GetSignupCodeRedemptionStatus(ctx context.Cont
 	return c.getSignupCodeRedemptionStatus.CallUnary(ctx, req)
 }
 
+// PreviewSignupCode calls chalk.server.v1.SignupCodeService.PreviewSignupCode.
+func (c *signupCodeServiceClient) PreviewSignupCode(ctx context.Context, req *connect.Request[v1.PreviewSignupCodeRequest]) (*connect.Response[v1.PreviewSignupCodeResponse], error) {
+	return c.previewSignupCode.CallUnary(ctx, req)
+}
+
 // SignupCodeServiceHandler is an implementation of the chalk.server.v1.SignupCodeService service.
 type SignupCodeServiceHandler interface {
 	CreateSignupCode(context.Context, *connect.Request[v1.CreateSignupCodeRequest]) (*connect.Response[v1.CreateSignupCodeResponse], error)
@@ -147,6 +179,22 @@ type SignupCodeServiceHandler interface {
 	RevokeSignupCode(context.Context, *connect.Request[v1.RevokeSignupCodeRequest]) (*connect.Response[v1.RevokeSignupCodeResponse], error)
 	RedeemSignupCode(context.Context, *connect.Request[v1.RedeemSignupCodeRequest]) (*connect.Response[v1.RedeemSignupCodeResponse], error)
 	GetSignupCodeRedemptionStatus(context.Context, *connect.Request[v1.GetSignupCodeRedemptionStatusRequest]) (*connect.Response[v1.GetSignupCodeRedemptionStatusResponse], error)
+	// Read-only lookup behind the invite landing page: given a code, say whether it is
+	// still redeemable and hand back its greeting, so a recipient sees "you've been
+	// invited" (or "this link is spent") *before* signing in rather than after.
+	//
+	// This is why an invite link may carry the code in its URL even though redemption
+	// may not. The exposure is real — the path lands in browser history, in a Referer
+	// header on any outbound link from the page, and in intermediary access logs — and
+	// is accepted because a signup code is single-use, short-lived by default, and
+	// grants nothing but the ability to create an empty team. Do not extend the same
+	// treatment to any other credential.
+	//
+	// Answering "is this code real" is technically an oracle, but not a useful one:
+	// guessing a code costs ~160 bits, so the endpoint can only confirm codes the
+	// caller already holds. Rejections are counted for the same reason redemption
+	// counts them — a burst is the visible signal of someone probing.
+	PreviewSignupCode(context.Context, *connect.Request[v1.PreviewSignupCodeRequest]) (*connect.Response[v1.PreviewSignupCodeResponse], error)
 }
 
 // NewSignupCodeServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -188,6 +236,13 @@ func NewSignupCodeServiceHandler(svc SignupCodeServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	signupCodeServicePreviewSignupCodeHandler := connect.NewUnaryHandler(
+		SignupCodeServicePreviewSignupCodeProcedure,
+		svc.PreviewSignupCode,
+		connect.WithSchema(signupCodeServiceMethods.ByName("PreviewSignupCode")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.SignupCodeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SignupCodeServiceCreateSignupCodeProcedure:
@@ -200,6 +255,8 @@ func NewSignupCodeServiceHandler(svc SignupCodeServiceHandler, opts ...connect.H
 			signupCodeServiceRedeemSignupCodeHandler.ServeHTTP(w, r)
 		case SignupCodeServiceGetSignupCodeRedemptionStatusProcedure:
 			signupCodeServiceGetSignupCodeRedemptionStatusHandler.ServeHTTP(w, r)
+		case SignupCodeServicePreviewSignupCodeProcedure:
+			signupCodeServicePreviewSignupCodeHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -227,4 +284,8 @@ func (UnimplementedSignupCodeServiceHandler) RedeemSignupCode(context.Context, *
 
 func (UnimplementedSignupCodeServiceHandler) GetSignupCodeRedemptionStatus(context.Context, *connect.Request[v1.GetSignupCodeRedemptionStatusRequest]) (*connect.Response[v1.GetSignupCodeRedemptionStatusResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus is not implemented"))
+}
+
+func (UnimplementedSignupCodeServiceHandler) PreviewSignupCode(context.Context, *connect.Request[v1.PreviewSignupCodeRequest]) (*connect.Response[v1.PreviewSignupCodeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SignupCodeService.PreviewSignupCode is not implemented"))
 }

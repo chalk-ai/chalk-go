@@ -1740,6 +1740,8 @@ type RichArgument struct {
 	//	*RichArgument_BatchUdfValue
 	//	*RichArgument_FlatExprValue
 	//	*RichArgument_CanonicalProtoValue
+	//	*RichArgument_CustomPythonValue
+	//	*RichArgument_BlockingFnV2Value
 	//	*RichArgument_ListValue
 	//	*RichArgument_UnorderedDictValue
 	Arg           isRichArgument_Arg `protobuf_oneof:"arg"`
@@ -1849,6 +1851,24 @@ func (x *RichArgument) GetCanonicalProtoValue() *anypb.Any {
 	return nil
 }
 
+func (x *RichArgument) GetCustomPythonValue() *CustomPython {
+	if x != nil {
+		if x, ok := x.Arg.(*RichArgument_CustomPythonValue); ok {
+			return x.CustomPythonValue
+		}
+	}
+	return nil
+}
+
+func (x *RichArgument) GetBlockingFnV2Value() *BlockingFunctionV2 {
+	if x != nil {
+		if x, ok := x.Arg.(*RichArgument_BlockingFnV2Value); ok {
+			return x.BlockingFnV2Value
+		}
+	}
+	return nil
+}
+
 func (x *RichArgument) GetListValue() *RichArgumentList {
 	if x != nil {
 		if x, ok := x.Arg.(*RichArgument_ListValue); ok {
@@ -1908,6 +1928,16 @@ type RichArgument_CanonicalProtoValue struct {
 	CanonicalProtoValue *anypb.Any `protobuf:"bytes,9,opt,name=canonical_proto_value,json=canonicalProtoValue,proto3,oneof"`
 }
 
+type RichArgument_CustomPythonValue struct {
+	CustomPythonValue *CustomPython `protobuf:"bytes,10,opt,name=custom_python_value,json=customPythonValue,proto3,oneof"`
+}
+
+type RichArgument_BlockingFnV2Value struct {
+	// A nested blocking function (e.g. the inner function a DecoratedBlockingFunction wraps),
+	// dispatched through DeserializationContext::blocking_fn_deserializer on the way back.
+	BlockingFnV2Value *BlockingFunctionV2 `protobuf:"bytes,11,opt,name=blocking_fn_v2_value,json=blockingFnV2Value,proto3,oneof"`
+}
+
 type RichArgument_ListValue struct {
 	// Recursive Containers
 	ListValue *RichArgumentList `protobuf:"bytes,4,opt,name=list_value,json=listValue,proto3,oneof"`
@@ -1931,9 +1961,65 @@ func (*RichArgument_FlatExprValue) isRichArgument_Arg() {}
 
 func (*RichArgument_CanonicalProtoValue) isRichArgument_Arg() {}
 
+func (*RichArgument_CustomPythonValue) isRichArgument_Arg() {}
+
+func (*RichArgument_BlockingFnV2Value) isRichArgument_Arg() {}
+
 func (*RichArgument_ListValue) isRichArgument_Arg() {}
 
 func (*RichArgument_UnorderedDictValue) isRichArgument_Arg() {}
+
+type CustomPython struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PyTy          string                 `protobuf:"bytes,1,opt,name=py_ty,json=pyTy,proto3" json:"py_ty,omitempty"`
+	PyEncoding    *anypb.Any             `protobuf:"bytes,2,opt,name=py_encoding,json=pyEncoding,proto3" json:"py_encoding,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CustomPython) Reset() {
+	*x = CustomPython{}
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CustomPython) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CustomPython) ProtoMessage() {}
+
+func (x *CustomPython) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CustomPython.ProtoReflect.Descriptor instead.
+func (*CustomPython) Descriptor() ([]byte, []int) {
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *CustomPython) GetPyTy() string {
+	if x != nil {
+		return x.PyTy
+	}
+	return ""
+}
+
+func (x *CustomPython) GetPyEncoding() *anypb.Any {
+	if x != nil {
+		return x.PyEncoding
+	}
+	return nil
+}
 
 type RichArgumentList struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1944,7 +2030,7 @@ type RichArgumentList struct {
 
 func (x *RichArgumentList) Reset() {
 	*x = RichArgumentList{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[14]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1956,7 +2042,7 @@ func (x *RichArgumentList) String() string {
 func (*RichArgumentList) ProtoMessage() {}
 
 func (x *RichArgumentList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[14]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1969,7 +2055,7 @@ func (x *RichArgumentList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RichArgumentList.ProtoReflect.Descriptor instead.
 func (*RichArgumentList) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{14}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RichArgumentList) GetValues() []*RichArgument {
@@ -1988,7 +2074,7 @@ type RichArgumentUnorderedDict struct {
 
 func (x *RichArgumentUnorderedDict) Reset() {
 	*x = RichArgumentUnorderedDict{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[15]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2000,7 +2086,7 @@ func (x *RichArgumentUnorderedDict) String() string {
 func (*RichArgumentUnorderedDict) ProtoMessage() {}
 
 func (x *RichArgumentUnorderedDict) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[15]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2013,7 +2099,7 @@ func (x *RichArgumentUnorderedDict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RichArgumentUnorderedDict.ProtoReflect.Descriptor instead.
 func (*RichArgumentUnorderedDict) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{15}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *RichArgumentUnorderedDict) GetItems() map[string]*RichArgument {
@@ -2040,7 +2126,7 @@ type BatchUDFArgument struct {
 
 func (x *BatchUDFArgument) Reset() {
 	*x = BatchUDFArgument{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[16]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2052,7 +2138,7 @@ func (x *BatchUDFArgument) String() string {
 func (*BatchUDFArgument) ProtoMessage() {}
 
 func (x *BatchUDFArgument) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[16]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2065,7 +2151,7 @@ func (x *BatchUDFArgument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchUDFArgument.ProtoReflect.Descriptor instead.
 func (*BatchUDFArgument) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{16}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *BatchUDFArgument) GetArg() isBatchUDFArgument_Arg {
@@ -2165,7 +2251,7 @@ type BatchUDFArgumentList struct {
 
 func (x *BatchUDFArgumentList) Reset() {
 	*x = BatchUDFArgumentList{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[17]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2177,7 +2263,7 @@ func (x *BatchUDFArgumentList) String() string {
 func (*BatchUDFArgumentList) ProtoMessage() {}
 
 func (x *BatchUDFArgumentList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[17]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2190,7 +2276,7 @@ func (x *BatchUDFArgumentList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchUDFArgumentList.ProtoReflect.Descriptor instead.
 func (*BatchUDFArgumentList) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{17}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *BatchUDFArgumentList) GetValues() []*BatchUDFArgument {
@@ -2210,7 +2296,7 @@ type BatchUDFUnorderedDict struct {
 
 func (x *BatchUDFUnorderedDict) Reset() {
 	*x = BatchUDFUnorderedDict{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[18]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2222,7 +2308,7 @@ func (x *BatchUDFUnorderedDict) String() string {
 func (*BatchUDFUnorderedDict) ProtoMessage() {}
 
 func (x *BatchUDFUnorderedDict) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[18]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2235,7 +2321,7 @@ func (x *BatchUDFUnorderedDict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchUDFUnorderedDict.ProtoReflect.Descriptor instead.
 func (*BatchUDFUnorderedDict) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{18}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *BatchUDFUnorderedDict) GetItems() map[string]*BatchUDFArgument {
@@ -2263,7 +2349,7 @@ type PyObject struct {
 
 func (x *PyObject) Reset() {
 	*x = PyObject{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[19]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2275,7 +2361,7 @@ func (x *PyObject) String() string {
 func (*PyObject) ProtoMessage() {}
 
 func (x *PyObject) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[19]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2288,7 +2374,7 @@ func (x *PyObject) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyObject.ProtoReflect.Descriptor instead.
 func (*PyObject) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{19}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *PyObject) GetObj() isPyObject_Obj {
@@ -2402,7 +2488,7 @@ type PyObjectV2 struct {
 
 func (x *PyObjectV2) Reset() {
 	*x = PyObjectV2{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[20]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2414,7 +2500,7 @@ func (x *PyObjectV2) String() string {
 func (*PyObjectV2) ProtoMessage() {}
 
 func (x *PyObjectV2) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[20]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2427,7 +2513,7 @@ func (x *PyObjectV2) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyObjectV2.ProtoReflect.Descriptor instead.
 func (*PyObjectV2) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{20}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *PyObjectV2) GetType() PyObjectType {
@@ -2454,7 +2540,7 @@ type PyCallable struct {
 
 func (x *PyCallable) Reset() {
 	*x = PyCallable{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[21]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2466,7 +2552,7 @@ func (x *PyCallable) String() string {
 func (*PyCallable) ProtoMessage() {}
 
 func (x *PyCallable) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[21]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2479,7 +2565,7 @@ func (x *PyCallable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyCallable.ProtoReflect.Descriptor instead.
 func (*PyCallable) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{21}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *PyCallable) GetCallableName() string {
@@ -2499,7 +2585,7 @@ type PyArrowSchema struct {
 
 func (x *PyArrowSchema) Reset() {
 	*x = PyArrowSchema{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[22]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2511,7 +2597,7 @@ func (x *PyArrowSchema) String() string {
 func (*PyArrowSchema) ProtoMessage() {}
 
 func (x *PyArrowSchema) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[22]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2524,7 +2610,7 @@ func (x *PyArrowSchema) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyArrowSchema.ProtoReflect.Descriptor instead.
 func (*PyArrowSchema) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{22}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *PyArrowSchema) GetSchema() *v1.Schema {
@@ -2546,7 +2632,7 @@ type PyCall struct {
 
 func (x *PyCall) Reset() {
 	*x = PyCall{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[23]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2558,7 +2644,7 @@ func (x *PyCall) String() string {
 func (*PyCall) ProtoMessage() {}
 
 func (x *PyCall) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[23]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2571,7 +2657,7 @@ func (x *PyCall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyCall.ProtoReflect.Descriptor instead.
 func (*PyCall) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{23}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *PyCall) GetCallee() *PyObject {
@@ -2611,7 +2697,7 @@ type ExprLiteral struct {
 
 func (x *ExprLiteral) Reset() {
 	*x = ExprLiteral{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[24]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2623,7 +2709,7 @@ func (x *ExprLiteral) String() string {
 func (*ExprLiteral) ProtoMessage() {}
 
 func (x *ExprLiteral) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[24]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2636,7 +2722,7 @@ func (x *ExprLiteral) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExprLiteral.ProtoReflect.Descriptor instead.
 func (*ExprLiteral) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{24}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ExprLiteral) GetValue() *v1.ScalarValue {
@@ -2673,7 +2759,7 @@ type FlatLogicalExpr struct {
 
 func (x *FlatLogicalExpr) Reset() {
 	*x = FlatLogicalExpr{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[25]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2685,7 +2771,7 @@ func (x *FlatLogicalExpr) String() string {
 func (*FlatLogicalExpr) ProtoMessage() {}
 
 func (x *FlatLogicalExpr) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[25]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2698,7 +2784,7 @@ func (x *FlatLogicalExpr) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FlatLogicalExpr.ProtoReflect.Descriptor instead.
 func (*FlatLogicalExpr) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{25}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *FlatLogicalExpr) GetFlatNodes() []*LogicalExprNode {
@@ -2717,7 +2803,7 @@ type LogicalExprNodeReference struct {
 
 func (x *LogicalExprNodeReference) Reset() {
 	*x = LogicalExprNodeReference{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[26]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2729,7 +2815,7 @@ func (x *LogicalExprNodeReference) String() string {
 func (*LogicalExprNodeReference) ProtoMessage() {}
 
 func (x *LogicalExprNodeReference) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[26]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2742,7 +2828,7 @@ func (x *LogicalExprNodeReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogicalExprNodeReference.ProtoReflect.Descriptor instead.
 func (*LogicalExprNodeReference) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{26}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *LogicalExprNodeReference) GetId() uint64 {
@@ -2822,7 +2908,7 @@ type LogicalExprNode struct {
 
 func (x *LogicalExprNode) Reset() {
 	*x = LogicalExprNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[27]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2834,7 +2920,7 @@ func (x *LogicalExprNode) String() string {
 func (*LogicalExprNode) ProtoMessage() {}
 
 func (x *LogicalExprNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[27]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2847,7 +2933,7 @@ func (x *LogicalExprNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogicalExprNode.ProtoReflect.Descriptor instead.
 func (*LogicalExprNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{27}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *LogicalExprNode) GetExprForm() isLogicalExprNode_ExprForm {
@@ -3609,7 +3695,7 @@ type ColumnRelation struct {
 
 func (x *ColumnRelation) Reset() {
 	*x = ColumnRelation{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[28]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3621,7 +3707,7 @@ func (x *ColumnRelation) String() string {
 func (*ColumnRelation) ProtoMessage() {}
 
 func (x *ColumnRelation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[28]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3634,7 +3720,7 @@ func (x *ColumnRelation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ColumnRelation.ProtoReflect.Descriptor instead.
 func (*ColumnRelation) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{28}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ColumnRelation) GetRelation() string {
@@ -3654,7 +3740,7 @@ type Column struct {
 
 func (x *Column) Reset() {
 	*x = Column{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[29]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3666,7 +3752,7 @@ func (x *Column) String() string {
 func (*Column) ProtoMessage() {}
 
 func (x *Column) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[29]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3679,7 +3765,7 @@ func (x *Column) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Column.ProtoReflect.Descriptor instead.
 func (*Column) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{29}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *Column) GetName() string {
@@ -3705,7 +3791,7 @@ type Wildcard struct {
 
 func (x *Wildcard) Reset() {
 	*x = Wildcard{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[30]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3717,7 +3803,7 @@ func (x *Wildcard) String() string {
 func (*Wildcard) ProtoMessage() {}
 
 func (x *Wildcard) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[30]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3730,7 +3816,7 @@ func (x *Wildcard) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Wildcard.ProtoReflect.Descriptor instead.
 func (*Wildcard) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{30}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *Wildcard) GetQualifier() string {
@@ -3750,7 +3836,7 @@ type PlaceholderNode struct {
 
 func (x *PlaceholderNode) Reset() {
 	*x = PlaceholderNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[31]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3762,7 +3848,7 @@ func (x *PlaceholderNode) String() string {
 func (*PlaceholderNode) ProtoMessage() {}
 
 func (x *PlaceholderNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[31]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3775,7 +3861,7 @@ func (x *PlaceholderNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlaceholderNode.ProtoReflect.Descriptor instead.
 func (*PlaceholderNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{31}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *PlaceholderNode) GetId() string {
@@ -3801,7 +3887,7 @@ type LogicalExprList struct {
 
 func (x *LogicalExprList) Reset() {
 	*x = LogicalExprList{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[32]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3813,7 +3899,7 @@ func (x *LogicalExprList) String() string {
 func (*LogicalExprList) ProtoMessage() {}
 
 func (x *LogicalExprList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[32]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3826,7 +3912,7 @@ func (x *LogicalExprList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogicalExprList.ProtoReflect.Descriptor instead.
 func (*LogicalExprList) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{32}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *LogicalExprList) GetExpr() []*LogicalExprNode {
@@ -3845,7 +3931,7 @@ type GroupingSetNode struct {
 
 func (x *GroupingSetNode) Reset() {
 	*x = GroupingSetNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[33]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3857,7 +3943,7 @@ func (x *GroupingSetNode) String() string {
 func (*GroupingSetNode) ProtoMessage() {}
 
 func (x *GroupingSetNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[33]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3870,7 +3956,7 @@ func (x *GroupingSetNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GroupingSetNode.ProtoReflect.Descriptor instead.
 func (*GroupingSetNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{33}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GroupingSetNode) GetExpr() []*LogicalExprList {
@@ -3889,7 +3975,7 @@ type CubeNode struct {
 
 func (x *CubeNode) Reset() {
 	*x = CubeNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[34]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3901,7 +3987,7 @@ func (x *CubeNode) String() string {
 func (*CubeNode) ProtoMessage() {}
 
 func (x *CubeNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[34]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3914,7 +4000,7 @@ func (x *CubeNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CubeNode.ProtoReflect.Descriptor instead.
 func (*CubeNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{34}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *CubeNode) GetExpr() []*LogicalExprNode {
@@ -3933,7 +4019,7 @@ type RollupNode struct {
 
 func (x *RollupNode) Reset() {
 	*x = RollupNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[35]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3945,7 +4031,7 @@ func (x *RollupNode) String() string {
 func (*RollupNode) ProtoMessage() {}
 
 func (x *RollupNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[35]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3958,7 +4044,7 @@ func (x *RollupNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RollupNode.ProtoReflect.Descriptor instead.
 func (*RollupNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{35}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *RollupNode) GetExpr() []*LogicalExprNode {
@@ -3977,7 +4063,7 @@ type NamedStructField struct {
 
 func (x *NamedStructField) Reset() {
 	*x = NamedStructField{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[36]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3989,7 +4075,7 @@ func (x *NamedStructField) String() string {
 func (*NamedStructField) ProtoMessage() {}
 
 func (x *NamedStructField) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[36]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4002,7 +4088,7 @@ func (x *NamedStructField) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamedStructField.ProtoReflect.Descriptor instead.
 func (*NamedStructField) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{36}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *NamedStructField) GetName() *v1.ScalarValue {
@@ -4021,7 +4107,7 @@ type ListIndex struct {
 
 func (x *ListIndex) Reset() {
 	*x = ListIndex{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[37]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4033,7 +4119,7 @@ func (x *ListIndex) String() string {
 func (*ListIndex) ProtoMessage() {}
 
 func (x *ListIndex) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[37]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4046,7 +4132,7 @@ func (x *ListIndex) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIndex.ProtoReflect.Descriptor instead.
 func (*ListIndex) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{37}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ListIndex) GetKey() *LogicalExprNode {
@@ -4066,7 +4152,7 @@ type ListRange struct {
 
 func (x *ListRange) Reset() {
 	*x = ListRange{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[38]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4078,7 +4164,7 @@ func (x *ListRange) String() string {
 func (*ListRange) ProtoMessage() {}
 
 func (x *ListRange) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[38]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4091,7 +4177,7 @@ func (x *ListRange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRange.ProtoReflect.Descriptor instead.
 func (*ListRange) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{38}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ListRange) GetStart() *LogicalExprNode {
@@ -4123,7 +4209,7 @@ type GetIndexedField struct {
 
 func (x *GetIndexedField) Reset() {
 	*x = GetIndexedField{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[39]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4135,7 +4221,7 @@ func (x *GetIndexedField) String() string {
 func (*GetIndexedField) ProtoMessage() {}
 
 func (x *GetIndexedField) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[39]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4148,7 +4234,7 @@ func (x *GetIndexedField) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIndexedField.ProtoReflect.Descriptor instead.
 func (*GetIndexedField) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{39}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *GetIndexedField) GetExpr() *LogicalExprNode {
@@ -4223,7 +4309,7 @@ type IsNull struct {
 
 func (x *IsNull) Reset() {
 	*x = IsNull{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[40]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4235,7 +4321,7 @@ func (x *IsNull) String() string {
 func (*IsNull) ProtoMessage() {}
 
 func (x *IsNull) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[40]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4248,7 +4334,7 @@ func (x *IsNull) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsNull.ProtoReflect.Descriptor instead.
 func (*IsNull) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{40}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *IsNull) GetExpr() *LogicalExprNode {
@@ -4267,7 +4353,7 @@ type IsNotNull struct {
 
 func (x *IsNotNull) Reset() {
 	*x = IsNotNull{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[41]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4279,7 +4365,7 @@ func (x *IsNotNull) String() string {
 func (*IsNotNull) ProtoMessage() {}
 
 func (x *IsNotNull) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[41]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4292,7 +4378,7 @@ func (x *IsNotNull) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsNotNull.ProtoReflect.Descriptor instead.
 func (*IsNotNull) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{41}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *IsNotNull) GetExpr() *LogicalExprNode {
@@ -4311,7 +4397,7 @@ type IsTrue struct {
 
 func (x *IsTrue) Reset() {
 	*x = IsTrue{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[42]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4323,7 +4409,7 @@ func (x *IsTrue) String() string {
 func (*IsTrue) ProtoMessage() {}
 
 func (x *IsTrue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[42]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4336,7 +4422,7 @@ func (x *IsTrue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsTrue.ProtoReflect.Descriptor instead.
 func (*IsTrue) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{42}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *IsTrue) GetExpr() *LogicalExprNode {
@@ -4355,7 +4441,7 @@ type IsFalse struct {
 
 func (x *IsFalse) Reset() {
 	*x = IsFalse{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[43]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4367,7 +4453,7 @@ func (x *IsFalse) String() string {
 func (*IsFalse) ProtoMessage() {}
 
 func (x *IsFalse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[43]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4380,7 +4466,7 @@ func (x *IsFalse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsFalse.ProtoReflect.Descriptor instead.
 func (*IsFalse) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{43}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *IsFalse) GetExpr() *LogicalExprNode {
@@ -4399,7 +4485,7 @@ type IsUnknown struct {
 
 func (x *IsUnknown) Reset() {
 	*x = IsUnknown{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[44]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4411,7 +4497,7 @@ func (x *IsUnknown) String() string {
 func (*IsUnknown) ProtoMessage() {}
 
 func (x *IsUnknown) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[44]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4424,7 +4510,7 @@ func (x *IsUnknown) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsUnknown.ProtoReflect.Descriptor instead.
 func (*IsUnknown) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{44}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *IsUnknown) GetExpr() *LogicalExprNode {
@@ -4443,7 +4529,7 @@ type IsNotTrue struct {
 
 func (x *IsNotTrue) Reset() {
 	*x = IsNotTrue{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[45]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4455,7 +4541,7 @@ func (x *IsNotTrue) String() string {
 func (*IsNotTrue) ProtoMessage() {}
 
 func (x *IsNotTrue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[45]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4468,7 +4554,7 @@ func (x *IsNotTrue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsNotTrue.ProtoReflect.Descriptor instead.
 func (*IsNotTrue) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{45}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *IsNotTrue) GetExpr() *LogicalExprNode {
@@ -4487,7 +4573,7 @@ type IsNotFalse struct {
 
 func (x *IsNotFalse) Reset() {
 	*x = IsNotFalse{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[46]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4499,7 +4585,7 @@ func (x *IsNotFalse) String() string {
 func (*IsNotFalse) ProtoMessage() {}
 
 func (x *IsNotFalse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[46]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4512,7 +4598,7 @@ func (x *IsNotFalse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsNotFalse.ProtoReflect.Descriptor instead.
 func (*IsNotFalse) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{46}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *IsNotFalse) GetExpr() *LogicalExprNode {
@@ -4531,7 +4617,7 @@ type IsNotUnknown struct {
 
 func (x *IsNotUnknown) Reset() {
 	*x = IsNotUnknown{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[47]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4543,7 +4629,7 @@ func (x *IsNotUnknown) String() string {
 func (*IsNotUnknown) ProtoMessage() {}
 
 func (x *IsNotUnknown) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[47]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4556,7 +4642,7 @@ func (x *IsNotUnknown) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsNotUnknown.ProtoReflect.Descriptor instead.
 func (*IsNotUnknown) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{47}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *IsNotUnknown) GetExpr() *LogicalExprNode {
@@ -4575,7 +4661,7 @@ type Not struct {
 
 func (x *Not) Reset() {
 	*x = Not{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[48]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4587,7 +4673,7 @@ func (x *Not) String() string {
 func (*Not) ProtoMessage() {}
 
 func (x *Not) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[48]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4600,7 +4686,7 @@ func (x *Not) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Not.ProtoReflect.Descriptor instead.
 func (*Not) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{48}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *Not) GetExpr() *LogicalExprNode {
@@ -4621,7 +4707,7 @@ type AliasNode struct {
 
 func (x *AliasNode) Reset() {
 	*x = AliasNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[49]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4633,7 +4719,7 @@ func (x *AliasNode) String() string {
 func (*AliasNode) ProtoMessage() {}
 
 func (x *AliasNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[49]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4646,7 +4732,7 @@ func (x *AliasNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AliasNode.ProtoReflect.Descriptor instead.
 func (*AliasNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{49}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *AliasNode) GetExpr() *LogicalExprNode {
@@ -4679,7 +4765,7 @@ type BareTableReference struct {
 
 func (x *BareTableReference) Reset() {
 	*x = BareTableReference{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[50]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4691,7 +4777,7 @@ func (x *BareTableReference) String() string {
 func (*BareTableReference) ProtoMessage() {}
 
 func (x *BareTableReference) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[50]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4704,7 +4790,7 @@ func (x *BareTableReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BareTableReference.ProtoReflect.Descriptor instead.
 func (*BareTableReference) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{50}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *BareTableReference) GetTable() string {
@@ -4724,7 +4810,7 @@ type PartialTableReference struct {
 
 func (x *PartialTableReference) Reset() {
 	*x = PartialTableReference{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[51]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4736,7 +4822,7 @@ func (x *PartialTableReference) String() string {
 func (*PartialTableReference) ProtoMessage() {}
 
 func (x *PartialTableReference) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[51]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4749,7 +4835,7 @@ func (x *PartialTableReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PartialTableReference.ProtoReflect.Descriptor instead.
 func (*PartialTableReference) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{51}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *PartialTableReference) GetSchema() string {
@@ -4777,7 +4863,7 @@ type FullTableReference struct {
 
 func (x *FullTableReference) Reset() {
 	*x = FullTableReference{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[52]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4789,7 +4875,7 @@ func (x *FullTableReference) String() string {
 func (*FullTableReference) ProtoMessage() {}
 
 func (x *FullTableReference) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[52]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4802,7 +4888,7 @@ func (x *FullTableReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FullTableReference.ProtoReflect.Descriptor instead.
 func (*FullTableReference) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{52}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *FullTableReference) GetCatalog() string {
@@ -4840,7 +4926,7 @@ type OwnedTableReference struct {
 
 func (x *OwnedTableReference) Reset() {
 	*x = OwnedTableReference{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[53]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4852,7 +4938,7 @@ func (x *OwnedTableReference) String() string {
 func (*OwnedTableReference) ProtoMessage() {}
 
 func (x *OwnedTableReference) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[53]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4865,7 +4951,7 @@ func (x *OwnedTableReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OwnedTableReference.ProtoReflect.Descriptor instead.
 func (*OwnedTableReference) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{53}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *OwnedTableReference) GetTableReferenceEnum() isOwnedTableReference_TableReferenceEnum {
@@ -4937,7 +5023,7 @@ type BinaryExprNode struct {
 
 func (x *BinaryExprNode) Reset() {
 	*x = BinaryExprNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[54]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4949,7 +5035,7 @@ func (x *BinaryExprNode) String() string {
 func (*BinaryExprNode) ProtoMessage() {}
 
 func (x *BinaryExprNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[54]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4962,7 +5048,7 @@ func (x *BinaryExprNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BinaryExprNode.ProtoReflect.Descriptor instead.
 func (*BinaryExprNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{54}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *BinaryExprNode) GetOperands() []*LogicalExprNode {
@@ -4988,7 +5074,7 @@ type NegativeNode struct {
 
 func (x *NegativeNode) Reset() {
 	*x = NegativeNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[55]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5000,7 +5086,7 @@ func (x *NegativeNode) String() string {
 func (*NegativeNode) ProtoMessage() {}
 
 func (x *NegativeNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[55]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5013,7 +5099,7 @@ func (x *NegativeNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NegativeNode.ProtoReflect.Descriptor instead.
 func (*NegativeNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{55}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *NegativeNode) GetExpr() *LogicalExprNode {
@@ -5034,7 +5120,7 @@ type InListNode struct {
 
 func (x *InListNode) Reset() {
 	*x = InListNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[56]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5046,7 +5132,7 @@ func (x *InListNode) String() string {
 func (*InListNode) ProtoMessage() {}
 
 func (x *InListNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[56]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5059,7 +5145,7 @@ func (x *InListNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InListNode.ProtoReflect.Descriptor instead.
 func (*InListNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{56}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *InListNode) GetExpr() *LogicalExprNode {
@@ -5093,7 +5179,7 @@ type ScalarFunctionNode struct {
 
 func (x *ScalarFunctionNode) Reset() {
 	*x = ScalarFunctionNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[57]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5105,7 +5191,7 @@ func (x *ScalarFunctionNode) String() string {
 func (*ScalarFunctionNode) ProtoMessage() {}
 
 func (x *ScalarFunctionNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[57]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5118,7 +5204,7 @@ func (x *ScalarFunctionNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScalarFunctionNode.ProtoReflect.Descriptor instead.
 func (*ScalarFunctionNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{57}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *ScalarFunctionNode) GetFun() ScalarFunction {
@@ -5148,7 +5234,7 @@ type AggregateExprNode struct {
 
 func (x *AggregateExprNode) Reset() {
 	*x = AggregateExprNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[58]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5160,7 +5246,7 @@ func (x *AggregateExprNode) String() string {
 func (*AggregateExprNode) ProtoMessage() {}
 
 func (x *AggregateExprNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[58]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5173,7 +5259,7 @@ func (x *AggregateExprNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AggregateExprNode.ProtoReflect.Descriptor instead.
 func (*AggregateExprNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{58}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *AggregateExprNode) GetAggrFunction() AggregateFunction {
@@ -5224,7 +5310,7 @@ type AggregateUDFExprNode struct {
 
 func (x *AggregateUDFExprNode) Reset() {
 	*x = AggregateUDFExprNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[59]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5236,7 +5322,7 @@ func (x *AggregateUDFExprNode) String() string {
 func (*AggregateUDFExprNode) ProtoMessage() {}
 
 func (x *AggregateUDFExprNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[59]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5249,7 +5335,7 @@ func (x *AggregateUDFExprNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AggregateUDFExprNode.ProtoReflect.Descriptor instead.
 func (*AggregateUDFExprNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{59}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *AggregateUDFExprNode) GetFunName() string {
@@ -5297,7 +5383,7 @@ type ScalarUDFExprNode struct {
 
 func (x *ScalarUDFExprNode) Reset() {
 	*x = ScalarUDFExprNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[60]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5309,7 +5395,7 @@ func (x *ScalarUDFExprNode) String() string {
 func (*ScalarUDFExprNode) ProtoMessage() {}
 
 func (x *ScalarUDFExprNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[60]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5322,7 +5408,7 @@ func (x *ScalarUDFExprNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScalarUDFExprNode.ProtoReflect.Descriptor instead.
 func (*ScalarUDFExprNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{60}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *ScalarUDFExprNode) GetFunName() string {
@@ -5359,7 +5445,7 @@ type WindowExprNode struct {
 
 func (x *WindowExprNode) Reset() {
 	*x = WindowExprNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[61]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5371,7 +5457,7 @@ func (x *WindowExprNode) String() string {
 func (*WindowExprNode) ProtoMessage() {}
 
 func (x *WindowExprNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[61]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5384,7 +5470,7 @@ func (x *WindowExprNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindowExprNode.ProtoReflect.Descriptor instead.
 func (*WindowExprNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{61}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *WindowExprNode) GetWindowFunction() isWindowExprNode_WindowFunction {
@@ -5498,7 +5584,7 @@ type BetweenNode struct {
 
 func (x *BetweenNode) Reset() {
 	*x = BetweenNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[62]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5510,7 +5596,7 @@ func (x *BetweenNode) String() string {
 func (*BetweenNode) ProtoMessage() {}
 
 func (x *BetweenNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[62]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5523,7 +5609,7 @@ func (x *BetweenNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BetweenNode.ProtoReflect.Descriptor instead.
 func (*BetweenNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{62}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *BetweenNode) GetExpr() *LogicalExprNode {
@@ -5566,7 +5652,7 @@ type LikeNode struct {
 
 func (x *LikeNode) Reset() {
 	*x = LikeNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[63]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5578,7 +5664,7 @@ func (x *LikeNode) String() string {
 func (*LikeNode) ProtoMessage() {}
 
 func (x *LikeNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[63]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5591,7 +5677,7 @@ func (x *LikeNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LikeNode.ProtoReflect.Descriptor instead.
 func (*LikeNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{63}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *LikeNode) GetNegated() bool {
@@ -5634,7 +5720,7 @@ type ILikeNode struct {
 
 func (x *ILikeNode) Reset() {
 	*x = ILikeNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[64]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5646,7 +5732,7 @@ func (x *ILikeNode) String() string {
 func (*ILikeNode) ProtoMessage() {}
 
 func (x *ILikeNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[64]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5659,7 +5745,7 @@ func (x *ILikeNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ILikeNode.ProtoReflect.Descriptor instead.
 func (*ILikeNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{64}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *ILikeNode) GetNegated() bool {
@@ -5702,7 +5788,7 @@ type SimilarToNode struct {
 
 func (x *SimilarToNode) Reset() {
 	*x = SimilarToNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[65]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5714,7 +5800,7 @@ func (x *SimilarToNode) String() string {
 func (*SimilarToNode) ProtoMessage() {}
 
 func (x *SimilarToNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[65]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5727,7 +5813,7 @@ func (x *SimilarToNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SimilarToNode.ProtoReflect.Descriptor instead.
 func (*SimilarToNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{65}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *SimilarToNode) GetNegated() bool {
@@ -5769,7 +5855,7 @@ type CaseNode struct {
 
 func (x *CaseNode) Reset() {
 	*x = CaseNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[66]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5781,7 +5867,7 @@ func (x *CaseNode) String() string {
 func (*CaseNode) ProtoMessage() {}
 
 func (x *CaseNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[66]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5794,7 +5880,7 @@ func (x *CaseNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CaseNode.ProtoReflect.Descriptor instead.
 func (*CaseNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{66}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *CaseNode) GetExpr() *LogicalExprNode {
@@ -5828,7 +5914,7 @@ type WhenThen struct {
 
 func (x *WhenThen) Reset() {
 	*x = WhenThen{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[67]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5840,7 +5926,7 @@ func (x *WhenThen) String() string {
 func (*WhenThen) ProtoMessage() {}
 
 func (x *WhenThen) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[67]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5853,7 +5939,7 @@ func (x *WhenThen) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WhenThen.ProtoReflect.Descriptor instead.
 func (*WhenThen) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{67}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *WhenThen) GetWhenExpr() *LogicalExprNode {
@@ -5880,7 +5966,7 @@ type CastNode struct {
 
 func (x *CastNode) Reset() {
 	*x = CastNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[68]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5892,7 +5978,7 @@ func (x *CastNode) String() string {
 func (*CastNode) ProtoMessage() {}
 
 func (x *CastNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[68]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5905,7 +5991,7 @@ func (x *CastNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CastNode.ProtoReflect.Descriptor instead.
 func (*CastNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{68}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *CastNode) GetExpr() *LogicalExprNode {
@@ -5932,7 +6018,7 @@ type TryCastNode struct {
 
 func (x *TryCastNode) Reset() {
 	*x = TryCastNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[69]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5944,7 +6030,7 @@ func (x *TryCastNode) String() string {
 func (*TryCastNode) ProtoMessage() {}
 
 func (x *TryCastNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[69]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5957,7 +6043,7 @@ func (x *TryCastNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TryCastNode.ProtoReflect.Descriptor instead.
 func (*TryCastNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{69}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *TryCastNode) GetExpr() *LogicalExprNode {
@@ -5985,7 +6071,7 @@ type SortExprNode struct {
 
 func (x *SortExprNode) Reset() {
 	*x = SortExprNode{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[70]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5997,7 +6083,7 @@ func (x *SortExprNode) String() string {
 func (*SortExprNode) ProtoMessage() {}
 
 func (x *SortExprNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[70]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6010,7 +6096,7 @@ func (x *SortExprNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SortExprNode.ProtoReflect.Descriptor instead.
 func (*SortExprNode) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{70}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *SortExprNode) GetExpr() *LogicalExprNode {
@@ -6045,7 +6131,7 @@ type WindowFrame struct {
 
 func (x *WindowFrame) Reset() {
 	*x = WindowFrame{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[71]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6057,7 +6143,7 @@ func (x *WindowFrame) String() string {
 func (*WindowFrame) ProtoMessage() {}
 
 func (x *WindowFrame) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[71]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6070,7 +6156,7 @@ func (x *WindowFrame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindowFrame.ProtoReflect.Descriptor instead.
 func (*WindowFrame) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{71}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *WindowFrame) GetWindowFrameUnits() WindowFrameUnits {
@@ -6104,7 +6190,7 @@ type WindowFrameBound struct {
 
 func (x *WindowFrameBound) Reset() {
 	*x = WindowFrameBound{}
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[72]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6116,7 +6202,7 @@ func (x *WindowFrameBound) String() string {
 func (*WindowFrameBound) ProtoMessage() {}
 
 func (x *WindowFrameBound) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_expression_v1_expression_proto_msgTypes[72]
+	mi := &file_chalk_expression_v1_expression_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6129,7 +6215,7 @@ func (x *WindowFrameBound) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WindowFrameBound.ProtoReflect.Descriptor instead.
 func (*WindowFrameBound) Descriptor() ([]byte, []int) {
-	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{72}
+	return file_chalk_expression_v1_expression_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *WindowFrameBound) GetWindowFrameBoundType() WindowFrameBoundType {
@@ -6217,7 +6303,7 @@ const file_chalk_expression_v1_expression_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2%.chalk.expression.v1.BatchUDFArgumentR\x05value:\x028\x01\x1aa\n" +
 	"\x10ArgumentsV2Entry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x127\n" +
-	"\x05value\x18\x02 \x01(\v2!.chalk.expression.v1.RichArgumentR\x05value:\x028\x01\"\xd8\x05\n" +
+	"\x05value\x18\x02 \x01(\v2!.chalk.expression.v1.RichArgumentR\x05value:\x028\x01\"\x89\a\n" +
 	"\fRichArgument\x12H\n" +
 	"\x0fprimitive_value\x18\x01 \x01(\v2\x1d.chalk.primitive.v1.PrimitiveH\x00R\x0eprimitiveValue\x12I\n" +
 	"\n" +
@@ -6226,11 +6312,18 @@ const file_chalk_expression_v1_expression_proto_rawDesc = "" +
 	"\x12py_object_v2_value\x18\a \x01(\v2\x1f.chalk.expression.v1.PyObjectV2H\x00R\x0fpyObjectV2Value\x12G\n" +
 	"\x0fbatch_udf_value\x18\x06 \x01(\v2\x1d.chalk.expression.v1.BatchUDFH\x00R\rbatchUdfValue\x12N\n" +
 	"\x0fflat_expr_value\x18\b \x01(\v2$.chalk.expression.v1.FlatLogicalExprH\x00R\rflatExprValue\x12J\n" +
-	"\x15canonical_proto_value\x18\t \x01(\v2\x14.google.protobuf.AnyH\x00R\x13canonicalProtoValue\x12F\n" +
+	"\x15canonical_proto_value\x18\t \x01(\v2\x14.google.protobuf.AnyH\x00R\x13canonicalProtoValue\x12S\n" +
+	"\x13custom_python_value\x18\n" +
+	" \x01(\v2!.chalk.expression.v1.CustomPythonH\x00R\x11customPythonValue\x12Z\n" +
+	"\x14blocking_fn_v2_value\x18\v \x01(\v2'.chalk.expression.v1.BlockingFunctionV2H\x00R\x11blockingFnV2Value\x12F\n" +
 	"\n" +
 	"list_value\x18\x04 \x01(\v2%.chalk.expression.v1.RichArgumentListH\x00R\tlistValue\x12b\n" +
 	"\x14unordered_dict_value\x18\x05 \x01(\v2..chalk.expression.v1.RichArgumentUnorderedDictH\x00R\x12unorderedDictValueB\x05\n" +
-	"\x03arg\"M\n" +
+	"\x03arg\"Z\n" +
+	"\fCustomPython\x12\x13\n" +
+	"\x05py_ty\x18\x01 \x01(\tR\x04pyTy\x125\n" +
+	"\vpy_encoding\x18\x02 \x01(\v2\x14.google.protobuf.AnyR\n" +
+	"pyEncoding\"M\n" +
 	"\x10RichArgumentList\x129\n" +
 	"\x06values\x18\x01 \x03(\v2!.chalk.expression.v1.RichArgumentR\x06values\"\xc9\x01\n" +
 	"\x19RichArgumentUnorderedDict\x12O\n" +
@@ -6758,7 +6851,7 @@ func file_chalk_expression_v1_expression_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_expression_v1_expression_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
-var file_chalk_expression_v1_expression_proto_msgTypes = make([]protoimpl.MessageInfo, 83)
+var file_chalk_expression_v1_expression_proto_msgTypes = make([]protoimpl.MessageInfo, 84)
 var file_chalk_expression_v1_expression_proto_goTypes = []any{
 	(ExprPolicyKind)(0),               // 0: chalk.expression.v1.ExprPolicyKind
 	(PyObjectType)(0),                 // 1: chalk.expression.v1.PyObjectType
@@ -6781,264 +6874,268 @@ var file_chalk_expression_v1_expression_proto_goTypes = []any{
 	(*CallResolver)(nil),              // 18: chalk.expression.v1.CallResolver
 	(*BatchUDF)(nil),                  // 19: chalk.expression.v1.BatchUDF
 	(*RichArgument)(nil),              // 20: chalk.expression.v1.RichArgument
-	(*RichArgumentList)(nil),          // 21: chalk.expression.v1.RichArgumentList
-	(*RichArgumentUnorderedDict)(nil), // 22: chalk.expression.v1.RichArgumentUnorderedDict
-	(*BatchUDFArgument)(nil),          // 23: chalk.expression.v1.BatchUDFArgument
-	(*BatchUDFArgumentList)(nil),      // 24: chalk.expression.v1.BatchUDFArgumentList
-	(*BatchUDFUnorderedDict)(nil),     // 25: chalk.expression.v1.BatchUDFUnorderedDict
-	(*PyObject)(nil),                  // 26: chalk.expression.v1.PyObject
-	(*PyObjectV2)(nil),                // 27: chalk.expression.v1.PyObjectV2
-	(*PyCallable)(nil),                // 28: chalk.expression.v1.PyCallable
-	(*PyArrowSchema)(nil),             // 29: chalk.expression.v1.PyArrowSchema
-	(*PyCall)(nil),                    // 30: chalk.expression.v1.PyCall
-	(*ExprLiteral)(nil),               // 31: chalk.expression.v1.ExprLiteral
-	(*FlatLogicalExpr)(nil),           // 32: chalk.expression.v1.FlatLogicalExpr
-	(*LogicalExprNodeReference)(nil),  // 33: chalk.expression.v1.LogicalExprNodeReference
-	(*LogicalExprNode)(nil),           // 34: chalk.expression.v1.LogicalExprNode
-	(*ColumnRelation)(nil),            // 35: chalk.expression.v1.ColumnRelation
-	(*Column)(nil),                    // 36: chalk.expression.v1.Column
-	(*Wildcard)(nil),                  // 37: chalk.expression.v1.Wildcard
-	(*PlaceholderNode)(nil),           // 38: chalk.expression.v1.PlaceholderNode
-	(*LogicalExprList)(nil),           // 39: chalk.expression.v1.LogicalExprList
-	(*GroupingSetNode)(nil),           // 40: chalk.expression.v1.GroupingSetNode
-	(*CubeNode)(nil),                  // 41: chalk.expression.v1.CubeNode
-	(*RollupNode)(nil),                // 42: chalk.expression.v1.RollupNode
-	(*NamedStructField)(nil),          // 43: chalk.expression.v1.NamedStructField
-	(*ListIndex)(nil),                 // 44: chalk.expression.v1.ListIndex
-	(*ListRange)(nil),                 // 45: chalk.expression.v1.ListRange
-	(*GetIndexedField)(nil),           // 46: chalk.expression.v1.GetIndexedField
-	(*IsNull)(nil),                    // 47: chalk.expression.v1.IsNull
-	(*IsNotNull)(nil),                 // 48: chalk.expression.v1.IsNotNull
-	(*IsTrue)(nil),                    // 49: chalk.expression.v1.IsTrue
-	(*IsFalse)(nil),                   // 50: chalk.expression.v1.IsFalse
-	(*IsUnknown)(nil),                 // 51: chalk.expression.v1.IsUnknown
-	(*IsNotTrue)(nil),                 // 52: chalk.expression.v1.IsNotTrue
-	(*IsNotFalse)(nil),                // 53: chalk.expression.v1.IsNotFalse
-	(*IsNotUnknown)(nil),              // 54: chalk.expression.v1.IsNotUnknown
-	(*Not)(nil),                       // 55: chalk.expression.v1.Not
-	(*AliasNode)(nil),                 // 56: chalk.expression.v1.AliasNode
-	(*BareTableReference)(nil),        // 57: chalk.expression.v1.BareTableReference
-	(*PartialTableReference)(nil),     // 58: chalk.expression.v1.PartialTableReference
-	(*FullTableReference)(nil),        // 59: chalk.expression.v1.FullTableReference
-	(*OwnedTableReference)(nil),       // 60: chalk.expression.v1.OwnedTableReference
-	(*BinaryExprNode)(nil),            // 61: chalk.expression.v1.BinaryExprNode
-	(*NegativeNode)(nil),              // 62: chalk.expression.v1.NegativeNode
-	(*InListNode)(nil),                // 63: chalk.expression.v1.InListNode
-	(*ScalarFunctionNode)(nil),        // 64: chalk.expression.v1.ScalarFunctionNode
-	(*AggregateExprNode)(nil),         // 65: chalk.expression.v1.AggregateExprNode
-	(*AggregateUDFExprNode)(nil),      // 66: chalk.expression.v1.AggregateUDFExprNode
-	(*ScalarUDFExprNode)(nil),         // 67: chalk.expression.v1.ScalarUDFExprNode
-	(*WindowExprNode)(nil),            // 68: chalk.expression.v1.WindowExprNode
-	(*BetweenNode)(nil),               // 69: chalk.expression.v1.BetweenNode
-	(*LikeNode)(nil),                  // 70: chalk.expression.v1.LikeNode
-	(*ILikeNode)(nil),                 // 71: chalk.expression.v1.ILikeNode
-	(*SimilarToNode)(nil),             // 72: chalk.expression.v1.SimilarToNode
-	(*CaseNode)(nil),                  // 73: chalk.expression.v1.CaseNode
-	(*WhenThen)(nil),                  // 74: chalk.expression.v1.WhenThen
-	(*CastNode)(nil),                  // 75: chalk.expression.v1.CastNode
-	(*TryCastNode)(nil),               // 76: chalk.expression.v1.TryCastNode
-	(*SortExprNode)(nil),              // 77: chalk.expression.v1.SortExprNode
-	(*WindowFrame)(nil),               // 78: chalk.expression.v1.WindowFrame
-	(*WindowFrameBound)(nil),          // 79: chalk.expression.v1.WindowFrameBound
-	nil,                               // 80: chalk.expression.v1.ExprCall.KwargsEntry
-	nil,                               // 81: chalk.expression.v1.ExprPolicy.ParamsEntry
-	nil,                               // 82: chalk.expression.v1.BlockingFunctionV2.ArgumentsEntry
-	nil,                               // 83: chalk.expression.v1.BatchUDF.ArgumentsEntry
-	nil,                               // 84: chalk.expression.v1.BatchUDF.ArgumentsV2Entry
-	nil,                               // 85: chalk.expression.v1.RichArgumentUnorderedDict.ItemsEntry
-	nil,                               // 86: chalk.expression.v1.BatchUDFUnorderedDict.ItemsEntry
-	nil,                               // 87: chalk.expression.v1.PyObjectV2.ArgumentsEntry
-	nil,                               // 88: chalk.expression.v1.PyCall.KwargsEntry
-	nil,                               // 89: chalk.expression.v1.AggregateUDFExprNode.KwargsEntry
-	(*v1.ArrowType)(nil),              // 90: chalk.arrow.v1.ArrowType
-	(*v11.Primitive)(nil),             // 91: chalk.primitive.v1.Primitive
-	(*anypb.Any)(nil),                 // 92: google.protobuf.Any
-	(*v1.Schema)(nil),                 // 93: chalk.arrow.v1.Schema
-	(*v1.ScalarValue)(nil),            // 94: chalk.arrow.v1.ScalarValue
+	(*CustomPython)(nil),              // 21: chalk.expression.v1.CustomPython
+	(*RichArgumentList)(nil),          // 22: chalk.expression.v1.RichArgumentList
+	(*RichArgumentUnorderedDict)(nil), // 23: chalk.expression.v1.RichArgumentUnorderedDict
+	(*BatchUDFArgument)(nil),          // 24: chalk.expression.v1.BatchUDFArgument
+	(*BatchUDFArgumentList)(nil),      // 25: chalk.expression.v1.BatchUDFArgumentList
+	(*BatchUDFUnorderedDict)(nil),     // 26: chalk.expression.v1.BatchUDFUnorderedDict
+	(*PyObject)(nil),                  // 27: chalk.expression.v1.PyObject
+	(*PyObjectV2)(nil),                // 28: chalk.expression.v1.PyObjectV2
+	(*PyCallable)(nil),                // 29: chalk.expression.v1.PyCallable
+	(*PyArrowSchema)(nil),             // 30: chalk.expression.v1.PyArrowSchema
+	(*PyCall)(nil),                    // 31: chalk.expression.v1.PyCall
+	(*ExprLiteral)(nil),               // 32: chalk.expression.v1.ExprLiteral
+	(*FlatLogicalExpr)(nil),           // 33: chalk.expression.v1.FlatLogicalExpr
+	(*LogicalExprNodeReference)(nil),  // 34: chalk.expression.v1.LogicalExprNodeReference
+	(*LogicalExprNode)(nil),           // 35: chalk.expression.v1.LogicalExprNode
+	(*ColumnRelation)(nil),            // 36: chalk.expression.v1.ColumnRelation
+	(*Column)(nil),                    // 37: chalk.expression.v1.Column
+	(*Wildcard)(nil),                  // 38: chalk.expression.v1.Wildcard
+	(*PlaceholderNode)(nil),           // 39: chalk.expression.v1.PlaceholderNode
+	(*LogicalExprList)(nil),           // 40: chalk.expression.v1.LogicalExprList
+	(*GroupingSetNode)(nil),           // 41: chalk.expression.v1.GroupingSetNode
+	(*CubeNode)(nil),                  // 42: chalk.expression.v1.CubeNode
+	(*RollupNode)(nil),                // 43: chalk.expression.v1.RollupNode
+	(*NamedStructField)(nil),          // 44: chalk.expression.v1.NamedStructField
+	(*ListIndex)(nil),                 // 45: chalk.expression.v1.ListIndex
+	(*ListRange)(nil),                 // 46: chalk.expression.v1.ListRange
+	(*GetIndexedField)(nil),           // 47: chalk.expression.v1.GetIndexedField
+	(*IsNull)(nil),                    // 48: chalk.expression.v1.IsNull
+	(*IsNotNull)(nil),                 // 49: chalk.expression.v1.IsNotNull
+	(*IsTrue)(nil),                    // 50: chalk.expression.v1.IsTrue
+	(*IsFalse)(nil),                   // 51: chalk.expression.v1.IsFalse
+	(*IsUnknown)(nil),                 // 52: chalk.expression.v1.IsUnknown
+	(*IsNotTrue)(nil),                 // 53: chalk.expression.v1.IsNotTrue
+	(*IsNotFalse)(nil),                // 54: chalk.expression.v1.IsNotFalse
+	(*IsNotUnknown)(nil),              // 55: chalk.expression.v1.IsNotUnknown
+	(*Not)(nil),                       // 56: chalk.expression.v1.Not
+	(*AliasNode)(nil),                 // 57: chalk.expression.v1.AliasNode
+	(*BareTableReference)(nil),        // 58: chalk.expression.v1.BareTableReference
+	(*PartialTableReference)(nil),     // 59: chalk.expression.v1.PartialTableReference
+	(*FullTableReference)(nil),        // 60: chalk.expression.v1.FullTableReference
+	(*OwnedTableReference)(nil),       // 61: chalk.expression.v1.OwnedTableReference
+	(*BinaryExprNode)(nil),            // 62: chalk.expression.v1.BinaryExprNode
+	(*NegativeNode)(nil),              // 63: chalk.expression.v1.NegativeNode
+	(*InListNode)(nil),                // 64: chalk.expression.v1.InListNode
+	(*ScalarFunctionNode)(nil),        // 65: chalk.expression.v1.ScalarFunctionNode
+	(*AggregateExprNode)(nil),         // 66: chalk.expression.v1.AggregateExprNode
+	(*AggregateUDFExprNode)(nil),      // 67: chalk.expression.v1.AggregateUDFExprNode
+	(*ScalarUDFExprNode)(nil),         // 68: chalk.expression.v1.ScalarUDFExprNode
+	(*WindowExprNode)(nil),            // 69: chalk.expression.v1.WindowExprNode
+	(*BetweenNode)(nil),               // 70: chalk.expression.v1.BetweenNode
+	(*LikeNode)(nil),                  // 71: chalk.expression.v1.LikeNode
+	(*ILikeNode)(nil),                 // 72: chalk.expression.v1.ILikeNode
+	(*SimilarToNode)(nil),             // 73: chalk.expression.v1.SimilarToNode
+	(*CaseNode)(nil),                  // 74: chalk.expression.v1.CaseNode
+	(*WhenThen)(nil),                  // 75: chalk.expression.v1.WhenThen
+	(*CastNode)(nil),                  // 76: chalk.expression.v1.CastNode
+	(*TryCastNode)(nil),               // 77: chalk.expression.v1.TryCastNode
+	(*SortExprNode)(nil),              // 78: chalk.expression.v1.SortExprNode
+	(*WindowFrame)(nil),               // 79: chalk.expression.v1.WindowFrame
+	(*WindowFrameBound)(nil),          // 80: chalk.expression.v1.WindowFrameBound
+	nil,                               // 81: chalk.expression.v1.ExprCall.KwargsEntry
+	nil,                               // 82: chalk.expression.v1.ExprPolicy.ParamsEntry
+	nil,                               // 83: chalk.expression.v1.BlockingFunctionV2.ArgumentsEntry
+	nil,                               // 84: chalk.expression.v1.BatchUDF.ArgumentsEntry
+	nil,                               // 85: chalk.expression.v1.BatchUDF.ArgumentsV2Entry
+	nil,                               // 86: chalk.expression.v1.RichArgumentUnorderedDict.ItemsEntry
+	nil,                               // 87: chalk.expression.v1.BatchUDFUnorderedDict.ItemsEntry
+	nil,                               // 88: chalk.expression.v1.PyObjectV2.ArgumentsEntry
+	nil,                               // 89: chalk.expression.v1.PyCall.KwargsEntry
+	nil,                               // 90: chalk.expression.v1.AggregateUDFExprNode.KwargsEntry
+	(*v1.ArrowType)(nil),              // 91: chalk.arrow.v1.ArrowType
+	(*v11.Primitive)(nil),             // 92: chalk.primitive.v1.Primitive
+	(*anypb.Any)(nil),                 // 93: google.protobuf.Any
+	(*v1.Schema)(nil),                 // 94: chalk.arrow.v1.Schema
+	(*v1.ScalarValue)(nil),            // 95: chalk.arrow.v1.ScalarValue
 }
 var file_chalk_expression_v1_expression_proto_depIdxs = []int32{
-	90,  // 0: chalk.expression.v1.TypedIdentifier.type:type_name -> chalk.arrow.v1.ArrowType
-	34,  // 1: chalk.expression.v1.ExprGetAttribute.parent:type_name -> chalk.expression.v1.LogicalExprNode
+	91,  // 0: chalk.expression.v1.TypedIdentifier.type:type_name -> chalk.arrow.v1.ArrowType
+	35,  // 1: chalk.expression.v1.ExprGetAttribute.parent:type_name -> chalk.expression.v1.LogicalExprNode
 	7,   // 2: chalk.expression.v1.ExprGetAttribute.attribute:type_name -> chalk.expression.v1.Identifier
-	34,  // 3: chalk.expression.v1.ExprGetSubscript.parent:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 4: chalk.expression.v1.ExprGetSubscript.subscript:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 5: chalk.expression.v1.ExprCall.func:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 6: chalk.expression.v1.ExprCall.args:type_name -> chalk.expression.v1.LogicalExprNode
-	80,  // 7: chalk.expression.v1.ExprCall.kwargs:type_name -> chalk.expression.v1.ExprCall.KwargsEntry
+	35,  // 3: chalk.expression.v1.ExprGetSubscript.parent:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 4: chalk.expression.v1.ExprGetSubscript.subscript:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 5: chalk.expression.v1.ExprCall.func:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 6: chalk.expression.v1.ExprCall.args:type_name -> chalk.expression.v1.LogicalExprNode
+	81,  // 7: chalk.expression.v1.ExprCall.kwargs:type_name -> chalk.expression.v1.ExprCall.KwargsEntry
 	12,  // 8: chalk.expression.v1.ExprCall.policies:type_name -> chalk.expression.v1.ExprPolicy
 	0,   // 9: chalk.expression.v1.ExprPolicy.kind:type_name -> chalk.expression.v1.ExprPolicyKind
-	81,  // 10: chalk.expression.v1.ExprPolicy.params:type_name -> chalk.expression.v1.ExprPolicy.ParamsEntry
+	82,  // 10: chalk.expression.v1.ExprPolicy.params:type_name -> chalk.expression.v1.ExprPolicy.ParamsEntry
 	14,  // 11: chalk.expression.v1.ExprBlockingCall.blocking_fn:type_name -> chalk.expression.v1.BlockingFunction
 	15,  // 12: chalk.expression.v1.ExprBlockingCall.blocking_fn_v2:type_name -> chalk.expression.v1.BlockingFunctionV2
-	34,  // 13: chalk.expression.v1.ExprBlockingCall.arguments:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 13: chalk.expression.v1.ExprBlockingCall.arguments:type_name -> chalk.expression.v1.LogicalExprNode
 	17,  // 14: chalk.expression.v1.BlockingFunction.catalog_call:type_name -> chalk.expression.v1.CatalogCall
 	18,  // 15: chalk.expression.v1.BlockingFunction.call_resolver:type_name -> chalk.expression.v1.CallResolver
 	16,  // 16: chalk.expression.v1.BlockingFunction.http_request:type_name -> chalk.expression.v1.HttpRequest
-	82,  // 17: chalk.expression.v1.BlockingFunctionV2.arguments:type_name -> chalk.expression.v1.BlockingFunctionV2.ArgumentsEntry
-	90,  // 18: chalk.expression.v1.CatalogCall.input_types:type_name -> chalk.arrow.v1.ArrowType
-	90,  // 19: chalk.expression.v1.CatalogCall.output_type:type_name -> chalk.arrow.v1.ArrowType
-	90,  // 20: chalk.expression.v1.CallResolver.output_type:type_name -> chalk.arrow.v1.ArrowType
-	83,  // 21: chalk.expression.v1.BatchUDF.arguments:type_name -> chalk.expression.v1.BatchUDF.ArgumentsEntry
-	84,  // 22: chalk.expression.v1.BatchUDF.arguments_v2:type_name -> chalk.expression.v1.BatchUDF.ArgumentsV2Entry
-	91,  // 23: chalk.expression.v1.RichArgument.primitive_value:type_name -> chalk.primitive.v1.Primitive
-	34,  // 24: chalk.expression.v1.RichArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
-	26,  // 25: chalk.expression.v1.RichArgument.py_object_value:type_name -> chalk.expression.v1.PyObject
-	27,  // 26: chalk.expression.v1.RichArgument.py_object_v2_value:type_name -> chalk.expression.v1.PyObjectV2
+	83,  // 17: chalk.expression.v1.BlockingFunctionV2.arguments:type_name -> chalk.expression.v1.BlockingFunctionV2.ArgumentsEntry
+	91,  // 18: chalk.expression.v1.CatalogCall.input_types:type_name -> chalk.arrow.v1.ArrowType
+	91,  // 19: chalk.expression.v1.CatalogCall.output_type:type_name -> chalk.arrow.v1.ArrowType
+	91,  // 20: chalk.expression.v1.CallResolver.output_type:type_name -> chalk.arrow.v1.ArrowType
+	84,  // 21: chalk.expression.v1.BatchUDF.arguments:type_name -> chalk.expression.v1.BatchUDF.ArgumentsEntry
+	85,  // 22: chalk.expression.v1.BatchUDF.arguments_v2:type_name -> chalk.expression.v1.BatchUDF.ArgumentsV2Entry
+	92,  // 23: chalk.expression.v1.RichArgument.primitive_value:type_name -> chalk.primitive.v1.Primitive
+	35,  // 24: chalk.expression.v1.RichArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
+	27,  // 25: chalk.expression.v1.RichArgument.py_object_value:type_name -> chalk.expression.v1.PyObject
+	28,  // 26: chalk.expression.v1.RichArgument.py_object_v2_value:type_name -> chalk.expression.v1.PyObjectV2
 	19,  // 27: chalk.expression.v1.RichArgument.batch_udf_value:type_name -> chalk.expression.v1.BatchUDF
-	32,  // 28: chalk.expression.v1.RichArgument.flat_expr_value:type_name -> chalk.expression.v1.FlatLogicalExpr
-	92,  // 29: chalk.expression.v1.RichArgument.canonical_proto_value:type_name -> google.protobuf.Any
-	21,  // 30: chalk.expression.v1.RichArgument.list_value:type_name -> chalk.expression.v1.RichArgumentList
-	22,  // 31: chalk.expression.v1.RichArgument.unordered_dict_value:type_name -> chalk.expression.v1.RichArgumentUnorderedDict
-	20,  // 32: chalk.expression.v1.RichArgumentList.values:type_name -> chalk.expression.v1.RichArgument
-	85,  // 33: chalk.expression.v1.RichArgumentUnorderedDict.items:type_name -> chalk.expression.v1.RichArgumentUnorderedDict.ItemsEntry
-	91,  // 34: chalk.expression.v1.BatchUDFArgument.primitive_value:type_name -> chalk.primitive.v1.Primitive
-	34,  // 35: chalk.expression.v1.BatchUDFArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
-	26,  // 36: chalk.expression.v1.BatchUDFArgument.py_object_value:type_name -> chalk.expression.v1.PyObject
-	24,  // 37: chalk.expression.v1.BatchUDFArgument.list_value:type_name -> chalk.expression.v1.BatchUDFArgumentList
-	25,  // 38: chalk.expression.v1.BatchUDFArgument.unordered_dict_value:type_name -> chalk.expression.v1.BatchUDFUnorderedDict
-	23,  // 39: chalk.expression.v1.BatchUDFArgumentList.values:type_name -> chalk.expression.v1.BatchUDFArgument
-	86,  // 40: chalk.expression.v1.BatchUDFUnorderedDict.items:type_name -> chalk.expression.v1.BatchUDFUnorderedDict.ItemsEntry
-	28,  // 41: chalk.expression.v1.PyObject.py_callable:type_name -> chalk.expression.v1.PyCallable
-	30,  // 42: chalk.expression.v1.PyObject.py_call:type_name -> chalk.expression.v1.PyCall
-	29,  // 43: chalk.expression.v1.PyObject.py_arrow_schema:type_name -> chalk.expression.v1.PyArrowSchema
-	1,   // 44: chalk.expression.v1.PyObjectV2.type:type_name -> chalk.expression.v1.PyObjectType
-	87,  // 45: chalk.expression.v1.PyObjectV2.arguments:type_name -> chalk.expression.v1.PyObjectV2.ArgumentsEntry
-	93,  // 46: chalk.expression.v1.PyArrowSchema.schema:type_name -> chalk.arrow.v1.Schema
-	26,  // 47: chalk.expression.v1.PyCall.callee:type_name -> chalk.expression.v1.PyObject
-	26,  // 48: chalk.expression.v1.PyCall.args:type_name -> chalk.expression.v1.PyObject
-	88,  // 49: chalk.expression.v1.PyCall.kwargs:type_name -> chalk.expression.v1.PyCall.KwargsEntry
-	94,  // 50: chalk.expression.v1.ExprLiteral.value:type_name -> chalk.arrow.v1.ScalarValue
-	34,  // 51: chalk.expression.v1.FlatLogicalExpr.flat_nodes:type_name -> chalk.expression.v1.LogicalExprNode
-	7,   // 52: chalk.expression.v1.LogicalExprNode.identifier:type_name -> chalk.expression.v1.Identifier
-	9,   // 53: chalk.expression.v1.LogicalExprNode.get_attribute:type_name -> chalk.expression.v1.ExprGetAttribute
-	10,  // 54: chalk.expression.v1.LogicalExprNode.get_subscript:type_name -> chalk.expression.v1.ExprGetSubscript
-	11,  // 55: chalk.expression.v1.LogicalExprNode.call:type_name -> chalk.expression.v1.ExprCall
-	31,  // 56: chalk.expression.v1.LogicalExprNode.literal_value:type_name -> chalk.expression.v1.ExprLiteral
-	8,   // 57: chalk.expression.v1.LogicalExprNode.typed_identifier:type_name -> chalk.expression.v1.TypedIdentifier
-	13,  // 58: chalk.expression.v1.LogicalExprNode.blocking_call:type_name -> chalk.expression.v1.ExprBlockingCall
-	33,  // 59: chalk.expression.v1.LogicalExprNode.reference:type_name -> chalk.expression.v1.LogicalExprNodeReference
-	33,  // 60: chalk.expression.v1.LogicalExprNode.this_reference:type_name -> chalk.expression.v1.LogicalExprNodeReference
-	36,  // 61: chalk.expression.v1.LogicalExprNode.column:type_name -> chalk.expression.v1.Column
-	56,  // 62: chalk.expression.v1.LogicalExprNode.alias:type_name -> chalk.expression.v1.AliasNode
-	94,  // 63: chalk.expression.v1.LogicalExprNode.literal:type_name -> chalk.arrow.v1.ScalarValue
-	61,  // 64: chalk.expression.v1.LogicalExprNode.binary_expr:type_name -> chalk.expression.v1.BinaryExprNode
-	65,  // 65: chalk.expression.v1.LogicalExprNode.aggregate_expr:type_name -> chalk.expression.v1.AggregateExprNode
-	47,  // 66: chalk.expression.v1.LogicalExprNode.is_null_expr:type_name -> chalk.expression.v1.IsNull
-	48,  // 67: chalk.expression.v1.LogicalExprNode.is_not_null_expr:type_name -> chalk.expression.v1.IsNotNull
-	55,  // 68: chalk.expression.v1.LogicalExprNode.not_expr:type_name -> chalk.expression.v1.Not
-	69,  // 69: chalk.expression.v1.LogicalExprNode.between:type_name -> chalk.expression.v1.BetweenNode
-	73,  // 70: chalk.expression.v1.LogicalExprNode.case:type_name -> chalk.expression.v1.CaseNode
-	75,  // 71: chalk.expression.v1.LogicalExprNode.cast:type_name -> chalk.expression.v1.CastNode
-	77,  // 72: chalk.expression.v1.LogicalExprNode.sort:type_name -> chalk.expression.v1.SortExprNode
-	62,  // 73: chalk.expression.v1.LogicalExprNode.negative:type_name -> chalk.expression.v1.NegativeNode
-	63,  // 74: chalk.expression.v1.LogicalExprNode.in_list:type_name -> chalk.expression.v1.InListNode
-	37,  // 75: chalk.expression.v1.LogicalExprNode.wildcard:type_name -> chalk.expression.v1.Wildcard
-	64,  // 76: chalk.expression.v1.LogicalExprNode.scalar_function:type_name -> chalk.expression.v1.ScalarFunctionNode
-	76,  // 77: chalk.expression.v1.LogicalExprNode.try_cast:type_name -> chalk.expression.v1.TryCastNode
-	68,  // 78: chalk.expression.v1.LogicalExprNode.window_expr:type_name -> chalk.expression.v1.WindowExprNode
-	66,  // 79: chalk.expression.v1.LogicalExprNode.aggregate_udf_expr:type_name -> chalk.expression.v1.AggregateUDFExprNode
-	67,  // 80: chalk.expression.v1.LogicalExprNode.scalar_udf_expr:type_name -> chalk.expression.v1.ScalarUDFExprNode
-	46,  // 81: chalk.expression.v1.LogicalExprNode.get_indexed_field:type_name -> chalk.expression.v1.GetIndexedField
-	40,  // 82: chalk.expression.v1.LogicalExprNode.grouping_set:type_name -> chalk.expression.v1.GroupingSetNode
-	41,  // 83: chalk.expression.v1.LogicalExprNode.cube:type_name -> chalk.expression.v1.CubeNode
-	42,  // 84: chalk.expression.v1.LogicalExprNode.rollup:type_name -> chalk.expression.v1.RollupNode
-	49,  // 85: chalk.expression.v1.LogicalExprNode.is_true:type_name -> chalk.expression.v1.IsTrue
-	50,  // 86: chalk.expression.v1.LogicalExprNode.is_false:type_name -> chalk.expression.v1.IsFalse
-	51,  // 87: chalk.expression.v1.LogicalExprNode.is_unknown:type_name -> chalk.expression.v1.IsUnknown
-	52,  // 88: chalk.expression.v1.LogicalExprNode.is_not_true:type_name -> chalk.expression.v1.IsNotTrue
-	53,  // 89: chalk.expression.v1.LogicalExprNode.is_not_false:type_name -> chalk.expression.v1.IsNotFalse
-	54,  // 90: chalk.expression.v1.LogicalExprNode.is_not_unknown:type_name -> chalk.expression.v1.IsNotUnknown
-	70,  // 91: chalk.expression.v1.LogicalExprNode.like:type_name -> chalk.expression.v1.LikeNode
-	71,  // 92: chalk.expression.v1.LogicalExprNode.ilike:type_name -> chalk.expression.v1.ILikeNode
-	72,  // 93: chalk.expression.v1.LogicalExprNode.similar_to:type_name -> chalk.expression.v1.SimilarToNode
-	38,  // 94: chalk.expression.v1.LogicalExprNode.placeholder:type_name -> chalk.expression.v1.PlaceholderNode
-	35,  // 95: chalk.expression.v1.Column.relation:type_name -> chalk.expression.v1.ColumnRelation
-	90,  // 96: chalk.expression.v1.PlaceholderNode.data_type:type_name -> chalk.arrow.v1.ArrowType
-	34,  // 97: chalk.expression.v1.LogicalExprList.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	39,  // 98: chalk.expression.v1.GroupingSetNode.expr:type_name -> chalk.expression.v1.LogicalExprList
-	34,  // 99: chalk.expression.v1.CubeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 100: chalk.expression.v1.RollupNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	94,  // 101: chalk.expression.v1.NamedStructField.name:type_name -> chalk.arrow.v1.ScalarValue
-	34,  // 102: chalk.expression.v1.ListIndex.key:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 103: chalk.expression.v1.ListRange.start:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 104: chalk.expression.v1.ListRange.stop:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 105: chalk.expression.v1.GetIndexedField.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	43,  // 106: chalk.expression.v1.GetIndexedField.named_struct_field:type_name -> chalk.expression.v1.NamedStructField
-	44,  // 107: chalk.expression.v1.GetIndexedField.list_index:type_name -> chalk.expression.v1.ListIndex
-	45,  // 108: chalk.expression.v1.GetIndexedField.list_range:type_name -> chalk.expression.v1.ListRange
-	34,  // 109: chalk.expression.v1.IsNull.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 110: chalk.expression.v1.IsNotNull.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 111: chalk.expression.v1.IsTrue.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 112: chalk.expression.v1.IsFalse.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 113: chalk.expression.v1.IsUnknown.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 114: chalk.expression.v1.IsNotTrue.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 115: chalk.expression.v1.IsNotFalse.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 116: chalk.expression.v1.IsNotUnknown.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 117: chalk.expression.v1.Not.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 118: chalk.expression.v1.AliasNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	60,  // 119: chalk.expression.v1.AliasNode.relation:type_name -> chalk.expression.v1.OwnedTableReference
-	57,  // 120: chalk.expression.v1.OwnedTableReference.bare:type_name -> chalk.expression.v1.BareTableReference
-	58,  // 121: chalk.expression.v1.OwnedTableReference.partial:type_name -> chalk.expression.v1.PartialTableReference
-	59,  // 122: chalk.expression.v1.OwnedTableReference.full:type_name -> chalk.expression.v1.FullTableReference
-	34,  // 123: chalk.expression.v1.BinaryExprNode.operands:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 124: chalk.expression.v1.NegativeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 125: chalk.expression.v1.InListNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 126: chalk.expression.v1.InListNode.list:type_name -> chalk.expression.v1.LogicalExprNode
-	2,   // 127: chalk.expression.v1.ScalarFunctionNode.fun:type_name -> chalk.expression.v1.ScalarFunction
-	34,  // 128: chalk.expression.v1.ScalarFunctionNode.args:type_name -> chalk.expression.v1.LogicalExprNode
-	3,   // 129: chalk.expression.v1.AggregateExprNode.aggr_function:type_name -> chalk.expression.v1.AggregateFunction
-	34,  // 130: chalk.expression.v1.AggregateExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 131: chalk.expression.v1.AggregateExprNode.filter:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 132: chalk.expression.v1.AggregateExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 133: chalk.expression.v1.AggregateUDFExprNode.args:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 134: chalk.expression.v1.AggregateUDFExprNode.filter:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 135: chalk.expression.v1.AggregateUDFExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
-	89,  // 136: chalk.expression.v1.AggregateUDFExprNode.kwargs:type_name -> chalk.expression.v1.AggregateUDFExprNode.KwargsEntry
-	34,  // 137: chalk.expression.v1.ScalarUDFExprNode.args:type_name -> chalk.expression.v1.LogicalExprNode
-	3,   // 138: chalk.expression.v1.WindowExprNode.aggr_function:type_name -> chalk.expression.v1.AggregateFunction
-	4,   // 139: chalk.expression.v1.WindowExprNode.built_in_function:type_name -> chalk.expression.v1.BuiltInWindowFunction
-	34,  // 140: chalk.expression.v1.WindowExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 141: chalk.expression.v1.WindowExprNode.partition_by:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 142: chalk.expression.v1.WindowExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
-	78,  // 143: chalk.expression.v1.WindowExprNode.window_frame:type_name -> chalk.expression.v1.WindowFrame
-	34,  // 144: chalk.expression.v1.BetweenNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 145: chalk.expression.v1.BetweenNode.low:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 146: chalk.expression.v1.BetweenNode.high:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 147: chalk.expression.v1.LikeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 148: chalk.expression.v1.LikeNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 149: chalk.expression.v1.ILikeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 150: chalk.expression.v1.ILikeNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 151: chalk.expression.v1.SimilarToNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 152: chalk.expression.v1.SimilarToNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 153: chalk.expression.v1.CaseNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	74,  // 154: chalk.expression.v1.CaseNode.when_then_expr:type_name -> chalk.expression.v1.WhenThen
-	34,  // 155: chalk.expression.v1.CaseNode.else_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 156: chalk.expression.v1.WhenThen.when_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 157: chalk.expression.v1.WhenThen.then_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	34,  // 158: chalk.expression.v1.CastNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	90,  // 159: chalk.expression.v1.CastNode.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	34,  // 160: chalk.expression.v1.TryCastNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	90,  // 161: chalk.expression.v1.TryCastNode.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	34,  // 162: chalk.expression.v1.SortExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 163: chalk.expression.v1.WindowFrame.window_frame_units:type_name -> chalk.expression.v1.WindowFrameUnits
-	79,  // 164: chalk.expression.v1.WindowFrame.start_bound:type_name -> chalk.expression.v1.WindowFrameBound
-	79,  // 165: chalk.expression.v1.WindowFrame.bound:type_name -> chalk.expression.v1.WindowFrameBound
-	6,   // 166: chalk.expression.v1.WindowFrameBound.window_frame_bound_type:type_name -> chalk.expression.v1.WindowFrameBoundType
-	94,  // 167: chalk.expression.v1.WindowFrameBound.bound_value:type_name -> chalk.arrow.v1.ScalarValue
-	34,  // 168: chalk.expression.v1.ExprCall.KwargsEntry.value:type_name -> chalk.expression.v1.LogicalExprNode
-	20,  // 169: chalk.expression.v1.BlockingFunctionV2.ArgumentsEntry.value:type_name -> chalk.expression.v1.RichArgument
-	23,  // 170: chalk.expression.v1.BatchUDF.ArgumentsEntry.value:type_name -> chalk.expression.v1.BatchUDFArgument
-	20,  // 171: chalk.expression.v1.BatchUDF.ArgumentsV2Entry.value:type_name -> chalk.expression.v1.RichArgument
-	20,  // 172: chalk.expression.v1.RichArgumentUnorderedDict.ItemsEntry.value:type_name -> chalk.expression.v1.RichArgument
-	23,  // 173: chalk.expression.v1.BatchUDFUnorderedDict.ItemsEntry.value:type_name -> chalk.expression.v1.BatchUDFArgument
-	20,  // 174: chalk.expression.v1.PyObjectV2.ArgumentsEntry.value:type_name -> chalk.expression.v1.RichArgument
-	26,  // 175: chalk.expression.v1.PyCall.KwargsEntry.value:type_name -> chalk.expression.v1.PyObject
-	34,  // 176: chalk.expression.v1.AggregateUDFExprNode.KwargsEntry.value:type_name -> chalk.expression.v1.LogicalExprNode
-	177, // [177:177] is the sub-list for method output_type
-	177, // [177:177] is the sub-list for method input_type
-	177, // [177:177] is the sub-list for extension type_name
-	177, // [177:177] is the sub-list for extension extendee
-	0,   // [0:177] is the sub-list for field type_name
+	33,  // 28: chalk.expression.v1.RichArgument.flat_expr_value:type_name -> chalk.expression.v1.FlatLogicalExpr
+	93,  // 29: chalk.expression.v1.RichArgument.canonical_proto_value:type_name -> google.protobuf.Any
+	21,  // 30: chalk.expression.v1.RichArgument.custom_python_value:type_name -> chalk.expression.v1.CustomPython
+	15,  // 31: chalk.expression.v1.RichArgument.blocking_fn_v2_value:type_name -> chalk.expression.v1.BlockingFunctionV2
+	22,  // 32: chalk.expression.v1.RichArgument.list_value:type_name -> chalk.expression.v1.RichArgumentList
+	23,  // 33: chalk.expression.v1.RichArgument.unordered_dict_value:type_name -> chalk.expression.v1.RichArgumentUnorderedDict
+	93,  // 34: chalk.expression.v1.CustomPython.py_encoding:type_name -> google.protobuf.Any
+	20,  // 35: chalk.expression.v1.RichArgumentList.values:type_name -> chalk.expression.v1.RichArgument
+	86,  // 36: chalk.expression.v1.RichArgumentUnorderedDict.items:type_name -> chalk.expression.v1.RichArgumentUnorderedDict.ItemsEntry
+	92,  // 37: chalk.expression.v1.BatchUDFArgument.primitive_value:type_name -> chalk.primitive.v1.Primitive
+	35,  // 38: chalk.expression.v1.BatchUDFArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
+	27,  // 39: chalk.expression.v1.BatchUDFArgument.py_object_value:type_name -> chalk.expression.v1.PyObject
+	25,  // 40: chalk.expression.v1.BatchUDFArgument.list_value:type_name -> chalk.expression.v1.BatchUDFArgumentList
+	26,  // 41: chalk.expression.v1.BatchUDFArgument.unordered_dict_value:type_name -> chalk.expression.v1.BatchUDFUnorderedDict
+	24,  // 42: chalk.expression.v1.BatchUDFArgumentList.values:type_name -> chalk.expression.v1.BatchUDFArgument
+	87,  // 43: chalk.expression.v1.BatchUDFUnorderedDict.items:type_name -> chalk.expression.v1.BatchUDFUnorderedDict.ItemsEntry
+	29,  // 44: chalk.expression.v1.PyObject.py_callable:type_name -> chalk.expression.v1.PyCallable
+	31,  // 45: chalk.expression.v1.PyObject.py_call:type_name -> chalk.expression.v1.PyCall
+	30,  // 46: chalk.expression.v1.PyObject.py_arrow_schema:type_name -> chalk.expression.v1.PyArrowSchema
+	1,   // 47: chalk.expression.v1.PyObjectV2.type:type_name -> chalk.expression.v1.PyObjectType
+	88,  // 48: chalk.expression.v1.PyObjectV2.arguments:type_name -> chalk.expression.v1.PyObjectV2.ArgumentsEntry
+	94,  // 49: chalk.expression.v1.PyArrowSchema.schema:type_name -> chalk.arrow.v1.Schema
+	27,  // 50: chalk.expression.v1.PyCall.callee:type_name -> chalk.expression.v1.PyObject
+	27,  // 51: chalk.expression.v1.PyCall.args:type_name -> chalk.expression.v1.PyObject
+	89,  // 52: chalk.expression.v1.PyCall.kwargs:type_name -> chalk.expression.v1.PyCall.KwargsEntry
+	95,  // 53: chalk.expression.v1.ExprLiteral.value:type_name -> chalk.arrow.v1.ScalarValue
+	35,  // 54: chalk.expression.v1.FlatLogicalExpr.flat_nodes:type_name -> chalk.expression.v1.LogicalExprNode
+	7,   // 55: chalk.expression.v1.LogicalExprNode.identifier:type_name -> chalk.expression.v1.Identifier
+	9,   // 56: chalk.expression.v1.LogicalExprNode.get_attribute:type_name -> chalk.expression.v1.ExprGetAttribute
+	10,  // 57: chalk.expression.v1.LogicalExprNode.get_subscript:type_name -> chalk.expression.v1.ExprGetSubscript
+	11,  // 58: chalk.expression.v1.LogicalExprNode.call:type_name -> chalk.expression.v1.ExprCall
+	32,  // 59: chalk.expression.v1.LogicalExprNode.literal_value:type_name -> chalk.expression.v1.ExprLiteral
+	8,   // 60: chalk.expression.v1.LogicalExprNode.typed_identifier:type_name -> chalk.expression.v1.TypedIdentifier
+	13,  // 61: chalk.expression.v1.LogicalExprNode.blocking_call:type_name -> chalk.expression.v1.ExprBlockingCall
+	34,  // 62: chalk.expression.v1.LogicalExprNode.reference:type_name -> chalk.expression.v1.LogicalExprNodeReference
+	34,  // 63: chalk.expression.v1.LogicalExprNode.this_reference:type_name -> chalk.expression.v1.LogicalExprNodeReference
+	37,  // 64: chalk.expression.v1.LogicalExprNode.column:type_name -> chalk.expression.v1.Column
+	57,  // 65: chalk.expression.v1.LogicalExprNode.alias:type_name -> chalk.expression.v1.AliasNode
+	95,  // 66: chalk.expression.v1.LogicalExprNode.literal:type_name -> chalk.arrow.v1.ScalarValue
+	62,  // 67: chalk.expression.v1.LogicalExprNode.binary_expr:type_name -> chalk.expression.v1.BinaryExprNode
+	66,  // 68: chalk.expression.v1.LogicalExprNode.aggregate_expr:type_name -> chalk.expression.v1.AggregateExprNode
+	48,  // 69: chalk.expression.v1.LogicalExprNode.is_null_expr:type_name -> chalk.expression.v1.IsNull
+	49,  // 70: chalk.expression.v1.LogicalExprNode.is_not_null_expr:type_name -> chalk.expression.v1.IsNotNull
+	56,  // 71: chalk.expression.v1.LogicalExprNode.not_expr:type_name -> chalk.expression.v1.Not
+	70,  // 72: chalk.expression.v1.LogicalExprNode.between:type_name -> chalk.expression.v1.BetweenNode
+	74,  // 73: chalk.expression.v1.LogicalExprNode.case:type_name -> chalk.expression.v1.CaseNode
+	76,  // 74: chalk.expression.v1.LogicalExprNode.cast:type_name -> chalk.expression.v1.CastNode
+	78,  // 75: chalk.expression.v1.LogicalExprNode.sort:type_name -> chalk.expression.v1.SortExprNode
+	63,  // 76: chalk.expression.v1.LogicalExprNode.negative:type_name -> chalk.expression.v1.NegativeNode
+	64,  // 77: chalk.expression.v1.LogicalExprNode.in_list:type_name -> chalk.expression.v1.InListNode
+	38,  // 78: chalk.expression.v1.LogicalExprNode.wildcard:type_name -> chalk.expression.v1.Wildcard
+	65,  // 79: chalk.expression.v1.LogicalExprNode.scalar_function:type_name -> chalk.expression.v1.ScalarFunctionNode
+	77,  // 80: chalk.expression.v1.LogicalExprNode.try_cast:type_name -> chalk.expression.v1.TryCastNode
+	69,  // 81: chalk.expression.v1.LogicalExprNode.window_expr:type_name -> chalk.expression.v1.WindowExprNode
+	67,  // 82: chalk.expression.v1.LogicalExprNode.aggregate_udf_expr:type_name -> chalk.expression.v1.AggregateUDFExprNode
+	68,  // 83: chalk.expression.v1.LogicalExprNode.scalar_udf_expr:type_name -> chalk.expression.v1.ScalarUDFExprNode
+	47,  // 84: chalk.expression.v1.LogicalExprNode.get_indexed_field:type_name -> chalk.expression.v1.GetIndexedField
+	41,  // 85: chalk.expression.v1.LogicalExprNode.grouping_set:type_name -> chalk.expression.v1.GroupingSetNode
+	42,  // 86: chalk.expression.v1.LogicalExprNode.cube:type_name -> chalk.expression.v1.CubeNode
+	43,  // 87: chalk.expression.v1.LogicalExprNode.rollup:type_name -> chalk.expression.v1.RollupNode
+	50,  // 88: chalk.expression.v1.LogicalExprNode.is_true:type_name -> chalk.expression.v1.IsTrue
+	51,  // 89: chalk.expression.v1.LogicalExprNode.is_false:type_name -> chalk.expression.v1.IsFalse
+	52,  // 90: chalk.expression.v1.LogicalExprNode.is_unknown:type_name -> chalk.expression.v1.IsUnknown
+	53,  // 91: chalk.expression.v1.LogicalExprNode.is_not_true:type_name -> chalk.expression.v1.IsNotTrue
+	54,  // 92: chalk.expression.v1.LogicalExprNode.is_not_false:type_name -> chalk.expression.v1.IsNotFalse
+	55,  // 93: chalk.expression.v1.LogicalExprNode.is_not_unknown:type_name -> chalk.expression.v1.IsNotUnknown
+	71,  // 94: chalk.expression.v1.LogicalExprNode.like:type_name -> chalk.expression.v1.LikeNode
+	72,  // 95: chalk.expression.v1.LogicalExprNode.ilike:type_name -> chalk.expression.v1.ILikeNode
+	73,  // 96: chalk.expression.v1.LogicalExprNode.similar_to:type_name -> chalk.expression.v1.SimilarToNode
+	39,  // 97: chalk.expression.v1.LogicalExprNode.placeholder:type_name -> chalk.expression.v1.PlaceholderNode
+	36,  // 98: chalk.expression.v1.Column.relation:type_name -> chalk.expression.v1.ColumnRelation
+	91,  // 99: chalk.expression.v1.PlaceholderNode.data_type:type_name -> chalk.arrow.v1.ArrowType
+	35,  // 100: chalk.expression.v1.LogicalExprList.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	40,  // 101: chalk.expression.v1.GroupingSetNode.expr:type_name -> chalk.expression.v1.LogicalExprList
+	35,  // 102: chalk.expression.v1.CubeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 103: chalk.expression.v1.RollupNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	95,  // 104: chalk.expression.v1.NamedStructField.name:type_name -> chalk.arrow.v1.ScalarValue
+	35,  // 105: chalk.expression.v1.ListIndex.key:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 106: chalk.expression.v1.ListRange.start:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 107: chalk.expression.v1.ListRange.stop:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 108: chalk.expression.v1.GetIndexedField.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	44,  // 109: chalk.expression.v1.GetIndexedField.named_struct_field:type_name -> chalk.expression.v1.NamedStructField
+	45,  // 110: chalk.expression.v1.GetIndexedField.list_index:type_name -> chalk.expression.v1.ListIndex
+	46,  // 111: chalk.expression.v1.GetIndexedField.list_range:type_name -> chalk.expression.v1.ListRange
+	35,  // 112: chalk.expression.v1.IsNull.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 113: chalk.expression.v1.IsNotNull.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 114: chalk.expression.v1.IsTrue.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 115: chalk.expression.v1.IsFalse.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 116: chalk.expression.v1.IsUnknown.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 117: chalk.expression.v1.IsNotTrue.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 118: chalk.expression.v1.IsNotFalse.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 119: chalk.expression.v1.IsNotUnknown.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 120: chalk.expression.v1.Not.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 121: chalk.expression.v1.AliasNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	61,  // 122: chalk.expression.v1.AliasNode.relation:type_name -> chalk.expression.v1.OwnedTableReference
+	58,  // 123: chalk.expression.v1.OwnedTableReference.bare:type_name -> chalk.expression.v1.BareTableReference
+	59,  // 124: chalk.expression.v1.OwnedTableReference.partial:type_name -> chalk.expression.v1.PartialTableReference
+	60,  // 125: chalk.expression.v1.OwnedTableReference.full:type_name -> chalk.expression.v1.FullTableReference
+	35,  // 126: chalk.expression.v1.BinaryExprNode.operands:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 127: chalk.expression.v1.NegativeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 128: chalk.expression.v1.InListNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 129: chalk.expression.v1.InListNode.list:type_name -> chalk.expression.v1.LogicalExprNode
+	2,   // 130: chalk.expression.v1.ScalarFunctionNode.fun:type_name -> chalk.expression.v1.ScalarFunction
+	35,  // 131: chalk.expression.v1.ScalarFunctionNode.args:type_name -> chalk.expression.v1.LogicalExprNode
+	3,   // 132: chalk.expression.v1.AggregateExprNode.aggr_function:type_name -> chalk.expression.v1.AggregateFunction
+	35,  // 133: chalk.expression.v1.AggregateExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 134: chalk.expression.v1.AggregateExprNode.filter:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 135: chalk.expression.v1.AggregateExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 136: chalk.expression.v1.AggregateUDFExprNode.args:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 137: chalk.expression.v1.AggregateUDFExprNode.filter:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 138: chalk.expression.v1.AggregateUDFExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
+	90,  // 139: chalk.expression.v1.AggregateUDFExprNode.kwargs:type_name -> chalk.expression.v1.AggregateUDFExprNode.KwargsEntry
+	35,  // 140: chalk.expression.v1.ScalarUDFExprNode.args:type_name -> chalk.expression.v1.LogicalExprNode
+	3,   // 141: chalk.expression.v1.WindowExprNode.aggr_function:type_name -> chalk.expression.v1.AggregateFunction
+	4,   // 142: chalk.expression.v1.WindowExprNode.built_in_function:type_name -> chalk.expression.v1.BuiltInWindowFunction
+	35,  // 143: chalk.expression.v1.WindowExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 144: chalk.expression.v1.WindowExprNode.partition_by:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 145: chalk.expression.v1.WindowExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
+	79,  // 146: chalk.expression.v1.WindowExprNode.window_frame:type_name -> chalk.expression.v1.WindowFrame
+	35,  // 147: chalk.expression.v1.BetweenNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 148: chalk.expression.v1.BetweenNode.low:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 149: chalk.expression.v1.BetweenNode.high:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 150: chalk.expression.v1.LikeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 151: chalk.expression.v1.LikeNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 152: chalk.expression.v1.ILikeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 153: chalk.expression.v1.ILikeNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 154: chalk.expression.v1.SimilarToNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 155: chalk.expression.v1.SimilarToNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 156: chalk.expression.v1.CaseNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	75,  // 157: chalk.expression.v1.CaseNode.when_then_expr:type_name -> chalk.expression.v1.WhenThen
+	35,  // 158: chalk.expression.v1.CaseNode.else_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 159: chalk.expression.v1.WhenThen.when_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 160: chalk.expression.v1.WhenThen.then_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	35,  // 161: chalk.expression.v1.CastNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	91,  // 162: chalk.expression.v1.CastNode.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	35,  // 163: chalk.expression.v1.TryCastNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	91,  // 164: chalk.expression.v1.TryCastNode.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	35,  // 165: chalk.expression.v1.SortExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 166: chalk.expression.v1.WindowFrame.window_frame_units:type_name -> chalk.expression.v1.WindowFrameUnits
+	80,  // 167: chalk.expression.v1.WindowFrame.start_bound:type_name -> chalk.expression.v1.WindowFrameBound
+	80,  // 168: chalk.expression.v1.WindowFrame.bound:type_name -> chalk.expression.v1.WindowFrameBound
+	6,   // 169: chalk.expression.v1.WindowFrameBound.window_frame_bound_type:type_name -> chalk.expression.v1.WindowFrameBoundType
+	95,  // 170: chalk.expression.v1.WindowFrameBound.bound_value:type_name -> chalk.arrow.v1.ScalarValue
+	35,  // 171: chalk.expression.v1.ExprCall.KwargsEntry.value:type_name -> chalk.expression.v1.LogicalExprNode
+	20,  // 172: chalk.expression.v1.BlockingFunctionV2.ArgumentsEntry.value:type_name -> chalk.expression.v1.RichArgument
+	24,  // 173: chalk.expression.v1.BatchUDF.ArgumentsEntry.value:type_name -> chalk.expression.v1.BatchUDFArgument
+	20,  // 174: chalk.expression.v1.BatchUDF.ArgumentsV2Entry.value:type_name -> chalk.expression.v1.RichArgument
+	20,  // 175: chalk.expression.v1.RichArgumentUnorderedDict.ItemsEntry.value:type_name -> chalk.expression.v1.RichArgument
+	24,  // 176: chalk.expression.v1.BatchUDFUnorderedDict.ItemsEntry.value:type_name -> chalk.expression.v1.BatchUDFArgument
+	20,  // 177: chalk.expression.v1.PyObjectV2.ArgumentsEntry.value:type_name -> chalk.expression.v1.RichArgument
+	27,  // 178: chalk.expression.v1.PyCall.KwargsEntry.value:type_name -> chalk.expression.v1.PyObject
+	35,  // 179: chalk.expression.v1.AggregateUDFExprNode.KwargsEntry.value:type_name -> chalk.expression.v1.LogicalExprNode
+	180, // [180:180] is the sub-list for method output_type
+	180, // [180:180] is the sub-list for method input_type
+	180, // [180:180] is the sub-list for extension type_name
+	180, // [180:180] is the sub-list for extension extendee
+	0,   // [0:180] is the sub-list for field type_name
 }
 
 func init() { file_chalk_expression_v1_expression_proto_init() }
@@ -7061,17 +7158,19 @@ func file_chalk_expression_v1_expression_proto_init() {
 		(*RichArgument_BatchUdfValue)(nil),
 		(*RichArgument_FlatExprValue)(nil),
 		(*RichArgument_CanonicalProtoValue)(nil),
+		(*RichArgument_CustomPythonValue)(nil),
+		(*RichArgument_BlockingFnV2Value)(nil),
 		(*RichArgument_ListValue)(nil),
 		(*RichArgument_UnorderedDictValue)(nil),
 	}
-	file_chalk_expression_v1_expression_proto_msgTypes[16].OneofWrappers = []any{
+	file_chalk_expression_v1_expression_proto_msgTypes[17].OneofWrappers = []any{
 		(*BatchUDFArgument_PrimitiveValue)(nil),
 		(*BatchUDFArgument_ExprValue)(nil),
 		(*BatchUDFArgument_PyObjectValue)(nil),
 		(*BatchUDFArgument_ListValue)(nil),
 		(*BatchUDFArgument_UnorderedDictValue)(nil),
 	}
-	file_chalk_expression_v1_expression_proto_msgTypes[19].OneofWrappers = []any{
+	file_chalk_expression_v1_expression_proto_msgTypes[20].OneofWrappers = []any{
 		(*PyObject_PyCallable)(nil),
 		(*PyObject_PyCall)(nil),
 		(*PyObject_PyInt)(nil),
@@ -7079,7 +7178,7 @@ func file_chalk_expression_v1_expression_proto_init() {
 		(*PyObject_PyBytes)(nil),
 		(*PyObject_PyArrowSchema)(nil),
 	}
-	file_chalk_expression_v1_expression_proto_msgTypes[27].OneofWrappers = []any{
+	file_chalk_expression_v1_expression_proto_msgTypes[28].OneofWrappers = []any{
 		(*LogicalExprNode_Identifier)(nil),
 		(*LogicalExprNode_GetAttribute)(nil),
 		(*LogicalExprNode_GetSubscript)(nil),
@@ -7123,31 +7222,31 @@ func file_chalk_expression_v1_expression_proto_init() {
 		(*LogicalExprNode_SimilarTo)(nil),
 		(*LogicalExprNode_Placeholder)(nil),
 	}
-	file_chalk_expression_v1_expression_proto_msgTypes[30].OneofWrappers = []any{}
-	file_chalk_expression_v1_expression_proto_msgTypes[39].OneofWrappers = []any{
+	file_chalk_expression_v1_expression_proto_msgTypes[31].OneofWrappers = []any{}
+	file_chalk_expression_v1_expression_proto_msgTypes[40].OneofWrappers = []any{
 		(*GetIndexedField_NamedStructField)(nil),
 		(*GetIndexedField_ListIndex)(nil),
 		(*GetIndexedField_ListRange)(nil),
 	}
-	file_chalk_expression_v1_expression_proto_msgTypes[53].OneofWrappers = []any{
+	file_chalk_expression_v1_expression_proto_msgTypes[54].OneofWrappers = []any{
 		(*OwnedTableReference_Bare)(nil),
 		(*OwnedTableReference_Partial)(nil),
 		(*OwnedTableReference_Full)(nil),
 	}
-	file_chalk_expression_v1_expression_proto_msgTypes[61].OneofWrappers = []any{
+	file_chalk_expression_v1_expression_proto_msgTypes[62].OneofWrappers = []any{
 		(*WindowExprNode_AggrFunction)(nil),
 		(*WindowExprNode_BuiltInFunction)(nil),
 		(*WindowExprNode_Udaf)(nil),
 		(*WindowExprNode_Udwf)(nil),
 	}
-	file_chalk_expression_v1_expression_proto_msgTypes[71].OneofWrappers = []any{}
+	file_chalk_expression_v1_expression_proto_msgTypes[72].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_expression_v1_expression_proto_rawDesc), len(file_chalk_expression_v1_expression_proto_rawDesc)),
 			NumEnums:      7,
-			NumMessages:   83,
+			NumMessages:   84,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

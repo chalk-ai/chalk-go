@@ -94,6 +94,12 @@ const (
 	// AuthServiceGetInternalWorkingTokenProcedure is the fully-qualified name of the AuthService's
 	// GetInternalWorkingToken RPC.
 	AuthServiceGetInternalWorkingTokenProcedure = "/chalk.server.v1.AuthService/GetInternalWorkingToken"
+	// AuthServiceRenewInternalExchangeTokenProcedure is the fully-qualified name of the AuthService's
+	// RenewInternalExchangeToken RPC.
+	AuthServiceRenewInternalExchangeTokenProcedure = "/chalk.server.v1.AuthService/RenewInternalExchangeToken"
+	// AuthServiceGetWorkloadIdentityTokenProcedure is the fully-qualified name of the AuthService's
+	// GetWorkloadIdentityToken RPC.
+	AuthServiceGetWorkloadIdentityTokenProcedure = "/chalk.server.v1.AuthService/GetWorkloadIdentityToken"
 	// AuthServiceCreateSelfHostedLicenseKeyProcedure is the fully-qualified name of the AuthService's
 	// CreateSelfHostedLicenseKey RPC.
 	AuthServiceCreateSelfHostedLicenseKeyProcedure = "/chalk.server.v1.AuthService/CreateSelfHostedLicenseKey"
@@ -130,6 +136,10 @@ type AuthServiceClient interface {
 	// Only for use with auto-impersonation
 	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
 	GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error)
+	RenewInternalExchangeToken(context.Context, *connect.Request[v1.RenewInternalExchangeTokenRequest]) (*connect.Response[v1.RenewInternalExchangeTokenResponse], error)
+	// Issues a short-lived OIDC ID token that third parties supporting workload
+	// identity federation can validate against the JWKS published at <issuer>/.well-known/jwks.json.
+	GetWorkloadIdentityToken(context.Context, *connect.Request[v1.GetWorkloadIdentityTokenRequest]) (*connect.Response[v1.GetWorkloadIdentityTokenResponse], error)
 	CreateSelfHostedLicenseKey(context.Context, *connect.Request[v1.CreateSelfHostedLicenseKeyRequest]) (*connect.Response[v1.CreateSelfHostedLicenseKeyResponse], error)
 	RevokeSelfHostedLicenseKey(context.Context, *connect.Request[v1.RevokeSelfHostedLicenseKeyRequest]) (*connect.Response[v1.RevokeSelfHostedLicenseKeyResponse], error)
 	ListSelfHostedLicenseKeys(context.Context, *connect.Request[v1.ListSelfHostedLicenseKeysRequest]) (*connect.Response[v1.ListSelfHostedLicenseKeysResponse], error)
@@ -279,6 +289,18 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("GetInternalWorkingToken")),
 			connect.WithClientOptions(opts...),
 		),
+		renewInternalExchangeToken: connect.NewClient[v1.RenewInternalExchangeTokenRequest, v1.RenewInternalExchangeTokenResponse](
+			httpClient,
+			baseURL+AuthServiceRenewInternalExchangeTokenProcedure,
+			connect.WithSchema(authServiceMethods.ByName("RenewInternalExchangeToken")),
+			connect.WithClientOptions(opts...),
+		),
+		getWorkloadIdentityToken: connect.NewClient[v1.GetWorkloadIdentityTokenRequest, v1.GetWorkloadIdentityTokenResponse](
+			httpClient,
+			baseURL+AuthServiceGetWorkloadIdentityTokenProcedure,
+			connect.WithSchema(authServiceMethods.ByName("GetWorkloadIdentityToken")),
+			connect.WithClientOptions(opts...),
+		),
 		createSelfHostedLicenseKey: connect.NewClient[v1.CreateSelfHostedLicenseKeyRequest, v1.CreateSelfHostedLicenseKeyResponse](
 			httpClient,
 			baseURL+AuthServiceCreateSelfHostedLicenseKeyProcedure,
@@ -325,6 +347,8 @@ type authServiceClient struct {
 	getTeamOnboardingStatus    *connect.Client[v1.GetTeamOnboardingStatusRequest, v1.GetTeamOnboardingStatusResponse]
 	getProjectInfo             *connect.Client[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse]
 	getInternalWorkingToken    *connect.Client[v1.GetInternalWorkingTokenRequest, v1.GetInternalWorkingTokenResponse]
+	renewInternalExchangeToken *connect.Client[v1.RenewInternalExchangeTokenRequest, v1.RenewInternalExchangeTokenResponse]
+	getWorkloadIdentityToken   *connect.Client[v1.GetWorkloadIdentityTokenRequest, v1.GetWorkloadIdentityTokenResponse]
 	createSelfHostedLicenseKey *connect.Client[v1.CreateSelfHostedLicenseKeyRequest, v1.CreateSelfHostedLicenseKeyResponse]
 	revokeSelfHostedLicenseKey *connect.Client[v1.RevokeSelfHostedLicenseKeyRequest, v1.RevokeSelfHostedLicenseKeyResponse]
 	listSelfHostedLicenseKeys  *connect.Client[v1.ListSelfHostedLicenseKeysRequest, v1.ListSelfHostedLicenseKeysResponse]
@@ -440,6 +464,16 @@ func (c *authServiceClient) GetInternalWorkingToken(ctx context.Context, req *co
 	return c.getInternalWorkingToken.CallUnary(ctx, req)
 }
 
+// RenewInternalExchangeToken calls chalk.server.v1.AuthService.RenewInternalExchangeToken.
+func (c *authServiceClient) RenewInternalExchangeToken(ctx context.Context, req *connect.Request[v1.RenewInternalExchangeTokenRequest]) (*connect.Response[v1.RenewInternalExchangeTokenResponse], error) {
+	return c.renewInternalExchangeToken.CallUnary(ctx, req)
+}
+
+// GetWorkloadIdentityToken calls chalk.server.v1.AuthService.GetWorkloadIdentityToken.
+func (c *authServiceClient) GetWorkloadIdentityToken(ctx context.Context, req *connect.Request[v1.GetWorkloadIdentityTokenRequest]) (*connect.Response[v1.GetWorkloadIdentityTokenResponse], error) {
+	return c.getWorkloadIdentityToken.CallUnary(ctx, req)
+}
+
 // CreateSelfHostedLicenseKey calls chalk.server.v1.AuthService.CreateSelfHostedLicenseKey.
 func (c *authServiceClient) CreateSelfHostedLicenseKey(ctx context.Context, req *connect.Request[v1.CreateSelfHostedLicenseKeyRequest]) (*connect.Response[v1.CreateSelfHostedLicenseKeyResponse], error) {
 	return c.createSelfHostedLicenseKey.CallUnary(ctx, req)
@@ -480,6 +514,10 @@ type AuthServiceHandler interface {
 	// Only for use with auto-impersonation
 	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
 	GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error)
+	RenewInternalExchangeToken(context.Context, *connect.Request[v1.RenewInternalExchangeTokenRequest]) (*connect.Response[v1.RenewInternalExchangeTokenResponse], error)
+	// Issues a short-lived OIDC ID token that third parties supporting workload
+	// identity federation can validate against the JWKS published at <issuer>/.well-known/jwks.json.
+	GetWorkloadIdentityToken(context.Context, *connect.Request[v1.GetWorkloadIdentityTokenRequest]) (*connect.Response[v1.GetWorkloadIdentityTokenResponse], error)
 	CreateSelfHostedLicenseKey(context.Context, *connect.Request[v1.CreateSelfHostedLicenseKeyRequest]) (*connect.Response[v1.CreateSelfHostedLicenseKeyResponse], error)
 	RevokeSelfHostedLicenseKey(context.Context, *connect.Request[v1.RevokeSelfHostedLicenseKeyRequest]) (*connect.Response[v1.RevokeSelfHostedLicenseKeyResponse], error)
 	ListSelfHostedLicenseKeys(context.Context, *connect.Request[v1.ListSelfHostedLicenseKeysRequest]) (*connect.Response[v1.ListSelfHostedLicenseKeysResponse], error)
@@ -625,6 +663,18 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("GetInternalWorkingToken")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceRenewInternalExchangeTokenHandler := connect.NewUnaryHandler(
+		AuthServiceRenewInternalExchangeTokenProcedure,
+		svc.RenewInternalExchangeToken,
+		connect.WithSchema(authServiceMethods.ByName("RenewInternalExchangeToken")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceGetWorkloadIdentityTokenHandler := connect.NewUnaryHandler(
+		AuthServiceGetWorkloadIdentityTokenProcedure,
+		svc.GetWorkloadIdentityToken,
+		connect.WithSchema(authServiceMethods.ByName("GetWorkloadIdentityToken")),
+		connect.WithHandlerOptions(opts...),
+	)
 	authServiceCreateSelfHostedLicenseKeyHandler := connect.NewUnaryHandler(
 		AuthServiceCreateSelfHostedLicenseKeyProcedure,
 		svc.CreateSelfHostedLicenseKey,
@@ -690,6 +740,10 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceGetProjectInfoHandler.ServeHTTP(w, r)
 		case AuthServiceGetInternalWorkingTokenProcedure:
 			authServiceGetInternalWorkingTokenHandler.ServeHTTP(w, r)
+		case AuthServiceRenewInternalExchangeTokenProcedure:
+			authServiceRenewInternalExchangeTokenHandler.ServeHTTP(w, r)
+		case AuthServiceGetWorkloadIdentityTokenProcedure:
+			authServiceGetWorkloadIdentityTokenHandler.ServeHTTP(w, r)
 		case AuthServiceCreateSelfHostedLicenseKeyProcedure:
 			authServiceCreateSelfHostedLicenseKeyHandler.ServeHTTP(w, r)
 		case AuthServiceRevokeSelfHostedLicenseKeyProcedure:
@@ -791,6 +845,14 @@ func (UnimplementedAuthServiceHandler) GetProjectInfo(context.Context, *connect.
 
 func (UnimplementedAuthServiceHandler) GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetInternalWorkingToken is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) RenewInternalExchangeToken(context.Context, *connect.Request[v1.RenewInternalExchangeTokenRequest]) (*connect.Response[v1.RenewInternalExchangeTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.RenewInternalExchangeToken is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) GetWorkloadIdentityToken(context.Context, *connect.Request[v1.GetWorkloadIdentityTokenRequest]) (*connect.Response[v1.GetWorkloadIdentityTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetWorkloadIdentityToken is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) CreateSelfHostedLicenseKey(context.Context, *connect.Request[v1.CreateSelfHostedLicenseKeyRequest]) (*connect.Response[v1.CreateSelfHostedLicenseKeyResponse], error) {

@@ -140,6 +140,7 @@ const (
 	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_NODEPOOL                       HealthCheckName = 57 // "Offline Nodepool"
 	HealthCheckName_HEALTH_CHECK_NAME_LLM_ROUTER                             HealthCheckName = 58 // "LLM Router"
 	HealthCheckName_HEALTH_CHECK_NAME_MCP_GATEWAY                            HealthCheckName = 59 // "MCP Gateway"
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_USAGE                       HealthCheckName = 60 // clickhouse usage stats
 )
 
 // Enum value maps for HealthCheckName.
@@ -205,6 +206,7 @@ var (
 		57: "HEALTH_CHECK_NAME_OFFLINE_NODEPOOL",
 		58: "HEALTH_CHECK_NAME_LLM_ROUTER",
 		59: "HEALTH_CHECK_NAME_MCP_GATEWAY",
+		60: "HEALTH_CHECK_NAME_CLICKHOUSE_USAGE",
 	}
 	HealthCheckName_value = map[string]int32{
 		"HEALTH_CHECK_NAME_UNSPECIFIED":                            0,
@@ -267,6 +269,7 @@ var (
 		"HEALTH_CHECK_NAME_OFFLINE_NODEPOOL":                       57,
 		"HEALTH_CHECK_NAME_LLM_ROUTER":                             58,
 		"HEALTH_CHECK_NAME_MCP_GATEWAY":                            59,
+		"HEALTH_CHECK_NAME_CLICKHOUSE_USAGE":                       60,
 	}
 )
 
@@ -735,7 +738,7 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\x1fHEALTH_CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16HEALTH_CHECK_STATUS_OK\x10\x01\x12\x1f\n" +
 	"\x1bHEALTH_CHECK_STATUS_FAILING\x10\x02\x12&\n" +
-	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\xd3\x12\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\xfb\x12\n" +
 	"\x0fHealthCheckName\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_HTTP_ENGINE\x10\x01\x12%\n" +
@@ -797,7 +800,8 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	".HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS\x108\x12&\n" +
 	"\"HEALTH_CHECK_NAME_OFFLINE_NODEPOOL\x109\x12 \n" +
 	"\x1cHEALTH_CHECK_NAME_LLM_ROUTER\x10:\x12!\n" +
-	"\x1dHEALTH_CHECK_NAME_MCP_GATEWAY\x10;2\xc1\x02\n" +
+	"\x1dHEALTH_CHECK_NAME_MCP_GATEWAY\x10;\x12&\n" +
+	"\"HEALTH_CHECK_NAME_CLICKHOUSE_USAGE\x10<2\xc1\x02\n" +
 	"\rHealthService\x12`\n" +
 	"\vCheckHealth\x12#.chalk.server.v1.CheckHealthRequest\x1a$.chalk.server.v1.CheckHealthResponse\"\x06\x80}\x01\x90\x02\x01\x12Z\n" +
 	"\tGetHealth\x12!.chalk.server.v1.GetHealthRequest\x1a\".chalk.server.v1.GetHealthResponse\"\x06\x80}\x02\x90\x02\x01\x12r\n" +

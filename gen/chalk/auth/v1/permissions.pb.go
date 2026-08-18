@@ -66,6 +66,7 @@ const (
 	Permission_PERMISSION_BILLING_WRITE                    Permission = 35
 	Permission_PERMISSION_QUERY_OFFLINE_READ               Permission = 36
 	Permission_PERMISSION_INTERNAL_RESOURCE_SHARE_VIEW     Permission = 37
+	Permission_PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW    Permission = 38
 )
 
 // Enum value maps for Permission.
@@ -109,6 +110,7 @@ var (
 		35: "PERMISSION_BILLING_WRITE",
 		36: "PERMISSION_QUERY_OFFLINE_READ",
 		37: "PERMISSION_INTERNAL_RESOURCE_SHARE_VIEW",
+		38: "PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW",
 	}
 	Permission_value = map[string]int32{
 		"PERMISSION_UNSPECIFIED":                      0,
@@ -149,6 +151,7 @@ var (
 		"PERMISSION_BILLING_WRITE":                    35,
 		"PERMISSION_QUERY_OFFLINE_READ":               36,
 		"PERMISSION_INTERNAL_RESOURCE_SHARE_VIEW":     37,
+		"PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW":    38,
 	}
 )
 
@@ -252,7 +255,7 @@ var File_chalk_auth_v1_permissions_proto protoreflect.FileDescriptor
 
 const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*\xf4!\n" +
+	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*\xff\"\n" +
 	"\n" +
 	"Permission\x12R\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x1a6\xca>%Default value -- should never be set.\xd2>\vunspecified\x12O\n" +
@@ -294,7 +297,8 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"*PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE\x10\"\x1a`\xca>;Use an exchange token to obtain a short-lived working token\xd2>\x1finternal.working_token_exchange\x12o\n" +
 	"\x18PERMISSION_BILLING_WRITE\x10#\x1aQ\xca>>Manage billing settings, payment methods, and credit purchases\xd2>\rbilling.write\x12\x90\x01\n" +
 	"\x1dPERMISSION_QUERY_OFFLINE_READ\x10$\x1am\xca>UView offline query metadata (datasets, query plans, results) without running queries.\xd2>\x12query.offline_read\x12\xcd\x01\n" +
-	"'PERMISSION_INTERNAL_RESOURCE_SHARE_VIEW\x10%\x1a\x9f\x01\xca>}Read a single shared resource through a share link. Held only by share-link tokens, never granted to a user or service token.\xd2>\x1cinternal.resource_share_view\x1a\x8b\x06\xe2\xa1'\x86\x06\n" +
+	"'PERMISSION_INTERNAL_RESOURCE_SHARE_VIEW\x10%\x1a\x9f\x01\xca>}Read a single shared resource through a share link. Held only by share-link tokens, never granted to a user or service token.\xd2>\x1cinternal.resource_share_view\x12f\n" +
+	"(PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW\x10&\x1a8\xca>\x15Renew exchange tokens\xd2>\x1dinternal.exchange_token_renew\x1a\xae\x06\xe2\xa1'\xa9\x06\n" +
 	"\x1c\b\x01\x12\x18insecure_unauthenticated\n" +
 	"\x11\b\x02\x12\rauthenticated\n" +
 	"\x10\b\x03\x12\fquery.online\n" +
@@ -333,7 +337,8 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"#\b\"\x12\x1finternal.working_token_exchange\n" +
 	"\x11\b#\x12\rbilling.write\n" +
 	"\x16\b$\x12\x12query.offline_read\n" +
-	" \b%\x12\x1cinternal.resource_share_view:D\n" +
+	" \b%\x12\x1cinternal.resource_share_view\n" +
+	"!\b&\x12\x1dinternal.exchange_token_renew:D\n" +
 	"\vdescription\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\tR\vdescription:6\n" +
 	"\x04slug\x12!.google.protobuf.EnumValueOptions\x18\xea\a \x01(\tR\x04slug:Z\n" +
 	"\n" +
