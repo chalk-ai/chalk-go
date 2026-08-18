@@ -8,6 +8,7 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -1168,6 +1169,10 @@ type isIntegrationConfigValue_Value interface {
 }
 
 type IntegrationConfigValue_Literal struct {
+	// The plaintext credential itself (Snowflake private keys, database passwords, API
+	// tokens). Marked sensitive so the audit interceptor clears it before persisting the
+	// request, matching SecretConfigValue.literal. secret_id is only a reference, so it
+	// stays readable and keeps the audit entry useful.
 	Literal string `protobuf:"bytes,1,opt,name=literal,proto3,oneof"`
 }
 
@@ -1183,6 +1188,10 @@ type InsertIntegrationRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	IntegrationKind IntegrationKind        `protobuf:"varint,2,opt,name=integration_kind,json=integrationKind,proto3,enum=chalk.server.v1.IntegrationKind" json:"integration_kind,omitempty"`
+	// Pre-config way of sending credentials: the map values are plaintext. Redaction clears the
+	// whole map rather than per-value, so the variable names go too -- acceptable because `config`
+	// superseded this field and keeps its keys.
+	//
 	// Deprecated: Marked as deprecated in chalk/server/v1/integrations.proto.
 	EnvironmentVariables map[string]string                  `protobuf:"bytes,3,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Config               map[string]*IntegrationConfigValue `protobuf:"bytes,4,rep,name=config,proto3" json:"config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -1297,6 +1306,8 @@ type UpdateIntegrationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	IntegrationId string                 `protobuf:"bytes,2,opt,name=integration_id,json=integrationId,proto3" json:"integration_id,omitempty"`
+	// Plaintext credentials; see InsertIntegrationRequest.environment_variables.
+	//
 	// Deprecated: Marked as deprecated in chalk/server/v1/integrations.proto.
 	EnvironmentVariables map[string]string                  `protobuf:"bytes,3,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Config               map[string]*IntegrationConfigValue `protobuf:"bytes,4,rep,name=config,proto3" json:"config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -1758,6 +1769,8 @@ func (x *PreviewedMessage) GetTimestampMs() int64 {
 type TestIntegrationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Kind  IntegrationKind        `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.server.v1.IntegrationKind" json:"kind,omitempty"`
+	// Plaintext credentials; see InsertIntegrationRequest.environment_variables.
+	//
 	// Deprecated: Marked as deprecated in chalk/server/v1/integrations.proto.
 	EnvironmentVariables map[string]string                  `protobuf:"bytes,2,rep,name=environment_variables,json=environmentVariables,proto3" json:"environment_variables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Config               map[string]*IntegrationConfigValue `protobuf:"bytes,5,rep,name=config,proto3" json:"config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -1925,11 +1938,18 @@ type SnowflakeNamedStage struct {
 	Reference string `protobuf:"bytes,4,opt,name=reference,proto3" json:"reference,omitempty"`
 	// "INTERNAL" or "EXTERNAL"; passed through from Snowflake and rendered as a hint.
 	Kind string `protobuf:"bytes,5,opt,name=kind,proto3" json:"kind,omitempty"`
-	// Backing storage location for external stages; empty for internal stages.
-	Url           string `protobuf:"bytes,6,opt,name=url,proto3" json:"url,omitempty"`
-	Comment       string `protobuf:"bytes,7,opt,name=comment,proto3" json:"comment,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Backing storage location for external stages; empty for internal stages. This is the
+	// value SNOWFLAKE_UNLOAD_EXTERNAL_LOCATION wants when unloading through this stage: the
+	// engine writes through the stage but lists and reads the files back from the cloud
+	// location behind it, so the two must name the same objects.
+	Url     string `protobuf:"bytes,6,opt,name=url,proto3" json:"url,omitempty"`
+	Comment string `protobuf:"bytes,7,opt,name=comment,proto3" json:"comment,omitempty"`
+	// Storage integration the stage writes through; empty for internal stages. Snowflake
+	// ignores STORAGE_INTEGRATION on a COPY INTO a named stage, but the config field is still
+	// populated from this so the saved data source describes the stage it points at.
+	StorageIntegration string `protobuf:"bytes,8,opt,name=storage_integration,json=storageIntegration,proto3" json:"storage_integration,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *SnowflakeNamedStage) Reset() {
@@ -2011,6 +2031,110 @@ func (x *SnowflakeNamedStage) GetComment() string {
 	return ""
 }
 
+func (x *SnowflakeNamedStage) GetStorageIntegration() string {
+	if x != nil {
+		return x.StorageIntegration
+	}
+	return ""
+}
+
+// A Snowflake storage integration the configured credentials can see, as reported by
+// SHOW INTEGRATIONS. Listing these needs privileges on the integration, which is a separate
+// grant from the stage privileges, so this list can be empty while `stages` is not.
+//
+// Named for the unload flow rather than plain "SnowflakeStorageIntegration" because that
+// name is already taken in this package by offline_store_connection.proto, which models the
+// credentials Chalk *creates* an integration with rather than one discovered on the account.
+type SnowflakeUnloadStorageIntegration struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// "EXTERNAL_STAGE" for the storage integrations used by unloading.
+	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	// Cloud provider reported by DESCRIBE, e.g. "S3", "GCS", "AZURE".
+	Provider string `protobuf:"bytes,3,opt,name=provider,proto3" json:"provider,omitempty"`
+	Enabled  bool   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// STORAGE_ALLOWED_LOCATIONS: the cloud URI prefixes Snowflake will write to through this
+	// integration. Any unload location must sit under one of them, which makes these the
+	// candidate values for SNOWFLAKE_UNLOAD_EXTERNAL_LOCATION. Empty when the role may see
+	// the integration but not DESCRIBE it.
+	AllowedLocations []string `protobuf:"bytes,5,rep,name=allowed_locations,json=allowedLocations,proto3" json:"allowed_locations,omitempty"`
+	Comment          string   `protobuf:"bytes,6,opt,name=comment,proto3" json:"comment,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *SnowflakeUnloadStorageIntegration) Reset() {
+	*x = SnowflakeUnloadStorageIntegration{}
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SnowflakeUnloadStorageIntegration) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SnowflakeUnloadStorageIntegration) ProtoMessage() {}
+
+func (x *SnowflakeUnloadStorageIntegration) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SnowflakeUnloadStorageIntegration.ProtoReflect.Descriptor instead.
+func (*SnowflakeUnloadStorageIntegration) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *SnowflakeUnloadStorageIntegration) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SnowflakeUnloadStorageIntegration) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *SnowflakeUnloadStorageIntegration) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+func (x *SnowflakeUnloadStorageIntegration) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *SnowflakeUnloadStorageIntegration) GetAllowedLocations() []string {
+	if x != nil {
+		return x.AllowedLocations
+	}
+	return nil
+}
+
+func (x *SnowflakeUnloadStorageIntegration) GetComment() string {
+	if x != nil {
+		return x.Comment
+	}
+	return ""
+}
+
 type ListSnowflakeNamedStagesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Same shape and merge semantics as TestIntegrationRequest.config: values supplied here
@@ -2024,7 +2148,7 @@ type ListSnowflakeNamedStagesRequest struct {
 
 func (x *ListSnowflakeNamedStagesRequest) Reset() {
 	*x = ListSnowflakeNamedStagesRequest{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2036,7 +2160,7 @@ func (x *ListSnowflakeNamedStagesRequest) String() string {
 func (*ListSnowflakeNamedStagesRequest) ProtoMessage() {}
 
 func (x *ListSnowflakeNamedStagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2049,7 +2173,7 @@ func (x *ListSnowflakeNamedStagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSnowflakeNamedStagesRequest.ProtoReflect.Descriptor instead.
 func (*ListSnowflakeNamedStagesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ListSnowflakeNamedStagesRequest) GetConfig() map[string]*IntegrationConfigValue {
@@ -2073,14 +2197,18 @@ type ListSnowflakeNamedStagesResponse struct {
 	// credentials, unreachable engine) is reported as an RPC error instead.
 	Stages []*SnowflakeNamedStage `protobuf:"bytes,1,rep,name=stages,proto3" json:"stages,omitempty"`
 	// Set when the account has more stages than one response carries.
-	Truncated     bool `protobuf:"varint,2,opt,name=truncated,proto3" json:"truncated,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Truncated bool `protobuf:"varint,2,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	// Storage integrations from the same connection. Carried on this response rather than a
+	// second RPC so configuring an unload destination costs one warehouse connection, not two;
+	// the RPC keeps its narrower name because renaming it would be a wire break.
+	StorageIntegrations []*SnowflakeUnloadStorageIntegration `protobuf:"bytes,3,rep,name=storage_integrations,json=storageIntegrations,proto3" json:"storage_integrations,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListSnowflakeNamedStagesResponse) Reset() {
 	*x = ListSnowflakeNamedStagesResponse{}
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2092,7 +2220,7 @@ func (x *ListSnowflakeNamedStagesResponse) String() string {
 func (*ListSnowflakeNamedStagesResponse) ProtoMessage() {}
 
 func (x *ListSnowflakeNamedStagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_integrations_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_integrations_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2105,7 +2233,7 @@ func (x *ListSnowflakeNamedStagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSnowflakeNamedStagesResponse.ProtoReflect.Descriptor instead.
 func (*ListSnowflakeNamedStagesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_integrations_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ListSnowflakeNamedStagesResponse) GetStages() []*SnowflakeNamedStage {
@@ -2122,11 +2250,18 @@ func (x *ListSnowflakeNamedStagesResponse) GetTruncated() bool {
 	return false
 }
 
+func (x *ListSnowflakeNamedStagesResponse) GetStorageIntegrations() []*SnowflakeUnloadStorageIntegration {
+	if x != nil {
+		return x.StorageIntegrations
+	}
+	return nil
+}
+
 var File_chalk_server_v1_integrations_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/server/v1/integrations.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x01\n" +
+	"\"chalk/server/v1/integrations.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x01\n" +
 	"\x12IntegrationWarning\x12;\n" +
 	"\x04code\x18\x01 \x01(\x0e2'.chalk.server.v1.IntegrationWarningCodeR\x04code\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
@@ -2187,15 +2322,15 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\x10integration_name\x18\x01 \x01(\tR\x0fintegrationName\"s\n" +
 	"\x1cGetIntegrationByNameResponse\x12C\n" +
 	"\vintegration\x18\x01 \x01(\v2\x1c.chalk.server.v1.IntegrationH\x00R\vintegration\x88\x01\x01B\x0e\n" +
-	"\f_integration\"\\\n" +
-	"\x16IntegrationConfigValue\x12\x1a\n" +
-	"\aliteral\x18\x01 \x01(\tH\x00R\aliteral\x12\x1d\n" +
+	"\f_integration\"b\n" +
+	"\x16IntegrationConfigValue\x12 \n" +
+	"\aliteral\x18\x01 \x01(\tB\x04ء'\x01H\x00R\aliteral\x12\x1d\n" +
 	"\tsecret_id\x18\x02 \x01(\tH\x00R\bsecretIdB\a\n" +
-	"\x05value\"\xf5\x03\n" +
+	"\x05value\"\xfa\x03\n" +
 	"\x18InsertIntegrationRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12K\n" +
-	"\x10integration_kind\x18\x02 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x0fintegrationKind\x12|\n" +
-	"\x15environment_variables\x18\x03 \x03(\v2C.chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntryB\x02\x18\x01R\x14environmentVariables\x12M\n" +
+	"\x10integration_kind\x18\x02 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x0fintegrationKind\x12\x80\x01\n" +
+	"\x15environment_variables\x18\x03 \x03(\v2C.chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntryB\x06ء'\x01\x18\x01R\x14environmentVariables\x12M\n" +
 	"\x06config\x18\x04 \x03(\v25.chalk.server.v1.InsertIntegrationRequest.ConfigEntryR\x06config\x1aG\n" +
 	"\x19EnvironmentVariablesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -2204,11 +2339,11 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12=\n" +
 	"\x05value\x18\x02 \x01(\v2'.chalk.server.v1.IntegrationConfigValueR\x05value:\x028\x01\"[\n" +
 	"\x19InsertIntegrationResponse\x12>\n" +
-	"\vintegration\x18\x01 \x01(\v2\x1c.chalk.server.v1.IntegrationR\vintegration\"\xcf\x03\n" +
+	"\vintegration\x18\x01 \x01(\v2\x1c.chalk.server.v1.IntegrationR\vintegration\"\xd4\x03\n" +
 	"\x18UpdateIntegrationRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
-	"\x0eintegration_id\x18\x02 \x01(\tR\rintegrationId\x12|\n" +
-	"\x15environment_variables\x18\x03 \x03(\v2C.chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntryB\x02\x18\x01R\x14environmentVariables\x12M\n" +
+	"\x0eintegration_id\x18\x02 \x01(\tR\rintegrationId\x12\x80\x01\n" +
+	"\x15environment_variables\x18\x03 \x03(\v2C.chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntryB\x06ء'\x01\x18\x01R\x14environmentVariables\x12M\n" +
 	"\x06config\x18\x04 \x03(\v25.chalk.server.v1.UpdateIntegrationRequest.ConfigEntryR\x06config\x1aG\n" +
 	"\x19EnvironmentVariablesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -2238,10 +2373,10 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\tpartition\x18\x04 \x01(\tR\tpartition\x12\x16\n" +
 	"\x06offset\x18\x05 \x01(\tR\x06offset\x12!\n" +
 	"\ftimestamp_ms\x18\x06 \x01(\x03R\vtimestampMsB\r\n" +
-	"\v_key_base64\"\xc5\x04\n" +
+	"\v_key_base64\"\xc9\x04\n" +
 	"\x16TestIntegrationRequest\x124\n" +
-	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12z\n" +
-	"\x15environment_variables\x18\x02 \x03(\v2A.chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntryB\x02\x18\x01R\x14environmentVariables\x12K\n" +
+	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12~\n" +
+	"\x15environment_variables\x18\x02 \x03(\v2A.chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntryB\x06ء'\x01\x18\x01R\x14environmentVariables\x12K\n" +
 	"\x06config\x18\x05 \x03(\v23.chalk.server.v1.TestIntegrationRequest.ConfigEntryR\x06config\x12*\n" +
 	"\x0eintegration_id\x18\x03 \x01(\tH\x00R\rintegrationId\x88\x01\x01\x12,\n" +
 	"\x0finclude_preview\x18\x04 \x01(\bH\x01R\x0eincludePreview\x88\x01\x01\x1aG\n" +
@@ -2259,7 +2394,7 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\amessage\x18\x03 \x01(\tR\amessage\x12,\n" +
 	"\x0flatency_seconds\x18\x04 \x01(\x01H\x00R\x0elatencySeconds\x88\x01\x01\x12L\n" +
 	"\x10preview_messages\x18\x05 \x03(\v2!.chalk.server.v1.PreviewedMessageR\x0fpreviewMessagesB\x12\n" +
-	"\x10_latency_seconds\"\xcd\x01\n" +
+	"\x10_latency_seconds\"\xfe\x01\n" +
 	"\x13SnowflakeNamedStage\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
 	"\rdatabase_name\x18\x02 \x01(\tR\fdatabaseName\x12\x1f\n" +
@@ -2268,17 +2403,26 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\treference\x18\x04 \x01(\tR\treference\x12\x12\n" +
 	"\x04kind\x18\x05 \x01(\tR\x04kind\x12\x10\n" +
 	"\x03url\x18\x06 \x01(\tR\x03url\x12\x18\n" +
-	"\acomment\x18\a \x01(\tR\acomment\"\x9a\x02\n" +
+	"\acomment\x18\a \x01(\tR\acomment\x12/\n" +
+	"\x13storage_integration\x18\b \x01(\tR\x12storageIntegration\"\xc8\x01\n" +
+	"!SnowflakeUnloadStorageIntegration\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1a\n" +
+	"\bprovider\x18\x03 \x01(\tR\bprovider\x12\x18\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12+\n" +
+	"\x11allowed_locations\x18\x05 \x03(\tR\x10allowedLocations\x12\x18\n" +
+	"\acomment\x18\x06 \x01(\tR\acomment\"\x9a\x02\n" +
 	"\x1fListSnowflakeNamedStagesRequest\x12T\n" +
 	"\x06config\x18\x01 \x03(\v2<.chalk.server.v1.ListSnowflakeNamedStagesRequest.ConfigEntryR\x06config\x12*\n" +
 	"\x0eintegration_id\x18\x02 \x01(\tH\x00R\rintegrationId\x88\x01\x01\x1ab\n" +
 	"\vConfigEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12=\n" +
 	"\x05value\x18\x02 \x01(\v2'.chalk.server.v1.IntegrationConfigValueR\x05value:\x028\x01B\x11\n" +
-	"\x0f_integration_id\"~\n" +
+	"\x0f_integration_id\"\xe5\x01\n" +
 	" ListSnowflakeNamedStagesResponse\x12<\n" +
 	"\x06stages\x18\x01 \x03(\v2$.chalk.server.v1.SnowflakeNamedStageR\x06stages\x12\x1c\n" +
-	"\ttruncated\x18\x02 \x01(\bR\ttruncated*\x89\x05\n" +
+	"\ttruncated\x18\x02 \x01(\bR\ttruncated\x12e\n" +
+	"\x14storage_integrations\x18\x03 \x03(\v22.chalk.server.v1.SnowflakeUnloadStorageIntegrationR\x13storageIntegrations*\x89\x05\n" +
 	"\x0fIntegrationKind\x12 \n" +
 	"\x1cINTEGRATION_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17INTEGRATION_KIND_ATHENA\x10\x01\x12\x18\n" +
@@ -2335,7 +2479,7 @@ func file_chalk_server_v1_integrations_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_integrations_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_integrations_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
+var file_chalk_server_v1_integrations_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_chalk_server_v1_integrations_proto_goTypes = []any{
 	(IntegrationKind)(0),                          // 0: chalk.server.v1.IntegrationKind
 	(IntegrationWarningCode)(0),                   // 1: chalk.server.v1.IntegrationWarningCode
@@ -2372,91 +2516,93 @@ var file_chalk_server_v1_integrations_proto_goTypes = []any{
 	(*TestIntegrationRequest)(nil),                // 32: chalk.server.v1.TestIntegrationRequest
 	(*TestIntegrationResponse)(nil),               // 33: chalk.server.v1.TestIntegrationResponse
 	(*SnowflakeNamedStage)(nil),                   // 34: chalk.server.v1.SnowflakeNamedStage
-	(*ListSnowflakeNamedStagesRequest)(nil),       // 35: chalk.server.v1.ListSnowflakeNamedStagesRequest
-	(*ListSnowflakeNamedStagesResponse)(nil),      // 36: chalk.server.v1.ListSnowflakeNamedStagesResponse
-	nil,                                           // 37: chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntry
-	nil,                                           // 38: chalk.server.v1.InsertIntegrationRequest.ConfigEntry
-	nil,                                           // 39: chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntry
-	nil,                                           // 40: chalk.server.v1.UpdateIntegrationRequest.ConfigEntry
-	nil,                                           // 41: chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntry
-	nil,                                           // 42: chalk.server.v1.TestIntegrationRequest.ConfigEntry
-	nil,                                           // 43: chalk.server.v1.ListSnowflakeNamedStagesRequest.ConfigEntry
-	(*timestamppb.Timestamp)(nil),                 // 44: google.protobuf.Timestamp
-	(*SecretWithValue)(nil),                       // 45: chalk.server.v1.SecretWithValue
-	(*SecretValue)(nil),                           // 46: chalk.server.v1.SecretValue
+	(*SnowflakeUnloadStorageIntegration)(nil),     // 35: chalk.server.v1.SnowflakeUnloadStorageIntegration
+	(*ListSnowflakeNamedStagesRequest)(nil),       // 36: chalk.server.v1.ListSnowflakeNamedStagesRequest
+	(*ListSnowflakeNamedStagesResponse)(nil),      // 37: chalk.server.v1.ListSnowflakeNamedStagesResponse
+	nil,                                           // 38: chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntry
+	nil,                                           // 39: chalk.server.v1.InsertIntegrationRequest.ConfigEntry
+	nil,                                           // 40: chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntry
+	nil,                                           // 41: chalk.server.v1.UpdateIntegrationRequest.ConfigEntry
+	nil,                                           // 42: chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntry
+	nil,                                           // 43: chalk.server.v1.TestIntegrationRequest.ConfigEntry
+	nil,                                           // 44: chalk.server.v1.ListSnowflakeNamedStagesRequest.ConfigEntry
+	(*timestamppb.Timestamp)(nil),                 // 45: google.protobuf.Timestamp
+	(*SecretWithValue)(nil),                       // 46: chalk.server.v1.SecretWithValue
+	(*SecretValue)(nil),                           // 47: chalk.server.v1.SecretValue
 }
 var file_chalk_server_v1_integrations_proto_depIdxs = []int32{
 	1,  // 0: chalk.server.v1.IntegrationWarning.code:type_name -> chalk.server.v1.IntegrationWarningCode
 	0,  // 1: chalk.server.v1.Integration.kind:type_name -> chalk.server.v1.IntegrationKind
-	44, // 2: chalk.server.v1.Integration.created_at:type_name -> google.protobuf.Timestamp
-	44, // 3: chalk.server.v1.Integration.updated_at:type_name -> google.protobuf.Timestamp
+	45, // 2: chalk.server.v1.Integration.created_at:type_name -> google.protobuf.Timestamp
+	45, // 3: chalk.server.v1.Integration.updated_at:type_name -> google.protobuf.Timestamp
 	2,  // 4: chalk.server.v1.Integration.warnings:type_name -> chalk.server.v1.IntegrationWarning
 	3,  // 5: chalk.server.v1.IntegrationWithSecrets.integration:type_name -> chalk.server.v1.Integration
-	45, // 6: chalk.server.v1.IntegrationWithSecrets.secrets:type_name -> chalk.server.v1.SecretWithValue
+	46, // 6: chalk.server.v1.IntegrationWithSecrets.secrets:type_name -> chalk.server.v1.SecretWithValue
 	0,  // 7: chalk.server.v1.DatasourcePermissionTag.kind:type_name -> chalk.server.v1.IntegrationKind
-	44, // 8: chalk.server.v1.DatasourcePermissionTag.created_at:type_name -> google.protobuf.Timestamp
-	44, // 9: chalk.server.v1.DatasourcePermissionTag.updated_at:type_name -> google.protobuf.Timestamp
+	45, // 8: chalk.server.v1.DatasourcePermissionTag.created_at:type_name -> google.protobuf.Timestamp
+	45, // 9: chalk.server.v1.DatasourcePermissionTag.updated_at:type_name -> google.protobuf.Timestamp
 	3,  // 10: chalk.server.v1.ListIntegrationsResponse.integrations:type_name -> chalk.server.v1.Integration
 	5,  // 11: chalk.server.v1.ListDatasourcePermissionTagsResponse.datasource_permission_tags:type_name -> chalk.server.v1.DatasourcePermissionTag
 	0,  // 12: chalk.server.v1.GetDatasourcePermissionTagRequest.kind:type_name -> chalk.server.v1.IntegrationKind
 	5,  // 13: chalk.server.v1.GetDatasourcePermissionTagResponse.datasource_permission_tag:type_name -> chalk.server.v1.DatasourcePermissionTag
 	4,  // 14: chalk.server.v1.ListIntegrationsAndSecretsResponse.integrations:type_name -> chalk.server.v1.IntegrationWithSecrets
-	45, // 15: chalk.server.v1.ListIntegrationsAndSecretsResponse.custom_secrets:type_name -> chalk.server.v1.SecretWithValue
-	46, // 16: chalk.server.v1.GetIntegrationValueResponse.secretvalue:type_name -> chalk.server.v1.SecretValue
+	46, // 15: chalk.server.v1.ListIntegrationsAndSecretsResponse.custom_secrets:type_name -> chalk.server.v1.SecretWithValue
+	47, // 16: chalk.server.v1.GetIntegrationValueResponse.secretvalue:type_name -> chalk.server.v1.SecretValue
 	4,  // 17: chalk.server.v1.GetIntegrationResponse.integration_with_secrets:type_name -> chalk.server.v1.IntegrationWithSecrets
 	3,  // 18: chalk.server.v1.GetIntegrationByNameResponse.integration:type_name -> chalk.server.v1.Integration
 	0,  // 19: chalk.server.v1.InsertIntegrationRequest.integration_kind:type_name -> chalk.server.v1.IntegrationKind
-	37, // 20: chalk.server.v1.InsertIntegrationRequest.environment_variables:type_name -> chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntry
-	38, // 21: chalk.server.v1.InsertIntegrationRequest.config:type_name -> chalk.server.v1.InsertIntegrationRequest.ConfigEntry
+	38, // 20: chalk.server.v1.InsertIntegrationRequest.environment_variables:type_name -> chalk.server.v1.InsertIntegrationRequest.EnvironmentVariablesEntry
+	39, // 21: chalk.server.v1.InsertIntegrationRequest.config:type_name -> chalk.server.v1.InsertIntegrationRequest.ConfigEntry
 	3,  // 22: chalk.server.v1.InsertIntegrationResponse.integration:type_name -> chalk.server.v1.Integration
-	39, // 23: chalk.server.v1.UpdateIntegrationRequest.environment_variables:type_name -> chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntry
-	40, // 24: chalk.server.v1.UpdateIntegrationRequest.config:type_name -> chalk.server.v1.UpdateIntegrationRequest.ConfigEntry
+	40, // 23: chalk.server.v1.UpdateIntegrationRequest.environment_variables:type_name -> chalk.server.v1.UpdateIntegrationRequest.EnvironmentVariablesEntry
+	41, // 24: chalk.server.v1.UpdateIntegrationRequest.config:type_name -> chalk.server.v1.UpdateIntegrationRequest.ConfigEntry
 	3,  // 25: chalk.server.v1.UpdateIntegrationResponse.integration:type_name -> chalk.server.v1.Integration
 	0,  // 26: chalk.server.v1.UpsertDatasourcePermissionTagRequest.kind:type_name -> chalk.server.v1.IntegrationKind
 	0,  // 27: chalk.server.v1.DeleteDatasourcePermissionTagRequest.kind:type_name -> chalk.server.v1.IntegrationKind
 	0,  // 28: chalk.server.v1.TestIntegrationRequest.kind:type_name -> chalk.server.v1.IntegrationKind
-	41, // 29: chalk.server.v1.TestIntegrationRequest.environment_variables:type_name -> chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntry
-	42, // 30: chalk.server.v1.TestIntegrationRequest.config:type_name -> chalk.server.v1.TestIntegrationRequest.ConfigEntry
+	42, // 29: chalk.server.v1.TestIntegrationRequest.environment_variables:type_name -> chalk.server.v1.TestIntegrationRequest.EnvironmentVariablesEntry
+	43, // 30: chalk.server.v1.TestIntegrationRequest.config:type_name -> chalk.server.v1.TestIntegrationRequest.ConfigEntry
 	31, // 31: chalk.server.v1.TestIntegrationResponse.preview_messages:type_name -> chalk.server.v1.PreviewedMessage
-	43, // 32: chalk.server.v1.ListSnowflakeNamedStagesRequest.config:type_name -> chalk.server.v1.ListSnowflakeNamedStagesRequest.ConfigEntry
+	44, // 32: chalk.server.v1.ListSnowflakeNamedStagesRequest.config:type_name -> chalk.server.v1.ListSnowflakeNamedStagesRequest.ConfigEntry
 	34, // 33: chalk.server.v1.ListSnowflakeNamedStagesResponse.stages:type_name -> chalk.server.v1.SnowflakeNamedStage
-	20, // 34: chalk.server.v1.InsertIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
-	20, // 35: chalk.server.v1.UpdateIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
-	20, // 36: chalk.server.v1.TestIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
-	20, // 37: chalk.server.v1.ListSnowflakeNamedStagesRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
-	6,  // 38: chalk.server.v1.IntegrationsService.ListIntegrations:input_type -> chalk.server.v1.ListIntegrationsRequest
-	8,  // 39: chalk.server.v1.IntegrationsService.ListDatasourcePermissionTags:input_type -> chalk.server.v1.ListDatasourcePermissionTagsRequest
-	10, // 40: chalk.server.v1.IntegrationsService.GetDatasourcePermissionTag:input_type -> chalk.server.v1.GetDatasourcePermissionTagRequest
-	12, // 41: chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets:input_type -> chalk.server.v1.ListIntegrationsAndSecretsRequest
-	14, // 42: chalk.server.v1.IntegrationsService.GetIntegrationValue:input_type -> chalk.server.v1.GetIntegrationValueRequest
-	16, // 43: chalk.server.v1.IntegrationsService.GetIntegration:input_type -> chalk.server.v1.GetIntegrationRequest
-	18, // 44: chalk.server.v1.IntegrationsService.GetIntegrationByName:input_type -> chalk.server.v1.GetIntegrationByNameRequest
-	21, // 45: chalk.server.v1.IntegrationsService.InsertIntegration:input_type -> chalk.server.v1.InsertIntegrationRequest
-	23, // 46: chalk.server.v1.IntegrationsService.UpdateIntegration:input_type -> chalk.server.v1.UpdateIntegrationRequest
-	25, // 47: chalk.server.v1.IntegrationsService.DeleteIntegration:input_type -> chalk.server.v1.DeleteIntegrationRequest
-	27, // 48: chalk.server.v1.IntegrationsService.UpsertDatasourcePermissionTag:input_type -> chalk.server.v1.UpsertDatasourcePermissionTagRequest
-	29, // 49: chalk.server.v1.IntegrationsService.DeleteDatasourcePermissionTag:input_type -> chalk.server.v1.DeleteDatasourcePermissionTagRequest
-	32, // 50: chalk.server.v1.IntegrationsService.TestIntegration:input_type -> chalk.server.v1.TestIntegrationRequest
-	35, // 51: chalk.server.v1.IntegrationsService.ListSnowflakeNamedStages:input_type -> chalk.server.v1.ListSnowflakeNamedStagesRequest
-	7,  // 52: chalk.server.v1.IntegrationsService.ListIntegrations:output_type -> chalk.server.v1.ListIntegrationsResponse
-	9,  // 53: chalk.server.v1.IntegrationsService.ListDatasourcePermissionTags:output_type -> chalk.server.v1.ListDatasourcePermissionTagsResponse
-	11, // 54: chalk.server.v1.IntegrationsService.GetDatasourcePermissionTag:output_type -> chalk.server.v1.GetDatasourcePermissionTagResponse
-	13, // 55: chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets:output_type -> chalk.server.v1.ListIntegrationsAndSecretsResponse
-	15, // 56: chalk.server.v1.IntegrationsService.GetIntegrationValue:output_type -> chalk.server.v1.GetIntegrationValueResponse
-	17, // 57: chalk.server.v1.IntegrationsService.GetIntegration:output_type -> chalk.server.v1.GetIntegrationResponse
-	19, // 58: chalk.server.v1.IntegrationsService.GetIntegrationByName:output_type -> chalk.server.v1.GetIntegrationByNameResponse
-	22, // 59: chalk.server.v1.IntegrationsService.InsertIntegration:output_type -> chalk.server.v1.InsertIntegrationResponse
-	24, // 60: chalk.server.v1.IntegrationsService.UpdateIntegration:output_type -> chalk.server.v1.UpdateIntegrationResponse
-	26, // 61: chalk.server.v1.IntegrationsService.DeleteIntegration:output_type -> chalk.server.v1.DeleteIntegrationResponse
-	28, // 62: chalk.server.v1.IntegrationsService.UpsertDatasourcePermissionTag:output_type -> chalk.server.v1.UpsertDatasourcePermissionTagResponse
-	30, // 63: chalk.server.v1.IntegrationsService.DeleteDatasourcePermissionTag:output_type -> chalk.server.v1.DeleteDatasourcePermissionTagResponse
-	33, // 64: chalk.server.v1.IntegrationsService.TestIntegration:output_type -> chalk.server.v1.TestIntegrationResponse
-	36, // 65: chalk.server.v1.IntegrationsService.ListSnowflakeNamedStages:output_type -> chalk.server.v1.ListSnowflakeNamedStagesResponse
-	52, // [52:66] is the sub-list for method output_type
-	38, // [38:52] is the sub-list for method input_type
-	38, // [38:38] is the sub-list for extension type_name
-	38, // [38:38] is the sub-list for extension extendee
-	0,  // [0:38] is the sub-list for field type_name
+	35, // 34: chalk.server.v1.ListSnowflakeNamedStagesResponse.storage_integrations:type_name -> chalk.server.v1.SnowflakeUnloadStorageIntegration
+	20, // 35: chalk.server.v1.InsertIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	20, // 36: chalk.server.v1.UpdateIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	20, // 37: chalk.server.v1.TestIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	20, // 38: chalk.server.v1.ListSnowflakeNamedStagesRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	6,  // 39: chalk.server.v1.IntegrationsService.ListIntegrations:input_type -> chalk.server.v1.ListIntegrationsRequest
+	8,  // 40: chalk.server.v1.IntegrationsService.ListDatasourcePermissionTags:input_type -> chalk.server.v1.ListDatasourcePermissionTagsRequest
+	10, // 41: chalk.server.v1.IntegrationsService.GetDatasourcePermissionTag:input_type -> chalk.server.v1.GetDatasourcePermissionTagRequest
+	12, // 42: chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets:input_type -> chalk.server.v1.ListIntegrationsAndSecretsRequest
+	14, // 43: chalk.server.v1.IntegrationsService.GetIntegrationValue:input_type -> chalk.server.v1.GetIntegrationValueRequest
+	16, // 44: chalk.server.v1.IntegrationsService.GetIntegration:input_type -> chalk.server.v1.GetIntegrationRequest
+	18, // 45: chalk.server.v1.IntegrationsService.GetIntegrationByName:input_type -> chalk.server.v1.GetIntegrationByNameRequest
+	21, // 46: chalk.server.v1.IntegrationsService.InsertIntegration:input_type -> chalk.server.v1.InsertIntegrationRequest
+	23, // 47: chalk.server.v1.IntegrationsService.UpdateIntegration:input_type -> chalk.server.v1.UpdateIntegrationRequest
+	25, // 48: chalk.server.v1.IntegrationsService.DeleteIntegration:input_type -> chalk.server.v1.DeleteIntegrationRequest
+	27, // 49: chalk.server.v1.IntegrationsService.UpsertDatasourcePermissionTag:input_type -> chalk.server.v1.UpsertDatasourcePermissionTagRequest
+	29, // 50: chalk.server.v1.IntegrationsService.DeleteDatasourcePermissionTag:input_type -> chalk.server.v1.DeleteDatasourcePermissionTagRequest
+	32, // 51: chalk.server.v1.IntegrationsService.TestIntegration:input_type -> chalk.server.v1.TestIntegrationRequest
+	36, // 52: chalk.server.v1.IntegrationsService.ListSnowflakeNamedStages:input_type -> chalk.server.v1.ListSnowflakeNamedStagesRequest
+	7,  // 53: chalk.server.v1.IntegrationsService.ListIntegrations:output_type -> chalk.server.v1.ListIntegrationsResponse
+	9,  // 54: chalk.server.v1.IntegrationsService.ListDatasourcePermissionTags:output_type -> chalk.server.v1.ListDatasourcePermissionTagsResponse
+	11, // 55: chalk.server.v1.IntegrationsService.GetDatasourcePermissionTag:output_type -> chalk.server.v1.GetDatasourcePermissionTagResponse
+	13, // 56: chalk.server.v1.IntegrationsService.ListIntegrationsAndSecrets:output_type -> chalk.server.v1.ListIntegrationsAndSecretsResponse
+	15, // 57: chalk.server.v1.IntegrationsService.GetIntegrationValue:output_type -> chalk.server.v1.GetIntegrationValueResponse
+	17, // 58: chalk.server.v1.IntegrationsService.GetIntegration:output_type -> chalk.server.v1.GetIntegrationResponse
+	19, // 59: chalk.server.v1.IntegrationsService.GetIntegrationByName:output_type -> chalk.server.v1.GetIntegrationByNameResponse
+	22, // 60: chalk.server.v1.IntegrationsService.InsertIntegration:output_type -> chalk.server.v1.InsertIntegrationResponse
+	24, // 61: chalk.server.v1.IntegrationsService.UpdateIntegration:output_type -> chalk.server.v1.UpdateIntegrationResponse
+	26, // 62: chalk.server.v1.IntegrationsService.DeleteIntegration:output_type -> chalk.server.v1.DeleteIntegrationResponse
+	28, // 63: chalk.server.v1.IntegrationsService.UpsertDatasourcePermissionTag:output_type -> chalk.server.v1.UpsertDatasourcePermissionTagResponse
+	30, // 64: chalk.server.v1.IntegrationsService.DeleteDatasourcePermissionTag:output_type -> chalk.server.v1.DeleteDatasourcePermissionTagResponse
+	33, // 65: chalk.server.v1.IntegrationsService.TestIntegration:output_type -> chalk.server.v1.TestIntegrationResponse
+	37, // 66: chalk.server.v1.IntegrationsService.ListSnowflakeNamedStages:output_type -> chalk.server.v1.ListSnowflakeNamedStagesResponse
+	53, // [53:67] is the sub-list for method output_type
+	39, // [39:53] is the sub-list for method input_type
+	39, // [39:39] is the sub-list for extension type_name
+	39, // [39:39] is the sub-list for extension extendee
+	0,  // [0:39] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_integrations_proto_init() }
@@ -2476,14 +2622,14 @@ func file_chalk_server_v1_integrations_proto_init() {
 	file_chalk_server_v1_integrations_proto_msgTypes[29].OneofWrappers = []any{}
 	file_chalk_server_v1_integrations_proto_msgTypes[30].OneofWrappers = []any{}
 	file_chalk_server_v1_integrations_proto_msgTypes[31].OneofWrappers = []any{}
-	file_chalk_server_v1_integrations_proto_msgTypes[33].OneofWrappers = []any{}
+	file_chalk_server_v1_integrations_proto_msgTypes[34].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_integrations_proto_rawDesc), len(file_chalk_server_v1_integrations_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   42,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

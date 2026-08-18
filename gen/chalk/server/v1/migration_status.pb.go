@@ -142,6 +142,57 @@ func (EnvVarPredicate) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{1}
 }
 
+type RuntimePredicate int32
+
+const (
+	RuntimePredicate_RUNTIME_PREDICATE_UNSPECIFIED RuntimePredicate = 0
+	RuntimePredicate_RUNTIME_PREDICATE_EQUALS_ANY  RuntimePredicate = 1
+	// Environments without an active deployment satisfy this predicate because
+	// they are not running any of the listed runtimes.
+	RuntimePredicate_RUNTIME_PREDICATE_NOT_EQUALS_ANY RuntimePredicate = 2
+)
+
+// Enum value maps for RuntimePredicate.
+var (
+	RuntimePredicate_name = map[int32]string{
+		0: "RUNTIME_PREDICATE_UNSPECIFIED",
+		1: "RUNTIME_PREDICATE_EQUALS_ANY",
+		2: "RUNTIME_PREDICATE_NOT_EQUALS_ANY",
+	}
+	RuntimePredicate_value = map[string]int32{
+		"RUNTIME_PREDICATE_UNSPECIFIED":    0,
+		"RUNTIME_PREDICATE_EQUALS_ANY":     1,
+		"RUNTIME_PREDICATE_NOT_EQUALS_ANY": 2,
+	}
+)
+
+func (x RuntimePredicate) Enum() *RuntimePredicate {
+	p := new(RuntimePredicate)
+	*p = x
+	return p
+}
+
+func (x RuntimePredicate) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RuntimePredicate) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_migration_status_proto_enumTypes[2].Descriptor()
+}
+
+func (RuntimePredicate) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_migration_status_proto_enumTypes[2]
+}
+
+func (x RuntimePredicate) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RuntimePredicate.Descriptor instead.
+func (RuntimePredicate) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{2}
+}
+
 type EnvironmentMigrationState int32
 
 const (
@@ -175,11 +226,11 @@ func (x EnvironmentMigrationState) String() string {
 }
 
 func (EnvironmentMigrationState) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_migration_status_proto_enumTypes[2].Descriptor()
+	return file_chalk_server_v1_migration_status_proto_enumTypes[3].Descriptor()
 }
 
 func (EnvironmentMigrationState) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_migration_status_proto_enumTypes[2]
+	return &file_chalk_server_v1_migration_status_proto_enumTypes[3]
 }
 
 func (x EnvironmentMigrationState) Number() protoreflect.EnumNumber {
@@ -188,7 +239,7 @@ func (x EnvironmentMigrationState) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EnvironmentMigrationState.Descriptor instead.
 func (EnvironmentMigrationState) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{3}
 }
 
 type FlagCriterion struct {
@@ -304,6 +355,58 @@ func (x *EnvVarCriterion) GetValues() []string {
 	return nil
 }
 
+type RuntimeCriterion struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Predicate     RuntimePredicate       `protobuf:"varint,1,opt,name=predicate,proto3,enum=chalk.server.v1.RuntimePredicate" json:"predicate,omitempty"`
+	Values        []string               `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RuntimeCriterion) Reset() {
+	*x = RuntimeCriterion{}
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RuntimeCriterion) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RuntimeCriterion) ProtoMessage() {}
+
+func (x *RuntimeCriterion) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RuntimeCriterion.ProtoReflect.Descriptor instead.
+func (*RuntimeCriterion) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RuntimeCriterion) GetPredicate() RuntimePredicate {
+	if x != nil {
+		return x.Predicate
+	}
+	return RuntimePredicate_RUNTIME_PREDICATE_UNSPECIFIED
+}
+
+func (x *RuntimeCriterion) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
 type MigrationCriterion struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Human framing shown on the "why incomplete" view,
@@ -313,6 +416,7 @@ type MigrationCriterion struct {
 	//
 	//	*MigrationCriterion_Flag
 	//	*MigrationCriterion_EnvVar
+	//	*MigrationCriterion_Runtime
 	Criterion     isMigrationCriterion_Criterion `protobuf_oneof:"criterion"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -320,7 +424,7 @@ type MigrationCriterion struct {
 
 func (x *MigrationCriterion) Reset() {
 	*x = MigrationCriterion{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -332,7 +436,7 @@ func (x *MigrationCriterion) String() string {
 func (*MigrationCriterion) ProtoMessage() {}
 
 func (x *MigrationCriterion) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -345,7 +449,7 @@ func (x *MigrationCriterion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MigrationCriterion.ProtoReflect.Descriptor instead.
 func (*MigrationCriterion) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *MigrationCriterion) GetDescription() string {
@@ -380,6 +484,15 @@ func (x *MigrationCriterion) GetEnvVar() *EnvVarCriterion {
 	return nil
 }
 
+func (x *MigrationCriterion) GetRuntime() *RuntimeCriterion {
+	if x != nil {
+		if x, ok := x.Criterion.(*MigrationCriterion_Runtime); ok {
+			return x.Runtime
+		}
+	}
+	return nil
+}
+
 type isMigrationCriterion_Criterion interface {
 	isMigrationCriterion_Criterion()
 }
@@ -392,9 +505,15 @@ type MigrationCriterion_EnvVar struct {
 	EnvVar *EnvVarCriterion `protobuf:"bytes,3,opt,name=env_var,json=envVar,proto3,oneof"`
 }
 
+type MigrationCriterion_Runtime struct {
+	Runtime *RuntimeCriterion `protobuf:"bytes,4,opt,name=runtime,proto3,oneof"`
+}
+
 func (*MigrationCriterion_Flag) isMigrationCriterion_Criterion() {}
 
 func (*MigrationCriterion_EnvVar) isMigrationCriterion_Criterion() {}
+
+func (*MigrationCriterion_Runtime) isMigrationCriterion_Criterion() {}
 
 // A migration definition. Definitions are authored in code
 // (go-api-server/migrationstatus/registry.go), not stored in the database.
@@ -416,7 +535,7 @@ type Migration struct {
 
 func (x *Migration) Reset() {
 	*x = Migration{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -428,7 +547,7 @@ func (x *Migration) String() string {
 func (*Migration) ProtoMessage() {}
 
 func (x *Migration) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -441,7 +560,7 @@ func (x *Migration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Migration.ProtoReflect.Descriptor instead.
 func (*Migration) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Migration) GetId() string {
@@ -505,7 +624,7 @@ type ObservedFlagState struct {
 
 func (x *ObservedFlagState) Reset() {
 	*x = ObservedFlagState{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -517,7 +636,7 @@ func (x *ObservedFlagState) String() string {
 func (*ObservedFlagState) ProtoMessage() {}
 
 func (x *ObservedFlagState) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -530,7 +649,7 @@ func (x *ObservedFlagState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObservedFlagState.ProtoReflect.Descriptor instead.
 func (*ObservedFlagState) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ObservedFlagState) GetIsSet() bool {
@@ -576,7 +695,7 @@ type ObservedEnvVarState struct {
 
 func (x *ObservedEnvVarState) Reset() {
 	*x = ObservedEnvVarState{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -588,7 +707,7 @@ func (x *ObservedEnvVarState) String() string {
 func (*ObservedEnvVarState) ProtoMessage() {}
 
 func (x *ObservedEnvVarState) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,7 +720,7 @@ func (x *ObservedEnvVarState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObservedEnvVarState.ProtoReflect.Descriptor instead.
 func (*ObservedEnvVarState) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ObservedEnvVarState) GetIsSet() bool {
@@ -625,6 +744,61 @@ func (x *ObservedEnvVarState) GetRedacted() bool {
 	return false
 }
 
+// Effective runtime of an environment's active deployment. Historical
+// deployments with an unset runtime are reported as python310.
+type ObservedRuntimeState struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	HasActiveDeployment bool                   `protobuf:"varint,1,opt,name=has_active_deployment,json=hasActiveDeployment,proto3" json:"has_active_deployment,omitempty"`
+	// Empty when has_active_deployment is false.
+	Value         string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ObservedRuntimeState) Reset() {
+	*x = ObservedRuntimeState{}
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ObservedRuntimeState) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ObservedRuntimeState) ProtoMessage() {}
+
+func (x *ObservedRuntimeState) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ObservedRuntimeState.ProtoReflect.Descriptor instead.
+func (*ObservedRuntimeState) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ObservedRuntimeState) GetHasActiveDeployment() bool {
+	if x != nil {
+		return x.HasActiveDeployment
+	}
+	return false
+}
+
+func (x *ObservedRuntimeState) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 type CriterionResult struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Criterion *MigrationCriterion    `protobuf:"bytes,1,opt,name=criterion,proto3" json:"criterion,omitempty"`
@@ -633,6 +807,7 @@ type CriterionResult struct {
 	//
 	//	*CriterionResult_FlagState
 	//	*CriterionResult_EnvVarState
+	//	*CriterionResult_RuntimeState
 	Observed      isCriterionResult_Observed `protobuf_oneof:"observed"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -640,7 +815,7 @@ type CriterionResult struct {
 
 func (x *CriterionResult) Reset() {
 	*x = CriterionResult{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -652,7 +827,7 @@ func (x *CriterionResult) String() string {
 func (*CriterionResult) ProtoMessage() {}
 
 func (x *CriterionResult) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -665,7 +840,7 @@ func (x *CriterionResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CriterionResult.ProtoReflect.Descriptor instead.
 func (*CriterionResult) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CriterionResult) GetCriterion() *MigrationCriterion {
@@ -707,6 +882,15 @@ func (x *CriterionResult) GetEnvVarState() *ObservedEnvVarState {
 	return nil
 }
 
+func (x *CriterionResult) GetRuntimeState() *ObservedRuntimeState {
+	if x != nil {
+		if x, ok := x.Observed.(*CriterionResult_RuntimeState); ok {
+			return x.RuntimeState
+		}
+	}
+	return nil
+}
+
 type isCriterionResult_Observed interface {
 	isCriterionResult_Observed()
 }
@@ -719,9 +903,15 @@ type CriterionResult_EnvVarState struct {
 	EnvVarState *ObservedEnvVarState `protobuf:"bytes,4,opt,name=env_var_state,json=envVarState,proto3,oneof"`
 }
 
+type CriterionResult_RuntimeState struct {
+	RuntimeState *ObservedRuntimeState `protobuf:"bytes,5,opt,name=runtime_state,json=runtimeState,proto3,oneof"`
+}
+
 func (*CriterionResult_FlagState) isCriterionResult_Observed() {}
 
 func (*CriterionResult_EnvVarState) isCriterionResult_Observed() {}
+
+func (*CriterionResult_RuntimeState) isCriterionResult_Observed() {}
 
 type EnvironmentMigrationStatus struct {
 	state           protoimpl.MessageState    `protogen:"open.v1"`
@@ -740,7 +930,7 @@ type EnvironmentMigrationStatus struct {
 
 func (x *EnvironmentMigrationStatus) Reset() {
 	*x = EnvironmentMigrationStatus{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -752,7 +942,7 @@ func (x *EnvironmentMigrationStatus) String() string {
 func (*EnvironmentMigrationStatus) ProtoMessage() {}
 
 func (x *EnvironmentMigrationStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -765,7 +955,7 @@ func (x *EnvironmentMigrationStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentMigrationStatus.ProtoReflect.Descriptor instead.
 func (*EnvironmentMigrationStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *EnvironmentMigrationStatus) GetTeamId() string {
@@ -828,7 +1018,7 @@ type MigrationCounts struct {
 
 func (x *MigrationCounts) Reset() {
 	*x = MigrationCounts{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -840,7 +1030,7 @@ func (x *MigrationCounts) String() string {
 func (*MigrationCounts) ProtoMessage() {}
 
 func (x *MigrationCounts) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -853,7 +1043,7 @@ func (x *MigrationCounts) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MigrationCounts.ProtoReflect.Descriptor instead.
 func (*MigrationCounts) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *MigrationCounts) GetMigrated() int32 {
@@ -878,7 +1068,7 @@ type ListMigrationsRequest struct {
 
 func (x *ListMigrationsRequest) Reset() {
 	*x = ListMigrationsRequest{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -890,7 +1080,7 @@ func (x *ListMigrationsRequest) String() string {
 func (*ListMigrationsRequest) ProtoMessage() {}
 
 func (x *ListMigrationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -903,7 +1093,7 @@ func (x *ListMigrationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMigrationsRequest.ProtoReflect.Descriptor instead.
 func (*ListMigrationsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{11}
 }
 
 type ListMigrationsResponse struct {
@@ -915,7 +1105,7 @@ type ListMigrationsResponse struct {
 
 func (x *ListMigrationsResponse) Reset() {
 	*x = ListMigrationsResponse{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -927,7 +1117,7 @@ func (x *ListMigrationsResponse) String() string {
 func (*ListMigrationsResponse) ProtoMessage() {}
 
 func (x *ListMigrationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -940,7 +1130,7 @@ func (x *ListMigrationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMigrationsResponse.ProtoReflect.Descriptor instead.
 func (*ListMigrationsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListMigrationsResponse) GetMigrations() []*ListMigrationsResponse_MigrationWithCounts {
@@ -960,7 +1150,7 @@ type GetMigrationStatusRequest struct {
 
 func (x *GetMigrationStatusRequest) Reset() {
 	*x = GetMigrationStatusRequest{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -972,7 +1162,7 @@ func (x *GetMigrationStatusRequest) String() string {
 func (*GetMigrationStatusRequest) ProtoMessage() {}
 
 func (x *GetMigrationStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -985,7 +1175,7 @@ func (x *GetMigrationStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMigrationStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetMigrationStatusRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetMigrationStatusRequest) GetMigrationId() string {
@@ -1013,7 +1203,7 @@ type GetMigrationStatusResponse struct {
 
 func (x *GetMigrationStatusResponse) Reset() {
 	*x = GetMigrationStatusResponse{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1025,7 +1215,7 @@ func (x *GetMigrationStatusResponse) String() string {
 func (*GetMigrationStatusResponse) ProtoMessage() {}
 
 func (x *GetMigrationStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1038,7 +1228,7 @@ func (x *GetMigrationStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMigrationStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetMigrationStatusResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetMigrationStatusResponse) GetMigration() *Migration {
@@ -1072,7 +1262,7 @@ type ListMigrationsResponse_MigrationWithCounts struct {
 
 func (x *ListMigrationsResponse_MigrationWithCounts) Reset() {
 	*x = ListMigrationsResponse_MigrationWithCounts{}
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1084,7 +1274,7 @@ func (x *ListMigrationsResponse_MigrationWithCounts) String() string {
 func (*ListMigrationsResponse_MigrationWithCounts) ProtoMessage() {}
 
 func (x *ListMigrationsResponse_MigrationWithCounts) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_migration_status_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1097,7 +1287,7 @@ func (x *ListMigrationsResponse_MigrationWithCounts) ProtoReflect() protoreflect
 
 // Deprecated: Use ListMigrationsResponse_MigrationWithCounts.ProtoReflect.Descriptor instead.
 func (*ListMigrationsResponse_MigrationWithCounts) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{10, 0}
+	return file_chalk_server_v1_migration_status_proto_rawDescGZIP(), []int{12, 0}
 }
 
 func (x *ListMigrationsResponse_MigrationWithCounts) GetMigration() *Migration {
@@ -1125,11 +1315,15 @@ const file_chalk_server_v1_migration_status_proto_rawDesc = "" +
 	"\x0fEnvVarCriterion\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12>\n" +
 	"\tpredicate\x18\x02 \x01(\x0e2 .chalk.server.v1.EnvVarPredicateR\tpredicate\x12\x16\n" +
-	"\x06values\x18\x03 \x03(\tR\x06values\"\xb6\x01\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\"k\n" +
+	"\x10RuntimeCriterion\x12?\n" +
+	"\tpredicate\x18\x01 \x01(\x0e2!.chalk.server.v1.RuntimePredicateR\tpredicate\x12\x16\n" +
+	"\x06values\x18\x02 \x03(\tR\x06values\"\xf5\x01\n" +
 	"\x12MigrationCriterion\x12 \n" +
 	"\vdescription\x18\x01 \x01(\tR\vdescription\x124\n" +
 	"\x04flag\x18\x02 \x01(\v2\x1e.chalk.server.v1.FlagCriterionH\x00R\x04flag\x12;\n" +
-	"\aenv_var\x18\x03 \x01(\v2 .chalk.server.v1.EnvVarCriterionH\x00R\x06envVarB\v\n" +
+	"\aenv_var\x18\x03 \x01(\v2 .chalk.server.v1.EnvVarCriterionH\x00R\x06envVar\x12=\n" +
+	"\aruntime\x18\x04 \x01(\v2!.chalk.server.v1.RuntimeCriterionH\x00R\aruntimeB\v\n" +
 	"\tcriterion\"\xc0\x01\n" +
 	"\tMigration\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
@@ -1147,13 +1341,17 @@ const file_chalk_server_v1_migration_status_proto_rawDesc = "" +
 	"\x13ObservedEnvVarState\x12\x15\n" +
 	"\x06is_set\x18\x01 \x01(\bR\x05isSet\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x12\x1a\n" +
-	"\bredacted\x18\x03 \x01(\bR\bredacted\"\x8f\x02\n" +
+	"\bredacted\x18\x03 \x01(\bR\bredacted\"`\n" +
+	"\x14ObservedRuntimeState\x122\n" +
+	"\x15has_active_deployment\x18\x01 \x01(\bR\x13hasActiveDeployment\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\xdd\x02\n" +
 	"\x0fCriterionResult\x12A\n" +
 	"\tcriterion\x18\x01 \x01(\v2#.chalk.server.v1.MigrationCriterionR\tcriterion\x12\x1c\n" +
 	"\tsatisfied\x18\x02 \x01(\bR\tsatisfied\x12C\n" +
 	"\n" +
 	"flag_state\x18\x03 \x01(\v2\".chalk.server.v1.ObservedFlagStateH\x00R\tflagState\x12J\n" +
-	"\renv_var_state\x18\x04 \x01(\v2$.chalk.server.v1.ObservedEnvVarStateH\x00R\venvVarStateB\n" +
+	"\renv_var_state\x18\x04 \x01(\v2$.chalk.server.v1.ObservedEnvVarStateH\x00R\venvVarState\x12L\n" +
+	"\rruntime_state\x18\x05 \x01(\v2%.chalk.server.v1.ObservedRuntimeStateH\x00R\fruntimeStateB\n" +
 	"\n" +
 	"\bobserved\"\xc3\x02\n" +
 	"\x1aEnvironmentMigrationStatus\x12\x17\n" +
@@ -1196,7 +1394,11 @@ const file_chalk_server_v1_migration_status_proto_rawDesc = "" +
 	"#ENV_VAR_PREDICATE_IS_FALSY_OR_UNSET\x10\x02\x12\x1c\n" +
 	"\x18ENV_VAR_PREDICATE_IS_SET\x10\x03\x12\x1e\n" +
 	"\x1aENV_VAR_PREDICATE_IS_UNSET\x10\x04\x12 \n" +
-	"\x1cENV_VAR_PREDICATE_EQUALS_ANY\x10\x05*\x9e\x01\n" +
+	"\x1cENV_VAR_PREDICATE_EQUALS_ANY\x10\x05*}\n" +
+	"\x10RuntimePredicate\x12!\n" +
+	"\x1dRUNTIME_PREDICATE_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cRUNTIME_PREDICATE_EQUALS_ANY\x10\x01\x12$\n" +
+	" RUNTIME_PREDICATE_NOT_EQUALS_ANY\x10\x02*\x9e\x01\n" +
 	"\x19EnvironmentMigrationState\x12+\n" +
 	"'ENVIRONMENT_MIGRATION_STATE_UNSPECIFIED\x10\x00\x12(\n" +
 	"$ENVIRONMENT_MIGRATION_STATE_MIGRATED\x10\x01\x12*\n" +
@@ -1218,57 +1420,63 @@ func file_chalk_server_v1_migration_status_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_migration_status_proto_rawDescData
 }
 
-var file_chalk_server_v1_migration_status_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_server_v1_migration_status_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_chalk_server_v1_migration_status_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_chalk_server_v1_migration_status_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_chalk_server_v1_migration_status_proto_goTypes = []any{
 	(FlagPredicate)(0),                                 // 0: chalk.server.v1.FlagPredicate
 	(EnvVarPredicate)(0),                               // 1: chalk.server.v1.EnvVarPredicate
-	(EnvironmentMigrationState)(0),                     // 2: chalk.server.v1.EnvironmentMigrationState
-	(*FlagCriterion)(nil),                              // 3: chalk.server.v1.FlagCriterion
-	(*EnvVarCriterion)(nil),                            // 4: chalk.server.v1.EnvVarCriterion
-	(*MigrationCriterion)(nil),                         // 5: chalk.server.v1.MigrationCriterion
-	(*Migration)(nil),                                  // 6: chalk.server.v1.Migration
-	(*ObservedFlagState)(nil),                          // 7: chalk.server.v1.ObservedFlagState
-	(*ObservedEnvVarState)(nil),                        // 8: chalk.server.v1.ObservedEnvVarState
-	(*CriterionResult)(nil),                            // 9: chalk.server.v1.CriterionResult
-	(*EnvironmentMigrationStatus)(nil),                 // 10: chalk.server.v1.EnvironmentMigrationStatus
-	(*MigrationCounts)(nil),                            // 11: chalk.server.v1.MigrationCounts
-	(*ListMigrationsRequest)(nil),                      // 12: chalk.server.v1.ListMigrationsRequest
-	(*ListMigrationsResponse)(nil),                     // 13: chalk.server.v1.ListMigrationsResponse
-	(*GetMigrationStatusRequest)(nil),                  // 14: chalk.server.v1.GetMigrationStatusRequest
-	(*GetMigrationStatusResponse)(nil),                 // 15: chalk.server.v1.GetMigrationStatusResponse
-	(*ListMigrationsResponse_MigrationWithCounts)(nil), // 16: chalk.server.v1.ListMigrationsResponse.MigrationWithCounts
-	(FlagScope)(0),                                     // 17: chalk.server.v1.FlagScope
-	(*timestamppb.Timestamp)(nil),                      // 18: google.protobuf.Timestamp
+	(RuntimePredicate)(0),                              // 2: chalk.server.v1.RuntimePredicate
+	(EnvironmentMigrationState)(0),                     // 3: chalk.server.v1.EnvironmentMigrationState
+	(*FlagCriterion)(nil),                              // 4: chalk.server.v1.FlagCriterion
+	(*EnvVarCriterion)(nil),                            // 5: chalk.server.v1.EnvVarCriterion
+	(*RuntimeCriterion)(nil),                           // 6: chalk.server.v1.RuntimeCriterion
+	(*MigrationCriterion)(nil),                         // 7: chalk.server.v1.MigrationCriterion
+	(*Migration)(nil),                                  // 8: chalk.server.v1.Migration
+	(*ObservedFlagState)(nil),                          // 9: chalk.server.v1.ObservedFlagState
+	(*ObservedEnvVarState)(nil),                        // 10: chalk.server.v1.ObservedEnvVarState
+	(*ObservedRuntimeState)(nil),                       // 11: chalk.server.v1.ObservedRuntimeState
+	(*CriterionResult)(nil),                            // 12: chalk.server.v1.CriterionResult
+	(*EnvironmentMigrationStatus)(nil),                 // 13: chalk.server.v1.EnvironmentMigrationStatus
+	(*MigrationCounts)(nil),                            // 14: chalk.server.v1.MigrationCounts
+	(*ListMigrationsRequest)(nil),                      // 15: chalk.server.v1.ListMigrationsRequest
+	(*ListMigrationsResponse)(nil),                     // 16: chalk.server.v1.ListMigrationsResponse
+	(*GetMigrationStatusRequest)(nil),                  // 17: chalk.server.v1.GetMigrationStatusRequest
+	(*GetMigrationStatusResponse)(nil),                 // 18: chalk.server.v1.GetMigrationStatusResponse
+	(*ListMigrationsResponse_MigrationWithCounts)(nil), // 19: chalk.server.v1.ListMigrationsResponse.MigrationWithCounts
+	(FlagScope)(0),                                     // 20: chalk.server.v1.FlagScope
+	(*timestamppb.Timestamp)(nil),                      // 21: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_migration_status_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.FlagCriterion.predicate:type_name -> chalk.server.v1.FlagPredicate
 	1,  // 1: chalk.server.v1.EnvVarCriterion.predicate:type_name -> chalk.server.v1.EnvVarPredicate
-	3,  // 2: chalk.server.v1.MigrationCriterion.flag:type_name -> chalk.server.v1.FlagCriterion
-	4,  // 3: chalk.server.v1.MigrationCriterion.env_var:type_name -> chalk.server.v1.EnvVarCriterion
-	5,  // 4: chalk.server.v1.Migration.criteria:type_name -> chalk.server.v1.MigrationCriterion
-	17, // 5: chalk.server.v1.ObservedFlagState.scope:type_name -> chalk.server.v1.FlagScope
-	18, // 6: chalk.server.v1.ObservedFlagState.updated_at:type_name -> google.protobuf.Timestamp
-	5,  // 7: chalk.server.v1.CriterionResult.criterion:type_name -> chalk.server.v1.MigrationCriterion
-	7,  // 8: chalk.server.v1.CriterionResult.flag_state:type_name -> chalk.server.v1.ObservedFlagState
-	8,  // 9: chalk.server.v1.CriterionResult.env_var_state:type_name -> chalk.server.v1.ObservedEnvVarState
-	2,  // 10: chalk.server.v1.EnvironmentMigrationStatus.state:type_name -> chalk.server.v1.EnvironmentMigrationState
-	9,  // 11: chalk.server.v1.EnvironmentMigrationStatus.criteria:type_name -> chalk.server.v1.CriterionResult
-	16, // 12: chalk.server.v1.ListMigrationsResponse.migrations:type_name -> chalk.server.v1.ListMigrationsResponse.MigrationWithCounts
-	6,  // 13: chalk.server.v1.GetMigrationStatusResponse.migration:type_name -> chalk.server.v1.Migration
-	11, // 14: chalk.server.v1.GetMigrationStatusResponse.counts:type_name -> chalk.server.v1.MigrationCounts
-	10, // 15: chalk.server.v1.GetMigrationStatusResponse.environments:type_name -> chalk.server.v1.EnvironmentMigrationStatus
-	6,  // 16: chalk.server.v1.ListMigrationsResponse.MigrationWithCounts.migration:type_name -> chalk.server.v1.Migration
-	11, // 17: chalk.server.v1.ListMigrationsResponse.MigrationWithCounts.counts:type_name -> chalk.server.v1.MigrationCounts
-	12, // 18: chalk.server.v1.MigrationStatusService.ListMigrations:input_type -> chalk.server.v1.ListMigrationsRequest
-	14, // 19: chalk.server.v1.MigrationStatusService.GetMigrationStatus:input_type -> chalk.server.v1.GetMigrationStatusRequest
-	13, // 20: chalk.server.v1.MigrationStatusService.ListMigrations:output_type -> chalk.server.v1.ListMigrationsResponse
-	15, // 21: chalk.server.v1.MigrationStatusService.GetMigrationStatus:output_type -> chalk.server.v1.GetMigrationStatusResponse
-	20, // [20:22] is the sub-list for method output_type
-	18, // [18:20] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	2,  // 2: chalk.server.v1.RuntimeCriterion.predicate:type_name -> chalk.server.v1.RuntimePredicate
+	4,  // 3: chalk.server.v1.MigrationCriterion.flag:type_name -> chalk.server.v1.FlagCriterion
+	5,  // 4: chalk.server.v1.MigrationCriterion.env_var:type_name -> chalk.server.v1.EnvVarCriterion
+	6,  // 5: chalk.server.v1.MigrationCriterion.runtime:type_name -> chalk.server.v1.RuntimeCriterion
+	7,  // 6: chalk.server.v1.Migration.criteria:type_name -> chalk.server.v1.MigrationCriterion
+	20, // 7: chalk.server.v1.ObservedFlagState.scope:type_name -> chalk.server.v1.FlagScope
+	21, // 8: chalk.server.v1.ObservedFlagState.updated_at:type_name -> google.protobuf.Timestamp
+	7,  // 9: chalk.server.v1.CriterionResult.criterion:type_name -> chalk.server.v1.MigrationCriterion
+	9,  // 10: chalk.server.v1.CriterionResult.flag_state:type_name -> chalk.server.v1.ObservedFlagState
+	10, // 11: chalk.server.v1.CriterionResult.env_var_state:type_name -> chalk.server.v1.ObservedEnvVarState
+	11, // 12: chalk.server.v1.CriterionResult.runtime_state:type_name -> chalk.server.v1.ObservedRuntimeState
+	3,  // 13: chalk.server.v1.EnvironmentMigrationStatus.state:type_name -> chalk.server.v1.EnvironmentMigrationState
+	12, // 14: chalk.server.v1.EnvironmentMigrationStatus.criteria:type_name -> chalk.server.v1.CriterionResult
+	19, // 15: chalk.server.v1.ListMigrationsResponse.migrations:type_name -> chalk.server.v1.ListMigrationsResponse.MigrationWithCounts
+	8,  // 16: chalk.server.v1.GetMigrationStatusResponse.migration:type_name -> chalk.server.v1.Migration
+	14, // 17: chalk.server.v1.GetMigrationStatusResponse.counts:type_name -> chalk.server.v1.MigrationCounts
+	13, // 18: chalk.server.v1.GetMigrationStatusResponse.environments:type_name -> chalk.server.v1.EnvironmentMigrationStatus
+	8,  // 19: chalk.server.v1.ListMigrationsResponse.MigrationWithCounts.migration:type_name -> chalk.server.v1.Migration
+	14, // 20: chalk.server.v1.ListMigrationsResponse.MigrationWithCounts.counts:type_name -> chalk.server.v1.MigrationCounts
+	15, // 21: chalk.server.v1.MigrationStatusService.ListMigrations:input_type -> chalk.server.v1.ListMigrationsRequest
+	17, // 22: chalk.server.v1.MigrationStatusService.GetMigrationStatus:input_type -> chalk.server.v1.GetMigrationStatusRequest
+	16, // 23: chalk.server.v1.MigrationStatusService.ListMigrations:output_type -> chalk.server.v1.ListMigrationsResponse
+	18, // 24: chalk.server.v1.MigrationStatusService.GetMigrationStatus:output_type -> chalk.server.v1.GetMigrationStatusResponse
+	23, // [23:25] is the sub-list for method output_type
+	21, // [21:23] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_migration_status_proto_init() }
@@ -1277,21 +1485,23 @@ func file_chalk_server_v1_migration_status_proto_init() {
 		return
 	}
 	file_chalk_server_v1_flag_proto_init()
-	file_chalk_server_v1_migration_status_proto_msgTypes[2].OneofWrappers = []any{
+	file_chalk_server_v1_migration_status_proto_msgTypes[3].OneofWrappers = []any{
 		(*MigrationCriterion_Flag)(nil),
 		(*MigrationCriterion_EnvVar)(nil),
+		(*MigrationCriterion_Runtime)(nil),
 	}
-	file_chalk_server_v1_migration_status_proto_msgTypes[6].OneofWrappers = []any{
+	file_chalk_server_v1_migration_status_proto_msgTypes[8].OneofWrappers = []any{
 		(*CriterionResult_FlagState)(nil),
 		(*CriterionResult_EnvVarState)(nil),
+		(*CriterionResult_RuntimeState)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_migration_status_proto_rawDesc), len(file_chalk_server_v1_migration_status_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   14,
+			NumEnums:      4,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

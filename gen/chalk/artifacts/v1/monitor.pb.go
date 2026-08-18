@@ -27,10 +27,11 @@ const (
 type MonitorType int32
 
 const (
-	MonitorType_MONITOR_TYPE_UNSPECIFIED MonitorType = 0
-	MonitorType_MONITOR_TYPE_CHART       MonitorType = 1
-	MonitorType_MONITOR_TYPE_LOG         MonitorType = 2
-	MonitorType_MONITOR_TYPE_HEALTHCHECK MonitorType = 3
+	MonitorType_MONITOR_TYPE_UNSPECIFIED  MonitorType = 0
+	MonitorType_MONITOR_TYPE_CHART        MonitorType = 1
+	MonitorType_MONITOR_TYPE_LOG          MonitorType = 2
+	MonitorType_MONITOR_TYPE_HEALTHCHECK  MonitorType = 3
+	MonitorType_MONITOR_TYPE_SQL_BAD_ROWS MonitorType = 4
 )
 
 // Enum value maps for MonitorType.
@@ -40,12 +41,14 @@ var (
 		1: "MONITOR_TYPE_CHART",
 		2: "MONITOR_TYPE_LOG",
 		3: "MONITOR_TYPE_HEALTHCHECK",
+		4: "MONITOR_TYPE_SQL_BAD_ROWS",
 	}
 	MonitorType_value = map[string]int32{
-		"MONITOR_TYPE_UNSPECIFIED": 0,
-		"MONITOR_TYPE_CHART":       1,
-		"MONITOR_TYPE_LOG":         2,
-		"MONITOR_TYPE_HEALTHCHECK": 3,
+		"MONITOR_TYPE_UNSPECIFIED":  0,
+		"MONITOR_TYPE_CHART":        1,
+		"MONITOR_TYPE_LOG":          2,
+		"MONITOR_TYPE_HEALTHCHECK":  3,
+		"MONITOR_TYPE_SQL_BAD_ROWS": 4,
 	}
 )
 
@@ -232,6 +235,66 @@ func (x *ChartMonitor) GetFormulaMql() string {
 	return ""
 }
 
+type SqlBadRowsMonitor struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Query          string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+	DatasourceName *string                `protobuf:"bytes,2,opt,name=datasource_name,json=datasourceName,proto3,oneof" json:"datasource_name,omitempty"`
+	ResourceGroup  string                 `protobuf:"bytes,3,opt,name=resource_group,json=resourceGroup,proto3" json:"resource_group,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SqlBadRowsMonitor) Reset() {
+	*x = SqlBadRowsMonitor{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SqlBadRowsMonitor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SqlBadRowsMonitor) ProtoMessage() {}
+
+func (x *SqlBadRowsMonitor) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SqlBadRowsMonitor.ProtoReflect.Descriptor instead.
+func (*SqlBadRowsMonitor) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *SqlBadRowsMonitor) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+func (x *SqlBadRowsMonitor) GetDatasourceName() string {
+	if x != nil && x.DatasourceName != nil {
+		return *x.DatasourceName
+	}
+	return ""
+}
+
+func (x *SqlBadRowsMonitor) GetResourceGroup() string {
+	if x != nil {
+		return x.ResourceGroup
+	}
+	return ""
+}
+
 type AlertChannel struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	EntityKind AlertChannelKind       `protobuf:"varint,1,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.artifacts.v1.AlertChannelKind" json:"entity_kind,omitempty"`
@@ -246,7 +309,7 @@ type AlertChannel struct {
 
 func (x *AlertChannel) Reset() {
 	*x = AlertChannel{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -258,7 +321,7 @@ func (x *AlertChannel) String() string {
 func (*AlertChannel) ProtoMessage() {}
 
 func (x *AlertChannel) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[3]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -271,7 +334,7 @@ func (x *AlertChannel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertChannel.ProtoReflect.Descriptor instead.
 func (*AlertChannel) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{3}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AlertChannel) GetEntityKind() AlertChannelKind {
@@ -333,7 +396,7 @@ type Threshold struct {
 
 func (x *Threshold) Reset() {
 	*x = Threshold{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -345,7 +408,7 @@ func (x *Threshold) String() string {
 func (*Threshold) ProtoMessage() {}
 
 func (x *Threshold) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[4]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -358,7 +421,7 @@ func (x *Threshold) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Threshold.ProtoReflect.Descriptor instead.
 func (*Threshold) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{4}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Threshold) GetThresholdKind() ThresholdKind {
@@ -390,11 +453,14 @@ type Monitor struct {
 	Description string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	CreatedBy   string                 `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	Threshold   *Threshold             `protobuf:"bytes,6,opt,name=threshold,proto3" json:"threshold,omitempty"`
+	// Five-field cron schedule evaluated in UTC.
+	EvaluationSchedule string `protobuf:"bytes,7,opt,name=evaluation_schedule,json=evaluationSchedule,proto3" json:"evaluation_schedule,omitempty"`
 	// Types that are valid to be assigned to MonitoredEntity:
 	//
 	//	*Monitor_ChartMonitor
 	//	*Monitor_HealthcheckMonitor
 	//	*Monitor_LogsMonitor
+	//	*Monitor_SqlBadRowsMonitor
 	MonitoredEntity isMonitor_MonitoredEntity `protobuf_oneof:"monitored_entity"`
 	CreatedAt       *timestamppb.Timestamp    `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt       *timestamppb.Timestamp    `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
@@ -404,7 +470,7 @@ type Monitor struct {
 
 func (x *Monitor) Reset() {
 	*x = Monitor{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -416,7 +482,7 @@ func (x *Monitor) String() string {
 func (*Monitor) ProtoMessage() {}
 
 func (x *Monitor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -429,7 +495,7 @@ func (x *Monitor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Monitor.ProtoReflect.Descriptor instead.
 func (*Monitor) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{5}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Monitor) GetId() string {
@@ -474,6 +540,13 @@ func (x *Monitor) GetThreshold() *Threshold {
 	return nil
 }
 
+func (x *Monitor) GetEvaluationSchedule() string {
+	if x != nil {
+		return x.EvaluationSchedule
+	}
+	return ""
+}
+
 func (x *Monitor) GetMonitoredEntity() isMonitor_MonitoredEntity {
 	if x != nil {
 		return x.MonitoredEntity
@@ -503,6 +576,15 @@ func (x *Monitor) GetLogsMonitor() *LogsMonitor {
 	if x != nil {
 		if x, ok := x.MonitoredEntity.(*Monitor_LogsMonitor); ok {
 			return x.LogsMonitor
+		}
+	}
+	return nil
+}
+
+func (x *Monitor) GetSqlBadRowsMonitor() *SqlBadRowsMonitor {
+	if x != nil {
+		if x, ok := x.MonitoredEntity.(*Monitor_SqlBadRowsMonitor); ok {
+			return x.SqlBadRowsMonitor
 		}
 	}
 	return nil
@@ -538,11 +620,17 @@ type Monitor_LogsMonitor struct {
 	LogsMonitor *LogsMonitor `protobuf:"bytes,102,opt,name=logs_monitor,json=logsMonitor,proto3,oneof"`
 }
 
+type Monitor_SqlBadRowsMonitor struct {
+	SqlBadRowsMonitor *SqlBadRowsMonitor `protobuf:"bytes,103,opt,name=sql_bad_rows_monitor,json=sqlBadRowsMonitor,proto3,oneof"`
+}
+
 func (*Monitor_ChartMonitor) isMonitor_MonitoredEntity() {}
 
 func (*Monitor_HealthcheckMonitor) isMonitor_MonitoredEntity() {}
 
 func (*Monitor_LogsMonitor) isMonitor_MonitoredEntity() {}
+
+func (*Monitor_SqlBadRowsMonitor) isMonitor_MonitoredEntity() {}
 
 var File_chalk_artifacts_v1_monitor_proto protoreflect.FileDescriptor
 
@@ -561,7 +649,12 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"series_mql\x18\x01 \x03(\tR\tseriesMql\x12$\n" +
 	"\vformula_mql\x18\x02 \x01(\tH\x00R\n" +
 	"formulaMql\x88\x01\x01B\x0e\n" +
-	"\f_formula_mql\"\xac\x01\n" +
+	"\f_formula_mql\"\x9c\x01\n" +
+	"\x11SqlBadRowsMonitor\x12\x19\n" +
+	"\x05query\x18\x01 \x01(\tB\x03\xe0A\x02R\x05query\x12,\n" +
+	"\x0fdatasource_name\x18\x02 \x01(\tH\x00R\x0edatasourceName\x88\x01\x01\x12*\n" +
+	"\x0eresource_group\x18\x03 \x01(\tB\x03\xe0A\x02R\rresourceGroupB\x12\n" +
+	"\x10_datasource_name\"\xac\x01\n" +
 	"\fAlertChannel\x12E\n" +
 	"\ventity_kind\x18\x01 \x01(\x0e2$.chalk.artifacts.v1.AlertChannelKindR\n" +
 	"entityKind\x12\x1d\n" +
@@ -572,7 +665,7 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\tThreshold\x12H\n" +
 	"\x0ethreshold_kind\x18\x06 \x01(\x0e2!.chalk.artifacts.v1.ThresholdKindR\rthresholdKind\x12'\n" +
 	"\x0fthreshold_value\x18\a \x01(\x02R\x0ethresholdValue\x12G\n" +
-	"\x0ealert_channels\x18\b \x03(\v2 .chalk.artifacts.v1.AlertChannelR\ralertChannels\"\xc9\x04\n" +
+	"\x0ealert_channels\x18\b \x03(\v2 .chalk.artifacts.v1.AlertChannelR\ralertChannels\"\xd4\x05\n" +
 	"\aMonitor\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x12\n" +
@@ -580,20 +673,23 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\"\n" +
 	"\n" +
 	"created_by\x18\x05 \x01(\tB\x03\xe0A\x03R\tcreatedBy\x12;\n" +
-	"\tthreshold\x18\x06 \x01(\v2\x1d.chalk.artifacts.v1.ThresholdR\tthreshold\x12G\n" +
+	"\tthreshold\x18\x06 \x01(\v2\x1d.chalk.artifacts.v1.ThresholdR\tthreshold\x12/\n" +
+	"\x13evaluation_schedule\x18\a \x01(\tR\x12evaluationSchedule\x12G\n" +
 	"\rchart_monitor\x18d \x01(\v2 .chalk.artifacts.v1.ChartMonitorH\x00R\fchartMonitor\x12Y\n" +
 	"\x13healthcheck_monitor\x18e \x01(\v2&.chalk.artifacts.v1.HealthcheckMonitorH\x00R\x12healthcheckMonitor\x12D\n" +
-	"\flogs_monitor\x18f \x01(\v2\x1f.chalk.artifacts.v1.LogsMonitorH\x00R\vlogsMonitor\x12?\n" +
+	"\flogs_monitor\x18f \x01(\v2\x1f.chalk.artifacts.v1.LogsMonitorH\x00R\vlogsMonitor\x12X\n" +
+	"\x14sql_bad_rows_monitor\x18g \x01(\v2%.chalk.artifacts.v1.SqlBadRowsMonitorH\x00R\x11sqlBadRowsMonitor\x12?\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12?\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAtB\x12\n" +
-	"\x10monitored_entity*w\n" +
+	"\x10monitored_entity*\x96\x01\n" +
 	"\vMonitorType\x12\x1c\n" +
 	"\x18MONITOR_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12MONITOR_TYPE_CHART\x10\x01\x12\x14\n" +
 	"\x10MONITOR_TYPE_LOG\x10\x02\x12\x1c\n" +
-	"\x18MONITOR_TYPE_HEALTHCHECK\x10\x03B\xd1\x01\n" +
+	"\x18MONITOR_TYPE_HEALTHCHECK\x10\x03\x12\x1d\n" +
+	"\x19MONITOR_TYPE_SQL_BAD_ROWS\x10\x04B\xd1\x01\n" +
 	"\x16com.chalk.artifacts.v1B\fMonitorProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (
@@ -609,36 +705,38 @@ func file_chalk_artifacts_v1_monitor_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_artifacts_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chalk_artifacts_v1_monitor_proto_goTypes = []any{
 	(MonitorType)(0),              // 0: chalk.artifacts.v1.MonitorType
 	(*LogsMonitor)(nil),           // 1: chalk.artifacts.v1.LogsMonitor
 	(*HealthcheckMonitor)(nil),    // 2: chalk.artifacts.v1.HealthcheckMonitor
 	(*ChartMonitor)(nil),          // 3: chalk.artifacts.v1.ChartMonitor
-	(*AlertChannel)(nil),          // 4: chalk.artifacts.v1.AlertChannel
-	(*Threshold)(nil),             // 5: chalk.artifacts.v1.Threshold
-	(*Monitor)(nil),               // 6: chalk.artifacts.v1.Monitor
-	(*durationpb.Duration)(nil),   // 7: google.protobuf.Duration
-	(AlertChannelKind)(0),         // 8: chalk.artifacts.v1.AlertChannelKind
-	(ThresholdKind)(0),            // 9: chalk.artifacts.v1.ThresholdKind
-	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+	(*SqlBadRowsMonitor)(nil),     // 4: chalk.artifacts.v1.SqlBadRowsMonitor
+	(*AlertChannel)(nil),          // 5: chalk.artifacts.v1.AlertChannel
+	(*Threshold)(nil),             // 6: chalk.artifacts.v1.Threshold
+	(*Monitor)(nil),               // 7: chalk.artifacts.v1.Monitor
+	(*durationpb.Duration)(nil),   // 8: google.protobuf.Duration
+	(AlertChannelKind)(0),         // 9: chalk.artifacts.v1.AlertChannelKind
+	(ThresholdKind)(0),            // 10: chalk.artifacts.v1.ThresholdKind
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_monitor_proto_depIdxs = []int32{
-	7,  // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
-	8,  // 1: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
-	9,  // 2: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
-	4,  // 3: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
-	5,  // 4: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
+	8,  // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
+	9,  // 1: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	10, // 2: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
+	5,  // 3: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
+	6,  // 4: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
 	3,  // 5: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
 	2,  // 6: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
 	1,  // 7: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
-	10, // 8: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
-	10, // 9: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	4,  // 8: chalk.artifacts.v1.Monitor.sql_bad_rows_monitor:type_name -> chalk.artifacts.v1.SqlBadRowsMonitor
+	11, // 9: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
+	11, // 10: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_monitor_proto_init() }
@@ -649,14 +747,16 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 	file_chalk_artifacts_v1_alert_channel_proto_init()
 	file_chalk_artifacts_v1_chart_proto_init()
 	file_chalk_artifacts_v1_monitor_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[3].OneofWrappers = []any{
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[4].OneofWrappers = []any{
 		(*AlertChannel_EntityId)(nil),
 		(*AlertChannel_EntityName)(nil),
 	}
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[5].OneofWrappers = []any{
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[6].OneofWrappers = []any{
 		(*Monitor_ChartMonitor)(nil),
 		(*Monitor_HealthcheckMonitor)(nil),
 		(*Monitor_LogsMonitor)(nil),
+		(*Monitor_SqlBadRowsMonitor)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -664,7 +764,7 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_monitor_proto_rawDesc), len(file_chalk_artifacts_v1_monitor_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

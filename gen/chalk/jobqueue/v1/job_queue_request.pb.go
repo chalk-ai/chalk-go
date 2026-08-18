@@ -557,8 +557,11 @@ type AggregationBackfillJobRequest struct {
 	ScheduledAggregateBackfillName *string                `protobuf:"bytes,17,opt,name=scheduled_aggregate_backfill_name,json=scheduledAggregateBackfillName,proto3,oneof" json:"scheduled_aggregate_backfill_name,omitempty"`
 	WorkflowManifestUri            *string                `protobuf:"bytes,18,opt,name=workflow_manifest_uri,json=workflowManifestUri,proto3,oneof" json:"workflow_manifest_uri,omitempty"`
 	PlannerOptions                 *PlannerOptions        `protobuf:"bytes,19,opt,name=planner_options,json=plannerOptions,proto3,oneof" json:"planner_options,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// Split this backfill's window into this many bucket-aligned time-sharded
+	// jobs. Unset/1 preserves the single-job behavior.
+	NumShards     *int32 `protobuf:"varint,20,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AggregationBackfillJobRequest) Reset() {
@@ -715,6 +718,13 @@ func (x *AggregationBackfillJobRequest) GetPlannerOptions() *PlannerOptions {
 		return x.PlannerOptions
 	}
 	return nil
+}
+
+func (x *AggregationBackfillJobRequest) GetNumShards() int32 {
+	if x != nil && x.NumShards != nil {
+		return *x.NumShards
+	}
+	return 0
 }
 
 type ChalkSqlRunJobRequest struct {
@@ -3720,8 +3730,13 @@ type PlannerOptions struct {
 	// resolvers that don't set their own. Absent/<=0 = unlimited. Does not
 	// apply to legacy (non-Index) DataFrame resolvers.
 	DfResolverDefaultMaxBatchSize *int64 `protobuf:"varint,126,opt,name=df_resolver_default_max_batch_size,json=dfResolverDefaultMaxBatchSize,proto3,oneof" json:"df_resolver_default_max_batch_size,omitempty"`
-	unknownFields                 protoimpl.UnknownFields
-	sizeCache                     protoimpl.SizeCache
+	// Per-query control over offline-store wide-table acceleration (CHA-10199).
+	// One of "auto" (default: honor CHALK_ENABLE_OFFLINE_STORE_WIDE_TABLE_ACCELERATION),
+	// "disabled" (force the skinny read path), or "required" (error if acceleration
+	// is disabled on the deployment). Absent => "auto".
+	OfflineStoreWideRead *string `protobuf:"bytes,127,opt,name=offline_store_wide_read,json=offlineStoreWideRead,proto3,oneof" json:"offline_store_wide_read,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -4636,6 +4651,13 @@ func (x *PlannerOptions) GetDfResolverDefaultMaxBatchSize() int64 {
 	return 0
 }
 
+func (x *PlannerOptions) GetOfflineStoreWideRead() string {
+	if x != nil && x.OfflineStoreWideRead != nil {
+		return *x.OfflineStoreWideRead
+	}
+	return ""
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -4890,7 +4912,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x18ScheduledQueryJobRequest\x12B\n" +
 	"\arequest\x18\x01 \x01(\v2&.chalk.jobqueue.v1.OfflineQueryJobBodyH\x00R\arequest\x12+\n" +
 	"\x10request_filename\x18\x02 \x01(\tH\x00R\x0frequestFilenameB\x11\n" +
-	"\x0frequest_payload\"\xa4\b\n" +
+	"\x0frequest_payload\"\xd7\b\n" +
 	"\x1dAggregationBackfillJobRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12$\n" +
 	"\vlower_bound\x18\x02 \x01(\tH\x00R\n" +
@@ -4914,7 +4936,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"!scheduled_aggregate_backfill_name\x18\x11 \x01(\tH\n" +
 	"R\x1escheduledAggregateBackfillName\x88\x01\x01\x127\n" +
 	"\x15workflow_manifest_uri\x18\x12 \x01(\tH\vR\x13workflowManifestUri\x88\x01\x01\x12O\n" +
-	"\x0fplanner_options\x18\x13 \x01(\v2!.chalk.jobqueue.v1.PlannerOptionsH\fR\x0eplannerOptions\x88\x01\x01B\x0e\n" +
+	"\x0fplanner_options\x18\x13 \x01(\v2!.chalk.jobqueue.v1.PlannerOptionsH\fR\x0eplannerOptions\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"num_shards\x18\x14 \x01(\x05H\rR\tnumShards\x88\x01\x01B\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\v\n" +
 	"\t_resolverB\x18\n" +
@@ -4927,7 +4951,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\r_store_onlineB$\n" +
 	"\"_scheduled_aggregate_backfill_nameB\x18\n" +
 	"\x16_workflow_manifest_uriB\x12\n" +
-	"\x10_planner_options\"\xcc\x03\n" +
+	"\x10_planner_optionsB\r\n" +
+	"\v_num_shards\"\xcc\x03\n" +
 	"\x15ChalkSqlRunJobRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12&\n" +
 	"\foperation_id\x18\x02 \x01(\tH\x00R\voperationId\x88\x01\x01\x12*\n" +
@@ -5291,7 +5316,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x98q\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xf0q\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5420,7 +5445,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x13static_dataset_scan\x18{ \x01(\bHzR\x11staticDatasetScan\x88\x01\x01\x12T\n" +
 	"&copy_has_many_inputs_based_on_join_key\x18| \x01(\bH{R\x1fcopyHasManyInputsBasedOnJoinKey\x88\x01\x01\x129\n" +
 	"\x16native_offline_persist\x18} \x01(\bH|R\x14nativeOfflinePersist\x88\x01\x01\x12N\n" +
-	"\"df_resolver_default_max_batch_size\x18~ \x01(\x03H}R\x1ddfResolverDefaultMaxBatchSize\x88\x01\x01B\x1e\n" +
+	"\"df_resolver_default_max_batch_size\x18~ \x01(\x03H}R\x1ddfResolverDefaultMaxBatchSize\x88\x01\x01\x12:\n" +
+	"\x17offline_store_wide_read\x18\x7f \x01(\tH~R\x14offlineStoreWideRead\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5546,7 +5572,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x14_static_dataset_scanB)\n" +
 	"'_copy_has_many_inputs_based_on_join_keyB\x19\n" +
 	"\x17_native_offline_persistB%\n" +
-	"#_df_resolver_default_max_batch_size\"\xd2\x06\n" +
+	"#_df_resolver_default_max_batch_sizeB\x1a\n" +
+	"\x18_offline_store_wide_read\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

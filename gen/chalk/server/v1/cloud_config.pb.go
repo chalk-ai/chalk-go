@@ -7,6 +7,7 @@
 package serverv1
 
 import (
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -1003,7 +1004,7 @@ var File_chalk_server_v1_cloud_config_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_cloud_config_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/server/v1/cloud_config.proto\x12\x0fchalk.server.v1\"{\n" +
+	"\"chalk/server/v1/cloud_config.proto\x12\x0fchalk.server.v1\x1a\x1echalk/utils/v1/sensitive.proto\"{\n" +
 	"\x13AWSCloudWatchConfig\x12)\n" +
 	"\x0elog_group_path\x18\x01 \x01(\tH\x00R\flogGroupPath\x88\x01\x01\x12&\n" +
 	"\x0flog_group_paths\x18\x02 \x03(\tR\rlogGroupPathsB\x11\n" +
@@ -1039,10 +1040,10 @@ const file_chalk_server_v1_cloud_config_proto_rawDesc = "" +
 	"\x12push_registry_type\x18\x02 \x01(\tR\x10pushRegistryType\x127\n" +
 	"\x18push_registry_tag_prefix\x18\x03 \x01(\tR\x15pushRegistryTagPrefix\x12C\n" +
 	"\x1eregistry_credentials_secret_id\x18\x04 \x01(\tR\x1bregistryCredentialsSecretId\x12-\n" +
-	"\x12notification_topic\x18\x05 \x01(\tR\x11notificationTopic\"l\n" +
+	"\x12notification_topic\x18\x05 \x01(\tR\x11notificationTopic\"r\n" +
 	"\x16ElasticsearchLogConfig\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12 \n" +
+	"\bpassword\x18\x02 \x01(\tB\x04ء'\x01R\bpassword\x12\x1a\n" +
 	"\bendpoint\x18\x03 \x01(\tR\bendpoint\"\x83\b\n" +
 	"\x0eAWSCloudConfig\x12\x1d\n" +
 	"\n" +

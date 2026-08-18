@@ -639,6 +639,176 @@ func (x *BigQueryOfflineStoreConnectionConfig) GetDatasetId() string {
 	return ""
 }
 
+// Input config for Databricks OAuth M2M authentication.
+type DatabricksOfflineStoreConnectionConfigInput struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Host          string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
+	HttpPath      string                 `protobuf:"bytes,2,opt,name=http_path,json=httpPath,proto3" json:"http_path,omitempty"`
+	Catalog       string                 `protobuf:"bytes,3,opt,name=catalog,proto3" json:"catalog,omitempty"`
+	Schema        string                 `protobuf:"bytes,4,opt,name=schema,proto3" json:"schema,omitempty"`
+	ClientId      string                 `protobuf:"bytes,5,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	ClientSecret  *string                `protobuf:"bytes,6,opt,name=client_secret,json=clientSecret,proto3,oneof" json:"client_secret,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) Reset() {
+	*x = DatabricksOfflineStoreConnectionConfigInput{}
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DatabricksOfflineStoreConnectionConfigInput) ProtoMessage() {}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DatabricksOfflineStoreConnectionConfigInput.ProtoReflect.Descriptor instead.
+func (*DatabricksOfflineStoreConnectionConfigInput) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) GetHttpPath() string {
+	if x != nil {
+		return x.HttpPath
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) GetCatalog() string {
+	if x != nil {
+		return x.Catalog
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) GetSchema() string {
+	if x != nil {
+		return x.Schema
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigInput) GetClientSecret() string {
+	if x != nil && x.ClientSecret != nil {
+		return *x.ClientSecret
+	}
+	return ""
+}
+
+// Stored Databricks config. The client secret lives in cloud secret manager.
+type DatabricksOfflineStoreConnectionConfigStored struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Host                 string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
+	HttpPath             string                 `protobuf:"bytes,2,opt,name=http_path,json=httpPath,proto3" json:"http_path,omitempty"`
+	Catalog              string                 `protobuf:"bytes,3,opt,name=catalog,proto3" json:"catalog,omitempty"`
+	Schema               string                 `protobuf:"bytes,4,opt,name=schema,proto3" json:"schema,omitempty"`
+	ClientId             string                 `protobuf:"bytes,5,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	ClientSecretSecretId *string                `protobuf:"bytes,6,opt,name=client_secret_secret_id,json=clientSecretSecretId,proto3,oneof" json:"client_secret_secret_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) Reset() {
+	*x = DatabricksOfflineStoreConnectionConfigStored{}
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DatabricksOfflineStoreConnectionConfigStored) ProtoMessage() {}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DatabricksOfflineStoreConnectionConfigStored.ProtoReflect.Descriptor instead.
+func (*DatabricksOfflineStoreConnectionConfigStored) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) GetHttpPath() string {
+	if x != nil {
+		return x.HttpPath
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) GetCatalog() string {
+	if x != nil {
+		return x.Catalog
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) GetSchema() string {
+	if x != nil {
+		return x.Schema
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *DatabricksOfflineStoreConnectionConfigStored) GetClientSecretSecretId() string {
+	if x != nil && x.ClientSecretSecretId != nil {
+		return *x.ClientSecretSecretId
+	}
+	return ""
+}
+
 // Catalog-specific config for Iceberg with AWS Glue catalog and S3 storage
 type IcebergGlueS3CatalogConfig struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
@@ -654,7 +824,7 @@ type IcebergGlueS3CatalogConfig struct {
 
 func (x *IcebergGlueS3CatalogConfig) Reset() {
 	*x = IcebergGlueS3CatalogConfig{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -666,7 +836,7 @@ func (x *IcebergGlueS3CatalogConfig) String() string {
 func (*IcebergGlueS3CatalogConfig) ProtoMessage() {}
 
 func (x *IcebergGlueS3CatalogConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -679,7 +849,7 @@ func (x *IcebergGlueS3CatalogConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IcebergGlueS3CatalogConfig.ProtoReflect.Descriptor instead.
 func (*IcebergGlueS3CatalogConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *IcebergGlueS3CatalogConfig) GetS3Bucket() string {
@@ -724,7 +894,7 @@ type IcebergOfflineStoreConnectionConfig struct {
 
 func (x *IcebergOfflineStoreConnectionConfig) Reset() {
 	*x = IcebergOfflineStoreConnectionConfig{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -736,7 +906,7 @@ func (x *IcebergOfflineStoreConnectionConfig) String() string {
 func (*IcebergOfflineStoreConnectionConfig) ProtoMessage() {}
 
 func (x *IcebergOfflineStoreConnectionConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -749,7 +919,7 @@ func (x *IcebergOfflineStoreConnectionConfig) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use IcebergOfflineStoreConnectionConfig.ProtoReflect.Descriptor instead.
 func (*IcebergOfflineStoreConnectionConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *IcebergOfflineStoreConnectionConfig) GetCatalog() isIcebergOfflineStoreConnectionConfig_Catalog {
@@ -786,6 +956,7 @@ type OfflineStoreConnectionConfigInput struct {
 	//	*OfflineStoreConnectionConfigInput_Snowflake
 	//	*OfflineStoreConnectionConfigInput_Bigquery
 	//	*OfflineStoreConnectionConfigInput_Iceberg
+	//	*OfflineStoreConnectionConfigInput_Databricks
 	Config        isOfflineStoreConnectionConfigInput_Config `protobuf_oneof:"config"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -793,7 +964,7 @@ type OfflineStoreConnectionConfigInput struct {
 
 func (x *OfflineStoreConnectionConfigInput) Reset() {
 	*x = OfflineStoreConnectionConfigInput{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -805,7 +976,7 @@ func (x *OfflineStoreConnectionConfigInput) String() string {
 func (*OfflineStoreConnectionConfigInput) ProtoMessage() {}
 
 func (x *OfflineStoreConnectionConfigInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -818,7 +989,7 @@ func (x *OfflineStoreConnectionConfigInput) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use OfflineStoreConnectionConfigInput.ProtoReflect.Descriptor instead.
 func (*OfflineStoreConnectionConfigInput) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *OfflineStoreConnectionConfigInput) GetConfig() isOfflineStoreConnectionConfigInput_Config {
@@ -855,6 +1026,15 @@ func (x *OfflineStoreConnectionConfigInput) GetIceberg() *IcebergOfflineStoreCon
 	return nil
 }
 
+func (x *OfflineStoreConnectionConfigInput) GetDatabricks() *DatabricksOfflineStoreConnectionConfigInput {
+	if x != nil {
+		if x, ok := x.Config.(*OfflineStoreConnectionConfigInput_Databricks); ok {
+			return x.Databricks
+		}
+	}
+	return nil
+}
+
 type isOfflineStoreConnectionConfigInput_Config interface {
 	isOfflineStoreConnectionConfigInput_Config()
 }
@@ -871,11 +1051,17 @@ type OfflineStoreConnectionConfigInput_Iceberg struct {
 	Iceberg *IcebergOfflineStoreConnectionConfig `protobuf:"bytes,3,opt,name=iceberg,proto3,oneof"`
 }
 
+type OfflineStoreConnectionConfigInput_Databricks struct {
+	Databricks *DatabricksOfflineStoreConnectionConfigInput `protobuf:"bytes,4,opt,name=databricks,proto3,oneof"`
+}
+
 func (*OfflineStoreConnectionConfigInput_Snowflake) isOfflineStoreConnectionConfigInput_Config() {}
 
 func (*OfflineStoreConnectionConfigInput_Bigquery) isOfflineStoreConnectionConfigInput_Config() {}
 
 func (*OfflineStoreConnectionConfigInput_Iceberg) isOfflineStoreConnectionConfigInput_Config() {}
+
+func (*OfflineStoreConnectionConfigInput_Databricks) isOfflineStoreConnectionConfigInput_Config() {}
 
 // Stored config - used in responses (no plaintext secrets)
 type OfflineStoreConnectionConfigStored struct {
@@ -885,6 +1071,7 @@ type OfflineStoreConnectionConfigStored struct {
 	//	*OfflineStoreConnectionConfigStored_Snowflake
 	//	*OfflineStoreConnectionConfigStored_Bigquery
 	//	*OfflineStoreConnectionConfigStored_Iceberg
+	//	*OfflineStoreConnectionConfigStored_Databricks
 	Config        isOfflineStoreConnectionConfigStored_Config `protobuf_oneof:"config"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -892,7 +1079,7 @@ type OfflineStoreConnectionConfigStored struct {
 
 func (x *OfflineStoreConnectionConfigStored) Reset() {
 	*x = OfflineStoreConnectionConfigStored{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -904,7 +1091,7 @@ func (x *OfflineStoreConnectionConfigStored) String() string {
 func (*OfflineStoreConnectionConfigStored) ProtoMessage() {}
 
 func (x *OfflineStoreConnectionConfigStored) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -917,7 +1104,7 @@ func (x *OfflineStoreConnectionConfigStored) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use OfflineStoreConnectionConfigStored.ProtoReflect.Descriptor instead.
 func (*OfflineStoreConnectionConfigStored) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *OfflineStoreConnectionConfigStored) GetConfig() isOfflineStoreConnectionConfigStored_Config {
@@ -954,6 +1141,15 @@ func (x *OfflineStoreConnectionConfigStored) GetIceberg() *IcebergOfflineStoreCo
 	return nil
 }
 
+func (x *OfflineStoreConnectionConfigStored) GetDatabricks() *DatabricksOfflineStoreConnectionConfigStored {
+	if x != nil {
+		if x, ok := x.Config.(*OfflineStoreConnectionConfigStored_Databricks); ok {
+			return x.Databricks
+		}
+	}
+	return nil
+}
+
 type isOfflineStoreConnectionConfigStored_Config interface {
 	isOfflineStoreConnectionConfigStored_Config()
 }
@@ -970,11 +1166,17 @@ type OfflineStoreConnectionConfigStored_Iceberg struct {
 	Iceberg *IcebergOfflineStoreConnectionConfig `protobuf:"bytes,3,opt,name=iceberg,proto3,oneof"`
 }
 
+type OfflineStoreConnectionConfigStored_Databricks struct {
+	Databricks *DatabricksOfflineStoreConnectionConfigStored `protobuf:"bytes,4,opt,name=databricks,proto3,oneof"`
+}
+
 func (*OfflineStoreConnectionConfigStored_Snowflake) isOfflineStoreConnectionConfigStored_Config() {}
 
 func (*OfflineStoreConnectionConfigStored_Bigquery) isOfflineStoreConnectionConfigStored_Config() {}
 
 func (*OfflineStoreConnectionConfigStored_Iceberg) isOfflineStoreConnectionConfigStored_Config() {}
+
+func (*OfflineStoreConnectionConfigStored_Databricks) isOfflineStoreConnectionConfigStored_Config() {}
 
 // Input message for creating/updating an offline store connection
 type OfflineStoreConnectionInput struct {
@@ -987,7 +1189,7 @@ type OfflineStoreConnectionInput struct {
 
 func (x *OfflineStoreConnectionInput) Reset() {
 	*x = OfflineStoreConnectionInput{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -999,7 +1201,7 @@ func (x *OfflineStoreConnectionInput) String() string {
 func (*OfflineStoreConnectionInput) ProtoMessage() {}
 
 func (x *OfflineStoreConnectionInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1012,7 +1214,7 @@ func (x *OfflineStoreConnectionInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineStoreConnectionInput.ProtoReflect.Descriptor instead.
 func (*OfflineStoreConnectionInput) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *OfflineStoreConnectionInput) GetName() string {
@@ -1045,7 +1247,7 @@ type OfflineStoreConnection struct {
 
 func (x *OfflineStoreConnection) Reset() {
 	*x = OfflineStoreConnection{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1057,7 +1259,7 @@ func (x *OfflineStoreConnection) String() string {
 func (*OfflineStoreConnection) ProtoMessage() {}
 
 func (x *OfflineStoreConnection) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1070,7 +1272,7 @@ func (x *OfflineStoreConnection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineStoreConnection.ProtoReflect.Descriptor instead.
 func (*OfflineStoreConnection) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *OfflineStoreConnection) GetId() string {
@@ -1131,7 +1333,7 @@ type CreateOfflineStoreConnectionRequest struct {
 
 func (x *CreateOfflineStoreConnectionRequest) Reset() {
 	*x = CreateOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1143,7 +1345,7 @@ func (x *CreateOfflineStoreConnectionRequest) String() string {
 func (*CreateOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *CreateOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1156,7 +1358,7 @@ func (x *CreateOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use CreateOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*CreateOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CreateOfflineStoreConnectionRequest) GetConnection() *OfflineStoreConnectionInput {
@@ -1175,7 +1377,7 @@ type CreateOfflineStoreConnectionResponse struct {
 
 func (x *CreateOfflineStoreConnectionResponse) Reset() {
 	*x = CreateOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1187,7 +1389,7 @@ func (x *CreateOfflineStoreConnectionResponse) String() string {
 func (*CreateOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *CreateOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1200,7 +1402,7 @@ func (x *CreateOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use CreateOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*CreateOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateOfflineStoreConnectionResponse) GetConnection() *OfflineStoreConnection {
@@ -1219,7 +1421,7 @@ type GetOfflineStoreConnectionRequest struct {
 
 func (x *GetOfflineStoreConnectionRequest) Reset() {
 	*x = GetOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1231,7 +1433,7 @@ func (x *GetOfflineStoreConnectionRequest) String() string {
 func (*GetOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *GetOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1244,7 +1446,7 @@ func (x *GetOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*GetOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetOfflineStoreConnectionRequest) GetId() string {
@@ -1263,7 +1465,7 @@ type GetOfflineStoreConnectionResponse struct {
 
 func (x *GetOfflineStoreConnectionResponse) Reset() {
 	*x = GetOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1275,7 +1477,7 @@ func (x *GetOfflineStoreConnectionResponse) String() string {
 func (*GetOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *GetOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1288,7 +1490,7 @@ func (x *GetOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*GetOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetOfflineStoreConnectionResponse) GetConnection() *OfflineStoreConnection {
@@ -1306,7 +1508,7 @@ type ListOfflineStoreConnectionsRequest struct {
 
 func (x *ListOfflineStoreConnectionsRequest) Reset() {
 	*x = ListOfflineStoreConnectionsRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1318,7 +1520,7 @@ func (x *ListOfflineStoreConnectionsRequest) String() string {
 func (*ListOfflineStoreConnectionsRequest) ProtoMessage() {}
 
 func (x *ListOfflineStoreConnectionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1331,7 +1533,7 @@ func (x *ListOfflineStoreConnectionsRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListOfflineStoreConnectionsRequest.ProtoReflect.Descriptor instead.
 func (*ListOfflineStoreConnectionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{20}
 }
 
 type ListOfflineStoreConnectionsResponse struct {
@@ -1343,7 +1545,7 @@ type ListOfflineStoreConnectionsResponse struct {
 
 func (x *ListOfflineStoreConnectionsResponse) Reset() {
 	*x = ListOfflineStoreConnectionsResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1355,7 +1557,7 @@ func (x *ListOfflineStoreConnectionsResponse) String() string {
 func (*ListOfflineStoreConnectionsResponse) ProtoMessage() {}
 
 func (x *ListOfflineStoreConnectionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1368,7 +1570,7 @@ func (x *ListOfflineStoreConnectionsResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ListOfflineStoreConnectionsResponse.ProtoReflect.Descriptor instead.
 func (*ListOfflineStoreConnectionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ListOfflineStoreConnectionsResponse) GetConnections() []*OfflineStoreConnection {
@@ -1389,7 +1591,7 @@ type UpdateOfflineStoreConnectionRequest struct {
 
 func (x *UpdateOfflineStoreConnectionRequest) Reset() {
 	*x = UpdateOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1401,7 +1603,7 @@ func (x *UpdateOfflineStoreConnectionRequest) String() string {
 func (*UpdateOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *UpdateOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1414,7 +1616,7 @@ func (x *UpdateOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use UpdateOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*UpdateOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *UpdateOfflineStoreConnectionRequest) GetId() string {
@@ -1447,7 +1649,7 @@ type UpdateOfflineStoreConnectionResponse struct {
 
 func (x *UpdateOfflineStoreConnectionResponse) Reset() {
 	*x = UpdateOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1459,7 +1661,7 @@ func (x *UpdateOfflineStoreConnectionResponse) String() string {
 func (*UpdateOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *UpdateOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1472,7 +1674,7 @@ func (x *UpdateOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use UpdateOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*UpdateOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *UpdateOfflineStoreConnectionResponse) GetConnection() *OfflineStoreConnection {
@@ -1491,7 +1693,7 @@ type DeleteOfflineStoreConnectionRequest struct {
 
 func (x *DeleteOfflineStoreConnectionRequest) Reset() {
 	*x = DeleteOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1503,7 +1705,7 @@ func (x *DeleteOfflineStoreConnectionRequest) String() string {
 func (*DeleteOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *DeleteOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1516,7 +1718,7 @@ func (x *DeleteOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DeleteOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*DeleteOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *DeleteOfflineStoreConnectionRequest) GetId() string {
@@ -1534,7 +1736,7 @@ type DeleteOfflineStoreConnectionResponse struct {
 
 func (x *DeleteOfflineStoreConnectionResponse) Reset() {
 	*x = DeleteOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1546,7 +1748,7 @@ func (x *DeleteOfflineStoreConnectionResponse) String() string {
 func (*DeleteOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *DeleteOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1559,7 +1761,7 @@ func (x *DeleteOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DeleteOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*DeleteOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{25}
 }
 
 type TestOfflineStoreConnectionRequest struct {
@@ -1577,7 +1779,7 @@ type TestOfflineStoreConnectionRequest struct {
 
 func (x *TestOfflineStoreConnectionRequest) Reset() {
 	*x = TestOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1589,7 +1791,7 @@ func (x *TestOfflineStoreConnectionRequest) String() string {
 func (*TestOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *TestOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1602,7 +1804,7 @@ func (x *TestOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use TestOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*TestOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *TestOfflineStoreConnectionRequest) GetConnection() isTestOfflineStoreConnectionRequest_Connection {
@@ -1657,7 +1859,7 @@ type TestOfflineStoreConnectionResponse struct {
 
 func (x *TestOfflineStoreConnectionResponse) Reset() {
 	*x = TestOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1669,7 +1871,7 @@ func (x *TestOfflineStoreConnectionResponse) String() string {
 func (*TestOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *TestOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1682,7 +1884,7 @@ func (x *TestOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use TestOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*TestOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *TestOfflineStoreConnectionResponse) GetSuccess() bool {
@@ -1717,7 +1919,7 @@ type CreateBindingEnvironmentOfflineStoreConnectionRequest struct {
 
 func (x *CreateBindingEnvironmentOfflineStoreConnectionRequest) Reset() {
 	*x = CreateBindingEnvironmentOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1729,7 +1931,7 @@ func (x *CreateBindingEnvironmentOfflineStoreConnectionRequest) String() string 
 func (*CreateBindingEnvironmentOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *CreateBindingEnvironmentOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1742,7 +1944,7 @@ func (x *CreateBindingEnvironmentOfflineStoreConnectionRequest) ProtoReflect() p
 
 // Deprecated: Use CreateBindingEnvironmentOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*CreateBindingEnvironmentOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *CreateBindingEnvironmentOfflineStoreConnectionRequest) GetEnvironmentId() string {
@@ -1774,7 +1976,7 @@ type CreateBindingEnvironmentOfflineStoreConnectionResponse struct {
 
 func (x *CreateBindingEnvironmentOfflineStoreConnectionResponse) Reset() {
 	*x = CreateBindingEnvironmentOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1786,7 +1988,7 @@ func (x *CreateBindingEnvironmentOfflineStoreConnectionResponse) String() string
 func (*CreateBindingEnvironmentOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *CreateBindingEnvironmentOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1799,7 +2001,7 @@ func (x *CreateBindingEnvironmentOfflineStoreConnectionResponse) ProtoReflect() 
 
 // Deprecated: Use CreateBindingEnvironmentOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*CreateBindingEnvironmentOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{29}
 }
 
 type GetBindingEnvironmentOfflineStoreConnectionRequest struct {
@@ -1811,7 +2013,7 @@ type GetBindingEnvironmentOfflineStoreConnectionRequest struct {
 
 func (x *GetBindingEnvironmentOfflineStoreConnectionRequest) Reset() {
 	*x = GetBindingEnvironmentOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1823,7 +2025,7 @@ func (x *GetBindingEnvironmentOfflineStoreConnectionRequest) String() string {
 func (*GetBindingEnvironmentOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *GetBindingEnvironmentOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1836,7 +2038,7 @@ func (x *GetBindingEnvironmentOfflineStoreConnectionRequest) ProtoReflect() prot
 
 // Deprecated: Use GetBindingEnvironmentOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*GetBindingEnvironmentOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetBindingEnvironmentOfflineStoreConnectionRequest) GetEnvironmentId() string {
@@ -1857,7 +2059,7 @@ type GetBindingEnvironmentOfflineStoreConnectionResponse struct {
 
 func (x *GetBindingEnvironmentOfflineStoreConnectionResponse) Reset() {
 	*x = GetBindingEnvironmentOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1869,7 +2071,7 @@ func (x *GetBindingEnvironmentOfflineStoreConnectionResponse) String() string {
 func (*GetBindingEnvironmentOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *GetBindingEnvironmentOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1882,7 +2084,7 @@ func (x *GetBindingEnvironmentOfflineStoreConnectionResponse) ProtoReflect() pro
 
 // Deprecated: Use GetBindingEnvironmentOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*GetBindingEnvironmentOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetBindingEnvironmentOfflineStoreConnectionResponse) GetEnvironmentId() string {
@@ -1916,7 +2118,7 @@ type DeleteBindingEnvironmentOfflineStoreConnectionRequest struct {
 
 func (x *DeleteBindingEnvironmentOfflineStoreConnectionRequest) Reset() {
 	*x = DeleteBindingEnvironmentOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1928,7 +2130,7 @@ func (x *DeleteBindingEnvironmentOfflineStoreConnectionRequest) String() string 
 func (*DeleteBindingEnvironmentOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *DeleteBindingEnvironmentOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1941,7 +2143,7 @@ func (x *DeleteBindingEnvironmentOfflineStoreConnectionRequest) ProtoReflect() p
 
 // Deprecated: Use DeleteBindingEnvironmentOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBindingEnvironmentOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *DeleteBindingEnvironmentOfflineStoreConnectionRequest) GetEnvironmentId() string {
@@ -1966,7 +2168,7 @@ type DeleteBindingEnvironmentOfflineStoreConnectionResponse struct {
 
 func (x *DeleteBindingEnvironmentOfflineStoreConnectionResponse) Reset() {
 	*x = DeleteBindingEnvironmentOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1978,7 +2180,7 @@ func (x *DeleteBindingEnvironmentOfflineStoreConnectionResponse) String() string
 func (*DeleteBindingEnvironmentOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *DeleteBindingEnvironmentOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1991,7 +2193,7 @@ func (x *DeleteBindingEnvironmentOfflineStoreConnectionResponse) ProtoReflect() 
 
 // Deprecated: Use DeleteBindingEnvironmentOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBindingEnvironmentOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{33}
 }
 
 type MigrateOfflineStoreConnectionRequest struct {
@@ -2003,7 +2205,7 @@ type MigrateOfflineStoreConnectionRequest struct {
 
 func (x *MigrateOfflineStoreConnectionRequest) Reset() {
 	*x = MigrateOfflineStoreConnectionRequest{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2015,7 +2217,7 @@ func (x *MigrateOfflineStoreConnectionRequest) String() string {
 func (*MigrateOfflineStoreConnectionRequest) ProtoMessage() {}
 
 func (x *MigrateOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2028,7 +2230,7 @@ func (x *MigrateOfflineStoreConnectionRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use MigrateOfflineStoreConnectionRequest.ProtoReflect.Descriptor instead.
 func (*MigrateOfflineStoreConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *MigrateOfflineStoreConnectionRequest) GetOfflineStoreConnectionId() string {
@@ -2046,7 +2248,7 @@ type MigrateOfflineStoreConnectionResponse struct {
 
 func (x *MigrateOfflineStoreConnectionResponse) Reset() {
 	*x = MigrateOfflineStoreConnectionResponse{}
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2058,7 +2260,7 @@ func (x *MigrateOfflineStoreConnectionResponse) String() string {
 func (*MigrateOfflineStoreConnectionResponse) ProtoMessage() {}
 
 func (x *MigrateOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2071,7 +2273,7 @@ func (x *MigrateOfflineStoreConnectionResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use MigrateOfflineStoreConnectionResponse.ProtoReflect.Descriptor instead.
 func (*MigrateOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{35}
 }
 
 var File_chalk_server_v1_offline_store_connection_proto protoreflect.FileDescriptor
@@ -2138,7 +2340,23 @@ const file_chalk_server_v1_offline_store_connection_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x1d\n" +
 	"\n" +
-	"dataset_id\x18\x02 \x01(\tR\tdatasetId\"\xc7\x01\n" +
+	"dataset_id\x18\x02 \x01(\tR\tdatasetId\"\xef\x01\n" +
+	"+DatabricksOfflineStoreConnectionConfigInput\x12\x12\n" +
+	"\x04host\x18\x01 \x01(\tR\x04host\x12\x1b\n" +
+	"\thttp_path\x18\x02 \x01(\tR\bhttpPath\x12\x18\n" +
+	"\acatalog\x18\x03 \x01(\tR\acatalog\x12\x16\n" +
+	"\x06schema\x18\x04 \x01(\tR\x06schema\x12\x1b\n" +
+	"\tclient_id\x18\x05 \x01(\tR\bclientId\x12.\n" +
+	"\rclient_secret\x18\x06 \x01(\tB\x04ء'\x01H\x00R\fclientSecret\x88\x01\x01B\x10\n" +
+	"\x0e_client_secret\"\x86\x02\n" +
+	",DatabricksOfflineStoreConnectionConfigStored\x12\x12\n" +
+	"\x04host\x18\x01 \x01(\tR\x04host\x12\x1b\n" +
+	"\thttp_path\x18\x02 \x01(\tR\bhttpPath\x12\x18\n" +
+	"\acatalog\x18\x03 \x01(\tR\acatalog\x12\x16\n" +
+	"\x06schema\x18\x04 \x01(\tR\x06schema\x12\x1b\n" +
+	"\tclient_id\x18\x05 \x01(\tR\bclientId\x12:\n" +
+	"\x17client_secret_secret_id\x18\x06 \x01(\tH\x00R\x14clientSecretSecretId\x88\x01\x01B\x1a\n" +
+	"\x18_client_secret_secret_id\"\xc7\x01\n" +
 	"\x1aIcebergGlueS3CatalogConfig\x12\x1b\n" +
 	"\ts3_bucket\x18\x01 \x01(\tR\bs3Bucket\x12,\n" +
 	"\x12glue_database_name\x18\x02 \x01(\tR\x10glueDatabaseName\x12\"\n" +
@@ -2149,16 +2367,22 @@ const file_chalk_server_v1_offline_store_connection_proto_rawDesc = "" +
 	"\t_role_arn\"x\n" +
 	"#IcebergOfflineStoreConnectionConfig\x12F\n" +
 	"\aglue_s3\x18\x01 \x01(\v2+.chalk.server.v1.IcebergGlueS3CatalogConfigH\x00R\x06glueS3B\t\n" +
-	"\acatalog\"\xb1\x02\n" +
+	"\acatalog\"\x91\x03\n" +
 	"!OfflineStoreConnectionConfigInput\x12[\n" +
 	"\tsnowflake\x18\x01 \x01(\v2;.chalk.server.v1.SnowflakeOfflineStoreConnectionConfigInputH\x00R\tsnowflake\x12S\n" +
 	"\bbigquery\x18\x02 \x01(\v25.chalk.server.v1.BigQueryOfflineStoreConnectionConfigH\x00R\bbigquery\x12P\n" +
-	"\aiceberg\x18\x03 \x01(\v24.chalk.server.v1.IcebergOfflineStoreConnectionConfigH\x00R\aicebergB\b\n" +
-	"\x06config\"\xb3\x02\n" +
+	"\aiceberg\x18\x03 \x01(\v24.chalk.server.v1.IcebergOfflineStoreConnectionConfigH\x00R\aiceberg\x12^\n" +
+	"\n" +
+	"databricks\x18\x04 \x01(\v2<.chalk.server.v1.DatabricksOfflineStoreConnectionConfigInputH\x00R\n" +
+	"databricksB\b\n" +
+	"\x06config\"\x94\x03\n" +
 	"\"OfflineStoreConnectionConfigStored\x12\\\n" +
 	"\tsnowflake\x18\x01 \x01(\v2<.chalk.server.v1.SnowflakeOfflineStoreConnectionConfigStoredH\x00R\tsnowflake\x12S\n" +
 	"\bbigquery\x18\x02 \x01(\v25.chalk.server.v1.BigQueryOfflineStoreConnectionConfigH\x00R\bbigquery\x12P\n" +
-	"\aiceberg\x18\x03 \x01(\v24.chalk.server.v1.IcebergOfflineStoreConnectionConfigH\x00R\aicebergB\b\n" +
+	"\aiceberg\x18\x03 \x01(\v24.chalk.server.v1.IcebergOfflineStoreConnectionConfigH\x00R\aiceberg\x12_\n" +
+	"\n" +
+	"databricks\x18\x04 \x01(\v2=.chalk.server.v1.DatabricksOfflineStoreConnectionConfigStoredH\x00R\n" +
+	"databricksB\b\n" +
 	"\x06config\"}\n" +
 	"\x1bOfflineStoreConnectionInput\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12J\n" +
@@ -2260,7 +2484,7 @@ func file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_offline_store_connection_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_offline_store_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_chalk_server_v1_offline_store_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
 var file_chalk_server_v1_offline_store_connection_proto_goTypes = []any{
 	(StorageType)(0),                                               // 0: chalk.server.v1.StorageType
 	(*S3StorageIntegrationConfig)(nil),                             // 1: chalk.server.v1.S3StorageIntegrationConfig
@@ -2271,34 +2495,36 @@ var file_chalk_server_v1_offline_store_connection_proto_goTypes = []any{
 	(*SnowflakeOfflineStoreConnectionConfigInput)(nil),             // 6: chalk.server.v1.SnowflakeOfflineStoreConnectionConfigInput
 	(*SnowflakeOfflineStoreConnectionConfigStored)(nil),            // 7: chalk.server.v1.SnowflakeOfflineStoreConnectionConfigStored
 	(*BigQueryOfflineStoreConnectionConfig)(nil),                   // 8: chalk.server.v1.BigQueryOfflineStoreConnectionConfig
-	(*IcebergGlueS3CatalogConfig)(nil),                             // 9: chalk.server.v1.IcebergGlueS3CatalogConfig
-	(*IcebergOfflineStoreConnectionConfig)(nil),                    // 10: chalk.server.v1.IcebergOfflineStoreConnectionConfig
-	(*OfflineStoreConnectionConfigInput)(nil),                      // 11: chalk.server.v1.OfflineStoreConnectionConfigInput
-	(*OfflineStoreConnectionConfigStored)(nil),                     // 12: chalk.server.v1.OfflineStoreConnectionConfigStored
-	(*OfflineStoreConnectionInput)(nil),                            // 13: chalk.server.v1.OfflineStoreConnectionInput
-	(*OfflineStoreConnection)(nil),                                 // 14: chalk.server.v1.OfflineStoreConnection
-	(*CreateOfflineStoreConnectionRequest)(nil),                    // 15: chalk.server.v1.CreateOfflineStoreConnectionRequest
-	(*CreateOfflineStoreConnectionResponse)(nil),                   // 16: chalk.server.v1.CreateOfflineStoreConnectionResponse
-	(*GetOfflineStoreConnectionRequest)(nil),                       // 17: chalk.server.v1.GetOfflineStoreConnectionRequest
-	(*GetOfflineStoreConnectionResponse)(nil),                      // 18: chalk.server.v1.GetOfflineStoreConnectionResponse
-	(*ListOfflineStoreConnectionsRequest)(nil),                     // 19: chalk.server.v1.ListOfflineStoreConnectionsRequest
-	(*ListOfflineStoreConnectionsResponse)(nil),                    // 20: chalk.server.v1.ListOfflineStoreConnectionsResponse
-	(*UpdateOfflineStoreConnectionRequest)(nil),                    // 21: chalk.server.v1.UpdateOfflineStoreConnectionRequest
-	(*UpdateOfflineStoreConnectionResponse)(nil),                   // 22: chalk.server.v1.UpdateOfflineStoreConnectionResponse
-	(*DeleteOfflineStoreConnectionRequest)(nil),                    // 23: chalk.server.v1.DeleteOfflineStoreConnectionRequest
-	(*DeleteOfflineStoreConnectionResponse)(nil),                   // 24: chalk.server.v1.DeleteOfflineStoreConnectionResponse
-	(*TestOfflineStoreConnectionRequest)(nil),                      // 25: chalk.server.v1.TestOfflineStoreConnectionRequest
-	(*TestOfflineStoreConnectionResponse)(nil),                     // 26: chalk.server.v1.TestOfflineStoreConnectionResponse
-	(*CreateBindingEnvironmentOfflineStoreConnectionRequest)(nil),  // 27: chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionRequest
-	(*CreateBindingEnvironmentOfflineStoreConnectionResponse)(nil), // 28: chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionResponse
-	(*GetBindingEnvironmentOfflineStoreConnectionRequest)(nil),     // 29: chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionRequest
-	(*GetBindingEnvironmentOfflineStoreConnectionResponse)(nil),    // 30: chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionResponse
-	(*DeleteBindingEnvironmentOfflineStoreConnectionRequest)(nil),  // 31: chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest
-	(*DeleteBindingEnvironmentOfflineStoreConnectionResponse)(nil), // 32: chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse
-	(*MigrateOfflineStoreConnectionRequest)(nil),                   // 33: chalk.server.v1.MigrateOfflineStoreConnectionRequest
-	(*MigrateOfflineStoreConnectionResponse)(nil),                  // 34: chalk.server.v1.MigrateOfflineStoreConnectionResponse
-	(*timestamppb.Timestamp)(nil),                                  // 35: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),                                  // 36: google.protobuf.FieldMask
+	(*DatabricksOfflineStoreConnectionConfigInput)(nil),            // 9: chalk.server.v1.DatabricksOfflineStoreConnectionConfigInput
+	(*DatabricksOfflineStoreConnectionConfigStored)(nil),           // 10: chalk.server.v1.DatabricksOfflineStoreConnectionConfigStored
+	(*IcebergGlueS3CatalogConfig)(nil),                             // 11: chalk.server.v1.IcebergGlueS3CatalogConfig
+	(*IcebergOfflineStoreConnectionConfig)(nil),                    // 12: chalk.server.v1.IcebergOfflineStoreConnectionConfig
+	(*OfflineStoreConnectionConfigInput)(nil),                      // 13: chalk.server.v1.OfflineStoreConnectionConfigInput
+	(*OfflineStoreConnectionConfigStored)(nil),                     // 14: chalk.server.v1.OfflineStoreConnectionConfigStored
+	(*OfflineStoreConnectionInput)(nil),                            // 15: chalk.server.v1.OfflineStoreConnectionInput
+	(*OfflineStoreConnection)(nil),                                 // 16: chalk.server.v1.OfflineStoreConnection
+	(*CreateOfflineStoreConnectionRequest)(nil),                    // 17: chalk.server.v1.CreateOfflineStoreConnectionRequest
+	(*CreateOfflineStoreConnectionResponse)(nil),                   // 18: chalk.server.v1.CreateOfflineStoreConnectionResponse
+	(*GetOfflineStoreConnectionRequest)(nil),                       // 19: chalk.server.v1.GetOfflineStoreConnectionRequest
+	(*GetOfflineStoreConnectionResponse)(nil),                      // 20: chalk.server.v1.GetOfflineStoreConnectionResponse
+	(*ListOfflineStoreConnectionsRequest)(nil),                     // 21: chalk.server.v1.ListOfflineStoreConnectionsRequest
+	(*ListOfflineStoreConnectionsResponse)(nil),                    // 22: chalk.server.v1.ListOfflineStoreConnectionsResponse
+	(*UpdateOfflineStoreConnectionRequest)(nil),                    // 23: chalk.server.v1.UpdateOfflineStoreConnectionRequest
+	(*UpdateOfflineStoreConnectionResponse)(nil),                   // 24: chalk.server.v1.UpdateOfflineStoreConnectionResponse
+	(*DeleteOfflineStoreConnectionRequest)(nil),                    // 25: chalk.server.v1.DeleteOfflineStoreConnectionRequest
+	(*DeleteOfflineStoreConnectionResponse)(nil),                   // 26: chalk.server.v1.DeleteOfflineStoreConnectionResponse
+	(*TestOfflineStoreConnectionRequest)(nil),                      // 27: chalk.server.v1.TestOfflineStoreConnectionRequest
+	(*TestOfflineStoreConnectionResponse)(nil),                     // 28: chalk.server.v1.TestOfflineStoreConnectionResponse
+	(*CreateBindingEnvironmentOfflineStoreConnectionRequest)(nil),  // 29: chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionRequest
+	(*CreateBindingEnvironmentOfflineStoreConnectionResponse)(nil), // 30: chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionResponse
+	(*GetBindingEnvironmentOfflineStoreConnectionRequest)(nil),     // 31: chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionRequest
+	(*GetBindingEnvironmentOfflineStoreConnectionResponse)(nil),    // 32: chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionResponse
+	(*DeleteBindingEnvironmentOfflineStoreConnectionRequest)(nil),  // 33: chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest
+	(*DeleteBindingEnvironmentOfflineStoreConnectionResponse)(nil), // 34: chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse
+	(*MigrateOfflineStoreConnectionRequest)(nil),                   // 35: chalk.server.v1.MigrateOfflineStoreConnectionRequest
+	(*MigrateOfflineStoreConnectionResponse)(nil),                  // 36: chalk.server.v1.MigrateOfflineStoreConnectionResponse
+	(*timestamppb.Timestamp)(nil),                                  // 37: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),                                  // 38: google.protobuf.FieldMask
 }
 var file_chalk_server_v1_offline_store_connection_proto_depIdxs = []int32{
 	1,  // 0: chalk.server.v1.SnowflakeStorageIntegration.s3:type_name -> chalk.server.v1.S3StorageIntegrationConfig
@@ -2307,50 +2533,52 @@ var file_chalk_server_v1_offline_store_connection_proto_depIdxs = []int32{
 	3,  // 3: chalk.server.v1.SnowflakeOfflineStoreConnectionConfigInput.storage_integration:type_name -> chalk.server.v1.SnowflakeStorageIntegration
 	5,  // 4: chalk.server.v1.SnowflakeOfflineStoreConnectionConfigStored.credentials:type_name -> chalk.server.v1.SnowflakeCredentialsStored
 	3,  // 5: chalk.server.v1.SnowflakeOfflineStoreConnectionConfigStored.storage_integration:type_name -> chalk.server.v1.SnowflakeStorageIntegration
-	9,  // 6: chalk.server.v1.IcebergOfflineStoreConnectionConfig.glue_s3:type_name -> chalk.server.v1.IcebergGlueS3CatalogConfig
+	11, // 6: chalk.server.v1.IcebergOfflineStoreConnectionConfig.glue_s3:type_name -> chalk.server.v1.IcebergGlueS3CatalogConfig
 	6,  // 7: chalk.server.v1.OfflineStoreConnectionConfigInput.snowflake:type_name -> chalk.server.v1.SnowflakeOfflineStoreConnectionConfigInput
 	8,  // 8: chalk.server.v1.OfflineStoreConnectionConfigInput.bigquery:type_name -> chalk.server.v1.BigQueryOfflineStoreConnectionConfig
-	10, // 9: chalk.server.v1.OfflineStoreConnectionConfigInput.iceberg:type_name -> chalk.server.v1.IcebergOfflineStoreConnectionConfig
-	7,  // 10: chalk.server.v1.OfflineStoreConnectionConfigStored.snowflake:type_name -> chalk.server.v1.SnowflakeOfflineStoreConnectionConfigStored
-	8,  // 11: chalk.server.v1.OfflineStoreConnectionConfigStored.bigquery:type_name -> chalk.server.v1.BigQueryOfflineStoreConnectionConfig
-	10, // 12: chalk.server.v1.OfflineStoreConnectionConfigStored.iceberg:type_name -> chalk.server.v1.IcebergOfflineStoreConnectionConfig
-	11, // 13: chalk.server.v1.OfflineStoreConnectionInput.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigInput
-	12, // 14: chalk.server.v1.OfflineStoreConnection.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigStored
-	35, // 15: chalk.server.v1.OfflineStoreConnection.created_at:type_name -> google.protobuf.Timestamp
-	35, // 16: chalk.server.v1.OfflineStoreConnection.updated_at:type_name -> google.protobuf.Timestamp
-	13, // 17: chalk.server.v1.CreateOfflineStoreConnectionRequest.connection:type_name -> chalk.server.v1.OfflineStoreConnectionInput
-	14, // 18: chalk.server.v1.CreateOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
-	14, // 19: chalk.server.v1.GetOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
-	14, // 20: chalk.server.v1.ListOfflineStoreConnectionsResponse.connections:type_name -> chalk.server.v1.OfflineStoreConnection
-	13, // 21: chalk.server.v1.UpdateOfflineStoreConnectionRequest.connection:type_name -> chalk.server.v1.OfflineStoreConnectionInput
-	36, // 22: chalk.server.v1.UpdateOfflineStoreConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
-	14, // 23: chalk.server.v1.UpdateOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
-	11, // 24: chalk.server.v1.TestOfflineStoreConnectionRequest.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigInput
-	15, // 25: chalk.server.v1.OfflineStoreConnectionService.CreateOfflineStoreConnection:input_type -> chalk.server.v1.CreateOfflineStoreConnectionRequest
-	17, // 26: chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection:input_type -> chalk.server.v1.GetOfflineStoreConnectionRequest
-	19, // 27: chalk.server.v1.OfflineStoreConnectionService.ListOfflineStoreConnections:input_type -> chalk.server.v1.ListOfflineStoreConnectionsRequest
-	21, // 28: chalk.server.v1.OfflineStoreConnectionService.UpdateOfflineStoreConnection:input_type -> chalk.server.v1.UpdateOfflineStoreConnectionRequest
-	23, // 29: chalk.server.v1.OfflineStoreConnectionService.DeleteOfflineStoreConnection:input_type -> chalk.server.v1.DeleteOfflineStoreConnectionRequest
-	25, // 30: chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection:input_type -> chalk.server.v1.TestOfflineStoreConnectionRequest
-	27, // 31: chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionRequest
-	29, // 32: chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionRequest
-	31, // 33: chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest
-	33, // 34: chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection:input_type -> chalk.server.v1.MigrateOfflineStoreConnectionRequest
-	16, // 35: chalk.server.v1.OfflineStoreConnectionService.CreateOfflineStoreConnection:output_type -> chalk.server.v1.CreateOfflineStoreConnectionResponse
-	18, // 36: chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection:output_type -> chalk.server.v1.GetOfflineStoreConnectionResponse
-	20, // 37: chalk.server.v1.OfflineStoreConnectionService.ListOfflineStoreConnections:output_type -> chalk.server.v1.ListOfflineStoreConnectionsResponse
-	22, // 38: chalk.server.v1.OfflineStoreConnectionService.UpdateOfflineStoreConnection:output_type -> chalk.server.v1.UpdateOfflineStoreConnectionResponse
-	24, // 39: chalk.server.v1.OfflineStoreConnectionService.DeleteOfflineStoreConnection:output_type -> chalk.server.v1.DeleteOfflineStoreConnectionResponse
-	26, // 40: chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection:output_type -> chalk.server.v1.TestOfflineStoreConnectionResponse
-	28, // 41: chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionResponse
-	30, // 42: chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionResponse
-	32, // 43: chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse
-	34, // 44: chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection:output_type -> chalk.server.v1.MigrateOfflineStoreConnectionResponse
-	35, // [35:45] is the sub-list for method output_type
-	25, // [25:35] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	12, // 9: chalk.server.v1.OfflineStoreConnectionConfigInput.iceberg:type_name -> chalk.server.v1.IcebergOfflineStoreConnectionConfig
+	9,  // 10: chalk.server.v1.OfflineStoreConnectionConfigInput.databricks:type_name -> chalk.server.v1.DatabricksOfflineStoreConnectionConfigInput
+	7,  // 11: chalk.server.v1.OfflineStoreConnectionConfigStored.snowflake:type_name -> chalk.server.v1.SnowflakeOfflineStoreConnectionConfigStored
+	8,  // 12: chalk.server.v1.OfflineStoreConnectionConfigStored.bigquery:type_name -> chalk.server.v1.BigQueryOfflineStoreConnectionConfig
+	12, // 13: chalk.server.v1.OfflineStoreConnectionConfigStored.iceberg:type_name -> chalk.server.v1.IcebergOfflineStoreConnectionConfig
+	10, // 14: chalk.server.v1.OfflineStoreConnectionConfigStored.databricks:type_name -> chalk.server.v1.DatabricksOfflineStoreConnectionConfigStored
+	13, // 15: chalk.server.v1.OfflineStoreConnectionInput.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigInput
+	14, // 16: chalk.server.v1.OfflineStoreConnection.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigStored
+	37, // 17: chalk.server.v1.OfflineStoreConnection.created_at:type_name -> google.protobuf.Timestamp
+	37, // 18: chalk.server.v1.OfflineStoreConnection.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 19: chalk.server.v1.CreateOfflineStoreConnectionRequest.connection:type_name -> chalk.server.v1.OfflineStoreConnectionInput
+	16, // 20: chalk.server.v1.CreateOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
+	16, // 21: chalk.server.v1.GetOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
+	16, // 22: chalk.server.v1.ListOfflineStoreConnectionsResponse.connections:type_name -> chalk.server.v1.OfflineStoreConnection
+	15, // 23: chalk.server.v1.UpdateOfflineStoreConnectionRequest.connection:type_name -> chalk.server.v1.OfflineStoreConnectionInput
+	38, // 24: chalk.server.v1.UpdateOfflineStoreConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	16, // 25: chalk.server.v1.UpdateOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
+	13, // 26: chalk.server.v1.TestOfflineStoreConnectionRequest.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigInput
+	17, // 27: chalk.server.v1.OfflineStoreConnectionService.CreateOfflineStoreConnection:input_type -> chalk.server.v1.CreateOfflineStoreConnectionRequest
+	19, // 28: chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection:input_type -> chalk.server.v1.GetOfflineStoreConnectionRequest
+	21, // 29: chalk.server.v1.OfflineStoreConnectionService.ListOfflineStoreConnections:input_type -> chalk.server.v1.ListOfflineStoreConnectionsRequest
+	23, // 30: chalk.server.v1.OfflineStoreConnectionService.UpdateOfflineStoreConnection:input_type -> chalk.server.v1.UpdateOfflineStoreConnectionRequest
+	25, // 31: chalk.server.v1.OfflineStoreConnectionService.DeleteOfflineStoreConnection:input_type -> chalk.server.v1.DeleteOfflineStoreConnectionRequest
+	27, // 32: chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection:input_type -> chalk.server.v1.TestOfflineStoreConnectionRequest
+	29, // 33: chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionRequest
+	31, // 34: chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionRequest
+	33, // 35: chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest
+	35, // 36: chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection:input_type -> chalk.server.v1.MigrateOfflineStoreConnectionRequest
+	18, // 37: chalk.server.v1.OfflineStoreConnectionService.CreateOfflineStoreConnection:output_type -> chalk.server.v1.CreateOfflineStoreConnectionResponse
+	20, // 38: chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection:output_type -> chalk.server.v1.GetOfflineStoreConnectionResponse
+	22, // 39: chalk.server.v1.OfflineStoreConnectionService.ListOfflineStoreConnections:output_type -> chalk.server.v1.ListOfflineStoreConnectionsResponse
+	24, // 40: chalk.server.v1.OfflineStoreConnectionService.UpdateOfflineStoreConnection:output_type -> chalk.server.v1.UpdateOfflineStoreConnectionResponse
+	26, // 41: chalk.server.v1.OfflineStoreConnectionService.DeleteOfflineStoreConnection:output_type -> chalk.server.v1.DeleteOfflineStoreConnectionResponse
+	28, // 42: chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection:output_type -> chalk.server.v1.TestOfflineStoreConnectionResponse
+	30, // 43: chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionResponse
+	32, // 44: chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionResponse
+	34, // 45: chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse
+	36, // 46: chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection:output_type -> chalk.server.v1.MigrateOfflineStoreConnectionResponse
+	37, // [37:47] is the sub-list for method output_type
+	27, // [27:37] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_store_connection_proto_init() }
@@ -2367,20 +2595,24 @@ func file_chalk_server_v1_offline_store_connection_proto_init() {
 	file_chalk_server_v1_offline_store_connection_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_store_connection_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_store_connection_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_store_connection_proto_msgTypes[9].OneofWrappers = []any{
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[11].OneofWrappers = []any{
 		(*IcebergOfflineStoreConnectionConfig_GlueS3)(nil),
 	}
-	file_chalk_server_v1_offline_store_connection_proto_msgTypes[10].OneofWrappers = []any{
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[12].OneofWrappers = []any{
 		(*OfflineStoreConnectionConfigInput_Snowflake)(nil),
 		(*OfflineStoreConnectionConfigInput_Bigquery)(nil),
 		(*OfflineStoreConnectionConfigInput_Iceberg)(nil),
+		(*OfflineStoreConnectionConfigInput_Databricks)(nil),
 	}
-	file_chalk_server_v1_offline_store_connection_proto_msgTypes[11].OneofWrappers = []any{
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[13].OneofWrappers = []any{
 		(*OfflineStoreConnectionConfigStored_Snowflake)(nil),
 		(*OfflineStoreConnectionConfigStored_Bigquery)(nil),
 		(*OfflineStoreConnectionConfigStored_Iceberg)(nil),
+		(*OfflineStoreConnectionConfigStored_Databricks)(nil),
 	}
-	file_chalk_server_v1_offline_store_connection_proto_msgTypes[24].OneofWrappers = []any{
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[26].OneofWrappers = []any{
 		(*TestOfflineStoreConnectionRequest_Id)(nil),
 		(*TestOfflineStoreConnectionRequest_Config)(nil),
 	}
@@ -2390,7 +2622,7 @@ func file_chalk_server_v1_offline_store_connection_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_offline_store_connection_proto_rawDesc), len(file_chalk_server_v1_offline_store_connection_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   34,
+			NumMessages:   36,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

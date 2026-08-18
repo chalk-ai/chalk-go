@@ -2142,19 +2142,20 @@ func (x *GetLogAggregatesResponse) GetTable() *v1.AggregateTable {
 	return nil
 }
 
-// Counts logs matching `query` in [start_time, end_time] as one scalar, for a statistic tile. Logs
-// support only a count (StatisticResult.unit == "count").
+// Reduces the logs matching `query` in [start_time, end_time] to one scalar, for a statistic tile.
 type GetLogStatRequest struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Query     *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
 	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	// When set, also count the window shifted back by this offset and return it as previous_value.
+	// When set, also evaluate the window shifted back by this offset and return it as previous_value.
 	// (end-start) compares against the immediately preceding window; a week/month against the same
 	// window one week/month ago.
 	ComparisonLookbackOffset *durationpb.Duration `protobuf:"bytes,4,opt,name=comparison_lookback_offset,json=comparisonLookbackOffset,proto3,oneof" json:"comparison_lookback_offset,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Unset is COUNT, the only function every logging backend serves; the rest are ClickHouse-only.
+	Aggregation   *v1.Aggregation `protobuf:"bytes,5,opt,name=aggregation,proto3,oneof" json:"aggregation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetLogStatRequest) Reset() {
@@ -2215,6 +2216,13 @@ func (x *GetLogStatRequest) GetComparisonLookbackOffset() *durationpb.Duration {
 	return nil
 }
 
+func (x *GetLogStatRequest) GetAggregation() *v1.Aggregation {
+	if x != nil {
+		return x.Aggregation
+	}
+	return nil
+}
+
 type GetLogStatResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Result        *StatisticResult       `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
@@ -2253,6 +2261,148 @@ func (*GetLogStatResponse) Descriptor() ([]byte, []int) {
 }
 
 func (x *GetLogStatResponse) GetResult() *StatisticResult {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+// Reduces the access logs matching `query` in [start_time, end_time] to one scalar, for a statistic
+// tile. Mirrors GetLogStat, which it parallels; Duration makes non-count measures useful here.
+type GetAccessLogStatRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Query     *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// When set, also evaluate the window shifted back by this offset and return it as previous_value.
+	ComparisonLookbackOffset *durationpb.Duration `protobuf:"bytes,4,opt,name=comparison_lookback_offset,json=comparisonLookbackOffset,proto3,oneof" json:"comparison_lookback_offset,omitempty"`
+	// Unset is COUNT; anything else needs a measure the access-log facet registry advertises.
+	Aggregation *v1.Aggregation `protobuf:"bytes,5,opt,name=aggregation,proto3,oneof" json:"aggregation,omitempty"`
+	// When set, queries the scaling_group_access_logs materialized view filtered by this ID.
+	ScalingGroupId *string `protobuf:"bytes,6,opt,name=scaling_group_id,json=scalingGroupId,proto3,oneof" json:"scaling_group_id,omitempty"`
+	// When set, queries the container_access_logs materialized view filtered by this ID.
+	ContainerId   *string `protobuf:"bytes,7,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAccessLogStatRequest) Reset() {
+	*x = GetAccessLogStatRequest{}
+	mi := &file_chalk_server_v1_log_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAccessLogStatRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAccessLogStatRequest) ProtoMessage() {}
+
+func (x *GetAccessLogStatRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_log_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAccessLogStatRequest.ProtoReflect.Descriptor instead.
+func (*GetAccessLogStatRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *GetAccessLogStatRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
+	}
+	return ""
+}
+
+func (x *GetAccessLogStatRequest) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *GetAccessLogStatRequest) GetEndTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTime
+	}
+	return nil
+}
+
+func (x *GetAccessLogStatRequest) GetComparisonLookbackOffset() *durationpb.Duration {
+	if x != nil {
+		return x.ComparisonLookbackOffset
+	}
+	return nil
+}
+
+func (x *GetAccessLogStatRequest) GetAggregation() *v1.Aggregation {
+	if x != nil {
+		return x.Aggregation
+	}
+	return nil
+}
+
+func (x *GetAccessLogStatRequest) GetScalingGroupId() string {
+	if x != nil && x.ScalingGroupId != nil {
+		return *x.ScalingGroupId
+	}
+	return ""
+}
+
+func (x *GetAccessLogStatRequest) GetContainerId() string {
+	if x != nil && x.ContainerId != nil {
+		return *x.ContainerId
+	}
+	return ""
+}
+
+type GetAccessLogStatResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Result        *StatisticResult       `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAccessLogStatResponse) Reset() {
+	*x = GetAccessLogStatResponse{}
+	mi := &file_chalk_server_v1_log_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAccessLogStatResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAccessLogStatResponse) ProtoMessage() {}
+
+func (x *GetAccessLogStatResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_log_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAccessLogStatResponse.ProtoReflect.Descriptor instead.
+func (*GetAccessLogStatResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *GetAccessLogStatResponse) GetResult() *StatisticResult {
 	if x != nil {
 		return x.Result
 	}
@@ -2493,23 +2643,41 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\t_end_timeB\b\n" +
 	"\x06_query\"[\n" +
 	"\x18GetLogAggregatesResponse\x12?\n" +
-	"\x05table\x18\x01 \x01(\v2).chalk.searchaggregates.v1.AggregateTableR\x05table\"\xa7\x02\n" +
+	"\x05table\x18\x01 \x01(\v2).chalk.searchaggregates.v1.AggregateTableR\x05table\"\x86\x03\n" +
 	"\x11GetLogStatRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\\\n" +
-	"\x1acomparison_lookback_offset\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x01R\x18comparisonLookbackOffset\x88\x01\x01B\b\n" +
+	"\x1acomparison_lookback_offset\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x01R\x18comparisonLookbackOffset\x88\x01\x01\x12M\n" +
+	"\vaggregation\x18\x05 \x01(\v2&.chalk.searchaggregates.v1.AggregationH\x02R\vaggregation\x88\x01\x01B\b\n" +
 	"\x06_queryB\x1d\n" +
-	"\x1b_comparison_lookback_offset\"N\n" +
+	"\x1b_comparison_lookback_offsetB\x0e\n" +
+	"\f_aggregation\"N\n" +
 	"\x12GetLogStatResponse\x128\n" +
+	"\x06result\x18\x01 \x01(\v2 .chalk.server.v1.StatisticResultR\x06result\"\x89\x04\n" +
+	"\x17GetAccessLogStatRequest\x12\x19\n" +
+	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
+	"\n" +
+	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
+	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\\\n" +
+	"\x1acomparison_lookback_offset\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x01R\x18comparisonLookbackOffset\x88\x01\x01\x12M\n" +
+	"\vaggregation\x18\x05 \x01(\v2&.chalk.searchaggregates.v1.AggregationH\x02R\vaggregation\x88\x01\x01\x12-\n" +
+	"\x10scaling_group_id\x18\x06 \x01(\tH\x03R\x0escalingGroupId\x88\x01\x01\x12&\n" +
+	"\fcontainer_id\x18\a \x01(\tH\x04R\vcontainerId\x88\x01\x01B\b\n" +
+	"\x06_queryB\x1d\n" +
+	"\x1b_comparison_lookback_offsetB\x0e\n" +
+	"\f_aggregationB\x13\n" +
+	"\x11_scaling_group_idB\x0f\n" +
+	"\r_container_id\"T\n" +
+	"\x18GetAccessLogStatResponse\x128\n" +
 	"\x06result\x18\x01 \x01(\v2 .chalk.server.v1.StatisticResultR\x06result*\x91\x01\n" +
 	"\fLogFacetType\x12\x1e\n" +
 	"\x1aLOG_FACET_TYPE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13LOG_FACET_TYPE_LIST\x10\x01\x12\x18\n" +
 	"\x14LOG_FACET_TYPE_RANGE\x10\x02\x12\x17\n" +
 	"\x13LOG_FACET_TYPE_TEXT\x10\x03\x12\x15\n" +
-	"\x11LOG_FACET_TYPE_ID\x10\x042\x82\r\n" +
+	"\x11LOG_FACET_TYPE_ID\x10\x042\xf3\r\n" +
 	"\x10LogSearchService\x12o\n" +
 	"\x10SearchLogEntries\x12(.chalk.server.v1.SearchLogEntriesRequest\x1a).chalk.server.v1.SearchLogEntriesResponse\"\x06\x80}\x06\x90\x02\x01\x12\x83\x01\n" +
 	"\x16StreamSearchLogEntries\x12..chalk.server.v1.StreamSearchLogEntriesRequest\x1a/.chalk.server.v1.StreamSearchLogEntriesResponse\"\x06\x80}\x06\x90\x02\x010\x01\x12\x8d\x01\n" +
@@ -2524,7 +2692,8 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x16GetAccessLogAggregates\x12..chalk.server.v1.GetAccessLogAggregatesRequest\x1a/.chalk.server.v1.GetAccessLogAggregatesResponse\"\x06\x80}\x06\x90\x02\x01\x12o\n" +
 	"\x10GetLogAggregates\x12(.chalk.server.v1.GetLogAggregatesRequest\x1a).chalk.server.v1.GetLogAggregatesResponse\"\x06\x80}\x06\x90\x02\x01\x12]\n" +
 	"\n" +
-	"GetLogStat\x12\".chalk.server.v1.GetLogStatRequest\x1a#.chalk.server.v1.GetLogStatResponse\"\x06\x80}\x06\x90\x02\x01B\xb8\x01\n" +
+	"GetLogStat\x12\".chalk.server.v1.GetLogStatRequest\x1a#.chalk.server.v1.GetLogStatResponse\"\x06\x80}\x06\x90\x02\x01\x12o\n" +
+	"\x10GetAccessLogStat\x12(.chalk.server.v1.GetAccessLogStatRequest\x1a).chalk.server.v1.GetAccessLogStatResponse\"\x06\x80}\x06\x90\x02\x01B\xb8\x01\n" +
 	"\x13com.chalk.server.v1B\bLogProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -2540,7 +2709,7 @@ func file_chalk_server_v1_log_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_log_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_log_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_chalk_server_v1_log_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
 var file_chalk_server_v1_log_proto_goTypes = []any{
 	(LogFacetType)(0),                                // 0: chalk.server.v1.LogFacetType
 	(*LogEntry)(nil),                                 // 1: chalk.server.v1.LogEntry
@@ -2575,105 +2744,116 @@ var file_chalk_server_v1_log_proto_goTypes = []any{
 	(*GetLogAggregatesResponse)(nil),                 // 30: chalk.server.v1.GetLogAggregatesResponse
 	(*GetLogStatRequest)(nil),                        // 31: chalk.server.v1.GetLogStatRequest
 	(*GetLogStatResponse)(nil),                       // 32: chalk.server.v1.GetLogStatResponse
-	nil,                                              // 33: chalk.server.v1.LogEntry.LabelsEntry
-	nil,                                              // 34: chalk.server.v1.AccessLogEntry.AttributesEntry
-	(*timestamppb.Timestamp)(nil),                    // 35: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),                      // 36: google.protobuf.Duration
-	(*v1.AggregateOptions)(nil),                      // 37: chalk.searchaggregates.v1.AggregateOptions
-	(*v11.DenseTimeSeriesChart)(nil),                 // 38: chalk.chart.v1.DenseTimeSeriesChart
-	(v1.AggregationFunction)(0),                      // 39: chalk.searchaggregates.v1.AggregationFunction
-	(*v1.AggregateTable)(nil),                        // 40: chalk.searchaggregates.v1.AggregateTable
-	(*StatisticResult)(nil),                          // 41: chalk.server.v1.StatisticResult
+	(*GetAccessLogStatRequest)(nil),                  // 33: chalk.server.v1.GetAccessLogStatRequest
+	(*GetAccessLogStatResponse)(nil),                 // 34: chalk.server.v1.GetAccessLogStatResponse
+	nil,                                              // 35: chalk.server.v1.LogEntry.LabelsEntry
+	nil,                                              // 36: chalk.server.v1.AccessLogEntry.AttributesEntry
+	(*timestamppb.Timestamp)(nil),                    // 37: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                      // 38: google.protobuf.Duration
+	(*v1.AggregateOptions)(nil),                      // 39: chalk.searchaggregates.v1.AggregateOptions
+	(*v11.DenseTimeSeriesChart)(nil),                 // 40: chalk.chart.v1.DenseTimeSeriesChart
+	(v1.AggregationFunction)(0),                      // 41: chalk.searchaggregates.v1.AggregationFunction
+	(*v1.AggregateTable)(nil),                        // 42: chalk.searchaggregates.v1.AggregateTable
+	(*v1.Aggregation)(nil),                           // 43: chalk.searchaggregates.v1.Aggregation
+	(*StatisticResult)(nil),                          // 44: chalk.server.v1.StatisticResult
 }
 var file_chalk_server_v1_log_proto_depIdxs = []int32{
-	35, // 0: chalk.server.v1.LogEntry.timestamp:type_name -> google.protobuf.Timestamp
-	33, // 1: chalk.server.v1.LogEntry.labels:type_name -> chalk.server.v1.LogEntry.LabelsEntry
-	35, // 2: chalk.server.v1.AccessLogEntry.timestamp:type_name -> google.protobuf.Timestamp
-	35, // 3: chalk.server.v1.AccessLogEntry.start_time:type_name -> google.protobuf.Timestamp
-	34, // 4: chalk.server.v1.AccessLogEntry.attributes:type_name -> chalk.server.v1.AccessLogEntry.AttributesEntry
+	37, // 0: chalk.server.v1.LogEntry.timestamp:type_name -> google.protobuf.Timestamp
+	35, // 1: chalk.server.v1.LogEntry.labels:type_name -> chalk.server.v1.LogEntry.LabelsEntry
+	37, // 2: chalk.server.v1.AccessLogEntry.timestamp:type_name -> google.protobuf.Timestamp
+	37, // 3: chalk.server.v1.AccessLogEntry.start_time:type_name -> google.protobuf.Timestamp
+	36, // 4: chalk.server.v1.AccessLogEntry.attributes:type_name -> chalk.server.v1.AccessLogEntry.AttributesEntry
 	3,  // 5: chalk.server.v1.SearchLogEntriesRequest.page_token:type_name -> chalk.server.v1.SearchLogEntriesPageToken
-	35, // 6: chalk.server.v1.SearchLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 7: chalk.server.v1.SearchLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	37, // 6: chalk.server.v1.SearchLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 7: chalk.server.v1.SearchLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
 	1,  // 8: chalk.server.v1.SearchLogEntriesResponse.log_entries:type_name -> chalk.server.v1.LogEntry
 	3,  // 9: chalk.server.v1.SearchLogEntriesResponse.next_page_token:type_name -> chalk.server.v1.SearchLogEntriesPageToken
 	4,  // 10: chalk.server.v1.SearchAccessLogEntriesRequest.page_token:type_name -> chalk.server.v1.SearchAccessLogEntriesPageToken
-	35, // 11: chalk.server.v1.SearchAccessLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 12: chalk.server.v1.SearchAccessLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	37, // 11: chalk.server.v1.SearchAccessLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 12: chalk.server.v1.SearchAccessLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
 	2,  // 13: chalk.server.v1.SearchAccessLogEntriesResponse.access_log_entries:type_name -> chalk.server.v1.AccessLogEntry
 	4,  // 14: chalk.server.v1.SearchAccessLogEntriesResponse.next_page_token:type_name -> chalk.server.v1.SearchAccessLogEntriesPageToken
 	3,  // 15: chalk.server.v1.StreamSearchLogEntriesRequest.page_token:type_name -> chalk.server.v1.SearchLogEntriesPageToken
-	35, // 16: chalk.server.v1.StreamSearchLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 17: chalk.server.v1.StreamSearchLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	37, // 16: chalk.server.v1.StreamSearchLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 17: chalk.server.v1.StreamSearchLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
 	1,  // 18: chalk.server.v1.StreamSearchLogEntriesResponse.log_entries:type_name -> chalk.server.v1.LogEntry
 	3,  // 19: chalk.server.v1.StreamSearchLogEntriesResponse.next_page_token:type_name -> chalk.server.v1.SearchLogEntriesPageToken
 	4,  // 20: chalk.server.v1.StreamSearchAccessLogEntriesRequest.page_token:type_name -> chalk.server.v1.SearchAccessLogEntriesPageToken
-	35, // 21: chalk.server.v1.StreamSearchAccessLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 22: chalk.server.v1.StreamSearchAccessLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	37, // 21: chalk.server.v1.StreamSearchAccessLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 22: chalk.server.v1.StreamSearchAccessLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
 	2,  // 23: chalk.server.v1.StreamSearchAccessLogEntriesResponse.access_log_entries:type_name -> chalk.server.v1.AccessLogEntry
 	4,  // 24: chalk.server.v1.StreamSearchAccessLogEntriesResponse.next_page_token:type_name -> chalk.server.v1.SearchAccessLogEntriesPageToken
-	35, // 25: chalk.server.v1.SearchLogEntriesAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 26: chalk.server.v1.SearchLogEntriesAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	36, // 27: chalk.server.v1.SearchLogEntriesAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	37, // 28: chalk.server.v1.SearchLogEntriesAggregatedRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
-	38, // 29: chalk.server.v1.SearchLogEntriesAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	37, // 25: chalk.server.v1.SearchLogEntriesAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 26: chalk.server.v1.SearchLogEntriesAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	38, // 27: chalk.server.v1.SearchLogEntriesAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	39, // 28: chalk.server.v1.SearchLogEntriesAggregatedRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
+	40, // 29: chalk.server.v1.SearchLogEntriesAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
 	0,  // 30: chalk.server.v1.LogFacet.facet_type:type_name -> chalk.server.v1.LogFacetType
-	39, // 31: chalk.server.v1.LogFacet.supported_aggregations:type_name -> chalk.searchaggregates.v1.AggregationFunction
+	41, // 31: chalk.server.v1.LogFacet.supported_aggregations:type_name -> chalk.searchaggregates.v1.AggregationFunction
 	16, // 32: chalk.server.v1.GetLogFacetsResponse.facets:type_name -> chalk.server.v1.LogFacet
-	35, // 33: chalk.server.v1.GetLogFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 34: chalk.server.v1.GetLogFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	37, // 33: chalk.server.v1.GetLogFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 34: chalk.server.v1.GetLogFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
 	19, // 35: chalk.server.v1.GetLogFacetValuesResponse.values:type_name -> chalk.server.v1.LogFacetValue
-	35, // 36: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 37: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	36, // 38: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	37, // 39: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
-	38, // 40: chalk.server.v1.SearchAccessLogEntriesAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	37, // 36: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 37: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	38, // 38: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	39, // 39: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
+	40, // 40: chalk.server.v1.SearchAccessLogEntriesAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
 	16, // 41: chalk.server.v1.GetAccessLogFacetsResponse.facets:type_name -> chalk.server.v1.LogFacet
-	35, // 42: chalk.server.v1.GetAccessLogFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 43: chalk.server.v1.GetAccessLogFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	37, // 42: chalk.server.v1.GetAccessLogFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 43: chalk.server.v1.GetAccessLogFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
 	19, // 44: chalk.server.v1.GetAccessLogFacetValuesResponse.values:type_name -> chalk.server.v1.LogFacetValue
-	35, // 45: chalk.server.v1.GetAccessLogAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 46: chalk.server.v1.GetAccessLogAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
-	37, // 47: chalk.server.v1.GetAccessLogAggregatesRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
-	40, // 48: chalk.server.v1.GetAccessLogAggregatesResponse.table:type_name -> chalk.searchaggregates.v1.AggregateTable
-	35, // 49: chalk.server.v1.GetLogAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 50: chalk.server.v1.GetLogAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
-	37, // 51: chalk.server.v1.GetLogAggregatesRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
-	40, // 52: chalk.server.v1.GetLogAggregatesResponse.table:type_name -> chalk.searchaggregates.v1.AggregateTable
-	35, // 53: chalk.server.v1.GetLogStatRequest.start_time:type_name -> google.protobuf.Timestamp
-	35, // 54: chalk.server.v1.GetLogStatRequest.end_time:type_name -> google.protobuf.Timestamp
-	36, // 55: chalk.server.v1.GetLogStatRequest.comparison_lookback_offset:type_name -> google.protobuf.Duration
-	41, // 56: chalk.server.v1.GetLogStatResponse.result:type_name -> chalk.server.v1.StatisticResult
-	5,  // 57: chalk.server.v1.LogSearchService.SearchLogEntries:input_type -> chalk.server.v1.SearchLogEntriesRequest
-	9,  // 58: chalk.server.v1.LogSearchService.StreamSearchLogEntries:input_type -> chalk.server.v1.StreamSearchLogEntriesRequest
-	13, // 59: chalk.server.v1.LogSearchService.SearchLogEntriesAggregated:input_type -> chalk.server.v1.SearchLogEntriesAggregatedRequest
-	15, // 60: chalk.server.v1.LogSearchService.GetLogFacets:input_type -> chalk.server.v1.GetLogFacetsRequest
-	18, // 61: chalk.server.v1.LogSearchService.GetLogFacetValues:input_type -> chalk.server.v1.GetLogFacetValuesRequest
-	7,  // 62: chalk.server.v1.LogSearchService.SearchAccessLogEntries:input_type -> chalk.server.v1.SearchAccessLogEntriesRequest
-	11, // 63: chalk.server.v1.LogSearchService.StreamSearchAccessLogEntries:input_type -> chalk.server.v1.StreamSearchAccessLogEntriesRequest
-	21, // 64: chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated:input_type -> chalk.server.v1.SearchAccessLogEntriesAggregatedRequest
-	23, // 65: chalk.server.v1.LogSearchService.GetAccessLogFacets:input_type -> chalk.server.v1.GetAccessLogFacetsRequest
-	25, // 66: chalk.server.v1.LogSearchService.GetAccessLogFacetValues:input_type -> chalk.server.v1.GetAccessLogFacetValuesRequest
-	27, // 67: chalk.server.v1.LogSearchService.GetAccessLogAggregates:input_type -> chalk.server.v1.GetAccessLogAggregatesRequest
-	29, // 68: chalk.server.v1.LogSearchService.GetLogAggregates:input_type -> chalk.server.v1.GetLogAggregatesRequest
-	31, // 69: chalk.server.v1.LogSearchService.GetLogStat:input_type -> chalk.server.v1.GetLogStatRequest
-	6,  // 70: chalk.server.v1.LogSearchService.SearchLogEntries:output_type -> chalk.server.v1.SearchLogEntriesResponse
-	10, // 71: chalk.server.v1.LogSearchService.StreamSearchLogEntries:output_type -> chalk.server.v1.StreamSearchLogEntriesResponse
-	14, // 72: chalk.server.v1.LogSearchService.SearchLogEntriesAggregated:output_type -> chalk.server.v1.SearchLogEntriesAggregatedResponse
-	17, // 73: chalk.server.v1.LogSearchService.GetLogFacets:output_type -> chalk.server.v1.GetLogFacetsResponse
-	20, // 74: chalk.server.v1.LogSearchService.GetLogFacetValues:output_type -> chalk.server.v1.GetLogFacetValuesResponse
-	8,  // 75: chalk.server.v1.LogSearchService.SearchAccessLogEntries:output_type -> chalk.server.v1.SearchAccessLogEntriesResponse
-	12, // 76: chalk.server.v1.LogSearchService.StreamSearchAccessLogEntries:output_type -> chalk.server.v1.StreamSearchAccessLogEntriesResponse
-	22, // 77: chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated:output_type -> chalk.server.v1.SearchAccessLogEntriesAggregatedResponse
-	24, // 78: chalk.server.v1.LogSearchService.GetAccessLogFacets:output_type -> chalk.server.v1.GetAccessLogFacetsResponse
-	26, // 79: chalk.server.v1.LogSearchService.GetAccessLogFacetValues:output_type -> chalk.server.v1.GetAccessLogFacetValuesResponse
-	28, // 80: chalk.server.v1.LogSearchService.GetAccessLogAggregates:output_type -> chalk.server.v1.GetAccessLogAggregatesResponse
-	30, // 81: chalk.server.v1.LogSearchService.GetLogAggregates:output_type -> chalk.server.v1.GetLogAggregatesResponse
-	32, // 82: chalk.server.v1.LogSearchService.GetLogStat:output_type -> chalk.server.v1.GetLogStatResponse
-	70, // [70:83] is the sub-list for method output_type
-	57, // [57:70] is the sub-list for method input_type
-	57, // [57:57] is the sub-list for extension type_name
-	57, // [57:57] is the sub-list for extension extendee
-	0,  // [0:57] is the sub-list for field type_name
+	37, // 45: chalk.server.v1.GetAccessLogAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 46: chalk.server.v1.GetAccessLogAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
+	39, // 47: chalk.server.v1.GetAccessLogAggregatesRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
+	42, // 48: chalk.server.v1.GetAccessLogAggregatesResponse.table:type_name -> chalk.searchaggregates.v1.AggregateTable
+	37, // 49: chalk.server.v1.GetLogAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 50: chalk.server.v1.GetLogAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
+	39, // 51: chalk.server.v1.GetLogAggregatesRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
+	42, // 52: chalk.server.v1.GetLogAggregatesResponse.table:type_name -> chalk.searchaggregates.v1.AggregateTable
+	37, // 53: chalk.server.v1.GetLogStatRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 54: chalk.server.v1.GetLogStatRequest.end_time:type_name -> google.protobuf.Timestamp
+	38, // 55: chalk.server.v1.GetLogStatRequest.comparison_lookback_offset:type_name -> google.protobuf.Duration
+	43, // 56: chalk.server.v1.GetLogStatRequest.aggregation:type_name -> chalk.searchaggregates.v1.Aggregation
+	44, // 57: chalk.server.v1.GetLogStatResponse.result:type_name -> chalk.server.v1.StatisticResult
+	37, // 58: chalk.server.v1.GetAccessLogStatRequest.start_time:type_name -> google.protobuf.Timestamp
+	37, // 59: chalk.server.v1.GetAccessLogStatRequest.end_time:type_name -> google.protobuf.Timestamp
+	38, // 60: chalk.server.v1.GetAccessLogStatRequest.comparison_lookback_offset:type_name -> google.protobuf.Duration
+	43, // 61: chalk.server.v1.GetAccessLogStatRequest.aggregation:type_name -> chalk.searchaggregates.v1.Aggregation
+	44, // 62: chalk.server.v1.GetAccessLogStatResponse.result:type_name -> chalk.server.v1.StatisticResult
+	5,  // 63: chalk.server.v1.LogSearchService.SearchLogEntries:input_type -> chalk.server.v1.SearchLogEntriesRequest
+	9,  // 64: chalk.server.v1.LogSearchService.StreamSearchLogEntries:input_type -> chalk.server.v1.StreamSearchLogEntriesRequest
+	13, // 65: chalk.server.v1.LogSearchService.SearchLogEntriesAggregated:input_type -> chalk.server.v1.SearchLogEntriesAggregatedRequest
+	15, // 66: chalk.server.v1.LogSearchService.GetLogFacets:input_type -> chalk.server.v1.GetLogFacetsRequest
+	18, // 67: chalk.server.v1.LogSearchService.GetLogFacetValues:input_type -> chalk.server.v1.GetLogFacetValuesRequest
+	7,  // 68: chalk.server.v1.LogSearchService.SearchAccessLogEntries:input_type -> chalk.server.v1.SearchAccessLogEntriesRequest
+	11, // 69: chalk.server.v1.LogSearchService.StreamSearchAccessLogEntries:input_type -> chalk.server.v1.StreamSearchAccessLogEntriesRequest
+	21, // 70: chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated:input_type -> chalk.server.v1.SearchAccessLogEntriesAggregatedRequest
+	23, // 71: chalk.server.v1.LogSearchService.GetAccessLogFacets:input_type -> chalk.server.v1.GetAccessLogFacetsRequest
+	25, // 72: chalk.server.v1.LogSearchService.GetAccessLogFacetValues:input_type -> chalk.server.v1.GetAccessLogFacetValuesRequest
+	27, // 73: chalk.server.v1.LogSearchService.GetAccessLogAggregates:input_type -> chalk.server.v1.GetAccessLogAggregatesRequest
+	29, // 74: chalk.server.v1.LogSearchService.GetLogAggregates:input_type -> chalk.server.v1.GetLogAggregatesRequest
+	31, // 75: chalk.server.v1.LogSearchService.GetLogStat:input_type -> chalk.server.v1.GetLogStatRequest
+	33, // 76: chalk.server.v1.LogSearchService.GetAccessLogStat:input_type -> chalk.server.v1.GetAccessLogStatRequest
+	6,  // 77: chalk.server.v1.LogSearchService.SearchLogEntries:output_type -> chalk.server.v1.SearchLogEntriesResponse
+	10, // 78: chalk.server.v1.LogSearchService.StreamSearchLogEntries:output_type -> chalk.server.v1.StreamSearchLogEntriesResponse
+	14, // 79: chalk.server.v1.LogSearchService.SearchLogEntriesAggregated:output_type -> chalk.server.v1.SearchLogEntriesAggregatedResponse
+	17, // 80: chalk.server.v1.LogSearchService.GetLogFacets:output_type -> chalk.server.v1.GetLogFacetsResponse
+	20, // 81: chalk.server.v1.LogSearchService.GetLogFacetValues:output_type -> chalk.server.v1.GetLogFacetValuesResponse
+	8,  // 82: chalk.server.v1.LogSearchService.SearchAccessLogEntries:output_type -> chalk.server.v1.SearchAccessLogEntriesResponse
+	12, // 83: chalk.server.v1.LogSearchService.StreamSearchAccessLogEntries:output_type -> chalk.server.v1.StreamSearchAccessLogEntriesResponse
+	22, // 84: chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated:output_type -> chalk.server.v1.SearchAccessLogEntriesAggregatedResponse
+	24, // 85: chalk.server.v1.LogSearchService.GetAccessLogFacets:output_type -> chalk.server.v1.GetAccessLogFacetsResponse
+	26, // 86: chalk.server.v1.LogSearchService.GetAccessLogFacetValues:output_type -> chalk.server.v1.GetAccessLogFacetValuesResponse
+	28, // 87: chalk.server.v1.LogSearchService.GetAccessLogAggregates:output_type -> chalk.server.v1.GetAccessLogAggregatesResponse
+	30, // 88: chalk.server.v1.LogSearchService.GetLogAggregates:output_type -> chalk.server.v1.GetLogAggregatesResponse
+	32, // 89: chalk.server.v1.LogSearchService.GetLogStat:output_type -> chalk.server.v1.GetLogStatResponse
+	34, // 90: chalk.server.v1.LogSearchService.GetAccessLogStat:output_type -> chalk.server.v1.GetAccessLogStatResponse
+	77, // [77:91] is the sub-list for method output_type
+	63, // [63:77] is the sub-list for method input_type
+	63, // [63:63] is the sub-list for extension type_name
+	63, // [63:63] is the sub-list for extension extendee
+	0,  // [0:63] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_log_proto_init() }
@@ -2699,13 +2879,14 @@ func file_chalk_server_v1_log_proto_init() {
 	file_chalk_server_v1_log_proto_msgTypes[26].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[28].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[30].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[32].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_log_proto_rawDesc), len(file_chalk_server_v1_log_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   34,
+			NumMessages:   36,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

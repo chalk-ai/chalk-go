@@ -179,6 +179,7 @@ type MonitorEvent struct {
 	EventId       *string                `protobuf:"bytes,2,opt,name=event_id,json=eventId,proto3,oneof" json:"event_id,omitempty"`
 	EventData     *string                `protobuf:"bytes,3,opt,name=event_data,json=eventData,proto3,oneof" json:"event_data,omitempty"`
 	OccurredAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"` // time the event happened at
+	SampleQueryId *string                `protobuf:"bytes,5,opt,name=sample_query_id,json=sampleQueryId,proto3,oneof" json:"sample_query_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -239,6 +240,13 @@ func (x *MonitorEvent) GetOccurredAt() *timestamppb.Timestamp {
 		return x.OccurredAt
 	}
 	return nil
+}
+
+func (x *MonitorEvent) GetSampleQueryId() string {
+	if x != nil && x.SampleQueryId != nil {
+		return *x.SampleQueryId
+	}
+	return ""
 }
 
 type GetMonitorEventsResponse struct {
@@ -685,7 +693,7 @@ const file_chalk_server_v1_monitor_service_proto_rawDesc = "" +
 	"\x13has_active_incident\x18\x02 \x01(\bR\x11hasActiveIncident\"8\n" +
 	"\x17GetMonitorEventsRequest\x12\x1d\n" +
 	"\n" +
-	"monitor_id\x18\x01 \x01(\tR\tmonitorId\"\xca\x01\n" +
+	"monitor_id\x18\x01 \x01(\tR\tmonitorId\"\x8b\x02\n" +
 	"\fMonitorEvent\x12\x1d\n" +
 	"\n" +
 	"event_type\x18\x01 \x01(\tR\teventType\x12\x1e\n" +
@@ -693,9 +701,11 @@ const file_chalk_server_v1_monitor_service_proto_rawDesc = "" +
 	"\n" +
 	"event_data\x18\x03 \x01(\tH\x01R\teventData\x88\x01\x01\x12;\n" +
 	"\voccurred_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"occurredAtB\v\n" +
+	"occurredAt\x12+\n" +
+	"\x0fsample_query_id\x18\x05 \x01(\tH\x02R\rsampleQueryId\x88\x01\x01B\v\n" +
 	"\t_event_idB\r\n" +
-	"\v_event_data\"Q\n" +
+	"\v_event_dataB\x12\n" +
+	"\x10_sample_query_id\"Q\n" +
 	"\x18GetMonitorEventsResponse\x125\n" +
 	"\x06events\x18\x01 \x03(\v2\x1d.chalk.server.v1.MonitorEventR\x06events\"M\n" +
 	"\x14CreateMonitorRequest\x125\n" +
