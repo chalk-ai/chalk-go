@@ -40,6 +40,9 @@ const (
 	// ExternalFunctionCatalogServiceGetExternalFunctionVersionProcedure is the fully-qualified name of
 	// the ExternalFunctionCatalogService's GetExternalFunctionVersion RPC.
 	ExternalFunctionCatalogServiceGetExternalFunctionVersionProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/GetExternalFunctionVersion"
+	// ExternalFunctionCatalogServiceGetExternalFunctionVersionSourceProcedure is the fully-qualified
+	// name of the ExternalFunctionCatalogService's GetExternalFunctionVersionSource RPC.
+	ExternalFunctionCatalogServiceGetExternalFunctionVersionSourceProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/GetExternalFunctionVersionSource"
 	// ExternalFunctionCatalogServiceListExternalFunctionVersionsProcedure is the fully-qualified name
 	// of the ExternalFunctionCatalogService's ListExternalFunctionVersions RPC.
 	ExternalFunctionCatalogServiceListExternalFunctionVersionsProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/ListExternalFunctionVersions"
@@ -65,6 +68,10 @@ const (
 type ExternalFunctionCatalogServiceClient interface {
 	CreateExternalFunctionVersion(context.Context, *connect.Request[v1.CreateExternalFunctionVersionRequest]) (*connect.Response[v1.CreateExternalFunctionVersionResponse], error)
 	GetExternalFunctionVersion(context.Context, *connect.Request[v1.GetExternalFunctionVersionRequest]) (*connect.Response[v1.GetExternalFunctionVersionResponse], error)
+	// Resolves the source files for one immutable function version. The browser
+	// calls this lazily and reads the selected file directly from the pinned
+	// volume version; source is intentionally absent from list responses.
+	GetExternalFunctionVersionSource(context.Context, *connect.Request[v1.GetExternalFunctionVersionSourceRequest]) (*connect.Response[v1.GetExternalFunctionVersionSourceResponse], error)
 	ListExternalFunctionVersions(context.Context, *connect.Request[v1.ListExternalFunctionVersionsRequest]) (*connect.Response[v1.ListExternalFunctionVersionsResponse], error)
 	DeleteExternalFunctionVersion(context.Context, *connect.Request[v1.DeleteExternalFunctionVersionRequest]) (*connect.Response[v1.DeleteExternalFunctionVersionResponse], error)
 	// Deletes every version of a function: each version's scaling group is torn
@@ -98,6 +105,13 @@ func NewExternalFunctionCatalogServiceClient(httpClient connect.HTTPClient, base
 			httpClient,
 			baseURL+ExternalFunctionCatalogServiceGetExternalFunctionVersionProcedure,
 			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("GetExternalFunctionVersion")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getExternalFunctionVersionSource: connect.NewClient[v1.GetExternalFunctionVersionSourceRequest, v1.GetExternalFunctionVersionSourceResponse](
+			httpClient,
+			baseURL+ExternalFunctionCatalogServiceGetExternalFunctionVersionSourceProcedure,
+			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("GetExternalFunctionVersionSource")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -148,6 +162,7 @@ func NewExternalFunctionCatalogServiceClient(httpClient connect.HTTPClient, base
 type externalFunctionCatalogServiceClient struct {
 	createExternalFunctionVersion     *connect.Client[v1.CreateExternalFunctionVersionRequest, v1.CreateExternalFunctionVersionResponse]
 	getExternalFunctionVersion        *connect.Client[v1.GetExternalFunctionVersionRequest, v1.GetExternalFunctionVersionResponse]
+	getExternalFunctionVersionSource  *connect.Client[v1.GetExternalFunctionVersionSourceRequest, v1.GetExternalFunctionVersionSourceResponse]
 	listExternalFunctionVersions      *connect.Client[v1.ListExternalFunctionVersionsRequest, v1.ListExternalFunctionVersionsResponse]
 	deleteExternalFunctionVersion     *connect.Client[v1.DeleteExternalFunctionVersionRequest, v1.DeleteExternalFunctionVersionResponse]
 	deleteExternalFunction            *connect.Client[v1.DeleteExternalFunctionRequest, v1.DeleteExternalFunctionResponse]
@@ -166,6 +181,12 @@ func (c *externalFunctionCatalogServiceClient) CreateExternalFunctionVersion(ctx
 // chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.GetExternalFunctionVersion.
 func (c *externalFunctionCatalogServiceClient) GetExternalFunctionVersion(ctx context.Context, req *connect.Request[v1.GetExternalFunctionVersionRequest]) (*connect.Response[v1.GetExternalFunctionVersionResponse], error) {
 	return c.getExternalFunctionVersion.CallUnary(ctx, req)
+}
+
+// GetExternalFunctionVersionSource calls
+// chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.GetExternalFunctionVersionSource.
+func (c *externalFunctionCatalogServiceClient) GetExternalFunctionVersionSource(ctx context.Context, req *connect.Request[v1.GetExternalFunctionVersionSourceRequest]) (*connect.Response[v1.GetExternalFunctionVersionSourceResponse], error) {
+	return c.getExternalFunctionVersionSource.CallUnary(ctx, req)
 }
 
 // ListExternalFunctionVersions calls
@@ -209,6 +230,10 @@ func (c *externalFunctionCatalogServiceClient) CallExternalFunction(ctx context.
 type ExternalFunctionCatalogServiceHandler interface {
 	CreateExternalFunctionVersion(context.Context, *connect.Request[v1.CreateExternalFunctionVersionRequest]) (*connect.Response[v1.CreateExternalFunctionVersionResponse], error)
 	GetExternalFunctionVersion(context.Context, *connect.Request[v1.GetExternalFunctionVersionRequest]) (*connect.Response[v1.GetExternalFunctionVersionResponse], error)
+	// Resolves the source files for one immutable function version. The browser
+	// calls this lazily and reads the selected file directly from the pinned
+	// volume version; source is intentionally absent from list responses.
+	GetExternalFunctionVersionSource(context.Context, *connect.Request[v1.GetExternalFunctionVersionSourceRequest]) (*connect.Response[v1.GetExternalFunctionVersionSourceResponse], error)
 	ListExternalFunctionVersions(context.Context, *connect.Request[v1.ListExternalFunctionVersionsRequest]) (*connect.Response[v1.ListExternalFunctionVersionsResponse], error)
 	DeleteExternalFunctionVersion(context.Context, *connect.Request[v1.DeleteExternalFunctionVersionRequest]) (*connect.Response[v1.DeleteExternalFunctionVersionResponse], error)
 	// Deletes every version of a function: each version's scaling group is torn
@@ -237,6 +262,13 @@ func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogService
 		ExternalFunctionCatalogServiceGetExternalFunctionVersionProcedure,
 		svc.GetExternalFunctionVersion,
 		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("GetExternalFunctionVersion")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	externalFunctionCatalogServiceGetExternalFunctionVersionSourceHandler := connect.NewUnaryHandler(
+		ExternalFunctionCatalogServiceGetExternalFunctionVersionSourceProcedure,
+		svc.GetExternalFunctionVersionSource,
+		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("GetExternalFunctionVersionSource")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -286,6 +318,8 @@ func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogService
 			externalFunctionCatalogServiceCreateExternalFunctionVersionHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceGetExternalFunctionVersionProcedure:
 			externalFunctionCatalogServiceGetExternalFunctionVersionHandler.ServeHTTP(w, r)
+		case ExternalFunctionCatalogServiceGetExternalFunctionVersionSourceProcedure:
+			externalFunctionCatalogServiceGetExternalFunctionVersionSourceHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceListExternalFunctionVersionsProcedure:
 			externalFunctionCatalogServiceListExternalFunctionVersionsHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceDeleteExternalFunctionVersionProcedure:
@@ -313,6 +347,10 @@ func (UnimplementedExternalFunctionCatalogServiceHandler) CreateExternalFunction
 
 func (UnimplementedExternalFunctionCatalogServiceHandler) GetExternalFunctionVersion(context.Context, *connect.Request[v1.GetExternalFunctionVersionRequest]) (*connect.Response[v1.GetExternalFunctionVersionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.GetExternalFunctionVersion is not implemented"))
+}
+
+func (UnimplementedExternalFunctionCatalogServiceHandler) GetExternalFunctionVersionSource(context.Context, *connect.Request[v1.GetExternalFunctionVersionSourceRequest]) (*connect.Response[v1.GetExternalFunctionVersionSourceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.GetExternalFunctionVersionSource is not implemented"))
 }
 
 func (UnimplementedExternalFunctionCatalogServiceHandler) ListExternalFunctionVersions(context.Context, *connect.Request[v1.ListExternalFunctionVersionsRequest]) (*connect.Response[v1.ListExternalFunctionVersionsResponse], error) {

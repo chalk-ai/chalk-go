@@ -514,33 +514,36 @@ type Environment struct {
 	FeatureStoreSecret *string `protobuf:"bytes,11,opt,name=feature_store_secret,json=featureStoreSecret,proto3,oneof" json:"feature_store_secret,omitempty"`
 	PostgresSecret     *string `protobuf:"bytes,12,opt,name=postgres_secret,json=postgresSecret,proto3,oneof" json:"postgres_secret,omitempty"`
 	// TODO(INF-1082): Make output-only once all callers have migrated.
-	OnlineStoreKind                          *string           `protobuf:"bytes,13,opt,name=online_store_kind,json=onlineStoreKind,proto3,oneof" json:"online_store_kind,omitempty"`
-	EmqUri                                   *string           `protobuf:"bytes,14,opt,name=emq_uri,json=emqUri,proto3,oneof" json:"emq_uri,omitempty"`
-	VpcConnectorName                         *string           `protobuf:"bytes,15,opt,name=vpc_connector_name,json=vpcConnectorName,proto3,oneof" json:"vpc_connector_name,omitempty"`
-	KubeClusterName                          *string           `protobuf:"bytes,16,opt,name=kube_cluster_name,json=kubeClusterName,proto3,oneof" json:"kube_cluster_name,omitempty"`
-	BranchKubeClusterName                    *string           `protobuf:"bytes,17,opt,name=branch_kube_cluster_name,json=branchKubeClusterName,proto3,oneof" json:"branch_kube_cluster_name,omitempty"`
-	EngineKubeClusterName                    *string           `protobuf:"bytes,18,opt,name=engine_kube_cluster_name,json=engineKubeClusterName,proto3,oneof" json:"engine_kube_cluster_name,omitempty"`
-	ShadowEngineKubeClusterName              *string           `protobuf:"bytes,19,opt,name=shadow_engine_kube_cluster_name,json=shadowEngineKubeClusterName,proto3,oneof" json:"shadow_engine_kube_cluster_name,omitempty"`
-	KubeJobNamespace                         *string           `protobuf:"bytes,20,opt,name=kube_job_namespace,json=kubeJobNamespace,proto3,oneof" json:"kube_job_namespace,omitempty"`
-	KubePreviewNamespace                     *string           `protobuf:"bytes,21,opt,name=kube_preview_namespace,json=kubePreviewNamespace,proto3,oneof" json:"kube_preview_namespace,omitempty"`
-	KubeServiceAccountName                   *string           `protobuf:"bytes,22,opt,name=kube_service_account_name,json=kubeServiceAccountName,proto3,oneof" json:"kube_service_account_name,omitempty"` // Can be set and updated only for unmanaged environments
-	StreamingQueryServiceUri                 *string           `protobuf:"bytes,23,opt,name=streaming_query_service_uri,json=streamingQueryServiceUri,proto3,oneof" json:"streaming_query_service_uri,omitempty"`
-	SkipOfflineWritesForOnlineCachedFeatures bool              `protobuf:"varint,24,opt,name=skip_offline_writes_for_online_cached_features,json=skipOfflineWritesForOnlineCachedFeatures,proto3" json:"skip_offline_writes_for_online_cached_features,omitempty"`
-	ResultBusTopic                           *string           `protobuf:"bytes,25,opt,name=result_bus_topic,json=resultBusTopic,proto3,oneof" json:"result_bus_topic,omitempty"`
-	OnlinePersistenceMode                    *string           `protobuf:"bytes,26,opt,name=online_persistence_mode,json=onlinePersistenceMode,proto3,oneof" json:"online_persistence_mode,omitempty"`
-	MetricsBusTopic                          *string           `protobuf:"bytes,27,opt,name=metrics_bus_topic,json=metricsBusTopic,proto3,oneof" json:"metrics_bus_topic,omitempty"`
-	BigtableInstanceName                     *string           `protobuf:"bytes,28,opt,name=bigtable_instance_name,json=bigtableInstanceName,proto3,oneof" json:"bigtable_instance_name,omitempty"`
-	BigtableTableName                        *string           `protobuf:"bytes,29,opt,name=bigtable_table_name,json=bigtableTableName,proto3,oneof" json:"bigtable_table_name,omitempty"`
-	CloudAccountLocator                      *string           `protobuf:"bytes,30,opt,name=cloud_account_locator,json=cloudAccountLocator,proto3,oneof" json:"cloud_account_locator,omitempty"`
-	CloudRegion                              *string           `protobuf:"bytes,31,opt,name=cloud_region,json=cloudRegion,proto3,oneof" json:"cloud_region,omitempty"`
-	CloudTenancyId                           *string           `protobuf:"bytes,32,opt,name=cloud_tenancy_id,json=cloudTenancyId,proto3,oneof" json:"cloud_tenancy_id,omitempty"`
-	SourceBundleBucket                       *string           `protobuf:"bytes,33,opt,name=source_bundle_bucket,json=sourceBundleBucket,proto3,oneof" json:"source_bundle_bucket,omitempty"`
-	EngineDockerRegistryPath                 *string           `protobuf:"bytes,34,opt,name=engine_docker_registry_path,json=engineDockerRegistryPath,proto3,oneof" json:"engine_docker_registry_path,omitempty"`
-	DefaultPlanner                           *string           `protobuf:"bytes,35,opt,name=default_planner,json=defaultPlanner,proto3,oneof" json:"default_planner,omitempty"`
-	AdditionalEnvVars                        map[string]string `protobuf:"bytes,36,rep,name=additional_env_vars,json=additionalEnvVars,proto3" json:"additional_env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	AdditionalCronEnvVars                    map[string]string `protobuf:"bytes,37,rep,name=additional_cron_env_vars,json=additionalCronEnvVars,proto3" json:"additional_cron_env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	PrivatePipRepositories                   *string           `protobuf:"bytes,38,opt,name=private_pip_repositories,json=privatePipRepositories,proto3,oneof" json:"private_pip_repositories,omitempty"`
-	IsSandbox                                bool              `protobuf:"varint,39,opt,name=is_sandbox,json=isSandbox,proto3" json:"is_sandbox,omitempty"`
+	OnlineStoreKind                          *string `protobuf:"bytes,13,opt,name=online_store_kind,json=onlineStoreKind,proto3,oneof" json:"online_store_kind,omitempty"`
+	EmqUri                                   *string `protobuf:"bytes,14,opt,name=emq_uri,json=emqUri,proto3,oneof" json:"emq_uri,omitempty"`
+	VpcConnectorName                         *string `protobuf:"bytes,15,opt,name=vpc_connector_name,json=vpcConnectorName,proto3,oneof" json:"vpc_connector_name,omitempty"`
+	KubeClusterName                          *string `protobuf:"bytes,16,opt,name=kube_cluster_name,json=kubeClusterName,proto3,oneof" json:"kube_cluster_name,omitempty"`
+	BranchKubeClusterName                    *string `protobuf:"bytes,17,opt,name=branch_kube_cluster_name,json=branchKubeClusterName,proto3,oneof" json:"branch_kube_cluster_name,omitempty"`
+	EngineKubeClusterName                    *string `protobuf:"bytes,18,opt,name=engine_kube_cluster_name,json=engineKubeClusterName,proto3,oneof" json:"engine_kube_cluster_name,omitempty"`
+	ShadowEngineKubeClusterName              *string `protobuf:"bytes,19,opt,name=shadow_engine_kube_cluster_name,json=shadowEngineKubeClusterName,proto3,oneof" json:"shadow_engine_kube_cluster_name,omitempty"`
+	KubeJobNamespace                         *string `protobuf:"bytes,20,opt,name=kube_job_namespace,json=kubeJobNamespace,proto3,oneof" json:"kube_job_namespace,omitempty"`
+	KubePreviewNamespace                     *string `protobuf:"bytes,21,opt,name=kube_preview_namespace,json=kubePreviewNamespace,proto3,oneof" json:"kube_preview_namespace,omitempty"`
+	KubeServiceAccountName                   *string `protobuf:"bytes,22,opt,name=kube_service_account_name,json=kubeServiceAccountName,proto3,oneof" json:"kube_service_account_name,omitempty"` // Can be set and updated only for unmanaged environments
+	StreamingQueryServiceUri                 *string `protobuf:"bytes,23,opt,name=streaming_query_service_uri,json=streamingQueryServiceUri,proto3,oneof" json:"streaming_query_service_uri,omitempty"`
+	SkipOfflineWritesForOnlineCachedFeatures bool    `protobuf:"varint,24,opt,name=skip_offline_writes_for_online_cached_features,json=skipOfflineWritesForOnlineCachedFeatures,proto3" json:"skip_offline_writes_for_online_cached_features,omitempty"`
+	ResultBusTopic                           *string `protobuf:"bytes,25,opt,name=result_bus_topic,json=resultBusTopic,proto3,oneof" json:"result_bus_topic,omitempty"`
+	OnlinePersistenceMode                    *string `protobuf:"bytes,26,opt,name=online_persistence_mode,json=onlinePersistenceMode,proto3,oneof" json:"online_persistence_mode,omitempty"`
+	MetricsBusTopic                          *string `protobuf:"bytes,27,opt,name=metrics_bus_topic,json=metricsBusTopic,proto3,oneof" json:"metrics_bus_topic,omitempty"`
+	BigtableInstanceName                     *string `protobuf:"bytes,28,opt,name=bigtable_instance_name,json=bigtableInstanceName,proto3,oneof" json:"bigtable_instance_name,omitempty"`
+	BigtableTableName                        *string `protobuf:"bytes,29,opt,name=bigtable_table_name,json=bigtableTableName,proto3,oneof" json:"bigtable_table_name,omitempty"`
+	CloudAccountLocator                      *string `protobuf:"bytes,30,opt,name=cloud_account_locator,json=cloudAccountLocator,proto3,oneof" json:"cloud_account_locator,omitempty"`
+	CloudRegion                              *string `protobuf:"bytes,31,opt,name=cloud_region,json=cloudRegion,proto3,oneof" json:"cloud_region,omitempty"`
+	CloudTenancyId                           *string `protobuf:"bytes,32,opt,name=cloud_tenancy_id,json=cloudTenancyId,proto3,oneof" json:"cloud_tenancy_id,omitempty"`
+	SourceBundleBucket                       *string `protobuf:"bytes,33,opt,name=source_bundle_bucket,json=sourceBundleBucket,proto3,oneof" json:"source_bundle_bucket,omitempty"`
+	EngineDockerRegistryPath                 *string `protobuf:"bytes,34,opt,name=engine_docker_registry_path,json=engineDockerRegistryPath,proto3,oneof" json:"engine_docker_registry_path,omitempty"`
+	DefaultPlanner                           *string `protobuf:"bytes,35,opt,name=default_planner,json=defaultPlanner,proto3,oneof" json:"default_planner,omitempty"`
+	// Customer-supplied env vars injected verbatim into engine pods; they
+	// routinely carry datasource credentials, so redact from the audit log.
+	AdditionalEnvVars     map[string]string `protobuf:"bytes,36,rep,name=additional_env_vars,json=additionalEnvVars,proto3" json:"additional_env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	AdditionalCronEnvVars map[string]string `protobuf:"bytes,37,rep,name=additional_cron_env_vars,json=additionalCronEnvVars,proto3" json:"additional_cron_env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// May embed pip index URLs with tokens in the userinfo.
+	PrivatePipRepositories *string `protobuf:"bytes,38,opt,name=private_pip_repositories,json=privatePipRepositories,proto3,oneof" json:"private_pip_repositories,omitempty"`
+	IsSandbox              bool    `protobuf:"varint,39,opt,name=is_sandbox,json=isSandbox,proto3" json:"is_sandbox,omitempty"`
 	// AWS/GCP
 	CloudProvider CloudProviderKind `protobuf:"varint,41,opt,name=cloud_provider,json=cloudProvider,proto3,enum=chalk.server.v1.CloudProviderKind" json:"cloud_provider,omitempty"`
 	// Null if the environment is hosted by Chalk.
@@ -1717,12 +1720,12 @@ var File_chalk_server_v1_environment_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/environment.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/server/v1/cloud_config.proto\x1a#chalk/server/v1/cluster_class.proto\x1a!chalk/utils/v1/field_change.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdb\x01\n" +
+	"!chalk/server/v1/environment.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/server/v1/cloud_config.proto\x1a#chalk/server/v1/cluster_class.proto\x1a!chalk/utils/v1/field_change.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdb\x01\n" +
 	"\x1eEnvironmentObjectStorageConfig\x12%\n" +
 	"\x0edataset_bucket\x18\x01 \x01(\tR\rdatasetBucket\x12,\n" +
 	"\x12plan_stages_bucket\x18\x02 \x01(\tR\x10planStagesBucket\x120\n" +
 	"\x14source_bundle_bucket\x18\x03 \x01(\tR\x12sourceBundleBucket\x122\n" +
-	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xd1/\n" +
+	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xe1/\n" +
 	"\vEnvironment\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x05R\x04name\x12\"\n" +
 	"\n" +
@@ -1764,10 +1767,10 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x10cloud_tenancy_id\x18  \x01(\tB\x03\xe0A\x03H\x1aR\x0ecloudTenancyId\x88\x01\x01\x12:\n" +
 	"\x14source_bundle_bucket\x18! \x01(\tB\x03\xe0A\x03H\x1bR\x12sourceBundleBucket\x88\x01\x01\x12G\n" +
 	"\x1bengine_docker_registry_path\x18\" \x01(\tB\x03\xe0A\x05H\x1cR\x18engineDockerRegistryPath\x88\x01\x01\x121\n" +
-	"\x0fdefault_planner\x18# \x01(\tB\x03\xe0A\x03H\x1dR\x0edefaultPlanner\x88\x01\x01\x12c\n" +
-	"\x13additional_env_vars\x18$ \x03(\v23.chalk.server.v1.Environment.AdditionalEnvVarsEntryR\x11additionalEnvVars\x12u\n" +
-	"\x18additional_cron_env_vars\x18% \x03(\v27.chalk.server.v1.Environment.AdditionalCronEnvVarsEntryB\x03\xe0A\x03R\x15additionalCronEnvVars\x12=\n" +
-	"\x18private_pip_repositories\x18& \x01(\tH\x1eR\x16privatePipRepositories\x88\x01\x01\x12\"\n" +
+	"\x0fdefault_planner\x18# \x01(\tB\x03\xe0A\x03H\x1dR\x0edefaultPlanner\x88\x01\x01\x12i\n" +
+	"\x13additional_env_vars\x18$ \x03(\v23.chalk.server.v1.Environment.AdditionalEnvVarsEntryB\x04ء'\x01R\x11additionalEnvVars\x12y\n" +
+	"\x18additional_cron_env_vars\x18% \x03(\v27.chalk.server.v1.Environment.AdditionalCronEnvVarsEntryB\a\xe0A\x03ء'\x01R\x15additionalCronEnvVars\x12C\n" +
+	"\x18private_pip_repositories\x18& \x01(\tB\x04ء'\x01H\x1eR\x16privatePipRepositories\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"is_sandbox\x18' \x01(\bB\x03\xe0A\x03R\tisSandbox\x12N\n" +
 	"\x0ecloud_provider\x18) \x01(\x0e2\".chalk.server.v1.CloudProviderKindB\x03\xe0A\x03R\rcloudProvider\x12I\n" +

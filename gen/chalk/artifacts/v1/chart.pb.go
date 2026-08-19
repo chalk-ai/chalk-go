@@ -468,6 +468,10 @@ const (
 	// shape to unpack. The GPU gauges are the node-scoped metrics today —
 	// DCGM reports per device per node, not per pod.
 	FilterKind_FILTER_KIND_NODE_NAME FilterKind = 34
+	// The scaling-group revision that executed a function call. Function-call
+	// metrics persist this value in the shared operation_id storage dimension,
+	// but it is not a query operation ID and must not use operation formatting.
+	FilterKind_FILTER_KIND_SCALING_GROUP_REVISION_ID FilterKind = 35
 )
 
 // Enum value maps for FilterKind.
@@ -508,6 +512,7 @@ var (
 		32: "FILTER_KIND_CRON_OPERATION_ID",
 		33: "FILTER_KIND_CHALKSQL_OPERATION_ID",
 		34: "FILTER_KIND_NODE_NAME",
+		35: "FILTER_KIND_SCALING_GROUP_REVISION_ID",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -545,6 +550,7 @@ var (
 		"FILTER_KIND_CRON_OPERATION_ID":          32,
 		"FILTER_KIND_CHALKSQL_OPERATION_ID":      33,
 		"FILTER_KIND_NODE_NAME":                  34,
+		"FILTER_KIND_SCALING_GROUP_REVISION_ID":  35,
 	}
 )
 
@@ -743,6 +749,9 @@ const (
 	GroupByKind_GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID GroupByKind = 27
 	GroupByKind_GROUP_BY_KIND_CRON_OPERATION_ID        GroupByKind = 28
 	GroupByKind_GROUP_BY_KIND_CHALKSQL_OPERATION_ID    GroupByKind = 29
+	// The scaling-group revision that executed a function call; see
+	// FILTER_KIND_SCALING_GROUP_REVISION_ID.
+	GroupByKind_GROUP_BY_KIND_SCALING_GROUP_REVISION_ID GroupByKind = 30
 )
 
 // Enum value maps for GroupByKind.
@@ -778,6 +787,7 @@ var (
 		27: "GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID",
 		28: "GROUP_BY_KIND_CRON_OPERATION_ID",
 		29: "GROUP_BY_KIND_CHALKSQL_OPERATION_ID",
+		30: "GROUP_BY_KIND_SCALING_GROUP_REVISION_ID",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":                   0,
@@ -810,6 +820,7 @@ var (
 		"GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID":      27,
 		"GROUP_BY_KIND_CRON_OPERATION_ID":             28,
 		"GROUP_BY_KIND_CHALKSQL_OPERATION_ID":         29,
+		"GROUP_BY_KIND_SCALING_GROUP_REVISION_ID":     30,
 	}
 )
 
@@ -2243,7 +2254,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED\x10p\x12%\n" +
 	"!METRIC_KIND_GPU_MEMORY_USED_BYTES\x10q\x12%\n" +
 	"!METRIC_KIND_GPU_MEMORY_FREE_BYTES\x10r\x12-\n" +
-	")METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT\x10s*\xd6\b\n" +
+	")METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT\x10s*\x81\t\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2281,7 +2292,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"$FILTER_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1f\x12!\n" +
 	"\x1dFILTER_KIND_CRON_OPERATION_ID\x10 \x12%\n" +
 	"!FILTER_KIND_CHALKSQL_OPERATION_ID\x10!\x12\x19\n" +
-	"\x15FILTER_KIND_NODE_NAME\x10\"*~\n" +
+	"\x15FILTER_KIND_NODE_NAME\x10\"\x12)\n" +
+	"%FILTER_KIND_SCALING_GROUP_REVISION_ID\x10#*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -2301,7 +2313,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x98\b\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xc5\b\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -2333,7 +2345,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"(GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID\x10\x1a\x12*\n" +
 	"&GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1b\x12#\n" +
 	"\x1fGROUP_BY_KIND_CRON_OPERATION_ID\x10\x1c\x12'\n" +
-	"#GROUP_BY_KIND_CHALKSQL_OPERATION_ID\x10\x1d*\x81\x03\n" +
+	"#GROUP_BY_KIND_CHALKSQL_OPERATION_ID\x10\x1d\x12+\n" +
+	"'GROUP_BY_KIND_SCALING_GROUP_REVISION_ID\x10\x1e*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +

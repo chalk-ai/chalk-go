@@ -1224,10 +1224,12 @@ type GetPodTimeRangesRequest struct {
 	Component *string `protobuf:"bytes,5,opt,name=component,proto3,oneof" json:"component,omitempty"`
 	// Filter by service kind label (chalk.ai/service-kind)
 	ServiceKind *string `protobuf:"bytes,6,opt,name=service_kind,json=serviceKind,proto3,oneof" json:"service_kind,omitempty"`
-	// Start time filter - only include pods observed after this time
-	StartTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
-	// End time filter - only include pods observed before this time
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	// Required. Only include pods observed at or after this time. The usage
+	// tables are partitioned on observed_timestamp, so an unbounded lookup
+	// scans every tenant's full history; the window is what prunes it.
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// Required. Only include pods observed at or before this time.
+	EndTime       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2389,25 +2391,23 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"\n" +
 	"hours_used\x18\x06 \x01(\x01R\thoursUsed\"X\n" +
 	"\x18GetInstanceUsageResponse\x12<\n" +
-	"\tinstances\x18\x01 \x03(\v2\x1e.chalk.server.v1.InstanceUsageR\tinstances\"\xe3\x03\n" +
+	"\tinstances\x18\x01 \x03(\v2\x1e.chalk.server.v1.InstanceUsageR\tinstances\"\xbd\x03\n" +
 	"\x17GetPodTimeRangesRequest\x12\x1b\n" +
 	"\tpod_names\x18\x01 \x03(\tR\bpodNames\x12)\n" +
 	"\x0epod_name_regex\x18\x02 \x01(\tH\x00R\fpodNameRegex\x88\x01\x01\x12*\n" +
 	"\x0eresource_group\x18\x03 \x01(\tH\x01R\rresourceGroup\x88\x01\x01\x12\x1f\n" +
 	"\bnodepool\x18\x04 \x01(\tH\x02R\bnodepool\x88\x01\x01\x12!\n" +
 	"\tcomponent\x18\x05 \x01(\tH\x03R\tcomponent\x88\x01\x01\x12&\n" +
-	"\fservice_kind\x18\x06 \x01(\tH\x04R\vserviceKind\x88\x01\x01\x12>\n" +
+	"\fservice_kind\x18\x06 \x01(\tH\x04R\vserviceKind\x88\x01\x01\x129\n" +
 	"\n" +
-	"start_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x05R\tstartTime\x88\x01\x01\x12:\n" +
-	"\bend_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x06R\aendTime\x88\x01\x01B\x11\n" +
+	"start_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
+	"\bend_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\aendTimeB\x11\n" +
 	"\x0f_pod_name_regexB\x11\n" +
 	"\x0f_resource_groupB\v\n" +
 	"\t_nodepoolB\f\n" +
 	"\n" +
 	"_componentB\x0f\n" +
-	"\r_service_kindB\r\n" +
-	"\v_start_timeB\v\n" +
-	"\t_end_time\"\xdd\x01\n" +
+	"\r_service_kind\"\xdd\x01\n" +
 	"\fPodTimeRange\x12\x19\n" +
 	"\bpod_name\x18\x01 \x01(\tR\apodName\x129\n" +
 	"\n" +

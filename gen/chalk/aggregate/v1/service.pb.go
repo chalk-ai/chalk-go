@@ -746,8 +746,11 @@ type CreateAggregateBackfillJobRequest struct {
 	AllowEmptyTiles     *bool                  `protobuf:"varint,12,opt,name=allow_empty_tiles,json=allowEmptyTiles,proto3,oneof" json:"allow_empty_tiles,omitempty"`
 	StoreOnline         *bool                  `protobuf:"varint,13,opt,name=store_online,json=storeOnline,proto3,oneof" json:"store_online,omitempty"`
 	InputSql            *string                `protobuf:"bytes,14,opt,name=input_sql,json=inputSql,proto3,oneof" json:"input_sql,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Split this backfill's window into this many bucket-aligned time-sharded
+	// jobs. Unset/1 preserves the single-job behavior.
+	NumShards     *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateAggregateBackfillJobRequest) Reset() {
@@ -878,6 +881,13 @@ func (x *CreateAggregateBackfillJobRequest) GetInputSql() string {
 	return ""
 }
 
+func (x *CreateAggregateBackfillJobRequest) GetNumShards() int32 {
+	if x != nil && x.NumShards != nil {
+		return *x.NumShards
+	}
+	return 0
+}
+
 type CreateAggregateBackfillJobResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	JobId         string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
@@ -962,8 +972,11 @@ type CreateAggregateBackfillV2Request struct {
 	// the planner does not accept planner options.
 	PlannerOptions map[string]string     `protobuf:"bytes,13,rep,name=planner_options,json=plannerOptions,proto3" json:"planner_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Mode           AggregateBackfillMode `protobuf:"varint,14,opt,name=mode,proto3,enum=chalk.aggregate.v1.AggregateBackfillMode" json:"mode,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Split each planned sub-backfill's window into this many bucket-aligned
+	// time-sharded jobs. Unset/1 preserves the single-job behavior.
+	NumShards     *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateAggregateBackfillV2Request) Reset() {
@@ -1094,6 +1107,13 @@ func (x *CreateAggregateBackfillV2Request) GetMode() AggregateBackfillMode {
 	return AggregateBackfillMode_AGGREGATE_BACKFILL_MODE_UNSPECIFIED
 }
 
+func (x *CreateAggregateBackfillV2Request) GetNumShards() int32 {
+	if x != nil && x.NumShards != nil {
+		return *x.NumShards
+	}
+	return 0
+}
+
 type CreateAggregateBackfillV2Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Absent in plan mode. There is one aggregate_backfill_jobs row per aggregate backfill
@@ -1195,7 +1215,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"latest_job\x18\x02 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobR\tlatestJob\"\x9b\x01\n" +
 	"'GetActiveCronAggregateBackfillsResponse\x12p\n" +
-	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\xda\x06\n" +
+	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\x8d\a\n" +
 	"!CreateAggregateBackfillJobRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12@\n" +
 	"\vlower_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
@@ -1215,7 +1235,9 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\x11allow_empty_tiles\x18\f \x01(\bH\bR\x0fallowEmptyTiles\x88\x01\x01\x12&\n" +
 	"\fstore_online\x18\r \x01(\bH\tR\vstoreOnline\x88\x01\x01\x12 \n" +
 	"\tinput_sql\x18\x0e \x01(\tH\n" +
-	"R\binputSql\x88\x01\x01B\x0e\n" +
+	"R\binputSql\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"num_shards\x18\x0f \x01(\x05H\vR\tnumShards\x88\x01\x01B\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\v\n" +
 	"\t_resolverB\x11\n" +
@@ -1227,11 +1249,12 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\x12_allow_empty_tilesB\x0f\n" +
 	"\r_store_onlineB\f\n" +
 	"\n" +
-	"_input_sql\"\x8c\x01\n" +
+	"_input_sqlB\r\n" +
+	"\v_num_shards\"\x8c\x01\n" +
 	"\"CreateAggregateBackfillJobResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x123\n" +
-	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\x85\a\n" +
+	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xb8\a\n" +
 	" CreateAggregateBackfillV2Request\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12\x1f\n" +
 	"\bresolver\x18\x02 \x01(\tH\x00R\bresolver\x88\x01\x01\x12 \n" +
@@ -1249,7 +1272,9 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\x10enable_profiling\x18\v \x01(\bR\x0fenableProfiling\x12*\n" +
 	"\x0eresource_group\x18\f \x01(\tH\aR\rresourceGroup\x88\x01\x01\x12q\n" +
 	"\x0fplanner_options\x18\r \x03(\v2H.chalk.aggregate.v1.CreateAggregateBackfillV2Request.PlannerOptionsEntryR\x0eplannerOptions\x12=\n" +
-	"\x04mode\x18\x0e \x01(\x0e2).chalk.aggregate.v1.AggregateBackfillModeR\x04mode\x1aA\n" +
+	"\x04mode\x18\x0e \x01(\x0e2).chalk.aggregate.v1.AggregateBackfillModeR\x04mode\x12\"\n" +
+	"\n" +
+	"num_shards\x18\x0f \x01(\x05H\bR\tnumShards\x88\x01\x01\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
@@ -1261,7 +1286,8 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\r_store_onlineB\x10\n" +
 	"\x0e_store_offlineB\x14\n" +
 	"\x12_allow_empty_tilesB\x11\n" +
-	"\x0f_resource_group\"\xc8\x01\n" +
+	"\x0f_resource_groupB\r\n" +
+	"\v_num_shards\"\xc8\x01\n" +
 	"!CreateAggregateBackfillV2Response\x12?\n" +
 	"\x03job\x18\x01 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobH\x00R\x03job\x88\x01\x01\x12Z\n" +
 	"\rsub_backfills\x18\x02 \x03(\v25.chalk.aggregate.v1.AggregateBackfillWithCostEstimateR\fsubBackfillsB\x06\n" +

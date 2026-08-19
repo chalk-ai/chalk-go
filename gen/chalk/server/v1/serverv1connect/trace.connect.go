@@ -43,6 +43,12 @@ const (
 	// TraceServiceListTraceAggregatedProcedure is the fully-qualified name of the TraceService's
 	// ListTraceAggregated RPC.
 	TraceServiceListTraceAggregatedProcedure = "/chalk.server.v1.TraceService/ListTraceAggregated"
+	// TraceServiceSearchSessionsProcedure is the fully-qualified name of the TraceService's
+	// SearchSessions RPC.
+	TraceServiceSearchSessionsProcedure = "/chalk.server.v1.TraceService/SearchSessions"
+	// TraceServiceListSessionAggregatedProcedure is the fully-qualified name of the TraceService's
+	// ListSessionAggregated RPC.
+	TraceServiceListSessionAggregatedProcedure = "/chalk.server.v1.TraceService/ListSessionAggregated"
 	// TraceServiceGetTraceCallGraphProcedure is the fully-qualified name of the TraceService's
 	// GetTraceCallGraph RPC.
 	TraceServiceGetTraceCallGraphProcedure = "/chalk.server.v1.TraceService/GetTraceCallGraph"
@@ -86,6 +92,10 @@ type TraceServiceClient interface {
 	SearchTraceSummaries(context.Context, *connect.Request[v1.SearchTraceSummariesRequest]) (*connect.Response[v1.SearchTraceSummariesResponse], error)
 	// ListTraceAggregated returns trace counts bucketed by time for the same filters as SearchTraceSummaries
 	ListTraceAggregated(context.Context, *connect.Request[v1.ListTraceAggregatedRequest]) (*connect.Response[v1.ListTraceAggregatedResponse], error)
+	// SearchSessions groups matching traces into agent sessions (conversations)
+	SearchSessions(context.Context, *connect.Request[v1.SearchSessionsRequest]) (*connect.Response[v1.SearchSessionsResponse], error)
+	// ListSessionAggregated returns session counts bucketed by time for the same filters as SearchSessions
+	ListSessionAggregated(context.Context, *connect.Request[v1.ListSessionAggregatedRequest]) (*connect.Response[v1.ListSessionAggregatedResponse], error)
 	// GetTraceCallGraph retrieves the pre-indexed trace data needed to render a call graph.
 	GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error)
 	// GetTraceFacets returns available facets for filtering trace summaries
@@ -147,6 +157,20 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+TraceServiceListTraceAggregatedProcedure,
 			connect.WithSchema(traceServiceMethods.ByName("ListTraceAggregated")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		searchSessions: connect.NewClient[v1.SearchSessionsRequest, v1.SearchSessionsResponse](
+			httpClient,
+			baseURL+TraceServiceSearchSessionsProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("SearchSessions")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listSessionAggregated: connect.NewClient[v1.ListSessionAggregatedRequest, v1.ListSessionAggregatedResponse](
+			httpClient,
+			baseURL+TraceServiceListSessionAggregatedProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("ListSessionAggregated")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -236,6 +260,8 @@ type traceServiceClient struct {
 	listTrace                  *connect.Client[v1.ListTraceRequest, v1.ListTraceResponse]
 	searchTraceSummaries       *connect.Client[v1.SearchTraceSummariesRequest, v1.SearchTraceSummariesResponse]
 	listTraceAggregated        *connect.Client[v1.ListTraceAggregatedRequest, v1.ListTraceAggregatedResponse]
+	searchSessions             *connect.Client[v1.SearchSessionsRequest, v1.SearchSessionsResponse]
+	listSessionAggregated      *connect.Client[v1.ListSessionAggregatedRequest, v1.ListSessionAggregatedResponse]
 	getTraceCallGraph          *connect.Client[v1.GetTraceCallGraphRequest, v1.GetTraceCallGraphResponse]
 	getTraceFacets             *connect.Client[v1.GetTraceFacetsRequest, v1.GetTraceFacetsResponse]
 	getTraceFacetValues        *connect.Client[v1.GetTraceFacetValuesRequest, v1.GetTraceFacetValuesResponse]
@@ -267,6 +293,16 @@ func (c *traceServiceClient) SearchTraceSummaries(ctx context.Context, req *conn
 // ListTraceAggregated calls chalk.server.v1.TraceService.ListTraceAggregated.
 func (c *traceServiceClient) ListTraceAggregated(ctx context.Context, req *connect.Request[v1.ListTraceAggregatedRequest]) (*connect.Response[v1.ListTraceAggregatedResponse], error) {
 	return c.listTraceAggregated.CallUnary(ctx, req)
+}
+
+// SearchSessions calls chalk.server.v1.TraceService.SearchSessions.
+func (c *traceServiceClient) SearchSessions(ctx context.Context, req *connect.Request[v1.SearchSessionsRequest]) (*connect.Response[v1.SearchSessionsResponse], error) {
+	return c.searchSessions.CallUnary(ctx, req)
+}
+
+// ListSessionAggregated calls chalk.server.v1.TraceService.ListSessionAggregated.
+func (c *traceServiceClient) ListSessionAggregated(ctx context.Context, req *connect.Request[v1.ListSessionAggregatedRequest]) (*connect.Response[v1.ListSessionAggregatedResponse], error) {
+	return c.listSessionAggregated.CallUnary(ctx, req)
 }
 
 // GetTraceCallGraph calls chalk.server.v1.TraceService.GetTraceCallGraph.
@@ -334,6 +370,10 @@ type TraceServiceHandler interface {
 	SearchTraceSummaries(context.Context, *connect.Request[v1.SearchTraceSummariesRequest]) (*connect.Response[v1.SearchTraceSummariesResponse], error)
 	// ListTraceAggregated returns trace counts bucketed by time for the same filters as SearchTraceSummaries
 	ListTraceAggregated(context.Context, *connect.Request[v1.ListTraceAggregatedRequest]) (*connect.Response[v1.ListTraceAggregatedResponse], error)
+	// SearchSessions groups matching traces into agent sessions (conversations)
+	SearchSessions(context.Context, *connect.Request[v1.SearchSessionsRequest]) (*connect.Response[v1.SearchSessionsResponse], error)
+	// ListSessionAggregated returns session counts bucketed by time for the same filters as SearchSessions
+	ListSessionAggregated(context.Context, *connect.Request[v1.ListSessionAggregatedRequest]) (*connect.Response[v1.ListSessionAggregatedResponse], error)
 	// GetTraceCallGraph retrieves the pre-indexed trace data needed to render a call graph.
 	GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error)
 	// GetTraceFacets returns available facets for filtering trace summaries
@@ -391,6 +431,20 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 		TraceServiceListTraceAggregatedProcedure,
 		svc.ListTraceAggregated,
 		connect.WithSchema(traceServiceMethods.ByName("ListTraceAggregated")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	traceServiceSearchSessionsHandler := connect.NewUnaryHandler(
+		TraceServiceSearchSessionsProcedure,
+		svc.SearchSessions,
+		connect.WithSchema(traceServiceMethods.ByName("SearchSessions")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	traceServiceListSessionAggregatedHandler := connect.NewUnaryHandler(
+		TraceServiceListSessionAggregatedProcedure,
+		svc.ListSessionAggregated,
+		connect.WithSchema(traceServiceMethods.ByName("ListSessionAggregated")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -481,6 +535,10 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 			traceServiceSearchTraceSummariesHandler.ServeHTTP(w, r)
 		case TraceServiceListTraceAggregatedProcedure:
 			traceServiceListTraceAggregatedHandler.ServeHTTP(w, r)
+		case TraceServiceSearchSessionsProcedure:
+			traceServiceSearchSessionsHandler.ServeHTTP(w, r)
+		case TraceServiceListSessionAggregatedProcedure:
+			traceServiceListSessionAggregatedHandler.ServeHTTP(w, r)
 		case TraceServiceGetTraceCallGraphProcedure:
 			traceServiceGetTraceCallGraphHandler.ServeHTTP(w, r)
 		case TraceServiceGetTraceFacetsProcedure:
@@ -526,6 +584,14 @@ func (UnimplementedTraceServiceHandler) SearchTraceSummaries(context.Context, *c
 
 func (UnimplementedTraceServiceHandler) ListTraceAggregated(context.Context, *connect.Request[v1.ListTraceAggregatedRequest]) (*connect.Response[v1.ListTraceAggregatedResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.ListTraceAggregated is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) SearchSessions(context.Context, *connect.Request[v1.SearchSessionsRequest]) (*connect.Response[v1.SearchSessionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.SearchSessions is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) ListSessionAggregated(context.Context, *connect.Request[v1.ListSessionAggregatedRequest]) (*connect.Response[v1.ListSessionAggregatedResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.ListSessionAggregated is not implemented"))
 }
 
 func (UnimplementedTraceServiceHandler) GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error) {

@@ -7,6 +7,7 @@
 package artifactsv1
 
 import (
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/searchaggregates/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -631,10 +632,12 @@ func (x *DashboardMetricQuery) GetDisplayWindowPeriod() string {
 type DashboardSourceQuery struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Which backend evaluates `query`
-	DataSource    string `protobuf:"bytes,1,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
-	Query         string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	DataSource string `protobuf:"bytes,1,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
+	Query      string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
+	// Unset means the raw list. Mutually exclusive with the legacy inline `COUNT BY` clause in `query`.
+	AggregateOptions *v1.AggregateOptions `protobuf:"bytes,3,opt,name=aggregate_options,json=aggregateOptions,proto3,oneof" json:"aggregate_options,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *DashboardSourceQuery) Reset() {
@@ -679,6 +682,13 @@ func (x *DashboardSourceQuery) GetQuery() string {
 		return x.Query
 	}
 	return ""
+}
+
+func (x *DashboardSourceQuery) GetAggregateOptions() *v1.AggregateOptions {
+	if x != nil {
+		return x.AggregateOptions
+	}
+	return nil
 }
 
 // Renders a time-series frame as a chart.
@@ -1080,7 +1090,7 @@ var File_chalk_artifacts_v1_dashboard_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/artifacts/v1/dashboard.proto\x12\x12chalk.artifacts.v1\x1a\x1echalk/artifacts/v1/chart.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
+	"\"chalk/artifacts/v1/dashboard.proto\x12\x12chalk.artifacts.v1\x1a\x1echalk/artifacts/v1/chart.proto\x1a+chalk/searchaggregates/v1/aggregation.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
 	"\fGridPosition\x12\f\n" +
 	"\x01x\x18\x01 \x01(\x05R\x01x\x12\f\n" +
 	"\x01y\x18\x02 \x01(\x05R\x01y\x12\f\n" +
@@ -1120,11 +1130,13 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\x06series\x18\x02 \x03(\v2&.chalk.artifacts.v1.MetricConfigSeriesR\x06series\x12=\n" +
 	"\bformulas\x18\x03 \x03(\v2!.chalk.artifacts.v1.MetricFormulaR\bformulas\x127\n" +
 	"\x15display_window_period\x18\x04 \x01(\tH\x00R\x13displayWindowPeriod\x88\x01\x01B\x18\n" +
-	"\x16_display_window_period\"M\n" +
+	"\x16_display_window_period\"\xc2\x01\n" +
 	"\x14DashboardSourceQuery\x12\x1f\n" +
 	"\vdata_source\x18\x01 \x01(\tR\n" +
 	"dataSource\x12\x14\n" +
-	"\x05query\x18\x02 \x01(\tR\x05query\"7\n" +
+	"\x05query\x18\x02 \x01(\tR\x05query\x12]\n" +
+	"\x11aggregate_options\x18\x03 \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsH\x00R\x10aggregateOptions\x88\x01\x01B\x14\n" +
+	"\x12_aggregate_options\"7\n" +
 	"\x16DashboardTimeseriesViz\x12\x1d\n" +
 	"\n" +
 	"plot_style\x18\x01 \x01(\tR\tplotStyle\"\x13\n" +
@@ -1200,7 +1212,8 @@ var file_chalk_artifacts_v1_dashboard_proto_goTypes = []any{
 	(*Dashboard)(nil),                   // 13: chalk.artifacts.v1.Dashboard
 	(*MetricConfigSeries)(nil),          // 14: chalk.artifacts.v1.MetricConfigSeries
 	(*MetricFormula)(nil),               // 15: chalk.artifacts.v1.MetricFormula
-	(*timestamppb.Timestamp)(nil),       // 16: google.protobuf.Timestamp
+	(*v1.AggregateOptions)(nil),         // 16: chalk.searchaggregates.v1.AggregateOptions
+	(*timestamppb.Timestamp)(nil),       // 17: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
 	1,  // 0: chalk.artifacts.v1.DashboardWidget.position:type_name -> chalk.artifacts.v1.GridPosition
@@ -1217,15 +1230,16 @@ var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
 	10, // 11: chalk.artifacts.v1.DashboardDataWidget.statistic:type_name -> chalk.artifacts.v1.DashboardStatisticViz
 	14, // 12: chalk.artifacts.v1.DashboardMetricQuery.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
 	15, // 13: chalk.artifacts.v1.DashboardMetricQuery.formulas:type_name -> chalk.artifacts.v1.MetricFormula
-	2,  // 14: chalk.artifacts.v1.Dashboard.widgets:type_name -> chalk.artifacts.v1.DashboardWidget
-	16, // 15: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
-	16, // 16: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
-	16, // 17: chalk.artifacts.v1.Dashboard.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	16, // 14: chalk.artifacts.v1.DashboardSourceQuery.aggregate_options:type_name -> chalk.searchaggregates.v1.AggregateOptions
+	2,  // 15: chalk.artifacts.v1.Dashboard.widgets:type_name -> chalk.artifacts.v1.DashboardWidget
+	17, // 16: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
+	17, // 17: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
+	17, // 18: chalk.artifacts.v1.Dashboard.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_dashboard_proto_init() }
@@ -1248,6 +1262,7 @@ func file_chalk_artifacts_v1_dashboard_proto_init() {
 		(*DashboardDataWidget_Statistic)(nil),
 	}
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_dashboard_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
