@@ -72,6 +72,7 @@ type VolumeClient interface {
 	RemoveFiles(ctx context.Context, volumeName string, paths []VolumeRemovePath, opts VolumeCommitOptions) (*volumev2.CommitStatus, error)
 	DownloadBytes(ctx context.Context, request VolumeDownloadRequest, onProgress func(uint64)) ([]byte, *volumev2.FileInfo, error)
 	DownloadToFile(ctx context.Context, request VolumeDownloadRequest, localPath string, onProgress func(uint64)) (*volumev2.FileInfo, error)
+	DownloadToWriter(ctx context.Context, request VolumeDownloadRequest, writer io.Writer, onProgress func(uint64)) (*volumev2.FileInfo, error)
 	DownloadToDirectory(ctx context.Context, volumeName string, localDir string, selector *volumev2.VersionSelector, config VolumeDownloadConfig) error
 }
 
@@ -202,8 +203,17 @@ type VolumeUploadRequest struct {
 	VolumeName string
 	Files      []VolumeUploadFile
 	Config     VolumeUploadConfig
+	Observer   VolumeUploadObserver
 	// Ref is the target ref. Empty means "main".
 	Ref string
+}
+
+// VolumeUploadObserver receives concurrent file-level upload events.
+type VolumeUploadObserver interface {
+	FileStarted(path string, size uint64)
+	FileProgress(path string, bytes uint64, alreadyExisted bool)
+	FileCompleted(path string, fullyDeduplicated bool)
+	FileFailed(path string, err error)
 }
 
 // VolumeUploadFile is one file to commit into a volume.
@@ -600,7 +610,7 @@ func VolumeRefSelector(ref string) *volumev2.VersionSelector {
 func (c *volumeClientImpl) UploadFiles(ctx context.Context, request VolumeUploadRequest, onProgress VolumeProgressFunc) ([]*volumev2.CommitStatus, error) {
 	cfg := request.Config.withDefaults()
 	volume := c.volumeRef(request.VolumeName)
-	uploaded, err := c.stageFiles(ctx, volume, request.Files, cfg, onProgress)
+	uploaded, err := c.stageFiles(ctx, volume, request.Files, cfg, onProgress, request.Observer)
 	if err != nil {
 		return nil, err
 	}
@@ -631,16 +641,16 @@ func (c *volumeClientImpl) UploadDirectory(ctx context.Context, volumeName strin
 }
 
 func (c *volumeClientImpl) StageFiles(ctx context.Context, volume VolumeRef, files []VolumeUploadFile, config VolumeUploadConfig, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
-	return c.stageFiles(ctx, c.volumeRefProto(volume), files, config.withDefaults(), onProgress)
+	return c.stageFiles(ctx, c.volumeRefProto(volume), files, config.withDefaults(), onProgress, nil)
 }
 
 // stageFiles uploads files without committing them.
-func (c *volumeClientImpl) stageFiles(ctx context.Context, volume *volumev2.VolumeRef, files []VolumeUploadFile, cfg VolumeUploadConfig, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
+func (c *volumeClientImpl) stageFiles(ctx context.Context, volume *volumev2.VolumeRef, files []VolumeUploadFile, cfg VolumeUploadConfig, onProgress VolumeProgressFunc, observer VolumeUploadObserver) ([]VolumeUploadedFile, error) {
 	if onProgress == nil {
 		onProgress = func(uint64, bool) {}
 	}
 	throttle := &volumeThrottle{}
-	return c.uploadFiles(ctx, volume, files, cfg, throttle, onProgress)
+	return c.uploadFiles(ctx, volume, files, cfg, throttle, onProgress, observer)
 }
 
 func (c *volumeClientImpl) RemoveFiles(ctx context.Context, volumeName string, paths []VolumeRemovePath, opts VolumeCommitOptions) (*volumev2.CommitStatus, error) {
@@ -655,7 +665,7 @@ type sizedVolumeUploadFile struct {
 	size uint64
 }
 
-func (c *volumeClientImpl) uploadFiles(ctx context.Context, volume *volumev2.VolumeRef, files []VolumeUploadFile, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
+func (c *volumeClientImpl) uploadFiles(ctx context.Context, volume *volumev2.VolumeRef, files []VolumeUploadFile, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc, observer VolumeUploadObserver) ([]VolumeUploadedFile, error) {
 	sized := make([]sizedVolumeUploadFile, len(files))
 	var sizeGroup errgroup.Group
 	sizeGroup.SetLimit(max(cfg.FileConcurrency, 1))
@@ -663,6 +673,10 @@ func (c *volumeClientImpl) uploadFiles(ctx context.Context, volume *volumev2.Vol
 		sizeGroup.Go(func() error {
 			size, err := files[i].Content.size()
 			if err != nil {
+				if observer != nil {
+					observer.FileStarted(files[i].Path, 0)
+					observer.FileFailed(files[i].Path, err)
+				}
 				return err
 			}
 			sized[i] = sizedVolumeUploadFile{file: files[i], size: size}
@@ -690,9 +704,29 @@ func (c *volumeClientImpl) uploadFiles(ctx context.Context, volume *volumev2.Vol
 	uploadGroup.SetLimit(max(cfg.FileConcurrency, 1))
 	for _, sf := range perFile {
 		uploadGroup.Go(func() error {
-			uploaded, err := c.uploadOneFile(uploadCtx, volume, sf.file, sf.size, cfg, throttle, onProgress)
+			if observer != nil {
+				observer.FileStarted(sf.file.Path, sf.size)
+			}
+			var fullyDeduplicated atomic.Bool
+			fullyDeduplicated.Store(sf.size > 0)
+			fileProgress := func(bytes uint64, alreadyExisted bool) {
+				onProgress(bytes, alreadyExisted)
+				if !alreadyExisted {
+					fullyDeduplicated.Store(false)
+				}
+				if observer != nil {
+					observer.FileProgress(sf.file.Path, bytes, alreadyExisted)
+				}
+			}
+			uploaded, err := c.uploadOneFile(uploadCtx, volume, sf.file, sf.size, cfg, throttle, fileProgress)
 			if err != nil {
+				if observer != nil {
+					observer.FileFailed(sf.file.Path, err)
+				}
 				return err
+			}
+			if observer != nil {
+				observer.FileCompleted(sf.file.Path, fullyDeduplicated.Load())
 			}
 			mu.Lock()
 			out = append(out, uploaded)
@@ -701,7 +735,7 @@ func (c *volumeClientImpl) uploadFiles(ctx context.Context, volume *volumev2.Vol
 		})
 	}
 	uploadGroup.Go(func() error {
-		uploaded, err := c.packAndUpload(uploadCtx, volume, packable, cfg, throttle, onProgress)
+		uploaded, err := c.packAndUpload(uploadCtx, volume, packable, cfg, throttle, onProgress, observer)
 		if err != nil {
 			return err
 		}
@@ -943,6 +977,7 @@ func computeVolumeSlices(total uint64, chunkSize uint64) []volumeSlice {
 
 type packMember struct {
 	path     string
+	size     uint64
 	metadata *volumev2.FileMetadata
 	hash     [32]byte
 }
@@ -956,7 +991,7 @@ type volumeReadResult struct {
 // packAndUpload bin-packs small files into CDP1 packs in arrival order. Reads
 // are bounded read-ahead and sealed packs upload concurrently, so peak bytes
 // stay near fileConcurrency * maxPackBytes instead of the whole upload.
-func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.VolumeRef, files []sizedVolumeUploadFile, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
+func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.VolumeRef, files []sizedVolumeUploadFile, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc, observer VolumeUploadObserver) ([]VolumeUploadedFile, error) {
 	if len(files) == 0 {
 		return nil, nil
 	}
@@ -989,8 +1024,13 @@ func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.V
 	eg.SetLimit(concurrency)
 	flush := func(builder *dataPackBuilder, members []packMember) {
 		eg.Go(func() error {
-			uploaded, err := c.uploadOnePack(egCtx, volume, builder, members, cfg, throttle, onProgress)
+			uploaded, err := c.uploadOnePack(egCtx, volume, builder, members, cfg, throttle, onProgress, observer)
 			if err != nil {
+				if observer != nil {
+					for _, member := range members {
+						observer.FileFailed(member.path, err)
+					}
+				}
 				return err
 			}
 			mu.Lock()
@@ -1008,12 +1048,21 @@ func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.V
 			break // a pack upload failed; eg.Wait reports it
 		}
 		read := <-done
+		if observer != nil {
+			observer.FileStarted(read.file.file.Path, read.file.size)
+		}
 		if read.err != nil {
+			if observer != nil {
+				observer.FileFailed(read.file.file.Path, read.err)
+			}
 			readErr = read.err
 			break
 		}
 		metadata, err := read.file.file.metadata()
 		if err != nil {
+			if observer != nil {
+				observer.FileFailed(read.file.file.Path, err)
+			}
 			readErr = err
 			break
 		}
@@ -1023,9 +1072,14 @@ func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.V
 		}
 		hash := blake3Sum(read.data)
 		builder.append(hash, read.data)
-		members = append(members, packMember{path: read.file.file.Path, metadata: metadata, hash: hash})
+		members = append(members, packMember{path: read.file.file.Path, size: read.file.size, metadata: metadata, hash: hash})
 	}
 	if readErr != nil {
+		if observer != nil {
+			for _, member := range members {
+				observer.FileFailed(member.path, readErr)
+			}
+		}
 		cancel()
 	} else if !builder.isEmpty() {
 		flush(builder, members)
@@ -1041,19 +1095,23 @@ func (c *volumeClientImpl) packAndUpload(ctx context.Context, volume *volumev2.V
 	return out, nil
 }
 
-func (c *volumeClientImpl) uploadOnePack(ctx context.Context, volume *volumev2.VolumeRef, builder *dataPackBuilder, members []packMember, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc) ([]VolumeUploadedFile, error) {
+func (c *volumeClientImpl) uploadOnePack(ctx context.Context, volume *volumev2.VolumeRef, builder *dataPackBuilder, members []packMember, cfg VolumeUploadConfig, throttle *volumeThrottle, onProgress VolumeProgressFunc, observer VolumeUploadObserver) ([]VolumeUploadedFile, error) {
 	sealed, err := builder.seal()
 	if err != nil {
 		return nil, err
 	}
 	packID := hashHex(sealed.chunkID)
 	relativeKey := chunkRelativeObjectKey(packID)
+	fullyDeduplicated := false
 	landed, err := c.putObjects(ctx, volume, []plannedVolumeObject{{
 		relativeKey: relativeKey,
 		hash:        packID,
 		bytes:       sealed.bytes,
 		kind:        volumev2.UploadedObjectKind_UPLOADED_OBJECT_KIND_PACK,
-	}}, cfg, throttle, onProgress)
+	}}, cfg, throttle, func(bytes uint64, alreadyExisted bool) {
+		fullyDeduplicated = alreadyExisted
+		onProgress(bytes, alreadyExisted)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -1075,6 +1133,10 @@ func (c *volumeClientImpl) uploadOnePack(ctx context.Context, volume *volumev2.V
 			Metadata:        member.metadata,
 			UploadedObjects: []*volumev2.UploadedObjectReference{packRef},
 		})
+		if observer != nil {
+			observer.FileProgress(member.path, member.size, fullyDeduplicated)
+			observer.FileCompleted(member.path, fullyDeduplicated)
+		}
 	}
 	return out, nil
 }
@@ -1484,7 +1546,7 @@ func (c *volumeClientImpl) DownloadBytes(ctx context.Context, request VolumeDown
 		}
 		copy(out[start:end], data)
 		return nil
-	}, onProgress)
+	}, onProgress, false)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -1515,7 +1577,7 @@ func (c *volumeClientImpl) DownloadToFile(ctx context.Context, request VolumeDow
 		defer mu.Unlock()
 		_, err := file.WriteAt(data, int64(offset))
 		return err
-	}, onProgress)
+	}, onProgress, false)
 	if err != nil {
 		_ = file.Close()
 		return nil, err
@@ -1529,6 +1591,13 @@ func (c *volumeClientImpl) DownloadToFile(ctx context.Context, request VolumeDow
 		}
 	}
 	return info, nil
+}
+
+// DownloadToWriter downloads one file in order with bounded buffering.
+func (c *volumeClientImpl) DownloadToWriter(ctx context.Context, request VolumeDownloadRequest, writer io.Writer, onProgress func(uint64)) (*volumev2.FileInfo, error) {
+	return c.downloadFile(ctx, request, func(_ uint64, data []byte) error {
+		return writeVolumeAll(writer, data)
+	}, onProgress, true)
 }
 
 func (c *volumeClientImpl) DownloadToDirectory(ctx context.Context, volumeName string, localDir string, selector *volumev2.VersionSelector, config VolumeDownloadConfig) error {
@@ -1566,7 +1635,7 @@ func (c *volumeClientImpl) DownloadToDirectory(ctx context.Context, volumeName s
 	return eg.Wait()
 }
 
-func (c *volumeClientImpl) downloadFile(ctx context.Context, request VolumeDownloadRequest, onWrite func(uint64, []byte) error, onProgress func(uint64)) (*volumev2.FileInfo, error) {
+func (c *volumeClientImpl) downloadFile(ctx context.Context, request VolumeDownloadRequest, onWrite func(uint64, []byte) error, onProgress func(uint64), ordered bool) (*volumev2.FileInfo, error) {
 	cfg := request.Config.withDefaults()
 	if onProgress == nil {
 		onProgress = func(uint64) {}
@@ -1593,25 +1662,19 @@ func (c *volumeClientImpl) downloadFile(ctx context.Context, request VolumeDownl
 		if err != nil {
 			return nil, err
 		}
+		if ordered {
+			if err := c.downloadChunksOrdered(ctx, content.Chunked.Chunks, pinned, policy, cfg.ChunkConcurrency, onWrite, onProgress); err != nil {
+				return nil, err
+			}
+			break
+		}
 		eg, egCtx := errgroup.WithContext(ctx)
 		eg.SetLimit(max(cfg.ChunkConcurrency, 1))
 		for _, chunk := range content.Chunked.Chunks {
 			eg.Go(func() error {
-				data, err := c.signedRequest(egCtx, volumeSignedRequest{
-					label:  "download chunk",
-					method: http.MethodGet,
-					url:    chunk.SignedDownloadUri,
-				}, policy, func(ctx context.Context) (string, error) {
-					return c.refreshChunkURL(ctx, pinned, chunk)
-				})
+				data, err := c.downloadChunk(egCtx, pinned, chunk, policy)
 				if err != nil {
 					return err
-				}
-				if uint64(len(data)) != chunk.Size {
-					return fmt.Errorf("download chunk at offset %d returned %d bytes, expected %d", chunk.Offset, len(data), chunk.Size)
-				}
-				if chunk.Hash != "" && blake3Hex(data) != chunk.Hash {
-					return connect.NewError(connect.CodeDataLoss, fmt.Errorf("download chunk at offset %d failed hash validation", chunk.Offset))
 				}
 				if err := onWrite(chunk.Offset, data); err != nil {
 					return err
@@ -1666,6 +1729,77 @@ func (c *volumeClientImpl) downloadFile(ctx context.Context, request VolumeDownl
 		onProgress(uint64(len(data)))
 	}
 	return info, nil
+}
+
+func (c *volumeClientImpl) downloadChunksOrdered(ctx context.Context, chunks []*volumev2.SignedChunkRef, pinned *volumev2.GetFileRequest, policy volumeRetryPolicy, concurrency int, onWrite func(uint64, []byte) error, onProgress func(uint64)) error {
+	ordered := append([]*volumev2.SignedChunkRef(nil), chunks...)
+	sort.Slice(ordered, func(i, j int) bool { return ordered[i].Offset < ordered[j].Offset })
+	windowSize := max(concurrency, 1)
+	nextOffset := uint64(0)
+	for start := 0; start < len(ordered); start += windowSize {
+		window := ordered[start:min(start+windowSize, len(ordered))]
+		data := make([][]byte, len(window))
+		eg, egCtx := errgroup.WithContext(ctx)
+		for i, chunk := range window {
+			eg.Go(func() error {
+				var err error
+				data[i], err = c.downloadChunk(egCtx, pinned, chunk, policy)
+				return err
+			})
+		}
+		if err := eg.Wait(); err != nil {
+			return err
+		}
+		for i, chunk := range window {
+			if chunk.Offset != nextOffset {
+				return fmt.Errorf("download chunk at offset %d is not contiguous with offset %d", chunk.Offset, nextOffset)
+			}
+			if err := onWrite(chunk.Offset, data[i]); err != nil {
+				return err
+			}
+			onProgress(chunk.Size)
+			next, ok := checkedUint64Add(nextOffset, chunk.Size)
+			if !ok {
+				return fmt.Errorf("download chunk at offset %d overflows file size", chunk.Offset)
+			}
+			nextOffset = next
+		}
+	}
+	return nil
+}
+
+func (c *volumeClientImpl) downloadChunk(ctx context.Context, pinned *volumev2.GetFileRequest, chunk *volumev2.SignedChunkRef, policy volumeRetryPolicy) ([]byte, error) {
+	data, err := c.signedRequest(ctx, volumeSignedRequest{
+		label:  "download chunk",
+		method: http.MethodGet,
+		url:    chunk.SignedDownloadUri,
+	}, policy, func(ctx context.Context) (string, error) {
+		return c.refreshChunkURL(ctx, pinned, chunk)
+	})
+	if err != nil {
+		return nil, err
+	}
+	if uint64(len(data)) != chunk.Size {
+		return nil, fmt.Errorf("download chunk at offset %d returned %d bytes, expected %d", chunk.Offset, len(data), chunk.Size)
+	}
+	if chunk.Hash != "" && blake3Hex(data) != chunk.Hash {
+		return nil, connect.NewError(connect.CodeDataLoss, fmt.Errorf("download chunk at offset %d failed hash validation", chunk.Offset))
+	}
+	return data, nil
+}
+
+func writeVolumeAll(writer io.Writer, data []byte) error {
+	for len(data) > 0 {
+		written, err := writer.Write(data)
+		if err != nil {
+			return err
+		}
+		if written == 0 {
+			return io.ErrShortWrite
+		}
+		data = data[written:]
+	}
+	return nil
 }
 
 func (c *volumeClientImpl) refreshChunkURL(ctx context.Context, pinned *volumev2.GetFileRequest, chunk *volumev2.SignedChunkRef) (string, error) {

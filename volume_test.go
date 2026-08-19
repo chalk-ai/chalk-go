@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -21,6 +22,57 @@ import (
 	"google.golang.org/protobuf/encoding/protodelim"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+type volumeUploadObserverEvent struct {
+	kind         string
+	path         string
+	size         uint64
+	bytes        uint64
+	deduplicated bool
+	err          error
+}
+
+type recordingVolumeUploadObserver struct {
+	mu     sync.Mutex
+	events []volumeUploadObserverEvent
+}
+
+func (o *recordingVolumeUploadObserver) FileStarted(path string, size uint64) {
+	o.append(volumeUploadObserverEvent{kind: "started", path: path, size: size})
+}
+
+func (o *recordingVolumeUploadObserver) FileProgress(path string, bytes uint64, alreadyExisted bool) {
+	o.append(volumeUploadObserverEvent{kind: "progress", path: path, bytes: bytes, deduplicated: alreadyExisted})
+}
+
+func (o *recordingVolumeUploadObserver) FileCompleted(path string, fullyDeduplicated bool) {
+	o.append(volumeUploadObserverEvent{kind: "completed", path: path, deduplicated: fullyDeduplicated})
+}
+
+func (o *recordingVolumeUploadObserver) FileFailed(path string, err error) {
+	o.append(volumeUploadObserverEvent{kind: "failed", path: path, err: err})
+}
+
+func (o *recordingVolumeUploadObserver) append(event volumeUploadObserverEvent) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	o.events = append(o.events, event)
+}
+
+func (o *recordingVolumeUploadObserver) snapshot() []volumeUploadObserverEvent {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return append([]volumeUploadObserverEvent(nil), o.events...)
+}
+
+type shortVolumeWriter struct {
+	bytes.Buffer
+	limit int
+}
+
+func (w *shortVolumeWriter) Write(data []byte) (int, error) {
+	return w.Buffer.Write(data[:min(len(data), w.limit)])
+}
 
 func TestVolumeAuthHeadersUseConfiguredToken(t *testing.T) {
 	t.Parallel()
@@ -477,6 +529,84 @@ func TestVolumeUploadFilesZeroSizeFile(t *testing.T) {
 	require.Len(t, commits[0].GetPathDeltas().GetUpserts(), 1)
 }
 
+func TestVolumeUploadObserverReportsPackedFileLifecycle(t *testing.T) {
+	t.Parallel()
+	observer := &recordingVolumeUploadObserver{}
+	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+		requestUploadURLs: fakeAlreadyExistsUploadURLs(),
+		getVolume:         fakeGetVolumeOK(),
+		commitVersion: func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+			return connect.NewResponse(&volumev2.CommitVersionResponse{
+				Status: &volumev2.CommitStatus{Result: volumev2.CommitResult_COMMIT_RESULT_COMMITTED},
+			}), nil
+		},
+	}, author: "test"}
+
+	_, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
+		VolumeName: "test-vol",
+		Files:      []VolumeUploadFile{{Path: "packed.bin", Content: VolumeUploadBytes([]byte("data"))}},
+		Observer:   observer,
+	}, nil)
+
+	require.NoError(t, err)
+	require.Equal(t, []volumeUploadObserverEvent{
+		{kind: "started", path: "packed.bin", size: 4},
+		{kind: "progress", path: "packed.bin", bytes: 4, deduplicated: true},
+		{kind: "completed", path: "packed.bin", deduplicated: true},
+	}, observer.snapshot())
+}
+
+func TestVolumeUploadObserverReportsChunkedFileLifecycle(t *testing.T) {
+	t.Parallel()
+	observer := &recordingVolumeUploadObserver{}
+	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+		requestUploadURLs: fakeAlreadyExistsUploadURLs(),
+		getVolume:         fakeGetVolumeOK(),
+		commitVersion: func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+			return connect.NewResponse(&volumev2.CommitVersionResponse{
+				Status: &volumev2.CommitStatus{Result: volumev2.CommitResult_COMMIT_RESULT_COMMITTED},
+			}), nil
+		},
+	}, author: "test"}
+
+	_, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
+		VolumeName: "test-vol",
+		Files:      []VolumeUploadFile{{Path: "chunked.bin", Content: VolumeUploadBytes([]byte("data"))}},
+		Config:     VolumeUploadConfig{ChunkSize: 2, MaxPackBytes: 1},
+		Observer:   observer,
+	}, nil)
+
+	require.NoError(t, err)
+	events := observer.snapshot()
+	require.Len(t, events, 4)
+	require.Equal(t, volumeUploadObserverEvent{kind: "started", path: "chunked.bin", size: 4}, events[0])
+	require.ElementsMatch(t, []volumeUploadObserverEvent{
+		{kind: "progress", path: "chunked.bin", bytes: 2, deduplicated: true},
+		{kind: "progress", path: "chunked.bin", bytes: 2, deduplicated: true},
+	}, events[1:3])
+	require.Equal(t, volumeUploadObserverEvent{kind: "completed", path: "chunked.bin", deduplicated: true}, events[3])
+}
+
+func TestVolumeUploadObserverReportsFileFailure(t *testing.T) {
+	t.Parallel()
+	observer := &recordingVolumeUploadObserver{}
+	client := newClientWithRPC(&fakeVolumeRPC{})
+
+	_, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
+		VolumeName: "test-vol",
+		Files:      []VolumeUploadFile{{Path: "missing.bin", Content: VolumeUploadLocalPath(filepath.Join(t.TempDir(), "missing.bin"))}},
+		Observer:   observer,
+	}, nil)
+
+	require.Error(t, err)
+	events := observer.snapshot()
+	require.Len(t, events, 2)
+	require.Equal(t, volumeUploadObserverEvent{kind: "started", path: "missing.bin"}, events[0])
+	require.Equal(t, "failed", events[1].kind)
+	require.Equal(t, "missing.bin", events[1].path)
+	require.Error(t, events[1].err)
+}
+
 func TestVolumeUploadDirectoryPackPath(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
@@ -587,6 +717,58 @@ func TestVolumeDownloadToFile(t *testing.T) {
 	got, err := os.ReadFile(localPath)
 	require.NoError(t, err)
 	require.Equal(t, content, got)
+}
+
+func TestVolumeDownloadToWriterOrdersChunksAndBoundsConcurrency(t *testing.T) {
+	t.Parallel()
+	parts := []string{"aa", "bb", "cc", "dd", "ee"}
+	var active atomic.Int64
+	var peak atomic.Int64
+	server, url := testHTTPServer(t, func(w http.ResponseWriter, r *http.Request) {
+		current := active.Add(1)
+		defer active.Add(-1)
+		for {
+			previous := peak.Load()
+			if current <= previous || peak.CompareAndSwap(previous, current) {
+				break
+			}
+		}
+		time.Sleep(10 * time.Millisecond)
+		index := int(r.URL.Path[1] - '0')
+		_, _ = io.WriteString(w, parts[index])
+	})
+	chunks := make([]*volumev2.SignedChunkRef, len(parts))
+	for i := range parts {
+		chunks[len(parts)-1-i] = &volumev2.SignedChunkRef{
+			SignedDownloadUri: fmt.Sprintf("%s/%d", url, i),
+			Offset:            uint64(i * 2),
+			Size:              2,
+			Hash:              blake3Hex([]byte(parts[i])),
+		}
+	}
+	client := &volumeClientImpl{httpClient: server.Client(), rpc: &fakeVolumeRPC{
+		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return connect.NewResponse(&volumev2.GetFileResponse{
+				File:    &volumev2.FileInfo{Path: "chunked.bin", Size: 10},
+				Version: &volumev2.VersionInfo{VersionId: 1},
+				Content: &volumev2.GetFileResponse_Chunked{Chunked: &volumev2.ChunkedFileContent{Chunks: chunks}},
+			}), nil
+		},
+	}}
+	writer := &shortVolumeWriter{limit: 1}
+	var progress uint64
+
+	info, err := client.DownloadToWriter(context.Background(), VolumeDownloadRequest{
+		VolumeName: "models",
+		Path:       "chunked.bin",
+		Config:     VolumeDownloadConfig{ChunkConcurrency: 2},
+	}, writer, func(bytes uint64) { progress += bytes })
+
+	require.NoError(t, err)
+	require.Equal(t, "aabbccddee", writer.String())
+	require.Equal(t, uint64(10), info.Size)
+	require.Equal(t, uint64(10), progress)
+	require.LessOrEqual(t, peak.Load(), int64(2))
 }
 
 func TestVolumeDownloadToDirectory(t *testing.T) {
@@ -1243,7 +1425,7 @@ func TestVolumeUploadOnePackEmptyURLsError(t *testing.T) {
 	builder.append(blake3Sum(data), data)
 	_, err := client.uploadOnePack(context.Background(), &volumev2.VolumeRef{Name: "vol"}, builder,
 		[]packMember{{path: "f.bin", hash: blake3Sum(data)}},
-		VolumeUploadConfig{}, nil, func(uint64, bool) {})
+		VolumeUploadConfig{}, nil, func(uint64, bool) {}, nil)
 	require.Error(t, err)
 }
 
@@ -1474,7 +1656,7 @@ func TestVolumeUploadOnePackRequestURLsError(t *testing.T) {
 	builder.append(h, data)
 	_, err := client.uploadOnePack(context.Background(), &volumev2.VolumeRef{Name: "vol"}, builder,
 		[]packMember{{path: "f.bin", hash: h}},
-		VolumeUploadConfig{}, nil, func(uint64, bool) {})
+		VolumeUploadConfig{}, nil, func(uint64, bool) {}, nil)
 	require.Error(t, err)
 }
 
@@ -1497,7 +1679,7 @@ func TestVolumeUploadOnePackPUTFailure(t *testing.T) {
 	builder.append(h, data)
 	_, err := client.uploadOnePack(context.Background(), &volumev2.VolumeRef{Name: "vol"}, builder,
 		[]packMember{{path: "f.bin", hash: h}},
-		VolumeUploadConfig{MaxChunkRetries: 1}, nil, func(uint64, bool) {})
+		VolumeUploadConfig{MaxChunkRetries: 1}, nil, func(uint64, bool) {}, nil)
 	require.Error(t, err)
 }
 
