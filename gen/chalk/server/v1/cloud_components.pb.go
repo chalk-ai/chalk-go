@@ -2441,8 +2441,10 @@ type CloudComponentCluster struct {
 	DataplaneController *DataplaneController   `protobuf:"bytes,6,opt,name=dataplane_controller,json=dataplaneController,proto3,oneof" json:"dataplane_controller,omitempty"`         // Resource tier for the dataplane controller; unset resolves to TIER_SMALL server-side
 	ClusterClass        ClusterClass           `protobuf:"varint,7,opt,name=cluster_class,json=clusterClass,proto3,enum=chalk.server.v1.ClusterClass" json:"cluster_class,omitempty"` // Unset/HOSTED both resolve to hosted; SERVERLESS denotes serverless
 	MaintenanceWindow   *MaintenanceWindow     `protobuf:"bytes,8,opt,name=maintenance_window,json=maintenanceWindow,proto3,oneof" json:"maintenance_window,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Configuration that both dataplane components apply without a restart.
+	DynamicConfig *DataplaneDynamicConfig `protobuf:"bytes,9,opt,name=dynamic_config,json=dynamicConfig,proto3,oneof" json:"dynamic_config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CloudComponentCluster) Reset() {
@@ -2527,6 +2529,13 @@ func (x *CloudComponentCluster) GetClusterClass() ClusterClass {
 func (x *CloudComponentCluster) GetMaintenanceWindow() *MaintenanceWindow {
 	if x != nil {
 		return x.MaintenanceWindow
+	}
+	return nil
+}
+
+func (x *CloudComponentCluster) GetDynamicConfig() *DataplaneDynamicConfig {
+	if x != nil {
+		return x.DynamicConfig
 	}
 	return nil
 }
@@ -8601,6 +8610,132 @@ func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentResponse) GetBindi
 	return nil
 }
 
+// Hot-reloadable configuration for the dataplane. Settings that require a rollout or process
+// restart must remain in their component's static deployment configuration instead.
+type DataplaneDynamicConfig struct {
+	state               protoimpl.MessageState            `protogen:"open.v1"`
+	DataplaneController *DataplaneControllerDynamicConfig `protobuf:"bytes,1,opt,name=dataplane_controller,json=dataplaneController,proto3,oneof" json:"dataplane_controller,omitempty"`
+	Hypervisor          *HypervisorDynamicConfig          `protobuf:"bytes,2,opt,name=hypervisor,proto3,oneof" json:"hypervisor,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *DataplaneDynamicConfig) Reset() {
+	*x = DataplaneDynamicConfig{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[160]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DataplaneDynamicConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DataplaneDynamicConfig) ProtoMessage() {}
+
+func (x *DataplaneDynamicConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[160]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DataplaneDynamicConfig.ProtoReflect.Descriptor instead.
+func (*DataplaneDynamicConfig) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{160}
+}
+
+func (x *DataplaneDynamicConfig) GetDataplaneController() *DataplaneControllerDynamicConfig {
+	if x != nil {
+		return x.DataplaneController
+	}
+	return nil
+}
+
+func (x *DataplaneDynamicConfig) GetHypervisor() *HypervisorDynamicConfig {
+	if x != nil {
+		return x.Hypervisor
+	}
+	return nil
+}
+
+type DataplaneControllerDynamicConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DataplaneControllerDynamicConfig) Reset() {
+	*x = DataplaneControllerDynamicConfig{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[161]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DataplaneControllerDynamicConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DataplaneControllerDynamicConfig) ProtoMessage() {}
+
+func (x *DataplaneControllerDynamicConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[161]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DataplaneControllerDynamicConfig.ProtoReflect.Descriptor instead.
+func (*DataplaneControllerDynamicConfig) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{161}
+}
+
+type HypervisorDynamicConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HypervisorDynamicConfig) Reset() {
+	*x = HypervisorDynamicConfig{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[162]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HypervisorDynamicConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HypervisorDynamicConfig) ProtoMessage() {}
+
+func (x *HypervisorDynamicConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[162]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HypervisorDynamicConfig.ProtoReflect.Descriptor instead.
+func (*HypervisorDynamicConfig) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{162}
+}
+
 // Per-tier capacities for display purposes. Memory and cpu are per-replica.
 type DataplaneController_TierInfo struct {
 	state            protoimpl.MessageState   `protogen:"open.v1"`
@@ -8616,7 +8751,7 @@ type DataplaneController_TierInfo struct {
 
 func (x *DataplaneController_TierInfo) Reset() {
 	*x = DataplaneController_TierInfo{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[160]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[163]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8628,7 +8763,7 @@ func (x *DataplaneController_TierInfo) String() string {
 func (*DataplaneController_TierInfo) ProtoMessage() {}
 
 func (x *DataplaneController_TierInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[160]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[163]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8890,7 +9025,7 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x10MODE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11MODE_UNRESTRICTED\x10\x01\x12\x0f\n" +
 	"\vMODE_CUSTOM\x10\x02B\x18\n" +
-	"\x16_override_active_until\"\xca\x04\n" +
+	"\x16_override_active_until\"\xb2\x05\n" +
 	"\x15CloudComponentCluster\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
 	"\n" +
@@ -8901,12 +9036,14 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x10data_plane_redis\x18\x05 \x01(\v2\x1f.chalk.server.v1.DataPlaneRedisH\x02R\x0edataPlaneRedis\x88\x01\x01\x12\\\n" +
 	"\x14dataplane_controller\x18\x06 \x01(\v2$.chalk.server.v1.DataplaneControllerH\x03R\x13dataplaneController\x88\x01\x01\x12B\n" +
 	"\rcluster_class\x18\a \x01(\x0e2\x1d.chalk.server.v1.ClusterClassR\fclusterClass\x12V\n" +
-	"\x12maintenance_window\x18\b \x01(\v2\".chalk.server.v1.MaintenanceWindowH\x04R\x11maintenanceWindow\x88\x01\x01B\r\n" +
+	"\x12maintenance_window\x18\b \x01(\v2\".chalk.server.v1.MaintenanceWindowH\x04R\x11maintenanceWindow\x88\x01\x01\x12S\n" +
+	"\x0edynamic_config\x18\t \x01(\v2'.chalk.server.v1.DataplaneDynamicConfigH\x05R\rdynamicConfig\x88\x01\x01B\r\n" +
 	"\v_designatorB\v\n" +
 	"\t_dns_zoneB\x13\n" +
 	"\x11_data_plane_redisB\x17\n" +
 	"\x15_dataplane_controllerB\x15\n" +
-	"\x13_maintenance_window\"\xc0\x01\n" +
+	"\x13_maintenance_windowB\x11\n" +
+	"\x0f_dynamic_config\"\xc0\x01\n" +
 	"\x0eDataPlaneRedis\x12\x17\n" +
 	"\x04kind\x18\x01 \x01(\tH\x00R\x04kind\x88\x01\x01\x12\x1b\n" +
 	"\x06memory\x18\x02 \x01(\tH\x01R\x06memory\x88\x01\x01\x12\x15\n" +
@@ -9289,7 +9426,16 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xaa\x01\n" +
 	"=ListBindingEnvironmentBackgroundPersistenceDeploymentResponse\x12i\n" +
-	"\bbindings\x18\x01 \x03(\v2M.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponseR\bbindings*\xe6\x01\n" +
+	"\bbindings\x18\x01 \x03(\v2M.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponseR\bbindings\"\xfa\x01\n" +
+	"\x16DataplaneDynamicConfig\x12i\n" +
+	"\x14dataplane_controller\x18\x01 \x01(\v21.chalk.server.v1.DataplaneControllerDynamicConfigH\x00R\x13dataplaneController\x88\x01\x01\x12M\n" +
+	"\n" +
+	"hypervisor\x18\x02 \x01(\v2(.chalk.server.v1.HypervisorDynamicConfigH\x01R\n" +
+	"hypervisor\x88\x01\x01B\x17\n" +
+	"\x15_dataplane_controllerB\r\n" +
+	"\v_hypervisor\"\"\n" +
+	" DataplaneControllerDynamicConfig\"\x19\n" +
+	"\x17HypervisorDynamicConfig*\xe6\x01\n" +
 	"\x10CloudStorageRole\x12\"\n" +
 	"\x1eCLOUD_STORAGE_ROLE_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aCLOUD_STORAGE_ROLE_DATASET\x10\x01\x12\"\n" +
@@ -9375,7 +9521,7 @@ func file_chalk_server_v1_cloud_components_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_cloud_components_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_server_v1_cloud_components_proto_msgTypes = make([]protoimpl.MessageInfo, 161)
+var file_chalk_server_v1_cloud_components_proto_msgTypes = make([]protoimpl.MessageInfo, 164)
 var file_chalk_server_v1_cloud_components_proto_goTypes = []any{
 	(CloudStorageRole)(0),                                                   // 0: chalk.server.v1.CloudStorageRole
 	(MaintenanceWindow_Mode)(0),                                             // 1: chalk.server.v1.MaintenanceWindow.Mode
@@ -9540,19 +9686,22 @@ var file_chalk_server_v1_cloud_components_proto_goTypes = []any{
 	(*GetBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil),    // 160: chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
 	(*ListBindingEnvironmentBackgroundPersistenceDeploymentRequest)(nil),    // 161: chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest
 	(*ListBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil),   // 162: chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	(*DataplaneController_TierInfo)(nil),                                    // 163: chalk.server.v1.DataplaneController.TierInfo
-	(*timestamppb.Timestamp)(nil),                                           // 164: google.protobuf.Timestamp
-	(ClusterClass)(0),                                                       // 165: chalk.server.v1.ClusterClass
-	(*CloudConfig)(nil),                                                     // 166: chalk.server.v1.CloudConfig
-	(*Team)(nil),                                                            // 167: chalk.server.v1.Team
-	(*CloudCredentialsResponse)(nil),                                        // 168: chalk.server.v1.CloudCredentialsResponse
+	(*DataplaneDynamicConfig)(nil),                                          // 163: chalk.server.v1.DataplaneDynamicConfig
+	(*DataplaneControllerDynamicConfig)(nil),                                // 164: chalk.server.v1.DataplaneControllerDynamicConfig
+	(*HypervisorDynamicConfig)(nil),                                         // 165: chalk.server.v1.HypervisorDynamicConfig
+	(*DataplaneController_TierInfo)(nil),                                    // 166: chalk.server.v1.DataplaneController.TierInfo
+	(*timestamppb.Timestamp)(nil),                                           // 167: google.protobuf.Timestamp
+	(ClusterClass)(0),                                                       // 168: chalk.server.v1.ClusterClass
+	(*CloudConfig)(nil),                                                     // 169: chalk.server.v1.CloudConfig
+	(*Team)(nil),                                                            // 170: chalk.server.v1.Team
+	(*CloudCredentialsResponse)(nil),                                        // 171: chalk.server.v1.CloudCredentialsResponse
 }
 var file_chalk_server_v1_cloud_components_proto_depIdxs = []int32{
 	14,  // 0: chalk.server.v1.CloudComponentVpc.config:type_name -> chalk.server.v1.CloudVpcConfig
 	3,   // 1: chalk.server.v1.CloudComponentVpcResponse.spec:type_name -> chalk.server.v1.CloudComponentVpc
-	164, // 2: chalk.server.v1.CloudComponentVpcResponse.created_at:type_name -> google.protobuf.Timestamp
-	164, // 3: chalk.server.v1.CloudComponentVpcResponse.updated_at:type_name -> google.protobuf.Timestamp
-	164, // 4: chalk.server.v1.CloudComponentVpcResponse.applied_at:type_name -> google.protobuf.Timestamp
+	167, // 2: chalk.server.v1.CloudComponentVpcResponse.created_at:type_name -> google.protobuf.Timestamp
+	167, // 3: chalk.server.v1.CloudComponentVpcResponse.updated_at:type_name -> google.protobuf.Timestamp
+	167, // 4: chalk.server.v1.CloudComponentVpcResponse.applied_at:type_name -> google.protobuf.Timestamp
 	3,   // 5: chalk.server.v1.CloudComponentVpcRequest.spec:type_name -> chalk.server.v1.CloudComponentVpc
 	5,   // 6: chalk.server.v1.CreateCloudComponentVpcRequest.vpc:type_name -> chalk.server.v1.CloudComponentVpcRequest
 	4,   // 7: chalk.server.v1.CreateCloudComponentVpcResponse.vpc:type_name -> chalk.server.v1.CloudComponentVpcResponse
@@ -9568,223 +9717,226 @@ var file_chalk_server_v1_cloud_components_proto_depIdxs = []int32{
 	20,  // 17: chalk.server.v1.GCPSubnetConfig.secondary_ip_ranges:type_name -> chalk.server.v1.GCPSecondaryIpRange
 	25,  // 18: chalk.server.v1.CloudComponentStorage.retention:type_name -> chalk.server.v1.CloudStorageLifecyclePolicy
 	21,  // 19: chalk.server.v1.CloudComponentStorageResponse.spec:type_name -> chalk.server.v1.CloudComponentStorage
-	164, // 20: chalk.server.v1.CloudComponentStorageResponse.created_at:type_name -> google.protobuf.Timestamp
-	164, // 21: chalk.server.v1.CloudComponentStorageResponse.updated_at:type_name -> google.protobuf.Timestamp
-	164, // 22: chalk.server.v1.CloudComponentStorageResponse.applied_at:type_name -> google.protobuf.Timestamp
+	167, // 20: chalk.server.v1.CloudComponentStorageResponse.created_at:type_name -> google.protobuf.Timestamp
+	167, // 21: chalk.server.v1.CloudComponentStorageResponse.updated_at:type_name -> google.protobuf.Timestamp
+	167, // 22: chalk.server.v1.CloudComponentStorageResponse.applied_at:type_name -> google.protobuf.Timestamp
 	21,  // 23: chalk.server.v1.CloudComponentStorageRequest.spec:type_name -> chalk.server.v1.CloudComponentStorage
 	24,  // 24: chalk.server.v1.CloudStorageLifecyclePolicy.rules:type_name -> chalk.server.v1.CloudStorageLifecycleRule
 	0,   // 25: chalk.server.v1.EnvironmentCloudStorageBinding.storage_role:type_name -> chalk.server.v1.CloudStorageRole
-	164, // 26: chalk.server.v1.EnvironmentCloudStorageBinding.created_at:type_name -> google.protobuf.Timestamp
-	164, // 27: chalk.server.v1.EnvironmentCloudStorageBinding.updated_at:type_name -> google.protobuf.Timestamp
+	167, // 26: chalk.server.v1.EnvironmentCloudStorageBinding.created_at:type_name -> google.protobuf.Timestamp
+	167, // 27: chalk.server.v1.EnvironmentCloudStorageBinding.updated_at:type_name -> google.protobuf.Timestamp
 	0,   // 28: chalk.server.v1.ClusterCloudStorageBinding.storage_role:type_name -> chalk.server.v1.CloudStorageRole
-	164, // 29: chalk.server.v1.ClusterCloudStorageBinding.created_at:type_name -> google.protobuf.Timestamp
-	164, // 30: chalk.server.v1.ClusterCloudStorageBinding.updated_at:type_name -> google.protobuf.Timestamp
+	167, // 29: chalk.server.v1.ClusterCloudStorageBinding.created_at:type_name -> google.protobuf.Timestamp
+	167, // 30: chalk.server.v1.ClusterCloudStorageBinding.updated_at:type_name -> google.protobuf.Timestamp
 	28,  // 31: chalk.server.v1.CloudContainerRegistryConfig.gar:type_name -> chalk.server.v1.GarContainerRegistryConfig
 	29,  // 32: chalk.server.v1.CloudContainerRegistryConfig.ecr:type_name -> chalk.server.v1.EcrContainerRegistryConfig
 	30,  // 33: chalk.server.v1.CloudContainerRegistryConfig.acr:type_name -> chalk.server.v1.AcrContainerRegistryConfig
 	31,  // 34: chalk.server.v1.CloudComponentContainerRegistry.config:type_name -> chalk.server.v1.CloudContainerRegistryConfig
 	32,  // 35: chalk.server.v1.CloudComponentContainerRegistryResponse.spec:type_name -> chalk.server.v1.CloudComponentContainerRegistry
-	164, // 36: chalk.server.v1.CloudComponentContainerRegistryResponse.created_at:type_name -> google.protobuf.Timestamp
-	164, // 37: chalk.server.v1.CloudComponentContainerRegistryResponse.updated_at:type_name -> google.protobuf.Timestamp
-	164, // 38: chalk.server.v1.CloudComponentContainerRegistryResponse.applied_at:type_name -> google.protobuf.Timestamp
+	167, // 36: chalk.server.v1.CloudComponentContainerRegistryResponse.created_at:type_name -> google.protobuf.Timestamp
+	167, // 37: chalk.server.v1.CloudComponentContainerRegistryResponse.updated_at:type_name -> google.protobuf.Timestamp
+	167, // 38: chalk.server.v1.CloudComponentContainerRegistryResponse.applied_at:type_name -> google.protobuf.Timestamp
 	32,  // 39: chalk.server.v1.CloudComponentContainerRegistryRequest.spec:type_name -> chalk.server.v1.CloudComponentContainerRegistry
 	1,   // 40: chalk.server.v1.MaintenanceWindow.mode:type_name -> chalk.server.v1.MaintenanceWindow.Mode
-	164, // 41: chalk.server.v1.MaintenanceWindow.override_active_until:type_name -> google.protobuf.Timestamp
+	167, // 41: chalk.server.v1.MaintenanceWindow.override_active_until:type_name -> google.protobuf.Timestamp
 	37,  // 42: chalk.server.v1.CloudComponentCluster.data_plane_redis:type_name -> chalk.server.v1.DataPlaneRedis
 	38,  // 43: chalk.server.v1.CloudComponentCluster.dataplane_controller:type_name -> chalk.server.v1.DataplaneController
-	165, // 44: chalk.server.v1.CloudComponentCluster.cluster_class:type_name -> chalk.server.v1.ClusterClass
+	168, // 44: chalk.server.v1.CloudComponentCluster.cluster_class:type_name -> chalk.server.v1.ClusterClass
 	35,  // 45: chalk.server.v1.CloudComponentCluster.maintenance_window:type_name -> chalk.server.v1.MaintenanceWindow
-	2,   // 46: chalk.server.v1.DataplaneController.tier:type_name -> chalk.server.v1.DataplaneController.Tier
-	163, // 47: chalk.server.v1.DataplaneController.available_tiers:type_name -> chalk.server.v1.DataplaneController.TierInfo
-	39,  // 48: chalk.server.v1.DataplaneController.host_pools:type_name -> chalk.server.v1.ChalkHostPool
-	44,  // 49: chalk.server.v1.DeploymentManifest.cluster_deployment:type_name -> chalk.server.v1.ClusterDeploymentManifest
-	45,  // 50: chalk.server.v1.DeploymentManifest.vpc_deployment:type_name -> chalk.server.v1.VpcDeploymentManifest
-	41,  // 51: chalk.server.v1.DeploymentManifest.create:type_name -> chalk.server.v1.DeploymentManifestCreate
-	42,  // 52: chalk.server.v1.DeploymentManifest.delete:type_name -> chalk.server.v1.DeploymentManifestDelete
-	43,  // 53: chalk.server.v1.DeploymentManifest.update:type_name -> chalk.server.v1.DeploymentManifestUpdate
-	36,  // 54: chalk.server.v1.ClusterDeploymentManifest.cluster:type_name -> chalk.server.v1.CloudComponentCluster
-	166, // 55: chalk.server.v1.ClusterDeploymentManifest.cloud_config:type_name -> chalk.server.v1.CloudConfig
-	167, // 56: chalk.server.v1.ClusterDeploymentManifest.team:type_name -> chalk.server.v1.Team
-	3,   // 57: chalk.server.v1.ClusterDeploymentManifest.vpc:type_name -> chalk.server.v1.CloudComponentVpc
-	3,   // 58: chalk.server.v1.VpcDeploymentManifest.vpc:type_name -> chalk.server.v1.CloudComponentVpc
-	166, // 59: chalk.server.v1.VpcDeploymentManifest.cloud_config:type_name -> chalk.server.v1.CloudConfig
-	167, // 60: chalk.server.v1.VpcDeploymentManifest.team:type_name -> chalk.server.v1.Team
-	36,  // 61: chalk.server.v1.CloudComponentClusterResponse.spec:type_name -> chalk.server.v1.CloudComponentCluster
-	164, // 62: chalk.server.v1.CloudComponentClusterResponse.created_at:type_name -> google.protobuf.Timestamp
-	164, // 63: chalk.server.v1.CloudComponentClusterResponse.updated_at:type_name -> google.protobuf.Timestamp
-	164, // 64: chalk.server.v1.CloudComponentClusterResponse.applied_at:type_name -> google.protobuf.Timestamp
-	35,  // 65: chalk.server.v1.CloudComponentClusterResponse.effective_maintenance_window:type_name -> chalk.server.v1.MaintenanceWindow
-	36,  // 66: chalk.server.v1.CloudComponentClusterRequest.spec:type_name -> chalk.server.v1.CloudComponentCluster
-	47,  // 67: chalk.server.v1.CreateCloudComponentClusterRequest.cluster:type_name -> chalk.server.v1.CloudComponentClusterRequest
-	46,  // 68: chalk.server.v1.CreateCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	47,  // 69: chalk.server.v1.UpdateCloudComponentClusterRequest.cluster:type_name -> chalk.server.v1.CloudComponentClusterRequest
-	46,  // 70: chalk.server.v1.UpdateCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	46,  // 71: chalk.server.v1.GetCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	47,  // 72: chalk.server.v1.TestClusterConnectionRequest.config:type_name -> chalk.server.v1.CloudComponentClusterRequest
-	46,  // 73: chalk.server.v1.ListCloudComponentClusterResponse.clusters:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	46,  // 74: chalk.server.v1.ServerlessCluster.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	168, // 75: chalk.server.v1.ServerlessCluster.cloud_credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
-	61,  // 76: chalk.server.v1.ListServerlessClustersResponse.clusters:type_name -> chalk.server.v1.ServerlessCluster
-	23,  // 77: chalk.server.v1.CreateCloudComponentStorageRequest.storage:type_name -> chalk.server.v1.CloudComponentStorageRequest
-	22,  // 78: chalk.server.v1.CreateCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
-	22,  // 79: chalk.server.v1.GetCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
-	21,  // 80: chalk.server.v1.UpdateCloudComponentStorageRequest.spec:type_name -> chalk.server.v1.CloudComponentStorage
-	22,  // 81: chalk.server.v1.UpdateCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
-	22,  // 82: chalk.server.v1.ListCloudComponentStorageResponse.storages:type_name -> chalk.server.v1.CloudComponentStorageResponse
-	0,   // 83: chalk.server.v1.CreateBindingEnvironmentCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
-	26,  // 84: chalk.server.v1.CreateBindingEnvironmentCloudStorageResponse.binding:type_name -> chalk.server.v1.EnvironmentCloudStorageBinding
-	0,   // 85: chalk.server.v1.GetBindingEnvironmentCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
-	26,  // 86: chalk.server.v1.GetBindingEnvironmentCloudStorageResponse.binding:type_name -> chalk.server.v1.EnvironmentCloudStorageBinding
-	26,  // 87: chalk.server.v1.ListBindingEnvironmentCloudStorageResponse.bindings:type_name -> chalk.server.v1.EnvironmentCloudStorageBinding
-	0,   // 88: chalk.server.v1.DeleteBindingEnvironmentCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
-	0,   // 89: chalk.server.v1.CreateBindingClusterCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
-	27,  // 90: chalk.server.v1.CreateBindingClusterCloudStorageResponse.binding:type_name -> chalk.server.v1.ClusterCloudStorageBinding
-	0,   // 91: chalk.server.v1.GetBindingClusterCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
-	27,  // 92: chalk.server.v1.GetBindingClusterCloudStorageResponse.binding:type_name -> chalk.server.v1.ClusterCloudStorageBinding
-	27,  // 93: chalk.server.v1.ListBindingClusterCloudStorageResponse.bindings:type_name -> chalk.server.v1.ClusterCloudStorageBinding
-	0,   // 94: chalk.server.v1.DeleteBindingClusterCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
-	34,  // 95: chalk.server.v1.CreateCloudComponentContainerRegistryRequest.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryRequest
-	33,  // 96: chalk.server.v1.CreateCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
-	34,  // 97: chalk.server.v1.UpdateCloudComponentContainerRegistryRequest.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryRequest
-	33,  // 98: chalk.server.v1.UpdateCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
-	33,  // 99: chalk.server.v1.GetCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
-	33,  // 100: chalk.server.v1.ListCloudComponentContainerRegistryResponse.container_registries:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
-	102, // 101: chalk.server.v1.ListBindingClusterContainerRegistryResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterContainerRegistryResponse
-	112, // 102: chalk.server.v1.ListBindingClusterGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterGatewayResponse
-	120, // 103: chalk.server.v1.ListBindingServicesGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingServicesGatewayResponse
-	128, // 104: chalk.server.v1.ListBindingPrivateGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingPrivateGatewayResponse
-	136, // 105: chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
-	144, // 106: chalk.server.v1.ListBindingClusterTelemetryDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
-	152, // 107: chalk.server.v1.ListBindingEnvironmentGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingEnvironmentGatewayResponse
-	160, // 108: chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	2,   // 109: chalk.server.v1.DataplaneController.TierInfo.tier:type_name -> chalk.server.v1.DataplaneController.Tier
-	6,   // 110: chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc:input_type -> chalk.server.v1.CreateCloudComponentVpcRequest
-	8,   // 111: chalk.server.v1.CloudComponentsService.GetCloudComponentVpc:input_type -> chalk.server.v1.GetCloudComponentVpcRequest
-	12,  // 112: chalk.server.v1.CloudComponentsService.ListCloudComponentVpc:input_type -> chalk.server.v1.ListCloudComponentVpcRequest
-	10,  // 113: chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc:input_type -> chalk.server.v1.DeleteCloudComponentVpcRequest
-	48,  // 114: chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster:input_type -> chalk.server.v1.CreateCloudComponentClusterRequest
-	50,  // 115: chalk.server.v1.CloudComponentsService.UpdateCloudComponentCluster:input_type -> chalk.server.v1.UpdateCloudComponentClusterRequest
-	52,  // 116: chalk.server.v1.CloudComponentsService.GetCloudComponentCluster:input_type -> chalk.server.v1.GetCloudComponentClusterRequest
-	58,  // 117: chalk.server.v1.CloudComponentsService.ListCloudComponentCluster:input_type -> chalk.server.v1.ListCloudComponentClusterRequest
-	60,  // 118: chalk.server.v1.CloudComponentsService.ListServerlessClusters:input_type -> chalk.server.v1.ListServerlessClustersRequest
-	54,  // 119: chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster:input_type -> chalk.server.v1.DeleteCloudComponentClusterRequest
-	56,  // 120: chalk.server.v1.CloudComponentsService.TestClusterConnection:input_type -> chalk.server.v1.TestClusterConnectionRequest
-	63,  // 121: chalk.server.v1.CloudComponentsService.CreateCloudComponentStorage:input_type -> chalk.server.v1.CreateCloudComponentStorageRequest
-	65,  // 122: chalk.server.v1.CloudComponentsService.GetCloudComponentStorage:input_type -> chalk.server.v1.GetCloudComponentStorageRequest
-	71,  // 123: chalk.server.v1.CloudComponentsService.ListCloudComponentStorage:input_type -> chalk.server.v1.ListCloudComponentStorageRequest
-	69,  // 124: chalk.server.v1.CloudComponentsService.UpdateCloudComponentStorage:input_type -> chalk.server.v1.UpdateCloudComponentStorageRequest
-	67,  // 125: chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage:input_type -> chalk.server.v1.DeleteCloudComponentStorageRequest
-	73,  // 126: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentCloudStorage:input_type -> chalk.server.v1.CreateBindingEnvironmentCloudStorageRequest
-	75,  // 127: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentCloudStorage:input_type -> chalk.server.v1.GetBindingEnvironmentCloudStorageRequest
-	77,  // 128: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentCloudStorage:input_type -> chalk.server.v1.ListBindingEnvironmentCloudStorageRequest
-	79,  // 129: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentCloudStorage:input_type -> chalk.server.v1.DeleteBindingEnvironmentCloudStorageRequest
-	81,  // 130: chalk.server.v1.CloudComponentsService.CreateBindingClusterCloudStorage:input_type -> chalk.server.v1.CreateBindingClusterCloudStorageRequest
-	83,  // 131: chalk.server.v1.CloudComponentsService.GetBindingClusterCloudStorage:input_type -> chalk.server.v1.GetBindingClusterCloudStorageRequest
-	85,  // 132: chalk.server.v1.CloudComponentsService.ListBindingClusterCloudStorage:input_type -> chalk.server.v1.ListBindingClusterCloudStorageRequest
-	87,  // 133: chalk.server.v1.CloudComponentsService.DeleteBindingClusterCloudStorage:input_type -> chalk.server.v1.DeleteBindingClusterCloudStorageRequest
-	89,  // 134: chalk.server.v1.CloudComponentsService.CreateCloudComponentContainerRegistry:input_type -> chalk.server.v1.CreateCloudComponentContainerRegistryRequest
-	91,  // 135: chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry:input_type -> chalk.server.v1.UpdateCloudComponentContainerRegistryRequest
-	93,  // 136: chalk.server.v1.CloudComponentsService.GetCloudComponentContainerRegistry:input_type -> chalk.server.v1.GetCloudComponentContainerRegistryRequest
-	97,  // 137: chalk.server.v1.CloudComponentsService.ListCloudComponentContainerRegistry:input_type -> chalk.server.v1.ListCloudComponentContainerRegistryRequest
-	95,  // 138: chalk.server.v1.CloudComponentsService.DeleteCloudComponentContainerRegistry:input_type -> chalk.server.v1.DeleteCloudComponentContainerRegistryRequest
-	99,  // 139: chalk.server.v1.CloudComponentsService.CreateBindingClusterContainerRegistry:input_type -> chalk.server.v1.CreateBindingClusterContainerRegistryRequest
-	101, // 140: chalk.server.v1.CloudComponentsService.GetBindingClusterContainerRegistry:input_type -> chalk.server.v1.GetBindingClusterContainerRegistryRequest
-	103, // 141: chalk.server.v1.CloudComponentsService.ListBindingClusterContainerRegistry:input_type -> chalk.server.v1.ListBindingClusterContainerRegistryRequest
-	105, // 142: chalk.server.v1.CloudComponentsService.DeleteBindingClusterContainerRegistry:input_type -> chalk.server.v1.DeleteBindingClusterContainerRegistryRequest
-	107, // 143: chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway:input_type -> chalk.server.v1.CreateBindingClusterGatewayRequest
-	111, // 144: chalk.server.v1.CloudComponentsService.GetBindingClusterGateway:input_type -> chalk.server.v1.GetBindingClusterGatewayRequest
-	113, // 145: chalk.server.v1.CloudComponentsService.ListBindingClusterGateway:input_type -> chalk.server.v1.ListBindingClusterGatewayRequest
-	109, // 146: chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway:input_type -> chalk.server.v1.DeleteBindingClusterGatewayRequest
-	115, // 147: chalk.server.v1.CloudComponentsService.CreateBindingServicesGateway:input_type -> chalk.server.v1.CreateBindingServicesGatewayRequest
-	119, // 148: chalk.server.v1.CloudComponentsService.GetBindingServicesGateway:input_type -> chalk.server.v1.GetBindingServicesGatewayRequest
-	121, // 149: chalk.server.v1.CloudComponentsService.ListBindingServicesGateway:input_type -> chalk.server.v1.ListBindingServicesGatewayRequest
-	117, // 150: chalk.server.v1.CloudComponentsService.DeleteBindingServicesGateway:input_type -> chalk.server.v1.DeleteBindingServicesGatewayRequest
-	123, // 151: chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway:input_type -> chalk.server.v1.CreateBindingPrivateGatewayRequest
-	127, // 152: chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway:input_type -> chalk.server.v1.GetBindingPrivateGatewayRequest
-	129, // 153: chalk.server.v1.CloudComponentsService.ListBindingPrivateGateway:input_type -> chalk.server.v1.ListBindingPrivateGatewayRequest
-	125, // 154: chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway:input_type -> chalk.server.v1.DeleteBindingPrivateGatewayRequest
-	131, // 155: chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest
-	135, // 156: chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest
-	137, // 157: chalk.server.v1.CloudComponentsService.ListBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentRequest
-	133, // 158: chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest
-	139, // 159: chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.CreateBindingClusterTelemetryDeploymentRequest
-	143, // 160: chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.GetBindingClusterTelemetryDeploymentRequest
-	145, // 161: chalk.server.v1.CloudComponentsService.ListBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.ListBindingClusterTelemetryDeploymentRequest
-	141, // 162: chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.DeleteBindingClusterTelemetryDeploymentRequest
-	147, // 163: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentGateway:input_type -> chalk.server.v1.CreateBindingEnvironmentGatewayRequest
-	151, // 164: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway:input_type -> chalk.server.v1.GetBindingEnvironmentGatewayRequest
-	153, // 165: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentGateway:input_type -> chalk.server.v1.ListBindingEnvironmentGatewayRequest
-	149, // 166: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway:input_type -> chalk.server.v1.DeleteBindingEnvironmentGatewayRequest
-	155, // 167: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	159, // 168: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	161, // 169: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	157, // 170: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	7,   // 171: chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc:output_type -> chalk.server.v1.CreateCloudComponentVpcResponse
-	9,   // 172: chalk.server.v1.CloudComponentsService.GetCloudComponentVpc:output_type -> chalk.server.v1.GetCloudComponentVpcResponse
-	13,  // 173: chalk.server.v1.CloudComponentsService.ListCloudComponentVpc:output_type -> chalk.server.v1.ListCloudComponentVpcResponse
-	11,  // 174: chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc:output_type -> chalk.server.v1.DeleteCloudComponentVpcResponse
-	49,  // 175: chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster:output_type -> chalk.server.v1.CreateCloudComponentClusterResponse
-	51,  // 176: chalk.server.v1.CloudComponentsService.UpdateCloudComponentCluster:output_type -> chalk.server.v1.UpdateCloudComponentClusterResponse
-	53,  // 177: chalk.server.v1.CloudComponentsService.GetCloudComponentCluster:output_type -> chalk.server.v1.GetCloudComponentClusterResponse
-	59,  // 178: chalk.server.v1.CloudComponentsService.ListCloudComponentCluster:output_type -> chalk.server.v1.ListCloudComponentClusterResponse
-	62,  // 179: chalk.server.v1.CloudComponentsService.ListServerlessClusters:output_type -> chalk.server.v1.ListServerlessClustersResponse
-	55,  // 180: chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster:output_type -> chalk.server.v1.DeleteCloudComponentClusterResponse
-	57,  // 181: chalk.server.v1.CloudComponentsService.TestClusterConnection:output_type -> chalk.server.v1.TestClusterConnectionResponse
-	64,  // 182: chalk.server.v1.CloudComponentsService.CreateCloudComponentStorage:output_type -> chalk.server.v1.CreateCloudComponentStorageResponse
-	66,  // 183: chalk.server.v1.CloudComponentsService.GetCloudComponentStorage:output_type -> chalk.server.v1.GetCloudComponentStorageResponse
-	72,  // 184: chalk.server.v1.CloudComponentsService.ListCloudComponentStorage:output_type -> chalk.server.v1.ListCloudComponentStorageResponse
-	70,  // 185: chalk.server.v1.CloudComponentsService.UpdateCloudComponentStorage:output_type -> chalk.server.v1.UpdateCloudComponentStorageResponse
-	68,  // 186: chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage:output_type -> chalk.server.v1.DeleteCloudComponentStorageResponse
-	74,  // 187: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentCloudStorage:output_type -> chalk.server.v1.CreateBindingEnvironmentCloudStorageResponse
-	76,  // 188: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentCloudStorage:output_type -> chalk.server.v1.GetBindingEnvironmentCloudStorageResponse
-	78,  // 189: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentCloudStorage:output_type -> chalk.server.v1.ListBindingEnvironmentCloudStorageResponse
-	80,  // 190: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentCloudStorage:output_type -> chalk.server.v1.DeleteBindingEnvironmentCloudStorageResponse
-	82,  // 191: chalk.server.v1.CloudComponentsService.CreateBindingClusterCloudStorage:output_type -> chalk.server.v1.CreateBindingClusterCloudStorageResponse
-	84,  // 192: chalk.server.v1.CloudComponentsService.GetBindingClusterCloudStorage:output_type -> chalk.server.v1.GetBindingClusterCloudStorageResponse
-	86,  // 193: chalk.server.v1.CloudComponentsService.ListBindingClusterCloudStorage:output_type -> chalk.server.v1.ListBindingClusterCloudStorageResponse
-	88,  // 194: chalk.server.v1.CloudComponentsService.DeleteBindingClusterCloudStorage:output_type -> chalk.server.v1.DeleteBindingClusterCloudStorageResponse
-	90,  // 195: chalk.server.v1.CloudComponentsService.CreateCloudComponentContainerRegistry:output_type -> chalk.server.v1.CreateCloudComponentContainerRegistryResponse
-	92,  // 196: chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry:output_type -> chalk.server.v1.UpdateCloudComponentContainerRegistryResponse
-	94,  // 197: chalk.server.v1.CloudComponentsService.GetCloudComponentContainerRegistry:output_type -> chalk.server.v1.GetCloudComponentContainerRegistryResponse
-	98,  // 198: chalk.server.v1.CloudComponentsService.ListCloudComponentContainerRegistry:output_type -> chalk.server.v1.ListCloudComponentContainerRegistryResponse
-	96,  // 199: chalk.server.v1.CloudComponentsService.DeleteCloudComponentContainerRegistry:output_type -> chalk.server.v1.DeleteCloudComponentContainerRegistryResponse
-	100, // 200: chalk.server.v1.CloudComponentsService.CreateBindingClusterContainerRegistry:output_type -> chalk.server.v1.CreateBindingClusterContainerRegistryResponse
-	102, // 201: chalk.server.v1.CloudComponentsService.GetBindingClusterContainerRegistry:output_type -> chalk.server.v1.GetBindingClusterContainerRegistryResponse
-	104, // 202: chalk.server.v1.CloudComponentsService.ListBindingClusterContainerRegistry:output_type -> chalk.server.v1.ListBindingClusterContainerRegistryResponse
-	106, // 203: chalk.server.v1.CloudComponentsService.DeleteBindingClusterContainerRegistry:output_type -> chalk.server.v1.DeleteBindingClusterContainerRegistryResponse
-	108, // 204: chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway:output_type -> chalk.server.v1.CreateBindingClusterGatewayResponse
-	112, // 205: chalk.server.v1.CloudComponentsService.GetBindingClusterGateway:output_type -> chalk.server.v1.GetBindingClusterGatewayResponse
-	114, // 206: chalk.server.v1.CloudComponentsService.ListBindingClusterGateway:output_type -> chalk.server.v1.ListBindingClusterGatewayResponse
-	110, // 207: chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway:output_type -> chalk.server.v1.DeleteBindingClusterGatewayResponse
-	116, // 208: chalk.server.v1.CloudComponentsService.CreateBindingServicesGateway:output_type -> chalk.server.v1.CreateBindingServicesGatewayResponse
-	120, // 209: chalk.server.v1.CloudComponentsService.GetBindingServicesGateway:output_type -> chalk.server.v1.GetBindingServicesGatewayResponse
-	122, // 210: chalk.server.v1.CloudComponentsService.ListBindingServicesGateway:output_type -> chalk.server.v1.ListBindingServicesGatewayResponse
-	118, // 211: chalk.server.v1.CloudComponentsService.DeleteBindingServicesGateway:output_type -> chalk.server.v1.DeleteBindingServicesGatewayResponse
-	124, // 212: chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway:output_type -> chalk.server.v1.CreateBindingPrivateGatewayResponse
-	128, // 213: chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway:output_type -> chalk.server.v1.GetBindingPrivateGatewayResponse
-	130, // 214: chalk.server.v1.CloudComponentsService.ListBindingPrivateGateway:output_type -> chalk.server.v1.ListBindingPrivateGatewayResponse
-	126, // 215: chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway:output_type -> chalk.server.v1.DeleteBindingPrivateGatewayResponse
-	132, // 216: chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse
-	136, // 217: chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
-	138, // 218: chalk.server.v1.CloudComponentsService.ListBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentResponse
-	134, // 219: chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse
-	140, // 220: chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.CreateBindingClusterTelemetryDeploymentResponse
-	144, // 221: chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
-	146, // 222: chalk.server.v1.CloudComponentsService.ListBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.ListBindingClusterTelemetryDeploymentResponse
-	142, // 223: chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.DeleteBindingClusterTelemetryDeploymentResponse
-	148, // 224: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentGateway:output_type -> chalk.server.v1.CreateBindingEnvironmentGatewayResponse
-	152, // 225: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway:output_type -> chalk.server.v1.GetBindingEnvironmentGatewayResponse
-	154, // 226: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentGateway:output_type -> chalk.server.v1.ListBindingEnvironmentGatewayResponse
-	150, // 227: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway:output_type -> chalk.server.v1.DeleteBindingEnvironmentGatewayResponse
-	156, // 228: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	160, // 229: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	162, // 230: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	158, // 231: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	171, // [171:232] is the sub-list for method output_type
-	110, // [110:171] is the sub-list for method input_type
-	110, // [110:110] is the sub-list for extension type_name
-	110, // [110:110] is the sub-list for extension extendee
-	0,   // [0:110] is the sub-list for field type_name
+	163, // 46: chalk.server.v1.CloudComponentCluster.dynamic_config:type_name -> chalk.server.v1.DataplaneDynamicConfig
+	2,   // 47: chalk.server.v1.DataplaneController.tier:type_name -> chalk.server.v1.DataplaneController.Tier
+	166, // 48: chalk.server.v1.DataplaneController.available_tiers:type_name -> chalk.server.v1.DataplaneController.TierInfo
+	39,  // 49: chalk.server.v1.DataplaneController.host_pools:type_name -> chalk.server.v1.ChalkHostPool
+	44,  // 50: chalk.server.v1.DeploymentManifest.cluster_deployment:type_name -> chalk.server.v1.ClusterDeploymentManifest
+	45,  // 51: chalk.server.v1.DeploymentManifest.vpc_deployment:type_name -> chalk.server.v1.VpcDeploymentManifest
+	41,  // 52: chalk.server.v1.DeploymentManifest.create:type_name -> chalk.server.v1.DeploymentManifestCreate
+	42,  // 53: chalk.server.v1.DeploymentManifest.delete:type_name -> chalk.server.v1.DeploymentManifestDelete
+	43,  // 54: chalk.server.v1.DeploymentManifest.update:type_name -> chalk.server.v1.DeploymentManifestUpdate
+	36,  // 55: chalk.server.v1.ClusterDeploymentManifest.cluster:type_name -> chalk.server.v1.CloudComponentCluster
+	169, // 56: chalk.server.v1.ClusterDeploymentManifest.cloud_config:type_name -> chalk.server.v1.CloudConfig
+	170, // 57: chalk.server.v1.ClusterDeploymentManifest.team:type_name -> chalk.server.v1.Team
+	3,   // 58: chalk.server.v1.ClusterDeploymentManifest.vpc:type_name -> chalk.server.v1.CloudComponentVpc
+	3,   // 59: chalk.server.v1.VpcDeploymentManifest.vpc:type_name -> chalk.server.v1.CloudComponentVpc
+	169, // 60: chalk.server.v1.VpcDeploymentManifest.cloud_config:type_name -> chalk.server.v1.CloudConfig
+	170, // 61: chalk.server.v1.VpcDeploymentManifest.team:type_name -> chalk.server.v1.Team
+	36,  // 62: chalk.server.v1.CloudComponentClusterResponse.spec:type_name -> chalk.server.v1.CloudComponentCluster
+	167, // 63: chalk.server.v1.CloudComponentClusterResponse.created_at:type_name -> google.protobuf.Timestamp
+	167, // 64: chalk.server.v1.CloudComponentClusterResponse.updated_at:type_name -> google.protobuf.Timestamp
+	167, // 65: chalk.server.v1.CloudComponentClusterResponse.applied_at:type_name -> google.protobuf.Timestamp
+	35,  // 66: chalk.server.v1.CloudComponentClusterResponse.effective_maintenance_window:type_name -> chalk.server.v1.MaintenanceWindow
+	36,  // 67: chalk.server.v1.CloudComponentClusterRequest.spec:type_name -> chalk.server.v1.CloudComponentCluster
+	47,  // 68: chalk.server.v1.CreateCloudComponentClusterRequest.cluster:type_name -> chalk.server.v1.CloudComponentClusterRequest
+	46,  // 69: chalk.server.v1.CreateCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	47,  // 70: chalk.server.v1.UpdateCloudComponentClusterRequest.cluster:type_name -> chalk.server.v1.CloudComponentClusterRequest
+	46,  // 71: chalk.server.v1.UpdateCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	46,  // 72: chalk.server.v1.GetCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	47,  // 73: chalk.server.v1.TestClusterConnectionRequest.config:type_name -> chalk.server.v1.CloudComponentClusterRequest
+	46,  // 74: chalk.server.v1.ListCloudComponentClusterResponse.clusters:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	46,  // 75: chalk.server.v1.ServerlessCluster.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	171, // 76: chalk.server.v1.ServerlessCluster.cloud_credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
+	61,  // 77: chalk.server.v1.ListServerlessClustersResponse.clusters:type_name -> chalk.server.v1.ServerlessCluster
+	23,  // 78: chalk.server.v1.CreateCloudComponentStorageRequest.storage:type_name -> chalk.server.v1.CloudComponentStorageRequest
+	22,  // 79: chalk.server.v1.CreateCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
+	22,  // 80: chalk.server.v1.GetCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
+	21,  // 81: chalk.server.v1.UpdateCloudComponentStorageRequest.spec:type_name -> chalk.server.v1.CloudComponentStorage
+	22,  // 82: chalk.server.v1.UpdateCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
+	22,  // 83: chalk.server.v1.ListCloudComponentStorageResponse.storages:type_name -> chalk.server.v1.CloudComponentStorageResponse
+	0,   // 84: chalk.server.v1.CreateBindingEnvironmentCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
+	26,  // 85: chalk.server.v1.CreateBindingEnvironmentCloudStorageResponse.binding:type_name -> chalk.server.v1.EnvironmentCloudStorageBinding
+	0,   // 86: chalk.server.v1.GetBindingEnvironmentCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
+	26,  // 87: chalk.server.v1.GetBindingEnvironmentCloudStorageResponse.binding:type_name -> chalk.server.v1.EnvironmentCloudStorageBinding
+	26,  // 88: chalk.server.v1.ListBindingEnvironmentCloudStorageResponse.bindings:type_name -> chalk.server.v1.EnvironmentCloudStorageBinding
+	0,   // 89: chalk.server.v1.DeleteBindingEnvironmentCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
+	0,   // 90: chalk.server.v1.CreateBindingClusterCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
+	27,  // 91: chalk.server.v1.CreateBindingClusterCloudStorageResponse.binding:type_name -> chalk.server.v1.ClusterCloudStorageBinding
+	0,   // 92: chalk.server.v1.GetBindingClusterCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
+	27,  // 93: chalk.server.v1.GetBindingClusterCloudStorageResponse.binding:type_name -> chalk.server.v1.ClusterCloudStorageBinding
+	27,  // 94: chalk.server.v1.ListBindingClusterCloudStorageResponse.bindings:type_name -> chalk.server.v1.ClusterCloudStorageBinding
+	0,   // 95: chalk.server.v1.DeleteBindingClusterCloudStorageRequest.storage_role:type_name -> chalk.server.v1.CloudStorageRole
+	34,  // 96: chalk.server.v1.CreateCloudComponentContainerRegistryRequest.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryRequest
+	33,  // 97: chalk.server.v1.CreateCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
+	34,  // 98: chalk.server.v1.UpdateCloudComponentContainerRegistryRequest.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryRequest
+	33,  // 99: chalk.server.v1.UpdateCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
+	33,  // 100: chalk.server.v1.GetCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
+	33,  // 101: chalk.server.v1.ListCloudComponentContainerRegistryResponse.container_registries:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
+	102, // 102: chalk.server.v1.ListBindingClusterContainerRegistryResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterContainerRegistryResponse
+	112, // 103: chalk.server.v1.ListBindingClusterGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterGatewayResponse
+	120, // 104: chalk.server.v1.ListBindingServicesGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingServicesGatewayResponse
+	128, // 105: chalk.server.v1.ListBindingPrivateGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingPrivateGatewayResponse
+	136, // 106: chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
+	144, // 107: chalk.server.v1.ListBindingClusterTelemetryDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
+	152, // 108: chalk.server.v1.ListBindingEnvironmentGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingEnvironmentGatewayResponse
+	160, // 109: chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	164, // 110: chalk.server.v1.DataplaneDynamicConfig.dataplane_controller:type_name -> chalk.server.v1.DataplaneControllerDynamicConfig
+	165, // 111: chalk.server.v1.DataplaneDynamicConfig.hypervisor:type_name -> chalk.server.v1.HypervisorDynamicConfig
+	2,   // 112: chalk.server.v1.DataplaneController.TierInfo.tier:type_name -> chalk.server.v1.DataplaneController.Tier
+	6,   // 113: chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc:input_type -> chalk.server.v1.CreateCloudComponentVpcRequest
+	8,   // 114: chalk.server.v1.CloudComponentsService.GetCloudComponentVpc:input_type -> chalk.server.v1.GetCloudComponentVpcRequest
+	12,  // 115: chalk.server.v1.CloudComponentsService.ListCloudComponentVpc:input_type -> chalk.server.v1.ListCloudComponentVpcRequest
+	10,  // 116: chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc:input_type -> chalk.server.v1.DeleteCloudComponentVpcRequest
+	48,  // 117: chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster:input_type -> chalk.server.v1.CreateCloudComponentClusterRequest
+	50,  // 118: chalk.server.v1.CloudComponentsService.UpdateCloudComponentCluster:input_type -> chalk.server.v1.UpdateCloudComponentClusterRequest
+	52,  // 119: chalk.server.v1.CloudComponentsService.GetCloudComponentCluster:input_type -> chalk.server.v1.GetCloudComponentClusterRequest
+	58,  // 120: chalk.server.v1.CloudComponentsService.ListCloudComponentCluster:input_type -> chalk.server.v1.ListCloudComponentClusterRequest
+	60,  // 121: chalk.server.v1.CloudComponentsService.ListServerlessClusters:input_type -> chalk.server.v1.ListServerlessClustersRequest
+	54,  // 122: chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster:input_type -> chalk.server.v1.DeleteCloudComponentClusterRequest
+	56,  // 123: chalk.server.v1.CloudComponentsService.TestClusterConnection:input_type -> chalk.server.v1.TestClusterConnectionRequest
+	63,  // 124: chalk.server.v1.CloudComponentsService.CreateCloudComponentStorage:input_type -> chalk.server.v1.CreateCloudComponentStorageRequest
+	65,  // 125: chalk.server.v1.CloudComponentsService.GetCloudComponentStorage:input_type -> chalk.server.v1.GetCloudComponentStorageRequest
+	71,  // 126: chalk.server.v1.CloudComponentsService.ListCloudComponentStorage:input_type -> chalk.server.v1.ListCloudComponentStorageRequest
+	69,  // 127: chalk.server.v1.CloudComponentsService.UpdateCloudComponentStorage:input_type -> chalk.server.v1.UpdateCloudComponentStorageRequest
+	67,  // 128: chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage:input_type -> chalk.server.v1.DeleteCloudComponentStorageRequest
+	73,  // 129: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentCloudStorage:input_type -> chalk.server.v1.CreateBindingEnvironmentCloudStorageRequest
+	75,  // 130: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentCloudStorage:input_type -> chalk.server.v1.GetBindingEnvironmentCloudStorageRequest
+	77,  // 131: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentCloudStorage:input_type -> chalk.server.v1.ListBindingEnvironmentCloudStorageRequest
+	79,  // 132: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentCloudStorage:input_type -> chalk.server.v1.DeleteBindingEnvironmentCloudStorageRequest
+	81,  // 133: chalk.server.v1.CloudComponentsService.CreateBindingClusterCloudStorage:input_type -> chalk.server.v1.CreateBindingClusterCloudStorageRequest
+	83,  // 134: chalk.server.v1.CloudComponentsService.GetBindingClusterCloudStorage:input_type -> chalk.server.v1.GetBindingClusterCloudStorageRequest
+	85,  // 135: chalk.server.v1.CloudComponentsService.ListBindingClusterCloudStorage:input_type -> chalk.server.v1.ListBindingClusterCloudStorageRequest
+	87,  // 136: chalk.server.v1.CloudComponentsService.DeleteBindingClusterCloudStorage:input_type -> chalk.server.v1.DeleteBindingClusterCloudStorageRequest
+	89,  // 137: chalk.server.v1.CloudComponentsService.CreateCloudComponentContainerRegistry:input_type -> chalk.server.v1.CreateCloudComponentContainerRegistryRequest
+	91,  // 138: chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry:input_type -> chalk.server.v1.UpdateCloudComponentContainerRegistryRequest
+	93,  // 139: chalk.server.v1.CloudComponentsService.GetCloudComponentContainerRegistry:input_type -> chalk.server.v1.GetCloudComponentContainerRegistryRequest
+	97,  // 140: chalk.server.v1.CloudComponentsService.ListCloudComponentContainerRegistry:input_type -> chalk.server.v1.ListCloudComponentContainerRegistryRequest
+	95,  // 141: chalk.server.v1.CloudComponentsService.DeleteCloudComponentContainerRegistry:input_type -> chalk.server.v1.DeleteCloudComponentContainerRegistryRequest
+	99,  // 142: chalk.server.v1.CloudComponentsService.CreateBindingClusterContainerRegistry:input_type -> chalk.server.v1.CreateBindingClusterContainerRegistryRequest
+	101, // 143: chalk.server.v1.CloudComponentsService.GetBindingClusterContainerRegistry:input_type -> chalk.server.v1.GetBindingClusterContainerRegistryRequest
+	103, // 144: chalk.server.v1.CloudComponentsService.ListBindingClusterContainerRegistry:input_type -> chalk.server.v1.ListBindingClusterContainerRegistryRequest
+	105, // 145: chalk.server.v1.CloudComponentsService.DeleteBindingClusterContainerRegistry:input_type -> chalk.server.v1.DeleteBindingClusterContainerRegistryRequest
+	107, // 146: chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway:input_type -> chalk.server.v1.CreateBindingClusterGatewayRequest
+	111, // 147: chalk.server.v1.CloudComponentsService.GetBindingClusterGateway:input_type -> chalk.server.v1.GetBindingClusterGatewayRequest
+	113, // 148: chalk.server.v1.CloudComponentsService.ListBindingClusterGateway:input_type -> chalk.server.v1.ListBindingClusterGatewayRequest
+	109, // 149: chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway:input_type -> chalk.server.v1.DeleteBindingClusterGatewayRequest
+	115, // 150: chalk.server.v1.CloudComponentsService.CreateBindingServicesGateway:input_type -> chalk.server.v1.CreateBindingServicesGatewayRequest
+	119, // 151: chalk.server.v1.CloudComponentsService.GetBindingServicesGateway:input_type -> chalk.server.v1.GetBindingServicesGatewayRequest
+	121, // 152: chalk.server.v1.CloudComponentsService.ListBindingServicesGateway:input_type -> chalk.server.v1.ListBindingServicesGatewayRequest
+	117, // 153: chalk.server.v1.CloudComponentsService.DeleteBindingServicesGateway:input_type -> chalk.server.v1.DeleteBindingServicesGatewayRequest
+	123, // 154: chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway:input_type -> chalk.server.v1.CreateBindingPrivateGatewayRequest
+	127, // 155: chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway:input_type -> chalk.server.v1.GetBindingPrivateGatewayRequest
+	129, // 156: chalk.server.v1.CloudComponentsService.ListBindingPrivateGateway:input_type -> chalk.server.v1.ListBindingPrivateGatewayRequest
+	125, // 157: chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway:input_type -> chalk.server.v1.DeleteBindingPrivateGatewayRequest
+	131, // 158: chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest
+	135, // 159: chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest
+	137, // 160: chalk.server.v1.CloudComponentsService.ListBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentRequest
+	133, // 161: chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest
+	139, // 162: chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.CreateBindingClusterTelemetryDeploymentRequest
+	143, // 163: chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.GetBindingClusterTelemetryDeploymentRequest
+	145, // 164: chalk.server.v1.CloudComponentsService.ListBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.ListBindingClusterTelemetryDeploymentRequest
+	141, // 165: chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.DeleteBindingClusterTelemetryDeploymentRequest
+	147, // 166: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentGateway:input_type -> chalk.server.v1.CreateBindingEnvironmentGatewayRequest
+	151, // 167: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway:input_type -> chalk.server.v1.GetBindingEnvironmentGatewayRequest
+	153, // 168: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentGateway:input_type -> chalk.server.v1.ListBindingEnvironmentGatewayRequest
+	149, // 169: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway:input_type -> chalk.server.v1.DeleteBindingEnvironmentGatewayRequest
+	155, // 170: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	159, // 171: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	161, // 172: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	157, // 173: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	7,   // 174: chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc:output_type -> chalk.server.v1.CreateCloudComponentVpcResponse
+	9,   // 175: chalk.server.v1.CloudComponentsService.GetCloudComponentVpc:output_type -> chalk.server.v1.GetCloudComponentVpcResponse
+	13,  // 176: chalk.server.v1.CloudComponentsService.ListCloudComponentVpc:output_type -> chalk.server.v1.ListCloudComponentVpcResponse
+	11,  // 177: chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc:output_type -> chalk.server.v1.DeleteCloudComponentVpcResponse
+	49,  // 178: chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster:output_type -> chalk.server.v1.CreateCloudComponentClusterResponse
+	51,  // 179: chalk.server.v1.CloudComponentsService.UpdateCloudComponentCluster:output_type -> chalk.server.v1.UpdateCloudComponentClusterResponse
+	53,  // 180: chalk.server.v1.CloudComponentsService.GetCloudComponentCluster:output_type -> chalk.server.v1.GetCloudComponentClusterResponse
+	59,  // 181: chalk.server.v1.CloudComponentsService.ListCloudComponentCluster:output_type -> chalk.server.v1.ListCloudComponentClusterResponse
+	62,  // 182: chalk.server.v1.CloudComponentsService.ListServerlessClusters:output_type -> chalk.server.v1.ListServerlessClustersResponse
+	55,  // 183: chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster:output_type -> chalk.server.v1.DeleteCloudComponentClusterResponse
+	57,  // 184: chalk.server.v1.CloudComponentsService.TestClusterConnection:output_type -> chalk.server.v1.TestClusterConnectionResponse
+	64,  // 185: chalk.server.v1.CloudComponentsService.CreateCloudComponentStorage:output_type -> chalk.server.v1.CreateCloudComponentStorageResponse
+	66,  // 186: chalk.server.v1.CloudComponentsService.GetCloudComponentStorage:output_type -> chalk.server.v1.GetCloudComponentStorageResponse
+	72,  // 187: chalk.server.v1.CloudComponentsService.ListCloudComponentStorage:output_type -> chalk.server.v1.ListCloudComponentStorageResponse
+	70,  // 188: chalk.server.v1.CloudComponentsService.UpdateCloudComponentStorage:output_type -> chalk.server.v1.UpdateCloudComponentStorageResponse
+	68,  // 189: chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage:output_type -> chalk.server.v1.DeleteCloudComponentStorageResponse
+	74,  // 190: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentCloudStorage:output_type -> chalk.server.v1.CreateBindingEnvironmentCloudStorageResponse
+	76,  // 191: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentCloudStorage:output_type -> chalk.server.v1.GetBindingEnvironmentCloudStorageResponse
+	78,  // 192: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentCloudStorage:output_type -> chalk.server.v1.ListBindingEnvironmentCloudStorageResponse
+	80,  // 193: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentCloudStorage:output_type -> chalk.server.v1.DeleteBindingEnvironmentCloudStorageResponse
+	82,  // 194: chalk.server.v1.CloudComponentsService.CreateBindingClusterCloudStorage:output_type -> chalk.server.v1.CreateBindingClusterCloudStorageResponse
+	84,  // 195: chalk.server.v1.CloudComponentsService.GetBindingClusterCloudStorage:output_type -> chalk.server.v1.GetBindingClusterCloudStorageResponse
+	86,  // 196: chalk.server.v1.CloudComponentsService.ListBindingClusterCloudStorage:output_type -> chalk.server.v1.ListBindingClusterCloudStorageResponse
+	88,  // 197: chalk.server.v1.CloudComponentsService.DeleteBindingClusterCloudStorage:output_type -> chalk.server.v1.DeleteBindingClusterCloudStorageResponse
+	90,  // 198: chalk.server.v1.CloudComponentsService.CreateCloudComponentContainerRegistry:output_type -> chalk.server.v1.CreateCloudComponentContainerRegistryResponse
+	92,  // 199: chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry:output_type -> chalk.server.v1.UpdateCloudComponentContainerRegistryResponse
+	94,  // 200: chalk.server.v1.CloudComponentsService.GetCloudComponentContainerRegistry:output_type -> chalk.server.v1.GetCloudComponentContainerRegistryResponse
+	98,  // 201: chalk.server.v1.CloudComponentsService.ListCloudComponentContainerRegistry:output_type -> chalk.server.v1.ListCloudComponentContainerRegistryResponse
+	96,  // 202: chalk.server.v1.CloudComponentsService.DeleteCloudComponentContainerRegistry:output_type -> chalk.server.v1.DeleteCloudComponentContainerRegistryResponse
+	100, // 203: chalk.server.v1.CloudComponentsService.CreateBindingClusterContainerRegistry:output_type -> chalk.server.v1.CreateBindingClusterContainerRegistryResponse
+	102, // 204: chalk.server.v1.CloudComponentsService.GetBindingClusterContainerRegistry:output_type -> chalk.server.v1.GetBindingClusterContainerRegistryResponse
+	104, // 205: chalk.server.v1.CloudComponentsService.ListBindingClusterContainerRegistry:output_type -> chalk.server.v1.ListBindingClusterContainerRegistryResponse
+	106, // 206: chalk.server.v1.CloudComponentsService.DeleteBindingClusterContainerRegistry:output_type -> chalk.server.v1.DeleteBindingClusterContainerRegistryResponse
+	108, // 207: chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway:output_type -> chalk.server.v1.CreateBindingClusterGatewayResponse
+	112, // 208: chalk.server.v1.CloudComponentsService.GetBindingClusterGateway:output_type -> chalk.server.v1.GetBindingClusterGatewayResponse
+	114, // 209: chalk.server.v1.CloudComponentsService.ListBindingClusterGateway:output_type -> chalk.server.v1.ListBindingClusterGatewayResponse
+	110, // 210: chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway:output_type -> chalk.server.v1.DeleteBindingClusterGatewayResponse
+	116, // 211: chalk.server.v1.CloudComponentsService.CreateBindingServicesGateway:output_type -> chalk.server.v1.CreateBindingServicesGatewayResponse
+	120, // 212: chalk.server.v1.CloudComponentsService.GetBindingServicesGateway:output_type -> chalk.server.v1.GetBindingServicesGatewayResponse
+	122, // 213: chalk.server.v1.CloudComponentsService.ListBindingServicesGateway:output_type -> chalk.server.v1.ListBindingServicesGatewayResponse
+	118, // 214: chalk.server.v1.CloudComponentsService.DeleteBindingServicesGateway:output_type -> chalk.server.v1.DeleteBindingServicesGatewayResponse
+	124, // 215: chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway:output_type -> chalk.server.v1.CreateBindingPrivateGatewayResponse
+	128, // 216: chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway:output_type -> chalk.server.v1.GetBindingPrivateGatewayResponse
+	130, // 217: chalk.server.v1.CloudComponentsService.ListBindingPrivateGateway:output_type -> chalk.server.v1.ListBindingPrivateGatewayResponse
+	126, // 218: chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway:output_type -> chalk.server.v1.DeleteBindingPrivateGatewayResponse
+	132, // 219: chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse
+	136, // 220: chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
+	138, // 221: chalk.server.v1.CloudComponentsService.ListBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentResponse
+	134, // 222: chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse
+	140, // 223: chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.CreateBindingClusterTelemetryDeploymentResponse
+	144, // 224: chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
+	146, // 225: chalk.server.v1.CloudComponentsService.ListBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.ListBindingClusterTelemetryDeploymentResponse
+	142, // 226: chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.DeleteBindingClusterTelemetryDeploymentResponse
+	148, // 227: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentGateway:output_type -> chalk.server.v1.CreateBindingEnvironmentGatewayResponse
+	152, // 228: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway:output_type -> chalk.server.v1.GetBindingEnvironmentGatewayResponse
+	154, // 229: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentGateway:output_type -> chalk.server.v1.ListBindingEnvironmentGatewayResponse
+	150, // 230: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway:output_type -> chalk.server.v1.DeleteBindingEnvironmentGatewayResponse
+	156, // 231: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	160, // 232: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	162, // 233: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	158, // 234: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	174, // [174:235] is the sub-list for method output_type
+	113, // [113:174] is the sub-list for method input_type
+	113, // [113:113] is the sub-list for extension type_name
+	113, // [113:113] is the sub-list for extension extendee
+	0,   // [0:113] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_cloud_components_proto_init() }
@@ -9834,13 +9986,14 @@ func file_chalk_server_v1_cloud_components_proto_init() {
 		(*TestClusterConnectionRequest_Config)(nil),
 	}
 	file_chalk_server_v1_cloud_components_proto_msgTypes[99].OneofWrappers = []any{}
+	file_chalk_server_v1_cloud_components_proto_msgTypes[160].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_cloud_components_proto_rawDesc), len(file_chalk_server_v1_cloud_components_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   161,
+			NumMessages:   164,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

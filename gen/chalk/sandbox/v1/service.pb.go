@@ -1613,7 +1613,10 @@ type VolumeMount struct {
 	SizeLimit *string `protobuf:"bytes,4,opt,name=size_limit,json=sizeLimit,proto3,oneof" json:"size_limit,omitempty"`
 	// Pins a "versioned_chalkfs" mount to an immutable committed snapshot and
 	// stages writes locally without committing.
-	VersionId     *uint64 `protobuf:"varint,5,opt,name=version_id,json=versionId,proto3,oneof" json:"version_id,omitempty"`
+	VersionId *uint64 `protobuf:"varint,5,opt,name=version_id,json=versionId,proto3,oneof" json:"version_id,omitempty"`
+	// Selects an existing mutable ref for a "versioned_chalkfs" mount.
+	// Mutually exclusive with version_id.
+	RefName       *string `protobuf:"bytes,6,opt,name=ref_name,json=refName,proto3,oneof" json:"ref_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1681,6 +1684,13 @@ func (x *VolumeMount) GetVersionId() uint64 {
 		return *x.VersionId
 	}
 	return 0
+}
+
+func (x *VolumeMount) GetRefName() string {
+	if x != nil && x.RefName != nil {
+		return *x.RefName
+	}
+	return ""
 }
 
 // Request to create a new sandbox
@@ -3850,7 +3860,7 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\x04_tag\"K\n" +
 	"\x18BuildCustomImageResponse\x12\x14\n" +
 	"\x05image\x18\x01 \x01(\tR\x05image\x12\x19\n" +
-	"\bbuild_id\x18\x02 \x01(\tR\abuildId\"\xba\x01\n" +
+	"\bbuild_id\x18\x02 \x01(\tR\abuildId\"\xe7\x01\n" +
 	"\vVolumeMount\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -3859,9 +3869,11 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"size_limit\x18\x04 \x01(\tH\x00R\tsizeLimit\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"version_id\x18\x05 \x01(\x04H\x01R\tversionId\x88\x01\x01B\r\n" +
+	"version_id\x18\x05 \x01(\x04H\x01R\tversionId\x88\x01\x01\x12\x1e\n" +
+	"\bref_name\x18\x06 \x01(\tH\x02R\arefName\x88\x01\x01B\r\n" +
 	"\v_size_limitB\r\n" +
-	"\v_version_id\"\xa6\x06\n" +
+	"\v_version_idB\v\n" +
+	"\t_ref_name\"\xa6\x06\n" +
 	"\x14CreateSandboxRequest\x12\x16\n" +
 	"\x05image\x18\x01 \x01(\tH\x00R\x05image\x12<\n" +
 	"\n" +

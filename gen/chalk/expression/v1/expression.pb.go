@@ -89,14 +89,15 @@ func (ExprPolicyKind) EnumDescriptor() ([]byte, []int) {
 type PyObjectType int32
 
 const (
-	PyObjectType_PY_OBJECT_TYPE_UNSPECIFIED                          PyObjectType = 0
-	PyObjectType_PY_OBJECT_TYPE_INT                                  PyObjectType = 1
-	PyObjectType_PY_OBJECT_TYPE_STRING                               PyObjectType = 2
-	PyObjectType_PY_OBJECT_TYPE_BYTES                                PyObjectType = 3
-	PyObjectType_PY_OBJECT_TYPE_CALLABLE                             PyObjectType = 4
-	PyObjectType_PY_OBJECT_TYPE_CALL                                 PyObjectType = 5
-	PyObjectType_PY_OBJECT_TYPE_PYARROW_SCHEMA                       PyObjectType = 6
-	PyObjectType_PY_OBJECT_TYPE_BOOL                                 PyObjectType = 7
+	PyObjectType_PY_OBJECT_TYPE_UNSPECIFIED    PyObjectType = 0
+	PyObjectType_PY_OBJECT_TYPE_INT            PyObjectType = 1
+	PyObjectType_PY_OBJECT_TYPE_STRING         PyObjectType = 2
+	PyObjectType_PY_OBJECT_TYPE_BYTES          PyObjectType = 3
+	PyObjectType_PY_OBJECT_TYPE_CALLABLE       PyObjectType = 4
+	PyObjectType_PY_OBJECT_TYPE_CALL           PyObjectType = 5
+	PyObjectType_PY_OBJECT_TYPE_PYARROW_SCHEMA PyObjectType = 6
+	PyObjectType_PY_OBJECT_TYPE_BOOL           PyObjectType = 7
+	// Deprecated: Marked as deprecated in chalk/expression/v1/expression.proto.
 	PyObjectType_PY_OBJECT_TYPE_STRUCT_PACKING_INFO                  PyObjectType = 8
 	PyObjectType_PY_OBJECT_TYPE_NONE                                 PyObjectType = 9
 	PyObjectType_PY_OBJECT_TYPE_CHALK_THREAD_POOL_EXECUTOR_BIND_INFO PyObjectType = 10
@@ -6615,7 +6616,7 @@ const file_chalk_expression_v1_expression_proto_rawDesc = "" +
 	"\x16EXPR_POLICY_KIND_RETRY\x10\x03\x12\x1c\n" +
 	"\x18EXPR_POLICY_KIND_LOGGING\x10\x04\x12\x1a\n" +
 	"\x16EXPR_POLICY_KIND_CACHE\x10\x05\x12\x1d\n" +
-	"\x19EXPR_POLICY_KIND_BATCHING\x10\x06*\xb8\x05\n" +
+	"\x19EXPR_POLICY_KIND_BATCHING\x10\x06*\xbc\x05\n" +
 	"\fPyObjectType\x12\x1e\n" +
 	"\x1aPY_OBJECT_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12PY_OBJECT_TYPE_INT\x10\x01\x12\x19\n" +
@@ -6624,8 +6625,8 @@ const file_chalk_expression_v1_expression_proto_rawDesc = "" +
 	"\x17PY_OBJECT_TYPE_CALLABLE\x10\x04\x12\x17\n" +
 	"\x13PY_OBJECT_TYPE_CALL\x10\x05\x12!\n" +
 	"\x1dPY_OBJECT_TYPE_PYARROW_SCHEMA\x10\x06\x12\x17\n" +
-	"\x13PY_OBJECT_TYPE_BOOL\x10\a\x12&\n" +
-	"\"PY_OBJECT_TYPE_STRUCT_PACKING_INFO\x10\b\x12\x17\n" +
+	"\x13PY_OBJECT_TYPE_BOOL\x10\a\x12*\n" +
+	"\"PY_OBJECT_TYPE_STRUCT_PACKING_INFO\x10\b\x1a\x02\b\x01\x12\x17\n" +
 	"\x13PY_OBJECT_TYPE_NONE\x10\t\x127\n" +
 	"3PY_OBJECT_TYPE_CHALK_THREAD_POOL_EXECUTOR_BIND_INFO\x10\n" +
 	"\x12\x18\n" +

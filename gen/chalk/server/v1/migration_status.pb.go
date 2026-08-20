@@ -93,6 +93,9 @@ const (
 	EnvVarPredicate_ENV_VAR_PREDICATE_IS_UNSET          EnvVarPredicate = 4
 	// The value must exactly equal one of `values`.
 	EnvVarPredicate_ENV_VAR_PREDICATE_EQUALS_ANY EnvVarPredicate = 5
+	// For env vars whose code default has flipped on: an unset variable counts
+	// as migrated, and only an explicit falsy value (e.g. "0") is unmigrated.
+	EnvVarPredicate_ENV_VAR_PREDICATE_IS_TRUTHY_OR_UNSET EnvVarPredicate = 6
 )
 
 // Enum value maps for EnvVarPredicate.
@@ -104,14 +107,16 @@ var (
 		3: "ENV_VAR_PREDICATE_IS_SET",
 		4: "ENV_VAR_PREDICATE_IS_UNSET",
 		5: "ENV_VAR_PREDICATE_EQUALS_ANY",
+		6: "ENV_VAR_PREDICATE_IS_TRUTHY_OR_UNSET",
 	}
 	EnvVarPredicate_value = map[string]int32{
-		"ENV_VAR_PREDICATE_UNSPECIFIED":       0,
-		"ENV_VAR_PREDICATE_IS_TRUTHY":         1,
-		"ENV_VAR_PREDICATE_IS_FALSY_OR_UNSET": 2,
-		"ENV_VAR_PREDICATE_IS_SET":            3,
-		"ENV_VAR_PREDICATE_IS_UNSET":          4,
-		"ENV_VAR_PREDICATE_EQUALS_ANY":        5,
+		"ENV_VAR_PREDICATE_UNSPECIFIED":        0,
+		"ENV_VAR_PREDICATE_IS_TRUTHY":          1,
+		"ENV_VAR_PREDICATE_IS_FALSY_OR_UNSET":  2,
+		"ENV_VAR_PREDICATE_IS_SET":             3,
+		"ENV_VAR_PREDICATE_IS_UNSET":           4,
+		"ENV_VAR_PREDICATE_EQUALS_ANY":         5,
+		"ENV_VAR_PREDICATE_IS_TRUTHY_OR_UNSET": 6,
 	}
 )
 
@@ -1387,14 +1392,15 @@ const file_chalk_server_v1_migration_status_proto_rawDesc = "" +
 	"\x1aFLAG_PREDICATE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16FLAG_PREDICATE_IS_TRUE\x10\x01\x12#\n" +
 	"\x1fFLAG_PREDICATE_IS_TRUE_OR_UNSET\x10\x02\x12$\n" +
-	" FLAG_PREDICATE_IS_FALSE_OR_UNSET\x10\x03*\xde\x01\n" +
+	" FLAG_PREDICATE_IS_FALSE_OR_UNSET\x10\x03*\x88\x02\n" +
 	"\x0fEnvVarPredicate\x12!\n" +
 	"\x1dENV_VAR_PREDICATE_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bENV_VAR_PREDICATE_IS_TRUTHY\x10\x01\x12'\n" +
 	"#ENV_VAR_PREDICATE_IS_FALSY_OR_UNSET\x10\x02\x12\x1c\n" +
 	"\x18ENV_VAR_PREDICATE_IS_SET\x10\x03\x12\x1e\n" +
 	"\x1aENV_VAR_PREDICATE_IS_UNSET\x10\x04\x12 \n" +
-	"\x1cENV_VAR_PREDICATE_EQUALS_ANY\x10\x05*}\n" +
+	"\x1cENV_VAR_PREDICATE_EQUALS_ANY\x10\x05\x12(\n" +
+	"$ENV_VAR_PREDICATE_IS_TRUTHY_OR_UNSET\x10\x06*}\n" +
 	"\x10RuntimePredicate\x12!\n" +
 	"\x1dRUNTIME_PREDICATE_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cRUNTIME_PREDICATE_EQUALS_ANY\x10\x01\x12$\n" +

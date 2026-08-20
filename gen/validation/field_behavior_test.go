@@ -335,20 +335,20 @@ func getNestedFieldBehaviorTestMessage() (proto.Message, error) {
 	// Create nested message field descriptors
 	nestedFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:    proto.String("street"),
+			Name:    new("street"),
 			Number:  proto.Int32(1),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options: &descriptorpb.FieldOptions{},
 		},
 		{
-			Name:   proto.String("city"),
+			Name:   new("city"),
 			Number: proto.Int32(2),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:    proto.String("postal_code"),
+			Name:    new("postal_code"),
 			Number:  proto.Int32(3),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
@@ -363,28 +363,28 @@ func getNestedFieldBehaviorTestMessage() (proto.Message, error) {
 	proto.SetExtension(nestedFieldDescriptors[2].Options, annotations.E_FieldBehavior, postalBehaviors)
 
 	nestedMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("NestedMessage"),
+		Name:  new("NestedMessage"),
 		Field: nestedFieldDescriptors,
 	}
 
 	// Create parent message field descriptors
 	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:    proto.String("id"),
+			Name:    new("id"),
 			Number:  proto.Int32(1),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options: &descriptorpb.FieldOptions{},
 		},
 		{
-			Name:     proto.String("address"),
+			Name:     new("address"),
 			Number:   proto.Int32(2),
 			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
-			TypeName: proto.String(".test.NestedMessage"),
+			TypeName: new(".test.NestedMessage"),
 			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:   proto.String("name"),
+			Name:   new("name"),
 			Number: proto.Int32(3),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
@@ -396,13 +396,13 @@ func getNestedFieldBehaviorTestMessage() (proto.Message, error) {
 	proto.SetExtension(parentFieldDescriptors[0].Options, annotations.E_FieldBehavior, idBehaviors)
 
 	parentMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("ParentMessage"),
+		Name:  new("ParentMessage"),
 		Field: parentFieldDescriptors,
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String("test_nested.proto"),
-		Package:     proto.String("test"),
+		Name:        new("test_nested.proto"),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{nestedMsgDesc, parentMsgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
@@ -415,7 +415,7 @@ func getNestedFieldBehaviorTestMessage() (proto.Message, error) {
 	return dynamicpb.NewMessage(fd.Messages().Get(1)), nil
 }
 
-func setNestedField(msg proto.Message, path string, value interface{}) {
+func setNestedField(msg proto.Message, path string, value any) {
 	m := msg.ProtoReflect()
 
 	// Handle nested paths like "address.street"
@@ -554,7 +554,7 @@ func getRepeatedFieldBehaviorTestMessage() (proto.Message, error) {
 	// Create nested message descriptor
 	nestedFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:    proto.String("street"),
+			Name:    new("street"),
 			Number:  proto.Int32(1),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
@@ -567,29 +567,29 @@ func getRepeatedFieldBehaviorTestMessage() (proto.Message, error) {
 	proto.SetExtension(nestedFieldDescriptors[0].Options, annotations.E_FieldBehavior, streetBehaviors)
 
 	nestedMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("AddressItem"),
+		Name:  new("AddressItem"),
 		Field: nestedFieldDescriptors,
 	}
 
 	// Create parent message with repeated field
 	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:     proto.String("addresses"),
+			Name:     new("addresses"),
 			Number:   proto.Int32(1),
 			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
-			TypeName: proto.String(".test.AddressItem"),
+			TypeName: new(".test.AddressItem"),
 			Label:    descriptorpb.FieldDescriptorProto_LABEL_REPEATED.Enum(),
 		},
 	}
 
 	parentMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("PersonWithAddresses"),
+		Name:  new("PersonWithAddresses"),
 		Field: parentFieldDescriptors,
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String("test_repeated.proto"),
-		Package:     proto.String("test"),
+		Name:        new("test_repeated.proto"),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{nestedMsgDesc, parentMsgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
@@ -626,13 +626,13 @@ func getMapFieldBehaviorTestMessage() (proto.Message, error) {
 	// For map<string, string>, we need a synthetic entry message
 	mapEntryFields := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:   proto.String("key"),
+			Name:   new("key"),
 			Number: proto.Int32(1),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:    proto.String("value"),
+			Name:    new("value"),
 			Number:  proto.Int32(2),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
@@ -645,31 +645,31 @@ func getMapFieldBehaviorTestMessage() (proto.Message, error) {
 	proto.SetExtension(mapEntryFields[1].Options, annotations.E_FieldBehavior, valueBehaviors)
 
 	mapEntryDesc := &descriptorpb.DescriptorProto{
-		Name:    proto.String("AttributesEntry"),
+		Name:    new("AttributesEntry"),
 		Field:   mapEntryFields,
-		Options: &descriptorpb.MessageOptions{MapEntry: proto.Bool(true)},
+		Options: &descriptorpb.MessageOptions{MapEntry: new(true)},
 	}
 
 	// Create parent message with map field
 	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:     proto.String("attributes"),
+			Name:     new("attributes"),
 			Number:   proto.Int32(1),
 			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
-			TypeName: proto.String(".test.ResourceWithMap.AttributesEntry"),
+			TypeName: new(".test.ResourceWithMap.AttributesEntry"),
 			Label:    descriptorpb.FieldDescriptorProto_LABEL_REPEATED.Enum(),
 		},
 	}
 
 	parentMsgDesc := &descriptorpb.DescriptorProto{
-		Name:       proto.String("ResourceWithMap"),
+		Name:       new("ResourceWithMap"),
 		Field:      parentFieldDescriptors,
 		NestedType: []*descriptorpb.DescriptorProto{mapEntryDesc},
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String("test_map.proto"),
-		Package:     proto.String("test"),
+		Name:        new("test_map.proto"),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{parentMsgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
@@ -750,13 +750,13 @@ func getImmutableParentFieldMessage() (proto.Message, error) {
 	// Create nested message (no immutable fields in it)
 	nestedFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:   proto.String("street"),
+			Name:   new("street"),
 			Number: proto.Int32(1),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:   proto.String("city"),
+			Name:   new("city"),
 			Number: proto.Int32(2),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
@@ -764,17 +764,17 @@ func getImmutableParentFieldMessage() (proto.Message, error) {
 	}
 
 	nestedMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("Address"),
+		Name:  new("Address"),
 		Field: nestedFieldDescriptors,
 	}
 
 	// Create parent with the nested message field marked as IMMUTABLE
 	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:     proto.String("address"),
+			Name:     new("address"),
 			Number:   proto.Int32(1),
 			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
-			TypeName: proto.String(".test.Address"),
+			TypeName: new(".test.Address"),
 			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options:  &descriptorpb.FieldOptions{},
 		},
@@ -785,13 +785,13 @@ func getImmutableParentFieldMessage() (proto.Message, error) {
 	proto.SetExtension(parentFieldDescriptors[0].Options, annotations.E_FieldBehavior, addressBehaviors)
 
 	parentMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("Person"),
+		Name:  new("Person"),
 		Field: parentFieldDescriptors,
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String("test_immutable_parent.proto"),
-		Package:     proto.String("test"),
+		Name:        new("test_immutable_parent.proto"),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{nestedMsgDesc, parentMsgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
@@ -833,24 +833,24 @@ func getRecursiveFieldBehaviorTestMessage() (proto.Message, error) {
 	// Create a message that references itself (like a linked list node)
 	fieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:    proto.String("id"),
+			Name:    new("id"),
 			Number:  proto.Int32(1),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options: &descriptorpb.FieldOptions{},
 		},
 		{
-			Name:    proto.String("value"),
+			Name:    new("value"),
 			Number:  proto.Int32(2),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options: &descriptorpb.FieldOptions{},
 		},
 		{
-			Name:     proto.String("next"),
+			Name:     new("next"),
 			Number:   proto.Int32(3),
 			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
-			TypeName: proto.String(".test.RecursiveNode"),
+			TypeName: new(".test.RecursiveNode"),
 			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 	}
@@ -860,13 +860,13 @@ func getRecursiveFieldBehaviorTestMessage() (proto.Message, error) {
 	proto.SetExtension(fieldDescriptors[0].Options, annotations.E_FieldBehavior, idBehaviors)
 
 	msgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("RecursiveNode"),
+		Name:  new("RecursiveNode"),
 		Field: fieldDescriptors,
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String("test_recursive.proto"),
-		Package:     proto.String("test"),
+		Name:        new("test_recursive.proto"),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{msgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
@@ -947,14 +947,14 @@ func TestValidateImmutableFieldsWithRecursiveMessageImmutableChanged(t *testing.
 func getOutputOnlyTestMessage() (proto.Message, error) {
 	statsFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:    proto.String("sub_id"),
+			Name:    new("sub_id"),
 			Number:  proto.Int32(1),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options: &descriptorpb.FieldOptions{},
 		},
 		{
-			Name:   proto.String("label"),
+			Name:   new("label"),
 			Number: proto.Int32(2),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
@@ -964,42 +964,42 @@ func getOutputOnlyTestMessage() (proto.Message, error) {
 		[]annotations.FieldBehavior{annotations.FieldBehavior_OUTPUT_ONLY})
 
 	statsMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("OutputOnlyStats"),
+		Name:  new("OutputOnlyStats"),
 		Field: statsFieldDescriptors,
 	}
 
 	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:    proto.String("id"),
+			Name:    new("id"),
 			Number:  proto.Int32(1),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options: &descriptorpb.FieldOptions{},
 		},
 		{
-			Name:    proto.String("created_at"),
+			Name:    new("created_at"),
 			Number:  proto.Int32(2),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options: &descriptorpb.FieldOptions{},
 		},
 		{
-			Name:   proto.String("name"),
+			Name:   new("name"),
 			Number: proto.Int32(3),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:   proto.String("count"),
+			Name:   new("count"),
 			Number: proto.Int32(4),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_INT32.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:     proto.String("stats"),
+			Name:     new("stats"),
 			Number:   proto.Int32(5),
 			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
-			TypeName: proto.String(".test.OutputOnlyStats"),
+			TypeName: new(".test.OutputOnlyStats"),
 			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 	}
@@ -1009,13 +1009,13 @@ func getOutputOnlyTestMessage() (proto.Message, error) {
 		[]annotations.FieldBehavior{annotations.FieldBehavior_OUTPUT_ONLY})
 
 	parentMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("OutputOnlyTestMessage"),
+		Name:  new("OutputOnlyTestMessage"),
 		Field: parentFieldDescriptors,
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String("test_output_only_message.proto"),
-		Package:     proto.String("test"),
+		Name:        new("test_output_only_message.proto"),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{statsMsgDesc, parentMsgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
@@ -1032,13 +1032,13 @@ func getOutputOnlyTestMessage() (proto.Message, error) {
 func getOutputOnlyParentFieldMessage() (proto.Message, error) {
 	nestedFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:   proto.String("key"),
+			Name:   new("key"),
 			Number: proto.Int32(1),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:   proto.String("value"),
+			Name:   new("value"),
 			Number: proto.Int32(2),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
@@ -1046,22 +1046,22 @@ func getOutputOnlyParentFieldMessage() (proto.Message, error) {
 	}
 
 	nestedMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("Metadata"),
+		Name:  new("Metadata"),
 		Field: nestedFieldDescriptors,
 	}
 
 	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:   proto.String("name"),
+			Name:   new("name"),
 			Number: proto.Int32(1),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:     proto.String("metadata"),
+			Name:     new("metadata"),
 			Number:   proto.Int32(2),
 			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
-			TypeName: proto.String(".test.Metadata"),
+			TypeName: new(".test.Metadata"),
 			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options:  &descriptorpb.FieldOptions{},
 		},
@@ -1072,13 +1072,13 @@ func getOutputOnlyParentFieldMessage() (proto.Message, error) {
 	proto.SetExtension(parentFieldDescriptors[1].Options, annotations.E_FieldBehavior, metadataBehaviors)
 
 	parentMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("ResourceWithOutputOnlyParent"),
+		Name:  new("ResourceWithOutputOnlyParent"),
 		Field: parentFieldDescriptors,
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String("test_output_only_parent.proto"),
-		Package:     proto.String("test"),
+		Name:        new("test_output_only_parent.proto"),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{nestedMsgDesc, parentMsgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
@@ -1202,14 +1202,14 @@ func TestValidateOutputOnlyFieldsNotInMaskParentOutputOnlyChildInMask(t *testing
 func getOutputOnlyChildFieldMessage() (proto.Message, error) {
 	nestedFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:    proto.String("key"),
+			Name:    new("key"),
 			Number:  proto.Int32(1),
 			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			Options: &descriptorpb.FieldOptions{},
 		},
 		{
-			Name:   proto.String("value"),
+			Name:   new("value"),
 			Number: proto.Int32(2),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
@@ -1219,34 +1219,34 @@ func getOutputOnlyChildFieldMessage() (proto.Message, error) {
 		[]annotations.FieldBehavior{annotations.FieldBehavior_OUTPUT_ONLY})
 
 	nestedMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("Metadata"),
+		Name:  new("Metadata"),
 		Field: nestedFieldDescriptors,
 	}
 
 	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
 		{
-			Name:   proto.String("name"),
+			Name:   new("name"),
 			Number: proto.Int32(1),
 			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 		{
-			Name:     proto.String("metadata"),
+			Name:     new("metadata"),
 			Number:   proto.Int32(2),
 			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
-			TypeName: proto.String(".test.Metadata"),
+			TypeName: new(".test.Metadata"),
 			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		},
 	}
 
 	parentMsgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String("ResourceWithOutputOnlyChild"),
+		Name:  new("ResourceWithOutputOnlyChild"),
 		Field: parentFieldDescriptors,
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String("test_output_only_child.proto"),
-		Package:     proto.String("test"),
+		Name:        new("test_output_only_child.proto"),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{nestedMsgDesc, parentMsgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
