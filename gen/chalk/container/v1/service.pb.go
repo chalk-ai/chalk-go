@@ -361,7 +361,10 @@ type VolumeMount struct {
 	SizeLimit *string `protobuf:"bytes,4,opt,name=size_limit,json=sizeLimit,proto3,oneof" json:"size_limit,omitempty"`
 	// Pins a "versioned_chalkfs" mount to an immutable committed snapshot and
 	// stages writes locally without committing.
-	VersionId     *uint64 `protobuf:"varint,5,opt,name=version_id,json=versionId,proto3,oneof" json:"version_id,omitempty"`
+	VersionId *uint64 `protobuf:"varint,5,opt,name=version_id,json=versionId,proto3,oneof" json:"version_id,omitempty"`
+	// Selects an existing mutable ref for a "versioned_chalkfs" mount.
+	// Mutually exclusive with version_id.
+	RefName       *string `protobuf:"bytes,6,opt,name=ref_name,json=refName,proto3,oneof" json:"ref_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -429,6 +432,13 @@ func (x *VolumeMount) GetVersionId() uint64 {
 		return *x.VersionId
 	}
 	return 0
+}
+
+func (x *VolumeMount) GetRefName() string {
+	if x != nil && x.RefName != nil {
+		return *x.RefName
+	}
+	return ""
 }
 
 // SecretRef references an integration or standalone secret to inject as env vars.
@@ -5264,7 +5274,7 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x03gpu\x18\x03 \x01(\tH\x02R\x03gpu\x88\x01\x01B\x06\n" +
 	"\x04_cpuB\t\n" +
 	"\a_memoryB\x06\n" +
-	"\x04_gpu\"\xba\x01\n" +
+	"\x04_gpu\"\xe7\x01\n" +
 	"\vVolumeMount\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -5273,9 +5283,11 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"size_limit\x18\x04 \x01(\tH\x00R\tsizeLimit\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"version_id\x18\x05 \x01(\x04H\x01R\tversionId\x88\x01\x01B\r\n" +
+	"version_id\x18\x05 \x01(\x04H\x01R\tversionId\x88\x01\x01\x12\x1e\n" +
+	"\bref_name\x18\x06 \x01(\tH\x02R\arefName\x88\x01\x01B\r\n" +
 	"\v_size_limitB\r\n" +
-	"\v_version_id\"\xa3\x02\n" +
+	"\v_version_idB\v\n" +
+	"\t_ref_name\"\xa3\x02\n" +
 	"\tSecretRef\x12+\n" +
 	"\x10integration_name\x18\x01 \x01(\tH\x00R\x0fintegrationName\x12!\n" +
 	"\vsecret_name\x18\x02 \x01(\tH\x00R\n" +

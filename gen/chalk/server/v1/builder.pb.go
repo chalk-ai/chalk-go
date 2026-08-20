@@ -3278,7 +3278,7 @@ func (x *ListEngineBaseImagesRequest) GetCursor() string {
 
 // One variant repository publishing a given engine-base release. Variants are the
 // build-profile-specific images that builder.rewriteImageForContext selects between
-// (python suffix, "-o2", "-rust", "bazel-" prefix).
+// (python suffix, "-o2", "-rust", "-debian", "bazel-" prefix).
 type EngineBaseImageVariant struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Variant repository name, e.g. "staging-engine-base-312-o2".
@@ -3292,6 +3292,9 @@ type EngineBaseImageVariant struct {
 	Digest        string                 `protobuf:"bytes,6,opt,name=digest,proto3" json:"digest,omitempty"`
 	Tags          []string               `protobuf:"bytes,7,rep,name=tags,proto3" json:"tags,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Debian-userspace flavor of the bazel image. Only set on bazel variants:
+	// no non-bazel engine-base repository publishes a Debian flavor.
+	UsesDebian    bool `protobuf:"varint,9,opt,name=uses_debian,json=usesDebian,proto3" json:"uses_debian,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3380,6 +3383,13 @@ func (x *EngineBaseImageVariant) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *EngineBaseImageVariant) GetUsesDebian() bool {
+	if x != nil {
+		return x.UsesDebian
+	}
+	return false
 }
 
 // One engine-base release, keyed by the structured version tag that
@@ -18056,7 +18066,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x03 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursor\"\x9b\x02\n" +
+	"\a_cursor\"\xbc\x02\n" +
 	"\x16EngineBaseImageVariant\x12\x1e\n" +
 	"\n" +
 	"repository\x18\x01 \x01(\tR\n" +
@@ -18069,7 +18079,9 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x06digest\x18\x06 \x01(\tR\x06digest\x12\x12\n" +
 	"\x04tags\x18\a \x03(\tR\x04tags\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xc6\x02\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1f\n" +
+	"\vuses_debian\x18\t \x01(\bR\n" +
+	"usesDebian\"\xc6\x02\n" +
 	"\x16EngineBaseImageRelease\x12\x1f\n" +
 	"\vversion_tag\x18\x01 \x01(\tR\n" +
 	"versionTag\x12\x12\n" +
