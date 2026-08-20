@@ -572,7 +572,8 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		Staleness: staleness,
 		Now:       now,
 		Context: &commonv1.OnlineQueryContext{
-			Tags:                 params.Tags,
+			Tags: params.Tags,
+			//lint:ignore SA1019 the x-chalk-branch-id header is authoritative; kept for servers that still read the context field
 			BranchId:             params.BranchId,
 			CorrelationId:        ptr.OrNil(params.CorrelationId),
 			QueryName:            ptr.OrNil(params.QueryName),

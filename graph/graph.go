@@ -679,6 +679,7 @@ func (hm *HasManyFeatureBuilder) WithMaxStaleness(d time.Duration) *HasManyFeatu
 func toFilterParsedColumnProto(relation string, name string) *expressionv1.LogicalExprNode {
 	return &expressionv1.LogicalExprNode{
 		ExprType: &expressionv1.LogicalExprNode_Column{
+			//lint:ignore SA1019 FilterParsed is the legacy expr_type oneof by definition; expr/ has the modern path
 			Column: &expressionv1.Column{
 				Name: name,
 				Relation: &expressionv1.ColumnRelation{
@@ -692,6 +693,7 @@ func toFilterParsedColumnProto(relation string, name string) *expressionv1.Logic
 func toFilterParsedBinaryProto(op string, operands []*expressionv1.LogicalExprNode) *expressionv1.LogicalExprNode {
 	return &expressionv1.LogicalExprNode{
 		ExprType: &expressionv1.LogicalExprNode_BinaryExpr{
+			//lint:ignore SA1019 ditto
 			BinaryExpr: &expressionv1.BinaryExprNode{
 				Op:       op,
 				Operands: operands,
@@ -718,6 +720,7 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 	case *expr.LiteralExpr:
 		return &expressionv1.LogicalExprNode{
 			ExprType: &expressionv1.LogicalExprNode_Literal{
+				//lint:ignore SA1019 ditto
 				Literal: e.ScalarValue,
 			},
 		}, nil
