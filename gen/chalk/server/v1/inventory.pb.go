@@ -193,8 +193,8 @@ type GetProjectNavbarCountsResponse struct {
 	// Distinct named query names across all deployments (matches the
 	// named-queries list).
 	NamedQueries int64 `protobuf:"varint,3,opt,name=named_queries,json=namedQueries,proto3" json:"named_queries,omitempty"`
-	// Scheduled queries plus scheduled resolvers in the active deployment
-	// (matches "Scheduled runs"; run history excluded).
+	// Scheduled queries, scheduled resolvers, and scheduled aggregate backfills
+	// in the active deployment (matches "Schedules"; run history excluded).
 	ActiveScheduledQueries int64 `protobuf:"varint,4,opt,name=active_scheduled_queries,json=activeScheduledQueries,proto3" json:"active_scheduled_queries,omitempty"`
 	// Compute resources.
 	ScalingGroups int64 `protobuf:"varint,5,opt,name=scaling_groups,json=scalingGroups,proto3" json:"scaling_groups,omitempty"`

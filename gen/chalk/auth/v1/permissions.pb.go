@@ -23,6 +23,54 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Principal types that a permission may be assigned to directly. User-role
+// assignment is managed separately; this metadata controls non-user principals.
+type PermissionPrincipal int32
+
+const (
+	PermissionPrincipal_PERMISSION_PRINCIPAL_UNSPECIFIED   PermissionPrincipal = 0
+	PermissionPrincipal_PERMISSION_PRINCIPAL_SERVICE_TOKEN PermissionPrincipal = 1
+)
+
+// Enum value maps for PermissionPrincipal.
+var (
+	PermissionPrincipal_name = map[int32]string{
+		0: "PERMISSION_PRINCIPAL_UNSPECIFIED",
+		1: "PERMISSION_PRINCIPAL_SERVICE_TOKEN",
+	}
+	PermissionPrincipal_value = map[string]int32{
+		"PERMISSION_PRINCIPAL_UNSPECIFIED":   0,
+		"PERMISSION_PRINCIPAL_SERVICE_TOKEN": 1,
+	}
+)
+
+func (x PermissionPrincipal) Enum() *PermissionPrincipal {
+	p := new(PermissionPrincipal)
+	*p = x
+	return p
+}
+
+func (x PermissionPrincipal) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PermissionPrincipal) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_auth_v1_permissions_proto_enumTypes[0].Descriptor()
+}
+
+func (PermissionPrincipal) Type() protoreflect.EnumType {
+	return &file_chalk_auth_v1_permissions_proto_enumTypes[0]
+}
+
+func (x PermissionPrincipal) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PermissionPrincipal.Descriptor instead.
+func (PermissionPrincipal) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_auth_v1_permissions_proto_rawDescGZIP(), []int{0}
+}
+
 type Permission int32
 
 const (
@@ -166,11 +214,11 @@ func (x Permission) String() string {
 }
 
 func (Permission) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_auth_v1_permissions_proto_enumTypes[0].Descriptor()
+	return file_chalk_auth_v1_permissions_proto_enumTypes[1].Descriptor()
 }
 
 func (Permission) Type() protoreflect.EnumType {
-	return &file_chalk_auth_v1_permissions_proto_enumTypes[0]
+	return &file_chalk_auth_v1_permissions_proto_enumTypes[1]
 }
 
 func (x Permission) Number() protoreflect.EnumNumber {
@@ -179,7 +227,7 @@ func (x Permission) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Permission.Descriptor instead.
 func (Permission) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_auth_v1_permissions_proto_rawDescGZIP(), []int{0}
+	return file_chalk_auth_v1_permissions_proto_rawDescGZIP(), []int{1}
 }
 
 var file_chalk_auth_v1_permissions_proto_extTypes = []protoimpl.ExtensionInfo{
@@ -197,6 +245,14 @@ var file_chalk_auth_v1_permissions_proto_extTypes = []protoimpl.ExtensionInfo{
 		Field:         1002,
 		Name:          "chalk.auth.v1.slug",
 		Tag:           "bytes,1002,opt,name=slug",
+		Filename:      "chalk/auth/v1/permissions.proto",
+	},
+	{
+		ExtendedType:  (*descriptorpb.EnumValueOptions)(nil),
+		ExtensionType: ([]PermissionPrincipal)(nil),
+		Field:         1003,
+		Name:          "chalk.auth.v1.assignable_to",
+		Tag:           "varint,1003,rep,packed,name=assignable_to,enum=chalk.auth.v1.PermissionPrincipal",
 		Filename:      "chalk/auth/v1/permissions.proto",
 	},
 	{
@@ -231,14 +287,16 @@ var (
 	E_Description = &file_chalk_auth_v1_permissions_proto_extTypes[0]
 	// optional string slug = 1002;
 	E_Slug = &file_chalk_auth_v1_permissions_proto_extTypes[1]
+	// repeated chalk.auth.v1.PermissionPrincipal assignable_to = 1003;
+	E_AssignableTo = &file_chalk_auth_v1_permissions_proto_extTypes[2]
 )
 
 // Extension fields to descriptorpb.MethodOptions.
 var (
 	// optional chalk.auth.v1.Permission permission = 2000;
-	E_Permission = &file_chalk_auth_v1_permissions_proto_extTypes[2]
+	E_Permission = &file_chalk_auth_v1_permissions_proto_extTypes[3]
 	// optional chalk.auth.v1.Permission team_permission = 2001;
-	E_TeamPermission = &file_chalk_auth_v1_permissions_proto_extTypes[3]
+	E_TeamPermission = &file_chalk_auth_v1_permissions_proto_extTypes[4]
 	// Additional permissions accepted in place of `permission` (OR semantics).
 	// The effective set of acceptable permissions for an endpoint is the union
 	// of `permission` and `additional_permissions_list`: a user holding any
@@ -248,55 +306,58 @@ var (
 	// additional_permissions_list = [PERMISSION_QUERY_OFFLINE_READ]).
 	//
 	// repeated chalk.auth.v1.Permission additional_permissions_list = 2002;
-	E_AdditionalPermissionsList = &file_chalk_auth_v1_permissions_proto_extTypes[4]
+	E_AdditionalPermissionsList = &file_chalk_auth_v1_permissions_proto_extTypes[5]
 )
 
 var File_chalk_auth_v1_permissions_proto protoreflect.FileDescriptor
 
 const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*\xff\"\n" +
+	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*c\n" +
+	"\x13PermissionPrincipal\x12$\n" +
+	" PERMISSION_PRINCIPAL_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"PERMISSION_PRINCIPAL_SERVICE_TOKEN\x10\x01*\xbf#\n" +
 	"\n" +
 	"Permission\x12R\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x1a6\xca>%Default value -- should never be set.\xd2>\vunspecified\x12O\n" +
 	"#PERMISSION_INSECURE_UNAUTHENTICATED\x10\x01\x1a&\xca>\x18Unauthenticated endpoint\xd2>\binsecure\x12f\n" +
-	"\x18PERMISSION_AUTHENTICATED\x10\x02\x1aH\xca>5User is authenticated, but no permissions are checked\xd2>\rauthenticated\x12E\n" +
-	"\x17PERMISSION_QUERY_ONLINE\x10\x03\x1a(\xca>\x16Query online features.\xd2>\fquery.online\x12H\n" +
-	"\x18PERMISSION_QUERY_OFFLINE\x10\x04\x1a*\xca>\x17Query offline features.\xd2>\rquery.offline\x12T\n" +
-	"\x1cPERMISSION_MONITORING_CREATE\x10\x05\x1a2\xca>\x1bCreate a new chart or alert\xd2>\x11monitoring.create\x12J\n" +
-	"\x1aPERMISSION_MONITORING_READ\x10\x06\x1a*\xca>\x15See charts and alerts\xd2>\x0fmonitoring.read\x12L\n" +
-	"\x13PERMISSION_TEAM_ADD\x10\a\x1a3\xca>%Add team members to your organization\xd2>\bteam.add\x12A\n" +
-	"\x16PERMISSION_TEAM_DELETE\x10\b\x1a%\xca>\x14Remove a team member\xd2>\vteam.delete\x12R\n" +
-	"\x14PERMISSION_TEAM_LIST\x10\t\x1a8\xca>)See the team members in your organization\xd2>\tteam.list\x12a\n" +
+	"\x18PERMISSION_AUTHENTICATED\x10\x02\x1aH\xca>5User is authenticated, but no permissions are checked\xd2>\rauthenticated\x12I\n" +
+	"\x17PERMISSION_QUERY_ONLINE\x10\x03\x1a,\xca>\x16Query online features.\xd2>\fquery.online\xda>\x01\x01\x12L\n" +
+	"\x18PERMISSION_QUERY_OFFLINE\x10\x04\x1a.\xca>\x17Query offline features.\xd2>\rquery.offline\xda>\x01\x01\x12X\n" +
+	"\x1cPERMISSION_MONITORING_CREATE\x10\x05\x1a6\xca>\x1bCreate a new chart or alert\xd2>\x11monitoring.create\xda>\x01\x01\x12N\n" +
+	"\x1aPERMISSION_MONITORING_READ\x10\x06\x1a.\xca>\x15See charts and alerts\xd2>\x0fmonitoring.read\xda>\x01\x01\x12P\n" +
+	"\x13PERMISSION_TEAM_ADD\x10\a\x1a7\xca>%Add team members to your organization\xd2>\bteam.add\xda>\x01\x01\x12E\n" +
+	"\x16PERMISSION_TEAM_DELETE\x10\b\x1a)\xca>\x14Remove a team member\xd2>\vteam.delete\xda>\x01\x01\x12V\n" +
+	"\x14PERMISSION_TEAM_LIST\x10\t\x1a<\xca>)See the team members in your organization\xd2>\tteam.list\xda>\x01\x01\x12e\n" +
 	"\x15PERMISSION_TEAM_ADMIN\x10\n" +
-	"\x1aF\xca>6Configure authentication options for your organization\xd2>\n" +
-	"team.admin\x12P\n" +
-	"\x16PERMISSION_DEPLOY_READ\x10\v\x1a4\xca>#Read information about deployments.\xd2>\vdeploy.read\x12I\n" +
-	"\x18PERMISSION_DEPLOY_CREATE\x10\f\x1a+\xca>\x18Create a new deployment.\xd2>\rdeploy.create\x12R\n" +
-	"\x19PERMISSION_DEPLOY_PREVIEW\x10\r\x1a3\xca>\x1fCreate a new branch deployment.\xd2>\x0edeploy.preview\x12U\n" +
-	"\x1aPERMISSION_DEPLOY_REDEPLOY\x10\x0e\x1a5\xca> Redeploy an existing deployment.\xd2>\x0fdeploy.redeploy\x12B\n" +
-	"\x14PERMISSION_LOGS_LIST\x10\x0f\x1a(\xca>\x19Read logs from resolvers.\xd2>\tlogs.list\x12A\n" +
-	"\x14PERMISSION_CRON_READ\x10\x10\x1a'\xca>\x18Read the scheduled runs.\xd2>\tcron.read\x12I\n" +
-	"\x16PERMISSION_CRON_CREATE\x10\x11\x1a-\xca>\x1cTrigger a new scheduled run.\xd2>\vcron.create\x12Y\n" +
-	"\x18PERMISSION_SECRETS_WRITE\x10\x12\x1a;\xca>(Create, modify, or delete secret values.\xd2>\rsecrets.write\x12K\n" +
-	"\x1aPERMISSION_SECRETS_DECRYPT\x10\x13\x1a+\xca>\x16Decrypt secret values.\xd2>\x0fsecrets.decrypt\x12\x86\x01\n" +
-	"\x17PERMISSION_SECRETS_LIST\x10\x14\x1ai\xca>WSee the list of available secrets. Reading secrets is not allowed with this permission.\xd2>\fsecrets.list\x12X\n" +
-	"\x17PERMISSION_TOKENS_WRITE\x10\x15\x1a;\xca>)Create, modify, or delete service tokens.\xd2>\ftokens.write\x12p\n" +
-	"\x16PERMISSION_TOKENS_LIST\x10\x16\x1aT\xca>CList the service tokens and see client ids, but not client secrets.\xd2>\vtokens.list\x12Q\n" +
-	"\x17PERMISSION_MIGRATE_READ\x10\x17\x1a4\xca>\"View information about migrations.\xd2>\fmigrate.read\x12G\n" +
-	"\x17PERMISSION_MIGRATE_PLAN\x10\x18\x1a*\xca>\x18Create a migration plan.\xd2>\fmigrate.plan\x12N\n" +
-	"\x1aPERMISSION_MIGRATE_EXECUTE\x10\x19\x1a.\xca>\x19Execute a migration plan.\xd2>\x0fmigrate.execute\x12G\n" +
-	"\x19PERMISSION_PROJECT_CREATE\x10\x1a\x1a(\xca>\x14Create a new project\xd2>\x0eproject.create\x12=\n" +
-	"\x16PERMISSION_CHALK_ADMIN\x10\x1b\x1a!\xca>\x10Administer Chalk\xd2>\vchalk.admin\x12G\n" +
-	"\x17PERMISSION_BILLING_READ\x10\x1c\x1a*\xca>\x18Read billing information\xd2>\fbilling.read\x12R\n" +
-	"\x1fPERMISSION_AUTH_SERVICE_MANAGER\x10\x1d\x1a-\xca>\x13Manage Auth Service\xd2>\x14auth_service.manager\x12Z\n" +
-	"\x1ePERMISSION_INFRASTRUCTURE_READ\x10\x1e\x1a6\xca>\x1dRead infrastructure workflows\xd2>\x13infrastructure.read\x12i\n" +
-	"\x1fPERMISSION_INFRASTRUCTURE_WRITE\x10\x1f\x1aD\xca>*Approve or cancel infrastructure workflows\xd2>\x14infrastructure.write\x12Y\n" +
-	"\x1dPERMISSION_ENVIRONMENT_CREATE\x10 \x1a6\xca>\x1eCreate and manage environments\xd2>\x12environment.create\x12\x9e\x01\n" +
+	"\x1aJ\xca>6Configure authentication options for your organization\xd2>\n" +
+	"team.admin\xda>\x01\x01\x12T\n" +
+	"\x16PERMISSION_DEPLOY_READ\x10\v\x1a8\xca>#Read information about deployments.\xd2>\vdeploy.read\xda>\x01\x01\x12M\n" +
+	"\x18PERMISSION_DEPLOY_CREATE\x10\f\x1a/\xca>\x18Create a new deployment.\xd2>\rdeploy.create\xda>\x01\x01\x12V\n" +
+	"\x19PERMISSION_DEPLOY_PREVIEW\x10\r\x1a7\xca>\x1fCreate a new branch deployment.\xd2>\x0edeploy.preview\xda>\x01\x01\x12Y\n" +
+	"\x1aPERMISSION_DEPLOY_REDEPLOY\x10\x0e\x1a9\xca> Redeploy an existing deployment.\xd2>\x0fdeploy.redeploy\xda>\x01\x01\x12F\n" +
+	"\x14PERMISSION_LOGS_LIST\x10\x0f\x1a,\xca>\x19Read logs from resolvers.\xd2>\tlogs.list\xda>\x01\x01\x12E\n" +
+	"\x14PERMISSION_CRON_READ\x10\x10\x1a+\xca>\x18Read the scheduled runs.\xd2>\tcron.read\xda>\x01\x01\x12M\n" +
+	"\x16PERMISSION_CRON_CREATE\x10\x11\x1a1\xca>\x1cTrigger a new scheduled run.\xd2>\vcron.create\xda>\x01\x01\x12]\n" +
+	"\x18PERMISSION_SECRETS_WRITE\x10\x12\x1a?\xca>(Create, modify, or delete secret values.\xd2>\rsecrets.write\xda>\x01\x01\x12O\n" +
+	"\x1aPERMISSION_SECRETS_DECRYPT\x10\x13\x1a/\xca>\x16Decrypt secret values.\xd2>\x0fsecrets.decrypt\xda>\x01\x01\x12\x8a\x01\n" +
+	"\x17PERMISSION_SECRETS_LIST\x10\x14\x1am\xca>WSee the list of available secrets. Reading secrets is not allowed with this permission.\xd2>\fsecrets.list\xda>\x01\x01\x12\\\n" +
+	"\x17PERMISSION_TOKENS_WRITE\x10\x15\x1a?\xca>)Create, modify, or delete service tokens.\xd2>\ftokens.write\xda>\x01\x01\x12t\n" +
+	"\x16PERMISSION_TOKENS_LIST\x10\x16\x1aX\xca>CList the service tokens and see client ids, but not client secrets.\xd2>\vtokens.list\xda>\x01\x01\x12U\n" +
+	"\x17PERMISSION_MIGRATE_READ\x10\x17\x1a8\xca>\"View information about migrations.\xd2>\fmigrate.read\xda>\x01\x01\x12K\n" +
+	"\x17PERMISSION_MIGRATE_PLAN\x10\x18\x1a.\xca>\x18Create a migration plan.\xd2>\fmigrate.plan\xda>\x01\x01\x12R\n" +
+	"\x1aPERMISSION_MIGRATE_EXECUTE\x10\x19\x1a2\xca>\x19Execute a migration plan.\xd2>\x0fmigrate.execute\xda>\x01\x01\x12K\n" +
+	"\x19PERMISSION_PROJECT_CREATE\x10\x1a\x1a,\xca>\x14Create a new project\xd2>\x0eproject.create\xda>\x01\x01\x12=\n" +
+	"\x16PERMISSION_CHALK_ADMIN\x10\x1b\x1a!\xca>\x10Administer Chalk\xd2>\vchalk.admin\x12K\n" +
+	"\x17PERMISSION_BILLING_READ\x10\x1c\x1a.\xca>\x18Read billing information\xd2>\fbilling.read\xda>\x01\x01\x12R\n" +
+	"\x1fPERMISSION_AUTH_SERVICE_MANAGER\x10\x1d\x1a-\xca>\x13Manage Auth Service\xd2>\x14auth_service.manager\x12^\n" +
+	"\x1ePERMISSION_INFRASTRUCTURE_READ\x10\x1e\x1a:\xca>\x1dRead infrastructure workflows\xd2>\x13infrastructure.read\xda>\x01\x01\x12m\n" +
+	"\x1fPERMISSION_INFRASTRUCTURE_WRITE\x10\x1f\x1aH\xca>*Approve or cancel infrastructure workflows\xd2>\x14infrastructure.write\xda>\x01\x01\x12]\n" +
+	"\x1dPERMISSION_ENVIRONMENT_CREATE\x10 \x1a:\xca>\x1eCreate and manage environments\xd2>\x12environment.create\xda>\x01\x01\x12\x9e\x01\n" +
 	"+PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE\x10!\x1am\xca>GUpdate container and scaling group status from the dataplane controller\xd2> internal.dataplane_status_update\x12\x90\x01\n" +
 	"*PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE\x10\"\x1a`\xca>;Use an exchange token to obtain a short-lived working token\xd2>\x1finternal.working_token_exchange\x12o\n" +
-	"\x18PERMISSION_BILLING_WRITE\x10#\x1aQ\xca>>Manage billing settings, payment methods, and credit purchases\xd2>\rbilling.write\x12\x90\x01\n" +
-	"\x1dPERMISSION_QUERY_OFFLINE_READ\x10$\x1am\xca>UView offline query metadata (datasets, query plans, results) without running queries.\xd2>\x12query.offline_read\x12\xcd\x01\n" +
+	"\x18PERMISSION_BILLING_WRITE\x10#\x1aQ\xca>>Manage billing settings, payment methods, and credit purchases\xd2>\rbilling.write\x12a\n" +
+	"\x1dPERMISSION_QUERY_OFFLINE_READ\x10$\x1a>\xca>\"Read offline queries and datasets.\xd2>\x12query.offline_read\xda>\x01\x01\x12\xcd\x01\n" +
 	"'PERMISSION_INTERNAL_RESOURCE_SHARE_VIEW\x10%\x1a\x9f\x01\xca>}Read a single shared resource through a share link. Held only by share-link tokens, never granted to a user or service token.\xd2>\x1cinternal.resource_share_view\x12f\n" +
 	"(PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW\x10&\x1a8\xca>\x15Renew exchange tokens\xd2>\x1dinternal.exchange_token_renew\x1a\xae\x06\xe2\xa1'\xa9\x06\n" +
 	"\x1c\b\x01\x12\x18insecure_unauthenticated\n" +
@@ -340,7 +401,8 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	" \b%\x12\x1cinternal.resource_share_view\n" +
 	"!\b&\x12\x1dinternal.exchange_token_renew:D\n" +
 	"\vdescription\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\tR\vdescription:6\n" +
-	"\x04slug\x12!.google.protobuf.EnumValueOptions\x18\xea\a \x01(\tR\x04slug:Z\n" +
+	"\x04slug\x12!.google.protobuf.EnumValueOptions\x18\xea\a \x01(\tR\x04slug:k\n" +
+	"\rassignable_to\x12!.google.protobuf.EnumValueOptions\x18\xeb\a \x03(\x0e2\".chalk.auth.v1.PermissionPrincipalR\fassignableTo:Z\n" +
 	"\n" +
 	"permission\x12\x1e.google.protobuf.MethodOptions\x18\xd0\x0f \x01(\x0e2\x19.chalk.auth.v1.PermissionR\n" +
 	"permission:c\n" +
@@ -360,26 +422,29 @@ func file_chalk_auth_v1_permissions_proto_rawDescGZIP() []byte {
 	return file_chalk_auth_v1_permissions_proto_rawDescData
 }
 
-var file_chalk_auth_v1_permissions_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_auth_v1_permissions_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_auth_v1_permissions_proto_goTypes = []any{
-	(Permission)(0),                       // 0: chalk.auth.v1.Permission
-	(*descriptorpb.EnumValueOptions)(nil), // 1: google.protobuf.EnumValueOptions
-	(*descriptorpb.MethodOptions)(nil),    // 2: google.protobuf.MethodOptions
+	(PermissionPrincipal)(0),              // 0: chalk.auth.v1.PermissionPrincipal
+	(Permission)(0),                       // 1: chalk.auth.v1.Permission
+	(*descriptorpb.EnumValueOptions)(nil), // 2: google.protobuf.EnumValueOptions
+	(*descriptorpb.MethodOptions)(nil),    // 3: google.protobuf.MethodOptions
 }
 var file_chalk_auth_v1_permissions_proto_depIdxs = []int32{
-	1, // 0: chalk.auth.v1.description:extendee -> google.protobuf.EnumValueOptions
-	1, // 1: chalk.auth.v1.slug:extendee -> google.protobuf.EnumValueOptions
-	2, // 2: chalk.auth.v1.permission:extendee -> google.protobuf.MethodOptions
-	2, // 3: chalk.auth.v1.team_permission:extendee -> google.protobuf.MethodOptions
-	2, // 4: chalk.auth.v1.additional_permissions_list:extendee -> google.protobuf.MethodOptions
-	0, // 5: chalk.auth.v1.permission:type_name -> chalk.auth.v1.Permission
-	0, // 6: chalk.auth.v1.team_permission:type_name -> chalk.auth.v1.Permission
-	0, // 7: chalk.auth.v1.additional_permissions_list:type_name -> chalk.auth.v1.Permission
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	5, // [5:8] is the sub-list for extension type_name
-	0, // [0:5] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2,  // 0: chalk.auth.v1.description:extendee -> google.protobuf.EnumValueOptions
+	2,  // 1: chalk.auth.v1.slug:extendee -> google.protobuf.EnumValueOptions
+	2,  // 2: chalk.auth.v1.assignable_to:extendee -> google.protobuf.EnumValueOptions
+	3,  // 3: chalk.auth.v1.permission:extendee -> google.protobuf.MethodOptions
+	3,  // 4: chalk.auth.v1.team_permission:extendee -> google.protobuf.MethodOptions
+	3,  // 5: chalk.auth.v1.additional_permissions_list:extendee -> google.protobuf.MethodOptions
+	0,  // 6: chalk.auth.v1.assignable_to:type_name -> chalk.auth.v1.PermissionPrincipal
+	1,  // 7: chalk.auth.v1.permission:type_name -> chalk.auth.v1.Permission
+	1,  // 8: chalk.auth.v1.team_permission:type_name -> chalk.auth.v1.Permission
+	1,  // 9: chalk.auth.v1.additional_permissions_list:type_name -> chalk.auth.v1.Permission
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	6,  // [6:10] is the sub-list for extension type_name
+	0,  // [0:6] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_chalk_auth_v1_permissions_proto_init() }
@@ -392,9 +457,9 @@ func file_chalk_auth_v1_permissions_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_auth_v1_permissions_proto_rawDesc), len(file_chalk_auth_v1_permissions_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   0,
-			NumExtensions: 5,
+			NumExtensions: 6,
 			NumServices:   0,
 		},
 		GoTypes:           file_chalk_auth_v1_permissions_proto_goTypes,

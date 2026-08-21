@@ -33,6 +33,15 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// SqlServiceGetOfflineQueryInputsProcedure is the fully-qualified name of the SqlService's
+	// GetOfflineQueryInputs RPC.
+	SqlServiceGetOfflineQueryInputsProcedure = "/chalk.protosql.v1.SqlService/GetOfflineQueryInputs"
+	// SqlServiceGetOfflineQueryPreviewProcedure is the fully-qualified name of the SqlService's
+	// GetOfflineQueryPreview RPC.
+	SqlServiceGetOfflineQueryPreviewProcedure = "/chalk.protosql.v1.SqlService/GetOfflineQueryPreview"
+	// SqlServiceGetOfflineQueryStatsProcedure is the fully-qualified name of the SqlService's
+	// GetOfflineQueryStats RPC.
+	SqlServiceGetOfflineQueryStatsProcedure = "/chalk.protosql.v1.SqlService/GetOfflineQueryStats"
 	// SqlServiceExecuteSqlQueryProcedure is the fully-qualified name of the SqlService's
 	// ExecuteSqlQuery RPC.
 	SqlServiceExecuteSqlQueryProcedure = "/chalk.protosql.v1.SqlService/ExecuteSqlQuery"
@@ -51,6 +60,9 @@ const (
 
 // SqlServiceClient is a client for the chalk.protosql.v1.SqlService service.
 type SqlServiceClient interface {
+	GetOfflineQueryInputs(context.Context, *connect.Request[v1.GetOfflineQueryInputsRequest]) (*connect.Response[v1.GetOfflineQueryInputsResponse], error)
+	GetOfflineQueryPreview(context.Context, *connect.Request[v1.GetOfflineQueryPreviewRequest]) (*connect.Response[v1.GetOfflineQueryPreviewResponse], error)
+	GetOfflineQueryStats(context.Context, *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error)
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
 	// Poll for the status and results of an asynchronous SQL query
@@ -71,6 +83,24 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 	baseURL = strings.TrimRight(baseURL, "/")
 	sqlServiceMethods := v1.File_chalk_protosql_v1_sql_service_proto.Services().ByName("SqlService").Methods()
 	return &sqlServiceClient{
+		getOfflineQueryInputs: connect.NewClient[v1.GetOfflineQueryInputsRequest, v1.GetOfflineQueryInputsResponse](
+			httpClient,
+			baseURL+SqlServiceGetOfflineQueryInputsProcedure,
+			connect.WithSchema(sqlServiceMethods.ByName("GetOfflineQueryInputs")),
+			connect.WithClientOptions(opts...),
+		),
+		getOfflineQueryPreview: connect.NewClient[v1.GetOfflineQueryPreviewRequest, v1.GetOfflineQueryPreviewResponse](
+			httpClient,
+			baseURL+SqlServiceGetOfflineQueryPreviewProcedure,
+			connect.WithSchema(sqlServiceMethods.ByName("GetOfflineQueryPreview")),
+			connect.WithClientOptions(opts...),
+		),
+		getOfflineQueryStats: connect.NewClient[v1.GetOfflineQueryStatsRequest, v1.GetOfflineQueryStatsResponse](
+			httpClient,
+			baseURL+SqlServiceGetOfflineQueryStatsProcedure,
+			connect.WithSchema(sqlServiceMethods.ByName("GetOfflineQueryStats")),
+			connect.WithClientOptions(opts...),
+		),
 		executeSqlQuery: connect.NewClient[v1.ExecuteSqlQueryRequest, v1.ExecuteSqlQueryResponse](
 			httpClient,
 			baseURL+SqlServiceExecuteSqlQueryProcedure,
@@ -112,12 +142,30 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 
 // sqlServiceClient implements SqlServiceClient.
 type sqlServiceClient struct {
-	executeSqlQuery *connect.Client[v1.ExecuteSqlQueryRequest, v1.ExecuteSqlQueryResponse]
-	planSqlQuery    *connect.Client[v1.PlanSqlQueryRequest, v1.PlanSqlQueryResponse]
-	pollSqlQuery    *connect.Client[v1.PollSqlQueryRequest, v1.PollSqlQueryResponse]
-	getDbCatalogs   *connect.Client[v1.GetDbCatalogsRequest, v1.GetDbCatalogsResponse]
-	getDbSchemas    *connect.Client[v1.GetDbSchemasRequest, v1.GetDbSchemasResponse]
-	getTables       *connect.Client[v1.GetTablesRequest, v1.GetTablesResponse]
+	getOfflineQueryInputs  *connect.Client[v1.GetOfflineQueryInputsRequest, v1.GetOfflineQueryInputsResponse]
+	getOfflineQueryPreview *connect.Client[v1.GetOfflineQueryPreviewRequest, v1.GetOfflineQueryPreviewResponse]
+	getOfflineQueryStats   *connect.Client[v1.GetOfflineQueryStatsRequest, v1.GetOfflineQueryStatsResponse]
+	executeSqlQuery        *connect.Client[v1.ExecuteSqlQueryRequest, v1.ExecuteSqlQueryResponse]
+	planSqlQuery           *connect.Client[v1.PlanSqlQueryRequest, v1.PlanSqlQueryResponse]
+	pollSqlQuery           *connect.Client[v1.PollSqlQueryRequest, v1.PollSqlQueryResponse]
+	getDbCatalogs          *connect.Client[v1.GetDbCatalogsRequest, v1.GetDbCatalogsResponse]
+	getDbSchemas           *connect.Client[v1.GetDbSchemasRequest, v1.GetDbSchemasResponse]
+	getTables              *connect.Client[v1.GetTablesRequest, v1.GetTablesResponse]
+}
+
+// GetOfflineQueryInputs calls chalk.protosql.v1.SqlService.GetOfflineQueryInputs.
+func (c *sqlServiceClient) GetOfflineQueryInputs(ctx context.Context, req *connect.Request[v1.GetOfflineQueryInputsRequest]) (*connect.Response[v1.GetOfflineQueryInputsResponse], error) {
+	return c.getOfflineQueryInputs.CallUnary(ctx, req)
+}
+
+// GetOfflineQueryPreview calls chalk.protosql.v1.SqlService.GetOfflineQueryPreview.
+func (c *sqlServiceClient) GetOfflineQueryPreview(ctx context.Context, req *connect.Request[v1.GetOfflineQueryPreviewRequest]) (*connect.Response[v1.GetOfflineQueryPreviewResponse], error) {
+	return c.getOfflineQueryPreview.CallUnary(ctx, req)
+}
+
+// GetOfflineQueryStats calls chalk.protosql.v1.SqlService.GetOfflineQueryStats.
+func (c *sqlServiceClient) GetOfflineQueryStats(ctx context.Context, req *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error) {
+	return c.getOfflineQueryStats.CallUnary(ctx, req)
 }
 
 // ExecuteSqlQuery calls chalk.protosql.v1.SqlService.ExecuteSqlQuery.
@@ -152,6 +200,9 @@ func (c *sqlServiceClient) GetTables(ctx context.Context, req *connect.Request[v
 
 // SqlServiceHandler is an implementation of the chalk.protosql.v1.SqlService service.
 type SqlServiceHandler interface {
+	GetOfflineQueryInputs(context.Context, *connect.Request[v1.GetOfflineQueryInputsRequest]) (*connect.Response[v1.GetOfflineQueryInputsResponse], error)
+	GetOfflineQueryPreview(context.Context, *connect.Request[v1.GetOfflineQueryPreviewRequest]) (*connect.Response[v1.GetOfflineQueryPreviewResponse], error)
+	GetOfflineQueryStats(context.Context, *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error)
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
 	// Poll for the status and results of an asynchronous SQL query
@@ -168,6 +219,24 @@ type SqlServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	sqlServiceMethods := v1.File_chalk_protosql_v1_sql_service_proto.Services().ByName("SqlService").Methods()
+	sqlServiceGetOfflineQueryInputsHandler := connect.NewUnaryHandler(
+		SqlServiceGetOfflineQueryInputsProcedure,
+		svc.GetOfflineQueryInputs,
+		connect.WithSchema(sqlServiceMethods.ByName("GetOfflineQueryInputs")),
+		connect.WithHandlerOptions(opts...),
+	)
+	sqlServiceGetOfflineQueryPreviewHandler := connect.NewUnaryHandler(
+		SqlServiceGetOfflineQueryPreviewProcedure,
+		svc.GetOfflineQueryPreview,
+		connect.WithSchema(sqlServiceMethods.ByName("GetOfflineQueryPreview")),
+		connect.WithHandlerOptions(opts...),
+	)
+	sqlServiceGetOfflineQueryStatsHandler := connect.NewUnaryHandler(
+		SqlServiceGetOfflineQueryStatsProcedure,
+		svc.GetOfflineQueryStats,
+		connect.WithSchema(sqlServiceMethods.ByName("GetOfflineQueryStats")),
+		connect.WithHandlerOptions(opts...),
+	)
 	sqlServiceExecuteSqlQueryHandler := connect.NewUnaryHandler(
 		SqlServiceExecuteSqlQueryProcedure,
 		svc.ExecuteSqlQuery,
@@ -206,6 +275,12 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 	)
 	return "/chalk.protosql.v1.SqlService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case SqlServiceGetOfflineQueryInputsProcedure:
+			sqlServiceGetOfflineQueryInputsHandler.ServeHTTP(w, r)
+		case SqlServiceGetOfflineQueryPreviewProcedure:
+			sqlServiceGetOfflineQueryPreviewHandler.ServeHTTP(w, r)
+		case SqlServiceGetOfflineQueryStatsProcedure:
+			sqlServiceGetOfflineQueryStatsHandler.ServeHTTP(w, r)
 		case SqlServiceExecuteSqlQueryProcedure:
 			sqlServiceExecuteSqlQueryHandler.ServeHTTP(w, r)
 		case SqlServicePlanSqlQueryProcedure:
@@ -226,6 +301,18 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 
 // UnimplementedSqlServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSqlServiceHandler struct{}
+
+func (UnimplementedSqlServiceHandler) GetOfflineQueryInputs(context.Context, *connect.Request[v1.GetOfflineQueryInputsRequest]) (*connect.Response[v1.GetOfflineQueryInputsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.GetOfflineQueryInputs is not implemented"))
+}
+
+func (UnimplementedSqlServiceHandler) GetOfflineQueryPreview(context.Context, *connect.Request[v1.GetOfflineQueryPreviewRequest]) (*connect.Response[v1.GetOfflineQueryPreviewResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.GetOfflineQueryPreview is not implemented"))
+}
+
+func (UnimplementedSqlServiceHandler) GetOfflineQueryStats(context.Context, *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.GetOfflineQueryStats is not implemented"))
+}
 
 func (UnimplementedSqlServiceHandler) ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.ExecuteSqlQuery is not implemented"))

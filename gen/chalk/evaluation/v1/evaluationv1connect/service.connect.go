@@ -33,6 +33,12 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// EvaluationServiceCreateEvaluationSuiteProcedure is the fully-qualified name of the
+	// EvaluationService's CreateEvaluationSuite RPC.
+	EvaluationServiceCreateEvaluationSuiteProcedure = "/chalk.evaluation.v1.EvaluationService/CreateEvaluationSuite"
+	// EvaluationServiceListEvaluationSuitesProcedure is the fully-qualified name of the
+	// EvaluationService's ListEvaluationSuites RPC.
+	EvaluationServiceListEvaluationSuitesProcedure = "/chalk.evaluation.v1.EvaluationService/ListEvaluationSuites"
 	// EvaluationServiceCreateEvaluationProcedure is the fully-qualified name of the EvaluationService's
 	// CreateEvaluation RPC.
 	EvaluationServiceCreateEvaluationProcedure = "/chalk.evaluation.v1.EvaluationService/CreateEvaluation"
@@ -54,10 +60,15 @@ const (
 	// EvaluationServiceSetEvaluationRunBaselineProcedure is the fully-qualified name of the
 	// EvaluationService's SetEvaluationRunBaseline RPC.
 	EvaluationServiceSetEvaluationRunBaselineProcedure = "/chalk.evaluation.v1.EvaluationService/SetEvaluationRunBaseline"
+	// EvaluationServiceArchiveEvaluationRunProcedure is the fully-qualified name of the
+	// EvaluationService's ArchiveEvaluationRun RPC.
+	EvaluationServiceArchiveEvaluationRunProcedure = "/chalk.evaluation.v1.EvaluationService/ArchiveEvaluationRun"
 )
 
 // EvaluationServiceClient is a client for the chalk.evaluation.v1.EvaluationService service.
 type EvaluationServiceClient interface {
+	CreateEvaluationSuite(context.Context, *connect.Request[v1.CreateEvaluationSuiteRequest]) (*connect.Response[v1.CreateEvaluationSuiteResponse], error)
+	ListEvaluationSuites(context.Context, *connect.Request[v1.ListEvaluationSuitesRequest]) (*connect.Response[v1.ListEvaluationSuitesResponse], error)
 	CreateEvaluation(context.Context, *connect.Request[v1.CreateEvaluationRequest]) (*connect.Response[v1.CreateEvaluationResponse], error)
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
@@ -65,6 +76,7 @@ type EvaluationServiceClient interface {
 	GetEvaluationRun(context.Context, *connect.Request[v1.GetEvaluationRunRequest]) (*connect.Response[v1.GetEvaluationRunResponse], error)
 	ListEvaluationRuns(context.Context, *connect.Request[v1.ListEvaluationRunsRequest]) (*connect.Response[v1.ListEvaluationRunsResponse], error)
 	SetEvaluationRunBaseline(context.Context, *connect.Request[v1.SetEvaluationRunBaselineRequest]) (*connect.Response[v1.SetEvaluationRunBaselineResponse], error)
+	ArchiveEvaluationRun(context.Context, *connect.Request[v1.ArchiveEvaluationRunRequest]) (*connect.Response[v1.ArchiveEvaluationRunResponse], error)
 }
 
 // NewEvaluationServiceClient constructs a client for the chalk.evaluation.v1.EvaluationService
@@ -78,6 +90,19 @@ func NewEvaluationServiceClient(httpClient connect.HTTPClient, baseURL string, o
 	baseURL = strings.TrimRight(baseURL, "/")
 	evaluationServiceMethods := v1.File_chalk_evaluation_v1_service_proto.Services().ByName("EvaluationService").Methods()
 	return &evaluationServiceClient{
+		createEvaluationSuite: connect.NewClient[v1.CreateEvaluationSuiteRequest, v1.CreateEvaluationSuiteResponse](
+			httpClient,
+			baseURL+EvaluationServiceCreateEvaluationSuiteProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("CreateEvaluationSuite")),
+			connect.WithClientOptions(opts...),
+		),
+		listEvaluationSuites: connect.NewClient[v1.ListEvaluationSuitesRequest, v1.ListEvaluationSuitesResponse](
+			httpClient,
+			baseURL+EvaluationServiceListEvaluationSuitesProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("ListEvaluationSuites")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 		createEvaluation: connect.NewClient[v1.CreateEvaluationRequest, v1.CreateEvaluationResponse](
 			httpClient,
 			baseURL+EvaluationServiceCreateEvaluationProcedure,
@@ -125,11 +150,20 @@ func NewEvaluationServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		archiveEvaluationRun: connect.NewClient[v1.ArchiveEvaluationRunRequest, v1.ArchiveEvaluationRunResponse](
+			httpClient,
+			baseURL+EvaluationServiceArchiveEvaluationRunProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("ArchiveEvaluationRun")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // evaluationServiceClient implements EvaluationServiceClient.
 type evaluationServiceClient struct {
+	createEvaluationSuite    *connect.Client[v1.CreateEvaluationSuiteRequest, v1.CreateEvaluationSuiteResponse]
+	listEvaluationSuites     *connect.Client[v1.ListEvaluationSuitesRequest, v1.ListEvaluationSuitesResponse]
 	createEvaluation         *connect.Client[v1.CreateEvaluationRequest, v1.CreateEvaluationResponse]
 	getEvaluation            *connect.Client[v1.GetEvaluationRequest, v1.GetEvaluationResponse]
 	listEvaluations          *connect.Client[v1.ListEvaluationsRequest, v1.ListEvaluationsResponse]
@@ -137,6 +171,17 @@ type evaluationServiceClient struct {
 	getEvaluationRun         *connect.Client[v1.GetEvaluationRunRequest, v1.GetEvaluationRunResponse]
 	listEvaluationRuns       *connect.Client[v1.ListEvaluationRunsRequest, v1.ListEvaluationRunsResponse]
 	setEvaluationRunBaseline *connect.Client[v1.SetEvaluationRunBaselineRequest, v1.SetEvaluationRunBaselineResponse]
+	archiveEvaluationRun     *connect.Client[v1.ArchiveEvaluationRunRequest, v1.ArchiveEvaluationRunResponse]
+}
+
+// CreateEvaluationSuite calls chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite.
+func (c *evaluationServiceClient) CreateEvaluationSuite(ctx context.Context, req *connect.Request[v1.CreateEvaluationSuiteRequest]) (*connect.Response[v1.CreateEvaluationSuiteResponse], error) {
+	return c.createEvaluationSuite.CallUnary(ctx, req)
+}
+
+// ListEvaluationSuites calls chalk.evaluation.v1.EvaluationService.ListEvaluationSuites.
+func (c *evaluationServiceClient) ListEvaluationSuites(ctx context.Context, req *connect.Request[v1.ListEvaluationSuitesRequest]) (*connect.Response[v1.ListEvaluationSuitesResponse], error) {
+	return c.listEvaluationSuites.CallUnary(ctx, req)
 }
 
 // CreateEvaluation calls chalk.evaluation.v1.EvaluationService.CreateEvaluation.
@@ -174,9 +219,16 @@ func (c *evaluationServiceClient) SetEvaluationRunBaseline(ctx context.Context, 
 	return c.setEvaluationRunBaseline.CallUnary(ctx, req)
 }
 
+// ArchiveEvaluationRun calls chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun.
+func (c *evaluationServiceClient) ArchiveEvaluationRun(ctx context.Context, req *connect.Request[v1.ArchiveEvaluationRunRequest]) (*connect.Response[v1.ArchiveEvaluationRunResponse], error) {
+	return c.archiveEvaluationRun.CallUnary(ctx, req)
+}
+
 // EvaluationServiceHandler is an implementation of the chalk.evaluation.v1.EvaluationService
 // service.
 type EvaluationServiceHandler interface {
+	CreateEvaluationSuite(context.Context, *connect.Request[v1.CreateEvaluationSuiteRequest]) (*connect.Response[v1.CreateEvaluationSuiteResponse], error)
+	ListEvaluationSuites(context.Context, *connect.Request[v1.ListEvaluationSuitesRequest]) (*connect.Response[v1.ListEvaluationSuitesResponse], error)
 	CreateEvaluation(context.Context, *connect.Request[v1.CreateEvaluationRequest]) (*connect.Response[v1.CreateEvaluationResponse], error)
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
@@ -184,6 +236,7 @@ type EvaluationServiceHandler interface {
 	GetEvaluationRun(context.Context, *connect.Request[v1.GetEvaluationRunRequest]) (*connect.Response[v1.GetEvaluationRunResponse], error)
 	ListEvaluationRuns(context.Context, *connect.Request[v1.ListEvaluationRunsRequest]) (*connect.Response[v1.ListEvaluationRunsResponse], error)
 	SetEvaluationRunBaseline(context.Context, *connect.Request[v1.SetEvaluationRunBaselineRequest]) (*connect.Response[v1.SetEvaluationRunBaselineResponse], error)
+	ArchiveEvaluationRun(context.Context, *connect.Request[v1.ArchiveEvaluationRunRequest]) (*connect.Response[v1.ArchiveEvaluationRunResponse], error)
 }
 
 // NewEvaluationServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -193,6 +246,19 @@ type EvaluationServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	evaluationServiceMethods := v1.File_chalk_evaluation_v1_service_proto.Services().ByName("EvaluationService").Methods()
+	evaluationServiceCreateEvaluationSuiteHandler := connect.NewUnaryHandler(
+		EvaluationServiceCreateEvaluationSuiteProcedure,
+		svc.CreateEvaluationSuite,
+		connect.WithSchema(evaluationServiceMethods.ByName("CreateEvaluationSuite")),
+		connect.WithHandlerOptions(opts...),
+	)
+	evaluationServiceListEvaluationSuitesHandler := connect.NewUnaryHandler(
+		EvaluationServiceListEvaluationSuitesProcedure,
+		svc.ListEvaluationSuites,
+		connect.WithSchema(evaluationServiceMethods.ByName("ListEvaluationSuites")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	evaluationServiceCreateEvaluationHandler := connect.NewUnaryHandler(
 		EvaluationServiceCreateEvaluationProcedure,
 		svc.CreateEvaluation,
@@ -240,8 +306,19 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	evaluationServiceArchiveEvaluationRunHandler := connect.NewUnaryHandler(
+		EvaluationServiceArchiveEvaluationRunProcedure,
+		svc.ArchiveEvaluationRun,
+		connect.WithSchema(evaluationServiceMethods.ByName("ArchiveEvaluationRun")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.evaluation.v1.EvaluationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case EvaluationServiceCreateEvaluationSuiteProcedure:
+			evaluationServiceCreateEvaluationSuiteHandler.ServeHTTP(w, r)
+		case EvaluationServiceListEvaluationSuitesProcedure:
+			evaluationServiceListEvaluationSuitesHandler.ServeHTTP(w, r)
 		case EvaluationServiceCreateEvaluationProcedure:
 			evaluationServiceCreateEvaluationHandler.ServeHTTP(w, r)
 		case EvaluationServiceGetEvaluationProcedure:
@@ -256,6 +333,8 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 			evaluationServiceListEvaluationRunsHandler.ServeHTTP(w, r)
 		case EvaluationServiceSetEvaluationRunBaselineProcedure:
 			evaluationServiceSetEvaluationRunBaselineHandler.ServeHTTP(w, r)
+		case EvaluationServiceArchiveEvaluationRunProcedure:
+			evaluationServiceArchiveEvaluationRunHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -264,6 +343,14 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 
 // UnimplementedEvaluationServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedEvaluationServiceHandler struct{}
+
+func (UnimplementedEvaluationServiceHandler) CreateEvaluationSuite(context.Context, *connect.Request[v1.CreateEvaluationSuiteRequest]) (*connect.Response[v1.CreateEvaluationSuiteResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) ListEvaluationSuites(context.Context, *connect.Request[v1.ListEvaluationSuitesRequest]) (*connect.Response[v1.ListEvaluationSuitesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.ListEvaluationSuites is not implemented"))
+}
 
 func (UnimplementedEvaluationServiceHandler) CreateEvaluation(context.Context, *connect.Request[v1.CreateEvaluationRequest]) (*connect.Response[v1.CreateEvaluationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.CreateEvaluation is not implemented"))
@@ -291,4 +378,8 @@ func (UnimplementedEvaluationServiceHandler) ListEvaluationRuns(context.Context,
 
 func (UnimplementedEvaluationServiceHandler) SetEvaluationRunBaseline(context.Context, *connect.Request[v1.SetEvaluationRunBaselineRequest]) (*connect.Response[v1.SetEvaluationRunBaselineResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) ArchiveEvaluationRun(context.Context, *connect.Request[v1.ArchiveEvaluationRunRequest]) (*connect.Response[v1.ArchiveEvaluationRunResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun is not implemented"))
 }

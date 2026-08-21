@@ -121,7 +121,8 @@ func (x *PlanAggregateBackfillRequest) GetParams() *AggregateBackfillUserParams 
 }
 
 type PlanAggregateBackfillResponse struct {
-	state               protoimpl.MessageState               `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/aggregate/v1/service.proto.
 	Estimate            *AggregateBackfillCostEstimate       `protobuf:"bytes,2,opt,name=estimate,proto3" json:"estimate,omitempty"`
 	Errors              []string                             `protobuf:"bytes,4,rep,name=errors,proto3" json:"errors,omitempty"`
 	Backfills           []*AggregateBackfillWithCostEstimate `protobuf:"bytes,6,rep,name=backfills,proto3" json:"backfills,omitempty"`
@@ -160,6 +161,7 @@ func (*PlanAggregateBackfillResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_aggregate_v1_service_proto_rawDescGZIP(), []int{1}
 }
 
+// Deprecated: Marked as deprecated in chalk/aggregate/v1/service.proto.
 func (x *PlanAggregateBackfillResponse) GetEstimate() *AggregateBackfillCostEstimate {
 	if x != nil {
 		return x.Estimate
@@ -1176,9 +1178,9 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\n" +
 	" chalk/aggregate/v1/service.proto\x12\x12chalk.aggregate.v1\x1a!chalk/aggregate/v1/backfill.proto\x1a#chalk/aggregate/v1/timeseries.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"g\n" +
 	"\x1cPlanAggregateBackfillRequest\x12G\n" +
-	"\x06params\x18\x01 \x01(\v2/.chalk.aggregate.v1.AggregateBackfillUserParamsR\x06params\"\x8f\x02\n" +
-	"\x1dPlanAggregateBackfillResponse\x12M\n" +
-	"\bestimate\x18\x02 \x01(\v21.chalk.aggregate.v1.AggregateBackfillCostEstimateR\bestimate\x12\x16\n" +
+	"\x06params\x18\x01 \x01(\v2/.chalk.aggregate.v1.AggregateBackfillUserParamsR\x06params\"\x93\x02\n" +
+	"\x1dPlanAggregateBackfillResponse\x12Q\n" +
+	"\bestimate\x18\x02 \x01(\v21.chalk.aggregate.v1.AggregateBackfillCostEstimateB\x02\x18\x01R\bestimate\x12\x16\n" +
 	"\x06errors\x18\x04 \x03(\tR\x06errors\x12S\n" +
 	"\tbackfills\x18\x06 \x03(\v25.chalk.aggregate.v1.AggregateBackfillWithCostEstimateR\tbackfills\x122\n" +
 	"\x15aggregate_backfill_id\x18\a \x01(\tR\x13aggregateBackfillId\"9\n" +

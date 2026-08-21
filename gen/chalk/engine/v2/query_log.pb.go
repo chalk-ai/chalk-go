@@ -361,10 +361,8 @@ type QueryLogEntry struct {
 	QueryPlanId         string                 `protobuf:"bytes,15,opt,name=query_plan_id,json=queryPlanId,proto3" json:"query_plan_id,omitempty"`
 	ValueTables         []string               `protobuf:"bytes,16,rep,name=value_tables,json=valueTables,proto3" json:"value_tables,omitempty"`
 	MetaQueryHash       string                 `protobuf:"bytes,17,opt,name=meta_query_hash,json=metaQueryHash,proto3" json:"meta_query_hash,omitempty"`
-	// Shared by every sub-query of one multi-query request. Empty for single queries.
-	MultiQueryId  string `protobuf:"bytes,18,opt,name=multi_query_id,json=multiQueryId,proto3" json:"multi_query_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *QueryLogEntry) Reset() {
@@ -516,13 +514,6 @@ func (x *QueryLogEntry) GetMetaQueryHash() string {
 	return ""
 }
 
-func (x *QueryLogEntry) GetMultiQueryId() string {
-	if x != nil {
-		return x.MultiQueryId
-	}
-	return ""
-}
-
 type GetQueryLogEntriesResponse struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Entries []*QueryLogEntry       `protobuf:"bytes,1,rep,name=entries,proto3" json:"entries,omitempty"`
@@ -611,7 +602,7 @@ const file_chalk_engine_v2_query_log_proto_rawDesc = "" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x05 \x01(\tR\tpageTokenB(\n" +
-	"&_query_timestamp_upper_bound_exclusive\"\xc9\x06\n" +
+	"&_query_timestamp_upper_bound_exclusive\"\xa3\x06\n" +
 	"\rQueryLogEntry\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12#\n" +
@@ -632,8 +623,7 @@ const file_chalk_engine_v2_query_log_proto_rawDesc = "" +
 	"\btrace_id\x18\x0e \x01(\tR\atraceId\x12\"\n" +
 	"\rquery_plan_id\x18\x0f \x01(\tR\vqueryPlanId\x12!\n" +
 	"\fvalue_tables\x18\x10 \x03(\tR\vvalueTables\x12&\n" +
-	"\x0fmeta_query_hash\x18\x11 \x01(\tR\rmetaQueryHash\x12$\n" +
-	"\x0emulti_query_id\x18\x12 \x01(\tR\fmultiQueryId\"~\n" +
+	"\x0fmeta_query_hash\x18\x11 \x01(\tR\rmetaQueryHash\"~\n" +
 	"\x1aGetQueryLogEntriesResponse\x128\n" +
 	"\aentries\x18\x01 \x03(\v2\x1e.chalk.engine.v2.QueryLogEntryR\aentries\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageTokenB\xbd\x01\n" +

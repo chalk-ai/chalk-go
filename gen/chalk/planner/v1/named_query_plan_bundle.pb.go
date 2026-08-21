@@ -394,9 +394,8 @@ func (x *NamedQueryPlanBundle) GetPlannedVariants() []*NamedQueryPlannedVariant 
 
 // Points to the complete uploaded bundle.
 type SandboxedNamedQueryPlanSucceeded struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	BundleObjectPath string                 `protobuf:"bytes,1,opt,name=bundle_object_path,json=bundleObjectPath,proto3" json:"bundle_object_path,omitempty"`
-	// SHA-256 of the compressed file at bundle_object_path.
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// SHA-256 of the raw serialized bundle object.
 	BundleSha256  []byte `protobuf:"bytes,2,opt,name=bundle_sha256,json=bundleSha256,proto3" json:"bundle_sha256,omitempty"`
 	EntryCount    uint32 `protobuf:"varint,3,opt,name=entry_count,json=entryCount,proto3" json:"entry_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -431,13 +430,6 @@ func (x *SandboxedNamedQueryPlanSucceeded) ProtoReflect() protoreflect.Message {
 // Deprecated: Use SandboxedNamedQueryPlanSucceeded.ProtoReflect.Descriptor instead.
 func (*SandboxedNamedQueryPlanSucceeded) Descriptor() ([]byte, []int) {
 	return file_chalk_planner_v1_named_query_plan_bundle_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *SandboxedNamedQueryPlanSucceeded) GetBundleObjectPath() string {
-	if x != nil {
-		return x.BundleObjectPath
-	}
-	return ""
 }
 
 func (x *SandboxedNamedQueryPlanSucceeded) GetBundleSha256() []byte {
@@ -743,12 +735,11 @@ const file_chalk_planner_v1_named_query_plan_bundle_proto_rawDesc = "" +
 	"\x10platform_version\x18\x01 \x01(\tR\x0fplatformVersion\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12#\n" +
 	"\rdeployment_id\x18\x03 \x01(\tR\fdeploymentId\x12U\n" +
-	"\x10planned_variants\x18\x04 \x03(\v2*.chalk.planner.v1.NamedQueryPlannedVariantR\x0fplannedVariants\"\x96\x01\n" +
-	" SandboxedNamedQueryPlanSucceeded\x12,\n" +
-	"\x12bundle_object_path\x18\x01 \x01(\tR\x10bundleObjectPath\x12#\n" +
+	"\x10planned_variants\x18\x04 \x03(\v2*.chalk.planner.v1.NamedQueryPlannedVariantR\x0fplannedVariants\"\x82\x01\n" +
+	" SandboxedNamedQueryPlanSucceeded\x12#\n" +
 	"\rbundle_sha256\x18\x02 \x01(\fR\fbundleSha256\x12\x1f\n" +
 	"\ventry_count\x18\x03 \x01(\rR\n" +
-	"entryCount\"\"\n" +
+	"entryCountJ\x04\b\x01\x10\x02R\x12bundle_object_path\"\"\n" +
 	" SandboxExportConversionSucceeded\"\xce\x01\n" +
 	"\x1dSandboxExportConversionResult\x12R\n" +
 	"\tsucceeded\x18\x01 \x01(\v22.chalk.planner.v1.SandboxExportConversionSucceededH\x00R\tsucceeded\x12N\n" +
