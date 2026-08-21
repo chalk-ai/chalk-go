@@ -817,7 +817,13 @@ type IcebergGlueS3CatalogConfig struct {
 	// only necessary for cross-account
 	AccountId *string `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3,oneof" json:"account_id,omitempty"`
 	// only necessary for cross-account
-	RoleArn       *string `protobuf:"bytes,4,opt,name=role_arn,json=roleArn,proto3,oneof" json:"role_arn,omitempty"`
+	RoleArn *string `protobuf:"bytes,4,opt,name=role_arn,json=roleArn,proto3,oneof" json:"role_arn,omitempty"`
+	// AWS region of the Glue catalog and S3 bucket. Optional for AWS-flavored
+	// environments, which default to the environment's own region; required
+	// (together with account_id) to bind a Glue/S3 store from a non-AWS
+	// environment, where there is no environment-level AWS config to fall
+	// back to.
+	Region        *string `protobuf:"bytes,5,opt,name=region,proto3,oneof" json:"region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -876,6 +882,13 @@ func (x *IcebergGlueS3CatalogConfig) GetAccountId() string {
 func (x *IcebergGlueS3CatalogConfig) GetRoleArn() string {
 	if x != nil && x.RoleArn != nil {
 		return *x.RoleArn
+	}
+	return ""
+}
+
+func (x *IcebergGlueS3CatalogConfig) GetRegion() string {
+	if x != nil && x.Region != nil {
+		return *x.Region
 	}
 	return ""
 }
@@ -2356,15 +2369,17 @@ const file_chalk_server_v1_offline_store_connection_proto_rawDesc = "" +
 	"\x06schema\x18\x04 \x01(\tR\x06schema\x12\x1b\n" +
 	"\tclient_id\x18\x05 \x01(\tR\bclientId\x12:\n" +
 	"\x17client_secret_secret_id\x18\x06 \x01(\tH\x00R\x14clientSecretSecretId\x88\x01\x01B\x1a\n" +
-	"\x18_client_secret_secret_id\"\xc7\x01\n" +
+	"\x18_client_secret_secret_id\"\xef\x01\n" +
 	"\x1aIcebergGlueS3CatalogConfig\x12\x1b\n" +
 	"\ts3_bucket\x18\x01 \x01(\tR\bs3Bucket\x12,\n" +
 	"\x12glue_database_name\x18\x02 \x01(\tR\x10glueDatabaseName\x12\"\n" +
 	"\n" +
 	"account_id\x18\x03 \x01(\tH\x00R\taccountId\x88\x01\x01\x12\x1e\n" +
-	"\brole_arn\x18\x04 \x01(\tH\x01R\aroleArn\x88\x01\x01B\r\n" +
+	"\brole_arn\x18\x04 \x01(\tH\x01R\aroleArn\x88\x01\x01\x12\x1b\n" +
+	"\x06region\x18\x05 \x01(\tH\x02R\x06region\x88\x01\x01B\r\n" +
 	"\v_account_idB\v\n" +
-	"\t_role_arn\"x\n" +
+	"\t_role_arnB\t\n" +
+	"\a_region\"x\n" +
 	"#IcebergOfflineStoreConnectionConfig\x12F\n" +
 	"\aglue_s3\x18\x01 \x01(\v2+.chalk.server.v1.IcebergGlueS3CatalogConfigH\x00R\x06glueS3B\t\n" +
 	"\acatalog\"\x91\x03\n" +

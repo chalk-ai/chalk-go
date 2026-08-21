@@ -50,6 +50,9 @@ const (
 	// BuilderServiceRunPostIndexValidationProcedure is the fully-qualified name of the BuilderService's
 	// RunPostIndexValidation RPC.
 	BuilderServiceRunPostIndexValidationProcedure = "/chalk.server.v1.BuilderService/RunPostIndexValidation"
+	// BuilderServicePopulateNamedQueryPlansProcedure is the fully-qualified name of the
+	// BuilderService's PopulateNamedQueryPlans RPC.
+	BuilderServicePopulateNamedQueryPlansProcedure = "/chalk.server.v1.BuilderService/PopulateNamedQueryPlans"
 	// BuilderServiceStartShadowBuildFromDeploymentProcedure is the fully-qualified name of the
 	// BuilderService's StartShadowBuildFromDeployment RPC.
 	BuilderServiceStartShadowBuildFromDeploymentProcedure = "/chalk.server.v1.BuilderService/StartShadowBuildFromDeployment"
@@ -284,6 +287,7 @@ type BuilderServiceClient interface {
 	// Deprecated: do not use.
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
+	PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -422,6 +426,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceRunPostIndexValidationProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("RunPostIndexValidation")),
+			connect.WithClientOptions(opts...),
+		),
+		populateNamedQueryPlans: connect.NewClient[v1.PopulateNamedQueryPlansRequest, v1.PopulateNamedQueryPlansResponse](
+			httpClient,
+			baseURL+BuilderServicePopulateNamedQueryPlansProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("PopulateNamedQueryPlans")),
 			connect.WithClientOptions(opts...),
 		),
 		startShadowBuildFromDeployment: connect.NewClient[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse](
@@ -880,6 +890,7 @@ type builderServiceClient struct {
 	indexDeployment                             *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
 	validateNamedQueries                        *connect.Client[v1.ValidateNamedQueriesRequest, v1.ValidateNamedQueriesResponse]
 	runPostIndexValidation                      *connect.Client[v1.RunPostIndexValidationRequest, v1.RunPostIndexValidationResponse]
+	populateNamedQueryPlans                     *connect.Client[v1.PopulateNamedQueryPlansRequest, v1.PopulateNamedQueryPlansResponse]
 	startShadowBuildFromDeployment              *connect.Client[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse]
 	deployKubeComponents                        *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
 	rebuildDeployment                           *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
@@ -979,6 +990,11 @@ func (c *builderServiceClient) ValidateNamedQueries(ctx context.Context, req *co
 // RunPostIndexValidation calls chalk.server.v1.BuilderService.RunPostIndexValidation.
 func (c *builderServiceClient) RunPostIndexValidation(ctx context.Context, req *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error) {
 	return c.runPostIndexValidation.CallUnary(ctx, req)
+}
+
+// PopulateNamedQueryPlans calls chalk.server.v1.BuilderService.PopulateNamedQueryPlans.
+func (c *builderServiceClient) PopulateNamedQueryPlans(ctx context.Context, req *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error) {
+	return c.populateNamedQueryPlans.CallUnary(ctx, req)
 }
 
 // StartShadowBuildFromDeployment calls
@@ -1384,6 +1400,7 @@ type BuilderServiceHandler interface {
 	// Deprecated: do not use.
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
+	PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -1518,6 +1535,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceRunPostIndexValidationProcedure,
 		svc.RunPostIndexValidation,
 		connect.WithSchema(builderServiceMethods.ByName("RunPostIndexValidation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServicePopulateNamedQueryPlansHandler := connect.NewUnaryHandler(
+		BuilderServicePopulateNamedQueryPlansProcedure,
+		svc.PopulateNamedQueryPlans,
+		connect.WithSchema(builderServiceMethods.ByName("PopulateNamedQueryPlans")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceStartShadowBuildFromDeploymentHandler := connect.NewUnaryHandler(
@@ -1978,6 +2001,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceValidateNamedQueriesHandler.ServeHTTP(w, r)
 		case BuilderServiceRunPostIndexValidationProcedure:
 			builderServiceRunPostIndexValidationHandler.ServeHTTP(w, r)
+		case BuilderServicePopulateNamedQueryPlansProcedure:
+			builderServicePopulateNamedQueryPlansHandler.ServeHTTP(w, r)
 		case BuilderServiceStartShadowBuildFromDeploymentProcedure:
 			builderServiceStartShadowBuildFromDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceDeployKubeComponentsProcedure:
@@ -2149,6 +2174,10 @@ func (UnimplementedBuilderServiceHandler) ValidateNamedQueries(context.Context, 
 
 func (UnimplementedBuilderServiceHandler) RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.RunPostIndexValidation is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.PopulateNamedQueryPlans is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error) {

@@ -48,6 +48,15 @@ const (
 	// ChartsServiceListChartsProcedure is the fully-qualified name of the ChartsService's ListCharts
 	// RPC.
 	ChartsServiceListChartsProcedure = "/chalk.server.v1.ChartsService/ListCharts"
+	// ChartsServiceListChartAnnotationsProcedure is the fully-qualified name of the ChartsService's
+	// ListChartAnnotations RPC.
+	ChartsServiceListChartAnnotationsProcedure = "/chalk.server.v1.ChartsService/ListChartAnnotations"
+	// ChartsServiceCreateChartAnnotationProcedure is the fully-qualified name of the ChartsService's
+	// CreateChartAnnotation RPC.
+	ChartsServiceCreateChartAnnotationProcedure = "/chalk.server.v1.ChartsService/CreateChartAnnotation"
+	// ChartsServiceDeleteChartAnnotationProcedure is the fully-qualified name of the ChartsService's
+	// DeleteChartAnnotation RPC.
+	ChartsServiceDeleteChartAnnotationProcedure = "/chalk.server.v1.ChartsService/DeleteChartAnnotation"
 	// ChartsServiceGetChartSnapshotProcedure is the fully-qualified name of the ChartsService's
 	// GetChartSnapshot RPC.
 	ChartsServiceGetChartSnapshotProcedure = "/chalk.server.v1.ChartsService/GetChartSnapshot"
@@ -100,6 +109,9 @@ type ChartsServiceClient interface {
 	GetRawMetricLabelValues(context.Context, *connect.Request[v1.GetRawMetricLabelValuesRequest]) (*connect.Response[v1.GetRawMetricLabelValuesResponse], error)
 	QueryRawMetrics(context.Context, *connect.Request[v1.QueryRawMetricsRequest]) (*connect.Response[v1.QueryRawMetricsResponse], error)
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
+	ListChartAnnotations(context.Context, *connect.Request[v1.ListChartAnnotationsRequest]) (*connect.Response[v1.ListChartAnnotationsResponse], error)
+	CreateChartAnnotation(context.Context, *connect.Request[v1.CreateChartAnnotationRequest]) (*connect.Response[v1.CreateChartAnnotationResponse], error)
+	DeleteChartAnnotation(context.Context, *connect.Request[v1.DeleteChartAnnotationRequest]) (*connect.Response[v1.DeleteChartAnnotationResponse], error)
 	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
 	GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error)
 	UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error)
@@ -154,6 +166,24 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			httpClient,
 			baseURL+ChartsServiceListChartsProcedure,
 			connect.WithSchema(chartsServiceMethods.ByName("ListCharts")),
+			connect.WithClientOptions(opts...),
+		),
+		listChartAnnotations: connect.NewClient[v1.ListChartAnnotationsRequest, v1.ListChartAnnotationsResponse](
+			httpClient,
+			baseURL+ChartsServiceListChartAnnotationsProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("ListChartAnnotations")),
+			connect.WithClientOptions(opts...),
+		),
+		createChartAnnotation: connect.NewClient[v1.CreateChartAnnotationRequest, v1.CreateChartAnnotationResponse](
+			httpClient,
+			baseURL+ChartsServiceCreateChartAnnotationProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("CreateChartAnnotation")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteChartAnnotation: connect.NewClient[v1.DeleteChartAnnotationRequest, v1.DeleteChartAnnotationResponse](
+			httpClient,
+			baseURL+ChartsServiceDeleteChartAnnotationProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("DeleteChartAnnotation")),
 			connect.WithClientOptions(opts...),
 		),
 		getChartSnapshot: connect.NewClient[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse](
@@ -244,6 +274,9 @@ type chartsServiceClient struct {
 	getRawMetricLabelValues  *connect.Client[v1.GetRawMetricLabelValuesRequest, v1.GetRawMetricLabelValuesResponse]
 	queryRawMetrics          *connect.Client[v1.QueryRawMetricsRequest, v1.QueryRawMetricsResponse]
 	listCharts               *connect.Client[v1.ListChartsRequest, v1.ListChartsResponse]
+	listChartAnnotations     *connect.Client[v1.ListChartAnnotationsRequest, v1.ListChartAnnotationsResponse]
+	createChartAnnotation    *connect.Client[v1.CreateChartAnnotationRequest, v1.CreateChartAnnotationResponse]
+	deleteChartAnnotation    *connect.Client[v1.DeleteChartAnnotationRequest, v1.DeleteChartAnnotationResponse]
 	getChartSnapshot         *connect.Client[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse]
 	getChartSnapshotByQuery  *connect.Client[v1.GetChartSnapshotByQueryRequest, v1.GetChartSnapshotByQueryResponse]
 	updateMetricConfig       *connect.Client[v1.UpdateMetricConfigRequest, v1.UpdateMetricConfigResponse]
@@ -282,6 +315,21 @@ func (c *chartsServiceClient) QueryRawMetrics(ctx context.Context, req *connect.
 // ListCharts calls chalk.server.v1.ChartsService.ListCharts.
 func (c *chartsServiceClient) ListCharts(ctx context.Context, req *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error) {
 	return c.listCharts.CallUnary(ctx, req)
+}
+
+// ListChartAnnotations calls chalk.server.v1.ChartsService.ListChartAnnotations.
+func (c *chartsServiceClient) ListChartAnnotations(ctx context.Context, req *connect.Request[v1.ListChartAnnotationsRequest]) (*connect.Response[v1.ListChartAnnotationsResponse], error) {
+	return c.listChartAnnotations.CallUnary(ctx, req)
+}
+
+// CreateChartAnnotation calls chalk.server.v1.ChartsService.CreateChartAnnotation.
+func (c *chartsServiceClient) CreateChartAnnotation(ctx context.Context, req *connect.Request[v1.CreateChartAnnotationRequest]) (*connect.Response[v1.CreateChartAnnotationResponse], error) {
+	return c.createChartAnnotation.CallUnary(ctx, req)
+}
+
+// DeleteChartAnnotation calls chalk.server.v1.ChartsService.DeleteChartAnnotation.
+func (c *chartsServiceClient) DeleteChartAnnotation(ctx context.Context, req *connect.Request[v1.DeleteChartAnnotationRequest]) (*connect.Response[v1.DeleteChartAnnotationResponse], error) {
+	return c.deleteChartAnnotation.CallUnary(ctx, req)
 }
 
 // GetChartSnapshot calls chalk.server.v1.ChartsService.GetChartSnapshot.
@@ -361,6 +409,9 @@ type ChartsServiceHandler interface {
 	GetRawMetricLabelValues(context.Context, *connect.Request[v1.GetRawMetricLabelValuesRequest]) (*connect.Response[v1.GetRawMetricLabelValuesResponse], error)
 	QueryRawMetrics(context.Context, *connect.Request[v1.QueryRawMetricsRequest]) (*connect.Response[v1.QueryRawMetricsResponse], error)
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
+	ListChartAnnotations(context.Context, *connect.Request[v1.ListChartAnnotationsRequest]) (*connect.Response[v1.ListChartAnnotationsResponse], error)
+	CreateChartAnnotation(context.Context, *connect.Request[v1.CreateChartAnnotationRequest]) (*connect.Response[v1.CreateChartAnnotationResponse], error)
+	DeleteChartAnnotation(context.Context, *connect.Request[v1.DeleteChartAnnotationRequest]) (*connect.Response[v1.DeleteChartAnnotationResponse], error)
 	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
 	GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error)
 	UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error)
@@ -411,6 +462,24 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 		ChartsServiceListChartsProcedure,
 		svc.ListCharts,
 		connect.WithSchema(chartsServiceMethods.ByName("ListCharts")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceListChartAnnotationsHandler := connect.NewUnaryHandler(
+		ChartsServiceListChartAnnotationsProcedure,
+		svc.ListChartAnnotations,
+		connect.WithSchema(chartsServiceMethods.ByName("ListChartAnnotations")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceCreateChartAnnotationHandler := connect.NewUnaryHandler(
+		ChartsServiceCreateChartAnnotationProcedure,
+		svc.CreateChartAnnotation,
+		connect.WithSchema(chartsServiceMethods.ByName("CreateChartAnnotation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceDeleteChartAnnotationHandler := connect.NewUnaryHandler(
+		ChartsServiceDeleteChartAnnotationProcedure,
+		svc.DeleteChartAnnotation,
+		connect.WithSchema(chartsServiceMethods.ByName("DeleteChartAnnotation")),
 		connect.WithHandlerOptions(opts...),
 	)
 	chartsServiceGetChartSnapshotHandler := connect.NewUnaryHandler(
@@ -503,6 +572,12 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 			chartsServiceQueryRawMetricsHandler.ServeHTTP(w, r)
 		case ChartsServiceListChartsProcedure:
 			chartsServiceListChartsHandler.ServeHTTP(w, r)
+		case ChartsServiceListChartAnnotationsProcedure:
+			chartsServiceListChartAnnotationsHandler.ServeHTTP(w, r)
+		case ChartsServiceCreateChartAnnotationProcedure:
+			chartsServiceCreateChartAnnotationHandler.ServeHTTP(w, r)
+		case ChartsServiceDeleteChartAnnotationProcedure:
+			chartsServiceDeleteChartAnnotationHandler.ServeHTTP(w, r)
 		case ChartsServiceGetChartSnapshotProcedure:
 			chartsServiceGetChartSnapshotHandler.ServeHTTP(w, r)
 		case ChartsServiceGetChartSnapshotByQueryProcedure:
@@ -556,6 +631,18 @@ func (UnimplementedChartsServiceHandler) QueryRawMetrics(context.Context, *conne
 
 func (UnimplementedChartsServiceHandler) ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.ListCharts is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) ListChartAnnotations(context.Context, *connect.Request[v1.ListChartAnnotationsRequest]) (*connect.Response[v1.ListChartAnnotationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.ListChartAnnotations is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) CreateChartAnnotation(context.Context, *connect.Request[v1.CreateChartAnnotationRequest]) (*connect.Response[v1.CreateChartAnnotationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.CreateChartAnnotation is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) DeleteChartAnnotation(context.Context, *connect.Request[v1.DeleteChartAnnotationRequest]) (*connect.Response[v1.DeleteChartAnnotationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.DeleteChartAnnotation is not implemented"))
 }
 
 func (UnimplementedChartsServiceHandler) GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error) {

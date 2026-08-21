@@ -3179,7 +3179,7 @@ var File_chalk_server_v1_model_registry_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\n" +
-	"$chalk/server/v1/model_registry.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1achalk/graph/v1/graph.proto\x1a$chalk/models/v1/model_artifact.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x04\n" +
+	"$chalk/server/v1/model_registry.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a*chalk/graph/v1/source_file_reference.proto\x1a$chalk/models/v1/model_artifact.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x04\n" +
 	"\rModelArtifact\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04path\x18\x02 \x01(\tR\x04path\x126\n" +
