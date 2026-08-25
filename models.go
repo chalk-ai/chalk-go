@@ -783,6 +783,10 @@ type Dataset struct {
 
 	// client is used internally for the Wait method
 	client Client `json:"-"`
+
+	// waitErr records the terminal failure observed by Wait so that
+	// subsequent Wait calls report it instead of re-polling.
+	waitErr error `json:"-"`
 }
 
 type DatasetRevision struct {
@@ -866,6 +870,12 @@ const (
 // polls each shard's report in order, advancing to the next shard when the
 // current one reports COMPLETED, and returns an error as soon as any shard
 // reports FAILED. Use the ctx deadline to bound the overall wait.
+//
+// Behavior difference from the Python client: IsFinished is set to true once
+// the query reaches a terminal state, including failure (in chalkpy a failed
+// revision is never marked finished and a repeated wait() re-polls the
+// server). A subsequent Wait call on a failed Dataset returns the recorded
+// failure without polling again.
 func (d *Dataset) Wait(ctx context.Context) error {
 	if d.client == nil {
 		return errors.New("Dataset client is not initialized")
@@ -877,7 +887,7 @@ func (d *Dataset) Wait(ctx context.Context) error {
 
 	// Check if already finished
 	if d.IsFinished {
-		return nil
+		return d.waitErr
 	}
 
 	// Poll the last revision's status
@@ -928,10 +938,13 @@ func (d *Dataset) Wait(ctx context.Context) error {
 				if len(allErrors) == 0 && jobStatus.Report.Error != nil {
 					allErrors = ServerErrors{*jobStatus.Report.Error}
 				}
+				failure := errors.New("offline query failed")
 				if len(allErrors) > 0 {
-					return errors.Wrap(allErrors, "offline query failed")
+					failure = errors.Wrap(allErrors, "offline query failed")
 				}
-				return errors.New("offline query failed")
+				d.IsFinished = true
+				d.waitErr = failure
+				return failure
 			}
 		}
 		if shardId >= numShards {

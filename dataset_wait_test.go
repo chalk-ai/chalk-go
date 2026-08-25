@@ -91,7 +91,17 @@ func TestDatasetWaitShardFailure(t *testing.T) {
 	assert.Contains(t, err.Error(), "offline query failed")
 	assert.Contains(t, err.Error(), "resolver exploded")
 	assert.Contains(t, err.Error(), "upstream failed")
-	assert.False(t, dataset.IsFinished)
+
+	// Failure is terminal: IsFinished is set, and a repeated Wait reports the
+	// recorded failure without polling the server again.
+	assert.True(t, dataset.IsFinished)
+	dataset.client = &mockWaitClient{
+		getStatus: func(ctx context.Context, args GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error) {
+			t.Fatal("should not poll again after a terminal failure")
+			return GetOfflineQueryStatusResult{}, nil
+		},
+	}
+	assert.Equal(t, err, dataset.Wait(context.Background()))
 }
 
 func TestDatasetWaitToleratesTransientPollErrors(t *testing.T) {
