@@ -69,12 +69,6 @@ const (
 	// GitHubAppServiceGetGitHubRepositoryArchiveProcedure is the fully-qualified name of the
 	// GitHubAppService's GetGitHubRepositoryArchive RPC.
 	GitHubAppServiceGetGitHubRepositoryArchiveProcedure = "/chalk.server.v1.GitHubAppService/GetGitHubRepositoryArchive"
-	// GitHubAppServiceCreatePullRequestFromChangesProcedure is the fully-qualified name of the
-	// GitHubAppService's CreatePullRequestFromChanges RPC.
-	GitHubAppServiceCreatePullRequestFromChangesProcedure = "/chalk.server.v1.GitHubAppService/CreatePullRequestFromChanges"
-	// GitHubAppServiceCreateVolumeFromGitHubRepoProcedure is the fully-qualified name of the
-	// GitHubAppService's CreateVolumeFromGitHubRepo RPC.
-	GitHubAppServiceCreateVolumeFromGitHubRepoProcedure = "/chalk.server.v1.GitHubAppService/CreateVolumeFromGitHubRepo"
 	// GitHubAppServiceLinkProjectToGitHubRepositoryProcedure is the fully-qualified name of the
 	// GitHubAppService's LinkProjectToGitHubRepository RPC.
 	GitHubAppServiceLinkProjectToGitHubRepositoryProcedure = "/chalk.server.v1.GitHubAppService/LinkProjectToGitHubRepository"
@@ -104,12 +98,6 @@ type GitHubAppServiceClient interface {
 	ListGitHubBranches(context.Context, *connect.Request[v1.ListGitHubBranchesRequest]) (*connect.Response[v1.ListGitHubBranchesResponse], error)
 	// Streams the repository's zip archive (GitHub zipball) at the requested ref.
 	GetGitHubRepositoryArchive(context.Context, *connect.Request[v1.GetGitHubRepositoryArchiveRequest]) (*connect.ServerStreamForClient[v1.GetGitHubRepositoryArchiveResponse], error)
-	// Pushes the given file changes as a single commit on a new branch and
-	// opens a pull request against base_branch.
-	CreatePullRequestFromChanges(context.Context, *connect.Request[v1.CreatePullRequestFromChangesRequest]) (*connect.Response[v1.CreatePullRequestFromChangesResponse], error)
-	// Downloads the repository archive at ref and commits its contents into a
-	// new volume, server-side -- no archive bytes cross the caller.
-	CreateVolumeFromGitHubRepo(context.Context, *connect.Request[v1.CreateVolumeFromGitHubRepoRequest]) (*connect.Response[v1.CreateVolumeFromGitHubRepoResponse], error)
 	LinkProjectToGitHubRepository(context.Context, *connect.Request[v1.LinkProjectToGitHubRepositoryRequest]) (*connect.Response[v1.LinkProjectToGitHubRepositoryResponse], error)
 	UnlinkProjectFromGitHubRepository(context.Context, *connect.Request[v1.UnlinkProjectFromGitHubRepositoryRequest]) (*connect.Response[v1.UnlinkProjectFromGitHubRepositoryResponse], error)
 	GetProjectGitHubRepoLink(context.Context, *connect.Request[v1.GetProjectGitHubRepoLinkRequest]) (*connect.Response[v1.GetProjectGitHubRepoLinkResponse], error)
@@ -207,18 +195,6 @@ func NewGitHubAppServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		createPullRequestFromChanges: connect.NewClient[v1.CreatePullRequestFromChangesRequest, v1.CreatePullRequestFromChangesResponse](
-			httpClient,
-			baseURL+GitHubAppServiceCreatePullRequestFromChangesProcedure,
-			connect.WithSchema(gitHubAppServiceMethods.ByName("CreatePullRequestFromChanges")),
-			connect.WithClientOptions(opts...),
-		),
-		createVolumeFromGitHubRepo: connect.NewClient[v1.CreateVolumeFromGitHubRepoRequest, v1.CreateVolumeFromGitHubRepoResponse](
-			httpClient,
-			baseURL+GitHubAppServiceCreateVolumeFromGitHubRepoProcedure,
-			connect.WithSchema(gitHubAppServiceMethods.ByName("CreateVolumeFromGitHubRepo")),
-			connect.WithClientOptions(opts...),
-		),
 		linkProjectToGitHubRepository: connect.NewClient[v1.LinkProjectToGitHubRepositoryRequest, v1.LinkProjectToGitHubRepositoryResponse](
 			httpClient,
 			baseURL+GitHubAppServiceLinkProjectToGitHubRepositoryProcedure,
@@ -264,8 +240,6 @@ type gitHubAppServiceClient struct {
 	listGitHubPullRequests            *connect.Client[v1.ListGitHubPullRequestsRequest, v1.ListGitHubPullRequestsResponse]
 	listGitHubBranches                *connect.Client[v1.ListGitHubBranchesRequest, v1.ListGitHubBranchesResponse]
 	getGitHubRepositoryArchive        *connect.Client[v1.GetGitHubRepositoryArchiveRequest, v1.GetGitHubRepositoryArchiveResponse]
-	createPullRequestFromChanges      *connect.Client[v1.CreatePullRequestFromChangesRequest, v1.CreatePullRequestFromChangesResponse]
-	createVolumeFromGitHubRepo        *connect.Client[v1.CreateVolumeFromGitHubRepoRequest, v1.CreateVolumeFromGitHubRepoResponse]
 	linkProjectToGitHubRepository     *connect.Client[v1.LinkProjectToGitHubRepositoryRequest, v1.LinkProjectToGitHubRepositoryResponse]
 	unlinkProjectFromGitHubRepository *connect.Client[v1.UnlinkProjectFromGitHubRepositoryRequest, v1.UnlinkProjectFromGitHubRepositoryResponse]
 	getProjectGitHubRepoLink          *connect.Client[v1.GetProjectGitHubRepoLinkRequest, v1.GetProjectGitHubRepoLinkResponse]
@@ -333,16 +307,6 @@ func (c *gitHubAppServiceClient) GetGitHubRepositoryArchive(ctx context.Context,
 	return c.getGitHubRepositoryArchive.CallServerStream(ctx, req)
 }
 
-// CreatePullRequestFromChanges calls chalk.server.v1.GitHubAppService.CreatePullRequestFromChanges.
-func (c *gitHubAppServiceClient) CreatePullRequestFromChanges(ctx context.Context, req *connect.Request[v1.CreatePullRequestFromChangesRequest]) (*connect.Response[v1.CreatePullRequestFromChangesResponse], error) {
-	return c.createPullRequestFromChanges.CallUnary(ctx, req)
-}
-
-// CreateVolumeFromGitHubRepo calls chalk.server.v1.GitHubAppService.CreateVolumeFromGitHubRepo.
-func (c *gitHubAppServiceClient) CreateVolumeFromGitHubRepo(ctx context.Context, req *connect.Request[v1.CreateVolumeFromGitHubRepoRequest]) (*connect.Response[v1.CreateVolumeFromGitHubRepoResponse], error) {
-	return c.createVolumeFromGitHubRepo.CallUnary(ctx, req)
-}
-
 // LinkProjectToGitHubRepository calls
 // chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository.
 func (c *gitHubAppServiceClient) LinkProjectToGitHubRepository(ctx context.Context, req *connect.Request[v1.LinkProjectToGitHubRepositoryRequest]) (*connect.Response[v1.LinkProjectToGitHubRepositoryResponse], error) {
@@ -380,12 +344,6 @@ type GitHubAppServiceHandler interface {
 	ListGitHubBranches(context.Context, *connect.Request[v1.ListGitHubBranchesRequest]) (*connect.Response[v1.ListGitHubBranchesResponse], error)
 	// Streams the repository's zip archive (GitHub zipball) at the requested ref.
 	GetGitHubRepositoryArchive(context.Context, *connect.Request[v1.GetGitHubRepositoryArchiveRequest], *connect.ServerStream[v1.GetGitHubRepositoryArchiveResponse]) error
-	// Pushes the given file changes as a single commit on a new branch and
-	// opens a pull request against base_branch.
-	CreatePullRequestFromChanges(context.Context, *connect.Request[v1.CreatePullRequestFromChangesRequest]) (*connect.Response[v1.CreatePullRequestFromChangesResponse], error)
-	// Downloads the repository archive at ref and commits its contents into a
-	// new volume, server-side -- no archive bytes cross the caller.
-	CreateVolumeFromGitHubRepo(context.Context, *connect.Request[v1.CreateVolumeFromGitHubRepoRequest]) (*connect.Response[v1.CreateVolumeFromGitHubRepoResponse], error)
 	LinkProjectToGitHubRepository(context.Context, *connect.Request[v1.LinkProjectToGitHubRepositoryRequest]) (*connect.Response[v1.LinkProjectToGitHubRepositoryResponse], error)
 	UnlinkProjectFromGitHubRepository(context.Context, *connect.Request[v1.UnlinkProjectFromGitHubRepositoryRequest]) (*connect.Response[v1.UnlinkProjectFromGitHubRepositoryResponse], error)
 	GetProjectGitHubRepoLink(context.Context, *connect.Request[v1.GetProjectGitHubRepoLinkRequest]) (*connect.Response[v1.GetProjectGitHubRepoLinkResponse], error)
@@ -479,18 +437,6 @@ func NewGitHubAppServiceHandler(svc GitHubAppServiceHandler, opts ...connect.Han
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	gitHubAppServiceCreatePullRequestFromChangesHandler := connect.NewUnaryHandler(
-		GitHubAppServiceCreatePullRequestFromChangesProcedure,
-		svc.CreatePullRequestFromChanges,
-		connect.WithSchema(gitHubAppServiceMethods.ByName("CreatePullRequestFromChanges")),
-		connect.WithHandlerOptions(opts...),
-	)
-	gitHubAppServiceCreateVolumeFromGitHubRepoHandler := connect.NewUnaryHandler(
-		GitHubAppServiceCreateVolumeFromGitHubRepoProcedure,
-		svc.CreateVolumeFromGitHubRepo,
-		connect.WithSchema(gitHubAppServiceMethods.ByName("CreateVolumeFromGitHubRepo")),
-		connect.WithHandlerOptions(opts...),
-	)
 	gitHubAppServiceLinkProjectToGitHubRepositoryHandler := connect.NewUnaryHandler(
 		GitHubAppServiceLinkProjectToGitHubRepositoryProcedure,
 		svc.LinkProjectToGitHubRepository,
@@ -545,10 +491,6 @@ func NewGitHubAppServiceHandler(svc GitHubAppServiceHandler, opts ...connect.Han
 			gitHubAppServiceListGitHubBranchesHandler.ServeHTTP(w, r)
 		case GitHubAppServiceGetGitHubRepositoryArchiveProcedure:
 			gitHubAppServiceGetGitHubRepositoryArchiveHandler.ServeHTTP(w, r)
-		case GitHubAppServiceCreatePullRequestFromChangesProcedure:
-			gitHubAppServiceCreatePullRequestFromChangesHandler.ServeHTTP(w, r)
-		case GitHubAppServiceCreateVolumeFromGitHubRepoProcedure:
-			gitHubAppServiceCreateVolumeFromGitHubRepoHandler.ServeHTTP(w, r)
 		case GitHubAppServiceLinkProjectToGitHubRepositoryProcedure:
 			gitHubAppServiceLinkProjectToGitHubRepositoryHandler.ServeHTTP(w, r)
 		case GitHubAppServiceUnlinkProjectFromGitHubRepositoryProcedure:
@@ -612,14 +554,6 @@ func (UnimplementedGitHubAppServiceHandler) ListGitHubBranches(context.Context, 
 
 func (UnimplementedGitHubAppServiceHandler) GetGitHubRepositoryArchive(context.Context, *connect.Request[v1.GetGitHubRepositoryArchiveRequest], *connect.ServerStream[v1.GetGitHubRepositoryArchiveResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive is not implemented"))
-}
-
-func (UnimplementedGitHubAppServiceHandler) CreatePullRequestFromChanges(context.Context, *connect.Request[v1.CreatePullRequestFromChangesRequest]) (*connect.Response[v1.CreatePullRequestFromChangesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.CreatePullRequestFromChanges is not implemented"))
-}
-
-func (UnimplementedGitHubAppServiceHandler) CreateVolumeFromGitHubRepo(context.Context, *connect.Request[v1.CreateVolumeFromGitHubRepoRequest]) (*connect.Response[v1.CreateVolumeFromGitHubRepoResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GitHubAppService.CreateVolumeFromGitHubRepo is not implemented"))
 }
 
 func (UnimplementedGitHubAppServiceHandler) LinkProjectToGitHubRepository(context.Context, *connect.Request[v1.LinkProjectToGitHubRepositoryRequest]) (*connect.Response[v1.LinkProjectToGitHubRepositoryResponse], error) {

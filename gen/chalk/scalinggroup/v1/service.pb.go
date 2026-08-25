@@ -28,55 +28,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type FunctionQueueProtocol int32
-
-const (
-	FunctionQueueProtocol_FUNCTION_QUEUE_PROTOCOL_UNSPECIFIED FunctionQueueProtocol = 0
-	FunctionQueueProtocol_FUNCTION_QUEUE_PROTOCOL_LIST_V1     FunctionQueueProtocol = 1
-	FunctionQueueProtocol_FUNCTION_QUEUE_PROTOCOL_STREAM_V1   FunctionQueueProtocol = 2
-)
-
-// Enum value maps for FunctionQueueProtocol.
-var (
-	FunctionQueueProtocol_name = map[int32]string{
-		0: "FUNCTION_QUEUE_PROTOCOL_UNSPECIFIED",
-		1: "FUNCTION_QUEUE_PROTOCOL_LIST_V1",
-		2: "FUNCTION_QUEUE_PROTOCOL_STREAM_V1",
-	}
-	FunctionQueueProtocol_value = map[string]int32{
-		"FUNCTION_QUEUE_PROTOCOL_UNSPECIFIED": 0,
-		"FUNCTION_QUEUE_PROTOCOL_LIST_V1":     1,
-		"FUNCTION_QUEUE_PROTOCOL_STREAM_V1":   2,
-	}
-)
-
-func (x FunctionQueueProtocol) Enum() *FunctionQueueProtocol {
-	p := new(FunctionQueueProtocol)
-	*p = x
-	return p
-}
-
-func (x FunctionQueueProtocol) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (FunctionQueueProtocol) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_scalinggroup_v1_service_proto_enumTypes[0].Descriptor()
-}
-
-func (FunctionQueueProtocol) Type() protoreflect.EnumType {
-	return &file_chalk_scalinggroup_v1_service_proto_enumTypes[0]
-}
-
-func (x FunctionQueueProtocol) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use FunctionQueueProtocol.Descriptor instead.
-func (FunctionQueueProtocol) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{0}
-}
-
 type ScalingGroupSortColumn int32
 
 const (
@@ -110,11 +61,11 @@ func (x ScalingGroupSortColumn) String() string {
 }
 
 func (ScalingGroupSortColumn) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_scalinggroup_v1_service_proto_enumTypes[1].Descriptor()
+	return file_chalk_scalinggroup_v1_service_proto_enumTypes[0].Descriptor()
 }
 
 func (ScalingGroupSortColumn) Type() protoreflect.EnumType {
-	return &file_chalk_scalinggroup_v1_service_proto_enumTypes[1]
+	return &file_chalk_scalinggroup_v1_service_proto_enumTypes[0]
 }
 
 func (x ScalingGroupSortColumn) Number() protoreflect.EnumNumber {
@@ -123,7 +74,7 @@ func (x ScalingGroupSortColumn) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ScalingGroupSortColumn.Descriptor instead.
 func (ScalingGroupSortColumn) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{1}
+	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{0}
 }
 
 type ScalingGroupSortOrder int32
@@ -159,11 +110,11 @@ func (x ScalingGroupSortOrder) String() string {
 }
 
 func (ScalingGroupSortOrder) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_scalinggroup_v1_service_proto_enumTypes[2].Descriptor()
+	return file_chalk_scalinggroup_v1_service_proto_enumTypes[1].Descriptor()
 }
 
 func (ScalingGroupSortOrder) Type() protoreflect.EnumType {
-	return &file_chalk_scalinggroup_v1_service_proto_enumTypes[2]
+	return &file_chalk_scalinggroup_v1_service_proto_enumTypes[1]
 }
 
 func (x ScalingGroupSortOrder) Number() protoreflect.EnumNumber {
@@ -172,7 +123,7 @@ func (x ScalingGroupSortOrder) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ScalingGroupSortOrder.Descriptor instead.
 func (ScalingGroupSortOrder) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{2}
+	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{1}
 }
 
 // Visibility is independent from a scaling group's operational status. Archived
@@ -212,11 +163,11 @@ func (x ScalingGroupVisibility) String() string {
 }
 
 func (ScalingGroupVisibility) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_scalinggroup_v1_service_proto_enumTypes[3].Descriptor()
+	return file_chalk_scalinggroup_v1_service_proto_enumTypes[2].Descriptor()
 }
 
 func (ScalingGroupVisibility) Type() protoreflect.EnumType {
-	return &file_chalk_scalinggroup_v1_service_proto_enumTypes[3]
+	return &file_chalk_scalinggroup_v1_service_proto_enumTypes[2]
 }
 
 func (x ScalingGroupVisibility) Number() protoreflect.EnumNumber {
@@ -225,7 +176,7 @@ func (x ScalingGroupVisibility) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ScalingGroupVisibility.Descriptor instead.
 func (ScalingGroupVisibility) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_scalinggroup_v1_service_proto_rawDescGZIP(), []int{2}
 }
 
 // ScalingSpec defines autoscaling parameters
@@ -337,11 +288,8 @@ type FunctionQueueDepthScalingTrigger struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	FunctionName     string                 `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
 	TargetQueueDepth int32                  `protobuf:"varint,2,opt,name=target_queue_depth,json=targetQueueDepth,proto3" json:"target_queue_depth,omitempty"`
-	// Queue transport supported by the shim in this immutable revision.
-	// Unspecified revisions use the legacy Redis List transport.
-	QueueProtocol FunctionQueueProtocol `protobuf:"varint,3,opt,name=queue_protocol,json=queueProtocol,proto3,enum=chalk.scalinggroup.v1.FunctionQueueProtocol" json:"queue_protocol,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *FunctionQueueDepthScalingTrigger) Reset() {
@@ -386,13 +334,6 @@ func (x *FunctionQueueDepthScalingTrigger) GetTargetQueueDepth() int32 {
 		return x.TargetQueueDepth
 	}
 	return 0
-}
-
-func (x *FunctionQueueDepthScalingTrigger) GetQueueProtocol() FunctionQueueProtocol {
-	if x != nil {
-		return x.QueueProtocol
-	}
-	return FunctionQueueProtocol_FUNCTION_QUEUE_PROTOCOL_UNSPECIFIED
 }
 
 // GpuUtilizationScalingTrigger scales on the GPU utilization of the group's own
@@ -2195,11 +2136,10 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x0f_window_secondsB\x1f\n" +
 	"\x1d_function_queue_depth_triggerB\x1a\n" +
 	"\x18_gpu_utilization_triggerB\x17\n" +
-	"\x15_cron_scaling_trigger\"\xca\x01\n" +
+	"\x15_cron_scaling_trigger\"u\n" +
 	" FunctionQueueDepthScalingTrigger\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12,\n" +
-	"\x12target_queue_depth\x18\x02 \x01(\x05R\x10targetQueueDepth\x12S\n" +
-	"\x0equeue_protocol\x18\x03 \x01(\x0e2,.chalk.scalinggroup.v1.FunctionQueueProtocolR\rqueueProtocol\"b\n" +
+	"\x12target_queue_depth\x18\x02 \x01(\x05R\x10targetQueueDepth\"b\n" +
 	"\x1cGpuUtilizationScalingTrigger\x12B\n" +
 	"\x1dtarget_utilization_percentage\x18\x01 \x01(\x05R\x1btargetUtilizationPercentage\"t\n" +
 	"\x12CronScalingTrigger\x12\x1a\n" +
@@ -2357,11 +2297,7 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x0f_status_message\"x\n" +
 	"$BatchUpdateScalingGroupStatusRequest\x12P\n" +
 	"\aupdates\x18\x01 \x03(\v26.chalk.scalinggroup.v1.UpdateScalingGroupStatusRequestR\aupdates\"'\n" +
-	"%BatchUpdateScalingGroupStatusResponse*\x8c\x01\n" +
-	"\x15FunctionQueueProtocol\x12'\n" +
-	"#FUNCTION_QUEUE_PROTOCOL_UNSPECIFIED\x10\x00\x12#\n" +
-	"\x1fFUNCTION_QUEUE_PROTOCOL_LIST_V1\x10\x01\x12%\n" +
-	"!FUNCTION_QUEUE_PROTOCOL_STREAM_V1\x10\x02*\x97\x01\n" +
+	"%BatchUpdateScalingGroupStatusResponse*\x97\x01\n" +
 	"\x16ScalingGroupSortColumn\x12)\n" +
 	"%SCALING_GROUP_SORT_COLUMN_UNSPECIFIED\x10\x00\x12(\n" +
 	"$SCALING_GROUP_SORT_COLUMN_CREATED_AT\x10\x01\x12(\n" +
@@ -2400,111 +2336,109 @@ func file_chalk_scalinggroup_v1_service_proto_rawDescGZIP() []byte {
 	return file_chalk_scalinggroup_v1_service_proto_rawDescData
 }
 
-var file_chalk_scalinggroup_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_chalk_scalinggroup_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_chalk_scalinggroup_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_chalk_scalinggroup_v1_service_proto_goTypes = []any{
-	(FunctionQueueProtocol)(0),                    // 0: chalk.scalinggroup.v1.FunctionQueueProtocol
-	(ScalingGroupSortColumn)(0),                   // 1: chalk.scalinggroup.v1.ScalingGroupSortColumn
-	(ScalingGroupSortOrder)(0),                    // 2: chalk.scalinggroup.v1.ScalingGroupSortOrder
-	(ScalingGroupVisibility)(0),                   // 3: chalk.scalinggroup.v1.ScalingGroupVisibility
-	(*ScalingSpec)(nil),                           // 4: chalk.scalinggroup.v1.ScalingSpec
-	(*FunctionQueueDepthScalingTrigger)(nil),      // 5: chalk.scalinggroup.v1.FunctionQueueDepthScalingTrigger
-	(*GpuUtilizationScalingTrigger)(nil),          // 6: chalk.scalinggroup.v1.GpuUtilizationScalingTrigger
-	(*CronScalingTrigger)(nil),                    // 7: chalk.scalinggroup.v1.CronScalingTrigger
-	(*CronScalingWindow)(nil),                     // 8: chalk.scalinggroup.v1.CronScalingWindow
-	(*ScalingGroupSpec)(nil),                      // 9: chalk.scalinggroup.v1.ScalingGroupSpec
-	(*ScalingGroupResponse)(nil),                  // 10: chalk.scalinggroup.v1.ScalingGroupResponse
-	(*CreateScalingGroupRequest)(nil),             // 11: chalk.scalinggroup.v1.CreateScalingGroupRequest
-	(*CreateScalingGroupResponse)(nil),            // 12: chalk.scalinggroup.v1.CreateScalingGroupResponse
-	(*ScalingGroupTraffic)(nil),                   // 13: chalk.scalinggroup.v1.ScalingGroupTraffic
-	(*ScalingGroupTrafficTarget)(nil),             // 14: chalk.scalinggroup.v1.ScalingGroupTrafficTarget
-	(*UpdateScalingGroupRequest)(nil),             // 15: chalk.scalinggroup.v1.UpdateScalingGroupRequest
-	(*UpdateScalingGroupResponse)(nil),            // 16: chalk.scalinggroup.v1.UpdateScalingGroupResponse
-	(*GetScalingGroupRequest)(nil),                // 17: chalk.scalinggroup.v1.GetScalingGroupRequest
-	(*GetScalingGroupResponse)(nil),               // 18: chalk.scalinggroup.v1.GetScalingGroupResponse
-	(*ListScalingGroupsRequest)(nil),              // 19: chalk.scalinggroup.v1.ListScalingGroupsRequest
-	(*ListScalingGroupsFilters)(nil),              // 20: chalk.scalinggroup.v1.ListScalingGroupsFilters
-	(*ListScalingGroupsResponse)(nil),             // 21: chalk.scalinggroup.v1.ListScalingGroupsResponse
-	(*ScalingGroupRevisionResponse)(nil),          // 22: chalk.scalinggroup.v1.ScalingGroupRevisionResponse
-	(*GetScalingGroupRevisionRequest)(nil),        // 23: chalk.scalinggroup.v1.GetScalingGroupRevisionRequest
-	(*GetScalingGroupRevisionResponse)(nil),       // 24: chalk.scalinggroup.v1.GetScalingGroupRevisionResponse
-	(*ListScalingGroupRevisionsRequest)(nil),      // 25: chalk.scalinggroup.v1.ListScalingGroupRevisionsRequest
-	(*ListScalingGroupRevisionsFilters)(nil),      // 26: chalk.scalinggroup.v1.ListScalingGroupRevisionsFilters
-	(*ListScalingGroupRevisionsResponse)(nil),     // 27: chalk.scalinggroup.v1.ListScalingGroupRevisionsResponse
-	(*DeleteScalingGroupRequest)(nil),             // 28: chalk.scalinggroup.v1.DeleteScalingGroupRequest
-	(*DeleteScalingGroupResponse)(nil),            // 29: chalk.scalinggroup.v1.DeleteScalingGroupResponse
-	(*UpdateScalingGroupStatusRequest)(nil),       // 30: chalk.scalinggroup.v1.UpdateScalingGroupStatusRequest
-	(*BatchUpdateScalingGroupStatusRequest)(nil),  // 31: chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusRequest
-	(*BatchUpdateScalingGroupStatusResponse)(nil), // 32: chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusResponse
-	nil,                           // 33: chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntry
-	nil,                           // 34: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.MetadataEntry
-	(*v1.ChalkContainerSpec)(nil), // 35: chalk.container.v1.ChalkContainerSpec
-	(*timestamppb.Timestamp)(nil), // 36: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),         // 37: google.protobuf.Empty
-	(*fieldmaskpb.FieldMask)(nil), // 38: google.protobuf.FieldMask
-	(*structpb.Value)(nil),        // 39: google.protobuf.Value
+	(ScalingGroupSortColumn)(0),                   // 0: chalk.scalinggroup.v1.ScalingGroupSortColumn
+	(ScalingGroupSortOrder)(0),                    // 1: chalk.scalinggroup.v1.ScalingGroupSortOrder
+	(ScalingGroupVisibility)(0),                   // 2: chalk.scalinggroup.v1.ScalingGroupVisibility
+	(*ScalingSpec)(nil),                           // 3: chalk.scalinggroup.v1.ScalingSpec
+	(*FunctionQueueDepthScalingTrigger)(nil),      // 4: chalk.scalinggroup.v1.FunctionQueueDepthScalingTrigger
+	(*GpuUtilizationScalingTrigger)(nil),          // 5: chalk.scalinggroup.v1.GpuUtilizationScalingTrigger
+	(*CronScalingTrigger)(nil),                    // 6: chalk.scalinggroup.v1.CronScalingTrigger
+	(*CronScalingWindow)(nil),                     // 7: chalk.scalinggroup.v1.CronScalingWindow
+	(*ScalingGroupSpec)(nil),                      // 8: chalk.scalinggroup.v1.ScalingGroupSpec
+	(*ScalingGroupResponse)(nil),                  // 9: chalk.scalinggroup.v1.ScalingGroupResponse
+	(*CreateScalingGroupRequest)(nil),             // 10: chalk.scalinggroup.v1.CreateScalingGroupRequest
+	(*CreateScalingGroupResponse)(nil),            // 11: chalk.scalinggroup.v1.CreateScalingGroupResponse
+	(*ScalingGroupTraffic)(nil),                   // 12: chalk.scalinggroup.v1.ScalingGroupTraffic
+	(*ScalingGroupTrafficTarget)(nil),             // 13: chalk.scalinggroup.v1.ScalingGroupTrafficTarget
+	(*UpdateScalingGroupRequest)(nil),             // 14: chalk.scalinggroup.v1.UpdateScalingGroupRequest
+	(*UpdateScalingGroupResponse)(nil),            // 15: chalk.scalinggroup.v1.UpdateScalingGroupResponse
+	(*GetScalingGroupRequest)(nil),                // 16: chalk.scalinggroup.v1.GetScalingGroupRequest
+	(*GetScalingGroupResponse)(nil),               // 17: chalk.scalinggroup.v1.GetScalingGroupResponse
+	(*ListScalingGroupsRequest)(nil),              // 18: chalk.scalinggroup.v1.ListScalingGroupsRequest
+	(*ListScalingGroupsFilters)(nil),              // 19: chalk.scalinggroup.v1.ListScalingGroupsFilters
+	(*ListScalingGroupsResponse)(nil),             // 20: chalk.scalinggroup.v1.ListScalingGroupsResponse
+	(*ScalingGroupRevisionResponse)(nil),          // 21: chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	(*GetScalingGroupRevisionRequest)(nil),        // 22: chalk.scalinggroup.v1.GetScalingGroupRevisionRequest
+	(*GetScalingGroupRevisionResponse)(nil),       // 23: chalk.scalinggroup.v1.GetScalingGroupRevisionResponse
+	(*ListScalingGroupRevisionsRequest)(nil),      // 24: chalk.scalinggroup.v1.ListScalingGroupRevisionsRequest
+	(*ListScalingGroupRevisionsFilters)(nil),      // 25: chalk.scalinggroup.v1.ListScalingGroupRevisionsFilters
+	(*ListScalingGroupRevisionsResponse)(nil),     // 26: chalk.scalinggroup.v1.ListScalingGroupRevisionsResponse
+	(*DeleteScalingGroupRequest)(nil),             // 27: chalk.scalinggroup.v1.DeleteScalingGroupRequest
+	(*DeleteScalingGroupResponse)(nil),            // 28: chalk.scalinggroup.v1.DeleteScalingGroupResponse
+	(*UpdateScalingGroupStatusRequest)(nil),       // 29: chalk.scalinggroup.v1.UpdateScalingGroupStatusRequest
+	(*BatchUpdateScalingGroupStatusRequest)(nil),  // 30: chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusRequest
+	(*BatchUpdateScalingGroupStatusResponse)(nil), // 31: chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusResponse
+	nil,                           // 32: chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntry
+	nil,                           // 33: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.MetadataEntry
+	(*v1.ChalkContainerSpec)(nil), // 34: chalk.container.v1.ChalkContainerSpec
+	(*timestamppb.Timestamp)(nil), // 35: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 36: google.protobuf.Empty
+	(*fieldmaskpb.FieldMask)(nil), // 37: google.protobuf.FieldMask
+	(*structpb.Value)(nil),        // 38: google.protobuf.Value
 }
 var file_chalk_scalinggroup_v1_service_proto_depIdxs = []int32{
-	5,  // 0: chalk.scalinggroup.v1.ScalingSpec.function_queue_depth_trigger:type_name -> chalk.scalinggroup.v1.FunctionQueueDepthScalingTrigger
-	6,  // 1: chalk.scalinggroup.v1.ScalingSpec.gpu_utilization_trigger:type_name -> chalk.scalinggroup.v1.GpuUtilizationScalingTrigger
-	7,  // 2: chalk.scalinggroup.v1.ScalingSpec.cron_scaling_trigger:type_name -> chalk.scalinggroup.v1.CronScalingTrigger
-	0,  // 3: chalk.scalinggroup.v1.FunctionQueueDepthScalingTrigger.queue_protocol:type_name -> chalk.scalinggroup.v1.FunctionQueueProtocol
-	8,  // 4: chalk.scalinggroup.v1.CronScalingTrigger.windows:type_name -> chalk.scalinggroup.v1.CronScalingWindow
-	35, // 5: chalk.scalinggroup.v1.ScalingGroupSpec.container_spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	4,  // 6: chalk.scalinggroup.v1.ScalingGroupSpec.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
-	9,  // 7: chalk.scalinggroup.v1.ScalingGroupResponse.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
-	36, // 8: chalk.scalinggroup.v1.ScalingGroupResponse.created_at:type_name -> google.protobuf.Timestamp
-	36, // 9: chalk.scalinggroup.v1.ScalingGroupResponse.updated_at:type_name -> google.protobuf.Timestamp
-	36, // 10: chalk.scalinggroup.v1.ScalingGroupResponse.deleted_at:type_name -> google.protobuf.Timestamp
-	33, // 11: chalk.scalinggroup.v1.ScalingGroupResponse.metadata:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntry
-	9,  // 12: chalk.scalinggroup.v1.CreateScalingGroupRequest.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
-	10, // 13: chalk.scalinggroup.v1.CreateScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	14, // 14: chalk.scalinggroup.v1.ScalingGroupTraffic.targets:type_name -> chalk.scalinggroup.v1.ScalingGroupTrafficTarget
-	37, // 15: chalk.scalinggroup.v1.ScalingGroupTrafficTarget.latest_revision:type_name -> google.protobuf.Empty
-	9,  // 16: chalk.scalinggroup.v1.UpdateScalingGroupRequest.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
-	13, // 17: chalk.scalinggroup.v1.UpdateScalingGroupRequest.traffic:type_name -> chalk.scalinggroup.v1.ScalingGroupTraffic
-	38, // 18: chalk.scalinggroup.v1.UpdateScalingGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
-	10, // 19: chalk.scalinggroup.v1.UpdateScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	3,  // 20: chalk.scalinggroup.v1.GetScalingGroupRequest.visibility:type_name -> chalk.scalinggroup.v1.ScalingGroupVisibility
-	10, // 21: chalk.scalinggroup.v1.GetScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	20, // 22: chalk.scalinggroup.v1.ListScalingGroupsRequest.filters:type_name -> chalk.scalinggroup.v1.ListScalingGroupsFilters
-	1,  // 23: chalk.scalinggroup.v1.ListScalingGroupsRequest.sort_column:type_name -> chalk.scalinggroup.v1.ScalingGroupSortColumn
-	2,  // 24: chalk.scalinggroup.v1.ListScalingGroupsRequest.sort_order:type_name -> chalk.scalinggroup.v1.ScalingGroupSortOrder
-	3,  // 25: chalk.scalinggroup.v1.ListScalingGroupsFilters.visibility:type_name -> chalk.scalinggroup.v1.ScalingGroupVisibility
-	10, // 26: chalk.scalinggroup.v1.ListScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	9,  // 27: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
-	36, // 28: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.created_at:type_name -> google.protobuf.Timestamp
-	34, // 29: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.metadata:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse.MetadataEntry
-	36, // 30: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.deleted_at:type_name -> google.protobuf.Timestamp
-	22, // 31: chalk.scalinggroup.v1.GetScalingGroupRevisionResponse.revision:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
-	26, // 32: chalk.scalinggroup.v1.ListScalingGroupRevisionsRequest.filters:type_name -> chalk.scalinggroup.v1.ListScalingGroupRevisionsFilters
-	3,  // 33: chalk.scalinggroup.v1.ListScalingGroupRevisionsFilters.visibility:type_name -> chalk.scalinggroup.v1.ScalingGroupVisibility
-	22, // 34: chalk.scalinggroup.v1.ListScalingGroupRevisionsResponse.revisions:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
-	10, // 35: chalk.scalinggroup.v1.DeleteScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	30, // 36: chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusRequest.updates:type_name -> chalk.scalinggroup.v1.UpdateScalingGroupStatusRequest
-	39, // 37: chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntry.value:type_name -> google.protobuf.Value
-	39, // 38: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.MetadataEntry.value:type_name -> google.protobuf.Value
-	11, // 39: chalk.scalinggroup.v1.ScalingGroupManagerService.CreateScalingGroup:input_type -> chalk.scalinggroup.v1.CreateScalingGroupRequest
-	15, // 40: chalk.scalinggroup.v1.ScalingGroupManagerService.UpdateScalingGroup:input_type -> chalk.scalinggroup.v1.UpdateScalingGroupRequest
-	17, // 41: chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroup:input_type -> chalk.scalinggroup.v1.GetScalingGroupRequest
-	19, // 42: chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroups:input_type -> chalk.scalinggroup.v1.ListScalingGroupsRequest
-	28, // 43: chalk.scalinggroup.v1.ScalingGroupManagerService.DeleteScalingGroup:input_type -> chalk.scalinggroup.v1.DeleteScalingGroupRequest
-	23, // 44: chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroupRevision:input_type -> chalk.scalinggroup.v1.GetScalingGroupRevisionRequest
-	25, // 45: chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroupRevisions:input_type -> chalk.scalinggroup.v1.ListScalingGroupRevisionsRequest
-	31, // 46: chalk.scalinggroup.v1.ScalingGroupManagerService.BatchUpdateScalingGroupStatus:input_type -> chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusRequest
-	12, // 47: chalk.scalinggroup.v1.ScalingGroupManagerService.CreateScalingGroup:output_type -> chalk.scalinggroup.v1.CreateScalingGroupResponse
-	16, // 48: chalk.scalinggroup.v1.ScalingGroupManagerService.UpdateScalingGroup:output_type -> chalk.scalinggroup.v1.UpdateScalingGroupResponse
-	18, // 49: chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroup:output_type -> chalk.scalinggroup.v1.GetScalingGroupResponse
-	21, // 50: chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroups:output_type -> chalk.scalinggroup.v1.ListScalingGroupsResponse
-	29, // 51: chalk.scalinggroup.v1.ScalingGroupManagerService.DeleteScalingGroup:output_type -> chalk.scalinggroup.v1.DeleteScalingGroupResponse
-	24, // 52: chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroupRevision:output_type -> chalk.scalinggroup.v1.GetScalingGroupRevisionResponse
-	27, // 53: chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroupRevisions:output_type -> chalk.scalinggroup.v1.ListScalingGroupRevisionsResponse
-	32, // 54: chalk.scalinggroup.v1.ScalingGroupManagerService.BatchUpdateScalingGroupStatus:output_type -> chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusResponse
-	47, // [47:55] is the sub-list for method output_type
-	39, // [39:47] is the sub-list for method input_type
-	39, // [39:39] is the sub-list for extension type_name
-	39, // [39:39] is the sub-list for extension extendee
-	0,  // [0:39] is the sub-list for field type_name
+	4,  // 0: chalk.scalinggroup.v1.ScalingSpec.function_queue_depth_trigger:type_name -> chalk.scalinggroup.v1.FunctionQueueDepthScalingTrigger
+	5,  // 1: chalk.scalinggroup.v1.ScalingSpec.gpu_utilization_trigger:type_name -> chalk.scalinggroup.v1.GpuUtilizationScalingTrigger
+	6,  // 2: chalk.scalinggroup.v1.ScalingSpec.cron_scaling_trigger:type_name -> chalk.scalinggroup.v1.CronScalingTrigger
+	7,  // 3: chalk.scalinggroup.v1.CronScalingTrigger.windows:type_name -> chalk.scalinggroup.v1.CronScalingWindow
+	34, // 4: chalk.scalinggroup.v1.ScalingGroupSpec.container_spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	3,  // 5: chalk.scalinggroup.v1.ScalingGroupSpec.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
+	8,  // 6: chalk.scalinggroup.v1.ScalingGroupResponse.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
+	35, // 7: chalk.scalinggroup.v1.ScalingGroupResponse.created_at:type_name -> google.protobuf.Timestamp
+	35, // 8: chalk.scalinggroup.v1.ScalingGroupResponse.updated_at:type_name -> google.protobuf.Timestamp
+	35, // 9: chalk.scalinggroup.v1.ScalingGroupResponse.deleted_at:type_name -> google.protobuf.Timestamp
+	32, // 10: chalk.scalinggroup.v1.ScalingGroupResponse.metadata:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntry
+	8,  // 11: chalk.scalinggroup.v1.CreateScalingGroupRequest.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
+	9,  // 12: chalk.scalinggroup.v1.CreateScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	13, // 13: chalk.scalinggroup.v1.ScalingGroupTraffic.targets:type_name -> chalk.scalinggroup.v1.ScalingGroupTrafficTarget
+	36, // 14: chalk.scalinggroup.v1.ScalingGroupTrafficTarget.latest_revision:type_name -> google.protobuf.Empty
+	8,  // 15: chalk.scalinggroup.v1.UpdateScalingGroupRequest.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
+	12, // 16: chalk.scalinggroup.v1.UpdateScalingGroupRequest.traffic:type_name -> chalk.scalinggroup.v1.ScalingGroupTraffic
+	37, // 17: chalk.scalinggroup.v1.UpdateScalingGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	9,  // 18: chalk.scalinggroup.v1.UpdateScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	2,  // 19: chalk.scalinggroup.v1.GetScalingGroupRequest.visibility:type_name -> chalk.scalinggroup.v1.ScalingGroupVisibility
+	9,  // 20: chalk.scalinggroup.v1.GetScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	19, // 21: chalk.scalinggroup.v1.ListScalingGroupsRequest.filters:type_name -> chalk.scalinggroup.v1.ListScalingGroupsFilters
+	0,  // 22: chalk.scalinggroup.v1.ListScalingGroupsRequest.sort_column:type_name -> chalk.scalinggroup.v1.ScalingGroupSortColumn
+	1,  // 23: chalk.scalinggroup.v1.ListScalingGroupsRequest.sort_order:type_name -> chalk.scalinggroup.v1.ScalingGroupSortOrder
+	2,  // 24: chalk.scalinggroup.v1.ListScalingGroupsFilters.visibility:type_name -> chalk.scalinggroup.v1.ScalingGroupVisibility
+	9,  // 25: chalk.scalinggroup.v1.ListScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	8,  // 26: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
+	35, // 27: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.created_at:type_name -> google.protobuf.Timestamp
+	33, // 28: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.metadata:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse.MetadataEntry
+	35, // 29: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.deleted_at:type_name -> google.protobuf.Timestamp
+	21, // 30: chalk.scalinggroup.v1.GetScalingGroupRevisionResponse.revision:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	25, // 31: chalk.scalinggroup.v1.ListScalingGroupRevisionsRequest.filters:type_name -> chalk.scalinggroup.v1.ListScalingGroupRevisionsFilters
+	2,  // 32: chalk.scalinggroup.v1.ListScalingGroupRevisionsFilters.visibility:type_name -> chalk.scalinggroup.v1.ScalingGroupVisibility
+	21, // 33: chalk.scalinggroup.v1.ListScalingGroupRevisionsResponse.revisions:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	9,  // 34: chalk.scalinggroup.v1.DeleteScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	29, // 35: chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusRequest.updates:type_name -> chalk.scalinggroup.v1.UpdateScalingGroupStatusRequest
+	38, // 36: chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntry.value:type_name -> google.protobuf.Value
+	38, // 37: chalk.scalinggroup.v1.ScalingGroupRevisionResponse.MetadataEntry.value:type_name -> google.protobuf.Value
+	10, // 38: chalk.scalinggroup.v1.ScalingGroupManagerService.CreateScalingGroup:input_type -> chalk.scalinggroup.v1.CreateScalingGroupRequest
+	14, // 39: chalk.scalinggroup.v1.ScalingGroupManagerService.UpdateScalingGroup:input_type -> chalk.scalinggroup.v1.UpdateScalingGroupRequest
+	16, // 40: chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroup:input_type -> chalk.scalinggroup.v1.GetScalingGroupRequest
+	18, // 41: chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroups:input_type -> chalk.scalinggroup.v1.ListScalingGroupsRequest
+	27, // 42: chalk.scalinggroup.v1.ScalingGroupManagerService.DeleteScalingGroup:input_type -> chalk.scalinggroup.v1.DeleteScalingGroupRequest
+	22, // 43: chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroupRevision:input_type -> chalk.scalinggroup.v1.GetScalingGroupRevisionRequest
+	24, // 44: chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroupRevisions:input_type -> chalk.scalinggroup.v1.ListScalingGroupRevisionsRequest
+	30, // 45: chalk.scalinggroup.v1.ScalingGroupManagerService.BatchUpdateScalingGroupStatus:input_type -> chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusRequest
+	11, // 46: chalk.scalinggroup.v1.ScalingGroupManagerService.CreateScalingGroup:output_type -> chalk.scalinggroup.v1.CreateScalingGroupResponse
+	15, // 47: chalk.scalinggroup.v1.ScalingGroupManagerService.UpdateScalingGroup:output_type -> chalk.scalinggroup.v1.UpdateScalingGroupResponse
+	17, // 48: chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroup:output_type -> chalk.scalinggroup.v1.GetScalingGroupResponse
+	20, // 49: chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroups:output_type -> chalk.scalinggroup.v1.ListScalingGroupsResponse
+	28, // 50: chalk.scalinggroup.v1.ScalingGroupManagerService.DeleteScalingGroup:output_type -> chalk.scalinggroup.v1.DeleteScalingGroupResponse
+	23, // 51: chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroupRevision:output_type -> chalk.scalinggroup.v1.GetScalingGroupRevisionResponse
+	26, // 52: chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroupRevisions:output_type -> chalk.scalinggroup.v1.ListScalingGroupRevisionsResponse
+	31, // 53: chalk.scalinggroup.v1.ScalingGroupManagerService.BatchUpdateScalingGroupStatus:output_type -> chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusResponse
+	46, // [46:54] is the sub-list for method output_type
+	38, // [38:46] is the sub-list for method input_type
+	38, // [38:38] is the sub-list for extension type_name
+	38, // [38:38] is the sub-list for extension extendee
+	0,  // [0:38] is the sub-list for field type_name
 }
 
 func init() { file_chalk_scalinggroup_v1_service_proto_init() }
@@ -2538,7 +2472,7 @@ func file_chalk_scalinggroup_v1_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_scalinggroup_v1_service_proto_rawDesc), len(file_chalk_scalinggroup_v1_service_proto_rawDesc)),
-			NumEnums:      4,
+			NumEnums:      3,
 			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,

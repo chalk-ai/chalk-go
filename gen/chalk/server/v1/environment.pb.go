@@ -1311,12 +1311,8 @@ func (x *UpdateEnvironmentV2Response) GetFieldChanges() []*v1.FieldChange {
 }
 
 type DeleteEnvironmentRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Delete the Metrics DB attached to a managed environment before deleting the environment.
-	// The dashboard sets this for its all-in-one lifecycle, while Terraform leaves it unset so the
-	// Metrics DB remains under Terraform's control.
-	Force         bool `protobuf:"varint,2,opt,name=force,proto3" json:"force,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1356,13 +1352,6 @@ func (x *DeleteEnvironmentRequest) GetId() string {
 		return x.Id
 	}
 	return ""
-}
-
-func (x *DeleteEnvironmentRequest) GetForce() bool {
-	if x != nil {
-		return x.Force
-	}
-	return false
 }
 
 type DeleteEnvironmentResponse struct {
@@ -1916,10 +1905,9 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"updateMask\"\x9f\x01\n" +
 	"\x1bUpdateEnvironmentV2Response\x12>\n" +
 	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\x12@\n" +
-	"\rfield_changes\x18\x02 \x03(\v2\x1b.chalk.utils.v1.FieldChangeR\ffieldChanges\"@\n" +
+	"\rfield_changes\x18\x02 \x03(\v2\x1b.chalk.utils.v1.FieldChangeR\ffieldChanges\"*\n" +
 	"\x18DeleteEnvironmentRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
-	"\x05force\x18\x02 \x01(\bR\x05force\"\x1b\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x1b\n" +
 	"\x19DeleteEnvironmentResponse\".\n" +
 	"\x1cSetDefaultEnvironmentRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x1f\n" +

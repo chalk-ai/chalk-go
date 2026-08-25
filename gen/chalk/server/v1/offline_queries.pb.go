@@ -274,11 +274,8 @@ type OfflineQueryShardRun struct {
 	Hostname           *string                `protobuf:"bytes,5,opt,name=hostname,proto3,oneof" json:"hostname,omitempty"`
 	PlanExecutionStart *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=plan_execution_start,json=planExecutionStart,proto3,oneof" json:"plan_execution_start,omitempty"`
 	CompletedAt        *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=completed_at,json=completedAt,proto3,oneof" json:"completed_at,omitempty"`
-	// query_plans.id of the plan this attempt built. Every attempt of every shard plans
-	// independently, so this differs per attempt even when the plans are structurally identical.
-	QueryPlanId   *string `protobuf:"bytes,8,opt,name=query_plan_id,json=queryPlanId,proto3,oneof" json:"query_plan_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *OfflineQueryShardRun) Reset() {
@@ -360,13 +357,6 @@ func (x *OfflineQueryShardRun) GetCompletedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *OfflineQueryShardRun) GetQueryPlanId() string {
-	if x != nil && x.QueryPlanId != nil {
-		return *x.QueryPlanId
-	}
-	return ""
-}
-
 type OfflineQueryShard struct {
 	state           protoimpl.MessageState  `protogen:"open.v1"`
 	Id              int64                   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -383,11 +373,8 @@ type OfflineQueryShard struct {
 	Status          *OfflineQueryStatus     `protobuf:"varint,12,opt,name=status,proto3,enum=chalk.server.v1.OfflineQueryStatus,oneof" json:"status,omitempty"`
 	LastHeartbeatAt *timestamppb.Timestamp  `protobuf:"bytes,13,opt,name=last_heartbeat_at,json=lastHeartbeatAt,proto3,oneof" json:"last_heartbeat_at,omitempty"`
 	Runs            []*OfflineQueryShardRun `protobuf:"bytes,15,rep,name=runs,proto3" json:"runs,omitempty"`
-	// query_plans.id of the plan built by this shard's newest attempt; per-attempt ids are on
-	// `runs`.
-	QueryPlanId   *string `protobuf:"bytes,16,opt,name=query_plan_id,json=queryPlanId,proto3,oneof" json:"query_plan_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *OfflineQueryShard) Reset() {
@@ -516,13 +503,6 @@ func (x *OfflineQueryShard) GetRuns() []*OfflineQueryShardRun {
 		return x.Runs
 	}
 	return nil
-}
-
-func (x *OfflineQueryShard) GetQueryPlanId() string {
-	if x != nil && x.QueryPlanId != nil {
-		return *x.QueryPlanId
-	}
-	return ""
 }
 
 type OfflineQueryMeta struct {
@@ -4899,7 +4879,7 @@ var File_chalk_server_v1_offline_queries_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/server/v1/offline_queries.proto\x12\x0fchalk.server.v1\x1a chalk/aggregate/v1/service.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a&chalk/common/v1/dataset_response.proto\x1a#chalk/common/v1/offline_query.proto\x1a\x1echalk/server/v1/datasets.proto\x1a)chalk/server/v1/performance_summary.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd0\x03\n" +
+	"%chalk/server/v1/offline_queries.proto\x12\x0fchalk.server.v1\x1a chalk/aggregate/v1/service.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a&chalk/common/v1/dataset_response.proto\x1a#chalk/common/v1/offline_query.proto\x1a\x1echalk/server/v1/datasets.proto\x1a)chalk/server/v1/performance_summary.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x95\x03\n" +
 	"\x14OfflineQueryShardRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12(\n" +
 	"\x10offline_query_id\x18\x02 \x01(\tR\x0eofflineQueryId\x12\x19\n" +
@@ -4908,12 +4888,10 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1f\n" +
 	"\bhostname\x18\x05 \x01(\tH\x00R\bhostname\x88\x01\x01\x12Q\n" +
 	"\x14plan_execution_start\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x12planExecutionStart\x88\x01\x01\x12B\n" +
-	"\fcompleted_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x02R\vcompletedAt\x88\x01\x01\x12'\n" +
-	"\rquery_plan_id\x18\b \x01(\tH\x03R\vqueryPlanId\x88\x01\x01B\v\n" +
+	"\fcompleted_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x02R\vcompletedAt\x88\x01\x01B\v\n" +
 	"\t_hostnameB\x17\n" +
 	"\x15_plan_execution_startB\x0f\n" +
-	"\r_completed_atB\x10\n" +
-	"\x0e_query_plan_id\"\xdc\x06\n" +
+	"\r_completed_at\"\xa1\x06\n" +
 	"\x11OfflineQueryShard\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12(\n" +
 	"\x10offline_query_id\x18\x02 \x01(\tR\x0eofflineQueryId\x12%\n" +
@@ -4932,8 +4910,7 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\fcompleted_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\x05R\vcompletedAt\x88\x01\x01\x12@\n" +
 	"\x06status\x18\f \x01(\x0e2#.chalk.server.v1.OfflineQueryStatusH\x06R\x06status\x88\x01\x01\x12K\n" +
 	"\x11last_heartbeat_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampH\aR\x0flastHeartbeatAt\x88\x01\x01\x129\n" +
-	"\x04runs\x18\x0f \x03(\v2%.chalk.server.v1.OfflineQueryShardRunR\x04runs\x12'\n" +
-	"\rquery_plan_id\x18\x10 \x01(\tH\bR\vqueryPlanId\x88\x01\x01B\v\n" +
+	"\x04runs\x18\x0f \x03(\v2%.chalk.server.v1.OfflineQueryShardRunR\x04runsB\v\n" +
 	"\t_shard_idB\x0e\n" +
 	"\f_computer_idB\f\n" +
 	"\n" +
@@ -4942,8 +4919,7 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\v_has_errorsB\x0f\n" +
 	"\r_completed_atB\t\n" +
 	"\a_statusB\x14\n" +
-	"\x12_last_heartbeat_atB\x10\n" +
-	"\x0e_query_plan_id\"\xb7\x16\n" +
+	"\x12_last_heartbeat_at\"\xb7\x16\n" +
 	"\x10OfflineQueryMeta\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12!\n" +
 	"\foperation_id\x18\x02 \x01(\tR\voperationId\x12%\n" +

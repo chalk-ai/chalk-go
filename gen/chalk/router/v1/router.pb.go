@@ -1189,23 +1189,12 @@ func (x *GetUsageHistogramRequest) GetApiToken() string {
 }
 
 type UsageHistogramRow struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	Provider    string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
-	Bucket      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=bucket,proto3" json:"bucket,omitempty"`
-	TotalTokens int64                  `protobuf:"varint,3,opt,name=total_tokens,json=totalTokens,proto3" json:"total_tokens,omitempty"`
-	// Immutable provider connection identity. Empty only for legacy unattributed rows.
-	ConnectionId     string `protobuf:"bytes,4,opt,name=connection_id,json=connectionId,proto3" json:"connection_id,omitempty"`
-	PromptTokens     int64  `protobuf:"varint,5,opt,name=prompt_tokens,json=promptTokens,proto3" json:"prompt_tokens,omitempty"`
-	CompletionTokens int64  `protobuf:"varint,6,opt,name=completion_tokens,json=completionTokens,proto3" json:"completion_tokens,omitempty"`
-	// Cache reads are included in prompt_tokens.
-	CachedTokens int64 `protobuf:"varint,7,opt,name=cached_tokens,json=cachedTokens,proto3" json:"cached_tokens,omitempty"`
-	// Cache writes are included in prompt_tokens.
-	CacheWriteTokens int64 `protobuf:"varint,8,opt,name=cache_write_tokens,json=cacheWriteTokens,proto3" json:"cache_write_tokens,omitempty"`
-	// Reasoning tokens are included in completion_tokens.
-	ReasoningTokens int64 `protobuf:"varint,9,opt,name=reasoning_tokens,json=reasoningTokens,proto3" json:"reasoning_tokens,omitempty"`
-	RequestCount    int64 `protobuf:"varint,10,opt,name=request_count,json=requestCount,proto3" json:"request_count,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
+	Bucket        *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=bucket,proto3" json:"bucket,omitempty"`
+	TotalTokens   int64                  `protobuf:"varint,3,opt,name=total_tokens,json=totalTokens,proto3" json:"total_tokens,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UsageHistogramRow) Reset() {
@@ -1255,55 +1244,6 @@ func (x *UsageHistogramRow) GetBucket() *timestamppb.Timestamp {
 func (x *UsageHistogramRow) GetTotalTokens() int64 {
 	if x != nil {
 		return x.TotalTokens
-	}
-	return 0
-}
-
-func (x *UsageHistogramRow) GetConnectionId() string {
-	if x != nil {
-		return x.ConnectionId
-	}
-	return ""
-}
-
-func (x *UsageHistogramRow) GetPromptTokens() int64 {
-	if x != nil {
-		return x.PromptTokens
-	}
-	return 0
-}
-
-func (x *UsageHistogramRow) GetCompletionTokens() int64 {
-	if x != nil {
-		return x.CompletionTokens
-	}
-	return 0
-}
-
-func (x *UsageHistogramRow) GetCachedTokens() int64 {
-	if x != nil {
-		return x.CachedTokens
-	}
-	return 0
-}
-
-func (x *UsageHistogramRow) GetCacheWriteTokens() int64 {
-	if x != nil {
-		return x.CacheWriteTokens
-	}
-	return 0
-}
-
-func (x *UsageHistogramRow) GetReasoningTokens() int64 {
-	if x != nil {
-		return x.ReasoningTokens
-	}
-	return 0
-}
-
-func (x *UsageHistogramRow) GetRequestCount() int64 {
-	if x != nil {
-		return x.RequestCount
 	}
 	return 0
 }
@@ -4574,558 +4514,6 @@ func (x *DeleteModelRouteResponse) GetWarnings() []string {
 	return nil
 }
 
-type TelemetryExporter struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	ExporterType  string                 `protobuf:"bytes,3,opt,name=exporter_type,json=exporterType,proto3" json:"exporter_type,omitempty"`
-	ConfigJson    string                 `protobuf:"bytes,4,opt,name=config_json,json=configJson,proto3" json:"config_json,omitempty"`
-	Enabled       bool                   `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	ApiKeySet     bool                   `protobuf:"varint,6,opt,name=api_key_set,json=apiKeySet,proto3" json:"api_key_set,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	ReadOnly      bool                   `protobuf:"varint,9,opt,name=read_only,json=readOnly,proto3" json:"read_only,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TelemetryExporter) Reset() {
-	*x = TelemetryExporter{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[74]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TelemetryExporter) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TelemetryExporter) ProtoMessage() {}
-
-func (x *TelemetryExporter) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[74]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TelemetryExporter.ProtoReflect.Descriptor instead.
-func (*TelemetryExporter) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{74}
-}
-
-func (x *TelemetryExporter) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *TelemetryExporter) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *TelemetryExporter) GetExporterType() string {
-	if x != nil {
-		return x.ExporterType
-	}
-	return ""
-}
-
-func (x *TelemetryExporter) GetConfigJson() string {
-	if x != nil {
-		return x.ConfigJson
-	}
-	return ""
-}
-
-func (x *TelemetryExporter) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
-	}
-	return false
-}
-
-func (x *TelemetryExporter) GetApiKeySet() bool {
-	if x != nil {
-		return x.ApiKeySet
-	}
-	return false
-}
-
-func (x *TelemetryExporter) GetCreatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return nil
-}
-
-func (x *TelemetryExporter) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return nil
-}
-
-func (x *TelemetryExporter) GetReadOnly() bool {
-	if x != nil {
-		return x.ReadOnly
-	}
-	return false
-}
-
-type ListTelemetryExportersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListTelemetryExportersRequest) Reset() {
-	*x = ListTelemetryExportersRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[75]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListTelemetryExportersRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListTelemetryExportersRequest) ProtoMessage() {}
-
-func (x *ListTelemetryExportersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[75]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListTelemetryExportersRequest.ProtoReflect.Descriptor instead.
-func (*ListTelemetryExportersRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{75}
-}
-
-type ListTelemetryExportersResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Exporters     []*TelemetryExporter   `protobuf:"bytes,1,rep,name=exporters,proto3" json:"exporters,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListTelemetryExportersResponse) Reset() {
-	*x = ListTelemetryExportersResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[76]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListTelemetryExportersResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListTelemetryExportersResponse) ProtoMessage() {}
-
-func (x *ListTelemetryExportersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[76]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListTelemetryExportersResponse.ProtoReflect.Descriptor instead.
-func (*ListTelemetryExportersResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{76}
-}
-
-func (x *ListTelemetryExportersResponse) GetExporters() []*TelemetryExporter {
-	if x != nil {
-		return x.Exporters
-	}
-	return nil
-}
-
-type UpsertTelemetryExporterOperation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	ExporterType  string                 `protobuf:"bytes,3,opt,name=exporter_type,json=exporterType,proto3" json:"exporter_type,omitempty"`
-	ConfigJson    string                 `protobuf:"bytes,4,opt,name=config_json,json=configJson,proto3" json:"config_json,omitempty"`
-	Enabled       bool                   `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	ApiKey        *string                `protobuf:"bytes,6,opt,name=api_key,json=apiKey,proto3,oneof" json:"api_key,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpsertTelemetryExporterOperation) Reset() {
-	*x = UpsertTelemetryExporterOperation{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[77]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpsertTelemetryExporterOperation) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpsertTelemetryExporterOperation) ProtoMessage() {}
-
-func (x *UpsertTelemetryExporterOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[77]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpsertTelemetryExporterOperation.ProtoReflect.Descriptor instead.
-func (*UpsertTelemetryExporterOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{77}
-}
-
-func (x *UpsertTelemetryExporterOperation) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *UpsertTelemetryExporterOperation) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *UpsertTelemetryExporterOperation) GetExporterType() string {
-	if x != nil {
-		return x.ExporterType
-	}
-	return ""
-}
-
-func (x *UpsertTelemetryExporterOperation) GetConfigJson() string {
-	if x != nil {
-		return x.ConfigJson
-	}
-	return ""
-}
-
-func (x *UpsertTelemetryExporterOperation) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
-	}
-	return false
-}
-
-func (x *UpsertTelemetryExporterOperation) GetApiKey() string {
-	if x != nil && x.ApiKey != nil {
-		return *x.ApiKey
-	}
-	return ""
-}
-
-type UpsertTelemetryExporterRequest struct {
-	state         protoimpl.MessageState            `protogen:"open.v1"`
-	Exporter      *UpsertTelemetryExporterOperation `protobuf:"bytes,1,opt,name=exporter,proto3" json:"exporter,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpsertTelemetryExporterRequest) Reset() {
-	*x = UpsertTelemetryExporterRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[78]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpsertTelemetryExporterRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpsertTelemetryExporterRequest) ProtoMessage() {}
-
-func (x *UpsertTelemetryExporterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[78]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpsertTelemetryExporterRequest.ProtoReflect.Descriptor instead.
-func (*UpsertTelemetryExporterRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{78}
-}
-
-func (x *UpsertTelemetryExporterRequest) GetExporter() *UpsertTelemetryExporterOperation {
-	if x != nil {
-		return x.Exporter
-	}
-	return nil
-}
-
-type UpsertTelemetryExporterResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Exporter      *TelemetryExporter     `protobuf:"bytes,1,opt,name=exporter,proto3" json:"exporter,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpsertTelemetryExporterResponse) Reset() {
-	*x = UpsertTelemetryExporterResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[79]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpsertTelemetryExporterResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpsertTelemetryExporterResponse) ProtoMessage() {}
-
-func (x *UpsertTelemetryExporterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[79]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpsertTelemetryExporterResponse.ProtoReflect.Descriptor instead.
-func (*UpsertTelemetryExporterResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{79}
-}
-
-func (x *UpsertTelemetryExporterResponse) GetExporter() *TelemetryExporter {
-	if x != nil {
-		return x.Exporter
-	}
-	return nil
-}
-
-type DeleteTelemetryExporterRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteTelemetryExporterRequest) Reset() {
-	*x = DeleteTelemetryExporterRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[80]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteTelemetryExporterRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteTelemetryExporterRequest) ProtoMessage() {}
-
-func (x *DeleteTelemetryExporterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[80]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteTelemetryExporterRequest.ProtoReflect.Descriptor instead.
-func (*DeleteTelemetryExporterRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{80}
-}
-
-func (x *DeleteTelemetryExporterRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type DeleteTelemetryExporterResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteTelemetryExporterResponse) Reset() {
-	*x = DeleteTelemetryExporterResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[81]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteTelemetryExporterResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteTelemetryExporterResponse) ProtoMessage() {}
-
-func (x *DeleteTelemetryExporterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[81]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteTelemetryExporterResponse.ProtoReflect.Descriptor instead.
-func (*DeleteTelemetryExporterResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{81}
-}
-
-func (x *DeleteTelemetryExporterResponse) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type TestTelemetryExporterRequest struct {
-	state         protoimpl.MessageState            `protogen:"open.v1"`
-	Exporter      *UpsertTelemetryExporterOperation `protobuf:"bytes,1,opt,name=exporter,proto3" json:"exporter,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TestTelemetryExporterRequest) Reset() {
-	*x = TestTelemetryExporterRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[82]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TestTelemetryExporterRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TestTelemetryExporterRequest) ProtoMessage() {}
-
-func (x *TestTelemetryExporterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[82]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TestTelemetryExporterRequest.ProtoReflect.Descriptor instead.
-func (*TestTelemetryExporterRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{82}
-}
-
-func (x *TestTelemetryExporterRequest) GetExporter() *UpsertTelemetryExporterOperation {
-	if x != nil {
-		return x.Exporter
-	}
-	return nil
-}
-
-type TestTelemetryExporterResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
-	Error         *string                `protobuf:"bytes,2,opt,name=error,proto3,oneof" json:"error,omitempty"`
-	Latency       *durationpb.Duration   `protobuf:"bytes,3,opt,name=latency,proto3,oneof" json:"latency,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TestTelemetryExporterResponse) Reset() {
-	*x = TestTelemetryExporterResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[83]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TestTelemetryExporterResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TestTelemetryExporterResponse) ProtoMessage() {}
-
-func (x *TestTelemetryExporterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[83]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TestTelemetryExporterResponse.ProtoReflect.Descriptor instead.
-func (*TestTelemetryExporterResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{83}
-}
-
-func (x *TestTelemetryExporterResponse) GetOk() bool {
-	if x != nil {
-		return x.Ok
-	}
-	return false
-}
-
-func (x *TestTelemetryExporterResponse) GetError() string {
-	if x != nil && x.Error != nil {
-		return *x.Error
-	}
-	return ""
-}
-
-func (x *TestTelemetryExporterResponse) GetLatency() *durationpb.Duration {
-	if x != nil {
-		return x.Latency
-	}
-	return nil
-}
-
 type Usage struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	PromptTokens     uint32                 `protobuf:"varint,1,opt,name=prompt_tokens,json=promptTokens,proto3" json:"prompt_tokens,omitempty"`
@@ -5137,7 +4525,7 @@ type Usage struct {
 
 func (x *Usage) Reset() {
 	*x = Usage{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[84]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5149,7 +4537,7 @@ func (x *Usage) String() string {
 func (*Usage) ProtoMessage() {}
 
 func (x *Usage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[84]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5162,7 +4550,7 @@ func (x *Usage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Usage.ProtoReflect.Descriptor instead.
 func (*Usage) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{84}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *Usage) GetPromptTokens() uint32 {
@@ -5202,7 +4590,7 @@ type DebugCompletionEntry struct {
 
 func (x *DebugCompletionEntry) Reset() {
 	*x = DebugCompletionEntry{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[85]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5214,7 +4602,7 @@ func (x *DebugCompletionEntry) String() string {
 func (*DebugCompletionEntry) ProtoMessage() {}
 
 func (x *DebugCompletionEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[85]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5227,7 +4615,7 @@ func (x *DebugCompletionEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DebugCompletionEntry.ProtoReflect.Descriptor instead.
 func (*DebugCompletionEntry) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{85}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *DebugCompletionEntry) GetTimestamp() *timestamppb.Timestamp {
@@ -5294,7 +4682,7 @@ type RecentCompletionsRequest struct {
 
 func (x *RecentCompletionsRequest) Reset() {
 	*x = RecentCompletionsRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[86]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5306,7 +4694,7 @@ func (x *RecentCompletionsRequest) String() string {
 func (*RecentCompletionsRequest) ProtoMessage() {}
 
 func (x *RecentCompletionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[86]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5319,7 +4707,7 @@ func (x *RecentCompletionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentCompletionsRequest.ProtoReflect.Descriptor instead.
 func (*RecentCompletionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{86}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{76}
 }
 
 type RecentCompletionsResponse struct {
@@ -5332,7 +4720,7 @@ type RecentCompletionsResponse struct {
 
 func (x *RecentCompletionsResponse) Reset() {
 	*x = RecentCompletionsResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[87]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5344,7 +4732,7 @@ func (x *RecentCompletionsResponse) String() string {
 func (*RecentCompletionsResponse) ProtoMessage() {}
 
 func (x *RecentCompletionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[87]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5357,7 +4745,7 @@ func (x *RecentCompletionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentCompletionsResponse.ProtoReflect.Descriptor instead.
 func (*RecentCompletionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{87}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *RecentCompletionsResponse) GetCount() uint32 {
@@ -5385,7 +4773,7 @@ type CheckRequest struct {
 
 func (x *CheckRequest) Reset() {
 	*x = CheckRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[88]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5397,7 +4785,7 @@ func (x *CheckRequest) String() string {
 func (*CheckRequest) ProtoMessage() {}
 
 func (x *CheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[88]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5410,7 +4798,7 @@ func (x *CheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckRequest.ProtoReflect.Descriptor instead.
 func (*CheckRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{88}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{78}
 }
 
 type CheckResponse struct {
@@ -5423,7 +4811,7 @@ type CheckResponse struct {
 
 func (x *CheckResponse) Reset() {
 	*x = CheckResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[89]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5435,7 +4823,7 @@ func (x *CheckResponse) String() string {
 func (*CheckResponse) ProtoMessage() {}
 
 func (x *CheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[89]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5448,7 +4836,7 @@ func (x *CheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckResponse.ProtoReflect.Descriptor instead.
 func (*CheckResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{89}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *CheckResponse) GetProfile() string {
@@ -5580,19 +4968,11 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x03end\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12 \n" +
 	"\tapi_token\x18\x04 \x01(\tH\x00R\bapiToken\x88\x01\x01B\f\n" +
 	"\n" +
-	"_api_token\"\xa0\x03\n" +
+	"_api_token\"\x86\x01\n" +
 	"\x11UsageHistogramRow\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x122\n" +
 	"\x06bucket\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x06bucket\x12!\n" +
-	"\ftotal_tokens\x18\x03 \x01(\x03R\vtotalTokens\x12#\n" +
-	"\rconnection_id\x18\x04 \x01(\tR\fconnectionId\x12#\n" +
-	"\rprompt_tokens\x18\x05 \x01(\x03R\fpromptTokens\x12+\n" +
-	"\x11completion_tokens\x18\x06 \x01(\x03R\x10completionTokens\x12#\n" +
-	"\rcached_tokens\x18\a \x01(\x03R\fcachedTokens\x12,\n" +
-	"\x12cache_write_tokens\x18\b \x01(\x03R\x10cacheWriteTokens\x12)\n" +
-	"\x10reasoning_tokens\x18\t \x01(\x03R\x0freasoningTokens\x12#\n" +
-	"\rrequest_count\x18\n" +
-	" \x01(\x03R\frequestCount\"S\n" +
+	"\ftotal_tokens\x18\x03 \x01(\x03R\vtotalTokens\"S\n" +
 	"\x19GetUsageHistogramResponse\x126\n" +
 	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageHistogramRowR\x04rows\"j\n" +
 	"\tUsagePool\x12\x0e\n" +
@@ -5888,50 +5268,7 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"F\n" +
 	"\x18DeleteModelRouteResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\bwarnings\x18\x02 \x03(\tR\bwarnings\"\xca\x02\n" +
-	"\x11TelemetryExporter\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
-	"\rexporter_type\x18\x03 \x01(\tR\fexporterType\x12\x1f\n" +
-	"\vconfig_json\x18\x04 \x01(\tR\n" +
-	"configJson\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\x12\x1e\n" +
-	"\vapi_key_set\x18\x06 \x01(\bR\tapiKeySet\x129\n" +
-	"\n" +
-	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
-	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1b\n" +
-	"\tread_only\x18\t \x01(\bR\breadOnly\"\x1f\n" +
-	"\x1dListTelemetryExportersRequest\"b\n" +
-	"\x1eListTelemetryExportersResponse\x12@\n" +
-	"\texporters\x18\x01 \x03(\v2\".chalk.router.v1.TelemetryExporterR\texporters\"\xd0\x01\n" +
-	" UpsertTelemetryExporterOperation\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
-	"\rexporter_type\x18\x03 \x01(\tR\fexporterType\x12\x1f\n" +
-	"\vconfig_json\x18\x04 \x01(\tR\n" +
-	"configJson\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\x12\x1c\n" +
-	"\aapi_key\x18\x06 \x01(\tH\x00R\x06apiKey\x88\x01\x01B\n" +
-	"\n" +
-	"\b_api_key\"o\n" +
-	"\x1eUpsertTelemetryExporterRequest\x12M\n" +
-	"\bexporter\x18\x01 \x01(\v21.chalk.router.v1.UpsertTelemetryExporterOperationR\bexporter\"a\n" +
-	"\x1fUpsertTelemetryExporterResponse\x12>\n" +
-	"\bexporter\x18\x01 \x01(\v2\".chalk.router.v1.TelemetryExporterR\bexporter\"0\n" +
-	"\x1eDeleteTelemetryExporterRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
-	"\x1fDeleteTelemetryExporterResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"m\n" +
-	"\x1cTestTelemetryExporterRequest\x12M\n" +
-	"\bexporter\x18\x01 \x01(\v21.chalk.router.v1.UpsertTelemetryExporterOperationR\bexporter\"\x9a\x01\n" +
-	"\x1dTestTelemetryExporterResponse\x12\x0e\n" +
-	"\x02ok\x18\x01 \x01(\bR\x02ok\x12\x19\n" +
-	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01\x128\n" +
-	"\alatency\x18\x03 \x01(\v2\x19.google.protobuf.DurationH\x01R\alatency\x88\x01\x01B\b\n" +
-	"\x06_errorB\n" +
-	"\n" +
-	"\b_latency\"|\n" +
+	"\bwarnings\x18\x02 \x03(\tR\bwarnings\"|\n" +
 	"\x05Usage\x12#\n" +
 	"\rprompt_tokens\x18\x01 \x01(\rR\fpromptTokens\x12+\n" +
 	"\x11completion_tokens\x18\x02 \x01(\rR\x10completionTokens\x12!\n" +
@@ -6000,12 +5337,7 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x0fListModelRoutes\x12'.chalk.router.v1.ListModelRoutesRequest\x1a(.chalk.router.v1.ListModelRoutesResponse\"\x06\x80}\x02\x90\x02\x01\x12l\n" +
 	"\x10CreateModelRoute\x12(.chalk.router.v1.CreateModelRouteRequest\x1a).chalk.router.v1.CreateModelRouteResponse\"\x03\x80}\x02\x12l\n" +
 	"\x10UpdateModelRoute\x12(.chalk.router.v1.UpdateModelRouteRequest\x1a).chalk.router.v1.UpdateModelRouteResponse\"\x03\x80}\x02\x12l\n" +
-	"\x10DeleteModelRoute\x12(.chalk.router.v1.DeleteModelRouteRequest\x1a).chalk.router.v1.DeleteModelRouteResponse\"\x03\x80}\x022\xa3\x04\n" +
-	"\x18TelemetrySettingsService\x12\x81\x01\n" +
-	"\x16ListTelemetryExporters\x12..chalk.router.v1.ListTelemetryExportersRequest\x1a/.chalk.router.v1.ListTelemetryExportersResponse\"\x06\x80}\x02\x90\x02\x01\x12\x81\x01\n" +
-	"\x17UpsertTelemetryExporter\x12/.chalk.router.v1.UpsertTelemetryExporterRequest\x1a0.chalk.router.v1.UpsertTelemetryExporterResponse\"\x03\x80}\x02\x12\x81\x01\n" +
-	"\x17DeleteTelemetryExporter\x12/.chalk.router.v1.DeleteTelemetryExporterRequest\x1a0.chalk.router.v1.DeleteTelemetryExporterResponse\"\x03\x80}\x02\x12{\n" +
-	"\x15TestTelemetryExporter\x12-.chalk.router.v1.TestTelemetryExporterRequest\x1a..chalk.router.v1.TestTelemetryExporterResponse\"\x03\x80}\x022\x82\x01\n" +
+	"\x10DeleteModelRoute\x12(.chalk.router.v1.DeleteModelRouteRequest\x1a).chalk.router.v1.DeleteModelRouteResponse\"\x03\x80}\x022\x82\x01\n" +
 	"\fDebugService\x12r\n" +
 	"\x11RecentCompletions\x12).chalk.router.v1.RecentCompletionsRequest\x1a*.chalk.router.v1.RecentCompletionsResponse\"\x06\x80}\x02\x90\x02\x012_\n" +
 	"\rHealthService\x12N\n" +
@@ -6025,7 +5357,7 @@ func file_chalk_router_v1_router_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_router_v1_router_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_router_v1_router_proto_msgTypes = make([]protoimpl.MessageInfo, 99)
+var file_chalk_router_v1_router_proto_msgTypes = make([]protoimpl.MessageInfo, 89)
 var file_chalk_router_v1_router_proto_goTypes = []any{
 	(ExposurePolicy)(0),                       // 0: chalk.router.v1.ExposurePolicy
 	(RouteDiagnostic)(0),                      // 1: chalk.router.v1.RouteDiagnostic
@@ -6103,185 +5435,160 @@ var file_chalk_router_v1_router_proto_goTypes = []any{
 	(*UpdateModelRouteResponse)(nil),          // 73: chalk.router.v1.UpdateModelRouteResponse
 	(*DeleteModelRouteRequest)(nil),           // 74: chalk.router.v1.DeleteModelRouteRequest
 	(*DeleteModelRouteResponse)(nil),          // 75: chalk.router.v1.DeleteModelRouteResponse
-	(*TelemetryExporter)(nil),                 // 76: chalk.router.v1.TelemetryExporter
-	(*ListTelemetryExportersRequest)(nil),     // 77: chalk.router.v1.ListTelemetryExportersRequest
-	(*ListTelemetryExportersResponse)(nil),    // 78: chalk.router.v1.ListTelemetryExportersResponse
-	(*UpsertTelemetryExporterOperation)(nil),  // 79: chalk.router.v1.UpsertTelemetryExporterOperation
-	(*UpsertTelemetryExporterRequest)(nil),    // 80: chalk.router.v1.UpsertTelemetryExporterRequest
-	(*UpsertTelemetryExporterResponse)(nil),   // 81: chalk.router.v1.UpsertTelemetryExporterResponse
-	(*DeleteTelemetryExporterRequest)(nil),    // 82: chalk.router.v1.DeleteTelemetryExporterRequest
-	(*DeleteTelemetryExporterResponse)(nil),   // 83: chalk.router.v1.DeleteTelemetryExporterResponse
-	(*TestTelemetryExporterRequest)(nil),      // 84: chalk.router.v1.TestTelemetryExporterRequest
-	(*TestTelemetryExporterResponse)(nil),     // 85: chalk.router.v1.TestTelemetryExporterResponse
-	(*Usage)(nil),                             // 86: chalk.router.v1.Usage
-	(*DebugCompletionEntry)(nil),              // 87: chalk.router.v1.DebugCompletionEntry
-	(*RecentCompletionsRequest)(nil),          // 88: chalk.router.v1.RecentCompletionsRequest
-	(*RecentCompletionsResponse)(nil),         // 89: chalk.router.v1.RecentCompletionsResponse
-	(*CheckRequest)(nil),                      // 90: chalk.router.v1.CheckRequest
-	(*CheckResponse)(nil),                     // 91: chalk.router.v1.CheckResponse
-	nil,                                       // 92: chalk.router.v1.ApiKey.LabelsEntry
-	nil,                                       // 93: chalk.router.v1.ApiKey.CostTagsEntry
-	nil,                                       // 94: chalk.router.v1.CreateKeyRequest.LabelsEntry
-	nil,                                       // 95: chalk.router.v1.CreateKeyRequest.CostTagsEntry
-	nil,                                       // 96: chalk.router.v1.UpdateKeyOperation.CostTagsEntry
-	nil,                                       // 97: chalk.router.v1.FallbackPolicy.FallbacksEntry
-	nil,                                       // 98: chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry
-	nil,                                       // 99: chalk.router.v1.JudgePolicy.LaddersEntry
-	nil,                                       // 100: chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry
-	(*timestamppb.Timestamp)(nil),             // 101: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),             // 102: google.protobuf.FieldMask
-	(*durationpb.Duration)(nil),               // 103: google.protobuf.Duration
+	(*Usage)(nil),                             // 76: chalk.router.v1.Usage
+	(*DebugCompletionEntry)(nil),              // 77: chalk.router.v1.DebugCompletionEntry
+	(*RecentCompletionsRequest)(nil),          // 78: chalk.router.v1.RecentCompletionsRequest
+	(*RecentCompletionsResponse)(nil),         // 79: chalk.router.v1.RecentCompletionsResponse
+	(*CheckRequest)(nil),                      // 80: chalk.router.v1.CheckRequest
+	(*CheckResponse)(nil),                     // 81: chalk.router.v1.CheckResponse
+	nil,                                       // 82: chalk.router.v1.ApiKey.LabelsEntry
+	nil,                                       // 83: chalk.router.v1.ApiKey.CostTagsEntry
+	nil,                                       // 84: chalk.router.v1.CreateKeyRequest.LabelsEntry
+	nil,                                       // 85: chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	nil,                                       // 86: chalk.router.v1.UpdateKeyOperation.CostTagsEntry
+	nil,                                       // 87: chalk.router.v1.FallbackPolicy.FallbacksEntry
+	nil,                                       // 88: chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry
+	nil,                                       // 89: chalk.router.v1.JudgePolicy.LaddersEntry
+	nil,                                       // 90: chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry
+	(*timestamppb.Timestamp)(nil),             // 91: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),             // 92: google.protobuf.FieldMask
+	(*durationpb.Duration)(nil),               // 93: google.protobuf.Duration
 }
 var file_chalk_router_v1_router_proto_depIdxs = []int32{
-	101, // 0: chalk.router.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
+	91,  // 0: chalk.router.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
 	2,   // 1: chalk.router.v1.ApiKey.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	92,  // 2: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
+	82,  // 2: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
 	3,   // 3: chalk.router.v1.ApiKey.usage:type_name -> chalk.router.v1.UsageSnapshot
-	93,  // 4: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
+	83,  // 4: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
 	2,   // 5: chalk.router.v1.CreateKeyRequest.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	94,  // 6: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
-	95,  // 7: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	84,  // 6: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
+	85,  // 7: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
 	4,   // 8: chalk.router.v1.CreateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
 	4,   // 9: chalk.router.v1.ListKeysResponse.keys:type_name -> chalk.router.v1.ApiKey
-	96,  // 10: chalk.router.v1.UpdateKeyOperation.cost_tags:type_name -> chalk.router.v1.UpdateKeyOperation.CostTagsEntry
+	86,  // 10: chalk.router.v1.UpdateKeyOperation.cost_tags:type_name -> chalk.router.v1.UpdateKeyOperation.CostTagsEntry
 	9,   // 11: chalk.router.v1.UpdateKeyRequest.update:type_name -> chalk.router.v1.UpdateKeyOperation
-	102, // 12: chalk.router.v1.UpdateKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	92,  // 12: chalk.router.v1.UpdateKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
 	4,   // 13: chalk.router.v1.UpdateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
 	3,   // 14: chalk.router.v1.GetKeyUsageResponse.usage:type_name -> chalk.router.v1.UsageSnapshot
 	15,  // 15: chalk.router.v1.ListAllUsageResponse.keys:type_name -> chalk.router.v1.GetKeyUsageResponse
-	101, // 16: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
-	101, // 17: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
-	101, // 18: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
+	91,  // 16: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
+	91,  // 17: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
+	91,  // 18: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
 	19,  // 19: chalk.router.v1.GetUsageHistogramResponse.rows:type_name -> chalk.router.v1.UsageHistogramRow
-	101, // 20: chalk.router.v1.UsagePool.created_at:type_name -> google.protobuf.Timestamp
+	91,  // 20: chalk.router.v1.UsagePool.created_at:type_name -> google.protobuf.Timestamp
 	21,  // 21: chalk.router.v1.CreateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
 	21,  // 22: chalk.router.v1.ListUsagePoolsResponse.pools:type_name -> chalk.router.v1.UsagePool
-	101, // 23: chalk.router.v1.RateLimitPolicy.created_at:type_name -> google.protobuf.Timestamp
+	91,  // 23: chalk.router.v1.RateLimitPolicy.created_at:type_name -> google.protobuf.Timestamp
 	28,  // 24: chalk.router.v1.CreateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
 	28,  // 25: chalk.router.v1.ListRateLimitsResponse.policies:type_name -> chalk.router.v1.RateLimitPolicy
 	33,  // 26: chalk.router.v1.UpdateRateLimitRequest.update:type_name -> chalk.router.v1.UpdateRateLimitOperation
-	102, // 27: chalk.router.v1.UpdateRateLimitRequest.update_mask:type_name -> google.protobuf.FieldMask
+	92,  // 27: chalk.router.v1.UpdateRateLimitRequest.update_mask:type_name -> google.protobuf.FieldMask
 	28,  // 28: chalk.router.v1.UpdateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
-	97,  // 29: chalk.router.v1.FallbackPolicy.fallbacks:type_name -> chalk.router.v1.FallbackPolicy.FallbacksEntry
+	87,  // 29: chalk.router.v1.FallbackPolicy.fallbacks:type_name -> chalk.router.v1.FallbackPolicy.FallbacksEntry
 	39,  // 30: chalk.router.v1.GetFallbackPolicyResponse.policy:type_name -> chalk.router.v1.FallbackPolicy
-	98,  // 31: chalk.router.v1.UpdateFallbackPolicyOperation.fallbacks:type_name -> chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry
+	88,  // 31: chalk.router.v1.UpdateFallbackPolicyOperation.fallbacks:type_name -> chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry
 	42,  // 32: chalk.router.v1.UpdateFallbackPolicyRequest.update:type_name -> chalk.router.v1.UpdateFallbackPolicyOperation
-	102, // 33: chalk.router.v1.UpdateFallbackPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	92,  // 33: chalk.router.v1.UpdateFallbackPolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
 	39,  // 34: chalk.router.v1.UpdateFallbackPolicyResponse.policy:type_name -> chalk.router.v1.FallbackPolicy
-	99,  // 35: chalk.router.v1.JudgePolicy.ladders:type_name -> chalk.router.v1.JudgePolicy.LaddersEntry
+	89,  // 35: chalk.router.v1.JudgePolicy.ladders:type_name -> chalk.router.v1.JudgePolicy.LaddersEntry
 	46,  // 36: chalk.router.v1.GetJudgePolicyResponse.policy:type_name -> chalk.router.v1.JudgePolicy
-	100, // 37: chalk.router.v1.UpdateJudgePolicyOperation.ladders:type_name -> chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry
+	90,  // 37: chalk.router.v1.UpdateJudgePolicyOperation.ladders:type_name -> chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry
 	49,  // 38: chalk.router.v1.UpdateJudgePolicyRequest.update:type_name -> chalk.router.v1.UpdateJudgePolicyOperation
-	102, // 39: chalk.router.v1.UpdateJudgePolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	92,  // 39: chalk.router.v1.UpdateJudgePolicyRequest.update_mask:type_name -> google.protobuf.FieldMask
 	46,  // 40: chalk.router.v1.UpdateJudgePolicyResponse.policy:type_name -> chalk.router.v1.JudgePolicy
 	0,   // 41: chalk.router.v1.ProviderConnection.exposure:type_name -> chalk.router.v1.ExposurePolicy
 	52,  // 42: chalk.router.v1.ProviderConnection.state:type_name -> chalk.router.v1.ConnectionState
-	101, // 43: chalk.router.v1.ProviderConnection.created_at:type_name -> google.protobuf.Timestamp
-	101, // 44: chalk.router.v1.ProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
+	91,  // 43: chalk.router.v1.ProviderConnection.created_at:type_name -> google.protobuf.Timestamp
+	91,  // 44: chalk.router.v1.ProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
 	0,   // 45: chalk.router.v1.ProviderConnectionDraft.exposure:type_name -> chalk.router.v1.ExposurePolicy
 	53,  // 46: chalk.router.v1.ListProviderConnectionsResponse.connections:type_name -> chalk.router.v1.ProviderConnection
 	0,   // 47: chalk.router.v1.CreateProviderConnectionRequest.exposure:type_name -> chalk.router.v1.ExposurePolicy
 	53,  // 48: chalk.router.v1.CreateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
 	0,   // 49: chalk.router.v1.UpdateProviderConnectionOperation.exposure:type_name -> chalk.router.v1.ExposurePolicy
 	59,  // 50: chalk.router.v1.UpdateProviderConnectionRequest.update:type_name -> chalk.router.v1.UpdateProviderConnectionOperation
-	102, // 51: chalk.router.v1.UpdateProviderConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	92,  // 51: chalk.router.v1.UpdateProviderConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
 	53,  // 52: chalk.router.v1.UpdateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
 	54,  // 53: chalk.router.v1.TestProviderConnectionRequest.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
-	103, // 54: chalk.router.v1.TestProviderConnectionResponse.latency:type_name -> google.protobuf.Duration
+	93,  // 54: chalk.router.v1.TestProviderConnectionResponse.latency:type_name -> google.protobuf.Duration
 	1,   // 55: chalk.router.v1.ModelRoute.diagnostic:type_name -> chalk.router.v1.RouteDiagnostic
-	101, // 56: chalk.router.v1.ModelRoute.created_at:type_name -> google.protobuf.Timestamp
-	101, // 57: chalk.router.v1.ModelRoute.updated_at:type_name -> google.protobuf.Timestamp
+	91,  // 56: chalk.router.v1.ModelRoute.created_at:type_name -> google.protobuf.Timestamp
+	91,  // 57: chalk.router.v1.ModelRoute.updated_at:type_name -> google.protobuf.Timestamp
 	66,  // 58: chalk.router.v1.ListModelRoutesResponse.routes:type_name -> chalk.router.v1.ModelRoute
 	66,  // 59: chalk.router.v1.CreateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
 	71,  // 60: chalk.router.v1.UpdateModelRouteRequest.update:type_name -> chalk.router.v1.UpdateModelRouteOperation
-	102, // 61: chalk.router.v1.UpdateModelRouteRequest.update_mask:type_name -> google.protobuf.FieldMask
+	92,  // 61: chalk.router.v1.UpdateModelRouteRequest.update_mask:type_name -> google.protobuf.FieldMask
 	66,  // 62: chalk.router.v1.UpdateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
-	101, // 63: chalk.router.v1.TelemetryExporter.created_at:type_name -> google.protobuf.Timestamp
-	101, // 64: chalk.router.v1.TelemetryExporter.updated_at:type_name -> google.protobuf.Timestamp
-	76,  // 65: chalk.router.v1.ListTelemetryExportersResponse.exporters:type_name -> chalk.router.v1.TelemetryExporter
-	79,  // 66: chalk.router.v1.UpsertTelemetryExporterRequest.exporter:type_name -> chalk.router.v1.UpsertTelemetryExporterOperation
-	76,  // 67: chalk.router.v1.UpsertTelemetryExporterResponse.exporter:type_name -> chalk.router.v1.TelemetryExporter
-	79,  // 68: chalk.router.v1.TestTelemetryExporterRequest.exporter:type_name -> chalk.router.v1.UpsertTelemetryExporterOperation
-	103, // 69: chalk.router.v1.TestTelemetryExporterResponse.latency:type_name -> google.protobuf.Duration
-	101, // 70: chalk.router.v1.DebugCompletionEntry.timestamp:type_name -> google.protobuf.Timestamp
-	103, // 71: chalk.router.v1.DebugCompletionEntry.duration:type_name -> google.protobuf.Duration
-	86,  // 72: chalk.router.v1.DebugCompletionEntry.usage:type_name -> chalk.router.v1.Usage
-	87,  // 73: chalk.router.v1.RecentCompletionsResponse.entries:type_name -> chalk.router.v1.DebugCompletionEntry
-	38,  // 74: chalk.router.v1.FallbackPolicy.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
-	38,  // 75: chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
-	45,  // 76: chalk.router.v1.JudgePolicy.LaddersEntry.value:type_name -> chalk.router.v1.JudgeLadder
-	45,  // 77: chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry.value:type_name -> chalk.router.v1.JudgeLadder
-	5,   // 78: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
-	7,   // 79: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
-	10,  // 80: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
-	12,  // 81: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
-	14,  // 82: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
-	16,  // 83: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
-	18,  // 84: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
-	22,  // 85: chalk.router.v1.UsagePoolService.CreateUsagePool:input_type -> chalk.router.v1.CreateUsagePoolRequest
-	24,  // 86: chalk.router.v1.UsagePoolService.ListUsagePools:input_type -> chalk.router.v1.ListUsagePoolsRequest
-	26,  // 87: chalk.router.v1.UsagePoolService.DeleteUsagePool:input_type -> chalk.router.v1.DeleteUsagePoolRequest
-	29,  // 88: chalk.router.v1.RateLimitService.CreateRateLimit:input_type -> chalk.router.v1.CreateRateLimitRequest
-	31,  // 89: chalk.router.v1.RateLimitService.ListRateLimits:input_type -> chalk.router.v1.ListRateLimitsRequest
-	34,  // 90: chalk.router.v1.RateLimitService.UpdateRateLimit:input_type -> chalk.router.v1.UpdateRateLimitRequest
-	36,  // 91: chalk.router.v1.RateLimitService.DeleteRateLimit:input_type -> chalk.router.v1.DeleteRateLimitRequest
-	40,  // 92: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:input_type -> chalk.router.v1.GetFallbackPolicyRequest
-	43,  // 93: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:input_type -> chalk.router.v1.UpdateFallbackPolicyRequest
-	47,  // 94: chalk.router.v1.JudgePolicyService.GetJudgePolicy:input_type -> chalk.router.v1.GetJudgePolicyRequest
-	50,  // 95: chalk.router.v1.JudgePolicyService.UpdateJudgePolicy:input_type -> chalk.router.v1.UpdateJudgePolicyRequest
-	55,  // 96: chalk.router.v1.ProviderConnectionService.ListProviderConnections:input_type -> chalk.router.v1.ListProviderConnectionsRequest
-	57,  // 97: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:input_type -> chalk.router.v1.CreateProviderConnectionRequest
-	60,  // 98: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:input_type -> chalk.router.v1.UpdateProviderConnectionRequest
-	62,  // 99: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:input_type -> chalk.router.v1.DeleteProviderConnectionRequest
-	64,  // 100: chalk.router.v1.ProviderConnectionService.TestProviderConnection:input_type -> chalk.router.v1.TestProviderConnectionRequest
-	67,  // 101: chalk.router.v1.ModelRouteService.ListModelRoutes:input_type -> chalk.router.v1.ListModelRoutesRequest
-	69,  // 102: chalk.router.v1.ModelRouteService.CreateModelRoute:input_type -> chalk.router.v1.CreateModelRouteRequest
-	72,  // 103: chalk.router.v1.ModelRouteService.UpdateModelRoute:input_type -> chalk.router.v1.UpdateModelRouteRequest
-	74,  // 104: chalk.router.v1.ModelRouteService.DeleteModelRoute:input_type -> chalk.router.v1.DeleteModelRouteRequest
-	77,  // 105: chalk.router.v1.TelemetrySettingsService.ListTelemetryExporters:input_type -> chalk.router.v1.ListTelemetryExportersRequest
-	80,  // 106: chalk.router.v1.TelemetrySettingsService.UpsertTelemetryExporter:input_type -> chalk.router.v1.UpsertTelemetryExporterRequest
-	82,  // 107: chalk.router.v1.TelemetrySettingsService.DeleteTelemetryExporter:input_type -> chalk.router.v1.DeleteTelemetryExporterRequest
-	84,  // 108: chalk.router.v1.TelemetrySettingsService.TestTelemetryExporter:input_type -> chalk.router.v1.TestTelemetryExporterRequest
-	88,  // 109: chalk.router.v1.DebugService.RecentCompletions:input_type -> chalk.router.v1.RecentCompletionsRequest
-	90,  // 110: chalk.router.v1.HealthService.Check:input_type -> chalk.router.v1.CheckRequest
-	6,   // 111: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
-	8,   // 112: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
-	11,  // 113: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
-	13,  // 114: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
-	15,  // 115: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
-	17,  // 116: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
-	20,  // 117: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
-	23,  // 118: chalk.router.v1.UsagePoolService.CreateUsagePool:output_type -> chalk.router.v1.CreateUsagePoolResponse
-	25,  // 119: chalk.router.v1.UsagePoolService.ListUsagePools:output_type -> chalk.router.v1.ListUsagePoolsResponse
-	27,  // 120: chalk.router.v1.UsagePoolService.DeleteUsagePool:output_type -> chalk.router.v1.DeleteUsagePoolResponse
-	30,  // 121: chalk.router.v1.RateLimitService.CreateRateLimit:output_type -> chalk.router.v1.CreateRateLimitResponse
-	32,  // 122: chalk.router.v1.RateLimitService.ListRateLimits:output_type -> chalk.router.v1.ListRateLimitsResponse
-	35,  // 123: chalk.router.v1.RateLimitService.UpdateRateLimit:output_type -> chalk.router.v1.UpdateRateLimitResponse
-	37,  // 124: chalk.router.v1.RateLimitService.DeleteRateLimit:output_type -> chalk.router.v1.DeleteRateLimitResponse
-	41,  // 125: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:output_type -> chalk.router.v1.GetFallbackPolicyResponse
-	44,  // 126: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:output_type -> chalk.router.v1.UpdateFallbackPolicyResponse
-	48,  // 127: chalk.router.v1.JudgePolicyService.GetJudgePolicy:output_type -> chalk.router.v1.GetJudgePolicyResponse
-	51,  // 128: chalk.router.v1.JudgePolicyService.UpdateJudgePolicy:output_type -> chalk.router.v1.UpdateJudgePolicyResponse
-	56,  // 129: chalk.router.v1.ProviderConnectionService.ListProviderConnections:output_type -> chalk.router.v1.ListProviderConnectionsResponse
-	58,  // 130: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:output_type -> chalk.router.v1.CreateProviderConnectionResponse
-	61,  // 131: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:output_type -> chalk.router.v1.UpdateProviderConnectionResponse
-	63,  // 132: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:output_type -> chalk.router.v1.DeleteProviderConnectionResponse
-	65,  // 133: chalk.router.v1.ProviderConnectionService.TestProviderConnection:output_type -> chalk.router.v1.TestProviderConnectionResponse
-	68,  // 134: chalk.router.v1.ModelRouteService.ListModelRoutes:output_type -> chalk.router.v1.ListModelRoutesResponse
-	70,  // 135: chalk.router.v1.ModelRouteService.CreateModelRoute:output_type -> chalk.router.v1.CreateModelRouteResponse
-	73,  // 136: chalk.router.v1.ModelRouteService.UpdateModelRoute:output_type -> chalk.router.v1.UpdateModelRouteResponse
-	75,  // 137: chalk.router.v1.ModelRouteService.DeleteModelRoute:output_type -> chalk.router.v1.DeleteModelRouteResponse
-	78,  // 138: chalk.router.v1.TelemetrySettingsService.ListTelemetryExporters:output_type -> chalk.router.v1.ListTelemetryExportersResponse
-	81,  // 139: chalk.router.v1.TelemetrySettingsService.UpsertTelemetryExporter:output_type -> chalk.router.v1.UpsertTelemetryExporterResponse
-	83,  // 140: chalk.router.v1.TelemetrySettingsService.DeleteTelemetryExporter:output_type -> chalk.router.v1.DeleteTelemetryExporterResponse
-	85,  // 141: chalk.router.v1.TelemetrySettingsService.TestTelemetryExporter:output_type -> chalk.router.v1.TestTelemetryExporterResponse
-	89,  // 142: chalk.router.v1.DebugService.RecentCompletions:output_type -> chalk.router.v1.RecentCompletionsResponse
-	91,  // 143: chalk.router.v1.HealthService.Check:output_type -> chalk.router.v1.CheckResponse
-	111, // [111:144] is the sub-list for method output_type
-	78,  // [78:111] is the sub-list for method input_type
-	78,  // [78:78] is the sub-list for extension type_name
-	78,  // [78:78] is the sub-list for extension extendee
-	0,   // [0:78] is the sub-list for field type_name
+	91,  // 63: chalk.router.v1.DebugCompletionEntry.timestamp:type_name -> google.protobuf.Timestamp
+	93,  // 64: chalk.router.v1.DebugCompletionEntry.duration:type_name -> google.protobuf.Duration
+	76,  // 65: chalk.router.v1.DebugCompletionEntry.usage:type_name -> chalk.router.v1.Usage
+	77,  // 66: chalk.router.v1.RecentCompletionsResponse.entries:type_name -> chalk.router.v1.DebugCompletionEntry
+	38,  // 67: chalk.router.v1.FallbackPolicy.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
+	38,  // 68: chalk.router.v1.UpdateFallbackPolicyOperation.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
+	45,  // 69: chalk.router.v1.JudgePolicy.LaddersEntry.value:type_name -> chalk.router.v1.JudgeLadder
+	45,  // 70: chalk.router.v1.UpdateJudgePolicyOperation.LaddersEntry.value:type_name -> chalk.router.v1.JudgeLadder
+	5,   // 71: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
+	7,   // 72: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
+	10,  // 73: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
+	12,  // 74: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
+	14,  // 75: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
+	16,  // 76: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
+	18,  // 77: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
+	22,  // 78: chalk.router.v1.UsagePoolService.CreateUsagePool:input_type -> chalk.router.v1.CreateUsagePoolRequest
+	24,  // 79: chalk.router.v1.UsagePoolService.ListUsagePools:input_type -> chalk.router.v1.ListUsagePoolsRequest
+	26,  // 80: chalk.router.v1.UsagePoolService.DeleteUsagePool:input_type -> chalk.router.v1.DeleteUsagePoolRequest
+	29,  // 81: chalk.router.v1.RateLimitService.CreateRateLimit:input_type -> chalk.router.v1.CreateRateLimitRequest
+	31,  // 82: chalk.router.v1.RateLimitService.ListRateLimits:input_type -> chalk.router.v1.ListRateLimitsRequest
+	34,  // 83: chalk.router.v1.RateLimitService.UpdateRateLimit:input_type -> chalk.router.v1.UpdateRateLimitRequest
+	36,  // 84: chalk.router.v1.RateLimitService.DeleteRateLimit:input_type -> chalk.router.v1.DeleteRateLimitRequest
+	40,  // 85: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:input_type -> chalk.router.v1.GetFallbackPolicyRequest
+	43,  // 86: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:input_type -> chalk.router.v1.UpdateFallbackPolicyRequest
+	47,  // 87: chalk.router.v1.JudgePolicyService.GetJudgePolicy:input_type -> chalk.router.v1.GetJudgePolicyRequest
+	50,  // 88: chalk.router.v1.JudgePolicyService.UpdateJudgePolicy:input_type -> chalk.router.v1.UpdateJudgePolicyRequest
+	55,  // 89: chalk.router.v1.ProviderConnectionService.ListProviderConnections:input_type -> chalk.router.v1.ListProviderConnectionsRequest
+	57,  // 90: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:input_type -> chalk.router.v1.CreateProviderConnectionRequest
+	60,  // 91: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:input_type -> chalk.router.v1.UpdateProviderConnectionRequest
+	62,  // 92: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:input_type -> chalk.router.v1.DeleteProviderConnectionRequest
+	64,  // 93: chalk.router.v1.ProviderConnectionService.TestProviderConnection:input_type -> chalk.router.v1.TestProviderConnectionRequest
+	67,  // 94: chalk.router.v1.ModelRouteService.ListModelRoutes:input_type -> chalk.router.v1.ListModelRoutesRequest
+	69,  // 95: chalk.router.v1.ModelRouteService.CreateModelRoute:input_type -> chalk.router.v1.CreateModelRouteRequest
+	72,  // 96: chalk.router.v1.ModelRouteService.UpdateModelRoute:input_type -> chalk.router.v1.UpdateModelRouteRequest
+	74,  // 97: chalk.router.v1.ModelRouteService.DeleteModelRoute:input_type -> chalk.router.v1.DeleteModelRouteRequest
+	78,  // 98: chalk.router.v1.DebugService.RecentCompletions:input_type -> chalk.router.v1.RecentCompletionsRequest
+	80,  // 99: chalk.router.v1.HealthService.Check:input_type -> chalk.router.v1.CheckRequest
+	6,   // 100: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
+	8,   // 101: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
+	11,  // 102: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
+	13,  // 103: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
+	15,  // 104: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
+	17,  // 105: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
+	20,  // 106: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
+	23,  // 107: chalk.router.v1.UsagePoolService.CreateUsagePool:output_type -> chalk.router.v1.CreateUsagePoolResponse
+	25,  // 108: chalk.router.v1.UsagePoolService.ListUsagePools:output_type -> chalk.router.v1.ListUsagePoolsResponse
+	27,  // 109: chalk.router.v1.UsagePoolService.DeleteUsagePool:output_type -> chalk.router.v1.DeleteUsagePoolResponse
+	30,  // 110: chalk.router.v1.RateLimitService.CreateRateLimit:output_type -> chalk.router.v1.CreateRateLimitResponse
+	32,  // 111: chalk.router.v1.RateLimitService.ListRateLimits:output_type -> chalk.router.v1.ListRateLimitsResponse
+	35,  // 112: chalk.router.v1.RateLimitService.UpdateRateLimit:output_type -> chalk.router.v1.UpdateRateLimitResponse
+	37,  // 113: chalk.router.v1.RateLimitService.DeleteRateLimit:output_type -> chalk.router.v1.DeleteRateLimitResponse
+	41,  // 114: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:output_type -> chalk.router.v1.GetFallbackPolicyResponse
+	44,  // 115: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:output_type -> chalk.router.v1.UpdateFallbackPolicyResponse
+	48,  // 116: chalk.router.v1.JudgePolicyService.GetJudgePolicy:output_type -> chalk.router.v1.GetJudgePolicyResponse
+	51,  // 117: chalk.router.v1.JudgePolicyService.UpdateJudgePolicy:output_type -> chalk.router.v1.UpdateJudgePolicyResponse
+	56,  // 118: chalk.router.v1.ProviderConnectionService.ListProviderConnections:output_type -> chalk.router.v1.ListProviderConnectionsResponse
+	58,  // 119: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:output_type -> chalk.router.v1.CreateProviderConnectionResponse
+	61,  // 120: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:output_type -> chalk.router.v1.UpdateProviderConnectionResponse
+	63,  // 121: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:output_type -> chalk.router.v1.DeleteProviderConnectionResponse
+	65,  // 122: chalk.router.v1.ProviderConnectionService.TestProviderConnection:output_type -> chalk.router.v1.TestProviderConnectionResponse
+	68,  // 123: chalk.router.v1.ModelRouteService.ListModelRoutes:output_type -> chalk.router.v1.ListModelRoutesResponse
+	70,  // 124: chalk.router.v1.ModelRouteService.CreateModelRoute:output_type -> chalk.router.v1.CreateModelRouteResponse
+	73,  // 125: chalk.router.v1.ModelRouteService.UpdateModelRoute:output_type -> chalk.router.v1.UpdateModelRouteResponse
+	75,  // 126: chalk.router.v1.ModelRouteService.DeleteModelRoute:output_type -> chalk.router.v1.DeleteModelRouteResponse
+	79,  // 127: chalk.router.v1.DebugService.RecentCompletions:output_type -> chalk.router.v1.RecentCompletionsResponse
+	81,  // 128: chalk.router.v1.HealthService.Check:output_type -> chalk.router.v1.CheckResponse
+	100, // [100:129] is the sub-list for method output_type
+	71,  // [71:100] is the sub-list for method input_type
+	71,  // [71:71] is the sub-list for extension type_name
+	71,  // [71:71] is the sub-list for extension extendee
+	0,   // [0:71] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_router_proto_init() }
@@ -6319,18 +5626,16 @@ func file_chalk_router_v1_router_proto_init() {
 	file_chalk_router_v1_router_proto_msgTypes[65].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[66].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[69].OneofWrappers = []any{}
-	file_chalk_router_v1_router_proto_msgTypes[77].OneofWrappers = []any{}
-	file_chalk_router_v1_router_proto_msgTypes[83].OneofWrappers = []any{}
-	file_chalk_router_v1_router_proto_msgTypes[85].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[75].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_router_v1_router_proto_rawDesc), len(file_chalk_router_v1_router_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   99,
+			NumMessages:   89,
 			NumExtensions: 0,
-			NumServices:   10,
+			NumServices:   9,
 		},
 		GoTypes:           file_chalk_router_v1_router_proto_goTypes,
 		DependencyIndexes: file_chalk_router_v1_router_proto_depIdxs,
