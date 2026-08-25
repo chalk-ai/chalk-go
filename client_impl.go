@@ -426,24 +426,102 @@ func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParam
 	return response, errors.Wrap(err, "getting run status")
 }
 
-func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string) ([]string, error) {
-	response := GetOfflineQueryJobResponse{}
-	for !response.IsFinished {
-		err := c.sendRequest(
+func (c *clientImpl) getDatasetUrls(ctx context.Context, revisionId string) ([]string, error) {
+	for {
+		// A fresh response each iteration: reusing one lets fields from an
+		// earlier poll survive into the result if a later response omits them.
+		response := GetOfflineQueryJobResponse{}
+		if err := c.sendRequest(
 			ctx,
 			&sendRequestParams{
 				Method:   "GET",
-				URL:      fmt.Sprintf("v2/offline_query/%s", RevisionId),
+				URL:      fmt.Sprintf("v2/offline_query/%s", revisionId),
 				Response: &response,
 			},
-		)
-		if err != nil {
-			return []string{}, errors.Wrap(err, "getting dataset urls")
+		); err != nil {
+			return nil, errors.Wrap(err, "getting dataset urls")
 		}
-		time.Sleep(500 * time.Millisecond)
+
+		if response.IsFinished {
+			// is_finished means the revision reached a terminal status, which
+			// includes ERROR, CANCELLED and EXPIRED as well as SUCCESSFUL. For
+			// those the server returns an empty url list plus an explanatory
+			// error, so returning response.Urls unconditionally would hand the
+			// caller zero urls and a nil error.
+			if len(response.Errors) > 0 {
+				return nil, errors.Wrapf(
+					ServerErrors(response.Errors),
+					"offline query %q did not produce a dataset",
+					revisionId,
+				)
+			}
+			return response.Urls, nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(datasetWaitPollInterval):
+		}
+	}
+}
+
+// datasetJobStatusRequest is the body of POST v4/offline_query/status. It
+// mirrors the Python client's DatasetJobStatusRequest.
+type datasetJobStatusRequest struct {
+	JobId            string `json:"job_id"`
+	IgnoreErrors     bool   `json:"ignore_errors"`
+	SkipFailedShards bool   `json:"skip_failed_shards"`
+	QueryInputs      bool   `json:"query_inputs"`
+}
+
+// getOfflineQueryJobStatus reports the revision-level status of an offline
+// query. This is a different signal from the per-shard status reports returned
+// by GetOfflineQueryStatus: it reflects the revision's own QueryStatus, so it
+// can report an error even when every shard report says COMPLETED.
+func (c *clientImpl) getOfflineQueryJobStatus(
+	ctx context.Context,
+	revisionId string,
+) (GetOfflineQueryJobResponse, error) {
+	response := GetOfflineQueryJobResponse{}
+	err := c.sendRequest(
+		ctx,
+		&sendRequestParams{
+			Method:   "POST",
+			URL:      "v4/offline_query/status",
+			Body:     datasetJobStatusRequest{JobId: revisionId},
+			Response: &response,
+		},
+	)
+	return response, errors.Wrap(err, "getting offline query job status")
+}
+
+// getDatasetByRevisionId fetches the dataset a revision belongs to, with the
+// server's current view of every revision on it.
+func (c *clientImpl) getDatasetByRevisionId(ctx context.Context, revisionId string) (Dataset, error) {
+	response := Dataset{}
+	if err := c.sendRequest(
+		ctx,
+		&sendRequestParams{
+			Method:   "GET",
+			URL:      fmt.Sprintf("v4/offline_query/%s", revisionId),
+			Response: &response,
+		},
+	); err != nil {
+		return Dataset{}, errors.Wrap(err, "getting dataset")
+	}
+	if len(response.Errors) > 0 {
+		return Dataset{}, errors.Wrapf(response.Errors, "getting dataset for revision %q", revisionId)
 	}
 
-	return response.Urls, nil
+	response.client = c
+	for idx := range response.Revisions {
+		response.Revisions[idx].client = c
+		if response.Revisions[idx].EnvironmentID == "" {
+			response.Revisions[idx].EnvironmentID = response.EnvironmentID
+		}
+	}
+	return response, nil
 }
 
 func (c *clientImpl) saveUrlToDirectory(URL string, directory string) (err error) {
@@ -748,28 +826,18 @@ func (c *clientImpl) CancelOfflineQuery(ctx context.Context, offlineQueryId stri
 }
 
 func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset, error) {
-	// Get the dataset URLs using the existing getDatasetUrls method
-	// This also validates that the dataset exists and is ready
-	_, err := c.getDatasetUrls(ctx, revisionId)
+	// Ask the server for the dataset rather than fabricating one. The previous
+	// implementation synthesized a revision with IsFinished: true and
+	// QueryStatusSuccessful, which made Wait a guaranteed no-op on the result
+	// and left every other revision field zero. The Python client's
+	// get_dataset(job_id=...) reads the same GET v4/offline_query/{id} endpoint.
+	dataset, err := c.getDatasetByRevisionId(ctx, revisionId)
 	if err != nil {
-		return Dataset{}, errors.Wrap(err, "getting dataset urls")
+		return Dataset{}, err
 	}
-
-	// Create a dataset revision with the retrieved information
-	revision := DatasetRevision{
-		RevisionId: revisionId,
-		Status:     QueryStatusSuccessful, // Since we got URLs, the dataset is complete
-		client:     c,
+	if len(dataset.Revisions) == 0 {
+		return Dataset{}, errors.Newf("no revisions found for revision id %q", revisionId)
 	}
-
-	// Create and return the dataset
-	dataset := Dataset{
-		IsFinished: true,
-		Version:    1,
-		Revisions:  []DatasetRevision{revision},
-		client:     c,
-	}
-
 	return dataset, nil
 }
 

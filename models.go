@@ -781,16 +781,23 @@ type Dataset struct {
 	Revisions     []DatasetRevision `json:"revisions"`
 	Errors        ServerErrors      `json:"errors"`
 
-	// client is used internally for the Wait method
-	client Client `json:"-"`
-
-	// waitErr records the terminal failure observed by Wait so that
-	// subsequent Wait calls report it instead of re-polling.
-	waitErr error `json:"-"`
+	// client is used internally for the Wait and download methods.
+	client datasetClient `json:"-"`
 
 	// waitReportTimeout overrides datasetWaitReportTimeout in Wait. Zero means
 	// use the default. Only set in tests.
 	waitReportTimeout time.Duration `json:"-"`
+}
+
+// datasetClient is the subset of client behavior that Dataset and
+// DatasetRevision methods need. It is an interface rather than *clientImpl so
+// that the wait and download paths can be exercised against a fake.
+type datasetClient interface {
+	GetOfflineQueryStatus(ctx context.Context, args GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error)
+	getOfflineQueryJobStatus(ctx context.Context, revisionId string) (GetOfflineQueryJobResponse, error)
+	getDatasetByRevisionId(ctx context.Context, revisionId string) (Dataset, error)
+	getDatasetUrls(ctx context.Context, revisionId string) ([]string, error)
+	saveUrlToDirectory(url string, directory string) error
 }
 
 type DatasetRevision struct {
@@ -851,7 +858,18 @@ type DatasetRevision struct {
 	// Number of computers for the revision.
 	NumComputers int `json:"num_computers"`
 
-	client *clientImpl
+	client datasetClient
+
+	// waitErr records a terminal query failure that this process observed while
+	// waiting, so that a repeated Wait replays it instead of re-polling a query
+	// the server will never report differently.
+	//
+	// This is deliberately separate from Dataset.IsFinished. IsFinished comes
+	// off the wire and means "the query reached a terminal state", which is also
+	// true of a failed or cancelled query; using it to decide whether waiting is
+	// still needed would report a failed query as a success. waitErr is set only
+	// by Wait, in this process, and being non-nil is its own presence flag.
+	waitErr error
 }
 
 const (
@@ -893,20 +911,15 @@ func newDatasetWaitReportTimeoutError(
 	)
 }
 
-// Wait polls the offline query status until the job is complete.
-// It returns an error if the job fails or if there's an error polling the status.
+// Wait polls the offline query status until the job is complete, and returns an
+// error if the job failed or if the status could not be determined.
 //
-// A sharded offline query produces one status report per shard, and the query
-// is only complete once every shard's report reaches a terminal state. Wait
-// polls each shard's report in order, advancing to the next shard when the
-// current one reports COMPLETED, and returns an error as soon as any shard
-// reports FAILED. Use the ctx deadline to bound the overall wait.
+// Wait waits on the dataset's last revision, matching the Python client, where
+// Dataset.wait() delegates to revisions[-1].wait().
 //
-// Behavior difference from the Python client: IsFinished is set to true once
-// the query reaches a terminal state, including failure (in chalkpy a failed
-// revision is never marked finished and a repeated wait() re-polls the
-// server). A subsequent Wait call on a failed Dataset returns the recorded
-// failure without polling again.
+// IsFinished is set once the query reaches a terminal state, including failure.
+// It is a report of what happened, not the signal Wait keys off: see
+// DatasetRevision.waitErr for why.
 func (d *Dataset) Wait(ctx context.Context) error {
 	if d.client == nil {
 		return errors.New("Dataset client is not initialized")
@@ -916,25 +929,106 @@ func (d *Dataset) Wait(ctx context.Context) error {
 		return errors.New("No revisions found in dataset")
 	}
 
-	// Check if already finished
-	if d.IsFinished {
+	// Wait on the last revision, matching Python's behavior: self.revisions[-1].
+	// Index rather than copy, so the refresh and the memo Wait records are
+	// visible to the caller through d.Revisions.
+	revision := &d.Revisions[len(d.Revisions)-1]
+	if revision.client == nil {
+		revision.client = d.client
+	}
+
+	err := revision.wait(ctx, d.waitReportTimeout)
+
+	// A query that failed is finished, just not successfully. Keep IsFinished
+	// meaning "reached a terminal state" for callers that read it, without
+	// letting it decide whether waiting is still needed.
+	if err == nil || revision.waitErr != nil {
+		d.IsFinished = true
+	}
+	return err
+}
+
+// Wait polls the revision's offline query status until the job is complete, and
+// returns an error if the job failed or if the status could not be determined.
+//
+// A sharded offline query produces one status report per shard, and the query is
+// only complete once every shard's report reaches a terminal state. Wait polls
+// each shard's report in turn, advancing to the next shard when the current one
+// reports COMPLETED, and returns an error as soon as a shard it is polling
+// reports FAILED. Because shards are polled in order, a failure in a later shard
+// is not observed until the shards before it complete.
+//
+// Once every shard has completed, Wait refreshes the revision from the server
+// and checks the revision-level job status, so that a revision whose shards all
+// completed but which the server nonetheless considers failed is reported as an
+// error rather than a success.
+//
+// Use the ctx deadline to bound the overall wait.
+func (d *DatasetRevision) Wait(ctx context.Context) error {
+	return d.wait(ctx, 0)
+}
+
+// wait implements Wait with an overridable report timeout. A reportTimeout of
+// zero or less means use datasetWaitReportTimeout.
+func (d *DatasetRevision) wait(ctx context.Context, reportTimeout time.Duration) error {
+	if d.client == nil {
+		return errors.New("DatasetRevision client is not initialized")
+	}
+
+	// Replay a terminal failure already observed here rather than re-polling a
+	// query whose outcome cannot change.
+	if d.waitErr != nil {
 		return d.waitErr
 	}
 
-	// Poll the last revision's status
-	revision := d.Revisions[len(d.Revisions)-1]
+	// A revision the server already considers successful needs no waiting. This
+	// mirrors the Python client, which seeds DatasetRevision._hydrated from
+	// `self.status == QueryStatus.SUCCESSFUL` -- the revision's own status, and
+	// specifically the successful one, not any terminal one.
+	if d.Status == QueryStatusSuccessful {
+		return nil
+	}
 
+	if err := d.pollShardReports(ctx, reportTimeout); err != nil {
+		return err
+	}
+
+	// Refresh the revision now that it is complete. Until this point every field
+	// is the submission-time value: OutputUris is "", NumBytes and TerminatedAt
+	// are nil, and Status is whatever the submit response reported. The Python
+	// client does the same refresh at the end of DatasetRevision._hydrate.
+	if err := d.refresh(ctx); err != nil {
+		return err
+	}
+
+	// Every shard reported COMPLETED, but the revision-level job status is a
+	// separate signal and can still carry errors. The Python client performs
+	// exactly this second check at the end of DatasetRevision.wait().
+	jobStatus, err := d.client.getOfflineQueryJobStatus(ctx, d.RevisionId)
+	if err != nil {
+		return errors.Wrapf(err, "checking job status for offline query %q", d.RevisionId)
+	}
+	if len(jobStatus.Errors) > 0 {
+		d.waitErr = errors.Wrap(ServerErrors(jobStatus.Errors), "offline query failed")
+		return d.waitErr
+	}
+
+	return nil
+}
+
+// pollShardReports polls each shard's status report in turn until all of them
+// report COMPLETED, or one of them reports FAILED.
+func (d *DatasetRevision) pollShardReports(ctx context.Context, reportTimeout time.Duration) error {
 	// Legacy servers report the shard count as num_computers with
 	// num_partitions = 0; newer servers set num_partitions directly.
-	numShards := revision.NumPartitions
+	numShards := d.NumPartitions
 	if numShards == 0 {
-		numShards = revision.NumComputers
+		numShards = d.NumComputers
 	}
 	if numShards < 1 {
 		numShards = 1
 	}
 
-	reportTimeout := d.waitReportTimeout
 	if reportTimeout <= 0 {
 		reportTimeout = datasetWaitReportTimeout
 	}
@@ -944,7 +1038,7 @@ func (d *Dataset) Wait(ctx context.Context) error {
 
 	for shardId := 0; shardId < numShards; {
 		jobStatus, err := d.client.GetOfflineQueryStatus(ctx, GetOfflineQueryStatusParams{
-			JobId:      revision.RevisionId,
+			JobId:      d.RevisionId,
 			ComputerId: shardId,
 		})
 
@@ -962,7 +1056,7 @@ func (d *Dataset) Wait(ctx context.Context) error {
 		if err != nil || !jobStatus.Report.exists() {
 			if time.Now().After(mustReceiveNextReportBy) {
 				return newDatasetWaitReportTimeoutError(
-					lastPollErr, reportTimeout, revision.RevisionId, shardId, numShards,
+					lastPollErr, reportTimeout, d.RevisionId, shardId, numShards,
 				)
 			}
 		} else {
@@ -989,7 +1083,6 @@ func (d *Dataset) Wait(ctx context.Context) error {
 				if len(allErrors) > 0 {
 					failure = errors.Wrap(allErrors, "offline query failed")
 				}
-				d.IsFinished = true
 				d.waitErr = failure
 				return failure
 			default:
@@ -1011,8 +1104,25 @@ func (d *Dataset) Wait(ctx context.Context) error {
 		}
 	}
 
-	d.IsFinished = true
 	return nil
+}
+
+// refresh replaces the revision's metadata with the server's current view of it.
+func (d *DatasetRevision) refresh(ctx context.Context) error {
+	dataset, err := d.client.getDatasetByRevisionId(ctx, d.RevisionId)
+	if err != nil {
+		return errors.Wrapf(err, "refreshing offline query %q", d.RevisionId)
+	}
+	for _, refreshed := range dataset.Revisions {
+		if refreshed.RevisionId != d.RevisionId {
+			continue
+		}
+		client, waitErr := d.client, d.waitErr
+		*d = refreshed
+		d.client, d.waitErr = client, waitErr
+		return nil
+	}
+	return errors.Newf("server did not return revision %q for the dataset it belongs to", d.RevisionId)
 }
 
 // DownloadUris retrieves the download URIs for the dataset using the last revision.
@@ -1040,8 +1150,12 @@ func (d *Dataset) DownloadUris(ctx context.Context) ([]string, error) {
 		return nil, errors.New("no revisions found in dataset")
 	}
 
-	// Use the last revision, matching Python's behavior: self.revisions[-1]
-	lastRevision := d.Revisions[len(d.Revisions)-1]
+	// Use the last revision, matching Python's behavior: self.revisions[-1].
+	// Index rather than copy so the revision keeps any refresh the wait performs.
+	lastRevision := &d.Revisions[len(d.Revisions)-1]
+	if lastRevision.client == nil {
+		lastRevision.client = d.client
+	}
 
 	return lastRevision.DownloadUris(ctx)
 }
@@ -1051,6 +1165,18 @@ func (d *Dataset) DownloadUris(ctx context.Context) ([]string, error) {
 // method, you can download those raw files into a directory for processing
 // with other tools.
 func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) error {
+	if d.client == nil {
+		return errors.New("DatasetRevision client is not initialized")
+	}
+
+	// Wait for the query to finish before asking for its outputs. The Python
+	// client funnels every data-access method through DatasetRevision._hydrate
+	// for exactly this reason, so a partially complete sharded query cannot be
+	// downloaded as though it were done.
+	if err := d.Wait(ctx); err != nil {
+		return errors.Wrap(err, "waiting for offline query to complete")
+	}
+
 	urls, getUrlsErr := d.client.getDatasetUrls(ctx, d.RevisionId)
 	if getUrlsErr != nil {
 		return errors.Wrap(getUrlsErr, "get dataset urls")
@@ -1083,6 +1209,14 @@ func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) er
 func (d *DatasetRevision) DownloadUris(ctx context.Context) ([]string, error) {
 	if d.client == nil {
 		return nil, errors.New("DatasetRevision client is not initialized")
+	}
+
+	// Wait for the query to finish before asking for its outputs. The Python
+	// client funnels every data-access method through DatasetRevision._hydrate
+	// for exactly this reason, so a partially complete sharded query cannot be
+	// downloaded as though it were done.
+	if err := d.Wait(ctx); err != nil {
+		return nil, errors.Wrap(err, "waiting for offline query to complete")
 	}
 
 	urls, err := d.client.getDatasetUrls(ctx, d.RevisionId)
