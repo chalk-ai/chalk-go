@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1787683811536,
+  "lastUpdate": 1787690696763,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -47664,6 +47664,156 @@ window.BENCHMARK_DATA = {
             "value": 145.5,
             "unit": "ms/op",
             "extra": "12 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "kelvin@chalk.ai",
+            "name": "kelvin-chalk",
+            "username": "kelvin-chalk"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5f5ea5a66dddbf023b6b00d244a7e219874f7d25",
+          "message": "Wait for all shards in Dataset.Wait (#728)\n\n* Wait for all shards in Dataset.Wait\n\nDataset.Wait previously only polled the first shard's status report, so\non a sharded offline query it returned as soon as shard 0 finished.\nMatch the Python client's behavior: derive the shard count from the\nrevision's num_partitions (falling back to num_computers for legacy\nservers), poll each shard's report in order, and only return once every\nshard reports COMPLETED.\n\nAlso in line with the Python client:\n- GetOfflineQueryStatus accepts a ComputerId to fetch per-shard reports\n  from /v4/offline_query/{id}/status/{computer_id}\n- transient polling errors are tolerated behind a 10-minute\n  report timeout that resets whenever a report is received\n- failures surface the report's full all_errors list (falling back to\n  the single error for older servers)\n- IsFinished is no longer set on failure, so a subsequent Wait call\n  does not incorrectly report success\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n\n* Poll immediately in Dataset.Wait, wait between polls\n\nReview nit: the poll interval select at the top of the loop forced a\n500ms wait before the first status poll. Poll first and sleep only\nbetween polls, skipping the sleep once the final shard completes.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n\n* Set IsFinished on Wait failure, cache the terminal error\n\nRestore the pre-shard-aware behavior where a FAILED report marks the\nDataset as finished. This intentionally diverges from chalkpy (where a\nfailed revision is never marked finished and a repeated wait() re-polls\nthe server), since users may rely on IsFinished meaning the query\nreached a terminal state; the divergence is documented on Wait.\n\nTo keep a retried Wait from incorrectly reporting success, the terminal\nfailure is recorded and returned by subsequent Wait calls instead of nil.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n\n* Fix Dataset.Wait hanging when a shard never reports\n\nThe report timeout added alongside the per-shard wait loop only ever fired\non a transport-level polling failure, which is not how the server signals\n\"this shard has not reported yet\".\n\n`GET /v4/offline_query/{id}/status[/{computer_id}]` returns 200 with a null\nreport -- not a 404 -- when the shard's report row does not exist\n(server/server/query/router.py builds BatchReportResponse from\nget_batch_report, which returns None for a missing row). Because\nGetOfflineQueryStatusResult.Report is a value type, that decodes into a\nzero-value BatchReport with no error, so Wait took the success path: it\nrefreshed mustReceiveNextReportBy on every poll and fell through the status\nswitch. A shard whose report row is never written therefore made Wait poll\nevery 500ms forever, bounded only by the caller's context.\n\nchalkpy gets this right -- ProgressService.poll_report skips a `None` report\nwithout extending its deadline and raises TimeoutError once the deadline\npasses -- so this was a parity gap, not a shared quirk.\n\nTreat a null report the same as a transient poll failure: keep polling, but\nonly until the report deadline, and check that deadline on every iteration\nrather than only when the request errored. BatchReport.exists() uses Status\nas the discriminator, since the server always populates it from the stored\nrow and no valid BatchOpStatus is the empty string.\n\nThe timeout error is now built by a helper because errors.Wrapf returns nil\nfor a nil cause, and lastPollErr is legitimately nil when the server was\nreachable the whole time and simply never had a report.\n\nWait's report timeout is injectable via an unexported field so the timeout\npaths are testable without a ten-minute test. Without this fix,\nTestDatasetWaitTimesOutWhenShardNeverReports hangs until the test deadline.\n\nCo-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>\n\n* Enumerate all BatchOpStatus values in Dataset.Wait's status switch\n\nThe report status enum (chalk.server.v1.BatchOpStatus) has exactly two\nterminal values, COMPLETED and FAILED; INIT, COMPUTE_STARTED, and\nCOMPUTE_ENDED mean the shard is still working. There is no cancelled\nreport status: cancellation is recorded on the query-level\nOfflineQueryStatus and never reaches the shard report, so a cancelled\nquery surfaces as a report timeout or ctx deadline. Unknown statuses\nfrom newer servers keep polling, matching the Python client.\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Fable 5 <noreply@anthropic.com>\nCo-authored-by: Michael Wiktorek <michael@chalk.ai>\nCo-authored-by: Michael Wiktorek <wiktorekmichael@gmail.com>",
+          "timestamp": "2026-08-25T13:43:04-07:00",
+          "tree_id": "97e4ccfeadd2a7f01122ac4d074129f994703af9",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/5f5ea5a66dddbf023b6b00d244a7e219874f7d25"
+        },
+        "date": 1787690696669,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9536,
+            "unit": "ms/op",
+            "extra": "1204 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 114.4,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 29.46,
+            "unit": "ms/op",
+            "extra": "49 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 201.1,
+            "unit": "ms/op",
+            "extra": "14 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 280.6,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle",
+            "value": 0.02334,
+            "unit": "ms/op",
+            "extra": "78080 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.2907,
+            "unit": "ms/op",
+            "extra": "5986 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 34.23,
+            "unit": "ms/op",
+            "extra": "76 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.1506,
+            "unit": "ms/op",
+            "extra": "10000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 16.87,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesSingle",
+            "value": 0.1786,
+            "unit": "ms/op",
+            "extra": "9937 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesParallel",
+            "value": 25.73,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesSingle",
+            "value": 0.2784,
+            "unit": "ms/op",
+            "extra": "6088 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesParallel",
+            "value": 38.8,
+            "unit": "ms/op",
+            "extra": "67 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesSingle",
+            "value": 0.9021,
+            "unit": "ms/op",
+            "extra": "1707 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesParallel",
+            "value": 130.4,
+            "unit": "ms/op",
+            "extra": "20 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesSingle",
+            "value": 0.1206,
+            "unit": "ms/op",
+            "extra": "10000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesParallel",
+            "value": 18.87,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalHasOnes",
+            "value": 23.62,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneHasOnes",
+            "value": 13.33,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkHasOnes",
+            "value": 150.4,
+            "unit": "ms/op",
+            "extra": "15 times\n4 procs"
           }
         ]
       }
