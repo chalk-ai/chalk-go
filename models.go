@@ -969,7 +969,15 @@ func (d *Dataset) Wait(ctx context.Context) error {
 			lastPollErr = nil
 			mustReceiveNextReportBy = time.Now().Add(reportTimeout)
 
+			// The report's status is chalk.server.v1.BatchOpStatus. COMPLETED and
+			// FAILED are its only terminal values: the enum has no cancelled
+			// state. Cancelling a query is recorded on the query-level
+			// OfflineQueryStatus and never reaches the shard report, which just
+			// stops progressing, so a cancelled query surfaces here as a report
+			// timeout or a ctx deadline rather than a status.
 			switch jobStatus.Report.Status {
+			case "INIT", "COMPUTE_STARTED", "COMPUTE_ENDED":
+				// The shard is still working; keep polling.
 			case "COMPLETED":
 				shardId++
 			case "FAILED":
@@ -984,6 +992,11 @@ func (d *Dataset) Wait(ctx context.Context) error {
 				d.IsFinished = true
 				d.waitErr = failure
 				return failure
+			default:
+				// A status this client does not know, presumably from a newer
+				// server. Keep polling, matching the Python client, which treats
+				// everything that is neither COMPLETED nor FAILED as still
+				// working.
 			}
 		}
 		if shardId >= numShards {

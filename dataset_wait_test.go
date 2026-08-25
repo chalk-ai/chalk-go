@@ -124,7 +124,10 @@ func TestDatasetWaitToleratesTransientPollErrors(t *testing.T) {
 
 func TestDatasetWaitNonTerminalStatusesKeepPolling(t *testing.T) {
 	t.Parallel()
-	statuses := []string{"INIT", "COMPUTE_STARTED", "COMPUTE_ENDED", "COMPLETED"}
+	// SOME_FUTURE_STATUS stands in for a status introduced by a newer server:
+	// anything that is neither COMPLETED nor FAILED keeps polling, matching
+	// the Python client.
+	statuses := []string{"INIT", "COMPUTE_STARTED", "COMPUTE_ENDED", "SOME_FUTURE_STATUS", "COMPLETED"}
 	calls := 0
 	client := &mockWaitClient{
 		getStatus: func(ctx context.Context, args GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error) {
