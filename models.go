@@ -787,6 +787,10 @@ type Dataset struct {
 	// waitErr records the terminal failure observed by Wait so that
 	// subsequent Wait calls report it instead of re-polling.
 	waitErr error `json:"-"`
+
+	// waitReportTimeout overrides datasetWaitReportTimeout in Wait. Zero means
+	// use the default. Only set in tests.
+	waitReportTimeout time.Duration `json:"-"`
 }
 
 type DatasetRevision struct {
@@ -857,10 +861,37 @@ const (
 
 	// datasetWaitReportTimeout is how long Wait tolerates not receiving a
 	// status report before giving up, matching the Python client's
-	// default_status_report_timeout. Transient polling errors are tolerated
-	// until this deadline; it resets each time a report is received.
+	// default_status_report_timeout. Transient polling errors and shards that
+	// have not published a report yet are tolerated until this deadline; it
+	// resets each time a report is received.
 	datasetWaitReportTimeout = 10 * time.Minute
 )
+
+// newDatasetWaitReportTimeoutError builds the error Wait returns when a shard
+// stops producing status reports. lastPollErr is the most recent polling
+// failure, if any: it is nil when the server was reachable the whole time and
+// simply never had a report for the shard, so it cannot be handed to
+// errors.Wrapf, which returns nil for a nil cause.
+func newDatasetWaitReportTimeoutError(
+	lastPollErr error,
+	reportTimeout time.Duration,
+	revisionId string,
+	shardId int,
+	numShards int,
+) error {
+	if lastPollErr != nil {
+		return errors.Wrapf(
+			lastPollErr,
+			"timed out waiting %s for a status report for offline query %q (shard %d of %d)",
+			reportTimeout, revisionId, shardId+1, numShards,
+		)
+	}
+	return errors.Newf(
+		"timed out waiting %s for a status report for offline query %q (shard %d of %d): "+
+			"the server never reported a status for this shard",
+		reportTimeout, revisionId, shardId+1, numShards,
+	)
+}
 
 // Wait polls the offline query status until the job is complete.
 // It returns an error if the job fails or if there's an error polling the status.
@@ -903,32 +934,40 @@ func (d *Dataset) Wait(ctx context.Context) error {
 		numShards = 1
 	}
 
+	reportTimeout := d.waitReportTimeout
+	if reportTimeout <= 0 {
+		reportTimeout = datasetWaitReportTimeout
+	}
+
 	var lastPollErr error
-	mustReceiveNextReportBy := time.Now().Add(datasetWaitReportTimeout)
+	mustReceiveNextReportBy := time.Now().Add(reportTimeout)
 
 	for shardId := 0; shardId < numShards; {
 		jobStatus, err := d.client.GetOfflineQueryStatus(ctx, GetOfflineQueryStatusParams{
 			JobId:      revision.RevisionId,
 			ComputerId: shardId,
 		})
+
+		// A shard that has not published a report yet is not an HTTP error: the
+		// status route responds 200 with a null report until the shard's report
+		// row exists, which decodes to a zero-value BatchReport. Both that and a
+		// transient polling failure mean "no report this time around", and both
+		// are tolerated only until the report deadline, so a shard that never
+		// reports surfaces as an error instead of polling forever. This mirrors
+		// the Python client, which skips a `None` report without extending its
+		// deadline and raises TimeoutError once the deadline passes.
 		if err != nil {
-			// A report may not exist yet (e.g. the shard hasn't started), and
-			// polling can fail transiently; keep polling until the report
-			// timeout elapses.
 			lastPollErr = err
+		}
+		if err != nil || !jobStatus.Report.exists() {
 			if time.Now().After(mustReceiveNextReportBy) {
-				return errors.Wrapf(
-					lastPollErr,
-					"timed out waiting %s for a status report for offline query %q (shard %d of %d)",
-					datasetWaitReportTimeout,
-					revision.RevisionId,
-					shardId+1,
-					numShards,
+				return newDatasetWaitReportTimeoutError(
+					lastPollErr, reportTimeout, revision.RevisionId, shardId, numShards,
 				)
 			}
 		} else {
 			lastPollErr = nil
-			mustReceiveNextReportBy = time.Now().Add(datasetWaitReportTimeout)
+			mustReceiveNextReportBy = time.Now().Add(reportTimeout)
 
 			switch jobStatus.Report.Status {
 			case "COMPLETED":
@@ -1200,6 +1239,18 @@ type BatchReport struct {
 	AllErrors         []ServerError      `json:"all_errors,omitempty"`
 	OperationMetadata *map[string]string `json:"operation_metadata,omitempty"`
 	ComputerID        *int               `json:"computer_id,omitempty"`
+}
+
+// exists reports whether the server actually had a status report to return.
+//
+// The offline query status route answers 200 with a null report — not a 404 —
+// for a shard that has not published one yet, and a null report decodes into a
+// zero-value BatchReport. Status is the discriminator: the server always
+// populates it from the stored report row, and no valid status is the empty
+// string, so an empty Status means there was no report rather than a report
+// whose status happens to be unset.
+func (r BatchReport) exists() bool {
+	return r.Status != ""
 }
 
 // GetOfflineQueryStatusResult holds the result of a get offline query status request.
