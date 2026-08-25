@@ -897,12 +897,6 @@ func (d *Dataset) Wait(ctx context.Context) error {
 	mustReceiveNextReportBy := time.Now().Add(datasetWaitReportTimeout)
 
 	for shardId := 0; shardId < numShards; {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(datasetWaitPollInterval):
-		}
-
 		jobStatus, err := d.client.GetOfflineQueryStatus(ctx, GetOfflineQueryStatusParams{
 			JobId:      revision.RevisionId,
 			ComputerId: shardId,
@@ -922,23 +916,33 @@ func (d *Dataset) Wait(ctx context.Context) error {
 					numShards,
 				)
 			}
-			continue
-		}
-		lastPollErr = nil
-		mustReceiveNextReportBy = time.Now().Add(datasetWaitReportTimeout)
+		} else {
+			lastPollErr = nil
+			mustReceiveNextReportBy = time.Now().Add(datasetWaitReportTimeout)
 
-		switch jobStatus.Report.Status {
-		case "COMPLETED":
-			shardId++
-		case "FAILED":
-			allErrors := ServerErrors(jobStatus.Report.AllErrors)
-			if len(allErrors) == 0 && jobStatus.Report.Error != nil {
-				allErrors = ServerErrors{*jobStatus.Report.Error}
+			switch jobStatus.Report.Status {
+			case "COMPLETED":
+				shardId++
+			case "FAILED":
+				allErrors := ServerErrors(jobStatus.Report.AllErrors)
+				if len(allErrors) == 0 && jobStatus.Report.Error != nil {
+					allErrors = ServerErrors{*jobStatus.Report.Error}
+				}
+				if len(allErrors) > 0 {
+					return errors.Wrap(allErrors, "offline query failed")
+				}
+				return errors.New("offline query failed")
 			}
-			if len(allErrors) > 0 {
-				return errors.Wrap(allErrors, "offline query failed")
-			}
-			return errors.New("offline query failed")
+		}
+		if shardId >= numShards {
+			break
+		}
+
+		// Wait between polls, not before the first one.
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(datasetWaitPollInterval):
 		}
 	}
 
