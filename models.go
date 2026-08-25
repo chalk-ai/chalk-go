@@ -846,10 +846,26 @@ type DatasetRevision struct {
 	client *clientImpl
 }
 
+const (
+	// datasetWaitPollInterval is how often Wait polls for a shard's status
+	// report, matching the Python client's poll interval.
+	datasetWaitPollInterval = 500 * time.Millisecond
+
+	// datasetWaitReportTimeout is how long Wait tolerates not receiving a
+	// status report before giving up, matching the Python client's
+	// default_status_report_timeout. Transient polling errors are tolerated
+	// until this deadline; it resets each time a report is received.
+	datasetWaitReportTimeout = 10 * time.Minute
+)
+
 // Wait polls the offline query status until the job is complete.
 // It returns an error if the job fails or if there's an error polling the status.
-// The method will continue polling until the job reaches a terminal state
-// (COMPLETED or FAILED).
+//
+// A sharded offline query produces one status report per shard, and the query
+// is only complete once every shard's report reaches a terminal state. Wait
+// polls each shard's report in order, advancing to the next shard when the
+// current one reports COMPLETED, and returns an error as soon as any shard
+// reports FAILED. Use the ctx deadline to bound the overall wait.
 func (d *Dataset) Wait(ctx context.Context) error {
 	if d.client == nil {
 		return errors.New("Dataset client is not initialized")
@@ -865,38 +881,69 @@ func (d *Dataset) Wait(ctx context.Context) error {
 	}
 
 	// Poll the last revision's status
-	revisionId := d.Revisions[len(d.Revisions)-1].RevisionId
+	revision := d.Revisions[len(d.Revisions)-1]
 
-	for {
-		jobStatus, err := d.client.GetOfflineQueryStatus(ctx, GetOfflineQueryStatusParams{
-			JobId: revisionId,
-		})
-		if err != nil {
-			return errors.Wrap(err, "failed to get offline query status")
-		}
+	// Legacy servers report the shard count as num_computers with
+	// num_partitions = 0; newer servers set num_partitions directly.
+	numShards := revision.NumPartitions
+	if numShards == 0 {
+		numShards = revision.NumComputers
+	}
+	if numShards < 1 {
+		numShards = 1
+	}
 
-		// Check for terminal states
-		if jobStatus.Report.Status == "COMPLETED" {
-			d.IsFinished = true
-			return nil
-		}
+	var lastPollErr error
+	mustReceiveNextReportBy := time.Now().Add(datasetWaitReportTimeout)
 
-		if jobStatus.Report.Status == "FAILED" {
-			d.IsFinished = true
-			if jobStatus.Report.Error != nil {
-				return errors.Newf("offline query failed: %s", jobStatus.Report.Error.Message)
-			}
-			return errors.New("offline query failed")
-		}
-
-		// Sleep before next poll
+	for shardId := 0; shardId < numShards; {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(1 * time.Second):
-			// Continue polling
+		case <-time.After(datasetWaitPollInterval):
+		}
+
+		jobStatus, err := d.client.GetOfflineQueryStatus(ctx, GetOfflineQueryStatusParams{
+			JobId:      revision.RevisionId,
+			ComputerId: shardId,
+		})
+		if err != nil {
+			// A report may not exist yet (e.g. the shard hasn't started), and
+			// polling can fail transiently; keep polling until the report
+			// timeout elapses.
+			lastPollErr = err
+			if time.Now().After(mustReceiveNextReportBy) {
+				return errors.Wrapf(
+					lastPollErr,
+					"timed out waiting %s for a status report for offline query %q (shard %d of %d)",
+					datasetWaitReportTimeout,
+					revision.RevisionId,
+					shardId+1,
+					numShards,
+				)
+			}
+			continue
+		}
+		lastPollErr = nil
+		mustReceiveNextReportBy = time.Now().Add(datasetWaitReportTimeout)
+
+		switch jobStatus.Report.Status {
+		case "COMPLETED":
+			shardId++
+		case "FAILED":
+			allErrors := ServerErrors(jobStatus.Report.AllErrors)
+			if len(allErrors) == 0 && jobStatus.Report.Error != nil {
+				allErrors = ServerErrors{*jobStatus.Report.Error}
+			}
+			if len(allErrors) > 0 {
+				return errors.Wrap(allErrors, "offline query failed")
+			}
+			return errors.New("offline query failed")
 		}
 	}
+
+	d.IsFinished = true
+	return nil
 }
 
 // DownloadUris retrieves the download URIs for the dataset using the last revision.
@@ -1116,6 +1163,12 @@ type TokenResult struct {
 type GetOfflineQueryStatusParams struct {
 	// JobId is the ID of the offline query job to check.
 	JobId string `json:"job_id"`
+
+	// ComputerId is the zero-indexed shard whose status report should be
+	// fetched. A sharded offline query produces one status report per shard.
+	// The zero value returns the first shard's report, which is also the only
+	// report for unsharded queries.
+	ComputerId int `json:"computer_id"`
 }
 
 // BatchReport represents the status of a batch operation.

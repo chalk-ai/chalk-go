@@ -705,11 +705,15 @@ func (c *clientImpl) GetOfflineQueryStatus(
 	request GetOfflineQueryStatusParams,
 ) (GetOfflineQueryStatusResult, error) {
 	response := GetOfflineQueryStatusResult{}
+	url := fmt.Sprintf("v4/offline_query/%s/status", request.JobId)
+	if request.ComputerId > 0 {
+		url = fmt.Sprintf("v4/offline_query/%s/status/%d", request.JobId, request.ComputerId)
+	}
 	err := c.sendRequest(
 		ctx,
 		&sendRequestParams{
 			Method:   "GET",
-			URL:      fmt.Sprintf("v4/offline_query/%s/status", request.JobId),
+			URL:      url,
 			Response: &response,
 		},
 	)
