@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow-go/v18/arrow/memory"
 	"github.com/cockroachdb/errors"
 )
 
@@ -57,7 +57,7 @@ type Client interface {
 	//
 	// Example:
 	//
-	// import "github.com/apache/arrow/go/v16/arrow/array"
+	// import "github.com/apache/arrow-go/v18/arrow/array"
 	//
 	//
 	//		res, err := client.OnlineQueryBulk(
