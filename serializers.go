@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow-go/v18/arrow/memory"
 	"github.com/chalk-ai/chalk-go/expr"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"

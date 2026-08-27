@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow-go/v18/arrow/memory"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
