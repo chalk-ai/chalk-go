@@ -186,21 +186,17 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 		mu:           &sync.Mutex{},
 		authProvider: opts.AuthProvider,
 	}
+	// Validate before storing so nothing invalid is ever observable in r.auth,
+	// matching how GetAuth handles an AuthProvider result.
 	if opts.Token != nil {
+		if err := validatePreIssuedToken(opts.Token); err != nil {
+			return nil, errors.Wrap(err, "invalid pre-issued JWT")
+		}
 		r.auth.Store(&AuthSnapshot{
 			Token:         opts.Token,
 			EnvironmentID: r.config.EnvironmentId.Value,
 		})
-	}
-
-	if snapshot := r.auth.Load(); snapshot != nil {
-		if err := validatePreIssuedToken(snapshot.Token); err != nil {
-			return nil, errors.Wrap(err, "invalid pre-issued JWT")
-		}
-	}
-
-	var err error
-	if r.auth.Load() == nil {
+	} else {
 		// If none of a pre-issued JWT, an auth provider, or a complete pair of
 		// client credentials was given, short-circuit with a clearer error than
 		// letting GetToken fail with "Client ID and secret are invalid" against
@@ -214,8 +210,7 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 			}
 			return nil, credentialsErr
 		}
-		_, err := r.GetAuth(ctx, time.Now())
-		if err != nil {
+		if _, err := r.GetAuth(ctx, time.Now()); err != nil {
 			return nil, errors.Wrap(err, "initializing token refresher")
 		}
 	}
@@ -230,10 +225,11 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 			r.config.EnvironmentId = config.NewFromArg(activeAuth.EnvironmentID)
 		}
 	} else {
-		r.config.EnvironmentId, err = cleanEnvironmentId(r.config.EnvironmentId, activeAuth.Token)
+		cleaned, err := cleanEnvironmentId(r.config.EnvironmentId, activeAuth.Token)
 		if err != nil {
 			return nil, errors.Wrap(err, "initializing environment id")
 		}
+		r.config.EnvironmentId = cleaned
 		activeAuth = &AuthSnapshot{
 			Token:         activeAuth.Token,
 			EnvironmentID: r.config.EnvironmentId.Value,

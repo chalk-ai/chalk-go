@@ -19,6 +19,11 @@ type Manager struct {
 	projectConfigErr error
 }
 
+// ProjectConfigErr is advisory. A non-nil result does not mean the resolved
+// config is unusable -- credentials may have come from a flag or the
+// environment, or a pre-issued JWT may make them unnecessary. It is meaningful
+// only once authentication has found nothing to authenticate with, as the
+// likely explanation for why.
 func (m *Manager) ProjectConfigErr() error {
 	return m.projectConfigErr
 }
