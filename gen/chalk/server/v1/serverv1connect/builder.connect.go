@@ -53,6 +53,9 @@ const (
 	// BuilderServicePopulateNamedQueryPlansProcedure is the fully-qualified name of the
 	// BuilderService's PopulateNamedQueryPlans RPC.
 	BuilderServicePopulateNamedQueryPlansProcedure = "/chalk.server.v1.BuilderService/PopulateNamedQueryPlans"
+	// BuilderServicePrepareGraphSupplementProcedure is the fully-qualified name of the BuilderService's
+	// PrepareGraphSupplement RPC.
+	BuilderServicePrepareGraphSupplementProcedure = "/chalk.server.v1.BuilderService/PrepareGraphSupplement"
 	// BuilderServiceStartShadowBuildFromDeploymentProcedure is the fully-qualified name of the
 	// BuilderService's StartShadowBuildFromDeployment RPC.
 	BuilderServiceStartShadowBuildFromDeploymentProcedure = "/chalk.server.v1.BuilderService/StartShadowBuildFromDeployment"
@@ -291,6 +294,11 @@ type BuilderServiceClient interface {
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error)
+	// Assigns internal versions for a deployment's uploaded proto graph and
+	// uploads the resulting graph supplement, so build-time planning can use the
+	// same version map engines download at boot. Idempotent; graph ingestion
+	// later recomputes the assignment and remains authoritative.
+	PrepareGraphSupplement(context.Context, *connect.Request[v1.PrepareGraphSupplementRequest]) (*connect.Response[v1.PrepareGraphSupplementResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -438,6 +446,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServicePopulateNamedQueryPlansProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("PopulateNamedQueryPlans")),
+			connect.WithClientOptions(opts...),
+		),
+		prepareGraphSupplement: connect.NewClient[v1.PrepareGraphSupplementRequest, v1.PrepareGraphSupplementResponse](
+			httpClient,
+			baseURL+BuilderServicePrepareGraphSupplementProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("PrepareGraphSupplement")),
 			connect.WithClientOptions(opts...),
 		),
 		startShadowBuildFromDeployment: connect.NewClient[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse](
@@ -903,6 +917,7 @@ type builderServiceClient struct {
 	validateNamedQueries                        *connect.Client[v1.ValidateNamedQueriesRequest, v1.ValidateNamedQueriesResponse]
 	runPostIndexValidation                      *connect.Client[v1.RunPostIndexValidationRequest, v1.RunPostIndexValidationResponse]
 	populateNamedQueryPlans                     *connect.Client[v1.PopulateNamedQueryPlansRequest, v1.PopulateNamedQueryPlansResponse]
+	prepareGraphSupplement                      *connect.Client[v1.PrepareGraphSupplementRequest, v1.PrepareGraphSupplementResponse]
 	startShadowBuildFromDeployment              *connect.Client[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse]
 	deployKubeComponents                        *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
 	rebuildDeployment                           *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
@@ -1008,6 +1023,11 @@ func (c *builderServiceClient) RunPostIndexValidation(ctx context.Context, req *
 // PopulateNamedQueryPlans calls chalk.server.v1.BuilderService.PopulateNamedQueryPlans.
 func (c *builderServiceClient) PopulateNamedQueryPlans(ctx context.Context, req *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error) {
 	return c.populateNamedQueryPlans.CallUnary(ctx, req)
+}
+
+// PrepareGraphSupplement calls chalk.server.v1.BuilderService.PrepareGraphSupplement.
+func (c *builderServiceClient) PrepareGraphSupplement(ctx context.Context, req *connect.Request[v1.PrepareGraphSupplementRequest]) (*connect.Response[v1.PrepareGraphSupplementResponse], error) {
+	return c.prepareGraphSupplement.CallUnary(ctx, req)
 }
 
 // StartShadowBuildFromDeployment calls
@@ -1419,6 +1439,11 @@ type BuilderServiceHandler interface {
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error)
+	// Assigns internal versions for a deployment's uploaded proto graph and
+	// uploads the resulting graph supplement, so build-time planning can use the
+	// same version map engines download at boot. Idempotent; graph ingestion
+	// later recomputes the assignment and remains authoritative.
+	PrepareGraphSupplement(context.Context, *connect.Request[v1.PrepareGraphSupplementRequest]) (*connect.Response[v1.PrepareGraphSupplementResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -1562,6 +1587,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServicePopulateNamedQueryPlansProcedure,
 		svc.PopulateNamedQueryPlans,
 		connect.WithSchema(builderServiceMethods.ByName("PopulateNamedQueryPlans")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServicePrepareGraphSupplementHandler := connect.NewUnaryHandler(
+		BuilderServicePrepareGraphSupplementProcedure,
+		svc.PrepareGraphSupplement,
+		connect.WithSchema(builderServiceMethods.ByName("PrepareGraphSupplement")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceStartShadowBuildFromDeploymentHandler := connect.NewUnaryHandler(
@@ -2030,6 +2061,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceRunPostIndexValidationHandler.ServeHTTP(w, r)
 		case BuilderServicePopulateNamedQueryPlansProcedure:
 			builderServicePopulateNamedQueryPlansHandler.ServeHTTP(w, r)
+		case BuilderServicePrepareGraphSupplementProcedure:
+			builderServicePrepareGraphSupplementHandler.ServeHTTP(w, r)
 		case BuilderServiceStartShadowBuildFromDeploymentProcedure:
 			builderServiceStartShadowBuildFromDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceDeployKubeComponentsProcedure:
@@ -2207,6 +2240,10 @@ func (UnimplementedBuilderServiceHandler) RunPostIndexValidation(context.Context
 
 func (UnimplementedBuilderServiceHandler) PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.PopulateNamedQueryPlans is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) PrepareGraphSupplement(context.Context, *connect.Request[v1.PrepareGraphSupplementRequest]) (*connect.Response[v1.PrepareGraphSupplementResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.PrepareGraphSupplement is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error) {

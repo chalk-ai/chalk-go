@@ -59,6 +59,7 @@ const (
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION         LogicalTableNodeType = 27
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER       LogicalTableNodeType = 28
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD   LogicalTableNodeType = 29
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN    LogicalTableNodeType = 30
 )
 
 // Enum value maps for LogicalTableNodeType.
@@ -94,6 +95,7 @@ var (
 		27: "LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION",
 		28: "LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER",
 		29: "LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD",
+		30: "LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN",
 	}
 	LogicalTableNodeType_value = map[string]int32{
 		"LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED":            0,
@@ -126,6 +128,7 @@ var (
 		"LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION":         27,
 		"LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER":       28,
 		"LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD":   29,
+		"LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN":    30,
 	}
 )
 
@@ -1040,7 +1043,7 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x10logical_plan_arg\x18\x01 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentB\x02\x18\x01H\x00R\x0elogicalPlanArg\x127\n" +
 	"\x06py_obj\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectB\x02\x18\x01H\x00R\x05pyObj:\x02\x18\x01B\x05\n" +
 	"\x03arg\"\x1c\n" +
-	"\x1aLogicalPlanArgumentNullOpt*\xbc\t\n" +
+	"\x1aLogicalPlanArgumentNullOpt*\xed\t\n" +
 	"\x14LogicalTableNodeType\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_NAMED_TABLE\x10\x01\x12&\n" +
@@ -1072,7 +1075,8 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	".LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER\x10\x1a\x12*\n" +
 	"&LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION\x10\x1b\x12,\n" +
 	"(LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER\x10\x1c\x120\n" +
-	",LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD\x10\x1dB\xc7\x01\n" +
+	",LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD\x10\x1d\x12/\n" +
+	"+LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN\x10\x1eB\xc7\x01\n" +
 	"\x14com.chalk.planner.v1B\x10LogicalPlanProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

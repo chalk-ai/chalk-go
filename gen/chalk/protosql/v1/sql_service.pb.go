@@ -1172,6 +1172,341 @@ func (*ExecuteSqlQueryResponse_SyncPayload) isExecuteSqlQueryResponse_Payload() 
 
 func (*ExecuteSqlQueryResponse_AsyncPayload) isExecuteSqlQueryResponse_Payload() {}
 
+type ExecuteSqlQueryStreamRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The query to run, in exactly the form ExecuteSqlQuery takes it. Carried rather than
+	// restated so the two endpoints cannot drift apart on what a request means; the streaming
+	// endpoint only narrows which of its options are accepted.
+	Request       *ExecuteSqlQueryRequest `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExecuteSqlQueryStreamRequest) Reset() {
+	*x = ExecuteSqlQueryStreamRequest{}
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExecuteSqlQueryStreamRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExecuteSqlQueryStreamRequest) ProtoMessage() {}
+
+func (x *ExecuteSqlQueryStreamRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExecuteSqlQueryStreamRequest.ProtoReflect.Descriptor instead.
+func (*ExecuteSqlQueryStreamRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ExecuteSqlQueryStreamRequest) GetRequest() *ExecuteSqlQueryRequest {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+// One message of a streaming ChalkSQL execution. Exactly one `payload` is set, and the
+// sequence for a successful query is: one `started`, zero or more `chunk`s, one `completed`.
+// A stream that ends without a `completed` message failed; the gRPC status carries why.
+type ExecuteSqlQueryStreamResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifies the query in the dashboard and in `sql_queries`. Set on every message of the
+	// stream, so a client that only keeps the latest message still has it.
+	QueryId string `protobuf:"bytes,1,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*ExecuteSqlQueryStreamResponse_Started
+	//	*ExecuteSqlQueryStreamResponse_Chunk
+	//	*ExecuteSqlQueryStreamResponse_Completed
+	Payload       isExecuteSqlQueryStreamResponse_Payload `protobuf_oneof:"payload"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExecuteSqlQueryStreamResponse) Reset() {
+	*x = ExecuteSqlQueryStreamResponse{}
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExecuteSqlQueryStreamResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExecuteSqlQueryStreamResponse) ProtoMessage() {}
+
+func (x *ExecuteSqlQueryStreamResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExecuteSqlQueryStreamResponse.ProtoReflect.Descriptor instead.
+func (*ExecuteSqlQueryStreamResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ExecuteSqlQueryStreamResponse) GetQueryId() string {
+	if x != nil {
+		return x.QueryId
+	}
+	return ""
+}
+
+func (x *ExecuteSqlQueryStreamResponse) GetPayload() isExecuteSqlQueryStreamResponse_Payload {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *ExecuteSqlQueryStreamResponse) GetStarted() *SqlQueryStreamStarted {
+	if x != nil {
+		if x, ok := x.Payload.(*ExecuteSqlQueryStreamResponse_Started); ok {
+			return x.Started
+		}
+	}
+	return nil
+}
+
+func (x *ExecuteSqlQueryStreamResponse) GetChunk() *SqlQueryResultChunk {
+	if x != nil {
+		if x, ok := x.Payload.(*ExecuteSqlQueryStreamResponse_Chunk); ok {
+			return x.Chunk
+		}
+	}
+	return nil
+}
+
+func (x *ExecuteSqlQueryStreamResponse) GetCompleted() *SqlQueryStreamCompleted {
+	if x != nil {
+		if x, ok := x.Payload.(*ExecuteSqlQueryStreamResponse_Completed); ok {
+			return x.Completed
+		}
+	}
+	return nil
+}
+
+type isExecuteSqlQueryStreamResponse_Payload interface {
+	isExecuteSqlQueryStreamResponse_Payload()
+}
+
+type ExecuteSqlQueryStreamResponse_Started struct {
+	Started *SqlQueryStreamStarted `protobuf:"bytes,10,opt,name=started,proto3,oneof"`
+}
+
+type ExecuteSqlQueryStreamResponse_Chunk struct {
+	Chunk *SqlQueryResultChunk `protobuf:"bytes,11,opt,name=chunk,proto3,oneof"`
+}
+
+type ExecuteSqlQueryStreamResponse_Completed struct {
+	Completed *SqlQueryStreamCompleted `protobuf:"bytes,12,opt,name=completed,proto3,oneof"`
+}
+
+func (*ExecuteSqlQueryStreamResponse_Started) isExecuteSqlQueryStreamResponse_Payload() {}
+
+func (*ExecuteSqlQueryStreamResponse_Chunk) isExecuteSqlQueryStreamResponse_Payload() {}
+
+func (*ExecuteSqlQueryStreamResponse_Completed) isExecuteSqlQueryStreamResponse_Payload() {}
+
+// Sent once, as soon as the plan is compiled and running -- before any rows exist. Lets a
+// client render the result's columns while the first chunk is still being computed.
+type SqlQueryStreamStarted struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The result schema, serialized as an Arrow IPC schema message.
+	ArrowSchema   []byte `protobuf:"bytes,1,opt,name=arrow_schema,json=arrowSchema,proto3" json:"arrow_schema,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SqlQueryStreamStarted) Reset() {
+	*x = SqlQueryStreamStarted{}
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SqlQueryStreamStarted) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SqlQueryStreamStarted) ProtoMessage() {}
+
+func (x *SqlQueryStreamStarted) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SqlQueryStreamStarted.ProtoReflect.Descriptor instead.
+func (*SqlQueryStreamStarted) Descriptor() ([]byte, []int) {
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *SqlQueryStreamStarted) GetArrowSchema() []byte {
+	if x != nil {
+		return x.ArrowSchema
+	}
+	return nil
+}
+
+// A prefix of the result, sent as soon as the plan produces it.
+type SqlQueryResultChunk struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The chunk's rows as a self-contained, snappy-compressed Parquet file. Every chunk carries
+	// the full result schema, so a chunk can be decoded on its own and chunks can be
+	// concatenated in arrival order.
+	Parquet []byte `protobuf:"bytes,1,opt,name=parquet,proto3" json:"parquet,omitempty"`
+	// Position of this chunk in the stream, starting at 0. Chunks arrive in plan order.
+	ChunkIndex    int64 `protobuf:"varint,2,opt,name=chunk_index,json=chunkIndex,proto3" json:"chunk_index,omitempty"`
+	NumRows       int64 `protobuf:"varint,3,opt,name=num_rows,json=numRows,proto3" json:"num_rows,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SqlQueryResultChunk) Reset() {
+	*x = SqlQueryResultChunk{}
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SqlQueryResultChunk) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SqlQueryResultChunk) ProtoMessage() {}
+
+func (x *SqlQueryResultChunk) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SqlQueryResultChunk.ProtoReflect.Descriptor instead.
+func (*SqlQueryResultChunk) Descriptor() ([]byte, []int) {
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SqlQueryResultChunk) GetParquet() []byte {
+	if x != nil {
+		return x.Parquet
+	}
+	return nil
+}
+
+func (x *SqlQueryResultChunk) GetChunkIndex() int64 {
+	if x != nil {
+		return x.ChunkIndex
+	}
+	return 0
+}
+
+func (x *SqlQueryResultChunk) GetNumRows() int64 {
+	if x != nil {
+		return x.NumRows
+	}
+	return 0
+}
+
+// Sent once, after the last chunk, carrying what is only known once the query has finished.
+type SqlQueryStreamCompleted struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Errors encountered during execution. A query that reports errors here may still have
+	// emitted chunks; those rows are whatever the plan produced before it gave up.
+	Errors []*v1.ChalkError `protobuf:"bytes,1,rep,name=errors,proto3" json:"errors,omitempty"`
+	// JSON-encoded performance summary, populated when compilation_options includes
+	// generate_performance_summary=true.
+	PerformanceSummary *string `protobuf:"bytes,2,opt,name=performance_summary,json=performanceSummary,proto3,oneof" json:"performance_summary,omitempty"`
+	TotalRows          int64   `protobuf:"varint,3,opt,name=total_rows,json=totalRows,proto3" json:"total_rows,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *SqlQueryStreamCompleted) Reset() {
+	*x = SqlQueryStreamCompleted{}
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SqlQueryStreamCompleted) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SqlQueryStreamCompleted) ProtoMessage() {}
+
+func (x *SqlQueryStreamCompleted) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SqlQueryStreamCompleted.ProtoReflect.Descriptor instead.
+func (*SqlQueryStreamCompleted) Descriptor() ([]byte, []int) {
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *SqlQueryStreamCompleted) GetErrors() []*v1.ChalkError {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
+func (x *SqlQueryStreamCompleted) GetPerformanceSummary() string {
+	if x != nil && x.PerformanceSummary != nil {
+		return *x.PerformanceSummary
+	}
+	return ""
+}
+
+func (x *SqlQueryStreamCompleted) GetTotalRows() int64 {
+	if x != nil {
+		return x.TotalRows
+	}
+	return 0
+}
+
 type PlanSqlQueryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Query         string                 `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
@@ -1181,7 +1516,7 @@ type PlanSqlQueryRequest struct {
 
 func (x *PlanSqlQueryRequest) Reset() {
 	*x = PlanSqlQueryRequest{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[15]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1193,7 +1528,7 @@ func (x *PlanSqlQueryRequest) String() string {
 func (*PlanSqlQueryRequest) ProtoMessage() {}
 
 func (x *PlanSqlQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[15]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1206,7 +1541,7 @@ func (x *PlanSqlQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanSqlQueryRequest.ProtoReflect.Descriptor instead.
 func (*PlanSqlQueryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{15}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *PlanSqlQueryRequest) GetQuery() string {
@@ -1226,7 +1561,7 @@ type PlanSqlQueryResponse struct {
 
 func (x *PlanSqlQueryResponse) Reset() {
 	*x = PlanSqlQueryResponse{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[16]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1238,7 +1573,7 @@ func (x *PlanSqlQueryResponse) String() string {
 func (*PlanSqlQueryResponse) ProtoMessage() {}
 
 func (x *PlanSqlQueryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[16]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1251,7 +1586,7 @@ func (x *PlanSqlQueryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanSqlQueryResponse.ProtoReflect.Descriptor instead.
 func (*PlanSqlQueryResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{16}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *PlanSqlQueryResponse) GetLogicalPlan() string {
@@ -1276,7 +1611,7 @@ type GetDbCatalogsRequest struct {
 
 func (x *GetDbCatalogsRequest) Reset() {
 	*x = GetDbCatalogsRequest{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[17]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1288,7 +1623,7 @@ func (x *GetDbCatalogsRequest) String() string {
 func (*GetDbCatalogsRequest) ProtoMessage() {}
 
 func (x *GetDbCatalogsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[17]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1301,7 +1636,7 @@ func (x *GetDbCatalogsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDbCatalogsRequest.ProtoReflect.Descriptor instead.
 func (*GetDbCatalogsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{17}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{22}
 }
 
 type DbCatalogInfo struct {
@@ -1318,7 +1653,7 @@ type DbCatalogInfo struct {
 
 func (x *DbCatalogInfo) Reset() {
 	*x = DbCatalogInfo{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[18]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1330,7 +1665,7 @@ func (x *DbCatalogInfo) String() string {
 func (*DbCatalogInfo) ProtoMessage() {}
 
 func (x *DbCatalogInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[18]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1343,7 +1678,7 @@ func (x *DbCatalogInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DbCatalogInfo.ProtoReflect.Descriptor instead.
 func (*DbCatalogInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{18}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *DbCatalogInfo) GetCatalogName() string {
@@ -1394,7 +1729,7 @@ type GetDbCatalogsResponse struct {
 
 func (x *GetDbCatalogsResponse) Reset() {
 	*x = GetDbCatalogsResponse{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[19]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1741,7 @@ func (x *GetDbCatalogsResponse) String() string {
 func (*GetDbCatalogsResponse) ProtoMessage() {}
 
 func (x *GetDbCatalogsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[19]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1419,7 +1754,7 @@ func (x *GetDbCatalogsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDbCatalogsResponse.ProtoReflect.Descriptor instead.
 func (*GetDbCatalogsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{19}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetDbCatalogsResponse) GetCatalogNames() []string {
@@ -1454,7 +1789,7 @@ type GetDbSchemasRequest struct {
 
 func (x *GetDbSchemasRequest) Reset() {
 	*x = GetDbSchemasRequest{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[20]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1466,7 +1801,7 @@ func (x *GetDbSchemasRequest) String() string {
 func (*GetDbSchemasRequest) ProtoMessage() {}
 
 func (x *GetDbSchemasRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[20]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1479,7 +1814,7 @@ func (x *GetDbSchemasRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDbSchemasRequest.ProtoReflect.Descriptor instead.
 func (*GetDbSchemasRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{20}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetDbSchemasRequest) GetCatalog() string {
@@ -1513,7 +1848,7 @@ type DbSchemaInfo struct {
 
 func (x *DbSchemaInfo) Reset() {
 	*x = DbSchemaInfo{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[21]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1525,7 +1860,7 @@ func (x *DbSchemaInfo) String() string {
 func (*DbSchemaInfo) ProtoMessage() {}
 
 func (x *DbSchemaInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[21]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1538,7 +1873,7 @@ func (x *DbSchemaInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DbSchemaInfo.ProtoReflect.Descriptor instead.
 func (*DbSchemaInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{21}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *DbSchemaInfo) GetCatalogName() string {
@@ -1565,7 +1900,7 @@ type GetDbSchemasResponse struct {
 
 func (x *GetDbSchemasResponse) Reset() {
 	*x = GetDbSchemasResponse{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[22]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1577,7 +1912,7 @@ func (x *GetDbSchemasResponse) String() string {
 func (*GetDbSchemasResponse) ProtoMessage() {}
 
 func (x *GetDbSchemasResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[22]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1590,7 +1925,7 @@ func (x *GetDbSchemasResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDbSchemasResponse.ProtoReflect.Descriptor instead.
 func (*GetDbSchemasResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{22}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetDbSchemasResponse) GetSchemas() []*DbSchemaInfo {
@@ -1619,7 +1954,7 @@ type GetTablesRequest struct {
 
 func (x *GetTablesRequest) Reset() {
 	*x = GetTablesRequest{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[23]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1631,7 +1966,7 @@ func (x *GetTablesRequest) String() string {
 func (*GetTablesRequest) ProtoMessage() {}
 
 func (x *GetTablesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[23]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1644,7 +1979,7 @@ func (x *GetTablesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTablesRequest.ProtoReflect.Descriptor instead.
 func (*GetTablesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{23}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GetTablesRequest) GetCatalog() string {
@@ -1688,7 +2023,7 @@ type TableInfo struct {
 
 func (x *TableInfo) Reset() {
 	*x = TableInfo{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[24]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1700,7 +2035,7 @@ func (x *TableInfo) String() string {
 func (*TableInfo) ProtoMessage() {}
 
 func (x *TableInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[24]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1713,7 +2048,7 @@ func (x *TableInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TableInfo.ProtoReflect.Descriptor instead.
 func (*TableInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{24}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *TableInfo) GetCatalogName() string {
@@ -1754,7 +2089,7 @@ type GetTablesResponse struct {
 
 func (x *GetTablesResponse) Reset() {
 	*x = GetTablesResponse{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[25]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1766,7 +2101,7 @@ func (x *GetTablesResponse) String() string {
 func (*GetTablesResponse) ProtoMessage() {}
 
 func (x *GetTablesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[25]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1779,7 +2114,7 @@ func (x *GetTablesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTablesResponse.ProtoReflect.Descriptor instead.
 func (*GetTablesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{25}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetTablesResponse) GetTables() []*TableInfo {
@@ -1805,7 +2140,7 @@ type SqlQueryProgressInfo struct {
 
 func (x *SqlQueryProgressInfo) Reset() {
 	*x = SqlQueryProgressInfo{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[26]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1817,7 +2152,7 @@ func (x *SqlQueryProgressInfo) String() string {
 func (*SqlQueryProgressInfo) ProtoMessage() {}
 
 func (x *SqlQueryProgressInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[26]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1830,7 +2165,7 @@ func (x *SqlQueryProgressInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SqlQueryProgressInfo.ProtoReflect.Descriptor instead.
 func (*SqlQueryProgressInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{26}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{31}
 }
 
 type SqlQueryFailedInfo struct {
@@ -1843,7 +2178,7 @@ type SqlQueryFailedInfo struct {
 
 func (x *SqlQueryFailedInfo) Reset() {
 	*x = SqlQueryFailedInfo{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[27]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1855,7 +2190,7 @@ func (x *SqlQueryFailedInfo) String() string {
 func (*SqlQueryFailedInfo) ProtoMessage() {}
 
 func (x *SqlQueryFailedInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[27]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1868,7 +2203,7 @@ func (x *SqlQueryFailedInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SqlQueryFailedInfo.ProtoReflect.Descriptor instead.
 func (*SqlQueryFailedInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{27}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *SqlQueryFailedInfo) GetErrors() []*v1.ChalkError {
@@ -1893,7 +2228,7 @@ type PollSqlQueryRequest struct {
 
 func (x *PollSqlQueryRequest) Reset() {
 	*x = PollSqlQueryRequest{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[28]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1905,7 +2240,7 @@ func (x *PollSqlQueryRequest) String() string {
 func (*PollSqlQueryRequest) ProtoMessage() {}
 
 func (x *PollSqlQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[28]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1918,7 +2253,7 @@ func (x *PollSqlQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollSqlQueryRequest.ProtoReflect.Descriptor instead.
 func (*PollSqlQueryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{28}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *PollSqlQueryRequest) GetOperationId() string {
@@ -1960,7 +2295,7 @@ type PollSqlQueryResponse struct {
 
 func (x *PollSqlQueryResponse) Reset() {
 	*x = PollSqlQueryResponse{}
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[29]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1972,7 +2307,7 @@ func (x *PollSqlQueryResponse) String() string {
 func (*PollSqlQueryResponse) ProtoMessage() {}
 
 func (x *PollSqlQueryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[29]
+	mi := &file_chalk_protosql_v1_sql_service_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1985,7 +2320,7 @@ func (x *PollSqlQueryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollSqlQueryResponse.ProtoReflect.Descriptor instead.
 func (*PollSqlQueryResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{29}
+	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *PollSqlQueryResponse) GetInfo() *SqlQueryInfo {
@@ -2161,6 +2496,28 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x13performance_summary\x18\x04 \x01(\tH\x01R\x12performanceSummary\x88\x01\x01\x12G\n" +
 	"\x0fcolumn_profiles\x18\x05 \x03(\v2\x1e.chalk.common.v1.ColumnProfileR\x0ecolumnProfilesB\t\n" +
 	"\apayloadB\x16\n" +
+	"\x14_performance_summary\"c\n" +
+	"\x1cExecuteSqlQueryStreamRequest\x12C\n" +
+	"\arequest\x18\x01 \x01(\v2).chalk.protosql.v1.ExecuteSqlQueryRequestR\arequest\"\x97\x02\n" +
+	"\x1dExecuteSqlQueryStreamResponse\x12\x19\n" +
+	"\bquery_id\x18\x01 \x01(\tR\aqueryId\x12D\n" +
+	"\astarted\x18\n" +
+	" \x01(\v2(.chalk.protosql.v1.SqlQueryStreamStartedH\x00R\astarted\x12>\n" +
+	"\x05chunk\x18\v \x01(\v2&.chalk.protosql.v1.SqlQueryResultChunkH\x00R\x05chunk\x12J\n" +
+	"\tcompleted\x18\f \x01(\v2*.chalk.protosql.v1.SqlQueryStreamCompletedH\x00R\tcompletedB\t\n" +
+	"\apayload\":\n" +
+	"\x15SqlQueryStreamStarted\x12!\n" +
+	"\farrow_schema\x18\x01 \x01(\fR\varrowSchema\"k\n" +
+	"\x13SqlQueryResultChunk\x12\x18\n" +
+	"\aparquet\x18\x01 \x01(\fR\aparquet\x12\x1f\n" +
+	"\vchunk_index\x18\x02 \x01(\x03R\n" +
+	"chunkIndex\x12\x19\n" +
+	"\bnum_rows\x18\x03 \x01(\x03R\anumRows\"\xbb\x01\n" +
+	"\x17SqlQueryStreamCompleted\x123\n" +
+	"\x06errors\x18\x01 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\x124\n" +
+	"\x13performance_summary\x18\x02 \x01(\tH\x00R\x12performanceSummary\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"total_rows\x18\x03 \x01(\x03R\ttotalRowsB\x16\n" +
 	"\x14_performance_summary\"+\n" +
 	"\x13PlanSqlQueryRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\"n\n" +
@@ -2232,13 +2589,14 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x1cExecuteSqlAsyncExecutionMode\x120\n" +
 	",EXECUTE_SQL_ASYNC_EXECUTION_MODE_UNSPECIFIED\x10\x00\x12/\n" +
 	"+EXECUTE_SQL_ASYNC_EXECUTION_MODE_IN_PROCESS\x10\x01\x12*\n" +
-	"&EXECUTE_SQL_ASYNC_EXECUTION_MODE_ASYNC\x10\x022\xf7\a\n" +
+	"&EXECUTE_SQL_ASYNC_EXECUTION_MODE_ASYNC\x10\x022\xfb\b\n" +
 	"\n" +
 	"SqlService\x12\x7f\n" +
 	"\x15GetOfflineQueryInputs\x12/.chalk.protosql.v1.GetOfflineQueryInputsRequest\x1a0.chalk.protosql.v1.GetOfflineQueryInputsResponse\"\x03\x80}$\x12\x82\x01\n" +
 	"\x16GetOfflineQueryPreview\x120.chalk.protosql.v1.GetOfflineQueryPreviewRequest\x1a1.chalk.protosql.v1.GetOfflineQueryPreviewResponse\"\x03\x80}$\x12|\n" +
 	"\x14GetOfflineQueryStats\x12..chalk.protosql.v1.GetOfflineQueryStatsRequest\x1a/.chalk.protosql.v1.GetOfflineQueryStatsResponse\"\x03\x80}$\x12m\n" +
-	"\x0fExecuteSqlQuery\x12).chalk.protosql.v1.ExecuteSqlQueryRequest\x1a*.chalk.protosql.v1.ExecuteSqlQueryResponse\"\x03\x80}\x03\x12d\n" +
+	"\x0fExecuteSqlQuery\x12).chalk.protosql.v1.ExecuteSqlQueryRequest\x1a*.chalk.protosql.v1.ExecuteSqlQueryResponse\"\x03\x80}\x03\x12\x81\x01\n" +
+	"\x15ExecuteSqlQueryStream\x12/.chalk.protosql.v1.ExecuteSqlQueryStreamRequest\x1a0.chalk.protosql.v1.ExecuteSqlQueryStreamResponse\"\x03\x80}\x030\x01\x12d\n" +
 	"\fPlanSqlQuery\x12&.chalk.protosql.v1.PlanSqlQueryRequest\x1a'.chalk.protosql.v1.PlanSqlQueryResponse\"\x03\x80}\x03\x12d\n" +
 	"\fPollSqlQuery\x12&.chalk.protosql.v1.PollSqlQueryRequest\x1a'.chalk.protosql.v1.PollSqlQueryResponse\"\x03\x80}\x03\x12g\n" +
 	"\rGetDbCatalogs\x12'.chalk.protosql.v1.GetDbCatalogsRequest\x1a(.chalk.protosql.v1.GetDbCatalogsResponse\"\x03\x80}\v\x12d\n" +
@@ -2259,7 +2617,7 @@ func file_chalk_protosql_v1_sql_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_protosql_v1_sql_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_protosql_v1_sql_service_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_chalk_protosql_v1_sql_service_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
 var file_chalk_protosql_v1_sql_service_proto_goTypes = []any{
 	(ExecuteSqlAsyncExecutionMode)(0),           // 0: chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
 	(*SqlQueryInfo)(nil),                        // 1: chalk.protosql.v1.SqlQueryInfo
@@ -2277,31 +2635,36 @@ var file_chalk_protosql_v1_sql_service_proto_goTypes = []any{
 	(*ExecuteSqlSyncQueryResponsePayload)(nil),  // 13: chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
 	(*ExecuteSqlAsyncQueryResponsePayload)(nil), // 14: chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload
 	(*ExecuteSqlQueryResponse)(nil),             // 15: chalk.protosql.v1.ExecuteSqlQueryResponse
-	(*PlanSqlQueryRequest)(nil),                 // 16: chalk.protosql.v1.PlanSqlQueryRequest
-	(*PlanSqlQueryResponse)(nil),                // 17: chalk.protosql.v1.PlanSqlQueryResponse
-	(*GetDbCatalogsRequest)(nil),                // 18: chalk.protosql.v1.GetDbCatalogsRequest
-	(*DbCatalogInfo)(nil),                       // 19: chalk.protosql.v1.DbCatalogInfo
-	(*GetDbCatalogsResponse)(nil),               // 20: chalk.protosql.v1.GetDbCatalogsResponse
-	(*GetDbSchemasRequest)(nil),                 // 21: chalk.protosql.v1.GetDbSchemasRequest
-	(*DbSchemaInfo)(nil),                        // 22: chalk.protosql.v1.DbSchemaInfo
-	(*GetDbSchemasResponse)(nil),                // 23: chalk.protosql.v1.GetDbSchemasResponse
-	(*GetTablesRequest)(nil),                    // 24: chalk.protosql.v1.GetTablesRequest
-	(*TableInfo)(nil),                           // 25: chalk.protosql.v1.TableInfo
-	(*GetTablesResponse)(nil),                   // 26: chalk.protosql.v1.GetTablesResponse
-	(*SqlQueryProgressInfo)(nil),                // 27: chalk.protosql.v1.SqlQueryProgressInfo
-	(*SqlQueryFailedInfo)(nil),                  // 28: chalk.protosql.v1.SqlQueryFailedInfo
-	(*PollSqlQueryRequest)(nil),                 // 29: chalk.protosql.v1.PollSqlQueryRequest
-	(*PollSqlQueryResponse)(nil),                // 30: chalk.protosql.v1.PollSqlQueryResponse
-	nil,                                         // 31: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry
-	(*timestamppb.Timestamp)(nil),               // 32: google.protobuf.Timestamp
-	(*v1.ColumnProfileOptions)(nil),             // 33: chalk.common.v1.ColumnProfileOptions
-	(*v1.ChalkError)(nil),                       // 34: chalk.common.v1.ChalkError
-	(*v1.ColumnProfile)(nil),                    // 35: chalk.common.v1.ColumnProfile
-	(*structpb.Value)(nil),                      // 36: google.protobuf.Value
+	(*ExecuteSqlQueryStreamRequest)(nil),        // 16: chalk.protosql.v1.ExecuteSqlQueryStreamRequest
+	(*ExecuteSqlQueryStreamResponse)(nil),       // 17: chalk.protosql.v1.ExecuteSqlQueryStreamResponse
+	(*SqlQueryStreamStarted)(nil),               // 18: chalk.protosql.v1.SqlQueryStreamStarted
+	(*SqlQueryResultChunk)(nil),                 // 19: chalk.protosql.v1.SqlQueryResultChunk
+	(*SqlQueryStreamCompleted)(nil),             // 20: chalk.protosql.v1.SqlQueryStreamCompleted
+	(*PlanSqlQueryRequest)(nil),                 // 21: chalk.protosql.v1.PlanSqlQueryRequest
+	(*PlanSqlQueryResponse)(nil),                // 22: chalk.protosql.v1.PlanSqlQueryResponse
+	(*GetDbCatalogsRequest)(nil),                // 23: chalk.protosql.v1.GetDbCatalogsRequest
+	(*DbCatalogInfo)(nil),                       // 24: chalk.protosql.v1.DbCatalogInfo
+	(*GetDbCatalogsResponse)(nil),               // 25: chalk.protosql.v1.GetDbCatalogsResponse
+	(*GetDbSchemasRequest)(nil),                 // 26: chalk.protosql.v1.GetDbSchemasRequest
+	(*DbSchemaInfo)(nil),                        // 27: chalk.protosql.v1.DbSchemaInfo
+	(*GetDbSchemasResponse)(nil),                // 28: chalk.protosql.v1.GetDbSchemasResponse
+	(*GetTablesRequest)(nil),                    // 29: chalk.protosql.v1.GetTablesRequest
+	(*TableInfo)(nil),                           // 30: chalk.protosql.v1.TableInfo
+	(*GetTablesResponse)(nil),                   // 31: chalk.protosql.v1.GetTablesResponse
+	(*SqlQueryProgressInfo)(nil),                // 32: chalk.protosql.v1.SqlQueryProgressInfo
+	(*SqlQueryFailedInfo)(nil),                  // 33: chalk.protosql.v1.SqlQueryFailedInfo
+	(*PollSqlQueryRequest)(nil),                 // 34: chalk.protosql.v1.PollSqlQueryRequest
+	(*PollSqlQueryResponse)(nil),                // 35: chalk.protosql.v1.PollSqlQueryResponse
+	nil,                                         // 36: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry
+	(*timestamppb.Timestamp)(nil),               // 37: google.protobuf.Timestamp
+	(*v1.ColumnProfileOptions)(nil),             // 38: chalk.common.v1.ColumnProfileOptions
+	(*v1.ChalkError)(nil),                       // 39: chalk.common.v1.ChalkError
+	(*v1.ColumnProfile)(nil),                    // 40: chalk.common.v1.ColumnProfile
+	(*structpb.Value)(nil),                      // 41: google.protobuf.Value
 }
 var file_chalk_protosql_v1_sql_service_proto_depIdxs = []int32{
-	32, // 0: chalk.protosql.v1.SqlQueryInfo.created_at:type_name -> google.protobuf.Timestamp
-	32, // 1: chalk.protosql.v1.SqlQueryInfo.finished_at:type_name -> google.protobuf.Timestamp
+	37, // 0: chalk.protosql.v1.SqlQueryInfo.created_at:type_name -> google.protobuf.Timestamp
+	37, // 1: chalk.protosql.v1.SqlQueryInfo.finished_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions.execution_mode:type_name -> chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
 	15, // 3: chalk.protosql.v1.GetOfflineQueryInputsResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlQueryResponse
 	15, // 4: chalk.protosql.v1.GetOfflineQueryPreviewResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlQueryResponse
@@ -2309,53 +2672,60 @@ var file_chalk_protosql_v1_sql_service_proto_depIdxs = []int32{
 	4,  // 6: chalk.protosql.v1.ExecuteSqlQueryRequest.persistence_settings:type_name -> chalk.protosql.v1.ExecuteSqlResultPersistenceSettings
 	2,  // 7: chalk.protosql.v1.ExecuteSqlQueryRequest.sync_options:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryRequestOptions
 	3,  // 8: chalk.protosql.v1.ExecuteSqlQueryRequest.async_options:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions
-	31, // 9: chalk.protosql.v1.ExecuteSqlQueryRequest.compilation_options:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry
-	33, // 10: chalk.protosql.v1.ExecuteSqlQueryRequest.column_profile_options:type_name -> chalk.common.v1.ColumnProfileOptions
+	36, // 9: chalk.protosql.v1.ExecuteSqlQueryRequest.compilation_options:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry
+	38, // 10: chalk.protosql.v1.ExecuteSqlQueryRequest.column_profile_options:type_name -> chalk.common.v1.ColumnProfileOptions
 	12, // 11: chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload.signed_output_uris:type_name -> chalk.protosql.v1.SignedOutputUris
 	0,  // 12: chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload.execution_mode:type_name -> chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
 	13, // 13: chalk.protosql.v1.ExecuteSqlQueryResponse.sync_payload:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
 	14, // 14: chalk.protosql.v1.ExecuteSqlQueryResponse.async_payload:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload
-	34, // 15: chalk.protosql.v1.ExecuteSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
-	35, // 16: chalk.protosql.v1.ExecuteSqlQueryResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
-	34, // 17: chalk.protosql.v1.PlanSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
-	19, // 18: chalk.protosql.v1.GetDbCatalogsResponse.catalogs:type_name -> chalk.protosql.v1.DbCatalogInfo
-	34, // 19: chalk.protosql.v1.GetDbCatalogsResponse.errors:type_name -> chalk.common.v1.ChalkError
-	34, // 20: chalk.protosql.v1.GetDbSchemasRequest.errors:type_name -> chalk.common.v1.ChalkError
-	22, // 21: chalk.protosql.v1.GetDbSchemasResponse.schemas:type_name -> chalk.protosql.v1.DbSchemaInfo
-	34, // 22: chalk.protosql.v1.GetDbSchemasResponse.errors:type_name -> chalk.common.v1.ChalkError
-	25, // 23: chalk.protosql.v1.GetTablesResponse.tables:type_name -> chalk.protosql.v1.TableInfo
-	34, // 24: chalk.protosql.v1.GetTablesResponse.errors:type_name -> chalk.common.v1.ChalkError
-	34, // 25: chalk.protosql.v1.SqlQueryFailedInfo.errors:type_name -> chalk.common.v1.ChalkError
-	33, // 26: chalk.protosql.v1.PollSqlQueryRequest.column_profile_options:type_name -> chalk.common.v1.ColumnProfileOptions
-	1,  // 27: chalk.protosql.v1.PollSqlQueryResponse.info:type_name -> chalk.protosql.v1.SqlQueryInfo
-	27, // 28: chalk.protosql.v1.PollSqlQueryResponse.progress:type_name -> chalk.protosql.v1.SqlQueryProgressInfo
-	13, // 29: chalk.protosql.v1.PollSqlQueryResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
-	28, // 30: chalk.protosql.v1.PollSqlQueryResponse.failed:type_name -> chalk.protosql.v1.SqlQueryFailedInfo
-	35, // 31: chalk.protosql.v1.PollSqlQueryResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
-	36, // 32: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry.value:type_name -> google.protobuf.Value
-	5,  // 33: chalk.protosql.v1.SqlService.GetOfflineQueryInputs:input_type -> chalk.protosql.v1.GetOfflineQueryInputsRequest
-	7,  // 34: chalk.protosql.v1.SqlService.GetOfflineQueryPreview:input_type -> chalk.protosql.v1.GetOfflineQueryPreviewRequest
-	9,  // 35: chalk.protosql.v1.SqlService.GetOfflineQueryStats:input_type -> chalk.protosql.v1.GetOfflineQueryStatsRequest
-	11, // 36: chalk.protosql.v1.SqlService.ExecuteSqlQuery:input_type -> chalk.protosql.v1.ExecuteSqlQueryRequest
-	16, // 37: chalk.protosql.v1.SqlService.PlanSqlQuery:input_type -> chalk.protosql.v1.PlanSqlQueryRequest
-	29, // 38: chalk.protosql.v1.SqlService.PollSqlQuery:input_type -> chalk.protosql.v1.PollSqlQueryRequest
-	18, // 39: chalk.protosql.v1.SqlService.GetDbCatalogs:input_type -> chalk.protosql.v1.GetDbCatalogsRequest
-	21, // 40: chalk.protosql.v1.SqlService.GetDbSchemas:input_type -> chalk.protosql.v1.GetDbSchemasRequest
-	24, // 41: chalk.protosql.v1.SqlService.GetTables:input_type -> chalk.protosql.v1.GetTablesRequest
-	6,  // 42: chalk.protosql.v1.SqlService.GetOfflineQueryInputs:output_type -> chalk.protosql.v1.GetOfflineQueryInputsResponse
-	8,  // 43: chalk.protosql.v1.SqlService.GetOfflineQueryPreview:output_type -> chalk.protosql.v1.GetOfflineQueryPreviewResponse
-	10, // 44: chalk.protosql.v1.SqlService.GetOfflineQueryStats:output_type -> chalk.protosql.v1.GetOfflineQueryStatsResponse
-	15, // 45: chalk.protosql.v1.SqlService.ExecuteSqlQuery:output_type -> chalk.protosql.v1.ExecuteSqlQueryResponse
-	17, // 46: chalk.protosql.v1.SqlService.PlanSqlQuery:output_type -> chalk.protosql.v1.PlanSqlQueryResponse
-	30, // 47: chalk.protosql.v1.SqlService.PollSqlQuery:output_type -> chalk.protosql.v1.PollSqlQueryResponse
-	20, // 48: chalk.protosql.v1.SqlService.GetDbCatalogs:output_type -> chalk.protosql.v1.GetDbCatalogsResponse
-	23, // 49: chalk.protosql.v1.SqlService.GetDbSchemas:output_type -> chalk.protosql.v1.GetDbSchemasResponse
-	26, // 50: chalk.protosql.v1.SqlService.GetTables:output_type -> chalk.protosql.v1.GetTablesResponse
-	42, // [42:51] is the sub-list for method output_type
-	33, // [33:42] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	39, // 15: chalk.protosql.v1.ExecuteSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
+	40, // 16: chalk.protosql.v1.ExecuteSqlQueryResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
+	11, // 17: chalk.protosql.v1.ExecuteSqlQueryStreamRequest.request:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest
+	18, // 18: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.started:type_name -> chalk.protosql.v1.SqlQueryStreamStarted
+	19, // 19: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.chunk:type_name -> chalk.protosql.v1.SqlQueryResultChunk
+	20, // 20: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.completed:type_name -> chalk.protosql.v1.SqlQueryStreamCompleted
+	39, // 21: chalk.protosql.v1.SqlQueryStreamCompleted.errors:type_name -> chalk.common.v1.ChalkError
+	39, // 22: chalk.protosql.v1.PlanSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
+	24, // 23: chalk.protosql.v1.GetDbCatalogsResponse.catalogs:type_name -> chalk.protosql.v1.DbCatalogInfo
+	39, // 24: chalk.protosql.v1.GetDbCatalogsResponse.errors:type_name -> chalk.common.v1.ChalkError
+	39, // 25: chalk.protosql.v1.GetDbSchemasRequest.errors:type_name -> chalk.common.v1.ChalkError
+	27, // 26: chalk.protosql.v1.GetDbSchemasResponse.schemas:type_name -> chalk.protosql.v1.DbSchemaInfo
+	39, // 27: chalk.protosql.v1.GetDbSchemasResponse.errors:type_name -> chalk.common.v1.ChalkError
+	30, // 28: chalk.protosql.v1.GetTablesResponse.tables:type_name -> chalk.protosql.v1.TableInfo
+	39, // 29: chalk.protosql.v1.GetTablesResponse.errors:type_name -> chalk.common.v1.ChalkError
+	39, // 30: chalk.protosql.v1.SqlQueryFailedInfo.errors:type_name -> chalk.common.v1.ChalkError
+	38, // 31: chalk.protosql.v1.PollSqlQueryRequest.column_profile_options:type_name -> chalk.common.v1.ColumnProfileOptions
+	1,  // 32: chalk.protosql.v1.PollSqlQueryResponse.info:type_name -> chalk.protosql.v1.SqlQueryInfo
+	32, // 33: chalk.protosql.v1.PollSqlQueryResponse.progress:type_name -> chalk.protosql.v1.SqlQueryProgressInfo
+	13, // 34: chalk.protosql.v1.PollSqlQueryResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
+	33, // 35: chalk.protosql.v1.PollSqlQueryResponse.failed:type_name -> chalk.protosql.v1.SqlQueryFailedInfo
+	40, // 36: chalk.protosql.v1.PollSqlQueryResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
+	41, // 37: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry.value:type_name -> google.protobuf.Value
+	5,  // 38: chalk.protosql.v1.SqlService.GetOfflineQueryInputs:input_type -> chalk.protosql.v1.GetOfflineQueryInputsRequest
+	7,  // 39: chalk.protosql.v1.SqlService.GetOfflineQueryPreview:input_type -> chalk.protosql.v1.GetOfflineQueryPreviewRequest
+	9,  // 40: chalk.protosql.v1.SqlService.GetOfflineQueryStats:input_type -> chalk.protosql.v1.GetOfflineQueryStatsRequest
+	11, // 41: chalk.protosql.v1.SqlService.ExecuteSqlQuery:input_type -> chalk.protosql.v1.ExecuteSqlQueryRequest
+	16, // 42: chalk.protosql.v1.SqlService.ExecuteSqlQueryStream:input_type -> chalk.protosql.v1.ExecuteSqlQueryStreamRequest
+	21, // 43: chalk.protosql.v1.SqlService.PlanSqlQuery:input_type -> chalk.protosql.v1.PlanSqlQueryRequest
+	34, // 44: chalk.protosql.v1.SqlService.PollSqlQuery:input_type -> chalk.protosql.v1.PollSqlQueryRequest
+	23, // 45: chalk.protosql.v1.SqlService.GetDbCatalogs:input_type -> chalk.protosql.v1.GetDbCatalogsRequest
+	26, // 46: chalk.protosql.v1.SqlService.GetDbSchemas:input_type -> chalk.protosql.v1.GetDbSchemasRequest
+	29, // 47: chalk.protosql.v1.SqlService.GetTables:input_type -> chalk.protosql.v1.GetTablesRequest
+	6,  // 48: chalk.protosql.v1.SqlService.GetOfflineQueryInputs:output_type -> chalk.protosql.v1.GetOfflineQueryInputsResponse
+	8,  // 49: chalk.protosql.v1.SqlService.GetOfflineQueryPreview:output_type -> chalk.protosql.v1.GetOfflineQueryPreviewResponse
+	10, // 50: chalk.protosql.v1.SqlService.GetOfflineQueryStats:output_type -> chalk.protosql.v1.GetOfflineQueryStatsResponse
+	15, // 51: chalk.protosql.v1.SqlService.ExecuteSqlQuery:output_type -> chalk.protosql.v1.ExecuteSqlQueryResponse
+	17, // 52: chalk.protosql.v1.SqlService.ExecuteSqlQueryStream:output_type -> chalk.protosql.v1.ExecuteSqlQueryStreamResponse
+	22, // 53: chalk.protosql.v1.SqlService.PlanSqlQuery:output_type -> chalk.protosql.v1.PlanSqlQueryResponse
+	35, // 54: chalk.protosql.v1.SqlService.PollSqlQuery:output_type -> chalk.protosql.v1.PollSqlQueryResponse
+	25, // 55: chalk.protosql.v1.SqlService.GetDbCatalogs:output_type -> chalk.protosql.v1.GetDbCatalogsResponse
+	28, // 56: chalk.protosql.v1.SqlService.GetDbSchemas:output_type -> chalk.protosql.v1.GetDbSchemasResponse
+	31, // 57: chalk.protosql.v1.SqlService.GetTables:output_type -> chalk.protosql.v1.GetTablesResponse
+	48, // [48:58] is the sub-list for method output_type
+	38, // [38:48] is the sub-list for method input_type
+	38, // [38:38] is the sub-list for extension type_name
+	38, // [38:38] is the sub-list for extension extendee
+	0,  // [0:38] is the sub-list for field type_name
 }
 
 func init() { file_chalk_protosql_v1_sql_service_proto_init() }
@@ -2391,11 +2761,17 @@ func file_chalk_protosql_v1_sql_service_proto_init() {
 		(*ExecuteSqlQueryResponse_SyncPayload)(nil),
 		(*ExecuteSqlQueryResponse_AsyncPayload)(nil),
 	}
-	file_chalk_protosql_v1_sql_service_proto_msgTypes[18].OneofWrappers = []any{}
-	file_chalk_protosql_v1_sql_service_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_protosql_v1_sql_service_proto_msgTypes[16].OneofWrappers = []any{
+		(*ExecuteSqlQueryStreamResponse_Started)(nil),
+		(*ExecuteSqlQueryStreamResponse_Chunk)(nil),
+		(*ExecuteSqlQueryStreamResponse_Completed)(nil),
+	}
+	file_chalk_protosql_v1_sql_service_proto_msgTypes[19].OneofWrappers = []any{}
 	file_chalk_protosql_v1_sql_service_proto_msgTypes[23].OneofWrappers = []any{}
-	file_chalk_protosql_v1_sql_service_proto_msgTypes[24].OneofWrappers = []any{}
-	file_chalk_protosql_v1_sql_service_proto_msgTypes[29].OneofWrappers = []any{
+	file_chalk_protosql_v1_sql_service_proto_msgTypes[25].OneofWrappers = []any{}
+	file_chalk_protosql_v1_sql_service_proto_msgTypes[28].OneofWrappers = []any{}
+	file_chalk_protosql_v1_sql_service_proto_msgTypes[29].OneofWrappers = []any{}
+	file_chalk_protosql_v1_sql_service_proto_msgTypes[34].OneofWrappers = []any{
 		(*PollSqlQueryResponse_Progress)(nil),
 		(*PollSqlQueryResponse_Response)(nil),
 		(*PollSqlQueryResponse_Failed)(nil),
@@ -2406,7 +2782,7 @@ func file_chalk_protosql_v1_sql_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_protosql_v1_sql_service_proto_rawDesc), len(file_chalk_protosql_v1_sql_service_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   31,
+			NumMessages:   36,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

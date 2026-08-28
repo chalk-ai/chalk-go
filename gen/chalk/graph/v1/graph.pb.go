@@ -2782,6 +2782,15 @@ type WindowAggregation struct {
 	// The state a `history_fold` starts from before any event is applied. Carried alongside the
 	// step because the two are only meaningful together.
 	FoldInitialValue *v11.LogicalExprNode `protobuf:"bytes,22,opt,name=fold_initial_value,json=foldInitialValue,proto3,oneof" json:"fold_initial_value,omitempty"`
+	// The 'counters' arg of approx_top_k: the capacity of the underlying frequent-items sketch,
+	// i.e. how many distinct items it tracks. Unset means the capacity follows `k`.
+	ApproxTopKArgCounters *int64 `protobuf:"varint,23,opt,name=approx_top_k_arg_counters,json=approxTopKArgCounters,proto3,oneof" json:"approx_top_k_arg_counters,omitempty"`
+	// Only meaningful together with `cache_aggregated_values`. When set, online queries
+	// serve the feature exclusively from its cached scalar value: the planner drops the
+	// materialized-aggregation resolver, so a cache miss yields the feature's default
+	// rather than a merge of the online-store buckets. The aggregation is still planned
+	// for offline queries and aggregate backfills.
+	CachedValuesOnly *bool `protobuf:"varint,24,opt,name=cached_values_only,json=cachedValuesOnly,proto3,oneof" json:"cached_values_only,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -2969,6 +2978,20 @@ func (x *WindowAggregation) GetFoldInitialValue() *v11.LogicalExprNode {
 		return x.FoldInitialValue
 	}
 	return nil
+}
+
+func (x *WindowAggregation) GetApproxTopKArgCounters() int64 {
+	if x != nil && x.ApproxTopKArgCounters != nil {
+		return *x.ApproxTopKArgCounters
+	}
+	return 0
+}
+
+func (x *WindowAggregation) GetCachedValuesOnly() bool {
+	if x != nil && x.CachedValuesOnly != nil {
+		return *x.CachedValuesOnly
+	}
+	return false
 }
 
 // Represents one tag set for a scheduled aggregate backfill run.
@@ -7855,7 +7878,7 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\n" +
 	"no_display\x18\b \x01(\bR\tnoDisplay\x125\n" +
 	"\aversion\x18\t \x01(\v2\x1b.chalk.graph.v1.VersionInfoR\aversionB\x16\n" +
-	"\x14_auxiliary_namespace\"\xcc\r\n" +
+	"\x14_auxiliary_namespace\"\xf3\x0e\n" +
 	"\x11WindowAggregation\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12;\n" +
 	"\bgroup_by\x18\x02 \x03(\v2 .chalk.graph.v1.FeatureReferenceR\agroupBy\x12B\n" +
@@ -7881,7 +7904,9 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x16allow_filter_migration\x18\x14 \x01(\bR\x14allowFilterMigration\x12F\n" +
 	"\tfold_step\x18\x15 \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\tR\bfoldStep\x88\x01\x01\x12W\n" +
 	"\x12fold_initial_value\x18\x16 \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\n" +
-	"R\x10foldInitialValue\x88\x01\x01B\x0f\n" +
+	"R\x10foldInitialValue\x88\x01\x01\x12=\n" +
+	"\x19approx_top_k_arg_counters\x18\x17 \x01(\x03H\vR\x15approxTopKArgCounters\x88\x01\x01\x121\n" +
+	"\x12cached_values_only\x18\x18 \x01(\bH\fR\x10cachedValuesOnly\x88\x01\x01B\x0f\n" +
 	"\r_aggregate_onB\x14\n" +
 	"\x12_backfill_resolverB\x1d\n" +
 	"\x1b_backfill_lookback_durationB\x16\n" +
@@ -7893,7 +7918,9 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x18_cache_aggregated_valuesB\f\n" +
 	"\n" +
 	"_fold_stepB\x15\n" +
-	"\x13_fold_initial_value\"$\n" +
+	"\x13_fold_initial_valueB\x1c\n" +
+	"\x1a_approx_top_k_arg_countersB\x15\n" +
+	"\x13_cached_values_only\"$\n" +
 	"\x0eBackfillTagSet\x12\x12\n" +
 	"\x04tags\x18\x01 \x03(\tR\x04tags\"\x9d\x01\n" +
 	"\n" +

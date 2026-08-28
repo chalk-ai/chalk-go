@@ -3333,6 +3333,7 @@ type PythonArgument struct {
 	//	*PythonArgument_ArrowType
 	//	*PythonArgument_StringValue
 	//	*PythonArgument_Tuple
+	//	*PythonArgument_BoolValue
 	Type          isPythonArgument_Type `protobuf_oneof:"type"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3402,6 +3403,15 @@ func (x *PythonArgument) GetTuple() *PythonArgumentList {
 	return nil
 }
 
+func (x *PythonArgument) GetBoolValue() bool {
+	if x != nil {
+		if x, ok := x.Type.(*PythonArgument_BoolValue); ok {
+			return x.BoolValue
+		}
+	}
+	return false
+}
+
 type isPythonArgument_Type interface {
 	isPythonArgument_Type()
 }
@@ -3418,11 +3428,17 @@ type PythonArgument_Tuple struct {
 	Tuple *PythonArgumentList `protobuf:"bytes,3,opt,name=tuple,proto3,oneof"`
 }
 
+type PythonArgument_BoolValue struct {
+	BoolValue bool `protobuf:"varint,4,opt,name=bool_value,json=boolValue,proto3,oneof"`
+}
+
 func (*PythonArgument_ArrowType) isPythonArgument_Type() {}
 
 func (*PythonArgument_StringValue) isPythonArgument_Type() {}
 
 func (*PythonArgument_Tuple) isPythonArgument_Type() {}
+
+func (*PythonArgument_BoolValue) isPythonArgument_Type() {}
 
 type PythonArgumentList struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -3833,12 +3849,14 @@ const file_chalk_planner_v1_feature_types_proto_rawDesc = "" +
 	"\x06params\x18\x02 \x03(\v23.chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntryR\x06params\x1a[\n" +
 	"\vParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x126\n" +
-	"\x05value\x18\x02 \x01(\v2 .chalk.planner.v1.PythonArgumentR\x05value:\x028\x01\"\xb7\x01\n" +
+	"\x05value\x18\x02 \x01(\v2 .chalk.planner.v1.PythonArgumentR\x05value:\x028\x01\"\xd8\x01\n" +
 	"\x0ePythonArgument\x12:\n" +
 	"\n" +
 	"arrow_type\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeH\x00R\tarrowType\x12#\n" +
 	"\fstring_value\x18\x02 \x01(\tH\x00R\vstringValue\x12<\n" +
-	"\x05tuple\x18\x03 \x01(\v2$.chalk.planner.v1.PythonArgumentListH\x00R\x05tupleB\x06\n" +
+	"\x05tuple\x18\x03 \x01(\v2$.chalk.planner.v1.PythonArgumentListH\x00R\x05tuple\x12\x1f\n" +
+	"\n" +
+	"bool_value\x18\x04 \x01(\bH\x00R\tboolValueB\x06\n" +
 	"\x04type\"N\n" +
 	"\x12PythonArgumentList\x128\n" +
 	"\x06values\x18\x01 \x03(\v2 .chalk.planner.v1.PythonArgumentR\x06values\"\x99\x01\n" +
@@ -4138,6 +4156,7 @@ func file_chalk_planner_v1_feature_types_proto_init() {
 		(*PythonArgument_ArrowType)(nil),
 		(*PythonArgument_StringValue)(nil),
 		(*PythonArgument_Tuple)(nil),
+		(*PythonArgument_BoolValue)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
