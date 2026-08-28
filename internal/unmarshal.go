@@ -208,7 +208,7 @@ type FeatureMeta struct {
 }
 
 func extractFeatures(
-	record arrow.Record,
+	record arrow.RecordBatch,
 	featureColumnIdxs []int,
 	metaColumnFqnToIdx map[string]int,
 	chunkStart int64,
@@ -344,7 +344,7 @@ func ExtractFeaturesFromTable(
 	defer reader.Release()
 
 	for reader.Next() {
-		record := reader.Record()
+		record := reader.RecordBatch()
 		var featureColumnIdxs []int
 		metaColumnFqnToIdx := make(map[string]int)
 		for j := range record.Columns() {
@@ -964,7 +964,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	var rowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
+	var rowOp func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error
 	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
 		includedColIndices := namespaceToColIndices[slices.Collect(maps.Keys(namespaceToColIndices))[0]]
@@ -989,7 +989,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			colToCodec[k] = *codec
 		}
 
-		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
+		rowOp = func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error {
 			for k, colIdx := range includedColIndices {
 				if err := colToCodec[k](structValue, record.Column(colIdx), rowIdx); err != nil {
 					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
@@ -1071,7 +1071,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			}
 		}
 
-		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
+		rowOp = func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error {
 			for _, includedColIndices := range namespaceToColIndices {
 				for _, colIdx := range includedColIndices {
 					memo := colIdxToNamespaceMeta[colIdx]
@@ -1090,7 +1090,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	rowOffset := 0
 	batchIdx := 0
 	for reader.Next() {
-		record := reader.Record()
+		record := reader.RecordBatch()
 		recordRows := int(record.NumRows())
 		for rowIdx := range recordRows {
 			if err := rowOp(structs.Index(rowOffset+rowIdx), record, rowIdx); err != nil {

@@ -1688,7 +1688,7 @@ func stringsToArrowArrayBytes(values []string) (*arrowv1.ScalarListValue, error)
 	}, nil)
 
 	// Create a record with the array
-	record := array.NewRecord(schema, []arrow.Array{arr}, int64(len(values)))
+	record := array.NewRecordBatch(schema, []arrow.Array{arr}, int64(len(values)))
 	defer record.Release()
 
 	// Serialize to Arrow IPC format

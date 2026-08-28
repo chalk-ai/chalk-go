@@ -473,7 +473,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
 	assert.NoError(t, err)
 
-	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	table := array.NewTableFromRecords(record.Schema(), []arrow.RecordBatch{record})
 	res := OnlineQueryBulkResult{
 		ScalarsTable: table,
 	}
@@ -1055,7 +1055,7 @@ func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
 		[]string{"abc", "def", "ghi"},
 		[]bool{true, false, true},
 	)
-	table := array.NewTableFromRecords(schema, []arrow.Record{recordBuilder.NewRecord()})
+	table := array.NewTableFromRecords(schema, []arrow.RecordBatch{recordBuilder.NewRecordBatch()})
 
 	bulkRes := OnlineQueryBulkResult{
 		ScalarsTable: table,
@@ -1126,7 +1126,7 @@ func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
 					arrow.Timestamp(fixture.timestampValue),
 				}, nil,
 			)
-			table := array.NewTableFromRecords(schema, []arrow.Record{recordBuilder.NewRecord()})
+			table := array.NewTableFromRecords(schema, []arrow.RecordBatch{recordBuilder.NewRecordBatch()})
 
 			bulkRes := OnlineQueryBulkResult{
 				ScalarsTable: table,

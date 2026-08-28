@@ -259,10 +259,10 @@ func offlineQueryInputPartitionToParquet(
 	columns = append(columns, indexColumn)
 
 	schema := arrow.NewSchema(fields, nil)
-	record := array.NewRecord(schema, columns, int64(end-start))
+	record := array.NewRecordBatch(schema, columns, int64(end-start))
 	defer record.Release()
 
-	table := array.NewTableFromRecords(schema, []arrow.Record{record})
+	table := array.NewTableFromRecords(schema, []arrow.RecordBatch{record})
 	defer table.Release()
 
 	var buf bytes.Buffer
