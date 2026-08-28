@@ -45,6 +45,9 @@ const (
 	// OfflineWideTablesServiceTriggerOfflineWideTableFillProcedure is the fully-qualified name of the
 	// OfflineWideTablesService's TriggerOfflineWideTableFill RPC.
 	OfflineWideTablesServiceTriggerOfflineWideTableFillProcedure = "/chalk.server.v1.OfflineWideTablesService/TriggerOfflineWideTableFill"
+	// OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure is the fully-qualified name of
+	// the OfflineWideTablesService's TriggerOfflineWideTableCompaction RPC.
+	OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure = "/chalk.server.v1.OfflineWideTablesService/TriggerOfflineWideTableCompaction"
 )
 
 // OfflineWideTablesServiceClient is a client for the chalk.server.v1.OfflineWideTablesService
@@ -54,6 +57,7 @@ type OfflineWideTablesServiceClient interface {
 	GetOfflineWideTableRun(context.Context, *connect.Request[v1.GetOfflineWideTableRunRequest]) (*connect.Response[v1.GetOfflineWideTableRunResponse], error)
 	GetActiveOfflineWideTableSchedules(context.Context, *connect.Request[v1.GetActiveOfflineWideTableSchedulesRequest]) (*connect.Response[v1.GetActiveOfflineWideTableSchedulesResponse], error)
 	TriggerOfflineWideTableFill(context.Context, *connect.Request[v1.TriggerOfflineWideTableFillRequest]) (*connect.Response[v1.TriggerOfflineWideTableFillResponse], error)
+	TriggerOfflineWideTableCompaction(context.Context, *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error)
 }
 
 // NewOfflineWideTablesServiceClient constructs a client for the
@@ -94,6 +98,12 @@ func NewOfflineWideTablesServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithSchema(offlineWideTablesServiceMethods.ByName("TriggerOfflineWideTableFill")),
 			connect.WithClientOptions(opts...),
 		),
+		triggerOfflineWideTableCompaction: connect.NewClient[v1.TriggerOfflineWideTableCompactionRequest, v1.TriggerOfflineWideTableCompactionResponse](
+			httpClient,
+			baseURL+OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure,
+			connect.WithSchema(offlineWideTablesServiceMethods.ByName("TriggerOfflineWideTableCompaction")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -103,6 +113,7 @@ type offlineWideTablesServiceClient struct {
 	getOfflineWideTableRun             *connect.Client[v1.GetOfflineWideTableRunRequest, v1.GetOfflineWideTableRunResponse]
 	getActiveOfflineWideTableSchedules *connect.Client[v1.GetActiveOfflineWideTableSchedulesRequest, v1.GetActiveOfflineWideTableSchedulesResponse]
 	triggerOfflineWideTableFill        *connect.Client[v1.TriggerOfflineWideTableFillRequest, v1.TriggerOfflineWideTableFillResponse]
+	triggerOfflineWideTableCompaction  *connect.Client[v1.TriggerOfflineWideTableCompactionRequest, v1.TriggerOfflineWideTableCompactionResponse]
 }
 
 // ListOfflineWideTableRuns calls chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns.
@@ -127,6 +138,12 @@ func (c *offlineWideTablesServiceClient) TriggerOfflineWideTableFill(ctx context
 	return c.triggerOfflineWideTableFill.CallUnary(ctx, req)
 }
 
+// TriggerOfflineWideTableCompaction calls
+// chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction.
+func (c *offlineWideTablesServiceClient) TriggerOfflineWideTableCompaction(ctx context.Context, req *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error) {
+	return c.triggerOfflineWideTableCompaction.CallUnary(ctx, req)
+}
+
 // OfflineWideTablesServiceHandler is an implementation of the
 // chalk.server.v1.OfflineWideTablesService service.
 type OfflineWideTablesServiceHandler interface {
@@ -134,6 +151,7 @@ type OfflineWideTablesServiceHandler interface {
 	GetOfflineWideTableRun(context.Context, *connect.Request[v1.GetOfflineWideTableRunRequest]) (*connect.Response[v1.GetOfflineWideTableRunResponse], error)
 	GetActiveOfflineWideTableSchedules(context.Context, *connect.Request[v1.GetActiveOfflineWideTableSchedulesRequest]) (*connect.Response[v1.GetActiveOfflineWideTableSchedulesResponse], error)
 	TriggerOfflineWideTableFill(context.Context, *connect.Request[v1.TriggerOfflineWideTableFillRequest]) (*connect.Response[v1.TriggerOfflineWideTableFillResponse], error)
+	TriggerOfflineWideTableCompaction(context.Context, *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error)
 }
 
 // NewOfflineWideTablesServiceHandler builds an HTTP handler from the service implementation. It
@@ -170,6 +188,12 @@ func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opt
 		connect.WithSchema(offlineWideTablesServiceMethods.ByName("TriggerOfflineWideTableFill")),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineWideTablesServiceTriggerOfflineWideTableCompactionHandler := connect.NewUnaryHandler(
+		OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure,
+		svc.TriggerOfflineWideTableCompaction,
+		connect.WithSchema(offlineWideTablesServiceMethods.ByName("TriggerOfflineWideTableCompaction")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OfflineWideTablesService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineWideTablesServiceListOfflineWideTableRunsProcedure:
@@ -180,6 +204,8 @@ func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opt
 			offlineWideTablesServiceGetActiveOfflineWideTableSchedulesHandler.ServeHTTP(w, r)
 		case OfflineWideTablesServiceTriggerOfflineWideTableFillProcedure:
 			offlineWideTablesServiceTriggerOfflineWideTableFillHandler.ServeHTTP(w, r)
+		case OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure:
+			offlineWideTablesServiceTriggerOfflineWideTableCompactionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -203,4 +229,8 @@ func (UnimplementedOfflineWideTablesServiceHandler) GetActiveOfflineWideTableSch
 
 func (UnimplementedOfflineWideTablesServiceHandler) TriggerOfflineWideTableFill(context.Context, *connect.Request[v1.TriggerOfflineWideTableFillRequest]) (*connect.Response[v1.TriggerOfflineWideTableFillResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill is not implemented"))
+}
+
+func (UnimplementedOfflineWideTablesServiceHandler) TriggerOfflineWideTableCompaction(context.Context, *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction is not implemented"))
 }

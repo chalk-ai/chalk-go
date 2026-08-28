@@ -573,9 +573,13 @@ type SandboxNamedQueryPreplanningResult struct {
 	//
 	//	*SandboxNamedQueryPreplanningResult_Succeeded
 	//	*SandboxNamedQueryPreplanningResult_Failed
-	Outcome       isSandboxNamedQueryPreplanningResult_Outcome `protobuf_oneof:"outcome"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Outcome isSandboxNamedQueryPreplanningResult_Outcome `protobuf_oneof:"outcome"`
+	// Per-query causes accompanying a failed outcome, formatted
+	// "name @ version: message" and bounded by the producer. Consumers surface
+	// them verbatim in deployment diagnostics.
+	FailureDetails []string `protobuf:"bytes,3,rep,name=failure_details,json=failureDetails,proto3" json:"failure_details,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *SandboxNamedQueryPreplanningResult) Reset() {
@@ -631,6 +635,13 @@ func (x *SandboxNamedQueryPreplanningResult) GetFailed() SandboxExportProcessing
 		}
 	}
 	return SandboxExportProcessingFailureKind_SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSPECIFIED
+}
+
+func (x *SandboxNamedQueryPreplanningResult) GetFailureDetails() []string {
+	if x != nil {
+		return x.FailureDetails
+	}
+	return nil
 }
 
 type isSandboxNamedQueryPreplanningResult_Outcome interface {
@@ -744,10 +755,11 @@ const file_chalk_planner_v1_named_query_plan_bundle_proto_rawDesc = "" +
 	"\x1dSandboxExportConversionResult\x12R\n" +
 	"\tsucceeded\x18\x01 \x01(\v22.chalk.planner.v1.SandboxExportConversionSucceededH\x00R\tsucceeded\x12N\n" +
 	"\x06failed\x18\x02 \x01(\x0e24.chalk.planner.v1.SandboxExportProcessingFailureKindH\x00R\x06failedB\t\n" +
-	"\aoutcome\"\xd3\x01\n" +
+	"\aoutcome\"\xfc\x01\n" +
 	"\"SandboxNamedQueryPreplanningResult\x12R\n" +
 	"\tsucceeded\x18\x01 \x01(\v22.chalk.planner.v1.SandboxedNamedQueryPlanSucceededH\x00R\tsucceeded\x12N\n" +
-	"\x06failed\x18\x02 \x01(\x0e24.chalk.planner.v1.SandboxExportProcessingFailureKindH\x00R\x06failedB\t\n" +
+	"\x06failed\x18\x02 \x01(\x0e24.chalk.planner.v1.SandboxExportProcessingFailureKindH\x00R\x06failed\x12'\n" +
+	"\x0ffailure_details\x18\x03 \x03(\tR\x0efailureDetailsB\t\n" +
 	"\aoutcome\"\xa9\x02\n" +
 	"\x1dSandboxExportProcessingResult\x12I\n" +
 	"!named_query_preplanning_requested\x18\x01 \x01(\bR\x1enamedQueryPreplanningRequested\x12O\n" +

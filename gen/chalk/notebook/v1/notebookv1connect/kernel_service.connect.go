@@ -49,6 +49,9 @@ const (
 	// NotebookPythonKernelServiceAnalyzeNotebookCellDependenciesProcedure is the fully-qualified name
 	// of the NotebookPythonKernelService's AnalyzeNotebookCellDependencies RPC.
 	NotebookPythonKernelServiceAnalyzeNotebookCellDependenciesProcedure = "/chalk.notebook.v1.NotebookPythonKernelService/AnalyzeNotebookCellDependencies"
+	// NotebookPythonKernelServicePlanNotebookRunProcedure is the fully-qualified name of the
+	// NotebookPythonKernelService's PlanNotebookRun RPC.
+	NotebookPythonKernelServicePlanNotebookRunProcedure = "/chalk.notebook.v1.NotebookPythonKernelService/PlanNotebookRun"
 )
 
 // NotebookPythonKernelServiceClient is a client for the
@@ -66,6 +69,7 @@ type NotebookPythonKernelServiceClient interface {
 	// is available without running the notebook. The kernel returns raw per-cell
 	// reads/writes; cross-cell edge assembly happens server-side.
 	AnalyzeNotebookCellDependencies(context.Context, *connect.Request[v1.AnalyzeNotebookCellDependenciesRequest]) (*connect.Response[v1.AnalyzeNotebookCellDependenciesResponse], error)
+	PlanNotebookRun(context.Context, *connect.Request[v1.PlanNotebookRunRequest]) (*connect.Response[v1.PlanNotebookRunResponse], error)
 }
 
 // NewNotebookPythonKernelServiceClient constructs a client for the
@@ -110,6 +114,12 @@ func NewNotebookPythonKernelServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithSchema(notebookPythonKernelServiceMethods.ByName("AnalyzeNotebookCellDependencies")),
 			connect.WithClientOptions(opts...),
 		),
+		planNotebookRun: connect.NewClient[v1.PlanNotebookRunRequest, v1.PlanNotebookRunResponse](
+			httpClient,
+			baseURL+NotebookPythonKernelServicePlanNotebookRunProcedure,
+			connect.WithSchema(notebookPythonKernelServiceMethods.ByName("PlanNotebookRun")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -120,6 +130,7 @@ type notebookPythonKernelServiceClient struct {
 	describeKernelSession           *connect.Client[v1.DescribeKernelSessionRequest, v1.DescribeKernelSessionResponse]
 	listInstalledPackages           *connect.Client[v1.ListInstalledPackagesRequest, v1.ListInstalledPackagesResponse]
 	analyzeNotebookCellDependencies *connect.Client[v1.AnalyzeNotebookCellDependenciesRequest, v1.AnalyzeNotebookCellDependenciesResponse]
+	planNotebookRun                 *connect.Client[v1.PlanNotebookRunRequest, v1.PlanNotebookRunResponse]
 }
 
 // RunPythonCell calls chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell.
@@ -149,6 +160,11 @@ func (c *notebookPythonKernelServiceClient) AnalyzeNotebookCellDependencies(ctx 
 	return c.analyzeNotebookCellDependencies.CallUnary(ctx, req)
 }
 
+// PlanNotebookRun calls chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun.
+func (c *notebookPythonKernelServiceClient) PlanNotebookRun(ctx context.Context, req *connect.Request[v1.PlanNotebookRunRequest]) (*connect.Response[v1.PlanNotebookRunResponse], error) {
+	return c.planNotebookRun.CallUnary(ctx, req)
+}
+
 // NotebookPythonKernelServiceHandler is an implementation of the
 // chalk.notebook.v1.NotebookPythonKernelService service.
 type NotebookPythonKernelServiceHandler interface {
@@ -164,6 +180,7 @@ type NotebookPythonKernelServiceHandler interface {
 	// is available without running the notebook. The kernel returns raw per-cell
 	// reads/writes; cross-cell edge assembly happens server-side.
 	AnalyzeNotebookCellDependencies(context.Context, *connect.Request[v1.AnalyzeNotebookCellDependenciesRequest]) (*connect.Response[v1.AnalyzeNotebookCellDependenciesResponse], error)
+	PlanNotebookRun(context.Context, *connect.Request[v1.PlanNotebookRunRequest]) (*connect.Response[v1.PlanNotebookRunResponse], error)
 }
 
 // NewNotebookPythonKernelServiceHandler builds an HTTP handler from the service implementation. It
@@ -203,6 +220,12 @@ func NewNotebookPythonKernelServiceHandler(svc NotebookPythonKernelServiceHandle
 		connect.WithSchema(notebookPythonKernelServiceMethods.ByName("AnalyzeNotebookCellDependencies")),
 		connect.WithHandlerOptions(opts...),
 	)
+	notebookPythonKernelServicePlanNotebookRunHandler := connect.NewUnaryHandler(
+		NotebookPythonKernelServicePlanNotebookRunProcedure,
+		svc.PlanNotebookRun,
+		connect.WithSchema(notebookPythonKernelServiceMethods.ByName("PlanNotebookRun")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.notebook.v1.NotebookPythonKernelService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case NotebookPythonKernelServiceRunPythonCellProcedure:
@@ -215,6 +238,8 @@ func NewNotebookPythonKernelServiceHandler(svc NotebookPythonKernelServiceHandle
 			notebookPythonKernelServiceListInstalledPackagesHandler.ServeHTTP(w, r)
 		case NotebookPythonKernelServiceAnalyzeNotebookCellDependenciesProcedure:
 			notebookPythonKernelServiceAnalyzeNotebookCellDependenciesHandler.ServeHTTP(w, r)
+		case NotebookPythonKernelServicePlanNotebookRunProcedure:
+			notebookPythonKernelServicePlanNotebookRunHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -242,4 +267,8 @@ func (UnimplementedNotebookPythonKernelServiceHandler) ListInstalledPackages(con
 
 func (UnimplementedNotebookPythonKernelServiceHandler) AnalyzeNotebookCellDependencies(context.Context, *connect.Request[v1.AnalyzeNotebookCellDependenciesRequest]) (*connect.Response[v1.AnalyzeNotebookCellDependenciesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies is not implemented"))
+}
+
+func (UnimplementedNotebookPythonKernelServiceHandler) PlanNotebookRun(context.Context, *connect.Request[v1.PlanNotebookRunRequest]) (*connect.Response[v1.PlanNotebookRunResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun is not implemented"))
 }

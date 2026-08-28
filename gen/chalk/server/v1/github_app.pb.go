@@ -938,7 +938,11 @@ func (*DeleteGitHubAppConfigResponse) Descriptor() ([]byte, []int) {
 }
 
 type GetGitHubAppInstallUrlRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Where the user started the install from. GitHub round-trips this back to
+	// the setup URL inside `state`, so the redirect page can return them here.
+	ProjectId     *string `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3,oneof" json:"project_id,omitempty"`
+	EnvironmentId *string `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3,oneof" json:"environment_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -973,9 +977,26 @@ func (*GetGitHubAppInstallUrlRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{12}
 }
 
+func (x *GetGitHubAppInstallUrlRequest) GetProjectId() string {
+	if x != nil && x.ProjectId != nil {
+		return *x.ProjectId
+	}
+	return ""
+}
+
+func (x *GetGitHubAppInstallUrlRequest) GetEnvironmentId() string {
+	if x != nil && x.EnvironmentId != nil {
+		return *x.EnvironmentId
+	}
+	return ""
+}
+
 type GetGitHubAppInstallUrlResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Carries a signed `state` parameter binding the install to the calling
+	// team and user. CompleteGitHubAppInstallation rejects any other value, so
+	// callers must redirect to this URL verbatim rather than rebuilding it.
+	Url           string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1021,8 +1042,12 @@ type CompleteGitHubAppInstallationRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	InstallationId int64                  `protobuf:"varint,1,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
 	SetupAction    *string                `protobuf:"bytes,2,opt,name=setup_action,json=setupAction,proto3,oneof" json:"setup_action,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The `state` GitHub echoed back to the setup URL, exactly as received.
+	// Minted by GetGitHubAppInstallUrl and required: it is the only evidence
+	// that this team's admin, rather than an unrelated team, started the flow.
+	State         string `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CompleteGitHubAppInstallationRequest) Reset() {
@@ -1065,6 +1090,13 @@ func (x *CompleteGitHubAppInstallationRequest) GetInstallationId() int64 {
 func (x *CompleteGitHubAppInstallationRequest) GetSetupAction() string {
 	if x != nil && x.SetupAction != nil {
 		return *x.SetupAction
+	}
+	return ""
+}
+
+func (x *CompleteGitHubAppInstallationRequest) GetState() string {
+	if x != nil {
+		return x.State
 	}
 	return ""
 }
@@ -1273,6 +1305,10 @@ func (*DeleteGitHubAppInstallationResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{19}
 }
 
+// Refreshes the installations this team already has, against GitHub. It never
+// discovers new ones: the app's installation list is app-wide, not team-wide,
+// so enumerating it would hand every team every other team's installations.
+// New installations arrive only through CompleteGitHubAppInstallation.
 type SyncGitHubAppInstallationsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1310,10 +1346,14 @@ func (*SyncGitHubAppInstallationsRequest) Descriptor() ([]byte, []int) {
 }
 
 type SyncGitHubAppInstallationsResponse struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The team's installations after the refresh, with those GitHub no longer
+	// reports dropped.
 	Installations []*GitHubAppInstallation `protobuf:"bytes,1,rep,name=installations,proto3" json:"installations,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Installations removed because GitHub no longer knows them (uninstalled).
+	RemovedAccountLogins []string `protobuf:"bytes,2,rep,name=removed_account_logins,json=removedAccountLogins,proto3" json:"removed_account_logins,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *SyncGitHubAppInstallationsResponse) Reset() {
@@ -1349,6 +1389,13 @@ func (*SyncGitHubAppInstallationsResponse) Descriptor() ([]byte, []int) {
 func (x *SyncGitHubAppInstallationsResponse) GetInstallations() []*GitHubAppInstallation {
 	if x != nil {
 		return x.Installations
+	}
+	return nil
+}
+
+func (x *SyncGitHubAppInstallationsResponse) GetRemovedAccountLogins() []string {
+	if x != nil {
+		return x.RemovedAccountLogins
 	}
 	return nil
 }
@@ -2190,6 +2237,391 @@ func (x *GetGitHubRepositoryArchiveResponse) GetData() []byte {
 	return nil
 }
 
+type RepoFileChangeInput struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Path  string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	// Ignored when delete is true.
+	Content []byte `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	Delete  bool   `protobuf:"varint,3,opt,name=delete,proto3" json:"delete,omitempty"`
+	// Git file mode: "100644" (file, the default), "100755" (executable), or
+	// "120000" (symlink, with content holding the target).
+	Mode          *string `protobuf:"bytes,4,opt,name=mode,proto3,oneof" json:"mode,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RepoFileChangeInput) Reset() {
+	*x = RepoFileChangeInput{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RepoFileChangeInput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RepoFileChangeInput) ProtoMessage() {}
+
+func (x *RepoFileChangeInput) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RepoFileChangeInput.ProtoReflect.Descriptor instead.
+func (*RepoFileChangeInput) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *RepoFileChangeInput) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *RepoFileChangeInput) GetContent() []byte {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
+func (x *RepoFileChangeInput) GetDelete() bool {
+	if x != nil {
+		return x.Delete
+	}
+	return false
+}
+
+func (x *RepoFileChangeInput) GetMode() string {
+	if x != nil && x.Mode != nil {
+		return *x.Mode
+	}
+	return ""
+}
+
+type CreatePullRequestFromChangesRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	InstallationId string                 `protobuf:"bytes,1,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
+	Owner          string                 `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repo           string                 `protobuf:"bytes,3,opt,name=repo,proto3" json:"repo,omitempty"`
+	BaseBranch     string                 `protobuf:"bytes,4,opt,name=base_branch,json=baseBranch,proto3" json:"base_branch,omitempty"`
+	// Defaults to a generated unique branch name when unset.
+	HeadBranch    *string                `protobuf:"bytes,5,opt,name=head_branch,json=headBranch,proto3,oneof" json:"head_branch,omitempty"`
+	Title         string                 `protobuf:"bytes,6,opt,name=title,proto3" json:"title,omitempty"`
+	Body          *string                `protobuf:"bytes,7,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	Draft         bool                   `protobuf:"varint,8,opt,name=draft,proto3" json:"draft,omitempty"`
+	Changes       []*RepoFileChangeInput `protobuf:"bytes,9,rep,name=changes,proto3" json:"changes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreatePullRequestFromChangesRequest) Reset() {
+	*x = CreatePullRequestFromChangesRequest{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePullRequestFromChangesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePullRequestFromChangesRequest) ProtoMessage() {}
+
+func (x *CreatePullRequestFromChangesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePullRequestFromChangesRequest.ProtoReflect.Descriptor instead.
+func (*CreatePullRequestFromChangesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetInstallationId() string {
+	if x != nil {
+		return x.InstallationId
+	}
+	return ""
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetRepo() string {
+	if x != nil {
+		return x.Repo
+	}
+	return ""
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetBaseBranch() string {
+	if x != nil {
+		return x.BaseBranch
+	}
+	return ""
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetHeadBranch() string {
+	if x != nil && x.HeadBranch != nil {
+		return *x.HeadBranch
+	}
+	return ""
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetDraft() bool {
+	if x != nil {
+		return x.Draft
+	}
+	return false
+}
+
+func (x *CreatePullRequestFromChangesRequest) GetChanges() []*RepoFileChangeInput {
+	if x != nil {
+		return x.Changes
+	}
+	return nil
+}
+
+type CreatePullRequestFromChangesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	HtmlUrl       string                 `protobuf:"bytes,1,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	HeadBranch    string                 `protobuf:"bytes,3,opt,name=head_branch,json=headBranch,proto3" json:"head_branch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreatePullRequestFromChangesResponse) Reset() {
+	*x = CreatePullRequestFromChangesResponse{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePullRequestFromChangesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePullRequestFromChangesResponse) ProtoMessage() {}
+
+func (x *CreatePullRequestFromChangesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePullRequestFromChangesResponse.ProtoReflect.Descriptor instead.
+func (*CreatePullRequestFromChangesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *CreatePullRequestFromChangesResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *CreatePullRequestFromChangesResponse) GetNumber() int64 {
+	if x != nil {
+		return x.Number
+	}
+	return 0
+}
+
+func (x *CreatePullRequestFromChangesResponse) GetHeadBranch() string {
+	if x != nil {
+		return x.HeadBranch
+	}
+	return ""
+}
+
+type CreateVolumeFromGitHubRepoRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	InstallationId string                 `protobuf:"bytes,1,opt,name=installation_id,json=installationId,proto3" json:"installation_id,omitempty"`
+	Owner          string                 `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repo           string                 `protobuf:"bytes,3,opt,name=repo,proto3" json:"repo,omitempty"`
+	// Branch, tag, or commit SHA. Empty uses the repository's default branch.
+	Ref           *string `protobuf:"bytes,4,opt,name=ref,proto3,oneof" json:"ref,omitempty"`
+	VolumeName    string  `protobuf:"bytes,5,opt,name=volume_name,json=volumeName,proto3" json:"volume_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVolumeFromGitHubRepoRequest) Reset() {
+	*x = CreateVolumeFromGitHubRepoRequest{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVolumeFromGitHubRepoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVolumeFromGitHubRepoRequest) ProtoMessage() {}
+
+func (x *CreateVolumeFromGitHubRepoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVolumeFromGitHubRepoRequest.ProtoReflect.Descriptor instead.
+func (*CreateVolumeFromGitHubRepoRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *CreateVolumeFromGitHubRepoRequest) GetInstallationId() string {
+	if x != nil {
+		return x.InstallationId
+	}
+	return ""
+}
+
+func (x *CreateVolumeFromGitHubRepoRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *CreateVolumeFromGitHubRepoRequest) GetRepo() string {
+	if x != nil {
+		return x.Repo
+	}
+	return ""
+}
+
+func (x *CreateVolumeFromGitHubRepoRequest) GetRef() string {
+	if x != nil && x.Ref != nil {
+		return *x.Ref
+	}
+	return ""
+}
+
+func (x *CreateVolumeFromGitHubRepoRequest) GetVolumeName() string {
+	if x != nil {
+		return x.VolumeName
+	}
+	return ""
+}
+
+type CreateVolumeFromGitHubRepoResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VolumeName    string                 `protobuf:"bytes,1,opt,name=volume_name,json=volumeName,proto3" json:"volume_name,omitempty"`
+	VolumeId      *string                `protobuf:"bytes,2,opt,name=volume_id,json=volumeId,proto3,oneof" json:"volume_id,omitempty"`
+	Files         int64                  `protobuf:"varint,3,opt,name=files,proto3" json:"files,omitempty"`
+	Bytes         uint64                 `protobuf:"varint,4,opt,name=bytes,proto3" json:"bytes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVolumeFromGitHubRepoResponse) Reset() {
+	*x = CreateVolumeFromGitHubRepoResponse{}
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVolumeFromGitHubRepoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVolumeFromGitHubRepoResponse) ProtoMessage() {}
+
+func (x *CreateVolumeFromGitHubRepoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_github_app_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVolumeFromGitHubRepoResponse.ProtoReflect.Descriptor instead.
+func (*CreateVolumeFromGitHubRepoResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_github_app_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *CreateVolumeFromGitHubRepoResponse) GetVolumeName() string {
+	if x != nil {
+		return x.VolumeName
+	}
+	return ""
+}
+
+func (x *CreateVolumeFromGitHubRepoResponse) GetVolumeId() string {
+	if x != nil && x.VolumeId != nil {
+		return *x.VolumeId
+	}
+	return ""
+}
+
+func (x *CreateVolumeFromGitHubRepoResponse) GetFiles() int64 {
+	if x != nil {
+		return x.Files
+	}
+	return 0
+}
+
+func (x *CreateVolumeFromGitHubRepoResponse) GetBytes() uint64 {
+	if x != nil {
+		return x.Bytes
+	}
+	return 0
+}
+
 var File_chalk_server_v1_github_app_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_github_app_proto_rawDesc = "" +
@@ -2294,13 +2726,19 @@ const file_chalk_server_v1_github_app_proto_rawDesc = "" +
 	"\x06config\x18\x01 \x01(\v2 .chalk.server.v1.GitHubAppConfigH\x00R\x06config\x88\x01\x01B\t\n" +
 	"\a_config\"\x1e\n" +
 	"\x1cDeleteGitHubAppConfigRequest\"\x1f\n" +
-	"\x1dDeleteGitHubAppConfigResponse\"\x1f\n" +
-	"\x1dGetGitHubAppInstallUrlRequest\"2\n" +
+	"\x1dDeleteGitHubAppConfigResponse\"\x91\x01\n" +
+	"\x1dGetGitHubAppInstallUrlRequest\x12\"\n" +
+	"\n" +
+	"project_id\x18\x01 \x01(\tH\x00R\tprojectId\x88\x01\x01\x12*\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tH\x01R\renvironmentId\x88\x01\x01B\r\n" +
+	"\v_project_idB\x11\n" +
+	"\x0f_environment_id\"2\n" +
 	"\x1eGetGitHubAppInstallUrlResponse\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\"\x88\x01\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\"\x9e\x01\n" +
 	"$CompleteGitHubAppInstallationRequest\x12'\n" +
 	"\x0finstallation_id\x18\x01 \x01(\x03R\x0einstallationId\x12&\n" +
-	"\fsetup_action\x18\x02 \x01(\tH\x00R\vsetupAction\x88\x01\x01B\x0f\n" +
+	"\fsetup_action\x18\x02 \x01(\tH\x00R\vsetupAction\x88\x01\x01\x12\x14\n" +
+	"\x05state\x18\x03 \x01(\tR\x05stateB\x0f\n" +
 	"\r_setup_action\"s\n" +
 	"%CompleteGitHubAppInstallationResponse\x12J\n" +
 	"\finstallation\x18\x01 \x01(\v2&.chalk.server.v1.GitHubAppInstallationR\finstallation\"#\n" +
@@ -2310,9 +2748,10 @@ const file_chalk_server_v1_github_app_proto_rawDesc = "" +
 	"\"DeleteGitHubAppInstallationRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"%\n" +
 	"#DeleteGitHubAppInstallationResponse\"#\n" +
-	"!SyncGitHubAppInstallationsRequest\"r\n" +
+	"!SyncGitHubAppInstallationsRequest\"\xa8\x01\n" +
 	"\"SyncGitHubAppInstallationsResponse\x12L\n" +
-	"\rinstallations\x18\x01 \x03(\v2&.chalk.server.v1.GitHubAppInstallationR\rinstallations\"\x97\x01\n" +
+	"\rinstallations\x18\x01 \x03(\v2&.chalk.server.v1.GitHubAppInstallationR\rinstallations\x124\n" +
+	"\x16removed_account_logins\x18\x02 \x03(\tR\x14removedAccountLogins\"\x97\x01\n" +
 	"\x1dListGitHubRepositoriesRequest\x12'\n" +
 	"\x0finstallation_id\x18\x01 \x01(\tR\x0einstallationId\x12\x17\n" +
 	"\x04page\x18\x02 \x01(\x05H\x00R\x04page\x88\x01\x01\x12\x1e\n" +
@@ -2374,7 +2813,48 @@ const file_chalk_server_v1_github_app_proto_rawDesc = "" +
 	"\x03ref\x18\x04 \x01(\tH\x00R\x03ref\x88\x01\x01B\x06\n" +
 	"\x04_ref\"8\n" +
 	"\"GetGitHubRepositoryArchiveResponse\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data2\xf2\x13\n" +
+	"\x04data\x18\x01 \x01(\fR\x04data\"}\n" +
+	"\x13RepoFileChangeInput\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\fR\acontent\x12\x16\n" +
+	"\x06delete\x18\x03 \x01(\bR\x06delete\x12\x17\n" +
+	"\x04mode\x18\x04 \x01(\tH\x00R\x04mode\x88\x01\x01B\a\n" +
+	"\x05_mode\"\xdd\x02\n" +
+	"#CreatePullRequestFromChangesRequest\x12'\n" +
+	"\x0finstallation_id\x18\x01 \x01(\tR\x0einstallationId\x12\x14\n" +
+	"\x05owner\x18\x02 \x01(\tR\x05owner\x12\x12\n" +
+	"\x04repo\x18\x03 \x01(\tR\x04repo\x12\x1f\n" +
+	"\vbase_branch\x18\x04 \x01(\tR\n" +
+	"baseBranch\x12$\n" +
+	"\vhead_branch\x18\x05 \x01(\tH\x00R\n" +
+	"headBranch\x88\x01\x01\x12\x14\n" +
+	"\x05title\x18\x06 \x01(\tR\x05title\x12\x17\n" +
+	"\x04body\x18\a \x01(\tH\x01R\x04body\x88\x01\x01\x12\x14\n" +
+	"\x05draft\x18\b \x01(\bR\x05draft\x12>\n" +
+	"\achanges\x18\t \x03(\v2$.chalk.server.v1.RepoFileChangeInputR\achangesB\x0e\n" +
+	"\f_head_branchB\a\n" +
+	"\x05_body\"z\n" +
+	"$CreatePullRequestFromChangesResponse\x12\x19\n" +
+	"\bhtml_url\x18\x01 \x01(\tR\ahtmlUrl\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x1f\n" +
+	"\vhead_branch\x18\x03 \x01(\tR\n" +
+	"headBranch\"\xb6\x01\n" +
+	"!CreateVolumeFromGitHubRepoRequest\x12'\n" +
+	"\x0finstallation_id\x18\x01 \x01(\tR\x0einstallationId\x12\x14\n" +
+	"\x05owner\x18\x02 \x01(\tR\x05owner\x12\x12\n" +
+	"\x04repo\x18\x03 \x01(\tR\x04repo\x12\x15\n" +
+	"\x03ref\x18\x04 \x01(\tH\x00R\x03ref\x88\x01\x01\x12\x1f\n" +
+	"\vvolume_name\x18\x05 \x01(\tR\n" +
+	"volumeNameB\x06\n" +
+	"\x04_ref\"\xa1\x01\n" +
+	"\"CreateVolumeFromGitHubRepoResponse\x12\x1f\n" +
+	"\vvolume_name\x18\x01 \x01(\tR\n" +
+	"volumeName\x12 \n" +
+	"\tvolume_id\x18\x02 \x01(\tH\x00R\bvolumeId\x88\x01\x01\x12\x14\n" +
+	"\x05files\x18\x03 \x01(\x03R\x05files\x12\x14\n" +
+	"\x05bytes\x18\x04 \x01(\x04R\x05bytesB\f\n" +
+	"\n" +
+	"_volume_id2\xf2\x16\n" +
 	"\x10GitHubAppService\x12\xa7\x01\n" +
 	"\x15UpsertGitHubAppConfig\x12-.chalk.server.v1.UpsertGitHubAppConfigRequest\x1a..chalk.server.v1.UpsertGitHubAppConfigResponse\"/\x80}\n" +
 	"\x8a\xd3\x0e%\b\x02\x12!Upserted GitHub App configuration\x90\x02\x02\x12u\n" +
@@ -2392,7 +2872,9 @@ const file_chalk_server_v1_github_app_proto_rawDesc = "" +
 	"\x16ListGitHubRepositories\x12..chalk.server.v1.ListGitHubRepositoriesRequest\x1a/.chalk.server.v1.ListGitHubRepositoriesResponse\"\x06\x80}\x02\x90\x02\x01\x12\x81\x01\n" +
 	"\x16ListGitHubPullRequests\x12..chalk.server.v1.ListGitHubPullRequestsRequest\x1a/.chalk.server.v1.ListGitHubPullRequestsResponse\"\x06\x80}\x02\x90\x02\x01\x12u\n" +
 	"\x12ListGitHubBranches\x12*.chalk.server.v1.ListGitHubBranchesRequest\x1a+.chalk.server.v1.ListGitHubBranchesResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8f\x01\n" +
-	"\x1aGetGitHubRepositoryArchive\x122.chalk.server.v1.GetGitHubRepositoryArchiveRequest\x1a3.chalk.server.v1.GetGitHubRepositoryArchiveResponse\"\x06\x80}\x02\x90\x02\x010\x01\x12\xc5\x01\n" +
+	"\x1aGetGitHubRepositoryArchive\x122.chalk.server.v1.GetGitHubRepositoryArchiveRequest\x1a3.chalk.server.v1.GetGitHubRepositoryArchiveResponse\"\x06\x80}\x02\x90\x02\x010\x01\x12\xbf\x01\n" +
+	"\x1cCreatePullRequestFromChanges\x124.chalk.server.v1.CreatePullRequestFromChangesRequest\x1a5.chalk.server.v1.CreatePullRequestFromChangesResponse\"2\x80}\x02\x8a\xd3\x0e+\b\x02\x12'Opened a GitHub pull request from Chalk\x12\xbb\x01\n" +
+	"\x1aCreateVolumeFromGitHubRepo\x122.chalk.server.v1.CreateVolumeFromGitHubRepoRequest\x1a3.chalk.server.v1.CreateVolumeFromGitHubRepoResponse\"4\x80}\x02\x8a\xd3\x0e-\b\x02\x12)Created a volume from a GitHub repository\x12\xc5\x01\n" +
 	"\x1dLinkProjectToGitHubRepository\x125.chalk.server.v1.LinkProjectToGitHubRepositoryRequest\x1a6.chalk.server.v1.LinkProjectToGitHubRepositoryResponse\"5\x88}\x1a\x8a\xd3\x0e+\b\x02\x12'Linked a project to a GitHub repository\x90\x02\x02\x12\xd7\x01\n" +
 	"!UnlinkProjectFromGitHubRepository\x129.chalk.server.v1.UnlinkProjectFromGitHubRepositoryRequest\x1a:.chalk.server.v1.UnlinkProjectFromGitHubRepositoryResponse\";\x88}\x1a\x8a\xd3\x0e1\b\x02\x12-Unlinked a project from its GitHub repository\x90\x02\x02\x12\x87\x01\n" +
 	"\x18GetProjectGitHubRepoLink\x120.chalk.server.v1.GetProjectGitHubRepoLinkRequest\x1a1.chalk.server.v1.GetProjectGitHubRepoLinkResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8d\x01\n" +
@@ -2411,7 +2893,7 @@ func file_chalk_server_v1_github_app_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_github_app_proto_rawDescData
 }
 
-var file_chalk_server_v1_github_app_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
+var file_chalk_server_v1_github_app_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_chalk_server_v1_github_app_proto_goTypes = []any{
 	(*GitHubAppConfig)(nil),                           // 0: chalk.server.v1.GitHubAppConfig
 	(*GitHubAppInstallation)(nil),                     // 1: chalk.server.v1.GitHubAppInstallation
@@ -2451,19 +2933,24 @@ var file_chalk_server_v1_github_app_proto_goTypes = []any{
 	(*ListGitHubBranchesResponse)(nil),                // 35: chalk.server.v1.ListGitHubBranchesResponse
 	(*GetGitHubRepositoryArchiveRequest)(nil),         // 36: chalk.server.v1.GetGitHubRepositoryArchiveRequest
 	(*GetGitHubRepositoryArchiveResponse)(nil),        // 37: chalk.server.v1.GetGitHubRepositoryArchiveResponse
-	(*timestamppb.Timestamp)(nil),                     // 38: google.protobuf.Timestamp
+	(*RepoFileChangeInput)(nil),                       // 38: chalk.server.v1.RepoFileChangeInput
+	(*CreatePullRequestFromChangesRequest)(nil),       // 39: chalk.server.v1.CreatePullRequestFromChangesRequest
+	(*CreatePullRequestFromChangesResponse)(nil),      // 40: chalk.server.v1.CreatePullRequestFromChangesResponse
+	(*CreateVolumeFromGitHubRepoRequest)(nil),         // 41: chalk.server.v1.CreateVolumeFromGitHubRepoRequest
+	(*CreateVolumeFromGitHubRepoResponse)(nil),        // 42: chalk.server.v1.CreateVolumeFromGitHubRepoResponse
+	(*timestamppb.Timestamp)(nil),                     // 43: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_github_app_proto_depIdxs = []int32{
-	38, // 0: chalk.server.v1.GitHubAppConfig.created_at:type_name -> google.protobuf.Timestamp
-	38, // 1: chalk.server.v1.GitHubAppConfig.updated_at:type_name -> google.protobuf.Timestamp
-	38, // 2: chalk.server.v1.GitHubAppInstallation.suspended_at:type_name -> google.protobuf.Timestamp
-	38, // 3: chalk.server.v1.GitHubAppInstallation.created_at:type_name -> google.protobuf.Timestamp
-	38, // 4: chalk.server.v1.GitHubAppInstallation.updated_at:type_name -> google.protobuf.Timestamp
-	38, // 5: chalk.server.v1.GitHubProjectRepoLink.created_at:type_name -> google.protobuf.Timestamp
-	38, // 6: chalk.server.v1.GitHubProjectRepoLink.updated_at:type_name -> google.protobuf.Timestamp
-	38, // 7: chalk.server.v1.GitHubPullRequest.created_at:type_name -> google.protobuf.Timestamp
-	38, // 8: chalk.server.v1.GitHubPullRequest.updated_at:type_name -> google.protobuf.Timestamp
-	38, // 9: chalk.server.v1.GitHubPullRequest.merged_at:type_name -> google.protobuf.Timestamp
+	43, // 0: chalk.server.v1.GitHubAppConfig.created_at:type_name -> google.protobuf.Timestamp
+	43, // 1: chalk.server.v1.GitHubAppConfig.updated_at:type_name -> google.protobuf.Timestamp
+	43, // 2: chalk.server.v1.GitHubAppInstallation.suspended_at:type_name -> google.protobuf.Timestamp
+	43, // 3: chalk.server.v1.GitHubAppInstallation.created_at:type_name -> google.protobuf.Timestamp
+	43, // 4: chalk.server.v1.GitHubAppInstallation.updated_at:type_name -> google.protobuf.Timestamp
+	43, // 5: chalk.server.v1.GitHubProjectRepoLink.created_at:type_name -> google.protobuf.Timestamp
+	43, // 6: chalk.server.v1.GitHubProjectRepoLink.updated_at:type_name -> google.protobuf.Timestamp
+	43, // 7: chalk.server.v1.GitHubPullRequest.created_at:type_name -> google.protobuf.Timestamp
+	43, // 8: chalk.server.v1.GitHubPullRequest.updated_at:type_name -> google.protobuf.Timestamp
+	43, // 9: chalk.server.v1.GitHubPullRequest.merged_at:type_name -> google.protobuf.Timestamp
 	0,  // 10: chalk.server.v1.UpsertGitHubAppConfigResponse.config:type_name -> chalk.server.v1.GitHubAppConfig
 	0,  // 11: chalk.server.v1.GetGitHubAppConfigResponse.config:type_name -> chalk.server.v1.GitHubAppConfig
 	1,  // 12: chalk.server.v1.CompleteGitHubAppInstallationResponse.installation:type_name -> chalk.server.v1.GitHubAppInstallation
@@ -2475,43 +2962,48 @@ var file_chalk_server_v1_github_app_proto_depIdxs = []int32{
 	3,  // 18: chalk.server.v1.GetProjectGitHubRepoLinkResponse.link:type_name -> chalk.server.v1.GitHubProjectRepoLink
 	3,  // 19: chalk.server.v1.ListProjectGitHubRepoLinksResponse.links:type_name -> chalk.server.v1.GitHubProjectRepoLink
 	4,  // 20: chalk.server.v1.ListGitHubBranchesResponse.branches:type_name -> chalk.server.v1.GitHubBranch
-	6,  // 21: chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig:input_type -> chalk.server.v1.UpsertGitHubAppConfigRequest
-	8,  // 22: chalk.server.v1.GitHubAppService.GetGitHubAppConfig:input_type -> chalk.server.v1.GetGitHubAppConfigRequest
-	10, // 23: chalk.server.v1.GitHubAppService.DeleteGitHubAppConfig:input_type -> chalk.server.v1.DeleteGitHubAppConfigRequest
-	12, // 24: chalk.server.v1.GitHubAppService.GetGitHubAppInstallUrl:input_type -> chalk.server.v1.GetGitHubAppInstallUrlRequest
-	14, // 25: chalk.server.v1.GitHubAppService.CompleteGitHubAppInstallation:input_type -> chalk.server.v1.CompleteGitHubAppInstallationRequest
-	16, // 26: chalk.server.v1.GitHubAppService.ListGitHubAppInstallations:input_type -> chalk.server.v1.ListGitHubAppInstallationsRequest
-	18, // 27: chalk.server.v1.GitHubAppService.DeleteGitHubAppInstallation:input_type -> chalk.server.v1.DeleteGitHubAppInstallationRequest
-	20, // 28: chalk.server.v1.GitHubAppService.SyncGitHubAppInstallations:input_type -> chalk.server.v1.SyncGitHubAppInstallationsRequest
-	22, // 29: chalk.server.v1.GitHubAppService.ListGitHubRepositories:input_type -> chalk.server.v1.ListGitHubRepositoriesRequest
-	24, // 30: chalk.server.v1.GitHubAppService.ListGitHubPullRequests:input_type -> chalk.server.v1.ListGitHubPullRequestsRequest
-	34, // 31: chalk.server.v1.GitHubAppService.ListGitHubBranches:input_type -> chalk.server.v1.ListGitHubBranchesRequest
-	36, // 32: chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive:input_type -> chalk.server.v1.GetGitHubRepositoryArchiveRequest
-	26, // 33: chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository:input_type -> chalk.server.v1.LinkProjectToGitHubRepositoryRequest
-	28, // 34: chalk.server.v1.GitHubAppService.UnlinkProjectFromGitHubRepository:input_type -> chalk.server.v1.UnlinkProjectFromGitHubRepositoryRequest
-	30, // 35: chalk.server.v1.GitHubAppService.GetProjectGitHubRepoLink:input_type -> chalk.server.v1.GetProjectGitHubRepoLinkRequest
-	32, // 36: chalk.server.v1.GitHubAppService.ListProjectGitHubRepoLinks:input_type -> chalk.server.v1.ListProjectGitHubRepoLinksRequest
-	7,  // 37: chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig:output_type -> chalk.server.v1.UpsertGitHubAppConfigResponse
-	9,  // 38: chalk.server.v1.GitHubAppService.GetGitHubAppConfig:output_type -> chalk.server.v1.GetGitHubAppConfigResponse
-	11, // 39: chalk.server.v1.GitHubAppService.DeleteGitHubAppConfig:output_type -> chalk.server.v1.DeleteGitHubAppConfigResponse
-	13, // 40: chalk.server.v1.GitHubAppService.GetGitHubAppInstallUrl:output_type -> chalk.server.v1.GetGitHubAppInstallUrlResponse
-	15, // 41: chalk.server.v1.GitHubAppService.CompleteGitHubAppInstallation:output_type -> chalk.server.v1.CompleteGitHubAppInstallationResponse
-	17, // 42: chalk.server.v1.GitHubAppService.ListGitHubAppInstallations:output_type -> chalk.server.v1.ListGitHubAppInstallationsResponse
-	19, // 43: chalk.server.v1.GitHubAppService.DeleteGitHubAppInstallation:output_type -> chalk.server.v1.DeleteGitHubAppInstallationResponse
-	21, // 44: chalk.server.v1.GitHubAppService.SyncGitHubAppInstallations:output_type -> chalk.server.v1.SyncGitHubAppInstallationsResponse
-	23, // 45: chalk.server.v1.GitHubAppService.ListGitHubRepositories:output_type -> chalk.server.v1.ListGitHubRepositoriesResponse
-	25, // 46: chalk.server.v1.GitHubAppService.ListGitHubPullRequests:output_type -> chalk.server.v1.ListGitHubPullRequestsResponse
-	35, // 47: chalk.server.v1.GitHubAppService.ListGitHubBranches:output_type -> chalk.server.v1.ListGitHubBranchesResponse
-	37, // 48: chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive:output_type -> chalk.server.v1.GetGitHubRepositoryArchiveResponse
-	27, // 49: chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository:output_type -> chalk.server.v1.LinkProjectToGitHubRepositoryResponse
-	29, // 50: chalk.server.v1.GitHubAppService.UnlinkProjectFromGitHubRepository:output_type -> chalk.server.v1.UnlinkProjectFromGitHubRepositoryResponse
-	31, // 51: chalk.server.v1.GitHubAppService.GetProjectGitHubRepoLink:output_type -> chalk.server.v1.GetProjectGitHubRepoLinkResponse
-	33, // 52: chalk.server.v1.GitHubAppService.ListProjectGitHubRepoLinks:output_type -> chalk.server.v1.ListProjectGitHubRepoLinksResponse
-	37, // [37:53] is the sub-list for method output_type
-	21, // [21:37] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	38, // 21: chalk.server.v1.CreatePullRequestFromChangesRequest.changes:type_name -> chalk.server.v1.RepoFileChangeInput
+	6,  // 22: chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig:input_type -> chalk.server.v1.UpsertGitHubAppConfigRequest
+	8,  // 23: chalk.server.v1.GitHubAppService.GetGitHubAppConfig:input_type -> chalk.server.v1.GetGitHubAppConfigRequest
+	10, // 24: chalk.server.v1.GitHubAppService.DeleteGitHubAppConfig:input_type -> chalk.server.v1.DeleteGitHubAppConfigRequest
+	12, // 25: chalk.server.v1.GitHubAppService.GetGitHubAppInstallUrl:input_type -> chalk.server.v1.GetGitHubAppInstallUrlRequest
+	14, // 26: chalk.server.v1.GitHubAppService.CompleteGitHubAppInstallation:input_type -> chalk.server.v1.CompleteGitHubAppInstallationRequest
+	16, // 27: chalk.server.v1.GitHubAppService.ListGitHubAppInstallations:input_type -> chalk.server.v1.ListGitHubAppInstallationsRequest
+	18, // 28: chalk.server.v1.GitHubAppService.DeleteGitHubAppInstallation:input_type -> chalk.server.v1.DeleteGitHubAppInstallationRequest
+	20, // 29: chalk.server.v1.GitHubAppService.SyncGitHubAppInstallations:input_type -> chalk.server.v1.SyncGitHubAppInstallationsRequest
+	22, // 30: chalk.server.v1.GitHubAppService.ListGitHubRepositories:input_type -> chalk.server.v1.ListGitHubRepositoriesRequest
+	24, // 31: chalk.server.v1.GitHubAppService.ListGitHubPullRequests:input_type -> chalk.server.v1.ListGitHubPullRequestsRequest
+	34, // 32: chalk.server.v1.GitHubAppService.ListGitHubBranches:input_type -> chalk.server.v1.ListGitHubBranchesRequest
+	36, // 33: chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive:input_type -> chalk.server.v1.GetGitHubRepositoryArchiveRequest
+	39, // 34: chalk.server.v1.GitHubAppService.CreatePullRequestFromChanges:input_type -> chalk.server.v1.CreatePullRequestFromChangesRequest
+	41, // 35: chalk.server.v1.GitHubAppService.CreateVolumeFromGitHubRepo:input_type -> chalk.server.v1.CreateVolumeFromGitHubRepoRequest
+	26, // 36: chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository:input_type -> chalk.server.v1.LinkProjectToGitHubRepositoryRequest
+	28, // 37: chalk.server.v1.GitHubAppService.UnlinkProjectFromGitHubRepository:input_type -> chalk.server.v1.UnlinkProjectFromGitHubRepositoryRequest
+	30, // 38: chalk.server.v1.GitHubAppService.GetProjectGitHubRepoLink:input_type -> chalk.server.v1.GetProjectGitHubRepoLinkRequest
+	32, // 39: chalk.server.v1.GitHubAppService.ListProjectGitHubRepoLinks:input_type -> chalk.server.v1.ListProjectGitHubRepoLinksRequest
+	7,  // 40: chalk.server.v1.GitHubAppService.UpsertGitHubAppConfig:output_type -> chalk.server.v1.UpsertGitHubAppConfigResponse
+	9,  // 41: chalk.server.v1.GitHubAppService.GetGitHubAppConfig:output_type -> chalk.server.v1.GetGitHubAppConfigResponse
+	11, // 42: chalk.server.v1.GitHubAppService.DeleteGitHubAppConfig:output_type -> chalk.server.v1.DeleteGitHubAppConfigResponse
+	13, // 43: chalk.server.v1.GitHubAppService.GetGitHubAppInstallUrl:output_type -> chalk.server.v1.GetGitHubAppInstallUrlResponse
+	15, // 44: chalk.server.v1.GitHubAppService.CompleteGitHubAppInstallation:output_type -> chalk.server.v1.CompleteGitHubAppInstallationResponse
+	17, // 45: chalk.server.v1.GitHubAppService.ListGitHubAppInstallations:output_type -> chalk.server.v1.ListGitHubAppInstallationsResponse
+	19, // 46: chalk.server.v1.GitHubAppService.DeleteGitHubAppInstallation:output_type -> chalk.server.v1.DeleteGitHubAppInstallationResponse
+	21, // 47: chalk.server.v1.GitHubAppService.SyncGitHubAppInstallations:output_type -> chalk.server.v1.SyncGitHubAppInstallationsResponse
+	23, // 48: chalk.server.v1.GitHubAppService.ListGitHubRepositories:output_type -> chalk.server.v1.ListGitHubRepositoriesResponse
+	25, // 49: chalk.server.v1.GitHubAppService.ListGitHubPullRequests:output_type -> chalk.server.v1.ListGitHubPullRequestsResponse
+	35, // 50: chalk.server.v1.GitHubAppService.ListGitHubBranches:output_type -> chalk.server.v1.ListGitHubBranchesResponse
+	37, // 51: chalk.server.v1.GitHubAppService.GetGitHubRepositoryArchive:output_type -> chalk.server.v1.GetGitHubRepositoryArchiveResponse
+	40, // 52: chalk.server.v1.GitHubAppService.CreatePullRequestFromChanges:output_type -> chalk.server.v1.CreatePullRequestFromChangesResponse
+	42, // 53: chalk.server.v1.GitHubAppService.CreateVolumeFromGitHubRepo:output_type -> chalk.server.v1.CreateVolumeFromGitHubRepoResponse
+	27, // 54: chalk.server.v1.GitHubAppService.LinkProjectToGitHubRepository:output_type -> chalk.server.v1.LinkProjectToGitHubRepositoryResponse
+	29, // 55: chalk.server.v1.GitHubAppService.UnlinkProjectFromGitHubRepository:output_type -> chalk.server.v1.UnlinkProjectFromGitHubRepositoryResponse
+	31, // 56: chalk.server.v1.GitHubAppService.GetProjectGitHubRepoLink:output_type -> chalk.server.v1.GetProjectGitHubRepoLinkResponse
+	33, // 57: chalk.server.v1.GitHubAppService.ListProjectGitHubRepoLinks:output_type -> chalk.server.v1.ListProjectGitHubRepoLinksResponse
+	40, // [40:58] is the sub-list for method output_type
+	22, // [22:40] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_github_app_proto_init() }
@@ -2524,6 +3016,7 @@ func file_chalk_server_v1_github_app_proto_init() {
 	file_chalk_server_v1_github_app_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[22].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[24].OneofWrappers = []any{}
@@ -2531,13 +3024,17 @@ func file_chalk_server_v1_github_app_proto_init() {
 	file_chalk_server_v1_github_app_proto_msgTypes[31].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[34].OneofWrappers = []any{}
 	file_chalk_server_v1_github_app_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[38].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[39].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[41].OneofWrappers = []any{}
+	file_chalk_server_v1_github_app_proto_msgTypes[42].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_github_app_proto_rawDesc), len(file_chalk_server_v1_github_app_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   38,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
