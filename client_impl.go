@@ -923,10 +923,10 @@ func renameArrowTableColumns(t arrow.Table, fn func(string) string) arrow.Table 
 	reader := array.NewTableReader(t, t.NumRows())
 	defer reader.Release()
 
-	var records []arrow.Record
+	var records []arrow.RecordBatch
 	for reader.Next() {
-		rec := reader.Record()
-		renamed := array.NewRecord(newSchema, rec.Columns(), rec.NumRows())
+		rec := reader.RecordBatch()
+		renamed := array.NewRecordBatch(newSchema, rec.Columns(), rec.NumRows())
 		records = append(records, renamed)
 	}
 	if len(records) == 0 {

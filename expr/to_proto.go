@@ -293,7 +293,7 @@ func CreateEmptyList(dataType arrow.DataType, allocator memory.Allocator) (*arro
 	}, nil)
 
 	// Create a record with the empty array
-	record := array.NewRecord(schema, []arrow.Array{arr}, 0)
+	record := array.NewRecordBatch(schema, []arrow.Array{arr}, 0)
 	defer record.Release()
 
 	// Serialize to Arrow IPC format
@@ -431,7 +431,7 @@ func scalarValuesToScalarListValue(values []*arrowv1.ScalarValue, allocator memo
 	}, nil)
 
 	// Create a record with the array
-	record := array.NewRecord(schema, []arrow.Array{arr}, int64(len(values)))
+	record := array.NewRecordBatch(schema, []arrow.Array{arr}, int64(len(values)))
 	defer record.Release()
 
 	// Serialize to Arrow IPC format

@@ -53,7 +53,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
 	assert.NoError(b, err)
 
-	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	table := array.NewTableFromRecords(record.Schema(), []arrow.RecordBatch{record})
 
 	res := chalk.OnlineQueryBulkResult{
 		ScalarsTable: table,
@@ -292,7 +292,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
 	assert.NoError(b, err)
 
-	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	table := array.NewTableFromRecords(record.Schema(), []arrow.RecordBatch{record})
 	res := chalk.OnlineQueryBulkResult{
 		ScalarsTable: table,
 	}
@@ -351,7 +351,7 @@ func getBenchmarkBulkHasOnes(b *testing.B, numRows int) func() {
 	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
 	assert.NoError(b, err)
 
-	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	table := array.NewTableFromRecords(record.Schema(), []arrow.RecordBatch{record})
 
 	res := chalk.OnlineQueryBulkResult{ScalarsTable: table}
 
@@ -424,7 +424,7 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
 	assert.NoError(b, err)
 
-	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	table := array.NewTableFromRecords(record.Schema(), []arrow.RecordBatch{record})
 	res := chalk.OnlineQueryBulkResult{ScalarsTable: table}
 
 	assertOnce := sync.Once{}

@@ -53,10 +53,10 @@ func TestTranslateFqnsArrowTable(t *testing.T) {
 	b.Field(0).(*array.Int64Builder).AppendValues([]int64{1, 2}, nil)
 	b.Field(1).(*array.Int64Builder).AppendValues([]int64{3, 4}, nil)
 	b.Field(2).(*array.StringBuilder).AppendValues([]string{"a", "b"}, nil)
-	rec := b.NewRecord()
+	rec := b.NewRecordBatch()
 	defer rec.Release()
 
-	tbl := array.NewTableFromRecords(schema, []arrow.Record{rec})
+	tbl := array.NewTableFromRecords(schema, []arrow.RecordBatch{rec})
 	defer tbl.Release()
 
 	renamed := renameArrowTableColumns(tbl, internal.TranslateWindowedFqn)

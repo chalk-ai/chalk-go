@@ -66,7 +66,7 @@ func TableToBytes(table arrow.Table, allocator memory.Allocator) ([]byte, error)
 	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
 	for reader.Next() {
-		if err = fileWriter.Write(reader.Record()); err != nil {
+		if err = fileWriter.Write(reader.RecordBatch()); err != nil {
 			return nil, errors.Wrap(err, "writing Arrow Table to buffer")
 		}
 	}
@@ -393,8 +393,8 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 	return nil
 }
 
-// ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
-func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow.Record, error) {
+// ColumnMapToRecord converts a map of column names to slices of values to an Arrow RecordBatch.
+func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow.RecordBatch, error) {
 	schema := make([]arrow.Field, len(inputs))
 	shouldFilterColumn := make([]bool, len(inputs))
 	shouldFilterRecord := false
@@ -445,7 +445,7 @@ func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow
 		}
 	}
 
-	record := recordBuilder.NewRecord()
+	record := recordBuilder.NewRecordBatch()
 	if shouldFilterRecord {
 		newRecord, err := filterRecord(record, shouldFilterColumn)
 		if err != nil {
@@ -463,7 +463,7 @@ func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow
 * done so that `nil` features in a has-one or has-many struct do not get mistaken
 * as the user specifying that feature as null.
  */
-func filterRecord(record arrow.Record, shouldFilterColumn []bool) (arrow.Record, error) {
+func filterRecord(record arrow.RecordBatch, shouldFilterColumn []bool) (arrow.RecordBatch, error) {
 	newColumns := make([]arrow.Array, 0, record.NumCols())
 	newFields := make([]arrow.Field, 0, record.NumCols())
 	didFilter := false
@@ -499,7 +499,7 @@ func filterRecord(record arrow.Record, shouldFilterColumn []bool) (arrow.Record,
 		return record, nil
 	}
 
-	return array.NewRecord(
+	return array.NewRecordBatch(
 		arrow.NewSchema(newFields, new(record.Schema().Metadata())),
 		newColumns,
 		record.NumRows(),
@@ -985,9 +985,9 @@ func ConvertBytesToTable(byteArr []byte, allocator memory.Allocator) (result arr
 		err = fileReader.Close()
 	}()
 
-	records := make([]arrow.Record, fileReader.NumRecords())
+	records := make([]arrow.RecordBatch, fileReader.NumRecords())
 	for i := 0; i < fileReader.NumRecords(); i++ {
-		rec, err := fileReader.Record(i)
+		rec, err := fileReader.RecordBatch(i)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to read record")
 		}

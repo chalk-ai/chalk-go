@@ -48,8 +48,8 @@ type Client interface {
 	// OnlineQueryBulk computes features values using online resolvers,
 	// and has the ability to query multiple primary keys at once.
 	// OnlineQueryBulk also has the ability to return a has-many feature
-	// in the form of an arrow.Record. The usual features are returned
-	// in bulk in an arrow.Record too, with each column name corresponding
+	// in the form of an arrow.RecordBatch. The usual features are returned
+	// in bulk in an arrow.RecordBatch too, with each column name corresponding
 	// to the feature name.
 	//
 	// The Chalk CLI can codegen structs for all available features with
@@ -74,7 +74,7 @@ type Client interface {
 	//		reader := array.NewTableReader(res.ScalarsTable, 10_000)
 	//		defer reader.Release()
 	//		for reader.Next() {
-	//		    record := reader.Record()
+	//		    record := reader.RecordBatch()
 	//		    // Do something with the record
 	//		}
 	//
