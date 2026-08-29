@@ -271,6 +271,7 @@ func offlineQueryInputPartitionToParquet(
 		&buf,
 		parquet.NewWriterProperties(
 			parquet.WithCompression(compress.Codecs.Snappy),
+			parquet.WithRootRepetition(parquet.Repetitions.Required),
 		),
 		pqarrow.NewArrowWriterProperties(pqarrow.WithStoreSchema()),
 	)
