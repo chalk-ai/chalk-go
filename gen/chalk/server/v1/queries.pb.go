@@ -79,6 +79,58 @@ func (MetaQueryRunsSource) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{0}
 }
 
+type IdComparisonOperator int32
+
+const (
+	IdComparisonOperator_ID_COMPARISON_OPERATOR_UNSPECIFIED IdComparisonOperator = 0
+	IdComparisonOperator_ID_COMPARISON_OPERATOR_EQUALS      IdComparisonOperator = 1
+	IdComparisonOperator_ID_COMPARISON_OPERATOR_PREFIX      IdComparisonOperator = 2
+	IdComparisonOperator_ID_COMPARISON_OPERATOR_SUBSTRING   IdComparisonOperator = 3
+)
+
+// Enum value maps for IdComparisonOperator.
+var (
+	IdComparisonOperator_name = map[int32]string{
+		0: "ID_COMPARISON_OPERATOR_UNSPECIFIED",
+		1: "ID_COMPARISON_OPERATOR_EQUALS",
+		2: "ID_COMPARISON_OPERATOR_PREFIX",
+		3: "ID_COMPARISON_OPERATOR_SUBSTRING",
+	}
+	IdComparisonOperator_value = map[string]int32{
+		"ID_COMPARISON_OPERATOR_UNSPECIFIED": 0,
+		"ID_COMPARISON_OPERATOR_EQUALS":      1,
+		"ID_COMPARISON_OPERATOR_PREFIX":      2,
+		"ID_COMPARISON_OPERATOR_SUBSTRING":   3,
+	}
+)
+
+func (x IdComparisonOperator) Enum() *IdComparisonOperator {
+	p := new(IdComparisonOperator)
+	*p = x
+	return p
+}
+
+func (x IdComparisonOperator) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (IdComparisonOperator) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_queries_proto_enumTypes[1].Descriptor()
+}
+
+func (IdComparisonOperator) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_queries_proto_enumTypes[1]
+}
+
+func (x IdComparisonOperator) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use IdComparisonOperator.Descriptor instead.
+func (IdComparisonOperator) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{1}
+}
+
 type GetQueryPerformanceSummaryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OperationId   string                 `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
@@ -1567,9 +1619,11 @@ type ListMetaQueryRunsRequest struct {
 	// that understands statuses uses only statuses, and one that does not falls
 	// back to has_errors. Leaving this unset preserves the exact pre-existing
 	// behavior for older clients.
-	Statuses      []v11.QueryStatus `protobuf:"varint,27,rep,packed,name=statuses,proto3,enum=chalk.common.v1.QueryStatus" json:"statuses,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Statuses                []v11.QueryStatus     `protobuf:"varint,27,rep,packed,name=statuses,proto3,enum=chalk.common.v1.QueryStatus" json:"statuses,omitempty"`
+	CorrelationId           *string               `protobuf:"bytes,28,opt,name=correlation_id,json=correlationId,proto3,oneof" json:"correlation_id,omitempty"`
+	CorrelationIdComparison *IdComparisonOperator `protobuf:"varint,29,opt,name=correlation_id_comparison,json=correlationIdComparison,proto3,enum=chalk.server.v1.IdComparisonOperator,oneof" json:"correlation_id_comparison,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *ListMetaQueryRunsRequest) Reset() {
@@ -1789,6 +1843,20 @@ func (x *ListMetaQueryRunsRequest) GetStatuses() []v11.QueryStatus {
 		return x.Statuses
 	}
 	return nil
+}
+
+func (x *ListMetaQueryRunsRequest) GetCorrelationId() string {
+	if x != nil && x.CorrelationId != nil {
+		return *x.CorrelationId
+	}
+	return ""
+}
+
+func (x *ListMetaQueryRunsRequest) GetCorrelationIdComparison() IdComparisonOperator {
+	if x != nil && x.CorrelationIdComparison != nil {
+		return *x.CorrelationIdComparison
+	}
+	return IdComparisonOperator_ID_COMPARISON_OPERATOR_UNSPECIFIED
 }
 
 // Opaque pagination token for the timescale-backed ListMetaQueryRuns. Wraps the created_at
@@ -4234,7 +4302,7 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x03run\x18\x02 \x01(\v2\x1d.chalk.server.v1.MetaQueryRunR\x03run\x12\x1d\n" +
 	"\alatency\x18\x03 \x01(\x01H\x00R\alatency\x88\x01\x01B\n" +
 	"\n" +
-	"\b_latency\"\xaa\v\n" +
+	"\b_latency\"\xef\f\n" +
 	"\x18ListMetaQueryRunsRequest\x12'\n" +
 	"\x0finclude_latency\x18\x01 \x01(\bR\x0eincludeLatency\x12)\n" +
 	"\x0emin_latency_ms\x18\x02 \x01(\x01H\x00R\fminLatencyMs\x88\x01\x01\x12'\n" +
@@ -4267,7 +4335,9 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x0ebranch_filters\x18\x18 \x03(\tR\rbranchFilters\x12\x1b\n" +
 	"\tagent_ids\x18\x19 \x03(\tR\bagentIds\x12'\n" +
 	"\x0fresource_groups\x18\x1a \x03(\tR\x0eresourceGroups\x128\n" +
-	"\bstatuses\x18\x1b \x03(\x0e2\x1c.chalk.common.v1.QueryStatusR\bstatusesB\x11\n" +
+	"\bstatuses\x18\x1b \x03(\x0e2\x1c.chalk.common.v1.QueryStatusR\bstatuses\x12*\n" +
+	"\x0ecorrelation_id\x18\x1c \x01(\tH\x13R\rcorrelationId\x88\x01\x01\x12f\n" +
+	"\x19correlation_id_comparison\x18\x1d \x01(\x0e2%.chalk.server.v1.IdComparisonOperatorH\x14R\x17correlationIdComparison\x88\x01\x01B\x11\n" +
 	"\x0f_min_latency_msB\x10\n" +
 	"\x0e_query_plan_idB\x10\n" +
 	"\x0e_meta_query_idB\x12\n" +
@@ -4288,7 +4358,9 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x0f_resource_groupB\x10\n" +
 	"\x0e_query_versionB\x14\n" +
 	"\x12_deployment_filterB\r\n" +
-	"\v_page_token\"P\n" +
+	"\v_page_tokenB\x11\n" +
+	"\x0f_correlation_idB\x1c\n" +
+	"\x1a_correlation_id_comparison\"P\n" +
 	"\x1aListMetaQueryRunsPageToken\x122\n" +
 	"\x06cursor\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x06cursor\"\xf4\x01\n" +
 	"\x19ListMetaQueryRunsResponse\x12D\n" +
@@ -4503,7 +4575,12 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x13MetaQueryRunsSource\x12&\n" +
 	"\"META_QUERY_RUNS_SOURCE_UNSPECIFIED\x10\x00\x12$\n" +
 	" META_QUERY_RUNS_SOURCE_TIMESCALE\x10\x01\x12$\n" +
-	" META_QUERY_RUNS_SOURCE_QUERY_LOG\x10\x022\xd3\x17\n" +
+	" META_QUERY_RUNS_SOURCE_QUERY_LOG\x10\x02*\xaa\x01\n" +
+	"\x14IdComparisonOperator\x12&\n" +
+	"\"ID_COMPARISON_OPERATOR_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dID_COMPARISON_OPERATOR_EQUALS\x10\x01\x12!\n" +
+	"\x1dID_COMPARISON_OPERATOR_PREFIX\x10\x02\x12$\n" +
+	" ID_COMPARISON_OPERATOR_SUBSTRING\x10\x032\xd3\x17\n" +
 	"\x0eQueriesService\x12\x8a\x01\n" +
 	"\x1aGetQueryPerformanceSummary\x122.chalk.server.v1.GetQueryPerformanceSummaryRequest\x1a3.chalk.server.v1.GetQueryPerformanceSummaryResponse\"\x03\x80}\x06\x12i\n" +
 	"\x0fListQueryErrors\x12'.chalk.server.v1.ListQueryErrorsRequest\x1a(.chalk.server.v1.ListQueryErrorsResponse\"\x03\x80}\x06\x12u\n" +
@@ -4543,194 +4620,196 @@ func file_chalk_server_v1_queries_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_queries_proto_rawDescData
 }
 
-var file_chalk_server_v1_queries_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_queries_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_server_v1_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 61)
 var file_chalk_server_v1_queries_proto_goTypes = []any{
 	(MetaQueryRunsSource)(0),                                        // 0: chalk.server.v1.MetaQueryRunsSource
-	(*GetQueryPerformanceSummaryRequest)(nil),                       // 1: chalk.server.v1.GetQueryPerformanceSummaryRequest
-	(*GetQueryPerformanceSummaryResponse)(nil),                      // 2: chalk.server.v1.GetQueryPerformanceSummaryResponse
-	(*ListQueryErrorsPageToken)(nil),                                // 3: chalk.server.v1.ListQueryErrorsPageToken
-	(*QueryErrorFilters)(nil),                                       // 4: chalk.server.v1.QueryErrorFilters
-	(*QueryErrorMeta)(nil),                                          // 5: chalk.server.v1.QueryErrorMeta
-	(*ListQueryErrorsRequest)(nil),                                  // 6: chalk.server.v1.ListQueryErrorsRequest
-	(*ListQueryErrorsResponse)(nil),                                 // 7: chalk.server.v1.ListQueryErrorsResponse
-	(*GetQueryErrorsChartRequest)(nil),                              // 8: chalk.server.v1.GetQueryErrorsChartRequest
-	(*GetQueryErrorsChartResponse)(nil),                             // 9: chalk.server.v1.GetQueryErrorsChartResponse
-	(*GetQueryPlanRequest)(nil),                                     // 10: chalk.server.v1.GetQueryPlanRequest
-	(*QueryPlan)(nil),                                               // 11: chalk.server.v1.QueryPlan
-	(*GetQueryPlanResponse)(nil),                                    // 12: chalk.server.v1.GetQueryPlanResponse
-	(*ListQueryPlansRequest)(nil),                                   // 13: chalk.server.v1.ListQueryPlansRequest
-	(*QueryPlanReference)(nil),                                      // 14: chalk.server.v1.QueryPlanReference
-	(*ListQueryPlansResponse)(nil),                                  // 15: chalk.server.v1.ListQueryPlansResponse
-	(*AggregatedQueryError)(nil),                                    // 16: chalk.server.v1.AggregatedQueryError
-	(*AggregateQueryErrorsRequest)(nil),                             // 17: chalk.server.v1.AggregateQueryErrorsRequest
-	(*AggregateQueryErrorsResponse)(nil),                            // 18: chalk.server.v1.AggregateQueryErrorsResponse
-	(*MetaQueryRun)(nil),                                            // 19: chalk.server.v1.MetaQueryRun
-	(*MetaQueryRunWithMeta)(nil),                                    // 20: chalk.server.v1.MetaQueryRunWithMeta
-	(*ListMetaQueryRunsRequest)(nil),                                // 21: chalk.server.v1.ListMetaQueryRunsRequest
-	(*ListMetaQueryRunsPageToken)(nil),                              // 22: chalk.server.v1.ListMetaQueryRunsPageToken
-	(*ListMetaQueryRunsResponse)(nil),                               // 23: chalk.server.v1.ListMetaQueryRunsResponse
-	(*MetaQuery)(nil),                                               // 24: chalk.server.v1.MetaQuery
-	(*ListMetaQueriesRequest)(nil),                                  // 25: chalk.server.v1.ListMetaQueriesRequest
-	(*ListMetaQueriesResponse)(nil),                                 // 26: chalk.server.v1.ListMetaQueriesResponse
-	(*ListLatestMetaQueriesRequest)(nil),                            // 27: chalk.server.v1.ListLatestMetaQueriesRequest
-	(*ListLatestMetaQueriesResponse)(nil),                           // 28: chalk.server.v1.ListLatestMetaQueriesResponse
-	(*GetMetaQueryRequest)(nil),                                     // 29: chalk.server.v1.GetMetaQueryRequest
-	(*GetMetaQueryResponse)(nil),                                    // 30: chalk.server.v1.GetMetaQueryResponse
-	(*GetMetaQueryByNameRequest)(nil),                               // 31: chalk.server.v1.GetMetaQueryByNameRequest
-	(*GetMetaQueryByNameResponse)(nil),                              // 32: chalk.server.v1.GetMetaQueryByNameResponse
-	(*ListMetaQueriesByIdsRequest)(nil),                             // 33: chalk.server.v1.ListMetaQueriesByIdsRequest
-	(*ListMetaQueriesByIdsResponse)(nil),                            // 34: chalk.server.v1.ListMetaQueriesByIdsResponse
-	(*ListArchivedMetaQueriesRequest)(nil),                          // 35: chalk.server.v1.ListArchivedMetaQueriesRequest
-	(*ListArchivedMetaQueriesResponse)(nil),                         // 36: chalk.server.v1.ListArchivedMetaQueriesResponse
-	(*ListMetaQueriesForResolverRequest)(nil),                       // 37: chalk.server.v1.ListMetaQueriesForResolverRequest
-	(*ListMetaQueriesForResolverResponse)(nil),                      // 38: chalk.server.v1.ListMetaQueriesForResolverResponse
-	(*ListMetaQueriesForFeatureRequest)(nil),                        // 39: chalk.server.v1.ListMetaQueriesForFeatureRequest
-	(*ListMetaQueriesForFeatureResponse)(nil),                       // 40: chalk.server.v1.ListMetaQueriesForFeatureResponse
-	(*ListMetaQueryVersionsRequest)(nil),                            // 41: chalk.server.v1.ListMetaQueryVersionsRequest
-	(*ListMetaQueryVersionsResponse)(nil),                           // 42: chalk.server.v1.ListMetaQueryVersionsResponse
-	(*QueryRun)(nil),                                                // 43: chalk.server.v1.QueryRun
-	(*GetQueryRunRequest)(nil),                                      // 44: chalk.server.v1.GetQueryRunRequest
-	(*GetQueryRunResponse)(nil),                                     // 45: chalk.server.v1.GetQueryRunResponse
-	(*ListStreamingResolverDeploymentsRequest)(nil),                 // 46: chalk.server.v1.ListStreamingResolverDeploymentsRequest
-	(*DeploymentTimestamp)(nil),                                     // 47: chalk.server.v1.DeploymentTimestamp
-	(*ListStreamingResolverDeploymentsResponse)(nil),                // 48: chalk.server.v1.ListStreamingResolverDeploymentsResponse
-	(*GetStreamingResolverMappingPlanRequest)(nil),                  // 49: chalk.server.v1.GetStreamingResolverMappingPlanRequest
-	(*GetStreamingResolverMappingPlanResponse)(nil),                 // 50: chalk.server.v1.GetStreamingResolverMappingPlanResponse
-	(*GetStreamingResolverSinkPlanRequest)(nil),                     // 51: chalk.server.v1.GetStreamingResolverSinkPlanRequest
-	(*GetStreamingResolverSinkPlanResponse)(nil),                    // 52: chalk.server.v1.GetStreamingResolverSinkPlanResponse
-	(*GetStreamingResolverMaterializedAggregationPlanRequest)(nil),  // 53: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
-	(*GetStreamingResolverMaterializedAggregationPlanResponse)(nil), // 54: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
-	(*PlanRunMetadataBlock)(nil),                                    // 55: chalk.server.v1.PlanRunMetadataBlock
-	(*ArchiveMetaQueryRequest)(nil),                                 // 56: chalk.server.v1.ArchiveMetaQueryRequest
-	(*ArchiveMetaQueryResponse)(nil),                                // 57: chalk.server.v1.ArchiveMetaQueryResponse
-	(*UnarchiveMetaQueryRequest)(nil),                               // 58: chalk.server.v1.UnarchiveMetaQueryRequest
-	(*UnarchiveMetaQueryResponse)(nil),                              // 59: chalk.server.v1.UnarchiveMetaQueryResponse
-	(*GetPlanRunMetadataRequest)(nil),                               // 60: chalk.server.v1.GetPlanRunMetadataRequest
-	(*GetPlanRunMetadataResponse)(nil),                              // 61: chalk.server.v1.GetPlanRunMetadataResponse
-	(*timestamppb.Timestamp)(nil),                                   // 62: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),                                     // 63: google.protobuf.Duration
-	(*v1.DenseTimeSeriesChart)(nil),                                 // 64: chalk.chart.v1.DenseTimeSeriesChart
-	(v11.QueryStatus)(0),                                            // 65: chalk.common.v1.QueryStatus
+	(IdComparisonOperator)(0),                                       // 1: chalk.server.v1.IdComparisonOperator
+	(*GetQueryPerformanceSummaryRequest)(nil),                       // 2: chalk.server.v1.GetQueryPerformanceSummaryRequest
+	(*GetQueryPerformanceSummaryResponse)(nil),                      // 3: chalk.server.v1.GetQueryPerformanceSummaryResponse
+	(*ListQueryErrorsPageToken)(nil),                                // 4: chalk.server.v1.ListQueryErrorsPageToken
+	(*QueryErrorFilters)(nil),                                       // 5: chalk.server.v1.QueryErrorFilters
+	(*QueryErrorMeta)(nil),                                          // 6: chalk.server.v1.QueryErrorMeta
+	(*ListQueryErrorsRequest)(nil),                                  // 7: chalk.server.v1.ListQueryErrorsRequest
+	(*ListQueryErrorsResponse)(nil),                                 // 8: chalk.server.v1.ListQueryErrorsResponse
+	(*GetQueryErrorsChartRequest)(nil),                              // 9: chalk.server.v1.GetQueryErrorsChartRequest
+	(*GetQueryErrorsChartResponse)(nil),                             // 10: chalk.server.v1.GetQueryErrorsChartResponse
+	(*GetQueryPlanRequest)(nil),                                     // 11: chalk.server.v1.GetQueryPlanRequest
+	(*QueryPlan)(nil),                                               // 12: chalk.server.v1.QueryPlan
+	(*GetQueryPlanResponse)(nil),                                    // 13: chalk.server.v1.GetQueryPlanResponse
+	(*ListQueryPlansRequest)(nil),                                   // 14: chalk.server.v1.ListQueryPlansRequest
+	(*QueryPlanReference)(nil),                                      // 15: chalk.server.v1.QueryPlanReference
+	(*ListQueryPlansResponse)(nil),                                  // 16: chalk.server.v1.ListQueryPlansResponse
+	(*AggregatedQueryError)(nil),                                    // 17: chalk.server.v1.AggregatedQueryError
+	(*AggregateQueryErrorsRequest)(nil),                             // 18: chalk.server.v1.AggregateQueryErrorsRequest
+	(*AggregateQueryErrorsResponse)(nil),                            // 19: chalk.server.v1.AggregateQueryErrorsResponse
+	(*MetaQueryRun)(nil),                                            // 20: chalk.server.v1.MetaQueryRun
+	(*MetaQueryRunWithMeta)(nil),                                    // 21: chalk.server.v1.MetaQueryRunWithMeta
+	(*ListMetaQueryRunsRequest)(nil),                                // 22: chalk.server.v1.ListMetaQueryRunsRequest
+	(*ListMetaQueryRunsPageToken)(nil),                              // 23: chalk.server.v1.ListMetaQueryRunsPageToken
+	(*ListMetaQueryRunsResponse)(nil),                               // 24: chalk.server.v1.ListMetaQueryRunsResponse
+	(*MetaQuery)(nil),                                               // 25: chalk.server.v1.MetaQuery
+	(*ListMetaQueriesRequest)(nil),                                  // 26: chalk.server.v1.ListMetaQueriesRequest
+	(*ListMetaQueriesResponse)(nil),                                 // 27: chalk.server.v1.ListMetaQueriesResponse
+	(*ListLatestMetaQueriesRequest)(nil),                            // 28: chalk.server.v1.ListLatestMetaQueriesRequest
+	(*ListLatestMetaQueriesResponse)(nil),                           // 29: chalk.server.v1.ListLatestMetaQueriesResponse
+	(*GetMetaQueryRequest)(nil),                                     // 30: chalk.server.v1.GetMetaQueryRequest
+	(*GetMetaQueryResponse)(nil),                                    // 31: chalk.server.v1.GetMetaQueryResponse
+	(*GetMetaQueryByNameRequest)(nil),                               // 32: chalk.server.v1.GetMetaQueryByNameRequest
+	(*GetMetaQueryByNameResponse)(nil),                              // 33: chalk.server.v1.GetMetaQueryByNameResponse
+	(*ListMetaQueriesByIdsRequest)(nil),                             // 34: chalk.server.v1.ListMetaQueriesByIdsRequest
+	(*ListMetaQueriesByIdsResponse)(nil),                            // 35: chalk.server.v1.ListMetaQueriesByIdsResponse
+	(*ListArchivedMetaQueriesRequest)(nil),                          // 36: chalk.server.v1.ListArchivedMetaQueriesRequest
+	(*ListArchivedMetaQueriesResponse)(nil),                         // 37: chalk.server.v1.ListArchivedMetaQueriesResponse
+	(*ListMetaQueriesForResolverRequest)(nil),                       // 38: chalk.server.v1.ListMetaQueriesForResolverRequest
+	(*ListMetaQueriesForResolverResponse)(nil),                      // 39: chalk.server.v1.ListMetaQueriesForResolverResponse
+	(*ListMetaQueriesForFeatureRequest)(nil),                        // 40: chalk.server.v1.ListMetaQueriesForFeatureRequest
+	(*ListMetaQueriesForFeatureResponse)(nil),                       // 41: chalk.server.v1.ListMetaQueriesForFeatureResponse
+	(*ListMetaQueryVersionsRequest)(nil),                            // 42: chalk.server.v1.ListMetaQueryVersionsRequest
+	(*ListMetaQueryVersionsResponse)(nil),                           // 43: chalk.server.v1.ListMetaQueryVersionsResponse
+	(*QueryRun)(nil),                                                // 44: chalk.server.v1.QueryRun
+	(*GetQueryRunRequest)(nil),                                      // 45: chalk.server.v1.GetQueryRunRequest
+	(*GetQueryRunResponse)(nil),                                     // 46: chalk.server.v1.GetQueryRunResponse
+	(*ListStreamingResolverDeploymentsRequest)(nil),                 // 47: chalk.server.v1.ListStreamingResolverDeploymentsRequest
+	(*DeploymentTimestamp)(nil),                                     // 48: chalk.server.v1.DeploymentTimestamp
+	(*ListStreamingResolverDeploymentsResponse)(nil),                // 49: chalk.server.v1.ListStreamingResolverDeploymentsResponse
+	(*GetStreamingResolverMappingPlanRequest)(nil),                  // 50: chalk.server.v1.GetStreamingResolverMappingPlanRequest
+	(*GetStreamingResolverMappingPlanResponse)(nil),                 // 51: chalk.server.v1.GetStreamingResolverMappingPlanResponse
+	(*GetStreamingResolverSinkPlanRequest)(nil),                     // 52: chalk.server.v1.GetStreamingResolverSinkPlanRequest
+	(*GetStreamingResolverSinkPlanResponse)(nil),                    // 53: chalk.server.v1.GetStreamingResolverSinkPlanResponse
+	(*GetStreamingResolverMaterializedAggregationPlanRequest)(nil),  // 54: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
+	(*GetStreamingResolverMaterializedAggregationPlanResponse)(nil), // 55: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
+	(*PlanRunMetadataBlock)(nil),                                    // 56: chalk.server.v1.PlanRunMetadataBlock
+	(*ArchiveMetaQueryRequest)(nil),                                 // 57: chalk.server.v1.ArchiveMetaQueryRequest
+	(*ArchiveMetaQueryResponse)(nil),                                // 58: chalk.server.v1.ArchiveMetaQueryResponse
+	(*UnarchiveMetaQueryRequest)(nil),                               // 59: chalk.server.v1.UnarchiveMetaQueryRequest
+	(*UnarchiveMetaQueryResponse)(nil),                              // 60: chalk.server.v1.UnarchiveMetaQueryResponse
+	(*GetPlanRunMetadataRequest)(nil),                               // 61: chalk.server.v1.GetPlanRunMetadataRequest
+	(*GetPlanRunMetadataResponse)(nil),                              // 62: chalk.server.v1.GetPlanRunMetadataResponse
+	(*timestamppb.Timestamp)(nil),                                   // 63: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                                     // 64: google.protobuf.Duration
+	(*v1.DenseTimeSeriesChart)(nil),                                 // 65: chalk.chart.v1.DenseTimeSeriesChart
+	(v11.QueryStatus)(0),                                            // 66: chalk.common.v1.QueryStatus
 }
 var file_chalk_server_v1_queries_proto_depIdxs = []int32{
-	62, // 0: chalk.server.v1.ListQueryErrorsPageToken.error_timestamp_hwm:type_name -> google.protobuf.Timestamp
-	62, // 1: chalk.server.v1.QueryErrorMeta.created_at:type_name -> google.protobuf.Timestamp
-	62, // 2: chalk.server.v1.ListQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
-	62, // 3: chalk.server.v1.ListQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
-	4,  // 4: chalk.server.v1.ListQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
-	5,  // 5: chalk.server.v1.ListQueryErrorsResponse.query_errors:type_name -> chalk.server.v1.QueryErrorMeta
-	62, // 6: chalk.server.v1.GetQueryErrorsChartRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
-	62, // 7: chalk.server.v1.GetQueryErrorsChartRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
-	63, // 8: chalk.server.v1.GetQueryErrorsChartRequest.window_period:type_name -> google.protobuf.Duration
-	4,  // 9: chalk.server.v1.GetQueryErrorsChartRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
-	64, // 10: chalk.server.v1.GetQueryErrorsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	62, // 11: chalk.server.v1.QueryPlan.created_at:type_name -> google.protobuf.Timestamp
-	11, // 12: chalk.server.v1.GetQueryPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
-	62, // 13: chalk.server.v1.ListQueryPlansRequest.start:type_name -> google.protobuf.Timestamp
-	62, // 14: chalk.server.v1.ListQueryPlansRequest.end:type_name -> google.protobuf.Timestamp
-	62, // 15: chalk.server.v1.QueryPlanReference.created_at:type_name -> google.protobuf.Timestamp
-	14, // 16: chalk.server.v1.ListQueryPlansResponse.plans:type_name -> chalk.server.v1.QueryPlanReference
-	5,  // 17: chalk.server.v1.AggregatedQueryError.sample_error:type_name -> chalk.server.v1.QueryErrorMeta
-	62, // 18: chalk.server.v1.AggregatedQueryError.first_seen:type_name -> google.protobuf.Timestamp
-	62, // 19: chalk.server.v1.AggregatedQueryError.last_seen:type_name -> google.protobuf.Timestamp
-	62, // 20: chalk.server.v1.AggregateQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
-	62, // 21: chalk.server.v1.AggregateQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
-	4,  // 22: chalk.server.v1.AggregateQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
-	16, // 23: chalk.server.v1.AggregateQueryErrorsResponse.aggregated_errors:type_name -> chalk.server.v1.AggregatedQueryError
-	62, // 24: chalk.server.v1.MetaQueryRun.created_at:type_name -> google.protobuf.Timestamp
-	65, // 25: chalk.server.v1.MetaQueryRun.status:type_name -> chalk.common.v1.QueryStatus
-	19, // 26: chalk.server.v1.MetaQueryRunWithMeta.run:type_name -> chalk.server.v1.MetaQueryRun
-	62, // 27: chalk.server.v1.ListMetaQueryRunsRequest.cursor:type_name -> google.protobuf.Timestamp
-	62, // 28: chalk.server.v1.ListMetaQueryRunsRequest.start:type_name -> google.protobuf.Timestamp
-	62, // 29: chalk.server.v1.ListMetaQueryRunsRequest.end:type_name -> google.protobuf.Timestamp
+	63, // 0: chalk.server.v1.ListQueryErrorsPageToken.error_timestamp_hwm:type_name -> google.protobuf.Timestamp
+	63, // 1: chalk.server.v1.QueryErrorMeta.created_at:type_name -> google.protobuf.Timestamp
+	63, // 2: chalk.server.v1.ListQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
+	63, // 3: chalk.server.v1.ListQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
+	5,  // 4: chalk.server.v1.ListQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
+	6,  // 5: chalk.server.v1.ListQueryErrorsResponse.query_errors:type_name -> chalk.server.v1.QueryErrorMeta
+	63, // 6: chalk.server.v1.GetQueryErrorsChartRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
+	63, // 7: chalk.server.v1.GetQueryErrorsChartRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
+	64, // 8: chalk.server.v1.GetQueryErrorsChartRequest.window_period:type_name -> google.protobuf.Duration
+	5,  // 9: chalk.server.v1.GetQueryErrorsChartRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
+	65, // 10: chalk.server.v1.GetQueryErrorsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	63, // 11: chalk.server.v1.QueryPlan.created_at:type_name -> google.protobuf.Timestamp
+	12, // 12: chalk.server.v1.GetQueryPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	63, // 13: chalk.server.v1.ListQueryPlansRequest.start:type_name -> google.protobuf.Timestamp
+	63, // 14: chalk.server.v1.ListQueryPlansRequest.end:type_name -> google.protobuf.Timestamp
+	63, // 15: chalk.server.v1.QueryPlanReference.created_at:type_name -> google.protobuf.Timestamp
+	15, // 16: chalk.server.v1.ListQueryPlansResponse.plans:type_name -> chalk.server.v1.QueryPlanReference
+	6,  // 17: chalk.server.v1.AggregatedQueryError.sample_error:type_name -> chalk.server.v1.QueryErrorMeta
+	63, // 18: chalk.server.v1.AggregatedQueryError.first_seen:type_name -> google.protobuf.Timestamp
+	63, // 19: chalk.server.v1.AggregatedQueryError.last_seen:type_name -> google.protobuf.Timestamp
+	63, // 20: chalk.server.v1.AggregateQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
+	63, // 21: chalk.server.v1.AggregateQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
+	5,  // 22: chalk.server.v1.AggregateQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
+	17, // 23: chalk.server.v1.AggregateQueryErrorsResponse.aggregated_errors:type_name -> chalk.server.v1.AggregatedQueryError
+	63, // 24: chalk.server.v1.MetaQueryRun.created_at:type_name -> google.protobuf.Timestamp
+	66, // 25: chalk.server.v1.MetaQueryRun.status:type_name -> chalk.common.v1.QueryStatus
+	20, // 26: chalk.server.v1.MetaQueryRunWithMeta.run:type_name -> chalk.server.v1.MetaQueryRun
+	63, // 27: chalk.server.v1.ListMetaQueryRunsRequest.cursor:type_name -> google.protobuf.Timestamp
+	63, // 28: chalk.server.v1.ListMetaQueryRunsRequest.start:type_name -> google.protobuf.Timestamp
+	63, // 29: chalk.server.v1.ListMetaQueryRunsRequest.end:type_name -> google.protobuf.Timestamp
 	0,  // 30: chalk.server.v1.ListMetaQueryRunsRequest.source:type_name -> chalk.server.v1.MetaQueryRunsSource
-	65, // 31: chalk.server.v1.ListMetaQueryRunsRequest.statuses:type_name -> chalk.common.v1.QueryStatus
-	62, // 32: chalk.server.v1.ListMetaQueryRunsPageToken.cursor:type_name -> google.protobuf.Timestamp
-	20, // 33: chalk.server.v1.ListMetaQueryRunsResponse.query_runs:type_name -> chalk.server.v1.MetaQueryRunWithMeta
-	62, // 34: chalk.server.v1.ListMetaQueryRunsResponse.next_cursor:type_name -> google.protobuf.Timestamp
-	62, // 35: chalk.server.v1.MetaQuery.last_observed_at:type_name -> google.protobuf.Timestamp
-	62, // 36: chalk.server.v1.MetaQuery.created_at:type_name -> google.protobuf.Timestamp
-	62, // 37: chalk.server.v1.MetaQuery.archived_at:type_name -> google.protobuf.Timestamp
-	62, // 38: chalk.server.v1.MetaQuery.succeeded_at:type_name -> google.protobuf.Timestamp
-	62, // 39: chalk.server.v1.ListMetaQueriesRequest.start:type_name -> google.protobuf.Timestamp
-	62, // 40: chalk.server.v1.ListMetaQueriesRequest.end:type_name -> google.protobuf.Timestamp
-	62, // 41: chalk.server.v1.ListMetaQueriesRequest.cursor:type_name -> google.protobuf.Timestamp
-	24, // 42: chalk.server.v1.ListMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	62, // 43: chalk.server.v1.ListMetaQueriesResponse.next_cursor:type_name -> google.protobuf.Timestamp
-	24, // 44: chalk.server.v1.ListLatestMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	24, // 45: chalk.server.v1.GetMetaQueryResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
-	24, // 46: chalk.server.v1.GetMetaQueryByNameResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
-	24, // 47: chalk.server.v1.ListMetaQueriesByIdsResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	24, // 48: chalk.server.v1.ListArchivedMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	24, // 49: chalk.server.v1.ListMetaQueriesForResolverResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	24, // 50: chalk.server.v1.ListMetaQueriesForFeatureResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	62, // 51: chalk.server.v1.ListMetaQueryVersionsRequest.cursor:type_name -> google.protobuf.Timestamp
-	24, // 52: chalk.server.v1.ListMetaQueryVersionsResponse.meta_query_versions:type_name -> chalk.server.v1.MetaQuery
-	62, // 53: chalk.server.v1.ListMetaQueryVersionsResponse.next_cursor:type_name -> google.protobuf.Timestamp
-	62, // 54: chalk.server.v1.QueryRun.created_at:type_name -> google.protobuf.Timestamp
-	65, // 55: chalk.server.v1.QueryRun.status:type_name -> chalk.common.v1.QueryStatus
-	62, // 56: chalk.server.v1.GetQueryRunRequest.approximate_timestamp:type_name -> google.protobuf.Timestamp
-	43, // 57: chalk.server.v1.GetQueryRunResponse.query_run:type_name -> chalk.server.v1.QueryRun
-	62, // 58: chalk.server.v1.DeploymentTimestamp.created_at:type_name -> google.protobuf.Timestamp
-	47, // 59: chalk.server.v1.ListStreamingResolverDeploymentsResponse.deployments:type_name -> chalk.server.v1.DeploymentTimestamp
-	11, // 60: chalk.server.v1.GetStreamingResolverMappingPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
-	11, // 61: chalk.server.v1.GetStreamingResolverSinkPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
-	11, // 62: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
-	55, // 63: chalk.server.v1.GetPlanRunMetadataResponse.metadata:type_name -> chalk.server.v1.PlanRunMetadataBlock
-	1,  // 64: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:input_type -> chalk.server.v1.GetQueryPerformanceSummaryRequest
-	6,  // 65: chalk.server.v1.QueriesService.ListQueryErrors:input_type -> chalk.server.v1.ListQueryErrorsRequest
-	8,  // 66: chalk.server.v1.QueriesService.GetQueryErrorsChart:input_type -> chalk.server.v1.GetQueryErrorsChartRequest
-	10, // 67: chalk.server.v1.QueriesService.GetQueryPlan:input_type -> chalk.server.v1.GetQueryPlanRequest
-	13, // 68: chalk.server.v1.QueriesService.ListQueryPlans:input_type -> chalk.server.v1.ListQueryPlansRequest
-	17, // 69: chalk.server.v1.QueriesService.AggregateQueryErrors:input_type -> chalk.server.v1.AggregateQueryErrorsRequest
-	21, // 70: chalk.server.v1.QueriesService.ListMetaQueryRuns:input_type -> chalk.server.v1.ListMetaQueryRunsRequest
-	25, // 71: chalk.server.v1.QueriesService.ListMetaQueries:input_type -> chalk.server.v1.ListMetaQueriesRequest
-	27, // 72: chalk.server.v1.QueriesService.ListLatestMetaQueries:input_type -> chalk.server.v1.ListLatestMetaQueriesRequest
-	29, // 73: chalk.server.v1.QueriesService.GetMetaQuery:input_type -> chalk.server.v1.GetMetaQueryRequest
-	31, // 74: chalk.server.v1.QueriesService.GetMetaQueryByName:input_type -> chalk.server.v1.GetMetaQueryByNameRequest
-	33, // 75: chalk.server.v1.QueriesService.ListMetaQueriesByIds:input_type -> chalk.server.v1.ListMetaQueriesByIdsRequest
-	35, // 76: chalk.server.v1.QueriesService.ListArchivedMetaQueries:input_type -> chalk.server.v1.ListArchivedMetaQueriesRequest
-	37, // 77: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:input_type -> chalk.server.v1.ListMetaQueriesForResolverRequest
-	39, // 78: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:input_type -> chalk.server.v1.ListMetaQueriesForFeatureRequest
-	41, // 79: chalk.server.v1.QueriesService.ListMetaQueryVersions:input_type -> chalk.server.v1.ListMetaQueryVersionsRequest
-	44, // 80: chalk.server.v1.QueriesService.GetQueryRun:input_type -> chalk.server.v1.GetQueryRunRequest
-	46, // 81: chalk.server.v1.QueriesService.ListStreamingResolverDeployments:input_type -> chalk.server.v1.ListStreamingResolverDeploymentsRequest
-	49, // 82: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:input_type -> chalk.server.v1.GetStreamingResolverMappingPlanRequest
-	51, // 83: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:input_type -> chalk.server.v1.GetStreamingResolverSinkPlanRequest
-	53, // 84: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:input_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
-	60, // 85: chalk.server.v1.QueriesService.GetPlanRunMetadata:input_type -> chalk.server.v1.GetPlanRunMetadataRequest
-	56, // 86: chalk.server.v1.QueriesService.ArchiveMetaQuery:input_type -> chalk.server.v1.ArchiveMetaQueryRequest
-	58, // 87: chalk.server.v1.QueriesService.UnarchiveMetaQuery:input_type -> chalk.server.v1.UnarchiveMetaQueryRequest
-	2,  // 88: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:output_type -> chalk.server.v1.GetQueryPerformanceSummaryResponse
-	7,  // 89: chalk.server.v1.QueriesService.ListQueryErrors:output_type -> chalk.server.v1.ListQueryErrorsResponse
-	9,  // 90: chalk.server.v1.QueriesService.GetQueryErrorsChart:output_type -> chalk.server.v1.GetQueryErrorsChartResponse
-	12, // 91: chalk.server.v1.QueriesService.GetQueryPlan:output_type -> chalk.server.v1.GetQueryPlanResponse
-	15, // 92: chalk.server.v1.QueriesService.ListQueryPlans:output_type -> chalk.server.v1.ListQueryPlansResponse
-	18, // 93: chalk.server.v1.QueriesService.AggregateQueryErrors:output_type -> chalk.server.v1.AggregateQueryErrorsResponse
-	23, // 94: chalk.server.v1.QueriesService.ListMetaQueryRuns:output_type -> chalk.server.v1.ListMetaQueryRunsResponse
-	26, // 95: chalk.server.v1.QueriesService.ListMetaQueries:output_type -> chalk.server.v1.ListMetaQueriesResponse
-	28, // 96: chalk.server.v1.QueriesService.ListLatestMetaQueries:output_type -> chalk.server.v1.ListLatestMetaQueriesResponse
-	30, // 97: chalk.server.v1.QueriesService.GetMetaQuery:output_type -> chalk.server.v1.GetMetaQueryResponse
-	32, // 98: chalk.server.v1.QueriesService.GetMetaQueryByName:output_type -> chalk.server.v1.GetMetaQueryByNameResponse
-	34, // 99: chalk.server.v1.QueriesService.ListMetaQueriesByIds:output_type -> chalk.server.v1.ListMetaQueriesByIdsResponse
-	36, // 100: chalk.server.v1.QueriesService.ListArchivedMetaQueries:output_type -> chalk.server.v1.ListArchivedMetaQueriesResponse
-	38, // 101: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:output_type -> chalk.server.v1.ListMetaQueriesForResolverResponse
-	40, // 102: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:output_type -> chalk.server.v1.ListMetaQueriesForFeatureResponse
-	42, // 103: chalk.server.v1.QueriesService.ListMetaQueryVersions:output_type -> chalk.server.v1.ListMetaQueryVersionsResponse
-	45, // 104: chalk.server.v1.QueriesService.GetQueryRun:output_type -> chalk.server.v1.GetQueryRunResponse
-	48, // 105: chalk.server.v1.QueriesService.ListStreamingResolverDeployments:output_type -> chalk.server.v1.ListStreamingResolverDeploymentsResponse
-	50, // 106: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:output_type -> chalk.server.v1.GetStreamingResolverMappingPlanResponse
-	52, // 107: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:output_type -> chalk.server.v1.GetStreamingResolverSinkPlanResponse
-	54, // 108: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:output_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
-	61, // 109: chalk.server.v1.QueriesService.GetPlanRunMetadata:output_type -> chalk.server.v1.GetPlanRunMetadataResponse
-	57, // 110: chalk.server.v1.QueriesService.ArchiveMetaQuery:output_type -> chalk.server.v1.ArchiveMetaQueryResponse
-	59, // 111: chalk.server.v1.QueriesService.UnarchiveMetaQuery:output_type -> chalk.server.v1.UnarchiveMetaQueryResponse
-	88, // [88:112] is the sub-list for method output_type
-	64, // [64:88] is the sub-list for method input_type
-	64, // [64:64] is the sub-list for extension type_name
-	64, // [64:64] is the sub-list for extension extendee
-	0,  // [0:64] is the sub-list for field type_name
+	66, // 31: chalk.server.v1.ListMetaQueryRunsRequest.statuses:type_name -> chalk.common.v1.QueryStatus
+	1,  // 32: chalk.server.v1.ListMetaQueryRunsRequest.correlation_id_comparison:type_name -> chalk.server.v1.IdComparisonOperator
+	63, // 33: chalk.server.v1.ListMetaQueryRunsPageToken.cursor:type_name -> google.protobuf.Timestamp
+	21, // 34: chalk.server.v1.ListMetaQueryRunsResponse.query_runs:type_name -> chalk.server.v1.MetaQueryRunWithMeta
+	63, // 35: chalk.server.v1.ListMetaQueryRunsResponse.next_cursor:type_name -> google.protobuf.Timestamp
+	63, // 36: chalk.server.v1.MetaQuery.last_observed_at:type_name -> google.protobuf.Timestamp
+	63, // 37: chalk.server.v1.MetaQuery.created_at:type_name -> google.protobuf.Timestamp
+	63, // 38: chalk.server.v1.MetaQuery.archived_at:type_name -> google.protobuf.Timestamp
+	63, // 39: chalk.server.v1.MetaQuery.succeeded_at:type_name -> google.protobuf.Timestamp
+	63, // 40: chalk.server.v1.ListMetaQueriesRequest.start:type_name -> google.protobuf.Timestamp
+	63, // 41: chalk.server.v1.ListMetaQueriesRequest.end:type_name -> google.protobuf.Timestamp
+	63, // 42: chalk.server.v1.ListMetaQueriesRequest.cursor:type_name -> google.protobuf.Timestamp
+	25, // 43: chalk.server.v1.ListMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	63, // 44: chalk.server.v1.ListMetaQueriesResponse.next_cursor:type_name -> google.protobuf.Timestamp
+	25, // 45: chalk.server.v1.ListLatestMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	25, // 46: chalk.server.v1.GetMetaQueryResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
+	25, // 47: chalk.server.v1.GetMetaQueryByNameResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
+	25, // 48: chalk.server.v1.ListMetaQueriesByIdsResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	25, // 49: chalk.server.v1.ListArchivedMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	25, // 50: chalk.server.v1.ListMetaQueriesForResolverResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	25, // 51: chalk.server.v1.ListMetaQueriesForFeatureResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	63, // 52: chalk.server.v1.ListMetaQueryVersionsRequest.cursor:type_name -> google.protobuf.Timestamp
+	25, // 53: chalk.server.v1.ListMetaQueryVersionsResponse.meta_query_versions:type_name -> chalk.server.v1.MetaQuery
+	63, // 54: chalk.server.v1.ListMetaQueryVersionsResponse.next_cursor:type_name -> google.protobuf.Timestamp
+	63, // 55: chalk.server.v1.QueryRun.created_at:type_name -> google.protobuf.Timestamp
+	66, // 56: chalk.server.v1.QueryRun.status:type_name -> chalk.common.v1.QueryStatus
+	63, // 57: chalk.server.v1.GetQueryRunRequest.approximate_timestamp:type_name -> google.protobuf.Timestamp
+	44, // 58: chalk.server.v1.GetQueryRunResponse.query_run:type_name -> chalk.server.v1.QueryRun
+	63, // 59: chalk.server.v1.DeploymentTimestamp.created_at:type_name -> google.protobuf.Timestamp
+	48, // 60: chalk.server.v1.ListStreamingResolverDeploymentsResponse.deployments:type_name -> chalk.server.v1.DeploymentTimestamp
+	12, // 61: chalk.server.v1.GetStreamingResolverMappingPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	12, // 62: chalk.server.v1.GetStreamingResolverSinkPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	12, // 63: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	56, // 64: chalk.server.v1.GetPlanRunMetadataResponse.metadata:type_name -> chalk.server.v1.PlanRunMetadataBlock
+	2,  // 65: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:input_type -> chalk.server.v1.GetQueryPerformanceSummaryRequest
+	7,  // 66: chalk.server.v1.QueriesService.ListQueryErrors:input_type -> chalk.server.v1.ListQueryErrorsRequest
+	9,  // 67: chalk.server.v1.QueriesService.GetQueryErrorsChart:input_type -> chalk.server.v1.GetQueryErrorsChartRequest
+	11, // 68: chalk.server.v1.QueriesService.GetQueryPlan:input_type -> chalk.server.v1.GetQueryPlanRequest
+	14, // 69: chalk.server.v1.QueriesService.ListQueryPlans:input_type -> chalk.server.v1.ListQueryPlansRequest
+	18, // 70: chalk.server.v1.QueriesService.AggregateQueryErrors:input_type -> chalk.server.v1.AggregateQueryErrorsRequest
+	22, // 71: chalk.server.v1.QueriesService.ListMetaQueryRuns:input_type -> chalk.server.v1.ListMetaQueryRunsRequest
+	26, // 72: chalk.server.v1.QueriesService.ListMetaQueries:input_type -> chalk.server.v1.ListMetaQueriesRequest
+	28, // 73: chalk.server.v1.QueriesService.ListLatestMetaQueries:input_type -> chalk.server.v1.ListLatestMetaQueriesRequest
+	30, // 74: chalk.server.v1.QueriesService.GetMetaQuery:input_type -> chalk.server.v1.GetMetaQueryRequest
+	32, // 75: chalk.server.v1.QueriesService.GetMetaQueryByName:input_type -> chalk.server.v1.GetMetaQueryByNameRequest
+	34, // 76: chalk.server.v1.QueriesService.ListMetaQueriesByIds:input_type -> chalk.server.v1.ListMetaQueriesByIdsRequest
+	36, // 77: chalk.server.v1.QueriesService.ListArchivedMetaQueries:input_type -> chalk.server.v1.ListArchivedMetaQueriesRequest
+	38, // 78: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:input_type -> chalk.server.v1.ListMetaQueriesForResolverRequest
+	40, // 79: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:input_type -> chalk.server.v1.ListMetaQueriesForFeatureRequest
+	42, // 80: chalk.server.v1.QueriesService.ListMetaQueryVersions:input_type -> chalk.server.v1.ListMetaQueryVersionsRequest
+	45, // 81: chalk.server.v1.QueriesService.GetQueryRun:input_type -> chalk.server.v1.GetQueryRunRequest
+	47, // 82: chalk.server.v1.QueriesService.ListStreamingResolverDeployments:input_type -> chalk.server.v1.ListStreamingResolverDeploymentsRequest
+	50, // 83: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:input_type -> chalk.server.v1.GetStreamingResolverMappingPlanRequest
+	52, // 84: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:input_type -> chalk.server.v1.GetStreamingResolverSinkPlanRequest
+	54, // 85: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:input_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
+	61, // 86: chalk.server.v1.QueriesService.GetPlanRunMetadata:input_type -> chalk.server.v1.GetPlanRunMetadataRequest
+	57, // 87: chalk.server.v1.QueriesService.ArchiveMetaQuery:input_type -> chalk.server.v1.ArchiveMetaQueryRequest
+	59, // 88: chalk.server.v1.QueriesService.UnarchiveMetaQuery:input_type -> chalk.server.v1.UnarchiveMetaQueryRequest
+	3,  // 89: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:output_type -> chalk.server.v1.GetQueryPerformanceSummaryResponse
+	8,  // 90: chalk.server.v1.QueriesService.ListQueryErrors:output_type -> chalk.server.v1.ListQueryErrorsResponse
+	10, // 91: chalk.server.v1.QueriesService.GetQueryErrorsChart:output_type -> chalk.server.v1.GetQueryErrorsChartResponse
+	13, // 92: chalk.server.v1.QueriesService.GetQueryPlan:output_type -> chalk.server.v1.GetQueryPlanResponse
+	16, // 93: chalk.server.v1.QueriesService.ListQueryPlans:output_type -> chalk.server.v1.ListQueryPlansResponse
+	19, // 94: chalk.server.v1.QueriesService.AggregateQueryErrors:output_type -> chalk.server.v1.AggregateQueryErrorsResponse
+	24, // 95: chalk.server.v1.QueriesService.ListMetaQueryRuns:output_type -> chalk.server.v1.ListMetaQueryRunsResponse
+	27, // 96: chalk.server.v1.QueriesService.ListMetaQueries:output_type -> chalk.server.v1.ListMetaQueriesResponse
+	29, // 97: chalk.server.v1.QueriesService.ListLatestMetaQueries:output_type -> chalk.server.v1.ListLatestMetaQueriesResponse
+	31, // 98: chalk.server.v1.QueriesService.GetMetaQuery:output_type -> chalk.server.v1.GetMetaQueryResponse
+	33, // 99: chalk.server.v1.QueriesService.GetMetaQueryByName:output_type -> chalk.server.v1.GetMetaQueryByNameResponse
+	35, // 100: chalk.server.v1.QueriesService.ListMetaQueriesByIds:output_type -> chalk.server.v1.ListMetaQueriesByIdsResponse
+	37, // 101: chalk.server.v1.QueriesService.ListArchivedMetaQueries:output_type -> chalk.server.v1.ListArchivedMetaQueriesResponse
+	39, // 102: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:output_type -> chalk.server.v1.ListMetaQueriesForResolverResponse
+	41, // 103: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:output_type -> chalk.server.v1.ListMetaQueriesForFeatureResponse
+	43, // 104: chalk.server.v1.QueriesService.ListMetaQueryVersions:output_type -> chalk.server.v1.ListMetaQueryVersionsResponse
+	46, // 105: chalk.server.v1.QueriesService.GetQueryRun:output_type -> chalk.server.v1.GetQueryRunResponse
+	49, // 106: chalk.server.v1.QueriesService.ListStreamingResolverDeployments:output_type -> chalk.server.v1.ListStreamingResolverDeploymentsResponse
+	51, // 107: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:output_type -> chalk.server.v1.GetStreamingResolverMappingPlanResponse
+	53, // 108: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:output_type -> chalk.server.v1.GetStreamingResolverSinkPlanResponse
+	55, // 109: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:output_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
+	62, // 110: chalk.server.v1.QueriesService.GetPlanRunMetadata:output_type -> chalk.server.v1.GetPlanRunMetadataResponse
+	58, // 111: chalk.server.v1.QueriesService.ArchiveMetaQuery:output_type -> chalk.server.v1.ArchiveMetaQueryResponse
+	60, // 112: chalk.server.v1.QueriesService.UnarchiveMetaQuery:output_type -> chalk.server.v1.UnarchiveMetaQueryResponse
+	89, // [89:113] is the sub-list for method output_type
+	65, // [65:89] is the sub-list for method input_type
+	65, // [65:65] is the sub-list for extension type_name
+	65, // [65:65] is the sub-list for extension extendee
+	0,  // [0:65] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_queries_proto_init() }
@@ -4768,7 +4847,7 @@ func file_chalk_server_v1_queries_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_queries_proto_rawDesc), len(file_chalk_server_v1_queries_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   61,
 			NumExtensions: 0,
 			NumServices:   1,

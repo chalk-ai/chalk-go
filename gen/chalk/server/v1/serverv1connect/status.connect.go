@@ -38,6 +38,12 @@ const (
 	HealthServiceCheckHealthProcedure = "/chalk.server.v1.HealthService/CheckHealth"
 	// HealthServiceGetHealthProcedure is the fully-qualified name of the HealthService's GetHealth RPC.
 	HealthServiceGetHealthProcedure = "/chalk.server.v1.HealthService/GetHealth"
+	// HealthServiceGetClusterHealthProcedure is the fully-qualified name of the HealthService's
+	// GetClusterHealth RPC.
+	HealthServiceGetClusterHealthProcedure = "/chalk.server.v1.HealthService/GetClusterHealth"
+	// HealthServiceListClusterDnsZonesProcedure is the fully-qualified name of the HealthService's
+	// ListClusterDnsZones RPC.
+	HealthServiceListClusterDnsZonesProcedure = "/chalk.server.v1.HealthService/ListClusterDnsZones"
 	// HealthServiceGetClusterMetricsProcedure is the fully-qualified name of the HealthService's
 	// GetClusterMetrics RPC.
 	HealthServiceGetClusterMetricsProcedure = "/chalk.server.v1.HealthService/GetClusterMetrics"
@@ -49,6 +55,11 @@ type HealthServiceClient interface {
 	CheckHealth(context.Context, *connect.Request[v1.CheckHealthRequest]) (*connect.Response[v1.CheckHealthResponse], error)
 	// Return the actual health check values.
 	GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error)
+	// Inspect an attached or pending Kubernetes cluster. Requested checks run
+	// concurrently and retain report order.
+	GetClusterHealth(context.Context, *connect.Request[v1.GetClusterHealthRequest]) (*connect.Response[v1.GetClusterHealthResponse], error)
+	// Enumerate DNS zones visible to the selected cluster cloud credential.
+	ListClusterDnsZones(context.Context, *connect.Request[v1.ListClusterDnsZonesRequest]) (*connect.Response[v1.ListClusterDnsZonesResponse], error)
 	// Return collected cluster prometheus metrics
 	GetClusterMetrics(context.Context, *connect.Request[v1.GetClusterMetricsRequest]) (*connect.Response[v1.GetClusterMetricsResponse], error)
 }
@@ -78,6 +89,20 @@ func NewHealthServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getClusterHealth: connect.NewClient[v1.GetClusterHealthRequest, v1.GetClusterHealthResponse](
+			httpClient,
+			baseURL+HealthServiceGetClusterHealthProcedure,
+			connect.WithSchema(healthServiceMethods.ByName("GetClusterHealth")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listClusterDnsZones: connect.NewClient[v1.ListClusterDnsZonesRequest, v1.ListClusterDnsZonesResponse](
+			httpClient,
+			baseURL+HealthServiceListClusterDnsZonesProcedure,
+			connect.WithSchema(healthServiceMethods.ByName("ListClusterDnsZones")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getClusterMetrics: connect.NewClient[v1.GetClusterMetricsRequest, v1.GetClusterMetricsResponse](
 			httpClient,
 			baseURL+HealthServiceGetClusterMetricsProcedure,
@@ -90,9 +115,11 @@ func NewHealthServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // healthServiceClient implements HealthServiceClient.
 type healthServiceClient struct {
-	checkHealth       *connect.Client[v1.CheckHealthRequest, v1.CheckHealthResponse]
-	getHealth         *connect.Client[v1.GetHealthRequest, v1.GetHealthResponse]
-	getClusterMetrics *connect.Client[v1.GetClusterMetricsRequest, v1.GetClusterMetricsResponse]
+	checkHealth         *connect.Client[v1.CheckHealthRequest, v1.CheckHealthResponse]
+	getHealth           *connect.Client[v1.GetHealthRequest, v1.GetHealthResponse]
+	getClusterHealth    *connect.Client[v1.GetClusterHealthRequest, v1.GetClusterHealthResponse]
+	listClusterDnsZones *connect.Client[v1.ListClusterDnsZonesRequest, v1.ListClusterDnsZonesResponse]
+	getClusterMetrics   *connect.Client[v1.GetClusterMetricsRequest, v1.GetClusterMetricsResponse]
 }
 
 // CheckHealth calls chalk.server.v1.HealthService.CheckHealth.
@@ -103,6 +130,16 @@ func (c *healthServiceClient) CheckHealth(ctx context.Context, req *connect.Requ
 // GetHealth calls chalk.server.v1.HealthService.GetHealth.
 func (c *healthServiceClient) GetHealth(ctx context.Context, req *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error) {
 	return c.getHealth.CallUnary(ctx, req)
+}
+
+// GetClusterHealth calls chalk.server.v1.HealthService.GetClusterHealth.
+func (c *healthServiceClient) GetClusterHealth(ctx context.Context, req *connect.Request[v1.GetClusterHealthRequest]) (*connect.Response[v1.GetClusterHealthResponse], error) {
+	return c.getClusterHealth.CallUnary(ctx, req)
+}
+
+// ListClusterDnsZones calls chalk.server.v1.HealthService.ListClusterDnsZones.
+func (c *healthServiceClient) ListClusterDnsZones(ctx context.Context, req *connect.Request[v1.ListClusterDnsZonesRequest]) (*connect.Response[v1.ListClusterDnsZonesResponse], error) {
+	return c.listClusterDnsZones.CallUnary(ctx, req)
 }
 
 // GetClusterMetrics calls chalk.server.v1.HealthService.GetClusterMetrics.
@@ -116,6 +153,11 @@ type HealthServiceHandler interface {
 	CheckHealth(context.Context, *connect.Request[v1.CheckHealthRequest]) (*connect.Response[v1.CheckHealthResponse], error)
 	// Return the actual health check values.
 	GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error)
+	// Inspect an attached or pending Kubernetes cluster. Requested checks run
+	// concurrently and retain report order.
+	GetClusterHealth(context.Context, *connect.Request[v1.GetClusterHealthRequest]) (*connect.Response[v1.GetClusterHealthResponse], error)
+	// Enumerate DNS zones visible to the selected cluster cloud credential.
+	ListClusterDnsZones(context.Context, *connect.Request[v1.ListClusterDnsZonesRequest]) (*connect.Response[v1.ListClusterDnsZonesResponse], error)
 	// Return collected cluster prometheus metrics
 	GetClusterMetrics(context.Context, *connect.Request[v1.GetClusterMetricsRequest]) (*connect.Response[v1.GetClusterMetricsResponse], error)
 }
@@ -141,6 +183,20 @@ func NewHealthServiceHandler(svc HealthServiceHandler, opts ...connect.HandlerOp
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	healthServiceGetClusterHealthHandler := connect.NewUnaryHandler(
+		HealthServiceGetClusterHealthProcedure,
+		svc.GetClusterHealth,
+		connect.WithSchema(healthServiceMethods.ByName("GetClusterHealth")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	healthServiceListClusterDnsZonesHandler := connect.NewUnaryHandler(
+		HealthServiceListClusterDnsZonesProcedure,
+		svc.ListClusterDnsZones,
+		connect.WithSchema(healthServiceMethods.ByName("ListClusterDnsZones")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	healthServiceGetClusterMetricsHandler := connect.NewUnaryHandler(
 		HealthServiceGetClusterMetricsProcedure,
 		svc.GetClusterMetrics,
@@ -154,6 +210,10 @@ func NewHealthServiceHandler(svc HealthServiceHandler, opts ...connect.HandlerOp
 			healthServiceCheckHealthHandler.ServeHTTP(w, r)
 		case HealthServiceGetHealthProcedure:
 			healthServiceGetHealthHandler.ServeHTTP(w, r)
+		case HealthServiceGetClusterHealthProcedure:
+			healthServiceGetClusterHealthHandler.ServeHTTP(w, r)
+		case HealthServiceListClusterDnsZonesProcedure:
+			healthServiceListClusterDnsZonesHandler.ServeHTTP(w, r)
 		case HealthServiceGetClusterMetricsProcedure:
 			healthServiceGetClusterMetricsHandler.ServeHTTP(w, r)
 		default:
@@ -171,6 +231,14 @@ func (UnimplementedHealthServiceHandler) CheckHealth(context.Context, *connect.R
 
 func (UnimplementedHealthServiceHandler) GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HealthService.GetHealth is not implemented"))
+}
+
+func (UnimplementedHealthServiceHandler) GetClusterHealth(context.Context, *connect.Request[v1.GetClusterHealthRequest]) (*connect.Response[v1.GetClusterHealthResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HealthService.GetClusterHealth is not implemented"))
+}
+
+func (UnimplementedHealthServiceHandler) ListClusterDnsZones(context.Context, *connect.Request[v1.ListClusterDnsZonesRequest]) (*connect.Response[v1.ListClusterDnsZonesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HealthService.ListClusterDnsZones is not implemented"))
 }
 
 func (UnimplementedHealthServiceHandler) GetClusterMetrics(context.Context, *connect.Request[v1.GetClusterMetricsRequest]) (*connect.Response[v1.GetClusterMetricsResponse], error) {

@@ -656,7 +656,9 @@ type ChalkContainerSpec struct {
 	Lifetime *durationpb.Duration `protobuf:"bytes,6,opt,name=lifetime,proto3,oneof" json:"lifetime,omitempty"`
 	// Optional resource limits for CPU and memory
 	Resources *ResourceLimits `protobuf:"bytes,7,opt,name=resources,proto3,oneof" json:"resources,omitempty"`
-	// Enable SSH access to the container (defaults to false)
+	// Deprecated: inbound SSH access to running containers is no longer supported.
+	//
+	// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 	EnableSsh *bool `protobuf:"varint,8,opt,name=enable_ssh,json=enableSsh,proto3,oneof" json:"enable_ssh,omitempty"`
 	// Environment variables to inject into the container
 	EnvVars map[string]string `protobuf:"bytes,9,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -780,6 +782,7 @@ func (x *ChalkContainerSpec) GetResources() *ResourceLimits {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 func (x *ChalkContainerSpec) GetEnableSsh() bool {
 	if x != nil && x.EnableSsh != nil {
 		return *x.EnableSsh
@@ -1954,13 +1957,21 @@ type ContainerResponse struct {
 	PodName string `protobuf:"bytes,8,opt,name=pod_name,json=podName,proto3" json:"pod_name,omitempty"`
 	// Web URL to access the container (computed, if available)
 	WebUrl *string `protobuf:"bytes,9,opt,name=web_url,json=webUrl,proto3,oneof" json:"web_url,omitempty"`
-	// SSH private key (PEM format) - only returned once during creation
+	// Deprecated: inbound SSH access to running containers is no longer supported.
+	//
+	// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 	SshPrivateKey *string `protobuf:"bytes,10,opt,name=ssh_private_key,json=sshPrivateKey,proto3,oneof" json:"ssh_private_key,omitempty"`
-	// SSH username for connection
+	// Deprecated: inbound SSH access to running containers is no longer supported.
+	//
+	// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 	SshUsername *string `protobuf:"bytes,11,opt,name=ssh_username,json=sshUsername,proto3,oneof" json:"ssh_username,omitempty"`
-	// SSH host (LoadBalancer IP or hostname)
+	// Deprecated: inbound SSH access to running containers is no longer supported.
+	//
+	// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 	SshHost *string `protobuf:"bytes,12,opt,name=ssh_host,json=sshHost,proto3,oneof" json:"ssh_host,omitempty"`
-	// SSH port
+	// Deprecated: inbound SSH access to running containers is no longer supported.
+	//
+	// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 	SshPort *int32 `protobuf:"varint,13,opt,name=ssh_port,json=sshPort,proto3,oneof" json:"ssh_port,omitempty"`
 	// Result of an HTTP healthcheck against the container's web_url
 	// Only populated for containers with an exposed port and web_url
@@ -2062,6 +2073,7 @@ func (x *ContainerResponse) GetWebUrl() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 func (x *ContainerResponse) GetSshPrivateKey() string {
 	if x != nil && x.SshPrivateKey != nil {
 		return *x.SshPrivateKey
@@ -2069,6 +2081,7 @@ func (x *ContainerResponse) GetSshPrivateKey() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 func (x *ContainerResponse) GetSshUsername() string {
 	if x != nil && x.SshUsername != nil {
 		return *x.SshUsername
@@ -2076,6 +2089,7 @@ func (x *ContainerResponse) GetSshUsername() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 func (x *ContainerResponse) GetSshHost() string {
 	if x != nil && x.SshHost != nil {
 		return *x.SshHost
@@ -2083,6 +2097,7 @@ func (x *ContainerResponse) GetSshHost() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/container/v1/service.proto.
 func (x *ContainerResponse) GetSshPort() int32 {
 	if x != nil && x.SshPort != nil {
 		return *x.SshPort
@@ -5307,7 +5322,7 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x04port\x18\x04 \x01(\rH\x00R\x04port\x88\x01\x01\x12\x1f\n" +
 	"\busername\x18\x05 \x01(\tH\x01R\busername\x88\x01\x01B\a\n" +
 	"\x05_portB\v\n" +
-	"\t_username\"\x8c\x0e\n" +
+	"\t_username\"\x90\x0e\n" +
 	"\x12ChalkContainerSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12\x1e\n" +
@@ -5317,9 +5332,9 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x04tags\x18\x04 \x03(\v20.chalk.container.v1.ChalkContainerSpec.TagsEntryR\x04tags\x12\x17\n" +
 	"\x04port\x18\x05 \x01(\x05H\x00R\x04port\x88\x01\x01\x12:\n" +
 	"\blifetime\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\blifetime\x88\x01\x01\x12E\n" +
-	"\tresources\x18\a \x01(\v2\".chalk.container.v1.ResourceLimitsH\x02R\tresources\x88\x01\x01\x12\"\n" +
+	"\tresources\x18\a \x01(\v2\".chalk.container.v1.ResourceLimitsH\x02R\tresources\x88\x01\x01\x12&\n" +
 	"\n" +
-	"enable_ssh\x18\b \x01(\bH\x03R\tenableSsh\x88\x01\x01\x12N\n" +
+	"enable_ssh\x18\b \x01(\bB\x02\x18\x01H\x03R\tenableSsh\x88\x01\x01\x12N\n" +
 	"\benv_vars\x18\t \x03(\v23.chalk.container.v1.ChalkContainerSpec.EnvVarsEntryR\aenvVars\x129\n" +
 	"\avolumes\x18\n" +
 	" \x03(\v2\x1f.chalk.container.v1.VolumeMountR\avolumes\x12\x1f\n" +
@@ -5448,7 +5463,7 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"statusCode\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\x03 \x01(\tH\x01R\x05error\x88\x01\x01B\x0e\n" +
 	"\f_status_codeB\b\n" +
-	"\x06_error\"\xc7\x05\n" +
+	"\x06_error\"\xd7\x05\n" +
 	"\x11ContainerResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -5460,12 +5475,12 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"stopped_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tstoppedAt\x88\x01\x01\x12\x19\n" +
 	"\bpod_name\x18\b \x01(\tR\apodName\x12\x1c\n" +
-	"\aweb_url\x18\t \x01(\tH\x02R\x06webUrl\x88\x01\x01\x12+\n" +
+	"\aweb_url\x18\t \x01(\tH\x02R\x06webUrl\x88\x01\x01\x12/\n" +
 	"\x0fssh_private_key\x18\n" +
-	" \x01(\tH\x03R\rsshPrivateKey\x88\x01\x01\x12&\n" +
-	"\fssh_username\x18\v \x01(\tH\x04R\vsshUsername\x88\x01\x01\x12\x1e\n" +
-	"\bssh_host\x18\f \x01(\tH\x05R\asshHost\x88\x01\x01\x12\x1e\n" +
-	"\bssh_port\x18\r \x01(\x05H\x06R\asshPort\x88\x01\x01\x12G\n" +
+	" \x01(\tB\x02\x18\x01H\x03R\rsshPrivateKey\x88\x01\x01\x12*\n" +
+	"\fssh_username\x18\v \x01(\tB\x02\x18\x01H\x04R\vsshUsername\x88\x01\x01\x12\"\n" +
+	"\bssh_host\x18\f \x01(\tB\x02\x18\x01H\x05R\asshHost\x88\x01\x01\x12\"\n" +
+	"\bssh_port\x18\r \x01(\x05B\x02\x18\x01H\x06R\asshPort\x88\x01\x01\x12G\n" +
 	"\fhealth_check\x18\x0e \x01(\v2\x1f.chalk.container.v1.HealthCheckH\aR\vhealthCheck\x88\x01\x01B\x11\n" +
 	"\x0f_status_messageB\r\n" +
 	"\v_stopped_atB\n" +
