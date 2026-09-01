@@ -1732,8 +1732,17 @@ type RebuildDeploymentRequest struct {
 	// base_image_override. When unset, the source deployment's pinned platform version
 	// is inherited.
 	PlatformVersion *string `protobuf:"bytes,8,opt,name=platform_version,json=platformVersion,proto3,oneof" json:"platform_version,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Push the rebuilt image to this repository instead of the environment's default
+	// engine repository. A full repository path including the registry host, without a
+	// tag, e.g. "123456789012.dkr.ecr.us-east-1.amazonaws.com/engines/staged-engine" or
+	// "us-east4-docker.pkg.dev/chalk-prod/base-images/engine-foo"; the image is pushed as
+	// <destination_registry>:<new_image_tag>. The registry kind is derived from the path
+	// and authenticated with the environment's cloud credential for that provider, so a
+	// destination in a provider the environment has no credential for is rejected. The
+	// rebuild never promotes, so this only moves where the built image lands.
+	DestinationRegistry *string `protobuf:"bytes,9,opt,name=destination_registry,json=destinationRegistry,proto3,oneof" json:"destination_registry,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *RebuildDeploymentRequest) Reset() {
@@ -1819,6 +1828,13 @@ func (x *RebuildDeploymentRequest) GetBranchName() string {
 func (x *RebuildDeploymentRequest) GetPlatformVersion() string {
 	if x != nil && x.PlatformVersion != nil {
 		return *x.PlatformVersion
+	}
+	return ""
+}
+
+func (x *RebuildDeploymentRequest) GetDestinationRegistry() string {
+	if x != nil && x.DestinationRegistry != nil {
+		return *x.DestinationRegistry
 	}
 	return ""
 }
@@ -18469,7 +18485,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12C\n" +
 	"\atargets\x18\x02 \x03(\v2).chalk.server.v1.ActivateDeploymentTargetR\atargets\"G\n" +
 	"\x1cDeployKubeComponentsResponse\x12'\n" +
-	"\x0fnonfatal_errors\x18\x01 \x03(\tR\x0enonfatalErrors\"\x8a\x04\n" +
+	"\x0fnonfatal_errors\x18\x01 \x03(\tR\x0enonfatalErrors\"\xdb\x04\n" +
 	"\x18RebuildDeploymentRequest\x124\n" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12\"\n" +
 	"\rnew_image_tag\x18\x02 \x01(\tR\vnewImageTag\x123\n" +
@@ -18479,11 +18495,13 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x18force_rebuild_dockerfile\x18\x06 \x01(\bR\x16forceRebuildDockerfile\x12$\n" +
 	"\vbranch_name\x18\a \x01(\tH\x02R\n" +
 	"branchName\x88\x01\x01\x12.\n" +
-	"\x10platform_version\x18\b \x01(\tH\x03R\x0fplatformVersion\x88\x01\x01B\x16\n" +
+	"\x10platform_version\x18\b \x01(\tH\x03R\x0fplatformVersion\x88\x01\x01\x126\n" +
+	"\x14destination_registry\x18\t \x01(\tH\x04R\x13destinationRegistry\x88\x01\x01B\x16\n" +
 	"\x14_base_image_overrideB\x10\n" +
 	"\x0e_build_profileB\x0e\n" +
 	"\f_branch_nameB\x13\n" +
-	"\x11_platform_version\"6\n" +
+	"\x11_platform_versionB\x17\n" +
+	"\x15_destination_registry\"6\n" +
 	"\x19RebuildDeploymentResponse\x12\x19\n" +
 	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\xc1\t\n" +
 	"\x19RedeployDeploymentRequest\x124\n" +
