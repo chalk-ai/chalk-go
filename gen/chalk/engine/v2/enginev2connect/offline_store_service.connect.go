@@ -45,6 +45,9 @@ const (
 	// OfflineStoreServiceGetFeatureValuesProcedure is the fully-qualified name of the
 	// OfflineStoreService's GetFeatureValues RPC.
 	OfflineStoreServiceGetFeatureValuesProcedure = "/chalk.engine.v2.OfflineStoreService/GetFeatureValues"
+	// OfflineStoreServiceGetMetricsProcedure is the fully-qualified name of the OfflineStoreService's
+	// GetMetrics RPC.
+	OfflineStoreServiceGetMetricsProcedure = "/chalk.engine.v2.OfflineStoreService/GetMetrics"
 )
 
 // OfflineStoreServiceClient is a client for the chalk.engine.v2.OfflineStoreService service.
@@ -53,6 +56,7 @@ type OfflineStoreServiceClient interface {
 	GetQueryValues(context.Context, *connect.Request[v2.GetQueryValuesRequest]) (*connect.Response[v2.GetQueryValuesResponse], error)
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v2.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v2.GetFeatureValuesTimeSeriesChartResponse], error)
 	GetFeatureValues(context.Context, *connect.Request[v2.GetFeatureValuesRequest]) (*connect.Response[v2.GetFeatureValuesResponse], error)
+	GetMetrics(context.Context, *connect.Request[v2.GetMetricsRequest]) (*connect.Response[v2.GetMetricsResponse], error)
 }
 
 // NewOfflineStoreServiceClient constructs a client for the chalk.engine.v2.OfflineStoreService
@@ -90,6 +94,13 @@ func NewOfflineStoreServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(offlineStoreServiceMethods.ByName("GetFeatureValues")),
 			connect.WithClientOptions(opts...),
 		),
+		getMetrics: connect.NewClient[v2.GetMetricsRequest, v2.GetMetricsResponse](
+			httpClient,
+			baseURL+OfflineStoreServiceGetMetricsProcedure,
+			connect.WithSchema(offlineStoreServiceMethods.ByName("GetMetrics")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -99,6 +110,7 @@ type offlineStoreServiceClient struct {
 	getQueryValues                  *connect.Client[v2.GetQueryValuesRequest, v2.GetQueryValuesResponse]
 	getFeatureValuesTimeSeriesChart *connect.Client[v2.GetFeatureValuesTimeSeriesChartRequest, v2.GetFeatureValuesTimeSeriesChartResponse]
 	getFeatureValues                *connect.Client[v2.GetFeatureValuesRequest, v2.GetFeatureValuesResponse]
+	getMetrics                      *connect.Client[v2.GetMetricsRequest, v2.GetMetricsResponse]
 }
 
 // GetQueryLogEntries calls chalk.engine.v2.OfflineStoreService.GetQueryLogEntries.
@@ -122,6 +134,11 @@ func (c *offlineStoreServiceClient) GetFeatureValues(ctx context.Context, req *c
 	return c.getFeatureValues.CallUnary(ctx, req)
 }
 
+// GetMetrics calls chalk.engine.v2.OfflineStoreService.GetMetrics.
+func (c *offlineStoreServiceClient) GetMetrics(ctx context.Context, req *connect.Request[v2.GetMetricsRequest]) (*connect.Response[v2.GetMetricsResponse], error) {
+	return c.getMetrics.CallUnary(ctx, req)
+}
+
 // OfflineStoreServiceHandler is an implementation of the chalk.engine.v2.OfflineStoreService
 // service.
 type OfflineStoreServiceHandler interface {
@@ -129,6 +146,7 @@ type OfflineStoreServiceHandler interface {
 	GetQueryValues(context.Context, *connect.Request[v2.GetQueryValuesRequest]) (*connect.Response[v2.GetQueryValuesResponse], error)
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v2.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v2.GetFeatureValuesTimeSeriesChartResponse], error)
 	GetFeatureValues(context.Context, *connect.Request[v2.GetFeatureValuesRequest]) (*connect.Response[v2.GetFeatureValuesResponse], error)
+	GetMetrics(context.Context, *connect.Request[v2.GetMetricsRequest]) (*connect.Response[v2.GetMetricsResponse], error)
 }
 
 // NewOfflineStoreServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -162,6 +180,13 @@ func NewOfflineStoreServiceHandler(svc OfflineStoreServiceHandler, opts ...conne
 		connect.WithSchema(offlineStoreServiceMethods.ByName("GetFeatureValues")),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineStoreServiceGetMetricsHandler := connect.NewUnaryHandler(
+		OfflineStoreServiceGetMetricsProcedure,
+		svc.GetMetrics,
+		connect.WithSchema(offlineStoreServiceMethods.ByName("GetMetrics")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.engine.v2.OfflineStoreService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineStoreServiceGetQueryLogEntriesProcedure:
@@ -172,6 +197,8 @@ func NewOfflineStoreServiceHandler(svc OfflineStoreServiceHandler, opts ...conne
 			offlineStoreServiceGetFeatureValuesTimeSeriesChartHandler.ServeHTTP(w, r)
 		case OfflineStoreServiceGetFeatureValuesProcedure:
 			offlineStoreServiceGetFeatureValuesHandler.ServeHTTP(w, r)
+		case OfflineStoreServiceGetMetricsProcedure:
+			offlineStoreServiceGetMetricsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -195,4 +222,8 @@ func (UnimplementedOfflineStoreServiceHandler) GetFeatureValuesTimeSeriesChart(c
 
 func (UnimplementedOfflineStoreServiceHandler) GetFeatureValues(context.Context, *connect.Request[v2.GetFeatureValuesRequest]) (*connect.Response[v2.GetFeatureValuesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v2.OfflineStoreService.GetFeatureValues is not implemented"))
+}
+
+func (UnimplementedOfflineStoreServiceHandler) GetMetrics(context.Context, *connect.Request[v2.GetMetricsRequest]) (*connect.Response[v2.GetMetricsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v2.OfflineStoreService.GetMetrics is not implemented"))
 }

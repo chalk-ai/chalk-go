@@ -22,6 +22,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type MonitorEventType int32
+
+const (
+	MonitorEventType_MONITOR_EVENT_TYPE_UNSPECIFIED     MonitorEventType = 0
+	MonitorEventType_MONITOR_EVENT_TYPE_ALERT           MonitorEventType = 1
+	MonitorEventType_MONITOR_EVENT_TYPE_INCIDENT_OPENED MonitorEventType = 2
+	MonitorEventType_MONITOR_EVENT_TYPE_INCIDENT_CLOSED MonitorEventType = 3
+)
+
+// Enum value maps for MonitorEventType.
+var (
+	MonitorEventType_name = map[int32]string{
+		0: "MONITOR_EVENT_TYPE_UNSPECIFIED",
+		1: "MONITOR_EVENT_TYPE_ALERT",
+		2: "MONITOR_EVENT_TYPE_INCIDENT_OPENED",
+		3: "MONITOR_EVENT_TYPE_INCIDENT_CLOSED",
+	}
+	MonitorEventType_value = map[string]int32{
+		"MONITOR_EVENT_TYPE_UNSPECIFIED":     0,
+		"MONITOR_EVENT_TYPE_ALERT":           1,
+		"MONITOR_EVENT_TYPE_INCIDENT_OPENED": 2,
+		"MONITOR_EVENT_TYPE_INCIDENT_CLOSED": 3,
+	}
+)
+
+func (x MonitorEventType) Enum() *MonitorEventType {
+	p := new(MonitorEventType)
+	*p = x
+	return p
+}
+
+func (x MonitorEventType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MonitorEventType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_monitor_proto_enumTypes[0].Descriptor()
+}
+
+func (MonitorEventType) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_monitor_proto_enumTypes[0]
+}
+
+func (x MonitorEventType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MonitorEventType.Descriptor instead.
+func (MonitorEventType) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_monitor_proto_rawDescGZIP(), []int{0}
+}
+
 type MonitorEvaluation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DisplayKey    *string                `protobuf:"bytes,1,opt,name=display_key,json=displayKey,proto3,oneof" json:"display_key,omitempty"`
@@ -83,8 +135,10 @@ func (x *MonitorEvaluation) GetEvaluatedAt() *timestamppb.Timestamp {
 }
 
 type MonitorEvent struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	EventType     string                 `protobuf:"bytes,1,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"` // alert, incident
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/monitor.proto.
+	EventType     string                 `protobuf:"bytes,1,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`
+	Type          MonitorEventType       `protobuf:"varint,6,opt,name=type,proto3,enum=chalk.server.v1.MonitorEventType" json:"type,omitempty"` // alert, incident
 	EventId       *string                `protobuf:"bytes,2,opt,name=event_id,json=eventId,proto3,oneof" json:"event_id,omitempty"`
 	EventData     *string                `protobuf:"bytes,3,opt,name=event_data,json=eventData,proto3,oneof" json:"event_data,omitempty"`
 	OccurredAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"` // time the event happened at
@@ -123,11 +177,19 @@ func (*MonitorEvent) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_monitor_proto_rawDescGZIP(), []int{1}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/monitor.proto.
 func (x *MonitorEvent) GetEventType() string {
 	if x != nil {
 		return x.EventType
 	}
 	return ""
+}
+
+func (x *MonitorEvent) GetType() MonitorEventType {
+	if x != nil {
+		return x.Type
+	}
+	return MonitorEventType_MONITOR_EVENT_TYPE_UNSPECIFIED
 }
 
 func (x *MonitorEvent) GetEventId() string {
@@ -168,10 +230,11 @@ const file_chalk_server_v1_monitor_proto_rawDesc = "" +
 	"displayKey\x88\x01\x01\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x01R\x05value\x12=\n" +
 	"\fevaluated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vevaluatedAtB\x0e\n" +
-	"\f_display_key\"\x8b\x02\n" +
-	"\fMonitorEvent\x12\x1d\n" +
+	"\f_display_key\"\xc6\x02\n" +
+	"\fMonitorEvent\x12!\n" +
 	"\n" +
-	"event_type\x18\x01 \x01(\tR\teventType\x12\x1e\n" +
+	"event_type\x18\x01 \x01(\tB\x02\x18\x01R\teventType\x125\n" +
+	"\x04type\x18\x06 \x01(\x0e2!.chalk.server.v1.MonitorEventTypeR\x04type\x12\x1e\n" +
 	"\bevent_id\x18\x02 \x01(\tH\x00R\aeventId\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"event_data\x18\x03 \x01(\tH\x01R\teventData\x88\x01\x01\x12;\n" +
@@ -180,7 +243,12 @@ const file_chalk_server_v1_monitor_proto_rawDesc = "" +
 	"\x0fsample_query_id\x18\x05 \x01(\tH\x02R\rsampleQueryId\x88\x01\x01B\v\n" +
 	"\t_event_idB\r\n" +
 	"\v_event_dataB\x12\n" +
-	"\x10_sample_query_idB\xbc\x01\n" +
+	"\x10_sample_query_id*\xa4\x01\n" +
+	"\x10MonitorEventType\x12\"\n" +
+	"\x1eMONITOR_EVENT_TYPE_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18MONITOR_EVENT_TYPE_ALERT\x10\x01\x12&\n" +
+	"\"MONITOR_EVENT_TYPE_INCIDENT_OPENED\x10\x02\x12&\n" +
+	"\"MONITOR_EVENT_TYPE_INCIDENT_CLOSED\x10\x03B\xbc\x01\n" +
 	"\x13com.chalk.server.v1B\fMonitorProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -195,20 +263,23 @@ func file_chalk_server_v1_monitor_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_monitor_proto_rawDescData
 }
 
+var file_chalk_server_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_chalk_server_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_chalk_server_v1_monitor_proto_goTypes = []any{
-	(*MonitorEvaluation)(nil),     // 0: chalk.server.v1.MonitorEvaluation
-	(*MonitorEvent)(nil),          // 1: chalk.server.v1.MonitorEvent
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
+	(MonitorEventType)(0),         // 0: chalk.server.v1.MonitorEventType
+	(*MonitorEvaluation)(nil),     // 1: chalk.server.v1.MonitorEvaluation
+	(*MonitorEvent)(nil),          // 2: chalk.server.v1.MonitorEvent
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_monitor_proto_depIdxs = []int32{
-	2, // 0: chalk.server.v1.MonitorEvaluation.evaluated_at:type_name -> google.protobuf.Timestamp
-	2, // 1: chalk.server.v1.MonitorEvent.occurred_at:type_name -> google.protobuf.Timestamp
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 0: chalk.server.v1.MonitorEvaluation.evaluated_at:type_name -> google.protobuf.Timestamp
+	0, // 1: chalk.server.v1.MonitorEvent.type:type_name -> chalk.server.v1.MonitorEventType
+	3, // 2: chalk.server.v1.MonitorEvent.occurred_at:type_name -> google.protobuf.Timestamp
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_monitor_proto_init() }
@@ -223,13 +294,14 @@ func file_chalk_server_v1_monitor_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_monitor_proto_rawDesc), len(file_chalk_server_v1_monitor_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_chalk_server_v1_monitor_proto_goTypes,
 		DependencyIndexes: file_chalk_server_v1_monitor_proto_depIdxs,
+		EnumInfos:         file_chalk_server_v1_monitor_proto_enumTypes,
 		MessageInfos:      file_chalk_server_v1_monitor_proto_msgTypes,
 	}.Build()
 	File_chalk_server_v1_monitor_proto = out.File

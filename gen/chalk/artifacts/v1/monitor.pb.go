@@ -464,6 +464,7 @@ type Monitor struct {
 	MonitoredEntity isMonitor_MonitoredEntity `protobuf_oneof:"monitored_entity"`
 	CreatedAt       *timestamppb.Timestamp    `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt       *timestamppb.Timestamp    `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	MutedUntil      *timestamppb.Timestamp    `protobuf:"bytes,202,opt,name=muted_until,json=mutedUntil,proto3" json:"muted_until,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -604,6 +605,13 @@ func (x *Monitor) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Monitor) GetMutedUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.MutedUntil
+	}
+	return nil
+}
+
 type isMonitor_MonitoredEntity interface {
 	isMonitor_MonitoredEntity()
 }
@@ -665,7 +673,7 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\tThreshold\x12H\n" +
 	"\x0ethreshold_kind\x18\x06 \x01(\x0e2!.chalk.artifacts.v1.ThresholdKindR\rthresholdKind\x12'\n" +
 	"\x0fthreshold_value\x18\a \x01(\x02R\x0ethresholdValue\x12G\n" +
-	"\x0ealert_channels\x18\b \x03(\v2 .chalk.artifacts.v1.AlertChannelR\ralertChannels\"\xd4\x05\n" +
+	"\x0ealert_channels\x18\b \x03(\v2 .chalk.artifacts.v1.AlertChannelR\ralertChannels\"\x97\x06\n" +
 	"\aMonitor\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x12\n" +
@@ -682,7 +690,9 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12?\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAtB\x12\n" +
+	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\x12A\n" +
+	"\vmuted_until\x18\xca\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"mutedUntilB\x12\n" +
 	"\x10monitored_entity*\x96\x01\n" +
 	"\vMonitorType\x12\x1c\n" +
 	"\x18MONITOR_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
@@ -732,11 +742,12 @@ var file_chalk_artifacts_v1_monitor_proto_depIdxs = []int32{
 	4,  // 8: chalk.artifacts.v1.Monitor.sql_bad_rows_monitor:type_name -> chalk.artifacts.v1.SqlBadRowsMonitor
 	11, // 9: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
 	11, // 10: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	11, // 11: chalk.artifacts.v1.Monitor.muted_until:type_name -> google.protobuf.Timestamp
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_monitor_proto_init() }

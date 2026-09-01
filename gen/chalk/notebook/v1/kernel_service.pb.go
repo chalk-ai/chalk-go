@@ -607,8 +607,14 @@ type DescribeKernelSessionResponse struct {
 	// Set when a cell is currently executing.
 	ExecutingRunId     string `protobuf:"bytes,4,opt,name=executing_run_id,json=executingRunId,proto3" json:"executing_run_id,omitempty"`
 	ExecutingCellRunId string `protobuf:"bytes,5,opt,name=executing_cell_run_id,json=executingCellRunId,proto3" json:"executing_cell_run_id,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Current memory charged to the kernel container's cgroup. Zero when the
+	// runtime is not inside a memory-accounted cgroup.
+	MemoryUsageBytes uint64 `protobuf:"varint,6,opt,name=memory_usage_bytes,json=memoryUsageBytes,proto3" json:"memory_usage_bytes,omitempty"`
+	// Memory ceiling for the kernel container's cgroup. Zero when unlimited or
+	// unavailable (for example, a local development kernel on macOS).
+	MemoryLimitBytes uint64 `protobuf:"varint,7,opt,name=memory_limit_bytes,json=memoryLimitBytes,proto3" json:"memory_limit_bytes,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *DescribeKernelSessionResponse) Reset() {
@@ -674,6 +680,20 @@ func (x *DescribeKernelSessionResponse) GetExecutingCellRunId() string {
 		return x.ExecutingCellRunId
 	}
 	return ""
+}
+
+func (x *DescribeKernelSessionResponse) GetMemoryUsageBytes() uint64 {
+	if x != nil {
+		return x.MemoryUsageBytes
+	}
+	return 0
+}
+
+func (x *DescribeKernelSessionResponse) GetMemoryLimitBytes() uint64 {
+	if x != nil {
+		return x.MemoryLimitBytes
+	}
+	return 0
 }
 
 type InstalledPackage struct {
@@ -1874,14 +1894,16 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"session_id\x18\x03 \x01(\tR\tsessionId\"g\n" +
 	" InterruptPythonExecutionResponse\x12C\n" +
 	"\aoutcome\x18\x01 \x01(\x0e2).chalk.notebook.v1.PythonInterruptOutcomeR\aoutcome\"\x1e\n" +
-	"\x1cDescribeKernelSessionRequest\"\xe1\x01\n" +
+	"\x1cDescribeKernelSessionRequest\"\xbd\x02\n" +
 	"\x1dDescribeKernelSessionResponse\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12!\n" +
 	"\fkernel_epoch\x18\x02 \x01(\tR\vkernelEpoch\x12!\n" +
 	"\fkernel_alive\x18\x03 \x01(\bR\vkernelAlive\x12(\n" +
 	"\x10executing_run_id\x18\x04 \x01(\tR\x0eexecutingRunId\x121\n" +
-	"\x15executing_cell_run_id\x18\x05 \x01(\tR\x12executingCellRunId\"@\n" +
+	"\x15executing_cell_run_id\x18\x05 \x01(\tR\x12executingCellRunId\x12,\n" +
+	"\x12memory_usage_bytes\x18\x06 \x01(\x04R\x10memoryUsageBytes\x12,\n" +
+	"\x12memory_limit_bytes\x18\a \x01(\x04R\x10memoryLimitBytes\"@\n" +
 	"\x10InstalledPackage\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\"\x8a\x01\n" +

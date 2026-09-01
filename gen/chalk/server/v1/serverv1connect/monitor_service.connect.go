@@ -51,6 +51,9 @@ const (
 	// MonitorServiceDeleteMonitorProcedure is the fully-qualified name of the MonitorService's
 	// DeleteMonitor RPC.
 	MonitorServiceDeleteMonitorProcedure = "/chalk.server.v1.MonitorService/DeleteMonitor"
+	// MonitorServiceMuteMonitorProcedure is the fully-qualified name of the MonitorService's
+	// MuteMonitor RPC.
+	MonitorServiceMuteMonitorProcedure = "/chalk.server.v1.MonitorService/MuteMonitor"
 	// MonitorServiceListMonitorsProcedure is the fully-qualified name of the MonitorService's
 	// ListMonitors RPC.
 	MonitorServiceListMonitorsProcedure = "/chalk.server.v1.MonitorService/ListMonitors"
@@ -64,6 +67,7 @@ type MonitorServiceClient interface {
 	CreateMonitor(context.Context, *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error)
 	UpdateMonitor(context.Context, *connect.Request[v1.UpdateMonitorRequest]) (*connect.Response[v1.UpdateMonitorResponse], error)
 	DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error)
+	MuteMonitor(context.Context, *connect.Request[v1.MuteMonitorRequest]) (*connect.Response[v1.MuteMonitorResponse], error)
 	ListMonitors(context.Context, *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error)
 }
 
@@ -114,6 +118,12 @@ func NewMonitorServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(monitorServiceMethods.ByName("DeleteMonitor")),
 			connect.WithClientOptions(opts...),
 		),
+		muteMonitor: connect.NewClient[v1.MuteMonitorRequest, v1.MuteMonitorResponse](
+			httpClient,
+			baseURL+MonitorServiceMuteMonitorProcedure,
+			connect.WithSchema(monitorServiceMethods.ByName("MuteMonitor")),
+			connect.WithClientOptions(opts...),
+		),
 		listMonitors: connect.NewClient[v1.ListMonitorsRequest, v1.ListMonitorsResponse](
 			httpClient,
 			baseURL+MonitorServiceListMonitorsProcedure,
@@ -131,6 +141,7 @@ type monitorServiceClient struct {
 	createMonitor        *connect.Client[v1.CreateMonitorRequest, v1.CreateMonitorResponse]
 	updateMonitor        *connect.Client[v1.UpdateMonitorRequest, v1.UpdateMonitorResponse]
 	deleteMonitor        *connect.Client[v1.DeleteMonitorRequest, v1.DeleteMonitorResponse]
+	muteMonitor          *connect.Client[v1.MuteMonitorRequest, v1.MuteMonitorResponse]
 	listMonitors         *connect.Client[v1.ListMonitorsRequest, v1.ListMonitorsResponse]
 }
 
@@ -164,6 +175,11 @@ func (c *monitorServiceClient) DeleteMonitor(ctx context.Context, req *connect.R
 	return c.deleteMonitor.CallUnary(ctx, req)
 }
 
+// MuteMonitor calls chalk.server.v1.MonitorService.MuteMonitor.
+func (c *monitorServiceClient) MuteMonitor(ctx context.Context, req *connect.Request[v1.MuteMonitorRequest]) (*connect.Response[v1.MuteMonitorResponse], error) {
+	return c.muteMonitor.CallUnary(ctx, req)
+}
+
 // ListMonitors calls chalk.server.v1.MonitorService.ListMonitors.
 func (c *monitorServiceClient) ListMonitors(ctx context.Context, req *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error) {
 	return c.listMonitors.CallUnary(ctx, req)
@@ -177,6 +193,7 @@ type MonitorServiceHandler interface {
 	CreateMonitor(context.Context, *connect.Request[v1.CreateMonitorRequest]) (*connect.Response[v1.CreateMonitorResponse], error)
 	UpdateMonitor(context.Context, *connect.Request[v1.UpdateMonitorRequest]) (*connect.Response[v1.UpdateMonitorResponse], error)
 	DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error)
+	MuteMonitor(context.Context, *connect.Request[v1.MuteMonitorRequest]) (*connect.Response[v1.MuteMonitorResponse], error)
 	ListMonitors(context.Context, *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error)
 }
 
@@ -223,6 +240,12 @@ func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.Handler
 		connect.WithSchema(monitorServiceMethods.ByName("DeleteMonitor")),
 		connect.WithHandlerOptions(opts...),
 	)
+	monitorServiceMuteMonitorHandler := connect.NewUnaryHandler(
+		MonitorServiceMuteMonitorProcedure,
+		svc.MuteMonitor,
+		connect.WithSchema(monitorServiceMethods.ByName("MuteMonitor")),
+		connect.WithHandlerOptions(opts...),
+	)
 	monitorServiceListMonitorsHandler := connect.NewUnaryHandler(
 		MonitorServiceListMonitorsProcedure,
 		svc.ListMonitors,
@@ -243,6 +266,8 @@ func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.Handler
 			monitorServiceUpdateMonitorHandler.ServeHTTP(w, r)
 		case MonitorServiceDeleteMonitorProcedure:
 			monitorServiceDeleteMonitorHandler.ServeHTTP(w, r)
+		case MonitorServiceMuteMonitorProcedure:
+			monitorServiceMuteMonitorHandler.ServeHTTP(w, r)
 		case MonitorServiceListMonitorsProcedure:
 			monitorServiceListMonitorsHandler.ServeHTTP(w, r)
 		default:
@@ -276,6 +301,10 @@ func (UnimplementedMonitorServiceHandler) UpdateMonitor(context.Context, *connec
 
 func (UnimplementedMonitorServiceHandler) DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.DeleteMonitor is not implemented"))
+}
+
+func (UnimplementedMonitorServiceHandler) MuteMonitor(context.Context, *connect.Request[v1.MuteMonitorRequest]) (*connect.Response[v1.MuteMonitorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.MuteMonitor is not implemented"))
 }
 
 func (UnimplementedMonitorServiceHandler) ListMonitors(context.Context, *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error) {

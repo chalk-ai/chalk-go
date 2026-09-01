@@ -11,6 +11,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	reflect "reflect"
 	sync "sync"
@@ -77,11 +78,16 @@ func (x *GetMonitorRequest) GetReadMask() *fieldmaskpb.FieldMask {
 }
 
 type GetMonitorResponse struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Monitor           *v1.Monitor            `protobuf:"bytes,1,opt,name=monitor,proto3" json:"monitor,omitempty"`
-	HasActiveIncident bool                   `protobuf:"varint,2,opt,name=has_active_incident,json=hasActiveIncident,proto3" json:"has_active_incident,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Monitor *v1.Monitor            `protobuf:"bytes,1,opt,name=monitor,proto3" json:"monitor,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/monitor_service.proto.
+	HasActiveIncident bool `protobuf:"varint,2,opt,name=has_active_incident,json=hasActiveIncident,proto3" json:"has_active_incident,omitempty"`
+	// Named current_incident (not active_incident) because the generated C++
+	// presence method has_active_incident() would collide with the deprecated
+	// bool field's getter above.
+	CurrentIncident *MonitorIncident `protobuf:"bytes,3,opt,name=current_incident,json=currentIncident,proto3,oneof" json:"current_incident,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetMonitorResponse) Reset() {
@@ -121,11 +127,19 @@ func (x *GetMonitorResponse) GetMonitor() *v1.Monitor {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/monitor_service.proto.
 func (x *GetMonitorResponse) GetHasActiveIncident() bool {
 	if x != nil {
 		return x.HasActiveIncident
 	}
 	return false
+}
+
+func (x *GetMonitorResponse) GetCurrentIncident() *MonitorIncident {
+	if x != nil {
+		return x.CurrentIncident
+	}
+	return nil
 }
 
 type GetMonitorEventsRequest struct {
@@ -568,6 +582,94 @@ func (*DeleteMonitorResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_monitor_service_proto_rawDescGZIP(), []int{11}
 }
 
+type MuteMonitorRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MonitorId     string                 `protobuf:"bytes,1,opt,name=monitor_id,json=monitorId,proto3" json:"monitor_id,omitempty"`
+	MuteDuration  *durationpb.Duration   `protobuf:"bytes,2,opt,name=mute_duration,json=muteDuration,proto3,oneof" json:"mute_duration,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MuteMonitorRequest) Reset() {
+	*x = MuteMonitorRequest{}
+	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MuteMonitorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MuteMonitorRequest) ProtoMessage() {}
+
+func (x *MuteMonitorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MuteMonitorRequest.ProtoReflect.Descriptor instead.
+func (*MuteMonitorRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_monitor_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *MuteMonitorRequest) GetMonitorId() string {
+	if x != nil {
+		return x.MonitorId
+	}
+	return ""
+}
+
+func (x *MuteMonitorRequest) GetMuteDuration() *durationpb.Duration {
+	if x != nil {
+		return x.MuteDuration
+	}
+	return nil
+}
+
+type MuteMonitorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MuteMonitorResponse) Reset() {
+	*x = MuteMonitorResponse{}
+	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MuteMonitorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MuteMonitorResponse) ProtoMessage() {}
+
+func (x *MuteMonitorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MuteMonitorResponse.ProtoReflect.Descriptor instead.
+func (*MuteMonitorResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_monitor_service_proto_rawDescGZIP(), []int{13}
+}
+
 type ListMonitorsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
@@ -579,7 +681,7 @@ type ListMonitorsRequest struct {
 
 func (x *ListMonitorsRequest) Reset() {
 	*x = ListMonitorsRequest{}
-	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +693,7 @@ func (x *ListMonitorsRequest) String() string {
 func (*ListMonitorsRequest) ProtoMessage() {}
 
 func (x *ListMonitorsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -604,7 +706,7 @@ func (x *ListMonitorsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMonitorsRequest.ProtoReflect.Descriptor instead.
 func (*ListMonitorsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_monitor_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_monitor_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListMonitorsRequest) GetLimit() int32 {
@@ -629,17 +731,19 @@ func (x *ListMonitorsRequest) GetReadMask() *fieldmaskpb.FieldMask {
 }
 
 type ListMonitorsResponse struct {
-	state                    protoimpl.MessageState `protogen:"open.v1"`
-	Monitors                 []*v1.Monitor          `protobuf:"bytes,1,rep,name=monitors,proto3" json:"monitors,omitempty"`
-	Cursor                   *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	MonitorHasActiveIncident map[string]bool        `protobuf:"bytes,3,rep,name=monitor_has_active_incident,json=monitorHasActiveIncident,proto3" json:"monitor_has_active_incident,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Monitors []*v1.Monitor          `protobuf:"bytes,1,rep,name=monitors,proto3" json:"monitors,omitempty"`
+	Cursor   *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/monitor_service.proto.
+	MonitorHasActiveIncident map[string]bool             `protobuf:"bytes,3,rep,name=monitor_has_active_incident,json=monitorHasActiveIncident,proto3" json:"monitor_has_active_incident,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	MonitorIncidents         map[string]*MonitorIncident `protobuf:"bytes,4,rep,name=monitor_incidents,json=monitorIncidents,proto3" json:"monitor_incidents,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
 
 func (x *ListMonitorsResponse) Reset() {
 	*x = ListMonitorsResponse{}
-	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -651,7 +755,7 @@ func (x *ListMonitorsResponse) String() string {
 func (*ListMonitorsResponse) ProtoMessage() {}
 
 func (x *ListMonitorsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_monitor_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -664,7 +768,7 @@ func (x *ListMonitorsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMonitorsResponse.ProtoReflect.Descriptor instead.
 func (*ListMonitorsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_monitor_service_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_monitor_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListMonitorsResponse) GetMonitors() []*v1.Monitor {
@@ -681,9 +785,17 @@ func (x *ListMonitorsResponse) GetCursor() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/monitor_service.proto.
 func (x *ListMonitorsResponse) GetMonitorHasActiveIncident() map[string]bool {
 	if x != nil {
 		return x.MonitorHasActiveIncident
+	}
+	return nil
+}
+
+func (x *ListMonitorsResponse) GetMonitorIncidents() map[string]*MonitorIncident {
+	if x != nil {
+		return x.MonitorIncidents
 	}
 	return nil
 }
@@ -692,16 +804,18 @@ var File_chalk_server_v1_monitor_service_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_monitor_service_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/server/v1/monitor_service.proto\x12\x0fchalk.server.v1\x1a chalk/artifacts/v1/monitor.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1dchalk/server/v1/monitor.proto\x1a google/protobuf/field_mask.proto\"~\n" +
+	"%chalk/server/v1/monitor_service.proto\x12\x0fchalk.server.v1\x1a chalk/artifacts/v1/monitor.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/server/v1/incident.proto\x1a\x1dchalk/server/v1/monitor.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\"~\n" +
 	"\x11GetMonitorRequest\x12\x1d\n" +
 	"\n" +
 	"monitor_id\x18\x01 \x01(\tR\tmonitorId\x12<\n" +
 	"\tread_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskH\x00R\breadMask\x88\x01\x01B\f\n" +
 	"\n" +
-	"_read_mask\"{\n" +
+	"_read_mask\"\xe6\x01\n" +
 	"\x12GetMonitorResponse\x125\n" +
-	"\amonitor\x18\x01 \x01(\v2\x1b.chalk.artifacts.v1.MonitorR\amonitor\x12.\n" +
-	"\x13has_active_incident\x18\x02 \x01(\bR\x11hasActiveIncident\"8\n" +
+	"\amonitor\x18\x01 \x01(\v2\x1b.chalk.artifacts.v1.MonitorR\amonitor\x122\n" +
+	"\x13has_active_incident\x18\x02 \x01(\bB\x02\x18\x01R\x11hasActiveIncident\x12P\n" +
+	"\x10current_incident\x18\x03 \x01(\v2 .chalk.server.v1.MonitorIncidentH\x00R\x0fcurrentIncident\x88\x01\x01B\x13\n" +
+	"\x11_current_incident\"8\n" +
 	"\x17GetMonitorEventsRequest\x12\x1d\n" +
 	"\n" +
 	"monitor_id\x18\x01 \x01(\tR\tmonitorId\"Q\n" +
@@ -727,21 +841,31 @@ const file_chalk_server_v1_monitor_service_proto_rawDesc = "" +
 	"\x14DeleteMonitorRequest\x12\x1d\n" +
 	"\n" +
 	"monitor_id\x18\x01 \x01(\tR\tmonitorId\"\x17\n" +
-	"\x15DeleteMonitorResponse\"\x9b\x01\n" +
+	"\x15DeleteMonitorResponse\"\x8a\x01\n" +
+	"\x12MuteMonitorRequest\x12\x1d\n" +
+	"\n" +
+	"monitor_id\x18\x01 \x01(\tR\tmonitorId\x12C\n" +
+	"\rmute_duration\x18\x02 \x01(\v2\x19.google.protobuf.DurationH\x00R\fmuteDuration\x88\x01\x01B\x10\n" +
+	"\x0e_mute_duration\"\x15\n" +
+	"\x13MuteMonitorResponse\"\x9b\x01\n" +
 	"\x13ListMonitorsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x127\n" +
 	"\tread_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\breadMaskB\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursor\"\xc9\x02\n" +
+	"\a_cursor\"\x9e\x04\n" +
 	"\x14ListMonitorsResponse\x127\n" +
 	"\bmonitors\x18\x01 \x03(\v2\x1b.chalk.artifacts.v1.MonitorR\bmonitors\x12\x1b\n" +
-	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x82\x01\n" +
-	"\x1bmonitor_has_active_incident\x18\x03 \x03(\v2C.chalk.server.v1.ListMonitorsResponse.MonitorHasActiveIncidentEntryR\x18monitorHasActiveIncident\x1aK\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x86\x01\n" +
+	"\x1bmonitor_has_active_incident\x18\x03 \x03(\v2C.chalk.server.v1.ListMonitorsResponse.MonitorHasActiveIncidentEntryB\x02\x18\x01R\x18monitorHasActiveIncident\x12h\n" +
+	"\x11monitor_incidents\x18\x04 \x03(\v2;.chalk.server.v1.ListMonitorsResponse.MonitorIncidentsEntryR\x10monitorIncidents\x1aK\n" +
 	"\x1dMonitorHasActiveIncidentEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\bR\x05value:\x028\x01B\t\n" +
-	"\a_cursor2\xe5\x05\n" +
+	"\x05value\x18\x02 \x01(\bR\x05value:\x028\x01\x1ae\n" +
+	"\x15MonitorIncidentsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x126\n" +
+	"\x05value\x18\x02 \x01(\v2 .chalk.server.v1.MonitorIncidentR\x05value:\x028\x01B\t\n" +
+	"\a_cursor2\xc4\x06\n" +
 	"\x0eMonitorService\x12Z\n" +
 	"\n" +
 	"GetMonitor\x12\".chalk.server.v1.GetMonitorRequest\x1a#.chalk.server.v1.GetMonitorResponse\"\x03\x80}\x06\x12l\n" +
@@ -749,7 +873,8 @@ const file_chalk_server_v1_monitor_service_proto_rawDesc = "" +
 	"\x14GetMonitorEvaluation\x12,.chalk.server.v1.GetMonitorEvaluationRequest\x1a-.chalk.server.v1.GetMonitorEvaluationResponse\"\x03\x80}\x06\x12c\n" +
 	"\rCreateMonitor\x12%.chalk.server.v1.CreateMonitorRequest\x1a&.chalk.server.v1.CreateMonitorResponse\"\x03\x80}\x05\x12c\n" +
 	"\rUpdateMonitor\x12%.chalk.server.v1.UpdateMonitorRequest\x1a&.chalk.server.v1.UpdateMonitorResponse\"\x03\x80}\x05\x12c\n" +
-	"\rDeleteMonitor\x12%.chalk.server.v1.DeleteMonitorRequest\x1a&.chalk.server.v1.DeleteMonitorResponse\"\x03\x80}\x05\x12`\n" +
+	"\rDeleteMonitor\x12%.chalk.server.v1.DeleteMonitorRequest\x1a&.chalk.server.v1.DeleteMonitorResponse\"\x03\x80}\x05\x12]\n" +
+	"\vMuteMonitor\x12#.chalk.server.v1.MuteMonitorRequest\x1a$.chalk.server.v1.MuteMonitorResponse\"\x03\x80}\x05\x12`\n" +
 	"\fListMonitors\x12$.chalk.server.v1.ListMonitorsRequest\x1a%.chalk.server.v1.ListMonitorsResponse\"\x03\x80}\x06B\xc3\x01\n" +
 	"\x13com.chalk.server.v1B\x13MonitorServiceProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -765,7 +890,7 @@ func file_chalk_server_v1_monitor_service_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_monitor_service_proto_rawDescData
 }
 
-var file_chalk_server_v1_monitor_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_server_v1_monitor_service_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_chalk_server_v1_monitor_service_proto_goTypes = []any{
 	(*GetMonitorRequest)(nil),            // 0: chalk.server.v1.GetMonitorRequest
 	(*GetMonitorResponse)(nil),           // 1: chalk.server.v1.GetMonitorResponse
@@ -779,46 +904,57 @@ var file_chalk_server_v1_monitor_service_proto_goTypes = []any{
 	(*UpdateMonitorResponse)(nil),        // 9: chalk.server.v1.UpdateMonitorResponse
 	(*DeleteMonitorRequest)(nil),         // 10: chalk.server.v1.DeleteMonitorRequest
 	(*DeleteMonitorResponse)(nil),        // 11: chalk.server.v1.DeleteMonitorResponse
-	(*ListMonitorsRequest)(nil),          // 12: chalk.server.v1.ListMonitorsRequest
-	(*ListMonitorsResponse)(nil),         // 13: chalk.server.v1.ListMonitorsResponse
-	nil,                                  // 14: chalk.server.v1.ListMonitorsResponse.MonitorHasActiveIncidentEntry
-	(*fieldmaskpb.FieldMask)(nil),        // 15: google.protobuf.FieldMask
-	(*v1.Monitor)(nil),                   // 16: chalk.artifacts.v1.Monitor
-	(*MonitorEvent)(nil),                 // 17: chalk.server.v1.MonitorEvent
-	(*MonitorEvaluation)(nil),            // 18: chalk.server.v1.MonitorEvaluation
+	(*MuteMonitorRequest)(nil),           // 12: chalk.server.v1.MuteMonitorRequest
+	(*MuteMonitorResponse)(nil),          // 13: chalk.server.v1.MuteMonitorResponse
+	(*ListMonitorsRequest)(nil),          // 14: chalk.server.v1.ListMonitorsRequest
+	(*ListMonitorsResponse)(nil),         // 15: chalk.server.v1.ListMonitorsResponse
+	nil,                                  // 16: chalk.server.v1.ListMonitorsResponse.MonitorHasActiveIncidentEntry
+	nil,                                  // 17: chalk.server.v1.ListMonitorsResponse.MonitorIncidentsEntry
+	(*fieldmaskpb.FieldMask)(nil),        // 18: google.protobuf.FieldMask
+	(*v1.Monitor)(nil),                   // 19: chalk.artifacts.v1.Monitor
+	(*MonitorIncident)(nil),              // 20: chalk.server.v1.MonitorIncident
+	(*MonitorEvent)(nil),                 // 21: chalk.server.v1.MonitorEvent
+	(*MonitorEvaluation)(nil),            // 22: chalk.server.v1.MonitorEvaluation
+	(*durationpb.Duration)(nil),          // 23: google.protobuf.Duration
 }
 var file_chalk_server_v1_monitor_service_proto_depIdxs = []int32{
-	15, // 0: chalk.server.v1.GetMonitorRequest.read_mask:type_name -> google.protobuf.FieldMask
-	16, // 1: chalk.server.v1.GetMonitorResponse.monitor:type_name -> chalk.artifacts.v1.Monitor
-	17, // 2: chalk.server.v1.GetMonitorEventsResponse.events:type_name -> chalk.server.v1.MonitorEvent
-	18, // 3: chalk.server.v1.GetMonitorEvaluationResponse.evaluation:type_name -> chalk.server.v1.MonitorEvaluation
-	16, // 4: chalk.server.v1.CreateMonitorRequest.monitor:type_name -> chalk.artifacts.v1.Monitor
-	16, // 5: chalk.server.v1.CreateMonitorResponse.monitor:type_name -> chalk.artifacts.v1.Monitor
-	16, // 6: chalk.server.v1.UpdateMonitorRequest.monitor:type_name -> chalk.artifacts.v1.Monitor
-	15, // 7: chalk.server.v1.UpdateMonitorRequest.update_mask:type_name -> google.protobuf.FieldMask
-	16, // 8: chalk.server.v1.UpdateMonitorResponse.monitor:type_name -> chalk.artifacts.v1.Monitor
-	15, // 9: chalk.server.v1.ListMonitorsRequest.read_mask:type_name -> google.protobuf.FieldMask
-	16, // 10: chalk.server.v1.ListMonitorsResponse.monitors:type_name -> chalk.artifacts.v1.Monitor
-	14, // 11: chalk.server.v1.ListMonitorsResponse.monitor_has_active_incident:type_name -> chalk.server.v1.ListMonitorsResponse.MonitorHasActiveIncidentEntry
-	0,  // 12: chalk.server.v1.MonitorService.GetMonitor:input_type -> chalk.server.v1.GetMonitorRequest
-	2,  // 13: chalk.server.v1.MonitorService.GetMonitorEvents:input_type -> chalk.server.v1.GetMonitorEventsRequest
-	4,  // 14: chalk.server.v1.MonitorService.GetMonitorEvaluation:input_type -> chalk.server.v1.GetMonitorEvaluationRequest
-	6,  // 15: chalk.server.v1.MonitorService.CreateMonitor:input_type -> chalk.server.v1.CreateMonitorRequest
-	8,  // 16: chalk.server.v1.MonitorService.UpdateMonitor:input_type -> chalk.server.v1.UpdateMonitorRequest
-	10, // 17: chalk.server.v1.MonitorService.DeleteMonitor:input_type -> chalk.server.v1.DeleteMonitorRequest
-	12, // 18: chalk.server.v1.MonitorService.ListMonitors:input_type -> chalk.server.v1.ListMonitorsRequest
-	1,  // 19: chalk.server.v1.MonitorService.GetMonitor:output_type -> chalk.server.v1.GetMonitorResponse
-	3,  // 20: chalk.server.v1.MonitorService.GetMonitorEvents:output_type -> chalk.server.v1.GetMonitorEventsResponse
-	5,  // 21: chalk.server.v1.MonitorService.GetMonitorEvaluation:output_type -> chalk.server.v1.GetMonitorEvaluationResponse
-	7,  // 22: chalk.server.v1.MonitorService.CreateMonitor:output_type -> chalk.server.v1.CreateMonitorResponse
-	9,  // 23: chalk.server.v1.MonitorService.UpdateMonitor:output_type -> chalk.server.v1.UpdateMonitorResponse
-	11, // 24: chalk.server.v1.MonitorService.DeleteMonitor:output_type -> chalk.server.v1.DeleteMonitorResponse
-	13, // 25: chalk.server.v1.MonitorService.ListMonitors:output_type -> chalk.server.v1.ListMonitorsResponse
-	19, // [19:26] is the sub-list for method output_type
-	12, // [12:19] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	18, // 0: chalk.server.v1.GetMonitorRequest.read_mask:type_name -> google.protobuf.FieldMask
+	19, // 1: chalk.server.v1.GetMonitorResponse.monitor:type_name -> chalk.artifacts.v1.Monitor
+	20, // 2: chalk.server.v1.GetMonitorResponse.current_incident:type_name -> chalk.server.v1.MonitorIncident
+	21, // 3: chalk.server.v1.GetMonitorEventsResponse.events:type_name -> chalk.server.v1.MonitorEvent
+	22, // 4: chalk.server.v1.GetMonitorEvaluationResponse.evaluation:type_name -> chalk.server.v1.MonitorEvaluation
+	19, // 5: chalk.server.v1.CreateMonitorRequest.monitor:type_name -> chalk.artifacts.v1.Monitor
+	19, // 6: chalk.server.v1.CreateMonitorResponse.monitor:type_name -> chalk.artifacts.v1.Monitor
+	19, // 7: chalk.server.v1.UpdateMonitorRequest.monitor:type_name -> chalk.artifacts.v1.Monitor
+	18, // 8: chalk.server.v1.UpdateMonitorRequest.update_mask:type_name -> google.protobuf.FieldMask
+	19, // 9: chalk.server.v1.UpdateMonitorResponse.monitor:type_name -> chalk.artifacts.v1.Monitor
+	23, // 10: chalk.server.v1.MuteMonitorRequest.mute_duration:type_name -> google.protobuf.Duration
+	18, // 11: chalk.server.v1.ListMonitorsRequest.read_mask:type_name -> google.protobuf.FieldMask
+	19, // 12: chalk.server.v1.ListMonitorsResponse.monitors:type_name -> chalk.artifacts.v1.Monitor
+	16, // 13: chalk.server.v1.ListMonitorsResponse.monitor_has_active_incident:type_name -> chalk.server.v1.ListMonitorsResponse.MonitorHasActiveIncidentEntry
+	17, // 14: chalk.server.v1.ListMonitorsResponse.monitor_incidents:type_name -> chalk.server.v1.ListMonitorsResponse.MonitorIncidentsEntry
+	20, // 15: chalk.server.v1.ListMonitorsResponse.MonitorIncidentsEntry.value:type_name -> chalk.server.v1.MonitorIncident
+	0,  // 16: chalk.server.v1.MonitorService.GetMonitor:input_type -> chalk.server.v1.GetMonitorRequest
+	2,  // 17: chalk.server.v1.MonitorService.GetMonitorEvents:input_type -> chalk.server.v1.GetMonitorEventsRequest
+	4,  // 18: chalk.server.v1.MonitorService.GetMonitorEvaluation:input_type -> chalk.server.v1.GetMonitorEvaluationRequest
+	6,  // 19: chalk.server.v1.MonitorService.CreateMonitor:input_type -> chalk.server.v1.CreateMonitorRequest
+	8,  // 20: chalk.server.v1.MonitorService.UpdateMonitor:input_type -> chalk.server.v1.UpdateMonitorRequest
+	10, // 21: chalk.server.v1.MonitorService.DeleteMonitor:input_type -> chalk.server.v1.DeleteMonitorRequest
+	12, // 22: chalk.server.v1.MonitorService.MuteMonitor:input_type -> chalk.server.v1.MuteMonitorRequest
+	14, // 23: chalk.server.v1.MonitorService.ListMonitors:input_type -> chalk.server.v1.ListMonitorsRequest
+	1,  // 24: chalk.server.v1.MonitorService.GetMonitor:output_type -> chalk.server.v1.GetMonitorResponse
+	3,  // 25: chalk.server.v1.MonitorService.GetMonitorEvents:output_type -> chalk.server.v1.GetMonitorEventsResponse
+	5,  // 26: chalk.server.v1.MonitorService.GetMonitorEvaluation:output_type -> chalk.server.v1.GetMonitorEvaluationResponse
+	7,  // 27: chalk.server.v1.MonitorService.CreateMonitor:output_type -> chalk.server.v1.CreateMonitorResponse
+	9,  // 28: chalk.server.v1.MonitorService.UpdateMonitor:output_type -> chalk.server.v1.UpdateMonitorResponse
+	11, // 29: chalk.server.v1.MonitorService.DeleteMonitor:output_type -> chalk.server.v1.DeleteMonitorResponse
+	13, // 30: chalk.server.v1.MonitorService.MuteMonitor:output_type -> chalk.server.v1.MuteMonitorResponse
+	15, // 31: chalk.server.v1.MonitorService.ListMonitors:output_type -> chalk.server.v1.ListMonitorsResponse
+	24, // [24:32] is the sub-list for method output_type
+	16, // [16:24] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_monitor_service_proto_init() }
@@ -826,17 +962,20 @@ func file_chalk_server_v1_monitor_service_proto_init() {
 	if File_chalk_server_v1_monitor_service_proto != nil {
 		return
 	}
+	file_chalk_server_v1_incident_proto_init()
 	file_chalk_server_v1_monitor_proto_init()
 	file_chalk_server_v1_monitor_service_proto_msgTypes[0].OneofWrappers = []any{}
+	file_chalk_server_v1_monitor_service_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_monitor_service_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_server_v1_monitor_service_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_server_v1_monitor_service_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_server_v1_monitor_service_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_monitor_service_proto_rawDesc), len(file_chalk_server_v1_monitor_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

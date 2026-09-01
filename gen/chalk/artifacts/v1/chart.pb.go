@@ -162,6 +162,14 @@ const (
 	MetricKind_METRIC_KIND_CLICKHOUSE_QUERY_COUNT          MetricKind = 124
 	MetricKind_METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS MetricKind = 125
 	MetricKind_METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS MetricKind = 126
+	// Online store bytes held by keys and values, excluding allocator and buffer
+	// overhead. Unlike ONLINE_STORE_USED_MEMORY, which is RSS, this falls when keys
+	// are deleted.
+	MetricKind_METRIC_KIND_ONLINE_STORE_DATASET_SIZE MetricKind = 127
+	// Bytes the online store's allocator holds, which is what its eviction limit
+	// applies to. ONLINE_STORE_USED_MEMORY is RSS and sits above this; DATASET_SIZE
+	// excludes keyspace overhead and sits below it.
+	MetricKind_METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY MetricKind = 128
 )
 
 // Enum value maps for MetricKind.
@@ -294,6 +302,8 @@ var (
 		124: "METRIC_KIND_CLICKHOUSE_QUERY_COUNT",
 		125: "METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS",
 		126: "METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS",
+		127: "METRIC_KIND_ONLINE_STORE_DATASET_SIZE",
+		128: "METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -423,6 +433,8 @@ var (
 		"METRIC_KIND_CLICKHOUSE_QUERY_COUNT":                  124,
 		"METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS":         125,
 		"METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS":         126,
+		"METRIC_KIND_ONLINE_STORE_DATASET_SIZE":               127,
+		"METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY":           128,
 	}
 )
 
@@ -2170,7 +2182,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xe5)\n" +
+	"_entity_id*\xc0*\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2300,7 +2312,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"(METRIC_KIND_CLICKHOUSE_MEMORY_USED_BYTES\x10{\x12&\n" +
 	"\"METRIC_KIND_CLICKHOUSE_QUERY_COUNT\x10|\x12/\n" +
 	"+METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS\x10}\x12/\n" +
-	"+METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS\x10~*\x81\t\n" +
+	"+METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS\x10~\x12)\n" +
+	"%METRIC_KIND_ONLINE_STORE_DATASET_SIZE\x10\x7f\x12.\n" +
+	")METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY\x10\x80\x01*\x81\t\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
