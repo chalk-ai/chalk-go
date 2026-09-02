@@ -8,6 +8,7 @@ import (
 	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestOnlineQueryE2E tests the singular OnlineQuery method
@@ -77,7 +78,7 @@ func TestOnlineQueryBulk(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
 			}
-			assert.Equal(t, 2, len(results))
+			require.Equal(t, 2, len(results))
 			assert.Equal(t, ids[0], lo.FromPtr(results[0].Id))
 			assert.Equal(t, "1", lo.FromPtr(results[0].StrFeat))
 			assert.Equal(t, int64(1), lo.FromPtr(results[0].IntFeat))
@@ -117,11 +118,11 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 				res, err := grpcClient.OnlineQueryBulk(t.Context(), bulkParams)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&allResults))
-				assert.Equal(t, 1, len(allResults))
+				require.Equal(t, 1, len(allResults))
 				row = allResults[0]
 
 				row, err := res.GetRow(0)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				hmOutput, err := row.GetFeatureValue(testFeatures.AllTypes.HasMany)
 				assert.NoError(t, err)
 				assert.NotNil(t, hmOutput)
@@ -139,7 +140,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 			}
 
 			if row.HasMany != nil {
-				assert.Equal(t, len(hmInput), len(*row.HasMany))
+				require.Equal(t, len(hmInput), len(*row.HasMany))
 				assert.Equal(t, "id_a", *(*row.HasMany)[0].Id)
 				assert.Equal(t, "id_b", *(*row.HasMany)[1].Id)
 				assert.Equal(t, "name_a", *(*row.HasMany)[0].Name)
