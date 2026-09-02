@@ -14,6 +14,9 @@ const (
 var (
 	userAgentOnce   sync.Once
 	cachedUserAgent string
+
+	versionOnce   sync.Once
+	cachedVersion string
 )
 
 func UserAgent() string {
@@ -55,4 +58,15 @@ func moduleVersion(mod debug.Module) string {
 		return ""
 	}
 	return version
+}
+
+// Version returns the version of the chalk-go module that the calling
+// binary was built against, or "dev" when it cannot be determined (for
+// example, when chalk-go is the main module or was replaced by a local
+// directory).
+func Version() string {
+	versionOnce.Do(func() {
+		cachedVersion = chalkVersion()
+	})
+	return cachedVersion
 }
