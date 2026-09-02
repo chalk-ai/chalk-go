@@ -1,8 +1,10 @@
 package chalk
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -480,12 +483,54 @@ var getErrorCodeCategory = generateGetEnumFunction(
 	"error code categories",
 )
 
-func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory.Allocator) (*commonv1.OnlineQueryBulkRequest, error) {
+// resolvedInputRows reports the number of rows in a resolved set of bulk
+// inputs. resolveBulk has already validated that every input is a slice of
+// the same length, so the first one is representative.
+func resolvedInputRows(resolved *onlineQueryParamsResolved) int {
+	for _, v := range resolved.inputs {
+		rVal := reflect.ValueOf(v)
+		if rVal.Kind() == reflect.Slice {
+			return rVal.Len()
+		}
+	}
+	return 0
+}
+
+func convertOnlineQueryParamsToProto(
+	ctx context.Context,
+	tracer trace.Tracer,
+	params *OnlineQueryParams,
+	allocator memory.Allocator,
+) (*commonv1.OnlineQueryBulkRequest, error) {
+	_, resolveSpan := startSpan(ctx, tracer, spanResolveParams)
 	resolved, err := params.resolveBulk()
+	if err == nil && resolveSpan.IsRecording() {
+		resolveSpan.SetAttributes(
+			attrNumInputs.Int(len(resolved.inputs)),
+			attrNumOutputs.Int(len(resolved.outputs)),
+		)
+	}
+	endSpan(resolveSpan, err)
 	if err != nil {
 		return nil, errors.Wrap(err, "resolving params")
 	}
+
+	// Arrow serialization of the inputs is the most expensive part of
+	// building a bulk request, and grows with both the number of features
+	// and the number of rows, so it gets its own span. Counting the rows
+	// costs a reflect call, so it waits until there is a span to put it on.
+	_, serializeSpan := startSpan(ctx, tracer, spanSerializeInputs)
+	if serializeSpan.IsRecording() {
+		serializeSpan.SetAttributes(
+			attrNumInputs.Int(len(resolved.inputs)),
+			attrNumRows.Int(resolvedInputRows(resolved)),
+		)
+	}
 	inputsFeather, err := internal.InputsToArrowBytes(resolved.inputs, allocator)
+	if err == nil && serializeSpan.IsRecording() {
+		serializeSpan.SetAttributes(attrInputsBytes.Int(len(inputsFeather)))
+	}
+	endSpan(serializeSpan, err)
 	if err != nil {
 		return nil, errors.Wrap(err, "error serializing inputs as feather")
 	}

@@ -23,6 +23,8 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/net/http2"
 )
 
@@ -46,6 +48,8 @@ type grpcClientImpl struct {
 	tokenManager          *auth.Manager
 	metadataInterceptor   connect.UnaryInterceptorFunc
 	engineInterceptor     connect.UnaryInterceptorFunc
+	tracerProvider        trace.TracerProvider
+	tracer                trace.Tracer
 }
 
 type featureWriteClient interface {
@@ -305,6 +309,8 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		allocator:             cfg.Allocator,
 		metadataInterceptor:   authedServerInterceptor,
 		engineInterceptor:     engineInterceptor,
+		tracerProvider:        cfg.TracerProvider,
+		tracer:                newTracer(cfg.TracerProvider),
 	}, nil
 }
 
@@ -378,6 +384,14 @@ type GRPCOnlineQueryBulkResult struct {
 	RawResponse     *commonv1.OnlineQueryBulkResponse
 	ResponseHeaders *http.Header
 	allocator       memory.Allocator
+
+	// ctx and tracer are carried over from the OnlineQueryBulk call that
+	// produced this result so that the deserialization done by the methods
+	// below, which happens after the query returns and takes no context of
+	// its own, still lands in the caller's trace. Both are nil for results
+	// built by NewGRPCOnlineQueryBulkResult.
+	ctx    context.Context
+	tracer trace.Tracer
 }
 
 type NewGRPCOnlineQueryBulkResultOptions struct {
@@ -408,21 +422,48 @@ func NewGRPCOnlineQueryBulkResult(
 }
 
 func (r *GRPCOnlineQueryBulkResult) GetTable() (arrow.Table, error) {
-	return internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
+	_, span := startSpan(r.ctx, r.tracer, spanGetTable)
+	if span.IsRecording() {
+		span.SetAttributes(attrScalarsBytes.Int(len(r.RawResponse.GetScalarsData())))
+	}
+	table, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
+	if err == nil && table != nil && span.IsRecording() {
+		span.SetAttributes(attrNumRows.Int64(table.NumRows()))
+	}
+	endSpan(span, err)
+	return table, err
 }
 
 func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
+	ctx, span := startSpan(r.ctx, r.tracer, spanGetRow)
+	if span.IsRecording() {
+		span.SetAttributes(
+			attrRowIndex.Int(rowIndex),
+			attrScalarsBytes.Int(len(r.RawResponse.GetScalarsData())),
+		)
+	}
+	row, err := r.getRow(ctx, rowIndex)
+	endSpan(span, err)
+	return row, err
+}
+
+func (r *GRPCOnlineQueryBulkResult) getRow(ctx context.Context, rowIndex int) (*RowResult, error) {
 	row := newRowResult()
 	if len(r.RawResponse.GetScalarsData()) == 0 {
 		return nil, errors.New("results table empty, either the query has errors or the data is malformed")
 	}
 
-	scalarsTable, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
+	scalarsTable, err := r.deserializeScalars(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting scalars data to table")
 	}
 
+	_, extractSpan := startSpan(ctx, r.tracer, spanExtractFeatures)
+	if extractSpan.IsRecording() {
+		extractSpan.SetAttributes(attrNumRows.Int64(scalarsTable.NumRows()))
+	}
 	rows, meta, err := internal.ExtractFeaturesFromTable(scalarsTable, false)
+	endSpan(extractSpan, err)
 	if err != nil {
 		return nil, errors.Wrap(err, "extracting features from scalars table")
 	}
@@ -477,15 +518,51 @@ func (r *GRPCOnlineQueryBulkResult) GetErrors() ([]ServerError, error) {
 }
 
 func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
+	ctx, span := startSpan(r.ctx, r.tracer, spanUnmarshalInto)
+	if span.IsRecording() {
+		span.SetAttributes(attrScalarsBytes.Int(len(r.RawResponse.GetScalarsData())))
+	}
+	err := r.unmarshalInto(ctx, span, resultHolders)
+	endSpan(span, err)
+	return err
+}
+
+func (r *GRPCOnlineQueryBulkResult) unmarshalInto(ctx context.Context, span trace.Span, resultHolders any) error {
+	scalars, err := r.deserializeScalars(ctx)
+	if err != nil {
+		return errors.Wrap(err, "deserializing scalars table")
+	}
+	if span.IsRecording() {
+		span.SetAttributes(attrNumRows.Int64(scalars.NumRows()))
+	}
+
+	_, unmarshalSpan := startSpan(ctx, r.tracer, spanUnmarshalTable)
+	if unmarshalSpan.IsRecording() {
+		unmarshalSpan.SetAttributes(attrNumRows.Int64(scalars.NumRows()))
+	}
+	err = internal.UnmarshalTableInto(scalars, resultHolders)
+	endSpan(unmarshalSpan, err)
+	return err
+}
+
+// deserializeScalars converts the Arrow IPC bytes on the response into a
+// table, under its own span: on wide responses this dominates the time
+// spent between the RPC returning and the caller getting typed values.
+func (r *GRPCOnlineQueryBulkResult) deserializeScalars(ctx context.Context) (arrow.Table, error) {
 	allocator := r.allocator
 	if allocator == nil {
 		allocator = memory.DefaultAllocator
 	}
-	scalars, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), allocator)
-	if err != nil {
-		return errors.Wrap(err, "deserializing scalars table")
+	_, span := startSpan(ctx, r.tracer, spanDeserializeScalars)
+	if span.IsRecording() {
+		span.SetAttributes(attrScalarsBytes.Int(len(r.RawResponse.GetScalarsData())))
 	}
-	return internal.UnmarshalTableInto(scalars, resultHolders)
+	table, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), allocator)
+	if err == nil && table != nil && span.IsRecording() {
+		span.SetAttributes(attrNumRows.Int64(table.NumRows()))
+	}
+	endSpan(span, err)
+	return table, err
 }
 
 func (c *grpcClientImpl) getQueryClient(hasBranch bool) enginev1connect.QueryServiceClient {
@@ -510,6 +587,34 @@ func (c *grpcClientImpl) DeleteFeatures(
 }
 
 func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
+	// callerCtx is held on to before the query span is started: the
+	// response is deserialized lazily, after this function (and its span)
+	// has returned, so those spans belong next to the query rather than
+	// inside it.
+	callerCtx := ctx
+
+	// Describing the query costs a slice and a dozen field reads, so it is
+	// only done when something is going to read it. Passing a nil slice
+	// through the variadic does not allocate.
+	var queryAttrs []attribute.KeyValue
+	if c.tracer != nil {
+		queryAttrs = c.queryAttributes(&args.underlying)
+	}
+	queryCtx, querySpan := startSpan(ctx, c.tracer, spanOnlineQueryBulk, queryAttrs...)
+	result, err := c.onlineQueryBulk(queryCtx, querySpan, args)
+	if result != nil {
+		result.ctx = callerCtx
+		result.tracer = c.tracer
+	}
+	endSpan(querySpan, err)
+	return result, err
+}
+
+func (c *grpcClientImpl) onlineQueryBulk(
+	ctx context.Context,
+	querySpan trace.Span,
+	args OnlineQueryParamsComplete,
+) (*GRPCOnlineQueryBulkResult, error) {
 	req, err := c.GetOnlineQueryBulkRequest(ctx, args)
 	if err != nil {
 		return nil, errors.Wrap(err, "generating online query request")
@@ -519,10 +624,25 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 		req.Header().Set("x-chalk-branch-id", *args.underlying.BranchId)
 	}
 	hasBranch := perRequestBranch || c.branch != ""
-	res, err := c.getQueryClient(hasBranch).OnlineQueryBulk(ctx, req)
+
+	// The RPC gets its own span so that time on the wire is separable from
+	// the serialization work around it, even when the caller has not
+	// installed a connect interceptor that traces the call.
+	rpcCtx, rpcSpan := startSpan(ctx, c.tracer, spanRPC)
+	if rpcSpan.IsRecording() {
+		rpcSpan.SetAttributes(attrInputsBytes.Int(len(req.Msg.GetInputsFeather())))
+	}
+	res, err := c.getQueryClient(hasBranch).OnlineQueryBulk(rpcCtx, req)
 	if err != nil {
+		endSpan(rpcSpan, err)
 		return nil, errors.Wrap(err, "executing online query")
 	}
+	if rpcSpan.IsRecording() {
+		responseAttrs := responseAttributes(res.Msg)
+		rpcSpan.SetAttributes(responseAttrs...)
+		querySpan.SetAttributes(responseAttrs...)
+	}
+	endSpan(rpcSpan, nil)
 
 	result := &GRPCOnlineQueryBulkResult{RawResponse: res.Msg, allocator: c.allocator, ResponseHeaders: new(res.Header())}
 	if len(res.Msg.GetErrors()) > 0 {
@@ -536,11 +656,73 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	return result, nil
 }
 
+// queryAttributes describes a query in a way that is safe to export: names,
+// ids and counts, never feature values.
+func (c *grpcClientImpl) queryAttributes(params *OnlineQueryParams) []attribute.KeyValue {
+	attrs := make([]attribute.KeyValue, 0, 8)
+	if params.QueryName != "" {
+		attrs = append(attrs, attrQueryName.String(params.QueryName))
+	}
+	if params.QueryNameVersion != "" {
+		attrs = append(attrs, attrQueryNameVersion.String(params.QueryNameVersion))
+	}
+	if params.CorrelationId != "" {
+		attrs = append(attrs, attrCorrelationID.String(params.CorrelationId))
+	}
+	if branch := ptr.OrZero(params.BranchId); branch != "" {
+		attrs = append(attrs, attrBranch.String(branch))
+	} else if c.branch != "" {
+		attrs = append(attrs, attrBranch.String(c.branch))
+	}
+	if params.ResourceGroup != "" {
+		attrs = append(attrs, attrResourceGroup.String(params.ResourceGroup))
+	} else if c.resourceGroup != nil {
+		attrs = append(attrs, attrResourceGroup.String(*c.resourceGroup))
+	}
+	if c.deploymentTag != "" {
+		attrs = append(attrs, attrDeploymentTag.String(c.deploymentTag))
+	}
+	if envId := c.config.EnvironmentId.Value; envId != "" {
+		attrs = append(attrs, attrEnvironment.String(envId))
+	}
+	return attrs
+}
+
+// responseAttributes reports the size of the payload the client has to
+// deserialize, which is the main driver of the response-side spans.
+func responseAttributes(res *commonv1.OnlineQueryBulkResponse) []attribute.KeyValue {
+	attrs := []attribute.KeyValue{
+		attrScalarsBytes.Int(len(res.GetScalarsData())),
+		attrNumErrors.Int(len(res.GetErrors())),
+	}
+	if groups := res.GetGroupsData(); len(groups) > 0 {
+		var groupsBytes int
+		for _, group := range groups {
+			groupsBytes += len(group)
+		}
+		attrs = append(attrs, attrGroupsBytes.Int(groupsBytes))
+	}
+	if queryId := res.GetResponseMeta().GetQueryId(); queryId != "" {
+		attrs = append(attrs, attrOperationID.String(queryId))
+	}
+	return attrs
+}
+
 func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error) {
-	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying, c.allocator)
+	ctx, span := startSpan(ctx, c.tracer, spanBuildRequest)
+	paramsProto, err := convertOnlineQueryParamsToProto(ctx, c.tracer, &args.underlying, c.allocator)
 	if err != nil {
+		endSpan(span, err)
 		return nil, errors.Wrap(err, "converting online query params to proto")
 	}
+	if span.IsRecording() {
+		span.SetAttributes(
+			attrNumOutputs.Int(len(paramsProto.GetOutputs())),
+			attrInputsBytes.Int(len(paramsProto.GetInputsFeather())),
+		)
+	}
+	endSpan(span, nil)
+
 	req := connect.NewRequest(paramsProto)
 	if args.underlying.ResourceGroup != "" {
 		req.Header().Set(HeaderKeyResourceGroup, args.underlying.ResourceGroup)
@@ -560,18 +742,19 @@ func (c *grpcClientImpl) GetEngineServerInterceptor() []connect.ClientOption {
 
 func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 	return &GRPCClientConfig{
-		ClientId:      string(c.config.ClientId.Value),
-		ClientSecret:  string(c.config.ClientSecret.Value),
-		ApiServer:     c.config.GetAPIServer().Value,
-		EnvironmentId: c.config.EnvironmentId.Value,
-		Branch:        c.branch,
-		QueryServer:   c.config.GetGRPCQueryServer().Value,
-		Logger:        c.logger,
-		HTTPClient:    c.httpClient,
-		DeploymentTag: c.deploymentTag,
-		ResourceGroup: ptr.OrZero(c.resourceGroup),
-		Timeout:       ptr.OrZero(c.timeout),
-		Allocator:     c.allocator,
+		ClientId:       string(c.config.ClientId.Value),
+		ClientSecret:   string(c.config.ClientSecret.Value),
+		ApiServer:      c.config.GetAPIServer().Value,
+		EnvironmentId:  c.config.EnvironmentId.Value,
+		Branch:         c.branch,
+		QueryServer:    c.config.GetGRPCQueryServer().Value,
+		Logger:         c.logger,
+		HTTPClient:     c.httpClient,
+		DeploymentTag:  c.deploymentTag,
+		ResourceGroup:  ptr.OrZero(c.resourceGroup),
+		Timeout:        ptr.OrZero(c.timeout),
+		Allocator:      c.allocator,
+		TracerProvider: c.tracerProvider,
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // GRPCClient is the gRPC interface for interacting with Chalk.
@@ -221,6 +222,16 @@ type GRPCClientConfig struct {
 	// EnvironmentId will be used verbatim without validation against the
 	// token's EnvironmentIdToName map.
 	SkipEnvironmentNameMapping bool
+
+	// TracerProvider enables the OpenTelemetry spans that the client emits
+	// around online query execution: request building, Arrow serialization
+	// of the inputs, the RPC itself, and deserialization of the response.
+	//
+	// Tracing is off by default. If this is nil, no spans are emitted, even
+	// if the process has a TracerProvider registered globally for its own
+	// use. To trace with the globally registered provider, set this to
+	// otel.GetTracerProvider().
+	TracerProvider trace.TracerProvider
 
 	// SkipEngineMapping controls whether the TokenManager should skip
 	// setting the query server based on the token's engine maps. If true,
