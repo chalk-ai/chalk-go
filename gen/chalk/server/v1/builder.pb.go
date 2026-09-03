@@ -11144,8 +11144,12 @@ type ClickHouseSpec struct {
 	// region, and the pod's cpu/memory requests and limits — and the ClickHouse config sized from
 	// them — are derived from that instance rather than from request/limit as written.
 	ChalkMachineType *string `protobuf:"bytes,8,opt,name=chalk_machine_type,json=chalkMachineType,proto3,oneof" json:"chalk_machine_type,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Scales ClickHouse and workloads that require it to zero while leaving the
+	// rest of the telemetry deployment running. Unset and false preserve the
+	// default behavior.
+	Disabled      *bool `protobuf:"varint,9,opt,name=disabled,proto3,oneof" json:"disabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClickHouseSpec) Reset() {
@@ -11232,6 +11236,13 @@ func (x *ClickHouseSpec) GetChalkMachineType() string {
 		return *x.ChalkMachineType
 	}
 	return ""
+}
+
+func (x *ClickHouseSpec) GetDisabled() bool {
+	if x != nil && x.Disabled != nil {
+		return *x.Disabled
+	}
+	return false
 }
 
 type VictoriaMetricsSpec struct {
@@ -19560,7 +19571,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x06_limitB\x15\n" +
 	"\x13_runtime_class_nameB\x16\n" +
 	"\x14_host_nvidia_lib_dirB\x11\n" +
-	"\x0f_image_override\"\xab\x04\n" +
+	"\x0f_image_override\"\xd9\x04\n" +
 	"\x0eClickHouseSpec\x12.\n" +
 	"\x13click_house_version\x18\x01 \x01(\tR\x11clickHouseVersion\x12B\n" +
 	"\arequest\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x00R\arequest\x88\x01\x01\x12>\n" +
@@ -19570,7 +19581,8 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"gateway_id\x18\x05 \x01(\tH\x03R\tgatewayId\x88\x01\x01\x12(\n" +
 	"\rinstance_type\x18\x06 \x01(\tH\x04R\finstanceType\x88\x01\x01\x12+\n" +
 	"\x0fserve_over_http\x18\a \x01(\bH\x05R\rserveOverHttp\x88\x01\x01\x121\n" +
-	"\x12chalk_machine_type\x18\b \x01(\tH\x06R\x10chalkMachineType\x88\x01\x01B\n" +
+	"\x12chalk_machine_type\x18\b \x01(\tH\x06R\x10chalkMachineType\x88\x01\x01\x12\x1f\n" +
+	"\bdisabled\x18\t \x01(\bH\aR\bdisabled\x88\x01\x01B\n" +
 	"\n" +
 	"\b_requestB\b\n" +
 	"\x06_limitB\n" +
@@ -19579,7 +19591,8 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\v_gateway_idB\x10\n" +
 	"\x0e_instance_typeB\x12\n" +
 	"\x10_serve_over_httpB\x15\n" +
-	"\x13_chalk_machine_type\"\xa2\n" +
+	"\x13_chalk_machine_typeB\v\n" +
+	"\t_disabled\"\xa2\n" +
 	"\n" +
 	"\x13VictoriaMetricsSpec\x12.\n" +
 	"\x10retention_period\x18\x01 \x01(\tH\x00R\x0fretentionPeriod\x88\x01\x01\x12&\n" +
