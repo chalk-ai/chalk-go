@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/container/v1"
+	v2 "github.com/chalk-ai/chalk-go/gen/chalk/volume/v2"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -364,6 +365,7 @@ type CreateTrainingRunRequest struct {
 	Env           map[string]string          `protobuf:"bytes,6,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	SecretRefs    []*v1.SecretRef            `protobuf:"bytes,7,rep,name=secret_refs,json=secretRefs,proto3" json:"secret_refs,omitempty"`
 	MetaData      map[string]*structpb.Value `protobuf:"bytes,8,rep,name=meta_data,json=metaData,proto3" json:"meta_data,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	VolumeCommits []*v2.CommitIntent         `protobuf:"bytes,9,rep,name=volume_commits,json=volumeCommits,proto3" json:"volume_commits,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -450,6 +452,13 @@ func (x *CreateTrainingRunRequest) GetSecretRefs() []*v1.SecretRef {
 func (x *CreateTrainingRunRequest) GetMetaData() map[string]*structpb.Value {
 	if x != nil {
 		return x.MetaData
+	}
+	return nil
+}
+
+func (x *CreateTrainingRunRequest) GetVolumeCommits() []*v2.CommitIntent {
+	if x != nil {
+		return x.VolumeCommits
 	}
 	return nil
 }
@@ -586,18 +595,70 @@ func (x *GetTrainingRunResponse) GetTrainingRun() *TrainingRun {
 	return nil
 }
 
-type ListTrainingRunsRequest struct {
+type ListTrainingRunsFilters struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Statuses      []TrainingRunStatus    `protobuf:"varint,2,rep,packed,name=statuses,proto3,enum=chalk.server.v1.TrainingRunStatus" json:"statuses,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListTrainingRunsFilters) Reset() {
+	*x = ListTrainingRunsFilters{}
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListTrainingRunsFilters) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTrainingRunsFilters) ProtoMessage() {}
+
+func (x *ListTrainingRunsFilters) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTrainingRunsFilters.ProtoReflect.Descriptor instead.
+func (*ListTrainingRunsFilters) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListTrainingRunsFilters) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *ListTrainingRunsFilters) GetStatuses() []TrainingRunStatus {
+	if x != nil {
+		return x.Statuses
+	}
+	return nil
+}
+
+type ListTrainingRunsRequest struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Limit         *int32                   `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor        *string                  `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Filters       *ListTrainingRunsFilters `protobuf:"bytes,3,opt,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListTrainingRunsRequest) Reset() {
 	*x = ListTrainingRunsRequest{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -609,7 +670,7 @@ func (x *ListTrainingRunsRequest) String() string {
 func (*ListTrainingRunsRequest) ProtoMessage() {}
 
 func (x *ListTrainingRunsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -622,7 +683,7 @@ func (x *ListTrainingRunsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTrainingRunsRequest.ProtoReflect.Descriptor instead.
 func (*ListTrainingRunsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListTrainingRunsRequest) GetLimit() int32 {
@@ -639,11 +700,11 @@ func (x *ListTrainingRunsRequest) GetCursor() string {
 	return ""
 }
 
-func (x *ListTrainingRunsRequest) GetName() string {
-	if x != nil && x.Name != nil {
-		return *x.Name
+func (x *ListTrainingRunsRequest) GetFilters() *ListTrainingRunsFilters {
+	if x != nil {
+		return x.Filters
 	}
-	return ""
+	return nil
 }
 
 type ListTrainingRunsResponse struct {
@@ -656,7 +717,7 @@ type ListTrainingRunsResponse struct {
 
 func (x *ListTrainingRunsResponse) Reset() {
 	*x = ListTrainingRunsResponse{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -668,7 +729,7 @@ func (x *ListTrainingRunsResponse) String() string {
 func (*ListTrainingRunsResponse) ProtoMessage() {}
 
 func (x *ListTrainingRunsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -681,7 +742,7 @@ func (x *ListTrainingRunsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTrainingRunsResponse.ProtoReflect.Descriptor instead.
 func (*ListTrainingRunsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListTrainingRunsResponse) GetTrainingRuns() []*TrainingRun {
@@ -709,7 +770,7 @@ type UpdateTrainingRunOperation struct {
 
 func (x *UpdateTrainingRunOperation) Reset() {
 	*x = UpdateTrainingRunOperation{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -721,7 +782,7 @@ func (x *UpdateTrainingRunOperation) String() string {
 func (*UpdateTrainingRunOperation) ProtoMessage() {}
 
 func (x *UpdateTrainingRunOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -734,7 +795,7 @@ func (x *UpdateTrainingRunOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTrainingRunOperation.ProtoReflect.Descriptor instead.
 func (*UpdateTrainingRunOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateTrainingRunOperation) GetStatus() TrainingRunStatus {
@@ -769,7 +830,7 @@ type UpdateTrainingRunRequest struct {
 
 func (x *UpdateTrainingRunRequest) Reset() {
 	*x = UpdateTrainingRunRequest{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -781,7 +842,7 @@ func (x *UpdateTrainingRunRequest) String() string {
 func (*UpdateTrainingRunRequest) ProtoMessage() {}
 
 func (x *UpdateTrainingRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -794,7 +855,7 @@ func (x *UpdateTrainingRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTrainingRunRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTrainingRunRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateTrainingRunRequest) GetTrainingRunId() string {
@@ -827,7 +888,7 @@ type UpdateTrainingRunResponse struct {
 
 func (x *UpdateTrainingRunResponse) Reset() {
 	*x = UpdateTrainingRunResponse{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -839,7 +900,7 @@ func (x *UpdateTrainingRunResponse) String() string {
 func (*UpdateTrainingRunResponse) ProtoMessage() {}
 
 func (x *UpdateTrainingRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -852,7 +913,7 @@ func (x *UpdateTrainingRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTrainingRunResponse.ProtoReflect.Descriptor instead.
 func (*UpdateTrainingRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdateTrainingRunResponse) GetTrainingRun() *TrainingRun {
@@ -871,7 +932,7 @@ type CancelTrainingRunRequest struct {
 
 func (x *CancelTrainingRunRequest) Reset() {
 	*x = CancelTrainingRunRequest{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -883,7 +944,7 @@ func (x *CancelTrainingRunRequest) String() string {
 func (*CancelTrainingRunRequest) ProtoMessage() {}
 
 func (x *CancelTrainingRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -896,7 +957,7 @@ func (x *CancelTrainingRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelTrainingRunRequest.ProtoReflect.Descriptor instead.
 func (*CancelTrainingRunRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CancelTrainingRunRequest) GetTrainingRunId() string {
@@ -914,7 +975,7 @@ type CancelTrainingRunResponse struct {
 
 func (x *CancelTrainingRunResponse) Reset() {
 	*x = CancelTrainingRunResponse{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -926,7 +987,7 @@ func (x *CancelTrainingRunResponse) String() string {
 func (*CancelTrainingRunResponse) ProtoMessage() {}
 
 func (x *CancelTrainingRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -939,7 +1000,7 @@ func (x *CancelTrainingRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelTrainingRunResponse.ProtoReflect.Descriptor instead.
 func (*CancelTrainingRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{13}
 }
 
 type CheckpointTrainingRunRequest struct {
@@ -953,7 +1014,7 @@ type CheckpointTrainingRunRequest struct {
 
 func (x *CheckpointTrainingRunRequest) Reset() {
 	*x = CheckpointTrainingRunRequest{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -965,7 +1026,7 @@ func (x *CheckpointTrainingRunRequest) String() string {
 func (*CheckpointTrainingRunRequest) ProtoMessage() {}
 
 func (x *CheckpointTrainingRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -978,7 +1039,7 @@ func (x *CheckpointTrainingRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckpointTrainingRunRequest.ProtoReflect.Descriptor instead.
 func (*CheckpointTrainingRunRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CheckpointTrainingRunRequest) GetTrainingRunId() string {
@@ -1012,7 +1073,7 @@ type CheckpointTrainingRunResponse struct {
 
 func (x *CheckpointTrainingRunResponse) Reset() {
 	*x = CheckpointTrainingRunResponse{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1024,7 +1085,7 @@ func (x *CheckpointTrainingRunResponse) String() string {
 func (*CheckpointTrainingRunResponse) ProtoMessage() {}
 
 func (x *CheckpointTrainingRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1037,7 +1098,7 @@ func (x *CheckpointTrainingRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckpointTrainingRunResponse.ProtoReflect.Descriptor instead.
 func (*CheckpointTrainingRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *CheckpointTrainingRunResponse) GetModelArtifactId() string {
@@ -1063,7 +1124,7 @@ type GetLatestCheckpointRequest struct {
 
 func (x *GetLatestCheckpointRequest) Reset() {
 	*x = GetLatestCheckpointRequest{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1075,7 +1136,7 @@ func (x *GetLatestCheckpointRequest) String() string {
 func (*GetLatestCheckpointRequest) ProtoMessage() {}
 
 func (x *GetLatestCheckpointRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1088,7 +1149,7 @@ func (x *GetLatestCheckpointRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLatestCheckpointRequest.ProtoReflect.Descriptor instead.
 func (*GetLatestCheckpointRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetLatestCheckpointRequest) GetTrainingRunId() string {
@@ -1107,7 +1168,7 @@ type GetLatestCheckpointResponse struct {
 
 func (x *GetLatestCheckpointResponse) Reset() {
 	*x = GetLatestCheckpointResponse{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1119,7 +1180,7 @@ func (x *GetLatestCheckpointResponse) String() string {
 func (*GetLatestCheckpointResponse) ProtoMessage() {}
 
 func (x *GetLatestCheckpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1132,7 +1193,7 @@ func (x *GetLatestCheckpointResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLatestCheckpointResponse.ProtoReflect.Descriptor instead.
 func (*GetLatestCheckpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetLatestCheckpointResponse) GetModelArtifact() *ModelArtifact {
@@ -1153,7 +1214,7 @@ type ListCheckpointsRequest struct {
 
 func (x *ListCheckpointsRequest) Reset() {
 	*x = ListCheckpointsRequest{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1165,7 +1226,7 @@ func (x *ListCheckpointsRequest) String() string {
 func (*ListCheckpointsRequest) ProtoMessage() {}
 
 func (x *ListCheckpointsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1178,7 +1239,7 @@ func (x *ListCheckpointsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCheckpointsRequest.ProtoReflect.Descriptor instead.
 func (*ListCheckpointsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListCheckpointsRequest) GetTrainingRunId() string {
@@ -1212,7 +1273,7 @@ type ListCheckpointsResponse struct {
 
 func (x *ListCheckpointsResponse) Reset() {
 	*x = ListCheckpointsResponse{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1224,7 +1285,7 @@ func (x *ListCheckpointsResponse) String() string {
 func (*ListCheckpointsResponse) ProtoMessage() {}
 
 func (x *ListCheckpointsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1237,7 +1298,7 @@ func (x *ListCheckpointsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCheckpointsResponse.ProtoReflect.Descriptor instead.
 func (*ListCheckpointsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListCheckpointsResponse) GetModelArtifacts() []*ModelArtifact {
@@ -1266,7 +1327,7 @@ type TrainingMetric struct {
 
 func (x *TrainingMetric) Reset() {
 	*x = TrainingMetric{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1278,7 +1339,7 @@ func (x *TrainingMetric) String() string {
 func (*TrainingMetric) ProtoMessage() {}
 
 func (x *TrainingMetric) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1291,7 +1352,7 @@ func (x *TrainingMetric) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TrainingMetric.ProtoReflect.Descriptor instead.
 func (*TrainingMetric) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *TrainingMetric) GetName() string {
@@ -1332,7 +1393,7 @@ type ReportTrainingMetricsRequest struct {
 
 func (x *ReportTrainingMetricsRequest) Reset() {
 	*x = ReportTrainingMetricsRequest{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1344,7 +1405,7 @@ func (x *ReportTrainingMetricsRequest) String() string {
 func (*ReportTrainingMetricsRequest) ProtoMessage() {}
 
 func (x *ReportTrainingMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1357,7 +1418,7 @@ func (x *ReportTrainingMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportTrainingMetricsRequest.ProtoReflect.Descriptor instead.
 func (*ReportTrainingMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ReportTrainingMetricsRequest) GetTrainingRunId() string {
@@ -1382,7 +1443,7 @@ type ReportTrainingMetricsResponse struct {
 
 func (x *ReportTrainingMetricsResponse) Reset() {
 	*x = ReportTrainingMetricsResponse{}
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1394,7 +1455,7 @@ func (x *ReportTrainingMetricsResponse) String() string {
 func (*ReportTrainingMetricsResponse) ProtoMessage() {}
 
 func (x *ReportTrainingMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_training_runs_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1407,14 +1468,14 @@ func (x *ReportTrainingMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportTrainingMetricsResponse.ProtoReflect.Descriptor instead.
 func (*ReportTrainingMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_training_runs_proto_rawDescGZIP(), []int{22}
 }
 
 var File_chalk_server_v1_training_runs_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/server/v1/training_runs.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a$chalk/server/v1/model_registry.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"~\n" +
+	"#chalk/server/v1/training_runs.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a$chalk/server/v1/model_registry.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"~\n" +
 	"\x15TrainingRunDataSource\x12#\n" +
 	"\fdataset_name\x18\x01 \x01(\tH\x00R\vdatasetName\x12\x17\n" +
 	"\x06s3_uri\x18\x02 \x01(\tH\x00R\x05s3Uri\x12\x1d\n" +
@@ -1452,7 +1513,7 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\x0e_error_messageB\r\n" +
 	"\v_started_atB\x0f\n" +
 	"\r_finalized_atB\r\n" +
-	"\v_created_by\"\xf9\x04\n" +
+	"\v_created_by\"\xbf\x05\n" +
 	"\x18CreateTrainingRunRequest\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12:\n" +
 	"\x04data\x18\x02 \x01(\v2&.chalk.server.v1.TrainingRunDataSourceR\x04data\x12/\n" +
@@ -1462,7 +1523,8 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\x03env\x18\x06 \x03(\v22.chalk.server.v1.CreateTrainingRunRequest.EnvEntryR\x03env\x12>\n" +
 	"\vsecret_refs\x18\a \x03(\v2\x1d.chalk.container.v1.SecretRefR\n" +
 	"secretRefs\x12T\n" +
-	"\tmeta_data\x18\b \x03(\v27.chalk.server.v1.CreateTrainingRunRequest.MetaDataEntryR\bmetaData\x1a6\n" +
+	"\tmeta_data\x18\b \x03(\v27.chalk.server.v1.CreateTrainingRunRequest.MetaDataEntryR\bmetaData\x12D\n" +
+	"\x0evolume_commits\x18\t \x03(\v2\x1d.chalk.volume.v2.CommitIntentR\rvolumeCommits\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aS\n" +
@@ -1477,14 +1539,17 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\x0ftraining_run_id\x18\x01 \x01(\tR\rtrainingRunId\"o\n" +
 	"\x16GetTrainingRunResponse\x12D\n" +
 	"\ftraining_run\x18\x01 \x01(\v2\x1c.chalk.server.v1.TrainingRunH\x00R\vtrainingRun\x88\x01\x01B\x0f\n" +
-	"\r_training_run\"\x88\x01\n" +
+	"\r_training_run\"{\n" +
+	"\x17ListTrainingRunsFilters\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12>\n" +
+	"\bstatuses\x18\x02 \x03(\x0e2\".chalk.server.v1.TrainingRunStatusR\bstatusesB\a\n" +
+	"\x05_name\"\xaa\x01\n" +
 	"\x17ListTrainingRunsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x17\n" +
-	"\x04name\x18\x03 \x01(\tH\x02R\x04name\x88\x01\x01B\b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12B\n" +
+	"\afilters\x18\x03 \x01(\v2(.chalk.server.v1.ListTrainingRunsFiltersR\afiltersB\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursorB\a\n" +
-	"\x05_name\"\x93\x01\n" +
+	"\a_cursor\"\x93\x01\n" +
 	"\x18ListTrainingRunsResponse\x12A\n" +
 	"\rtraining_runs\x18\x01 \x03(\v2\x1c.chalk.server.v1.TrainingRunR\ftrainingRuns\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
@@ -1578,7 +1643,7 @@ func file_chalk_server_v1_training_runs_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_training_runs_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_training_runs_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_chalk_server_v1_training_runs_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_chalk_server_v1_training_runs_proto_goTypes = []any{
 	(TrainingRunStatus)(0),                // 0: chalk.server.v1.TrainingRunStatus
 	(*TrainingRunDataSource)(nil),         // 1: chalk.server.v1.TrainingRunDataSource
@@ -1587,93 +1652,98 @@ var file_chalk_server_v1_training_runs_proto_goTypes = []any{
 	(*CreateTrainingRunResponse)(nil),     // 4: chalk.server.v1.CreateTrainingRunResponse
 	(*GetTrainingRunRequest)(nil),         // 5: chalk.server.v1.GetTrainingRunRequest
 	(*GetTrainingRunResponse)(nil),        // 6: chalk.server.v1.GetTrainingRunResponse
-	(*ListTrainingRunsRequest)(nil),       // 7: chalk.server.v1.ListTrainingRunsRequest
-	(*ListTrainingRunsResponse)(nil),      // 8: chalk.server.v1.ListTrainingRunsResponse
-	(*UpdateTrainingRunOperation)(nil),    // 9: chalk.server.v1.UpdateTrainingRunOperation
-	(*UpdateTrainingRunRequest)(nil),      // 10: chalk.server.v1.UpdateTrainingRunRequest
-	(*UpdateTrainingRunResponse)(nil),     // 11: chalk.server.v1.UpdateTrainingRunResponse
-	(*CancelTrainingRunRequest)(nil),      // 12: chalk.server.v1.CancelTrainingRunRequest
-	(*CancelTrainingRunResponse)(nil),     // 13: chalk.server.v1.CancelTrainingRunResponse
-	(*CheckpointTrainingRunRequest)(nil),  // 14: chalk.server.v1.CheckpointTrainingRunRequest
-	(*CheckpointTrainingRunResponse)(nil), // 15: chalk.server.v1.CheckpointTrainingRunResponse
-	(*GetLatestCheckpointRequest)(nil),    // 16: chalk.server.v1.GetLatestCheckpointRequest
-	(*GetLatestCheckpointResponse)(nil),   // 17: chalk.server.v1.GetLatestCheckpointResponse
-	(*ListCheckpointsRequest)(nil),        // 18: chalk.server.v1.ListCheckpointsRequest
-	(*ListCheckpointsResponse)(nil),       // 19: chalk.server.v1.ListCheckpointsResponse
-	(*TrainingMetric)(nil),                // 20: chalk.server.v1.TrainingMetric
-	(*ReportTrainingMetricsRequest)(nil),  // 21: chalk.server.v1.ReportTrainingMetricsRequest
-	(*ReportTrainingMetricsResponse)(nil), // 22: chalk.server.v1.ReportTrainingMetricsResponse
-	nil,                                   // 23: chalk.server.v1.TrainingRun.EnvEntry
-	nil,                                   // 24: chalk.server.v1.TrainingRun.MetaDataEntry
-	nil,                                   // 25: chalk.server.v1.CreateTrainingRunRequest.EnvEntry
-	nil,                                   // 26: chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry
-	nil,                                   // 27: chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry
-	nil,                                   // 28: chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntry
-	(*structpb.Struct)(nil),               // 29: google.protobuf.Struct
-	(*v1.ResourceLimits)(nil),             // 30: chalk.container.v1.ResourceLimits
-	(*v1.SecretRef)(nil),                  // 31: chalk.container.v1.SecretRef
-	(*timestamppb.Timestamp)(nil),         // 32: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),         // 33: google.protobuf.FieldMask
-	(*ModelArtifact)(nil),                 // 34: chalk.server.v1.ModelArtifact
-	(*structpb.Value)(nil),                // 35: google.protobuf.Value
+	(*ListTrainingRunsFilters)(nil),       // 7: chalk.server.v1.ListTrainingRunsFilters
+	(*ListTrainingRunsRequest)(nil),       // 8: chalk.server.v1.ListTrainingRunsRequest
+	(*ListTrainingRunsResponse)(nil),      // 9: chalk.server.v1.ListTrainingRunsResponse
+	(*UpdateTrainingRunOperation)(nil),    // 10: chalk.server.v1.UpdateTrainingRunOperation
+	(*UpdateTrainingRunRequest)(nil),      // 11: chalk.server.v1.UpdateTrainingRunRequest
+	(*UpdateTrainingRunResponse)(nil),     // 12: chalk.server.v1.UpdateTrainingRunResponse
+	(*CancelTrainingRunRequest)(nil),      // 13: chalk.server.v1.CancelTrainingRunRequest
+	(*CancelTrainingRunResponse)(nil),     // 14: chalk.server.v1.CancelTrainingRunResponse
+	(*CheckpointTrainingRunRequest)(nil),  // 15: chalk.server.v1.CheckpointTrainingRunRequest
+	(*CheckpointTrainingRunResponse)(nil), // 16: chalk.server.v1.CheckpointTrainingRunResponse
+	(*GetLatestCheckpointRequest)(nil),    // 17: chalk.server.v1.GetLatestCheckpointRequest
+	(*GetLatestCheckpointResponse)(nil),   // 18: chalk.server.v1.GetLatestCheckpointResponse
+	(*ListCheckpointsRequest)(nil),        // 19: chalk.server.v1.ListCheckpointsRequest
+	(*ListCheckpointsResponse)(nil),       // 20: chalk.server.v1.ListCheckpointsResponse
+	(*TrainingMetric)(nil),                // 21: chalk.server.v1.TrainingMetric
+	(*ReportTrainingMetricsRequest)(nil),  // 22: chalk.server.v1.ReportTrainingMetricsRequest
+	(*ReportTrainingMetricsResponse)(nil), // 23: chalk.server.v1.ReportTrainingMetricsResponse
+	nil,                                   // 24: chalk.server.v1.TrainingRun.EnvEntry
+	nil,                                   // 25: chalk.server.v1.TrainingRun.MetaDataEntry
+	nil,                                   // 26: chalk.server.v1.CreateTrainingRunRequest.EnvEntry
+	nil,                                   // 27: chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry
+	nil,                                   // 28: chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry
+	nil,                                   // 29: chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntry
+	(*structpb.Struct)(nil),               // 30: google.protobuf.Struct
+	(*v1.ResourceLimits)(nil),             // 31: chalk.container.v1.ResourceLimits
+	(*v1.SecretRef)(nil),                  // 32: chalk.container.v1.SecretRef
+	(*timestamppb.Timestamp)(nil),         // 33: google.protobuf.Timestamp
+	(*v2.CommitIntent)(nil),               // 34: chalk.volume.v2.CommitIntent
+	(*fieldmaskpb.FieldMask)(nil),         // 35: google.protobuf.FieldMask
+	(*ModelArtifact)(nil),                 // 36: chalk.server.v1.ModelArtifact
+	(*structpb.Value)(nil),                // 37: google.protobuf.Value
 }
 var file_chalk_server_v1_training_runs_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.TrainingRun.status:type_name -> chalk.server.v1.TrainingRunStatus
 	1,  // 1: chalk.server.v1.TrainingRun.data:type_name -> chalk.server.v1.TrainingRunDataSource
-	29, // 2: chalk.server.v1.TrainingRun.config:type_name -> google.protobuf.Struct
-	30, // 3: chalk.server.v1.TrainingRun.resources:type_name -> chalk.container.v1.ResourceLimits
-	23, // 4: chalk.server.v1.TrainingRun.env:type_name -> chalk.server.v1.TrainingRun.EnvEntry
-	31, // 5: chalk.server.v1.TrainingRun.secret_refs:type_name -> chalk.container.v1.SecretRef
-	24, // 6: chalk.server.v1.TrainingRun.meta_data:type_name -> chalk.server.v1.TrainingRun.MetaDataEntry
-	32, // 7: chalk.server.v1.TrainingRun.started_at:type_name -> google.protobuf.Timestamp
-	32, // 8: chalk.server.v1.TrainingRun.finalized_at:type_name -> google.protobuf.Timestamp
-	32, // 9: chalk.server.v1.TrainingRun.created_at:type_name -> google.protobuf.Timestamp
+	30, // 2: chalk.server.v1.TrainingRun.config:type_name -> google.protobuf.Struct
+	31, // 3: chalk.server.v1.TrainingRun.resources:type_name -> chalk.container.v1.ResourceLimits
+	24, // 4: chalk.server.v1.TrainingRun.env:type_name -> chalk.server.v1.TrainingRun.EnvEntry
+	32, // 5: chalk.server.v1.TrainingRun.secret_refs:type_name -> chalk.container.v1.SecretRef
+	25, // 6: chalk.server.v1.TrainingRun.meta_data:type_name -> chalk.server.v1.TrainingRun.MetaDataEntry
+	33, // 7: chalk.server.v1.TrainingRun.started_at:type_name -> google.protobuf.Timestamp
+	33, // 8: chalk.server.v1.TrainingRun.finalized_at:type_name -> google.protobuf.Timestamp
+	33, // 9: chalk.server.v1.TrainingRun.created_at:type_name -> google.protobuf.Timestamp
 	1,  // 10: chalk.server.v1.CreateTrainingRunRequest.data:type_name -> chalk.server.v1.TrainingRunDataSource
-	29, // 11: chalk.server.v1.CreateTrainingRunRequest.config:type_name -> google.protobuf.Struct
-	30, // 12: chalk.server.v1.CreateTrainingRunRequest.resources:type_name -> chalk.container.v1.ResourceLimits
-	25, // 13: chalk.server.v1.CreateTrainingRunRequest.env:type_name -> chalk.server.v1.CreateTrainingRunRequest.EnvEntry
-	31, // 14: chalk.server.v1.CreateTrainingRunRequest.secret_refs:type_name -> chalk.container.v1.SecretRef
-	26, // 15: chalk.server.v1.CreateTrainingRunRequest.meta_data:type_name -> chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry
-	2,  // 16: chalk.server.v1.CreateTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
-	2,  // 17: chalk.server.v1.GetTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
-	2,  // 18: chalk.server.v1.ListTrainingRunsResponse.training_runs:type_name -> chalk.server.v1.TrainingRun
-	0,  // 19: chalk.server.v1.UpdateTrainingRunOperation.status:type_name -> chalk.server.v1.TrainingRunStatus
-	27, // 20: chalk.server.v1.UpdateTrainingRunOperation.meta_data:type_name -> chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry
-	9,  // 21: chalk.server.v1.UpdateTrainingRunRequest.update:type_name -> chalk.server.v1.UpdateTrainingRunOperation
-	33, // 22: chalk.server.v1.UpdateTrainingRunRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 23: chalk.server.v1.UpdateTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
-	29, // 24: chalk.server.v1.CheckpointTrainingRunRequest.artifact_spec:type_name -> google.protobuf.Struct
-	28, // 25: chalk.server.v1.CheckpointTrainingRunResponse.upload_urls:type_name -> chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntry
-	34, // 26: chalk.server.v1.GetLatestCheckpointResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
-	34, // 27: chalk.server.v1.ListCheckpointsResponse.model_artifacts:type_name -> chalk.server.v1.ModelArtifact
-	32, // 28: chalk.server.v1.TrainingMetric.timestamp:type_name -> google.protobuf.Timestamp
-	20, // 29: chalk.server.v1.ReportTrainingMetricsRequest.metrics:type_name -> chalk.server.v1.TrainingMetric
-	35, // 30: chalk.server.v1.TrainingRun.MetaDataEntry.value:type_name -> google.protobuf.Value
-	35, // 31: chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry.value:type_name -> google.protobuf.Value
-	35, // 32: chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry.value:type_name -> google.protobuf.Value
-	3,  // 33: chalk.server.v1.TrainingRunService.CreateTrainingRun:input_type -> chalk.server.v1.CreateTrainingRunRequest
-	5,  // 34: chalk.server.v1.TrainingRunService.GetTrainingRun:input_type -> chalk.server.v1.GetTrainingRunRequest
-	7,  // 35: chalk.server.v1.TrainingRunService.ListTrainingRuns:input_type -> chalk.server.v1.ListTrainingRunsRequest
-	10, // 36: chalk.server.v1.TrainingRunService.UpdateTrainingRun:input_type -> chalk.server.v1.UpdateTrainingRunRequest
-	12, // 37: chalk.server.v1.TrainingRunService.CancelTrainingRun:input_type -> chalk.server.v1.CancelTrainingRunRequest
-	14, // 38: chalk.server.v1.TrainingRunService.CheckpointTrainingRun:input_type -> chalk.server.v1.CheckpointTrainingRunRequest
-	16, // 39: chalk.server.v1.TrainingRunService.GetLatestCheckpoint:input_type -> chalk.server.v1.GetLatestCheckpointRequest
-	18, // 40: chalk.server.v1.TrainingRunService.ListCheckpoints:input_type -> chalk.server.v1.ListCheckpointsRequest
-	21, // 41: chalk.server.v1.TrainingRunService.ReportTrainingMetrics:input_type -> chalk.server.v1.ReportTrainingMetricsRequest
-	4,  // 42: chalk.server.v1.TrainingRunService.CreateTrainingRun:output_type -> chalk.server.v1.CreateTrainingRunResponse
-	6,  // 43: chalk.server.v1.TrainingRunService.GetTrainingRun:output_type -> chalk.server.v1.GetTrainingRunResponse
-	8,  // 44: chalk.server.v1.TrainingRunService.ListTrainingRuns:output_type -> chalk.server.v1.ListTrainingRunsResponse
-	11, // 45: chalk.server.v1.TrainingRunService.UpdateTrainingRun:output_type -> chalk.server.v1.UpdateTrainingRunResponse
-	13, // 46: chalk.server.v1.TrainingRunService.CancelTrainingRun:output_type -> chalk.server.v1.CancelTrainingRunResponse
-	15, // 47: chalk.server.v1.TrainingRunService.CheckpointTrainingRun:output_type -> chalk.server.v1.CheckpointTrainingRunResponse
-	17, // 48: chalk.server.v1.TrainingRunService.GetLatestCheckpoint:output_type -> chalk.server.v1.GetLatestCheckpointResponse
-	19, // 49: chalk.server.v1.TrainingRunService.ListCheckpoints:output_type -> chalk.server.v1.ListCheckpointsResponse
-	22, // 50: chalk.server.v1.TrainingRunService.ReportTrainingMetrics:output_type -> chalk.server.v1.ReportTrainingMetricsResponse
-	42, // [42:51] is the sub-list for method output_type
-	33, // [33:42] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	30, // 11: chalk.server.v1.CreateTrainingRunRequest.config:type_name -> google.protobuf.Struct
+	31, // 12: chalk.server.v1.CreateTrainingRunRequest.resources:type_name -> chalk.container.v1.ResourceLimits
+	26, // 13: chalk.server.v1.CreateTrainingRunRequest.env:type_name -> chalk.server.v1.CreateTrainingRunRequest.EnvEntry
+	32, // 14: chalk.server.v1.CreateTrainingRunRequest.secret_refs:type_name -> chalk.container.v1.SecretRef
+	27, // 15: chalk.server.v1.CreateTrainingRunRequest.meta_data:type_name -> chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry
+	34, // 16: chalk.server.v1.CreateTrainingRunRequest.volume_commits:type_name -> chalk.volume.v2.CommitIntent
+	2,  // 17: chalk.server.v1.CreateTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
+	2,  // 18: chalk.server.v1.GetTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
+	0,  // 19: chalk.server.v1.ListTrainingRunsFilters.statuses:type_name -> chalk.server.v1.TrainingRunStatus
+	7,  // 20: chalk.server.v1.ListTrainingRunsRequest.filters:type_name -> chalk.server.v1.ListTrainingRunsFilters
+	2,  // 21: chalk.server.v1.ListTrainingRunsResponse.training_runs:type_name -> chalk.server.v1.TrainingRun
+	0,  // 22: chalk.server.v1.UpdateTrainingRunOperation.status:type_name -> chalk.server.v1.TrainingRunStatus
+	28, // 23: chalk.server.v1.UpdateTrainingRunOperation.meta_data:type_name -> chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry
+	10, // 24: chalk.server.v1.UpdateTrainingRunRequest.update:type_name -> chalk.server.v1.UpdateTrainingRunOperation
+	35, // 25: chalk.server.v1.UpdateTrainingRunRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 26: chalk.server.v1.UpdateTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
+	30, // 27: chalk.server.v1.CheckpointTrainingRunRequest.artifact_spec:type_name -> google.protobuf.Struct
+	29, // 28: chalk.server.v1.CheckpointTrainingRunResponse.upload_urls:type_name -> chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntry
+	36, // 29: chalk.server.v1.GetLatestCheckpointResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
+	36, // 30: chalk.server.v1.ListCheckpointsResponse.model_artifacts:type_name -> chalk.server.v1.ModelArtifact
+	33, // 31: chalk.server.v1.TrainingMetric.timestamp:type_name -> google.protobuf.Timestamp
+	21, // 32: chalk.server.v1.ReportTrainingMetricsRequest.metrics:type_name -> chalk.server.v1.TrainingMetric
+	37, // 33: chalk.server.v1.TrainingRun.MetaDataEntry.value:type_name -> google.protobuf.Value
+	37, // 34: chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry.value:type_name -> google.protobuf.Value
+	37, // 35: chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry.value:type_name -> google.protobuf.Value
+	3,  // 36: chalk.server.v1.TrainingRunService.CreateTrainingRun:input_type -> chalk.server.v1.CreateTrainingRunRequest
+	5,  // 37: chalk.server.v1.TrainingRunService.GetTrainingRun:input_type -> chalk.server.v1.GetTrainingRunRequest
+	8,  // 38: chalk.server.v1.TrainingRunService.ListTrainingRuns:input_type -> chalk.server.v1.ListTrainingRunsRequest
+	11, // 39: chalk.server.v1.TrainingRunService.UpdateTrainingRun:input_type -> chalk.server.v1.UpdateTrainingRunRequest
+	13, // 40: chalk.server.v1.TrainingRunService.CancelTrainingRun:input_type -> chalk.server.v1.CancelTrainingRunRequest
+	15, // 41: chalk.server.v1.TrainingRunService.CheckpointTrainingRun:input_type -> chalk.server.v1.CheckpointTrainingRunRequest
+	17, // 42: chalk.server.v1.TrainingRunService.GetLatestCheckpoint:input_type -> chalk.server.v1.GetLatestCheckpointRequest
+	19, // 43: chalk.server.v1.TrainingRunService.ListCheckpoints:input_type -> chalk.server.v1.ListCheckpointsRequest
+	22, // 44: chalk.server.v1.TrainingRunService.ReportTrainingMetrics:input_type -> chalk.server.v1.ReportTrainingMetricsRequest
+	4,  // 45: chalk.server.v1.TrainingRunService.CreateTrainingRun:output_type -> chalk.server.v1.CreateTrainingRunResponse
+	6,  // 46: chalk.server.v1.TrainingRunService.GetTrainingRun:output_type -> chalk.server.v1.GetTrainingRunResponse
+	9,  // 47: chalk.server.v1.TrainingRunService.ListTrainingRuns:output_type -> chalk.server.v1.ListTrainingRunsResponse
+	12, // 48: chalk.server.v1.TrainingRunService.UpdateTrainingRun:output_type -> chalk.server.v1.UpdateTrainingRunResponse
+	14, // 49: chalk.server.v1.TrainingRunService.CancelTrainingRun:output_type -> chalk.server.v1.CancelTrainingRunResponse
+	16, // 50: chalk.server.v1.TrainingRunService.CheckpointTrainingRun:output_type -> chalk.server.v1.CheckpointTrainingRunResponse
+	18, // 51: chalk.server.v1.TrainingRunService.GetLatestCheckpoint:output_type -> chalk.server.v1.GetLatestCheckpointResponse
+	20, // 52: chalk.server.v1.TrainingRunService.ListCheckpoints:output_type -> chalk.server.v1.ListCheckpointsResponse
+	23, // 53: chalk.server.v1.TrainingRunService.ReportTrainingMetrics:output_type -> chalk.server.v1.ReportTrainingMetricsResponse
+	45, // [45:54] is the sub-list for method output_type
+	36, // [36:45] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_training_runs_proto_init() }
@@ -1693,16 +1763,17 @@ func file_chalk_server_v1_training_runs_proto_init() {
 	file_chalk_server_v1_training_runs_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_server_v1_training_runs_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_training_runs_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_server_v1_training_runs_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_server_v1_training_runs_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_server_v1_training_runs_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_training_runs_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_server_v1_training_runs_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_training_runs_proto_rawDesc), len(file_chalk_server_v1_training_runs_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   28,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

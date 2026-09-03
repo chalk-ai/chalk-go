@@ -1606,7 +1606,7 @@ type VolumeMount struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Path inside the sandbox where the volume should be mounted
 	MountPath string `protobuf:"bytes,2,opt,name=mount_path,json=mountPath,proto3" json:"mount_path,omitempty"`
-	// Type of volume: "empty_dir", "shared_memory", or "chalkfs"
+	// Type of volume: "empty_dir", "shared_memory", or "versioned_chalkfs".
 	Type string `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
 	// Size limit for the volume (e.g., "2Gi"). Optional for empty_dir: when omitted
 	// or zero the platform applies a configured default cap. Used by shared_memory.
