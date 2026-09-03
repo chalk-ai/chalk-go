@@ -142,9 +142,13 @@ type TestIntegrationResponse struct {
 	// What was actually exercised. Differs from the request when an engine too old to know about
 	// coverage_type ignored it and ran the full suite -- without this the dashboard would report a
 	// fast check that was not fast.
-	CoverageRan   v11.DatasourceTestCoverage `protobuf:"varint,6,opt,name=coverage_ran,json=coverageRan,proto3,enum=chalk.engine.v1.DatasourceTestCoverage" json:"coverage_ran,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CoverageRan v11.DatasourceTestCoverage `protobuf:"varint,6,opt,name=coverage_ran,json=coverageRan,proto3,enum=chalk.engine.v1.DatasourceTestCoverage" json:"coverage_ran,omitempty"`
+	// Wall-clock time the test itself took, for display next to the verdict. Absent when there was
+	// no timed run to report -- a request refused before it reached the data source has no duration,
+	// and rendering 0s there would read as an instant success.
+	LatencySeconds *float64 `protobuf:"fixed64,7,opt,name=latency_seconds,json=latencySeconds,proto3,oneof" json:"latency_seconds,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *TestIntegrationResponse) Reset() {
@@ -219,6 +223,13 @@ func (x *TestIntegrationResponse) GetCoverageRan() v11.DatasourceTestCoverage {
 	return v11.DatasourceTestCoverage(0)
 }
 
+func (x *TestIntegrationResponse) GetLatencySeconds() float64 {
+	if x != nil && x.LatencySeconds != nil {
+		return *x.LatencySeconds
+	}
+	return 0
+}
+
 var File_chalk_server_v2_integrations_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v2_integrations_proto_rawDesc = "" +
@@ -234,14 +245,16 @@ const file_chalk_server_v2_integrations_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12=\n" +
 	"\x05value\x18\x02 \x01(\v2'.chalk.server.v1.IntegrationConfigValueR\x05value:\x028\x01B\x11\n" +
 	"\x0f_integration_idB\x12\n" +
-	"\x10_include_preview\"\x86\x03\n" +
+	"\x10_include_preview\"\xc8\x03\n" +
 	"\x17TestIntegrationResponse\x124\n" +
 	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12=\n" +
 	"\x06status\x18\x02 \x01(\x0e2%.chalk.engine.v1.DatasourceTestStatusR\x06status\x12B\n" +
 	"\bfindings\x18\x03 \x03(\v2&.chalk.engine.v1.DatasourceTestFindingR\bfindings\x12\x18\n" +
 	"\asummary\x18\x04 \x01(\tR\asummary\x12L\n" +
 	"\x10preview_messages\x18\x05 \x03(\v2!.chalk.server.v1.PreviewedMessageR\x0fpreviewMessages\x12J\n" +
-	"\fcoverage_ran\x18\x06 \x01(\x0e2'.chalk.engine.v1.DatasourceTestCoverageR\vcoverageRan2\x80\x01\n" +
+	"\fcoverage_ran\x18\x06 \x01(\x0e2'.chalk.engine.v1.DatasourceTestCoverageR\vcoverageRan\x12,\n" +
+	"\x0flatency_seconds\x18\a \x01(\x01H\x00R\x0elatencySeconds\x88\x01\x01B\x12\n" +
+	"\x10_latency_seconds2\x80\x01\n" +
 	"\x13IntegrationsService\x12i\n" +
 	"\x0fTestIntegration\x12'.chalk.server.v2.TestIntegrationRequest\x1a(.chalk.server.v2.TestIntegrationResponse\"\x03\x80}\x14B\xc1\x01\n" +
 	"\x13com.chalk.server.v2B\x11IntegrationsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v2;serverv2\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V2\xca\x02\x0fChalk\\Server\\V2\xe2\x02\x1bChalk\\Server\\V2\\GPBMetadata\xea\x02\x11Chalk::Server::V2b\x06proto3"
@@ -295,6 +308,7 @@ func file_chalk_server_v2_integrations_proto_init() {
 		return
 	}
 	file_chalk_server_v2_integrations_proto_msgTypes[0].OneofWrappers = []any{}
+	file_chalk_server_v2_integrations_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

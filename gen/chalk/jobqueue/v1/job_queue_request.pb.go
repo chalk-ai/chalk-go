@@ -3879,8 +3879,19 @@ type PlannerOptions struct {
 	SubPlanJoinBuildSide *string `protobuf:"bytes,129,opt,name=sub_plan_join_build_side,json=subPlanJoinBuildSide,proto3,oneof" json:"sub_plan_join_build_side,omitempty"`
 	// When set, missing coverage after the newest tile-store segment is treated as empty buckets.
 	AllowMissingTileStoreTrailingCoverage *bool `protobuf:"varint,130,opt,name=allow_missing_tile_store_trailing_coverage,json=allowMissingTileStoreTrailingCoverage,proto3,oneof" json:"allow_missing_tile_store_trailing_coverage,omitempty"`
-	unknownFields                         protoimpl.UnknownFields
-	sizeCache                             protoimpl.SizeCache
+	// When set, the result-bus publish operator is planned once at the end of the plan over the
+	// final projection instead of once per persisting source, so every output feature of a row is
+	// published in one message with a consistent observed-at timestamp. The result-bus analogue of
+	// defer_non_bus_persist_operators.
+	DeferBusPersistOperators *bool `protobuf:"varint,131,opt,name=defer_bus_persist_operators,json=deferBusPersistOperators,proto3,oneof" json:"defer_bus_persist_operators,omitempty"`
+	// When set, an offline query's terminal write of its output rows is planned as a
+	// native TableWriteNode instead of the ParquetWriter file-writer UDF. Both produce
+	// the same on-disk dataset layout. Bucketed output always falls back to
+	// ParquetWriter, because velox rejects the empty-output guarantee together with
+	// partition keys. Absent => the deployment default (CHALK_OFFLINE_QUERY_TABLE_WRITER).
+	OfflineQueryTableWriter *bool `protobuf:"varint,132,opt,name=offline_query_table_writer,json=offlineQueryTableWriter,proto3,oneof" json:"offline_query_table_writer,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -4824,6 +4835,20 @@ func (x *PlannerOptions) GetAllowMissingTileStoreTrailingCoverage() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetDeferBusPersistOperators() bool {
+	if x != nil && x.DeferBusPersistOperators != nil {
+		return *x.DeferBusPersistOperators
+	}
+	return false
+}
+
+func (x *PlannerOptions) GetOfflineQueryTableWriter() bool {
+	if x != nil && x.OfflineQueryTableWriter != nil {
+		return *x.OfflineQueryTableWriter
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -5488,7 +5513,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xd3t\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x9cv\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5621,7 +5646,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x17offline_store_wide_read\x18\x7f \x01(\tH~R\x14offlineStoreWideRead\x88\x01\x01\x12Y\n" +
 	"\x12execution_strategy\x18\x80\x01 \x01(\x0e2$.chalk.jobqueue.v1.ExecutionStrategyH\x7fR\x11executionStrategy\x88\x01\x01\x12=\n" +
 	"\x18sub_plan_join_build_side\x18\x81\x01 \x01(\tH\x80\x01R\x14subPlanJoinBuildSide\x88\x01\x01\x12`\n" +
-	"*allow_missing_tile_store_trailing_coverage\x18\x82\x01 \x01(\bH\x81\x01R%allowMissingTileStoreTrailingCoverage\x88\x01\x01B\x1e\n" +
+	"*allow_missing_tile_store_trailing_coverage\x18\x82\x01 \x01(\bH\x81\x01R%allowMissingTileStoreTrailingCoverage\x88\x01\x01\x12D\n" +
+	"\x1bdefer_bus_persist_operators\x18\x83\x01 \x01(\bH\x82\x01R\x18deferBusPersistOperators\x88\x01\x01\x12B\n" +
+	"\x1aoffline_query_table_writer\x18\x84\x01 \x01(\bH\x83\x01R\x17offlineQueryTableWriter\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5751,7 +5778,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x18_offline_store_wide_readB\x15\n" +
 	"\x13_execution_strategyB\x1b\n" +
 	"\x19_sub_plan_join_build_sideB-\n" +
-	"+_allow_missing_tile_store_trailing_coverage\"\xd2\x06\n" +
+	"+_allow_missing_tile_store_trailing_coverageB\x1e\n" +
+	"\x1c_defer_bus_persist_operatorsB\x1d\n" +
+	"\x1b_offline_query_table_writer\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

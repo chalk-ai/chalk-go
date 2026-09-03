@@ -66,6 +66,9 @@ const (
 	// ChartsServiceUpdateMetricConfigProcedure is the fully-qualified name of the ChartsService's
 	// UpdateMetricConfig RPC.
 	ChartsServiceUpdateMetricConfigProcedure = "/chalk.server.v1.ChartsService/UpdateMetricConfig"
+	// ChartsServiceDecompileMetricConfigProcedure is the fully-qualified name of the ChartsService's
+	// DecompileMetricConfig RPC.
+	ChartsServiceDecompileMetricConfigProcedure = "/chalk.server.v1.ChartsService/DecompileMetricConfig"
 	// ChartsServiceCreateChartProcedure is the fully-qualified name of the ChartsService's CreateChart
 	// RPC.
 	ChartsServiceCreateChartProcedure = "/chalk.server.v1.ChartsService/CreateChart"
@@ -115,6 +118,7 @@ type ChartsServiceClient interface {
 	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
 	GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error)
 	UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error)
+	DecompileMetricConfig(context.Context, *connect.Request[v1.DecompileMetricConfigRequest]) (*connect.Response[v1.DecompileMetricConfigResponse], error)
 	CreateChart(context.Context, *connect.Request[v1.CreateChartRequest]) (*connect.Response[v1.CreateChartResponse], error)
 	DeleteChart(context.Context, *connect.Request[v1.DeleteChartRequest]) (*connect.Response[v1.DeleteChartResponse], error)
 	GetChart(context.Context, *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error)
@@ -204,6 +208,12 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(chartsServiceMethods.ByName("UpdateMetricConfig")),
 			connect.WithClientOptions(opts...),
 		),
+		decompileMetricConfig: connect.NewClient[v1.DecompileMetricConfigRequest, v1.DecompileMetricConfigResponse](
+			httpClient,
+			baseURL+ChartsServiceDecompileMetricConfigProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("DecompileMetricConfig")),
+			connect.WithClientOptions(opts...),
+		),
 		createChart: connect.NewClient[v1.CreateChartRequest, v1.CreateChartResponse](
 			httpClient,
 			baseURL+ChartsServiceCreateChartProcedure,
@@ -280,6 +290,7 @@ type chartsServiceClient struct {
 	getChartSnapshot         *connect.Client[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse]
 	getChartSnapshotByQuery  *connect.Client[v1.GetChartSnapshotByQueryRequest, v1.GetChartSnapshotByQueryResponse]
 	updateMetricConfig       *connect.Client[v1.UpdateMetricConfigRequest, v1.UpdateMetricConfigResponse]
+	decompileMetricConfig    *connect.Client[v1.DecompileMetricConfigRequest, v1.DecompileMetricConfigResponse]
 	createChart              *connect.Client[v1.CreateChartRequest, v1.CreateChartResponse]
 	deleteChart              *connect.Client[v1.DeleteChartRequest, v1.DeleteChartResponse]
 	getChart                 *connect.Client[v1.GetChartRequest, v1.GetChartResponse]
@@ -345,6 +356,11 @@ func (c *chartsServiceClient) GetChartSnapshotByQuery(ctx context.Context, req *
 // UpdateMetricConfig calls chalk.server.v1.ChartsService.UpdateMetricConfig.
 func (c *chartsServiceClient) UpdateMetricConfig(ctx context.Context, req *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error) {
 	return c.updateMetricConfig.CallUnary(ctx, req)
+}
+
+// DecompileMetricConfig calls chalk.server.v1.ChartsService.DecompileMetricConfig.
+func (c *chartsServiceClient) DecompileMetricConfig(ctx context.Context, req *connect.Request[v1.DecompileMetricConfigRequest]) (*connect.Response[v1.DecompileMetricConfigResponse], error) {
+	return c.decompileMetricConfig.CallUnary(ctx, req)
 }
 
 // CreateChart calls chalk.server.v1.ChartsService.CreateChart.
@@ -415,6 +431,7 @@ type ChartsServiceHandler interface {
 	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
 	GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error)
 	UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error)
+	DecompileMetricConfig(context.Context, *connect.Request[v1.DecompileMetricConfigRequest]) (*connect.Response[v1.DecompileMetricConfigResponse], error)
 	CreateChart(context.Context, *connect.Request[v1.CreateChartRequest]) (*connect.Response[v1.CreateChartResponse], error)
 	DeleteChart(context.Context, *connect.Request[v1.DeleteChartRequest]) (*connect.Response[v1.DeleteChartResponse], error)
 	GetChart(context.Context, *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error)
@@ -498,6 +515,12 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 		ChartsServiceUpdateMetricConfigProcedure,
 		svc.UpdateMetricConfig,
 		connect.WithSchema(chartsServiceMethods.ByName("UpdateMetricConfig")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceDecompileMetricConfigHandler := connect.NewUnaryHandler(
+		ChartsServiceDecompileMetricConfigProcedure,
+		svc.DecompileMetricConfig,
+		connect.WithSchema(chartsServiceMethods.ByName("DecompileMetricConfig")),
 		connect.WithHandlerOptions(opts...),
 	)
 	chartsServiceCreateChartHandler := connect.NewUnaryHandler(
@@ -584,6 +607,8 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 			chartsServiceGetChartSnapshotByQueryHandler.ServeHTTP(w, r)
 		case ChartsServiceUpdateMetricConfigProcedure:
 			chartsServiceUpdateMetricConfigHandler.ServeHTTP(w, r)
+		case ChartsServiceDecompileMetricConfigProcedure:
+			chartsServiceDecompileMetricConfigHandler.ServeHTTP(w, r)
 		case ChartsServiceCreateChartProcedure:
 			chartsServiceCreateChartHandler.ServeHTTP(w, r)
 		case ChartsServiceDeleteChartProcedure:
@@ -655,6 +680,10 @@ func (UnimplementedChartsServiceHandler) GetChartSnapshotByQuery(context.Context
 
 func (UnimplementedChartsServiceHandler) UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.UpdateMetricConfig is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) DecompileMetricConfig(context.Context, *connect.Request[v1.DecompileMetricConfigRequest]) (*connect.Response[v1.DecompileMetricConfigResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.DecompileMetricConfig is not implemented"))
 }
 
 func (UnimplementedChartsServiceHandler) CreateChart(context.Context, *connect.Request[v1.CreateChartRequest]) (*connect.Response[v1.CreateChartResponse], error) {
