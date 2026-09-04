@@ -34,6 +34,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// ExternalFunctionCatalogServiceEnsureExternalFunctionProcedure is the fully-qualified name of the
+	// ExternalFunctionCatalogService's EnsureExternalFunction RPC.
+	ExternalFunctionCatalogServiceEnsureExternalFunctionProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/EnsureExternalFunction"
 	// ExternalFunctionCatalogServiceCreateExternalFunctionProcedure is the fully-qualified name of the
 	// ExternalFunctionCatalogService's CreateExternalFunction RPC.
 	ExternalFunctionCatalogServiceCreateExternalFunctionProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/CreateExternalFunction"
@@ -75,6 +78,7 @@ const (
 // ExternalFunctionCatalogServiceClient is a client for the
 // chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService service.
 type ExternalFunctionCatalogServiceClient interface {
+	EnsureExternalFunction(context.Context, *connect.Request[v1.EnsureExternalFunctionRequest]) (*connect.Response[v1.EnsureExternalFunctionResponse], error)
 	CreateExternalFunction(context.Context, *connect.Request[v1.CreateExternalFunctionRequest]) (*connect.Response[v1.CreateExternalFunctionResponse], error)
 	UpdateExternalFunction(context.Context, *connect.Request[v1.UpdateExternalFunctionRequest]) (*connect.Response[v1.UpdateExternalFunctionResponse], error)
 	GetExternalFunction(context.Context, *connect.Request[v1.GetExternalFunctionRequest]) (*connect.Response[v1.GetExternalFunctionResponse], error)
@@ -111,6 +115,12 @@ func NewExternalFunctionCatalogServiceClient(httpClient connect.HTTPClient, base
 	baseURL = strings.TrimRight(baseURL, "/")
 	externalFunctionCatalogServiceMethods := v1.File_chalk_externalfunctioncatalog_v1_service_proto.Services().ByName("ExternalFunctionCatalogService").Methods()
 	return &externalFunctionCatalogServiceClient{
+		ensureExternalFunction: connect.NewClient[v1.EnsureExternalFunctionRequest, v1.EnsureExternalFunctionResponse](
+			httpClient,
+			baseURL+ExternalFunctionCatalogServiceEnsureExternalFunctionProcedure,
+			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("EnsureExternalFunction")),
+			connect.WithClientOptions(opts...),
+		),
 		createExternalFunction: connect.NewClient[v1.CreateExternalFunctionRequest, v1.CreateExternalFunctionResponse](
 			httpClient,
 			baseURL+ExternalFunctionCatalogServiceCreateExternalFunctionProcedure,
@@ -195,6 +205,7 @@ func NewExternalFunctionCatalogServiceClient(httpClient connect.HTTPClient, base
 
 // externalFunctionCatalogServiceClient implements ExternalFunctionCatalogServiceClient.
 type externalFunctionCatalogServiceClient struct {
+	ensureExternalFunction            *connect.Client[v1.EnsureExternalFunctionRequest, v1.EnsureExternalFunctionResponse]
 	createExternalFunction            *connect.Client[v1.CreateExternalFunctionRequest, v1.CreateExternalFunctionResponse]
 	updateExternalFunction            *connect.Client[v1.UpdateExternalFunctionRequest, v1.UpdateExternalFunctionResponse]
 	getExternalFunction               *connect.Client[v1.GetExternalFunctionRequest, v1.GetExternalFunctionResponse]
@@ -207,6 +218,12 @@ type externalFunctionCatalogServiceClient struct {
 	getExternalFunctionVersionSource  *connect.Client[v1.GetExternalFunctionVersionSourceRequest, v1.GetExternalFunctionVersionSourceResponse]
 	listExternalFunctionVersions      *connect.Client[v1.ListExternalFunctionVersionsRequest, v1.ListExternalFunctionVersionsResponse]
 	deleteExternalFunctionVersion     *connect.Client[v1.DeleteExternalFunctionVersionRequest, v1.DeleteExternalFunctionVersionResponse]
+}
+
+// EnsureExternalFunction calls
+// chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.EnsureExternalFunction.
+func (c *externalFunctionCatalogServiceClient) EnsureExternalFunction(ctx context.Context, req *connect.Request[v1.EnsureExternalFunctionRequest]) (*connect.Response[v1.EnsureExternalFunctionResponse], error) {
+	return c.ensureExternalFunction.CallUnary(ctx, req)
 }
 
 // CreateExternalFunction calls
@@ -286,6 +303,7 @@ func (c *externalFunctionCatalogServiceClient) DeleteExternalFunctionVersion(ctx
 // ExternalFunctionCatalogServiceHandler is an implementation of the
 // chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService service.
 type ExternalFunctionCatalogServiceHandler interface {
+	EnsureExternalFunction(context.Context, *connect.Request[v1.EnsureExternalFunctionRequest]) (*connect.Response[v1.EnsureExternalFunctionResponse], error)
 	CreateExternalFunction(context.Context, *connect.Request[v1.CreateExternalFunctionRequest]) (*connect.Response[v1.CreateExternalFunctionResponse], error)
 	UpdateExternalFunction(context.Context, *connect.Request[v1.UpdateExternalFunctionRequest]) (*connect.Response[v1.UpdateExternalFunctionResponse], error)
 	GetExternalFunction(context.Context, *connect.Request[v1.GetExternalFunctionRequest]) (*connect.Response[v1.GetExternalFunctionResponse], error)
@@ -317,6 +335,12 @@ type ExternalFunctionCatalogServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	externalFunctionCatalogServiceMethods := v1.File_chalk_externalfunctioncatalog_v1_service_proto.Services().ByName("ExternalFunctionCatalogService").Methods()
+	externalFunctionCatalogServiceEnsureExternalFunctionHandler := connect.NewUnaryHandler(
+		ExternalFunctionCatalogServiceEnsureExternalFunctionProcedure,
+		svc.EnsureExternalFunction,
+		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("EnsureExternalFunction")),
+		connect.WithHandlerOptions(opts...),
+	)
 	externalFunctionCatalogServiceCreateExternalFunctionHandler := connect.NewUnaryHandler(
 		ExternalFunctionCatalogServiceCreateExternalFunctionProcedure,
 		svc.CreateExternalFunction,
@@ -398,6 +422,8 @@ func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogService
 	)
 	return "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case ExternalFunctionCatalogServiceEnsureExternalFunctionProcedure:
+			externalFunctionCatalogServiceEnsureExternalFunctionHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceCreateExternalFunctionProcedure:
 			externalFunctionCatalogServiceCreateExternalFunctionHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceUpdateExternalFunctionProcedure:
@@ -430,6 +456,10 @@ func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogService
 
 // UnimplementedExternalFunctionCatalogServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedExternalFunctionCatalogServiceHandler struct{}
+
+func (UnimplementedExternalFunctionCatalogServiceHandler) EnsureExternalFunction(context.Context, *connect.Request[v1.EnsureExternalFunctionRequest]) (*connect.Response[v1.EnsureExternalFunctionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.EnsureExternalFunction is not implemented"))
+}
 
 func (UnimplementedExternalFunctionCatalogServiceHandler) CreateExternalFunction(context.Context, *connect.Request[v1.CreateExternalFunctionRequest]) (*connect.Response[v1.CreateExternalFunctionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CreateExternalFunction is not implemented"))
