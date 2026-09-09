@@ -137,6 +137,18 @@ const (
 	// BuilderServiceMigrateClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's MigrateClusterTimescaleDB RPC.
 	BuilderServiceMigrateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/MigrateClusterTimescaleDB"
+	// BuilderServiceGetClusterTimescaleTopologyProcedure is the fully-qualified name of the
+	// BuilderService's GetClusterTimescaleTopology RPC.
+	BuilderServiceGetClusterTimescaleTopologyProcedure = "/chalk.server.v1.BuilderService/GetClusterTimescaleTopology"
+	// BuilderServiceFailoverClusterTimescaleDBProcedure is the fully-qualified name of the
+	// BuilderService's FailoverClusterTimescaleDB RPC.
+	BuilderServiceFailoverClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/FailoverClusterTimescaleDB"
+	// BuilderServiceSwitchoverClusterTimescaleDBProcedure is the fully-qualified name of the
+	// BuilderService's SwitchoverClusterTimescaleDB RPC.
+	BuilderServiceSwitchoverClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/SwitchoverClusterTimescaleDB"
+	// BuilderServiceRebuildClusterTimescaleReplicaProcedure is the fully-qualified name of the
+	// BuilderService's RebuildClusterTimescaleReplica RPC.
+	BuilderServiceRebuildClusterTimescaleReplicaProcedure = "/chalk.server.v1.BuilderService/RebuildClusterTimescaleReplica"
 	// BuilderServiceGetClusterWorkflowOrchestratorProcedure is the fully-qualified name of the
 	// BuilderService's GetClusterWorkflowOrchestrator RPC.
 	BuilderServiceGetClusterWorkflowOrchestratorProcedure = "/chalk.server.v1.BuilderService/GetClusterWorkflowOrchestrator"
@@ -318,6 +330,9 @@ type BuilderServiceClient interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
+	// Admin-only debug endpoint. Do not build load-bearing product functionality on it:
+	// it is registry introspection, and it is very slow — a cold call fans out across the
+	// whole engine-base variant matrix in the environment's registry.
 	ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error)
 	ValidateProjectSettings(context.Context, *connect.Request[v1.ValidateProjectSettingsRequest]) (*connect.Response[v1.ValidateProjectSettingsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
@@ -336,6 +351,20 @@ type BuilderServiceClient interface {
 	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
 	DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error)
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
+	// Live state of every member of the environment's metrics-database topology. Read-only, and the
+	// one read behind every failover UI state and precondition check.
+	GetClusterTimescaleTopology(context.Context, *connect.Request[v1.GetClusterTimescaleTopologyRequest]) (*connect.Response[v1.GetClusterTimescaleTopologyResponse], error)
+	// Promote another member of the environment's metrics-database topology to primary. Returns as
+	// soon as the operation is recorded; the steps run in the background.
+	FailoverClusterTimescaleDB(context.Context, *connect.Request[v1.FailoverClusterTimescaleDBRequest]) (*connect.Response[v1.FailoverClusterTimescaleDBResponse], error)
+	// Hand the metrics database's primary role to another member of its topology with no data loss.
+	// The planned counterpart of FailoverClusterTimescaleDB. Returns as soon as the operation is
+	// recorded; the steps run in the background.
+	SwitchoverClusterTimescaleDB(context.Context, *connect.Request[v1.SwitchoverClusterTimescaleDBRequest]) (*connect.Response[v1.SwitchoverClusterTimescaleDBResponse], error)
+	// Rebuild one member of the environment's metrics-database topology as a replica of the current
+	// primary, discarding its data and restoring it from the primary's archive. Returns as soon as the
+	// operation is recorded; the steps run in the background.
+	RebuildClusterTimescaleReplica(context.Context, *connect.Request[v1.RebuildClusterTimescaleReplicaRequest]) (*connect.Response[v1.RebuildClusterTimescaleReplicaResponse], error)
 	// ----- Workflow Orchestrator Engine -----
 	// All workflow-orchestrator RPCs resolve the target environment from the
 	// caller's auth context, never from the request payload.
@@ -625,6 +654,31 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceMigrateClusterTimescaleDBProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("MigrateClusterTimescaleDB")),
+			connect.WithClientOptions(opts...),
+		),
+		getClusterTimescaleTopology: connect.NewClient[v1.GetClusterTimescaleTopologyRequest, v1.GetClusterTimescaleTopologyResponse](
+			httpClient,
+			baseURL+BuilderServiceGetClusterTimescaleTopologyProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterTimescaleTopology")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		failoverClusterTimescaleDB: connect.NewClient[v1.FailoverClusterTimescaleDBRequest, v1.FailoverClusterTimescaleDBResponse](
+			httpClient,
+			baseURL+BuilderServiceFailoverClusterTimescaleDBProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("FailoverClusterTimescaleDB")),
+			connect.WithClientOptions(opts...),
+		),
+		switchoverClusterTimescaleDB: connect.NewClient[v1.SwitchoverClusterTimescaleDBRequest, v1.SwitchoverClusterTimescaleDBResponse](
+			httpClient,
+			baseURL+BuilderServiceSwitchoverClusterTimescaleDBProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("SwitchoverClusterTimescaleDB")),
+			connect.WithClientOptions(opts...),
+		),
+		rebuildClusterTimescaleReplica: connect.NewClient[v1.RebuildClusterTimescaleReplicaRequest, v1.RebuildClusterTimescaleReplicaResponse](
+			httpClient,
+			baseURL+BuilderServiceRebuildClusterTimescaleReplicaProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("RebuildClusterTimescaleReplica")),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterWorkflowOrchestrator: connect.NewClient[v1.GetClusterWorkflowOrchestratorRequest, v1.GetClusterWorkflowOrchestratorResponse](
@@ -956,6 +1010,10 @@ type builderServiceClient struct {
 	createEnvironmentCloudResources             *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
 	deleteEnvironmentCloudResources             *connect.Client[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse]
 	migrateClusterTimescaleDB                   *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
+	getClusterTimescaleTopology                 *connect.Client[v1.GetClusterTimescaleTopologyRequest, v1.GetClusterTimescaleTopologyResponse]
+	failoverClusterTimescaleDB                  *connect.Client[v1.FailoverClusterTimescaleDBRequest, v1.FailoverClusterTimescaleDBResponse]
+	switchoverClusterTimescaleDB                *connect.Client[v1.SwitchoverClusterTimescaleDBRequest, v1.SwitchoverClusterTimescaleDBResponse]
+	rebuildClusterTimescaleReplica              *connect.Client[v1.RebuildClusterTimescaleReplicaRequest, v1.RebuildClusterTimescaleReplicaResponse]
 	getClusterWorkflowOrchestrator              *connect.Client[v1.GetClusterWorkflowOrchestratorRequest, v1.GetClusterWorkflowOrchestratorResponse]
 	getClusterWorkflowOrchestratorDefault       *connect.Client[v1.GetClusterWorkflowOrchestratorDefaultRequest, v1.GetClusterWorkflowOrchestratorDefaultResponse]
 	createClusterWorkflowOrchestrator           *connect.Client[v1.CreateClusterWorkflowOrchestratorRequest, v1.CreateClusterWorkflowOrchestratorResponse]
@@ -1182,6 +1240,27 @@ func (c *builderServiceClient) DeleteEnvironmentCloudResources(ctx context.Conte
 // MigrateClusterTimescaleDB calls chalk.server.v1.BuilderService.MigrateClusterTimescaleDB.
 func (c *builderServiceClient) MigrateClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error) {
 	return c.migrateClusterTimescaleDB.CallUnary(ctx, req)
+}
+
+// GetClusterTimescaleTopology calls chalk.server.v1.BuilderService.GetClusterTimescaleTopology.
+func (c *builderServiceClient) GetClusterTimescaleTopology(ctx context.Context, req *connect.Request[v1.GetClusterTimescaleTopologyRequest]) (*connect.Response[v1.GetClusterTimescaleTopologyResponse], error) {
+	return c.getClusterTimescaleTopology.CallUnary(ctx, req)
+}
+
+// FailoverClusterTimescaleDB calls chalk.server.v1.BuilderService.FailoverClusterTimescaleDB.
+func (c *builderServiceClient) FailoverClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.FailoverClusterTimescaleDBRequest]) (*connect.Response[v1.FailoverClusterTimescaleDBResponse], error) {
+	return c.failoverClusterTimescaleDB.CallUnary(ctx, req)
+}
+
+// SwitchoverClusterTimescaleDB calls chalk.server.v1.BuilderService.SwitchoverClusterTimescaleDB.
+func (c *builderServiceClient) SwitchoverClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.SwitchoverClusterTimescaleDBRequest]) (*connect.Response[v1.SwitchoverClusterTimescaleDBResponse], error) {
+	return c.switchoverClusterTimescaleDB.CallUnary(ctx, req)
+}
+
+// RebuildClusterTimescaleReplica calls
+// chalk.server.v1.BuilderService.RebuildClusterTimescaleReplica.
+func (c *builderServiceClient) RebuildClusterTimescaleReplica(ctx context.Context, req *connect.Request[v1.RebuildClusterTimescaleReplicaRequest]) (*connect.Response[v1.RebuildClusterTimescaleReplicaResponse], error) {
+	return c.rebuildClusterTimescaleReplica.CallUnary(ctx, req)
 }
 
 // GetClusterWorkflowOrchestrator calls
@@ -1477,6 +1556,9 @@ type BuilderServiceHandler interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
+	// Admin-only debug endpoint. Do not build load-bearing product functionality on it:
+	// it is registry introspection, and it is very slow — a cold call fans out across the
+	// whole engine-base variant matrix in the environment's registry.
 	ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error)
 	ValidateProjectSettings(context.Context, *connect.Request[v1.ValidateProjectSettingsRequest]) (*connect.Response[v1.ValidateProjectSettingsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
@@ -1495,6 +1577,20 @@ type BuilderServiceHandler interface {
 	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
 	DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error)
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
+	// Live state of every member of the environment's metrics-database topology. Read-only, and the
+	// one read behind every failover UI state and precondition check.
+	GetClusterTimescaleTopology(context.Context, *connect.Request[v1.GetClusterTimescaleTopologyRequest]) (*connect.Response[v1.GetClusterTimescaleTopologyResponse], error)
+	// Promote another member of the environment's metrics-database topology to primary. Returns as
+	// soon as the operation is recorded; the steps run in the background.
+	FailoverClusterTimescaleDB(context.Context, *connect.Request[v1.FailoverClusterTimescaleDBRequest]) (*connect.Response[v1.FailoverClusterTimescaleDBResponse], error)
+	// Hand the metrics database's primary role to another member of its topology with no data loss.
+	// The planned counterpart of FailoverClusterTimescaleDB. Returns as soon as the operation is
+	// recorded; the steps run in the background.
+	SwitchoverClusterTimescaleDB(context.Context, *connect.Request[v1.SwitchoverClusterTimescaleDBRequest]) (*connect.Response[v1.SwitchoverClusterTimescaleDBResponse], error)
+	// Rebuild one member of the environment's metrics-database topology as a replica of the current
+	// primary, discarding its data and restoring it from the primary's archive. Returns as soon as the
+	// operation is recorded; the steps run in the background.
+	RebuildClusterTimescaleReplica(context.Context, *connect.Request[v1.RebuildClusterTimescaleReplicaRequest]) (*connect.Response[v1.RebuildClusterTimescaleReplicaResponse], error)
 	// ----- Workflow Orchestrator Engine -----
 	// All workflow-orchestrator RPCs resolve the target environment from the
 	// caller's auth context, never from the request payload.
@@ -1780,6 +1876,31 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceMigrateClusterTimescaleDBProcedure,
 		svc.MigrateClusterTimescaleDB,
 		connect.WithSchema(builderServiceMethods.ByName("MigrateClusterTimescaleDB")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceGetClusterTimescaleTopologyHandler := connect.NewUnaryHandler(
+		BuilderServiceGetClusterTimescaleTopologyProcedure,
+		svc.GetClusterTimescaleTopology,
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterTimescaleTopology")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceFailoverClusterTimescaleDBHandler := connect.NewUnaryHandler(
+		BuilderServiceFailoverClusterTimescaleDBProcedure,
+		svc.FailoverClusterTimescaleDB,
+		connect.WithSchema(builderServiceMethods.ByName("FailoverClusterTimescaleDB")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceSwitchoverClusterTimescaleDBHandler := connect.NewUnaryHandler(
+		BuilderServiceSwitchoverClusterTimescaleDBProcedure,
+		svc.SwitchoverClusterTimescaleDB,
+		connect.WithSchema(builderServiceMethods.ByName("SwitchoverClusterTimescaleDB")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceRebuildClusterTimescaleReplicaHandler := connect.NewUnaryHandler(
+		BuilderServiceRebuildClusterTimescaleReplicaProcedure,
+		svc.RebuildClusterTimescaleReplica,
+		connect.WithSchema(builderServiceMethods.ByName("RebuildClusterTimescaleReplica")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterWorkflowOrchestratorHandler := connect.NewUnaryHandler(
@@ -2142,6 +2263,14 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceDeleteEnvironmentCloudResourcesHandler.ServeHTTP(w, r)
 		case BuilderServiceMigrateClusterTimescaleDBProcedure:
 			builderServiceMigrateClusterTimescaleDBHandler.ServeHTTP(w, r)
+		case BuilderServiceGetClusterTimescaleTopologyProcedure:
+			builderServiceGetClusterTimescaleTopologyHandler.ServeHTTP(w, r)
+		case BuilderServiceFailoverClusterTimescaleDBProcedure:
+			builderServiceFailoverClusterTimescaleDBHandler.ServeHTTP(w, r)
+		case BuilderServiceSwitchoverClusterTimescaleDBProcedure:
+			builderServiceSwitchoverClusterTimescaleDBHandler.ServeHTTP(w, r)
+		case BuilderServiceRebuildClusterTimescaleReplicaProcedure:
+			builderServiceRebuildClusterTimescaleReplicaHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterWorkflowOrchestratorProcedure:
 			builderServiceGetClusterWorkflowOrchestratorHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterWorkflowOrchestratorDefaultProcedure:
@@ -2379,6 +2508,22 @@ func (UnimplementedBuilderServiceHandler) DeleteEnvironmentCloudResources(contex
 
 func (UnimplementedBuilderServiceHandler) MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.MigrateClusterTimescaleDB is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetClusterTimescaleTopology(context.Context, *connect.Request[v1.GetClusterTimescaleTopologyRequest]) (*connect.Response[v1.GetClusterTimescaleTopologyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterTimescaleTopology is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) FailoverClusterTimescaleDB(context.Context, *connect.Request[v1.FailoverClusterTimescaleDBRequest]) (*connect.Response[v1.FailoverClusterTimescaleDBResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.FailoverClusterTimescaleDB is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) SwitchoverClusterTimescaleDB(context.Context, *connect.Request[v1.SwitchoverClusterTimescaleDBRequest]) (*connect.Response[v1.SwitchoverClusterTimescaleDBResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.SwitchoverClusterTimescaleDB is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) RebuildClusterTimescaleReplica(context.Context, *connect.Request[v1.RebuildClusterTimescaleReplicaRequest]) (*connect.Response[v1.RebuildClusterTimescaleReplicaResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.RebuildClusterTimescaleReplica is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetClusterWorkflowOrchestrator(context.Context, *connect.Request[v1.GetClusterWorkflowOrchestratorRequest]) (*connect.Response[v1.GetClusterWorkflowOrchestratorResponse], error) {
