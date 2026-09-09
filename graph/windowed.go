@@ -333,6 +333,7 @@ func (w *WindowedFeatureBuilder) appendFeatures(features []*graphv1.FeatureType,
 			Aggregation: &graphv1.WindowAggregation{
 				Namespace:   parsedAgg.foreignNamespace,
 				Aggregation: aggPtr.Function,
+				//lint:ignore SA1019 aggregate_on_features supersedes this, but deployed engines still read aggregate_on
 				AggregateOn: parsedAgg.aggregateOn,
 				Filters:     parsedAgg.filters,
 				ArrowType:   scalarPtr.proto.ArrowType,

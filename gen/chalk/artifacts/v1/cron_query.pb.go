@@ -113,8 +113,22 @@ type CronQuery struct {
 	// precedence over lower_bound/upper_bound and is resolved at run time.
 	ObservedAtLowerBound *string `protobuf:"bytes,26,opt,name=observed_at_lower_bound,json=observedAtLowerBound,proto3,oneof" json:"observed_at_lower_bound,omitempty"`
 	ObservedAtUpperBound *string `protobuf:"bytes,27,opt,name=observed_at_upper_bound,json=observedAtUpperBound,proto3,oneof" json:"observed_at_upper_bound,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Data quality checks declared with `ScheduledQuery(...).with_checks(...)`, one serialized
+	// `DqmCheckSpec` per entry -- the same JSON the `CHALK_DQM_CHECK_SPECS` environment variable
+	// carries, so both surfaces feed one parser.
+	//
+	// Deliberately JSON rather than a typed message. A check's assertions carry fields that only
+	// newer chalkpy versions know about (`kind`, `source_sql`, `preview_sql`), and the engine's
+	// parser ignores the ones it does not recognize -- so a customer on a newer chalkpy keeps
+	// working against an older engine, just without the extra reporting. Modeling it in proto
+	// would turn each new check kind into a coordinated rollout.
+	//
+	// This is what makes `with_checks` reach the engine at all: the engine builds its graph from
+	// a serialized artifact and never executes the customer's Python, so the checks have to
+	// travel as data alongside every other ScheduledQuery field.
+	DataQualityCheckSpecs []string `protobuf:"bytes,28,rep,name=data_quality_check_specs,json=dataQualityCheckSpecs,proto3" json:"data_quality_check_specs,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *CronQuery) Reset() {
@@ -336,6 +350,13 @@ func (x *CronQuery) GetObservedAtUpperBound() string {
 	return ""
 }
 
+func (x *CronQuery) GetDataQualityCheckSpecs() []string {
+	if x != nil {
+		return x.DataQualityCheckSpecs
+	}
+	return nil
+}
+
 var File_chalk_artifacts_v1_cron_query_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
@@ -343,7 +364,7 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"#chalk/artifacts/v1/cron_query.proto\x12\x12chalk.artifacts.v1\x1a#chalk/common/v1/offline_query.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Y\n" +
 	"\x11RecomputeSettings\x12!\n" +
 	"\ffeature_fqns\x18\x01 \x03(\tR\vfeatureFqns\x12!\n" +
-	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xe7\f\n" +
+	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xa0\r\n" +
 	"\tCronQuery\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04cron\x18\x02 \x01(\tR\x04cron\x12\x1b\n" +
@@ -379,7 +400,8 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"\bwrite_to\x18\x19 \x01(\v2$.chalk.common.v1.OfflineQueryWriteToH\n" +
 	"R\awriteTo\x88\x01\x01\x12:\n" +
 	"\x17observed_at_lower_bound\x18\x1a \x01(\tH\vR\x14observedAtLowerBound\x88\x01\x01\x12:\n" +
-	"\x17observed_at_upper_bound\x18\x1b \x01(\tH\fR\x14observedAtUpperBound\x88\x01\x01\x1aA\n" +
+	"\x17observed_at_upper_bound\x18\x1b \x01(\tH\fR\x14observedAtUpperBound\x88\x01\x01\x127\n" +
+	"\x18data_quality_check_specs\x18\x1c \x03(\tR\x15dataQualityCheckSpecs\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +

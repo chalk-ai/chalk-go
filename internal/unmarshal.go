@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
 	chalkerrors "github.com/chalk-ai/chalk-go/pkg/errors"
 	"github.com/cockroachdb/errors"
 )
@@ -208,7 +208,7 @@ type FeatureMeta struct {
 }
 
 func extractFeatures(
-	record arrow.Record,
+	record arrow.RecordBatch,
 	featureColumnIdxs []int,
 	metaColumnFqnToIdx map[string]int,
 	chunkStart int64,
@@ -229,7 +229,7 @@ func extractFeatures(
 	chunkStartInt := int(chunkStart)
 	for i := chunkStartInt; i < chunkEndInt; i++ {
 		m := make(map[string]any, len(featureColumnIdxs))
-		for j := range featureColumnIdxs {
+		for _, j := range featureColumnIdxs {
 			name := record.ColumnName(j)
 			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
 			if err != nil {
@@ -249,13 +249,18 @@ func extractFeatures(
 		return
 	}
 
+	// metaColumnFqnToIdx is shared across the goroutines handling each chunk of
+	// this record, so it must not be mutated here. Resolve the primary key column
+	// once up front and skip it while ranging, rather than deleting it from the map.
+	pkeyIdx, hasPkey := metaColumnFqnToIdx[pkeyField]
+
 	var metaRes []map[string]FeatureMeta
 	for i := chunkStartInt; i < chunkEndInt; i++ {
-		m := make(map[string]FeatureMeta)
+		m := make(map[string]FeatureMeta, len(metaColumnFqnToIdx))
 
 		var resolvedPkey any
-		if idx, ok := metaColumnFqnToIdx[pkeyField]; ok {
-			value, err := GetValueFromArrowArray(record.Column(idx), i, timeAsString)
+		if hasPkey {
+			value, err := GetValueFromArrowArray(record.Column(pkeyIdx), i, timeAsString)
 			if err != nil {
 				resChan <- &ChunkResult{
 					chunkIdx: chunkIdx,
@@ -264,10 +269,12 @@ func extractFeatures(
 				return
 			}
 			resolvedPkey = value
-			delete(metaColumnFqnToIdx, pkeyField)
 		}
 
 		for fqn, j := range metaColumnFqnToIdx {
+			if fqn == pkeyField {
+				continue
+			}
 			featureMeta := FeatureMeta{
 				// TODO: Server returns incorrect arbitrary pkey for multi-namespace results.
 				Pkey: resolvedPkey,
@@ -344,7 +351,7 @@ func ExtractFeaturesFromTable(
 	defer reader.Release()
 
 	for reader.Next() {
-		record := reader.Record()
+		record := reader.RecordBatch()
 		var featureColumnIdxs []int
 		metaColumnFqnToIdx := make(map[string]int)
 		for j := range record.Columns() {
@@ -964,7 +971,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	var rowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
+	var rowOp func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error
 	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
 		includedColIndices := namespaceToColIndices[slices.Collect(maps.Keys(namespaceToColIndices))[0]]
@@ -989,7 +996,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			colToCodec[k] = *codec
 		}
 
-		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
+		rowOp = func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error {
 			for k, colIdx := range includedColIndices {
 				if err := colToCodec[k](structValue, record.Column(colIdx), rowIdx); err != nil {
 					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
@@ -1071,7 +1078,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			}
 		}
 
-		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
+		rowOp = func(structValue reflect.Value, record arrow.RecordBatch, rowIdx int) error {
 			for _, includedColIndices := range namespaceToColIndices {
 				for _, colIdx := range includedColIndices {
 					memo := colIdxToNamespaceMeta[colIdx]
@@ -1090,7 +1097,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	rowOffset := 0
 	batchIdx := 0
 	for reader.Next() {
-		record := reader.Record()
+		record := reader.RecordBatch()
 		recordRows := int(record.NumRows())
 		for rowIdx := range recordRows {
 			if err := rowOp(structs.Index(rowOffset+rowIdx), record, rowIdx); err != nil {

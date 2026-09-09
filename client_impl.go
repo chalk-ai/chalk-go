@@ -17,11 +17,13 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
+	"github.com/apache/arrow-go/v18/arrow/memory"
 	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/config"
+	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
+	"github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1/aggregatev1connect"
 	"github.com/chalk-ai/chalk-go/gen/chalk/container/v1/containerv1connect"
 	"github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v1/sandboxv1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
@@ -29,6 +31,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type clientImpl struct {
@@ -50,6 +53,7 @@ type clientImpl struct {
 	datasetMetadataClient serverv1connect.DatasetMetadataServiceClient
 	customImageClient     sandboxv1connect.CustomImageServiceClient
 	containerClient       containerv1connect.ContainerServiceClient
+	aggregateClient       aggregatev1connect.AggregateServiceClient
 }
 
 type HTTPClient interface {
@@ -327,6 +331,85 @@ func (c *clientImpl) TriggerResolverRun(ctx context.Context, request TriggerReso
 		},
 	)
 	return response, errors.Wrap(err, "triggering resolver run")
+}
+
+func (c *clientImpl) TriggerAggregateBackfill(
+	ctx context.Context,
+	params TriggerAggregateBackfillParams,
+) (*TriggerAggregateBackfillResult, error) {
+	if params.StoreOffline != nil && *params.StoreOffline && (params.LowerBound == nil || params.UpperBound == nil) {
+		return nil, errors.New("lower and upper bounds are required when StoreOffline is true")
+	}
+
+	var lowerBound, upperBound *timestamppb.Timestamp
+	if params.LowerBound != nil {
+		lowerBound = timestamppb.New(*params.LowerBound)
+	}
+	if params.UpperBound != nil {
+		upperBound = timestamppb.New(*params.UpperBound)
+	}
+
+	planResponse, err := c.aggregateClient.PlanAggregateBackfill(ctx, connect.NewRequest(&aggregatev1.PlanAggregateBackfillRequest{
+		Params: &aggregatev1.AggregateBackfillUserParams{
+			Features:   params.Features,
+			LowerBound: lowerBound,
+			UpperBound: upperBound,
+			Resolver:   params.Resolver,
+			Exact:      params.Exact,
+			Tags:       params.QueryTags,
+			InputSql:   params.InputSQL,
+		},
+	}))
+	if err != nil {
+		return nil, errors.Wrap(err, "planning aggregate backfill")
+	}
+	if len(planResponse.Msg.Errors) > 0 {
+		return nil, errors.Newf("planning aggregate backfill: %s", strings.Join(planResponse.Msg.Errors, "; "))
+	}
+
+	result := &TriggerAggregateBackfillResult{Plan: planResponse.Msg}
+	if params.PlanOnly {
+		return result, nil
+	}
+
+	for _, planned := range planResponse.Msg.Backfills {
+		backfill := planned.GetBackfill()
+		if backfill == nil {
+			continue
+		}
+
+		request := &aggregatev1.CreateAggregateBackfillJobRequest{
+			Resolver:            &backfill.Resolver,
+			BucketFeature:       &backfill.DatetimeFeature,
+			LowerBound:          backfill.LowerBound,
+			UpperBound:          backfill.UpperBound,
+			EnableProfiling:     params.EnableProfiling,
+			AggregateBackfillId: &planResponse.Msg.AggregateBackfillId,
+			QueryTags:           params.QueryTags,
+			StoreOffline:        params.StoreOffline,
+			InputSql:            backfill.InputSql,
+		}
+		request.AllowEmptyTiles = params.AllowEmptyTiles
+		if params.ResourceGroup != nil {
+			request.ResourceGroup = params.ResourceGroup
+		}
+		for _, series := range backfill.Series {
+			for _, rule := range series.Rules {
+				request.Features = append(request.Features, rule.DependentFeatures...)
+			}
+		}
+
+		createResponse, err := c.aggregateClient.CreateAggregateBackfillJob(ctx, connect.NewRequest(request))
+		if err != nil {
+			return result, errors.Wrap(err, "creating aggregate backfill job")
+		}
+		if len(createResponse.Msg.Errors) > 0 {
+			return result, errors.New("creating aggregate backfill job failed")
+		}
+		result.Jobs = append(result.Jobs, createResponse.Msg)
+	}
+
+	return result, nil
 }
 
 func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParams) (GetRunStatusResult, error) {
@@ -625,11 +708,15 @@ func (c *clientImpl) GetOfflineQueryStatus(
 	request GetOfflineQueryStatusParams,
 ) (GetOfflineQueryStatusResult, error) {
 	response := GetOfflineQueryStatusResult{}
+	url := fmt.Sprintf("v4/offline_query/%s/status", request.JobId)
+	if request.ComputerId > 0 {
+		url = fmt.Sprintf("v4/offline_query/%s/status/%d", request.JobId, request.ComputerId)
+	}
 	err := c.sendRequest(
 		ctx,
 		&sendRequestParams{
 			Method:   "GET",
-			URL:      fmt.Sprintf("v4/offline_query/%s/status", request.JobId),
+			URL:      url,
 			Response: &response,
 		},
 	)
@@ -767,6 +854,10 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 				}
 			}
 			req.Header().Set("x-chalk-server", "go-api")
+			if cfg.Branch != "" {
+				req.Header().Set("x-chalk-branch-id", cfg.Branch)
+				req.Header().Set("x-chalk-deployment-type", "branch-grpc")
+			}
 			req.Header().Set("User-Agent", internal.UserAgent())
 			authSnapshot, err := tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
 			if err != nil {
@@ -793,6 +884,12 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		apiServerURL,
 		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
 	)
+	aggregateClient := aggregatev1connect.NewAggregateServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+		connect.WithGRPC(),
+	)
 
 	return &clientImpl{
 		Branch:                cfg.Branch,
@@ -808,6 +905,7 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		datasetMetadataClient: datasetMetadataClient,
 		customImageClient:     customImageClient,
 		containerClient:       containerClient,
+		aggregateClient:       aggregateClient,
 	}, nil
 }
 
@@ -827,10 +925,10 @@ func renameArrowTableColumns(t arrow.Table, fn func(string) string) arrow.Table 
 	reader := array.NewTableReader(t, t.NumRows())
 	defer reader.Release()
 
-	var records []arrow.Record
+	var records []arrow.RecordBatch
 	for reader.Next() {
-		rec := reader.Record()
-		renamed := array.NewRecord(newSchema, rec.Columns(), rec.NumRows())
+		rec := reader.RecordBatch()
+		renamed := array.NewRecordBatch(newSchema, rec.Columns(), rec.NumRows())
 		records = append(records, renamed)
 	}
 	if len(records) == 0 {

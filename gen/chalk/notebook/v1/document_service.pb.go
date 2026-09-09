@@ -3817,9 +3817,15 @@ type NotebookRuntimeStatus struct {
 	SessionId string `protobuf:"bytes,4,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	// Human-readable status detail (e.g. container status message). Never a
 	// substitute for an error: failures are returned as connect errors.
-	Message       string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Message string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
+	// Last memory usage observed by go-api-server's kernel heartbeat. Zero until
+	// a heartbeat has reported cgroup memory accounting for this runtime.
+	MemoryUsageBytes uint64 `protobuf:"varint,6,opt,name=memory_usage_bytes,json=memoryUsageBytes,proto3" json:"memory_usage_bytes,omitempty"`
+	// Last cgroup memory ceiling observed by the heartbeat. Zero when the kernel
+	// is unlimited, unavailable, or has not yet been probed.
+	MemoryLimitBytes uint64 `protobuf:"varint,7,opt,name=memory_limit_bytes,json=memoryLimitBytes,proto3" json:"memory_limit_bytes,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *NotebookRuntimeStatus) Reset() {
@@ -3885,6 +3891,20 @@ func (x *NotebookRuntimeStatus) GetMessage() string {
 		return x.Message
 	}
 	return ""
+}
+
+func (x *NotebookRuntimeStatus) GetMemoryUsageBytes() uint64 {
+	if x != nil {
+		return x.MemoryUsageBytes
+	}
+	return 0
+}
+
+func (x *NotebookRuntimeStatus) GetMemoryLimitBytes() uint64 {
+	if x != nil {
+		return x.MemoryLimitBytes
+	}
+	return 0
 }
 
 type StartNotebookRuntimeRequest struct {
@@ -6504,7 +6524,7 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"%UpdateNotebookSqlCacheSettingsRequest\x12C\n" +
 	"\rmax_staleness\x18\x01 \x01(\v2\x19.google.protobuf.DurationH\x00R\fmaxStaleness\x88\x01\x01B\x10\n" +
 	"\x0e_max_staleness\"(\n" +
-	"&UpdateNotebookSqlCacheSettingsResponse\"\xd8\x01\n" +
+	"&UpdateNotebookSqlCacheSettingsResponse\"\xb4\x02\n" +
 	"\x15NotebookRuntimeStatus\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\x12=\n" +
@@ -6512,7 +6532,9 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\x0fweb_url_present\x18\x03 \x01(\bR\rwebUrlPresent\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x04 \x01(\tR\tsessionId\x12\x18\n" +
-	"\amessage\x18\x05 \x01(\tR\amessage\">\n" +
+	"\amessage\x18\x05 \x01(\tR\amessage\x12,\n" +
+	"\x12memory_usage_bytes\x18\x06 \x01(\x04R\x10memoryUsageBytes\x12,\n" +
+	"\x12memory_limit_bytes\x18\a \x01(\x04R\x10memoryLimitBytes\">\n" +
 	"\x1bStartNotebookRuntimeRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\"`\n" +

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow-go/v18/arrow/memory"
 	"github.com/chalk-ai/chalk-go/auth"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/cockroachdb/errors"
@@ -50,8 +50,8 @@ type Client interface {
 	// OnlineQueryBulk computes features values using online resolvers,
 	// and has the ability to query multiple primary keys at once.
 	// OnlineQueryBulk also has the ability to return a has-many feature
-	// in the form of an arrow.Record. The usual features are returned
-	// in bulk in an arrow.Record too, with each column name corresponding
+	// in the form of an arrow.RecordBatch. The usual features are returned
+	// in bulk in an arrow.RecordBatch too, with each column name corresponding
 	// to the feature name.
 	//
 	// The Chalk CLI can codegen structs for all available features with
@@ -59,7 +59,7 @@ type Client interface {
 	//
 	// Example:
 	//
-	// import "github.com/apache/arrow/go/v16/arrow/array"
+	// import "github.com/apache/arrow-go/v18/arrow/array"
 	//
 	//
 	//		res, err := client.OnlineQueryBulk(
@@ -76,7 +76,7 @@ type Client interface {
 	//		reader := array.NewTableReader(res.ScalarsTable, 10_000)
 	//		defer reader.Release()
 	//		for reader.Next() {
-	//		    record := reader.Record()
+	//		    record := reader.RecordBatch()
 	//		    // Do something with the record
 	//		}
 	//
@@ -154,6 +154,10 @@ type Client interface {
 	// TriggerResolverRun triggers an offline resolver to run.
 	// See https://docs.chalk.ai/docs/runs for more information.
 	TriggerResolverRun(ctx context.Context, args TriggerResolverRunParams) (TriggerResolverRunResult, error)
+
+	// TriggerAggregateBackfill plans aggregate backfills and, unless PlanOnly is
+	// set, submits the resulting jobs.
+	TriggerAggregateBackfill(ctx context.Context, args TriggerAggregateBackfillParams) (*TriggerAggregateBackfillResult, error)
 
 	// GetRunStatus retrieves the status of an offline resolver run.
 	// See https://docs.chalk.ai/docs/runs for more information.

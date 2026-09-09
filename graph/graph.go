@@ -679,6 +679,7 @@ func (hm *HasManyFeatureBuilder) WithMaxStaleness(d time.Duration) *HasManyFeatu
 func toFilterParsedColumnProto(relation string, name string) *expressionv1.LogicalExprNode {
 	return &expressionv1.LogicalExprNode{
 		ExprType: &expressionv1.LogicalExprNode_Column{
+			//lint:ignore SA1019 toFilterParsedProto deliberately emits the legacy expr_type oneof; expr/ holds the modern expr_form path
 			Column: &expressionv1.Column{
 				Name: name,
 				Relation: &expressionv1.ColumnRelation{
@@ -692,6 +693,7 @@ func toFilterParsedColumnProto(relation string, name string) *expressionv1.Logic
 func toFilterParsedBinaryProto(op string, operands []*expressionv1.LogicalExprNode) *expressionv1.LogicalExprNode {
 	return &expressionv1.LogicalExprNode{
 		ExprType: &expressionv1.LogicalExprNode_BinaryExpr{
+			//lint:ignore SA1019 legacy expr_type; the has-one join parser above reads this same BinaryExpr form back
 			BinaryExpr: &expressionv1.BinaryExprNode{
 				Op:       op,
 				Operands: operands,
@@ -718,6 +720,7 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 	case *expr.LiteralExpr:
 		return &expressionv1.LogicalExprNode{
 			ExprType: &expressionv1.LogicalExprNode_Literal{
+				//lint:ignore SA1019 legacy expr_type, to match the Column and BinaryExpr nodes it is combined with
 				Literal: e.ScalarValue,
 			},
 		}, nil

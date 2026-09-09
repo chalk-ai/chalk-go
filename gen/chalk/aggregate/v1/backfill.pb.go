@@ -434,8 +434,9 @@ func (x *AggregateBackfill) GetInputSql() string {
 }
 
 type AggregateBackfillWithCostEstimate struct {
-	state         protoimpl.MessageState         `protogen:"open.v1"`
-	Backfill      *AggregateBackfill             `protobuf:"bytes,1,opt,name=backfill,proto3" json:"backfill,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Backfill *AggregateBackfill     `protobuf:"bytes,1,opt,name=backfill,proto3" json:"backfill,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/aggregate/v1/backfill.proto.
 	Estimate      *AggregateBackfillCostEstimate `protobuf:"bytes,2,opt,name=estimate,proto3" json:"estimate,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -478,6 +479,7 @@ func (x *AggregateBackfillWithCostEstimate) GetBackfill() *AggregateBackfill {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/aggregate/v1/backfill.proto.
 func (x *AggregateBackfillWithCostEstimate) GetEstimate() *AggregateBackfillCostEstimate {
 	if x != nil {
 		return x.Estimate
@@ -834,10 +836,10 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"\tinput_sql\x18\n" +
 	" \x01(\tH\x00R\binputSql\x88\x01\x01B\f\n" +
 	"\n" +
-	"_input_sql\"\xb5\x01\n" +
+	"_input_sql\"\xb9\x01\n" +
 	"!AggregateBackfillWithCostEstimate\x12A\n" +
-	"\bbackfill\x18\x01 \x01(\v2%.chalk.aggregate.v1.AggregateBackfillR\bbackfill\x12M\n" +
-	"\bestimate\x18\x02 \x01(\v21.chalk.aggregate.v1.AggregateBackfillCostEstimateR\bestimate\"\xf0\x05\n" +
+	"\bbackfill\x18\x01 \x01(\v2%.chalk.aggregate.v1.AggregateBackfillR\bbackfill\x12Q\n" +
+	"\bestimate\x18\x02 \x01(\v21.chalk.aggregate.v1.AggregateBackfillCostEstimateB\x02\x18\x01R\bestimate\"\xf0\x05\n" +
 	"\x14AggregateBackfillJob\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +

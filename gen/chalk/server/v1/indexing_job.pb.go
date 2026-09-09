@@ -166,6 +166,9 @@ const (
 	// A diagnosable failure was found but does not map to a known category.
 	// Inspect raw_message for the source kube text.
 	IndexingJobIssue_INDEXING_JOB_ISSUE_OTHER IndexingJobIssue = 5
+	// The main workload container exited successfully, but Kubernetes has not
+	// completed the Pod. A sidecar or container-runtime cleanup may be stalled.
+	IndexingJobIssue_INDEXING_JOB_ISSUE_POD_COMPLETION_STALLED IndexingJobIssue = 6
 )
 
 // Enum value maps for IndexingJobIssue.
@@ -177,14 +180,16 @@ var (
 		3: "INDEXING_JOB_ISSUE_UNSCHEDULABLE",
 		4: "INDEXING_JOB_ISSUE_IMAGE_PULL_FAILED",
 		5: "INDEXING_JOB_ISSUE_OTHER",
+		6: "INDEXING_JOB_ISSUE_POD_COMPLETION_STALLED",
 	}
 	IndexingJobIssue_value = map[string]int32{
-		"INDEXING_JOB_ISSUE_UNSPECIFIED":           0,
-		"INDEXING_JOB_ISSUE_NONE":                  1,
-		"INDEXING_JOB_ISSUE_WAITING_FOR_RESOURCES": 2,
-		"INDEXING_JOB_ISSUE_UNSCHEDULABLE":         3,
-		"INDEXING_JOB_ISSUE_IMAGE_PULL_FAILED":     4,
-		"INDEXING_JOB_ISSUE_OTHER":                 5,
+		"INDEXING_JOB_ISSUE_UNSPECIFIED":            0,
+		"INDEXING_JOB_ISSUE_NONE":                   1,
+		"INDEXING_JOB_ISSUE_WAITING_FOR_RESOURCES":  2,
+		"INDEXING_JOB_ISSUE_UNSCHEDULABLE":          3,
+		"INDEXING_JOB_ISSUE_IMAGE_PULL_FAILED":      4,
+		"INDEXING_JOB_ISSUE_OTHER":                  5,
+		"INDEXING_JOB_ISSUE_POD_COMPLETION_STALLED": 6,
 	}
 )
 
@@ -683,14 +688,15 @@ const file_chalk_server_v1_indexing_job_proto_rawDesc = "" +
 	"\x1bINDEXING_JOB_STATUS_RUNNING\x10\x02\x12!\n" +
 	"\x1dINDEXING_JOB_STATUS_SUCCEEDED\x10\x03\x12\x1e\n" +
 	"\x1aINDEXING_JOB_STATUS_FAILED\x10\x04\x12\x1f\n" +
-	"\x1bINDEXING_JOB_STATUS_UNKNOWN\x10\x05*\xef\x01\n" +
+	"\x1bINDEXING_JOB_STATUS_UNKNOWN\x10\x05*\x9e\x02\n" +
 	"\x10IndexingJobIssue\x12\"\n" +
 	"\x1eINDEXING_JOB_ISSUE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17INDEXING_JOB_ISSUE_NONE\x10\x01\x12,\n" +
 	"(INDEXING_JOB_ISSUE_WAITING_FOR_RESOURCES\x10\x02\x12$\n" +
 	" INDEXING_JOB_ISSUE_UNSCHEDULABLE\x10\x03\x12(\n" +
 	"$INDEXING_JOB_ISSUE_IMAGE_PULL_FAILED\x10\x04\x12\x1c\n" +
-	"\x18INDEXING_JOB_ISSUE_OTHER\x10\x052\xa8\x03\n" +
+	"\x18INDEXING_JOB_ISSUE_OTHER\x10\x05\x12-\n" +
+	")INDEXING_JOB_ISSUE_POD_COMPLETION_STALLED\x10\x062\xa8\x03\n" +
 	"\x12IndexingJobService\x12{\n" +
 	"\x14GetIndexingJobStatus\x12,.chalk.server.v1.GetIndexingJobStatusRequest\x1a-.chalk.server.v1.GetIndexingJobStatusResponse\"\x06\x80}\v\x90\x02\x01\x12r\n" +
 	"\x11GetIndexingExport\x12).chalk.server.v1.GetIndexingExportRequest\x1a*.chalk.server.v1.GetIndexingExportResponse\"\x06\x80}\v\x90\x02\x01\x12\xa0\x01\n" +

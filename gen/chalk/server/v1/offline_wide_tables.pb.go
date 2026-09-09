@@ -80,6 +80,8 @@ const (
 	OfflineWideTableRunStatus_OFFLINE_WIDE_TABLE_RUN_STATUS_COMPLETED   OfflineWideTableRunStatus = 3
 	OfflineWideTableRunStatus_OFFLINE_WIDE_TABLE_RUN_STATUS_FAILED      OfflineWideTableRunStatus = 4
 	OfflineWideTableRunStatus_OFFLINE_WIDE_TABLE_RUN_STATUS_CANCELED    OfflineWideTableRunStatus = 5
+	// Enqueue was skipped, so the terminal run row has a skip_reason and no job_queue row.
+	OfflineWideTableRunStatus_OFFLINE_WIDE_TABLE_RUN_STATUS_SKIPPED OfflineWideTableRunStatus = 6
 )
 
 // Enum value maps for OfflineWideTableRunStatus.
@@ -91,6 +93,7 @@ var (
 		3: "OFFLINE_WIDE_TABLE_RUN_STATUS_COMPLETED",
 		4: "OFFLINE_WIDE_TABLE_RUN_STATUS_FAILED",
 		5: "OFFLINE_WIDE_TABLE_RUN_STATUS_CANCELED",
+		6: "OFFLINE_WIDE_TABLE_RUN_STATUS_SKIPPED",
 	}
 	OfflineWideTableRunStatus_value = map[string]int32{
 		"OFFLINE_WIDE_TABLE_RUN_STATUS_UNSPECIFIED": 0,
@@ -99,6 +102,7 @@ var (
 		"OFFLINE_WIDE_TABLE_RUN_STATUS_COMPLETED":   3,
 		"OFFLINE_WIDE_TABLE_RUN_STATUS_FAILED":      4,
 		"OFFLINE_WIDE_TABLE_RUN_STATUS_CANCELED":    5,
+		"OFFLINE_WIDE_TABLE_RUN_STATUS_SKIPPED":     6,
 	}
 )
 
@@ -129,6 +133,52 @@ func (OfflineWideTableRunStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{1}
 }
 
+type OfflineWideTableRunSkipReason int32
+
+const (
+	OfflineWideTableRunSkipReason_OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_UNSPECIFIED        OfflineWideTableRunSkipReason = 0
+	OfflineWideTableRunSkipReason_OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_ACTIVE_PREDECESSOR OfflineWideTableRunSkipReason = 1
+)
+
+// Enum value maps for OfflineWideTableRunSkipReason.
+var (
+	OfflineWideTableRunSkipReason_name = map[int32]string{
+		0: "OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_UNSPECIFIED",
+		1: "OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_ACTIVE_PREDECESSOR",
+	}
+	OfflineWideTableRunSkipReason_value = map[string]int32{
+		"OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_UNSPECIFIED":        0,
+		"OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_ACTIVE_PREDECESSOR": 1,
+	}
+)
+
+func (x OfflineWideTableRunSkipReason) Enum() *OfflineWideTableRunSkipReason {
+	p := new(OfflineWideTableRunSkipReason)
+	*p = x
+	return p
+}
+
+func (x OfflineWideTableRunSkipReason) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OfflineWideTableRunSkipReason) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_offline_wide_tables_proto_enumTypes[2].Descriptor()
+}
+
+func (OfflineWideTableRunSkipReason) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_offline_wide_tables_proto_enumTypes[2]
+}
+
+func (x OfflineWideTableRunSkipReason) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OfflineWideTableRunSkipReason.Descriptor instead.
+func (OfflineWideTableRunSkipReason) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{2}
+}
+
 type OfflineWideTableRun struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Also the operation_id of the job_queue job that executes the run.
@@ -137,18 +187,25 @@ type OfflineWideTableRun struct {
 	DeploymentId  *string                 `protobuf:"bytes,3,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
 	Kind          OfflineWideTableRunKind `protobuf:"varint,4,opt,name=kind,proto3,enum=chalk.server.v1.OfflineWideTableRunKind" json:"kind,omitempty"`
 	Namespace     string                  `protobuf:"bytes,5,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	// Lifecycle fields (status, started_at, finished_at) are resolved from the run's
-	// job_queue row at read time; UNSPECIFIED when the job row has aged out.
+	// SKIPPED when skip_reason is present; otherwise derived from the run's job_queue row at read
+	// time. UNSPECIFIED when that job row has aged out.
 	Status OfflineWideTableRunStatus `protobuf:"varint,6,opt,name=status,proto3,enum=chalk.server.v1.OfflineWideTableRunStatus" json:"status,omitempty"`
 	// Skinny-table inserted_at watermark bounds of a fill run, epoch micros.
 	WatermarkBeforeMicros *int64 `protobuf:"varint,7,opt,name=watermark_before_micros,json=watermarkBeforeMicros,proto3,oneof" json:"watermark_before_micros,omitempty"`
 	WatermarkAfterMicros  *int64 `protobuf:"varint,8,opt,name=watermark_after_micros,json=watermarkAfterMicros,proto3,oneof" json:"watermark_after_micros,omitempty"`
 	// Populated once the run reports counts; null until then.
-	RowsFilled    *int64                 `protobuf:"varint,9,opt,name=rows_filled,json=rowsFilled,proto3,oneof" json:"rows_filled,omitempty"`
-	ErrorMessage  *string                `protobuf:"bytes,10,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	StartedAt     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=started_at,json=startedAt,proto3,oneof" json:"started_at,omitempty"`
-	FinishedAt    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=finished_at,json=finishedAt,proto3,oneof" json:"finished_at,omitempty"`
+	RowsFilled *int64 `protobuf:"varint,9,opt,name=rows_filled,json=rowsFilled,proto3,oneof" json:"rows_filled,omitempty"`
+	// Failure detail reported by the executing job.
+	ErrorMessage *string                `protobuf:"bytes,10,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
+	CreatedAt    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	StartedAt    *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=started_at,json=startedAt,proto3,oneof" json:"started_at,omitempty"`
+	FinishedAt   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=finished_at,json=finishedAt,proto3,oneof" json:"finished_at,omitempty"`
+	// job_queue primary key of the job that executes this run, for linking to its job page. Distinct
+	// from `id`, which is that job's operation_id. Absent once the job row has aged out, and on
+	// trigger responses, which insert the job without reading its id back.
+	JobQueueId *int32 `protobuf:"varint,14,opt,name=job_queue_id,json=jobQueueId,proto3,oneof" json:"job_queue_id,omitempty"`
+	// Why enqueue intentionally created no job_queue row. Absent for runs that execute normally.
+	SkipReason    *OfflineWideTableRunSkipReason `protobuf:"varint,15,opt,name=skip_reason,json=skipReason,proto3,enum=chalk.server.v1.OfflineWideTableRunSkipReason,oneof" json:"skip_reason,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -272,6 +329,20 @@ func (x *OfflineWideTableRun) GetFinishedAt() *timestamppb.Timestamp {
 		return x.FinishedAt
 	}
 	return nil
+}
+
+func (x *OfflineWideTableRun) GetJobQueueId() int32 {
+	if x != nil && x.JobQueueId != nil {
+		return *x.JobQueueId
+	}
+	return 0
+}
+
+func (x *OfflineWideTableRun) GetSkipReason() OfflineWideTableRunSkipReason {
+	if x != nil && x.SkipReason != nil {
+		return *x.SkipReason
+	}
+	return OfflineWideTableRunSkipReason_OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_UNSPECIFIED
 }
 
 type ListOfflineWideTableRunsRequest struct {
@@ -567,17 +638,97 @@ func (x *OfflineWideTableSchedule) GetKind() OfflineWideTableRunKind {
 	return OfflineWideTableRunKind_OFFLINE_WIDE_TABLE_RUN_KIND_UNSPECIFIED
 }
 
+// Per-namespace backpressure: whether scheduled fills are keeping up with the cadence.
+type OfflineWideTableBackpressureStats struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Primary signal: oldest_unfinished_duration_seconds >= oldest_unfinished_cadence_seconds.
+	// unfinished_runs >= 2 also trips it as a defensive invariant check (skip-on-active enqueue
+	// should prevent a second concurrent fill).
+	IsBehind bool `protobuf:"varint,1,opt,name=is_behind,json=isBehind,proto3" json:"is_behind,omitempty"`
+	// Number of the namespace's runs currently SCHEDULED or RUNNING.
+	UnfinishedRuns int32 `protobuf:"varint,2,opt,name=unfinished_runs,json=unfinishedRuns,proto3" json:"unfinished_runs,omitempty"`
+	// Live age (now - created_at) of the oldest SCHEDULED/RUNNING run — the one at risk
+	// of overrunning. Unset when no run is unfinished.
+	OldestUnfinishedDurationSeconds *float64 `protobuf:"fixed64,3,opt,name=oldest_unfinished_duration_seconds,json=oldestUnfinishedDurationSeconds,proto3,oneof" json:"oldest_unfinished_duration_seconds,omitempty"`
+	// Length of the full scheduled interval containing that run's created_at (a whole
+	// cadence period, not the time left until the next firing). Unset when no run is
+	// unfinished or the crontab is unparseable.
+	OldestUnfinishedCadenceSeconds *float64 `protobuf:"fixed64,4,opt,name=oldest_unfinished_cadence_seconds,json=oldestUnfinishedCadenceSeconds,proto3,oneof" json:"oldest_unfinished_cadence_seconds,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
+}
+
+func (x *OfflineWideTableBackpressureStats) Reset() {
+	*x = OfflineWideTableBackpressureStats{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OfflineWideTableBackpressureStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OfflineWideTableBackpressureStats) ProtoMessage() {}
+
+func (x *OfflineWideTableBackpressureStats) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OfflineWideTableBackpressureStats.ProtoReflect.Descriptor instead.
+func (*OfflineWideTableBackpressureStats) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *OfflineWideTableBackpressureStats) GetIsBehind() bool {
+	if x != nil {
+		return x.IsBehind
+	}
+	return false
+}
+
+func (x *OfflineWideTableBackpressureStats) GetUnfinishedRuns() int32 {
+	if x != nil {
+		return x.UnfinishedRuns
+	}
+	return 0
+}
+
+func (x *OfflineWideTableBackpressureStats) GetOldestUnfinishedDurationSeconds() float64 {
+	if x != nil && x.OldestUnfinishedDurationSeconds != nil {
+		return *x.OldestUnfinishedDurationSeconds
+	}
+	return 0
+}
+
+func (x *OfflineWideTableBackpressureStats) GetOldestUnfinishedCadenceSeconds() float64 {
+	if x != nil && x.OldestUnfinishedCadenceSeconds != nil {
+		return *x.OldestUnfinishedCadenceSeconds
+	}
+	return 0
+}
+
 type OfflineWideTableScheduleInfo struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	Schedule      *OfflineWideTableSchedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule,omitempty"`
-	LatestRun     *OfflineWideTableRun      `protobuf:"bytes,2,opt,name=latest_run,json=latestRun,proto3,oneof" json:"latest_run,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state     protoimpl.MessageState    `protogen:"open.v1"`
+	Schedule  *OfflineWideTableSchedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	LatestRun *OfflineWideTableRun      `protobuf:"bytes,2,opt,name=latest_run,json=latestRun,proto3,oneof" json:"latest_run,omitempty"`
+	// Absent when backpressure was not computed for this namespace.
+	BackpressureStats *OfflineWideTableBackpressureStats `protobuf:"bytes,3,opt,name=backpressure_stats,json=backpressureStats,proto3,oneof" json:"backpressure_stats,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *OfflineWideTableScheduleInfo) Reset() {
 	*x = OfflineWideTableScheduleInfo{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -589,7 +740,7 @@ func (x *OfflineWideTableScheduleInfo) String() string {
 func (*OfflineWideTableScheduleInfo) ProtoMessage() {}
 
 func (x *OfflineWideTableScheduleInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -602,7 +753,7 @@ func (x *OfflineWideTableScheduleInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineWideTableScheduleInfo.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableScheduleInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *OfflineWideTableScheduleInfo) GetSchedule() *OfflineWideTableSchedule {
@@ -619,6 +770,13 @@ func (x *OfflineWideTableScheduleInfo) GetLatestRun() *OfflineWideTableRun {
 	return nil
 }
 
+func (x *OfflineWideTableScheduleInfo) GetBackpressureStats() *OfflineWideTableBackpressureStats {
+	if x != nil {
+		return x.BackpressureStats
+	}
+	return nil
+}
+
 type GetActiveOfflineWideTableSchedulesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -627,7 +785,7 @@ type GetActiveOfflineWideTableSchedulesRequest struct {
 
 func (x *GetActiveOfflineWideTableSchedulesRequest) Reset() {
 	*x = GetActiveOfflineWideTableSchedulesRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -639,7 +797,7 @@ func (x *GetActiveOfflineWideTableSchedulesRequest) String() string {
 func (*GetActiveOfflineWideTableSchedulesRequest) ProtoMessage() {}
 
 func (x *GetActiveOfflineWideTableSchedulesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -652,7 +810,7 @@ func (x *GetActiveOfflineWideTableSchedulesRequest) ProtoReflect() protoreflect.
 
 // Deprecated: Use GetActiveOfflineWideTableSchedulesRequest.ProtoReflect.Descriptor instead.
 func (*GetActiveOfflineWideTableSchedulesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{8}
 }
 
 type GetActiveOfflineWideTableSchedulesResponse struct {
@@ -664,7 +822,7 @@ type GetActiveOfflineWideTableSchedulesResponse struct {
 
 func (x *GetActiveOfflineWideTableSchedulesResponse) Reset() {
 	*x = GetActiveOfflineWideTableSchedulesResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -676,7 +834,7 @@ func (x *GetActiveOfflineWideTableSchedulesResponse) String() string {
 func (*GetActiveOfflineWideTableSchedulesResponse) ProtoMessage() {}
 
 func (x *GetActiveOfflineWideTableSchedulesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -689,7 +847,7 @@ func (x *GetActiveOfflineWideTableSchedulesResponse) ProtoReflect() protoreflect
 
 // Deprecated: Use GetActiveOfflineWideTableSchedulesResponse.ProtoReflect.Descriptor instead.
 func (*GetActiveOfflineWideTableSchedulesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetActiveOfflineWideTableSchedulesResponse) GetSchedules() []*OfflineWideTableScheduleInfo {
@@ -708,7 +866,7 @@ type TriggerOfflineWideTableFillRequest struct {
 
 func (x *TriggerOfflineWideTableFillRequest) Reset() {
 	*x = TriggerOfflineWideTableFillRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -720,7 +878,7 @@ func (x *TriggerOfflineWideTableFillRequest) String() string {
 func (*TriggerOfflineWideTableFillRequest) ProtoMessage() {}
 
 func (x *TriggerOfflineWideTableFillRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -733,7 +891,7 @@ func (x *TriggerOfflineWideTableFillRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use TriggerOfflineWideTableFillRequest.ProtoReflect.Descriptor instead.
 func (*TriggerOfflineWideTableFillRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *TriggerOfflineWideTableFillRequest) GetNamespace() string {
@@ -752,7 +910,7 @@ type TriggerOfflineWideTableFillResponse struct {
 
 func (x *TriggerOfflineWideTableFillResponse) Reset() {
 	*x = TriggerOfflineWideTableFillResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -764,7 +922,7 @@ func (x *TriggerOfflineWideTableFillResponse) String() string {
 func (*TriggerOfflineWideTableFillResponse) ProtoMessage() {}
 
 func (x *TriggerOfflineWideTableFillResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -777,7 +935,7 @@ func (x *TriggerOfflineWideTableFillResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use TriggerOfflineWideTableFillResponse.ProtoReflect.Descriptor instead.
 func (*TriggerOfflineWideTableFillResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *TriggerOfflineWideTableFillResponse) GetRun() *OfflineWideTableRun {
@@ -787,11 +945,99 @@ func (x *TriggerOfflineWideTableFillResponse) GetRun() *OfflineWideTableRun {
 	return nil
 }
 
+type TriggerOfflineWideTableCompactionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TriggerOfflineWideTableCompactionRequest) Reset() {
+	*x = TriggerOfflineWideTableCompactionRequest{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TriggerOfflineWideTableCompactionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TriggerOfflineWideTableCompactionRequest) ProtoMessage() {}
+
+func (x *TriggerOfflineWideTableCompactionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TriggerOfflineWideTableCompactionRequest.ProtoReflect.Descriptor instead.
+func (*TriggerOfflineWideTableCompactionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *TriggerOfflineWideTableCompactionRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+type TriggerOfflineWideTableCompactionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OperationId   string                 `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TriggerOfflineWideTableCompactionResponse) Reset() {
+	*x = TriggerOfflineWideTableCompactionResponse{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TriggerOfflineWideTableCompactionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TriggerOfflineWideTableCompactionResponse) ProtoMessage() {}
+
+func (x *TriggerOfflineWideTableCompactionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TriggerOfflineWideTableCompactionResponse.ProtoReflect.Descriptor instead.
+func (*TriggerOfflineWideTableCompactionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *TriggerOfflineWideTableCompactionResponse) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
 var File_chalk_server_v1_offline_wide_tables_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\n" +
-	")chalk/server/v1/offline_wide_tables.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa5\x06\n" +
+	")chalk/server/v1/offline_wide_tables.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc3\a\n" +
 	"\x13OfflineWideTableRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12(\n" +
@@ -810,14 +1056,20 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\n" +
 	"started_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampH\x05R\tstartedAt\x88\x01\x01\x12@\n" +
 	"\vfinished_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampH\x06R\n" +
-	"finishedAt\x88\x01\x01B\x10\n" +
+	"finishedAt\x88\x01\x01\x12%\n" +
+	"\fjob_queue_id\x18\x0e \x01(\x05H\aR\n" +
+	"jobQueueId\x88\x01\x01\x12T\n" +
+	"\vskip_reason\x18\x0f \x01(\x0e2..chalk.server.v1.OfflineWideTableRunSkipReasonH\bR\n" +
+	"skipReason\x88\x01\x01B\x10\n" +
 	"\x0e_deployment_idB\x1a\n" +
 	"\x18_watermark_before_microsB\x19\n" +
 	"\x17_watermark_after_microsB\x0e\n" +
 	"\f_rows_filledB\x10\n" +
 	"\x0e_error_messageB\r\n" +
 	"\v_started_atB\x0e\n" +
-	"\f_finished_at\"\xa0\x02\n" +
+	"\f_finished_atB\x0f\n" +
+	"\r_job_queue_idB\x0e\n" +
+	"\f_skip_reason\"\xa0\x02\n" +
 	"\x1fListOfflineWideTableRunsRequest\x12\x16\n" +
 	"\x06cursor\x18\x01 \x01(\tR\x06cursor\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12!\n" +
@@ -840,34 +1092,52 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x03 \x01(\tR\tnamespace\x12\x18\n" +
 	"\acrontab\x18\x04 \x01(\tR\acrontab\x12<\n" +
-	"\x04kind\x18\x05 \x01(\x0e2(.chalk.server.v1.OfflineWideTableRunKindR\x04kind\"\xbe\x01\n" +
+	"\x04kind\x18\x05 \x01(\x0e2(.chalk.server.v1.OfflineWideTableRunKindR\x04kind\"\xd8\x02\n" +
+	"!OfflineWideTableBackpressureStats\x12\x1b\n" +
+	"\tis_behind\x18\x01 \x01(\bR\bisBehind\x12'\n" +
+	"\x0funfinished_runs\x18\x02 \x01(\x05R\x0eunfinishedRuns\x12P\n" +
+	"\"oldest_unfinished_duration_seconds\x18\x03 \x01(\x01H\x00R\x1foldestUnfinishedDurationSeconds\x88\x01\x01\x12N\n" +
+	"!oldest_unfinished_cadence_seconds\x18\x04 \x01(\x01H\x01R\x1eoldestUnfinishedCadenceSeconds\x88\x01\x01B%\n" +
+	"#_oldest_unfinished_duration_secondsB$\n" +
+	"\"_oldest_unfinished_cadence_seconds\"\xbd\x02\n" +
 	"\x1cOfflineWideTableScheduleInfo\x12E\n" +
 	"\bschedule\x18\x01 \x01(\v2).chalk.server.v1.OfflineWideTableScheduleR\bschedule\x12H\n" +
 	"\n" +
-	"latest_run\x18\x02 \x01(\v2$.chalk.server.v1.OfflineWideTableRunH\x00R\tlatestRun\x88\x01\x01B\r\n" +
-	"\v_latest_run\"+\n" +
+	"latest_run\x18\x02 \x01(\v2$.chalk.server.v1.OfflineWideTableRunH\x00R\tlatestRun\x88\x01\x01\x12f\n" +
+	"\x12backpressure_stats\x18\x03 \x01(\v22.chalk.server.v1.OfflineWideTableBackpressureStatsH\x01R\x11backpressureStats\x88\x01\x01B\r\n" +
+	"\v_latest_runB\x15\n" +
+	"\x13_backpressure_stats\"+\n" +
 	")GetActiveOfflineWideTableSchedulesRequest\"y\n" +
 	"*GetActiveOfflineWideTableSchedulesResponse\x12K\n" +
 	"\tschedules\x18\x01 \x03(\v2-.chalk.server.v1.OfflineWideTableScheduleInfoR\tschedules\"B\n" +
 	"\"TriggerOfflineWideTableFillRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\"]\n" +
 	"#TriggerOfflineWideTableFillResponse\x126\n" +
-	"\x03run\x18\x01 \x01(\v2$.chalk.server.v1.OfflineWideTableRunR\x03run*l\n" +
+	"\x03run\x18\x01 \x01(\v2$.chalk.server.v1.OfflineWideTableRunR\x03run\"H\n" +
+	"(TriggerOfflineWideTableCompactionRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\"N\n" +
+	")TriggerOfflineWideTableCompactionResponse\x12!\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId*l\n" +
 	"\x17OfflineWideTableRunKind\x12+\n" +
 	"'OFFLINE_WIDE_TABLE_RUN_KIND_UNSPECIFIED\x10\x00\x12$\n" +
-	" OFFLINE_WIDE_TABLE_RUN_KIND_FILL\x10\x01*\xa2\x02\n" +
+	" OFFLINE_WIDE_TABLE_RUN_KIND_FILL\x10\x01*\xcd\x02\n" +
 	"\x19OfflineWideTableRunStatus\x12-\n" +
 	")OFFLINE_WIDE_TABLE_RUN_STATUS_UNSPECIFIED\x10\x00\x12(\n" +
 	"$OFFLINE_WIDE_TABLE_RUN_STATUS_QUEUED\x10\x01\x12)\n" +
 	"%OFFLINE_WIDE_TABLE_RUN_STATUS_RUNNING\x10\x02\x12+\n" +
 	"'OFFLINE_WIDE_TABLE_RUN_STATUS_COMPLETED\x10\x03\x12(\n" +
 	"$OFFLINE_WIDE_TABLE_RUN_STATUS_FAILED\x10\x04\x12*\n" +
-	"&OFFLINE_WIDE_TABLE_RUN_STATUS_CANCELED\x10\x052\xe0\x04\n" +
+	"&OFFLINE_WIDE_TABLE_RUN_STATUS_CANCELED\x10\x05\x12)\n" +
+	"%OFFLINE_WIDE_TABLE_RUN_STATUS_SKIPPED\x10\x06*\x8e\x01\n" +
+	"\x1dOfflineWideTableRunSkipReason\x122\n" +
+	".OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_UNSPECIFIED\x10\x00\x129\n" +
+	"5OFFLINE_WIDE_TABLE_RUN_SKIP_REASON_ACTIVE_PREDECESSOR\x10\x012\x82\x06\n" +
 	"\x18OfflineWideTablesService\x12\x87\x01\n" +
 	"\x18ListOfflineWideTableRuns\x120.chalk.server.v1.ListOfflineWideTableRunsRequest\x1a1.chalk.server.v1.ListOfflineWideTableRunsResponse\"\x06\x80}\x10\x90\x02\x01\x12\x81\x01\n" +
 	"\x16GetOfflineWideTableRun\x12..chalk.server.v1.GetOfflineWideTableRunRequest\x1a/.chalk.server.v1.GetOfflineWideTableRunResponse\"\x06\x80}\x10\x90\x02\x01\x12\xa5\x01\n" +
 	"\"GetActiveOfflineWideTableSchedules\x12:.chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest\x1a;.chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse\"\x06\x80}\x10\x90\x02\x01\x12\x8d\x01\n" +
-	"\x1bTriggerOfflineWideTableFill\x123.chalk.server.v1.TriggerOfflineWideTableFillRequest\x1a4.chalk.server.v1.TriggerOfflineWideTableFillResponse\"\x03\x80}\x11B\xc6\x01\n" +
+	"\x1bTriggerOfflineWideTableFill\x123.chalk.server.v1.TriggerOfflineWideTableFillRequest\x1a4.chalk.server.v1.TriggerOfflineWideTableFillResponse\"\x03\x80}\x11\x12\x9f\x01\n" +
+	"!TriggerOfflineWideTableCompaction\x129.chalk.server.v1.TriggerOfflineWideTableCompactionRequest\x1a:.chalk.server.v1.TriggerOfflineWideTableCompactionResponse\"\x03\x80}\x11B\xc6\x01\n" +
 	"\x13com.chalk.server.v1B\x16OfflineWideTablesProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -882,52 +1152,60 @@ func file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_offline_wide_tables_proto_rawDescData
 }
 
-var file_chalk_server_v1_offline_wide_tables_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_offline_wide_tables_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_chalk_server_v1_offline_wide_tables_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_chalk_server_v1_offline_wide_tables_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_chalk_server_v1_offline_wide_tables_proto_goTypes = []any{
 	(OfflineWideTableRunKind)(0),                       // 0: chalk.server.v1.OfflineWideTableRunKind
 	(OfflineWideTableRunStatus)(0),                     // 1: chalk.server.v1.OfflineWideTableRunStatus
-	(*OfflineWideTableRun)(nil),                        // 2: chalk.server.v1.OfflineWideTableRun
-	(*ListOfflineWideTableRunsRequest)(nil),            // 3: chalk.server.v1.ListOfflineWideTableRunsRequest
-	(*ListOfflineWideTableRunsResponse)(nil),           // 4: chalk.server.v1.ListOfflineWideTableRunsResponse
-	(*GetOfflineWideTableRunRequest)(nil),              // 5: chalk.server.v1.GetOfflineWideTableRunRequest
-	(*GetOfflineWideTableRunResponse)(nil),             // 6: chalk.server.v1.GetOfflineWideTableRunResponse
-	(*OfflineWideTableSchedule)(nil),                   // 7: chalk.server.v1.OfflineWideTableSchedule
-	(*OfflineWideTableScheduleInfo)(nil),               // 8: chalk.server.v1.OfflineWideTableScheduleInfo
-	(*GetActiveOfflineWideTableSchedulesRequest)(nil),  // 9: chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
-	(*GetActiveOfflineWideTableSchedulesResponse)(nil), // 10: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
-	(*TriggerOfflineWideTableFillRequest)(nil),         // 11: chalk.server.v1.TriggerOfflineWideTableFillRequest
-	(*TriggerOfflineWideTableFillResponse)(nil),        // 12: chalk.server.v1.TriggerOfflineWideTableFillResponse
-	(*timestamppb.Timestamp)(nil),                      // 13: google.protobuf.Timestamp
+	(OfflineWideTableRunSkipReason)(0),                 // 2: chalk.server.v1.OfflineWideTableRunSkipReason
+	(*OfflineWideTableRun)(nil),                        // 3: chalk.server.v1.OfflineWideTableRun
+	(*ListOfflineWideTableRunsRequest)(nil),            // 4: chalk.server.v1.ListOfflineWideTableRunsRequest
+	(*ListOfflineWideTableRunsResponse)(nil),           // 5: chalk.server.v1.ListOfflineWideTableRunsResponse
+	(*GetOfflineWideTableRunRequest)(nil),              // 6: chalk.server.v1.GetOfflineWideTableRunRequest
+	(*GetOfflineWideTableRunResponse)(nil),             // 7: chalk.server.v1.GetOfflineWideTableRunResponse
+	(*OfflineWideTableSchedule)(nil),                   // 8: chalk.server.v1.OfflineWideTableSchedule
+	(*OfflineWideTableBackpressureStats)(nil),          // 9: chalk.server.v1.OfflineWideTableBackpressureStats
+	(*OfflineWideTableScheduleInfo)(nil),               // 10: chalk.server.v1.OfflineWideTableScheduleInfo
+	(*GetActiveOfflineWideTableSchedulesRequest)(nil),  // 11: chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
+	(*GetActiveOfflineWideTableSchedulesResponse)(nil), // 12: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
+	(*TriggerOfflineWideTableFillRequest)(nil),         // 13: chalk.server.v1.TriggerOfflineWideTableFillRequest
+	(*TriggerOfflineWideTableFillResponse)(nil),        // 14: chalk.server.v1.TriggerOfflineWideTableFillResponse
+	(*TriggerOfflineWideTableCompactionRequest)(nil),   // 15: chalk.server.v1.TriggerOfflineWideTableCompactionRequest
+	(*TriggerOfflineWideTableCompactionResponse)(nil),  // 16: chalk.server.v1.TriggerOfflineWideTableCompactionResponse
+	(*timestamppb.Timestamp)(nil),                      // 17: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_offline_wide_tables_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.OfflineWideTableRun.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
 	1,  // 1: chalk.server.v1.OfflineWideTableRun.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
-	13, // 2: chalk.server.v1.OfflineWideTableRun.created_at:type_name -> google.protobuf.Timestamp
-	13, // 3: chalk.server.v1.OfflineWideTableRun.started_at:type_name -> google.protobuf.Timestamp
-	13, // 4: chalk.server.v1.OfflineWideTableRun.finished_at:type_name -> google.protobuf.Timestamp
-	1,  // 5: chalk.server.v1.ListOfflineWideTableRunsRequest.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
-	0,  // 6: chalk.server.v1.ListOfflineWideTableRunsRequest.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
-	2,  // 7: chalk.server.v1.ListOfflineWideTableRunsResponse.runs:type_name -> chalk.server.v1.OfflineWideTableRun
-	2,  // 8: chalk.server.v1.GetOfflineWideTableRunResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
-	0,  // 9: chalk.server.v1.OfflineWideTableSchedule.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
-	7,  // 10: chalk.server.v1.OfflineWideTableScheduleInfo.schedule:type_name -> chalk.server.v1.OfflineWideTableSchedule
-	2,  // 11: chalk.server.v1.OfflineWideTableScheduleInfo.latest_run:type_name -> chalk.server.v1.OfflineWideTableRun
-	8,  // 12: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse.schedules:type_name -> chalk.server.v1.OfflineWideTableScheduleInfo
-	2,  // 13: chalk.server.v1.TriggerOfflineWideTableFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
-	3,  // 14: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
-	5,  // 15: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
-	9,  // 16: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
-	11, // 17: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
-	4,  // 18: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
-	6,  // 19: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
-	10, // 20: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
-	12, // 21: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
-	18, // [18:22] is the sub-list for method output_type
-	14, // [14:18] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	17, // 2: chalk.server.v1.OfflineWideTableRun.created_at:type_name -> google.protobuf.Timestamp
+	17, // 3: chalk.server.v1.OfflineWideTableRun.started_at:type_name -> google.protobuf.Timestamp
+	17, // 4: chalk.server.v1.OfflineWideTableRun.finished_at:type_name -> google.protobuf.Timestamp
+	2,  // 5: chalk.server.v1.OfflineWideTableRun.skip_reason:type_name -> chalk.server.v1.OfflineWideTableRunSkipReason
+	1,  // 6: chalk.server.v1.ListOfflineWideTableRunsRequest.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
+	0,  // 7: chalk.server.v1.ListOfflineWideTableRunsRequest.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
+	3,  // 8: chalk.server.v1.ListOfflineWideTableRunsResponse.runs:type_name -> chalk.server.v1.OfflineWideTableRun
+	3,  // 9: chalk.server.v1.GetOfflineWideTableRunResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
+	0,  // 10: chalk.server.v1.OfflineWideTableSchedule.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
+	8,  // 11: chalk.server.v1.OfflineWideTableScheduleInfo.schedule:type_name -> chalk.server.v1.OfflineWideTableSchedule
+	3,  // 12: chalk.server.v1.OfflineWideTableScheduleInfo.latest_run:type_name -> chalk.server.v1.OfflineWideTableRun
+	9,  // 13: chalk.server.v1.OfflineWideTableScheduleInfo.backpressure_stats:type_name -> chalk.server.v1.OfflineWideTableBackpressureStats
+	10, // 14: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse.schedules:type_name -> chalk.server.v1.OfflineWideTableScheduleInfo
+	3,  // 15: chalk.server.v1.TriggerOfflineWideTableFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
+	4,  // 16: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
+	6,  // 17: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
+	11, // 18: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
+	13, // 19: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
+	15, // 20: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
+	5,  // 21: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
+	7,  // 22: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
+	12, // 23: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
+	14, // 24: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
+	16, // 25: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
+	21, // [21:26] is the sub-list for method output_type
+	16, // [16:21] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_wide_tables_proto_init() }
@@ -938,13 +1216,14 @@ func file_chalk_server_v1_offline_wide_tables_proto_init() {
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_offline_wide_tables_proto_rawDesc), len(file_chalk_server_v1_offline_wide_tables_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   11,
+			NumEnums:      3,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

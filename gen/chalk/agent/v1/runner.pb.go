@@ -40,6 +40,11 @@ const (
 	// sidebar away from any notebook): no notebook UI can render proposals, so
 	// notebook edits persist directly.
 	PageContext_PAGE_CONTEXT_AGENT_CONVERSATION PageContext = 2
+	// The SQL explorer's inline agent panel is attached: the worksheet editor
+	// can render a diff for review, so proposed worksheet edits are reviewed
+	// before they touch the buffer. Notebook edits have no UI here and persist
+	// directly, as on any other non-notebook surface.
+	PageContext_PAGE_CONTEXT_SQL_EXPLORER PageContext = 3
 )
 
 // Enum value maps for PageContext.
@@ -48,11 +53,13 @@ var (
 		0: "PAGE_CONTEXT_UNSPECIFIED",
 		1: "PAGE_CONTEXT_NOTEBOOK",
 		2: "PAGE_CONTEXT_AGENT_CONVERSATION",
+		3: "PAGE_CONTEXT_SQL_EXPLORER",
 	}
 	PageContext_value = map[string]int32{
 		"PAGE_CONTEXT_UNSPECIFIED":        0,
 		"PAGE_CONTEXT_NOTEBOOK":           1,
 		"PAGE_CONTEXT_AGENT_CONVERSATION": 2,
+		"PAGE_CONTEXT_SQL_EXPLORER":       3,
 	}
 )
 
@@ -83,6 +90,250 @@ func (PageContext) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{0}
 }
 
+// SqlDiagnosticSeverity mirrors the LSP DiagnosticSeverity scale that the
+// chalk-sql-lsp module reports (1=Error .. 4=Hint).
+type SqlDiagnosticSeverity int32
+
+const (
+	SqlDiagnosticSeverity_SQL_DIAGNOSTIC_SEVERITY_UNSPECIFIED SqlDiagnosticSeverity = 0
+	SqlDiagnosticSeverity_SQL_DIAGNOSTIC_SEVERITY_ERROR       SqlDiagnosticSeverity = 1
+	SqlDiagnosticSeverity_SQL_DIAGNOSTIC_SEVERITY_WARNING     SqlDiagnosticSeverity = 2
+	SqlDiagnosticSeverity_SQL_DIAGNOSTIC_SEVERITY_INFORMATION SqlDiagnosticSeverity = 3
+	SqlDiagnosticSeverity_SQL_DIAGNOSTIC_SEVERITY_HINT        SqlDiagnosticSeverity = 4
+)
+
+// Enum value maps for SqlDiagnosticSeverity.
+var (
+	SqlDiagnosticSeverity_name = map[int32]string{
+		0: "SQL_DIAGNOSTIC_SEVERITY_UNSPECIFIED",
+		1: "SQL_DIAGNOSTIC_SEVERITY_ERROR",
+		2: "SQL_DIAGNOSTIC_SEVERITY_WARNING",
+		3: "SQL_DIAGNOSTIC_SEVERITY_INFORMATION",
+		4: "SQL_DIAGNOSTIC_SEVERITY_HINT",
+	}
+	SqlDiagnosticSeverity_value = map[string]int32{
+		"SQL_DIAGNOSTIC_SEVERITY_UNSPECIFIED": 0,
+		"SQL_DIAGNOSTIC_SEVERITY_ERROR":       1,
+		"SQL_DIAGNOSTIC_SEVERITY_WARNING":     2,
+		"SQL_DIAGNOSTIC_SEVERITY_INFORMATION": 3,
+		"SQL_DIAGNOSTIC_SEVERITY_HINT":        4,
+	}
+)
+
+func (x SqlDiagnosticSeverity) Enum() *SqlDiagnosticSeverity {
+	p := new(SqlDiagnosticSeverity)
+	*p = x
+	return p
+}
+
+func (x SqlDiagnosticSeverity) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SqlDiagnosticSeverity) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_runner_proto_enumTypes[1].Descriptor()
+}
+
+func (SqlDiagnosticSeverity) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_runner_proto_enumTypes[1]
+}
+
+func (x SqlDiagnosticSeverity) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SqlDiagnosticSeverity.Descriptor instead.
+func (SqlDiagnosticSeverity) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{1}
+}
+
+// SqlDiagnostic is one structured diagnostic the chalk-sql-lsp produced for
+// the worksheet's current text. Positions are 0-based, matching the LSP wire
+// format the module emits; renderers add 1 to show editor line numbers.
+type SqlDiagnostic struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	StartLine      uint32                 `protobuf:"varint,1,opt,name=start_line,json=startLine,proto3" json:"start_line,omitempty"`
+	StartCharacter uint32                 `protobuf:"varint,2,opt,name=start_character,json=startCharacter,proto3" json:"start_character,omitempty"`
+	EndLine        uint32                 `protobuf:"varint,3,opt,name=end_line,json=endLine,proto3" json:"end_line,omitempty"`
+	EndCharacter   uint32                 `protobuf:"varint,4,opt,name=end_character,json=endCharacter,proto3" json:"end_character,omitempty"`
+	Severity       SqlDiagnosticSeverity  `protobuf:"varint,5,opt,name=severity,proto3,enum=chalk.agent.v1.SqlDiagnosticSeverity" json:"severity,omitempty"`
+	Message        string                 `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
+	// The diagnostic's producer, e.g. "chalk-sql-lsp".
+	Source        string `protobuf:"bytes,7,opt,name=source,proto3" json:"source,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SqlDiagnostic) Reset() {
+	*x = SqlDiagnostic{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SqlDiagnostic) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SqlDiagnostic) ProtoMessage() {}
+
+func (x *SqlDiagnostic) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SqlDiagnostic.ProtoReflect.Descriptor instead.
+func (*SqlDiagnostic) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *SqlDiagnostic) GetStartLine() uint32 {
+	if x != nil {
+		return x.StartLine
+	}
+	return 0
+}
+
+func (x *SqlDiagnostic) GetStartCharacter() uint32 {
+	if x != nil {
+		return x.StartCharacter
+	}
+	return 0
+}
+
+func (x *SqlDiagnostic) GetEndLine() uint32 {
+	if x != nil {
+		return x.EndLine
+	}
+	return 0
+}
+
+func (x *SqlDiagnostic) GetEndCharacter() uint32 {
+	if x != nil {
+		return x.EndCharacter
+	}
+	return 0
+}
+
+func (x *SqlDiagnostic) GetSeverity() SqlDiagnosticSeverity {
+	if x != nil {
+		return x.Severity
+	}
+	return SqlDiagnosticSeverity_SQL_DIAGNOSTIC_SEVERITY_UNSPECIFIED
+}
+
+func (x *SqlDiagnostic) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *SqlDiagnostic) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+// SqlWorksheetContext is the live state of the SQL explorer worksheet the turn
+// was submitted from. Notebook cells work differently: the runner reads their
+// current source server-side. A worksheet cannot be handled that way, because
+// its editor buffer may hold unsaved text and its diagnostics come from a WASM
+// language server that only runs in the browser. Both therefore travel with
+// every turn rather than being fetched.
+type SqlWorksheetContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The saved worksheet node this buffer belongs to. Empty for a scratch tab
+	// that has never been saved.
+	WorksheetId string `protobuf:"bytes,1,opt,name=worksheet_id,json=worksheetId,proto3" json:"worksheet_id,omitempty"`
+	// The worksheet's display name, for grounding the model's prose.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// The editor's current text, including unsaved edits.
+	Source string `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
+	// chalk-sql-lsp diagnostics for `source` as of turn submission. Empty means
+	// either a clean buffer or an LSP that failed to load — the runner does not
+	// distinguish, and never presents "no diagnostics" as proof of validity.
+	Diagnostics []*SqlDiagnostic `protobuf:"bytes,4,rep,name=diagnostics,proto3" json:"diagnostics,omitempty"`
+	// The datasource the worksheet is pinned to, when it is not running against
+	// the default ChalkSQL federation.
+	DatasourceName string `protobuf:"bytes,5,opt,name=datasource_name,json=datasourceName,proto3" json:"datasource_name,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SqlWorksheetContext) Reset() {
+	*x = SqlWorksheetContext{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SqlWorksheetContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SqlWorksheetContext) ProtoMessage() {}
+
+func (x *SqlWorksheetContext) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SqlWorksheetContext.ProtoReflect.Descriptor instead.
+func (*SqlWorksheetContext) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SqlWorksheetContext) GetWorksheetId() string {
+	if x != nil {
+		return x.WorksheetId
+	}
+	return ""
+}
+
+func (x *SqlWorksheetContext) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SqlWorksheetContext) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *SqlWorksheetContext) GetDiagnostics() []*SqlDiagnostic {
+	if x != nil {
+		return x.Diagnostics
+	}
+	return nil
+}
+
+func (x *SqlWorksheetContext) GetDatasourceName() string {
+	if x != nil {
+		return x.DatasourceName
+	}
+	return ""
+}
+
 // RunTurnRequest asks the server to advance a conversation by one or more
 // model turns (a turn may include several tool-call rounds). The server reads
 // the persisted message history for `conversation_id`, calls the configured
@@ -103,14 +354,18 @@ type RunTurnRequest struct {
 	// (currently 10) when zero or unset.
 	MaxIterations int32 `protobuf:"varint,3,opt,name=max_iterations,json=maxIterations,proto3" json:"max_iterations,omitempty"`
 	// The UI surface this turn was submitted from. See PageContext.
-	PageContext   PageContext `protobuf:"varint,4,opt,name=page_context,json=pageContext,proto3,enum=chalk.agent.v1.PageContext" json:"page_context,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PageContext PageContext `protobuf:"varint,4,opt,name=page_context,json=pageContext,proto3,enum=chalk.agent.v1.PageContext" json:"page_context,omitempty"`
+	// The SQL explorer worksheet the user is looking at, sent on every turn from
+	// PAGE_CONTEXT_SQL_EXPLORER so the model sees the unsaved buffer and its
+	// current diagnostics without a tool round-trip. Absent on other surfaces.
+	SqlWorksheetContext *SqlWorksheetContext `protobuf:"bytes,5,opt,name=sql_worksheet_context,json=sqlWorksheetContext,proto3" json:"sql_worksheet_context,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *RunTurnRequest) Reset() {
 	*x = RunTurnRequest{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[0]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -122,7 +377,7 @@ func (x *RunTurnRequest) String() string {
 func (*RunTurnRequest) ProtoMessage() {}
 
 func (x *RunTurnRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[0]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -135,7 +390,7 @@ func (x *RunTurnRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunTurnRequest.ProtoReflect.Descriptor instead.
 func (*RunTurnRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{0}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *RunTurnRequest) GetConversationId() string {
@@ -166,6 +421,13 @@ func (x *RunTurnRequest) GetPageContext() PageContext {
 	return PageContext_PAGE_CONTEXT_UNSPECIFIED
 }
 
+func (x *RunTurnRequest) GetSqlWorksheetContext() *SqlWorksheetContext {
+	if x != nil {
+		return x.SqlWorksheetContext
+	}
+	return nil
+}
+
 // AssistantTextDelta is emitted as the model streams tokens for the active
 // assistant message. Concatenating all deltas with the same message_id in
 // order reconstructs the final content.
@@ -179,7 +441,7 @@ type AssistantTextDelta struct {
 
 func (x *AssistantTextDelta) Reset() {
 	*x = AssistantTextDelta{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[1]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -191,7 +453,7 @@ func (x *AssistantTextDelta) String() string {
 func (*AssistantTextDelta) ProtoMessage() {}
 
 func (x *AssistantTextDelta) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[1]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -204,7 +466,7 @@ func (x *AssistantTextDelta) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssistantTextDelta.ProtoReflect.Descriptor instead.
 func (*AssistantTextDelta) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{1}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AssistantTextDelta) GetMessageId() string {
@@ -233,7 +495,7 @@ type MessageFinalized struct {
 
 func (x *MessageFinalized) Reset() {
 	*x = MessageFinalized{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[2]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +507,7 @@ func (x *MessageFinalized) String() string {
 func (*MessageFinalized) ProtoMessage() {}
 
 func (x *MessageFinalized) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[2]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +520,7 @@ func (x *MessageFinalized) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageFinalized.ProtoReflect.Descriptor instead.
 func (*MessageFinalized) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{2}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MessageFinalized) GetMessage() *AgentMessage {
@@ -280,7 +542,7 @@ type ToolCallStarted struct {
 
 func (x *ToolCallStarted) Reset() {
 	*x = ToolCallStarted{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[3]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -292,7 +554,7 @@ func (x *ToolCallStarted) String() string {
 func (*ToolCallStarted) ProtoMessage() {}
 
 func (x *ToolCallStarted) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[3]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -305,7 +567,7 @@ func (x *ToolCallStarted) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToolCallStarted.ProtoReflect.Descriptor instead.
 func (*ToolCallStarted) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{3}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ToolCallStarted) GetToolCall() *AgentToolCall {
@@ -326,7 +588,7 @@ type ToolResultPosted struct {
 
 func (x *ToolResultPosted) Reset() {
 	*x = ToolResultPosted{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[4]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -338,7 +600,7 @@ func (x *ToolResultPosted) String() string {
 func (*ToolResultPosted) ProtoMessage() {}
 
 func (x *ToolResultPosted) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[4]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -351,7 +613,7 @@ func (x *ToolResultPosted) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToolResultPosted.ProtoReflect.Descriptor instead.
 func (*ToolResultPosted) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{4}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ToolResultPosted) GetToolResult() *AgentToolResult {
@@ -373,7 +635,7 @@ type RunCompleted struct {
 
 func (x *RunCompleted) Reset() {
 	*x = RunCompleted{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[5]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -385,7 +647,7 @@ func (x *RunCompleted) String() string {
 func (*RunCompleted) ProtoMessage() {}
 
 func (x *RunCompleted) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[5]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -398,7 +660,7 @@ func (x *RunCompleted) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunCompleted.ProtoReflect.Descriptor instead.
 func (*RunCompleted) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{5}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RunCompleted) GetIterations() int32 {
@@ -420,7 +682,7 @@ type RunFailed struct {
 
 func (x *RunFailed) Reset() {
 	*x = RunFailed{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[6]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -432,7 +694,7 @@ func (x *RunFailed) String() string {
 func (*RunFailed) ProtoMessage() {}
 
 func (x *RunFailed) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[6]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -445,7 +707,7 @@ func (x *RunFailed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunFailed.ProtoReflect.Descriptor instead.
 func (*RunFailed) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{6}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RunFailed) GetMessage() string {
@@ -475,7 +737,7 @@ type RunTurnResponse struct {
 
 func (x *RunTurnResponse) Reset() {
 	*x = RunTurnResponse{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[7]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -487,7 +749,7 @@ func (x *RunTurnResponse) String() string {
 func (*RunTurnResponse) ProtoMessage() {}
 
 func (x *RunTurnResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[7]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -500,7 +762,7 @@ func (x *RunTurnResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunTurnResponse.ProtoReflect.Descriptor instead.
 func (*RunTurnResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{7}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RunTurnResponse) GetEvent() isRunTurnResponse_Event {
@@ -617,7 +879,7 @@ type StopTurnRequest struct {
 
 func (x *StopTurnRequest) Reset() {
 	*x = StopTurnRequest{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -629,7 +891,7 @@ func (x *StopTurnRequest) String() string {
 func (*StopTurnRequest) ProtoMessage() {}
 
 func (x *StopTurnRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -642,7 +904,7 @@ func (x *StopTurnRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopTurnRequest.ProtoReflect.Descriptor instead.
 func (*StopTurnRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{8}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *StopTurnRequest) GetConversationId() string {
@@ -666,7 +928,7 @@ type StopTurnResponse struct {
 
 func (x *StopTurnResponse) Reset() {
 	*x = StopTurnResponse{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -678,7 +940,7 @@ func (x *StopTurnResponse) String() string {
 func (*StopTurnResponse) ProtoMessage() {}
 
 func (x *StopTurnResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -691,7 +953,7 @@ func (x *StopTurnResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopTurnResponse.ProtoReflect.Descriptor instead.
 func (*StopTurnResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{9}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *StopTurnResponse) GetStopped() bool {
@@ -731,7 +993,7 @@ type GenerateInlineCompletionRequest struct {
 
 func (x *GenerateInlineCompletionRequest) Reset() {
 	*x = GenerateInlineCompletionRequest{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -743,7 +1005,7 @@ func (x *GenerateInlineCompletionRequest) String() string {
 func (*GenerateInlineCompletionRequest) ProtoMessage() {}
 
 func (x *GenerateInlineCompletionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -756,7 +1018,7 @@ func (x *GenerateInlineCompletionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateInlineCompletionRequest.ProtoReflect.Descriptor instead.
 func (*GenerateInlineCompletionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{10}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GenerateInlineCompletionRequest) GetNotebookId() string {
@@ -819,7 +1081,7 @@ type GenerateInlineCompletionResponse struct {
 
 func (x *GenerateInlineCompletionResponse) Reset() {
 	*x = GenerateInlineCompletionResponse{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -831,7 +1093,7 @@ func (x *GenerateInlineCompletionResponse) String() string {
 func (*GenerateInlineCompletionResponse) ProtoMessage() {}
 
 func (x *GenerateInlineCompletionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -844,7 +1106,7 @@ func (x *GenerateInlineCompletionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateInlineCompletionResponse.ProtoReflect.Descriptor instead.
 func (*GenerateInlineCompletionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{11}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GenerateInlineCompletionResponse) GetCompletion() string {
@@ -858,12 +1120,28 @@ var File_chalk_agent_v1_runner_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\n" +
-	"\x1bchalk/agent/v1/runner.proto\x12\x0echalk.agent.v1\x1a!chalk/agent/v1/conversation.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\xb6\x01\n" +
+	"\x1bchalk/agent/v1/runner.proto\x12\x0echalk.agent.v1\x1a!chalk/agent/v1/conversation.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\x8c\x02\n" +
+	"\rSqlDiagnostic\x12\x1d\n" +
+	"\n" +
+	"start_line\x18\x01 \x01(\rR\tstartLine\x12'\n" +
+	"\x0fstart_character\x18\x02 \x01(\rR\x0estartCharacter\x12\x19\n" +
+	"\bend_line\x18\x03 \x01(\rR\aendLine\x12#\n" +
+	"\rend_character\x18\x04 \x01(\rR\fendCharacter\x12A\n" +
+	"\bseverity\x18\x05 \x01(\x0e2%.chalk.agent.v1.SqlDiagnosticSeverityR\bseverity\x12\x18\n" +
+	"\amessage\x18\x06 \x01(\tR\amessage\x12\x16\n" +
+	"\x06source\x18\a \x01(\tR\x06source\"\xce\x01\n" +
+	"\x13SqlWorksheetContext\x12!\n" +
+	"\fworksheet_id\x18\x01 \x01(\tR\vworksheetId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
+	"\x06source\x18\x03 \x01(\tR\x06source\x12?\n" +
+	"\vdiagnostics\x18\x04 \x03(\v2\x1d.chalk.agent.v1.SqlDiagnosticR\vdiagnostics\x12'\n" +
+	"\x0fdatasource_name\x18\x05 \x01(\tR\x0edatasourceName\"\x8f\x02\n" +
 	"\x0eRunTurnRequest\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x14\n" +
 	"\x05model\x18\x02 \x01(\tR\x05model\x12%\n" +
 	"\x0emax_iterations\x18\x03 \x01(\x05R\rmaxIterations\x12>\n" +
-	"\fpage_context\x18\x04 \x01(\x0e2\x1b.chalk.agent.v1.PageContextR\vpageContext\"I\n" +
+	"\fpage_context\x18\x04 \x01(\x0e2\x1b.chalk.agent.v1.PageContextR\vpageContext\x12W\n" +
+	"\x15sql_worksheet_context\x18\x05 \x01(\v2#.chalk.agent.v1.SqlWorksheetContextR\x13sqlWorksheetContext\"I\n" +
 	"\x12AssistantTextDelta\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x14\n" +
@@ -906,11 +1184,18 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	" GenerateInlineCompletionResponse\x12\x1e\n" +
 	"\n" +
 	"completion\x18\x01 \x01(\tR\n" +
-	"completion*k\n" +
+	"completion*\x8a\x01\n" +
 	"\vPageContext\x12\x1c\n" +
 	"\x18PAGE_CONTEXT_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15PAGE_CONTEXT_NOTEBOOK\x10\x01\x12#\n" +
-	"\x1fPAGE_CONTEXT_AGENT_CONVERSATION\x10\x022\xc3\x02\n" +
+	"\x1fPAGE_CONTEXT_AGENT_CONVERSATION\x10\x02\x12\x1d\n" +
+	"\x19PAGE_CONTEXT_SQL_EXPLORER\x10\x03*\xd3\x01\n" +
+	"\x15SqlDiagnosticSeverity\x12'\n" +
+	"#SQL_DIAGNOSTIC_SEVERITY_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dSQL_DIAGNOSTIC_SEVERITY_ERROR\x10\x01\x12#\n" +
+	"\x1fSQL_DIAGNOSTIC_SEVERITY_WARNING\x10\x02\x12'\n" +
+	"#SQL_DIAGNOSTIC_SEVERITY_INFORMATION\x10\x03\x12 \n" +
+	"\x1cSQL_DIAGNOSTIC_SEVERITY_HINT\x10\x042\xc3\x02\n" +
 	"\x12AgentRunnerService\x12Q\n" +
 	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"\x03\x80}\x020\x01\x12R\n" +
 	"\bStopTurn\x12\x1f.chalk.agent.v1.StopTurnRequest\x1a .chalk.agent.v1.StopTurnResponse\"\x03\x80}\x02\x12\x85\x01\n" +
@@ -929,48 +1214,54 @@ func file_chalk_agent_v1_runner_proto_rawDescGZIP() []byte {
 	return file_chalk_agent_v1_runner_proto_rawDescData
 }
 
-var file_chalk_agent_v1_runner_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_agent_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_chalk_agent_v1_runner_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_agent_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_chalk_agent_v1_runner_proto_goTypes = []any{
 	(PageContext)(0),                         // 0: chalk.agent.v1.PageContext
-	(*RunTurnRequest)(nil),                   // 1: chalk.agent.v1.RunTurnRequest
-	(*AssistantTextDelta)(nil),               // 2: chalk.agent.v1.AssistantTextDelta
-	(*MessageFinalized)(nil),                 // 3: chalk.agent.v1.MessageFinalized
-	(*ToolCallStarted)(nil),                  // 4: chalk.agent.v1.ToolCallStarted
-	(*ToolResultPosted)(nil),                 // 5: chalk.agent.v1.ToolResultPosted
-	(*RunCompleted)(nil),                     // 6: chalk.agent.v1.RunCompleted
-	(*RunFailed)(nil),                        // 7: chalk.agent.v1.RunFailed
-	(*RunTurnResponse)(nil),                  // 8: chalk.agent.v1.RunTurnResponse
-	(*StopTurnRequest)(nil),                  // 9: chalk.agent.v1.StopTurnRequest
-	(*StopTurnResponse)(nil),                 // 10: chalk.agent.v1.StopTurnResponse
-	(*GenerateInlineCompletionRequest)(nil),  // 11: chalk.agent.v1.GenerateInlineCompletionRequest
-	(*GenerateInlineCompletionResponse)(nil), // 12: chalk.agent.v1.GenerateInlineCompletionResponse
-	(*AgentMessage)(nil),                     // 13: chalk.agent.v1.AgentMessage
-	(*AgentToolCall)(nil),                    // 14: chalk.agent.v1.AgentToolCall
-	(*AgentToolResult)(nil),                  // 15: chalk.agent.v1.AgentToolResult
+	(SqlDiagnosticSeverity)(0),               // 1: chalk.agent.v1.SqlDiagnosticSeverity
+	(*SqlDiagnostic)(nil),                    // 2: chalk.agent.v1.SqlDiagnostic
+	(*SqlWorksheetContext)(nil),              // 3: chalk.agent.v1.SqlWorksheetContext
+	(*RunTurnRequest)(nil),                   // 4: chalk.agent.v1.RunTurnRequest
+	(*AssistantTextDelta)(nil),               // 5: chalk.agent.v1.AssistantTextDelta
+	(*MessageFinalized)(nil),                 // 6: chalk.agent.v1.MessageFinalized
+	(*ToolCallStarted)(nil),                  // 7: chalk.agent.v1.ToolCallStarted
+	(*ToolResultPosted)(nil),                 // 8: chalk.agent.v1.ToolResultPosted
+	(*RunCompleted)(nil),                     // 9: chalk.agent.v1.RunCompleted
+	(*RunFailed)(nil),                        // 10: chalk.agent.v1.RunFailed
+	(*RunTurnResponse)(nil),                  // 11: chalk.agent.v1.RunTurnResponse
+	(*StopTurnRequest)(nil),                  // 12: chalk.agent.v1.StopTurnRequest
+	(*StopTurnResponse)(nil),                 // 13: chalk.agent.v1.StopTurnResponse
+	(*GenerateInlineCompletionRequest)(nil),  // 14: chalk.agent.v1.GenerateInlineCompletionRequest
+	(*GenerateInlineCompletionResponse)(nil), // 15: chalk.agent.v1.GenerateInlineCompletionResponse
+	(*AgentMessage)(nil),                     // 16: chalk.agent.v1.AgentMessage
+	(*AgentToolCall)(nil),                    // 17: chalk.agent.v1.AgentToolCall
+	(*AgentToolResult)(nil),                  // 18: chalk.agent.v1.AgentToolResult
 }
 var file_chalk_agent_v1_runner_proto_depIdxs = []int32{
-	0,  // 0: chalk.agent.v1.RunTurnRequest.page_context:type_name -> chalk.agent.v1.PageContext
-	13, // 1: chalk.agent.v1.MessageFinalized.message:type_name -> chalk.agent.v1.AgentMessage
-	14, // 2: chalk.agent.v1.ToolCallStarted.tool_call:type_name -> chalk.agent.v1.AgentToolCall
-	15, // 3: chalk.agent.v1.ToolResultPosted.tool_result:type_name -> chalk.agent.v1.AgentToolResult
-	2,  // 4: chalk.agent.v1.RunTurnResponse.text_delta:type_name -> chalk.agent.v1.AssistantTextDelta
-	3,  // 5: chalk.agent.v1.RunTurnResponse.message_finalized:type_name -> chalk.agent.v1.MessageFinalized
-	4,  // 6: chalk.agent.v1.RunTurnResponse.tool_call_started:type_name -> chalk.agent.v1.ToolCallStarted
-	5,  // 7: chalk.agent.v1.RunTurnResponse.tool_result_posted:type_name -> chalk.agent.v1.ToolResultPosted
-	6,  // 8: chalk.agent.v1.RunTurnResponse.completed:type_name -> chalk.agent.v1.RunCompleted
-	7,  // 9: chalk.agent.v1.RunTurnResponse.failed:type_name -> chalk.agent.v1.RunFailed
-	1,  // 10: chalk.agent.v1.AgentRunnerService.RunTurn:input_type -> chalk.agent.v1.RunTurnRequest
-	9,  // 11: chalk.agent.v1.AgentRunnerService.StopTurn:input_type -> chalk.agent.v1.StopTurnRequest
-	11, // 12: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:input_type -> chalk.agent.v1.GenerateInlineCompletionRequest
-	8,  // 13: chalk.agent.v1.AgentRunnerService.RunTurn:output_type -> chalk.agent.v1.RunTurnResponse
-	10, // 14: chalk.agent.v1.AgentRunnerService.StopTurn:output_type -> chalk.agent.v1.StopTurnResponse
-	12, // 15: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:output_type -> chalk.agent.v1.GenerateInlineCompletionResponse
-	13, // [13:16] is the sub-list for method output_type
-	10, // [10:13] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	1,  // 0: chalk.agent.v1.SqlDiagnostic.severity:type_name -> chalk.agent.v1.SqlDiagnosticSeverity
+	2,  // 1: chalk.agent.v1.SqlWorksheetContext.diagnostics:type_name -> chalk.agent.v1.SqlDiagnostic
+	0,  // 2: chalk.agent.v1.RunTurnRequest.page_context:type_name -> chalk.agent.v1.PageContext
+	3,  // 3: chalk.agent.v1.RunTurnRequest.sql_worksheet_context:type_name -> chalk.agent.v1.SqlWorksheetContext
+	16, // 4: chalk.agent.v1.MessageFinalized.message:type_name -> chalk.agent.v1.AgentMessage
+	17, // 5: chalk.agent.v1.ToolCallStarted.tool_call:type_name -> chalk.agent.v1.AgentToolCall
+	18, // 6: chalk.agent.v1.ToolResultPosted.tool_result:type_name -> chalk.agent.v1.AgentToolResult
+	5,  // 7: chalk.agent.v1.RunTurnResponse.text_delta:type_name -> chalk.agent.v1.AssistantTextDelta
+	6,  // 8: chalk.agent.v1.RunTurnResponse.message_finalized:type_name -> chalk.agent.v1.MessageFinalized
+	7,  // 9: chalk.agent.v1.RunTurnResponse.tool_call_started:type_name -> chalk.agent.v1.ToolCallStarted
+	8,  // 10: chalk.agent.v1.RunTurnResponse.tool_result_posted:type_name -> chalk.agent.v1.ToolResultPosted
+	9,  // 11: chalk.agent.v1.RunTurnResponse.completed:type_name -> chalk.agent.v1.RunCompleted
+	10, // 12: chalk.agent.v1.RunTurnResponse.failed:type_name -> chalk.agent.v1.RunFailed
+	4,  // 13: chalk.agent.v1.AgentRunnerService.RunTurn:input_type -> chalk.agent.v1.RunTurnRequest
+	12, // 14: chalk.agent.v1.AgentRunnerService.StopTurn:input_type -> chalk.agent.v1.StopTurnRequest
+	14, // 15: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:input_type -> chalk.agent.v1.GenerateInlineCompletionRequest
+	11, // 16: chalk.agent.v1.AgentRunnerService.RunTurn:output_type -> chalk.agent.v1.RunTurnResponse
+	13, // 17: chalk.agent.v1.AgentRunnerService.StopTurn:output_type -> chalk.agent.v1.StopTurnResponse
+	15, // 18: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:output_type -> chalk.agent.v1.GenerateInlineCompletionResponse
+	16, // [16:19] is the sub-list for method output_type
+	13, // [13:16] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_runner_proto_init() }
@@ -979,7 +1270,7 @@ func file_chalk_agent_v1_runner_proto_init() {
 		return
 	}
 	file_chalk_agent_v1_conversation_proto_init()
-	file_chalk_agent_v1_runner_proto_msgTypes[7].OneofWrappers = []any{
+	file_chalk_agent_v1_runner_proto_msgTypes[9].OneofWrappers = []any{
 		(*RunTurnResponse_TextDelta)(nil),
 		(*RunTurnResponse_MessageFinalized)(nil),
 		(*RunTurnResponse_ToolCallStarted)(nil),
@@ -992,8 +1283,8 @@ func file_chalk_agent_v1_runner_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_runner_proto_rawDesc), len(file_chalk_agent_v1_runner_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   12,
+			NumEnums:      2,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

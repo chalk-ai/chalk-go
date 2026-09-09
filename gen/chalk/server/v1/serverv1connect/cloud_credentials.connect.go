@@ -52,6 +52,12 @@ const (
 	// CloudAccountCredentialsServiceTestCloudCredentialsProcedure is the fully-qualified name of the
 	// CloudAccountCredentialsService's TestCloudCredentials RPC.
 	CloudAccountCredentialsServiceTestCloudCredentialsProcedure = "/chalk.server.v1.CloudAccountCredentialsService/TestCloudCredentials"
+	// CloudAccountCredentialsServiceSimulateClusterPermissionsProcedure is the fully-qualified name of
+	// the CloudAccountCredentialsService's SimulateClusterPermissions RPC.
+	CloudAccountCredentialsServiceSimulateClusterPermissionsProcedure = "/chalk.server.v1.CloudAccountCredentialsService/SimulateClusterPermissions"
+	// CloudAccountCredentialsServiceSimulateVPCPermissionsProcedure is the fully-qualified name of the
+	// CloudAccountCredentialsService's SimulateVPCPermissions RPC.
+	CloudAccountCredentialsServiceSimulateVPCPermissionsProcedure = "/chalk.server.v1.CloudAccountCredentialsService/SimulateVPCPermissions"
 )
 
 // CloudAccountCredentialsServiceClient is a client for the
@@ -63,6 +69,8 @@ type CloudAccountCredentialsServiceClient interface {
 	UpdateCloudCredentials(context.Context, *connect.Request[v1.UpdateCloudCredentialsRequest]) (*connect.Response[v1.UpdateCloudCredentialsResponse], error)
 	DeleteCloudCredentials(context.Context, *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error)
 	TestCloudCredentials(context.Context, *connect.Request[v1.TestCloudCredentialsRequest]) (*connect.Response[v1.TestCloudCredentialsResponse], error)
+	SimulateClusterPermissions(context.Context, *connect.Request[v1.SimulateClusterPermissionsRequest]) (*connect.Response[v1.SimulateClusterPermissionsResponse], error)
+	SimulateVPCPermissions(context.Context, *connect.Request[v1.SimulateVPCPermissionsRequest]) (*connect.Response[v1.SimulateVPCPermissionsResponse], error)
 }
 
 // NewCloudAccountCredentialsServiceClient constructs a client for the
@@ -116,17 +124,33 @@ func NewCloudAccountCredentialsServiceClient(httpClient connect.HTTPClient, base
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		simulateClusterPermissions: connect.NewClient[v1.SimulateClusterPermissionsRequest, v1.SimulateClusterPermissionsResponse](
+			httpClient,
+			baseURL+CloudAccountCredentialsServiceSimulateClusterPermissionsProcedure,
+			connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("SimulateClusterPermissions")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		simulateVPCPermissions: connect.NewClient[v1.SimulateVPCPermissionsRequest, v1.SimulateVPCPermissionsResponse](
+			httpClient,
+			baseURL+CloudAccountCredentialsServiceSimulateVPCPermissionsProcedure,
+			connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("SimulateVPCPermissions")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // cloudAccountCredentialsServiceClient implements CloudAccountCredentialsServiceClient.
 type cloudAccountCredentialsServiceClient struct {
-	listCloudCredentials   *connect.Client[v1.ListCloudCredentialsRequest, v1.ListCloudCredentialsResponse]
-	getCloudCredentials    *connect.Client[v1.GetCloudCredentialsRequest, v1.GetCloudCredentialsResponse]
-	createCloudCredentials *connect.Client[v1.CreateCloudCredentialsRequest, v1.CreateCloudCredentialsResponse]
-	updateCloudCredentials *connect.Client[v1.UpdateCloudCredentialsRequest, v1.UpdateCloudCredentialsResponse]
-	deleteCloudCredentials *connect.Client[v1.DeleteCloudCredentialsRequest, v1.DeleteCloudCredentialsResponse]
-	testCloudCredentials   *connect.Client[v1.TestCloudCredentialsRequest, v1.TestCloudCredentialsResponse]
+	listCloudCredentials       *connect.Client[v1.ListCloudCredentialsRequest, v1.ListCloudCredentialsResponse]
+	getCloudCredentials        *connect.Client[v1.GetCloudCredentialsRequest, v1.GetCloudCredentialsResponse]
+	createCloudCredentials     *connect.Client[v1.CreateCloudCredentialsRequest, v1.CreateCloudCredentialsResponse]
+	updateCloudCredentials     *connect.Client[v1.UpdateCloudCredentialsRequest, v1.UpdateCloudCredentialsResponse]
+	deleteCloudCredentials     *connect.Client[v1.DeleteCloudCredentialsRequest, v1.DeleteCloudCredentialsResponse]
+	testCloudCredentials       *connect.Client[v1.TestCloudCredentialsRequest, v1.TestCloudCredentialsResponse]
+	simulateClusterPermissions *connect.Client[v1.SimulateClusterPermissionsRequest, v1.SimulateClusterPermissionsResponse]
+	simulateVPCPermissions     *connect.Client[v1.SimulateVPCPermissionsRequest, v1.SimulateVPCPermissionsResponse]
 }
 
 // ListCloudCredentials calls chalk.server.v1.CloudAccountCredentialsService.ListCloudCredentials.
@@ -162,6 +186,18 @@ func (c *cloudAccountCredentialsServiceClient) TestCloudCredentials(ctx context.
 	return c.testCloudCredentials.CallUnary(ctx, req)
 }
 
+// SimulateClusterPermissions calls
+// chalk.server.v1.CloudAccountCredentialsService.SimulateClusterPermissions.
+func (c *cloudAccountCredentialsServiceClient) SimulateClusterPermissions(ctx context.Context, req *connect.Request[v1.SimulateClusterPermissionsRequest]) (*connect.Response[v1.SimulateClusterPermissionsResponse], error) {
+	return c.simulateClusterPermissions.CallUnary(ctx, req)
+}
+
+// SimulateVPCPermissions calls
+// chalk.server.v1.CloudAccountCredentialsService.SimulateVPCPermissions.
+func (c *cloudAccountCredentialsServiceClient) SimulateVPCPermissions(ctx context.Context, req *connect.Request[v1.SimulateVPCPermissionsRequest]) (*connect.Response[v1.SimulateVPCPermissionsResponse], error) {
+	return c.simulateVPCPermissions.CallUnary(ctx, req)
+}
+
 // CloudAccountCredentialsServiceHandler is an implementation of the
 // chalk.server.v1.CloudAccountCredentialsService service.
 type CloudAccountCredentialsServiceHandler interface {
@@ -171,6 +207,8 @@ type CloudAccountCredentialsServiceHandler interface {
 	UpdateCloudCredentials(context.Context, *connect.Request[v1.UpdateCloudCredentialsRequest]) (*connect.Response[v1.UpdateCloudCredentialsResponse], error)
 	DeleteCloudCredentials(context.Context, *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error)
 	TestCloudCredentials(context.Context, *connect.Request[v1.TestCloudCredentialsRequest]) (*connect.Response[v1.TestCloudCredentialsResponse], error)
+	SimulateClusterPermissions(context.Context, *connect.Request[v1.SimulateClusterPermissionsRequest]) (*connect.Response[v1.SimulateClusterPermissionsResponse], error)
+	SimulateVPCPermissions(context.Context, *connect.Request[v1.SimulateVPCPermissionsRequest]) (*connect.Response[v1.SimulateVPCPermissionsResponse], error)
 }
 
 // NewCloudAccountCredentialsServiceHandler builds an HTTP handler from the service implementation.
@@ -219,6 +257,20 @@ func NewCloudAccountCredentialsServiceHandler(svc CloudAccountCredentialsService
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudAccountCredentialsServiceSimulateClusterPermissionsHandler := connect.NewUnaryHandler(
+		CloudAccountCredentialsServiceSimulateClusterPermissionsProcedure,
+		svc.SimulateClusterPermissions,
+		connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("SimulateClusterPermissions")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudAccountCredentialsServiceSimulateVPCPermissionsHandler := connect.NewUnaryHandler(
+		CloudAccountCredentialsServiceSimulateVPCPermissionsProcedure,
+		svc.SimulateVPCPermissions,
+		connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("SimulateVPCPermissions")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.CloudAccountCredentialsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case CloudAccountCredentialsServiceListCloudCredentialsProcedure:
@@ -233,6 +285,10 @@ func NewCloudAccountCredentialsServiceHandler(svc CloudAccountCredentialsService
 			cloudAccountCredentialsServiceDeleteCloudCredentialsHandler.ServeHTTP(w, r)
 		case CloudAccountCredentialsServiceTestCloudCredentialsProcedure:
 			cloudAccountCredentialsServiceTestCloudCredentialsHandler.ServeHTTP(w, r)
+		case CloudAccountCredentialsServiceSimulateClusterPermissionsProcedure:
+			cloudAccountCredentialsServiceSimulateClusterPermissionsHandler.ServeHTTP(w, r)
+		case CloudAccountCredentialsServiceSimulateVPCPermissionsProcedure:
+			cloudAccountCredentialsServiceSimulateVPCPermissionsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -264,4 +320,12 @@ func (UnimplementedCloudAccountCredentialsServiceHandler) DeleteCloudCredentials
 
 func (UnimplementedCloudAccountCredentialsServiceHandler) TestCloudCredentials(context.Context, *connect.Request[v1.TestCloudCredentialsRequest]) (*connect.Response[v1.TestCloudCredentialsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudAccountCredentialsService.TestCloudCredentials is not implemented"))
+}
+
+func (UnimplementedCloudAccountCredentialsServiceHandler) SimulateClusterPermissions(context.Context, *connect.Request[v1.SimulateClusterPermissionsRequest]) (*connect.Response[v1.SimulateClusterPermissionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudAccountCredentialsService.SimulateClusterPermissions is not implemented"))
+}
+
+func (UnimplementedCloudAccountCredentialsServiceHandler) SimulateVPCPermissions(context.Context, *connect.Request[v1.SimulateVPCPermissionsRequest]) (*connect.Response[v1.SimulateVPCPermissionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudAccountCredentialsService.SimulateVPCPermissions is not implemented"))
 }

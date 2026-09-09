@@ -38,6 +38,9 @@ const (
 	VolumeServiceCreateVolumeProcedure = "/chalk.volume.v2.VolumeService/CreateVolume"
 	// VolumeServiceGetVolumeProcedure is the fully-qualified name of the VolumeService's GetVolume RPC.
 	VolumeServiceGetVolumeProcedure = "/chalk.volume.v2.VolumeService/GetVolume"
+	// VolumeServiceGetVolumeStatsProcedure is the fully-qualified name of the VolumeService's
+	// GetVolumeStats RPC.
+	VolumeServiceGetVolumeStatsProcedure = "/chalk.volume.v2.VolumeService/GetVolumeStats"
 	// VolumeServiceListVolumesProcedure is the fully-qualified name of the VolumeService's ListVolumes
 	// RPC.
 	VolumeServiceListVolumesProcedure = "/chalk.volume.v2.VolumeService/ListVolumes"
@@ -75,6 +78,7 @@ const (
 type VolumeServiceClient interface {
 	CreateVolume(context.Context, *connect.Request[v2.CreateVolumeRequest]) (*connect.Response[v2.CreateVolumeResponse], error)
 	GetVolume(context.Context, *connect.Request[v2.GetVolumeRequest]) (*connect.Response[v2.GetVolumeResponse], error)
+	GetVolumeStats(context.Context, *connect.Request[v2.GetVolumeStatsRequest]) (*connect.Response[v2.GetVolumeStatsResponse], error)
 	ListVolumes(context.Context, *connect.Request[v2.ListVolumesRequest]) (*connect.Response[v2.ListVolumesResponse], error)
 	DeleteVolume(context.Context, *connect.Request[v2.DeleteVolumeRequest]) (*connect.Response[v2.DeleteVolumeResponse], error)
 	ListVolumeVersions(context.Context, *connect.Request[v2.ListVolumeVersionsRequest]) (*connect.Response[v2.ListVolumeVersionsResponse], error)
@@ -110,6 +114,13 @@ func NewVolumeServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			httpClient,
 			baseURL+VolumeServiceGetVolumeProcedure,
 			connect.WithSchema(volumeServiceMethods.ByName("GetVolume")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getVolumeStats: connect.NewClient[v2.GetVolumeStatsRequest, v2.GetVolumeStatsResponse](
+			httpClient,
+			baseURL+VolumeServiceGetVolumeStatsProcedure,
+			connect.WithSchema(volumeServiceMethods.ByName("GetVolumeStats")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -199,6 +210,7 @@ func NewVolumeServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 type volumeServiceClient struct {
 	createVolume       *connect.Client[v2.CreateVolumeRequest, v2.CreateVolumeResponse]
 	getVolume          *connect.Client[v2.GetVolumeRequest, v2.GetVolumeResponse]
+	getVolumeStats     *connect.Client[v2.GetVolumeStatsRequest, v2.GetVolumeStatsResponse]
 	listVolumes        *connect.Client[v2.ListVolumesRequest, v2.ListVolumesResponse]
 	deleteVolume       *connect.Client[v2.DeleteVolumeRequest, v2.DeleteVolumeResponse]
 	listVolumeVersions *connect.Client[v2.ListVolumeVersionsRequest, v2.ListVolumeVersionsResponse]
@@ -221,6 +233,11 @@ func (c *volumeServiceClient) CreateVolume(ctx context.Context, req *connect.Req
 // GetVolume calls chalk.volume.v2.VolumeService.GetVolume.
 func (c *volumeServiceClient) GetVolume(ctx context.Context, req *connect.Request[v2.GetVolumeRequest]) (*connect.Response[v2.GetVolumeResponse], error) {
 	return c.getVolume.CallUnary(ctx, req)
+}
+
+// GetVolumeStats calls chalk.volume.v2.VolumeService.GetVolumeStats.
+func (c *volumeServiceClient) GetVolumeStats(ctx context.Context, req *connect.Request[v2.GetVolumeStatsRequest]) (*connect.Response[v2.GetVolumeStatsResponse], error) {
+	return c.getVolumeStats.CallUnary(ctx, req)
 }
 
 // ListVolumes calls chalk.volume.v2.VolumeService.ListVolumes.
@@ -287,6 +304,7 @@ func (c *volumeServiceClient) GetFile(ctx context.Context, req *connect.Request[
 type VolumeServiceHandler interface {
 	CreateVolume(context.Context, *connect.Request[v2.CreateVolumeRequest]) (*connect.Response[v2.CreateVolumeResponse], error)
 	GetVolume(context.Context, *connect.Request[v2.GetVolumeRequest]) (*connect.Response[v2.GetVolumeResponse], error)
+	GetVolumeStats(context.Context, *connect.Request[v2.GetVolumeStatsRequest]) (*connect.Response[v2.GetVolumeStatsResponse], error)
 	ListVolumes(context.Context, *connect.Request[v2.ListVolumesRequest]) (*connect.Response[v2.ListVolumesResponse], error)
 	DeleteVolume(context.Context, *connect.Request[v2.DeleteVolumeRequest]) (*connect.Response[v2.DeleteVolumeResponse], error)
 	ListVolumeVersions(context.Context, *connect.Request[v2.ListVolumeVersionsRequest]) (*connect.Response[v2.ListVolumeVersionsResponse], error)
@@ -318,6 +336,13 @@ func NewVolumeServiceHandler(svc VolumeServiceHandler, opts ...connect.HandlerOp
 		VolumeServiceGetVolumeProcedure,
 		svc.GetVolume,
 		connect.WithSchema(volumeServiceMethods.ByName("GetVolume")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	volumeServiceGetVolumeStatsHandler := connect.NewUnaryHandler(
+		VolumeServiceGetVolumeStatsProcedure,
+		svc.GetVolumeStats,
+		connect.WithSchema(volumeServiceMethods.ByName("GetVolumeStats")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -406,6 +431,8 @@ func NewVolumeServiceHandler(svc VolumeServiceHandler, opts ...connect.HandlerOp
 			volumeServiceCreateVolumeHandler.ServeHTTP(w, r)
 		case VolumeServiceGetVolumeProcedure:
 			volumeServiceGetVolumeHandler.ServeHTTP(w, r)
+		case VolumeServiceGetVolumeStatsProcedure:
+			volumeServiceGetVolumeStatsHandler.ServeHTTP(w, r)
 		case VolumeServiceListVolumesProcedure:
 			volumeServiceListVolumesHandler.ServeHTTP(w, r)
 		case VolumeServiceDeleteVolumeProcedure:
@@ -445,6 +472,10 @@ func (UnimplementedVolumeServiceHandler) CreateVolume(context.Context, *connect.
 
 func (UnimplementedVolumeServiceHandler) GetVolume(context.Context, *connect.Request[v2.GetVolumeRequest]) (*connect.Response[v2.GetVolumeResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.GetVolume is not implemented"))
+}
+
+func (UnimplementedVolumeServiceHandler) GetVolumeStats(context.Context, *connect.Request[v2.GetVolumeStatsRequest]) (*connect.Response[v2.GetVolumeStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.GetVolumeStats is not implemented"))
 }
 
 func (UnimplementedVolumeServiceHandler) ListVolumes(context.Context, *connect.Request[v2.ListVolumesRequest]) (*connect.Response[v2.ListVolumesResponse], error) {

@@ -14,8 +14,6 @@ import (
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	assert "github.com/stretchr/testify/require"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 type capturedHeaders struct {
@@ -101,15 +99,24 @@ type minimalGraphHandler struct {
 	serverv1connect.UnimplementedGraphServiceHandler
 }
 
+func startUnencryptedHTTP2Server(t *testing.T, handler http.Handler) *httptest.Server {
+	t.Helper()
+	protocols := new(http.Protocols)
+	protocols.SetHTTP1(true)
+	protocols.SetUnencryptedHTTP2(true)
+	server := httptest.NewUnstartedServer(handler)
+	server.Config.Protocols = protocols
+	server.Start()
+	t.Cleanup(server.Close)
+	return server
+}
+
 func startQueryServer(t *testing.T, captured *capturedHeaders) *httptest.Server {
 	t.Helper()
 	mux := http.NewServeMux()
 	queryPath, queryHandler := enginev1connect.NewQueryServiceHandler(&headerCapturingQueryHandler{captured: captured})
 	mux.Handle(queryPath, queryHandler)
-	h2cHandler := h2c.NewHandler(mux, &http2.Server{})
-	server := httptest.NewServer(h2cHandler)
-	t.Cleanup(server.Close)
-	return server
+	return startUnencryptedHTTP2Server(t, mux)
 }
 
 func startAPIServer(t *testing.T, captured *capturedHeaders) *httptest.Server {
@@ -121,10 +128,7 @@ func startAPIServer(t *testing.T, captured *capturedHeaders) *httptest.Server {
 	mux.Handle(authPath, authHandler)
 	graphPath, graphHandler := serverv1connect.NewGraphServiceHandler(&minimalGraphHandler{})
 	mux.Handle(graphPath, graphHandler)
-	h2cHandler := h2c.NewHandler(mux, &http2.Server{})
-	server := httptest.NewServer(h2cHandler)
-	t.Cleanup(server.Close)
-	return server
+	return startUnencryptedHTTP2Server(t, mux)
 }
 
 func newTestGRPCClient(t *testing.T, apiServerURL string, queryServerURL string, branch string) GRPCClient {

@@ -901,6 +901,7 @@ type ListScheduledResolverRunsRequest struct {
 	Start          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start,proto3,oneof" json:"start,omitempty"`
 	End            *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end,proto3,oneof" json:"end,omitempty"`
 	StatusFilters  []CronRunStatusFilter  `protobuf:"varint,9,rep,packed,name=status_filters,json=statusFilters,proto3,enum=chalk.server.v1.CronRunStatusFilter" json:"status_filters,omitempty"`
+	DeploymentId   *string                `protobuf:"bytes,10,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -997,6 +998,13 @@ func (x *ListScheduledResolverRunsRequest) GetStatusFilters() []CronRunStatusFil
 		return x.StatusFilters
 	}
 	return nil
+}
+
+func (x *ListScheduledResolverRunsRequest) GetDeploymentId() string {
+	if x != nil && x.DeploymentId != nil {
+		return *x.DeploymentId
+	}
+	return ""
 }
 
 type ListScheduledResolverRunsResponse struct {
@@ -1938,7 +1946,7 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"\x1eGetScheduledResolverRunRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"U\n" +
 	"\x1fGetScheduledResolverRunResponse\x122\n" +
-	"\x03run\x18\x01 \x01(\v2 .chalk.server.v1.CronResolverRunR\x03run\"\xe4\x04\n" +
+	"\x03run\x18\x01 \x01(\v2 .chalk.server.v1.CronResolverRunR\x03run\"\xa0\x05\n" +
 	" ListScheduledResolverRunsRequest\x12;\n" +
 	"\x06cursor\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x02\x18\x01H\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x03 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12\"\n" +
@@ -1949,7 +1957,9 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"\rstatus_filter\x18\x06 \x01(\x0e2 .chalk.server.v1.OperationStatusH\x05R\fstatusFilter\x88\x01\x01\x125\n" +
 	"\x05start\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x06R\x05start\x88\x01\x01\x121\n" +
 	"\x03end\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\aR\x03end\x88\x01\x01\x12K\n" +
-	"\x0estatus_filters\x18\t \x03(\x0e2$.chalk.server.v1.CronRunStatusFilterR\rstatusFiltersB\t\n" +
+	"\x0estatus_filters\x18\t \x03(\x0e2$.chalk.server.v1.CronRunStatusFilterR\rstatusFilters\x12(\n" +
+	"\rdeployment_id\x18\n" +
+	" \x01(\tH\bR\fdeploymentId\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\r\n" +
 	"\v_page_tokenB\x12\n" +
@@ -1957,7 +1967,8 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"\r_resolver_fqnB\x10\n" +
 	"\x0e_status_filterB\b\n" +
 	"\x06_startB\x06\n" +
-	"\x04_end\"\x9a\x01\n" +
+	"\x04_endB\x10\n" +
+	"\x0e_deployment_id\"\x9a\x01\n" +
 	"!ListScheduledResolverRunsResponse\x124\n" +
 	"\x04runs\x18\x01 \x03(\v2 .chalk.server.v1.CronResolverRunR\x04runs\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +

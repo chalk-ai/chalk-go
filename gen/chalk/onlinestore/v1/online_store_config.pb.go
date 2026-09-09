@@ -250,6 +250,115 @@ func (x *AggregationInfo) GetAggregateOnMultiple() []string {
 	return nil
 }
 
+// The persistence keys to evict from every entity hash in one namespace.
+type ScalarEvictionsForNamespace struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Feature names including their internal version suffix, e.g. "age~iv3".
+	PersistenceKeys []string `protobuf:"bytes,1,rep,name=persistence_keys,json=persistenceKeys,proto3" json:"persistence_keys,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ScalarEvictionsForNamespace) Reset() {
+	*x = ScalarEvictionsForNamespace{}
+	mi := &file_chalk_onlinestore_v1_online_store_config_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScalarEvictionsForNamespace) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScalarEvictionsForNamespace) ProtoMessage() {}
+
+func (x *ScalarEvictionsForNamespace) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_onlinestore_v1_online_store_config_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScalarEvictionsForNamespace.ProtoReflect.Descriptor instead.
+func (*ScalarEvictionsForNamespace) Descriptor() ([]byte, []int) {
+	return file_chalk_onlinestore_v1_online_store_config_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ScalarEvictionsForNamespace) GetPersistenceKeys() []string {
+	if x != nil {
+		return x.PersistenceKeys
+	}
+	return nil
+}
+
+// Restricts the cleanup job to deleting only the state named here.
+//
+// Normally the job deletes anything it scans that is absent from OnlineStoreInfo, which is how
+// features dropped from the graph get reclaimed. That is far too broad when an operator is
+// evicting specific features which are still in the graph -- e.g. reclaiming space taken by
+// low-value features. When this message is set, the listed state is the only state the job may
+// delete, and every other key it scans is left untouched.
+type EvictionAllowlist struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Namespace (without cache prefix) -> the persistence keys to delete within it.
+	ScalarEvictions map[string]*ScalarEvictionsForNamespace `protobuf:"bytes,1,rep,name=scalar_evictions,json=scalarEvictions,proto3" json:"scalar_evictions,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Materialized aggregate series to delete outright, buckets and all. Each entry must be safe to
+	// remove in full: the caller is responsible for having confirmed that no surviving feature reads
+	// the same series.
+	MaterializedAggEvictions []*AggregationInfo `protobuf:"bytes,2,rep,name=materialized_agg_evictions,json=materializedAggEvictions,proto3" json:"materialized_agg_evictions,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *EvictionAllowlist) Reset() {
+	*x = EvictionAllowlist{}
+	mi := &file_chalk_onlinestore_v1_online_store_config_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EvictionAllowlist) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EvictionAllowlist) ProtoMessage() {}
+
+func (x *EvictionAllowlist) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_onlinestore_v1_online_store_config_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EvictionAllowlist.ProtoReflect.Descriptor instead.
+func (*EvictionAllowlist) Descriptor() ([]byte, []int) {
+	return file_chalk_onlinestore_v1_online_store_config_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *EvictionAllowlist) GetScalarEvictions() map[string]*ScalarEvictionsForNamespace {
+	if x != nil {
+		return x.ScalarEvictions
+	}
+	return nil
+}
+
+func (x *EvictionAllowlist) GetMaterializedAggEvictions() []*AggregationInfo {
+	if x != nil {
+		return x.MaterializedAggEvictions
+	}
+	return nil
+}
+
 type OnlineStoreInfo struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// String keys here are the namespaces
@@ -260,13 +369,17 @@ type OnlineStoreInfo struct {
 	// For has-one indexes e.g. "user.card.id"
 	HasOneIndexInfo     map[string]*FeatureInfo `protobuf:"bytes,3,rep,name=has_one_index_info,json=hasOneIndexInfo,proto3" json:"has_one_index_info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	MaterializedAggInfo []*AggregationInfo      `protobuf:"bytes,4,rep,name=materialized_agg_info,json=materializedAggInfo,proto3" json:"materialized_agg_info,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// When set, the job deletes ONLY what this names and leaves everything else it scans alone.
+	// Unset (the normal case) keeps the default behaviour: anything absent from the fields above is
+	// stale and gets deleted.
+	EvictionAllowlist *EvictionAllowlist `protobuf:"bytes,5,opt,name=eviction_allowlist,json=evictionAllowlist,proto3" json:"eviction_allowlist,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *OnlineStoreInfo) Reset() {
 	*x = OnlineStoreInfo{}
-	mi := &file_chalk_onlinestore_v1_online_store_config_proto_msgTypes[3]
+	mi := &file_chalk_onlinestore_v1_online_store_config_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -278,7 +391,7 @@ func (x *OnlineStoreInfo) String() string {
 func (*OnlineStoreInfo) ProtoMessage() {}
 
 func (x *OnlineStoreInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_onlinestore_v1_online_store_config_proto_msgTypes[3]
+	mi := &file_chalk_onlinestore_v1_online_store_config_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -291,7 +404,7 @@ func (x *OnlineStoreInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnlineStoreInfo.ProtoReflect.Descriptor instead.
 func (*OnlineStoreInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_onlinestore_v1_online_store_config_proto_rawDescGZIP(), []int{3}
+	return file_chalk_onlinestore_v1_online_store_config_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *OnlineStoreInfo) GetScalarInfo() map[string]*ScalarsForNamespace {
@@ -322,6 +435,13 @@ func (x *OnlineStoreInfo) GetMaterializedAggInfo() []*AggregationInfo {
 	return nil
 }
 
+func (x *OnlineStoreInfo) GetEvictionAllowlist() *EvictionAllowlist {
+	if x != nil {
+		return x.EvictionAllowlist
+	}
+	return nil
+}
+
 var File_chalk_onlinestore_v1_online_store_config_proto protoreflect.FileDescriptor
 
 const file_chalk_onlinestore_v1_online_store_config_proto_rawDesc = "" +
@@ -348,13 +468,22 @@ const file_chalk_onlinestore_v1_online_store_config_proto_rawDesc = "" +
 	"\tbucket_on\x18\b \x01(\tR\bbucketOn\x121\n" +
 	"\aoptions\x18\t \x01(\v2\x17.google.protobuf.StructR\aoptions\x122\n" +
 	"\x15aggregate_on_multiple\x18\n" +
-	" \x03(\tR\x13aggregateOnMultiple\"\xbd\x05\n" +
+	" \x03(\tR\x13aggregateOnMultiple\"H\n" +
+	"\x1bScalarEvictionsForNamespace\x12)\n" +
+	"\x10persistence_keys\x18\x01 \x03(\tR\x0fpersistenceKeys\"\xd8\x02\n" +
+	"\x11EvictionAllowlist\x12g\n" +
+	"\x10scalar_evictions\x18\x01 \x03(\v2<.chalk.onlinestore.v1.EvictionAllowlist.ScalarEvictionsEntryR\x0fscalarEvictions\x12c\n" +
+	"\x1amaterialized_agg_evictions\x18\x02 \x03(\v2%.chalk.onlinestore.v1.AggregationInfoR\x18materializedAggEvictions\x1au\n" +
+	"\x14ScalarEvictionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12G\n" +
+	"\x05value\x18\x02 \x01(\v21.chalk.onlinestore.v1.ScalarEvictionsForNamespaceR\x05value:\x028\x01\"\x95\x06\n" +
 	"\x0fOnlineStoreInfo\x12V\n" +
 	"\vscalar_info\x18\x01 \x03(\v25.chalk.onlinestore.v1.OnlineStoreInfo.ScalarInfoEntryR\n" +
 	"scalarInfo\x12Z\n" +
 	"\rhas_many_info\x18\x02 \x03(\v26.chalk.onlinestore.v1.OnlineStoreInfo.HasManyInfoEntryR\vhasManyInfo\x12g\n" +
 	"\x12has_one_index_info\x18\x03 \x03(\v2:.chalk.onlinestore.v1.OnlineStoreInfo.HasOneIndexInfoEntryR\x0fhasOneIndexInfo\x12Y\n" +
-	"\x15materialized_agg_info\x18\x04 \x03(\v2%.chalk.onlinestore.v1.AggregationInfoR\x13materializedAggInfo\x1ah\n" +
+	"\x15materialized_agg_info\x18\x04 \x03(\v2%.chalk.onlinestore.v1.AggregationInfoR\x13materializedAggInfo\x12V\n" +
+	"\x12eviction_allowlist\x18\x05 \x01(\v2'.chalk.onlinestore.v1.EvictionAllowlistR\x11evictionAllowlist\x1ah\n" +
 	"\x0fScalarInfoEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12?\n" +
 	"\x05value\x18\x02 \x01(\v2).chalk.onlinestore.v1.ScalarsForNamespaceR\x05value:\x028\x01\x1aa\n" +
@@ -378,36 +507,43 @@ func file_chalk_onlinestore_v1_online_store_config_proto_rawDescGZIP() []byte {
 	return file_chalk_onlinestore_v1_online_store_config_proto_rawDescData
 }
 
-var file_chalk_onlinestore_v1_online_store_config_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_onlinestore_v1_online_store_config_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_chalk_onlinestore_v1_online_store_config_proto_goTypes = []any{
-	(*FeatureInfo)(nil),         // 0: chalk.onlinestore.v1.FeatureInfo
-	(*ScalarsForNamespace)(nil), // 1: chalk.onlinestore.v1.ScalarsForNamespace
-	(*AggregationInfo)(nil),     // 2: chalk.onlinestore.v1.AggregationInfo
-	(*OnlineStoreInfo)(nil),     // 3: chalk.onlinestore.v1.OnlineStoreInfo
-	nil,                         // 4: chalk.onlinestore.v1.ScalarsForNamespace.ScalarsEntry
-	nil,                         // 5: chalk.onlinestore.v1.OnlineStoreInfo.ScalarInfoEntry
-	nil,                         // 6: chalk.onlinestore.v1.OnlineStoreInfo.HasManyInfoEntry
-	nil,                         // 7: chalk.onlinestore.v1.OnlineStoreInfo.HasOneIndexInfoEntry
-	(*durationpb.Duration)(nil), // 8: google.protobuf.Duration
-	(*structpb.Struct)(nil),     // 9: google.protobuf.Struct
+	(*FeatureInfo)(nil),                 // 0: chalk.onlinestore.v1.FeatureInfo
+	(*ScalarsForNamespace)(nil),         // 1: chalk.onlinestore.v1.ScalarsForNamespace
+	(*AggregationInfo)(nil),             // 2: chalk.onlinestore.v1.AggregationInfo
+	(*ScalarEvictionsForNamespace)(nil), // 3: chalk.onlinestore.v1.ScalarEvictionsForNamespace
+	(*EvictionAllowlist)(nil),           // 4: chalk.onlinestore.v1.EvictionAllowlist
+	(*OnlineStoreInfo)(nil),             // 5: chalk.onlinestore.v1.OnlineStoreInfo
+	nil,                                 // 6: chalk.onlinestore.v1.ScalarsForNamespace.ScalarsEntry
+	nil,                                 // 7: chalk.onlinestore.v1.EvictionAllowlist.ScalarEvictionsEntry
+	nil,                                 // 8: chalk.onlinestore.v1.OnlineStoreInfo.ScalarInfoEntry
+	nil,                                 // 9: chalk.onlinestore.v1.OnlineStoreInfo.HasManyInfoEntry
+	nil,                                 // 10: chalk.onlinestore.v1.OnlineStoreInfo.HasOneIndexInfoEntry
+	(*durationpb.Duration)(nil),         // 11: google.protobuf.Duration
+	(*structpb.Struct)(nil),             // 12: google.protobuf.Struct
 }
 var file_chalk_onlinestore_v1_online_store_config_proto_depIdxs = []int32{
-	8,  // 0: chalk.onlinestore.v1.FeatureInfo.max_staleness:type_name -> google.protobuf.Duration
-	4,  // 1: chalk.onlinestore.v1.ScalarsForNamespace.scalars:type_name -> chalk.onlinestore.v1.ScalarsForNamespace.ScalarsEntry
-	9,  // 2: chalk.onlinestore.v1.AggregationInfo.options:type_name -> google.protobuf.Struct
-	5,  // 3: chalk.onlinestore.v1.OnlineStoreInfo.scalar_info:type_name -> chalk.onlinestore.v1.OnlineStoreInfo.ScalarInfoEntry
-	6,  // 4: chalk.onlinestore.v1.OnlineStoreInfo.has_many_info:type_name -> chalk.onlinestore.v1.OnlineStoreInfo.HasManyInfoEntry
-	7,  // 5: chalk.onlinestore.v1.OnlineStoreInfo.has_one_index_info:type_name -> chalk.onlinestore.v1.OnlineStoreInfo.HasOneIndexInfoEntry
-	2,  // 6: chalk.onlinestore.v1.OnlineStoreInfo.materialized_agg_info:type_name -> chalk.onlinestore.v1.AggregationInfo
-	0,  // 7: chalk.onlinestore.v1.ScalarsForNamespace.ScalarsEntry.value:type_name -> chalk.onlinestore.v1.FeatureInfo
-	1,  // 8: chalk.onlinestore.v1.OnlineStoreInfo.ScalarInfoEntry.value:type_name -> chalk.onlinestore.v1.ScalarsForNamespace
-	0,  // 9: chalk.onlinestore.v1.OnlineStoreInfo.HasManyInfoEntry.value:type_name -> chalk.onlinestore.v1.FeatureInfo
-	0,  // 10: chalk.onlinestore.v1.OnlineStoreInfo.HasOneIndexInfoEntry.value:type_name -> chalk.onlinestore.v1.FeatureInfo
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	11, // 0: chalk.onlinestore.v1.FeatureInfo.max_staleness:type_name -> google.protobuf.Duration
+	6,  // 1: chalk.onlinestore.v1.ScalarsForNamespace.scalars:type_name -> chalk.onlinestore.v1.ScalarsForNamespace.ScalarsEntry
+	12, // 2: chalk.onlinestore.v1.AggregationInfo.options:type_name -> google.protobuf.Struct
+	7,  // 3: chalk.onlinestore.v1.EvictionAllowlist.scalar_evictions:type_name -> chalk.onlinestore.v1.EvictionAllowlist.ScalarEvictionsEntry
+	2,  // 4: chalk.onlinestore.v1.EvictionAllowlist.materialized_agg_evictions:type_name -> chalk.onlinestore.v1.AggregationInfo
+	8,  // 5: chalk.onlinestore.v1.OnlineStoreInfo.scalar_info:type_name -> chalk.onlinestore.v1.OnlineStoreInfo.ScalarInfoEntry
+	9,  // 6: chalk.onlinestore.v1.OnlineStoreInfo.has_many_info:type_name -> chalk.onlinestore.v1.OnlineStoreInfo.HasManyInfoEntry
+	10, // 7: chalk.onlinestore.v1.OnlineStoreInfo.has_one_index_info:type_name -> chalk.onlinestore.v1.OnlineStoreInfo.HasOneIndexInfoEntry
+	2,  // 8: chalk.onlinestore.v1.OnlineStoreInfo.materialized_agg_info:type_name -> chalk.onlinestore.v1.AggregationInfo
+	4,  // 9: chalk.onlinestore.v1.OnlineStoreInfo.eviction_allowlist:type_name -> chalk.onlinestore.v1.EvictionAllowlist
+	0,  // 10: chalk.onlinestore.v1.ScalarsForNamespace.ScalarsEntry.value:type_name -> chalk.onlinestore.v1.FeatureInfo
+	3,  // 11: chalk.onlinestore.v1.EvictionAllowlist.ScalarEvictionsEntry.value:type_name -> chalk.onlinestore.v1.ScalarEvictionsForNamespace
+	1,  // 12: chalk.onlinestore.v1.OnlineStoreInfo.ScalarInfoEntry.value:type_name -> chalk.onlinestore.v1.ScalarsForNamespace
+	0,  // 13: chalk.onlinestore.v1.OnlineStoreInfo.HasManyInfoEntry.value:type_name -> chalk.onlinestore.v1.FeatureInfo
+	0,  // 14: chalk.onlinestore.v1.OnlineStoreInfo.HasOneIndexInfoEntry.value:type_name -> chalk.onlinestore.v1.FeatureInfo
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chalk_onlinestore_v1_online_store_config_proto_init() }
@@ -422,7 +558,7 @@ func file_chalk_onlinestore_v1_online_store_config_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_onlinestore_v1_online_store_config_proto_rawDesc), len(file_chalk_onlinestore_v1_online_store_config_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

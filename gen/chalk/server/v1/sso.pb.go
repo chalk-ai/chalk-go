@@ -8,6 +8,7 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -1280,7 +1281,7 @@ var File_chalk_server_v1_sso_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_sso_proto_rawDesc = "" +
 	"\n" +
-	"\x19chalk/server/v1/sso.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\x18\n" +
+	"\x19chalk/server/v1/sso.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\"\x18\n" +
 	"\x16CreateScimTokenRequest\"/\n" +
 	"\x17CreateScimTokenResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"\xa6\x01\n" +
@@ -1311,10 +1312,10 @@ const file_chalk_server_v1_sso_proto_rawDesc = "" +
 	"\vcertificate\x18\x04 \x01(\tR\vcertificate\x126\n" +
 	"\x15is_primary_sso_config\x18\x05 \x01(\bH\x01R\x12isPrimarySsoConfig\x88\x01\x01B\x11\n" +
 	"\x0f_idp_logout_urlB\x18\n" +
-	"\x16_is_primary_sso_config\"\\\n" +
+	"\x16_is_primary_sso_config\"b\n" +
 	"\x18SignOnProviderOidcConfig\x12\x1b\n" +
-	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12#\n" +
-	"\rclient_secret\x18\x02 \x01(\tR\fclientSecret\"\xa4\x02\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12)\n" +
+	"\rclient_secret\x18\x02 \x01(\tB\x04ء'\x01R\fclientSecret\"\xa4\x02\n" +
 	"\x1bSignOnProviderConfiguration\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12\x19\n" +

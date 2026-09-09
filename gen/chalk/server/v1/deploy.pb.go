@@ -174,6 +174,148 @@ func (x *DeployBranchResponse) GetDeploymentWarnings() []string {
 	return nil
 }
 
+// Deploys a branch from the contents of a versioned Chalk volume, the
+// equivalent of `chalk apply --branch` over the volume instead of a local
+// directory. The volume's root is the project root, so chalk.yml must sit at
+// the volume root.
+type DeployBranchFromVolumeRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	BranchName string                 `protobuf:"bytes,1,opt,name=branch_name,json=branchName,proto3" json:"branch_name,omitempty"`
+	// Volume whose contents are deployed, by name.
+	VolumeName    string `protobuf:"bytes,2,opt,name=volume_name,json=volumeName,proto3" json:"volume_name,omitempty"`
+	ResetBranch   bool   `protobuf:"varint,3,opt,name=reset_branch,json=resetBranch,proto3" json:"reset_branch,omitempty"`
+	IsHotDeploy   bool   `protobuf:"varint,4,opt,name=is_hot_deploy,json=isHotDeploy,proto3" json:"is_hot_deploy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeployBranchFromVolumeRequest) Reset() {
+	*x = DeployBranchFromVolumeRequest{}
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeployBranchFromVolumeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeployBranchFromVolumeRequest) ProtoMessage() {}
+
+func (x *DeployBranchFromVolumeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeployBranchFromVolumeRequest.ProtoReflect.Descriptor instead.
+func (*DeployBranchFromVolumeRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DeployBranchFromVolumeRequest) GetBranchName() string {
+	if x != nil {
+		return x.BranchName
+	}
+	return ""
+}
+
+func (x *DeployBranchFromVolumeRequest) GetVolumeName() string {
+	if x != nil {
+		return x.VolumeName
+	}
+	return ""
+}
+
+func (x *DeployBranchFromVolumeRequest) GetResetBranch() bool {
+	if x != nil {
+		return x.ResetBranch
+	}
+	return false
+}
+
+func (x *DeployBranchFromVolumeRequest) GetIsHotDeploy() bool {
+	if x != nil {
+		return x.IsHotDeploy
+	}
+	return false
+}
+
+type DeployBranchFromVolumeResponse struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Deployment *DeployBranchResponse  `protobuf:"bytes,1,opt,name=deployment,proto3" json:"deployment,omitempty"`
+	// Volume version the deployed archive was built from.
+	VolumeVersion uint64 `protobuf:"varint,2,opt,name=volume_version,json=volumeVersion,proto3" json:"volume_version,omitempty"`
+	Files         int64  `protobuf:"varint,3,opt,name=files,proto3" json:"files,omitempty"`
+	Bytes         uint64 `protobuf:"varint,4,opt,name=bytes,proto3" json:"bytes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeployBranchFromVolumeResponse) Reset() {
+	*x = DeployBranchFromVolumeResponse{}
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeployBranchFromVolumeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeployBranchFromVolumeResponse) ProtoMessage() {}
+
+func (x *DeployBranchFromVolumeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeployBranchFromVolumeResponse.ProtoReflect.Descriptor instead.
+func (*DeployBranchFromVolumeResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeployBranchFromVolumeResponse) GetDeployment() *DeployBranchResponse {
+	if x != nil {
+		return x.Deployment
+	}
+	return nil
+}
+
+func (x *DeployBranchFromVolumeResponse) GetVolumeVersion() uint64 {
+	if x != nil {
+		return x.VolumeVersion
+	}
+	return 0
+}
+
+func (x *DeployBranchFromVolumeResponse) GetFiles() int64 {
+	if x != nil {
+		return x.Files
+	}
+	return 0
+}
+
+func (x *DeployBranchFromVolumeResponse) GetBytes() uint64 {
+	if x != nil {
+		return x.Bytes
+	}
+	return 0
+}
+
 type CreateBranchFromSourceDeploymentRequest struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	BranchName string                 `protobuf:"bytes,1,opt,name=branch_name,json=branchName,proto3" json:"branch_name,omitempty"`
@@ -190,7 +332,7 @@ type CreateBranchFromSourceDeploymentRequest struct {
 
 func (x *CreateBranchFromSourceDeploymentRequest) Reset() {
 	*x = CreateBranchFromSourceDeploymentRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -202,7 +344,7 @@ func (x *CreateBranchFromSourceDeploymentRequest) String() string {
 func (*CreateBranchFromSourceDeploymentRequest) ProtoMessage() {}
 
 func (x *CreateBranchFromSourceDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -215,7 +357,7 @@ func (x *CreateBranchFromSourceDeploymentRequest) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use CreateBranchFromSourceDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*CreateBranchFromSourceDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateBranchFromSourceDeploymentRequest) GetBranchName() string {
@@ -303,7 +445,7 @@ type CreateBranchFromSourceDeploymentResponse struct {
 
 func (x *CreateBranchFromSourceDeploymentResponse) Reset() {
 	*x = CreateBranchFromSourceDeploymentResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -315,7 +457,7 @@ func (x *CreateBranchFromSourceDeploymentResponse) String() string {
 func (*CreateBranchFromSourceDeploymentResponse) ProtoMessage() {}
 
 func (x *CreateBranchFromSourceDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -328,7 +470,7 @@ func (x *CreateBranchFromSourceDeploymentResponse) ProtoReflect() protoreflect.M
 
 // Deprecated: Use CreateBranchFromSourceDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*CreateBranchFromSourceDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateBranchFromSourceDeploymentResponse) GetDeploymentId() string {
@@ -369,7 +511,7 @@ type GetDeploymentRequest struct {
 
 func (x *GetDeploymentRequest) Reset() {
 	*x = GetDeploymentRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -381,7 +523,7 @@ func (x *GetDeploymentRequest) String() string {
 func (*GetDeploymentRequest) ProtoMessage() {}
 
 func (x *GetDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -394,7 +536,7 @@ func (x *GetDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*GetDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetDeploymentRequest) GetDeploymentId() string {
@@ -421,7 +563,7 @@ type GetDeploymentResponse struct {
 
 func (x *GetDeploymentResponse) Reset() {
 	*x = GetDeploymentResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -433,7 +575,7 @@ func (x *GetDeploymentResponse) String() string {
 func (*GetDeploymentResponse) ProtoMessage() {}
 
 func (x *GetDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +588,7 @@ func (x *GetDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*GetDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetDeploymentResponse) GetDeployment() *Deployment {
@@ -477,7 +619,7 @@ type ListDeploymentsRequest struct {
 
 func (x *ListDeploymentsRequest) Reset() {
 	*x = ListDeploymentsRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -489,7 +631,7 @@ func (x *ListDeploymentsRequest) String() string {
 func (*ListDeploymentsRequest) ProtoMessage() {}
 
 func (x *ListDeploymentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -502,7 +644,7 @@ func (x *ListDeploymentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDeploymentsRequest.ProtoReflect.Descriptor instead.
 func (*ListDeploymentsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListDeploymentsRequest) GetCursor() string {
@@ -550,7 +692,7 @@ type ListDeploymentsResponse struct {
 
 func (x *ListDeploymentsResponse) Reset() {
 	*x = ListDeploymentsResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -562,7 +704,7 @@ func (x *ListDeploymentsResponse) String() string {
 func (*ListDeploymentsResponse) ProtoMessage() {}
 
 func (x *ListDeploymentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -575,7 +717,7 @@ func (x *ListDeploymentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDeploymentsResponse.ProtoReflect.Descriptor instead.
 func (*ListDeploymentsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListDeploymentsResponse) GetDeployments() []*Deployment {
@@ -601,7 +743,7 @@ type SuspendDeploymentRequest struct {
 
 func (x *SuspendDeploymentRequest) Reset() {
 	*x = SuspendDeploymentRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -613,7 +755,7 @@ func (x *SuspendDeploymentRequest) String() string {
 func (*SuspendDeploymentRequest) ProtoMessage() {}
 
 func (x *SuspendDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -626,7 +768,7 @@ func (x *SuspendDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuspendDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*SuspendDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SuspendDeploymentRequest) GetDeploymentId() string {
@@ -645,7 +787,7 @@ type SuspendDeploymentResponse struct {
 
 func (x *SuspendDeploymentResponse) Reset() {
 	*x = SuspendDeploymentResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -657,7 +799,7 @@ func (x *SuspendDeploymentResponse) String() string {
 func (*SuspendDeploymentResponse) ProtoMessage() {}
 
 func (x *SuspendDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -670,7 +812,7 @@ func (x *SuspendDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuspendDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*SuspendDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *SuspendDeploymentResponse) GetDeployment() *Deployment {
@@ -690,7 +832,7 @@ type ScaleDeploymentRequest struct {
 
 func (x *ScaleDeploymentRequest) Reset() {
 	*x = ScaleDeploymentRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -702,7 +844,7 @@ func (x *ScaleDeploymentRequest) String() string {
 func (*ScaleDeploymentRequest) ProtoMessage() {}
 
 func (x *ScaleDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -715,7 +857,7 @@ func (x *ScaleDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScaleDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*ScaleDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ScaleDeploymentRequest) GetDeploymentId() string {
@@ -741,7 +883,7 @@ type ScaleDeploymentResponse struct {
 
 func (x *ScaleDeploymentResponse) Reset() {
 	*x = ScaleDeploymentResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -753,7 +895,7 @@ func (x *ScaleDeploymentResponse) String() string {
 func (*ScaleDeploymentResponse) ProtoMessage() {}
 
 func (x *ScaleDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -766,7 +908,7 @@ func (x *ScaleDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScaleDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*ScaleDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ScaleDeploymentResponse) GetDeployment() *Deployment {
@@ -787,7 +929,7 @@ type TagDeploymentRequest struct {
 
 func (x *TagDeploymentRequest) Reset() {
 	*x = TagDeploymentRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -799,7 +941,7 @@ func (x *TagDeploymentRequest) String() string {
 func (*TagDeploymentRequest) ProtoMessage() {}
 
 func (x *TagDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -812,7 +954,7 @@ func (x *TagDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TagDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*TagDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *TagDeploymentRequest) GetDeploymentId() string {
@@ -846,7 +988,7 @@ type TagDeploymentResponse struct {
 
 func (x *TagDeploymentResponse) Reset() {
 	*x = TagDeploymentResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -858,7 +1000,7 @@ func (x *TagDeploymentResponse) String() string {
 func (*TagDeploymentResponse) ProtoMessage() {}
 
 func (x *TagDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -871,7 +1013,7 @@ func (x *TagDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TagDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*TagDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *TagDeploymentResponse) GetDeployment() *Deployment {
@@ -896,7 +1038,7 @@ type GetActiveDeploymentsRequest struct {
 
 func (x *GetActiveDeploymentsRequest) Reset() {
 	*x = GetActiveDeploymentsRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -908,7 +1050,7 @@ func (x *GetActiveDeploymentsRequest) String() string {
 func (*GetActiveDeploymentsRequest) ProtoMessage() {}
 
 func (x *GetActiveDeploymentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -921,7 +1063,7 @@ func (x *GetActiveDeploymentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveDeploymentsRequest.ProtoReflect.Descriptor instead.
 func (*GetActiveDeploymentsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{16}
 }
 
 type GetActiveDeploymentsResponse struct {
@@ -933,7 +1075,7 @@ type GetActiveDeploymentsResponse struct {
 
 func (x *GetActiveDeploymentsResponse) Reset() {
 	*x = GetActiveDeploymentsResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -945,7 +1087,7 @@ func (x *GetActiveDeploymentsResponse) String() string {
 func (*GetActiveDeploymentsResponse) ProtoMessage() {}
 
 func (x *GetActiveDeploymentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -958,7 +1100,7 @@ func (x *GetActiveDeploymentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveDeploymentsResponse.ProtoReflect.Descriptor instead.
 func (*GetActiveDeploymentsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetActiveDeploymentsResponse) GetDeployments() []*Deployment {
@@ -977,7 +1119,7 @@ type GetDeploymentSourceRequest struct {
 
 func (x *GetDeploymentSourceRequest) Reset() {
 	*x = GetDeploymentSourceRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -989,7 +1131,7 @@ func (x *GetDeploymentSourceRequest) String() string {
 func (*GetDeploymentSourceRequest) ProtoMessage() {}
 
 func (x *GetDeploymentSourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1002,7 +1144,7 @@ func (x *GetDeploymentSourceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDeploymentSourceRequest.ProtoReflect.Descriptor instead.
 func (*GetDeploymentSourceRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetDeploymentSourceRequest) GetDeploymentId() string {
@@ -1024,7 +1166,7 @@ type GetDeploymentSourceResponse struct {
 
 func (x *GetDeploymentSourceResponse) Reset() {
 	*x = GetDeploymentSourceResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1036,7 +1178,7 @@ func (x *GetDeploymentSourceResponse) String() string {
 func (*GetDeploymentSourceResponse) ProtoMessage() {}
 
 func (x *GetDeploymentSourceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1049,7 +1191,7 @@ func (x *GetDeploymentSourceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDeploymentSourceResponse.ProtoReflect.Descriptor instead.
 func (*GetDeploymentSourceResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetDeploymentSourceResponse) GetSignedUrl() string {
@@ -1092,7 +1234,7 @@ type ResolverDeploymentHistoryEntry struct {
 
 func (x *ResolverDeploymentHistoryEntry) Reset() {
 	*x = ResolverDeploymentHistoryEntry{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1104,7 +1246,7 @@ func (x *ResolverDeploymentHistoryEntry) String() string {
 func (*ResolverDeploymentHistoryEntry) ProtoMessage() {}
 
 func (x *ResolverDeploymentHistoryEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1117,7 +1259,7 @@ func (x *ResolverDeploymentHistoryEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolverDeploymentHistoryEntry.ProtoReflect.Descriptor instead.
 func (*ResolverDeploymentHistoryEntry) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ResolverDeploymentHistoryEntry) GetResolverId() int32 {
@@ -1161,7 +1303,7 @@ type GetResolverHistoryRequest struct {
 
 func (x *GetResolverHistoryRequest) Reset() {
 	*x = GetResolverHistoryRequest{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1173,7 +1315,7 @@ func (x *GetResolverHistoryRequest) String() string {
 func (*GetResolverHistoryRequest) ProtoMessage() {}
 
 func (x *GetResolverHistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1186,7 +1328,7 @@ func (x *GetResolverHistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetResolverHistoryRequest.ProtoReflect.Descriptor instead.
 func (*GetResolverHistoryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetResolverHistoryRequest) GetFqn() string {
@@ -1234,7 +1376,7 @@ type GetResolverHistoryResponse struct {
 
 func (x *GetResolverHistoryResponse) Reset() {
 	*x = GetResolverHistoryResponse{}
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1246,7 +1388,7 @@ func (x *GetResolverHistoryResponse) String() string {
 func (*GetResolverHistoryResponse) ProtoMessage() {}
 
 func (x *GetResolverHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_deploy_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_deploy_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1259,7 +1401,7 @@ func (x *GetResolverHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetResolverHistoryResponse.ProtoReflect.Descriptor instead.
 func (*GetResolverHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_deploy_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetResolverHistoryResponse) GetEntries() []*ResolverDeploymentHistoryEntry {
@@ -1294,7 +1436,21 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"\x06export\x18\x04 \x01(\v2\x1a.chalk.artifacts.v1.ExportH\x01R\x06export\x88\x01\x01\x12/\n" +
 	"\x13deployment_warnings\x18\x05 \x03(\tR\x12deploymentWarningsB\b\n" +
 	"\x06_graphB\t\n" +
-	"\a_export\"\xe8\x02\n" +
+	"\a_export\"\xa8\x01\n" +
+	"\x1dDeployBranchFromVolumeRequest\x12\x1f\n" +
+	"\vbranch_name\x18\x01 \x01(\tR\n" +
+	"branchName\x12\x1f\n" +
+	"\vvolume_name\x18\x02 \x01(\tR\n" +
+	"volumeName\x12!\n" +
+	"\freset_branch\x18\x03 \x01(\bR\vresetBranch\x12\"\n" +
+	"\ris_hot_deploy\x18\x04 \x01(\bR\visHotDeploy\"\xba\x01\n" +
+	"\x1eDeployBranchFromVolumeResponse\x12E\n" +
+	"\n" +
+	"deployment\x18\x01 \x01(\v2%.chalk.server.v1.DeployBranchResponseR\n" +
+	"deployment\x12%\n" +
+	"\x0evolume_version\x18\x02 \x01(\x04R\rvolumeVersion\x12\x14\n" +
+	"\x05files\x18\x03 \x01(\x03R\x05files\x12\x14\n" +
+	"\x05bytes\x18\x04 \x01(\x04R\x05bytes\"\xe8\x02\n" +
 	"'CreateBranchFromSourceDeploymentRequest\x12\x1f\n" +
 	"\vbranch_name\x18\x01 \x01(\tR\n" +
 	"branchName\x12.\n" +
@@ -1396,9 +1552,10 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"\aentries\x18\x01 \x03(\v2/.chalk.server.v1.ResolverDeploymentHistoryEntryR\aentries\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor2\xa1\f\n" +
+	"\f_next_cursor2\xcf\r\n" +
 	"\rDeployService\x12`\n" +
-	"\fDeployBranch\x12$.chalk.server.v1.DeployBranchRequest\x1a%.chalk.server.v1.DeployBranchResponse\"\x03\x80}\r\x12\x9c\x01\n" +
+	"\fDeployBranch\x12$.chalk.server.v1.DeployBranchRequest\x1a%.chalk.server.v1.DeployBranchResponse\"\x03\x80}\r\x12\xab\x01\n" +
+	"\x16DeployBranchFromVolume\x12..chalk.server.v1.DeployBranchFromVolumeRequest\x1a/.chalk.server.v1.DeployBranchFromVolumeResponse\"0\x80}\r\x8a\xd3\x0e)\b\x02\x12%Deployed a branch from a Chalk volume\x12\x9c\x01\n" +
 	" CreateBranchFromSourceDeployment\x128.chalk.server.v1.CreateBranchFromSourceDeploymentRequest\x1a9.chalk.server.v1.CreateBranchFromSourceDeploymentResponse\"\x03\x80}\r\x12c\n" +
 	"\rGetDeployment\x12%.chalk.server.v1.GetDeploymentRequest\x1a&.chalk.server.v1.GetDeploymentResponse\"\x03\x80}\v\x12i\n" +
 	"\x0fListDeployments\x12'.chalk.server.v1.ListDeploymentsRequest\x1a(.chalk.server.v1.ListDeploymentsResponse\"\x03\x80}\v\x12\x84\x01\n" +
@@ -1424,92 +1581,97 @@ func file_chalk_server_v1_deploy_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_deploy_proto_rawDescData
 }
 
-var file_chalk_server_v1_deploy_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_chalk_server_v1_deploy_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_chalk_server_v1_deploy_proto_goTypes = []any{
 	(*DeployBranchRequest)(nil),                      // 0: chalk.server.v1.DeployBranchRequest
 	(*DeployBranchResponse)(nil),                     // 1: chalk.server.v1.DeployBranchResponse
-	(*CreateBranchFromSourceDeploymentRequest)(nil),  // 2: chalk.server.v1.CreateBranchFromSourceDeploymentRequest
-	(*CreateBranchFromSourceDeploymentResponse)(nil), // 3: chalk.server.v1.CreateBranchFromSourceDeploymentResponse
-	(*GetDeploymentRequest)(nil),                     // 4: chalk.server.v1.GetDeploymentRequest
-	(*GetDeploymentResponse)(nil),                    // 5: chalk.server.v1.GetDeploymentResponse
-	(*ListDeploymentsRequest)(nil),                   // 6: chalk.server.v1.ListDeploymentsRequest
-	(*ListDeploymentsResponse)(nil),                  // 7: chalk.server.v1.ListDeploymentsResponse
-	(*SuspendDeploymentRequest)(nil),                 // 8: chalk.server.v1.SuspendDeploymentRequest
-	(*SuspendDeploymentResponse)(nil),                // 9: chalk.server.v1.SuspendDeploymentResponse
-	(*ScaleDeploymentRequest)(nil),                   // 10: chalk.server.v1.ScaleDeploymentRequest
-	(*ScaleDeploymentResponse)(nil),                  // 11: chalk.server.v1.ScaleDeploymentResponse
-	(*TagDeploymentRequest)(nil),                     // 12: chalk.server.v1.TagDeploymentRequest
-	(*TagDeploymentResponse)(nil),                    // 13: chalk.server.v1.TagDeploymentResponse
-	(*GetActiveDeploymentsRequest)(nil),              // 14: chalk.server.v1.GetActiveDeploymentsRequest
-	(*GetActiveDeploymentsResponse)(nil),             // 15: chalk.server.v1.GetActiveDeploymentsResponse
-	(*GetDeploymentSourceRequest)(nil),               // 16: chalk.server.v1.GetDeploymentSourceRequest
-	(*GetDeploymentSourceResponse)(nil),              // 17: chalk.server.v1.GetDeploymentSourceResponse
-	(*ResolverDeploymentHistoryEntry)(nil),           // 18: chalk.server.v1.ResolverDeploymentHistoryEntry
-	(*GetResolverHistoryRequest)(nil),                // 19: chalk.server.v1.GetResolverHistoryRequest
-	(*GetResolverHistoryResponse)(nil),               // 20: chalk.server.v1.GetResolverHistoryResponse
-	(*v1.Graph)(nil),                                 // 21: chalk.graph.v1.Graph
-	(*v11.ChalkError)(nil),                           // 22: chalk.common.v1.ChalkError
-	(*v12.Export)(nil),                               // 23: chalk.artifacts.v1.Export
-	(*emptypb.Empty)(nil),                            // 24: google.protobuf.Empty
-	(*fieldmaskpb.FieldMask)(nil),                    // 25: google.protobuf.FieldMask
-	(*Deployment)(nil),                               // 26: chalk.server.v1.Deployment
-	(*InstanceSizing)(nil),                           // 27: chalk.server.v1.InstanceSizing
-	(*timestamppb.Timestamp)(nil),                    // 28: google.protobuf.Timestamp
-	(*ListDeploymentRevisionsRequest)(nil),           // 29: chalk.server.v1.ListDeploymentRevisionsRequest
-	(*GetDeploymentRevisionRequest)(nil),             // 30: chalk.server.v1.GetDeploymentRevisionRequest
-	(*ListDeploymentRevisionsResponse)(nil),          // 31: chalk.server.v1.ListDeploymentRevisionsResponse
-	(*GetDeploymentRevisionResponse)(nil),            // 32: chalk.server.v1.GetDeploymentRevisionResponse
+	(*DeployBranchFromVolumeRequest)(nil),            // 2: chalk.server.v1.DeployBranchFromVolumeRequest
+	(*DeployBranchFromVolumeResponse)(nil),           // 3: chalk.server.v1.DeployBranchFromVolumeResponse
+	(*CreateBranchFromSourceDeploymentRequest)(nil),  // 4: chalk.server.v1.CreateBranchFromSourceDeploymentRequest
+	(*CreateBranchFromSourceDeploymentResponse)(nil), // 5: chalk.server.v1.CreateBranchFromSourceDeploymentResponse
+	(*GetDeploymentRequest)(nil),                     // 6: chalk.server.v1.GetDeploymentRequest
+	(*GetDeploymentResponse)(nil),                    // 7: chalk.server.v1.GetDeploymentResponse
+	(*ListDeploymentsRequest)(nil),                   // 8: chalk.server.v1.ListDeploymentsRequest
+	(*ListDeploymentsResponse)(nil),                  // 9: chalk.server.v1.ListDeploymentsResponse
+	(*SuspendDeploymentRequest)(nil),                 // 10: chalk.server.v1.SuspendDeploymentRequest
+	(*SuspendDeploymentResponse)(nil),                // 11: chalk.server.v1.SuspendDeploymentResponse
+	(*ScaleDeploymentRequest)(nil),                   // 12: chalk.server.v1.ScaleDeploymentRequest
+	(*ScaleDeploymentResponse)(nil),                  // 13: chalk.server.v1.ScaleDeploymentResponse
+	(*TagDeploymentRequest)(nil),                     // 14: chalk.server.v1.TagDeploymentRequest
+	(*TagDeploymentResponse)(nil),                    // 15: chalk.server.v1.TagDeploymentResponse
+	(*GetActiveDeploymentsRequest)(nil),              // 16: chalk.server.v1.GetActiveDeploymentsRequest
+	(*GetActiveDeploymentsResponse)(nil),             // 17: chalk.server.v1.GetActiveDeploymentsResponse
+	(*GetDeploymentSourceRequest)(nil),               // 18: chalk.server.v1.GetDeploymentSourceRequest
+	(*GetDeploymentSourceResponse)(nil),              // 19: chalk.server.v1.GetDeploymentSourceResponse
+	(*ResolverDeploymentHistoryEntry)(nil),           // 20: chalk.server.v1.ResolverDeploymentHistoryEntry
+	(*GetResolverHistoryRequest)(nil),                // 21: chalk.server.v1.GetResolverHistoryRequest
+	(*GetResolverHistoryResponse)(nil),               // 22: chalk.server.v1.GetResolverHistoryResponse
+	(*v1.Graph)(nil),                                 // 23: chalk.graph.v1.Graph
+	(*v11.ChalkError)(nil),                           // 24: chalk.common.v1.ChalkError
+	(*v12.Export)(nil),                               // 25: chalk.artifacts.v1.Export
+	(*emptypb.Empty)(nil),                            // 26: google.protobuf.Empty
+	(*fieldmaskpb.FieldMask)(nil),                    // 27: google.protobuf.FieldMask
+	(*Deployment)(nil),                               // 28: chalk.server.v1.Deployment
+	(*InstanceSizing)(nil),                           // 29: chalk.server.v1.InstanceSizing
+	(*timestamppb.Timestamp)(nil),                    // 30: google.protobuf.Timestamp
+	(*ListDeploymentRevisionsRequest)(nil),           // 31: chalk.server.v1.ListDeploymentRevisionsRequest
+	(*GetDeploymentRevisionRequest)(nil),             // 32: chalk.server.v1.GetDeploymentRevisionRequest
+	(*ListDeploymentRevisionsResponse)(nil),          // 33: chalk.server.v1.ListDeploymentRevisionsResponse
+	(*GetDeploymentRevisionResponse)(nil),            // 34: chalk.server.v1.GetDeploymentRevisionResponse
 }
 var file_chalk_server_v1_deploy_proto_depIdxs = []int32{
-	21, // 0: chalk.server.v1.DeployBranchResponse.graph:type_name -> chalk.graph.v1.Graph
-	22, // 1: chalk.server.v1.DeployBranchResponse.deployment_errors:type_name -> chalk.common.v1.ChalkError
-	23, // 2: chalk.server.v1.DeployBranchResponse.export:type_name -> chalk.artifacts.v1.Export
-	24, // 3: chalk.server.v1.CreateBranchFromSourceDeploymentRequest.current_mainline_deployment:type_name -> google.protobuf.Empty
-	21, // 4: chalk.server.v1.CreateBranchFromSourceDeploymentRequest.override_graph:type_name -> chalk.graph.v1.Graph
-	22, // 5: chalk.server.v1.CreateBranchFromSourceDeploymentResponse.deployment_errors:type_name -> chalk.common.v1.ChalkError
-	23, // 6: chalk.server.v1.CreateBranchFromSourceDeploymentResponse.export:type_name -> chalk.artifacts.v1.Export
-	25, // 7: chalk.server.v1.GetDeploymentRequest.read_mask:type_name -> google.protobuf.FieldMask
-	26, // 8: chalk.server.v1.GetDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
-	23, // 9: chalk.server.v1.GetDeploymentResponse.export:type_name -> chalk.artifacts.v1.Export
-	26, // 10: chalk.server.v1.ListDeploymentsResponse.deployments:type_name -> chalk.server.v1.Deployment
-	26, // 11: chalk.server.v1.SuspendDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
-	27, // 12: chalk.server.v1.ScaleDeploymentRequest.sizing:type_name -> chalk.server.v1.InstanceSizing
-	26, // 13: chalk.server.v1.ScaleDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
-	26, // 14: chalk.server.v1.TagDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
-	26, // 15: chalk.server.v1.GetActiveDeploymentsResponse.deployments:type_name -> chalk.server.v1.Deployment
-	28, // 16: chalk.server.v1.ResolverDeploymentHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
-	28, // 17: chalk.server.v1.GetResolverHistoryRequest.start:type_name -> google.protobuf.Timestamp
-	28, // 18: chalk.server.v1.GetResolverHistoryRequest.end:type_name -> google.protobuf.Timestamp
-	18, // 19: chalk.server.v1.GetResolverHistoryResponse.entries:type_name -> chalk.server.v1.ResolverDeploymentHistoryEntry
-	0,  // 20: chalk.server.v1.DeployService.DeployBranch:input_type -> chalk.server.v1.DeployBranchRequest
-	2,  // 21: chalk.server.v1.DeployService.CreateBranchFromSourceDeployment:input_type -> chalk.server.v1.CreateBranchFromSourceDeploymentRequest
-	4,  // 22: chalk.server.v1.DeployService.GetDeployment:input_type -> chalk.server.v1.GetDeploymentRequest
-	6,  // 23: chalk.server.v1.DeployService.ListDeployments:input_type -> chalk.server.v1.ListDeploymentsRequest
-	29, // 24: chalk.server.v1.DeployService.ListDeploymentRevisions:input_type -> chalk.server.v1.ListDeploymentRevisionsRequest
-	30, // 25: chalk.server.v1.DeployService.GetDeploymentRevision:input_type -> chalk.server.v1.GetDeploymentRevisionRequest
-	14, // 26: chalk.server.v1.DeployService.GetActiveDeployments:input_type -> chalk.server.v1.GetActiveDeploymentsRequest
-	8,  // 27: chalk.server.v1.DeployService.SuspendDeployment:input_type -> chalk.server.v1.SuspendDeploymentRequest
-	10, // 28: chalk.server.v1.DeployService.ScaleDeployment:input_type -> chalk.server.v1.ScaleDeploymentRequest
-	12, // 29: chalk.server.v1.DeployService.TagDeployment:input_type -> chalk.server.v1.TagDeploymentRequest
-	16, // 30: chalk.server.v1.DeployService.GetDeploymentSource:input_type -> chalk.server.v1.GetDeploymentSourceRequest
-	19, // 31: chalk.server.v1.DeployService.GetResolverHistory:input_type -> chalk.server.v1.GetResolverHistoryRequest
-	1,  // 32: chalk.server.v1.DeployService.DeployBranch:output_type -> chalk.server.v1.DeployBranchResponse
-	3,  // 33: chalk.server.v1.DeployService.CreateBranchFromSourceDeployment:output_type -> chalk.server.v1.CreateBranchFromSourceDeploymentResponse
-	5,  // 34: chalk.server.v1.DeployService.GetDeployment:output_type -> chalk.server.v1.GetDeploymentResponse
-	7,  // 35: chalk.server.v1.DeployService.ListDeployments:output_type -> chalk.server.v1.ListDeploymentsResponse
-	31, // 36: chalk.server.v1.DeployService.ListDeploymentRevisions:output_type -> chalk.server.v1.ListDeploymentRevisionsResponse
-	32, // 37: chalk.server.v1.DeployService.GetDeploymentRevision:output_type -> chalk.server.v1.GetDeploymentRevisionResponse
-	15, // 38: chalk.server.v1.DeployService.GetActiveDeployments:output_type -> chalk.server.v1.GetActiveDeploymentsResponse
-	9,  // 39: chalk.server.v1.DeployService.SuspendDeployment:output_type -> chalk.server.v1.SuspendDeploymentResponse
-	11, // 40: chalk.server.v1.DeployService.ScaleDeployment:output_type -> chalk.server.v1.ScaleDeploymentResponse
-	13, // 41: chalk.server.v1.DeployService.TagDeployment:output_type -> chalk.server.v1.TagDeploymentResponse
-	17, // 42: chalk.server.v1.DeployService.GetDeploymentSource:output_type -> chalk.server.v1.GetDeploymentSourceResponse
-	20, // 43: chalk.server.v1.DeployService.GetResolverHistory:output_type -> chalk.server.v1.GetResolverHistoryResponse
-	32, // [32:44] is the sub-list for method output_type
-	20, // [20:32] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	23, // 0: chalk.server.v1.DeployBranchResponse.graph:type_name -> chalk.graph.v1.Graph
+	24, // 1: chalk.server.v1.DeployBranchResponse.deployment_errors:type_name -> chalk.common.v1.ChalkError
+	25, // 2: chalk.server.v1.DeployBranchResponse.export:type_name -> chalk.artifacts.v1.Export
+	1,  // 3: chalk.server.v1.DeployBranchFromVolumeResponse.deployment:type_name -> chalk.server.v1.DeployBranchResponse
+	26, // 4: chalk.server.v1.CreateBranchFromSourceDeploymentRequest.current_mainline_deployment:type_name -> google.protobuf.Empty
+	23, // 5: chalk.server.v1.CreateBranchFromSourceDeploymentRequest.override_graph:type_name -> chalk.graph.v1.Graph
+	24, // 6: chalk.server.v1.CreateBranchFromSourceDeploymentResponse.deployment_errors:type_name -> chalk.common.v1.ChalkError
+	25, // 7: chalk.server.v1.CreateBranchFromSourceDeploymentResponse.export:type_name -> chalk.artifacts.v1.Export
+	27, // 8: chalk.server.v1.GetDeploymentRequest.read_mask:type_name -> google.protobuf.FieldMask
+	28, // 9: chalk.server.v1.GetDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
+	25, // 10: chalk.server.v1.GetDeploymentResponse.export:type_name -> chalk.artifacts.v1.Export
+	28, // 11: chalk.server.v1.ListDeploymentsResponse.deployments:type_name -> chalk.server.v1.Deployment
+	28, // 12: chalk.server.v1.SuspendDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
+	29, // 13: chalk.server.v1.ScaleDeploymentRequest.sizing:type_name -> chalk.server.v1.InstanceSizing
+	28, // 14: chalk.server.v1.ScaleDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
+	28, // 15: chalk.server.v1.TagDeploymentResponse.deployment:type_name -> chalk.server.v1.Deployment
+	28, // 16: chalk.server.v1.GetActiveDeploymentsResponse.deployments:type_name -> chalk.server.v1.Deployment
+	30, // 17: chalk.server.v1.ResolverDeploymentHistoryEntry.created_at:type_name -> google.protobuf.Timestamp
+	30, // 18: chalk.server.v1.GetResolverHistoryRequest.start:type_name -> google.protobuf.Timestamp
+	30, // 19: chalk.server.v1.GetResolverHistoryRequest.end:type_name -> google.protobuf.Timestamp
+	20, // 20: chalk.server.v1.GetResolverHistoryResponse.entries:type_name -> chalk.server.v1.ResolverDeploymentHistoryEntry
+	0,  // 21: chalk.server.v1.DeployService.DeployBranch:input_type -> chalk.server.v1.DeployBranchRequest
+	2,  // 22: chalk.server.v1.DeployService.DeployBranchFromVolume:input_type -> chalk.server.v1.DeployBranchFromVolumeRequest
+	4,  // 23: chalk.server.v1.DeployService.CreateBranchFromSourceDeployment:input_type -> chalk.server.v1.CreateBranchFromSourceDeploymentRequest
+	6,  // 24: chalk.server.v1.DeployService.GetDeployment:input_type -> chalk.server.v1.GetDeploymentRequest
+	8,  // 25: chalk.server.v1.DeployService.ListDeployments:input_type -> chalk.server.v1.ListDeploymentsRequest
+	31, // 26: chalk.server.v1.DeployService.ListDeploymentRevisions:input_type -> chalk.server.v1.ListDeploymentRevisionsRequest
+	32, // 27: chalk.server.v1.DeployService.GetDeploymentRevision:input_type -> chalk.server.v1.GetDeploymentRevisionRequest
+	16, // 28: chalk.server.v1.DeployService.GetActiveDeployments:input_type -> chalk.server.v1.GetActiveDeploymentsRequest
+	10, // 29: chalk.server.v1.DeployService.SuspendDeployment:input_type -> chalk.server.v1.SuspendDeploymentRequest
+	12, // 30: chalk.server.v1.DeployService.ScaleDeployment:input_type -> chalk.server.v1.ScaleDeploymentRequest
+	14, // 31: chalk.server.v1.DeployService.TagDeployment:input_type -> chalk.server.v1.TagDeploymentRequest
+	18, // 32: chalk.server.v1.DeployService.GetDeploymentSource:input_type -> chalk.server.v1.GetDeploymentSourceRequest
+	21, // 33: chalk.server.v1.DeployService.GetResolverHistory:input_type -> chalk.server.v1.GetResolverHistoryRequest
+	1,  // 34: chalk.server.v1.DeployService.DeployBranch:output_type -> chalk.server.v1.DeployBranchResponse
+	3,  // 35: chalk.server.v1.DeployService.DeployBranchFromVolume:output_type -> chalk.server.v1.DeployBranchFromVolumeResponse
+	5,  // 36: chalk.server.v1.DeployService.CreateBranchFromSourceDeployment:output_type -> chalk.server.v1.CreateBranchFromSourceDeploymentResponse
+	7,  // 37: chalk.server.v1.DeployService.GetDeployment:output_type -> chalk.server.v1.GetDeploymentResponse
+	9,  // 38: chalk.server.v1.DeployService.ListDeployments:output_type -> chalk.server.v1.ListDeploymentsResponse
+	33, // 39: chalk.server.v1.DeployService.ListDeploymentRevisions:output_type -> chalk.server.v1.ListDeploymentRevisionsResponse
+	34, // 40: chalk.server.v1.DeployService.GetDeploymentRevision:output_type -> chalk.server.v1.GetDeploymentRevisionResponse
+	17, // 41: chalk.server.v1.DeployService.GetActiveDeployments:output_type -> chalk.server.v1.GetActiveDeploymentsResponse
+	11, // 42: chalk.server.v1.DeployService.SuspendDeployment:output_type -> chalk.server.v1.SuspendDeploymentResponse
+	13, // 43: chalk.server.v1.DeployService.ScaleDeployment:output_type -> chalk.server.v1.ScaleDeploymentResponse
+	15, // 44: chalk.server.v1.DeployService.TagDeployment:output_type -> chalk.server.v1.TagDeploymentResponse
+	19, // 45: chalk.server.v1.DeployService.GetDeploymentSource:output_type -> chalk.server.v1.GetDeploymentSourceResponse
+	22, // 46: chalk.server.v1.DeployService.GetResolverHistory:output_type -> chalk.server.v1.GetResolverHistoryResponse
+	34, // [34:47] is the sub-list for method output_type
+	21, // [21:34] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_deploy_proto_init() }
@@ -1520,28 +1682,28 @@ func file_chalk_server_v1_deploy_proto_init() {
 	file_chalk_server_v1_deployment_proto_init()
 	file_chalk_server_v1_deployment_revision_proto_init()
 	file_chalk_server_v1_deploy_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_server_v1_deploy_proto_msgTypes[2].OneofWrappers = []any{
+	file_chalk_server_v1_deploy_proto_msgTypes[4].OneofWrappers = []any{
 		(*CreateBranchFromSourceDeploymentRequest_SourceBranchName)(nil),
 		(*CreateBranchFromSourceDeploymentRequest_SourceDeploymentId)(nil),
 		(*CreateBranchFromSourceDeploymentRequest_CurrentMainlineDeployment)(nil),
 	}
-	file_chalk_server_v1_deploy_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[5].OneofWrappers = []any{}
-	file_chalk_server_v1_deploy_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_server_v1_deploy_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_server_v1_deploy_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_server_v1_deploy_proto_msgTypes[17].OneofWrappers = []any{}
-	file_chalk_server_v1_deploy_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_server_v1_deploy_proto_msgTypes[8].OneofWrappers = []any{}
+	file_chalk_server_v1_deploy_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_deploy_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_server_v1_deploy_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[19].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_server_v1_deploy_proto_msgTypes[21].OneofWrappers = []any{}
+	file_chalk_server_v1_deploy_proto_msgTypes[22].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_deploy_proto_rawDesc), len(file_chalk_server_v1_deploy_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

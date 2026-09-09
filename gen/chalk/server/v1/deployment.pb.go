@@ -400,8 +400,13 @@ type Deployment struct {
 	// cover only requirements/runtime/Dockerfile). Lets consumers tell whether the
 	// source code itself changed across deployments.
 	SourceCodeHash *string `protobuf:"bytes,39,opt,name=source_code_hash,json=sourceCodeHash,proto3,oneof" json:"source_code_hash,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Engine image this deployment runs verbatim, set when it was created from a pre-built
+	// image (`chalk apply --from-image`) rather than from a build. Every workload rendered for
+	// the deployment uses this reference in place of the environment's own engine repository,
+	// and no build workflow ran to produce it.
+	PrebuiltEngineImage *string `protobuf:"bytes,40,opt,name=prebuilt_engine_image,json=prebuiltEngineImage,proto3,oneof" json:"prebuilt_engine_image,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *Deployment) Reset() {
@@ -709,6 +714,13 @@ func (x *Deployment) GetSourceCodeHash() string {
 	return ""
 }
 
+func (x *Deployment) GetPrebuiltEngineImage() string {
+	if x != nil && x.PrebuiltEngineImage != nil {
+		return *x.PrebuiltEngineImage
+	}
+	return ""
+}
+
 var File_chalk_server_v1_deployment_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_deployment_proto_rawDesc = "" +
@@ -732,7 +744,7 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\n" +
 	"SpecsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x126\n" +
-	"\x05value\x18\x02 \x01(\v2 .chalk.server.v1.SourceImageSpecR\x05value:\x028\x01\"\xf7\x12\n" +
+	"\x05value\x18\x02 \x01(\v2 .chalk.server.v1.SourceImageSpecR\x05value:\x028\x01\"\xca\x13\n" +
 	"\n" +
 	"Deployment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
@@ -779,7 +791,8 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\x12git_commit_message\x18$ \x01(\tH\x0fR\x10gitCommitMessage\x88\x01\x01\x12R\n" +
 	"\rbuild_options\x18% \x03(\v2-.chalk.server.v1.Deployment.BuildOptionsEntryR\fbuildOptions\x12:\n" +
 	"\x17resolved_base_image_tag\x18& \x01(\tH\x10R\x14resolvedBaseImageTag\x88\x01\x01\x12-\n" +
-	"\x10source_code_hash\x18' \x01(\tH\x11R\x0esourceCodeHash\x88\x01\x01\x1a?\n" +
+	"\x10source_code_hash\x18' \x01(\tH\x11R\x0esourceCodeHash\x88\x01\x01\x127\n" +
+	"\x15prebuilt_engine_image\x18( \x01(\tH\x12R\x13prebuiltEngineImage\x88\x01\x01\x1a?\n" +
 	"\x11BuildOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x18\n" +
@@ -801,7 +814,8 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\x14_display_descriptionB\x15\n" +
 	"\x13_git_commit_messageB\x1a\n" +
 	"\x18_resolved_base_image_tagB\x13\n" +
-	"\x11_source_code_hash*\xde\x03\n" +
+	"\x11_source_code_hashB\x18\n" +
+	"\x16_prebuilt_engine_image*\xde\x03\n" +
 	"\x10DeploymentStatus\x12!\n" +
 	"\x1dDEPLOYMENT_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19DEPLOYMENT_STATUS_UNKNOWN\x10\x01\x12\x1d\n" +

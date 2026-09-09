@@ -149,6 +149,27 @@ const (
 	// Counts pods whose maximum container CPU utilization in a chart bucket is at
 	// or below the fixed low-utilization threshold.
 	MetricKind_METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT MetricKind = 115
+	// Percent (0-100) of the fullest mounted filesystem in use, computed per mount
+	// before being reduced so both gauges come from the same disk.
+	MetricKind_METRIC_KIND_DISK_USED_PERCENT               MetricKind = 116
+	MetricKind_METRIC_KIND_CLICKHOUSE_CPU_PCT_USED         MetricKind = 117
+	MetricKind_METRIC_KIND_CLICKHOUSE_CPU_SYSTEM_TIME      MetricKind = 118
+	MetricKind_METRIC_KIND_CLICKHOUSE_CPU_IDLE_TIME        MetricKind = 119
+	MetricKind_METRIC_KIND_CLICKHOUSE_CPU_USER_TIME        MetricKind = 120
+	MetricKind_METRIC_KIND_CLICKHOUSE_MEMORY_LIMIT_BYTES   MetricKind = 121
+	MetricKind_METRIC_KIND_CLICKHOUSE_MEMORY_PCT_USED      MetricKind = 122
+	MetricKind_METRIC_KIND_CLICKHOUSE_MEMORY_USED_BYTES    MetricKind = 123
+	MetricKind_METRIC_KIND_CLICKHOUSE_QUERY_COUNT          MetricKind = 124
+	MetricKind_METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS MetricKind = 125
+	MetricKind_METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS MetricKind = 126
+	// Online store bytes held by keys and values, excluding allocator and buffer
+	// overhead. Unlike ONLINE_STORE_USED_MEMORY, which is RSS, this falls when keys
+	// are deleted.
+	MetricKind_METRIC_KIND_ONLINE_STORE_DATASET_SIZE MetricKind = 127
+	// Bytes the online store's allocator holds, which is what its eviction limit
+	// applies to. ONLINE_STORE_USED_MEMORY is RSS and sits above this; DATASET_SIZE
+	// excludes keyspace overhead and sits below it.
+	MetricKind_METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY MetricKind = 128
 )
 
 // Enum value maps for MetricKind.
@@ -270,6 +291,19 @@ var (
 		113: "METRIC_KIND_GPU_MEMORY_USED_BYTES",
 		114: "METRIC_KIND_GPU_MEMORY_FREE_BYTES",
 		115: "METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT",
+		116: "METRIC_KIND_DISK_USED_PERCENT",
+		117: "METRIC_KIND_CLICKHOUSE_CPU_PCT_USED",
+		118: "METRIC_KIND_CLICKHOUSE_CPU_SYSTEM_TIME",
+		119: "METRIC_KIND_CLICKHOUSE_CPU_IDLE_TIME",
+		120: "METRIC_KIND_CLICKHOUSE_CPU_USER_TIME",
+		121: "METRIC_KIND_CLICKHOUSE_MEMORY_LIMIT_BYTES",
+		122: "METRIC_KIND_CLICKHOUSE_MEMORY_PCT_USED",
+		123: "METRIC_KIND_CLICKHOUSE_MEMORY_USED_BYTES",
+		124: "METRIC_KIND_CLICKHOUSE_QUERY_COUNT",
+		125: "METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS",
+		126: "METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS",
+		127: "METRIC_KIND_ONLINE_STORE_DATASET_SIZE",
+		128: "METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -388,6 +422,19 @@ var (
 		"METRIC_KIND_GPU_MEMORY_USED_BYTES":                   113,
 		"METRIC_KIND_GPU_MEMORY_FREE_BYTES":                   114,
 		"METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT":           115,
+		"METRIC_KIND_DISK_USED_PERCENT":                       116,
+		"METRIC_KIND_CLICKHOUSE_CPU_PCT_USED":                 117,
+		"METRIC_KIND_CLICKHOUSE_CPU_SYSTEM_TIME":              118,
+		"METRIC_KIND_CLICKHOUSE_CPU_IDLE_TIME":                119,
+		"METRIC_KIND_CLICKHOUSE_CPU_USER_TIME":                120,
+		"METRIC_KIND_CLICKHOUSE_MEMORY_LIMIT_BYTES":           121,
+		"METRIC_KIND_CLICKHOUSE_MEMORY_PCT_USED":              122,
+		"METRIC_KIND_CLICKHOUSE_MEMORY_USED_BYTES":            123,
+		"METRIC_KIND_CLICKHOUSE_QUERY_COUNT":                  124,
+		"METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS":         125,
+		"METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS":         126,
+		"METRIC_KIND_ONLINE_STORE_DATASET_SIZE":               127,
+		"METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY":           128,
 	}
 )
 
@@ -468,6 +515,10 @@ const (
 	// shape to unpack. The GPU gauges are the node-scoped metrics today —
 	// DCGM reports per device per node, not per pod.
 	FilterKind_FILTER_KIND_NODE_NAME FilterKind = 34
+	// The scaling-group revision that executed a function call. Function-call
+	// metrics persist this value in the shared operation_id storage dimension,
+	// but it is not a query operation ID and must not use operation formatting.
+	FilterKind_FILTER_KIND_SCALING_GROUP_REVISION_ID FilterKind = 35
 )
 
 // Enum value maps for FilterKind.
@@ -508,6 +559,7 @@ var (
 		32: "FILTER_KIND_CRON_OPERATION_ID",
 		33: "FILTER_KIND_CHALKSQL_OPERATION_ID",
 		34: "FILTER_KIND_NODE_NAME",
+		35: "FILTER_KIND_SCALING_GROUP_REVISION_ID",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -545,6 +597,7 @@ var (
 		"FILTER_KIND_CRON_OPERATION_ID":          32,
 		"FILTER_KIND_CHALKSQL_OPERATION_ID":      33,
 		"FILTER_KIND_NODE_NAME":                  34,
+		"FILTER_KIND_SCALING_GROUP_REVISION_ID":  35,
 	}
 )
 
@@ -743,6 +796,9 @@ const (
 	GroupByKind_GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID GroupByKind = 27
 	GroupByKind_GROUP_BY_KIND_CRON_OPERATION_ID        GroupByKind = 28
 	GroupByKind_GROUP_BY_KIND_CHALKSQL_OPERATION_ID    GroupByKind = 29
+	// The scaling-group revision that executed a function call; see
+	// FILTER_KIND_SCALING_GROUP_REVISION_ID.
+	GroupByKind_GROUP_BY_KIND_SCALING_GROUP_REVISION_ID GroupByKind = 30
 )
 
 // Enum value maps for GroupByKind.
@@ -778,6 +834,7 @@ var (
 		27: "GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID",
 		28: "GROUP_BY_KIND_CRON_OPERATION_ID",
 		29: "GROUP_BY_KIND_CHALKSQL_OPERATION_ID",
+		30: "GROUP_BY_KIND_SCALING_GROUP_REVISION_ID",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":                   0,
@@ -810,6 +867,7 @@ var (
 		"GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID":      27,
 		"GROUP_BY_KIND_CRON_OPERATION_ID":             28,
 		"GROUP_BY_KIND_CHALKSQL_OPERATION_ID":         29,
+		"GROUP_BY_KIND_SCALING_GROUP_REVISION_ID":     30,
 	}
 )
 
@@ -2124,7 +2182,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\x86&\n" +
+	"_entity_id*\xc0*\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2243,7 +2301,20 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	",METRIC_KIND_TELEMETRY_PIPELINE_MIXED_DROPPED\x10p\x12%\n" +
 	"!METRIC_KIND_GPU_MEMORY_USED_BYTES\x10q\x12%\n" +
 	"!METRIC_KIND_GPU_MEMORY_FREE_BYTES\x10r\x12-\n" +
-	")METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT\x10s*\xd6\b\n" +
+	")METRIC_KIND_LOW_CPU_UTILIZATION_POD_COUNT\x10s\x12!\n" +
+	"\x1dMETRIC_KIND_DISK_USED_PERCENT\x10t\x12'\n" +
+	"#METRIC_KIND_CLICKHOUSE_CPU_PCT_USED\x10u\x12*\n" +
+	"&METRIC_KIND_CLICKHOUSE_CPU_SYSTEM_TIME\x10v\x12(\n" +
+	"$METRIC_KIND_CLICKHOUSE_CPU_IDLE_TIME\x10w\x12(\n" +
+	"$METRIC_KIND_CLICKHOUSE_CPU_USER_TIME\x10x\x12-\n" +
+	")METRIC_KIND_CLICKHOUSE_MEMORY_LIMIT_BYTES\x10y\x12*\n" +
+	"&METRIC_KIND_CLICKHOUSE_MEMORY_PCT_USED\x10z\x12,\n" +
+	"(METRIC_KIND_CLICKHOUSE_MEMORY_USED_BYTES\x10{\x12&\n" +
+	"\"METRIC_KIND_CLICKHOUSE_QUERY_COUNT\x10|\x12/\n" +
+	"+METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS\x10}\x12/\n" +
+	"+METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS\x10~\x12)\n" +
+	"%METRIC_KIND_ONLINE_STORE_DATASET_SIZE\x10\x7f\x12.\n" +
+	")METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY\x10\x80\x01*\x81\t\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2281,7 +2352,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"$FILTER_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1f\x12!\n" +
 	"\x1dFILTER_KIND_CRON_OPERATION_ID\x10 \x12%\n" +
 	"!FILTER_KIND_CHALKSQL_OPERATION_ID\x10!\x12\x19\n" +
-	"\x15FILTER_KIND_NODE_NAME\x10\"*~\n" +
+	"\x15FILTER_KIND_NODE_NAME\x10\"\x12)\n" +
+	"%FILTER_KIND_SCALING_GROUP_REVISION_ID\x10#*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -2301,7 +2373,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x98\b\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xc5\b\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -2333,7 +2405,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"(GROUP_BY_KIND_OFFLINE_QUERY_OPERATION_ID\x10\x1a\x12*\n" +
 	"&GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1b\x12#\n" +
 	"\x1fGROUP_BY_KIND_CRON_OPERATION_ID\x10\x1c\x12'\n" +
-	"#GROUP_BY_KIND_CHALKSQL_OPERATION_ID\x10\x1d*\x81\x03\n" +
+	"#GROUP_BY_KIND_CHALKSQL_OPERATION_ID\x10\x1d\x12+\n" +
+	"'GROUP_BY_KIND_SCALING_GROUP_REVISION_ID\x10\x1e*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +

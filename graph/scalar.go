@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow-go/v18/arrow/memory"
 	"github.com/chalk-ai/chalk-go/expr"
 	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"

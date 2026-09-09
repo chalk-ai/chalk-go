@@ -493,7 +493,10 @@ type AttachSession struct {
 	SessionId string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	// Required when the target session was created with a PTY, ignored
 	// otherwise. Attaching to a PTY session without this is an error.
-	PtyInfo       *PtyInfo `protobuf:"bytes,3,opt,name=pty_info,json=ptyInfo,proto3,oneof" json:"pty_info,omitempty"`
+	PtyInfo *PtyInfo `protobuf:"bytes,3,opt,name=pty_info,json=ptyInfo,proto3,oneof" json:"pty_info,omitempty"`
+	// Replay buffered session events strictly after this sequence number.
+	// When omitted, the attachment receives live events only.
+	AfterSeq      *uint64 `protobuf:"varint,4,opt,name=after_seq,json=afterSeq,proto3,oneof" json:"after_seq,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -547,6 +550,13 @@ func (x *AttachSession) GetPtyInfo() *PtyInfo {
 		return x.PtyInfo
 	}
 	return nil
+}
+
+func (x *AttachSession) GetAfterSeq() uint64 {
+	if x != nil && x.AfterSeq != nil {
+		return *x.AfterSeq
+	}
+	return 0
 }
 
 type SessionAttached struct {
@@ -1333,7 +1343,10 @@ type OpenSessionResponse struct {
 	//	*OpenSessionResponse_SessionDetached
 	//	*OpenSessionResponse_ProcessFailed
 	//	*OpenSessionResponse_ProcessTimedOut
-	Event         isOpenSessionResponse_Event `protobuf_oneof:"event"`
+	Event isOpenSessionResponse_Event `protobuf_oneof:"event"`
+	// Monotonically increasing sequence number for replayable process events.
+	// Session lifecycle events that are not replayable use zero.
+	Seq           uint64 `protobuf:"varint,9,opt,name=seq,proto3" json:"seq,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1445,6 +1458,13 @@ func (x *OpenSessionResponse) GetProcessTimedOut() *ProcessTimedOut {
 		}
 	}
 	return nil
+}
+
+func (x *OpenSessionResponse) GetSeq() uint64 {
+	if x != nil {
+		return x.Seq
+	}
+	return 0
 }
 
 type isOpenSessionResponse_Event interface {
@@ -1793,14 +1813,17 @@ const file_chalk_sandbox_v2_process_service_proto_rawDesc = "" +
 	"\b_workdirB\n" +
 	"\n" +
 	"\b_timeoutB\v\n" +
-	"\t_pty_info\"\x95\x01\n" +
+	"\t_pty_info\"\xc5\x01\n" +
 	"\rAttachSession\x12\x1d\n" +
 	"\n" +
 	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x129\n" +
-	"\bpty_info\x18\x03 \x01(\v2\x19.chalk.sandbox.v2.PtyInfoH\x00R\aptyInfo\x88\x01\x01B\v\n" +
-	"\t_pty_info\"0\n" +
+	"\bpty_info\x18\x03 \x01(\v2\x19.chalk.sandbox.v2.PtyInfoH\x00R\aptyInfo\x88\x01\x01\x12 \n" +
+	"\tafter_seq\x18\x04 \x01(\x04H\x01R\bafterSeq\x88\x01\x01B\v\n" +
+	"\t_pty_infoB\f\n" +
+	"\n" +
+	"_after_seq\"0\n" +
 	"\x0fSessionAttached\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"\x0f\n" +
@@ -1858,7 +1881,7 @@ const file_chalk_sandbox_v2_process_service_proto_rawDesc = "" +
 	"\n" +
 	"resize_pty\x18\a \x01(\v2\x1b.chalk.sandbox.v2.ResizePtyH\x00R\tresizePty\x12R\n" +
 	"\x12get_process_status\x18\b \x01(\v2\".chalk.sandbox.v2.GetProcessStatusH\x00R\x10getProcessStatusB\t\n" +
-	"\acommand\"\xe6\x04\n" +
+	"\acommand\"\xf8\x04\n" +
 	"\x13OpenSessionResponse\x126\n" +
 	"\x05error\x18\x01 \x01(\v2\x1e.chalk.sandbox.v2.SessionErrorH\x00R\x05error\x12N\n" +
 	"\x10session_attached\x18\x02 \x01(\v2!.chalk.sandbox.v2.SessionAttachedH\x00R\x0fsessionAttached\x12?\n" +
@@ -1868,7 +1891,8 @@ const file_chalk_sandbox_v2_process_service_proto_rawDesc = "" +
 	"\x0eprocess_exited\x18\x05 \x01(\v2\x1f.chalk.sandbox.v2.ProcessExitedH\x00R\rprocessExited\x12N\n" +
 	"\x10session_detached\x18\x06 \x01(\v2!.chalk.sandbox.v2.SessionDetachedH\x00R\x0fsessionDetached\x12H\n" +
 	"\x0eprocess_failed\x18\a \x01(\v2\x1f.chalk.sandbox.v2.ProcessFailedH\x00R\rprocessFailed\x12O\n" +
-	"\x11process_timed_out\x18\b \x01(\v2!.chalk.sandbox.v2.ProcessTimedOutH\x00R\x0fprocessTimedOutB\a\n" +
+	"\x11process_timed_out\x18\b \x01(\v2!.chalk.sandbox.v2.ProcessTimedOutH\x00R\x0fprocessTimedOut\x12\x10\n" +
+	"\x03seq\x18\t \x01(\x04R\x03seqB\a\n" +
 	"\x05event\"\xb3\x01\n" +
 	"\vSessionInfo\x12\x1d\n" +
 	"\n" +

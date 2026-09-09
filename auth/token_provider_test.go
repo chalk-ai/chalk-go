@@ -33,7 +33,7 @@ func authValidFor(environmentID string, d time.Duration) *AuthSnapshot {
 func managerWithoutCredentials(t *testing.T) *config.Manager {
 	t.Helper()
 	emptyDir := t.TempDir()
-	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), envfs.MapEnvironmentGetter{})
+	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), &envfs.MapEnvironmentGetter{})
 	manager, err := config.NewManager(ctx, &config.ManagerInputs{
 		APIServer:     "https://api.chalk.ai",
 		EnvironmentId: "env-abc",

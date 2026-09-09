@@ -350,19 +350,21 @@ func (x *Aggregation) GetParams() *AggregationParams {
 }
 
 // Aggregation contract every surface's aggregate RPC shares, table and time-series alike, so one
-// persisted spec can drive either rendering. A time-series RPC ranks its series by the measure and so
-// takes exactly one aggregation; its handler rejects more.
+// persisted spec can drive either rendering. A time-series RPC draws one series per (group, measure),
+// so several aggregations multiply its series count; its handler caps them.
 type AggregateOptions struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Dimensions to group by; empty → a single scalar row.
 	GroupBy []string `protobuf:"bytes,1,rep,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
-	// Ranking and "(other)" key off the first. At least one required.
+	// "(other)" folds only when every one of these is foldable. At least one required.
 	Aggregations []*Aggregation `protobuf:"bytes,2,rep,name=aggregations,proto3" json:"aggregations,omitempty"`
-	// Top-N groups by the primary aggregation; unset or <= 0 keeps all.
-	Limit         *int32       `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Order         SortOrder    `protobuf:"varint,4,opt,name=order,proto3,enum=chalk.searchaggregates.v1.SortOrder" json:"order,omitempty"`
-	OtherRowMode  OtherRowMode `protobuf:"varint,5,opt,name=other_row_mode,json=otherRowMode,proto3,enum=chalk.searchaggregates.v1.OtherRowMode" json:"other_row_mode,omitempty"`
-	NoneRowMode   NoneRowMode  `protobuf:"varint,6,opt,name=none_row_mode,json=noneRowMode,proto3,enum=chalk.searchaggregates.v1.NoneRowMode" json:"none_row_mode,omitempty"`
+	// Top-N groups by the ranking aggregation; unset or <= 0 keeps all.
+	Limit        *int32       `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Order        SortOrder    `protobuf:"varint,4,opt,name=order,proto3,enum=chalk.searchaggregates.v1.SortOrder" json:"order,omitempty"`
+	OtherRowMode OtherRowMode `protobuf:"varint,5,opt,name=other_row_mode,json=otherRowMode,proto3,enum=chalk.searchaggregates.v1.OtherRowMode" json:"other_row_mode,omitempty"`
+	NoneRowMode  NoneRowMode  `protobuf:"varint,6,opt,name=none_row_mode,json=noneRowMode,proto3,enum=chalk.searchaggregates.v1.NoneRowMode" json:"none_row_mode,omitempty"`
+	// Index into `aggregations` for ORDER BY and the top-N cut. Unset is 0; out of range errors.
+	OrderBy       *int32 `protobuf:"varint,7,opt,name=order_by,json=orderBy,proto3,oneof" json:"order_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -437,6 +439,13 @@ func (x *AggregateOptions) GetNoneRowMode() NoneRowMode {
 		return x.NoneRowMode
 	}
 	return NoneRowMode_NONE_ROW_MODE_UNSPECIFIED
+}
+
+func (x *AggregateOptions) GetOrderBy() int32 {
+	if x != nil && x.OrderBy != nil {
+		return *x.OrderBy
+	}
+	return 0
 }
 
 type AggregateRow struct {
@@ -657,15 +666,17 @@ const file_chalk_searchaggregates_v1_aggregation_proto_rawDesc = "" +
 	"\bfunction\x18\x01 \x01(\x0e2..chalk.searchaggregates.v1.AggregationFunctionR\bfunction\x12\x19\n" +
 	"\x05field\x18\x02 \x01(\tH\x00R\x05field\x88\x01\x01\x12D\n" +
 	"\x06params\x18\x03 \x01(\v2,.chalk.searchaggregates.v1.AggregationParamsR\x06paramsB\b\n" +
-	"\x06_field\"\xf5\x02\n" +
+	"\x06_field\"\xa2\x03\n" +
 	"\x10AggregateOptions\x12\x19\n" +
 	"\bgroup_by\x18\x01 \x03(\tR\agroupBy\x12J\n" +
 	"\faggregations\x18\x02 \x03(\v2&.chalk.searchaggregates.v1.AggregationR\faggregations\x12\x19\n" +
 	"\x05limit\x18\x03 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12:\n" +
 	"\x05order\x18\x04 \x01(\x0e2$.chalk.searchaggregates.v1.SortOrderR\x05order\x12M\n" +
 	"\x0eother_row_mode\x18\x05 \x01(\x0e2'.chalk.searchaggregates.v1.OtherRowModeR\fotherRowMode\x12J\n" +
-	"\rnone_row_mode\x18\x06 \x01(\x0e2&.chalk.searchaggregates.v1.NoneRowModeR\vnoneRowModeB\b\n" +
-	"\x06_limit\"a\n" +
+	"\rnone_row_mode\x18\x06 \x01(\x0e2&.chalk.searchaggregates.v1.NoneRowModeR\vnoneRowMode\x12\x1e\n" +
+	"\border_by\x18\a \x01(\x05H\x01R\aorderBy\x88\x01\x01B\b\n" +
+	"\x06_limitB\v\n" +
+	"\t_order_by\"a\n" +
 	"\fAggregateRow\x12\x14\n" +
 	"\x05group\x18\x01 \x03(\tR\x05group\x12;\n" +
 	"\x06values\x18\x02 \x03(\v2#.chalk.numericutils.v1.NumericValueR\x06values\"\xf2\x01\n" +

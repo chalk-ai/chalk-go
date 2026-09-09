@@ -28,7 +28,6 @@ func redeployDeployment() {
 	// Create a redeploy request
 	req := &serverv1.RedeployDeploymentRequest{
 		ExistingDeploymentId: "your-deployment-id", // Replace with actual deployment ID
-		EnableProfiling:      false,
 		DeploymentTags:       []string{"production", "v2"},
 		// Pin the engine platform version (a tag/digest selector applied to the default
 		// engine base image). Mutually exclusive with BaseImageOverride — setting both

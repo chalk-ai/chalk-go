@@ -445,9 +445,12 @@ func (x *PagerDutyEventV2) GetImages() []*PagerDutyEventV2Image {
 }
 
 type SlackIntegration struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SlackToken    *string                `protobuf:"bytes,2,opt,name=slack_token,json=slackToken,proto3,oneof" json:"slack_token,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Slack bot OAuth access token. Marked sensitive so the audit interceptor
+	// clears it before persisting the request/response.
+	SlackToken *string `protobuf:"bytes,2,opt,name=slack_token,json=slackToken,proto3,oneof" json:"slack_token,omitempty"`
+	// Raw Slack OAuth response JSON, which also embeds the access token.
 	SlackData     *string                `protobuf:"bytes,3,opt,name=slack_data,json=slackData,proto3,oneof" json:"slack_data,omitempty"`
 	SlackChannel  *string                `protobuf:"bytes,4,opt,name=slack_channel,json=slackChannel,proto3,oneof" json:"slack_channel,omitempty"`
 	Channels      []string               `protobuf:"bytes,5,rep,name=channels,proto3" json:"channels,omitempty"`
@@ -3408,13 +3411,13 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\n" +
 	"_dedup_keyB\t\n" +
 	"\a_clientB\r\n" +
-	"\v_client_url\"\x9d\x03\n" +
+	"\v_client_url\"\xa9\x03\n" +
 	"\x10SlackIntegration\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12$\n" +
-	"\vslack_token\x18\x02 \x01(\tH\x00R\n" +
-	"slackToken\x88\x01\x01\x12\"\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12*\n" +
+	"\vslack_token\x18\x02 \x01(\tB\x04ء'\x01H\x00R\n" +
+	"slackToken\x88\x01\x01\x12(\n" +
 	"\n" +
-	"slack_data\x18\x03 \x01(\tH\x01R\tslackData\x88\x01\x01\x12(\n" +
+	"slack_data\x18\x03 \x01(\tB\x04ء'\x01H\x01R\tslackData\x88\x01\x01\x12(\n" +
 	"\rslack_channel\x18\x04 \x01(\tH\x02R\fslackChannel\x88\x01\x01\x12\x1a\n" +
 	"\bchannels\x18\x05 \x03(\tR\bchannels\x12 \n" +
 	"\tteam_data\x18\x06 \x01(\tH\x03R\bteamData\x88\x01\x01\x129\n" +
@@ -3434,14 +3437,14 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\adefault\x18\x03 \x01(\bR\adefault\x12\x1a\n" +
 	"\x05token\x18\x04 \x01(\tB\x04ء'\x01R\x05token\x12%\n" +
 	"\x0eenvironment_id\x18\x05 \x01(\tR\renvironmentIdB\a\n" +
-	"\x05_name\"\x9c\x02\n" +
+	"\x05_name\"\xa2\x02\n" +
 	"\x15IncidentIoIntegration\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\x05token\x18\x02 \x01(\tB\x04ء'\x01R\x05token\x12%\n" +
 	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x12\x17\n" +
 	"\x04name\x18\x04 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1b\n" +
-	"\tsource_id\x18\x05 \x01(\tR\bsourceId\x12!\n" +
-	"\fsource_token\x18\x06 \x01(\tR\vsourceToken\x12#\n" +
+	"\tsource_id\x18\x05 \x01(\tR\bsourceId\x12'\n" +
+	"\fsource_token\x18\x06 \x01(\tB\x04ء'\x01R\vsourceToken\x12#\n" +
 	"\vseverity_id\x18\a \x01(\tB\x02\x18\x01R\n" +
 	"severityId\x12)\n" +
 	"\x0eseverity_token\x18\b \x01(\tB\x02\x18\x01R\rseverityTokenB\a\n" +
@@ -3469,10 +3472,10 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\vintegration\x18\x01 \x01(\v2%.chalk.server.v1.PagerDutyIntegrationR\vintegration\"T\n" +
 	" TestPagerDutyIntegrationResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"X\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"^\n" +
 	"\x1eAddPagerDutyIntegrationRequest\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x14\n" +
-	"\x05token\x18\x03 \x01(\tR\x05tokenB\a\n" +
+	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1a\n" +
+	"\x05token\x18\x03 \x01(\tB\x04ء'\x01R\x05tokenB\a\n" +
 	"\x05_name\"j\n" +
 	"\x1fAddPagerDutyIntegrationResponse\x12G\n" +
 	"\vintegration\x18\x01 \x01(\v2%.chalk.server.v1.PagerDutyIntegrationR\vintegration\"3\n" +
@@ -3505,10 +3508,10 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\x1fGetIncidentIoIntegrationRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"l\n" +
 	" GetIncidentIoIntegrationResponse\x12H\n" +
-	"\vintegration\x18\x01 \x01(\v2&.chalk.server.v1.IncidentIoIntegrationR\vintegration\"\xc7\x01\n" +
+	"\vintegration\x18\x01 \x01(\v2&.chalk.server.v1.IncidentIoIntegrationR\vintegration\"\xcd\x01\n" +
 	"\x1fAddIncidentIoIntegrationRequest\x12.\n" +
-	"\x10integration_name\x18\x01 \x01(\tH\x00R\x0fintegrationName\x88\x01\x01\x12+\n" +
-	"\x11integration_token\x18\x03 \x01(\tR\x10integrationToken\x122\n" +
+	"\x10integration_name\x18\x01 \x01(\tH\x00R\x0fintegrationName\x88\x01\x01\x121\n" +
+	"\x11integration_token\x18\x03 \x01(\tB\x04ء'\x01R\x10integrationToken\x122\n" +
 	"\x15integration_source_id\x18\x04 \x01(\tR\x13integrationSourceIdB\x13\n" +
 	"\x11_integration_name\"l\n" +
 	" AddIncidentIoIntegrationResponse\x12H\n" +

@@ -387,113 +387,6 @@ func (x *Diagnostic) GetRelatedInformation() []*DiagnosticRelatedInformation {
 	return nil
 }
 
-type Range struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Start *Position              `protobuf:"bytes,1,opt,name=start,proto3" json:"start,omitempty"`
-	// Exclusive end position.
-	End           *Position `protobuf:"bytes,2,opt,name=end,proto3" json:"end,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Range) Reset() {
-	*x = Range{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Range) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Range) ProtoMessage() {}
-
-func (x *Range) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Range.ProtoReflect.Descriptor instead.
-func (*Range) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *Range) GetStart() *Position {
-	if x != nil {
-		return x.Start
-	}
-	return nil
-}
-
-func (x *Range) GetEnd() *Position {
-	if x != nil {
-		return x.End
-	}
-	return nil
-}
-
-type Position struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 0-based line number.
-	Line *int32 `protobuf:"varint,1,opt,name=line,proto3,oneof" json:"line,omitempty"`
-	// 0-based character offset on the line.
-	Character     *int32 `protobuf:"varint,2,opt,name=character,proto3,oneof" json:"character,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Position) Reset() {
-	*x = Position{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Position) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Position) ProtoMessage() {}
-
-func (x *Position) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Position.ProtoReflect.Descriptor instead.
-func (*Position) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *Position) GetLine() int32 {
-	if x != nil && x.Line != nil {
-		return *x.Line
-	}
-	return 0
-}
-
-func (x *Position) GetCharacter() int32 {
-	if x != nil && x.Character != nil {
-		return *x.Character
-	}
-	return 0
-}
-
 type CodeAction struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -505,7 +398,7 @@ type CodeAction struct {
 
 func (x *CodeAction) Reset() {
 	*x = CodeAction{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[6]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -517,7 +410,7 @@ func (x *CodeAction) String() string {
 func (*CodeAction) ProtoMessage() {}
 
 func (x *CodeAction) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[6]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -530,7 +423,7 @@ func (x *CodeAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeAction.ProtoReflect.Descriptor instead.
 func (*CodeAction) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{6}
+	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CodeAction) GetTitle() string {
@@ -563,7 +456,7 @@ type WorkspaceEdit struct {
 
 func (x *WorkspaceEdit) Reset() {
 	*x = WorkspaceEdit{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[7]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -575,7 +468,7 @@ func (x *WorkspaceEdit) String() string {
 func (*WorkspaceEdit) ProtoMessage() {}
 
 func (x *WorkspaceEdit) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[7]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -588,7 +481,7 @@ func (x *WorkspaceEdit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WorkspaceEdit.ProtoReflect.Descriptor instead.
 func (*WorkspaceEdit) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{7}
+	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *WorkspaceEdit) GetDocumentChanges() []*TextDocumentEdit {
@@ -608,7 +501,7 @@ type TextDocumentEdit struct {
 
 func (x *TextDocumentEdit) Reset() {
 	*x = TextDocumentEdit{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[8]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -620,7 +513,7 @@ func (x *TextDocumentEdit) String() string {
 func (*TextDocumentEdit) ProtoMessage() {}
 
 func (x *TextDocumentEdit) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[8]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -633,7 +526,7 @@ func (x *TextDocumentEdit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TextDocumentEdit.ProtoReflect.Descriptor instead.
 func (*TextDocumentEdit) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{8}
+	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *TextDocumentEdit) GetTextDocument() *TextDocumentIdentifier {
@@ -659,7 +552,7 @@ type TextDocumentIdentifier struct {
 
 func (x *TextDocumentIdentifier) Reset() {
 	*x = TextDocumentIdentifier{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[9]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -671,7 +564,7 @@ func (x *TextDocumentIdentifier) String() string {
 func (*TextDocumentIdentifier) ProtoMessage() {}
 
 func (x *TextDocumentIdentifier) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[9]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -684,7 +577,7 @@ func (x *TextDocumentIdentifier) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TextDocumentIdentifier.ProtoReflect.Descriptor instead.
 func (*TextDocumentIdentifier) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{9}
+	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *TextDocumentIdentifier) GetUri() string {
@@ -704,7 +597,7 @@ type TextEdit struct {
 
 func (x *TextEdit) Reset() {
 	*x = TextEdit{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[10]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -716,7 +609,7 @@ func (x *TextEdit) String() string {
 func (*TextEdit) ProtoMessage() {}
 
 func (x *TextEdit) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[10]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -729,7 +622,7 @@ func (x *TextEdit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TextEdit.ProtoReflect.Descriptor instead.
 func (*TextEdit) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{10}
+	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *TextEdit) GetRange() *Range {
@@ -755,7 +648,7 @@ type CodeDescription struct {
 
 func (x *CodeDescription) Reset() {
 	*x = CodeDescription{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[11]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -767,7 +660,7 @@ func (x *CodeDescription) String() string {
 func (*CodeDescription) ProtoMessage() {}
 
 func (x *CodeDescription) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[11]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -780,7 +673,7 @@ func (x *CodeDescription) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeDescription.ProtoReflect.Descriptor instead.
 func (*CodeDescription) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{11}
+	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CodeDescription) GetHref() string {
@@ -800,7 +693,7 @@ type DiagnosticRelatedInformation struct {
 
 func (x *DiagnosticRelatedInformation) Reset() {
 	*x = DiagnosticRelatedInformation{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[12]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -812,7 +705,7 @@ func (x *DiagnosticRelatedInformation) String() string {
 func (*DiagnosticRelatedInformation) ProtoMessage() {}
 
 func (x *DiagnosticRelatedInformation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[12]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -825,7 +718,7 @@ func (x *DiagnosticRelatedInformation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DiagnosticRelatedInformation.ProtoReflect.Descriptor instead.
 func (*DiagnosticRelatedInformation) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{12}
+	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DiagnosticRelatedInformation) GetLocation() *Location {
@@ -852,7 +745,7 @@ type Location struct {
 
 func (x *Location) Reset() {
 	*x = Location{}
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[13]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -864,7 +757,7 @@ func (x *Location) String() string {
 func (*Location) ProtoMessage() {}
 
 func (x *Location) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[13]
+	mi := &file_chalk_lsp_v1_lsp_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -877,7 +770,7 @@ func (x *Location) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Location.ProtoReflect.Descriptor instead.
 func (*Location) Descriptor() ([]byte, []int) {
-	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{13}
+	return file_chalk_lsp_v1_lsp_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Location) GetUri() string {
@@ -898,7 +791,7 @@ var File_chalk_lsp_v1_lsp_proto protoreflect.FileDescriptor
 
 const file_chalk_lsp_v1_lsp_proto_rawDesc = "" +
 	"\n" +
-	"\x16chalk/lsp/v1/lsp.proto\x12\fchalk.lsp.v1\"\xb1\x01\n" +
+	"\x16chalk/lsp/v1/lsp.proto\x12\fchalk.lsp.v1\x1a\x18chalk/lsp/v1/range.proto\"\xb1\x01\n" +
 	"\x03LSP\x12H\n" +
 	"\vdiagnostics\x18\x01 \x03(\v2&.chalk.lsp.v1.PublishDiagnosticsParamsR\vdiagnostics\x122\n" +
 	"\aactions\x18\x02 \x03(\v2\x18.chalk.lsp.v1.CodeActionR\aactions\x12,\n" +
@@ -919,16 +812,7 @@ const file_chalk_lsp_v1_lsp_proto_rawDesc = "" +
 	"\x04code\x18\x04 \x01(\tH\x00R\x04code\x88\x01\x01\x12H\n" +
 	"\x10code_description\x18\x05 \x01(\v2\x1d.chalk.lsp.v1.CodeDescriptionR\x0fcodeDescription\x12[\n" +
 	"\x13related_information\x18\x06 \x03(\v2*.chalk.lsp.v1.DiagnosticRelatedInformationR\x12relatedInformationB\a\n" +
-	"\x05_code\"_\n" +
-	"\x05Range\x12,\n" +
-	"\x05start\x18\x01 \x01(\v2\x16.chalk.lsp.v1.PositionR\x05start\x12(\n" +
-	"\x03end\x18\x02 \x01(\v2\x16.chalk.lsp.v1.PositionR\x03end\"]\n" +
-	"\bPosition\x12\x17\n" +
-	"\x04line\x18\x01 \x01(\x05H\x00R\x04line\x88\x01\x01\x12!\n" +
-	"\tcharacter\x18\x02 \x01(\x05H\x01R\tcharacter\x88\x01\x01B\a\n" +
-	"\x05_lineB\f\n" +
-	"\n" +
-	"_character\"\x8f\x01\n" +
+	"\x05_code\"\x8f\x01\n" +
 	"\n" +
 	"CodeAction\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12:\n" +
@@ -964,7 +848,7 @@ const file_chalk_lsp_v1_lsp_proto_rawDesc = "" +
 	"\x1bDIAGNOSTIC_SEVERITY_WARNING\x10\x02\x12#\n" +
 	"\x1fDIAGNOSTIC_SEVERITY_INFORMATION\x10\x03\x12\x1c\n" +
 	"\x18DIAGNOSTIC_SEVERITY_HINT\x10\x04B\xa3\x01\n" +
-	"\x10com.chalk.lsp.v1B\bLspProtoP\x01Z3github.com/chalk-ai/chalk-go/gen/chalk/lsp/v1;lspv1\xa2\x02\x03CLX\xaa\x02\fChalk.Lsp.V1\xca\x02\fChalk\\Lsp\\V1\xe2\x02\x18Chalk\\Lsp\\V1\\GPBMetadata\xea\x02\x0eChalk::Lsp::V1b\x06proto3"
+	"\x10com.chalk.lsp.v1B\bLspProtoP\x01Z3github.com/chalk-ai/chalk-go/gen/chalk/lsp/v1;lspv1\xa2\x02\x03CLX\xaa\x02\fChalk.Lsp.V1\xca\x02\fChalk\\Lsp\\V1\xe2\x02\x18Chalk\\Lsp\\V1\\GPBMetadata\xea\x02\x0eChalk::Lsp::V1P\x00b\x06proto3"
 
 var (
 	file_chalk_lsp_v1_lsp_proto_rawDescOnce sync.Once
@@ -979,7 +863,7 @@ func file_chalk_lsp_v1_lsp_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_lsp_v1_lsp_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_lsp_v1_lsp_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_chalk_lsp_v1_lsp_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_lsp_v1_lsp_proto_goTypes = []any{
 	(LogMessageSeverity)(0),              // 0: chalk.lsp.v1.LogMessageSeverity
 	(DiagnosticSeverity)(0),              // 1: chalk.lsp.v1.DiagnosticSeverity
@@ -987,42 +871,39 @@ var file_chalk_lsp_v1_lsp_proto_goTypes = []any{
 	(*LogMessage)(nil),                   // 3: chalk.lsp.v1.LogMessage
 	(*PublishDiagnosticsParams)(nil),     // 4: chalk.lsp.v1.PublishDiagnosticsParams
 	(*Diagnostic)(nil),                   // 5: chalk.lsp.v1.Diagnostic
-	(*Range)(nil),                        // 6: chalk.lsp.v1.Range
-	(*Position)(nil),                     // 7: chalk.lsp.v1.Position
-	(*CodeAction)(nil),                   // 8: chalk.lsp.v1.CodeAction
-	(*WorkspaceEdit)(nil),                // 9: chalk.lsp.v1.WorkspaceEdit
-	(*TextDocumentEdit)(nil),             // 10: chalk.lsp.v1.TextDocumentEdit
-	(*TextDocumentIdentifier)(nil),       // 11: chalk.lsp.v1.TextDocumentIdentifier
-	(*TextEdit)(nil),                     // 12: chalk.lsp.v1.TextEdit
-	(*CodeDescription)(nil),              // 13: chalk.lsp.v1.CodeDescription
-	(*DiagnosticRelatedInformation)(nil), // 14: chalk.lsp.v1.DiagnosticRelatedInformation
-	(*Location)(nil),                     // 15: chalk.lsp.v1.Location
+	(*CodeAction)(nil),                   // 6: chalk.lsp.v1.CodeAction
+	(*WorkspaceEdit)(nil),                // 7: chalk.lsp.v1.WorkspaceEdit
+	(*TextDocumentEdit)(nil),             // 8: chalk.lsp.v1.TextDocumentEdit
+	(*TextDocumentIdentifier)(nil),       // 9: chalk.lsp.v1.TextDocumentIdentifier
+	(*TextEdit)(nil),                     // 10: chalk.lsp.v1.TextEdit
+	(*CodeDescription)(nil),              // 11: chalk.lsp.v1.CodeDescription
+	(*DiagnosticRelatedInformation)(nil), // 12: chalk.lsp.v1.DiagnosticRelatedInformation
+	(*Location)(nil),                     // 13: chalk.lsp.v1.Location
+	(*Range)(nil),                        // 14: chalk.lsp.v1.Range
 }
 var file_chalk_lsp_v1_lsp_proto_depIdxs = []int32{
 	4,  // 0: chalk.lsp.v1.LSP.diagnostics:type_name -> chalk.lsp.v1.PublishDiagnosticsParams
-	8,  // 1: chalk.lsp.v1.LSP.actions:type_name -> chalk.lsp.v1.CodeAction
+	6,  // 1: chalk.lsp.v1.LSP.actions:type_name -> chalk.lsp.v1.CodeAction
 	3,  // 2: chalk.lsp.v1.LSP.logs:type_name -> chalk.lsp.v1.LogMessage
 	0,  // 3: chalk.lsp.v1.LogMessage.severity:type_name -> chalk.lsp.v1.LogMessageSeverity
 	5,  // 4: chalk.lsp.v1.PublishDiagnosticsParams.diagnostics:type_name -> chalk.lsp.v1.Diagnostic
-	6,  // 5: chalk.lsp.v1.Diagnostic.range:type_name -> chalk.lsp.v1.Range
+	14, // 5: chalk.lsp.v1.Diagnostic.range:type_name -> chalk.lsp.v1.Range
 	1,  // 6: chalk.lsp.v1.Diagnostic.severity:type_name -> chalk.lsp.v1.DiagnosticSeverity
-	13, // 7: chalk.lsp.v1.Diagnostic.code_description:type_name -> chalk.lsp.v1.CodeDescription
-	14, // 8: chalk.lsp.v1.Diagnostic.related_information:type_name -> chalk.lsp.v1.DiagnosticRelatedInformation
-	7,  // 9: chalk.lsp.v1.Range.start:type_name -> chalk.lsp.v1.Position
-	7,  // 10: chalk.lsp.v1.Range.end:type_name -> chalk.lsp.v1.Position
-	5,  // 11: chalk.lsp.v1.CodeAction.diagnostics:type_name -> chalk.lsp.v1.Diagnostic
-	9,  // 12: chalk.lsp.v1.CodeAction.edit:type_name -> chalk.lsp.v1.WorkspaceEdit
-	10, // 13: chalk.lsp.v1.WorkspaceEdit.document_changes:type_name -> chalk.lsp.v1.TextDocumentEdit
-	11, // 14: chalk.lsp.v1.TextDocumentEdit.text_document:type_name -> chalk.lsp.v1.TextDocumentIdentifier
-	12, // 15: chalk.lsp.v1.TextDocumentEdit.edits:type_name -> chalk.lsp.v1.TextEdit
-	6,  // 16: chalk.lsp.v1.TextEdit.range:type_name -> chalk.lsp.v1.Range
-	15, // 17: chalk.lsp.v1.DiagnosticRelatedInformation.location:type_name -> chalk.lsp.v1.Location
-	6,  // 18: chalk.lsp.v1.Location.range:type_name -> chalk.lsp.v1.Range
-	19, // [19:19] is the sub-list for method output_type
-	19, // [19:19] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	11, // 7: chalk.lsp.v1.Diagnostic.code_description:type_name -> chalk.lsp.v1.CodeDescription
+	12, // 8: chalk.lsp.v1.Diagnostic.related_information:type_name -> chalk.lsp.v1.DiagnosticRelatedInformation
+	5,  // 9: chalk.lsp.v1.CodeAction.diagnostics:type_name -> chalk.lsp.v1.Diagnostic
+	7,  // 10: chalk.lsp.v1.CodeAction.edit:type_name -> chalk.lsp.v1.WorkspaceEdit
+	8,  // 11: chalk.lsp.v1.WorkspaceEdit.document_changes:type_name -> chalk.lsp.v1.TextDocumentEdit
+	9,  // 12: chalk.lsp.v1.TextDocumentEdit.text_document:type_name -> chalk.lsp.v1.TextDocumentIdentifier
+	10, // 13: chalk.lsp.v1.TextDocumentEdit.edits:type_name -> chalk.lsp.v1.TextEdit
+	14, // 14: chalk.lsp.v1.TextEdit.range:type_name -> chalk.lsp.v1.Range
+	13, // 15: chalk.lsp.v1.DiagnosticRelatedInformation.location:type_name -> chalk.lsp.v1.Location
+	14, // 16: chalk.lsp.v1.Location.range:type_name -> chalk.lsp.v1.Range
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_chalk_lsp_v1_lsp_proto_init() }
@@ -1030,15 +911,15 @@ func file_chalk_lsp_v1_lsp_proto_init() {
 	if File_chalk_lsp_v1_lsp_proto != nil {
 		return
 	}
+	file_chalk_lsp_v1_range_proto_init()
 	file_chalk_lsp_v1_lsp_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_lsp_v1_lsp_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_lsp_v1_lsp_proto_rawDesc), len(file_chalk_lsp_v1_lsp_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   14,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

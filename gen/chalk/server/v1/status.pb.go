@@ -140,6 +140,9 @@ const (
 	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_NODEPOOL                       HealthCheckName = 57 // "Offline Nodepool"
 	HealthCheckName_HEALTH_CHECK_NAME_LLM_ROUTER                             HealthCheckName = 58 // "LLM Router"
 	HealthCheckName_HEALTH_CHECK_NAME_MCP_GATEWAY                            HealthCheckName = 59 // "MCP Gateway"
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_USAGE                       HealthCheckName = 60 // clickhouse usage stats
+	HealthCheckName_HEALTH_CHECK_NAME_DATAPLANE_API_SERVER                   HealthCheckName = 61 // "Dataplane API Server"
+	HealthCheckName_HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL                HealthCheckName = 62 // "Infrastructure Nodepool"
 )
 
 // Enum value maps for HealthCheckName.
@@ -205,6 +208,9 @@ var (
 		57: "HEALTH_CHECK_NAME_OFFLINE_NODEPOOL",
 		58: "HEALTH_CHECK_NAME_LLM_ROUTER",
 		59: "HEALTH_CHECK_NAME_MCP_GATEWAY",
+		60: "HEALTH_CHECK_NAME_CLICKHOUSE_USAGE",
+		61: "HEALTH_CHECK_NAME_DATAPLANE_API_SERVER",
+		62: "HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL",
 	}
 	HealthCheckName_value = map[string]int32{
 		"HEALTH_CHECK_NAME_UNSPECIFIED":                            0,
@@ -267,6 +273,9 @@ var (
 		"HEALTH_CHECK_NAME_OFFLINE_NODEPOOL":                       57,
 		"HEALTH_CHECK_NAME_LLM_ROUTER":                             58,
 		"HEALTH_CHECK_NAME_MCP_GATEWAY":                            59,
+		"HEALTH_CHECK_NAME_CLICKHOUSE_USAGE":                       60,
+		"HEALTH_CHECK_NAME_DATAPLANE_API_SERVER":                   61,
+		"HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL":                62,
 	}
 )
 
@@ -696,7 +705,7 @@ var File_chalk_server_v1_status_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/server/v1/status.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x9c\x03\n" +
+	"\x1cchalk/server/v1/status.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/server/v1/kube_cluster_health.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x9c\x03\n" +
 	"\vHealthCheck\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12:\n" +
 	"\x06status\x18\x02 \x01(\x0e2\".chalk.server.v1.HealthCheckStatusR\x06status\x12\x1d\n" +
@@ -735,7 +744,7 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\x1fHEALTH_CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16HEALTH_CHECK_STATUS_OK\x10\x01\x12\x1f\n" +
 	"\x1bHEALTH_CHECK_STATUS_FAILING\x10\x02\x12&\n" +
-	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\xd3\x12\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\xd6\x13\n" +
 	"\x0fHealthCheckName\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_HTTP_ENGINE\x10\x01\x12%\n" +
@@ -797,10 +806,15 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	".HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS\x108\x12&\n" +
 	"\"HEALTH_CHECK_NAME_OFFLINE_NODEPOOL\x109\x12 \n" +
 	"\x1cHEALTH_CHECK_NAME_LLM_ROUTER\x10:\x12!\n" +
-	"\x1dHEALTH_CHECK_NAME_MCP_GATEWAY\x10;2\xc1\x02\n" +
+	"\x1dHEALTH_CHECK_NAME_MCP_GATEWAY\x10;\x12&\n" +
+	"\"HEALTH_CHECK_NAME_CLICKHOUSE_USAGE\x10<\x12*\n" +
+	"&HEALTH_CHECK_NAME_DATAPLANE_API_SERVER\x10=\x12-\n" +
+	")HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL\x10>2\xac\x04\n" +
 	"\rHealthService\x12`\n" +
 	"\vCheckHealth\x12#.chalk.server.v1.CheckHealthRequest\x1a$.chalk.server.v1.CheckHealthResponse\"\x06\x80}\x01\x90\x02\x01\x12Z\n" +
-	"\tGetHealth\x12!.chalk.server.v1.GetHealthRequest\x1a\".chalk.server.v1.GetHealthResponse\"\x06\x80}\x02\x90\x02\x01\x12r\n" +
+	"\tGetHealth\x12!.chalk.server.v1.GetHealthRequest\x1a\".chalk.server.v1.GetHealthResponse\"\x06\x80}\x02\x90\x02\x01\x12o\n" +
+	"\x10GetClusterHealth\x12(.chalk.server.v1.GetClusterHealthRequest\x1a).chalk.server.v1.GetClusterHealthResponse\"\x06\x80}\x02\x90\x02\x01\x12x\n" +
+	"\x13ListClusterDnsZones\x12+.chalk.server.v1.ListClusterDnsZonesRequest\x1a,.chalk.server.v1.ListClusterDnsZonesResponse\"\x06\x80}\x02\x90\x02\x01\x12r\n" +
 	"\x11GetClusterMetrics\x12).chalk.server.v1.GetClusterMetricsRequest\x1a*.chalk.server.v1.GetClusterMetricsResponse\"\x06\x80}\x02\x90\x02\x01B\xbb\x01\n" +
 	"\x13com.chalk.server.v1B\vStatusProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -819,19 +833,23 @@ func file_chalk_server_v1_status_proto_rawDescGZIP() []byte {
 var file_chalk_server_v1_status_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_server_v1_status_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chalk_server_v1_status_proto_goTypes = []any{
-	(HealthCheckStatus)(0),            // 0: chalk.server.v1.HealthCheckStatus
-	(HealthCheckName)(0),              // 1: chalk.server.v1.HealthCheckName
-	(*HealthCheck)(nil),               // 2: chalk.server.v1.HealthCheck
-	(*HealthCheckFilters)(nil),        // 3: chalk.server.v1.HealthCheckFilters
-	(*CheckHealthRequest)(nil),        // 4: chalk.server.v1.CheckHealthRequest
-	(*CheckHealthResponse)(nil),       // 5: chalk.server.v1.CheckHealthResponse
-	(*GetHealthRequest)(nil),          // 6: chalk.server.v1.GetHealthRequest
-	(*GetHealthResponse)(nil),         // 7: chalk.server.v1.GetHealthResponse
-	(*GetClusterMetricsRequest)(nil),  // 8: chalk.server.v1.GetClusterMetricsRequest
-	(*GetClusterMetricsResponse)(nil), // 9: chalk.server.v1.GetClusterMetricsResponse
-	nil,                               // 10: chalk.server.v1.HealthCheck.MetadataEntry
-	(*durationpb.Duration)(nil),       // 11: google.protobuf.Duration
-	(*structpb.Struct)(nil),           // 12: google.protobuf.Struct
+	(HealthCheckStatus)(0),              // 0: chalk.server.v1.HealthCheckStatus
+	(HealthCheckName)(0),                // 1: chalk.server.v1.HealthCheckName
+	(*HealthCheck)(nil),                 // 2: chalk.server.v1.HealthCheck
+	(*HealthCheckFilters)(nil),          // 3: chalk.server.v1.HealthCheckFilters
+	(*CheckHealthRequest)(nil),          // 4: chalk.server.v1.CheckHealthRequest
+	(*CheckHealthResponse)(nil),         // 5: chalk.server.v1.CheckHealthResponse
+	(*GetHealthRequest)(nil),            // 6: chalk.server.v1.GetHealthRequest
+	(*GetHealthResponse)(nil),           // 7: chalk.server.v1.GetHealthResponse
+	(*GetClusterMetricsRequest)(nil),    // 8: chalk.server.v1.GetClusterMetricsRequest
+	(*GetClusterMetricsResponse)(nil),   // 9: chalk.server.v1.GetClusterMetricsResponse
+	nil,                                 // 10: chalk.server.v1.HealthCheck.MetadataEntry
+	(*durationpb.Duration)(nil),         // 11: google.protobuf.Duration
+	(*structpb.Struct)(nil),             // 12: google.protobuf.Struct
+	(*GetClusterHealthRequest)(nil),     // 13: chalk.server.v1.GetClusterHealthRequest
+	(*ListClusterDnsZonesRequest)(nil),  // 14: chalk.server.v1.ListClusterDnsZonesRequest
+	(*GetClusterHealthResponse)(nil),    // 15: chalk.server.v1.GetClusterHealthResponse
+	(*ListClusterDnsZonesResponse)(nil), // 16: chalk.server.v1.ListClusterDnsZonesResponse
 }
 var file_chalk_server_v1_status_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.HealthCheck.status:type_name -> chalk.server.v1.HealthCheckStatus
@@ -845,12 +863,16 @@ var file_chalk_server_v1_status_proto_depIdxs = []int32{
 	2,  // 8: chalk.server.v1.GetHealthResponse.checks:type_name -> chalk.server.v1.HealthCheck
 	4,  // 9: chalk.server.v1.HealthService.CheckHealth:input_type -> chalk.server.v1.CheckHealthRequest
 	6,  // 10: chalk.server.v1.HealthService.GetHealth:input_type -> chalk.server.v1.GetHealthRequest
-	8,  // 11: chalk.server.v1.HealthService.GetClusterMetrics:input_type -> chalk.server.v1.GetClusterMetricsRequest
-	5,  // 12: chalk.server.v1.HealthService.CheckHealth:output_type -> chalk.server.v1.CheckHealthResponse
-	7,  // 13: chalk.server.v1.HealthService.GetHealth:output_type -> chalk.server.v1.GetHealthResponse
-	9,  // 14: chalk.server.v1.HealthService.GetClusterMetrics:output_type -> chalk.server.v1.GetClusterMetricsResponse
-	12, // [12:15] is the sub-list for method output_type
-	9,  // [9:12] is the sub-list for method input_type
+	13, // 11: chalk.server.v1.HealthService.GetClusterHealth:input_type -> chalk.server.v1.GetClusterHealthRequest
+	14, // 12: chalk.server.v1.HealthService.ListClusterDnsZones:input_type -> chalk.server.v1.ListClusterDnsZonesRequest
+	8,  // 13: chalk.server.v1.HealthService.GetClusterMetrics:input_type -> chalk.server.v1.GetClusterMetricsRequest
+	5,  // 14: chalk.server.v1.HealthService.CheckHealth:output_type -> chalk.server.v1.CheckHealthResponse
+	7,  // 15: chalk.server.v1.HealthService.GetHealth:output_type -> chalk.server.v1.GetHealthResponse
+	15, // 16: chalk.server.v1.HealthService.GetClusterHealth:output_type -> chalk.server.v1.GetClusterHealthResponse
+	16, // 17: chalk.server.v1.HealthService.ListClusterDnsZones:output_type -> chalk.server.v1.ListClusterDnsZonesResponse
+	9,  // 18: chalk.server.v1.HealthService.GetClusterMetrics:output_type -> chalk.server.v1.GetClusterMetricsResponse
+	14, // [14:19] is the sub-list for method output_type
+	9,  // [9:14] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
 	9,  // [9:9] is the sub-list for extension extendee
 	0,  // [0:9] is the sub-list for field type_name
@@ -861,6 +883,7 @@ func file_chalk_server_v1_status_proto_init() {
 	if File_chalk_server_v1_status_proto != nil {
 		return
 	}
+	file_chalk_server_v1_kube_cluster_health_proto_init()
 	file_chalk_server_v1_status_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_status_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_server_v1_status_proto_msgTypes[4].OneofWrappers = []any{}

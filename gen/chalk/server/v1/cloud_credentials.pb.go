@@ -23,6 +23,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type CloudPermissionDecision int32
+
+const (
+	CloudPermissionDecision_CLOUD_PERMISSION_DECISION_UNSPECIFIED   CloudPermissionDecision = 0
+	CloudPermissionDecision_CLOUD_PERMISSION_DECISION_ALLOWED       CloudPermissionDecision = 1
+	CloudPermissionDecision_CLOUD_PERMISSION_DECISION_IMPLICIT_DENY CloudPermissionDecision = 2
+	CloudPermissionDecision_CLOUD_PERMISSION_DECISION_EXPLICIT_DENY CloudPermissionDecision = 3
+)
+
+// Enum value maps for CloudPermissionDecision.
+var (
+	CloudPermissionDecision_name = map[int32]string{
+		0: "CLOUD_PERMISSION_DECISION_UNSPECIFIED",
+		1: "CLOUD_PERMISSION_DECISION_ALLOWED",
+		2: "CLOUD_PERMISSION_DECISION_IMPLICIT_DENY",
+		3: "CLOUD_PERMISSION_DECISION_EXPLICIT_DENY",
+	}
+	CloudPermissionDecision_value = map[string]int32{
+		"CLOUD_PERMISSION_DECISION_UNSPECIFIED":   0,
+		"CLOUD_PERMISSION_DECISION_ALLOWED":       1,
+		"CLOUD_PERMISSION_DECISION_IMPLICIT_DENY": 2,
+		"CLOUD_PERMISSION_DECISION_EXPLICIT_DENY": 3,
+	}
+)
+
+func (x CloudPermissionDecision) Enum() *CloudPermissionDecision {
+	p := new(CloudPermissionDecision)
+	*p = x
+	return p
+}
+
+func (x CloudPermissionDecision) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CloudPermissionDecision) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_cloud_credentials_proto_enumTypes[0].Descriptor()
+}
+
+func (CloudPermissionDecision) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_cloud_credentials_proto_enumTypes[0]
+}
+
+func (x CloudPermissionDecision) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CloudPermissionDecision.Descriptor instead.
+func (CloudPermissionDecision) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_credentials_proto_rawDescGZIP(), []int{0}
+}
+
 type ListCloudCredentialsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -751,6 +803,302 @@ func (x *TestCloudCredentialsResponse) GetError() string {
 	return ""
 }
 
+type CloudPermissionContext struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Values        []string               `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CloudPermissionContext) Reset() {
+	*x = CloudPermissionContext{}
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CloudPermissionContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CloudPermissionContext) ProtoMessage() {}
+
+func (x *CloudPermissionContext) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CloudPermissionContext.ProtoReflect.Descriptor instead.
+func (*CloudPermissionContext) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_credentials_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *CloudPermissionContext) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *CloudPermissionContext) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+type CloudPermissionSimulation struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Action        string                    `protobuf:"bytes,1,opt,name=action,proto3" json:"action,omitempty"`
+	Resource      string                    `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	Decision      CloudPermissionDecision   `protobuf:"varint,3,opt,name=decision,proto3,enum=chalk.server.v1.CloudPermissionDecision" json:"decision,omitempty"`
+	Context       []*CloudPermissionContext `protobuf:"bytes,4,rep,name=context,proto3" json:"context,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CloudPermissionSimulation) Reset() {
+	*x = CloudPermissionSimulation{}
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CloudPermissionSimulation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CloudPermissionSimulation) ProtoMessage() {}
+
+func (x *CloudPermissionSimulation) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CloudPermissionSimulation.ProtoReflect.Descriptor instead.
+func (*CloudPermissionSimulation) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_credentials_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *CloudPermissionSimulation) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *CloudPermissionSimulation) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
+}
+
+func (x *CloudPermissionSimulation) GetDecision() CloudPermissionDecision {
+	if x != nil {
+		return x.Decision
+	}
+	return CloudPermissionDecision_CLOUD_PERMISSION_DECISION_UNSPECIFIED
+}
+
+func (x *CloudPermissionSimulation) GetContext() []*CloudPermissionContext {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+type SimulateClusterPermissionsRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	CloudCredentialId string                 `protobuf:"bytes,1,opt,name=cloud_credential_id,json=cloudCredentialId,proto3" json:"cloud_credential_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *SimulateClusterPermissionsRequest) Reset() {
+	*x = SimulateClusterPermissionsRequest{}
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SimulateClusterPermissionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimulateClusterPermissionsRequest) ProtoMessage() {}
+
+func (x *SimulateClusterPermissionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimulateClusterPermissionsRequest.ProtoReflect.Descriptor instead.
+func (*SimulateClusterPermissionsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_credentials_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *SimulateClusterPermissionsRequest) GetCloudCredentialId() string {
+	if x != nil {
+		return x.CloudCredentialId
+	}
+	return ""
+}
+
+type SimulateClusterPermissionsResponse struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Simulations   []*CloudPermissionSimulation `protobuf:"bytes,1,rep,name=simulations,proto3" json:"simulations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SimulateClusterPermissionsResponse) Reset() {
+	*x = SimulateClusterPermissionsResponse{}
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SimulateClusterPermissionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimulateClusterPermissionsResponse) ProtoMessage() {}
+
+func (x *SimulateClusterPermissionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimulateClusterPermissionsResponse.ProtoReflect.Descriptor instead.
+func (*SimulateClusterPermissionsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_credentials_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *SimulateClusterPermissionsResponse) GetSimulations() []*CloudPermissionSimulation {
+	if x != nil {
+		return x.Simulations
+	}
+	return nil
+}
+
+type SimulateVPCPermissionsRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	CloudCredentialId string                 `protobuf:"bytes,1,opt,name=cloud_credential_id,json=cloudCredentialId,proto3" json:"cloud_credential_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *SimulateVPCPermissionsRequest) Reset() {
+	*x = SimulateVPCPermissionsRequest{}
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SimulateVPCPermissionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimulateVPCPermissionsRequest) ProtoMessage() {}
+
+func (x *SimulateVPCPermissionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimulateVPCPermissionsRequest.ProtoReflect.Descriptor instead.
+func (*SimulateVPCPermissionsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_credentials_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SimulateVPCPermissionsRequest) GetCloudCredentialId() string {
+	if x != nil {
+		return x.CloudCredentialId
+	}
+	return ""
+}
+
+type SimulateVPCPermissionsResponse struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Simulations   []*CloudPermissionSimulation `protobuf:"bytes,1,rep,name=simulations,proto3" json:"simulations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SimulateVPCPermissionsResponse) Reset() {
+	*x = SimulateVPCPermissionsResponse{}
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SimulateVPCPermissionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimulateVPCPermissionsResponse) ProtoMessage() {}
+
+func (x *SimulateVPCPermissionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_credentials_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimulateVPCPermissionsResponse.ProtoReflect.Descriptor instead.
+func (*SimulateVPCPermissionsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_credentials_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *SimulateVPCPermissionsResponse) GetSimulations() []*CloudPermissionSimulation {
+	if x != nil {
+		return x.Simulations
+	}
+	return nil
+}
+
 var File_chalk_server_v1_cloud_credentials_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_cloud_credentials_proto_rawDesc = "" +
@@ -796,14 +1144,37 @@ const file_chalk_server_v1_cloud_credentials_proto_rawDesc = "" +
 	"\x1cTestCloudCredentialsResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error2\xfa\x06\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\"B\n" +
+	"\x16CloudPermissionContext\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x16\n" +
+	"\x06values\x18\x02 \x03(\tR\x06values\"\xd8\x01\n" +
+	"\x19CloudPermissionSimulation\x12\x16\n" +
+	"\x06action\x18\x01 \x01(\tR\x06action\x12\x1a\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12D\n" +
+	"\bdecision\x18\x03 \x01(\x0e2(.chalk.server.v1.CloudPermissionDecisionR\bdecision\x12A\n" +
+	"\acontext\x18\x04 \x03(\v2'.chalk.server.v1.CloudPermissionContextR\acontext\"S\n" +
+	"!SimulateClusterPermissionsRequest\x12.\n" +
+	"\x13cloud_credential_id\x18\x01 \x01(\tR\x11cloudCredentialId\"r\n" +
+	"\"SimulateClusterPermissionsResponse\x12L\n" +
+	"\vsimulations\x18\x01 \x03(\v2*.chalk.server.v1.CloudPermissionSimulationR\vsimulations\"O\n" +
+	"\x1dSimulateVPCPermissionsRequest\x12.\n" +
+	"\x13cloud_credential_id\x18\x01 \x01(\tR\x11cloudCredentialId\"n\n" +
+	"\x1eSimulateVPCPermissionsResponse\x12L\n" +
+	"\vsimulations\x18\x01 \x03(\v2*.chalk.server.v1.CloudPermissionSimulationR\vsimulations*\xc5\x01\n" +
+	"\x17CloudPermissionDecision\x12)\n" +
+	"%CLOUD_PERMISSION_DECISION_UNSPECIFIED\x10\x00\x12%\n" +
+	"!CLOUD_PERMISSION_DECISION_ALLOWED\x10\x01\x12+\n" +
+	"'CLOUD_PERMISSION_DECISION_IMPLICIT_DENY\x10\x02\x12+\n" +
+	"'CLOUD_PERMISSION_DECISION_EXPLICIT_DENY\x10\x032\x8e\t\n" +
 	"\x1eCloudAccountCredentialsService\x12{\n" +
 	"\x14ListCloudCredentials\x12,.chalk.server.v1.ListCloudCredentialsRequest\x1a-.chalk.server.v1.ListCloudCredentialsResponse\"\x06\x80}\x02\x90\x02\x01\x12x\n" +
 	"\x13GetCloudCredentials\x12+.chalk.server.v1.GetCloudCredentialsRequest\x1a,.chalk.server.v1.GetCloudCredentialsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x9f\x01\n" +
 	"\x16CreateCloudCredentials\x12..chalk.server.v1.CreateCloudCredentialsRequest\x1a/.chalk.server.v1.CreateCloudCredentialsResponse\"$\x80}\x1a\x8a\xd3\x0e\x1d\b\x02\x12\x19Created cloud credentials\x12\x9f\x01\n" +
 	"\x16UpdateCloudCredentials\x12..chalk.server.v1.UpdateCloudCredentialsRequest\x1a/.chalk.server.v1.UpdateCloudCredentialsResponse\"$\x80}\x1a\x8a\xd3\x0e\x1d\b\x02\x12\x19Updated cloud credentials\x12\x9f\x01\n" +
 	"\x16DeleteCloudCredentials\x12..chalk.server.v1.DeleteCloudCredentialsRequest\x1a/.chalk.server.v1.DeleteCloudCredentialsResponse\"$\x80}\x1a\x8a\xd3\x0e\x1d\b\x02\x12\x19Deleted cloud credentials\x12{\n" +
-	"\x14TestCloudCredentials\x12,.chalk.server.v1.TestCloudCredentialsRequest\x1a-.chalk.server.v1.TestCloudCredentialsResponse\"\x06\x80}\x02\x90\x02\x01B\xc5\x01\n" +
+	"\x14TestCloudCredentials\x12,.chalk.server.v1.TestCloudCredentialsRequest\x1a-.chalk.server.v1.TestCloudCredentialsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8d\x01\n" +
+	"\x1aSimulateClusterPermissions\x122.chalk.server.v1.SimulateClusterPermissionsRequest\x1a3.chalk.server.v1.SimulateClusterPermissionsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x81\x01\n" +
+	"\x16SimulateVPCPermissions\x12..chalk.server.v1.SimulateVPCPermissionsRequest\x1a/.chalk.server.v1.SimulateVPCPermissionsResponse\"\x06\x80}\x02\x90\x02\x01B\xc5\x01\n" +
 	"\x13com.chalk.server.v1B\x15CloudCredentialsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -818,54 +1189,70 @@ func file_chalk_server_v1_cloud_credentials_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_cloud_credentials_proto_rawDescData
 }
 
-var file_chalk_server_v1_cloud_credentials_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_chalk_server_v1_cloud_credentials_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_cloud_credentials_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_chalk_server_v1_cloud_credentials_proto_goTypes = []any{
-	(*ListCloudCredentialsRequest)(nil),    // 0: chalk.server.v1.ListCloudCredentialsRequest
-	(*ListCloudCredentialsResponse)(nil),   // 1: chalk.server.v1.ListCloudCredentialsResponse
-	(*CloudCredentialsResponse)(nil),       // 2: chalk.server.v1.CloudCredentialsResponse
-	(*CloudCredentialsRequest)(nil),        // 3: chalk.server.v1.CloudCredentialsRequest
-	(*CreateCloudCredentialsRequest)(nil),  // 4: chalk.server.v1.CreateCloudCredentialsRequest
-	(*CreateCloudCredentialsResponse)(nil), // 5: chalk.server.v1.CreateCloudCredentialsResponse
-	(*GetCloudCredentialsRequest)(nil),     // 6: chalk.server.v1.GetCloudCredentialsRequest
-	(*GetCloudCredentialsResponse)(nil),    // 7: chalk.server.v1.GetCloudCredentialsResponse
-	(*UpdateCloudCredentialsRequest)(nil),  // 8: chalk.server.v1.UpdateCloudCredentialsRequest
-	(*UpdateCloudCredentialsResponse)(nil), // 9: chalk.server.v1.UpdateCloudCredentialsResponse
-	(*DeleteCloudCredentialsRequest)(nil),  // 10: chalk.server.v1.DeleteCloudCredentialsRequest
-	(*DeleteCloudCredentialsResponse)(nil), // 11: chalk.server.v1.DeleteCloudCredentialsResponse
-	(*TestCloudCredentialsRequest)(nil),    // 12: chalk.server.v1.TestCloudCredentialsRequest
-	(*TestCloudCredentialsResponse)(nil),   // 13: chalk.server.v1.TestCloudCredentialsResponse
-	(*CloudConfig)(nil),                    // 14: chalk.server.v1.CloudConfig
-	(*timestamppb.Timestamp)(nil),          // 15: google.protobuf.Timestamp
+	(CloudPermissionDecision)(0),               // 0: chalk.server.v1.CloudPermissionDecision
+	(*ListCloudCredentialsRequest)(nil),        // 1: chalk.server.v1.ListCloudCredentialsRequest
+	(*ListCloudCredentialsResponse)(nil),       // 2: chalk.server.v1.ListCloudCredentialsResponse
+	(*CloudCredentialsResponse)(nil),           // 3: chalk.server.v1.CloudCredentialsResponse
+	(*CloudCredentialsRequest)(nil),            // 4: chalk.server.v1.CloudCredentialsRequest
+	(*CreateCloudCredentialsRequest)(nil),      // 5: chalk.server.v1.CreateCloudCredentialsRequest
+	(*CreateCloudCredentialsResponse)(nil),     // 6: chalk.server.v1.CreateCloudCredentialsResponse
+	(*GetCloudCredentialsRequest)(nil),         // 7: chalk.server.v1.GetCloudCredentialsRequest
+	(*GetCloudCredentialsResponse)(nil),        // 8: chalk.server.v1.GetCloudCredentialsResponse
+	(*UpdateCloudCredentialsRequest)(nil),      // 9: chalk.server.v1.UpdateCloudCredentialsRequest
+	(*UpdateCloudCredentialsResponse)(nil),     // 10: chalk.server.v1.UpdateCloudCredentialsResponse
+	(*DeleteCloudCredentialsRequest)(nil),      // 11: chalk.server.v1.DeleteCloudCredentialsRequest
+	(*DeleteCloudCredentialsResponse)(nil),     // 12: chalk.server.v1.DeleteCloudCredentialsResponse
+	(*TestCloudCredentialsRequest)(nil),        // 13: chalk.server.v1.TestCloudCredentialsRequest
+	(*TestCloudCredentialsResponse)(nil),       // 14: chalk.server.v1.TestCloudCredentialsResponse
+	(*CloudPermissionContext)(nil),             // 15: chalk.server.v1.CloudPermissionContext
+	(*CloudPermissionSimulation)(nil),          // 16: chalk.server.v1.CloudPermissionSimulation
+	(*SimulateClusterPermissionsRequest)(nil),  // 17: chalk.server.v1.SimulateClusterPermissionsRequest
+	(*SimulateClusterPermissionsResponse)(nil), // 18: chalk.server.v1.SimulateClusterPermissionsResponse
+	(*SimulateVPCPermissionsRequest)(nil),      // 19: chalk.server.v1.SimulateVPCPermissionsRequest
+	(*SimulateVPCPermissionsResponse)(nil),     // 20: chalk.server.v1.SimulateVPCPermissionsResponse
+	(*CloudConfig)(nil),                        // 21: chalk.server.v1.CloudConfig
+	(*timestamppb.Timestamp)(nil),              // 22: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_cloud_credentials_proto_depIdxs = []int32{
-	2,  // 0: chalk.server.v1.ListCloudCredentialsResponse.credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
-	14, // 1: chalk.server.v1.CloudCredentialsResponse.spec:type_name -> chalk.server.v1.CloudConfig
-	15, // 2: chalk.server.v1.CloudCredentialsResponse.created_at:type_name -> google.protobuf.Timestamp
-	15, // 3: chalk.server.v1.CloudCredentialsResponse.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 4: chalk.server.v1.CloudCredentialsRequest.config:type_name -> chalk.server.v1.CloudConfig
-	3,  // 5: chalk.server.v1.CreateCloudCredentialsRequest.credentials:type_name -> chalk.server.v1.CloudCredentialsRequest
-	2,  // 6: chalk.server.v1.CreateCloudCredentialsResponse.credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
-	2,  // 7: chalk.server.v1.GetCloudCredentialsResponse.credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
-	3,  // 8: chalk.server.v1.UpdateCloudCredentialsRequest.credentials:type_name -> chalk.server.v1.CloudCredentialsRequest
-	2,  // 9: chalk.server.v1.UpdateCloudCredentialsResponse.credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
-	3,  // 10: chalk.server.v1.TestCloudCredentialsRequest.config:type_name -> chalk.server.v1.CloudCredentialsRequest
-	0,  // 11: chalk.server.v1.CloudAccountCredentialsService.ListCloudCredentials:input_type -> chalk.server.v1.ListCloudCredentialsRequest
-	6,  // 12: chalk.server.v1.CloudAccountCredentialsService.GetCloudCredentials:input_type -> chalk.server.v1.GetCloudCredentialsRequest
-	4,  // 13: chalk.server.v1.CloudAccountCredentialsService.CreateCloudCredentials:input_type -> chalk.server.v1.CreateCloudCredentialsRequest
-	8,  // 14: chalk.server.v1.CloudAccountCredentialsService.UpdateCloudCredentials:input_type -> chalk.server.v1.UpdateCloudCredentialsRequest
-	10, // 15: chalk.server.v1.CloudAccountCredentialsService.DeleteCloudCredentials:input_type -> chalk.server.v1.DeleteCloudCredentialsRequest
-	12, // 16: chalk.server.v1.CloudAccountCredentialsService.TestCloudCredentials:input_type -> chalk.server.v1.TestCloudCredentialsRequest
-	1,  // 17: chalk.server.v1.CloudAccountCredentialsService.ListCloudCredentials:output_type -> chalk.server.v1.ListCloudCredentialsResponse
-	7,  // 18: chalk.server.v1.CloudAccountCredentialsService.GetCloudCredentials:output_type -> chalk.server.v1.GetCloudCredentialsResponse
-	5,  // 19: chalk.server.v1.CloudAccountCredentialsService.CreateCloudCredentials:output_type -> chalk.server.v1.CreateCloudCredentialsResponse
-	9,  // 20: chalk.server.v1.CloudAccountCredentialsService.UpdateCloudCredentials:output_type -> chalk.server.v1.UpdateCloudCredentialsResponse
-	11, // 21: chalk.server.v1.CloudAccountCredentialsService.DeleteCloudCredentials:output_type -> chalk.server.v1.DeleteCloudCredentialsResponse
-	13, // 22: chalk.server.v1.CloudAccountCredentialsService.TestCloudCredentials:output_type -> chalk.server.v1.TestCloudCredentialsResponse
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	3,  // 0: chalk.server.v1.ListCloudCredentialsResponse.credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
+	21, // 1: chalk.server.v1.CloudCredentialsResponse.spec:type_name -> chalk.server.v1.CloudConfig
+	22, // 2: chalk.server.v1.CloudCredentialsResponse.created_at:type_name -> google.protobuf.Timestamp
+	22, // 3: chalk.server.v1.CloudCredentialsResponse.updated_at:type_name -> google.protobuf.Timestamp
+	21, // 4: chalk.server.v1.CloudCredentialsRequest.config:type_name -> chalk.server.v1.CloudConfig
+	4,  // 5: chalk.server.v1.CreateCloudCredentialsRequest.credentials:type_name -> chalk.server.v1.CloudCredentialsRequest
+	3,  // 6: chalk.server.v1.CreateCloudCredentialsResponse.credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
+	3,  // 7: chalk.server.v1.GetCloudCredentialsResponse.credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
+	4,  // 8: chalk.server.v1.UpdateCloudCredentialsRequest.credentials:type_name -> chalk.server.v1.CloudCredentialsRequest
+	3,  // 9: chalk.server.v1.UpdateCloudCredentialsResponse.credentials:type_name -> chalk.server.v1.CloudCredentialsResponse
+	4,  // 10: chalk.server.v1.TestCloudCredentialsRequest.config:type_name -> chalk.server.v1.CloudCredentialsRequest
+	0,  // 11: chalk.server.v1.CloudPermissionSimulation.decision:type_name -> chalk.server.v1.CloudPermissionDecision
+	15, // 12: chalk.server.v1.CloudPermissionSimulation.context:type_name -> chalk.server.v1.CloudPermissionContext
+	16, // 13: chalk.server.v1.SimulateClusterPermissionsResponse.simulations:type_name -> chalk.server.v1.CloudPermissionSimulation
+	16, // 14: chalk.server.v1.SimulateVPCPermissionsResponse.simulations:type_name -> chalk.server.v1.CloudPermissionSimulation
+	1,  // 15: chalk.server.v1.CloudAccountCredentialsService.ListCloudCredentials:input_type -> chalk.server.v1.ListCloudCredentialsRequest
+	7,  // 16: chalk.server.v1.CloudAccountCredentialsService.GetCloudCredentials:input_type -> chalk.server.v1.GetCloudCredentialsRequest
+	5,  // 17: chalk.server.v1.CloudAccountCredentialsService.CreateCloudCredentials:input_type -> chalk.server.v1.CreateCloudCredentialsRequest
+	9,  // 18: chalk.server.v1.CloudAccountCredentialsService.UpdateCloudCredentials:input_type -> chalk.server.v1.UpdateCloudCredentialsRequest
+	11, // 19: chalk.server.v1.CloudAccountCredentialsService.DeleteCloudCredentials:input_type -> chalk.server.v1.DeleteCloudCredentialsRequest
+	13, // 20: chalk.server.v1.CloudAccountCredentialsService.TestCloudCredentials:input_type -> chalk.server.v1.TestCloudCredentialsRequest
+	17, // 21: chalk.server.v1.CloudAccountCredentialsService.SimulateClusterPermissions:input_type -> chalk.server.v1.SimulateClusterPermissionsRequest
+	19, // 22: chalk.server.v1.CloudAccountCredentialsService.SimulateVPCPermissions:input_type -> chalk.server.v1.SimulateVPCPermissionsRequest
+	2,  // 23: chalk.server.v1.CloudAccountCredentialsService.ListCloudCredentials:output_type -> chalk.server.v1.ListCloudCredentialsResponse
+	8,  // 24: chalk.server.v1.CloudAccountCredentialsService.GetCloudCredentials:output_type -> chalk.server.v1.GetCloudCredentialsResponse
+	6,  // 25: chalk.server.v1.CloudAccountCredentialsService.CreateCloudCredentials:output_type -> chalk.server.v1.CreateCloudCredentialsResponse
+	10, // 26: chalk.server.v1.CloudAccountCredentialsService.UpdateCloudCredentials:output_type -> chalk.server.v1.UpdateCloudCredentialsResponse
+	12, // 27: chalk.server.v1.CloudAccountCredentialsService.DeleteCloudCredentials:output_type -> chalk.server.v1.DeleteCloudCredentialsResponse
+	14, // 28: chalk.server.v1.CloudAccountCredentialsService.TestCloudCredentials:output_type -> chalk.server.v1.TestCloudCredentialsResponse
+	18, // 29: chalk.server.v1.CloudAccountCredentialsService.SimulateClusterPermissions:output_type -> chalk.server.v1.SimulateClusterPermissionsResponse
+	20, // 30: chalk.server.v1.CloudAccountCredentialsService.SimulateVPCPermissions:output_type -> chalk.server.v1.SimulateVPCPermissionsResponse
+	23, // [23:31] is the sub-list for method output_type
+	15, // [15:23] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_cloud_credentials_proto_init() }
@@ -883,13 +1270,14 @@ func file_chalk_server_v1_cloud_credentials_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_cloud_credentials_proto_rawDesc), len(file_chalk_server_v1_cloud_credentials_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   14,
+			NumEnums:      1,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_server_v1_cloud_credentials_proto_goTypes,
 		DependencyIndexes: file_chalk_server_v1_cloud_credentials_proto_depIdxs,
+		EnumInfos:         file_chalk_server_v1_cloud_credentials_proto_enumTypes,
 		MessageInfos:      file_chalk_server_v1_cloud_credentials_proto_msgTypes,
 	}.Build()
 	File_chalk_server_v1_cloud_credentials_proto = out.File

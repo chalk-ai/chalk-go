@@ -20,7 +20,7 @@ func TestManagerDoesNotRequireCredentials(t *testing.T) {
 	// An empty directory, so no chalk.yml can supply credentials by accident --
 	// a stray one in the ambient home directory is what masked this originally.
 	emptyDir := t.TempDir()
-	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), envfs.MapEnvironmentGetter{})
+	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), &envfs.MapEnvironmentGetter{})
 
 	manager, err := NewManager(ctx, &ManagerInputs{ConfigDir: &emptyDir})
 
@@ -39,7 +39,7 @@ func TestManagerDoesNotRequireCredentials(t *testing.T) {
 func TestManagerResolvesCredentialsFromEnvironment(t *testing.T) {
 	t.Parallel()
 
-	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), envfs.MapEnvironmentGetter{
+	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), &envfs.MapEnvironmentGetter{
 		Env: map[string]string{
 			"CHALK_CLIENT_ID":     "token-abc",
 			"CHALK_CLIENT_SECRET": "ts-abc",

@@ -355,8 +355,11 @@ type SimpleOnlineQueryBulkRequest struct {
 	Inputs            isSimpleOnlineQueryBulkRequest_Inputs `protobuf_oneof:"inputs"`
 	OutputFeatures    []string                              `protobuf:"bytes,2,rep,name=output_features,json=outputFeatures,proto3" json:"output_features,omitempty"`
 	NamedQueryRequest *NamedQueryRequest                    `protobuf:"bytes,5,opt,name=named_query_request,json=namedQueryRequest,proto3,oneof" json:"named_query_request,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Number of input rows included in each OnlineQueryBulk request.
+	// Defaults to one row when unset.
+	BatchSize     *int64 `protobuf:"varint,6,opt,name=batch_size,json=batchSize,proto3,oneof" json:"batch_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SimpleOnlineQueryBulkRequest) Reset() {
@@ -434,6 +437,13 @@ func (x *SimpleOnlineQueryBulkRequest) GetNamedQueryRequest() *NamedQueryRequest
 		return x.NamedQueryRequest
 	}
 	return nil
+}
+
+func (x *SimpleOnlineQueryBulkRequest) GetBatchSize() int64 {
+	if x != nil && x.BatchSize != nil {
+		return *x.BatchSize
+	}
+	return 0
 }
 
 type isSimpleOnlineQueryBulkRequest_Inputs interface {
@@ -1386,16 +1396,19 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\n" +
 	"query_name\x18\x01 \x01(\tR\tqueryName\x12(\n" +
 	"\rquery_version\x18\x02 \x01(\tH\x00R\fqueryVersion\x88\x01\x01B\x10\n" +
-	"\x0e_query_version\"\xe0\x02\n" +
+	"\x0e_query_version\"\x93\x03\n" +
 	"\x1cSimpleOnlineQueryBulkRequest\x12)\n" +
 	"\x0einput_features\x18\x01 \x03(\tB\x02\x18\x01R\rinputFeatures\x12P\n" +
 	"\x13input_features_list\x18\x03 \x01(\v2\x1e.chalk.server.v1.InputFeaturesH\x00R\x11inputFeaturesList\x12\x1f\n" +
 	"\n" +
 	"input_file\x18\x04 \x01(\tH\x00R\tinputFile\x12'\n" +
 	"\x0foutput_features\x18\x02 \x03(\tR\x0eoutputFeatures\x12W\n" +
-	"\x13named_query_request\x18\x05 \x01(\v2\".chalk.server.v1.NamedQueryRequestH\x01R\x11namedQueryRequest\x88\x01\x01B\b\n" +
+	"\x13named_query_request\x18\x05 \x01(\v2\".chalk.server.v1.NamedQueryRequestH\x01R\x11namedQueryRequest\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"batch_size\x18\x06 \x01(\x03H\x02R\tbatchSize\x88\x01\x01B\b\n" +
 	"\x06inputsB\x16\n" +
-	"\x14_named_query_request\"\xa9\x01\n" +
+	"\x14_named_query_requestB\r\n" +
+	"\v_batch_size\"\xa9\x01\n" +
 	"\rContainerSpec\x12B\n" +
 	"\arequest\x18\x01 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x00R\arequest\x88\x01\x01\x12>\n" +
 	"\x05limit\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x01R\x05limit\x88\x01\x01B\n" +

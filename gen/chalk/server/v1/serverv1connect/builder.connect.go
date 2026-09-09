@@ -50,6 +50,12 @@ const (
 	// BuilderServiceRunPostIndexValidationProcedure is the fully-qualified name of the BuilderService's
 	// RunPostIndexValidation RPC.
 	BuilderServiceRunPostIndexValidationProcedure = "/chalk.server.v1.BuilderService/RunPostIndexValidation"
+	// BuilderServicePopulateNamedQueryPlansProcedure is the fully-qualified name of the
+	// BuilderService's PopulateNamedQueryPlans RPC.
+	BuilderServicePopulateNamedQueryPlansProcedure = "/chalk.server.v1.BuilderService/PopulateNamedQueryPlans"
+	// BuilderServicePrepareGraphSupplementProcedure is the fully-qualified name of the BuilderService's
+	// PrepareGraphSupplement RPC.
+	BuilderServicePrepareGraphSupplementProcedure = "/chalk.server.v1.BuilderService/PrepareGraphSupplement"
 	// BuilderServiceStartShadowBuildFromDeploymentProcedure is the fully-qualified name of the
 	// BuilderService's StartShadowBuildFromDeployment RPC.
 	BuilderServiceStartShadowBuildFromDeploymentProcedure = "/chalk.server.v1.BuilderService/StartShadowBuildFromDeployment"
@@ -83,6 +89,9 @@ const (
 	// BuilderServiceListEngineBaseImagesProcedure is the fully-qualified name of the BuilderService's
 	// ListEngineBaseImages RPC.
 	BuilderServiceListEngineBaseImagesProcedure = "/chalk.server.v1.BuilderService/ListEngineBaseImages"
+	// BuilderServiceValidateProjectSettingsProcedure is the fully-qualified name of the
+	// BuilderService's ValidateProjectSettings RPC.
+	BuilderServiceValidateProjectSettingsProcedure = "/chalk.server.v1.BuilderService/ValidateProjectSettings"
 	// BuilderServiceGetClusterTimescaleDBProcedure is the fully-qualified name of the BuilderService's
 	// GetClusterTimescaleDB RPC.
 	BuilderServiceGetClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/GetClusterTimescaleDB"
@@ -221,6 +230,9 @@ const (
 	// BuilderServicePrepareDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// PrepareDeployment RPC.
 	BuilderServicePrepareDeploymentProcedure = "/chalk.server.v1.BuilderService/PrepareDeployment"
+	// BuilderServiceBuildImageProcedure is the fully-qualified name of the BuilderService's BuildImage
+	// RPC.
+	BuilderServiceBuildImageProcedure = "/chalk.server.v1.BuilderService/BuildImage"
 	// BuilderServiceGetTelemetryDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// GetTelemetryDeployment RPC.
 	BuilderServiceGetTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/GetTelemetryDeployment"
@@ -284,6 +296,12 @@ type BuilderServiceClient interface {
 	// Deprecated: do not use.
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
+	PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error)
+	// Assigns internal versions for a deployment's uploaded proto graph and
+	// uploads the resulting graph supplement, so build-time planning can use the
+	// same version map engines download at boot. Idempotent; graph ingestion
+	// later recomputes the assignment and remains authoritative.
+	PrepareGraphSupplement(context.Context, *connect.Request[v1.PrepareGraphSupplementRequest]) (*connect.Response[v1.PrepareGraphSupplementResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -301,6 +319,7 @@ type BuilderServiceClient interface {
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
 	ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error)
+	ValidateProjectSettings(context.Context, *connect.Request[v1.ValidateProjectSettingsRequest]) (*connect.Response[v1.ValidateProjectSettingsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
@@ -365,6 +384,9 @@ type BuilderServiceClient interface {
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
 	PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error)
+	// Builds an engine image from the provided source and pushes it to caller-specified
+	// registries. Creates no deployment: nothing is promoted and no environment state changes.
+	BuildImage(context.Context, *connect.Request[v1.BuildImageRequest]) (*connect.Response[v1.BuildImageResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
 	ListTelemetryDeployments(context.Context, *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
@@ -422,6 +444,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceRunPostIndexValidationProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("RunPostIndexValidation")),
+			connect.WithClientOptions(opts...),
+		),
+		populateNamedQueryPlans: connect.NewClient[v1.PopulateNamedQueryPlansRequest, v1.PopulateNamedQueryPlansResponse](
+			httpClient,
+			baseURL+BuilderServicePopulateNamedQueryPlansProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("PopulateNamedQueryPlans")),
+			connect.WithClientOptions(opts...),
+		),
+		prepareGraphSupplement: connect.NewClient[v1.PrepareGraphSupplementRequest, v1.PrepareGraphSupplementResponse](
+			httpClient,
+			baseURL+BuilderServicePrepareGraphSupplementProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("PrepareGraphSupplement")),
 			connect.WithClientOptions(opts...),
 		),
 		startShadowBuildFromDeployment: connect.NewClient[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse](
@@ -489,6 +523,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceListEngineBaseImagesProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("ListEngineBaseImages")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		validateProjectSettings: connect.NewClient[v1.ValidateProjectSettingsRequest, v1.ValidateProjectSettingsResponse](
+			httpClient,
+			baseURL+BuilderServiceValidateProjectSettingsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ValidateProjectSettings")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -778,6 +819,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("PrepareDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		buildImage: connect.NewClient[v1.BuildImageRequest, v1.BuildImageResponse](
+			httpClient,
+			baseURL+BuilderServiceBuildImageProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("BuildImage")),
+			connect.WithClientOptions(opts...),
+		),
 		getTelemetryDeployment: connect.NewClient[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceGetTelemetryDeploymentProcedure,
@@ -880,6 +927,8 @@ type builderServiceClient struct {
 	indexDeployment                             *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
 	validateNamedQueries                        *connect.Client[v1.ValidateNamedQueriesRequest, v1.ValidateNamedQueriesResponse]
 	runPostIndexValidation                      *connect.Client[v1.RunPostIndexValidationRequest, v1.RunPostIndexValidationResponse]
+	populateNamedQueryPlans                     *connect.Client[v1.PopulateNamedQueryPlansRequest, v1.PopulateNamedQueryPlansResponse]
+	prepareGraphSupplement                      *connect.Client[v1.PrepareGraphSupplementRequest, v1.PrepareGraphSupplementResponse]
 	startShadowBuildFromDeployment              *connect.Client[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse]
 	deployKubeComponents                        *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
 	rebuildDeployment                           *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
@@ -891,6 +940,7 @@ type builderServiceClient struct {
 	getDeploymentDependencies                   *connect.Client[v1.GetDeploymentDependenciesRequest, v1.GetDeploymentDependenciesResponse]
 	resolveEngineBaseImage                      *connect.Client[v1.ResolveEngineBaseImageRequest, v1.ResolveEngineBaseImageResponse]
 	listEngineBaseImages                        *connect.Client[v1.ListEngineBaseImagesRequest, v1.ListEngineBaseImagesResponse]
+	validateProjectSettings                     *connect.Client[v1.ValidateProjectSettingsRequest, v1.ValidateProjectSettingsResponse]
 	getClusterTimescaleDB                       *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
 	listClusterTimescaleDBs                     *connect.Client[v1.ListClusterTimescaleDBsRequest, v1.ListClusterTimescaleDBsResponse]
 	getClusterGateway                           *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
@@ -937,6 +987,7 @@ type builderServiceClient struct {
 	setTagWeights                               *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
 	createDeployment                            *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
 	prepareDeployment                           *connect.Client[v1.PrepareDeploymentRequest, v1.PrepareDeploymentResponse]
+	buildImage                                  *connect.Client[v1.BuildImageRequest, v1.BuildImageResponse]
 	getTelemetryDeployment                      *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
 	listTelemetryDeployments                    *connect.Client[v1.ListTelemetryDeploymentsRequest, v1.ListTelemetryDeploymentsResponse]
 	createTelemetryDeployment                   *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
@@ -979,6 +1030,16 @@ func (c *builderServiceClient) ValidateNamedQueries(ctx context.Context, req *co
 // RunPostIndexValidation calls chalk.server.v1.BuilderService.RunPostIndexValidation.
 func (c *builderServiceClient) RunPostIndexValidation(ctx context.Context, req *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error) {
 	return c.runPostIndexValidation.CallUnary(ctx, req)
+}
+
+// PopulateNamedQueryPlans calls chalk.server.v1.BuilderService.PopulateNamedQueryPlans.
+func (c *builderServiceClient) PopulateNamedQueryPlans(ctx context.Context, req *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error) {
+	return c.populateNamedQueryPlans.CallUnary(ctx, req)
+}
+
+// PrepareGraphSupplement calls chalk.server.v1.BuilderService.PrepareGraphSupplement.
+func (c *builderServiceClient) PrepareGraphSupplement(ctx context.Context, req *connect.Request[v1.PrepareGraphSupplementRequest]) (*connect.Response[v1.PrepareGraphSupplementResponse], error) {
+	return c.prepareGraphSupplement.CallUnary(ctx, req)
 }
 
 // StartShadowBuildFromDeployment calls
@@ -1035,6 +1096,11 @@ func (c *builderServiceClient) ResolveEngineBaseImage(ctx context.Context, req *
 // ListEngineBaseImages calls chalk.server.v1.BuilderService.ListEngineBaseImages.
 func (c *builderServiceClient) ListEngineBaseImages(ctx context.Context, req *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error) {
 	return c.listEngineBaseImages.CallUnary(ctx, req)
+}
+
+// ValidateProjectSettings calls chalk.server.v1.BuilderService.ValidateProjectSettings.
+func (c *builderServiceClient) ValidateProjectSettings(ctx context.Context, req *connect.Request[v1.ValidateProjectSettingsRequest]) (*connect.Response[v1.ValidateProjectSettingsResponse], error) {
+	return c.validateProjectSettings.CallUnary(ctx, req)
 }
 
 // GetClusterTimescaleDB calls chalk.server.v1.BuilderService.GetClusterTimescaleDB.
@@ -1296,6 +1362,11 @@ func (c *builderServiceClient) PrepareDeployment(ctx context.Context, req *conne
 	return c.prepareDeployment.CallUnary(ctx, req)
 }
 
+// BuildImage calls chalk.server.v1.BuilderService.BuildImage.
+func (c *builderServiceClient) BuildImage(ctx context.Context, req *connect.Request[v1.BuildImageRequest]) (*connect.Response[v1.BuildImageResponse], error) {
+	return c.buildImage.CallUnary(ctx, req)
+}
+
 // GetTelemetryDeployment calls chalk.server.v1.BuilderService.GetTelemetryDeployment.
 func (c *builderServiceClient) GetTelemetryDeployment(ctx context.Context, req *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
 	return c.getTelemetryDeployment.CallUnary(ctx, req)
@@ -1384,6 +1455,12 @@ type BuilderServiceHandler interface {
 	// Deprecated: do not use.
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
+	PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error)
+	// Assigns internal versions for a deployment's uploaded proto graph and
+	// uploads the resulting graph supplement, so build-time planning can use the
+	// same version map engines download at boot. Idempotent; graph ingestion
+	// later recomputes the assignment and remains authoritative.
+	PrepareGraphSupplement(context.Context, *connect.Request[v1.PrepareGraphSupplementRequest]) (*connect.Response[v1.PrepareGraphSupplementResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -1401,6 +1478,7 @@ type BuilderServiceHandler interface {
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
 	ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error)
+	ValidateProjectSettings(context.Context, *connect.Request[v1.ValidateProjectSettingsRequest]) (*connect.Response[v1.ValidateProjectSettingsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
@@ -1465,6 +1543,9 @@ type BuilderServiceHandler interface {
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
 	PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error)
+	// Builds an engine image from the provided source and pushes it to caller-specified
+	// registries. Creates no deployment: nothing is promoted and no environment state changes.
+	BuildImage(context.Context, *connect.Request[v1.BuildImageRequest]) (*connect.Response[v1.BuildImageResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
 	ListTelemetryDeployments(context.Context, *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
@@ -1518,6 +1599,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceRunPostIndexValidationProcedure,
 		svc.RunPostIndexValidation,
 		connect.WithSchema(builderServiceMethods.ByName("RunPostIndexValidation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServicePopulateNamedQueryPlansHandler := connect.NewUnaryHandler(
+		BuilderServicePopulateNamedQueryPlansProcedure,
+		svc.PopulateNamedQueryPlans,
+		connect.WithSchema(builderServiceMethods.ByName("PopulateNamedQueryPlans")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServicePrepareGraphSupplementHandler := connect.NewUnaryHandler(
+		BuilderServicePrepareGraphSupplementProcedure,
+		svc.PrepareGraphSupplement,
+		connect.WithSchema(builderServiceMethods.ByName("PrepareGraphSupplement")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceStartShadowBuildFromDeploymentHandler := connect.NewUnaryHandler(
@@ -1585,6 +1678,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceListEngineBaseImagesProcedure,
 		svc.ListEngineBaseImages,
 		connect.WithSchema(builderServiceMethods.ByName("ListEngineBaseImages")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceValidateProjectSettingsHandler := connect.NewUnaryHandler(
+		BuilderServiceValidateProjectSettingsProcedure,
+		svc.ValidateProjectSettings,
+		connect.WithSchema(builderServiceMethods.ByName("ValidateProjectSettings")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -1874,6 +1974,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("PrepareDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceBuildImageHandler := connect.NewUnaryHandler(
+		BuilderServiceBuildImageProcedure,
+		svc.BuildImage,
+		connect.WithSchema(builderServiceMethods.ByName("BuildImage")),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceGetTelemetryDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceGetTelemetryDeploymentProcedure,
 		svc.GetTelemetryDeployment,
@@ -1978,6 +2084,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceValidateNamedQueriesHandler.ServeHTTP(w, r)
 		case BuilderServiceRunPostIndexValidationProcedure:
 			builderServiceRunPostIndexValidationHandler.ServeHTTP(w, r)
+		case BuilderServicePopulateNamedQueryPlansProcedure:
+			builderServicePopulateNamedQueryPlansHandler.ServeHTTP(w, r)
+		case BuilderServicePrepareGraphSupplementProcedure:
+			builderServicePrepareGraphSupplementHandler.ServeHTTP(w, r)
 		case BuilderServiceStartShadowBuildFromDeploymentProcedure:
 			builderServiceStartShadowBuildFromDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceDeployKubeComponentsProcedure:
@@ -2000,6 +2110,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceResolveEngineBaseImageHandler.ServeHTTP(w, r)
 		case BuilderServiceListEngineBaseImagesProcedure:
 			builderServiceListEngineBaseImagesHandler.ServeHTTP(w, r)
+		case BuilderServiceValidateProjectSettingsProcedure:
+			builderServiceValidateProjectSettingsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterTimescaleDBProcedure:
 			builderServiceGetClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceListClusterTimescaleDBsProcedure:
@@ -2092,6 +2204,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceCreateDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServicePrepareDeploymentProcedure:
 			builderServicePrepareDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceBuildImageProcedure:
+			builderServiceBuildImageHandler.ServeHTTP(w, r)
 		case BuilderServiceGetTelemetryDeploymentProcedure:
 			builderServiceGetTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceListTelemetryDeploymentsProcedure:
@@ -2151,6 +2265,14 @@ func (UnimplementedBuilderServiceHandler) RunPostIndexValidation(context.Context
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.RunPostIndexValidation is not implemented"))
 }
 
+func (UnimplementedBuilderServiceHandler) PopulateNamedQueryPlans(context.Context, *connect.Request[v1.PopulateNamedQueryPlansRequest]) (*connect.Response[v1.PopulateNamedQueryPlansResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.PopulateNamedQueryPlans is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) PrepareGraphSupplement(context.Context, *connect.Request[v1.PrepareGraphSupplementRequest]) (*connect.Response[v1.PrepareGraphSupplementResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.PrepareGraphSupplement is not implemented"))
+}
+
 func (UnimplementedBuilderServiceHandler) StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.StartShadowBuildFromDeployment is not implemented"))
 }
@@ -2193,6 +2315,10 @@ func (UnimplementedBuilderServiceHandler) ResolveEngineBaseImage(context.Context
 
 func (UnimplementedBuilderServiceHandler) ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ListEngineBaseImages is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ValidateProjectSettings(context.Context, *connect.Request[v1.ValidateProjectSettingsRequest]) (*connect.Response[v1.ValidateProjectSettingsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ValidateProjectSettings is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error) {
@@ -2377,6 +2503,10 @@ func (UnimplementedBuilderServiceHandler) CreateDeployment(context.Context, *con
 
 func (UnimplementedBuilderServiceHandler) PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.PrepareDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) BuildImage(context.Context, *connect.Request[v1.BuildImageRequest]) (*connect.Response[v1.BuildImageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.BuildImage is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {

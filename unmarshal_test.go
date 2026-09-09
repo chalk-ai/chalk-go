@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow-go/v18/arrow"
+	"github.com/apache/arrow-go/v18/arrow/array"
+	"github.com/apache/arrow-go/v18/arrow/memory"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
@@ -473,7 +473,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
 	assert.NoError(t, err)
 
-	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	table := array.NewTableFromRecords(record.Schema(), []arrow.RecordBatch{record})
 	res := OnlineQueryBulkResult{
 		ScalarsTable: table,
 	}
@@ -1055,7 +1055,7 @@ func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
 		[]string{"abc", "def", "ghi"},
 		[]bool{true, false, true},
 	)
-	table := array.NewTableFromRecords(schema, []arrow.Record{recordBuilder.NewRecord()})
+	table := array.NewTableFromRecords(schema, []arrow.RecordBatch{recordBuilder.NewRecordBatch()})
 
 	bulkRes := OnlineQueryBulkResult{
 		ScalarsTable: table,
@@ -1126,7 +1126,7 @@ func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
 					arrow.Timestamp(fixture.timestampValue),
 				}, nil,
 			)
-			table := array.NewTableFromRecords(schema, []arrow.Record{recordBuilder.NewRecord()})
+			table := array.NewTableFromRecords(schema, []arrow.RecordBatch{recordBuilder.NewRecordBatch()})
 
 			bulkRes := OnlineQueryBulkResult{
 				ScalarsTable: table,

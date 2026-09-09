@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v1/sandboxv1connect"
 	"github.com/chalk-ai/chalk-go/gen/chalk/scalinggroup/v1/scalinggroupv1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
@@ -89,6 +90,11 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	hostPoolHandler := newHostPoolServiceHandler(registry)
 	hostPoolPath, hostPoolRPCHandler := serverv1connect.NewHostPoolServiceHandler(hostPoolHandler)
 	mux.Handle(hostPoolPath, hostPoolRPCHandler)
+
+	// Register SandboxService handler
+	sandboxHandler := newSandboxServiceHandler(registry)
+	sandboxPath, sandboxRPCHandler := sandboxv1connect.NewSandboxServiceHandler(sandboxHandler)
+	mux.Handle(sandboxPath, sandboxRPCHandler)
 
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)

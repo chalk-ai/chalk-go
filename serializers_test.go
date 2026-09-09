@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 	"sync"
@@ -109,7 +110,7 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 	protoMap, err := queryContext.toProtoMap()
 	assert.NoError(t, err)
 
-	request, err := convertOnlineQueryParamsToProto(&params, fixtures.TestAllocator)
+	request, err := convertOnlineQueryParamsToProto(context.Background(), nil, &params, fixtures.TestAllocator)
 	assert.NoError(t, err)
 	assert.Equal(t, tags, request.GetContext().GetTags())
 	assert.Equal(t, requiredResolverTags, request.GetContext().GetRequiredResolverTags())
@@ -161,7 +162,7 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 		WithInput(serdeRoot.SerdeUser.Txns, [][]SerdeTransaction{transactions}).
 		WithOutputs(serdeRoot.SerdeUser.Id, serdeRoot.SerdeUser.Txns)
 
-	req, err := convertOnlineQueryParamsToProto(&params.underlying, fixtures.TestAllocator)
+	req, err := convertOnlineQueryParamsToProto(context.Background(), nil, &params.underlying, fixtures.TestAllocator)
 	assert.NoError(t, err)
 	table, err := internal.ConvertBytesToTable(req.GetInputsFeather(), fixtures.TestAllocator)
 	assert.NoError(t, err)

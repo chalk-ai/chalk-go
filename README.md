@@ -309,6 +309,63 @@ support this interface natively, so it's possible to set
 To use other loggers, you may need a shim layer.
 
 
+### Client Side Tracing
+
+The gRPC client emits OpenTelemetry spans around `OnlineQueryBulk`, breaking the
+call into the work that happens on either side of the wire:
+
+```
+chalk.online_query_bulk
+├── chalk.online_query_bulk.build_request
+│   ├── chalk.online_query_bulk.resolve_params      # feature refs -> FQNs, input validation
+│   └── chalk.online_query_bulk.serialize_inputs    # inputs -> Arrow IPC bytes
+└── chalk.online_query_bulk.rpc                     # time on the wire
+chalk.online_query_bulk.unmarshal_into              # emitted by UnmarshalInto
+├── chalk.online_query_bulk.deserialize_scalars     # Arrow IPC bytes -> table
+└── chalk.online_query_bulk.unmarshal_table         # table -> your structs
+```
+
+`GetTable` and `GetRow` emit `chalk.online_query_bulk.get_table` and
+`chalk.online_query_bulk.get_row` respectively. Because the response is
+deserialized lazily, after `OnlineQueryBulk` has returned, those spans are
+parented to whatever span was active when the query was made rather than to
+`chalk.online_query_bulk` itself.
+
+Spans carry the query name, correlation id, branch, environment, resource group
+and Chalk query id, along with payload sizes and row counts — never feature
+values. A query that returns errors alongside partial results is marked as an
+error on `chalk.online_query_bulk`.
+
+Tracing is off by default, and stays off until you pass a `TracerProvider`.
+chalk-go never reads the global provider on its own, so a client emits nothing
+unless it was asked to — even in a process that already has OpenTelemetry set
+up for its own use. To trace with your existing setup, hand chalk-go the
+global provider:
+
+```go
+import "go.opentelemetry.io/otel"
+
+client, err := chalk.NewGRPCClient(ctx, &chalk.GRPCClientConfig{
+    TracerProvider: otel.GetTracerProvider(),
+})
+```
+
+Any provider works, including the one from the
+[dd-trace-go OpenTelemetry bridge](https://docs.datadoghq.com/tracing/trace_collection/custom_instrumentation/go/otel/).
+With no provider, chalk-go uses a no-op tracer: spans are never started and
+the cost is a few nil checks per query.
+
+chalk-go depends on the OpenTelemetry *API* (`go.opentelemetry.io/otel/trace`)
+rather than the SDK, so nothing is exported and no collector is contacted
+until your application installs an SDK provider and passes it in.
+
+Note that the span for the RPC itself covers only chalk-go's side of the call.
+To trace the transport, pass a connect interceptor such as
+[otelconnect](https://github.com/connectrpc/otelconnect-go) via
+`GRPCClientConfig.Interceptors`; its spans nest inside
+`chalk.online_query_bulk.rpc`.
+
+
 ## Querying for expressions
 
 With the gRPC client, you can also query expressions that are not part of your

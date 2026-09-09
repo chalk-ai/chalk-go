@@ -38,7 +38,7 @@ func TestClientsAcceptPreIssuedJWTWithoutCredentials(t *testing.T) {
 	t.Run("json client", func(t *testing.T) {
 		t.Parallel()
 		emptyDir := t.TempDir()
-		ctx := envfs.ContextWithEnvironmentGetter(t.Context(), envfs.MapEnvironmentGetter{})
+		ctx := envfs.ContextWithEnvironmentGetter(t.Context(), &envfs.MapEnvironmentGetter{})
 
 		client, err := NewClient(ctx, &ClientConfig{
 			ApiServer:                  "https://api.chalk.ai",
@@ -56,7 +56,7 @@ func TestClientsAcceptPreIssuedJWTWithoutCredentials(t *testing.T) {
 	t.Run("grpc client", func(t *testing.T) {
 		t.Parallel()
 		emptyDir := t.TempDir()
-		ctx := envfs.ContextWithEnvironmentGetter(t.Context(), envfs.MapEnvironmentGetter{})
+		ctx := envfs.ContextWithEnvironmentGetter(t.Context(), &envfs.MapEnvironmentGetter{})
 
 		client, err := NewGRPCClient(ctx, &GRPCClientConfig{
 			ApiServer:                  "https://api.chalk.ai",
@@ -75,7 +75,7 @@ func TestClientsAcceptPreIssuedJWTWithoutCredentials(t *testing.T) {
 	t.Run("volume client", func(t *testing.T) {
 		t.Parallel()
 		emptyDir := t.TempDir()
-		ctx := envfs.ContextWithEnvironmentGetter(t.Context(), envfs.MapEnvironmentGetter{})
+		ctx := envfs.ContextWithEnvironmentGetter(t.Context(), &envfs.MapEnvironmentGetter{})
 
 		client, err := NewVolumeClient(ctx, &VolumeClientConfig{
 			ApiServer:                  "https://api.chalk.ai",
@@ -98,7 +98,7 @@ func TestClientRejectsNeitherJWTNorCredentials(t *testing.T) {
 	t.Parallel()
 
 	emptyDir := t.TempDir()
-	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), envfs.MapEnvironmentGetter{})
+	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), &envfs.MapEnvironmentGetter{})
 
 	_, err := NewClient(ctx, &ClientConfig{
 		ApiServer:     "https://api.chalk.ai",
@@ -122,7 +122,7 @@ func TestClientRejectsPartialCredentials(t *testing.T) {
 	t.Parallel()
 
 	emptyDir := t.TempDir()
-	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), envfs.MapEnvironmentGetter{})
+	ctx := envfs.ContextWithEnvironmentGetter(t.Context(), &envfs.MapEnvironmentGetter{})
 
 	_, err := NewClient(ctx, &ClientConfig{
 		ApiServer:     "https://api.chalk.ai",
