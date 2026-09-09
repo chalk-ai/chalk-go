@@ -168,6 +168,13 @@ const (
 	TimescaleTopologySideReachability_TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNSPECIFIED TimescaleTopologySideReachability = 0
 	TimescaleTopologySideReachability_TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_REACHABLE   TimescaleTopologySideReachability = 1
 	TimescaleTopologySideReachability_TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNREACHABLE TimescaleTopologySideReachability = 2
+	// The kube API answered, and what it said is that this member has no Cluster. Still unreadable
+	// for anything that needs the database, but the opposite prescription: unreachable means try
+	// again later, absent means the object has to be created. It is the state a rebuild interrupted
+	// between its delete and its re-create leaves behind, and the state a rebuild therefore accepts
+	// as a target — so collapsing it into UNREACHABLE makes the one operation that repairs it read
+	// as the one operation that must refuse it.
+	TimescaleTopologySideReachability_TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_ABSENT TimescaleTopologySideReachability = 3
 )
 
 // Enum value maps for TimescaleTopologySideReachability.
@@ -176,11 +183,13 @@ var (
 		0: "TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNSPECIFIED",
 		1: "TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_REACHABLE",
 		2: "TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNREACHABLE",
+		3: "TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_ABSENT",
 	}
 	TimescaleTopologySideReachability_value = map[string]int32{
 		"TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNSPECIFIED": 0,
 		"TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_REACHABLE":   1,
 		"TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNREACHABLE": 2,
+		"TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_ABSENT":      3,
 	}
 )
 
@@ -5795,7 +5804,8 @@ type TimescaleTopologySide struct {
 	// it at write time, so the divergence is surfaced here rather than hidden.
 	DesiredInstances int32 `protobuf:"varint,14,opt,name=desired_instances,json=desiredInstances,proto3" json:"desired_instances,omitempty"`
 	// Streaming lag of this side behind the primary, measured on the primary. Zero on the primary
-	// itself and on any side whose lag could not be attributed.
+	// itself and on any side whose lag could not be attributed — read lag_measured before either
+	// figure, because a zero here does not mean the side is caught up.
 	ReplicationLagBytes   int64   `protobuf:"varint,10,opt,name=replication_lag_bytes,json=replicationLagBytes,proto3" json:"replication_lag_bytes,omitempty"`
 	ReplicationLagSeconds float64 `protobuf:"fixed64,11,opt,name=replication_lag_seconds,json=replicationLagSeconds,proto3" json:"replication_lag_seconds,omitempty"`
 	// Last WAL segment this side archived under its own identity. Empty when it could not be read.
@@ -5814,8 +5824,17 @@ type TimescaleTopologySide struct {
 	ContinuousArchivingHealthy bool `protobuf:"varint,17,opt,name=continuous_archiving_healthy,json=continuousArchivingHealthy,proto3" json:"continuous_archiving_healthy,omitempty"`
 	// When the operator last completed a base backup on this side, verbatim from the cluster status.
 	LastSuccessfulBackup string `protobuf:"bytes,18,opt,name=last_successful_backup,json=lastSuccessfulBackup,proto3" json:"last_successful_backup,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Whether the two lag fields above carry a reading at all. They are bare scalars, and the server
+	// zeroes them whenever it could not attribute a pg_stat_replication row to this side: on the
+	// primary, which is behind nothing; on an unreadable side; above two sides, where every peer row
+	// carries the same application_name and none can be attributed; and for a replica that is not
+	// streaming, where no row matched. That last case is why this field exists — it renders
+	// identically to a replica that is fully caught up, and on a disaster-recovery status page
+	// "caught up" is the worst available wrong answer for "not connected". False means the lag
+	// fields carry no information, not that the lag is zero.
+	LagMeasured   bool `protobuf:"varint,19,opt,name=lag_measured,json=lagMeasured,proto3" json:"lag_measured,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *TimescaleTopologySide) Reset() {
@@ -5972,6 +5991,13 @@ func (x *TimescaleTopologySide) GetLastSuccessfulBackup() string {
 		return x.LastSuccessfulBackup
 	}
 	return ""
+}
+
+func (x *TimescaleTopologySide) GetLagMeasured() bool {
+	if x != nil {
+		return x.LagMeasured
+	}
+	return false
 }
 
 // The current or last infrastructure operation against any member of the topology, reused from
@@ -19971,7 +19997,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x0fmigration_image\x18\x02 \x01(\tH\x00R\x0emigrationImage\x88\x01\x01\x12'\n" +
 	"\x0fenvironment_ids\x18\x03 \x03(\tR\x0eenvironmentIdsB\x12\n" +
 	"\x10_migration_image\"#\n" +
-	"!MigrateClusterTimescaleDBResponse\"\xae\a\n" +
+	"!MigrateClusterTimescaleDBResponse\"\xd1\a\n" +
 	"\x15TimescaleTopologySide\x120\n" +
 	"\x14cluster_timescale_id\x18\x01 \x01(\tR\x12clusterTimescaleId\x12+\n" +
 	"\x11topology_identity\x18\x02 \x01(\tR\x10topologyIdentity\x12&\n" +
@@ -19992,7 +20018,8 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"timelineId\x12\x14\n" +
 	"\x05phase\x18\x10 \x01(\tR\x05phase\x12@\n" +
 	"\x1ccontinuous_archiving_healthy\x18\x11 \x01(\bR\x1acontinuousArchivingHealthy\x124\n" +
-	"\x16last_successful_backup\x18\x12 \x01(\tR\x14lastSuccessfulBackup\"\x93\x02\n" +
+	"\x16last_successful_backup\x18\x12 \x01(\tR\x14lastSuccessfulBackup\x12!\n" +
+	"\flag_measured\x18\x13 \x01(\bR\vlagMeasured\"\x93\x02\n" +
 	"\x1aTimescaleTopologyOperation\x12.\n" +
 	"\x13infra_deployment_id\x18\x01 \x01(\tR\x11infraDeploymentId\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x16\n" +
@@ -21464,11 +21491,12 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x15TimescaleTopologyRole\x12'\n" +
 	"#TIMESCALE_TOPOLOGY_ROLE_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fTIMESCALE_TOPOLOGY_ROLE_PRIMARY\x10\x01\x12#\n" +
-	"\x1fTIMESCALE_TOPOLOGY_ROLE_REPLICA\x10\x02*\xc3\x01\n" +
+	"\x1fTIMESCALE_TOPOLOGY_ROLE_REPLICA\x10\x02*\xf4\x01\n" +
 	"!TimescaleTopologySideReachability\x124\n" +
 	"0TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNSPECIFIED\x10\x00\x122\n" +
 	".TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_REACHABLE\x10\x01\x124\n" +
-	"0TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNREACHABLE\x10\x02*\xc9\x02\n" +
+	"0TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_UNREACHABLE\x10\x02\x12/\n" +
+	"+TIMESCALE_TOPOLOGY_SIDE_REACHABILITY_ABSENT\x10\x03*\xc9\x02\n" +
 	".BackgroundPersistenceWriterClickHouseWriteMode\x12D\n" +
 	"@BACKGROUND_PERSISTENCE_WRITER_CLICK_HOUSE_WRITE_MODE_UNSPECIFIED\x10\x00\x12G\n" +
 	"CBACKGROUND_PERSISTENCE_WRITER_CLICK_HOUSE_WRITE_MODE_TIMESCALE_ONLY\x10\x01\x12=\n" +
