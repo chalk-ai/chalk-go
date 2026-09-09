@@ -54,6 +54,7 @@ type clientImpl struct {
 	customImageClient     sandboxv1connect.CustomImageServiceClient
 	containerClient       containerv1connect.ContainerServiceClient
 	aggregateClient       aggregatev1connect.AggregateServiceClient
+	integrationsClient    serverv1connect.IntegrationsServiceClient
 }
 
 type HTTPClient interface {
@@ -884,6 +885,11 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
 		connect.WithGRPC(),
 	)
+	integrationsClient := serverv1connect.NewIntegrationsServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+	)
 
 	return &clientImpl{
 		Branch:                cfg.Branch,
@@ -900,6 +906,7 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		customImageClient:     customImageClient,
 		containerClient:       containerClient,
 		aggregateClient:       aggregateClient,
+		integrationsClient:    integrationsClient,
 	}, nil
 }
 

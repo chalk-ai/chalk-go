@@ -226,6 +226,51 @@ type Client interface {
 	//	}
 	ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error)
 
+	// CreateIntegration adds a new data source to the active environment,
+	// equivalent to the `chalk integration insert` CLI command. It fails if an
+	// integration with the same name already exists; use ApplyIntegration to
+	// create-or-update.
+	//
+	// Example:
+	//
+	//		integration, err := client.CreateIntegration(ctx, chalk.IntegrationParams{
+	//		    Name: "my_postgres",
+	//		    Kind: "postgresql",
+	//		    Variables: map[string]string{
+	//		        "PGHOST":     "localhost",
+	//		        "PGPORT":     "5432",
+	//		        "PGDATABASE": "mydb",
+	//		        "PGUSER":     "myuser",
+	//		        "PGPASSWORD": "mypassword",
+	//		    },
+	//		})
+	//
+	// Names may only contain letters, numbers, and underscores, and must be 2-63
+	// characters long, because resolvers reach a named data source's variables
+	// through environment variables prefixed with the name (MY_POSTGRES_PGHOST).
+	CreateIntegration(ctx context.Context, params IntegrationParams) (Integration, error)
+
+	// ApplyIntegration creates the named data source, or updates it if one
+	// already exists, equivalent to the `chalk integration apply` CLI command.
+	//
+	// Updates merge into the stored configuration: variables omitted from
+	// Params.Variables keep their current values, and passing an empty string
+	// clears a variable. An existing integration's kind cannot be changed, so
+	// applying a different kind over an existing name is an error.
+	ApplyIntegration(ctx context.Context, params IntegrationParams) (ApplyIntegrationResult, error)
+
+	// DeleteIntegrationByName deletes the named data source in the active
+	// environment, resolving the name to an ID the way `chalk integration delete`
+	// resolves its interactive selection.
+	//
+	// Deleting an integration also deletes its stored credentials and removes its
+	// datasource permission tag. Nothing checks whether a deployed resolver still
+	// uses the data source, so queries against it will start failing.
+	//
+	// Returns an error if no integration has the given name, rather than
+	// reporting success for a deletion that did not happen.
+	DeleteIntegrationByName(ctx context.Context, name string) error
+
 	// SubmitImageBuild submits a declarative image build and returns the
 	// initial build status. Use BuildImage when you want to wait for the final
 	// image URI.
