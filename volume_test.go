@@ -92,7 +92,8 @@ func TestVolumeAuthHeadersUseConfiguredToken(t *testing.T) {
 	require.NoError(t, err)
 
 	header := http.Header{}
-	require.NoError(t, client.(*volumeClientImpl).addAuthHeaders(context.Background(), header))
+	_, err = client.(*volumeClientImpl).addAuthHeaders(context.Background(), header)
+	require.NoError(t, err)
 	require.Equal(t, "Bearer token-abc", header.Get("Authorization"))
 	require.Equal(t, envID, header.Get("x-chalk-env-id"))
 	require.Equal(t, "go-api", header.Get("x-chalk-server"))

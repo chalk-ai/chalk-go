@@ -18,11 +18,12 @@ import (
 )
 
 type Manager struct {
-	mu           *sync.Mutex
-	config       *config.Manager
-	auth         atomic.Pointer[AuthSnapshot]
-	authClient   serverv1connect.AuthServiceClient
-	authProvider AuthProvider
+	mu                      *sync.Mutex
+	config                  *config.Manager
+	auth                    atomic.Pointer[AuthSnapshot]
+	authClient              serverv1connect.AuthServiceClient
+	authProvider            AuthProvider
+	authProviderInvalidator AuthProviderInvalidator
 }
 
 // AuthSnapshot is the bearer token and effective environment that must be sent
@@ -40,6 +41,11 @@ type AuthSnapshot struct {
 // they are invoked while its lock is held.
 type AuthProvider func(ctx context.Context) (*AuthSnapshot, error)
 
+// AuthProviderInvalidator clears any cache in front of an AuthProvider. It is
+// called before refreshing a credential that the server rejected, even when
+// the credential's expiry says it is still valid.
+type AuthProviderInvalidator func(ctx context.Context)
+
 type Inputs struct {
 	// Token is a pre-issued JWT to authenticate with, instead of exchanging client
 	// credentials
@@ -50,6 +56,10 @@ type Inputs struct {
 	// Sufficient on its own -- the first snapshot is obtained from it if Token is
 	// unset. See AuthProvider.
 	AuthProvider AuthProvider
+
+	// AuthProviderInvalidator clears any cache owned by AuthProvider before a
+	// forced refresh following an authentication rejection.
+	AuthProviderInvalidator AuthProviderInvalidator
 
 	// HttpClient is used as the underlying http.client. Connect provides an interface for abstracting over the
 	// standard library version of the auth client
@@ -183,8 +193,9 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 				),
 			),
 		),
-		mu:           &sync.Mutex{},
-		authProvider: opts.AuthProvider,
+		mu:                      &sync.Mutex{},
+		authProvider:            opts.AuthProvider,
+		authProviderInvalidator: opts.AuthProviderInvalidator,
 	}
 	// Validate before storing so nothing invalid is ever observable in r.auth,
 	// matching how GetAuth handles an AuthProvider result.
@@ -266,6 +277,32 @@ func (r *Manager) GetAuth(
 	if snapshot := r.auth.Load(); snapshot != nil && snapshot.Token.GetExpiresAt().AsTime().After(newerThan) {
 		return snapshot, nil
 	}
+	return r.refreshAuthLocked(ctx, newerThan)
+}
+
+// RefreshAuthAfterRejection refreshes a credential that an authenticated
+// request sent and the server rejected. If another caller has already replaced
+// rejected with a sufficiently fresh snapshot, that snapshot is reused.
+func (r *Manager) RefreshAuthAfterRejection(
+	ctx context.Context,
+	rejected *AuthSnapshot,
+	newerThan time.Time,
+) (*AuthSnapshot, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if snapshot := r.auth.Load(); snapshot != nil && snapshot != rejected && snapshot.Token.GetExpiresAt().AsTime().After(newerThan) {
+		return snapshot, nil
+	}
+	if r.authProviderInvalidator != nil {
+		r.authProviderInvalidator(ctx)
+	}
+	return r.refreshAuthLocked(ctx, newerThan)
+}
+
+// refreshAuthLocked obtains and stores a new snapshot. The caller must hold
+// r.mu so only one credential exchange or provider call can run at a time.
+func (r *Manager) refreshAuthLocked(ctx context.Context, newerThan time.Time) (*AuthSnapshot, error) {
 
 	// A rotating credential is re-read at its source rather than exchanged. There
 	// are no client credentials to exchange with on that path, so without this

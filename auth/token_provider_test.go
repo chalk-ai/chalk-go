@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -116,6 +117,79 @@ func TestAuthProviderNotCalledWhileSnapshotIsFresh(t *testing.T) {
 	}
 
 	assert.Equal(t, 0, calls, "a fresh token must be served from cache")
+}
+
+func TestRefreshAuthAfterRejectionInvalidatesAndRefreshesFreshToken(t *testing.T) {
+	t.Parallel()
+
+	var events []string
+	m, err := newManagerForTest(t, &Inputs{
+		Token: tokenValidFor(time.Hour),
+		AuthProvider: func(context.Context) (*AuthSnapshot, error) {
+			events = append(events, "provide")
+			return authValidFor("env-rotated", time.Hour), nil
+		},
+		AuthProviderInvalidator: func(context.Context) {
+			events = append(events, "invalidate")
+		},
+	})
+	require.NoError(t, err)
+
+	rejected, err := m.GetAuth(t.Context(), time.Now().Add(time.Minute))
+	require.NoError(t, err)
+	refreshed, err := m.RefreshAuthAfterRejection(
+		t.Context(),
+		rejected,
+		time.Now().Add(time.Minute),
+	)
+
+	require.NoError(t, err)
+	assert.Equal(t, []string{"invalidate", "provide"}, events)
+	assert.Equal(t, "env-rotated", refreshed.EnvironmentID)
+}
+
+func TestRefreshAuthAfterRejectionReusesConcurrentRefresh(t *testing.T) {
+	t.Parallel()
+
+	var providerCalls atomic.Int32
+	var invalidatorCalls atomic.Int32
+	providerStarted := make(chan struct{})
+	releaseProvider := make(chan struct{})
+	m, err := newManagerForTest(t, &Inputs{
+		Token: tokenValidFor(time.Hour),
+		AuthProvider: func(context.Context) (*AuthSnapshot, error) {
+			providerCalls.Add(1)
+			close(providerStarted)
+			<-releaseProvider
+			return authValidFor("env-rotated", time.Hour), nil
+		},
+		AuthProviderInvalidator: func(context.Context) {
+			invalidatorCalls.Add(1)
+		},
+	})
+	require.NoError(t, err)
+
+	rejected, err := m.GetAuth(t.Context(), time.Now().Add(time.Minute))
+	require.NoError(t, err)
+	results := make(chan *AuthSnapshot, 2)
+	errs := make(chan error, 2)
+	refresh := func() {
+		snapshot, refreshErr := m.RefreshAuthAfterRejection(t.Context(), rejected, time.Now().Add(time.Minute))
+		results <- snapshot
+		errs <- refreshErr
+	}
+	go refresh()
+	<-providerStarted
+	go refresh()
+	close(releaseProvider)
+
+	first := <-results
+	second := <-results
+	assert.NoError(t, <-errs)
+	assert.NoError(t, <-errs)
+	assert.Same(t, first, second)
+	assert.Equal(t, int32(1), providerCalls.Load())
+	assert.Equal(t, int32(1), invalidatorCalls.Load())
 }
 
 func TestAuthProviderErrorIsPropagated(t *testing.T) {

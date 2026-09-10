@@ -484,7 +484,7 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) (err error
 }
 
 func (c *clientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
-	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(1*time.Minute))
+	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(authRefreshHeadroom))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -534,13 +534,12 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	headers := c.getHeaders(args.Branch, args.ResourceGroupOverride)
 	request.Header = headers
 
-	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(1*time.Minute))
+	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(authRefreshHeadroom))
 	if err != nil {
 		return errors.Wrap(err, "getting JWT for request")
 	}
 
-	request.Header.Set("X-Chalk-Env-Id", authSnapshot.EnvironmentID)
-	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
+	setAuthHeaders(request.Header, authSnapshot)
 	if args.Versioned {
 		request.Header.Set("X-Chalk-Features-Versioned", "true")
 	}
@@ -568,14 +567,16 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	}
 
 	(c.logger).Debugf("Response Status: ", res.Status)
-	defer res.Body.Close()
-
-	if res.StatusCode == 401 {
-		res, err = c.retryRequest(ctx, *request, args.Body, res, err)
+	if res.StatusCode == http.StatusUnauthorized || res.StatusCode == http.StatusForbidden {
+		if closeErr := res.Body.Close(); closeErr != nil {
+			return errors.Wrap(closeErr, "closing rejected response body")
+		}
+		res, err = c.retryRequest(ctx, *request, args.Body, res, authSnapshot)
 		if err != nil {
 			return err
 		}
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
 		clientError, err := getHttpError(c.logger, *res, *request)
@@ -599,7 +600,7 @@ func (c *clientImpl) retryRequest(
 	originalRequest http.Request,
 	originalBody any,
 	originalResponse *http.Response,
-	originalError error,
+	rejectedAuth *auth.AuthSnapshot,
 ) (*http.Response, error) {
 	originalBodyBuffer, getBufferErr := getBodyBuffer(originalBody)
 	if getBufferErr != nil {
@@ -619,14 +620,17 @@ func (c *clientImpl) retryRequest(
 	if err != nil {
 		return nil, err
 	}
-	newRequest.Header = originalRequest.Header
-	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(1*time.Minute))
+	newRequest.Header = originalRequest.Header.Clone()
+	authSnapshot, err := c.tokenManager.RefreshAuthAfterRejection(
+		ctx,
+		rejectedAuth,
+		time.Now().Add(authRefreshHeadroom),
+	)
 	if err != nil {
-		return originalResponse, errors.CombineErrors(originalError, err)
+		return originalResponse, errors.Wrap(err, "refreshing authentication after rejection")
 	}
 
-	newRequest.Header.Set("X-Chalk-Env-Id", authSnapshot.EnvironmentID)
-	newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
+	setAuthHeaders(newRequest.Header, authSnapshot)
 	res, err := c.httpClient.Do(newRequest)
 	if err != nil {
 		return nil, err
@@ -732,13 +736,7 @@ func (c *clientImpl) CancelOfflineQuery(ctx context.Context, offlineQueryId stri
 			return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
 				req.Header().Set("x-chalk-server", "go-api")
 				req.Header().Set("User-Agent", internal.UserAgent())
-				authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
-				if err != nil {
-					return nil, errors.Wrap(err, "error refreshing token")
-				}
-				req.Header().Set("x-chalk-env-id", authSnapshot.EnvironmentID)
-				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
-				return next(ctx, req)
+				return sendAuthenticatedUnary(ctx, req, next, c.tokenManager)
 			}
 		})),
 	)
@@ -832,6 +830,7 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		&auth.Inputs{
 			Token:                      cfg.JWT,
 			AuthProvider:               cfg.AuthProvider,
+			AuthProviderInvalidator:    cfg.AuthProviderInvalidator,
 			HttpClient:                 httpClient,
 			Config:                     manager,
 			Timeout:                    timeout,
@@ -859,13 +858,7 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 				req.Header().Set("x-chalk-deployment-type", "branch-grpc")
 			}
 			req.Header().Set("User-Agent", internal.UserAgent())
-			authSnapshot, err := tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
-			if err != nil {
-				return nil, errors.Wrap(err, "error refreshing token")
-			}
-			req.Header().Set("x-chalk-env-id", authSnapshot.EnvironmentID)
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
-			return next(ctx, req)
+			return sendAuthenticatedUnary(ctx, req, next, tokenManager)
 		}
 	}
 
