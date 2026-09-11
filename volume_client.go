@@ -362,6 +362,8 @@ func (c *volumeClientImpl) authInterceptor() connect.UnaryInterceptorFunc {
 					defer cancel()
 				}
 			}
+			req.Header().Set("x-chalk-server", "go-api")
+			req.Header().Set("User-Agent", internal.UserAgent())
 			return sendAuthenticatedUnary(ctx, req, next, c.tokenManager)
 		}
 	}
