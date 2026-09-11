@@ -96,6 +96,9 @@ type VolumeClientConfig struct {
 	// is a one-shot snapshot, so the client stops working the moment it expires.
 	// Sufficient on its own; JWT need not also be set.
 	AuthProvider auth.AuthProvider
+	// AuthProviderInvalidator clears any cache owned by AuthProvider before a
+	// forced refresh following an authentication rejection.
+	AuthProviderInvalidator auth.AuthProviderInvalidator
 }
 
 // VolumeRef identifies a volume by name or id.
@@ -317,6 +320,7 @@ func NewVolumeClient(ctx context.Context, configs ...*VolumeClientConfig) (Volum
 	tokenManager, err := auth.NewManager(ctx, &auth.Inputs{
 		Token:                      cfg.JWT,
 		AuthProvider:               cfg.AuthProvider,
+		AuthProviderInvalidator:    cfg.AuthProviderInvalidator,
 		HttpClient:                 cfg.HTTPClient,
 		Config:                     manager,
 		Timeout:                    timeout,
@@ -358,10 +362,7 @@ func (c *volumeClientImpl) authInterceptor() connect.UnaryInterceptorFunc {
 					defer cancel()
 				}
 			}
-			if err := c.addAuthHeaders(ctx, req.Header()); err != nil {
-				return nil, errors.Wrap(err, "error refreshing config")
-			}
-			return next(ctx, req)
+			return sendAuthenticatedUnary(ctx, req, next, c.tokenManager)
 		}
 	}
 }
@@ -384,16 +385,15 @@ func volumeRetryInterceptor() connect.UnaryInterceptorFunc {
 	}
 }
 
-func (c *volumeClientImpl) addAuthHeaders(ctx context.Context, header http.Header) error {
+func (c *volumeClientImpl) addAuthHeaders(ctx context.Context, header http.Header) (*auth.AuthSnapshot, error) {
 	header.Set("x-chalk-server", "go-api")
 	header.Set("User-Agent", internal.UserAgent())
 	authSnapshot, err := c.tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	header.Set("x-chalk-env-id", authSnapshot.EnvironmentID)
-	header.Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
-	return nil
+	setAuthHeaders(header, authSnapshot)
+	return authSnapshot, nil
 }
 
 func rpcMsg[T any](res *connect.Response[T], err error) (*T, error) {
@@ -1379,12 +1379,32 @@ func (c *volumeClientImpl) resolveCommitAuthor(ctx context.Context) string {
 		if err != nil {
 			return
 		}
-		if err := c.addAuthHeaders(ctx, req.Header); err != nil {
+		authSnapshot, err := c.addAuthHeaders(ctx, req.Header)
+		if err != nil {
 			return
 		}
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
 			return
+		}
+		if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+			if err := resp.Body.Close(); err != nil {
+				return
+			}
+			refreshed, err := c.tokenManager.RefreshAuthAfterRejection(
+				ctx,
+				authSnapshot,
+				time.Now().Add(authRefreshHeadroom),
+			)
+			if err != nil {
+				return
+			}
+			req = req.Clone(ctx)
+			setAuthHeaders(req.Header, refreshed)
+			resp, err = c.httpClient.Do(req)
+			if err != nil {
+				return
+			}
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {

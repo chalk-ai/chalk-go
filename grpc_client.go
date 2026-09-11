@@ -243,6 +243,9 @@ type GRPCClientConfig struct {
 	// is a one-shot snapshot, so the client stops working the moment it expires.
 	// Sufficient on its own; JWT need not also be set.
 	AuthProvider auth.AuthProvider
+	// AuthProviderInvalidator clears any cache owned by AuthProvider before a
+	// forced refresh following an authentication rejection.
+	AuthProviderInvalidator auth.AuthProviderInvalidator
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

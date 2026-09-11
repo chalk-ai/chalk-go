@@ -3,7 +3,6 @@ package chalk
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -129,6 +128,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		&auth.Inputs{
 			Token:                      cfg.JWT,
 			AuthProvider:               cfg.AuthProvider,
+			AuthProviderInvalidator:    cfg.AuthProviderInvalidator,
 			HttpClient:                 cfg.HTTPClient,
 			Config:                     configManager,
 			Timeout:                    timeout,
@@ -205,13 +205,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 					req.Header().Set("x-chalk-deployment-tag", cfg.DeploymentTag)
 				}
 
-				authSnapshot, err := tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
-				if err != nil {
-					return nil, errors.Wrap(err, "error refreshing config")
-				}
-				req.Header().Set("x-chalk-env-id", authSnapshot.EnvironmentID)
-				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
-				return next(ctx, req)
+				return sendAuthenticatedUnary(ctx, req, next, tokenManager)
 			}
 		}
 	}
@@ -253,13 +247,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 			}
 			req.Header().Set("x-chalk-server", "go-api")
 			req.Header().Set("User-Agent", internal.UserAgent())
-			authSnapshot, err := tokenManager.GetAuth(ctx, time.Now().Add(time.Minute))
-			if err != nil {
-				return nil, errors.Wrap(err, "error refreshing config")
-			}
-			req.Header().Set("x-chalk-env-id", authSnapshot.EnvironmentID)
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", authSnapshot.Token.AccessToken))
-			return next(ctx, req)
+			return sendAuthenticatedUnary(ctx, req, next, tokenManager)
 		}
 	}
 
