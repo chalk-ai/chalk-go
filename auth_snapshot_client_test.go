@@ -342,8 +342,12 @@ func TestVolumeClientRefreshesRejectedFreshAuth(t *testing.T) {
 	require.Len(t, headers, 2)
 	require.Equal(t, "Bearer token-initial", headers[0].Get("Authorization"))
 	require.Equal(t, "env-initial", headers[0].Get("x-chalk-env-id"))
+	require.Equal(t, "go-api", headers[0].Get("x-chalk-server"))
+	require.NotEmpty(t, headers[0].Get("User-Agent"))
 	require.Equal(t, "Bearer token-rotated", headers[1].Get("Authorization"))
 	require.Equal(t, "env-rotated", headers[1].Get("x-chalk-env-id"))
+	require.Equal(t, "go-api", headers[1].Get("x-chalk-server"))
+	require.NotEmpty(t, headers[1].Get("User-Agent"))
 	require.Equal(t, 1, providerCalls)
 	require.Equal(t, 1, invalidatorCalls)
 }
