@@ -409,6 +409,61 @@ func (ShardPerformanceSummaryStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{6}
 }
 
+type DatasetProfileStatus int32
+
+const (
+	DatasetProfileStatus_DATASET_PROFILE_STATUS_UNSPECIFIED DatasetProfileStatus = 0
+	DatasetProfileStatus_DATASET_PROFILE_STATUS_QUEUED      DatasetProfileStatus = 1
+	DatasetProfileStatus_DATASET_PROFILE_STATUS_RUNNING     DatasetProfileStatus = 2
+	DatasetProfileStatus_DATASET_PROFILE_STATUS_COMPLETED   DatasetProfileStatus = 3
+	DatasetProfileStatus_DATASET_PROFILE_STATUS_FAILED      DatasetProfileStatus = 4
+)
+
+// Enum value maps for DatasetProfileStatus.
+var (
+	DatasetProfileStatus_name = map[int32]string{
+		0: "DATASET_PROFILE_STATUS_UNSPECIFIED",
+		1: "DATASET_PROFILE_STATUS_QUEUED",
+		2: "DATASET_PROFILE_STATUS_RUNNING",
+		3: "DATASET_PROFILE_STATUS_COMPLETED",
+		4: "DATASET_PROFILE_STATUS_FAILED",
+	}
+	DatasetProfileStatus_value = map[string]int32{
+		"DATASET_PROFILE_STATUS_UNSPECIFIED": 0,
+		"DATASET_PROFILE_STATUS_QUEUED":      1,
+		"DATASET_PROFILE_STATUS_RUNNING":     2,
+		"DATASET_PROFILE_STATUS_COMPLETED":   3,
+		"DATASET_PROFILE_STATUS_FAILED":      4,
+	}
+)
+
+func (x DatasetProfileStatus) Enum() *DatasetProfileStatus {
+	p := new(DatasetProfileStatus)
+	*p = x
+	return p
+}
+
+func (x DatasetProfileStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DatasetProfileStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_datasets_proto_enumTypes[7].Descriptor()
+}
+
+func (DatasetProfileStatus) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_datasets_proto_enumTypes[7]
+}
+
+func (x DatasetProfileStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DatasetProfileStatus.Descriptor instead.
+func (DatasetProfileStatus) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{7}
+}
+
 type DatasetRevisionMeta struct {
 	state          protoimpl.MessageState     `protogen:"open.v1"`
 	NumericId      int64                      `protobuf:"varint,1,opt,name=numeric_id,json=numericId,proto3" json:"numeric_id,omitempty"`
@@ -3332,6 +3387,7 @@ type GetDatasetRevisionPreviewResponse struct {
 	// Whole-revision profiles computed asynchronously after upload. Empty while
 	// profiling is pending or for legacy revisions without a stored schema.
 	ColumnProfiles []*v12.ColumnProfile `protobuf:"bytes,3,rep,name=column_profiles,json=columnProfiles,proto3" json:"column_profiles,omitempty"`
+	ProfileStatus  DatasetProfileStatus `protobuf:"varint,4,opt,name=profile_status,json=profileStatus,proto3,enum=chalk.server.v1.DatasetProfileStatus" json:"profile_status,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -3387,6 +3443,13 @@ func (x *GetDatasetRevisionPreviewResponse) GetColumnProfiles() []*v12.ColumnPro
 	return nil
 }
 
+func (x *GetDatasetRevisionPreviewResponse) GetProfileStatus() DatasetProfileStatus {
+	if x != nil {
+		return x.ProfileStatus
+	}
+	return DatasetProfileStatus_DATASET_PROFILE_STATUS_UNSPECIFIED
+}
+
 type GenerateDatasetStatsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RevisionId    string                 `protobuf:"bytes,1,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
@@ -3432,8 +3495,10 @@ func (x *GenerateDatasetStatsRequest) GetRevisionId() string {
 }
 
 type GenerateDatasetStatsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Summary       *structpb.Value        `protobuf:"bytes,1,opt,name=summary,proto3" json:"summary,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated synchronous result. Read the profiles and job status from
+	// GetDatasetRevisionPreview after this RPC queues the job.
+	Summary       *structpb.Value `protobuf:"bytes,1,opt,name=summary,proto3" json:"summary,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4068,11 +4133,12 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"C\n" +
 	" GetDatasetRevisionPreviewRequest\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
-	"revisionId\"\xdd\x01\n" +
+	"revisionId\"\xab\x02\n" +
 	"!GetDatasetRevisionPreviewResponse\x12=\n" +
 	"\x0eoutput_preview\x18\x01 \x01(\v2\x16.google.protobuf.ValueR\routputPreview\x120\n" +
 	"\asummary\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\asummary\x12G\n" +
-	"\x0fcolumn_profiles\x18\x03 \x03(\v2\x1e.chalk.common.v1.ColumnProfileR\x0ecolumnProfiles\">\n" +
+	"\x0fcolumn_profiles\x18\x03 \x03(\v2\x1e.chalk.common.v1.ColumnProfileR\x0ecolumnProfiles\x12L\n" +
+	"\x0eprofile_status\x18\x04 \x01(\x0e2%.chalk.server.v1.DatasetProfileStatusR\rprofileStatus\">\n" +
 	"\x1bGenerateDatasetStatsRequest\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
 	"revisionId\"P\n" +
@@ -4137,7 +4203,13 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	",SHARD_PERFORMANCE_SUMMARY_STATUS_UNSPECIFIED\x10\x00\x12.\n" +
 	"*SHARD_PERFORMANCE_SUMMARY_STATUS_AVAILABLE\x10\x01\x12,\n" +
 	"(SHARD_PERFORMANCE_SUMMARY_STATUS_PENDING\x10\x02\x12)\n" +
-	"%SHARD_PERFORMANCE_SUMMARY_STATUS_NONE\x10\x032\xbf\x19\n" +
+	"%SHARD_PERFORMANCE_SUMMARY_STATUS_NONE\x10\x03*\xce\x01\n" +
+	"\x14DatasetProfileStatus\x12&\n" +
+	"\"DATASET_PROFILE_STATUS_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dDATASET_PROFILE_STATUS_QUEUED\x10\x01\x12\"\n" +
+	"\x1eDATASET_PROFILE_STATUS_RUNNING\x10\x02\x12$\n" +
+	" DATASET_PROFILE_STATUS_COMPLETED\x10\x03\x12!\n" +
+	"\x1dDATASET_PROFILE_STATUS_FAILED\x10\x042\xbf\x19\n" +
 	"\x16DatasetMetadataService\x12g\n" +
 	"\fListDatasets\x12$.chalk.server.v1.ListDatasetsRequest\x1a%.chalk.server.v1.ListDatasetsResponse\"\n" +
 	"\x80}\x04\x92}\x01$\x90\x02\x01\x12a\n" +
@@ -4187,7 +4259,7 @@ func file_chalk_server_v1_datasets_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_datasets_proto_rawDescData
 }
 
-var file_chalk_server_v1_datasets_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_chalk_server_v1_datasets_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
 var file_chalk_server_v1_datasets_proto_msgTypes = make([]protoimpl.MessageInfo, 51)
 var file_chalk_server_v1_datasets_proto_goTypes = []any{
 	(DatasetRevisionStatus)(0),                                // 0: chalk.server.v1.DatasetRevisionStatus
@@ -4197,174 +4269,176 @@ var file_chalk_server_v1_datasets_proto_goTypes = []any{
 	(SortOrder)(0),                                            // 4: chalk.server.v1.SortOrder
 	(DatasetKind)(0),                                          // 5: chalk.server.v1.DatasetKind
 	(ShardPerformanceSummaryStatus)(0),                        // 6: chalk.server.v1.ShardPerformanceSummaryStatus
-	(*DatasetRevisionMeta)(nil),                               // 7: chalk.server.v1.DatasetRevisionMeta
-	(*DatasetMeta)(nil),                                       // 8: chalk.server.v1.DatasetMeta
-	(*ListDatasetsRequest)(nil),                               // 9: chalk.server.v1.ListDatasetsRequest
-	(*ListDatasetsResponse)(nil),                              // 10: chalk.server.v1.ListDatasetsResponse
-	(*GetDatasetRequest)(nil),                                 // 11: chalk.server.v1.GetDatasetRequest
-	(*GetDatasetResponse)(nil),                                // 12: chalk.server.v1.GetDatasetResponse
-	(*ListDatasetRevisionsRequest)(nil),                       // 13: chalk.server.v1.ListDatasetRevisionsRequest
-	(*ListDatasetRevisionsResponse)(nil),                      // 14: chalk.server.v1.ListDatasetRevisionsResponse
-	(*GetDatasetRevisionRequest)(nil),                         // 15: chalk.server.v1.GetDatasetRevisionRequest
-	(*GetDatasetRevisionResponse)(nil),                        // 16: chalk.server.v1.GetDatasetRevisionResponse
-	(*GetDatasetRevisionDownloadLinksRequest)(nil),            // 17: chalk.server.v1.GetDatasetRevisionDownloadLinksRequest
-	(*ShardPerformanceSummaryLink)(nil),                       // 18: chalk.server.v1.ShardPerformanceSummaryLink
-	(*ShardRequestBodyLink)(nil),                              // 19: chalk.server.v1.ShardRequestBodyLink
-	(*GetDatasetRevisionDownloadLinksResponse)(nil),           // 20: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse
-	(*GetDatasetRevisionPerformanceLinksRequest)(nil),         // 21: chalk.server.v1.GetDatasetRevisionPerformanceLinksRequest
-	(*GetDatasetRevisionPerformanceLinksResponse)(nil),        // 22: chalk.server.v1.GetDatasetRevisionPerformanceLinksResponse
-	(*StreamDatasetRevisionDownloadLinksRequest)(nil),         // 23: chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest
-	(*StreamDatasetRevisionDownloadLinksResponse)(nil),        // 24: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse
-	(*GetDatasetUploadUrisRequest)(nil),                       // 25: chalk.server.v1.GetDatasetUploadUrisRequest
-	(*GetDatasetUploadUrisResponse)(nil),                      // 26: chalk.server.v1.GetDatasetUploadUrisResponse
-	(*FinalizeDatasetUploadRequest)(nil),                      // 27: chalk.server.v1.FinalizeDatasetUploadRequest
-	(*FinalizeDatasetUploadResponse)(nil),                     // 28: chalk.server.v1.FinalizeDatasetUploadResponse
-	(*RenameDatasetRequest)(nil),                              // 29: chalk.server.v1.RenameDatasetRequest
-	(*RenameDatasetResponse)(nil),                             // 30: chalk.server.v1.RenameDatasetResponse
-	(*ArchiveDatasetRevisionRequest)(nil),                     // 31: chalk.server.v1.ArchiveDatasetRevisionRequest
-	(*ArchiveDatasetRevisionResponse)(nil),                    // 32: chalk.server.v1.ArchiveDatasetRevisionResponse
-	(*ArchiveDatasetRevisionsRequest)(nil),                    // 33: chalk.server.v1.ArchiveDatasetRevisionsRequest
-	(*ArchiveDatasetRevisionsResponse)(nil),                   // 34: chalk.server.v1.ArchiveDatasetRevisionsResponse
-	(*DeleteDatasetRequest)(nil),                              // 35: chalk.server.v1.DeleteDatasetRequest
-	(*DeleteDatasetResponse)(nil),                             // 36: chalk.server.v1.DeleteDatasetResponse
-	(*MaterializedAggregateTileMeta)(nil),                     // 37: chalk.server.v1.MaterializedAggregateTileMeta
-	(*MaterializedAggregateTileFileMeta)(nil),                 // 38: chalk.server.v1.MaterializedAggregateTileFileMeta
-	(*ListMaterializedAggregateTilesRequest)(nil),             // 39: chalk.server.v1.ListMaterializedAggregateTilesRequest
-	(*ListMaterializedAggregateTilesResponse)(nil),            // 40: chalk.server.v1.ListMaterializedAggregateTilesResponse
-	(*ListMaterializedAggregateTilesForTimelineRequest)(nil),  // 41: chalk.server.v1.ListMaterializedAggregateTilesForTimelineRequest
-	(*ListMaterializedAggregateTilesForTimelineResponse)(nil), // 42: chalk.server.v1.ListMaterializedAggregateTilesForTimelineResponse
-	(*ListMaterializedAggregateTileFilesRequest)(nil),         // 43: chalk.server.v1.ListMaterializedAggregateTileFilesRequest
-	(*ListMaterializedAggregateTileFilesResponse)(nil),        // 44: chalk.server.v1.ListMaterializedAggregateTileFilesResponse
-	(*GetMaterializedAggregateTileRowCountChartRequest)(nil),  // 45: chalk.server.v1.GetMaterializedAggregateTileRowCountChartRequest
-	(*GetMaterializedAggregateTileRowCountChartResponse)(nil), // 46: chalk.server.v1.GetMaterializedAggregateTileRowCountChartResponse
-	(*DeleteMaterializedAggregateTileRequest)(nil),            // 47: chalk.server.v1.DeleteMaterializedAggregateTileRequest
-	(*DeleteMaterializedAggregateTileResponse)(nil),           // 48: chalk.server.v1.DeleteMaterializedAggregateTileResponse
-	(*GetDatasetRevisionPreviewRequest)(nil),                  // 49: chalk.server.v1.GetDatasetRevisionPreviewRequest
-	(*GetDatasetRevisionPreviewResponse)(nil),                 // 50: chalk.server.v1.GetDatasetRevisionPreviewResponse
-	(*GenerateDatasetStatsRequest)(nil),                       // 51: chalk.server.v1.GenerateDatasetStatsRequest
-	(*GenerateDatasetStatsResponse)(nil),                      // 52: chalk.server.v1.GenerateDatasetStatsResponse
-	(*DatasetEdf)(nil),                                        // 53: chalk.server.v1.DatasetEdf
-	(*GetDatasetEdfsRequest)(nil),                             // 54: chalk.server.v1.GetDatasetEdfsRequest
-	(*GetDatasetEdfsResponse)(nil),                            // 55: chalk.server.v1.GetDatasetEdfsResponse
-	(*GenerateDatasetEdfsRequest)(nil),                        // 56: chalk.server.v1.GenerateDatasetEdfsRequest
-	(*GenerateDatasetEdfsResponse)(nil),                       // 57: chalk.server.v1.GenerateDatasetEdfsResponse
-	(*timestamppb.Timestamp)(nil),                             // 58: google.protobuf.Timestamp
-	(*structpb.Value)(nil),                                    // 59: google.protobuf.Value
-	(*fieldmaskpb.FieldMask)(nil),                             // 60: google.protobuf.FieldMask
-	(*v1.MultipartUpload)(nil),                                // 61: chalk.volume.v1.MultipartUpload
-	(*v1.ResumableUpload)(nil),                                // 62: chalk.volume.v1.ResumableUpload
-	(*v1.AzureBlockUpload)(nil),                               // 63: chalk.volume.v1.AzureBlockUpload
-	(*v1.DirectUpload)(nil),                                   // 64: chalk.volume.v1.DirectUpload
-	(*MaterializedAggregateTileTimelineInterval)(nil),         // 65: chalk.server.v1.MaterializedAggregateTileTimelineInterval
-	(*v11.DenseTimeSeriesChart)(nil),                          // 66: chalk.chart.v1.DenseTimeSeriesChart
-	(*v12.ColumnProfile)(nil),                                 // 67: chalk.common.v1.ColumnProfile
-	(*ListMaterializedAggregateTileTimelinesRequest)(nil),     // 68: chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest
-	(*ListMaterializedAggregateTileTimelinesResponse)(nil),    // 69: chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse
+	(DatasetProfileStatus)(0),                                 // 7: chalk.server.v1.DatasetProfileStatus
+	(*DatasetRevisionMeta)(nil),                               // 8: chalk.server.v1.DatasetRevisionMeta
+	(*DatasetMeta)(nil),                                       // 9: chalk.server.v1.DatasetMeta
+	(*ListDatasetsRequest)(nil),                               // 10: chalk.server.v1.ListDatasetsRequest
+	(*ListDatasetsResponse)(nil),                              // 11: chalk.server.v1.ListDatasetsResponse
+	(*GetDatasetRequest)(nil),                                 // 12: chalk.server.v1.GetDatasetRequest
+	(*GetDatasetResponse)(nil),                                // 13: chalk.server.v1.GetDatasetResponse
+	(*ListDatasetRevisionsRequest)(nil),                       // 14: chalk.server.v1.ListDatasetRevisionsRequest
+	(*ListDatasetRevisionsResponse)(nil),                      // 15: chalk.server.v1.ListDatasetRevisionsResponse
+	(*GetDatasetRevisionRequest)(nil),                         // 16: chalk.server.v1.GetDatasetRevisionRequest
+	(*GetDatasetRevisionResponse)(nil),                        // 17: chalk.server.v1.GetDatasetRevisionResponse
+	(*GetDatasetRevisionDownloadLinksRequest)(nil),            // 18: chalk.server.v1.GetDatasetRevisionDownloadLinksRequest
+	(*ShardPerformanceSummaryLink)(nil),                       // 19: chalk.server.v1.ShardPerformanceSummaryLink
+	(*ShardRequestBodyLink)(nil),                              // 20: chalk.server.v1.ShardRequestBodyLink
+	(*GetDatasetRevisionDownloadLinksResponse)(nil),           // 21: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse
+	(*GetDatasetRevisionPerformanceLinksRequest)(nil),         // 22: chalk.server.v1.GetDatasetRevisionPerformanceLinksRequest
+	(*GetDatasetRevisionPerformanceLinksResponse)(nil),        // 23: chalk.server.v1.GetDatasetRevisionPerformanceLinksResponse
+	(*StreamDatasetRevisionDownloadLinksRequest)(nil),         // 24: chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest
+	(*StreamDatasetRevisionDownloadLinksResponse)(nil),        // 25: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse
+	(*GetDatasetUploadUrisRequest)(nil),                       // 26: chalk.server.v1.GetDatasetUploadUrisRequest
+	(*GetDatasetUploadUrisResponse)(nil),                      // 27: chalk.server.v1.GetDatasetUploadUrisResponse
+	(*FinalizeDatasetUploadRequest)(nil),                      // 28: chalk.server.v1.FinalizeDatasetUploadRequest
+	(*FinalizeDatasetUploadResponse)(nil),                     // 29: chalk.server.v1.FinalizeDatasetUploadResponse
+	(*RenameDatasetRequest)(nil),                              // 30: chalk.server.v1.RenameDatasetRequest
+	(*RenameDatasetResponse)(nil),                             // 31: chalk.server.v1.RenameDatasetResponse
+	(*ArchiveDatasetRevisionRequest)(nil),                     // 32: chalk.server.v1.ArchiveDatasetRevisionRequest
+	(*ArchiveDatasetRevisionResponse)(nil),                    // 33: chalk.server.v1.ArchiveDatasetRevisionResponse
+	(*ArchiveDatasetRevisionsRequest)(nil),                    // 34: chalk.server.v1.ArchiveDatasetRevisionsRequest
+	(*ArchiveDatasetRevisionsResponse)(nil),                   // 35: chalk.server.v1.ArchiveDatasetRevisionsResponse
+	(*DeleteDatasetRequest)(nil),                              // 36: chalk.server.v1.DeleteDatasetRequest
+	(*DeleteDatasetResponse)(nil),                             // 37: chalk.server.v1.DeleteDatasetResponse
+	(*MaterializedAggregateTileMeta)(nil),                     // 38: chalk.server.v1.MaterializedAggregateTileMeta
+	(*MaterializedAggregateTileFileMeta)(nil),                 // 39: chalk.server.v1.MaterializedAggregateTileFileMeta
+	(*ListMaterializedAggregateTilesRequest)(nil),             // 40: chalk.server.v1.ListMaterializedAggregateTilesRequest
+	(*ListMaterializedAggregateTilesResponse)(nil),            // 41: chalk.server.v1.ListMaterializedAggregateTilesResponse
+	(*ListMaterializedAggregateTilesForTimelineRequest)(nil),  // 42: chalk.server.v1.ListMaterializedAggregateTilesForTimelineRequest
+	(*ListMaterializedAggregateTilesForTimelineResponse)(nil), // 43: chalk.server.v1.ListMaterializedAggregateTilesForTimelineResponse
+	(*ListMaterializedAggregateTileFilesRequest)(nil),         // 44: chalk.server.v1.ListMaterializedAggregateTileFilesRequest
+	(*ListMaterializedAggregateTileFilesResponse)(nil),        // 45: chalk.server.v1.ListMaterializedAggregateTileFilesResponse
+	(*GetMaterializedAggregateTileRowCountChartRequest)(nil),  // 46: chalk.server.v1.GetMaterializedAggregateTileRowCountChartRequest
+	(*GetMaterializedAggregateTileRowCountChartResponse)(nil), // 47: chalk.server.v1.GetMaterializedAggregateTileRowCountChartResponse
+	(*DeleteMaterializedAggregateTileRequest)(nil),            // 48: chalk.server.v1.DeleteMaterializedAggregateTileRequest
+	(*DeleteMaterializedAggregateTileResponse)(nil),           // 49: chalk.server.v1.DeleteMaterializedAggregateTileResponse
+	(*GetDatasetRevisionPreviewRequest)(nil),                  // 50: chalk.server.v1.GetDatasetRevisionPreviewRequest
+	(*GetDatasetRevisionPreviewResponse)(nil),                 // 51: chalk.server.v1.GetDatasetRevisionPreviewResponse
+	(*GenerateDatasetStatsRequest)(nil),                       // 52: chalk.server.v1.GenerateDatasetStatsRequest
+	(*GenerateDatasetStatsResponse)(nil),                      // 53: chalk.server.v1.GenerateDatasetStatsResponse
+	(*DatasetEdf)(nil),                                        // 54: chalk.server.v1.DatasetEdf
+	(*GetDatasetEdfsRequest)(nil),                             // 55: chalk.server.v1.GetDatasetEdfsRequest
+	(*GetDatasetEdfsResponse)(nil),                            // 56: chalk.server.v1.GetDatasetEdfsResponse
+	(*GenerateDatasetEdfsRequest)(nil),                        // 57: chalk.server.v1.GenerateDatasetEdfsRequest
+	(*GenerateDatasetEdfsResponse)(nil),                       // 58: chalk.server.v1.GenerateDatasetEdfsResponse
+	(*timestamppb.Timestamp)(nil),                             // 59: google.protobuf.Timestamp
+	(*structpb.Value)(nil),                                    // 60: google.protobuf.Value
+	(*fieldmaskpb.FieldMask)(nil),                             // 61: google.protobuf.FieldMask
+	(*v1.MultipartUpload)(nil),                                // 62: chalk.volume.v1.MultipartUpload
+	(*v1.ResumableUpload)(nil),                                // 63: chalk.volume.v1.ResumableUpload
+	(*v1.AzureBlockUpload)(nil),                               // 64: chalk.volume.v1.AzureBlockUpload
+	(*v1.DirectUpload)(nil),                                   // 65: chalk.volume.v1.DirectUpload
+	(*MaterializedAggregateTileTimelineInterval)(nil),         // 66: chalk.server.v1.MaterializedAggregateTileTimelineInterval
+	(*v11.DenseTimeSeriesChart)(nil),                          // 67: chalk.chart.v1.DenseTimeSeriesChart
+	(*v12.ColumnProfile)(nil),                                 // 68: chalk.common.v1.ColumnProfile
+	(*ListMaterializedAggregateTileTimelinesRequest)(nil),     // 69: chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest
+	(*ListMaterializedAggregateTileTimelinesResponse)(nil),    // 70: chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse
 }
 var file_chalk_server_v1_datasets_proto_depIdxs = []int32{
 	2,  // 0: chalk.server.v1.DatasetRevisionMeta.givens_version:type_name -> chalk.server.v1.OfflineQueryGivensVersion
 	1,  // 1: chalk.server.v1.DatasetRevisionMeta.output_version:type_name -> chalk.server.v1.DatasetVersion
-	58, // 2: chalk.server.v1.DatasetRevisionMeta.completed_at:type_name -> google.protobuf.Timestamp
-	59, // 3: chalk.server.v1.DatasetRevisionMeta.metadata:type_name -> google.protobuf.Value
+	59, // 2: chalk.server.v1.DatasetRevisionMeta.completed_at:type_name -> google.protobuf.Timestamp
+	60, // 3: chalk.server.v1.DatasetRevisionMeta.metadata:type_name -> google.protobuf.Value
 	0,  // 4: chalk.server.v1.DatasetRevisionMeta.status:type_name -> chalk.server.v1.DatasetRevisionStatus
-	58, // 5: chalk.server.v1.DatasetRevisionMeta.created_at:type_name -> google.protobuf.Timestamp
-	58, // 6: chalk.server.v1.DatasetRevisionMeta.archived_at:type_name -> google.protobuf.Timestamp
-	58, // 7: chalk.server.v1.DatasetMeta.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 8: chalk.server.v1.DatasetMeta.most_recent_revision:type_name -> chalk.server.v1.DatasetRevisionMeta
+	59, // 5: chalk.server.v1.DatasetRevisionMeta.created_at:type_name -> google.protobuf.Timestamp
+	59, // 6: chalk.server.v1.DatasetRevisionMeta.archived_at:type_name -> google.protobuf.Timestamp
+	59, // 7: chalk.server.v1.DatasetMeta.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 8: chalk.server.v1.DatasetMeta.most_recent_revision:type_name -> chalk.server.v1.DatasetRevisionMeta
 	3,  // 9: chalk.server.v1.ListDatasetsRequest.sort_column:type_name -> chalk.server.v1.DatasetSortColumn
 	4,  // 10: chalk.server.v1.ListDatasetsRequest.sort_order:type_name -> chalk.server.v1.SortOrder
 	0,  // 11: chalk.server.v1.ListDatasetsRequest.status:type_name -> chalk.server.v1.DatasetRevisionStatus
 	5,  // 12: chalk.server.v1.ListDatasetsRequest.kind:type_name -> chalk.server.v1.DatasetKind
-	60, // 13: chalk.server.v1.ListDatasetsRequest.read_mask:type_name -> google.protobuf.FieldMask
-	8,  // 14: chalk.server.v1.ListDatasetsResponse.datasets:type_name -> chalk.server.v1.DatasetMeta
-	8,  // 15: chalk.server.v1.GetDatasetResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
-	58, // 16: chalk.server.v1.ListDatasetRevisionsRequest.start_time:type_name -> google.protobuf.Timestamp
-	58, // 17: chalk.server.v1.ListDatasetRevisionsRequest.end_time:type_name -> google.protobuf.Timestamp
-	7,  // 18: chalk.server.v1.ListDatasetRevisionsResponse.revisions:type_name -> chalk.server.v1.DatasetRevisionMeta
-	7,  // 19: chalk.server.v1.GetDatasetRevisionResponse.revision:type_name -> chalk.server.v1.DatasetRevisionMeta
+	61, // 13: chalk.server.v1.ListDatasetsRequest.read_mask:type_name -> google.protobuf.FieldMask
+	9,  // 14: chalk.server.v1.ListDatasetsResponse.datasets:type_name -> chalk.server.v1.DatasetMeta
+	9,  // 15: chalk.server.v1.GetDatasetResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
+	59, // 16: chalk.server.v1.ListDatasetRevisionsRequest.start_time:type_name -> google.protobuf.Timestamp
+	59, // 17: chalk.server.v1.ListDatasetRevisionsRequest.end_time:type_name -> google.protobuf.Timestamp
+	8,  // 18: chalk.server.v1.ListDatasetRevisionsResponse.revisions:type_name -> chalk.server.v1.DatasetRevisionMeta
+	8,  // 19: chalk.server.v1.GetDatasetRevisionResponse.revision:type_name -> chalk.server.v1.DatasetRevisionMeta
 	6,  // 20: chalk.server.v1.ShardPerformanceSummaryLink.status:type_name -> chalk.server.v1.ShardPerformanceSummaryStatus
-	58, // 21: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse.expiration:type_name -> google.protobuf.Timestamp
-	18, // 22: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
-	19, // 23: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse.shard_request_body_links:type_name -> chalk.server.v1.ShardRequestBodyLink
-	18, // 24: chalk.server.v1.GetDatasetRevisionPerformanceLinksResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
-	58, // 25: chalk.server.v1.GetDatasetRevisionPerformanceLinksResponse.expiration:type_name -> google.protobuf.Timestamp
-	58, // 26: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse.expiration:type_name -> google.protobuf.Timestamp
-	18, // 27: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
-	61, // 28: chalk.server.v1.GetDatasetUploadUrisResponse.multipart:type_name -> chalk.volume.v1.MultipartUpload
-	62, // 29: chalk.server.v1.GetDatasetUploadUrisResponse.resumable:type_name -> chalk.volume.v1.ResumableUpload
-	63, // 30: chalk.server.v1.GetDatasetUploadUrisResponse.azure_block:type_name -> chalk.volume.v1.AzureBlockUpload
-	64, // 31: chalk.server.v1.GetDatasetUploadUrisResponse.direct:type_name -> chalk.volume.v1.DirectUpload
-	8,  // 32: chalk.server.v1.FinalizeDatasetUploadResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
-	8,  // 33: chalk.server.v1.RenameDatasetResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
-	7,  // 34: chalk.server.v1.ArchiveDatasetRevisionResponse.revision:type_name -> chalk.server.v1.DatasetRevisionMeta
-	7,  // 35: chalk.server.v1.ArchiveDatasetRevisionsResponse.archived_revisions:type_name -> chalk.server.v1.DatasetRevisionMeta
-	58, // 36: chalk.server.v1.MaterializedAggregateTileMeta.coverage_lower_bound:type_name -> google.protobuf.Timestamp
-	58, // 37: chalk.server.v1.MaterializedAggregateTileMeta.coverage_upper_bound:type_name -> google.protobuf.Timestamp
-	58, // 38: chalk.server.v1.MaterializedAggregateTileMeta.created_at:type_name -> google.protobuf.Timestamp
-	58, // 39: chalk.server.v1.MaterializedAggregateTileMeta.updated_at:type_name -> google.protobuf.Timestamp
-	58, // 40: chalk.server.v1.MaterializedAggregateTileFileMeta.created_at:type_name -> google.protobuf.Timestamp
-	37, // 41: chalk.server.v1.ListMaterializedAggregateTilesResponse.tiles:type_name -> chalk.server.v1.MaterializedAggregateTileMeta
-	65, // 42: chalk.server.v1.ListMaterializedAggregateTilesForTimelineRequest.time_window:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
-	37, // 43: chalk.server.v1.ListMaterializedAggregateTilesForTimelineResponse.tiles:type_name -> chalk.server.v1.MaterializedAggregateTileMeta
-	38, // 44: chalk.server.v1.ListMaterializedAggregateTileFilesResponse.files:type_name -> chalk.server.v1.MaterializedAggregateTileFileMeta
-	65, // 45: chalk.server.v1.GetMaterializedAggregateTileRowCountChartRequest.time_window:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
-	66, // 46: chalk.server.v1.GetMaterializedAggregateTileRowCountChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	59, // 47: chalk.server.v1.GetDatasetRevisionPreviewResponse.output_preview:type_name -> google.protobuf.Value
-	59, // 48: chalk.server.v1.GetDatasetRevisionPreviewResponse.summary:type_name -> google.protobuf.Value
-	67, // 49: chalk.server.v1.GetDatasetRevisionPreviewResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
-	59, // 50: chalk.server.v1.GenerateDatasetStatsResponse.summary:type_name -> google.protobuf.Value
-	53, // 51: chalk.server.v1.GetDatasetEdfsResponse.edfs:type_name -> chalk.server.v1.DatasetEdf
-	9,  // 52: chalk.server.v1.DatasetMetadataService.ListDatasets:input_type -> chalk.server.v1.ListDatasetsRequest
-	11, // 53: chalk.server.v1.DatasetMetadataService.GetDataset:input_type -> chalk.server.v1.GetDatasetRequest
-	13, // 54: chalk.server.v1.DatasetMetadataService.ListDatasetRevisions:input_type -> chalk.server.v1.ListDatasetRevisionsRequest
-	15, // 55: chalk.server.v1.DatasetMetadataService.GetDatasetRevision:input_type -> chalk.server.v1.GetDatasetRevisionRequest
-	17, // 56: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks:input_type -> chalk.server.v1.GetDatasetRevisionDownloadLinksRequest
-	21, // 57: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPerformanceLinks:input_type -> chalk.server.v1.GetDatasetRevisionPerformanceLinksRequest
-	23, // 58: chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks:input_type -> chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest
-	29, // 59: chalk.server.v1.DatasetMetadataService.RenameDataset:input_type -> chalk.server.v1.RenameDatasetRequest
-	31, // 60: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision:input_type -> chalk.server.v1.ArchiveDatasetRevisionRequest
-	33, // 61: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions:input_type -> chalk.server.v1.ArchiveDatasetRevisionsRequest
-	35, // 62: chalk.server.v1.DatasetMetadataService.DeleteDataset:input_type -> chalk.server.v1.DeleteDatasetRequest
-	39, // 63: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles:input_type -> chalk.server.v1.ListMaterializedAggregateTilesRequest
-	68, // 64: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileTimelines:input_type -> chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest
-	41, // 65: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline:input_type -> chalk.server.v1.ListMaterializedAggregateTilesForTimelineRequest
-	43, // 66: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles:input_type -> chalk.server.v1.ListMaterializedAggregateTileFilesRequest
-	45, // 67: chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileRowCountChart:input_type -> chalk.server.v1.GetMaterializedAggregateTileRowCountChartRequest
-	47, // 68: chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile:input_type -> chalk.server.v1.DeleteMaterializedAggregateTileRequest
-	49, // 69: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview:input_type -> chalk.server.v1.GetDatasetRevisionPreviewRequest
-	51, // 70: chalk.server.v1.DatasetMetadataService.GenerateDatasetStats:input_type -> chalk.server.v1.GenerateDatasetStatsRequest
-	54, // 71: chalk.server.v1.DatasetMetadataService.GetDatasetEdfs:input_type -> chalk.server.v1.GetDatasetEdfsRequest
-	56, // 72: chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs:input_type -> chalk.server.v1.GenerateDatasetEdfsRequest
-	25, // 73: chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris:input_type -> chalk.server.v1.GetDatasetUploadUrisRequest
-	27, // 74: chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload:input_type -> chalk.server.v1.FinalizeDatasetUploadRequest
-	10, // 75: chalk.server.v1.DatasetMetadataService.ListDatasets:output_type -> chalk.server.v1.ListDatasetsResponse
-	12, // 76: chalk.server.v1.DatasetMetadataService.GetDataset:output_type -> chalk.server.v1.GetDatasetResponse
-	14, // 77: chalk.server.v1.DatasetMetadataService.ListDatasetRevisions:output_type -> chalk.server.v1.ListDatasetRevisionsResponse
-	16, // 78: chalk.server.v1.DatasetMetadataService.GetDatasetRevision:output_type -> chalk.server.v1.GetDatasetRevisionResponse
-	20, // 79: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks:output_type -> chalk.server.v1.GetDatasetRevisionDownloadLinksResponse
-	22, // 80: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPerformanceLinks:output_type -> chalk.server.v1.GetDatasetRevisionPerformanceLinksResponse
-	24, // 81: chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks:output_type -> chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse
-	30, // 82: chalk.server.v1.DatasetMetadataService.RenameDataset:output_type -> chalk.server.v1.RenameDatasetResponse
-	32, // 83: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision:output_type -> chalk.server.v1.ArchiveDatasetRevisionResponse
-	34, // 84: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions:output_type -> chalk.server.v1.ArchiveDatasetRevisionsResponse
-	36, // 85: chalk.server.v1.DatasetMetadataService.DeleteDataset:output_type -> chalk.server.v1.DeleteDatasetResponse
-	40, // 86: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles:output_type -> chalk.server.v1.ListMaterializedAggregateTilesResponse
-	69, // 87: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileTimelines:output_type -> chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse
-	42, // 88: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline:output_type -> chalk.server.v1.ListMaterializedAggregateTilesForTimelineResponse
-	44, // 89: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles:output_type -> chalk.server.v1.ListMaterializedAggregateTileFilesResponse
-	46, // 90: chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileRowCountChart:output_type -> chalk.server.v1.GetMaterializedAggregateTileRowCountChartResponse
-	48, // 91: chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile:output_type -> chalk.server.v1.DeleteMaterializedAggregateTileResponse
-	50, // 92: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview:output_type -> chalk.server.v1.GetDatasetRevisionPreviewResponse
-	52, // 93: chalk.server.v1.DatasetMetadataService.GenerateDatasetStats:output_type -> chalk.server.v1.GenerateDatasetStatsResponse
-	55, // 94: chalk.server.v1.DatasetMetadataService.GetDatasetEdfs:output_type -> chalk.server.v1.GetDatasetEdfsResponse
-	57, // 95: chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs:output_type -> chalk.server.v1.GenerateDatasetEdfsResponse
-	26, // 96: chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris:output_type -> chalk.server.v1.GetDatasetUploadUrisResponse
-	28, // 97: chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload:output_type -> chalk.server.v1.FinalizeDatasetUploadResponse
-	75, // [75:98] is the sub-list for method output_type
-	52, // [52:75] is the sub-list for method input_type
-	52, // [52:52] is the sub-list for extension type_name
-	52, // [52:52] is the sub-list for extension extendee
-	0,  // [0:52] is the sub-list for field type_name
+	59, // 21: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse.expiration:type_name -> google.protobuf.Timestamp
+	19, // 22: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
+	20, // 23: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse.shard_request_body_links:type_name -> chalk.server.v1.ShardRequestBodyLink
+	19, // 24: chalk.server.v1.GetDatasetRevisionPerformanceLinksResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
+	59, // 25: chalk.server.v1.GetDatasetRevisionPerformanceLinksResponse.expiration:type_name -> google.protobuf.Timestamp
+	59, // 26: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse.expiration:type_name -> google.protobuf.Timestamp
+	19, // 27: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
+	62, // 28: chalk.server.v1.GetDatasetUploadUrisResponse.multipart:type_name -> chalk.volume.v1.MultipartUpload
+	63, // 29: chalk.server.v1.GetDatasetUploadUrisResponse.resumable:type_name -> chalk.volume.v1.ResumableUpload
+	64, // 30: chalk.server.v1.GetDatasetUploadUrisResponse.azure_block:type_name -> chalk.volume.v1.AzureBlockUpload
+	65, // 31: chalk.server.v1.GetDatasetUploadUrisResponse.direct:type_name -> chalk.volume.v1.DirectUpload
+	9,  // 32: chalk.server.v1.FinalizeDatasetUploadResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
+	9,  // 33: chalk.server.v1.RenameDatasetResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
+	8,  // 34: chalk.server.v1.ArchiveDatasetRevisionResponse.revision:type_name -> chalk.server.v1.DatasetRevisionMeta
+	8,  // 35: chalk.server.v1.ArchiveDatasetRevisionsResponse.archived_revisions:type_name -> chalk.server.v1.DatasetRevisionMeta
+	59, // 36: chalk.server.v1.MaterializedAggregateTileMeta.coverage_lower_bound:type_name -> google.protobuf.Timestamp
+	59, // 37: chalk.server.v1.MaterializedAggregateTileMeta.coverage_upper_bound:type_name -> google.protobuf.Timestamp
+	59, // 38: chalk.server.v1.MaterializedAggregateTileMeta.created_at:type_name -> google.protobuf.Timestamp
+	59, // 39: chalk.server.v1.MaterializedAggregateTileMeta.updated_at:type_name -> google.protobuf.Timestamp
+	59, // 40: chalk.server.v1.MaterializedAggregateTileFileMeta.created_at:type_name -> google.protobuf.Timestamp
+	38, // 41: chalk.server.v1.ListMaterializedAggregateTilesResponse.tiles:type_name -> chalk.server.v1.MaterializedAggregateTileMeta
+	66, // 42: chalk.server.v1.ListMaterializedAggregateTilesForTimelineRequest.time_window:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
+	38, // 43: chalk.server.v1.ListMaterializedAggregateTilesForTimelineResponse.tiles:type_name -> chalk.server.v1.MaterializedAggregateTileMeta
+	39, // 44: chalk.server.v1.ListMaterializedAggregateTileFilesResponse.files:type_name -> chalk.server.v1.MaterializedAggregateTileFileMeta
+	66, // 45: chalk.server.v1.GetMaterializedAggregateTileRowCountChartRequest.time_window:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
+	67, // 46: chalk.server.v1.GetMaterializedAggregateTileRowCountChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	60, // 47: chalk.server.v1.GetDatasetRevisionPreviewResponse.output_preview:type_name -> google.protobuf.Value
+	60, // 48: chalk.server.v1.GetDatasetRevisionPreviewResponse.summary:type_name -> google.protobuf.Value
+	68, // 49: chalk.server.v1.GetDatasetRevisionPreviewResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
+	7,  // 50: chalk.server.v1.GetDatasetRevisionPreviewResponse.profile_status:type_name -> chalk.server.v1.DatasetProfileStatus
+	60, // 51: chalk.server.v1.GenerateDatasetStatsResponse.summary:type_name -> google.protobuf.Value
+	54, // 52: chalk.server.v1.GetDatasetEdfsResponse.edfs:type_name -> chalk.server.v1.DatasetEdf
+	10, // 53: chalk.server.v1.DatasetMetadataService.ListDatasets:input_type -> chalk.server.v1.ListDatasetsRequest
+	12, // 54: chalk.server.v1.DatasetMetadataService.GetDataset:input_type -> chalk.server.v1.GetDatasetRequest
+	14, // 55: chalk.server.v1.DatasetMetadataService.ListDatasetRevisions:input_type -> chalk.server.v1.ListDatasetRevisionsRequest
+	16, // 56: chalk.server.v1.DatasetMetadataService.GetDatasetRevision:input_type -> chalk.server.v1.GetDatasetRevisionRequest
+	18, // 57: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks:input_type -> chalk.server.v1.GetDatasetRevisionDownloadLinksRequest
+	22, // 58: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPerformanceLinks:input_type -> chalk.server.v1.GetDatasetRevisionPerformanceLinksRequest
+	24, // 59: chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks:input_type -> chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest
+	30, // 60: chalk.server.v1.DatasetMetadataService.RenameDataset:input_type -> chalk.server.v1.RenameDatasetRequest
+	32, // 61: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision:input_type -> chalk.server.v1.ArchiveDatasetRevisionRequest
+	34, // 62: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions:input_type -> chalk.server.v1.ArchiveDatasetRevisionsRequest
+	36, // 63: chalk.server.v1.DatasetMetadataService.DeleteDataset:input_type -> chalk.server.v1.DeleteDatasetRequest
+	40, // 64: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles:input_type -> chalk.server.v1.ListMaterializedAggregateTilesRequest
+	69, // 65: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileTimelines:input_type -> chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest
+	42, // 66: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline:input_type -> chalk.server.v1.ListMaterializedAggregateTilesForTimelineRequest
+	44, // 67: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles:input_type -> chalk.server.v1.ListMaterializedAggregateTileFilesRequest
+	46, // 68: chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileRowCountChart:input_type -> chalk.server.v1.GetMaterializedAggregateTileRowCountChartRequest
+	48, // 69: chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile:input_type -> chalk.server.v1.DeleteMaterializedAggregateTileRequest
+	50, // 70: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview:input_type -> chalk.server.v1.GetDatasetRevisionPreviewRequest
+	52, // 71: chalk.server.v1.DatasetMetadataService.GenerateDatasetStats:input_type -> chalk.server.v1.GenerateDatasetStatsRequest
+	55, // 72: chalk.server.v1.DatasetMetadataService.GetDatasetEdfs:input_type -> chalk.server.v1.GetDatasetEdfsRequest
+	57, // 73: chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs:input_type -> chalk.server.v1.GenerateDatasetEdfsRequest
+	26, // 74: chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris:input_type -> chalk.server.v1.GetDatasetUploadUrisRequest
+	28, // 75: chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload:input_type -> chalk.server.v1.FinalizeDatasetUploadRequest
+	11, // 76: chalk.server.v1.DatasetMetadataService.ListDatasets:output_type -> chalk.server.v1.ListDatasetsResponse
+	13, // 77: chalk.server.v1.DatasetMetadataService.GetDataset:output_type -> chalk.server.v1.GetDatasetResponse
+	15, // 78: chalk.server.v1.DatasetMetadataService.ListDatasetRevisions:output_type -> chalk.server.v1.ListDatasetRevisionsResponse
+	17, // 79: chalk.server.v1.DatasetMetadataService.GetDatasetRevision:output_type -> chalk.server.v1.GetDatasetRevisionResponse
+	21, // 80: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks:output_type -> chalk.server.v1.GetDatasetRevisionDownloadLinksResponse
+	23, // 81: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPerformanceLinks:output_type -> chalk.server.v1.GetDatasetRevisionPerformanceLinksResponse
+	25, // 82: chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks:output_type -> chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse
+	31, // 83: chalk.server.v1.DatasetMetadataService.RenameDataset:output_type -> chalk.server.v1.RenameDatasetResponse
+	33, // 84: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision:output_type -> chalk.server.v1.ArchiveDatasetRevisionResponse
+	35, // 85: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions:output_type -> chalk.server.v1.ArchiveDatasetRevisionsResponse
+	37, // 86: chalk.server.v1.DatasetMetadataService.DeleteDataset:output_type -> chalk.server.v1.DeleteDatasetResponse
+	41, // 87: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles:output_type -> chalk.server.v1.ListMaterializedAggregateTilesResponse
+	70, // 88: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileTimelines:output_type -> chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse
+	43, // 89: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline:output_type -> chalk.server.v1.ListMaterializedAggregateTilesForTimelineResponse
+	45, // 90: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles:output_type -> chalk.server.v1.ListMaterializedAggregateTileFilesResponse
+	47, // 91: chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileRowCountChart:output_type -> chalk.server.v1.GetMaterializedAggregateTileRowCountChartResponse
+	49, // 92: chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile:output_type -> chalk.server.v1.DeleteMaterializedAggregateTileResponse
+	51, // 93: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview:output_type -> chalk.server.v1.GetDatasetRevisionPreviewResponse
+	53, // 94: chalk.server.v1.DatasetMetadataService.GenerateDatasetStats:output_type -> chalk.server.v1.GenerateDatasetStatsResponse
+	56, // 95: chalk.server.v1.DatasetMetadataService.GetDatasetEdfs:output_type -> chalk.server.v1.GetDatasetEdfsResponse
+	58, // 96: chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs:output_type -> chalk.server.v1.GenerateDatasetEdfsResponse
+	27, // 97: chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris:output_type -> chalk.server.v1.GetDatasetUploadUrisResponse
+	29, // 98: chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload:output_type -> chalk.server.v1.FinalizeDatasetUploadResponse
+	76, // [76:99] is the sub-list for method output_type
+	53, // [53:76] is the sub-list for method input_type
+	53, // [53:53] is the sub-list for extension type_name
+	53, // [53:53] is the sub-list for extension extendee
+	0,  // [0:53] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_datasets_proto_init() }
@@ -4404,7 +4478,7 @@ func file_chalk_server_v1_datasets_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_datasets_proto_rawDesc), len(file_chalk_server_v1_datasets_proto_rawDesc)),
-			NumEnums:      7,
+			NumEnums:      8,
 			NumMessages:   51,
 			NumExtensions: 0,
 			NumServices:   1,

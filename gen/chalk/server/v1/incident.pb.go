@@ -32,6 +32,7 @@ const (
 	IncidentEntityKind_INCIDENT_ENTITY_KIND_RESOLVER        IncidentEntityKind = 2
 	IncidentEntityKind_INCIDENT_ENTITY_KIND_SCHEDULED_QUERY IncidentEntityKind = 3
 	IncidentEntityKind_INCIDENT_ENTITY_KIND_QUERY           IncidentEntityKind = 4
+	IncidentEntityKind_INCIDENT_ENTITY_KIND_SQL_QUERY       IncidentEntityKind = 5
 )
 
 // Enum value maps for IncidentEntityKind.
@@ -42,6 +43,7 @@ var (
 		2: "INCIDENT_ENTITY_KIND_RESOLVER",
 		3: "INCIDENT_ENTITY_KIND_SCHEDULED_QUERY",
 		4: "INCIDENT_ENTITY_KIND_QUERY",
+		5: "INCIDENT_ENTITY_KIND_SQL_QUERY",
 	}
 	IncidentEntityKind_value = map[string]int32{
 		"INCIDENT_ENTITY_KIND_UNSPECIFIED":     0,
@@ -49,6 +51,7 @@ var (
 		"INCIDENT_ENTITY_KIND_RESOLVER":        2,
 		"INCIDENT_ENTITY_KIND_SCHEDULED_QUERY": 3,
 		"INCIDENT_ENTITY_KIND_QUERY":           4,
+		"INCIDENT_ENTITY_KIND_SQL_QUERY":       5,
 	}
 )
 
@@ -287,51 +290,6 @@ func (x *MetricIncident) GetLinkedEntities() []*IncidentLinkedEntity {
 	return nil
 }
 
-// supercedes MetricIncident
-type MonitorIncident struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MonitorIncident) Reset() {
-	*x = MonitorIncident{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MonitorIncident) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MonitorIncident) ProtoMessage() {}
-
-func (x *MonitorIncident) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MonitorIncident.ProtoReflect.Descriptor instead.
-func (*MonitorIncident) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *MonitorIncident) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
 type GetIncidentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	IncidentId    string                 `protobuf:"bytes,1,opt,name=incident_id,json=incidentId,proto3" json:"incident_id,omitempty"`
@@ -341,7 +299,7 @@ type GetIncidentRequest struct {
 
 func (x *GetIncidentRequest) Reset() {
 	*x = GetIncidentRequest{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -353,7 +311,7 @@ func (x *GetIncidentRequest) String() string {
 func (*GetIncidentRequest) ProtoMessage() {}
 
 func (x *GetIncidentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -366,7 +324,7 @@ func (x *GetIncidentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncidentRequest.ProtoReflect.Descriptor instead.
 func (*GetIncidentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetIncidentRequest) GetIncidentId() string {
@@ -385,7 +343,7 @@ type GetIncidentResponse struct {
 
 func (x *GetIncidentResponse) Reset() {
 	*x = GetIncidentResponse{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -397,7 +355,7 @@ func (x *GetIncidentResponse) String() string {
 func (*GetIncidentResponse) ProtoMessage() {}
 
 func (x *GetIncidentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -410,7 +368,7 @@ func (x *GetIncidentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncidentResponse.ProtoReflect.Descriptor instead.
 func (*GetIncidentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetIncidentResponse) GetIncident() *MetricIncident {
@@ -430,7 +388,7 @@ type GetIncidentAlertsChartRequest struct {
 
 func (x *GetIncidentAlertsChartRequest) Reset() {
 	*x = GetIncidentAlertsChartRequest{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -442,7 +400,7 @@ func (x *GetIncidentAlertsChartRequest) String() string {
 func (*GetIncidentAlertsChartRequest) ProtoMessage() {}
 
 func (x *GetIncidentAlertsChartRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -455,7 +413,7 @@ func (x *GetIncidentAlertsChartRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncidentAlertsChartRequest.ProtoReflect.Descriptor instead.
 func (*GetIncidentAlertsChartRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetIncidentAlertsChartRequest) GetIncidentId() string {
@@ -481,7 +439,7 @@ type GetIncidentAlertsChartResponse struct {
 
 func (x *GetIncidentAlertsChartResponse) Reset() {
 	*x = GetIncidentAlertsChartResponse{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -493,7 +451,7 @@ func (x *GetIncidentAlertsChartResponse) String() string {
 func (*GetIncidentAlertsChartResponse) ProtoMessage() {}
 
 func (x *GetIncidentAlertsChartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,7 +464,7 @@ func (x *GetIncidentAlertsChartResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncidentAlertsChartResponse.ProtoReflect.Descriptor instead.
 func (*GetIncidentAlertsChartResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetIncidentAlertsChartResponse) GetChart() *v11.DenseTimeSeriesChart {
@@ -529,7 +487,7 @@ type ListIncidentsPageToken struct {
 
 func (x *ListIncidentsPageToken) Reset() {
 	*x = ListIncidentsPageToken{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -541,7 +499,7 @@ func (x *ListIncidentsPageToken) String() string {
 func (*ListIncidentsPageToken) ProtoMessage() {}
 
 func (x *ListIncidentsPageToken) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -554,7 +512,7 @@ func (x *ListIncidentsPageToken) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIncidentsPageToken.ProtoReflect.Descriptor instead.
 func (*ListIncidentsPageToken) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListIncidentsPageToken) GetCreatedAtHwm() *timestamppb.Timestamp {
@@ -584,7 +542,7 @@ type ListIncidentsFilters struct {
 
 func (x *ListIncidentsFilters) Reset() {
 	*x = ListIncidentsFilters{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -596,7 +554,7 @@ func (x *ListIncidentsFilters) String() string {
 func (*ListIncidentsFilters) ProtoMessage() {}
 
 func (x *ListIncidentsFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -609,7 +567,7 @@ func (x *ListIncidentsFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIncidentsFilters.ProtoReflect.Descriptor instead.
 func (*ListIncidentsFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListIncidentsFilters) GetCreatedAtLowerBoundInclusive() *timestamppb.Timestamp {
@@ -661,7 +619,7 @@ type ListIncidentsRequest struct {
 
 func (x *ListIncidentsRequest) Reset() {
 	*x = ListIncidentsRequest{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -673,7 +631,7 @@ func (x *ListIncidentsRequest) String() string {
 func (*ListIncidentsRequest) ProtoMessage() {}
 
 func (x *ListIncidentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -686,7 +644,7 @@ func (x *ListIncidentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIncidentsRequest.ProtoReflect.Descriptor instead.
 func (*ListIncidentsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListIncidentsRequest) GetFilters() *ListIncidentsFilters {
@@ -721,7 +679,7 @@ type ListIncidentsResponse struct {
 
 func (x *ListIncidentsResponse) Reset() {
 	*x = ListIncidentsResponse{}
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -733,7 +691,7 @@ func (x *ListIncidentsResponse) String() string {
 func (*ListIncidentsResponse) ProtoMessage() {}
 
 func (x *ListIncidentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_incident_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_incident_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -746,7 +704,7 @@ func (x *ListIncidentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIncidentsResponse.ProtoReflect.Descriptor instead.
 func (*ListIncidentsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_incident_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListIncidentsResponse) GetIncidents() []*MetricIncident {
@@ -786,9 +744,7 @@ const file_chalk_server_v1_incident_proto_rawDesc = "" +
 	"dedupe_key\x18\x06 \x01(\tR\tdedupeKey\x126\n" +
 	"\x06groups\x18\a \x03(\v2\x1e.chalk.server.v1.IncidentGroupR\x06groups\x12N\n" +
 	"\x0flinked_entities\x18\b \x03(\v2%.chalk.server.v1.IncidentLinkedEntityR\x0elinkedEntitiesB\x10\n" +
-	"\x0e_linked_entity\"!\n" +
-	"\x0fMonitorIncident\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"5\n" +
+	"\x0e_linked_entity\"5\n" +
 	"\x12GetIncidentRequest\x12\x1f\n" +
 	"\vincident_id\x18\x01 \x01(\tR\n" +
 	"incidentId\"R\n" +
@@ -828,13 +784,14 @@ const file_chalk_server_v1_incident_proto_rawDesc = "" +
 	"\x15ListIncidentsResponse\x12=\n" +
 	"\tincidents\x18\x01 \x03(\v2\x1f.chalk.server.v1.MetricIncidentR\tincidents\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token*\xc9\x01\n" +
+	"\x10_next_page_token*\xed\x01\n" +
 	"\x12IncidentEntityKind\x12$\n" +
 	" INCIDENT_ENTITY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cINCIDENT_ENTITY_KIND_FEATURE\x10\x01\x12!\n" +
 	"\x1dINCIDENT_ENTITY_KIND_RESOLVER\x10\x02\x12(\n" +
 	"$INCIDENT_ENTITY_KIND_SCHEDULED_QUERY\x10\x03\x12\x1e\n" +
-	"\x1aINCIDENT_ENTITY_KIND_QUERY\x10\x04B\xbd\x01\n" +
+	"\x1aINCIDENT_ENTITY_KIND_QUERY\x10\x04\x12\"\n" +
+	"\x1eINCIDENT_ENTITY_KIND_SQL_QUERY\x10\x05B\xbd\x01\n" +
 	"\x13com.chalk.server.v1B\rIncidentProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -850,40 +807,39 @@ func file_chalk_server_v1_incident_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_incident_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_incident_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_chalk_server_v1_incident_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_chalk_server_v1_incident_proto_goTypes = []any{
 	(IncidentEntityKind)(0),                // 0: chalk.server.v1.IncidentEntityKind
 	(*IncidentLinkedEntity)(nil),           // 1: chalk.server.v1.IncidentLinkedEntity
 	(*IncidentGroup)(nil),                  // 2: chalk.server.v1.IncidentGroup
 	(*MetricIncident)(nil),                 // 3: chalk.server.v1.MetricIncident
-	(*MonitorIncident)(nil),                // 4: chalk.server.v1.MonitorIncident
-	(*GetIncidentRequest)(nil),             // 5: chalk.server.v1.GetIncidentRequest
-	(*GetIncidentResponse)(nil),            // 6: chalk.server.v1.GetIncidentResponse
-	(*GetIncidentAlertsChartRequest)(nil),  // 7: chalk.server.v1.GetIncidentAlertsChartRequest
-	(*GetIncidentAlertsChartResponse)(nil), // 8: chalk.server.v1.GetIncidentAlertsChartResponse
-	(*ListIncidentsPageToken)(nil),         // 9: chalk.server.v1.ListIncidentsPageToken
-	(*ListIncidentsFilters)(nil),           // 10: chalk.server.v1.ListIncidentsFilters
-	(*ListIncidentsRequest)(nil),           // 11: chalk.server.v1.ListIncidentsRequest
-	(*ListIncidentsResponse)(nil),          // 12: chalk.server.v1.ListIncidentsResponse
-	(*timestamppb.Timestamp)(nil),          // 13: google.protobuf.Timestamp
-	(*v1.MetricConfig)(nil),                // 14: chalk.artifacts.v1.MetricConfig
-	(*v11.DenseTimeSeriesChart)(nil),       // 15: chalk.chart.v1.DenseTimeSeriesChart
+	(*GetIncidentRequest)(nil),             // 4: chalk.server.v1.GetIncidentRequest
+	(*GetIncidentResponse)(nil),            // 5: chalk.server.v1.GetIncidentResponse
+	(*GetIncidentAlertsChartRequest)(nil),  // 6: chalk.server.v1.GetIncidentAlertsChartRequest
+	(*GetIncidentAlertsChartResponse)(nil), // 7: chalk.server.v1.GetIncidentAlertsChartResponse
+	(*ListIncidentsPageToken)(nil),         // 8: chalk.server.v1.ListIncidentsPageToken
+	(*ListIncidentsFilters)(nil),           // 9: chalk.server.v1.ListIncidentsFilters
+	(*ListIncidentsRequest)(nil),           // 10: chalk.server.v1.ListIncidentsRequest
+	(*ListIncidentsResponse)(nil),          // 11: chalk.server.v1.ListIncidentsResponse
+	(*timestamppb.Timestamp)(nil),          // 12: google.protobuf.Timestamp
+	(*v1.MetricConfig)(nil),                // 13: chalk.artifacts.v1.MetricConfig
+	(*v11.DenseTimeSeriesChart)(nil),       // 14: chalk.chart.v1.DenseTimeSeriesChart
 }
 var file_chalk_server_v1_incident_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.IncidentLinkedEntity.entity_kind:type_name -> chalk.server.v1.IncidentEntityKind
-	13, // 1: chalk.server.v1.MetricIncident.started_at:type_name -> google.protobuf.Timestamp
-	13, // 2: chalk.server.v1.MetricIncident.closed_at:type_name -> google.protobuf.Timestamp
-	14, // 3: chalk.server.v1.MetricIncident.metric_config:type_name -> chalk.artifacts.v1.MetricConfig
+	12, // 1: chalk.server.v1.MetricIncident.started_at:type_name -> google.protobuf.Timestamp
+	12, // 2: chalk.server.v1.MetricIncident.closed_at:type_name -> google.protobuf.Timestamp
+	13, // 3: chalk.server.v1.MetricIncident.metric_config:type_name -> chalk.artifacts.v1.MetricConfig
 	1,  // 4: chalk.server.v1.MetricIncident.linked_entity:type_name -> chalk.server.v1.IncidentLinkedEntity
 	2,  // 5: chalk.server.v1.MetricIncident.groups:type_name -> chalk.server.v1.IncidentGroup
 	1,  // 6: chalk.server.v1.MetricIncident.linked_entities:type_name -> chalk.server.v1.IncidentLinkedEntity
 	3,  // 7: chalk.server.v1.GetIncidentResponse.incident:type_name -> chalk.server.v1.MetricIncident
-	15, // 8: chalk.server.v1.GetIncidentAlertsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	13, // 9: chalk.server.v1.ListIncidentsPageToken.created_at_hwm:type_name -> google.protobuf.Timestamp
-	13, // 10: chalk.server.v1.ListIncidentsFilters.created_at_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
-	13, // 11: chalk.server.v1.ListIncidentsFilters.created_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	14, // 8: chalk.server.v1.GetIncidentAlertsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	12, // 9: chalk.server.v1.ListIncidentsPageToken.created_at_hwm:type_name -> google.protobuf.Timestamp
+	12, // 10: chalk.server.v1.ListIncidentsFilters.created_at_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
+	12, // 11: chalk.server.v1.ListIncidentsFilters.created_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
 	0,  // 12: chalk.server.v1.ListIncidentsFilters.linked_entity_kind_filter:type_name -> chalk.server.v1.IncidentEntityKind
-	10, // 13: chalk.server.v1.ListIncidentsRequest.filters:type_name -> chalk.server.v1.ListIncidentsFilters
+	9,  // 13: chalk.server.v1.ListIncidentsRequest.filters:type_name -> chalk.server.v1.ListIncidentsFilters
 	3,  // 14: chalk.server.v1.ListIncidentsResponse.incidents:type_name -> chalk.server.v1.MetricIncident
 	15, // [15:15] is the sub-list for method output_type
 	15, // [15:15] is the sub-list for method input_type
@@ -898,17 +854,17 @@ func file_chalk_server_v1_incident_proto_init() {
 		return
 	}
 	file_chalk_server_v1_incident_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_server_v1_incident_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_server_v1_incident_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_server_v1_incident_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_server_v1_incident_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_server_v1_incident_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_server_v1_incident_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_incident_proto_rawDesc), len(file_chalk_server_v1_incident_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   12,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

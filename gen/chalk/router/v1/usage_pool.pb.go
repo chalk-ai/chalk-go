@@ -8,8 +8,10 @@ package routerv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -86,6 +88,8 @@ func (x *UsagePool) GetCreatedAt() *timestamppb.Timestamp {
 type CreateUsagePoolRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	RateLimits    []*ApiKeyRateLimit     `protobuf:"bytes,2,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	UsageBudgets  []*UsageBudgetSpec     `protobuf:"bytes,3,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -125,6 +129,20 @@ func (x *CreateUsagePoolRequest) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *CreateUsagePoolRequest) GetRateLimits() []*ApiKeyRateLimit {
+	if x != nil {
+		return x.RateLimits
+	}
+	return nil
+}
+
+func (x *CreateUsagePoolRequest) GetUsageBudgets() []*UsageBudgetSpec {
+	if x != nil {
+		return x.UsageBudgets
+	}
+	return nil
 }
 
 type CreateUsagePoolResponse struct {
@@ -171,6 +189,170 @@ func (x *CreateUsagePoolResponse) GetPool() *UsagePool {
 	return nil
 }
 
+type UpdateUsagePoolOperation struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	RateLimits    []*ApiKeyRateLimit     `protobuf:"bytes,2,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	UsageBudgets  []*UsageBudgetSpec     `protobuf:"bytes,3,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUsagePoolOperation) Reset() {
+	*x = UpdateUsagePoolOperation{}
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUsagePoolOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUsagePoolOperation) ProtoMessage() {}
+
+func (x *UpdateUsagePoolOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUsagePoolOperation.ProtoReflect.Descriptor instead.
+func (*UpdateUsagePoolOperation) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UpdateUsagePoolOperation) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *UpdateUsagePoolOperation) GetRateLimits() []*ApiKeyRateLimit {
+	if x != nil {
+		return x.RateLimits
+	}
+	return nil
+}
+
+func (x *UpdateUsagePoolOperation) GetUsageBudgets() []*UsageBudgetSpec {
+	if x != nil {
+		return x.UsageBudgets
+	}
+	return nil
+}
+
+type UpdateUsagePoolRequest struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Id            string                    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Update        *UpdateUsagePoolOperation `protobuf:"bytes,2,opt,name=update,proto3" json:"update,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask    `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUsagePoolRequest) Reset() {
+	*x = UpdateUsagePoolRequest{}
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUsagePoolRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUsagePoolRequest) ProtoMessage() {}
+
+func (x *UpdateUsagePoolRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUsagePoolRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUsagePoolRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdateUsagePoolRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateUsagePoolRequest) GetUpdate() *UpdateUsagePoolOperation {
+	if x != nil {
+		return x.Update
+	}
+	return nil
+}
+
+func (x *UpdateUsagePoolRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+type UpdateUsagePoolResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pool          *UsagePool             `protobuf:"bytes,1,opt,name=pool,proto3" json:"pool,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateUsagePoolResponse) Reset() {
+	*x = UpdateUsagePoolResponse{}
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateUsagePoolResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUsagePoolResponse) ProtoMessage() {}
+
+func (x *UpdateUsagePoolResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUsagePoolResponse.ProtoReflect.Descriptor instead.
+func (*UpdateUsagePoolResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateUsagePoolResponse) GetPool() *UsagePool {
+	if x != nil {
+		return x.Pool
+	}
+	return nil
+}
+
 type ListUsagePoolsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
@@ -181,7 +363,7 @@ type ListUsagePoolsRequest struct {
 
 func (x *ListUsagePoolsRequest) Reset() {
 	*x = ListUsagePoolsRequest{}
-	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[3]
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -193,7 +375,7 @@ func (x *ListUsagePoolsRequest) String() string {
 func (*ListUsagePoolsRequest) ProtoMessage() {}
 
 func (x *ListUsagePoolsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[3]
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -206,7 +388,7 @@ func (x *ListUsagePoolsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsagePoolsRequest.ProtoReflect.Descriptor instead.
 func (*ListUsagePoolsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{3}
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListUsagePoolsRequest) GetLimit() int32 {
@@ -233,7 +415,7 @@ type ListUsagePoolsResponse struct {
 
 func (x *ListUsagePoolsResponse) Reset() {
 	*x = ListUsagePoolsResponse{}
-	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[4]
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -245,7 +427,7 @@ func (x *ListUsagePoolsResponse) String() string {
 func (*ListUsagePoolsResponse) ProtoMessage() {}
 
 func (x *ListUsagePoolsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[4]
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -258,7 +440,7 @@ func (x *ListUsagePoolsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUsagePoolsResponse.ProtoReflect.Descriptor instead.
 func (*ListUsagePoolsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{4}
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListUsagePoolsResponse) GetPools() []*UsagePool {
@@ -275,6 +457,94 @@ func (x *ListUsagePoolsResponse) GetNextCursor() string {
 	return ""
 }
 
+type GetUsagePoolRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUsagePoolRequest) Reset() {
+	*x = GetUsagePoolRequest{}
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUsagePoolRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUsagePoolRequest) ProtoMessage() {}
+
+func (x *GetUsagePoolRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUsagePoolRequest.ProtoReflect.Descriptor instead.
+func (*GetUsagePoolRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetUsagePoolRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetUsagePoolResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pool          *UsagePool             `protobuf:"bytes,1,opt,name=pool,proto3" json:"pool,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUsagePoolResponse) Reset() {
+	*x = GetUsagePoolResponse{}
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUsagePoolResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUsagePoolResponse) ProtoMessage() {}
+
+func (x *GetUsagePoolResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUsagePoolResponse.ProtoReflect.Descriptor instead.
+func (*GetUsagePoolResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetUsagePoolResponse) GetPool() *UsagePool {
+	if x != nil {
+		return x.Pool
+	}
+	return nil
+}
+
 type DeleteUsagePoolRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -284,7 +554,7 @@ type DeleteUsagePoolRequest struct {
 
 func (x *DeleteUsagePoolRequest) Reset() {
 	*x = DeleteUsagePoolRequest{}
-	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[5]
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -296,7 +566,7 @@ func (x *DeleteUsagePoolRequest) String() string {
 func (*DeleteUsagePoolRequest) ProtoMessage() {}
 
 func (x *DeleteUsagePoolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[5]
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -309,7 +579,7 @@ func (x *DeleteUsagePoolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUsagePoolRequest.ProtoReflect.Descriptor instead.
 func (*DeleteUsagePoolRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{5}
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DeleteUsagePoolRequest) GetId() string {
@@ -328,7 +598,7 @@ type DeleteUsagePoolResponse struct {
 
 func (x *DeleteUsagePoolResponse) Reset() {
 	*x = DeleteUsagePoolResponse{}
-	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[6]
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -340,7 +610,7 @@ func (x *DeleteUsagePoolResponse) String() string {
 func (*DeleteUsagePoolResponse) ProtoMessage() {}
 
 func (x *DeleteUsagePoolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[6]
+	mi := &file_chalk_router_v1_usage_pool_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -353,7 +623,7 @@ func (x *DeleteUsagePoolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUsagePoolResponse.ProtoReflect.Descriptor instead.
 func (*DeleteUsagePoolResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{6}
+	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DeleteUsagePoolResponse) GetId() string {
@@ -367,15 +637,31 @@ var File_chalk_router_v1_usage_pool_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_usage_pool_proto_rawDesc = "" +
 	"\n" +
-	" chalk/router/v1/usage_pool.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"j\n" +
+	" chalk/router/v1/usage_pool.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a chalk/router/v1/rate_limit.proto\x1a\"chalk/router/v1/usage_budget.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"j\n" +
 	"\tUsagePool\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
 	"\n" +
-	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\",\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb6\x01\n" +
 	"\x16CreateUsagePoolRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"I\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12A\n" +
+	"\vrate_limits\x18\x02 \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
+	"rateLimits\x12E\n" +
+	"\rusage_budgets\x18\x03 \x03(\v2 .chalk.router.v1.UsageBudgetSpecR\fusageBudgets\"I\n" +
 	"\x17CreateUsagePoolResponse\x12.\n" +
+	"\x04pool\x18\x01 \x01(\v2\x1a.chalk.router.v1.UsagePoolR\x04pool\"\xc6\x01\n" +
+	"\x18UpdateUsagePoolOperation\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12A\n" +
+	"\vrate_limits\x18\x02 \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
+	"rateLimits\x12E\n" +
+	"\rusage_budgets\x18\x03 \x03(\v2 .chalk.router.v1.UsageBudgetSpecR\fusageBudgetsB\a\n" +
+	"\x05_name\"\xa8\x01\n" +
+	"\x16UpdateUsagePoolRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12A\n" +
+	"\x06update\x18\x02 \x01(\v2).chalk.router.v1.UpdateUsagePoolOperationR\x06update\x12;\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\"I\n" +
+	"\x17UpdateUsagePoolResponse\x12.\n" +
 	"\x04pool\x18\x01 \x01(\v2\x1a.chalk.router.v1.UsagePoolR\x04pool\"d\n" +
 	"\x15ListUsagePoolsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
@@ -386,14 +672,21 @@ const file_chalk_router_v1_usage_pool_proto_rawDesc = "" +
 	"\x05pools\x18\x01 \x03(\v2\x1a.chalk.router.v1.UsagePoolR\x05pools\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"(\n" +
+	"\f_next_cursor\"%\n" +
+	"\x13GetUsagePoolRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"F\n" +
+	"\x14GetUsagePoolResponse\x12.\n" +
+	"\x04pool\x18\x01 \x01(\v2\x1a.chalk.router.v1.UsagePoolR\x04pool\"(\n" +
 	"\x16DeleteUsagePoolRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\")\n" +
 	"\x17DeleteUsagePoolResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id2\xd3\x02\n" +
-	"\x10UsagePoolService\x12i\n" +
-	"\x0fCreateUsagePool\x12'.chalk.router.v1.CreateUsagePoolRequest\x1a(.chalk.router.v1.CreateUsagePoolResponse\"\x03\x80}\x02\x12i\n" +
-	"\x0eListUsagePools\x12&.chalk.router.v1.ListUsagePoolsRequest\x1a'.chalk.router.v1.ListUsagePoolsResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id2\xe0\x04\n" +
+	"\x10UsagePoolService\x12\xa5\x01\n" +
+	"\x0fCreateUsagePool\x12'.chalk.router.v1.CreateUsagePoolRequest\x1a(.chalk.router.v1.CreateUsagePoolResponse\"?\x80}\x02\x92\xd3\x0e8\n" +
+	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12i\n" +
+	"\x0fUpdateUsagePool\x12'.chalk.router.v1.UpdateUsagePoolRequest\x1a(.chalk.router.v1.UpdateUsagePoolResponse\"\x03\x80}\x02\x12i\n" +
+	"\x0eListUsagePools\x12&.chalk.router.v1.ListUsagePoolsRequest\x1a'.chalk.router.v1.ListUsagePoolsResponse\"\x06\x80}\x02\x90\x02\x01\x12c\n" +
+	"\fGetUsagePool\x12$.chalk.router.v1.GetUsagePoolRequest\x1a%.chalk.router.v1.GetUsagePoolResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
 	"\x0fDeleteUsagePool\x12'.chalk.router.v1.DeleteUsagePoolRequest\x1a(.chalk.router.v1.DeleteUsagePoolResponse\"\x03\x80}\x02B\xbe\x01\n" +
 	"\x13com.chalk.router.v1B\x0eUsagePoolProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
@@ -409,32 +702,52 @@ func file_chalk_router_v1_usage_pool_proto_rawDescGZIP() []byte {
 	return file_chalk_router_v1_usage_pool_proto_rawDescData
 }
 
-var file_chalk_router_v1_usage_pool_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chalk_router_v1_usage_pool_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_router_v1_usage_pool_proto_goTypes = []any{
-	(*UsagePool)(nil),               // 0: chalk.router.v1.UsagePool
-	(*CreateUsagePoolRequest)(nil),  // 1: chalk.router.v1.CreateUsagePoolRequest
-	(*CreateUsagePoolResponse)(nil), // 2: chalk.router.v1.CreateUsagePoolResponse
-	(*ListUsagePoolsRequest)(nil),   // 3: chalk.router.v1.ListUsagePoolsRequest
-	(*ListUsagePoolsResponse)(nil),  // 4: chalk.router.v1.ListUsagePoolsResponse
-	(*DeleteUsagePoolRequest)(nil),  // 5: chalk.router.v1.DeleteUsagePoolRequest
-	(*DeleteUsagePoolResponse)(nil), // 6: chalk.router.v1.DeleteUsagePoolResponse
-	(*timestamppb.Timestamp)(nil),   // 7: google.protobuf.Timestamp
+	(*UsagePool)(nil),                // 0: chalk.router.v1.UsagePool
+	(*CreateUsagePoolRequest)(nil),   // 1: chalk.router.v1.CreateUsagePoolRequest
+	(*CreateUsagePoolResponse)(nil),  // 2: chalk.router.v1.CreateUsagePoolResponse
+	(*UpdateUsagePoolOperation)(nil), // 3: chalk.router.v1.UpdateUsagePoolOperation
+	(*UpdateUsagePoolRequest)(nil),   // 4: chalk.router.v1.UpdateUsagePoolRequest
+	(*UpdateUsagePoolResponse)(nil),  // 5: chalk.router.v1.UpdateUsagePoolResponse
+	(*ListUsagePoolsRequest)(nil),    // 6: chalk.router.v1.ListUsagePoolsRequest
+	(*ListUsagePoolsResponse)(nil),   // 7: chalk.router.v1.ListUsagePoolsResponse
+	(*GetUsagePoolRequest)(nil),      // 8: chalk.router.v1.GetUsagePoolRequest
+	(*GetUsagePoolResponse)(nil),     // 9: chalk.router.v1.GetUsagePoolResponse
+	(*DeleteUsagePoolRequest)(nil),   // 10: chalk.router.v1.DeleteUsagePoolRequest
+	(*DeleteUsagePoolResponse)(nil),  // 11: chalk.router.v1.DeleteUsagePoolResponse
+	(*timestamppb.Timestamp)(nil),    // 12: google.protobuf.Timestamp
+	(*ApiKeyRateLimit)(nil),          // 13: chalk.router.v1.ApiKeyRateLimit
+	(*UsageBudgetSpec)(nil),          // 14: chalk.router.v1.UsageBudgetSpec
+	(*fieldmaskpb.FieldMask)(nil),    // 15: google.protobuf.FieldMask
 }
 var file_chalk_router_v1_usage_pool_proto_depIdxs = []int32{
-	7, // 0: chalk.router.v1.UsagePool.created_at:type_name -> google.protobuf.Timestamp
-	0, // 1: chalk.router.v1.CreateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
-	0, // 2: chalk.router.v1.ListUsagePoolsResponse.pools:type_name -> chalk.router.v1.UsagePool
-	1, // 3: chalk.router.v1.UsagePoolService.CreateUsagePool:input_type -> chalk.router.v1.CreateUsagePoolRequest
-	3, // 4: chalk.router.v1.UsagePoolService.ListUsagePools:input_type -> chalk.router.v1.ListUsagePoolsRequest
-	5, // 5: chalk.router.v1.UsagePoolService.DeleteUsagePool:input_type -> chalk.router.v1.DeleteUsagePoolRequest
-	2, // 6: chalk.router.v1.UsagePoolService.CreateUsagePool:output_type -> chalk.router.v1.CreateUsagePoolResponse
-	4, // 7: chalk.router.v1.UsagePoolService.ListUsagePools:output_type -> chalk.router.v1.ListUsagePoolsResponse
-	6, // 8: chalk.router.v1.UsagePoolService.DeleteUsagePool:output_type -> chalk.router.v1.DeleteUsagePoolResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	12, // 0: chalk.router.v1.UsagePool.created_at:type_name -> google.protobuf.Timestamp
+	13, // 1: chalk.router.v1.CreateUsagePoolRequest.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	14, // 2: chalk.router.v1.CreateUsagePoolRequest.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
+	0,  // 3: chalk.router.v1.CreateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
+	13, // 4: chalk.router.v1.UpdateUsagePoolOperation.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	14, // 5: chalk.router.v1.UpdateUsagePoolOperation.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
+	3,  // 6: chalk.router.v1.UpdateUsagePoolRequest.update:type_name -> chalk.router.v1.UpdateUsagePoolOperation
+	15, // 7: chalk.router.v1.UpdateUsagePoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 8: chalk.router.v1.UpdateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
+	0,  // 9: chalk.router.v1.ListUsagePoolsResponse.pools:type_name -> chalk.router.v1.UsagePool
+	0,  // 10: chalk.router.v1.GetUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
+	1,  // 11: chalk.router.v1.UsagePoolService.CreateUsagePool:input_type -> chalk.router.v1.CreateUsagePoolRequest
+	4,  // 12: chalk.router.v1.UsagePoolService.UpdateUsagePool:input_type -> chalk.router.v1.UpdateUsagePoolRequest
+	6,  // 13: chalk.router.v1.UsagePoolService.ListUsagePools:input_type -> chalk.router.v1.ListUsagePoolsRequest
+	8,  // 14: chalk.router.v1.UsagePoolService.GetUsagePool:input_type -> chalk.router.v1.GetUsagePoolRequest
+	10, // 15: chalk.router.v1.UsagePoolService.DeleteUsagePool:input_type -> chalk.router.v1.DeleteUsagePoolRequest
+	2,  // 16: chalk.router.v1.UsagePoolService.CreateUsagePool:output_type -> chalk.router.v1.CreateUsagePoolResponse
+	5,  // 17: chalk.router.v1.UsagePoolService.UpdateUsagePool:output_type -> chalk.router.v1.UpdateUsagePoolResponse
+	7,  // 18: chalk.router.v1.UsagePoolService.ListUsagePools:output_type -> chalk.router.v1.ListUsagePoolsResponse
+	9,  // 19: chalk.router.v1.UsagePoolService.GetUsagePool:output_type -> chalk.router.v1.GetUsagePoolResponse
+	11, // 20: chalk.router.v1.UsagePoolService.DeleteUsagePool:output_type -> chalk.router.v1.DeleteUsagePoolResponse
+	16, // [16:21] is the sub-list for method output_type
+	11, // [11:16] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_usage_pool_proto_init() }
@@ -442,15 +755,18 @@ func file_chalk_router_v1_usage_pool_proto_init() {
 	if File_chalk_router_v1_usage_pool_proto != nil {
 		return
 	}
+	file_chalk_router_v1_rate_limit_proto_init()
+	file_chalk_router_v1_usage_budget_proto_init()
 	file_chalk_router_v1_usage_pool_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_router_v1_usage_pool_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_router_v1_usage_pool_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_router_v1_usage_pool_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_router_v1_usage_pool_proto_rawDesc), len(file_chalk_router_v1_usage_pool_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

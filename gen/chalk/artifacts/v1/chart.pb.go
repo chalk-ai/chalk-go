@@ -170,6 +170,19 @@ const (
 	// applies to. ONLINE_STORE_USED_MEMORY is RSS and sits above this; DATASET_SIZE
 	// excludes keyspace overhead and sits below it.
 	MetricKind_METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY MetricKind = 128
+	// Whole bound offline-store dataset/schema size in bytes; the denominator for
+	// the accelerated (wide-table) share. Emitted at wide-table fill/compaction ends.
+	MetricKind_METRIC_KIND_OFFLINE_STORE_TOTAL_BYTES MetricKind = 129
+	// A namespace's active wide feature-view table size in bytes; the accelerated
+	// numerator, keyed by GROUP_BY_KIND_NAMESPACE. Emitted alongside TOTAL_BYTES.
+	MetricKind_METRIC_KIND_OFFLINE_STORE_WIDE_BYTES MetricKind = 130
+	// Time from when Chalk received a streaming message to processing
+	// completion; STREAM_INGEST_DELAY minus this is time spent in the bus.
+	MetricKind_METRIC_KIND_STREAM_MESSAGE_PROCESSING_DURATION MetricKind = 131
+	// Storage "Accelerated" tile: completed offline queries (denominator) and the subset
+	// whose plan read a wide table / MFV (numerator). VM-only, no Timescale series.
+	MetricKind_METRIC_KIND_OFFLINE_QUERY_COMPLETED   MetricKind = 132
+	MetricKind_METRIC_KIND_OFFLINE_QUERY_ACCELERATED MetricKind = 133
 )
 
 // Enum value maps for MetricKind.
@@ -304,6 +317,11 @@ var (
 		126: "METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS",
 		127: "METRIC_KIND_ONLINE_STORE_DATASET_SIZE",
 		128: "METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY",
+		129: "METRIC_KIND_OFFLINE_STORE_TOTAL_BYTES",
+		130: "METRIC_KIND_OFFLINE_STORE_WIDE_BYTES",
+		131: "METRIC_KIND_STREAM_MESSAGE_PROCESSING_DURATION",
+		132: "METRIC_KIND_OFFLINE_QUERY_COMPLETED",
+		133: "METRIC_KIND_OFFLINE_QUERY_ACCELERATED",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -435,6 +453,11 @@ var (
 		"METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS":         126,
 		"METRIC_KIND_ONLINE_STORE_DATASET_SIZE":               127,
 		"METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY":           128,
+		"METRIC_KIND_OFFLINE_STORE_TOTAL_BYTES":               129,
+		"METRIC_KIND_OFFLINE_STORE_WIDE_BYTES":                130,
+		"METRIC_KIND_STREAM_MESSAGE_PROCESSING_DURATION":      131,
+		"METRIC_KIND_OFFLINE_QUERY_COMPLETED":                 132,
+		"METRIC_KIND_OFFLINE_QUERY_ACCELERATED":               133,
 	}
 )
 
@@ -519,6 +542,8 @@ const (
 	// metrics persist this value in the shared operation_id storage dimension,
 	// but it is not a query operation ID and must not use operation formatting.
 	FilterKind_FILTER_KIND_SCALING_GROUP_REVISION_ID FilterKind = 35
+	// The feature-view namespace of an offline-store wide-table size metric.
+	FilterKind_FILTER_KIND_NAMESPACE FilterKind = 36
 )
 
 // Enum value maps for FilterKind.
@@ -560,6 +585,7 @@ var (
 		33: "FILTER_KIND_CHALKSQL_OPERATION_ID",
 		34: "FILTER_KIND_NODE_NAME",
 		35: "FILTER_KIND_SCALING_GROUP_REVISION_ID",
+		36: "FILTER_KIND_NAMESPACE",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -598,6 +624,7 @@ var (
 		"FILTER_KIND_CHALKSQL_OPERATION_ID":      33,
 		"FILTER_KIND_NODE_NAME":                  34,
 		"FILTER_KIND_SCALING_GROUP_REVISION_ID":  35,
+		"FILTER_KIND_NAMESPACE":                  36,
 	}
 )
 
@@ -799,6 +826,9 @@ const (
 	// The scaling-group revision that executed a function call; see
 	// FILTER_KIND_SCALING_GROUP_REVISION_ID.
 	GroupByKind_GROUP_BY_KIND_SCALING_GROUP_REVISION_ID GroupByKind = 30
+	// The feature-view namespace an offline-store wide-table size is keyed by; see
+	// FILTER_KIND_NAMESPACE.
+	GroupByKind_GROUP_BY_KIND_NAMESPACE GroupByKind = 31
 )
 
 // Enum value maps for GroupByKind.
@@ -835,6 +865,7 @@ var (
 		28: "GROUP_BY_KIND_CRON_OPERATION_ID",
 		29: "GROUP_BY_KIND_CHALKSQL_OPERATION_ID",
 		30: "GROUP_BY_KIND_SCALING_GROUP_REVISION_ID",
+		31: "GROUP_BY_KIND_NAMESPACE",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":                   0,
@@ -868,6 +899,7 @@ var (
 		"GROUP_BY_KIND_CRON_OPERATION_ID":             28,
 		"GROUP_BY_KIND_CHALKSQL_OPERATION_ID":         29,
 		"GROUP_BY_KIND_SCALING_GROUP_REVISION_ID":     30,
+		"GROUP_BY_KIND_NAMESPACE":                     31,
 	}
 )
 
@@ -2182,7 +2214,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xc0*\n" +
+	"_entity_id*\xa2,\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2314,7 +2346,12 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"+METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_AVG_MS\x10}\x12/\n" +
 	"+METRIC_KIND_CLICKHOUSE_QUERY_LATENCY_MAX_MS\x10~\x12)\n" +
 	"%METRIC_KIND_ONLINE_STORE_DATASET_SIZE\x10\x7f\x12.\n" +
-	")METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY\x10\x80\x01*\x81\t\n" +
+	")METRIC_KIND_ONLINE_STORE_ALLOCATED_MEMORY\x10\x80\x01\x12*\n" +
+	"%METRIC_KIND_OFFLINE_STORE_TOTAL_BYTES\x10\x81\x01\x12)\n" +
+	"$METRIC_KIND_OFFLINE_STORE_WIDE_BYTES\x10\x82\x01\x123\n" +
+	".METRIC_KIND_STREAM_MESSAGE_PROCESSING_DURATION\x10\x83\x01\x12(\n" +
+	"#METRIC_KIND_OFFLINE_QUERY_COMPLETED\x10\x84\x01\x12*\n" +
+	"%METRIC_KIND_OFFLINE_QUERY_ACCELERATED\x10\x85\x01*\x9c\t\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2353,7 +2390,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1dFILTER_KIND_CRON_OPERATION_ID\x10 \x12%\n" +
 	"!FILTER_KIND_CHALKSQL_OPERATION_ID\x10!\x12\x19\n" +
 	"\x15FILTER_KIND_NODE_NAME\x10\"\x12)\n" +
-	"%FILTER_KIND_SCALING_GROUP_REVISION_ID\x10#*~\n" +
+	"%FILTER_KIND_SCALING_GROUP_REVISION_ID\x10#\x12\x19\n" +
+	"\x15FILTER_KIND_NAMESPACE\x10$*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -2373,7 +2411,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xc5\b\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xe2\b\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -2406,7 +2444,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"&GROUP_BY_KIND_SCRIPT_TASK_OPERATION_ID\x10\x1b\x12#\n" +
 	"\x1fGROUP_BY_KIND_CRON_OPERATION_ID\x10\x1c\x12'\n" +
 	"#GROUP_BY_KIND_CHALKSQL_OPERATION_ID\x10\x1d\x12+\n" +
-	"'GROUP_BY_KIND_SCALING_GROUP_REVISION_ID\x10\x1e*\x81\x03\n" +
+	"'GROUP_BY_KIND_SCALING_GROUP_REVISION_ID\x10\x1e\x12\x1b\n" +
+	"\x17GROUP_BY_KIND_NAMESPACE\x10\x1f*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +

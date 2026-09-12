@@ -36,6 +36,9 @@ const (
 	// IntegrationsServiceTestIntegrationProcedure is the fully-qualified name of the
 	// IntegrationsService's TestIntegration RPC.
 	IntegrationsServiceTestIntegrationProcedure = "/chalk.server.v2.IntegrationsService/TestIntegration"
+	// IntegrationsServiceListRunningDatasourceQueriesProcedure is the fully-qualified name of the
+	// IntegrationsService's ListRunningDatasourceQueries RPC.
+	IntegrationsServiceListRunningDatasourceQueriesProcedure = "/chalk.server.v2.IntegrationsService/ListRunningDatasourceQueries"
 )
 
 // IntegrationsServiceClient is a client for the chalk.server.v2.IntegrationsService service.
@@ -44,6 +47,16 @@ type IntegrationsServiceClient interface {
 	// chalk.server.v1.IntegrationsService.TestIntegration, which remains for older clients and is
 	// implemented as a thin adapter over this so the two cannot drift.
 	TestIntegration(context.Context, *connect.Request[v2.TestIntegrationRequest]) (*connect.Response[v2.TestIntegrationResponse], error)
+	// Lists the queries one data source reports as currently in flight.
+	//
+	// Same permission as TestIntegration, and for the same reason: both connect to the data source
+	// with the caller-supplied or saved credentials and return only what the source says about
+	// itself. It carries customer SQL, which is the point -- an operator looking at this page is
+	// looking for the statement that is stuck -- but nothing about how the connection was made.
+	//
+	// Read-only, so no audit option: it changes nothing and runs on a refresh timer, and auditing
+	// every poll would bury the mutations in the same log.
+	ListRunningDatasourceQueries(context.Context, *connect.Request[v2.ListRunningDatasourceQueriesRequest]) (*connect.Response[v2.ListRunningDatasourceQueriesResponse], error)
 }
 
 // NewIntegrationsServiceClient constructs a client for the chalk.server.v2.IntegrationsService
@@ -63,17 +76,30 @@ func NewIntegrationsServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(integrationsServiceMethods.ByName("TestIntegration")),
 			connect.WithClientOptions(opts...),
 		),
+		listRunningDatasourceQueries: connect.NewClient[v2.ListRunningDatasourceQueriesRequest, v2.ListRunningDatasourceQueriesResponse](
+			httpClient,
+			baseURL+IntegrationsServiceListRunningDatasourceQueriesProcedure,
+			connect.WithSchema(integrationsServiceMethods.ByName("ListRunningDatasourceQueries")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // integrationsServiceClient implements IntegrationsServiceClient.
 type integrationsServiceClient struct {
-	testIntegration *connect.Client[v2.TestIntegrationRequest, v2.TestIntegrationResponse]
+	testIntegration              *connect.Client[v2.TestIntegrationRequest, v2.TestIntegrationResponse]
+	listRunningDatasourceQueries *connect.Client[v2.ListRunningDatasourceQueriesRequest, v2.ListRunningDatasourceQueriesResponse]
 }
 
 // TestIntegration calls chalk.server.v2.IntegrationsService.TestIntegration.
 func (c *integrationsServiceClient) TestIntegration(ctx context.Context, req *connect.Request[v2.TestIntegrationRequest]) (*connect.Response[v2.TestIntegrationResponse], error) {
 	return c.testIntegration.CallUnary(ctx, req)
+}
+
+// ListRunningDatasourceQueries calls
+// chalk.server.v2.IntegrationsService.ListRunningDatasourceQueries.
+func (c *integrationsServiceClient) ListRunningDatasourceQueries(ctx context.Context, req *connect.Request[v2.ListRunningDatasourceQueriesRequest]) (*connect.Response[v2.ListRunningDatasourceQueriesResponse], error) {
+	return c.listRunningDatasourceQueries.CallUnary(ctx, req)
 }
 
 // IntegrationsServiceHandler is an implementation of the chalk.server.v2.IntegrationsService
@@ -83,6 +109,16 @@ type IntegrationsServiceHandler interface {
 	// chalk.server.v1.IntegrationsService.TestIntegration, which remains for older clients and is
 	// implemented as a thin adapter over this so the two cannot drift.
 	TestIntegration(context.Context, *connect.Request[v2.TestIntegrationRequest]) (*connect.Response[v2.TestIntegrationResponse], error)
+	// Lists the queries one data source reports as currently in flight.
+	//
+	// Same permission as TestIntegration, and for the same reason: both connect to the data source
+	// with the caller-supplied or saved credentials and return only what the source says about
+	// itself. It carries customer SQL, which is the point -- an operator looking at this page is
+	// looking for the statement that is stuck -- but nothing about how the connection was made.
+	//
+	// Read-only, so no audit option: it changes nothing and runs on a refresh timer, and auditing
+	// every poll would bury the mutations in the same log.
+	ListRunningDatasourceQueries(context.Context, *connect.Request[v2.ListRunningDatasourceQueriesRequest]) (*connect.Response[v2.ListRunningDatasourceQueriesResponse], error)
 }
 
 // NewIntegrationsServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -98,10 +134,18 @@ func NewIntegrationsServiceHandler(svc IntegrationsServiceHandler, opts ...conne
 		connect.WithSchema(integrationsServiceMethods.ByName("TestIntegration")),
 		connect.WithHandlerOptions(opts...),
 	)
+	integrationsServiceListRunningDatasourceQueriesHandler := connect.NewUnaryHandler(
+		IntegrationsServiceListRunningDatasourceQueriesProcedure,
+		svc.ListRunningDatasourceQueries,
+		connect.WithSchema(integrationsServiceMethods.ByName("ListRunningDatasourceQueries")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v2.IntegrationsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case IntegrationsServiceTestIntegrationProcedure:
 			integrationsServiceTestIntegrationHandler.ServeHTTP(w, r)
+		case IntegrationsServiceListRunningDatasourceQueriesProcedure:
+			integrationsServiceListRunningDatasourceQueriesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -113,4 +157,8 @@ type UnimplementedIntegrationsServiceHandler struct{}
 
 func (UnimplementedIntegrationsServiceHandler) TestIntegration(context.Context, *connect.Request[v2.TestIntegrationRequest]) (*connect.Response[v2.TestIntegrationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v2.IntegrationsService.TestIntegration is not implemented"))
+}
+
+func (UnimplementedIntegrationsServiceHandler) ListRunningDatasourceQueries(context.Context, *connect.Request[v2.ListRunningDatasourceQueriesRequest]) (*connect.Response[v2.ListRunningDatasourceQueriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v2.IntegrationsService.ListRunningDatasourceQueries is not implemented"))
 }

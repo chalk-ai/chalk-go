@@ -51,8 +51,7 @@ type ModelDeploymentServiceClient interface {
 	CreateModelScalingGroup(context.Context, *connect.Request[v1.CreateModelScalingGroupRequest]) (*connect.Response[v1.CreateModelScalingGroupResponse], error)
 	// ListModelScalingGroups lists model scaling groups, optionally filtered to a model version
 	ListModelScalingGroups(context.Context, *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error)
-	// CallModel synchronously invokes a model deployed to a scaling group, forwarding the request to the
-	// container's RemoteCallService over gRPC.
+	// CallModel synchronously invokes a model scaling group or asynchronously enqueues a model call.
 	CallModel(context.Context, *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error)
 }
 
@@ -120,8 +119,7 @@ type ModelDeploymentServiceHandler interface {
 	CreateModelScalingGroup(context.Context, *connect.Request[v1.CreateModelScalingGroupRequest]) (*connect.Response[v1.CreateModelScalingGroupResponse], error)
 	// ListModelScalingGroups lists model scaling groups, optionally filtered to a model version
 	ListModelScalingGroups(context.Context, *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error)
-	// CallModel synchronously invokes a model deployed to a scaling group, forwarding the request to the
-	// container's RemoteCallService over gRPC.
+	// CallModel synchronously invokes a model scaling group or asynchronously enqueues a model call.
 	CallModel(context.Context, *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error)
 }
 

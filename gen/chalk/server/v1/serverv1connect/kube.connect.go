@@ -63,6 +63,12 @@ const (
 	// KubeServiceGetKubernetesDeploymentsProcedure is the fully-qualified name of the KubeService's
 	// GetKubernetesDeployments RPC.
 	KubeServiceGetKubernetesDeploymentsProcedure = "/chalk.server.v1.KubeService/GetKubernetesDeployments"
+	// KubeServiceGetKubernetesHTTPRoutesProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesHTTPRoutes RPC.
+	KubeServiceGetKubernetesHTTPRoutesProcedure = "/chalk.server.v1.KubeService/GetKubernetesHTTPRoutes"
+	// KubeServiceGetKubernetesGRPCRoutesProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesGRPCRoutes RPC.
+	KubeServiceGetKubernetesGRPCRoutesProcedure = "/chalk.server.v1.KubeService/GetKubernetesGRPCRoutes"
 	// KubeServiceGetKubernetesStatefulSetsProcedure is the fully-qualified name of the KubeService's
 	// GetKubernetesStatefulSets RPC.
 	KubeServiceGetKubernetesStatefulSetsProcedure = "/chalk.server.v1.KubeService/GetKubernetesStatefulSets"
@@ -97,6 +103,8 @@ type KubeServiceClient interface {
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
 	GetKubernetesDeployments(context.Context, *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error)
+	GetKubernetesHTTPRoutes(context.Context, *connect.Request[v1.GetKubernetesHTTPRoutesRequest]) (*connect.Response[v1.GetKubernetesHTTPRoutesResponse], error)
+	GetKubernetesGRPCRoutes(context.Context, *connect.Request[v1.GetKubernetesGRPCRoutesRequest]) (*connect.Response[v1.GetKubernetesGRPCRoutesResponse], error)
 	GetKubernetesStatefulSets(context.Context, *connect.Request[v1.GetKubernetesStatefulSetsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetsResponse], error)
 	GetKubernetesJobs(context.Context, *connect.Request[v1.GetKubernetesJobsRequest]) (*connect.Response[v1.GetKubernetesJobsResponse], error)
 	// GetKubernetesDeploymentWithPods fetches a single deployment by name/namespace/cluster
@@ -187,6 +195,20 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getKubernetesHTTPRoutes: connect.NewClient[v1.GetKubernetesHTTPRoutesRequest, v1.GetKubernetesHTTPRoutesResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesHTTPRoutesProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesHTTPRoutes")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesGRPCRoutes: connect.NewClient[v1.GetKubernetesGRPCRoutesRequest, v1.GetKubernetesGRPCRoutesResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesGRPCRoutesProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesGRPCRoutes")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getKubernetesStatefulSets: connect.NewClient[v1.GetKubernetesStatefulSetsRequest, v1.GetKubernetesStatefulSetsResponse](
 			httpClient,
 			baseURL+KubeServiceGetKubernetesStatefulSetsProcedure,
@@ -237,6 +259,8 @@ type kubeServiceClient struct {
 	getKubernetesServiceAccounts          *connect.Client[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse]
 	getKubernetesAutoscalers              *connect.Client[v1.GetKubernetesAutoscalersRequest, v1.GetKubernetesAutoscalersResponse]
 	getKubernetesDeployments              *connect.Client[v1.GetKubernetesDeploymentsRequest, v1.GetKubernetesDeploymentsResponse]
+	getKubernetesHTTPRoutes               *connect.Client[v1.GetKubernetesHTTPRoutesRequest, v1.GetKubernetesHTTPRoutesResponse]
+	getKubernetesGRPCRoutes               *connect.Client[v1.GetKubernetesGRPCRoutesRequest, v1.GetKubernetesGRPCRoutesResponse]
 	getKubernetesStatefulSets             *connect.Client[v1.GetKubernetesStatefulSetsRequest, v1.GetKubernetesStatefulSetsResponse]
 	getKubernetesJobs                     *connect.Client[v1.GetKubernetesJobsRequest, v1.GetKubernetesJobsResponse]
 	getKubernetesDeploymentWithPods       *connect.Client[v1.GetKubernetesDeploymentWithPodsRequest, v1.GetKubernetesDeploymentWithPodsResponse]
@@ -295,6 +319,16 @@ func (c *kubeServiceClient) GetKubernetesDeployments(ctx context.Context, req *c
 	return c.getKubernetesDeployments.CallUnary(ctx, req)
 }
 
+// GetKubernetesHTTPRoutes calls chalk.server.v1.KubeService.GetKubernetesHTTPRoutes.
+func (c *kubeServiceClient) GetKubernetesHTTPRoutes(ctx context.Context, req *connect.Request[v1.GetKubernetesHTTPRoutesRequest]) (*connect.Response[v1.GetKubernetesHTTPRoutesResponse], error) {
+	return c.getKubernetesHTTPRoutes.CallUnary(ctx, req)
+}
+
+// GetKubernetesGRPCRoutes calls chalk.server.v1.KubeService.GetKubernetesGRPCRoutes.
+func (c *kubeServiceClient) GetKubernetesGRPCRoutes(ctx context.Context, req *connect.Request[v1.GetKubernetesGRPCRoutesRequest]) (*connect.Response[v1.GetKubernetesGRPCRoutesResponse], error) {
+	return c.getKubernetesGRPCRoutes.CallUnary(ctx, req)
+}
+
 // GetKubernetesStatefulSets calls chalk.server.v1.KubeService.GetKubernetesStatefulSets.
 func (c *kubeServiceClient) GetKubernetesStatefulSets(ctx context.Context, req *connect.Request[v1.GetKubernetesStatefulSetsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetsResponse], error) {
 	return c.getKubernetesStatefulSets.CallUnary(ctx, req)
@@ -339,6 +373,8 @@ type KubeServiceHandler interface {
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
 	GetKubernetesDeployments(context.Context, *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error)
+	GetKubernetesHTTPRoutes(context.Context, *connect.Request[v1.GetKubernetesHTTPRoutesRequest]) (*connect.Response[v1.GetKubernetesHTTPRoutesResponse], error)
+	GetKubernetesGRPCRoutes(context.Context, *connect.Request[v1.GetKubernetesGRPCRoutesRequest]) (*connect.Response[v1.GetKubernetesGRPCRoutesResponse], error)
 	GetKubernetesStatefulSets(context.Context, *connect.Request[v1.GetKubernetesStatefulSetsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetsResponse], error)
 	GetKubernetesJobs(context.Context, *connect.Request[v1.GetKubernetesJobsRequest]) (*connect.Response[v1.GetKubernetesJobsResponse], error)
 	// GetKubernetesDeploymentWithPods fetches a single deployment by name/namespace/cluster
@@ -425,6 +461,20 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	kubeServiceGetKubernetesHTTPRoutesHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesHTTPRoutesProcedure,
+		svc.GetKubernetesHTTPRoutes,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesHTTPRoutes")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesGRPCRoutesHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesGRPCRoutesProcedure,
+		svc.GetKubernetesGRPCRoutes,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesGRPCRoutes")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	kubeServiceGetKubernetesStatefulSetsHandler := connect.NewUnaryHandler(
 		KubeServiceGetKubernetesStatefulSetsProcedure,
 		svc.GetKubernetesStatefulSets,
@@ -482,6 +532,10 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 			kubeServiceGetKubernetesAutoscalersHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesDeploymentsProcedure:
 			kubeServiceGetKubernetesDeploymentsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesHTTPRoutesProcedure:
+			kubeServiceGetKubernetesHTTPRoutesHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesGRPCRoutesProcedure:
+			kubeServiceGetKubernetesGRPCRoutesHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesStatefulSetsProcedure:
 			kubeServiceGetKubernetesStatefulSetsHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesJobsProcedure:
@@ -539,6 +593,14 @@ func (UnimplementedKubeServiceHandler) GetKubernetesAutoscalers(context.Context,
 
 func (UnimplementedKubeServiceHandler) GetKubernetesDeployments(context.Context, *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesDeployments is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesHTTPRoutes(context.Context, *connect.Request[v1.GetKubernetesHTTPRoutesRequest]) (*connect.Response[v1.GetKubernetesHTTPRoutesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesHTTPRoutes is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesGRPCRoutes(context.Context, *connect.Request[v1.GetKubernetesGRPCRoutesRequest]) (*connect.Response[v1.GetKubernetesGRPCRoutesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesGRPCRoutes is not implemented"))
 }
 
 func (UnimplementedKubeServiceHandler) GetKubernetesStatefulSets(context.Context, *connect.Request[v1.GetKubernetesStatefulSetsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetsResponse], error) {

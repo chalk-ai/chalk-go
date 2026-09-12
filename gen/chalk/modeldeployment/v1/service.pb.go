@@ -434,6 +434,7 @@ type CallModelRequest struct {
 	// Types that are valid to be assigned to Body:
 	//
 	//	*CallModelRequest_RemoteCallRequest
+	//	*CallModelRequest_EnqueueRemoteCallRequest
 	Body          isCallModelRequest_Body `protobuf_oneof:"body"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -492,21 +493,41 @@ func (x *CallModelRequest) GetRemoteCallRequest() *v13.CallFunctionRequest {
 	return nil
 }
 
+func (x *CallModelRequest) GetEnqueueRemoteCallRequest() *v13.EnqueueRemoteCallRequest {
+	if x != nil {
+		if x, ok := x.Body.(*CallModelRequest_EnqueueRemoteCallRequest); ok {
+			return x.EnqueueRemoteCallRequest
+		}
+	}
+	return nil
+}
+
 type isCallModelRequest_Body interface {
 	isCallModelRequest_Body()
 }
 
 type CallModelRequest_RemoteCallRequest struct {
+	// Synchronous invocation: blocks until the model returns its result.
 	RemoteCallRequest *v13.CallFunctionRequest `protobuf:"bytes,2,opt,name=remote_call_request,json=remoteCallRequest,proto3,oneof"`
 }
 
+type CallModelRequest_EnqueueRemoteCallRequest struct {
+	// Asynchronous invocation: enqueues the call on the model-wide function queue.
+	// The server resolves the model name from model_version and returns a call_id;
+	// poll FunctionQueueMetaService.GetCallResults to observe completion.
+	EnqueueRemoteCallRequest *v13.EnqueueRemoteCallRequest `protobuf:"bytes,3,opt,name=enqueue_remote_call_request,json=enqueueRemoteCallRequest,proto3,oneof"`
+}
+
 func (*CallModelRequest_RemoteCallRequest) isCallModelRequest_Body() {}
+
+func (*CallModelRequest_EnqueueRemoteCallRequest) isCallModelRequest_Body() {}
 
 type CallModelResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Body:
 	//
 	//	*CallModelResponse_RemoteCallResponse
+	//	*CallModelResponse_EnqueueRemoteCallResponse
 	Body          isCallModelResponse_Body `protobuf_oneof:"body"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -558,6 +579,15 @@ func (x *CallModelResponse) GetRemoteCallResponse() *v13.CallFunctionResponse {
 	return nil
 }
 
+func (x *CallModelResponse) GetEnqueueRemoteCallResponse() *v13.EnqueueRemoteCallResponse {
+	if x != nil {
+		if x, ok := x.Body.(*CallModelResponse_EnqueueRemoteCallResponse); ok {
+			return x.EnqueueRemoteCallResponse
+		}
+	}
+	return nil
+}
+
 type isCallModelResponse_Body interface {
 	isCallModelResponse_Body()
 }
@@ -566,7 +596,13 @@ type CallModelResponse_RemoteCallResponse struct {
 	RemoteCallResponse *v13.CallFunctionResponse `protobuf:"bytes,1,opt,name=remote_call_response,json=remoteCallResponse,proto3,oneof"`
 }
 
+type CallModelResponse_EnqueueRemoteCallResponse struct {
+	EnqueueRemoteCallResponse *v13.EnqueueRemoteCallResponse `protobuf:"bytes,2,opt,name=enqueue_remote_call_response,json=enqueueRemoteCallResponse,proto3,oneof"`
+}
+
 func (*CallModelResponse_RemoteCallResponse) isCallModelResponse_Body() {}
+
+func (*CallModelResponse_EnqueueRemoteCallResponse) isCallModelResponse_Body() {}
 
 var File_chalk_modeldeployment_v1_service_proto protoreflect.FileDescriptor
 
@@ -623,13 +659,15 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorH\x00R\fmodelVersion\x88\x01\x01B\x10\n" +
 	"\x0e_model_version\"t\n" +
 	"\x1eListModelScalingGroupsResponse\x12R\n" +
-	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\rscalingGroups\"\xc8\x01\n" +
+	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\rscalingGroups\"\xb5\x02\n" +
 	"\x10CallModelRequest\x12S\n" +
 	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorR\fmodelVersion\x12W\n" +
-	"\x13remote_call_request\x18\x02 \x01(\v2%.chalk.runtime.v1.CallFunctionRequestH\x00R\x11remoteCallRequestB\x06\n" +
-	"\x04body\"w\n" +
+	"\x13remote_call_request\x18\x02 \x01(\v2%.chalk.runtime.v1.CallFunctionRequestH\x00R\x11remoteCallRequest\x12k\n" +
+	"\x1benqueue_remote_call_request\x18\x03 \x01(\v2*.chalk.runtime.v1.EnqueueRemoteCallRequestH\x00R\x18enqueueRemoteCallRequestB\x06\n" +
+	"\x04body\"\xe7\x01\n" +
 	"\x11CallModelResponse\x12Z\n" +
-	"\x14remote_call_response\x18\x01 \x01(\v2&.chalk.runtime.v1.CallFunctionResponseH\x00R\x12remoteCallResponseB\x06\n" +
+	"\x14remote_call_response\x18\x01 \x01(\v2&.chalk.runtime.v1.CallFunctionResponseH\x00R\x12remoteCallResponse\x12n\n" +
+	"\x1cenqueue_remote_call_response\x18\x02 \x01(\v2+.chalk.runtime.v1.EnqueueRemoteCallResponseH\x00R\x19enqueueRemoteCallResponseB\x06\n" +
 	"\x04body2\xac\x03\n" +
 	"\x16ModelDeploymentService\x12\x93\x01\n" +
 	"\x17CreateModelScalingGroup\x128.chalk.modeldeployment.v1.CreateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.CreateModelScalingGroupResponse\"\x03\x80}\f\x12\x90\x01\n" +
@@ -670,7 +708,9 @@ var file_chalk_modeldeployment_v1_service_proto_goTypes = []any{
 	(*v12.ScalingSpec)(nil),                 // 16: chalk.scalinggroup.v1.ScalingSpec
 	(*v12.ScalingGroupResponse)(nil),        // 17: chalk.scalinggroup.v1.ScalingGroupResponse
 	(*v13.CallFunctionRequest)(nil),         // 18: chalk.runtime.v1.CallFunctionRequest
-	(*v13.CallFunctionResponse)(nil),        // 19: chalk.runtime.v1.CallFunctionResponse
+	(*v13.EnqueueRemoteCallRequest)(nil),    // 19: chalk.runtime.v1.EnqueueRemoteCallRequest
+	(*v13.CallFunctionResponse)(nil),        // 20: chalk.runtime.v1.CallFunctionResponse
+	(*v13.EnqueueRemoteCallResponse)(nil),   // 21: chalk.runtime.v1.EnqueueRemoteCallResponse
 }
 var file_chalk_modeldeployment_v1_service_proto_depIdxs = []int32{
 	8,  // 0: chalk.modeldeployment.v1.ModelContainerSpec.tags:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
@@ -689,18 +729,20 @@ var file_chalk_modeldeployment_v1_service_proto_depIdxs = []int32{
 	17, // 13: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
 	3,  // 14: chalk.modeldeployment.v1.CallModelRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
 	18, // 15: chalk.modeldeployment.v1.CallModelRequest.remote_call_request:type_name -> chalk.runtime.v1.CallFunctionRequest
-	19, // 16: chalk.modeldeployment.v1.CallModelResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
-	1,  // 17: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:input_type -> chalk.modeldeployment.v1.CreateModelScalingGroupRequest
-	4,  // 18: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupsRequest
-	6,  // 19: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:input_type -> chalk.modeldeployment.v1.CallModelRequest
-	2,  // 20: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:output_type -> chalk.modeldeployment.v1.CreateModelScalingGroupResponse
-	5,  // 21: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupsResponse
-	7,  // 22: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:output_type -> chalk.modeldeployment.v1.CallModelResponse
-	20, // [20:23] is the sub-list for method output_type
-	17, // [17:20] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	19, // 16: chalk.modeldeployment.v1.CallModelRequest.enqueue_remote_call_request:type_name -> chalk.runtime.v1.EnqueueRemoteCallRequest
+	20, // 17: chalk.modeldeployment.v1.CallModelResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
+	21, // 18: chalk.modeldeployment.v1.CallModelResponse.enqueue_remote_call_response:type_name -> chalk.runtime.v1.EnqueueRemoteCallResponse
+	1,  // 19: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:input_type -> chalk.modeldeployment.v1.CreateModelScalingGroupRequest
+	4,  // 20: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupsRequest
+	6,  // 21: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:input_type -> chalk.modeldeployment.v1.CallModelRequest
+	2,  // 22: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:output_type -> chalk.modeldeployment.v1.CreateModelScalingGroupResponse
+	5,  // 23: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupsResponse
+	7,  // 24: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:output_type -> chalk.modeldeployment.v1.CallModelResponse
+	22, // [22:25] is the sub-list for method output_type
+	19, // [19:22] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_modeldeployment_v1_service_proto_init() }
@@ -713,9 +755,11 @@ func file_chalk_modeldeployment_v1_service_proto_init() {
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[6].OneofWrappers = []any{
 		(*CallModelRequest_RemoteCallRequest)(nil),
+		(*CallModelRequest_EnqueueRemoteCallRequest)(nil),
 	}
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[7].OneofWrappers = []any{
 		(*CallModelResponse_RemoteCallResponse)(nil),
+		(*CallModelResponse_EnqueueRemoteCallResponse)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

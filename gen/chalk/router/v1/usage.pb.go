@@ -295,8 +295,17 @@ type UsageAggregateRow struct {
 	ReasoningTokens  int64                  `protobuf:"varint,7,opt,name=reasoning_tokens,json=reasoningTokens,proto3" json:"reasoning_tokens,omitempty"`
 	TotalTokens      int64                  `protobuf:"varint,8,opt,name=total_tokens,json=totalTokens,proto3" json:"total_tokens,omitempty"`
 	RequestCount     int64                  `protobuf:"varint,9,opt,name=request_count,json=requestCount,proto3" json:"request_count,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Public list-price estimate in USD for this row's metered tokens, priced by
+	// the router per upstream model before aggregation, so it stays exact under
+	// every grouping. Unset by routers that do not price usage; zero means the
+	// row was priced and cost nothing.
+	EstimatedCostUsd *float64 `protobuf:"fixed64,10,opt,name=estimated_cost_usd,json=estimatedCostUsd,proto3,oneof" json:"estimated_cost_usd,omitempty"`
+	// Requests in this row whose model is absent from the router's price
+	// catalog, and whose tokens are therefore missing from estimated_cost_usd.
+	// Unset alongside it.
+	UnpricedRequestCount *int64 `protobuf:"varint,11,opt,name=unpriced_request_count,json=unpricedRequestCount,proto3,oneof" json:"unpriced_request_count,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *UsageAggregateRow) Reset() {
@@ -392,6 +401,20 @@ func (x *UsageAggregateRow) GetRequestCount() int64 {
 	return 0
 }
 
+func (x *UsageAggregateRow) GetEstimatedCostUsd() float64 {
+	if x != nil && x.EstimatedCostUsd != nil {
+		return *x.EstimatedCostUsd
+	}
+	return 0
+}
+
+func (x *UsageAggregateRow) GetUnpricedRequestCount() int64 {
+	if x != nil && x.UnpricedRequestCount != nil {
+		return *x.UnpricedRequestCount
+	}
+	return 0
+}
+
 type QueryUsageResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Rows          []*UsageAggregateRow   `protobuf:"bytes,1,rep,name=rows,proto3" json:"rows,omitempty"`
@@ -460,7 +483,7 @@ const file_chalk_router_v1_usage_proto_rawDesc = "" +
 	"\rapi_key_label\x18\x06 \x01(\tH\x00R\vapiKeyLabel\x127\n" +
 	"\afilters\x18\a \x01(\v2\x1d.chalk.router.v1.UsageFiltersR\afiltersB\n" +
 	"\n" +
-	"\bgrouping\"\x88\x03\n" +
+	"\bgrouping\"\xa8\x04\n" +
 	"\x11UsageAggregateRow\x122\n" +
 	"\x06bucket\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x06bucket\x12'\n" +
 	"\x0fdimension_value\x18\x02 \x01(\tR\x0edimensionValue\x12#\n" +
@@ -470,7 +493,12 @@ const file_chalk_router_v1_usage_proto_rawDesc = "" +
 	"\x12cache_write_tokens\x18\x06 \x01(\x03R\x10cacheWriteTokens\x12)\n" +
 	"\x10reasoning_tokens\x18\a \x01(\x03R\x0freasoningTokens\x12!\n" +
 	"\ftotal_tokens\x18\b \x01(\x03R\vtotalTokens\x12#\n" +
-	"\rrequest_count\x18\t \x01(\x03R\frequestCount\"L\n" +
+	"\rrequest_count\x18\t \x01(\x03R\frequestCount\x121\n" +
+	"\x12estimated_cost_usd\x18\n" +
+	" \x01(\x01H\x00R\x10estimatedCostUsd\x88\x01\x01\x129\n" +
+	"\x16unpriced_request_count\x18\v \x01(\x03H\x01R\x14unpricedRequestCount\x88\x01\x01B\x15\n" +
+	"\x13_estimated_cost_usdB\x19\n" +
+	"\x17_unpriced_request_count\"L\n" +
 	"\x12QueryUsageResponse\x126\n" +
 	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageAggregateRowR\x04rows*\xa9\x01\n" +
 	"\x0eUsageDimension\x12\x1f\n" +
@@ -535,6 +563,7 @@ func file_chalk_router_v1_usage_proto_init() {
 		(*QueryUsageRequest_Dimension)(nil),
 		(*QueryUsageRequest_ApiKeyLabel)(nil),
 	}
+	file_chalk_router_v1_usage_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

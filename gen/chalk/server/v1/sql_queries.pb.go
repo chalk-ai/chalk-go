@@ -647,8 +647,10 @@ type GetSqlQuerySignedUrlsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// List of signed URLs for the query results
 	SignedResultUrls []string `protobuf:"bytes,1,rep,name=signed_result_urls,json=signedResultUrls,proto3" json:"signed_result_urls,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Performance summary link(s) for this query.
+	PerformanceSummaryLinks []*ShardPerformanceSummaryLink `protobuf:"bytes,2,rep,name=performance_summary_links,json=performanceSummaryLinks,proto3" json:"performance_summary_links,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *GetSqlQuerySignedUrlsResponse) Reset() {
@@ -688,11 +690,18 @@ func (x *GetSqlQuerySignedUrlsResponse) GetSignedResultUrls() []string {
 	return nil
 }
 
+func (x *GetSqlQuerySignedUrlsResponse) GetPerformanceSummaryLinks() []*ShardPerformanceSummaryLink {
+	if x != nil {
+		return x.PerformanceSummaryLinks
+	}
+	return nil
+}
+
 var File_chalk_server_v1_sql_queries_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/sql_queries.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbb\a\n" +
+	"!chalk/server/v1/sql_queries.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/server/v1/datasets.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbb\a\n" +
 	"\bSqlQuery\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\bagent_id\x18\x02 \x01(\tH\x00R\aagentId\x88\x01\x01\x12%\n" +
@@ -775,9 +784,10 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\r_logical_planB\x10\n" +
 	"\x0e_physical_plan\"9\n" +
 	"\x1cGetSqlQuerySignedUrlsRequest\x12\x19\n" +
-	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"M\n" +
+	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"\xb7\x01\n" +
 	"\x1dGetSqlQuerySignedUrlsResponse\x12,\n" +
-	"\x12signed_result_urls\x18\x01 \x03(\tR\x10signedResultUrls2\xce\x03\n" +
+	"\x12signed_result_urls\x18\x01 \x03(\tR\x10signedResultUrls\x12h\n" +
+	"\x19performance_summary_links\x18\x02 \x03(\v2,.chalk.server.v1.ShardPerformanceSummaryLinkR\x17performanceSummaryLinks2\xce\x03\n" +
 	"\x11SqlQueriesService\x12i\n" +
 	"\x0eListSqlQueries\x12&.chalk.server.v1.ListSqlQueriesRequest\x1a'.chalk.server.v1.ListSqlQueriesResponse\"\x06\x80}\x03\x90\x02\x01\x12`\n" +
 	"\vGetSqlQuery\x12#.chalk.server.v1.GetSqlQueryRequest\x1a$.chalk.server.v1.GetSqlQueryResponse\"\x06\x80}\x03\x90\x02\x01\x12l\n" +
@@ -809,26 +819,28 @@ var file_chalk_server_v1_sql_queries_proto_goTypes = []any{
 	(*GetSqlQuerySignedUrlsRequest)(nil),  // 7: chalk.server.v1.GetSqlQuerySignedUrlsRequest
 	(*GetSqlQuerySignedUrlsResponse)(nil), // 8: chalk.server.v1.GetSqlQuerySignedUrlsResponse
 	(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
+	(*ShardPerformanceSummaryLink)(nil),   // 10: chalk.server.v1.ShardPerformanceSummaryLink
 }
 var file_chalk_server_v1_sql_queries_proto_depIdxs = []int32{
-	9, // 0: chalk.server.v1.SqlQuery.created_at:type_name -> google.protobuf.Timestamp
-	9, // 1: chalk.server.v1.ListSqlQueriesRequest.start:type_name -> google.protobuf.Timestamp
-	9, // 2: chalk.server.v1.ListSqlQueriesRequest.end:type_name -> google.protobuf.Timestamp
-	0, // 3: chalk.server.v1.ListSqlQueriesResponse.queries:type_name -> chalk.server.v1.SqlQuery
-	0, // 4: chalk.server.v1.GetSqlQueryResponse.query:type_name -> chalk.server.v1.SqlQuery
-	1, // 5: chalk.server.v1.SqlQueriesService.ListSqlQueries:input_type -> chalk.server.v1.ListSqlQueriesRequest
-	3, // 6: chalk.server.v1.SqlQueriesService.GetSqlQuery:input_type -> chalk.server.v1.GetSqlQueryRequest
-	5, // 7: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:input_type -> chalk.server.v1.GetSqlQueryPlanRequest
-	7, // 8: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:input_type -> chalk.server.v1.GetSqlQuerySignedUrlsRequest
-	2, // 9: chalk.server.v1.SqlQueriesService.ListSqlQueries:output_type -> chalk.server.v1.ListSqlQueriesResponse
-	4, // 10: chalk.server.v1.SqlQueriesService.GetSqlQuery:output_type -> chalk.server.v1.GetSqlQueryResponse
-	6, // 11: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:output_type -> chalk.server.v1.GetSqlQueryPlanResponse
-	8, // 12: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:output_type -> chalk.server.v1.GetSqlQuerySignedUrlsResponse
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	9,  // 0: chalk.server.v1.SqlQuery.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 1: chalk.server.v1.ListSqlQueriesRequest.start:type_name -> google.protobuf.Timestamp
+	9,  // 2: chalk.server.v1.ListSqlQueriesRequest.end:type_name -> google.protobuf.Timestamp
+	0,  // 3: chalk.server.v1.ListSqlQueriesResponse.queries:type_name -> chalk.server.v1.SqlQuery
+	0,  // 4: chalk.server.v1.GetSqlQueryResponse.query:type_name -> chalk.server.v1.SqlQuery
+	10, // 5: chalk.server.v1.GetSqlQuerySignedUrlsResponse.performance_summary_links:type_name -> chalk.server.v1.ShardPerformanceSummaryLink
+	1,  // 6: chalk.server.v1.SqlQueriesService.ListSqlQueries:input_type -> chalk.server.v1.ListSqlQueriesRequest
+	3,  // 7: chalk.server.v1.SqlQueriesService.GetSqlQuery:input_type -> chalk.server.v1.GetSqlQueryRequest
+	5,  // 8: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:input_type -> chalk.server.v1.GetSqlQueryPlanRequest
+	7,  // 9: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:input_type -> chalk.server.v1.GetSqlQuerySignedUrlsRequest
+	2,  // 10: chalk.server.v1.SqlQueriesService.ListSqlQueries:output_type -> chalk.server.v1.ListSqlQueriesResponse
+	4,  // 11: chalk.server.v1.SqlQueriesService.GetSqlQuery:output_type -> chalk.server.v1.GetSqlQueryResponse
+	6,  // 12: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:output_type -> chalk.server.v1.GetSqlQueryPlanResponse
+	8,  // 13: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:output_type -> chalk.server.v1.GetSqlQuerySignedUrlsResponse
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_sql_queries_proto_init() }
@@ -836,6 +848,7 @@ func file_chalk_server_v1_sql_queries_proto_init() {
 	if File_chalk_server_v1_sql_queries_proto != nil {
 		return
 	}
+	file_chalk_server_v1_datasets_proto_init()
 	file_chalk_server_v1_sql_queries_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_sql_queries_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_sql_queries_proto_msgTypes[2].OneofWrappers = []any{}

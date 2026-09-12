@@ -8,6 +8,7 @@ package routerv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -412,18 +413,21 @@ func (x *UsageSnapshot) GetRequestCount() uint64 {
 }
 
 type ApiKey struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	KeyHash          string                 `protobuf:"bytes,1,opt,name=key_hash,json=keyHash,proto3" json:"key_hash,omitempty"`
-	Description      string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	Permission       *ApiKeyPermission      `protobuf:"bytes,4,opt,name=permission,proto3" json:"permission,omitempty"`
-	Labels           map[string]string      `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Usage            *UsageSnapshot         `protobuf:"bytes,6,opt,name=usage,proto3" json:"usage,omitempty"`
-	DailyTokenBudget *uint64                `protobuf:"varint,7,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	KeyHash     string                 `protobuf:"bytes,1,opt,name=key_hash,json=keyHash,proto3" json:"key_hash,omitempty"`
+	Description string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Permission  *ApiKeyPermission      `protobuf:"bytes,4,opt,name=permission,proto3" json:"permission,omitempty"`
+	Labels      map[string]string      `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Usage       *UsageSnapshot         `protobuf:"bytes,6,opt,name=usage,proto3" json:"usage,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
-	CostTags      map[string]string `protobuf:"bytes,8,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	UsagePoolId   *string           `protobuf:"bytes,9,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
-	KeyPrefix     string            `protobuf:"bytes,10,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"`
+	DailyTokenBudget *uint64 `protobuf:"varint,7,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
+	CostTags      map[string]string  `protobuf:"bytes,8,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	UsagePoolId   *string            `protobuf:"bytes,9,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	KeyPrefix     string             `protobuf:"bytes,10,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"`
+	RateLimits    []*ApiKeyRateLimit `protobuf:"bytes,11,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	UsageBudgets  []*UsageBudget     `protobuf:"bytes,12,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -500,6 +504,7 @@ func (x *ApiKey) GetUsage() *UsageSnapshot {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
 func (x *ApiKey) GetDailyTokenBudget() uint64 {
 	if x != nil && x.DailyTokenBudget != nil {
 		return *x.DailyTokenBudget
@@ -529,15 +534,32 @@ func (x *ApiKey) GetKeyPrefix() string {
 	return ""
 }
 
+func (x *ApiKey) GetRateLimits() []*ApiKeyRateLimit {
+	if x != nil {
+		return x.RateLimits
+	}
+	return nil
+}
+
+func (x *ApiKey) GetUsageBudgets() []*UsageBudget {
+	if x != nil {
+		return x.UsageBudgets
+	}
+	return nil
+}
+
 type CreateKeyRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Description      string                 `protobuf:"bytes,1,opt,name=description,proto3" json:"description,omitempty"`
-	Permission       *ApiKeyPermission      `protobuf:"bytes,2,opt,name=permission,proto3" json:"permission,omitempty"`
-	Labels           map[string]string      `protobuf:"bytes,3,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	DailyTokenBudget *uint64                `protobuf:"varint,4,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Description string                 `protobuf:"bytes,1,opt,name=description,proto3" json:"description,omitempty"`
+	Permission  *ApiKeyPermission      `protobuf:"bytes,2,opt,name=permission,proto3" json:"permission,omitempty"`
+	Labels      map[string]string      `protobuf:"bytes,3,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
-	CostTags      map[string]string `protobuf:"bytes,5,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	UsagePoolId   *string           `protobuf:"bytes,6,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	DailyTokenBudget *uint64 `protobuf:"varint,4,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
+	CostTags      map[string]string  `protobuf:"bytes,5,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	UsagePoolId   *string            `protobuf:"bytes,6,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	RateLimits    []*ApiKeyRateLimit `protobuf:"bytes,7,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	UsageBudgets  []*UsageBudgetSpec `protobuf:"bytes,8,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -593,6 +615,7 @@ func (x *CreateKeyRequest) GetLabels() map[string]string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
 func (x *CreateKeyRequest) GetDailyTokenBudget() uint64 {
 	if x != nil && x.DailyTokenBudget != nil {
 		return *x.DailyTokenBudget
@@ -613,6 +636,20 @@ func (x *CreateKeyRequest) GetUsagePoolId() string {
 		return *x.UsagePoolId
 	}
 	return ""
+}
+
+func (x *CreateKeyRequest) GetRateLimits() []*ApiKeyRateLimit {
+	if x != nil {
+		return x.RateLimits
+	}
+	return nil
+}
+
+func (x *CreateKeyRequest) GetUsageBudgets() []*UsageBudgetSpec {
+	if x != nil {
+		return x.UsageBudgets
+	}
+	return nil
 }
 
 type CreateKeyResponse struct {
@@ -772,13 +809,16 @@ func (x *ListKeysResponse) GetNextCursor() string {
 }
 
 type UpdateKeyOperation struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Description      *string                `protobuf:"bytes,1,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	DailyTokenBudget *uint64                `protobuf:"varint,2,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
-	UsagePoolId      *string                `protobuf:"bytes,3,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Description *string                `protobuf:"bytes,1,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
-	CostTags      map[string]string `protobuf:"bytes,4,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Permission    *ApiKeyPermission `protobuf:"bytes,5,opt,name=permission,proto3,oneof" json:"permission,omitempty"`
+	DailyTokenBudget *uint64 `protobuf:"varint,2,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
+	UsagePoolId      *string `protobuf:"bytes,3,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
+	CostTags      map[string]string  `protobuf:"bytes,4,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Permission    *ApiKeyPermission  `protobuf:"bytes,5,opt,name=permission,proto3,oneof" json:"permission,omitempty"`
+	RateLimits    []*ApiKeyRateLimit `protobuf:"bytes,6,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	UsageBudgets  []*UsageBudgetSpec `protobuf:"bytes,7,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -820,6 +860,7 @@ func (x *UpdateKeyOperation) GetDescription() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
 func (x *UpdateKeyOperation) GetDailyTokenBudget() uint64 {
 	if x != nil && x.DailyTokenBudget != nil {
 		return *x.DailyTokenBudget
@@ -845,6 +886,20 @@ func (x *UpdateKeyOperation) GetCostTags() map[string]string {
 func (x *UpdateKeyOperation) GetPermission() *ApiKeyPermission {
 	if x != nil {
 		return x.Permission
+	}
+	return nil
+}
+
+func (x *UpdateKeyOperation) GetRateLimits() []*ApiKeyRateLimit {
+	if x != nil {
+		return x.RateLimits
+	}
+	return nil
+}
+
+func (x *UpdateKeyOperation) GetUsageBudgets() []*UsageBudgetSpec {
+	if x != nil {
+		return x.UsageBudgets
 	}
 	return nil
 }
@@ -1467,7 +1522,7 @@ var File_chalk_router_v1_api_key_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\n" +
-	"\x1dchalk/router/v1/api_key.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc8\x01\n" +
+	"\x1dchalk/router/v1/api_key.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a chalk/router/v1/rate_limit.proto\x1a\"chalk/router/v1/usage_budget.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc8\x01\n" +
 	"\vCachePolicy\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x121\n" +
 	"\x05scope\x18\x02 \x01(\x0e2\x1b.chalk.router.v1.CacheScopeR\x05scope\x12\x1e\n" +
@@ -1496,7 +1551,7 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\rprompt_tokens\x18\x01 \x01(\x04R\fpromptTokens\x12+\n" +
 	"\x11completion_tokens\x18\x02 \x01(\x04R\x10completionTokens\x12!\n" +
 	"\ftotal_tokens\x18\x03 \x01(\x04R\vtotalTokens\x12#\n" +
-	"\rrequest_count\x18\x04 \x01(\x04R\frequestCount\"\x9a\x05\n" +
+	"\rrequest_count\x18\x04 \x01(\x04R\frequestCount\"\xa4\x06\n" +
 	"\x06ApiKey\x12\x19\n" +
 	"\bkey_hash\x18\x01 \x01(\tR\akeyHash\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x129\n" +
@@ -1506,13 +1561,16 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"permission\x18\x04 \x01(\v2!.chalk.router.v1.ApiKeyPermissionR\n" +
 	"permission\x12;\n" +
 	"\x06labels\x18\x05 \x03(\v2#.chalk.router.v1.ApiKey.LabelsEntryR\x06labels\x124\n" +
-	"\x05usage\x18\x06 \x01(\v2\x1e.chalk.router.v1.UsageSnapshotR\x05usage\x121\n" +
-	"\x12daily_token_budget\x18\a \x01(\x04H\x00R\x10dailyTokenBudget\x88\x01\x01\x12F\n" +
+	"\x05usage\x18\x06 \x01(\v2\x1e.chalk.router.v1.UsageSnapshotR\x05usage\x125\n" +
+	"\x12daily_token_budget\x18\a \x01(\x04B\x02\x18\x01H\x00R\x10dailyTokenBudget\x88\x01\x01\x12F\n" +
 	"\tcost_tags\x18\b \x03(\v2%.chalk.router.v1.ApiKey.CostTagsEntryB\x02\x18\x01R\bcostTags\x12'\n" +
 	"\rusage_pool_id\x18\t \x01(\tH\x01R\vusagePoolId\x88\x01\x01\x12\x1d\n" +
 	"\n" +
 	"key_prefix\x18\n" +
-	" \x01(\tR\tkeyPrefix\x1a9\n" +
+	" \x01(\tR\tkeyPrefix\x12A\n" +
+	"\vrate_limits\x18\v \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
+	"rateLimits\x12A\n" +
+	"\rusage_budgets\x18\f \x03(\v2\x1c.chalk.router.v1.UsageBudgetR\fusageBudgets\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
@@ -1520,16 +1578,19 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
 	"\x13_daily_token_budgetB\x10\n" +
-	"\x0e_usage_pool_id\"\x8d\x04\n" +
+	"\x0e_usage_pool_id\"\x9b\x05\n" +
 	"\x10CreateKeyRequest\x12 \n" +
 	"\vdescription\x18\x01 \x01(\tR\vdescription\x12A\n" +
 	"\n" +
 	"permission\x18\x02 \x01(\v2!.chalk.router.v1.ApiKeyPermissionR\n" +
 	"permission\x12E\n" +
-	"\x06labels\x18\x03 \x03(\v2-.chalk.router.v1.CreateKeyRequest.LabelsEntryR\x06labels\x121\n" +
-	"\x12daily_token_budget\x18\x04 \x01(\x04H\x00R\x10dailyTokenBudget\x88\x01\x01\x12P\n" +
+	"\x06labels\x18\x03 \x03(\v2-.chalk.router.v1.CreateKeyRequest.LabelsEntryR\x06labels\x125\n" +
+	"\x12daily_token_budget\x18\x04 \x01(\x04B\x02\x18\x01H\x00R\x10dailyTokenBudget\x88\x01\x01\x12P\n" +
 	"\tcost_tags\x18\x05 \x03(\v2/.chalk.router.v1.CreateKeyRequest.CostTagsEntryB\x02\x18\x01R\bcostTags\x12'\n" +
-	"\rusage_pool_id\x18\x06 \x01(\tH\x01R\vusagePoolId\x88\x01\x01\x1a9\n" +
+	"\rusage_pool_id\x18\x06 \x01(\tH\x01R\vusagePoolId\x88\x01\x01\x12A\n" +
+	"\vrate_limits\x18\a \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
+	"rateLimits\x12E\n" +
+	"\rusage_budgets\x18\b \x03(\v2 .chalk.router.v1.UsageBudgetSpecR\fusageBudgets\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
@@ -1550,15 +1611,18 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x04keys\x18\x01 \x03(\v2\x17.chalk.router.v1.ApiKeyR\x04keys\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\xb8\x03\n" +
+	"\f_next_cursor\"\xc6\x04\n" +
 	"\x12UpdateKeyOperation\x12%\n" +
-	"\vdescription\x18\x01 \x01(\tH\x00R\vdescription\x88\x01\x01\x121\n" +
-	"\x12daily_token_budget\x18\x02 \x01(\x04H\x01R\x10dailyTokenBudget\x88\x01\x01\x12'\n" +
+	"\vdescription\x18\x01 \x01(\tH\x00R\vdescription\x88\x01\x01\x125\n" +
+	"\x12daily_token_budget\x18\x02 \x01(\x04B\x02\x18\x01H\x01R\x10dailyTokenBudget\x88\x01\x01\x12'\n" +
 	"\rusage_pool_id\x18\x03 \x01(\tH\x02R\vusagePoolId\x88\x01\x01\x12R\n" +
 	"\tcost_tags\x18\x04 \x03(\v21.chalk.router.v1.UpdateKeyOperation.CostTagsEntryB\x02\x18\x01R\bcostTags\x12F\n" +
 	"\n" +
 	"permission\x18\x05 \x01(\v2!.chalk.router.v1.ApiKeyPermissionH\x03R\n" +
-	"permission\x88\x01\x01\x1a;\n" +
+	"permission\x88\x01\x01\x12A\n" +
+	"\vrate_limits\x18\x06 \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
+	"rateLimits\x12E\n" +
+	"\rusage_budgets\x18\a \x03(\v2 .chalk.router.v1.UsageBudgetSpecR\fusageBudgets\x1a;\n" +
 	"\rCostTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
@@ -1620,16 +1684,17 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x18USAGE_SOURCE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15USAGE_SOURCE_REPORTED\x10\x01\x12\x1a\n" +
 	"\x16USAGE_SOURCE_ESTIMATED\x10\x02\x12\x1f\n" +
-	"\x1bUSAGE_SOURCE_LEGACY_UNKNOWN\x10\x032\xae\x05\n" +
-	"\rApiKeyService\x12W\n" +
-	"\tCreateKey\x12!.chalk.router.v1.CreateKeyRequest\x1a\".chalk.router.v1.CreateKeyResponse\"\x03\x80}\x02\x12W\n" +
+	"\x1bUSAGE_SOURCE_LEGACY_UNKNOWN\x10\x032\xeb\x05\n" +
+	"\rApiKeyService\x12\x93\x01\n" +
+	"\tCreateKey\x12!.chalk.router.v1.CreateKeyRequest\x1a\".chalk.router.v1.CreateKeyResponse\"?\x80}\x02\x92\xd3\x0e8\n" +
+	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12W\n" +
 	"\bListKeys\x12 .chalk.router.v1.ListKeysRequest\x1a!.chalk.router.v1.ListKeysResponse\"\x06\x80}\x02\x90\x02\x01\x12W\n" +
 	"\tUpdateKey\x12!.chalk.router.v1.UpdateKeyRequest\x1a\".chalk.router.v1.UpdateKeyResponse\"\x03\x80}\x02\x12W\n" +
 	"\tRevokeKey\x12!.chalk.router.v1.RevokeKeyRequest\x1a\".chalk.router.v1.RevokeKeyResponse\"\x03\x80}\x02\x12`\n" +
 	"\vGetKeyUsage\x12#.chalk.router.v1.GetKeyUsageRequest\x1a$.chalk.router.v1.GetKeyUsageResponse\"\x06\x80}\x02\x90\x02\x01\x12c\n" +
 	"\fListAllUsage\x12$.chalk.router.v1.ListAllUsageRequest\x1a%.chalk.router.v1.ListAllUsageResponse\"\x06\x80}\x02\x90\x02\x01\x12r\n" +
 	"\x11GetUsageHistogram\x12).chalk.router.v1.GetUsageHistogramRequest\x1a*.chalk.router.v1.GetUsageHistogramResponse\"\x06\x80}\x02\x90\x02\x01B\xbb\x01\n" +
-	"\x13com.chalk.router.v1B\vApiKeyProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
+	"\x13com.chalk.router.v1B\vApiKeyProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1P\x02b\x06proto3"
 
 var (
 	file_chalk_router_v1_api_key_proto_rawDescOnce sync.Once
@@ -1675,7 +1740,10 @@ var file_chalk_router_v1_api_key_proto_goTypes = []any{
 	nil,                               // 26: chalk.router.v1.CreateKeyRequest.CostTagsEntry
 	nil,                               // 27: chalk.router.v1.UpdateKeyOperation.CostTagsEntry
 	(*timestamppb.Timestamp)(nil),     // 28: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),     // 29: google.protobuf.FieldMask
+	(*ApiKeyRateLimit)(nil),           // 29: chalk.router.v1.ApiKeyRateLimit
+	(*UsageBudget)(nil),               // 30: chalk.router.v1.UsageBudget
+	(*UsageBudgetSpec)(nil),           // 31: chalk.router.v1.UsageBudgetSpec
+	(*fieldmaskpb.FieldMask)(nil),     // 32: google.protobuf.FieldMask
 }
 var file_chalk_router_v1_api_key_proto_depIdxs = []int32{
 	0,  // 0: chalk.router.v1.CachePolicy.scope:type_name -> chalk.router.v1.CacheScope
@@ -1686,41 +1754,47 @@ var file_chalk_router_v1_api_key_proto_depIdxs = []int32{
 	23, // 5: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
 	5,  // 6: chalk.router.v1.ApiKey.usage:type_name -> chalk.router.v1.UsageSnapshot
 	24, // 7: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
-	4,  // 8: chalk.router.v1.CreateKeyRequest.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	25, // 9: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
-	26, // 10: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
-	6,  // 11: chalk.router.v1.CreateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
-	6,  // 12: chalk.router.v1.ListKeysResponse.keys:type_name -> chalk.router.v1.ApiKey
-	27, // 13: chalk.router.v1.UpdateKeyOperation.cost_tags:type_name -> chalk.router.v1.UpdateKeyOperation.CostTagsEntry
-	4,  // 14: chalk.router.v1.UpdateKeyOperation.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	11, // 15: chalk.router.v1.UpdateKeyRequest.update:type_name -> chalk.router.v1.UpdateKeyOperation
-	29, // 16: chalk.router.v1.UpdateKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	6,  // 17: chalk.router.v1.UpdateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
-	5,  // 18: chalk.router.v1.GetKeyUsageResponse.usage:type_name -> chalk.router.v1.UsageSnapshot
-	17, // 19: chalk.router.v1.ListAllUsageResponse.keys:type_name -> chalk.router.v1.GetKeyUsageResponse
-	28, // 20: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
-	28, // 21: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
-	28, // 22: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
-	21, // 23: chalk.router.v1.GetUsageHistogramResponse.rows:type_name -> chalk.router.v1.UsageHistogramRow
-	7,  // 24: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
-	9,  // 25: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
-	12, // 26: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
-	14, // 27: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
-	16, // 28: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
-	18, // 29: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
-	20, // 30: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
-	8,  // 31: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
-	10, // 32: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
-	13, // 33: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
-	15, // 34: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
-	17, // 35: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
-	19, // 36: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
-	22, // 37: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
-	31, // [31:38] is the sub-list for method output_type
-	24, // [24:31] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	29, // 8: chalk.router.v1.ApiKey.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	30, // 9: chalk.router.v1.ApiKey.usage_budgets:type_name -> chalk.router.v1.UsageBudget
+	4,  // 10: chalk.router.v1.CreateKeyRequest.permission:type_name -> chalk.router.v1.ApiKeyPermission
+	25, // 11: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
+	26, // 12: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	29, // 13: chalk.router.v1.CreateKeyRequest.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	31, // 14: chalk.router.v1.CreateKeyRequest.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
+	6,  // 15: chalk.router.v1.CreateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
+	6,  // 16: chalk.router.v1.ListKeysResponse.keys:type_name -> chalk.router.v1.ApiKey
+	27, // 17: chalk.router.v1.UpdateKeyOperation.cost_tags:type_name -> chalk.router.v1.UpdateKeyOperation.CostTagsEntry
+	4,  // 18: chalk.router.v1.UpdateKeyOperation.permission:type_name -> chalk.router.v1.ApiKeyPermission
+	29, // 19: chalk.router.v1.UpdateKeyOperation.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	31, // 20: chalk.router.v1.UpdateKeyOperation.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
+	11, // 21: chalk.router.v1.UpdateKeyRequest.update:type_name -> chalk.router.v1.UpdateKeyOperation
+	32, // 22: chalk.router.v1.UpdateKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	6,  // 23: chalk.router.v1.UpdateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
+	5,  // 24: chalk.router.v1.GetKeyUsageResponse.usage:type_name -> chalk.router.v1.UsageSnapshot
+	17, // 25: chalk.router.v1.ListAllUsageResponse.keys:type_name -> chalk.router.v1.GetKeyUsageResponse
+	28, // 26: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
+	28, // 27: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
+	28, // 28: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
+	21, // 29: chalk.router.v1.GetUsageHistogramResponse.rows:type_name -> chalk.router.v1.UsageHistogramRow
+	7,  // 30: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
+	9,  // 31: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
+	12, // 32: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
+	14, // 33: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
+	16, // 34: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
+	18, // 35: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
+	20, // 36: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
+	8,  // 37: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
+	10, // 38: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
+	13, // 39: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
+	15, // 40: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
+	17, // 41: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
+	19, // 42: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
+	22, // 43: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
+	37, // [37:44] is the sub-list for method output_type
+	30, // [30:37] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_api_key_proto_init() }
@@ -1728,6 +1802,8 @@ func file_chalk_router_v1_api_key_proto_init() {
 	if File_chalk_router_v1_api_key_proto != nil {
 		return
 	}
+	file_chalk_router_v1_rate_limit_proto_init()
+	file_chalk_router_v1_usage_budget_proto_init()
 	file_chalk_router_v1_api_key_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_router_v1_api_key_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_router_v1_api_key_proto_msgTypes[4].OneofWrappers = []any{}

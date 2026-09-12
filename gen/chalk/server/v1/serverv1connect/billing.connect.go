@@ -42,6 +42,9 @@ const (
 	// BillingServicePublishNodeUsageProcedure is the fully-qualified name of the BillingService's
 	// PublishNodeUsage RPC.
 	BillingServicePublishNodeUsageProcedure = "/chalk.server.v1.BillingService/PublishNodeUsage"
+	// BillingServicePublishPodUsageProcedure is the fully-qualified name of the BillingService's
+	// PublishPodUsage RPC.
+	BillingServicePublishPodUsageProcedure = "/chalk.server.v1.BillingService/PublishPodUsage"
 	// BillingServiceGetUsageChartProcedure is the fully-qualified name of the BillingService's
 	// GetUsageChart RPC.
 	BillingServiceGetUsageChartProcedure = "/chalk.server.v1.BillingService/GetUsageChart"
@@ -63,6 +66,9 @@ const (
 	// BillingServiceGetInstanceUsageProcedure is the fully-qualified name of the BillingService's
 	// GetInstanceUsage RPC.
 	BillingServiceGetInstanceUsageProcedure = "/chalk.server.v1.BillingService/GetInstanceUsage"
+	// BillingServiceGetMaterializedFeatureViewUsageProcedure is the fully-qualified name of the
+	// BillingService's GetMaterializedFeatureViewUsage RPC.
+	BillingServiceGetMaterializedFeatureViewUsageProcedure = "/chalk.server.v1.BillingService/GetMaterializedFeatureViewUsage"
 	// BillingServiceGetPodTimeRangesProcedure is the fully-qualified name of the BillingService's
 	// GetPodTimeRanges RPC.
 	BillingServiceGetPodTimeRangesProcedure = "/chalk.server.v1.BillingService/GetPodTimeRanges"
@@ -94,6 +100,8 @@ type BillingServiceClient interface {
 	GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error)
 	// PublishNodeUsage republishes node usage messages to the billing Pub/Sub topic.
 	PublishNodeUsage(context.Context, *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error)
+	// PublishPodUsage republishes pod usage messages to the billing Pub/Sub topic.
+	PublishPodUsage(context.Context, *connect.Request[v1.PublishPodUsageRequest]) (*connect.Response[v1.PublishPodUsageResponse], error)
 	// GetUsageChart shows the Chalk credit usage between a provided start and
 	// end period. The usage can be grouped by UsageChartPeriod for daily or
 	// monthly usage, and by UsageChartGrouping for instance type or cluster usage.
@@ -108,6 +116,8 @@ type BillingServiceClient interface {
 	// GetCreditBundles returns the available credit bundles for purchase
 	GetCreditBundles(context.Context, *connect.Request[v1.GetCreditBundlesRequest]) (*connect.Response[v1.GetCreditBundlesResponse], error)
 	GetInstanceUsage(context.Context, *connect.Request[v1.GetInstanceUsageRequest]) (*connect.Response[v1.GetInstanceUsageResponse], error)
+	// Internal attribution of compute used by materialized feature view work.
+	GetMaterializedFeatureViewUsage(context.Context, *connect.Request[v1.GetMaterializedFeatureViewUsageRequest]) (*connect.Response[v1.GetMaterializedFeatureViewUsageResponse], error)
 	// GetPodTimeRanges returns the earliest and latest observed timestamps
 	// for a list of pods from the usage data.
 	GetPodTimeRanges(context.Context, *connect.Request[v1.GetPodTimeRangesRequest]) (*connect.Response[v1.GetPodTimeRangesResponse], error)
@@ -155,6 +165,12 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BillingServicePublishNodeUsageProcedure,
 			connect.WithSchema(billingServiceMethods.ByName("PublishNodeUsage")),
+			connect.WithClientOptions(opts...),
+		),
+		publishPodUsage: connect.NewClient[v1.PublishPodUsageRequest, v1.PublishPodUsageResponse](
+			httpClient,
+			baseURL+BillingServicePublishPodUsageProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("PublishPodUsage")),
 			connect.WithClientOptions(opts...),
 		),
 		getUsageChart: connect.NewClient[v1.GetUsageChartRequest, v1.GetUsageChartResponse](
@@ -206,6 +222,13 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getMaterializedFeatureViewUsage: connect.NewClient[v1.GetMaterializedFeatureViewUsageRequest, v1.GetMaterializedFeatureViewUsageResponse](
+			httpClient,
+			baseURL+BillingServiceGetMaterializedFeatureViewUsageProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetMaterializedFeatureViewUsage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getPodTimeRanges: connect.NewClient[v1.GetPodTimeRangesRequest, v1.GetPodTimeRangesResponse](
 			httpClient,
 			baseURL+BillingServiceGetPodTimeRangesProcedure,
@@ -246,21 +269,23 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 
 // billingServiceClient implements BillingServiceClient.
 type billingServiceClient struct {
-	getNodesAndPodsUI             *connect.Client[v1.GetNodesAndPodsUIRequest, v1.GetNodesAndPodsUIResponse]
-	getNodesAndPods               *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
-	publishNodeUsage              *connect.Client[v1.PublishNodeUsageRequest, v1.PublishNodeUsageResponse]
-	getUsageChart                 *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
-	getUtilizationRates           *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
-	getAvailableInstanceTypes     *connect.Client[v1.GetAvailableInstanceTypesRequest, v1.GetAvailableInstanceTypesResponse]
-	getPodRequestCharts           *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
-	syncUtilization               *connect.Client[v1.SyncUtilizationRequest, v1.SyncUtilizationResponse]
-	getCreditBundles              *connect.Client[v1.GetCreditBundlesRequest, v1.GetCreditBundlesResponse]
-	getInstanceUsage              *connect.Client[v1.GetInstanceUsageRequest, v1.GetInstanceUsageResponse]
-	getPodTimeRanges              *connect.Client[v1.GetPodTimeRangesRequest, v1.GetPodTimeRangesResponse]
-	getNodeTimeRanges             *connect.Client[v1.GetNodeTimeRangesRequest, v1.GetNodeTimeRangesResponse]
-	getNodeDetail                 *connect.Client[v1.GetNodeDetailRequest, v1.GetNodeDetailResponse]
-	getResourceGroupServiceDetail *connect.Client[v1.GetResourceGroupServiceDetailRequest, v1.GetResourceGroupServiceDetailResponse]
-	checkSelfHostedLicense        *connect.Client[v1.CheckSelfHostedLicenseRequest, v1.CheckSelfHostedLicenseResponse]
+	getNodesAndPodsUI               *connect.Client[v1.GetNodesAndPodsUIRequest, v1.GetNodesAndPodsUIResponse]
+	getNodesAndPods                 *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
+	publishNodeUsage                *connect.Client[v1.PublishNodeUsageRequest, v1.PublishNodeUsageResponse]
+	publishPodUsage                 *connect.Client[v1.PublishPodUsageRequest, v1.PublishPodUsageResponse]
+	getUsageChart                   *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
+	getUtilizationRates             *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
+	getAvailableInstanceTypes       *connect.Client[v1.GetAvailableInstanceTypesRequest, v1.GetAvailableInstanceTypesResponse]
+	getPodRequestCharts             *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
+	syncUtilization                 *connect.Client[v1.SyncUtilizationRequest, v1.SyncUtilizationResponse]
+	getCreditBundles                *connect.Client[v1.GetCreditBundlesRequest, v1.GetCreditBundlesResponse]
+	getInstanceUsage                *connect.Client[v1.GetInstanceUsageRequest, v1.GetInstanceUsageResponse]
+	getMaterializedFeatureViewUsage *connect.Client[v1.GetMaterializedFeatureViewUsageRequest, v1.GetMaterializedFeatureViewUsageResponse]
+	getPodTimeRanges                *connect.Client[v1.GetPodTimeRangesRequest, v1.GetPodTimeRangesResponse]
+	getNodeTimeRanges               *connect.Client[v1.GetNodeTimeRangesRequest, v1.GetNodeTimeRangesResponse]
+	getNodeDetail                   *connect.Client[v1.GetNodeDetailRequest, v1.GetNodeDetailResponse]
+	getResourceGroupServiceDetail   *connect.Client[v1.GetResourceGroupServiceDetailRequest, v1.GetResourceGroupServiceDetailResponse]
+	checkSelfHostedLicense          *connect.Client[v1.CheckSelfHostedLicenseRequest, v1.CheckSelfHostedLicenseResponse]
 }
 
 // GetNodesAndPodsUI calls chalk.server.v1.BillingService.GetNodesAndPodsUI.
@@ -276,6 +301,11 @@ func (c *billingServiceClient) GetNodesAndPods(ctx context.Context, req *connect
 // PublishNodeUsage calls chalk.server.v1.BillingService.PublishNodeUsage.
 func (c *billingServiceClient) PublishNodeUsage(ctx context.Context, req *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error) {
 	return c.publishNodeUsage.CallUnary(ctx, req)
+}
+
+// PublishPodUsage calls chalk.server.v1.BillingService.PublishPodUsage.
+func (c *billingServiceClient) PublishPodUsage(ctx context.Context, req *connect.Request[v1.PublishPodUsageRequest]) (*connect.Response[v1.PublishPodUsageResponse], error) {
+	return c.publishPodUsage.CallUnary(ctx, req)
 }
 
 // GetUsageChart calls chalk.server.v1.BillingService.GetUsageChart.
@@ -311,6 +341,12 @@ func (c *billingServiceClient) GetCreditBundles(ctx context.Context, req *connec
 // GetInstanceUsage calls chalk.server.v1.BillingService.GetInstanceUsage.
 func (c *billingServiceClient) GetInstanceUsage(ctx context.Context, req *connect.Request[v1.GetInstanceUsageRequest]) (*connect.Response[v1.GetInstanceUsageResponse], error) {
 	return c.getInstanceUsage.CallUnary(ctx, req)
+}
+
+// GetMaterializedFeatureViewUsage calls
+// chalk.server.v1.BillingService.GetMaterializedFeatureViewUsage.
+func (c *billingServiceClient) GetMaterializedFeatureViewUsage(ctx context.Context, req *connect.Request[v1.GetMaterializedFeatureViewUsageRequest]) (*connect.Response[v1.GetMaterializedFeatureViewUsageResponse], error) {
+	return c.getMaterializedFeatureViewUsage.CallUnary(ctx, req)
 }
 
 // GetPodTimeRanges calls chalk.server.v1.BillingService.GetPodTimeRanges.
@@ -352,6 +388,8 @@ type BillingServiceHandler interface {
 	GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error)
 	// PublishNodeUsage republishes node usage messages to the billing Pub/Sub topic.
 	PublishNodeUsage(context.Context, *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error)
+	// PublishPodUsage republishes pod usage messages to the billing Pub/Sub topic.
+	PublishPodUsage(context.Context, *connect.Request[v1.PublishPodUsageRequest]) (*connect.Response[v1.PublishPodUsageResponse], error)
 	// GetUsageChart shows the Chalk credit usage between a provided start and
 	// end period. The usage can be grouped by UsageChartPeriod for daily or
 	// monthly usage, and by UsageChartGrouping for instance type or cluster usage.
@@ -366,6 +404,8 @@ type BillingServiceHandler interface {
 	// GetCreditBundles returns the available credit bundles for purchase
 	GetCreditBundles(context.Context, *connect.Request[v1.GetCreditBundlesRequest]) (*connect.Response[v1.GetCreditBundlesResponse], error)
 	GetInstanceUsage(context.Context, *connect.Request[v1.GetInstanceUsageRequest]) (*connect.Response[v1.GetInstanceUsageResponse], error)
+	// Internal attribution of compute used by materialized feature view work.
+	GetMaterializedFeatureViewUsage(context.Context, *connect.Request[v1.GetMaterializedFeatureViewUsageRequest]) (*connect.Response[v1.GetMaterializedFeatureViewUsageResponse], error)
 	// GetPodTimeRanges returns the earliest and latest observed timestamps
 	// for a list of pods from the usage data.
 	GetPodTimeRanges(context.Context, *connect.Request[v1.GetPodTimeRangesRequest]) (*connect.Response[v1.GetPodTimeRangesResponse], error)
@@ -409,6 +449,12 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		BillingServicePublishNodeUsageProcedure,
 		svc.PublishNodeUsage,
 		connect.WithSchema(billingServiceMethods.ByName("PublishNodeUsage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	billingServicePublishPodUsageHandler := connect.NewUnaryHandler(
+		BillingServicePublishPodUsageProcedure,
+		svc.PublishPodUsage,
+		connect.WithSchema(billingServiceMethods.ByName("PublishPodUsage")),
 		connect.WithHandlerOptions(opts...),
 	)
 	billingServiceGetUsageChartHandler := connect.NewUnaryHandler(
@@ -460,6 +506,13 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	billingServiceGetMaterializedFeatureViewUsageHandler := connect.NewUnaryHandler(
+		BillingServiceGetMaterializedFeatureViewUsageProcedure,
+		svc.GetMaterializedFeatureViewUsage,
+		connect.WithSchema(billingServiceMethods.ByName("GetMaterializedFeatureViewUsage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	billingServiceGetPodTimeRangesHandler := connect.NewUnaryHandler(
 		BillingServiceGetPodTimeRangesProcedure,
 		svc.GetPodTimeRanges,
@@ -503,6 +556,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetNodesAndPodsHandler.ServeHTTP(w, r)
 		case BillingServicePublishNodeUsageProcedure:
 			billingServicePublishNodeUsageHandler.ServeHTTP(w, r)
+		case BillingServicePublishPodUsageProcedure:
+			billingServicePublishPodUsageHandler.ServeHTTP(w, r)
 		case BillingServiceGetUsageChartProcedure:
 			billingServiceGetUsageChartHandler.ServeHTTP(w, r)
 		case BillingServiceGetUtilizationRatesProcedure:
@@ -517,6 +572,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetCreditBundlesHandler.ServeHTTP(w, r)
 		case BillingServiceGetInstanceUsageProcedure:
 			billingServiceGetInstanceUsageHandler.ServeHTTP(w, r)
+		case BillingServiceGetMaterializedFeatureViewUsageProcedure:
+			billingServiceGetMaterializedFeatureViewUsageHandler.ServeHTTP(w, r)
 		case BillingServiceGetPodTimeRangesProcedure:
 			billingServiceGetPodTimeRangesHandler.ServeHTTP(w, r)
 		case BillingServiceGetNodeTimeRangesProcedure:
@@ -548,6 +605,10 @@ func (UnimplementedBillingServiceHandler) PublishNodeUsage(context.Context, *con
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.PublishNodeUsage is not implemented"))
 }
 
+func (UnimplementedBillingServiceHandler) PublishPodUsage(context.Context, *connect.Request[v1.PublishPodUsageRequest]) (*connect.Response[v1.PublishPodUsageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.PublishPodUsage is not implemented"))
+}
+
 func (UnimplementedBillingServiceHandler) GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetUsageChart is not implemented"))
 }
@@ -574,6 +635,10 @@ func (UnimplementedBillingServiceHandler) GetCreditBundles(context.Context, *con
 
 func (UnimplementedBillingServiceHandler) GetInstanceUsage(context.Context, *connect.Request[v1.GetInstanceUsageRequest]) (*connect.Response[v1.GetInstanceUsageResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetInstanceUsage is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetMaterializedFeatureViewUsage(context.Context, *connect.Request[v1.GetMaterializedFeatureViewUsageRequest]) (*connect.Response[v1.GetMaterializedFeatureViewUsageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetMaterializedFeatureViewUsage is not implemented"))
 }
 
 func (UnimplementedBillingServiceHandler) GetPodTimeRanges(context.Context, *connect.Request[v1.GetPodTimeRangesRequest]) (*connect.Response[v1.GetPodTimeRangesResponse], error) {

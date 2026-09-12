@@ -42,6 +42,9 @@ const (
 	// OfflineWideTablesServiceGetActiveOfflineWideTableSchedulesProcedure is the fully-qualified name
 	// of the OfflineWideTablesService's GetActiveOfflineWideTableSchedules RPC.
 	OfflineWideTablesServiceGetActiveOfflineWideTableSchedulesProcedure = "/chalk.server.v1.OfflineWideTablesService/GetActiveOfflineWideTableSchedules"
+	// OfflineWideTablesServiceGetOfflineWideTableNamespacesProcedure is the fully-qualified name of the
+	// OfflineWideTablesService's GetOfflineWideTableNamespaces RPC.
+	OfflineWideTablesServiceGetOfflineWideTableNamespacesProcedure = "/chalk.server.v1.OfflineWideTablesService/GetOfflineWideTableNamespaces"
 	// OfflineWideTablesServiceTriggerOfflineWideTableFillProcedure is the fully-qualified name of the
 	// OfflineWideTablesService's TriggerOfflineWideTableFill RPC.
 	OfflineWideTablesServiceTriggerOfflineWideTableFillProcedure = "/chalk.server.v1.OfflineWideTablesService/TriggerOfflineWideTableFill"
@@ -55,7 +58,12 @@ const (
 type OfflineWideTablesServiceClient interface {
 	ListOfflineWideTableRuns(context.Context, *connect.Request[v1.ListOfflineWideTableRunsRequest]) (*connect.Response[v1.ListOfflineWideTableRunsResponse], error)
 	GetOfflineWideTableRun(context.Context, *connect.Request[v1.GetOfflineWideTableRunRequest]) (*connect.Response[v1.GetOfflineWideTableRunResponse], error)
+	// Compatibility endpoint for schedule-centric clients. New clients should use
+	// GetOfflineWideTableNamespaces, which also returns unscheduled namespaces and compaction state.
+	//
+	// Deprecated: do not use.
 	GetActiveOfflineWideTableSchedules(context.Context, *connect.Request[v1.GetActiveOfflineWideTableSchedulesRequest]) (*connect.Response[v1.GetActiveOfflineWideTableSchedulesResponse], error)
+	GetOfflineWideTableNamespaces(context.Context, *connect.Request[v1.GetOfflineWideTableNamespacesRequest]) (*connect.Response[v1.GetOfflineWideTableNamespacesResponse], error)
 	TriggerOfflineWideTableFill(context.Context, *connect.Request[v1.TriggerOfflineWideTableFillRequest]) (*connect.Response[v1.TriggerOfflineWideTableFillResponse], error)
 	TriggerOfflineWideTableCompaction(context.Context, *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error)
 }
@@ -92,6 +100,13 @@ func NewOfflineWideTablesServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getOfflineWideTableNamespaces: connect.NewClient[v1.GetOfflineWideTableNamespacesRequest, v1.GetOfflineWideTableNamespacesResponse](
+			httpClient,
+			baseURL+OfflineWideTablesServiceGetOfflineWideTableNamespacesProcedure,
+			connect.WithSchema(offlineWideTablesServiceMethods.ByName("GetOfflineWideTableNamespaces")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		triggerOfflineWideTableFill: connect.NewClient[v1.TriggerOfflineWideTableFillRequest, v1.TriggerOfflineWideTableFillResponse](
 			httpClient,
 			baseURL+OfflineWideTablesServiceTriggerOfflineWideTableFillProcedure,
@@ -112,6 +127,7 @@ type offlineWideTablesServiceClient struct {
 	listOfflineWideTableRuns           *connect.Client[v1.ListOfflineWideTableRunsRequest, v1.ListOfflineWideTableRunsResponse]
 	getOfflineWideTableRun             *connect.Client[v1.GetOfflineWideTableRunRequest, v1.GetOfflineWideTableRunResponse]
 	getActiveOfflineWideTableSchedules *connect.Client[v1.GetActiveOfflineWideTableSchedulesRequest, v1.GetActiveOfflineWideTableSchedulesResponse]
+	getOfflineWideTableNamespaces      *connect.Client[v1.GetOfflineWideTableNamespacesRequest, v1.GetOfflineWideTableNamespacesResponse]
 	triggerOfflineWideTableFill        *connect.Client[v1.TriggerOfflineWideTableFillRequest, v1.TriggerOfflineWideTableFillResponse]
 	triggerOfflineWideTableCompaction  *connect.Client[v1.TriggerOfflineWideTableCompactionRequest, v1.TriggerOfflineWideTableCompactionResponse]
 }
@@ -128,8 +144,16 @@ func (c *offlineWideTablesServiceClient) GetOfflineWideTableRun(ctx context.Cont
 
 // GetActiveOfflineWideTableSchedules calls
 // chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules.
+//
+// Deprecated: do not use.
 func (c *offlineWideTablesServiceClient) GetActiveOfflineWideTableSchedules(ctx context.Context, req *connect.Request[v1.GetActiveOfflineWideTableSchedulesRequest]) (*connect.Response[v1.GetActiveOfflineWideTableSchedulesResponse], error) {
 	return c.getActiveOfflineWideTableSchedules.CallUnary(ctx, req)
+}
+
+// GetOfflineWideTableNamespaces calls
+// chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces.
+func (c *offlineWideTablesServiceClient) GetOfflineWideTableNamespaces(ctx context.Context, req *connect.Request[v1.GetOfflineWideTableNamespacesRequest]) (*connect.Response[v1.GetOfflineWideTableNamespacesResponse], error) {
+	return c.getOfflineWideTableNamespaces.CallUnary(ctx, req)
 }
 
 // TriggerOfflineWideTableFill calls
@@ -149,7 +173,12 @@ func (c *offlineWideTablesServiceClient) TriggerOfflineWideTableCompaction(ctx c
 type OfflineWideTablesServiceHandler interface {
 	ListOfflineWideTableRuns(context.Context, *connect.Request[v1.ListOfflineWideTableRunsRequest]) (*connect.Response[v1.ListOfflineWideTableRunsResponse], error)
 	GetOfflineWideTableRun(context.Context, *connect.Request[v1.GetOfflineWideTableRunRequest]) (*connect.Response[v1.GetOfflineWideTableRunResponse], error)
+	// Compatibility endpoint for schedule-centric clients. New clients should use
+	// GetOfflineWideTableNamespaces, which also returns unscheduled namespaces and compaction state.
+	//
+	// Deprecated: do not use.
 	GetActiveOfflineWideTableSchedules(context.Context, *connect.Request[v1.GetActiveOfflineWideTableSchedulesRequest]) (*connect.Response[v1.GetActiveOfflineWideTableSchedulesResponse], error)
+	GetOfflineWideTableNamespaces(context.Context, *connect.Request[v1.GetOfflineWideTableNamespacesRequest]) (*connect.Response[v1.GetOfflineWideTableNamespacesResponse], error)
 	TriggerOfflineWideTableFill(context.Context, *connect.Request[v1.TriggerOfflineWideTableFillRequest]) (*connect.Response[v1.TriggerOfflineWideTableFillResponse], error)
 	TriggerOfflineWideTableCompaction(context.Context, *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error)
 }
@@ -182,6 +211,13 @@ func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineWideTablesServiceGetOfflineWideTableNamespacesHandler := connect.NewUnaryHandler(
+		OfflineWideTablesServiceGetOfflineWideTableNamespacesProcedure,
+		svc.GetOfflineWideTableNamespaces,
+		connect.WithSchema(offlineWideTablesServiceMethods.ByName("GetOfflineWideTableNamespaces")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	offlineWideTablesServiceTriggerOfflineWideTableFillHandler := connect.NewUnaryHandler(
 		OfflineWideTablesServiceTriggerOfflineWideTableFillProcedure,
 		svc.TriggerOfflineWideTableFill,
@@ -202,6 +238,8 @@ func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opt
 			offlineWideTablesServiceGetOfflineWideTableRunHandler.ServeHTTP(w, r)
 		case OfflineWideTablesServiceGetActiveOfflineWideTableSchedulesProcedure:
 			offlineWideTablesServiceGetActiveOfflineWideTableSchedulesHandler.ServeHTTP(w, r)
+		case OfflineWideTablesServiceGetOfflineWideTableNamespacesProcedure:
+			offlineWideTablesServiceGetOfflineWideTableNamespacesHandler.ServeHTTP(w, r)
 		case OfflineWideTablesServiceTriggerOfflineWideTableFillProcedure:
 			offlineWideTablesServiceTriggerOfflineWideTableFillHandler.ServeHTTP(w, r)
 		case OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure:
@@ -225,6 +263,10 @@ func (UnimplementedOfflineWideTablesServiceHandler) GetOfflineWideTableRun(conte
 
 func (UnimplementedOfflineWideTablesServiceHandler) GetActiveOfflineWideTableSchedules(context.Context, *connect.Request[v1.GetActiveOfflineWideTableSchedulesRequest]) (*connect.Response[v1.GetActiveOfflineWideTableSchedulesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules is not implemented"))
+}
+
+func (UnimplementedOfflineWideTablesServiceHandler) GetOfflineWideTableNamespaces(context.Context, *connect.Request[v1.GetOfflineWideTableNamespacesRequest]) (*connect.Response[v1.GetOfflineWideTableNamespacesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces is not implemented"))
 }
 
 func (UnimplementedOfflineWideTablesServiceHandler) TriggerOfflineWideTableFill(context.Context, *connect.Request[v1.TriggerOfflineWideTableFillRequest]) (*connect.Response[v1.TriggerOfflineWideTableFillResponse], error) {

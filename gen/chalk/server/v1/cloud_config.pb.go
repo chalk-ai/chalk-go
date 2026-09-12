@@ -902,6 +902,45 @@ func (x *AzureCloudConfig) GetGcpWorkloadIdentity() *GCPWorkloadIdentity {
 	return nil
 }
 
+// LocalCloudConfig is intentionally empty. Local cluster, storage, registry, and
+// routing identity live in their existing component records; this message only
+// selects the local provider behavior.
+type LocalCloudConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LocalCloudConfig) Reset() {
+	*x = LocalCloudConfig{}
+	mi := &file_chalk_server_v1_cloud_config_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LocalCloudConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LocalCloudConfig) ProtoMessage() {}
+
+func (x *LocalCloudConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_config_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LocalCloudConfig.ProtoReflect.Descriptor instead.
+func (*LocalCloudConfig) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_config_proto_rawDescGZIP(), []int{13}
+}
+
 type CloudConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Config:
@@ -909,6 +948,7 @@ type CloudConfig struct {
 	//	*CloudConfig_Aws
 	//	*CloudConfig_Gcp
 	//	*CloudConfig_Azure
+	//	*CloudConfig_Local
 	Config        isCloudConfig_Config `protobuf_oneof:"config"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -916,7 +956,7 @@ type CloudConfig struct {
 
 func (x *CloudConfig) Reset() {
 	*x = CloudConfig{}
-	mi := &file_chalk_server_v1_cloud_config_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_cloud_config_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -928,7 +968,7 @@ func (x *CloudConfig) String() string {
 func (*CloudConfig) ProtoMessage() {}
 
 func (x *CloudConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_config_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_cloud_config_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -941,7 +981,7 @@ func (x *CloudConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CloudConfig.ProtoReflect.Descriptor instead.
 func (*CloudConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_config_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_cloud_config_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CloudConfig) GetConfig() isCloudConfig_Config {
@@ -978,6 +1018,15 @@ func (x *CloudConfig) GetAzure() *AzureCloudConfig {
 	return nil
 }
 
+func (x *CloudConfig) GetLocal() *LocalCloudConfig {
+	if x != nil {
+		if x, ok := x.Config.(*CloudConfig_Local); ok {
+			return x.Local
+		}
+	}
+	return nil
+}
+
 type isCloudConfig_Config interface {
 	isCloudConfig_Config()
 }
@@ -994,11 +1043,17 @@ type CloudConfig_Azure struct {
 	Azure *AzureCloudConfig `protobuf:"bytes,3,opt,name=azure,proto3,oneof"`
 }
 
+type CloudConfig_Local struct {
+	Local *LocalCloudConfig `protobuf:"bytes,4,opt,name=local,proto3,oneof"`
+}
+
 func (*CloudConfig_Aws) isCloudConfig_Config() {}
 
 func (*CloudConfig_Gcp) isCloudConfig_Config() {}
 
 func (*CloudConfig_Azure) isCloudConfig_Config() {}
+
+func (*CloudConfig_Local) isCloudConfig_Config() {}
 
 var File_chalk_server_v1_cloud_config_proto protoreflect.FileDescriptor
 
@@ -1088,11 +1143,13 @@ const file_chalk_server_v1_cloud_config_proto_rawDesc = "" +
 	"\x13docker_build_config\x18\x06 \x01(\v2\".chalk.server.v1.DockerBuildConfigR\x11dockerBuildConfig\x12i\n" +
 	"\x19container_registry_config\x18\a \x01(\v2-.chalk.server.v1.AzureContainerRegistryConfigR\x17containerRegistryConfig\x12N\n" +
 	"\x10key_vault_config\x18\b \x01(\v2$.chalk.server.v1.AzureKeyVaultConfigR\x0ekeyVaultConfig\x12X\n" +
-	"\x15gcp_workload_identity\x18\t \x01(\v2$.chalk.server.v1.GCPWorkloadIdentityR\x13gcpWorkloadIdentity\"\xbc\x01\n" +
+	"\x15gcp_workload_identity\x18\t \x01(\v2$.chalk.server.v1.GCPWorkloadIdentityR\x13gcpWorkloadIdentity\"\x12\n" +
+	"\x10LocalCloudConfig\"\xf7\x01\n" +
 	"\vCloudConfig\x123\n" +
 	"\x03aws\x18\x01 \x01(\v2\x1f.chalk.server.v1.AWSCloudConfigH\x00R\x03aws\x123\n" +
 	"\x03gcp\x18\x02 \x01(\v2\x1f.chalk.server.v1.GCPCloudConfigH\x00R\x03gcp\x129\n" +
-	"\x05azure\x18\x03 \x01(\v2!.chalk.server.v1.AzureCloudConfigH\x00R\x05azureB\b\n" +
+	"\x05azure\x18\x03 \x01(\v2!.chalk.server.v1.AzureCloudConfigH\x00R\x05azure\x129\n" +
+	"\x05local\x18\x04 \x01(\v2!.chalk.server.v1.LocalCloudConfigH\x00R\x05localB\b\n" +
 	"\x06configB\xc0\x01\n" +
 	"\x13com.chalk.server.v1B\x10CloudConfigProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -1108,7 +1165,7 @@ func file_chalk_server_v1_cloud_config_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_cloud_config_proto_rawDescData
 }
 
-var file_chalk_server_v1_cloud_config_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_server_v1_cloud_config_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_chalk_server_v1_cloud_config_proto_goTypes = []any{
 	(*AWSCloudWatchConfig)(nil),          // 0: chalk.server.v1.AWSCloudWatchConfig
 	(*AWSSecretManagerConfig)(nil),       // 1: chalk.server.v1.AWSSecretManagerConfig
@@ -1123,11 +1180,12 @@ var file_chalk_server_v1_cloud_config_proto_goTypes = []any{
 	(*AzureContainerRegistryConfig)(nil), // 10: chalk.server.v1.AzureContainerRegistryConfig
 	(*AzureKeyVaultConfig)(nil),          // 11: chalk.server.v1.AzureKeyVaultConfig
 	(*AzureCloudConfig)(nil),             // 12: chalk.server.v1.AzureCloudConfig
-	(*CloudConfig)(nil),                  // 13: chalk.server.v1.CloudConfig
-	nil,                                  // 14: chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
+	(*LocalCloudConfig)(nil),             // 13: chalk.server.v1.LocalCloudConfig
+	(*CloudConfig)(nil),                  // 14: chalk.server.v1.CloudConfig
+	nil,                                  // 15: chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
 }
 var file_chalk_server_v1_cloud_config_proto_depIdxs = []int32{
-	14, // 0: chalk.server.v1.AWSSecretManagerConfig.secret_tags:type_name -> chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
+	15, // 0: chalk.server.v1.AWSSecretManagerConfig.secret_tags:type_name -> chalk.server.v1.AWSSecretManagerConfig.SecretTagsEntry
 	2,  // 1: chalk.server.v1.GCPSecretManagerConfig.replicas:type_name -> chalk.server.v1.GCPSecretReplicationReplica
 	0,  // 2: chalk.server.v1.AWSCloudConfig.deprecated_cloud_watch_config:type_name -> chalk.server.v1.AWSCloudWatchConfig
 	1,  // 3: chalk.server.v1.AWSCloudConfig.deprecated_secret_manager_config:type_name -> chalk.server.v1.AWSSecretManagerConfig
@@ -1147,11 +1205,12 @@ var file_chalk_server_v1_cloud_config_proto_depIdxs = []int32{
 	8,  // 17: chalk.server.v1.CloudConfig.aws:type_name -> chalk.server.v1.AWSCloudConfig
 	9,  // 18: chalk.server.v1.CloudConfig.gcp:type_name -> chalk.server.v1.GCPCloudConfig
 	12, // 19: chalk.server.v1.CloudConfig.azure:type_name -> chalk.server.v1.AzureCloudConfig
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	13, // 20: chalk.server.v1.CloudConfig.local:type_name -> chalk.server.v1.LocalCloudConfig
+	21, // [21:21] is the sub-list for method output_type
+	21, // [21:21] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_cloud_config_proto_init() }
@@ -1167,10 +1226,11 @@ func file_chalk_server_v1_cloud_config_proto_init() {
 	file_chalk_server_v1_cloud_config_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_server_v1_cloud_config_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_server_v1_cloud_config_proto_msgTypes[11].OneofWrappers = []any{}
-	file_chalk_server_v1_cloud_config_proto_msgTypes[13].OneofWrappers = []any{
+	file_chalk_server_v1_cloud_config_proto_msgTypes[14].OneofWrappers = []any{
 		(*CloudConfig_Aws)(nil),
 		(*CloudConfig_Gcp)(nil),
 		(*CloudConfig_Azure)(nil),
+		(*CloudConfig_Local)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1178,7 +1238,7 @@ func file_chalk_server_v1_cloud_config_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_cloud_config_proto_rawDesc), len(file_chalk_server_v1_cloud_config_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

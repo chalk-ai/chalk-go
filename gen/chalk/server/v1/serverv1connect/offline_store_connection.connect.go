@@ -40,6 +40,12 @@ const (
 	// OfflineStoreConnectionServiceGetOfflineStoreConnectionProcedure is the fully-qualified name of
 	// the OfflineStoreConnectionService's GetOfflineStoreConnection RPC.
 	OfflineStoreConnectionServiceGetOfflineStoreConnectionProcedure = "/chalk.server.v1.OfflineStoreConnectionService/GetOfflineStoreConnection"
+	// OfflineStoreConnectionServiceGetIcebergCatalogOptimizationStatusProcedure is the fully-qualified
+	// name of the OfflineStoreConnectionService's GetIcebergCatalogOptimizationStatus RPC.
+	OfflineStoreConnectionServiceGetIcebergCatalogOptimizationStatusProcedure = "/chalk.server.v1.OfflineStoreConnectionService/GetIcebergCatalogOptimizationStatus"
+	// OfflineStoreConnectionServiceGetIcebergTableOptimizationOverridesProcedure is the fully-qualified
+	// name of the OfflineStoreConnectionService's GetIcebergTableOptimizationOverrides RPC.
+	OfflineStoreConnectionServiceGetIcebergTableOptimizationOverridesProcedure = "/chalk.server.v1.OfflineStoreConnectionService/GetIcebergTableOptimizationOverrides"
 	// OfflineStoreConnectionServiceListOfflineStoreConnectionsProcedure is the fully-qualified name of
 	// the OfflineStoreConnectionService's ListOfflineStoreConnections RPC.
 	OfflineStoreConnectionServiceListOfflineStoreConnectionsProcedure = "/chalk.server.v1.OfflineStoreConnectionService/ListOfflineStoreConnections"
@@ -74,6 +80,8 @@ const (
 type OfflineStoreConnectionServiceClient interface {
 	CreateOfflineStoreConnection(context.Context, *connect.Request[v1.CreateOfflineStoreConnectionRequest]) (*connect.Response[v1.CreateOfflineStoreConnectionResponse], error)
 	GetOfflineStoreConnection(context.Context, *connect.Request[v1.GetOfflineStoreConnectionRequest]) (*connect.Response[v1.GetOfflineStoreConnectionResponse], error)
+	GetIcebergCatalogOptimizationStatus(context.Context, *connect.Request[v1.GetIcebergCatalogOptimizationStatusRequest]) (*connect.Response[v1.GetIcebergCatalogOptimizationStatusResponse], error)
+	GetIcebergTableOptimizationOverrides(context.Context, *connect.Request[v1.GetIcebergTableOptimizationOverridesRequest]) (*connect.Response[v1.GetIcebergTableOptimizationOverridesResponse], error)
 	ListOfflineStoreConnections(context.Context, *connect.Request[v1.ListOfflineStoreConnectionsRequest]) (*connect.Response[v1.ListOfflineStoreConnectionsResponse], error)
 	UpdateOfflineStoreConnection(context.Context, *connect.Request[v1.UpdateOfflineStoreConnectionRequest]) (*connect.Response[v1.UpdateOfflineStoreConnectionResponse], error)
 	DeleteOfflineStoreConnection(context.Context, *connect.Request[v1.DeleteOfflineStoreConnectionRequest]) (*connect.Response[v1.DeleteOfflineStoreConnectionResponse], error)
@@ -106,6 +114,20 @@ func NewOfflineStoreConnectionServiceClient(httpClient connect.HTTPClient, baseU
 			httpClient,
 			baseURL+OfflineStoreConnectionServiceGetOfflineStoreConnectionProcedure,
 			connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("GetOfflineStoreConnection")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getIcebergCatalogOptimizationStatus: connect.NewClient[v1.GetIcebergCatalogOptimizationStatusRequest, v1.GetIcebergCatalogOptimizationStatusResponse](
+			httpClient,
+			baseURL+OfflineStoreConnectionServiceGetIcebergCatalogOptimizationStatusProcedure,
+			connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("GetIcebergCatalogOptimizationStatus")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getIcebergTableOptimizationOverrides: connect.NewClient[v1.GetIcebergTableOptimizationOverridesRequest, v1.GetIcebergTableOptimizationOverridesResponse](
+			httpClient,
+			baseURL+OfflineStoreConnectionServiceGetIcebergTableOptimizationOverridesProcedure,
+			connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("GetIcebergTableOptimizationOverrides")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -167,6 +189,8 @@ func NewOfflineStoreConnectionServiceClient(httpClient connect.HTTPClient, baseU
 type offlineStoreConnectionServiceClient struct {
 	createOfflineStoreConnection                   *connect.Client[v1.CreateOfflineStoreConnectionRequest, v1.CreateOfflineStoreConnectionResponse]
 	getOfflineStoreConnection                      *connect.Client[v1.GetOfflineStoreConnectionRequest, v1.GetOfflineStoreConnectionResponse]
+	getIcebergCatalogOptimizationStatus            *connect.Client[v1.GetIcebergCatalogOptimizationStatusRequest, v1.GetIcebergCatalogOptimizationStatusResponse]
+	getIcebergTableOptimizationOverrides           *connect.Client[v1.GetIcebergTableOptimizationOverridesRequest, v1.GetIcebergTableOptimizationOverridesResponse]
 	listOfflineStoreConnections                    *connect.Client[v1.ListOfflineStoreConnectionsRequest, v1.ListOfflineStoreConnectionsResponse]
 	updateOfflineStoreConnection                   *connect.Client[v1.UpdateOfflineStoreConnectionRequest, v1.UpdateOfflineStoreConnectionResponse]
 	deleteOfflineStoreConnection                   *connect.Client[v1.DeleteOfflineStoreConnectionRequest, v1.DeleteOfflineStoreConnectionResponse]
@@ -187,6 +211,18 @@ func (c *offlineStoreConnectionServiceClient) CreateOfflineStoreConnection(ctx c
 // chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection.
 func (c *offlineStoreConnectionServiceClient) GetOfflineStoreConnection(ctx context.Context, req *connect.Request[v1.GetOfflineStoreConnectionRequest]) (*connect.Response[v1.GetOfflineStoreConnectionResponse], error) {
 	return c.getOfflineStoreConnection.CallUnary(ctx, req)
+}
+
+// GetIcebergCatalogOptimizationStatus calls
+// chalk.server.v1.OfflineStoreConnectionService.GetIcebergCatalogOptimizationStatus.
+func (c *offlineStoreConnectionServiceClient) GetIcebergCatalogOptimizationStatus(ctx context.Context, req *connect.Request[v1.GetIcebergCatalogOptimizationStatusRequest]) (*connect.Response[v1.GetIcebergCatalogOptimizationStatusResponse], error) {
+	return c.getIcebergCatalogOptimizationStatus.CallUnary(ctx, req)
+}
+
+// GetIcebergTableOptimizationOverrides calls
+// chalk.server.v1.OfflineStoreConnectionService.GetIcebergTableOptimizationOverrides.
+func (c *offlineStoreConnectionServiceClient) GetIcebergTableOptimizationOverrides(ctx context.Context, req *connect.Request[v1.GetIcebergTableOptimizationOverridesRequest]) (*connect.Response[v1.GetIcebergTableOptimizationOverridesResponse], error) {
+	return c.getIcebergTableOptimizationOverrides.CallUnary(ctx, req)
 }
 
 // ListOfflineStoreConnections calls
@@ -242,6 +278,8 @@ func (c *offlineStoreConnectionServiceClient) MigrateOfflineStoreConnection(ctx 
 type OfflineStoreConnectionServiceHandler interface {
 	CreateOfflineStoreConnection(context.Context, *connect.Request[v1.CreateOfflineStoreConnectionRequest]) (*connect.Response[v1.CreateOfflineStoreConnectionResponse], error)
 	GetOfflineStoreConnection(context.Context, *connect.Request[v1.GetOfflineStoreConnectionRequest]) (*connect.Response[v1.GetOfflineStoreConnectionResponse], error)
+	GetIcebergCatalogOptimizationStatus(context.Context, *connect.Request[v1.GetIcebergCatalogOptimizationStatusRequest]) (*connect.Response[v1.GetIcebergCatalogOptimizationStatusResponse], error)
+	GetIcebergTableOptimizationOverrides(context.Context, *connect.Request[v1.GetIcebergTableOptimizationOverridesRequest]) (*connect.Response[v1.GetIcebergTableOptimizationOverridesResponse], error)
 	ListOfflineStoreConnections(context.Context, *connect.Request[v1.ListOfflineStoreConnectionsRequest]) (*connect.Response[v1.ListOfflineStoreConnectionsResponse], error)
 	UpdateOfflineStoreConnection(context.Context, *connect.Request[v1.UpdateOfflineStoreConnectionRequest]) (*connect.Response[v1.UpdateOfflineStoreConnectionResponse], error)
 	DeleteOfflineStoreConnection(context.Context, *connect.Request[v1.DeleteOfflineStoreConnectionRequest]) (*connect.Response[v1.DeleteOfflineStoreConnectionResponse], error)
@@ -269,6 +307,20 @@ func NewOfflineStoreConnectionServiceHandler(svc OfflineStoreConnectionServiceHa
 		OfflineStoreConnectionServiceGetOfflineStoreConnectionProcedure,
 		svc.GetOfflineStoreConnection,
 		connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("GetOfflineStoreConnection")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineStoreConnectionServiceGetIcebergCatalogOptimizationStatusHandler := connect.NewUnaryHandler(
+		OfflineStoreConnectionServiceGetIcebergCatalogOptimizationStatusProcedure,
+		svc.GetIcebergCatalogOptimizationStatus,
+		connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("GetIcebergCatalogOptimizationStatus")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineStoreConnectionServiceGetIcebergTableOptimizationOverridesHandler := connect.NewUnaryHandler(
+		OfflineStoreConnectionServiceGetIcebergTableOptimizationOverridesProcedure,
+		svc.GetIcebergTableOptimizationOverrides,
+		connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("GetIcebergTableOptimizationOverrides")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -329,6 +381,10 @@ func NewOfflineStoreConnectionServiceHandler(svc OfflineStoreConnectionServiceHa
 			offlineStoreConnectionServiceCreateOfflineStoreConnectionHandler.ServeHTTP(w, r)
 		case OfflineStoreConnectionServiceGetOfflineStoreConnectionProcedure:
 			offlineStoreConnectionServiceGetOfflineStoreConnectionHandler.ServeHTTP(w, r)
+		case OfflineStoreConnectionServiceGetIcebergCatalogOptimizationStatusProcedure:
+			offlineStoreConnectionServiceGetIcebergCatalogOptimizationStatusHandler.ServeHTTP(w, r)
+		case OfflineStoreConnectionServiceGetIcebergTableOptimizationOverridesProcedure:
+			offlineStoreConnectionServiceGetIcebergTableOptimizationOverridesHandler.ServeHTTP(w, r)
 		case OfflineStoreConnectionServiceListOfflineStoreConnectionsProcedure:
 			offlineStoreConnectionServiceListOfflineStoreConnectionsHandler.ServeHTTP(w, r)
 		case OfflineStoreConnectionServiceUpdateOfflineStoreConnectionProcedure:
@@ -360,6 +416,14 @@ func (UnimplementedOfflineStoreConnectionServiceHandler) CreateOfflineStoreConne
 
 func (UnimplementedOfflineStoreConnectionServiceHandler) GetOfflineStoreConnection(context.Context, *connect.Request[v1.GetOfflineStoreConnectionRequest]) (*connect.Response[v1.GetOfflineStoreConnectionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection is not implemented"))
+}
+
+func (UnimplementedOfflineStoreConnectionServiceHandler) GetIcebergCatalogOptimizationStatus(context.Context, *connect.Request[v1.GetIcebergCatalogOptimizationStatusRequest]) (*connect.Response[v1.GetIcebergCatalogOptimizationStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineStoreConnectionService.GetIcebergCatalogOptimizationStatus is not implemented"))
+}
+
+func (UnimplementedOfflineStoreConnectionServiceHandler) GetIcebergTableOptimizationOverrides(context.Context, *connect.Request[v1.GetIcebergTableOptimizationOverridesRequest]) (*connect.Response[v1.GetIcebergTableOptimizationOverridesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineStoreConnectionService.GetIcebergTableOptimizationOverrides is not implemented"))
 }
 
 func (UnimplementedOfflineStoreConnectionServiceHandler) ListOfflineStoreConnections(context.Context, *connect.Request[v1.ListOfflineStoreConnectionsRequest]) (*connect.Response[v1.ListOfflineStoreConnectionsResponse], error) {

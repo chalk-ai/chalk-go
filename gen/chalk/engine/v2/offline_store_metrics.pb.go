@@ -9,6 +9,7 @@ package enginev2
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -23,7 +24,11 @@ const (
 )
 
 type GetMetricsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Absent = the bulk metrics. Lets callers additionally request expensive response fields that
+	// GetMetrics omits by default -- currently `wide_table_layouts`, which costs one warehouse catalog
+	// round-trip per wide table, so the UI requests it only for the admin-only column.
+	ReadMask      *fieldmaskpb.FieldMask `protobuf:"bytes,1,opt,name=read_mask,json=readMask,proto3,oneof" json:"read_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -58,6 +63,82 @@ func (*GetMetricsRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *GetMetricsRequest) GetReadMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.ReadMask
+	}
+	return nil
+}
+
+// The physical partitioning and clustering of a namespace's wide feature-view table(s). For a
+// backend with declarative layout (BigQuery) this is read from the table's catalog metadata; for a
+// backend without one (Snowflake, whose tables are automatically micro-partitioned) it is the known
+// empty layout rather than a catalog read. Only populated when `wide_table_layouts` is in the
+// request's `read_mask`. A namespace can shard across several wide tables, but all shards share one
+// layout, so this is reported once per namespace.
+type WideTableLayout struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// The physical partitioning column, e.g. "observed_at". Unset when the table has no explicit
+	// partitioning column, including every Snowflake table (automatic micro-partitioning).
+	PartitionedBy *string `protobuf:"bytes,2,opt,name=partitioned_by,json=partitionedBy,proto3,oneof" json:"partitioned_by,omitempty"`
+	// The ordered clustering columns, e.g. ["pkey", "observed_at", "inserted_at"]. Empty when none.
+	ClusteredBy   []string `protobuf:"bytes,3,rep,name=clustered_by,json=clusteredBy,proto3" json:"clustered_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WideTableLayout) Reset() {
+	*x = WideTableLayout{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WideTableLayout) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WideTableLayout) ProtoMessage() {}
+
+func (x *WideTableLayout) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WideTableLayout.ProtoReflect.Descriptor instead.
+func (*WideTableLayout) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *WideTableLayout) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *WideTableLayout) GetPartitionedBy() string {
+	if x != nil && x.PartitionedBy != nil {
+		return *x.PartitionedBy
+	}
+	return ""
+}
+
+func (x *WideTableLayout) GetClusteredBy() []string {
+	if x != nil {
+		return x.ClusteredBy
+	}
+	return nil
+}
+
 // A namespace's `observed_at` coverage, from its primary-key feature's skinny table.
 type NamespaceObservedAtRange struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
@@ -71,7 +152,7 @@ type NamespaceObservedAtRange struct {
 
 func (x *NamespaceObservedAtRange) Reset() {
 	*x = NamespaceObservedAtRange{}
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[1]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -83,7 +164,7 @@ func (x *NamespaceObservedAtRange) String() string {
 func (*NamespaceObservedAtRange) ProtoMessage() {}
 
 func (x *NamespaceObservedAtRange) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[1]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -96,7 +177,7 @@ func (x *NamespaceObservedAtRange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespaceObservedAtRange.ProtoReflect.Descriptor instead.
 func (*NamespaceObservedAtRange) Descriptor() ([]byte, []int) {
-	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{1}
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *NamespaceObservedAtRange) GetNamespace() string {
@@ -133,7 +214,7 @@ type NamespaceWideTableRowCount struct {
 
 func (x *NamespaceWideTableRowCount) Reset() {
 	*x = NamespaceWideTableRowCount{}
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[2]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -145,7 +226,7 @@ func (x *NamespaceWideTableRowCount) String() string {
 func (*NamespaceWideTableRowCount) ProtoMessage() {}
 
 func (x *NamespaceWideTableRowCount) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[2]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -158,7 +239,7 @@ func (x *NamespaceWideTableRowCount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespaceWideTableRowCount.ProtoReflect.Descriptor instead.
 func (*NamespaceWideTableRowCount) Descriptor() ([]byte, []int) {
-	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{2}
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *NamespaceWideTableRowCount) GetNamespace() string {
@@ -187,7 +268,7 @@ type SnowflakeOfflineStorageDetails struct {
 
 func (x *SnowflakeOfflineStorageDetails) Reset() {
 	*x = SnowflakeOfflineStorageDetails{}
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[3]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -199,7 +280,7 @@ func (x *SnowflakeOfflineStorageDetails) String() string {
 func (*SnowflakeOfflineStorageDetails) ProtoMessage() {}
 
 func (x *SnowflakeOfflineStorageDetails) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[3]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -212,7 +293,7 @@ func (x *SnowflakeOfflineStorageDetails) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SnowflakeOfflineStorageDetails.ProtoReflect.Descriptor instead.
 func (*SnowflakeOfflineStorageDetails) Descriptor() ([]byte, []int) {
-	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{3}
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SnowflakeOfflineStorageDetails) GetAccount() string {
@@ -255,7 +336,7 @@ type BigQueryOfflineStorageDetails struct {
 
 func (x *BigQueryOfflineStorageDetails) Reset() {
 	*x = BigQueryOfflineStorageDetails{}
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[4]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -267,7 +348,7 @@ func (x *BigQueryOfflineStorageDetails) String() string {
 func (*BigQueryOfflineStorageDetails) ProtoMessage() {}
 
 func (x *BigQueryOfflineStorageDetails) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[4]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -280,7 +361,7 @@ func (x *BigQueryOfflineStorageDetails) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BigQueryOfflineStorageDetails.ProtoReflect.Descriptor instead.
 func (*BigQueryOfflineStorageDetails) Descriptor() ([]byte, []int) {
-	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{4}
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *BigQueryOfflineStorageDetails) GetProjectId() string {
@@ -324,13 +405,16 @@ type GetMetricsResponse struct {
 	// when the sizes could not be read at all -- an unsupported backend, or a failed metadata query
 	// -- which the engine logs.
 	NamespaceWideTableRowCounts []*NamespaceWideTableRowCount `protobuf:"bytes,7,rep,name=namespace_wide_table_row_counts,json=namespaceWideTableRowCounts,proto3" json:"namespace_wide_table_row_counts,omitempty"`
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	// Physical partitioning/clustering per namespace, joined by namespace onto the namespaces table.
+	// Only populated when `wide_table_layouts` is in the request's `read_mask`; empty otherwise.
+	WideTableLayouts []*WideTableLayout `protobuf:"bytes,8,rep,name=wide_table_layouts,json=wideTableLayouts,proto3" json:"wide_table_layouts,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *GetMetricsResponse) Reset() {
 	*x = GetMetricsResponse{}
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[5]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -342,7 +426,7 @@ func (x *GetMetricsResponse) String() string {
 func (*GetMetricsResponse) ProtoMessage() {}
 
 func (x *GetMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[5]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -355,7 +439,7 @@ func (x *GetMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{5}
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetMetricsResponse) GetSkinnyTablesBytes() uint64 {
@@ -418,6 +502,13 @@ func (x *GetMetricsResponse) GetNamespaceWideTableRowCounts() []*NamespaceWideTa
 	return nil
 }
 
+func (x *GetMetricsResponse) GetWideTableLayouts() []*WideTableLayout {
+	if x != nil {
+		return x.WideTableLayouts
+	}
+	return nil
+}
+
 type isGetMetricsResponse_Details interface {
 	isGetMetricsResponse_Details()
 }
@@ -438,8 +529,16 @@ var File_chalk_engine_v2_offline_store_metrics_proto protoreflect.FileDescriptor
 
 const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\n" +
-	"+chalk/engine/v2/offline_store_metrics.proto\x12\x0fchalk.engine.v2\x1a\x1fgoogle/protobuf/timestamp.proto\"\x13\n" +
-	"\x11GetMetricsRequest\"\xf2\x01\n" +
+	"+chalk/engine/v2/offline_store_metrics.proto\x12\x0fchalk.engine.v2\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"_\n" +
+	"\x11GetMetricsRequest\x12<\n" +
+	"\tread_mask\x18\x01 \x01(\v2\x1a.google.protobuf.FieldMaskH\x00R\breadMask\x88\x01\x01B\f\n" +
+	"\n" +
+	"_read_mask\"\x91\x01\n" +
+	"\x0fWideTableLayout\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12*\n" +
+	"\x0epartitioned_by\x18\x02 \x01(\tH\x00R\rpartitionedBy\x88\x01\x01\x12!\n" +
+	"\fclustered_by\x18\x03 \x03(\tR\vclusteredByB\x11\n" +
+	"\x0f_partitioned_by\"\xf2\x01\n" +
 	"\x18NamespaceObservedAtRange\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12G\n" +
 	"\x0fmin_observed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\rminObservedAt\x88\x01\x01\x12G\n" +
@@ -461,7 +560,7 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\n" +
 	"dataset_id\x18\x02 \x01(\tR\tdatasetId\x12\x1f\n" +
 	"\blocation\x18\x03 \x01(\tH\x00R\blocation\x88\x01\x01B\v\n" +
-	"\t_location\"\x8c\x05\n" +
+	"\t_location\"\xdc\x05\n" +
 	"\x12GetMetricsResponse\x123\n" +
 	"\x13skinny_tables_bytes\x18\x01 \x01(\x04H\x01R\x11skinnyTablesBytes\x88\x01\x01\x12/\n" +
 	"\x11wide_tables_bytes\x18\x02 \x01(\x04H\x02R\x0fwideTablesBytes\x88\x01\x01\x12<\n" +
@@ -469,7 +568,8 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\tsnowflake\x18\x04 \x01(\v2/.chalk.engine.v2.SnowflakeOfflineStorageDetailsH\x00R\tsnowflake\x12L\n" +
 	"\bbigquery\x18\x05 \x01(\v2..chalk.engine.v2.BigQueryOfflineStorageDetailsH\x00R\bbigquery\x12j\n" +
 	"\x1cnamespace_observed_at_ranges\x18\x06 \x03(\v2).chalk.engine.v2.NamespaceObservedAtRangeR\x19namespaceObservedAtRanges\x12q\n" +
-	"\x1fnamespace_wide_table_row_counts\x18\a \x03(\v2+.chalk.engine.v2.NamespaceWideTableRowCountR\x1bnamespaceWideTableRowCountsB\t\n" +
+	"\x1fnamespace_wide_table_row_counts\x18\a \x03(\v2+.chalk.engine.v2.NamespaceWideTableRowCountR\x1bnamespaceWideTableRowCounts\x12N\n" +
+	"\x12wide_table_layouts\x18\b \x03(\v2 .chalk.engine.v2.WideTableLayoutR\x10wideTableLayoutsB\t\n" +
 	"\adetailsB\x16\n" +
 	"\x14_skinny_tables_bytesB\x14\n" +
 	"\x12_wide_tables_bytesB\x1b\n" +
@@ -488,28 +588,32 @@ func file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP() []byte {
 	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescData
 }
 
-var file_chalk_engine_v2_offline_store_metrics_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_engine_v2_offline_store_metrics_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chalk_engine_v2_offline_store_metrics_proto_goTypes = []any{
 	(*GetMetricsRequest)(nil),              // 0: chalk.engine.v2.GetMetricsRequest
-	(*NamespaceObservedAtRange)(nil),       // 1: chalk.engine.v2.NamespaceObservedAtRange
-	(*NamespaceWideTableRowCount)(nil),     // 2: chalk.engine.v2.NamespaceWideTableRowCount
-	(*SnowflakeOfflineStorageDetails)(nil), // 3: chalk.engine.v2.SnowflakeOfflineStorageDetails
-	(*BigQueryOfflineStorageDetails)(nil),  // 4: chalk.engine.v2.BigQueryOfflineStorageDetails
-	(*GetMetricsResponse)(nil),             // 5: chalk.engine.v2.GetMetricsResponse
-	(*timestamppb.Timestamp)(nil),          // 6: google.protobuf.Timestamp
+	(*WideTableLayout)(nil),                // 1: chalk.engine.v2.WideTableLayout
+	(*NamespaceObservedAtRange)(nil),       // 2: chalk.engine.v2.NamespaceObservedAtRange
+	(*NamespaceWideTableRowCount)(nil),     // 3: chalk.engine.v2.NamespaceWideTableRowCount
+	(*SnowflakeOfflineStorageDetails)(nil), // 4: chalk.engine.v2.SnowflakeOfflineStorageDetails
+	(*BigQueryOfflineStorageDetails)(nil),  // 5: chalk.engine.v2.BigQueryOfflineStorageDetails
+	(*GetMetricsResponse)(nil),             // 6: chalk.engine.v2.GetMetricsResponse
+	(*fieldmaskpb.FieldMask)(nil),          // 7: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),          // 8: google.protobuf.Timestamp
 }
 var file_chalk_engine_v2_offline_store_metrics_proto_depIdxs = []int32{
-	6, // 0: chalk.engine.v2.NamespaceObservedAtRange.min_observed_at:type_name -> google.protobuf.Timestamp
-	6, // 1: chalk.engine.v2.NamespaceObservedAtRange.max_observed_at:type_name -> google.protobuf.Timestamp
-	3, // 2: chalk.engine.v2.GetMetricsResponse.snowflake:type_name -> chalk.engine.v2.SnowflakeOfflineStorageDetails
-	4, // 3: chalk.engine.v2.GetMetricsResponse.bigquery:type_name -> chalk.engine.v2.BigQueryOfflineStorageDetails
-	1, // 4: chalk.engine.v2.GetMetricsResponse.namespace_observed_at_ranges:type_name -> chalk.engine.v2.NamespaceObservedAtRange
-	2, // 5: chalk.engine.v2.GetMetricsResponse.namespace_wide_table_row_counts:type_name -> chalk.engine.v2.NamespaceWideTableRowCount
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	7, // 0: chalk.engine.v2.GetMetricsRequest.read_mask:type_name -> google.protobuf.FieldMask
+	8, // 1: chalk.engine.v2.NamespaceObservedAtRange.min_observed_at:type_name -> google.protobuf.Timestamp
+	8, // 2: chalk.engine.v2.NamespaceObservedAtRange.max_observed_at:type_name -> google.protobuf.Timestamp
+	4, // 3: chalk.engine.v2.GetMetricsResponse.snowflake:type_name -> chalk.engine.v2.SnowflakeOfflineStorageDetails
+	5, // 4: chalk.engine.v2.GetMetricsResponse.bigquery:type_name -> chalk.engine.v2.BigQueryOfflineStorageDetails
+	2, // 5: chalk.engine.v2.GetMetricsResponse.namespace_observed_at_ranges:type_name -> chalk.engine.v2.NamespaceObservedAtRange
+	3, // 6: chalk.engine.v2.GetMetricsResponse.namespace_wide_table_row_counts:type_name -> chalk.engine.v2.NamespaceWideTableRowCount
+	1, // 7: chalk.engine.v2.GetMetricsResponse.wide_table_layouts:type_name -> chalk.engine.v2.WideTableLayout
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chalk_engine_v2_offline_store_metrics_proto_init() }
@@ -517,10 +621,12 @@ func file_chalk_engine_v2_offline_store_metrics_proto_init() {
 	if File_chalk_engine_v2_offline_store_metrics_proto != nil {
 		return
 	}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[4].OneofWrappers = []any{}
-	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[5].OneofWrappers = []any{
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[6].OneofWrappers = []any{
 		(*GetMetricsResponse_Snowflake)(nil),
 		(*GetMetricsResponse_Bigquery)(nil),
 	}
@@ -530,7 +636,7 @@ func file_chalk_engine_v2_offline_store_metrics_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_engine_v2_offline_store_metrics_proto_rawDesc), len(file_chalk_engine_v2_offline_store_metrics_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -970,9 +970,11 @@ type OfflineStoreConnectionConfigInput struct {
 	//	*OfflineStoreConnectionConfigInput_Bigquery
 	//	*OfflineStoreConnectionConfigInput_Iceberg
 	//	*OfflineStoreConnectionConfigInput_Databricks
-	Config        isOfflineStoreConnectionConfigInput_Config `protobuf_oneof:"config"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Config isOfflineStoreConnectionConfigInput_Config `protobuf_oneof:"config"`
+	// Cloud bucket URI used to stage files before loading them into the offline store.
+	UploadBucketUri string `protobuf:"bytes,5,opt,name=upload_bucket_uri,json=uploadBucketUri,proto3" json:"upload_bucket_uri,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *OfflineStoreConnectionConfigInput) Reset() {
@@ -1048,6 +1050,13 @@ func (x *OfflineStoreConnectionConfigInput) GetDatabricks() *DatabricksOfflineSt
 	return nil
 }
 
+func (x *OfflineStoreConnectionConfigInput) GetUploadBucketUri() string {
+	if x != nil {
+		return x.UploadBucketUri
+	}
+	return ""
+}
+
 type isOfflineStoreConnectionConfigInput_Config interface {
 	isOfflineStoreConnectionConfigInput_Config()
 }
@@ -1085,9 +1094,11 @@ type OfflineStoreConnectionConfigStored struct {
 	//	*OfflineStoreConnectionConfigStored_Bigquery
 	//	*OfflineStoreConnectionConfigStored_Iceberg
 	//	*OfflineStoreConnectionConfigStored_Databricks
-	Config        isOfflineStoreConnectionConfigStored_Config `protobuf_oneof:"config"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Config isOfflineStoreConnectionConfigStored_Config `protobuf_oneof:"config"`
+	// Cloud bucket URI used to stage files before loading them into the offline store.
+	UploadBucketUri string `protobuf:"bytes,5,opt,name=upload_bucket_uri,json=uploadBucketUri,proto3" json:"upload_bucket_uri,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *OfflineStoreConnectionConfigStored) Reset() {
@@ -1161,6 +1172,13 @@ func (x *OfflineStoreConnectionConfigStored) GetDatabricks() *DatabricksOfflineS
 		}
 	}
 	return nil
+}
+
+func (x *OfflineStoreConnectionConfigStored) GetUploadBucketUri() string {
+	if x != nil {
+		return x.UploadBucketUri
+	}
+	return ""
 }
 
 type isOfflineStoreConnectionConfigStored_Config interface {
@@ -2289,6 +2307,363 @@ func (*MigrateOfflineStoreConnectionResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{35}
 }
 
+// The catalog-level Iceberg optimizer configuration currently returned by AWS Glue.
+// Glue deliberately exposes each optimizer's settings as a string map, so preserve
+// that shape instead of collapsing absent settings into a false boolean.
+type IcebergCatalogOptimizationSettings struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Compaction         map[string]string      `protobuf:"bytes,1,rep,name=compaction,proto3" json:"compaction,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Retention          map[string]string      `protobuf:"bytes,2,rep,name=retention,proto3" json:"retention,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	OrphanFileDeletion map[string]string      `protobuf:"bytes,3,rep,name=orphan_file_deletion,json=orphanFileDeletion,proto3" json:"orphan_file_deletion,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	OptimizerRoleArn   *string                `protobuf:"bytes,4,opt,name=optimizer_role_arn,json=optimizerRoleArn,proto3,oneof" json:"optimizer_role_arn,omitempty"`
+	LastUpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_updated_at,json=lastUpdatedAt,proto3" json:"last_updated_at,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *IcebergCatalogOptimizationSettings) Reset() {
+	*x = IcebergCatalogOptimizationSettings{}
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IcebergCatalogOptimizationSettings) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IcebergCatalogOptimizationSettings) ProtoMessage() {}
+
+func (x *IcebergCatalogOptimizationSettings) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IcebergCatalogOptimizationSettings.ProtoReflect.Descriptor instead.
+func (*IcebergCatalogOptimizationSettings) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *IcebergCatalogOptimizationSettings) GetCompaction() map[string]string {
+	if x != nil {
+		return x.Compaction
+	}
+	return nil
+}
+
+func (x *IcebergCatalogOptimizationSettings) GetRetention() map[string]string {
+	if x != nil {
+		return x.Retention
+	}
+	return nil
+}
+
+func (x *IcebergCatalogOptimizationSettings) GetOrphanFileDeletion() map[string]string {
+	if x != nil {
+		return x.OrphanFileDeletion
+	}
+	return nil
+}
+
+func (x *IcebergCatalogOptimizationSettings) GetOptimizerRoleArn() string {
+	if x != nil && x.OptimizerRoleArn != nil {
+		return *x.OptimizerRoleArn
+	}
+	return ""
+}
+
+func (x *IcebergCatalogOptimizationSettings) GetLastUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastUpdatedAt
+	}
+	return nil
+}
+
+type GetIcebergCatalogOptimizationStatusRequest struct {
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	OfflineStoreConnectionId string                 `protobuf:"bytes,1,opt,name=offline_store_connection_id,json=offlineStoreConnectionId,proto3" json:"offline_store_connection_id,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *GetIcebergCatalogOptimizationStatusRequest) Reset() {
+	*x = GetIcebergCatalogOptimizationStatusRequest{}
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetIcebergCatalogOptimizationStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetIcebergCatalogOptimizationStatusRequest) ProtoMessage() {}
+
+func (x *GetIcebergCatalogOptimizationStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetIcebergCatalogOptimizationStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetIcebergCatalogOptimizationStatusRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *GetIcebergCatalogOptimizationStatusRequest) GetOfflineStoreConnectionId() string {
+	if x != nil {
+		return x.OfflineStoreConnectionId
+	}
+	return ""
+}
+
+type GetIcebergCatalogOptimizationStatusResponse struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Settings      *IcebergCatalogOptimizationSettings `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
+	Error         *string                             `protobuf:"bytes,2,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetIcebergCatalogOptimizationStatusResponse) Reset() {
+	*x = GetIcebergCatalogOptimizationStatusResponse{}
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetIcebergCatalogOptimizationStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetIcebergCatalogOptimizationStatusResponse) ProtoMessage() {}
+
+func (x *GetIcebergCatalogOptimizationStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetIcebergCatalogOptimizationStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetIcebergCatalogOptimizationStatusResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *GetIcebergCatalogOptimizationStatusResponse) GetSettings() *IcebergCatalogOptimizationSettings {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+func (x *GetIcebergCatalogOptimizationStatusResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+// Table-level overrides only. Each optimizer map is empty when Glue did not
+// return a table-level override for that optimizer.
+type IcebergTableOptimizationOverride struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	TableName          string                 `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
+	Compaction         map[string]string      `protobuf:"bytes,2,rep,name=compaction,proto3" json:"compaction,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Retention          map[string]string      `protobuf:"bytes,3,rep,name=retention,proto3" json:"retention,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	OrphanFileDeletion map[string]string      `protobuf:"bytes,4,rep,name=orphan_file_deletion,json=orphanFileDeletion,proto3" json:"orphan_file_deletion,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *IcebergTableOptimizationOverride) Reset() {
+	*x = IcebergTableOptimizationOverride{}
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IcebergTableOptimizationOverride) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IcebergTableOptimizationOverride) ProtoMessage() {}
+
+func (x *IcebergTableOptimizationOverride) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IcebergTableOptimizationOverride.ProtoReflect.Descriptor instead.
+func (*IcebergTableOptimizationOverride) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *IcebergTableOptimizationOverride) GetTableName() string {
+	if x != nil {
+		return x.TableName
+	}
+	return ""
+}
+
+func (x *IcebergTableOptimizationOverride) GetCompaction() map[string]string {
+	if x != nil {
+		return x.Compaction
+	}
+	return nil
+}
+
+func (x *IcebergTableOptimizationOverride) GetRetention() map[string]string {
+	if x != nil {
+		return x.Retention
+	}
+	return nil
+}
+
+func (x *IcebergTableOptimizationOverride) GetOrphanFileDeletion() map[string]string {
+	if x != nil {
+		return x.OrphanFileDeletion
+	}
+	return nil
+}
+
+type GetIcebergTableOptimizationOverridesRequest struct {
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	OfflineStoreConnectionId string                 `protobuf:"bytes,1,opt,name=offline_store_connection_id,json=offlineStoreConnectionId,proto3" json:"offline_store_connection_id,omitempty"`
+	TableNames               []string               `protobuf:"bytes,2,rep,name=table_names,json=tableNames,proto3" json:"table_names,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *GetIcebergTableOptimizationOverridesRequest) Reset() {
+	*x = GetIcebergTableOptimizationOverridesRequest{}
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetIcebergTableOptimizationOverridesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetIcebergTableOptimizationOverridesRequest) ProtoMessage() {}
+
+func (x *GetIcebergTableOptimizationOverridesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetIcebergTableOptimizationOverridesRequest.ProtoReflect.Descriptor instead.
+func (*GetIcebergTableOptimizationOverridesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *GetIcebergTableOptimizationOverridesRequest) GetOfflineStoreConnectionId() string {
+	if x != nil {
+		return x.OfflineStoreConnectionId
+	}
+	return ""
+}
+
+func (x *GetIcebergTableOptimizationOverridesRequest) GetTableNames() []string {
+	if x != nil {
+		return x.TableNames
+	}
+	return nil
+}
+
+type GetIcebergTableOptimizationOverridesResponse struct {
+	state             protoimpl.MessageState              `protogen:"open.v1"`
+	Overrides         []*IcebergTableOptimizationOverride `protobuf:"bytes,1,rep,name=overrides,proto3" json:"overrides,omitempty"`
+	MissingTableCount int32                               `protobuf:"varint,2,opt,name=missing_table_count,json=missingTableCount,proto3" json:"missing_table_count,omitempty"`
+	FailedTableCount  int32                               `protobuf:"varint,3,opt,name=failed_table_count,json=failedTableCount,proto3" json:"failed_table_count,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetIcebergTableOptimizationOverridesResponse) Reset() {
+	*x = GetIcebergTableOptimizationOverridesResponse{}
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetIcebergTableOptimizationOverridesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetIcebergTableOptimizationOverridesResponse) ProtoMessage() {}
+
+func (x *GetIcebergTableOptimizationOverridesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_store_connection_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetIcebergTableOptimizationOverridesResponse.ProtoReflect.Descriptor instead.
+func (*GetIcebergTableOptimizationOverridesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *GetIcebergTableOptimizationOverridesResponse) GetOverrides() []*IcebergTableOptimizationOverride {
+	if x != nil {
+		return x.Overrides
+	}
+	return nil
+}
+
+func (x *GetIcebergTableOptimizationOverridesResponse) GetMissingTableCount() int32 {
+	if x != nil {
+		return x.MissingTableCount
+	}
+	return 0
+}
+
+func (x *GetIcebergTableOptimizationOverridesResponse) GetFailedTableCount() int32 {
+	if x != nil {
+		return x.FailedTableCount
+	}
+	return 0
+}
+
 var File_chalk_server_v1_offline_store_connection_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_offline_store_connection_proto_rawDesc = "" +
@@ -2382,22 +2757,24 @@ const file_chalk_server_v1_offline_store_connection_proto_rawDesc = "" +
 	"\a_region\"x\n" +
 	"#IcebergOfflineStoreConnectionConfig\x12F\n" +
 	"\aglue_s3\x18\x01 \x01(\v2+.chalk.server.v1.IcebergGlueS3CatalogConfigH\x00R\x06glueS3B\t\n" +
-	"\acatalog\"\x91\x03\n" +
+	"\acatalog\"\xbd\x03\n" +
 	"!OfflineStoreConnectionConfigInput\x12[\n" +
 	"\tsnowflake\x18\x01 \x01(\v2;.chalk.server.v1.SnowflakeOfflineStoreConnectionConfigInputH\x00R\tsnowflake\x12S\n" +
 	"\bbigquery\x18\x02 \x01(\v25.chalk.server.v1.BigQueryOfflineStoreConnectionConfigH\x00R\bbigquery\x12P\n" +
 	"\aiceberg\x18\x03 \x01(\v24.chalk.server.v1.IcebergOfflineStoreConnectionConfigH\x00R\aiceberg\x12^\n" +
 	"\n" +
 	"databricks\x18\x04 \x01(\v2<.chalk.server.v1.DatabricksOfflineStoreConnectionConfigInputH\x00R\n" +
-	"databricksB\b\n" +
-	"\x06config\"\x94\x03\n" +
+	"databricks\x12*\n" +
+	"\x11upload_bucket_uri\x18\x05 \x01(\tR\x0fuploadBucketUriB\b\n" +
+	"\x06config\"\xc0\x03\n" +
 	"\"OfflineStoreConnectionConfigStored\x12\\\n" +
 	"\tsnowflake\x18\x01 \x01(\v2<.chalk.server.v1.SnowflakeOfflineStoreConnectionConfigStoredH\x00R\tsnowflake\x12S\n" +
 	"\bbigquery\x18\x02 \x01(\v25.chalk.server.v1.BigQueryOfflineStoreConnectionConfigH\x00R\bbigquery\x12P\n" +
 	"\aiceberg\x18\x03 \x01(\v24.chalk.server.v1.IcebergOfflineStoreConnectionConfigH\x00R\aiceberg\x12_\n" +
 	"\n" +
 	"databricks\x18\x04 \x01(\v2=.chalk.server.v1.DatabricksOfflineStoreConnectionConfigStoredH\x00R\n" +
-	"databricksB\b\n" +
+	"databricks\x12*\n" +
+	"\x11upload_bucket_uri\x18\x05 \x01(\tR\x0fuploadBucketUriB\b\n" +
 	"\x06config\"}\n" +
 	"\x1bOfflineStoreConnectionInput\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12J\n" +
@@ -2469,13 +2846,64 @@ const file_chalk_server_v1_offline_store_connection_proto_rawDesc = "" +
 	"6DeleteBindingEnvironmentOfflineStoreConnectionResponse\"e\n" +
 	"$MigrateOfflineStoreConnectionRequest\x12=\n" +
 	"\x1boffline_store_connection_id\x18\x01 \x01(\tR\x18offlineStoreConnectionId\"'\n" +
-	"%MigrateOfflineStoreConnectionResponse*K\n" +
+	"%MigrateOfflineStoreConnectionResponse\"\xbc\x05\n" +
+	"\"IcebergCatalogOptimizationSettings\x12c\n" +
+	"\n" +
+	"compaction\x18\x01 \x03(\v2C.chalk.server.v1.IcebergCatalogOptimizationSettings.CompactionEntryR\n" +
+	"compaction\x12`\n" +
+	"\tretention\x18\x02 \x03(\v2B.chalk.server.v1.IcebergCatalogOptimizationSettings.RetentionEntryR\tretention\x12}\n" +
+	"\x14orphan_file_deletion\x18\x03 \x03(\v2K.chalk.server.v1.IcebergCatalogOptimizationSettings.OrphanFileDeletionEntryR\x12orphanFileDeletion\x121\n" +
+	"\x12optimizer_role_arn\x18\x04 \x01(\tH\x00R\x10optimizerRoleArn\x88\x01\x01\x12B\n" +
+	"\x0flast_updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\rlastUpdatedAt\x1a=\n" +
+	"\x0fCompactionEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a<\n" +
+	"\x0eRetentionEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aE\n" +
+	"\x17OrphanFileDeletionEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
+	"\x13_optimizer_role_arn\"k\n" +
+	"*GetIcebergCatalogOptimizationStatusRequest\x12=\n" +
+	"\x1boffline_store_connection_id\x18\x01 \x01(\tR\x18offlineStoreConnectionId\"\xa3\x01\n" +
+	"+GetIcebergCatalogOptimizationStatusResponse\x12O\n" +
+	"\bsettings\x18\x01 \x01(\v23.chalk.server.v1.IcebergCatalogOptimizationSettingsR\bsettings\x12\x19\n" +
+	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
+	"\x06_error\"\xc5\x04\n" +
+	" IcebergTableOptimizationOverride\x12\x1d\n" +
+	"\n" +
+	"table_name\x18\x01 \x01(\tR\ttableName\x12a\n" +
+	"\n" +
+	"compaction\x18\x02 \x03(\v2A.chalk.server.v1.IcebergTableOptimizationOverride.CompactionEntryR\n" +
+	"compaction\x12^\n" +
+	"\tretention\x18\x03 \x03(\v2@.chalk.server.v1.IcebergTableOptimizationOverride.RetentionEntryR\tretention\x12{\n" +
+	"\x14orphan_file_deletion\x18\x04 \x03(\v2I.chalk.server.v1.IcebergTableOptimizationOverride.OrphanFileDeletionEntryR\x12orphanFileDeletion\x1a=\n" +
+	"\x0fCompactionEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a<\n" +
+	"\x0eRetentionEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aE\n" +
+	"\x17OrphanFileDeletionEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8d\x01\n" +
+	"+GetIcebergTableOptimizationOverridesRequest\x12=\n" +
+	"\x1boffline_store_connection_id\x18\x01 \x01(\tR\x18offlineStoreConnectionId\x12\x1f\n" +
+	"\vtable_names\x18\x02 \x03(\tR\n" +
+	"tableNames\"\xdd\x01\n" +
+	",GetIcebergTableOptimizationOverridesResponse\x12O\n" +
+	"\toverrides\x18\x01 \x03(\v21.chalk.server.v1.IcebergTableOptimizationOverrideR\toverrides\x12.\n" +
+	"\x13missing_table_count\x18\x02 \x01(\x05R\x11missingTableCount\x12,\n" +
+	"\x12failed_table_count\x18\x03 \x01(\x05R\x10failedTableCount*K\n" +
 	"\vStorageType\x12\x1c\n" +
 	"\x18STORAGE_TYPE_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aSTORAGE_TYPE_OFFLINE_STORE\x10\x012\xa4\x0f\n" +
+	"\x1aSTORAGE_TYPE_OFFLINE_STORE\x10\x012\xfd\x11\n" +
 	"\x1dOfflineStoreConnectionService\x12\xb8\x01\n" +
 	"\x1cCreateOfflineStoreConnection\x124.chalk.server.v1.CreateOfflineStoreConnectionRequest\x1a5.chalk.server.v1.CreateOfflineStoreConnectionResponse\"+\x80}\f\x8a\xd3\x0e$\b\x02\x12 Created offline store connection\x12\x8a\x01\n" +
-	"\x19GetOfflineStoreConnection\x121.chalk.server.v1.GetOfflineStoreConnectionRequest\x1a2.chalk.server.v1.GetOfflineStoreConnectionResponse\"\x06\x80}\v\x90\x02\x01\x12\x90\x01\n" +
+	"\x19GetOfflineStoreConnection\x121.chalk.server.v1.GetOfflineStoreConnectionRequest\x1a2.chalk.server.v1.GetOfflineStoreConnectionResponse\"\x06\x80}\v\x90\x02\x01\x12\xa8\x01\n" +
+	"#GetIcebergCatalogOptimizationStatus\x12;.chalk.server.v1.GetIcebergCatalogOptimizationStatusRequest\x1a<.chalk.server.v1.GetIcebergCatalogOptimizationStatusResponse\"\x06\x80}\v\x90\x02\x01\x12\xab\x01\n" +
+	"$GetIcebergTableOptimizationOverrides\x12<.chalk.server.v1.GetIcebergTableOptimizationOverridesRequest\x1a=.chalk.server.v1.GetIcebergTableOptimizationOverridesResponse\"\x06\x80}\v\x90\x02\x01\x12\x90\x01\n" +
 	"\x1bListOfflineStoreConnections\x123.chalk.server.v1.ListOfflineStoreConnectionsRequest\x1a4.chalk.server.v1.ListOfflineStoreConnectionsResponse\"\x06\x80}\v\x90\x02\x01\x12\xb8\x01\n" +
 	"\x1cUpdateOfflineStoreConnection\x124.chalk.server.v1.UpdateOfflineStoreConnectionRequest\x1a5.chalk.server.v1.UpdateOfflineStoreConnectionResponse\"+\x80}\f\x8a\xd3\x0e$\b\x02\x12 Updated offline store connection\x12\xb8\x01\n" +
 	"\x1cDeleteOfflineStoreConnection\x124.chalk.server.v1.DeleteOfflineStoreConnectionRequest\x1a5.chalk.server.v1.DeleteOfflineStoreConnectionResponse\"+\x80}\f\x8a\xd3\x0e$\b\x02\x12 Deleted offline store connection\x12\x8d\x01\n" +
@@ -2499,7 +2927,7 @@ func file_chalk_server_v1_offline_store_connection_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_offline_store_connection_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_offline_store_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_chalk_server_v1_offline_store_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
 var file_chalk_server_v1_offline_store_connection_proto_goTypes = []any{
 	(StorageType)(0),                                               // 0: chalk.server.v1.StorageType
 	(*S3StorageIntegrationConfig)(nil),                             // 1: chalk.server.v1.S3StorageIntegrationConfig
@@ -2538,8 +2966,20 @@ var file_chalk_server_v1_offline_store_connection_proto_goTypes = []any{
 	(*DeleteBindingEnvironmentOfflineStoreConnectionResponse)(nil), // 34: chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse
 	(*MigrateOfflineStoreConnectionRequest)(nil),                   // 35: chalk.server.v1.MigrateOfflineStoreConnectionRequest
 	(*MigrateOfflineStoreConnectionResponse)(nil),                  // 36: chalk.server.v1.MigrateOfflineStoreConnectionResponse
-	(*timestamppb.Timestamp)(nil),                                  // 37: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),                                  // 38: google.protobuf.FieldMask
+	(*IcebergCatalogOptimizationSettings)(nil),                     // 37: chalk.server.v1.IcebergCatalogOptimizationSettings
+	(*GetIcebergCatalogOptimizationStatusRequest)(nil),             // 38: chalk.server.v1.GetIcebergCatalogOptimizationStatusRequest
+	(*GetIcebergCatalogOptimizationStatusResponse)(nil),            // 39: chalk.server.v1.GetIcebergCatalogOptimizationStatusResponse
+	(*IcebergTableOptimizationOverride)(nil),                       // 40: chalk.server.v1.IcebergTableOptimizationOverride
+	(*GetIcebergTableOptimizationOverridesRequest)(nil),            // 41: chalk.server.v1.GetIcebergTableOptimizationOverridesRequest
+	(*GetIcebergTableOptimizationOverridesResponse)(nil),           // 42: chalk.server.v1.GetIcebergTableOptimizationOverridesResponse
+	nil,                           // 43: chalk.server.v1.IcebergCatalogOptimizationSettings.CompactionEntry
+	nil,                           // 44: chalk.server.v1.IcebergCatalogOptimizationSettings.RetentionEntry
+	nil,                           // 45: chalk.server.v1.IcebergCatalogOptimizationSettings.OrphanFileDeletionEntry
+	nil,                           // 46: chalk.server.v1.IcebergTableOptimizationOverride.CompactionEntry
+	nil,                           // 47: chalk.server.v1.IcebergTableOptimizationOverride.RetentionEntry
+	nil,                           // 48: chalk.server.v1.IcebergTableOptimizationOverride.OrphanFileDeletionEntry
+	(*timestamppb.Timestamp)(nil), // 49: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil), // 50: google.protobuf.FieldMask
 }
 var file_chalk_server_v1_offline_store_connection_proto_depIdxs = []int32{
 	1,  // 0: chalk.server.v1.SnowflakeStorageIntegration.s3:type_name -> chalk.server.v1.S3StorageIntegrationConfig
@@ -2559,41 +2999,54 @@ var file_chalk_server_v1_offline_store_connection_proto_depIdxs = []int32{
 	10, // 14: chalk.server.v1.OfflineStoreConnectionConfigStored.databricks:type_name -> chalk.server.v1.DatabricksOfflineStoreConnectionConfigStored
 	13, // 15: chalk.server.v1.OfflineStoreConnectionInput.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigInput
 	14, // 16: chalk.server.v1.OfflineStoreConnection.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigStored
-	37, // 17: chalk.server.v1.OfflineStoreConnection.created_at:type_name -> google.protobuf.Timestamp
-	37, // 18: chalk.server.v1.OfflineStoreConnection.updated_at:type_name -> google.protobuf.Timestamp
+	49, // 17: chalk.server.v1.OfflineStoreConnection.created_at:type_name -> google.protobuf.Timestamp
+	49, // 18: chalk.server.v1.OfflineStoreConnection.updated_at:type_name -> google.protobuf.Timestamp
 	15, // 19: chalk.server.v1.CreateOfflineStoreConnectionRequest.connection:type_name -> chalk.server.v1.OfflineStoreConnectionInput
 	16, // 20: chalk.server.v1.CreateOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
 	16, // 21: chalk.server.v1.GetOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
 	16, // 22: chalk.server.v1.ListOfflineStoreConnectionsResponse.connections:type_name -> chalk.server.v1.OfflineStoreConnection
 	15, // 23: chalk.server.v1.UpdateOfflineStoreConnectionRequest.connection:type_name -> chalk.server.v1.OfflineStoreConnectionInput
-	38, // 24: chalk.server.v1.UpdateOfflineStoreConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	50, // 24: chalk.server.v1.UpdateOfflineStoreConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
 	16, // 25: chalk.server.v1.UpdateOfflineStoreConnectionResponse.connection:type_name -> chalk.server.v1.OfflineStoreConnection
 	13, // 26: chalk.server.v1.TestOfflineStoreConnectionRequest.config:type_name -> chalk.server.v1.OfflineStoreConnectionConfigInput
-	17, // 27: chalk.server.v1.OfflineStoreConnectionService.CreateOfflineStoreConnection:input_type -> chalk.server.v1.CreateOfflineStoreConnectionRequest
-	19, // 28: chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection:input_type -> chalk.server.v1.GetOfflineStoreConnectionRequest
-	21, // 29: chalk.server.v1.OfflineStoreConnectionService.ListOfflineStoreConnections:input_type -> chalk.server.v1.ListOfflineStoreConnectionsRequest
-	23, // 30: chalk.server.v1.OfflineStoreConnectionService.UpdateOfflineStoreConnection:input_type -> chalk.server.v1.UpdateOfflineStoreConnectionRequest
-	25, // 31: chalk.server.v1.OfflineStoreConnectionService.DeleteOfflineStoreConnection:input_type -> chalk.server.v1.DeleteOfflineStoreConnectionRequest
-	27, // 32: chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection:input_type -> chalk.server.v1.TestOfflineStoreConnectionRequest
-	29, // 33: chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionRequest
-	31, // 34: chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionRequest
-	33, // 35: chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest
-	35, // 36: chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection:input_type -> chalk.server.v1.MigrateOfflineStoreConnectionRequest
-	18, // 37: chalk.server.v1.OfflineStoreConnectionService.CreateOfflineStoreConnection:output_type -> chalk.server.v1.CreateOfflineStoreConnectionResponse
-	20, // 38: chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection:output_type -> chalk.server.v1.GetOfflineStoreConnectionResponse
-	22, // 39: chalk.server.v1.OfflineStoreConnectionService.ListOfflineStoreConnections:output_type -> chalk.server.v1.ListOfflineStoreConnectionsResponse
-	24, // 40: chalk.server.v1.OfflineStoreConnectionService.UpdateOfflineStoreConnection:output_type -> chalk.server.v1.UpdateOfflineStoreConnectionResponse
-	26, // 41: chalk.server.v1.OfflineStoreConnectionService.DeleteOfflineStoreConnection:output_type -> chalk.server.v1.DeleteOfflineStoreConnectionResponse
-	28, // 42: chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection:output_type -> chalk.server.v1.TestOfflineStoreConnectionResponse
-	30, // 43: chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionResponse
-	32, // 44: chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionResponse
-	34, // 45: chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse
-	36, // 46: chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection:output_type -> chalk.server.v1.MigrateOfflineStoreConnectionResponse
-	37, // [37:47] is the sub-list for method output_type
-	27, // [27:37] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	43, // 27: chalk.server.v1.IcebergCatalogOptimizationSettings.compaction:type_name -> chalk.server.v1.IcebergCatalogOptimizationSettings.CompactionEntry
+	44, // 28: chalk.server.v1.IcebergCatalogOptimizationSettings.retention:type_name -> chalk.server.v1.IcebergCatalogOptimizationSettings.RetentionEntry
+	45, // 29: chalk.server.v1.IcebergCatalogOptimizationSettings.orphan_file_deletion:type_name -> chalk.server.v1.IcebergCatalogOptimizationSettings.OrphanFileDeletionEntry
+	49, // 30: chalk.server.v1.IcebergCatalogOptimizationSettings.last_updated_at:type_name -> google.protobuf.Timestamp
+	37, // 31: chalk.server.v1.GetIcebergCatalogOptimizationStatusResponse.settings:type_name -> chalk.server.v1.IcebergCatalogOptimizationSettings
+	46, // 32: chalk.server.v1.IcebergTableOptimizationOverride.compaction:type_name -> chalk.server.v1.IcebergTableOptimizationOverride.CompactionEntry
+	47, // 33: chalk.server.v1.IcebergTableOptimizationOverride.retention:type_name -> chalk.server.v1.IcebergTableOptimizationOverride.RetentionEntry
+	48, // 34: chalk.server.v1.IcebergTableOptimizationOverride.orphan_file_deletion:type_name -> chalk.server.v1.IcebergTableOptimizationOverride.OrphanFileDeletionEntry
+	40, // 35: chalk.server.v1.GetIcebergTableOptimizationOverridesResponse.overrides:type_name -> chalk.server.v1.IcebergTableOptimizationOverride
+	17, // 36: chalk.server.v1.OfflineStoreConnectionService.CreateOfflineStoreConnection:input_type -> chalk.server.v1.CreateOfflineStoreConnectionRequest
+	19, // 37: chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection:input_type -> chalk.server.v1.GetOfflineStoreConnectionRequest
+	38, // 38: chalk.server.v1.OfflineStoreConnectionService.GetIcebergCatalogOptimizationStatus:input_type -> chalk.server.v1.GetIcebergCatalogOptimizationStatusRequest
+	41, // 39: chalk.server.v1.OfflineStoreConnectionService.GetIcebergTableOptimizationOverrides:input_type -> chalk.server.v1.GetIcebergTableOptimizationOverridesRequest
+	21, // 40: chalk.server.v1.OfflineStoreConnectionService.ListOfflineStoreConnections:input_type -> chalk.server.v1.ListOfflineStoreConnectionsRequest
+	23, // 41: chalk.server.v1.OfflineStoreConnectionService.UpdateOfflineStoreConnection:input_type -> chalk.server.v1.UpdateOfflineStoreConnectionRequest
+	25, // 42: chalk.server.v1.OfflineStoreConnectionService.DeleteOfflineStoreConnection:input_type -> chalk.server.v1.DeleteOfflineStoreConnectionRequest
+	27, // 43: chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection:input_type -> chalk.server.v1.TestOfflineStoreConnectionRequest
+	29, // 44: chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionRequest
+	31, // 45: chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionRequest
+	33, // 46: chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection:input_type -> chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest
+	35, // 47: chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection:input_type -> chalk.server.v1.MigrateOfflineStoreConnectionRequest
+	18, // 48: chalk.server.v1.OfflineStoreConnectionService.CreateOfflineStoreConnection:output_type -> chalk.server.v1.CreateOfflineStoreConnectionResponse
+	20, // 49: chalk.server.v1.OfflineStoreConnectionService.GetOfflineStoreConnection:output_type -> chalk.server.v1.GetOfflineStoreConnectionResponse
+	39, // 50: chalk.server.v1.OfflineStoreConnectionService.GetIcebergCatalogOptimizationStatus:output_type -> chalk.server.v1.GetIcebergCatalogOptimizationStatusResponse
+	42, // 51: chalk.server.v1.OfflineStoreConnectionService.GetIcebergTableOptimizationOverrides:output_type -> chalk.server.v1.GetIcebergTableOptimizationOverridesResponse
+	22, // 52: chalk.server.v1.OfflineStoreConnectionService.ListOfflineStoreConnections:output_type -> chalk.server.v1.ListOfflineStoreConnectionsResponse
+	24, // 53: chalk.server.v1.OfflineStoreConnectionService.UpdateOfflineStoreConnection:output_type -> chalk.server.v1.UpdateOfflineStoreConnectionResponse
+	26, // 54: chalk.server.v1.OfflineStoreConnectionService.DeleteOfflineStoreConnection:output_type -> chalk.server.v1.DeleteOfflineStoreConnectionResponse
+	28, // 55: chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection:output_type -> chalk.server.v1.TestOfflineStoreConnectionResponse
+	30, // 56: chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.CreateBindingEnvironmentOfflineStoreConnectionResponse
+	32, // 57: chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.GetBindingEnvironmentOfflineStoreConnectionResponse
+	34, // 58: chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection:output_type -> chalk.server.v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse
+	36, // 59: chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection:output_type -> chalk.server.v1.MigrateOfflineStoreConnectionResponse
+	48, // [48:60] is the sub-list for method output_type
+	36, // [36:48] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_store_connection_proto_init() }
@@ -2631,13 +3084,15 @@ func file_chalk_server_v1_offline_store_connection_proto_init() {
 		(*TestOfflineStoreConnectionRequest_Id)(nil),
 		(*TestOfflineStoreConnectionRequest_Config)(nil),
 	}
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_store_connection_proto_msgTypes[38].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_offline_store_connection_proto_rawDesc), len(file_chalk_server_v1_offline_store_connection_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   36,
+			NumMessages:   48,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -10,7 +10,9 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -223,6 +225,149 @@ func (x DatasourceTestFindingStatus) Number() protoreflect.EnumNumber {
 // Deprecated: Use DatasourceTestFindingStatus.Descriptor instead.
 func (DatasourceTestFindingStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_engine_v1_datasource_service_proto_rawDescGZIP(), []int{2}
+}
+
+// Whether the driver could enumerate running queries at all. Three outcomes a caller must not
+// collapse: a driver with no introspection, a driver that asked and got an error, and a driver
+// that asked and got nothing back. Only the last one means "the data source is idle", so an
+// unsupported driver must never render as an empty list.
+//
+// The failure case is a status rather than an RPC error because the request itself succeeded: the
+// engine reached the data source and the data source refused this particular query -- most often
+// because the role lacks MONITOR on the warehouse. That is a fact about the data source's
+// configuration, which is what the caller asked about, so it belongs in the response where it can
+// be shown next to the data source rather than as a transport failure.
+type RunningQueryIntrospectionStatus int32
+
+const (
+	RunningQueryIntrospectionStatus_RUNNING_QUERY_INTROSPECTION_STATUS_UNSPECIFIED RunningQueryIntrospectionStatus = 0
+	// The driver ran its introspection query. `queries` is authoritative, and empty means idle.
+	RunningQueryIntrospectionStatus_RUNNING_QUERY_INTROSPECTION_STATUS_OK RunningQueryIntrospectionStatus = 1
+	// This driver has no way to enumerate running queries. `queries` is empty and says nothing about
+	// whether the data source is busy.
+	RunningQueryIntrospectionStatus_RUNNING_QUERY_INTROSPECTION_STATUS_UNSUPPORTED RunningQueryIntrospectionStatus = 2
+	// The driver supports introspection but the query failed; `error` carries the driver's message.
+	// `queries` is empty and, as with UNSUPPORTED, says nothing about the data source.
+	RunningQueryIntrospectionStatus_RUNNING_QUERY_INTROSPECTION_STATUS_FAILED RunningQueryIntrospectionStatus = 3
+	// The driver asked and got an answer it can show, but the answer is known to be a subset of what
+	// is actually running -- the credentials can only see some of it.
+	//
+	// This exists because the failure mode it describes is silent. Snowflake does not error when the
+	// connecting role lacks MONITOR on the warehouse: it returns that role's own queries and nothing
+	// else, which is indistinguishable from a quiet warehouse unless the driver separately checks the
+	// grants. Rendering that as OK would tell an operator "these are the queries" when the one they
+	// are hunting belongs to another user and was silently omitted. `incomplete_reason` says what is
+	// missing and what to grant.
+	RunningQueryIntrospectionStatus_RUNNING_QUERY_INTROSPECTION_STATUS_PARTIAL RunningQueryIntrospectionStatus = 4
+)
+
+// Enum value maps for RunningQueryIntrospectionStatus.
+var (
+	RunningQueryIntrospectionStatus_name = map[int32]string{
+		0: "RUNNING_QUERY_INTROSPECTION_STATUS_UNSPECIFIED",
+		1: "RUNNING_QUERY_INTROSPECTION_STATUS_OK",
+		2: "RUNNING_QUERY_INTROSPECTION_STATUS_UNSUPPORTED",
+		3: "RUNNING_QUERY_INTROSPECTION_STATUS_FAILED",
+		4: "RUNNING_QUERY_INTROSPECTION_STATUS_PARTIAL",
+	}
+	RunningQueryIntrospectionStatus_value = map[string]int32{
+		"RUNNING_QUERY_INTROSPECTION_STATUS_UNSPECIFIED": 0,
+		"RUNNING_QUERY_INTROSPECTION_STATUS_OK":          1,
+		"RUNNING_QUERY_INTROSPECTION_STATUS_UNSUPPORTED": 2,
+		"RUNNING_QUERY_INTROSPECTION_STATUS_FAILED":      3,
+		"RUNNING_QUERY_INTROSPECTION_STATUS_PARTIAL":     4,
+	}
+)
+
+func (x RunningQueryIntrospectionStatus) Enum() *RunningQueryIntrospectionStatus {
+	p := new(RunningQueryIntrospectionStatus)
+	*p = x
+	return p
+}
+
+func (x RunningQueryIntrospectionStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RunningQueryIntrospectionStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_engine_v1_datasource_service_proto_enumTypes[3].Descriptor()
+}
+
+func (RunningQueryIntrospectionStatus) Type() protoreflect.EnumType {
+	return &file_chalk_engine_v1_datasource_service_proto_enumTypes[3]
+}
+
+func (x RunningQueryIntrospectionStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RunningQueryIntrospectionStatus.Descriptor instead.
+func (RunningQueryIntrospectionStatus) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_datasource_service_proto_rawDescGZIP(), []int{3}
+}
+
+// Execution state of one query, normalized across drivers. Every driver spells these differently
+// -- Snowflake says RUNNING/QUEUED/BLOCKED/RESUMING_WAREHOUSE, Postgres says active, MySQL reports
+// a command plus a state string -- so each driver maps its own vocabulary onto these.
+//
+// Readers must switch with a default arm rather than filtering to the values they know: proto3
+// enums are open, and an engine newer than its caller can emit a state that caller has not seen.
+// Dropping such a row would hide a query that is genuinely occupying the warehouse.
+type RunningDatasourceQueryState int32
+
+const (
+	RunningDatasourceQueryState_RUNNING_DATASOURCE_QUERY_STATE_UNSPECIFIED RunningDatasourceQueryState = 0
+	// Actively executing and consuming compute.
+	RunningDatasourceQueryState_RUNNING_DATASOURCE_QUERY_STATE_RUNNING RunningDatasourceQueryState = 1
+	// Admitted but not executing: waiting on a slot, or on a warehouse that is resuming. Snowflake's
+	// RESUMING_WAREHOUSE maps here rather than to RUNNING, because such a query is waiting on the
+	// warehouse rather than consuming it.
+	RunningDatasourceQueryState_RUNNING_DATASOURCE_QUERY_STATE_QUEUED RunningDatasourceQueryState = 2
+	// Stalled on a lock or another transaction rather than on capacity.
+	RunningDatasourceQueryState_RUNNING_DATASOURCE_QUERY_STATE_BLOCKED RunningDatasourceQueryState = 3
+)
+
+// Enum value maps for RunningDatasourceQueryState.
+var (
+	RunningDatasourceQueryState_name = map[int32]string{
+		0: "RUNNING_DATASOURCE_QUERY_STATE_UNSPECIFIED",
+		1: "RUNNING_DATASOURCE_QUERY_STATE_RUNNING",
+		2: "RUNNING_DATASOURCE_QUERY_STATE_QUEUED",
+		3: "RUNNING_DATASOURCE_QUERY_STATE_BLOCKED",
+	}
+	RunningDatasourceQueryState_value = map[string]int32{
+		"RUNNING_DATASOURCE_QUERY_STATE_UNSPECIFIED": 0,
+		"RUNNING_DATASOURCE_QUERY_STATE_RUNNING":     1,
+		"RUNNING_DATASOURCE_QUERY_STATE_QUEUED":      2,
+		"RUNNING_DATASOURCE_QUERY_STATE_BLOCKED":     3,
+	}
+)
+
+func (x RunningDatasourceQueryState) Enum() *RunningDatasourceQueryState {
+	p := new(RunningDatasourceQueryState)
+	*p = x
+	return p
+}
+
+func (x RunningDatasourceQueryState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RunningDatasourceQueryState) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_engine_v1_datasource_service_proto_enumTypes[4].Descriptor()
+}
+
+func (RunningDatasourceQueryState) Type() protoreflect.EnumType {
+	return &file_chalk_engine_v1_datasource_service_proto_enumTypes[4]
+}
+
+func (x RunningDatasourceQueryState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RunningDatasourceQueryState.Descriptor instead.
+func (RunningDatasourceQueryState) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_datasource_service_proto_rawDescGZIP(), []int{4}
 }
 
 // One check's outcome, or one coarse whole-test failure when `group` is empty.
@@ -570,11 +715,460 @@ func (x *TestDatasourceResponse) GetCoverageRan() DatasourceTestCoverage {
 	return DatasourceTestCoverage_DATASOURCE_TEST_COVERAGE_UNSPECIFIED
 }
 
+// One query the data source reports as in flight. Every field past `query_id` is best-effort: no
+// driver supplies all of them, and an absent value means "this driver does not report it", not
+// "the data source returned an empty value". Scalars are therefore left at their default rather
+// than filled with a placeholder.
+//
+// There is deliberately no bytes-scanned or rows-produced field, even though Snowflake's
+// query_history carries both columns. They are populated when a query *finishes*: sampling them
+// across the in-flight rows on a live account returned 0 for every row, because the statistics are
+// written at completion and this message only ever describes queries that have not completed. A
+// column that always reads 0 is worse than no column, because it looks like a measurement.
+type RunningDatasourceQuery struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The data source's own identifier for the query -- Snowflake's query id, Postgres's pid as a
+	// string, MySQL's process id. Always set; it is what a console link is keyed on.
+	QueryId string `protobuf:"bytes,1,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
+	// The SQL as the data source reports it. This is customer SQL and is shown in the dashboard,
+	// which is the point of the feature. Drivers truncate it to a bounded length rather than putting
+	// an arbitrarily large statement on the wire; `sql_truncated` says when that happened.
+	SqlText      string `protobuf:"bytes,2,opt,name=sql_text,json=sqlText,proto3" json:"sql_text,omitempty"`
+	SqlTruncated bool   `protobuf:"varint,3,opt,name=sql_truncated,json=sqlTruncated,proto3" json:"sql_truncated,omitempty"`
+	// Data source user the query runs as. Not a Chalk user.
+	User string `protobuf:"bytes,4,opt,name=user,proto3" json:"user,omitempty"`
+	Role string `protobuf:"bytes,5,opt,name=role,proto3" json:"role,omitempty"`
+	// The compute scope the query occupies, whatever this data source calls it: Snowflake's
+	// warehouse, BigQuery's project, Redshift's queue. One field because a client renders it in one
+	// column and nothing switches on which flavor it is.
+	WarehouseOrProject string                      `protobuf:"bytes,6,opt,name=warehouse_or_project,json=warehouseOrProject,proto3" json:"warehouse_or_project,omitempty"`
+	SessionId          string                      `protobuf:"bytes,7,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	State              RunningDatasourceQueryState `protobuf:"varint,8,opt,name=state,proto3,enum=chalk.engine.v1.RunningDatasourceQueryState" json:"state,omitempty"`
+	// When the data source says the query started. Absent when the driver does not report it.
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	// How long the query has been in flight, as the data source measures it. Carried alongside
+	// `start_time` rather than left for the client to subtract, because the data source's clock is
+	// the authority here and it can differ from both the engine's and the browser's.
+	Elapsed *durationpb.Duration `protobuf:"bytes,10,opt,name=elapsed,proto3" json:"elapsed,omitempty"`
+	// Deep link into the data source's own console for this query, when the driver can derive one
+	// from the connection it already holds. Absent rather than guessed: a wrong link is worse than
+	// no link.
+	ConsoleUrl *string `protobuf:"bytes,11,opt,name=console_url,json=consoleUrl,proto3,oneof" json:"console_url,omitempty"`
+	// The source's own classification of the statement -- Snowflake's QUERY_TYPE (SELECT, COPY,
+	// CREATE_TABLE_AS_SELECT, ...). Useful because the SQL cell is truncated to one line, and the
+	// type is often enough to recognize a row without expanding it.
+	QueryType string `protobuf:"bytes,12,opt,name=query_type,json=queryType,proto3" json:"query_type,omitempty"`
+	// Session database and schema the statement is running against. Two fields rather than one
+	// qualified string because a client filters on them separately.
+	DatabaseName string `protobuf:"bytes,13,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
+	SchemaName   string `protobuf:"bytes,14,opt,name=schema_name,json=schemaName,proto3" json:"schema_name,omitempty"`
+	// The source-side tag on the statement. Chalk stamps its own queries, so this is what tells an
+	// operator that a long-running statement is one of ours rather than a customer's.
+	QueryTag string `protobuf:"bytes,15,opt,name=query_tag,json=queryTag,proto3" json:"query_tag,omitempty"`
+	// Time spent waiting rather than executing, split by cause: capacity (a saturated warehouse) and
+	// locks (another transaction). Both are the actionable half of a slow query that is not actually
+	// doing work, and a query can accumulate both. Absent where the driver does not report them --
+	// NOT zero, since zero is a meaningful measurement here.
+	QueuedTime    *durationpb.Duration `protobuf:"bytes,16,opt,name=queued_time,json=queuedTime,proto3,oneof" json:"queued_time,omitempty"`
+	BlockedTime   *durationpb.Duration `protobuf:"bytes,17,opt,name=blocked_time,json=blockedTime,proto3,oneof" json:"blocked_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunningDatasourceQuery) Reset() {
+	*x = RunningDatasourceQuery{}
+	mi := &file_chalk_engine_v1_datasource_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunningDatasourceQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunningDatasourceQuery) ProtoMessage() {}
+
+func (x *RunningDatasourceQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_datasource_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunningDatasourceQuery.ProtoReflect.Descriptor instead.
+func (*RunningDatasourceQuery) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_datasource_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RunningDatasourceQuery) GetQueryId() string {
+	if x != nil {
+		return x.QueryId
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetSqlText() string {
+	if x != nil {
+		return x.SqlText
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetSqlTruncated() bool {
+	if x != nil {
+		return x.SqlTruncated
+	}
+	return false
+}
+
+func (x *RunningDatasourceQuery) GetUser() string {
+	if x != nil {
+		return x.User
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetWarehouseOrProject() string {
+	if x != nil {
+		return x.WarehouseOrProject
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetState() RunningDatasourceQueryState {
+	if x != nil {
+		return x.State
+	}
+	return RunningDatasourceQueryState_RUNNING_DATASOURCE_QUERY_STATE_UNSPECIFIED
+}
+
+func (x *RunningDatasourceQuery) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *RunningDatasourceQuery) GetElapsed() *durationpb.Duration {
+	if x != nil {
+		return x.Elapsed
+	}
+	return nil
+}
+
+func (x *RunningDatasourceQuery) GetConsoleUrl() string {
+	if x != nil && x.ConsoleUrl != nil {
+		return *x.ConsoleUrl
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetQueryType() string {
+	if x != nil {
+		return x.QueryType
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetDatabaseName() string {
+	if x != nil {
+		return x.DatabaseName
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetSchemaName() string {
+	if x != nil {
+		return x.SchemaName
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetQueryTag() string {
+	if x != nil {
+		return x.QueryTag
+	}
+	return ""
+}
+
+func (x *RunningDatasourceQuery) GetQueuedTime() *durationpb.Duration {
+	if x != nil {
+		return x.QueuedTime
+	}
+	return nil
+}
+
+func (x *RunningDatasourceQuery) GetBlockedTime() *durationpb.Duration {
+	if x != nil {
+		return x.BlockedTime
+	}
+	return nil
+}
+
+// Filters narrowing which running queries come back. Grouped in their own message per repo
+// convention, so the request stays stable as filters are added.
+//
+// All filters are optional and combine with AND. Where the data source can express a filter in its
+// own introspection query the driver pushes it down; otherwise the driver applies it to the rows
+// it got back. Either way the response means the same thing, so a caller does not need to know
+// which happened.
+type ListRunningDatasourceQueriesFilters struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Data source user, matched exactly.
+	User *string `protobuf:"bytes,1,opt,name=user,proto3,oneof" json:"user,omitempty"`
+	// Warehouse, project, or queue -- whatever this data source calls the compute scope. Matched
+	// against the same value that lands in `RunningDatasourceQuery.warehouse_or_project`.
+	Warehouse *string `protobuf:"bytes,2,opt,name=warehouse,proto3,oneof" json:"warehouse,omitempty"`
+	// Drop queries in flight for less than this. The reason to open this page is usually to find
+	// something stuck, and without the filter the list is dominated by queries that will have
+	// finished before anyone reads the row.
+	MinElapsed *durationpb.Duration `protobuf:"bytes,3,opt,name=min_elapsed,json=minElapsed,proto3,oneof" json:"min_elapsed,omitempty"`
+	// Cap on rows returned, applied after the other filters and after ordering by elapsed
+	// descending, so a limit keeps the longest-running queries rather than an arbitrary subset. A
+	// driver may also push it into its own query. Non-positive is treated as unset.
+	Limit         *int32 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRunningDatasourceQueriesFilters) Reset() {
+	*x = ListRunningDatasourceQueriesFilters{}
+	mi := &file_chalk_engine_v1_datasource_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunningDatasourceQueriesFilters) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunningDatasourceQueriesFilters) ProtoMessage() {}
+
+func (x *ListRunningDatasourceQueriesFilters) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_datasource_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunningDatasourceQueriesFilters.ProtoReflect.Descriptor instead.
+func (*ListRunningDatasourceQueriesFilters) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_datasource_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListRunningDatasourceQueriesFilters) GetUser() string {
+	if x != nil && x.User != nil {
+		return *x.User
+	}
+	return ""
+}
+
+func (x *ListRunningDatasourceQueriesFilters) GetWarehouse() string {
+	if x != nil && x.Warehouse != nil {
+		return *x.Warehouse
+	}
+	return ""
+}
+
+func (x *ListRunningDatasourceQueriesFilters) GetMinElapsed() *durationpb.Duration {
+	if x != nil {
+		return x.MinElapsed
+	}
+	return nil
+}
+
+func (x *ListRunningDatasourceQueriesFilters) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+type ListRunningDatasourceQueriesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The engine's own spelling of the kind, e.g. "SNOWFLAKE". A string rather than an enum for the
+	// same reason as TestDatasourceRequest.kind: a kind this engine cannot introspect must be
+	// answerable rather than rejected at decode time.
+	Kind string `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	// Connection parameters, already resolved. As with TestDatasourceRequest, the caller fetches the
+	// secrets and maps its config field names onto the keys the engine expects -- the engine does
+	// not look the data source up itself, and nothing here is a secret reference.
+	Parameters    *structpb.Struct                     `protobuf:"bytes,2,opt,name=parameters,proto3" json:"parameters,omitempty"`
+	Filters       *ListRunningDatasourceQueriesFilters `protobuf:"bytes,3,opt,name=filters,proto3" json:"filters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRunningDatasourceQueriesRequest) Reset() {
+	*x = ListRunningDatasourceQueriesRequest{}
+	mi := &file_chalk_engine_v1_datasource_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunningDatasourceQueriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunningDatasourceQueriesRequest) ProtoMessage() {}
+
+func (x *ListRunningDatasourceQueriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_datasource_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunningDatasourceQueriesRequest.ProtoReflect.Descriptor instead.
+func (*ListRunningDatasourceQueriesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_datasource_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListRunningDatasourceQueriesRequest) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *ListRunningDatasourceQueriesRequest) GetParameters() *structpb.Struct {
+	if x != nil {
+		return x.Parameters
+	}
+	return nil
+}
+
+func (x *ListRunningDatasourceQueriesRequest) GetFilters() *ListRunningDatasourceQueriesFilters {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+type ListRunningDatasourceQueriesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Whether `queries` can be believed. Clients must switch on this before rendering an empty list
+	// as "idle".
+	Status RunningQueryIntrospectionStatus `protobuf:"varint,1,opt,name=status,proto3,enum=chalk.engine.v1.RunningQueryIntrospectionStatus" json:"status,omitempty"`
+	// Ordered by elapsed descending, so the most interesting rows come first even for a client that
+	// renders them unsorted. Empty unless `status` is OK.
+	Queries []*RunningDatasourceQuery `protobuf:"bytes,2,rep,name=queries,proto3" json:"queries,omitempty"`
+	// The driver's own error text when `status` is FAILED, passed through rather than summarized, so
+	// that a privileges problem reads as the data source stated it -- Snowflake names the privilege
+	// it wanted. Never set otherwise. It carries nothing about the connection: the driver reports
+	// what the data source said about the introspection query, not about how it connected.
+	Error *string `protobuf:"bytes,3,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	// What the data source calls the compute scope that was introspected, so a client can say "no
+	// queries running on COMPUTE_WH" rather than "no queries running". Absent for drivers with no
+	// such scope.
+	WarehouseOrProject *string `protobuf:"bytes,4,opt,name=warehouse_or_project,json=warehouseOrProject,proto3,oneof" json:"warehouse_or_project,omitempty"`
+	// Why `queries` is a subset, and what to grant to make it complete. Set only when `status` is
+	// PARTIAL, and always set then -- a PARTIAL with nothing to show the operator is a warning they
+	// cannot act on.
+	IncompleteReason *string `protobuf:"bytes,5,opt,name=incomplete_reason,json=incompleteReason,proto3,oneof" json:"incomplete_reason,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ListRunningDatasourceQueriesResponse) Reset() {
+	*x = ListRunningDatasourceQueriesResponse{}
+	mi := &file_chalk_engine_v1_datasource_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunningDatasourceQueriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunningDatasourceQueriesResponse) ProtoMessage() {}
+
+func (x *ListRunningDatasourceQueriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_datasource_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunningDatasourceQueriesResponse.ProtoReflect.Descriptor instead.
+func (*ListRunningDatasourceQueriesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_datasource_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetStatus() RunningQueryIntrospectionStatus {
+	if x != nil {
+		return x.Status
+	}
+	return RunningQueryIntrospectionStatus_RUNNING_QUERY_INTROSPECTION_STATUS_UNSPECIFIED
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetQueries() []*RunningDatasourceQuery {
+	if x != nil {
+		return x.Queries
+	}
+	return nil
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetWarehouseOrProject() string {
+	if x != nil && x.WarehouseOrProject != nil {
+		return *x.WarehouseOrProject
+	}
+	return ""
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetIncompleteReason() string {
+	if x != nil && x.IncompleteReason != nil {
+		return *x.IncompleteReason
+	}
+	return ""
+}
+
 var File_chalk_engine_v1_datasource_service_proto protoreflect.FileDescriptor
 
 const file_chalk_engine_v1_datasource_service_proto_rawDesc = "" +
 	"\n" +
-	"(chalk/engine/v1/datasource_service.proto\x12\x0fchalk.engine.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xc4\x01\n" +
+	"(chalk/engine/v1/datasource_service.proto\x12\x0fchalk.engine.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc4\x01\n" +
 	"\x15DatasourceTestFinding\x12D\n" +
 	"\x06status\x18\x01 \x01(\x0e2,.chalk.engine.v1.DatasourceTestFindingStatusR\x06status\x12\x14\n" +
 	"\x05group\x18\x02 \x01(\tR\x05group\x12\x14\n" +
@@ -605,7 +1199,61 @@ const file_chalk_engine_v1_datasource_service_proto_rawDesc = "" +
 	"\x0flatency_seconds\x18\x04 \x01(\x01H\x00R\x0elatencySeconds\x88\x01\x01\x12R\n" +
 	"\x10preview_messages\x18\x05 \x03(\v2'.chalk.engine.v1.PreviewedStreamMessageR\x0fpreviewMessages\x12J\n" +
 	"\fcoverage_ran\x18\x06 \x01(\x0e2'.chalk.engine.v1.DatasourceTestCoverageR\vcoverageRanB\x12\n" +
-	"\x10_latency_seconds*\x88\x01\n" +
+	"\x10_latency_seconds\"\xfd\x05\n" +
+	"\x16RunningDatasourceQuery\x12\x19\n" +
+	"\bquery_id\x18\x01 \x01(\tR\aqueryId\x12\x19\n" +
+	"\bsql_text\x18\x02 \x01(\tR\asqlText\x12#\n" +
+	"\rsql_truncated\x18\x03 \x01(\bR\fsqlTruncated\x12\x12\n" +
+	"\x04user\x18\x04 \x01(\tR\x04user\x12\x12\n" +
+	"\x04role\x18\x05 \x01(\tR\x04role\x120\n" +
+	"\x14warehouse_or_project\x18\x06 \x01(\tR\x12warehouseOrProject\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\a \x01(\tR\tsessionId\x12B\n" +
+	"\x05state\x18\b \x01(\x0e2,.chalk.engine.v1.RunningDatasourceQueryStateR\x05state\x129\n" +
+	"\n" +
+	"start_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x123\n" +
+	"\aelapsed\x18\n" +
+	" \x01(\v2\x19.google.protobuf.DurationR\aelapsed\x12$\n" +
+	"\vconsole_url\x18\v \x01(\tH\x00R\n" +
+	"consoleUrl\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"query_type\x18\f \x01(\tR\tqueryType\x12#\n" +
+	"\rdatabase_name\x18\r \x01(\tR\fdatabaseName\x12\x1f\n" +
+	"\vschema_name\x18\x0e \x01(\tR\n" +
+	"schemaName\x12\x1b\n" +
+	"\tquery_tag\x18\x0f \x01(\tR\bqueryTag\x12?\n" +
+	"\vqueued_time\x18\x10 \x01(\v2\x19.google.protobuf.DurationH\x01R\n" +
+	"queuedTime\x88\x01\x01\x12A\n" +
+	"\fblocked_time\x18\x11 \x01(\v2\x19.google.protobuf.DurationH\x02R\vblockedTime\x88\x01\x01B\x0e\n" +
+	"\f_console_urlB\x0e\n" +
+	"\f_queued_timeB\x0f\n" +
+	"\r_blocked_time\"\xee\x01\n" +
+	"#ListRunningDatasourceQueriesFilters\x12\x17\n" +
+	"\x04user\x18\x01 \x01(\tH\x00R\x04user\x88\x01\x01\x12!\n" +
+	"\twarehouse\x18\x02 \x01(\tH\x01R\twarehouse\x88\x01\x01\x12?\n" +
+	"\vmin_elapsed\x18\x03 \x01(\v2\x19.google.protobuf.DurationH\x02R\n" +
+	"minElapsed\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x04 \x01(\x05H\x03R\x05limit\x88\x01\x01B\a\n" +
+	"\x05_userB\f\n" +
+	"\n" +
+	"_warehouseB\x0e\n" +
+	"\f_min_elapsedB\b\n" +
+	"\x06_limit\"\xc2\x01\n" +
+	"#ListRunningDatasourceQueriesRequest\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x127\n" +
+	"\n" +
+	"parameters\x18\x02 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"parameters\x12N\n" +
+	"\afilters\x18\x03 \x01(\v24.chalk.engine.v1.ListRunningDatasourceQueriesFiltersR\afilters\"\xf0\x02\n" +
+	"$ListRunningDatasourceQueriesResponse\x12H\n" +
+	"\x06status\x18\x01 \x01(\x0e20.chalk.engine.v1.RunningQueryIntrospectionStatusR\x06status\x12A\n" +
+	"\aqueries\x18\x02 \x03(\v2'.chalk.engine.v1.RunningDatasourceQueryR\aqueries\x12\x19\n" +
+	"\x05error\x18\x03 \x01(\tH\x00R\x05error\x88\x01\x01\x125\n" +
+	"\x14warehouse_or_project\x18\x04 \x01(\tH\x01R\x12warehouseOrProject\x88\x01\x01\x120\n" +
+	"\x11incomplete_reason\x18\x05 \x01(\tH\x02R\x10incompleteReason\x88\x01\x01B\b\n" +
+	"\x06_errorB\x17\n" +
+	"\x15_warehouse_or_projectB\x14\n" +
+	"\x12_incomplete_reason*\x88\x01\n" +
 	"\x16DatasourceTestCoverage\x12(\n" +
 	"$DATASOURCE_TEST_COVERAGE_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dDATASOURCE_TEST_COVERAGE_FAST\x10\x01\x12!\n" +
@@ -623,9 +1271,21 @@ const file_chalk_engine_v1_datasource_service_proto_rawDesc = "" +
 	"6DATASOURCE_TEST_FINDING_STATUS_WARNING_MEDIUM_SEVERITY\x10\b\x128\n" +
 	"4DATASOURCE_TEST_FINDING_STATUS_WARNING_HIGH_SEVERITY\x10\n" +
 	"\x12(\n" +
-	"$DATASOURCE_TEST_FINDING_STATUS_ERROR\x10\f2{\n" +
+	"$DATASOURCE_TEST_FINDING_STATUS_ERROR\x10\f*\x93\x02\n" +
+	"\x1fRunningQueryIntrospectionStatus\x122\n" +
+	".RUNNING_QUERY_INTROSPECTION_STATUS_UNSPECIFIED\x10\x00\x12)\n" +
+	"%RUNNING_QUERY_INTROSPECTION_STATUS_OK\x10\x01\x122\n" +
+	".RUNNING_QUERY_INTROSPECTION_STATUS_UNSUPPORTED\x10\x02\x12-\n" +
+	")RUNNING_QUERY_INTROSPECTION_STATUS_FAILED\x10\x03\x12.\n" +
+	"*RUNNING_QUERY_INTROSPECTION_STATUS_PARTIAL\x10\x04*\xd0\x01\n" +
+	"\x1bRunningDatasourceQueryState\x12.\n" +
+	"*RUNNING_DATASOURCE_QUERY_STATE_UNSPECIFIED\x10\x00\x12*\n" +
+	"&RUNNING_DATASOURCE_QUERY_STATE_RUNNING\x10\x01\x12)\n" +
+	"%RUNNING_DATASOURCE_QUERY_STATE_QUEUED\x10\x02\x12*\n" +
+	"&RUNNING_DATASOURCE_QUERY_STATE_BLOCKED\x10\x032\x8e\x02\n" +
 	"\x11DatasourceService\x12f\n" +
-	"\x0eTestDatasource\x12&.chalk.engine.v1.TestDatasourceRequest\x1a'.chalk.engine.v1.TestDatasourceResponse\"\x03\x80}\x14B\xc6\x01\n" +
+	"\x0eTestDatasource\x12&.chalk.engine.v1.TestDatasourceRequest\x1a'.chalk.engine.v1.TestDatasourceResponse\"\x03\x80}\x14\x12\x90\x01\n" +
+	"\x1cListRunningDatasourceQueries\x124.chalk.engine.v1.ListRunningDatasourceQueriesRequest\x1a5.chalk.engine.v1.ListRunningDatasourceQueriesResponse\"\x03\x80}\x14B\xc6\x01\n" +
 	"\x13com.chalk.engine.v1B\x16DatasourceServiceProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/engine/v1;enginev1\xa2\x02\x03CEX\xaa\x02\x0fChalk.Engine.V1\xca\x02\x0fChalk\\Engine\\V1\xe2\x02\x1bChalk\\Engine\\V1\\GPBMetadata\xea\x02\x11Chalk::Engine::V1b\x06proto3"
 
 var (
@@ -640,33 +1300,53 @@ func file_chalk_engine_v1_datasource_service_proto_rawDescGZIP() []byte {
 	return file_chalk_engine_v1_datasource_service_proto_rawDescData
 }
 
-var file_chalk_engine_v1_datasource_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_engine_v1_datasource_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chalk_engine_v1_datasource_service_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_chalk_engine_v1_datasource_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_chalk_engine_v1_datasource_service_proto_goTypes = []any{
-	(DatasourceTestCoverage)(0),      // 0: chalk.engine.v1.DatasourceTestCoverage
-	(DatasourceTestStatus)(0),        // 1: chalk.engine.v1.DatasourceTestStatus
-	(DatasourceTestFindingStatus)(0), // 2: chalk.engine.v1.DatasourceTestFindingStatus
-	(*DatasourceTestFinding)(nil),    // 3: chalk.engine.v1.DatasourceTestFinding
-	(*PreviewedStreamMessage)(nil),   // 4: chalk.engine.v1.PreviewedStreamMessage
-	(*TestDatasourceRequest)(nil),    // 5: chalk.engine.v1.TestDatasourceRequest
-	(*TestDatasourceResponse)(nil),   // 6: chalk.engine.v1.TestDatasourceResponse
-	(*structpb.Struct)(nil),          // 7: google.protobuf.Struct
+	(DatasourceTestCoverage)(0),                  // 0: chalk.engine.v1.DatasourceTestCoverage
+	(DatasourceTestStatus)(0),                    // 1: chalk.engine.v1.DatasourceTestStatus
+	(DatasourceTestFindingStatus)(0),             // 2: chalk.engine.v1.DatasourceTestFindingStatus
+	(RunningQueryIntrospectionStatus)(0),         // 3: chalk.engine.v1.RunningQueryIntrospectionStatus
+	(RunningDatasourceQueryState)(0),             // 4: chalk.engine.v1.RunningDatasourceQueryState
+	(*DatasourceTestFinding)(nil),                // 5: chalk.engine.v1.DatasourceTestFinding
+	(*PreviewedStreamMessage)(nil),               // 6: chalk.engine.v1.PreviewedStreamMessage
+	(*TestDatasourceRequest)(nil),                // 7: chalk.engine.v1.TestDatasourceRequest
+	(*TestDatasourceResponse)(nil),               // 8: chalk.engine.v1.TestDatasourceResponse
+	(*RunningDatasourceQuery)(nil),               // 9: chalk.engine.v1.RunningDatasourceQuery
+	(*ListRunningDatasourceQueriesFilters)(nil),  // 10: chalk.engine.v1.ListRunningDatasourceQueriesFilters
+	(*ListRunningDatasourceQueriesRequest)(nil),  // 11: chalk.engine.v1.ListRunningDatasourceQueriesRequest
+	(*ListRunningDatasourceQueriesResponse)(nil), // 12: chalk.engine.v1.ListRunningDatasourceQueriesResponse
+	(*structpb.Struct)(nil),                      // 13: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),                // 14: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                  // 15: google.protobuf.Duration
 }
 var file_chalk_engine_v1_datasource_service_proto_depIdxs = []int32{
-	2, // 0: chalk.engine.v1.DatasourceTestFinding.status:type_name -> chalk.engine.v1.DatasourceTestFindingStatus
-	7, // 1: chalk.engine.v1.TestDatasourceRequest.parameters:type_name -> google.protobuf.Struct
-	0, // 2: chalk.engine.v1.TestDatasourceRequest.coverage:type_name -> chalk.engine.v1.DatasourceTestCoverage
-	1, // 3: chalk.engine.v1.TestDatasourceResponse.status:type_name -> chalk.engine.v1.DatasourceTestStatus
-	3, // 4: chalk.engine.v1.TestDatasourceResponse.findings:type_name -> chalk.engine.v1.DatasourceTestFinding
-	4, // 5: chalk.engine.v1.TestDatasourceResponse.preview_messages:type_name -> chalk.engine.v1.PreviewedStreamMessage
-	0, // 6: chalk.engine.v1.TestDatasourceResponse.coverage_ran:type_name -> chalk.engine.v1.DatasourceTestCoverage
-	5, // 7: chalk.engine.v1.DatasourceService.TestDatasource:input_type -> chalk.engine.v1.TestDatasourceRequest
-	6, // 8: chalk.engine.v1.DatasourceService.TestDatasource:output_type -> chalk.engine.v1.TestDatasourceResponse
-	8, // [8:9] is the sub-list for method output_type
-	7, // [7:8] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	2,  // 0: chalk.engine.v1.DatasourceTestFinding.status:type_name -> chalk.engine.v1.DatasourceTestFindingStatus
+	13, // 1: chalk.engine.v1.TestDatasourceRequest.parameters:type_name -> google.protobuf.Struct
+	0,  // 2: chalk.engine.v1.TestDatasourceRequest.coverage:type_name -> chalk.engine.v1.DatasourceTestCoverage
+	1,  // 3: chalk.engine.v1.TestDatasourceResponse.status:type_name -> chalk.engine.v1.DatasourceTestStatus
+	5,  // 4: chalk.engine.v1.TestDatasourceResponse.findings:type_name -> chalk.engine.v1.DatasourceTestFinding
+	6,  // 5: chalk.engine.v1.TestDatasourceResponse.preview_messages:type_name -> chalk.engine.v1.PreviewedStreamMessage
+	0,  // 6: chalk.engine.v1.TestDatasourceResponse.coverage_ran:type_name -> chalk.engine.v1.DatasourceTestCoverage
+	4,  // 7: chalk.engine.v1.RunningDatasourceQuery.state:type_name -> chalk.engine.v1.RunningDatasourceQueryState
+	14, // 8: chalk.engine.v1.RunningDatasourceQuery.start_time:type_name -> google.protobuf.Timestamp
+	15, // 9: chalk.engine.v1.RunningDatasourceQuery.elapsed:type_name -> google.protobuf.Duration
+	15, // 10: chalk.engine.v1.RunningDatasourceQuery.queued_time:type_name -> google.protobuf.Duration
+	15, // 11: chalk.engine.v1.RunningDatasourceQuery.blocked_time:type_name -> google.protobuf.Duration
+	15, // 12: chalk.engine.v1.ListRunningDatasourceQueriesFilters.min_elapsed:type_name -> google.protobuf.Duration
+	13, // 13: chalk.engine.v1.ListRunningDatasourceQueriesRequest.parameters:type_name -> google.protobuf.Struct
+	10, // 14: chalk.engine.v1.ListRunningDatasourceQueriesRequest.filters:type_name -> chalk.engine.v1.ListRunningDatasourceQueriesFilters
+	3,  // 15: chalk.engine.v1.ListRunningDatasourceQueriesResponse.status:type_name -> chalk.engine.v1.RunningQueryIntrospectionStatus
+	9,  // 16: chalk.engine.v1.ListRunningDatasourceQueriesResponse.queries:type_name -> chalk.engine.v1.RunningDatasourceQuery
+	7,  // 17: chalk.engine.v1.DatasourceService.TestDatasource:input_type -> chalk.engine.v1.TestDatasourceRequest
+	11, // 18: chalk.engine.v1.DatasourceService.ListRunningDatasourceQueries:input_type -> chalk.engine.v1.ListRunningDatasourceQueriesRequest
+	8,  // 19: chalk.engine.v1.DatasourceService.TestDatasource:output_type -> chalk.engine.v1.TestDatasourceResponse
+	12, // 20: chalk.engine.v1.DatasourceService.ListRunningDatasourceQueries:output_type -> chalk.engine.v1.ListRunningDatasourceQueriesResponse
+	19, // [19:21] is the sub-list for method output_type
+	17, // [17:19] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_chalk_engine_v1_datasource_service_proto_init() }
@@ -676,13 +1356,16 @@ func file_chalk_engine_v1_datasource_service_proto_init() {
 	}
 	file_chalk_engine_v1_datasource_service_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_engine_v1_datasource_service_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_engine_v1_datasource_service_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_engine_v1_datasource_service_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_engine_v1_datasource_service_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_engine_v1_datasource_service_proto_rawDesc), len(file_chalk_engine_v1_datasource_service_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   4,
+			NumEnums:      5,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
