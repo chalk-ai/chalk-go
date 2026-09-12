@@ -36,9 +36,15 @@ const (
 	// UsagePoolServiceCreateUsagePoolProcedure is the fully-qualified name of the UsagePoolService's
 	// CreateUsagePool RPC.
 	UsagePoolServiceCreateUsagePoolProcedure = "/chalk.router.v1.UsagePoolService/CreateUsagePool"
+	// UsagePoolServiceUpdateUsagePoolProcedure is the fully-qualified name of the UsagePoolService's
+	// UpdateUsagePool RPC.
+	UsagePoolServiceUpdateUsagePoolProcedure = "/chalk.router.v1.UsagePoolService/UpdateUsagePool"
 	// UsagePoolServiceListUsagePoolsProcedure is the fully-qualified name of the UsagePoolService's
 	// ListUsagePools RPC.
 	UsagePoolServiceListUsagePoolsProcedure = "/chalk.router.v1.UsagePoolService/ListUsagePools"
+	// UsagePoolServiceGetUsagePoolProcedure is the fully-qualified name of the UsagePoolService's
+	// GetUsagePool RPC.
+	UsagePoolServiceGetUsagePoolProcedure = "/chalk.router.v1.UsagePoolService/GetUsagePool"
 	// UsagePoolServiceDeleteUsagePoolProcedure is the fully-qualified name of the UsagePoolService's
 	// DeleteUsagePool RPC.
 	UsagePoolServiceDeleteUsagePoolProcedure = "/chalk.router.v1.UsagePoolService/DeleteUsagePool"
@@ -47,7 +53,9 @@ const (
 // UsagePoolServiceClient is a client for the chalk.router.v1.UsagePoolService service.
 type UsagePoolServiceClient interface {
 	CreateUsagePool(context.Context, *connect.Request[v1.CreateUsagePoolRequest]) (*connect.Response[v1.CreateUsagePoolResponse], error)
+	UpdateUsagePool(context.Context, *connect.Request[v1.UpdateUsagePoolRequest]) (*connect.Response[v1.UpdateUsagePoolResponse], error)
 	ListUsagePools(context.Context, *connect.Request[v1.ListUsagePoolsRequest]) (*connect.Response[v1.ListUsagePoolsResponse], error)
+	GetUsagePool(context.Context, *connect.Request[v1.GetUsagePoolRequest]) (*connect.Response[v1.GetUsagePoolResponse], error)
 	DeleteUsagePool(context.Context, *connect.Request[v1.DeleteUsagePoolRequest]) (*connect.Response[v1.DeleteUsagePoolResponse], error)
 }
 
@@ -68,10 +76,23 @@ func NewUsagePoolServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(usagePoolServiceMethods.ByName("CreateUsagePool")),
 			connect.WithClientOptions(opts...),
 		),
+		updateUsagePool: connect.NewClient[v1.UpdateUsagePoolRequest, v1.UpdateUsagePoolResponse](
+			httpClient,
+			baseURL+UsagePoolServiceUpdateUsagePoolProcedure,
+			connect.WithSchema(usagePoolServiceMethods.ByName("UpdateUsagePool")),
+			connect.WithClientOptions(opts...),
+		),
 		listUsagePools: connect.NewClient[v1.ListUsagePoolsRequest, v1.ListUsagePoolsResponse](
 			httpClient,
 			baseURL+UsagePoolServiceListUsagePoolsProcedure,
 			connect.WithSchema(usagePoolServiceMethods.ByName("ListUsagePools")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getUsagePool: connect.NewClient[v1.GetUsagePoolRequest, v1.GetUsagePoolResponse](
+			httpClient,
+			baseURL+UsagePoolServiceGetUsagePoolProcedure,
+			connect.WithSchema(usagePoolServiceMethods.ByName("GetUsagePool")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -87,7 +108,9 @@ func NewUsagePoolServiceClient(httpClient connect.HTTPClient, baseURL string, op
 // usagePoolServiceClient implements UsagePoolServiceClient.
 type usagePoolServiceClient struct {
 	createUsagePool *connect.Client[v1.CreateUsagePoolRequest, v1.CreateUsagePoolResponse]
+	updateUsagePool *connect.Client[v1.UpdateUsagePoolRequest, v1.UpdateUsagePoolResponse]
 	listUsagePools  *connect.Client[v1.ListUsagePoolsRequest, v1.ListUsagePoolsResponse]
+	getUsagePool    *connect.Client[v1.GetUsagePoolRequest, v1.GetUsagePoolResponse]
 	deleteUsagePool *connect.Client[v1.DeleteUsagePoolRequest, v1.DeleteUsagePoolResponse]
 }
 
@@ -96,9 +119,19 @@ func (c *usagePoolServiceClient) CreateUsagePool(ctx context.Context, req *conne
 	return c.createUsagePool.CallUnary(ctx, req)
 }
 
+// UpdateUsagePool calls chalk.router.v1.UsagePoolService.UpdateUsagePool.
+func (c *usagePoolServiceClient) UpdateUsagePool(ctx context.Context, req *connect.Request[v1.UpdateUsagePoolRequest]) (*connect.Response[v1.UpdateUsagePoolResponse], error) {
+	return c.updateUsagePool.CallUnary(ctx, req)
+}
+
 // ListUsagePools calls chalk.router.v1.UsagePoolService.ListUsagePools.
 func (c *usagePoolServiceClient) ListUsagePools(ctx context.Context, req *connect.Request[v1.ListUsagePoolsRequest]) (*connect.Response[v1.ListUsagePoolsResponse], error) {
 	return c.listUsagePools.CallUnary(ctx, req)
+}
+
+// GetUsagePool calls chalk.router.v1.UsagePoolService.GetUsagePool.
+func (c *usagePoolServiceClient) GetUsagePool(ctx context.Context, req *connect.Request[v1.GetUsagePoolRequest]) (*connect.Response[v1.GetUsagePoolResponse], error) {
+	return c.getUsagePool.CallUnary(ctx, req)
 }
 
 // DeleteUsagePool calls chalk.router.v1.UsagePoolService.DeleteUsagePool.
@@ -109,7 +142,9 @@ func (c *usagePoolServiceClient) DeleteUsagePool(ctx context.Context, req *conne
 // UsagePoolServiceHandler is an implementation of the chalk.router.v1.UsagePoolService service.
 type UsagePoolServiceHandler interface {
 	CreateUsagePool(context.Context, *connect.Request[v1.CreateUsagePoolRequest]) (*connect.Response[v1.CreateUsagePoolResponse], error)
+	UpdateUsagePool(context.Context, *connect.Request[v1.UpdateUsagePoolRequest]) (*connect.Response[v1.UpdateUsagePoolResponse], error)
 	ListUsagePools(context.Context, *connect.Request[v1.ListUsagePoolsRequest]) (*connect.Response[v1.ListUsagePoolsResponse], error)
+	GetUsagePool(context.Context, *connect.Request[v1.GetUsagePoolRequest]) (*connect.Response[v1.GetUsagePoolResponse], error)
 	DeleteUsagePool(context.Context, *connect.Request[v1.DeleteUsagePoolRequest]) (*connect.Response[v1.DeleteUsagePoolResponse], error)
 }
 
@@ -126,10 +161,23 @@ func NewUsagePoolServiceHandler(svc UsagePoolServiceHandler, opts ...connect.Han
 		connect.WithSchema(usagePoolServiceMethods.ByName("CreateUsagePool")),
 		connect.WithHandlerOptions(opts...),
 	)
+	usagePoolServiceUpdateUsagePoolHandler := connect.NewUnaryHandler(
+		UsagePoolServiceUpdateUsagePoolProcedure,
+		svc.UpdateUsagePool,
+		connect.WithSchema(usagePoolServiceMethods.ByName("UpdateUsagePool")),
+		connect.WithHandlerOptions(opts...),
+	)
 	usagePoolServiceListUsagePoolsHandler := connect.NewUnaryHandler(
 		UsagePoolServiceListUsagePoolsProcedure,
 		svc.ListUsagePools,
 		connect.WithSchema(usagePoolServiceMethods.ByName("ListUsagePools")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	usagePoolServiceGetUsagePoolHandler := connect.NewUnaryHandler(
+		UsagePoolServiceGetUsagePoolProcedure,
+		svc.GetUsagePool,
+		connect.WithSchema(usagePoolServiceMethods.ByName("GetUsagePool")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -143,8 +191,12 @@ func NewUsagePoolServiceHandler(svc UsagePoolServiceHandler, opts ...connect.Han
 		switch r.URL.Path {
 		case UsagePoolServiceCreateUsagePoolProcedure:
 			usagePoolServiceCreateUsagePoolHandler.ServeHTTP(w, r)
+		case UsagePoolServiceUpdateUsagePoolProcedure:
+			usagePoolServiceUpdateUsagePoolHandler.ServeHTTP(w, r)
 		case UsagePoolServiceListUsagePoolsProcedure:
 			usagePoolServiceListUsagePoolsHandler.ServeHTTP(w, r)
+		case UsagePoolServiceGetUsagePoolProcedure:
+			usagePoolServiceGetUsagePoolHandler.ServeHTTP(w, r)
 		case UsagePoolServiceDeleteUsagePoolProcedure:
 			usagePoolServiceDeleteUsagePoolHandler.ServeHTTP(w, r)
 		default:
@@ -160,8 +212,16 @@ func (UnimplementedUsagePoolServiceHandler) CreateUsagePool(context.Context, *co
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.UsagePoolService.CreateUsagePool is not implemented"))
 }
 
+func (UnimplementedUsagePoolServiceHandler) UpdateUsagePool(context.Context, *connect.Request[v1.UpdateUsagePoolRequest]) (*connect.Response[v1.UpdateUsagePoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.UsagePoolService.UpdateUsagePool is not implemented"))
+}
+
 func (UnimplementedUsagePoolServiceHandler) ListUsagePools(context.Context, *connect.Request[v1.ListUsagePoolsRequest]) (*connect.Response[v1.ListUsagePoolsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.UsagePoolService.ListUsagePools is not implemented"))
+}
+
+func (UnimplementedUsagePoolServiceHandler) GetUsagePool(context.Context, *connect.Request[v1.GetUsagePoolRequest]) (*connect.Response[v1.GetUsagePoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.UsagePoolService.GetUsagePool is not implemented"))
 }
 
 func (UnimplementedUsagePoolServiceHandler) DeleteUsagePool(context.Context, *connect.Request[v1.DeleteUsagePoolRequest]) (*connect.Response[v1.DeleteUsagePoolResponse], error) {

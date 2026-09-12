@@ -35,6 +35,7 @@ const (
 	CloudProviderKind_CLOUD_PROVIDER_KIND_GCP         CloudProviderKind = 2
 	CloudProviderKind_CLOUD_PROVIDER_KIND_AWS         CloudProviderKind = 3
 	CloudProviderKind_CLOUD_PROVIDER_KIND_AZURE       CloudProviderKind = 4
+	CloudProviderKind_CLOUD_PROVIDER_KIND_LOCAL       CloudProviderKind = 5
 )
 
 // Enum value maps for CloudProviderKind.
@@ -45,6 +46,7 @@ var (
 		2: "CLOUD_PROVIDER_KIND_GCP",
 		3: "CLOUD_PROVIDER_KIND_AWS",
 		4: "CLOUD_PROVIDER_KIND_AZURE",
+		5: "CLOUD_PROVIDER_KIND_LOCAL",
 	}
 	CloudProviderKind_value = map[string]int32{
 		"CLOUD_PROVIDER_KIND_UNSPECIFIED": 0,
@@ -52,6 +54,7 @@ var (
 		"CLOUD_PROVIDER_KIND_GCP":         2,
 		"CLOUD_PROVIDER_KIND_AWS":         3,
 		"CLOUD_PROVIDER_KIND_AZURE":       4,
+		"CLOUD_PROVIDER_KIND_LOCAL":       5,
 	}
 )
 
@@ -1943,13 +1946,14 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\vskip_probes\x18\x01 \x01(\bR\n" +
 	"skipProbes\"a\n" +
 	"\"DiscoverEnvironmentBucketsResponse\x12;\n" +
-	"\abuckets\x18\x01 \x03(\v2!.chalk.server.v1.DiscoveredBucketR\abuckets*\xb2\x01\n" +
+	"\abuckets\x18\x01 \x03(\v2!.chalk.server.v1.DiscoveredBucketR\abuckets*\xd1\x01\n" +
 	"\x11CloudProviderKind\x12#\n" +
 	"\x1fCLOUD_PROVIDER_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bCLOUD_PROVIDER_KIND_UNKNOWN\x10\x01\x12\x1b\n" +
 	"\x17CLOUD_PROVIDER_KIND_GCP\x10\x02\x12\x1b\n" +
 	"\x17CLOUD_PROVIDER_KIND_AWS\x10\x03\x12\x1d\n" +
-	"\x19CLOUD_PROVIDER_KIND_AZURE\x10\x04*\xdf\x01\n" +
+	"\x19CLOUD_PROVIDER_KIND_AZURE\x10\x04\x12\x1d\n" +
+	"\x19CLOUD_PROVIDER_KIND_LOCAL\x10\x05*\xdf\x01\n" +
 	"\fVectorDBKind\x12\x1e\n" +
 	"\x1aVECTOR_DB_KIND_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19VECTOR_DB_KIND_OPENSEARCH\x10\x01\x12\x1b\n" +

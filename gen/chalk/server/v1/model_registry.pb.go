@@ -2914,6 +2914,7 @@ type ListModelArtifactsRequest struct {
 	// Types that are valid to be assigned to Filter:
 	//
 	//	*ListModelArtifactsRequest_ScriptTaskId
+	//	*ListModelArtifactsRequest_TrainingRunId
 	Filter        isListModelArtifactsRequest_Filter `protobuf_oneof:"filter"`
 	Cursor        *string                            `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	Limit         *int32                             `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
@@ -2967,6 +2968,15 @@ func (x *ListModelArtifactsRequest) GetScriptTaskId() string {
 	return ""
 }
 
+func (x *ListModelArtifactsRequest) GetTrainingRunId() string {
+	if x != nil {
+		if x, ok := x.Filter.(*ListModelArtifactsRequest_TrainingRunId); ok {
+			return x.TrainingRunId
+		}
+	}
+	return ""
+}
+
 func (x *ListModelArtifactsRequest) GetCursor() string {
 	if x != nil && x.Cursor != nil {
 		return *x.Cursor
@@ -2989,7 +2999,13 @@ type ListModelArtifactsRequest_ScriptTaskId struct {
 	ScriptTaskId string `protobuf:"bytes,1,opt,name=script_task_id,json=scriptTaskId,proto3,oneof"`
 }
 
+type ListModelArtifactsRequest_TrainingRunId struct {
+	TrainingRunId string `protobuf:"bytes,4,opt,name=training_run_id,json=trainingRunId,proto3,oneof"`
+}
+
 func (*ListModelArtifactsRequest_ScriptTaskId) isListModelArtifactsRequest_Filter() {}
+
+func (*ListModelArtifactsRequest_TrainingRunId) isListModelArtifactsRequest_Filter() {}
 
 type ListModelArtifactsResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
@@ -3470,9 +3486,10 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\aaliases\x18\x04 \x03(\tR\aaliasesB\x15\n" +
 	"\x13artifact_identifier\"l\n" +
 	"&CreateModelVersionFromArtifactResponse\x12B\n" +
-	"\rmodel_version\x18\x01 \x01(\v2\x1d.chalk.server.v1.ModelVersionR\fmodelVersion\"\x9a\x01\n" +
+	"\rmodel_version\x18\x01 \x01(\v2\x1d.chalk.server.v1.ModelVersionR\fmodelVersion\"\xc4\x01\n" +
 	"\x19ListModelArtifactsRequest\x12&\n" +
-	"\x0escript_task_id\x18\x01 \x01(\tH\x00R\fscriptTaskId\x12\x1b\n" +
+	"\x0escript_task_id\x18\x01 \x01(\tH\x00R\fscriptTaskId\x12(\n" +
+	"\x0ftraining_run_id\x18\x04 \x01(\tH\x00R\rtrainingRunId\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x03 \x01(\x05H\x02R\x05limit\x88\x01\x01B\b\n" +
 	"\x06filterB\t\n" +
@@ -3767,6 +3784,7 @@ func file_chalk_server_v1_model_registry_proto_init() {
 	}
 	file_chalk_server_v1_model_registry_proto_msgTypes[42].OneofWrappers = []any{
 		(*ListModelArtifactsRequest_ScriptTaskId)(nil),
+		(*ListModelArtifactsRequest_TrainingRunId)(nil),
 	}
 	file_chalk_server_v1_model_registry_proto_msgTypes[43].OneofWrappers = []any{}
 	file_chalk_server_v1_model_registry_proto_msgTypes[45].OneofWrappers = []any{}

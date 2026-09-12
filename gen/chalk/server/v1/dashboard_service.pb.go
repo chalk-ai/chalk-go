@@ -178,6 +178,54 @@ func (DashboardSortOrder) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{2}
 }
 
+// A product surface with an environment-wide, admin-managed dashboard default. Each location maps
+// to its own owned dashboard; adding a location extends this API without adding another RPC family.
+type ContextualDashboardLocation int32
+
+const (
+	ContextualDashboardLocation_CONTEXTUAL_DASHBOARD_LOCATION_UNSPECIFIED ContextualDashboardLocation = 0
+	ContextualDashboardLocation_CONTEXTUAL_DASHBOARD_LOCATION_HOME        ContextualDashboardLocation = 1
+)
+
+// Enum value maps for ContextualDashboardLocation.
+var (
+	ContextualDashboardLocation_name = map[int32]string{
+		0: "CONTEXTUAL_DASHBOARD_LOCATION_UNSPECIFIED",
+		1: "CONTEXTUAL_DASHBOARD_LOCATION_HOME",
+	}
+	ContextualDashboardLocation_value = map[string]int32{
+		"CONTEXTUAL_DASHBOARD_LOCATION_UNSPECIFIED": 0,
+		"CONTEXTUAL_DASHBOARD_LOCATION_HOME":        1,
+	}
+)
+
+func (x ContextualDashboardLocation) Enum() *ContextualDashboardLocation {
+	p := new(ContextualDashboardLocation)
+	*p = x
+	return p
+}
+
+func (x ContextualDashboardLocation) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ContextualDashboardLocation) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_dashboard_service_proto_enumTypes[3].Descriptor()
+}
+
+func (ContextualDashboardLocation) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_dashboard_service_proto_enumTypes[3]
+}
+
+func (x ContextualDashboardLocation) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ContextualDashboardLocation.Descriptor instead.
+func (ContextualDashboardLocation) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{3}
+}
+
 // Dashboard-wide view controls. Server-owned and UI-set, kept separate from the dashboard artifact:
 // `chalk apply` reconciles the artifact (name + widgets) and must never touch these, so they
 // cannot live inside the artifact. The saved defaults only; the active viewing state is carried in
@@ -986,6 +1034,276 @@ func (x *ImportDashboardResponse) GetDashboard() *v1.Dashboard {
 	return nil
 }
 
+// Returns the saved override for the requested contextual dashboard. An unset dashboard means the
+// environment still uses that location's frontend-defined default.
+type GetContextualDashboardRequest struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Location      ContextualDashboardLocation `protobuf:"varint,1,opt,name=location,proto3,enum=chalk.server.v1.ContextualDashboardLocation" json:"location,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetContextualDashboardRequest) Reset() {
+	*x = GetContextualDashboardRequest{}
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetContextualDashboardRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetContextualDashboardRequest) ProtoMessage() {}
+
+func (x *GetContextualDashboardRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetContextualDashboardRequest.ProtoReflect.Descriptor instead.
+func (*GetContextualDashboardRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetContextualDashboardRequest) GetLocation() ContextualDashboardLocation {
+	if x != nil {
+		return x.Location
+	}
+	return ContextualDashboardLocation_CONTEXTUAL_DASHBOARD_LOCATION_UNSPECIFIED
+}
+
+type GetContextualDashboardResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Dashboard     *v1.Dashboard          `protobuf:"bytes,1,opt,name=dashboard,proto3,oneof" json:"dashboard,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetContextualDashboardResponse) Reset() {
+	*x = GetContextualDashboardResponse{}
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetContextualDashboardResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetContextualDashboardResponse) ProtoMessage() {}
+
+func (x *GetContextualDashboardResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetContextualDashboardResponse.ProtoReflect.Descriptor instead.
+func (*GetContextualDashboardResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetContextualDashboardResponse) GetDashboard() *v1.Dashboard {
+	if x != nil {
+		return x.Dashboard
+	}
+	return nil
+}
+
+// Full replacement of a contextual dashboard's customized widgets. The first call creates the
+// environment's override for that location; later calls replace it.
+type UpsertContextualDashboardRequest struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Location      ContextualDashboardLocation `protobuf:"varint,1,opt,name=location,proto3,enum=chalk.server.v1.ContextualDashboardLocation" json:"location,omitempty"`
+	Widgets       []*v1.DashboardWidget       `protobuf:"bytes,2,rep,name=widgets,proto3" json:"widgets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpsertContextualDashboardRequest) Reset() {
+	*x = UpsertContextualDashboardRequest{}
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpsertContextualDashboardRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpsertContextualDashboardRequest) ProtoMessage() {}
+
+func (x *UpsertContextualDashboardRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpsertContextualDashboardRequest.ProtoReflect.Descriptor instead.
+func (*UpsertContextualDashboardRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *UpsertContextualDashboardRequest) GetLocation() ContextualDashboardLocation {
+	if x != nil {
+		return x.Location
+	}
+	return ContextualDashboardLocation_CONTEXTUAL_DASHBOARD_LOCATION_UNSPECIFIED
+}
+
+func (x *UpsertContextualDashboardRequest) GetWidgets() []*v1.DashboardWidget {
+	if x != nil {
+		return x.Widgets
+	}
+	return nil
+}
+
+type UpsertContextualDashboardResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Dashboard     *v1.Dashboard          `protobuf:"bytes,1,opt,name=dashboard,proto3" json:"dashboard,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpsertContextualDashboardResponse) Reset() {
+	*x = UpsertContextualDashboardResponse{}
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpsertContextualDashboardResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpsertContextualDashboardResponse) ProtoMessage() {}
+
+func (x *UpsertContextualDashboardResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpsertContextualDashboardResponse.ProtoReflect.Descriptor instead.
+func (*UpsertContextualDashboardResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UpsertContextualDashboardResponse) GetDashboard() *v1.Dashboard {
+	if x != nil {
+		return x.Dashboard
+	}
+	return nil
+}
+
+// Removes the customized override so the requested location's code-defined default becomes
+// effective again.
+type ResetContextualDashboardRequest struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Location      ContextualDashboardLocation `protobuf:"varint,1,opt,name=location,proto3,enum=chalk.server.v1.ContextualDashboardLocation" json:"location,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetContextualDashboardRequest) Reset() {
+	*x = ResetContextualDashboardRequest{}
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetContextualDashboardRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetContextualDashboardRequest) ProtoMessage() {}
+
+func (x *ResetContextualDashboardRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetContextualDashboardRequest.ProtoReflect.Descriptor instead.
+func (*ResetContextualDashboardRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ResetContextualDashboardRequest) GetLocation() ContextualDashboardLocation {
+	if x != nil {
+		return x.Location
+	}
+	return ContextualDashboardLocation_CONTEXTUAL_DASHBOARD_LOCATION_UNSPECIFIED
+}
+
+type ResetContextualDashboardResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetContextualDashboardResponse) Reset() {
+	*x = ResetContextualDashboardResponse{}
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetContextualDashboardResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetContextualDashboardResponse) ProtoMessage() {}
+
+func (x *ResetContextualDashboardResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dashboard_service_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetContextualDashboardResponse.ProtoReflect.Descriptor instead.
+func (*ResetContextualDashboardResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{20}
+}
+
 var File_chalk_server_v1_dashboard_service_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
@@ -1058,7 +1376,21 @@ const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
 	"\n" +
 	"\b_dry_run\"V\n" +
 	"\x17ImportDashboardResponse\x12;\n" +
-	"\tdashboard\x18\x01 \x01(\v2\x1d.chalk.artifacts.v1.DashboardR\tdashboard*\xbd\x01\n" +
+	"\tdashboard\x18\x01 \x01(\v2\x1d.chalk.artifacts.v1.DashboardR\tdashboard\"i\n" +
+	"\x1dGetContextualDashboardRequest\x12H\n" +
+	"\blocation\x18\x01 \x01(\x0e2,.chalk.server.v1.ContextualDashboardLocationR\blocation\"p\n" +
+	"\x1eGetContextualDashboardResponse\x12@\n" +
+	"\tdashboard\x18\x01 \x01(\v2\x1d.chalk.artifacts.v1.DashboardH\x00R\tdashboard\x88\x01\x01B\f\n" +
+	"\n" +
+	"_dashboard\"\xab\x01\n" +
+	" UpsertContextualDashboardRequest\x12H\n" +
+	"\blocation\x18\x01 \x01(\x0e2,.chalk.server.v1.ContextualDashboardLocationR\blocation\x12=\n" +
+	"\awidgets\x18\x02 \x03(\v2#.chalk.artifacts.v1.DashboardWidgetR\awidgets\"`\n" +
+	"!UpsertContextualDashboardResponse\x12;\n" +
+	"\tdashboard\x18\x01 \x01(\v2\x1d.chalk.artifacts.v1.DashboardR\tdashboard\"k\n" +
+	"\x1fResetContextualDashboardRequest\x12H\n" +
+	"\blocation\x18\x01 \x01(\x0e2,.chalk.server.v1.ContextualDashboardLocationR\blocation\"\"\n" +
+	" ResetContextualDashboardResponse*\xbd\x01\n" +
 	"\x13DashboardAnnotation\x12$\n" +
 	" DASHBOARD_ANNOTATION_UNSPECIFIED\x10\x00\x12)\n" +
 	"%DASHBOARD_ANNOTATION_INCIDENT_MARKERS\x10\x01\x12(\n" +
@@ -1072,7 +1404,10 @@ const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
 	"\x12DashboardSortOrder\x12$\n" +
 	" DASHBOARD_SORT_ORDER_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19DASHBOARD_SORT_ORDER_DESC\x10\x01\x12\x1c\n" +
-	"\x18DASHBOARD_SORT_ORDER_ASC\x10\x022\xf3\x05\n" +
+	"\x18DASHBOARD_SORT_ORDER_ASC\x10\x02*t\n" +
+	"\x1bContextualDashboardLocation\x12-\n" +
+	")CONTEXTUAL_DASHBOARD_LOCATION_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"CONTEXTUAL_DASHBOARD_LOCATION_HOME\x10\x012\x84\t\n" +
 	"\x10DashboardService\x12i\n" +
 	"\x0fCreateDashboard\x12'.chalk.server.v1.CreateDashboardRequest\x1a(.chalk.server.v1.CreateDashboardResponse\"\x03\x80}\x05\x12`\n" +
 	"\fGetDashboard\x12$.chalk.server.v1.GetDashboardRequest\x1a%.chalk.server.v1.GetDashboardResponse\"\x03\x80}\x06\x12f\n" +
@@ -1080,7 +1415,12 @@ const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
 	"\x0fUpdateDashboard\x12'.chalk.server.v1.UpdateDashboardRequest\x1a(.chalk.server.v1.UpdateDashboardResponse\"\x03\x80}\x05\x12i\n" +
 	"\x0fDeleteDashboard\x12'.chalk.server.v1.DeleteDashboardRequest\x1a(.chalk.server.v1.DeleteDashboardResponse\"\x03\x80}\x05\x12i\n" +
 	"\x0fExportDashboard\x12'.chalk.server.v1.ExportDashboardRequest\x1a(.chalk.server.v1.ExportDashboardResponse\"\x03\x80}\x06\x12i\n" +
-	"\x0fImportDashboard\x12'.chalk.server.v1.ImportDashboardRequest\x1a(.chalk.server.v1.ImportDashboardResponse\"\x03\x80}\x05B\xc5\x01\n" +
+	"\x0fImportDashboard\x12'.chalk.server.v1.ImportDashboardRequest\x1a(.chalk.server.v1.ImportDashboardResponse\"\x03\x80}\x05\x12~\n" +
+	"\x16GetContextualDashboard\x12..chalk.server.v1.GetContextualDashboardRequest\x1a/.chalk.server.v1.GetContextualDashboardResponse\"\x03\x80}\x06\x12\x87\x01\n" +
+	"\x19UpsertContextualDashboard\x121.chalk.server.v1.UpsertContextualDashboardRequest\x1a2.chalk.server.v1.UpsertContextualDashboardResponse\"\x03\x80}\n" +
+	"\x12\x84\x01\n" +
+	"\x18ResetContextualDashboard\x120.chalk.server.v1.ResetContextualDashboardRequest\x1a1.chalk.server.v1.ResetContextualDashboardResponse\"\x03\x80}\n" +
+	"B\xc5\x01\n" +
 	"\x13com.chalk.server.v1B\x15DashboardServiceProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -1095,68 +1435,88 @@ func file_chalk_server_v1_dashboard_service_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_dashboard_service_proto_rawDescData
 }
 
-var file_chalk_server_v1_dashboard_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_server_v1_dashboard_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_server_v1_dashboard_service_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_chalk_server_v1_dashboard_service_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_chalk_server_v1_dashboard_service_proto_goTypes = []any{
-	(DashboardAnnotation)(0),        // 0: chalk.server.v1.DashboardAnnotation
-	(DashboardSortColumn)(0),        // 1: chalk.server.v1.DashboardSortColumn
-	(DashboardSortOrder)(0),         // 2: chalk.server.v1.DashboardSortOrder
-	(*DashboardControls)(nil),       // 3: chalk.server.v1.DashboardControls
-	(*CreateDashboardRequest)(nil),  // 4: chalk.server.v1.CreateDashboardRequest
-	(*CreateDashboardResponse)(nil), // 5: chalk.server.v1.CreateDashboardResponse
-	(*GetDashboardRequest)(nil),     // 6: chalk.server.v1.GetDashboardRequest
-	(*GetDashboardResponse)(nil),    // 7: chalk.server.v1.GetDashboardResponse
-	(*ListDashboardsRequest)(nil),   // 8: chalk.server.v1.ListDashboardsRequest
-	(*ListDashboardsResponse)(nil),  // 9: chalk.server.v1.ListDashboardsResponse
-	(*UpdateDashboardRequest)(nil),  // 10: chalk.server.v1.UpdateDashboardRequest
-	(*UpdateDashboardResponse)(nil), // 11: chalk.server.v1.UpdateDashboardResponse
-	(*DeleteDashboardRequest)(nil),  // 12: chalk.server.v1.DeleteDashboardRequest
-	(*DeleteDashboardResponse)(nil), // 13: chalk.server.v1.DeleteDashboardResponse
-	(*ExportDashboardRequest)(nil),  // 14: chalk.server.v1.ExportDashboardRequest
-	(*ExportDashboardResponse)(nil), // 15: chalk.server.v1.ExportDashboardResponse
-	(*ImportDashboardRequest)(nil),  // 16: chalk.server.v1.ImportDashboardRequest
-	(*ImportDashboardResponse)(nil), // 17: chalk.server.v1.ImportDashboardResponse
-	(*v1.Dashboard)(nil),            // 18: chalk.artifacts.v1.Dashboard
-	(*fieldmaskpb.FieldMask)(nil),   // 19: google.protobuf.FieldMask
+	(DashboardAnnotation)(0),                  // 0: chalk.server.v1.DashboardAnnotation
+	(DashboardSortColumn)(0),                  // 1: chalk.server.v1.DashboardSortColumn
+	(DashboardSortOrder)(0),                   // 2: chalk.server.v1.DashboardSortOrder
+	(ContextualDashboardLocation)(0),          // 3: chalk.server.v1.ContextualDashboardLocation
+	(*DashboardControls)(nil),                 // 4: chalk.server.v1.DashboardControls
+	(*CreateDashboardRequest)(nil),            // 5: chalk.server.v1.CreateDashboardRequest
+	(*CreateDashboardResponse)(nil),           // 6: chalk.server.v1.CreateDashboardResponse
+	(*GetDashboardRequest)(nil),               // 7: chalk.server.v1.GetDashboardRequest
+	(*GetDashboardResponse)(nil),              // 8: chalk.server.v1.GetDashboardResponse
+	(*ListDashboardsRequest)(nil),             // 9: chalk.server.v1.ListDashboardsRequest
+	(*ListDashboardsResponse)(nil),            // 10: chalk.server.v1.ListDashboardsResponse
+	(*UpdateDashboardRequest)(nil),            // 11: chalk.server.v1.UpdateDashboardRequest
+	(*UpdateDashboardResponse)(nil),           // 12: chalk.server.v1.UpdateDashboardResponse
+	(*DeleteDashboardRequest)(nil),            // 13: chalk.server.v1.DeleteDashboardRequest
+	(*DeleteDashboardResponse)(nil),           // 14: chalk.server.v1.DeleteDashboardResponse
+	(*ExportDashboardRequest)(nil),            // 15: chalk.server.v1.ExportDashboardRequest
+	(*ExportDashboardResponse)(nil),           // 16: chalk.server.v1.ExportDashboardResponse
+	(*ImportDashboardRequest)(nil),            // 17: chalk.server.v1.ImportDashboardRequest
+	(*ImportDashboardResponse)(nil),           // 18: chalk.server.v1.ImportDashboardResponse
+	(*GetContextualDashboardRequest)(nil),     // 19: chalk.server.v1.GetContextualDashboardRequest
+	(*GetContextualDashboardResponse)(nil),    // 20: chalk.server.v1.GetContextualDashboardResponse
+	(*UpsertContextualDashboardRequest)(nil),  // 21: chalk.server.v1.UpsertContextualDashboardRequest
+	(*UpsertContextualDashboardResponse)(nil), // 22: chalk.server.v1.UpsertContextualDashboardResponse
+	(*ResetContextualDashboardRequest)(nil),   // 23: chalk.server.v1.ResetContextualDashboardRequest
+	(*ResetContextualDashboardResponse)(nil),  // 24: chalk.server.v1.ResetContextualDashboardResponse
+	(*v1.Dashboard)(nil),                      // 25: chalk.artifacts.v1.Dashboard
+	(*fieldmaskpb.FieldMask)(nil),             // 26: google.protobuf.FieldMask
+	(*v1.DashboardWidget)(nil),                // 27: chalk.artifacts.v1.DashboardWidget
 }
 var file_chalk_server_v1_dashboard_service_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.DashboardControls.annotations:type_name -> chalk.server.v1.DashboardAnnotation
-	18, // 1: chalk.server.v1.CreateDashboardRequest.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	3,  // 2: chalk.server.v1.CreateDashboardRequest.controls:type_name -> chalk.server.v1.DashboardControls
-	18, // 3: chalk.server.v1.CreateDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	3,  // 4: chalk.server.v1.CreateDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
-	19, // 5: chalk.server.v1.GetDashboardRequest.read_mask:type_name -> google.protobuf.FieldMask
-	18, // 6: chalk.server.v1.GetDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	3,  // 7: chalk.server.v1.GetDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
-	19, // 8: chalk.server.v1.ListDashboardsRequest.read_mask:type_name -> google.protobuf.FieldMask
+	25, // 1: chalk.server.v1.CreateDashboardRequest.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	4,  // 2: chalk.server.v1.CreateDashboardRequest.controls:type_name -> chalk.server.v1.DashboardControls
+	25, // 3: chalk.server.v1.CreateDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	4,  // 4: chalk.server.v1.CreateDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
+	26, // 5: chalk.server.v1.GetDashboardRequest.read_mask:type_name -> google.protobuf.FieldMask
+	25, // 6: chalk.server.v1.GetDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	4,  // 7: chalk.server.v1.GetDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
+	26, // 8: chalk.server.v1.ListDashboardsRequest.read_mask:type_name -> google.protobuf.FieldMask
 	1,  // 9: chalk.server.v1.ListDashboardsRequest.sort_column:type_name -> chalk.server.v1.DashboardSortColumn
 	2,  // 10: chalk.server.v1.ListDashboardsRequest.sort_order:type_name -> chalk.server.v1.DashboardSortOrder
-	18, // 11: chalk.server.v1.ListDashboardsResponse.dashboards:type_name -> chalk.artifacts.v1.Dashboard
-	18, // 12: chalk.server.v1.UpdateDashboardRequest.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	3,  // 13: chalk.server.v1.UpdateDashboardRequest.controls:type_name -> chalk.server.v1.DashboardControls
-	19, // 14: chalk.server.v1.UpdateDashboardRequest.update_mask:type_name -> google.protobuf.FieldMask
-	18, // 15: chalk.server.v1.UpdateDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	3,  // 16: chalk.server.v1.UpdateDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
-	18, // 17: chalk.server.v1.ImportDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
-	4,  // 18: chalk.server.v1.DashboardService.CreateDashboard:input_type -> chalk.server.v1.CreateDashboardRequest
-	6,  // 19: chalk.server.v1.DashboardService.GetDashboard:input_type -> chalk.server.v1.GetDashboardRequest
-	8,  // 20: chalk.server.v1.DashboardService.ListDashboards:input_type -> chalk.server.v1.ListDashboardsRequest
-	10, // 21: chalk.server.v1.DashboardService.UpdateDashboard:input_type -> chalk.server.v1.UpdateDashboardRequest
-	12, // 22: chalk.server.v1.DashboardService.DeleteDashboard:input_type -> chalk.server.v1.DeleteDashboardRequest
-	14, // 23: chalk.server.v1.DashboardService.ExportDashboard:input_type -> chalk.server.v1.ExportDashboardRequest
-	16, // 24: chalk.server.v1.DashboardService.ImportDashboard:input_type -> chalk.server.v1.ImportDashboardRequest
-	5,  // 25: chalk.server.v1.DashboardService.CreateDashboard:output_type -> chalk.server.v1.CreateDashboardResponse
-	7,  // 26: chalk.server.v1.DashboardService.GetDashboard:output_type -> chalk.server.v1.GetDashboardResponse
-	9,  // 27: chalk.server.v1.DashboardService.ListDashboards:output_type -> chalk.server.v1.ListDashboardsResponse
-	11, // 28: chalk.server.v1.DashboardService.UpdateDashboard:output_type -> chalk.server.v1.UpdateDashboardResponse
-	13, // 29: chalk.server.v1.DashboardService.DeleteDashboard:output_type -> chalk.server.v1.DeleteDashboardResponse
-	15, // 30: chalk.server.v1.DashboardService.ExportDashboard:output_type -> chalk.server.v1.ExportDashboardResponse
-	17, // 31: chalk.server.v1.DashboardService.ImportDashboard:output_type -> chalk.server.v1.ImportDashboardResponse
-	25, // [25:32] is the sub-list for method output_type
-	18, // [18:25] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	25, // 11: chalk.server.v1.ListDashboardsResponse.dashboards:type_name -> chalk.artifacts.v1.Dashboard
+	25, // 12: chalk.server.v1.UpdateDashboardRequest.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	4,  // 13: chalk.server.v1.UpdateDashboardRequest.controls:type_name -> chalk.server.v1.DashboardControls
+	26, // 14: chalk.server.v1.UpdateDashboardRequest.update_mask:type_name -> google.protobuf.FieldMask
+	25, // 15: chalk.server.v1.UpdateDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	4,  // 16: chalk.server.v1.UpdateDashboardResponse.controls:type_name -> chalk.server.v1.DashboardControls
+	25, // 17: chalk.server.v1.ImportDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	3,  // 18: chalk.server.v1.GetContextualDashboardRequest.location:type_name -> chalk.server.v1.ContextualDashboardLocation
+	25, // 19: chalk.server.v1.GetContextualDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	3,  // 20: chalk.server.v1.UpsertContextualDashboardRequest.location:type_name -> chalk.server.v1.ContextualDashboardLocation
+	27, // 21: chalk.server.v1.UpsertContextualDashboardRequest.widgets:type_name -> chalk.artifacts.v1.DashboardWidget
+	25, // 22: chalk.server.v1.UpsertContextualDashboardResponse.dashboard:type_name -> chalk.artifacts.v1.Dashboard
+	3,  // 23: chalk.server.v1.ResetContextualDashboardRequest.location:type_name -> chalk.server.v1.ContextualDashboardLocation
+	5,  // 24: chalk.server.v1.DashboardService.CreateDashboard:input_type -> chalk.server.v1.CreateDashboardRequest
+	7,  // 25: chalk.server.v1.DashboardService.GetDashboard:input_type -> chalk.server.v1.GetDashboardRequest
+	9,  // 26: chalk.server.v1.DashboardService.ListDashboards:input_type -> chalk.server.v1.ListDashboardsRequest
+	11, // 27: chalk.server.v1.DashboardService.UpdateDashboard:input_type -> chalk.server.v1.UpdateDashboardRequest
+	13, // 28: chalk.server.v1.DashboardService.DeleteDashboard:input_type -> chalk.server.v1.DeleteDashboardRequest
+	15, // 29: chalk.server.v1.DashboardService.ExportDashboard:input_type -> chalk.server.v1.ExportDashboardRequest
+	17, // 30: chalk.server.v1.DashboardService.ImportDashboard:input_type -> chalk.server.v1.ImportDashboardRequest
+	19, // 31: chalk.server.v1.DashboardService.GetContextualDashboard:input_type -> chalk.server.v1.GetContextualDashboardRequest
+	21, // 32: chalk.server.v1.DashboardService.UpsertContextualDashboard:input_type -> chalk.server.v1.UpsertContextualDashboardRequest
+	23, // 33: chalk.server.v1.DashboardService.ResetContextualDashboard:input_type -> chalk.server.v1.ResetContextualDashboardRequest
+	6,  // 34: chalk.server.v1.DashboardService.CreateDashboard:output_type -> chalk.server.v1.CreateDashboardResponse
+	8,  // 35: chalk.server.v1.DashboardService.GetDashboard:output_type -> chalk.server.v1.GetDashboardResponse
+	10, // 36: chalk.server.v1.DashboardService.ListDashboards:output_type -> chalk.server.v1.ListDashboardsResponse
+	12, // 37: chalk.server.v1.DashboardService.UpdateDashboard:output_type -> chalk.server.v1.UpdateDashboardResponse
+	14, // 38: chalk.server.v1.DashboardService.DeleteDashboard:output_type -> chalk.server.v1.DeleteDashboardResponse
+	16, // 39: chalk.server.v1.DashboardService.ExportDashboard:output_type -> chalk.server.v1.ExportDashboardResponse
+	18, // 40: chalk.server.v1.DashboardService.ImportDashboard:output_type -> chalk.server.v1.ImportDashboardResponse
+	20, // 41: chalk.server.v1.DashboardService.GetContextualDashboard:output_type -> chalk.server.v1.GetContextualDashboardResponse
+	22, // 42: chalk.server.v1.DashboardService.UpsertContextualDashboard:output_type -> chalk.server.v1.UpsertContextualDashboardResponse
+	24, // 43: chalk.server.v1.DashboardService.ResetContextualDashboard:output_type -> chalk.server.v1.ResetContextualDashboardResponse
+	34, // [34:44] is the sub-list for method output_type
+	24, // [24:34] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_dashboard_service_proto_init() }
@@ -1170,13 +1530,14 @@ func file_chalk_server_v1_dashboard_service_proto_init() {
 	file_chalk_server_v1_dashboard_service_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_server_v1_dashboard_service_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_dashboard_service_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_server_v1_dashboard_service_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_dashboard_service_proto_rawDesc), len(file_chalk_server_v1_dashboard_service_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   15,
+			NumEnums:      4,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

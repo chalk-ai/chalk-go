@@ -8,6 +8,7 @@ package agentv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -186,6 +187,64 @@ func (AgentConversationStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_agent_v1_conversation_proto_rawDescGZIP(), []int{2}
 }
 
+// Publication state of the metadata header relative to its data-plane
+// content. Numeric values are persisted directly in metadata PostgreSQL and
+// must never be renumbered.
+type AgentConversationContentState int32
+
+const (
+	AgentConversationContentState_AGENT_CONVERSATION_CONTENT_STATE_UNSPECIFIED     AgentConversationContentState = 0
+	AgentConversationContentState_AGENT_CONVERSATION_CONTENT_STATE_PROVISIONING    AgentConversationContentState = 1
+	AgentConversationContentState_AGENT_CONVERSATION_CONTENT_STATE_READY           AgentConversationContentState = 2
+	AgentConversationContentState_AGENT_CONVERSATION_CONTENT_STATE_DELETING        AgentConversationContentState = 3
+	AgentConversationContentState_AGENT_CONVERSATION_CONTENT_STATE_REPAIR_REQUIRED AgentConversationContentState = 4
+)
+
+// Enum value maps for AgentConversationContentState.
+var (
+	AgentConversationContentState_name = map[int32]string{
+		0: "AGENT_CONVERSATION_CONTENT_STATE_UNSPECIFIED",
+		1: "AGENT_CONVERSATION_CONTENT_STATE_PROVISIONING",
+		2: "AGENT_CONVERSATION_CONTENT_STATE_READY",
+		3: "AGENT_CONVERSATION_CONTENT_STATE_DELETING",
+		4: "AGENT_CONVERSATION_CONTENT_STATE_REPAIR_REQUIRED",
+	}
+	AgentConversationContentState_value = map[string]int32{
+		"AGENT_CONVERSATION_CONTENT_STATE_UNSPECIFIED":     0,
+		"AGENT_CONVERSATION_CONTENT_STATE_PROVISIONING":    1,
+		"AGENT_CONVERSATION_CONTENT_STATE_READY":           2,
+		"AGENT_CONVERSATION_CONTENT_STATE_DELETING":        3,
+		"AGENT_CONVERSATION_CONTENT_STATE_REPAIR_REQUIRED": 4,
+	}
+)
+
+func (x AgentConversationContentState) Enum() *AgentConversationContentState {
+	p := new(AgentConversationContentState)
+	*p = x
+	return p
+}
+
+func (x AgentConversationContentState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AgentConversationContentState) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_conversation_proto_enumTypes[3].Descriptor()
+}
+
+func (AgentConversationContentState) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_conversation_proto_enumTypes[3]
+}
+
+func (x AgentConversationContentState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AgentConversationContentState.Descriptor instead.
+func (AgentConversationContentState) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_conversation_proto_rawDescGZIP(), []int{3}
+}
+
 // Kinds of external resources ("artifacts") that can be linked to a
 // conversation — resources the conversation created or touched, identified by
 // their id in their own table/service.
@@ -222,11 +281,11 @@ func (x AgentArtifactKind) String() string {
 }
 
 func (AgentArtifactKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_agent_v1_conversation_proto_enumTypes[3].Descriptor()
+	return file_chalk_agent_v1_conversation_proto_enumTypes[4].Descriptor()
 }
 
 func (AgentArtifactKind) Type() protoreflect.EnumType {
-	return &file_chalk_agent_v1_conversation_proto_enumTypes[3]
+	return &file_chalk_agent_v1_conversation_proto_enumTypes[4]
 }
 
 func (x AgentArtifactKind) Number() protoreflect.EnumNumber {
@@ -235,7 +294,7 @@ func (x AgentArtifactKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AgentArtifactKind.Descriptor instead.
 func (AgentArtifactKind) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_conversation_proto_rawDescGZIP(), []int{3}
+	return file_chalk_agent_v1_conversation_proto_rawDescGZIP(), []int{4}
 }
 
 type AgentToolCallStatus int32
@@ -277,11 +336,11 @@ func (x AgentToolCallStatus) String() string {
 }
 
 func (AgentToolCallStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_agent_v1_conversation_proto_enumTypes[4].Descriptor()
+	return file_chalk_agent_v1_conversation_proto_enumTypes[5].Descriptor()
 }
 
 func (AgentToolCallStatus) Type() protoreflect.EnumType {
-	return &file_chalk_agent_v1_conversation_proto_enumTypes[4]
+	return &file_chalk_agent_v1_conversation_proto_enumTypes[5]
 }
 
 func (x AgentToolCallStatus) Number() protoreflect.EnumNumber {
@@ -290,7 +349,107 @@ func (x AgentToolCallStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AgentToolCallStatus.Descriptor instead.
 func (AgentToolCallStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_conversation_proto_rawDescGZIP(), []int{4}
+	return file_chalk_agent_v1_conversation_proto_rawDescGZIP(), []int{5}
+}
+
+type AgentConversationSortColumn int32
+
+const (
+	// Treated as CREATED_AT.
+	AgentConversationSortColumn_AGENT_CONVERSATION_SORT_COLUMN_UNSPECIFIED AgentConversationSortColumn = 0
+	AgentConversationSortColumn_AGENT_CONVERSATION_SORT_COLUMN_CREATED_AT  AgentConversationSortColumn = 1
+	AgentConversationSortColumn_AGENT_CONVERSATION_SORT_COLUMN_UPDATED_AT  AgentConversationSortColumn = 2
+)
+
+// Enum value maps for AgentConversationSortColumn.
+var (
+	AgentConversationSortColumn_name = map[int32]string{
+		0: "AGENT_CONVERSATION_SORT_COLUMN_UNSPECIFIED",
+		1: "AGENT_CONVERSATION_SORT_COLUMN_CREATED_AT",
+		2: "AGENT_CONVERSATION_SORT_COLUMN_UPDATED_AT",
+	}
+	AgentConversationSortColumn_value = map[string]int32{
+		"AGENT_CONVERSATION_SORT_COLUMN_UNSPECIFIED": 0,
+		"AGENT_CONVERSATION_SORT_COLUMN_CREATED_AT":  1,
+		"AGENT_CONVERSATION_SORT_COLUMN_UPDATED_AT":  2,
+	}
+)
+
+func (x AgentConversationSortColumn) Enum() *AgentConversationSortColumn {
+	p := new(AgentConversationSortColumn)
+	*p = x
+	return p
+}
+
+func (x AgentConversationSortColumn) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AgentConversationSortColumn) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_conversation_proto_enumTypes[6].Descriptor()
+}
+
+func (AgentConversationSortColumn) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_conversation_proto_enumTypes[6]
+}
+
+func (x AgentConversationSortColumn) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AgentConversationSortColumn.Descriptor instead.
+func (AgentConversationSortColumn) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_conversation_proto_rawDescGZIP(), []int{6}
+}
+
+type AgentConversationSortOrder int32
+
+const (
+	// Treated as DESC.
+	AgentConversationSortOrder_AGENT_CONVERSATION_SORT_ORDER_UNSPECIFIED AgentConversationSortOrder = 0
+	AgentConversationSortOrder_AGENT_CONVERSATION_SORT_ORDER_DESC        AgentConversationSortOrder = 1
+	AgentConversationSortOrder_AGENT_CONVERSATION_SORT_ORDER_ASC         AgentConversationSortOrder = 2
+)
+
+// Enum value maps for AgentConversationSortOrder.
+var (
+	AgentConversationSortOrder_name = map[int32]string{
+		0: "AGENT_CONVERSATION_SORT_ORDER_UNSPECIFIED",
+		1: "AGENT_CONVERSATION_SORT_ORDER_DESC",
+		2: "AGENT_CONVERSATION_SORT_ORDER_ASC",
+	}
+	AgentConversationSortOrder_value = map[string]int32{
+		"AGENT_CONVERSATION_SORT_ORDER_UNSPECIFIED": 0,
+		"AGENT_CONVERSATION_SORT_ORDER_DESC":        1,
+		"AGENT_CONVERSATION_SORT_ORDER_ASC":         2,
+	}
+)
+
+func (x AgentConversationSortOrder) Enum() *AgentConversationSortOrder {
+	p := new(AgentConversationSortOrder)
+	*p = x
+	return p
+}
+
+func (x AgentConversationSortOrder) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AgentConversationSortOrder) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_conversation_proto_enumTypes[7].Descriptor()
+}
+
+func (AgentConversationSortOrder) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_conversation_proto_enumTypes[7]
+}
+
+func (x AgentConversationSortOrder) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AgentConversationSortOrder.Descriptor instead.
+func (AgentConversationSortOrder) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_conversation_proto_rawDescGZIP(), []int{7}
 }
 
 type AgentConversation struct {
@@ -303,12 +462,11 @@ type AgentConversation struct {
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// Optional AiProviderConnection id this conversation is pinned to. When set,
-	// the runner builds its OpenAI client from that connection's host + secret
-	// instead of the server-wide OPENAI_API_KEY env var.
+	// the runner builds its provider client from that connection's host + secret.
 	AiProviderConnectionId string `protobuf:"bytes,8,opt,name=ai_provider_connection_id,json=aiProviderConnectionId,proto3" json:"ai_provider_connection_id,omitempty"`
 	// Optional model id (e.g. "gpt-4o-mini") preferred for this conversation.
 	// RunTurnRequest.model still wins when set; otherwise this overrides the
-	// server-wide AGENT_RUNNER_DEFAULT_MODEL.
+	// template, connection, and provider defaults.
 	ModelName string `protobuf:"bytes,9,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
 	// Lifecycle status. Maintained by the runner (IN_PROGRESS while a turn is
 	// running, AWAITING_USER_INPUT when it ends); COMPLETED is set explicitly
@@ -878,6 +1036,9 @@ type CreateConversationRequest struct {
 	// be supplied with a value of its declared type; nullable inputs may be
 	// omitted or explicitly null. Unknown keys are rejected.
 	TemplateInputs map[string]*AgentTemplateInputValue `protobuf:"bytes,6,rep,name=template_inputs,json=templateInputs,proto3" json:"template_inputs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Stable caller-generated key for retrying the two-plane creation workflow.
+	// Reusing a key in one environment returns the same conversation.
+	IdempotencyKey string `protobuf:"bytes,7,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -952,6 +1113,13 @@ func (x *CreateConversationRequest) GetTemplateInputs() map[string]*AgentTemplat
 		return x.TemplateInputs
 	}
 	return nil
+}
+
+func (x *CreateConversationRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
 }
 
 type CreateConversationResponse struct {
@@ -1164,7 +1332,12 @@ type ListConversationsRequest struct {
 	UserId  string                    `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Filters *ListConversationsFilters `protobuf:"bytes,4,opt,name=filters,proto3" json:"filters,omitempty"`
 	// Case-insensitive literal substring search over conversation titles.
-	Search        string `protobuf:"bytes,5,opt,name=search,proto3" json:"search,omitempty"`
+	Search string `protobuf:"bytes,5,opt,name=search,proto3" json:"search,omitempty"`
+	// Sort key and direction. Unset defaults to created_at DESC, matching the
+	// ordering existing callers relied on before these fields existed. A cursor
+	// is only valid for the sort it was issued under.
+	SortColumn    AgentConversationSortColumn `protobuf:"varint,6,opt,name=sort_column,json=sortColumn,proto3,enum=chalk.agent.v1.AgentConversationSortColumn" json:"sort_column,omitempty"`
+	SortOrder     AgentConversationSortOrder  `protobuf:"varint,7,opt,name=sort_order,json=sortOrder,proto3,enum=chalk.agent.v1.AgentConversationSortOrder" json:"sort_order,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1232,6 +1405,20 @@ func (x *ListConversationsRequest) GetSearch() string {
 		return x.Search
 	}
 	return ""
+}
+
+func (x *ListConversationsRequest) GetSortColumn() AgentConversationSortColumn {
+	if x != nil {
+		return x.SortColumn
+	}
+	return AgentConversationSortColumn_AGENT_CONVERSATION_SORT_COLUMN_UNSPECIFIED
+}
+
+func (x *ListConversationsRequest) GetSortOrder() AgentConversationSortOrder {
+	if x != nil {
+		return x.SortOrder
+	}
+	return AgentConversationSortOrder_AGENT_CONVERSATION_SORT_ORDER_UNSPECIFIED
 }
 
 type ListConversationsResponse struct {
@@ -1488,9 +1675,11 @@ type ForkConversationRequest struct {
 	// copied into the fork. Empty copies the whole conversation.
 	MessageId string `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// Optional title for the fork. Empty derives one from the source title.
-	Title         string `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Title string `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	// Stable caller-generated key for retrying a fork after a partial write.
+	IdempotencyKey string `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ForkConversationRequest) Reset() {
@@ -1540,6 +1729,13 @@ func (x *ForkConversationRequest) GetMessageId() string {
 func (x *ForkConversationRequest) GetTitle() string {
 	if x != nil {
 		return x.Title
+	}
+	return ""
+}
+
+func (x *ForkConversationRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
 	}
 	return ""
 }
@@ -2183,11 +2379,12 @@ func (x *AddMessageResponse) GetMessage() *AgentMessage {
 }
 
 type UpdateMessageStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Status        AgentMessageStatus     `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.agent.v1.AgentMessageStatus" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Status         AgentMessageStatus     `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.agent.v1.AgentMessageStatus" json:"status,omitempty"`
+	ConversationId string                 `protobuf:"bytes,3,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *UpdateMessageStatusRequest) Reset() {
@@ -2232,6 +2429,13 @@ func (x *UpdateMessageStatusRequest) GetStatus() AgentMessageStatus {
 		return x.Status
 	}
 	return AgentMessageStatus_AGENT_MESSAGE_STATUS_UNSPECIFIED
+}
+
+func (x *UpdateMessageStatusRequest) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
 }
 
 type UpdateMessageStatusResponse struct {
@@ -2281,9 +2485,15 @@ func (x *UpdateMessageStatusResponse) GetMessage() *AgentMessage {
 type ListMessagesRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
-	PageSize       int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	PageSize       *int32                 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	// Opaque token for the next page of older messages. Omit to load the latest
+	// page. A page token cannot be combined with after_sequence.
+	PageToken *string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	// Return messages strictly newer than this sequence. Active conversations
+	// use this to poll for transcript changes without reloading older pages.
+	AfterSequence *int32 `protobuf:"varint,4,opt,name=after_sequence,json=afterSequence,proto3,oneof" json:"after_sequence,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListMessagesRequest) Reset() {
@@ -2324,17 +2534,33 @@ func (x *ListMessagesRequest) GetConversationId() string {
 }
 
 func (x *ListMessagesRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
+}
+
+func (x *ListMessagesRequest) GetPageToken() string {
+	if x != nil && x.PageToken != nil {
+		return *x.PageToken
+	}
+	return ""
+}
+
+func (x *ListMessagesRequest) GetAfterSequence() int32 {
+	if x != nil && x.AfterSequence != nil {
+		return *x.AfterSequence
 	}
 	return 0
 }
 
 type ListMessagesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Messages      []*AgentMessage        `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Messages          []*AgentMessage        `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`
+	NextPageToken     *string                `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
+	NextAfterSequence *int32                 `protobuf:"varint,3,opt,name=next_after_sequence,json=nextAfterSequence,proto3,oneof" json:"next_after_sequence,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListMessagesResponse) Reset() {
@@ -2374,16 +2600,31 @@ func (x *ListMessagesResponse) GetMessages() []*AgentMessage {
 	return nil
 }
 
+func (x *ListMessagesResponse) GetNextPageToken() string {
+	if x != nil && x.NextPageToken != nil {
+		return *x.NextPageToken
+	}
+	return ""
+}
+
+func (x *ListMessagesResponse) GetNextAfterSequence() int32 {
+	if x != nil && x.NextAfterSequence != nil {
+		return *x.NextAfterSequence
+	}
+	return 0
+}
+
 type AddToolResultRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ToolCallId    string                 `protobuf:"bytes,1,opt,name=tool_call_id,json=toolCallId,proto3" json:"tool_call_id,omitempty"`
-	IsError       bool                   `protobuf:"varint,2,opt,name=is_error,json=isError,proto3" json:"is_error,omitempty"`
-	Result        *structpb.Struct       `protobuf:"bytes,3,opt,name=result,proto3" json:"result,omitempty"`
-	RawText       string                 `protobuf:"bytes,4,opt,name=raw_text,json=rawText,proto3" json:"raw_text,omitempty"`
-	LatencyMs     int32                  `protobuf:"varint,5,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
-	Metadata      *structpb.Struct       `protobuf:"bytes,6,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ToolCallId     string                 `protobuf:"bytes,1,opt,name=tool_call_id,json=toolCallId,proto3" json:"tool_call_id,omitempty"`
+	IsError        bool                   `protobuf:"varint,2,opt,name=is_error,json=isError,proto3" json:"is_error,omitempty"`
+	Result         *structpb.Struct       `protobuf:"bytes,3,opt,name=result,proto3" json:"result,omitempty"`
+	RawText        string                 `protobuf:"bytes,4,opt,name=raw_text,json=rawText,proto3" json:"raw_text,omitempty"`
+	LatencyMs      int32                  `protobuf:"varint,5,opt,name=latency_ms,json=latencyMs,proto3" json:"latency_ms,omitempty"`
+	Metadata       *structpb.Struct       `protobuf:"bytes,6,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	ConversationId string                 `protobuf:"bytes,7,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AddToolResultRequest) Reset() {
@@ -2456,6 +2697,13 @@ func (x *AddToolResultRequest) GetMetadata() *structpb.Struct {
 		return x.Metadata
 	}
 	return nil
+}
+
+func (x *AddToolResultRequest) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
 }
 
 type AddToolResultResponse struct {
@@ -2608,10 +2856,9 @@ func (x *ReplaceConversationTranscriptResponse) GetMessages() []*AgentMessage {
 	return nil
 }
 
-// Points a conversation at a notebook: updates the "notebookId" key in the
-// conversation metadata and replaces any notebook-kind artifact links so the
-// two stores cannot drift. An empty notebook_id detaches the conversation
-// from its notebook.
+// Points a conversation at a notebook and replaces any notebook-kind artifact
+// links so the two metadata-plane representations cannot drift. An empty
+// notebook_id detaches the conversation from its notebook.
 type SetConversationNotebookRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
@@ -2818,7 +3065,7 @@ var File_chalk_agent_v1_conversation_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/agent/v1/conversation.proto\x12\x0echalk.agent.v1\x1a#chalk/agent/v1/agent_template.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb7\x05\n" +
+	"!chalk/agent/v1/conversation.proto\x12\x0echalk.agent.v1\x1a#chalk/agent/v1/agent_template.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb7\x05\n" +
 	"\x11AgentConversation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x17\n" +
@@ -2886,7 +3133,7 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"latency_ms\x18\x06 \x01(\x05R\tlatencyMs\x123\n" +
 	"\bmetadata\x18\a \x01(\v2\x17.google.protobuf.StructR\bmetadata\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xc0\x03\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xe9\x03\n" +
 	"\x19CreateConversationRequest\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x123\n" +
 	"\bmetadata\x18\x02 \x01(\v2\x17.google.protobuf.StructR\bmetadata\x129\n" +
@@ -2894,7 +3141,8 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\n" +
 	"model_name\x18\x04 \x01(\tR\tmodelName\x12*\n" +
 	"\x11agent_template_id\x18\x05 \x01(\tR\x0fagentTemplateId\x12f\n" +
-	"\x0ftemplate_inputs\x18\x06 \x03(\v2=.chalk.agent.v1.CreateConversationRequest.TemplateInputsEntryR\x0etemplateInputs\x1aj\n" +
+	"\x0ftemplate_inputs\x18\x06 \x03(\v2=.chalk.agent.v1.CreateConversationRequest.TemplateInputsEntryR\x0etemplateInputs\x12'\n" +
+	"\x0fidempotency_key\x18\a \x01(\tR\x0eidempotencyKey\x1aj\n" +
 	"\x13TemplateInputsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12=\n" +
 	"\x05value\x18\x02 \x01(\v2'.chalk.agent.v1.AgentTemplateInputValueR\x05value:\x028\x01\"c\n" +
@@ -2909,13 +3157,17 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\buser_ids\x18\x02 \x03(\tR\auserIds\x12\x1f\n" +
 	"\vmodel_names\x18\x03 \x03(\tR\n" +
 	"modelNames\x12,\n" +
-	"\x12agent_template_ids\x18\x04 \x03(\tR\x10agentTemplateIds\"\xc4\x01\n" +
+	"\x12agent_template_ids\x18\x04 \x03(\tR\x10agentTemplateIds\"\xdd\x02\n" +
 	"\x18ListConversationsRequest\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\tR\x06userId\x12B\n" +
 	"\afilters\x18\x04 \x01(\v2(.chalk.agent.v1.ListConversationsFiltersR\afilters\x12\x16\n" +
-	"\x06search\x18\x05 \x01(\tR\x06search\"\x85\x01\n" +
+	"\x06search\x18\x05 \x01(\tR\x06search\x12L\n" +
+	"\vsort_column\x18\x06 \x01(\x0e2+.chalk.agent.v1.AgentConversationSortColumnR\n" +
+	"sortColumn\x12I\n" +
+	"\n" +
+	"sort_order\x18\a \x01(\x0e2*.chalk.agent.v1.AgentConversationSortOrderR\tsortOrder\"\x85\x01\n" +
 	"\x19ListConversationsResponse\x12G\n" +
 	"\rconversations\x18\x01 \x03(\v2!.chalk.agent.v1.AgentConversationR\rconversations\x12\x1f\n" +
 	"\vnext_cursor\x18\x02 \x01(\tR\n" +
@@ -2929,12 +3181,13 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\fconversation\x18\x01 \x01(\v2!.chalk.agent.v1.AgentConversationR\fconversation\"+\n" +
 	"\x19DeleteConversationRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
-	"\x1aDeleteConversationResponse\"w\n" +
+	"\x1aDeleteConversationResponse\"\xa0\x01\n" +
 	"\x17ForkConversationRequest\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x02 \x01(\tR\tmessageId\x12\x14\n" +
-	"\x05title\x18\x03 \x01(\tR\x05title\"a\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12'\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0eidempotencyKey\"a\n" +
 	"\x18ForkConversationResponse\x12E\n" +
 	"\fconversation\x18\x01 \x01(\v2!.chalk.agent.v1.AgentConversationR\fconversation\"\xcb\x01\n" +
 	"\x13LinkArtifactRequest\x12'\n" +
@@ -2974,17 +3227,29 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\x0fidempotency_key\x18\x03 \x01(\tR\x0eidempotencyKey\x12\x19\n" +
 	"\btrace_id\x18\x04 \x01(\tR\atraceId\"L\n" +
 	"\x12AddMessageResponse\x126\n" +
-	"\amessage\x18\x01 \x01(\v2\x1c.chalk.agent.v1.AgentMessageR\amessage\"h\n" +
+	"\amessage\x18\x01 \x01(\v2\x1c.chalk.agent.v1.AgentMessageR\amessage\"\x91\x01\n" +
 	"\x1aUpdateMessageStatusRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12:\n" +
-	"\x06status\x18\x02 \x01(\x0e2\".chalk.agent.v1.AgentMessageStatusR\x06status\"U\n" +
+	"\x06status\x18\x02 \x01(\x0e2\".chalk.agent.v1.AgentMessageStatusR\x06status\x12'\n" +
+	"\x0fconversation_id\x18\x03 \x01(\tR\x0econversationId\"U\n" +
 	"\x1bUpdateMessageStatusResponse\x126\n" +
-	"\amessage\x18\x01 \x01(\v2\x1c.chalk.agent.v1.AgentMessageR\amessage\"[\n" +
+	"\amessage\x18\x01 \x01(\v2\x1c.chalk.agent.v1.AgentMessageR\amessage\"\xe0\x01\n" +
 	"\x13ListMessagesRequest\x12'\n" +
-	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x1b\n" +
-	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\"P\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12 \n" +
+	"\tpage_size\x18\x02 \x01(\x05H\x00R\bpageSize\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"page_token\x18\x03 \x01(\tH\x01R\tpageToken\x88\x01\x01\x12*\n" +
+	"\x0eafter_sequence\x18\x04 \x01(\x05H\x02R\rafterSequence\x88\x01\x01B\f\n" +
+	"\n" +
+	"_page_sizeB\r\n" +
+	"\v_page_tokenB\x11\n" +
+	"\x0f_after_sequence\"\xde\x01\n" +
 	"\x14ListMessagesResponse\x128\n" +
-	"\bmessages\x18\x01 \x03(\v2\x1c.chalk.agent.v1.AgentMessageR\bmessages\"\xf3\x01\n" +
+	"\bmessages\x18\x01 \x03(\v2\x1c.chalk.agent.v1.AgentMessageR\bmessages\x12+\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01\x123\n" +
+	"\x13next_after_sequence\x18\x03 \x01(\x05H\x01R\x11nextAfterSequence\x88\x01\x01B\x12\n" +
+	"\x10_next_page_tokenB\x16\n" +
+	"\x14_next_after_sequence\"\x9c\x02\n" +
 	"\x14AddToolResultRequest\x12 \n" +
 	"\ftool_call_id\x18\x01 \x01(\tR\n" +
 	"toolCallId\x12\x19\n" +
@@ -2993,7 +3258,8 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\braw_text\x18\x04 \x01(\tR\arawText\x12\x1d\n" +
 	"\n" +
 	"latency_ms\x18\x05 \x01(\x05R\tlatencyMs\x123\n" +
-	"\bmetadata\x18\x06 \x01(\v2\x17.google.protobuf.StructR\bmetadata\"Y\n" +
+	"\bmetadata\x18\x06 \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12'\n" +
+	"\x0fconversation_id\x18\a \x01(\tR\x0econversationId\"Y\n" +
 	"\x15AddToolResultResponse\x12@\n" +
 	"\vtool_result\x18\x01 \x01(\v2\x1f.chalk.agent.v1.AgentToolResultR\n" +
 	"toolResult\"\x89\x01\n" +
@@ -3029,7 +3295,13 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"%AGENT_CONVERSATION_STATUS_UNSPECIFIED\x10\x00\x12)\n" +
 	"%AGENT_CONVERSATION_STATUS_IN_PROGRESS\x10\x01\x121\n" +
 	"-AGENT_CONVERSATION_STATUS_AWAITING_USER_INPUT\x10\x02\x12'\n" +
-	"#AGENT_CONVERSATION_STATUS_COMPLETED\x10\x03*{\n" +
+	"#AGENT_CONVERSATION_STATUS_COMPLETED\x10\x03*\x95\x02\n" +
+	"\x1dAgentConversationContentState\x120\n" +
+	",AGENT_CONVERSATION_CONTENT_STATE_UNSPECIFIED\x10\x00\x121\n" +
+	"-AGENT_CONVERSATION_CONTENT_STATE_PROVISIONING\x10\x01\x12*\n" +
+	"&AGENT_CONVERSATION_CONTENT_STATE_READY\x10\x02\x12-\n" +
+	")AGENT_CONVERSATION_CONTENT_STATE_DELETING\x10\x03\x124\n" +
+	"0AGENT_CONVERSATION_CONTENT_STATE_REPAIR_REQUIRED\x10\x04*{\n" +
 	"\x11AgentArtifactKind\x12#\n" +
 	"\x1fAGENT_ARTIFACT_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cAGENT_ARTIFACT_KIND_NOTEBOOK\x10\x01\x12\x1f\n" +
@@ -3039,9 +3311,18 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\x1eAGENT_TOOL_CALL_STATUS_PENDING\x10\x01\x12\"\n" +
 	"\x1eAGENT_TOOL_CALL_STATUS_RUNNING\x10\x02\x12$\n" +
 	" AGENT_TOOL_CALL_STATUS_COMPLETED\x10\x03\x12!\n" +
-	"\x1dAGENT_TOOL_CALL_STATUS_FAILED\x10\x042\xa6\x0f\n" +
-	"\x18AgentConversationService\x12p\n" +
-	"\x12CreateConversation\x12).chalk.agent.v1.CreateConversationRequest\x1a*.chalk.agent.v1.CreateConversationResponse\"\x03\x80}\x02\x12j\n" +
+	"\x1dAGENT_TOOL_CALL_STATUS_FAILED\x10\x04*\xab\x01\n" +
+	"\x1bAgentConversationSortColumn\x12.\n" +
+	"*AGENT_CONVERSATION_SORT_COLUMN_UNSPECIFIED\x10\x00\x12-\n" +
+	")AGENT_CONVERSATION_SORT_COLUMN_CREATED_AT\x10\x01\x12-\n" +
+	")AGENT_CONVERSATION_SORT_COLUMN_UPDATED_AT\x10\x02*\x9a\x01\n" +
+	"\x1aAgentConversationSortOrder\x12-\n" +
+	")AGENT_CONVERSATION_SORT_ORDER_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"AGENT_CONVERSATION_SORT_ORDER_DESC\x10\x01\x12%\n" +
+	"!AGENT_CONVERSATION_SORT_ORDER_ASC\x10\x022\xe0\x0f\n" +
+	"\x18AgentConversationService\x12\xa9\x01\n" +
+	"\x12CreateConversation\x12).chalk.agent.v1.CreateConversationRequest\x1a*.chalk.agent.v1.CreateConversationResponse\"<\x80}\x02\x92\xd3\x0e5\n" +
+	"\x11assistant_enabled\x12 Enables Assistant conversations.\x12j\n" +
 	"\x0fGetConversation\x12&.chalk.agent.v1.GetConversationRequest\x1a'.chalk.agent.v1.GetConversationResponse\"\x06\x80}\x02\x90\x02\x01\x12p\n" +
 	"\x11ListConversations\x12(.chalk.agent.v1.ListConversationsRequest\x1a).chalk.agent.v1.ListConversationsResponse\"\x06\x80}\x02\x90\x02\x01\x12s\n" +
 	"\x12UpdateConversation\x12).chalk.agent.v1.UpdateConversationRequest\x1a*.chalk.agent.v1.UpdateConversationResponse\"\x06\x80}\x02\x90\x02\x02\x12s\n" +
@@ -3073,157 +3354,162 @@ func file_chalk_agent_v1_conversation_proto_rawDescGZIP() []byte {
 	return file_chalk_agent_v1_conversation_proto_rawDescData
 }
 
-var file_chalk_agent_v1_conversation_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_chalk_agent_v1_conversation_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
 var file_chalk_agent_v1_conversation_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_chalk_agent_v1_conversation_proto_goTypes = []any{
 	(AgentMessageRole)(0),                         // 0: chalk.agent.v1.AgentMessageRole
 	(AgentMessageStatus)(0),                       // 1: chalk.agent.v1.AgentMessageStatus
 	(AgentConversationStatus)(0),                  // 2: chalk.agent.v1.AgentConversationStatus
-	(AgentArtifactKind)(0),                        // 3: chalk.agent.v1.AgentArtifactKind
-	(AgentToolCallStatus)(0),                      // 4: chalk.agent.v1.AgentToolCallStatus
-	(*AgentConversation)(nil),                     // 5: chalk.agent.v1.AgentConversation
-	(*AgentConversationArtifact)(nil),             // 6: chalk.agent.v1.AgentConversationArtifact
-	(*AgentMessage)(nil),                          // 7: chalk.agent.v1.AgentMessage
-	(*AgentToolCall)(nil),                         // 8: chalk.agent.v1.AgentToolCall
-	(*AgentToolResult)(nil),                       // 9: chalk.agent.v1.AgentToolResult
-	(*CreateConversationRequest)(nil),             // 10: chalk.agent.v1.CreateConversationRequest
-	(*CreateConversationResponse)(nil),            // 11: chalk.agent.v1.CreateConversationResponse
-	(*GetConversationRequest)(nil),                // 12: chalk.agent.v1.GetConversationRequest
-	(*GetConversationResponse)(nil),               // 13: chalk.agent.v1.GetConversationResponse
-	(*ListConversationsFilters)(nil),              // 14: chalk.agent.v1.ListConversationsFilters
-	(*ListConversationsRequest)(nil),              // 15: chalk.agent.v1.ListConversationsRequest
-	(*ListConversationsResponse)(nil),             // 16: chalk.agent.v1.ListConversationsResponse
-	(*UpdateConversationRequest)(nil),             // 17: chalk.agent.v1.UpdateConversationRequest
-	(*UpdateConversationResponse)(nil),            // 18: chalk.agent.v1.UpdateConversationResponse
-	(*DeleteConversationRequest)(nil),             // 19: chalk.agent.v1.DeleteConversationRequest
-	(*DeleteConversationResponse)(nil),            // 20: chalk.agent.v1.DeleteConversationResponse
-	(*ForkConversationRequest)(nil),               // 21: chalk.agent.v1.ForkConversationRequest
-	(*ForkConversationResponse)(nil),              // 22: chalk.agent.v1.ForkConversationResponse
-	(*LinkArtifactRequest)(nil),                   // 23: chalk.agent.v1.LinkArtifactRequest
-	(*LinkArtifactResponse)(nil),                  // 24: chalk.agent.v1.LinkArtifactResponse
-	(*UnlinkArtifactRequest)(nil),                 // 25: chalk.agent.v1.UnlinkArtifactRequest
-	(*UnlinkArtifactResponse)(nil),                // 26: chalk.agent.v1.UnlinkArtifactResponse
-	(*ListArtifactsRequest)(nil),                  // 27: chalk.agent.v1.ListArtifactsRequest
-	(*ListArtifactsResponse)(nil),                 // 28: chalk.agent.v1.ListArtifactsResponse
-	(*ListConversationsForArtifactRequest)(nil),   // 29: chalk.agent.v1.ListConversationsForArtifactRequest
-	(*ListConversationsForArtifactResponse)(nil),  // 30: chalk.agent.v1.ListConversationsForArtifactResponse
-	(*AddMessageRequest)(nil),                     // 31: chalk.agent.v1.AddMessageRequest
-	(*AddToolCallRequest)(nil),                    // 32: chalk.agent.v1.AddToolCallRequest
-	(*AddMessageResponse)(nil),                    // 33: chalk.agent.v1.AddMessageResponse
-	(*UpdateMessageStatusRequest)(nil),            // 34: chalk.agent.v1.UpdateMessageStatusRequest
-	(*UpdateMessageStatusResponse)(nil),           // 35: chalk.agent.v1.UpdateMessageStatusResponse
-	(*ListMessagesRequest)(nil),                   // 36: chalk.agent.v1.ListMessagesRequest
-	(*ListMessagesResponse)(nil),                  // 37: chalk.agent.v1.ListMessagesResponse
-	(*AddToolResultRequest)(nil),                  // 38: chalk.agent.v1.AddToolResultRequest
-	(*AddToolResultResponse)(nil),                 // 39: chalk.agent.v1.AddToolResultResponse
-	(*ReplaceConversationTranscriptRequest)(nil),  // 40: chalk.agent.v1.ReplaceConversationTranscriptRequest
-	(*ReplaceConversationTranscriptResponse)(nil), // 41: chalk.agent.v1.ReplaceConversationTranscriptResponse
-	(*SetConversationNotebookRequest)(nil),        // 42: chalk.agent.v1.SetConversationNotebookRequest
-	(*SetConversationNotebookResponse)(nil),       // 43: chalk.agent.v1.SetConversationNotebookResponse
-	(*UploadAgentTraceRequest)(nil),               // 44: chalk.agent.v1.UploadAgentTraceRequest
-	(*UploadAgentTraceResponse)(nil),              // 45: chalk.agent.v1.UploadAgentTraceResponse
-	nil,                                           // 46: chalk.agent.v1.AgentConversation.TemplateInputsEntry
-	nil,                                           // 47: chalk.agent.v1.CreateConversationRequest.TemplateInputsEntry
-	(*structpb.Struct)(nil),                       // 48: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),                 // 49: google.protobuf.Timestamp
-	(*AgentTemplateInputValue)(nil),               // 50: chalk.agent.v1.AgentTemplateInputValue
+	(AgentConversationContentState)(0),            // 3: chalk.agent.v1.AgentConversationContentState
+	(AgentArtifactKind)(0),                        // 4: chalk.agent.v1.AgentArtifactKind
+	(AgentToolCallStatus)(0),                      // 5: chalk.agent.v1.AgentToolCallStatus
+	(AgentConversationSortColumn)(0),              // 6: chalk.agent.v1.AgentConversationSortColumn
+	(AgentConversationSortOrder)(0),               // 7: chalk.agent.v1.AgentConversationSortOrder
+	(*AgentConversation)(nil),                     // 8: chalk.agent.v1.AgentConversation
+	(*AgentConversationArtifact)(nil),             // 9: chalk.agent.v1.AgentConversationArtifact
+	(*AgentMessage)(nil),                          // 10: chalk.agent.v1.AgentMessage
+	(*AgentToolCall)(nil),                         // 11: chalk.agent.v1.AgentToolCall
+	(*AgentToolResult)(nil),                       // 12: chalk.agent.v1.AgentToolResult
+	(*CreateConversationRequest)(nil),             // 13: chalk.agent.v1.CreateConversationRequest
+	(*CreateConversationResponse)(nil),            // 14: chalk.agent.v1.CreateConversationResponse
+	(*GetConversationRequest)(nil),                // 15: chalk.agent.v1.GetConversationRequest
+	(*GetConversationResponse)(nil),               // 16: chalk.agent.v1.GetConversationResponse
+	(*ListConversationsFilters)(nil),              // 17: chalk.agent.v1.ListConversationsFilters
+	(*ListConversationsRequest)(nil),              // 18: chalk.agent.v1.ListConversationsRequest
+	(*ListConversationsResponse)(nil),             // 19: chalk.agent.v1.ListConversationsResponse
+	(*UpdateConversationRequest)(nil),             // 20: chalk.agent.v1.UpdateConversationRequest
+	(*UpdateConversationResponse)(nil),            // 21: chalk.agent.v1.UpdateConversationResponse
+	(*DeleteConversationRequest)(nil),             // 22: chalk.agent.v1.DeleteConversationRequest
+	(*DeleteConversationResponse)(nil),            // 23: chalk.agent.v1.DeleteConversationResponse
+	(*ForkConversationRequest)(nil),               // 24: chalk.agent.v1.ForkConversationRequest
+	(*ForkConversationResponse)(nil),              // 25: chalk.agent.v1.ForkConversationResponse
+	(*LinkArtifactRequest)(nil),                   // 26: chalk.agent.v1.LinkArtifactRequest
+	(*LinkArtifactResponse)(nil),                  // 27: chalk.agent.v1.LinkArtifactResponse
+	(*UnlinkArtifactRequest)(nil),                 // 28: chalk.agent.v1.UnlinkArtifactRequest
+	(*UnlinkArtifactResponse)(nil),                // 29: chalk.agent.v1.UnlinkArtifactResponse
+	(*ListArtifactsRequest)(nil),                  // 30: chalk.agent.v1.ListArtifactsRequest
+	(*ListArtifactsResponse)(nil),                 // 31: chalk.agent.v1.ListArtifactsResponse
+	(*ListConversationsForArtifactRequest)(nil),   // 32: chalk.agent.v1.ListConversationsForArtifactRequest
+	(*ListConversationsForArtifactResponse)(nil),  // 33: chalk.agent.v1.ListConversationsForArtifactResponse
+	(*AddMessageRequest)(nil),                     // 34: chalk.agent.v1.AddMessageRequest
+	(*AddToolCallRequest)(nil),                    // 35: chalk.agent.v1.AddToolCallRequest
+	(*AddMessageResponse)(nil),                    // 36: chalk.agent.v1.AddMessageResponse
+	(*UpdateMessageStatusRequest)(nil),            // 37: chalk.agent.v1.UpdateMessageStatusRequest
+	(*UpdateMessageStatusResponse)(nil),           // 38: chalk.agent.v1.UpdateMessageStatusResponse
+	(*ListMessagesRequest)(nil),                   // 39: chalk.agent.v1.ListMessagesRequest
+	(*ListMessagesResponse)(nil),                  // 40: chalk.agent.v1.ListMessagesResponse
+	(*AddToolResultRequest)(nil),                  // 41: chalk.agent.v1.AddToolResultRequest
+	(*AddToolResultResponse)(nil),                 // 42: chalk.agent.v1.AddToolResultResponse
+	(*ReplaceConversationTranscriptRequest)(nil),  // 43: chalk.agent.v1.ReplaceConversationTranscriptRequest
+	(*ReplaceConversationTranscriptResponse)(nil), // 44: chalk.agent.v1.ReplaceConversationTranscriptResponse
+	(*SetConversationNotebookRequest)(nil),        // 45: chalk.agent.v1.SetConversationNotebookRequest
+	(*SetConversationNotebookResponse)(nil),       // 46: chalk.agent.v1.SetConversationNotebookResponse
+	(*UploadAgentTraceRequest)(nil),               // 47: chalk.agent.v1.UploadAgentTraceRequest
+	(*UploadAgentTraceResponse)(nil),              // 48: chalk.agent.v1.UploadAgentTraceResponse
+	nil,                                           // 49: chalk.agent.v1.AgentConversation.TemplateInputsEntry
+	nil,                                           // 50: chalk.agent.v1.CreateConversationRequest.TemplateInputsEntry
+	(*structpb.Struct)(nil),                       // 51: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),                 // 52: google.protobuf.Timestamp
+	(*AgentTemplateInputValue)(nil),               // 53: chalk.agent.v1.AgentTemplateInputValue
 }
 var file_chalk_agent_v1_conversation_proto_depIdxs = []int32{
-	48, // 0: chalk.agent.v1.AgentConversation.metadata:type_name -> google.protobuf.Struct
-	49, // 1: chalk.agent.v1.AgentConversation.created_at:type_name -> google.protobuf.Timestamp
-	49, // 2: chalk.agent.v1.AgentConversation.updated_at:type_name -> google.protobuf.Timestamp
+	51, // 0: chalk.agent.v1.AgentConversation.metadata:type_name -> google.protobuf.Struct
+	52, // 1: chalk.agent.v1.AgentConversation.created_at:type_name -> google.protobuf.Timestamp
+	52, // 2: chalk.agent.v1.AgentConversation.updated_at:type_name -> google.protobuf.Timestamp
 	2,  // 3: chalk.agent.v1.AgentConversation.status:type_name -> chalk.agent.v1.AgentConversationStatus
-	46, // 4: chalk.agent.v1.AgentConversation.template_inputs:type_name -> chalk.agent.v1.AgentConversation.TemplateInputsEntry
-	3,  // 5: chalk.agent.v1.AgentConversationArtifact.kind:type_name -> chalk.agent.v1.AgentArtifactKind
-	48, // 6: chalk.agent.v1.AgentConversationArtifact.metadata:type_name -> google.protobuf.Struct
-	49, // 7: chalk.agent.v1.AgentConversationArtifact.created_at:type_name -> google.protobuf.Timestamp
+	49, // 4: chalk.agent.v1.AgentConversation.template_inputs:type_name -> chalk.agent.v1.AgentConversation.TemplateInputsEntry
+	4,  // 5: chalk.agent.v1.AgentConversationArtifact.kind:type_name -> chalk.agent.v1.AgentArtifactKind
+	51, // 6: chalk.agent.v1.AgentConversationArtifact.metadata:type_name -> google.protobuf.Struct
+	52, // 7: chalk.agent.v1.AgentConversationArtifact.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 8: chalk.agent.v1.AgentMessage.role:type_name -> chalk.agent.v1.AgentMessageRole
-	48, // 9: chalk.agent.v1.AgentMessage.content:type_name -> google.protobuf.Struct
+	51, // 9: chalk.agent.v1.AgentMessage.content:type_name -> google.protobuf.Struct
 	1,  // 10: chalk.agent.v1.AgentMessage.status:type_name -> chalk.agent.v1.AgentMessageStatus
-	48, // 11: chalk.agent.v1.AgentMessage.metadata:type_name -> google.protobuf.Struct
-	49, // 12: chalk.agent.v1.AgentMessage.created_at:type_name -> google.protobuf.Timestamp
-	8,  // 13: chalk.agent.v1.AgentMessage.tool_calls:type_name -> chalk.agent.v1.AgentToolCall
-	48, // 14: chalk.agent.v1.AgentToolCall.arguments:type_name -> google.protobuf.Struct
-	4,  // 15: chalk.agent.v1.AgentToolCall.status:type_name -> chalk.agent.v1.AgentToolCallStatus
-	49, // 16: chalk.agent.v1.AgentToolCall.created_at:type_name -> google.protobuf.Timestamp
-	9,  // 17: chalk.agent.v1.AgentToolCall.result:type_name -> chalk.agent.v1.AgentToolResult
-	48, // 18: chalk.agent.v1.AgentToolResult.result:type_name -> google.protobuf.Struct
-	48, // 19: chalk.agent.v1.AgentToolResult.metadata:type_name -> google.protobuf.Struct
-	49, // 20: chalk.agent.v1.AgentToolResult.created_at:type_name -> google.protobuf.Timestamp
-	48, // 21: chalk.agent.v1.CreateConversationRequest.metadata:type_name -> google.protobuf.Struct
-	47, // 22: chalk.agent.v1.CreateConversationRequest.template_inputs:type_name -> chalk.agent.v1.CreateConversationRequest.TemplateInputsEntry
-	5,  // 23: chalk.agent.v1.CreateConversationResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
-	5,  // 24: chalk.agent.v1.GetConversationResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
+	51, // 11: chalk.agent.v1.AgentMessage.metadata:type_name -> google.protobuf.Struct
+	52, // 12: chalk.agent.v1.AgentMessage.created_at:type_name -> google.protobuf.Timestamp
+	11, // 13: chalk.agent.v1.AgentMessage.tool_calls:type_name -> chalk.agent.v1.AgentToolCall
+	51, // 14: chalk.agent.v1.AgentToolCall.arguments:type_name -> google.protobuf.Struct
+	5,  // 15: chalk.agent.v1.AgentToolCall.status:type_name -> chalk.agent.v1.AgentToolCallStatus
+	52, // 16: chalk.agent.v1.AgentToolCall.created_at:type_name -> google.protobuf.Timestamp
+	12, // 17: chalk.agent.v1.AgentToolCall.result:type_name -> chalk.agent.v1.AgentToolResult
+	51, // 18: chalk.agent.v1.AgentToolResult.result:type_name -> google.protobuf.Struct
+	51, // 19: chalk.agent.v1.AgentToolResult.metadata:type_name -> google.protobuf.Struct
+	52, // 20: chalk.agent.v1.AgentToolResult.created_at:type_name -> google.protobuf.Timestamp
+	51, // 21: chalk.agent.v1.CreateConversationRequest.metadata:type_name -> google.protobuf.Struct
+	50, // 22: chalk.agent.v1.CreateConversationRequest.template_inputs:type_name -> chalk.agent.v1.CreateConversationRequest.TemplateInputsEntry
+	8,  // 23: chalk.agent.v1.CreateConversationResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
+	8,  // 24: chalk.agent.v1.GetConversationResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
 	2,  // 25: chalk.agent.v1.ListConversationsFilters.statuses:type_name -> chalk.agent.v1.AgentConversationStatus
-	14, // 26: chalk.agent.v1.ListConversationsRequest.filters:type_name -> chalk.agent.v1.ListConversationsFilters
-	5,  // 27: chalk.agent.v1.ListConversationsResponse.conversations:type_name -> chalk.agent.v1.AgentConversation
-	48, // 28: chalk.agent.v1.UpdateConversationRequest.metadata:type_name -> google.protobuf.Struct
-	2,  // 29: chalk.agent.v1.UpdateConversationRequest.status:type_name -> chalk.agent.v1.AgentConversationStatus
-	5,  // 30: chalk.agent.v1.UpdateConversationResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
-	5,  // 31: chalk.agent.v1.ForkConversationResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
-	3,  // 32: chalk.agent.v1.LinkArtifactRequest.kind:type_name -> chalk.agent.v1.AgentArtifactKind
-	48, // 33: chalk.agent.v1.LinkArtifactRequest.metadata:type_name -> google.protobuf.Struct
-	6,  // 34: chalk.agent.v1.LinkArtifactResponse.artifact:type_name -> chalk.agent.v1.AgentConversationArtifact
-	6,  // 35: chalk.agent.v1.ListArtifactsResponse.artifacts:type_name -> chalk.agent.v1.AgentConversationArtifact
-	3,  // 36: chalk.agent.v1.ListConversationsForArtifactRequest.kind:type_name -> chalk.agent.v1.AgentArtifactKind
-	5,  // 37: chalk.agent.v1.ListConversationsForArtifactResponse.conversations:type_name -> chalk.agent.v1.AgentConversation
-	0,  // 38: chalk.agent.v1.AddMessageRequest.role:type_name -> chalk.agent.v1.AgentMessageRole
-	48, // 39: chalk.agent.v1.AddMessageRequest.content:type_name -> google.protobuf.Struct
-	1,  // 40: chalk.agent.v1.AddMessageRequest.status:type_name -> chalk.agent.v1.AgentMessageStatus
-	48, // 41: chalk.agent.v1.AddMessageRequest.metadata:type_name -> google.protobuf.Struct
-	32, // 42: chalk.agent.v1.AddMessageRequest.tool_calls:type_name -> chalk.agent.v1.AddToolCallRequest
-	48, // 43: chalk.agent.v1.AddToolCallRequest.arguments:type_name -> google.protobuf.Struct
-	7,  // 44: chalk.agent.v1.AddMessageResponse.message:type_name -> chalk.agent.v1.AgentMessage
-	1,  // 45: chalk.agent.v1.UpdateMessageStatusRequest.status:type_name -> chalk.agent.v1.AgentMessageStatus
-	7,  // 46: chalk.agent.v1.UpdateMessageStatusResponse.message:type_name -> chalk.agent.v1.AgentMessage
-	7,  // 47: chalk.agent.v1.ListMessagesResponse.messages:type_name -> chalk.agent.v1.AgentMessage
-	48, // 48: chalk.agent.v1.AddToolResultRequest.result:type_name -> google.protobuf.Struct
-	48, // 49: chalk.agent.v1.AddToolResultRequest.metadata:type_name -> google.protobuf.Struct
-	9,  // 50: chalk.agent.v1.AddToolResultResponse.tool_result:type_name -> chalk.agent.v1.AgentToolResult
-	7,  // 51: chalk.agent.v1.ReplaceConversationTranscriptRequest.messages:type_name -> chalk.agent.v1.AgentMessage
-	7,  // 52: chalk.agent.v1.ReplaceConversationTranscriptResponse.messages:type_name -> chalk.agent.v1.AgentMessage
-	5,  // 53: chalk.agent.v1.SetConversationNotebookResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
-	50, // 54: chalk.agent.v1.AgentConversation.TemplateInputsEntry.value:type_name -> chalk.agent.v1.AgentTemplateInputValue
-	50, // 55: chalk.agent.v1.CreateConversationRequest.TemplateInputsEntry.value:type_name -> chalk.agent.v1.AgentTemplateInputValue
-	10, // 56: chalk.agent.v1.AgentConversationService.CreateConversation:input_type -> chalk.agent.v1.CreateConversationRequest
-	12, // 57: chalk.agent.v1.AgentConversationService.GetConversation:input_type -> chalk.agent.v1.GetConversationRequest
-	15, // 58: chalk.agent.v1.AgentConversationService.ListConversations:input_type -> chalk.agent.v1.ListConversationsRequest
-	17, // 59: chalk.agent.v1.AgentConversationService.UpdateConversation:input_type -> chalk.agent.v1.UpdateConversationRequest
-	19, // 60: chalk.agent.v1.AgentConversationService.DeleteConversation:input_type -> chalk.agent.v1.DeleteConversationRequest
-	21, // 61: chalk.agent.v1.AgentConversationService.ForkConversation:input_type -> chalk.agent.v1.ForkConversationRequest
-	23, // 62: chalk.agent.v1.AgentConversationService.LinkArtifact:input_type -> chalk.agent.v1.LinkArtifactRequest
-	25, // 63: chalk.agent.v1.AgentConversationService.UnlinkArtifact:input_type -> chalk.agent.v1.UnlinkArtifactRequest
-	27, // 64: chalk.agent.v1.AgentConversationService.ListArtifacts:input_type -> chalk.agent.v1.ListArtifactsRequest
-	29, // 65: chalk.agent.v1.AgentConversationService.ListConversationsForArtifact:input_type -> chalk.agent.v1.ListConversationsForArtifactRequest
-	31, // 66: chalk.agent.v1.AgentConversationService.AddMessage:input_type -> chalk.agent.v1.AddMessageRequest
-	34, // 67: chalk.agent.v1.AgentConversationService.UpdateMessageStatus:input_type -> chalk.agent.v1.UpdateMessageStatusRequest
-	36, // 68: chalk.agent.v1.AgentConversationService.ListMessages:input_type -> chalk.agent.v1.ListMessagesRequest
-	38, // 69: chalk.agent.v1.AgentConversationService.AddToolResult:input_type -> chalk.agent.v1.AddToolResultRequest
-	40, // 70: chalk.agent.v1.AgentConversationService.ReplaceConversationTranscript:input_type -> chalk.agent.v1.ReplaceConversationTranscriptRequest
-	42, // 71: chalk.agent.v1.AgentConversationService.SetConversationNotebook:input_type -> chalk.agent.v1.SetConversationNotebookRequest
-	44, // 72: chalk.agent.v1.AgentConversationService.UploadAgentTrace:input_type -> chalk.agent.v1.UploadAgentTraceRequest
-	11, // 73: chalk.agent.v1.AgentConversationService.CreateConversation:output_type -> chalk.agent.v1.CreateConversationResponse
-	13, // 74: chalk.agent.v1.AgentConversationService.GetConversation:output_type -> chalk.agent.v1.GetConversationResponse
-	16, // 75: chalk.agent.v1.AgentConversationService.ListConversations:output_type -> chalk.agent.v1.ListConversationsResponse
-	18, // 76: chalk.agent.v1.AgentConversationService.UpdateConversation:output_type -> chalk.agent.v1.UpdateConversationResponse
-	20, // 77: chalk.agent.v1.AgentConversationService.DeleteConversation:output_type -> chalk.agent.v1.DeleteConversationResponse
-	22, // 78: chalk.agent.v1.AgentConversationService.ForkConversation:output_type -> chalk.agent.v1.ForkConversationResponse
-	24, // 79: chalk.agent.v1.AgentConversationService.LinkArtifact:output_type -> chalk.agent.v1.LinkArtifactResponse
-	26, // 80: chalk.agent.v1.AgentConversationService.UnlinkArtifact:output_type -> chalk.agent.v1.UnlinkArtifactResponse
-	28, // 81: chalk.agent.v1.AgentConversationService.ListArtifacts:output_type -> chalk.agent.v1.ListArtifactsResponse
-	30, // 82: chalk.agent.v1.AgentConversationService.ListConversationsForArtifact:output_type -> chalk.agent.v1.ListConversationsForArtifactResponse
-	33, // 83: chalk.agent.v1.AgentConversationService.AddMessage:output_type -> chalk.agent.v1.AddMessageResponse
-	35, // 84: chalk.agent.v1.AgentConversationService.UpdateMessageStatus:output_type -> chalk.agent.v1.UpdateMessageStatusResponse
-	37, // 85: chalk.agent.v1.AgentConversationService.ListMessages:output_type -> chalk.agent.v1.ListMessagesResponse
-	39, // 86: chalk.agent.v1.AgentConversationService.AddToolResult:output_type -> chalk.agent.v1.AddToolResultResponse
-	41, // 87: chalk.agent.v1.AgentConversationService.ReplaceConversationTranscript:output_type -> chalk.agent.v1.ReplaceConversationTranscriptResponse
-	43, // 88: chalk.agent.v1.AgentConversationService.SetConversationNotebook:output_type -> chalk.agent.v1.SetConversationNotebookResponse
-	45, // 89: chalk.agent.v1.AgentConversationService.UploadAgentTrace:output_type -> chalk.agent.v1.UploadAgentTraceResponse
-	73, // [73:90] is the sub-list for method output_type
-	56, // [56:73] is the sub-list for method input_type
-	56, // [56:56] is the sub-list for extension type_name
-	56, // [56:56] is the sub-list for extension extendee
-	0,  // [0:56] is the sub-list for field type_name
+	17, // 26: chalk.agent.v1.ListConversationsRequest.filters:type_name -> chalk.agent.v1.ListConversationsFilters
+	6,  // 27: chalk.agent.v1.ListConversationsRequest.sort_column:type_name -> chalk.agent.v1.AgentConversationSortColumn
+	7,  // 28: chalk.agent.v1.ListConversationsRequest.sort_order:type_name -> chalk.agent.v1.AgentConversationSortOrder
+	8,  // 29: chalk.agent.v1.ListConversationsResponse.conversations:type_name -> chalk.agent.v1.AgentConversation
+	51, // 30: chalk.agent.v1.UpdateConversationRequest.metadata:type_name -> google.protobuf.Struct
+	2,  // 31: chalk.agent.v1.UpdateConversationRequest.status:type_name -> chalk.agent.v1.AgentConversationStatus
+	8,  // 32: chalk.agent.v1.UpdateConversationResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
+	8,  // 33: chalk.agent.v1.ForkConversationResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
+	4,  // 34: chalk.agent.v1.LinkArtifactRequest.kind:type_name -> chalk.agent.v1.AgentArtifactKind
+	51, // 35: chalk.agent.v1.LinkArtifactRequest.metadata:type_name -> google.protobuf.Struct
+	9,  // 36: chalk.agent.v1.LinkArtifactResponse.artifact:type_name -> chalk.agent.v1.AgentConversationArtifact
+	9,  // 37: chalk.agent.v1.ListArtifactsResponse.artifacts:type_name -> chalk.agent.v1.AgentConversationArtifact
+	4,  // 38: chalk.agent.v1.ListConversationsForArtifactRequest.kind:type_name -> chalk.agent.v1.AgentArtifactKind
+	8,  // 39: chalk.agent.v1.ListConversationsForArtifactResponse.conversations:type_name -> chalk.agent.v1.AgentConversation
+	0,  // 40: chalk.agent.v1.AddMessageRequest.role:type_name -> chalk.agent.v1.AgentMessageRole
+	51, // 41: chalk.agent.v1.AddMessageRequest.content:type_name -> google.protobuf.Struct
+	1,  // 42: chalk.agent.v1.AddMessageRequest.status:type_name -> chalk.agent.v1.AgentMessageStatus
+	51, // 43: chalk.agent.v1.AddMessageRequest.metadata:type_name -> google.protobuf.Struct
+	35, // 44: chalk.agent.v1.AddMessageRequest.tool_calls:type_name -> chalk.agent.v1.AddToolCallRequest
+	51, // 45: chalk.agent.v1.AddToolCallRequest.arguments:type_name -> google.protobuf.Struct
+	10, // 46: chalk.agent.v1.AddMessageResponse.message:type_name -> chalk.agent.v1.AgentMessage
+	1,  // 47: chalk.agent.v1.UpdateMessageStatusRequest.status:type_name -> chalk.agent.v1.AgentMessageStatus
+	10, // 48: chalk.agent.v1.UpdateMessageStatusResponse.message:type_name -> chalk.agent.v1.AgentMessage
+	10, // 49: chalk.agent.v1.ListMessagesResponse.messages:type_name -> chalk.agent.v1.AgentMessage
+	51, // 50: chalk.agent.v1.AddToolResultRequest.result:type_name -> google.protobuf.Struct
+	51, // 51: chalk.agent.v1.AddToolResultRequest.metadata:type_name -> google.protobuf.Struct
+	12, // 52: chalk.agent.v1.AddToolResultResponse.tool_result:type_name -> chalk.agent.v1.AgentToolResult
+	10, // 53: chalk.agent.v1.ReplaceConversationTranscriptRequest.messages:type_name -> chalk.agent.v1.AgentMessage
+	10, // 54: chalk.agent.v1.ReplaceConversationTranscriptResponse.messages:type_name -> chalk.agent.v1.AgentMessage
+	8,  // 55: chalk.agent.v1.SetConversationNotebookResponse.conversation:type_name -> chalk.agent.v1.AgentConversation
+	53, // 56: chalk.agent.v1.AgentConversation.TemplateInputsEntry.value:type_name -> chalk.agent.v1.AgentTemplateInputValue
+	53, // 57: chalk.agent.v1.CreateConversationRequest.TemplateInputsEntry.value:type_name -> chalk.agent.v1.AgentTemplateInputValue
+	13, // 58: chalk.agent.v1.AgentConversationService.CreateConversation:input_type -> chalk.agent.v1.CreateConversationRequest
+	15, // 59: chalk.agent.v1.AgentConversationService.GetConversation:input_type -> chalk.agent.v1.GetConversationRequest
+	18, // 60: chalk.agent.v1.AgentConversationService.ListConversations:input_type -> chalk.agent.v1.ListConversationsRequest
+	20, // 61: chalk.agent.v1.AgentConversationService.UpdateConversation:input_type -> chalk.agent.v1.UpdateConversationRequest
+	22, // 62: chalk.agent.v1.AgentConversationService.DeleteConversation:input_type -> chalk.agent.v1.DeleteConversationRequest
+	24, // 63: chalk.agent.v1.AgentConversationService.ForkConversation:input_type -> chalk.agent.v1.ForkConversationRequest
+	26, // 64: chalk.agent.v1.AgentConversationService.LinkArtifact:input_type -> chalk.agent.v1.LinkArtifactRequest
+	28, // 65: chalk.agent.v1.AgentConversationService.UnlinkArtifact:input_type -> chalk.agent.v1.UnlinkArtifactRequest
+	30, // 66: chalk.agent.v1.AgentConversationService.ListArtifacts:input_type -> chalk.agent.v1.ListArtifactsRequest
+	32, // 67: chalk.agent.v1.AgentConversationService.ListConversationsForArtifact:input_type -> chalk.agent.v1.ListConversationsForArtifactRequest
+	34, // 68: chalk.agent.v1.AgentConversationService.AddMessage:input_type -> chalk.agent.v1.AddMessageRequest
+	37, // 69: chalk.agent.v1.AgentConversationService.UpdateMessageStatus:input_type -> chalk.agent.v1.UpdateMessageStatusRequest
+	39, // 70: chalk.agent.v1.AgentConversationService.ListMessages:input_type -> chalk.agent.v1.ListMessagesRequest
+	41, // 71: chalk.agent.v1.AgentConversationService.AddToolResult:input_type -> chalk.agent.v1.AddToolResultRequest
+	43, // 72: chalk.agent.v1.AgentConversationService.ReplaceConversationTranscript:input_type -> chalk.agent.v1.ReplaceConversationTranscriptRequest
+	45, // 73: chalk.agent.v1.AgentConversationService.SetConversationNotebook:input_type -> chalk.agent.v1.SetConversationNotebookRequest
+	47, // 74: chalk.agent.v1.AgentConversationService.UploadAgentTrace:input_type -> chalk.agent.v1.UploadAgentTraceRequest
+	14, // 75: chalk.agent.v1.AgentConversationService.CreateConversation:output_type -> chalk.agent.v1.CreateConversationResponse
+	16, // 76: chalk.agent.v1.AgentConversationService.GetConversation:output_type -> chalk.agent.v1.GetConversationResponse
+	19, // 77: chalk.agent.v1.AgentConversationService.ListConversations:output_type -> chalk.agent.v1.ListConversationsResponse
+	21, // 78: chalk.agent.v1.AgentConversationService.UpdateConversation:output_type -> chalk.agent.v1.UpdateConversationResponse
+	23, // 79: chalk.agent.v1.AgentConversationService.DeleteConversation:output_type -> chalk.agent.v1.DeleteConversationResponse
+	25, // 80: chalk.agent.v1.AgentConversationService.ForkConversation:output_type -> chalk.agent.v1.ForkConversationResponse
+	27, // 81: chalk.agent.v1.AgentConversationService.LinkArtifact:output_type -> chalk.agent.v1.LinkArtifactResponse
+	29, // 82: chalk.agent.v1.AgentConversationService.UnlinkArtifact:output_type -> chalk.agent.v1.UnlinkArtifactResponse
+	31, // 83: chalk.agent.v1.AgentConversationService.ListArtifacts:output_type -> chalk.agent.v1.ListArtifactsResponse
+	33, // 84: chalk.agent.v1.AgentConversationService.ListConversationsForArtifact:output_type -> chalk.agent.v1.ListConversationsForArtifactResponse
+	36, // 85: chalk.agent.v1.AgentConversationService.AddMessage:output_type -> chalk.agent.v1.AddMessageResponse
+	38, // 86: chalk.agent.v1.AgentConversationService.UpdateMessageStatus:output_type -> chalk.agent.v1.UpdateMessageStatusResponse
+	40, // 87: chalk.agent.v1.AgentConversationService.ListMessages:output_type -> chalk.agent.v1.ListMessagesResponse
+	42, // 88: chalk.agent.v1.AgentConversationService.AddToolResult:output_type -> chalk.agent.v1.AddToolResultResponse
+	44, // 89: chalk.agent.v1.AgentConversationService.ReplaceConversationTranscript:output_type -> chalk.agent.v1.ReplaceConversationTranscriptResponse
+	46, // 90: chalk.agent.v1.AgentConversationService.SetConversationNotebook:output_type -> chalk.agent.v1.SetConversationNotebookResponse
+	48, // 91: chalk.agent.v1.AgentConversationService.UploadAgentTrace:output_type -> chalk.agent.v1.UploadAgentTraceResponse
+	75, // [75:92] is the sub-list for method output_type
+	58, // [58:75] is the sub-list for method input_type
+	58, // [58:58] is the sub-list for extension type_name
+	58, // [58:58] is the sub-list for extension extendee
+	0,  // [0:58] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_conversation_proto_init() }
@@ -3232,12 +3518,14 @@ func file_chalk_agent_v1_conversation_proto_init() {
 		return
 	}
 	file_chalk_agent_v1_agent_template_proto_init()
+	file_chalk_agent_v1_conversation_proto_msgTypes[31].OneofWrappers = []any{}
+	file_chalk_agent_v1_conversation_proto_msgTypes[32].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_conversation_proto_rawDesc), len(file_chalk_agent_v1_conversation_proto_rawDesc)),
-			NumEnums:      5,
+			NumEnums:      8,
 			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,

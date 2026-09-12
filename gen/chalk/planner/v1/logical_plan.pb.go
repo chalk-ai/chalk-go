@@ -8,8 +8,8 @@ package plannerv1
 
 import (
 	v12 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
-	v11 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
-	v1 "github.com/chalk-ai/chalk-go/gen/chalk/primitive/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/primitive/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -60,6 +60,7 @@ const (
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER       LogicalTableNodeType = 28
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD   LogicalTableNodeType = 29
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN    LogicalTableNodeType = 30
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN      LogicalTableNodeType = 31
 )
 
 // Enum value maps for LogicalTableNodeType.
@@ -96,6 +97,7 @@ var (
 		28: "LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER",
 		29: "LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD",
 		30: "LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN",
+		31: "LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN",
 	}
 	LogicalTableNodeType_value = map[string]int32{
 		"LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED":            0,
@@ -129,6 +131,7 @@ var (
 		"LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER":       28,
 		"LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD":   29,
 		"LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN":    30,
+		"LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN":      31,
 	}
 )
 
@@ -208,11 +211,13 @@ func (x *LogicalPlan) GetNodes() []*LogicalTableNode {
 }
 
 type LogicalTableNode struct {
-	state         protoimpl.MessageState          `protogen:"open.v1"`
-	LtnType       LogicalTableNodeType            `protobuf:"varint,1,opt,name=ltn_type,json=ltnType,proto3,enum=chalk.planner.v1.LogicalTableNodeType" json:"ltn_type,omitempty"`
-	NodeId        *LogicalTableNodeId             `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	ChildNodes    []*LogicalTableNodeId           `protobuf:"bytes,3,rep,name=child_nodes,json=childNodes,proto3" json:"child_nodes,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	LtnType    LogicalTableNodeType   `protobuf:"varint,1,opt,name=ltn_type,json=ltnType,proto3,enum=chalk.planner.v1.LogicalTableNodeType" json:"ltn_type,omitempty"`
+	NodeId     *LogicalTableNodeId    `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	ChildNodes []*LogicalTableNodeId  `protobuf:"bytes,3,rep,name=child_nodes,json=childNodes,proto3" json:"child_nodes,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 	Arguments     map[string]*LogicalPlanArgument `protobuf:"bytes,4,rep,name=arguments,proto3" json:"arguments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	RichArguments map[string]*v1.RichArgument     `protobuf:"bytes,5,rep,name=rich_arguments,json=richArguments,proto3" json:"rich_arguments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -268,9 +273,17 @@ func (x *LogicalTableNode) GetChildNodes() []*LogicalTableNodeId {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
 func (x *LogicalTableNode) GetArguments() map[string]*LogicalPlanArgument {
 	if x != nil {
 		return x.Arguments
+	}
+	return nil
+}
+
+func (x *LogicalTableNode) GetRichArguments() map[string]*v1.RichArgument {
+	if x != nil {
+		return x.RichArguments
 	}
 	return nil
 }
@@ -384,7 +397,7 @@ func (x *LogicalPlanArgument) GetArg() isLogicalPlanArgument_Arg {
 	return nil
 }
 
-func (x *LogicalPlanArgument) GetPrimitiveValue() *v1.Primitive {
+func (x *LogicalPlanArgument) GetPrimitiveValue() *v11.Primitive {
 	if x != nil {
 		if x, ok := x.Arg.(*LogicalPlanArgument_PrimitiveValue); ok {
 			return x.PrimitiveValue
@@ -394,7 +407,7 @@ func (x *LogicalPlanArgument) GetPrimitiveValue() *v1.Primitive {
 }
 
 // Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
-func (x *LogicalPlanArgument) GetExprValue() *v11.LogicalExprNode {
+func (x *LogicalPlanArgument) GetExprValue() *v1.LogicalExprNode {
 	if x != nil {
 		if x, ok := x.Arg.(*LogicalPlanArgument_ExprValue); ok {
 			return x.ExprValue
@@ -403,7 +416,7 @@ func (x *LogicalPlanArgument) GetExprValue() *v11.LogicalExprNode {
 	return nil
 }
 
-func (x *LogicalPlanArgument) GetFlatExprValue() *v11.FlatLogicalExpr {
+func (x *LogicalPlanArgument) GetFlatExprValue() *v1.FlatLogicalExpr {
 	if x != nil {
 		if x, ok := x.Arg.(*LogicalPlanArgument_FlatExprValue); ok {
 			return x.FlatExprValue
@@ -412,7 +425,7 @@ func (x *LogicalPlanArgument) GetFlatExprValue() *v11.FlatLogicalExpr {
 	return nil
 }
 
-func (x *LogicalPlanArgument) GetBatchUdfV3() *v11.BatchUDF {
+func (x *LogicalPlanArgument) GetBatchUdfV3() *v1.BatchUDF {
 	if x != nil {
 		if x, ok := x.Arg.(*LogicalPlanArgument_BatchUdfV3); ok {
 			return x.BatchUdfV3
@@ -575,20 +588,20 @@ type isLogicalPlanArgument_Arg interface {
 
 type LogicalPlanArgument_PrimitiveValue struct {
 	// Base Types
-	PrimitiveValue *v1.Primitive `protobuf:"bytes,18,opt,name=primitive_value,json=primitiveValue,proto3,oneof"`
+	PrimitiveValue *v11.Primitive `protobuf:"bytes,18,opt,name=primitive_value,json=primitiveValue,proto3,oneof"`
 }
 
 type LogicalPlanArgument_ExprValue struct {
 	// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
-	ExprValue *v11.LogicalExprNode `protobuf:"bytes,10,opt,name=expr_value,json=exprValue,proto3,oneof"`
+	ExprValue *v1.LogicalExprNode `protobuf:"bytes,10,opt,name=expr_value,json=exprValue,proto3,oneof"`
 }
 
 type LogicalPlanArgument_FlatExprValue struct {
-	FlatExprValue *v11.FlatLogicalExpr `protobuf:"bytes,19,opt,name=flat_expr_value,json=flatExprValue,proto3,oneof"`
+	FlatExprValue *v1.FlatLogicalExpr `protobuf:"bytes,19,opt,name=flat_expr_value,json=flatExprValue,proto3,oneof"`
 }
 
 type LogicalPlanArgument_BatchUdfV3 struct {
-	BatchUdfV3 *v11.BatchUDF `protobuf:"bytes,17,opt,name=batch_udf_v3,json=batchUdfV3,proto3,oneof"`
+	BatchUdfV3 *v1.BatchUDF `protobuf:"bytes,17,opt,name=batch_udf_v3,json=batchUdfV3,proto3,oneof"`
 }
 
 type LogicalPlanArgument_ListValue struct {
@@ -981,16 +994,20 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\n" +
 	"#chalk/planner/v1/logical_plan.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a chalk/planner/v1/batch_udf.proto\x1a\"chalk/primitive/v1/primitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"G\n" +
 	"\vLogicalPlan\x128\n" +
-	"\x05nodes\x18\x01 \x03(\v2\".chalk.planner.v1.LogicalTableNodeR\x05nodes\"\x91\x03\n" +
+	"\x05nodes\x18\x01 \x03(\v2\".chalk.planner.v1.LogicalTableNodeR\x05nodes\"\xd8\x04\n" +
 	"\x10LogicalTableNode\x12A\n" +
 	"\bltn_type\x18\x01 \x01(\x0e2&.chalk.planner.v1.LogicalTableNodeTypeR\altnType\x12=\n" +
 	"\anode_id\x18\x02 \x01(\v2$.chalk.planner.v1.LogicalTableNodeIdR\x06nodeId\x12E\n" +
 	"\vchild_nodes\x18\x03 \x03(\v2$.chalk.planner.v1.LogicalTableNodeIdR\n" +
-	"childNodes\x12O\n" +
-	"\targuments\x18\x04 \x03(\v21.chalk.planner.v1.LogicalTableNode.ArgumentsEntryR\targuments\x1ac\n" +
+	"childNodes\x12S\n" +
+	"\targuments\x18\x04 \x03(\v21.chalk.planner.v1.LogicalTableNode.ArgumentsEntryB\x02\x18\x01R\targuments\x12\\\n" +
+	"\x0erich_arguments\x18\x05 \x03(\v25.chalk.planner.v1.LogicalTableNode.RichArgumentsEntryR\rrichArguments\x1ac\n" +
 	"\x0eArgumentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12;\n" +
-	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\"$\n" +
+	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\x1ac\n" +
+	"\x12RichArgumentsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x127\n" +
+	"\x05value\x18\x02 \x01(\v2!.chalk.expression.v1.RichArgumentR\x05value:\x028\x01\"$\n" +
 	"\x12LogicalTableNodeId\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\"\xc8\t\n" +
 	"\x13LogicalPlanArgument\x12H\n" +
@@ -1043,7 +1060,8 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x10logical_plan_arg\x18\x01 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentB\x02\x18\x01H\x00R\x0elogicalPlanArg\x127\n" +
 	"\x06py_obj\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectB\x02\x18\x01H\x00R\x05pyObj:\x02\x18\x01B\x05\n" +
 	"\x03arg\"\x1c\n" +
-	"\x1aLogicalPlanArgumentNullOpt*\xed\t\n" +
+	"\x1aLogicalPlanArgumentNullOpt*\x9c\n" +
+	"\n" +
 	"\x14LogicalTableNodeType\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_NAMED_TABLE\x10\x01\x12&\n" +
@@ -1076,7 +1094,8 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"&LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION\x10\x1b\x12,\n" +
 	"(LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER\x10\x1c\x120\n" +
 	",LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD\x10\x1d\x12/\n" +
-	"+LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN\x10\x1eB\xc7\x01\n" +
+	"+LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN\x10\x1e\x12-\n" +
+	")LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN\x10\x1fB\xc7\x01\n" +
 	"\x14com.chalk.planner.v1B\x10LogicalPlanProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (
@@ -1092,7 +1111,7 @@ func file_chalk_planner_v1_logical_plan_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_planner_v1_logical_plan_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_planner_v1_logical_plan_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_chalk_planner_v1_logical_plan_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_chalk_planner_v1_logical_plan_proto_goTypes = []any{
 	(LogicalTableNodeType)(0),          // 0: chalk.planner.v1.LogicalTableNodeType
 	(*LogicalPlan)(nil),                // 1: chalk.planner.v1.LogicalPlan
@@ -1105,18 +1124,20 @@ var file_chalk_planner_v1_logical_plan_proto_goTypes = []any{
 	(*BatchUDFArgumentV2)(nil),         // 8: chalk.planner.v1.BatchUDFArgumentV2
 	(*LogicalPlanArgumentNullOpt)(nil), // 9: chalk.planner.v1.LogicalPlanArgumentNullOpt
 	nil,                                // 10: chalk.planner.v1.LogicalTableNode.ArgumentsEntry
-	nil,                                // 11: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
-	nil,                                // 12: chalk.planner.v1.BatchUDFV2.ArgumentsEntry
-	(*v1.Primitive)(nil),               // 13: chalk.primitive.v1.Primitive
-	(*v11.LogicalExprNode)(nil),        // 14: chalk.expression.v1.LogicalExprNode
-	(*v11.FlatLogicalExpr)(nil),        // 15: chalk.expression.v1.FlatLogicalExpr
-	(*v11.BatchUDF)(nil),               // 16: chalk.expression.v1.BatchUDF
-	(*durationpb.Duration)(nil),        // 17: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),      // 18: google.protobuf.Timestamp
-	(*v12.Schema)(nil),                 // 19: chalk.arrow.v1.Schema
-	(*v12.Field)(nil),                  // 20: chalk.arrow.v1.Field
-	(*BatchUDF)(nil),                   // 21: chalk.planner.v1.BatchUDF
-	(*PyObject)(nil),                   // 22: chalk.planner.v1.PyObject
+	nil,                                // 11: chalk.planner.v1.LogicalTableNode.RichArgumentsEntry
+	nil,                                // 12: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
+	nil,                                // 13: chalk.planner.v1.BatchUDFV2.ArgumentsEntry
+	(*v11.Primitive)(nil),              // 14: chalk.primitive.v1.Primitive
+	(*v1.LogicalExprNode)(nil),         // 15: chalk.expression.v1.LogicalExprNode
+	(*v1.FlatLogicalExpr)(nil),         // 16: chalk.expression.v1.FlatLogicalExpr
+	(*v1.BatchUDF)(nil),                // 17: chalk.expression.v1.BatchUDF
+	(*durationpb.Duration)(nil),        // 18: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil),      // 19: google.protobuf.Timestamp
+	(*v12.Schema)(nil),                 // 20: chalk.arrow.v1.Schema
+	(*v12.Field)(nil),                  // 21: chalk.arrow.v1.Field
+	(*BatchUDF)(nil),                   // 22: chalk.planner.v1.BatchUDF
+	(*PyObject)(nil),                   // 23: chalk.planner.v1.PyObject
+	(*v1.RichArgument)(nil),            // 24: chalk.expression.v1.RichArgument
 }
 var file_chalk_planner_v1_logical_plan_proto_depIdxs = []int32{
 	2,  // 0: chalk.planner.v1.LogicalPlan.nodes:type_name -> chalk.planner.v1.LogicalTableNode
@@ -1124,32 +1145,34 @@ var file_chalk_planner_v1_logical_plan_proto_depIdxs = []int32{
 	3,  // 2: chalk.planner.v1.LogicalTableNode.node_id:type_name -> chalk.planner.v1.LogicalTableNodeId
 	3,  // 3: chalk.planner.v1.LogicalTableNode.child_nodes:type_name -> chalk.planner.v1.LogicalTableNodeId
 	10, // 4: chalk.planner.v1.LogicalTableNode.arguments:type_name -> chalk.planner.v1.LogicalTableNode.ArgumentsEntry
-	13, // 5: chalk.planner.v1.LogicalPlanArgument.primitive_value:type_name -> chalk.primitive.v1.Primitive
-	14, // 6: chalk.planner.v1.LogicalPlanArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
-	15, // 7: chalk.planner.v1.LogicalPlanArgument.flat_expr_value:type_name -> chalk.expression.v1.FlatLogicalExpr
-	16, // 8: chalk.planner.v1.LogicalPlanArgument.batch_udf_v3:type_name -> chalk.expression.v1.BatchUDF
-	5,  // 9: chalk.planner.v1.LogicalPlanArgument.list_value:type_name -> chalk.planner.v1.LogicalPlanArgumentList
-	6,  // 10: chalk.planner.v1.LogicalPlanArgument.unordered_dict_value:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict
-	9,  // 11: chalk.planner.v1.LogicalPlanArgument.null_value:type_name -> chalk.planner.v1.LogicalPlanArgumentNullOpt
-	17, // 12: chalk.planner.v1.LogicalPlanArgument.duration_value:type_name -> google.protobuf.Duration
-	18, // 13: chalk.planner.v1.LogicalPlanArgument.timestamp_value:type_name -> google.protobuf.Timestamp
-	19, // 14: chalk.planner.v1.LogicalPlanArgument.arrow_schema:type_name -> chalk.arrow.v1.Schema
-	20, // 15: chalk.planner.v1.LogicalPlanArgument.arrow_field:type_name -> chalk.arrow.v1.Field
-	21, // 16: chalk.planner.v1.LogicalPlanArgument.batch_udf:type_name -> chalk.planner.v1.BatchUDF
-	7,  // 17: chalk.planner.v1.LogicalPlanArgument.batch_udf_v2:type_name -> chalk.planner.v1.BatchUDFV2
-	4,  // 18: chalk.planner.v1.LogicalPlanArgumentList.values:type_name -> chalk.planner.v1.LogicalPlanArgument
-	11, // 19: chalk.planner.v1.LogicalPlanUnorderedDict.items:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
-	12, // 20: chalk.planner.v1.BatchUDFV2.arguments:type_name -> chalk.planner.v1.BatchUDFV2.ArgumentsEntry
-	4,  // 21: chalk.planner.v1.BatchUDFArgumentV2.logical_plan_arg:type_name -> chalk.planner.v1.LogicalPlanArgument
-	22, // 22: chalk.planner.v1.BatchUDFArgumentV2.py_obj:type_name -> chalk.planner.v1.PyObject
-	4,  // 23: chalk.planner.v1.LogicalTableNode.ArgumentsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
-	4,  // 24: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
-	8,  // 25: chalk.planner.v1.BatchUDFV2.ArgumentsEntry.value:type_name -> chalk.planner.v1.BatchUDFArgumentV2
-	26, // [26:26] is the sub-list for method output_type
-	26, // [26:26] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	11, // 5: chalk.planner.v1.LogicalTableNode.rich_arguments:type_name -> chalk.planner.v1.LogicalTableNode.RichArgumentsEntry
+	14, // 6: chalk.planner.v1.LogicalPlanArgument.primitive_value:type_name -> chalk.primitive.v1.Primitive
+	15, // 7: chalk.planner.v1.LogicalPlanArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
+	16, // 8: chalk.planner.v1.LogicalPlanArgument.flat_expr_value:type_name -> chalk.expression.v1.FlatLogicalExpr
+	17, // 9: chalk.planner.v1.LogicalPlanArgument.batch_udf_v3:type_name -> chalk.expression.v1.BatchUDF
+	5,  // 10: chalk.planner.v1.LogicalPlanArgument.list_value:type_name -> chalk.planner.v1.LogicalPlanArgumentList
+	6,  // 11: chalk.planner.v1.LogicalPlanArgument.unordered_dict_value:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict
+	9,  // 12: chalk.planner.v1.LogicalPlanArgument.null_value:type_name -> chalk.planner.v1.LogicalPlanArgumentNullOpt
+	18, // 13: chalk.planner.v1.LogicalPlanArgument.duration_value:type_name -> google.protobuf.Duration
+	19, // 14: chalk.planner.v1.LogicalPlanArgument.timestamp_value:type_name -> google.protobuf.Timestamp
+	20, // 15: chalk.planner.v1.LogicalPlanArgument.arrow_schema:type_name -> chalk.arrow.v1.Schema
+	21, // 16: chalk.planner.v1.LogicalPlanArgument.arrow_field:type_name -> chalk.arrow.v1.Field
+	22, // 17: chalk.planner.v1.LogicalPlanArgument.batch_udf:type_name -> chalk.planner.v1.BatchUDF
+	7,  // 18: chalk.planner.v1.LogicalPlanArgument.batch_udf_v2:type_name -> chalk.planner.v1.BatchUDFV2
+	4,  // 19: chalk.planner.v1.LogicalPlanArgumentList.values:type_name -> chalk.planner.v1.LogicalPlanArgument
+	12, // 20: chalk.planner.v1.LogicalPlanUnorderedDict.items:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
+	13, // 21: chalk.planner.v1.BatchUDFV2.arguments:type_name -> chalk.planner.v1.BatchUDFV2.ArgumentsEntry
+	4,  // 22: chalk.planner.v1.BatchUDFArgumentV2.logical_plan_arg:type_name -> chalk.planner.v1.LogicalPlanArgument
+	23, // 23: chalk.planner.v1.BatchUDFArgumentV2.py_obj:type_name -> chalk.planner.v1.PyObject
+	4,  // 24: chalk.planner.v1.LogicalTableNode.ArgumentsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
+	24, // 25: chalk.planner.v1.LogicalTableNode.RichArgumentsEntry.value:type_name -> chalk.expression.v1.RichArgument
+	4,  // 26: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
+	8,  // 27: chalk.planner.v1.BatchUDFV2.ArgumentsEntry.value:type_name -> chalk.planner.v1.BatchUDFArgumentV2
+	28, // [28:28] is the sub-list for method output_type
+	28, // [28:28] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_logical_plan_proto_init() }
@@ -1189,7 +1212,7 @@ func file_chalk_planner_v1_logical_plan_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_planner_v1_logical_plan_proto_rawDesc), len(file_chalk_planner_v1_logical_plan_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

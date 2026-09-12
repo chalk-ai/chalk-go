@@ -8,6 +8,7 @@ package routerv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -24,16 +25,119 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Creation-time convenience for API-key- and usage-pool-scoped limits. The
+// router expands populated dimensions into independently manageable policy
+// rows. The historical name is retained for wire compatibility.
+type ApiKeyRateLimit struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	ConnectionId       *string                `protobuf:"bytes,1,opt,name=connection_id,json=connectionId,proto3,oneof" json:"connection_id,omitempty"`
+	Models             []string               `protobuf:"bytes,2,rep,name=models,proto3" json:"models,omitempty"`
+	RequestsPerMinute  *uint64                `protobuf:"varint,3,opt,name=requests_per_minute,json=requestsPerMinute,proto3,oneof" json:"requests_per_minute,omitempty"`
+	RequestBurst       *uint64                `protobuf:"varint,4,opt,name=request_burst,json=requestBurst,proto3,oneof" json:"request_burst,omitempty"`
+	TokensPerMinute    *uint64                `protobuf:"varint,5,opt,name=tokens_per_minute,json=tokensPerMinute,proto3,oneof" json:"tokens_per_minute,omitempty"`
+	TokenBurst         *uint64                `protobuf:"varint,6,opt,name=token_burst,json=tokenBurst,proto3,oneof" json:"token_burst,omitempty"`
+	ConcurrentRequests *uint64                `protobuf:"varint,7,opt,name=concurrent_requests,json=concurrentRequests,proto3,oneof" json:"concurrent_requests,omitempty"`
+	Enabled            *bool                  `protobuf:"varint,8,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ApiKeyRateLimit) Reset() {
+	*x = ApiKeyRateLimit{}
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApiKeyRateLimit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApiKeyRateLimit) ProtoMessage() {}
+
+func (x *ApiKeyRateLimit) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApiKeyRateLimit.ProtoReflect.Descriptor instead.
+func (*ApiKeyRateLimit) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ApiKeyRateLimit) GetConnectionId() string {
+	if x != nil && x.ConnectionId != nil {
+		return *x.ConnectionId
+	}
+	return ""
+}
+
+func (x *ApiKeyRateLimit) GetModels() []string {
+	if x != nil {
+		return x.Models
+	}
+	return nil
+}
+
+func (x *ApiKeyRateLimit) GetRequestsPerMinute() uint64 {
+	if x != nil && x.RequestsPerMinute != nil {
+		return *x.RequestsPerMinute
+	}
+	return 0
+}
+
+func (x *ApiKeyRateLimit) GetRequestBurst() uint64 {
+	if x != nil && x.RequestBurst != nil {
+		return *x.RequestBurst
+	}
+	return 0
+}
+
+func (x *ApiKeyRateLimit) GetTokensPerMinute() uint64 {
+	if x != nil && x.TokensPerMinute != nil {
+		return *x.TokensPerMinute
+	}
+	return 0
+}
+
+func (x *ApiKeyRateLimit) GetTokenBurst() uint64 {
+	if x != nil && x.TokenBurst != nil {
+		return *x.TokenBurst
+	}
+	return 0
+}
+
+func (x *ApiKeyRateLimit) GetConcurrentRequests() uint64 {
+	if x != nil && x.ConcurrentRequests != nil {
+		return *x.ConcurrentRequests
+	}
+	return 0
+}
+
+func (x *ApiKeyRateLimit) GetEnabled() bool {
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
+	}
+	return false
+}
+
 type RateLimitPolicy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	LimitType     string                 `protobuf:"bytes,3,opt,name=limit_type,json=limitType,proto3" json:"limit_type,omitempty"`
-	LimitValue    uint64                 `protobuf:"varint,4,opt,name=limit_value,json=limitValue,proto3" json:"limit_value,omitempty"`
-	TargetType    string                 `protobuf:"bytes,5,opt,name=target_type,json=targetType,proto3" json:"target_type,omitempty"`
-	TargetValue   string                 `protobuf:"bytes,6,opt,name=target_value,json=targetValue,proto3" json:"target_value,omitempty"`
-	Scope         string                 `protobuf:"bytes,7,opt,name=scope,proto3" json:"scope,omitempty"`
-	ScopeId       string                 `protobuf:"bytes,8,opt,name=scope_id,json=scopeId,proto3" json:"scope_id,omitempty"`
+	Scope         string                 `protobuf:"bytes,2,opt,name=scope,proto3" json:"scope,omitempty"`
+	ScopeId       string                 `protobuf:"bytes,3,opt,name=scope_id,json=scopeId,proto3" json:"scope_id,omitempty"`
+	LimitType     string                 `protobuf:"bytes,4,opt,name=limit_type,json=limitType,proto3" json:"limit_type,omitempty"`
+	LimitValue    uint64                 `protobuf:"varint,5,opt,name=limit_value,json=limitValue,proto3" json:"limit_value,omitempty"`
+	BurstValue    *uint64                `protobuf:"varint,6,opt,name=burst_value,json=burstValue,proto3,oneof" json:"burst_value,omitempty"`
+	ConnectionId  *string                `protobuf:"bytes,7,opt,name=connection_id,json=connectionId,proto3,oneof" json:"connection_id,omitempty"`
+	Models        []string               `protobuf:"bytes,8,rep,name=models,proto3" json:"models,omitempty"`
 	Enabled       bool                   `protobuf:"varint,9,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -42,7 +146,7 @@ type RateLimitPolicy struct {
 
 func (x *RateLimitPolicy) Reset() {
 	*x = RateLimitPolicy{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[0]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -54,7 +158,7 @@ func (x *RateLimitPolicy) String() string {
 func (*RateLimitPolicy) ProtoMessage() {}
 
 func (x *RateLimitPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[0]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -67,47 +171,12 @@ func (x *RateLimitPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RateLimitPolicy.ProtoReflect.Descriptor instead.
 func (*RateLimitPolicy) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{0}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *RateLimitPolicy) GetId() string {
 	if x != nil {
 		return x.Id
-	}
-	return ""
-}
-
-func (x *RateLimitPolicy) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *RateLimitPolicy) GetLimitType() string {
-	if x != nil {
-		return x.LimitType
-	}
-	return ""
-}
-
-func (x *RateLimitPolicy) GetLimitValue() uint64 {
-	if x != nil {
-		return x.LimitValue
-	}
-	return 0
-}
-
-func (x *RateLimitPolicy) GetTargetType() string {
-	if x != nil {
-		return x.TargetType
-	}
-	return ""
-}
-
-func (x *RateLimitPolicy) GetTargetValue() string {
-	if x != nil {
-		return x.TargetValue
 	}
 	return ""
 }
@@ -126,6 +195,41 @@ func (x *RateLimitPolicy) GetScopeId() string {
 	return ""
 }
 
+func (x *RateLimitPolicy) GetLimitType() string {
+	if x != nil {
+		return x.LimitType
+	}
+	return ""
+}
+
+func (x *RateLimitPolicy) GetLimitValue() uint64 {
+	if x != nil {
+		return x.LimitValue
+	}
+	return 0
+}
+
+func (x *RateLimitPolicy) GetBurstValue() uint64 {
+	if x != nil && x.BurstValue != nil {
+		return *x.BurstValue
+	}
+	return 0
+}
+
+func (x *RateLimitPolicy) GetConnectionId() string {
+	if x != nil && x.ConnectionId != nil {
+		return *x.ConnectionId
+	}
+	return ""
+}
+
+func (x *RateLimitPolicy) GetModels() []string {
+	if x != nil {
+		return x.Models
+	}
+	return nil
+}
+
 func (x *RateLimitPolicy) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
@@ -142,20 +246,21 @@ func (x *RateLimitPolicy) GetCreatedAt() *timestamppb.Timestamp {
 
 type CreateRateLimitRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	LimitType     string                 `protobuf:"bytes,2,opt,name=limit_type,json=limitType,proto3" json:"limit_type,omitempty"`
-	LimitValue    uint64                 `protobuf:"varint,3,opt,name=limit_value,json=limitValue,proto3" json:"limit_value,omitempty"`
-	TargetType    string                 `protobuf:"bytes,4,opt,name=target_type,json=targetType,proto3" json:"target_type,omitempty"`
-	TargetValue   string                 `protobuf:"bytes,5,opt,name=target_value,json=targetValue,proto3" json:"target_value,omitempty"`
-	Scope         string                 `protobuf:"bytes,6,opt,name=scope,proto3" json:"scope,omitempty"`
-	ScopeId       string                 `protobuf:"bytes,7,opt,name=scope_id,json=scopeId,proto3" json:"scope_id,omitempty"`
+	Scope         string                 `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
+	ScopeId       string                 `protobuf:"bytes,2,opt,name=scope_id,json=scopeId,proto3" json:"scope_id,omitempty"`
+	LimitType     string                 `protobuf:"bytes,3,opt,name=limit_type,json=limitType,proto3" json:"limit_type,omitempty"`
+	LimitValue    uint64                 `protobuf:"varint,4,opt,name=limit_value,json=limitValue,proto3" json:"limit_value,omitempty"`
+	BurstValue    *uint64                `protobuf:"varint,5,opt,name=burst_value,json=burstValue,proto3,oneof" json:"burst_value,omitempty"`
+	ConnectionId  *string                `protobuf:"bytes,6,opt,name=connection_id,json=connectionId,proto3,oneof" json:"connection_id,omitempty"`
+	Models        []string               `protobuf:"bytes,7,rep,name=models,proto3" json:"models,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,8,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateRateLimitRequest) Reset() {
 	*x = CreateRateLimitRequest{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[1]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -167,7 +272,7 @@ func (x *CreateRateLimitRequest) String() string {
 func (*CreateRateLimitRequest) ProtoMessage() {}
 
 func (x *CreateRateLimitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[1]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -180,12 +285,19 @@ func (x *CreateRateLimitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRateLimitRequest.ProtoReflect.Descriptor instead.
 func (*CreateRateLimitRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{1}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CreateRateLimitRequest) GetName() string {
+func (x *CreateRateLimitRequest) GetScope() string {
 	if x != nil {
-		return x.Name
+		return x.Scope
+	}
+	return ""
+}
+
+func (x *CreateRateLimitRequest) GetScopeId() string {
+	if x != nil {
+		return x.ScopeId
 	}
 	return ""
 }
@@ -204,32 +316,32 @@ func (x *CreateRateLimitRequest) GetLimitValue() uint64 {
 	return 0
 }
 
-func (x *CreateRateLimitRequest) GetTargetType() string {
-	if x != nil {
-		return x.TargetType
+func (x *CreateRateLimitRequest) GetBurstValue() uint64 {
+	if x != nil && x.BurstValue != nil {
+		return *x.BurstValue
+	}
+	return 0
+}
+
+func (x *CreateRateLimitRequest) GetConnectionId() string {
+	if x != nil && x.ConnectionId != nil {
+		return *x.ConnectionId
 	}
 	return ""
 }
 
-func (x *CreateRateLimitRequest) GetTargetValue() string {
+func (x *CreateRateLimitRequest) GetModels() []string {
 	if x != nil {
-		return x.TargetValue
+		return x.Models
 	}
-	return ""
+	return nil
 }
 
-func (x *CreateRateLimitRequest) GetScope() string {
-	if x != nil {
-		return x.Scope
+func (x *CreateRateLimitRequest) GetEnabled() bool {
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
 	}
-	return ""
-}
-
-func (x *CreateRateLimitRequest) GetScopeId() string {
-	if x != nil {
-		return x.ScopeId
-	}
-	return ""
+	return false
 }
 
 type CreateRateLimitResponse struct {
@@ -241,7 +353,7 @@ type CreateRateLimitResponse struct {
 
 func (x *CreateRateLimitResponse) Reset() {
 	*x = CreateRateLimitResponse{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[2]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -253,7 +365,7 @@ func (x *CreateRateLimitResponse) String() string {
 func (*CreateRateLimitResponse) ProtoMessage() {}
 
 func (x *CreateRateLimitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[2]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -266,7 +378,7 @@ func (x *CreateRateLimitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRateLimitResponse.ProtoReflect.Descriptor instead.
 func (*CreateRateLimitResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{2}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateRateLimitResponse) GetPolicy() *RateLimitPolicy {
@@ -286,7 +398,7 @@ type ListRateLimitsRequest struct {
 
 func (x *ListRateLimitsRequest) Reset() {
 	*x = ListRateLimitsRequest{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[3]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -298,7 +410,7 @@ func (x *ListRateLimitsRequest) String() string {
 func (*ListRateLimitsRequest) ProtoMessage() {}
 
 func (x *ListRateLimitsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[3]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -311,7 +423,7 @@ func (x *ListRateLimitsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRateLimitsRequest.ProtoReflect.Descriptor instead.
 func (*ListRateLimitsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{3}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListRateLimitsRequest) GetLimit() int32 {
@@ -338,7 +450,7 @@ type ListRateLimitsResponse struct {
 
 func (x *ListRateLimitsResponse) Reset() {
 	*x = ListRateLimitsResponse{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[4]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -350,7 +462,7 @@ func (x *ListRateLimitsResponse) String() string {
 func (*ListRateLimitsResponse) ProtoMessage() {}
 
 func (x *ListRateLimitsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[4]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -363,7 +475,7 @@ func (x *ListRateLimitsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRateLimitsResponse.ProtoReflect.Descriptor instead.
 func (*ListRateLimitsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{4}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListRateLimitsResponse) GetPolicies() []*RateLimitPolicy {
@@ -382,14 +494,19 @@ func (x *ListRateLimitsResponse) GetNextCursor() string {
 
 type UpdateRateLimitOperation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Enabled       *bool                  `protobuf:"varint,1,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	LimitType     *string                `protobuf:"bytes,1,opt,name=limit_type,json=limitType,proto3,oneof" json:"limit_type,omitempty"`
+	LimitValue    *uint64                `protobuf:"varint,2,opt,name=limit_value,json=limitValue,proto3,oneof" json:"limit_value,omitempty"`
+	BurstValue    *uint64                `protobuf:"varint,3,opt,name=burst_value,json=burstValue,proto3,oneof" json:"burst_value,omitempty"`
+	ConnectionId  *string                `protobuf:"bytes,4,opt,name=connection_id,json=connectionId,proto3,oneof" json:"connection_id,omitempty"`
+	Models        []string               `protobuf:"bytes,5,rep,name=models,proto3" json:"models,omitempty"`
+	Enabled       *bool                  `protobuf:"varint,6,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateRateLimitOperation) Reset() {
 	*x = UpdateRateLimitOperation{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[5]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -401,7 +518,7 @@ func (x *UpdateRateLimitOperation) String() string {
 func (*UpdateRateLimitOperation) ProtoMessage() {}
 
 func (x *UpdateRateLimitOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[5]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -414,7 +531,42 @@ func (x *UpdateRateLimitOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRateLimitOperation.ProtoReflect.Descriptor instead.
 func (*UpdateRateLimitOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{5}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateRateLimitOperation) GetLimitType() string {
+	if x != nil && x.LimitType != nil {
+		return *x.LimitType
+	}
+	return ""
+}
+
+func (x *UpdateRateLimitOperation) GetLimitValue() uint64 {
+	if x != nil && x.LimitValue != nil {
+		return *x.LimitValue
+	}
+	return 0
+}
+
+func (x *UpdateRateLimitOperation) GetBurstValue() uint64 {
+	if x != nil && x.BurstValue != nil {
+		return *x.BurstValue
+	}
+	return 0
+}
+
+func (x *UpdateRateLimitOperation) GetConnectionId() string {
+	if x != nil && x.ConnectionId != nil {
+		return *x.ConnectionId
+	}
+	return ""
+}
+
+func (x *UpdateRateLimitOperation) GetModels() []string {
+	if x != nil {
+		return x.Models
+	}
+	return nil
 }
 
 func (x *UpdateRateLimitOperation) GetEnabled() bool {
@@ -435,7 +587,7 @@ type UpdateRateLimitRequest struct {
 
 func (x *UpdateRateLimitRequest) Reset() {
 	*x = UpdateRateLimitRequest{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[6]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -447,7 +599,7 @@ func (x *UpdateRateLimitRequest) String() string {
 func (*UpdateRateLimitRequest) ProtoMessage() {}
 
 func (x *UpdateRateLimitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[6]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -460,7 +612,7 @@ func (x *UpdateRateLimitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRateLimitRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRateLimitRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{6}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpdateRateLimitRequest) GetId() string {
@@ -493,7 +645,7 @@ type UpdateRateLimitResponse struct {
 
 func (x *UpdateRateLimitResponse) Reset() {
 	*x = UpdateRateLimitResponse{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[7]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -505,7 +657,7 @@ func (x *UpdateRateLimitResponse) String() string {
 func (*UpdateRateLimitResponse) ProtoMessage() {}
 
 func (x *UpdateRateLimitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[7]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -518,10 +670,98 @@ func (x *UpdateRateLimitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRateLimitResponse.ProtoReflect.Descriptor instead.
 func (*UpdateRateLimitResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{7}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateRateLimitResponse) GetPolicy() *RateLimitPolicy {
+	if x != nil {
+		return x.Policy
+	}
+	return nil
+}
+
+type GetRateLimitRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRateLimitRequest) Reset() {
+	*x = GetRateLimitRequest{}
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRateLimitRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRateLimitRequest) ProtoMessage() {}
+
+func (x *GetRateLimitRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRateLimitRequest.ProtoReflect.Descriptor instead.
+func (*GetRateLimitRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetRateLimitRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetRateLimitResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policy        *RateLimitPolicy       `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRateLimitResponse) Reset() {
+	*x = GetRateLimitResponse{}
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRateLimitResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRateLimitResponse) ProtoMessage() {}
+
+func (x *GetRateLimitResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRateLimitResponse.ProtoReflect.Descriptor instead.
+func (*GetRateLimitResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetRateLimitResponse) GetPolicy() *RateLimitPolicy {
 	if x != nil {
 		return x.Policy
 	}
@@ -537,7 +777,7 @@ type DeleteRateLimitRequest struct {
 
 func (x *DeleteRateLimitRequest) Reset() {
 	*x = DeleteRateLimitRequest{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[8]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -549,7 +789,7 @@ func (x *DeleteRateLimitRequest) String() string {
 func (*DeleteRateLimitRequest) ProtoMessage() {}
 
 func (x *DeleteRateLimitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[8]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -562,7 +802,7 @@ func (x *DeleteRateLimitRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRateLimitRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRateLimitRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{8}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *DeleteRateLimitRequest) GetId() string {
@@ -581,7 +821,7 @@ type DeleteRateLimitResponse struct {
 
 func (x *DeleteRateLimitResponse) Reset() {
 	*x = DeleteRateLimitResponse{}
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[9]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -593,7 +833,7 @@ func (x *DeleteRateLimitResponse) String() string {
 func (*DeleteRateLimitResponse) ProtoMessage() {}
 
 func (x *DeleteRateLimitResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[9]
+	mi := &file_chalk_router_v1_rate_limit_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -606,7 +846,7 @@ func (x *DeleteRateLimitResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRateLimitResponse.ProtoReflect.Descriptor instead.
 func (*DeleteRateLimitResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{9}
+	return file_chalk_router_v1_rate_limit_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DeleteRateLimitResponse) GetId() string {
@@ -620,34 +860,59 @@ var File_chalk_router_v1_rate_limit_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_rate_limit_proto_rawDesc = "" +
 	"\n" +
-	" chalk/router/v1/rate_limit.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbf\x02\n" +
-	"\x0fRateLimitPolicy\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	" chalk/router/v1/rate_limit.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe4\x03\n" +
+	"\x0fApiKeyRateLimit\x12(\n" +
+	"\rconnection_id\x18\x01 \x01(\tH\x00R\fconnectionId\x88\x01\x01\x12\x16\n" +
+	"\x06models\x18\x02 \x03(\tR\x06models\x123\n" +
+	"\x13requests_per_minute\x18\x03 \x01(\x04H\x01R\x11requestsPerMinute\x88\x01\x01\x12(\n" +
+	"\rrequest_burst\x18\x04 \x01(\x04H\x02R\frequestBurst\x88\x01\x01\x12/\n" +
+	"\x11tokens_per_minute\x18\x05 \x01(\x04H\x03R\x0ftokensPerMinute\x88\x01\x01\x12$\n" +
+	"\vtoken_burst\x18\x06 \x01(\x04H\x04R\n" +
+	"tokenBurst\x88\x01\x01\x124\n" +
+	"\x13concurrent_requests\x18\a \x01(\x04H\x05R\x12concurrentRequests\x88\x01\x01\x12\x1d\n" +
+	"\aenabled\x18\b \x01(\bH\x06R\aenabled\x88\x01\x01B\x10\n" +
+	"\x0e_connection_idB\x16\n" +
+	"\x14_requests_per_minuteB\x10\n" +
+	"\x0e_request_burstB\x14\n" +
+	"\x12_tokens_per_minuteB\x0e\n" +
+	"\f_token_burstB\x16\n" +
+	"\x14_concurrent_requestsB\n" +
 	"\n" +
-	"limit_type\x18\x03 \x01(\tR\tlimitType\x12\x1f\n" +
-	"\vlimit_value\x18\x04 \x01(\x04R\n" +
-	"limitValue\x12\x1f\n" +
-	"\vtarget_type\x18\x05 \x01(\tR\n" +
-	"targetType\x12!\n" +
-	"\ftarget_value\x18\x06 \x01(\tR\vtargetValue\x12\x14\n" +
-	"\x05scope\x18\a \x01(\tR\x05scope\x12\x19\n" +
-	"\bscope_id\x18\b \x01(\tR\ascopeId\x12\x18\n" +
+	"\b_enabled\"\xf1\x02\n" +
+	"\x0fRateLimitPolicy\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x19\n" +
+	"\bscope_id\x18\x03 \x01(\tR\ascopeId\x12\x1d\n" +
+	"\n" +
+	"limit_type\x18\x04 \x01(\tR\tlimitType\x12\x1f\n" +
+	"\vlimit_value\x18\x05 \x01(\x04R\n" +
+	"limitValue\x12$\n" +
+	"\vburst_value\x18\x06 \x01(\x04H\x00R\n" +
+	"burstValue\x88\x01\x01\x12(\n" +
+	"\rconnection_id\x18\a \x01(\tH\x01R\fconnectionId\x88\x01\x01\x12\x16\n" +
+	"\x06models\x18\b \x03(\tR\x06models\x12\x18\n" +
 	"\aenabled\x18\t \x01(\bR\aenabled\x129\n" +
 	"\n" +
 	"created_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xe1\x01\n" +
-	"\x16CreateRateLimitRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x0e\n" +
+	"\f_burst_valueB\x10\n" +
+	"\x0e_connection_id\"\xbe\x02\n" +
+	"\x16CreateRateLimitRequest\x12\x14\n" +
+	"\x05scope\x18\x01 \x01(\tR\x05scope\x12\x19\n" +
+	"\bscope_id\x18\x02 \x01(\tR\ascopeId\x12\x1d\n" +
 	"\n" +
-	"limit_type\x18\x02 \x01(\tR\tlimitType\x12\x1f\n" +
-	"\vlimit_value\x18\x03 \x01(\x04R\n" +
-	"limitValue\x12\x1f\n" +
-	"\vtarget_type\x18\x04 \x01(\tR\n" +
-	"targetType\x12!\n" +
-	"\ftarget_value\x18\x05 \x01(\tR\vtargetValue\x12\x14\n" +
-	"\x05scope\x18\x06 \x01(\tR\x05scope\x12\x19\n" +
-	"\bscope_id\x18\a \x01(\tR\ascopeId\"S\n" +
+	"limit_type\x18\x03 \x01(\tR\tlimitType\x12\x1f\n" +
+	"\vlimit_value\x18\x04 \x01(\x04R\n" +
+	"limitValue\x12$\n" +
+	"\vburst_value\x18\x05 \x01(\x04H\x00R\n" +
+	"burstValue\x88\x01\x01\x12(\n" +
+	"\rconnection_id\x18\x06 \x01(\tH\x01R\fconnectionId\x88\x01\x01\x12\x16\n" +
+	"\x06models\x18\a \x03(\tR\x06models\x12\x1d\n" +
+	"\aenabled\x18\b \x01(\bH\x02R\aenabled\x88\x01\x01B\x0e\n" +
+	"\f_burst_valueB\x10\n" +
+	"\x0e_connection_idB\n" +
+	"\n" +
+	"\b_enabled\"S\n" +
 	"\x17CreateRateLimitResponse\x128\n" +
 	"\x06policy\x18\x01 \x01(\v2 .chalk.router.v1.RateLimitPolicyR\x06policy\"d\n" +
 	"\x15ListRateLimitsRequest\x12\x19\n" +
@@ -659,9 +924,21 @@ const file_chalk_router_v1_rate_limit_proto_rawDesc = "" +
 	"\bpolicies\x18\x01 \x03(\v2 .chalk.router.v1.RateLimitPolicyR\bpolicies\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"E\n" +
-	"\x18UpdateRateLimitOperation\x12\x1d\n" +
-	"\aenabled\x18\x01 \x01(\bH\x00R\aenabled\x88\x01\x01B\n" +
+	"\f_next_cursor\"\xb8\x02\n" +
+	"\x18UpdateRateLimitOperation\x12\"\n" +
+	"\n" +
+	"limit_type\x18\x01 \x01(\tH\x00R\tlimitType\x88\x01\x01\x12$\n" +
+	"\vlimit_value\x18\x02 \x01(\x04H\x01R\n" +
+	"limitValue\x88\x01\x01\x12$\n" +
+	"\vburst_value\x18\x03 \x01(\x04H\x02R\n" +
+	"burstValue\x88\x01\x01\x12(\n" +
+	"\rconnection_id\x18\x04 \x01(\tH\x03R\fconnectionId\x88\x01\x01\x12\x16\n" +
+	"\x06models\x18\x05 \x03(\tR\x06models\x12\x1d\n" +
+	"\aenabled\x18\x06 \x01(\bH\x04R\aenabled\x88\x01\x01B\r\n" +
+	"\v_limit_typeB\x0e\n" +
+	"\f_limit_valueB\x0e\n" +
+	"\f_burst_valueB\x10\n" +
+	"\x0e_connection_idB\n" +
 	"\n" +
 	"\b_enabled\"\xa8\x01\n" +
 	"\x16UpdateRateLimitRequest\x12\x0e\n" +
@@ -670,15 +947,21 @@ const file_chalk_router_v1_rate_limit_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"S\n" +
 	"\x17UpdateRateLimitResponse\x128\n" +
+	"\x06policy\x18\x01 \x01(\v2 .chalk.router.v1.RateLimitPolicyR\x06policy\"%\n" +
+	"\x13GetRateLimitRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"P\n" +
+	"\x14GetRateLimitResponse\x128\n" +
 	"\x06policy\x18\x01 \x01(\v2 .chalk.router.v1.RateLimitPolicyR\x06policy\"(\n" +
 	"\x16DeleteRateLimitRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\")\n" +
 	"\x17DeleteRateLimitResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id2\xbe\x03\n" +
-	"\x10RateLimitService\x12i\n" +
-	"\x0fCreateRateLimit\x12'.chalk.router.v1.CreateRateLimitRequest\x1a(.chalk.router.v1.CreateRateLimitResponse\"\x03\x80}\x02\x12i\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id2\xe0\x04\n" +
+	"\x10RateLimitService\x12\xa5\x01\n" +
+	"\x0fCreateRateLimit\x12'.chalk.router.v1.CreateRateLimitRequest\x1a(.chalk.router.v1.CreateRateLimitResponse\"?\x80}\x02\x92\xd3\x0e8\n" +
+	"\x0erouter_enabled\x12&Enables LLM Gateway access management.\x12i\n" +
 	"\x0eListRateLimits\x12&.chalk.router.v1.ListRateLimitsRequest\x1a'.chalk.router.v1.ListRateLimitsResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
-	"\x0fUpdateRateLimit\x12'.chalk.router.v1.UpdateRateLimitRequest\x1a(.chalk.router.v1.UpdateRateLimitResponse\"\x03\x80}\x02\x12i\n" +
+	"\x0fUpdateRateLimit\x12'.chalk.router.v1.UpdateRateLimitRequest\x1a(.chalk.router.v1.UpdateRateLimitResponse\"\x03\x80}\x02\x12c\n" +
+	"\fGetRateLimit\x12$.chalk.router.v1.GetRateLimitRequest\x1a%.chalk.router.v1.GetRateLimitResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
 	"\x0fDeleteRateLimit\x12'.chalk.router.v1.DeleteRateLimitRequest\x1a(.chalk.router.v1.DeleteRateLimitResponse\"\x03\x80}\x02B\xbe\x01\n" +
 	"\x13com.chalk.router.v1B\x0eRateLimitProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
@@ -694,41 +977,47 @@ func file_chalk_router_v1_rate_limit_proto_rawDescGZIP() []byte {
 	return file_chalk_router_v1_rate_limit_proto_rawDescData
 }
 
-var file_chalk_router_v1_rate_limit_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_chalk_router_v1_rate_limit_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_chalk_router_v1_rate_limit_proto_goTypes = []any{
-	(*RateLimitPolicy)(nil),          // 0: chalk.router.v1.RateLimitPolicy
-	(*CreateRateLimitRequest)(nil),   // 1: chalk.router.v1.CreateRateLimitRequest
-	(*CreateRateLimitResponse)(nil),  // 2: chalk.router.v1.CreateRateLimitResponse
-	(*ListRateLimitsRequest)(nil),    // 3: chalk.router.v1.ListRateLimitsRequest
-	(*ListRateLimitsResponse)(nil),   // 4: chalk.router.v1.ListRateLimitsResponse
-	(*UpdateRateLimitOperation)(nil), // 5: chalk.router.v1.UpdateRateLimitOperation
-	(*UpdateRateLimitRequest)(nil),   // 6: chalk.router.v1.UpdateRateLimitRequest
-	(*UpdateRateLimitResponse)(nil),  // 7: chalk.router.v1.UpdateRateLimitResponse
-	(*DeleteRateLimitRequest)(nil),   // 8: chalk.router.v1.DeleteRateLimitRequest
-	(*DeleteRateLimitResponse)(nil),  // 9: chalk.router.v1.DeleteRateLimitResponse
-	(*timestamppb.Timestamp)(nil),    // 10: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),    // 11: google.protobuf.FieldMask
+	(*ApiKeyRateLimit)(nil),          // 0: chalk.router.v1.ApiKeyRateLimit
+	(*RateLimitPolicy)(nil),          // 1: chalk.router.v1.RateLimitPolicy
+	(*CreateRateLimitRequest)(nil),   // 2: chalk.router.v1.CreateRateLimitRequest
+	(*CreateRateLimitResponse)(nil),  // 3: chalk.router.v1.CreateRateLimitResponse
+	(*ListRateLimitsRequest)(nil),    // 4: chalk.router.v1.ListRateLimitsRequest
+	(*ListRateLimitsResponse)(nil),   // 5: chalk.router.v1.ListRateLimitsResponse
+	(*UpdateRateLimitOperation)(nil), // 6: chalk.router.v1.UpdateRateLimitOperation
+	(*UpdateRateLimitRequest)(nil),   // 7: chalk.router.v1.UpdateRateLimitRequest
+	(*UpdateRateLimitResponse)(nil),  // 8: chalk.router.v1.UpdateRateLimitResponse
+	(*GetRateLimitRequest)(nil),      // 9: chalk.router.v1.GetRateLimitRequest
+	(*GetRateLimitResponse)(nil),     // 10: chalk.router.v1.GetRateLimitResponse
+	(*DeleteRateLimitRequest)(nil),   // 11: chalk.router.v1.DeleteRateLimitRequest
+	(*DeleteRateLimitResponse)(nil),  // 12: chalk.router.v1.DeleteRateLimitResponse
+	(*timestamppb.Timestamp)(nil),    // 13: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),    // 14: google.protobuf.FieldMask
 }
 var file_chalk_router_v1_rate_limit_proto_depIdxs = []int32{
-	10, // 0: chalk.router.v1.RateLimitPolicy.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 1: chalk.router.v1.CreateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
-	0,  // 2: chalk.router.v1.ListRateLimitsResponse.policies:type_name -> chalk.router.v1.RateLimitPolicy
-	5,  // 3: chalk.router.v1.UpdateRateLimitRequest.update:type_name -> chalk.router.v1.UpdateRateLimitOperation
-	11, // 4: chalk.router.v1.UpdateRateLimitRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 5: chalk.router.v1.UpdateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
-	1,  // 6: chalk.router.v1.RateLimitService.CreateRateLimit:input_type -> chalk.router.v1.CreateRateLimitRequest
-	3,  // 7: chalk.router.v1.RateLimitService.ListRateLimits:input_type -> chalk.router.v1.ListRateLimitsRequest
-	6,  // 8: chalk.router.v1.RateLimitService.UpdateRateLimit:input_type -> chalk.router.v1.UpdateRateLimitRequest
-	8,  // 9: chalk.router.v1.RateLimitService.DeleteRateLimit:input_type -> chalk.router.v1.DeleteRateLimitRequest
-	2,  // 10: chalk.router.v1.RateLimitService.CreateRateLimit:output_type -> chalk.router.v1.CreateRateLimitResponse
-	4,  // 11: chalk.router.v1.RateLimitService.ListRateLimits:output_type -> chalk.router.v1.ListRateLimitsResponse
-	7,  // 12: chalk.router.v1.RateLimitService.UpdateRateLimit:output_type -> chalk.router.v1.UpdateRateLimitResponse
-	9,  // 13: chalk.router.v1.RateLimitService.DeleteRateLimit:output_type -> chalk.router.v1.DeleteRateLimitResponse
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	13, // 0: chalk.router.v1.RateLimitPolicy.created_at:type_name -> google.protobuf.Timestamp
+	1,  // 1: chalk.router.v1.CreateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
+	1,  // 2: chalk.router.v1.ListRateLimitsResponse.policies:type_name -> chalk.router.v1.RateLimitPolicy
+	6,  // 3: chalk.router.v1.UpdateRateLimitRequest.update:type_name -> chalk.router.v1.UpdateRateLimitOperation
+	14, // 4: chalk.router.v1.UpdateRateLimitRequest.update_mask:type_name -> google.protobuf.FieldMask
+	1,  // 5: chalk.router.v1.UpdateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
+	1,  // 6: chalk.router.v1.GetRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
+	2,  // 7: chalk.router.v1.RateLimitService.CreateRateLimit:input_type -> chalk.router.v1.CreateRateLimitRequest
+	4,  // 8: chalk.router.v1.RateLimitService.ListRateLimits:input_type -> chalk.router.v1.ListRateLimitsRequest
+	7,  // 9: chalk.router.v1.RateLimitService.UpdateRateLimit:input_type -> chalk.router.v1.UpdateRateLimitRequest
+	9,  // 10: chalk.router.v1.RateLimitService.GetRateLimit:input_type -> chalk.router.v1.GetRateLimitRequest
+	11, // 11: chalk.router.v1.RateLimitService.DeleteRateLimit:input_type -> chalk.router.v1.DeleteRateLimitRequest
+	3,  // 12: chalk.router.v1.RateLimitService.CreateRateLimit:output_type -> chalk.router.v1.CreateRateLimitResponse
+	5,  // 13: chalk.router.v1.RateLimitService.ListRateLimits:output_type -> chalk.router.v1.ListRateLimitsResponse
+	8,  // 14: chalk.router.v1.RateLimitService.UpdateRateLimit:output_type -> chalk.router.v1.UpdateRateLimitResponse
+	10, // 15: chalk.router.v1.RateLimitService.GetRateLimit:output_type -> chalk.router.v1.GetRateLimitResponse
+	12, // 16: chalk.router.v1.RateLimitService.DeleteRateLimit:output_type -> chalk.router.v1.DeleteRateLimitResponse
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_rate_limit_proto_init() }
@@ -736,16 +1025,19 @@ func file_chalk_router_v1_rate_limit_proto_init() {
 	if File_chalk_router_v1_rate_limit_proto != nil {
 		return
 	}
-	file_chalk_router_v1_rate_limit_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_router_v1_rate_limit_proto_msgTypes[0].OneofWrappers = []any{}
+	file_chalk_router_v1_rate_limit_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_router_v1_rate_limit_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_router_v1_rate_limit_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_router_v1_rate_limit_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_router_v1_rate_limit_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_router_v1_rate_limit_proto_rawDesc), len(file_chalk_router_v1_rate_limit_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

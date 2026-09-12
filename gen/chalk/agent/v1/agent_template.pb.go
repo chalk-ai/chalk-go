@@ -8,6 +8,7 @@ package agentv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -349,8 +350,8 @@ type AgentTemplate struct {
 	// appended after this prompt.
 	SystemPrompt string `protobuf:"bytes,5,opt,name=system_prompt,json=systemPrompt,proto3" json:"system_prompt,omitempty"`
 	// Preferred model id (e.g. "gpt-4o-mini"). Precedence at RunTurn time:
-	// RunTurnRequest.model > AgentConversation.model_name > this >
-	// the server-wide AGENT_RUNNER_DEFAULT_MODEL.
+	// RunTurnRequest.model > AgentConversation.model_name > this > connection
+	// default > provider default.
 	ModelName string `protobuf:"bytes,6,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
 	// Optional AiProviderConnection to run this template's conversations
 	// against. Used when the conversation itself does not pin a connection.
@@ -1097,7 +1098,7 @@ var File_chalk_agent_v1_agent_template_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/agent/v1/agent_template.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x01\n" +
+	"#chalk/agent/v1/agent_template.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa2\x01\n" +
 	"\x12AgentTemplateInput\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12:\n" +
@@ -1179,9 +1180,10 @@ const file_chalk_agent_v1_agent_template_proto_rawDesc = "" +
 	"%AGENT_TEMPLATE_INPUT_TYPE_UNSPECIFIED\x10\x00\x12$\n" +
 	" AGENT_TEMPLATE_INPUT_TYPE_STRING\x10\x01\x12#\n" +
 	"\x1fAGENT_TEMPLATE_INPUT_TYPE_FLOAT\x10\x02\x12!\n" +
-	"\x1dAGENT_TEMPLATE_INPUT_TYPE_INT\x10\x032\xdf\x04\n" +
-	"\x14AgentTemplateService\x12s\n" +
-	"\x13CreateAgentTemplate\x12*.chalk.agent.v1.CreateAgentTemplateRequest\x1a+.chalk.agent.v1.CreateAgentTemplateResponse\"\x03\x80}\x02\x12m\n" +
+	"\x1dAGENT_TEMPLATE_INPUT_TYPE_INT\x10\x032\xa5\x05\n" +
+	"\x14AgentTemplateService\x12\xb8\x01\n" +
+	"\x13CreateAgentTemplate\x12*.chalk.agent.v1.CreateAgentTemplateRequest\x1a+.chalk.agent.v1.CreateAgentTemplateResponse\"H\x80}\x02\x92\xd3\x0eA\n" +
+	"\x14agent_studio_enabled\x12)Enables Agent Studio template management.\x12m\n" +
 	"\x10GetAgentTemplate\x12'.chalk.agent.v1.GetAgentTemplateRequest\x1a(.chalk.agent.v1.GetAgentTemplateResponse\"\x06\x80}\x02\x90\x02\x01\x12s\n" +
 	"\x12ListAgentTemplates\x12).chalk.agent.v1.ListAgentTemplatesRequest\x1a*.chalk.agent.v1.ListAgentTemplatesResponse\"\x06\x80}\x02\x90\x02\x01\x12v\n" +
 	"\x13UpdateAgentTemplate\x12*.chalk.agent.v1.UpdateAgentTemplateRequest\x1a+.chalk.agent.v1.UpdateAgentTemplateResponse\"\x06\x80}\x02\x90\x02\x02\x12v\n" +

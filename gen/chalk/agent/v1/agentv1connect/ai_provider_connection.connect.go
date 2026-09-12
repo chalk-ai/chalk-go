@@ -49,6 +49,9 @@ const (
 	// AiProviderConnectionServiceDeleteAiProviderConnectionProcedure is the fully-qualified name of the
 	// AiProviderConnectionService's DeleteAiProviderConnection RPC.
 	AiProviderConnectionServiceDeleteAiProviderConnectionProcedure = "/chalk.agent.v1.AiProviderConnectionService/DeleteAiProviderConnection"
+	// AiProviderConnectionServiceListAiProviderConnectionModelsProcedure is the fully-qualified name of
+	// the AiProviderConnectionService's ListAiProviderConnectionModels RPC.
+	AiProviderConnectionServiceListAiProviderConnectionModelsProcedure = "/chalk.agent.v1.AiProviderConnectionService/ListAiProviderConnectionModels"
 )
 
 // AiProviderConnectionServiceClient is a client for the chalk.agent.v1.AiProviderConnectionService
@@ -59,6 +62,7 @@ type AiProviderConnectionServiceClient interface {
 	ListAiProviderConnections(context.Context, *connect.Request[v1.ListAiProviderConnectionsRequest]) (*connect.Response[v1.ListAiProviderConnectionsResponse], error)
 	UpdateAiProviderConnection(context.Context, *connect.Request[v1.UpdateAiProviderConnectionRequest]) (*connect.Response[v1.UpdateAiProviderConnectionResponse], error)
 	DeleteAiProviderConnection(context.Context, *connect.Request[v1.DeleteAiProviderConnectionRequest]) (*connect.Response[v1.DeleteAiProviderConnectionResponse], error)
+	ListAiProviderConnectionModels(context.Context, *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error)
 }
 
 // NewAiProviderConnectionServiceClient constructs a client for the
@@ -106,16 +110,24 @@ func NewAiProviderConnectionServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		listAiProviderConnectionModels: connect.NewClient[v1.ListAiProviderConnectionModelsRequest, v1.ListAiProviderConnectionModelsResponse](
+			httpClient,
+			baseURL+AiProviderConnectionServiceListAiProviderConnectionModelsProcedure,
+			connect.WithSchema(aiProviderConnectionServiceMethods.ByName("ListAiProviderConnectionModels")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // aiProviderConnectionServiceClient implements AiProviderConnectionServiceClient.
 type aiProviderConnectionServiceClient struct {
-	createAiProviderConnection *connect.Client[v1.CreateAiProviderConnectionRequest, v1.CreateAiProviderConnectionResponse]
-	getAiProviderConnection    *connect.Client[v1.GetAiProviderConnectionRequest, v1.GetAiProviderConnectionResponse]
-	listAiProviderConnections  *connect.Client[v1.ListAiProviderConnectionsRequest, v1.ListAiProviderConnectionsResponse]
-	updateAiProviderConnection *connect.Client[v1.UpdateAiProviderConnectionRequest, v1.UpdateAiProviderConnectionResponse]
-	deleteAiProviderConnection *connect.Client[v1.DeleteAiProviderConnectionRequest, v1.DeleteAiProviderConnectionResponse]
+	createAiProviderConnection     *connect.Client[v1.CreateAiProviderConnectionRequest, v1.CreateAiProviderConnectionResponse]
+	getAiProviderConnection        *connect.Client[v1.GetAiProviderConnectionRequest, v1.GetAiProviderConnectionResponse]
+	listAiProviderConnections      *connect.Client[v1.ListAiProviderConnectionsRequest, v1.ListAiProviderConnectionsResponse]
+	updateAiProviderConnection     *connect.Client[v1.UpdateAiProviderConnectionRequest, v1.UpdateAiProviderConnectionResponse]
+	deleteAiProviderConnection     *connect.Client[v1.DeleteAiProviderConnectionRequest, v1.DeleteAiProviderConnectionResponse]
+	listAiProviderConnectionModels *connect.Client[v1.ListAiProviderConnectionModelsRequest, v1.ListAiProviderConnectionModelsResponse]
 }
 
 // CreateAiProviderConnection calls
@@ -147,6 +159,12 @@ func (c *aiProviderConnectionServiceClient) DeleteAiProviderConnection(ctx conte
 	return c.deleteAiProviderConnection.CallUnary(ctx, req)
 }
 
+// ListAiProviderConnectionModels calls
+// chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels.
+func (c *aiProviderConnectionServiceClient) ListAiProviderConnectionModels(ctx context.Context, req *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error) {
+	return c.listAiProviderConnectionModels.CallUnary(ctx, req)
+}
+
 // AiProviderConnectionServiceHandler is an implementation of the
 // chalk.agent.v1.AiProviderConnectionService service.
 type AiProviderConnectionServiceHandler interface {
@@ -155,6 +173,7 @@ type AiProviderConnectionServiceHandler interface {
 	ListAiProviderConnections(context.Context, *connect.Request[v1.ListAiProviderConnectionsRequest]) (*connect.Response[v1.ListAiProviderConnectionsResponse], error)
 	UpdateAiProviderConnection(context.Context, *connect.Request[v1.UpdateAiProviderConnectionRequest]) (*connect.Response[v1.UpdateAiProviderConnectionResponse], error)
 	DeleteAiProviderConnection(context.Context, *connect.Request[v1.DeleteAiProviderConnectionRequest]) (*connect.Response[v1.DeleteAiProviderConnectionResponse], error)
+	ListAiProviderConnectionModels(context.Context, *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error)
 }
 
 // NewAiProviderConnectionServiceHandler builds an HTTP handler from the service implementation. It
@@ -198,6 +217,13 @@ func NewAiProviderConnectionServiceHandler(svc AiProviderConnectionServiceHandle
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	aiProviderConnectionServiceListAiProviderConnectionModelsHandler := connect.NewUnaryHandler(
+		AiProviderConnectionServiceListAiProviderConnectionModelsProcedure,
+		svc.ListAiProviderConnectionModels,
+		connect.WithSchema(aiProviderConnectionServiceMethods.ByName("ListAiProviderConnectionModels")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.agent.v1.AiProviderConnectionService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AiProviderConnectionServiceCreateAiProviderConnectionProcedure:
@@ -210,6 +236,8 @@ func NewAiProviderConnectionServiceHandler(svc AiProviderConnectionServiceHandle
 			aiProviderConnectionServiceUpdateAiProviderConnectionHandler.ServeHTTP(w, r)
 		case AiProviderConnectionServiceDeleteAiProviderConnectionProcedure:
 			aiProviderConnectionServiceDeleteAiProviderConnectionHandler.ServeHTTP(w, r)
+		case AiProviderConnectionServiceListAiProviderConnectionModelsProcedure:
+			aiProviderConnectionServiceListAiProviderConnectionModelsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -237,4 +265,8 @@ func (UnimplementedAiProviderConnectionServiceHandler) UpdateAiProviderConnectio
 
 func (UnimplementedAiProviderConnectionServiceHandler) DeleteAiProviderConnection(context.Context, *connect.Request[v1.DeleteAiProviderConnectionRequest]) (*connect.Response[v1.DeleteAiProviderConnectionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection is not implemented"))
+}
+
+func (UnimplementedAiProviderConnectionServiceHandler) ListAiProviderConnectionModels(context.Context, *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels is not implemented"))
 }

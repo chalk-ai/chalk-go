@@ -42,6 +42,9 @@ const (
 	// RateLimitServiceUpdateRateLimitProcedure is the fully-qualified name of the RateLimitService's
 	// UpdateRateLimit RPC.
 	RateLimitServiceUpdateRateLimitProcedure = "/chalk.router.v1.RateLimitService/UpdateRateLimit"
+	// RateLimitServiceGetRateLimitProcedure is the fully-qualified name of the RateLimitService's
+	// GetRateLimit RPC.
+	RateLimitServiceGetRateLimitProcedure = "/chalk.router.v1.RateLimitService/GetRateLimit"
 	// RateLimitServiceDeleteRateLimitProcedure is the fully-qualified name of the RateLimitService's
 	// DeleteRateLimit RPC.
 	RateLimitServiceDeleteRateLimitProcedure = "/chalk.router.v1.RateLimitService/DeleteRateLimit"
@@ -52,6 +55,7 @@ type RateLimitServiceClient interface {
 	CreateRateLimit(context.Context, *connect.Request[v1.CreateRateLimitRequest]) (*connect.Response[v1.CreateRateLimitResponse], error)
 	ListRateLimits(context.Context, *connect.Request[v1.ListRateLimitsRequest]) (*connect.Response[v1.ListRateLimitsResponse], error)
 	UpdateRateLimit(context.Context, *connect.Request[v1.UpdateRateLimitRequest]) (*connect.Response[v1.UpdateRateLimitResponse], error)
+	GetRateLimit(context.Context, *connect.Request[v1.GetRateLimitRequest]) (*connect.Response[v1.GetRateLimitResponse], error)
 	DeleteRateLimit(context.Context, *connect.Request[v1.DeleteRateLimitRequest]) (*connect.Response[v1.DeleteRateLimitResponse], error)
 }
 
@@ -85,6 +89,13 @@ func NewRateLimitServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(rateLimitServiceMethods.ByName("UpdateRateLimit")),
 			connect.WithClientOptions(opts...),
 		),
+		getRateLimit: connect.NewClient[v1.GetRateLimitRequest, v1.GetRateLimitResponse](
+			httpClient,
+			baseURL+RateLimitServiceGetRateLimitProcedure,
+			connect.WithSchema(rateLimitServiceMethods.ByName("GetRateLimit")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		deleteRateLimit: connect.NewClient[v1.DeleteRateLimitRequest, v1.DeleteRateLimitResponse](
 			httpClient,
 			baseURL+RateLimitServiceDeleteRateLimitProcedure,
@@ -99,6 +110,7 @@ type rateLimitServiceClient struct {
 	createRateLimit *connect.Client[v1.CreateRateLimitRequest, v1.CreateRateLimitResponse]
 	listRateLimits  *connect.Client[v1.ListRateLimitsRequest, v1.ListRateLimitsResponse]
 	updateRateLimit *connect.Client[v1.UpdateRateLimitRequest, v1.UpdateRateLimitResponse]
+	getRateLimit    *connect.Client[v1.GetRateLimitRequest, v1.GetRateLimitResponse]
 	deleteRateLimit *connect.Client[v1.DeleteRateLimitRequest, v1.DeleteRateLimitResponse]
 }
 
@@ -117,6 +129,11 @@ func (c *rateLimitServiceClient) UpdateRateLimit(ctx context.Context, req *conne
 	return c.updateRateLimit.CallUnary(ctx, req)
 }
 
+// GetRateLimit calls chalk.router.v1.RateLimitService.GetRateLimit.
+func (c *rateLimitServiceClient) GetRateLimit(ctx context.Context, req *connect.Request[v1.GetRateLimitRequest]) (*connect.Response[v1.GetRateLimitResponse], error) {
+	return c.getRateLimit.CallUnary(ctx, req)
+}
+
 // DeleteRateLimit calls chalk.router.v1.RateLimitService.DeleteRateLimit.
 func (c *rateLimitServiceClient) DeleteRateLimit(ctx context.Context, req *connect.Request[v1.DeleteRateLimitRequest]) (*connect.Response[v1.DeleteRateLimitResponse], error) {
 	return c.deleteRateLimit.CallUnary(ctx, req)
@@ -127,6 +144,7 @@ type RateLimitServiceHandler interface {
 	CreateRateLimit(context.Context, *connect.Request[v1.CreateRateLimitRequest]) (*connect.Response[v1.CreateRateLimitResponse], error)
 	ListRateLimits(context.Context, *connect.Request[v1.ListRateLimitsRequest]) (*connect.Response[v1.ListRateLimitsResponse], error)
 	UpdateRateLimit(context.Context, *connect.Request[v1.UpdateRateLimitRequest]) (*connect.Response[v1.UpdateRateLimitResponse], error)
+	GetRateLimit(context.Context, *connect.Request[v1.GetRateLimitRequest]) (*connect.Response[v1.GetRateLimitResponse], error)
 	DeleteRateLimit(context.Context, *connect.Request[v1.DeleteRateLimitRequest]) (*connect.Response[v1.DeleteRateLimitResponse], error)
 }
 
@@ -156,6 +174,13 @@ func NewRateLimitServiceHandler(svc RateLimitServiceHandler, opts ...connect.Han
 		connect.WithSchema(rateLimitServiceMethods.ByName("UpdateRateLimit")),
 		connect.WithHandlerOptions(opts...),
 	)
+	rateLimitServiceGetRateLimitHandler := connect.NewUnaryHandler(
+		RateLimitServiceGetRateLimitProcedure,
+		svc.GetRateLimit,
+		connect.WithSchema(rateLimitServiceMethods.ByName("GetRateLimit")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	rateLimitServiceDeleteRateLimitHandler := connect.NewUnaryHandler(
 		RateLimitServiceDeleteRateLimitProcedure,
 		svc.DeleteRateLimit,
@@ -170,6 +195,8 @@ func NewRateLimitServiceHandler(svc RateLimitServiceHandler, opts ...connect.Han
 			rateLimitServiceListRateLimitsHandler.ServeHTTP(w, r)
 		case RateLimitServiceUpdateRateLimitProcedure:
 			rateLimitServiceUpdateRateLimitHandler.ServeHTTP(w, r)
+		case RateLimitServiceGetRateLimitProcedure:
+			rateLimitServiceGetRateLimitHandler.ServeHTTP(w, r)
 		case RateLimitServiceDeleteRateLimitProcedure:
 			rateLimitServiceDeleteRateLimitHandler.ServeHTTP(w, r)
 		default:
@@ -191,6 +218,10 @@ func (UnimplementedRateLimitServiceHandler) ListRateLimits(context.Context, *con
 
 func (UnimplementedRateLimitServiceHandler) UpdateRateLimit(context.Context, *connect.Request[v1.UpdateRateLimitRequest]) (*connect.Response[v1.UpdateRateLimitResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.RateLimitService.UpdateRateLimit is not implemented"))
+}
+
+func (UnimplementedRateLimitServiceHandler) GetRateLimit(context.Context, *connect.Request[v1.GetRateLimitRequest]) (*connect.Response[v1.GetRateLimitResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.RateLimitService.GetRateLimit is not implemented"))
 }
 
 func (UnimplementedRateLimitServiceHandler) DeleteRateLimit(context.Context, *connect.Request[v1.DeleteRateLimitRequest]) (*connect.Response[v1.DeleteRateLimitResponse], error) {

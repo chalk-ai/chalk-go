@@ -8,6 +8,7 @@ package routerv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -722,7 +723,7 @@ var File_chalk_router_v1_model_route_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_model_route_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/router/v1/model_route.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xeb\x02\n" +
+	"!chalk/router/v1/model_route.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xeb\x02\n" +
 	"\n" +
 	"ModelRoute\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
@@ -786,10 +787,11 @@ const file_chalk_router_v1_model_route_proto_rawDesc = "" +
 	"\x1dROUTE_DIAGNOSTIC_UNCONFIGURED\x10\x02\x12\x1d\n" +
 	"\x19ROUTE_DIAGNOSTIC_DISABLED\x10\x03\x12\x1f\n" +
 	"\x1bROUTE_DIAGNOSTIC_UNREADABLE\x10\x04\x12'\n" +
-	"#ROUTE_DIAGNOSTIC_MISSING_CONNECTION\x10\x052\xcb\x03\n" +
+	"#ROUTE_DIAGNOSTIC_MISSING_CONNECTION\x10\x052\x89\x04\n" +
 	"\x11ModelRouteService\x12l\n" +
-	"\x0fListModelRoutes\x12'.chalk.router.v1.ListModelRoutesRequest\x1a(.chalk.router.v1.ListModelRoutesResponse\"\x06\x80}\x02\x90\x02\x01\x12l\n" +
-	"\x10CreateModelRoute\x12(.chalk.router.v1.CreateModelRouteRequest\x1a).chalk.router.v1.CreateModelRouteResponse\"\x03\x80}\x02\x12l\n" +
+	"\x0fListModelRoutes\x12'.chalk.router.v1.ListModelRoutesRequest\x1a(.chalk.router.v1.ListModelRoutesResponse\"\x06\x80}\x02\x90\x02\x01\x12\xa9\x01\n" +
+	"\x10CreateModelRoute\x12(.chalk.router.v1.CreateModelRouteRequest\x1a).chalk.router.v1.CreateModelRouteResponse\"@\x80}\x02\x92\xd3\x0e9\n" +
+	"\x0erouter_enabled\x12'Enables LLM Gateway routing management.\x12l\n" +
 	"\x10UpdateModelRoute\x12(.chalk.router.v1.UpdateModelRouteRequest\x1a).chalk.router.v1.UpdateModelRouteResponse\"\x03\x80}\x02\x12l\n" +
 	"\x10DeleteModelRoute\x12(.chalk.router.v1.DeleteModelRouteRequest\x1a).chalk.router.v1.DeleteModelRouteResponse\"\x03\x80}\x02B\xbf\x01\n" +
 	"\x13com.chalk.router.v1B\x0fModelRouteProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"

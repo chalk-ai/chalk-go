@@ -8,6 +8,7 @@ package mcp_gatewayv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -3986,7 +3987,7 @@ var File_chalk_mcp_gateway_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/mcp_gateway/v1/service.proto\x12\x14chalk.mcp_gateway.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"(\n" +
+	"\"chalk/mcp_gateway/v1/service.proto\x12\x14chalk.mcp_gateway.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"(\n" +
 	"\x10BearerCredential\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"\x9b\x01\n" +
 	"\x11HeadersCredential\x12K\n" +
@@ -4322,7 +4323,7 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x0ePolicyDecision\x12\x1f\n" +
 	"\x1bPOLICY_DECISION_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15POLICY_DECISION_ALLOW\x10\x01\x12\x18\n" +
-	"\x14POLICY_DECISION_DENY\x10\x022\xf1\x13\n" +
+	"\x14POLICY_DECISION_DENY\x10\x022\xbe\x14\n" +
 	"\x11McpGatewayService\x12X\n" +
 	"\x05GetMe\x12\".chalk.mcp_gateway.v1.GetMeRequest\x1a#.chalk.mcp_gateway.v1.GetMeResponse\"\x06\x80}\x02\x90\x02\x01\x12m\n" +
 	"\fListBackends\x12).chalk.mcp_gateway.v1.ListBackendsRequest\x1a*.chalk.mcp_gateway.v1.ListBackendsResponse\"\x06\x80}\x02\x90\x02\x01\x12g\n" +
@@ -4339,8 +4340,9 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x0eListOauthLinks\x12+.chalk.mcp_gateway.v1.ListOauthLinksRequest\x1a,.chalk.mcp_gateway.v1.ListOauthLinksResponse\"\x06\x80}\x02\x90\x02\x01\x12g\n" +
 	"\vUnlinkOauth\x12(.chalk.mcp_gateway.v1.UnlinkOauthRequest\x1a).chalk.mcp_gateway.v1.UnlinkOauthResponse\"\x03\x80}\x02\x12j\n" +
 	"\vListServers\x12(.chalk.mcp_gateway.v1.ListServersRequest\x1a).chalk.mcp_gateway.v1.ListServersResponse\"\x06\x80}\x02\x90\x02\x01\x12d\n" +
-	"\tGetServer\x12&.chalk.mcp_gateway.v1.GetServerRequest\x1a'.chalk.mcp_gateway.v1.GetServerResponse\"\x06\x80}\x02\x90\x02\x01\x12j\n" +
-	"\fCreateServer\x12).chalk.mcp_gateway.v1.CreateServerRequest\x1a*.chalk.mcp_gateway.v1.CreateServerResponse\"\x03\x80}\x02\x12j\n" +
+	"\tGetServer\x12&.chalk.mcp_gateway.v1.GetServerRequest\x1a'.chalk.mcp_gateway.v1.GetServerResponse\"\x06\x80}\x02\x90\x02\x01\x12\xb6\x01\n" +
+	"\fCreateServer\x12).chalk.mcp_gateway.v1.CreateServerRequest\x1a*.chalk.mcp_gateway.v1.CreateServerResponse\"O\x80}\x02\x92\xd3\x0eH\n" +
+	"\x13mcp_gateway_enabled\x121Enables MCP Gateway server and policy management.\x12j\n" +
 	"\fUpdateServer\x12).chalk.mcp_gateway.v1.UpdateServerRequest\x1a*.chalk.mcp_gateway.v1.UpdateServerResponse\"\x03\x80}\x02\x12j\n" +
 	"\fDeleteServer\x12).chalk.mcp_gateway.v1.DeleteServerRequest\x1a*.chalk.mcp_gateway.v1.DeleteServerResponse\"\x03\x80}\x02\x12p\n" +
 	"\x0eSimulatePolicy\x12+.chalk.mcp_gateway.v1.SimulatePolicyRequest\x1a,.chalk.mcp_gateway.v1.SimulatePolicyResponse\"\x03\x80}\x02\x12j\n" +

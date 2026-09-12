@@ -8,6 +8,7 @@ package routerv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -1232,7 +1233,7 @@ var File_chalk_router_v1_provider_connection_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_provider_connection_proto_rawDesc = "" +
 	"\n" +
-	")chalk/router/v1/provider_connection.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"|\n" +
+	")chalk/router/v1/provider_connection.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"|\n" +
 	"\x0fConnectionState\x12\x1e\n" +
 	"\n" +
 	"configured\x18\x01 \x01(\bR\n" +
@@ -1350,11 +1351,12 @@ const file_chalk_router_v1_provider_connection_proto_rawDesc = "" +
 	"\x1bEXPOSURE_POLICY_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17EXPOSURE_POLICY_DYNAMIC\x10\x01\x12\x1c\n" +
 	"\x18EXPOSURE_POLICY_UNLISTED\x10\x02\x12\x1c\n" +
-	"\x18EXPOSURE_POLICY_EXPLICIT\x10\x032\xcd\x06\n" +
+	"\x18EXPOSURE_POLICY_EXPLICIT\x10\x032\x8a\a\n" +
 	"\x19ProviderConnectionService\x12\x84\x01\n" +
 	"\x17ListProviderConnections\x12/.chalk.router.v1.ListProviderConnectionsRequest\x1a0.chalk.router.v1.ListProviderConnectionsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x93\x01\n" +
-	"\x1cListProviderConnectionModels\x124.chalk.router.v1.ListProviderConnectionModelsRequest\x1a5.chalk.router.v1.ListProviderConnectionModelsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x84\x01\n" +
-	"\x18CreateProviderConnection\x120.chalk.router.v1.CreateProviderConnectionRequest\x1a1.chalk.router.v1.CreateProviderConnectionResponse\"\x03\x80}\x02\x12\x84\x01\n" +
+	"\x1cListProviderConnectionModels\x124.chalk.router.v1.ListProviderConnectionModelsRequest\x1a5.chalk.router.v1.ListProviderConnectionModelsResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc1\x01\n" +
+	"\x18CreateProviderConnection\x120.chalk.router.v1.CreateProviderConnectionRequest\x1a1.chalk.router.v1.CreateProviderConnectionResponse\"@\x80}\x02\x92\xd3\x0e9\n" +
+	"\x0erouter_enabled\x12'Enables LLM Gateway routing management.\x12\x84\x01\n" +
 	"\x18UpdateProviderConnection\x120.chalk.router.v1.UpdateProviderConnectionRequest\x1a1.chalk.router.v1.UpdateProviderConnectionResponse\"\x03\x80}\x02\x12\x84\x01\n" +
 	"\x18DeleteProviderConnection\x120.chalk.router.v1.DeleteProviderConnectionRequest\x1a1.chalk.router.v1.DeleteProviderConnectionResponse\"\x03\x80}\x02\x12~\n" +
 	"\x16TestProviderConnection\x12..chalk.router.v1.TestProviderConnectionRequest\x1a/.chalk.router.v1.TestProviderConnectionResponse\"\x03\x80}\x02B\xc7\x01\n" +

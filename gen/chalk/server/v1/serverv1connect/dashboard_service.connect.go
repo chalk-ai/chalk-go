@@ -54,6 +54,15 @@ const (
 	// DashboardServiceImportDashboardProcedure is the fully-qualified name of the DashboardService's
 	// ImportDashboard RPC.
 	DashboardServiceImportDashboardProcedure = "/chalk.server.v1.DashboardService/ImportDashboard"
+	// DashboardServiceGetContextualDashboardProcedure is the fully-qualified name of the
+	// DashboardService's GetContextualDashboard RPC.
+	DashboardServiceGetContextualDashboardProcedure = "/chalk.server.v1.DashboardService/GetContextualDashboard"
+	// DashboardServiceUpsertContextualDashboardProcedure is the fully-qualified name of the
+	// DashboardService's UpsertContextualDashboard RPC.
+	DashboardServiceUpsertContextualDashboardProcedure = "/chalk.server.v1.DashboardService/UpsertContextualDashboard"
+	// DashboardServiceResetContextualDashboardProcedure is the fully-qualified name of the
+	// DashboardService's ResetContextualDashboard RPC.
+	DashboardServiceResetContextualDashboardProcedure = "/chalk.server.v1.DashboardService/ResetContextualDashboard"
 )
 
 // DashboardServiceClient is a client for the chalk.server.v1.DashboardService service.
@@ -65,6 +74,9 @@ type DashboardServiceClient interface {
 	DeleteDashboard(context.Context, *connect.Request[v1.DeleteDashboardRequest]) (*connect.Response[v1.DeleteDashboardResponse], error)
 	ExportDashboard(context.Context, *connect.Request[v1.ExportDashboardRequest]) (*connect.Response[v1.ExportDashboardResponse], error)
 	ImportDashboard(context.Context, *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error)
+	GetContextualDashboard(context.Context, *connect.Request[v1.GetContextualDashboardRequest]) (*connect.Response[v1.GetContextualDashboardResponse], error)
+	UpsertContextualDashboard(context.Context, *connect.Request[v1.UpsertContextualDashboardRequest]) (*connect.Response[v1.UpsertContextualDashboardResponse], error)
+	ResetContextualDashboard(context.Context, *connect.Request[v1.ResetContextualDashboardRequest]) (*connect.Response[v1.ResetContextualDashboardResponse], error)
 }
 
 // NewDashboardServiceClient constructs a client for the chalk.server.v1.DashboardService service.
@@ -120,18 +132,39 @@ func NewDashboardServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(dashboardServiceMethods.ByName("ImportDashboard")),
 			connect.WithClientOptions(opts...),
 		),
+		getContextualDashboard: connect.NewClient[v1.GetContextualDashboardRequest, v1.GetContextualDashboardResponse](
+			httpClient,
+			baseURL+DashboardServiceGetContextualDashboardProcedure,
+			connect.WithSchema(dashboardServiceMethods.ByName("GetContextualDashboard")),
+			connect.WithClientOptions(opts...),
+		),
+		upsertContextualDashboard: connect.NewClient[v1.UpsertContextualDashboardRequest, v1.UpsertContextualDashboardResponse](
+			httpClient,
+			baseURL+DashboardServiceUpsertContextualDashboardProcedure,
+			connect.WithSchema(dashboardServiceMethods.ByName("UpsertContextualDashboard")),
+			connect.WithClientOptions(opts...),
+		),
+		resetContextualDashboard: connect.NewClient[v1.ResetContextualDashboardRequest, v1.ResetContextualDashboardResponse](
+			httpClient,
+			baseURL+DashboardServiceResetContextualDashboardProcedure,
+			connect.WithSchema(dashboardServiceMethods.ByName("ResetContextualDashboard")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // dashboardServiceClient implements DashboardServiceClient.
 type dashboardServiceClient struct {
-	createDashboard *connect.Client[v1.CreateDashboardRequest, v1.CreateDashboardResponse]
-	getDashboard    *connect.Client[v1.GetDashboardRequest, v1.GetDashboardResponse]
-	listDashboards  *connect.Client[v1.ListDashboardsRequest, v1.ListDashboardsResponse]
-	updateDashboard *connect.Client[v1.UpdateDashboardRequest, v1.UpdateDashboardResponse]
-	deleteDashboard *connect.Client[v1.DeleteDashboardRequest, v1.DeleteDashboardResponse]
-	exportDashboard *connect.Client[v1.ExportDashboardRequest, v1.ExportDashboardResponse]
-	importDashboard *connect.Client[v1.ImportDashboardRequest, v1.ImportDashboardResponse]
+	createDashboard           *connect.Client[v1.CreateDashboardRequest, v1.CreateDashboardResponse]
+	getDashboard              *connect.Client[v1.GetDashboardRequest, v1.GetDashboardResponse]
+	listDashboards            *connect.Client[v1.ListDashboardsRequest, v1.ListDashboardsResponse]
+	updateDashboard           *connect.Client[v1.UpdateDashboardRequest, v1.UpdateDashboardResponse]
+	deleteDashboard           *connect.Client[v1.DeleteDashboardRequest, v1.DeleteDashboardResponse]
+	exportDashboard           *connect.Client[v1.ExportDashboardRequest, v1.ExportDashboardResponse]
+	importDashboard           *connect.Client[v1.ImportDashboardRequest, v1.ImportDashboardResponse]
+	getContextualDashboard    *connect.Client[v1.GetContextualDashboardRequest, v1.GetContextualDashboardResponse]
+	upsertContextualDashboard *connect.Client[v1.UpsertContextualDashboardRequest, v1.UpsertContextualDashboardResponse]
+	resetContextualDashboard  *connect.Client[v1.ResetContextualDashboardRequest, v1.ResetContextualDashboardResponse]
 }
 
 // CreateDashboard calls chalk.server.v1.DashboardService.CreateDashboard.
@@ -169,6 +202,21 @@ func (c *dashboardServiceClient) ImportDashboard(ctx context.Context, req *conne
 	return c.importDashboard.CallUnary(ctx, req)
 }
 
+// GetContextualDashboard calls chalk.server.v1.DashboardService.GetContextualDashboard.
+func (c *dashboardServiceClient) GetContextualDashboard(ctx context.Context, req *connect.Request[v1.GetContextualDashboardRequest]) (*connect.Response[v1.GetContextualDashboardResponse], error) {
+	return c.getContextualDashboard.CallUnary(ctx, req)
+}
+
+// UpsertContextualDashboard calls chalk.server.v1.DashboardService.UpsertContextualDashboard.
+func (c *dashboardServiceClient) UpsertContextualDashboard(ctx context.Context, req *connect.Request[v1.UpsertContextualDashboardRequest]) (*connect.Response[v1.UpsertContextualDashboardResponse], error) {
+	return c.upsertContextualDashboard.CallUnary(ctx, req)
+}
+
+// ResetContextualDashboard calls chalk.server.v1.DashboardService.ResetContextualDashboard.
+func (c *dashboardServiceClient) ResetContextualDashboard(ctx context.Context, req *connect.Request[v1.ResetContextualDashboardRequest]) (*connect.Response[v1.ResetContextualDashboardResponse], error) {
+	return c.resetContextualDashboard.CallUnary(ctx, req)
+}
+
 // DashboardServiceHandler is an implementation of the chalk.server.v1.DashboardService service.
 type DashboardServiceHandler interface {
 	CreateDashboard(context.Context, *connect.Request[v1.CreateDashboardRequest]) (*connect.Response[v1.CreateDashboardResponse], error)
@@ -178,6 +226,9 @@ type DashboardServiceHandler interface {
 	DeleteDashboard(context.Context, *connect.Request[v1.DeleteDashboardRequest]) (*connect.Response[v1.DeleteDashboardResponse], error)
 	ExportDashboard(context.Context, *connect.Request[v1.ExportDashboardRequest]) (*connect.Response[v1.ExportDashboardResponse], error)
 	ImportDashboard(context.Context, *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error)
+	GetContextualDashboard(context.Context, *connect.Request[v1.GetContextualDashboardRequest]) (*connect.Response[v1.GetContextualDashboardResponse], error)
+	UpsertContextualDashboard(context.Context, *connect.Request[v1.UpsertContextualDashboardRequest]) (*connect.Response[v1.UpsertContextualDashboardResponse], error)
+	ResetContextualDashboard(context.Context, *connect.Request[v1.ResetContextualDashboardRequest]) (*connect.Response[v1.ResetContextualDashboardResponse], error)
 }
 
 // NewDashboardServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -229,6 +280,24 @@ func NewDashboardServiceHandler(svc DashboardServiceHandler, opts ...connect.Han
 		connect.WithSchema(dashboardServiceMethods.ByName("ImportDashboard")),
 		connect.WithHandlerOptions(opts...),
 	)
+	dashboardServiceGetContextualDashboardHandler := connect.NewUnaryHandler(
+		DashboardServiceGetContextualDashboardProcedure,
+		svc.GetContextualDashboard,
+		connect.WithSchema(dashboardServiceMethods.ByName("GetContextualDashboard")),
+		connect.WithHandlerOptions(opts...),
+	)
+	dashboardServiceUpsertContextualDashboardHandler := connect.NewUnaryHandler(
+		DashboardServiceUpsertContextualDashboardProcedure,
+		svc.UpsertContextualDashboard,
+		connect.WithSchema(dashboardServiceMethods.ByName("UpsertContextualDashboard")),
+		connect.WithHandlerOptions(opts...),
+	)
+	dashboardServiceResetContextualDashboardHandler := connect.NewUnaryHandler(
+		DashboardServiceResetContextualDashboardProcedure,
+		svc.ResetContextualDashboard,
+		connect.WithSchema(dashboardServiceMethods.ByName("ResetContextualDashboard")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DashboardService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DashboardServiceCreateDashboardProcedure:
@@ -245,6 +314,12 @@ func NewDashboardServiceHandler(svc DashboardServiceHandler, opts ...connect.Han
 			dashboardServiceExportDashboardHandler.ServeHTTP(w, r)
 		case DashboardServiceImportDashboardProcedure:
 			dashboardServiceImportDashboardHandler.ServeHTTP(w, r)
+		case DashboardServiceGetContextualDashboardProcedure:
+			dashboardServiceGetContextualDashboardHandler.ServeHTTP(w, r)
+		case DashboardServiceUpsertContextualDashboardProcedure:
+			dashboardServiceUpsertContextualDashboardHandler.ServeHTTP(w, r)
+		case DashboardServiceResetContextualDashboardProcedure:
+			dashboardServiceResetContextualDashboardHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -280,4 +355,16 @@ func (UnimplementedDashboardServiceHandler) ExportDashboard(context.Context, *co
 
 func (UnimplementedDashboardServiceHandler) ImportDashboard(context.Context, *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.ImportDashboard is not implemented"))
+}
+
+func (UnimplementedDashboardServiceHandler) GetContextualDashboard(context.Context, *connect.Request[v1.GetContextualDashboardRequest]) (*connect.Response[v1.GetContextualDashboardResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.GetContextualDashboard is not implemented"))
+}
+
+func (UnimplementedDashboardServiceHandler) UpsertContextualDashboard(context.Context, *connect.Request[v1.UpsertContextualDashboardRequest]) (*connect.Response[v1.UpsertContextualDashboardResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.UpsertContextualDashboard is not implemented"))
+}
+
+func (UnimplementedDashboardServiceHandler) ResetContextualDashboard(context.Context, *connect.Request[v1.ResetContextualDashboardRequest]) (*connect.Response[v1.ResetContextualDashboardResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.ResetContextualDashboard is not implemented"))
 }

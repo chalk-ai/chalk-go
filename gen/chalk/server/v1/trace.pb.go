@@ -711,9 +711,14 @@ type ChalkTraceSummary struct {
 	RootSpanNames []string `protobuf:"bytes,7,rep,name=root_span_names,json=rootSpanNames,proto3" json:"root_span_names,omitempty"`
 	// Agent session / conversation this trace belongs to, empty when the trace carries no session
 	// attribute. See ChalkSessionSummary for how it is resolved.
-	SessionId     string `protobuf:"bytes,8,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SessionId string `protobuf:"bytes,8,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	// The user or credential that spawned this trace, empty when none of its spans name one. See
+	// ChalkSessionSummary.principal_id.
+	PrincipalId string `protobuf:"bytes,9,opt,name=principal_id,json=principalId,proto3" json:"principal_id,omitempty"`
+	// Human-readable name for `principal_id`; see ChalkSessionSummary.principal_display_name.
+	PrincipalDisplayName string `protobuf:"bytes,10,opt,name=principal_display_name,json=principalDisplayName,proto3" json:"principal_display_name,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ChalkTraceSummary) Reset() {
@@ -802,6 +807,20 @@ func (x *ChalkTraceSummary) GetSessionId() string {
 	return ""
 }
 
+func (x *ChalkTraceSummary) GetPrincipalId() string {
+	if x != nil {
+		return x.PrincipalId
+	}
+	return ""
+}
+
+func (x *ChalkTraceSummary) GetPrincipalDisplayName() string {
+	if x != nil {
+		return x.PrincipalDisplayName
+	}
+	return ""
+}
+
 // ChalkSessionSummary aggregates every trace sharing one agent session (conversation) id, so a
 // multi-turn agent reads as one conversation rather than one trace per turn.
 //
@@ -826,8 +845,36 @@ type ChalkSessionSummary struct {
 	SpanCount int64 `protobuf:"varint,6,opt,name=span_count,json=spanCount,proto3" json:"span_count,omitempty"`
 	// Operation name of the earliest trace's root span, as a human-readable label for the session
 	FirstRootSpanName string `protobuf:"bytes,7,opt,name=first_root_span_name,json=firstRootSpanName,proto3" json:"first_root_span_name,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Number of LLM spans across the session, i.e. how many model calls the conversation made
+	LlmCallCount int64 `protobuf:"varint,8,opt,name=llm_call_count,json=llmCallCount,proto3" json:"llm_call_count,omitempty"`
+	// Number of tool spans across the session
+	ToolCallCount int64 `protobuf:"varint,9,opt,name=tool_call_count,json=toolCallCount,proto3" json:"tool_call_count,omitempty"`
+	// Tokens reported by the session's LLM and embedding spans. Counted from the total the span
+	// reports, or prompt + completion when it reports no total.
+	TokenCount int64 `protobuf:"varint,10,opt,name=token_count,json=tokenCount,proto3" json:"token_count,omitempty"`
+	// Cost in USD as reported by the session's LLM and embedding spans, summed. Zero when the
+	// instrumentation attaches no cost, which is indistinguishable from a genuinely free session.
+	EstimatedCostUsd float64 `protobuf:"fixed64,11,opt,name=estimated_cost_usd,json=estimatedCostUsd,proto3" json:"estimated_cost_usd,omitempty"`
+	// Time spent inside the session's LLM spans, summed. Unlike `duration` this is not wall clock:
+	// concurrent model calls each contribute their own duration, so it can exceed `duration`.
+	LlmDuration *durationpb.Duration `protobuf:"bytes,12,opt,name=llm_duration,json=llmDuration,proto3" json:"llm_duration,omitempty"`
+	// What the conversation opened with: the `input.value` of the earliest trace's root span,
+	// truncated to a preview. Empty when no trace's root span reports one.
+	InputPreview string `protobuf:"bytes,13,opt,name=input_preview,json=inputPreview,proto3" json:"input_preview,omitempty"`
+	// Where the conversation got to: the `output.value` of the latest trace's root span that
+	// reports one, truncated to a preview. Empty when no trace's root span reports one.
+	OutputPreview string `protobuf:"bytes,14,opt,name=output_preview,json=outputPreview,proto3" json:"output_preview,omitempty"`
+	// The user or credential that spawned the session, resolved per span from the first non-empty of
+	// `chalk.auth.principal.id`, `user.id`, `enduser.id` (span attributes) then `user.id` (resource
+	// attributes). chalk-router stamps the first on the LLM span of a request it serves. Empty when
+	// none of the session's spans name a principal.
+	PrincipalId string `protobuf:"bytes,15,opt,name=principal_id,json=principalId,proto3" json:"principal_id,omitempty"`
+	// Human-readable name for `principal_id` when the server could resolve one -- the email of the
+	// Chalk user with that id. Empty when the principal is not a user of the caller's team (an API
+	// key, say), in which case `principal_id` is the only thing to show.
+	PrincipalDisplayName string `protobuf:"bytes,16,opt,name=principal_display_name,json=principalDisplayName,proto3" json:"principal_display_name,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ChalkSessionSummary) Reset() {
@@ -905,6 +952,69 @@ func (x *ChalkSessionSummary) GetSpanCount() int64 {
 func (x *ChalkSessionSummary) GetFirstRootSpanName() string {
 	if x != nil {
 		return x.FirstRootSpanName
+	}
+	return ""
+}
+
+func (x *ChalkSessionSummary) GetLlmCallCount() int64 {
+	if x != nil {
+		return x.LlmCallCount
+	}
+	return 0
+}
+
+func (x *ChalkSessionSummary) GetToolCallCount() int64 {
+	if x != nil {
+		return x.ToolCallCount
+	}
+	return 0
+}
+
+func (x *ChalkSessionSummary) GetTokenCount() int64 {
+	if x != nil {
+		return x.TokenCount
+	}
+	return 0
+}
+
+func (x *ChalkSessionSummary) GetEstimatedCostUsd() float64 {
+	if x != nil {
+		return x.EstimatedCostUsd
+	}
+	return 0
+}
+
+func (x *ChalkSessionSummary) GetLlmDuration() *durationpb.Duration {
+	if x != nil {
+		return x.LlmDuration
+	}
+	return nil
+}
+
+func (x *ChalkSessionSummary) GetInputPreview() string {
+	if x != nil {
+		return x.InputPreview
+	}
+	return ""
+}
+
+func (x *ChalkSessionSummary) GetOutputPreview() string {
+	if x != nil {
+		return x.OutputPreview
+	}
+	return ""
+}
+
+func (x *ChalkSessionSummary) GetPrincipalId() string {
+	if x != nil {
+		return x.PrincipalId
+	}
+	return ""
+}
+
+func (x *ChalkSessionSummary) GetPrincipalDisplayName() string {
+	if x != nil {
+		return x.PrincipalDisplayName
 	}
 	return ""
 }
@@ -3736,7 +3846,11 @@ type SpanFacetValue struct {
 	Value string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
 	Count int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
 	// One value per requested facet, index-aligned to request `facets`. Empty in single-`path` mode (scalar `value` set instead).
-	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
+	Values []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
+	// Human-readable label for `value`, when the server can resolve one the client could not (a
+	// `principal` facet's Chalk user id shown as that user's email). Filtering still uses `value`;
+	// empty means render `value` itself.
+	DisplayValue  string `protobuf:"bytes,4,opt,name=display_value,json=displayValue,proto3" json:"display_value,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3790,6 +3904,13 @@ func (x *SpanFacetValue) GetValues() []string {
 		return x.Values
 	}
 	return nil
+}
+
+func (x *SpanFacetValue) GetDisplayValue() string {
+	if x != nil {
+		return x.DisplayValue
+	}
+	return ""
 }
 
 // GetSpanFacetValuesResponse returns values for a specific span facet
@@ -4736,7 +4857,7 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aE\n" +
 	"\x17ResourceAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x88\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe1\x03\n" +
 	"\x11ChalkTraceSummary\x12\x19\n" +
 	"\btrace_id\x18\x01 \x01(\tR\atraceId\x129\n" +
 	"\n" +
@@ -4749,7 +4870,10 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"span_count\x18\x06 \x01(\x03R\tspanCount\x12&\n" +
 	"\x0froot_span_names\x18\a \x03(\tR\rrootSpanNames\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\b \x01(\tR\tsessionId\"\xce\x02\n" +
+	"session_id\x18\b \x01(\tR\tsessionId\x12!\n" +
+	"\fprincipal_id\x18\t \x01(\tR\vprincipalId\x124\n" +
+	"\x16principal_display_name\x18\n" +
+	" \x01(\tR\x14principalDisplayName\"\xce\x05\n" +
 	"\x13ChalkSessionSummary\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x129\n" +
@@ -4761,7 +4885,18 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"traceCount\x12\x1d\n" +
 	"\n" +
 	"span_count\x18\x06 \x01(\x03R\tspanCount\x12/\n" +
-	"\x14first_root_span_name\x18\a \x01(\tR\x11firstRootSpanName\"\x8b\x01\n" +
+	"\x14first_root_span_name\x18\a \x01(\tR\x11firstRootSpanName\x12$\n" +
+	"\x0ellm_call_count\x18\b \x01(\x03R\fllmCallCount\x12&\n" +
+	"\x0ftool_call_count\x18\t \x01(\x03R\rtoolCallCount\x12\x1f\n" +
+	"\vtoken_count\x18\n" +
+	" \x01(\x03R\n" +
+	"tokenCount\x12,\n" +
+	"\x12estimated_cost_usd\x18\v \x01(\x01R\x10estimatedCostUsd\x12<\n" +
+	"\fllm_duration\x18\f \x01(\v2\x19.google.protobuf.DurationR\vllmDuration\x12#\n" +
+	"\rinput_preview\x18\r \x01(\tR\finputPreview\x12%\n" +
+	"\x0eoutput_preview\x18\x0e \x01(\tR\routputPreview\x12!\n" +
+	"\fprincipal_id\x18\x0f \x01(\tR\vprincipalId\x124\n" +
+	"\x16principal_display_name\x18\x10 \x01(\tR\x14principalDisplayName\"\x8b\x01\n" +
 	"\x14TraceCallGraphAiInfo\x12#\n" +
 	"\rprompt_tokens\x18\x01 \x01(\x03R\fpromptTokens\x12+\n" +
 	"\x11completion_tokens\x18\x02 \x01(\x03R\x10completionTokens\x12!\n" +
@@ -5084,11 +5219,12 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
 	"\x06_queryB\x19\n" +
-	"\x17_include_synthetic_rows\"T\n" +
+	"\x17_include_synthetic_rows\"y\n" +
 	"\x0eSpanFacetValue\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x16\n" +
-	"\x06values\x18\x03 \x03(\tR\x06values\"U\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\x12#\n" +
+	"\rdisplay_value\x18\x04 \x01(\tR\fdisplayValue\"U\n" +
 	"\x1aGetSpanFacetValuesResponse\x127\n" +
 	"\x06values\x18\x01 \x03(\v2\x1f.chalk.server.v1.SpanFacetValueR\x06values\"\x9c\x04\n" +
 	"\x19ListSpanAggregatedRequest\x12>\n" +
@@ -5328,128 +5464,129 @@ var file_chalk_server_v1_trace_proto_depIdxs = []int32{
 	67,  // 21: chalk.server.v1.ChalkSessionSummary.start_time:type_name -> google.protobuf.Timestamp
 	67,  // 22: chalk.server.v1.ChalkSessionSummary.end_time:type_name -> google.protobuf.Timestamp
 	68,  // 23: chalk.server.v1.ChalkSessionSummary.duration:type_name -> google.protobuf.Duration
-	11,  // 24: chalk.server.v1.TraceCallGraphNode.ai:type_name -> chalk.server.v1.TraceCallGraphAiInfo
-	12,  // 25: chalk.server.v1.TraceCallGraphNode.database:type_name -> chalk.server.v1.TraceCallGraphDatabaseInfo
-	13,  // 26: chalk.server.v1.TraceCallGraphNode.operation:type_name -> chalk.server.v1.TraceCallGraphOperationInfo
-	14,  // 27: chalk.server.v1.TraceCallGraphNode.remote_function:type_name -> chalk.server.v1.TraceCallGraphRemoteFunctionInfo
-	15,  // 28: chalk.server.v1.TraceCallGraphNode.service:type_name -> chalk.server.v1.TraceCallGraphServiceInfo
-	16,  // 29: chalk.server.v1.TraceCallGraph.nodes:type_name -> chalk.server.v1.TraceCallGraphNode
-	17,  // 30: chalk.server.v1.TraceCallGraph.edges:type_name -> chalk.server.v1.TraceCallGraphEdge
-	7,   // 31: chalk.server.v1.GetTraceResponse.trace:type_name -> chalk.server.v1.ChalkTrace
-	67,  // 32: chalk.server.v1.ListTraceRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 33: chalk.server.v1.ListTraceRequest.end_time:type_name -> google.protobuf.Timestamp
-	7,   // 34: chalk.server.v1.ListTraceResponse.traces:type_name -> chalk.server.v1.ChalkTrace
-	67,  // 35: chalk.server.v1.SearchTraceSummariesRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 36: chalk.server.v1.SearchTraceSummariesRequest.end_time:type_name -> google.protobuf.Timestamp
-	35,  // 37: chalk.server.v1.SearchTraceSummariesRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	35,  // 38: chalk.server.v1.SearchTraceSummariesRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	9,   // 39: chalk.server.v1.SearchTraceSummariesResponse.trace_summaries:type_name -> chalk.server.v1.ChalkTraceSummary
-	67,  // 40: chalk.server.v1.SearchSessionsRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 41: chalk.server.v1.SearchSessionsRequest.end_time:type_name -> google.protobuf.Timestamp
-	35,  // 42: chalk.server.v1.SearchSessionsRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	35,  // 43: chalk.server.v1.SearchSessionsRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	10,  // 44: chalk.server.v1.SearchSessionsResponse.sessions:type_name -> chalk.server.v1.ChalkSessionSummary
-	67,  // 45: chalk.server.v1.ListSessionAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 46: chalk.server.v1.ListSessionAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	68,  // 47: chalk.server.v1.ListSessionAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	35,  // 48: chalk.server.v1.ListSessionAggregatedRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	35,  // 49: chalk.server.v1.ListSessionAggregatedRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	69,  // 50: chalk.server.v1.ListSessionAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	67,  // 51: chalk.server.v1.ListTraceAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 52: chalk.server.v1.ListTraceAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	68,  // 53: chalk.server.v1.ListTraceAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	35,  // 54: chalk.server.v1.ListTraceAggregatedRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	35,  // 55: chalk.server.v1.ListTraceAggregatedRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	69,  // 56: chalk.server.v1.ListTraceAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	67,  // 57: chalk.server.v1.GetTraceCallGraphRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 58: chalk.server.v1.GetTraceCallGraphRequest.end_time:type_name -> google.protobuf.Timestamp
-	35,  // 59: chalk.server.v1.GetTraceCallGraphRequest.attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	35,  // 60: chalk.server.v1.GetTraceCallGraphRequest.resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	18,  // 61: chalk.server.v1.GetTraceCallGraphResponse.call_graph:type_name -> chalk.server.v1.TraceCallGraph
-	3,   // 62: chalk.server.v1.GetSpanResponse.span:type_name -> chalk.server.v1.ChalkSpan
-	67,  // 63: chalk.server.v1.ListSpanRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 64: chalk.server.v1.ListSpanRequest.end_time:type_name -> google.protobuf.Timestamp
-	0,   // 65: chalk.server.v1.ListSpanRequest.status_code:type_name -> chalk.server.v1.ChalkStatusCode
-	35,  // 66: chalk.server.v1.ListSpanRequest.attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	1,   // 67: chalk.server.v1.ListSpanRequest.span_kind:type_name -> chalk.server.v1.ChalkSpanKind
-	35,  // 68: chalk.server.v1.ListSpanRequest.resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
-	3,   // 69: chalk.server.v1.ListSpanResponse.spans:type_name -> chalk.server.v1.ChalkSpan
-	67,  // 70: chalk.server.v1.GetSpanLatencyDistributionRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 71: chalk.server.v1.GetSpanLatencyDistributionRequest.end_time:type_name -> google.protobuf.Timestamp
-	67,  // 72: chalk.server.v1.SpanLatencyDistribution.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 73: chalk.server.v1.SpanLatencyDistribution.end_time:type_name -> google.protobuf.Timestamp
-	68,  // 74: chalk.server.v1.SpanLatencyDistribution.selected_duration:type_name -> google.protobuf.Duration
-	68,  // 75: chalk.server.v1.SpanLatencyDistribution.p50:type_name -> google.protobuf.Duration
-	68,  // 76: chalk.server.v1.SpanLatencyDistribution.p75:type_name -> google.protobuf.Duration
-	68,  // 77: chalk.server.v1.SpanLatencyDistribution.p90:type_name -> google.protobuf.Duration
-	68,  // 78: chalk.server.v1.SpanLatencyDistribution.p95:type_name -> google.protobuf.Duration
-	68,  // 79: chalk.server.v1.SpanLatencyDistribution.p99:type_name -> google.protobuf.Duration
-	68,  // 80: chalk.server.v1.SpanLatencyDistribution.min_duration:type_name -> google.protobuf.Duration
-	68,  // 81: chalk.server.v1.SpanLatencyDistribution.max_duration:type_name -> google.protobuf.Duration
-	39,  // 82: chalk.server.v1.GetSpanLatencyDistributionResponse.distributions:type_name -> chalk.server.v1.SpanLatencyDistribution
-	2,   // 83: chalk.server.v1.SpanFacet.facet_type:type_name -> chalk.server.v1.SpanFacetType
-	70,  // 84: chalk.server.v1.SpanFacet.supported_aggregations:type_name -> chalk.searchaggregates.v1.AggregationFunction
-	41,  // 85: chalk.server.v1.GetSpanFacetsResponse.facets:type_name -> chalk.server.v1.SpanFacet
-	67,  // 86: chalk.server.v1.GetSpanFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 87: chalk.server.v1.GetSpanFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
-	45,  // 88: chalk.server.v1.GetSpanFacetValuesResponse.values:type_name -> chalk.server.v1.SpanFacetValue
-	67,  // 89: chalk.server.v1.ListSpanAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 90: chalk.server.v1.ListSpanAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	68,  // 91: chalk.server.v1.ListSpanAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	71,  // 92: chalk.server.v1.ListSpanAggregatedRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
-	69,  // 93: chalk.server.v1.ListSpanAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	67,  // 94: chalk.server.v1.GetSpanSourceAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 95: chalk.server.v1.GetSpanSourceAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
-	49,  // 96: chalk.server.v1.GetSpanSourceAggregatesResponse.aggregates:type_name -> chalk.server.v1.SpanSourceAggregate
-	67,  // 97: chalk.server.v1.GetSpanAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 98: chalk.server.v1.GetSpanAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
-	71,  // 99: chalk.server.v1.GetSpanAggregatesRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
-	72,  // 100: chalk.server.v1.GetSpanAggregatesResponse.table:type_name -> chalk.searchaggregates.v1.AggregateTable
-	67,  // 101: chalk.server.v1.GetTraceFacetsRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 102: chalk.server.v1.GetTraceFacetsRequest.end_time:type_name -> google.protobuf.Timestamp
-	54,  // 103: chalk.server.v1.GetTraceFacetsResponse.facets:type_name -> chalk.server.v1.TraceFacet
-	67,  // 104: chalk.server.v1.GetTraceFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	67,  // 105: chalk.server.v1.GetTraceFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
-	57,  // 106: chalk.server.v1.GetTraceFacetValuesResponse.values:type_name -> chalk.server.v1.TraceFacetValue
-	19,  // 107: chalk.server.v1.TraceService.GetTrace:input_type -> chalk.server.v1.GetTraceRequest
-	21,  // 108: chalk.server.v1.TraceService.ListTrace:input_type -> chalk.server.v1.ListTraceRequest
-	23,  // 109: chalk.server.v1.TraceService.SearchTraceSummaries:input_type -> chalk.server.v1.SearchTraceSummariesRequest
-	29,  // 110: chalk.server.v1.TraceService.ListTraceAggregated:input_type -> chalk.server.v1.ListTraceAggregatedRequest
-	25,  // 111: chalk.server.v1.TraceService.SearchSessions:input_type -> chalk.server.v1.SearchSessionsRequest
-	27,  // 112: chalk.server.v1.TraceService.ListSessionAggregated:input_type -> chalk.server.v1.ListSessionAggregatedRequest
-	31,  // 113: chalk.server.v1.TraceService.GetTraceCallGraph:input_type -> chalk.server.v1.GetTraceCallGraphRequest
-	55,  // 114: chalk.server.v1.TraceService.GetTraceFacets:input_type -> chalk.server.v1.GetTraceFacetsRequest
-	58,  // 115: chalk.server.v1.TraceService.GetTraceFacetValues:input_type -> chalk.server.v1.GetTraceFacetValuesRequest
-	33,  // 116: chalk.server.v1.TraceService.GetSpan:input_type -> chalk.server.v1.GetSpanRequest
-	38,  // 117: chalk.server.v1.TraceService.GetSpanLatencyDistribution:input_type -> chalk.server.v1.GetSpanLatencyDistributionRequest
-	36,  // 118: chalk.server.v1.TraceService.ListSpan:input_type -> chalk.server.v1.ListSpanRequest
-	42,  // 119: chalk.server.v1.TraceService.GetSpanFacets:input_type -> chalk.server.v1.GetSpanFacetsRequest
-	44,  // 120: chalk.server.v1.TraceService.GetSpanFacetValues:input_type -> chalk.server.v1.GetSpanFacetValuesRequest
-	47,  // 121: chalk.server.v1.TraceService.ListSpanAggregated:input_type -> chalk.server.v1.ListSpanAggregatedRequest
-	50,  // 122: chalk.server.v1.TraceService.GetSpanSourceAggregates:input_type -> chalk.server.v1.GetSpanSourceAggregatesRequest
-	52,  // 123: chalk.server.v1.TraceService.GetSpanAggregates:input_type -> chalk.server.v1.GetSpanAggregatesRequest
-	20,  // 124: chalk.server.v1.TraceService.GetTrace:output_type -> chalk.server.v1.GetTraceResponse
-	22,  // 125: chalk.server.v1.TraceService.ListTrace:output_type -> chalk.server.v1.ListTraceResponse
-	24,  // 126: chalk.server.v1.TraceService.SearchTraceSummaries:output_type -> chalk.server.v1.SearchTraceSummariesResponse
-	30,  // 127: chalk.server.v1.TraceService.ListTraceAggregated:output_type -> chalk.server.v1.ListTraceAggregatedResponse
-	26,  // 128: chalk.server.v1.TraceService.SearchSessions:output_type -> chalk.server.v1.SearchSessionsResponse
-	28,  // 129: chalk.server.v1.TraceService.ListSessionAggregated:output_type -> chalk.server.v1.ListSessionAggregatedResponse
-	32,  // 130: chalk.server.v1.TraceService.GetTraceCallGraph:output_type -> chalk.server.v1.GetTraceCallGraphResponse
-	56,  // 131: chalk.server.v1.TraceService.GetTraceFacets:output_type -> chalk.server.v1.GetTraceFacetsResponse
-	59,  // 132: chalk.server.v1.TraceService.GetTraceFacetValues:output_type -> chalk.server.v1.GetTraceFacetValuesResponse
-	34,  // 133: chalk.server.v1.TraceService.GetSpan:output_type -> chalk.server.v1.GetSpanResponse
-	40,  // 134: chalk.server.v1.TraceService.GetSpanLatencyDistribution:output_type -> chalk.server.v1.GetSpanLatencyDistributionResponse
-	37,  // 135: chalk.server.v1.TraceService.ListSpan:output_type -> chalk.server.v1.ListSpanResponse
-	43,  // 136: chalk.server.v1.TraceService.GetSpanFacets:output_type -> chalk.server.v1.GetSpanFacetsResponse
-	46,  // 137: chalk.server.v1.TraceService.GetSpanFacetValues:output_type -> chalk.server.v1.GetSpanFacetValuesResponse
-	48,  // 138: chalk.server.v1.TraceService.ListSpanAggregated:output_type -> chalk.server.v1.ListSpanAggregatedResponse
-	51,  // 139: chalk.server.v1.TraceService.GetSpanSourceAggregates:output_type -> chalk.server.v1.GetSpanSourceAggregatesResponse
-	53,  // 140: chalk.server.v1.TraceService.GetSpanAggregates:output_type -> chalk.server.v1.GetSpanAggregatesResponse
-	124, // [124:141] is the sub-list for method output_type
-	107, // [107:124] is the sub-list for method input_type
-	107, // [107:107] is the sub-list for extension type_name
-	107, // [107:107] is the sub-list for extension extendee
-	0,   // [0:107] is the sub-list for field type_name
+	68,  // 24: chalk.server.v1.ChalkSessionSummary.llm_duration:type_name -> google.protobuf.Duration
+	11,  // 25: chalk.server.v1.TraceCallGraphNode.ai:type_name -> chalk.server.v1.TraceCallGraphAiInfo
+	12,  // 26: chalk.server.v1.TraceCallGraphNode.database:type_name -> chalk.server.v1.TraceCallGraphDatabaseInfo
+	13,  // 27: chalk.server.v1.TraceCallGraphNode.operation:type_name -> chalk.server.v1.TraceCallGraphOperationInfo
+	14,  // 28: chalk.server.v1.TraceCallGraphNode.remote_function:type_name -> chalk.server.v1.TraceCallGraphRemoteFunctionInfo
+	15,  // 29: chalk.server.v1.TraceCallGraphNode.service:type_name -> chalk.server.v1.TraceCallGraphServiceInfo
+	16,  // 30: chalk.server.v1.TraceCallGraph.nodes:type_name -> chalk.server.v1.TraceCallGraphNode
+	17,  // 31: chalk.server.v1.TraceCallGraph.edges:type_name -> chalk.server.v1.TraceCallGraphEdge
+	7,   // 32: chalk.server.v1.GetTraceResponse.trace:type_name -> chalk.server.v1.ChalkTrace
+	67,  // 33: chalk.server.v1.ListTraceRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 34: chalk.server.v1.ListTraceRequest.end_time:type_name -> google.protobuf.Timestamp
+	7,   // 35: chalk.server.v1.ListTraceResponse.traces:type_name -> chalk.server.v1.ChalkTrace
+	67,  // 36: chalk.server.v1.SearchTraceSummariesRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 37: chalk.server.v1.SearchTraceSummariesRequest.end_time:type_name -> google.protobuf.Timestamp
+	35,  // 38: chalk.server.v1.SearchTraceSummariesRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	35,  // 39: chalk.server.v1.SearchTraceSummariesRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	9,   // 40: chalk.server.v1.SearchTraceSummariesResponse.trace_summaries:type_name -> chalk.server.v1.ChalkTraceSummary
+	67,  // 41: chalk.server.v1.SearchSessionsRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 42: chalk.server.v1.SearchSessionsRequest.end_time:type_name -> google.protobuf.Timestamp
+	35,  // 43: chalk.server.v1.SearchSessionsRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	35,  // 44: chalk.server.v1.SearchSessionsRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	10,  // 45: chalk.server.v1.SearchSessionsResponse.sessions:type_name -> chalk.server.v1.ChalkSessionSummary
+	67,  // 46: chalk.server.v1.ListSessionAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 47: chalk.server.v1.ListSessionAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	68,  // 48: chalk.server.v1.ListSessionAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	35,  // 49: chalk.server.v1.ListSessionAggregatedRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	35,  // 50: chalk.server.v1.ListSessionAggregatedRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	69,  // 51: chalk.server.v1.ListSessionAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	67,  // 52: chalk.server.v1.ListTraceAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 53: chalk.server.v1.ListTraceAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	68,  // 54: chalk.server.v1.ListTraceAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	35,  // 55: chalk.server.v1.ListTraceAggregatedRequest.root_span_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	35,  // 56: chalk.server.v1.ListTraceAggregatedRequest.root_span_resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	69,  // 57: chalk.server.v1.ListTraceAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	67,  // 58: chalk.server.v1.GetTraceCallGraphRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 59: chalk.server.v1.GetTraceCallGraphRequest.end_time:type_name -> google.protobuf.Timestamp
+	35,  // 60: chalk.server.v1.GetTraceCallGraphRequest.attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	35,  // 61: chalk.server.v1.GetTraceCallGraphRequest.resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	18,  // 62: chalk.server.v1.GetTraceCallGraphResponse.call_graph:type_name -> chalk.server.v1.TraceCallGraph
+	3,   // 63: chalk.server.v1.GetSpanResponse.span:type_name -> chalk.server.v1.ChalkSpan
+	67,  // 64: chalk.server.v1.ListSpanRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 65: chalk.server.v1.ListSpanRequest.end_time:type_name -> google.protobuf.Timestamp
+	0,   // 66: chalk.server.v1.ListSpanRequest.status_code:type_name -> chalk.server.v1.ChalkStatusCode
+	35,  // 67: chalk.server.v1.ListSpanRequest.attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	1,   // 68: chalk.server.v1.ListSpanRequest.span_kind:type_name -> chalk.server.v1.ChalkSpanKind
+	35,  // 69: chalk.server.v1.ListSpanRequest.resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	3,   // 70: chalk.server.v1.ListSpanResponse.spans:type_name -> chalk.server.v1.ChalkSpan
+	67,  // 71: chalk.server.v1.GetSpanLatencyDistributionRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 72: chalk.server.v1.GetSpanLatencyDistributionRequest.end_time:type_name -> google.protobuf.Timestamp
+	67,  // 73: chalk.server.v1.SpanLatencyDistribution.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 74: chalk.server.v1.SpanLatencyDistribution.end_time:type_name -> google.protobuf.Timestamp
+	68,  // 75: chalk.server.v1.SpanLatencyDistribution.selected_duration:type_name -> google.protobuf.Duration
+	68,  // 76: chalk.server.v1.SpanLatencyDistribution.p50:type_name -> google.protobuf.Duration
+	68,  // 77: chalk.server.v1.SpanLatencyDistribution.p75:type_name -> google.protobuf.Duration
+	68,  // 78: chalk.server.v1.SpanLatencyDistribution.p90:type_name -> google.protobuf.Duration
+	68,  // 79: chalk.server.v1.SpanLatencyDistribution.p95:type_name -> google.protobuf.Duration
+	68,  // 80: chalk.server.v1.SpanLatencyDistribution.p99:type_name -> google.protobuf.Duration
+	68,  // 81: chalk.server.v1.SpanLatencyDistribution.min_duration:type_name -> google.protobuf.Duration
+	68,  // 82: chalk.server.v1.SpanLatencyDistribution.max_duration:type_name -> google.protobuf.Duration
+	39,  // 83: chalk.server.v1.GetSpanLatencyDistributionResponse.distributions:type_name -> chalk.server.v1.SpanLatencyDistribution
+	2,   // 84: chalk.server.v1.SpanFacet.facet_type:type_name -> chalk.server.v1.SpanFacetType
+	70,  // 85: chalk.server.v1.SpanFacet.supported_aggregations:type_name -> chalk.searchaggregates.v1.AggregationFunction
+	41,  // 86: chalk.server.v1.GetSpanFacetsResponse.facets:type_name -> chalk.server.v1.SpanFacet
+	67,  // 87: chalk.server.v1.GetSpanFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 88: chalk.server.v1.GetSpanFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	45,  // 89: chalk.server.v1.GetSpanFacetValuesResponse.values:type_name -> chalk.server.v1.SpanFacetValue
+	67,  // 90: chalk.server.v1.ListSpanAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 91: chalk.server.v1.ListSpanAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	68,  // 92: chalk.server.v1.ListSpanAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	71,  // 93: chalk.server.v1.ListSpanAggregatedRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
+	69,  // 94: chalk.server.v1.ListSpanAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	67,  // 95: chalk.server.v1.GetSpanSourceAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 96: chalk.server.v1.GetSpanSourceAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
+	49,  // 97: chalk.server.v1.GetSpanSourceAggregatesResponse.aggregates:type_name -> chalk.server.v1.SpanSourceAggregate
+	67,  // 98: chalk.server.v1.GetSpanAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 99: chalk.server.v1.GetSpanAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
+	71,  // 100: chalk.server.v1.GetSpanAggregatesRequest.options:type_name -> chalk.searchaggregates.v1.AggregateOptions
+	72,  // 101: chalk.server.v1.GetSpanAggregatesResponse.table:type_name -> chalk.searchaggregates.v1.AggregateTable
+	67,  // 102: chalk.server.v1.GetTraceFacetsRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 103: chalk.server.v1.GetTraceFacetsRequest.end_time:type_name -> google.protobuf.Timestamp
+	54,  // 104: chalk.server.v1.GetTraceFacetsResponse.facets:type_name -> chalk.server.v1.TraceFacet
+	67,  // 105: chalk.server.v1.GetTraceFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	67,  // 106: chalk.server.v1.GetTraceFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	57,  // 107: chalk.server.v1.GetTraceFacetValuesResponse.values:type_name -> chalk.server.v1.TraceFacetValue
+	19,  // 108: chalk.server.v1.TraceService.GetTrace:input_type -> chalk.server.v1.GetTraceRequest
+	21,  // 109: chalk.server.v1.TraceService.ListTrace:input_type -> chalk.server.v1.ListTraceRequest
+	23,  // 110: chalk.server.v1.TraceService.SearchTraceSummaries:input_type -> chalk.server.v1.SearchTraceSummariesRequest
+	29,  // 111: chalk.server.v1.TraceService.ListTraceAggregated:input_type -> chalk.server.v1.ListTraceAggregatedRequest
+	25,  // 112: chalk.server.v1.TraceService.SearchSessions:input_type -> chalk.server.v1.SearchSessionsRequest
+	27,  // 113: chalk.server.v1.TraceService.ListSessionAggregated:input_type -> chalk.server.v1.ListSessionAggregatedRequest
+	31,  // 114: chalk.server.v1.TraceService.GetTraceCallGraph:input_type -> chalk.server.v1.GetTraceCallGraphRequest
+	55,  // 115: chalk.server.v1.TraceService.GetTraceFacets:input_type -> chalk.server.v1.GetTraceFacetsRequest
+	58,  // 116: chalk.server.v1.TraceService.GetTraceFacetValues:input_type -> chalk.server.v1.GetTraceFacetValuesRequest
+	33,  // 117: chalk.server.v1.TraceService.GetSpan:input_type -> chalk.server.v1.GetSpanRequest
+	38,  // 118: chalk.server.v1.TraceService.GetSpanLatencyDistribution:input_type -> chalk.server.v1.GetSpanLatencyDistributionRequest
+	36,  // 119: chalk.server.v1.TraceService.ListSpan:input_type -> chalk.server.v1.ListSpanRequest
+	42,  // 120: chalk.server.v1.TraceService.GetSpanFacets:input_type -> chalk.server.v1.GetSpanFacetsRequest
+	44,  // 121: chalk.server.v1.TraceService.GetSpanFacetValues:input_type -> chalk.server.v1.GetSpanFacetValuesRequest
+	47,  // 122: chalk.server.v1.TraceService.ListSpanAggregated:input_type -> chalk.server.v1.ListSpanAggregatedRequest
+	50,  // 123: chalk.server.v1.TraceService.GetSpanSourceAggregates:input_type -> chalk.server.v1.GetSpanSourceAggregatesRequest
+	52,  // 124: chalk.server.v1.TraceService.GetSpanAggregates:input_type -> chalk.server.v1.GetSpanAggregatesRequest
+	20,  // 125: chalk.server.v1.TraceService.GetTrace:output_type -> chalk.server.v1.GetTraceResponse
+	22,  // 126: chalk.server.v1.TraceService.ListTrace:output_type -> chalk.server.v1.ListTraceResponse
+	24,  // 127: chalk.server.v1.TraceService.SearchTraceSummaries:output_type -> chalk.server.v1.SearchTraceSummariesResponse
+	30,  // 128: chalk.server.v1.TraceService.ListTraceAggregated:output_type -> chalk.server.v1.ListTraceAggregatedResponse
+	26,  // 129: chalk.server.v1.TraceService.SearchSessions:output_type -> chalk.server.v1.SearchSessionsResponse
+	28,  // 130: chalk.server.v1.TraceService.ListSessionAggregated:output_type -> chalk.server.v1.ListSessionAggregatedResponse
+	32,  // 131: chalk.server.v1.TraceService.GetTraceCallGraph:output_type -> chalk.server.v1.GetTraceCallGraphResponse
+	56,  // 132: chalk.server.v1.TraceService.GetTraceFacets:output_type -> chalk.server.v1.GetTraceFacetsResponse
+	59,  // 133: chalk.server.v1.TraceService.GetTraceFacetValues:output_type -> chalk.server.v1.GetTraceFacetValuesResponse
+	34,  // 134: chalk.server.v1.TraceService.GetSpan:output_type -> chalk.server.v1.GetSpanResponse
+	40,  // 135: chalk.server.v1.TraceService.GetSpanLatencyDistribution:output_type -> chalk.server.v1.GetSpanLatencyDistributionResponse
+	37,  // 136: chalk.server.v1.TraceService.ListSpan:output_type -> chalk.server.v1.ListSpanResponse
+	43,  // 137: chalk.server.v1.TraceService.GetSpanFacets:output_type -> chalk.server.v1.GetSpanFacetsResponse
+	46,  // 138: chalk.server.v1.TraceService.GetSpanFacetValues:output_type -> chalk.server.v1.GetSpanFacetValuesResponse
+	48,  // 139: chalk.server.v1.TraceService.ListSpanAggregated:output_type -> chalk.server.v1.ListSpanAggregatedResponse
+	51,  // 140: chalk.server.v1.TraceService.GetSpanSourceAggregates:output_type -> chalk.server.v1.GetSpanSourceAggregatesResponse
+	53,  // 141: chalk.server.v1.TraceService.GetSpanAggregates:output_type -> chalk.server.v1.GetSpanAggregatesResponse
+	125, // [125:142] is the sub-list for method output_type
+	108, // [108:125] is the sub-list for method input_type
+	108, // [108:108] is the sub-list for extension type_name
+	108, // [108:108] is the sub-list for extension extendee
+	0,   // [0:108] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_trace_proto_init() }

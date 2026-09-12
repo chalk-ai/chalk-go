@@ -8,6 +8,8 @@ package agentv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -23,10 +25,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// AiProviderConnection captures the credentials and routing for talking to
-// an OpenAI-compatible chat completion endpoint on behalf of an environment.
-// The api key itself lives in the cloud secret store; `api_key_secret_name`
-// is the EnvironmentSecret.name that points at it.
+// AiProviderConnection captures the credentials, routing, and default model
+// for talking to an AI provider on behalf of an environment.
+// The api key itself lives in the cloud secret store; `api_key_secret_id` is
+// the id of the platform-internal EnvironmentSecret that points at it.
 type AiProviderConnection struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -34,19 +36,31 @@ type AiProviderConnection struct {
 	// Human-readable label, unique within an environment. Used by the UI
 	// and as the lookup handle.
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	// Provider kind. Today only "openai" is honored; future values may
-	// include "azure_openai", "anthropic", etc.
+	// Provider protocol. Supported values are "openai" and "anthropic";
+	// OpenAI-compatible endpoints use "openai" with a host override.
 	Kind string `protobuf:"bytes,4,opt,name=kind,proto3" json:"kind,omitempty"`
-	// Optional base URL override (e.g. an internal LLM router). Empty
-	// means the OpenAI SDK uses the default api.openai.com endpoint.
+	// Optional base URL override (e.g. an internal LLM router). Empty means
+	// the selected provider SDK uses its default endpoint.
 	Host string `protobuf:"bytes,5,opt,name=host,proto3" json:"host,omitempty"`
-	// EnvironmentSecret.name holding the API key. Looked up case-insensitively
-	// at request time, then resolved via the cloud secret store.
+	// Deprecated: rows created before api_key_secret_id existed referenced the
+	// secret by EnvironmentSecret.name here. New rows leave it empty.
+	//
+	// Deprecated: Marked as deprecated in chalk/agent/v1/ai_provider_connection.proto.
 	ApiKeySecretName string                 `protobuf:"bytes,6,opt,name=api_key_secret_name,json=apiKeySecretName,proto3" json:"api_key_secret_name,omitempty"`
 	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt        *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Id of the platform-internal EnvironmentSecret holding the API key. The
+	// connection owns that secret: it is minted from the literal supplied on
+	// create, rotated in place on update, queued for deletion with the
+	// connection, and resolved by id at request time via the cloud secret
+	// store. It is never listed alongside user secrets.
+	ApiKeySecretId string `protobuf:"bytes,9,opt,name=api_key_secret_id,json=apiKeySecretId,proto3" json:"api_key_secret_id,omitempty"`
+	// Default model for requests using this connection. Empty only for rows
+	// created before connection defaults were introduced; the runner then uses
+	// its hardcoded fallback for the provider protocol.
+	DefaultModel  string `protobuf:"bytes,10,opt,name=default_model,json=defaultModel,proto3" json:"default_model,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AiProviderConnection) Reset() {
@@ -114,6 +128,7 @@ func (x *AiProviderConnection) GetHost() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/agent/v1/ai_provider_connection.proto.
 func (x *AiProviderConnection) GetApiKeySecretName() string {
 	if x != nil {
 		return x.ApiKeySecretName
@@ -135,14 +150,33 @@ func (x *AiProviderConnection) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *AiProviderConnection) GetApiKeySecretId() string {
+	if x != nil {
+		return x.ApiKeySecretId
+	}
+	return ""
+}
+
+func (x *AiProviderConnection) GetDefaultModel() string {
+	if x != nil {
+		return x.DefaultModel
+	}
+	return ""
+}
+
 type CreateAiProviderConnectionRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Kind             string                 `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
-	Host             string                 `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
-	ApiKeySecretName string                 `protobuf:"bytes,4,opt,name=api_key_secret_name,json=apiKeySecretName,proto3" json:"api_key_secret_name,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Kind  string                 `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
+	Host  string                 `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
+	// Required for native OpenAI and Anthropic. OpenAI-compatible endpoints with
+	// a custom host may omit it. The server stores a supplied key as a
+	// platform-internal EnvironmentSecret owned by the new connection.
+	ApiKeyLiteral string `protobuf:"bytes,5,opt,name=api_key_literal,json=apiKeyLiteral,proto3" json:"api_key_literal,omitempty"`
+	// Required default model for this connection.
+	DefaultModel  string `protobuf:"bytes,6,opt,name=default_model,json=defaultModel,proto3" json:"default_model,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateAiProviderConnectionRequest) Reset() {
@@ -196,9 +230,16 @@ func (x *CreateAiProviderConnectionRequest) GetHost() string {
 	return ""
 }
 
-func (x *CreateAiProviderConnectionRequest) GetApiKeySecretName() string {
+func (x *CreateAiProviderConnectionRequest) GetApiKeyLiteral() string {
 	if x != nil {
-		return x.ApiKeySecretName
+		return x.ApiKeyLiteral
+	}
+	return ""
+}
+
+func (x *CreateAiProviderConnectionRequest) GetDefaultModel() string {
+	if x != nil {
+		return x.DefaultModel
 	}
 	return ""
 }
@@ -420,12 +461,17 @@ type UpdateAiProviderConnectionRequest struct {
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Each field is only applied when present; pass an empty string to leave
 	// the field unchanged.
-	Name             string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Kind             string `protobuf:"bytes,3,opt,name=kind,proto3" json:"kind,omitempty"`
-	Host             string `protobuf:"bytes,4,opt,name=host,proto3" json:"host,omitempty"`
-	ApiKeySecretName string `protobuf:"bytes,5,opt,name=api_key_secret_name,json=apiKeySecretName,proto3" json:"api_key_secret_name,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Kind string `protobuf:"bytes,3,opt,name=kind,proto3" json:"kind,omitempty"`
+	Host string `protobuf:"bytes,4,opt,name=host,proto3" json:"host,omitempty"`
+	// When non-empty, rotates the key held by the connection's internal
+	// EnvironmentSecret in place; the connection keeps the same secret id.
+	ApiKeyLiteral string `protobuf:"bytes,6,opt,name=api_key_literal,json=apiKeyLiteral,proto3" json:"api_key_literal,omitempty"`
+	// When present, replaces the connection's default model. An explicitly
+	// empty value is rejected.
+	DefaultModel  *string `protobuf:"bytes,7,opt,name=default_model,json=defaultModel,proto3,oneof" json:"default_model,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateAiProviderConnectionRequest) Reset() {
@@ -486,9 +532,16 @@ func (x *UpdateAiProviderConnectionRequest) GetHost() string {
 	return ""
 }
 
-func (x *UpdateAiProviderConnectionRequest) GetApiKeySecretName() string {
+func (x *UpdateAiProviderConnectionRequest) GetApiKeyLiteral() string {
 	if x != nil {
-		return x.ApiKeySecretName
+		return x.ApiKeyLiteral
+	}
+	return ""
+}
+
+func (x *UpdateAiProviderConnectionRequest) GetDefaultModel() string {
+	if x != nil && x.DefaultModel != nil {
+		return *x.DefaultModel
 	}
 	return ""
 }
@@ -617,27 +670,279 @@ func (*DeleteAiProviderConnectionResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{10}
 }
 
+type AiProviderConnectionCandidate struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	Host          string                 `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
+	ApiKeyLiteral string                 `protobuf:"bytes,3,opt,name=api_key_literal,json=apiKeyLiteral,proto3" json:"api_key_literal,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AiProviderConnectionCandidate) Reset() {
+	*x = AiProviderConnectionCandidate{}
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AiProviderConnectionCandidate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AiProviderConnectionCandidate) ProtoMessage() {}
+
+func (x *AiProviderConnectionCandidate) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AiProviderConnectionCandidate.ProtoReflect.Descriptor instead.
+func (*AiProviderConnectionCandidate) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *AiProviderConnectionCandidate) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *AiProviderConnectionCandidate) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *AiProviderConnectionCandidate) GetApiKeyLiteral() string {
+	if x != nil {
+		return x.ApiKeyLiteral
+	}
+	return ""
+}
+
+type ListAiProviderConnectionModelsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Source:
+	//
+	//	*ListAiProviderConnectionModelsRequest_ConnectionId
+	//	*ListAiProviderConnectionModelsRequest_Candidate
+	Source        isListAiProviderConnectionModelsRequest_Source `protobuf_oneof:"source"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAiProviderConnectionModelsRequest) Reset() {
+	*x = ListAiProviderConnectionModelsRequest{}
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAiProviderConnectionModelsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAiProviderConnectionModelsRequest) ProtoMessage() {}
+
+func (x *ListAiProviderConnectionModelsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAiProviderConnectionModelsRequest.ProtoReflect.Descriptor instead.
+func (*ListAiProviderConnectionModelsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListAiProviderConnectionModelsRequest) GetSource() isListAiProviderConnectionModelsRequest_Source {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *ListAiProviderConnectionModelsRequest) GetConnectionId() string {
+	if x != nil {
+		if x, ok := x.Source.(*ListAiProviderConnectionModelsRequest_ConnectionId); ok {
+			return x.ConnectionId
+		}
+	}
+	return ""
+}
+
+func (x *ListAiProviderConnectionModelsRequest) GetCandidate() *AiProviderConnectionCandidate {
+	if x != nil {
+		if x, ok := x.Source.(*ListAiProviderConnectionModelsRequest_Candidate); ok {
+			return x.Candidate
+		}
+	}
+	return nil
+}
+
+type isListAiProviderConnectionModelsRequest_Source interface {
+	isListAiProviderConnectionModelsRequest_Source()
+}
+
+type ListAiProviderConnectionModelsRequest_ConnectionId struct {
+	ConnectionId string `protobuf:"bytes,1,opt,name=connection_id,json=connectionId,proto3,oneof"`
+}
+
+type ListAiProviderConnectionModelsRequest_Candidate struct {
+	Candidate *AiProviderConnectionCandidate `protobuf:"bytes,2,opt,name=candidate,proto3,oneof"`
+}
+
+func (*ListAiProviderConnectionModelsRequest_ConnectionId) isListAiProviderConnectionModelsRequest_Source() {
+}
+
+func (*ListAiProviderConnectionModelsRequest_Candidate) isListAiProviderConnectionModelsRequest_Source() {
+}
+
+type AiProviderModel struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AiProviderModel) Reset() {
+	*x = AiProviderModel{}
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AiProviderModel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AiProviderModel) ProtoMessage() {}
+
+func (x *AiProviderModel) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AiProviderModel.ProtoReflect.Descriptor instead.
+func (*AiProviderModel) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *AiProviderModel) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AiProviderModel) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type ListAiProviderConnectionModelsResponse struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	Models             []*AiProviderModel     `protobuf:"bytes,1,rep,name=models,proto3" json:"models,omitempty"`
+	DiscoverySupported bool                   `protobuf:"varint,2,opt,name=discovery_supported,json=discoverySupported,proto3" json:"discovery_supported,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ListAiProviderConnectionModelsResponse) Reset() {
+	*x = ListAiProviderConnectionModelsResponse{}
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAiProviderConnectionModelsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAiProviderConnectionModelsResponse) ProtoMessage() {}
+
+func (x *ListAiProviderConnectionModelsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAiProviderConnectionModelsResponse.ProtoReflect.Descriptor instead.
+func (*ListAiProviderConnectionModelsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListAiProviderConnectionModelsResponse) GetModels() []*AiProviderModel {
+	if x != nil {
+		return x.Models
+	}
+	return nil
+}
+
+func (x *ListAiProviderConnectionModelsResponse) GetDiscoverySupported() bool {
+	if x != nil {
+		return x.DiscoverySupported
+	}
+	return false
+}
+
 var File_chalk_agent_v1_ai_provider_connection_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"\n" +
-	"+chalk/agent/v1/ai_provider_connection.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xae\x02\n" +
+	"+chalk/agent/v1/ai_provider_connection.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x82\x03\n" +
 	"\x14AiProviderConnection\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x12\n" +
 	"\x04kind\x18\x04 \x01(\tR\x04kind\x12\x12\n" +
-	"\x04host\x18\x05 \x01(\tR\x04host\x12-\n" +
-	"\x13api_key_secret_name\x18\x06 \x01(\tR\x10apiKeySecretName\x129\n" +
+	"\x04host\x18\x05 \x01(\tR\x04host\x121\n" +
+	"\x13api_key_secret_name\x18\x06 \x01(\tB\x02\x18\x01R\x10apiKeySecretName\x129\n" +
 	"\n" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x8e\x01\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12)\n" +
+	"\x11api_key_secret_id\x18\t \x01(\tR\x0eapiKeySecretId\x12#\n" +
+	"\rdefault_model\x18\n" +
+	" \x01(\tR\fdefaultModel\"\xcd\x01\n" +
 	"!CreateAiProviderConnectionRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x12\n" +
-	"\x04host\x18\x03 \x01(\tR\x04host\x12-\n" +
-	"\x13api_key_secret_name\x18\x04 \x01(\tR\x10apiKeySecretName\"j\n" +
+	"\x04host\x18\x03 \x01(\tR\x04host\x12,\n" +
+	"\x0fapi_key_literal\x18\x05 \x01(\tB\x04ء'\x01R\rapiKeyLiteral\x12#\n" +
+	"\rdefault_model\x18\x06 \x01(\tR\fdefaultModelJ\x04\b\x04\x10\x05R\x13api_key_secret_name\"j\n" +
 	"\"CreateAiProviderConnectionResponse\x12D\n" +
 	"\n" +
 	"connection\x18\x01 \x01(\v2$.chalk.agent.v1.AiProviderConnectionR\n" +
@@ -650,26 +955,44 @@ const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"connection\"\"\n" +
 	" ListAiProviderConnectionsRequest\"k\n" +
 	"!ListAiProviderConnectionsResponse\x12F\n" +
-	"\vconnections\x18\x01 \x03(\v2$.chalk.agent.v1.AiProviderConnectionR\vconnections\"\x9e\x01\n" +
+	"\vconnections\x18\x01 \x03(\v2$.chalk.agent.v1.AiProviderConnectionR\vconnections\"\xf4\x01\n" +
 	"!UpdateAiProviderConnectionRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x12\n" +
-	"\x04host\x18\x04 \x01(\tR\x04host\x12-\n" +
-	"\x13api_key_secret_name\x18\x05 \x01(\tR\x10apiKeySecretName\"j\n" +
+	"\x04host\x18\x04 \x01(\tR\x04host\x12,\n" +
+	"\x0fapi_key_literal\x18\x06 \x01(\tB\x04ء'\x01R\rapiKeyLiteral\x12(\n" +
+	"\rdefault_model\x18\a \x01(\tH\x00R\fdefaultModel\x88\x01\x01B\x10\n" +
+	"\x0e_default_modelJ\x04\b\x05\x10\x06R\x13api_key_secret_name\"j\n" +
 	"\"UpdateAiProviderConnectionResponse\x12D\n" +
 	"\n" +
 	"connection\x18\x01 \x01(\v2$.chalk.agent.v1.AiProviderConnectionR\n" +
 	"connection\"3\n" +
 	"!DeleteAiProviderConnectionRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"$\n" +
-	"\"DeleteAiProviderConnectionResponse2\xd4\x05\n" +
-	"\x1bAiProviderConnectionService\x12\x88\x01\n" +
-	"\x1aCreateAiProviderConnection\x121.chalk.agent.v1.CreateAiProviderConnectionRequest\x1a2.chalk.agent.v1.CreateAiProviderConnectionResponse\"\x03\x80}\x02\x12\x82\x01\n" +
+	"\"DeleteAiProviderConnectionResponse\"u\n" +
+	"\x1dAiProviderConnectionCandidate\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x12\n" +
+	"\x04host\x18\x02 \x01(\tR\x04host\x12,\n" +
+	"\x0fapi_key_literal\x18\x03 \x01(\tB\x04ء'\x01R\rapiKeyLiteral\"\xa7\x01\n" +
+	"%ListAiProviderConnectionModelsRequest\x12%\n" +
+	"\rconnection_id\x18\x01 \x01(\tH\x00R\fconnectionId\x12M\n" +
+	"\tcandidate\x18\x02 \x01(\v2-.chalk.agent.v1.AiProviderConnectionCandidateH\x00R\tcandidateB\b\n" +
+	"\x06source\"5\n" +
+	"\x0fAiProviderModel\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x92\x01\n" +
+	"&ListAiProviderConnectionModelsResponse\x127\n" +
+	"\x06models\x18\x01 \x03(\v2\x1f.chalk.agent.v1.AiProviderModelR\x06models\x12/\n" +
+	"\x13discovery_supported\x18\x02 \x01(\bR\x12discoverySupported2\xb0\a\n" +
+	"\x1bAiProviderConnectionService\x12\xca\x01\n" +
+	"\x1aCreateAiProviderConnection\x121.chalk.agent.v1.CreateAiProviderConnectionRequest\x1a2.chalk.agent.v1.CreateAiProviderConnectionResponse\"E\x80}'\x92\xd3\x0e>\n" +
+	"\x11assistant_enabled\x12)Enables Assistant AI provider management.\x12\x82\x01\n" +
 	"\x17GetAiProviderConnection\x12..chalk.agent.v1.GetAiProviderConnectionRequest\x1a/.chalk.agent.v1.GetAiProviderConnectionResponse\"\x06\x80}\x02\x90\x02\x01\x12\x88\x01\n" +
 	"\x19ListAiProviderConnections\x120.chalk.agent.v1.ListAiProviderConnectionsRequest\x1a1.chalk.agent.v1.ListAiProviderConnectionsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8b\x01\n" +
-	"\x1aUpdateAiProviderConnection\x121.chalk.agent.v1.UpdateAiProviderConnectionRequest\x1a2.chalk.agent.v1.UpdateAiProviderConnectionResponse\"\x06\x80}\x02\x90\x02\x02\x12\x8b\x01\n" +
-	"\x1aDeleteAiProviderConnection\x121.chalk.agent.v1.DeleteAiProviderConnectionRequest\x1a2.chalk.agent.v1.DeleteAiProviderConnectionResponse\"\x06\x80}\x02\x90\x02\x02B\xc2\x01\n" +
+	"\x1aUpdateAiProviderConnection\x121.chalk.agent.v1.UpdateAiProviderConnectionRequest\x1a2.chalk.agent.v1.UpdateAiProviderConnectionResponse\"\x06\x80}'\x90\x02\x02\x12\x8b\x01\n" +
+	"\x1aDeleteAiProviderConnection\x121.chalk.agent.v1.DeleteAiProviderConnectionRequest\x1a2.chalk.agent.v1.DeleteAiProviderConnectionResponse\"\x06\x80}'\x90\x02\x02\x12\x97\x01\n" +
+	"\x1eListAiProviderConnectionModels\x125.chalk.agent.v1.ListAiProviderConnectionModelsRequest\x1a6.chalk.agent.v1.ListAiProviderConnectionModelsResponse\"\x06\x80}\x02\x90\x02\x01B\xc2\x01\n" +
 	"\x12com.chalk.agent.v1B\x19AiProviderConnectionProtoP\x01Z7github.com/chalk-ai/chalk-go/gen/chalk/agent/v1;agentv1\xa2\x02\x03CAX\xaa\x02\x0eChalk.Agent.V1\xca\x02\x0eChalk\\Agent\\V1\xe2\x02\x1aChalk\\Agent\\V1\\GPBMetadata\xea\x02\x10Chalk::Agent::V1b\x06proto3"
 
 var (
@@ -684,43 +1007,51 @@ func file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP() []byte {
 	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescData
 }
 
-var file_chalk_agent_v1_ai_provider_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_chalk_agent_v1_ai_provider_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_agent_v1_ai_provider_connection_proto_goTypes = []any{
-	(*AiProviderConnection)(nil),               // 0: chalk.agent.v1.AiProviderConnection
-	(*CreateAiProviderConnectionRequest)(nil),  // 1: chalk.agent.v1.CreateAiProviderConnectionRequest
-	(*CreateAiProviderConnectionResponse)(nil), // 2: chalk.agent.v1.CreateAiProviderConnectionResponse
-	(*GetAiProviderConnectionRequest)(nil),     // 3: chalk.agent.v1.GetAiProviderConnectionRequest
-	(*GetAiProviderConnectionResponse)(nil),    // 4: chalk.agent.v1.GetAiProviderConnectionResponse
-	(*ListAiProviderConnectionsRequest)(nil),   // 5: chalk.agent.v1.ListAiProviderConnectionsRequest
-	(*ListAiProviderConnectionsResponse)(nil),  // 6: chalk.agent.v1.ListAiProviderConnectionsResponse
-	(*UpdateAiProviderConnectionRequest)(nil),  // 7: chalk.agent.v1.UpdateAiProviderConnectionRequest
-	(*UpdateAiProviderConnectionResponse)(nil), // 8: chalk.agent.v1.UpdateAiProviderConnectionResponse
-	(*DeleteAiProviderConnectionRequest)(nil),  // 9: chalk.agent.v1.DeleteAiProviderConnectionRequest
-	(*DeleteAiProviderConnectionResponse)(nil), // 10: chalk.agent.v1.DeleteAiProviderConnectionResponse
-	(*timestamppb.Timestamp)(nil),              // 11: google.protobuf.Timestamp
+	(*AiProviderConnection)(nil),                   // 0: chalk.agent.v1.AiProviderConnection
+	(*CreateAiProviderConnectionRequest)(nil),      // 1: chalk.agent.v1.CreateAiProviderConnectionRequest
+	(*CreateAiProviderConnectionResponse)(nil),     // 2: chalk.agent.v1.CreateAiProviderConnectionResponse
+	(*GetAiProviderConnectionRequest)(nil),         // 3: chalk.agent.v1.GetAiProviderConnectionRequest
+	(*GetAiProviderConnectionResponse)(nil),        // 4: chalk.agent.v1.GetAiProviderConnectionResponse
+	(*ListAiProviderConnectionsRequest)(nil),       // 5: chalk.agent.v1.ListAiProviderConnectionsRequest
+	(*ListAiProviderConnectionsResponse)(nil),      // 6: chalk.agent.v1.ListAiProviderConnectionsResponse
+	(*UpdateAiProviderConnectionRequest)(nil),      // 7: chalk.agent.v1.UpdateAiProviderConnectionRequest
+	(*UpdateAiProviderConnectionResponse)(nil),     // 8: chalk.agent.v1.UpdateAiProviderConnectionResponse
+	(*DeleteAiProviderConnectionRequest)(nil),      // 9: chalk.agent.v1.DeleteAiProviderConnectionRequest
+	(*DeleteAiProviderConnectionResponse)(nil),     // 10: chalk.agent.v1.DeleteAiProviderConnectionResponse
+	(*AiProviderConnectionCandidate)(nil),          // 11: chalk.agent.v1.AiProviderConnectionCandidate
+	(*ListAiProviderConnectionModelsRequest)(nil),  // 12: chalk.agent.v1.ListAiProviderConnectionModelsRequest
+	(*AiProviderModel)(nil),                        // 13: chalk.agent.v1.AiProviderModel
+	(*ListAiProviderConnectionModelsResponse)(nil), // 14: chalk.agent.v1.ListAiProviderConnectionModelsResponse
+	(*timestamppb.Timestamp)(nil),                  // 15: google.protobuf.Timestamp
 }
 var file_chalk_agent_v1_ai_provider_connection_proto_depIdxs = []int32{
-	11, // 0: chalk.agent.v1.AiProviderConnection.created_at:type_name -> google.protobuf.Timestamp
-	11, // 1: chalk.agent.v1.AiProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 0: chalk.agent.v1.AiProviderConnection.created_at:type_name -> google.protobuf.Timestamp
+	15, // 1: chalk.agent.v1.AiProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: chalk.agent.v1.CreateAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
 	0,  // 3: chalk.agent.v1.GetAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
 	0,  // 4: chalk.agent.v1.ListAiProviderConnectionsResponse.connections:type_name -> chalk.agent.v1.AiProviderConnection
 	0,  // 5: chalk.agent.v1.UpdateAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
-	1,  // 6: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:input_type -> chalk.agent.v1.CreateAiProviderConnectionRequest
-	3,  // 7: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:input_type -> chalk.agent.v1.GetAiProviderConnectionRequest
-	5,  // 8: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:input_type -> chalk.agent.v1.ListAiProviderConnectionsRequest
-	7,  // 9: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:input_type -> chalk.agent.v1.UpdateAiProviderConnectionRequest
-	9,  // 10: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:input_type -> chalk.agent.v1.DeleteAiProviderConnectionRequest
-	2,  // 11: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:output_type -> chalk.agent.v1.CreateAiProviderConnectionResponse
-	4,  // 12: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:output_type -> chalk.agent.v1.GetAiProviderConnectionResponse
-	6,  // 13: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:output_type -> chalk.agent.v1.ListAiProviderConnectionsResponse
-	8,  // 14: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:output_type -> chalk.agent.v1.UpdateAiProviderConnectionResponse
-	10, // 15: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:output_type -> chalk.agent.v1.DeleteAiProviderConnectionResponse
-	11, // [11:16] is the sub-list for method output_type
-	6,  // [6:11] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	11, // 6: chalk.agent.v1.ListAiProviderConnectionModelsRequest.candidate:type_name -> chalk.agent.v1.AiProviderConnectionCandidate
+	13, // 7: chalk.agent.v1.ListAiProviderConnectionModelsResponse.models:type_name -> chalk.agent.v1.AiProviderModel
+	1,  // 8: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:input_type -> chalk.agent.v1.CreateAiProviderConnectionRequest
+	3,  // 9: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:input_type -> chalk.agent.v1.GetAiProviderConnectionRequest
+	5,  // 10: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:input_type -> chalk.agent.v1.ListAiProviderConnectionsRequest
+	7,  // 11: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:input_type -> chalk.agent.v1.UpdateAiProviderConnectionRequest
+	9,  // 12: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:input_type -> chalk.agent.v1.DeleteAiProviderConnectionRequest
+	12, // 13: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:input_type -> chalk.agent.v1.ListAiProviderConnectionModelsRequest
+	2,  // 14: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:output_type -> chalk.agent.v1.CreateAiProviderConnectionResponse
+	4,  // 15: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:output_type -> chalk.agent.v1.GetAiProviderConnectionResponse
+	6,  // 16: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:output_type -> chalk.agent.v1.ListAiProviderConnectionsResponse
+	8,  // 17: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:output_type -> chalk.agent.v1.UpdateAiProviderConnectionResponse
+	10, // 18: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:output_type -> chalk.agent.v1.DeleteAiProviderConnectionResponse
+	14, // 19: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:output_type -> chalk.agent.v1.ListAiProviderConnectionModelsResponse
+	14, // [14:20] is the sub-list for method output_type
+	8,  // [8:14] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_ai_provider_connection_proto_init() }
@@ -728,13 +1059,18 @@ func file_chalk_agent_v1_ai_provider_connection_proto_init() {
 	if File_chalk_agent_v1_ai_provider_connection_proto != nil {
 		return
 	}
+	file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[12].OneofWrappers = []any{
+		(*ListAiProviderConnectionModelsRequest_ConnectionId)(nil),
+		(*ListAiProviderConnectionModelsRequest_Candidate)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_ai_provider_connection_proto_rawDesc), len(file_chalk_agent_v1_ai_provider_connection_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

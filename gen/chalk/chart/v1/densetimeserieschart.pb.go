@@ -72,9 +72,14 @@ func (x *DensePoint) GetValue() float64 {
 // If this series was created as part of a group-by(s)
 // This stores extra information about which ones and what value it pertains to
 type GroupTag struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	GroupKey      string                 `protobuf:"bytes,1,opt,name=group_key,json=groupKey,proto3" json:"group_key,omitempty"`
-	Value         *v1.ScalarValue        `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	GroupKey string                 `protobuf:"bytes,1,opt,name=group_key,json=groupKey,proto3" json:"group_key,omitempty"`
+	// Raw backend value. Differs between metrics backends for mapped group kinds
+	// (TimescaleDB stores enum codes where VictoriaMetrics stores names).
+	Value *v1.ScalarValue `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	// Display string for the value, stable across backends. Matches the value
+	// persisted in IncidentGroup so a series can be matched to its incident.
+	ValueDisplay  string `protobuf:"bytes,3,opt,name=value_display,json=valueDisplay,proto3" json:"value_display,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -121,6 +126,13 @@ func (x *GroupTag) GetValue() *v1.ScalarValue {
 		return x.Value
 	}
 	return nil
+}
+
+func (x *GroupTag) GetValueDisplay() string {
+	if x != nil {
+		return x.ValueDisplay
+	}
+	return ""
 }
 
 type DenseTimeSeries struct {
@@ -271,10 +283,11 @@ const file_chalk_chart_v1_densetimeserieschart_proto_rawDesc = "" +
 	"\n" +
 	"DensePoint\x12\x19\n" +
 	"\x05value\x18\x01 \x01(\x01H\x00R\x05value\x88\x01\x01B\b\n" +
-	"\x06_value\"Z\n" +
+	"\x06_value\"\x7f\n" +
 	"\bGroupTag\x12\x1b\n" +
 	"\tgroup_key\x18\x01 \x01(\tR\bgroupKey\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value\"\xa8\x01\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value\x12#\n" +
+	"\rvalue_display\x18\x03 \x01(\tR\fvalueDisplay\"\xa8\x01\n" +
 	"\x0fDenseTimeSeries\x122\n" +
 	"\x06points\x18\x01 \x03(\v2\x1a.chalk.chart.v1.DensePointR\x06points\x12\x14\n" +
 	"\x05label\x18\x02 \x01(\tR\x05label\x12\x12\n" +

@@ -318,6 +318,9 @@ type BuilderServiceClient interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
+	// Admin-only debug endpoint. Do not build load-bearing product functionality on it:
+	// it is registry introspection, and it is very slow — a cold call fans out across the
+	// whole engine-base variant matrix in the environment's registry.
 	ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error)
 	ValidateProjectSettings(context.Context, *connect.Request[v1.ValidateProjectSettingsRequest]) (*connect.Response[v1.ValidateProjectSettingsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
@@ -1477,6 +1480,9 @@ type BuilderServiceHandler interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
+	// Admin-only debug endpoint. Do not build load-bearing product functionality on it:
+	// it is registry introspection, and it is very slow — a cold call fans out across the
+	// whole engine-base variant matrix in the environment's registry.
 	ListEngineBaseImages(context.Context, *connect.Request[v1.ListEngineBaseImagesRequest]) (*connect.Response[v1.ListEngineBaseImagesResponse], error)
 	ValidateProjectSettings(context.Context, *connect.Request[v1.ValidateProjectSettingsRequest]) (*connect.Response[v1.ValidateProjectSettingsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)

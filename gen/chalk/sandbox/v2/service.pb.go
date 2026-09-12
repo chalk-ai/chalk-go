@@ -34,7 +34,7 @@ const (
 	SandboxStatus_SANDBOX_STATUS_RUNNING     SandboxStatus = 2
 	SandboxStatus_SANDBOX_STATUS_SUCCEEDED   SandboxStatus = 3
 	SandboxStatus_SANDBOX_STATUS_FAILED      SandboxStatus = 4
-	SandboxStatus_SANDBOX_STATUS_TERMINATED  SandboxStatus = 5 // Deprecated
+	SandboxStatus_SANDBOX_STATUS_TERMINATED  SandboxStatus = 5
 	SandboxStatus_SANDBOX_STATUS_ERROR       SandboxStatus = 6
 	SandboxStatus_SANDBOX_STATUS_UNKNOWN     SandboxStatus = 7
 )

@@ -36,6 +36,9 @@ const (
 	// DatasourceServiceTestDatasourceProcedure is the fully-qualified name of the DatasourceService's
 	// TestDatasource RPC.
 	DatasourceServiceTestDatasourceProcedure = "/chalk.engine.v1.DatasourceService/TestDatasource"
+	// DatasourceServiceListRunningDatasourceQueriesProcedure is the fully-qualified name of the
+	// DatasourceService's ListRunningDatasourceQueries RPC.
+	DatasourceServiceListRunningDatasourceQueriesProcedure = "/chalk.engine.v1.DatasourceService/ListRunningDatasourceQueries"
 )
 
 // DatasourceServiceClient is a client for the chalk.engine.v1.DatasourceService service.
@@ -44,6 +47,14 @@ type DatasourceServiceClient interface {
 	// an error rather than a FAIL status whenever the test could not be run at all -- so a
 	// successful response always carries a verdict about the data source.
 	TestDatasource(context.Context, *connect.Request[v1.TestDatasourceRequest]) (*connect.Response[v1.TestDatasourceResponse], error)
+	// Lists the queries one data source reports as currently in flight, by having the driver
+	// introspect the data source with the caller-supplied credentials.
+	//
+	// Like TestDatasource, this errors only when the request could not be served at all -- an
+	// unknown kind, or a connection that could not be established. A driver with no introspection,
+	// and an introspection query the data source rejected, are both successful responses carrying a
+	// status, because both are facts about the data source that the caller asked for.
+	ListRunningDatasourceQueries(context.Context, *connect.Request[v1.ListRunningDatasourceQueriesRequest]) (*connect.Response[v1.ListRunningDatasourceQueriesResponse], error)
 }
 
 // NewDatasourceServiceClient constructs a client for the chalk.engine.v1.DatasourceService service.
@@ -63,17 +74,30 @@ func NewDatasourceServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(datasourceServiceMethods.ByName("TestDatasource")),
 			connect.WithClientOptions(opts...),
 		),
+		listRunningDatasourceQueries: connect.NewClient[v1.ListRunningDatasourceQueriesRequest, v1.ListRunningDatasourceQueriesResponse](
+			httpClient,
+			baseURL+DatasourceServiceListRunningDatasourceQueriesProcedure,
+			connect.WithSchema(datasourceServiceMethods.ByName("ListRunningDatasourceQueries")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // datasourceServiceClient implements DatasourceServiceClient.
 type datasourceServiceClient struct {
-	testDatasource *connect.Client[v1.TestDatasourceRequest, v1.TestDatasourceResponse]
+	testDatasource               *connect.Client[v1.TestDatasourceRequest, v1.TestDatasourceResponse]
+	listRunningDatasourceQueries *connect.Client[v1.ListRunningDatasourceQueriesRequest, v1.ListRunningDatasourceQueriesResponse]
 }
 
 // TestDatasource calls chalk.engine.v1.DatasourceService.TestDatasource.
 func (c *datasourceServiceClient) TestDatasource(ctx context.Context, req *connect.Request[v1.TestDatasourceRequest]) (*connect.Response[v1.TestDatasourceResponse], error) {
 	return c.testDatasource.CallUnary(ctx, req)
+}
+
+// ListRunningDatasourceQueries calls
+// chalk.engine.v1.DatasourceService.ListRunningDatasourceQueries.
+func (c *datasourceServiceClient) ListRunningDatasourceQueries(ctx context.Context, req *connect.Request[v1.ListRunningDatasourceQueriesRequest]) (*connect.Response[v1.ListRunningDatasourceQueriesResponse], error) {
+	return c.listRunningDatasourceQueries.CallUnary(ctx, req)
 }
 
 // DatasourceServiceHandler is an implementation of the chalk.engine.v1.DatasourceService service.
@@ -82,6 +106,14 @@ type DatasourceServiceHandler interface {
 	// an error rather than a FAIL status whenever the test could not be run at all -- so a
 	// successful response always carries a verdict about the data source.
 	TestDatasource(context.Context, *connect.Request[v1.TestDatasourceRequest]) (*connect.Response[v1.TestDatasourceResponse], error)
+	// Lists the queries one data source reports as currently in flight, by having the driver
+	// introspect the data source with the caller-supplied credentials.
+	//
+	// Like TestDatasource, this errors only when the request could not be served at all -- an
+	// unknown kind, or a connection that could not be established. A driver with no introspection,
+	// and an introspection query the data source rejected, are both successful responses carrying a
+	// status, because both are facts about the data source that the caller asked for.
+	ListRunningDatasourceQueries(context.Context, *connect.Request[v1.ListRunningDatasourceQueriesRequest]) (*connect.Response[v1.ListRunningDatasourceQueriesResponse], error)
 }
 
 // NewDatasourceServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -97,10 +129,18 @@ func NewDatasourceServiceHandler(svc DatasourceServiceHandler, opts ...connect.H
 		connect.WithSchema(datasourceServiceMethods.ByName("TestDatasource")),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasourceServiceListRunningDatasourceQueriesHandler := connect.NewUnaryHandler(
+		DatasourceServiceListRunningDatasourceQueriesProcedure,
+		svc.ListRunningDatasourceQueries,
+		connect.WithSchema(datasourceServiceMethods.ByName("ListRunningDatasourceQueries")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.engine.v1.DatasourceService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DatasourceServiceTestDatasourceProcedure:
 			datasourceServiceTestDatasourceHandler.ServeHTTP(w, r)
+		case DatasourceServiceListRunningDatasourceQueriesProcedure:
+			datasourceServiceListRunningDatasourceQueriesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -112,4 +152,8 @@ type UnimplementedDatasourceServiceHandler struct{}
 
 func (UnimplementedDatasourceServiceHandler) TestDatasource(context.Context, *connect.Request[v1.TestDatasourceRequest]) (*connect.Response[v1.TestDatasourceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.DatasourceService.TestDatasource is not implemented"))
+}
+
+func (UnimplementedDatasourceServiceHandler) ListRunningDatasourceQueries(context.Context, *connect.Request[v1.ListRunningDatasourceQueriesRequest]) (*connect.Response[v1.ListRunningDatasourceQueriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.DatasourceService.ListRunningDatasourceQueries is not implemented"))
 }

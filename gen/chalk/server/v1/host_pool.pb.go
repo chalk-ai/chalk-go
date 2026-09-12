@@ -33,8 +33,11 @@ type HostPoolSpec struct {
 	MaxHosts    int32                `protobuf:"varint,3,opt,name=max_hosts,json=maxHosts,proto3" json:"max_hosts,omitempty"`
 	IdleTimeout *durationpb.Duration `protobuf:"bytes,4,opt,name=idle_timeout,json=idleTimeout,proto3" json:"idle_timeout,omitempty"`
 	// Resource config
-	Cpu           string  `protobuf:"bytes,5,opt,name=cpu,proto3" json:"cpu,omitempty"`
-	Memory        string  `protobuf:"bytes,6,opt,name=memory,proto3" json:"memory,omitempty"`
+	Cpu    string `protobuf:"bytes,5,opt,name=cpu,proto3" json:"cpu,omitempty"`
+	Memory string `protobuf:"bytes,6,opt,name=memory,proto3" json:"memory,omitempty"`
+	// Deprecated: superseded by compute_class.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/host_pool.proto.
 	MachineFamily *string `protobuf:"bytes,7,opt,name=machine_family,json=machineFamily,proto3,oneof" json:"machine_family,omitempty"`
 	// Internal: names the GKE compute class the pool's hosts run on, which lets a pool cascade across
 	// machine families instead of pinning one. Chalk sets this on the implicit default pool; requests
@@ -117,6 +120,7 @@ func (x *HostPoolSpec) GetMemory() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/host_pool.proto.
 func (x *HostPoolSpec) GetMachineFamily() string {
 	if x != nil && x.MachineFamily != nil {
 		return *x.MachineFamily
@@ -1002,15 +1006,15 @@ var File_chalk_server_v1_host_pool_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/server/v1/host_pool.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbf\x02\n" +
+	"\x1fchalk/server/v1/host_pool.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc3\x02\n" +
 	"\fHostPoolSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
 	"\tmin_hosts\x18\x02 \x01(\x05R\bminHosts\x12\x1b\n" +
 	"\tmax_hosts\x18\x03 \x01(\x05R\bmaxHosts\x12<\n" +
 	"\fidle_timeout\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\vidleTimeout\x12\x10\n" +
 	"\x03cpu\x18\x05 \x01(\tR\x03cpu\x12\x16\n" +
-	"\x06memory\x18\x06 \x01(\tR\x06memory\x12*\n" +
-	"\x0emachine_family\x18\a \x01(\tH\x00R\rmachineFamily\x88\x01\x01\x12(\n" +
+	"\x06memory\x18\x06 \x01(\tR\x06memory\x12.\n" +
+	"\x0emachine_family\x18\a \x01(\tB\x02\x18\x01H\x00R\rmachineFamily\x88\x01\x01\x12(\n" +
 	"\rcompute_class\x18\b \x01(\tH\x01R\fcomputeClass\x88\x01\x01B\x11\n" +
 	"\x0f_machine_familyB\x10\n" +
 	"\x0e_compute_class\"\xf5\x02\n" +

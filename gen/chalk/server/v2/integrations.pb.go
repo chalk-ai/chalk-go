@@ -230,6 +230,175 @@ func (x *TestIntegrationResponse) GetLatencySeconds() float64 {
 	return 0
 }
 
+// Which data source to introspect, resolved the same way TestIntegrationRequest resolves one: the
+// metadata plane fetches the secrets and maps its config field names onto the keys the engine
+// expects, so the browser never holds a credential and the engine never looks a data source up.
+type ListRunningDatasourceQueriesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Kind  v1.IntegrationKind     `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.server.v1.IntegrationKind" json:"kind,omitempty"`
+	// Values supplied here win, and anything omitted falls back to the saved integration's secrets
+	// when integration_id is set -- so an unsaved form can be introspected with just the fields the
+	// user has changed, exactly as a connection test can.
+	Config        map[string]*v1.IntegrationConfigValue `protobuf:"bytes,2,rep,name=config,proto3" json:"config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	IntegrationId *string                               `protobuf:"bytes,3,opt,name=integration_id,json=integrationId,proto3,oneof" json:"integration_id,omitempty"`
+	// The engine owns this vocabulary, so the filters are the engine's message rather than a restated
+	// copy: a filter added there must not need a second definition here to reach the driver.
+	Filters       *v11.ListRunningDatasourceQueriesFilters `protobuf:"bytes,4,opt,name=filters,proto3" json:"filters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRunningDatasourceQueriesRequest) Reset() {
+	*x = ListRunningDatasourceQueriesRequest{}
+	mi := &file_chalk_server_v2_integrations_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunningDatasourceQueriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunningDatasourceQueriesRequest) ProtoMessage() {}
+
+func (x *ListRunningDatasourceQueriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v2_integrations_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunningDatasourceQueriesRequest.ProtoReflect.Descriptor instead.
+func (*ListRunningDatasourceQueriesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v2_integrations_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ListRunningDatasourceQueriesRequest) GetKind() v1.IntegrationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return v1.IntegrationKind(0)
+}
+
+func (x *ListRunningDatasourceQueriesRequest) GetConfig() map[string]*v1.IntegrationConfigValue {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+func (x *ListRunningDatasourceQueriesRequest) GetIntegrationId() string {
+	if x != nil && x.IntegrationId != nil {
+		return *x.IntegrationId
+	}
+	return ""
+}
+
+func (x *ListRunningDatasourceQueriesRequest) GetFilters() *v11.ListRunningDatasourceQueriesFilters {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+type ListRunningDatasourceQueriesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Kind  v1.IntegrationKind     `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.server.v1.IntegrationKind" json:"kind,omitempty"`
+	// Whether `queries` can be believed. A client must switch on this before rendering an empty list
+	// as "idle": UNSUPPORTED and FAILED both carry no queries and say nothing about the data source.
+	Status v11.RunningQueryIntrospectionStatus `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.engine.v1.RunningQueryIntrospectionStatus" json:"status,omitempty"`
+	// Ordered by elapsed descending. Empty unless `status` is OK.
+	Queries []*v11.RunningDatasourceQuery `protobuf:"bytes,3,rep,name=queries,proto3" json:"queries,omitempty"`
+	// The data source's own error text when `status` is FAILED. Passed through from the engine rather
+	// than summarized, so a privileges problem reads as the data source stated it.
+	Error *string `protobuf:"bytes,4,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	// What the data source calls the compute scope that was introspected, so a client can name it in
+	// the empty state. Absent for kinds with no such scope.
+	WarehouseOrProject *string `protobuf:"bytes,5,opt,name=warehouse_or_project,json=warehouseOrProject,proto3,oneof" json:"warehouse_or_project,omitempty"`
+	// Why the listing is a subset, when `status` is PARTIAL. The dashboard shows this beside the
+	// table rather than instead of it: the rows that did come back are still real.
+	IncompleteReason *string `protobuf:"bytes,6,opt,name=incomplete_reason,json=incompleteReason,proto3,oneof" json:"incomplete_reason,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ListRunningDatasourceQueriesResponse) Reset() {
+	*x = ListRunningDatasourceQueriesResponse{}
+	mi := &file_chalk_server_v2_integrations_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunningDatasourceQueriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunningDatasourceQueriesResponse) ProtoMessage() {}
+
+func (x *ListRunningDatasourceQueriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v2_integrations_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunningDatasourceQueriesResponse.ProtoReflect.Descriptor instead.
+func (*ListRunningDatasourceQueriesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v2_integrations_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetKind() v1.IntegrationKind {
+	if x != nil {
+		return x.Kind
+	}
+	return v1.IntegrationKind(0)
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetStatus() v11.RunningQueryIntrospectionStatus {
+	if x != nil {
+		return x.Status
+	}
+	return v11.RunningQueryIntrospectionStatus(0)
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetQueries() []*v11.RunningDatasourceQuery {
+	if x != nil {
+		return x.Queries
+	}
+	return nil
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetWarehouseOrProject() string {
+	if x != nil && x.WarehouseOrProject != nil {
+		return *x.WarehouseOrProject
+	}
+	return ""
+}
+
+func (x *ListRunningDatasourceQueriesResponse) GetIncompleteReason() string {
+	if x != nil && x.IncompleteReason != nil {
+		return *x.IncompleteReason
+	}
+	return ""
+}
+
 var File_chalk_server_v2_integrations_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v2_integrations_proto_rawDesc = "" +
@@ -254,9 +423,29 @@ const file_chalk_server_v2_integrations_proto_rawDesc = "" +
 	"\x10preview_messages\x18\x05 \x03(\v2!.chalk.server.v1.PreviewedMessageR\x0fpreviewMessages\x12J\n" +
 	"\fcoverage_ran\x18\x06 \x01(\x0e2'.chalk.engine.v1.DatasourceTestCoverageR\vcoverageRan\x12,\n" +
 	"\x0flatency_seconds\x18\a \x01(\x01H\x00R\x0elatencySeconds\x88\x01\x01B\x12\n" +
-	"\x10_latency_seconds2\x80\x01\n" +
+	"\x10_latency_seconds\"\xa8\x03\n" +
+	"#ListRunningDatasourceQueriesRequest\x124\n" +
+	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12X\n" +
+	"\x06config\x18\x02 \x03(\v2@.chalk.server.v2.ListRunningDatasourceQueriesRequest.ConfigEntryR\x06config\x12*\n" +
+	"\x0eintegration_id\x18\x03 \x01(\tH\x00R\rintegrationId\x88\x01\x01\x12N\n" +
+	"\afilters\x18\x04 \x01(\v24.chalk.engine.v1.ListRunningDatasourceQueriesFiltersR\afilters\x1ab\n" +
+	"\vConfigEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12=\n" +
+	"\x05value\x18\x02 \x01(\v2'.chalk.server.v1.IntegrationConfigValueR\x05value:\x028\x01B\x11\n" +
+	"\x0f_integration_id\"\xa6\x03\n" +
+	"$ListRunningDatasourceQueriesResponse\x124\n" +
+	"\x04kind\x18\x01 \x01(\x0e2 .chalk.server.v1.IntegrationKindR\x04kind\x12H\n" +
+	"\x06status\x18\x02 \x01(\x0e20.chalk.engine.v1.RunningQueryIntrospectionStatusR\x06status\x12A\n" +
+	"\aqueries\x18\x03 \x03(\v2'.chalk.engine.v1.RunningDatasourceQueryR\aqueries\x12\x19\n" +
+	"\x05error\x18\x04 \x01(\tH\x00R\x05error\x88\x01\x01\x125\n" +
+	"\x14warehouse_or_project\x18\x05 \x01(\tH\x01R\x12warehouseOrProject\x88\x01\x01\x120\n" +
+	"\x11incomplete_reason\x18\x06 \x01(\tH\x02R\x10incompleteReason\x88\x01\x01B\b\n" +
+	"\x06_errorB\x17\n" +
+	"\x15_warehouse_or_projectB\x14\n" +
+	"\x12_incomplete_reason2\x93\x02\n" +
 	"\x13IntegrationsService\x12i\n" +
-	"\x0fTestIntegration\x12'.chalk.server.v2.TestIntegrationRequest\x1a(.chalk.server.v2.TestIntegrationResponse\"\x03\x80}\x14B\xc1\x01\n" +
+	"\x0fTestIntegration\x12'.chalk.server.v2.TestIntegrationRequest\x1a(.chalk.server.v2.TestIntegrationResponse\"\x03\x80}\x14\x12\x90\x01\n" +
+	"\x1cListRunningDatasourceQueries\x124.chalk.server.v2.ListRunningDatasourceQueriesRequest\x1a5.chalk.server.v2.ListRunningDatasourceQueriesResponse\"\x03\x80}\x14B\xc1\x01\n" +
 	"\x13com.chalk.server.v2B\x11IntegrationsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v2;serverv2\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V2\xca\x02\x0fChalk\\Server\\V2\xe2\x02\x1bChalk\\Server\\V2\\GPBMetadata\xea\x02\x11Chalk::Server::V2b\x06proto3"
 
 var (
@@ -271,35 +460,50 @@ func file_chalk_server_v2_integrations_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v2_integrations_proto_rawDescData
 }
 
-var file_chalk_server_v2_integrations_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_chalk_server_v2_integrations_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_server_v2_integrations_proto_goTypes = []any{
-	(*TestIntegrationRequest)(nil),    // 0: chalk.server.v2.TestIntegrationRequest
-	(*TestIntegrationResponse)(nil),   // 1: chalk.server.v2.TestIntegrationResponse
-	nil,                               // 2: chalk.server.v2.TestIntegrationRequest.ConfigEntry
-	(v1.IntegrationKind)(0),           // 3: chalk.server.v1.IntegrationKind
-	(v11.DatasourceTestCoverage)(0),   // 4: chalk.engine.v1.DatasourceTestCoverage
-	(v11.DatasourceTestStatus)(0),     // 5: chalk.engine.v1.DatasourceTestStatus
-	(*v11.DatasourceTestFinding)(nil), // 6: chalk.engine.v1.DatasourceTestFinding
-	(*v1.PreviewedMessage)(nil),       // 7: chalk.server.v1.PreviewedMessage
-	(*v1.IntegrationConfigValue)(nil), // 8: chalk.server.v1.IntegrationConfigValue
+	(*TestIntegrationRequest)(nil),               // 0: chalk.server.v2.TestIntegrationRequest
+	(*TestIntegrationResponse)(nil),              // 1: chalk.server.v2.TestIntegrationResponse
+	(*ListRunningDatasourceQueriesRequest)(nil),  // 2: chalk.server.v2.ListRunningDatasourceQueriesRequest
+	(*ListRunningDatasourceQueriesResponse)(nil), // 3: chalk.server.v2.ListRunningDatasourceQueriesResponse
+	nil,                               // 4: chalk.server.v2.TestIntegrationRequest.ConfigEntry
+	nil,                               // 5: chalk.server.v2.ListRunningDatasourceQueriesRequest.ConfigEntry
+	(v1.IntegrationKind)(0),           // 6: chalk.server.v1.IntegrationKind
+	(v11.DatasourceTestCoverage)(0),   // 7: chalk.engine.v1.DatasourceTestCoverage
+	(v11.DatasourceTestStatus)(0),     // 8: chalk.engine.v1.DatasourceTestStatus
+	(*v11.DatasourceTestFinding)(nil), // 9: chalk.engine.v1.DatasourceTestFinding
+	(*v1.PreviewedMessage)(nil),       // 10: chalk.server.v1.PreviewedMessage
+	(*v11.ListRunningDatasourceQueriesFilters)(nil), // 11: chalk.engine.v1.ListRunningDatasourceQueriesFilters
+	(v11.RunningQueryIntrospectionStatus)(0),        // 12: chalk.engine.v1.RunningQueryIntrospectionStatus
+	(*v11.RunningDatasourceQuery)(nil),              // 13: chalk.engine.v1.RunningDatasourceQuery
+	(*v1.IntegrationConfigValue)(nil),               // 14: chalk.server.v1.IntegrationConfigValue
 }
 var file_chalk_server_v2_integrations_proto_depIdxs = []int32{
-	3,  // 0: chalk.server.v2.TestIntegrationRequest.kind:type_name -> chalk.server.v1.IntegrationKind
-	2,  // 1: chalk.server.v2.TestIntegrationRequest.config:type_name -> chalk.server.v2.TestIntegrationRequest.ConfigEntry
-	4,  // 2: chalk.server.v2.TestIntegrationRequest.coverage_type:type_name -> chalk.engine.v1.DatasourceTestCoverage
-	3,  // 3: chalk.server.v2.TestIntegrationResponse.kind:type_name -> chalk.server.v1.IntegrationKind
-	5,  // 4: chalk.server.v2.TestIntegrationResponse.status:type_name -> chalk.engine.v1.DatasourceTestStatus
-	6,  // 5: chalk.server.v2.TestIntegrationResponse.findings:type_name -> chalk.engine.v1.DatasourceTestFinding
-	7,  // 6: chalk.server.v2.TestIntegrationResponse.preview_messages:type_name -> chalk.server.v1.PreviewedMessage
-	4,  // 7: chalk.server.v2.TestIntegrationResponse.coverage_ran:type_name -> chalk.engine.v1.DatasourceTestCoverage
-	8,  // 8: chalk.server.v2.TestIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
-	0,  // 9: chalk.server.v2.IntegrationsService.TestIntegration:input_type -> chalk.server.v2.TestIntegrationRequest
-	1,  // 10: chalk.server.v2.IntegrationsService.TestIntegration:output_type -> chalk.server.v2.TestIntegrationResponse
-	10, // [10:11] is the sub-list for method output_type
-	9,  // [9:10] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	6,  // 0: chalk.server.v2.TestIntegrationRequest.kind:type_name -> chalk.server.v1.IntegrationKind
+	4,  // 1: chalk.server.v2.TestIntegrationRequest.config:type_name -> chalk.server.v2.TestIntegrationRequest.ConfigEntry
+	7,  // 2: chalk.server.v2.TestIntegrationRequest.coverage_type:type_name -> chalk.engine.v1.DatasourceTestCoverage
+	6,  // 3: chalk.server.v2.TestIntegrationResponse.kind:type_name -> chalk.server.v1.IntegrationKind
+	8,  // 4: chalk.server.v2.TestIntegrationResponse.status:type_name -> chalk.engine.v1.DatasourceTestStatus
+	9,  // 5: chalk.server.v2.TestIntegrationResponse.findings:type_name -> chalk.engine.v1.DatasourceTestFinding
+	10, // 6: chalk.server.v2.TestIntegrationResponse.preview_messages:type_name -> chalk.server.v1.PreviewedMessage
+	7,  // 7: chalk.server.v2.TestIntegrationResponse.coverage_ran:type_name -> chalk.engine.v1.DatasourceTestCoverage
+	6,  // 8: chalk.server.v2.ListRunningDatasourceQueriesRequest.kind:type_name -> chalk.server.v1.IntegrationKind
+	5,  // 9: chalk.server.v2.ListRunningDatasourceQueriesRequest.config:type_name -> chalk.server.v2.ListRunningDatasourceQueriesRequest.ConfigEntry
+	11, // 10: chalk.server.v2.ListRunningDatasourceQueriesRequest.filters:type_name -> chalk.engine.v1.ListRunningDatasourceQueriesFilters
+	6,  // 11: chalk.server.v2.ListRunningDatasourceQueriesResponse.kind:type_name -> chalk.server.v1.IntegrationKind
+	12, // 12: chalk.server.v2.ListRunningDatasourceQueriesResponse.status:type_name -> chalk.engine.v1.RunningQueryIntrospectionStatus
+	13, // 13: chalk.server.v2.ListRunningDatasourceQueriesResponse.queries:type_name -> chalk.engine.v1.RunningDatasourceQuery
+	14, // 14: chalk.server.v2.TestIntegrationRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	14, // 15: chalk.server.v2.ListRunningDatasourceQueriesRequest.ConfigEntry.value:type_name -> chalk.server.v1.IntegrationConfigValue
+	0,  // 16: chalk.server.v2.IntegrationsService.TestIntegration:input_type -> chalk.server.v2.TestIntegrationRequest
+	2,  // 17: chalk.server.v2.IntegrationsService.ListRunningDatasourceQueries:input_type -> chalk.server.v2.ListRunningDatasourceQueriesRequest
+	1,  // 18: chalk.server.v2.IntegrationsService.TestIntegration:output_type -> chalk.server.v2.TestIntegrationResponse
+	3,  // 19: chalk.server.v2.IntegrationsService.ListRunningDatasourceQueries:output_type -> chalk.server.v2.ListRunningDatasourceQueriesResponse
+	18, // [18:20] is the sub-list for method output_type
+	16, // [16:18] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v2_integrations_proto_init() }
@@ -309,13 +513,15 @@ func file_chalk_server_v2_integrations_proto_init() {
 	}
 	file_chalk_server_v2_integrations_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v2_integrations_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_server_v2_integrations_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_server_v2_integrations_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v2_integrations_proto_rawDesc), len(file_chalk_server_v2_integrations_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
