@@ -2119,10 +2119,10 @@ type PrebuiltEngineImageSource struct {
 	// gs:// or az:// URI, whose bucket must be the environment's own source bundle bucket --
 	// the only bucket this deployment's workloads are granted read access to.
 	//
-	// The archive is still required and is still what chalk.yaml validation, the source image
-	// specs and the dependency hashes are computed from. This only changes which bytes the
-	// engine downloads into TARGET_ROOT at runtime, so that a deployment can serve the exact
-	// bundle an earlier build was reviewed against.
+	// Unless `sourceless` is set, the archive is still required and is still what chalk.yaml
+	// validation, the source image specs and the dependency hashes are computed from; this
+	// only changes which bytes the engine downloads into TARGET_ROOT at runtime, so that a
+	// deployment can serve the exact bundle an earlier build was reviewed against.
 	SourceBundleUri *string `protobuf:"bytes,2,opt,name=source_bundle_uri,json=sourceBundleUri,proto3,oneof" json:"source_bundle_uri,omitempty"`
 	// Venv tarball to seed the environment's venv cache with, keyed by this deployment's final
 	// dependency hash. Same URI rules as source_bundle_uri. Nothing in this deployment reads
@@ -2132,8 +2132,17 @@ type PrebuiltEngineImageSource struct {
 	// Serialized chalk.artifacts.v1.Export to publish as this deployment's export.pb, in place
 	// of the one an indexing job would have written. Same URI rules as source_bundle_uri.
 	// Optional: with no export in storage the engine builds one from the source bundle at boot,
-	// which is also what happens when the export download URI is disabled.
-	ExportUri     *string `protobuf:"bytes,4,opt,name=export_uri,json=exportUri,proto3,oneof" json:"export_uri,omitempty"`
+	// which is also what happens when the export download URI is disabled. Rejected when
+	// `sourceless` is set: a carried export embeds the source environment's internal versions,
+	// which a sourceless deploy exists to recompute.
+	ExportUri *string `protobuf:"bytes,4,opt,name=export_uri,json=exportUri,proto3,oneof" json:"export_uri,omitempty"`
+	// The request carries no archive and no client-side graph apply follows it. The server
+	// derives project settings, requirements and hashes from the object at source_bundle_uri
+	// (required), runs the indexing job with the pre-built image to produce the export, writes
+	// the graph registry from that export itself, and promotes asynchronously once indexing
+	// finishes. This is how an environment with no Python toolchain and no internet access
+	// deploys from an empty directory.
+	Sourceless    bool `protobuf:"varint,5,opt,name=sourceless,proto3" json:"sourceless,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2194,6 +2203,13 @@ func (x *PrebuiltEngineImageSource) GetExportUri() string {
 		return *x.ExportUri
 	}
 	return ""
+}
+
+func (x *PrebuiltEngineImageSource) GetSourceless() bool {
+	if x != nil {
+		return x.Sourceless
+	}
+	return false
 }
 
 type UploadSourceRequest struct {
@@ -18721,13 +18737,16 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x11_customer_vcs_url\"`\n" +
 	"\x1aRedeployDeploymentResponse\x12\x1d\n" +
 	"\bbuild_id\x18\x01 \x01(\tB\x02\x18\x01R\abuildId\x12#\n" +
-	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\"\xd8\x01\n" +
+	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\"\xf8\x01\n" +
 	"\x19PrebuiltEngineImageSource\x12\x14\n" +
 	"\x05image\x18\x01 \x01(\tR\x05image\x12/\n" +
 	"\x11source_bundle_uri\x18\x02 \x01(\tH\x00R\x0fsourceBundleUri\x88\x01\x01\x12\x1e\n" +
 	"\bvenv_uri\x18\x03 \x01(\tH\x01R\avenvUri\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"export_uri\x18\x04 \x01(\tH\x02R\texportUri\x88\x01\x01B\x14\n" +
+	"export_uri\x18\x04 \x01(\tH\x02R\texportUri\x88\x01\x01\x12\x1e\n" +
+	"\n" +
+	"sourceless\x18\x05 \x01(\bR\n" +
+	"sourcelessB\x14\n" +
 	"\x12_source_bundle_uriB\v\n" +
 	"\t_venv_uriB\r\n" +
 	"\v_export_uri\"\xd6\x04\n" +
