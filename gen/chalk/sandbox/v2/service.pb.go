@@ -250,10 +250,11 @@ func (SandboxResourceKind) EnumDescriptor() ([]byte, []int) {
 }
 
 type SandboxInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Status        SandboxStatus          `protobuf:"varint,3,opt,name=status,proto3,enum=chalk.sandbox.v2.SandboxStatus" json:"status,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Id     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Status SandboxStatus          `protobuf:"varint,3,opt,name=status,proto3,enum=chalk.sandbox.v2.SandboxStatus" json:"status,omitempty"`
+	// Top-level summary for the current status.
 	StatusMessage *string                `protobuf:"bytes,4,opt,name=status_message,json=statusMessage,proto3,oneof" json:"status_message,omitempty"`
 	Spec          *v1.ChalkContainerSpec `protobuf:"bytes,5,opt,name=spec,proto3" json:"spec,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
@@ -262,7 +263,9 @@ type SandboxInfo struct {
 	// Cloud region of the stored sandbox cluster. Empty when unknown.
 	Region string `protobuf:"bytes,9,opt,name=region,proto3" json:"region,omitempty"`
 	// User or service-token ID, absent when the creator is unknown.
-	CreatedBy     *string `protobuf:"bytes,10,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	CreatedBy *string `protobuf:"bytes,10,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	// Additional diagnostic info for status_message.
+	StatusDetails *string `protobuf:"bytes,11,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -363,6 +366,13 @@ func (x *SandboxInfo) GetRegion() string {
 func (x *SandboxInfo) GetCreatedBy() string {
 	if x != nil && x.CreatedBy != nil {
 		return *x.CreatedBy
+	}
+	return ""
+}
+
+func (x *SandboxInfo) GetStatusDetails() string {
+	if x != nil && x.StatusDetails != nil {
+		return *x.StatusDetails
 	}
 	return ""
 }
@@ -1339,7 +1349,7 @@ var File_chalk_sandbox_v2_service_proto protoreflect.FileDescriptor
 
 const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/sandbox/v2/service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe7\x03\n" +
+	"\x1echalk/sandbox/v2/service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa6\x04\n" +
 	"\vSandboxInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
@@ -1354,12 +1364,14 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"\x06region\x18\t \x01(\tR\x06region\x12\"\n" +
 	"\n" +
 	"created_by\x18\n" +
-	" \x01(\tH\x03R\tcreatedBy\x88\x01\x01B\x11\n" +
+	" \x01(\tH\x03R\tcreatedBy\x88\x01\x01\x12*\n" +
+	"\x0estatus_details\x18\v \x01(\tH\x04R\rstatusDetails\x88\x01\x01B\x11\n" +
 	"\x0f_status_messageB\x0e\n" +
 	"\f_finished_atB\n" +
 	"\n" +
 	"\b_web_urlB\r\n" +
-	"\v_created_by\"\x81\x01\n" +
+	"\v_created_byB\x11\n" +
+	"\x0f_status_details\"\x81\x01\n" +
 	"\x14CreateSandboxRequest\x12<\n" +
 	"\x04spec\x18\x01 \x01(\v2&.chalk.container.v1.ChalkContainerSpecH\x00R\x04spec\x12!\n" +
 	"\vsnapshot_id\x18\x02 \x01(\tH\x00R\n" +

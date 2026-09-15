@@ -700,7 +700,9 @@ type ScalingGroupResponse struct {
 	// Number of available replicas
 	AvailableReplicas int32 `protobuf:"varint,10,opt,name=available_replicas,json=availableReplicas,proto3" json:"available_replicas,omitempty"`
 	// Metadata stored with the scaling group row
-	Metadata      map[string]*structpb.Value `protobuf:"bytes,11,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Metadata map[string]*structpb.Value `protobuf:"bytes,11,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Additional diagnostic info for status.
+	StatusDetails *string `protobuf:"bytes,14,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -824,6 +826,13 @@ func (x *ScalingGroupResponse) GetMetadata() map[string]*structpb.Value {
 		return x.Metadata
 	}
 	return nil
+}
+
+func (x *ScalingGroupResponse) GetStatusDetails() string {
+	if x != nil && x.StatusDetails != nil {
+		return *x.StatusDetails
+	}
+	return ""
 }
 
 type CreateScalingGroupRequest struct {
@@ -1515,7 +1524,9 @@ type ScalingGroupRevisionResponse struct {
 	// the selection pointer, not revision creation order.
 	Latest bool `protobuf:"varint,9,opt,name=latest,proto3" json:"latest,omitempty"`
 	// When the parent scaling group was deleted, if archived.
-	DeletedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`
+	DeletedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`
+	// Additional diagnostic info for status.
+	StatusDetails *string `protobuf:"bytes,11,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1618,6 +1629,13 @@ func (x *ScalingGroupRevisionResponse) GetDeletedAt() *timestamppb.Timestamp {
 		return x.DeletedAt
 	}
 	return nil
+}
+
+func (x *ScalingGroupRevisionResponse) GetStatusDetails() string {
+	if x != nil && x.StatusDetails != nil {
+		return *x.StatusDetails
+	}
+	return ""
 }
 
 type GetScalingGroupRevisionRequest struct {
@@ -2096,7 +2114,9 @@ type UpdateScalingGroupStatusRequest struct {
 	AvailableReplicas *int32 `protobuf:"varint,7,opt,name=available_replicas,json=availableReplicas,proto3,oneof" json:"available_replicas,omitempty"`
 	// Time at which the dataplane controller observed this status and replica counts.
 	// When present, used to reject stale timestamped observations. Legacy clients may omit it.
-	ObservedAt    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=observed_at,json=observedAt,proto3,oneof" json:"observed_at,omitempty"`
+	ObservedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=observed_at,json=observedAt,proto3,oneof" json:"observed_at,omitempty"`
+	// Additional diagnostic info for status.
+	StatusDetails *string `protobuf:"bytes,9,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2185,6 +2205,13 @@ func (x *UpdateScalingGroupStatusRequest) GetObservedAt() *timestamppb.Timestamp
 		return x.ObservedAt
 	}
 	return nil
+}
+
+func (x *UpdateScalingGroupStatusRequest) GetStatusDetails() string {
+	if x != nil && x.StatusDetails != nil {
+		return *x.StatusDetails
+	}
+	return ""
 }
 
 type BatchUpdateScalingGroupStatusRequest struct {
@@ -2303,7 +2330,7 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x10desired_replicas\x18\x03 \x01(\x05R\x0fdesiredReplicas\"\xa8\x01\n" +
 	"\x10ScalingGroupSpec\x12M\n" +
 	"\x0econtainer_spec\x18\x01 \x01(\v2&.chalk.container.v1.ChalkContainerSpecR\rcontainerSpec\x12E\n" +
-	"\fscaling_spec\x18\x02 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecR\vscalingSpec\"\xe0\x05\n" +
+	"\fscaling_spec\x18\x02 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecR\vscalingSpec\"\x9f\x06\n" +
 	"\x14ScalingGroupResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1f\n" +
@@ -2322,14 +2349,16 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x0eready_replicas\x18\t \x01(\x05R\rreadyReplicas\x12-\n" +
 	"\x12available_replicas\x18\n" +
 	" \x01(\x05R\x11availableReplicas\x12U\n" +
-	"\bmetadata\x18\v \x03(\v29.chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntryR\bmetadata\x1aS\n" +
+	"\bmetadata\x18\v \x03(\v29.chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntryR\bmetadata\x12*\n" +
+	"\x0estatus_details\x18\x0e \x01(\tH\x03R\rstatusDetails\x88\x01\x01\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\x11\n" +
 	"\x0f_status_messageB\r\n" +
 	"\v_deleted_atB\n" +
 	"\n" +
-	"\b_web_url\"X\n" +
+	"\b_web_urlB\x11\n" +
+	"\x0f_status_details\"X\n" +
 	"\x19CreateScalingGroupRequest\x12;\n" +
 	"\x04spec\x18\x01 \x01(\v2'.chalk.scalinggroup.v1.ScalingGroupSpecR\x04spec\"n\n" +
 	"\x1aCreateScalingGroupResponse\x12P\n" +
@@ -2384,7 +2413,7 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\rscalingGroups\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\xf0\x04\n" +
+	"\f_next_cursor\"\xaf\x05\n" +
 	"\x1cScalingGroupRevisionResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12(\n" +
 	"\x10scaling_group_id\x18\x02 \x01(\tR\x0escalingGroupId\x12,\n" +
@@ -2398,12 +2427,14 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x06latest\x18\t \x01(\bR\x06latest\x12>\n" +
 	"\n" +
 	"deleted_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tdeletedAt\x88\x01\x01\x1aS\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tdeletedAt\x88\x01\x01\x12*\n" +
+	"\x0estatus_details\x18\v \x01(\tH\x02R\rstatusDetails\x88\x01\x01\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\x11\n" +
 	"\x0f_status_messageB\r\n" +
-	"\v_deleted_at\"\xf4\x01\n" +
+	"\v_deleted_atB\x11\n" +
+	"\x0f_status_details\"\xf4\x01\n" +
 	"\x1eGetScalingGroupRevisionRequest\x12*\n" +
 	"\x10scaling_group_id\x18\x01 \x01(\tH\x00R\x0escalingGroupId\x12.\n" +
 	"\x12scaling_group_name\x18\x02 \x01(\tH\x00R\x10scalingGroupName\x12\x1f\n" +
@@ -2440,7 +2471,7 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x03_idB\a\n" +
 	"\x05_name\"n\n" +
 	"\x1aDeleteScalingGroupResponse\x12P\n" +
-	"\rscaling_group\x18\x01 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\fscalingGroup\"\xf5\x03\n" +
+	"\rscaling_group\x18\x01 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\fscalingGroup\"\xb4\x04\n" +
 	"\x1fUpdateScalingGroupStatusRequest\x12(\n" +
 	"\x10scaling_group_id\x18\x01 \x01(\tR\x0escalingGroupId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12*\n" +
@@ -2450,12 +2481,14 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x0eready_replicas\x18\x06 \x01(\x05H\x02R\rreadyReplicas\x88\x01\x01\x122\n" +
 	"\x12available_replicas\x18\a \x01(\x05H\x03R\x11availableReplicas\x88\x01\x01\x12@\n" +
 	"\vobserved_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x04R\n" +
-	"observedAt\x88\x01\x01B\x11\n" +
+	"observedAt\x88\x01\x01\x12*\n" +
+	"\x0estatus_details\x18\t \x01(\tH\x05R\rstatusDetails\x88\x01\x01B\x11\n" +
 	"\x0f_status_messageB\x13\n" +
 	"\x11_desired_replicasB\x11\n" +
 	"\x0f_ready_replicasB\x15\n" +
 	"\x13_available_replicasB\x0e\n" +
-	"\f_observed_at\"x\n" +
+	"\f_observed_atB\x11\n" +
+	"\x0f_status_details\"x\n" +
 	"$BatchUpdateScalingGroupStatusRequest\x12P\n" +
 	"\aupdates\x18\x01 \x03(\v26.chalk.scalinggroup.v1.UpdateScalingGroupStatusRequestR\aupdates\"'\n" +
 	"%BatchUpdateScalingGroupStatusResponse*\x9f\x01\n" +

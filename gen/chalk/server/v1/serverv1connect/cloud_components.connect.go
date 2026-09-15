@@ -51,6 +51,15 @@ const (
 	// CloudComponentsServiceCreateRecoverClusterTargetProcedure is the fully-qualified name of the
 	// CloudComponentsService's CreateRecoverClusterTarget RPC.
 	CloudComponentsServiceCreateRecoverClusterTargetProcedure = "/chalk.server.v1.CloudComponentsService/CreateRecoverClusterTarget"
+	// CloudComponentsServiceListRecoveryClusterTargetsProcedure is the fully-qualified name of the
+	// CloudComponentsService's ListRecoveryClusterTargets RPC.
+	CloudComponentsServiceListRecoveryClusterTargetsProcedure = "/chalk.server.v1.CloudComponentsService/ListRecoveryClusterTargets"
+	// CloudComponentsServiceActivateRecoveryClusterTargetProcedure is the fully-qualified name of the
+	// CloudComponentsService's ActivateRecoveryClusterTarget RPC.
+	CloudComponentsServiceActivateRecoveryClusterTargetProcedure = "/chalk.server.v1.CloudComponentsService/ActivateRecoveryClusterTarget"
+	// CloudComponentsServiceDeactivateRecoveryClusterTargetProcedure is the fully-qualified name of the
+	// CloudComponentsService's DeactivateRecoveryClusterTarget RPC.
+	CloudComponentsServiceDeactivateRecoveryClusterTargetProcedure = "/chalk.server.v1.CloudComponentsService/DeactivateRecoveryClusterTarget"
 	// CloudComponentsServiceUpdateCloudComponentClusterProcedure is the fully-qualified name of the
 	// CloudComponentsService's UpdateCloudComponentCluster RPC.
 	CloudComponentsServiceUpdateCloudComponentClusterProcedure = "/chalk.server.v1.CloudComponentsService/UpdateCloudComponentCluster"
@@ -237,6 +246,9 @@ type CloudComponentsServiceClient interface {
 	DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error)
 	CreateCloudComponentCluster(context.Context, *connect.Request[v1.CreateCloudComponentClusterRequest]) (*connect.Response[v1.CreateCloudComponentClusterResponse], error)
 	CreateRecoverClusterTarget(context.Context, *connect.Request[v1.CreateRecoverClusterTargetRequest]) (*connect.Response[v1.CreateRecoverClusterTargetResponse], error)
+	ListRecoveryClusterTargets(context.Context, *connect.Request[v1.ListRecoveryClusterTargetsRequest]) (*connect.Response[v1.ListRecoveryClusterTargetsResponse], error)
+	ActivateRecoveryClusterTarget(context.Context, *connect.Request[v1.ActivateRecoveryClusterTargetRequest]) (*connect.Response[v1.ActivateRecoveryClusterTargetResponse], error)
+	DeactivateRecoveryClusterTarget(context.Context, *connect.Request[v1.DeactivateRecoveryClusterTargetRequest]) (*connect.Response[v1.DeactivateRecoveryClusterTargetResponse], error)
 	UpdateCloudComponentCluster(context.Context, *connect.Request[v1.UpdateCloudComponentClusterRequest]) (*connect.Response[v1.UpdateCloudComponentClusterResponse], error)
 	GetCloudComponentCluster(context.Context, *connect.Request[v1.GetCloudComponentClusterRequest]) (*connect.Response[v1.GetCloudComponentClusterResponse], error)
 	ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error)
@@ -346,6 +358,27 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceCreateRecoverClusterTargetProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateRecoverClusterTarget")),
+			connect.WithClientOptions(opts...),
+		),
+		listRecoveryClusterTargets: connect.NewClient[v1.ListRecoveryClusterTargetsRequest, v1.ListRecoveryClusterTargetsResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListRecoveryClusterTargetsProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListRecoveryClusterTargets")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		activateRecoveryClusterTarget: connect.NewClient[v1.ActivateRecoveryClusterTargetRequest, v1.ActivateRecoveryClusterTargetResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceActivateRecoveryClusterTargetProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ActivateRecoveryClusterTarget")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		deactivateRecoveryClusterTarget: connect.NewClient[v1.DeactivateRecoveryClusterTargetRequest, v1.DeactivateRecoveryClusterTargetResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceDeactivateRecoveryClusterTargetProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeactivateRecoveryClusterTarget")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		updateCloudComponentCluster: connect.NewClient[v1.UpdateCloudComponentClusterRequest, v1.UpdateCloudComponentClusterResponse](
@@ -723,6 +756,9 @@ type cloudComponentsServiceClient struct {
 	deleteCloudComponentVpc                                 *connect.Client[v1.DeleteCloudComponentVpcRequest, v1.DeleteCloudComponentVpcResponse]
 	createCloudComponentCluster                             *connect.Client[v1.CreateCloudComponentClusterRequest, v1.CreateCloudComponentClusterResponse]
 	createRecoverClusterTarget                              *connect.Client[v1.CreateRecoverClusterTargetRequest, v1.CreateRecoverClusterTargetResponse]
+	listRecoveryClusterTargets                              *connect.Client[v1.ListRecoveryClusterTargetsRequest, v1.ListRecoveryClusterTargetsResponse]
+	activateRecoveryClusterTarget                           *connect.Client[v1.ActivateRecoveryClusterTargetRequest, v1.ActivateRecoveryClusterTargetResponse]
+	deactivateRecoveryClusterTarget                         *connect.Client[v1.DeactivateRecoveryClusterTargetRequest, v1.DeactivateRecoveryClusterTargetResponse]
 	updateCloudComponentCluster                             *connect.Client[v1.UpdateCloudComponentClusterRequest, v1.UpdateCloudComponentClusterResponse]
 	getCloudComponentCluster                                *connect.Client[v1.GetCloudComponentClusterRequest, v1.GetCloudComponentClusterResponse]
 	listCloudComponentCluster                               *connect.Client[v1.ListCloudComponentClusterRequest, v1.ListCloudComponentClusterResponse]
@@ -811,6 +847,24 @@ func (c *cloudComponentsServiceClient) CreateCloudComponentCluster(ctx context.C
 // chalk.server.v1.CloudComponentsService.CreateRecoverClusterTarget.
 func (c *cloudComponentsServiceClient) CreateRecoverClusterTarget(ctx context.Context, req *connect.Request[v1.CreateRecoverClusterTargetRequest]) (*connect.Response[v1.CreateRecoverClusterTargetResponse], error) {
 	return c.createRecoverClusterTarget.CallUnary(ctx, req)
+}
+
+// ListRecoveryClusterTargets calls
+// chalk.server.v1.CloudComponentsService.ListRecoveryClusterTargets.
+func (c *cloudComponentsServiceClient) ListRecoveryClusterTargets(ctx context.Context, req *connect.Request[v1.ListRecoveryClusterTargetsRequest]) (*connect.Response[v1.ListRecoveryClusterTargetsResponse], error) {
+	return c.listRecoveryClusterTargets.CallUnary(ctx, req)
+}
+
+// ActivateRecoveryClusterTarget calls
+// chalk.server.v1.CloudComponentsService.ActivateRecoveryClusterTarget.
+func (c *cloudComponentsServiceClient) ActivateRecoveryClusterTarget(ctx context.Context, req *connect.Request[v1.ActivateRecoveryClusterTargetRequest]) (*connect.Response[v1.ActivateRecoveryClusterTargetResponse], error) {
+	return c.activateRecoveryClusterTarget.CallUnary(ctx, req)
+}
+
+// DeactivateRecoveryClusterTarget calls
+// chalk.server.v1.CloudComponentsService.DeactivateRecoveryClusterTarget.
+func (c *cloudComponentsServiceClient) DeactivateRecoveryClusterTarget(ctx context.Context, req *connect.Request[v1.DeactivateRecoveryClusterTargetRequest]) (*connect.Response[v1.DeactivateRecoveryClusterTargetResponse], error) {
+	return c.deactivateRecoveryClusterTarget.CallUnary(ctx, req)
 }
 
 // UpdateCloudComponentCluster calls
@@ -1149,6 +1203,9 @@ type CloudComponentsServiceHandler interface {
 	DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error)
 	CreateCloudComponentCluster(context.Context, *connect.Request[v1.CreateCloudComponentClusterRequest]) (*connect.Response[v1.CreateCloudComponentClusterResponse], error)
 	CreateRecoverClusterTarget(context.Context, *connect.Request[v1.CreateRecoverClusterTargetRequest]) (*connect.Response[v1.CreateRecoverClusterTargetResponse], error)
+	ListRecoveryClusterTargets(context.Context, *connect.Request[v1.ListRecoveryClusterTargetsRequest]) (*connect.Response[v1.ListRecoveryClusterTargetsResponse], error)
+	ActivateRecoveryClusterTarget(context.Context, *connect.Request[v1.ActivateRecoveryClusterTargetRequest]) (*connect.Response[v1.ActivateRecoveryClusterTargetResponse], error)
+	DeactivateRecoveryClusterTarget(context.Context, *connect.Request[v1.DeactivateRecoveryClusterTargetRequest]) (*connect.Response[v1.DeactivateRecoveryClusterTargetResponse], error)
 	UpdateCloudComponentCluster(context.Context, *connect.Request[v1.UpdateCloudComponentClusterRequest]) (*connect.Response[v1.UpdateCloudComponentClusterResponse], error)
 	GetCloudComponentCluster(context.Context, *connect.Request[v1.GetCloudComponentClusterRequest]) (*connect.Response[v1.GetCloudComponentClusterResponse], error)
 	ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error)
@@ -1254,6 +1311,27 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceCreateRecoverClusterTargetProcedure,
 		svc.CreateRecoverClusterTarget,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateRecoverClusterTarget")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListRecoveryClusterTargetsHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListRecoveryClusterTargetsProcedure,
+		svc.ListRecoveryClusterTargets,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListRecoveryClusterTargets")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceActivateRecoveryClusterTargetHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceActivateRecoveryClusterTargetProcedure,
+		svc.ActivateRecoveryClusterTarget,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ActivateRecoveryClusterTarget")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceDeactivateRecoveryClusterTargetHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceDeactivateRecoveryClusterTargetProcedure,
+		svc.DeactivateRecoveryClusterTarget,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeactivateRecoveryClusterTarget")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	cloudComponentsServiceUpdateCloudComponentClusterHandler := connect.NewUnaryHandler(
@@ -1634,6 +1712,12 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceCreateCloudComponentClusterHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateRecoverClusterTargetProcedure:
 			cloudComponentsServiceCreateRecoverClusterTargetHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListRecoveryClusterTargetsProcedure:
+			cloudComponentsServiceListRecoveryClusterTargetsHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceActivateRecoveryClusterTargetProcedure:
+			cloudComponentsServiceActivateRecoveryClusterTargetHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceDeactivateRecoveryClusterTargetProcedure:
+			cloudComponentsServiceDeactivateRecoveryClusterTargetHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceUpdateCloudComponentClusterProcedure:
 			cloudComponentsServiceUpdateCloudComponentClusterHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetCloudComponentClusterProcedure:
@@ -1777,6 +1861,18 @@ func (UnimplementedCloudComponentsServiceHandler) CreateCloudComponentCluster(co
 
 func (UnimplementedCloudComponentsServiceHandler) CreateRecoverClusterTarget(context.Context, *connect.Request[v1.CreateRecoverClusterTargetRequest]) (*connect.Response[v1.CreateRecoverClusterTargetResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateRecoverClusterTarget is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListRecoveryClusterTargets(context.Context, *connect.Request[v1.ListRecoveryClusterTargetsRequest]) (*connect.Response[v1.ListRecoveryClusterTargetsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListRecoveryClusterTargets is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ActivateRecoveryClusterTarget(context.Context, *connect.Request[v1.ActivateRecoveryClusterTargetRequest]) (*connect.Response[v1.ActivateRecoveryClusterTargetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ActivateRecoveryClusterTarget is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) DeactivateRecoveryClusterTarget(context.Context, *connect.Request[v1.DeactivateRecoveryClusterTargetRequest]) (*connect.Response[v1.DeactivateRecoveryClusterTargetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeactivateRecoveryClusterTarget is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) UpdateCloudComponentCluster(context.Context, *connect.Request[v1.UpdateCloudComponentClusterRequest]) (*connect.Response[v1.UpdateCloudComponentClusterResponse], error) {

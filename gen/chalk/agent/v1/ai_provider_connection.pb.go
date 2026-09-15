@@ -25,6 +25,220 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ReasoningEffort int32
+
+const (
+	ReasoningEffort_REASONING_EFFORT_UNSPECIFIED ReasoningEffort = 0
+	ReasoningEffort_REASONING_EFFORT_NONE        ReasoningEffort = 1
+	ReasoningEffort_REASONING_EFFORT_MINIMAL     ReasoningEffort = 2
+	ReasoningEffort_REASONING_EFFORT_LOW         ReasoningEffort = 3
+	ReasoningEffort_REASONING_EFFORT_MEDIUM      ReasoningEffort = 4
+	ReasoningEffort_REASONING_EFFORT_HIGH        ReasoningEffort = 5
+	ReasoningEffort_REASONING_EFFORT_XHIGH       ReasoningEffort = 6
+	ReasoningEffort_REASONING_EFFORT_MAX         ReasoningEffort = 7
+)
+
+// Enum value maps for ReasoningEffort.
+var (
+	ReasoningEffort_name = map[int32]string{
+		0: "REASONING_EFFORT_UNSPECIFIED",
+		1: "REASONING_EFFORT_NONE",
+		2: "REASONING_EFFORT_MINIMAL",
+		3: "REASONING_EFFORT_LOW",
+		4: "REASONING_EFFORT_MEDIUM",
+		5: "REASONING_EFFORT_HIGH",
+		6: "REASONING_EFFORT_XHIGH",
+		7: "REASONING_EFFORT_MAX",
+	}
+	ReasoningEffort_value = map[string]int32{
+		"REASONING_EFFORT_UNSPECIFIED": 0,
+		"REASONING_EFFORT_NONE":        1,
+		"REASONING_EFFORT_MINIMAL":     2,
+		"REASONING_EFFORT_LOW":         3,
+		"REASONING_EFFORT_MEDIUM":      4,
+		"REASONING_EFFORT_HIGH":        5,
+		"REASONING_EFFORT_XHIGH":       6,
+		"REASONING_EFFORT_MAX":         7,
+	}
+)
+
+func (x ReasoningEffort) Enum() *ReasoningEffort {
+	p := new(ReasoningEffort)
+	*p = x
+	return p
+}
+
+func (x ReasoningEffort) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ReasoningEffort) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_ai_provider_connection_proto_enumTypes[0].Descriptor()
+}
+
+func (ReasoningEffort) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_ai_provider_connection_proto_enumTypes[0]
+}
+
+func (x ReasoningEffort) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ReasoningEffort.Descriptor instead.
+func (ReasoningEffort) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{0}
+}
+
+type ReasoningMode int32
+
+const (
+	ReasoningMode_REASONING_MODE_UNSPECIFIED ReasoningMode = 0
+	ReasoningMode_REASONING_MODE_STANDARD    ReasoningMode = 1
+	ReasoningMode_REASONING_MODE_PRO         ReasoningMode = 2
+)
+
+// Enum value maps for ReasoningMode.
+var (
+	ReasoningMode_name = map[int32]string{
+		0: "REASONING_MODE_UNSPECIFIED",
+		1: "REASONING_MODE_STANDARD",
+		2: "REASONING_MODE_PRO",
+	}
+	ReasoningMode_value = map[string]int32{
+		"REASONING_MODE_UNSPECIFIED": 0,
+		"REASONING_MODE_STANDARD":    1,
+		"REASONING_MODE_PRO":         2,
+	}
+)
+
+func (x ReasoningMode) Enum() *ReasoningMode {
+	p := new(ReasoningMode)
+	*p = x
+	return p
+}
+
+func (x ReasoningMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ReasoningMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_ai_provider_connection_proto_enumTypes[1].Descriptor()
+}
+
+func (ReasoningMode) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_ai_provider_connection_proto_enumTypes[1]
+}
+
+func (x ReasoningMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ReasoningMode.Descriptor instead.
+func (ReasoningMode) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{1}
+}
+
+type ReasoningContext int32
+
+const (
+	ReasoningContext_REASONING_CONTEXT_UNSPECIFIED  ReasoningContext = 0
+	ReasoningContext_REASONING_CONTEXT_CURRENT_TURN ReasoningContext = 1
+	ReasoningContext_REASONING_CONTEXT_ALL_TURNS    ReasoningContext = 2
+)
+
+// Enum value maps for ReasoningContext.
+var (
+	ReasoningContext_name = map[int32]string{
+		0: "REASONING_CONTEXT_UNSPECIFIED",
+		1: "REASONING_CONTEXT_CURRENT_TURN",
+		2: "REASONING_CONTEXT_ALL_TURNS",
+	}
+	ReasoningContext_value = map[string]int32{
+		"REASONING_CONTEXT_UNSPECIFIED":  0,
+		"REASONING_CONTEXT_CURRENT_TURN": 1,
+		"REASONING_CONTEXT_ALL_TURNS":    2,
+	}
+)
+
+func (x ReasoningContext) Enum() *ReasoningContext {
+	p := new(ReasoningContext)
+	*p = x
+	return p
+}
+
+func (x ReasoningContext) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ReasoningContext) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_ai_provider_connection_proto_enumTypes[2].Descriptor()
+}
+
+func (ReasoningContext) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_ai_provider_connection_proto_enumTypes[2]
+}
+
+func (x ReasoningContext) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ReasoningContext.Descriptor instead.
+func (ReasoningContext) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{2}
+}
+
+type TextVerbosity int32
+
+const (
+	TextVerbosity_TEXT_VERBOSITY_UNSPECIFIED TextVerbosity = 0
+	TextVerbosity_TEXT_VERBOSITY_LOW         TextVerbosity = 1
+	TextVerbosity_TEXT_VERBOSITY_MEDIUM      TextVerbosity = 2
+	TextVerbosity_TEXT_VERBOSITY_HIGH        TextVerbosity = 3
+)
+
+// Enum value maps for TextVerbosity.
+var (
+	TextVerbosity_name = map[int32]string{
+		0: "TEXT_VERBOSITY_UNSPECIFIED",
+		1: "TEXT_VERBOSITY_LOW",
+		2: "TEXT_VERBOSITY_MEDIUM",
+		3: "TEXT_VERBOSITY_HIGH",
+	}
+	TextVerbosity_value = map[string]int32{
+		"TEXT_VERBOSITY_UNSPECIFIED": 0,
+		"TEXT_VERBOSITY_LOW":         1,
+		"TEXT_VERBOSITY_MEDIUM":      2,
+		"TEXT_VERBOSITY_HIGH":        3,
+	}
+)
+
+func (x TextVerbosity) Enum() *TextVerbosity {
+	p := new(TextVerbosity)
+	*p = x
+	return p
+}
+
+func (x TextVerbosity) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TextVerbosity) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_agent_v1_ai_provider_connection_proto_enumTypes[3].Descriptor()
+}
+
+func (TextVerbosity) Type() protoreflect.EnumType {
+	return &file_chalk_agent_v1_ai_provider_connection_proto_enumTypes[3]
+}
+
+func (x TextVerbosity) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TextVerbosity.Descriptor instead.
+func (TextVerbosity) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{3}
+}
+
 // AiProviderConnection captures the credentials, routing, and default model
 // for talking to an AI provider on behalf of an environment.
 // The api key itself lives in the cloud secret store; `api_key_secret_id` is
@@ -58,9 +272,15 @@ type AiProviderConnection struct {
 	// Default model for requests using this connection. Empty only for rows
 	// created before connection defaults were introduced; the runner then uses
 	// its hardcoded fallback for the provider protocol.
-	DefaultModel  string `protobuf:"bytes,10,opt,name=default_model,json=defaultModel,proto3" json:"default_model,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	DefaultModel string `protobuf:"bytes,10,opt,name=default_model,json=defaultModel,proto3" json:"default_model,omitempty"`
+	// True when this connection is the environment default applied to newly
+	// created Assistant conversations. Computed from the Environment row.
+	IsDefault bool `protobuf:"varint,11,opt,name=is_default,json=isDefault,proto3" json:"is_default,omitempty"`
+	// Optional model request defaults applied whenever this connection is used.
+	// Unset fields inherit the model or provider default.
+	ModelOverrides *AiProviderModelOverrides `protobuf:"bytes,12,opt,name=model_overrides,json=modelOverrides,proto3" json:"model_overrides,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AiProviderConnection) Reset() {
@@ -164,6 +384,99 @@ func (x *AiProviderConnection) GetDefaultModel() string {
 	return ""
 }
 
+func (x *AiProviderConnection) GetIsDefault() bool {
+	if x != nil {
+		return x.IsDefault
+	}
+	return false
+}
+
+func (x *AiProviderConnection) GetModelOverrides() *AiProviderModelOverrides {
+	if x != nil {
+		return x.ModelOverrides
+	}
+	return nil
+}
+
+// Model-level request defaults supported by the Assistant runner. These stay
+// on the provider connection; harness behavior belongs to a future agent
+// template schema.
+type AiProviderModelOverrides struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ReasoningEffort  ReasoningEffort        `protobuf:"varint,1,opt,name=reasoning_effort,json=reasoningEffort,proto3,enum=chalk.agent.v1.ReasoningEffort" json:"reasoning_effort,omitempty"`
+	ReasoningMode    ReasoningMode          `protobuf:"varint,2,opt,name=reasoning_mode,json=reasoningMode,proto3,enum=chalk.agent.v1.ReasoningMode" json:"reasoning_mode,omitempty"`
+	ReasoningContext ReasoningContext       `protobuf:"varint,3,opt,name=reasoning_context,json=reasoningContext,proto3,enum=chalk.agent.v1.ReasoningContext" json:"reasoning_context,omitempty"`
+	TextVerbosity    TextVerbosity          `protobuf:"varint,4,opt,name=text_verbosity,json=textVerbosity,proto3,enum=chalk.agent.v1.TextVerbosity" json:"text_verbosity,omitempty"`
+	MaxOutputTokens  *int32                 `protobuf:"varint,5,opt,name=max_output_tokens,json=maxOutputTokens,proto3,oneof" json:"max_output_tokens,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *AiProviderModelOverrides) Reset() {
+	*x = AiProviderModelOverrides{}
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AiProviderModelOverrides) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AiProviderModelOverrides) ProtoMessage() {}
+
+func (x *AiProviderModelOverrides) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AiProviderModelOverrides.ProtoReflect.Descriptor instead.
+func (*AiProviderModelOverrides) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *AiProviderModelOverrides) GetReasoningEffort() ReasoningEffort {
+	if x != nil {
+		return x.ReasoningEffort
+	}
+	return ReasoningEffort_REASONING_EFFORT_UNSPECIFIED
+}
+
+func (x *AiProviderModelOverrides) GetReasoningMode() ReasoningMode {
+	if x != nil {
+		return x.ReasoningMode
+	}
+	return ReasoningMode_REASONING_MODE_UNSPECIFIED
+}
+
+func (x *AiProviderModelOverrides) GetReasoningContext() ReasoningContext {
+	if x != nil {
+		return x.ReasoningContext
+	}
+	return ReasoningContext_REASONING_CONTEXT_UNSPECIFIED
+}
+
+func (x *AiProviderModelOverrides) GetTextVerbosity() TextVerbosity {
+	if x != nil {
+		return x.TextVerbosity
+	}
+	return TextVerbosity_TEXT_VERBOSITY_UNSPECIFIED
+}
+
+func (x *AiProviderModelOverrides) GetMaxOutputTokens() int32 {
+	if x != nil && x.MaxOutputTokens != nil {
+		return *x.MaxOutputTokens
+	}
+	return 0
+}
+
 type CreateAiProviderConnectionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -174,14 +487,17 @@ type CreateAiProviderConnectionRequest struct {
 	// platform-internal EnvironmentSecret owned by the new connection.
 	ApiKeyLiteral string `protobuf:"bytes,5,opt,name=api_key_literal,json=apiKeyLiteral,proto3" json:"api_key_literal,omitempty"`
 	// Required default model for this connection.
-	DefaultModel  string `protobuf:"bytes,6,opt,name=default_model,json=defaultModel,proto3" json:"default_model,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	DefaultModel string `protobuf:"bytes,6,opt,name=default_model,json=defaultModel,proto3" json:"default_model,omitempty"`
+	// Optional request defaults. An empty message inherits every model/provider
+	// default.
+	ModelOverrides *AiProviderModelOverrides `protobuf:"bytes,7,opt,name=model_overrides,json=modelOverrides,proto3" json:"model_overrides,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateAiProviderConnectionRequest) Reset() {
 	*x = CreateAiProviderConnectionRequest{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[1]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -193,7 +509,7 @@ func (x *CreateAiProviderConnectionRequest) String() string {
 func (*CreateAiProviderConnectionRequest) ProtoMessage() {}
 
 func (x *CreateAiProviderConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[1]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -206,7 +522,7 @@ func (x *CreateAiProviderConnectionRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use CreateAiProviderConnectionRequest.ProtoReflect.Descriptor instead.
 func (*CreateAiProviderConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{1}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateAiProviderConnectionRequest) GetName() string {
@@ -244,6 +560,13 @@ func (x *CreateAiProviderConnectionRequest) GetDefaultModel() string {
 	return ""
 }
 
+func (x *CreateAiProviderConnectionRequest) GetModelOverrides() *AiProviderModelOverrides {
+	if x != nil {
+		return x.ModelOverrides
+	}
+	return nil
+}
+
 type CreateAiProviderConnectionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Connection    *AiProviderConnection  `protobuf:"bytes,1,opt,name=connection,proto3" json:"connection,omitempty"`
@@ -253,7 +576,7 @@ type CreateAiProviderConnectionResponse struct {
 
 func (x *CreateAiProviderConnectionResponse) Reset() {
 	*x = CreateAiProviderConnectionResponse{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[2]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -265,7 +588,7 @@ func (x *CreateAiProviderConnectionResponse) String() string {
 func (*CreateAiProviderConnectionResponse) ProtoMessage() {}
 
 func (x *CreateAiProviderConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[2]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -278,7 +601,7 @@ func (x *CreateAiProviderConnectionResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use CreateAiProviderConnectionResponse.ProtoReflect.Descriptor instead.
 func (*CreateAiProviderConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{2}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateAiProviderConnectionResponse) GetConnection() *AiProviderConnection {
@@ -297,7 +620,7 @@ type GetAiProviderConnectionRequest struct {
 
 func (x *GetAiProviderConnectionRequest) Reset() {
 	*x = GetAiProviderConnectionRequest{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[3]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -309,7 +632,7 @@ func (x *GetAiProviderConnectionRequest) String() string {
 func (*GetAiProviderConnectionRequest) ProtoMessage() {}
 
 func (x *GetAiProviderConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[3]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -322,7 +645,7 @@ func (x *GetAiProviderConnectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAiProviderConnectionRequest.ProtoReflect.Descriptor instead.
 func (*GetAiProviderConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{3}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetAiProviderConnectionRequest) GetId() string {
@@ -341,7 +664,7 @@ type GetAiProviderConnectionResponse struct {
 
 func (x *GetAiProviderConnectionResponse) Reset() {
 	*x = GetAiProviderConnectionResponse{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[4]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -353,7 +676,7 @@ func (x *GetAiProviderConnectionResponse) String() string {
 func (*GetAiProviderConnectionResponse) ProtoMessage() {}
 
 func (x *GetAiProviderConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[4]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -366,7 +689,7 @@ func (x *GetAiProviderConnectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAiProviderConnectionResponse.ProtoReflect.Descriptor instead.
 func (*GetAiProviderConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{4}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetAiProviderConnectionResponse) GetConnection() *AiProviderConnection {
@@ -384,7 +707,7 @@ type ListAiProviderConnectionsRequest struct {
 
 func (x *ListAiProviderConnectionsRequest) Reset() {
 	*x = ListAiProviderConnectionsRequest{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[5]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -396,7 +719,7 @@ func (x *ListAiProviderConnectionsRequest) String() string {
 func (*ListAiProviderConnectionsRequest) ProtoMessage() {}
 
 func (x *ListAiProviderConnectionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[5]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -409,7 +732,7 @@ func (x *ListAiProviderConnectionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiProviderConnectionsRequest.ProtoReflect.Descriptor instead.
 func (*ListAiProviderConnectionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{5}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{6}
 }
 
 type ListAiProviderConnectionsResponse struct {
@@ -421,7 +744,7 @@ type ListAiProviderConnectionsResponse struct {
 
 func (x *ListAiProviderConnectionsResponse) Reset() {
 	*x = ListAiProviderConnectionsResponse{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[6]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -433,7 +756,7 @@ func (x *ListAiProviderConnectionsResponse) String() string {
 func (*ListAiProviderConnectionsResponse) ProtoMessage() {}
 
 func (x *ListAiProviderConnectionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[6]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +769,7 @@ func (x *ListAiProviderConnectionsResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListAiProviderConnectionsResponse.ProtoReflect.Descriptor instead.
 func (*ListAiProviderConnectionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{6}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListAiProviderConnectionsResponse) GetConnections() []*AiProviderConnection {
@@ -469,14 +792,17 @@ type UpdateAiProviderConnectionRequest struct {
 	ApiKeyLiteral string `protobuf:"bytes,6,opt,name=api_key_literal,json=apiKeyLiteral,proto3" json:"api_key_literal,omitempty"`
 	// When present, replaces the connection's default model. An explicitly
 	// empty value is rejected.
-	DefaultModel  *string `protobuf:"bytes,7,opt,name=default_model,json=defaultModel,proto3,oneof" json:"default_model,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	DefaultModel *string `protobuf:"bytes,7,opt,name=default_model,json=defaultModel,proto3,oneof" json:"default_model,omitempty"`
+	// Omitted preserves the stored overrides. A present empty message clears
+	// them; a populated message replaces them.
+	ModelOverrides *AiProviderModelOverrides `protobuf:"bytes,8,opt,name=model_overrides,json=modelOverrides,proto3" json:"model_overrides,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *UpdateAiProviderConnectionRequest) Reset() {
 	*x = UpdateAiProviderConnectionRequest{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[7]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -488,7 +814,7 @@ func (x *UpdateAiProviderConnectionRequest) String() string {
 func (*UpdateAiProviderConnectionRequest) ProtoMessage() {}
 
 func (x *UpdateAiProviderConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[7]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -501,7 +827,7 @@ func (x *UpdateAiProviderConnectionRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use UpdateAiProviderConnectionRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAiProviderConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{7}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateAiProviderConnectionRequest) GetId() string {
@@ -546,6 +872,13 @@ func (x *UpdateAiProviderConnectionRequest) GetDefaultModel() string {
 	return ""
 }
 
+func (x *UpdateAiProviderConnectionRequest) GetModelOverrides() *AiProviderModelOverrides {
+	if x != nil {
+		return x.ModelOverrides
+	}
+	return nil
+}
+
 type UpdateAiProviderConnectionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Connection    *AiProviderConnection  `protobuf:"bytes,1,opt,name=connection,proto3" json:"connection,omitempty"`
@@ -555,7 +888,7 @@ type UpdateAiProviderConnectionResponse struct {
 
 func (x *UpdateAiProviderConnectionResponse) Reset() {
 	*x = UpdateAiProviderConnectionResponse{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[8]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -567,7 +900,7 @@ func (x *UpdateAiProviderConnectionResponse) String() string {
 func (*UpdateAiProviderConnectionResponse) ProtoMessage() {}
 
 func (x *UpdateAiProviderConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[8]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -580,7 +913,7 @@ func (x *UpdateAiProviderConnectionResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use UpdateAiProviderConnectionResponse.ProtoReflect.Descriptor instead.
 func (*UpdateAiProviderConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{8}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateAiProviderConnectionResponse) GetConnection() *AiProviderConnection {
@@ -599,7 +932,7 @@ type DeleteAiProviderConnectionRequest struct {
 
 func (x *DeleteAiProviderConnectionRequest) Reset() {
 	*x = DeleteAiProviderConnectionRequest{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[9]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -611,7 +944,7 @@ func (x *DeleteAiProviderConnectionRequest) String() string {
 func (*DeleteAiProviderConnectionRequest) ProtoMessage() {}
 
 func (x *DeleteAiProviderConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[9]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -624,7 +957,7 @@ func (x *DeleteAiProviderConnectionRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use DeleteAiProviderConnectionRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAiProviderConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{9}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DeleteAiProviderConnectionRequest) GetId() string {
@@ -642,7 +975,7 @@ type DeleteAiProviderConnectionResponse struct {
 
 func (x *DeleteAiProviderConnectionResponse) Reset() {
 	*x = DeleteAiProviderConnectionResponse{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[10]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -654,7 +987,7 @@ func (x *DeleteAiProviderConnectionResponse) String() string {
 func (*DeleteAiProviderConnectionResponse) ProtoMessage() {}
 
 func (x *DeleteAiProviderConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[10]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -667,7 +1000,7 @@ func (x *DeleteAiProviderConnectionResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DeleteAiProviderConnectionResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAiProviderConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{10}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{11}
 }
 
 type AiProviderConnectionCandidate struct {
@@ -681,7 +1014,7 @@ type AiProviderConnectionCandidate struct {
 
 func (x *AiProviderConnectionCandidate) Reset() {
 	*x = AiProviderConnectionCandidate{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[11]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -693,7 +1026,7 @@ func (x *AiProviderConnectionCandidate) String() string {
 func (*AiProviderConnectionCandidate) ProtoMessage() {}
 
 func (x *AiProviderConnectionCandidate) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[11]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -706,7 +1039,7 @@ func (x *AiProviderConnectionCandidate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiProviderConnectionCandidate.ProtoReflect.Descriptor instead.
 func (*AiProviderConnectionCandidate) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{11}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AiProviderConnectionCandidate) GetKind() string {
@@ -743,7 +1076,7 @@ type ListAiProviderConnectionModelsRequest struct {
 
 func (x *ListAiProviderConnectionModelsRequest) Reset() {
 	*x = ListAiProviderConnectionModelsRequest{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[12]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -755,7 +1088,7 @@ func (x *ListAiProviderConnectionModelsRequest) String() string {
 func (*ListAiProviderConnectionModelsRequest) ProtoMessage() {}
 
 func (x *ListAiProviderConnectionModelsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[12]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -768,7 +1101,7 @@ func (x *ListAiProviderConnectionModelsRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ListAiProviderConnectionModelsRequest.ProtoReflect.Descriptor instead.
 func (*ListAiProviderConnectionModelsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{12}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListAiProviderConnectionModelsRequest) GetSource() isListAiProviderConnectionModelsRequest_Source {
@@ -824,7 +1157,7 @@ type AiProviderModel struct {
 
 func (x *AiProviderModel) Reset() {
 	*x = AiProviderModel{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[13]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -836,7 +1169,7 @@ func (x *AiProviderModel) String() string {
 func (*AiProviderModel) ProtoMessage() {}
 
 func (x *AiProviderModel) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[13]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -849,7 +1182,7 @@ func (x *AiProviderModel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiProviderModel.ProtoReflect.Descriptor instead.
 func (*AiProviderModel) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{13}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *AiProviderModel) GetId() string {
@@ -876,7 +1209,7 @@ type ListAiProviderConnectionModelsResponse struct {
 
 func (x *ListAiProviderConnectionModelsResponse) Reset() {
 	*x = ListAiProviderConnectionModelsResponse{}
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[14]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -888,7 +1221,7 @@ func (x *ListAiProviderConnectionModelsResponse) String() string {
 func (*ListAiProviderConnectionModelsResponse) ProtoMessage() {}
 
 func (x *ListAiProviderConnectionModelsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[14]
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -901,7 +1234,7 @@ func (x *ListAiProviderConnectionModelsResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use ListAiProviderConnectionModelsResponse.ProtoReflect.Descriptor instead.
 func (*ListAiProviderConnectionModelsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{14}
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListAiProviderConnectionModelsResponse) GetModels() []*AiProviderModel {
@@ -922,7 +1255,7 @@ var File_chalk_agent_v1_ai_provider_connection_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"\n" +
-	"+chalk/agent/v1/ai_provider_connection.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x82\x03\n" +
+	"+chalk/agent/v1/ai_provider_connection.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf4\x03\n" +
 	"\x14AiProviderConnection\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x12\n" +
@@ -936,13 +1269,24 @@ const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12)\n" +
 	"\x11api_key_secret_id\x18\t \x01(\tR\x0eapiKeySecretId\x12#\n" +
 	"\rdefault_model\x18\n" +
-	" \x01(\tR\fdefaultModel\"\xcd\x01\n" +
+	" \x01(\tR\fdefaultModel\x12\x1d\n" +
+	"\n" +
+	"is_default\x18\v \x01(\bR\tisDefault\x12Q\n" +
+	"\x0fmodel_overrides\x18\f \x01(\v2(.chalk.agent.v1.AiProviderModelOverridesR\x0emodelOverrides\"\x88\x03\n" +
+	"\x18AiProviderModelOverrides\x12J\n" +
+	"\x10reasoning_effort\x18\x01 \x01(\x0e2\x1f.chalk.agent.v1.ReasoningEffortR\x0freasoningEffort\x12D\n" +
+	"\x0ereasoning_mode\x18\x02 \x01(\x0e2\x1d.chalk.agent.v1.ReasoningModeR\rreasoningMode\x12M\n" +
+	"\x11reasoning_context\x18\x03 \x01(\x0e2 .chalk.agent.v1.ReasoningContextR\x10reasoningContext\x12D\n" +
+	"\x0etext_verbosity\x18\x04 \x01(\x0e2\x1d.chalk.agent.v1.TextVerbosityR\rtextVerbosity\x12/\n" +
+	"\x11max_output_tokens\x18\x05 \x01(\x05H\x00R\x0fmaxOutputTokens\x88\x01\x01B\x14\n" +
+	"\x12_max_output_tokens\"\xa0\x02\n" +
 	"!CreateAiProviderConnectionRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x12\n" +
 	"\x04host\x18\x03 \x01(\tR\x04host\x12,\n" +
 	"\x0fapi_key_literal\x18\x05 \x01(\tB\x04ء'\x01R\rapiKeyLiteral\x12#\n" +
-	"\rdefault_model\x18\x06 \x01(\tR\fdefaultModelJ\x04\b\x04\x10\x05R\x13api_key_secret_name\"j\n" +
+	"\rdefault_model\x18\x06 \x01(\tR\fdefaultModel\x12Q\n" +
+	"\x0fmodel_overrides\x18\a \x01(\v2(.chalk.agent.v1.AiProviderModelOverridesR\x0emodelOverridesJ\x04\b\x04\x10\x05R\x13api_key_secret_name\"j\n" +
 	"\"CreateAiProviderConnectionResponse\x12D\n" +
 	"\n" +
 	"connection\x18\x01 \x01(\v2$.chalk.agent.v1.AiProviderConnectionR\n" +
@@ -955,14 +1299,15 @@ const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"connection\"\"\n" +
 	" ListAiProviderConnectionsRequest\"k\n" +
 	"!ListAiProviderConnectionsResponse\x12F\n" +
-	"\vconnections\x18\x01 \x03(\v2$.chalk.agent.v1.AiProviderConnectionR\vconnections\"\xf4\x01\n" +
+	"\vconnections\x18\x01 \x03(\v2$.chalk.agent.v1.AiProviderConnectionR\vconnections\"\xc7\x02\n" +
 	"!UpdateAiProviderConnectionRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x12\n" +
 	"\x04host\x18\x04 \x01(\tR\x04host\x12,\n" +
 	"\x0fapi_key_literal\x18\x06 \x01(\tB\x04ء'\x01R\rapiKeyLiteral\x12(\n" +
-	"\rdefault_model\x18\a \x01(\tH\x00R\fdefaultModel\x88\x01\x01B\x10\n" +
+	"\rdefault_model\x18\a \x01(\tH\x00R\fdefaultModel\x88\x01\x01\x12Q\n" +
+	"\x0fmodel_overrides\x18\b \x01(\v2(.chalk.agent.v1.AiProviderModelOverridesR\x0emodelOverridesB\x10\n" +
 	"\x0e_default_modelJ\x04\b\x05\x10\x06R\x13api_key_secret_name\"j\n" +
 	"\"UpdateAiProviderConnectionResponse\x12D\n" +
 	"\n" +
@@ -984,7 +1329,29 @@ const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"\x92\x01\n" +
 	"&ListAiProviderConnectionModelsResponse\x127\n" +
 	"\x06models\x18\x01 \x03(\v2\x1f.chalk.agent.v1.AiProviderModelR\x06models\x12/\n" +
-	"\x13discovery_supported\x18\x02 \x01(\bR\x12discoverySupported2\xb0\a\n" +
+	"\x13discovery_supported\x18\x02 \x01(\bR\x12discoverySupported*\xf4\x01\n" +
+	"\x0fReasoningEffort\x12 \n" +
+	"\x1cREASONING_EFFORT_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15REASONING_EFFORT_NONE\x10\x01\x12\x1c\n" +
+	"\x18REASONING_EFFORT_MINIMAL\x10\x02\x12\x18\n" +
+	"\x14REASONING_EFFORT_LOW\x10\x03\x12\x1b\n" +
+	"\x17REASONING_EFFORT_MEDIUM\x10\x04\x12\x19\n" +
+	"\x15REASONING_EFFORT_HIGH\x10\x05\x12\x1a\n" +
+	"\x16REASONING_EFFORT_XHIGH\x10\x06\x12\x18\n" +
+	"\x14REASONING_EFFORT_MAX\x10\a*d\n" +
+	"\rReasoningMode\x12\x1e\n" +
+	"\x1aREASONING_MODE_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17REASONING_MODE_STANDARD\x10\x01\x12\x16\n" +
+	"\x12REASONING_MODE_PRO\x10\x02*z\n" +
+	"\x10ReasoningContext\x12!\n" +
+	"\x1dREASONING_CONTEXT_UNSPECIFIED\x10\x00\x12\"\n" +
+	"\x1eREASONING_CONTEXT_CURRENT_TURN\x10\x01\x12\x1f\n" +
+	"\x1bREASONING_CONTEXT_ALL_TURNS\x10\x02*{\n" +
+	"\rTextVerbosity\x12\x1e\n" +
+	"\x1aTEXT_VERBOSITY_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12TEXT_VERBOSITY_LOW\x10\x01\x12\x19\n" +
+	"\x15TEXT_VERBOSITY_MEDIUM\x10\x02\x12\x17\n" +
+	"\x13TEXT_VERBOSITY_HIGH\x10\x032\xb0\a\n" +
 	"\x1bAiProviderConnectionService\x12\xca\x01\n" +
 	"\x1aCreateAiProviderConnection\x121.chalk.agent.v1.CreateAiProviderConnectionRequest\x1a2.chalk.agent.v1.CreateAiProviderConnectionResponse\"E\x80}'\x92\xd3\x0e>\n" +
 	"\x11assistant_enabled\x12)Enables Assistant AI provider management.\x12\x82\x01\n" +
@@ -1007,51 +1374,64 @@ func file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP() []byte {
 	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescData
 }
 
-var file_chalk_agent_v1_ai_provider_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_agent_v1_ai_provider_connection_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_chalk_agent_v1_ai_provider_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_chalk_agent_v1_ai_provider_connection_proto_goTypes = []any{
-	(*AiProviderConnection)(nil),                   // 0: chalk.agent.v1.AiProviderConnection
-	(*CreateAiProviderConnectionRequest)(nil),      // 1: chalk.agent.v1.CreateAiProviderConnectionRequest
-	(*CreateAiProviderConnectionResponse)(nil),     // 2: chalk.agent.v1.CreateAiProviderConnectionResponse
-	(*GetAiProviderConnectionRequest)(nil),         // 3: chalk.agent.v1.GetAiProviderConnectionRequest
-	(*GetAiProviderConnectionResponse)(nil),        // 4: chalk.agent.v1.GetAiProviderConnectionResponse
-	(*ListAiProviderConnectionsRequest)(nil),       // 5: chalk.agent.v1.ListAiProviderConnectionsRequest
-	(*ListAiProviderConnectionsResponse)(nil),      // 6: chalk.agent.v1.ListAiProviderConnectionsResponse
-	(*UpdateAiProviderConnectionRequest)(nil),      // 7: chalk.agent.v1.UpdateAiProviderConnectionRequest
-	(*UpdateAiProviderConnectionResponse)(nil),     // 8: chalk.agent.v1.UpdateAiProviderConnectionResponse
-	(*DeleteAiProviderConnectionRequest)(nil),      // 9: chalk.agent.v1.DeleteAiProviderConnectionRequest
-	(*DeleteAiProviderConnectionResponse)(nil),     // 10: chalk.agent.v1.DeleteAiProviderConnectionResponse
-	(*AiProviderConnectionCandidate)(nil),          // 11: chalk.agent.v1.AiProviderConnectionCandidate
-	(*ListAiProviderConnectionModelsRequest)(nil),  // 12: chalk.agent.v1.ListAiProviderConnectionModelsRequest
-	(*AiProviderModel)(nil),                        // 13: chalk.agent.v1.AiProviderModel
-	(*ListAiProviderConnectionModelsResponse)(nil), // 14: chalk.agent.v1.ListAiProviderConnectionModelsResponse
-	(*timestamppb.Timestamp)(nil),                  // 15: google.protobuf.Timestamp
+	(ReasoningEffort)(0),                           // 0: chalk.agent.v1.ReasoningEffort
+	(ReasoningMode)(0),                             // 1: chalk.agent.v1.ReasoningMode
+	(ReasoningContext)(0),                          // 2: chalk.agent.v1.ReasoningContext
+	(TextVerbosity)(0),                             // 3: chalk.agent.v1.TextVerbosity
+	(*AiProviderConnection)(nil),                   // 4: chalk.agent.v1.AiProviderConnection
+	(*AiProviderModelOverrides)(nil),               // 5: chalk.agent.v1.AiProviderModelOverrides
+	(*CreateAiProviderConnectionRequest)(nil),      // 6: chalk.agent.v1.CreateAiProviderConnectionRequest
+	(*CreateAiProviderConnectionResponse)(nil),     // 7: chalk.agent.v1.CreateAiProviderConnectionResponse
+	(*GetAiProviderConnectionRequest)(nil),         // 8: chalk.agent.v1.GetAiProviderConnectionRequest
+	(*GetAiProviderConnectionResponse)(nil),        // 9: chalk.agent.v1.GetAiProviderConnectionResponse
+	(*ListAiProviderConnectionsRequest)(nil),       // 10: chalk.agent.v1.ListAiProviderConnectionsRequest
+	(*ListAiProviderConnectionsResponse)(nil),      // 11: chalk.agent.v1.ListAiProviderConnectionsResponse
+	(*UpdateAiProviderConnectionRequest)(nil),      // 12: chalk.agent.v1.UpdateAiProviderConnectionRequest
+	(*UpdateAiProviderConnectionResponse)(nil),     // 13: chalk.agent.v1.UpdateAiProviderConnectionResponse
+	(*DeleteAiProviderConnectionRequest)(nil),      // 14: chalk.agent.v1.DeleteAiProviderConnectionRequest
+	(*DeleteAiProviderConnectionResponse)(nil),     // 15: chalk.agent.v1.DeleteAiProviderConnectionResponse
+	(*AiProviderConnectionCandidate)(nil),          // 16: chalk.agent.v1.AiProviderConnectionCandidate
+	(*ListAiProviderConnectionModelsRequest)(nil),  // 17: chalk.agent.v1.ListAiProviderConnectionModelsRequest
+	(*AiProviderModel)(nil),                        // 18: chalk.agent.v1.AiProviderModel
+	(*ListAiProviderConnectionModelsResponse)(nil), // 19: chalk.agent.v1.ListAiProviderConnectionModelsResponse
+	(*timestamppb.Timestamp)(nil),                  // 20: google.protobuf.Timestamp
 }
 var file_chalk_agent_v1_ai_provider_connection_proto_depIdxs = []int32{
-	15, // 0: chalk.agent.v1.AiProviderConnection.created_at:type_name -> google.protobuf.Timestamp
-	15, // 1: chalk.agent.v1.AiProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 2: chalk.agent.v1.CreateAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
-	0,  // 3: chalk.agent.v1.GetAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
-	0,  // 4: chalk.agent.v1.ListAiProviderConnectionsResponse.connections:type_name -> chalk.agent.v1.AiProviderConnection
-	0,  // 5: chalk.agent.v1.UpdateAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
-	11, // 6: chalk.agent.v1.ListAiProviderConnectionModelsRequest.candidate:type_name -> chalk.agent.v1.AiProviderConnectionCandidate
-	13, // 7: chalk.agent.v1.ListAiProviderConnectionModelsResponse.models:type_name -> chalk.agent.v1.AiProviderModel
-	1,  // 8: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:input_type -> chalk.agent.v1.CreateAiProviderConnectionRequest
-	3,  // 9: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:input_type -> chalk.agent.v1.GetAiProviderConnectionRequest
-	5,  // 10: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:input_type -> chalk.agent.v1.ListAiProviderConnectionsRequest
-	7,  // 11: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:input_type -> chalk.agent.v1.UpdateAiProviderConnectionRequest
-	9,  // 12: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:input_type -> chalk.agent.v1.DeleteAiProviderConnectionRequest
-	12, // 13: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:input_type -> chalk.agent.v1.ListAiProviderConnectionModelsRequest
-	2,  // 14: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:output_type -> chalk.agent.v1.CreateAiProviderConnectionResponse
-	4,  // 15: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:output_type -> chalk.agent.v1.GetAiProviderConnectionResponse
-	6,  // 16: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:output_type -> chalk.agent.v1.ListAiProviderConnectionsResponse
-	8,  // 17: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:output_type -> chalk.agent.v1.UpdateAiProviderConnectionResponse
-	10, // 18: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:output_type -> chalk.agent.v1.DeleteAiProviderConnectionResponse
-	14, // 19: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:output_type -> chalk.agent.v1.ListAiProviderConnectionModelsResponse
-	14, // [14:20] is the sub-list for method output_type
-	8,  // [8:14] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	20, // 0: chalk.agent.v1.AiProviderConnection.created_at:type_name -> google.protobuf.Timestamp
+	20, // 1: chalk.agent.v1.AiProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
+	5,  // 2: chalk.agent.v1.AiProviderConnection.model_overrides:type_name -> chalk.agent.v1.AiProviderModelOverrides
+	0,  // 3: chalk.agent.v1.AiProviderModelOverrides.reasoning_effort:type_name -> chalk.agent.v1.ReasoningEffort
+	1,  // 4: chalk.agent.v1.AiProviderModelOverrides.reasoning_mode:type_name -> chalk.agent.v1.ReasoningMode
+	2,  // 5: chalk.agent.v1.AiProviderModelOverrides.reasoning_context:type_name -> chalk.agent.v1.ReasoningContext
+	3,  // 6: chalk.agent.v1.AiProviderModelOverrides.text_verbosity:type_name -> chalk.agent.v1.TextVerbosity
+	5,  // 7: chalk.agent.v1.CreateAiProviderConnectionRequest.model_overrides:type_name -> chalk.agent.v1.AiProviderModelOverrides
+	4,  // 8: chalk.agent.v1.CreateAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
+	4,  // 9: chalk.agent.v1.GetAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
+	4,  // 10: chalk.agent.v1.ListAiProviderConnectionsResponse.connections:type_name -> chalk.agent.v1.AiProviderConnection
+	5,  // 11: chalk.agent.v1.UpdateAiProviderConnectionRequest.model_overrides:type_name -> chalk.agent.v1.AiProviderModelOverrides
+	4,  // 12: chalk.agent.v1.UpdateAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
+	16, // 13: chalk.agent.v1.ListAiProviderConnectionModelsRequest.candidate:type_name -> chalk.agent.v1.AiProviderConnectionCandidate
+	18, // 14: chalk.agent.v1.ListAiProviderConnectionModelsResponse.models:type_name -> chalk.agent.v1.AiProviderModel
+	6,  // 15: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:input_type -> chalk.agent.v1.CreateAiProviderConnectionRequest
+	8,  // 16: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:input_type -> chalk.agent.v1.GetAiProviderConnectionRequest
+	10, // 17: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:input_type -> chalk.agent.v1.ListAiProviderConnectionsRequest
+	12, // 18: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:input_type -> chalk.agent.v1.UpdateAiProviderConnectionRequest
+	14, // 19: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:input_type -> chalk.agent.v1.DeleteAiProviderConnectionRequest
+	17, // 20: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:input_type -> chalk.agent.v1.ListAiProviderConnectionModelsRequest
+	7,  // 21: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:output_type -> chalk.agent.v1.CreateAiProviderConnectionResponse
+	9,  // 22: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:output_type -> chalk.agent.v1.GetAiProviderConnectionResponse
+	11, // 23: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:output_type -> chalk.agent.v1.ListAiProviderConnectionsResponse
+	13, // 24: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:output_type -> chalk.agent.v1.UpdateAiProviderConnectionResponse
+	15, // 25: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:output_type -> chalk.agent.v1.DeleteAiProviderConnectionResponse
+	19, // 26: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:output_type -> chalk.agent.v1.ListAiProviderConnectionModelsResponse
+	21, // [21:27] is the sub-list for method output_type
+	15, // [15:21] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_ai_provider_connection_proto_init() }
@@ -1059,8 +1439,9 @@ func file_chalk_agent_v1_ai_provider_connection_proto_init() {
 	if File_chalk_agent_v1_ai_provider_connection_proto != nil {
 		return
 	}
-	file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[12].OneofWrappers = []any{
+	file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[8].OneofWrappers = []any{}
+	file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[13].OneofWrappers = []any{
 		(*ListAiProviderConnectionModelsRequest_ConnectionId)(nil),
 		(*ListAiProviderConnectionModelsRequest_Candidate)(nil),
 	}
@@ -1069,13 +1450,14 @@ func file_chalk_agent_v1_ai_provider_connection_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_ai_provider_connection_proto_rawDesc), len(file_chalk_agent_v1_ai_provider_connection_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   15,
+			NumEnums:      4,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_agent_v1_ai_provider_connection_proto_goTypes,
 		DependencyIndexes: file_chalk_agent_v1_ai_provider_connection_proto_depIdxs,
+		EnumInfos:         file_chalk_agent_v1_ai_provider_connection_proto_enumTypes,
 		MessageInfos:      file_chalk_agent_v1_ai_provider_connection_proto_msgTypes,
 	}.Build()
 	File_chalk_agent_v1_ai_provider_connection_proto = out.File

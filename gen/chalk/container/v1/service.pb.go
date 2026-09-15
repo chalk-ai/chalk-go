@@ -1976,7 +1976,9 @@ type ContainerResponse struct {
 	// Cloud region of the stored container cluster. Empty when unknown.
 	Region string `protobuf:"bytes,15,opt,name=region,proto3" json:"region,omitempty"`
 	// User or service-token ID, absent when the creator is unknown.
-	CreatedBy     *string `protobuf:"bytes,16,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	CreatedBy *string `protobuf:"bytes,16,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	// Additional diagnostic info for status.
+	StatusDetails *string `protobuf:"bytes,17,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2123,6 +2125,13 @@ func (x *ContainerResponse) GetRegion() string {
 func (x *ContainerResponse) GetCreatedBy() string {
 	if x != nil && x.CreatedBy != nil {
 		return *x.CreatedBy
+	}
+	return ""
+}
+
+func (x *ContainerResponse) GetStatusDetails() string {
+	if x != nil && x.StatusDetails != nil {
+		return *x.StatusDetails
 	}
 	return ""
 }
@@ -4207,7 +4216,9 @@ type UpdateContainerStatusRequest struct {
 	HostInfo *ContainerHostInfo `protobuf:"bytes,4,opt,name=host_info,json=hostInfo,proto3,oneof" json:"host_info,omitempty"`
 	// Time at which the dataplane controller observed this status.
 	// When present, used to reject stale timestamped observations. Legacy clients may omit it.
-	ObservedAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=observed_at,json=observedAt,proto3,oneof" json:"observed_at,omitempty"`
+	ObservedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=observed_at,json=observedAt,proto3,oneof" json:"observed_at,omitempty"`
+	// Additional diagnostic info for status.
+	StatusDetails *string `protobuf:"bytes,6,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4275,6 +4286,13 @@ func (x *UpdateContainerStatusRequest) GetObservedAt() *timestamppb.Timestamp {
 		return x.ObservedAt
 	}
 	return nil
+}
+
+func (x *UpdateContainerStatusRequest) GetStatusDetails() string {
+	if x != nil && x.StatusDetails != nil {
+		return *x.StatusDetails
+	}
+	return ""
 }
 
 type UpdateContainerStatusResponse struct {
@@ -5488,7 +5506,7 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"statusCode\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\x03 \x01(\tH\x01R\x05error\x88\x01\x01B\x0e\n" +
 	"\f_status_codeB\b\n" +
-	"\x06_error\"\xa2\x06\n" +
+	"\x06_error\"\xe1\x06\n" +
 	"\x11ContainerResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -5509,7 +5527,8 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\fhealth_check\x18\x0e \x01(\v2\x1f.chalk.container.v1.HealthCheckH\aR\vhealthCheck\x88\x01\x01\x12\x16\n" +
 	"\x06region\x18\x0f \x01(\tR\x06region\x12\"\n" +
 	"\n" +
-	"created_by\x18\x10 \x01(\tH\bR\tcreatedBy\x88\x01\x01B\x11\n" +
+	"created_by\x18\x10 \x01(\tH\bR\tcreatedBy\x88\x01\x01\x12*\n" +
+	"\x0estatus_details\x18\x11 \x01(\tH\tR\rstatusDetails\x88\x01\x01B\x11\n" +
 	"\x0f_status_messageB\r\n" +
 	"\v_stopped_atB\n" +
 	"\n" +
@@ -5519,7 +5538,8 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\t_ssh_hostB\v\n" +
 	"\t_ssh_portB\x0f\n" +
 	"\r_health_checkB\r\n" +
-	"\v_created_by\"Y\n" +
+	"\v_created_byB\x11\n" +
+	"\x0f_status_details\"Y\n" +
 	"\x13RunContainerRequest\x12B\n" +
 	"\tcontainer\x18\x01 \x01(\v2$.chalk.container.v1.ContainerRequestR\tcontainer\"[\n" +
 	"\x14RunContainerResponse\x12C\n" +
@@ -5687,18 +5707,20 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x14ListSessionsResponse\x12;\n" +
 	"\bsessions\x18\x01 \x03(\v2\x1f.chalk.container.v1.SessionInfoR\bsessions\",\n" +
 	"\x11ContainerHostInfo\x12\x17\n" +
-	"\ahost_id\x18\x01 \x01(\tR\x06hostId\"\xc1\x02\n" +
+	"\ahost_id\x18\x01 \x01(\tR\x06hostId\"\x80\x03\n" +
 	"\x1cUpdateContainerStatusRequest\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12*\n" +
 	"\x0estatus_message\x18\x03 \x01(\tH\x00R\rstatusMessage\x88\x01\x01\x12G\n" +
 	"\thost_info\x18\x04 \x01(\v2%.chalk.container.v1.ContainerHostInfoH\x01R\bhostInfo\x88\x01\x01\x12@\n" +
 	"\vobserved_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
-	"observedAt\x88\x01\x01B\x11\n" +
+	"observedAt\x88\x01\x01\x12*\n" +
+	"\x0estatus_details\x18\x06 \x01(\tH\x03R\rstatusDetails\x88\x01\x01B\x11\n" +
 	"\x0f_status_messageB\f\n" +
 	"\n" +
 	"_host_infoB\x0e\n" +
-	"\f_observed_at\"d\n" +
+	"\f_observed_atB\x11\n" +
+	"\x0f_status_details\"d\n" +
 	"\x1dUpdateContainerStatusResponse\x12C\n" +
 	"\tcontainer\x18\x01 \x01(\v2%.chalk.container.v1.ContainerResponseR\tcontainer\"o\n" +
 	"!BatchUpdateContainerStatusRequest\x12J\n" +

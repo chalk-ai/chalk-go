@@ -1316,25 +1316,23 @@ type UpdateEnvironmentOperation struct {
 	// routinely carry datasource credentials, so redact from the audit log.
 	AdditionalEnvVars map[string]string `protobuf:"bytes,2,rep,name=additional_env_vars,json=additionalEnvVars,proto3" json:"additional_env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// May embed pip index URLs with tokens in the userinfo.
-	PrivatePipRepositories *string                         `protobuf:"bytes,3,opt,name=private_pip_repositories,json=privatePipRepositories,proto3,oneof" json:"private_pip_repositories,omitempty"`
-	OnlineStoreKind        *string                         `protobuf:"bytes,12,opt,name=online_store_kind,json=onlineStoreKind,proto3,oneof" json:"online_store_kind,omitempty"`
-	OnlineStoreSecret      *string                         `protobuf:"bytes,4,opt,name=online_store_secret,json=onlineStoreSecret,proto3,oneof" json:"online_store_secret,omitempty"`
-	FeatureStoreSecret     *string                         `protobuf:"bytes,5,opt,name=feature_store_secret,json=featureStoreSecret,proto3,oneof" json:"feature_store_secret,omitempty"`
-	ServiceUrl             *string                         `protobuf:"bytes,7,opt,name=service_url,json=serviceUrl,proto3,oneof" json:"service_url,omitempty"`
-	WorkerUrl              *string                         `protobuf:"bytes,8,opt,name=worker_url,json=workerUrl,proto3,oneof" json:"worker_url,omitempty"`
-	BranchUrl              *string                         `protobuf:"bytes,13,opt,name=branch_url,json=branchUrl,proto3,oneof" json:"branch_url,omitempty"`
-	KubeJobNamespace       *string                         `protobuf:"bytes,9,opt,name=kube_job_namespace,json=kubeJobNamespace,proto3,oneof" json:"kube_job_namespace,omitempty"`
-	KubeServiceAccountName *string                         `protobuf:"bytes,10,opt,name=kube_service_account_name,json=kubeServiceAccountName,proto3,oneof" json:"kube_service_account_name,omitempty"`
-	EnvironmentBuckets     *EnvironmentObjectStorageConfig `protobuf:"bytes,11,opt,name=environment_buckets,json=environmentBuckets,proto3,oneof" json:"environment_buckets,omitempty"`
-	DefaultBuildProfile    *DeploymentBuildProfile         `protobuf:"varint,14,opt,name=default_build_profile,json=defaultBuildProfile,proto3,enum=chalk.server.v1.DeploymentBuildProfile,oneof" json:"default_build_profile,omitempty"`
-	PinnedBaseImage        *string                         `protobuf:"bytes,15,opt,name=pinned_base_image,json=pinnedBaseImage,proto3,oneof" json:"pinned_base_image,omitempty"`
-	// Markdown description. Present-but-empty clears the description.
-	Description *string `protobuf:"bytes,16,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	// Engine-base image the build profile resolves against. Present-but-empty clears it,
-	// restoring the metadata plane's configured default.
-	DefaultEngineBaseImage *string `protobuf:"bytes,17,opt,name=default_engine_base_image,json=defaultEngineBaseImage,proto3,oneof" json:"default_engine_base_image,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	PrivatePipRepositories        *string                         `protobuf:"bytes,3,opt,name=private_pip_repositories,json=privatePipRepositories,proto3,oneof" json:"private_pip_repositories,omitempty"`
+	OnlineStoreKind               *string                         `protobuf:"bytes,12,opt,name=online_store_kind,json=onlineStoreKind,proto3,oneof" json:"online_store_kind,omitempty"`
+	OnlineStoreSecret             *string                         `protobuf:"bytes,4,opt,name=online_store_secret,json=onlineStoreSecret,proto3,oneof" json:"online_store_secret,omitempty"`
+	FeatureStoreSecret            *string                         `protobuf:"bytes,5,opt,name=feature_store_secret,json=featureStoreSecret,proto3,oneof" json:"feature_store_secret,omitempty"`
+	ServiceUrl                    *string                         `protobuf:"bytes,7,opt,name=service_url,json=serviceUrl,proto3,oneof" json:"service_url,omitempty"`
+	WorkerUrl                     *string                         `protobuf:"bytes,8,opt,name=worker_url,json=workerUrl,proto3,oneof" json:"worker_url,omitempty"`
+	BranchUrl                     *string                         `protobuf:"bytes,13,opt,name=branch_url,json=branchUrl,proto3,oneof" json:"branch_url,omitempty"`
+	KubeJobNamespace              *string                         `protobuf:"bytes,9,opt,name=kube_job_namespace,json=kubeJobNamespace,proto3,oneof" json:"kube_job_namespace,omitempty"`
+	KubeServiceAccountName        *string                         `protobuf:"bytes,10,opt,name=kube_service_account_name,json=kubeServiceAccountName,proto3,oneof" json:"kube_service_account_name,omitempty"`
+	EnvironmentBuckets            *EnvironmentObjectStorageConfig `protobuf:"bytes,11,opt,name=environment_buckets,json=environmentBuckets,proto3,oneof" json:"environment_buckets,omitempty"`
+	DefaultBuildProfile           *DeploymentBuildProfile         `protobuf:"varint,14,opt,name=default_build_profile,json=defaultBuildProfile,proto3,enum=chalk.server.v1.DeploymentBuildProfile,oneof" json:"default_build_profile,omitempty"`
+	PinnedBaseImage               *string                         `protobuf:"bytes,15,opt,name=pinned_base_image,json=pinnedBaseImage,proto3,oneof" json:"pinned_base_image,omitempty"`
+	Description                   *string                         `protobuf:"bytes,16,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	DefaultEngineBaseImage        *string                         `protobuf:"bytes,17,opt,name=default_engine_base_image,json=defaultEngineBaseImage,proto3,oneof" json:"default_engine_base_image,omitempty"`
+	DefaultAiProviderConnectionId *string                         `protobuf:"bytes,18,opt,name=default_ai_provider_connection_id,json=defaultAiProviderConnectionId,proto3,oneof" json:"default_ai_provider_connection_id,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *UpdateEnvironmentOperation) Reset() {
@@ -1482,6 +1480,13 @@ func (x *UpdateEnvironmentOperation) GetDescription() string {
 func (x *UpdateEnvironmentOperation) GetDefaultEngineBaseImage() string {
 	if x != nil && x.DefaultEngineBaseImage != nil {
 		return *x.DefaultEngineBaseImage
+	}
+	return ""
+}
+
+func (x *UpdateEnvironmentOperation) GetDefaultAiProviderConnectionId() string {
+	if x != nil && x.DefaultAiProviderConnectionId != nil {
+		return *x.DefaultAiProviderConnectionId
 	}
 	return ""
 }
@@ -5681,7 +5686,7 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x1c_engine_docker_registry_pathB\x1a\n" +
 	"\x18_environment_id_override\"[\n" +
 	"\x19CreateEnvironmentResponse\x12>\n" +
-	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\xb7\v\n" +
+	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\xac\f\n" +
 	"\x1aUpdateEnvironmentOperation\x12\"\n" +
 	"\n" +
 	"is_default\x18\x06 \x01(\bH\x00R\tisDefault\x88\x01\x01\x12/\n" +
@@ -5705,7 +5710,8 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x15default_build_profile\x18\x0e \x01(\x0e2'.chalk.server.v1.DeploymentBuildProfileH\fR\x13defaultBuildProfile\x88\x01\x01\x12/\n" +
 	"\x11pinned_base_image\x18\x0f \x01(\tH\rR\x0fpinnedBaseImage\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\x10 \x01(\tH\x0eR\vdescription\x88\x01\x01\x12>\n" +
-	"\x19default_engine_base_image\x18\x11 \x01(\tH\x0fR\x16defaultEngineBaseImage\x88\x01\x01\x1aD\n" +
+	"\x19default_engine_base_image\x18\x11 \x01(\tH\x0fR\x16defaultEngineBaseImage\x88\x01\x01\x12M\n" +
+	"!default_ai_provider_connection_id\x18\x12 \x01(\tH\x10R\x1ddefaultAiProviderConnectionId\x88\x01\x01\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\r\n" +
@@ -5724,7 +5730,8 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x16_default_build_profileB\x14\n" +
 	"\x12_pinned_base_imageB\x0e\n" +
 	"\f_descriptionB\x1c\n" +
-	"\x1a_default_engine_base_image\"\xac\x01\n" +
+	"\x1a_default_engine_base_imageB$\n" +
+	"\"_default_ai_provider_connection_id\"\xac\x01\n" +
 	"\x18UpdateEnvironmentRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12C\n" +
 	"\x06update\x18\x02 \x01(\v2+.chalk.server.v1.UpdateEnvironmentOperationR\x06update\x12;\n" +
