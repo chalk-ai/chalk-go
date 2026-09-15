@@ -597,22 +597,12 @@ type Environment struct {
 	InternalMetadata              map[string]*structpb.Value      `protobuf:"bytes,62,rep,name=internal_metadata,json=internalMetadata,proto3" json:"internal_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	CustomerMetadata              map[string]*structpb.Value      `protobuf:"bytes,63,rep,name=customer_metadata,json=customerMetadata,proto3" json:"customer_metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	DataplaneDbDirectSecret       *string                         `protobuf:"bytes,65,opt,name=dataplane_db_direct_secret,json=dataplaneDbDirectSecret,proto3,oneof" json:"dataplane_db_direct_secret,omitempty"`
-	// Cluster class of this environment's primary (kube) cluster, resolved by joining
-	// kubernetes_clusters on kube_cluster_id. CLUSTER_CLASS_UNSPECIFIED when the environment is not
-	// linked to a cluster. Direct passthrough intended for serverless-environment detection.
-	PrimaryLinkedClusterClass ClusterClass `protobuf:"varint,66,opt,name=primary_linked_cluster_class,json=primaryLinkedClusterClass,proto3,enum=chalk.server.v1.ClusterClass" json:"primary_linked_cluster_class,omitempty"`
-	// Free-form, customer-authored description of the environment, rendered as Markdown
-	// in the dashboard. Unset means "no description".
-	Description *string `protobuf:"bytes,67,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	// Engine-base image this environment's build profile resolves against, replacing the
-	// metadata plane's configured ENGINE_BASE_IMAGE. Unlike pinned_base_image this is not a
-	// pin: the build profile still selects the o2/rust/bazel/python variant repository, and a
-	// ":latest" tag is still resolved to the newest structured version published there. Set it
-	// to point an environment at a different base-image registry (e.g. a staging registry).
-	// Unset means "use the metadata plane's configured default".
-	DefaultEngineBaseImage *string `protobuf:"bytes,68,opt,name=default_engine_base_image,json=defaultEngineBaseImage,proto3,oneof" json:"default_engine_base_image,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	PrimaryLinkedClusterClass     ClusterClass                    `protobuf:"varint,66,opt,name=primary_linked_cluster_class,json=primaryLinkedClusterClass,proto3,enum=chalk.server.v1.ClusterClass" json:"primary_linked_cluster_class,omitempty"`
+	Description                   *string                         `protobuf:"bytes,67,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	DefaultEngineBaseImage        *string                         `protobuf:"bytes,68,opt,name=default_engine_base_image,json=defaultEngineBaseImage,proto3,oneof" json:"default_engine_base_image,omitempty"`
+	DefaultAiProviderConnectionId *string                         `protobuf:"bytes,69,opt,name=default_ai_provider_connection_id,json=defaultAiProviderConnectionId,proto3,oneof" json:"default_ai_provider_connection_id,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *Environment) Reset() {
@@ -1117,6 +1107,13 @@ func (x *Environment) GetDescription() string {
 func (x *Environment) GetDefaultEngineBaseImage() string {
 	if x != nil && x.DefaultEngineBaseImage != nil {
 		return *x.DefaultEngineBaseImage
+	}
+	return ""
+}
+
+func (x *Environment) GetDefaultAiProviderConnectionId() string {
+	if x != nil && x.DefaultAiProviderConnectionId != nil {
+		return *x.DefaultAiProviderConnectionId
 	}
 	return ""
 }
@@ -1759,7 +1756,7 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x0edataset_bucket\x18\x01 \x01(\tR\rdatasetBucket\x12,\n" +
 	"\x12plan_stages_bucket\x18\x02 \x01(\tR\x10planStagesBucket\x120\n" +
 	"\x14source_bundle_bucket\x18\x03 \x01(\tR\x12sourceBundleBucket\x122\n" +
-	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xe1/\n" +
+	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xd60\n" +
 	"\vEnvironment\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x05R\x04name\x12\"\n" +
 	"\n" +
@@ -1836,7 +1833,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x1adataplane_db_direct_secret\x18A \x01(\tB\x03\xe0A\x03H4R\x17dataplaneDbDirectSecret\x88\x01\x01\x12c\n" +
 	"\x1cprimary_linked_cluster_class\x18B \x01(\x0e2\x1d.chalk.server.v1.ClusterClassB\x03\xe0A\x03R\x19primaryLinkedClusterClass\x12%\n" +
 	"\vdescription\x18C \x01(\tH5R\vdescription\x88\x01\x01\x12>\n" +
-	"\x19default_engine_base_image\x18D \x01(\tH6R\x16defaultEngineBaseImage\x88\x01\x01\x1aD\n" +
+	"\x19default_engine_base_image\x18D \x01(\tH6R\x16defaultEngineBaseImage\x88\x01\x01\x12M\n" +
+	"!default_ai_provider_connection_id\x18E \x01(\tH7R\x1ddefaultAiProviderConnectionId\x88\x01\x01\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aH\n" +
@@ -1908,7 +1906,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x11_vector_db_secretB\x1d\n" +
 	"\x1b_dataplane_db_direct_secretB\x0e\n" +
 	"\f_descriptionB\x1c\n" +
-	"\x1a_default_engine_base_image\"\\\n" +
+	"\x1a_default_engine_base_imageB$\n" +
+	"\"_default_ai_provider_connection_id\"\\\n" +
 	"\x1aCreateEnvironmentV2Request\x12>\n" +
 	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"]\n" +
 	"\x1bCreateEnvironmentV2Response\x12>\n" +
