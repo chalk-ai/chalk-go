@@ -1040,6 +1040,9 @@ func (x *ResourceShareAgent) GetRequiresAuthentication() bool {
 
 type Agent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// Sandbox for which the credential was issued. This is signed provenance,
+	// independent of the user or service account whose permissions authorize it.
+	SandboxId string `protobuf:"bytes,8,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
 	// Types that are valid to be assigned to Agent:
 	//
 	//	*Agent_UserAgent
@@ -1082,6 +1085,13 @@ func (x *Agent) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Agent.ProtoReflect.Descriptor instead.
 func (*Agent) Descriptor() ([]byte, []int) {
 	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *Agent) GetSandboxId() string {
+	if x != nil {
+		return x.SandboxId
+	}
+	return ""
 }
 
 func (x *Agent) GetAgent() isAgent_Agent {
@@ -1271,8 +1281,10 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12%\n" +
 	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x127\n" +
 	"\x05scope\x18\x04 \x01(\v2!.chalk.auth.v1.ResourceShareScopeR\x05scope\x127\n" +
-	"\x17requires_authentication\x18\x05 \x01(\bR\x16requiresAuthentication\"\xb9\x04\n" +
-	"\x05Agent\x129\n" +
+	"\x17requires_authentication\x18\x05 \x01(\bR\x16requiresAuthentication\"\xd8\x04\n" +
+	"\x05Agent\x12\x1d\n" +
+	"\n" +
+	"sandbox_id\x18\b \x01(\tR\tsandboxId\x129\n" +
 	"\n" +
 	"user_agent\x18\x01 \x01(\v2\x18.chalk.auth.v1.UserAgentH\x00R\tuserAgent\x12R\n" +
 	"\x13service_token_agent\x18\x02 \x01(\v2 .chalk.auth.v1.ServiceTokenAgentH\x00R\x11serviceTokenAgent\x12?\n" +

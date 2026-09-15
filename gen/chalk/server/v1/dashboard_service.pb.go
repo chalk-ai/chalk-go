@@ -837,8 +837,10 @@ func (*DeleteDashboardResponse) Descriptor() ([]byte, []int) {
 }
 
 type ExportDashboardRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DashboardId   string                 `protobuf:"bytes,1,opt,name=dashboard_id,json=dashboardId,proto3" json:"dashboard_id,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	DashboardId string                 `protobuf:"bytes,1,opt,name=dashboard_id,json=dashboardId,proto3" json:"dashboard_id,omitempty"`
+	// Include saved dashboard and widget IDs for editing. Omitted by default for portable exports.
+	IncludeIds    bool `protobuf:"varint,2,opt,name=include_ids,json=includeIds,proto3" json:"include_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -880,11 +882,17 @@ func (x *ExportDashboardRequest) GetDashboardId() string {
 	return ""
 }
 
+func (x *ExportDashboardRequest) GetIncludeIds() bool {
+	if x != nil {
+		return x.IncludeIds
+	}
+	return false
+}
+
 type ExportDashboardResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The dashboard in the versioned public dashboard JSON format, pretty-printed. Server-assigned
-	// fields (ids, environment, timestamps) are omitted, so the payload is portable across
-	// environments and safe to re-import.
+	// fields are omitted by default for portability. include_ids adds dashboard and widget IDs.
 	DashboardJsonString string `protobuf:"bytes,1,opt,name=dashboard_json_string,json=dashboardJsonString,proto3" json:"dashboard_json_string,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -1363,9 +1371,11 @@ const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
 	"\bcontrols\x18\x02 \x01(\v2\".chalk.server.v1.DashboardControlsR\bcontrols\";\n" +
 	"\x16DeleteDashboardRequest\x12!\n" +
 	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\"\x19\n" +
-	"\x17DeleteDashboardResponse\";\n" +
+	"\x17DeleteDashboardResponse\"\\\n" +
 	"\x16ExportDashboardRequest\x12!\n" +
-	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\"M\n" +
+	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\x12\x1f\n" +
+	"\vinclude_ids\x18\x02 \x01(\bR\n" +
+	"includeIds\"M\n" +
 	"\x17ExportDashboardResponse\x122\n" +
 	"\x15dashboard_json_string\x18\x01 \x01(\tR\x13dashboardJsonString\"\x98\x01\n" +
 	"\x16ImportDashboardRequest\x122\n" +

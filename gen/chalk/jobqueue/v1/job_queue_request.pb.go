@@ -90,6 +90,7 @@ type JobQueueRequest struct {
 	//	*JobQueueRequest_ScriptTaskRequest
 	//	*JobQueueRequest_FillWideTablesRequest
 	//	*JobQueueRequest_CompactWideTablesRequest
+	//	*JobQueueRequest_CatalogIntrospectionRequest
 	Payload       isJobQueueRequest_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -231,6 +232,15 @@ func (x *JobQueueRequest) GetCompactWideTablesRequest() *CompactWideTablesJobReq
 	return nil
 }
 
+func (x *JobQueueRequest) GetCatalogIntrospectionRequest() *CatalogIntrospectionJobRequest {
+	if x != nil {
+		if x, ok := x.Payload.(*JobQueueRequest_CatalogIntrospectionRequest); ok {
+			return x.CatalogIntrospectionRequest
+		}
+	}
+	return nil
+}
+
 type isJobQueueRequest_Payload interface {
 	isJobQueueRequest_Payload()
 }
@@ -279,6 +289,10 @@ type JobQueueRequest_CompactWideTablesRequest struct {
 	CompactWideTablesRequest *CompactWideTablesJobRequest `protobuf:"bytes,17,opt,name=compact_wide_tables_request,json=compactWideTablesRequest,proto3,oneof"`
 }
 
+type JobQueueRequest_CatalogIntrospectionRequest struct {
+	CatalogIntrospectionRequest *CatalogIntrospectionJobRequest `protobuf:"bytes,18,opt,name=catalog_introspection_request,json=catalogIntrospectionRequest,proto3,oneof"`
+}
+
 func (*JobQueueRequest_OfflineQueryRequest) isJobQueueRequest_Payload() {}
 
 func (*JobQueueRequest_ScheduledQueryRequest) isJobQueueRequest_Payload() {}
@@ -300,6 +314,106 @@ func (*JobQueueRequest_ScriptTaskRequest) isJobQueueRequest_Payload() {}
 func (*JobQueueRequest_FillWideTablesRequest) isJobQueueRequest_Payload() {}
 
 func (*JobQueueRequest_CompactWideTablesRequest) isJobQueueRequest_Payload() {}
+
+func (*JobQueueRequest_CatalogIntrospectionRequest) isJobQueueRequest_Payload() {}
+
+// Config for an asynchronous census of one data source's catalog: the engine
+// walks the source's metadata and uploads the assembled snapshot, and the
+// metadata plane ingests it into the catalog store.
+//
+// A census is metadata-only but can run for many minutes on a wide warehouse,
+// which is why it is a job rather than the synchronous
+// CatalogIntrospectionService.GetSourceSnapshot call the dashboard makes.
+type CatalogIntrospectionJobRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Datasource to census, named as the catalog keys it. The name is required.
+	SourceName string `protobuf:"bytes,1,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`
+	// Expected source type ("postgres", "snowflake", ...). When set, the engine
+	// checks it against the datasource and fails the job on a mismatch rather
+	// than censusing a source the caller did not mean. Empty means "whatever
+	// type that datasource has".
+	SourceType string `protobuf:"bytes,2,opt,name=source_type,json=sourceType,proto3" json:"source_type,omitempty"`
+	// Restrict the census to one schema. Absent means "the whole source", which
+	// is what the connection reports as its own scope -- not everything the
+	// connection can reach.
+	DbSchemaFilter *string `protobuf:"bytes,3,opt,name=db_schema_filter,json=dbSchemaFilter,proto3,oneof" json:"db_schema_filter,omitempty"`
+	// The catalog_sync_run row the metadata plane opened for this census. Echoed
+	// back on the upload so the ingest can be attributed to the run that asked
+	// for it.
+	SyncRunId string `protobuf:"bytes,4,opt,name=sync_run_id,json=syncRunId,proto3" json:"sync_run_id,omitempty"`
+	// Signed URL the job PUTs the serialized chalk.catalog.v1
+	// GetSourceSnapshotResponse to. Signed rather than a bucket path because an
+	// engine job holds no metadata-plane credentials; the same seam the sandbox
+	// export-processing job uses for its result.
+	SnapshotUploadUrl string `protobuf:"bytes,5,opt,name=snapshot_upload_url,json=snapshotUploadUrl,proto3" json:"snapshot_upload_url,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *CatalogIntrospectionJobRequest) Reset() {
+	*x = CatalogIntrospectionJobRequest{}
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CatalogIntrospectionJobRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CatalogIntrospectionJobRequest) ProtoMessage() {}
+
+func (x *CatalogIntrospectionJobRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CatalogIntrospectionJobRequest.ProtoReflect.Descriptor instead.
+func (*CatalogIntrospectionJobRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *CatalogIntrospectionJobRequest) GetSourceName() string {
+	if x != nil {
+		return x.SourceName
+	}
+	return ""
+}
+
+func (x *CatalogIntrospectionJobRequest) GetSourceType() string {
+	if x != nil {
+		return x.SourceType
+	}
+	return ""
+}
+
+func (x *CatalogIntrospectionJobRequest) GetDbSchemaFilter() string {
+	if x != nil && x.DbSchemaFilter != nil {
+		return *x.DbSchemaFilter
+	}
+	return ""
+}
+
+func (x *CatalogIntrospectionJobRequest) GetSyncRunId() string {
+	if x != nil {
+		return x.SyncRunId
+	}
+	return ""
+}
+
+func (x *CatalogIntrospectionJobRequest) GetSnapshotUploadUrl() string {
+	if x != nil {
+		return x.SnapshotUploadUrl
+	}
+	return ""
+}
 
 // Config for the FillWideTablesFromSkinnyTables batch job. Namespace is the only
 // per-run input; the subprocess (Rust OfflineStore) derives the skinny source
@@ -328,7 +442,7 @@ type FillWideTablesJobRequest struct {
 
 func (x *FillWideTablesJobRequest) Reset() {
 	*x = FillWideTablesJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[1]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -340,7 +454,7 @@ func (x *FillWideTablesJobRequest) String() string {
 func (*FillWideTablesJobRequest) ProtoMessage() {}
 
 func (x *FillWideTablesJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[1]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -353,7 +467,7 @@ func (x *FillWideTablesJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FillWideTablesJobRequest.ProtoReflect.Descriptor instead.
 func (*FillWideTablesJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{1}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *FillWideTablesJobRequest) GetNamespace() string {
@@ -414,7 +528,7 @@ type CompactWideTablesJobRequest struct {
 
 func (x *CompactWideTablesJobRequest) Reset() {
 	*x = CompactWideTablesJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[2]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -426,7 +540,7 @@ func (x *CompactWideTablesJobRequest) String() string {
 func (*CompactWideTablesJobRequest) ProtoMessage() {}
 
 func (x *CompactWideTablesJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[2]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -439,7 +553,7 @@ func (x *CompactWideTablesJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompactWideTablesJobRequest.ProtoReflect.Descriptor instead.
 func (*CompactWideTablesJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{2}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CompactWideTablesJobRequest) GetNamespace() string {
@@ -481,7 +595,7 @@ type OfflineQueryJobRequest struct {
 
 func (x *OfflineQueryJobRequest) Reset() {
 	*x = OfflineQueryJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[3]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -493,7 +607,7 @@ func (x *OfflineQueryJobRequest) String() string {
 func (*OfflineQueryJobRequest) ProtoMessage() {}
 
 func (x *OfflineQueryJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[3]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,7 +620,7 @@ func (x *OfflineQueryJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryJobRequest.ProtoReflect.Descriptor instead.
 func (*OfflineQueryJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{3}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *OfflineQueryJobRequest) GetRequestPayload() isOfflineQueryJobRequest_RequestPayload {
@@ -604,7 +718,7 @@ type ScheduledQueryJobRequest struct {
 
 func (x *ScheduledQueryJobRequest) Reset() {
 	*x = ScheduledQueryJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[4]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -616,7 +730,7 @@ func (x *ScheduledQueryJobRequest) String() string {
 func (*ScheduledQueryJobRequest) ProtoMessage() {}
 
 func (x *ScheduledQueryJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[4]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -629,7 +743,7 @@ func (x *ScheduledQueryJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduledQueryJobRequest.ProtoReflect.Descriptor instead.
 func (*ScheduledQueryJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{4}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ScheduledQueryJobRequest) GetRequestPayload() isScheduledQueryJobRequest_RequestPayload {
@@ -702,7 +816,7 @@ type AggregationBackfillJobRequest struct {
 
 func (x *AggregationBackfillJobRequest) Reset() {
 	*x = AggregationBackfillJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[5]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -714,7 +828,7 @@ func (x *AggregationBackfillJobRequest) String() string {
 func (*AggregationBackfillJobRequest) ProtoMessage() {}
 
 func (x *AggregationBackfillJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[5]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -727,7 +841,7 @@ func (x *AggregationBackfillJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AggregationBackfillJobRequest.ProtoReflect.Descriptor instead.
 func (*AggregationBackfillJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{5}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AggregationBackfillJobRequest) GetFeatures() []string {
@@ -893,7 +1007,7 @@ type ChalkSqlRunJobRequest struct {
 
 func (x *ChalkSqlRunJobRequest) Reset() {
 	*x = ChalkSqlRunJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[6]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -905,7 +1019,7 @@ func (x *ChalkSqlRunJobRequest) String() string {
 func (*ChalkSqlRunJobRequest) ProtoMessage() {}
 
 func (x *ChalkSqlRunJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[6]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -918,7 +1032,7 @@ func (x *ChalkSqlRunJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkSqlRunJobRequest.ProtoReflect.Descriptor instead.
 func (*ChalkSqlRunJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{6}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ChalkSqlRunJobRequest) GetQuery() string {
@@ -1028,7 +1142,7 @@ type DataframeRunJobRequest struct {
 
 func (x *DataframeRunJobRequest) Reset() {
 	*x = DataframeRunJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[7]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1040,7 +1154,7 @@ func (x *DataframeRunJobRequest) String() string {
 func (*DataframeRunJobRequest) ProtoMessage() {}
 
 func (x *DataframeRunJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[7]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1053,7 +1167,7 @@ func (x *DataframeRunJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataframeRunJobRequest.ProtoReflect.Descriptor instead.
 func (*DataframeRunJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{7}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DataframeRunJobRequest) GetOperationId() string {
@@ -1113,7 +1227,7 @@ type MetaplanRunJobRequest struct {
 
 func (x *MetaplanRunJobRequest) Reset() {
 	*x = MetaplanRunJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[8]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1125,7 +1239,7 @@ func (x *MetaplanRunJobRequest) String() string {
 func (*MetaplanRunJobRequest) ProtoMessage() {}
 
 func (x *MetaplanRunJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[8]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1138,7 +1252,7 @@ func (x *MetaplanRunJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetaplanRunJobRequest.ProtoReflect.Descriptor instead.
 func (*MetaplanRunJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{8}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *MetaplanRunJobRequest) GetWorkflowExecutionId() string {
@@ -1208,7 +1322,7 @@ type MetaplanPlanScheduledQueryRequest struct {
 
 func (x *MetaplanPlanScheduledQueryRequest) Reset() {
 	*x = MetaplanPlanScheduledQueryRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[9]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1220,7 +1334,7 @@ func (x *MetaplanPlanScheduledQueryRequest) String() string {
 func (*MetaplanPlanScheduledQueryRequest) ProtoMessage() {}
 
 func (x *MetaplanPlanScheduledQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[9]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1233,7 +1347,7 @@ func (x *MetaplanPlanScheduledQueryRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use MetaplanPlanScheduledQueryRequest.ProtoReflect.Descriptor instead.
 func (*MetaplanPlanScheduledQueryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{9}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *MetaplanPlanScheduledQueryRequest) GetOriginalQueryBody() *OfflineQueryJobBody {
@@ -1276,7 +1390,7 @@ type MetaplanPlanOfflineQueryRequest struct {
 
 func (x *MetaplanPlanOfflineQueryRequest) Reset() {
 	*x = MetaplanPlanOfflineQueryRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[10]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1288,7 +1402,7 @@ func (x *MetaplanPlanOfflineQueryRequest) String() string {
 func (*MetaplanPlanOfflineQueryRequest) ProtoMessage() {}
 
 func (x *MetaplanPlanOfflineQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[10]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1301,7 +1415,7 @@ func (x *MetaplanPlanOfflineQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetaplanPlanOfflineQueryRequest.ProtoReflect.Descriptor instead.
 func (*MetaplanPlanOfflineQueryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{10}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *MetaplanPlanOfflineQueryRequest) GetQuery() *OfflineQueryJobBody {
@@ -1350,7 +1464,7 @@ type MetaplanJobQueueRequestTemplate struct {
 
 func (x *MetaplanJobQueueRequestTemplate) Reset() {
 	*x = MetaplanJobQueueRequestTemplate{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[11]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1362,7 +1476,7 @@ func (x *MetaplanJobQueueRequestTemplate) String() string {
 func (*MetaplanJobQueueRequestTemplate) ProtoMessage() {}
 
 func (x *MetaplanJobQueueRequestTemplate) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[11]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1375,7 +1489,7 @@ func (x *MetaplanJobQueueRequestTemplate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetaplanJobQueueRequestTemplate.ProtoReflect.Descriptor instead.
 func (*MetaplanJobQueueRequestTemplate) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{11}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *MetaplanJobQueueRequestTemplate) GetEnvPayload() map[string]string {
@@ -1472,7 +1586,7 @@ type PlanQueryJobRequest struct {
 
 func (x *PlanQueryJobRequest) Reset() {
 	*x = PlanQueryJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[12]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1484,7 +1598,7 @@ func (x *PlanQueryJobRequest) String() string {
 func (*PlanQueryJobRequest) ProtoMessage() {}
 
 func (x *PlanQueryJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[12]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1497,7 +1611,7 @@ func (x *PlanQueryJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanQueryJobRequest.ProtoReflect.Descriptor instead.
 func (*PlanQueryJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{12}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *PlanQueryJobRequest) GetInputs() []string {
@@ -1621,7 +1735,7 @@ type OfflineQueryStringList struct {
 
 func (x *OfflineQueryStringList) Reset() {
 	*x = OfflineQueryStringList{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[13]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1633,7 +1747,7 @@ func (x *OfflineQueryStringList) String() string {
 func (*OfflineQueryStringList) ProtoMessage() {}
 
 func (x *OfflineQueryStringList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[13]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1646,7 +1760,7 @@ func (x *OfflineQueryStringList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryStringList.ProtoReflect.Descriptor instead.
 func (*OfflineQueryStringList) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{13}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *OfflineQueryStringList) GetValues() []string {
@@ -1669,7 +1783,7 @@ type OfflineQueryFeatureName struct {
 
 func (x *OfflineQueryFeatureName) Reset() {
 	*x = OfflineQueryFeatureName{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[14]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1681,7 +1795,7 @@ func (x *OfflineQueryFeatureName) String() string {
 func (*OfflineQueryFeatureName) ProtoMessage() {}
 
 func (x *OfflineQueryFeatureName) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[14]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1694,7 +1808,7 @@ func (x *OfflineQueryFeatureName) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryFeatureName.ProtoReflect.Descriptor instead.
 func (*OfflineQueryFeatureName) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{14}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *OfflineQueryFeatureName) GetValue() isOfflineQueryFeatureName_Value {
@@ -1754,7 +1868,7 @@ type OfflineQueryContextValue struct {
 
 func (x *OfflineQueryContextValue) Reset() {
 	*x = OfflineQueryContextValue{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[15]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1766,7 +1880,7 @@ func (x *OfflineQueryContextValue) String() string {
 func (*OfflineQueryContextValue) ProtoMessage() {}
 
 func (x *OfflineQueryContextValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[15]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1779,7 +1893,7 @@ func (x *OfflineQueryContextValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryContextValue.ProtoReflect.Descriptor instead.
 func (*OfflineQueryContextValue) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{15}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *OfflineQueryContextValue) GetValue() isOfflineQueryContextValue_Value {
@@ -1880,7 +1994,7 @@ type OfflineQueryDeadlineOptions struct {
 
 func (x *OfflineQueryDeadlineOptions) Reset() {
 	*x = OfflineQueryDeadlineOptions{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[16]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1892,7 +2006,7 @@ func (x *OfflineQueryDeadlineOptions) String() string {
 func (*OfflineQueryDeadlineOptions) ProtoMessage() {}
 
 func (x *OfflineQueryDeadlineOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[16]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1905,7 +2019,7 @@ func (x *OfflineQueryDeadlineOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryDeadlineOptions.ProtoReflect.Descriptor instead.
 func (*OfflineQueryDeadlineOptions) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{16}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *OfflineQueryDeadlineOptions) GetShardDeadline() *durationpb.Duration {
@@ -1949,7 +2063,7 @@ type OfflineQueryRecomputeFeatures struct {
 
 func (x *OfflineQueryRecomputeFeatures) Reset() {
 	*x = OfflineQueryRecomputeFeatures{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[17]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1961,7 +2075,7 @@ func (x *OfflineQueryRecomputeFeatures) String() string {
 func (*OfflineQueryRecomputeFeatures) ProtoMessage() {}
 
 func (x *OfflineQueryRecomputeFeatures) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[17]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1974,7 +2088,7 @@ func (x *OfflineQueryRecomputeFeatures) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryRecomputeFeatures.ProtoReflect.Descriptor instead.
 func (*OfflineQueryRecomputeFeatures) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{17}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *OfflineQueryRecomputeFeatures) GetValue() isOfflineQueryRecomputeFeatures_Value {
@@ -2031,7 +2145,7 @@ type OfflineQueryExplain struct {
 
 func (x *OfflineQueryExplain) Reset() {
 	*x = OfflineQueryExplain{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[18]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2043,7 +2157,7 @@ func (x *OfflineQueryExplain) String() string {
 func (*OfflineQueryExplain) ProtoMessage() {}
 
 func (x *OfflineQueryExplain) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[18]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2056,7 +2170,7 @@ func (x *OfflineQueryExplain) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryExplain.ProtoReflect.Descriptor instead.
 func (*OfflineQueryExplain) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{18}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *OfflineQueryExplain) GetValue() isOfflineQueryExplain_Value {
@@ -2110,7 +2224,7 @@ type OfflineQueryLiteralInput struct {
 
 func (x *OfflineQueryLiteralInput) Reset() {
 	*x = OfflineQueryLiteralInput{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[19]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2122,7 +2236,7 @@ func (x *OfflineQueryLiteralInput) String() string {
 func (*OfflineQueryLiteralInput) ProtoMessage() {}
 
 func (x *OfflineQueryLiteralInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[19]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2135,7 +2249,7 @@ func (x *OfflineQueryLiteralInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryLiteralInput.ProtoReflect.Descriptor instead.
 func (*OfflineQueryLiteralInput) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{19}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *OfflineQueryLiteralInput) GetColumns() []string {
@@ -2161,7 +2275,7 @@ type OfflineQueryShardedLiteralInput struct {
 
 func (x *OfflineQueryShardedLiteralInput) Reset() {
 	*x = OfflineQueryShardedLiteralInput{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[20]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2173,7 +2287,7 @@ func (x *OfflineQueryShardedLiteralInput) String() string {
 func (*OfflineQueryShardedLiteralInput) ProtoMessage() {}
 
 func (x *OfflineQueryShardedLiteralInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[20]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2186,7 +2300,7 @@ func (x *OfflineQueryShardedLiteralInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryShardedLiteralInput.ProtoReflect.Descriptor instead.
 func (*OfflineQueryShardedLiteralInput) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{20}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *OfflineQueryShardedLiteralInput) GetInputs() []*OfflineQueryLiteralInput {
@@ -2206,7 +2320,7 @@ type OfflineQueryUploadedParquetShardedInput struct {
 
 func (x *OfflineQueryUploadedParquetShardedInput) Reset() {
 	*x = OfflineQueryUploadedParquetShardedInput{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[21]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2218,7 +2332,7 @@ func (x *OfflineQueryUploadedParquetShardedInput) String() string {
 func (*OfflineQueryUploadedParquetShardedInput) ProtoMessage() {}
 
 func (x *OfflineQueryUploadedParquetShardedInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[21]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2231,7 +2345,7 @@ func (x *OfflineQueryUploadedParquetShardedInput) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use OfflineQueryUploadedParquetShardedInput.ProtoReflect.Descriptor instead.
 func (*OfflineQueryUploadedParquetShardedInput) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{21}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *OfflineQueryUploadedParquetShardedInput) GetFilenames() []string {
@@ -2267,7 +2381,7 @@ type OfflineQueryUriInput struct {
 
 func (x *OfflineQueryUriInput) Reset() {
 	*x = OfflineQueryUriInput{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[22]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2279,7 +2393,7 @@ func (x *OfflineQueryUriInput) String() string {
 func (*OfflineQueryUriInput) ProtoMessage() {}
 
 func (x *OfflineQueryUriInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[22]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2292,7 +2406,7 @@ func (x *OfflineQueryUriInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryUriInput.ProtoReflect.Descriptor instead.
 func (*OfflineQueryUriInput) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{22}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *OfflineQueryUriInput) GetParquetUri() string {
@@ -2381,7 +2495,7 @@ type OfflineQuerySqlInput struct {
 
 func (x *OfflineQuerySqlInput) Reset() {
 	*x = OfflineQuerySqlInput{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[23]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2393,7 +2507,7 @@ func (x *OfflineQuerySqlInput) String() string {
 func (*OfflineQuerySqlInput) ProtoMessage() {}
 
 func (x *OfflineQuerySqlInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[23]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2406,7 +2520,7 @@ func (x *OfflineQuerySqlInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQuerySqlInput.ProtoReflect.Descriptor instead.
 func (*OfflineQuerySqlInput) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{23}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *OfflineQuerySqlInput) GetInputSql() string {
@@ -2425,7 +2539,7 @@ type OfflineQueryManifestInput struct {
 
 func (x *OfflineQueryManifestInput) Reset() {
 	*x = OfflineQueryManifestInput{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[24]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2437,7 +2551,7 @@ func (x *OfflineQueryManifestInput) String() string {
 func (*OfflineQueryManifestInput) ProtoMessage() {}
 
 func (x *OfflineQueryManifestInput) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[24]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2450,7 +2564,7 @@ func (x *OfflineQueryManifestInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryManifestInput.ProtoReflect.Descriptor instead.
 func (*OfflineQueryManifestInput) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{24}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *OfflineQueryManifestInput) GetManifestUri() string {
@@ -2470,7 +2584,7 @@ type OfflineQueryGivensParquetFilename struct {
 
 func (x *OfflineQueryGivensParquetFilename) Reset() {
 	*x = OfflineQueryGivensParquetFilename{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[25]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2482,7 +2596,7 @@ func (x *OfflineQueryGivensParquetFilename) String() string {
 func (*OfflineQueryGivensParquetFilename) ProtoMessage() {}
 
 func (x *OfflineQueryGivensParquetFilename) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[25]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2495,7 +2609,7 @@ func (x *OfflineQueryGivensParquetFilename) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use OfflineQueryGivensParquetFilename.ProtoReflect.Descriptor instead.
 func (*OfflineQueryGivensParquetFilename) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{25}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *OfflineQueryGivensParquetFilename) GetFilename() string {
@@ -2531,7 +2645,7 @@ type OfflineQueryInputSpec struct {
 
 func (x *OfflineQueryInputSpec) Reset() {
 	*x = OfflineQueryInputSpec{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[26]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2543,7 +2657,7 @@ func (x *OfflineQueryInputSpec) String() string {
 func (*OfflineQueryInputSpec) ProtoMessage() {}
 
 func (x *OfflineQueryInputSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[26]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2556,7 +2670,7 @@ func (x *OfflineQueryInputSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryInputSpec.ProtoReflect.Descriptor instead.
 func (*OfflineQueryInputSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{26}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *OfflineQueryInputSpec) GetValue() isOfflineQueryInputSpec_Value {
@@ -2700,7 +2814,7 @@ type UnloadResolverSpec struct {
 
 func (x *UnloadResolverSpec) Reset() {
 	*x = UnloadResolverSpec{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[27]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2712,7 +2826,7 @@ func (x *UnloadResolverSpec) String() string {
 func (*UnloadResolverSpec) ProtoMessage() {}
 
 func (x *UnloadResolverSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[27]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2725,7 +2839,7 @@ func (x *UnloadResolverSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnloadResolverSpec.ProtoReflect.Descriptor instead.
 func (*UnloadResolverSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{27}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *UnloadResolverSpec) GetFqn() string {
@@ -2756,7 +2870,7 @@ type OfflineQueryPersistenceSettings struct {
 
 func (x *OfflineQueryPersistenceSettings) Reset() {
 	*x = OfflineQueryPersistenceSettings{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[28]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2768,7 +2882,7 @@ func (x *OfflineQueryPersistenceSettings) String() string {
 func (*OfflineQueryPersistenceSettings) ProtoMessage() {}
 
 func (x *OfflineQueryPersistenceSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[28]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2781,7 +2895,7 @@ func (x *OfflineQueryPersistenceSettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryPersistenceSettings.ProtoReflect.Descriptor instead.
 func (*OfflineQueryPersistenceSettings) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{28}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *OfflineQueryPersistenceSettings) GetPersistVerboseMetrics() bool {
@@ -2839,7 +2953,7 @@ type OfflineQueryHwmIdentifier struct {
 
 func (x *OfflineQueryHwmIdentifier) Reset() {
 	*x = OfflineQueryHwmIdentifier{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[29]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2851,7 +2965,7 @@ func (x *OfflineQueryHwmIdentifier) String() string {
 func (*OfflineQueryHwmIdentifier) ProtoMessage() {}
 
 func (x *OfflineQueryHwmIdentifier) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[29]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2864,7 +2978,7 @@ func (x *OfflineQueryHwmIdentifier) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryHwmIdentifier.ProtoReflect.Descriptor instead.
 func (*OfflineQueryHwmIdentifier) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{29}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *OfflineQueryHwmIdentifier) GetValue() isOfflineQueryHwmIdentifier_Value {
@@ -2989,7 +3103,7 @@ type OfflineQueryJobBody struct {
 
 func (x *OfflineQueryJobBody) Reset() {
 	*x = OfflineQueryJobBody{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[30]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3001,7 +3115,7 @@ func (x *OfflineQueryJobBody) String() string {
 func (*OfflineQueryJobBody) ProtoMessage() {}
 
 func (x *OfflineQueryJobBody) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[30]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3014,7 +3128,7 @@ func (x *OfflineQueryJobBody) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryJobBody.ProtoReflect.Descriptor instead.
 func (*OfflineQueryJobBody) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{30}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *OfflineQueryJobBody) GetOutput() []string {
@@ -3531,7 +3645,7 @@ type OfflineQueryWorkerIdentifier struct {
 
 func (x *OfflineQueryWorkerIdentifier) Reset() {
 	*x = OfflineQueryWorkerIdentifier{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[31]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3543,7 +3657,7 @@ func (x *OfflineQueryWorkerIdentifier) String() string {
 func (*OfflineQueryWorkerIdentifier) ProtoMessage() {}
 
 func (x *OfflineQueryWorkerIdentifier) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[31]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3556,7 +3670,7 @@ func (x *OfflineQueryWorkerIdentifier) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineQueryWorkerIdentifier.ProtoReflect.Descriptor instead.
 func (*OfflineQueryWorkerIdentifier) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{31}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *OfflineQueryWorkerIdentifier) GetRevisionId() string {
@@ -3631,7 +3745,7 @@ type PlannerOptionsStringList struct {
 
 func (x *PlannerOptionsStringList) Reset() {
 	*x = PlannerOptionsStringList{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[32]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3643,7 +3757,7 @@ func (x *PlannerOptionsStringList) String() string {
 func (*PlannerOptionsStringList) ProtoMessage() {}
 
 func (x *PlannerOptionsStringList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[32]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3656,7 +3770,7 @@ func (x *PlannerOptionsStringList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlannerOptionsStringList.ProtoReflect.Descriptor instead.
 func (*PlannerOptionsStringList) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{32}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *PlannerOptionsStringList) GetValues() []string {
@@ -3676,7 +3790,7 @@ type PlannerOptionsStringPair struct {
 
 func (x *PlannerOptionsStringPair) Reset() {
 	*x = PlannerOptionsStringPair{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[33]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3688,7 +3802,7 @@ func (x *PlannerOptionsStringPair) String() string {
 func (*PlannerOptionsStringPair) ProtoMessage() {}
 
 func (x *PlannerOptionsStringPair) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[33]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3701,7 +3815,7 @@ func (x *PlannerOptionsStringPair) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlannerOptionsStringPair.ProtoReflect.Descriptor instead.
 func (*PlannerOptionsStringPair) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{33}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *PlannerOptionsStringPair) GetKey() string {
@@ -3727,7 +3841,7 @@ type PlannerOptionsStringPairs struct {
 
 func (x *PlannerOptionsStringPairs) Reset() {
 	*x = PlannerOptionsStringPairs{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[34]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3739,7 +3853,7 @@ func (x *PlannerOptionsStringPairs) String() string {
 func (*PlannerOptionsStringPairs) ProtoMessage() {}
 
 func (x *PlannerOptionsStringPairs) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[34]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3752,7 +3866,7 @@ func (x *PlannerOptionsStringPairs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlannerOptionsStringPairs.ProtoReflect.Descriptor instead.
 func (*PlannerOptionsStringPairs) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{34}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *PlannerOptionsStringPairs) GetValues() []*PlannerOptionsStringPair {
@@ -3949,7 +4063,7 @@ type PlannerOptions struct {
 
 func (x *PlannerOptions) Reset() {
 	*x = PlannerOptions{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[35]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3961,7 +4075,7 @@ func (x *PlannerOptions) String() string {
 func (*PlannerOptions) ProtoMessage() {}
 
 func (x *PlannerOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[35]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3974,7 +4088,7 @@ func (x *PlannerOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlannerOptions.ProtoReflect.Descriptor instead.
 func (*PlannerOptions) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{35}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *PlannerOptions) GetShouldAutoPartitionSpine() bool {
@@ -4926,7 +5040,7 @@ type UnloadResolverJobRequest struct {
 
 func (x *UnloadResolverJobRequest) Reset() {
 	*x = UnloadResolverJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[36]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4938,7 +5052,7 @@ func (x *UnloadResolverJobRequest) String() string {
 func (*UnloadResolverJobRequest) ProtoMessage() {}
 
 func (x *UnloadResolverJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[36]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4951,7 +5065,7 @@ func (x *UnloadResolverJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnloadResolverJobRequest.ProtoReflect.Descriptor instead.
 func (*UnloadResolverJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{36}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *UnloadResolverJobRequest) GetOutput() []string {
@@ -5076,7 +5190,7 @@ type ScriptTaskJobRequest struct {
 
 func (x *ScriptTaskJobRequest) Reset() {
 	*x = ScriptTaskJobRequest{}
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[37]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5088,7 +5202,7 @@ func (x *ScriptTaskJobRequest) String() string {
 func (*ScriptTaskJobRequest) ProtoMessage() {}
 
 func (x *ScriptTaskJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[37]
+	mi := &file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5101,7 +5215,7 @@ func (x *ScriptTaskJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScriptTaskJobRequest.ProtoReflect.Descriptor instead.
 func (*ScriptTaskJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{37}
+	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ScriptTaskJobRequest) GetRequest() *v11.ScriptTaskRequest {
@@ -5122,7 +5236,7 @@ var File_chalk_jobqueue_v1_job_queue_request_proto protoreflect.FileDescriptor
 
 const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\n" +
-	")chalk/jobqueue/v1/job_queue_request.proto\x12\x11chalk.jobqueue.v1\x1a%chalk/auth/v1/featurepermission.proto\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a!chalk/common/v1/script_task.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xf0\b\n" +
+	")chalk/jobqueue/v1/job_queue_request.proto\x12\x11chalk.jobqueue.v1\x1a%chalk/auth/v1/featurepermission.proto\x1a#chalk/common/v1/offline_query.proto\x1a\"chalk/common/v1/online_query.proto\x1a!chalk/common/v1/script_task.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xe9\t\n" +
 	"\x0fJobQueueRequest\x12_\n" +
 	"\x15offline_query_request\x18\x01 \x01(\v2).chalk.jobqueue.v1.OfflineQueryJobRequestH\x00R\x13offlineQueryRequest\x12e\n" +
 	"\x17scheduled_query_request\x18\x02 \x01(\v2+.chalk.jobqueue.v1.ScheduledQueryJobRequestH\x00R\x15scheduledQueryRequest\x12t\n" +
@@ -5134,8 +5248,18 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x17unload_resolver_request\x18\b \x01(\v2+.chalk.jobqueue.v1.UnloadResolverJobRequestH\x00R\x15unloadResolverRequest\x12Y\n" +
 	"\x13script_task_request\x18\x0f \x01(\v2'.chalk.jobqueue.v1.ScriptTaskJobRequestH\x00R\x11scriptTaskRequest\x12f\n" +
 	"\x18fill_wide_tables_request\x18\x10 \x01(\v2+.chalk.jobqueue.v1.FillWideTablesJobRequestH\x00R\x15fillWideTablesRequest\x12o\n" +
-	"\x1bcompact_wide_tables_request\x18\x11 \x01(\v2..chalk.jobqueue.v1.CompactWideTablesJobRequestH\x00R\x18compactWideTablesRequestB\t\n" +
-	"\apayloadJ\x04\b\t\x10\x0f\"\xcf\x02\n" +
+	"\x1bcompact_wide_tables_request\x18\x11 \x01(\v2..chalk.jobqueue.v1.CompactWideTablesJobRequestH\x00R\x18compactWideTablesRequest\x12w\n" +
+	"\x1dcatalog_introspection_request\x18\x12 \x01(\v21.chalk.jobqueue.v1.CatalogIntrospectionJobRequestH\x00R\x1bcatalogIntrospectionRequestB\t\n" +
+	"\apayloadJ\x04\b\t\x10\x0f\"\xf6\x01\n" +
+	"\x1eCatalogIntrospectionJobRequest\x12\x1f\n" +
+	"\vsource_name\x18\x01 \x01(\tR\n" +
+	"sourceName\x12\x1f\n" +
+	"\vsource_type\x18\x02 \x01(\tR\n" +
+	"sourceType\x12-\n" +
+	"\x10db_schema_filter\x18\x03 \x01(\tH\x00R\x0edbSchemaFilter\x88\x01\x01\x12\x1e\n" +
+	"\vsync_run_id\x18\x04 \x01(\tR\tsyncRunId\x12.\n" +
+	"\x13snapshot_upload_url\x18\x05 \x01(\tR\x11snapshotUploadUrlB\x13\n" +
+	"\x11_db_schema_filter\"\xcf\x02\n" +
 	"\x18FillWideTablesJobRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12F\n" +
 	"\x0ftime_resolution\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x02\x18\x01R\x0etimeResolution\x12(\n" +
@@ -5900,150 +6024,152 @@ func file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_jobqueue_v1_job_queue_request_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
+var file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_chalk_jobqueue_v1_job_queue_request_proto_goTypes = []any{
 	(ExecutionStrategy)(0),                          // 0: chalk.jobqueue.v1.ExecutionStrategy
 	(*JobQueueRequest)(nil),                         // 1: chalk.jobqueue.v1.JobQueueRequest
-	(*FillWideTablesJobRequest)(nil),                // 2: chalk.jobqueue.v1.FillWideTablesJobRequest
-	(*CompactWideTablesJobRequest)(nil),             // 3: chalk.jobqueue.v1.CompactWideTablesJobRequest
-	(*OfflineQueryJobRequest)(nil),                  // 4: chalk.jobqueue.v1.OfflineQueryJobRequest
-	(*ScheduledQueryJobRequest)(nil),                // 5: chalk.jobqueue.v1.ScheduledQueryJobRequest
-	(*AggregationBackfillJobRequest)(nil),           // 6: chalk.jobqueue.v1.AggregationBackfillJobRequest
-	(*ChalkSqlRunJobRequest)(nil),                   // 7: chalk.jobqueue.v1.ChalkSqlRunJobRequest
-	(*DataframeRunJobRequest)(nil),                  // 8: chalk.jobqueue.v1.DataframeRunJobRequest
-	(*MetaplanRunJobRequest)(nil),                   // 9: chalk.jobqueue.v1.MetaplanRunJobRequest
-	(*MetaplanPlanScheduledQueryRequest)(nil),       // 10: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest
-	(*MetaplanPlanOfflineQueryRequest)(nil),         // 11: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest
-	(*MetaplanJobQueueRequestTemplate)(nil),         // 12: chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	(*PlanQueryJobRequest)(nil),                     // 13: chalk.jobqueue.v1.PlanQueryJobRequest
-	(*OfflineQueryStringList)(nil),                  // 14: chalk.jobqueue.v1.OfflineQueryStringList
-	(*OfflineQueryFeatureName)(nil),                 // 15: chalk.jobqueue.v1.OfflineQueryFeatureName
-	(*OfflineQueryContextValue)(nil),                // 16: chalk.jobqueue.v1.OfflineQueryContextValue
-	(*OfflineQueryDeadlineOptions)(nil),             // 17: chalk.jobqueue.v1.OfflineQueryDeadlineOptions
-	(*OfflineQueryRecomputeFeatures)(nil),           // 18: chalk.jobqueue.v1.OfflineQueryRecomputeFeatures
-	(*OfflineQueryExplain)(nil),                     // 19: chalk.jobqueue.v1.OfflineQueryExplain
-	(*OfflineQueryLiteralInput)(nil),                // 20: chalk.jobqueue.v1.OfflineQueryLiteralInput
-	(*OfflineQueryShardedLiteralInput)(nil),         // 21: chalk.jobqueue.v1.OfflineQueryShardedLiteralInput
-	(*OfflineQueryUploadedParquetShardedInput)(nil), // 22: chalk.jobqueue.v1.OfflineQueryUploadedParquetShardedInput
-	(*OfflineQueryUriInput)(nil),                    // 23: chalk.jobqueue.v1.OfflineQueryUriInput
-	(*OfflineQuerySqlInput)(nil),                    // 24: chalk.jobqueue.v1.OfflineQuerySqlInput
-	(*OfflineQueryManifestInput)(nil),               // 25: chalk.jobqueue.v1.OfflineQueryManifestInput
-	(*OfflineQueryGivensParquetFilename)(nil),       // 26: chalk.jobqueue.v1.OfflineQueryGivensParquetFilename
-	(*OfflineQueryInputSpec)(nil),                   // 27: chalk.jobqueue.v1.OfflineQueryInputSpec
-	(*UnloadResolverSpec)(nil),                      // 28: chalk.jobqueue.v1.UnloadResolverSpec
-	(*OfflineQueryPersistenceSettings)(nil),         // 29: chalk.jobqueue.v1.OfflineQueryPersistenceSettings
-	(*OfflineQueryHwmIdentifier)(nil),               // 30: chalk.jobqueue.v1.OfflineQueryHwmIdentifier
-	(*OfflineQueryJobBody)(nil),                     // 31: chalk.jobqueue.v1.OfflineQueryJobBody
-	(*OfflineQueryWorkerIdentifier)(nil),            // 32: chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
-	(*PlannerOptionsStringList)(nil),                // 33: chalk.jobqueue.v1.PlannerOptionsStringList
-	(*PlannerOptionsStringPair)(nil),                // 34: chalk.jobqueue.v1.PlannerOptionsStringPair
-	(*PlannerOptionsStringPairs)(nil),               // 35: chalk.jobqueue.v1.PlannerOptionsStringPairs
-	(*PlannerOptions)(nil),                          // 36: chalk.jobqueue.v1.PlannerOptions
-	(*UnloadResolverJobRequest)(nil),                // 37: chalk.jobqueue.v1.UnloadResolverJobRequest
-	(*ScriptTaskJobRequest)(nil),                    // 38: chalk.jobqueue.v1.ScriptTaskJobRequest
-	nil,                                             // 39: chalk.jobqueue.v1.ChalkSqlRunJobRequest.CompilationOptionsEntry
-	nil,                                             // 40: chalk.jobqueue.v1.ChalkSqlRunJobRequest.EnvOverridesEntry
-	nil,                                             // 41: chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.EnvPayloadEntry
-	nil,                                             // 42: chalk.jobqueue.v1.PlanQueryJobRequest.StalenessEntry
-	nil,                                             // 43: chalk.jobqueue.v1.PlanQueryJobRequest.MetaEntry
-	nil,                                             // 44: chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry
-	nil,                                             // 45: chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry
-	nil,                                             // 46: chalk.jobqueue.v1.OfflineQueryJobBody.EnvOverridesEntry
-	(*durationpb.Duration)(nil),                     // 47: google.protobuf.Duration
-	(*emptypb.Empty)(nil),                           // 48: google.protobuf.Empty
-	(*v1.FeaturePermissions)(nil),                   // 49: chalk.auth.v1.FeaturePermissions
-	(*v11.ResourceRequests)(nil),                    // 50: chalk.common.v1.ResourceRequests
-	(*v11.OnlineQueryContext)(nil),                  // 51: chalk.common.v1.OnlineQueryContext
-	(*v11.FeatureEncodingOptions)(nil),              // 52: chalk.common.v1.FeatureEncodingOptions
-	(*structpb.ListValue)(nil),                      // 53: google.protobuf.ListValue
-	(*v11.OfflineQueryWriteTo)(nil),                 // 54: chalk.common.v1.OfflineQueryWriteTo
-	(*v11.ScriptTaskRequest)(nil),                   // 55: chalk.common.v1.ScriptTaskRequest
-	(*structpb.Value)(nil),                          // 56: google.protobuf.Value
+	(*CatalogIntrospectionJobRequest)(nil),          // 2: chalk.jobqueue.v1.CatalogIntrospectionJobRequest
+	(*FillWideTablesJobRequest)(nil),                // 3: chalk.jobqueue.v1.FillWideTablesJobRequest
+	(*CompactWideTablesJobRequest)(nil),             // 4: chalk.jobqueue.v1.CompactWideTablesJobRequest
+	(*OfflineQueryJobRequest)(nil),                  // 5: chalk.jobqueue.v1.OfflineQueryJobRequest
+	(*ScheduledQueryJobRequest)(nil),                // 6: chalk.jobqueue.v1.ScheduledQueryJobRequest
+	(*AggregationBackfillJobRequest)(nil),           // 7: chalk.jobqueue.v1.AggregationBackfillJobRequest
+	(*ChalkSqlRunJobRequest)(nil),                   // 8: chalk.jobqueue.v1.ChalkSqlRunJobRequest
+	(*DataframeRunJobRequest)(nil),                  // 9: chalk.jobqueue.v1.DataframeRunJobRequest
+	(*MetaplanRunJobRequest)(nil),                   // 10: chalk.jobqueue.v1.MetaplanRunJobRequest
+	(*MetaplanPlanScheduledQueryRequest)(nil),       // 11: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest
+	(*MetaplanPlanOfflineQueryRequest)(nil),         // 12: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest
+	(*MetaplanJobQueueRequestTemplate)(nil),         // 13: chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	(*PlanQueryJobRequest)(nil),                     // 14: chalk.jobqueue.v1.PlanQueryJobRequest
+	(*OfflineQueryStringList)(nil),                  // 15: chalk.jobqueue.v1.OfflineQueryStringList
+	(*OfflineQueryFeatureName)(nil),                 // 16: chalk.jobqueue.v1.OfflineQueryFeatureName
+	(*OfflineQueryContextValue)(nil),                // 17: chalk.jobqueue.v1.OfflineQueryContextValue
+	(*OfflineQueryDeadlineOptions)(nil),             // 18: chalk.jobqueue.v1.OfflineQueryDeadlineOptions
+	(*OfflineQueryRecomputeFeatures)(nil),           // 19: chalk.jobqueue.v1.OfflineQueryRecomputeFeatures
+	(*OfflineQueryExplain)(nil),                     // 20: chalk.jobqueue.v1.OfflineQueryExplain
+	(*OfflineQueryLiteralInput)(nil),                // 21: chalk.jobqueue.v1.OfflineQueryLiteralInput
+	(*OfflineQueryShardedLiteralInput)(nil),         // 22: chalk.jobqueue.v1.OfflineQueryShardedLiteralInput
+	(*OfflineQueryUploadedParquetShardedInput)(nil), // 23: chalk.jobqueue.v1.OfflineQueryUploadedParquetShardedInput
+	(*OfflineQueryUriInput)(nil),                    // 24: chalk.jobqueue.v1.OfflineQueryUriInput
+	(*OfflineQuerySqlInput)(nil),                    // 25: chalk.jobqueue.v1.OfflineQuerySqlInput
+	(*OfflineQueryManifestInput)(nil),               // 26: chalk.jobqueue.v1.OfflineQueryManifestInput
+	(*OfflineQueryGivensParquetFilename)(nil),       // 27: chalk.jobqueue.v1.OfflineQueryGivensParquetFilename
+	(*OfflineQueryInputSpec)(nil),                   // 28: chalk.jobqueue.v1.OfflineQueryInputSpec
+	(*UnloadResolverSpec)(nil),                      // 29: chalk.jobqueue.v1.UnloadResolverSpec
+	(*OfflineQueryPersistenceSettings)(nil),         // 30: chalk.jobqueue.v1.OfflineQueryPersistenceSettings
+	(*OfflineQueryHwmIdentifier)(nil),               // 31: chalk.jobqueue.v1.OfflineQueryHwmIdentifier
+	(*OfflineQueryJobBody)(nil),                     // 32: chalk.jobqueue.v1.OfflineQueryJobBody
+	(*OfflineQueryWorkerIdentifier)(nil),            // 33: chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
+	(*PlannerOptionsStringList)(nil),                // 34: chalk.jobqueue.v1.PlannerOptionsStringList
+	(*PlannerOptionsStringPair)(nil),                // 35: chalk.jobqueue.v1.PlannerOptionsStringPair
+	(*PlannerOptionsStringPairs)(nil),               // 36: chalk.jobqueue.v1.PlannerOptionsStringPairs
+	(*PlannerOptions)(nil),                          // 37: chalk.jobqueue.v1.PlannerOptions
+	(*UnloadResolverJobRequest)(nil),                // 38: chalk.jobqueue.v1.UnloadResolverJobRequest
+	(*ScriptTaskJobRequest)(nil),                    // 39: chalk.jobqueue.v1.ScriptTaskJobRequest
+	nil,                                             // 40: chalk.jobqueue.v1.ChalkSqlRunJobRequest.CompilationOptionsEntry
+	nil,                                             // 41: chalk.jobqueue.v1.ChalkSqlRunJobRequest.EnvOverridesEntry
+	nil,                                             // 42: chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.EnvPayloadEntry
+	nil,                                             // 43: chalk.jobqueue.v1.PlanQueryJobRequest.StalenessEntry
+	nil,                                             // 44: chalk.jobqueue.v1.PlanQueryJobRequest.MetaEntry
+	nil,                                             // 45: chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry
+	nil,                                             // 46: chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry
+	nil,                                             // 47: chalk.jobqueue.v1.OfflineQueryJobBody.EnvOverridesEntry
+	(*durationpb.Duration)(nil),                     // 48: google.protobuf.Duration
+	(*emptypb.Empty)(nil),                           // 49: google.protobuf.Empty
+	(*v1.FeaturePermissions)(nil),                   // 50: chalk.auth.v1.FeaturePermissions
+	(*v11.ResourceRequests)(nil),                    // 51: chalk.common.v1.ResourceRequests
+	(*v11.OnlineQueryContext)(nil),                  // 52: chalk.common.v1.OnlineQueryContext
+	(*v11.FeatureEncodingOptions)(nil),              // 53: chalk.common.v1.FeatureEncodingOptions
+	(*structpb.ListValue)(nil),                      // 54: google.protobuf.ListValue
+	(*v11.OfflineQueryWriteTo)(nil),                 // 55: chalk.common.v1.OfflineQueryWriteTo
+	(*v11.ScriptTaskRequest)(nil),                   // 56: chalk.common.v1.ScriptTaskRequest
+	(*structpb.Value)(nil),                          // 57: google.protobuf.Value
 }
 var file_chalk_jobqueue_v1_job_queue_request_proto_depIdxs = []int32{
-	4,  // 0: chalk.jobqueue.v1.JobQueueRequest.offline_query_request:type_name -> chalk.jobqueue.v1.OfflineQueryJobRequest
-	5,  // 1: chalk.jobqueue.v1.JobQueueRequest.scheduled_query_request:type_name -> chalk.jobqueue.v1.ScheduledQueryJobRequest
-	6,  // 2: chalk.jobqueue.v1.JobQueueRequest.aggregation_backfill_request:type_name -> chalk.jobqueue.v1.AggregationBackfillJobRequest
-	7,  // 3: chalk.jobqueue.v1.JobQueueRequest.chalksql_run_request:type_name -> chalk.jobqueue.v1.ChalkSqlRunJobRequest
-	8,  // 4: chalk.jobqueue.v1.JobQueueRequest.dataframe_run_request:type_name -> chalk.jobqueue.v1.DataframeRunJobRequest
-	9,  // 5: chalk.jobqueue.v1.JobQueueRequest.metaplan_run_request:type_name -> chalk.jobqueue.v1.MetaplanRunJobRequest
-	13, // 6: chalk.jobqueue.v1.JobQueueRequest.plan_query_request:type_name -> chalk.jobqueue.v1.PlanQueryJobRequest
-	37, // 7: chalk.jobqueue.v1.JobQueueRequest.unload_resolver_request:type_name -> chalk.jobqueue.v1.UnloadResolverJobRequest
-	38, // 8: chalk.jobqueue.v1.JobQueueRequest.script_task_request:type_name -> chalk.jobqueue.v1.ScriptTaskJobRequest
-	2,  // 9: chalk.jobqueue.v1.JobQueueRequest.fill_wide_tables_request:type_name -> chalk.jobqueue.v1.FillWideTablesJobRequest
-	3,  // 10: chalk.jobqueue.v1.JobQueueRequest.compact_wide_tables_request:type_name -> chalk.jobqueue.v1.CompactWideTablesJobRequest
-	47, // 11: chalk.jobqueue.v1.FillWideTablesJobRequest.time_resolution:type_name -> google.protobuf.Duration
-	47, // 12: chalk.jobqueue.v1.FillWideTablesJobRequest.lookback_retention_period:type_name -> google.protobuf.Duration
-	48, // 13: chalk.jobqueue.v1.CompactWideTablesJobRequest.all_namespaces:type_name -> google.protobuf.Empty
-	31, // 14: chalk.jobqueue.v1.OfflineQueryJobRequest.request:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
-	32, // 15: chalk.jobqueue.v1.OfflineQueryJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
-	31, // 16: chalk.jobqueue.v1.ScheduledQueryJobRequest.request:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
-	36, // 17: chalk.jobqueue.v1.AggregationBackfillJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
-	49, // 18: chalk.jobqueue.v1.ChalkSqlRunJobRequest.agent_permission_snapshot:type_name -> chalk.auth.v1.FeaturePermissions
-	39, // 19: chalk.jobqueue.v1.ChalkSqlRunJobRequest.compilation_options:type_name -> chalk.jobqueue.v1.ChalkSqlRunJobRequest.CompilationOptionsEntry
-	40, // 20: chalk.jobqueue.v1.ChalkSqlRunJobRequest.env_overrides:type_name -> chalk.jobqueue.v1.ChalkSqlRunJobRequest.EnvOverridesEntry
-	50, // 21: chalk.jobqueue.v1.ChalkSqlRunJobRequest.resources:type_name -> chalk.common.v1.ResourceRequests
-	10, // 22: chalk.jobqueue.v1.MetaplanRunJobRequest.plan_scheduled_query_request:type_name -> chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest
-	11, // 23: chalk.jobqueue.v1.MetaplanRunJobRequest.plan_offline_query_request:type_name -> chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest
-	31, // 24: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.original_query_body:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
-	12, // 25: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.job_queue_request_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	12, // 26: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.metaplan_job_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	31, // 27: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.query:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
-	12, // 28: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.job_queue_request_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	12, // 29: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.metaplan_job_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	41, // 30: chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.env_payload:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.EnvPayloadEntry
-	42, // 31: chalk.jobqueue.v1.PlanQueryJobRequest.staleness:type_name -> chalk.jobqueue.v1.PlanQueryJobRequest.StalenessEntry
-	51, // 32: chalk.jobqueue.v1.PlanQueryJobRequest.context:type_name -> chalk.common.v1.OnlineQueryContext
-	43, // 33: chalk.jobqueue.v1.PlanQueryJobRequest.meta:type_name -> chalk.jobqueue.v1.PlanQueryJobRequest.MetaEntry
-	52, // 34: chalk.jobqueue.v1.PlanQueryJobRequest.encoding_options:type_name -> chalk.common.v1.FeatureEncodingOptions
-	36, // 35: chalk.jobqueue.v1.PlanQueryJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
-	14, // 36: chalk.jobqueue.v1.OfflineQueryFeatureName.feature_names:type_name -> chalk.jobqueue.v1.OfflineQueryStringList
-	47, // 37: chalk.jobqueue.v1.OfflineQueryDeadlineOptions.shard_deadline:type_name -> google.protobuf.Duration
-	47, // 38: chalk.jobqueue.v1.OfflineQueryDeadlineOptions.query_deadline:type_name -> google.protobuf.Duration
-	14, // 39: chalk.jobqueue.v1.OfflineQueryRecomputeFeatures.features:type_name -> chalk.jobqueue.v1.OfflineQueryStringList
-	53, // 40: chalk.jobqueue.v1.OfflineQueryLiteralInput.values:type_name -> google.protobuf.ListValue
-	20, // 41: chalk.jobqueue.v1.OfflineQueryShardedLiteralInput.inputs:type_name -> chalk.jobqueue.v1.OfflineQueryLiteralInput
-	44, // 42: chalk.jobqueue.v1.OfflineQueryUriInput.column_name_to_feature_name:type_name -> chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry
-	20, // 43: chalk.jobqueue.v1.OfflineQueryInputSpec.literal:type_name -> chalk.jobqueue.v1.OfflineQueryLiteralInput
-	21, // 44: chalk.jobqueue.v1.OfflineQueryInputSpec.sharded_literal:type_name -> chalk.jobqueue.v1.OfflineQueryShardedLiteralInput
-	22, // 45: chalk.jobqueue.v1.OfflineQueryInputSpec.uploaded_parquet_sharded:type_name -> chalk.jobqueue.v1.OfflineQueryUploadedParquetShardedInput
-	23, // 46: chalk.jobqueue.v1.OfflineQueryInputSpec.uri:type_name -> chalk.jobqueue.v1.OfflineQueryUriInput
-	24, // 47: chalk.jobqueue.v1.OfflineQueryInputSpec.sql:type_name -> chalk.jobqueue.v1.OfflineQuerySqlInput
-	25, // 48: chalk.jobqueue.v1.OfflineQueryInputSpec.manifest:type_name -> chalk.jobqueue.v1.OfflineQueryManifestInput
-	26, // 49: chalk.jobqueue.v1.OfflineQueryInputSpec.givens_parquet_filename:type_name -> chalk.jobqueue.v1.OfflineQueryGivensParquetFilename
-	27, // 50: chalk.jobqueue.v1.OfflineQueryJobBody.input:type_name -> chalk.jobqueue.v1.OfflineQueryInputSpec
-	50, // 51: chalk.jobqueue.v1.OfflineQueryJobBody.resources:type_name -> chalk.common.v1.ResourceRequests
-	18, // 52: chalk.jobqueue.v1.OfflineQueryJobBody.recompute_features:type_name -> chalk.jobqueue.v1.OfflineQueryRecomputeFeatures
-	19, // 53: chalk.jobqueue.v1.OfflineQueryJobBody.explain:type_name -> chalk.jobqueue.v1.OfflineQueryExplain
-	45, // 54: chalk.jobqueue.v1.OfflineQueryJobBody.query_context:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry
-	36, // 55: chalk.jobqueue.v1.OfflineQueryJobBody.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
-	46, // 56: chalk.jobqueue.v1.OfflineQueryJobBody.env_overrides:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody.EnvOverridesEntry
-	28, // 57: chalk.jobqueue.v1.OfflineQueryJobBody.unload_resolvers:type_name -> chalk.jobqueue.v1.UnloadResolverSpec
-	17, // 58: chalk.jobqueue.v1.OfflineQueryJobBody.completion_deadline:type_name -> chalk.jobqueue.v1.OfflineQueryDeadlineOptions
-	29, // 59: chalk.jobqueue.v1.OfflineQueryJobBody.persistence_settings:type_name -> chalk.jobqueue.v1.OfflineQueryPersistenceSettings
-	30, // 60: chalk.jobqueue.v1.OfflineQueryJobBody.hwm_identifier:type_name -> chalk.jobqueue.v1.OfflineQueryHwmIdentifier
-	54, // 61: chalk.jobqueue.v1.OfflineQueryJobBody.write_to:type_name -> chalk.common.v1.OfflineQueryWriteTo
-	50, // 62: chalk.jobqueue.v1.OfflineQueryWorkerIdentifier.resources:type_name -> chalk.common.v1.ResourceRequests
-	34, // 63: chalk.jobqueue.v1.PlannerOptionsStringPairs.values:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPair
-	33, // 64: chalk.jobqueue.v1.PlannerOptions.skip_rewriter_inputs_for_resolvers_override:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	33, // 65: chalk.jobqueue.v1.PlannerOptions.persist_values_parquet_partition_by:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	33, // 66: chalk.jobqueue.v1.PlannerOptions.use_materialized_offline_query_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	33, // 67: chalk.jobqueue.v1.PlannerOptions.disable_continuous_queries_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	35, // 68: chalk.jobqueue.v1.PlannerOptions.extra_compilation_options:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPairs
-	33, // 69: chalk.jobqueue.v1.PlannerOptions.excluded_offline_store_operation_kinds:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	0,  // 70: chalk.jobqueue.v1.PlannerOptions.execution_strategy:type_name -> chalk.jobqueue.v1.ExecutionStrategy
-	50, // 71: chalk.jobqueue.v1.UnloadResolverJobRequest.resources:type_name -> chalk.common.v1.ResourceRequests
-	36, // 72: chalk.jobqueue.v1.UnloadResolverJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
-	32, // 73: chalk.jobqueue.v1.UnloadResolverJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
-	55, // 74: chalk.jobqueue.v1.ScriptTaskJobRequest.request:type_name -> chalk.common.v1.ScriptTaskRequest
-	56, // 75: chalk.jobqueue.v1.ChalkSqlRunJobRequest.CompilationOptionsEntry.value:type_name -> google.protobuf.Value
-	15, // 76: chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryFeatureName
-	16, // 77: chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryContextValue
-	78, // [78:78] is the sub-list for method output_type
-	78, // [78:78] is the sub-list for method input_type
-	78, // [78:78] is the sub-list for extension type_name
-	78, // [78:78] is the sub-list for extension extendee
-	0,  // [0:78] is the sub-list for field type_name
+	5,  // 0: chalk.jobqueue.v1.JobQueueRequest.offline_query_request:type_name -> chalk.jobqueue.v1.OfflineQueryJobRequest
+	6,  // 1: chalk.jobqueue.v1.JobQueueRequest.scheduled_query_request:type_name -> chalk.jobqueue.v1.ScheduledQueryJobRequest
+	7,  // 2: chalk.jobqueue.v1.JobQueueRequest.aggregation_backfill_request:type_name -> chalk.jobqueue.v1.AggregationBackfillJobRequest
+	8,  // 3: chalk.jobqueue.v1.JobQueueRequest.chalksql_run_request:type_name -> chalk.jobqueue.v1.ChalkSqlRunJobRequest
+	9,  // 4: chalk.jobqueue.v1.JobQueueRequest.dataframe_run_request:type_name -> chalk.jobqueue.v1.DataframeRunJobRequest
+	10, // 5: chalk.jobqueue.v1.JobQueueRequest.metaplan_run_request:type_name -> chalk.jobqueue.v1.MetaplanRunJobRequest
+	14, // 6: chalk.jobqueue.v1.JobQueueRequest.plan_query_request:type_name -> chalk.jobqueue.v1.PlanQueryJobRequest
+	38, // 7: chalk.jobqueue.v1.JobQueueRequest.unload_resolver_request:type_name -> chalk.jobqueue.v1.UnloadResolverJobRequest
+	39, // 8: chalk.jobqueue.v1.JobQueueRequest.script_task_request:type_name -> chalk.jobqueue.v1.ScriptTaskJobRequest
+	3,  // 9: chalk.jobqueue.v1.JobQueueRequest.fill_wide_tables_request:type_name -> chalk.jobqueue.v1.FillWideTablesJobRequest
+	4,  // 10: chalk.jobqueue.v1.JobQueueRequest.compact_wide_tables_request:type_name -> chalk.jobqueue.v1.CompactWideTablesJobRequest
+	2,  // 11: chalk.jobqueue.v1.JobQueueRequest.catalog_introspection_request:type_name -> chalk.jobqueue.v1.CatalogIntrospectionJobRequest
+	48, // 12: chalk.jobqueue.v1.FillWideTablesJobRequest.time_resolution:type_name -> google.protobuf.Duration
+	48, // 13: chalk.jobqueue.v1.FillWideTablesJobRequest.lookback_retention_period:type_name -> google.protobuf.Duration
+	49, // 14: chalk.jobqueue.v1.CompactWideTablesJobRequest.all_namespaces:type_name -> google.protobuf.Empty
+	32, // 15: chalk.jobqueue.v1.OfflineQueryJobRequest.request:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
+	33, // 16: chalk.jobqueue.v1.OfflineQueryJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
+	32, // 17: chalk.jobqueue.v1.ScheduledQueryJobRequest.request:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
+	37, // 18: chalk.jobqueue.v1.AggregationBackfillJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
+	50, // 19: chalk.jobqueue.v1.ChalkSqlRunJobRequest.agent_permission_snapshot:type_name -> chalk.auth.v1.FeaturePermissions
+	40, // 20: chalk.jobqueue.v1.ChalkSqlRunJobRequest.compilation_options:type_name -> chalk.jobqueue.v1.ChalkSqlRunJobRequest.CompilationOptionsEntry
+	41, // 21: chalk.jobqueue.v1.ChalkSqlRunJobRequest.env_overrides:type_name -> chalk.jobqueue.v1.ChalkSqlRunJobRequest.EnvOverridesEntry
+	51, // 22: chalk.jobqueue.v1.ChalkSqlRunJobRequest.resources:type_name -> chalk.common.v1.ResourceRequests
+	11, // 23: chalk.jobqueue.v1.MetaplanRunJobRequest.plan_scheduled_query_request:type_name -> chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest
+	12, // 24: chalk.jobqueue.v1.MetaplanRunJobRequest.plan_offline_query_request:type_name -> chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest
+	32, // 25: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.original_query_body:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
+	13, // 26: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.job_queue_request_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	13, // 27: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.metaplan_job_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	32, // 28: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.query:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
+	13, // 29: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.job_queue_request_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	13, // 30: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.metaplan_job_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	42, // 31: chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.env_payload:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.EnvPayloadEntry
+	43, // 32: chalk.jobqueue.v1.PlanQueryJobRequest.staleness:type_name -> chalk.jobqueue.v1.PlanQueryJobRequest.StalenessEntry
+	52, // 33: chalk.jobqueue.v1.PlanQueryJobRequest.context:type_name -> chalk.common.v1.OnlineQueryContext
+	44, // 34: chalk.jobqueue.v1.PlanQueryJobRequest.meta:type_name -> chalk.jobqueue.v1.PlanQueryJobRequest.MetaEntry
+	53, // 35: chalk.jobqueue.v1.PlanQueryJobRequest.encoding_options:type_name -> chalk.common.v1.FeatureEncodingOptions
+	37, // 36: chalk.jobqueue.v1.PlanQueryJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
+	15, // 37: chalk.jobqueue.v1.OfflineQueryFeatureName.feature_names:type_name -> chalk.jobqueue.v1.OfflineQueryStringList
+	48, // 38: chalk.jobqueue.v1.OfflineQueryDeadlineOptions.shard_deadline:type_name -> google.protobuf.Duration
+	48, // 39: chalk.jobqueue.v1.OfflineQueryDeadlineOptions.query_deadline:type_name -> google.protobuf.Duration
+	15, // 40: chalk.jobqueue.v1.OfflineQueryRecomputeFeatures.features:type_name -> chalk.jobqueue.v1.OfflineQueryStringList
+	54, // 41: chalk.jobqueue.v1.OfflineQueryLiteralInput.values:type_name -> google.protobuf.ListValue
+	21, // 42: chalk.jobqueue.v1.OfflineQueryShardedLiteralInput.inputs:type_name -> chalk.jobqueue.v1.OfflineQueryLiteralInput
+	45, // 43: chalk.jobqueue.v1.OfflineQueryUriInput.column_name_to_feature_name:type_name -> chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry
+	21, // 44: chalk.jobqueue.v1.OfflineQueryInputSpec.literal:type_name -> chalk.jobqueue.v1.OfflineQueryLiteralInput
+	22, // 45: chalk.jobqueue.v1.OfflineQueryInputSpec.sharded_literal:type_name -> chalk.jobqueue.v1.OfflineQueryShardedLiteralInput
+	23, // 46: chalk.jobqueue.v1.OfflineQueryInputSpec.uploaded_parquet_sharded:type_name -> chalk.jobqueue.v1.OfflineQueryUploadedParquetShardedInput
+	24, // 47: chalk.jobqueue.v1.OfflineQueryInputSpec.uri:type_name -> chalk.jobqueue.v1.OfflineQueryUriInput
+	25, // 48: chalk.jobqueue.v1.OfflineQueryInputSpec.sql:type_name -> chalk.jobqueue.v1.OfflineQuerySqlInput
+	26, // 49: chalk.jobqueue.v1.OfflineQueryInputSpec.manifest:type_name -> chalk.jobqueue.v1.OfflineQueryManifestInput
+	27, // 50: chalk.jobqueue.v1.OfflineQueryInputSpec.givens_parquet_filename:type_name -> chalk.jobqueue.v1.OfflineQueryGivensParquetFilename
+	28, // 51: chalk.jobqueue.v1.OfflineQueryJobBody.input:type_name -> chalk.jobqueue.v1.OfflineQueryInputSpec
+	51, // 52: chalk.jobqueue.v1.OfflineQueryJobBody.resources:type_name -> chalk.common.v1.ResourceRequests
+	19, // 53: chalk.jobqueue.v1.OfflineQueryJobBody.recompute_features:type_name -> chalk.jobqueue.v1.OfflineQueryRecomputeFeatures
+	20, // 54: chalk.jobqueue.v1.OfflineQueryJobBody.explain:type_name -> chalk.jobqueue.v1.OfflineQueryExplain
+	46, // 55: chalk.jobqueue.v1.OfflineQueryJobBody.query_context:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry
+	37, // 56: chalk.jobqueue.v1.OfflineQueryJobBody.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
+	47, // 57: chalk.jobqueue.v1.OfflineQueryJobBody.env_overrides:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody.EnvOverridesEntry
+	29, // 58: chalk.jobqueue.v1.OfflineQueryJobBody.unload_resolvers:type_name -> chalk.jobqueue.v1.UnloadResolverSpec
+	18, // 59: chalk.jobqueue.v1.OfflineQueryJobBody.completion_deadline:type_name -> chalk.jobqueue.v1.OfflineQueryDeadlineOptions
+	30, // 60: chalk.jobqueue.v1.OfflineQueryJobBody.persistence_settings:type_name -> chalk.jobqueue.v1.OfflineQueryPersistenceSettings
+	31, // 61: chalk.jobqueue.v1.OfflineQueryJobBody.hwm_identifier:type_name -> chalk.jobqueue.v1.OfflineQueryHwmIdentifier
+	55, // 62: chalk.jobqueue.v1.OfflineQueryJobBody.write_to:type_name -> chalk.common.v1.OfflineQueryWriteTo
+	51, // 63: chalk.jobqueue.v1.OfflineQueryWorkerIdentifier.resources:type_name -> chalk.common.v1.ResourceRequests
+	35, // 64: chalk.jobqueue.v1.PlannerOptionsStringPairs.values:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPair
+	34, // 65: chalk.jobqueue.v1.PlannerOptions.skip_rewriter_inputs_for_resolvers_override:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	34, // 66: chalk.jobqueue.v1.PlannerOptions.persist_values_parquet_partition_by:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	34, // 67: chalk.jobqueue.v1.PlannerOptions.use_materialized_offline_query_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	34, // 68: chalk.jobqueue.v1.PlannerOptions.disable_continuous_queries_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	36, // 69: chalk.jobqueue.v1.PlannerOptions.extra_compilation_options:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPairs
+	34, // 70: chalk.jobqueue.v1.PlannerOptions.excluded_offline_store_operation_kinds:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	0,  // 71: chalk.jobqueue.v1.PlannerOptions.execution_strategy:type_name -> chalk.jobqueue.v1.ExecutionStrategy
+	51, // 72: chalk.jobqueue.v1.UnloadResolverJobRequest.resources:type_name -> chalk.common.v1.ResourceRequests
+	37, // 73: chalk.jobqueue.v1.UnloadResolverJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
+	33, // 74: chalk.jobqueue.v1.UnloadResolverJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
+	56, // 75: chalk.jobqueue.v1.ScriptTaskJobRequest.request:type_name -> chalk.common.v1.ScriptTaskRequest
+	57, // 76: chalk.jobqueue.v1.ChalkSqlRunJobRequest.CompilationOptionsEntry.value:type_name -> google.protobuf.Value
+	16, // 77: chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryFeatureName
+	17, // 78: chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryContextValue
+	79, // [79:79] is the sub-list for method output_type
+	79, // [79:79] is the sub-list for method input_type
+	79, // [79:79] is the sub-list for extension type_name
+	79, // [79:79] is the sub-list for extension extendee
+	0,  // [0:79] is the sub-list for field type_name
 }
 
 func init() { file_chalk_jobqueue_v1_job_queue_request_proto_init() }
@@ -6063,51 +6189,53 @@ func file_chalk_jobqueue_v1_job_queue_request_proto_init() {
 		(*JobQueueRequest_ScriptTaskRequest)(nil),
 		(*JobQueueRequest_FillWideTablesRequest)(nil),
 		(*JobQueueRequest_CompactWideTablesRequest)(nil),
+		(*JobQueueRequest_CatalogIntrospectionRequest)(nil),
 	}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[3].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[4].OneofWrappers = []any{
 		(*OfflineQueryJobRequest_Request)(nil),
 		(*OfflineQueryJobRequest_RequestFilename)(nil),
 		(*OfflineQueryJobRequest_Identifier)(nil),
 		(*OfflineQueryJobRequest_IdentifierFilename)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[4].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[5].OneofWrappers = []any{
 		(*ScheduledQueryJobRequest_Request)(nil),
 		(*ScheduledQueryJobRequest_RequestFilename)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[8].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[8].OneofWrappers = []any{}
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[9].OneofWrappers = []any{
 		(*MetaplanRunJobRequest_PlanScheduledQueryRequest)(nil),
 		(*MetaplanRunJobRequest_PlanOfflineQueryRequest)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[14].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[15].OneofWrappers = []any{
 		(*OfflineQueryFeatureName_FeatureName)(nil),
 		(*OfflineQueryFeatureName_FeatureNames)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[15].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[16].OneofWrappers = []any{
 		(*OfflineQueryContextValue_StringValue)(nil),
 		(*OfflineQueryContextValue_IntValue)(nil),
 		(*OfflineQueryContextValue_DoubleValue)(nil),
 		(*OfflineQueryContextValue_BoolValue)(nil),
 		(*OfflineQueryContextValue_NullValue)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[16].OneofWrappers = []any{}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[17].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[18].OneofWrappers = []any{
 		(*OfflineQueryRecomputeFeatures_All)(nil),
 		(*OfflineQueryRecomputeFeatures_Features)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[18].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[19].OneofWrappers = []any{
 		(*OfflineQueryExplain_Enabled)(nil),
 		(*OfflineQueryExplain_Only)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[22].OneofWrappers = []any{}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[26].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[23].OneofWrappers = []any{}
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[27].OneofWrappers = []any{
 		(*OfflineQueryInputSpec_None)(nil),
 		(*OfflineQueryInputSpec_Literal)(nil),
 		(*OfflineQueryInputSpec_ShardedLiteral)(nil),
@@ -6117,21 +6245,21 @@ func file_chalk_jobqueue_v1_job_queue_request_proto_init() {
 		(*OfflineQueryInputSpec_Manifest)(nil),
 		(*OfflineQueryInputSpec_GivensParquetFilename)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[29].OneofWrappers = []any{
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[30].OneofWrappers = []any{
 		(*OfflineQueryHwmIdentifier_CronQueryName)(nil),
 		(*OfflineQueryHwmIdentifier_ResolverFqn)(nil),
 	}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[30].OneofWrappers = []any{}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[31].OneofWrappers = []any{}
-	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[35].OneofWrappers = []any{}
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[32].OneofWrappers = []any{}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[37].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc), len(file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   46,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1306,6 +1306,7 @@ func (x *OfflineWideTableNamespaceInfo) GetCompaction() *OfflineWideTableCompact
 type OfflineWideTableEnvironmentMaintenanceInfo struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	LatestWeeklyRun *OfflineWideTableRun   `protobuf:"bytes,1,opt,name=latest_weekly_run,json=latestWeeklyRun,proto3,oneof" json:"latest_weekly_run,omitempty"`
+	NextWeeklyRunAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=next_weekly_run_at,json=nextWeeklyRunAt,proto3,oneof" json:"next_weekly_run_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1343,6 +1344,13 @@ func (*OfflineWideTableEnvironmentMaintenanceInfo) Descriptor() ([]byte, []int) 
 func (x *OfflineWideTableEnvironmentMaintenanceInfo) GetLatestWeeklyRun() *OfflineWideTableRun {
 	if x != nil {
 		return x.LatestWeeklyRun
+	}
+	return nil
+}
+
+func (x *OfflineWideTableEnvironmentMaintenanceInfo) GetNextWeeklyRunAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.NextWeeklyRunAt
 	}
 	return nil
 }
@@ -1731,10 +1739,12 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\x04fill\x18\x02 \x01(\v2).chalk.server.v1.OfflineWideTableFillInfoR\x04fill\x12O\n" +
 	"\n" +
 	"compaction\x18\x03 \x01(\v2/.chalk.server.v1.OfflineWideTableCompactionInfoR\n" +
-	"compaction\"\x99\x01\n" +
+	"compaction\"\xfe\x01\n" +
 	"*OfflineWideTableEnvironmentMaintenanceInfo\x12U\n" +
-	"\x11latest_weekly_run\x18\x01 \x01(\v2$.chalk.server.v1.OfflineWideTableRunH\x00R\x0flatestWeeklyRun\x88\x01\x01B\x14\n" +
-	"\x12_latest_weekly_run\"&\n" +
+	"\x11latest_weekly_run\x18\x01 \x01(\v2$.chalk.server.v1.OfflineWideTableRunH\x00R\x0flatestWeeklyRun\x88\x01\x01\x12L\n" +
+	"\x12next_weekly_run_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x0fnextWeeklyRunAt\x88\x01\x01B\x14\n" +
+	"\x12_latest_weekly_runB\x15\n" +
+	"\x13_next_weekly_run_at\"&\n" +
 	"$GetOfflineWideTableNamespacesRequest\"\xed\x01\n" +
 	"%GetOfflineWideTableNamespacesResponse\x12N\n" +
 	"\n" +
@@ -1860,26 +1870,27 @@ var file_chalk_server_v1_offline_wide_tables_proto_depIdxs = []int32{
 	16, // 28: chalk.server.v1.OfflineWideTableNamespaceInfo.fill:type_name -> chalk.server.v1.OfflineWideTableFillInfo
 	17, // 29: chalk.server.v1.OfflineWideTableNamespaceInfo.compaction:type_name -> chalk.server.v1.OfflineWideTableCompactionInfo
 	6,  // 30: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.latest_weekly_run:type_name -> chalk.server.v1.OfflineWideTableRun
-	18, // 31: chalk.server.v1.GetOfflineWideTableNamespacesResponse.namespaces:type_name -> chalk.server.v1.OfflineWideTableNamespaceInfo
-	19, // 32: chalk.server.v1.GetOfflineWideTableNamespacesResponse.environment_maintenance:type_name -> chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
-	6,  // 33: chalk.server.v1.TriggerOfflineWideTableFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
-	7,  // 34: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
-	9,  // 35: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
-	14, // 36: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
-	20, // 37: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:input_type -> chalk.server.v1.GetOfflineWideTableNamespacesRequest
-	22, // 38: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
-	24, // 39: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
-	8,  // 40: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
-	10, // 41: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
-	15, // 42: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
-	21, // 43: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:output_type -> chalk.server.v1.GetOfflineWideTableNamespacesResponse
-	23, // 44: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
-	25, // 45: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
-	40, // [40:46] is the sub-list for method output_type
-	34, // [34:40] is the sub-list for method input_type
-	34, // [34:34] is the sub-list for extension type_name
-	34, // [34:34] is the sub-list for extension extendee
-	0,  // [0:34] is the sub-list for field type_name
+	26, // 31: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.next_weekly_run_at:type_name -> google.protobuf.Timestamp
+	18, // 32: chalk.server.v1.GetOfflineWideTableNamespacesResponse.namespaces:type_name -> chalk.server.v1.OfflineWideTableNamespaceInfo
+	19, // 33: chalk.server.v1.GetOfflineWideTableNamespacesResponse.environment_maintenance:type_name -> chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
+	6,  // 34: chalk.server.v1.TriggerOfflineWideTableFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
+	7,  // 35: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
+	9,  // 36: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
+	14, // 37: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
+	20, // 38: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:input_type -> chalk.server.v1.GetOfflineWideTableNamespacesRequest
+	22, // 39: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
+	24, // 40: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
+	8,  // 41: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
+	10, // 42: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
+	15, // 43: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
+	21, // 44: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:output_type -> chalk.server.v1.GetOfflineWideTableNamespacesResponse
+	23, // 45: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
+	25, // 46: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
+	41, // [41:47] is the sub-list for method output_type
+	35, // [35:41] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_wide_tables_proto_init() }

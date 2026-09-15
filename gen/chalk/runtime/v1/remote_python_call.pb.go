@@ -726,7 +726,10 @@ type GetRecentCallsRequest struct {
 	FunctionName string `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
 	// Maximum number of calls to return (most recent first).
 	// Clamped to [1, 1000] server-side; defaults to 10 if zero.
-	Limit         uint32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit uint32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	// Opaque token returned by a previous request. When set, calls immediately
+	// older than the token are returned.
+	PageToken     string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -775,9 +778,18 @@ func (x *GetRecentCallsRequest) GetLimit() uint32 {
 	return 0
 }
 
+func (x *GetRecentCallsRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
 type GetRecentCallsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Calls         []*FunctionCallInfo    `protobuf:"bytes,1,rep,name=calls,proto3" json:"calls,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Calls []*FunctionCallInfo    `protobuf:"bytes,1,rep,name=calls,proto3" json:"calls,omitempty"`
+	// Opaque token for the next page, or empty when there are no older calls.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -817,6 +829,13 @@ func (x *GetRecentCallsResponse) GetCalls() []*FunctionCallInfo {
 		return x.Calls
 	}
 	return nil
+}
+
+func (x *GetRecentCallsResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
 }
 
 type GetCallResultsRequest struct {
@@ -1105,12 +1124,15 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"enqueuedAt\x12:\n" +
 	"\x06status\x18\x04 \x01(\x0e2\".chalk.runtime.v1.RemoteCallStatusR\x06status\x12%\n" +
 	"\x0eresult_summary\x18\x05 \x01(\tR\rresultSummary\x12\x19\n" +
-	"\btrace_id\x18\x06 \x01(\tR\atraceId\"R\n" +
+	"\btrace_id\x18\x06 \x01(\tR\atraceId\"q\n" +
 	"\x15GetRecentCallsRequest\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\rR\x05limit\"R\n" +
+	"\x05limit\x18\x02 \x01(\rR\x05limit\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x03 \x01(\tR\tpageToken\"z\n" +
 	"\x16GetRecentCallsResponse\x128\n" +
-	"\x05calls\x18\x01 \x03(\v2\".chalk.runtime.v1.FunctionCallInfoR\x05calls\"2\n" +
+	"\x05calls\x18\x01 \x03(\v2\".chalk.runtime.v1.FunctionCallInfoR\x05calls\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"2\n" +
 	"\x15GetCallResultsRequest\x12\x19\n" +
 	"\bcall_ids\x18\x01 \x03(\tR\acallIds\"\x90\x01\n" +
 	"\n" +
