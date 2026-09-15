@@ -2446,7 +2446,7 @@ var File_chalk_protosql_v1_sql_service_proto protoreflect.FileDescriptor
 
 const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/protosql/v1/sql_service.proto\x12\x11chalk.protosql.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a$chalk/common/v1/column_profile.proto\x1a#chalk/common/v1/offline_query.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd2\x01\n" +
+	"#chalk/protosql/v1/sql_service.proto\x12\x11chalk.protosql.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a$chalk/common/v1/column_profile.proto\x1a\x1fchalk/common/v1/resources.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd2\x01\n" +
 	"\fSqlQueryInfo\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12>\n" +
 	"\n" +

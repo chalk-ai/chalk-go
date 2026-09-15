@@ -73,6 +73,101 @@ func (x *ResourceRequirements) GetLimits() map[string]string {
 	return nil
 }
 
+type ResourceRequests struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// *
+	// CPU requests: Increasing this will make some Chalk operations that are parallel and CPU-bound faster.
+	// Default unit is physical CPU cores, i.e. "8" means 8 CPU cores, "0.5" means half of a CPU core.
+	// An alternative unit is "millicore", which is one-thousandth of a CPU core, i.e. 500m is half of a CPU core.
+	Cpu *string `protobuf:"bytes,1,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
+	// *
+	// Memory requests: you can use these to give your pod more memory, i.e. to prevent especially large jobs from OOMing.
+	// Default unit is bytes, i.e. 1000000000 is 1 gigabyte of memory.
+	// You can also specify a suffix such as K, M, or G for kilobytes, megabytes, and gigabytes, respectively.
+	// It's also possible to use the power of two equivalents, such as Ki, Mi, and Gi.
+	Memory *string `protobuf:"bytes,2,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
+	// *
+	// Chalk can use this for spilling intermediate state of some large computations, i.e. joins, aggregations, and sorting.
+	//
+	// Default unit is bytes, i.e. 1000000000 is 1 gigabyte of memory.
+	// You can also specify a suffix such as K, M, or G for kilobytes, megabytes, and gigabytes, respectively.
+	// It's also possible to use the power of two equivalents, such as Ki, Mi, and Gi.
+	EphemeralVolumeSize *string `protobuf:"bytes,3,opt,name=ephemeral_volume_size,json=ephemeralVolumeSize,proto3,oneof" json:"ephemeral_volume_size,omitempty"`
+	// *
+	// Ephemeral storage for miscellaneous file system access.
+	// Should probably not be below 1Gi to ensure there's enough space for the Docker image, etc.
+	// Should also not be too high or else the pod will not be scheduled.
+	EphemeralStorage *string `protobuf:"bytes,4,opt,name=ephemeral_storage,json=ephemeralStorage,proto3,oneof" json:"ephemeral_storage,omitempty"`
+	ResourceGroup    *string `protobuf:"bytes,5,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ResourceRequests) Reset() {
+	*x = ResourceRequests{}
+	mi := &file_chalk_common_v1_resources_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResourceRequests) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResourceRequests) ProtoMessage() {}
+
+func (x *ResourceRequests) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_common_v1_resources_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResourceRequests.ProtoReflect.Descriptor instead.
+func (*ResourceRequests) Descriptor() ([]byte, []int) {
+	return file_chalk_common_v1_resources_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ResourceRequests) GetCpu() string {
+	if x != nil && x.Cpu != nil {
+		return *x.Cpu
+	}
+	return ""
+}
+
+func (x *ResourceRequests) GetMemory() string {
+	if x != nil && x.Memory != nil {
+		return *x.Memory
+	}
+	return ""
+}
+
+func (x *ResourceRequests) GetEphemeralVolumeSize() string {
+	if x != nil && x.EphemeralVolumeSize != nil {
+		return *x.EphemeralVolumeSize
+	}
+	return ""
+}
+
+func (x *ResourceRequests) GetEphemeralStorage() string {
+	if x != nil && x.EphemeralStorage != nil {
+		return *x.EphemeralStorage
+	}
+	return ""
+}
+
+func (x *ResourceRequests) GetResourceGroup() string {
+	if x != nil && x.ResourceGroup != nil {
+		return *x.ResourceGroup
+	}
+	return ""
+}
+
 var File_chalk_common_v1_resources_proto protoreflect.FileDescriptor
 
 const file_chalk_common_v1_resources_proto_rawDesc = "" +
@@ -86,7 +181,18 @@ const file_chalk_common_v1_resources_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
 	"\vLimitsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\xbe\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb3\x02\n" +
+	"\x10ResourceRequests\x12\x15\n" +
+	"\x03cpu\x18\x01 \x01(\tH\x00R\x03cpu\x88\x01\x01\x12\x1b\n" +
+	"\x06memory\x18\x02 \x01(\tH\x01R\x06memory\x88\x01\x01\x127\n" +
+	"\x15ephemeral_volume_size\x18\x03 \x01(\tH\x02R\x13ephemeralVolumeSize\x88\x01\x01\x120\n" +
+	"\x11ephemeral_storage\x18\x04 \x01(\tH\x03R\x10ephemeralStorage\x88\x01\x01\x12*\n" +
+	"\x0eresource_group\x18\x05 \x01(\tH\x04R\rresourceGroup\x88\x01\x01B\x06\n" +
+	"\x04_cpuB\t\n" +
+	"\a_memoryB\x18\n" +
+	"\x16_ephemeral_volume_sizeB\x14\n" +
+	"\x12_ephemeral_storageB\x11\n" +
+	"\x0f_resource_groupB\xbe\x01\n" +
 	"\x13com.chalk.common.v1B\x0eResourcesProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/common/v1;commonv1\xa2\x02\x03CCX\xaa\x02\x0fChalk.Common.V1\xca\x02\x0fChalk\\Common\\V1\xe2\x02\x1bChalk\\Common\\V1\\GPBMetadata\xea\x02\x11Chalk::Common::V1b\x06proto3"
 
 var (
@@ -101,15 +207,16 @@ func file_chalk_common_v1_resources_proto_rawDescGZIP() []byte {
 	return file_chalk_common_v1_resources_proto_rawDescData
 }
 
-var file_chalk_common_v1_resources_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_chalk_common_v1_resources_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_chalk_common_v1_resources_proto_goTypes = []any{
 	(*ResourceRequirements)(nil), // 0: chalk.common.v1.ResourceRequirements
-	nil,                          // 1: chalk.common.v1.ResourceRequirements.RequestsEntry
-	nil,                          // 2: chalk.common.v1.ResourceRequirements.LimitsEntry
+	(*ResourceRequests)(nil),     // 1: chalk.common.v1.ResourceRequests
+	nil,                          // 2: chalk.common.v1.ResourceRequirements.RequestsEntry
+	nil,                          // 3: chalk.common.v1.ResourceRequirements.LimitsEntry
 }
 var file_chalk_common_v1_resources_proto_depIdxs = []int32{
-	1, // 0: chalk.common.v1.ResourceRequirements.requests:type_name -> chalk.common.v1.ResourceRequirements.RequestsEntry
-	2, // 1: chalk.common.v1.ResourceRequirements.limits:type_name -> chalk.common.v1.ResourceRequirements.LimitsEntry
+	2, // 0: chalk.common.v1.ResourceRequirements.requests:type_name -> chalk.common.v1.ResourceRequirements.RequestsEntry
+	3, // 1: chalk.common.v1.ResourceRequirements.limits:type_name -> chalk.common.v1.ResourceRequirements.LimitsEntry
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -122,13 +229,14 @@ func file_chalk_common_v1_resources_proto_init() {
 	if File_chalk_common_v1_resources_proto != nil {
 		return
 	}
+	file_chalk_common_v1_resources_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_common_v1_resources_proto_rawDesc), len(file_chalk_common_v1_resources_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

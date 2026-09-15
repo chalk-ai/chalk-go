@@ -23,6 +23,8 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// SandboxServiceName is the fully-qualified name of the SandboxService service.
 	SandboxServiceName = "chalk.sandbox.v2.SandboxService"
+	// SandboxResourceServiceName is the fully-qualified name of the SandboxResourceService service.
+	SandboxResourceServiceName = "chalk.sandbox.v2.SandboxResourceService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -51,6 +53,9 @@ const (
 	// SandboxServiceTerminateSandboxProcedure is the fully-qualified name of the SandboxService's
 	// TerminateSandbox RPC.
 	SandboxServiceTerminateSandboxProcedure = "/chalk.sandbox.v2.SandboxService/TerminateSandbox"
+	// SandboxResourceServiceListSandboxResourcesProcedure is the fully-qualified name of the
+	// SandboxResourceService's ListSandboxResources RPC.
+	SandboxResourceServiceListSandboxResourcesProcedure = "/chalk.sandbox.v2.SandboxResourceService/ListSandboxResources"
 )
 
 // SandboxServiceClient is a client for the chalk.sandbox.v2.SandboxService service.
@@ -251,4 +256,75 @@ func (UnimplementedSandboxServiceHandler) ResumeSandbox(context.Context, *connec
 
 func (UnimplementedSandboxServiceHandler) TerminateSandbox(context.Context, *connect.Request[v2.TerminateSandboxRequest]) (*connect.Response[v2.TerminateSandboxResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxService.TerminateSandbox is not implemented"))
+}
+
+// SandboxResourceServiceClient is a client for the chalk.sandbox.v2.SandboxResourceService service.
+type SandboxResourceServiceClient interface {
+	ListSandboxResources(context.Context, *connect.Request[v2.ListSandboxResourcesRequest]) (*connect.Response[v2.ListSandboxResourcesResponse], error)
+}
+
+// NewSandboxResourceServiceClient constructs a client for the
+// chalk.sandbox.v2.SandboxResourceService service. By default, it uses the Connect protocol with
+// the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To use
+// the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewSandboxResourceServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) SandboxResourceServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	sandboxResourceServiceMethods := v2.File_chalk_sandbox_v2_service_proto.Services().ByName("SandboxResourceService").Methods()
+	return &sandboxResourceServiceClient{
+		listSandboxResources: connect.NewClient[v2.ListSandboxResourcesRequest, v2.ListSandboxResourcesResponse](
+			httpClient,
+			baseURL+SandboxResourceServiceListSandboxResourcesProcedure,
+			connect.WithSchema(sandboxResourceServiceMethods.ByName("ListSandboxResources")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// sandboxResourceServiceClient implements SandboxResourceServiceClient.
+type sandboxResourceServiceClient struct {
+	listSandboxResources *connect.Client[v2.ListSandboxResourcesRequest, v2.ListSandboxResourcesResponse]
+}
+
+// ListSandboxResources calls chalk.sandbox.v2.SandboxResourceService.ListSandboxResources.
+func (c *sandboxResourceServiceClient) ListSandboxResources(ctx context.Context, req *connect.Request[v2.ListSandboxResourcesRequest]) (*connect.Response[v2.ListSandboxResourcesResponse], error) {
+	return c.listSandboxResources.CallUnary(ctx, req)
+}
+
+// SandboxResourceServiceHandler is an implementation of the chalk.sandbox.v2.SandboxResourceService
+// service.
+type SandboxResourceServiceHandler interface {
+	ListSandboxResources(context.Context, *connect.Request[v2.ListSandboxResourcesRequest]) (*connect.Response[v2.ListSandboxResourcesResponse], error)
+}
+
+// NewSandboxResourceServiceHandler builds an HTTP handler from the service implementation. It
+// returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewSandboxResourceServiceHandler(svc SandboxResourceServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	sandboxResourceServiceMethods := v2.File_chalk_sandbox_v2_service_proto.Services().ByName("SandboxResourceService").Methods()
+	sandboxResourceServiceListSandboxResourcesHandler := connect.NewUnaryHandler(
+		SandboxResourceServiceListSandboxResourcesProcedure,
+		svc.ListSandboxResources,
+		connect.WithSchema(sandboxResourceServiceMethods.ByName("ListSandboxResources")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.sandbox.v2.SandboxResourceService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case SandboxResourceServiceListSandboxResourcesProcedure:
+			sandboxResourceServiceListSandboxResourcesHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedSandboxResourceServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedSandboxResourceServiceHandler struct{}
+
+func (UnimplementedSandboxResourceServiceHandler) ListSandboxResources(context.Context, *connect.Request[v2.ListSandboxResourcesRequest]) (*connect.Response[v2.ListSandboxResourcesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxResourceService.ListSandboxResources is not implemented"))
 }

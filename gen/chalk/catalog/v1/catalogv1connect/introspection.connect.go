@@ -37,6 +37,9 @@ const (
 	// CatalogIntrospectionServiceGetSourceSnapshotProcedure is the fully-qualified name of the
 	// CatalogIntrospectionService's GetSourceSnapshot RPC.
 	CatalogIntrospectionServiceGetSourceSnapshotProcedure = "/chalk.catalog.v1.CatalogIntrospectionService/GetSourceSnapshot"
+	// CatalogIntrospectionServiceRefreshSourceSnapshotProcedure is the fully-qualified name of the
+	// CatalogIntrospectionService's RefreshSourceSnapshot RPC.
+	CatalogIntrospectionServiceRefreshSourceSnapshotProcedure = "/chalk.catalog.v1.CatalogIntrospectionService/RefreshSourceSnapshot"
 	// CatalogIntrospectionServiceAnalyzeSqlLineageProcedure is the fully-qualified name of the
 	// CatalogIntrospectionService's AnalyzeSqlLineage RPC.
 	CatalogIntrospectionServiceAnalyzeSqlLineageProcedure = "/chalk.catalog.v1.CatalogIntrospectionService/AnalyzeSqlLineage"
@@ -46,6 +49,11 @@ const (
 // chalk.catalog.v1.CatalogIntrospectionService service.
 type CatalogIntrospectionServiceClient interface {
 	GetSourceSnapshot(context.Context, *connect.Request[v1.GetSourceSnapshotRequest]) (*connect.Response[v1.GetSourceSnapshotResponse], error)
+	// Enqueue a census on the data-plane job queue and return the sync run that
+	// tracks it. A census of a wide warehouse runs for minutes, which is longer
+	// than a request can wait; this is the same walk, run as a job whose result
+	// the API server ingests when it lands.
+	RefreshSourceSnapshot(context.Context, *connect.Request[v1.RefreshSourceSnapshotRequest]) (*connect.Response[v1.RefreshSourceSnapshotResponse], error)
 	// Static lineage analysis of SQL file resolvers and view definitions. It
 	// lives beside the census because it needs the same thing the census needs:
 	// the source credentials, to resolve names the caller had no schema for.
@@ -71,6 +79,12 @@ func NewCatalogIntrospectionServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		refreshSourceSnapshot: connect.NewClient[v1.RefreshSourceSnapshotRequest, v1.RefreshSourceSnapshotResponse](
+			httpClient,
+			baseURL+CatalogIntrospectionServiceRefreshSourceSnapshotProcedure,
+			connect.WithSchema(catalogIntrospectionServiceMethods.ByName("RefreshSourceSnapshot")),
+			connect.WithClientOptions(opts...),
+		),
 		analyzeSqlLineage: connect.NewClient[v1.AnalyzeSqlLineageRequest, v1.AnalyzeSqlLineageResponse](
 			httpClient,
 			baseURL+CatalogIntrospectionServiceAnalyzeSqlLineageProcedure,
@@ -83,13 +97,19 @@ func NewCatalogIntrospectionServiceClient(httpClient connect.HTTPClient, baseURL
 
 // catalogIntrospectionServiceClient implements CatalogIntrospectionServiceClient.
 type catalogIntrospectionServiceClient struct {
-	getSourceSnapshot *connect.Client[v1.GetSourceSnapshotRequest, v1.GetSourceSnapshotResponse]
-	analyzeSqlLineage *connect.Client[v1.AnalyzeSqlLineageRequest, v1.AnalyzeSqlLineageResponse]
+	getSourceSnapshot     *connect.Client[v1.GetSourceSnapshotRequest, v1.GetSourceSnapshotResponse]
+	refreshSourceSnapshot *connect.Client[v1.RefreshSourceSnapshotRequest, v1.RefreshSourceSnapshotResponse]
+	analyzeSqlLineage     *connect.Client[v1.AnalyzeSqlLineageRequest, v1.AnalyzeSqlLineageResponse]
 }
 
 // GetSourceSnapshot calls chalk.catalog.v1.CatalogIntrospectionService.GetSourceSnapshot.
 func (c *catalogIntrospectionServiceClient) GetSourceSnapshot(ctx context.Context, req *connect.Request[v1.GetSourceSnapshotRequest]) (*connect.Response[v1.GetSourceSnapshotResponse], error) {
 	return c.getSourceSnapshot.CallUnary(ctx, req)
+}
+
+// RefreshSourceSnapshot calls chalk.catalog.v1.CatalogIntrospectionService.RefreshSourceSnapshot.
+func (c *catalogIntrospectionServiceClient) RefreshSourceSnapshot(ctx context.Context, req *connect.Request[v1.RefreshSourceSnapshotRequest]) (*connect.Response[v1.RefreshSourceSnapshotResponse], error) {
+	return c.refreshSourceSnapshot.CallUnary(ctx, req)
 }
 
 // AnalyzeSqlLineage calls chalk.catalog.v1.CatalogIntrospectionService.AnalyzeSqlLineage.
@@ -101,6 +121,11 @@ func (c *catalogIntrospectionServiceClient) AnalyzeSqlLineage(ctx context.Contex
 // chalk.catalog.v1.CatalogIntrospectionService service.
 type CatalogIntrospectionServiceHandler interface {
 	GetSourceSnapshot(context.Context, *connect.Request[v1.GetSourceSnapshotRequest]) (*connect.Response[v1.GetSourceSnapshotResponse], error)
+	// Enqueue a census on the data-plane job queue and return the sync run that
+	// tracks it. A census of a wide warehouse runs for minutes, which is longer
+	// than a request can wait; this is the same walk, run as a job whose result
+	// the API server ingests when it lands.
+	RefreshSourceSnapshot(context.Context, *connect.Request[v1.RefreshSourceSnapshotRequest]) (*connect.Response[v1.RefreshSourceSnapshotResponse], error)
 	// Static lineage analysis of SQL file resolvers and view definitions. It
 	// lives beside the census because it needs the same thing the census needs:
 	// the source credentials, to resolve names the caller had no schema for.
@@ -121,6 +146,12 @@ func NewCatalogIntrospectionServiceHandler(svc CatalogIntrospectionServiceHandle
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	catalogIntrospectionServiceRefreshSourceSnapshotHandler := connect.NewUnaryHandler(
+		CatalogIntrospectionServiceRefreshSourceSnapshotProcedure,
+		svc.RefreshSourceSnapshot,
+		connect.WithSchema(catalogIntrospectionServiceMethods.ByName("RefreshSourceSnapshot")),
+		connect.WithHandlerOptions(opts...),
+	)
 	catalogIntrospectionServiceAnalyzeSqlLineageHandler := connect.NewUnaryHandler(
 		CatalogIntrospectionServiceAnalyzeSqlLineageProcedure,
 		svc.AnalyzeSqlLineage,
@@ -132,6 +163,8 @@ func NewCatalogIntrospectionServiceHandler(svc CatalogIntrospectionServiceHandle
 		switch r.URL.Path {
 		case CatalogIntrospectionServiceGetSourceSnapshotProcedure:
 			catalogIntrospectionServiceGetSourceSnapshotHandler.ServeHTTP(w, r)
+		case CatalogIntrospectionServiceRefreshSourceSnapshotProcedure:
+			catalogIntrospectionServiceRefreshSourceSnapshotHandler.ServeHTTP(w, r)
 		case CatalogIntrospectionServiceAnalyzeSqlLineageProcedure:
 			catalogIntrospectionServiceAnalyzeSqlLineageHandler.ServeHTTP(w, r)
 		default:
@@ -145,6 +178,10 @@ type UnimplementedCatalogIntrospectionServiceHandler struct{}
 
 func (UnimplementedCatalogIntrospectionServiceHandler) GetSourceSnapshot(context.Context, *connect.Request[v1.GetSourceSnapshotRequest]) (*connect.Response[v1.GetSourceSnapshotResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.catalog.v1.CatalogIntrospectionService.GetSourceSnapshot is not implemented"))
+}
+
+func (UnimplementedCatalogIntrospectionServiceHandler) RefreshSourceSnapshot(context.Context, *connect.Request[v1.RefreshSourceSnapshotRequest]) (*connect.Response[v1.RefreshSourceSnapshotResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.catalog.v1.CatalogIntrospectionService.RefreshSourceSnapshot is not implemented"))
 }
 
 func (UnimplementedCatalogIntrospectionServiceHandler) AnalyzeSqlLineage(context.Context, *connect.Request[v1.AnalyzeSqlLineageRequest]) (*connect.Response[v1.AnalyzeSqlLineageResponse], error) {

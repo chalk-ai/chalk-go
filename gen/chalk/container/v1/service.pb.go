@@ -1972,7 +1972,11 @@ type ContainerResponse struct {
 	SshPort *int32 `protobuf:"varint,13,opt,name=ssh_port,json=sshPort,proto3,oneof" json:"ssh_port,omitempty"`
 	// Result of an HTTP healthcheck against the container's web_url
 	// Only populated for containers with an exposed port and web_url
-	HealthCheck   *HealthCheck `protobuf:"bytes,14,opt,name=health_check,json=healthCheck,proto3,oneof" json:"health_check,omitempty"`
+	HealthCheck *HealthCheck `protobuf:"bytes,14,opt,name=health_check,json=healthCheck,proto3,oneof" json:"health_check,omitempty"`
+	// Cloud region of the stored container cluster. Empty when unknown.
+	Region string `protobuf:"bytes,15,opt,name=region,proto3" json:"region,omitempty"`
+	// User or service-token ID, absent when the creator is unknown.
+	CreatedBy     *string `protobuf:"bytes,16,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2107,6 +2111,20 @@ func (x *ContainerResponse) GetHealthCheck() *HealthCheck {
 		return x.HealthCheck
 	}
 	return nil
+}
+
+func (x *ContainerResponse) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
+}
+
+func (x *ContainerResponse) GetCreatedBy() string {
+	if x != nil && x.CreatedBy != nil {
+		return *x.CreatedBy
+	}
+	return ""
 }
 
 type RunContainerRequest struct {
@@ -5470,7 +5488,7 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"statusCode\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\x03 \x01(\tH\x01R\x05error\x88\x01\x01B\x0e\n" +
 	"\f_status_codeB\b\n" +
-	"\x06_error\"\xd7\x05\n" +
+	"\x06_error\"\xa2\x06\n" +
 	"\x11ContainerResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -5488,7 +5506,10 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\fssh_username\x18\v \x01(\tB\x02\x18\x01H\x04R\vsshUsername\x88\x01\x01\x12\"\n" +
 	"\bssh_host\x18\f \x01(\tB\x02\x18\x01H\x05R\asshHost\x88\x01\x01\x12\"\n" +
 	"\bssh_port\x18\r \x01(\x05B\x02\x18\x01H\x06R\asshPort\x88\x01\x01\x12G\n" +
-	"\fhealth_check\x18\x0e \x01(\v2\x1f.chalk.container.v1.HealthCheckH\aR\vhealthCheck\x88\x01\x01B\x11\n" +
+	"\fhealth_check\x18\x0e \x01(\v2\x1f.chalk.container.v1.HealthCheckH\aR\vhealthCheck\x88\x01\x01\x12\x16\n" +
+	"\x06region\x18\x0f \x01(\tR\x06region\x12\"\n" +
+	"\n" +
+	"created_by\x18\x10 \x01(\tH\bR\tcreatedBy\x88\x01\x01B\x11\n" +
 	"\x0f_status_messageB\r\n" +
 	"\v_stopped_atB\n" +
 	"\n" +
@@ -5497,7 +5518,8 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\r_ssh_usernameB\v\n" +
 	"\t_ssh_hostB\v\n" +
 	"\t_ssh_portB\x0f\n" +
-	"\r_health_check\"Y\n" +
+	"\r_health_checkB\r\n" +
+	"\v_created_by\"Y\n" +
 	"\x13RunContainerRequest\x12B\n" +
 	"\tcontainer\x18\x01 \x01(\v2$.chalk.container.v1.ContainerRequestR\tcontainer\"[\n" +
 	"\x14RunContainerResponse\x12C\n" +

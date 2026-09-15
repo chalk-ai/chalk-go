@@ -48,6 +48,9 @@ const (
 	// CloudComponentsServiceCreateCloudComponentClusterProcedure is the fully-qualified name of the
 	// CloudComponentsService's CreateCloudComponentCluster RPC.
 	CloudComponentsServiceCreateCloudComponentClusterProcedure = "/chalk.server.v1.CloudComponentsService/CreateCloudComponentCluster"
+	// CloudComponentsServiceCreateRecoverClusterTargetProcedure is the fully-qualified name of the
+	// CloudComponentsService's CreateRecoverClusterTarget RPC.
+	CloudComponentsServiceCreateRecoverClusterTargetProcedure = "/chalk.server.v1.CloudComponentsService/CreateRecoverClusterTarget"
 	// CloudComponentsServiceUpdateCloudComponentClusterProcedure is the fully-qualified name of the
 	// CloudComponentsService's UpdateCloudComponentCluster RPC.
 	CloudComponentsServiceUpdateCloudComponentClusterProcedure = "/chalk.server.v1.CloudComponentsService/UpdateCloudComponentCluster"
@@ -233,6 +236,7 @@ type CloudComponentsServiceClient interface {
 	ListCloudComponentVpc(context.Context, *connect.Request[v1.ListCloudComponentVpcRequest]) (*connect.Response[v1.ListCloudComponentVpcResponse], error)
 	DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error)
 	CreateCloudComponentCluster(context.Context, *connect.Request[v1.CreateCloudComponentClusterRequest]) (*connect.Response[v1.CreateCloudComponentClusterResponse], error)
+	CreateRecoverClusterTarget(context.Context, *connect.Request[v1.CreateRecoverClusterTargetRequest]) (*connect.Response[v1.CreateRecoverClusterTargetResponse], error)
 	UpdateCloudComponentCluster(context.Context, *connect.Request[v1.UpdateCloudComponentClusterRequest]) (*connect.Response[v1.UpdateCloudComponentClusterResponse], error)
 	GetCloudComponentCluster(context.Context, *connect.Request[v1.GetCloudComponentClusterRequest]) (*connect.Response[v1.GetCloudComponentClusterResponse], error)
 	ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error)
@@ -336,6 +340,12 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceCreateCloudComponentClusterProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateCloudComponentCluster")),
+			connect.WithClientOptions(opts...),
+		),
+		createRecoverClusterTarget: connect.NewClient[v1.CreateRecoverClusterTargetRequest, v1.CreateRecoverClusterTargetResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceCreateRecoverClusterTargetProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateRecoverClusterTarget")),
 			connect.WithClientOptions(opts...),
 		),
 		updateCloudComponentCluster: connect.NewClient[v1.UpdateCloudComponentClusterRequest, v1.UpdateCloudComponentClusterResponse](
@@ -712,6 +722,7 @@ type cloudComponentsServiceClient struct {
 	listCloudComponentVpc                                   *connect.Client[v1.ListCloudComponentVpcRequest, v1.ListCloudComponentVpcResponse]
 	deleteCloudComponentVpc                                 *connect.Client[v1.DeleteCloudComponentVpcRequest, v1.DeleteCloudComponentVpcResponse]
 	createCloudComponentCluster                             *connect.Client[v1.CreateCloudComponentClusterRequest, v1.CreateCloudComponentClusterResponse]
+	createRecoverClusterTarget                              *connect.Client[v1.CreateRecoverClusterTargetRequest, v1.CreateRecoverClusterTargetResponse]
 	updateCloudComponentCluster                             *connect.Client[v1.UpdateCloudComponentClusterRequest, v1.UpdateCloudComponentClusterResponse]
 	getCloudComponentCluster                                *connect.Client[v1.GetCloudComponentClusterRequest, v1.GetCloudComponentClusterResponse]
 	listCloudComponentCluster                               *connect.Client[v1.ListCloudComponentClusterRequest, v1.ListCloudComponentClusterResponse]
@@ -794,6 +805,12 @@ func (c *cloudComponentsServiceClient) DeleteCloudComponentVpc(ctx context.Conte
 // chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster.
 func (c *cloudComponentsServiceClient) CreateCloudComponentCluster(ctx context.Context, req *connect.Request[v1.CreateCloudComponentClusterRequest]) (*connect.Response[v1.CreateCloudComponentClusterResponse], error) {
 	return c.createCloudComponentCluster.CallUnary(ctx, req)
+}
+
+// CreateRecoverClusterTarget calls
+// chalk.server.v1.CloudComponentsService.CreateRecoverClusterTarget.
+func (c *cloudComponentsServiceClient) CreateRecoverClusterTarget(ctx context.Context, req *connect.Request[v1.CreateRecoverClusterTargetRequest]) (*connect.Response[v1.CreateRecoverClusterTargetResponse], error) {
+	return c.createRecoverClusterTarget.CallUnary(ctx, req)
 }
 
 // UpdateCloudComponentCluster calls
@@ -1131,6 +1148,7 @@ type CloudComponentsServiceHandler interface {
 	ListCloudComponentVpc(context.Context, *connect.Request[v1.ListCloudComponentVpcRequest]) (*connect.Response[v1.ListCloudComponentVpcResponse], error)
 	DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error)
 	CreateCloudComponentCluster(context.Context, *connect.Request[v1.CreateCloudComponentClusterRequest]) (*connect.Response[v1.CreateCloudComponentClusterResponse], error)
+	CreateRecoverClusterTarget(context.Context, *connect.Request[v1.CreateRecoverClusterTargetRequest]) (*connect.Response[v1.CreateRecoverClusterTargetResponse], error)
 	UpdateCloudComponentCluster(context.Context, *connect.Request[v1.UpdateCloudComponentClusterRequest]) (*connect.Response[v1.UpdateCloudComponentClusterResponse], error)
 	GetCloudComponentCluster(context.Context, *connect.Request[v1.GetCloudComponentClusterRequest]) (*connect.Response[v1.GetCloudComponentClusterResponse], error)
 	ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error)
@@ -1230,6 +1248,12 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceCreateCloudComponentClusterProcedure,
 		svc.CreateCloudComponentCluster,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateCloudComponentCluster")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceCreateRecoverClusterTargetHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceCreateRecoverClusterTargetProcedure,
+		svc.CreateRecoverClusterTarget,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateRecoverClusterTarget")),
 		connect.WithHandlerOptions(opts...),
 	)
 	cloudComponentsServiceUpdateCloudComponentClusterHandler := connect.NewUnaryHandler(
@@ -1608,6 +1632,8 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceDeleteCloudComponentVpcHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateCloudComponentClusterProcedure:
 			cloudComponentsServiceCreateCloudComponentClusterHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceCreateRecoverClusterTargetProcedure:
+			cloudComponentsServiceCreateRecoverClusterTargetHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceUpdateCloudComponentClusterProcedure:
 			cloudComponentsServiceUpdateCloudComponentClusterHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetCloudComponentClusterProcedure:
@@ -1747,6 +1773,10 @@ func (UnimplementedCloudComponentsServiceHandler) DeleteCloudComponentVpc(contex
 
 func (UnimplementedCloudComponentsServiceHandler) CreateCloudComponentCluster(context.Context, *connect.Request[v1.CreateCloudComponentClusterRequest]) (*connect.Response[v1.CreateCloudComponentClusterResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) CreateRecoverClusterTarget(context.Context, *connect.Request[v1.CreateRecoverClusterTargetRequest]) (*connect.Response[v1.CreateRecoverClusterTargetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateRecoverClusterTarget is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) UpdateCloudComponentCluster(context.Context, *connect.Request[v1.UpdateCloudComponentClusterRequest]) (*connect.Response[v1.UpdateCloudComponentClusterResponse], error) {
