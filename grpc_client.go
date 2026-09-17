@@ -234,6 +234,10 @@ type GRPCClientConfig struct {
 	// otel.GetTracerProvider().
 	TracerProvider trace.TracerProvider
 
+	// Tracing configures additional tracing diagnostics. Nil disables these
+	// diagnostics. Requires TracerProvider and a recording RPC span.
+	Tracing *TracingOptions
+
 	// SkipEngineMapping controls whether the TokenManager should skip
 	// setting the query server based on the token's engine maps. If true,
 	// the query server will not be automatically resolved from the token.
@@ -246,6 +250,15 @@ type GRPCClientConfig struct {
 	// AuthProviderInvalidator clears any cache owned by AuthProvider before a
 	// forced refresh following an authentication rejection.
 	AuthProviderInvalidator auth.AuthProviderInvalidator
+}
+
+// TracingOptions configures optional diagnostics for SDK traces.
+// The zero value disables all additional diagnostics.
+type TracingOptions struct {
+	// Transport adds HTTP timing events, connection details, and, on Linux
+	// when available, TCP RTT to OnlineQueryBulk traces. No credentials or
+	// feature values are exported.
+	Transport bool
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

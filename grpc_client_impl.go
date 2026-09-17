@@ -49,6 +49,7 @@ type grpcClientImpl struct {
 	engineInterceptor     connect.UnaryInterceptorFunc
 	tracerProvider        trace.TracerProvider
 	tracer                trace.Tracer
+	tracingOptions        *TracingOptions
 }
 
 type featureWriteClient interface {
@@ -152,8 +153,8 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		cfg.HTTPClient = &http.Client{
 			Transport: &http2.Transport{
 				AllowHTTP: true,
-				DialTLSContext: func(_ context.Context, network, addr string, tlsConfig *tls.Config) (net.Conn, error) {
-					return net.Dial(network, addr)
+				DialTLSContext: func(ctx context.Context, network, addr string, tlsConfig *tls.Config) (net.Conn, error) {
+					return (&net.Dialer{}).DialContext(ctx, network, addr)
 				},
 			},
 		}
@@ -214,9 +215,22 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	// GetEngineServerInterceptor (which expect the engine routing).
 	engineInterceptor := makeEngineInterceptor("engine")
 	branchQueryInterceptor := makeEngineInterceptor("go-api")
+	tracer := newTracer(cfg.TracerProvider)
+	var tracingOptions *TracingOptions
+	if cfg.Tracing != nil {
+		options := *cfg.Tracing
+		tracingOptions = &options
+	}
+	queryHTTPClient := cfg.HTTPClient
+	if tracingOptions != nil && tracingOptions.Transport && tracer != nil {
+		// Wrap the final transport, including the h2c client selected above.
+		// Keep the original client in GetConfig so rebuilding a client doesn't
+		// stack instrumentation wrappers.
+		queryHTTPClient = &transportTracingClient{HTTPClient: cfg.HTTPClient, tracer: tracer}
+	}
 
 	queryClient := enginev1connect.NewQueryServiceClient(
-		cfg.HTTPClient,
+		queryHTTPClient,
 		resolvedQueryServer,
 		connect.WithInterceptors(cfg.Interceptors...),
 		connect.WithInterceptors(connect.UnaryInterceptorFunc(engineInterceptor)),
@@ -225,7 +239,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 
 	apiServerURL := configManager.GetAPIServer().Value
 	branchQueryClient := enginev1connect.NewQueryServiceClient(
-		cfg.HTTPClient,
+		queryHTTPClient,
 		apiServerURL,
 		connect.WithInterceptors(cfg.Interceptors...),
 		connect.WithInterceptors(connect.UnaryInterceptorFunc(branchQueryInterceptor)),
@@ -295,7 +309,8 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		metadataInterceptor:   authedServerInterceptor,
 		engineInterceptor:     engineInterceptor,
 		tracerProvider:        cfg.TracerProvider,
-		tracer:                newTracer(cfg.TracerProvider),
+		tracer:                tracer,
+		tracingOptions:        tracingOptions,
 	}, nil
 }
 
@@ -610,14 +625,15 @@ func (c *grpcClientImpl) onlineQueryBulk(
 	}
 	hasBranch := perRequestBranch || c.branch != ""
 
-	// The RPC gets its own span so that time on the wire is separable from
-	// the serialization work around it, even when the caller has not
-	// installed a connect interceptor that traces the call.
+	// The RPC includes middleware, protobuf encoding/decoding and transport
+	// work. Arrow input serialization has already finished at this point.
 	rpcCtx, rpcSpan := startSpan(ctx, c.tracer, spanRPC)
+	rpcCtx, transportTrace := startTransportTrace(rpcCtx, c.tracingOptions != nil && c.tracingOptions.Transport, rpcSpan)
 	if rpcSpan.IsRecording() {
 		rpcSpan.SetAttributes(attrInputsBytes.Int(len(req.Msg.GetInputsFeather())))
 	}
 	res, err := c.getQueryClient(hasBranch).OnlineQueryBulk(rpcCtx, req)
+	transportTrace.finish(rpcSpan)
 	if err != nil {
 		endSpan(rpcSpan, err)
 		return nil, errors.Wrap(err, "executing online query")
@@ -726,6 +742,11 @@ func (c *grpcClientImpl) GetEngineServerInterceptor() []connect.ClientOption {
 }
 
 func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
+	var tracingOptions *TracingOptions
+	if c.tracingOptions != nil {
+		options := *c.tracingOptions
+		tracingOptions = &options
+	}
 	return &GRPCClientConfig{
 		ClientId:       string(c.config.ClientId.Value),
 		ClientSecret:   string(c.config.ClientSecret.Value),
@@ -740,6 +761,7 @@ func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 		Timeout:        ptr.OrZero(c.timeout),
 		Allocator:      c.allocator,
 		TracerProvider: c.tracerProvider,
+		Tracing:        tracingOptions,
 	}
 }
 
