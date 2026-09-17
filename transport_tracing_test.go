@@ -90,8 +90,14 @@ func TestTransportTracingTimingsAndBodyLifetime(t *testing.T) {
 		body, err := io.ReadAll(res.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "response", string(body))
+		firstEOF := time.Now()
 		assert.Empty(t, recorder.Ended(), "EOF does not imply Connect has finished decoding/closing")
 		time.Sleep(7 * time.Millisecond)
+		// Connect may read again after EOF while finishing the response.
+		n, err := res.Body.Read(make([]byte, 1))
+		assert.Zero(t, n)
+		assert.ErrorIs(t, err, io.EOF)
+		assert.Empty(t, recorder.Ended(), "repeated EOF must not end the span")
 		assert.NoError(t, res.Body.Close())
 		state.finish(rpc)
 		rpc.End()
@@ -111,6 +117,15 @@ func TestTransportTracingTimingsAndBodyLifetime(t *testing.T) {
 		assert.Equal(t, float64(2), transportAttrs(spans.get(t, spanRPC))[transportAttr+"pre_http_ms"].AsFloat64())
 		assert.Equal(t, int64(8), attrs[transportAttr+"response_body_bytes"].AsInt64())
 		assert.True(t, attrs[transportAttr+"response_body_complete"].AsBool())
+		assert.False(t, attrs[transportAttr+"response_body_failed"].AsBool())
+		eofEvents := 0
+		for _, event := range httpSpan.Events() {
+			if event.Name == "http.body_eof" {
+				eofEvents++
+				assert.Equal(t, firstEOF, event.Time, "preserve the first EOF timestamp")
+			}
+		}
+		assert.Equal(t, 1, eofEvents, "emit one EOF event per response")
 		assert.True(t, attrs[transportAttr+"connection_reused"].AsBool())
 		assert.Equal(t, "private-cookie", res.Header.Get("Set-Cookie"), "response metadata must remain usable")
 		for _, span := range recorder.Ended() {

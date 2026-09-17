@@ -325,6 +325,7 @@ client, err := chalk.NewGRPCClient(ctx, &chalk.GRPCClientConfig{
 
 Use your configured OpenTelemetry provider, including the
 [Datadog OpenTelemetry bridge](https://docs.datadoghq.com/tracing/trace_collection/custom_instrumentation/go/otel/).
+Configure the provider's exporter in your application to send spans to your tracing backend.
 For distributed trace propagation, add a Connect interceptor such as
 [otelconnect](https://github.com/connectrpc/otelconnect-go) through
 `GRPCClientConfig.Interceptors`.
@@ -333,6 +334,8 @@ For distributed trace propagation, add a Connect interceptor such as
 request and response timings, connection reuse, and TCP RTT on Linux when
 available. Diagnostics are only collected when the RPC span is recording.
 Response waiting includes server processing; TCP RTT measures the connected peer.
+Response read/decode timing includes response and trailer waits plus protobuf
+decoding. Arrow decoding is traced separately.
 Spans include query metadata and payload sizes, never credentials or feature values.
 
 

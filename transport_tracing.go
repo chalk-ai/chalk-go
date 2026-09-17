@@ -313,8 +313,10 @@ func (b *transportTracingBody) Read(p []byte) (int, error) {
 	if !t.done {
 		t.bytesRead += int64(n)
 		if err == io.EOF {
-			t.bodyEOF = true
-			t.eventLocked("body_eof", time.Now())
+			if !t.bodyEOF {
+				t.bodyEOF = true
+				t.eventLocked("body_eof", time.Now())
+			}
 		} else if err != nil {
 			t.bodyFailed = true
 		}
