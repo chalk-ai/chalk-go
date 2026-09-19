@@ -25,10 +25,23 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// How much of a data source's surface a connection test exercises. FAST is metadata-only: it
-// connects, checks context and privileges, and never creates an object or spends warehouse
-// compute. FULL adds the checks that write. Kinds whose probe is a single connect treat both
-// identically, so the response echoes what was actually exercised.
+// How much of a data source's surface a connection test exercises.
+//
+// FAST answers one question: is this source working right now, assuming it was set up correctly
+// at some point? So it runs what can stop working on its own -- credentials that expire or are
+// rotated, the network path, a dropped database, and the query path resolvers actually use. FULL
+// adds what only a person editing configuration can break: that a named catalog, database or
+// stage exists, that an unload destination agrees with the source it was configured from, and
+// the probes that write in order to prove a grant in isolation.
+//
+// The split is by what a check can tell you, not by what it costs. A probe belongs in FAST when
+// its failure means the source stopped working, and in FULL when its failure means the source
+// was configured wrong. Cost usually follows, since re-validating setup is the expensive half --
+// but a kind whose only liveness signal is a billed query runs that query in FAST anyway,
+// because without it a fast test cannot answer its own question.
+//
+// Kinds whose probe is a single connect treat both identically, so the response echoes what was
+// actually exercised.
 type DatasourceTestCoverage int32
 
 const (

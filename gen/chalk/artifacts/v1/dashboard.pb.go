@@ -1350,7 +1350,10 @@ type DashboardStatisticViz struct {
 	// Frontend numeral format (e.g. "0,0", "0.0%"); empty => default.
 	NumberFormat *string `protobuf:"bytes,2,opt,name=number_format,json=numberFormat,proto3,oneof" json:"number_format,omitempty"`
 	// Override for the unit the backend returns on the stat result; unset => use the returned unit.
-	UnitLabel     *string `protobuf:"bytes,3,opt,name=unit_label,json=unitLabel,proto3,oneof" json:"unit_label,omitempty"`
+	UnitLabel *string `protobuf:"bytes,3,opt,name=unit_label,json=unitLabel,proto3,oneof" json:"unit_label,omitempty"`
+	// When set, the tile shows a per-interval rate instead of the window total.
+	RateOptions   *v1.RateOptions `protobuf:"bytes,4,opt,name=rate_options,json=rateOptions,proto3,oneof" json:"rate_options,omitempty"`
+	Coloring      *ValueColoring  `protobuf:"bytes,5,opt,name=coloring,proto3,oneof" json:"coloring,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1406,6 +1409,136 @@ func (x *DashboardStatisticViz) GetUnitLabel() string {
 	return ""
 }
 
+func (x *DashboardStatisticViz) GetRateOptions() *v1.RateOptions {
+	if x != nil {
+		return x.RateOptions
+	}
+	return nil
+}
+
+func (x *DashboardStatisticViz) GetColoring() *ValueColoring {
+	if x != nil {
+		return x.Coloring
+	}
+	return nil
+}
+
+// One threshold band: when `comparison` holds between the tile's value and `value`, it wears `tone`.
+type ValueColorRule struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Comparison    ThresholdKind          `protobuf:"varint,1,opt,name=comparison,proto3,enum=chalk.artifacts.v1.ThresholdKind" json:"comparison,omitempty"`
+	Value         float64                `protobuf:"fixed64,2,opt,name=value,proto3" json:"value,omitempty"`
+	Tone          ValueTone              `protobuf:"varint,3,opt,name=tone,proto3,enum=chalk.artifacts.v1.ValueTone" json:"tone,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValueColorRule) Reset() {
+	*x = ValueColorRule{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValueColorRule) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValueColorRule) ProtoMessage() {}
+
+func (x *ValueColorRule) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValueColorRule.ProtoReflect.Descriptor instead.
+func (*ValueColorRule) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ValueColorRule) GetComparison() ThresholdKind {
+	if x != nil {
+		return x.Comparison
+	}
+	return ThresholdKind_THRESHOLD_KIND_UNSPECIFIED
+}
+
+func (x *ValueColorRule) GetValue() float64 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
+func (x *ValueColorRule) GetTone() ValueTone {
+	if x != nil {
+		return x.Tone
+	}
+	return ValueTone_VALUE_TONE_UNSPECIFIED
+}
+
+// Threshold-driven coloring. Unset and "set with no rules" are both the renderer's default styling.
+type ValueColoring struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Evaluated in order against the *displayed* value, first match wins; an unsorted set still resolves.
+	Rules []*ValueColorRule `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
+	// Worn when no rule matches; unspecified => neutral.
+	DefaultTone   ValueTone `protobuf:"varint,2,opt,name=default_tone,json=defaultTone,proto3,enum=chalk.artifacts.v1.ValueTone" json:"default_tone,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValueColoring) Reset() {
+	*x = ValueColoring{}
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValueColoring) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValueColoring) ProtoMessage() {}
+
+func (x *ValueColoring) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValueColoring.ProtoReflect.Descriptor instead.
+func (*ValueColoring) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ValueColoring) GetRules() []*ValueColorRule {
+	if x != nil {
+		return x.Rules
+	}
+	return nil
+}
+
+func (x *ValueColoring) GetDefaultTone() ValueTone {
+	if x != nil {
+		return x.DefaultTone
+	}
+	return ValueTone_VALUE_TONE_UNSPECIFIED
+}
+
 // A free-form text widget rendered as GitHub-flavored markdown.
 type DashboardMarkdownWidget struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1416,7 +1549,7 @@ type DashboardMarkdownWidget struct {
 
 func (x *DashboardMarkdownWidget) Reset() {
 	*x = DashboardMarkdownWidget{}
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[18]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1428,7 +1561,7 @@ func (x *DashboardMarkdownWidget) String() string {
 func (*DashboardMarkdownWidget) ProtoMessage() {}
 
 func (x *DashboardMarkdownWidget) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[18]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1441,7 +1574,7 @@ func (x *DashboardMarkdownWidget) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DashboardMarkdownWidget.ProtoReflect.Descriptor instead.
 func (*DashboardMarkdownWidget) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{18}
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DashboardMarkdownWidget) GetContent() string {
@@ -1461,7 +1594,7 @@ type DashboardSectionTitleWidget struct {
 
 func (x *DashboardSectionTitleWidget) Reset() {
 	*x = DashboardSectionTitleWidget{}
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[19]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1473,7 +1606,7 @@ func (x *DashboardSectionTitleWidget) String() string {
 func (*DashboardSectionTitleWidget) ProtoMessage() {}
 
 func (x *DashboardSectionTitleWidget) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[19]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1486,7 +1619,7 @@ func (x *DashboardSectionTitleWidget) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DashboardSectionTitleWidget.ProtoReflect.Descriptor instead.
 func (*DashboardSectionTitleWidget) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{19}
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *DashboardSectionTitleWidget) GetTitle() string {
@@ -1533,7 +1666,7 @@ type Dashboard struct {
 
 func (x *Dashboard) Reset() {
 	*x = Dashboard{}
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[20]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1545,7 +1678,7 @@ func (x *Dashboard) String() string {
 func (*Dashboard) ProtoMessage() {}
 
 func (x *Dashboard) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[20]
+	mi := &file_chalk_artifacts_v1_dashboard_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1558,7 +1691,7 @@ func (x *Dashboard) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Dashboard.ProtoReflect.Descriptor instead.
 func (*Dashboard) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{20}
+	return file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *Dashboard) GetId() string {
@@ -1656,7 +1789,7 @@ var File_chalk_artifacts_v1_dashboard_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/artifacts/v1/dashboard.proto\x12\x12chalk.artifacts.v1\x1a\x1echalk/artifacts/v1/chart.proto\x1a+chalk/searchaggregates/v1/aggregation.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
+	"\"chalk/artifacts/v1/dashboard.proto\x12\x12chalk.artifacts.v1\x1a\x1echalk/artifacts/v1/chart.proto\x1a#chalk/artifacts/v1/value_tone.proto\x1a+chalk/searchaggregates/v1/aggregation.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
 	"\fGridPosition\x12\f\n" +
 	"\x01x\x18\x01 \x01(\x05R\x01x\x12\f\n" +
 	"\x01y\x18\x02 \x01(\x05R\x01y\x12\f\n" +
@@ -1754,14 +1887,27 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\vhide_legend\x18\x01 \x01(\bR\n" +
 	"hideLegend\x12\x1f\n" +
 	"\vhide_labels\x18\x02 \x01(\bR\n" +
-	"hideLabels\"\xb6\x01\n" +
+	"hideLabels\"\xe8\x02\n" +
 	"\x15DashboardStatisticViz\x12.\n" +
 	"\x13compare_to_previous\x18\x01 \x01(\bR\x11compareToPrevious\x12(\n" +
 	"\rnumber_format\x18\x02 \x01(\tH\x00R\fnumberFormat\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"unit_label\x18\x03 \x01(\tH\x01R\tunitLabel\x88\x01\x01B\x10\n" +
+	"unit_label\x18\x03 \x01(\tH\x01R\tunitLabel\x88\x01\x01\x12N\n" +
+	"\frate_options\x18\x04 \x01(\v2&.chalk.searchaggregates.v1.RateOptionsH\x02R\vrateOptions\x88\x01\x01\x12B\n" +
+	"\bcoloring\x18\x05 \x01(\v2!.chalk.artifacts.v1.ValueColoringH\x03R\bcoloring\x88\x01\x01B\x10\n" +
 	"\x0e_number_formatB\r\n" +
-	"\v_unit_label\"3\n" +
+	"\v_unit_labelB\x0f\n" +
+	"\r_rate_optionsB\v\n" +
+	"\t_coloring\"\x9c\x01\n" +
+	"\x0eValueColorRule\x12A\n" +
+	"\n" +
+	"comparison\x18\x01 \x01(\x0e2!.chalk.artifacts.v1.ThresholdKindR\n" +
+	"comparison\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x01R\x05value\x121\n" +
+	"\x04tone\x18\x03 \x01(\x0e2\x1d.chalk.artifacts.v1.ValueToneR\x04tone\"\x8b\x01\n" +
+	"\rValueColoring\x128\n" +
+	"\x05rules\x18\x01 \x03(\v2\".chalk.artifacts.v1.ValueColorRuleR\x05rules\x12@\n" +
+	"\fdefault_tone\x18\x02 \x01(\x0e2\x1d.chalk.artifacts.v1.ValueToneR\vdefaultTone\"3\n" +
 	"\x17DashboardMarkdownWidget\x12\x18\n" +
 	"\acontent\x18\x01 \x01(\tR\acontent\"3\n" +
 	"\x1bDashboardSectionTitleWidget\x12\x14\n" +
@@ -1808,7 +1954,7 @@ func file_chalk_artifacts_v1_dashboard_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_artifacts_v1_dashboard_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_artifacts_v1_dashboard_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_chalk_artifacts_v1_dashboard_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_chalk_artifacts_v1_dashboard_proto_goTypes = []any{
 	(NotebookCellDisplayMode)(0),            // 0: chalk.artifacts.v1.NotebookCellDisplayMode
 	(*GridPosition)(nil),                    // 1: chalk.artifacts.v1.GridPosition
@@ -1829,19 +1975,24 @@ var file_chalk_artifacts_v1_dashboard_proto_goTypes = []any{
 	(*DashboardTreeMapViz)(nil),             // 16: chalk.artifacts.v1.DashboardTreeMapViz
 	(*DashboardPieViz)(nil),                 // 17: chalk.artifacts.v1.DashboardPieViz
 	(*DashboardStatisticViz)(nil),           // 18: chalk.artifacts.v1.DashboardStatisticViz
-	(*DashboardMarkdownWidget)(nil),         // 19: chalk.artifacts.v1.DashboardMarkdownWidget
-	(*DashboardSectionTitleWidget)(nil),     // 20: chalk.artifacts.v1.DashboardSectionTitleWidget
-	(*Dashboard)(nil),                       // 21: chalk.artifacts.v1.Dashboard
-	(*MetricConfigSeries)(nil),              // 22: chalk.artifacts.v1.MetricConfigSeries
-	(*MetricFormula)(nil),                   // 23: chalk.artifacts.v1.MetricFormula
-	(*v1.AggregateOptions)(nil),             // 24: chalk.searchaggregates.v1.AggregateOptions
-	(*timestamppb.Timestamp)(nil),           // 25: google.protobuf.Timestamp
+	(*ValueColorRule)(nil),                  // 19: chalk.artifacts.v1.ValueColorRule
+	(*ValueColoring)(nil),                   // 20: chalk.artifacts.v1.ValueColoring
+	(*DashboardMarkdownWidget)(nil),         // 21: chalk.artifacts.v1.DashboardMarkdownWidget
+	(*DashboardSectionTitleWidget)(nil),     // 22: chalk.artifacts.v1.DashboardSectionTitleWidget
+	(*Dashboard)(nil),                       // 23: chalk.artifacts.v1.Dashboard
+	(*MetricConfigSeries)(nil),              // 24: chalk.artifacts.v1.MetricConfigSeries
+	(*MetricFormula)(nil),                   // 25: chalk.artifacts.v1.MetricFormula
+	(*v1.AggregateOptions)(nil),             // 26: chalk.searchaggregates.v1.AggregateOptions
+	(*v1.RateOptions)(nil),                  // 27: chalk.searchaggregates.v1.RateOptions
+	(ThresholdKind)(0),                      // 28: chalk.artifacts.v1.ThresholdKind
+	(ValueTone)(0),                          // 29: chalk.artifacts.v1.ValueTone
+	(*timestamppb.Timestamp)(nil),           // 30: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
 	1,  // 0: chalk.artifacts.v1.DashboardWidget.position:type_name -> chalk.artifacts.v1.GridPosition
 	5,  // 1: chalk.artifacts.v1.DashboardWidget.data_widget:type_name -> chalk.artifacts.v1.DashboardDataWidget
-	19, // 2: chalk.artifacts.v1.DashboardWidget.markdown:type_name -> chalk.artifacts.v1.DashboardMarkdownWidget
-	20, // 3: chalk.artifacts.v1.DashboardWidget.section_title:type_name -> chalk.artifacts.v1.DashboardSectionTitleWidget
+	21, // 2: chalk.artifacts.v1.DashboardWidget.markdown:type_name -> chalk.artifacts.v1.DashboardMarkdownWidget
+	22, // 3: chalk.artifacts.v1.DashboardWidget.section_title:type_name -> chalk.artifacts.v1.DashboardSectionTitleWidget
 	4,  // 4: chalk.artifacts.v1.DashboardWidget.notebook_cell:type_name -> chalk.artifacts.v1.DashboardNotebookCellWidget
 	6,  // 5: chalk.artifacts.v1.DashboardWidget.monitor_widget:type_name -> chalk.artifacts.v1.DashboardMonitorWidget
 	8,  // 6: chalk.artifacts.v1.DashboardWidget.latest_deployment:type_name -> chalk.artifacts.v1.DashboardLatestDeploymentWidget
@@ -1857,19 +2008,25 @@ var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
 	16, // 16: chalk.artifacts.v1.DashboardDataWidget.tree_map:type_name -> chalk.artifacts.v1.DashboardTreeMapViz
 	17, // 17: chalk.artifacts.v1.DashboardDataWidget.pie:type_name -> chalk.artifacts.v1.DashboardPieViz
 	10, // 18: chalk.artifacts.v1.DashboardIncidentWidget.filters:type_name -> chalk.artifacts.v1.DashboardIncidentFilters
-	22, // 19: chalk.artifacts.v1.DashboardMetricQuery.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
-	23, // 20: chalk.artifacts.v1.DashboardMetricQuery.formulas:type_name -> chalk.artifacts.v1.MetricFormula
-	24, // 21: chalk.artifacts.v1.DashboardSourceQuery.aggregate_options:type_name -> chalk.searchaggregates.v1.AggregateOptions
+	24, // 19: chalk.artifacts.v1.DashboardMetricQuery.series:type_name -> chalk.artifacts.v1.MetricConfigSeries
+	25, // 20: chalk.artifacts.v1.DashboardMetricQuery.formulas:type_name -> chalk.artifacts.v1.MetricFormula
+	26, // 21: chalk.artifacts.v1.DashboardSourceQuery.aggregate_options:type_name -> chalk.searchaggregates.v1.AggregateOptions
 	14, // 22: chalk.artifacts.v1.DashboardTableViz.columns:type_name -> chalk.artifacts.v1.DashboardTableColumn
-	2,  // 23: chalk.artifacts.v1.Dashboard.widgets:type_name -> chalk.artifacts.v1.DashboardWidget
-	25, // 24: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
-	25, // 25: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
-	25, // 26: chalk.artifacts.v1.Dashboard.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
-	27, // [27:27] is the sub-list for method output_type
-	27, // [27:27] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	27, // 23: chalk.artifacts.v1.DashboardStatisticViz.rate_options:type_name -> chalk.searchaggregates.v1.RateOptions
+	20, // 24: chalk.artifacts.v1.DashboardStatisticViz.coloring:type_name -> chalk.artifacts.v1.ValueColoring
+	28, // 25: chalk.artifacts.v1.ValueColorRule.comparison:type_name -> chalk.artifacts.v1.ThresholdKind
+	29, // 26: chalk.artifacts.v1.ValueColorRule.tone:type_name -> chalk.artifacts.v1.ValueTone
+	19, // 27: chalk.artifacts.v1.ValueColoring.rules:type_name -> chalk.artifacts.v1.ValueColorRule
+	29, // 28: chalk.artifacts.v1.ValueColoring.default_tone:type_name -> chalk.artifacts.v1.ValueTone
+	2,  // 29: chalk.artifacts.v1.Dashboard.widgets:type_name -> chalk.artifacts.v1.DashboardWidget
+	30, // 30: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
+	30, // 31: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
+	30, // 32: chalk.artifacts.v1.Dashboard.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
+	33, // [33:33] is the sub-list for method output_type
+	33, // [33:33] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_dashboard_proto_init() }
@@ -1878,6 +2035,7 @@ func file_chalk_artifacts_v1_dashboard_proto_init() {
 		return
 	}
 	file_chalk_artifacts_v1_chart_proto_init()
+	file_chalk_artifacts_v1_value_tone_proto_init()
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[1].OneofWrappers = []any{
 		(*DashboardWidget_DataWidget)(nil),
 		(*DashboardWidget_Markdown)(nil),
@@ -1903,14 +2061,14 @@ func file_chalk_artifacts_v1_dashboard_proto_init() {
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[17].OneofWrappers = []any{}
-	file_chalk_artifacts_v1_dashboard_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_dashboard_proto_msgTypes[22].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_dashboard_proto_rawDesc), len(file_chalk_artifacts_v1_dashboard_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   21,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

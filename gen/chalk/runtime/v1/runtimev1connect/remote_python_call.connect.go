@@ -46,6 +46,9 @@ const (
 	// AsyncRemoteCallServicePollRemoteCallProcedure is the fully-qualified name of the
 	// AsyncRemoteCallService's PollRemoteCall RPC.
 	AsyncRemoteCallServicePollRemoteCallProcedure = "/chalk.runtime.v1.AsyncRemoteCallService/PollRemoteCall"
+	// AsyncRemoteCallServiceStreamRemoteCallBatchProcedure is the fully-qualified name of the
+	// AsyncRemoteCallService's StreamRemoteCallBatch RPC.
+	AsyncRemoteCallServiceStreamRemoteCallBatchProcedure = "/chalk.runtime.v1.AsyncRemoteCallService/StreamRemoteCallBatch"
 	// AsyncRemoteCallServicePurgeQueueProcedure is the fully-qualified name of the
 	// AsyncRemoteCallService's PurgeQueue RPC.
 	AsyncRemoteCallServicePurgeQueueProcedure = "/chalk.runtime.v1.AsyncRemoteCallService/PurgeQueue"
@@ -138,6 +141,9 @@ type AsyncRemoteCallServiceClient interface {
 	// last position; the server returns any new result chunks plus an
 	// updated cursor.
 	PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error)
+	// Submit Arrow chunks containing many logical calls and receive per-call
+	// acknowledgements and results without polling each call ID independently.
+	StreamRemoteCallBatch(context.Context) *connect.BidiStreamForClient[v1.StreamRemoteCallBatchRequest, v1.StreamRemoteCallBatchResponse]
 	// Drop pending items from one or all per-function queues for the tenant.
 	PurgeQueue(context.Context, *connect.Request[v1.PurgeQueueRequest]) (*connect.Response[v1.PurgeQueueResponse], error)
 }
@@ -165,6 +171,12 @@ func NewAsyncRemoteCallServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(asyncRemoteCallServiceMethods.ByName("PollRemoteCall")),
 			connect.WithClientOptions(opts...),
 		),
+		streamRemoteCallBatch: connect.NewClient[v1.StreamRemoteCallBatchRequest, v1.StreamRemoteCallBatchResponse](
+			httpClient,
+			baseURL+AsyncRemoteCallServiceStreamRemoteCallBatchProcedure,
+			connect.WithSchema(asyncRemoteCallServiceMethods.ByName("StreamRemoteCallBatch")),
+			connect.WithClientOptions(opts...),
+		),
 		purgeQueue: connect.NewClient[v1.PurgeQueueRequest, v1.PurgeQueueResponse](
 			httpClient,
 			baseURL+AsyncRemoteCallServicePurgeQueueProcedure,
@@ -176,9 +188,10 @@ func NewAsyncRemoteCallServiceClient(httpClient connect.HTTPClient, baseURL stri
 
 // asyncRemoteCallServiceClient implements AsyncRemoteCallServiceClient.
 type asyncRemoteCallServiceClient struct {
-	enqueueRemoteCall *connect.Client[v1.EnqueueRemoteCallRequest, v1.EnqueueRemoteCallResponse]
-	pollRemoteCall    *connect.Client[v1.PollRemoteCallRequest, v1.PollRemoteCallResponse]
-	purgeQueue        *connect.Client[v1.PurgeQueueRequest, v1.PurgeQueueResponse]
+	enqueueRemoteCall     *connect.Client[v1.EnqueueRemoteCallRequest, v1.EnqueueRemoteCallResponse]
+	pollRemoteCall        *connect.Client[v1.PollRemoteCallRequest, v1.PollRemoteCallResponse]
+	streamRemoteCallBatch *connect.Client[v1.StreamRemoteCallBatchRequest, v1.StreamRemoteCallBatchResponse]
+	purgeQueue            *connect.Client[v1.PurgeQueueRequest, v1.PurgeQueueResponse]
 }
 
 // EnqueueRemoteCall calls chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall.
@@ -189,6 +202,11 @@ func (c *asyncRemoteCallServiceClient) EnqueueRemoteCall(ctx context.Context, re
 // PollRemoteCall calls chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall.
 func (c *asyncRemoteCallServiceClient) PollRemoteCall(ctx context.Context, req *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error) {
 	return c.pollRemoteCall.CallUnary(ctx, req)
+}
+
+// StreamRemoteCallBatch calls chalk.runtime.v1.AsyncRemoteCallService.StreamRemoteCallBatch.
+func (c *asyncRemoteCallServiceClient) StreamRemoteCallBatch(ctx context.Context) *connect.BidiStreamForClient[v1.StreamRemoteCallBatchRequest, v1.StreamRemoteCallBatchResponse] {
+	return c.streamRemoteCallBatch.CallBidiStream(ctx)
 }
 
 // PurgeQueue calls chalk.runtime.v1.AsyncRemoteCallService.PurgeQueue.
@@ -205,6 +223,9 @@ type AsyncRemoteCallServiceHandler interface {
 	// last position; the server returns any new result chunks plus an
 	// updated cursor.
 	PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error)
+	// Submit Arrow chunks containing many logical calls and receive per-call
+	// acknowledgements and results without polling each call ID independently.
+	StreamRemoteCallBatch(context.Context, *connect.BidiStream[v1.StreamRemoteCallBatchRequest, v1.StreamRemoteCallBatchResponse]) error
 	// Drop pending items from one or all per-function queues for the tenant.
 	PurgeQueue(context.Context, *connect.Request[v1.PurgeQueueRequest]) (*connect.Response[v1.PurgeQueueResponse], error)
 }
@@ -228,6 +249,12 @@ func NewAsyncRemoteCallServiceHandler(svc AsyncRemoteCallServiceHandler, opts ..
 		connect.WithSchema(asyncRemoteCallServiceMethods.ByName("PollRemoteCall")),
 		connect.WithHandlerOptions(opts...),
 	)
+	asyncRemoteCallServiceStreamRemoteCallBatchHandler := connect.NewBidiStreamHandler(
+		AsyncRemoteCallServiceStreamRemoteCallBatchProcedure,
+		svc.StreamRemoteCallBatch,
+		connect.WithSchema(asyncRemoteCallServiceMethods.ByName("StreamRemoteCallBatch")),
+		connect.WithHandlerOptions(opts...),
+	)
 	asyncRemoteCallServicePurgeQueueHandler := connect.NewUnaryHandler(
 		AsyncRemoteCallServicePurgeQueueProcedure,
 		svc.PurgeQueue,
@@ -240,6 +267,8 @@ func NewAsyncRemoteCallServiceHandler(svc AsyncRemoteCallServiceHandler, opts ..
 			asyncRemoteCallServiceEnqueueRemoteCallHandler.ServeHTTP(w, r)
 		case AsyncRemoteCallServicePollRemoteCallProcedure:
 			asyncRemoteCallServicePollRemoteCallHandler.ServeHTTP(w, r)
+		case AsyncRemoteCallServiceStreamRemoteCallBatchProcedure:
+			asyncRemoteCallServiceStreamRemoteCallBatchHandler.ServeHTTP(w, r)
 		case AsyncRemoteCallServicePurgeQueueProcedure:
 			asyncRemoteCallServicePurgeQueueHandler.ServeHTTP(w, r)
 		default:
@@ -257,6 +286,10 @@ func (UnimplementedAsyncRemoteCallServiceHandler) EnqueueRemoteCall(context.Cont
 
 func (UnimplementedAsyncRemoteCallServiceHandler) PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall is not implemented"))
+}
+
+func (UnimplementedAsyncRemoteCallServiceHandler) StreamRemoteCallBatch(context.Context, *connect.BidiStream[v1.StreamRemoteCallBatchRequest, v1.StreamRemoteCallBatchResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.AsyncRemoteCallService.StreamRemoteCallBatch is not implemented"))
 }
 
 func (UnimplementedAsyncRemoteCallServiceHandler) PurgeQueue(context.Context, *connect.Request[v1.PurgeQueueRequest]) (*connect.Response[v1.PurgeQueueResponse], error) {

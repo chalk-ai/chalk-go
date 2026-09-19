@@ -39,6 +39,9 @@ const (
 	// AgentConversationServiceGetConversationProcedure is the fully-qualified name of the
 	// AgentConversationService's GetConversation RPC.
 	AgentConversationServiceGetConversationProcedure = "/chalk.agent.v1.AgentConversationService/GetConversation"
+	// AgentConversationServiceGetConversationForkFamilyProcedure is the fully-qualified name of the
+	// AgentConversationService's GetConversationForkFamily RPC.
+	AgentConversationServiceGetConversationForkFamilyProcedure = "/chalk.agent.v1.AgentConversationService/GetConversationForkFamily"
 	// AgentConversationServiceListConversationsProcedure is the fully-qualified name of the
 	// AgentConversationService's ListConversations RPC.
 	AgentConversationServiceListConversationsProcedure = "/chalk.agent.v1.AgentConversationService/ListConversations"
@@ -91,6 +94,7 @@ const (
 type AgentConversationServiceClient interface {
 	CreateConversation(context.Context, *connect.Request[v1.CreateConversationRequest]) (*connect.Response[v1.CreateConversationResponse], error)
 	GetConversation(context.Context, *connect.Request[v1.GetConversationRequest]) (*connect.Response[v1.GetConversationResponse], error)
+	GetConversationForkFamily(context.Context, *connect.Request[v1.GetConversationForkFamilyRequest]) (*connect.Response[v1.GetConversationForkFamilyResponse], error)
 	ListConversations(context.Context, *connect.Request[v1.ListConversationsRequest]) (*connect.Response[v1.ListConversationsResponse], error)
 	UpdateConversation(context.Context, *connect.Request[v1.UpdateConversationRequest]) (*connect.Response[v1.UpdateConversationResponse], error)
 	DeleteConversation(context.Context, *connect.Request[v1.DeleteConversationRequest]) (*connect.Response[v1.DeleteConversationResponse], error)
@@ -133,6 +137,13 @@ func NewAgentConversationServiceClient(httpClient connect.HTTPClient, baseURL st
 			httpClient,
 			baseURL+AgentConversationServiceGetConversationProcedure,
 			connect.WithSchema(agentConversationServiceMethods.ByName("GetConversation")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getConversationForkFamily: connect.NewClient[v1.GetConversationForkFamilyRequest, v1.GetConversationForkFamilyResponse](
+			httpClient,
+			baseURL+AgentConversationServiceGetConversationForkFamilyProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("GetConversationForkFamily")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -244,6 +255,7 @@ func NewAgentConversationServiceClient(httpClient connect.HTTPClient, baseURL st
 type agentConversationServiceClient struct {
 	createConversation            *connect.Client[v1.CreateConversationRequest, v1.CreateConversationResponse]
 	getConversation               *connect.Client[v1.GetConversationRequest, v1.GetConversationResponse]
+	getConversationForkFamily     *connect.Client[v1.GetConversationForkFamilyRequest, v1.GetConversationForkFamilyResponse]
 	listConversations             *connect.Client[v1.ListConversationsRequest, v1.ListConversationsResponse]
 	updateConversation            *connect.Client[v1.UpdateConversationRequest, v1.UpdateConversationResponse]
 	deleteConversation            *connect.Client[v1.DeleteConversationRequest, v1.DeleteConversationResponse]
@@ -269,6 +281,12 @@ func (c *agentConversationServiceClient) CreateConversation(ctx context.Context,
 // GetConversation calls chalk.agent.v1.AgentConversationService.GetConversation.
 func (c *agentConversationServiceClient) GetConversation(ctx context.Context, req *connect.Request[v1.GetConversationRequest]) (*connect.Response[v1.GetConversationResponse], error) {
 	return c.getConversation.CallUnary(ctx, req)
+}
+
+// GetConversationForkFamily calls
+// chalk.agent.v1.AgentConversationService.GetConversationForkFamily.
+func (c *agentConversationServiceClient) GetConversationForkFamily(ctx context.Context, req *connect.Request[v1.GetConversationForkFamilyRequest]) (*connect.Response[v1.GetConversationForkFamilyResponse], error) {
+	return c.getConversationForkFamily.CallUnary(ctx, req)
 }
 
 // ListConversations calls chalk.agent.v1.AgentConversationService.ListConversations.
@@ -353,6 +371,7 @@ func (c *agentConversationServiceClient) UploadAgentTrace(ctx context.Context, r
 type AgentConversationServiceHandler interface {
 	CreateConversation(context.Context, *connect.Request[v1.CreateConversationRequest]) (*connect.Response[v1.CreateConversationResponse], error)
 	GetConversation(context.Context, *connect.Request[v1.GetConversationRequest]) (*connect.Response[v1.GetConversationResponse], error)
+	GetConversationForkFamily(context.Context, *connect.Request[v1.GetConversationForkFamilyRequest]) (*connect.Response[v1.GetConversationForkFamilyResponse], error)
 	ListConversations(context.Context, *connect.Request[v1.ListConversationsRequest]) (*connect.Response[v1.ListConversationsResponse], error)
 	UpdateConversation(context.Context, *connect.Request[v1.UpdateConversationRequest]) (*connect.Response[v1.UpdateConversationResponse], error)
 	DeleteConversation(context.Context, *connect.Request[v1.DeleteConversationRequest]) (*connect.Response[v1.DeleteConversationResponse], error)
@@ -391,6 +410,13 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 		AgentConversationServiceGetConversationProcedure,
 		svc.GetConversation,
 		connect.WithSchema(agentConversationServiceMethods.ByName("GetConversation")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	agentConversationServiceGetConversationForkFamilyHandler := connect.NewUnaryHandler(
+		AgentConversationServiceGetConversationForkFamilyProcedure,
+		svc.GetConversationForkFamily,
+		connect.WithSchema(agentConversationServiceMethods.ByName("GetConversationForkFamily")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -501,6 +527,8 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 			agentConversationServiceCreateConversationHandler.ServeHTTP(w, r)
 		case AgentConversationServiceGetConversationProcedure:
 			agentConversationServiceGetConversationHandler.ServeHTTP(w, r)
+		case AgentConversationServiceGetConversationForkFamilyProcedure:
+			agentConversationServiceGetConversationForkFamilyHandler.ServeHTTP(w, r)
 		case AgentConversationServiceListConversationsProcedure:
 			agentConversationServiceListConversationsHandler.ServeHTTP(w, r)
 		case AgentConversationServiceUpdateConversationProcedure:
@@ -546,6 +574,10 @@ func (UnimplementedAgentConversationServiceHandler) CreateConversation(context.C
 
 func (UnimplementedAgentConversationServiceHandler) GetConversation(context.Context, *connect.Request[v1.GetConversationRequest]) (*connect.Response[v1.GetConversationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.GetConversation is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) GetConversationForkFamily(context.Context, *connect.Request[v1.GetConversationForkFamilyRequest]) (*connect.Response[v1.GetConversationForkFamilyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.GetConversationForkFamily is not implemented"))
 }
 
 func (UnimplementedAgentConversationServiceHandler) ListConversations(context.Context, *connect.Request[v1.ListConversationsRequest]) (*connect.Response[v1.ListConversationsResponse], error) {

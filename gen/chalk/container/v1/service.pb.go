@@ -1547,8 +1547,11 @@ func (x *NetworkPolicyRule) GetForwardUrl() string {
 type NetworkTransformer struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Headers map[string]string      `protobuf:"bytes,1,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// Request headers whose values come from Chalk Secrets. Keys are header names
-	// and values are Chalk Secret names.
+	// Maps placeholder tokens in request header values to Chalk Secret names.
+	// Every occurrence of a placeholder in an ordinary outbound header value is
+	// replaced with the named Secret's contents after this transform's literal
+	// headers are applied. Authority, framing, hop-by-hop, and Chalk-owned routing
+	// headers are excluded.
 	HeadersSecrets map[string]string `protobuf:"bytes,2,rep,name=headers_secrets,json=headersSecrets,proto3" json:"headers_secrets,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache

@@ -548,13 +548,20 @@ func (*GetClickhouseInfoRequest) Descriptor() ([]byte, []int) {
 }
 
 type GetClickhouseInfoResponse struct {
-	state          protoimpl.MessageState        `protogen:"open.v1"`
-	Ttls           *OtelTtls                     `protobuf:"bytes,1,opt,name=ttls,proto3" json:"ttls,omitempty"`
-	Storage        *ClickhouseStorageSpec        `protobuf:"bytes,2,opt,name=storage,proto3" json:"storage,omitempty"`
-	Tables         []*ClickhouseOtelTableStorage `protobuf:"bytes,3,rep,name=tables,proto3" json:"tables,omitempty"`
-	TotalSizeBytes uint64                        `protobuf:"varint,4,opt,name=total_size_bytes,json=totalSizeBytes,proto3" json:"total_size_bytes,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                        protoimpl.MessageState        `protogen:"open.v1"`
+	Ttls                         *OtelTtls                     `protobuf:"bytes,1,opt,name=ttls,proto3" json:"ttls,omitempty"`
+	Storage                      *ClickhouseStorageSpec        `protobuf:"bytes,2,opt,name=storage,proto3" json:"storage,omitempty"`
+	Tables                       []*ClickhouseOtelTableStorage `protobuf:"bytes,3,rep,name=tables,proto3" json:"tables,omitempty"`
+	TotalSizeBytes               uint64                        `protobuf:"varint,4,opt,name=total_size_bytes,json=totalSizeBytes,proto3" json:"total_size_bytes,omitempty"`
+	Resources                    *ClickhouseResourceUsage      `protobuf:"bytes,5,opt,name=resources,proto3" json:"resources,omitempty"`
+	LatestMigration              *ClickhouseMigration          `protobuf:"bytes,6,opt,name=latest_migration,json=latestMigration,proto3" json:"latest_migration,omitempty"`
+	InsertFailures               []*ClickhouseInsertFailure    `protobuf:"bytes,7,rep,name=insert_failures,json=insertFailures,proto3" json:"insert_failures,omitempty"`
+	ResourcesError               string                        `protobuf:"bytes,8,opt,name=resources_error,json=resourcesError,proto3" json:"resources_error,omitempty"`
+	LatestMigrationError         string                        `protobuf:"bytes,9,opt,name=latest_migration_error,json=latestMigrationError,proto3" json:"latest_migration_error,omitempty"`
+	InsertFailuresError          string                        `protobuf:"bytes,10,opt,name=insert_failures_error,json=insertFailuresError,proto3" json:"insert_failures_error,omitempty"`
+	InsertFailureLookbackMinutes int32                         `protobuf:"varint,11,opt,name=insert_failure_lookback_minutes,json=insertFailureLookbackMinutes,proto3" json:"insert_failure_lookback_minutes,omitempty"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *GetClickhouseInfoResponse) Reset() {
@@ -615,6 +622,579 @@ func (x *GetClickhouseInfoResponse) GetTotalSizeBytes() uint64 {
 	return 0
 }
 
+func (x *GetClickhouseInfoResponse) GetResources() *ClickhouseResourceUsage {
+	if x != nil {
+		return x.Resources
+	}
+	return nil
+}
+
+func (x *GetClickhouseInfoResponse) GetLatestMigration() *ClickhouseMigration {
+	if x != nil {
+		return x.LatestMigration
+	}
+	return nil
+}
+
+func (x *GetClickhouseInfoResponse) GetInsertFailures() []*ClickhouseInsertFailure {
+	if x != nil {
+		return x.InsertFailures
+	}
+	return nil
+}
+
+func (x *GetClickhouseInfoResponse) GetResourcesError() string {
+	if x != nil {
+		return x.ResourcesError
+	}
+	return ""
+}
+
+func (x *GetClickhouseInfoResponse) GetLatestMigrationError() string {
+	if x != nil {
+		return x.LatestMigrationError
+	}
+	return ""
+}
+
+func (x *GetClickhouseInfoResponse) GetInsertFailuresError() string {
+	if x != nil {
+		return x.InsertFailuresError
+	}
+	return ""
+}
+
+func (x *GetClickhouseInfoResponse) GetInsertFailureLookbackMinutes() int32 {
+	if x != nil {
+		return x.InsertFailureLookbackMinutes
+	}
+	return 0
+}
+
+type ClickhouseResourceUsage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PodName       string                 `protobuf:"bytes,1,opt,name=pod_name,json=podName,proto3" json:"pod_name,omitempty"`
+	CpuUsage      string                 `protobuf:"bytes,2,opt,name=cpu_usage,json=cpuUsage,proto3" json:"cpu_usage,omitempty"`
+	CpuRequest    string                 `protobuf:"bytes,3,opt,name=cpu_request,json=cpuRequest,proto3" json:"cpu_request,omitempty"`
+	CpuLimit      string                 `protobuf:"bytes,4,opt,name=cpu_limit,json=cpuLimit,proto3" json:"cpu_limit,omitempty"`
+	MemoryUsage   string                 `protobuf:"bytes,5,opt,name=memory_usage,json=memoryUsage,proto3" json:"memory_usage,omitempty"`
+	MemoryRequest string                 `protobuf:"bytes,6,opt,name=memory_request,json=memoryRequest,proto3" json:"memory_request,omitempty"`
+	MemoryLimit   string                 `protobuf:"bytes,7,opt,name=memory_limit,json=memoryLimit,proto3" json:"memory_limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClickhouseResourceUsage) Reset() {
+	*x = ClickhouseResourceUsage{}
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClickhouseResourceUsage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClickhouseResourceUsage) ProtoMessage() {}
+
+func (x *ClickhouseResourceUsage) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClickhouseResourceUsage.ProtoReflect.Descriptor instead.
+func (*ClickhouseResourceUsage) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_clickhouse_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ClickhouseResourceUsage) GetPodName() string {
+	if x != nil {
+		return x.PodName
+	}
+	return ""
+}
+
+func (x *ClickhouseResourceUsage) GetCpuUsage() string {
+	if x != nil {
+		return x.CpuUsage
+	}
+	return ""
+}
+
+func (x *ClickhouseResourceUsage) GetCpuRequest() string {
+	if x != nil {
+		return x.CpuRequest
+	}
+	return ""
+}
+
+func (x *ClickhouseResourceUsage) GetCpuLimit() string {
+	if x != nil {
+		return x.CpuLimit
+	}
+	return ""
+}
+
+func (x *ClickhouseResourceUsage) GetMemoryUsage() string {
+	if x != nil {
+		return x.MemoryUsage
+	}
+	return ""
+}
+
+func (x *ClickhouseResourceUsage) GetMemoryRequest() string {
+	if x != nil {
+		return x.MemoryRequest
+	}
+	return ""
+}
+
+func (x *ClickhouseResourceUsage) GetMemoryLimit() string {
+	if x != nil {
+		return x.MemoryLimit
+	}
+	return ""
+}
+
+type ClickhouseMigration struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Version       int64                  `protobuf:"varint,1,opt,name=version,proto3" json:"version,omitempty"`
+	AppliedAt     string                 `protobuf:"bytes,2,opt,name=applied_at,json=appliedAt,proto3" json:"applied_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClickhouseMigration) Reset() {
+	*x = ClickhouseMigration{}
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClickhouseMigration) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClickhouseMigration) ProtoMessage() {}
+
+func (x *ClickhouseMigration) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClickhouseMigration.ProtoReflect.Descriptor instead.
+func (*ClickhouseMigration) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_clickhouse_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ClickhouseMigration) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *ClickhouseMigration) GetAppliedAt() string {
+	if x != nil {
+		return x.AppliedAt
+	}
+	return ""
+}
+
+type ClickhouseInsertFailure struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EventTime     string                 `protobuf:"bytes,1,opt,name=event_time,json=eventTime,proto3" json:"event_time,omitempty"`
+	Tables        string                 `protobuf:"bytes,2,opt,name=tables,proto3" json:"tables,omitempty"`
+	ExceptionCode int32                  `protobuf:"varint,3,opt,name=exception_code,json=exceptionCode,proto3" json:"exception_code,omitempty"`
+	Exception     string                 `protobuf:"bytes,4,opt,name=exception,proto3" json:"exception,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClickhouseInsertFailure) Reset() {
+	*x = ClickhouseInsertFailure{}
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClickhouseInsertFailure) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClickhouseInsertFailure) ProtoMessage() {}
+
+func (x *ClickhouseInsertFailure) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClickhouseInsertFailure.ProtoReflect.Descriptor instead.
+func (*ClickhouseInsertFailure) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_clickhouse_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ClickhouseInsertFailure) GetEventTime() string {
+	if x != nil {
+		return x.EventTime
+	}
+	return ""
+}
+
+func (x *ClickhouseInsertFailure) GetTables() string {
+	if x != nil {
+		return x.Tables
+	}
+	return ""
+}
+
+func (x *ClickhouseInsertFailure) GetExceptionCode() int32 {
+	if x != nil {
+		return x.ExceptionCode
+	}
+	return 0
+}
+
+func (x *ClickhouseInsertFailure) GetException() string {
+	if x != nil {
+		return x.Exception
+	}
+	return ""
+}
+
+type ClickhouseSlowRead struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	EventTime           string                 `protobuf:"bytes,1,opt,name=event_time,json=eventTime,proto3" json:"event_time,omitempty"`
+	QueryDurationMs     uint64                 `protobuf:"varint,2,opt,name=query_duration_ms,json=queryDurationMs,proto3" json:"query_duration_ms,omitempty"`
+	ReadRows            uint64                 `protobuf:"varint,3,opt,name=read_rows,json=readRows,proto3" json:"read_rows,omitempty"`
+	ReadBytes           uint64                 `protobuf:"varint,4,opt,name=read_bytes,json=readBytes,proto3" json:"read_bytes,omitempty"`
+	ResultRows          uint64                 `protobuf:"varint,5,opt,name=result_rows,json=resultRows,proto3" json:"result_rows,omitempty"`
+	PeakMemoryBytes     uint64                 `protobuf:"varint,6,opt,name=peak_memory_bytes,json=peakMemoryBytes,proto3" json:"peak_memory_bytes,omitempty"`
+	SelectedMarks       uint64                 `protobuf:"varint,7,opt,name=selected_marks,json=selectedMarks,proto3" json:"selected_marks,omitempty"`
+	CpuTimeMicroseconds uint64                 `protobuf:"varint,8,opt,name=cpu_time_microseconds,json=cpuTimeMicroseconds,proto3" json:"cpu_time_microseconds,omitempty"`
+	NormalizedQueryHash string                 `protobuf:"bytes,9,opt,name=normalized_query_hash,json=normalizedQueryHash,proto3" json:"normalized_query_hash,omitempty"`
+	NormalizedQuery     string                 `protobuf:"bytes,10,opt,name=normalized_query,json=normalizedQuery,proto3" json:"normalized_query,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *ClickhouseSlowRead) Reset() {
+	*x = ClickhouseSlowRead{}
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClickhouseSlowRead) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClickhouseSlowRead) ProtoMessage() {}
+
+func (x *ClickhouseSlowRead) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClickhouseSlowRead.ProtoReflect.Descriptor instead.
+func (*ClickhouseSlowRead) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_clickhouse_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ClickhouseSlowRead) GetEventTime() string {
+	if x != nil {
+		return x.EventTime
+	}
+	return ""
+}
+
+func (x *ClickhouseSlowRead) GetQueryDurationMs() uint64 {
+	if x != nil {
+		return x.QueryDurationMs
+	}
+	return 0
+}
+
+func (x *ClickhouseSlowRead) GetReadRows() uint64 {
+	if x != nil {
+		return x.ReadRows
+	}
+	return 0
+}
+
+func (x *ClickhouseSlowRead) GetReadBytes() uint64 {
+	if x != nil {
+		return x.ReadBytes
+	}
+	return 0
+}
+
+func (x *ClickhouseSlowRead) GetResultRows() uint64 {
+	if x != nil {
+		return x.ResultRows
+	}
+	return 0
+}
+
+func (x *ClickhouseSlowRead) GetPeakMemoryBytes() uint64 {
+	if x != nil {
+		return x.PeakMemoryBytes
+	}
+	return 0
+}
+
+func (x *ClickhouseSlowRead) GetSelectedMarks() uint64 {
+	if x != nil {
+		return x.SelectedMarks
+	}
+	return 0
+}
+
+func (x *ClickhouseSlowRead) GetCpuTimeMicroseconds() uint64 {
+	if x != nil {
+		return x.CpuTimeMicroseconds
+	}
+	return 0
+}
+
+func (x *ClickhouseSlowRead) GetNormalizedQueryHash() string {
+	if x != nil {
+		return x.NormalizedQueryHash
+	}
+	return ""
+}
+
+func (x *ClickhouseSlowRead) GetNormalizedQuery() string {
+	if x != nil {
+		return x.NormalizedQuery
+	}
+	return ""
+}
+
+type ClickhouseTtlAlignment struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	Database               string                 `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
+	Table                  string                 `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
+	ConfiguredTtlMinutes   int32                  `protobuf:"varint,3,opt,name=configured_ttl_minutes,json=configuredTtlMinutes,proto3" json:"configured_ttl_minutes,omitempty"`
+	EffectiveTtlMinutes    *int32                 `protobuf:"varint,4,opt,name=effective_ttl_minutes,json=effectiveTtlMinutes,proto3,oneof" json:"effective_ttl_minutes,omitempty"`
+	EffectiveTtlExpression string                 `protobuf:"bytes,5,opt,name=effective_ttl_expression,json=effectiveTtlExpression,proto3" json:"effective_ttl_expression,omitempty"`
+	Aligned                bool                   `protobuf:"varint,6,opt,name=aligned,proto3" json:"aligned,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ClickhouseTtlAlignment) Reset() {
+	*x = ClickhouseTtlAlignment{}
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClickhouseTtlAlignment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClickhouseTtlAlignment) ProtoMessage() {}
+
+func (x *ClickhouseTtlAlignment) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClickhouseTtlAlignment.ProtoReflect.Descriptor instead.
+func (*ClickhouseTtlAlignment) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_clickhouse_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ClickhouseTtlAlignment) GetDatabase() string {
+	if x != nil {
+		return x.Database
+	}
+	return ""
+}
+
+func (x *ClickhouseTtlAlignment) GetTable() string {
+	if x != nil {
+		return x.Table
+	}
+	return ""
+}
+
+func (x *ClickhouseTtlAlignment) GetConfiguredTtlMinutes() int32 {
+	if x != nil {
+		return x.ConfiguredTtlMinutes
+	}
+	return 0
+}
+
+func (x *ClickhouseTtlAlignment) GetEffectiveTtlMinutes() int32 {
+	if x != nil && x.EffectiveTtlMinutes != nil {
+		return *x.EffectiveTtlMinutes
+	}
+	return 0
+}
+
+func (x *ClickhouseTtlAlignment) GetEffectiveTtlExpression() string {
+	if x != nil {
+		return x.EffectiveTtlExpression
+	}
+	return ""
+}
+
+func (x *ClickhouseTtlAlignment) GetAligned() bool {
+	if x != nil {
+		return x.Aligned
+	}
+	return false
+}
+
+type GetClickhouseAdminDiagnosticsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetClickhouseAdminDiagnosticsRequest) Reset() {
+	*x = GetClickhouseAdminDiagnosticsRequest{}
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetClickhouseAdminDiagnosticsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetClickhouseAdminDiagnosticsRequest) ProtoMessage() {}
+
+func (x *GetClickhouseAdminDiagnosticsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetClickhouseAdminDiagnosticsRequest.ProtoReflect.Descriptor instead.
+func (*GetClickhouseAdminDiagnosticsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_clickhouse_proto_rawDescGZIP(), []int{16}
+}
+
+type GetClickhouseAdminDiagnosticsResponse struct {
+	state                   protoimpl.MessageState    `protogen:"open.v1"`
+	SlowReads               []*ClickhouseSlowRead     `protobuf:"bytes,1,rep,name=slow_reads,json=slowReads,proto3" json:"slow_reads,omitempty"`
+	TtlAlignments           []*ClickhouseTtlAlignment `protobuf:"bytes,2,rep,name=ttl_alignments,json=ttlAlignments,proto3" json:"ttl_alignments,omitempty"`
+	SlowReadLookbackMinutes int32                     `protobuf:"varint,3,opt,name=slow_read_lookback_minutes,json=slowReadLookbackMinutes,proto3" json:"slow_read_lookback_minutes,omitempty"`
+	SlowReadsError          string                    `protobuf:"bytes,4,opt,name=slow_reads_error,json=slowReadsError,proto3" json:"slow_reads_error,omitempty"`
+	TtlAlignmentsError      string                    `protobuf:"bytes,5,opt,name=ttl_alignments_error,json=ttlAlignmentsError,proto3" json:"ttl_alignments_error,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *GetClickhouseAdminDiagnosticsResponse) Reset() {
+	*x = GetClickhouseAdminDiagnosticsResponse{}
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetClickhouseAdminDiagnosticsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetClickhouseAdminDiagnosticsResponse) ProtoMessage() {}
+
+func (x *GetClickhouseAdminDiagnosticsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_clickhouse_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetClickhouseAdminDiagnosticsResponse.ProtoReflect.Descriptor instead.
+func (*GetClickhouseAdminDiagnosticsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_clickhouse_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetClickhouseAdminDiagnosticsResponse) GetSlowReads() []*ClickhouseSlowRead {
+	if x != nil {
+		return x.SlowReads
+	}
+	return nil
+}
+
+func (x *GetClickhouseAdminDiagnosticsResponse) GetTtlAlignments() []*ClickhouseTtlAlignment {
+	if x != nil {
+		return x.TtlAlignments
+	}
+	return nil
+}
+
+func (x *GetClickhouseAdminDiagnosticsResponse) GetSlowReadLookbackMinutes() int32 {
+	if x != nil {
+		return x.SlowReadLookbackMinutes
+	}
+	return 0
+}
+
+func (x *GetClickhouseAdminDiagnosticsResponse) GetSlowReadsError() string {
+	if x != nil {
+		return x.SlowReadsError
+	}
+	return ""
+}
+
+func (x *GetClickhouseAdminDiagnosticsResponse) GetTtlAlignmentsError() string {
+	if x != nil {
+		return x.TtlAlignmentsError
+	}
+	return ""
+}
+
 var File_chalk_server_v1_clickhouse_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_clickhouse_proto_rawDesc = "" +
@@ -654,17 +1234,77 @@ const file_chalk_server_v1_clickhouse_proto_rawDesc = "" +
 	"\n" +
 	"size_bytes\x18\x04 \x01(\x04R\tsizeBytes\x12\x12\n" +
 	"\x04rows\x18\x05 \x01(\x04R\x04rows\"\x1a\n" +
-	"\x18GetClickhouseInfoRequest\"\xfb\x01\n" +
+	"\x18GetClickhouseInfoRequest\"\xc1\x05\n" +
 	"\x19GetClickhouseInfoResponse\x12-\n" +
 	"\x04ttls\x18\x01 \x01(\v2\x19.chalk.server.v1.OtelTtlsR\x04ttls\x12@\n" +
 	"\astorage\x18\x02 \x01(\v2&.chalk.server.v1.ClickhouseStorageSpecR\astorage\x12C\n" +
 	"\x06tables\x18\x03 \x03(\v2+.chalk.server.v1.ClickhouseOtelTableStorageR\x06tables\x12(\n" +
-	"\x10total_size_bytes\x18\x04 \x01(\x04R\x0etotalSizeBytes2\xf5\x03\n" +
+	"\x10total_size_bytes\x18\x04 \x01(\x04R\x0etotalSizeBytes\x12F\n" +
+	"\tresources\x18\x05 \x01(\v2(.chalk.server.v1.ClickhouseResourceUsageR\tresources\x12O\n" +
+	"\x10latest_migration\x18\x06 \x01(\v2$.chalk.server.v1.ClickhouseMigrationR\x0flatestMigration\x12Q\n" +
+	"\x0finsert_failures\x18\a \x03(\v2(.chalk.server.v1.ClickhouseInsertFailureR\x0einsertFailures\x12'\n" +
+	"\x0fresources_error\x18\b \x01(\tR\x0eresourcesError\x124\n" +
+	"\x16latest_migration_error\x18\t \x01(\tR\x14latestMigrationError\x122\n" +
+	"\x15insert_failures_error\x18\n" +
+	" \x01(\tR\x13insertFailuresError\x12E\n" +
+	"\x1finsert_failure_lookback_minutes\x18\v \x01(\x05R\x1cinsertFailureLookbackMinutes\"\xfc\x01\n" +
+	"\x17ClickhouseResourceUsage\x12\x19\n" +
+	"\bpod_name\x18\x01 \x01(\tR\apodName\x12\x1b\n" +
+	"\tcpu_usage\x18\x02 \x01(\tR\bcpuUsage\x12\x1f\n" +
+	"\vcpu_request\x18\x03 \x01(\tR\n" +
+	"cpuRequest\x12\x1b\n" +
+	"\tcpu_limit\x18\x04 \x01(\tR\bcpuLimit\x12!\n" +
+	"\fmemory_usage\x18\x05 \x01(\tR\vmemoryUsage\x12%\n" +
+	"\x0ememory_request\x18\x06 \x01(\tR\rmemoryRequest\x12!\n" +
+	"\fmemory_limit\x18\a \x01(\tR\vmemoryLimit\"N\n" +
+	"\x13ClickhouseMigration\x12\x18\n" +
+	"\aversion\x18\x01 \x01(\x03R\aversion\x12\x1d\n" +
+	"\n" +
+	"applied_at\x18\x02 \x01(\tR\tappliedAt\"\x95\x01\n" +
+	"\x17ClickhouseInsertFailure\x12\x1d\n" +
+	"\n" +
+	"event_time\x18\x01 \x01(\tR\teventTime\x12\x16\n" +
+	"\x06tables\x18\x02 \x01(\tR\x06tables\x12%\n" +
+	"\x0eexception_code\x18\x03 \x01(\x05R\rexceptionCode\x12\x1c\n" +
+	"\texception\x18\x04 \x01(\tR\texception\"\xa2\x03\n" +
+	"\x12ClickhouseSlowRead\x12\x1d\n" +
+	"\n" +
+	"event_time\x18\x01 \x01(\tR\teventTime\x12*\n" +
+	"\x11query_duration_ms\x18\x02 \x01(\x04R\x0fqueryDurationMs\x12\x1b\n" +
+	"\tread_rows\x18\x03 \x01(\x04R\breadRows\x12\x1d\n" +
+	"\n" +
+	"read_bytes\x18\x04 \x01(\x04R\treadBytes\x12\x1f\n" +
+	"\vresult_rows\x18\x05 \x01(\x04R\n" +
+	"resultRows\x12*\n" +
+	"\x11peak_memory_bytes\x18\x06 \x01(\x04R\x0fpeakMemoryBytes\x12%\n" +
+	"\x0eselected_marks\x18\a \x01(\x04R\rselectedMarks\x122\n" +
+	"\x15cpu_time_microseconds\x18\b \x01(\x04R\x13cpuTimeMicroseconds\x122\n" +
+	"\x15normalized_query_hash\x18\t \x01(\tR\x13normalizedQueryHash\x12)\n" +
+	"\x10normalized_query\x18\n" +
+	" \x01(\tR\x0fnormalizedQuery\"\xa7\x02\n" +
+	"\x16ClickhouseTtlAlignment\x12\x1a\n" +
+	"\bdatabase\x18\x01 \x01(\tR\bdatabase\x12\x14\n" +
+	"\x05table\x18\x02 \x01(\tR\x05table\x124\n" +
+	"\x16configured_ttl_minutes\x18\x03 \x01(\x05R\x14configuredTtlMinutes\x127\n" +
+	"\x15effective_ttl_minutes\x18\x04 \x01(\x05H\x00R\x13effectiveTtlMinutes\x88\x01\x01\x128\n" +
+	"\x18effective_ttl_expression\x18\x05 \x01(\tR\x16effectiveTtlExpression\x12\x18\n" +
+	"\aaligned\x18\x06 \x01(\bR\aalignedB\x18\n" +
+	"\x16_effective_ttl_minutes\"&\n" +
+	"$GetClickhouseAdminDiagnosticsRequest\"\xd4\x02\n" +
+	"%GetClickhouseAdminDiagnosticsResponse\x12B\n" +
+	"\n" +
+	"slow_reads\x18\x01 \x03(\v2#.chalk.server.v1.ClickhouseSlowReadR\tslowReads\x12N\n" +
+	"\x0ettl_alignments\x18\x02 \x03(\v2'.chalk.server.v1.ClickhouseTtlAlignmentR\rttlAlignments\x12;\n" +
+	"\x1aslow_read_lookback_minutes\x18\x03 \x01(\x05R\x17slowReadLookbackMinutes\x12(\n" +
+	"\x10slow_reads_error\x18\x04 \x01(\tR\x0eslowReadsError\x120\n" +
+	"\x14ttl_alignments_error\x18\x05 \x01(\tR\x12ttlAlignmentsError2\x8e\x05\n" +
 	"\x11ClickhouseService\x12o\n" +
 	"\x10GetClickhouseUri\x12(.chalk.server.v1.GetClickhouseUriRequest\x1a).chalk.server.v1.GetClickhouseUriResponse\"\x06\x80}\v\x90\x02\x01\x12~\n" +
 	"\x15GetClickhouseOtelTtls\x12-.chalk.server.v1.GetClickhouseOtelTtlsRequest\x1a..chalk.server.v1.GetClickhouseOtelTtlsResponse\"\x06\x80}\v\x90\x02\x01\x12{\n" +
-	"\x15SetClickhouseOtelTtls\x12-.chalk.server.v1.SetClickhouseOtelTtlsRequest\x1a..chalk.server.v1.SetClickhouseOtelTtlsResponse\"\x03\x80}\v\x12r\n" +
-	"\x11GetClickhouseInfo\x12).chalk.server.v1.GetClickhouseInfoRequest\x1a*.chalk.server.v1.GetClickhouseInfoResponse\"\x06\x80}\v\x90\x02\x01B\xbf\x01\n" +
+	"\x15SetClickhouseOtelTtls\x12-.chalk.server.v1.SetClickhouseOtelTtlsRequest\x1a..chalk.server.v1.SetClickhouseOtelTtlsResponse\"\x03\x80}\n" +
+	"\x12r\n" +
+	"\x11GetClickhouseInfo\x12).chalk.server.v1.GetClickhouseInfoRequest\x1a*.chalk.server.v1.GetClickhouseInfoResponse\"\x06\x80}\v\x90\x02\x01\x12\x96\x01\n" +
+	"\x1dGetClickhouseAdminDiagnostics\x125.chalk.server.v1.GetClickhouseAdminDiagnosticsRequest\x1a6.chalk.server.v1.GetClickhouseAdminDiagnosticsResponse\"\x06\x80}\x1b\x90\x02\x01B\xbf\x01\n" +
 	"\x13com.chalk.server.v1B\x0fClickhouseProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -679,19 +1319,26 @@ func file_chalk_server_v1_clickhouse_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_clickhouse_proto_rawDescData
 }
 
-var file_chalk_server_v1_clickhouse_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_chalk_server_v1_clickhouse_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_chalk_server_v1_clickhouse_proto_goTypes = []any{
-	(*GetClickhouseUriRequest)(nil),       // 0: chalk.server.v1.GetClickhouseUriRequest
-	(*GetClickhouseUriResponse)(nil),      // 1: chalk.server.v1.GetClickhouseUriResponse
-	(*OtelTtls)(nil),                      // 2: chalk.server.v1.OtelTtls
-	(*SetClickhouseOtelTtlsRequest)(nil),  // 3: chalk.server.v1.SetClickhouseOtelTtlsRequest
-	(*SetClickhouseOtelTtlsResponse)(nil), // 4: chalk.server.v1.SetClickhouseOtelTtlsResponse
-	(*GetClickhouseOtelTtlsRequest)(nil),  // 5: chalk.server.v1.GetClickhouseOtelTtlsRequest
-	(*GetClickhouseOtelTtlsResponse)(nil), // 6: chalk.server.v1.GetClickhouseOtelTtlsResponse
-	(*ClickhouseStorageSpec)(nil),         // 7: chalk.server.v1.ClickhouseStorageSpec
-	(*ClickhouseOtelTableStorage)(nil),    // 8: chalk.server.v1.ClickhouseOtelTableStorage
-	(*GetClickhouseInfoRequest)(nil),      // 9: chalk.server.v1.GetClickhouseInfoRequest
-	(*GetClickhouseInfoResponse)(nil),     // 10: chalk.server.v1.GetClickhouseInfoResponse
+	(*GetClickhouseUriRequest)(nil),               // 0: chalk.server.v1.GetClickhouseUriRequest
+	(*GetClickhouseUriResponse)(nil),              // 1: chalk.server.v1.GetClickhouseUriResponse
+	(*OtelTtls)(nil),                              // 2: chalk.server.v1.OtelTtls
+	(*SetClickhouseOtelTtlsRequest)(nil),          // 3: chalk.server.v1.SetClickhouseOtelTtlsRequest
+	(*SetClickhouseOtelTtlsResponse)(nil),         // 4: chalk.server.v1.SetClickhouseOtelTtlsResponse
+	(*GetClickhouseOtelTtlsRequest)(nil),          // 5: chalk.server.v1.GetClickhouseOtelTtlsRequest
+	(*GetClickhouseOtelTtlsResponse)(nil),         // 6: chalk.server.v1.GetClickhouseOtelTtlsResponse
+	(*ClickhouseStorageSpec)(nil),                 // 7: chalk.server.v1.ClickhouseStorageSpec
+	(*ClickhouseOtelTableStorage)(nil),            // 8: chalk.server.v1.ClickhouseOtelTableStorage
+	(*GetClickhouseInfoRequest)(nil),              // 9: chalk.server.v1.GetClickhouseInfoRequest
+	(*GetClickhouseInfoResponse)(nil),             // 10: chalk.server.v1.GetClickhouseInfoResponse
+	(*ClickhouseResourceUsage)(nil),               // 11: chalk.server.v1.ClickhouseResourceUsage
+	(*ClickhouseMigration)(nil),                   // 12: chalk.server.v1.ClickhouseMigration
+	(*ClickhouseInsertFailure)(nil),               // 13: chalk.server.v1.ClickhouseInsertFailure
+	(*ClickhouseSlowRead)(nil),                    // 14: chalk.server.v1.ClickhouseSlowRead
+	(*ClickhouseTtlAlignment)(nil),                // 15: chalk.server.v1.ClickhouseTtlAlignment
+	(*GetClickhouseAdminDiagnosticsRequest)(nil),  // 16: chalk.server.v1.GetClickhouseAdminDiagnosticsRequest
+	(*GetClickhouseAdminDiagnosticsResponse)(nil), // 17: chalk.server.v1.GetClickhouseAdminDiagnosticsResponse
 }
 var file_chalk_server_v1_clickhouse_proto_depIdxs = []int32{
 	2,  // 0: chalk.server.v1.SetClickhouseOtelTtlsResponse.ttls:type_name -> chalk.server.v1.OtelTtls
@@ -699,19 +1346,26 @@ var file_chalk_server_v1_clickhouse_proto_depIdxs = []int32{
 	2,  // 2: chalk.server.v1.GetClickhouseInfoResponse.ttls:type_name -> chalk.server.v1.OtelTtls
 	7,  // 3: chalk.server.v1.GetClickhouseInfoResponse.storage:type_name -> chalk.server.v1.ClickhouseStorageSpec
 	8,  // 4: chalk.server.v1.GetClickhouseInfoResponse.tables:type_name -> chalk.server.v1.ClickhouseOtelTableStorage
-	0,  // 5: chalk.server.v1.ClickhouseService.GetClickhouseUri:input_type -> chalk.server.v1.GetClickhouseUriRequest
-	5,  // 6: chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls:input_type -> chalk.server.v1.GetClickhouseOtelTtlsRequest
-	3,  // 7: chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls:input_type -> chalk.server.v1.SetClickhouseOtelTtlsRequest
-	9,  // 8: chalk.server.v1.ClickhouseService.GetClickhouseInfo:input_type -> chalk.server.v1.GetClickhouseInfoRequest
-	1,  // 9: chalk.server.v1.ClickhouseService.GetClickhouseUri:output_type -> chalk.server.v1.GetClickhouseUriResponse
-	6,  // 10: chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls:output_type -> chalk.server.v1.GetClickhouseOtelTtlsResponse
-	4,  // 11: chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls:output_type -> chalk.server.v1.SetClickhouseOtelTtlsResponse
-	10, // 12: chalk.server.v1.ClickhouseService.GetClickhouseInfo:output_type -> chalk.server.v1.GetClickhouseInfoResponse
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	11, // 5: chalk.server.v1.GetClickhouseInfoResponse.resources:type_name -> chalk.server.v1.ClickhouseResourceUsage
+	12, // 6: chalk.server.v1.GetClickhouseInfoResponse.latest_migration:type_name -> chalk.server.v1.ClickhouseMigration
+	13, // 7: chalk.server.v1.GetClickhouseInfoResponse.insert_failures:type_name -> chalk.server.v1.ClickhouseInsertFailure
+	14, // 8: chalk.server.v1.GetClickhouseAdminDiagnosticsResponse.slow_reads:type_name -> chalk.server.v1.ClickhouseSlowRead
+	15, // 9: chalk.server.v1.GetClickhouseAdminDiagnosticsResponse.ttl_alignments:type_name -> chalk.server.v1.ClickhouseTtlAlignment
+	0,  // 10: chalk.server.v1.ClickhouseService.GetClickhouseUri:input_type -> chalk.server.v1.GetClickhouseUriRequest
+	5,  // 11: chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls:input_type -> chalk.server.v1.GetClickhouseOtelTtlsRequest
+	3,  // 12: chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls:input_type -> chalk.server.v1.SetClickhouseOtelTtlsRequest
+	9,  // 13: chalk.server.v1.ClickhouseService.GetClickhouseInfo:input_type -> chalk.server.v1.GetClickhouseInfoRequest
+	16, // 14: chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics:input_type -> chalk.server.v1.GetClickhouseAdminDiagnosticsRequest
+	1,  // 15: chalk.server.v1.ClickhouseService.GetClickhouseUri:output_type -> chalk.server.v1.GetClickhouseUriResponse
+	6,  // 16: chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls:output_type -> chalk.server.v1.GetClickhouseOtelTtlsResponse
+	4,  // 17: chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls:output_type -> chalk.server.v1.SetClickhouseOtelTtlsResponse
+	10, // 18: chalk.server.v1.ClickhouseService.GetClickhouseInfo:output_type -> chalk.server.v1.GetClickhouseInfoResponse
+	17, // 19: chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics:output_type -> chalk.server.v1.GetClickhouseAdminDiagnosticsResponse
+	15, // [15:20] is the sub-list for method output_type
+	10, // [10:15] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_clickhouse_proto_init() }
@@ -721,13 +1375,14 @@ func file_chalk_server_v1_clickhouse_proto_init() {
 	}
 	file_chalk_server_v1_clickhouse_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_clickhouse_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_server_v1_clickhouse_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_clickhouse_proto_rawDesc), len(file_chalk_server_v1_clickhouse_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
