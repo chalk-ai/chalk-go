@@ -4057,6 +4057,11 @@ type PlannerOptions struct {
 	// ParquetWriter, because velox rejects the empty-output guarantee together with
 	// partition keys. Absent => the deployment default (CHALK_OFFLINE_QUERY_TABLE_WRITER).
 	OfflineQueryTableWriter *bool `protobuf:"varint,132,opt,name=offline_query_table_writer,json=offlineQueryTableWriter,proto3,oneof" json:"offline_query_table_writer,omitempty"`
+	// When set, an OptimisticLoad whose fallback plan reads nothing the preferred plan does not
+	// already read (no extra scans, UDFs or blocking calls) is planned as just the fallback. The
+	// fallback fills in only the rows the preferred load left missing, so the result is unchanged;
+	// the batch-level validity check, its gates and both branch pipelines go away.
+	SkipPureOptimisticLoads *bool `protobuf:"varint,133,opt,name=skip_pure_optimistic_loads,json=skipPureOptimisticLoads,proto3,oneof" json:"skip_pure_optimistic_loads,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -5016,6 +5021,13 @@ func (x *PlannerOptions) GetOfflineQueryTableWriter() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetSkipPureOptimisticLoads() bool {
+	if x != nil && x.SkipPureOptimisticLoads != nil {
+		return *x.SkipPureOptimisticLoads
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -5705,7 +5717,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x9cv\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xffv\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5840,7 +5852,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x18sub_plan_join_build_side\x18\x81\x01 \x01(\tH\x80\x01R\x14subPlanJoinBuildSide\x88\x01\x01\x12`\n" +
 	"*allow_missing_tile_store_trailing_coverage\x18\x82\x01 \x01(\bH\x81\x01R%allowMissingTileStoreTrailingCoverage\x88\x01\x01\x12D\n" +
 	"\x1bdefer_bus_persist_operators\x18\x83\x01 \x01(\bH\x82\x01R\x18deferBusPersistOperators\x88\x01\x01\x12B\n" +
-	"\x1aoffline_query_table_writer\x18\x84\x01 \x01(\bH\x83\x01R\x17offlineQueryTableWriter\x88\x01\x01B\x1e\n" +
+	"\x1aoffline_query_table_writer\x18\x84\x01 \x01(\bH\x83\x01R\x17offlineQueryTableWriter\x88\x01\x01\x12B\n" +
+	"\x1askip_pure_optimistic_loads\x18\x85\x01 \x01(\bH\x84\x01R\x17skipPureOptimisticLoads\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5972,7 +5985,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x19_sub_plan_join_build_sideB-\n" +
 	"+_allow_missing_tile_store_trailing_coverageB\x1e\n" +
 	"\x1c_defer_bus_persist_operatorsB\x1d\n" +
-	"\x1b_offline_query_table_writer\"\xd2\x06\n" +
+	"\x1b_offline_query_table_writerB\x1d\n" +
+	"\x1b_skip_pure_optimistic_loads\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

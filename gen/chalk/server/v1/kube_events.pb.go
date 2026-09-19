@@ -1072,7 +1072,9 @@ type GetKubeEventStatRequest struct {
 	// When set, also evaluate the window shifted back by this offset and return it as previous_value.
 	ComparisonLookbackOffset *durationpb.Duration `protobuf:"bytes,4,opt,name=comparison_lookback_offset,json=comparisonLookbackOffset,proto3,oneof" json:"comparison_lookback_offset,omitempty"`
 	// Unset is COUNT; anything else needs a measure the kube-event facet registry advertises.
-	Aggregation   *v1.Aggregation `protobuf:"bytes,5,opt,name=aggregation,proto3,oneof" json:"aggregation,omitempty"`
+	Aggregation *v1.Aggregation `protobuf:"bytes,5,opt,name=aggregation,proto3,oneof" json:"aggregation,omitempty"`
+	// When set, reports a per-interval rate instead of the window total; COUNT and SUM only.
+	RateOptions   *v1.RateOptions `protobuf:"bytes,6,opt,name=rate_options,json=rateOptions,proto3,oneof" json:"rate_options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1138,6 +1140,13 @@ func (x *GetKubeEventStatRequest) GetComparisonLookbackOffset() *durationpb.Dura
 func (x *GetKubeEventStatRequest) GetAggregation() *v1.Aggregation {
 	if x != nil {
 		return x.Aggregation
+	}
+	return nil
+}
+
+func (x *GetKubeEventStatRequest) GetRateOptions() *v1.RateOptions {
+	if x != nil {
+		return x.RateOptions
 	}
 	return nil
 }
@@ -1286,17 +1295,19 @@ const file_chalk_server_v1_kube_events_proto_rawDesc = "" +
 	"\x06_queryB\b\n" +
 	"\x06_limit\"^\n" +
 	" ListKubeEventsAggregatedResponse\x12:\n" +
-	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\x8c\x03\n" +
+	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\xed\x03\n" +
 	"\x17GetKubeEventStatRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\\\n" +
 	"\x1acomparison_lookback_offset\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x01R\x18comparisonLookbackOffset\x88\x01\x01\x12M\n" +
-	"\vaggregation\x18\x05 \x01(\v2&.chalk.searchaggregates.v1.AggregationH\x02R\vaggregation\x88\x01\x01B\b\n" +
+	"\vaggregation\x18\x05 \x01(\v2&.chalk.searchaggregates.v1.AggregationH\x02R\vaggregation\x88\x01\x01\x12N\n" +
+	"\frate_options\x18\x06 \x01(\v2&.chalk.searchaggregates.v1.RateOptionsH\x03R\vrateOptions\x88\x01\x01B\b\n" +
 	"\x06_queryB\x1d\n" +
 	"\x1b_comparison_lookback_offsetB\x0e\n" +
-	"\f_aggregation\"T\n" +
+	"\f_aggregationB\x0f\n" +
+	"\r_rate_options\"T\n" +
 	"\x18GetKubeEventStatResponse\x128\n" +
 	"\x06result\x18\x01 \x01(\v2 .chalk.server.v1.StatisticResultR\x06result*\xba\x01\n" +
 	"\x12KubeEventFacetType\x12%\n" +
@@ -1359,7 +1370,8 @@ var file_chalk_server_v1_kube_events_proto_goTypes = []any{
 	(*durationpb.Duration)(nil),              // 21: google.protobuf.Duration
 	(*v11.DenseTimeSeriesChart)(nil),         // 22: chalk.chart.v1.DenseTimeSeriesChart
 	(*v1.Aggregation)(nil),                   // 23: chalk.searchaggregates.v1.Aggregation
-	(*StatisticResult)(nil),                  // 24: chalk.server.v1.StatisticResult
+	(*v1.RateOptions)(nil),                   // 24: chalk.searchaggregates.v1.RateOptions
+	(*StatisticResult)(nil),                  // 25: chalk.server.v1.StatisticResult
 }
 var file_chalk_server_v1_kube_events_proto_depIdxs = []int32{
 	17, // 0: chalk.server.v1.KubeEvent.timestamp:type_name -> google.protobuf.Timestamp
@@ -1389,24 +1401,25 @@ var file_chalk_server_v1_kube_events_proto_depIdxs = []int32{
 	17, // 24: chalk.server.v1.GetKubeEventStatRequest.end_time:type_name -> google.protobuf.Timestamp
 	21, // 25: chalk.server.v1.GetKubeEventStatRequest.comparison_lookback_offset:type_name -> google.protobuf.Duration
 	23, // 26: chalk.server.v1.GetKubeEventStatRequest.aggregation:type_name -> chalk.searchaggregates.v1.Aggregation
-	24, // 27: chalk.server.v1.GetKubeEventStatResponse.result:type_name -> chalk.server.v1.StatisticResult
-	3,  // 28: chalk.server.v1.KubeEventsService.ListKubeEvents:input_type -> chalk.server.v1.ListKubeEventsRequest
-	6,  // 29: chalk.server.v1.KubeEventsService.GetKubeEventFacets:input_type -> chalk.server.v1.GetKubeEventFacetsRequest
-	8,  // 30: chalk.server.v1.KubeEventsService.GetKubeEventFacetValues:input_type -> chalk.server.v1.GetKubeEventFacetValuesRequest
-	13, // 31: chalk.server.v1.KubeEventsService.ListKubeEventsAggregated:input_type -> chalk.server.v1.ListKubeEventsAggregatedRequest
-	11, // 32: chalk.server.v1.KubeEventsService.GetKubeEventAggregates:input_type -> chalk.server.v1.GetKubeEventAggregatesRequest
-	15, // 33: chalk.server.v1.KubeEventsService.GetKubeEventStat:input_type -> chalk.server.v1.GetKubeEventStatRequest
-	4,  // 34: chalk.server.v1.KubeEventsService.ListKubeEvents:output_type -> chalk.server.v1.ListKubeEventsResponse
-	7,  // 35: chalk.server.v1.KubeEventsService.GetKubeEventFacets:output_type -> chalk.server.v1.GetKubeEventFacetsResponse
-	10, // 36: chalk.server.v1.KubeEventsService.GetKubeEventFacetValues:output_type -> chalk.server.v1.GetKubeEventFacetValuesResponse
-	14, // 37: chalk.server.v1.KubeEventsService.ListKubeEventsAggregated:output_type -> chalk.server.v1.ListKubeEventsAggregatedResponse
-	12, // 38: chalk.server.v1.KubeEventsService.GetKubeEventAggregates:output_type -> chalk.server.v1.GetKubeEventAggregatesResponse
-	16, // 39: chalk.server.v1.KubeEventsService.GetKubeEventStat:output_type -> chalk.server.v1.GetKubeEventStatResponse
-	34, // [34:40] is the sub-list for method output_type
-	28, // [28:34] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	24, // 27: chalk.server.v1.GetKubeEventStatRequest.rate_options:type_name -> chalk.searchaggregates.v1.RateOptions
+	25, // 28: chalk.server.v1.GetKubeEventStatResponse.result:type_name -> chalk.server.v1.StatisticResult
+	3,  // 29: chalk.server.v1.KubeEventsService.ListKubeEvents:input_type -> chalk.server.v1.ListKubeEventsRequest
+	6,  // 30: chalk.server.v1.KubeEventsService.GetKubeEventFacets:input_type -> chalk.server.v1.GetKubeEventFacetsRequest
+	8,  // 31: chalk.server.v1.KubeEventsService.GetKubeEventFacetValues:input_type -> chalk.server.v1.GetKubeEventFacetValuesRequest
+	13, // 32: chalk.server.v1.KubeEventsService.ListKubeEventsAggregated:input_type -> chalk.server.v1.ListKubeEventsAggregatedRequest
+	11, // 33: chalk.server.v1.KubeEventsService.GetKubeEventAggregates:input_type -> chalk.server.v1.GetKubeEventAggregatesRequest
+	15, // 34: chalk.server.v1.KubeEventsService.GetKubeEventStat:input_type -> chalk.server.v1.GetKubeEventStatRequest
+	4,  // 35: chalk.server.v1.KubeEventsService.ListKubeEvents:output_type -> chalk.server.v1.ListKubeEventsResponse
+	7,  // 36: chalk.server.v1.KubeEventsService.GetKubeEventFacets:output_type -> chalk.server.v1.GetKubeEventFacetsResponse
+	10, // 37: chalk.server.v1.KubeEventsService.GetKubeEventFacetValues:output_type -> chalk.server.v1.GetKubeEventFacetValuesResponse
+	14, // 38: chalk.server.v1.KubeEventsService.ListKubeEventsAggregated:output_type -> chalk.server.v1.ListKubeEventsAggregatedResponse
+	12, // 39: chalk.server.v1.KubeEventsService.GetKubeEventAggregates:output_type -> chalk.server.v1.GetKubeEventAggregatesResponse
+	16, // 40: chalk.server.v1.KubeEventsService.GetKubeEventStat:output_type -> chalk.server.v1.GetKubeEventStatResponse
+	35, // [35:41] is the sub-list for method output_type
+	29, // [29:35] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_kube_events_proto_init() }

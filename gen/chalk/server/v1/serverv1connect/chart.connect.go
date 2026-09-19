@@ -102,14 +102,25 @@ const (
 
 // ChartsServiceClient is a client for the chalk.server.v1.ChartsService service.
 type ChartsServiceClient interface {
-	// ListRawMetrics, GetRawMetricLabelValues and QueryRawMetrics expose the raw
-	// VictoriaMetrics series behind an environment's charts. They are gated on
-	// PERMISSION_CHALK_ADMIN (granted implicitly to @chalk.ai agents) because VM
-	// series names and labels are an internal implementation detail rather than a
-	// stable customer-facing surface.
+	// The three introspection RPCs below expose the raw VictoriaMetrics series
+	// behind an environment's charts. VM series names and labels are an internal
+	// implementation detail rather than a stable customer-facing surface, but the
+	// surface is useful enough to hand to a customer on request, so it carries
+	// MONITORING_READ and the handlers scope every lookup to the caller's own
+	// environment. Unscoped access — the whole instance, including cluster-scoped
+	// series that carry no environment_id — needs either a self-hosted metadata plane
+	// or PERMISSION_CHALK_ADMIN (granted implicitly to @chalk.ai agents). On Chalk's
+	// shared plane one telemetry deployment serves many customers, so that scoping is
+	// the tenant boundary, not a convenience.
 	ListRawMetrics(context.Context, *connect.Request[v1.ListRawMetricsRequest]) (*connect.Response[v1.ListRawMetricsResponse], error)
 	GetRawMetricLabelNames(context.Context, *connect.Request[v1.GetRawMetricLabelNamesRequest]) (*connect.Response[v1.GetRawMetricLabelNamesResponse], error)
 	GetRawMetricLabelValues(context.Context, *connect.Request[v1.GetRawMetricLabelValuesRequest]) (*connect.Response[v1.GetRawMetricLabelValuesResponse], error)
+	// QueryRawMetrics evaluates caller-authored MetricsQL, which Chalk cannot rewrite to
+	// carry an environment scope. It therefore needs unscoped raw access, which the
+	// handler grants on a self-hosted metadata plane (the VictoriaMetrics instance holds
+	// only that customer's data) or to PERMISSION_CHALK_ADMIN. The annotation is
+	// MONITORING_READ because on a self-hosted plane that is genuinely the bar; a caller
+	// who does not clear the handler's check gets PermissionDenied.
 	QueryRawMetrics(context.Context, *connect.Request[v1.QueryRawMetricsRequest]) (*connect.Response[v1.QueryRawMetricsResponse], error)
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
 	ListChartAnnotations(context.Context, *connect.Request[v1.ListChartAnnotationsRequest]) (*connect.Response[v1.ListChartAnnotationsResponse], error)
@@ -415,14 +426,25 @@ func (c *chartsServiceClient) ListChartsWithCronAlerts(ctx context.Context, req 
 
 // ChartsServiceHandler is an implementation of the chalk.server.v1.ChartsService service.
 type ChartsServiceHandler interface {
-	// ListRawMetrics, GetRawMetricLabelValues and QueryRawMetrics expose the raw
-	// VictoriaMetrics series behind an environment's charts. They are gated on
-	// PERMISSION_CHALK_ADMIN (granted implicitly to @chalk.ai agents) because VM
-	// series names and labels are an internal implementation detail rather than a
-	// stable customer-facing surface.
+	// The three introspection RPCs below expose the raw VictoriaMetrics series
+	// behind an environment's charts. VM series names and labels are an internal
+	// implementation detail rather than a stable customer-facing surface, but the
+	// surface is useful enough to hand to a customer on request, so it carries
+	// MONITORING_READ and the handlers scope every lookup to the caller's own
+	// environment. Unscoped access — the whole instance, including cluster-scoped
+	// series that carry no environment_id — needs either a self-hosted metadata plane
+	// or PERMISSION_CHALK_ADMIN (granted implicitly to @chalk.ai agents). On Chalk's
+	// shared plane one telemetry deployment serves many customers, so that scoping is
+	// the tenant boundary, not a convenience.
 	ListRawMetrics(context.Context, *connect.Request[v1.ListRawMetricsRequest]) (*connect.Response[v1.ListRawMetricsResponse], error)
 	GetRawMetricLabelNames(context.Context, *connect.Request[v1.GetRawMetricLabelNamesRequest]) (*connect.Response[v1.GetRawMetricLabelNamesResponse], error)
 	GetRawMetricLabelValues(context.Context, *connect.Request[v1.GetRawMetricLabelValuesRequest]) (*connect.Response[v1.GetRawMetricLabelValuesResponse], error)
+	// QueryRawMetrics evaluates caller-authored MetricsQL, which Chalk cannot rewrite to
+	// carry an environment scope. It therefore needs unscoped raw access, which the
+	// handler grants on a self-hosted metadata plane (the VictoriaMetrics instance holds
+	// only that customer's data) or to PERMISSION_CHALK_ADMIN. The annotation is
+	// MONITORING_READ because on a self-hosted plane that is genuinely the bar; a caller
+	// who does not clear the handler's check gets PermissionDenied.
 	QueryRawMetrics(context.Context, *connect.Request[v1.QueryRawMetricsRequest]) (*connect.Response[v1.QueryRawMetricsResponse], error)
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
 	ListChartAnnotations(context.Context, *connect.Request[v1.ListChartAnnotationsRequest]) (*connect.Response[v1.ListChartAnnotationsResponse], error)

@@ -789,7 +789,7 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\x12signed_result_urls\x18\x01 \x03(\tR\x10signedResultUrls\x12h\n" +
 	"\x19performance_summary_links\x18\x02 \x03(\v2,.chalk.server.v1.ShardPerformanceSummaryLinkR\x17performanceSummaryLinks2\xce\x03\n" +
 	"\x11SqlQueriesService\x12i\n" +
-	"\x0eListSqlQueries\x12&.chalk.server.v1.ListSqlQueriesRequest\x1a'.chalk.server.v1.ListSqlQueriesResponse\"\x06\x80}\x03\x90\x02\x01\x12`\n" +
+	"\x0eListSqlQueries\x12&.chalk.server.v1.ListSqlQueriesRequest\x1a'.chalk.server.v1.ListSqlQueriesResponse\"\x06\x80}$\x90\x02\x01\x12`\n" +
 	"\vGetSqlQuery\x12#.chalk.server.v1.GetSqlQueryRequest\x1a$.chalk.server.v1.GetSqlQueryResponse\"\x06\x80}\x03\x90\x02\x01\x12l\n" +
 	"\x0fGetSqlQueryPlan\x12'.chalk.server.v1.GetSqlQueryPlanRequest\x1a(.chalk.server.v1.GetSqlQueryPlanResponse\"\x06\x80}\x03\x90\x02\x01\x12~\n" +
 	"\x15GetSqlQuerySignedUrls\x12-.chalk.server.v1.GetSqlQuerySignedUrlsRequest\x1a..chalk.server.v1.GetSqlQuerySignedUrlsResponse\"\x06\x80}\x03\x90\x02\x01B\xbf\x01\n" +

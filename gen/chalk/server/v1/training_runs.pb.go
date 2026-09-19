@@ -1044,10 +1044,11 @@ func (*CancelTrainingRunResponse) Descriptor() ([]byte, []int) {
 }
 
 type CheckpointTrainingRunRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TrainingRunId string                 `protobuf:"bytes,1,opt,name=training_run_id,json=trainingRunId,proto3" json:"training_run_id,omitempty"`
-	FileNames     []string               `protobuf:"bytes,2,rep,name=file_names,json=fileNames,proto3" json:"file_names,omitempty"`
-	ArtifactSpec  *structpb.Struct       `protobuf:"bytes,3,opt,name=artifact_spec,json=artifactSpec,proto3" json:"artifact_spec,omitempty"`
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	TrainingRunId string                     `protobuf:"bytes,1,opt,name=training_run_id,json=trainingRunId,proto3" json:"training_run_id,omitempty"`
+	FileNames     []string                   `protobuf:"bytes,2,rep,name=file_names,json=fileNames,proto3" json:"file_names,omitempty"`
+	ArtifactSpec  *structpb.Struct           `protobuf:"bytes,3,opt,name=artifact_spec,json=artifactSpec,proto3" json:"artifact_spec,omitempty"`
+	Metadata      map[string]*structpb.Value `protobuf:"bytes,4,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1099,6 +1100,13 @@ func (x *CheckpointTrainingRunRequest) GetFileNames() []string {
 func (x *CheckpointTrainingRunRequest) GetArtifactSpec() *structpb.Struct {
 	if x != nil {
 		return x.ArtifactSpec
+	}
+	return nil
+}
+
+func (x *CheckpointTrainingRunRequest) GetMetadata() map[string]*structpb.Value {
+	if x != nil {
+		return x.Metadata
 	}
 	return nil
 }
@@ -1633,12 +1641,16 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\ftraining_run\x18\x01 \x01(\v2\x1c.chalk.server.v1.TrainingRunR\vtrainingRun\"B\n" +
 	"\x18CancelTrainingRunRequest\x12&\n" +
 	"\x0ftraining_run_id\x18\x01 \x01(\tR\rtrainingRunId\"\x1b\n" +
-	"\x19CancelTrainingRunResponse\"\xa3\x01\n" +
+	"\x19CancelTrainingRunResponse\"\xd1\x02\n" +
 	"\x1cCheckpointTrainingRunRequest\x12&\n" +
 	"\x0ftraining_run_id\x18\x01 \x01(\tR\rtrainingRunId\x12\x1d\n" +
 	"\n" +
 	"file_names\x18\x02 \x03(\tR\tfileNames\x12<\n" +
-	"\rartifact_spec\x18\x03 \x01(\v2\x17.google.protobuf.StructR\fartifactSpec\"\xeb\x01\n" +
+	"\rartifact_spec\x18\x03 \x01(\v2\x17.google.protobuf.StructR\fartifactSpec\x12W\n" +
+	"\bmetadata\x18\x04 \x03(\v2;.chalk.server.v1.CheckpointTrainingRunRequest.MetadataEntryR\bmetadata\x1aS\n" +
+	"\rMetadataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xeb\x01\n" +
 	"\x1dCheckpointTrainingRunResponse\x12*\n" +
 	"\x11model_artifact_id\x18\x01 \x01(\tR\x0fmodelArtifactId\x12_\n" +
 	"\vupload_urls\x18\x02 \x03(\v2>.chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntryR\n" +
@@ -1707,7 +1719,7 @@ func file_chalk_server_v1_training_runs_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_training_runs_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_training_runs_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_chalk_server_v1_training_runs_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_chalk_server_v1_training_runs_proto_goTypes = []any{
 	(TrainingRunStatus)(0),                // 0: chalk.server.v1.TrainingRunStatus
 	(*TrainingRunDataSource)(nil),         // 1: chalk.server.v1.TrainingRunDataSource
@@ -1738,82 +1750,85 @@ var file_chalk_server_v1_training_runs_proto_goTypes = []any{
 	nil,                                   // 26: chalk.server.v1.CreateTrainingRunRequest.EnvEntry
 	nil,                                   // 27: chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry
 	nil,                                   // 28: chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry
-	nil,                                   // 29: chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntry
-	nil,                                   // 30: chalk.server.v1.TrainingMetric.TagsEntry
-	(*structpb.Struct)(nil),               // 31: google.protobuf.Struct
-	(*v1.ResourceLimits)(nil),             // 32: chalk.container.v1.ResourceLimits
-	(*v1.SecretRef)(nil),                  // 33: chalk.container.v1.SecretRef
-	(*timestamppb.Timestamp)(nil),         // 34: google.protobuf.Timestamp
-	(*v2.CommitIntent)(nil),               // 35: chalk.volume.v2.CommitIntent
-	(*v1.VolumeMount)(nil),                // 36: chalk.container.v1.VolumeMount
-	(*fieldmaskpb.FieldMask)(nil),         // 37: google.protobuf.FieldMask
-	(*ModelArtifact)(nil),                 // 38: chalk.server.v1.ModelArtifact
-	(*structpb.Value)(nil),                // 39: google.protobuf.Value
+	nil,                                   // 29: chalk.server.v1.CheckpointTrainingRunRequest.MetadataEntry
+	nil,                                   // 30: chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntry
+	nil,                                   // 31: chalk.server.v1.TrainingMetric.TagsEntry
+	(*structpb.Struct)(nil),               // 32: google.protobuf.Struct
+	(*v1.ResourceLimits)(nil),             // 33: chalk.container.v1.ResourceLimits
+	(*v1.SecretRef)(nil),                  // 34: chalk.container.v1.SecretRef
+	(*timestamppb.Timestamp)(nil),         // 35: google.protobuf.Timestamp
+	(*v2.CommitIntent)(nil),               // 36: chalk.volume.v2.CommitIntent
+	(*v1.VolumeMount)(nil),                // 37: chalk.container.v1.VolumeMount
+	(*fieldmaskpb.FieldMask)(nil),         // 38: google.protobuf.FieldMask
+	(*ModelArtifact)(nil),                 // 39: chalk.server.v1.ModelArtifact
+	(*structpb.Value)(nil),                // 40: google.protobuf.Value
 }
 var file_chalk_server_v1_training_runs_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.TrainingRun.status:type_name -> chalk.server.v1.TrainingRunStatus
 	1,  // 1: chalk.server.v1.TrainingRun.data:type_name -> chalk.server.v1.TrainingRunDataSource
-	31, // 2: chalk.server.v1.TrainingRun.config:type_name -> google.protobuf.Struct
-	32, // 3: chalk.server.v1.TrainingRun.resources:type_name -> chalk.container.v1.ResourceLimits
+	32, // 2: chalk.server.v1.TrainingRun.config:type_name -> google.protobuf.Struct
+	33, // 3: chalk.server.v1.TrainingRun.resources:type_name -> chalk.container.v1.ResourceLimits
 	24, // 4: chalk.server.v1.TrainingRun.env:type_name -> chalk.server.v1.TrainingRun.EnvEntry
-	33, // 5: chalk.server.v1.TrainingRun.secret_refs:type_name -> chalk.container.v1.SecretRef
+	34, // 5: chalk.server.v1.TrainingRun.secret_refs:type_name -> chalk.container.v1.SecretRef
 	25, // 6: chalk.server.v1.TrainingRun.meta_data:type_name -> chalk.server.v1.TrainingRun.MetaDataEntry
-	34, // 7: chalk.server.v1.TrainingRun.started_at:type_name -> google.protobuf.Timestamp
-	34, // 8: chalk.server.v1.TrainingRun.finalized_at:type_name -> google.protobuf.Timestamp
-	34, // 9: chalk.server.v1.TrainingRun.created_at:type_name -> google.protobuf.Timestamp
+	35, // 7: chalk.server.v1.TrainingRun.started_at:type_name -> google.protobuf.Timestamp
+	35, // 8: chalk.server.v1.TrainingRun.finalized_at:type_name -> google.protobuf.Timestamp
+	35, // 9: chalk.server.v1.TrainingRun.created_at:type_name -> google.protobuf.Timestamp
 	1,  // 10: chalk.server.v1.CreateTrainingRunRequest.data:type_name -> chalk.server.v1.TrainingRunDataSource
-	31, // 11: chalk.server.v1.CreateTrainingRunRequest.config:type_name -> google.protobuf.Struct
-	32, // 12: chalk.server.v1.CreateTrainingRunRequest.resources:type_name -> chalk.container.v1.ResourceLimits
+	32, // 11: chalk.server.v1.CreateTrainingRunRequest.config:type_name -> google.protobuf.Struct
+	33, // 12: chalk.server.v1.CreateTrainingRunRequest.resources:type_name -> chalk.container.v1.ResourceLimits
 	26, // 13: chalk.server.v1.CreateTrainingRunRequest.env:type_name -> chalk.server.v1.CreateTrainingRunRequest.EnvEntry
-	33, // 14: chalk.server.v1.CreateTrainingRunRequest.secret_refs:type_name -> chalk.container.v1.SecretRef
+	34, // 14: chalk.server.v1.CreateTrainingRunRequest.secret_refs:type_name -> chalk.container.v1.SecretRef
 	27, // 15: chalk.server.v1.CreateTrainingRunRequest.meta_data:type_name -> chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry
-	35, // 16: chalk.server.v1.CreateTrainingRunRequest.volume_commits:type_name -> chalk.volume.v2.CommitIntent
-	36, // 17: chalk.server.v1.CreateTrainingRunRequest.volume_mounts:type_name -> chalk.container.v1.VolumeMount
+	36, // 16: chalk.server.v1.CreateTrainingRunRequest.volume_commits:type_name -> chalk.volume.v2.CommitIntent
+	37, // 17: chalk.server.v1.CreateTrainingRunRequest.volume_mounts:type_name -> chalk.container.v1.VolumeMount
 	2,  // 18: chalk.server.v1.CreateTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
 	2,  // 19: chalk.server.v1.GetTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
 	0,  // 20: chalk.server.v1.ListTrainingRunsFilters.statuses:type_name -> chalk.server.v1.TrainingRunStatus
-	34, // 21: chalk.server.v1.ListTrainingRunsFilters.start_time:type_name -> google.protobuf.Timestamp
-	34, // 22: chalk.server.v1.ListTrainingRunsFilters.end_time:type_name -> google.protobuf.Timestamp
+	35, // 21: chalk.server.v1.ListTrainingRunsFilters.start_time:type_name -> google.protobuf.Timestamp
+	35, // 22: chalk.server.v1.ListTrainingRunsFilters.end_time:type_name -> google.protobuf.Timestamp
 	7,  // 23: chalk.server.v1.ListTrainingRunsRequest.filters:type_name -> chalk.server.v1.ListTrainingRunsFilters
 	2,  // 24: chalk.server.v1.ListTrainingRunsResponse.training_runs:type_name -> chalk.server.v1.TrainingRun
 	0,  // 25: chalk.server.v1.UpdateTrainingRunOperation.status:type_name -> chalk.server.v1.TrainingRunStatus
 	28, // 26: chalk.server.v1.UpdateTrainingRunOperation.meta_data:type_name -> chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry
 	10, // 27: chalk.server.v1.UpdateTrainingRunRequest.update:type_name -> chalk.server.v1.UpdateTrainingRunOperation
-	37, // 28: chalk.server.v1.UpdateTrainingRunRequest.update_mask:type_name -> google.protobuf.FieldMask
+	38, // 28: chalk.server.v1.UpdateTrainingRunRequest.update_mask:type_name -> google.protobuf.FieldMask
 	2,  // 29: chalk.server.v1.UpdateTrainingRunResponse.training_run:type_name -> chalk.server.v1.TrainingRun
-	31, // 30: chalk.server.v1.CheckpointTrainingRunRequest.artifact_spec:type_name -> google.protobuf.Struct
-	29, // 31: chalk.server.v1.CheckpointTrainingRunResponse.upload_urls:type_name -> chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntry
-	38, // 32: chalk.server.v1.GetLatestCheckpointResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
-	38, // 33: chalk.server.v1.ListCheckpointsResponse.model_artifacts:type_name -> chalk.server.v1.ModelArtifact
-	34, // 34: chalk.server.v1.TrainingMetric.timestamp:type_name -> google.protobuf.Timestamp
-	30, // 35: chalk.server.v1.TrainingMetric.tags:type_name -> chalk.server.v1.TrainingMetric.TagsEntry
-	21, // 36: chalk.server.v1.ReportTrainingMetricsRequest.metrics:type_name -> chalk.server.v1.TrainingMetric
-	39, // 37: chalk.server.v1.TrainingRun.MetaDataEntry.value:type_name -> google.protobuf.Value
-	39, // 38: chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry.value:type_name -> google.protobuf.Value
-	39, // 39: chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry.value:type_name -> google.protobuf.Value
-	3,  // 40: chalk.server.v1.TrainingRunService.CreateTrainingRun:input_type -> chalk.server.v1.CreateTrainingRunRequest
-	5,  // 41: chalk.server.v1.TrainingRunService.GetTrainingRun:input_type -> chalk.server.v1.GetTrainingRunRequest
-	8,  // 42: chalk.server.v1.TrainingRunService.ListTrainingRuns:input_type -> chalk.server.v1.ListTrainingRunsRequest
-	11, // 43: chalk.server.v1.TrainingRunService.UpdateTrainingRun:input_type -> chalk.server.v1.UpdateTrainingRunRequest
-	13, // 44: chalk.server.v1.TrainingRunService.CancelTrainingRun:input_type -> chalk.server.v1.CancelTrainingRunRequest
-	15, // 45: chalk.server.v1.TrainingRunService.CheckpointTrainingRun:input_type -> chalk.server.v1.CheckpointTrainingRunRequest
-	17, // 46: chalk.server.v1.TrainingRunService.GetLatestCheckpoint:input_type -> chalk.server.v1.GetLatestCheckpointRequest
-	19, // 47: chalk.server.v1.TrainingRunService.ListCheckpoints:input_type -> chalk.server.v1.ListCheckpointsRequest
-	22, // 48: chalk.server.v1.TrainingRunService.ReportTrainingMetrics:input_type -> chalk.server.v1.ReportTrainingMetricsRequest
-	4,  // 49: chalk.server.v1.TrainingRunService.CreateTrainingRun:output_type -> chalk.server.v1.CreateTrainingRunResponse
-	6,  // 50: chalk.server.v1.TrainingRunService.GetTrainingRun:output_type -> chalk.server.v1.GetTrainingRunResponse
-	9,  // 51: chalk.server.v1.TrainingRunService.ListTrainingRuns:output_type -> chalk.server.v1.ListTrainingRunsResponse
-	12, // 52: chalk.server.v1.TrainingRunService.UpdateTrainingRun:output_type -> chalk.server.v1.UpdateTrainingRunResponse
-	14, // 53: chalk.server.v1.TrainingRunService.CancelTrainingRun:output_type -> chalk.server.v1.CancelTrainingRunResponse
-	16, // 54: chalk.server.v1.TrainingRunService.CheckpointTrainingRun:output_type -> chalk.server.v1.CheckpointTrainingRunResponse
-	18, // 55: chalk.server.v1.TrainingRunService.GetLatestCheckpoint:output_type -> chalk.server.v1.GetLatestCheckpointResponse
-	20, // 56: chalk.server.v1.TrainingRunService.ListCheckpoints:output_type -> chalk.server.v1.ListCheckpointsResponse
-	23, // 57: chalk.server.v1.TrainingRunService.ReportTrainingMetrics:output_type -> chalk.server.v1.ReportTrainingMetricsResponse
-	49, // [49:58] is the sub-list for method output_type
-	40, // [40:49] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	32, // 30: chalk.server.v1.CheckpointTrainingRunRequest.artifact_spec:type_name -> google.protobuf.Struct
+	29, // 31: chalk.server.v1.CheckpointTrainingRunRequest.metadata:type_name -> chalk.server.v1.CheckpointTrainingRunRequest.MetadataEntry
+	30, // 32: chalk.server.v1.CheckpointTrainingRunResponse.upload_urls:type_name -> chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntry
+	39, // 33: chalk.server.v1.GetLatestCheckpointResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
+	39, // 34: chalk.server.v1.ListCheckpointsResponse.model_artifacts:type_name -> chalk.server.v1.ModelArtifact
+	35, // 35: chalk.server.v1.TrainingMetric.timestamp:type_name -> google.protobuf.Timestamp
+	31, // 36: chalk.server.v1.TrainingMetric.tags:type_name -> chalk.server.v1.TrainingMetric.TagsEntry
+	21, // 37: chalk.server.v1.ReportTrainingMetricsRequest.metrics:type_name -> chalk.server.v1.TrainingMetric
+	40, // 38: chalk.server.v1.TrainingRun.MetaDataEntry.value:type_name -> google.protobuf.Value
+	40, // 39: chalk.server.v1.CreateTrainingRunRequest.MetaDataEntry.value:type_name -> google.protobuf.Value
+	40, // 40: chalk.server.v1.UpdateTrainingRunOperation.MetaDataEntry.value:type_name -> google.protobuf.Value
+	40, // 41: chalk.server.v1.CheckpointTrainingRunRequest.MetadataEntry.value:type_name -> google.protobuf.Value
+	3,  // 42: chalk.server.v1.TrainingRunService.CreateTrainingRun:input_type -> chalk.server.v1.CreateTrainingRunRequest
+	5,  // 43: chalk.server.v1.TrainingRunService.GetTrainingRun:input_type -> chalk.server.v1.GetTrainingRunRequest
+	8,  // 44: chalk.server.v1.TrainingRunService.ListTrainingRuns:input_type -> chalk.server.v1.ListTrainingRunsRequest
+	11, // 45: chalk.server.v1.TrainingRunService.UpdateTrainingRun:input_type -> chalk.server.v1.UpdateTrainingRunRequest
+	13, // 46: chalk.server.v1.TrainingRunService.CancelTrainingRun:input_type -> chalk.server.v1.CancelTrainingRunRequest
+	15, // 47: chalk.server.v1.TrainingRunService.CheckpointTrainingRun:input_type -> chalk.server.v1.CheckpointTrainingRunRequest
+	17, // 48: chalk.server.v1.TrainingRunService.GetLatestCheckpoint:input_type -> chalk.server.v1.GetLatestCheckpointRequest
+	19, // 49: chalk.server.v1.TrainingRunService.ListCheckpoints:input_type -> chalk.server.v1.ListCheckpointsRequest
+	22, // 50: chalk.server.v1.TrainingRunService.ReportTrainingMetrics:input_type -> chalk.server.v1.ReportTrainingMetricsRequest
+	4,  // 51: chalk.server.v1.TrainingRunService.CreateTrainingRun:output_type -> chalk.server.v1.CreateTrainingRunResponse
+	6,  // 52: chalk.server.v1.TrainingRunService.GetTrainingRun:output_type -> chalk.server.v1.GetTrainingRunResponse
+	9,  // 53: chalk.server.v1.TrainingRunService.ListTrainingRuns:output_type -> chalk.server.v1.ListTrainingRunsResponse
+	12, // 54: chalk.server.v1.TrainingRunService.UpdateTrainingRun:output_type -> chalk.server.v1.UpdateTrainingRunResponse
+	14, // 55: chalk.server.v1.TrainingRunService.CancelTrainingRun:output_type -> chalk.server.v1.CancelTrainingRunResponse
+	16, // 56: chalk.server.v1.TrainingRunService.CheckpointTrainingRun:output_type -> chalk.server.v1.CheckpointTrainingRunResponse
+	18, // 57: chalk.server.v1.TrainingRunService.GetLatestCheckpoint:output_type -> chalk.server.v1.GetLatestCheckpointResponse
+	20, // 58: chalk.server.v1.TrainingRunService.ListCheckpoints:output_type -> chalk.server.v1.ListCheckpointsResponse
+	23, // 59: chalk.server.v1.TrainingRunService.ReportTrainingMetrics:output_type -> chalk.server.v1.ReportTrainingMetricsResponse
+	51, // [51:60] is the sub-list for method output_type
+	42, // [42:51] is the sub-list for method input_type
+	42, // [42:42] is the sub-list for extension type_name
+	42, // [42:42] is the sub-list for extension extendee
+	0,  // [0:42] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_training_runs_proto_init() }
@@ -1843,7 +1858,7 @@ func file_chalk_server_v1_training_runs_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_training_runs_proto_rawDesc), len(file_chalk_server_v1_training_runs_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   30,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

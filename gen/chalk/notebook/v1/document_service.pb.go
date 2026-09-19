@@ -6237,7 +6237,7 @@ var File_chalk_notebook_v1_document_service_proto protoreflect.FileDescriptor
 
 const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\n" +
-	"(chalk/notebook/v1/document_service.proto\x12\x11chalk.notebook.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/notebook/v1/document.proto\x1a&chalk/notebook/v1/kernel_service.proto\x1a\x1fchalk/notebook/v1/runtime.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
+	"(chalk/notebook/v1/document_service.proto\x12\x11chalk.notebook.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/notebook/v1/document.proto\x1a&chalk/notebook/v1/kernel_service.proto\x1a\x1fchalk/notebook/v1/runtime.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
 	"\x1dCreateNotebookDocumentRequest\x12?\n" +
 	"\bdocument\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookDocumentR\bdocument\x12/\n" +
 	"\x11client_request_id\x18\x02 \x01(\tH\x00R\x0fclientRequestId\x88\x01\x01B\x14\n" +
@@ -6753,11 +6753,11 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"#NOTEBOOK_RUNTIME_STATE_PROVISIONING\x10\x02\x12 \n" +
 	"\x1cNOTEBOOK_RUNTIME_STATE_READY\x10\x03\x12 \n" +
 	"\x1cNOTEBOOK_RUNTIME_STATE_ERROR\x10\x04\x12\"\n" +
-	"\x1eNOTEBOOK_RUNTIME_STATE_STOPPED\x10\x052\xe10\n" +
-	"\x17NotebookDocumentService\x12\x85\x01\n" +
-	"\x17CreateNotebookShareLink\x121.chalk.notebook.v1.CreateNotebookShareLinkRequest\x1a2.chalk.notebook.v1.CreateNotebookShareLinkResponse\"\x03\x80}\x0e\x12\x82\x01\n" +
-	"\x16ListNotebookShareLinks\x120.chalk.notebook.v1.ListNotebookShareLinksRequest\x1a1.chalk.notebook.v1.ListNotebookShareLinksResponse\"\x03\x80}\v\x12\x85\x01\n" +
-	"\x17RevokeNotebookShareLink\x121.chalk.notebook.v1.RevokeNotebookShareLinkRequest\x1a2.chalk.notebook.v1.RevokeNotebookShareLinkResponse\"\x03\x80}\x0e\x12\x88\x01\n" +
+	"\x1eNOTEBOOK_RUNTIME_STATE_STOPPED\x10\x052\xab1\n" +
+	"\x17NotebookDocumentService\x12\xaa\x01\n" +
+	"\x17CreateNotebookShareLink\x121.chalk.notebook.v1.CreateNotebookShareLinkRequest\x1a2.chalk.notebook.v1.CreateNotebookShareLinkResponse\"(\x80}\x0e\x8a\xd3\x0e!\b\x02\x12\x1dCreated a notebook share link\x12\x82\x01\n" +
+	"\x16ListNotebookShareLinks\x120.chalk.notebook.v1.ListNotebookShareLinksRequest\x1a1.chalk.notebook.v1.ListNotebookShareLinksResponse\"\x03\x80}\v\x12\xaa\x01\n" +
+	"\x17RevokeNotebookShareLink\x121.chalk.notebook.v1.RevokeNotebookShareLinkRequest\x1a2.chalk.notebook.v1.RevokeNotebookShareLinkResponse\"(\x80}\x0e\x8a\xd3\x0e!\b\x02\x12\x1dRevoked a notebook share link\x12\x88\x01\n" +
 	"\x18ResolveNotebookShareLink\x122.chalk.notebook.v1.ResolveNotebookShareLinkRequest\x1a3.chalk.notebook.v1.ResolveNotebookShareLinkResponse\"\x03\x80}%\x12\x7f\n" +
 	"\x15CreateNotebookComment\x12/.chalk.notebook.v1.CreateNotebookCommentRequest\x1a0.chalk.notebook.v1.CreateNotebookCommentResponse\"\x03\x80}\f\x12|\n" +
 	"\x14ListNotebookComments\x12..chalk.notebook.v1.ListNotebookCommentsRequest\x1a/.chalk.notebook.v1.ListNotebookCommentsResponse\"\x03\x80}\v\x12\x7f\n" +

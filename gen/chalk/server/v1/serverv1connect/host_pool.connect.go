@@ -57,6 +57,9 @@ const (
 	// HostPoolServiceListHostPoolsProcedure is the fully-qualified name of the HostPoolService's
 	// ListHostPools RPC.
 	HostPoolServiceListHostPoolsProcedure = "/chalk.server.v1.HostPoolService/ListHostPools"
+	// HostPoolServiceGetHostPoolCapacityProcedure is the fully-qualified name of the HostPoolService's
+	// GetHostPoolCapacity RPC.
+	HostPoolServiceGetHostPoolCapacityProcedure = "/chalk.server.v1.HostPoolService/GetHostPoolCapacity"
 )
 
 // HostPoolServiceClient is a client for the chalk.server.v1.HostPoolService service.
@@ -69,6 +72,10 @@ type HostPoolServiceClient interface {
 	DeleteClusterHostPool(context.Context, *connect.Request[v1.DeleteClusterHostPoolRequest]) (*connect.Response[v1.DeleteClusterHostPoolResponse], error)
 	GetHostPool(context.Context, *connect.Request[v1.GetHostPoolRequest]) (*connect.Response[v1.GetHostPoolResponse], error)
 	ListHostPools(context.Context, *connect.Request[v1.ListHostPoolsRequest]) (*connect.Response[v1.ListHostPoolsResponse], error)
+	// Reports live host capacity for the environment: what is free now, what a full scale-out would
+	// add, and the scaling configuration that bounds both. Host pools back sandboxes and other
+	// host-compute-class containers, which serverless environments do not use.
+	GetHostPoolCapacity(context.Context, *connect.Request[v1.GetHostPoolCapacityRequest]) (*connect.Response[v1.GetHostPoolCapacityResponse], error)
 }
 
 // NewHostPoolServiceClient constructs a client for the chalk.server.v1.HostPoolService service. By
@@ -132,6 +139,13 @@ func NewHostPoolServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getHostPoolCapacity: connect.NewClient[v1.GetHostPoolCapacityRequest, v1.GetHostPoolCapacityResponse](
+			httpClient,
+			baseURL+HostPoolServiceGetHostPoolCapacityProcedure,
+			connect.WithSchema(hostPoolServiceMethods.ByName("GetHostPoolCapacity")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -145,6 +159,7 @@ type hostPoolServiceClient struct {
 	deleteClusterHostPool     *connect.Client[v1.DeleteClusterHostPoolRequest, v1.DeleteClusterHostPoolResponse]
 	getHostPool               *connect.Client[v1.GetHostPoolRequest, v1.GetHostPoolResponse]
 	listHostPools             *connect.Client[v1.ListHostPoolsRequest, v1.ListHostPoolsResponse]
+	getHostPoolCapacity       *connect.Client[v1.GetHostPoolCapacityRequest, v1.GetHostPoolCapacityResponse]
 }
 
 // CreateEnvironmentHostPool calls chalk.server.v1.HostPoolService.CreateEnvironmentHostPool.
@@ -187,6 +202,11 @@ func (c *hostPoolServiceClient) ListHostPools(ctx context.Context, req *connect.
 	return c.listHostPools.CallUnary(ctx, req)
 }
 
+// GetHostPoolCapacity calls chalk.server.v1.HostPoolService.GetHostPoolCapacity.
+func (c *hostPoolServiceClient) GetHostPoolCapacity(ctx context.Context, req *connect.Request[v1.GetHostPoolCapacityRequest]) (*connect.Response[v1.GetHostPoolCapacityResponse], error) {
+	return c.getHostPoolCapacity.CallUnary(ctx, req)
+}
+
 // HostPoolServiceHandler is an implementation of the chalk.server.v1.HostPoolService service.
 type HostPoolServiceHandler interface {
 	CreateEnvironmentHostPool(context.Context, *connect.Request[v1.CreateEnvironmentHostPoolRequest]) (*connect.Response[v1.CreateEnvironmentHostPoolResponse], error)
@@ -197,6 +217,10 @@ type HostPoolServiceHandler interface {
 	DeleteClusterHostPool(context.Context, *connect.Request[v1.DeleteClusterHostPoolRequest]) (*connect.Response[v1.DeleteClusterHostPoolResponse], error)
 	GetHostPool(context.Context, *connect.Request[v1.GetHostPoolRequest]) (*connect.Response[v1.GetHostPoolResponse], error)
 	ListHostPools(context.Context, *connect.Request[v1.ListHostPoolsRequest]) (*connect.Response[v1.ListHostPoolsResponse], error)
+	// Reports live host capacity for the environment: what is free now, what a full scale-out would
+	// add, and the scaling configuration that bounds both. Host pools back sandboxes and other
+	// host-compute-class containers, which serverless environments do not use.
+	GetHostPoolCapacity(context.Context, *connect.Request[v1.GetHostPoolCapacityRequest]) (*connect.Response[v1.GetHostPoolCapacityResponse], error)
 }
 
 // NewHostPoolServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -256,6 +280,13 @@ func NewHostPoolServiceHandler(svc HostPoolServiceHandler, opts ...connect.Handl
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	hostPoolServiceGetHostPoolCapacityHandler := connect.NewUnaryHandler(
+		HostPoolServiceGetHostPoolCapacityProcedure,
+		svc.GetHostPoolCapacity,
+		connect.WithSchema(hostPoolServiceMethods.ByName("GetHostPoolCapacity")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.HostPoolService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case HostPoolServiceCreateEnvironmentHostPoolProcedure:
@@ -274,6 +305,8 @@ func NewHostPoolServiceHandler(svc HostPoolServiceHandler, opts ...connect.Handl
 			hostPoolServiceGetHostPoolHandler.ServeHTTP(w, r)
 		case HostPoolServiceListHostPoolsProcedure:
 			hostPoolServiceListHostPoolsHandler.ServeHTTP(w, r)
+		case HostPoolServiceGetHostPoolCapacityProcedure:
+			hostPoolServiceGetHostPoolCapacityHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -313,4 +346,8 @@ func (UnimplementedHostPoolServiceHandler) GetHostPool(context.Context, *connect
 
 func (UnimplementedHostPoolServiceHandler) ListHostPools(context.Context, *connect.Request[v1.ListHostPoolsRequest]) (*connect.Response[v1.ListHostPoolsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HostPoolService.ListHostPools is not implemented"))
+}
+
+func (UnimplementedHostPoolServiceHandler) GetHostPoolCapacity(context.Context, *connect.Request[v1.GetHostPoolCapacityRequest]) (*connect.Response[v1.GetHostPoolCapacityResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HostPoolService.GetHostPoolCapacity is not implemented"))
 }

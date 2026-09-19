@@ -360,8 +360,17 @@ type RunTurnRequest struct {
 	// PAGE_CONTEXT_SQL_EXPLORER so the model sees the unsaved buffer and its
 	// current diagnostics without a tool round-trip. Absent on other surfaces.
 	SqlWorksheetContext *SqlWorksheetContext `protobuf:"bytes,5,opt,name=sql_worksheet_context,json=sqlWorksheetContext,proto3" json:"sql_worksheet_context,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Optional id of a persisted message in this conversation to re-run from.
+	// When set, every message after it (for example an assistant reply that
+	// ended in an error), along with those messages' tool calls and results, is
+	// permanently deleted before the turn starts, so the conversation ends at
+	// this message and the turn replies to it. Clients should confirm with the
+	// user before sending it. The message must belong to `conversation_id`,
+	// otherwise the call fails with InvalidArgument and nothing is deleted.
+	// When unset, the turn runs on the full history.
+	RestartAtMessageId *string `protobuf:"bytes,6,opt,name=restart_at_message_id,json=restartAtMessageId,proto3,oneof" json:"restart_at_message_id,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RunTurnRequest) Reset() {
@@ -427,6 +436,13 @@ func (x *RunTurnRequest) GetSqlWorksheetContext() *SqlWorksheetContext {
 		return x.SqlWorksheetContext
 	}
 	return nil
+}
+
+func (x *RunTurnRequest) GetRestartAtMessageId() string {
+	if x != nil && x.RestartAtMessageId != nil {
+		return *x.RestartAtMessageId
+	}
+	return ""
 }
 
 // AssistantTextDelta is emitted as the model streams tokens for the active
@@ -1136,13 +1152,15 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
 	"\x06source\x18\x03 \x01(\tR\x06source\x12?\n" +
 	"\vdiagnostics\x18\x04 \x03(\v2\x1d.chalk.agent.v1.SqlDiagnosticR\vdiagnostics\x12'\n" +
-	"\x0fdatasource_name\x18\x05 \x01(\tR\x0edatasourceName\"\x8f\x02\n" +
+	"\x0fdatasource_name\x18\x05 \x01(\tR\x0edatasourceName\"\xe1\x02\n" +
 	"\x0eRunTurnRequest\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x14\n" +
 	"\x05model\x18\x02 \x01(\tR\x05model\x12%\n" +
 	"\x0emax_iterations\x18\x03 \x01(\x05R\rmaxIterations\x12>\n" +
 	"\fpage_context\x18\x04 \x01(\x0e2\x1b.chalk.agent.v1.PageContextR\vpageContext\x12W\n" +
-	"\x15sql_worksheet_context\x18\x05 \x01(\v2#.chalk.agent.v1.SqlWorksheetContextR\x13sqlWorksheetContext\"I\n" +
+	"\x15sql_worksheet_context\x18\x05 \x01(\v2#.chalk.agent.v1.SqlWorksheetContextR\x13sqlWorksheetContext\x126\n" +
+	"\x15restart_at_message_id\x18\x06 \x01(\tH\x00R\x12restartAtMessageId\x88\x01\x01B\x18\n" +
+	"\x16_restart_at_message_id\"I\n" +
 	"\x12AssistantTextDelta\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x14\n" +
@@ -1198,10 +1216,10 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"#SQL_DIAGNOSTIC_SEVERITY_INFORMATION\x10\x03\x12 \n" +
 	"\x1cSQL_DIAGNOSTIC_SEVERITY_HINT\x10\x042\xfd\x02\n" +
 	"\x12AgentRunnerService\x12\x8a\x01\n" +
-	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"<\x80}\x02\x92\xd3\x0e5\n" +
+	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"<\x80}(\x92\xd3\x0e5\n" +
 	"\x11assistant_enabled\x12 Enables Assistant conversations.0\x01\x12R\n" +
-	"\bStopTurn\x12\x1f.chalk.agent.v1.StopTurnRequest\x1a .chalk.agent.v1.StopTurnResponse\"\x03\x80}\x02\x12\x85\x01\n" +
-	"\x18GenerateInlineCompletion\x12/.chalk.agent.v1.GenerateInlineCompletionRequest\x1a0.chalk.agent.v1.GenerateInlineCompletionResponse\"\x06\x80}\x02\x90\x02\x01B\xb4\x01\n" +
+	"\bStopTurn\x12\x1f.chalk.agent.v1.StopTurnRequest\x1a .chalk.agent.v1.StopTurnResponse\"\x03\x80}(\x12\x85\x01\n" +
+	"\x18GenerateInlineCompletion\x12/.chalk.agent.v1.GenerateInlineCompletionRequest\x1a0.chalk.agent.v1.GenerateInlineCompletionResponse\"\x06\x80}(\x90\x02\x01B\xb4\x01\n" +
 	"\x12com.chalk.agent.v1B\vRunnerProtoP\x01Z7github.com/chalk-ai/chalk-go/gen/chalk/agent/v1;agentv1\xa2\x02\x03CAX\xaa\x02\x0eChalk.Agent.V1\xca\x02\x0eChalk\\Agent\\V1\xe2\x02\x1aChalk\\Agent\\V1\\GPBMetadata\xea\x02\x10Chalk::Agent::V1b\x06proto3"
 
 var (
@@ -1272,6 +1290,7 @@ func file_chalk_agent_v1_runner_proto_init() {
 		return
 	}
 	file_chalk_agent_v1_conversation_proto_init()
+	file_chalk_agent_v1_runner_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_agent_v1_runner_proto_msgTypes[9].OneofWrappers = []any{
 		(*RunTurnResponse_TextDelta)(nil),
 		(*RunTurnResponse_MessageFinalized)(nil),
