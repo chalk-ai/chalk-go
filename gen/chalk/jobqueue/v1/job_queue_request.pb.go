@@ -4062,8 +4062,17 @@ type PlannerOptions struct {
 	// fallback fills in only the rows the preferred load left missing, so the result is unchanged;
 	// the batch-level validity check, its gates and both branch pipelines go away.
 	SkipPureOptimisticLoads *bool `protobuf:"varint,133,opt,name=skip_pure_optimistic_loads,json=skipPureOptimisticLoads,proto3,oneof" json:"skip_pure_optimistic_loads,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// When set, a wide offline-store read also reads the skinny tables for observations
+	// written after the last wide-table fill's high-water mark, and merges them per feature
+	// into the wide result, preferring the skinny value when the two carry the same
+	// observation time. Closes the staleness gap between a namespace's fill cadence and the
+	// query, at the cost of a second warehouse statement. Absent => false, i.e. the wide
+	// table alone, which is stale by up to one fill cadence.
+	ForceOfflineStoreRecentObservationsRead *bool `protobuf:"varint,134,opt,name=force_offline_store_recent_observations_read,json=forceOfflineStoreRecentObservationsRead,proto3,oneof" json:"force_offline_store_recent_observations_read,omitempty"`
+	// When set, planning and plan inspection may fetch source statistics from leaf nodes.
+	FetchStats    *bool `protobuf:"varint,135,opt,name=fetch_stats,json=fetchStats,proto3,oneof" json:"fetch_stats,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -5028,6 +5037,20 @@ func (x *PlannerOptions) GetSkipPureOptimisticLoads() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetForceOfflineStoreRecentObservationsRead() bool {
+	if x != nil && x.ForceOfflineStoreRecentObservationsRead != nil {
+		return *x.ForceOfflineStoreRecentObservationsRead
+	}
+	return false
+}
+
+func (x *PlannerOptions) GetFetchStats() bool {
+	if x != nil && x.FetchStats != nil {
+		return *x.FetchStats
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -5717,7 +5740,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xffv\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xcex\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5853,7 +5876,10 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"*allow_missing_tile_store_trailing_coverage\x18\x82\x01 \x01(\bH\x81\x01R%allowMissingTileStoreTrailingCoverage\x88\x01\x01\x12D\n" +
 	"\x1bdefer_bus_persist_operators\x18\x83\x01 \x01(\bH\x82\x01R\x18deferBusPersistOperators\x88\x01\x01\x12B\n" +
 	"\x1aoffline_query_table_writer\x18\x84\x01 \x01(\bH\x83\x01R\x17offlineQueryTableWriter\x88\x01\x01\x12B\n" +
-	"\x1askip_pure_optimistic_loads\x18\x85\x01 \x01(\bH\x84\x01R\x17skipPureOptimisticLoads\x88\x01\x01B\x1e\n" +
+	"\x1askip_pure_optimistic_loads\x18\x85\x01 \x01(\bH\x84\x01R\x17skipPureOptimisticLoads\x88\x01\x01\x12d\n" +
+	",force_offline_store_recent_observations_read\x18\x86\x01 \x01(\bH\x85\x01R'forceOfflineStoreRecentObservationsRead\x88\x01\x01\x12&\n" +
+	"\vfetch_stats\x18\x87\x01 \x01(\bH\x86\x01R\n" +
+	"fetchStats\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5986,7 +6012,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"+_allow_missing_tile_store_trailing_coverageB\x1e\n" +
 	"\x1c_defer_bus_persist_operatorsB\x1d\n" +
 	"\x1b_offline_query_table_writerB\x1d\n" +
-	"\x1b_skip_pure_optimistic_loads\"\xd2\x06\n" +
+	"\x1b_skip_pure_optimistic_loadsB/\n" +
+	"-_force_offline_store_recent_observations_readB\x0e\n" +
+	"\f_fetch_stats\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

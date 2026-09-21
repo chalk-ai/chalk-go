@@ -32,6 +32,8 @@ const (
 	RemoteCallStatus_REMOTE_CALL_STATUS_RUNNING     RemoteCallStatus = 2
 	RemoteCallStatus_REMOTE_CALL_STATUS_COMPLETED   RemoteCallStatus = 3
 	RemoteCallStatus_REMOTE_CALL_STATUS_FAILED      RemoteCallStatus = 4
+	// The queue's result stream has passed its retention TTL.
+	RemoteCallStatus_REMOTE_CALL_STATUS_EXPIRED RemoteCallStatus = 5
 )
 
 // Enum value maps for RemoteCallStatus.
@@ -42,6 +44,7 @@ var (
 		2: "REMOTE_CALL_STATUS_RUNNING",
 		3: "REMOTE_CALL_STATUS_COMPLETED",
 		4: "REMOTE_CALL_STATUS_FAILED",
+		5: "REMOTE_CALL_STATUS_EXPIRED",
 	}
 	RemoteCallStatus_value = map[string]int32{
 		"REMOTE_CALL_STATUS_UNSPECIFIED": 0,
@@ -49,6 +52,7 @@ var (
 		"REMOTE_CALL_STATUS_RUNNING":     2,
 		"REMOTE_CALL_STATUS_COMPLETED":   3,
 		"REMOTE_CALL_STATUS_FAILED":      4,
+		"REMOTE_CALL_STATUS_EXPIRED":     5,
 	}
 )
 
@@ -1977,13 +1981,14 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\x13GetCallCountRequest\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\",\n" +
 	"\x14GetCallCountResponse\x12\x14\n" +
-	"\x05count\x18\x01 \x01(\x04R\x05count*\xb7\x01\n" +
+	"\x05count\x18\x01 \x01(\x04R\x05count*\xd7\x01\n" +
 	"\x10RemoteCallStatus\x12\"\n" +
 	"\x1eREMOTE_CALL_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aREMOTE_CALL_STATUS_PENDING\x10\x01\x12\x1e\n" +
 	"\x1aREMOTE_CALL_STATUS_RUNNING\x10\x02\x12 \n" +
 	"\x1cREMOTE_CALL_STATUS_COMPLETED\x10\x03\x12\x1d\n" +
-	"\x19REMOTE_CALL_STATUS_FAILED\x10\x042x\n" +
+	"\x19REMOTE_CALL_STATUS_FAILED\x10\x04\x12\x1e\n" +
+	"\x1aREMOTE_CALL_STATUS_EXPIRED\x10\x052x\n" +
 	"\x11RemoteCallService\x12c\n" +
 	"\fCallFunction\x12%.chalk.runtime.v1.CallFunctionRequest\x1a&.chalk.runtime.v1.CallFunctionResponse\"\x00(\x010\x012\xca\x03\n" +
 	"\x16AsyncRemoteCallService\x12n\n" +
