@@ -607,9 +607,12 @@ type QueuePolicy struct {
 	MaxItems int32 `protobuf:"varint,1,opt,name=max_items,json=maxItems,proto3" json:"max_items,omitempty"`
 	// Shared-bucket identifier. Functions using the same key share one quota.
 	// Defaults to the qualified function name if omitted.
-	Key           *string `protobuf:"bytes,2,opt,name=key,proto3,oneof" json:"key,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Key *string `protobuf:"bytes,2,opt,name=key,proto3,oneof" json:"key,omitempty"`
+	// How long asynchronous call result streams remain in Redis after the call is
+	// enqueued. Unset uses the platform default of 24 hours.
+	ResultTtlSeconds *int32 `protobuf:"varint,3,opt,name=result_ttl_seconds,json=resultTtlSeconds,proto3,oneof" json:"result_ttl_seconds,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *QueuePolicy) Reset() {
@@ -654,6 +657,13 @@ func (x *QueuePolicy) GetKey() string {
 		return *x.Key
 	}
 	return ""
+}
+
+func (x *QueuePolicy) GetResultTtlSeconds() int32 {
+	if x != nil && x.ResultTtlSeconds != nil {
+		return *x.ResultTtlSeconds
+	}
+	return 0
 }
 
 type TracingPolicy struct {
@@ -4019,11 +4029,13 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\x11ConcurrencyPolicy\x12%\n" +
 	"\x0emax_concurrent\x18\x01 \x01(\x05R\rmaxConcurrent\x12\x15\n" +
 	"\x03key\x18\x02 \x01(\tH\x00R\x03key\x88\x01\x01B\x06\n" +
-	"\x04_key\"I\n" +
+	"\x04_key\"\x93\x01\n" +
 	"\vQueuePolicy\x12\x1b\n" +
 	"\tmax_items\x18\x01 \x01(\x05R\bmaxItems\x12\x15\n" +
-	"\x03key\x18\x02 \x01(\tH\x00R\x03key\x88\x01\x01B\x06\n" +
-	"\x04_key\"\x88\x01\n" +
+	"\x03key\x18\x02 \x01(\tH\x00R\x03key\x88\x01\x01\x121\n" +
+	"\x12result_ttl_seconds\x18\x03 \x01(\x05H\x01R\x10resultTtlSeconds\x88\x01\x01B\x06\n" +
+	"\x04_keyB\x15\n" +
+	"\x13_result_ttl_seconds\"\x88\x01\n" +
 	"\rTracingPolicy\x12A\n" +
 	"\x04mode\x18\x01 \x01(\x0e2-.chalk.externalfunctioncatalog.v1.TracingModeR\x04mode\x12$\n" +
 	"\vsample_rate\x18\x02 \x01(\x01H\x00R\n" +
