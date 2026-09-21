@@ -202,6 +202,7 @@ type TrainingRun struct {
 	CreatedAt     *timestamppb.Timestamp     `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	EnvironmentId string                     `protobuf:"bytes,16,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	DeploymentId  string                     `protobuf:"bytes,17,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	ExperimentId  *string                    `protobuf:"bytes,18,opt,name=experiment_id,json=experimentId,proto3,oneof" json:"experiment_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -355,6 +356,13 @@ func (x *TrainingRun) GetDeploymentId() string {
 	return ""
 }
 
+func (x *TrainingRun) GetExperimentId() string {
+	if x != nil && x.ExperimentId != nil {
+		return *x.ExperimentId
+	}
+	return ""
+}
+
 type CreateTrainingRunRequest struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Name          *string                    `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
@@ -368,6 +376,7 @@ type CreateTrainingRunRequest struct {
 	VolumeCommits []*v2.CommitIntent         `protobuf:"bytes,9,rep,name=volume_commits,json=volumeCommits,proto3" json:"volume_commits,omitempty"`
 	MaxRetries    *int32                     `protobuf:"varint,10,opt,name=max_retries,json=maxRetries,proto3,oneof" json:"max_retries,omitempty"`
 	VolumeMounts  []*v1.VolumeMount          `protobuf:"bytes,11,rep,name=volume_mounts,json=volumeMounts,proto3" json:"volume_mounts,omitempty"`
+	ExperimentId  *string                    `protobuf:"bytes,12,opt,name=experiment_id,json=experimentId,proto3,oneof" json:"experiment_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -477,6 +486,13 @@ func (x *CreateTrainingRunRequest) GetVolumeMounts() []*v1.VolumeMount {
 		return x.VolumeMounts
 	}
 	return nil
+}
+
+func (x *CreateTrainingRunRequest) GetExperimentId() string {
+	if x != nil && x.ExperimentId != nil {
+		return *x.ExperimentId
+	}
+	return ""
 }
 
 type CreateTrainingRunResponse struct {
@@ -618,6 +634,7 @@ type ListTrainingRunsFilters struct {
 	StartTime     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
 	EndTime       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
 	TrainingRunId *string                `protobuf:"bytes,5,opt,name=training_run_id,json=trainingRunId,proto3,oneof" json:"training_run_id,omitempty"`
+	ExperimentId  *string                `protobuf:"bytes,6,opt,name=experiment_id,json=experimentId,proto3,oneof" json:"experiment_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -683,6 +700,13 @@ func (x *ListTrainingRunsFilters) GetEndTime() *timestamppb.Timestamp {
 func (x *ListTrainingRunsFilters) GetTrainingRunId() string {
 	if x != nil && x.TrainingRunId != nil {
 		return *x.TrainingRunId
+	}
+	return ""
+}
+
+func (x *ListTrainingRunsFilters) GetExperimentId() string {
+	if x != nil && x.ExperimentId != nil {
+		return *x.ExperimentId
 	}
 	return ""
 }
@@ -1536,7 +1560,7 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\fdataset_name\x18\x01 \x01(\tH\x00R\vdatasetName\x12\x17\n" +
 	"\x06s3_uri\x18\x02 \x01(\tH\x00R\x05s3Uri\x12\x1d\n" +
 	"\tinput_sql\x18\x03 \x01(\tH\x00R\binputSqlB\b\n" +
-	"\x06source\"\x9b\b\n" +
+	"\x06source\"\xd7\b\n" +
 	"\vTrainingRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12:\n" +
@@ -1559,7 +1583,8 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12%\n" +
 	"\x0eenvironment_id\x18\x10 \x01(\tR\renvironmentId\x12#\n" +
-	"\rdeployment_id\x18\x11 \x01(\tR\fdeploymentId\x1a6\n" +
+	"\rdeployment_id\x18\x11 \x01(\tR\fdeploymentId\x12(\n" +
+	"\rexperiment_id\x18\x12 \x01(\tH\x04R\fexperimentId\x88\x01\x01\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aS\n" +
@@ -1569,7 +1594,8 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\x0e_error_messageB\r\n" +
 	"\v_started_atB\x0f\n" +
 	"\r_finalized_atB\r\n" +
-	"\v_created_by\"\xbb\x06\n" +
+	"\v_created_byB\x10\n" +
+	"\x0e_experiment_id\"\xf7\x06\n" +
 	"\x18CreateTrainingRunRequest\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12:\n" +
 	"\x04data\x18\x02 \x01(\v2&.chalk.server.v1.TrainingRunDataSourceR\x04data\x12/\n" +
@@ -1584,7 +1610,8 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\vmax_retries\x18\n" +
 	" \x01(\x05H\x02R\n" +
 	"maxRetries\x88\x01\x01\x12D\n" +
-	"\rvolume_mounts\x18\v \x03(\v2\x1f.chalk.container.v1.VolumeMountR\fvolumeMounts\x1a6\n" +
+	"\rvolume_mounts\x18\v \x03(\v2\x1f.chalk.container.v1.VolumeMountR\fvolumeMounts\x12(\n" +
+	"\rexperiment_id\x18\f \x01(\tH\x03R\fexperimentId\x88\x01\x01\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aS\n" +
@@ -1593,25 +1620,28 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\a\n" +
 	"\x05_nameB\b\n" +
 	"\x06_imageB\x0e\n" +
-	"\f_max_retries\"\\\n" +
+	"\f_max_retriesB\x10\n" +
+	"\x0e_experiment_id\"\\\n" +
 	"\x19CreateTrainingRunResponse\x12?\n" +
 	"\ftraining_run\x18\x01 \x01(\v2\x1c.chalk.server.v1.TrainingRunR\vtrainingRun\"?\n" +
 	"\x15GetTrainingRunRequest\x12&\n" +
 	"\x0ftraining_run_id\x18\x01 \x01(\tR\rtrainingRunId\"o\n" +
 	"\x16GetTrainingRunResponse\x12D\n" +
 	"\ftraining_run\x18\x01 \x01(\v2\x1c.chalk.server.v1.TrainingRunH\x00R\vtrainingRun\x88\x01\x01B\x0f\n" +
-	"\r_training_run\"\xd4\x02\n" +
+	"\r_training_run\"\x90\x03\n" +
 	"\x17ListTrainingRunsFilters\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12>\n" +
 	"\bstatuses\x18\x02 \x03(\x0e2\".chalk.server.v1.TrainingRunStatusR\bstatuses\x12>\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\aendTime\x88\x01\x01\x12+\n" +
-	"\x0ftraining_run_id\x18\x05 \x01(\tH\x03R\rtrainingRunId\x88\x01\x01B\a\n" +
+	"\x0ftraining_run_id\x18\x05 \x01(\tH\x03R\rtrainingRunId\x88\x01\x01\x12(\n" +
+	"\rexperiment_id\x18\x06 \x01(\tH\x04R\fexperimentId\x88\x01\x01B\a\n" +
 	"\x05_nameB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\x12\n" +
-	"\x10_training_run_id\"\xaa\x01\n" +
+	"\x10_training_run_idB\x10\n" +
+	"\x0e_experiment_id\"\xaa\x01\n" +
 	"\x17ListTrainingRunsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12B\n" +
