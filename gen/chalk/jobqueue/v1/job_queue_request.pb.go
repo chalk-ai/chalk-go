@@ -3912,11 +3912,9 @@ type PlannerOptions struct {
 	// Deprecated: MSSQL always plans through native SQL operators, so this option is ignored.
 	//
 	// Deprecated: Marked as deprecated in chalk/jobqueue/v1/job_queue_request.proto.
-	UseNativeMssqlOperators     *bool `protobuf:"varint,32,opt,name=use_native_mssql_operators,json=useNativeMssqlOperators,proto3,oneof" json:"use_native_mssql_operators,omitempty"`
-	UseNativeRedshiftOperators  *bool `protobuf:"varint,33,opt,name=use_native_redshift_operators,json=useNativeRedshiftOperators,proto3,oneof" json:"use_native_redshift_operators,omitempty"`
-	UseNativeSnowflakeOperators *bool `protobuf:"varint,34,opt,name=use_native_snowflake_operators,json=useNativeSnowflakeOperators,proto3,oneof" json:"use_native_snowflake_operators,omitempty"`
-	// Athena plans through the native UNLOAD driver only when this is set; it ignores use_native_sql_operators.
-	UseNativeAthenaOperators                             *bool                      `protobuf:"varint,136,opt,name=use_native_athena_operators,json=useNativeAthenaOperators,proto3,oneof" json:"use_native_athena_operators,omitempty"`
+	UseNativeMssqlOperators                              *bool                      `protobuf:"varint,32,opt,name=use_native_mssql_operators,json=useNativeMssqlOperators,proto3,oneof" json:"use_native_mssql_operators,omitempty"`
+	UseNativeRedshiftOperators                           *bool                      `protobuf:"varint,33,opt,name=use_native_redshift_operators,json=useNativeRedshiftOperators,proto3,oneof" json:"use_native_redshift_operators,omitempty"`
+	UseNativeSnowflakeOperators                          *bool                      `protobuf:"varint,34,opt,name=use_native_snowflake_operators,json=useNativeSnowflakeOperators,proto3,oneof" json:"use_native_snowflake_operators,omitempty"`
 	SqlApplyRewritersToResolversWithoutStaticDataSources *bool                      `protobuf:"varint,35,opt,name=sql_apply_rewriters_to_resolvers_without_static_data_sources,json=sqlApplyRewritersToResolversWithoutStaticDataSources,proto3,oneof" json:"sql_apply_rewriters_to_resolvers_without_static_data_sources,omitempty"`
 	SqlOperatorAllowPostgresParams                       *bool                      `protobuf:"varint,36,opt,name=sql_operator_allow_postgres_params,json=sqlOperatorAllowPostgresParams,proto3,oneof" json:"sql_operator_allow_postgres_params,omitempty"`
 	SqlOperatorRetryAttempts                             *int64                     `protobuf:"varint,37,opt,name=sql_operator_retry_attempts,json=sqlOperatorRetryAttempts,proto3,oneof" json:"sql_operator_retry_attempts,omitempty"`
@@ -4342,13 +4340,6 @@ func (x *PlannerOptions) GetUseNativeRedshiftOperators() bool {
 func (x *PlannerOptions) GetUseNativeSnowflakeOperators() bool {
 	if x != nil && x.UseNativeSnowflakeOperators != nil {
 		return *x.UseNativeSnowflakeOperators
-	}
-	return false
-}
-
-func (x *PlannerOptions) GetUseNativeAthenaOperators() bool {
-	if x != nil && x.UseNativeAthenaOperators != nil {
-		return *x.UseNativeAthenaOperators
 	}
 	return false
 }
@@ -5749,7 +5740,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xb4y\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xcex\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5786,109 +5777,108 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x1duse_native_bigquery_operators\x18\x1f \x01(\bH\x1eR\x1auseNativeBigqueryOperators\x88\x01\x01\x12D\n" +
 	"\x1ause_native_mssql_operators\x18  \x01(\bB\x02\x18\x01H\x1fR\x17useNativeMssqlOperators\x88\x01\x01\x12F\n" +
 	"\x1duse_native_redshift_operators\x18! \x01(\bH R\x1auseNativeRedshiftOperators\x88\x01\x01\x12H\n" +
-	"\x1euse_native_snowflake_operators\x18\" \x01(\bH!R\x1buseNativeSnowflakeOperators\x88\x01\x01\x12C\n" +
-	"\x1buse_native_athena_operators\x18\x88\x01 \x01(\bH\"R\x18useNativeAthenaOperators\x88\x01\x01\x12\x7f\n" +
-	"<sql_apply_rewriters_to_resolvers_without_static_data_sources\x18# \x01(\bH#R4sqlApplyRewritersToResolversWithoutStaticDataSources\x88\x01\x01\x12O\n" +
-	"\"sql_operator_allow_postgres_params\x18$ \x01(\bH$R\x1esqlOperatorAllowPostgresParams\x88\x01\x01\x12B\n" +
-	"\x1bsql_operator_retry_attempts\x18% \x01(\x03H%R\x18sqlOperatorRetryAttempts\x88\x01\x01\x12A\n" +
-	"\x1bsql_operator_retry_delay_ms\x18& \x01(\x03H&R\x17sqlOperatorRetryDelayMs\x88\x01\x01\x12G\n" +
-	"\x1esql_operator_retry_exp_backoff\x18' \x01(\x01H'R\x1asqlOperatorRetryExpBackoff\x88\x01\x01\x12f\n" +
-	".sql_operator_connection_acquisition_timeout_ms\x18( \x01(\x03H(R)sqlOperatorConnectionAcquisitionTimeoutMs\x88\x01\x01\x12a\n" +
-	"-sql_operator_emit_valid_nulls_for_one_or_none\x18) \x01(\bH)R%sqlOperatorEmitValidNullsForOneOrNone\x88\x01\x01\x12P\n" +
-	"#sql_operator_use_microbatch_sql_udf\x18* \x01(\bH*R\x1esqlOperatorUseMicrobatchSqlUdf\x88\x01\x01\x12V\n" +
-	"&target_offline_store_lookup_batch_size\x18+ \x01(\x03H+R!targetOfflineStoreLookupBatchSize\x88\x01\x01\x12N\n" +
-	"\"velox_max_output_buffer_size_bytes\x18, \x01(\x03H,R\x1dveloxMaxOutputBufferSizeBytes\x88\x01\x01\x12O\n" +
-	"\"velox_preferred_output_batch_bytes\x18- \x01(\x03H-R\x1eveloxPreferredOutputBatchBytes\x88\x01\x01\x12M\n" +
-	"!velox_preferred_output_batch_rows\x18. \x01(\x03H.R\x1dveloxPreferredOutputBatchRows\x88\x01\x01\x12A\n" +
-	"\x1bvelox_max_output_batch_rows\x18/ \x01(\x03H/R\x17veloxMaxOutputBatchRows\x88\x01\x01\x12<\n" +
-	"\x18velox_use_filtered_joins\x180 \x01(\bH0R\x15veloxUseFilteredJoins\x88\x01\x01\x128\n" +
-	"\x16velox_use_pre_grouping\x181 \x01(\bH1R\x13veloxUsePreGrouping\x88\x01\x01\x12D\n" +
-	"\x1dvelox_use_zero_copy_hash_join\x182 \x01(\bH2R\x18veloxUseZeroCopyHashJoin\x88\x01\x01\x12<\n" +
-	"\x18use_velox_parquet_reader\x183 \x01(\bH3R\x15useVeloxParquetReader\x88\x01\x01\x12<\n" +
-	"\x18use_window_temporal_join\x184 \x01(\bH4R\x15useWindowTemporalJoin\x88\x01\x01\x12Z\n" +
-	"'enable_combine_aggregation_optimization\x185 \x01(\bH5R$enableCombineAggregationOptimization\x88\x01\x01\x127\n" +
-	"\x15publish_value_metrics\x186 \x01(\bH6R\x13publishValueMetrics\x88\x01\x01\x12J\n" +
-	"\x1fvalue_metrics_relative_accuracy\x187 \x01(\x01H7R\x1cvalueMetricsRelativeAccuracy\x88\x01\x01\x12Q\n" +
-	"#value_metrics_aggregation_window_ms\x188 \x01(\x03H8R\x1fvalueMetricsAggregationWindowMs\x88\x01\x01\x12B\n" +
-	"\x1balways_union_static_filters\x189 \x01(\bH9R\x18alwaysUnionStaticFilters\x88\x01\x01\x12]\n" +
-	"*skip_rewriter_inputs_for_non_sql_resolvers\x18: \x01(\bH:R$skipRewriterInputsForNonSqlResolvers\x88\x01\x01\x12\x8d\x01\n" +
-	"+skip_rewriter_inputs_for_resolvers_override\x18; \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListH;R&skipRewriterInputsForResolversOverride\x88\x01\x01\x12j\n" +
-	"1skip_has_one_cache_short_circuiting_rewrite_rules\x18< \x01(\bH<R*skipHasOneCacheShortCircuitingRewriteRules\x88\x01\x01\x12R\n" +
-	"$coalesce_has_one_spine_query_lookups\x18= \x01(\bH=R\x1fcoalesceHasOneSpineQueryLookups\x88\x01\x01\x12c\n" +
-	"-parquet_writer_buffer_size_batches_per_driver\x18> \x01(\x03H>R'parquetWriterBufferSizeBatchesPerDriver\x88\x01\x01\x126\n" +
-	"\x15io_prefetch_num_files\x18? \x01(\x03H?R\x12ioPrefetchNumFiles\x88\x01\x01\x125\n" +
-	"\x14persist_values_async\x18@ \x01(\bH@R\x12persistValuesAsync\x88\x01\x01\x12D\n" +
-	"\x1cpersist_values_offline_store\x18A \x01(\bHAR\x19persistValuesOfflineStore\x88\x01\x01\x12L\n" +
-	" persist_statistics_offline_query\x18B \x01(\bHBR\x1dpersistStatisticsOfflineQuery\x88\x01\x01\x129\n" +
-	"\x16persist_values_parquet\x18C \x01(\bHCR\x14persistValuesParquet\x88\x01\x01\x12@\n" +
-	"\x1apersist_givens_inside_plan\x18D \x01(\bHDR\x17persistGivensInsidePlan\x88\x01\x01\x12c\n" +
-	"-write_offline_storage_files_prefixed_by_table\x18E \x01(\bHER'writeOfflineStorageFilesPrefixedByTable\x88\x01\x01\x12I\n" +
-	"\x1fscope_feature_time_to_namespace\x18F \x01(\bHFR\x1bscopeFeatureTimeToNamespace\x88\x01\x01\x12V\n" +
-	"&use_execution_ts_as_output_featuretime\x18G \x01(\bHGR!useExecutionTsAsOutputFeaturetime\x88\x01\x01\x12=\n" +
-	"\x18report_operator_progress\x18H \x01(\bHHR\x16reportOperatorProgress\x88\x01\x01\x12;\n" +
-	"\x17skip_runtime_validation\x18I \x01(\bHIR\x15skipRuntimeValidation\x88\x01\x01\x12.\n" +
-	"\x10invoker_strategy\x18J \x01(\tHJR\x0finvokerStrategy\x88\x01\x01\x12I\n" +
-	"\x1fdataset_scan_rechunk_batch_size\x18K \x01(\x03HKR\x1bdatasetScanRechunkBatchSize\x88\x01\x01\x12~\n" +
-	"#persist_values_parquet_partition_by\x18L \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListHLR\x1fpersistValuesParquetPartitionBy\x88\x01\x01\x12h\n" +
-	"0persist_values_parquet_target_per_file_row_count\x18M \x01(\x03HMR)persistValuesParquetTargetPerFileRowCount\x88\x01\x01\x126\n" +
-	"\x14resolver_parallelism\x18N \x01(\x03HNR\x13resolverParallelism\x88\x01\x01\x12@\n" +
-	"\x1aauto_static_convert_python\x18O \x01(\bHOR\x17autoStaticConvertPython\x88\x01\x01\x12M\n" +
-	"!auto_static_convert_python_unsafe\x18P \x01(\bHPR\x1dautoStaticConvertPythonUnsafe\x88\x01\x01\x127\n" +
-	"\x15store_timeline_traces\x18Q \x01(\bHQR\x13storeTimelineTraces\x88\x01\x01\x12F\n" +
-	"\x1dexplain_include_physical_plan\x18R \x01(\bHRR\x1aexplainIncludePhysicalPlan\x88\x01\x01\x12.\n" +
-	"\x10disable_spooling\x18S \x01(\bHSR\x0fdisableSpooling\x88\x01\x01\x123\n" +
-	"\x14oom_slim_hm_by_dates\x18T \x01(\bHTR\x10oomSlimHmByDates\x88\x01\x01\x123\n" +
-	"\x13eager_join_matching\x18U \x01(\bHUR\x11eagerJoinMatching\x88\x01\x01\x12?\n" +
-	"\x1ause_pa_for_vectorized_args\x18V \x01(\bHVR\x16usePaForVectorizedArgs\x88\x01\x01\x12P\n" +
-	"#needs_pkey_feature_values_in_inputs\x18W \x01(\bHWR\x1eneedsPkeyFeatureValuesInInputs\x88\x01\x01\x12:\n" +
-	"\x18oom_slim_hm_by_join_keys\x18X \x01(\bHXR\x13oomSlimHmByJoinKeys\x88\x01\x01\x12@\n" +
-	"\x1bshort_circuit_on_no_hm_rows\x18Y \x01(\bHYR\x16shortCircuitOnNoHmRows\x88\x01\x01\x12I\n" +
-	" oom_max_num_inputs_per_hm_sample\x18Z \x01(\x03HZR\x1aoomMaxNumInputsPerHmSample\x88\x01\x01\x12S\n" +
-	"$skip_batch_filter_partitioning_logic\x18[ \x01(\bH[R skipBatchFilterPartitioningLogic\x88\x01\x01\x12A\n" +
-	"\x1askip_relationship_distinct\x18\\ \x01(\bH\\R\x18skipRelationshipDistinct\x88\x01\x01\x127\n" +
-	"\x15update_streaming_aggs\x18] \x01(\bH]R\x13updateStreamingAggs\x88\x01\x01\x12<\n" +
-	"\x18pack_groups_into_structs\x18^ \x01(\bH^R\x15packGroupsIntoStructs\x88\x01\x01\x12C\n" +
-	"\x1cpack_groups_avoid_large_list\x18_ \x01(\bH_R\x18packGroupsAvoidLargeList\x88\x01\x01\x12a\n" +
-	"+update_performance_summary_interval_seconds\x18` \x01(\x01H`R'updatePerformanceSummaryIntervalSeconds\x88\x01\x01\x12h\n" +
-	"/align_offline_chalk_window_with_materialization\x18a \x01(\bHaR*alignOfflineChalkWindowWithMaterialization\x88\x01\x01\x12\x8d\x01\n" +
-	"+use_materialized_offline_query_for_features\x18b \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListHbR&useMaterializedOfflineQueryForFeatures\x88\x01\x01\x12H\n" +
-	"\x1euse_materialized_offline_query\x18c \x01(\bHcR\x1buseMaterializedOfflineQuery\x88\x01\x01\x12)\n" +
-	"\x0euse_tile_store\x18d \x01(\bHdR\fuseTileStore\x88\x01\x01\x12\x86\x01\n" +
-	"'disable_continuous_queries_for_features\x18e \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListHeR#disableContinuousQueriesForFeatures\x88\x01\x01\x12A\n" +
-	"\x1adisable_continuous_queries\x18f \x01(\bHfR\x18disableContinuousQueries\x88\x01\x01\x12I\n" +
-	"\x1fdefer_non_bus_persist_operators\x18g \x01(\bHgR\x1bdeferNonBusPersistOperators\x88\x01\x01\x12;\n" +
-	"\x17static_bulk_persistence\x18h \x01(\bHhR\x15staticBulkPersistence\x88\x01\x01\x12R\n" +
-	"#record_intermediate_feature_metrics\x18i \x01(\bHiR recordIntermediateFeatureMetrics\x88\x01\x01\x123\n" +
-	"\x13logical_rule_string\x18j \x01(\tHjR\x11logicalRuleString\x88\x01\x01\x12m\n" +
-	"\x19extra_compilation_options\x18k \x01(\v2,.chalk.jobqueue.v1.PlannerOptionsStringPairsHkR\x17extraCompilationOptions\x88\x01\x01\x12P\n" +
-	"\"render_symbolic_python_expressions\x18l \x01(\bHlR\x1frenderSymbolicPythonExpressions\x88\x01\x01\x12\x84\x01\n" +
-	"&excluded_offline_store_operation_kinds\x18m \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListHmR\"excludedOfflineStoreOperationKinds\x88\x01\x01\x12C\n" +
-	"\x1cuse_chalkdf_has_many_sampler\x18n \x01(\bHnR\x18useChalkdfHasManySampler\x88\x01\x01\x12h\n" +
-	"/preserve_filters_after_df_resolver_assimilation\x18o \x01(\bHoR*preserveFiltersAfterDfResolverAssimilation\x88\x01\x01\x123\n" +
-	"\x13skip_online_storage\x18p \x01(\bHpR\x11skipOnlineStorage\x88\x01\x01\x12?\n" +
-	"\x19include_offline_resolvers\x18q \x01(\bHqR\x17includeOfflineResolvers\x88\x01\x01\x12D\n" +
-	"\x1cinvoker_uses_strict_timeouts\x18r \x01(\bHrR\x19invokerUsesStrictTimeouts\x88\x01\x01\x12j\n" +
-	"1sql_use_postgres_array_params_for_givens_pushdown\x18s \x01(\bHsR*sqlUsePostgresArrayParamsForGivensPushdown\x88\x01\x01\x12Y\n" +
-	"'omit_replay_during_combine_aggregations\x18t \x01(\bHtR#omitReplayDuringCombineAggregations\x88\x01\x01\x12J\n" +
-	"\x1fdistinct_event_ties_arbitrarily\x18u \x01(\bHuR\x1cdistinctEventTiesArbitrarily\x88\x01\x01\x12H\n" +
-	"\x1eunify_tile_window_aggregations\x18v \x01(\bHvR\x1bunifyTileWindowAggregations\x88\x01\x01\x12^\n" +
-	"*exclude_overlapping_input_events_from_aggs\x18w \x01(\bHwR%excludeOverlappingInputEventsFromAggs\x88\x01\x01\x123\n" +
-	"\x13stream_resolver_fqn\x18x \x01(\tHxR\x11streamResolverFqn\x88\x01\x01\x12J\n" +
-	"\x1fskip_incremental_query_distinct\x18y \x01(\bHyR\x1cskipIncrementalQueryDistinct\x88\x01\x01\x12l\n" +
-	"1use_streaming_distinct_for_incremental_population\x18z \x01(\bHzR,useStreamingDistinctForIncrementalPopulation\x88\x01\x01\x123\n" +
-	"\x13static_dataset_scan\x18{ \x01(\bH{R\x11staticDatasetScan\x88\x01\x01\x12T\n" +
-	"&copy_has_many_inputs_based_on_join_key\x18| \x01(\bH|R\x1fcopyHasManyInputsBasedOnJoinKey\x88\x01\x01\x129\n" +
-	"\x16native_offline_persist\x18} \x01(\bH}R\x14nativeOfflinePersist\x88\x01\x01\x12N\n" +
-	"\"df_resolver_default_max_batch_size\x18~ \x01(\x03H~R\x1ddfResolverDefaultMaxBatchSize\x88\x01\x01\x12:\n" +
-	"\x17offline_store_wide_read\x18\x7f \x01(\tH\x7fR\x14offlineStoreWideRead\x88\x01\x01\x12Z\n" +
-	"\x12execution_strategy\x18\x80\x01 \x01(\x0e2$.chalk.jobqueue.v1.ExecutionStrategyH\x80\x01R\x11executionStrategy\x88\x01\x01\x12=\n" +
-	"\x18sub_plan_join_build_side\x18\x81\x01 \x01(\tH\x81\x01R\x14subPlanJoinBuildSide\x88\x01\x01\x12`\n" +
-	"*allow_missing_tile_store_trailing_coverage\x18\x82\x01 \x01(\bH\x82\x01R%allowMissingTileStoreTrailingCoverage\x88\x01\x01\x12D\n" +
-	"\x1bdefer_bus_persist_operators\x18\x83\x01 \x01(\bH\x83\x01R\x18deferBusPersistOperators\x88\x01\x01\x12B\n" +
-	"\x1aoffline_query_table_writer\x18\x84\x01 \x01(\bH\x84\x01R\x17offlineQueryTableWriter\x88\x01\x01\x12B\n" +
-	"\x1askip_pure_optimistic_loads\x18\x85\x01 \x01(\bH\x85\x01R\x17skipPureOptimisticLoads\x88\x01\x01\x12d\n" +
-	",force_offline_store_recent_observations_read\x18\x86\x01 \x01(\bH\x86\x01R'forceOfflineStoreRecentObservationsRead\x88\x01\x01\x12&\n" +
-	"\vfetch_stats\x18\x87\x01 \x01(\bH\x87\x01R\n" +
+	"\x1euse_native_snowflake_operators\x18\" \x01(\bH!R\x1buseNativeSnowflakeOperators\x88\x01\x01\x12\x7f\n" +
+	"<sql_apply_rewriters_to_resolvers_without_static_data_sources\x18# \x01(\bH\"R4sqlApplyRewritersToResolversWithoutStaticDataSources\x88\x01\x01\x12O\n" +
+	"\"sql_operator_allow_postgres_params\x18$ \x01(\bH#R\x1esqlOperatorAllowPostgresParams\x88\x01\x01\x12B\n" +
+	"\x1bsql_operator_retry_attempts\x18% \x01(\x03H$R\x18sqlOperatorRetryAttempts\x88\x01\x01\x12A\n" +
+	"\x1bsql_operator_retry_delay_ms\x18& \x01(\x03H%R\x17sqlOperatorRetryDelayMs\x88\x01\x01\x12G\n" +
+	"\x1esql_operator_retry_exp_backoff\x18' \x01(\x01H&R\x1asqlOperatorRetryExpBackoff\x88\x01\x01\x12f\n" +
+	".sql_operator_connection_acquisition_timeout_ms\x18( \x01(\x03H'R)sqlOperatorConnectionAcquisitionTimeoutMs\x88\x01\x01\x12a\n" +
+	"-sql_operator_emit_valid_nulls_for_one_or_none\x18) \x01(\bH(R%sqlOperatorEmitValidNullsForOneOrNone\x88\x01\x01\x12P\n" +
+	"#sql_operator_use_microbatch_sql_udf\x18* \x01(\bH)R\x1esqlOperatorUseMicrobatchSqlUdf\x88\x01\x01\x12V\n" +
+	"&target_offline_store_lookup_batch_size\x18+ \x01(\x03H*R!targetOfflineStoreLookupBatchSize\x88\x01\x01\x12N\n" +
+	"\"velox_max_output_buffer_size_bytes\x18, \x01(\x03H+R\x1dveloxMaxOutputBufferSizeBytes\x88\x01\x01\x12O\n" +
+	"\"velox_preferred_output_batch_bytes\x18- \x01(\x03H,R\x1eveloxPreferredOutputBatchBytes\x88\x01\x01\x12M\n" +
+	"!velox_preferred_output_batch_rows\x18. \x01(\x03H-R\x1dveloxPreferredOutputBatchRows\x88\x01\x01\x12A\n" +
+	"\x1bvelox_max_output_batch_rows\x18/ \x01(\x03H.R\x17veloxMaxOutputBatchRows\x88\x01\x01\x12<\n" +
+	"\x18velox_use_filtered_joins\x180 \x01(\bH/R\x15veloxUseFilteredJoins\x88\x01\x01\x128\n" +
+	"\x16velox_use_pre_grouping\x181 \x01(\bH0R\x13veloxUsePreGrouping\x88\x01\x01\x12D\n" +
+	"\x1dvelox_use_zero_copy_hash_join\x182 \x01(\bH1R\x18veloxUseZeroCopyHashJoin\x88\x01\x01\x12<\n" +
+	"\x18use_velox_parquet_reader\x183 \x01(\bH2R\x15useVeloxParquetReader\x88\x01\x01\x12<\n" +
+	"\x18use_window_temporal_join\x184 \x01(\bH3R\x15useWindowTemporalJoin\x88\x01\x01\x12Z\n" +
+	"'enable_combine_aggregation_optimization\x185 \x01(\bH4R$enableCombineAggregationOptimization\x88\x01\x01\x127\n" +
+	"\x15publish_value_metrics\x186 \x01(\bH5R\x13publishValueMetrics\x88\x01\x01\x12J\n" +
+	"\x1fvalue_metrics_relative_accuracy\x187 \x01(\x01H6R\x1cvalueMetricsRelativeAccuracy\x88\x01\x01\x12Q\n" +
+	"#value_metrics_aggregation_window_ms\x188 \x01(\x03H7R\x1fvalueMetricsAggregationWindowMs\x88\x01\x01\x12B\n" +
+	"\x1balways_union_static_filters\x189 \x01(\bH8R\x18alwaysUnionStaticFilters\x88\x01\x01\x12]\n" +
+	"*skip_rewriter_inputs_for_non_sql_resolvers\x18: \x01(\bH9R$skipRewriterInputsForNonSqlResolvers\x88\x01\x01\x12\x8d\x01\n" +
+	"+skip_rewriter_inputs_for_resolvers_override\x18; \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListH:R&skipRewriterInputsForResolversOverride\x88\x01\x01\x12j\n" +
+	"1skip_has_one_cache_short_circuiting_rewrite_rules\x18< \x01(\bH;R*skipHasOneCacheShortCircuitingRewriteRules\x88\x01\x01\x12R\n" +
+	"$coalesce_has_one_spine_query_lookups\x18= \x01(\bH<R\x1fcoalesceHasOneSpineQueryLookups\x88\x01\x01\x12c\n" +
+	"-parquet_writer_buffer_size_batches_per_driver\x18> \x01(\x03H=R'parquetWriterBufferSizeBatchesPerDriver\x88\x01\x01\x126\n" +
+	"\x15io_prefetch_num_files\x18? \x01(\x03H>R\x12ioPrefetchNumFiles\x88\x01\x01\x125\n" +
+	"\x14persist_values_async\x18@ \x01(\bH?R\x12persistValuesAsync\x88\x01\x01\x12D\n" +
+	"\x1cpersist_values_offline_store\x18A \x01(\bH@R\x19persistValuesOfflineStore\x88\x01\x01\x12L\n" +
+	" persist_statistics_offline_query\x18B \x01(\bHAR\x1dpersistStatisticsOfflineQuery\x88\x01\x01\x129\n" +
+	"\x16persist_values_parquet\x18C \x01(\bHBR\x14persistValuesParquet\x88\x01\x01\x12@\n" +
+	"\x1apersist_givens_inside_plan\x18D \x01(\bHCR\x17persistGivensInsidePlan\x88\x01\x01\x12c\n" +
+	"-write_offline_storage_files_prefixed_by_table\x18E \x01(\bHDR'writeOfflineStorageFilesPrefixedByTable\x88\x01\x01\x12I\n" +
+	"\x1fscope_feature_time_to_namespace\x18F \x01(\bHER\x1bscopeFeatureTimeToNamespace\x88\x01\x01\x12V\n" +
+	"&use_execution_ts_as_output_featuretime\x18G \x01(\bHFR!useExecutionTsAsOutputFeaturetime\x88\x01\x01\x12=\n" +
+	"\x18report_operator_progress\x18H \x01(\bHGR\x16reportOperatorProgress\x88\x01\x01\x12;\n" +
+	"\x17skip_runtime_validation\x18I \x01(\bHHR\x15skipRuntimeValidation\x88\x01\x01\x12.\n" +
+	"\x10invoker_strategy\x18J \x01(\tHIR\x0finvokerStrategy\x88\x01\x01\x12I\n" +
+	"\x1fdataset_scan_rechunk_batch_size\x18K \x01(\x03HJR\x1bdatasetScanRechunkBatchSize\x88\x01\x01\x12~\n" +
+	"#persist_values_parquet_partition_by\x18L \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListHKR\x1fpersistValuesParquetPartitionBy\x88\x01\x01\x12h\n" +
+	"0persist_values_parquet_target_per_file_row_count\x18M \x01(\x03HLR)persistValuesParquetTargetPerFileRowCount\x88\x01\x01\x126\n" +
+	"\x14resolver_parallelism\x18N \x01(\x03HMR\x13resolverParallelism\x88\x01\x01\x12@\n" +
+	"\x1aauto_static_convert_python\x18O \x01(\bHNR\x17autoStaticConvertPython\x88\x01\x01\x12M\n" +
+	"!auto_static_convert_python_unsafe\x18P \x01(\bHOR\x1dautoStaticConvertPythonUnsafe\x88\x01\x01\x127\n" +
+	"\x15store_timeline_traces\x18Q \x01(\bHPR\x13storeTimelineTraces\x88\x01\x01\x12F\n" +
+	"\x1dexplain_include_physical_plan\x18R \x01(\bHQR\x1aexplainIncludePhysicalPlan\x88\x01\x01\x12.\n" +
+	"\x10disable_spooling\x18S \x01(\bHRR\x0fdisableSpooling\x88\x01\x01\x123\n" +
+	"\x14oom_slim_hm_by_dates\x18T \x01(\bHSR\x10oomSlimHmByDates\x88\x01\x01\x123\n" +
+	"\x13eager_join_matching\x18U \x01(\bHTR\x11eagerJoinMatching\x88\x01\x01\x12?\n" +
+	"\x1ause_pa_for_vectorized_args\x18V \x01(\bHUR\x16usePaForVectorizedArgs\x88\x01\x01\x12P\n" +
+	"#needs_pkey_feature_values_in_inputs\x18W \x01(\bHVR\x1eneedsPkeyFeatureValuesInInputs\x88\x01\x01\x12:\n" +
+	"\x18oom_slim_hm_by_join_keys\x18X \x01(\bHWR\x13oomSlimHmByJoinKeys\x88\x01\x01\x12@\n" +
+	"\x1bshort_circuit_on_no_hm_rows\x18Y \x01(\bHXR\x16shortCircuitOnNoHmRows\x88\x01\x01\x12I\n" +
+	" oom_max_num_inputs_per_hm_sample\x18Z \x01(\x03HYR\x1aoomMaxNumInputsPerHmSample\x88\x01\x01\x12S\n" +
+	"$skip_batch_filter_partitioning_logic\x18[ \x01(\bHZR skipBatchFilterPartitioningLogic\x88\x01\x01\x12A\n" +
+	"\x1askip_relationship_distinct\x18\\ \x01(\bH[R\x18skipRelationshipDistinct\x88\x01\x01\x127\n" +
+	"\x15update_streaming_aggs\x18] \x01(\bH\\R\x13updateStreamingAggs\x88\x01\x01\x12<\n" +
+	"\x18pack_groups_into_structs\x18^ \x01(\bH]R\x15packGroupsIntoStructs\x88\x01\x01\x12C\n" +
+	"\x1cpack_groups_avoid_large_list\x18_ \x01(\bH^R\x18packGroupsAvoidLargeList\x88\x01\x01\x12a\n" +
+	"+update_performance_summary_interval_seconds\x18` \x01(\x01H_R'updatePerformanceSummaryIntervalSeconds\x88\x01\x01\x12h\n" +
+	"/align_offline_chalk_window_with_materialization\x18a \x01(\bH`R*alignOfflineChalkWindowWithMaterialization\x88\x01\x01\x12\x8d\x01\n" +
+	"+use_materialized_offline_query_for_features\x18b \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListHaR&useMaterializedOfflineQueryForFeatures\x88\x01\x01\x12H\n" +
+	"\x1euse_materialized_offline_query\x18c \x01(\bHbR\x1buseMaterializedOfflineQuery\x88\x01\x01\x12)\n" +
+	"\x0euse_tile_store\x18d \x01(\bHcR\fuseTileStore\x88\x01\x01\x12\x86\x01\n" +
+	"'disable_continuous_queries_for_features\x18e \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListHdR#disableContinuousQueriesForFeatures\x88\x01\x01\x12A\n" +
+	"\x1adisable_continuous_queries\x18f \x01(\bHeR\x18disableContinuousQueries\x88\x01\x01\x12I\n" +
+	"\x1fdefer_non_bus_persist_operators\x18g \x01(\bHfR\x1bdeferNonBusPersistOperators\x88\x01\x01\x12;\n" +
+	"\x17static_bulk_persistence\x18h \x01(\bHgR\x15staticBulkPersistence\x88\x01\x01\x12R\n" +
+	"#record_intermediate_feature_metrics\x18i \x01(\bHhR recordIntermediateFeatureMetrics\x88\x01\x01\x123\n" +
+	"\x13logical_rule_string\x18j \x01(\tHiR\x11logicalRuleString\x88\x01\x01\x12m\n" +
+	"\x19extra_compilation_options\x18k \x01(\v2,.chalk.jobqueue.v1.PlannerOptionsStringPairsHjR\x17extraCompilationOptions\x88\x01\x01\x12P\n" +
+	"\"render_symbolic_python_expressions\x18l \x01(\bHkR\x1frenderSymbolicPythonExpressions\x88\x01\x01\x12\x84\x01\n" +
+	"&excluded_offline_store_operation_kinds\x18m \x01(\v2+.chalk.jobqueue.v1.PlannerOptionsStringListHlR\"excludedOfflineStoreOperationKinds\x88\x01\x01\x12C\n" +
+	"\x1cuse_chalkdf_has_many_sampler\x18n \x01(\bHmR\x18useChalkdfHasManySampler\x88\x01\x01\x12h\n" +
+	"/preserve_filters_after_df_resolver_assimilation\x18o \x01(\bHnR*preserveFiltersAfterDfResolverAssimilation\x88\x01\x01\x123\n" +
+	"\x13skip_online_storage\x18p \x01(\bHoR\x11skipOnlineStorage\x88\x01\x01\x12?\n" +
+	"\x19include_offline_resolvers\x18q \x01(\bHpR\x17includeOfflineResolvers\x88\x01\x01\x12D\n" +
+	"\x1cinvoker_uses_strict_timeouts\x18r \x01(\bHqR\x19invokerUsesStrictTimeouts\x88\x01\x01\x12j\n" +
+	"1sql_use_postgres_array_params_for_givens_pushdown\x18s \x01(\bHrR*sqlUsePostgresArrayParamsForGivensPushdown\x88\x01\x01\x12Y\n" +
+	"'omit_replay_during_combine_aggregations\x18t \x01(\bHsR#omitReplayDuringCombineAggregations\x88\x01\x01\x12J\n" +
+	"\x1fdistinct_event_ties_arbitrarily\x18u \x01(\bHtR\x1cdistinctEventTiesArbitrarily\x88\x01\x01\x12H\n" +
+	"\x1eunify_tile_window_aggregations\x18v \x01(\bHuR\x1bunifyTileWindowAggregations\x88\x01\x01\x12^\n" +
+	"*exclude_overlapping_input_events_from_aggs\x18w \x01(\bHvR%excludeOverlappingInputEventsFromAggs\x88\x01\x01\x123\n" +
+	"\x13stream_resolver_fqn\x18x \x01(\tHwR\x11streamResolverFqn\x88\x01\x01\x12J\n" +
+	"\x1fskip_incremental_query_distinct\x18y \x01(\bHxR\x1cskipIncrementalQueryDistinct\x88\x01\x01\x12l\n" +
+	"1use_streaming_distinct_for_incremental_population\x18z \x01(\bHyR,useStreamingDistinctForIncrementalPopulation\x88\x01\x01\x123\n" +
+	"\x13static_dataset_scan\x18{ \x01(\bHzR\x11staticDatasetScan\x88\x01\x01\x12T\n" +
+	"&copy_has_many_inputs_based_on_join_key\x18| \x01(\bH{R\x1fcopyHasManyInputsBasedOnJoinKey\x88\x01\x01\x129\n" +
+	"\x16native_offline_persist\x18} \x01(\bH|R\x14nativeOfflinePersist\x88\x01\x01\x12N\n" +
+	"\"df_resolver_default_max_batch_size\x18~ \x01(\x03H}R\x1ddfResolverDefaultMaxBatchSize\x88\x01\x01\x12:\n" +
+	"\x17offline_store_wide_read\x18\x7f \x01(\tH~R\x14offlineStoreWideRead\x88\x01\x01\x12Y\n" +
+	"\x12execution_strategy\x18\x80\x01 \x01(\x0e2$.chalk.jobqueue.v1.ExecutionStrategyH\x7fR\x11executionStrategy\x88\x01\x01\x12=\n" +
+	"\x18sub_plan_join_build_side\x18\x81\x01 \x01(\tH\x80\x01R\x14subPlanJoinBuildSide\x88\x01\x01\x12`\n" +
+	"*allow_missing_tile_store_trailing_coverage\x18\x82\x01 \x01(\bH\x81\x01R%allowMissingTileStoreTrailingCoverage\x88\x01\x01\x12D\n" +
+	"\x1bdefer_bus_persist_operators\x18\x83\x01 \x01(\bH\x82\x01R\x18deferBusPersistOperators\x88\x01\x01\x12B\n" +
+	"\x1aoffline_query_table_writer\x18\x84\x01 \x01(\bH\x83\x01R\x17offlineQueryTableWriter\x88\x01\x01\x12B\n" +
+	"\x1askip_pure_optimistic_loads\x18\x85\x01 \x01(\bH\x84\x01R\x17skipPureOptimisticLoads\x88\x01\x01\x12d\n" +
+	",force_offline_store_recent_observations_read\x18\x86\x01 \x01(\bH\x85\x01R'forceOfflineStoreRecentObservationsRead\x88\x01\x01\x12&\n" +
+	"\vfetch_stats\x18\x87\x01 \x01(\bH\x86\x01R\n" +
 	"fetchStats\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
@@ -5923,8 +5913,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x1e_use_native_bigquery_operatorsB\x1d\n" +
 	"\x1b_use_native_mssql_operatorsB \n" +
 	"\x1e_use_native_redshift_operatorsB!\n" +
-	"\x1f_use_native_snowflake_operatorsB\x1e\n" +
-	"\x1c_use_native_athena_operatorsB?\n" +
+	"\x1f_use_native_snowflake_operatorsB?\n" +
 	"=_sql_apply_rewriters_to_resolvers_without_static_data_sourcesB%\n" +
 	"#_sql_operator_allow_postgres_paramsB\x1e\n" +
 	"\x1c_sql_operator_retry_attemptsB\x1e\n" +
