@@ -1031,6 +1031,58 @@ func (VectorCollectorRequestConcurrencyMode) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{18}
 }
 
+type TrafficZonalAffinity int32
+
+const (
+	// Uses CROSS_ZONE behavior until the configuration is hydrated.
+	TrafficZonalAffinity_TRAFFIC_ZONAL_AFFINITY_UNSPECIFIED TrafficZonalAffinity = 0
+	// Preserves the existing cross-zone load-balancing behavior.
+	TrafficZonalAffinity_TRAFFIC_ZONAL_AFFINITY_CROSS_ZONE TrafficZonalAffinity = 1
+	// Prefers traffic and upstream endpoints in the client's availability zone.
+	TrafficZonalAffinity_TRAFFIC_ZONAL_AFFINITY_LOCAL TrafficZonalAffinity = 2
+)
+
+// Enum value maps for TrafficZonalAffinity.
+var (
+	TrafficZonalAffinity_name = map[int32]string{
+		0: "TRAFFIC_ZONAL_AFFINITY_UNSPECIFIED",
+		1: "TRAFFIC_ZONAL_AFFINITY_CROSS_ZONE",
+		2: "TRAFFIC_ZONAL_AFFINITY_LOCAL",
+	}
+	TrafficZonalAffinity_value = map[string]int32{
+		"TRAFFIC_ZONAL_AFFINITY_UNSPECIFIED": 0,
+		"TRAFFIC_ZONAL_AFFINITY_CROSS_ZONE":  1,
+		"TRAFFIC_ZONAL_AFFINITY_LOCAL":       2,
+	}
+)
+
+func (x TrafficZonalAffinity) Enum() *TrafficZonalAffinity {
+	p := new(TrafficZonalAffinity)
+	*p = x
+	return p
+}
+
+func (x TrafficZonalAffinity) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TrafficZonalAffinity) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_builder_proto_enumTypes[19].Descriptor()
+}
+
+func (TrafficZonalAffinity) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_builder_proto_enumTypes[19]
+}
+
+func (x TrafficZonalAffinity) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TrafficZonalAffinity.Descriptor instead.
+func (TrafficZonalAffinity) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{19}
+}
+
 type ActivateDeploymentTarget struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	ServiceKind       string                 `protobuf:"bytes,1,opt,name=service_kind,json=serviceKind,proto3" json:"service_kind,omitempty"`
@@ -1553,7 +1605,10 @@ type StartShadowBuildFromDeploymentRequest struct {
 	// Pin the engine platform version for this shadow build (a tag/digest selector applied
 	// to the default engine base image, e.g. "v3.27.30"). When unset, the existing
 	// deployment's pinned platform version is inherited.
-	PlatformVersion *string  `protobuf:"bytes,5,opt,name=platform_version,json=platformVersion,proto3,oneof" json:"platform_version,omitempty"`
+	PlatformVersion *string `protobuf:"bytes,5,opt,name=platform_version,json=platformVersion,proto3,oneof" json:"platform_version,omitempty"`
+	// Internal shadow-build controls. Bare names preserve the legacy enable-only
+	// flag behavior. Key/value options support shadow_build_mode, publish_image,
+	// image_tag, shadow_run_id, and use_unconstrained_customer_venvs.
 	OverrideOptions []string `protobuf:"bytes,6,rep,name=override_options,json=overrideOptions,proto3" json:"override_options,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -1632,8 +1687,10 @@ func (x *StartShadowBuildFromDeploymentRequest) GetOverrideOptions() []string {
 }
 
 type StartShadowBuildFromDeploymentResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BuildId       string                 `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	BuildId string                 `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
+	// Fully qualified tagged image URI when the shadow build publishes an image.
+	ImageName     string `protobuf:"bytes,2,opt,name=image_name,json=imageName,proto3" json:"image_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1671,6 +1728,13 @@ func (*StartShadowBuildFromDeploymentResponse) Descriptor() ([]byte, []int) {
 func (x *StartShadowBuildFromDeploymentResponse) GetBuildId() string {
 	if x != nil {
 		return x.BuildId
+	}
+	return ""
+}
+
+func (x *StartShadowBuildFromDeploymentResponse) GetImageName() string {
+	if x != nil {
+		return x.ImageName
 	}
 	return ""
 }
@@ -6934,6 +6998,9 @@ type EnvoyGatewayProviderConfig struct {
 	IdleTimeoutSec                    *uint64           `protobuf:"varint,13,opt,name=idle_timeout_sec,json=idleTimeoutSec,proto3,oneof" json:"idle_timeout_sec,omitempty"`
 	// Issuer used by cert-manager to provision the Gateway's managed TLS certificate.
 	CertificateIssuerRef *CertManagerIssuerRef `protobuf:"bytes,14,opt,name=certificate_issuer_ref,json=certificateIssuerRef,proto3,oneof" json:"certificate_issuer_ref,omitempty"`
+	// Controls whether traffic may cross availability zones or should prefer the local zone.
+	// Unset values are treated as CROSS_ZONE for backward compatibility.
+	TrafficZonalAffinity TrafficZonalAffinity `protobuf:"varint,15,opt,name=traffic_zonal_affinity,json=trafficZonalAffinity,proto3,enum=chalk.server.v1.TrafficZonalAffinity" json:"traffic_zonal_affinity,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -7065,6 +7132,13 @@ func (x *EnvoyGatewayProviderConfig) GetCertificateIssuerRef() *CertManagerIssue
 		return x.CertificateIssuerRef
 	}
 	return nil
+}
+
+func (x *EnvoyGatewayProviderConfig) GetTrafficZonalAffinity() TrafficZonalAffinity {
+	if x != nil {
+		return x.TrafficZonalAffinity
+	}
+	return TrafficZonalAffinity_TRAFFIC_ZONAL_AFFINITY_UNSPECIFIED
 }
 
 type GCPGatewayProviderConfig struct {
@@ -11219,8 +11293,11 @@ type ClickHouseSpec struct {
 	//
 	// The telemetry builder deploys ClickHouse as the storage backend for the
 	// telemetry stack, alongside the OTEL collector and aggregator.
-	ClickHouseVersion string              `protobuf:"bytes,1,opt,name=click_house_version,json=clickHouseVersion,proto3" json:"click_house_version,omitempty"`
-	Request           *KubeResourceConfig `protobuf:"bytes,2,opt,name=request,proto3,oneof" json:"request,omitempty"`
+	ClickHouseVersion string `protobuf:"bytes,1,opt,name=click_house_version,json=clickHouseVersion,proto3" json:"click_house_version,omitempty"`
+	// Deprecated: use chalk_machine_type. Retained for clusters that do not support machine types.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
+	Request *KubeResourceConfig `protobuf:"bytes,2,opt,name=request,proto3,oneof" json:"request,omitempty"`
 	// Deprecated: ignored when sizing ClickHouse manually. The request is used as both the
 	// Kubernetes request and limit. Chalk machine types and recognized instance types derive their
 	// own requests and limits.
@@ -11283,6 +11360,7 @@ func (x *ClickHouseSpec) GetClickHouseVersion() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 func (x *ClickHouseSpec) GetRequest() *KubeResourceConfig {
 	if x != nil {
 		return x.Request
@@ -11378,7 +11456,11 @@ type VictoriaMetricsSpec struct {
 	// Number of vmauth instances. Defaults to 1.
 	AuthReplicas *int32 `protobuf:"varint,16,opt,name=auth_replicas,json=authReplicas,proto3,oneof" json:"auth_replicas,omitempty"`
 	// Resource requests for vmauth pods. Unset values inherit from request.
-	AuthRequest   *KubeResourceConfig `protobuf:"bytes,17,opt,name=auth_request,json=authRequest,proto3,oneof" json:"auth_request,omitempty"`
+	AuthRequest *KubeResourceConfig `protobuf:"bytes,17,opt,name=auth_request,json=authRequest,proto3,oneof" json:"auth_request,omitempty"`
+	// Tuning for the Vector pod that queries selected metrics from VictoriaMetrics
+	// and exports them to Chalk's Datadog account. The pod is deployed whenever
+	// both VictoriaMetrics and the Vector telemetry runtime are active.
+	DatadogExport *VictoriaMetricsDatadogExportSpec `protobuf:"bytes,18,opt,name=datadog_export,json=datadogExport,proto3,oneof" json:"datadog_export,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -11532,6 +11614,86 @@ func (x *VictoriaMetricsSpec) GetAuthRequest() *KubeResourceConfig {
 	return nil
 }
 
+func (x *VictoriaMetricsSpec) GetDatadogExport() *VictoriaMetricsDatadogExportSpec {
+	if x != nil {
+		return x.DatadogExport
+	}
+	return nil
+}
+
+type VictoriaMetricsDatadogExportSpec struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Resource requests for the VictoriaMetrics-to-Datadog Vector pod. CPU
+	// defaults to 100m and memory defaults to 128Mi when unset.
+	Request *KubeResourceConfig `protobuf:"bytes,1,opt,name=request,proto3,oneof" json:"request,omitempty"`
+	// Optional resource limits for the VictoriaMetrics-to-Datadog Vector pod.
+	Limit *KubeResourceConfig `protobuf:"bytes,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// How often Vector queries VictoriaMetrics, in seconds. Defaults to 60.
+	QueryIntervalSeconds *uint32 `protobuf:"varint,3,opt,name=query_interval_seconds,json=queryIntervalSeconds,proto3,oneof" json:"query_interval_seconds,omitempty"`
+	// Whether to deploy the VictoriaMetrics-to-Datadog exporter. Defaults to true.
+	Enabled       *bool `protobuf:"varint,4,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VictoriaMetricsDatadogExportSpec) Reset() {
+	*x = VictoriaMetricsDatadogExportSpec{}
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[131]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VictoriaMetricsDatadogExportSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VictoriaMetricsDatadogExportSpec) ProtoMessage() {}
+
+func (x *VictoriaMetricsDatadogExportSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[131]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VictoriaMetricsDatadogExportSpec.ProtoReflect.Descriptor instead.
+func (*VictoriaMetricsDatadogExportSpec) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{131}
+}
+
+func (x *VictoriaMetricsDatadogExportSpec) GetRequest() *KubeResourceConfig {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+func (x *VictoriaMetricsDatadogExportSpec) GetLimit() *KubeResourceConfig {
+	if x != nil {
+		return x.Limit
+	}
+	return nil
+}
+
+func (x *VictoriaMetricsDatadogExportSpec) GetQueryIntervalSeconds() uint32 {
+	if x != nil && x.QueryIntervalSeconds != nil {
+		return *x.QueryIntervalSeconds
+	}
+	return 0
+}
+
+func (x *VictoriaMetricsDatadogExportSpec) GetEnabled() bool {
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
+	}
+	return false
+}
+
 type ZombieKillerSpec struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Interval      *uint32                `protobuf:"varint,1,opt,name=interval,proto3,oneof" json:"interval,omitempty"`
@@ -11541,7 +11703,7 @@ type ZombieKillerSpec struct {
 
 func (x *ZombieKillerSpec) Reset() {
 	*x = ZombieKillerSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[131]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[132]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11553,7 +11715,7 @@ func (x *ZombieKillerSpec) String() string {
 func (*ZombieKillerSpec) ProtoMessage() {}
 
 func (x *ZombieKillerSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[131]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[132]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11566,7 +11728,7 @@ func (x *ZombieKillerSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ZombieKillerSpec.ProtoReflect.Descriptor instead.
 func (*ZombieKillerSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{131}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{132}
 }
 
 func (x *ZombieKillerSpec) GetInterval() uint32 {
@@ -11607,7 +11769,7 @@ type CoreDumpCollectorSpec struct {
 
 func (x *CoreDumpCollectorSpec) Reset() {
 	*x = CoreDumpCollectorSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[132]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[133]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11619,7 +11781,7 @@ func (x *CoreDumpCollectorSpec) String() string {
 func (*CoreDumpCollectorSpec) ProtoMessage() {}
 
 func (x *CoreDumpCollectorSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[132]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[133]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11632,7 +11794,7 @@ func (x *CoreDumpCollectorSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CoreDumpCollectorSpec.ProtoReflect.Descriptor instead.
 func (*CoreDumpCollectorSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{132}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{133}
 }
 
 func (x *CoreDumpCollectorSpec) GetCoreDumpBucketUri() string {
@@ -11791,7 +11953,7 @@ type PySpyStackTraceCollectorSpec struct {
 
 func (x *PySpyStackTraceCollectorSpec) Reset() {
 	*x = PySpyStackTraceCollectorSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[133]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[134]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11803,7 +11965,7 @@ func (x *PySpyStackTraceCollectorSpec) String() string {
 func (*PySpyStackTraceCollectorSpec) ProtoMessage() {}
 
 func (x *PySpyStackTraceCollectorSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[133]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[134]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11816,7 +11978,7 @@ func (x *PySpyStackTraceCollectorSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PySpyStackTraceCollectorSpec.ProtoReflect.Descriptor instead.
 func (*PySpyStackTraceCollectorSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{133}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{134}
 }
 
 func (x *PySpyStackTraceCollectorSpec) GetNative() bool {
@@ -11889,7 +12051,7 @@ type PerfCollectorSpec struct {
 
 func (x *PerfCollectorSpec) Reset() {
 	*x = PerfCollectorSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[134]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[135]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11901,7 +12063,7 @@ func (x *PerfCollectorSpec) String() string {
 func (*PerfCollectorSpec) ProtoMessage() {}
 
 func (x *PerfCollectorSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[134]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[135]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11914,7 +12076,7 @@ func (x *PerfCollectorSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PerfCollectorSpec.ProtoReflect.Descriptor instead.
 func (*PerfCollectorSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{134}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{135}
 }
 
 func (x *PerfCollectorSpec) GetPerfPollingFrequencyHz() uint32 {
@@ -11974,7 +12136,7 @@ type PerfettoDaemonSpec struct {
 
 func (x *PerfettoDaemonSpec) Reset() {
 	*x = PerfettoDaemonSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[135]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[136]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11986,7 +12148,7 @@ func (x *PerfettoDaemonSpec) String() string {
 func (*PerfettoDaemonSpec) ProtoMessage() {}
 
 func (x *PerfettoDaemonSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[135]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[136]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11999,7 +12161,7 @@ func (x *PerfettoDaemonSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PerfettoDaemonSpec.ProtoReflect.Descriptor instead.
 func (*PerfettoDaemonSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{135}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{136}
 }
 
 func (x *PerfettoDaemonSpec) GetConfigText() string {
@@ -12067,7 +12229,7 @@ type DirectoryWatcherSpec struct {
 
 func (x *DirectoryWatcherSpec) Reset() {
 	*x = DirectoryWatcherSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[136]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[137]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12079,7 +12241,7 @@ func (x *DirectoryWatcherSpec) String() string {
 func (*DirectoryWatcherSpec) ProtoMessage() {}
 
 func (x *DirectoryWatcherSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[136]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[137]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12092,7 +12254,7 @@ func (x *DirectoryWatcherSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DirectoryWatcherSpec.ProtoReflect.Descriptor instead.
 func (*DirectoryWatcherSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{136}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{137}
 }
 
 func (x *DirectoryWatcherSpec) GetWatchDirectorySubpath() string {
@@ -12144,7 +12306,7 @@ type StreamedDirectoryWatcherSpec struct {
 
 func (x *StreamedDirectoryWatcherSpec) Reset() {
 	*x = StreamedDirectoryWatcherSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[137]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[138]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12156,7 +12318,7 @@ func (x *StreamedDirectoryWatcherSpec) String() string {
 func (*StreamedDirectoryWatcherSpec) ProtoMessage() {}
 
 func (x *StreamedDirectoryWatcherSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[137]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[138]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12169,7 +12331,7 @@ func (x *StreamedDirectoryWatcherSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamedDirectoryWatcherSpec.ProtoReflect.Descriptor instead.
 func (*StreamedDirectoryWatcherSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{137}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{138}
 }
 
 func (x *StreamedDirectoryWatcherSpec) GetWatchDirectorySubpath() string {
@@ -12222,7 +12384,7 @@ type NetworkInspectorDaemonSpec struct {
 
 func (x *NetworkInspectorDaemonSpec) Reset() {
 	*x = NetworkInspectorDaemonSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[138]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[139]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12234,7 +12396,7 @@ func (x *NetworkInspectorDaemonSpec) String() string {
 func (*NetworkInspectorDaemonSpec) ProtoMessage() {}
 
 func (x *NetworkInspectorDaemonSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[138]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[139]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12247,7 +12409,7 @@ func (x *NetworkInspectorDaemonSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkInspectorDaemonSpec.ProtoReflect.Descriptor instead.
 func (*NetworkInspectorDaemonSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{138}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{139}
 }
 
 func (x *NetworkInspectorDaemonSpec) GetExportTo() string {
@@ -12323,7 +12485,7 @@ type ObservabilityDaemonSpec struct {
 
 func (x *ObservabilityDaemonSpec) Reset() {
 	*x = ObservabilityDaemonSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[139]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[140]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12335,7 +12497,7 @@ func (x *ObservabilityDaemonSpec) String() string {
 func (*ObservabilityDaemonSpec) ProtoMessage() {}
 
 func (x *ObservabilityDaemonSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[139]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[140]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12348,7 +12510,7 @@ func (x *ObservabilityDaemonSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ObservabilityDaemonSpec.ProtoReflect.Descriptor instead.
 func (*ObservabilityDaemonSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{139}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{140}
 }
 
 func (x *ObservabilityDaemonSpec) GetKeepRunningWhenSuspended() bool {
@@ -12526,7 +12688,7 @@ type ObservabilityDaemonSchedulingSpec struct {
 
 func (x *ObservabilityDaemonSchedulingSpec) Reset() {
 	*x = ObservabilityDaemonSchedulingSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[140]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[141]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12538,7 +12700,7 @@ func (x *ObservabilityDaemonSchedulingSpec) String() string {
 func (*ObservabilityDaemonSchedulingSpec) ProtoMessage() {}
 
 func (x *ObservabilityDaemonSchedulingSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[140]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[141]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12551,7 +12713,7 @@ func (x *ObservabilityDaemonSchedulingSpec) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ObservabilityDaemonSchedulingSpec.ProtoReflect.Descriptor instead.
 func (*ObservabilityDaemonSchedulingSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{140}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{141}
 }
 
 func (x *ObservabilityDaemonSchedulingSpec) GetNodeSelectors() []*KubeNodeSelector {
@@ -12608,7 +12770,7 @@ type TelemetryDeploymentSpec struct {
 
 func (x *TelemetryDeploymentSpec) Reset() {
 	*x = TelemetryDeploymentSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[141]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[142]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12620,7 +12782,7 @@ func (x *TelemetryDeploymentSpec) String() string {
 func (*TelemetryDeploymentSpec) ProtoMessage() {}
 
 func (x *TelemetryDeploymentSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[141]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[142]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12633,7 +12795,7 @@ func (x *TelemetryDeploymentSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TelemetryDeploymentSpec.ProtoReflect.Descriptor instead.
 func (*TelemetryDeploymentSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{141}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{142}
 }
 
 func (x *TelemetryDeploymentSpec) GetNamespace() string {
@@ -12784,7 +12946,7 @@ type TelemetryDeployment struct {
 
 func (x *TelemetryDeployment) Reset() {
 	*x = TelemetryDeployment{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[142]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[143]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12796,7 +12958,7 @@ func (x *TelemetryDeployment) String() string {
 func (*TelemetryDeployment) ProtoMessage() {}
 
 func (x *TelemetryDeployment) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[142]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[143]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12809,7 +12971,7 @@ func (x *TelemetryDeployment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TelemetryDeployment.ProtoReflect.Descriptor instead.
 func (*TelemetryDeployment) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{142}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{143}
 }
 
 func (x *TelemetryDeployment) GetId() string {
@@ -12864,7 +13026,7 @@ type ClusterIdentifier struct {
 
 func (x *ClusterIdentifier) Reset() {
 	*x = ClusterIdentifier{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[143]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[144]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12876,7 +13038,7 @@ func (x *ClusterIdentifier) String() string {
 func (*ClusterIdentifier) ProtoMessage() {}
 
 func (x *ClusterIdentifier) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[143]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[144]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12889,7 +13051,7 @@ func (x *ClusterIdentifier) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterIdentifier.ProtoReflect.Descriptor instead.
 func (*ClusterIdentifier) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{143}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{144}
 }
 
 func (x *ClusterIdentifier) GetClusterId() string {
@@ -12928,7 +13090,7 @@ type GetTelemetryDeploymentRequest struct {
 
 func (x *GetTelemetryDeploymentRequest) Reset() {
 	*x = GetTelemetryDeploymentRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[144]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[145]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12940,7 +13102,7 @@ func (x *GetTelemetryDeploymentRequest) String() string {
 func (*GetTelemetryDeploymentRequest) ProtoMessage() {}
 
 func (x *GetTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[144]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[145]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12953,7 +13115,7 @@ func (x *GetTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*GetTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{144}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{145}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
@@ -13038,7 +13200,7 @@ type GetTelemetryDeploymentResponse struct {
 
 func (x *GetTelemetryDeploymentResponse) Reset() {
 	*x = GetTelemetryDeploymentResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[145]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[146]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13050,7 +13212,7 @@ func (x *GetTelemetryDeploymentResponse) String() string {
 func (*GetTelemetryDeploymentResponse) ProtoMessage() {}
 
 func (x *GetTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[145]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[146]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13063,7 +13225,7 @@ func (x *GetTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*GetTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{145}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{146}
 }
 
 func (x *GetTelemetryDeploymentResponse) GetDeployment() *TelemetryDeployment {
@@ -13082,7 +13244,7 @@ type ListTelemetryDeploymentsRequest struct {
 
 func (x *ListTelemetryDeploymentsRequest) Reset() {
 	*x = ListTelemetryDeploymentsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[146]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[147]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13094,7 +13256,7 @@ func (x *ListTelemetryDeploymentsRequest) String() string {
 func (*ListTelemetryDeploymentsRequest) ProtoMessage() {}
 
 func (x *ListTelemetryDeploymentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[146]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[147]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13107,7 +13269,7 @@ func (x *ListTelemetryDeploymentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTelemetryDeploymentsRequest.ProtoReflect.Descriptor instead.
 func (*ListTelemetryDeploymentsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{146}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{147}
 }
 
 func (x *ListTelemetryDeploymentsRequest) GetClusterId() string {
@@ -13126,7 +13288,7 @@ type ListTelemetryDeploymentsResponse struct {
 
 func (x *ListTelemetryDeploymentsResponse) Reset() {
 	*x = ListTelemetryDeploymentsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[147]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[148]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13138,7 +13300,7 @@ func (x *ListTelemetryDeploymentsResponse) String() string {
 func (*ListTelemetryDeploymentsResponse) ProtoMessage() {}
 
 func (x *ListTelemetryDeploymentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[147]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[148]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13151,7 +13313,7 @@ func (x *ListTelemetryDeploymentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTelemetryDeploymentsResponse.ProtoReflect.Descriptor instead.
 func (*ListTelemetryDeploymentsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{147}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{148}
 }
 
 func (x *ListTelemetryDeploymentsResponse) GetDeployments() []*TelemetryDeployment {
@@ -13172,7 +13334,7 @@ type CreateTelemetryDeploymentRequest struct {
 
 func (x *CreateTelemetryDeploymentRequest) Reset() {
 	*x = CreateTelemetryDeploymentRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[148]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[149]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13184,7 +13346,7 @@ func (x *CreateTelemetryDeploymentRequest) String() string {
 func (*CreateTelemetryDeploymentRequest) ProtoMessage() {}
 
 func (x *CreateTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[148]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[149]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13197,7 +13359,7 @@ func (x *CreateTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*CreateTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{148}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{149}
 }
 
 func (x *CreateTelemetryDeploymentRequest) GetClusterId() string {
@@ -13230,7 +13392,7 @@ type CreateTelemetryDeploymentResponse struct {
 
 func (x *CreateTelemetryDeploymentResponse) Reset() {
 	*x = CreateTelemetryDeploymentResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[149]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[150]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13242,7 +13404,7 @@ func (x *CreateTelemetryDeploymentResponse) String() string {
 func (*CreateTelemetryDeploymentResponse) ProtoMessage() {}
 
 func (x *CreateTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[149]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[150]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13255,7 +13417,7 @@ func (x *CreateTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use CreateTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*CreateTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{149}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{150}
 }
 
 func (x *CreateTelemetryDeploymentResponse) GetTelemetryDeploymentId() string {
@@ -13275,7 +13437,7 @@ type DeleteTelemetryDeploymentRequest struct {
 
 func (x *DeleteTelemetryDeploymentRequest) Reset() {
 	*x = DeleteTelemetryDeploymentRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[150]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[151]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13287,7 +13449,7 @@ func (x *DeleteTelemetryDeploymentRequest) String() string {
 func (*DeleteTelemetryDeploymentRequest) ProtoMessage() {}
 
 func (x *DeleteTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[150]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[151]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13300,7 +13462,7 @@ func (x *DeleteTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{150}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{151}
 }
 
 func (x *DeleteTelemetryDeploymentRequest) GetClusterId() string {
@@ -13325,7 +13487,7 @@ type DeleteTelemetryDeploymentResponse struct {
 
 func (x *DeleteTelemetryDeploymentResponse) Reset() {
 	*x = DeleteTelemetryDeploymentResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[151]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[152]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13337,7 +13499,7 @@ func (x *DeleteTelemetryDeploymentResponse) String() string {
 func (*DeleteTelemetryDeploymentResponse) ProtoMessage() {}
 
 func (x *DeleteTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[151]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[152]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13350,7 +13512,7 @@ func (x *DeleteTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use DeleteTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{151}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{152}
 }
 
 type UpdateTelemetryDeploymentRequest struct {
@@ -13365,7 +13527,7 @@ type UpdateTelemetryDeploymentRequest struct {
 
 func (x *UpdateTelemetryDeploymentRequest) Reset() {
 	*x = UpdateTelemetryDeploymentRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[152]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[153]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13377,7 +13539,7 @@ func (x *UpdateTelemetryDeploymentRequest) String() string {
 func (*UpdateTelemetryDeploymentRequest) ProtoMessage() {}
 
 func (x *UpdateTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[152]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[153]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13390,7 +13552,7 @@ func (x *UpdateTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{152}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{153}
 }
 
 func (x *UpdateTelemetryDeploymentRequest) GetTelemetryDeploymentId() string {
@@ -13430,7 +13592,7 @@ type UpdateTelemetryDeploymentResponse struct {
 
 func (x *UpdateTelemetryDeploymentResponse) Reset() {
 	*x = UpdateTelemetryDeploymentResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[153]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[154]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13442,7 +13604,7 @@ func (x *UpdateTelemetryDeploymentResponse) String() string {
 func (*UpdateTelemetryDeploymentResponse) ProtoMessage() {}
 
 func (x *UpdateTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[153]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[154]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13455,7 +13617,7 @@ func (x *UpdateTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use UpdateTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*UpdateTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{153}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{154}
 }
 
 func (x *UpdateTelemetryDeploymentResponse) GetDeployment() *TelemetryDeployment {
@@ -13475,7 +13637,7 @@ type MigrateTelemetryDeploymentRequest struct {
 
 func (x *MigrateTelemetryDeploymentRequest) Reset() {
 	*x = MigrateTelemetryDeploymentRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[154]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[155]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13487,7 +13649,7 @@ func (x *MigrateTelemetryDeploymentRequest) String() string {
 func (*MigrateTelemetryDeploymentRequest) ProtoMessage() {}
 
 func (x *MigrateTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[154]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[155]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13500,7 +13662,7 @@ func (x *MigrateTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use MigrateTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*MigrateTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{154}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{155}
 }
 
 func (x *MigrateTelemetryDeploymentRequest) GetTelemetryDeploymentId() string {
@@ -13525,7 +13687,7 @@ type MigrateTelemetryDeploymentResponse struct {
 
 func (x *MigrateTelemetryDeploymentResponse) Reset() {
 	*x = MigrateTelemetryDeploymentResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[155]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[156]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13537,7 +13699,7 @@ func (x *MigrateTelemetryDeploymentResponse) String() string {
 func (*MigrateTelemetryDeploymentResponse) ProtoMessage() {}
 
 func (x *MigrateTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[155]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[156]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13550,7 +13712,7 @@ func (x *MigrateTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use MigrateTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*MigrateTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{155}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{156}
 }
 
 type GetSearchConfigRequest struct {
@@ -13561,7 +13723,7 @@ type GetSearchConfigRequest struct {
 
 func (x *GetSearchConfigRequest) Reset() {
 	*x = GetSearchConfigRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[156]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[157]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13573,7 +13735,7 @@ func (x *GetSearchConfigRequest) String() string {
 func (*GetSearchConfigRequest) ProtoMessage() {}
 
 func (x *GetSearchConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[156]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[157]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13586,7 +13748,7 @@ func (x *GetSearchConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSearchConfigRequest.ProtoReflect.Descriptor instead.
 func (*GetSearchConfigRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{156}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{157}
 }
 
 type GetSearchConfigResponse struct {
@@ -13599,7 +13761,7 @@ type GetSearchConfigResponse struct {
 
 func (x *GetSearchConfigResponse) Reset() {
 	*x = GetSearchConfigResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[157]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[158]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13611,7 +13773,7 @@ func (x *GetSearchConfigResponse) String() string {
 func (*GetSearchConfigResponse) ProtoMessage() {}
 
 func (x *GetSearchConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[157]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[158]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13624,7 +13786,7 @@ func (x *GetSearchConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSearchConfigResponse.ProtoReflect.Descriptor instead.
 func (*GetSearchConfigResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{157}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{158}
 }
 
 func (x *GetSearchConfigResponse) GetTeamId() string {
@@ -13653,7 +13815,7 @@ type UpdateEnvironmentVariablesRequest struct {
 
 func (x *UpdateEnvironmentVariablesRequest) Reset() {
 	*x = UpdateEnvironmentVariablesRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[158]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[159]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13665,7 +13827,7 @@ func (x *UpdateEnvironmentVariablesRequest) String() string {
 func (*UpdateEnvironmentVariablesRequest) ProtoMessage() {}
 
 func (x *UpdateEnvironmentVariablesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[158]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[159]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13678,7 +13840,7 @@ func (x *UpdateEnvironmentVariablesRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use UpdateEnvironmentVariablesRequest.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentVariablesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{158}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{159}
 }
 
 func (x *UpdateEnvironmentVariablesRequest) GetEnvironmentVariables() map[string]string {
@@ -13698,7 +13860,7 @@ type UpdateEnvironmentVariablesResponse struct {
 
 func (x *UpdateEnvironmentVariablesResponse) Reset() {
 	*x = UpdateEnvironmentVariablesResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[159]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[160]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13710,7 +13872,7 @@ func (x *UpdateEnvironmentVariablesResponse) String() string {
 func (*UpdateEnvironmentVariablesResponse) ProtoMessage() {}
 
 func (x *UpdateEnvironmentVariablesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[159]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[160]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13723,7 +13885,7 @@ func (x *UpdateEnvironmentVariablesResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use UpdateEnvironmentVariablesResponse.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentVariablesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{159}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{160}
 }
 
 func (x *UpdateEnvironmentVariablesResponse) GetFieldChanges() []*v13.FieldChange {
@@ -13741,7 +13903,7 @@ type StartBranchRequest struct {
 
 func (x *StartBranchRequest) Reset() {
 	*x = StartBranchRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[160]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[161]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13753,7 +13915,7 @@ func (x *StartBranchRequest) String() string {
 func (*StartBranchRequest) ProtoMessage() {}
 
 func (x *StartBranchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[160]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[161]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13766,7 +13928,7 @@ func (x *StartBranchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartBranchRequest.ProtoReflect.Descriptor instead.
 func (*StartBranchRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{160}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{161}
 }
 
 type StartBranchResponse struct {
@@ -13778,7 +13940,7 @@ type StartBranchResponse struct {
 
 func (x *StartBranchResponse) Reset() {
 	*x = StartBranchResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[161]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[162]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13790,7 +13952,7 @@ func (x *StartBranchResponse) String() string {
 func (*StartBranchResponse) ProtoMessage() {}
 
 func (x *StartBranchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[161]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[162]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13803,7 +13965,7 @@ func (x *StartBranchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartBranchResponse.ProtoReflect.Descriptor instead.
 func (*StartBranchResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{161}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{162}
 }
 
 func (x *StartBranchResponse) GetState() BranchScalingState {
@@ -13822,7 +13984,7 @@ type ScaleBranchRequest struct {
 
 func (x *ScaleBranchRequest) Reset() {
 	*x = ScaleBranchRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[162]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[163]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13834,7 +13996,7 @@ func (x *ScaleBranchRequest) String() string {
 func (*ScaleBranchRequest) ProtoMessage() {}
 
 func (x *ScaleBranchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[162]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[163]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13847,7 +14009,7 @@ func (x *ScaleBranchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScaleBranchRequest.ProtoReflect.Descriptor instead.
 func (*ScaleBranchRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{162}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{163}
 }
 
 func (x *ScaleBranchRequest) GetReplicas() int32 {
@@ -13866,7 +14028,7 @@ type ScaleBranchResponse struct {
 
 func (x *ScaleBranchResponse) Reset() {
 	*x = ScaleBranchResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[163]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[164]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13878,7 +14040,7 @@ func (x *ScaleBranchResponse) String() string {
 func (*ScaleBranchResponse) ProtoMessage() {}
 
 func (x *ScaleBranchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[163]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[164]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13891,7 +14053,7 @@ func (x *ScaleBranchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScaleBranchResponse.ProtoReflect.Descriptor instead.
 func (*ScaleBranchResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{163}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{164}
 }
 
 func (x *ScaleBranchResponse) GetState() BranchScalingState {
@@ -13909,7 +14071,7 @@ type GetBranchProfileRequest struct {
 
 func (x *GetBranchProfileRequest) Reset() {
 	*x = GetBranchProfileRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[164]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[165]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13921,7 +14083,7 @@ func (x *GetBranchProfileRequest) String() string {
 func (*GetBranchProfileRequest) ProtoMessage() {}
 
 func (x *GetBranchProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[164]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[165]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13934,7 +14096,7 @@ func (x *GetBranchProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBranchProfileRequest.ProtoReflect.Descriptor instead.
 func (*GetBranchProfileRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{164}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{165}
 }
 
 type GetBranchProfileResponse struct {
@@ -13949,7 +14111,7 @@ type GetBranchProfileResponse struct {
 
 func (x *GetBranchProfileResponse) Reset() {
 	*x = GetBranchProfileResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[165]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[166]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13961,7 +14123,7 @@ func (x *GetBranchProfileResponse) String() string {
 func (*GetBranchProfileResponse) ProtoMessage() {}
 
 func (x *GetBranchProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[165]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[166]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13974,7 +14136,7 @@ func (x *GetBranchProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBranchProfileResponse.ProtoReflect.Descriptor instead.
 func (*GetBranchProfileResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{165}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{166}
 }
 
 func (x *GetBranchProfileResponse) GetEnvironmentId() string {
@@ -14013,7 +14175,7 @@ type GetBranchServerStatusRequest struct {
 
 func (x *GetBranchServerStatusRequest) Reset() {
 	*x = GetBranchServerStatusRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[166]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[167]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14025,7 +14187,7 @@ func (x *GetBranchServerStatusRequest) String() string {
 func (*GetBranchServerStatusRequest) ProtoMessage() {}
 
 func (x *GetBranchServerStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[166]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[167]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14038,7 +14200,7 @@ func (x *GetBranchServerStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBranchServerStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetBranchServerStatusRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{166}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{167}
 }
 
 type GetBranchServerStatusResponse struct {
@@ -14053,7 +14215,7 @@ type GetBranchServerStatusResponse struct {
 
 func (x *GetBranchServerStatusResponse) Reset() {
 	*x = GetBranchServerStatusResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[167]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[168]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14065,7 +14227,7 @@ func (x *GetBranchServerStatusResponse) String() string {
 func (*GetBranchServerStatusResponse) ProtoMessage() {}
 
 func (x *GetBranchServerStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[167]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[168]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14078,7 +14240,7 @@ func (x *GetBranchServerStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBranchServerStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetBranchServerStatusResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{167}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{168}
 }
 
 func (x *GetBranchServerStatusResponse) GetStatus() BranchServerStatus {
@@ -14121,7 +14283,7 @@ type KafkaTopic struct {
 
 func (x *KafkaTopic) Reset() {
 	*x = KafkaTopic{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[168]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[169]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14133,7 +14295,7 @@ func (x *KafkaTopic) String() string {
 func (*KafkaTopic) ProtoMessage() {}
 
 func (x *KafkaTopic) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[168]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[169]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14146,7 +14308,7 @@ func (x *KafkaTopic) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KafkaTopic.ProtoReflect.Descriptor instead.
 func (*KafkaTopic) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{168}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{169}
 }
 
 func (x *KafkaTopic) GetName() string {
@@ -14186,7 +14348,7 @@ type CreateKafkaTopicsRequest struct {
 
 func (x *CreateKafkaTopicsRequest) Reset() {
 	*x = CreateKafkaTopicsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[169]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[170]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14198,7 +14360,7 @@ func (x *CreateKafkaTopicsRequest) String() string {
 func (*CreateKafkaTopicsRequest) ProtoMessage() {}
 
 func (x *CreateKafkaTopicsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[169]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[170]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14211,7 +14373,7 @@ func (x *CreateKafkaTopicsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateKafkaTopicsRequest.ProtoReflect.Descriptor instead.
 func (*CreateKafkaTopicsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{169}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{170}
 }
 
 func (x *CreateKafkaTopicsRequest) GetTopics() []*KafkaTopic {
@@ -14229,7 +14391,7 @@ type CreateKafkaTopicsResponse struct {
 
 func (x *CreateKafkaTopicsResponse) Reset() {
 	*x = CreateKafkaTopicsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[170]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[171]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14241,7 +14403,7 @@ func (x *CreateKafkaTopicsResponse) String() string {
 func (*CreateKafkaTopicsResponse) ProtoMessage() {}
 
 func (x *CreateKafkaTopicsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[170]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[171]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14254,7 +14416,7 @@ func (x *CreateKafkaTopicsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateKafkaTopicsResponse.ProtoReflect.Descriptor instead.
 func (*CreateKafkaTopicsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{170}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{171}
 }
 
 type GetKafkaTopicsRequest struct {
@@ -14265,7 +14427,7 @@ type GetKafkaTopicsRequest struct {
 
 func (x *GetKafkaTopicsRequest) Reset() {
 	*x = GetKafkaTopicsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[171]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[172]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14277,7 +14439,7 @@ func (x *GetKafkaTopicsRequest) String() string {
 func (*GetKafkaTopicsRequest) ProtoMessage() {}
 
 func (x *GetKafkaTopicsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[171]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[172]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14290,7 +14452,7 @@ func (x *GetKafkaTopicsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKafkaTopicsRequest.ProtoReflect.Descriptor instead.
 func (*GetKafkaTopicsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{171}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{172}
 }
 
 type GetKafkaTopicsResponse struct {
@@ -14302,7 +14464,7 @@ type GetKafkaTopicsResponse struct {
 
 func (x *GetKafkaTopicsResponse) Reset() {
 	*x = GetKafkaTopicsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[172]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[173]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14314,7 +14476,7 @@ func (x *GetKafkaTopicsResponse) String() string {
 func (*GetKafkaTopicsResponse) ProtoMessage() {}
 
 func (x *GetKafkaTopicsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[172]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[173]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14327,7 +14489,7 @@ func (x *GetKafkaTopicsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKafkaTopicsResponse.ProtoReflect.Descriptor instead.
 func (*GetKafkaTopicsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{172}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{173}
 }
 
 func (x *GetKafkaTopicsResponse) GetTopics() []*KafkaTopic {
@@ -14345,7 +14507,7 @@ type GetNodepoolsRequest struct {
 
 func (x *GetNodepoolsRequest) Reset() {
 	*x = GetNodepoolsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[173]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[174]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14357,7 +14519,7 @@ func (x *GetNodepoolsRequest) String() string {
 func (*GetNodepoolsRequest) ProtoMessage() {}
 
 func (x *GetNodepoolsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[173]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[174]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14370,7 +14532,7 @@ func (x *GetNodepoolsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodepoolsRequest.ProtoReflect.Descriptor instead.
 func (*GetNodepoolsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{173}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{174}
 }
 
 type GetNodepoolsResponse struct {
@@ -14383,7 +14545,7 @@ type GetNodepoolsResponse struct {
 
 func (x *GetNodepoolsResponse) Reset() {
 	*x = GetNodepoolsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[174]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[175]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14395,7 +14557,7 @@ func (x *GetNodepoolsResponse) String() string {
 func (*GetNodepoolsResponse) ProtoMessage() {}
 
 func (x *GetNodepoolsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[174]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[175]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14408,7 +14570,7 @@ func (x *GetNodepoolsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodepoolsResponse.ProtoReflect.Descriptor instead.
 func (*GetNodepoolsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{174}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{175}
 }
 
 func (x *GetNodepoolsResponse) GetKarpenterNodepools() []*v14.KarpenterNodepool {
@@ -14440,7 +14602,7 @@ type ChalkMachineTypeFallback struct {
 
 func (x *ChalkMachineTypeFallback) Reset() {
 	*x = ChalkMachineTypeFallback{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[175]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[176]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14452,7 +14614,7 @@ func (x *ChalkMachineTypeFallback) String() string {
 func (*ChalkMachineTypeFallback) ProtoMessage() {}
 
 func (x *ChalkMachineTypeFallback) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[175]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[176]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14465,7 +14627,7 @@ func (x *ChalkMachineTypeFallback) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkMachineTypeFallback.ProtoReflect.Descriptor instead.
 func (*ChalkMachineTypeFallback) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{175}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{176}
 }
 
 func (x *ChalkMachineTypeFallback) GetInstanceType() string {
@@ -14506,7 +14668,7 @@ type ChalkMachineTypeInstanceOption struct {
 
 func (x *ChalkMachineTypeInstanceOption) Reset() {
 	*x = ChalkMachineTypeInstanceOption{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[176]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[177]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14518,7 +14680,7 @@ func (x *ChalkMachineTypeInstanceOption) String() string {
 func (*ChalkMachineTypeInstanceOption) ProtoMessage() {}
 
 func (x *ChalkMachineTypeInstanceOption) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[176]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[177]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14531,7 +14693,7 @@ func (x *ChalkMachineTypeInstanceOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkMachineTypeInstanceOption.ProtoReflect.Descriptor instead.
 func (*ChalkMachineTypeInstanceOption) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{176}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{177}
 }
 
 func (x *ChalkMachineTypeInstanceOption) GetInstanceType() string {
@@ -14605,7 +14767,7 @@ type ChalkMachineTypeMapping struct {
 
 func (x *ChalkMachineTypeMapping) Reset() {
 	*x = ChalkMachineTypeMapping{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[177]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[178]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14617,7 +14779,7 @@ func (x *ChalkMachineTypeMapping) String() string {
 func (*ChalkMachineTypeMapping) ProtoMessage() {}
 
 func (x *ChalkMachineTypeMapping) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[177]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[178]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14630,7 +14792,7 @@ func (x *ChalkMachineTypeMapping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkMachineTypeMapping.ProtoReflect.Descriptor instead.
 func (*ChalkMachineTypeMapping) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{177}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{178}
 }
 
 func (x *ChalkMachineTypeMapping) GetCloud() v15.BillingCloud {
@@ -14732,7 +14894,7 @@ type GetAvailableChalkMachineTypesRequest struct {
 
 func (x *GetAvailableChalkMachineTypesRequest) Reset() {
 	*x = GetAvailableChalkMachineTypesRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[178]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[179]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14744,7 +14906,7 @@ func (x *GetAvailableChalkMachineTypesRequest) String() string {
 func (*GetAvailableChalkMachineTypesRequest) ProtoMessage() {}
 
 func (x *GetAvailableChalkMachineTypesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[178]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[179]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14757,7 +14919,7 @@ func (x *GetAvailableChalkMachineTypesRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetAvailableChalkMachineTypesRequest.ProtoReflect.Descriptor instead.
 func (*GetAvailableChalkMachineTypesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{178}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{179}
 }
 
 type GetAvailableChalkMachineTypesResponse struct {
@@ -14769,7 +14931,7 @@ type GetAvailableChalkMachineTypesResponse struct {
 
 func (x *GetAvailableChalkMachineTypesResponse) Reset() {
 	*x = GetAvailableChalkMachineTypesResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[179]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[180]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14781,7 +14943,7 @@ func (x *GetAvailableChalkMachineTypesResponse) String() string {
 func (*GetAvailableChalkMachineTypesResponse) ProtoMessage() {}
 
 func (x *GetAvailableChalkMachineTypesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[179]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[180]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14794,7 +14956,7 @@ func (x *GetAvailableChalkMachineTypesResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use GetAvailableChalkMachineTypesResponse.ProtoReflect.Descriptor instead.
 func (*GetAvailableChalkMachineTypesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{179}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{180}
 }
 
 func (x *GetAvailableChalkMachineTypesResponse) GetMappings() []*ChalkMachineTypeMapping {
@@ -14829,7 +14991,7 @@ type ChalkMachineTypeOverride struct {
 
 func (x *ChalkMachineTypeOverride) Reset() {
 	*x = ChalkMachineTypeOverride{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[180]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[181]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14841,7 +15003,7 @@ func (x *ChalkMachineTypeOverride) String() string {
 func (*ChalkMachineTypeOverride) ProtoMessage() {}
 
 func (x *ChalkMachineTypeOverride) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[180]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[181]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14854,7 +15016,7 @@ func (x *ChalkMachineTypeOverride) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkMachineTypeOverride.ProtoReflect.Descriptor instead.
 func (*ChalkMachineTypeOverride) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{180}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{181}
 }
 
 func (x *ChalkMachineTypeOverride) GetId() string {
@@ -14968,7 +15130,7 @@ type UpsertChalkMachineTypeOverrideRequest struct {
 
 func (x *UpsertChalkMachineTypeOverrideRequest) Reset() {
 	*x = UpsertChalkMachineTypeOverrideRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[181]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[182]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14980,7 +15142,7 @@ func (x *UpsertChalkMachineTypeOverrideRequest) String() string {
 func (*UpsertChalkMachineTypeOverrideRequest) ProtoMessage() {}
 
 func (x *UpsertChalkMachineTypeOverrideRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[181]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[182]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14993,7 +15155,7 @@ func (x *UpsertChalkMachineTypeOverrideRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use UpsertChalkMachineTypeOverrideRequest.ProtoReflect.Descriptor instead.
 func (*UpsertChalkMachineTypeOverrideRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{181}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{182}
 }
 
 func (x *UpsertChalkMachineTypeOverrideRequest) GetKubeClusterId() string {
@@ -15054,7 +15216,7 @@ type UpsertChalkMachineTypeOverrideResponse struct {
 
 func (x *UpsertChalkMachineTypeOverrideResponse) Reset() {
 	*x = UpsertChalkMachineTypeOverrideResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[182]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[183]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15066,7 +15228,7 @@ func (x *UpsertChalkMachineTypeOverrideResponse) String() string {
 func (*UpsertChalkMachineTypeOverrideResponse) ProtoMessage() {}
 
 func (x *UpsertChalkMachineTypeOverrideResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[182]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[183]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15079,7 +15241,7 @@ func (x *UpsertChalkMachineTypeOverrideResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use UpsertChalkMachineTypeOverrideResponse.ProtoReflect.Descriptor instead.
 func (*UpsertChalkMachineTypeOverrideResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{182}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{183}
 }
 
 func (x *UpsertChalkMachineTypeOverrideResponse) GetOverride() *ChalkMachineTypeOverride {
@@ -15104,7 +15266,7 @@ type DeleteChalkMachineTypeOverrideRequest struct {
 
 func (x *DeleteChalkMachineTypeOverrideRequest) Reset() {
 	*x = DeleteChalkMachineTypeOverrideRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[183]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[184]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15116,7 +15278,7 @@ func (x *DeleteChalkMachineTypeOverrideRequest) String() string {
 func (*DeleteChalkMachineTypeOverrideRequest) ProtoMessage() {}
 
 func (x *DeleteChalkMachineTypeOverrideRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[183]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[184]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15129,7 +15291,7 @@ func (x *DeleteChalkMachineTypeOverrideRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use DeleteChalkMachineTypeOverrideRequest.ProtoReflect.Descriptor instead.
 func (*DeleteChalkMachineTypeOverrideRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{183}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{184}
 }
 
 func (x *DeleteChalkMachineTypeOverrideRequest) GetKubeClusterId() string {
@@ -15182,7 +15344,7 @@ type DeleteChalkMachineTypeOverrideResponse struct {
 
 func (x *DeleteChalkMachineTypeOverrideResponse) Reset() {
 	*x = DeleteChalkMachineTypeOverrideResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[184]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[185]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15194,7 +15356,7 @@ func (x *DeleteChalkMachineTypeOverrideResponse) String() string {
 func (*DeleteChalkMachineTypeOverrideResponse) ProtoMessage() {}
 
 func (x *DeleteChalkMachineTypeOverrideResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[184]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[185]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15207,7 +15369,7 @@ func (x *DeleteChalkMachineTypeOverrideResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use DeleteChalkMachineTypeOverrideResponse.ProtoReflect.Descriptor instead.
 func (*DeleteChalkMachineTypeOverrideResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{184}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{185}
 }
 
 // One environment's fully resolved machine type view: the same per-tier shape the
@@ -15229,7 +15391,7 @@ type ClusterEnvironmentChalkMachineTypes struct {
 
 func (x *ClusterEnvironmentChalkMachineTypes) Reset() {
 	*x = ClusterEnvironmentChalkMachineTypes{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[185]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[186]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15241,7 +15403,7 @@ func (x *ClusterEnvironmentChalkMachineTypes) String() string {
 func (*ClusterEnvironmentChalkMachineTypes) ProtoMessage() {}
 
 func (x *ClusterEnvironmentChalkMachineTypes) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[185]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[186]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15254,7 +15416,7 @@ func (x *ClusterEnvironmentChalkMachineTypes) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ClusterEnvironmentChalkMachineTypes.ProtoReflect.Descriptor instead.
 func (*ClusterEnvironmentChalkMachineTypes) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{185}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{186}
 }
 
 func (x *ClusterEnvironmentChalkMachineTypes) GetEnvironmentId() string {
@@ -15296,7 +15458,7 @@ type GetClusterChalkMachineTypesRequest struct {
 
 func (x *GetClusterChalkMachineTypesRequest) Reset() {
 	*x = GetClusterChalkMachineTypesRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[186]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[187]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15308,7 +15470,7 @@ func (x *GetClusterChalkMachineTypesRequest) String() string {
 func (*GetClusterChalkMachineTypesRequest) ProtoMessage() {}
 
 func (x *GetClusterChalkMachineTypesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[186]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[187]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15321,7 +15483,7 @@ func (x *GetClusterChalkMachineTypesRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetClusterChalkMachineTypesRequest.ProtoReflect.Descriptor instead.
 func (*GetClusterChalkMachineTypesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{186}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{187}
 }
 
 func (x *GetClusterChalkMachineTypesRequest) GetKubeClusterId() string {
@@ -15347,7 +15509,7 @@ type GetClusterChalkMachineTypesResponse struct {
 
 func (x *GetClusterChalkMachineTypesResponse) Reset() {
 	*x = GetClusterChalkMachineTypesResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[187]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[188]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15359,7 +15521,7 @@ func (x *GetClusterChalkMachineTypesResponse) String() string {
 func (*GetClusterChalkMachineTypesResponse) ProtoMessage() {}
 
 func (x *GetClusterChalkMachineTypesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[187]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[188]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15372,7 +15534,7 @@ func (x *GetClusterChalkMachineTypesResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetClusterChalkMachineTypesResponse.ProtoReflect.Descriptor instead.
 func (*GetClusterChalkMachineTypesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{187}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{188}
 }
 
 func (x *GetClusterChalkMachineTypesResponse) GetOverrides() []*ChalkMachineTypeOverride {
@@ -15409,7 +15571,7 @@ type AddNodepoolRequest struct {
 
 func (x *AddNodepoolRequest) Reset() {
 	*x = AddNodepoolRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[188]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[189]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15421,7 +15583,7 @@ func (x *AddNodepoolRequest) String() string {
 func (*AddNodepoolRequest) ProtoMessage() {}
 
 func (x *AddNodepoolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[188]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[189]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15434,7 +15596,7 @@ func (x *AddNodepoolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddNodepoolRequest.ProtoReflect.Descriptor instead.
 func (*AddNodepoolRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{188}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{189}
 }
 
 func (x *AddNodepoolRequest) GetNodepool() isAddNodepoolRequest_Nodepool {
@@ -15491,7 +15653,7 @@ type AddNodepoolResponse struct {
 
 func (x *AddNodepoolResponse) Reset() {
 	*x = AddNodepoolResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[189]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[190]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15503,7 +15665,7 @@ func (x *AddNodepoolResponse) String() string {
 func (*AddNodepoolResponse) ProtoMessage() {}
 
 func (x *AddNodepoolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[189]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[190]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15516,7 +15678,7 @@ func (x *AddNodepoolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddNodepoolResponse.ProtoReflect.Descriptor instead.
 func (*AddNodepoolResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{189}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{190}
 }
 
 func (x *AddNodepoolResponse) GetNodepool() isAddNodepoolResponse_Nodepool {
@@ -15574,7 +15736,7 @@ type UpdateNodepoolRequest struct {
 
 func (x *UpdateNodepoolRequest) Reset() {
 	*x = UpdateNodepoolRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[190]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[191]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15586,7 +15748,7 @@ func (x *UpdateNodepoolRequest) String() string {
 func (*UpdateNodepoolRequest) ProtoMessage() {}
 
 func (x *UpdateNodepoolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[190]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[191]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15599,7 +15761,7 @@ func (x *UpdateNodepoolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateNodepoolRequest.ProtoReflect.Descriptor instead.
 func (*UpdateNodepoolRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{190}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{191}
 }
 
 func (x *UpdateNodepoolRequest) GetName() string {
@@ -15663,7 +15825,7 @@ type UpdateNodepoolResponse struct {
 
 func (x *UpdateNodepoolResponse) Reset() {
 	*x = UpdateNodepoolResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[191]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[192]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15675,7 +15837,7 @@ func (x *UpdateNodepoolResponse) String() string {
 func (*UpdateNodepoolResponse) ProtoMessage() {}
 
 func (x *UpdateNodepoolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[191]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[192]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15688,7 +15850,7 @@ func (x *UpdateNodepoolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateNodepoolResponse.ProtoReflect.Descriptor instead.
 func (*UpdateNodepoolResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{191}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{192}
 }
 
 func (x *UpdateNodepoolResponse) GetNodepool() isUpdateNodepoolResponse_Nodepool {
@@ -15742,7 +15904,7 @@ type DeleteNodepoolRequest struct {
 
 func (x *DeleteNodepoolRequest) Reset() {
 	*x = DeleteNodepoolRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[192]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[193]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15754,7 +15916,7 @@ func (x *DeleteNodepoolRequest) String() string {
 func (*DeleteNodepoolRequest) ProtoMessage() {}
 
 func (x *DeleteNodepoolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[192]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[193]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15767,7 +15929,7 @@ func (x *DeleteNodepoolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteNodepoolRequest.ProtoReflect.Descriptor instead.
 func (*DeleteNodepoolRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{192}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{193}
 }
 
 func (x *DeleteNodepoolRequest) GetName() string {
@@ -15792,7 +15954,7 @@ type DeleteNodepoolResponse struct {
 
 func (x *DeleteNodepoolResponse) Reset() {
 	*x = DeleteNodepoolResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[193]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[194]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15804,7 +15966,7 @@ func (x *DeleteNodepoolResponse) String() string {
 func (*DeleteNodepoolResponse) ProtoMessage() {}
 
 func (x *DeleteNodepoolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[193]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[194]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15817,7 +15979,7 @@ func (x *DeleteNodepoolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteNodepoolResponse.ProtoReflect.Descriptor instead.
 func (*DeleteNodepoolResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{193}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{194}
 }
 
 type GetKarpenterNodepoolsRequest struct {
@@ -15828,7 +15990,7 @@ type GetKarpenterNodepoolsRequest struct {
 
 func (x *GetKarpenterNodepoolsRequest) Reset() {
 	*x = GetKarpenterNodepoolsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[194]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[195]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15840,7 +16002,7 @@ func (x *GetKarpenterNodepoolsRequest) String() string {
 func (*GetKarpenterNodepoolsRequest) ProtoMessage() {}
 
 func (x *GetKarpenterNodepoolsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[194]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[195]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15853,7 +16015,7 @@ func (x *GetKarpenterNodepoolsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKarpenterNodepoolsRequest.ProtoReflect.Descriptor instead.
 func (*GetKarpenterNodepoolsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{194}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{195}
 }
 
 type GetKarpenterNodepoolsResponse struct {
@@ -15865,7 +16027,7 @@ type GetKarpenterNodepoolsResponse struct {
 
 func (x *GetKarpenterNodepoolsResponse) Reset() {
 	*x = GetKarpenterNodepoolsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[195]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[196]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15877,7 +16039,7 @@ func (x *GetKarpenterNodepoolsResponse) String() string {
 func (*GetKarpenterNodepoolsResponse) ProtoMessage() {}
 
 func (x *GetKarpenterNodepoolsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[195]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[196]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15890,7 +16052,7 @@ func (x *GetKarpenterNodepoolsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKarpenterNodepoolsResponse.ProtoReflect.Descriptor instead.
 func (*GetKarpenterNodepoolsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{195}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{196}
 }
 
 func (x *GetKarpenterNodepoolsResponse) GetNodepools() []*v14.KarpenterNodepool {
@@ -15909,7 +16071,7 @@ type AddKarpenterNodepoolRequest struct {
 
 func (x *AddKarpenterNodepoolRequest) Reset() {
 	*x = AddKarpenterNodepoolRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[196]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[197]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15921,7 +16083,7 @@ func (x *AddKarpenterNodepoolRequest) String() string {
 func (*AddKarpenterNodepoolRequest) ProtoMessage() {}
 
 func (x *AddKarpenterNodepoolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[196]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[197]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15934,7 +16096,7 @@ func (x *AddKarpenterNodepoolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddKarpenterNodepoolRequest.ProtoReflect.Descriptor instead.
 func (*AddKarpenterNodepoolRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{196}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{197}
 }
 
 func (x *AddKarpenterNodepoolRequest) GetNodepool() *v14.KarpenterNodepool {
@@ -15953,7 +16115,7 @@ type AddKarpenterNodepoolResponse struct {
 
 func (x *AddKarpenterNodepoolResponse) Reset() {
 	*x = AddKarpenterNodepoolResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[197]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[198]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15965,7 +16127,7 @@ func (x *AddKarpenterNodepoolResponse) String() string {
 func (*AddKarpenterNodepoolResponse) ProtoMessage() {}
 
 func (x *AddKarpenterNodepoolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[197]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[198]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15978,7 +16140,7 @@ func (x *AddKarpenterNodepoolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddKarpenterNodepoolResponse.ProtoReflect.Descriptor instead.
 func (*AddKarpenterNodepoolResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{197}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{198}
 }
 
 func (x *AddKarpenterNodepoolResponse) GetNodepool() *v14.KarpenterNodepool {
@@ -15998,7 +16160,7 @@ type UpdateKarpenterNodepoolRequest struct {
 
 func (x *UpdateKarpenterNodepoolRequest) Reset() {
 	*x = UpdateKarpenterNodepoolRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[198]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[199]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16010,7 +16172,7 @@ func (x *UpdateKarpenterNodepoolRequest) String() string {
 func (*UpdateKarpenterNodepoolRequest) ProtoMessage() {}
 
 func (x *UpdateKarpenterNodepoolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[198]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[199]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16023,7 +16185,7 @@ func (x *UpdateKarpenterNodepoolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateKarpenterNodepoolRequest.ProtoReflect.Descriptor instead.
 func (*UpdateKarpenterNodepoolRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{198}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{199}
 }
 
 func (x *UpdateKarpenterNodepoolRequest) GetName() string {
@@ -16049,7 +16211,7 @@ type UpdateKarpenterNodepoolResponse struct {
 
 func (x *UpdateKarpenterNodepoolResponse) Reset() {
 	*x = UpdateKarpenterNodepoolResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[199]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[200]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16061,7 +16223,7 @@ func (x *UpdateKarpenterNodepoolResponse) String() string {
 func (*UpdateKarpenterNodepoolResponse) ProtoMessage() {}
 
 func (x *UpdateKarpenterNodepoolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[199]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[200]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16074,7 +16236,7 @@ func (x *UpdateKarpenterNodepoolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateKarpenterNodepoolResponse.ProtoReflect.Descriptor instead.
 func (*UpdateKarpenterNodepoolResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{199}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{200}
 }
 
 func (x *UpdateKarpenterNodepoolResponse) GetNodepool() *v14.KarpenterNodepool {
@@ -16093,7 +16255,7 @@ type DeleteKarpenterNodepoolRequest struct {
 
 func (x *DeleteKarpenterNodepoolRequest) Reset() {
 	*x = DeleteKarpenterNodepoolRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[200]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[201]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16105,7 +16267,7 @@ func (x *DeleteKarpenterNodepoolRequest) String() string {
 func (*DeleteKarpenterNodepoolRequest) ProtoMessage() {}
 
 func (x *DeleteKarpenterNodepoolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[200]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[201]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16118,7 +16280,7 @@ func (x *DeleteKarpenterNodepoolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteKarpenterNodepoolRequest.ProtoReflect.Descriptor instead.
 func (*DeleteKarpenterNodepoolRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{200}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{201}
 }
 
 func (x *DeleteKarpenterNodepoolRequest) GetName() string {
@@ -16136,7 +16298,7 @@ type DeleteKarpenterNodepoolResponse struct {
 
 func (x *DeleteKarpenterNodepoolResponse) Reset() {
 	*x = DeleteKarpenterNodepoolResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[201]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[202]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16148,7 +16310,7 @@ func (x *DeleteKarpenterNodepoolResponse) String() string {
 func (*DeleteKarpenterNodepoolResponse) ProtoMessage() {}
 
 func (x *DeleteKarpenterNodepoolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[201]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[202]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16161,7 +16323,7 @@ func (x *DeleteKarpenterNodepoolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteKarpenterNodepoolResponse.ProtoReflect.Descriptor instead.
 func (*DeleteKarpenterNodepoolResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{201}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{202}
 }
 
 type GetKarpenterInstallationMetadataRequest struct {
@@ -16172,7 +16334,7 @@ type GetKarpenterInstallationMetadataRequest struct {
 
 func (x *GetKarpenterInstallationMetadataRequest) Reset() {
 	*x = GetKarpenterInstallationMetadataRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[202]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[203]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16184,7 +16346,7 @@ func (x *GetKarpenterInstallationMetadataRequest) String() string {
 func (*GetKarpenterInstallationMetadataRequest) ProtoMessage() {}
 
 func (x *GetKarpenterInstallationMetadataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[202]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[203]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16197,7 +16359,7 @@ func (x *GetKarpenterInstallationMetadataRequest) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GetKarpenterInstallationMetadataRequest.ProtoReflect.Descriptor instead.
 func (*GetKarpenterInstallationMetadataRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{202}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{203}
 }
 
 type GetKarpenterInstallationMetadataResponse struct {
@@ -16209,7 +16371,7 @@ type GetKarpenterInstallationMetadataResponse struct {
 
 func (x *GetKarpenterInstallationMetadataResponse) Reset() {
 	*x = GetKarpenterInstallationMetadataResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[203]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[204]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16221,7 +16383,7 @@ func (x *GetKarpenterInstallationMetadataResponse) String() string {
 func (*GetKarpenterInstallationMetadataResponse) ProtoMessage() {}
 
 func (x *GetKarpenterInstallationMetadataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[203]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[204]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16234,7 +16396,7 @@ func (x *GetKarpenterInstallationMetadataResponse) ProtoReflect() protoreflect.M
 
 // Deprecated: Use GetKarpenterInstallationMetadataResponse.ProtoReflect.Descriptor instead.
 func (*GetKarpenterInstallationMetadataResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{203}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{204}
 }
 
 func (x *GetKarpenterInstallationMetadataResponse) GetDeploymentLabels() map[string]string {
@@ -16254,7 +16416,7 @@ type CreateEnvironmentCloudResourcesRequest struct {
 
 func (x *CreateEnvironmentCloudResourcesRequest) Reset() {
 	*x = CreateEnvironmentCloudResourcesRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[204]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[205]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16266,7 +16428,7 @@ func (x *CreateEnvironmentCloudResourcesRequest) String() string {
 func (*CreateEnvironmentCloudResourcesRequest) ProtoMessage() {}
 
 func (x *CreateEnvironmentCloudResourcesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[204]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[205]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16279,7 +16441,7 @@ func (x *CreateEnvironmentCloudResourcesRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use CreateEnvironmentCloudResourcesRequest.ProtoReflect.Descriptor instead.
 func (*CreateEnvironmentCloudResourcesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{204}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{205}
 }
 
 func (x *CreateEnvironmentCloudResourcesRequest) GetEnvironmentId() string {
@@ -16297,7 +16459,7 @@ type CreateEnvironmentCloudResourcesResponse struct {
 
 func (x *CreateEnvironmentCloudResourcesResponse) Reset() {
 	*x = CreateEnvironmentCloudResourcesResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[205]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[206]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16309,7 +16471,7 @@ func (x *CreateEnvironmentCloudResourcesResponse) String() string {
 func (*CreateEnvironmentCloudResourcesResponse) ProtoMessage() {}
 
 func (x *CreateEnvironmentCloudResourcesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[205]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[206]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16322,7 +16484,7 @@ func (x *CreateEnvironmentCloudResourcesResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use CreateEnvironmentCloudResourcesResponse.ProtoReflect.Descriptor instead.
 func (*CreateEnvironmentCloudResourcesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{205}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{206}
 }
 
 type DeleteEnvironmentCloudResourcesRequest struct {
@@ -16334,7 +16496,7 @@ type DeleteEnvironmentCloudResourcesRequest struct {
 
 func (x *DeleteEnvironmentCloudResourcesRequest) Reset() {
 	*x = DeleteEnvironmentCloudResourcesRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[206]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[207]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16346,7 +16508,7 @@ func (x *DeleteEnvironmentCloudResourcesRequest) String() string {
 func (*DeleteEnvironmentCloudResourcesRequest) ProtoMessage() {}
 
 func (x *DeleteEnvironmentCloudResourcesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[206]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[207]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16359,7 +16521,7 @@ func (x *DeleteEnvironmentCloudResourcesRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use DeleteEnvironmentCloudResourcesRequest.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentCloudResourcesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{206}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{207}
 }
 
 func (x *DeleteEnvironmentCloudResourcesRequest) GetEnvironmentId() string {
@@ -16377,7 +16539,7 @@ type DeleteEnvironmentCloudResourcesResponse struct {
 
 func (x *DeleteEnvironmentCloudResourcesResponse) Reset() {
 	*x = DeleteEnvironmentCloudResourcesResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[207]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[208]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16389,7 +16551,7 @@ func (x *DeleteEnvironmentCloudResourcesResponse) String() string {
 func (*DeleteEnvironmentCloudResourcesResponse) ProtoMessage() {}
 
 func (x *DeleteEnvironmentCloudResourcesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[207]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[208]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16402,7 +16564,7 @@ func (x *DeleteEnvironmentCloudResourcesResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use DeleteEnvironmentCloudResourcesResponse.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentCloudResourcesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{207}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{208}
 }
 
 type DeploymentTag struct {
@@ -16417,7 +16579,7 @@ type DeploymentTag struct {
 
 func (x *DeploymentTag) Reset() {
 	*x = DeploymentTag{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[208]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[209]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16429,7 +16591,7 @@ func (x *DeploymentTag) String() string {
 func (*DeploymentTag) ProtoMessage() {}
 
 func (x *DeploymentTag) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[208]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[209]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16442,7 +16604,7 @@ func (x *DeploymentTag) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeploymentTag.ProtoReflect.Descriptor instead.
 func (*DeploymentTag) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{208}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{209}
 }
 
 func (x *DeploymentTag) GetTag() string {
@@ -16481,7 +16643,7 @@ type GetTagWeightsRequest struct {
 
 func (x *GetTagWeightsRequest) Reset() {
 	*x = GetTagWeightsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[209]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[210]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16493,7 +16655,7 @@ func (x *GetTagWeightsRequest) String() string {
 func (*GetTagWeightsRequest) ProtoMessage() {}
 
 func (x *GetTagWeightsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[209]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[210]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16506,7 +16668,7 @@ func (x *GetTagWeightsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTagWeightsRequest.ProtoReflect.Descriptor instead.
 func (*GetTagWeightsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{209}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{210}
 }
 
 type GetTagWeightsResponse struct {
@@ -16518,7 +16680,7 @@ type GetTagWeightsResponse struct {
 
 func (x *GetTagWeightsResponse) Reset() {
 	*x = GetTagWeightsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[210]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[211]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16530,7 +16692,7 @@ func (x *GetTagWeightsResponse) String() string {
 func (*GetTagWeightsResponse) ProtoMessage() {}
 
 func (x *GetTagWeightsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[210]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[211]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16543,7 +16705,7 @@ func (x *GetTagWeightsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTagWeightsResponse.ProtoReflect.Descriptor instead.
 func (*GetTagWeightsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{210}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{211}
 }
 
 func (x *GetTagWeightsResponse) GetTags() []*DeploymentTag {
@@ -16562,7 +16724,7 @@ type SetTagWeightsRequest struct {
 
 func (x *SetTagWeightsRequest) Reset() {
 	*x = SetTagWeightsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[211]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[212]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16574,7 +16736,7 @@ func (x *SetTagWeightsRequest) String() string {
 func (*SetTagWeightsRequest) ProtoMessage() {}
 
 func (x *SetTagWeightsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[211]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[212]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16587,7 +16749,7 @@ func (x *SetTagWeightsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetTagWeightsRequest.ProtoReflect.Descriptor instead.
 func (*SetTagWeightsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{211}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{212}
 }
 
 func (x *SetTagWeightsRequest) GetTags() []*DeploymentTag {
@@ -16606,7 +16768,7 @@ type SetTagWeightsResponse struct {
 
 func (x *SetTagWeightsResponse) Reset() {
 	*x = SetTagWeightsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[212]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[213]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16618,7 +16780,7 @@ func (x *SetTagWeightsResponse) String() string {
 func (*SetTagWeightsResponse) ProtoMessage() {}
 
 func (x *SetTagWeightsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[212]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[213]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16631,7 +16793,7 @@ func (x *SetTagWeightsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetTagWeightsResponse.ProtoReflect.Descriptor instead.
 func (*SetTagWeightsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{212}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{213}
 }
 
 func (x *SetTagWeightsResponse) GetTags() []*DeploymentTag {
@@ -16651,7 +16813,7 @@ type RequirementsFile struct {
 
 func (x *RequirementsFile) Reset() {
 	*x = RequirementsFile{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[213]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[214]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16663,7 +16825,7 @@ func (x *RequirementsFile) String() string {
 func (*RequirementsFile) ProtoMessage() {}
 
 func (x *RequirementsFile) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[213]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[214]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16676,7 +16838,7 @@ func (x *RequirementsFile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequirementsFile.ProtoReflect.Descriptor instead.
 func (*RequirementsFile) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{213}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{214}
 }
 
 func (x *RequirementsFile) GetFilename() string {
@@ -16725,7 +16887,7 @@ type CreateDeploymentRequest struct {
 
 func (x *CreateDeploymentRequest) Reset() {
 	*x = CreateDeploymentRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[214]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[215]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16737,7 +16899,7 @@ func (x *CreateDeploymentRequest) String() string {
 func (*CreateDeploymentRequest) ProtoMessage() {}
 
 func (x *CreateDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[214]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[215]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16750,7 +16912,7 @@ func (x *CreateDeploymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*CreateDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{214}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{215}
 }
 
 func (x *CreateDeploymentRequest) GetGitBranch() string {
@@ -16860,7 +17022,7 @@ type CreateDeploymentResponse struct {
 
 func (x *CreateDeploymentResponse) Reset() {
 	*x = CreateDeploymentResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[215]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[216]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16872,7 +17034,7 @@ func (x *CreateDeploymentResponse) String() string {
 func (*CreateDeploymentResponse) ProtoMessage() {}
 
 func (x *CreateDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[215]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[216]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16885,7 +17047,7 @@ func (x *CreateDeploymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*CreateDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{215}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{216}
 }
 
 func (x *CreateDeploymentResponse) GetDeploymentId() string {
@@ -16909,7 +17071,7 @@ type KubernetesCluster struct {
 
 func (x *KubernetesCluster) Reset() {
 	*x = KubernetesCluster{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[216]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[217]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16921,7 +17083,7 @@ func (x *KubernetesCluster) String() string {
 func (*KubernetesCluster) ProtoMessage() {}
 
 func (x *KubernetesCluster) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[216]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[217]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16934,7 +17096,7 @@ func (x *KubernetesCluster) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesCluster.ProtoReflect.Descriptor instead.
 func (*KubernetesCluster) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{216}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{217}
 }
 
 func (x *KubernetesCluster) GetId() string {
@@ -16987,7 +17149,7 @@ type GetEnvironmentKubeClustersRequest struct {
 
 func (x *GetEnvironmentKubeClustersRequest) Reset() {
 	*x = GetEnvironmentKubeClustersRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[217]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[218]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16999,7 +17161,7 @@ func (x *GetEnvironmentKubeClustersRequest) String() string {
 func (*GetEnvironmentKubeClustersRequest) ProtoMessage() {}
 
 func (x *GetEnvironmentKubeClustersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[217]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[218]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17012,7 +17174,7 @@ func (x *GetEnvironmentKubeClustersRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetEnvironmentKubeClustersRequest.ProtoReflect.Descriptor instead.
 func (*GetEnvironmentKubeClustersRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{217}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{218}
 }
 
 type GetEnvironmentKubeClustersResponse struct {
@@ -17024,7 +17186,7 @@ type GetEnvironmentKubeClustersResponse struct {
 
 func (x *GetEnvironmentKubeClustersResponse) Reset() {
 	*x = GetEnvironmentKubeClustersResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[218]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[219]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17036,7 +17198,7 @@ func (x *GetEnvironmentKubeClustersResponse) String() string {
 func (*GetEnvironmentKubeClustersResponse) ProtoMessage() {}
 
 func (x *GetEnvironmentKubeClustersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[218]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[219]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17049,7 +17211,7 @@ func (x *GetEnvironmentKubeClustersResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetEnvironmentKubeClustersResponse.ProtoReflect.Descriptor instead.
 func (*GetEnvironmentKubeClustersResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{218}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{219}
 }
 
 func (x *GetEnvironmentKubeClustersResponse) GetClusters() []*KubernetesCluster {
@@ -17067,7 +17229,7 @@ type SuspendEnvironmentRequest struct {
 
 func (x *SuspendEnvironmentRequest) Reset() {
 	*x = SuspendEnvironmentRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[219]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[220]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17079,7 +17241,7 @@ func (x *SuspendEnvironmentRequest) String() string {
 func (*SuspendEnvironmentRequest) ProtoMessage() {}
 
 func (x *SuspendEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[219]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[220]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17092,7 +17254,7 @@ func (x *SuspendEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuspendEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*SuspendEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{219}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{220}
 }
 
 type SuspendEnvironmentResponse struct {
@@ -17103,7 +17265,7 @@ type SuspendEnvironmentResponse struct {
 
 func (x *SuspendEnvironmentResponse) Reset() {
 	*x = SuspendEnvironmentResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[220]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[221]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17115,7 +17277,7 @@ func (x *SuspendEnvironmentResponse) String() string {
 func (*SuspendEnvironmentResponse) ProtoMessage() {}
 
 func (x *SuspendEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[220]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[221]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17128,7 +17290,7 @@ func (x *SuspendEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuspendEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*SuspendEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{220}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{221}
 }
 
 type ResumeEnvironmentRequest struct {
@@ -17139,7 +17301,7 @@ type ResumeEnvironmentRequest struct {
 
 func (x *ResumeEnvironmentRequest) Reset() {
 	*x = ResumeEnvironmentRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[221]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[222]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17151,7 +17313,7 @@ func (x *ResumeEnvironmentRequest) String() string {
 func (*ResumeEnvironmentRequest) ProtoMessage() {}
 
 func (x *ResumeEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[221]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[222]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17164,7 +17326,7 @@ func (x *ResumeEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*ResumeEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{221}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{222}
 }
 
 type ResumeEnvironmentResponse struct {
@@ -17175,7 +17337,7 @@ type ResumeEnvironmentResponse struct {
 
 func (x *ResumeEnvironmentResponse) Reset() {
 	*x = ResumeEnvironmentResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[222]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[223]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17187,7 +17349,7 @@ func (x *ResumeEnvironmentResponse) String() string {
 func (*ResumeEnvironmentResponse) ProtoMessage() {}
 
 func (x *ResumeEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[222]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[223]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17200,7 +17362,7 @@ func (x *ResumeEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*ResumeEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{222}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{223}
 }
 
 type SuspendClusterGatewayRequest struct {
@@ -17211,7 +17373,7 @@ type SuspendClusterGatewayRequest struct {
 
 func (x *SuspendClusterGatewayRequest) Reset() {
 	*x = SuspendClusterGatewayRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[223]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[224]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17223,7 +17385,7 @@ func (x *SuspendClusterGatewayRequest) String() string {
 func (*SuspendClusterGatewayRequest) ProtoMessage() {}
 
 func (x *SuspendClusterGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[223]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[224]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17236,7 +17398,7 @@ func (x *SuspendClusterGatewayRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuspendClusterGatewayRequest.ProtoReflect.Descriptor instead.
 func (*SuspendClusterGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{223}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{224}
 }
 
 type SuspendClusterGatewayResponse struct {
@@ -17247,7 +17409,7 @@ type SuspendClusterGatewayResponse struct {
 
 func (x *SuspendClusterGatewayResponse) Reset() {
 	*x = SuspendClusterGatewayResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[224]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[225]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17259,7 +17421,7 @@ func (x *SuspendClusterGatewayResponse) String() string {
 func (*SuspendClusterGatewayResponse) ProtoMessage() {}
 
 func (x *SuspendClusterGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[224]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[225]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17272,7 +17434,7 @@ func (x *SuspendClusterGatewayResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuspendClusterGatewayResponse.ProtoReflect.Descriptor instead.
 func (*SuspendClusterGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{224}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{225}
 }
 
 type ResumeClusterGatewayRequest struct {
@@ -17283,7 +17445,7 @@ type ResumeClusterGatewayRequest struct {
 
 func (x *ResumeClusterGatewayRequest) Reset() {
 	*x = ResumeClusterGatewayRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[225]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[226]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17295,7 +17457,7 @@ func (x *ResumeClusterGatewayRequest) String() string {
 func (*ResumeClusterGatewayRequest) ProtoMessage() {}
 
 func (x *ResumeClusterGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[225]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[226]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17308,7 +17470,7 @@ func (x *ResumeClusterGatewayRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeClusterGatewayRequest.ProtoReflect.Descriptor instead.
 func (*ResumeClusterGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{225}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{226}
 }
 
 type ResumeClusterGatewayResponse struct {
@@ -17319,7 +17481,7 @@ type ResumeClusterGatewayResponse struct {
 
 func (x *ResumeClusterGatewayResponse) Reset() {
 	*x = ResumeClusterGatewayResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[226]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[227]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17331,7 +17493,7 @@ func (x *ResumeClusterGatewayResponse) String() string {
 func (*ResumeClusterGatewayResponse) ProtoMessage() {}
 
 func (x *ResumeClusterGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[226]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[227]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17344,7 +17506,7 @@ func (x *ResumeClusterGatewayResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeClusterGatewayResponse.ProtoReflect.Descriptor instead.
 func (*ResumeClusterGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{226}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{227}
 }
 
 type SuspendClusterBackgroundPersistenceRequest struct {
@@ -17355,7 +17517,7 @@ type SuspendClusterBackgroundPersistenceRequest struct {
 
 func (x *SuspendClusterBackgroundPersistenceRequest) Reset() {
 	*x = SuspendClusterBackgroundPersistenceRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[227]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[228]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17367,7 +17529,7 @@ func (x *SuspendClusterBackgroundPersistenceRequest) String() string {
 func (*SuspendClusterBackgroundPersistenceRequest) ProtoMessage() {}
 
 func (x *SuspendClusterBackgroundPersistenceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[227]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[228]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17380,7 +17542,7 @@ func (x *SuspendClusterBackgroundPersistenceRequest) ProtoReflect() protoreflect
 
 // Deprecated: Use SuspendClusterBackgroundPersistenceRequest.ProtoReflect.Descriptor instead.
 func (*SuspendClusterBackgroundPersistenceRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{227}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{228}
 }
 
 type SuspendClusterBackgroundPersistenceResponse struct {
@@ -17391,7 +17553,7 @@ type SuspendClusterBackgroundPersistenceResponse struct {
 
 func (x *SuspendClusterBackgroundPersistenceResponse) Reset() {
 	*x = SuspendClusterBackgroundPersistenceResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[228]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[229]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17403,7 +17565,7 @@ func (x *SuspendClusterBackgroundPersistenceResponse) String() string {
 func (*SuspendClusterBackgroundPersistenceResponse) ProtoMessage() {}
 
 func (x *SuspendClusterBackgroundPersistenceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[228]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[229]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17416,7 +17578,7 @@ func (x *SuspendClusterBackgroundPersistenceResponse) ProtoReflect() protoreflec
 
 // Deprecated: Use SuspendClusterBackgroundPersistenceResponse.ProtoReflect.Descriptor instead.
 func (*SuspendClusterBackgroundPersistenceResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{228}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{229}
 }
 
 type ResumeClusterBackgroundPersistenceRequest struct {
@@ -17427,7 +17589,7 @@ type ResumeClusterBackgroundPersistenceRequest struct {
 
 func (x *ResumeClusterBackgroundPersistenceRequest) Reset() {
 	*x = ResumeClusterBackgroundPersistenceRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[229]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[230]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17439,7 +17601,7 @@ func (x *ResumeClusterBackgroundPersistenceRequest) String() string {
 func (*ResumeClusterBackgroundPersistenceRequest) ProtoMessage() {}
 
 func (x *ResumeClusterBackgroundPersistenceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[229]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[230]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17452,7 +17614,7 @@ func (x *ResumeClusterBackgroundPersistenceRequest) ProtoReflect() protoreflect.
 
 // Deprecated: Use ResumeClusterBackgroundPersistenceRequest.ProtoReflect.Descriptor instead.
 func (*ResumeClusterBackgroundPersistenceRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{229}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{230}
 }
 
 type ResumeClusterBackgroundPersistenceResponse struct {
@@ -17463,7 +17625,7 @@ type ResumeClusterBackgroundPersistenceResponse struct {
 
 func (x *ResumeClusterBackgroundPersistenceResponse) Reset() {
 	*x = ResumeClusterBackgroundPersistenceResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[230]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[231]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17475,7 +17637,7 @@ func (x *ResumeClusterBackgroundPersistenceResponse) String() string {
 func (*ResumeClusterBackgroundPersistenceResponse) ProtoMessage() {}
 
 func (x *ResumeClusterBackgroundPersistenceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[230]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[231]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17488,7 +17650,7 @@ func (x *ResumeClusterBackgroundPersistenceResponse) ProtoReflect() protoreflect
 
 // Deprecated: Use ResumeClusterBackgroundPersistenceResponse.ProtoReflect.Descriptor instead.
 func (*ResumeClusterBackgroundPersistenceResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{230}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{231}
 }
 
 type DeleteClusterGatewayRequest struct {
@@ -17500,7 +17662,7 @@ type DeleteClusterGatewayRequest struct {
 
 func (x *DeleteClusterGatewayRequest) Reset() {
 	*x = DeleteClusterGatewayRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[231]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[232]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17512,7 +17674,7 @@ func (x *DeleteClusterGatewayRequest) String() string {
 func (*DeleteClusterGatewayRequest) ProtoMessage() {}
 
 func (x *DeleteClusterGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[231]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[232]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17525,7 +17687,7 @@ func (x *DeleteClusterGatewayRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteClusterGatewayRequest.ProtoReflect.Descriptor instead.
 func (*DeleteClusterGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{231}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{232}
 }
 
 func (x *DeleteClusterGatewayRequest) GetId() string {
@@ -17543,7 +17705,7 @@ type DeleteClusterGatewayResponse struct {
 
 func (x *DeleteClusterGatewayResponse) Reset() {
 	*x = DeleteClusterGatewayResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[232]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[233]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17555,7 +17717,7 @@ func (x *DeleteClusterGatewayResponse) String() string {
 func (*DeleteClusterGatewayResponse) ProtoMessage() {}
 
 func (x *DeleteClusterGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[232]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[233]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17568,7 +17730,7 @@ func (x *DeleteClusterGatewayResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteClusterGatewayResponse.ProtoReflect.Descriptor instead.
 func (*DeleteClusterGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{232}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{233}
 }
 
 type DeleteClusterBackgroundPersistenceRequest struct {
@@ -17580,7 +17742,7 @@ type DeleteClusterBackgroundPersistenceRequest struct {
 
 func (x *DeleteClusterBackgroundPersistenceRequest) Reset() {
 	*x = DeleteClusterBackgroundPersistenceRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[233]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[234]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17592,7 +17754,7 @@ func (x *DeleteClusterBackgroundPersistenceRequest) String() string {
 func (*DeleteClusterBackgroundPersistenceRequest) ProtoMessage() {}
 
 func (x *DeleteClusterBackgroundPersistenceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[233]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[234]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17605,7 +17767,7 @@ func (x *DeleteClusterBackgroundPersistenceRequest) ProtoReflect() protoreflect.
 
 // Deprecated: Use DeleteClusterBackgroundPersistenceRequest.ProtoReflect.Descriptor instead.
 func (*DeleteClusterBackgroundPersistenceRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{233}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{234}
 }
 
 func (x *DeleteClusterBackgroundPersistenceRequest) GetId() string {
@@ -17623,7 +17785,7 @@ type DeleteClusterBackgroundPersistenceResponse struct {
 
 func (x *DeleteClusterBackgroundPersistenceResponse) Reset() {
 	*x = DeleteClusterBackgroundPersistenceResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[234]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[235]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17635,7 +17797,7 @@ func (x *DeleteClusterBackgroundPersistenceResponse) String() string {
 func (*DeleteClusterBackgroundPersistenceResponse) ProtoMessage() {}
 
 func (x *DeleteClusterBackgroundPersistenceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[234]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[235]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17648,7 +17810,7 @@ func (x *DeleteClusterBackgroundPersistenceResponse) ProtoReflect() protoreflect
 
 // Deprecated: Use DeleteClusterBackgroundPersistenceResponse.ProtoReflect.Descriptor instead.
 func (*DeleteClusterBackgroundPersistenceResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{234}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{235}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
@@ -17670,7 +17832,7 @@ type StreamingKafkaKedaConfig struct {
 
 func (x *StreamingKafkaKedaConfig) Reset() {
 	*x = StreamingKafkaKedaConfig{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[235]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[236]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17682,7 +17844,7 @@ func (x *StreamingKafkaKedaConfig) String() string {
 func (*StreamingKafkaKedaConfig) ProtoMessage() {}
 
 func (x *StreamingKafkaKedaConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[235]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[236]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17695,7 +17857,7 @@ func (x *StreamingKafkaKedaConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamingKafkaKedaConfig.ProtoReflect.Descriptor instead.
 func (*StreamingKafkaKedaConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{235}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{236}
 }
 
 func (x *StreamingKafkaKedaConfig) GetResolverFqn() string {
@@ -17781,7 +17943,7 @@ type ListStreamingKafkaKedaConfigsRequest struct {
 
 func (x *ListStreamingKafkaKedaConfigsRequest) Reset() {
 	*x = ListStreamingKafkaKedaConfigsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[236]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[237]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17793,7 +17955,7 @@ func (x *ListStreamingKafkaKedaConfigsRequest) String() string {
 func (*ListStreamingKafkaKedaConfigsRequest) ProtoMessage() {}
 
 func (x *ListStreamingKafkaKedaConfigsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[236]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[237]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17806,7 +17968,7 @@ func (x *ListStreamingKafkaKedaConfigsRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ListStreamingKafkaKedaConfigsRequest.ProtoReflect.Descriptor instead.
 func (*ListStreamingKafkaKedaConfigsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{236}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{237}
 }
 
 func (x *ListStreamingKafkaKedaConfigsRequest) GetIntegrationId() string {
@@ -17847,7 +18009,7 @@ type ListStreamingKafkaKedaConfigsResponse struct {
 
 func (x *ListStreamingKafkaKedaConfigsResponse) Reset() {
 	*x = ListStreamingKafkaKedaConfigsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[237]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[238]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17859,7 +18021,7 @@ func (x *ListStreamingKafkaKedaConfigsResponse) String() string {
 func (*ListStreamingKafkaKedaConfigsResponse) ProtoMessage() {}
 
 func (x *ListStreamingKafkaKedaConfigsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[237]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[238]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17872,7 +18034,7 @@ func (x *ListStreamingKafkaKedaConfigsResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ListStreamingKafkaKedaConfigsResponse.ProtoReflect.Descriptor instead.
 func (*ListStreamingKafkaKedaConfigsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{237}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{238}
 }
 
 func (x *ListStreamingKafkaKedaConfigsResponse) GetConfigs() []*StreamingKafkaKedaConfig {
@@ -17899,7 +18061,7 @@ type UpdateStreamingKafkaKedaConfigRequest struct {
 
 func (x *UpdateStreamingKafkaKedaConfigRequest) Reset() {
 	*x = UpdateStreamingKafkaKedaConfigRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[238]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[239]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17911,7 +18073,7 @@ func (x *UpdateStreamingKafkaKedaConfigRequest) String() string {
 func (*UpdateStreamingKafkaKedaConfigRequest) ProtoMessage() {}
 
 func (x *UpdateStreamingKafkaKedaConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[238]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[239]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17924,7 +18086,7 @@ func (x *UpdateStreamingKafkaKedaConfigRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use UpdateStreamingKafkaKedaConfigRequest.ProtoReflect.Descriptor instead.
 func (*UpdateStreamingKafkaKedaConfigRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{238}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{239}
 }
 
 func (x *UpdateStreamingKafkaKedaConfigRequest) GetResolverFqn() string {
@@ -17993,7 +18155,7 @@ type UpdateStreamingKafkaKedaConfigResponse struct {
 
 func (x *UpdateStreamingKafkaKedaConfigResponse) Reset() {
 	*x = UpdateStreamingKafkaKedaConfigResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[239]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[240]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18005,7 +18167,7 @@ func (x *UpdateStreamingKafkaKedaConfigResponse) String() string {
 func (*UpdateStreamingKafkaKedaConfigResponse) ProtoMessage() {}
 
 func (x *UpdateStreamingKafkaKedaConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[239]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[240]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18018,7 +18180,7 @@ func (x *UpdateStreamingKafkaKedaConfigResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use UpdateStreamingKafkaKedaConfigResponse.ProtoReflect.Descriptor instead.
 func (*UpdateStreamingKafkaKedaConfigResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{239}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{240}
 }
 
 func (x *UpdateStreamingKafkaKedaConfigResponse) GetConfig() *StreamingKafkaKedaConfig {
@@ -18075,7 +18237,7 @@ type VectorTelemetryPipelineMetricsSpec struct {
 
 func (x *VectorTelemetryPipelineMetricsSpec) Reset() {
 	*x = VectorTelemetryPipelineMetricsSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[240]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[241]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18087,7 +18249,7 @@ func (x *VectorTelemetryPipelineMetricsSpec) String() string {
 func (*VectorTelemetryPipelineMetricsSpec) ProtoMessage() {}
 
 func (x *VectorTelemetryPipelineMetricsSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[240]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[241]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18100,7 +18262,7 @@ func (x *VectorTelemetryPipelineMetricsSpec) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use VectorTelemetryPipelineMetricsSpec.ProtoReflect.Descriptor instead.
 func (*VectorTelemetryPipelineMetricsSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{240}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{241}
 }
 
 func (x *VectorTelemetryPipelineMetricsSpec) GetEnabled() bool {
@@ -18216,7 +18378,7 @@ type CustomerVectorAggregatorOtlpMetricsExportConfig struct {
 
 func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) Reset() {
 	*x = CustomerVectorAggregatorOtlpMetricsExportConfig{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[241]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[242]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18228,7 +18390,7 @@ func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) String() string {
 func (*CustomerVectorAggregatorOtlpMetricsExportConfig) ProtoMessage() {}
 
 func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[241]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[242]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18241,7 +18403,7 @@ func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) ProtoReflect() protore
 
 // Deprecated: Use CustomerVectorAggregatorOtlpMetricsExportConfig.ProtoReflect.Descriptor instead.
 func (*CustomerVectorAggregatorOtlpMetricsExportConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{241}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{242}
 }
 
 func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) GetEnabled() bool {
@@ -18284,7 +18446,7 @@ type PopulateNamedQueryPlansRequest struct {
 
 func (x *PopulateNamedQueryPlansRequest) Reset() {
 	*x = PopulateNamedQueryPlansRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[242]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[243]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18296,7 +18458,7 @@ func (x *PopulateNamedQueryPlansRequest) String() string {
 func (*PopulateNamedQueryPlansRequest) ProtoMessage() {}
 
 func (x *PopulateNamedQueryPlansRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[242]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[243]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18309,7 +18471,7 @@ func (x *PopulateNamedQueryPlansRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PopulateNamedQueryPlansRequest.ProtoReflect.Descriptor instead.
 func (*PopulateNamedQueryPlansRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{242}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{243}
 }
 
 func (x *PopulateNamedQueryPlansRequest) GetExistingDeploymentId() string {
@@ -18343,7 +18505,7 @@ type PopulateNamedQueryPlansResponse struct {
 
 func (x *PopulateNamedQueryPlansResponse) Reset() {
 	*x = PopulateNamedQueryPlansResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[243]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[244]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18355,7 +18517,7 @@ func (x *PopulateNamedQueryPlansResponse) String() string {
 func (*PopulateNamedQueryPlansResponse) ProtoMessage() {}
 
 func (x *PopulateNamedQueryPlansResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[243]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[244]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18368,7 +18530,7 @@ func (x *PopulateNamedQueryPlansResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PopulateNamedQueryPlansResponse.ProtoReflect.Descriptor instead.
 func (*PopulateNamedQueryPlansResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{243}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{244}
 }
 
 func (x *PopulateNamedQueryPlansResponse) GetFallbackToInCluster() bool {
@@ -18390,7 +18552,7 @@ type PrepareGraphSupplementRequest struct {
 
 func (x *PrepareGraphSupplementRequest) Reset() {
 	*x = PrepareGraphSupplementRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[244]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[245]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18402,7 +18564,7 @@ func (x *PrepareGraphSupplementRequest) String() string {
 func (*PrepareGraphSupplementRequest) ProtoMessage() {}
 
 func (x *PrepareGraphSupplementRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[244]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[245]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18415,7 +18577,7 @@ func (x *PrepareGraphSupplementRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrepareGraphSupplementRequest.ProtoReflect.Descriptor instead.
 func (*PrepareGraphSupplementRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{244}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{245}
 }
 
 func (x *PrepareGraphSupplementRequest) GetExistingDeploymentId() string {
@@ -18443,7 +18605,7 @@ type PrepareGraphSupplementResponse struct {
 
 func (x *PrepareGraphSupplementResponse) Reset() {
 	*x = PrepareGraphSupplementResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[245]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[246]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18455,7 +18617,7 @@ func (x *PrepareGraphSupplementResponse) String() string {
 func (*PrepareGraphSupplementResponse) ProtoMessage() {}
 
 func (x *PrepareGraphSupplementResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[245]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[246]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18468,7 +18630,7 @@ func (x *PrepareGraphSupplementResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrepareGraphSupplementResponse.ProtoReflect.Descriptor instead.
 func (*PrepareGraphSupplementResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{245}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{246}
 }
 
 // Identifies an in-tree cert-manager issuer or an external issuer. Namespaced issuer kinds must
@@ -18487,7 +18649,7 @@ type CertManagerIssuerRef struct {
 
 func (x *CertManagerIssuerRef) Reset() {
 	*x = CertManagerIssuerRef{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[246]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[247]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18499,7 +18661,7 @@ func (x *CertManagerIssuerRef) String() string {
 func (*CertManagerIssuerRef) ProtoMessage() {}
 
 func (x *CertManagerIssuerRef) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[246]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[247]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18512,7 +18674,7 @@ func (x *CertManagerIssuerRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CertManagerIssuerRef.ProtoReflect.Descriptor instead.
 func (*CertManagerIssuerRef) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{246}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{247}
 }
 
 func (x *CertManagerIssuerRef) GetName() string {
@@ -18547,7 +18709,7 @@ type ValidateProjectSettingsRequest struct {
 
 func (x *ValidateProjectSettingsRequest) Reset() {
 	*x = ValidateProjectSettingsRequest{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[247]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[248]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18559,7 +18721,7 @@ func (x *ValidateProjectSettingsRequest) String() string {
 func (*ValidateProjectSettingsRequest) ProtoMessage() {}
 
 func (x *ValidateProjectSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[247]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[248]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18572,7 +18734,7 @@ func (x *ValidateProjectSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateProjectSettingsRequest.ProtoReflect.Descriptor instead.
 func (*ValidateProjectSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{247}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{248}
 }
 
 func (x *ValidateProjectSettingsRequest) GetProjectSettings() *v11.ProjectSettings {
@@ -18590,7 +18752,7 @@ type ValidateProjectSettingsResponse struct {
 
 func (x *ValidateProjectSettingsResponse) Reset() {
 	*x = ValidateProjectSettingsResponse{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[248]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[249]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18602,7 +18764,7 @@ func (x *ValidateProjectSettingsResponse) String() string {
 func (*ValidateProjectSettingsResponse) ProtoMessage() {}
 
 func (x *ValidateProjectSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[248]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[249]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18615,7 +18777,7 @@ func (x *ValidateProjectSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateProjectSettingsResponse.ProtoReflect.Descriptor instead.
 func (*ValidateProjectSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{248}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{249}
 }
 
 type CustomerCollectorReceivedSignalsSpec struct {
@@ -18635,7 +18797,7 @@ type CustomerCollectorReceivedSignalsSpec struct {
 
 func (x *CustomerCollectorReceivedSignalsSpec) Reset() {
 	*x = CustomerCollectorReceivedSignalsSpec{}
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[249]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[250]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18647,7 +18809,7 @@ func (x *CustomerCollectorReceivedSignalsSpec) String() string {
 func (*CustomerCollectorReceivedSignalsSpec) ProtoMessage() {}
 
 func (x *CustomerCollectorReceivedSignalsSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_builder_proto_msgTypes[249]
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[250]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18660,7 +18822,7 @@ func (x *CustomerCollectorReceivedSignalsSpec) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use CustomerCollectorReceivedSignalsSpec.ProtoReflect.Descriptor instead.
 func (*CustomerCollectorReceivedSignalsSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{249}
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{250}
 }
 
 func (x *CustomerCollectorReceivedSignalsSpec) GetLogs() bool {
@@ -18732,9 +18894,11 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x13_force_venv_rebuildB \n" +
 	"\x1e_skip_handle_conversion_errorsB%\n" +
 	"#_validate_named_queries_after_buildB\x13\n" +
-	"\x11_platform_version\"C\n" +
+	"\x11_platform_version\"b\n" +
 	"&StartShadowBuildFromDeploymentResponse\x12\x19\n" +
-	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\x98\x01\n" +
+	"\bbuild_id\x18\x01 \x01(\tR\abuildId\x12\x1d\n" +
+	"\n" +
+	"image_name\x18\x02 \x01(\tR\timageName\"\x98\x01\n" +
 	"\x1bDeployKubeComponentsRequest\x124\n" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12C\n" +
 	"\atargets\x18\x02 \x03(\v2).chalk.server.v1.ActivateDeploymentTargetR\atargets\"G\n" +
@@ -19232,7 +19396,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x15GatewayProviderConfig\x12C\n" +
 	"\x05envoy\x18\x01 \x01(\v2+.chalk.server.v1.EnvoyGatewayProviderConfigH\x00R\x05envoy\x12=\n" +
 	"\x03gcp\x18\x02 \x01(\v2).chalk.server.v1.GCPGatewayProviderConfigH\x00R\x03gcpB\b\n" +
-	"\x06config\"\x8c\b\n" +
+	"\x06config\"\xe9\b\n" +
 	"\x1aEnvoyGatewayProviderConfig\x12.\n" +
 	"\x10timeout_duration\x18\x01 \x01(\tH\x00R\x0ftimeoutDuration\x88\x01\x01\x12&\n" +
 	"\fdns_hostname\x18\x02 \x01(\tH\x01R\vdnsHostname\x88\x01\x01\x12\x1f\n" +
@@ -19248,7 +19412,8 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"%allow_colocation_with_chalk_workloads\x18\v \x01(\bR!allowColocationWithChalkWorkloads\x12F\n" +
 	"\x1frequire_infrastructure_nodepool\x18\f \x01(\bR\x1drequireInfrastructureNodepool\x12-\n" +
 	"\x10idle_timeout_sec\x18\r \x01(\x04H\x05R\x0eidleTimeoutSec\x88\x01\x01\x12`\n" +
-	"\x16certificate_issuer_ref\x18\x0e \x01(\v2%.chalk.server.v1.CertManagerIssuerRefH\x06R\x14certificateIssuerRef\x88\x01\x01\x1a?\n" +
+	"\x16certificate_issuer_ref\x18\x0e \x01(\v2%.chalk.server.v1.CertManagerIssuerRefH\x06R\x14certificateIssuerRef\x88\x01\x01\x12[\n" +
+	"\x16traffic_zonal_affinity\x18\x0f \x01(\x0e2%.chalk.server.v1.TrafficZonalAffinityR\x14trafficZonalAffinity\x1a?\n" +
 	"\x11NodeSelectorEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x13\n" +
@@ -19820,10 +19985,10 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x06_limitB\x15\n" +
 	"\x13_runtime_class_nameB\x16\n" +
 	"\x14_host_nvidia_lib_dirB\x11\n" +
-	"\x0f_image_override\"\xdd\x04\n" +
+	"\x0f_image_override\"\xe1\x04\n" +
 	"\x0eClickHouseSpec\x12.\n" +
-	"\x13click_house_version\x18\x01 \x01(\tR\x11clickHouseVersion\x12B\n" +
-	"\arequest\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x00R\arequest\x88\x01\x01\x12B\n" +
+	"\x13click_house_version\x18\x01 \x01(\tR\x11clickHouseVersion\x12F\n" +
+	"\arequest\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigB\x02\x18\x01H\x00R\arequest\x88\x01\x01\x12B\n" +
 	"\x05limit\x18\x03 \x01(\v2#.chalk.server.v1.KubeResourceConfigB\x02\x18\x01H\x01R\x05limit\x88\x01\x01\x12I\n" +
 	"\astorage\x18\x04 \x01(\v2*.chalk.server.v1.KubePersistentVolumeClaimH\x02R\astorage\x88\x01\x01\x12\"\n" +
 	"\n" +
@@ -19841,8 +20006,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x0e_instance_typeB\x12\n" +
 	"\x10_serve_over_httpB\x15\n" +
 	"\x13_chalk_machine_typeB\v\n" +
-	"\t_disabled\"\xa2\n" +
-	"\n" +
+	"\t_disabled\"\x94\v\n" +
 	"\x13VictoriaMetricsSpec\x12.\n" +
 	"\x10retention_period\x18\x01 \x01(\tH\x00R\x0fretentionPeriod\x88\x01\x01\x12&\n" +
 	"\fstorage_size\x18\x02 \x01(\tH\x01R\vstorageSize\x88\x01\x01\x12-\n" +
@@ -19862,7 +20026,8 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x0finsert_replicas\x18\x0e \x01(\x05H\rR\x0einsertReplicas\x88\x01\x01\x12F\n" +
 	"\x1dinsert_max_concurrent_inserts\x18\x0f \x01(\rH\x0eR\x1ainsertMaxConcurrentInserts\x88\x01\x01\x12(\n" +
 	"\rauth_replicas\x18\x10 \x01(\x05H\x0fR\fauthReplicas\x88\x01\x01\x12K\n" +
-	"\fauth_request\x18\x11 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x10R\vauthRequest\x88\x01\x01B\x13\n" +
+	"\fauth_request\x18\x11 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x10R\vauthRequest\x88\x01\x01\x12]\n" +
+	"\x0edatadog_export\x18\x12 \x01(\v21.chalk.server.v1.VictoriaMetricsDatadogExportSpecH\x11R\rdatadogExport\x88\x01\x01B\x13\n" +
 	"\x11_retention_periodB\x0f\n" +
 	"\r_storage_sizeB\x10\n" +
 	"\x0e_storage_classB\n" +
@@ -19880,7 +20045,19 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x10_insert_replicasB \n" +
 	"\x1e_insert_max_concurrent_insertsB\x10\n" +
 	"\x0e_auth_replicasB\x0f\n" +
-	"\r_auth_request\"@\n" +
+	"\r_auth_requestB\x11\n" +
+	"\x0f_datadog_export\"\xbd\x02\n" +
+	" VictoriaMetricsDatadogExportSpec\x12B\n" +
+	"\arequest\x18\x01 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x00R\arequest\x88\x01\x01\x12>\n" +
+	"\x05limit\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x01R\x05limit\x88\x01\x01\x129\n" +
+	"\x16query_interval_seconds\x18\x03 \x01(\rH\x02R\x14queryIntervalSeconds\x88\x01\x01\x12\x1d\n" +
+	"\aenabled\x18\x04 \x01(\bH\x03R\aenabled\x88\x01\x01B\n" +
+	"\n" +
+	"\b_requestB\b\n" +
+	"\x06_limitB\x19\n" +
+	"\x17_query_interval_secondsB\n" +
+	"\n" +
+	"\b_enabled\"@\n" +
 	"\x10ZombieKillerSpec\x12\x1f\n" +
 	"\binterval\x18\x01 \x01(\rH\x00R\binterval\x88\x01\x01B\v\n" +
 	"\t_interval\"\xbf\v\n" +
@@ -20647,7 +20824,11 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"%VectorCollectorRequestConcurrencyMode\x129\n" +
 	"5VECTOR_COLLECTOR_REQUEST_CONCURRENCY_MODE_UNSPECIFIED\x10\x00\x123\n" +
 	"/VECTOR_COLLECTOR_REQUEST_CONCURRENCY_MODE_FIXED\x10\x01\x126\n" +
-	"2VECTOR_COLLECTOR_REQUEST_CONCURRENCY_MODE_ADAPTIVE\x10\x022\xaad\n" +
+	"2VECTOR_COLLECTOR_REQUEST_CONCURRENCY_MODE_ADAPTIVE\x10\x02*\x87\x01\n" +
+	"\x14TrafficZonalAffinity\x12&\n" +
+	"\"TRAFFIC_ZONAL_AFFINITY_UNSPECIFIED\x10\x00\x12%\n" +
+	"!TRAFFIC_ZONAL_AFFINITY_CROSS_ZONE\x10\x01\x12 \n" +
+	"\x1cTRAFFIC_ZONAL_AFFINITY_LOCAL\x10\x022\xaad\n" +
 	"\x0eBuilderService\x12l\n" +
 	"\x0fGetSearchConfig\x12'.chalk.server.v1.GetSearchConfigRequest\x1a(.chalk.server.v1.GetSearchConfigResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc0\x01\n" +
 	"\x12ActivateDeployment\x12*.chalk.server.v1.ActivateDeploymentRequest\x1a+.chalk.server.v1.ActivateDeploymentResponse\"Q\x80}\x0e\x8a\xd3\x0eJ\b\x02\x12FPromoted an existing deployment's resources into the active deployment\x12i\n" +
@@ -20775,8 +20956,8 @@ func file_chalk_server_v1_builder_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_builder_proto_rawDescData
 }
 
-var file_chalk_server_v1_builder_proto_enumTypes = make([]protoimpl.EnumInfo, 19)
-var file_chalk_server_v1_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 267)
+var file_chalk_server_v1_builder_proto_enumTypes = make([]protoimpl.EnumInfo, 20)
+var file_chalk_server_v1_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 268)
 var file_chalk_server_v1_builder_proto_goTypes = []any{
 	(SourceMode)(0),            // 0: chalk.server.v1.SourceMode
 	(DeploymentBuildStatus)(0), // 1: chalk.server.v1.DeploymentBuildStatus
@@ -20797,702 +20978,708 @@ var file_chalk_server_v1_builder_proto_goTypes = []any{
 	(ChalkMachineTypeOverrideScope)(0),                          // 16: chalk.server.v1.ChalkMachineTypeOverrideScope
 	(VectorAggregatorBufferType)(0),                             // 17: chalk.server.v1.VectorAggregatorBufferType
 	(VectorCollectorRequestConcurrencyMode)(0),                  // 18: chalk.server.v1.VectorCollectorRequestConcurrencyMode
-	(*ActivateDeploymentTarget)(nil),                            // 19: chalk.server.v1.ActivateDeploymentTarget
-	(*ActivateDeploymentRequest)(nil),                           // 20: chalk.server.v1.ActivateDeploymentRequest
-	(*ActivateDeploymentResponse)(nil),                          // 21: chalk.server.v1.ActivateDeploymentResponse
-	(*IndexDeploymentRequest)(nil),                              // 22: chalk.server.v1.IndexDeploymentRequest
-	(*IndexDeploymentResponse)(nil),                             // 23: chalk.server.v1.IndexDeploymentResponse
-	(*ValidateNamedQueriesRequest)(nil),                         // 24: chalk.server.v1.ValidateNamedQueriesRequest
-	(*ValidateNamedQueriesResponse)(nil),                        // 25: chalk.server.v1.ValidateNamedQueriesResponse
-	(*RunPostIndexValidationRequest)(nil),                       // 26: chalk.server.v1.RunPostIndexValidationRequest
-	(*RunPostIndexValidationResponse)(nil),                      // 27: chalk.server.v1.RunPostIndexValidationResponse
-	(*StartShadowBuildFromDeploymentRequest)(nil),               // 28: chalk.server.v1.StartShadowBuildFromDeploymentRequest
-	(*StartShadowBuildFromDeploymentResponse)(nil),              // 29: chalk.server.v1.StartShadowBuildFromDeploymentResponse
-	(*DeployKubeComponentsRequest)(nil),                         // 30: chalk.server.v1.DeployKubeComponentsRequest
-	(*DeployKubeComponentsResponse)(nil),                        // 31: chalk.server.v1.DeployKubeComponentsResponse
-	(*RebuildDeploymentRequest)(nil),                            // 32: chalk.server.v1.RebuildDeploymentRequest
-	(*RebuildDeploymentResponse)(nil),                           // 33: chalk.server.v1.RebuildDeploymentResponse
-	(*RedeployDeploymentRequest)(nil),                           // 34: chalk.server.v1.RedeployDeploymentRequest
-	(*RedeployDeploymentResponse)(nil),                          // 35: chalk.server.v1.RedeployDeploymentResponse
-	(*PrebuiltEngineImageSource)(nil),                           // 36: chalk.server.v1.PrebuiltEngineImageSource
-	(*UploadSourceRequest)(nil),                                 // 37: chalk.server.v1.UploadSourceRequest
-	(*UploadSourceResponse)(nil),                                // 38: chalk.server.v1.UploadSourceResponse
-	(*PrepareDeploymentRequest)(nil),                            // 39: chalk.server.v1.PrepareDeploymentRequest
-	(*PrepareDeploymentResponse)(nil),                           // 40: chalk.server.v1.PrepareDeploymentResponse
-	(*BuildImageRequest)(nil),                                   // 41: chalk.server.v1.BuildImageRequest
-	(*BuildImageResponse)(nil),                                  // 42: chalk.server.v1.BuildImageResponse
-	(*LintSourceRequest)(nil),                                   // 43: chalk.server.v1.LintSourceRequest
-	(*LintSourceResponse)(nil),                                  // 44: chalk.server.v1.LintSourceResponse
-	(*GetDeploymentStepsRequest)(nil),                           // 45: chalk.server.v1.GetDeploymentStepsRequest
-	(*DeploymentBuildStep)(nil),                                 // 46: chalk.server.v1.DeploymentBuildStep
-	(*GetDeploymentStepsResponse)(nil),                          // 47: chalk.server.v1.GetDeploymentStepsResponse
-	(*GetDeploymentLogsRequest)(nil),                            // 48: chalk.server.v1.GetDeploymentLogsRequest
-	(*GetDeploymentLogsResponse)(nil),                           // 49: chalk.server.v1.GetDeploymentLogsResponse
-	(*GetDeploymentDependenciesRequest)(nil),                    // 50: chalk.server.v1.GetDeploymentDependenciesRequest
-	(*GetDeploymentDependenciesResponse)(nil),                   // 51: chalk.server.v1.GetDeploymentDependenciesResponse
-	(*ResolveEngineBaseImageRequest)(nil),                       // 52: chalk.server.v1.ResolveEngineBaseImageRequest
-	(*ResolveEngineBaseImageResponse)(nil),                      // 53: chalk.server.v1.ResolveEngineBaseImageResponse
-	(*ListEngineBaseImagesRequest)(nil),                         // 54: chalk.server.v1.ListEngineBaseImagesRequest
-	(*EngineBaseImageVariant)(nil),                              // 55: chalk.server.v1.EngineBaseImageVariant
-	(*EngineBaseImageRelease)(nil),                              // 56: chalk.server.v1.EngineBaseImageRelease
-	(*ListEngineBaseImagesResponse)(nil),                        // 57: chalk.server.v1.ListEngineBaseImagesResponse
-	(*GetClusterTimescaleDBRequest)(nil),                        // 58: chalk.server.v1.GetClusterTimescaleDBRequest
-	(*GetClusterTimescaleDBResponse)(nil),                       // 59: chalk.server.v1.GetClusterTimescaleDBResponse
-	(*ListClusterTimescaleDBsRequest)(nil),                      // 60: chalk.server.v1.ListClusterTimescaleDBsRequest
-	(*ListClusterTimescaleDBsResponse)(nil),                     // 61: chalk.server.v1.ListClusterTimescaleDBsResponse
-	(*GetClusterGatewayRequest)(nil),                            // 62: chalk.server.v1.GetClusterGatewayRequest
-	(*GetClusterGatewayResponse)(nil),                           // 63: chalk.server.v1.GetClusterGatewayResponse
-	(*ListClusterGatewaysRequest)(nil),                          // 64: chalk.server.v1.ListClusterGatewaysRequest
-	(*ListClusterGatewaysResponse)(nil),                         // 65: chalk.server.v1.ListClusterGatewaysResponse
-	(*GetClusterGatewayDefaultRequest)(nil),                     // 66: chalk.server.v1.GetClusterGatewayDefaultRequest
-	(*GetClusterGatewayDefaultResponse)(nil),                    // 67: chalk.server.v1.GetClusterGatewayDefaultResponse
-	(*BackgroundPersistence)(nil),                               // 68: chalk.server.v1.BackgroundPersistence
-	(*GetClusterBackgroundPersistenceRequest)(nil),              // 69: chalk.server.v1.GetClusterBackgroundPersistenceRequest
-	(*GetClusterBackgroundPersistenceResponse)(nil),             // 70: chalk.server.v1.GetClusterBackgroundPersistenceResponse
-	(*ListClusterBackgroundPersistenceDeploymentsRequest)(nil),  // 71: chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsRequest
-	(*ListClusterBackgroundPersistenceDeploymentsResponse)(nil), // 72: chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse
-	(*CreateClusterTimescaleDBRequest)(nil),                     // 73: chalk.server.v1.CreateClusterTimescaleDBRequest
-	(*DeleteClusterTimescaleDBRequest)(nil),                     // 74: chalk.server.v1.DeleteClusterTimescaleDBRequest
-	(*DeleteClusterTimescaleDBResponse)(nil),                    // 75: chalk.server.v1.DeleteClusterTimescaleDBResponse
-	(*GetClusterTimescaleDefaultRequest)(nil),                   // 76: chalk.server.v1.GetClusterTimescaleDefaultRequest
-	(*GetClusterTimescaleDefaultResponse)(nil),                  // 77: chalk.server.v1.GetClusterTimescaleDefaultResponse
-	(*KubeResourceConfig)(nil),                                  // 78: chalk.server.v1.KubeResourceConfig
-	(*KubePersistentVolumeClaim)(nil),                           // 79: chalk.server.v1.KubePersistentVolumeClaim
-	(*ClusterTimescaleSpecs)(nil),                               // 80: chalk.server.v1.ClusterTimescaleSpecs
-	(*CreateClusterTimescaleDBResponse)(nil),                    // 81: chalk.server.v1.CreateClusterTimescaleDBResponse
-	(*UpdateClusterTimescaleDBRequest)(nil),                     // 82: chalk.server.v1.UpdateClusterTimescaleDBRequest
-	(*UpdateClusterTimescaleDBResponse)(nil),                    // 83: chalk.server.v1.UpdateClusterTimescaleDBResponse
-	(*MigrateClusterTimescaleDBRequest)(nil),                    // 84: chalk.server.v1.MigrateClusterTimescaleDBRequest
-	(*MigrateClusterTimescaleDBResponse)(nil),                   // 85: chalk.server.v1.MigrateClusterTimescaleDBResponse
-	(*TemporalEngineSpecs)(nil),                                 // 86: chalk.server.v1.TemporalEngineSpecs
-	(*ClusterWorkflowOrchestratorSpecs)(nil),                    // 87: chalk.server.v1.ClusterWorkflowOrchestratorSpecs
-	(*GetClusterWorkflowOrchestratorRequest)(nil),               // 88: chalk.server.v1.GetClusterWorkflowOrchestratorRequest
-	(*GetClusterWorkflowOrchestratorResponse)(nil),              // 89: chalk.server.v1.GetClusterWorkflowOrchestratorResponse
-	(*CreateClusterWorkflowOrchestratorRequest)(nil),            // 90: chalk.server.v1.CreateClusterWorkflowOrchestratorRequest
-	(*CreateClusterWorkflowOrchestratorResponse)(nil),           // 91: chalk.server.v1.CreateClusterWorkflowOrchestratorResponse
-	(*UpdateClusterWorkflowOrchestratorRequest)(nil),            // 92: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest
-	(*UpdateClusterWorkflowOrchestratorResponse)(nil),           // 93: chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse
-	(*DeleteClusterWorkflowOrchestratorRequest)(nil),            // 94: chalk.server.v1.DeleteClusterWorkflowOrchestratorRequest
-	(*DeleteClusterWorkflowOrchestratorResponse)(nil),           // 95: chalk.server.v1.DeleteClusterWorkflowOrchestratorResponse
-	(*GetClusterWorkflowOrchestratorDefaultRequest)(nil),        // 96: chalk.server.v1.GetClusterWorkflowOrchestratorDefaultRequest
-	(*GetClusterWorkflowOrchestratorDefaultResponse)(nil),       // 97: chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse
-	(*MigrateClusterWorkflowOrchestratorRequest)(nil),           // 98: chalk.server.v1.MigrateClusterWorkflowOrchestratorRequest
-	(*MigrateClusterWorkflowOrchestratorResponse)(nil),          // 99: chalk.server.v1.MigrateClusterWorkflowOrchestratorResponse
-	(*CreateClusterGatewayRequest)(nil),                         // 100: chalk.server.v1.CreateClusterGatewayRequest
-	(*EnvoyGatewaySpecs)(nil),                                   // 101: chalk.server.v1.EnvoyGatewaySpecs
-	(*EnvoyGatewayListener)(nil),                                // 102: chalk.server.v1.EnvoyGatewayListener
-	(*EnvoyGatewayAllowedRoutes)(nil),                           // 103: chalk.server.v1.EnvoyGatewayAllowedRoutes
-	(*EnvoyGatewayAllowedNamespaces)(nil),                       // 104: chalk.server.v1.EnvoyGatewayAllowedNamespaces
-	(*GatewayProviderConfig)(nil),                               // 105: chalk.server.v1.GatewayProviderConfig
-	(*EnvoyGatewayProviderConfig)(nil),                          // 106: chalk.server.v1.EnvoyGatewayProviderConfig
-	(*GCPGatewayProviderConfig)(nil),                            // 107: chalk.server.v1.GCPGatewayProviderConfig
-	(*TLSCertificateConfig)(nil),                                // 108: chalk.server.v1.TLSCertificateConfig
-	(*TLSManualCertificateRef)(nil),                             // 109: chalk.server.v1.TLSManualCertificateRef
-	(*CreateClusterGatewayResponse)(nil),                        // 110: chalk.server.v1.CreateClusterGatewayResponse
-	(*CreateClusterBackgroundPersistenceRequest)(nil),           // 111: chalk.server.v1.CreateClusterBackgroundPersistenceRequest
-	(*BackgroundPersistenceCommonSpecs)(nil),                    // 112: chalk.server.v1.BackgroundPersistenceCommonSpecs
-	(*BackgroundPersistenceWriterHpaSpecs)(nil),                 // 113: chalk.server.v1.BackgroundPersistenceWriterHpaSpecs
-	(*BackgroundPersistenceWriterSpecs)(nil),                    // 114: chalk.server.v1.BackgroundPersistenceWriterSpecs
-	(*NodePodMetricsFilter)(nil),                                // 115: chalk.server.v1.NodePodMetricsFilter
-	(*ClusterManagerConfig)(nil),                                // 116: chalk.server.v1.ClusterManagerConfig
-	(*BackgroundPersistenceDeploymentSpecs)(nil),                // 117: chalk.server.v1.BackgroundPersistenceDeploymentSpecs
-	(*CreateClusterBackgroundPersistenceResponse)(nil),          // 118: chalk.server.v1.CreateClusterBackgroundPersistenceResponse
-	(*KubeNodeSelector)(nil),                                    // 119: chalk.server.v1.KubeNodeSelector
-	(*VectorAggregatorClickHouseSinkSpec)(nil),                  // 120: chalk.server.v1.VectorAggregatorClickHouseSinkSpec
-	(*VectorAggregatorVictoriaMetricsSinkSpec)(nil),             // 121: chalk.server.v1.VectorAggregatorVictoriaMetricsSinkSpec
-	(*VectorAggregatorCustomerSinkSpec)(nil),                    // 122: chalk.server.v1.VectorAggregatorCustomerSinkSpec
-	(*VectorAggregatorChalkDatadogExportSpec)(nil),              // 123: chalk.server.v1.VectorAggregatorChalkDatadogExportSpec
-	(*VectorAggregatorChalkDatadogMetricsSinkSpec)(nil),         // 124: chalk.server.v1.VectorAggregatorChalkDatadogMetricsSinkSpec
-	(*VectorAggregatorMetricAggregationSpec)(nil),               // 125: chalk.server.v1.VectorAggregatorMetricAggregationSpec
-	(*VectorCollectorMetricAggregationSpec)(nil),                // 126: chalk.server.v1.VectorCollectorMetricAggregationSpec
-	(*CustomerVectorAggregatorDatadogSignalExportSpec)(nil),     // 127: chalk.server.v1.CustomerVectorAggregatorDatadogSignalExportSpec
-	(*CustomerVectorAggregatorDatadogMetricsSinkSpec)(nil),      // 128: chalk.server.v1.CustomerVectorAggregatorDatadogMetricsSinkSpec
-	(*CustomerVectorAggregatorDatadogExportConfig)(nil),         // 129: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig
-	(*CustomerVectorAggregatorStatsdMetricsSinkSpec)(nil),       // 130: chalk.server.v1.CustomerVectorAggregatorStatsdMetricsSinkSpec
-	(*CustomerVectorAggregatorStatsdExportConfig)(nil),          // 131: chalk.server.v1.CustomerVectorAggregatorStatsdExportConfig
-	(*CustomerVectorAggregatorConfig)(nil),                      // 132: chalk.server.v1.CustomerVectorAggregatorConfig
-	(*AggregatorSpec)(nil),                                      // 133: chalk.server.v1.AggregatorSpec
-	(*CustomerCollectorConfig)(nil),                             // 134: chalk.server.v1.CustomerCollectorConfig
-	(*VectorClusterMetricsSpec)(nil),                            // 135: chalk.server.v1.VectorClusterMetricsSpec
-	(*TelemetryIngestMetricsSpec)(nil),                          // 136: chalk.server.v1.TelemetryIngestMetricsSpec
-	(*VectorStatsdUdsSpec)(nil),                                 // 137: chalk.server.v1.VectorStatsdUdsSpec
-	(*VectorStatsdUdpSpec)(nil),                                 // 138: chalk.server.v1.VectorStatsdUdpSpec
-	(*VectorCollectorSinkSpec)(nil),                             // 139: chalk.server.v1.VectorCollectorSinkSpec
-	(*VectorStatsdSpec)(nil),                                    // 140: chalk.server.v1.VectorStatsdSpec
-	(*MetricExportDestination)(nil),                             // 141: chalk.server.v1.MetricExportDestination
-	(*MetricExportSpec)(nil),                                    // 142: chalk.server.v1.MetricExportSpec
-	(*VectorClusterMetricsShadowSpec)(nil),                      // 143: chalk.server.v1.VectorClusterMetricsShadowSpec
-	(*VectorClusterMetricsTablesSpec)(nil),                      // 144: chalk.server.v1.VectorClusterMetricsTablesSpec
-	(*VectorClusterMetricsShadowTables)(nil),                    // 145: chalk.server.v1.VectorClusterMetricsShadowTables
-	(*OtelCollectorSpec)(nil),                                   // 146: chalk.server.v1.OtelCollectorSpec
-	(*GpuTelemetrySpec)(nil),                                    // 147: chalk.server.v1.GpuTelemetrySpec
-	(*ClickHouseSpec)(nil),                                      // 148: chalk.server.v1.ClickHouseSpec
-	(*VictoriaMetricsSpec)(nil),                                 // 149: chalk.server.v1.VictoriaMetricsSpec
-	(*ZombieKillerSpec)(nil),                                    // 150: chalk.server.v1.ZombieKillerSpec
-	(*CoreDumpCollectorSpec)(nil),                               // 151: chalk.server.v1.CoreDumpCollectorSpec
-	(*PySpyStackTraceCollectorSpec)(nil),                        // 152: chalk.server.v1.PySpyStackTraceCollectorSpec
-	(*PerfCollectorSpec)(nil),                                   // 153: chalk.server.v1.PerfCollectorSpec
-	(*PerfettoDaemonSpec)(nil),                                  // 154: chalk.server.v1.PerfettoDaemonSpec
-	(*DirectoryWatcherSpec)(nil),                                // 155: chalk.server.v1.DirectoryWatcherSpec
-	(*StreamedDirectoryWatcherSpec)(nil),                        // 156: chalk.server.v1.StreamedDirectoryWatcherSpec
-	(*NetworkInspectorDaemonSpec)(nil),                          // 157: chalk.server.v1.NetworkInspectorDaemonSpec
-	(*ObservabilityDaemonSpec)(nil),                             // 158: chalk.server.v1.ObservabilityDaemonSpec
-	(*ObservabilityDaemonSchedulingSpec)(nil),                   // 159: chalk.server.v1.ObservabilityDaemonSchedulingSpec
-	(*TelemetryDeploymentSpec)(nil),                             // 160: chalk.server.v1.TelemetryDeploymentSpec
-	(*TelemetryDeployment)(nil),                                 // 161: chalk.server.v1.TelemetryDeployment
-	(*ClusterIdentifier)(nil),                                   // 162: chalk.server.v1.ClusterIdentifier
-	(*GetTelemetryDeploymentRequest)(nil),                       // 163: chalk.server.v1.GetTelemetryDeploymentRequest
-	(*GetTelemetryDeploymentResponse)(nil),                      // 164: chalk.server.v1.GetTelemetryDeploymentResponse
-	(*ListTelemetryDeploymentsRequest)(nil),                     // 165: chalk.server.v1.ListTelemetryDeploymentsRequest
-	(*ListTelemetryDeploymentsResponse)(nil),                    // 166: chalk.server.v1.ListTelemetryDeploymentsResponse
-	(*CreateTelemetryDeploymentRequest)(nil),                    // 167: chalk.server.v1.CreateTelemetryDeploymentRequest
-	(*CreateTelemetryDeploymentResponse)(nil),                   // 168: chalk.server.v1.CreateTelemetryDeploymentResponse
-	(*DeleteTelemetryDeploymentRequest)(nil),                    // 169: chalk.server.v1.DeleteTelemetryDeploymentRequest
-	(*DeleteTelemetryDeploymentResponse)(nil),                   // 170: chalk.server.v1.DeleteTelemetryDeploymentResponse
-	(*UpdateTelemetryDeploymentRequest)(nil),                    // 171: chalk.server.v1.UpdateTelemetryDeploymentRequest
-	(*UpdateTelemetryDeploymentResponse)(nil),                   // 172: chalk.server.v1.UpdateTelemetryDeploymentResponse
-	(*MigrateTelemetryDeploymentRequest)(nil),                   // 173: chalk.server.v1.MigrateTelemetryDeploymentRequest
-	(*MigrateTelemetryDeploymentResponse)(nil),                  // 174: chalk.server.v1.MigrateTelemetryDeploymentResponse
-	(*GetSearchConfigRequest)(nil),                              // 175: chalk.server.v1.GetSearchConfigRequest
-	(*GetSearchConfigResponse)(nil),                             // 176: chalk.server.v1.GetSearchConfigResponse
-	(*UpdateEnvironmentVariablesRequest)(nil),                   // 177: chalk.server.v1.UpdateEnvironmentVariablesRequest
-	(*UpdateEnvironmentVariablesResponse)(nil),                  // 178: chalk.server.v1.UpdateEnvironmentVariablesResponse
-	(*StartBranchRequest)(nil),                                  // 179: chalk.server.v1.StartBranchRequest
-	(*StartBranchResponse)(nil),                                 // 180: chalk.server.v1.StartBranchResponse
-	(*ScaleBranchRequest)(nil),                                  // 181: chalk.server.v1.ScaleBranchRequest
-	(*ScaleBranchResponse)(nil),                                 // 182: chalk.server.v1.ScaleBranchResponse
-	(*GetBranchProfileRequest)(nil),                             // 183: chalk.server.v1.GetBranchProfileRequest
-	(*GetBranchProfileResponse)(nil),                            // 184: chalk.server.v1.GetBranchProfileResponse
-	(*GetBranchServerStatusRequest)(nil),                        // 185: chalk.server.v1.GetBranchServerStatusRequest
-	(*GetBranchServerStatusResponse)(nil),                       // 186: chalk.server.v1.GetBranchServerStatusResponse
-	(*KafkaTopic)(nil),                                          // 187: chalk.server.v1.KafkaTopic
-	(*CreateKafkaTopicsRequest)(nil),                            // 188: chalk.server.v1.CreateKafkaTopicsRequest
-	(*CreateKafkaTopicsResponse)(nil),                           // 189: chalk.server.v1.CreateKafkaTopicsResponse
-	(*GetKafkaTopicsRequest)(nil),                               // 190: chalk.server.v1.GetKafkaTopicsRequest
-	(*GetKafkaTopicsResponse)(nil),                              // 191: chalk.server.v1.GetKafkaTopicsResponse
-	(*GetNodepoolsRequest)(nil),                                 // 192: chalk.server.v1.GetNodepoolsRequest
-	(*GetNodepoolsResponse)(nil),                                // 193: chalk.server.v1.GetNodepoolsResponse
-	(*ChalkMachineTypeFallback)(nil),                            // 194: chalk.server.v1.ChalkMachineTypeFallback
-	(*ChalkMachineTypeInstanceOption)(nil),                      // 195: chalk.server.v1.ChalkMachineTypeInstanceOption
-	(*ChalkMachineTypeMapping)(nil),                             // 196: chalk.server.v1.ChalkMachineTypeMapping
-	(*GetAvailableChalkMachineTypesRequest)(nil),                // 197: chalk.server.v1.GetAvailableChalkMachineTypesRequest
-	(*GetAvailableChalkMachineTypesResponse)(nil),               // 198: chalk.server.v1.GetAvailableChalkMachineTypesResponse
-	(*ChalkMachineTypeOverride)(nil),                            // 199: chalk.server.v1.ChalkMachineTypeOverride
-	(*UpsertChalkMachineTypeOverrideRequest)(nil),               // 200: chalk.server.v1.UpsertChalkMachineTypeOverrideRequest
-	(*UpsertChalkMachineTypeOverrideResponse)(nil),              // 201: chalk.server.v1.UpsertChalkMachineTypeOverrideResponse
-	(*DeleteChalkMachineTypeOverrideRequest)(nil),               // 202: chalk.server.v1.DeleteChalkMachineTypeOverrideRequest
-	(*DeleteChalkMachineTypeOverrideResponse)(nil),              // 203: chalk.server.v1.DeleteChalkMachineTypeOverrideResponse
-	(*ClusterEnvironmentChalkMachineTypes)(nil),                 // 204: chalk.server.v1.ClusterEnvironmentChalkMachineTypes
-	(*GetClusterChalkMachineTypesRequest)(nil),                  // 205: chalk.server.v1.GetClusterChalkMachineTypesRequest
-	(*GetClusterChalkMachineTypesResponse)(nil),                 // 206: chalk.server.v1.GetClusterChalkMachineTypesResponse
-	(*AddNodepoolRequest)(nil),                                  // 207: chalk.server.v1.AddNodepoolRequest
-	(*AddNodepoolResponse)(nil),                                 // 208: chalk.server.v1.AddNodepoolResponse
-	(*UpdateNodepoolRequest)(nil),                               // 209: chalk.server.v1.UpdateNodepoolRequest
-	(*UpdateNodepoolResponse)(nil),                              // 210: chalk.server.v1.UpdateNodepoolResponse
-	(*DeleteNodepoolRequest)(nil),                               // 211: chalk.server.v1.DeleteNodepoolRequest
-	(*DeleteNodepoolResponse)(nil),                              // 212: chalk.server.v1.DeleteNodepoolResponse
-	(*GetKarpenterNodepoolsRequest)(nil),                        // 213: chalk.server.v1.GetKarpenterNodepoolsRequest
-	(*GetKarpenterNodepoolsResponse)(nil),                       // 214: chalk.server.v1.GetKarpenterNodepoolsResponse
-	(*AddKarpenterNodepoolRequest)(nil),                         // 215: chalk.server.v1.AddKarpenterNodepoolRequest
-	(*AddKarpenterNodepoolResponse)(nil),                        // 216: chalk.server.v1.AddKarpenterNodepoolResponse
-	(*UpdateKarpenterNodepoolRequest)(nil),                      // 217: chalk.server.v1.UpdateKarpenterNodepoolRequest
-	(*UpdateKarpenterNodepoolResponse)(nil),                     // 218: chalk.server.v1.UpdateKarpenterNodepoolResponse
-	(*DeleteKarpenterNodepoolRequest)(nil),                      // 219: chalk.server.v1.DeleteKarpenterNodepoolRequest
-	(*DeleteKarpenterNodepoolResponse)(nil),                     // 220: chalk.server.v1.DeleteKarpenterNodepoolResponse
-	(*GetKarpenterInstallationMetadataRequest)(nil),             // 221: chalk.server.v1.GetKarpenterInstallationMetadataRequest
-	(*GetKarpenterInstallationMetadataResponse)(nil),            // 222: chalk.server.v1.GetKarpenterInstallationMetadataResponse
-	(*CreateEnvironmentCloudResourcesRequest)(nil),              // 223: chalk.server.v1.CreateEnvironmentCloudResourcesRequest
-	(*CreateEnvironmentCloudResourcesResponse)(nil),             // 224: chalk.server.v1.CreateEnvironmentCloudResourcesResponse
-	(*DeleteEnvironmentCloudResourcesRequest)(nil),              // 225: chalk.server.v1.DeleteEnvironmentCloudResourcesRequest
-	(*DeleteEnvironmentCloudResourcesResponse)(nil),             // 226: chalk.server.v1.DeleteEnvironmentCloudResourcesResponse
-	(*DeploymentTag)(nil),                                       // 227: chalk.server.v1.DeploymentTag
-	(*GetTagWeightsRequest)(nil),                                // 228: chalk.server.v1.GetTagWeightsRequest
-	(*GetTagWeightsResponse)(nil),                               // 229: chalk.server.v1.GetTagWeightsResponse
-	(*SetTagWeightsRequest)(nil),                                // 230: chalk.server.v1.SetTagWeightsRequest
-	(*SetTagWeightsResponse)(nil),                               // 231: chalk.server.v1.SetTagWeightsResponse
-	(*RequirementsFile)(nil),                                    // 232: chalk.server.v1.RequirementsFile
-	(*CreateDeploymentRequest)(nil),                             // 233: chalk.server.v1.CreateDeploymentRequest
-	(*CreateDeploymentResponse)(nil),                            // 234: chalk.server.v1.CreateDeploymentResponse
-	(*KubernetesCluster)(nil),                                   // 235: chalk.server.v1.KubernetesCluster
-	(*GetEnvironmentKubeClustersRequest)(nil),                   // 236: chalk.server.v1.GetEnvironmentKubeClustersRequest
-	(*GetEnvironmentKubeClustersResponse)(nil),                  // 237: chalk.server.v1.GetEnvironmentKubeClustersResponse
-	(*SuspendEnvironmentRequest)(nil),                           // 238: chalk.server.v1.SuspendEnvironmentRequest
-	(*SuspendEnvironmentResponse)(nil),                          // 239: chalk.server.v1.SuspendEnvironmentResponse
-	(*ResumeEnvironmentRequest)(nil),                            // 240: chalk.server.v1.ResumeEnvironmentRequest
-	(*ResumeEnvironmentResponse)(nil),                           // 241: chalk.server.v1.ResumeEnvironmentResponse
-	(*SuspendClusterGatewayRequest)(nil),                        // 242: chalk.server.v1.SuspendClusterGatewayRequest
-	(*SuspendClusterGatewayResponse)(nil),                       // 243: chalk.server.v1.SuspendClusterGatewayResponse
-	(*ResumeClusterGatewayRequest)(nil),                         // 244: chalk.server.v1.ResumeClusterGatewayRequest
-	(*ResumeClusterGatewayResponse)(nil),                        // 245: chalk.server.v1.ResumeClusterGatewayResponse
-	(*SuspendClusterBackgroundPersistenceRequest)(nil),          // 246: chalk.server.v1.SuspendClusterBackgroundPersistenceRequest
-	(*SuspendClusterBackgroundPersistenceResponse)(nil),         // 247: chalk.server.v1.SuspendClusterBackgroundPersistenceResponse
-	(*ResumeClusterBackgroundPersistenceRequest)(nil),           // 248: chalk.server.v1.ResumeClusterBackgroundPersistenceRequest
-	(*ResumeClusterBackgroundPersistenceResponse)(nil),          // 249: chalk.server.v1.ResumeClusterBackgroundPersistenceResponse
-	(*DeleteClusterGatewayRequest)(nil),                         // 250: chalk.server.v1.DeleteClusterGatewayRequest
-	(*DeleteClusterGatewayResponse)(nil),                        // 251: chalk.server.v1.DeleteClusterGatewayResponse
-	(*DeleteClusterBackgroundPersistenceRequest)(nil),           // 252: chalk.server.v1.DeleteClusterBackgroundPersistenceRequest
-	(*DeleteClusterBackgroundPersistenceResponse)(nil),          // 253: chalk.server.v1.DeleteClusterBackgroundPersistenceResponse
-	(*StreamingKafkaKedaConfig)(nil),                            // 254: chalk.server.v1.StreamingKafkaKedaConfig
-	(*ListStreamingKafkaKedaConfigsRequest)(nil),                // 255: chalk.server.v1.ListStreamingKafkaKedaConfigsRequest
-	(*ListStreamingKafkaKedaConfigsResponse)(nil),               // 256: chalk.server.v1.ListStreamingKafkaKedaConfigsResponse
-	(*UpdateStreamingKafkaKedaConfigRequest)(nil),               // 257: chalk.server.v1.UpdateStreamingKafkaKedaConfigRequest
-	(*UpdateStreamingKafkaKedaConfigResponse)(nil),              // 258: chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse
-	(*VectorTelemetryPipelineMetricsSpec)(nil),                  // 259: chalk.server.v1.VectorTelemetryPipelineMetricsSpec
-	(*CustomerVectorAggregatorOtlpMetricsExportConfig)(nil),     // 260: chalk.server.v1.CustomerVectorAggregatorOtlpMetricsExportConfig
-	(*PopulateNamedQueryPlansRequest)(nil),                      // 261: chalk.server.v1.PopulateNamedQueryPlansRequest
-	(*PopulateNamedQueryPlansResponse)(nil),                     // 262: chalk.server.v1.PopulateNamedQueryPlansResponse
-	(*PrepareGraphSupplementRequest)(nil),                       // 263: chalk.server.v1.PrepareGraphSupplementRequest
-	(*PrepareGraphSupplementResponse)(nil),                      // 264: chalk.server.v1.PrepareGraphSupplementResponse
-	(*CertManagerIssuerRef)(nil),                                // 265: chalk.server.v1.CertManagerIssuerRef
-	(*ValidateProjectSettingsRequest)(nil),                      // 266: chalk.server.v1.ValidateProjectSettingsRequest
-	(*ValidateProjectSettingsResponse)(nil),                     // 267: chalk.server.v1.ValidateProjectSettingsResponse
-	(*CustomerCollectorReceivedSignalsSpec)(nil),                // 268: chalk.server.v1.CustomerCollectorReceivedSignalsSpec
-	nil,                           // 269: chalk.server.v1.RedeployDeploymentRequest.CustomerMetadataEntry
-	nil,                           // 270: chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntry
-	nil,                           // 271: chalk.server.v1.PrepareDeploymentRequest.CustomerMetadataEntry
-	nil,                           // 272: chalk.server.v1.PrepareDeploymentRequest.BuildOptionsEntry
-	nil,                           // 273: chalk.server.v1.ClusterTimescaleSpecs.PostgresParametersEntry
-	nil,                           // 274: chalk.server.v1.ClusterTimescaleSpecs.NodeSelectorEntry
-	nil,                           // 275: chalk.server.v1.ClusterTimescaleSpecs.PgbouncerParametersEntry
-	nil,                           // 276: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.NodeSelectorEntry
-	nil,                           // 277: chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntry
-	nil,                           // 278: chalk.server.v1.EnvoyGatewayProviderConfig.NodeSelectorEntry
-	nil,                           // 279: chalk.server.v1.BackgroundPersistenceWriterSpecs.NodeSelectorEntry
-	nil,                           // 280: chalk.server.v1.BackgroundPersistenceWriterSpecs.AdditionalEnvVarsEntry
-	nil,                           // 281: chalk.server.v1.NodePodMetricsFilter.NodeSelectorEntry
-	nil,                           // 282: chalk.server.v1.UpdateEnvironmentVariablesRequest.EnvironmentVariablesEntry
-	nil,                           // 283: chalk.server.v1.GetKarpenterInstallationMetadataResponse.DeploymentLabelsEntry
-	nil,                           // 284: chalk.server.v1.CreateDeploymentRequest.CustomerMetadataEntry
-	nil,                           // 285: chalk.server.v1.CreateDeploymentRequest.BuildOptionsEntry
-	(DeploymentBuildProfile)(0),   // 286: chalk.server.v1.DeploymentBuildProfile
-	(*v1.Graph)(nil),              // 287: chalk.graph.v1.Graph
-	(*GraphMutation)(nil),         // 288: chalk.server.v1.GraphMutation
-	(*v11.ProjectSettings)(nil),   // 289: chalk.artifacts.v1.ProjectSettings
-	(*v12.LSP)(nil),               // 290: chalk.lsp.v1.LSP
-	(*timestamppb.Timestamp)(nil), // 291: google.protobuf.Timestamp
-	(*Deployment)(nil),            // 292: chalk.server.v1.Deployment
-	(*LogEntry)(nil),              // 293: chalk.server.v1.LogEntry
-	(*fieldmaskpb.FieldMask)(nil), // 294: google.protobuf.FieldMask
-	(*v13.FieldChange)(nil),       // 295: chalk.utils.v1.FieldChange
-	(*v14.KarpenterNodepool)(nil), // 296: chalk.nodepools.v1.KarpenterNodepool
-	(*v14.GKENodePool)(nil),       // 297: chalk.nodepools.v1.GKENodePool
-	(v15.BillingCloud)(0),         // 298: chalk.usage.v1.BillingCloud
-	(*CloudConfig)(nil),           // 299: chalk.server.v1.CloudConfig
+	(TrafficZonalAffinity)(0),                                   // 19: chalk.server.v1.TrafficZonalAffinity
+	(*ActivateDeploymentTarget)(nil),                            // 20: chalk.server.v1.ActivateDeploymentTarget
+	(*ActivateDeploymentRequest)(nil),                           // 21: chalk.server.v1.ActivateDeploymentRequest
+	(*ActivateDeploymentResponse)(nil),                          // 22: chalk.server.v1.ActivateDeploymentResponse
+	(*IndexDeploymentRequest)(nil),                              // 23: chalk.server.v1.IndexDeploymentRequest
+	(*IndexDeploymentResponse)(nil),                             // 24: chalk.server.v1.IndexDeploymentResponse
+	(*ValidateNamedQueriesRequest)(nil),                         // 25: chalk.server.v1.ValidateNamedQueriesRequest
+	(*ValidateNamedQueriesResponse)(nil),                        // 26: chalk.server.v1.ValidateNamedQueriesResponse
+	(*RunPostIndexValidationRequest)(nil),                       // 27: chalk.server.v1.RunPostIndexValidationRequest
+	(*RunPostIndexValidationResponse)(nil),                      // 28: chalk.server.v1.RunPostIndexValidationResponse
+	(*StartShadowBuildFromDeploymentRequest)(nil),               // 29: chalk.server.v1.StartShadowBuildFromDeploymentRequest
+	(*StartShadowBuildFromDeploymentResponse)(nil),              // 30: chalk.server.v1.StartShadowBuildFromDeploymentResponse
+	(*DeployKubeComponentsRequest)(nil),                         // 31: chalk.server.v1.DeployKubeComponentsRequest
+	(*DeployKubeComponentsResponse)(nil),                        // 32: chalk.server.v1.DeployKubeComponentsResponse
+	(*RebuildDeploymentRequest)(nil),                            // 33: chalk.server.v1.RebuildDeploymentRequest
+	(*RebuildDeploymentResponse)(nil),                           // 34: chalk.server.v1.RebuildDeploymentResponse
+	(*RedeployDeploymentRequest)(nil),                           // 35: chalk.server.v1.RedeployDeploymentRequest
+	(*RedeployDeploymentResponse)(nil),                          // 36: chalk.server.v1.RedeployDeploymentResponse
+	(*PrebuiltEngineImageSource)(nil),                           // 37: chalk.server.v1.PrebuiltEngineImageSource
+	(*UploadSourceRequest)(nil),                                 // 38: chalk.server.v1.UploadSourceRequest
+	(*UploadSourceResponse)(nil),                                // 39: chalk.server.v1.UploadSourceResponse
+	(*PrepareDeploymentRequest)(nil),                            // 40: chalk.server.v1.PrepareDeploymentRequest
+	(*PrepareDeploymentResponse)(nil),                           // 41: chalk.server.v1.PrepareDeploymentResponse
+	(*BuildImageRequest)(nil),                                   // 42: chalk.server.v1.BuildImageRequest
+	(*BuildImageResponse)(nil),                                  // 43: chalk.server.v1.BuildImageResponse
+	(*LintSourceRequest)(nil),                                   // 44: chalk.server.v1.LintSourceRequest
+	(*LintSourceResponse)(nil),                                  // 45: chalk.server.v1.LintSourceResponse
+	(*GetDeploymentStepsRequest)(nil),                           // 46: chalk.server.v1.GetDeploymentStepsRequest
+	(*DeploymentBuildStep)(nil),                                 // 47: chalk.server.v1.DeploymentBuildStep
+	(*GetDeploymentStepsResponse)(nil),                          // 48: chalk.server.v1.GetDeploymentStepsResponse
+	(*GetDeploymentLogsRequest)(nil),                            // 49: chalk.server.v1.GetDeploymentLogsRequest
+	(*GetDeploymentLogsResponse)(nil),                           // 50: chalk.server.v1.GetDeploymentLogsResponse
+	(*GetDeploymentDependenciesRequest)(nil),                    // 51: chalk.server.v1.GetDeploymentDependenciesRequest
+	(*GetDeploymentDependenciesResponse)(nil),                   // 52: chalk.server.v1.GetDeploymentDependenciesResponse
+	(*ResolveEngineBaseImageRequest)(nil),                       // 53: chalk.server.v1.ResolveEngineBaseImageRequest
+	(*ResolveEngineBaseImageResponse)(nil),                      // 54: chalk.server.v1.ResolveEngineBaseImageResponse
+	(*ListEngineBaseImagesRequest)(nil),                         // 55: chalk.server.v1.ListEngineBaseImagesRequest
+	(*EngineBaseImageVariant)(nil),                              // 56: chalk.server.v1.EngineBaseImageVariant
+	(*EngineBaseImageRelease)(nil),                              // 57: chalk.server.v1.EngineBaseImageRelease
+	(*ListEngineBaseImagesResponse)(nil),                        // 58: chalk.server.v1.ListEngineBaseImagesResponse
+	(*GetClusterTimescaleDBRequest)(nil),                        // 59: chalk.server.v1.GetClusterTimescaleDBRequest
+	(*GetClusterTimescaleDBResponse)(nil),                       // 60: chalk.server.v1.GetClusterTimescaleDBResponse
+	(*ListClusterTimescaleDBsRequest)(nil),                      // 61: chalk.server.v1.ListClusterTimescaleDBsRequest
+	(*ListClusterTimescaleDBsResponse)(nil),                     // 62: chalk.server.v1.ListClusterTimescaleDBsResponse
+	(*GetClusterGatewayRequest)(nil),                            // 63: chalk.server.v1.GetClusterGatewayRequest
+	(*GetClusterGatewayResponse)(nil),                           // 64: chalk.server.v1.GetClusterGatewayResponse
+	(*ListClusterGatewaysRequest)(nil),                          // 65: chalk.server.v1.ListClusterGatewaysRequest
+	(*ListClusterGatewaysResponse)(nil),                         // 66: chalk.server.v1.ListClusterGatewaysResponse
+	(*GetClusterGatewayDefaultRequest)(nil),                     // 67: chalk.server.v1.GetClusterGatewayDefaultRequest
+	(*GetClusterGatewayDefaultResponse)(nil),                    // 68: chalk.server.v1.GetClusterGatewayDefaultResponse
+	(*BackgroundPersistence)(nil),                               // 69: chalk.server.v1.BackgroundPersistence
+	(*GetClusterBackgroundPersistenceRequest)(nil),              // 70: chalk.server.v1.GetClusterBackgroundPersistenceRequest
+	(*GetClusterBackgroundPersistenceResponse)(nil),             // 71: chalk.server.v1.GetClusterBackgroundPersistenceResponse
+	(*ListClusterBackgroundPersistenceDeploymentsRequest)(nil),  // 72: chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsRequest
+	(*ListClusterBackgroundPersistenceDeploymentsResponse)(nil), // 73: chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse
+	(*CreateClusterTimescaleDBRequest)(nil),                     // 74: chalk.server.v1.CreateClusterTimescaleDBRequest
+	(*DeleteClusterTimescaleDBRequest)(nil),                     // 75: chalk.server.v1.DeleteClusterTimescaleDBRequest
+	(*DeleteClusterTimescaleDBResponse)(nil),                    // 76: chalk.server.v1.DeleteClusterTimescaleDBResponse
+	(*GetClusterTimescaleDefaultRequest)(nil),                   // 77: chalk.server.v1.GetClusterTimescaleDefaultRequest
+	(*GetClusterTimescaleDefaultResponse)(nil),                  // 78: chalk.server.v1.GetClusterTimescaleDefaultResponse
+	(*KubeResourceConfig)(nil),                                  // 79: chalk.server.v1.KubeResourceConfig
+	(*KubePersistentVolumeClaim)(nil),                           // 80: chalk.server.v1.KubePersistentVolumeClaim
+	(*ClusterTimescaleSpecs)(nil),                               // 81: chalk.server.v1.ClusterTimescaleSpecs
+	(*CreateClusterTimescaleDBResponse)(nil),                    // 82: chalk.server.v1.CreateClusterTimescaleDBResponse
+	(*UpdateClusterTimescaleDBRequest)(nil),                     // 83: chalk.server.v1.UpdateClusterTimescaleDBRequest
+	(*UpdateClusterTimescaleDBResponse)(nil),                    // 84: chalk.server.v1.UpdateClusterTimescaleDBResponse
+	(*MigrateClusterTimescaleDBRequest)(nil),                    // 85: chalk.server.v1.MigrateClusterTimescaleDBRequest
+	(*MigrateClusterTimescaleDBResponse)(nil),                   // 86: chalk.server.v1.MigrateClusterTimescaleDBResponse
+	(*TemporalEngineSpecs)(nil),                                 // 87: chalk.server.v1.TemporalEngineSpecs
+	(*ClusterWorkflowOrchestratorSpecs)(nil),                    // 88: chalk.server.v1.ClusterWorkflowOrchestratorSpecs
+	(*GetClusterWorkflowOrchestratorRequest)(nil),               // 89: chalk.server.v1.GetClusterWorkflowOrchestratorRequest
+	(*GetClusterWorkflowOrchestratorResponse)(nil),              // 90: chalk.server.v1.GetClusterWorkflowOrchestratorResponse
+	(*CreateClusterWorkflowOrchestratorRequest)(nil),            // 91: chalk.server.v1.CreateClusterWorkflowOrchestratorRequest
+	(*CreateClusterWorkflowOrchestratorResponse)(nil),           // 92: chalk.server.v1.CreateClusterWorkflowOrchestratorResponse
+	(*UpdateClusterWorkflowOrchestratorRequest)(nil),            // 93: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest
+	(*UpdateClusterWorkflowOrchestratorResponse)(nil),           // 94: chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse
+	(*DeleteClusterWorkflowOrchestratorRequest)(nil),            // 95: chalk.server.v1.DeleteClusterWorkflowOrchestratorRequest
+	(*DeleteClusterWorkflowOrchestratorResponse)(nil),           // 96: chalk.server.v1.DeleteClusterWorkflowOrchestratorResponse
+	(*GetClusterWorkflowOrchestratorDefaultRequest)(nil),        // 97: chalk.server.v1.GetClusterWorkflowOrchestratorDefaultRequest
+	(*GetClusterWorkflowOrchestratorDefaultResponse)(nil),       // 98: chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse
+	(*MigrateClusterWorkflowOrchestratorRequest)(nil),           // 99: chalk.server.v1.MigrateClusterWorkflowOrchestratorRequest
+	(*MigrateClusterWorkflowOrchestratorResponse)(nil),          // 100: chalk.server.v1.MigrateClusterWorkflowOrchestratorResponse
+	(*CreateClusterGatewayRequest)(nil),                         // 101: chalk.server.v1.CreateClusterGatewayRequest
+	(*EnvoyGatewaySpecs)(nil),                                   // 102: chalk.server.v1.EnvoyGatewaySpecs
+	(*EnvoyGatewayListener)(nil),                                // 103: chalk.server.v1.EnvoyGatewayListener
+	(*EnvoyGatewayAllowedRoutes)(nil),                           // 104: chalk.server.v1.EnvoyGatewayAllowedRoutes
+	(*EnvoyGatewayAllowedNamespaces)(nil),                       // 105: chalk.server.v1.EnvoyGatewayAllowedNamespaces
+	(*GatewayProviderConfig)(nil),                               // 106: chalk.server.v1.GatewayProviderConfig
+	(*EnvoyGatewayProviderConfig)(nil),                          // 107: chalk.server.v1.EnvoyGatewayProviderConfig
+	(*GCPGatewayProviderConfig)(nil),                            // 108: chalk.server.v1.GCPGatewayProviderConfig
+	(*TLSCertificateConfig)(nil),                                // 109: chalk.server.v1.TLSCertificateConfig
+	(*TLSManualCertificateRef)(nil),                             // 110: chalk.server.v1.TLSManualCertificateRef
+	(*CreateClusterGatewayResponse)(nil),                        // 111: chalk.server.v1.CreateClusterGatewayResponse
+	(*CreateClusterBackgroundPersistenceRequest)(nil),           // 112: chalk.server.v1.CreateClusterBackgroundPersistenceRequest
+	(*BackgroundPersistenceCommonSpecs)(nil),                    // 113: chalk.server.v1.BackgroundPersistenceCommonSpecs
+	(*BackgroundPersistenceWriterHpaSpecs)(nil),                 // 114: chalk.server.v1.BackgroundPersistenceWriterHpaSpecs
+	(*BackgroundPersistenceWriterSpecs)(nil),                    // 115: chalk.server.v1.BackgroundPersistenceWriterSpecs
+	(*NodePodMetricsFilter)(nil),                                // 116: chalk.server.v1.NodePodMetricsFilter
+	(*ClusterManagerConfig)(nil),                                // 117: chalk.server.v1.ClusterManagerConfig
+	(*BackgroundPersistenceDeploymentSpecs)(nil),                // 118: chalk.server.v1.BackgroundPersistenceDeploymentSpecs
+	(*CreateClusterBackgroundPersistenceResponse)(nil),          // 119: chalk.server.v1.CreateClusterBackgroundPersistenceResponse
+	(*KubeNodeSelector)(nil),                                    // 120: chalk.server.v1.KubeNodeSelector
+	(*VectorAggregatorClickHouseSinkSpec)(nil),                  // 121: chalk.server.v1.VectorAggregatorClickHouseSinkSpec
+	(*VectorAggregatorVictoriaMetricsSinkSpec)(nil),             // 122: chalk.server.v1.VectorAggregatorVictoriaMetricsSinkSpec
+	(*VectorAggregatorCustomerSinkSpec)(nil),                    // 123: chalk.server.v1.VectorAggregatorCustomerSinkSpec
+	(*VectorAggregatorChalkDatadogExportSpec)(nil),              // 124: chalk.server.v1.VectorAggregatorChalkDatadogExportSpec
+	(*VectorAggregatorChalkDatadogMetricsSinkSpec)(nil),         // 125: chalk.server.v1.VectorAggregatorChalkDatadogMetricsSinkSpec
+	(*VectorAggregatorMetricAggregationSpec)(nil),               // 126: chalk.server.v1.VectorAggregatorMetricAggregationSpec
+	(*VectorCollectorMetricAggregationSpec)(nil),                // 127: chalk.server.v1.VectorCollectorMetricAggregationSpec
+	(*CustomerVectorAggregatorDatadogSignalExportSpec)(nil),     // 128: chalk.server.v1.CustomerVectorAggregatorDatadogSignalExportSpec
+	(*CustomerVectorAggregatorDatadogMetricsSinkSpec)(nil),      // 129: chalk.server.v1.CustomerVectorAggregatorDatadogMetricsSinkSpec
+	(*CustomerVectorAggregatorDatadogExportConfig)(nil),         // 130: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig
+	(*CustomerVectorAggregatorStatsdMetricsSinkSpec)(nil),       // 131: chalk.server.v1.CustomerVectorAggregatorStatsdMetricsSinkSpec
+	(*CustomerVectorAggregatorStatsdExportConfig)(nil),          // 132: chalk.server.v1.CustomerVectorAggregatorStatsdExportConfig
+	(*CustomerVectorAggregatorConfig)(nil),                      // 133: chalk.server.v1.CustomerVectorAggregatorConfig
+	(*AggregatorSpec)(nil),                                      // 134: chalk.server.v1.AggregatorSpec
+	(*CustomerCollectorConfig)(nil),                             // 135: chalk.server.v1.CustomerCollectorConfig
+	(*VectorClusterMetricsSpec)(nil),                            // 136: chalk.server.v1.VectorClusterMetricsSpec
+	(*TelemetryIngestMetricsSpec)(nil),                          // 137: chalk.server.v1.TelemetryIngestMetricsSpec
+	(*VectorStatsdUdsSpec)(nil),                                 // 138: chalk.server.v1.VectorStatsdUdsSpec
+	(*VectorStatsdUdpSpec)(nil),                                 // 139: chalk.server.v1.VectorStatsdUdpSpec
+	(*VectorCollectorSinkSpec)(nil),                             // 140: chalk.server.v1.VectorCollectorSinkSpec
+	(*VectorStatsdSpec)(nil),                                    // 141: chalk.server.v1.VectorStatsdSpec
+	(*MetricExportDestination)(nil),                             // 142: chalk.server.v1.MetricExportDestination
+	(*MetricExportSpec)(nil),                                    // 143: chalk.server.v1.MetricExportSpec
+	(*VectorClusterMetricsShadowSpec)(nil),                      // 144: chalk.server.v1.VectorClusterMetricsShadowSpec
+	(*VectorClusterMetricsTablesSpec)(nil),                      // 145: chalk.server.v1.VectorClusterMetricsTablesSpec
+	(*VectorClusterMetricsShadowTables)(nil),                    // 146: chalk.server.v1.VectorClusterMetricsShadowTables
+	(*OtelCollectorSpec)(nil),                                   // 147: chalk.server.v1.OtelCollectorSpec
+	(*GpuTelemetrySpec)(nil),                                    // 148: chalk.server.v1.GpuTelemetrySpec
+	(*ClickHouseSpec)(nil),                                      // 149: chalk.server.v1.ClickHouseSpec
+	(*VictoriaMetricsSpec)(nil),                                 // 150: chalk.server.v1.VictoriaMetricsSpec
+	(*VictoriaMetricsDatadogExportSpec)(nil),                    // 151: chalk.server.v1.VictoriaMetricsDatadogExportSpec
+	(*ZombieKillerSpec)(nil),                                    // 152: chalk.server.v1.ZombieKillerSpec
+	(*CoreDumpCollectorSpec)(nil),                               // 153: chalk.server.v1.CoreDumpCollectorSpec
+	(*PySpyStackTraceCollectorSpec)(nil),                        // 154: chalk.server.v1.PySpyStackTraceCollectorSpec
+	(*PerfCollectorSpec)(nil),                                   // 155: chalk.server.v1.PerfCollectorSpec
+	(*PerfettoDaemonSpec)(nil),                                  // 156: chalk.server.v1.PerfettoDaemonSpec
+	(*DirectoryWatcherSpec)(nil),                                // 157: chalk.server.v1.DirectoryWatcherSpec
+	(*StreamedDirectoryWatcherSpec)(nil),                        // 158: chalk.server.v1.StreamedDirectoryWatcherSpec
+	(*NetworkInspectorDaemonSpec)(nil),                          // 159: chalk.server.v1.NetworkInspectorDaemonSpec
+	(*ObservabilityDaemonSpec)(nil),                             // 160: chalk.server.v1.ObservabilityDaemonSpec
+	(*ObservabilityDaemonSchedulingSpec)(nil),                   // 161: chalk.server.v1.ObservabilityDaemonSchedulingSpec
+	(*TelemetryDeploymentSpec)(nil),                             // 162: chalk.server.v1.TelemetryDeploymentSpec
+	(*TelemetryDeployment)(nil),                                 // 163: chalk.server.v1.TelemetryDeployment
+	(*ClusterIdentifier)(nil),                                   // 164: chalk.server.v1.ClusterIdentifier
+	(*GetTelemetryDeploymentRequest)(nil),                       // 165: chalk.server.v1.GetTelemetryDeploymentRequest
+	(*GetTelemetryDeploymentResponse)(nil),                      // 166: chalk.server.v1.GetTelemetryDeploymentResponse
+	(*ListTelemetryDeploymentsRequest)(nil),                     // 167: chalk.server.v1.ListTelemetryDeploymentsRequest
+	(*ListTelemetryDeploymentsResponse)(nil),                    // 168: chalk.server.v1.ListTelemetryDeploymentsResponse
+	(*CreateTelemetryDeploymentRequest)(nil),                    // 169: chalk.server.v1.CreateTelemetryDeploymentRequest
+	(*CreateTelemetryDeploymentResponse)(nil),                   // 170: chalk.server.v1.CreateTelemetryDeploymentResponse
+	(*DeleteTelemetryDeploymentRequest)(nil),                    // 171: chalk.server.v1.DeleteTelemetryDeploymentRequest
+	(*DeleteTelemetryDeploymentResponse)(nil),                   // 172: chalk.server.v1.DeleteTelemetryDeploymentResponse
+	(*UpdateTelemetryDeploymentRequest)(nil),                    // 173: chalk.server.v1.UpdateTelemetryDeploymentRequest
+	(*UpdateTelemetryDeploymentResponse)(nil),                   // 174: chalk.server.v1.UpdateTelemetryDeploymentResponse
+	(*MigrateTelemetryDeploymentRequest)(nil),                   // 175: chalk.server.v1.MigrateTelemetryDeploymentRequest
+	(*MigrateTelemetryDeploymentResponse)(nil),                  // 176: chalk.server.v1.MigrateTelemetryDeploymentResponse
+	(*GetSearchConfigRequest)(nil),                              // 177: chalk.server.v1.GetSearchConfigRequest
+	(*GetSearchConfigResponse)(nil),                             // 178: chalk.server.v1.GetSearchConfigResponse
+	(*UpdateEnvironmentVariablesRequest)(nil),                   // 179: chalk.server.v1.UpdateEnvironmentVariablesRequest
+	(*UpdateEnvironmentVariablesResponse)(nil),                  // 180: chalk.server.v1.UpdateEnvironmentVariablesResponse
+	(*StartBranchRequest)(nil),                                  // 181: chalk.server.v1.StartBranchRequest
+	(*StartBranchResponse)(nil),                                 // 182: chalk.server.v1.StartBranchResponse
+	(*ScaleBranchRequest)(nil),                                  // 183: chalk.server.v1.ScaleBranchRequest
+	(*ScaleBranchResponse)(nil),                                 // 184: chalk.server.v1.ScaleBranchResponse
+	(*GetBranchProfileRequest)(nil),                             // 185: chalk.server.v1.GetBranchProfileRequest
+	(*GetBranchProfileResponse)(nil),                            // 186: chalk.server.v1.GetBranchProfileResponse
+	(*GetBranchServerStatusRequest)(nil),                        // 187: chalk.server.v1.GetBranchServerStatusRequest
+	(*GetBranchServerStatusResponse)(nil),                       // 188: chalk.server.v1.GetBranchServerStatusResponse
+	(*KafkaTopic)(nil),                                          // 189: chalk.server.v1.KafkaTopic
+	(*CreateKafkaTopicsRequest)(nil),                            // 190: chalk.server.v1.CreateKafkaTopicsRequest
+	(*CreateKafkaTopicsResponse)(nil),                           // 191: chalk.server.v1.CreateKafkaTopicsResponse
+	(*GetKafkaTopicsRequest)(nil),                               // 192: chalk.server.v1.GetKafkaTopicsRequest
+	(*GetKafkaTopicsResponse)(nil),                              // 193: chalk.server.v1.GetKafkaTopicsResponse
+	(*GetNodepoolsRequest)(nil),                                 // 194: chalk.server.v1.GetNodepoolsRequest
+	(*GetNodepoolsResponse)(nil),                                // 195: chalk.server.v1.GetNodepoolsResponse
+	(*ChalkMachineTypeFallback)(nil),                            // 196: chalk.server.v1.ChalkMachineTypeFallback
+	(*ChalkMachineTypeInstanceOption)(nil),                      // 197: chalk.server.v1.ChalkMachineTypeInstanceOption
+	(*ChalkMachineTypeMapping)(nil),                             // 198: chalk.server.v1.ChalkMachineTypeMapping
+	(*GetAvailableChalkMachineTypesRequest)(nil),                // 199: chalk.server.v1.GetAvailableChalkMachineTypesRequest
+	(*GetAvailableChalkMachineTypesResponse)(nil),               // 200: chalk.server.v1.GetAvailableChalkMachineTypesResponse
+	(*ChalkMachineTypeOverride)(nil),                            // 201: chalk.server.v1.ChalkMachineTypeOverride
+	(*UpsertChalkMachineTypeOverrideRequest)(nil),               // 202: chalk.server.v1.UpsertChalkMachineTypeOverrideRequest
+	(*UpsertChalkMachineTypeOverrideResponse)(nil),              // 203: chalk.server.v1.UpsertChalkMachineTypeOverrideResponse
+	(*DeleteChalkMachineTypeOverrideRequest)(nil),               // 204: chalk.server.v1.DeleteChalkMachineTypeOverrideRequest
+	(*DeleteChalkMachineTypeOverrideResponse)(nil),              // 205: chalk.server.v1.DeleteChalkMachineTypeOverrideResponse
+	(*ClusterEnvironmentChalkMachineTypes)(nil),                 // 206: chalk.server.v1.ClusterEnvironmentChalkMachineTypes
+	(*GetClusterChalkMachineTypesRequest)(nil),                  // 207: chalk.server.v1.GetClusterChalkMachineTypesRequest
+	(*GetClusterChalkMachineTypesResponse)(nil),                 // 208: chalk.server.v1.GetClusterChalkMachineTypesResponse
+	(*AddNodepoolRequest)(nil),                                  // 209: chalk.server.v1.AddNodepoolRequest
+	(*AddNodepoolResponse)(nil),                                 // 210: chalk.server.v1.AddNodepoolResponse
+	(*UpdateNodepoolRequest)(nil),                               // 211: chalk.server.v1.UpdateNodepoolRequest
+	(*UpdateNodepoolResponse)(nil),                              // 212: chalk.server.v1.UpdateNodepoolResponse
+	(*DeleteNodepoolRequest)(nil),                               // 213: chalk.server.v1.DeleteNodepoolRequest
+	(*DeleteNodepoolResponse)(nil),                              // 214: chalk.server.v1.DeleteNodepoolResponse
+	(*GetKarpenterNodepoolsRequest)(nil),                        // 215: chalk.server.v1.GetKarpenterNodepoolsRequest
+	(*GetKarpenterNodepoolsResponse)(nil),                       // 216: chalk.server.v1.GetKarpenterNodepoolsResponse
+	(*AddKarpenterNodepoolRequest)(nil),                         // 217: chalk.server.v1.AddKarpenterNodepoolRequest
+	(*AddKarpenterNodepoolResponse)(nil),                        // 218: chalk.server.v1.AddKarpenterNodepoolResponse
+	(*UpdateKarpenterNodepoolRequest)(nil),                      // 219: chalk.server.v1.UpdateKarpenterNodepoolRequest
+	(*UpdateKarpenterNodepoolResponse)(nil),                     // 220: chalk.server.v1.UpdateKarpenterNodepoolResponse
+	(*DeleteKarpenterNodepoolRequest)(nil),                      // 221: chalk.server.v1.DeleteKarpenterNodepoolRequest
+	(*DeleteKarpenterNodepoolResponse)(nil),                     // 222: chalk.server.v1.DeleteKarpenterNodepoolResponse
+	(*GetKarpenterInstallationMetadataRequest)(nil),             // 223: chalk.server.v1.GetKarpenterInstallationMetadataRequest
+	(*GetKarpenterInstallationMetadataResponse)(nil),            // 224: chalk.server.v1.GetKarpenterInstallationMetadataResponse
+	(*CreateEnvironmentCloudResourcesRequest)(nil),              // 225: chalk.server.v1.CreateEnvironmentCloudResourcesRequest
+	(*CreateEnvironmentCloudResourcesResponse)(nil),             // 226: chalk.server.v1.CreateEnvironmentCloudResourcesResponse
+	(*DeleteEnvironmentCloudResourcesRequest)(nil),              // 227: chalk.server.v1.DeleteEnvironmentCloudResourcesRequest
+	(*DeleteEnvironmentCloudResourcesResponse)(nil),             // 228: chalk.server.v1.DeleteEnvironmentCloudResourcesResponse
+	(*DeploymentTag)(nil),                                       // 229: chalk.server.v1.DeploymentTag
+	(*GetTagWeightsRequest)(nil),                                // 230: chalk.server.v1.GetTagWeightsRequest
+	(*GetTagWeightsResponse)(nil),                               // 231: chalk.server.v1.GetTagWeightsResponse
+	(*SetTagWeightsRequest)(nil),                                // 232: chalk.server.v1.SetTagWeightsRequest
+	(*SetTagWeightsResponse)(nil),                               // 233: chalk.server.v1.SetTagWeightsResponse
+	(*RequirementsFile)(nil),                                    // 234: chalk.server.v1.RequirementsFile
+	(*CreateDeploymentRequest)(nil),                             // 235: chalk.server.v1.CreateDeploymentRequest
+	(*CreateDeploymentResponse)(nil),                            // 236: chalk.server.v1.CreateDeploymentResponse
+	(*KubernetesCluster)(nil),                                   // 237: chalk.server.v1.KubernetesCluster
+	(*GetEnvironmentKubeClustersRequest)(nil),                   // 238: chalk.server.v1.GetEnvironmentKubeClustersRequest
+	(*GetEnvironmentKubeClustersResponse)(nil),                  // 239: chalk.server.v1.GetEnvironmentKubeClustersResponse
+	(*SuspendEnvironmentRequest)(nil),                           // 240: chalk.server.v1.SuspendEnvironmentRequest
+	(*SuspendEnvironmentResponse)(nil),                          // 241: chalk.server.v1.SuspendEnvironmentResponse
+	(*ResumeEnvironmentRequest)(nil),                            // 242: chalk.server.v1.ResumeEnvironmentRequest
+	(*ResumeEnvironmentResponse)(nil),                           // 243: chalk.server.v1.ResumeEnvironmentResponse
+	(*SuspendClusterGatewayRequest)(nil),                        // 244: chalk.server.v1.SuspendClusterGatewayRequest
+	(*SuspendClusterGatewayResponse)(nil),                       // 245: chalk.server.v1.SuspendClusterGatewayResponse
+	(*ResumeClusterGatewayRequest)(nil),                         // 246: chalk.server.v1.ResumeClusterGatewayRequest
+	(*ResumeClusterGatewayResponse)(nil),                        // 247: chalk.server.v1.ResumeClusterGatewayResponse
+	(*SuspendClusterBackgroundPersistenceRequest)(nil),          // 248: chalk.server.v1.SuspendClusterBackgroundPersistenceRequest
+	(*SuspendClusterBackgroundPersistenceResponse)(nil),         // 249: chalk.server.v1.SuspendClusterBackgroundPersistenceResponse
+	(*ResumeClusterBackgroundPersistenceRequest)(nil),           // 250: chalk.server.v1.ResumeClusterBackgroundPersistenceRequest
+	(*ResumeClusterBackgroundPersistenceResponse)(nil),          // 251: chalk.server.v1.ResumeClusterBackgroundPersistenceResponse
+	(*DeleteClusterGatewayRequest)(nil),                         // 252: chalk.server.v1.DeleteClusterGatewayRequest
+	(*DeleteClusterGatewayResponse)(nil),                        // 253: chalk.server.v1.DeleteClusterGatewayResponse
+	(*DeleteClusterBackgroundPersistenceRequest)(nil),           // 254: chalk.server.v1.DeleteClusterBackgroundPersistenceRequest
+	(*DeleteClusterBackgroundPersistenceResponse)(nil),          // 255: chalk.server.v1.DeleteClusterBackgroundPersistenceResponse
+	(*StreamingKafkaKedaConfig)(nil),                            // 256: chalk.server.v1.StreamingKafkaKedaConfig
+	(*ListStreamingKafkaKedaConfigsRequest)(nil),                // 257: chalk.server.v1.ListStreamingKafkaKedaConfigsRequest
+	(*ListStreamingKafkaKedaConfigsResponse)(nil),               // 258: chalk.server.v1.ListStreamingKafkaKedaConfigsResponse
+	(*UpdateStreamingKafkaKedaConfigRequest)(nil),               // 259: chalk.server.v1.UpdateStreamingKafkaKedaConfigRequest
+	(*UpdateStreamingKafkaKedaConfigResponse)(nil),              // 260: chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse
+	(*VectorTelemetryPipelineMetricsSpec)(nil),                  // 261: chalk.server.v1.VectorTelemetryPipelineMetricsSpec
+	(*CustomerVectorAggregatorOtlpMetricsExportConfig)(nil),     // 262: chalk.server.v1.CustomerVectorAggregatorOtlpMetricsExportConfig
+	(*PopulateNamedQueryPlansRequest)(nil),                      // 263: chalk.server.v1.PopulateNamedQueryPlansRequest
+	(*PopulateNamedQueryPlansResponse)(nil),                     // 264: chalk.server.v1.PopulateNamedQueryPlansResponse
+	(*PrepareGraphSupplementRequest)(nil),                       // 265: chalk.server.v1.PrepareGraphSupplementRequest
+	(*PrepareGraphSupplementResponse)(nil),                      // 266: chalk.server.v1.PrepareGraphSupplementResponse
+	(*CertManagerIssuerRef)(nil),                                // 267: chalk.server.v1.CertManagerIssuerRef
+	(*ValidateProjectSettingsRequest)(nil),                      // 268: chalk.server.v1.ValidateProjectSettingsRequest
+	(*ValidateProjectSettingsResponse)(nil),                     // 269: chalk.server.v1.ValidateProjectSettingsResponse
+	(*CustomerCollectorReceivedSignalsSpec)(nil),                // 270: chalk.server.v1.CustomerCollectorReceivedSignalsSpec
+	nil,                           // 271: chalk.server.v1.RedeployDeploymentRequest.CustomerMetadataEntry
+	nil,                           // 272: chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntry
+	nil,                           // 273: chalk.server.v1.PrepareDeploymentRequest.CustomerMetadataEntry
+	nil,                           // 274: chalk.server.v1.PrepareDeploymentRequest.BuildOptionsEntry
+	nil,                           // 275: chalk.server.v1.ClusterTimescaleSpecs.PostgresParametersEntry
+	nil,                           // 276: chalk.server.v1.ClusterTimescaleSpecs.NodeSelectorEntry
+	nil,                           // 277: chalk.server.v1.ClusterTimescaleSpecs.PgbouncerParametersEntry
+	nil,                           // 278: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.NodeSelectorEntry
+	nil,                           // 279: chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntry
+	nil,                           // 280: chalk.server.v1.EnvoyGatewayProviderConfig.NodeSelectorEntry
+	nil,                           // 281: chalk.server.v1.BackgroundPersistenceWriterSpecs.NodeSelectorEntry
+	nil,                           // 282: chalk.server.v1.BackgroundPersistenceWriterSpecs.AdditionalEnvVarsEntry
+	nil,                           // 283: chalk.server.v1.NodePodMetricsFilter.NodeSelectorEntry
+	nil,                           // 284: chalk.server.v1.UpdateEnvironmentVariablesRequest.EnvironmentVariablesEntry
+	nil,                           // 285: chalk.server.v1.GetKarpenterInstallationMetadataResponse.DeploymentLabelsEntry
+	nil,                           // 286: chalk.server.v1.CreateDeploymentRequest.CustomerMetadataEntry
+	nil,                           // 287: chalk.server.v1.CreateDeploymentRequest.BuildOptionsEntry
+	(DeploymentBuildProfile)(0),   // 288: chalk.server.v1.DeploymentBuildProfile
+	(*v1.Graph)(nil),              // 289: chalk.graph.v1.Graph
+	(*GraphMutation)(nil),         // 290: chalk.server.v1.GraphMutation
+	(*v11.ProjectSettings)(nil),   // 291: chalk.artifacts.v1.ProjectSettings
+	(*v12.LSP)(nil),               // 292: chalk.lsp.v1.LSP
+	(*timestamppb.Timestamp)(nil), // 293: google.protobuf.Timestamp
+	(*Deployment)(nil),            // 294: chalk.server.v1.Deployment
+	(*LogEntry)(nil),              // 295: chalk.server.v1.LogEntry
+	(*fieldmaskpb.FieldMask)(nil), // 296: google.protobuf.FieldMask
+	(*v13.FieldChange)(nil),       // 297: chalk.utils.v1.FieldChange
+	(*v14.KarpenterNodepool)(nil), // 298: chalk.nodepools.v1.KarpenterNodepool
+	(*v14.GKENodePool)(nil),       // 299: chalk.nodepools.v1.GKENodePool
+	(v15.BillingCloud)(0),         // 300: chalk.usage.v1.BillingCloud
+	(*CloudConfig)(nil),           // 301: chalk.server.v1.CloudConfig
 }
 var file_chalk_server_v1_builder_proto_depIdxs = []int32{
-	19,  // 0: chalk.server.v1.ActivateDeploymentRequest.targets:type_name -> chalk.server.v1.ActivateDeploymentTarget
-	19,  // 1: chalk.server.v1.DeployKubeComponentsRequest.targets:type_name -> chalk.server.v1.ActivateDeploymentTarget
-	286, // 2: chalk.server.v1.RebuildDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	287, // 3: chalk.server.v1.RedeployDeploymentRequest.override_graph:type_name -> chalk.graph.v1.Graph
-	286, // 4: chalk.server.v1.RedeployDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	288, // 5: chalk.server.v1.RedeployDeploymentRequest.graph_mutations:type_name -> chalk.server.v1.GraphMutation
-	269, // 6: chalk.server.v1.RedeployDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.RedeployDeploymentRequest.CustomerMetadataEntry
-	270, // 7: chalk.server.v1.RedeployDeploymentRequest.build_options:type_name -> chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntry
+	20,  // 0: chalk.server.v1.ActivateDeploymentRequest.targets:type_name -> chalk.server.v1.ActivateDeploymentTarget
+	20,  // 1: chalk.server.v1.DeployKubeComponentsRequest.targets:type_name -> chalk.server.v1.ActivateDeploymentTarget
+	288, // 2: chalk.server.v1.RebuildDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	289, // 3: chalk.server.v1.RedeployDeploymentRequest.override_graph:type_name -> chalk.graph.v1.Graph
+	288, // 4: chalk.server.v1.RedeployDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	290, // 5: chalk.server.v1.RedeployDeploymentRequest.graph_mutations:type_name -> chalk.server.v1.GraphMutation
+	271, // 6: chalk.server.v1.RedeployDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.RedeployDeploymentRequest.CustomerMetadataEntry
+	272, // 7: chalk.server.v1.RedeployDeploymentRequest.build_options:type_name -> chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntry
 	0,   // 8: chalk.server.v1.PrebuiltEngineImageSource.source_mode:type_name -> chalk.server.v1.SourceMode
-	286, // 9: chalk.server.v1.UploadSourceRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	36,  // 10: chalk.server.v1.UploadSourceRequest.prebuilt_image:type_name -> chalk.server.v1.PrebuiltEngineImageSource
-	232, // 11: chalk.server.v1.PrepareDeploymentRequest.requirements:type_name -> chalk.server.v1.RequirementsFile
-	289, // 12: chalk.server.v1.PrepareDeploymentRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
-	271, // 13: chalk.server.v1.PrepareDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.PrepareDeploymentRequest.CustomerMetadataEntry
-	286, // 14: chalk.server.v1.PrepareDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	272, // 15: chalk.server.v1.PrepareDeploymentRequest.build_options:type_name -> chalk.server.v1.PrepareDeploymentRequest.BuildOptionsEntry
-	286, // 16: chalk.server.v1.BuildImageRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	287, // 17: chalk.server.v1.LintSourceResponse.graph:type_name -> chalk.graph.v1.Graph
-	290, // 18: chalk.server.v1.LintSourceResponse.lsp:type_name -> chalk.lsp.v1.LSP
+	288, // 9: chalk.server.v1.UploadSourceRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	37,  // 10: chalk.server.v1.UploadSourceRequest.prebuilt_image:type_name -> chalk.server.v1.PrebuiltEngineImageSource
+	234, // 11: chalk.server.v1.PrepareDeploymentRequest.requirements:type_name -> chalk.server.v1.RequirementsFile
+	291, // 12: chalk.server.v1.PrepareDeploymentRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
+	273, // 13: chalk.server.v1.PrepareDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.PrepareDeploymentRequest.CustomerMetadataEntry
+	288, // 14: chalk.server.v1.PrepareDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	274, // 15: chalk.server.v1.PrepareDeploymentRequest.build_options:type_name -> chalk.server.v1.PrepareDeploymentRequest.BuildOptionsEntry
+	288, // 16: chalk.server.v1.BuildImageRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	289, // 17: chalk.server.v1.LintSourceResponse.graph:type_name -> chalk.graph.v1.Graph
+	292, // 18: chalk.server.v1.LintSourceResponse.lsp:type_name -> chalk.lsp.v1.LSP
 	1,   // 19: chalk.server.v1.DeploymentBuildStep.status:type_name -> chalk.server.v1.DeploymentBuildStatus
-	291, // 20: chalk.server.v1.DeploymentBuildStep.start_time:type_name -> google.protobuf.Timestamp
-	291, // 21: chalk.server.v1.DeploymentBuildStep.end_time:type_name -> google.protobuf.Timestamp
-	46,  // 22: chalk.server.v1.GetDeploymentStepsResponse.steps:type_name -> chalk.server.v1.DeploymentBuildStep
-	292, // 23: chalk.server.v1.GetDeploymentStepsResponse.deployment:type_name -> chalk.server.v1.Deployment
-	293, // 24: chalk.server.v1.GetDeploymentLogsResponse.logs:type_name -> chalk.server.v1.LogEntry
-	286, // 25: chalk.server.v1.GetDeploymentDependenciesResponse.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	291, // 26: chalk.server.v1.EngineBaseImageVariant.created_at:type_name -> google.protobuf.Timestamp
-	291, // 27: chalk.server.v1.EngineBaseImageRelease.created_at:type_name -> google.protobuf.Timestamp
-	55,  // 28: chalk.server.v1.EngineBaseImageRelease.variants:type_name -> chalk.server.v1.EngineBaseImageVariant
-	56,  // 29: chalk.server.v1.ListEngineBaseImagesResponse.releases:type_name -> chalk.server.v1.EngineBaseImageRelease
-	291, // 30: chalk.server.v1.GetClusterTimescaleDBResponse.created_at:type_name -> google.protobuf.Timestamp
-	291, // 31: chalk.server.v1.GetClusterTimescaleDBResponse.updated_at:type_name -> google.protobuf.Timestamp
-	80,  // 32: chalk.server.v1.GetClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
-	59,  // 33: chalk.server.v1.ListClusterTimescaleDBsResponse.cluster_timescale_dbs:type_name -> chalk.server.v1.GetClusterTimescaleDBResponse
-	291, // 34: chalk.server.v1.GetClusterGatewayResponse.created_at:type_name -> google.protobuf.Timestamp
-	291, // 35: chalk.server.v1.GetClusterGatewayResponse.updated_at:type_name -> google.protobuf.Timestamp
-	101, // 36: chalk.server.v1.GetClusterGatewayResponse.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	63,  // 37: chalk.server.v1.ListClusterGatewaysResponse.gateways:type_name -> chalk.server.v1.GetClusterGatewayResponse
-	101, // 38: chalk.server.v1.GetClusterGatewayDefaultResponse.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	291, // 39: chalk.server.v1.BackgroundPersistence.created_at:type_name -> google.protobuf.Timestamp
-	291, // 40: chalk.server.v1.BackgroundPersistence.updated_at:type_name -> google.protobuf.Timestamp
-	117, // 41: chalk.server.v1.BackgroundPersistence.specs:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
-	68,  // 42: chalk.server.v1.GetClusterBackgroundPersistenceResponse.background_persistence:type_name -> chalk.server.v1.BackgroundPersistence
-	68,  // 43: chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse.background_persistence_deployments:type_name -> chalk.server.v1.BackgroundPersistence
-	80,  // 44: chalk.server.v1.CreateClusterTimescaleDBRequest.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
-	80,  // 45: chalk.server.v1.GetClusterTimescaleDefaultResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
-	78,  // 46: chalk.server.v1.ClusterTimescaleSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 47: chalk.server.v1.ClusterTimescaleSpecs.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	273, // 48: chalk.server.v1.ClusterTimescaleSpecs.postgres_parameters:type_name -> chalk.server.v1.ClusterTimescaleSpecs.PostgresParametersEntry
-	274, // 49: chalk.server.v1.ClusterTimescaleSpecs.node_selector:type_name -> chalk.server.v1.ClusterTimescaleSpecs.NodeSelectorEntry
-	275, // 50: chalk.server.v1.ClusterTimescaleSpecs.pgbouncer_parameters:type_name -> chalk.server.v1.ClusterTimescaleSpecs.PgbouncerParametersEntry
-	80,  // 51: chalk.server.v1.CreateClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
-	80,  // 52: chalk.server.v1.UpdateClusterTimescaleDBRequest.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
-	294, // 53: chalk.server.v1.UpdateClusterTimescaleDBRequest.update_mask:type_name -> google.protobuf.FieldMask
-	80,  // 54: chalk.server.v1.UpdateClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
-	78,  // 55: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
-	276, // 56: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.node_selector:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs.NodeSelectorEntry
-	86,  // 57: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.temporal:type_name -> chalk.server.v1.TemporalEngineSpecs
-	291, // 58: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.created_at:type_name -> google.protobuf.Timestamp
-	291, // 59: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.updated_at:type_name -> google.protobuf.Timestamp
-	87,  // 60: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
-	87,  // 61: chalk.server.v1.CreateClusterWorkflowOrchestratorRequest.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
-	87,  // 62: chalk.server.v1.CreateClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
-	87,  // 63: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
-	294, // 64: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest.update_mask:type_name -> google.protobuf.FieldMask
-	87,  // 65: chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
-	87,  // 66: chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
-	101, // 67: chalk.server.v1.CreateClusterGatewayRequest.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	102, // 68: chalk.server.v1.EnvoyGatewaySpecs.listeners:type_name -> chalk.server.v1.EnvoyGatewayListener
-	105, // 69: chalk.server.v1.EnvoyGatewaySpecs.config:type_name -> chalk.server.v1.GatewayProviderConfig
-	108, // 70: chalk.server.v1.EnvoyGatewaySpecs.tls_certificate:type_name -> chalk.server.v1.TLSCertificateConfig
-	277, // 71: chalk.server.v1.EnvoyGatewaySpecs.service_annotations:type_name -> chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntry
-	103, // 72: chalk.server.v1.EnvoyGatewayListener.allowed_routes:type_name -> chalk.server.v1.EnvoyGatewayAllowedRoutes
-	104, // 73: chalk.server.v1.EnvoyGatewayAllowedRoutes.namespaces:type_name -> chalk.server.v1.EnvoyGatewayAllowedNamespaces
-	106, // 74: chalk.server.v1.GatewayProviderConfig.envoy:type_name -> chalk.server.v1.EnvoyGatewayProviderConfig
-	107, // 75: chalk.server.v1.GatewayProviderConfig.gcp:type_name -> chalk.server.v1.GCPGatewayProviderConfig
-	278, // 76: chalk.server.v1.EnvoyGatewayProviderConfig.node_selector:type_name -> chalk.server.v1.EnvoyGatewayProviderConfig.NodeSelectorEntry
-	265, // 77: chalk.server.v1.EnvoyGatewayProviderConfig.certificate_issuer_ref:type_name -> chalk.server.v1.CertManagerIssuerRef
-	109, // 78: chalk.server.v1.TLSCertificateConfig.manual_certificate:type_name -> chalk.server.v1.TLSManualCertificateRef
-	101, // 79: chalk.server.v1.CreateClusterGatewayResponse.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	117, // 80: chalk.server.v1.CreateClusterBackgroundPersistenceRequest.specs:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
-	113, // 81: chalk.server.v1.BackgroundPersistenceWriterSpecs.hpa_specs:type_name -> chalk.server.v1.BackgroundPersistenceWriterHpaSpecs
-	78,  // 82: chalk.server.v1.BackgroundPersistenceWriterSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 83: chalk.server.v1.BackgroundPersistenceWriterSpecs.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	279, // 84: chalk.server.v1.BackgroundPersistenceWriterSpecs.node_selector:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs.NodeSelectorEntry
-	280, // 85: chalk.server.v1.BackgroundPersistenceWriterSpecs.additional_env_vars:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs.AdditionalEnvVarsEntry
-	2,   // 86: chalk.server.v1.BackgroundPersistenceWriterSpecs.chalk_queries_clickhouse_write_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterClickHouseWriteMode
-	2,   // 87: chalk.server.v1.BackgroundPersistenceWriterSpecs.chalk_errors_clickhouse_write_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterClickHouseWriteMode
-	3,   // 88: chalk.server.v1.BackgroundPersistenceWriterSpecs.metrics_emission_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterMetricsEmissionMode
-	281, // 89: chalk.server.v1.NodePodMetricsFilter.node_selector:type_name -> chalk.server.v1.NodePodMetricsFilter.NodeSelectorEntry
-	115, // 90: chalk.server.v1.ClusterManagerConfig.node_pod_metrics_filters:type_name -> chalk.server.v1.NodePodMetricsFilter
-	112, // 91: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.common_persistence_specs:type_name -> chalk.server.v1.BackgroundPersistenceCommonSpecs
-	114, // 92: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.writers:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs
-	158, // 93: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.observability_daemons:type_name -> chalk.server.v1.ObservabilityDaemonSpec
-	116, // 94: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.cluster_manager_config:type_name -> chalk.server.v1.ClusterManagerConfig
-	159, // 95: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.observability_daemon_scheduling:type_name -> chalk.server.v1.ObservabilityDaemonSchedulingSpec
-	17,  // 96: chalk.server.v1.VectorAggregatorVictoriaMetricsSinkSpec.buffer_type:type_name -> chalk.server.v1.VectorAggregatorBufferType
-	124, // 97: chalk.server.v1.VectorAggregatorChalkDatadogExportSpec.metrics_sink:type_name -> chalk.server.v1.VectorAggregatorChalkDatadogMetricsSinkSpec
-	17,  // 98: chalk.server.v1.VectorAggregatorChalkDatadogMetricsSinkSpec.buffer_type:type_name -> chalk.server.v1.VectorAggregatorBufferType
-	17,  // 99: chalk.server.v1.CustomerVectorAggregatorDatadogMetricsSinkSpec.buffer_type:type_name -> chalk.server.v1.VectorAggregatorBufferType
-	127, // 100: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig.logs:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogSignalExportSpec
-	127, // 101: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig.traces:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogSignalExportSpec
-	127, // 102: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig.metrics:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogSignalExportSpec
-	128, // 103: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig.metrics_sink:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogMetricsSinkSpec
-	4,   // 104: chalk.server.v1.CustomerVectorAggregatorStatsdExportConfig.protocol:type_name -> chalk.server.v1.CustomerVectorAggregatorStatsdProtocol
-	130, // 105: chalk.server.v1.CustomerVectorAggregatorStatsdExportConfig.metrics_sink:type_name -> chalk.server.v1.CustomerVectorAggregatorStatsdMetricsSinkSpec
-	129, // 106: chalk.server.v1.CustomerVectorAggregatorConfig.datadog_export:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig
-	131, // 107: chalk.server.v1.CustomerVectorAggregatorConfig.statsd_export:type_name -> chalk.server.v1.CustomerVectorAggregatorStatsdExportConfig
-	78,  // 108: chalk.server.v1.CustomerVectorAggregatorConfig.request:type_name -> chalk.server.v1.KubeResourceConfig
-	260, // 109: chalk.server.v1.CustomerVectorAggregatorConfig.otlp_metrics_export:type_name -> chalk.server.v1.CustomerVectorAggregatorOtlpMetricsExportConfig
-	78,  // 110: chalk.server.v1.AggregatorSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 111: chalk.server.v1.AggregatorSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	120, // 112: chalk.server.v1.AggregatorSpec.vector_click_house_sink:type_name -> chalk.server.v1.VectorAggregatorClickHouseSinkSpec
-	123, // 113: chalk.server.v1.AggregatorSpec.export_to_chalk_datadog:type_name -> chalk.server.v1.VectorAggregatorChalkDatadogExportSpec
-	121, // 114: chalk.server.v1.AggregatorSpec.vector_victoria_metrics_sink:type_name -> chalk.server.v1.VectorAggregatorVictoriaMetricsSinkSpec
-	125, // 115: chalk.server.v1.AggregatorSpec.metric_aggregation:type_name -> chalk.server.v1.VectorAggregatorMetricAggregationSpec
-	122, // 116: chalk.server.v1.AggregatorSpec.customer_vector_sink:type_name -> chalk.server.v1.VectorAggregatorCustomerSinkSpec
-	268, // 117: chalk.server.v1.CustomerCollectorConfig.received_signals:type_name -> chalk.server.v1.CustomerCollectorReceivedSignalsSpec
-	10,  // 118: chalk.server.v1.VectorClusterMetricsSpec.sink_mode:type_name -> chalk.server.v1.VectorClusterMetricsSinkMode
-	143, // 119: chalk.server.v1.VectorClusterMetricsSpec.shadow:type_name -> chalk.server.v1.VectorClusterMetricsShadowSpec
-	144, // 120: chalk.server.v1.VectorClusterMetricsSpec.tables:type_name -> chalk.server.v1.VectorClusterMetricsTablesSpec
-	115, // 121: chalk.server.v1.VectorClusterMetricsSpec.pod_filters:type_name -> chalk.server.v1.NodePodMetricsFilter
-	78,  // 122: chalk.server.v1.TelemetryIngestMetricsSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	18,  // 123: chalk.server.v1.VectorCollectorSinkSpec.request_concurrency_mode:type_name -> chalk.server.v1.VectorCollectorRequestConcurrencyMode
-	137, // 124: chalk.server.v1.VectorStatsdSpec.uds:type_name -> chalk.server.v1.VectorStatsdUdsSpec
-	138, // 125: chalk.server.v1.VectorStatsdSpec.udp:type_name -> chalk.server.v1.VectorStatsdUdpSpec
-	139, // 126: chalk.server.v1.VectorStatsdSpec.aggregator_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
-	9,   // 127: chalk.server.v1.MetricExportDestination.format:type_name -> chalk.server.v1.MetricExportDestinationFormat
-	141, // 128: chalk.server.v1.MetricExportSpec.additional_destinations:type_name -> chalk.server.v1.MetricExportDestination
-	11,  // 129: chalk.server.v1.VectorClusterMetricsShadowSpec.output:type_name -> chalk.server.v1.VectorClusterMetricsShadowOutput
-	145, // 130: chalk.server.v1.VectorClusterMetricsShadowSpec.tables:type_name -> chalk.server.v1.VectorClusterMetricsShadowTables
-	78,  // 131: chalk.server.v1.OtelCollectorSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 132: chalk.server.v1.OtelCollectorSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	5,   // 133: chalk.server.v1.OtelCollectorSpec.toleration_mode:type_name -> chalk.server.v1.TelemetryCollectorTolerationMode
-	6,   // 134: chalk.server.v1.OtelCollectorSpec.otel_collector_image:type_name -> chalk.server.v1.OtelCollectorImage
-	126, // 135: chalk.server.v1.OtelCollectorSpec.metric_aggregation:type_name -> chalk.server.v1.VectorCollectorMetricAggregationSpec
-	139, // 136: chalk.server.v1.OtelCollectorSpec.vector_otlp_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
-	139, // 137: chalk.server.v1.OtelCollectorSpec.vector_file_log_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
-	78,  // 138: chalk.server.v1.GpuTelemetrySpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 139: chalk.server.v1.GpuTelemetrySpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	119, // 140: chalk.server.v1.GpuTelemetrySpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
-	78,  // 141: chalk.server.v1.ClickHouseSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 142: chalk.server.v1.ClickHouseSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	79,  // 143: chalk.server.v1.ClickHouseSpec.storage:type_name -> chalk.server.v1.KubePersistentVolumeClaim
-	78,  // 144: chalk.server.v1.VictoriaMetricsSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 145: chalk.server.v1.VictoriaMetricsSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 146: chalk.server.v1.VictoriaMetricsSpec.storage_request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 147: chalk.server.v1.VictoriaMetricsSpec.storage_limit:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 148: chalk.server.v1.VictoriaMetricsSpec.insert_request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 149: chalk.server.v1.VictoriaMetricsSpec.auth_request:type_name -> chalk.server.v1.KubeResourceConfig
-	12,  // 150: chalk.server.v1.PerfettoDaemonSpec.trigger:type_name -> chalk.server.v1.PerfettoTrigger
-	13,  // 151: chalk.server.v1.NetworkInspectorDaemonSpec.trigger:type_name -> chalk.server.v1.NetworkInspectorTrigger
-	78,  // 152: chalk.server.v1.ObservabilityDaemonSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	78,  // 153: chalk.server.v1.ObservabilityDaemonSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	159, // 154: chalk.server.v1.ObservabilityDaemonSpec.scheduling:type_name -> chalk.server.v1.ObservabilityDaemonSchedulingSpec
-	150, // 155: chalk.server.v1.ObservabilityDaemonSpec.zombie_killer:type_name -> chalk.server.v1.ZombieKillerSpec
-	151, // 156: chalk.server.v1.ObservabilityDaemonSpec.core_dump_collector:type_name -> chalk.server.v1.CoreDumpCollectorSpec
-	152, // 157: chalk.server.v1.ObservabilityDaemonSpec.py_spy_stack_trace_collector:type_name -> chalk.server.v1.PySpyStackTraceCollectorSpec
-	153, // 158: chalk.server.v1.ObservabilityDaemonSpec.perf_collector:type_name -> chalk.server.v1.PerfCollectorSpec
-	154, // 159: chalk.server.v1.ObservabilityDaemonSpec.perfetto_daemon:type_name -> chalk.server.v1.PerfettoDaemonSpec
-	155, // 160: chalk.server.v1.ObservabilityDaemonSpec.directory_watcher:type_name -> chalk.server.v1.DirectoryWatcherSpec
-	156, // 161: chalk.server.v1.ObservabilityDaemonSpec.streamed_watcher:type_name -> chalk.server.v1.StreamedDirectoryWatcherSpec
-	157, // 162: chalk.server.v1.ObservabilityDaemonSpec.network_inspector_daemon:type_name -> chalk.server.v1.NetworkInspectorDaemonSpec
-	119, // 163: chalk.server.v1.ObservabilityDaemonSchedulingSpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
-	148, // 164: chalk.server.v1.TelemetryDeploymentSpec.click_house:type_name -> chalk.server.v1.ClickHouseSpec
-	146, // 165: chalk.server.v1.TelemetryDeploymentSpec.otel:type_name -> chalk.server.v1.OtelCollectorSpec
-	119, // 166: chalk.server.v1.TelemetryDeploymentSpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
-	133, // 167: chalk.server.v1.TelemetryDeploymentSpec.aggregator:type_name -> chalk.server.v1.AggregatorSpec
-	158, // 168: chalk.server.v1.TelemetryDeploymentSpec.observability_daemons:type_name -> chalk.server.v1.ObservabilityDaemonSpec
-	134, // 169: chalk.server.v1.TelemetryDeploymentSpec.customer_collector:type_name -> chalk.server.v1.CustomerCollectorConfig
-	147, // 170: chalk.server.v1.TelemetryDeploymentSpec.gpu_telemetry:type_name -> chalk.server.v1.GpuTelemetrySpec
-	7,   // 171: chalk.server.v1.TelemetryDeploymentSpec.telemetry_runtime:type_name -> chalk.server.v1.TelemetryRuntime
-	135, // 172: chalk.server.v1.TelemetryDeploymentSpec.vector_cluster_metrics:type_name -> chalk.server.v1.VectorClusterMetricsSpec
-	149, // 173: chalk.server.v1.TelemetryDeploymentSpec.victoria_metrics:type_name -> chalk.server.v1.VictoriaMetricsSpec
-	136, // 174: chalk.server.v1.TelemetryDeploymentSpec.ingest_metrics:type_name -> chalk.server.v1.TelemetryIngestMetricsSpec
-	140, // 175: chalk.server.v1.TelemetryDeploymentSpec.vector_statsd:type_name -> chalk.server.v1.VectorStatsdSpec
-	142, // 176: chalk.server.v1.TelemetryDeploymentSpec.metric_exports:type_name -> chalk.server.v1.MetricExportSpec
-	132, // 177: chalk.server.v1.TelemetryDeploymentSpec.customer_vector_aggregator:type_name -> chalk.server.v1.CustomerVectorAggregatorConfig
-	8,   // 178: chalk.server.v1.TelemetryDeploymentSpec.prometheus_collection_runtime:type_name -> chalk.server.v1.TelemetryPrometheusCollectionRuntime
-	259, // 179: chalk.server.v1.TelemetryDeploymentSpec.vector_pipeline_metrics:type_name -> chalk.server.v1.VectorTelemetryPipelineMetricsSpec
-	160, // 180: chalk.server.v1.TelemetryDeployment.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
-	291, // 181: chalk.server.v1.TelemetryDeployment.created_at:type_name -> google.protobuf.Timestamp
-	291, // 182: chalk.server.v1.TelemetryDeployment.updated_at:type_name -> google.protobuf.Timestamp
-	291, // 183: chalk.server.v1.TelemetryDeployment.suspended_at:type_name -> google.protobuf.Timestamp
-	162, // 184: chalk.server.v1.GetTelemetryDeploymentRequest.cluster_identifier:type_name -> chalk.server.v1.ClusterIdentifier
-	161, // 185: chalk.server.v1.GetTelemetryDeploymentResponse.deployment:type_name -> chalk.server.v1.TelemetryDeployment
-	161, // 186: chalk.server.v1.ListTelemetryDeploymentsResponse.deployments:type_name -> chalk.server.v1.TelemetryDeployment
-	160, // 187: chalk.server.v1.CreateTelemetryDeploymentRequest.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
-	160, // 188: chalk.server.v1.UpdateTelemetryDeploymentRequest.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
-	294, // 189: chalk.server.v1.UpdateTelemetryDeploymentRequest.update_mask:type_name -> google.protobuf.FieldMask
-	161, // 190: chalk.server.v1.UpdateTelemetryDeploymentResponse.deployment:type_name -> chalk.server.v1.TelemetryDeployment
-	282, // 191: chalk.server.v1.UpdateEnvironmentVariablesRequest.environment_variables:type_name -> chalk.server.v1.UpdateEnvironmentVariablesRequest.EnvironmentVariablesEntry
-	295, // 192: chalk.server.v1.UpdateEnvironmentVariablesResponse.field_changes:type_name -> chalk.utils.v1.FieldChange
-	14,  // 193: chalk.server.v1.StartBranchResponse.state:type_name -> chalk.server.v1.BranchScalingState
-	14,  // 194: chalk.server.v1.ScaleBranchResponse.state:type_name -> chalk.server.v1.BranchScalingState
-	15,  // 195: chalk.server.v1.GetBranchServerStatusResponse.status:type_name -> chalk.server.v1.BranchServerStatus
-	187, // 196: chalk.server.v1.CreateKafkaTopicsRequest.topics:type_name -> chalk.server.v1.KafkaTopic
-	187, // 197: chalk.server.v1.GetKafkaTopicsResponse.topics:type_name -> chalk.server.v1.KafkaTopic
-	296, // 198: chalk.server.v1.GetNodepoolsResponse.karpenter_nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	297, // 199: chalk.server.v1.GetNodepoolsResponse.gke_nodepools:type_name -> chalk.nodepools.v1.GKENodePool
-	298, // 200: chalk.server.v1.ChalkMachineTypeMapping.cloud:type_name -> chalk.usage.v1.BillingCloud
-	194, // 201: chalk.server.v1.ChalkMachineTypeMapping.fallbacks:type_name -> chalk.server.v1.ChalkMachineTypeFallback
-	16,  // 202: chalk.server.v1.ChalkMachineTypeMapping.override_scope:type_name -> chalk.server.v1.ChalkMachineTypeOverrideScope
-	194, // 203: chalk.server.v1.ChalkMachineTypeMapping.default_fallbacks:type_name -> chalk.server.v1.ChalkMachineTypeFallback
-	195, // 204: chalk.server.v1.ChalkMachineTypeMapping.allowed_instance_types:type_name -> chalk.server.v1.ChalkMachineTypeInstanceOption
-	196, // 205: chalk.server.v1.GetAvailableChalkMachineTypesResponse.mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
-	291, // 206: chalk.server.v1.ChalkMachineTypeOverride.created_at:type_name -> google.protobuf.Timestamp
-	291, // 207: chalk.server.v1.ChalkMachineTypeOverride.updated_at:type_name -> google.protobuf.Timestamp
-	199, // 208: chalk.server.v1.UpsertChalkMachineTypeOverrideResponse.override:type_name -> chalk.server.v1.ChalkMachineTypeOverride
-	196, // 209: chalk.server.v1.ClusterEnvironmentChalkMachineTypes.mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
-	199, // 210: chalk.server.v1.GetClusterChalkMachineTypesResponse.overrides:type_name -> chalk.server.v1.ChalkMachineTypeOverride
-	196, // 211: chalk.server.v1.GetClusterChalkMachineTypesResponse.cluster_mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
-	204, // 212: chalk.server.v1.GetClusterChalkMachineTypesResponse.environments:type_name -> chalk.server.v1.ClusterEnvironmentChalkMachineTypes
-	296, // 213: chalk.server.v1.AddNodepoolRequest.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	297, // 214: chalk.server.v1.AddNodepoolRequest.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
-	296, // 215: chalk.server.v1.AddNodepoolResponse.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	297, // 216: chalk.server.v1.AddNodepoolResponse.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
-	297, // 217: chalk.server.v1.UpdateNodepoolRequest.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
-	296, // 218: chalk.server.v1.UpdateNodepoolRequest.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	296, // 219: chalk.server.v1.UpdateNodepoolResponse.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	297, // 220: chalk.server.v1.UpdateNodepoolResponse.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
-	296, // 221: chalk.server.v1.GetKarpenterNodepoolsResponse.nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	296, // 222: chalk.server.v1.AddKarpenterNodepoolRequest.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	296, // 223: chalk.server.v1.AddKarpenterNodepoolResponse.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	296, // 224: chalk.server.v1.UpdateKarpenterNodepoolRequest.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	296, // 225: chalk.server.v1.UpdateKarpenterNodepoolResponse.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	283, // 226: chalk.server.v1.GetKarpenterInstallationMetadataResponse.deployment_labels:type_name -> chalk.server.v1.GetKarpenterInstallationMetadataResponse.DeploymentLabelsEntry
-	227, // 227: chalk.server.v1.GetTagWeightsResponse.tags:type_name -> chalk.server.v1.DeploymentTag
-	227, // 228: chalk.server.v1.SetTagWeightsRequest.tags:type_name -> chalk.server.v1.DeploymentTag
-	227, // 229: chalk.server.v1.SetTagWeightsResponse.tags:type_name -> chalk.server.v1.DeploymentTag
-	232, // 230: chalk.server.v1.CreateDeploymentRequest.requirements:type_name -> chalk.server.v1.RequirementsFile
-	289, // 231: chalk.server.v1.CreateDeploymentRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
-	284, // 232: chalk.server.v1.CreateDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.CreateDeploymentRequest.CustomerMetadataEntry
-	285, // 233: chalk.server.v1.CreateDeploymentRequest.build_options:type_name -> chalk.server.v1.CreateDeploymentRequest.BuildOptionsEntry
-	299, // 234: chalk.server.v1.KubernetesCluster.cloud_credentials:type_name -> chalk.server.v1.CloudConfig
-	101, // 235: chalk.server.v1.KubernetesCluster.cluster_gateway:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	117, // 236: chalk.server.v1.KubernetesCluster.cluster_background_persistence:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
-	101, // 237: chalk.server.v1.KubernetesCluster.services_gateway:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	235, // 238: chalk.server.v1.GetEnvironmentKubeClustersResponse.clusters:type_name -> chalk.server.v1.KubernetesCluster
-	254, // 239: chalk.server.v1.ListStreamingKafkaKedaConfigsResponse.configs:type_name -> chalk.server.v1.StreamingKafkaKedaConfig
-	254, // 240: chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse.config:type_name -> chalk.server.v1.StreamingKafkaKedaConfig
-	289, // 241: chalk.server.v1.ValidateProjectSettingsRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
-	175, // 242: chalk.server.v1.BuilderService.GetSearchConfig:input_type -> chalk.server.v1.GetSearchConfigRequest
-	20,  // 243: chalk.server.v1.BuilderService.ActivateDeployment:input_type -> chalk.server.v1.ActivateDeploymentRequest
-	22,  // 244: chalk.server.v1.BuilderService.IndexDeployment:input_type -> chalk.server.v1.IndexDeploymentRequest
-	24,  // 245: chalk.server.v1.BuilderService.ValidateNamedQueries:input_type -> chalk.server.v1.ValidateNamedQueriesRequest
-	26,  // 246: chalk.server.v1.BuilderService.RunPostIndexValidation:input_type -> chalk.server.v1.RunPostIndexValidationRequest
-	261, // 247: chalk.server.v1.BuilderService.PopulateNamedQueryPlans:input_type -> chalk.server.v1.PopulateNamedQueryPlansRequest
-	263, // 248: chalk.server.v1.BuilderService.PrepareGraphSupplement:input_type -> chalk.server.v1.PrepareGraphSupplementRequest
-	28,  // 249: chalk.server.v1.BuilderService.StartShadowBuildFromDeployment:input_type -> chalk.server.v1.StartShadowBuildFromDeploymentRequest
-	30,  // 250: chalk.server.v1.BuilderService.DeployKubeComponents:input_type -> chalk.server.v1.DeployKubeComponentsRequest
-	32,  // 251: chalk.server.v1.BuilderService.RebuildDeployment:input_type -> chalk.server.v1.RebuildDeploymentRequest
-	34,  // 252: chalk.server.v1.BuilderService.RedeployDeployment:input_type -> chalk.server.v1.RedeployDeploymentRequest
-	37,  // 253: chalk.server.v1.BuilderService.UploadSource:input_type -> chalk.server.v1.UploadSourceRequest
-	43,  // 254: chalk.server.v1.BuilderService.LintSource:input_type -> chalk.server.v1.LintSourceRequest
-	45,  // 255: chalk.server.v1.BuilderService.GetDeploymentSteps:input_type -> chalk.server.v1.GetDeploymentStepsRequest
-	48,  // 256: chalk.server.v1.BuilderService.GetDeploymentLogs:input_type -> chalk.server.v1.GetDeploymentLogsRequest
-	50,  // 257: chalk.server.v1.BuilderService.GetDeploymentDependencies:input_type -> chalk.server.v1.GetDeploymentDependenciesRequest
-	52,  // 258: chalk.server.v1.BuilderService.ResolveEngineBaseImage:input_type -> chalk.server.v1.ResolveEngineBaseImageRequest
-	54,  // 259: chalk.server.v1.BuilderService.ListEngineBaseImages:input_type -> chalk.server.v1.ListEngineBaseImagesRequest
-	266, // 260: chalk.server.v1.BuilderService.ValidateProjectSettings:input_type -> chalk.server.v1.ValidateProjectSettingsRequest
-	58,  // 261: chalk.server.v1.BuilderService.GetClusterTimescaleDB:input_type -> chalk.server.v1.GetClusterTimescaleDBRequest
-	60,  // 262: chalk.server.v1.BuilderService.ListClusterTimescaleDBs:input_type -> chalk.server.v1.ListClusterTimescaleDBsRequest
-	62,  // 263: chalk.server.v1.BuilderService.GetClusterGateway:input_type -> chalk.server.v1.GetClusterGatewayRequest
-	64,  // 264: chalk.server.v1.BuilderService.ListClusterGateways:input_type -> chalk.server.v1.ListClusterGatewaysRequest
-	66,  // 265: chalk.server.v1.BuilderService.GetClusterGatewayDefault:input_type -> chalk.server.v1.GetClusterGatewayDefaultRequest
-	69,  // 266: chalk.server.v1.BuilderService.GetClusterBackgroundPersistence:input_type -> chalk.server.v1.GetClusterBackgroundPersistenceRequest
-	71,  // 267: chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments:input_type -> chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsRequest
-	255, // 268: chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs:input_type -> chalk.server.v1.ListStreamingKafkaKedaConfigsRequest
-	73,  // 269: chalk.server.v1.BuilderService.CreateClusterTimescaleDB:input_type -> chalk.server.v1.CreateClusterTimescaleDBRequest
-	82,  // 270: chalk.server.v1.BuilderService.UpdateClusterTimescaleDB:input_type -> chalk.server.v1.UpdateClusterTimescaleDBRequest
-	76,  // 271: chalk.server.v1.BuilderService.GetClusterTimescaleDefault:input_type -> chalk.server.v1.GetClusterTimescaleDefaultRequest
-	74,  // 272: chalk.server.v1.BuilderService.DeleteClusterTimescaleDB:input_type -> chalk.server.v1.DeleteClusterTimescaleDBRequest
-	223, // 273: chalk.server.v1.BuilderService.CreateEnvironmentCloudResources:input_type -> chalk.server.v1.CreateEnvironmentCloudResourcesRequest
-	225, // 274: chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources:input_type -> chalk.server.v1.DeleteEnvironmentCloudResourcesRequest
-	84,  // 275: chalk.server.v1.BuilderService.MigrateClusterTimescaleDB:input_type -> chalk.server.v1.MigrateClusterTimescaleDBRequest
-	88,  // 276: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator:input_type -> chalk.server.v1.GetClusterWorkflowOrchestratorRequest
-	96,  // 277: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault:input_type -> chalk.server.v1.GetClusterWorkflowOrchestratorDefaultRequest
-	90,  // 278: chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.CreateClusterWorkflowOrchestratorRequest
-	92,  // 279: chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest
-	94,  // 280: chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator:input_type -> chalk.server.v1.DeleteClusterWorkflowOrchestratorRequest
-	98,  // 281: chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.MigrateClusterWorkflowOrchestratorRequest
-	100, // 282: chalk.server.v1.BuilderService.CreateClusterGateway:input_type -> chalk.server.v1.CreateClusterGatewayRequest
-	111, // 283: chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence:input_type -> chalk.server.v1.CreateClusterBackgroundPersistenceRequest
-	257, // 284: chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig:input_type -> chalk.server.v1.UpdateStreamingKafkaKedaConfigRequest
-	177, // 285: chalk.server.v1.BuilderService.UpdateEnvironmentVariables:input_type -> chalk.server.v1.UpdateEnvironmentVariablesRequest
-	179, // 286: chalk.server.v1.BuilderService.StartBranch:input_type -> chalk.server.v1.StartBranchRequest
-	181, // 287: chalk.server.v1.BuilderService.ScaleBranch:input_type -> chalk.server.v1.ScaleBranchRequest
-	183, // 288: chalk.server.v1.BuilderService.GetBranchProfile:input_type -> chalk.server.v1.GetBranchProfileRequest
-	185, // 289: chalk.server.v1.BuilderService.GetBranchServerStatus:input_type -> chalk.server.v1.GetBranchServerStatusRequest
-	192, // 290: chalk.server.v1.BuilderService.GetNodepools:input_type -> chalk.server.v1.GetNodepoolsRequest
-	197, // 291: chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes:input_type -> chalk.server.v1.GetAvailableChalkMachineTypesRequest
-	200, // 292: chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride:input_type -> chalk.server.v1.UpsertChalkMachineTypeOverrideRequest
-	202, // 293: chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride:input_type -> chalk.server.v1.DeleteChalkMachineTypeOverrideRequest
-	205, // 294: chalk.server.v1.BuilderService.GetClusterChalkMachineTypes:input_type -> chalk.server.v1.GetClusterChalkMachineTypesRequest
-	207, // 295: chalk.server.v1.BuilderService.AddNodepool:input_type -> chalk.server.v1.AddNodepoolRequest
-	209, // 296: chalk.server.v1.BuilderService.UpdateNodepool:input_type -> chalk.server.v1.UpdateNodepoolRequest
-	211, // 297: chalk.server.v1.BuilderService.DeleteNodepool:input_type -> chalk.server.v1.DeleteNodepoolRequest
-	213, // 298: chalk.server.v1.BuilderService.GetKarpenterNodepools:input_type -> chalk.server.v1.GetKarpenterNodepoolsRequest
-	215, // 299: chalk.server.v1.BuilderService.AddKarpenterNodepool:input_type -> chalk.server.v1.AddKarpenterNodepoolRequest
-	217, // 300: chalk.server.v1.BuilderService.UpdateKarpenterNodepool:input_type -> chalk.server.v1.UpdateKarpenterNodepoolRequest
-	219, // 301: chalk.server.v1.BuilderService.DeleteKarpenterNodepool:input_type -> chalk.server.v1.DeleteKarpenterNodepoolRequest
-	221, // 302: chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata:input_type -> chalk.server.v1.GetKarpenterInstallationMetadataRequest
-	228, // 303: chalk.server.v1.BuilderService.GetTagWeights:input_type -> chalk.server.v1.GetTagWeightsRequest
-	230, // 304: chalk.server.v1.BuilderService.SetTagWeights:input_type -> chalk.server.v1.SetTagWeightsRequest
-	233, // 305: chalk.server.v1.BuilderService.CreateDeployment:input_type -> chalk.server.v1.CreateDeploymentRequest
-	39,  // 306: chalk.server.v1.BuilderService.PrepareDeployment:input_type -> chalk.server.v1.PrepareDeploymentRequest
-	41,  // 307: chalk.server.v1.BuilderService.BuildImage:input_type -> chalk.server.v1.BuildImageRequest
-	163, // 308: chalk.server.v1.BuilderService.GetTelemetryDeployment:input_type -> chalk.server.v1.GetTelemetryDeploymentRequest
-	165, // 309: chalk.server.v1.BuilderService.ListTelemetryDeployments:input_type -> chalk.server.v1.ListTelemetryDeploymentsRequest
-	167, // 310: chalk.server.v1.BuilderService.CreateTelemetryDeployment:input_type -> chalk.server.v1.CreateTelemetryDeploymentRequest
-	171, // 311: chalk.server.v1.BuilderService.UpdateTelemetryDeployment:input_type -> chalk.server.v1.UpdateTelemetryDeploymentRequest
-	169, // 312: chalk.server.v1.BuilderService.DeleteTelemetryDeployment:input_type -> chalk.server.v1.DeleteTelemetryDeploymentRequest
-	173, // 313: chalk.server.v1.BuilderService.MigrateTelemetryDeployment:input_type -> chalk.server.v1.MigrateTelemetryDeploymentRequest
-	236, // 314: chalk.server.v1.BuilderService.GetEnvironmentKubeClusters:input_type -> chalk.server.v1.GetEnvironmentKubeClustersRequest
-	238, // 315: chalk.server.v1.BuilderService.SuspendEnvironment:input_type -> chalk.server.v1.SuspendEnvironmentRequest
-	240, // 316: chalk.server.v1.BuilderService.ResumeEnvironment:input_type -> chalk.server.v1.ResumeEnvironmentRequest
-	242, // 317: chalk.server.v1.BuilderService.SuspendClusterGateway:input_type -> chalk.server.v1.SuspendClusterGatewayRequest
-	244, // 318: chalk.server.v1.BuilderService.ResumeClusterGateway:input_type -> chalk.server.v1.ResumeClusterGatewayRequest
-	246, // 319: chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence:input_type -> chalk.server.v1.SuspendClusterBackgroundPersistenceRequest
-	248, // 320: chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence:input_type -> chalk.server.v1.ResumeClusterBackgroundPersistenceRequest
-	250, // 321: chalk.server.v1.BuilderService.DeleteClusterGateway:input_type -> chalk.server.v1.DeleteClusterGatewayRequest
-	252, // 322: chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence:input_type -> chalk.server.v1.DeleteClusterBackgroundPersistenceRequest
-	188, // 323: chalk.server.v1.ClusterBuilderService.CreateKafkaTopics:input_type -> chalk.server.v1.CreateKafkaTopicsRequest
-	190, // 324: chalk.server.v1.ClusterBuilderService.GetKafkaTopics:input_type -> chalk.server.v1.GetKafkaTopicsRequest
-	176, // 325: chalk.server.v1.BuilderService.GetSearchConfig:output_type -> chalk.server.v1.GetSearchConfigResponse
-	21,  // 326: chalk.server.v1.BuilderService.ActivateDeployment:output_type -> chalk.server.v1.ActivateDeploymentResponse
-	23,  // 327: chalk.server.v1.BuilderService.IndexDeployment:output_type -> chalk.server.v1.IndexDeploymentResponse
-	25,  // 328: chalk.server.v1.BuilderService.ValidateNamedQueries:output_type -> chalk.server.v1.ValidateNamedQueriesResponse
-	27,  // 329: chalk.server.v1.BuilderService.RunPostIndexValidation:output_type -> chalk.server.v1.RunPostIndexValidationResponse
-	262, // 330: chalk.server.v1.BuilderService.PopulateNamedQueryPlans:output_type -> chalk.server.v1.PopulateNamedQueryPlansResponse
-	264, // 331: chalk.server.v1.BuilderService.PrepareGraphSupplement:output_type -> chalk.server.v1.PrepareGraphSupplementResponse
-	29,  // 332: chalk.server.v1.BuilderService.StartShadowBuildFromDeployment:output_type -> chalk.server.v1.StartShadowBuildFromDeploymentResponse
-	31,  // 333: chalk.server.v1.BuilderService.DeployKubeComponents:output_type -> chalk.server.v1.DeployKubeComponentsResponse
-	33,  // 334: chalk.server.v1.BuilderService.RebuildDeployment:output_type -> chalk.server.v1.RebuildDeploymentResponse
-	35,  // 335: chalk.server.v1.BuilderService.RedeployDeployment:output_type -> chalk.server.v1.RedeployDeploymentResponse
-	38,  // 336: chalk.server.v1.BuilderService.UploadSource:output_type -> chalk.server.v1.UploadSourceResponse
-	44,  // 337: chalk.server.v1.BuilderService.LintSource:output_type -> chalk.server.v1.LintSourceResponse
-	47,  // 338: chalk.server.v1.BuilderService.GetDeploymentSteps:output_type -> chalk.server.v1.GetDeploymentStepsResponse
-	49,  // 339: chalk.server.v1.BuilderService.GetDeploymentLogs:output_type -> chalk.server.v1.GetDeploymentLogsResponse
-	51,  // 340: chalk.server.v1.BuilderService.GetDeploymentDependencies:output_type -> chalk.server.v1.GetDeploymentDependenciesResponse
-	53,  // 341: chalk.server.v1.BuilderService.ResolveEngineBaseImage:output_type -> chalk.server.v1.ResolveEngineBaseImageResponse
-	57,  // 342: chalk.server.v1.BuilderService.ListEngineBaseImages:output_type -> chalk.server.v1.ListEngineBaseImagesResponse
-	267, // 343: chalk.server.v1.BuilderService.ValidateProjectSettings:output_type -> chalk.server.v1.ValidateProjectSettingsResponse
-	59,  // 344: chalk.server.v1.BuilderService.GetClusterTimescaleDB:output_type -> chalk.server.v1.GetClusterTimescaleDBResponse
-	61,  // 345: chalk.server.v1.BuilderService.ListClusterTimescaleDBs:output_type -> chalk.server.v1.ListClusterTimescaleDBsResponse
-	63,  // 346: chalk.server.v1.BuilderService.GetClusterGateway:output_type -> chalk.server.v1.GetClusterGatewayResponse
-	65,  // 347: chalk.server.v1.BuilderService.ListClusterGateways:output_type -> chalk.server.v1.ListClusterGatewaysResponse
-	67,  // 348: chalk.server.v1.BuilderService.GetClusterGatewayDefault:output_type -> chalk.server.v1.GetClusterGatewayDefaultResponse
-	70,  // 349: chalk.server.v1.BuilderService.GetClusterBackgroundPersistence:output_type -> chalk.server.v1.GetClusterBackgroundPersistenceResponse
-	72,  // 350: chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments:output_type -> chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse
-	256, // 351: chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs:output_type -> chalk.server.v1.ListStreamingKafkaKedaConfigsResponse
-	81,  // 352: chalk.server.v1.BuilderService.CreateClusterTimescaleDB:output_type -> chalk.server.v1.CreateClusterTimescaleDBResponse
-	83,  // 353: chalk.server.v1.BuilderService.UpdateClusterTimescaleDB:output_type -> chalk.server.v1.UpdateClusterTimescaleDBResponse
-	77,  // 354: chalk.server.v1.BuilderService.GetClusterTimescaleDefault:output_type -> chalk.server.v1.GetClusterTimescaleDefaultResponse
-	75,  // 355: chalk.server.v1.BuilderService.DeleteClusterTimescaleDB:output_type -> chalk.server.v1.DeleteClusterTimescaleDBResponse
-	224, // 356: chalk.server.v1.BuilderService.CreateEnvironmentCloudResources:output_type -> chalk.server.v1.CreateEnvironmentCloudResourcesResponse
-	226, // 357: chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources:output_type -> chalk.server.v1.DeleteEnvironmentCloudResourcesResponse
-	85,  // 358: chalk.server.v1.BuilderService.MigrateClusterTimescaleDB:output_type -> chalk.server.v1.MigrateClusterTimescaleDBResponse
-	89,  // 359: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator:output_type -> chalk.server.v1.GetClusterWorkflowOrchestratorResponse
-	97,  // 360: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault:output_type -> chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse
-	91,  // 361: chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.CreateClusterWorkflowOrchestratorResponse
-	93,  // 362: chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse
-	95,  // 363: chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator:output_type -> chalk.server.v1.DeleteClusterWorkflowOrchestratorResponse
-	99,  // 364: chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.MigrateClusterWorkflowOrchestratorResponse
-	110, // 365: chalk.server.v1.BuilderService.CreateClusterGateway:output_type -> chalk.server.v1.CreateClusterGatewayResponse
-	118, // 366: chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence:output_type -> chalk.server.v1.CreateClusterBackgroundPersistenceResponse
-	258, // 367: chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig:output_type -> chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse
-	178, // 368: chalk.server.v1.BuilderService.UpdateEnvironmentVariables:output_type -> chalk.server.v1.UpdateEnvironmentVariablesResponse
-	180, // 369: chalk.server.v1.BuilderService.StartBranch:output_type -> chalk.server.v1.StartBranchResponse
-	182, // 370: chalk.server.v1.BuilderService.ScaleBranch:output_type -> chalk.server.v1.ScaleBranchResponse
-	184, // 371: chalk.server.v1.BuilderService.GetBranchProfile:output_type -> chalk.server.v1.GetBranchProfileResponse
-	186, // 372: chalk.server.v1.BuilderService.GetBranchServerStatus:output_type -> chalk.server.v1.GetBranchServerStatusResponse
-	193, // 373: chalk.server.v1.BuilderService.GetNodepools:output_type -> chalk.server.v1.GetNodepoolsResponse
-	198, // 374: chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes:output_type -> chalk.server.v1.GetAvailableChalkMachineTypesResponse
-	201, // 375: chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride:output_type -> chalk.server.v1.UpsertChalkMachineTypeOverrideResponse
-	203, // 376: chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride:output_type -> chalk.server.v1.DeleteChalkMachineTypeOverrideResponse
-	206, // 377: chalk.server.v1.BuilderService.GetClusterChalkMachineTypes:output_type -> chalk.server.v1.GetClusterChalkMachineTypesResponse
-	208, // 378: chalk.server.v1.BuilderService.AddNodepool:output_type -> chalk.server.v1.AddNodepoolResponse
-	210, // 379: chalk.server.v1.BuilderService.UpdateNodepool:output_type -> chalk.server.v1.UpdateNodepoolResponse
-	212, // 380: chalk.server.v1.BuilderService.DeleteNodepool:output_type -> chalk.server.v1.DeleteNodepoolResponse
-	214, // 381: chalk.server.v1.BuilderService.GetKarpenterNodepools:output_type -> chalk.server.v1.GetKarpenterNodepoolsResponse
-	216, // 382: chalk.server.v1.BuilderService.AddKarpenterNodepool:output_type -> chalk.server.v1.AddKarpenterNodepoolResponse
-	218, // 383: chalk.server.v1.BuilderService.UpdateKarpenterNodepool:output_type -> chalk.server.v1.UpdateKarpenterNodepoolResponse
-	220, // 384: chalk.server.v1.BuilderService.DeleteKarpenterNodepool:output_type -> chalk.server.v1.DeleteKarpenterNodepoolResponse
-	222, // 385: chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata:output_type -> chalk.server.v1.GetKarpenterInstallationMetadataResponse
-	229, // 386: chalk.server.v1.BuilderService.GetTagWeights:output_type -> chalk.server.v1.GetTagWeightsResponse
-	231, // 387: chalk.server.v1.BuilderService.SetTagWeights:output_type -> chalk.server.v1.SetTagWeightsResponse
-	234, // 388: chalk.server.v1.BuilderService.CreateDeployment:output_type -> chalk.server.v1.CreateDeploymentResponse
-	40,  // 389: chalk.server.v1.BuilderService.PrepareDeployment:output_type -> chalk.server.v1.PrepareDeploymentResponse
-	42,  // 390: chalk.server.v1.BuilderService.BuildImage:output_type -> chalk.server.v1.BuildImageResponse
-	164, // 391: chalk.server.v1.BuilderService.GetTelemetryDeployment:output_type -> chalk.server.v1.GetTelemetryDeploymentResponse
-	166, // 392: chalk.server.v1.BuilderService.ListTelemetryDeployments:output_type -> chalk.server.v1.ListTelemetryDeploymentsResponse
-	168, // 393: chalk.server.v1.BuilderService.CreateTelemetryDeployment:output_type -> chalk.server.v1.CreateTelemetryDeploymentResponse
-	172, // 394: chalk.server.v1.BuilderService.UpdateTelemetryDeployment:output_type -> chalk.server.v1.UpdateTelemetryDeploymentResponse
-	170, // 395: chalk.server.v1.BuilderService.DeleteTelemetryDeployment:output_type -> chalk.server.v1.DeleteTelemetryDeploymentResponse
-	174, // 396: chalk.server.v1.BuilderService.MigrateTelemetryDeployment:output_type -> chalk.server.v1.MigrateTelemetryDeploymentResponse
-	237, // 397: chalk.server.v1.BuilderService.GetEnvironmentKubeClusters:output_type -> chalk.server.v1.GetEnvironmentKubeClustersResponse
-	239, // 398: chalk.server.v1.BuilderService.SuspendEnvironment:output_type -> chalk.server.v1.SuspendEnvironmentResponse
-	241, // 399: chalk.server.v1.BuilderService.ResumeEnvironment:output_type -> chalk.server.v1.ResumeEnvironmentResponse
-	243, // 400: chalk.server.v1.BuilderService.SuspendClusterGateway:output_type -> chalk.server.v1.SuspendClusterGatewayResponse
-	245, // 401: chalk.server.v1.BuilderService.ResumeClusterGateway:output_type -> chalk.server.v1.ResumeClusterGatewayResponse
-	247, // 402: chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence:output_type -> chalk.server.v1.SuspendClusterBackgroundPersistenceResponse
-	249, // 403: chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence:output_type -> chalk.server.v1.ResumeClusterBackgroundPersistenceResponse
-	251, // 404: chalk.server.v1.BuilderService.DeleteClusterGateway:output_type -> chalk.server.v1.DeleteClusterGatewayResponse
-	253, // 405: chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence:output_type -> chalk.server.v1.DeleteClusterBackgroundPersistenceResponse
-	189, // 406: chalk.server.v1.ClusterBuilderService.CreateKafkaTopics:output_type -> chalk.server.v1.CreateKafkaTopicsResponse
-	191, // 407: chalk.server.v1.ClusterBuilderService.GetKafkaTopics:output_type -> chalk.server.v1.GetKafkaTopicsResponse
-	325, // [325:408] is the sub-list for method output_type
-	242, // [242:325] is the sub-list for method input_type
-	242, // [242:242] is the sub-list for extension type_name
-	242, // [242:242] is the sub-list for extension extendee
-	0,   // [0:242] is the sub-list for field type_name
+	293, // 20: chalk.server.v1.DeploymentBuildStep.start_time:type_name -> google.protobuf.Timestamp
+	293, // 21: chalk.server.v1.DeploymentBuildStep.end_time:type_name -> google.protobuf.Timestamp
+	47,  // 22: chalk.server.v1.GetDeploymentStepsResponse.steps:type_name -> chalk.server.v1.DeploymentBuildStep
+	294, // 23: chalk.server.v1.GetDeploymentStepsResponse.deployment:type_name -> chalk.server.v1.Deployment
+	295, // 24: chalk.server.v1.GetDeploymentLogsResponse.logs:type_name -> chalk.server.v1.LogEntry
+	288, // 25: chalk.server.v1.GetDeploymentDependenciesResponse.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	293, // 26: chalk.server.v1.EngineBaseImageVariant.created_at:type_name -> google.protobuf.Timestamp
+	293, // 27: chalk.server.v1.EngineBaseImageRelease.created_at:type_name -> google.protobuf.Timestamp
+	56,  // 28: chalk.server.v1.EngineBaseImageRelease.variants:type_name -> chalk.server.v1.EngineBaseImageVariant
+	57,  // 29: chalk.server.v1.ListEngineBaseImagesResponse.releases:type_name -> chalk.server.v1.EngineBaseImageRelease
+	293, // 30: chalk.server.v1.GetClusterTimescaleDBResponse.created_at:type_name -> google.protobuf.Timestamp
+	293, // 31: chalk.server.v1.GetClusterTimescaleDBResponse.updated_at:type_name -> google.protobuf.Timestamp
+	81,  // 32: chalk.server.v1.GetClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
+	60,  // 33: chalk.server.v1.ListClusterTimescaleDBsResponse.cluster_timescale_dbs:type_name -> chalk.server.v1.GetClusterTimescaleDBResponse
+	293, // 34: chalk.server.v1.GetClusterGatewayResponse.created_at:type_name -> google.protobuf.Timestamp
+	293, // 35: chalk.server.v1.GetClusterGatewayResponse.updated_at:type_name -> google.protobuf.Timestamp
+	102, // 36: chalk.server.v1.GetClusterGatewayResponse.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
+	64,  // 37: chalk.server.v1.ListClusterGatewaysResponse.gateways:type_name -> chalk.server.v1.GetClusterGatewayResponse
+	102, // 38: chalk.server.v1.GetClusterGatewayDefaultResponse.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
+	293, // 39: chalk.server.v1.BackgroundPersistence.created_at:type_name -> google.protobuf.Timestamp
+	293, // 40: chalk.server.v1.BackgroundPersistence.updated_at:type_name -> google.protobuf.Timestamp
+	118, // 41: chalk.server.v1.BackgroundPersistence.specs:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
+	69,  // 42: chalk.server.v1.GetClusterBackgroundPersistenceResponse.background_persistence:type_name -> chalk.server.v1.BackgroundPersistence
+	69,  // 43: chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse.background_persistence_deployments:type_name -> chalk.server.v1.BackgroundPersistence
+	81,  // 44: chalk.server.v1.CreateClusterTimescaleDBRequest.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
+	81,  // 45: chalk.server.v1.GetClusterTimescaleDefaultResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
+	79,  // 46: chalk.server.v1.ClusterTimescaleSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 47: chalk.server.v1.ClusterTimescaleSpecs.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	275, // 48: chalk.server.v1.ClusterTimescaleSpecs.postgres_parameters:type_name -> chalk.server.v1.ClusterTimescaleSpecs.PostgresParametersEntry
+	276, // 49: chalk.server.v1.ClusterTimescaleSpecs.node_selector:type_name -> chalk.server.v1.ClusterTimescaleSpecs.NodeSelectorEntry
+	277, // 50: chalk.server.v1.ClusterTimescaleSpecs.pgbouncer_parameters:type_name -> chalk.server.v1.ClusterTimescaleSpecs.PgbouncerParametersEntry
+	81,  // 51: chalk.server.v1.CreateClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
+	81,  // 52: chalk.server.v1.UpdateClusterTimescaleDBRequest.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
+	296, // 53: chalk.server.v1.UpdateClusterTimescaleDBRequest.update_mask:type_name -> google.protobuf.FieldMask
+	81,  // 54: chalk.server.v1.UpdateClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
+	79,  // 55: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
+	278, // 56: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.node_selector:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs.NodeSelectorEntry
+	87,  // 57: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.temporal:type_name -> chalk.server.v1.TemporalEngineSpecs
+	293, // 58: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.created_at:type_name -> google.protobuf.Timestamp
+	293, // 59: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.updated_at:type_name -> google.protobuf.Timestamp
+	88,  // 60: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
+	88,  // 61: chalk.server.v1.CreateClusterWorkflowOrchestratorRequest.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
+	88,  // 62: chalk.server.v1.CreateClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
+	88,  // 63: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
+	296, // 64: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest.update_mask:type_name -> google.protobuf.FieldMask
+	88,  // 65: chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
+	88,  // 66: chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
+	102, // 67: chalk.server.v1.CreateClusterGatewayRequest.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
+	103, // 68: chalk.server.v1.EnvoyGatewaySpecs.listeners:type_name -> chalk.server.v1.EnvoyGatewayListener
+	106, // 69: chalk.server.v1.EnvoyGatewaySpecs.config:type_name -> chalk.server.v1.GatewayProviderConfig
+	109, // 70: chalk.server.v1.EnvoyGatewaySpecs.tls_certificate:type_name -> chalk.server.v1.TLSCertificateConfig
+	279, // 71: chalk.server.v1.EnvoyGatewaySpecs.service_annotations:type_name -> chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntry
+	104, // 72: chalk.server.v1.EnvoyGatewayListener.allowed_routes:type_name -> chalk.server.v1.EnvoyGatewayAllowedRoutes
+	105, // 73: chalk.server.v1.EnvoyGatewayAllowedRoutes.namespaces:type_name -> chalk.server.v1.EnvoyGatewayAllowedNamespaces
+	107, // 74: chalk.server.v1.GatewayProviderConfig.envoy:type_name -> chalk.server.v1.EnvoyGatewayProviderConfig
+	108, // 75: chalk.server.v1.GatewayProviderConfig.gcp:type_name -> chalk.server.v1.GCPGatewayProviderConfig
+	280, // 76: chalk.server.v1.EnvoyGatewayProviderConfig.node_selector:type_name -> chalk.server.v1.EnvoyGatewayProviderConfig.NodeSelectorEntry
+	267, // 77: chalk.server.v1.EnvoyGatewayProviderConfig.certificate_issuer_ref:type_name -> chalk.server.v1.CertManagerIssuerRef
+	19,  // 78: chalk.server.v1.EnvoyGatewayProviderConfig.traffic_zonal_affinity:type_name -> chalk.server.v1.TrafficZonalAffinity
+	110, // 79: chalk.server.v1.TLSCertificateConfig.manual_certificate:type_name -> chalk.server.v1.TLSManualCertificateRef
+	102, // 80: chalk.server.v1.CreateClusterGatewayResponse.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
+	118, // 81: chalk.server.v1.CreateClusterBackgroundPersistenceRequest.specs:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
+	114, // 82: chalk.server.v1.BackgroundPersistenceWriterSpecs.hpa_specs:type_name -> chalk.server.v1.BackgroundPersistenceWriterHpaSpecs
+	79,  // 83: chalk.server.v1.BackgroundPersistenceWriterSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 84: chalk.server.v1.BackgroundPersistenceWriterSpecs.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	281, // 85: chalk.server.v1.BackgroundPersistenceWriterSpecs.node_selector:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs.NodeSelectorEntry
+	282, // 86: chalk.server.v1.BackgroundPersistenceWriterSpecs.additional_env_vars:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs.AdditionalEnvVarsEntry
+	2,   // 87: chalk.server.v1.BackgroundPersistenceWriterSpecs.chalk_queries_clickhouse_write_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterClickHouseWriteMode
+	2,   // 88: chalk.server.v1.BackgroundPersistenceWriterSpecs.chalk_errors_clickhouse_write_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterClickHouseWriteMode
+	3,   // 89: chalk.server.v1.BackgroundPersistenceWriterSpecs.metrics_emission_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterMetricsEmissionMode
+	283, // 90: chalk.server.v1.NodePodMetricsFilter.node_selector:type_name -> chalk.server.v1.NodePodMetricsFilter.NodeSelectorEntry
+	116, // 91: chalk.server.v1.ClusterManagerConfig.node_pod_metrics_filters:type_name -> chalk.server.v1.NodePodMetricsFilter
+	113, // 92: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.common_persistence_specs:type_name -> chalk.server.v1.BackgroundPersistenceCommonSpecs
+	115, // 93: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.writers:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs
+	160, // 94: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.observability_daemons:type_name -> chalk.server.v1.ObservabilityDaemonSpec
+	117, // 95: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.cluster_manager_config:type_name -> chalk.server.v1.ClusterManagerConfig
+	161, // 96: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.observability_daemon_scheduling:type_name -> chalk.server.v1.ObservabilityDaemonSchedulingSpec
+	17,  // 97: chalk.server.v1.VectorAggregatorVictoriaMetricsSinkSpec.buffer_type:type_name -> chalk.server.v1.VectorAggregatorBufferType
+	125, // 98: chalk.server.v1.VectorAggregatorChalkDatadogExportSpec.metrics_sink:type_name -> chalk.server.v1.VectorAggregatorChalkDatadogMetricsSinkSpec
+	17,  // 99: chalk.server.v1.VectorAggregatorChalkDatadogMetricsSinkSpec.buffer_type:type_name -> chalk.server.v1.VectorAggregatorBufferType
+	17,  // 100: chalk.server.v1.CustomerVectorAggregatorDatadogMetricsSinkSpec.buffer_type:type_name -> chalk.server.v1.VectorAggregatorBufferType
+	128, // 101: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig.logs:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogSignalExportSpec
+	128, // 102: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig.traces:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogSignalExportSpec
+	128, // 103: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig.metrics:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogSignalExportSpec
+	129, // 104: chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig.metrics_sink:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogMetricsSinkSpec
+	4,   // 105: chalk.server.v1.CustomerVectorAggregatorStatsdExportConfig.protocol:type_name -> chalk.server.v1.CustomerVectorAggregatorStatsdProtocol
+	131, // 106: chalk.server.v1.CustomerVectorAggregatorStatsdExportConfig.metrics_sink:type_name -> chalk.server.v1.CustomerVectorAggregatorStatsdMetricsSinkSpec
+	130, // 107: chalk.server.v1.CustomerVectorAggregatorConfig.datadog_export:type_name -> chalk.server.v1.CustomerVectorAggregatorDatadogExportConfig
+	132, // 108: chalk.server.v1.CustomerVectorAggregatorConfig.statsd_export:type_name -> chalk.server.v1.CustomerVectorAggregatorStatsdExportConfig
+	79,  // 109: chalk.server.v1.CustomerVectorAggregatorConfig.request:type_name -> chalk.server.v1.KubeResourceConfig
+	262, // 110: chalk.server.v1.CustomerVectorAggregatorConfig.otlp_metrics_export:type_name -> chalk.server.v1.CustomerVectorAggregatorOtlpMetricsExportConfig
+	79,  // 111: chalk.server.v1.AggregatorSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 112: chalk.server.v1.AggregatorSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	121, // 113: chalk.server.v1.AggregatorSpec.vector_click_house_sink:type_name -> chalk.server.v1.VectorAggregatorClickHouseSinkSpec
+	124, // 114: chalk.server.v1.AggregatorSpec.export_to_chalk_datadog:type_name -> chalk.server.v1.VectorAggregatorChalkDatadogExportSpec
+	122, // 115: chalk.server.v1.AggregatorSpec.vector_victoria_metrics_sink:type_name -> chalk.server.v1.VectorAggregatorVictoriaMetricsSinkSpec
+	126, // 116: chalk.server.v1.AggregatorSpec.metric_aggregation:type_name -> chalk.server.v1.VectorAggregatorMetricAggregationSpec
+	123, // 117: chalk.server.v1.AggregatorSpec.customer_vector_sink:type_name -> chalk.server.v1.VectorAggregatorCustomerSinkSpec
+	270, // 118: chalk.server.v1.CustomerCollectorConfig.received_signals:type_name -> chalk.server.v1.CustomerCollectorReceivedSignalsSpec
+	10,  // 119: chalk.server.v1.VectorClusterMetricsSpec.sink_mode:type_name -> chalk.server.v1.VectorClusterMetricsSinkMode
+	144, // 120: chalk.server.v1.VectorClusterMetricsSpec.shadow:type_name -> chalk.server.v1.VectorClusterMetricsShadowSpec
+	145, // 121: chalk.server.v1.VectorClusterMetricsSpec.tables:type_name -> chalk.server.v1.VectorClusterMetricsTablesSpec
+	116, // 122: chalk.server.v1.VectorClusterMetricsSpec.pod_filters:type_name -> chalk.server.v1.NodePodMetricsFilter
+	79,  // 123: chalk.server.v1.TelemetryIngestMetricsSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	18,  // 124: chalk.server.v1.VectorCollectorSinkSpec.request_concurrency_mode:type_name -> chalk.server.v1.VectorCollectorRequestConcurrencyMode
+	138, // 125: chalk.server.v1.VectorStatsdSpec.uds:type_name -> chalk.server.v1.VectorStatsdUdsSpec
+	139, // 126: chalk.server.v1.VectorStatsdSpec.udp:type_name -> chalk.server.v1.VectorStatsdUdpSpec
+	140, // 127: chalk.server.v1.VectorStatsdSpec.aggregator_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
+	9,   // 128: chalk.server.v1.MetricExportDestination.format:type_name -> chalk.server.v1.MetricExportDestinationFormat
+	142, // 129: chalk.server.v1.MetricExportSpec.additional_destinations:type_name -> chalk.server.v1.MetricExportDestination
+	11,  // 130: chalk.server.v1.VectorClusterMetricsShadowSpec.output:type_name -> chalk.server.v1.VectorClusterMetricsShadowOutput
+	146, // 131: chalk.server.v1.VectorClusterMetricsShadowSpec.tables:type_name -> chalk.server.v1.VectorClusterMetricsShadowTables
+	79,  // 132: chalk.server.v1.OtelCollectorSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 133: chalk.server.v1.OtelCollectorSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	5,   // 134: chalk.server.v1.OtelCollectorSpec.toleration_mode:type_name -> chalk.server.v1.TelemetryCollectorTolerationMode
+	6,   // 135: chalk.server.v1.OtelCollectorSpec.otel_collector_image:type_name -> chalk.server.v1.OtelCollectorImage
+	127, // 136: chalk.server.v1.OtelCollectorSpec.metric_aggregation:type_name -> chalk.server.v1.VectorCollectorMetricAggregationSpec
+	140, // 137: chalk.server.v1.OtelCollectorSpec.vector_otlp_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
+	140, // 138: chalk.server.v1.OtelCollectorSpec.vector_file_log_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
+	79,  // 139: chalk.server.v1.GpuTelemetrySpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 140: chalk.server.v1.GpuTelemetrySpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	120, // 141: chalk.server.v1.GpuTelemetrySpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
+	79,  // 142: chalk.server.v1.ClickHouseSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 143: chalk.server.v1.ClickHouseSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	80,  // 144: chalk.server.v1.ClickHouseSpec.storage:type_name -> chalk.server.v1.KubePersistentVolumeClaim
+	79,  // 145: chalk.server.v1.VictoriaMetricsSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 146: chalk.server.v1.VictoriaMetricsSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 147: chalk.server.v1.VictoriaMetricsSpec.storage_request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 148: chalk.server.v1.VictoriaMetricsSpec.storage_limit:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 149: chalk.server.v1.VictoriaMetricsSpec.insert_request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 150: chalk.server.v1.VictoriaMetricsSpec.auth_request:type_name -> chalk.server.v1.KubeResourceConfig
+	151, // 151: chalk.server.v1.VictoriaMetricsSpec.datadog_export:type_name -> chalk.server.v1.VictoriaMetricsDatadogExportSpec
+	79,  // 152: chalk.server.v1.VictoriaMetricsDatadogExportSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 153: chalk.server.v1.VictoriaMetricsDatadogExportSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	12,  // 154: chalk.server.v1.PerfettoDaemonSpec.trigger:type_name -> chalk.server.v1.PerfettoTrigger
+	13,  // 155: chalk.server.v1.NetworkInspectorDaemonSpec.trigger:type_name -> chalk.server.v1.NetworkInspectorTrigger
+	79,  // 156: chalk.server.v1.ObservabilityDaemonSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	79,  // 157: chalk.server.v1.ObservabilityDaemonSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	161, // 158: chalk.server.v1.ObservabilityDaemonSpec.scheduling:type_name -> chalk.server.v1.ObservabilityDaemonSchedulingSpec
+	152, // 159: chalk.server.v1.ObservabilityDaemonSpec.zombie_killer:type_name -> chalk.server.v1.ZombieKillerSpec
+	153, // 160: chalk.server.v1.ObservabilityDaemonSpec.core_dump_collector:type_name -> chalk.server.v1.CoreDumpCollectorSpec
+	154, // 161: chalk.server.v1.ObservabilityDaemonSpec.py_spy_stack_trace_collector:type_name -> chalk.server.v1.PySpyStackTraceCollectorSpec
+	155, // 162: chalk.server.v1.ObservabilityDaemonSpec.perf_collector:type_name -> chalk.server.v1.PerfCollectorSpec
+	156, // 163: chalk.server.v1.ObservabilityDaemonSpec.perfetto_daemon:type_name -> chalk.server.v1.PerfettoDaemonSpec
+	157, // 164: chalk.server.v1.ObservabilityDaemonSpec.directory_watcher:type_name -> chalk.server.v1.DirectoryWatcherSpec
+	158, // 165: chalk.server.v1.ObservabilityDaemonSpec.streamed_watcher:type_name -> chalk.server.v1.StreamedDirectoryWatcherSpec
+	159, // 166: chalk.server.v1.ObservabilityDaemonSpec.network_inspector_daemon:type_name -> chalk.server.v1.NetworkInspectorDaemonSpec
+	120, // 167: chalk.server.v1.ObservabilityDaemonSchedulingSpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
+	149, // 168: chalk.server.v1.TelemetryDeploymentSpec.click_house:type_name -> chalk.server.v1.ClickHouseSpec
+	147, // 169: chalk.server.v1.TelemetryDeploymentSpec.otel:type_name -> chalk.server.v1.OtelCollectorSpec
+	120, // 170: chalk.server.v1.TelemetryDeploymentSpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
+	134, // 171: chalk.server.v1.TelemetryDeploymentSpec.aggregator:type_name -> chalk.server.v1.AggregatorSpec
+	160, // 172: chalk.server.v1.TelemetryDeploymentSpec.observability_daemons:type_name -> chalk.server.v1.ObservabilityDaemonSpec
+	135, // 173: chalk.server.v1.TelemetryDeploymentSpec.customer_collector:type_name -> chalk.server.v1.CustomerCollectorConfig
+	148, // 174: chalk.server.v1.TelemetryDeploymentSpec.gpu_telemetry:type_name -> chalk.server.v1.GpuTelemetrySpec
+	7,   // 175: chalk.server.v1.TelemetryDeploymentSpec.telemetry_runtime:type_name -> chalk.server.v1.TelemetryRuntime
+	136, // 176: chalk.server.v1.TelemetryDeploymentSpec.vector_cluster_metrics:type_name -> chalk.server.v1.VectorClusterMetricsSpec
+	150, // 177: chalk.server.v1.TelemetryDeploymentSpec.victoria_metrics:type_name -> chalk.server.v1.VictoriaMetricsSpec
+	137, // 178: chalk.server.v1.TelemetryDeploymentSpec.ingest_metrics:type_name -> chalk.server.v1.TelemetryIngestMetricsSpec
+	141, // 179: chalk.server.v1.TelemetryDeploymentSpec.vector_statsd:type_name -> chalk.server.v1.VectorStatsdSpec
+	143, // 180: chalk.server.v1.TelemetryDeploymentSpec.metric_exports:type_name -> chalk.server.v1.MetricExportSpec
+	133, // 181: chalk.server.v1.TelemetryDeploymentSpec.customer_vector_aggregator:type_name -> chalk.server.v1.CustomerVectorAggregatorConfig
+	8,   // 182: chalk.server.v1.TelemetryDeploymentSpec.prometheus_collection_runtime:type_name -> chalk.server.v1.TelemetryPrometheusCollectionRuntime
+	261, // 183: chalk.server.v1.TelemetryDeploymentSpec.vector_pipeline_metrics:type_name -> chalk.server.v1.VectorTelemetryPipelineMetricsSpec
+	162, // 184: chalk.server.v1.TelemetryDeployment.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
+	293, // 185: chalk.server.v1.TelemetryDeployment.created_at:type_name -> google.protobuf.Timestamp
+	293, // 186: chalk.server.v1.TelemetryDeployment.updated_at:type_name -> google.protobuf.Timestamp
+	293, // 187: chalk.server.v1.TelemetryDeployment.suspended_at:type_name -> google.protobuf.Timestamp
+	164, // 188: chalk.server.v1.GetTelemetryDeploymentRequest.cluster_identifier:type_name -> chalk.server.v1.ClusterIdentifier
+	163, // 189: chalk.server.v1.GetTelemetryDeploymentResponse.deployment:type_name -> chalk.server.v1.TelemetryDeployment
+	163, // 190: chalk.server.v1.ListTelemetryDeploymentsResponse.deployments:type_name -> chalk.server.v1.TelemetryDeployment
+	162, // 191: chalk.server.v1.CreateTelemetryDeploymentRequest.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
+	162, // 192: chalk.server.v1.UpdateTelemetryDeploymentRequest.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
+	296, // 193: chalk.server.v1.UpdateTelemetryDeploymentRequest.update_mask:type_name -> google.protobuf.FieldMask
+	163, // 194: chalk.server.v1.UpdateTelemetryDeploymentResponse.deployment:type_name -> chalk.server.v1.TelemetryDeployment
+	284, // 195: chalk.server.v1.UpdateEnvironmentVariablesRequest.environment_variables:type_name -> chalk.server.v1.UpdateEnvironmentVariablesRequest.EnvironmentVariablesEntry
+	297, // 196: chalk.server.v1.UpdateEnvironmentVariablesResponse.field_changes:type_name -> chalk.utils.v1.FieldChange
+	14,  // 197: chalk.server.v1.StartBranchResponse.state:type_name -> chalk.server.v1.BranchScalingState
+	14,  // 198: chalk.server.v1.ScaleBranchResponse.state:type_name -> chalk.server.v1.BranchScalingState
+	15,  // 199: chalk.server.v1.GetBranchServerStatusResponse.status:type_name -> chalk.server.v1.BranchServerStatus
+	189, // 200: chalk.server.v1.CreateKafkaTopicsRequest.topics:type_name -> chalk.server.v1.KafkaTopic
+	189, // 201: chalk.server.v1.GetKafkaTopicsResponse.topics:type_name -> chalk.server.v1.KafkaTopic
+	298, // 202: chalk.server.v1.GetNodepoolsResponse.karpenter_nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	299, // 203: chalk.server.v1.GetNodepoolsResponse.gke_nodepools:type_name -> chalk.nodepools.v1.GKENodePool
+	300, // 204: chalk.server.v1.ChalkMachineTypeMapping.cloud:type_name -> chalk.usage.v1.BillingCloud
+	196, // 205: chalk.server.v1.ChalkMachineTypeMapping.fallbacks:type_name -> chalk.server.v1.ChalkMachineTypeFallback
+	16,  // 206: chalk.server.v1.ChalkMachineTypeMapping.override_scope:type_name -> chalk.server.v1.ChalkMachineTypeOverrideScope
+	196, // 207: chalk.server.v1.ChalkMachineTypeMapping.default_fallbacks:type_name -> chalk.server.v1.ChalkMachineTypeFallback
+	197, // 208: chalk.server.v1.ChalkMachineTypeMapping.allowed_instance_types:type_name -> chalk.server.v1.ChalkMachineTypeInstanceOption
+	198, // 209: chalk.server.v1.GetAvailableChalkMachineTypesResponse.mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
+	293, // 210: chalk.server.v1.ChalkMachineTypeOverride.created_at:type_name -> google.protobuf.Timestamp
+	293, // 211: chalk.server.v1.ChalkMachineTypeOverride.updated_at:type_name -> google.protobuf.Timestamp
+	201, // 212: chalk.server.v1.UpsertChalkMachineTypeOverrideResponse.override:type_name -> chalk.server.v1.ChalkMachineTypeOverride
+	198, // 213: chalk.server.v1.ClusterEnvironmentChalkMachineTypes.mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
+	201, // 214: chalk.server.v1.GetClusterChalkMachineTypesResponse.overrides:type_name -> chalk.server.v1.ChalkMachineTypeOverride
+	198, // 215: chalk.server.v1.GetClusterChalkMachineTypesResponse.cluster_mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
+	206, // 216: chalk.server.v1.GetClusterChalkMachineTypesResponse.environments:type_name -> chalk.server.v1.ClusterEnvironmentChalkMachineTypes
+	298, // 217: chalk.server.v1.AddNodepoolRequest.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	299, // 218: chalk.server.v1.AddNodepoolRequest.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
+	298, // 219: chalk.server.v1.AddNodepoolResponse.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	299, // 220: chalk.server.v1.AddNodepoolResponse.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
+	299, // 221: chalk.server.v1.UpdateNodepoolRequest.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
+	298, // 222: chalk.server.v1.UpdateNodepoolRequest.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	298, // 223: chalk.server.v1.UpdateNodepoolResponse.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	299, // 224: chalk.server.v1.UpdateNodepoolResponse.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
+	298, // 225: chalk.server.v1.GetKarpenterNodepoolsResponse.nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	298, // 226: chalk.server.v1.AddKarpenterNodepoolRequest.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	298, // 227: chalk.server.v1.AddKarpenterNodepoolResponse.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	298, // 228: chalk.server.v1.UpdateKarpenterNodepoolRequest.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	298, // 229: chalk.server.v1.UpdateKarpenterNodepoolResponse.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	285, // 230: chalk.server.v1.GetKarpenterInstallationMetadataResponse.deployment_labels:type_name -> chalk.server.v1.GetKarpenterInstallationMetadataResponse.DeploymentLabelsEntry
+	229, // 231: chalk.server.v1.GetTagWeightsResponse.tags:type_name -> chalk.server.v1.DeploymentTag
+	229, // 232: chalk.server.v1.SetTagWeightsRequest.tags:type_name -> chalk.server.v1.DeploymentTag
+	229, // 233: chalk.server.v1.SetTagWeightsResponse.tags:type_name -> chalk.server.v1.DeploymentTag
+	234, // 234: chalk.server.v1.CreateDeploymentRequest.requirements:type_name -> chalk.server.v1.RequirementsFile
+	291, // 235: chalk.server.v1.CreateDeploymentRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
+	286, // 236: chalk.server.v1.CreateDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.CreateDeploymentRequest.CustomerMetadataEntry
+	287, // 237: chalk.server.v1.CreateDeploymentRequest.build_options:type_name -> chalk.server.v1.CreateDeploymentRequest.BuildOptionsEntry
+	301, // 238: chalk.server.v1.KubernetesCluster.cloud_credentials:type_name -> chalk.server.v1.CloudConfig
+	102, // 239: chalk.server.v1.KubernetesCluster.cluster_gateway:type_name -> chalk.server.v1.EnvoyGatewaySpecs
+	118, // 240: chalk.server.v1.KubernetesCluster.cluster_background_persistence:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
+	102, // 241: chalk.server.v1.KubernetesCluster.services_gateway:type_name -> chalk.server.v1.EnvoyGatewaySpecs
+	237, // 242: chalk.server.v1.GetEnvironmentKubeClustersResponse.clusters:type_name -> chalk.server.v1.KubernetesCluster
+	256, // 243: chalk.server.v1.ListStreamingKafkaKedaConfigsResponse.configs:type_name -> chalk.server.v1.StreamingKafkaKedaConfig
+	256, // 244: chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse.config:type_name -> chalk.server.v1.StreamingKafkaKedaConfig
+	291, // 245: chalk.server.v1.ValidateProjectSettingsRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
+	177, // 246: chalk.server.v1.BuilderService.GetSearchConfig:input_type -> chalk.server.v1.GetSearchConfigRequest
+	21,  // 247: chalk.server.v1.BuilderService.ActivateDeployment:input_type -> chalk.server.v1.ActivateDeploymentRequest
+	23,  // 248: chalk.server.v1.BuilderService.IndexDeployment:input_type -> chalk.server.v1.IndexDeploymentRequest
+	25,  // 249: chalk.server.v1.BuilderService.ValidateNamedQueries:input_type -> chalk.server.v1.ValidateNamedQueriesRequest
+	27,  // 250: chalk.server.v1.BuilderService.RunPostIndexValidation:input_type -> chalk.server.v1.RunPostIndexValidationRequest
+	263, // 251: chalk.server.v1.BuilderService.PopulateNamedQueryPlans:input_type -> chalk.server.v1.PopulateNamedQueryPlansRequest
+	265, // 252: chalk.server.v1.BuilderService.PrepareGraphSupplement:input_type -> chalk.server.v1.PrepareGraphSupplementRequest
+	29,  // 253: chalk.server.v1.BuilderService.StartShadowBuildFromDeployment:input_type -> chalk.server.v1.StartShadowBuildFromDeploymentRequest
+	31,  // 254: chalk.server.v1.BuilderService.DeployKubeComponents:input_type -> chalk.server.v1.DeployKubeComponentsRequest
+	33,  // 255: chalk.server.v1.BuilderService.RebuildDeployment:input_type -> chalk.server.v1.RebuildDeploymentRequest
+	35,  // 256: chalk.server.v1.BuilderService.RedeployDeployment:input_type -> chalk.server.v1.RedeployDeploymentRequest
+	38,  // 257: chalk.server.v1.BuilderService.UploadSource:input_type -> chalk.server.v1.UploadSourceRequest
+	44,  // 258: chalk.server.v1.BuilderService.LintSource:input_type -> chalk.server.v1.LintSourceRequest
+	46,  // 259: chalk.server.v1.BuilderService.GetDeploymentSteps:input_type -> chalk.server.v1.GetDeploymentStepsRequest
+	49,  // 260: chalk.server.v1.BuilderService.GetDeploymentLogs:input_type -> chalk.server.v1.GetDeploymentLogsRequest
+	51,  // 261: chalk.server.v1.BuilderService.GetDeploymentDependencies:input_type -> chalk.server.v1.GetDeploymentDependenciesRequest
+	53,  // 262: chalk.server.v1.BuilderService.ResolveEngineBaseImage:input_type -> chalk.server.v1.ResolveEngineBaseImageRequest
+	55,  // 263: chalk.server.v1.BuilderService.ListEngineBaseImages:input_type -> chalk.server.v1.ListEngineBaseImagesRequest
+	268, // 264: chalk.server.v1.BuilderService.ValidateProjectSettings:input_type -> chalk.server.v1.ValidateProjectSettingsRequest
+	59,  // 265: chalk.server.v1.BuilderService.GetClusterTimescaleDB:input_type -> chalk.server.v1.GetClusterTimescaleDBRequest
+	61,  // 266: chalk.server.v1.BuilderService.ListClusterTimescaleDBs:input_type -> chalk.server.v1.ListClusterTimescaleDBsRequest
+	63,  // 267: chalk.server.v1.BuilderService.GetClusterGateway:input_type -> chalk.server.v1.GetClusterGatewayRequest
+	65,  // 268: chalk.server.v1.BuilderService.ListClusterGateways:input_type -> chalk.server.v1.ListClusterGatewaysRequest
+	67,  // 269: chalk.server.v1.BuilderService.GetClusterGatewayDefault:input_type -> chalk.server.v1.GetClusterGatewayDefaultRequest
+	70,  // 270: chalk.server.v1.BuilderService.GetClusterBackgroundPersistence:input_type -> chalk.server.v1.GetClusterBackgroundPersistenceRequest
+	72,  // 271: chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments:input_type -> chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsRequest
+	257, // 272: chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs:input_type -> chalk.server.v1.ListStreamingKafkaKedaConfigsRequest
+	74,  // 273: chalk.server.v1.BuilderService.CreateClusterTimescaleDB:input_type -> chalk.server.v1.CreateClusterTimescaleDBRequest
+	83,  // 274: chalk.server.v1.BuilderService.UpdateClusterTimescaleDB:input_type -> chalk.server.v1.UpdateClusterTimescaleDBRequest
+	77,  // 275: chalk.server.v1.BuilderService.GetClusterTimescaleDefault:input_type -> chalk.server.v1.GetClusterTimescaleDefaultRequest
+	75,  // 276: chalk.server.v1.BuilderService.DeleteClusterTimescaleDB:input_type -> chalk.server.v1.DeleteClusterTimescaleDBRequest
+	225, // 277: chalk.server.v1.BuilderService.CreateEnvironmentCloudResources:input_type -> chalk.server.v1.CreateEnvironmentCloudResourcesRequest
+	227, // 278: chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources:input_type -> chalk.server.v1.DeleteEnvironmentCloudResourcesRequest
+	85,  // 279: chalk.server.v1.BuilderService.MigrateClusterTimescaleDB:input_type -> chalk.server.v1.MigrateClusterTimescaleDBRequest
+	89,  // 280: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator:input_type -> chalk.server.v1.GetClusterWorkflowOrchestratorRequest
+	97,  // 281: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault:input_type -> chalk.server.v1.GetClusterWorkflowOrchestratorDefaultRequest
+	91,  // 282: chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.CreateClusterWorkflowOrchestratorRequest
+	93,  // 283: chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest
+	95,  // 284: chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator:input_type -> chalk.server.v1.DeleteClusterWorkflowOrchestratorRequest
+	99,  // 285: chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.MigrateClusterWorkflowOrchestratorRequest
+	101, // 286: chalk.server.v1.BuilderService.CreateClusterGateway:input_type -> chalk.server.v1.CreateClusterGatewayRequest
+	112, // 287: chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence:input_type -> chalk.server.v1.CreateClusterBackgroundPersistenceRequest
+	259, // 288: chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig:input_type -> chalk.server.v1.UpdateStreamingKafkaKedaConfigRequest
+	179, // 289: chalk.server.v1.BuilderService.UpdateEnvironmentVariables:input_type -> chalk.server.v1.UpdateEnvironmentVariablesRequest
+	181, // 290: chalk.server.v1.BuilderService.StartBranch:input_type -> chalk.server.v1.StartBranchRequest
+	183, // 291: chalk.server.v1.BuilderService.ScaleBranch:input_type -> chalk.server.v1.ScaleBranchRequest
+	185, // 292: chalk.server.v1.BuilderService.GetBranchProfile:input_type -> chalk.server.v1.GetBranchProfileRequest
+	187, // 293: chalk.server.v1.BuilderService.GetBranchServerStatus:input_type -> chalk.server.v1.GetBranchServerStatusRequest
+	194, // 294: chalk.server.v1.BuilderService.GetNodepools:input_type -> chalk.server.v1.GetNodepoolsRequest
+	199, // 295: chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes:input_type -> chalk.server.v1.GetAvailableChalkMachineTypesRequest
+	202, // 296: chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride:input_type -> chalk.server.v1.UpsertChalkMachineTypeOverrideRequest
+	204, // 297: chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride:input_type -> chalk.server.v1.DeleteChalkMachineTypeOverrideRequest
+	207, // 298: chalk.server.v1.BuilderService.GetClusterChalkMachineTypes:input_type -> chalk.server.v1.GetClusterChalkMachineTypesRequest
+	209, // 299: chalk.server.v1.BuilderService.AddNodepool:input_type -> chalk.server.v1.AddNodepoolRequest
+	211, // 300: chalk.server.v1.BuilderService.UpdateNodepool:input_type -> chalk.server.v1.UpdateNodepoolRequest
+	213, // 301: chalk.server.v1.BuilderService.DeleteNodepool:input_type -> chalk.server.v1.DeleteNodepoolRequest
+	215, // 302: chalk.server.v1.BuilderService.GetKarpenterNodepools:input_type -> chalk.server.v1.GetKarpenterNodepoolsRequest
+	217, // 303: chalk.server.v1.BuilderService.AddKarpenterNodepool:input_type -> chalk.server.v1.AddKarpenterNodepoolRequest
+	219, // 304: chalk.server.v1.BuilderService.UpdateKarpenterNodepool:input_type -> chalk.server.v1.UpdateKarpenterNodepoolRequest
+	221, // 305: chalk.server.v1.BuilderService.DeleteKarpenterNodepool:input_type -> chalk.server.v1.DeleteKarpenterNodepoolRequest
+	223, // 306: chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata:input_type -> chalk.server.v1.GetKarpenterInstallationMetadataRequest
+	230, // 307: chalk.server.v1.BuilderService.GetTagWeights:input_type -> chalk.server.v1.GetTagWeightsRequest
+	232, // 308: chalk.server.v1.BuilderService.SetTagWeights:input_type -> chalk.server.v1.SetTagWeightsRequest
+	235, // 309: chalk.server.v1.BuilderService.CreateDeployment:input_type -> chalk.server.v1.CreateDeploymentRequest
+	40,  // 310: chalk.server.v1.BuilderService.PrepareDeployment:input_type -> chalk.server.v1.PrepareDeploymentRequest
+	42,  // 311: chalk.server.v1.BuilderService.BuildImage:input_type -> chalk.server.v1.BuildImageRequest
+	165, // 312: chalk.server.v1.BuilderService.GetTelemetryDeployment:input_type -> chalk.server.v1.GetTelemetryDeploymentRequest
+	167, // 313: chalk.server.v1.BuilderService.ListTelemetryDeployments:input_type -> chalk.server.v1.ListTelemetryDeploymentsRequest
+	169, // 314: chalk.server.v1.BuilderService.CreateTelemetryDeployment:input_type -> chalk.server.v1.CreateTelemetryDeploymentRequest
+	173, // 315: chalk.server.v1.BuilderService.UpdateTelemetryDeployment:input_type -> chalk.server.v1.UpdateTelemetryDeploymentRequest
+	171, // 316: chalk.server.v1.BuilderService.DeleteTelemetryDeployment:input_type -> chalk.server.v1.DeleteTelemetryDeploymentRequest
+	175, // 317: chalk.server.v1.BuilderService.MigrateTelemetryDeployment:input_type -> chalk.server.v1.MigrateTelemetryDeploymentRequest
+	238, // 318: chalk.server.v1.BuilderService.GetEnvironmentKubeClusters:input_type -> chalk.server.v1.GetEnvironmentKubeClustersRequest
+	240, // 319: chalk.server.v1.BuilderService.SuspendEnvironment:input_type -> chalk.server.v1.SuspendEnvironmentRequest
+	242, // 320: chalk.server.v1.BuilderService.ResumeEnvironment:input_type -> chalk.server.v1.ResumeEnvironmentRequest
+	244, // 321: chalk.server.v1.BuilderService.SuspendClusterGateway:input_type -> chalk.server.v1.SuspendClusterGatewayRequest
+	246, // 322: chalk.server.v1.BuilderService.ResumeClusterGateway:input_type -> chalk.server.v1.ResumeClusterGatewayRequest
+	248, // 323: chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence:input_type -> chalk.server.v1.SuspendClusterBackgroundPersistenceRequest
+	250, // 324: chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence:input_type -> chalk.server.v1.ResumeClusterBackgroundPersistenceRequest
+	252, // 325: chalk.server.v1.BuilderService.DeleteClusterGateway:input_type -> chalk.server.v1.DeleteClusterGatewayRequest
+	254, // 326: chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence:input_type -> chalk.server.v1.DeleteClusterBackgroundPersistenceRequest
+	190, // 327: chalk.server.v1.ClusterBuilderService.CreateKafkaTopics:input_type -> chalk.server.v1.CreateKafkaTopicsRequest
+	192, // 328: chalk.server.v1.ClusterBuilderService.GetKafkaTopics:input_type -> chalk.server.v1.GetKafkaTopicsRequest
+	178, // 329: chalk.server.v1.BuilderService.GetSearchConfig:output_type -> chalk.server.v1.GetSearchConfigResponse
+	22,  // 330: chalk.server.v1.BuilderService.ActivateDeployment:output_type -> chalk.server.v1.ActivateDeploymentResponse
+	24,  // 331: chalk.server.v1.BuilderService.IndexDeployment:output_type -> chalk.server.v1.IndexDeploymentResponse
+	26,  // 332: chalk.server.v1.BuilderService.ValidateNamedQueries:output_type -> chalk.server.v1.ValidateNamedQueriesResponse
+	28,  // 333: chalk.server.v1.BuilderService.RunPostIndexValidation:output_type -> chalk.server.v1.RunPostIndexValidationResponse
+	264, // 334: chalk.server.v1.BuilderService.PopulateNamedQueryPlans:output_type -> chalk.server.v1.PopulateNamedQueryPlansResponse
+	266, // 335: chalk.server.v1.BuilderService.PrepareGraphSupplement:output_type -> chalk.server.v1.PrepareGraphSupplementResponse
+	30,  // 336: chalk.server.v1.BuilderService.StartShadowBuildFromDeployment:output_type -> chalk.server.v1.StartShadowBuildFromDeploymentResponse
+	32,  // 337: chalk.server.v1.BuilderService.DeployKubeComponents:output_type -> chalk.server.v1.DeployKubeComponentsResponse
+	34,  // 338: chalk.server.v1.BuilderService.RebuildDeployment:output_type -> chalk.server.v1.RebuildDeploymentResponse
+	36,  // 339: chalk.server.v1.BuilderService.RedeployDeployment:output_type -> chalk.server.v1.RedeployDeploymentResponse
+	39,  // 340: chalk.server.v1.BuilderService.UploadSource:output_type -> chalk.server.v1.UploadSourceResponse
+	45,  // 341: chalk.server.v1.BuilderService.LintSource:output_type -> chalk.server.v1.LintSourceResponse
+	48,  // 342: chalk.server.v1.BuilderService.GetDeploymentSteps:output_type -> chalk.server.v1.GetDeploymentStepsResponse
+	50,  // 343: chalk.server.v1.BuilderService.GetDeploymentLogs:output_type -> chalk.server.v1.GetDeploymentLogsResponse
+	52,  // 344: chalk.server.v1.BuilderService.GetDeploymentDependencies:output_type -> chalk.server.v1.GetDeploymentDependenciesResponse
+	54,  // 345: chalk.server.v1.BuilderService.ResolveEngineBaseImage:output_type -> chalk.server.v1.ResolveEngineBaseImageResponse
+	58,  // 346: chalk.server.v1.BuilderService.ListEngineBaseImages:output_type -> chalk.server.v1.ListEngineBaseImagesResponse
+	269, // 347: chalk.server.v1.BuilderService.ValidateProjectSettings:output_type -> chalk.server.v1.ValidateProjectSettingsResponse
+	60,  // 348: chalk.server.v1.BuilderService.GetClusterTimescaleDB:output_type -> chalk.server.v1.GetClusterTimescaleDBResponse
+	62,  // 349: chalk.server.v1.BuilderService.ListClusterTimescaleDBs:output_type -> chalk.server.v1.ListClusterTimescaleDBsResponse
+	64,  // 350: chalk.server.v1.BuilderService.GetClusterGateway:output_type -> chalk.server.v1.GetClusterGatewayResponse
+	66,  // 351: chalk.server.v1.BuilderService.ListClusterGateways:output_type -> chalk.server.v1.ListClusterGatewaysResponse
+	68,  // 352: chalk.server.v1.BuilderService.GetClusterGatewayDefault:output_type -> chalk.server.v1.GetClusterGatewayDefaultResponse
+	71,  // 353: chalk.server.v1.BuilderService.GetClusterBackgroundPersistence:output_type -> chalk.server.v1.GetClusterBackgroundPersistenceResponse
+	73,  // 354: chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments:output_type -> chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse
+	258, // 355: chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs:output_type -> chalk.server.v1.ListStreamingKafkaKedaConfigsResponse
+	82,  // 356: chalk.server.v1.BuilderService.CreateClusterTimescaleDB:output_type -> chalk.server.v1.CreateClusterTimescaleDBResponse
+	84,  // 357: chalk.server.v1.BuilderService.UpdateClusterTimescaleDB:output_type -> chalk.server.v1.UpdateClusterTimescaleDBResponse
+	78,  // 358: chalk.server.v1.BuilderService.GetClusterTimescaleDefault:output_type -> chalk.server.v1.GetClusterTimescaleDefaultResponse
+	76,  // 359: chalk.server.v1.BuilderService.DeleteClusterTimescaleDB:output_type -> chalk.server.v1.DeleteClusterTimescaleDBResponse
+	226, // 360: chalk.server.v1.BuilderService.CreateEnvironmentCloudResources:output_type -> chalk.server.v1.CreateEnvironmentCloudResourcesResponse
+	228, // 361: chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources:output_type -> chalk.server.v1.DeleteEnvironmentCloudResourcesResponse
+	86,  // 362: chalk.server.v1.BuilderService.MigrateClusterTimescaleDB:output_type -> chalk.server.v1.MigrateClusterTimescaleDBResponse
+	90,  // 363: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator:output_type -> chalk.server.v1.GetClusterWorkflowOrchestratorResponse
+	98,  // 364: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault:output_type -> chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse
+	92,  // 365: chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.CreateClusterWorkflowOrchestratorResponse
+	94,  // 366: chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse
+	96,  // 367: chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator:output_type -> chalk.server.v1.DeleteClusterWorkflowOrchestratorResponse
+	100, // 368: chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.MigrateClusterWorkflowOrchestratorResponse
+	111, // 369: chalk.server.v1.BuilderService.CreateClusterGateway:output_type -> chalk.server.v1.CreateClusterGatewayResponse
+	119, // 370: chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence:output_type -> chalk.server.v1.CreateClusterBackgroundPersistenceResponse
+	260, // 371: chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig:output_type -> chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse
+	180, // 372: chalk.server.v1.BuilderService.UpdateEnvironmentVariables:output_type -> chalk.server.v1.UpdateEnvironmentVariablesResponse
+	182, // 373: chalk.server.v1.BuilderService.StartBranch:output_type -> chalk.server.v1.StartBranchResponse
+	184, // 374: chalk.server.v1.BuilderService.ScaleBranch:output_type -> chalk.server.v1.ScaleBranchResponse
+	186, // 375: chalk.server.v1.BuilderService.GetBranchProfile:output_type -> chalk.server.v1.GetBranchProfileResponse
+	188, // 376: chalk.server.v1.BuilderService.GetBranchServerStatus:output_type -> chalk.server.v1.GetBranchServerStatusResponse
+	195, // 377: chalk.server.v1.BuilderService.GetNodepools:output_type -> chalk.server.v1.GetNodepoolsResponse
+	200, // 378: chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes:output_type -> chalk.server.v1.GetAvailableChalkMachineTypesResponse
+	203, // 379: chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride:output_type -> chalk.server.v1.UpsertChalkMachineTypeOverrideResponse
+	205, // 380: chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride:output_type -> chalk.server.v1.DeleteChalkMachineTypeOverrideResponse
+	208, // 381: chalk.server.v1.BuilderService.GetClusterChalkMachineTypes:output_type -> chalk.server.v1.GetClusterChalkMachineTypesResponse
+	210, // 382: chalk.server.v1.BuilderService.AddNodepool:output_type -> chalk.server.v1.AddNodepoolResponse
+	212, // 383: chalk.server.v1.BuilderService.UpdateNodepool:output_type -> chalk.server.v1.UpdateNodepoolResponse
+	214, // 384: chalk.server.v1.BuilderService.DeleteNodepool:output_type -> chalk.server.v1.DeleteNodepoolResponse
+	216, // 385: chalk.server.v1.BuilderService.GetKarpenterNodepools:output_type -> chalk.server.v1.GetKarpenterNodepoolsResponse
+	218, // 386: chalk.server.v1.BuilderService.AddKarpenterNodepool:output_type -> chalk.server.v1.AddKarpenterNodepoolResponse
+	220, // 387: chalk.server.v1.BuilderService.UpdateKarpenterNodepool:output_type -> chalk.server.v1.UpdateKarpenterNodepoolResponse
+	222, // 388: chalk.server.v1.BuilderService.DeleteKarpenterNodepool:output_type -> chalk.server.v1.DeleteKarpenterNodepoolResponse
+	224, // 389: chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata:output_type -> chalk.server.v1.GetKarpenterInstallationMetadataResponse
+	231, // 390: chalk.server.v1.BuilderService.GetTagWeights:output_type -> chalk.server.v1.GetTagWeightsResponse
+	233, // 391: chalk.server.v1.BuilderService.SetTagWeights:output_type -> chalk.server.v1.SetTagWeightsResponse
+	236, // 392: chalk.server.v1.BuilderService.CreateDeployment:output_type -> chalk.server.v1.CreateDeploymentResponse
+	41,  // 393: chalk.server.v1.BuilderService.PrepareDeployment:output_type -> chalk.server.v1.PrepareDeploymentResponse
+	43,  // 394: chalk.server.v1.BuilderService.BuildImage:output_type -> chalk.server.v1.BuildImageResponse
+	166, // 395: chalk.server.v1.BuilderService.GetTelemetryDeployment:output_type -> chalk.server.v1.GetTelemetryDeploymentResponse
+	168, // 396: chalk.server.v1.BuilderService.ListTelemetryDeployments:output_type -> chalk.server.v1.ListTelemetryDeploymentsResponse
+	170, // 397: chalk.server.v1.BuilderService.CreateTelemetryDeployment:output_type -> chalk.server.v1.CreateTelemetryDeploymentResponse
+	174, // 398: chalk.server.v1.BuilderService.UpdateTelemetryDeployment:output_type -> chalk.server.v1.UpdateTelemetryDeploymentResponse
+	172, // 399: chalk.server.v1.BuilderService.DeleteTelemetryDeployment:output_type -> chalk.server.v1.DeleteTelemetryDeploymentResponse
+	176, // 400: chalk.server.v1.BuilderService.MigrateTelemetryDeployment:output_type -> chalk.server.v1.MigrateTelemetryDeploymentResponse
+	239, // 401: chalk.server.v1.BuilderService.GetEnvironmentKubeClusters:output_type -> chalk.server.v1.GetEnvironmentKubeClustersResponse
+	241, // 402: chalk.server.v1.BuilderService.SuspendEnvironment:output_type -> chalk.server.v1.SuspendEnvironmentResponse
+	243, // 403: chalk.server.v1.BuilderService.ResumeEnvironment:output_type -> chalk.server.v1.ResumeEnvironmentResponse
+	245, // 404: chalk.server.v1.BuilderService.SuspendClusterGateway:output_type -> chalk.server.v1.SuspendClusterGatewayResponse
+	247, // 405: chalk.server.v1.BuilderService.ResumeClusterGateway:output_type -> chalk.server.v1.ResumeClusterGatewayResponse
+	249, // 406: chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence:output_type -> chalk.server.v1.SuspendClusterBackgroundPersistenceResponse
+	251, // 407: chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence:output_type -> chalk.server.v1.ResumeClusterBackgroundPersistenceResponse
+	253, // 408: chalk.server.v1.BuilderService.DeleteClusterGateway:output_type -> chalk.server.v1.DeleteClusterGatewayResponse
+	255, // 409: chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence:output_type -> chalk.server.v1.DeleteClusterBackgroundPersistenceResponse
+	191, // 410: chalk.server.v1.ClusterBuilderService.CreateKafkaTopics:output_type -> chalk.server.v1.CreateKafkaTopicsResponse
+	193, // 411: chalk.server.v1.ClusterBuilderService.GetKafkaTopics:output_type -> chalk.server.v1.GetKafkaTopicsResponse
+	329, // [329:412] is the sub-list for method output_type
+	246, // [246:329] is the sub-list for method input_type
+	246, // [246:246] is the sub-list for extension type_name
+	246, // [246:246] is the sub-list for extension extendee
+	0,   // [0:246] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_builder_proto_init() }
@@ -21581,7 +21768,8 @@ func file_chalk_server_v1_builder_proto_init() {
 	file_chalk_server_v1_builder_proto_msgTypes[136].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[137].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[138].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[139].OneofWrappers = []any{
+	file_chalk_server_v1_builder_proto_msgTypes[139].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[140].OneofWrappers = []any{
 		(*ObservabilityDaemonSpec_ZombieKiller)(nil),
 		(*ObservabilityDaemonSpec_CoreDumpCollector)(nil),
 		(*ObservabilityDaemonSpec_PySpyStackTraceCollector)(nil),
@@ -21591,60 +21779,60 @@ func file_chalk_server_v1_builder_proto_init() {
 		(*ObservabilityDaemonSpec_StreamedWatcher)(nil),
 		(*ObservabilityDaemonSpec_NetworkInspectorDaemon)(nil),
 	}
-	file_chalk_server_v1_builder_proto_msgTypes[141].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[142].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[143].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[144].OneofWrappers = []any{
+	file_chalk_server_v1_builder_proto_msgTypes[144].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[145].OneofWrappers = []any{
 		(*GetTelemetryDeploymentRequest_ClusterIdentifier)(nil),
 		(*GetTelemetryDeploymentRequest_TelemetryId)(nil),
 		(*GetTelemetryDeploymentRequest_ByEnvironment)(nil),
 	}
-	file_chalk_server_v1_builder_proto_msgTypes[148].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[150].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[152].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[154].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[165].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[167].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[149].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[151].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[153].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[155].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[166].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[168].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[175].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[169].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[176].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[177].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[180].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[178].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[181].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[183].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[188].OneofWrappers = []any{
+	file_chalk_server_v1_builder_proto_msgTypes[182].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[184].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[189].OneofWrappers = []any{
 		(*AddNodepoolRequest_KarpenterNodepool)(nil),
 		(*AddNodepoolRequest_GkeNodepool)(nil),
 	}
-	file_chalk_server_v1_builder_proto_msgTypes[189].OneofWrappers = []any{
+	file_chalk_server_v1_builder_proto_msgTypes[190].OneofWrappers = []any{
 		(*AddNodepoolResponse_KarpenterNodepool)(nil),
 		(*AddNodepoolResponse_GkeNodepool)(nil),
 	}
-	file_chalk_server_v1_builder_proto_msgTypes[190].OneofWrappers = []any{
+	file_chalk_server_v1_builder_proto_msgTypes[191].OneofWrappers = []any{
 		(*UpdateNodepoolRequest_GkeNodepool)(nil),
 		(*UpdateNodepoolRequest_KarpenterNodepool)(nil),
 	}
-	file_chalk_server_v1_builder_proto_msgTypes[191].OneofWrappers = []any{
+	file_chalk_server_v1_builder_proto_msgTypes[192].OneofWrappers = []any{
 		(*UpdateNodepoolResponse_KarpenterNodepool)(nil),
 		(*UpdateNodepoolResponse_GkeNodepool)(nil),
 	}
-	file_chalk_server_v1_builder_proto_msgTypes[192].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[208].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[214].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[216].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[235].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[193].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[209].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[215].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[217].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[236].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[238].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[240].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[237].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[239].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[241].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[249].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[242].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[250].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_builder_proto_rawDesc), len(file_chalk_server_v1_builder_proto_rawDesc)),
-			NumEnums:      19,
-			NumMessages:   267,
+			NumEnums:      20,
+			NumMessages:   268,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

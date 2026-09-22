@@ -22,6 +22,53 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Parallels LogFacetType / KubeEventFacetType / SpanFacetType, which share these numeric values.
+type TileFacetType int32
+
+const (
+	TileFacetType_TILE_FACET_TYPE_UNSPECIFIED TileFacetType = 0
+	TileFacetType_TILE_FACET_TYPE_LIST        TileFacetType = 1
+)
+
+// Enum value maps for TileFacetType.
+var (
+	TileFacetType_name = map[int32]string{
+		0: "TILE_FACET_TYPE_UNSPECIFIED",
+		1: "TILE_FACET_TYPE_LIST",
+	}
+	TileFacetType_value = map[string]int32{
+		"TILE_FACET_TYPE_UNSPECIFIED": 0,
+		"TILE_FACET_TYPE_LIST":        1,
+	}
+)
+
+func (x TileFacetType) Enum() *TileFacetType {
+	p := new(TileFacetType)
+	*p = x
+	return p
+}
+
+func (x TileFacetType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TileFacetType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_materialized_aggregate_tiles_proto_enumTypes[0].Descriptor()
+}
+
+func (TileFacetType) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_materialized_aggregate_tiles_proto_enumTypes[0]
+}
+
+func (x TileFacetType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TileFacetType.Descriptor instead.
+func (TileFacetType) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescGZIP(), []int{0}
+}
+
 // One tile's coverage interval. Full manifests are fetched on demand via
 // ListMaterializedAggregateTilesForTimeline.
 type MaterializedAggregateTileTimelineInterval struct {
@@ -76,10 +123,8 @@ func (x *MaterializedAggregateTileTimelineInterval) GetCoverageUpperBound() *tim
 	return nil
 }
 
-// One timeline corresponds to one materialization_key_hash. group_by is the
-// comma-joined display form; the structured columns live on
-// MaterializedAggregateTileMeta. bucket_duration_ms is omitted — the timeline
-// view doesn't render it.
+// One timeline corresponds to one materialization_key_hash.
+// group_by is the comma-joined display form; the structured columns live on MaterializedAggregateTileMeta.
 type MaterializedAggregateTileTimeline struct {
 	state                  protoimpl.MessageState                       `protogen:"open.v1"`
 	MaterializationKeyHash string                                       `protobuf:"bytes,1,opt,name=materialization_key_hash,json=materializationKeyHash,proto3" json:"materialization_key_hash,omitempty"`
@@ -89,8 +134,11 @@ type MaterializedAggregateTileTimeline struct {
 	BucketOn               string                                       `protobuf:"bytes,5,opt,name=bucket_on,json=bucketOn,proto3" json:"bucket_on,omitempty"`
 	Coverage               *MaterializedAggregateTileTimelineInterval   `protobuf:"bytes,6,opt,name=coverage,proto3" json:"coverage,omitempty"`
 	Intervals              []*MaterializedAggregateTileTimelineInterval `protobuf:"bytes,8,rep,name=intervals,proto3" json:"intervals,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Distinguishes timelines that are otherwise identical in the four display fields above.
+	// Milliseconds, not Duration: the sibling MaterializedAggregateTileMeta and the facet both use ms.
+	BucketDurationMs int64 `protobuf:"varint,9,opt,name=bucket_duration_ms,json=bucketDurationMs,proto3" json:"bucket_duration_ms,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *MaterializedAggregateTileTimeline) Reset() {
@@ -172,6 +220,13 @@ func (x *MaterializedAggregateTileTimeline) GetIntervals() []*MaterializedAggreg
 	return nil
 }
 
+func (x *MaterializedAggregateTileTimeline) GetBucketDurationMs() int64 {
+	if x != nil {
+		return x.BucketDurationMs
+	}
+	return 0
+}
+
 // Pagination is by timeline group, so a returned group is always full.
 // coverage is the group-wide MIN/MAX.
 type MaterializedAggregateTileTimelineGroup struct {
@@ -239,8 +294,12 @@ type ListMaterializedAggregateTileTimelinesFilter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Case-insensitive prefix match on aggregate_on. Unset or empty matches all.
 	AggregateOnPrefix *string `protobuf:"bytes,1,opt,name=aggregate_on_prefix,json=aggregateOnPrefix,proto3,oneof" json:"aggregate_on_prefix,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Faceted-search query over tileFacetRegistry keys, e.g. `aggregation:sum -bucket_on:ts`.
+	// Keyed terms match exactly, repeated keys OR within their facet, and bare terms are a
+	// case-insensitive substring match on aggregate_on. OR across facets is rejected.
+	Query         *string `protobuf:"bytes,2,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListMaterializedAggregateTileTimelinesFilter) Reset() {
@@ -276,6 +335,13 @@ func (*ListMaterializedAggregateTileTimelinesFilter) Descriptor() ([]byte, []int
 func (x *ListMaterializedAggregateTileTimelinesFilter) GetAggregateOnPrefix() string {
 	if x != nil && x.AggregateOnPrefix != nil {
 		return *x.AggregateOnPrefix
+	}
+	return ""
+}
+
+func (x *ListMaterializedAggregateTileTimelinesFilter) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
 	}
 	return ""
 }
@@ -393,6 +459,315 @@ func (x *ListMaterializedAggregateTileTimelinesResponse) GetNextCursor() string 
 	return ""
 }
 
+type TileFacet struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	FacetType     TileFacetType          `protobuf:"varint,3,opt,name=facet_type,json=facetType,proto3,enum=chalk.server.v1.TileFacetType" json:"facet_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TileFacet) Reset() {
+	*x = TileFacet{}
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TileFacet) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TileFacet) ProtoMessage() {}
+
+func (x *TileFacet) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TileFacet.ProtoReflect.Descriptor instead.
+func (*TileFacet) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *TileFacet) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *TileFacet) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *TileFacet) GetFacetType() TileFacetType {
+	if x != nil {
+		return x.FacetType
+	}
+	return TileFacetType_TILE_FACET_TYPE_UNSPECIFIED
+}
+
+type GetMaterializedAggregateTileFacetsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMaterializedAggregateTileFacetsRequest) Reset() {
+	*x = GetMaterializedAggregateTileFacetsRequest{}
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMaterializedAggregateTileFacetsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMaterializedAggregateTileFacetsRequest) ProtoMessage() {}
+
+func (x *GetMaterializedAggregateTileFacetsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMaterializedAggregateTileFacetsRequest.ProtoReflect.Descriptor instead.
+func (*GetMaterializedAggregateTileFacetsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescGZIP(), []int{7}
+}
+
+type GetMaterializedAggregateTileFacetsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Facets        []*TileFacet           `protobuf:"bytes,1,rep,name=facets,proto3" json:"facets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMaterializedAggregateTileFacetsResponse) Reset() {
+	*x = GetMaterializedAggregateTileFacetsResponse{}
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMaterializedAggregateTileFacetsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMaterializedAggregateTileFacetsResponse) ProtoMessage() {}
+
+func (x *GetMaterializedAggregateTileFacetsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMaterializedAggregateTileFacetsResponse.ProtoReflect.Descriptor instead.
+func (*GetMaterializedAggregateTileFacetsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetMaterializedAggregateTileFacetsResponse) GetFacets() []*TileFacet {
+	if x != nil {
+		return x.Facets
+	}
+	return nil
+}
+
+type GetMaterializedAggregateTileFacetValuesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Canonical snake_case facet key, as in tileFacetRegistry. Empty returns every facet's values.
+	Path string `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	// Per-facet cap on returned values, highest count first. Server default is 100 if unset.
+	Limit *int32 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Counts reflect this filter, so the caller sees what a further narrowing would yield.
+	Filter        *ListMaterializedAggregateTileTimelinesFilter `protobuf:"bytes,3,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesRequest) Reset() {
+	*x = GetMaterializedAggregateTileFacetValuesRequest{}
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMaterializedAggregateTileFacetValuesRequest) ProtoMessage() {}
+
+func (x *GetMaterializedAggregateTileFacetValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMaterializedAggregateTileFacetValuesRequest.ProtoReflect.Descriptor instead.
+func (*GetMaterializedAggregateTileFacetValuesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesRequest) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesRequest) GetFilter() *ListMaterializedAggregateTileTimelinesFilter {
+	if x != nil {
+		return x.Filter
+	}
+	return nil
+}
+
+type TileTimelineFacetValue struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Path  string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	// Bucket durations arrive as the stringified millisecond value; the client formats the label.
+	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	// Distinct timelines carrying this value, not tiles.
+	Count         int64 `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TileTimelineFacetValue) Reset() {
+	*x = TileTimelineFacetValue{}
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TileTimelineFacetValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TileTimelineFacetValue) ProtoMessage() {}
+
+func (x *TileTimelineFacetValue) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TileTimelineFacetValue.ProtoReflect.Descriptor instead.
+func (*TileTimelineFacetValue) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *TileTimelineFacetValue) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *TileTimelineFacetValue) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *TileTimelineFacetValue) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type GetMaterializedAggregateTileFacetValuesResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Values        []*TileTimelineFacetValue `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesResponse) Reset() {
+	*x = GetMaterializedAggregateTileFacetValuesResponse{}
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMaterializedAggregateTileFacetValuesResponse) ProtoMessage() {}
+
+func (x *GetMaterializedAggregateTileFacetValuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMaterializedAggregateTileFacetValuesResponse.ProtoReflect.Descriptor instead.
+func (*GetMaterializedAggregateTileFacetValuesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesResponse) GetValues() []*TileTimelineFacetValue {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
 var File_chalk_server_v1_materialized_aggregate_tiles_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDesc = "" +
@@ -400,7 +775,7 @@ const file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDesc = "" +
 	"2chalk/server/v1/materialized_aggregate_tiles.proto\x12\x0fchalk.server.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\x01\n" +
 	")MaterializedAggregateTileTimelineInterval\x12L\n" +
 	"\x14coverage_lower_bound\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x12coverageLowerBound\x12L\n" +
-	"\x14coverage_upper_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x12coverageUpperBound\"\x8c\x03\n" +
+	"\x14coverage_upper_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x12coverageUpperBound\"\xba\x03\n" +
 	"!MaterializedAggregateTileTimeline\x128\n" +
 	"\x18materialization_key_hash\x18\x01 \x01(\tR\x16materializationKeyHash\x12 \n" +
 	"\vaggregation\x18\x02 \x01(\tR\vaggregation\x12!\n" +
@@ -408,14 +783,17 @@ const file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDesc = "" +
 	"\bgroup_by\x18\x04 \x01(\tR\agroupBy\x12\x1b\n" +
 	"\tbucket_on\x18\x05 \x01(\tR\bbucketOn\x12V\n" +
 	"\bcoverage\x18\x06 \x01(\v2:.chalk.server.v1.MaterializedAggregateTileTimelineIntervalR\bcoverage\x12X\n" +
-	"\tintervals\x18\b \x03(\v2:.chalk.server.v1.MaterializedAggregateTileTimelineIntervalR\tintervals\"\xf5\x01\n" +
+	"\tintervals\x18\b \x03(\v2:.chalk.server.v1.MaterializedAggregateTileTimelineIntervalR\tintervals\x12,\n" +
+	"\x12bucket_duration_ms\x18\t \x01(\x03R\x10bucketDurationMs\"\xf5\x01\n" +
 	"&MaterializedAggregateTileTimelineGroup\x12!\n" +
 	"\faggregate_on\x18\x01 \x01(\tR\vaggregateOn\x12P\n" +
 	"\ttimelines\x18\x02 \x03(\v22.chalk.server.v1.MaterializedAggregateTileTimelineR\ttimelines\x12V\n" +
-	"\bcoverage\x18\x03 \x01(\v2:.chalk.server.v1.MaterializedAggregateTileTimelineIntervalR\bcoverage\"{\n" +
+	"\bcoverage\x18\x03 \x01(\v2:.chalk.server.v1.MaterializedAggregateTileTimelineIntervalR\bcoverage\"\xa0\x01\n" +
 	",ListMaterializedAggregateTileTimelinesFilter\x123\n" +
-	"\x13aggregate_on_prefix\x18\x01 \x01(\tH\x00R\x11aggregateOnPrefix\x88\x01\x01B\x16\n" +
-	"\x14_aggregate_on_prefix\"\xe3\x01\n" +
+	"\x13aggregate_on_prefix\x18\x01 \x01(\tH\x00R\x11aggregateOnPrefix\x88\x01\x01\x12\x19\n" +
+	"\x05query\x18\x02 \x01(\tH\x01R\x05query\x88\x01\x01B\x16\n" +
+	"\x14_aggregate_on_prefixB\b\n" +
+	"\x06_query\"\xe3\x01\n" +
 	"-ListMaterializedAggregateTileTimelinesRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12Z\n" +
@@ -427,7 +805,30 @@ const file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDesc = "" +
 	"\x0ftimeline_groups\x18\x01 \x03(\v27.chalk.server.v1.MaterializedAggregateTileTimelineGroupR\x0etimelineGroups\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursorB\xcf\x01\n" +
+	"\f_next_cursor\"r\n" +
+	"\tTileFacet\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12=\n" +
+	"\n" +
+	"facet_type\x18\x03 \x01(\x0e2\x1e.chalk.server.v1.TileFacetTypeR\tfacetType\"+\n" +
+	")GetMaterializedAggregateTileFacetsRequest\"`\n" +
+	"*GetMaterializedAggregateTileFacetsResponse\x122\n" +
+	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.TileFacetR\x06facets\"\xd0\x01\n" +
+	".GetMaterializedAggregateTileFacetValuesRequest\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12\x19\n" +
+	"\x05limit\x18\x02 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12Z\n" +
+	"\x06filter\x18\x03 \x01(\v2=.chalk.server.v1.ListMaterializedAggregateTileTimelinesFilterH\x01R\x06filter\x88\x01\x01B\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_filter\"X\n" +
+	"\x16TileTimelineFacetValue\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\x12\x14\n" +
+	"\x05count\x18\x03 \x01(\x03R\x05count\"r\n" +
+	"/GetMaterializedAggregateTileFacetValuesResponse\x12?\n" +
+	"\x06values\x18\x01 \x03(\v2'.chalk.server.v1.TileTimelineFacetValueR\x06values*J\n" +
+	"\rTileFacetType\x12\x1f\n" +
+	"\x1bTILE_FACET_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14TILE_FACET_TYPE_LIST\x10\x01B\xcf\x01\n" +
 	"\x13com.chalk.server.v1B\x1fMaterializedAggregateTilesProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -442,30 +843,42 @@ func file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescGZIP() []byt
 	return file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDescData
 }
 
-var file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_server_v1_materialized_aggregate_tiles_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_server_v1_materialized_aggregate_tiles_proto_goTypes = []any{
-	(*MaterializedAggregateTileTimelineInterval)(nil),      // 0: chalk.server.v1.MaterializedAggregateTileTimelineInterval
-	(*MaterializedAggregateTileTimeline)(nil),              // 1: chalk.server.v1.MaterializedAggregateTileTimeline
-	(*MaterializedAggregateTileTimelineGroup)(nil),         // 2: chalk.server.v1.MaterializedAggregateTileTimelineGroup
-	(*ListMaterializedAggregateTileTimelinesFilter)(nil),   // 3: chalk.server.v1.ListMaterializedAggregateTileTimelinesFilter
-	(*ListMaterializedAggregateTileTimelinesRequest)(nil),  // 4: chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest
-	(*ListMaterializedAggregateTileTimelinesResponse)(nil), // 5: chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse
-	(*timestamppb.Timestamp)(nil),                          // 6: google.protobuf.Timestamp
+	(TileFacetType)(0), // 0: chalk.server.v1.TileFacetType
+	(*MaterializedAggregateTileTimelineInterval)(nil),      // 1: chalk.server.v1.MaterializedAggregateTileTimelineInterval
+	(*MaterializedAggregateTileTimeline)(nil),              // 2: chalk.server.v1.MaterializedAggregateTileTimeline
+	(*MaterializedAggregateTileTimelineGroup)(nil),         // 3: chalk.server.v1.MaterializedAggregateTileTimelineGroup
+	(*ListMaterializedAggregateTileTimelinesFilter)(nil),   // 4: chalk.server.v1.ListMaterializedAggregateTileTimelinesFilter
+	(*ListMaterializedAggregateTileTimelinesRequest)(nil),  // 5: chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest
+	(*ListMaterializedAggregateTileTimelinesResponse)(nil), // 6: chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse
+	(*TileFacet)(nil), // 7: chalk.server.v1.TileFacet
+	(*GetMaterializedAggregateTileFacetsRequest)(nil),       // 8: chalk.server.v1.GetMaterializedAggregateTileFacetsRequest
+	(*GetMaterializedAggregateTileFacetsResponse)(nil),      // 9: chalk.server.v1.GetMaterializedAggregateTileFacetsResponse
+	(*GetMaterializedAggregateTileFacetValuesRequest)(nil),  // 10: chalk.server.v1.GetMaterializedAggregateTileFacetValuesRequest
+	(*TileTimelineFacetValue)(nil),                          // 11: chalk.server.v1.TileTimelineFacetValue
+	(*GetMaterializedAggregateTileFacetValuesResponse)(nil), // 12: chalk.server.v1.GetMaterializedAggregateTileFacetValuesResponse
+	(*timestamppb.Timestamp)(nil),                           // 13: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_materialized_aggregate_tiles_proto_depIdxs = []int32{
-	6, // 0: chalk.server.v1.MaterializedAggregateTileTimelineInterval.coverage_lower_bound:type_name -> google.protobuf.Timestamp
-	6, // 1: chalk.server.v1.MaterializedAggregateTileTimelineInterval.coverage_upper_bound:type_name -> google.protobuf.Timestamp
-	0, // 2: chalk.server.v1.MaterializedAggregateTileTimeline.coverage:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
-	0, // 3: chalk.server.v1.MaterializedAggregateTileTimeline.intervals:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
-	1, // 4: chalk.server.v1.MaterializedAggregateTileTimelineGroup.timelines:type_name -> chalk.server.v1.MaterializedAggregateTileTimeline
-	0, // 5: chalk.server.v1.MaterializedAggregateTileTimelineGroup.coverage:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
-	3, // 6: chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest.filter:type_name -> chalk.server.v1.ListMaterializedAggregateTileTimelinesFilter
-	2, // 7: chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse.timeline_groups:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineGroup
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	13, // 0: chalk.server.v1.MaterializedAggregateTileTimelineInterval.coverage_lower_bound:type_name -> google.protobuf.Timestamp
+	13, // 1: chalk.server.v1.MaterializedAggregateTileTimelineInterval.coverage_upper_bound:type_name -> google.protobuf.Timestamp
+	1,  // 2: chalk.server.v1.MaterializedAggregateTileTimeline.coverage:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
+	1,  // 3: chalk.server.v1.MaterializedAggregateTileTimeline.intervals:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
+	2,  // 4: chalk.server.v1.MaterializedAggregateTileTimelineGroup.timelines:type_name -> chalk.server.v1.MaterializedAggregateTileTimeline
+	1,  // 5: chalk.server.v1.MaterializedAggregateTileTimelineGroup.coverage:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineInterval
+	4,  // 6: chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest.filter:type_name -> chalk.server.v1.ListMaterializedAggregateTileTimelinesFilter
+	3,  // 7: chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse.timeline_groups:type_name -> chalk.server.v1.MaterializedAggregateTileTimelineGroup
+	0,  // 8: chalk.server.v1.TileFacet.facet_type:type_name -> chalk.server.v1.TileFacetType
+	7,  // 9: chalk.server.v1.GetMaterializedAggregateTileFacetsResponse.facets:type_name -> chalk.server.v1.TileFacet
+	4,  // 10: chalk.server.v1.GetMaterializedAggregateTileFacetValuesRequest.filter:type_name -> chalk.server.v1.ListMaterializedAggregateTileTimelinesFilter
+	11, // 11: chalk.server.v1.GetMaterializedAggregateTileFacetValuesResponse.values:type_name -> chalk.server.v1.TileTimelineFacetValue
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_materialized_aggregate_tiles_proto_init() }
@@ -476,18 +889,20 @@ func file_chalk_server_v1_materialized_aggregate_tiles_proto_init() {
 	file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDesc), len(file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   6,
+			NumEnums:      1,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_chalk_server_v1_materialized_aggregate_tiles_proto_goTypes,
 		DependencyIndexes: file_chalk_server_v1_materialized_aggregate_tiles_proto_depIdxs,
+		EnumInfos:         file_chalk_server_v1_materialized_aggregate_tiles_proto_enumTypes,
 		MessageInfos:      file_chalk_server_v1_materialized_aggregate_tiles_proto_msgTypes,
 	}.Build()
 	File_chalk_server_v1_materialized_aggregate_tiles_proto = out.File

@@ -10,6 +10,7 @@ import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/numericutils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -87,6 +88,59 @@ func (AggregationFunction) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{0}
 }
 
+// How a per-interval rate reduces to one number: MEAN divides the window, MIN/MAX read whole buckets.
+type RateReduction int32
+
+const (
+	RateReduction_RATE_REDUCTION_UNSPECIFIED RateReduction = 0 // MEAN, which is what a rate meant before this field existed
+	RateReduction_RATE_REDUCTION_MEAN        RateReduction = 1
+	RateReduction_RATE_REDUCTION_MIN         RateReduction = 2 // partial boundary buckets are excluded, so every bucket is equal-width
+	RateReduction_RATE_REDUCTION_MAX         RateReduction = 3 // partial boundary buckets are excluded, so every bucket is equal-width
+)
+
+// Enum value maps for RateReduction.
+var (
+	RateReduction_name = map[int32]string{
+		0: "RATE_REDUCTION_UNSPECIFIED",
+		1: "RATE_REDUCTION_MEAN",
+		2: "RATE_REDUCTION_MIN",
+		3: "RATE_REDUCTION_MAX",
+	}
+	RateReduction_value = map[string]int32{
+		"RATE_REDUCTION_UNSPECIFIED": 0,
+		"RATE_REDUCTION_MEAN":        1,
+		"RATE_REDUCTION_MIN":         2,
+		"RATE_REDUCTION_MAX":         3,
+	}
+)
+
+func (x RateReduction) Enum() *RateReduction {
+	p := new(RateReduction)
+	*p = x
+	return p
+}
+
+func (x RateReduction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RateReduction) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[1].Descriptor()
+}
+
+func (RateReduction) Type() protoreflect.EnumType {
+	return &file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[1]
+}
+
+func (x RateReduction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RateReduction.Descriptor instead.
+func (RateReduction) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{1}
+}
+
 // "(other)" tail-row policy for a top-N result, independent of the (none) policy. Only a foldable
 // measure can have one — COUNT/SUM fold by summing, MIN/MAX by min/max — since no per-group
 // combination reconstructs a distinct count, an average, or a percentile.
@@ -123,11 +177,11 @@ func (x OtherRowMode) String() string {
 }
 
 func (OtherRowMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[1].Descriptor()
+	return file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[2].Descriptor()
 }
 
 func (OtherRowMode) Type() protoreflect.EnumType {
-	return &file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[1]
+	return &file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[2]
 }
 
 func (x OtherRowMode) Number() protoreflect.EnumNumber {
@@ -136,7 +190,7 @@ func (x OtherRowMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OtherRowMode.Descriptor instead.
 func (OtherRowMode) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{1}
+	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{2}
 }
 
 // "(none)" row policy for empty/null group values, independent of the (other) policy.
@@ -173,11 +227,11 @@ func (x NoneRowMode) String() string {
 }
 
 func (NoneRowMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[2].Descriptor()
+	return file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[3].Descriptor()
 }
 
 func (NoneRowMode) Type() protoreflect.EnumType {
-	return &file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[2]
+	return &file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[3]
 }
 
 func (x NoneRowMode) Number() protoreflect.EnumNumber {
@@ -186,7 +240,7 @@ func (x NoneRowMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NoneRowMode.Descriptor instead.
 func (NoneRowMode) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{2}
+	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{3}
 }
 
 // Sort direction for the ranking measure. UNSPECIFIED is DESC, the top-N default.
@@ -223,11 +277,11 @@ func (x SortOrder) String() string {
 }
 
 func (SortOrder) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[3].Descriptor()
+	return file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[4].Descriptor()
 }
 
 func (SortOrder) Type() protoreflect.EnumType {
-	return &file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[3]
+	return &file_chalk_searchaggregates_v1_aggregation_proto_enumTypes[4]
 }
 
 func (x SortOrder) Number() protoreflect.EnumNumber {
@@ -236,7 +290,7 @@ func (x SortOrder) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SortOrder.Descriptor instead.
 func (SortOrder) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{3}
+	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{4}
 }
 
 // AggregationParams holds the arguments of whichever function was named, so a future parameterized
@@ -448,6 +502,62 @@ func (x *AggregateOptions) GetOrderBy() int32 {
 	return 0
 }
 
+// Rescales a window total to a per-interval rate. Present means "report a rate"; the knobs that
+// qualify one live here rather than beside it, so none can be set without an interval to apply to.
+type RateOptions struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The interval the rate is reported per (1h => a per-hour rate). Required; must be positive.
+	Interval *durationpb.Duration `protobuf:"bytes,1,opt,name=interval,proto3" json:"interval,omitempty"`
+	// Which interval to report; MIN/MAX need the ClickHouse backend, MEAN works on any.
+	Reduction     RateReduction `protobuf:"varint,2,opt,name=reduction,proto3,enum=chalk.searchaggregates.v1.RateReduction" json:"reduction,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RateOptions) Reset() {
+	*x = RateOptions{}
+	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RateOptions) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RateOptions) ProtoMessage() {}
+
+func (x *RateOptions) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RateOptions.ProtoReflect.Descriptor instead.
+func (*RateOptions) Descriptor() ([]byte, []int) {
+	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RateOptions) GetInterval() *durationpb.Duration {
+	if x != nil {
+		return x.Interval
+	}
+	return nil
+}
+
+func (x *RateOptions) GetReduction() RateReduction {
+	if x != nil {
+		return x.Reduction
+	}
+	return RateReduction_RATE_REDUCTION_UNSPECIFIED
+}
+
 type AggregateRow struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Aligned to the request's group_by; empty in scalar mode. "(other)"/"(none)" appear as values.
@@ -460,7 +570,7 @@ type AggregateRow struct {
 
 func (x *AggregateRow) Reset() {
 	*x = AggregateRow{}
-	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[3]
+	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -472,7 +582,7 @@ func (x *AggregateRow) String() string {
 func (*AggregateRow) ProtoMessage() {}
 
 func (x *AggregateRow) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[3]
+	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -485,7 +595,7 @@ func (x *AggregateRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AggregateRow.ProtoReflect.Descriptor instead.
 func (*AggregateRow) Descriptor() ([]byte, []int) {
-	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{3}
+	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AggregateRow) GetGroup() []string {
@@ -517,7 +627,7 @@ type AggregateColumn struct {
 
 func (x *AggregateColumn) Reset() {
 	*x = AggregateColumn{}
-	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[4]
+	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -529,7 +639,7 @@ func (x *AggregateColumn) String() string {
 func (*AggregateColumn) ProtoMessage() {}
 
 func (x *AggregateColumn) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[4]
+	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -542,7 +652,7 @@ func (x *AggregateColumn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AggregateColumn.ProtoReflect.Descriptor instead.
 func (*AggregateColumn) Descriptor() ([]byte, []int) {
-	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{4}
+	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AggregateColumn) GetFunction() AggregationFunction {
@@ -596,7 +706,7 @@ type AggregateTable struct {
 
 func (x *AggregateTable) Reset() {
 	*x = AggregateTable{}
-	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[5]
+	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -608,7 +718,7 @@ func (x *AggregateTable) String() string {
 func (*AggregateTable) ProtoMessage() {}
 
 func (x *AggregateTable) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[5]
+	mi := &file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -621,7 +731,7 @@ func (x *AggregateTable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AggregateTable.ProtoReflect.Descriptor instead.
 func (*AggregateTable) Descriptor() ([]byte, []int) {
-	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{5}
+	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AggregateTable) GetRows() []*AggregateRow {
@@ -656,7 +766,7 @@ var File_chalk_searchaggregates_v1_aggregation_proto protoreflect.FileDescriptor
 
 const file_chalk_searchaggregates_v1_aggregation_proto_rawDesc = "" +
 	"\n" +
-	"+chalk/searchaggregates/v1/aggregation.proto\x12\x19chalk.searchaggregates.v1\x1a\"chalk/numericutils/v1/values.proto\"G\n" +
+	"+chalk/searchaggregates/v1/aggregation.proto\x12\x19chalk.searchaggregates.v1\x1a\"chalk/numericutils/v1/values.proto\x1a\x1egoogle/protobuf/duration.proto\"G\n" +
 	"\x11AggregationParams\x12#\n" +
 	"\n" +
 	"percentile\x18\x01 \x01(\x01H\x00R\n" +
@@ -676,7 +786,10 @@ const file_chalk_searchaggregates_v1_aggregation_proto_rawDesc = "" +
 	"\rnone_row_mode\x18\x06 \x01(\x0e2&.chalk.searchaggregates.v1.NoneRowModeR\vnoneRowMode\x12\x1e\n" +
 	"\border_by\x18\a \x01(\x05H\x01R\aorderBy\x88\x01\x01B\b\n" +
 	"\x06_limitB\v\n" +
-	"\t_order_by\"a\n" +
+	"\t_order_by\"\x8c\x01\n" +
+	"\vRateOptions\x125\n" +
+	"\binterval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\binterval\x12F\n" +
+	"\treduction\x18\x02 \x01(\x0e2(.chalk.searchaggregates.v1.RateReductionR\treduction\"a\n" +
 	"\fAggregateRow\x12\x14\n" +
 	"\x05group\x18\x01 \x03(\tR\x05group\x12;\n" +
 	"\x06values\x18\x02 \x03(\v2#.chalk.numericutils.v1.NumericValueR\x06values\"\xf2\x01\n" +
@@ -700,7 +813,12 @@ const file_chalk_searchaggregates_v1_aggregation_proto_rawDesc = "" +
 	"\x18AGGREGATION_FUNCTION_AVG\x10\x04\x12\x1c\n" +
 	"\x18AGGREGATION_FUNCTION_MIN\x10\x05\x12\x1c\n" +
 	"\x18AGGREGATION_FUNCTION_MAX\x10\x06\x12#\n" +
-	"\x1fAGGREGATION_FUNCTION_PERCENTILE\x10\a*`\n" +
+	"\x1fAGGREGATION_FUNCTION_PERCENTILE\x10\a*x\n" +
+	"\rRateReduction\x12\x1e\n" +
+	"\x1aRATE_REDUCTION_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13RATE_REDUCTION_MEAN\x10\x01\x12\x16\n" +
+	"\x12RATE_REDUCTION_MIN\x10\x02\x12\x16\n" +
+	"\x12RATE_REDUCTION_MAX\x10\x03*`\n" +
 	"\fOtherRowMode\x12\x1e\n" +
 	"\x1aOTHER_ROW_MODE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13OTHER_ROW_MODE_OMIT\x10\x01\x12\x17\n" +
@@ -727,38 +845,43 @@ func file_chalk_searchaggregates_v1_aggregation_proto_rawDescGZIP() []byte {
 	return file_chalk_searchaggregates_v1_aggregation_proto_rawDescData
 }
 
-var file_chalk_searchaggregates_v1_aggregation_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chalk_searchaggregates_v1_aggregation_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_searchaggregates_v1_aggregation_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_chalk_searchaggregates_v1_aggregation_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chalk_searchaggregates_v1_aggregation_proto_goTypes = []any{
-	(AggregationFunction)(0),  // 0: chalk.searchaggregates.v1.AggregationFunction
-	(OtherRowMode)(0),         // 1: chalk.searchaggregates.v1.OtherRowMode
-	(NoneRowMode)(0),          // 2: chalk.searchaggregates.v1.NoneRowMode
-	(SortOrder)(0),            // 3: chalk.searchaggregates.v1.SortOrder
-	(*AggregationParams)(nil), // 4: chalk.searchaggregates.v1.AggregationParams
-	(*Aggregation)(nil),       // 5: chalk.searchaggregates.v1.Aggregation
-	(*AggregateOptions)(nil),  // 6: chalk.searchaggregates.v1.AggregateOptions
-	(*AggregateRow)(nil),      // 7: chalk.searchaggregates.v1.AggregateRow
-	(*AggregateColumn)(nil),   // 8: chalk.searchaggregates.v1.AggregateColumn
-	(*AggregateTable)(nil),    // 9: chalk.searchaggregates.v1.AggregateTable
-	(*v1.NumericValue)(nil),   // 10: chalk.numericutils.v1.NumericValue
+	(AggregationFunction)(0),    // 0: chalk.searchaggregates.v1.AggregationFunction
+	(RateReduction)(0),          // 1: chalk.searchaggregates.v1.RateReduction
+	(OtherRowMode)(0),           // 2: chalk.searchaggregates.v1.OtherRowMode
+	(NoneRowMode)(0),            // 3: chalk.searchaggregates.v1.NoneRowMode
+	(SortOrder)(0),              // 4: chalk.searchaggregates.v1.SortOrder
+	(*AggregationParams)(nil),   // 5: chalk.searchaggregates.v1.AggregationParams
+	(*Aggregation)(nil),         // 6: chalk.searchaggregates.v1.Aggregation
+	(*AggregateOptions)(nil),    // 7: chalk.searchaggregates.v1.AggregateOptions
+	(*RateOptions)(nil),         // 8: chalk.searchaggregates.v1.RateOptions
+	(*AggregateRow)(nil),        // 9: chalk.searchaggregates.v1.AggregateRow
+	(*AggregateColumn)(nil),     // 10: chalk.searchaggregates.v1.AggregateColumn
+	(*AggregateTable)(nil),      // 11: chalk.searchaggregates.v1.AggregateTable
+	(*durationpb.Duration)(nil), // 12: google.protobuf.Duration
+	(*v1.NumericValue)(nil),     // 13: chalk.numericutils.v1.NumericValue
 }
 var file_chalk_searchaggregates_v1_aggregation_proto_depIdxs = []int32{
 	0,  // 0: chalk.searchaggregates.v1.Aggregation.function:type_name -> chalk.searchaggregates.v1.AggregationFunction
-	4,  // 1: chalk.searchaggregates.v1.Aggregation.params:type_name -> chalk.searchaggregates.v1.AggregationParams
-	5,  // 2: chalk.searchaggregates.v1.AggregateOptions.aggregations:type_name -> chalk.searchaggregates.v1.Aggregation
-	3,  // 3: chalk.searchaggregates.v1.AggregateOptions.order:type_name -> chalk.searchaggregates.v1.SortOrder
-	1,  // 4: chalk.searchaggregates.v1.AggregateOptions.other_row_mode:type_name -> chalk.searchaggregates.v1.OtherRowMode
-	2,  // 5: chalk.searchaggregates.v1.AggregateOptions.none_row_mode:type_name -> chalk.searchaggregates.v1.NoneRowMode
-	10, // 6: chalk.searchaggregates.v1.AggregateRow.values:type_name -> chalk.numericutils.v1.NumericValue
-	0,  // 7: chalk.searchaggregates.v1.AggregateColumn.function:type_name -> chalk.searchaggregates.v1.AggregationFunction
-	4,  // 8: chalk.searchaggregates.v1.AggregateColumn.params:type_name -> chalk.searchaggregates.v1.AggregationParams
-	7,  // 9: chalk.searchaggregates.v1.AggregateTable.rows:type_name -> chalk.searchaggregates.v1.AggregateRow
-	8,  // 10: chalk.searchaggregates.v1.AggregateTable.columns:type_name -> chalk.searchaggregates.v1.AggregateColumn
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	5,  // 1: chalk.searchaggregates.v1.Aggregation.params:type_name -> chalk.searchaggregates.v1.AggregationParams
+	6,  // 2: chalk.searchaggregates.v1.AggregateOptions.aggregations:type_name -> chalk.searchaggregates.v1.Aggregation
+	4,  // 3: chalk.searchaggregates.v1.AggregateOptions.order:type_name -> chalk.searchaggregates.v1.SortOrder
+	2,  // 4: chalk.searchaggregates.v1.AggregateOptions.other_row_mode:type_name -> chalk.searchaggregates.v1.OtherRowMode
+	3,  // 5: chalk.searchaggregates.v1.AggregateOptions.none_row_mode:type_name -> chalk.searchaggregates.v1.NoneRowMode
+	12, // 6: chalk.searchaggregates.v1.RateOptions.interval:type_name -> google.protobuf.Duration
+	1,  // 7: chalk.searchaggregates.v1.RateOptions.reduction:type_name -> chalk.searchaggregates.v1.RateReduction
+	13, // 8: chalk.searchaggregates.v1.AggregateRow.values:type_name -> chalk.numericutils.v1.NumericValue
+	0,  // 9: chalk.searchaggregates.v1.AggregateColumn.function:type_name -> chalk.searchaggregates.v1.AggregationFunction
+	5,  // 10: chalk.searchaggregates.v1.AggregateColumn.params:type_name -> chalk.searchaggregates.v1.AggregationParams
+	9,  // 11: chalk.searchaggregates.v1.AggregateTable.rows:type_name -> chalk.searchaggregates.v1.AggregateRow
+	10, // 12: chalk.searchaggregates.v1.AggregateTable.columns:type_name -> chalk.searchaggregates.v1.AggregateColumn
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_chalk_searchaggregates_v1_aggregation_proto_init() }
@@ -769,14 +892,14 @@ func file_chalk_searchaggregates_v1_aggregation_proto_init() {
 	file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_searchaggregates_v1_aggregation_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_searchaggregates_v1_aggregation_proto_rawDesc), len(file_chalk_searchaggregates_v1_aggregation_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   6,
+			NumEnums:      5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

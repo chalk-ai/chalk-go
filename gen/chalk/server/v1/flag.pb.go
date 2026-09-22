@@ -203,6 +203,86 @@ func (x *GetFeatureFlagsResponse) GetFlags() []*FeatureFlagValue {
 	return nil
 }
 
+type GetTeamFeatureFlagsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTeamFeatureFlagsRequest) Reset() {
+	*x = GetTeamFeatureFlagsRequest{}
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamFeatureFlagsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamFeatureFlagsRequest) ProtoMessage() {}
+
+func (x *GetTeamFeatureFlagsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamFeatureFlagsRequest.ProtoReflect.Descriptor instead.
+func (*GetTeamFeatureFlagsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{3}
+}
+
+type GetTeamFeatureFlagsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Flags         []*FeatureFlagValue    `protobuf:"bytes,1,rep,name=flags,proto3" json:"flags,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTeamFeatureFlagsResponse) Reset() {
+	*x = GetTeamFeatureFlagsResponse{}
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamFeatureFlagsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamFeatureFlagsResponse) ProtoMessage() {}
+
+func (x *GetTeamFeatureFlagsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamFeatureFlagsResponse.ProtoReflect.Descriptor instead.
+func (*GetTeamFeatureFlagsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetTeamFeatureFlagsResponse) GetFlags() []*FeatureFlagValue {
+	if x != nil {
+		return x.Flags
+	}
+	return nil
+}
+
 type GetFeatureFlagRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Flag          string                 `protobuf:"bytes,1,opt,name=flag,proto3" json:"flag,omitempty"`
@@ -213,7 +293,7 @@ type GetFeatureFlagRequest struct {
 
 func (x *GetFeatureFlagRequest) Reset() {
 	*x = GetFeatureFlagRequest{}
-	mi := &file_chalk_server_v1_flag_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -225,7 +305,7 @@ func (x *GetFeatureFlagRequest) String() string {
 func (*GetFeatureFlagRequest) ProtoMessage() {}
 
 func (x *GetFeatureFlagRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_flag_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -238,7 +318,7 @@ func (x *GetFeatureFlagRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFeatureFlagRequest.ProtoReflect.Descriptor instead.
 func (*GetFeatureFlagRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetFeatureFlagRequest) GetFlag() string {
@@ -264,7 +344,7 @@ type GetFeatureFlagResponse struct {
 
 func (x *GetFeatureFlagResponse) Reset() {
 	*x = GetFeatureFlagResponse{}
-	mi := &file_chalk_server_v1_flag_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -276,7 +356,7 @@ func (x *GetFeatureFlagResponse) String() string {
 func (*GetFeatureFlagResponse) ProtoMessage() {}
 
 func (x *GetFeatureFlagResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_flag_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -289,7 +369,7 @@ func (x *GetFeatureFlagResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFeatureFlagResponse.ProtoReflect.Descriptor instead.
 func (*GetFeatureFlagResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetFeatureFlagResponse) GetValue() bool {
@@ -310,7 +390,7 @@ type SetFeatureFlagRequest struct {
 
 func (x *SetFeatureFlagRequest) Reset() {
 	*x = SetFeatureFlagRequest{}
-	mi := &file_chalk_server_v1_flag_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -322,7 +402,7 @@ func (x *SetFeatureFlagRequest) String() string {
 func (*SetFeatureFlagRequest) ProtoMessage() {}
 
 func (x *SetFeatureFlagRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_flag_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -335,7 +415,7 @@ func (x *SetFeatureFlagRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetFeatureFlagRequest.ProtoReflect.Descriptor instead.
 func (*SetFeatureFlagRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SetFeatureFlagRequest) GetFlag() string {
@@ -367,7 +447,7 @@ type SetFeatureFlagResponse struct {
 
 func (x *SetFeatureFlagResponse) Reset() {
 	*x = SetFeatureFlagResponse{}
-	mi := &file_chalk_server_v1_flag_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -379,7 +459,7 @@ func (x *SetFeatureFlagResponse) String() string {
 func (*SetFeatureFlagResponse) ProtoMessage() {}
 
 func (x *SetFeatureFlagResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_flag_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_flag_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -392,7 +472,7 @@ func (x *SetFeatureFlagResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetFeatureFlagResponse.ProtoReflect.Descriptor instead.
 func (*SetFeatureFlagResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_flag_proto_rawDescGZIP(), []int{8}
 }
 
 var File_chalk_server_v1_flag_proto protoreflect.FileDescriptor
@@ -405,6 +485,9 @@ const file_chalk_server_v1_flag_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\bR\x05value\"\x18\n" +
 	"\x16GetFeatureFlagsRequest\"R\n" +
 	"\x17GetFeatureFlagsResponse\x127\n" +
+	"\x05flags\x18\x01 \x03(\v2!.chalk.server.v1.FeatureFlagValueR\x05flags\"\x1c\n" +
+	"\x1aGetTeamFeatureFlagsRequest\"V\n" +
+	"\x1bGetTeamFeatureFlagsResponse\x127\n" +
 	"\x05flags\x18\x01 \x03(\v2!.chalk.server.v1.FeatureFlagValueR\x05flags\"P\n" +
 	"\x15GetFeatureFlagRequest\x12\x12\n" +
 	"\x04flag\x18\x01 \x01(\tR\x04flag\x12#\n" +
@@ -419,9 +502,10 @@ const file_chalk_server_v1_flag_proto_rawDesc = "" +
 	"\tFlagScope\x12\x1a\n" +
 	"\x16FLAG_SCOPE_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fFLAG_SCOPE_TEAM\x10\x01\x12\x1a\n" +
-	"\x16FLAG_SCOPE_ENVIRONMENT\x10\x022\xd8\x02\n" +
+	"\x16FLAG_SCOPE_ENVIRONMENT\x10\x022\xd2\x03\n" +
 	"\x12FeatureFlagService\x12l\n" +
-	"\x0fGetFeatureFlags\x12'.chalk.server.v1.GetFeatureFlagsRequest\x1a(.chalk.server.v1.GetFeatureFlagsResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
+	"\x0fGetFeatureFlags\x12'.chalk.server.v1.GetFeatureFlagsRequest\x1a(.chalk.server.v1.GetFeatureFlagsResponse\"\x06\x80}\x02\x90\x02\x01\x12x\n" +
+	"\x13GetTeamFeatureFlags\x12+.chalk.server.v1.GetTeamFeatureFlagsRequest\x1a,.chalk.server.v1.GetTeamFeatureFlagsResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
 	"\x0eGetFeatureFlag\x12&.chalk.server.v1.GetFeatureFlagRequest\x1a'.chalk.server.v1.GetFeatureFlagResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
 	"\x0eSetFeatureFlag\x12&.chalk.server.v1.SetFeatureFlagRequest\x1a'.chalk.server.v1.SetFeatureFlagResponse\"\x06\x80}\x1b\x90\x02\x02B\xb9\x01\n" +
 	"\x13com.chalk.server.v1B\tFlagProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
@@ -439,31 +523,36 @@ func file_chalk_server_v1_flag_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_flag_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_flag_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chalk_server_v1_flag_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chalk_server_v1_flag_proto_goTypes = []any{
-	(FlagScope)(0),                  // 0: chalk.server.v1.FlagScope
-	(*FeatureFlagValue)(nil),        // 1: chalk.server.v1.FeatureFlagValue
-	(*GetFeatureFlagsRequest)(nil),  // 2: chalk.server.v1.GetFeatureFlagsRequest
-	(*GetFeatureFlagsResponse)(nil), // 3: chalk.server.v1.GetFeatureFlagsResponse
-	(*GetFeatureFlagRequest)(nil),   // 4: chalk.server.v1.GetFeatureFlagRequest
-	(*GetFeatureFlagResponse)(nil),  // 5: chalk.server.v1.GetFeatureFlagResponse
-	(*SetFeatureFlagRequest)(nil),   // 6: chalk.server.v1.SetFeatureFlagRequest
-	(*SetFeatureFlagResponse)(nil),  // 7: chalk.server.v1.SetFeatureFlagResponse
+	(FlagScope)(0),                      // 0: chalk.server.v1.FlagScope
+	(*FeatureFlagValue)(nil),            // 1: chalk.server.v1.FeatureFlagValue
+	(*GetFeatureFlagsRequest)(nil),      // 2: chalk.server.v1.GetFeatureFlagsRequest
+	(*GetFeatureFlagsResponse)(nil),     // 3: chalk.server.v1.GetFeatureFlagsResponse
+	(*GetTeamFeatureFlagsRequest)(nil),  // 4: chalk.server.v1.GetTeamFeatureFlagsRequest
+	(*GetTeamFeatureFlagsResponse)(nil), // 5: chalk.server.v1.GetTeamFeatureFlagsResponse
+	(*GetFeatureFlagRequest)(nil),       // 6: chalk.server.v1.GetFeatureFlagRequest
+	(*GetFeatureFlagResponse)(nil),      // 7: chalk.server.v1.GetFeatureFlagResponse
+	(*SetFeatureFlagRequest)(nil),       // 8: chalk.server.v1.SetFeatureFlagRequest
+	(*SetFeatureFlagResponse)(nil),      // 9: chalk.server.v1.SetFeatureFlagResponse
 }
 var file_chalk_server_v1_flag_proto_depIdxs = []int32{
 	1, // 0: chalk.server.v1.GetFeatureFlagsResponse.flags:type_name -> chalk.server.v1.FeatureFlagValue
-	0, // 1: chalk.server.v1.SetFeatureFlagRequest.scope:type_name -> chalk.server.v1.FlagScope
-	2, // 2: chalk.server.v1.FeatureFlagService.GetFeatureFlags:input_type -> chalk.server.v1.GetFeatureFlagsRequest
-	4, // 3: chalk.server.v1.FeatureFlagService.GetFeatureFlag:input_type -> chalk.server.v1.GetFeatureFlagRequest
-	6, // 4: chalk.server.v1.FeatureFlagService.SetFeatureFlag:input_type -> chalk.server.v1.SetFeatureFlagRequest
-	3, // 5: chalk.server.v1.FeatureFlagService.GetFeatureFlags:output_type -> chalk.server.v1.GetFeatureFlagsResponse
-	5, // 6: chalk.server.v1.FeatureFlagService.GetFeatureFlag:output_type -> chalk.server.v1.GetFeatureFlagResponse
-	7, // 7: chalk.server.v1.FeatureFlagService.SetFeatureFlag:output_type -> chalk.server.v1.SetFeatureFlagResponse
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 1: chalk.server.v1.GetTeamFeatureFlagsResponse.flags:type_name -> chalk.server.v1.FeatureFlagValue
+	0, // 2: chalk.server.v1.SetFeatureFlagRequest.scope:type_name -> chalk.server.v1.FlagScope
+	2, // 3: chalk.server.v1.FeatureFlagService.GetFeatureFlags:input_type -> chalk.server.v1.GetFeatureFlagsRequest
+	4, // 4: chalk.server.v1.FeatureFlagService.GetTeamFeatureFlags:input_type -> chalk.server.v1.GetTeamFeatureFlagsRequest
+	6, // 5: chalk.server.v1.FeatureFlagService.GetFeatureFlag:input_type -> chalk.server.v1.GetFeatureFlagRequest
+	8, // 6: chalk.server.v1.FeatureFlagService.SetFeatureFlag:input_type -> chalk.server.v1.SetFeatureFlagRequest
+	3, // 7: chalk.server.v1.FeatureFlagService.GetFeatureFlags:output_type -> chalk.server.v1.GetFeatureFlagsResponse
+	5, // 8: chalk.server.v1.FeatureFlagService.GetTeamFeatureFlags:output_type -> chalk.server.v1.GetTeamFeatureFlagsResponse
+	7, // 9: chalk.server.v1.FeatureFlagService.GetFeatureFlag:output_type -> chalk.server.v1.GetFeatureFlagResponse
+	9, // 10: chalk.server.v1.FeatureFlagService.SetFeatureFlag:output_type -> chalk.server.v1.SetFeatureFlagResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_flag_proto_init() }
@@ -477,7 +566,7 @@ func file_chalk_server_v1_flag_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_flag_proto_rawDesc), len(file_chalk_server_v1_flag_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -333,9 +333,11 @@ type KubernetesDeployment struct {
 	// Selector labels used to match pods managed by this deployment
 	MatchLabels map[string]string `protobuf:"bytes,10,rep,name=match_labels,json=matchLabels,proto3" json:"match_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// ReplicaSets owned by this deployment
-	ReplicaSets   []*KubernetesReplicaSetRef `protobuf:"bytes,11,rep,name=replica_sets,json=replicaSets,proto3" json:"replica_sets,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ReplicaSets []*KubernetesReplicaSetRef `protobuf:"bytes,11,rep,name=replica_sets,json=replicaSets,proto3" json:"replica_sets,omitempty"`
+	// Labels applied to pods created by this deployment
+	PodTemplateLabels map[string]string `protobuf:"bytes,12,rep,name=pod_template_labels,json=podTemplateLabels,proto3" json:"pod_template_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *KubernetesDeployment) Reset() {
@@ -445,6 +447,13 @@ func (x *KubernetesDeployment) GetReplicaSets() []*KubernetesReplicaSetRef {
 	return nil
 }
 
+func (x *KubernetesDeployment) GetPodTemplateLabels() map[string]string {
+	if x != nil {
+		return x.PodTemplateLabels
+	}
+	return nil
+}
+
 var File_chalk_kubernetes_v1_deployments_proto protoreflect.FileDescriptor
 
 const file_chalk_kubernetes_v1_deployments_proto_rawDesc = "" +
@@ -481,7 +490,7 @@ const file_chalk_kubernetes_v1_deployments_proto_rawDesc = "" +
 	"\x14_observed_generation\"?\n" +
 	"\x17KubernetesReplicaSetRef\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\tR\x03uid\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xd0\x06\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x88\b\n" +
 	"\x14KubernetesDeployment\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x10\n" +
@@ -494,7 +503,8 @@ const file_chalk_kubernetes_v1_deployments_proto_rawDesc = "" +
 	"\x06status\x18\t \x01(\v2/.chalk.kubernetes.v1.KubernetesDeploymentStatusR\x06status\x12]\n" +
 	"\fmatch_labels\x18\n" +
 	" \x03(\v2:.chalk.kubernetes.v1.KubernetesDeployment.MatchLabelsEntryR\vmatchLabels\x12O\n" +
-	"\freplica_sets\x18\v \x03(\v2,.chalk.kubernetes.v1.KubernetesReplicaSetRefR\vreplicaSets\x1a9\n" +
+	"\freplica_sets\x18\v \x03(\v2,.chalk.kubernetes.v1.KubernetesReplicaSetRefR\vreplicaSets\x12p\n" +
+	"\x13pod_template_labels\x18\f \x03(\v2@.chalk.kubernetes.v1.KubernetesDeployment.PodTemplateLabelsEntryR\x11podTemplateLabels\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
@@ -502,6 +512,9 @@ const file_chalk_kubernetes_v1_deployments_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
 	"\x10MatchLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aD\n" +
+	"\x16PodTemplateLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\xdc\x01\n" +
 	"\x17com.chalk.kubernetes.v1B\x10DeploymentsProtoP\x01ZAgithub.com/chalk-ai/chalk-go/gen/chalk/kubernetes/v1;kubernetesv1\xa2\x02\x03CKX\xaa\x02\x13Chalk.Kubernetes.V1\xca\x02\x13Chalk\\Kubernetes\\V1\xe2\x02\x1fChalk\\Kubernetes\\V1\\GPBMetadata\xea\x02\x15Chalk::Kubernetes::V1b\x06proto3"
@@ -518,7 +531,7 @@ func file_chalk_kubernetes_v1_deployments_proto_rawDescGZIP() []byte {
 	return file_chalk_kubernetes_v1_deployments_proto_rawDescData
 }
 
-var file_chalk_kubernetes_v1_deployments_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_kubernetes_v1_deployments_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chalk_kubernetes_v1_deployments_proto_goTypes = []any{
 	(*KubernetesDeploymentCondition)(nil), // 0: chalk.kubernetes.v1.KubernetesDeploymentCondition
 	(*KubernetesDeploymentSpec)(nil),      // 1: chalk.kubernetes.v1.KubernetesDeploymentSpec
@@ -528,6 +541,7 @@ var file_chalk_kubernetes_v1_deployments_proto_goTypes = []any{
 	nil,                                   // 5: chalk.kubernetes.v1.KubernetesDeployment.LabelsEntry
 	nil,                                   // 6: chalk.kubernetes.v1.KubernetesDeployment.AnnotationsEntry
 	nil,                                   // 7: chalk.kubernetes.v1.KubernetesDeployment.MatchLabelsEntry
+	nil,                                   // 8: chalk.kubernetes.v1.KubernetesDeployment.PodTemplateLabelsEntry
 }
 var file_chalk_kubernetes_v1_deployments_proto_depIdxs = []int32{
 	0, // 0: chalk.kubernetes.v1.KubernetesDeploymentStatus.conditions:type_name -> chalk.kubernetes.v1.KubernetesDeploymentCondition
@@ -537,11 +551,12 @@ var file_chalk_kubernetes_v1_deployments_proto_depIdxs = []int32{
 	2, // 4: chalk.kubernetes.v1.KubernetesDeployment.status:type_name -> chalk.kubernetes.v1.KubernetesDeploymentStatus
 	7, // 5: chalk.kubernetes.v1.KubernetesDeployment.match_labels:type_name -> chalk.kubernetes.v1.KubernetesDeployment.MatchLabelsEntry
 	3, // 6: chalk.kubernetes.v1.KubernetesDeployment.replica_sets:type_name -> chalk.kubernetes.v1.KubernetesReplicaSetRef
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	8, // 7: chalk.kubernetes.v1.KubernetesDeployment.pod_template_labels:type_name -> chalk.kubernetes.v1.KubernetesDeployment.PodTemplateLabelsEntry
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chalk_kubernetes_v1_deployments_proto_init() }
@@ -558,7 +573,7 @@ func file_chalk_kubernetes_v1_deployments_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_kubernetes_v1_deployments_proto_rawDesc), len(file_chalk_kubernetes_v1_deployments_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

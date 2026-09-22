@@ -51,6 +51,9 @@ const (
 	// EvaluationServiceCreateEvaluationRunProcedure is the fully-qualified name of the
 	// EvaluationService's CreateEvaluationRun RPC.
 	EvaluationServiceCreateEvaluationRunProcedure = "/chalk.evaluation.v1.EvaluationService/CreateEvaluationRun"
+	// EvaluationServiceRescoreEvaluationRunProcedure is the fully-qualified name of the
+	// EvaluationService's RescoreEvaluationRun RPC.
+	EvaluationServiceRescoreEvaluationRunProcedure = "/chalk.evaluation.v1.EvaluationService/RescoreEvaluationRun"
 	// EvaluationServiceGetEvaluationRunProcedure is the fully-qualified name of the EvaluationService's
 	// GetEvaluationRun RPC.
 	EvaluationServiceGetEvaluationRunProcedure = "/chalk.evaluation.v1.EvaluationService/GetEvaluationRun"
@@ -73,6 +76,11 @@ type EvaluationServiceClient interface {
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
 	CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error)
+	// Score a finished run's outputs again with the evaluation's current scorers.
+	// The task is the expensive half of an evaluation and the half you are not
+	// changing while iterating on scorers, so its outputs are read back out of
+	// the rescored run instead of being recomputed.
+	RescoreEvaluationRun(context.Context, *connect.Request[v1.RescoreEvaluationRunRequest]) (*connect.Response[v1.RescoreEvaluationRunResponse], error)
 	GetEvaluationRun(context.Context, *connect.Request[v1.GetEvaluationRunRequest]) (*connect.Response[v1.GetEvaluationRunResponse], error)
 	ListEvaluationRuns(context.Context, *connect.Request[v1.ListEvaluationRunsRequest]) (*connect.Response[v1.ListEvaluationRunsResponse], error)
 	SetEvaluationRunBaseline(context.Context, *connect.Request[v1.SetEvaluationRunBaselineRequest]) (*connect.Response[v1.SetEvaluationRunBaselineResponse], error)
@@ -129,6 +137,12 @@ func NewEvaluationServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(evaluationServiceMethods.ByName("CreateEvaluationRun")),
 			connect.WithClientOptions(opts...),
 		),
+		rescoreEvaluationRun: connect.NewClient[v1.RescoreEvaluationRunRequest, v1.RescoreEvaluationRunResponse](
+			httpClient,
+			baseURL+EvaluationServiceRescoreEvaluationRunProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("RescoreEvaluationRun")),
+			connect.WithClientOptions(opts...),
+		),
 		getEvaluationRun: connect.NewClient[v1.GetEvaluationRunRequest, v1.GetEvaluationRunResponse](
 			httpClient,
 			baseURL+EvaluationServiceGetEvaluationRunProcedure,
@@ -168,6 +182,7 @@ type evaluationServiceClient struct {
 	getEvaluation            *connect.Client[v1.GetEvaluationRequest, v1.GetEvaluationResponse]
 	listEvaluations          *connect.Client[v1.ListEvaluationsRequest, v1.ListEvaluationsResponse]
 	createEvaluationRun      *connect.Client[v1.CreateEvaluationRunRequest, v1.CreateEvaluationRunResponse]
+	rescoreEvaluationRun     *connect.Client[v1.RescoreEvaluationRunRequest, v1.RescoreEvaluationRunResponse]
 	getEvaluationRun         *connect.Client[v1.GetEvaluationRunRequest, v1.GetEvaluationRunResponse]
 	listEvaluationRuns       *connect.Client[v1.ListEvaluationRunsRequest, v1.ListEvaluationRunsResponse]
 	setEvaluationRunBaseline *connect.Client[v1.SetEvaluationRunBaselineRequest, v1.SetEvaluationRunBaselineResponse]
@@ -204,6 +219,11 @@ func (c *evaluationServiceClient) CreateEvaluationRun(ctx context.Context, req *
 	return c.createEvaluationRun.CallUnary(ctx, req)
 }
 
+// RescoreEvaluationRun calls chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun.
+func (c *evaluationServiceClient) RescoreEvaluationRun(ctx context.Context, req *connect.Request[v1.RescoreEvaluationRunRequest]) (*connect.Response[v1.RescoreEvaluationRunResponse], error) {
+	return c.rescoreEvaluationRun.CallUnary(ctx, req)
+}
+
 // GetEvaluationRun calls chalk.evaluation.v1.EvaluationService.GetEvaluationRun.
 func (c *evaluationServiceClient) GetEvaluationRun(ctx context.Context, req *connect.Request[v1.GetEvaluationRunRequest]) (*connect.Response[v1.GetEvaluationRunResponse], error) {
 	return c.getEvaluationRun.CallUnary(ctx, req)
@@ -233,6 +253,11 @@ type EvaluationServiceHandler interface {
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
 	CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error)
+	// Score a finished run's outputs again with the evaluation's current scorers.
+	// The task is the expensive half of an evaluation and the half you are not
+	// changing while iterating on scorers, so its outputs are read back out of
+	// the rescored run instead of being recomputed.
+	RescoreEvaluationRun(context.Context, *connect.Request[v1.RescoreEvaluationRunRequest]) (*connect.Response[v1.RescoreEvaluationRunResponse], error)
 	GetEvaluationRun(context.Context, *connect.Request[v1.GetEvaluationRunRequest]) (*connect.Response[v1.GetEvaluationRunResponse], error)
 	ListEvaluationRuns(context.Context, *connect.Request[v1.ListEvaluationRunsRequest]) (*connect.Response[v1.ListEvaluationRunsResponse], error)
 	SetEvaluationRunBaseline(context.Context, *connect.Request[v1.SetEvaluationRunBaselineRequest]) (*connect.Response[v1.SetEvaluationRunBaselineResponse], error)
@@ -285,6 +310,12 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 		connect.WithSchema(evaluationServiceMethods.ByName("CreateEvaluationRun")),
 		connect.WithHandlerOptions(opts...),
 	)
+	evaluationServiceRescoreEvaluationRunHandler := connect.NewUnaryHandler(
+		EvaluationServiceRescoreEvaluationRunProcedure,
+		svc.RescoreEvaluationRun,
+		connect.WithSchema(evaluationServiceMethods.ByName("RescoreEvaluationRun")),
+		connect.WithHandlerOptions(opts...),
+	)
 	evaluationServiceGetEvaluationRunHandler := connect.NewUnaryHandler(
 		EvaluationServiceGetEvaluationRunProcedure,
 		svc.GetEvaluationRun,
@@ -327,6 +358,8 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 			evaluationServiceListEvaluationsHandler.ServeHTTP(w, r)
 		case EvaluationServiceCreateEvaluationRunProcedure:
 			evaluationServiceCreateEvaluationRunHandler.ServeHTTP(w, r)
+		case EvaluationServiceRescoreEvaluationRunProcedure:
+			evaluationServiceRescoreEvaluationRunHandler.ServeHTTP(w, r)
 		case EvaluationServiceGetEvaluationRunProcedure:
 			evaluationServiceGetEvaluationRunHandler.ServeHTTP(w, r)
 		case EvaluationServiceListEvaluationRunsProcedure:
@@ -366,6 +399,10 @@ func (UnimplementedEvaluationServiceHandler) ListEvaluations(context.Context, *c
 
 func (UnimplementedEvaluationServiceHandler) CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.CreateEvaluationRun is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) RescoreEvaluationRun(context.Context, *connect.Request[v1.RescoreEvaluationRunRequest]) (*connect.Response[v1.RescoreEvaluationRunResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun is not implemented"))
 }
 
 func (UnimplementedEvaluationServiceHandler) GetEvaluationRun(context.Context, *connect.Request[v1.GetEvaluationRunRequest]) (*connect.Response[v1.GetEvaluationRunResponse], error) {

@@ -72,6 +72,12 @@ const (
 	// DatasetMetadataServiceListMaterializedAggregateTileTimelinesProcedure is the fully-qualified name
 	// of the DatasetMetadataService's ListMaterializedAggregateTileTimelines RPC.
 	DatasetMetadataServiceListMaterializedAggregateTileTimelinesProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTileTimelines"
+	// DatasetMetadataServiceGetMaterializedAggregateTileFacetsProcedure is the fully-qualified name of
+	// the DatasetMetadataService's GetMaterializedAggregateTileFacets RPC.
+	DatasetMetadataServiceGetMaterializedAggregateTileFacetsProcedure = "/chalk.server.v1.DatasetMetadataService/GetMaterializedAggregateTileFacets"
+	// DatasetMetadataServiceGetMaterializedAggregateTileFacetValuesProcedure is the fully-qualified
+	// name of the DatasetMetadataService's GetMaterializedAggregateTileFacetValues RPC.
+	DatasetMetadataServiceGetMaterializedAggregateTileFacetValuesProcedure = "/chalk.server.v1.DatasetMetadataService/GetMaterializedAggregateTileFacetValues"
 	// DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure is the fully-qualified
 	// name of the DatasetMetadataService's ListMaterializedAggregateTilesForTimeline RPC.
 	DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTilesForTimeline"
@@ -81,6 +87,12 @@ const (
 	// DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure is the fully-qualified
 	// name of the DatasetMetadataService's GetMaterializedAggregateTileRowCountChart RPC.
 	DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure = "/chalk.server.v1.DatasetMetadataService/GetMaterializedAggregateTileRowCountChart"
+	// DatasetMetadataServiceGetMaterializedAggregateTileValuesProcedure is the fully-qualified name of
+	// the DatasetMetadataService's GetMaterializedAggregateTileValues RPC.
+	DatasetMetadataServiceGetMaterializedAggregateTileValuesProcedure = "/chalk.server.v1.DatasetMetadataService/GetMaterializedAggregateTileValues"
+	// DatasetMetadataServiceGetMaterializedAggregateTileDownloadLinksProcedure is the fully-qualified
+	// name of the DatasetMetadataService's GetMaterializedAggregateTileDownloadLinks RPC.
+	DatasetMetadataServiceGetMaterializedAggregateTileDownloadLinksProcedure = "/chalk.server.v1.DatasetMetadataService/GetMaterializedAggregateTileDownloadLinks"
 	// DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure is the fully-qualified name of the
 	// DatasetMetadataService's DeleteMaterializedAggregateTile RPC.
 	DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure = "/chalk.server.v1.DatasetMetadataService/DeleteMaterializedAggregateTile"
@@ -130,6 +142,10 @@ type DatasetMetadataServiceClient interface {
 	// Timeline skeletons for the TilesTimeline view; manifests are fetched
 	// separately via ListMaterializedAggregateTilesForTimeline.
 	ListMaterializedAggregateTileTimelines(context.Context, *connect.Request[v1.ListMaterializedAggregateTileTimelinesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileTimelinesResponse], error)
+	// The TilesTimeline filter vocabulary, so the client keeps no parallel copy of it.
+	GetMaterializedAggregateTileFacets(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetsRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetsResponse], error)
+	// Facet values and counts for the TilesTimeline filter menu.
+	GetMaterializedAggregateTileFacetValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetValuesResponse], error)
 	// Full tile manifests for one timeline (one materialization_key_hash).
 	ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error)
 	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
@@ -139,6 +155,13 @@ type DatasetMetadataServiceClient interface {
 	// that window, i.e. the number of distinct (primary key, group, bucket)
 	// rows materialized for the window.
 	GetMaterializedAggregateTileRowCountChart(context.Context, *connect.Request[v1.GetMaterializedAggregateTileRowCountChartRequest]) (*connect.Response[v1.GetMaterializedAggregateTileRowCountChartResponse], error)
+	// Returns one extracted aggregate value per bucket for a primary key over a
+	// bounded range. This endpoint intentionally does not accept arbitrary SQL.
+	GetMaterializedAggregateTileValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileValuesResponse], error)
+	// Signed download URLs for the raw parquet files a tile manifest points at.
+	// The URIs are read from the manifest's own file rows, scoped to the caller's
+	// environment, so a caller cannot ask the server to sign an arbitrary object.
+	GetMaterializedAggregateTileDownloadLinks(context.Context, *connect.Request[v1.GetMaterializedAggregateTileDownloadLinksRequest]) (*connect.Response[v1.GetMaterializedAggregateTileDownloadLinksResponse], error)
 	DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error)
 	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
@@ -260,6 +283,20 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getMaterializedAggregateTileFacets: connect.NewClient[v1.GetMaterializedAggregateTileFacetsRequest, v1.GetMaterializedAggregateTileFacetsResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetMaterializedAggregateTileFacetsProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileFacets")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getMaterializedAggregateTileFacetValues: connect.NewClient[v1.GetMaterializedAggregateTileFacetValuesRequest, v1.GetMaterializedAggregateTileFacetValuesResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetMaterializedAggregateTileFacetValuesProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileFacetValues")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		listMaterializedAggregateTilesForTimeline: connect.NewClient[v1.ListMaterializedAggregateTilesForTimelineRequest, v1.ListMaterializedAggregateTilesForTimelineResponse](
 			httpClient,
 			baseURL+DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure,
@@ -278,6 +315,20 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure,
 			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileRowCountChart")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getMaterializedAggregateTileValues: connect.NewClient[v1.GetMaterializedAggregateTileValuesRequest, v1.GetMaterializedAggregateTileValuesResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetMaterializedAggregateTileValuesProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileValues")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getMaterializedAggregateTileDownloadLinks: connect.NewClient[v1.GetMaterializedAggregateTileDownloadLinksRequest, v1.GetMaterializedAggregateTileDownloadLinksResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetMaterializedAggregateTileDownloadLinksProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileDownloadLinks")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -344,9 +395,13 @@ type datasetMetadataServiceClient struct {
 	deleteDataset                             *connect.Client[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse]
 	listMaterializedAggregateTiles            *connect.Client[v1.ListMaterializedAggregateTilesRequest, v1.ListMaterializedAggregateTilesResponse]
 	listMaterializedAggregateTileTimelines    *connect.Client[v1.ListMaterializedAggregateTileTimelinesRequest, v1.ListMaterializedAggregateTileTimelinesResponse]
+	getMaterializedAggregateTileFacets        *connect.Client[v1.GetMaterializedAggregateTileFacetsRequest, v1.GetMaterializedAggregateTileFacetsResponse]
+	getMaterializedAggregateTileFacetValues   *connect.Client[v1.GetMaterializedAggregateTileFacetValuesRequest, v1.GetMaterializedAggregateTileFacetValuesResponse]
 	listMaterializedAggregateTilesForTimeline *connect.Client[v1.ListMaterializedAggregateTilesForTimelineRequest, v1.ListMaterializedAggregateTilesForTimelineResponse]
 	listMaterializedAggregateTileFiles        *connect.Client[v1.ListMaterializedAggregateTileFilesRequest, v1.ListMaterializedAggregateTileFilesResponse]
 	getMaterializedAggregateTileRowCountChart *connect.Client[v1.GetMaterializedAggregateTileRowCountChartRequest, v1.GetMaterializedAggregateTileRowCountChartResponse]
+	getMaterializedAggregateTileValues        *connect.Client[v1.GetMaterializedAggregateTileValuesRequest, v1.GetMaterializedAggregateTileValuesResponse]
+	getMaterializedAggregateTileDownloadLinks *connect.Client[v1.GetMaterializedAggregateTileDownloadLinksRequest, v1.GetMaterializedAggregateTileDownloadLinksResponse]
 	deleteMaterializedAggregateTile           *connect.Client[v1.DeleteMaterializedAggregateTileRequest, v1.DeleteMaterializedAggregateTileResponse]
 	getDatasetRevisionPreview                 *connect.Client[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse]
 	generateDatasetStats                      *connect.Client[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse]
@@ -430,6 +485,18 @@ func (c *datasetMetadataServiceClient) ListMaterializedAggregateTileTimelines(ct
 	return c.listMaterializedAggregateTileTimelines.CallUnary(ctx, req)
 }
 
+// GetMaterializedAggregateTileFacets calls
+// chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileFacets.
+func (c *datasetMetadataServiceClient) GetMaterializedAggregateTileFacets(ctx context.Context, req *connect.Request[v1.GetMaterializedAggregateTileFacetsRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetsResponse], error) {
+	return c.getMaterializedAggregateTileFacets.CallUnary(ctx, req)
+}
+
+// GetMaterializedAggregateTileFacetValues calls
+// chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileFacetValues.
+func (c *datasetMetadataServiceClient) GetMaterializedAggregateTileFacetValues(ctx context.Context, req *connect.Request[v1.GetMaterializedAggregateTileFacetValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetValuesResponse], error) {
+	return c.getMaterializedAggregateTileFacetValues.CallUnary(ctx, req)
+}
+
 // ListMaterializedAggregateTilesForTimeline calls
 // chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline.
 func (c *datasetMetadataServiceClient) ListMaterializedAggregateTilesForTimeline(ctx context.Context, req *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error) {
@@ -446,6 +513,18 @@ func (c *datasetMetadataServiceClient) ListMaterializedAggregateTileFiles(ctx co
 // chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileRowCountChart.
 func (c *datasetMetadataServiceClient) GetMaterializedAggregateTileRowCountChart(ctx context.Context, req *connect.Request[v1.GetMaterializedAggregateTileRowCountChartRequest]) (*connect.Response[v1.GetMaterializedAggregateTileRowCountChartResponse], error) {
 	return c.getMaterializedAggregateTileRowCountChart.CallUnary(ctx, req)
+}
+
+// GetMaterializedAggregateTileValues calls
+// chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileValues.
+func (c *datasetMetadataServiceClient) GetMaterializedAggregateTileValues(ctx context.Context, req *connect.Request[v1.GetMaterializedAggregateTileValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileValuesResponse], error) {
+	return c.getMaterializedAggregateTileValues.CallUnary(ctx, req)
+}
+
+// GetMaterializedAggregateTileDownloadLinks calls
+// chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileDownloadLinks.
+func (c *datasetMetadataServiceClient) GetMaterializedAggregateTileDownloadLinks(ctx context.Context, req *connect.Request[v1.GetMaterializedAggregateTileDownloadLinksRequest]) (*connect.Response[v1.GetMaterializedAggregateTileDownloadLinksResponse], error) {
+	return c.getMaterializedAggregateTileDownloadLinks.CallUnary(ctx, req)
 }
 
 // DeleteMaterializedAggregateTile calls
@@ -511,6 +590,10 @@ type DatasetMetadataServiceHandler interface {
 	// Timeline skeletons for the TilesTimeline view; manifests are fetched
 	// separately via ListMaterializedAggregateTilesForTimeline.
 	ListMaterializedAggregateTileTimelines(context.Context, *connect.Request[v1.ListMaterializedAggregateTileTimelinesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileTimelinesResponse], error)
+	// The TilesTimeline filter vocabulary, so the client keeps no parallel copy of it.
+	GetMaterializedAggregateTileFacets(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetsRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetsResponse], error)
+	// Facet values and counts for the TilesTimeline filter menu.
+	GetMaterializedAggregateTileFacetValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetValuesResponse], error)
 	// Full tile manifests for one timeline (one materialization_key_hash).
 	ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error)
 	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
@@ -520,6 +603,13 @@ type DatasetMetadataServiceHandler interface {
 	// that window, i.e. the number of distinct (primary key, group, bucket)
 	// rows materialized for the window.
 	GetMaterializedAggregateTileRowCountChart(context.Context, *connect.Request[v1.GetMaterializedAggregateTileRowCountChartRequest]) (*connect.Response[v1.GetMaterializedAggregateTileRowCountChartResponse], error)
+	// Returns one extracted aggregate value per bucket for a primary key over a
+	// bounded range. This endpoint intentionally does not accept arbitrary SQL.
+	GetMaterializedAggregateTileValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileValuesResponse], error)
+	// Signed download URLs for the raw parquet files a tile manifest points at.
+	// The URIs are read from the manifest's own file rows, scoped to the caller's
+	// environment, so a caller cannot ask the server to sign an arbitrary object.
+	GetMaterializedAggregateTileDownloadLinks(context.Context, *connect.Request[v1.GetMaterializedAggregateTileDownloadLinksRequest]) (*connect.Response[v1.GetMaterializedAggregateTileDownloadLinksResponse], error)
 	DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error)
 	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
@@ -637,6 +727,20 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceGetMaterializedAggregateTileFacetsHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetMaterializedAggregateTileFacetsProcedure,
+		svc.GetMaterializedAggregateTileFacets,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileFacets")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceGetMaterializedAggregateTileFacetValuesHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetMaterializedAggregateTileFacetValuesProcedure,
+		svc.GetMaterializedAggregateTileFacetValues,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileFacetValues")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	datasetMetadataServiceListMaterializedAggregateTilesForTimelineHandler := connect.NewUnaryHandler(
 		DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure,
 		svc.ListMaterializedAggregateTilesForTimeline,
@@ -655,6 +759,20 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure,
 		svc.GetMaterializedAggregateTileRowCountChart,
 		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileRowCountChart")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceGetMaterializedAggregateTileValuesHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetMaterializedAggregateTileValuesProcedure,
+		svc.GetMaterializedAggregateTileValues,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileValues")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceGetMaterializedAggregateTileDownloadLinksHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetMaterializedAggregateTileDownloadLinksProcedure,
+		svc.GetMaterializedAggregateTileDownloadLinks,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileDownloadLinks")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -731,12 +849,20 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceListMaterializedAggregateTilesHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceListMaterializedAggregateTileTimelinesProcedure:
 			datasetMetadataServiceListMaterializedAggregateTileTimelinesHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetMaterializedAggregateTileFacetsProcedure:
+			datasetMetadataServiceGetMaterializedAggregateTileFacetsHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetMaterializedAggregateTileFacetValuesProcedure:
+			datasetMetadataServiceGetMaterializedAggregateTileFacetValuesHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure:
 			datasetMetadataServiceListMaterializedAggregateTilesForTimelineHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure:
 			datasetMetadataServiceListMaterializedAggregateTileFilesHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure:
 			datasetMetadataServiceGetMaterializedAggregateTileRowCountChartHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetMaterializedAggregateTileValuesProcedure:
+			datasetMetadataServiceGetMaterializedAggregateTileValuesHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetMaterializedAggregateTileDownloadLinksProcedure:
+			datasetMetadataServiceGetMaterializedAggregateTileDownloadLinksHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure:
 			datasetMetadataServiceDeleteMaterializedAggregateTileHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGetDatasetRevisionPreviewProcedure:
@@ -812,6 +938,14 @@ func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTileT
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileTimelines is not implemented"))
 }
 
+func (UnimplementedDatasetMetadataServiceHandler) GetMaterializedAggregateTileFacets(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetsRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileFacets is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetMaterializedAggregateTileFacetValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetValuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileFacetValues is not implemented"))
+}
+
 func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline is not implemented"))
 }
@@ -822,6 +956,14 @@ func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTileF
 
 func (UnimplementedDatasetMetadataServiceHandler) GetMaterializedAggregateTileRowCountChart(context.Context, *connect.Request[v1.GetMaterializedAggregateTileRowCountChartRequest]) (*connect.Response[v1.GetMaterializedAggregateTileRowCountChartResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileRowCountChart is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetMaterializedAggregateTileValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileValuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileValues is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetMaterializedAggregateTileDownloadLinks(context.Context, *connect.Request[v1.GetMaterializedAggregateTileDownloadLinksRequest]) (*connect.Response[v1.GetMaterializedAggregateTileDownloadLinksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileDownloadLinks is not implemented"))
 }
 
 func (UnimplementedDatasetMetadataServiceHandler) DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error) {

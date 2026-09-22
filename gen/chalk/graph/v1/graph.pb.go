@@ -817,8 +817,18 @@ type MaterializedFeatureView struct {
 	// Whether the environment-level weekly maintenance job compacts this view's wide tables.
 	// Unset is treated as true for graphs exported before this field existed.
 	BackgroundCompaction *bool `protobuf:"varint,8,opt,name=background_compaction,json=backgroundCompaction,proto3,oneof" json:"background_compaction,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Root FQNs of the scalar features to materialize. Empty materializes every
+	// offline-store-eligible scalar feature in the namespace, which is also the behavior for
+	// graphs exported before this field existed. The primary key is always materialized: it
+	// occupies the wide table's dedicated `pkey` column rather than a feature column.
+	//
+	// Changing this list changes which columns the fill writes, and the fill keys its incremental
+	// watermark on that column set. A selection therefore resumes from its own floor rather than
+	// one that advanced while a feature was excluded, so a feature added back re-reads the
+	// observations written in the meantime instead of skipping them.
+	Features      []string `protobuf:"bytes,9,rep,name=features,proto3" json:"features,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MaterializedFeatureView) Reset() {
@@ -905,6 +915,13 @@ func (x *MaterializedFeatureView) GetBackgroundCompaction() bool {
 		return *x.BackgroundCompaction
 	}
 	return false
+}
+
+func (x *MaterializedFeatureView) GetFeatures() []string {
+	if x != nil {
+		return x.Features
+	}
+	return nil
 }
 
 type OverlayGraph struct {
@@ -7665,7 +7682,7 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x14online_store_configs\x18\f \x03(\v2!.chalk.graph.v1.OnlineStoreConfigR\x12onlineStoreConfigs\x12Y\n" +
 	"\x16captured_global_values\x18\r \x03(\v2#.chalk.graph.v1.CapturedGlobalValueR\x14capturedGlobalValues\x12`\n" +
 	"\x18symbolic_value_explicits\x18\x0e \x03(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x16symbolicValueExplicits\x12e\n" +
-	"\x1amaterialized_feature_views\x18\x0f \x03(\v2'.chalk.graph.v1.MaterializedFeatureViewR\x18materializedFeatureViews\"\xc5\x05\n" +
+	"\x1amaterialized_feature_views\x18\x0f \x03(\v2'.chalk.graph.v1.MaterializedFeatureViewR\x18materializedFeatureViews\"\xe1\x05\n" +
 	"\x17MaterializedFeatureView\x12\x1e\n" +
 	"\n" +
 	"namespaces\x18\x01 \x03(\tR\n" +
@@ -7677,7 +7694,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x19lookback_retention_period\x18\x05 \x01(\v2\x19.google.protobuf.DurationH\x01R\x17lookbackRetentionPeriod\x88\x01\x01\x12\\\n" +
 	"\x15source_file_reference\x18\x06 \x01(\v2#.chalk.graph.v1.SourceFileReferenceH\x02R\x13sourceFileReference\x88\x01\x01\x12\x86\x01\n" +
 	"\x1dobservation_sampling_strategy\x18\a \x01(\x0e2B.chalk.graph.v1.MaterializedFeatureViewObservationSamplingStrategyR\x1bobservationSamplingStrategy\x128\n" +
-	"\x15background_compaction\x18\b \x01(\bH\x03R\x14backgroundCompaction\x88\x01\x01B\x0e\n" +
+	"\x15background_compaction\x18\b \x01(\bH\x03R\x14backgroundCompaction\x88\x01\x01\x12\x1a\n" +
+	"\bfeatures\x18\t \x03(\tR\bfeaturesB\x0e\n" +
 	"\f_lower_boundB\x1c\n" +
 	"\x1a_lookback_retention_periodB\x18\n" +
 	"\x16_source_file_referenceB\x18\n" +

@@ -45,6 +45,12 @@ const (
 	// ClickhouseServiceGetClickhouseInfoProcedure is the fully-qualified name of the
 	// ClickhouseService's GetClickhouseInfo RPC.
 	ClickhouseServiceGetClickhouseInfoProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseInfo"
+	// ClickhouseServiceGetClickhouseRetentionHistoryProcedure is the fully-qualified name of the
+	// ClickhouseService's GetClickhouseRetentionHistory RPC.
+	ClickhouseServiceGetClickhouseRetentionHistoryProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseRetentionHistory"
+	// ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure is the fully-qualified name of the
+	// ClickhouseService's GetClickhouseAdminDiagnostics RPC.
+	ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseAdminDiagnostics"
 )
 
 // ClickhouseServiceClient is a client for the chalk.server.v1.ClickhouseService service.
@@ -54,6 +60,13 @@ type ClickhouseServiceClient interface {
 	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
 	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
 	GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error)
+	// Charts the retention and disk utilization gauges the telemetry TTL monitor
+	// emits for the environment's telemetry deployment, read from VictoriaMetrics.
+	GetClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error)
+	// Returns query-level performance data and physical table configuration.
+	// Keep this separate from GetClickhouseInfo so non-admin readers never receive
+	// normalized query text or operational schema details.
+	GetClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClickhouseAdminDiagnosticsResponse], error)
 }
 
 // NewClickhouseServiceClient constructs a client for the chalk.server.v1.ClickhouseService service.
@@ -94,15 +107,31 @@ func NewClickhouseServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getClickhouseRetentionHistory: connect.NewClient[v1.GetClickhouseRetentionHistoryRequest, v1.GetClickhouseRetentionHistoryResponse](
+			httpClient,
+			baseURL+ClickhouseServiceGetClickhouseRetentionHistoryProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseRetentionHistory")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getClickhouseAdminDiagnostics: connect.NewClient[v1.GetClickhouseAdminDiagnosticsRequest, v1.GetClickhouseAdminDiagnosticsResponse](
+			httpClient,
+			baseURL+ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseAdminDiagnostics")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // clickhouseServiceClient implements ClickhouseServiceClient.
 type clickhouseServiceClient struct {
-	getClickhouseUri      *connect.Client[v1.GetClickhouseUriRequest, v1.GetClickhouseUriResponse]
-	getClickhouseOtelTtls *connect.Client[v1.GetClickhouseOtelTtlsRequest, v1.GetClickhouseOtelTtlsResponse]
-	setClickhouseOtelTtls *connect.Client[v1.SetClickhouseOtelTtlsRequest, v1.SetClickhouseOtelTtlsResponse]
-	getClickhouseInfo     *connect.Client[v1.GetClickhouseInfoRequest, v1.GetClickhouseInfoResponse]
+	getClickhouseUri              *connect.Client[v1.GetClickhouseUriRequest, v1.GetClickhouseUriResponse]
+	getClickhouseOtelTtls         *connect.Client[v1.GetClickhouseOtelTtlsRequest, v1.GetClickhouseOtelTtlsResponse]
+	setClickhouseOtelTtls         *connect.Client[v1.SetClickhouseOtelTtlsRequest, v1.SetClickhouseOtelTtlsResponse]
+	getClickhouseInfo             *connect.Client[v1.GetClickhouseInfoRequest, v1.GetClickhouseInfoResponse]
+	getClickhouseRetentionHistory *connect.Client[v1.GetClickhouseRetentionHistoryRequest, v1.GetClickhouseRetentionHistoryResponse]
+	getClickhouseAdminDiagnostics *connect.Client[v1.GetClickhouseAdminDiagnosticsRequest, v1.GetClickhouseAdminDiagnosticsResponse]
 }
 
 // GetClickhouseUri calls chalk.server.v1.ClickhouseService.GetClickhouseUri.
@@ -125,6 +154,18 @@ func (c *clickhouseServiceClient) GetClickhouseInfo(ctx context.Context, req *co
 	return c.getClickhouseInfo.CallUnary(ctx, req)
 }
 
+// GetClickhouseRetentionHistory calls
+// chalk.server.v1.ClickhouseService.GetClickhouseRetentionHistory.
+func (c *clickhouseServiceClient) GetClickhouseRetentionHistory(ctx context.Context, req *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error) {
+	return c.getClickhouseRetentionHistory.CallUnary(ctx, req)
+}
+
+// GetClickhouseAdminDiagnostics calls
+// chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics.
+func (c *clickhouseServiceClient) GetClickhouseAdminDiagnostics(ctx context.Context, req *connect.Request[v1.GetClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClickhouseAdminDiagnosticsResponse], error) {
+	return c.getClickhouseAdminDiagnostics.CallUnary(ctx, req)
+}
+
 // ClickhouseServiceHandler is an implementation of the chalk.server.v1.ClickhouseService service.
 type ClickhouseServiceHandler interface {
 	// Get the Clickhouse connection URI for an environment
@@ -132,6 +173,13 @@ type ClickhouseServiceHandler interface {
 	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
 	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
 	GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error)
+	// Charts the retention and disk utilization gauges the telemetry TTL monitor
+	// emits for the environment's telemetry deployment, read from VictoriaMetrics.
+	GetClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error)
+	// Returns query-level performance data and physical table configuration.
+	// Keep this separate from GetClickhouseInfo so non-admin readers never receive
+	// normalized query text or operational schema details.
+	GetClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClickhouseAdminDiagnosticsResponse], error)
 }
 
 // NewClickhouseServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -168,6 +216,20 @@ func NewClickhouseServiceHandler(svc ClickhouseServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	clickhouseServiceGetClickhouseRetentionHistoryHandler := connect.NewUnaryHandler(
+		ClickhouseServiceGetClickhouseRetentionHistoryProcedure,
+		svc.GetClickhouseRetentionHistory,
+		connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseRetentionHistory")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	clickhouseServiceGetClickhouseAdminDiagnosticsHandler := connect.NewUnaryHandler(
+		ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure,
+		svc.GetClickhouseAdminDiagnostics,
+		connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseAdminDiagnostics")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ClickhouseService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ClickhouseServiceGetClickhouseUriProcedure:
@@ -178,6 +240,10 @@ func NewClickhouseServiceHandler(svc ClickhouseServiceHandler, opts ...connect.H
 			clickhouseServiceSetClickhouseOtelTtlsHandler.ServeHTTP(w, r)
 		case ClickhouseServiceGetClickhouseInfoProcedure:
 			clickhouseServiceGetClickhouseInfoHandler.ServeHTTP(w, r)
+		case ClickhouseServiceGetClickhouseRetentionHistoryProcedure:
+			clickhouseServiceGetClickhouseRetentionHistoryHandler.ServeHTTP(w, r)
+		case ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure:
+			clickhouseServiceGetClickhouseAdminDiagnosticsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -201,4 +267,12 @@ func (UnimplementedClickhouseServiceHandler) SetClickhouseOtelTtls(context.Conte
 
 func (UnimplementedClickhouseServiceHandler) GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseInfo is not implemented"))
+}
+
+func (UnimplementedClickhouseServiceHandler) GetClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseRetentionHistory is not implemented"))
+}
+
+func (UnimplementedClickhouseServiceHandler) GetClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClickhouseAdminDiagnosticsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics is not implemented"))
 }

@@ -1351,25 +1351,25 @@ const file_chalk_server_v1_sso_proto_rawDesc = "" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId2\xa1\x0e\n" +
 	"\n" +
 	"SsoService\x12l\n" +
-	"\x0fCreateScimToken\x12'.chalk.server.v1.CreateScimTokenRequest\x1a(.chalk.server.v1.CreateScimTokenResponse\"\x06\x80}\a\x90\x02\x02\x12x\n" +
-	"\x13ListSsoEmailDomains\x12+.chalk.server.v1.ListSsoEmailDomainsRequest\x1a,.chalk.server.v1.ListSsoEmailDomainsResponse\"\x06\x80}\n" +
+	"\x0fCreateScimToken\x12'.chalk.server.v1.CreateScimTokenRequest\x1a(.chalk.server.v1.CreateScimTokenResponse\"\x06\x88}\a\x90\x02\x02\x12x\n" +
+	"\x13ListSsoEmailDomains\x12+.chalk.server.v1.ListSsoEmailDomainsRequest\x1a,.chalk.server.v1.ListSsoEmailDomainsResponse\"\x06\x88}\n" +
 	"\x90\x02\x01\x12\x9e\x01\n" +
-	"\x14CreateSsoEmailDomain\x12,.chalk.server.v1.CreateSsoEmailDomainRequest\x1a-.chalk.server.v1.CreateSsoEmailDomainResponse\")\x80}\n" +
+	"\x14CreateSsoEmailDomain\x12,.chalk.server.v1.CreateSsoEmailDomainRequest\x1a-.chalk.server.v1.CreateSsoEmailDomainResponse\")\x88}\n" +
 	"\x8a\xd3\x0e\x1f\b\x02\x12\x1bCreated an SSO email domain\x90\x02\x02\x12\x9b\x01\n" +
-	"\x14UpdateSsoEmailDomain\x12,.chalk.server.v1.UpdateSsoEmailDomainRequest\x1a-.chalk.server.v1.UpdateSsoEmailDomainResponse\"&\x80}\n" +
+	"\x14UpdateSsoEmailDomain\x12,.chalk.server.v1.UpdateSsoEmailDomainRequest\x1a-.chalk.server.v1.UpdateSsoEmailDomainResponse\"&\x88}\n" +
 	"\x8a\xd3\x0e\x1f\b\x02\x12\x1bUpdated an SSO email domain\x12\x9b\x01\n" +
-	"\x14DeleteSsoEmailDomain\x12,.chalk.server.v1.DeleteSsoEmailDomainRequest\x1a-.chalk.server.v1.DeleteSsoEmailDomainResponse\"&\x80}\n" +
+	"\x14DeleteSsoEmailDomain\x12,.chalk.server.v1.DeleteSsoEmailDomainRequest\x1a-.chalk.server.v1.DeleteSsoEmailDomainResponse\"&\x88}\n" +
 	"\x8a\xd3\x0e\x1f\b\x02\x12\x1bDeleted an SSO email domain\x12\x9f\x01\n" +
-	" ListSignOnProviderConfigurations\x128.chalk.server.v1.ListSignOnProviderConfigurationsRequest\x1a9.chalk.server.v1.ListSignOnProviderConfigurationsResponse\"\x06\x80}\n" +
+	" ListSignOnProviderConfigurations\x128.chalk.server.v1.ListSignOnProviderConfigurationsRequest\x1a9.chalk.server.v1.ListSignOnProviderConfigurationsResponse\"\x06\x88}\n" +
 	"\x90\x02\x01\x12\xd7\x01\n" +
-	"!CreateSignOnProviderConfiguration\x129.chalk.server.v1.CreateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.CreateSignOnProviderConfigurationResponse\";\x80}\n" +
+	"!CreateSignOnProviderConfiguration\x129.chalk.server.v1.CreateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.CreateSignOnProviderConfigurationResponse\";\x88}\n" +
 	"\x8a\xd3\x0e1\b\x02\x12-Created a SAML sign-on provider configuration\x90\x02\x02\x12\xd4\x01\n" +
-	"!UpdateSignOnProviderConfiguration\x129.chalk.server.v1.UpdateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.UpdateSignOnProviderConfigurationResponse\"8\x80}\n" +
+	"!UpdateSignOnProviderConfiguration\x129.chalk.server.v1.UpdateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.UpdateSignOnProviderConfigurationResponse\"8\x88}\n" +
 	"\x8a\xd3\x0e1\b\x02\x12-Updated a SAML sign-on provider configuration\x12\xd4\x01\n" +
-	"!DeleteSignOnProviderConfiguration\x129.chalk.server.v1.DeleteSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.DeleteSignOnProviderConfigurationResponse\"8\x80}\n" +
+	"!DeleteSignOnProviderConfiguration\x129.chalk.server.v1.DeleteSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.DeleteSignOnProviderConfigurationResponse\"8\x88}\n" +
 	"\x8a\xd3\x0e1\b\x02\x12-Deleted a SAML sign-on provider configuration\x12\x8d\x01\n" +
 	"\x1aGetSignOnProvidersForEmail\x122.chalk.server.v1.GetSignOnProvidersForEmailRequest\x1a3.chalk.server.v1.GetSignOnProvidersForEmailResponse\"\x06\x80}\x01\x90\x02\x01\x12\x93\x01\n" +
-	"\x1cGetSamlConfigurationByIssuer\x124.chalk.server.v1.GetSamlConfigurationByIssuerRequest\x1a5.chalk.server.v1.GetSamlConfigurationByIssuerResponse\"\x06\x80}\x1d\x90\x02\x01B\xb8\x01\n" +
+	"\x1cGetSamlConfigurationByIssuer\x124.chalk.server.v1.GetSamlConfigurationByIssuerRequest\x1a5.chalk.server.v1.GetSamlConfigurationByIssuerResponse\"\x06\x88}\x1d\x90\x02\x01B\xb8\x01\n" +
 	"\x13com.chalk.server.v1B\bSsoProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (

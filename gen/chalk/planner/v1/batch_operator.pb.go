@@ -36,10 +36,11 @@ const (
 	OperatorType_OPERATOR_TYPE_ADD_INDEX_COL       OperatorType = 2
 	OperatorType_OPERATOR_TYPE_BATCH_AGG_OPERATOR  OperatorType = 3
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-	OperatorType_OPERATOR_TYPE_BATCH_DWHAGG_OPERATOR                          OperatorType = 4
-	OperatorType_OPERATOR_TYPE_BATCH_RENAME                                   OperatorType = 5
-	OperatorType_OPERATOR_TYPE_BIGTABLE_CACHE_LOOKUP                          OperatorType = 6
-	OperatorType_OPERATOR_TYPE_BLOOM_FILTER_PERSIST_OPERATOR                  OperatorType = 76
+	OperatorType_OPERATOR_TYPE_BATCH_DWHAGG_OPERATOR         OperatorType = 4
+	OperatorType_OPERATOR_TYPE_BATCH_RENAME                  OperatorType = 5
+	OperatorType_OPERATOR_TYPE_BIGTABLE_CACHE_LOOKUP         OperatorType = 6
+	OperatorType_OPERATOR_TYPE_BLOOM_FILTER_PERSIST_OPERATOR OperatorType = 76
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 	OperatorType_OPERATOR_TYPE_CACHE_LOOKUP                                   OperatorType = 7
 	OperatorType_OPERATOR_TYPE_CACHE_LOOKUP_HAS_MANY                          OperatorType = 8
 	OperatorType_OPERATOR_TYPE_COMPUTE_CRON_OUTPUT_SUMMARY                    OperatorType = 9
@@ -2219,7 +2220,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\bbehavior\" \n" +
 	"\x1eResolverRootUnderscoreBehavior\"f\n" +
 	"$StreamResolverRootUnderscoreBehavior\x12>\n" +
-	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\x85\x1b\n" +
+	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\x89\x1b\n" +
 	"\fOperatorType\x12\x1d\n" +
 	"\x19OPERATOR_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
 	"!OPERATOR_TYPE_ADD_CHILD_INDEX_COL\x10\x01\x12\x1f\n" +
@@ -2228,8 +2229,8 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"#OPERATOR_TYPE_BATCH_DWHAGG_OPERATOR\x10\x04\x1a\x02\b\x01\x12\x1e\n" +
 	"\x1aOPERATOR_TYPE_BATCH_RENAME\x10\x05\x12'\n" +
 	"#OPERATOR_TYPE_BIGTABLE_CACHE_LOOKUP\x10\x06\x12/\n" +
-	"+OPERATOR_TYPE_BLOOM_FILTER_PERSIST_OPERATOR\x10L\x12\x1e\n" +
-	"\x1aOPERATOR_TYPE_CACHE_LOOKUP\x10\a\x12'\n" +
+	"+OPERATOR_TYPE_BLOOM_FILTER_PERSIST_OPERATOR\x10L\x12\"\n" +
+	"\x1aOPERATOR_TYPE_CACHE_LOOKUP\x10\a\x1a\x02\b\x01\x12'\n" +
 	"#OPERATOR_TYPE_CACHE_LOOKUP_HAS_MANY\x10\b\x12-\n" +
 	")OPERATOR_TYPE_COMPUTE_CRON_OUTPUT_SUMMARY\x10\t\x12+\n" +
 	"'OPERATOR_TYPE_COMPUTE_RELEVANT_ROW_MASK\x10D\x12\"\n" +
