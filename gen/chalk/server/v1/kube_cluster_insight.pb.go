@@ -314,6 +314,101 @@ func (x *KubeClusterAutoscalingResourceLimit) GetMaximum() int64 {
 	return 0
 }
 
+// Complete desired set of GPU resource limits for GKE Node Auto-Provisioning.
+// The wrapper preserves presence so an empty limits list can explicitly remove
+// every GPU type while an omitted field leaves the current limits unchanged.
+type KubeClusterGKEGPUResourceLimits struct {
+	state         protoimpl.MessageState                 `protogen:"open.v1"`
+	Limits        []*KubeClusterAutoscalingResourceLimit `protobuf:"bytes,1,rep,name=limits,proto3" json:"limits,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KubeClusterGKEGPUResourceLimits) Reset() {
+	*x = KubeClusterGKEGPUResourceLimits{}
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubeClusterGKEGPUResourceLimits) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubeClusterGKEGPUResourceLimits) ProtoMessage() {}
+
+func (x *KubeClusterGKEGPUResourceLimits) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubeClusterGKEGPUResourceLimits.ProtoReflect.Descriptor instead.
+func (*KubeClusterGKEGPUResourceLimits) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *KubeClusterGKEGPUResourceLimits) GetLimits() []*KubeClusterAutoscalingResourceLimit {
+	if x != nil {
+		return x.Limits
+	}
+	return nil
+}
+
+// Complete desired set of locations for GKE Node Auto-Provisioning. The
+// wrapper preserves presence so an empty locations list can explicitly return
+// NAP to the cluster defaults while an omitted field leaves the current
+// locations unchanged.
+type KubeClusterGKENAPLocations struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Locations     []string               `protobuf:"bytes,1,rep,name=locations,proto3" json:"locations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KubeClusterGKENAPLocations) Reset() {
+	*x = KubeClusterGKENAPLocations{}
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubeClusterGKENAPLocations) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubeClusterGKENAPLocations) ProtoMessage() {}
+
+func (x *KubeClusterGKENAPLocations) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubeClusterGKENAPLocations.ProtoReflect.Descriptor instead.
+func (*KubeClusterGKENAPLocations) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *KubeClusterGKENAPLocations) GetLocations() []string {
+	if x != nil {
+		return x.Locations
+	}
+	return nil
+}
+
 // GKE Node Auto-Provisioning (NAP) configuration from
 // ClusterAutoscaling. These are cluster-level settings rather than
 // per-nodepool values.
@@ -339,7 +434,7 @@ type KubeClusterGKENodeAutoprovisioningConfig struct {
 
 func (x *KubeClusterGKENodeAutoprovisioningConfig) Reset() {
 	*x = KubeClusterGKENodeAutoprovisioningConfig{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -351,7 +446,7 @@ func (x *KubeClusterGKENodeAutoprovisioningConfig) String() string {
 func (*KubeClusterGKENodeAutoprovisioningConfig) ProtoMessage() {}
 
 func (x *KubeClusterGKENodeAutoprovisioningConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -364,7 +459,7 @@ func (x *KubeClusterGKENodeAutoprovisioningConfig) ProtoReflect() protoreflect.M
 
 // Deprecated: Use KubeClusterGKENodeAutoprovisioningConfig.ProtoReflect.Descriptor instead.
 func (*KubeClusterGKENodeAutoprovisioningConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *KubeClusterGKENodeAutoprovisioningConfig) GetEnabled() bool {
@@ -472,7 +567,7 @@ type KubeCluster struct {
 
 func (x *KubeCluster) Reset() {
 	*x = KubeCluster{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -484,7 +579,7 @@ func (x *KubeCluster) String() string {
 func (*KubeCluster) ProtoMessage() {}
 
 func (x *KubeCluster) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -497,7 +592,7 @@ func (x *KubeCluster) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubeCluster.ProtoReflect.Descriptor instead.
 func (*KubeCluster) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *KubeCluster) GetProvider() KubeClusterProvider {
@@ -592,7 +687,7 @@ type ListKubeClustersRequest struct {
 
 func (x *ListKubeClustersRequest) Reset() {
 	*x = ListKubeClustersRequest{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -604,7 +699,7 @@ func (x *ListKubeClustersRequest) String() string {
 func (*ListKubeClustersRequest) ProtoMessage() {}
 
 func (x *ListKubeClustersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -617,7 +712,7 @@ func (x *ListKubeClustersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListKubeClustersRequest.ProtoReflect.Descriptor instead.
 func (*ListKubeClustersRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{6}
 }
 
 type ListKubeClustersResponse struct {
@@ -632,7 +727,7 @@ type ListKubeClustersResponse struct {
 
 func (x *ListKubeClustersResponse) Reset() {
 	*x = ListKubeClustersResponse{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -644,7 +739,7 @@ func (x *ListKubeClustersResponse) String() string {
 func (*ListKubeClustersResponse) ProtoMessage() {}
 
 func (x *ListKubeClustersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -657,7 +752,7 @@ func (x *ListKubeClustersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListKubeClustersResponse.ProtoReflect.Descriptor instead.
 func (*ListKubeClustersResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListKubeClustersResponse) GetClusters() []*KubeCluster {
@@ -678,7 +773,7 @@ type GetKubeClusterRequest struct {
 
 func (x *GetKubeClusterRequest) Reset() {
 	*x = GetKubeClusterRequest{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -690,7 +785,7 @@ func (x *GetKubeClusterRequest) String() string {
 func (*GetKubeClusterRequest) ProtoMessage() {}
 
 func (x *GetKubeClusterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -703,7 +798,7 @@ func (x *GetKubeClusterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubeClusterRequest.ProtoReflect.Descriptor instead.
 func (*GetKubeClusterRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetKubeClusterRequest) GetClusterName() string {
@@ -723,7 +818,7 @@ type GetKubeClusterResponse struct {
 
 func (x *GetKubeClusterResponse) Reset() {
 	*x = GetKubeClusterResponse{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -735,7 +830,7 @@ func (x *GetKubeClusterResponse) String() string {
 func (*GetKubeClusterResponse) ProtoMessage() {}
 
 func (x *GetKubeClusterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -748,7 +843,7 @@ func (x *GetKubeClusterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubeClusterResponse.ProtoReflect.Descriptor instead.
 func (*GetKubeClusterResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetKubeClusterResponse) GetCluster() *KubeCluster {
@@ -766,13 +861,19 @@ type UpdateGKEClusterRequest struct {
 	AutoscalingMaxCpu           *int64 `protobuf:"varint,3,opt,name=autoscaling_max_cpu,json=autoscalingMaxCpu,proto3,oneof" json:"autoscaling_max_cpu,omitempty"`
 	AutoscalingMinMemory        *int64 `protobuf:"varint,4,opt,name=autoscaling_min_memory,json=autoscalingMinMemory,proto3,oneof" json:"autoscaling_min_memory,omitempty"`
 	AutoscalingMaxMemory        *int64 `protobuf:"varint,5,opt,name=autoscaling_max_memory,json=autoscalingMaxMemory,proto3,oneof" json:"autoscaling_max_memory,omitempty"`
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	// When present, replaces all GPU resource limits while preserving CPU,
+	// memory, and non-GPU accelerator limits.
+	GpuResourceLimits *KubeClusterGKEGPUResourceLimits `protobuf:"bytes,6,opt,name=gpu_resource_limits,json=gpuResourceLimits,proto3" json:"gpu_resource_limits,omitempty"`
+	// When present, replaces the zones where NAP may create node pools. An
+	// empty list makes GKE use the cluster's default locations.
+	AutoprovisioningLocations *KubeClusterGKENAPLocations `protobuf:"bytes,7,opt,name=autoprovisioning_locations,json=autoprovisioningLocations,proto3" json:"autoprovisioning_locations,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *UpdateGKEClusterRequest) Reset() {
 	*x = UpdateGKEClusterRequest{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -784,7 +885,7 @@ func (x *UpdateGKEClusterRequest) String() string {
 func (*UpdateGKEClusterRequest) ProtoMessage() {}
 
 func (x *UpdateGKEClusterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -797,7 +898,7 @@ func (x *UpdateGKEClusterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateGKEClusterRequest.ProtoReflect.Descriptor instead.
 func (*UpdateGKEClusterRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateGKEClusterRequest) GetNodeAutoprovisioningEnabled() bool {
@@ -835,6 +936,20 @@ func (x *UpdateGKEClusterRequest) GetAutoscalingMaxMemory() int64 {
 	return 0
 }
 
+func (x *UpdateGKEClusterRequest) GetGpuResourceLimits() *KubeClusterGKEGPUResourceLimits {
+	if x != nil {
+		return x.GpuResourceLimits
+	}
+	return nil
+}
+
+func (x *UpdateGKEClusterRequest) GetAutoprovisioningLocations() *KubeClusterGKENAPLocations {
+	if x != nil {
+		return x.AutoprovisioningLocations
+	}
+	return nil
+}
+
 type UpdateEKSClusterRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -843,7 +958,7 @@ type UpdateEKSClusterRequest struct {
 
 func (x *UpdateEKSClusterRequest) Reset() {
 	*x = UpdateEKSClusterRequest{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -855,7 +970,7 @@ func (x *UpdateEKSClusterRequest) String() string {
 func (*UpdateEKSClusterRequest) ProtoMessage() {}
 
 func (x *UpdateEKSClusterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -868,7 +983,7 @@ func (x *UpdateEKSClusterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEKSClusterRequest.ProtoReflect.Descriptor instead.
 func (*UpdateEKSClusterRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{11}
 }
 
 type UpdateAKSClusterRequest struct {
@@ -879,7 +994,7 @@ type UpdateAKSClusterRequest struct {
 
 func (x *UpdateAKSClusterRequest) Reset() {
 	*x = UpdateAKSClusterRequest{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -891,7 +1006,7 @@ func (x *UpdateAKSClusterRequest) String() string {
 func (*UpdateAKSClusterRequest) ProtoMessage() {}
 
 func (x *UpdateAKSClusterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -904,7 +1019,7 @@ func (x *UpdateAKSClusterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAKSClusterRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAKSClusterRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{12}
 }
 
 type UpdateKubeClusterRequest struct {
@@ -924,7 +1039,7 @@ type UpdateKubeClusterRequest struct {
 
 func (x *UpdateKubeClusterRequest) Reset() {
 	*x = UpdateKubeClusterRequest{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -936,7 +1051,7 @@ func (x *UpdateKubeClusterRequest) String() string {
 func (*UpdateKubeClusterRequest) ProtoMessage() {}
 
 func (x *UpdateKubeClusterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -949,7 +1064,7 @@ func (x *UpdateKubeClusterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateKubeClusterRequest.ProtoReflect.Descriptor instead.
 func (*UpdateKubeClusterRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateKubeClusterRequest) GetClusterName() string {
@@ -1025,7 +1140,7 @@ type UpdateKubeClusterResponse struct {
 
 func (x *UpdateKubeClusterResponse) Reset() {
 	*x = UpdateKubeClusterResponse{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1037,7 +1152,7 @@ func (x *UpdateKubeClusterResponse) String() string {
 func (*UpdateKubeClusterResponse) ProtoMessage() {}
 
 func (x *UpdateKubeClusterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1050,7 +1165,7 @@ func (x *UpdateKubeClusterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateKubeClusterResponse.ProtoReflect.Descriptor instead.
 func (*UpdateKubeClusterResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UpdateKubeClusterResponse) GetCluster() *KubeCluster {
@@ -1074,7 +1189,7 @@ type GetKubeClusterMetricsRequest struct {
 
 func (x *GetKubeClusterMetricsRequest) Reset() {
 	*x = GetKubeClusterMetricsRequest{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1086,7 +1201,7 @@ func (x *GetKubeClusterMetricsRequest) String() string {
 func (*GetKubeClusterMetricsRequest) ProtoMessage() {}
 
 func (x *GetKubeClusterMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1099,7 +1214,7 @@ func (x *GetKubeClusterMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubeClusterMetricsRequest.ProtoReflect.Descriptor instead.
 func (*GetKubeClusterMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetKubeClusterMetricsRequest) GetClusterName() string {
@@ -1138,7 +1253,7 @@ type GetKubeClusterMetricsResponse struct {
 
 func (x *GetKubeClusterMetricsResponse) Reset() {
 	*x = GetKubeClusterMetricsResponse{}
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1150,7 +1265,7 @@ func (x *GetKubeClusterMetricsResponse) String() string {
 func (*GetKubeClusterMetricsResponse) ProtoMessage() {}
 
 func (x *GetKubeClusterMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1163,7 +1278,7 @@ func (x *GetKubeClusterMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKubeClusterMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetKubeClusterMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetKubeClusterMetricsResponse) GetCharts() []*Chart {
@@ -1197,7 +1312,11 @@ const file_chalk_server_v1_kube_cluster_insight_proto_rawDesc = "" +
 	"#KubeClusterAutoscalingResourceLimit\x12#\n" +
 	"\rresource_type\x18\x01 \x01(\tR\fresourceType\x12\x18\n" +
 	"\aminimum\x18\x02 \x01(\x03R\aminimum\x12\x18\n" +
-	"\amaximum\x18\x03 \x01(\x03R\amaximum\"\xe3\x03\n" +
+	"\amaximum\x18\x03 \x01(\x03R\amaximum\"o\n" +
+	"\x1fKubeClusterGKEGPUResourceLimits\x12L\n" +
+	"\x06limits\x18\x01 \x03(\v24.chalk.server.v1.KubeClusterAutoscalingResourceLimitR\x06limits\":\n" +
+	"\x1aKubeClusterGKENAPLocations\x12\x1c\n" +
+	"\tlocations\x18\x01 \x03(\tR\tlocations\"\xe3\x03\n" +
 	"(KubeClusterGKENodeAutoprovisioningConfig\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12/\n" +
 	"\x13autoscaling_profile\x18\x02 \x01(\tR\x12autoscalingProfile\x12=\n" +
@@ -1229,13 +1348,15 @@ const file_chalk_server_v1_kube_cluster_insight_proto_rawDesc = "" +
 	"\x15GetKubeClusterRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\"P\n" +
 	"\x16GetKubeClusterResponse\x126\n" +
-	"\acluster\x18\x01 \x01(\v2\x1c.chalk.server.v1.KubeClusterR\acluster\"\xca\x03\n" +
+	"\acluster\x18\x01 \x01(\v2\x1c.chalk.server.v1.KubeClusterR\acluster\"\x98\x05\n" +
 	"\x17UpdateGKEClusterRequest\x12G\n" +
 	"\x1dnode_autoprovisioning_enabled\x18\x01 \x01(\bH\x00R\x1bnodeAutoprovisioningEnabled\x88\x01\x01\x123\n" +
 	"\x13autoscaling_min_cpu\x18\x02 \x01(\x03H\x01R\x11autoscalingMinCpu\x88\x01\x01\x123\n" +
 	"\x13autoscaling_max_cpu\x18\x03 \x01(\x03H\x02R\x11autoscalingMaxCpu\x88\x01\x01\x129\n" +
 	"\x16autoscaling_min_memory\x18\x04 \x01(\x03H\x03R\x14autoscalingMinMemory\x88\x01\x01\x129\n" +
-	"\x16autoscaling_max_memory\x18\x05 \x01(\x03H\x04R\x14autoscalingMaxMemory\x88\x01\x01B \n" +
+	"\x16autoscaling_max_memory\x18\x05 \x01(\x03H\x04R\x14autoscalingMaxMemory\x88\x01\x01\x12`\n" +
+	"\x13gpu_resource_limits\x18\x06 \x01(\v20.chalk.server.v1.KubeClusterGKEGPUResourceLimitsR\x11gpuResourceLimits\x12j\n" +
+	"\x1aautoprovisioning_locations\x18\a \x01(\v2+.chalk.server.v1.KubeClusterGKENAPLocationsR\x19autoprovisioningLocationsB \n" +
 	"\x1e_node_autoprovisioning_enabledB\x16\n" +
 	"\x14_autoscaling_min_cpuB\x16\n" +
 	"\x14_autoscaling_max_cpuB\x19\n" +
@@ -1289,53 +1410,58 @@ func file_chalk_server_v1_kube_cluster_insight_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_kube_cluster_insight_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_kube_cluster_insight_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_server_v1_kube_cluster_insight_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_chalk_server_v1_kube_cluster_insight_proto_goTypes = []any{
 	(KubeClusterProvider)(0),                         // 0: chalk.server.v1.KubeClusterProvider
 	(KubeClusterMetricsTimeRange)(0),                 // 1: chalk.server.v1.KubeClusterMetricsTimeRange
 	(*KubeNodePool)(nil),                             // 2: chalk.server.v1.KubeNodePool
 	(*KubeClusterAutoscalingResourceLimit)(nil),      // 3: chalk.server.v1.KubeClusterAutoscalingResourceLimit
-	(*KubeClusterGKENodeAutoprovisioningConfig)(nil), // 4: chalk.server.v1.KubeClusterGKENodeAutoprovisioningConfig
-	(*KubeCluster)(nil),                              // 5: chalk.server.v1.KubeCluster
-	(*ListKubeClustersRequest)(nil),                  // 6: chalk.server.v1.ListKubeClustersRequest
-	(*ListKubeClustersResponse)(nil),                 // 7: chalk.server.v1.ListKubeClustersResponse
-	(*GetKubeClusterRequest)(nil),                    // 8: chalk.server.v1.GetKubeClusterRequest
-	(*GetKubeClusterResponse)(nil),                   // 9: chalk.server.v1.GetKubeClusterResponse
-	(*UpdateGKEClusterRequest)(nil),                  // 10: chalk.server.v1.UpdateGKEClusterRequest
-	(*UpdateEKSClusterRequest)(nil),                  // 11: chalk.server.v1.UpdateEKSClusterRequest
-	(*UpdateAKSClusterRequest)(nil),                  // 12: chalk.server.v1.UpdateAKSClusterRequest
-	(*UpdateKubeClusterRequest)(nil),                 // 13: chalk.server.v1.UpdateKubeClusterRequest
-	(*UpdateKubeClusterResponse)(nil),                // 14: chalk.server.v1.UpdateKubeClusterResponse
-	(*GetKubeClusterMetricsRequest)(nil),             // 15: chalk.server.v1.GetKubeClusterMetricsRequest
-	(*GetKubeClusterMetricsResponse)(nil),            // 16: chalk.server.v1.GetKubeClusterMetricsResponse
-	(*Chart)(nil),                                    // 17: chalk.server.v1.Chart
+	(*KubeClusterGKEGPUResourceLimits)(nil),          // 4: chalk.server.v1.KubeClusterGKEGPUResourceLimits
+	(*KubeClusterGKENAPLocations)(nil),               // 5: chalk.server.v1.KubeClusterGKENAPLocations
+	(*KubeClusterGKENodeAutoprovisioningConfig)(nil), // 6: chalk.server.v1.KubeClusterGKENodeAutoprovisioningConfig
+	(*KubeCluster)(nil),                              // 7: chalk.server.v1.KubeCluster
+	(*ListKubeClustersRequest)(nil),                  // 8: chalk.server.v1.ListKubeClustersRequest
+	(*ListKubeClustersResponse)(nil),                 // 9: chalk.server.v1.ListKubeClustersResponse
+	(*GetKubeClusterRequest)(nil),                    // 10: chalk.server.v1.GetKubeClusterRequest
+	(*GetKubeClusterResponse)(nil),                   // 11: chalk.server.v1.GetKubeClusterResponse
+	(*UpdateGKEClusterRequest)(nil),                  // 12: chalk.server.v1.UpdateGKEClusterRequest
+	(*UpdateEKSClusterRequest)(nil),                  // 13: chalk.server.v1.UpdateEKSClusterRequest
+	(*UpdateAKSClusterRequest)(nil),                  // 14: chalk.server.v1.UpdateAKSClusterRequest
+	(*UpdateKubeClusterRequest)(nil),                 // 15: chalk.server.v1.UpdateKubeClusterRequest
+	(*UpdateKubeClusterResponse)(nil),                // 16: chalk.server.v1.UpdateKubeClusterResponse
+	(*GetKubeClusterMetricsRequest)(nil),             // 17: chalk.server.v1.GetKubeClusterMetricsRequest
+	(*GetKubeClusterMetricsResponse)(nil),            // 18: chalk.server.v1.GetKubeClusterMetricsResponse
+	(*Chart)(nil),                                    // 19: chalk.server.v1.Chart
 }
 var file_chalk_server_v1_kube_cluster_insight_proto_depIdxs = []int32{
-	0,  // 0: chalk.server.v1.KubeCluster.provider:type_name -> chalk.server.v1.KubeClusterProvider
-	2,  // 1: chalk.server.v1.KubeCluster.node_pools:type_name -> chalk.server.v1.KubeNodePool
-	3,  // 2: chalk.server.v1.KubeCluster.autoscaling_resource_limits:type_name -> chalk.server.v1.KubeClusterAutoscalingResourceLimit
-	4,  // 3: chalk.server.v1.KubeCluster.gke_node_autoprovisioning:type_name -> chalk.server.v1.KubeClusterGKENodeAutoprovisioningConfig
-	5,  // 4: chalk.server.v1.ListKubeClustersResponse.clusters:type_name -> chalk.server.v1.KubeCluster
-	5,  // 5: chalk.server.v1.GetKubeClusterResponse.cluster:type_name -> chalk.server.v1.KubeCluster
-	10, // 6: chalk.server.v1.UpdateKubeClusterRequest.gke:type_name -> chalk.server.v1.UpdateGKEClusterRequest
-	11, // 7: chalk.server.v1.UpdateKubeClusterRequest.eks:type_name -> chalk.server.v1.UpdateEKSClusterRequest
-	12, // 8: chalk.server.v1.UpdateKubeClusterRequest.aks:type_name -> chalk.server.v1.UpdateAKSClusterRequest
-	5,  // 9: chalk.server.v1.UpdateKubeClusterResponse.cluster:type_name -> chalk.server.v1.KubeCluster
-	1,  // 10: chalk.server.v1.GetKubeClusterMetricsRequest.time_range:type_name -> chalk.server.v1.KubeClusterMetricsTimeRange
-	17, // 11: chalk.server.v1.GetKubeClusterMetricsResponse.charts:type_name -> chalk.server.v1.Chart
-	6,  // 12: chalk.server.v1.KubeClusterInsightService.ListKubeClusters:input_type -> chalk.server.v1.ListKubeClustersRequest
-	8,  // 13: chalk.server.v1.KubeClusterInsightService.GetKubeCluster:input_type -> chalk.server.v1.GetKubeClusterRequest
-	13, // 14: chalk.server.v1.KubeClusterInsightService.UpdateKubeCluster:input_type -> chalk.server.v1.UpdateKubeClusterRequest
-	15, // 15: chalk.server.v1.KubeClusterInsightService.GetKubeClusterMetrics:input_type -> chalk.server.v1.GetKubeClusterMetricsRequest
-	7,  // 16: chalk.server.v1.KubeClusterInsightService.ListKubeClusters:output_type -> chalk.server.v1.ListKubeClustersResponse
-	9,  // 17: chalk.server.v1.KubeClusterInsightService.GetKubeCluster:output_type -> chalk.server.v1.GetKubeClusterResponse
-	14, // 18: chalk.server.v1.KubeClusterInsightService.UpdateKubeCluster:output_type -> chalk.server.v1.UpdateKubeClusterResponse
-	16, // 19: chalk.server.v1.KubeClusterInsightService.GetKubeClusterMetrics:output_type -> chalk.server.v1.GetKubeClusterMetricsResponse
-	16, // [16:20] is the sub-list for method output_type
-	12, // [12:16] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	3,  // 0: chalk.server.v1.KubeClusterGKEGPUResourceLimits.limits:type_name -> chalk.server.v1.KubeClusterAutoscalingResourceLimit
+	0,  // 1: chalk.server.v1.KubeCluster.provider:type_name -> chalk.server.v1.KubeClusterProvider
+	2,  // 2: chalk.server.v1.KubeCluster.node_pools:type_name -> chalk.server.v1.KubeNodePool
+	3,  // 3: chalk.server.v1.KubeCluster.autoscaling_resource_limits:type_name -> chalk.server.v1.KubeClusterAutoscalingResourceLimit
+	6,  // 4: chalk.server.v1.KubeCluster.gke_node_autoprovisioning:type_name -> chalk.server.v1.KubeClusterGKENodeAutoprovisioningConfig
+	7,  // 5: chalk.server.v1.ListKubeClustersResponse.clusters:type_name -> chalk.server.v1.KubeCluster
+	7,  // 6: chalk.server.v1.GetKubeClusterResponse.cluster:type_name -> chalk.server.v1.KubeCluster
+	4,  // 7: chalk.server.v1.UpdateGKEClusterRequest.gpu_resource_limits:type_name -> chalk.server.v1.KubeClusterGKEGPUResourceLimits
+	5,  // 8: chalk.server.v1.UpdateGKEClusterRequest.autoprovisioning_locations:type_name -> chalk.server.v1.KubeClusterGKENAPLocations
+	12, // 9: chalk.server.v1.UpdateKubeClusterRequest.gke:type_name -> chalk.server.v1.UpdateGKEClusterRequest
+	13, // 10: chalk.server.v1.UpdateKubeClusterRequest.eks:type_name -> chalk.server.v1.UpdateEKSClusterRequest
+	14, // 11: chalk.server.v1.UpdateKubeClusterRequest.aks:type_name -> chalk.server.v1.UpdateAKSClusterRequest
+	7,  // 12: chalk.server.v1.UpdateKubeClusterResponse.cluster:type_name -> chalk.server.v1.KubeCluster
+	1,  // 13: chalk.server.v1.GetKubeClusterMetricsRequest.time_range:type_name -> chalk.server.v1.KubeClusterMetricsTimeRange
+	19, // 14: chalk.server.v1.GetKubeClusterMetricsResponse.charts:type_name -> chalk.server.v1.Chart
+	8,  // 15: chalk.server.v1.KubeClusterInsightService.ListKubeClusters:input_type -> chalk.server.v1.ListKubeClustersRequest
+	10, // 16: chalk.server.v1.KubeClusterInsightService.GetKubeCluster:input_type -> chalk.server.v1.GetKubeClusterRequest
+	15, // 17: chalk.server.v1.KubeClusterInsightService.UpdateKubeCluster:input_type -> chalk.server.v1.UpdateKubeClusterRequest
+	17, // 18: chalk.server.v1.KubeClusterInsightService.GetKubeClusterMetrics:input_type -> chalk.server.v1.GetKubeClusterMetricsRequest
+	9,  // 19: chalk.server.v1.KubeClusterInsightService.ListKubeClusters:output_type -> chalk.server.v1.ListKubeClustersResponse
+	11, // 20: chalk.server.v1.KubeClusterInsightService.GetKubeCluster:output_type -> chalk.server.v1.GetKubeClusterResponse
+	16, // 21: chalk.server.v1.KubeClusterInsightService.UpdateKubeCluster:output_type -> chalk.server.v1.UpdateKubeClusterResponse
+	18, // 22: chalk.server.v1.KubeClusterInsightService.GetKubeClusterMetrics:output_type -> chalk.server.v1.GetKubeClusterMetricsResponse
+	19, // [19:23] is the sub-list for method output_type
+	15, // [15:19] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_kube_cluster_insight_proto_init() }
@@ -1344,8 +1470,8 @@ func file_chalk_server_v1_kube_cluster_insight_proto_init() {
 		return
 	}
 	file_chalk_server_v1_chart_proto_init()
-	file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[11].OneofWrappers = []any{
+	file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_server_v1_kube_cluster_insight_proto_msgTypes[13].OneofWrappers = []any{
 		(*UpdateKubeClusterRequest_Gke)(nil),
 		(*UpdateKubeClusterRequest_Eks)(nil),
 		(*UpdateKubeClusterRequest_Aks)(nil),
@@ -1356,7 +1482,7 @@ func file_chalk_server_v1_kube_cluster_insight_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_kube_cluster_insight_proto_rawDesc), len(file_chalk_server_v1_kube_cluster_insight_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

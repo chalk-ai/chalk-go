@@ -1080,6 +1080,7 @@ type CreditBundle struct {
 	PurchasePrice    int32                  `protobuf:"varint,4,opt,name=purchase_price,json=purchasePrice,proto3" json:"purchase_price,omitempty"`
 	ExpiresOn        *date.Date             `protobuf:"bytes,5,opt,name=expires_on,json=expiresOn,proto3,oneof" json:"expires_on,omitempty"`
 	RemainingCredits int32                  `protobuf:"varint,6,opt,name=remaining_credits,json=remainingCredits,proto3" json:"remaining_credits,omitempty"`
+	BillingModel     string                 `protobuf:"bytes,7,opt,name=billing_model,json=billingModel,proto3" json:"billing_model,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1154,6 +1155,13 @@ func (x *CreditBundle) GetRemainingCredits() int32 {
 		return x.RemainingCredits
 	}
 	return 0
+}
+
+func (x *CreditBundle) GetBillingModel() string {
+	if x != nil {
+		return x.BillingModel
+	}
+	return ""
 }
 
 type GetInstanceUsageRequest struct {
@@ -2782,7 +2790,7 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"\x17SyncUtilizationResponse\"\x19\n" +
 	"\x17GetCreditBundlesRequest\"S\n" +
 	"\x18GetCreditBundlesResponse\x127\n" +
-	"\abundles\x18\x01 \x03(\v2\x1d.chalk.server.v1.CreditBundleR\abundles\"\xa6\x02\n" +
+	"\abundles\x18\x01 \x03(\v2\x1d.chalk.server.v1.CreditBundleR\abundles\"\xcb\x02\n" +
 	"\fCreditBundle\x12\x1b\n" +
 	"\tbundle_id\x18\x01 \x01(\tR\bbundleId\x126\n" +
 	"\rpurchase_date\x18\x02 \x01(\v2\x11.google.type.DateR\fpurchaseDate\x12'\n" +
@@ -2790,7 +2798,8 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"\x0epurchase_price\x18\x04 \x01(\x05R\rpurchasePrice\x125\n" +
 	"\n" +
 	"expires_on\x18\x05 \x01(\v2\x11.google.type.DateH\x00R\texpiresOn\x88\x01\x01\x12+\n" +
-	"\x11remaining_credits\x18\x06 \x01(\x05R\x10remainingCreditsB\r\n" +
+	"\x11remaining_credits\x18\x06 \x01(\x05R\x10remainingCredits\x12#\n" +
+	"\rbilling_model\x18\a \x01(\tR\fbillingModelB\r\n" +
 	"\v_expires_on\"\xac\x01\n" +
 	"\x17GetInstanceUsageRequest\x12\x1e\n" +
 	"\bstart_ms\x18\x01 \x01(\x03H\x00R\astartMs\x88\x01\x01\x12\x1a\n" +
