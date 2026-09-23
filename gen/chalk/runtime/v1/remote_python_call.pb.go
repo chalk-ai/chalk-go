@@ -687,14 +687,8 @@ func (*StreamRemoteCallBatchRequest_Finish) isStreamRemoteCallBatchRequest_Reque
 func (*StreamRemoteCallBatchRequest_Cancel) isStreamRemoteCallBatchRequest_Request() {}
 
 type RemoteCallBatchOpened struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	BatchId string                 `protobuf:"bytes,1,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
-	// True once the server has durably observed FinishRemoteCallBatchSubmission.
-	SubmissionFinished bool `protobuf:"varint,2,opt,name=submission_finished,json=submissionFinished,proto3" json:"submission_finished,omitempty"`
-	// The next transport chunk the server will accept for this batch.
-	NextChunkIndex uint64 `protobuf:"varint,3,opt,name=next_chunk_index,json=nextChunkIndex,proto3" json:"next_chunk_index,omitempty"`
-	// The first row index the server expects in next_chunk_index.
-	NextRowIndex  uint64 `protobuf:"varint,4,opt,name=next_row_index,json=nextRowIndex,proto3" json:"next_row_index,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BatchId       string                 `protobuf:"bytes,1,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -734,27 +728,6 @@ func (x *RemoteCallBatchOpened) GetBatchId() string {
 		return x.BatchId
 	}
 	return ""
-}
-
-func (x *RemoteCallBatchOpened) GetSubmissionFinished() bool {
-	if x != nil {
-		return x.SubmissionFinished
-	}
-	return false
-}
-
-func (x *RemoteCallBatchOpened) GetNextChunkIndex() uint64 {
-	if x != nil {
-		return x.NextChunkIndex
-	}
-	return 0
-}
-
-func (x *RemoteCallBatchOpened) GetNextRowIndex() uint64 {
-	if x != nil {
-		return x.NextRowIndex
-	}
-	return 0
 }
 
 type RemoteCallBatchCall struct {
@@ -1931,12 +1904,9 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\x06submit\x18\x02 \x01(\v2,.chalk.runtime.v1.SubmitRemoteCallBatchChunkH\x00R\x06submit\x12K\n" +
 	"\x06finish\x18\x03 \x01(\v21.chalk.runtime.v1.FinishRemoteCallBatchSubmissionH\x00R\x06finish\x12A\n" +
 	"\x06cancel\x18\x04 \x01(\v2'.chalk.runtime.v1.CancelRemoteCallBatchH\x00R\x06cancelB\t\n" +
-	"\arequest\"\xb3\x01\n" +
+	"\arequest\"2\n" +
 	"\x15RemoteCallBatchOpened\x12\x19\n" +
-	"\bbatch_id\x18\x01 \x01(\tR\abatchId\x12/\n" +
-	"\x13submission_finished\x18\x02 \x01(\bR\x12submissionFinished\x12(\n" +
-	"\x10next_chunk_index\x18\x03 \x01(\x04R\x0enextChunkIndex\x12$\n" +
-	"\x0enext_row_index\x18\x04 \x01(\x04R\fnextRowIndex\"K\n" +
+	"\bbatch_id\x18\x01 \x01(\tR\abatchId\"K\n" +
 	"\x13RemoteCallBatchCall\x12\x1b\n" +
 	"\trow_index\x18\x01 \x01(\x04R\browIndex\x12\x17\n" +
 	"\acall_id\x18\x02 \x01(\tR\x06callId\"|\n" +

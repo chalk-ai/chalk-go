@@ -1339,28 +1339,14 @@ func (x *GetClickhouseRetentionHistoryRequest) GetStep() *durationpb.Duration {
 	return nil
 }
 
-// Every chart is sampled on the same time grid from the gauges the cluster
-// manager publishes for the environment's telemetry ClickHouse.
 type GetClickhouseRetentionHistoryResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Log and trace TTL in days.
+	// Log and trace TTL in days, as the telemetry TTL monitor reported them over time.
 	Retention *v1.DenseTimeSeriesChart `protobuf:"bytes,1,opt,name=retention,proto3" json:"retention,omitempty"`
 	// Data disk utilization in percent, together with the auto-adjuster's target.
 	DiskUtilization *v1.DenseTimeSeriesChart `protobuf:"bytes,2,opt,name=disk_utilization,json=diskUtilization,proto3" json:"disk_utilization,omitempty"`
-	// CPU cores used by the ClickHouse process, averaged over each gauge interval.
-	Cpu *v1.DenseTimeSeriesChart `protobuf:"bytes,3,opt,name=cpu,proto3" json:"cpu,omitempty"`
-	// Resident and tracked memory in bytes, with the cgroup limit when one is set.
-	Memory *v1.DenseTimeSeriesChart `protobuf:"bytes,4,opt,name=memory,proto3" json:"memory,omitempty"`
-	// Active MergeTree parts in total and in the most fragmented partition.
-	Parts *v1.DenseTimeSeriesChart `protobuf:"bytes,5,opt,name=parts,proto3" json:"parts,omitempty"`
-	// Concurrently executing queries and background merges.
-	Concurrency *v1.DenseTimeSeriesChart `protobuf:"bytes,6,opt,name=concurrency,proto3" json:"concurrency,omitempty"`
-	// Queries started and failed per second.
-	QueryRate *v1.DenseTimeSeriesChart `protobuf:"bytes,7,opt,name=query_rate,json=queryRate,proto3" json:"query_rate,omitempty"`
-	// Rows inserted per second.
-	Ingest        *v1.DenseTimeSeriesChart `protobuf:"bytes,8,opt,name=ingest,proto3" json:"ingest,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetClickhouseRetentionHistoryResponse) Reset() {
@@ -1403,48 +1389,6 @@ func (x *GetClickhouseRetentionHistoryResponse) GetRetention() *v1.DenseTimeSeri
 func (x *GetClickhouseRetentionHistoryResponse) GetDiskUtilization() *v1.DenseTimeSeriesChart {
 	if x != nil {
 		return x.DiskUtilization
-	}
-	return nil
-}
-
-func (x *GetClickhouseRetentionHistoryResponse) GetCpu() *v1.DenseTimeSeriesChart {
-	if x != nil {
-		return x.Cpu
-	}
-	return nil
-}
-
-func (x *GetClickhouseRetentionHistoryResponse) GetMemory() *v1.DenseTimeSeriesChart {
-	if x != nil {
-		return x.Memory
-	}
-	return nil
-}
-
-func (x *GetClickhouseRetentionHistoryResponse) GetParts() *v1.DenseTimeSeriesChart {
-	if x != nil {
-		return x.Parts
-	}
-	return nil
-}
-
-func (x *GetClickhouseRetentionHistoryResponse) GetConcurrency() *v1.DenseTimeSeriesChart {
-	if x != nil {
-		return x.Concurrency
-	}
-	return nil
-}
-
-func (x *GetClickhouseRetentionHistoryResponse) GetQueryRate() *v1.DenseTimeSeriesChart {
-	if x != nil {
-		return x.QueryRate
-	}
-	return nil
-}
-
-func (x *GetClickhouseRetentionHistoryResponse) GetIngest() *v1.DenseTimeSeriesChart {
-	if x != nil {
-		return x.Ingest
 	}
 	return nil
 }
@@ -1681,17 +1625,10 @@ const file_chalk_server_v1_clickhouse_proto_rawDesc = "" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12-\n" +
-	"\x04step\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x04step\"\xb9\x04\n" +
+	"\x04step\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x04step\"\xbc\x01\n" +
 	"%GetClickhouseRetentionHistoryResponse\x12B\n" +
 	"\tretention\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\tretention\x12O\n" +
-	"\x10disk_utilization\x18\x02 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x0fdiskUtilization\x126\n" +
-	"\x03cpu\x18\x03 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x03cpu\x12<\n" +
-	"\x06memory\x18\x04 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x06memory\x12:\n" +
-	"\x05parts\x18\x05 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05parts\x12F\n" +
-	"\vconcurrency\x18\x06 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\vconcurrency\x12C\n" +
-	"\n" +
-	"query_rate\x18\a \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\tqueryRate\x12<\n" +
-	"\x06ingest\x18\b \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x06ingest\"&\n" +
+	"\x10disk_utilization\x18\x02 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x0fdiskUtilization\"&\n" +
 	"$GetClickhouseAdminDiagnosticsRequest\"\xd4\x02\n" +
 	"%GetClickhouseAdminDiagnosticsResponse\x12B\n" +
 	"\n" +
@@ -1767,31 +1704,25 @@ var file_chalk_server_v1_clickhouse_proto_depIdxs = []int32{
 	23, // 13: chalk.server.v1.GetClickhouseRetentionHistoryRequest.step:type_name -> google.protobuf.Duration
 	24, // 14: chalk.server.v1.GetClickhouseRetentionHistoryResponse.retention:type_name -> chalk.chart.v1.DenseTimeSeriesChart
 	24, // 15: chalk.server.v1.GetClickhouseRetentionHistoryResponse.disk_utilization:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	24, // 16: chalk.server.v1.GetClickhouseRetentionHistoryResponse.cpu:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	24, // 17: chalk.server.v1.GetClickhouseRetentionHistoryResponse.memory:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	24, // 18: chalk.server.v1.GetClickhouseRetentionHistoryResponse.parts:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	24, // 19: chalk.server.v1.GetClickhouseRetentionHistoryResponse.concurrency:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	24, // 20: chalk.server.v1.GetClickhouseRetentionHistoryResponse.query_rate:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	24, // 21: chalk.server.v1.GetClickhouseRetentionHistoryResponse.ingest:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	16, // 22: chalk.server.v1.GetClickhouseAdminDiagnosticsResponse.slow_reads:type_name -> chalk.server.v1.ClickhouseSlowRead
-	17, // 23: chalk.server.v1.GetClickhouseAdminDiagnosticsResponse.ttl_alignments:type_name -> chalk.server.v1.ClickhouseTtlAlignment
-	0,  // 24: chalk.server.v1.ClickhouseService.GetClickhouseUri:input_type -> chalk.server.v1.GetClickhouseUriRequest
-	5,  // 25: chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls:input_type -> chalk.server.v1.GetClickhouseOtelTtlsRequest
-	3,  // 26: chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls:input_type -> chalk.server.v1.SetClickhouseOtelTtlsRequest
-	11, // 27: chalk.server.v1.ClickhouseService.GetClickhouseInfo:input_type -> chalk.server.v1.GetClickhouseInfoRequest
-	18, // 28: chalk.server.v1.ClickhouseService.GetClickhouseRetentionHistory:input_type -> chalk.server.v1.GetClickhouseRetentionHistoryRequest
-	20, // 29: chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics:input_type -> chalk.server.v1.GetClickhouseAdminDiagnosticsRequest
-	1,  // 30: chalk.server.v1.ClickhouseService.GetClickhouseUri:output_type -> chalk.server.v1.GetClickhouseUriResponse
-	6,  // 31: chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls:output_type -> chalk.server.v1.GetClickhouseOtelTtlsResponse
-	4,  // 32: chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls:output_type -> chalk.server.v1.SetClickhouseOtelTtlsResponse
-	12, // 33: chalk.server.v1.ClickhouseService.GetClickhouseInfo:output_type -> chalk.server.v1.GetClickhouseInfoResponse
-	19, // 34: chalk.server.v1.ClickhouseService.GetClickhouseRetentionHistory:output_type -> chalk.server.v1.GetClickhouseRetentionHistoryResponse
-	21, // 35: chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics:output_type -> chalk.server.v1.GetClickhouseAdminDiagnosticsResponse
-	30, // [30:36] is the sub-list for method output_type
-	24, // [24:30] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	16, // 16: chalk.server.v1.GetClickhouseAdminDiagnosticsResponse.slow_reads:type_name -> chalk.server.v1.ClickhouseSlowRead
+	17, // 17: chalk.server.v1.GetClickhouseAdminDiagnosticsResponse.ttl_alignments:type_name -> chalk.server.v1.ClickhouseTtlAlignment
+	0,  // 18: chalk.server.v1.ClickhouseService.GetClickhouseUri:input_type -> chalk.server.v1.GetClickhouseUriRequest
+	5,  // 19: chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls:input_type -> chalk.server.v1.GetClickhouseOtelTtlsRequest
+	3,  // 20: chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls:input_type -> chalk.server.v1.SetClickhouseOtelTtlsRequest
+	11, // 21: chalk.server.v1.ClickhouseService.GetClickhouseInfo:input_type -> chalk.server.v1.GetClickhouseInfoRequest
+	18, // 22: chalk.server.v1.ClickhouseService.GetClickhouseRetentionHistory:input_type -> chalk.server.v1.GetClickhouseRetentionHistoryRequest
+	20, // 23: chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics:input_type -> chalk.server.v1.GetClickhouseAdminDiagnosticsRequest
+	1,  // 24: chalk.server.v1.ClickhouseService.GetClickhouseUri:output_type -> chalk.server.v1.GetClickhouseUriResponse
+	6,  // 25: chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls:output_type -> chalk.server.v1.GetClickhouseOtelTtlsResponse
+	4,  // 26: chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls:output_type -> chalk.server.v1.SetClickhouseOtelTtlsResponse
+	12, // 27: chalk.server.v1.ClickhouseService.GetClickhouseInfo:output_type -> chalk.server.v1.GetClickhouseInfoResponse
+	19, // 28: chalk.server.v1.ClickhouseService.GetClickhouseRetentionHistory:output_type -> chalk.server.v1.GetClickhouseRetentionHistoryResponse
+	21, // 29: chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics:output_type -> chalk.server.v1.GetClickhouseAdminDiagnosticsResponse
+	24, // [24:30] is the sub-list for method output_type
+	18, // [18:24] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_clickhouse_proto_init() }
