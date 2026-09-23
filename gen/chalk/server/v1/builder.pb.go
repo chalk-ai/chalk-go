@@ -42,18 +42,18 @@ const (
 	// registry from that export itself, and promotes asynchronously once indexing finishes. This
 	// is how an environment with no Python toolchain and no internet access deploys from an
 	// empty directory.
-	SourceMode_SOURCE_MODE_SOURCELESS SourceMode = 1
+	SourceMode_SOURCE_MODE_SOURCELESS SourceMode = 2
 )
 
 // Enum value maps for SourceMode.
 var (
 	SourceMode_name = map[int32]string{
 		0: "SOURCE_MODE_UNSPECIFIED",
-		1: "SOURCE_MODE_SOURCELESS",
+		2: "SOURCE_MODE_SOURCELESS",
 	}
 	SourceMode_value = map[string]int32{
 		"SOURCE_MODE_UNSPECIFIED": 0,
-		"SOURCE_MODE_SOURCELESS":  1,
+		"SOURCE_MODE_SOURCELESS":  2,
 	}
 )
 
@@ -20711,11 +20711,11 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x05_logsB\t\n" +
 	"\a_tracesB\n" +
 	"\n" +
-	"\b_metrics*E\n" +
+	"\b_metrics*`\n" +
 	"\n" +
 	"SourceMode\x12\x1b\n" +
 	"\x17SOURCE_MODE_UNSPECIFIED\x10\x00\x12\x1a\n" +
-	"\x16SOURCE_MODE_SOURCELESS\x10\x01*\xe3\x03\n" +
+	"\x16SOURCE_MODE_SOURCELESS\x10\x02\"\x04\b\x01\x10\x01*\x13SOURCE_MODE_ARCHIVE*\xe3\x03\n" +
 	"\x15DeploymentBuildStatus\x12'\n" +
 	"#DEPLOYMENT_BUILD_STATUS_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fDEPLOYMENT_BUILD_STATUS_UNKNOWN\x10\x01\x12#\n" +
