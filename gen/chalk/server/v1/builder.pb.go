@@ -36,28 +36,24 @@ type SourceMode int32
 
 const (
 	SourceMode_SOURCE_MODE_UNSPECIFIED SourceMode = 0
-	// The archive on the UploadSourceRequest, as for every other deploy.
-	SourceMode_SOURCE_MODE_ARCHIVE SourceMode = 1
 	// No archive on the request and no client-side graph apply follows it. The server derives
 	// project settings, requirements and hashes from the object at source_bundle_uri (required),
 	// runs the indexing job with the pre-built image to produce the export, writes the graph
 	// registry from that export itself, and promotes asynchronously once indexing finishes. This
 	// is how an environment with no Python toolchain and no internet access deploys from an
 	// empty directory.
-	SourceMode_SOURCE_MODE_SOURCELESS SourceMode = 2
+	SourceMode_SOURCE_MODE_SOURCELESS SourceMode = 1
 )
 
 // Enum value maps for SourceMode.
 var (
 	SourceMode_name = map[int32]string{
 		0: "SOURCE_MODE_UNSPECIFIED",
-		1: "SOURCE_MODE_ARCHIVE",
-		2: "SOURCE_MODE_SOURCELESS",
+		1: "SOURCE_MODE_SOURCELESS",
 	}
 	SourceMode_value = map[string]int32{
 		"SOURCE_MODE_UNSPECIFIED": 0,
-		"SOURCE_MODE_ARCHIVE":     1,
-		"SOURCE_MODE_SOURCELESS":  2,
+		"SOURCE_MODE_SOURCELESS":  1,
 	}
 )
 
@@ -2245,7 +2241,8 @@ type PrebuiltEngineImageSource struct {
 	// is SOURCELESS: a carried export embeds the source environment's internal versions, which a
 	// sourceless deploy exists to recompute.
 	ExportUri *string `protobuf:"bytes,4,opt,name=export_uri,json=exportUri,proto3,oneof" json:"export_uri,omitempty"`
-	// How the deployment's source reaches the server. Unspecified behaves as ARCHIVE.
+	// How the deployment's source reaches the server. Unspecified is the ordinary upload: the
+	// archive on the request, as for every other deploy.
 	SourceMode    SourceMode `protobuf:"varint,5,opt,name=source_mode,json=sourceMode,proto3,enum=chalk.server.v1.SourceMode" json:"source_mode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -20714,12 +20711,11 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x05_logsB\t\n" +
 	"\a_tracesB\n" +
 	"\n" +
-	"\b_metrics*^\n" +
+	"\b_metrics*E\n" +
 	"\n" +
 	"SourceMode\x12\x1b\n" +
-	"\x17SOURCE_MODE_UNSPECIFIED\x10\x00\x12\x17\n" +
-	"\x13SOURCE_MODE_ARCHIVE\x10\x01\x12\x1a\n" +
-	"\x16SOURCE_MODE_SOURCELESS\x10\x02*\xe3\x03\n" +
+	"\x17SOURCE_MODE_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16SOURCE_MODE_SOURCELESS\x10\x01*\xe3\x03\n" +
 	"\x15DeploymentBuildStatus\x12'\n" +
 	"#DEPLOYMENT_BUILD_STATUS_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fDEPLOYMENT_BUILD_STATUS_UNKNOWN\x10\x01\x12#\n" +
