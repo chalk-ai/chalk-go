@@ -1079,12 +1079,68 @@ func (x *DeleteProviderConnectionResponse) GetWarnings() []string {
 	return nil
 }
 
+// Tests a complete draft using a saved connection's credential when api_key is
+// blank. The provider kind must match the saved connection. Other draft fields
+// override the saved test settings. Nothing is persisted.
+type SavedProviderConnectionDraft struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	ConnectionId  string                   `protobuf:"bytes,1,opt,name=connection_id,json=connectionId,proto3" json:"connection_id,omitempty"`
+	Draft         *ProviderConnectionDraft `protobuf:"bytes,2,opt,name=draft,proto3" json:"draft,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SavedProviderConnectionDraft) Reset() {
+	*x = SavedProviderConnectionDraft{}
+	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SavedProviderConnectionDraft) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SavedProviderConnectionDraft) ProtoMessage() {}
+
+func (x *SavedProviderConnectionDraft) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SavedProviderConnectionDraft.ProtoReflect.Descriptor instead.
+func (*SavedProviderConnectionDraft) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_provider_connection_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *SavedProviderConnectionDraft) GetConnectionId() string {
+	if x != nil {
+		return x.ConnectionId
+	}
+	return ""
+}
+
+func (x *SavedProviderConnectionDraft) GetDraft() *ProviderConnectionDraft {
+	if x != nil {
+		return x.Draft
+	}
+	return nil
+}
+
 type TestProviderConnectionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Target:
 	//
 	//	*TestProviderConnectionRequest_ConnectionId
 	//	*TestProviderConnectionRequest_Draft
+	//	*TestProviderConnectionRequest_SavedDraft
 	Target        isTestProviderConnectionRequest_Target `protobuf_oneof:"target"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1092,7 +1148,7 @@ type TestProviderConnectionRequest struct {
 
 func (x *TestProviderConnectionRequest) Reset() {
 	*x = TestProviderConnectionRequest{}
-	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[16]
+	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1104,7 +1160,7 @@ func (x *TestProviderConnectionRequest) String() string {
 func (*TestProviderConnectionRequest) ProtoMessage() {}
 
 func (x *TestProviderConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[16]
+	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1117,7 +1173,7 @@ func (x *TestProviderConnectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestProviderConnectionRequest.ProtoReflect.Descriptor instead.
 func (*TestProviderConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_provider_connection_proto_rawDescGZIP(), []int{16}
+	return file_chalk_router_v1_provider_connection_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *TestProviderConnectionRequest) GetTarget() isTestProviderConnectionRequest_Target {
@@ -1145,6 +1201,15 @@ func (x *TestProviderConnectionRequest) GetDraft() *ProviderConnectionDraft {
 	return nil
 }
 
+func (x *TestProviderConnectionRequest) GetSavedDraft() *SavedProviderConnectionDraft {
+	if x != nil {
+		if x, ok := x.Target.(*TestProviderConnectionRequest_SavedDraft); ok {
+			return x.SavedDraft
+		}
+	}
+	return nil
+}
+
 type isTestProviderConnectionRequest_Target interface {
 	isTestProviderConnectionRequest_Target()
 }
@@ -1157,9 +1222,15 @@ type TestProviderConnectionRequest_Draft struct {
 	Draft *ProviderConnectionDraft `protobuf:"bytes,2,opt,name=draft,proto3,oneof"`
 }
 
+type TestProviderConnectionRequest_SavedDraft struct {
+	SavedDraft *SavedProviderConnectionDraft `protobuf:"bytes,3,opt,name=saved_draft,json=savedDraft,proto3,oneof"`
+}
+
 func (*TestProviderConnectionRequest_ConnectionId) isTestProviderConnectionRequest_Target() {}
 
 func (*TestProviderConnectionRequest_Draft) isTestProviderConnectionRequest_Target() {}
+
+func (*TestProviderConnectionRequest_SavedDraft) isTestProviderConnectionRequest_Target() {}
 
 type TestProviderConnectionResponse struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
@@ -1173,7 +1244,7 @@ type TestProviderConnectionResponse struct {
 
 func (x *TestProviderConnectionResponse) Reset() {
 	*x = TestProviderConnectionResponse{}
-	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[17]
+	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1185,7 +1256,7 @@ func (x *TestProviderConnectionResponse) String() string {
 func (*TestProviderConnectionResponse) ProtoMessage() {}
 
 func (x *TestProviderConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[17]
+	mi := &file_chalk_router_v1_provider_connection_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1198,7 +1269,7 @@ func (x *TestProviderConnectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestProviderConnectionResponse.ProtoReflect.Descriptor instead.
 func (*TestProviderConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_provider_connection_proto_rawDescGZIP(), []int{17}
+	return file_chalk_router_v1_provider_connection_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *TestProviderConnectionResponse) GetOk() bool {
@@ -1333,10 +1404,15 @@ const file_chalk_router_v1_provider_connection_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"N\n" +
 	" DeleteProviderConnectionResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\bwarnings\x18\x02 \x03(\tR\bwarnings\"\x92\x01\n" +
+	"\bwarnings\x18\x02 \x03(\tR\bwarnings\"\x83\x01\n" +
+	"\x1cSavedProviderConnectionDraft\x12#\n" +
+	"\rconnection_id\x18\x01 \x01(\tR\fconnectionId\x12>\n" +
+	"\x05draft\x18\x02 \x01(\v2(.chalk.router.v1.ProviderConnectionDraftR\x05draft\"\xe4\x01\n" +
 	"\x1dTestProviderConnectionRequest\x12%\n" +
 	"\rconnection_id\x18\x01 \x01(\tH\x00R\fconnectionId\x12@\n" +
-	"\x05draft\x18\x02 \x01(\v2(.chalk.router.v1.ProviderConnectionDraftH\x00R\x05draftB\b\n" +
+	"\x05draft\x18\x02 \x01(\v2(.chalk.router.v1.ProviderConnectionDraftH\x00R\x05draft\x12P\n" +
+	"\vsaved_draft\x18\x03 \x01(\v2-.chalk.router.v1.SavedProviderConnectionDraftH\x00R\n" +
+	"savedDraftB\b\n" +
 	"\x06target\"\xe3\x01\n" +
 	"\x1eTestProviderConnectionResponse\x12\x0e\n" +
 	"\x02ok\x18\x01 \x01(\bR\x02ok\x12\x19\n" +
@@ -1375,7 +1451,7 @@ func file_chalk_router_v1_provider_connection_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_router_v1_provider_connection_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_router_v1_provider_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_chalk_router_v1_provider_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chalk_router_v1_provider_connection_proto_goTypes = []any{
 	(ExposurePolicy)(0),                          // 0: chalk.router.v1.ExposurePolicy
 	(*ConnectionState)(nil),                      // 1: chalk.router.v1.ConnectionState
@@ -1394,51 +1470,54 @@ var file_chalk_router_v1_provider_connection_proto_goTypes = []any{
 	(*UpdateProviderConnectionResponse)(nil),     // 14: chalk.router.v1.UpdateProviderConnectionResponse
 	(*DeleteProviderConnectionRequest)(nil),      // 15: chalk.router.v1.DeleteProviderConnectionRequest
 	(*DeleteProviderConnectionResponse)(nil),     // 16: chalk.router.v1.DeleteProviderConnectionResponse
-	(*TestProviderConnectionRequest)(nil),        // 17: chalk.router.v1.TestProviderConnectionRequest
-	(*TestProviderConnectionResponse)(nil),       // 18: chalk.router.v1.TestProviderConnectionResponse
-	(*timestamppb.Timestamp)(nil),                // 19: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),                      // 20: google.protobuf.Struct
-	(*fieldmaskpb.FieldMask)(nil),                // 21: google.protobuf.FieldMask
-	(*durationpb.Duration)(nil),                  // 22: google.protobuf.Duration
+	(*SavedProviderConnectionDraft)(nil),         // 17: chalk.router.v1.SavedProviderConnectionDraft
+	(*TestProviderConnectionRequest)(nil),        // 18: chalk.router.v1.TestProviderConnectionRequest
+	(*TestProviderConnectionResponse)(nil),       // 19: chalk.router.v1.TestProviderConnectionResponse
+	(*timestamppb.Timestamp)(nil),                // 20: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),                      // 21: google.protobuf.Struct
+	(*fieldmaskpb.FieldMask)(nil),                // 22: google.protobuf.FieldMask
+	(*durationpb.Duration)(nil),                  // 23: google.protobuf.Duration
 }
 var file_chalk_router_v1_provider_connection_proto_depIdxs = []int32{
 	0,  // 0: chalk.router.v1.ProviderConnection.exposure:type_name -> chalk.router.v1.ExposurePolicy
 	1,  // 1: chalk.router.v1.ProviderConnection.state:type_name -> chalk.router.v1.ConnectionState
-	19, // 2: chalk.router.v1.ProviderConnection.created_at:type_name -> google.protobuf.Timestamp
-	19, // 3: chalk.router.v1.ProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
-	20, // 4: chalk.router.v1.ProviderConnection.declared_capabilities:type_name -> google.protobuf.Struct
+	20, // 2: chalk.router.v1.ProviderConnection.created_at:type_name -> google.protobuf.Timestamp
+	20, // 3: chalk.router.v1.ProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
+	21, // 4: chalk.router.v1.ProviderConnection.declared_capabilities:type_name -> google.protobuf.Struct
 	0,  // 5: chalk.router.v1.ProviderConnectionDraft.exposure:type_name -> chalk.router.v1.ExposurePolicy
 	2,  // 6: chalk.router.v1.ListProviderConnectionsResponse.connections:type_name -> chalk.router.v1.ProviderConnection
-	20, // 7: chalk.router.v1.ProviderConnectionModel.capabilities:type_name -> google.protobuf.Struct
+	21, // 7: chalk.router.v1.ProviderConnectionModel.capabilities:type_name -> google.protobuf.Struct
 	7,  // 8: chalk.router.v1.ListProviderConnectionModelsRequest.filters:type_name -> chalk.router.v1.ListProviderConnectionModelsFilters
 	6,  // 9: chalk.router.v1.ListProviderConnectionModelsResponse.models:type_name -> chalk.router.v1.ProviderConnectionModel
 	0,  // 10: chalk.router.v1.CreateProviderConnectionRequest.exposure:type_name -> chalk.router.v1.ExposurePolicy
-	20, // 11: chalk.router.v1.CreateProviderConnectionRequest.declared_capabilities:type_name -> google.protobuf.Struct
+	21, // 11: chalk.router.v1.CreateProviderConnectionRequest.declared_capabilities:type_name -> google.protobuf.Struct
 	2,  // 12: chalk.router.v1.CreateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
 	0,  // 13: chalk.router.v1.UpdateProviderConnectionOperation.exposure:type_name -> chalk.router.v1.ExposurePolicy
-	20, // 14: chalk.router.v1.UpdateProviderConnectionOperation.declared_capabilities:type_name -> google.protobuf.Struct
+	21, // 14: chalk.router.v1.UpdateProviderConnectionOperation.declared_capabilities:type_name -> google.protobuf.Struct
 	12, // 15: chalk.router.v1.UpdateProviderConnectionRequest.update:type_name -> chalk.router.v1.UpdateProviderConnectionOperation
-	21, // 16: chalk.router.v1.UpdateProviderConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	22, // 16: chalk.router.v1.UpdateProviderConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
 	2,  // 17: chalk.router.v1.UpdateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
-	3,  // 18: chalk.router.v1.TestProviderConnectionRequest.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
-	22, // 19: chalk.router.v1.TestProviderConnectionResponse.latency:type_name -> google.protobuf.Duration
-	4,  // 20: chalk.router.v1.ProviderConnectionService.ListProviderConnections:input_type -> chalk.router.v1.ListProviderConnectionsRequest
-	8,  // 21: chalk.router.v1.ProviderConnectionService.ListProviderConnectionModels:input_type -> chalk.router.v1.ListProviderConnectionModelsRequest
-	10, // 22: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:input_type -> chalk.router.v1.CreateProviderConnectionRequest
-	13, // 23: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:input_type -> chalk.router.v1.UpdateProviderConnectionRequest
-	15, // 24: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:input_type -> chalk.router.v1.DeleteProviderConnectionRequest
-	17, // 25: chalk.router.v1.ProviderConnectionService.TestProviderConnection:input_type -> chalk.router.v1.TestProviderConnectionRequest
-	5,  // 26: chalk.router.v1.ProviderConnectionService.ListProviderConnections:output_type -> chalk.router.v1.ListProviderConnectionsResponse
-	9,  // 27: chalk.router.v1.ProviderConnectionService.ListProviderConnectionModels:output_type -> chalk.router.v1.ListProviderConnectionModelsResponse
-	11, // 28: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:output_type -> chalk.router.v1.CreateProviderConnectionResponse
-	14, // 29: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:output_type -> chalk.router.v1.UpdateProviderConnectionResponse
-	16, // 30: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:output_type -> chalk.router.v1.DeleteProviderConnectionResponse
-	18, // 31: chalk.router.v1.ProviderConnectionService.TestProviderConnection:output_type -> chalk.router.v1.TestProviderConnectionResponse
-	26, // [26:32] is the sub-list for method output_type
-	20, // [20:26] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	3,  // 18: chalk.router.v1.SavedProviderConnectionDraft.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
+	3,  // 19: chalk.router.v1.TestProviderConnectionRequest.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
+	17, // 20: chalk.router.v1.TestProviderConnectionRequest.saved_draft:type_name -> chalk.router.v1.SavedProviderConnectionDraft
+	23, // 21: chalk.router.v1.TestProviderConnectionResponse.latency:type_name -> google.protobuf.Duration
+	4,  // 22: chalk.router.v1.ProviderConnectionService.ListProviderConnections:input_type -> chalk.router.v1.ListProviderConnectionsRequest
+	8,  // 23: chalk.router.v1.ProviderConnectionService.ListProviderConnectionModels:input_type -> chalk.router.v1.ListProviderConnectionModelsRequest
+	10, // 24: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:input_type -> chalk.router.v1.CreateProviderConnectionRequest
+	13, // 25: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:input_type -> chalk.router.v1.UpdateProviderConnectionRequest
+	15, // 26: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:input_type -> chalk.router.v1.DeleteProviderConnectionRequest
+	18, // 27: chalk.router.v1.ProviderConnectionService.TestProviderConnection:input_type -> chalk.router.v1.TestProviderConnectionRequest
+	5,  // 28: chalk.router.v1.ProviderConnectionService.ListProviderConnections:output_type -> chalk.router.v1.ListProviderConnectionsResponse
+	9,  // 29: chalk.router.v1.ProviderConnectionService.ListProviderConnectionModels:output_type -> chalk.router.v1.ListProviderConnectionModelsResponse
+	11, // 30: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:output_type -> chalk.router.v1.CreateProviderConnectionResponse
+	14, // 31: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:output_type -> chalk.router.v1.UpdateProviderConnectionResponse
+	16, // 32: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:output_type -> chalk.router.v1.DeleteProviderConnectionResponse
+	19, // 33: chalk.router.v1.ProviderConnectionService.TestProviderConnection:output_type -> chalk.router.v1.TestProviderConnectionResponse
+	28, // [28:34] is the sub-list for method output_type
+	22, // [22:28] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_provider_connection_proto_init() }
@@ -1453,18 +1532,19 @@ func file_chalk_router_v1_provider_connection_proto_init() {
 	file_chalk_router_v1_provider_connection_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_router_v1_provider_connection_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_router_v1_provider_connection_proto_msgTypes[11].OneofWrappers = []any{}
-	file_chalk_router_v1_provider_connection_proto_msgTypes[16].OneofWrappers = []any{
+	file_chalk_router_v1_provider_connection_proto_msgTypes[17].OneofWrappers = []any{
 		(*TestProviderConnectionRequest_ConnectionId)(nil),
 		(*TestProviderConnectionRequest_Draft)(nil),
+		(*TestProviderConnectionRequest_SavedDraft)(nil),
 	}
-	file_chalk_router_v1_provider_connection_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_router_v1_provider_connection_proto_msgTypes[18].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_router_v1_provider_connection_proto_rawDesc), len(file_chalk_router_v1_provider_connection_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   18,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

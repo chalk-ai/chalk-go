@@ -10,6 +10,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/container/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -703,6 +704,8 @@ type ScalingGroupResponse struct {
 	Metadata map[string]*structpb.Value `protobuf:"bytes,11,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Additional diagnostic info for status.
 	StatusDetails *string `protobuf:"bytes,14,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
+	// Agent that originally created the scaling group.
+	CreatedBy     *string `protobuf:"bytes,15,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -831,6 +834,13 @@ func (x *ScalingGroupResponse) GetMetadata() map[string]*structpb.Value {
 func (x *ScalingGroupResponse) GetStatusDetails() string {
 	if x != nil && x.StatusDetails != nil {
 		return *x.StatusDetails
+	}
+	return ""
+}
+
+func (x *ScalingGroupResponse) GetCreatedBy() string {
+	if x != nil && x.CreatedBy != nil {
+		return *x.CreatedBy
 	}
 	return ""
 }
@@ -1527,6 +1537,8 @@ type ScalingGroupRevisionResponse struct {
 	DeletedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`
 	// Additional diagnostic info for status.
 	StatusDetails *string `protobuf:"bytes,11,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
+	// Agent that created this immutable revision.
+	CreatedBy     *string `protobuf:"bytes,12,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1634,6 +1646,13 @@ func (x *ScalingGroupRevisionResponse) GetDeletedAt() *timestamppb.Timestamp {
 func (x *ScalingGroupRevisionResponse) GetStatusDetails() string {
 	if x != nil && x.StatusDetails != nil {
 		return *x.StatusDetails
+	}
+	return ""
+}
+
+func (x *ScalingGroupRevisionResponse) GetCreatedBy() string {
+	if x != nil && x.CreatedBy != nil {
+		return *x.CreatedBy
 	}
 	return ""
 }
@@ -2298,7 +2317,7 @@ var File_chalk_scalinggroup_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/scalinggroup/v1/service.proto\x12\x15chalk.scalinggroup.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfe\x06\n" +
+	"#chalk/scalinggroup/v1/service.proto\x12\x15chalk.scalinggroup.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfe\x06\n" +
 	"\vScalingSpec\x12!\n" +
 	"\fmin_replicas\x18\x01 \x01(\x05R\vminReplicas\x12!\n" +
 	"\fmax_replicas\x18\x02 \x01(\x05R\vmaxReplicas\x12N\n" +
@@ -2330,7 +2349,7 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x10desired_replicas\x18\x03 \x01(\x05R\x0fdesiredReplicas\"\xa8\x01\n" +
 	"\x10ScalingGroupSpec\x12M\n" +
 	"\x0econtainer_spec\x18\x01 \x01(\v2&.chalk.container.v1.ChalkContainerSpecR\rcontainerSpec\x12E\n" +
-	"\fscaling_spec\x18\x02 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecR\vscalingSpec\"\x9f\x06\n" +
+	"\fscaling_spec\x18\x02 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecR\vscalingSpec\"\xd7\x06\n" +
 	"\x14ScalingGroupResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1f\n" +
@@ -2350,7 +2369,9 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x12available_replicas\x18\n" +
 	" \x01(\x05R\x11availableReplicas\x12U\n" +
 	"\bmetadata\x18\v \x03(\v29.chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntryR\bmetadata\x12*\n" +
-	"\x0estatus_details\x18\x0e \x01(\tH\x03R\rstatusDetails\x88\x01\x01\x1aS\n" +
+	"\x0estatus_details\x18\x0e \x01(\tH\x03R\rstatusDetails\x88\x01\x01\x12'\n" +
+	"\n" +
+	"created_by\x18\x0f \x01(\tB\x03\xe0A\x03H\x04R\tcreatedBy\x88\x01\x01\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\x11\n" +
@@ -2358,7 +2379,8 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\v_deleted_atB\n" +
 	"\n" +
 	"\b_web_urlB\x11\n" +
-	"\x0f_status_details\"X\n" +
+	"\x0f_status_detailsB\r\n" +
+	"\v_created_by\"X\n" +
 	"\x19CreateScalingGroupRequest\x12;\n" +
 	"\x04spec\x18\x01 \x01(\v2'.chalk.scalinggroup.v1.ScalingGroupSpecR\x04spec\"n\n" +
 	"\x1aCreateScalingGroupResponse\x12P\n" +
@@ -2413,7 +2435,7 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\rscalingGroups\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\xaf\x05\n" +
+	"\f_next_cursor\"\xe7\x05\n" +
 	"\x1cScalingGroupRevisionResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12(\n" +
 	"\x10scaling_group_id\x18\x02 \x01(\tR\x0escalingGroupId\x12,\n" +
@@ -2428,13 +2450,16 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"deleted_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tdeletedAt\x88\x01\x01\x12*\n" +
-	"\x0estatus_details\x18\v \x01(\tH\x02R\rstatusDetails\x88\x01\x01\x1aS\n" +
+	"\x0estatus_details\x18\v \x01(\tH\x02R\rstatusDetails\x88\x01\x01\x12'\n" +
+	"\n" +
+	"created_by\x18\f \x01(\tB\x03\xe0A\x03H\x03R\tcreatedBy\x88\x01\x01\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\x11\n" +
 	"\x0f_status_messageB\r\n" +
 	"\v_deleted_atB\x11\n" +
-	"\x0f_status_details\"\xf4\x01\n" +
+	"\x0f_status_detailsB\r\n" +
+	"\v_created_by\"\xf4\x01\n" +
 	"\x1eGetScalingGroupRevisionRequest\x12*\n" +
 	"\x10scaling_group_id\x18\x01 \x01(\tH\x00R\x0escalingGroupId\x12.\n" +
 	"\x12scaling_group_name\x18\x02 \x01(\tH\x00R\x10scalingGroupName\x12\x1f\n" +
