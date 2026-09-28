@@ -142,6 +142,8 @@ const (
 	AgentConversationStatus_AGENT_CONVERSATION_STATUS_AWAITING_USER_INPUT AgentConversationStatus = 2
 	// The conversation was explicitly marked done and expects no further turns.
 	AgentConversationStatus_AGENT_CONVERSATION_STATUS_COMPLETED AgentConversationStatus = 3
+	// An interactive turn is paused before a tool with side effects.
+	AgentConversationStatus_AGENT_CONVERSATION_STATUS_AWAITING_TOOL_APPROVAL AgentConversationStatus = 4
 )
 
 // Enum value maps for AgentConversationStatus.
@@ -151,12 +153,14 @@ var (
 		1: "AGENT_CONVERSATION_STATUS_IN_PROGRESS",
 		2: "AGENT_CONVERSATION_STATUS_AWAITING_USER_INPUT",
 		3: "AGENT_CONVERSATION_STATUS_COMPLETED",
+		4: "AGENT_CONVERSATION_STATUS_AWAITING_TOOL_APPROVAL",
 	}
 	AgentConversationStatus_value = map[string]int32{
-		"AGENT_CONVERSATION_STATUS_UNSPECIFIED":         0,
-		"AGENT_CONVERSATION_STATUS_IN_PROGRESS":         1,
-		"AGENT_CONVERSATION_STATUS_AWAITING_USER_INPUT": 2,
-		"AGENT_CONVERSATION_STATUS_COMPLETED":           3,
+		"AGENT_CONVERSATION_STATUS_UNSPECIFIED":            0,
+		"AGENT_CONVERSATION_STATUS_IN_PROGRESS":            1,
+		"AGENT_CONVERSATION_STATUS_AWAITING_USER_INPUT":    2,
+		"AGENT_CONVERSATION_STATUS_COMPLETED":              3,
+		"AGENT_CONVERSATION_STATUS_AWAITING_TOOL_APPROVAL": 4,
 	}
 )
 
@@ -300,11 +304,14 @@ func (AgentArtifactKind) EnumDescriptor() ([]byte, []int) {
 type AgentToolCallStatus int32
 
 const (
-	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_UNSPECIFIED AgentToolCallStatus = 0
-	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_PENDING     AgentToolCallStatus = 1
-	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_RUNNING     AgentToolCallStatus = 2
-	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_COMPLETED   AgentToolCallStatus = 3
-	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_FAILED      AgentToolCallStatus = 4
+	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_UNSPECIFIED       AgentToolCallStatus = 0
+	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_PENDING           AgentToolCallStatus = 1
+	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_RUNNING           AgentToolCallStatus = 2
+	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_COMPLETED         AgentToolCallStatus = 3
+	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_FAILED            AgentToolCallStatus = 4
+	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_AWAITING_APPROVAL AgentToolCallStatus = 5
+	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_APPROVED          AgentToolCallStatus = 6
+	AgentToolCallStatus_AGENT_TOOL_CALL_STATUS_DENIED            AgentToolCallStatus = 7
 )
 
 // Enum value maps for AgentToolCallStatus.
@@ -315,13 +322,19 @@ var (
 		2: "AGENT_TOOL_CALL_STATUS_RUNNING",
 		3: "AGENT_TOOL_CALL_STATUS_COMPLETED",
 		4: "AGENT_TOOL_CALL_STATUS_FAILED",
+		5: "AGENT_TOOL_CALL_STATUS_AWAITING_APPROVAL",
+		6: "AGENT_TOOL_CALL_STATUS_APPROVED",
+		7: "AGENT_TOOL_CALL_STATUS_DENIED",
 	}
 	AgentToolCallStatus_value = map[string]int32{
-		"AGENT_TOOL_CALL_STATUS_UNSPECIFIED": 0,
-		"AGENT_TOOL_CALL_STATUS_PENDING":     1,
-		"AGENT_TOOL_CALL_STATUS_RUNNING":     2,
-		"AGENT_TOOL_CALL_STATUS_COMPLETED":   3,
-		"AGENT_TOOL_CALL_STATUS_FAILED":      4,
+		"AGENT_TOOL_CALL_STATUS_UNSPECIFIED":       0,
+		"AGENT_TOOL_CALL_STATUS_PENDING":           1,
+		"AGENT_TOOL_CALL_STATUS_RUNNING":           2,
+		"AGENT_TOOL_CALL_STATUS_COMPLETED":         3,
+		"AGENT_TOOL_CALL_STATUS_FAILED":            4,
+		"AGENT_TOOL_CALL_STATUS_AWAITING_APPROVAL": 5,
+		"AGENT_TOOL_CALL_STATUS_APPROVED":          6,
+		"AGENT_TOOL_CALL_STATUS_DENIED":            7,
 	}
 )
 
@@ -3458,12 +3471,13 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	" AGENT_MESSAGE_STATUS_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eAGENT_MESSAGE_STATUS_STREAMING\x10\x01\x12\x1e\n" +
 	"\x1aAGENT_MESSAGE_STATUS_FINAL\x10\x02\x12\x1e\n" +
-	"\x1aAGENT_MESSAGE_STATUS_ERROR\x10\x03*\xcb\x01\n" +
+	"\x1aAGENT_MESSAGE_STATUS_ERROR\x10\x03*\x81\x02\n" +
 	"\x17AgentConversationStatus\x12)\n" +
 	"%AGENT_CONVERSATION_STATUS_UNSPECIFIED\x10\x00\x12)\n" +
 	"%AGENT_CONVERSATION_STATUS_IN_PROGRESS\x10\x01\x121\n" +
 	"-AGENT_CONVERSATION_STATUS_AWAITING_USER_INPUT\x10\x02\x12'\n" +
-	"#AGENT_CONVERSATION_STATUS_COMPLETED\x10\x03*\x95\x02\n" +
+	"#AGENT_CONVERSATION_STATUS_COMPLETED\x10\x03\x124\n" +
+	"0AGENT_CONVERSATION_STATUS_AWAITING_TOOL_APPROVAL\x10\x04*\x95\x02\n" +
 	"\x1dAgentConversationContentState\x120\n" +
 	",AGENT_CONVERSATION_CONTENT_STATE_UNSPECIFIED\x10\x00\x121\n" +
 	"-AGENT_CONVERSATION_CONTENT_STATE_PROVISIONING\x10\x01\x12*\n" +
@@ -3473,13 +3487,16 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\x11AgentArtifactKind\x12#\n" +
 	"\x1fAGENT_ARTIFACT_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cAGENT_ARTIFACT_KIND_NOTEBOOK\x10\x01\x12\x1f\n" +
-	"\x1bAGENT_ARTIFACT_KIND_SANDBOX\x10\x02*\xce\x01\n" +
+	"\x1bAGENT_ARTIFACT_KIND_SANDBOX\x10\x02*\xc4\x02\n" +
 	"\x13AgentToolCallStatus\x12&\n" +
 	"\"AGENT_TOOL_CALL_STATUS_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eAGENT_TOOL_CALL_STATUS_PENDING\x10\x01\x12\"\n" +
 	"\x1eAGENT_TOOL_CALL_STATUS_RUNNING\x10\x02\x12$\n" +
 	" AGENT_TOOL_CALL_STATUS_COMPLETED\x10\x03\x12!\n" +
-	"\x1dAGENT_TOOL_CALL_STATUS_FAILED\x10\x04*\xab\x01\n" +
+	"\x1dAGENT_TOOL_CALL_STATUS_FAILED\x10\x04\x12,\n" +
+	"(AGENT_TOOL_CALL_STATUS_AWAITING_APPROVAL\x10\x05\x12#\n" +
+	"\x1fAGENT_TOOL_CALL_STATUS_APPROVED\x10\x06\x12!\n" +
+	"\x1dAGENT_TOOL_CALL_STATUS_DENIED\x10\a*\xab\x01\n" +
 	"\x1bAgentConversationSortColumn\x12.\n" +
 	"*AGENT_CONVERSATION_SORT_COLUMN_UNSPECIFIED\x10\x00\x12-\n" +
 	")AGENT_CONVERSATION_SORT_COLUMN_CREATED_AT\x10\x01\x12-\n" +

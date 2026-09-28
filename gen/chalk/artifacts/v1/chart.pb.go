@@ -196,6 +196,8 @@ const (
 	// Total requests Envoy sent to upstream clusters. This is backed directly by
 	// Envoy's cumulative Prometheus counter rather than Chalk's metric pipeline.
 	MetricKind_METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT MetricKind = 143
+	MetricKind_METRIC_KIND_POD_STATE_COUNT              MetricKind = 144
+	MetricKind_METRIC_KIND_CONTAINER_CRASHES            MetricKind = 145
 )
 
 // Enum value maps for MetricKind.
@@ -345,6 +347,8 @@ var (
 		141: "METRIC_KIND_MODEL_TRAINING_RMSE",
 		142: "METRIC_KIND_MODEL_TRAINING_R2",
 		143: "METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT",
+		144: "METRIC_KIND_POD_STATE_COUNT",
+		145: "METRIC_KIND_CONTAINER_CRASHES",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -491,6 +495,8 @@ var (
 		"METRIC_KIND_MODEL_TRAINING_RMSE":                     141,
 		"METRIC_KIND_MODEL_TRAINING_R2":                       142,
 		"METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT":            143,
+		"METRIC_KIND_POD_STATE_COUNT":                         144,
+		"METRIC_KIND_CONTAINER_CRASHES":                       145,
 	}
 )
 
@@ -585,6 +591,8 @@ const (
 	FilterKind_FILTER_KIND_TRAINING_OPTIMIZER     FilterKind = 42
 	FilterKind_FILTER_KIND_TRAINING_MODEL_VERSION FilterKind = 43
 	FilterKind_FILTER_KIND_TRAINING_EPOCH         FilterKind = 44
+	FilterKind_FILTER_KIND_POD_STATE              FilterKind = 45
+	FilterKind_FILTER_KIND_CONTAINER_CRASH_REASON FilterKind = 46
 )
 
 // Enum value maps for FilterKind.
@@ -635,6 +643,8 @@ var (
 		42: "FILTER_KIND_TRAINING_OPTIMIZER",
 		43: "FILTER_KIND_TRAINING_MODEL_VERSION",
 		44: "FILTER_KIND_TRAINING_EPOCH",
+		45: "FILTER_KIND_POD_STATE",
+		46: "FILTER_KIND_CONTAINER_CRASH_REASON",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -682,6 +692,8 @@ var (
 		"FILTER_KIND_TRAINING_OPTIMIZER":         42,
 		"FILTER_KIND_TRAINING_MODEL_VERSION":     43,
 		"FILTER_KIND_TRAINING_EPOCH":             44,
+		"FILTER_KIND_POD_STATE":                  45,
+		"FILTER_KIND_CONTAINER_CRASH_REASON":     46,
 	}
 )
 
@@ -895,6 +907,8 @@ const (
 	GroupByKind_GROUP_BY_KIND_TRAINING_MODEL_VERSION GroupByKind = 38
 	GroupByKind_GROUP_BY_KIND_TRAINING_EPOCH         GroupByKind = 39
 	GroupByKind_GROUP_BY_KIND_ENVOY_CLUSTER          GroupByKind = 40
+	GroupByKind_GROUP_BY_KIND_POD_STATE              GroupByKind = 41
+	GroupByKind_GROUP_BY_KIND_CONTAINER_CRASH_REASON GroupByKind = 42
 )
 
 // Enum value maps for GroupByKind.
@@ -941,6 +955,8 @@ var (
 		38: "GROUP_BY_KIND_TRAINING_MODEL_VERSION",
 		39: "GROUP_BY_KIND_TRAINING_EPOCH",
 		40: "GROUP_BY_KIND_ENVOY_CLUSTER",
+		41: "GROUP_BY_KIND_POD_STATE",
+		42: "GROUP_BY_KIND_CONTAINER_CRASH_REASON",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":                   0,
@@ -984,6 +1000,8 @@ var (
 		"GROUP_BY_KIND_TRAINING_MODEL_VERSION":        38,
 		"GROUP_BY_KIND_TRAINING_EPOCH":                39,
 		"GROUP_BY_KIND_ENVOY_CLUSTER":                 40,
+		"GROUP_BY_KIND_POD_STATE":                     41,
+		"GROUP_BY_KIND_CONTAINER_CRASH_REASON":        42,
 	}
 )
 
@@ -2298,7 +2316,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xac/\n" +
+	"_entity_id*\xf2/\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2445,7 +2463,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1eMETRIC_KIND_MODEL_TRAINING_MSE\x10\x8c\x01\x12$\n" +
 	"\x1fMETRIC_KIND_MODEL_TRAINING_RMSE\x10\x8d\x01\x12\"\n" +
 	"\x1dMETRIC_KIND_MODEL_TRAINING_R2\x10\x8e\x01\x12-\n" +
-	"(METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT\x10\x8f\x01*\xac\v\n" +
+	"(METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT\x10\x8f\x01\x12 \n" +
+	"\x1bMETRIC_KIND_POD_STATE_COUNT\x10\x90\x01\x12\"\n" +
+	"\x1dMETRIC_KIND_CONTAINER_CRASHES\x10\x91\x01*\xef\v\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2493,7 +2513,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1eFILTER_KIND_TRAINING_THRESHOLD\x10)\x12\"\n" +
 	"\x1eFILTER_KIND_TRAINING_OPTIMIZER\x10*\x12&\n" +
 	"\"FILTER_KIND_TRAINING_MODEL_VERSION\x10+\x12\x1e\n" +
-	"\x1aFILTER_KIND_TRAINING_EPOCH\x10,*~\n" +
+	"\x1aFILTER_KIND_TRAINING_EPOCH\x10,\x12\x19\n" +
+	"\x15FILTER_KIND_POD_STATE\x10-\x12&\n" +
+	"\"FILTER_KIND_CONTAINER_CRASH_REASON\x10.*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -2513,7 +2535,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xa3\v\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xea\v\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -2556,7 +2578,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	" GROUP_BY_KIND_TRAINING_OPTIMIZER\x10%\x12(\n" +
 	"$GROUP_BY_KIND_TRAINING_MODEL_VERSION\x10&\x12 \n" +
 	"\x1cGROUP_BY_KIND_TRAINING_EPOCH\x10'\x12\x1f\n" +
-	"\x1bGROUP_BY_KIND_ENVOY_CLUSTER\x10(*\x81\x03\n" +
+	"\x1bGROUP_BY_KIND_ENVOY_CLUSTER\x10(\x12\x1b\n" +
+	"\x17GROUP_BY_KIND_POD_STATE\x10)\x12(\n" +
+	"$GROUP_BY_KIND_CONTAINER_CRASH_REASON\x10**\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +

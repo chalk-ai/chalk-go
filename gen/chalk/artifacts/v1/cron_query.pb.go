@@ -127,8 +127,12 @@ type CronQuery struct {
 	// a serialized artifact and never executes the customer's Python, so the checks have to
 	// travel as data alongside every other ScheduledQuery field.
 	DataQualityCheckSpecs []string `protobuf:"bytes,28,rep,name=data_quality_check_specs,json=dataQualityCheckSpecs,proto3" json:"data_quality_check_specs,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// Environment variables applied to each recurring offline query run.
+	EnvOverrides map[string]string `protobuf:"bytes,29,rep,name=env_overrides,json=envOverrides,proto3" json:"env_overrides,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// When set, overrides the server-side scheduled-query metaplanner rollout flags for this query.
+	UseMetaplanner *bool `protobuf:"varint,30,opt,name=use_metaplanner,json=useMetaplanner,proto3,oneof" json:"use_metaplanner,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CronQuery) Reset() {
@@ -357,6 +361,20 @@ func (x *CronQuery) GetDataQualityCheckSpecs() []string {
 	return nil
 }
 
+func (x *CronQuery) GetEnvOverrides() map[string]string {
+	if x != nil {
+		return x.EnvOverrides
+	}
+	return nil
+}
+
+func (x *CronQuery) GetUseMetaplanner() bool {
+	if x != nil && x.UseMetaplanner != nil {
+		return *x.UseMetaplanner
+	}
+	return false
+}
+
 var File_chalk_artifacts_v1_cron_query_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
@@ -364,7 +382,7 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"#chalk/artifacts/v1/cron_query.proto\x12\x12chalk.artifacts.v1\x1a#chalk/common/v1/offline_query.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Y\n" +
 	"\x11RecomputeSettings\x12!\n" +
 	"\ffeature_fqns\x18\x01 \x03(\tR\vfeatureFqns\x12!\n" +
-	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xa0\r\n" +
+	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xf9\x0e\n" +
 	"\tCronQuery\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04cron\x18\x02 \x01(\tR\x04cron\x12\x1b\n" +
@@ -401,8 +419,13 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"R\awriteTo\x88\x01\x01\x12:\n" +
 	"\x17observed_at_lower_bound\x18\x1a \x01(\tH\vR\x14observedAtLowerBound\x88\x01\x01\x12:\n" +
 	"\x17observed_at_upper_bound\x18\x1b \x01(\tH\fR\x14observedAtUpperBound\x88\x01\x01\x127\n" +
-	"\x18data_quality_check_specs\x18\x1c \x03(\tR\x15dataQualityCheckSpecs\x1aA\n" +
+	"\x18data_quality_check_specs\x18\x1c \x03(\tR\x15dataQualityCheckSpecs\x12T\n" +
+	"\renv_overrides\x18\x1d \x03(\v2/.chalk.artifacts.v1.CronQuery.EnvOverridesEntryR\fenvOverrides\x12,\n" +
+	"\x0fuse_metaplanner\x18\x1e \x01(\bH\rR\x0euseMetaplanner\x88\x01\x01\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a?\n" +
+	"\x11EnvOverridesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
 	"\f_max_samplesB\x11\n" +
@@ -419,7 +442,8 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"\r_dataset_nameB\v\n" +
 	"\t_write_toB\x1a\n" +
 	"\x18_observed_at_lower_boundB\x1a\n" +
-	"\x18_observed_at_upper_boundB\xd3\x01\n" +
+	"\x18_observed_at_upper_boundB\x12\n" +
+	"\x10_use_metaplannerB\xd3\x01\n" +
 	"\x16com.chalk.artifacts.v1B\x0eCronQueryProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (
@@ -434,31 +458,33 @@ func file_chalk_artifacts_v1_cron_query_proto_rawDescGZIP() []byte {
 	return file_chalk_artifacts_v1_cron_query_proto_rawDescData
 }
 
-var file_chalk_artifacts_v1_cron_query_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_chalk_artifacts_v1_cron_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_chalk_artifacts_v1_cron_query_proto_goTypes = []any{
 	(*RecomputeSettings)(nil),      // 0: chalk.artifacts.v1.RecomputeSettings
 	(*CronQuery)(nil),              // 1: chalk.artifacts.v1.CronQuery
 	nil,                            // 2: chalk.artifacts.v1.CronQuery.PlannerOptionsEntry
-	(*timestamppb.Timestamp)(nil),  // 3: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),    // 4: google.protobuf.Duration
-	(*v1.UnloadResolverSpec)(nil),  // 5: chalk.common.v1.UnloadResolverSpec
-	(*v1.ResourceRequests)(nil),    // 6: chalk.common.v1.ResourceRequests
-	(*v1.OfflineQueryWriteTo)(nil), // 7: chalk.common.v1.OfflineQueryWriteTo
+	nil,                            // 3: chalk.artifacts.v1.CronQuery.EnvOverridesEntry
+	(*timestamppb.Timestamp)(nil),  // 4: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),    // 5: google.protobuf.Duration
+	(*v1.UnloadResolverSpec)(nil),  // 6: chalk.common.v1.UnloadResolverSpec
+	(*v1.ResourceRequests)(nil),    // 7: chalk.common.v1.ResourceRequests
+	(*v1.OfflineQueryWriteTo)(nil), // 8: chalk.common.v1.OfflineQueryWriteTo
 }
 var file_chalk_artifacts_v1_cron_query_proto_depIdxs = []int32{
 	0, // 0: chalk.artifacts.v1.CronQuery.recompute:type_name -> chalk.artifacts.v1.RecomputeSettings
-	3, // 1: chalk.artifacts.v1.CronQuery.lower_bound:type_name -> google.protobuf.Timestamp
-	3, // 2: chalk.artifacts.v1.CronQuery.upper_bound:type_name -> google.protobuf.Timestamp
+	4, // 1: chalk.artifacts.v1.CronQuery.lower_bound:type_name -> google.protobuf.Timestamp
+	4, // 2: chalk.artifacts.v1.CronQuery.upper_bound:type_name -> google.protobuf.Timestamp
 	2, // 3: chalk.artifacts.v1.CronQuery.planner_options:type_name -> chalk.artifacts.v1.CronQuery.PlannerOptionsEntry
-	4, // 4: chalk.artifacts.v1.CronQuery.completion_deadline:type_name -> google.protobuf.Duration
-	5, // 5: chalk.artifacts.v1.CronQuery.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
-	6, // 6: chalk.artifacts.v1.CronQuery.resources:type_name -> chalk.common.v1.ResourceRequests
-	7, // 7: chalk.artifacts.v1.CronQuery.write_to:type_name -> chalk.common.v1.OfflineQueryWriteTo
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	5, // 4: chalk.artifacts.v1.CronQuery.completion_deadline:type_name -> google.protobuf.Duration
+	6, // 5: chalk.artifacts.v1.CronQuery.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
+	7, // 6: chalk.artifacts.v1.CronQuery.resources:type_name -> chalk.common.v1.ResourceRequests
+	8, // 7: chalk.artifacts.v1.CronQuery.write_to:type_name -> chalk.common.v1.OfflineQueryWriteTo
+	3, // 8: chalk.artifacts.v1.CronQuery.env_overrides:type_name -> chalk.artifacts.v1.CronQuery.EnvOverridesEntry
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_cron_query_proto_init() }
@@ -473,7 +499,7 @@ func file_chalk_artifacts_v1_cron_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_cron_query_proto_rawDesc), len(file_chalk_artifacts_v1_cron_query_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

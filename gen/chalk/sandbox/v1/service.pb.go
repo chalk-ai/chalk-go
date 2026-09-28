@@ -3474,7 +3474,10 @@ func (*GetCustomImageBuildUsageRequest_ContentHash) isGetCustomImageBuildUsageRe
 
 func (*GetCustomImageBuildUsageRequest_BuildId) isGetCustomImageBuildUsageRequest_Identifier() {}
 
-// A container that references the custom image (from the containers table).
+// Deprecated: superseded by CustomImageSandboxUsage, which is backed by the
+// same containers table row.
+//
+// Deprecated: Marked as deprecated in chalk/sandbox/v1/service.proto.
 type CustomImageContainerUsage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Container id, used to deep-link to the container's Compute page.
@@ -3603,9 +3606,9 @@ func (x *CustomImageScalingGroupUsage) GetStatus() string {
 	return ""
 }
 
-// A live sandbox that references the custom image. Reflects only sandboxes that
-// are currently live in the control plane's in-memory registry; terminated
-// sandboxes are not retained and therefore do not appear here.
+// A sandbox v2 (container) that references the custom image. DB-backed, from the
+// containers table; a stopped container is excluded since its row is filtered
+// out the same way CustomImageContainerUsage's was.
 type CustomImageSandboxUsage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Sandbox id, used to deep-link to the sandbox's Compute page.
@@ -3672,12 +3675,14 @@ func (x *CustomImageSandboxUsage) GetStatus() string {
 // Response listing the compute resources that reference a custom image build.
 type GetCustomImageBuildUsageResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Containers that reference the image.
+	// Deprecated: superseded by sandboxes, which now covers the same DB-backed
+	// containers table.
+	//
+	// Deprecated: Marked as deprecated in chalk/sandbox/v1/service.proto.
 	Containers []*CustomImageContainerUsage `protobuf:"bytes,1,rep,name=containers,proto3" json:"containers,omitempty"`
 	// Scaling groups that reference the image.
 	ScalingGroups []*CustomImageScalingGroupUsage `protobuf:"bytes,2,rep,name=scaling_groups,json=scalingGroups,proto3" json:"scaling_groups,omitempty"`
-	// Currently-live sandboxes that reference the image. This set reflects only
-	// live sandboxes; terminated ones are not retained.
+	// Sandboxes (containers) that reference the image.
 	Sandboxes     []*CustomImageSandboxUsage `protobuf:"bytes,3,rep,name=sandboxes,proto3" json:"sandboxes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3713,6 +3718,7 @@ func (*GetCustomImageBuildUsageResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{52}
 }
 
+// Deprecated: Marked as deprecated in chalk/sandbox/v1/service.proto.
 func (x *GetCustomImageBuildUsageResponse) GetContainers() []*CustomImageContainerUsage {
 	if x != nil {
 		return x.Containers
@@ -4038,11 +4044,11 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\fcontent_hash\x18\x01 \x01(\tH\x00R\vcontentHash\x12\x1b\n" +
 	"\bbuild_id\x18\x02 \x01(\tH\x00R\abuildIdB\f\n" +
 	"\n" +
-	"identifier\"W\n" +
+	"identifier\"[\n" +
 	"\x19CustomImageContainerUsage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"Z\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status:\x02\x18\x01\"Z\n" +
 	"\x1cCustomImageScalingGroupUsage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -4050,10 +4056,10 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\x17CustomImageSandboxUsage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"\x8f\x02\n" +
-	" GetCustomImageBuildUsageResponse\x12K\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\"\x93\x02\n" +
+	" GetCustomImageBuildUsageResponse\x12O\n" +
 	"\n" +
-	"containers\x18\x01 \x03(\v2+.chalk.sandbox.v1.CustomImageContainerUsageR\n" +
+	"containers\x18\x01 \x03(\v2+.chalk.sandbox.v1.CustomImageContainerUsageB\x02\x18\x01R\n" +
 	"containers\x12U\n" +
 	"\x0escaling_groups\x18\x02 \x03(\v2..chalk.sandbox.v1.CustomImageScalingGroupUsageR\rscalingGroups\x12G\n" +
 	"\tsandboxes\x18\x03 \x03(\v2).chalk.sandbox.v1.CustomImageSandboxUsageR\tsandboxes2\xfc\x03\n" +
