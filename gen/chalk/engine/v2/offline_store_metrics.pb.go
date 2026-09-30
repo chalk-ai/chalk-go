@@ -442,7 +442,8 @@ func (x *BigQueryOfflineStorageDetails) GetLocation() string {
 
 type GetMetricsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// All skinny (feat_*) per-feature tables across every namespace, combined.
+	// Total bytes of the per-feature observation (feat_*) tables for features present in a
+	// materialized feature view.
 	SkinnyTablesBytes *uint64 `protobuf:"varint,1,opt,name=skinny_tables_bytes,json=skinnyTablesBytes,proto3,oneof" json:"skinny_tables_bytes,omitempty"`
 	// All active wide per-namespace feature-view tables, combined.
 	WideTablesBytes *uint64 `protobuf:"varint,2,opt,name=wide_tables_bytes,json=wideTablesBytes,proto3,oneof" json:"wide_tables_bytes,omitempty"`
@@ -466,8 +467,17 @@ type GetMetricsResponse struct {
 	// Active physical configuration identity per namespace. This is metadata for correlating run
 	// history with the current tables; callers should not display the fingerprint itself.
 	NamespaceWideTableConfigFingerprints []*NamespaceWideTableConfigFingerprint `protobuf:"bytes,9,rep,name=namespace_wide_table_config_fingerprints,json=namespaceWideTableConfigFingerprints,proto3" json:"namespace_wide_table_config_fingerprints,omitempty"`
-	unknownFields                        protoimpl.UnknownFields
-	sizeCache                            protoimpl.SizeCache
+	// Total bytes of the per-feature observation (feat_*) tables for features not present in a
+	// materialized feature view.
+	NonMfvBackedSkinnyTablesBytes *uint64 `protobuf:"varint,10,opt,name=non_mfv_backed_skinny_tables_bytes,json=nonMfvBackedSkinnyTablesBytes,proto3,oneof" json:"non_mfv_backed_skinny_tables_bytes,omitempty"`
+	// Bytes of the query_log table. Could include other environments' rows, since every environment
+	// on this dataset/schema writes to it.
+	QueryLogBytes *uint64 `protobuf:"varint,11,opt,name=query_log_bytes,json=queryLogBytes,proto3,oneof" json:"query_log_bytes,omitempty"`
+	// Total bytes of this environment's query_*_values tables, identified by the environment each
+	// table records in its metadata (a BigQuery label or a Snowflake comment).
+	QueryValuesBytes *uint64 `protobuf:"varint,12,opt,name=query_values_bytes,json=queryValuesBytes,proto3,oneof" json:"query_values_bytes,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *GetMetricsResponse) Reset() {
@@ -574,6 +584,27 @@ func (x *GetMetricsResponse) GetNamespaceWideTableConfigFingerprints() []*Namesp
 	return nil
 }
 
+func (x *GetMetricsResponse) GetNonMfvBackedSkinnyTablesBytes() uint64 {
+	if x != nil && x.NonMfvBackedSkinnyTablesBytes != nil {
+		return *x.NonMfvBackedSkinnyTablesBytes
+	}
+	return 0
+}
+
+func (x *GetMetricsResponse) GetQueryLogBytes() uint64 {
+	if x != nil && x.QueryLogBytes != nil {
+		return *x.QueryLogBytes
+	}
+	return 0
+}
+
+func (x *GetMetricsResponse) GetQueryValuesBytes() uint64 {
+	if x != nil && x.QueryValuesBytes != nil {
+		return *x.QueryValuesBytes
+	}
+	return 0
+}
+
 type isGetMetricsResponse_Details interface {
 	isGetMetricsResponse_Details()
 }
@@ -629,7 +660,7 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\n" +
 	"dataset_id\x18\x02 \x01(\tR\tdatasetId\x12\x1f\n" +
 	"\blocation\x18\x03 \x01(\tH\x00R\blocation\x88\x01\x01B\v\n" +
-	"\t_location\"\xeb\x06\n" +
+	"\t_location\"\xed\b\n" +
 	"\x12GetMetricsResponse\x123\n" +
 	"\x13skinny_tables_bytes\x18\x01 \x01(\x04H\x01R\x11skinnyTablesBytes\x88\x01\x01\x12/\n" +
 	"\x11wide_tables_bytes\x18\x02 \x01(\x04H\x02R\x0fwideTablesBytes\x88\x01\x01\x12<\n" +
@@ -639,11 +670,18 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\x1cnamespace_observed_at_ranges\x18\x06 \x03(\v2).chalk.engine.v2.NamespaceObservedAtRangeR\x19namespaceObservedAtRanges\x12q\n" +
 	"\x1fnamespace_wide_table_row_counts\x18\a \x03(\v2+.chalk.engine.v2.NamespaceWideTableRowCountR\x1bnamespaceWideTableRowCounts\x12N\n" +
 	"\x12wide_table_layouts\x18\b \x03(\v2 .chalk.engine.v2.WideTableLayoutR\x10wideTableLayouts\x12\x8c\x01\n" +
-	"(namespace_wide_table_config_fingerprints\x18\t \x03(\v24.chalk.engine.v2.NamespaceWideTableConfigFingerprintR$namespaceWideTableConfigFingerprintsB\t\n" +
+	"(namespace_wide_table_config_fingerprints\x18\t \x03(\v24.chalk.engine.v2.NamespaceWideTableConfigFingerprintR$namespaceWideTableConfigFingerprints\x12N\n" +
+	"\"non_mfv_backed_skinny_tables_bytes\x18\n" +
+	" \x01(\x04H\x04R\x1dnonMfvBackedSkinnyTablesBytes\x88\x01\x01\x12+\n" +
+	"\x0fquery_log_bytes\x18\v \x01(\x04H\x05R\rqueryLogBytes\x88\x01\x01\x121\n" +
+	"\x12query_values_bytes\x18\f \x01(\x04H\x06R\x10queryValuesBytes\x88\x01\x01B\t\n" +
 	"\adetailsB\x16\n" +
 	"\x14_skinny_tables_bytesB\x14\n" +
 	"\x12_wide_tables_bytesB\x1b\n" +
-	"\x19_wide_mapping_table_bytesB\xc8\x01\n" +
+	"\x19_wide_mapping_table_bytesB%\n" +
+	"#_non_mfv_backed_skinny_tables_bytesB\x12\n" +
+	"\x10_query_log_bytesB\x15\n" +
+	"\x13_query_values_bytesB\xc8\x01\n" +
 	"\x13com.chalk.engine.v2B\x18OfflineStoreMetricsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/engine/v2;enginev2\xa2\x02\x03CEX\xaa\x02\x0fChalk.Engine.V2\xca\x02\x0fChalk\\Engine\\V2\xe2\x02\x1bChalk\\Engine\\V2\\GPBMetadata\xea\x02\x11Chalk::Engine::V2b\x06proto3"
 
 var (

@@ -369,8 +369,14 @@ type RunTurnRequest struct {
 	// otherwise the call fails with InvalidArgument and nothing is deleted.
 	// When unset, the turn runs on the full history.
 	RestartAtMessageId *string `protobuf:"bytes,6,opt,name=restart_at_message_id,json=restartAtMessageId,proto3,oneof" json:"restart_at_message_id,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Continue tool calls persisted by a previous turn paused for approval.
+	// No new user message should be posted before this request.
+	ResumePendingToolCalls bool `protobuf:"varint,7,opt,name=resume_pending_tool_calls,json=resumePendingToolCalls,proto3" json:"resume_pending_tool_calls,omitempty"`
+	// Clients that present approvals set this on every interactive turn. Unset
+	// permits uninterrupted tool execution for unattended and non-UI clients.
+	RequireToolApproval bool `protobuf:"varint,8,opt,name=require_tool_approval,json=requireToolApproval,proto3" json:"require_tool_approval,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *RunTurnRequest) Reset() {
@@ -443,6 +449,20 @@ func (x *RunTurnRequest) GetRestartAtMessageId() string {
 		return *x.RestartAtMessageId
 	}
 	return ""
+}
+
+func (x *RunTurnRequest) GetResumePendingToolCalls() bool {
+	if x != nil {
+		return x.ResumePendingToolCalls
+	}
+	return false
+}
+
+func (x *RunTurnRequest) GetRequireToolApproval() bool {
+	if x != nil {
+		return x.RequireToolApproval
+	}
+	return false
 }
 
 // AssistantTextDelta is emitted as the model streams tokens for the active
@@ -640,6 +660,155 @@ func (x *ToolResultPosted) GetToolResult() *AgentToolResult {
 	return nil
 }
 
+// The named call is persisted, but its handler has not run.
+type ToolApprovalRequired struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ToolCall      *AgentToolCall         `protobuf:"bytes,1,opt,name=tool_call,json=toolCall,proto3" json:"tool_call,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ToolApprovalRequired) Reset() {
+	*x = ToolApprovalRequired{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToolApprovalRequired) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToolApprovalRequired) ProtoMessage() {}
+
+func (x *ToolApprovalRequired) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToolApprovalRequired.ProtoReflect.Descriptor instead.
+func (*ToolApprovalRequired) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ToolApprovalRequired) GetToolCall() *AgentToolCall {
+	if x != nil {
+		return x.ToolCall
+	}
+	return nil
+}
+
+type DecideToolCallRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ConversationId string                 `protobuf:"bytes,1,opt,name=conversation_id,json=conversationId,proto3" json:"conversation_id,omitempty"`
+	ToolCallId     string                 `protobuf:"bytes,2,opt,name=tool_call_id,json=toolCallId,proto3" json:"tool_call_id,omitempty"`
+	Approve        bool                   `protobuf:"varint,3,opt,name=approve,proto3" json:"approve,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DecideToolCallRequest) Reset() {
+	*x = DecideToolCallRequest{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecideToolCallRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecideToolCallRequest) ProtoMessage() {}
+
+func (x *DecideToolCallRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecideToolCallRequest.ProtoReflect.Descriptor instead.
+func (*DecideToolCallRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DecideToolCallRequest) GetConversationId() string {
+	if x != nil {
+		return x.ConversationId
+	}
+	return ""
+}
+
+func (x *DecideToolCallRequest) GetToolCallId() string {
+	if x != nil {
+		return x.ToolCallId
+	}
+	return ""
+}
+
+func (x *DecideToolCallRequest) GetApprove() bool {
+	if x != nil {
+		return x.Approve
+	}
+	return false
+}
+
+type DecideToolCallResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ToolCall      *AgentToolCall         `protobuf:"bytes,1,opt,name=tool_call,json=toolCall,proto3" json:"tool_call,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecideToolCallResponse) Reset() {
+	*x = DecideToolCallResponse{}
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecideToolCallResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecideToolCallResponse) ProtoMessage() {}
+
+func (x *DecideToolCallResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecideToolCallResponse.ProtoReflect.Descriptor instead.
+func (*DecideToolCallResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DecideToolCallResponse) GetToolCall() *AgentToolCall {
+	if x != nil {
+		return x.ToolCall
+	}
+	return nil
+}
+
 // RunCompleted is the last event on a successful stream. `iterations` is the
 // number of assistant turns that ran (1 for a pure-text reply, >1 if tools
 // were called).
@@ -652,7 +821,7 @@ type RunCompleted struct {
 
 func (x *RunCompleted) Reset() {
 	*x = RunCompleted{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[7]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -664,7 +833,7 @@ func (x *RunCompleted) String() string {
 func (*RunCompleted) ProtoMessage() {}
 
 func (x *RunCompleted) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[7]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -677,7 +846,7 @@ func (x *RunCompleted) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunCompleted.ProtoReflect.Descriptor instead.
 func (*RunCompleted) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{7}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RunCompleted) GetIterations() int32 {
@@ -699,7 +868,7 @@ type RunFailed struct {
 
 func (x *RunFailed) Reset() {
 	*x = RunFailed{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -711,7 +880,7 @@ func (x *RunFailed) String() string {
 func (*RunFailed) ProtoMessage() {}
 
 func (x *RunFailed) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[8]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -724,7 +893,7 @@ func (x *RunFailed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunFailed.ProtoReflect.Descriptor instead.
 func (*RunFailed) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{8}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RunFailed) GetMessage() string {
@@ -747,6 +916,7 @@ type RunTurnResponse struct {
 	//	*RunTurnResponse_ToolResultPosted
 	//	*RunTurnResponse_Completed
 	//	*RunTurnResponse_Failed
+	//	*RunTurnResponse_ToolApprovalRequired
 	Event         isRunTurnResponse_Event `protobuf_oneof:"event"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -754,7 +924,7 @@ type RunTurnResponse struct {
 
 func (x *RunTurnResponse) Reset() {
 	*x = RunTurnResponse{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -766,7 +936,7 @@ func (x *RunTurnResponse) String() string {
 func (*RunTurnResponse) ProtoMessage() {}
 
 func (x *RunTurnResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[9]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -779,7 +949,7 @@ func (x *RunTurnResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunTurnResponse.ProtoReflect.Descriptor instead.
 func (*RunTurnResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{9}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RunTurnResponse) GetEvent() isRunTurnResponse_Event {
@@ -843,6 +1013,15 @@ func (x *RunTurnResponse) GetFailed() *RunFailed {
 	return nil
 }
 
+func (x *RunTurnResponse) GetToolApprovalRequired() *ToolApprovalRequired {
+	if x != nil {
+		if x, ok := x.Event.(*RunTurnResponse_ToolApprovalRequired); ok {
+			return x.ToolApprovalRequired
+		}
+	}
+	return nil
+}
+
 type isRunTurnResponse_Event interface {
 	isRunTurnResponse_Event()
 }
@@ -871,6 +1050,10 @@ type RunTurnResponse_Failed struct {
 	Failed *RunFailed `protobuf:"bytes,6,opt,name=failed,proto3,oneof"`
 }
 
+type RunTurnResponse_ToolApprovalRequired struct {
+	ToolApprovalRequired *ToolApprovalRequired `protobuf:"bytes,7,opt,name=tool_approval_required,json=toolApprovalRequired,proto3,oneof"`
+}
+
 func (*RunTurnResponse_TextDelta) isRunTurnResponse_Event() {}
 
 func (*RunTurnResponse_MessageFinalized) isRunTurnResponse_Event() {}
@@ -882,6 +1065,8 @@ func (*RunTurnResponse_ToolResultPosted) isRunTurnResponse_Event() {}
 func (*RunTurnResponse_Completed) isRunTurnResponse_Event() {}
 
 func (*RunTurnResponse_Failed) isRunTurnResponse_Event() {}
+
+func (*RunTurnResponse_ToolApprovalRequired) isRunTurnResponse_Event() {}
 
 // StopTurnRequest asks the server to stop the in-flight turn on a
 // conversation where it currently stands: the model stream and any running
@@ -896,7 +1081,7 @@ type StopTurnRequest struct {
 
 func (x *StopTurnRequest) Reset() {
 	*x = StopTurnRequest{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -908,7 +1093,7 @@ func (x *StopTurnRequest) String() string {
 func (*StopTurnRequest) ProtoMessage() {}
 
 func (x *StopTurnRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[10]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -921,7 +1106,7 @@ func (x *StopTurnRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopTurnRequest.ProtoReflect.Descriptor instead.
 func (*StopTurnRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{10}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *StopTurnRequest) GetConversationId() string {
@@ -945,7 +1130,7 @@ type StopTurnResponse struct {
 
 func (x *StopTurnResponse) Reset() {
 	*x = StopTurnResponse{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -957,7 +1142,7 @@ func (x *StopTurnResponse) String() string {
 func (*StopTurnResponse) ProtoMessage() {}
 
 func (x *StopTurnResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[11]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -970,7 +1155,7 @@ func (x *StopTurnResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopTurnResponse.ProtoReflect.Descriptor instead.
 func (*StopTurnResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{11}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *StopTurnResponse) GetStopped() bool {
@@ -1010,7 +1195,7 @@ type GenerateInlineCompletionRequest struct {
 
 func (x *GenerateInlineCompletionRequest) Reset() {
 	*x = GenerateInlineCompletionRequest{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[12]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1022,7 +1207,7 @@ func (x *GenerateInlineCompletionRequest) String() string {
 func (*GenerateInlineCompletionRequest) ProtoMessage() {}
 
 func (x *GenerateInlineCompletionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[12]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1035,7 +1220,7 @@ func (x *GenerateInlineCompletionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateInlineCompletionRequest.ProtoReflect.Descriptor instead.
 func (*GenerateInlineCompletionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{12}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GenerateInlineCompletionRequest) GetNotebookId() string {
@@ -1098,7 +1283,7 @@ type GenerateInlineCompletionResponse struct {
 
 func (x *GenerateInlineCompletionResponse) Reset() {
 	*x = GenerateInlineCompletionResponse{}
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[13]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1110,7 +1295,7 @@ func (x *GenerateInlineCompletionResponse) String() string {
 func (*GenerateInlineCompletionResponse) ProtoMessage() {}
 
 func (x *GenerateInlineCompletionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_agent_v1_runner_proto_msgTypes[13]
+	mi := &file_chalk_agent_v1_runner_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1123,7 +1308,7 @@ func (x *GenerateInlineCompletionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateInlineCompletionResponse.ProtoReflect.Descriptor instead.
 func (*GenerateInlineCompletionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{13}
+	return file_chalk_agent_v1_runner_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GenerateInlineCompletionResponse) GetCompletion() string {
@@ -1152,14 +1337,16 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
 	"\x06source\x18\x03 \x01(\tR\x06source\x12?\n" +
 	"\vdiagnostics\x18\x04 \x03(\v2\x1d.chalk.agent.v1.SqlDiagnosticR\vdiagnostics\x12'\n" +
-	"\x0fdatasource_name\x18\x05 \x01(\tR\x0edatasourceName\"\xe1\x02\n" +
+	"\x0fdatasource_name\x18\x05 \x01(\tR\x0edatasourceName\"\xd0\x03\n" +
 	"\x0eRunTurnRequest\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12\x14\n" +
 	"\x05model\x18\x02 \x01(\tR\x05model\x12%\n" +
 	"\x0emax_iterations\x18\x03 \x01(\x05R\rmaxIterations\x12>\n" +
 	"\fpage_context\x18\x04 \x01(\x0e2\x1b.chalk.agent.v1.PageContextR\vpageContext\x12W\n" +
 	"\x15sql_worksheet_context\x18\x05 \x01(\v2#.chalk.agent.v1.SqlWorksheetContextR\x13sqlWorksheetContext\x126\n" +
-	"\x15restart_at_message_id\x18\x06 \x01(\tH\x00R\x12restartAtMessageId\x88\x01\x01B\x18\n" +
+	"\x15restart_at_message_id\x18\x06 \x01(\tH\x00R\x12restartAtMessageId\x88\x01\x01\x129\n" +
+	"\x19resume_pending_tool_calls\x18\a \x01(\bR\x16resumePendingToolCalls\x122\n" +
+	"\x15require_tool_approval\x18\b \x01(\bR\x13requireToolApprovalB\x18\n" +
 	"\x16_restart_at_message_id\"I\n" +
 	"\x12AssistantTextDelta\x12\x1d\n" +
 	"\n" +
@@ -1171,13 +1358,22 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\ttool_call\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentToolCallR\btoolCall\"T\n" +
 	"\x10ToolResultPosted\x12@\n" +
 	"\vtool_result\x18\x01 \x01(\v2\x1f.chalk.agent.v1.AgentToolResultR\n" +
-	"toolResult\".\n" +
+	"toolResult\"R\n" +
+	"\x14ToolApprovalRequired\x12:\n" +
+	"\ttool_call\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentToolCallR\btoolCall\"|\n" +
+	"\x15DecideToolCallRequest\x12'\n" +
+	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\x12 \n" +
+	"\ftool_call_id\x18\x02 \x01(\tR\n" +
+	"toolCallId\x12\x18\n" +
+	"\aapprove\x18\x03 \x01(\bR\aapprove\"T\n" +
+	"\x16DecideToolCallResponse\x12:\n" +
+	"\ttool_call\x18\x01 \x01(\v2\x1d.chalk.agent.v1.AgentToolCallR\btoolCall\".\n" +
 	"\fRunCompleted\x12\x1e\n" +
 	"\n" +
 	"iterations\x18\x01 \x01(\x05R\n" +
 	"iterations\"%\n" +
 	"\tRunFailed\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"\xc4\x03\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xa2\x04\n" +
 	"\x0fRunTurnResponse\x12C\n" +
 	"\n" +
 	"text_delta\x18\x01 \x01(\v2\".chalk.agent.v1.AssistantTextDeltaH\x00R\ttextDelta\x12O\n" +
@@ -1185,7 +1381,8 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\x11tool_call_started\x18\x03 \x01(\v2\x1f.chalk.agent.v1.ToolCallStartedH\x00R\x0ftoolCallStarted\x12P\n" +
 	"\x12tool_result_posted\x18\x04 \x01(\v2 .chalk.agent.v1.ToolResultPostedH\x00R\x10toolResultPosted\x12<\n" +
 	"\tcompleted\x18\x05 \x01(\v2\x1c.chalk.agent.v1.RunCompletedH\x00R\tcompleted\x123\n" +
-	"\x06failed\x18\x06 \x01(\v2\x19.chalk.agent.v1.RunFailedH\x00R\x06failedB\a\n" +
+	"\x06failed\x18\x06 \x01(\v2\x19.chalk.agent.v1.RunFailedH\x00R\x06failed\x12\\\n" +
+	"\x16tool_approval_required\x18\a \x01(\v2$.chalk.agent.v1.ToolApprovalRequiredH\x00R\x14toolApprovalRequiredB\a\n" +
 	"\x05event\":\n" +
 	"\x0fStopTurnRequest\x12'\n" +
 	"\x0fconversation_id\x18\x01 \x01(\tR\x0econversationId\",\n" +
@@ -1214,10 +1411,11 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\x1dSQL_DIAGNOSTIC_SEVERITY_ERROR\x10\x01\x12#\n" +
 	"\x1fSQL_DIAGNOSTIC_SEVERITY_WARNING\x10\x02\x12'\n" +
 	"#SQL_DIAGNOSTIC_SEVERITY_INFORMATION\x10\x03\x12 \n" +
-	"\x1cSQL_DIAGNOSTIC_SEVERITY_HINT\x10\x042\xfd\x02\n" +
+	"\x1cSQL_DIAGNOSTIC_SEVERITY_HINT\x10\x042\xe3\x03\n" +
 	"\x12AgentRunnerService\x12\x8a\x01\n" +
 	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"<\x80}(\x92\xd3\x0e5\n" +
-	"\x11assistant_enabled\x12 Enables Assistant conversations.0\x01\x12R\n" +
+	"\x11assistant_enabled\x12 Enables Assistant conversations.0\x01\x12d\n" +
+	"\x0eDecideToolCall\x12%.chalk.agent.v1.DecideToolCallRequest\x1a&.chalk.agent.v1.DecideToolCallResponse\"\x03\x80}(\x12R\n" +
 	"\bStopTurn\x12\x1f.chalk.agent.v1.StopTurnRequest\x1a .chalk.agent.v1.StopTurnResponse\"\x03\x80}(\x12\x85\x01\n" +
 	"\x18GenerateInlineCompletion\x12/.chalk.agent.v1.GenerateInlineCompletionRequest\x1a0.chalk.agent.v1.GenerateInlineCompletionResponse\"\x06\x80}(\x90\x02\x01B\xb4\x01\n" +
 	"\x12com.chalk.agent.v1B\vRunnerProtoP\x01Z7github.com/chalk-ai/chalk-go/gen/chalk/agent/v1;agentv1\xa2\x02\x03CAX\xaa\x02\x0eChalk.Agent.V1\xca\x02\x0eChalk\\Agent\\V1\xe2\x02\x1aChalk\\Agent\\V1\\GPBMetadata\xea\x02\x10Chalk::Agent::V1b\x06proto3"
@@ -1235,7 +1433,7 @@ func file_chalk_agent_v1_runner_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_agent_v1_runner_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_agent_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_chalk_agent_v1_runner_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_chalk_agent_v1_runner_proto_goTypes = []any{
 	(PageContext)(0),                         // 0: chalk.agent.v1.PageContext
 	(SqlDiagnosticSeverity)(0),               // 1: chalk.agent.v1.SqlDiagnosticSeverity
@@ -1246,42 +1444,50 @@ var file_chalk_agent_v1_runner_proto_goTypes = []any{
 	(*MessageFinalized)(nil),                 // 6: chalk.agent.v1.MessageFinalized
 	(*ToolCallStarted)(nil),                  // 7: chalk.agent.v1.ToolCallStarted
 	(*ToolResultPosted)(nil),                 // 8: chalk.agent.v1.ToolResultPosted
-	(*RunCompleted)(nil),                     // 9: chalk.agent.v1.RunCompleted
-	(*RunFailed)(nil),                        // 10: chalk.agent.v1.RunFailed
-	(*RunTurnResponse)(nil),                  // 11: chalk.agent.v1.RunTurnResponse
-	(*StopTurnRequest)(nil),                  // 12: chalk.agent.v1.StopTurnRequest
-	(*StopTurnResponse)(nil),                 // 13: chalk.agent.v1.StopTurnResponse
-	(*GenerateInlineCompletionRequest)(nil),  // 14: chalk.agent.v1.GenerateInlineCompletionRequest
-	(*GenerateInlineCompletionResponse)(nil), // 15: chalk.agent.v1.GenerateInlineCompletionResponse
-	(*AgentMessage)(nil),                     // 16: chalk.agent.v1.AgentMessage
-	(*AgentToolCall)(nil),                    // 17: chalk.agent.v1.AgentToolCall
-	(*AgentToolResult)(nil),                  // 18: chalk.agent.v1.AgentToolResult
+	(*ToolApprovalRequired)(nil),             // 9: chalk.agent.v1.ToolApprovalRequired
+	(*DecideToolCallRequest)(nil),            // 10: chalk.agent.v1.DecideToolCallRequest
+	(*DecideToolCallResponse)(nil),           // 11: chalk.agent.v1.DecideToolCallResponse
+	(*RunCompleted)(nil),                     // 12: chalk.agent.v1.RunCompleted
+	(*RunFailed)(nil),                        // 13: chalk.agent.v1.RunFailed
+	(*RunTurnResponse)(nil),                  // 14: chalk.agent.v1.RunTurnResponse
+	(*StopTurnRequest)(nil),                  // 15: chalk.agent.v1.StopTurnRequest
+	(*StopTurnResponse)(nil),                 // 16: chalk.agent.v1.StopTurnResponse
+	(*GenerateInlineCompletionRequest)(nil),  // 17: chalk.agent.v1.GenerateInlineCompletionRequest
+	(*GenerateInlineCompletionResponse)(nil), // 18: chalk.agent.v1.GenerateInlineCompletionResponse
+	(*AgentMessage)(nil),                     // 19: chalk.agent.v1.AgentMessage
+	(*AgentToolCall)(nil),                    // 20: chalk.agent.v1.AgentToolCall
+	(*AgentToolResult)(nil),                  // 21: chalk.agent.v1.AgentToolResult
 }
 var file_chalk_agent_v1_runner_proto_depIdxs = []int32{
 	1,  // 0: chalk.agent.v1.SqlDiagnostic.severity:type_name -> chalk.agent.v1.SqlDiagnosticSeverity
 	2,  // 1: chalk.agent.v1.SqlWorksheetContext.diagnostics:type_name -> chalk.agent.v1.SqlDiagnostic
 	0,  // 2: chalk.agent.v1.RunTurnRequest.page_context:type_name -> chalk.agent.v1.PageContext
 	3,  // 3: chalk.agent.v1.RunTurnRequest.sql_worksheet_context:type_name -> chalk.agent.v1.SqlWorksheetContext
-	16, // 4: chalk.agent.v1.MessageFinalized.message:type_name -> chalk.agent.v1.AgentMessage
-	17, // 5: chalk.agent.v1.ToolCallStarted.tool_call:type_name -> chalk.agent.v1.AgentToolCall
-	18, // 6: chalk.agent.v1.ToolResultPosted.tool_result:type_name -> chalk.agent.v1.AgentToolResult
-	5,  // 7: chalk.agent.v1.RunTurnResponse.text_delta:type_name -> chalk.agent.v1.AssistantTextDelta
-	6,  // 8: chalk.agent.v1.RunTurnResponse.message_finalized:type_name -> chalk.agent.v1.MessageFinalized
-	7,  // 9: chalk.agent.v1.RunTurnResponse.tool_call_started:type_name -> chalk.agent.v1.ToolCallStarted
-	8,  // 10: chalk.agent.v1.RunTurnResponse.tool_result_posted:type_name -> chalk.agent.v1.ToolResultPosted
-	9,  // 11: chalk.agent.v1.RunTurnResponse.completed:type_name -> chalk.agent.v1.RunCompleted
-	10, // 12: chalk.agent.v1.RunTurnResponse.failed:type_name -> chalk.agent.v1.RunFailed
-	4,  // 13: chalk.agent.v1.AgentRunnerService.RunTurn:input_type -> chalk.agent.v1.RunTurnRequest
-	12, // 14: chalk.agent.v1.AgentRunnerService.StopTurn:input_type -> chalk.agent.v1.StopTurnRequest
-	14, // 15: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:input_type -> chalk.agent.v1.GenerateInlineCompletionRequest
-	11, // 16: chalk.agent.v1.AgentRunnerService.RunTurn:output_type -> chalk.agent.v1.RunTurnResponse
-	13, // 17: chalk.agent.v1.AgentRunnerService.StopTurn:output_type -> chalk.agent.v1.StopTurnResponse
-	15, // 18: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:output_type -> chalk.agent.v1.GenerateInlineCompletionResponse
-	16, // [16:19] is the sub-list for method output_type
-	13, // [13:16] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	19, // 4: chalk.agent.v1.MessageFinalized.message:type_name -> chalk.agent.v1.AgentMessage
+	20, // 5: chalk.agent.v1.ToolCallStarted.tool_call:type_name -> chalk.agent.v1.AgentToolCall
+	21, // 6: chalk.agent.v1.ToolResultPosted.tool_result:type_name -> chalk.agent.v1.AgentToolResult
+	20, // 7: chalk.agent.v1.ToolApprovalRequired.tool_call:type_name -> chalk.agent.v1.AgentToolCall
+	20, // 8: chalk.agent.v1.DecideToolCallResponse.tool_call:type_name -> chalk.agent.v1.AgentToolCall
+	5,  // 9: chalk.agent.v1.RunTurnResponse.text_delta:type_name -> chalk.agent.v1.AssistantTextDelta
+	6,  // 10: chalk.agent.v1.RunTurnResponse.message_finalized:type_name -> chalk.agent.v1.MessageFinalized
+	7,  // 11: chalk.agent.v1.RunTurnResponse.tool_call_started:type_name -> chalk.agent.v1.ToolCallStarted
+	8,  // 12: chalk.agent.v1.RunTurnResponse.tool_result_posted:type_name -> chalk.agent.v1.ToolResultPosted
+	12, // 13: chalk.agent.v1.RunTurnResponse.completed:type_name -> chalk.agent.v1.RunCompleted
+	13, // 14: chalk.agent.v1.RunTurnResponse.failed:type_name -> chalk.agent.v1.RunFailed
+	9,  // 15: chalk.agent.v1.RunTurnResponse.tool_approval_required:type_name -> chalk.agent.v1.ToolApprovalRequired
+	4,  // 16: chalk.agent.v1.AgentRunnerService.RunTurn:input_type -> chalk.agent.v1.RunTurnRequest
+	10, // 17: chalk.agent.v1.AgentRunnerService.DecideToolCall:input_type -> chalk.agent.v1.DecideToolCallRequest
+	15, // 18: chalk.agent.v1.AgentRunnerService.StopTurn:input_type -> chalk.agent.v1.StopTurnRequest
+	17, // 19: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:input_type -> chalk.agent.v1.GenerateInlineCompletionRequest
+	14, // 20: chalk.agent.v1.AgentRunnerService.RunTurn:output_type -> chalk.agent.v1.RunTurnResponse
+	11, // 21: chalk.agent.v1.AgentRunnerService.DecideToolCall:output_type -> chalk.agent.v1.DecideToolCallResponse
+	16, // 22: chalk.agent.v1.AgentRunnerService.StopTurn:output_type -> chalk.agent.v1.StopTurnResponse
+	18, // 23: chalk.agent.v1.AgentRunnerService.GenerateInlineCompletion:output_type -> chalk.agent.v1.GenerateInlineCompletionResponse
+	20, // [20:24] is the sub-list for method output_type
+	16, // [16:20] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_runner_proto_init() }
@@ -1291,13 +1497,14 @@ func file_chalk_agent_v1_runner_proto_init() {
 	}
 	file_chalk_agent_v1_conversation_proto_init()
 	file_chalk_agent_v1_runner_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_agent_v1_runner_proto_msgTypes[9].OneofWrappers = []any{
+	file_chalk_agent_v1_runner_proto_msgTypes[12].OneofWrappers = []any{
 		(*RunTurnResponse_TextDelta)(nil),
 		(*RunTurnResponse_MessageFinalized)(nil),
 		(*RunTurnResponse_ToolCallStarted)(nil),
 		(*RunTurnResponse_ToolResultPosted)(nil),
 		(*RunTurnResponse_Completed)(nil),
 		(*RunTurnResponse_Failed)(nil),
+		(*RunTurnResponse_ToolApprovalRequired)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1305,7 +1512,7 @@ func file_chalk_agent_v1_runner_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_runner_proto_rawDesc), len(file_chalk_agent_v1_runner_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   14,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

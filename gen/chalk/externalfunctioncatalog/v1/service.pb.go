@@ -15,6 +15,7 @@ import (
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/scalinggroup/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	v2 "github.com/chalk-ai/chalk-go/gen/chalk/volume/v2"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -855,8 +856,10 @@ type ExternalFunctionVersion struct {
 	CreatedAt              *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	Config                 *FunctionConfig        `protobuf:"bytes,9,opt,name=config,proto3,oneof" json:"config,omitempty"`
 	DeletedAt              *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Agent that created this immutable version.
+	CreatedBy     *string `protobuf:"bytes,12,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ExternalFunctionVersion) Reset() {
@@ -964,6 +967,13 @@ func (x *ExternalFunctionVersion) GetDeletedAt() *timestamppb.Timestamp {
 		return x.DeletedAt
 	}
 	return nil
+}
+
+func (x *ExternalFunctionVersion) GetCreatedBy() string {
+	if x != nil && x.CreatedBy != nil {
+		return *x.CreatedBy
+	}
+	return ""
 }
 
 // Soft-deprecated compatibility request. New callers create the stable
@@ -2156,8 +2166,10 @@ type ExternalFunction struct {
 	CreatedAt      *timestamppb.Timestamp   `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt      *timestamppb.Timestamp   `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	DeletedAt      *timestamppb.Timestamp   `protobuf:"bytes,5,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Agent that originally created the stable function resource.
+	CreatedBy     *string `protobuf:"bytes,7,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ExternalFunction) Reset() {
@@ -2230,6 +2242,13 @@ func (x *ExternalFunction) GetDeletedAt() *timestamppb.Timestamp {
 		return x.DeletedAt
 	}
 	return nil
+}
+
+func (x *ExternalFunction) GetCreatedBy() string {
+	if x != nil && x.CreatedBy != nil {
+		return *x.CreatedBy
+	}
+	return ""
 }
 
 type GetExternalFunctionRequest struct {
@@ -3304,8 +3323,10 @@ type ExternalFunctionSummary struct {
 	// historical highest-version-number meaning.
 	CurrentVersion int32  `protobuf:"varint,10,opt,name=current_version,json=currentVersion,proto3" json:"current_version,omitempty"`
 	FunctionId     string `protobuf:"bytes,11,opt,name=function_id,json=functionId,proto3" json:"function_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Id of the user or agent that created this function, if known.
+	CreatedBy     *string `protobuf:"bytes,12,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ExternalFunctionSummary) Reset() {
@@ -3412,6 +3433,13 @@ func (x *ExternalFunctionSummary) GetCurrentVersion() int32 {
 func (x *ExternalFunctionSummary) GetFunctionId() string {
 	if x != nil {
 		return x.FunctionId
+	}
+	return ""
+}
+
+func (x *ExternalFunctionSummary) GetCreatedBy() string {
+	if x != nil && x.CreatedBy != nil {
+		return *x.CreatedBy
 	}
 	return ""
 }
@@ -4009,7 +4037,7 @@ var File_chalk_externalfunctioncatalog_v1_service_proto protoreflect.FileDescrip
 
 const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\n" +
-	".chalk/externalfunctioncatalog/v1/service.proto\x12 chalk.externalfunctioncatalog.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a\x1echalk/sandbox/v1/service.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x02\n" +
+	".chalk/externalfunctioncatalog/v1/service.proto\x12 chalk.externalfunctioncatalog.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a\x1echalk/sandbox/v1/service.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x02\n" +
 	"\vRetryPolicy\x12\x1f\n" +
 	"\vmax_retries\x18\x01 \x01(\x05R\n" +
 	"maxRetries\x121\n" +
@@ -4066,7 +4094,7 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\x06_queueB\v\n" +
 	"\t_scheduleB\n" +
 	"\n" +
-	"\b_tracing\"\xe4\x04\n" +
+	"\b_tracing\"\x9c\x05\n" +
 	"\x17ExternalFunctionVersion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vfunction_id\x18\v \x01(\tR\n" +
@@ -4082,9 +4110,12 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\x06config\x18\t \x01(\v20.chalk.externalfunctioncatalog.v1.FunctionConfigH\x00R\x06config\x88\x01\x01\x12>\n" +
 	"\n" +
 	"deleted_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tdeletedAt\x88\x01\x01B\t\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tdeletedAt\x88\x01\x01\x12'\n" +
+	"\n" +
+	"created_by\x18\f \x01(\tB\x03\xe0A\x03H\x02R\tcreatedBy\x88\x01\x01B\t\n" +
 	"\a_configB\r\n" +
-	"\v_deleted_at\"\xb6\x03\n" +
+	"\v_deleted_atB\r\n" +
+	"\v_created_by\"\xb6\x03\n" +
 	"$CreateExternalFunctionVersionRequest\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12D\n" +
 	"\x12input_arrow_schema\x18\x02 \x01(\v2\x16.chalk.arrow.v1.SchemaR\x10inputArrowSchema\x12F\n" +
@@ -4169,7 +4200,7 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x04 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"\x81\x01\n" +
 	"\x1eUpdateExternalFunctionResponse\x12_\n" +
-	"\x11external_function\x18\x01 \x01(\v22.chalk.externalfunctioncatalog.v1.ExternalFunctionR\x10externalFunction\"\xdf\x02\n" +
+	"\x11external_function\x18\x01 \x01(\v22.chalk.externalfunctioncatalog.v1.ExternalFunctionR\x10externalFunction\"\x97\x03\n" +
 	"\x10ExternalFunction\x12\x0e\n" +
 	"\x02id\x18\x06 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12b\n" +
@@ -4179,8 +4210,11 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12>\n" +
 	"\n" +
-	"deleted_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tdeletedAt\x88\x01\x01B\r\n" +
-	"\v_deleted_at\"\xfc\x02\n" +
+	"deleted_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tdeletedAt\x88\x01\x01\x12'\n" +
+	"\n" +
+	"created_by\x18\a \x01(\tB\x03\xe0A\x03H\x01R\tcreatedBy\x88\x01\x01B\r\n" +
+	"\v_deleted_atB\r\n" +
+	"\v_created_by\"\xfc\x02\n" +
 	"\x1aGetExternalFunctionRequest\x12$\n" +
 	"\vfunction_id\x18\x01 \x01(\tH\x00R\n" +
 	"functionId\x88\x01\x01\x12(\n" +
@@ -4285,7 +4319,7 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\rfunction_name\x18\x01 \x01(\tH\x01R\ffunctionName\x88\x01\x01B\x0e\n" +
 	"\f_function_idB\x10\n" +
 	"\x0e_function_name\" \n" +
-	"\x1eDeleteExternalFunctionResponse\"\xe6\x05\n" +
+	"\x1eDeleteExternalFunctionResponse\"\x9e\x06\n" +
 	"\x17ExternalFunctionSummary\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\x0elatest_version\x18\x02 \x01(\x05R\rlatestVersion\x129\n" +
@@ -4302,10 +4336,13 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\x0fcurrent_version\x18\n" +
 	" \x01(\x05R\x0ecurrentVersion\x12\x1f\n" +
 	"\vfunction_id\x18\v \x01(\tR\n" +
-	"functionIdB\t\n" +
+	"functionId\x12'\n" +
+	"\n" +
+	"created_by\x18\f \x01(\tB\x03\xe0A\x03H\x03R\tcreatedBy\x88\x01\x01B\t\n" +
 	"\a_configB\x10\n" +
 	"\x0e_scaling_groupB\x12\n" +
-	"\x10_active_schedule\"\x86\x05\n" +
+	"\x10_active_scheduleB\r\n" +
+	"\v_created_by\"\x86\x05\n" +
 	"\x1cListExternalFunctionsRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x127\n" +

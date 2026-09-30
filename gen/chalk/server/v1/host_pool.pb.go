@@ -108,7 +108,10 @@ type HostPoolSpec struct {
 	// machine families instead of pinning one. Chalk sets this on the implicit default pool; requests
 	// that set it are rejected, so it is read-only from the API's perspective. Mutually exclusive with
 	// machine_family, which pins a single family and wins when both are somehow present.
-	ComputeClass  *string `protobuf:"bytes,8,opt,name=compute_class,json=computeClass,proto3,oneof" json:"compute_class,omitempty"`
+	ComputeClass *string `protobuf:"bytes,8,opt,name=compute_class,json=computeClass,proto3,oneof" json:"compute_class,omitempty"`
+	// GPU assigned to each host, in the canonical "type:count" form (for example, "nvidia-l4:1").
+	// Empty means a CPU-only host pool.
+	Gpu           string `protobuf:"bytes,9,opt,name=gpu,proto3" json:"gpu,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -196,6 +199,13 @@ func (x *HostPoolSpec) GetMachineFamily() string {
 func (x *HostPoolSpec) GetComputeClass() string {
 	if x != nil && x.ComputeClass != nil {
 		return *x.ComputeClass
+	}
+	return ""
+}
+
+func (x *HostPoolSpec) GetGpu() string {
+	if x != nil {
+		return x.Gpu
 	}
 	return ""
 }
@@ -1593,7 +1603,7 @@ var File_chalk_server_v1_host_pool_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/server/v1/host_pool.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc3\x02\n" +
+	"\x1fchalk/server/v1/host_pool.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd5\x02\n" +
 	"\fHostPoolSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
 	"\tmin_hosts\x18\x02 \x01(\x05R\bminHosts\x12\x1b\n" +
@@ -1602,7 +1612,8 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\x03cpu\x18\x05 \x01(\tR\x03cpu\x12\x16\n" +
 	"\x06memory\x18\x06 \x01(\tR\x06memory\x12.\n" +
 	"\x0emachine_family\x18\a \x01(\tB\x02\x18\x01H\x00R\rmachineFamily\x88\x01\x01\x12(\n" +
-	"\rcompute_class\x18\b \x01(\tH\x01R\fcomputeClass\x88\x01\x01B\x11\n" +
+	"\rcompute_class\x18\b \x01(\tH\x01R\fcomputeClass\x88\x01\x01\x12\x10\n" +
+	"\x03gpu\x18\t \x01(\tR\x03gpuB\x11\n" +
 	"\x0f_machine_familyB\x10\n" +
 	"\x0e_compute_class\"\xf5\x02\n" +
 	"\bHostPool\x12\x0e\n" +

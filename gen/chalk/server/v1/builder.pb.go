@@ -1605,7 +1605,10 @@ type StartShadowBuildFromDeploymentRequest struct {
 	// Pin the engine platform version for this shadow build (a tag/digest selector applied
 	// to the default engine base image, e.g. "v3.27.30"). When unset, the existing
 	// deployment's pinned platform version is inherited.
-	PlatformVersion *string  `protobuf:"bytes,5,opt,name=platform_version,json=platformVersion,proto3,oneof" json:"platform_version,omitempty"`
+	PlatformVersion *string `protobuf:"bytes,5,opt,name=platform_version,json=platformVersion,proto3,oneof" json:"platform_version,omitempty"`
+	// Internal shadow-build controls. Bare names preserve the legacy enable-only
+	// flag behavior. Key/value options support shadow_build_mode, publish_image,
+	// image_tag, shadow_run_id, and use_unconstrained_customer_venvs.
 	OverrideOptions []string `protobuf:"bytes,6,rep,name=override_options,json=overrideOptions,proto3" json:"override_options,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -1684,8 +1687,10 @@ func (x *StartShadowBuildFromDeploymentRequest) GetOverrideOptions() []string {
 }
 
 type StartShadowBuildFromDeploymentResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BuildId       string                 `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	BuildId string                 `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"`
+	// Fully qualified tagged image URI when the shadow build publishes an image.
+	ImageName     string `protobuf:"bytes,2,opt,name=image_name,json=imageName,proto3" json:"image_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1723,6 +1728,13 @@ func (*StartShadowBuildFromDeploymentResponse) Descriptor() ([]byte, []int) {
 func (x *StartShadowBuildFromDeploymentResponse) GetBuildId() string {
 	if x != nil {
 		return x.BuildId
+	}
+	return ""
+}
+
+func (x *StartShadowBuildFromDeploymentResponse) GetImageName() string {
+	if x != nil {
+		return x.ImageName
 	}
 	return ""
 }
@@ -9921,7 +9933,7 @@ type AggregatorSpec struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	ImageVersion string                 `protobuf:"bytes,1,opt,name=image_version,json=imageVersion,proto3" json:"image_version,omitempty"`
 	// Resource requests for the telemetry aggregator deployment. In the Vector
-	// runtime, CPU defaults to 7 and memory defaults to 15Gi when unset.
+	// runtime, CPU defaults to 6 and memory defaults to 4Gi when unset.
 	Request *KubeResourceConfig `protobuf:"bytes,2,opt,name=request,proto3,oneof" json:"request,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 	Limit                *KubeResourceConfig                 `protobuf:"bytes,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"` // the value of this field will be ignored in the future
@@ -11413,7 +11425,7 @@ type VictoriaMetricsSpec struct {
 	// Persistent storage size for the VMCluster storage nodes. Defaults to 200Gi.
 	StorageSize  *string `protobuf:"bytes,2,opt,name=storage_size,json=storageSize,proto3,oneof" json:"storage_size,omitempty"`
 	StorageClass *string `protobuf:"bytes,3,opt,name=storage_class,json=storageClass,proto3,oneof" json:"storage_class,omitempty"`
-	// Resource requests for non-storage VictoriaMetrics pods. Defaults to 1 CPU / 2Gi.
+	// Resource requests for non-storage VictoriaMetrics pods. Defaults to 100m CPU / 100Mi.
 	Request *KubeResourceConfig `protobuf:"bytes,4,opt,name=request,proto3,oneof" json:"request,omitempty"`
 	// Cloud secret name containing the VictoriaMetrics connection URI.
 	CloudSecretName *string `protobuf:"bytes,5,opt,name=cloud_secret_name,json=cloudSecretName,proto3,oneof" json:"cloud_secret_name,omitempty"`
@@ -12712,13 +12724,14 @@ func (x *ObservabilityDaemonSchedulingSpec) GetNodeSelectors() []*KubeNodeSelect
 }
 
 type TelemetryDeploymentSpec struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Namespace       *string                `protobuf:"bytes,1,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
-	ClickHouse      *ClickHouseSpec        `protobuf:"bytes,2,opt,name=click_house,json=clickHouse,proto3,oneof" json:"click_house,omitempty"`
-	Otel            *OtelCollectorSpec     `protobuf:"bytes,3,opt,name=otel,proto3,oneof" json:"otel,omitempty"`
-	NodeSelectors   []*KubeNodeSelector    `protobuf:"bytes,4,rep,name=node_selectors,json=nodeSelectors,proto3" json:"node_selectors,omitempty"`
-	DnsNameOverride *string                `protobuf:"bytes,5,opt,name=dns_name_override,json=dnsNameOverride,proto3,oneof" json:"dns_name_override,omitempty"`
-	Aggregator      *AggregatorSpec        `protobuf:"bytes,6,opt,name=aggregator,proto3,oneof" json:"aggregator,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Namespace  *string                `protobuf:"bytes,1,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
+	ClickHouse *ClickHouseSpec        `protobuf:"bytes,2,opt,name=click_house,json=clickHouse,proto3,oneof" json:"click_house,omitempty"`
+	Otel       *OtelCollectorSpec     `protobuf:"bytes,3,opt,name=otel,proto3,oneof" json:"otel,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
+	NodeSelectors   []*KubeNodeSelector `protobuf:"bytes,4,rep,name=node_selectors,json=nodeSelectors,proto3" json:"node_selectors,omitempty"`
+	DnsNameOverride *string             `protobuf:"bytes,5,opt,name=dns_name_override,json=dnsNameOverride,proto3,oneof" json:"dns_name_override,omitempty"`
+	Aggregator      *AggregatorSpec     `protobuf:"bytes,6,opt,name=aggregator,proto3,oneof" json:"aggregator,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 	ObservabilityDaemons []*ObservabilityDaemonSpec `protobuf:"bytes,7,rep,name=observability_daemons,json=observabilityDaemons,proto3" json:"observability_daemons,omitempty"`
 	// Customer collector configuration - if provided, deploys separate collector
@@ -12743,14 +12756,17 @@ type TelemetryDeploymentSpec struct {
 	// VictoriaMetrics storage and scrape configuration. Omitting this field leaves
 	// VictoriaMetrics disabled unless the default_telemetry_victoria_metrics
 	// feature flag is enabled, in which case default settings are deployed.
-	VictoriaMetrics             *VictoriaMetricsSpec                 `protobuf:"bytes,13,opt,name=victoria_metrics,json=victoriaMetrics,proto3,oneof" json:"victoria_metrics,omitempty"`
-	IngestMetrics               *TelemetryIngestMetricsSpec          `protobuf:"bytes,14,opt,name=ingest_metrics,json=ingestMetrics,proto3,oneof" json:"ingest_metrics,omitempty"`
-	VectorStatsd                *VectorStatsdSpec                    `protobuf:"bytes,15,opt,name=vector_statsd,json=vectorStatsd,proto3,oneof" json:"vector_statsd,omitempty"`
-	MetricExports               *MetricExportSpec                    `protobuf:"bytes,16,opt,name=metric_exports,json=metricExports,proto3,oneof" json:"metric_exports,omitempty"`
-	CustomerVectorAggregator    *CustomerVectorAggregatorConfig      `protobuf:"bytes,17,opt,name=customer_vector_aggregator,json=customerVectorAggregator,proto3,oneof" json:"customer_vector_aggregator,omitempty"`
+	VictoriaMetrics          *VictoriaMetricsSpec            `protobuf:"bytes,13,opt,name=victoria_metrics,json=victoriaMetrics,proto3,oneof" json:"victoria_metrics,omitempty"`
+	IngestMetrics            *TelemetryIngestMetricsSpec     `protobuf:"bytes,14,opt,name=ingest_metrics,json=ingestMetrics,proto3,oneof" json:"ingest_metrics,omitempty"`
+	VectorStatsd             *VectorStatsdSpec               `protobuf:"bytes,15,opt,name=vector_statsd,json=vectorStatsd,proto3,oneof" json:"vector_statsd,omitempty"`
+	MetricExports            *MetricExportSpec               `protobuf:"bytes,16,opt,name=metric_exports,json=metricExports,proto3,oneof" json:"metric_exports,omitempty"`
+	CustomerVectorAggregator *CustomerVectorAggregatorConfig `protobuf:"bytes,17,opt,name=customer_vector_aggregator,json=customerVectorAggregator,proto3,oneof" json:"customer_vector_aggregator,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 	PrometheusCollectionRuntime TelemetryPrometheusCollectionRuntime `protobuf:"varint,18,opt,name=prometheus_collection_runtime,json=prometheusCollectionRuntime,proto3,enum=chalk.server.v1.TelemetryPrometheusCollectionRuntime" json:"prometheus_collection_runtime,omitempty"`
 	// Tuning for the isolated Vector collector and aggregator self-observability
 	// metrics write path. This does not affect customer Vector aggregators.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 	VectorPipelineMetrics *VectorTelemetryPipelineMetricsSpec `protobuf:"bytes,19,opt,name=vector_pipeline_metrics,json=vectorPipelineMetrics,proto3,oneof" json:"vector_pipeline_metrics,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
@@ -12807,6 +12823,7 @@ func (x *TelemetryDeploymentSpec) GetOtel() *OtelCollectorSpec {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 func (x *TelemetryDeploymentSpec) GetNodeSelectors() []*KubeNodeSelector {
 	if x != nil {
 		return x.NodeSelectors
@@ -12906,6 +12923,7 @@ func (x *TelemetryDeploymentSpec) GetCustomerVectorAggregator() *CustomerVectorA
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 func (x *TelemetryDeploymentSpec) GetPrometheusCollectionRuntime() TelemetryPrometheusCollectionRuntime {
 	if x != nil {
 		return x.PrometheusCollectionRuntime
@@ -12913,6 +12931,7 @@ func (x *TelemetryDeploymentSpec) GetPrometheusCollectionRuntime() TelemetryProm
 	return TelemetryPrometheusCollectionRuntime_TELEMETRY_PROMETHEUS_COLLECTION_RUNTIME_UNSPECIFIED
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 func (x *TelemetryDeploymentSpec) GetVectorPipelineMetrics() *VectorTelemetryPipelineMetricsSpec {
 	if x != nil {
 		return x.VectorPipelineMetrics
@@ -18882,9 +18901,11 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x13_force_venv_rebuildB \n" +
 	"\x1e_skip_handle_conversion_errorsB%\n" +
 	"#_validate_named_queries_after_buildB\x13\n" +
-	"\x11_platform_version\"C\n" +
+	"\x11_platform_version\"b\n" +
 	"&StartShadowBuildFromDeploymentResponse\x12\x19\n" +
-	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\x98\x01\n" +
+	"\bbuild_id\x18\x01 \x01(\tR\abuildId\x12\x1d\n" +
+	"\n" +
+	"image_name\x18\x02 \x01(\tR\timageName\"\x98\x01\n" +
 	"\x1bDeployKubeComponentsRequest\x124\n" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12C\n" +
 	"\atargets\x18\x02 \x03(\v2).chalk.server.v1.ActivateDeploymentTargetR\atargets\"G\n" +
@@ -20201,13 +20222,13 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x0f_image_overrideB\r\n" +
 	"\v_scheduling\"m\n" +
 	"!ObservabilityDaemonSchedulingSpec\x12H\n" +
-	"\x0enode_selectors\x18\x01 \x03(\v2!.chalk.server.v1.KubeNodeSelectorR\rnodeSelectors\"\xdb\x0e\n" +
+	"\x0enode_selectors\x18\x01 \x03(\v2!.chalk.server.v1.KubeNodeSelectorR\rnodeSelectors\"\xe5\x0e\n" +
 	"\x17TelemetryDeploymentSpec\x12&\n" +
 	"\tnamespace\x18\x01 \x01(\tB\x03\xe0A\x05H\x00R\tnamespace\x88\x01\x01\x12E\n" +
 	"\vclick_house\x18\x02 \x01(\v2\x1f.chalk.server.v1.ClickHouseSpecH\x01R\n" +
 	"clickHouse\x88\x01\x01\x12;\n" +
-	"\x04otel\x18\x03 \x01(\v2\".chalk.server.v1.OtelCollectorSpecH\x02R\x04otel\x88\x01\x01\x12M\n" +
-	"\x0enode_selectors\x18\x04 \x03(\v2!.chalk.server.v1.KubeNodeSelectorB\x03\xe0A\x05R\rnodeSelectors\x12/\n" +
+	"\x04otel\x18\x03 \x01(\v2\".chalk.server.v1.OtelCollectorSpecH\x02R\x04otel\x88\x01\x01\x12O\n" +
+	"\x0enode_selectors\x18\x04 \x03(\v2!.chalk.server.v1.KubeNodeSelectorB\x05\xe0A\x05\x18\x01R\rnodeSelectors\x12/\n" +
 	"\x11dns_name_override\x18\x05 \x01(\tH\x03R\x0fdnsNameOverride\x88\x01\x01\x12D\n" +
 	"\n" +
 	"aggregator\x18\x06 \x01(\v2\x1f.chalk.server.v1.AggregatorSpecH\x04R\n" +
@@ -20224,9 +20245,9 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\rvector_statsd\x18\x0f \x01(\v2!.chalk.server.v1.VectorStatsdSpecH\n" +
 	"R\fvectorStatsd\x88\x01\x01\x12M\n" +
 	"\x0emetric_exports\x18\x10 \x01(\v2!.chalk.server.v1.MetricExportSpecH\vR\rmetricExports\x88\x01\x01\x12r\n" +
-	"\x1acustomer_vector_aggregator\x18\x11 \x01(\v2/.chalk.server.v1.CustomerVectorAggregatorConfigH\fR\x18customerVectorAggregator\x88\x01\x01\x12y\n" +
-	"\x1dprometheus_collection_runtime\x18\x12 \x01(\x0e25.chalk.server.v1.TelemetryPrometheusCollectionRuntimeR\x1bprometheusCollectionRuntime\x12p\n" +
-	"\x17vector_pipeline_metrics\x18\x13 \x01(\v23.chalk.server.v1.VectorTelemetryPipelineMetricsSpecH\rR\x15vectorPipelineMetrics\x88\x01\x01B\f\n" +
+	"\x1acustomer_vector_aggregator\x18\x11 \x01(\v2/.chalk.server.v1.CustomerVectorAggregatorConfigH\fR\x18customerVectorAggregator\x88\x01\x01\x12}\n" +
+	"\x1dprometheus_collection_runtime\x18\x12 \x01(\x0e25.chalk.server.v1.TelemetryPrometheusCollectionRuntimeB\x02\x18\x01R\x1bprometheusCollectionRuntime\x12t\n" +
+	"\x17vector_pipeline_metrics\x18\x13 \x01(\v23.chalk.server.v1.VectorTelemetryPipelineMetricsSpecB\x02\x18\x01H\rR\x15vectorPipelineMetrics\x88\x01\x01B\f\n" +
 	"\n" +
 	"_namespaceB\x0e\n" +
 	"\f_click_houseB\a\n" +

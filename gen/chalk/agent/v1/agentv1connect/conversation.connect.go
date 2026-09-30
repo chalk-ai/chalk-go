@@ -72,6 +72,9 @@ const (
 	// AgentConversationServiceUpdateMessageStatusProcedure is the fully-qualified name of the
 	// AgentConversationService's UpdateMessageStatus RPC.
 	AgentConversationServiceUpdateMessageStatusProcedure = "/chalk.agent.v1.AgentConversationService/UpdateMessageStatus"
+	// AgentConversationServiceSetMessageFeedbackProcedure is the fully-qualified name of the
+	// AgentConversationService's SetMessageFeedback RPC.
+	AgentConversationServiceSetMessageFeedbackProcedure = "/chalk.agent.v1.AgentConversationService/SetMessageFeedback"
 	// AgentConversationServiceListMessagesProcedure is the fully-qualified name of the
 	// AgentConversationService's ListMessages RPC.
 	AgentConversationServiceListMessagesProcedure = "/chalk.agent.v1.AgentConversationService/ListMessages"
@@ -105,6 +108,7 @@ type AgentConversationServiceClient interface {
 	ListConversationsForArtifact(context.Context, *connect.Request[v1.ListConversationsForArtifactRequest]) (*connect.Response[v1.ListConversationsForArtifactResponse], error)
 	AddMessage(context.Context, *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error)
 	UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error)
+	SetMessageFeedback(context.Context, *connect.Request[v1.SetMessageFeedbackRequest]) (*connect.Response[v1.SetMessageFeedbackResponse], error)
 	ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error)
 	AddToolResult(context.Context, *connect.Request[v1.AddToolResultRequest]) (*connect.Response[v1.AddToolResultResponse], error)
 	// Admin-only transcript editing, for re-working conversations (e.g. demos).
@@ -215,6 +219,13 @@ func NewAgentConversationServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		setMessageFeedback: connect.NewClient[v1.SetMessageFeedbackRequest, v1.SetMessageFeedbackResponse](
+			httpClient,
+			baseURL+AgentConversationServiceSetMessageFeedbackProcedure,
+			connect.WithSchema(agentConversationServiceMethods.ByName("SetMessageFeedback")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 		listMessages: connect.NewClient[v1.ListMessagesRequest, v1.ListMessagesResponse](
 			httpClient,
 			baseURL+AgentConversationServiceListMessagesProcedure,
@@ -266,6 +277,7 @@ type agentConversationServiceClient struct {
 	listConversationsForArtifact  *connect.Client[v1.ListConversationsForArtifactRequest, v1.ListConversationsForArtifactResponse]
 	addMessage                    *connect.Client[v1.AddMessageRequest, v1.AddMessageResponse]
 	updateMessageStatus           *connect.Client[v1.UpdateMessageStatusRequest, v1.UpdateMessageStatusResponse]
+	setMessageFeedback            *connect.Client[v1.SetMessageFeedbackRequest, v1.SetMessageFeedbackResponse]
 	listMessages                  *connect.Client[v1.ListMessagesRequest, v1.ListMessagesResponse]
 	addToolResult                 *connect.Client[v1.AddToolResultRequest, v1.AddToolResultResponse]
 	replaceConversationTranscript *connect.Client[v1.ReplaceConversationTranscriptRequest, v1.ReplaceConversationTranscriptResponse]
@@ -340,6 +352,11 @@ func (c *agentConversationServiceClient) UpdateMessageStatus(ctx context.Context
 	return c.updateMessageStatus.CallUnary(ctx, req)
 }
 
+// SetMessageFeedback calls chalk.agent.v1.AgentConversationService.SetMessageFeedback.
+func (c *agentConversationServiceClient) SetMessageFeedback(ctx context.Context, req *connect.Request[v1.SetMessageFeedbackRequest]) (*connect.Response[v1.SetMessageFeedbackResponse], error) {
+	return c.setMessageFeedback.CallUnary(ctx, req)
+}
+
 // ListMessages calls chalk.agent.v1.AgentConversationService.ListMessages.
 func (c *agentConversationServiceClient) ListMessages(ctx context.Context, req *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error) {
 	return c.listMessages.CallUnary(ctx, req)
@@ -382,6 +399,7 @@ type AgentConversationServiceHandler interface {
 	ListConversationsForArtifact(context.Context, *connect.Request[v1.ListConversationsForArtifactRequest]) (*connect.Response[v1.ListConversationsForArtifactResponse], error)
 	AddMessage(context.Context, *connect.Request[v1.AddMessageRequest]) (*connect.Response[v1.AddMessageResponse], error)
 	UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error)
+	SetMessageFeedback(context.Context, *connect.Request[v1.SetMessageFeedbackRequest]) (*connect.Response[v1.SetMessageFeedbackResponse], error)
 	ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error)
 	AddToolResult(context.Context, *connect.Request[v1.AddToolResultRequest]) (*connect.Response[v1.AddToolResultResponse], error)
 	// Admin-only transcript editing, for re-working conversations (e.g. demos).
@@ -488,6 +506,13 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	agentConversationServiceSetMessageFeedbackHandler := connect.NewUnaryHandler(
+		AgentConversationServiceSetMessageFeedbackProcedure,
+		svc.SetMessageFeedback,
+		connect.WithSchema(agentConversationServiceMethods.ByName("SetMessageFeedback")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	agentConversationServiceListMessagesHandler := connect.NewUnaryHandler(
 		AgentConversationServiceListMessagesProcedure,
 		svc.ListMessages,
@@ -549,6 +574,8 @@ func NewAgentConversationServiceHandler(svc AgentConversationServiceHandler, opt
 			agentConversationServiceAddMessageHandler.ServeHTTP(w, r)
 		case AgentConversationServiceUpdateMessageStatusProcedure:
 			agentConversationServiceUpdateMessageStatusHandler.ServeHTTP(w, r)
+		case AgentConversationServiceSetMessageFeedbackProcedure:
+			agentConversationServiceSetMessageFeedbackHandler.ServeHTTP(w, r)
 		case AgentConversationServiceListMessagesProcedure:
 			agentConversationServiceListMessagesHandler.ServeHTTP(w, r)
 		case AgentConversationServiceAddToolResultProcedure:
@@ -618,6 +645,10 @@ func (UnimplementedAgentConversationServiceHandler) AddMessage(context.Context, 
 
 func (UnimplementedAgentConversationServiceHandler) UpdateMessageStatus(context.Context, *connect.Request[v1.UpdateMessageStatusRequest]) (*connect.Response[v1.UpdateMessageStatusResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.UpdateMessageStatus is not implemented"))
+}
+
+func (UnimplementedAgentConversationServiceHandler) SetMessageFeedback(context.Context, *connect.Request[v1.SetMessageFeedbackRequest]) (*connect.Response[v1.SetMessageFeedbackResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentConversationService.SetMessageFeedback is not implemented"))
 }
 
 func (UnimplementedAgentConversationServiceHandler) ListMessages(context.Context, *connect.Request[v1.ListMessagesRequest]) (*connect.Response[v1.ListMessagesResponse], error) {

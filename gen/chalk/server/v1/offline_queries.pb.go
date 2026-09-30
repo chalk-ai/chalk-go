@@ -577,8 +577,11 @@ type OfflineQueryMeta struct {
 	// Present when this offline query is the referenced operation of a workflow.
 	// The pre-queue interval is attributable to that workflow's metaplanning.
 	ReferencingWorkflowExecutionId *string `protobuf:"bytes,43,opt,name=referencing_workflow_execution_id,json=referencingWorkflowExecutionId,proto3,oneof" json:"referencing_workflow_execution_id,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// Status of the workflow execution named by referencing_workflow_execution_id.
+	// A workflow can be WORKING (e.g. metaplanning) while this query is still QUEUED.
+	ReferencingWorkflowExecutionStatus *WorkflowExecutionStatus `protobuf:"varint,44,opt,name=referencing_workflow_execution_status,json=referencingWorkflowExecutionStatus,proto3,enum=chalk.server.v1.WorkflowExecutionStatus,oneof" json:"referencing_workflow_execution_status,omitempty"`
+	unknownFields                      protoimpl.UnknownFields
+	sizeCache                          protoimpl.SizeCache
 }
 
 func (x *OfflineQueryMeta) Reset() {
@@ -910,6 +913,13 @@ func (x *OfflineQueryMeta) GetReferencingWorkflowExecutionId() string {
 		return *x.ReferencingWorkflowExecutionId
 	}
 	return ""
+}
+
+func (x *OfflineQueryMeta) GetReferencingWorkflowExecutionStatus() WorkflowExecutionStatus {
+	if x != nil && x.ReferencingWorkflowExecutionStatus != nil {
+		return *x.ReferencingWorkflowExecutionStatus
+	}
+	return WorkflowExecutionStatus_WORKFLOW_EXECUTION_STATUS_UNSPECIFIED
 }
 
 // Job-queue stage boundaries for one offline query, reduced across its shards
@@ -4899,7 +4909,7 @@ var File_chalk_server_v1_offline_queries_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/server/v1/offline_queries.proto\x12\x0fchalk.server.v1\x1a chalk/aggregate/v1/service.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a&chalk/common/v1/dataset_response.proto\x1a#chalk/common/v1/offline_query.proto\x1a\x1echalk/server/v1/datasets.proto\x1a)chalk/server/v1/performance_summary.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd0\x03\n" +
+	"%chalk/server/v1/offline_queries.proto\x12\x0fchalk.server.v1\x1a chalk/aggregate/v1/service.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a&chalk/common/v1/dataset_response.proto\x1a#chalk/common/v1/offline_query.proto\x1a(chalk/server/v1/dataplaneworkflows.proto\x1a\x1echalk/server/v1/datasets.proto\x1a)chalk/server/v1/performance_summary.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd0\x03\n" +
 	"\x14OfflineQueryShardRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12(\n" +
 	"\x10offline_query_id\x18\x02 \x01(\tR\x0eofflineQueryId\x12\x19\n" +
@@ -4943,7 +4953,7 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\r_completed_atB\t\n" +
 	"\a_statusB\x14\n" +
 	"\x12_last_heartbeat_atB\x10\n" +
-	"\x0e_query_plan_id\"\xb7\x16\n" +
+	"\x0e_query_plan_id\"\xe4\x17\n" +
 	"\x10OfflineQueryMeta\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12!\n" +
 	"\foperation_id\x18\x02 \x01(\tR\voperationId\x12%\n" +
@@ -4997,7 +5007,8 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\x0eresource_group\x18( \x01(\tH\x1dR\rresourceGroup\x88\x01\x01\x12P\n" +
 	"\fstage_timing\x18) \x01(\v2(.chalk.server.v1.OfflineQueryStageTimingH\x1eR\vstageTiming\x88\x01\x01\x12&\n" +
 	"\x0finput_root_fqns\x18* \x03(\tR\rinputRootFqns\x12N\n" +
-	"!referencing_workflow_execution_id\x18+ \x01(\tH\x1fR\x1ereferencingWorkflowExecutionId\x88\x01\x01B\r\n" +
+	"!referencing_workflow_execution_id\x18+ \x01(\tH\x1fR\x1ereferencingWorkflowExecutionId\x88\x01\x01\x12\x80\x01\n" +
+	"%referencing_workflow_execution_status\x18, \x01(\x0e2(.chalk.server.v1.WorkflowExecutionStatusH R\"referencingWorkflowExecutionStatus\x88\x01\x01B\r\n" +
 	"\v_query_metaB\x10\n" +
 	"\x0e_query_plan_idB\x0e\n" +
 	"\f_branch_nameB\r\n" +
@@ -5030,7 +5041,8 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\x10_job_queue_statsB\x11\n" +
 	"\x0f_resource_groupB\x0f\n" +
 	"\r_stage_timingB$\n" +
-	"\"_referencing_workflow_execution_id\"\xd4\x02\n" +
+	"\"_referencing_workflow_execution_idB(\n" +
+	"&_referencing_workflow_execution_status\"\xd4\x02\n" +
 	"\x17OfflineQueryStageTiming\x12I\n" +
 	"\x10queue_started_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x0equeueStartedAt\x88\x01\x01\x12Q\n" +
 	"\x14execution_started_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x12executionStartedAt\x88\x01\x01\x12S\n" +
@@ -5544,12 +5556,13 @@ var file_chalk_server_v1_offline_queries_proto_goTypes = []any{
 	(*structpb.Value)(nil),                                    // 67: google.protobuf.Value
 	(*DatasetRevisionMeta)(nil),                               // 68: chalk.server.v1.DatasetRevisionMeta
 	(*v1.PlanAggregateBackfillResponse)(nil),                  // 69: chalk.aggregate.v1.PlanAggregateBackfillResponse
-	(*v11.OfflineQueryRequest)(nil),                           // 70: chalk.common.v1.OfflineQueryRequest
-	(*v11.DatasetResponse)(nil),                               // 71: chalk.common.v1.DatasetResponse
-	(*v11.ChalkError)(nil),                                    // 72: chalk.common.v1.ChalkError
-	(*fieldmaskpb.FieldMask)(nil),                             // 73: google.protobuf.FieldMask
-	(*ListOfflineQueryShardPerformanceSummariesRequest)(nil),  // 74: chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest
-	(*ListOfflineQueryShardPerformanceSummariesResponse)(nil), // 75: chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse
+	(WorkflowExecutionStatus)(0),                              // 70: chalk.server.v1.WorkflowExecutionStatus
+	(*v11.OfflineQueryRequest)(nil),                           // 71: chalk.common.v1.OfflineQueryRequest
+	(*v11.DatasetResponse)(nil),                               // 72: chalk.common.v1.DatasetResponse
+	(*v11.ChalkError)(nil),                                    // 73: chalk.common.v1.ChalkError
+	(*fieldmaskpb.FieldMask)(nil),                             // 74: google.protobuf.FieldMask
+	(*ListOfflineQueryShardPerformanceSummariesRequest)(nil),  // 75: chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest
+	(*ListOfflineQueryShardPerformanceSummariesResponse)(nil), // 76: chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse
 }
 var file_chalk_server_v1_offline_queries_proto_depIdxs = []int32{
 	66,  // 0: chalk.server.v1.OfflineQueryShardRun.created_at:type_name -> google.protobuf.Timestamp
@@ -5574,124 +5587,125 @@ var file_chalk_server_v1_offline_queries_proto_depIdxs = []int32{
 	69,  // 19: chalk.server.v1.OfflineQueryMeta.time_series:type_name -> chalk.aggregate.v1.PlanAggregateBackfillResponse
 	8,   // 20: chalk.server.v1.OfflineQueryMeta.job_queue_stats:type_name -> chalk.server.v1.OfflineQueryJobQueueStats
 	7,   // 21: chalk.server.v1.OfflineQueryMeta.stage_timing:type_name -> chalk.server.v1.OfflineQueryStageTiming
-	66,  // 22: chalk.server.v1.OfflineQueryStageTiming.queue_started_at:type_name -> google.protobuf.Timestamp
-	66,  // 23: chalk.server.v1.OfflineQueryStageTiming.execution_started_at:type_name -> google.protobuf.Timestamp
-	66,  // 24: chalk.server.v1.OfflineQueryStageTiming.execution_finished_at:type_name -> google.protobuf.Timestamp
-	1,   // 25: chalk.server.v1.ListOfflineQueriesRequest.kind_filter:type_name -> chalk.server.v1.OfflineQueryKind
-	0,   // 26: chalk.server.v1.ListOfflineQueriesRequest.status_filter:type_name -> chalk.server.v1.OfflineQueryStatus
-	1,   // 27: chalk.server.v1.ListOfflineQueriesRequest.kind_filters:type_name -> chalk.server.v1.OfflineQueryKind
-	0,   // 28: chalk.server.v1.ListOfflineQueriesRequest.status_filters:type_name -> chalk.server.v1.OfflineQueryStatus
-	6,   // 29: chalk.server.v1.ListOfflineQueriesResponse.offline_queries:type_name -> chalk.server.v1.OfflineQueryMeta
-	6,   // 30: chalk.server.v1.GetOfflineQueryResponse.offline_query:type_name -> chalk.server.v1.OfflineQueryMeta
-	14,  // 31: chalk.server.v1.GetOfflineQueryRequestBodyResponse.shard_request_body:type_name -> chalk.server.v1.ShardRequestBodyJsonString
-	0,   // 32: chalk.server.v1.ListOfflineQueryShardsFilters.status:type_name -> chalk.server.v1.OfflineQueryStatus
-	16,  // 33: chalk.server.v1.ListOfflineQueryShardsRequest.filters:type_name -> chalk.server.v1.ListOfflineQueryShardsFilters
-	5,   // 34: chalk.server.v1.ListOfflineQueryShardsResponse.offline_query_shards:type_name -> chalk.server.v1.OfflineQueryShard
-	0,   // 35: chalk.server.v1.OfflineQueryShardStatusAggregate.status:type_name -> chalk.server.v1.OfflineQueryStatus
-	20,  // 36: chalk.server.v1.GetOfflineQueryShardsAggregatedResponse.aggregates:type_name -> chalk.server.v1.OfflineQueryShardStatusAggregate
-	26,  // 37: chalk.server.v1.OfflineQueryProfileSummaryRow.stats:type_name -> chalk.server.v1.OfflineQueryProfilePercentileStats
-	0,   // 38: chalk.server.v1.GetOfflineQueryProfileSummaryResponse.status:type_name -> chalk.server.v1.OfflineQueryStatus
-	27,  // 39: chalk.server.v1.GetOfflineQueryProfileSummaryResponse.rows:type_name -> chalk.server.v1.OfflineQueryProfileSummaryRow
-	0,   // 40: chalk.server.v1.OfflineQueryUtilizationSummary.status:type_name -> chalk.server.v1.OfflineQueryStatus
-	66,  // 41: chalk.server.v1.OfflineQueryUtilizationSummary.created_at:type_name -> google.protobuf.Timestamp
-	66,  // 42: chalk.server.v1.OfflineQueryUtilizationSummary.completed_at:type_name -> google.protobuf.Timestamp
-	29,  // 43: chalk.server.v1.OfflineQueryUtilizationSummary.cpu:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
-	29,  // 44: chalk.server.v1.OfflineQueryUtilizationSummary.memory:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
-	29,  // 45: chalk.server.v1.OfflineQueryUtilizationSummary.disk:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
-	30,  // 46: chalk.server.v1.OfflineQueryUtilizationSummary.pods:type_name -> chalk.server.v1.OfflineQueryPodInfo
-	66,  // 47: chalk.server.v1.GetOfflineQueryUtilizationSummariesRequest.start_time:type_name -> google.protobuf.Timestamp
-	66,  // 48: chalk.server.v1.GetOfflineQueryUtilizationSummariesRequest.end_time:type_name -> google.protobuf.Timestamp
-	31,  // 49: chalk.server.v1.GetOfflineQueryUtilizationSummariesResponse.summaries:type_name -> chalk.server.v1.OfflineQueryUtilizationSummary
-	66,  // 50: chalk.server.v1.ResourceGroupUtilizationBucket.bucket_start:type_name -> google.protobuf.Timestamp
-	29,  // 51: chalk.server.v1.ResourceGroupUtilizationBucket.cpu:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
-	29,  // 52: chalk.server.v1.ResourceGroupUtilizationBucket.memory:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
-	29,  // 53: chalk.server.v1.ResourceGroupUtilizationBucket.disk:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
-	34,  // 54: chalk.server.v1.ResourceGroupUtilizationSeries.buckets:type_name -> chalk.server.v1.ResourceGroupUtilizationBucket
-	66,  // 55: chalk.server.v1.GetResourceGroupUtilizationTimeseriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	66,  // 56: chalk.server.v1.GetResourceGroupUtilizationTimeseriesRequest.end_time:type_name -> google.protobuf.Timestamp
-	35,  // 57: chalk.server.v1.GetResourceGroupUtilizationTimeseriesResponse.series:type_name -> chalk.server.v1.ResourceGroupUtilizationSeries
-	66,  // 58: chalk.server.v1.ResourceGroupJobBucket.bucket_start:type_name -> google.protobuf.Timestamp
-	38,  // 59: chalk.server.v1.ResourceGroupJobSeries.buckets:type_name -> chalk.server.v1.ResourceGroupJobBucket
-	66,  // 60: chalk.server.v1.GetResourceGroupJobTimeseriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	66,  // 61: chalk.server.v1.GetResourceGroupJobTimeseriesRequest.end_time:type_name -> google.protobuf.Timestamp
-	39,  // 62: chalk.server.v1.GetResourceGroupJobTimeseriesResponse.series:type_name -> chalk.server.v1.ResourceGroupJobSeries
-	66,  // 63: chalk.server.v1.ResourceGroupEfficiencyBucket.bucket_start:type_name -> google.protobuf.Timestamp
-	42,  // 64: chalk.server.v1.ResourceGroupEfficiencySeries.buckets:type_name -> chalk.server.v1.ResourceGroupEfficiencyBucket
-	43,  // 65: chalk.server.v1.ResourceGroupEfficiencySeries.summary:type_name -> chalk.server.v1.ResourceGroupEfficiencySummary
-	66,  // 66: chalk.server.v1.GetResourceGroupEfficiencyTimeseriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	66,  // 67: chalk.server.v1.GetResourceGroupEfficiencyTimeseriesRequest.end_time:type_name -> google.protobuf.Timestamp
-	44,  // 68: chalk.server.v1.GetResourceGroupEfficiencyTimeseriesResponse.series:type_name -> chalk.server.v1.ResourceGroupEfficiencySeries
-	70,  // 69: chalk.server.v1.CreateOfflineQueryJobRequest.offline_query_request:type_name -> chalk.common.v1.OfflineQueryRequest
-	71,  // 70: chalk.server.v1.CreateOfflineQueryJobResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
-	70,  // 71: chalk.server.v1.CreateModelTrainingJobRequest.training_job_request:type_name -> chalk.common.v1.OfflineQueryRequest
-	65,  // 72: chalk.server.v1.IngestDatasetRequest.planner_options:type_name -> chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry
-	71,  // 73: chalk.server.v1.IngestDatasetResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
-	66,  // 74: chalk.server.v1.BatchProgress.start:type_name -> google.protobuf.Timestamp
-	66,  // 75: chalk.server.v1.BatchProgress.end:type_name -> google.protobuf.Timestamp
-	57,  // 76: chalk.server.v1.ChunkReport.progress:type_name -> chalk.server.v1.BatchProgress
-	66,  // 77: chalk.server.v1.ChunkReport.generated_at:type_name -> google.protobuf.Timestamp
-	2,   // 78: chalk.server.v1.BatchResolverReport.status:type_name -> chalk.server.v1.BatchOpStatus
-	58,  // 79: chalk.server.v1.BatchResolverReport.chunks:type_name -> chalk.server.v1.ChunkReport
-	57,  // 80: chalk.server.v1.BatchResolverReport.progress:type_name -> chalk.server.v1.BatchProgress
-	66,  // 81: chalk.server.v1.BatchResolverReport.generated_at:type_name -> google.protobuf.Timestamp
-	72,  // 82: chalk.server.v1.BatchResolverReport.error:type_name -> chalk.common.v1.ChalkError
-	72,  // 83: chalk.server.v1.BatchResolverReport.all_errors:type_name -> chalk.common.v1.ChalkError
-	3,   // 84: chalk.server.v1.BatchReport.operation_kind:type_name -> chalk.server.v1.BatchOpKind
-	2,   // 85: chalk.server.v1.BatchReport.status:type_name -> chalk.server.v1.BatchOpStatus
-	59,  // 86: chalk.server.v1.BatchReport.resolvers:type_name -> chalk.server.v1.BatchResolverReport
-	57,  // 87: chalk.server.v1.BatchReport.progress:type_name -> chalk.server.v1.BatchProgress
-	72,  // 88: chalk.server.v1.BatchReport.error:type_name -> chalk.common.v1.ChalkError
-	66,  // 89: chalk.server.v1.BatchReport.generated_at:type_name -> google.protobuf.Timestamp
-	72,  // 90: chalk.server.v1.BatchReport.all_errors:type_name -> chalk.common.v1.ChalkError
-	67,  // 91: chalk.server.v1.BatchReport.operation_metadata:type_name -> google.protobuf.Value
-	66,  // 92: chalk.server.v1.BatchReport.started_at:type_name -> google.protobuf.Timestamp
-	66,  // 93: chalk.server.v1.BatchReport.ended_at:type_name -> google.protobuf.Timestamp
-	73,  // 94: chalk.server.v1.GetBatchReportRequest.get_mask:type_name -> google.protobuf.FieldMask
-	60,  // 95: chalk.server.v1.GetBatchReportResponse.batch_report:type_name -> chalk.server.v1.BatchReport
-	67,  // 96: chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
-	9,   // 97: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries:input_type -> chalk.server.v1.ListOfflineQueriesRequest
-	11,  // 98: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery:input_type -> chalk.server.v1.GetOfflineQueryRequest
-	13,  // 99: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryRequestBody:input_type -> chalk.server.v1.GetOfflineQueryRequestBodyRequest
-	18,  // 100: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards:input_type -> chalk.server.v1.ListOfflineQueryShardsRequest
-	21,  // 101: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryShardsAggregated:input_type -> chalk.server.v1.GetOfflineQueryShardsAggregatedRequest
-	23,  // 102: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary:input_type -> chalk.server.v1.GetOfflineQueryInfraSummaryRequest
-	25,  // 103: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary:input_type -> chalk.server.v1.GetOfflineQueryProfileSummaryRequest
-	32,  // 104: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryUtilizationSummaries:input_type -> chalk.server.v1.GetOfflineQueryUtilizationSummariesRequest
-	36,  // 105: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupUtilizationTimeseries:input_type -> chalk.server.v1.GetResourceGroupUtilizationTimeseriesRequest
-	40,  // 106: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupJobTimeseries:input_type -> chalk.server.v1.GetResourceGroupJobTimeseriesRequest
-	45,  // 107: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupEfficiencyTimeseries:input_type -> chalk.server.v1.GetResourceGroupEfficiencyTimeseriesRequest
-	74,  // 108: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries:input_type -> chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest
-	47,  // 109: chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob:input_type -> chalk.server.v1.CreateOfflineQueryJobRequest
-	49,  // 110: chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob:input_type -> chalk.server.v1.CreateModelTrainingJobRequest
-	51,  // 111: chalk.server.v1.OfflineQueryMetadataService.IngestDataset:input_type -> chalk.server.v1.IngestDatasetRequest
-	53,  // 112: chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard:input_type -> chalk.server.v1.RetryOfflineQueryShardRequest
-	55,  // 113: chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery:input_type -> chalk.server.v1.CancelAsyncOfflineQueryRequest
-	61,  // 114: chalk.server.v1.OfflineQueryMetadataService.GetBatchReport:input_type -> chalk.server.v1.GetBatchReportRequest
-	63,  // 115: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryNames:input_type -> chalk.server.v1.ListOfflineQueryNamesRequest
-	10,  // 116: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries:output_type -> chalk.server.v1.ListOfflineQueriesResponse
-	12,  // 117: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery:output_type -> chalk.server.v1.GetOfflineQueryResponse
-	15,  // 118: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryRequestBody:output_type -> chalk.server.v1.GetOfflineQueryRequestBodyResponse
-	19,  // 119: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards:output_type -> chalk.server.v1.ListOfflineQueryShardsResponse
-	22,  // 120: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryShardsAggregated:output_type -> chalk.server.v1.GetOfflineQueryShardsAggregatedResponse
-	24,  // 121: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary:output_type -> chalk.server.v1.GetOfflineQueryInfraSummaryResponse
-	28,  // 122: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary:output_type -> chalk.server.v1.GetOfflineQueryProfileSummaryResponse
-	33,  // 123: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryUtilizationSummaries:output_type -> chalk.server.v1.GetOfflineQueryUtilizationSummariesResponse
-	37,  // 124: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupUtilizationTimeseries:output_type -> chalk.server.v1.GetResourceGroupUtilizationTimeseriesResponse
-	41,  // 125: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupJobTimeseries:output_type -> chalk.server.v1.GetResourceGroupJobTimeseriesResponse
-	46,  // 126: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupEfficiencyTimeseries:output_type -> chalk.server.v1.GetResourceGroupEfficiencyTimeseriesResponse
-	75,  // 127: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries:output_type -> chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse
-	48,  // 128: chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob:output_type -> chalk.server.v1.CreateOfflineQueryJobResponse
-	50,  // 129: chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob:output_type -> chalk.server.v1.CreateModelTrainingJobResponse
-	52,  // 130: chalk.server.v1.OfflineQueryMetadataService.IngestDataset:output_type -> chalk.server.v1.IngestDatasetResponse
-	54,  // 131: chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard:output_type -> chalk.server.v1.RetryOfflineQueryShardResponse
-	56,  // 132: chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery:output_type -> chalk.server.v1.CancelAsyncOfflineQueryResponse
-	62,  // 133: chalk.server.v1.OfflineQueryMetadataService.GetBatchReport:output_type -> chalk.server.v1.GetBatchReportResponse
-	64,  // 134: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryNames:output_type -> chalk.server.v1.ListOfflineQueryNamesResponse
-	116, // [116:135] is the sub-list for method output_type
-	97,  // [97:116] is the sub-list for method input_type
-	97,  // [97:97] is the sub-list for extension type_name
-	97,  // [97:97] is the sub-list for extension extendee
-	0,   // [0:97] is the sub-list for field type_name
+	70,  // 22: chalk.server.v1.OfflineQueryMeta.referencing_workflow_execution_status:type_name -> chalk.server.v1.WorkflowExecutionStatus
+	66,  // 23: chalk.server.v1.OfflineQueryStageTiming.queue_started_at:type_name -> google.protobuf.Timestamp
+	66,  // 24: chalk.server.v1.OfflineQueryStageTiming.execution_started_at:type_name -> google.protobuf.Timestamp
+	66,  // 25: chalk.server.v1.OfflineQueryStageTiming.execution_finished_at:type_name -> google.protobuf.Timestamp
+	1,   // 26: chalk.server.v1.ListOfflineQueriesRequest.kind_filter:type_name -> chalk.server.v1.OfflineQueryKind
+	0,   // 27: chalk.server.v1.ListOfflineQueriesRequest.status_filter:type_name -> chalk.server.v1.OfflineQueryStatus
+	1,   // 28: chalk.server.v1.ListOfflineQueriesRequest.kind_filters:type_name -> chalk.server.v1.OfflineQueryKind
+	0,   // 29: chalk.server.v1.ListOfflineQueriesRequest.status_filters:type_name -> chalk.server.v1.OfflineQueryStatus
+	6,   // 30: chalk.server.v1.ListOfflineQueriesResponse.offline_queries:type_name -> chalk.server.v1.OfflineQueryMeta
+	6,   // 31: chalk.server.v1.GetOfflineQueryResponse.offline_query:type_name -> chalk.server.v1.OfflineQueryMeta
+	14,  // 32: chalk.server.v1.GetOfflineQueryRequestBodyResponse.shard_request_body:type_name -> chalk.server.v1.ShardRequestBodyJsonString
+	0,   // 33: chalk.server.v1.ListOfflineQueryShardsFilters.status:type_name -> chalk.server.v1.OfflineQueryStatus
+	16,  // 34: chalk.server.v1.ListOfflineQueryShardsRequest.filters:type_name -> chalk.server.v1.ListOfflineQueryShardsFilters
+	5,   // 35: chalk.server.v1.ListOfflineQueryShardsResponse.offline_query_shards:type_name -> chalk.server.v1.OfflineQueryShard
+	0,   // 36: chalk.server.v1.OfflineQueryShardStatusAggregate.status:type_name -> chalk.server.v1.OfflineQueryStatus
+	20,  // 37: chalk.server.v1.GetOfflineQueryShardsAggregatedResponse.aggregates:type_name -> chalk.server.v1.OfflineQueryShardStatusAggregate
+	26,  // 38: chalk.server.v1.OfflineQueryProfileSummaryRow.stats:type_name -> chalk.server.v1.OfflineQueryProfilePercentileStats
+	0,   // 39: chalk.server.v1.GetOfflineQueryProfileSummaryResponse.status:type_name -> chalk.server.v1.OfflineQueryStatus
+	27,  // 40: chalk.server.v1.GetOfflineQueryProfileSummaryResponse.rows:type_name -> chalk.server.v1.OfflineQueryProfileSummaryRow
+	0,   // 41: chalk.server.v1.OfflineQueryUtilizationSummary.status:type_name -> chalk.server.v1.OfflineQueryStatus
+	66,  // 42: chalk.server.v1.OfflineQueryUtilizationSummary.created_at:type_name -> google.protobuf.Timestamp
+	66,  // 43: chalk.server.v1.OfflineQueryUtilizationSummary.completed_at:type_name -> google.protobuf.Timestamp
+	29,  // 44: chalk.server.v1.OfflineQueryUtilizationSummary.cpu:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
+	29,  // 45: chalk.server.v1.OfflineQueryUtilizationSummary.memory:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
+	29,  // 46: chalk.server.v1.OfflineQueryUtilizationSummary.disk:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
+	30,  // 47: chalk.server.v1.OfflineQueryUtilizationSummary.pods:type_name -> chalk.server.v1.OfflineQueryPodInfo
+	66,  // 48: chalk.server.v1.GetOfflineQueryUtilizationSummariesRequest.start_time:type_name -> google.protobuf.Timestamp
+	66,  // 49: chalk.server.v1.GetOfflineQueryUtilizationSummariesRequest.end_time:type_name -> google.protobuf.Timestamp
+	31,  // 50: chalk.server.v1.GetOfflineQueryUtilizationSummariesResponse.summaries:type_name -> chalk.server.v1.OfflineQueryUtilizationSummary
+	66,  // 51: chalk.server.v1.ResourceGroupUtilizationBucket.bucket_start:type_name -> google.protobuf.Timestamp
+	29,  // 52: chalk.server.v1.ResourceGroupUtilizationBucket.cpu:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
+	29,  // 53: chalk.server.v1.ResourceGroupUtilizationBucket.memory:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
+	29,  // 54: chalk.server.v1.ResourceGroupUtilizationBucket.disk:type_name -> chalk.server.v1.OfflineQueryUtilizationStats
+	34,  // 55: chalk.server.v1.ResourceGroupUtilizationSeries.buckets:type_name -> chalk.server.v1.ResourceGroupUtilizationBucket
+	66,  // 56: chalk.server.v1.GetResourceGroupUtilizationTimeseriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	66,  // 57: chalk.server.v1.GetResourceGroupUtilizationTimeseriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	35,  // 58: chalk.server.v1.GetResourceGroupUtilizationTimeseriesResponse.series:type_name -> chalk.server.v1.ResourceGroupUtilizationSeries
+	66,  // 59: chalk.server.v1.ResourceGroupJobBucket.bucket_start:type_name -> google.protobuf.Timestamp
+	38,  // 60: chalk.server.v1.ResourceGroupJobSeries.buckets:type_name -> chalk.server.v1.ResourceGroupJobBucket
+	66,  // 61: chalk.server.v1.GetResourceGroupJobTimeseriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	66,  // 62: chalk.server.v1.GetResourceGroupJobTimeseriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	39,  // 63: chalk.server.v1.GetResourceGroupJobTimeseriesResponse.series:type_name -> chalk.server.v1.ResourceGroupJobSeries
+	66,  // 64: chalk.server.v1.ResourceGroupEfficiencyBucket.bucket_start:type_name -> google.protobuf.Timestamp
+	42,  // 65: chalk.server.v1.ResourceGroupEfficiencySeries.buckets:type_name -> chalk.server.v1.ResourceGroupEfficiencyBucket
+	43,  // 66: chalk.server.v1.ResourceGroupEfficiencySeries.summary:type_name -> chalk.server.v1.ResourceGroupEfficiencySummary
+	66,  // 67: chalk.server.v1.GetResourceGroupEfficiencyTimeseriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	66,  // 68: chalk.server.v1.GetResourceGroupEfficiencyTimeseriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	44,  // 69: chalk.server.v1.GetResourceGroupEfficiencyTimeseriesResponse.series:type_name -> chalk.server.v1.ResourceGroupEfficiencySeries
+	71,  // 70: chalk.server.v1.CreateOfflineQueryJobRequest.offline_query_request:type_name -> chalk.common.v1.OfflineQueryRequest
+	72,  // 71: chalk.server.v1.CreateOfflineQueryJobResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
+	71,  // 72: chalk.server.v1.CreateModelTrainingJobRequest.training_job_request:type_name -> chalk.common.v1.OfflineQueryRequest
+	65,  // 73: chalk.server.v1.IngestDatasetRequest.planner_options:type_name -> chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry
+	72,  // 74: chalk.server.v1.IngestDatasetResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
+	66,  // 75: chalk.server.v1.BatchProgress.start:type_name -> google.protobuf.Timestamp
+	66,  // 76: chalk.server.v1.BatchProgress.end:type_name -> google.protobuf.Timestamp
+	57,  // 77: chalk.server.v1.ChunkReport.progress:type_name -> chalk.server.v1.BatchProgress
+	66,  // 78: chalk.server.v1.ChunkReport.generated_at:type_name -> google.protobuf.Timestamp
+	2,   // 79: chalk.server.v1.BatchResolverReport.status:type_name -> chalk.server.v1.BatchOpStatus
+	58,  // 80: chalk.server.v1.BatchResolverReport.chunks:type_name -> chalk.server.v1.ChunkReport
+	57,  // 81: chalk.server.v1.BatchResolverReport.progress:type_name -> chalk.server.v1.BatchProgress
+	66,  // 82: chalk.server.v1.BatchResolverReport.generated_at:type_name -> google.protobuf.Timestamp
+	73,  // 83: chalk.server.v1.BatchResolverReport.error:type_name -> chalk.common.v1.ChalkError
+	73,  // 84: chalk.server.v1.BatchResolverReport.all_errors:type_name -> chalk.common.v1.ChalkError
+	3,   // 85: chalk.server.v1.BatchReport.operation_kind:type_name -> chalk.server.v1.BatchOpKind
+	2,   // 86: chalk.server.v1.BatchReport.status:type_name -> chalk.server.v1.BatchOpStatus
+	59,  // 87: chalk.server.v1.BatchReport.resolvers:type_name -> chalk.server.v1.BatchResolverReport
+	57,  // 88: chalk.server.v1.BatchReport.progress:type_name -> chalk.server.v1.BatchProgress
+	73,  // 89: chalk.server.v1.BatchReport.error:type_name -> chalk.common.v1.ChalkError
+	66,  // 90: chalk.server.v1.BatchReport.generated_at:type_name -> google.protobuf.Timestamp
+	73,  // 91: chalk.server.v1.BatchReport.all_errors:type_name -> chalk.common.v1.ChalkError
+	67,  // 92: chalk.server.v1.BatchReport.operation_metadata:type_name -> google.protobuf.Value
+	66,  // 93: chalk.server.v1.BatchReport.started_at:type_name -> google.protobuf.Timestamp
+	66,  // 94: chalk.server.v1.BatchReport.ended_at:type_name -> google.protobuf.Timestamp
+	74,  // 95: chalk.server.v1.GetBatchReportRequest.get_mask:type_name -> google.protobuf.FieldMask
+	60,  // 96: chalk.server.v1.GetBatchReportResponse.batch_report:type_name -> chalk.server.v1.BatchReport
+	67,  // 97: chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
+	9,   // 98: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries:input_type -> chalk.server.v1.ListOfflineQueriesRequest
+	11,  // 99: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery:input_type -> chalk.server.v1.GetOfflineQueryRequest
+	13,  // 100: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryRequestBody:input_type -> chalk.server.v1.GetOfflineQueryRequestBodyRequest
+	18,  // 101: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards:input_type -> chalk.server.v1.ListOfflineQueryShardsRequest
+	21,  // 102: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryShardsAggregated:input_type -> chalk.server.v1.GetOfflineQueryShardsAggregatedRequest
+	23,  // 103: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary:input_type -> chalk.server.v1.GetOfflineQueryInfraSummaryRequest
+	25,  // 104: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary:input_type -> chalk.server.v1.GetOfflineQueryProfileSummaryRequest
+	32,  // 105: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryUtilizationSummaries:input_type -> chalk.server.v1.GetOfflineQueryUtilizationSummariesRequest
+	36,  // 106: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupUtilizationTimeseries:input_type -> chalk.server.v1.GetResourceGroupUtilizationTimeseriesRequest
+	40,  // 107: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupJobTimeseries:input_type -> chalk.server.v1.GetResourceGroupJobTimeseriesRequest
+	45,  // 108: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupEfficiencyTimeseries:input_type -> chalk.server.v1.GetResourceGroupEfficiencyTimeseriesRequest
+	75,  // 109: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries:input_type -> chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest
+	47,  // 110: chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob:input_type -> chalk.server.v1.CreateOfflineQueryJobRequest
+	49,  // 111: chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob:input_type -> chalk.server.v1.CreateModelTrainingJobRequest
+	51,  // 112: chalk.server.v1.OfflineQueryMetadataService.IngestDataset:input_type -> chalk.server.v1.IngestDatasetRequest
+	53,  // 113: chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard:input_type -> chalk.server.v1.RetryOfflineQueryShardRequest
+	55,  // 114: chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery:input_type -> chalk.server.v1.CancelAsyncOfflineQueryRequest
+	61,  // 115: chalk.server.v1.OfflineQueryMetadataService.GetBatchReport:input_type -> chalk.server.v1.GetBatchReportRequest
+	63,  // 116: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryNames:input_type -> chalk.server.v1.ListOfflineQueryNamesRequest
+	10,  // 117: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries:output_type -> chalk.server.v1.ListOfflineQueriesResponse
+	12,  // 118: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery:output_type -> chalk.server.v1.GetOfflineQueryResponse
+	15,  // 119: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryRequestBody:output_type -> chalk.server.v1.GetOfflineQueryRequestBodyResponse
+	19,  // 120: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards:output_type -> chalk.server.v1.ListOfflineQueryShardsResponse
+	22,  // 121: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryShardsAggregated:output_type -> chalk.server.v1.GetOfflineQueryShardsAggregatedResponse
+	24,  // 122: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary:output_type -> chalk.server.v1.GetOfflineQueryInfraSummaryResponse
+	28,  // 123: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary:output_type -> chalk.server.v1.GetOfflineQueryProfileSummaryResponse
+	33,  // 124: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryUtilizationSummaries:output_type -> chalk.server.v1.GetOfflineQueryUtilizationSummariesResponse
+	37,  // 125: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupUtilizationTimeseries:output_type -> chalk.server.v1.GetResourceGroupUtilizationTimeseriesResponse
+	41,  // 126: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupJobTimeseries:output_type -> chalk.server.v1.GetResourceGroupJobTimeseriesResponse
+	46,  // 127: chalk.server.v1.OfflineQueryMetadataService.GetResourceGroupEfficiencyTimeseries:output_type -> chalk.server.v1.GetResourceGroupEfficiencyTimeseriesResponse
+	76,  // 128: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries:output_type -> chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse
+	48,  // 129: chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob:output_type -> chalk.server.v1.CreateOfflineQueryJobResponse
+	50,  // 130: chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob:output_type -> chalk.server.v1.CreateModelTrainingJobResponse
+	52,  // 131: chalk.server.v1.OfflineQueryMetadataService.IngestDataset:output_type -> chalk.server.v1.IngestDatasetResponse
+	54,  // 132: chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard:output_type -> chalk.server.v1.RetryOfflineQueryShardResponse
+	56,  // 133: chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery:output_type -> chalk.server.v1.CancelAsyncOfflineQueryResponse
+	62,  // 134: chalk.server.v1.OfflineQueryMetadataService.GetBatchReport:output_type -> chalk.server.v1.GetBatchReportResponse
+	64,  // 135: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryNames:output_type -> chalk.server.v1.ListOfflineQueryNamesResponse
+	117, // [117:136] is the sub-list for method output_type
+	98,  // [98:117] is the sub-list for method input_type
+	98,  // [98:98] is the sub-list for extension type_name
+	98,  // [98:98] is the sub-list for extension extendee
+	0,   // [0:98] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_queries_proto_init() }
@@ -5699,6 +5713,7 @@ func file_chalk_server_v1_offline_queries_proto_init() {
 	if File_chalk_server_v1_offline_queries_proto != nil {
 		return
 	}
+	file_chalk_server_v1_dataplaneworkflows_proto_init()
 	file_chalk_server_v1_datasets_proto_init()
 	file_chalk_server_v1_performance_summary_proto_init()
 	file_chalk_server_v1_offline_queries_proto_msgTypes[0].OneofWrappers = []any{}

@@ -136,6 +136,9 @@ const (
 	IntegrationWarningCode_INTEGRATION_WARNING_CODE_UNSPECIFIED IntegrationWarningCode = 0
 	// A Snowflake data source with no unload destination configured.
 	IntegrationWarningCode_INTEGRATION_WARNING_CODE_SNOWFLAKE_UNLOAD_NOT_CONFIGURED IntegrationWarningCode = 1
+	// A Snowflake data source that authenticates with a password and has no private key. Snowflake
+	// is deprecating password-only sign-ins, so the connection will stop working.
+	IntegrationWarningCode_INTEGRATION_WARNING_CODE_SNOWFLAKE_PASSWORD_AUTHENTICATION IntegrationWarningCode = 2
 )
 
 // Enum value maps for IntegrationWarningCode.
@@ -143,10 +146,12 @@ var (
 	IntegrationWarningCode_name = map[int32]string{
 		0: "INTEGRATION_WARNING_CODE_UNSPECIFIED",
 		1: "INTEGRATION_WARNING_CODE_SNOWFLAKE_UNLOAD_NOT_CONFIGURED",
+		2: "INTEGRATION_WARNING_CODE_SNOWFLAKE_PASSWORD_AUTHENTICATION",
 	}
 	IntegrationWarningCode_value = map[string]int32{
-		"INTEGRATION_WARNING_CODE_UNSPECIFIED":                     0,
-		"INTEGRATION_WARNING_CODE_SNOWFLAKE_UNLOAD_NOT_CONFIGURED": 1,
+		"INTEGRATION_WARNING_CODE_UNSPECIFIED":                       0,
+		"INTEGRATION_WARNING_CODE_SNOWFLAKE_UNLOAD_NOT_CONFIGURED":   1,
+		"INTEGRATION_WARNING_CODE_SNOWFLAKE_PASSWORD_AUTHENTICATION": 2,
 	}
 )
 
@@ -2445,10 +2450,11 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\x18INTEGRATION_KIND_SPANNER\x10\x11\x12\x1a\n" +
 	"\x16INTEGRATION_KIND_TRINO\x10\x12\x12\x1a\n" +
 	"\x16INTEGRATION_KIND_MSSQL\x10\x13\x12 \n" +
-	"\x1cINTEGRATION_KIND_HUGGINGFACE\x10\x14*\x80\x01\n" +
+	"\x1cINTEGRATION_KIND_HUGGINGFACE\x10\x14*\xc0\x01\n" +
 	"\x16IntegrationWarningCode\x12(\n" +
 	"$INTEGRATION_WARNING_CODE_UNSPECIFIED\x10\x00\x12<\n" +
-	"8INTEGRATION_WARNING_CODE_SNOWFLAKE_UNLOAD_NOT_CONFIGURED\x10\x012\xc8\x0f\n" +
+	"8INTEGRATION_WARNING_CODE_SNOWFLAKE_UNLOAD_NOT_CONFIGURED\x10\x01\x12>\n" +
+	":INTEGRATION_WARNING_CODE_SNOWFLAKE_PASSWORD_AUTHENTICATION\x10\x022\xc8\x0f\n" +
 	"\x13IntegrationsService\x12l\n" +
 	"\x10ListIntegrations\x12(.chalk.server.v1.ListIntegrationsRequest\x1a).chalk.server.v1.ListIntegrationsResponse\"\x03\x80}\x14\x12\x90\x01\n" +
 	"\x1cListDatasourcePermissionTags\x124.chalk.server.v1.ListDatasourcePermissionTagsRequest\x1a5.chalk.server.v1.ListDatasourcePermissionTagsResponse\"\x03\x80}\x14\x12\x8a\x01\n" +

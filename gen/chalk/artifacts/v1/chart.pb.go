@@ -196,6 +196,29 @@ const (
 	// Total requests Envoy sent to upstream clusters. This is backed directly by
 	// Envoy's cumulative Prometheus counter rather than Chalk's metric pipeline.
 	MetricKind_METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT MetricKind = 143
+	MetricKind_METRIC_KIND_POD_STATE_COUNT              MetricKind = 144
+	MetricKind_METRIC_KIND_CONTAINER_CRASHES            MetricKind = 145
+	// Reinforcement learning metrics emitted via chalk_train.log_metrics.
+	MetricKind_METRIC_KIND_MODEL_TRAINING_REWARD          MetricKind = 146
+	MetricKind_METRIC_KIND_MODEL_TRAINING_REWARD_STD      MetricKind = 147
+	MetricKind_METRIC_KIND_MODEL_TRAINING_PASS_RATE       MetricKind = 148
+	MetricKind_METRIC_KIND_MODEL_TRAINING_KL              MetricKind = 149
+	MetricKind_METRIC_KIND_MODEL_TRAINING_ENTROPY         MetricKind = 150
+	MetricKind_METRIC_KIND_MODEL_TRAINING_GRAD_NORM       MetricKind = 151
+	MetricKind_METRIC_KIND_MODEL_TRAINING_LEARNING_RATE   MetricKind = 152
+	MetricKind_METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH MetricKind = 153
+	// Sandbox lifecycle metrics combine the available Kubernetes and hypervisor telemetry.
+	MetricKind_METRIC_KIND_SANDBOX_STATE_COUNT     MetricKind = 154
+	MetricKind_METRIC_KIND_SANDBOX_STARTUP_LATENCY MetricKind = 155
+	// Sandbox resource metrics. The chart backend reads each runtime's
+	// native telemetry and combines the results without requiring common emitters.
+	MetricKind_METRIC_KIND_SANDBOX_MEMORY_USED_BYTES    MetricKind = 156
+	MetricKind_METRIC_KIND_SANDBOX_CPU_USAGE_CORES      MetricKind = 157
+	MetricKind_METRIC_KIND_SANDBOX_CPU_REQUEST_CORES    MetricKind = 158
+	MetricKind_METRIC_KIND_SANDBOX_MEMORY_REQUEST_BYTES MetricKind = 159
+	// Per-sandbox usage divided by its configured request, before cross-sandbox aggregation.
+	MetricKind_METRIC_KIND_SANDBOX_CPU_UTILIZATION    MetricKind = 160
+	MetricKind_METRIC_KIND_SANDBOX_MEMORY_UTILIZATION MetricKind = 161
 )
 
 // Enum value maps for MetricKind.
@@ -345,6 +368,24 @@ var (
 		141: "METRIC_KIND_MODEL_TRAINING_RMSE",
 		142: "METRIC_KIND_MODEL_TRAINING_R2",
 		143: "METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT",
+		144: "METRIC_KIND_POD_STATE_COUNT",
+		145: "METRIC_KIND_CONTAINER_CRASHES",
+		146: "METRIC_KIND_MODEL_TRAINING_REWARD",
+		147: "METRIC_KIND_MODEL_TRAINING_REWARD_STD",
+		148: "METRIC_KIND_MODEL_TRAINING_PASS_RATE",
+		149: "METRIC_KIND_MODEL_TRAINING_KL",
+		150: "METRIC_KIND_MODEL_TRAINING_ENTROPY",
+		151: "METRIC_KIND_MODEL_TRAINING_GRAD_NORM",
+		152: "METRIC_KIND_MODEL_TRAINING_LEARNING_RATE",
+		153: "METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH",
+		154: "METRIC_KIND_SANDBOX_STATE_COUNT",
+		155: "METRIC_KIND_SANDBOX_STARTUP_LATENCY",
+		156: "METRIC_KIND_SANDBOX_MEMORY_USED_BYTES",
+		157: "METRIC_KIND_SANDBOX_CPU_USAGE_CORES",
+		158: "METRIC_KIND_SANDBOX_CPU_REQUEST_CORES",
+		159: "METRIC_KIND_SANDBOX_MEMORY_REQUEST_BYTES",
+		160: "METRIC_KIND_SANDBOX_CPU_UTILIZATION",
+		161: "METRIC_KIND_SANDBOX_MEMORY_UTILIZATION",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -491,6 +532,24 @@ var (
 		"METRIC_KIND_MODEL_TRAINING_RMSE":                     141,
 		"METRIC_KIND_MODEL_TRAINING_R2":                       142,
 		"METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT":            143,
+		"METRIC_KIND_POD_STATE_COUNT":                         144,
+		"METRIC_KIND_CONTAINER_CRASHES":                       145,
+		"METRIC_KIND_MODEL_TRAINING_REWARD":                   146,
+		"METRIC_KIND_MODEL_TRAINING_REWARD_STD":               147,
+		"METRIC_KIND_MODEL_TRAINING_PASS_RATE":                148,
+		"METRIC_KIND_MODEL_TRAINING_KL":                       149,
+		"METRIC_KIND_MODEL_TRAINING_ENTROPY":                  150,
+		"METRIC_KIND_MODEL_TRAINING_GRAD_NORM":                151,
+		"METRIC_KIND_MODEL_TRAINING_LEARNING_RATE":            152,
+		"METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH":          153,
+		"METRIC_KIND_SANDBOX_STATE_COUNT":                     154,
+		"METRIC_KIND_SANDBOX_STARTUP_LATENCY":                 155,
+		"METRIC_KIND_SANDBOX_MEMORY_USED_BYTES":               156,
+		"METRIC_KIND_SANDBOX_CPU_USAGE_CORES":                 157,
+		"METRIC_KIND_SANDBOX_CPU_REQUEST_CORES":               158,
+		"METRIC_KIND_SANDBOX_MEMORY_REQUEST_BYTES":            159,
+		"METRIC_KIND_SANDBOX_CPU_UTILIZATION":                 160,
+		"METRIC_KIND_SANDBOX_MEMORY_UTILIZATION":              161,
 	}
 )
 
@@ -585,6 +644,10 @@ const (
 	FilterKind_FILTER_KIND_TRAINING_OPTIMIZER     FilterKind = 42
 	FilterKind_FILTER_KIND_TRAINING_MODEL_VERSION FilterKind = 43
 	FilterKind_FILTER_KIND_TRAINING_EPOCH         FilterKind = 44
+	FilterKind_FILTER_KIND_POD_STATE              FilterKind = 45
+	FilterKind_FILTER_KIND_CONTAINER_CRASH_REASON FilterKind = 46
+	FilterKind_FILTER_KIND_WORKLOAD_RUNTIME       FilterKind = 48
+	FilterKind_FILTER_KIND_WORKLOAD_STATE         FilterKind = 49
 )
 
 // Enum value maps for FilterKind.
@@ -635,6 +698,10 @@ var (
 		42: "FILTER_KIND_TRAINING_OPTIMIZER",
 		43: "FILTER_KIND_TRAINING_MODEL_VERSION",
 		44: "FILTER_KIND_TRAINING_EPOCH",
+		45: "FILTER_KIND_POD_STATE",
+		46: "FILTER_KIND_CONTAINER_CRASH_REASON",
+		48: "FILTER_KIND_WORKLOAD_RUNTIME",
+		49: "FILTER_KIND_WORKLOAD_STATE",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -682,6 +749,10 @@ var (
 		"FILTER_KIND_TRAINING_OPTIMIZER":         42,
 		"FILTER_KIND_TRAINING_MODEL_VERSION":     43,
 		"FILTER_KIND_TRAINING_EPOCH":             44,
+		"FILTER_KIND_POD_STATE":                  45,
+		"FILTER_KIND_CONTAINER_CRASH_REASON":     46,
+		"FILTER_KIND_WORKLOAD_RUNTIME":           48,
+		"FILTER_KIND_WORKLOAD_STATE":             49,
 	}
 )
 
@@ -895,6 +966,9 @@ const (
 	GroupByKind_GROUP_BY_KIND_TRAINING_MODEL_VERSION GroupByKind = 38
 	GroupByKind_GROUP_BY_KIND_TRAINING_EPOCH         GroupByKind = 39
 	GroupByKind_GROUP_BY_KIND_ENVOY_CLUSTER          GroupByKind = 40
+	GroupByKind_GROUP_BY_KIND_POD_STATE              GroupByKind = 41
+	GroupByKind_GROUP_BY_KIND_CONTAINER_CRASH_REASON GroupByKind = 42
+	GroupByKind_GROUP_BY_KIND_WORKLOAD_RUNTIME       GroupByKind = 44
 )
 
 // Enum value maps for GroupByKind.
@@ -941,6 +1015,9 @@ var (
 		38: "GROUP_BY_KIND_TRAINING_MODEL_VERSION",
 		39: "GROUP_BY_KIND_TRAINING_EPOCH",
 		40: "GROUP_BY_KIND_ENVOY_CLUSTER",
+		41: "GROUP_BY_KIND_POD_STATE",
+		42: "GROUP_BY_KIND_CONTAINER_CRASH_REASON",
+		44: "GROUP_BY_KIND_WORKLOAD_RUNTIME",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":                   0,
@@ -984,6 +1061,9 @@ var (
 		"GROUP_BY_KIND_TRAINING_MODEL_VERSION":        38,
 		"GROUP_BY_KIND_TRAINING_EPOCH":                39,
 		"GROUP_BY_KIND_ENVOY_CLUSTER":                 40,
+		"GROUP_BY_KIND_POD_STATE":                     41,
+		"GROUP_BY_KIND_CONTAINER_CRASH_REASON":        42,
+		"GROUP_BY_KIND_WORKLOAD_RUNTIME":              44,
 	}
 )
 
@@ -2298,7 +2378,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xac/\n" +
+	"_entity_id*\xa15\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2445,7 +2525,25 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1eMETRIC_KIND_MODEL_TRAINING_MSE\x10\x8c\x01\x12$\n" +
 	"\x1fMETRIC_KIND_MODEL_TRAINING_RMSE\x10\x8d\x01\x12\"\n" +
 	"\x1dMETRIC_KIND_MODEL_TRAINING_R2\x10\x8e\x01\x12-\n" +
-	"(METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT\x10\x8f\x01*\xac\v\n" +
+	"(METRIC_KIND_ENVOY_UPSTREAM_REQUEST_COUNT\x10\x8f\x01\x12 \n" +
+	"\x1bMETRIC_KIND_POD_STATE_COUNT\x10\x90\x01\x12\"\n" +
+	"\x1dMETRIC_KIND_CONTAINER_CRASHES\x10\x91\x01\x12&\n" +
+	"!METRIC_KIND_MODEL_TRAINING_REWARD\x10\x92\x01\x12*\n" +
+	"%METRIC_KIND_MODEL_TRAINING_REWARD_STD\x10\x93\x01\x12)\n" +
+	"$METRIC_KIND_MODEL_TRAINING_PASS_RATE\x10\x94\x01\x12\"\n" +
+	"\x1dMETRIC_KIND_MODEL_TRAINING_KL\x10\x95\x01\x12'\n" +
+	"\"METRIC_KIND_MODEL_TRAINING_ENTROPY\x10\x96\x01\x12)\n" +
+	"$METRIC_KIND_MODEL_TRAINING_GRAD_NORM\x10\x97\x01\x12-\n" +
+	"(METRIC_KIND_MODEL_TRAINING_LEARNING_RATE\x10\x98\x01\x12/\n" +
+	"*METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH\x10\x99\x01\x12$\n" +
+	"\x1fMETRIC_KIND_SANDBOX_STATE_COUNT\x10\x9a\x01\x12(\n" +
+	"#METRIC_KIND_SANDBOX_STARTUP_LATENCY\x10\x9b\x01\x12*\n" +
+	"%METRIC_KIND_SANDBOX_MEMORY_USED_BYTES\x10\x9c\x01\x12(\n" +
+	"#METRIC_KIND_SANDBOX_CPU_USAGE_CORES\x10\x9d\x01\x12*\n" +
+	"%METRIC_KIND_SANDBOX_CPU_REQUEST_CORES\x10\x9e\x01\x12-\n" +
+	"(METRIC_KIND_SANDBOX_MEMORY_REQUEST_BYTES\x10\x9f\x01\x12(\n" +
+	"#METRIC_KIND_SANDBOX_CPU_UTILIZATION\x10\xa0\x01\x12+\n" +
+	"&METRIC_KIND_SANDBOX_MEMORY_UTILIZATION\x10\xa1\x01*\xb7\f\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2493,7 +2591,11 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1eFILTER_KIND_TRAINING_THRESHOLD\x10)\x12\"\n" +
 	"\x1eFILTER_KIND_TRAINING_OPTIMIZER\x10*\x12&\n" +
 	"\"FILTER_KIND_TRAINING_MODEL_VERSION\x10+\x12\x1e\n" +
-	"\x1aFILTER_KIND_TRAINING_EPOCH\x10,*~\n" +
+	"\x1aFILTER_KIND_TRAINING_EPOCH\x10,\x12\x19\n" +
+	"\x15FILTER_KIND_POD_STATE\x10-\x12&\n" +
+	"\"FILTER_KIND_CONTAINER_CRASH_REASON\x10.\x12 \n" +
+	"\x1cFILTER_KIND_WORKLOAD_RUNTIME\x100\x12\x1e\n" +
+	"\x1aFILTER_KIND_WORKLOAD_STATE\x101\"\x04\b/\x10/*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -2513,7 +2615,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xa3\v\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x9a\f\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -2556,7 +2658,10 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	" GROUP_BY_KIND_TRAINING_OPTIMIZER\x10%\x12(\n" +
 	"$GROUP_BY_KIND_TRAINING_MODEL_VERSION\x10&\x12 \n" +
 	"\x1cGROUP_BY_KIND_TRAINING_EPOCH\x10'\x12\x1f\n" +
-	"\x1bGROUP_BY_KIND_ENVOY_CLUSTER\x10(*\x81\x03\n" +
+	"\x1bGROUP_BY_KIND_ENVOY_CLUSTER\x10(\x12\x1b\n" +
+	"\x17GROUP_BY_KIND_POD_STATE\x10)\x12(\n" +
+	"$GROUP_BY_KIND_CONTAINER_CRASH_REASON\x10*\x12\"\n" +
+	"\x1eGROUP_BY_KIND_WORKLOAD_RUNTIME\x10,\"\x04\b+\x10+\"\x04\b-\x10-*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +
