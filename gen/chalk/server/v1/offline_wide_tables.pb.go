@@ -444,7 +444,8 @@ type OfflineWideTableRun struct {
 	Environment *emptypb.Empty `protobuf:"bytes,17,opt,name=environment,proto3" json:"environment,omitempty"`
 	// Internal physical-configuration identity used to correlate this run with the namespace's
 	// currently active wide tables. May be unset while a queued job has not selected its target.
-	WideTableConfigFingerprint *int64 `protobuf:"varint,18,opt,name=wide_table_config_fingerprint,json=wideTableConfigFingerprint,proto3,oneof" json:"wide_table_config_fingerprint,omitempty"`
+	WideTableConfigFingerprint *int64  `protobuf:"varint,18,opt,name=wide_table_config_fingerprint,json=wideTableConfigFingerprint,proto3,oneof" json:"wide_table_config_fingerprint,omitempty"`
+	ResourceGroup              *string `protobuf:"bytes,19,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
 }
@@ -603,6 +604,13 @@ func (x *OfflineWideTableRun) GetWideTableConfigFingerprint() int64 {
 		return *x.WideTableConfigFingerprint
 	}
 	return 0
+}
+
+func (x *OfflineWideTableRun) GetResourceGroup() string {
+	if x != nil && x.ResourceGroup != nil {
+		return *x.ResourceGroup
+	}
+	return ""
 }
 
 type ListOfflineWideTableRunsRequest struct {
@@ -1543,8 +1551,12 @@ func (x *GetOfflineWideTableNamespacesResponse) GetLatestCompletedFillAt() *time
 }
 
 type TriggerOfflineWideTableFillRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Specify which resource group this job runs on.
+	// NOTE: If empty, uses the resource group specified in the MaterializedFeatureView definition in the proto graph.
+	// empty does NOT mean "default resource group"
+	ResourceGroup string `protobuf:"bytes,2,opt,name=resource_group,json=resourceGroup,proto3" json:"resource_group,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1582,6 +1594,13 @@ func (*TriggerOfflineWideTableFillRequest) Descriptor() ([]byte, []int) {
 func (x *TriggerOfflineWideTableFillRequest) GetNamespace() string {
 	if x != nil {
 		return x.Namespace
+	}
+	return ""
+}
+
+func (x *TriggerOfflineWideTableFillRequest) GetResourceGroup() string {
+	if x != nil {
+		return x.ResourceGroup
 	}
 	return ""
 }
@@ -1631,8 +1650,12 @@ func (x *TriggerOfflineWideTableFillResponse) GetRun() *OfflineWideTableRun {
 }
 
 type TriggerOfflineWideTableCompactionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Specify which resource group this job runs on.
+	// NOTE: If empty, uses the resource group specified in the MaterializedFeatureView definition in the proto graph.
+	// empty does NOT mean "default resource group"
+	ResourceGroup string `protobuf:"bytes,2,opt,name=resource_group,json=resourceGroup,proto3" json:"resource_group,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1670,6 +1693,13 @@ func (*TriggerOfflineWideTableCompactionRequest) Descriptor() ([]byte, []int) {
 func (x *TriggerOfflineWideTableCompactionRequest) GetNamespace() string {
 	if x != nil {
 		return x.Namespace
+	}
+	return ""
+}
+
+func (x *TriggerOfflineWideTableCompactionRequest) GetResourceGroup() string {
+	if x != nil {
+		return x.ResourceGroup
 	}
 	return ""
 }
@@ -1741,7 +1771,7 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\v_started_atB\x0e\n" +
 	"\f_finished_atB\x0f\n" +
 	"\r_job_queue_idB \n" +
-	"\x1e_wide_table_config_fingerprint\"\xbb\t\n" +
+	"\x1e_wide_table_config_fingerprint\"\xfa\t\n" +
 	"\x13OfflineWideTableRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12(\n" +
@@ -1767,7 +1797,9 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"skipReason\x88\x01\x01\x12R\n" +
 	"\ftrigger_kind\x18\x10 \x01(\x0e2/.chalk.server.v1.OfflineWideTableRunTriggerKindR\vtriggerKind\x128\n" +
 	"\venvironment\x18\x11 \x01(\v2\x16.google.protobuf.EmptyR\venvironment\x12F\n" +
-	"\x1dwide_table_config_fingerprint\x18\x12 \x01(\x03H\tR\x1awideTableConfigFingerprint\x88\x01\x01B\x10\n" +
+	"\x1dwide_table_config_fingerprint\x18\x12 \x01(\x03H\tR\x1awideTableConfigFingerprint\x88\x01\x01\x12*\n" +
+	"\x0eresource_group\x18\x13 \x01(\tH\n" +
+	"R\rresourceGroup\x88\x01\x01B\x10\n" +
 	"\x0e_deployment_idB\x1a\n" +
 	"\x18_watermark_before_microsB\x19\n" +
 	"\x17_watermark_after_microsB\x0e\n" +
@@ -1777,7 +1809,8 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\f_finished_atB\x0f\n" +
 	"\r_job_queue_idB\x0e\n" +
 	"\f_skip_reasonB \n" +
-	"\x1e_wide_table_config_fingerprint\"\x8a\x03\n" +
+	"\x1e_wide_table_config_fingerprintB\x11\n" +
+	"\x0f_resource_group\"\x8a\x03\n" +
 	"\x1fListOfflineWideTableRunsRequest\x12\x16\n" +
 	"\x06cursor\x18\x01 \x01(\tR\x06cursor\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12!\n" +
@@ -1859,13 +1892,15 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"namespaces\x12t\n" +
 	"\x17environment_maintenance\x18\x02 \x01(\v2;.chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfoR\x16environmentMaintenance\x12X\n" +
 	"\x18latest_completed_fill_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x15latestCompletedFillAt\x88\x01\x01B\x1b\n" +
-	"\x19_latest_completed_fill_at\"B\n" +
+	"\x19_latest_completed_fill_at\"i\n" +
 	"\"TriggerOfflineWideTableFillRequest\x12\x1c\n" +
-	"\tnamespace\x18\x01 \x01(\tR\tnamespace\"]\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12%\n" +
+	"\x0eresource_group\x18\x02 \x01(\tR\rresourceGroup\"]\n" +
 	"#TriggerOfflineWideTableFillResponse\x126\n" +
-	"\x03run\x18\x01 \x01(\v2$.chalk.server.v1.OfflineWideTableRunR\x03run\"H\n" +
+	"\x03run\x18\x01 \x01(\v2$.chalk.server.v1.OfflineWideTableRunR\x03run\"o\n" +
 	"(TriggerOfflineWideTableCompactionRequest\x12\x1c\n" +
-	"\tnamespace\x18\x01 \x01(\tR\tnamespace\"N\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12%\n" +
+	"\x0eresource_group\x18\x02 \x01(\tR\rresourceGroup\"N\n" +
 	")TriggerOfflineWideTableCompactionResponse\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId*\x95\x01\n" +
 	"\x17OfflineWideTableRunKind\x12+\n" +

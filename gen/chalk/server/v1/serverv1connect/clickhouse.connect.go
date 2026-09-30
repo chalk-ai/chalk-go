@@ -60,8 +60,8 @@ type ClickhouseServiceClient interface {
 	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
 	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
 	GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error)
-	// Charts the retention and disk utilization gauges the telemetry TTL monitor
-	// emits for the environment's telemetry deployment, read from VictoriaMetrics.
+	// Charts the retention, disk, and server-health gauges the cluster manager
+	// publishes for the environment's telemetry ClickHouse, read from VictoriaMetrics.
 	GetClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error)
 	// Returns query-level performance data and physical table configuration.
 	// Keep this separate from GetClickhouseInfo so non-admin readers never receive
@@ -173,8 +173,8 @@ type ClickhouseServiceHandler interface {
 	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
 	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
 	GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error)
-	// Charts the retention and disk utilization gauges the telemetry TTL monitor
-	// emits for the environment's telemetry deployment, read from VictoriaMetrics.
+	// Charts the retention, disk, and server-health gauges the cluster manager
+	// publishes for the environment's telemetry ClickHouse, read from VictoriaMetrics.
 	GetClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error)
 	// Returns query-level performance data and physical table configuration.
 	// Keep this separate from GetClickhouseInfo so non-admin readers never receive

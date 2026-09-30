@@ -36,6 +36,9 @@ const (
 	// AgentRunnerServiceRunTurnProcedure is the fully-qualified name of the AgentRunnerService's
 	// RunTurn RPC.
 	AgentRunnerServiceRunTurnProcedure = "/chalk.agent.v1.AgentRunnerService/RunTurn"
+	// AgentRunnerServiceDecideToolCallProcedure is the fully-qualified name of the AgentRunnerService's
+	// DecideToolCall RPC.
+	AgentRunnerServiceDecideToolCallProcedure = "/chalk.agent.v1.AgentRunnerService/DecideToolCall"
 	// AgentRunnerServiceStopTurnProcedure is the fully-qualified name of the AgentRunnerService's
 	// StopTurn RPC.
 	AgentRunnerServiceStopTurnProcedure = "/chalk.agent.v1.AgentRunnerService/StopTurn"
@@ -50,6 +53,8 @@ type AgentRunnerServiceClient interface {
 	// events for tokens, tool calls, and tool results. The stream terminates
 	// with either RunCompleted or RunFailed.
 	RunTurn(context.Context, *connect.Request[v1.RunTurnRequest]) (*connect.ServerStreamForClient[v1.RunTurnResponse], error)
+	// Records the user's decision for the exact persisted tool call.
+	DecideToolCall(context.Context, *connect.Request[v1.DecideToolCallRequest]) (*connect.Response[v1.DecideToolCallResponse], error)
 	// StopTurn cancels the in-flight RunTurn on a conversation, if any. The
 	// turn's RunTurn stream ends with RunFailed("Turn stopped by user.").
 	StopTurn(context.Context, *connect.Request[v1.StopTurnRequest]) (*connect.Response[v1.StopTurnResponse], error)
@@ -76,6 +81,12 @@ func NewAgentRunnerServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(agentRunnerServiceMethods.ByName("RunTurn")),
 			connect.WithClientOptions(opts...),
 		),
+		decideToolCall: connect.NewClient[v1.DecideToolCallRequest, v1.DecideToolCallResponse](
+			httpClient,
+			baseURL+AgentRunnerServiceDecideToolCallProcedure,
+			connect.WithSchema(agentRunnerServiceMethods.ByName("DecideToolCall")),
+			connect.WithClientOptions(opts...),
+		),
 		stopTurn: connect.NewClient[v1.StopTurnRequest, v1.StopTurnResponse](
 			httpClient,
 			baseURL+AgentRunnerServiceStopTurnProcedure,
@@ -95,6 +106,7 @@ func NewAgentRunnerServiceClient(httpClient connect.HTTPClient, baseURL string, 
 // agentRunnerServiceClient implements AgentRunnerServiceClient.
 type agentRunnerServiceClient struct {
 	runTurn                  *connect.Client[v1.RunTurnRequest, v1.RunTurnResponse]
+	decideToolCall           *connect.Client[v1.DecideToolCallRequest, v1.DecideToolCallResponse]
 	stopTurn                 *connect.Client[v1.StopTurnRequest, v1.StopTurnResponse]
 	generateInlineCompletion *connect.Client[v1.GenerateInlineCompletionRequest, v1.GenerateInlineCompletionResponse]
 }
@@ -102,6 +114,11 @@ type agentRunnerServiceClient struct {
 // RunTurn calls chalk.agent.v1.AgentRunnerService.RunTurn.
 func (c *agentRunnerServiceClient) RunTurn(ctx context.Context, req *connect.Request[v1.RunTurnRequest]) (*connect.ServerStreamForClient[v1.RunTurnResponse], error) {
 	return c.runTurn.CallServerStream(ctx, req)
+}
+
+// DecideToolCall calls chalk.agent.v1.AgentRunnerService.DecideToolCall.
+func (c *agentRunnerServiceClient) DecideToolCall(ctx context.Context, req *connect.Request[v1.DecideToolCallRequest]) (*connect.Response[v1.DecideToolCallResponse], error) {
+	return c.decideToolCall.CallUnary(ctx, req)
 }
 
 // StopTurn calls chalk.agent.v1.AgentRunnerService.StopTurn.
@@ -120,6 +137,8 @@ type AgentRunnerServiceHandler interface {
 	// events for tokens, tool calls, and tool results. The stream terminates
 	// with either RunCompleted or RunFailed.
 	RunTurn(context.Context, *connect.Request[v1.RunTurnRequest], *connect.ServerStream[v1.RunTurnResponse]) error
+	// Records the user's decision for the exact persisted tool call.
+	DecideToolCall(context.Context, *connect.Request[v1.DecideToolCallRequest]) (*connect.Response[v1.DecideToolCallResponse], error)
 	// StopTurn cancels the in-flight RunTurn on a conversation, if any. The
 	// turn's RunTurn stream ends with RunFailed("Turn stopped by user.").
 	StopTurn(context.Context, *connect.Request[v1.StopTurnRequest]) (*connect.Response[v1.StopTurnResponse], error)
@@ -142,6 +161,12 @@ func NewAgentRunnerServiceHandler(svc AgentRunnerServiceHandler, opts ...connect
 		connect.WithSchema(agentRunnerServiceMethods.ByName("RunTurn")),
 		connect.WithHandlerOptions(opts...),
 	)
+	agentRunnerServiceDecideToolCallHandler := connect.NewUnaryHandler(
+		AgentRunnerServiceDecideToolCallProcedure,
+		svc.DecideToolCall,
+		connect.WithSchema(agentRunnerServiceMethods.ByName("DecideToolCall")),
+		connect.WithHandlerOptions(opts...),
+	)
 	agentRunnerServiceStopTurnHandler := connect.NewUnaryHandler(
 		AgentRunnerServiceStopTurnProcedure,
 		svc.StopTurn,
@@ -159,6 +184,8 @@ func NewAgentRunnerServiceHandler(svc AgentRunnerServiceHandler, opts ...connect
 		switch r.URL.Path {
 		case AgentRunnerServiceRunTurnProcedure:
 			agentRunnerServiceRunTurnHandler.ServeHTTP(w, r)
+		case AgentRunnerServiceDecideToolCallProcedure:
+			agentRunnerServiceDecideToolCallHandler.ServeHTTP(w, r)
 		case AgentRunnerServiceStopTurnProcedure:
 			agentRunnerServiceStopTurnHandler.ServeHTTP(w, r)
 		case AgentRunnerServiceGenerateInlineCompletionProcedure:
@@ -174,6 +201,10 @@ type UnimplementedAgentRunnerServiceHandler struct{}
 
 func (UnimplementedAgentRunnerServiceHandler) RunTurn(context.Context, *connect.Request[v1.RunTurnRequest], *connect.ServerStream[v1.RunTurnResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentRunnerService.RunTurn is not implemented"))
+}
+
+func (UnimplementedAgentRunnerServiceHandler) DecideToolCall(context.Context, *connect.Request[v1.DecideToolCallRequest]) (*connect.Response[v1.DecideToolCallResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AgentRunnerService.DecideToolCall is not implemented"))
 }
 
 func (UnimplementedAgentRunnerServiceHandler) StopTurn(context.Context, *connect.Request[v1.StopTurnRequest]) (*connect.Response[v1.StopTurnResponse], error) {

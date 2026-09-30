@@ -37,6 +37,7 @@ const (
 	SandboxStatus_SANDBOX_STATUS_TERMINATED  SandboxStatus = 5
 	SandboxStatus_SANDBOX_STATUS_ERROR       SandboxStatus = 6
 	SandboxStatus_SANDBOX_STATUS_UNKNOWN     SandboxStatus = 7
+	SandboxStatus_SANDBOX_STATUS_SUSPENDED   SandboxStatus = 8
 )
 
 // Enum value maps for SandboxStatus.
@@ -50,6 +51,7 @@ var (
 		5: "SANDBOX_STATUS_TERMINATED",
 		6: "SANDBOX_STATUS_ERROR",
 		7: "SANDBOX_STATUS_UNKNOWN",
+		8: "SANDBOX_STATUS_SUSPENDED",
 	}
 	SandboxStatus_value = map[string]int32{
 		"SANDBOX_STATUS_UNSPECIFIED": 0,
@@ -60,6 +62,7 @@ var (
 		"SANDBOX_STATUS_TERMINATED":  5,
 		"SANDBOX_STATUS_ERROR":       6,
 		"SANDBOX_STATUS_UNKNOWN":     7,
+		"SANDBOX_STATUS_SUSPENDED":   8,
 	}
 )
 
@@ -452,6 +455,8 @@ type CreateSandboxRequest_Spec struct {
 }
 
 type CreateSandboxRequest_SnapshotId struct {
+	// Forks use the snapshot's recorded container spec and ignore any caller
+	// supplied spec; the snapshot_id is the complete source of truth.
 	SnapshotId string `protobuf:"bytes,2,opt,name=snapshot_id,json=snapshotId,proto3,oneof"`
 }
 
@@ -1444,7 +1449,7 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"page_token\x18\x04 \x01(\tR\tpageToken\"\x87\x01\n" +
 	"\x1cListSandboxResourcesResponse\x12?\n" +
 	"\tresources\x18\x01 \x03(\v2!.chalk.sandbox.v2.SandboxResourceR\tresources\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*\xf5\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*\x93\x02\n" +
 	"\rSandboxStatus\x12\x1e\n" +
 	"\x1aSANDBOX_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16SANDBOX_STATUS_PENDING\x10\x01\x12\x1a\n" +
@@ -1453,7 +1458,8 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"\x15SANDBOX_STATUS_FAILED\x10\x04\x12\x1d\n" +
 	"\x19SANDBOX_STATUS_TERMINATED\x10\x05\x12\x18\n" +
 	"\x14SANDBOX_STATUS_ERROR\x10\x06\x12\x1a\n" +
-	"\x16SANDBOX_STATUS_UNKNOWN\x10\a*\\\n" +
+	"\x16SANDBOX_STATUS_UNKNOWN\x10\a\x12\x1c\n" +
+	"\x18SANDBOX_STATUS_SUSPENDED\x10\b*\\\n" +
 	"\x11SandboxSortColumn\x12#\n" +
 	"\x1fSANDBOX_SORT_COLUMN_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eSANDBOX_SORT_COLUMN_CREATED_AT\x10\x01*o\n" +

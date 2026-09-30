@@ -70,6 +70,9 @@ const (
 	VolumeServiceRequestUploadURLsProcedure = "/chalk.volume.v2.VolumeService/RequestUploadURLs"
 	// VolumeServiceListFilesProcedure is the fully-qualified name of the VolumeService's ListFiles RPC.
 	VolumeServiceListFilesProcedure = "/chalk.volume.v2.VolumeService/ListFiles"
+	// VolumeServiceListMountFilesProcedure is the fully-qualified name of the VolumeService's
+	// ListMountFiles RPC.
+	VolumeServiceListMountFilesProcedure = "/chalk.volume.v2.VolumeService/ListMountFiles"
 	// VolumeServiceGetFileProcedure is the fully-qualified name of the VolumeService's GetFile RPC.
 	VolumeServiceGetFileProcedure = "/chalk.volume.v2.VolumeService/GetFile"
 )
@@ -90,6 +93,7 @@ type VolumeServiceClient interface {
 	AllocateInodeRange(context.Context, *connect.Request[v2.AllocateInodeRangeRequest]) (*connect.Response[v2.AllocateInodeRangeResponse], error)
 	RequestUploadURLs(context.Context, *connect.Request[v2.RequestUploadURLsRequest]) (*connect.Response[v2.RequestUploadURLsResponse], error)
 	ListFiles(context.Context, *connect.Request[v2.ListFilesRequest]) (*connect.Response[v2.ListFilesResponse], error)
+	ListMountFiles(context.Context, *connect.Request[v2.ListMountFilesRequest]) (*connect.Response[v2.ListMountFilesResponse], error)
 	GetFile(context.Context, *connect.Request[v2.GetFileRequest]) (*connect.Response[v2.GetFileResponse], error)
 }
 
@@ -196,6 +200,13 @@ func NewVolumeServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listMountFiles: connect.NewClient[v2.ListMountFilesRequest, v2.ListMountFilesResponse](
+			httpClient,
+			baseURL+VolumeServiceListMountFilesProcedure,
+			connect.WithSchema(volumeServiceMethods.ByName("ListMountFiles")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getFile: connect.NewClient[v2.GetFileRequest, v2.GetFileResponse](
 			httpClient,
 			baseURL+VolumeServiceGetFileProcedure,
@@ -222,6 +233,7 @@ type volumeServiceClient struct {
 	allocateInodeRange *connect.Client[v2.AllocateInodeRangeRequest, v2.AllocateInodeRangeResponse]
 	requestUploadURLs  *connect.Client[v2.RequestUploadURLsRequest, v2.RequestUploadURLsResponse]
 	listFiles          *connect.Client[v2.ListFilesRequest, v2.ListFilesResponse]
+	listMountFiles     *connect.Client[v2.ListMountFilesRequest, v2.ListMountFilesResponse]
 	getFile            *connect.Client[v2.GetFileRequest, v2.GetFileResponse]
 }
 
@@ -295,6 +307,11 @@ func (c *volumeServiceClient) ListFiles(ctx context.Context, req *connect.Reques
 	return c.listFiles.CallUnary(ctx, req)
 }
 
+// ListMountFiles calls chalk.volume.v2.VolumeService.ListMountFiles.
+func (c *volumeServiceClient) ListMountFiles(ctx context.Context, req *connect.Request[v2.ListMountFilesRequest]) (*connect.Response[v2.ListMountFilesResponse], error) {
+	return c.listMountFiles.CallUnary(ctx, req)
+}
+
 // GetFile calls chalk.volume.v2.VolumeService.GetFile.
 func (c *volumeServiceClient) GetFile(ctx context.Context, req *connect.Request[v2.GetFileRequest]) (*connect.Response[v2.GetFileResponse], error) {
 	return c.getFile.CallUnary(ctx, req)
@@ -316,6 +333,7 @@ type VolumeServiceHandler interface {
 	AllocateInodeRange(context.Context, *connect.Request[v2.AllocateInodeRangeRequest]) (*connect.Response[v2.AllocateInodeRangeResponse], error)
 	RequestUploadURLs(context.Context, *connect.Request[v2.RequestUploadURLsRequest]) (*connect.Response[v2.RequestUploadURLsResponse], error)
 	ListFiles(context.Context, *connect.Request[v2.ListFilesRequest]) (*connect.Response[v2.ListFilesResponse], error)
+	ListMountFiles(context.Context, *connect.Request[v2.ListMountFilesRequest]) (*connect.Response[v2.ListMountFilesResponse], error)
 	GetFile(context.Context, *connect.Request[v2.GetFileRequest]) (*connect.Response[v2.GetFileResponse], error)
 }
 
@@ -418,6 +436,13 @@ func NewVolumeServiceHandler(svc VolumeServiceHandler, opts ...connect.HandlerOp
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	volumeServiceListMountFilesHandler := connect.NewUnaryHandler(
+		VolumeServiceListMountFilesProcedure,
+		svc.ListMountFiles,
+		connect.WithSchema(volumeServiceMethods.ByName("ListMountFiles")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	volumeServiceGetFileHandler := connect.NewUnaryHandler(
 		VolumeServiceGetFileProcedure,
 		svc.GetFile,
@@ -455,6 +480,8 @@ func NewVolumeServiceHandler(svc VolumeServiceHandler, opts ...connect.HandlerOp
 			volumeServiceRequestUploadURLsHandler.ServeHTTP(w, r)
 		case VolumeServiceListFilesProcedure:
 			volumeServiceListFilesHandler.ServeHTTP(w, r)
+		case VolumeServiceListMountFilesProcedure:
+			volumeServiceListMountFilesHandler.ServeHTTP(w, r)
 		case VolumeServiceGetFileProcedure:
 			volumeServiceGetFileHandler.ServeHTTP(w, r)
 		default:
@@ -520,6 +547,10 @@ func (UnimplementedVolumeServiceHandler) RequestUploadURLs(context.Context, *con
 
 func (UnimplementedVolumeServiceHandler) ListFiles(context.Context, *connect.Request[v2.ListFilesRequest]) (*connect.Response[v2.ListFilesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.ListFiles is not implemented"))
+}
+
+func (UnimplementedVolumeServiceHandler) ListMountFiles(context.Context, *connect.Request[v2.ListMountFilesRequest]) (*connect.Response[v2.ListMountFilesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.ListMountFiles is not implemented"))
 }
 
 func (UnimplementedVolumeServiceHandler) GetFile(context.Context, *connect.Request[v2.GetFileRequest]) (*connect.Response[v2.GetFileResponse], error) {
