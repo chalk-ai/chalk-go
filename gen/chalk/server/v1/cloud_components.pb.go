@@ -92,6 +92,8 @@ const (
 	MaintenanceWindow_MODE_UNRESTRICTED MaintenanceWindow_Mode = 1
 	// Use the schedule and duration fields below.
 	MaintenanceWindow_MODE_CUSTOM MaintenanceWindow_Mode = 2
+	// Keep the maintenance window closed unless a temporary override is active.
+	MaintenanceWindow_MODE_DISABLED MaintenanceWindow_Mode = 3
 )
 
 // Enum value maps for MaintenanceWindow_Mode.
@@ -100,11 +102,13 @@ var (
 		0: "MODE_UNSPECIFIED",
 		1: "MODE_UNRESTRICTED",
 		2: "MODE_CUSTOM",
+		3: "MODE_DISABLED",
 	}
 	MaintenanceWindow_Mode_value = map[string]int32{
 		"MODE_UNSPECIFIED":  0,
 		"MODE_UNRESTRICTED": 1,
 		"MODE_CUSTOM":       2,
+		"MODE_DISABLED":     3,
 	}
 )
 
@@ -9671,16 +9675,17 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x04spec\x18\x02 \x01(\v20.chalk.server.v1.CloudComponentContainerRegistryR\x04spec\x12\x18\n" +
 	"\amanaged\x18\x03 \x01(\bR\amanaged\x123\n" +
 	"\x13cloud_credential_id\x18\x04 \x01(\tH\x00R\x11cloudCredentialId\x88\x01\x01B\x16\n" +
-	"\x14_cloud_credential_id\"\xbd\x02\n" +
+	"\x14_cloud_credential_id\"\xd0\x02\n" +
 	"\x11MaintenanceWindow\x12;\n" +
 	"\x04mode\x18\x01 \x01(\x0e2'.chalk.server.v1.MaintenanceWindow.ModeR\x04mode\x12\x1a\n" +
 	"\bschedule\x18\x02 \x01(\tR\bschedule\x12\x1a\n" +
 	"\bduration\x18\x03 \x01(\tR\bduration\x12S\n" +
-	"\x15override_active_until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x13overrideActiveUntil\x88\x01\x01\"D\n" +
+	"\x15override_active_until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x13overrideActiveUntil\x88\x01\x01\"W\n" +
 	"\x04Mode\x12\x14\n" +
 	"\x10MODE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11MODE_UNRESTRICTED\x10\x01\x12\x0f\n" +
-	"\vMODE_CUSTOM\x10\x02B\x18\n" +
+	"\vMODE_CUSTOM\x10\x02\x12\x11\n" +
+	"\rMODE_DISABLED\x10\x03B\x18\n" +
 	"\x16_override_active_until\"\xa6\t\n" +
 	"\x15CloudComponentCluster\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +

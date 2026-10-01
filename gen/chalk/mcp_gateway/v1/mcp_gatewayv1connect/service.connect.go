@@ -92,6 +92,9 @@ const (
 	// McpGatewayServiceRecentAuditProcedure is the fully-qualified name of the McpGatewayService's
 	// RecentAudit RPC.
 	McpGatewayServiceRecentAuditProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/RecentAudit"
+	// McpGatewayServiceStreamAuditProcedure is the fully-qualified name of the McpGatewayService's
+	// StreamAudit RPC.
+	McpGatewayServiceStreamAuditProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/StreamAudit"
 	// McpGatewayServiceListPoliciesProcedure is the fully-qualified name of the McpGatewayService's
 	// ListPolicies RPC.
 	McpGatewayServiceListPoliciesProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/ListPolicies"
@@ -128,6 +131,10 @@ type McpGatewayServiceClient interface {
 	SimulatePolicy(context.Context, *connect.Request[v1.SimulatePolicyRequest]) (*connect.Response[v1.SimulatePolicyResponse], error)
 	CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error)
 	RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error)
+	// Replays the gateway replica's recent events, then pushes each audited MCP
+	// operation as it is recorded. Events reach only subscribers on the replica
+	// that served the call.
+	StreamAudit(context.Context, *connect.Request[v1.StreamAuditRequest]) (*connect.ServerStreamForClient[v1.StreamAuditResponse], error)
 	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
 	GetPolicy(context.Context, *connect.Request[v1.GetPolicyRequest]) (*connect.Response[v1.GetPolicyResponse], error)
 	SetPolicy(context.Context, *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error)
@@ -277,6 +284,12 @@ func NewMcpGatewayServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		streamAudit: connect.NewClient[v1.StreamAuditRequest, v1.StreamAuditResponse](
+			httpClient,
+			baseURL+McpGatewayServiceStreamAuditProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("StreamAudit")),
+			connect.WithClientOptions(opts...),
+		),
 		listPolicies: connect.NewClient[v1.ListPoliciesRequest, v1.ListPoliciesResponse](
 			httpClient,
 			baseURL+McpGatewayServiceListPoliciesProcedure,
@@ -328,6 +341,7 @@ type mcpGatewayServiceClient struct {
 	simulatePolicy *connect.Client[v1.SimulatePolicyRequest, v1.SimulatePolicyResponse]
 	checkPolicy    *connect.Client[v1.CheckPolicyRequest, v1.CheckPolicyResponse]
 	recentAudit    *connect.Client[v1.RecentAuditRequest, v1.RecentAuditResponse]
+	streamAudit    *connect.Client[v1.StreamAuditRequest, v1.StreamAuditResponse]
 	listPolicies   *connect.Client[v1.ListPoliciesRequest, v1.ListPoliciesResponse]
 	getPolicy      *connect.Client[v1.GetPolicyRequest, v1.GetPolicyResponse]
 	setPolicy      *connect.Client[v1.SetPolicyRequest, v1.SetPolicyResponse]
@@ -434,6 +448,11 @@ func (c *mcpGatewayServiceClient) RecentAudit(ctx context.Context, req *connect.
 	return c.recentAudit.CallUnary(ctx, req)
 }
 
+// StreamAudit calls chalk.mcp_gateway.v1.McpGatewayService.StreamAudit.
+func (c *mcpGatewayServiceClient) StreamAudit(ctx context.Context, req *connect.Request[v1.StreamAuditRequest]) (*connect.ServerStreamForClient[v1.StreamAuditResponse], error) {
+	return c.streamAudit.CallServerStream(ctx, req)
+}
+
 // ListPolicies calls chalk.mcp_gateway.v1.McpGatewayService.ListPolicies.
 func (c *mcpGatewayServiceClient) ListPolicies(ctx context.Context, req *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error) {
 	return c.listPolicies.CallUnary(ctx, req)
@@ -477,6 +496,10 @@ type McpGatewayServiceHandler interface {
 	SimulatePolicy(context.Context, *connect.Request[v1.SimulatePolicyRequest]) (*connect.Response[v1.SimulatePolicyResponse], error)
 	CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error)
 	RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error)
+	// Replays the gateway replica's recent events, then pushes each audited MCP
+	// operation as it is recorded. Events reach only subscribers on the replica
+	// that served the call.
+	StreamAudit(context.Context, *connect.Request[v1.StreamAuditRequest], *connect.ServerStream[v1.StreamAuditResponse]) error
 	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
 	GetPolicy(context.Context, *connect.Request[v1.GetPolicyRequest]) (*connect.Response[v1.GetPolicyResponse], error)
 	SetPolicy(context.Context, *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error)
@@ -622,6 +645,12 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	mcpGatewayServiceStreamAuditHandler := connect.NewServerStreamHandler(
+		McpGatewayServiceStreamAuditProcedure,
+		svc.StreamAudit,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("StreamAudit")),
+		connect.WithHandlerOptions(opts...),
+	)
 	mcpGatewayServiceListPoliciesHandler := connect.NewUnaryHandler(
 		McpGatewayServiceListPoliciesProcedure,
 		svc.ListPolicies,
@@ -690,6 +719,8 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 			mcpGatewayServiceCheckPolicyHandler.ServeHTTP(w, r)
 		case McpGatewayServiceRecentAuditProcedure:
 			mcpGatewayServiceRecentAuditHandler.ServeHTTP(w, r)
+		case McpGatewayServiceStreamAuditProcedure:
+			mcpGatewayServiceStreamAuditHandler.ServeHTTP(w, r)
 		case McpGatewayServiceListPoliciesProcedure:
 			mcpGatewayServiceListPoliciesHandler.ServeHTTP(w, r)
 		case McpGatewayServiceGetPolicyProcedure:
@@ -785,6 +816,10 @@ func (UnimplementedMcpGatewayServiceHandler) CheckPolicy(context.Context, *conne
 
 func (UnimplementedMcpGatewayServiceHandler) RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.RecentAudit is not implemented"))
+}
+
+func (UnimplementedMcpGatewayServiceHandler) StreamAudit(context.Context, *connect.Request[v1.StreamAuditRequest], *connect.ServerStream[v1.StreamAuditResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.StreamAudit is not implemented"))
 }
 
 func (UnimplementedMcpGatewayServiceHandler) ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error) {

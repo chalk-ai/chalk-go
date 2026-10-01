@@ -4986,6 +4986,278 @@ func (*GetFileResponse_Packed) isGetFileResponse_Content() {}
 
 func (*GetFileResponse_Chunked) isGetFileResponse_Content() {}
 
+type GetVolumeCredentialsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Volume        *VolumeRef             `protobuf:"bytes,1,opt,name=volume,proto3" json:"volume,omitempty"`
+	AccessMode    VolumeAccessMode       `protobuf:"varint,2,opt,name=access_mode,json=accessMode,proto3,enum=chalk.volume.v2.VolumeAccessMode" json:"access_mode,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVolumeCredentialsRequest) Reset() {
+	*x = GetVolumeCredentialsRequest{}
+	mi := &file_chalk_volume_v2_volume_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVolumeCredentialsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVolumeCredentialsRequest) ProtoMessage() {}
+
+func (x *GetVolumeCredentialsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_volume_v2_volume_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVolumeCredentialsRequest.ProtoReflect.Descriptor instead.
+func (*GetVolumeCredentialsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_volume_v2_volume_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *GetVolumeCredentialsRequest) GetVolume() *VolumeRef {
+	if x != nil {
+		return x.Volume
+	}
+	return nil
+}
+
+func (x *GetVolumeCredentialsRequest) GetAccessMode() VolumeAccessMode {
+	if x != nil {
+		return x.AccessMode
+	}
+	return VolumeAccessMode_VOLUME_ACCESS_MODE_UNSPECIFIED
+}
+
+type GetVolumeCredentialsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Resolved volume identity.
+	Volume    *VolumeRef `protobuf:"bytes,1,opt,name=volume,proto3" json:"volume,omitempty"`
+	BucketUri string     `protobuf:"bytes,2,opt,name=bucket_uri,json=bucketUri,proto3" json:"bucket_uri,omitempty"`
+	// Reachable object prefixes, including the exact read-only name record.
+	Prefixes  []string               `protobuf:"bytes,3,rep,name=prefixes,proto3" json:"prefixes,omitempty"`
+	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// Types that are valid to be assigned to Credentials:
+	//
+	//	*GetVolumeCredentialsResponse_Aws
+	//	*GetVolumeCredentialsResponse_Gcp
+	Credentials   isGetVolumeCredentialsResponse_Credentials `protobuf_oneof:"credentials"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVolumeCredentialsResponse) Reset() {
+	*x = GetVolumeCredentialsResponse{}
+	mi := &file_chalk_volume_v2_volume_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVolumeCredentialsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVolumeCredentialsResponse) ProtoMessage() {}
+
+func (x *GetVolumeCredentialsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_volume_v2_volume_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVolumeCredentialsResponse.ProtoReflect.Descriptor instead.
+func (*GetVolumeCredentialsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_volume_v2_volume_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *GetVolumeCredentialsResponse) GetVolume() *VolumeRef {
+	if x != nil {
+		return x.Volume
+	}
+	return nil
+}
+
+func (x *GetVolumeCredentialsResponse) GetBucketUri() string {
+	if x != nil {
+		return x.BucketUri
+	}
+	return ""
+}
+
+func (x *GetVolumeCredentialsResponse) GetPrefixes() []string {
+	if x != nil {
+		return x.Prefixes
+	}
+	return nil
+}
+
+func (x *GetVolumeCredentialsResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *GetVolumeCredentialsResponse) GetCredentials() isGetVolumeCredentialsResponse_Credentials {
+	if x != nil {
+		return x.Credentials
+	}
+	return nil
+}
+
+func (x *GetVolumeCredentialsResponse) GetAws() *AwsSessionCredentials {
+	if x != nil {
+		if x, ok := x.Credentials.(*GetVolumeCredentialsResponse_Aws); ok {
+			return x.Aws
+		}
+	}
+	return nil
+}
+
+func (x *GetVolumeCredentialsResponse) GetGcp() *GcpAccessToken {
+	if x != nil {
+		if x, ok := x.Credentials.(*GetVolumeCredentialsResponse_Gcp); ok {
+			return x.Gcp
+		}
+	}
+	return nil
+}
+
+type isGetVolumeCredentialsResponse_Credentials interface {
+	isGetVolumeCredentialsResponse_Credentials()
+}
+
+type GetVolumeCredentialsResponse_Aws struct {
+	Aws *AwsSessionCredentials `protobuf:"bytes,5,opt,name=aws,proto3,oneof"`
+}
+
+type GetVolumeCredentialsResponse_Gcp struct {
+	Gcp *GcpAccessToken `protobuf:"bytes,6,opt,name=gcp,proto3,oneof"`
+}
+
+func (*GetVolumeCredentialsResponse_Aws) isGetVolumeCredentialsResponse_Credentials() {}
+
+func (*GetVolumeCredentialsResponse_Gcp) isGetVolumeCredentialsResponse_Credentials() {}
+
+type AwsSessionCredentials struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	AccessKeyId     string                 `protobuf:"bytes,1,opt,name=access_key_id,json=accessKeyId,proto3" json:"access_key_id,omitempty"`
+	SecretAccessKey string                 `protobuf:"bytes,2,opt,name=secret_access_key,json=secretAccessKey,proto3" json:"secret_access_key,omitempty"`
+	SessionToken    string                 `protobuf:"bytes,3,opt,name=session_token,json=sessionToken,proto3" json:"session_token,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AwsSessionCredentials) Reset() {
+	*x = AwsSessionCredentials{}
+	mi := &file_chalk_volume_v2_volume_proto_msgTypes[75]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AwsSessionCredentials) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AwsSessionCredentials) ProtoMessage() {}
+
+func (x *AwsSessionCredentials) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_volume_v2_volume_proto_msgTypes[75]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AwsSessionCredentials.ProtoReflect.Descriptor instead.
+func (*AwsSessionCredentials) Descriptor() ([]byte, []int) {
+	return file_chalk_volume_v2_volume_proto_rawDescGZIP(), []int{75}
+}
+
+func (x *AwsSessionCredentials) GetAccessKeyId() string {
+	if x != nil {
+		return x.AccessKeyId
+	}
+	return ""
+}
+
+func (x *AwsSessionCredentials) GetSecretAccessKey() string {
+	if x != nil {
+		return x.SecretAccessKey
+	}
+	return ""
+}
+
+func (x *AwsSessionCredentials) GetSessionToken() string {
+	if x != nil {
+		return x.SessionToken
+	}
+	return ""
+}
+
+type GcpAccessToken struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GcpAccessToken) Reset() {
+	*x = GcpAccessToken{}
+	mi := &file_chalk_volume_v2_volume_proto_msgTypes[76]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GcpAccessToken) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GcpAccessToken) ProtoMessage() {}
+
+func (x *GcpAccessToken) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_volume_v2_volume_proto_msgTypes[76]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GcpAccessToken.ProtoReflect.Descriptor instead.
+func (*GcpAccessToken) Descriptor() ([]byte, []int) {
+	return file_chalk_volume_v2_volume_proto_rawDescGZIP(), []int{76}
+}
+
+func (x *GcpAccessToken) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
 var File_chalk_volume_v2_volume_proto protoreflect.FileDescriptor
 
 const file_chalk_volume_v2_volume_proto_rawDesc = "" +
@@ -5349,7 +5621,28 @@ const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"\x06packed\x18\x04 \x01(\v2\".chalk.volume.v2.PackedFileContentH\x00R\x06packed\x12?\n" +
 	"\achunked\x18\x05 \x01(\v2#.chalk.volume.v2.ChunkedFileContentH\x00R\achunked\x12!\n" +
 	"\fnot_modified\x18\x06 \x01(\bR\vnotModifiedB\t\n" +
-	"\acontent*{\n" +
+	"\acontent\"\xa9\x01\n" +
+	"\x1bGetVolumeCredentialsRequest\x12:\n" +
+	"\x06volume\x18\x01 \x01(\v2\x1a.chalk.volume.v2.VolumeRefB\x06\xbaH\x03\xc8\x01\x01R\x06volume\x12N\n" +
+	"\vaccess_mode\x18\x02 \x01(\x0e2!.chalk.volume.v2.VolumeAccessModeB\n" +
+	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\n" +
+	"accessMode\"\xc8\x02\n" +
+	"\x1cGetVolumeCredentialsResponse\x122\n" +
+	"\x06volume\x18\x01 \x01(\v2\x1a.chalk.volume.v2.VolumeRefR\x06volume\x12\x1d\n" +
+	"\n" +
+	"bucket_uri\x18\x02 \x01(\tR\tbucketUri\x12\x1a\n" +
+	"\bprefixes\x18\x03 \x03(\tR\bprefixes\x129\n" +
+	"\n" +
+	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12:\n" +
+	"\x03aws\x18\x05 \x01(\v2&.chalk.volume.v2.AwsSessionCredentialsH\x00R\x03aws\x123\n" +
+	"\x03gcp\x18\x06 \x01(\v2\x1f.chalk.volume.v2.GcpAccessTokenH\x00R\x03gcpB\r\n" +
+	"\vcredentials\"\x8c\x01\n" +
+	"\x15AwsSessionCredentials\x12\"\n" +
+	"\raccess_key_id\x18\x01 \x01(\tR\vaccessKeyId\x12*\n" +
+	"\x11secret_access_key\x18\x02 \x01(\tR\x0fsecretAccessKey\x12#\n" +
+	"\rsession_token\x18\x03 \x01(\tR\fsessionToken\"3\n" +
+	"\x0eGcpAccessToken\x12!\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken*{\n" +
 	"\x10VolumeAccessMode\x12\"\n" +
 	"\x1eVOLUME_ACCESS_MODE_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cVOLUME_ACCESS_MODE_READ_ONLY\x10\x01\x12!\n" +
@@ -5378,11 +5671,12 @@ const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"\n" +
 	"VolumeKind\x12\x1b\n" +
 	"\x17VOLUME_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
-	"\x17VOLUME_KIND_SOURCE_CODE\x10\x012\xae\r\n" +
+	"\x17VOLUME_KIND_SOURCE_CODE\x10\x012\xab\x0e\n" +
 	"\rVolumeService\x12\xb7\x01\n" +
 	"\fCreateVolume\x12$.chalk.volume.v2.CreateVolumeRequest\x1a%.chalk.volume.v2.CreateVolumeResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
 	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12Z\n" +
-	"\tGetVolume\x12!.chalk.volume.v2.GetVolumeRequest\x1a\".chalk.volume.v2.GetVolumeResponse\"\x06\x80}\v\x90\x02\x01\x12i\n" +
+	"\tGetVolume\x12!.chalk.volume.v2.GetVolumeRequest\x1a\".chalk.volume.v2.GetVolumeResponse\"\x06\x80}\v\x90\x02\x01\x12{\n" +
+	"\x14GetVolumeCredentials\x12,.chalk.volume.v2.GetVolumeCredentialsRequest\x1a-.chalk.volume.v2.GetVolumeCredentialsResponse\"\x06\x80}\v\x90\x02\x01\x12i\n" +
 	"\x0eGetVolumeStats\x12&.chalk.volume.v2.GetVolumeStatsRequest\x1a'.chalk.volume.v2.GetVolumeStatsResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
 	"\vListVolumes\x12#.chalk.volume.v2.ListVolumesRequest\x1a$.chalk.volume.v2.ListVolumesResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
 	"\fDeleteVolume\x12$.chalk.volume.v2.DeleteVolumeRequest\x1a%.chalk.volume.v2.DeleteVolumeResponse\"\x03\x80}\x0e\x12u\n" +
@@ -5412,97 +5706,101 @@ func file_chalk_volume_v2_volume_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_volume_v2_volume_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_chalk_volume_v2_volume_proto_msgTypes = make([]protoimpl.MessageInfo, 73)
+var file_chalk_volume_v2_volume_proto_msgTypes = make([]protoimpl.MessageInfo, 77)
 var file_chalk_volume_v2_volume_proto_goTypes = []any{
-	(VolumeAccessMode)(0),              // 0: chalk.volume.v2.VolumeAccessMode
-	(FileKind)(0),                      // 1: chalk.volume.v2.FileKind
-	(PathWriteMode)(0),                 // 2: chalk.volume.v2.PathWriteMode
-	(CommitResult)(0),                  // 3: chalk.volume.v2.CommitResult
-	(UploadedObjectKind)(0),            // 4: chalk.volume.v2.UploadedObjectKind
-	(VolumeKind)(0),                    // 5: chalk.volume.v2.VolumeKind
-	(*VolumeInfo)(nil),                 // 6: chalk.volume.v2.VolumeInfo
-	(*VolumeRef)(nil),                  // 7: chalk.volume.v2.VolumeRef
-	(*RefInfo)(nil),                    // 8: chalk.volume.v2.RefInfo
-	(*VersionInfo)(nil),                // 9: chalk.volume.v2.VersionInfo
-	(*VersionSelector)(nil),            // 10: chalk.volume.v2.VersionSelector
-	(*FileMetadata)(nil),               // 11: chalk.volume.v2.FileMetadata
-	(*FileInfo)(nil),                   // 12: chalk.volume.v2.FileInfo
-	(*EmptyFileContent)(nil),           // 13: chalk.volume.v2.EmptyFileContent
-	(*InlineFileContent)(nil),          // 14: chalk.volume.v2.InlineFileContent
-	(*ChunkRef)(nil),                   // 15: chalk.volume.v2.ChunkRef
-	(*PackEntryRef)(nil),               // 16: chalk.volume.v2.PackEntryRef
-	(*ChunkedContentRef)(nil),          // 17: chalk.volume.v2.ChunkedContentRef
-	(*PackedContentRef)(nil),           // 18: chalk.volume.v2.PackedContentRef
-	(*ContentRef)(nil),                 // 19: chalk.volume.v2.ContentRef
-	(*RegularFileNode)(nil),            // 20: chalk.volume.v2.RegularFileNode
-	(*DirectoryNode)(nil),              // 21: chalk.volume.v2.DirectoryNode
-	(*SymlinkNode)(nil),                // 22: chalk.volume.v2.SymlinkNode
-	(*FileNode)(nil),                   // 23: chalk.volume.v2.FileNode
-	(*SignedChunkRef)(nil),             // 24: chalk.volume.v2.SignedChunkRef
-	(*SignedPackEntryRef)(nil),         // 25: chalk.volume.v2.SignedPackEntryRef
-	(*ChunkedFileContent)(nil),         // 26: chalk.volume.v2.ChunkedFileContent
-	(*PackedFileContent)(nil),          // 27: chalk.volume.v2.PackedFileContent
-	(*PathFileDelta)(nil),              // 28: chalk.volume.v2.PathFileDelta
-	(*PathRemoveDelta)(nil),            // 29: chalk.volume.v2.PathRemoveDelta
-	(*PathDeltaList)(nil),              // 30: chalk.volume.v2.PathDeltaList
-	(*InodeEntry)(nil),                 // 31: chalk.volume.v2.InodeEntry
-	(*DirentIdentifier)(nil),           // 32: chalk.volume.v2.DirentIdentifier
-	(*DirentEntry)(nil),                // 33: chalk.volume.v2.DirentEntry
-	(*DirentMove)(nil),                 // 34: chalk.volume.v2.DirentMove
-	(*InodeMetaUpdate)(nil),            // 35: chalk.volume.v2.InodeMetaUpdate
-	(*InodeDeltaList)(nil),             // 36: chalk.volume.v2.InodeDeltaList
-	(*VersionDiff)(nil),                // 37: chalk.volume.v2.VersionDiff
-	(*UploadedObjectReference)(nil),    // 38: chalk.volume.v2.UploadedObjectReference
-	(*UploadURLItem)(nil),              // 39: chalk.volume.v2.UploadURLItem
-	(*CommitDeltasObject)(nil),         // 40: chalk.volume.v2.CommitDeltasObject
-	(*CommitIntent)(nil),               // 41: chalk.volume.v2.CommitIntent
-	(*CommitStatus)(nil),               // 42: chalk.volume.v2.CommitStatus
-	(*CreateVolumeRequest)(nil),        // 43: chalk.volume.v2.CreateVolumeRequest
-	(*CreateVolumeResponse)(nil),       // 44: chalk.volume.v2.CreateVolumeResponse
-	(*GetVolumeRequest)(nil),           // 45: chalk.volume.v2.GetVolumeRequest
-	(*GetVolumeResponse)(nil),          // 46: chalk.volume.v2.GetVolumeResponse
-	(*VolumeStats)(nil),                // 47: chalk.volume.v2.VolumeStats
-	(*GetVolumeStatsRequest)(nil),      // 48: chalk.volume.v2.GetVolumeStatsRequest
-	(*GetVolumeStatsResponse)(nil),     // 49: chalk.volume.v2.GetVolumeStatsResponse
-	(*ListVolumesRequest)(nil),         // 50: chalk.volume.v2.ListVolumesRequest
-	(*ListedVolume)(nil),               // 51: chalk.volume.v2.ListedVolume
-	(*ListVolumesResponse)(nil),        // 52: chalk.volume.v2.ListVolumesResponse
-	(*DeleteVolumeRequest)(nil),        // 53: chalk.volume.v2.DeleteVolumeRequest
-	(*DeleteVolumeResponse)(nil),       // 54: chalk.volume.v2.DeleteVolumeResponse
-	(*ListVolumeVersionsRequest)(nil),  // 55: chalk.volume.v2.ListVolumeVersionsRequest
-	(*ListVolumeVersionsResponse)(nil), // 56: chalk.volume.v2.ListVolumeVersionsResponse
-	(*CreateRefRequest)(nil),           // 57: chalk.volume.v2.CreateRefRequest
-	(*CreateRefResponse)(nil),          // 58: chalk.volume.v2.CreateRefResponse
-	(*ListRefsRequest)(nil),            // 59: chalk.volume.v2.ListRefsRequest
-	(*ListRefsResponse)(nil),           // 60: chalk.volume.v2.ListRefsResponse
-	(*DeleteRefRequest)(nil),           // 61: chalk.volume.v2.DeleteRefRequest
-	(*DeleteRefResponse)(nil),          // 62: chalk.volume.v2.DeleteRefResponse
-	(*CommitVersionRequest)(nil),       // 63: chalk.volume.v2.CommitVersionRequest
-	(*CommitVersionResponse)(nil),      // 64: chalk.volume.v2.CommitVersionResponse
-	(*GetCommitStatusRequest)(nil),     // 65: chalk.volume.v2.GetCommitStatusRequest
-	(*GetCommitStatusResponse)(nil),    // 66: chalk.volume.v2.GetCommitStatusResponse
-	(*AllocateInodeRangeRequest)(nil),  // 67: chalk.volume.v2.AllocateInodeRangeRequest
-	(*AllocateInodeRangeResponse)(nil), // 68: chalk.volume.v2.AllocateInodeRangeResponse
-	(*RequestUploadURLsRequest)(nil),   // 69: chalk.volume.v2.RequestUploadURLsRequest
-	(*RequestUploadURLsResponse)(nil),  // 70: chalk.volume.v2.RequestUploadURLsResponse
-	(*ListFilesRequest)(nil),           // 71: chalk.volume.v2.ListFilesRequest
-	(*ListFilesResponse)(nil),          // 72: chalk.volume.v2.ListFilesResponse
-	(*ListMountFilesRequest)(nil),      // 73: chalk.volume.v2.ListMountFilesRequest
-	(*MountFileInfo)(nil),              // 74: chalk.volume.v2.MountFileInfo
-	(*ResolvedMount)(nil),              // 75: chalk.volume.v2.ResolvedMount
-	(*ListMountFilesResponse)(nil),     // 76: chalk.volume.v2.ListMountFilesResponse
-	(*GetFileRequest)(nil),             // 77: chalk.volume.v2.GetFileRequest
-	(*GetFileResponse)(nil),            // 78: chalk.volume.v2.GetFileResponse
-	(*timestamppb.Timestamp)(nil),      // 79: google.protobuf.Timestamp
-	(*v1.VolumeMount)(nil),             // 80: chalk.container.v1.VolumeMount
+	(VolumeAccessMode)(0),                // 0: chalk.volume.v2.VolumeAccessMode
+	(FileKind)(0),                        // 1: chalk.volume.v2.FileKind
+	(PathWriteMode)(0),                   // 2: chalk.volume.v2.PathWriteMode
+	(CommitResult)(0),                    // 3: chalk.volume.v2.CommitResult
+	(UploadedObjectKind)(0),              // 4: chalk.volume.v2.UploadedObjectKind
+	(VolumeKind)(0),                      // 5: chalk.volume.v2.VolumeKind
+	(*VolumeInfo)(nil),                   // 6: chalk.volume.v2.VolumeInfo
+	(*VolumeRef)(nil),                    // 7: chalk.volume.v2.VolumeRef
+	(*RefInfo)(nil),                      // 8: chalk.volume.v2.RefInfo
+	(*VersionInfo)(nil),                  // 9: chalk.volume.v2.VersionInfo
+	(*VersionSelector)(nil),              // 10: chalk.volume.v2.VersionSelector
+	(*FileMetadata)(nil),                 // 11: chalk.volume.v2.FileMetadata
+	(*FileInfo)(nil),                     // 12: chalk.volume.v2.FileInfo
+	(*EmptyFileContent)(nil),             // 13: chalk.volume.v2.EmptyFileContent
+	(*InlineFileContent)(nil),            // 14: chalk.volume.v2.InlineFileContent
+	(*ChunkRef)(nil),                     // 15: chalk.volume.v2.ChunkRef
+	(*PackEntryRef)(nil),                 // 16: chalk.volume.v2.PackEntryRef
+	(*ChunkedContentRef)(nil),            // 17: chalk.volume.v2.ChunkedContentRef
+	(*PackedContentRef)(nil),             // 18: chalk.volume.v2.PackedContentRef
+	(*ContentRef)(nil),                   // 19: chalk.volume.v2.ContentRef
+	(*RegularFileNode)(nil),              // 20: chalk.volume.v2.RegularFileNode
+	(*DirectoryNode)(nil),                // 21: chalk.volume.v2.DirectoryNode
+	(*SymlinkNode)(nil),                  // 22: chalk.volume.v2.SymlinkNode
+	(*FileNode)(nil),                     // 23: chalk.volume.v2.FileNode
+	(*SignedChunkRef)(nil),               // 24: chalk.volume.v2.SignedChunkRef
+	(*SignedPackEntryRef)(nil),           // 25: chalk.volume.v2.SignedPackEntryRef
+	(*ChunkedFileContent)(nil),           // 26: chalk.volume.v2.ChunkedFileContent
+	(*PackedFileContent)(nil),            // 27: chalk.volume.v2.PackedFileContent
+	(*PathFileDelta)(nil),                // 28: chalk.volume.v2.PathFileDelta
+	(*PathRemoveDelta)(nil),              // 29: chalk.volume.v2.PathRemoveDelta
+	(*PathDeltaList)(nil),                // 30: chalk.volume.v2.PathDeltaList
+	(*InodeEntry)(nil),                   // 31: chalk.volume.v2.InodeEntry
+	(*DirentIdentifier)(nil),             // 32: chalk.volume.v2.DirentIdentifier
+	(*DirentEntry)(nil),                  // 33: chalk.volume.v2.DirentEntry
+	(*DirentMove)(nil),                   // 34: chalk.volume.v2.DirentMove
+	(*InodeMetaUpdate)(nil),              // 35: chalk.volume.v2.InodeMetaUpdate
+	(*InodeDeltaList)(nil),               // 36: chalk.volume.v2.InodeDeltaList
+	(*VersionDiff)(nil),                  // 37: chalk.volume.v2.VersionDiff
+	(*UploadedObjectReference)(nil),      // 38: chalk.volume.v2.UploadedObjectReference
+	(*UploadURLItem)(nil),                // 39: chalk.volume.v2.UploadURLItem
+	(*CommitDeltasObject)(nil),           // 40: chalk.volume.v2.CommitDeltasObject
+	(*CommitIntent)(nil),                 // 41: chalk.volume.v2.CommitIntent
+	(*CommitStatus)(nil),                 // 42: chalk.volume.v2.CommitStatus
+	(*CreateVolumeRequest)(nil),          // 43: chalk.volume.v2.CreateVolumeRequest
+	(*CreateVolumeResponse)(nil),         // 44: chalk.volume.v2.CreateVolumeResponse
+	(*GetVolumeRequest)(nil),             // 45: chalk.volume.v2.GetVolumeRequest
+	(*GetVolumeResponse)(nil),            // 46: chalk.volume.v2.GetVolumeResponse
+	(*VolumeStats)(nil),                  // 47: chalk.volume.v2.VolumeStats
+	(*GetVolumeStatsRequest)(nil),        // 48: chalk.volume.v2.GetVolumeStatsRequest
+	(*GetVolumeStatsResponse)(nil),       // 49: chalk.volume.v2.GetVolumeStatsResponse
+	(*ListVolumesRequest)(nil),           // 50: chalk.volume.v2.ListVolumesRequest
+	(*ListedVolume)(nil),                 // 51: chalk.volume.v2.ListedVolume
+	(*ListVolumesResponse)(nil),          // 52: chalk.volume.v2.ListVolumesResponse
+	(*DeleteVolumeRequest)(nil),          // 53: chalk.volume.v2.DeleteVolumeRequest
+	(*DeleteVolumeResponse)(nil),         // 54: chalk.volume.v2.DeleteVolumeResponse
+	(*ListVolumeVersionsRequest)(nil),    // 55: chalk.volume.v2.ListVolumeVersionsRequest
+	(*ListVolumeVersionsResponse)(nil),   // 56: chalk.volume.v2.ListVolumeVersionsResponse
+	(*CreateRefRequest)(nil),             // 57: chalk.volume.v2.CreateRefRequest
+	(*CreateRefResponse)(nil),            // 58: chalk.volume.v2.CreateRefResponse
+	(*ListRefsRequest)(nil),              // 59: chalk.volume.v2.ListRefsRequest
+	(*ListRefsResponse)(nil),             // 60: chalk.volume.v2.ListRefsResponse
+	(*DeleteRefRequest)(nil),             // 61: chalk.volume.v2.DeleteRefRequest
+	(*DeleteRefResponse)(nil),            // 62: chalk.volume.v2.DeleteRefResponse
+	(*CommitVersionRequest)(nil),         // 63: chalk.volume.v2.CommitVersionRequest
+	(*CommitVersionResponse)(nil),        // 64: chalk.volume.v2.CommitVersionResponse
+	(*GetCommitStatusRequest)(nil),       // 65: chalk.volume.v2.GetCommitStatusRequest
+	(*GetCommitStatusResponse)(nil),      // 66: chalk.volume.v2.GetCommitStatusResponse
+	(*AllocateInodeRangeRequest)(nil),    // 67: chalk.volume.v2.AllocateInodeRangeRequest
+	(*AllocateInodeRangeResponse)(nil),   // 68: chalk.volume.v2.AllocateInodeRangeResponse
+	(*RequestUploadURLsRequest)(nil),     // 69: chalk.volume.v2.RequestUploadURLsRequest
+	(*RequestUploadURLsResponse)(nil),    // 70: chalk.volume.v2.RequestUploadURLsResponse
+	(*ListFilesRequest)(nil),             // 71: chalk.volume.v2.ListFilesRequest
+	(*ListFilesResponse)(nil),            // 72: chalk.volume.v2.ListFilesResponse
+	(*ListMountFilesRequest)(nil),        // 73: chalk.volume.v2.ListMountFilesRequest
+	(*MountFileInfo)(nil),                // 74: chalk.volume.v2.MountFileInfo
+	(*ResolvedMount)(nil),                // 75: chalk.volume.v2.ResolvedMount
+	(*ListMountFilesResponse)(nil),       // 76: chalk.volume.v2.ListMountFilesResponse
+	(*GetFileRequest)(nil),               // 77: chalk.volume.v2.GetFileRequest
+	(*GetFileResponse)(nil),              // 78: chalk.volume.v2.GetFileResponse
+	(*GetVolumeCredentialsRequest)(nil),  // 79: chalk.volume.v2.GetVolumeCredentialsRequest
+	(*GetVolumeCredentialsResponse)(nil), // 80: chalk.volume.v2.GetVolumeCredentialsResponse
+	(*AwsSessionCredentials)(nil),        // 81: chalk.volume.v2.AwsSessionCredentials
+	(*GcpAccessToken)(nil),               // 82: chalk.volume.v2.GcpAccessToken
+	(*timestamppb.Timestamp)(nil),        // 83: google.protobuf.Timestamp
+	(*v1.VolumeMount)(nil),               // 84: chalk.container.v1.VolumeMount
 }
 var file_chalk_volume_v2_volume_proto_depIdxs = []int32{
-	79,  // 0: chalk.volume.v2.VolumeInfo.created_at:type_name -> google.protobuf.Timestamp
+	83,  // 0: chalk.volume.v2.VolumeInfo.created_at:type_name -> google.protobuf.Timestamp
 	0,   // 1: chalk.volume.v2.VolumeInfo.access_mode:type_name -> chalk.volume.v2.VolumeAccessMode
-	79,  // 2: chalk.volume.v2.RefInfo.updated_at:type_name -> google.protobuf.Timestamp
-	79,  // 3: chalk.volume.v2.VersionInfo.created_at:type_name -> google.protobuf.Timestamp
-	79,  // 4: chalk.volume.v2.FileMetadata.updated_at:type_name -> google.protobuf.Timestamp
-	79,  // 5: chalk.volume.v2.FileInfo.updated_at:type_name -> google.protobuf.Timestamp
+	83,  // 2: chalk.volume.v2.RefInfo.updated_at:type_name -> google.protobuf.Timestamp
+	83,  // 3: chalk.volume.v2.VersionInfo.created_at:type_name -> google.protobuf.Timestamp
+	83,  // 4: chalk.volume.v2.FileMetadata.updated_at:type_name -> google.protobuf.Timestamp
+	83,  // 5: chalk.volume.v2.FileInfo.updated_at:type_name -> google.protobuf.Timestamp
 	1,   // 6: chalk.volume.v2.FileInfo.kind:type_name -> chalk.volume.v2.FileKind
 	15,  // 7: chalk.volume.v2.ChunkedContentRef.chunks:type_name -> chalk.volume.v2.ChunkRef
 	16,  // 8: chalk.volume.v2.PackedContentRef.pack:type_name -> chalk.volume.v2.PackEntryRef
@@ -5515,8 +5813,8 @@ var file_chalk_volume_v2_volume_proto_depIdxs = []int32{
 	20,  // 15: chalk.volume.v2.FileNode.file:type_name -> chalk.volume.v2.RegularFileNode
 	21,  // 16: chalk.volume.v2.FileNode.directory:type_name -> chalk.volume.v2.DirectoryNode
 	22,  // 17: chalk.volume.v2.FileNode.symlink:type_name -> chalk.volume.v2.SymlinkNode
-	79,  // 18: chalk.volume.v2.SignedChunkRef.expires_at:type_name -> google.protobuf.Timestamp
-	79,  // 19: chalk.volume.v2.SignedPackEntryRef.expires_at:type_name -> google.protobuf.Timestamp
+	83,  // 18: chalk.volume.v2.SignedChunkRef.expires_at:type_name -> google.protobuf.Timestamp
+	83,  // 19: chalk.volume.v2.SignedPackEntryRef.expires_at:type_name -> google.protobuf.Timestamp
 	24,  // 20: chalk.volume.v2.ChunkedFileContent.chunks:type_name -> chalk.volume.v2.SignedChunkRef
 	25,  // 21: chalk.volume.v2.PackedFileContent.pack:type_name -> chalk.volume.v2.SignedPackEntryRef
 	23,  // 22: chalk.volume.v2.PathFileDelta.node:type_name -> chalk.volume.v2.FileNode
@@ -5534,7 +5832,7 @@ var file_chalk_volume_v2_volume_proto_depIdxs = []int32{
 	34,  // 34: chalk.volume.v2.InodeDeltaList.moved_dirents:type_name -> chalk.volume.v2.DirentMove
 	35,  // 35: chalk.volume.v2.InodeDeltaList.meta_only_updates:type_name -> chalk.volume.v2.InodeMetaUpdate
 	4,   // 36: chalk.volume.v2.UploadedObjectReference.kind:type_name -> chalk.volume.v2.UploadedObjectKind
-	79,  // 37: chalk.volume.v2.UploadURLItem.expires_at:type_name -> google.protobuf.Timestamp
+	83,  // 37: chalk.volume.v2.UploadURLItem.expires_at:type_name -> google.protobuf.Timestamp
 	30,  // 38: chalk.volume.v2.CommitDeltasObject.path_deltas:type_name -> chalk.volume.v2.PathDeltaList
 	36,  // 39: chalk.volume.v2.CommitDeltasObject.inode_deltas:type_name -> chalk.volume.v2.InodeDeltaList
 	7,   // 40: chalk.volume.v2.CommitIntent.volume:type_name -> chalk.volume.v2.VolumeRef
@@ -5546,7 +5844,7 @@ var file_chalk_volume_v2_volume_proto_depIdxs = []int32{
 	3,   // 46: chalk.volume.v2.CommitStatus.result:type_name -> chalk.volume.v2.CommitResult
 	9,   // 47: chalk.volume.v2.CommitStatus.version:type_name -> chalk.volume.v2.VersionInfo
 	9,   // 48: chalk.volume.v2.CommitStatus.latest_version:type_name -> chalk.volume.v2.VersionInfo
-	79,  // 49: chalk.volume.v2.CommitStatus.created_at:type_name -> google.protobuf.Timestamp
+	83,  // 49: chalk.volume.v2.CommitStatus.created_at:type_name -> google.protobuf.Timestamp
 	41,  // 50: chalk.volume.v2.CommitStatus.intent:type_name -> chalk.volume.v2.CommitIntent
 	5,   // 51: chalk.volume.v2.CreateVolumeRequest.volume_type:type_name -> chalk.volume.v2.VolumeKind
 	6,   // 52: chalk.volume.v2.CreateVolumeResponse.volume:type_name -> chalk.volume.v2.VolumeInfo
@@ -5559,7 +5857,7 @@ var file_chalk_volume_v2_volume_proto_depIdxs = []int32{
 	47,  // 59: chalk.volume.v2.GetVolumeStatsResponse.stats:type_name -> chalk.volume.v2.VolumeStats
 	9,   // 60: chalk.volume.v2.GetVolumeStatsResponse.version:type_name -> chalk.volume.v2.VersionInfo
 	5,   // 61: chalk.volume.v2.ListVolumesRequest.volume_kind:type_name -> chalk.volume.v2.VolumeKind
-	79,  // 62: chalk.volume.v2.ListedVolume.created_at:type_name -> google.protobuf.Timestamp
+	83,  // 62: chalk.volume.v2.ListedVolume.created_at:type_name -> google.protobuf.Timestamp
 	5,   // 63: chalk.volume.v2.ListedVolume.volume_kind:type_name -> chalk.volume.v2.VolumeKind
 	51,  // 64: chalk.volume.v2.ListVolumesResponse.volumes:type_name -> chalk.volume.v2.ListedVolume
 	7,   // 65: chalk.volume.v2.DeleteVolumeRequest.volume:type_name -> chalk.volume.v2.VolumeRef
@@ -5583,7 +5881,7 @@ var file_chalk_volume_v2_volume_proto_depIdxs = []int32{
 	10,  // 83: chalk.volume.v2.ListFilesRequest.selector:type_name -> chalk.volume.v2.VersionSelector
 	12,  // 84: chalk.volume.v2.ListFilesResponse.files:type_name -> chalk.volume.v2.FileInfo
 	9,   // 85: chalk.volume.v2.ListFilesResponse.version:type_name -> chalk.volume.v2.VersionInfo
-	80,  // 86: chalk.volume.v2.ListMountFilesRequest.mounts:type_name -> chalk.container.v1.VolumeMount
+	84,  // 86: chalk.volume.v2.ListMountFilesRequest.mounts:type_name -> chalk.container.v1.VolumeMount
 	12,  // 87: chalk.volume.v2.MountFileInfo.file:type_name -> chalk.volume.v2.FileInfo
 	7,   // 88: chalk.volume.v2.ResolvedMount.volume:type_name -> chalk.volume.v2.VolumeRef
 	9,   // 89: chalk.volume.v2.ResolvedMount.version:type_name -> chalk.volume.v2.VersionInfo
@@ -5595,43 +5893,51 @@ var file_chalk_volume_v2_volume_proto_depIdxs = []int32{
 	9,   // 95: chalk.volume.v2.GetFileResponse.version:type_name -> chalk.volume.v2.VersionInfo
 	27,  // 96: chalk.volume.v2.GetFileResponse.packed:type_name -> chalk.volume.v2.PackedFileContent
 	26,  // 97: chalk.volume.v2.GetFileResponse.chunked:type_name -> chalk.volume.v2.ChunkedFileContent
-	43,  // 98: chalk.volume.v2.VolumeService.CreateVolume:input_type -> chalk.volume.v2.CreateVolumeRequest
-	45,  // 99: chalk.volume.v2.VolumeService.GetVolume:input_type -> chalk.volume.v2.GetVolumeRequest
-	48,  // 100: chalk.volume.v2.VolumeService.GetVolumeStats:input_type -> chalk.volume.v2.GetVolumeStatsRequest
-	50,  // 101: chalk.volume.v2.VolumeService.ListVolumes:input_type -> chalk.volume.v2.ListVolumesRequest
-	53,  // 102: chalk.volume.v2.VolumeService.DeleteVolume:input_type -> chalk.volume.v2.DeleteVolumeRequest
-	55,  // 103: chalk.volume.v2.VolumeService.ListVolumeVersions:input_type -> chalk.volume.v2.ListVolumeVersionsRequest
-	57,  // 104: chalk.volume.v2.VolumeService.CreateRef:input_type -> chalk.volume.v2.CreateRefRequest
-	59,  // 105: chalk.volume.v2.VolumeService.ListRefs:input_type -> chalk.volume.v2.ListRefsRequest
-	61,  // 106: chalk.volume.v2.VolumeService.DeleteRef:input_type -> chalk.volume.v2.DeleteRefRequest
-	63,  // 107: chalk.volume.v2.VolumeService.CommitVersion:input_type -> chalk.volume.v2.CommitVersionRequest
-	65,  // 108: chalk.volume.v2.VolumeService.GetCommitStatus:input_type -> chalk.volume.v2.GetCommitStatusRequest
-	67,  // 109: chalk.volume.v2.VolumeService.AllocateInodeRange:input_type -> chalk.volume.v2.AllocateInodeRangeRequest
-	69,  // 110: chalk.volume.v2.VolumeService.RequestUploadURLs:input_type -> chalk.volume.v2.RequestUploadURLsRequest
-	71,  // 111: chalk.volume.v2.VolumeService.ListFiles:input_type -> chalk.volume.v2.ListFilesRequest
-	73,  // 112: chalk.volume.v2.VolumeService.ListMountFiles:input_type -> chalk.volume.v2.ListMountFilesRequest
-	77,  // 113: chalk.volume.v2.VolumeService.GetFile:input_type -> chalk.volume.v2.GetFileRequest
-	44,  // 114: chalk.volume.v2.VolumeService.CreateVolume:output_type -> chalk.volume.v2.CreateVolumeResponse
-	46,  // 115: chalk.volume.v2.VolumeService.GetVolume:output_type -> chalk.volume.v2.GetVolumeResponse
-	49,  // 116: chalk.volume.v2.VolumeService.GetVolumeStats:output_type -> chalk.volume.v2.GetVolumeStatsResponse
-	52,  // 117: chalk.volume.v2.VolumeService.ListVolumes:output_type -> chalk.volume.v2.ListVolumesResponse
-	54,  // 118: chalk.volume.v2.VolumeService.DeleteVolume:output_type -> chalk.volume.v2.DeleteVolumeResponse
-	56,  // 119: chalk.volume.v2.VolumeService.ListVolumeVersions:output_type -> chalk.volume.v2.ListVolumeVersionsResponse
-	58,  // 120: chalk.volume.v2.VolumeService.CreateRef:output_type -> chalk.volume.v2.CreateRefResponse
-	60,  // 121: chalk.volume.v2.VolumeService.ListRefs:output_type -> chalk.volume.v2.ListRefsResponse
-	62,  // 122: chalk.volume.v2.VolumeService.DeleteRef:output_type -> chalk.volume.v2.DeleteRefResponse
-	64,  // 123: chalk.volume.v2.VolumeService.CommitVersion:output_type -> chalk.volume.v2.CommitVersionResponse
-	66,  // 124: chalk.volume.v2.VolumeService.GetCommitStatus:output_type -> chalk.volume.v2.GetCommitStatusResponse
-	68,  // 125: chalk.volume.v2.VolumeService.AllocateInodeRange:output_type -> chalk.volume.v2.AllocateInodeRangeResponse
-	70,  // 126: chalk.volume.v2.VolumeService.RequestUploadURLs:output_type -> chalk.volume.v2.RequestUploadURLsResponse
-	72,  // 127: chalk.volume.v2.VolumeService.ListFiles:output_type -> chalk.volume.v2.ListFilesResponse
-	76,  // 128: chalk.volume.v2.VolumeService.ListMountFiles:output_type -> chalk.volume.v2.ListMountFilesResponse
-	78,  // 129: chalk.volume.v2.VolumeService.GetFile:output_type -> chalk.volume.v2.GetFileResponse
-	114, // [114:130] is the sub-list for method output_type
-	98,  // [98:114] is the sub-list for method input_type
-	98,  // [98:98] is the sub-list for extension type_name
-	98,  // [98:98] is the sub-list for extension extendee
-	0,   // [0:98] is the sub-list for field type_name
+	7,   // 98: chalk.volume.v2.GetVolumeCredentialsRequest.volume:type_name -> chalk.volume.v2.VolumeRef
+	0,   // 99: chalk.volume.v2.GetVolumeCredentialsRequest.access_mode:type_name -> chalk.volume.v2.VolumeAccessMode
+	7,   // 100: chalk.volume.v2.GetVolumeCredentialsResponse.volume:type_name -> chalk.volume.v2.VolumeRef
+	83,  // 101: chalk.volume.v2.GetVolumeCredentialsResponse.expires_at:type_name -> google.protobuf.Timestamp
+	81,  // 102: chalk.volume.v2.GetVolumeCredentialsResponse.aws:type_name -> chalk.volume.v2.AwsSessionCredentials
+	82,  // 103: chalk.volume.v2.GetVolumeCredentialsResponse.gcp:type_name -> chalk.volume.v2.GcpAccessToken
+	43,  // 104: chalk.volume.v2.VolumeService.CreateVolume:input_type -> chalk.volume.v2.CreateVolumeRequest
+	45,  // 105: chalk.volume.v2.VolumeService.GetVolume:input_type -> chalk.volume.v2.GetVolumeRequest
+	79,  // 106: chalk.volume.v2.VolumeService.GetVolumeCredentials:input_type -> chalk.volume.v2.GetVolumeCredentialsRequest
+	48,  // 107: chalk.volume.v2.VolumeService.GetVolumeStats:input_type -> chalk.volume.v2.GetVolumeStatsRequest
+	50,  // 108: chalk.volume.v2.VolumeService.ListVolumes:input_type -> chalk.volume.v2.ListVolumesRequest
+	53,  // 109: chalk.volume.v2.VolumeService.DeleteVolume:input_type -> chalk.volume.v2.DeleteVolumeRequest
+	55,  // 110: chalk.volume.v2.VolumeService.ListVolumeVersions:input_type -> chalk.volume.v2.ListVolumeVersionsRequest
+	57,  // 111: chalk.volume.v2.VolumeService.CreateRef:input_type -> chalk.volume.v2.CreateRefRequest
+	59,  // 112: chalk.volume.v2.VolumeService.ListRefs:input_type -> chalk.volume.v2.ListRefsRequest
+	61,  // 113: chalk.volume.v2.VolumeService.DeleteRef:input_type -> chalk.volume.v2.DeleteRefRequest
+	63,  // 114: chalk.volume.v2.VolumeService.CommitVersion:input_type -> chalk.volume.v2.CommitVersionRequest
+	65,  // 115: chalk.volume.v2.VolumeService.GetCommitStatus:input_type -> chalk.volume.v2.GetCommitStatusRequest
+	67,  // 116: chalk.volume.v2.VolumeService.AllocateInodeRange:input_type -> chalk.volume.v2.AllocateInodeRangeRequest
+	69,  // 117: chalk.volume.v2.VolumeService.RequestUploadURLs:input_type -> chalk.volume.v2.RequestUploadURLsRequest
+	71,  // 118: chalk.volume.v2.VolumeService.ListFiles:input_type -> chalk.volume.v2.ListFilesRequest
+	73,  // 119: chalk.volume.v2.VolumeService.ListMountFiles:input_type -> chalk.volume.v2.ListMountFilesRequest
+	77,  // 120: chalk.volume.v2.VolumeService.GetFile:input_type -> chalk.volume.v2.GetFileRequest
+	44,  // 121: chalk.volume.v2.VolumeService.CreateVolume:output_type -> chalk.volume.v2.CreateVolumeResponse
+	46,  // 122: chalk.volume.v2.VolumeService.GetVolume:output_type -> chalk.volume.v2.GetVolumeResponse
+	80,  // 123: chalk.volume.v2.VolumeService.GetVolumeCredentials:output_type -> chalk.volume.v2.GetVolumeCredentialsResponse
+	49,  // 124: chalk.volume.v2.VolumeService.GetVolumeStats:output_type -> chalk.volume.v2.GetVolumeStatsResponse
+	52,  // 125: chalk.volume.v2.VolumeService.ListVolumes:output_type -> chalk.volume.v2.ListVolumesResponse
+	54,  // 126: chalk.volume.v2.VolumeService.DeleteVolume:output_type -> chalk.volume.v2.DeleteVolumeResponse
+	56,  // 127: chalk.volume.v2.VolumeService.ListVolumeVersions:output_type -> chalk.volume.v2.ListVolumeVersionsResponse
+	58,  // 128: chalk.volume.v2.VolumeService.CreateRef:output_type -> chalk.volume.v2.CreateRefResponse
+	60,  // 129: chalk.volume.v2.VolumeService.ListRefs:output_type -> chalk.volume.v2.ListRefsResponse
+	62,  // 130: chalk.volume.v2.VolumeService.DeleteRef:output_type -> chalk.volume.v2.DeleteRefResponse
+	64,  // 131: chalk.volume.v2.VolumeService.CommitVersion:output_type -> chalk.volume.v2.CommitVersionResponse
+	66,  // 132: chalk.volume.v2.VolumeService.GetCommitStatus:output_type -> chalk.volume.v2.GetCommitStatusResponse
+	68,  // 133: chalk.volume.v2.VolumeService.AllocateInodeRange:output_type -> chalk.volume.v2.AllocateInodeRangeResponse
+	70,  // 134: chalk.volume.v2.VolumeService.RequestUploadURLs:output_type -> chalk.volume.v2.RequestUploadURLsResponse
+	72,  // 135: chalk.volume.v2.VolumeService.ListFiles:output_type -> chalk.volume.v2.ListFilesResponse
+	76,  // 136: chalk.volume.v2.VolumeService.ListMountFiles:output_type -> chalk.volume.v2.ListMountFilesResponse
+	78,  // 137: chalk.volume.v2.VolumeService.GetFile:output_type -> chalk.volume.v2.GetFileResponse
+	121, // [121:138] is the sub-list for method output_type
+	104, // [104:121] is the sub-list for method input_type
+	104, // [104:104] is the sub-list for extension type_name
+	104, // [104:104] is the sub-list for extension extendee
+	0,   // [0:104] is the sub-list for field type_name
 }
 
 func init() { file_chalk_volume_v2_volume_proto_init() }
@@ -5679,13 +5985,17 @@ func file_chalk_volume_v2_volume_proto_init() {
 		(*GetFileResponse_Packed)(nil),
 		(*GetFileResponse_Chunked)(nil),
 	}
+	file_chalk_volume_v2_volume_proto_msgTypes[74].OneofWrappers = []any{
+		(*GetVolumeCredentialsResponse_Aws)(nil),
+		(*GetVolumeCredentialsResponse_Gcp)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_volume_v2_volume_proto_rawDesc), len(file_chalk_volume_v2_volume_proto_rawDesc)),
 			NumEnums:      6,
-			NumMessages:   73,
+			NumMessages:   77,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

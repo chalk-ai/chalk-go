@@ -14,6 +14,9 @@ import (
 	v12 "github.com/chalk-ai/chalk-go/gen/chalk/scalinggroup/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -25,6 +28,104 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type ModelScalingGroupSortColumn int32
+
+const (
+	ModelScalingGroupSortColumn_MODEL_SCALING_GROUP_SORT_COLUMN_UNSPECIFIED ModelScalingGroupSortColumn = 0
+	ModelScalingGroupSortColumn_MODEL_SCALING_GROUP_SORT_COLUMN_CREATED_AT  ModelScalingGroupSortColumn = 1
+	ModelScalingGroupSortColumn_MODEL_SCALING_GROUP_SORT_COLUMN_UPDATED_AT  ModelScalingGroupSortColumn = 2
+)
+
+// Enum value maps for ModelScalingGroupSortColumn.
+var (
+	ModelScalingGroupSortColumn_name = map[int32]string{
+		0: "MODEL_SCALING_GROUP_SORT_COLUMN_UNSPECIFIED",
+		1: "MODEL_SCALING_GROUP_SORT_COLUMN_CREATED_AT",
+		2: "MODEL_SCALING_GROUP_SORT_COLUMN_UPDATED_AT",
+	}
+	ModelScalingGroupSortColumn_value = map[string]int32{
+		"MODEL_SCALING_GROUP_SORT_COLUMN_UNSPECIFIED": 0,
+		"MODEL_SCALING_GROUP_SORT_COLUMN_CREATED_AT":  1,
+		"MODEL_SCALING_GROUP_SORT_COLUMN_UPDATED_AT":  2,
+	}
+)
+
+func (x ModelScalingGroupSortColumn) Enum() *ModelScalingGroupSortColumn {
+	p := new(ModelScalingGroupSortColumn)
+	*p = x
+	return p
+}
+
+func (x ModelScalingGroupSortColumn) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ModelScalingGroupSortColumn) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_modeldeployment_v1_service_proto_enumTypes[0].Descriptor()
+}
+
+func (ModelScalingGroupSortColumn) Type() protoreflect.EnumType {
+	return &file_chalk_modeldeployment_v1_service_proto_enumTypes[0]
+}
+
+func (x ModelScalingGroupSortColumn) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ModelScalingGroupSortColumn.Descriptor instead.
+func (ModelScalingGroupSortColumn) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{0}
+}
+
+type ModelScalingGroupSortOrder int32
+
+const (
+	ModelScalingGroupSortOrder_MODEL_SCALING_GROUP_SORT_ORDER_UNSPECIFIED ModelScalingGroupSortOrder = 0
+	ModelScalingGroupSortOrder_MODEL_SCALING_GROUP_SORT_ORDER_DESC        ModelScalingGroupSortOrder = 1
+	ModelScalingGroupSortOrder_MODEL_SCALING_GROUP_SORT_ORDER_ASC         ModelScalingGroupSortOrder = 2
+)
+
+// Enum value maps for ModelScalingGroupSortOrder.
+var (
+	ModelScalingGroupSortOrder_name = map[int32]string{
+		0: "MODEL_SCALING_GROUP_SORT_ORDER_UNSPECIFIED",
+		1: "MODEL_SCALING_GROUP_SORT_ORDER_DESC",
+		2: "MODEL_SCALING_GROUP_SORT_ORDER_ASC",
+	}
+	ModelScalingGroupSortOrder_value = map[string]int32{
+		"MODEL_SCALING_GROUP_SORT_ORDER_UNSPECIFIED": 0,
+		"MODEL_SCALING_GROUP_SORT_ORDER_DESC":        1,
+		"MODEL_SCALING_GROUP_SORT_ORDER_ASC":         2,
+	}
+)
+
+func (x ModelScalingGroupSortOrder) Enum() *ModelScalingGroupSortOrder {
+	p := new(ModelScalingGroupSortOrder)
+	*p = x
+	return p
+}
+
+func (x ModelScalingGroupSortOrder) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ModelScalingGroupSortOrder) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_modeldeployment_v1_service_proto_enumTypes[1].Descriptor()
+}
+
+func (ModelScalingGroupSortOrder) Type() protoreflect.EnumType {
+	return &file_chalk_modeldeployment_v1_service_proto_enumTypes[1]
+}
+
+func (x ModelScalingGroupSortOrder) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ModelScalingGroupSortOrder.Descriptor instead.
+func (ModelScalingGroupSortOrder) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{1}
+}
 
 type ModelContainerSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -49,9 +150,11 @@ type ModelContainerSpec struct {
 	// Optional externally-routed startup probe. Model deployments accept only
 	// startup_probe.grpc; an omitted method defaults to
 	// /grpc.health.v1.Health/Check.
-	StartupProbe  *v1.StartupProbe `protobuf:"bytes,9,opt,name=startup_probe,json=startupProbe,proto3,oneof" json:"startup_probe,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	StartupProbe *v1.StartupProbe `protobuf:"bytes,9,opt,name=startup_probe,json=startupProbe,proto3,oneof" json:"startup_probe,omitempty"`
+	// Identity used to access cloud resources from this deployment.
+	ChalkWorkloadIdentity *v1.ChalkWorkloadIdentity `protobuf:"bytes,10,opt,name=chalk_workload_identity,json=chalkWorkloadIdentity,proto3,oneof" json:"chalk_workload_identity,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ModelContainerSpec) Reset() {
@@ -147,18 +250,37 @@ func (x *ModelContainerSpec) GetStartupProbe() *v1.StartupProbe {
 	return nil
 }
 
+func (x *ModelContainerSpec) GetChalkWorkloadIdentity() *v1.ChalkWorkloadIdentity {
+	if x != nil {
+		return x.ChalkWorkloadIdentity
+	}
+	return nil
+}
+
+// Creating an existing deployment name redeploys the same model by appending
+// and selecting a new immutable revision. Its model name cannot change.
 type CreateModelScalingGroupRequest struct {
-	state         protoimpl.MessageState      `protogen:"open.v1"`
-	Name          string                      `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	ModelName     string                      `protobuf:"bytes,2,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
-	Identifier    *v11.ModelVersionIdentifier `protobuf:"bytes,3,opt,name=identifier,proto3" json:"identifier,omitempty"`
-	ContainerSpec *ModelContainerSpec         `protobuf:"bytes,4,opt,name=container_spec,json=containerSpec,proto3" json:"container_spec,omitempty"`
-	ScalingSpec   *v12.ScalingSpec            `protobuf:"bytes,5,opt,name=scaling_spec,json=scalingSpec,proto3" json:"scaling_spec,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Use spec for both initial deployments and later revision updates.
+	Spec *ModelScalingGroupSpec `protobuf:"bytes,8,opt,name=spec,proto3" json:"spec,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	ModelName string `protobuf:"bytes,2,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	Identifier *v11.ModelVersionIdentifier `protobuf:"bytes,3,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	ContainerSpec *ModelContainerSpec `protobuf:"bytes,4,opt,name=container_spec,json=containerSpec,proto3" json:"container_spec,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	ScalingSpec *v12.ScalingSpec `protobuf:"bytes,5,opt,name=scaling_spec,json=scalingSpec,proto3" json:"scaling_spec,omitempty"`
 	// Optional dotted path to handler function (default: "model.handler")
+	//
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 	Handler *string `protobuf:"bytes,6,opt,name=handler,proto3,oneof" json:"handler,omitempty"`
 	// Optional container image URI. When set, used instead of the model
 	// version's artifact spec model_image. Allows the client to build and
 	// supply the image at deploy time without mutating the model version.
+	//
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 	Image         *string `protobuf:"bytes,7,opt,name=image,proto3,oneof" json:"image,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -201,6 +323,14 @@ func (x *CreateModelScalingGroupRequest) GetName() string {
 	return ""
 }
 
+func (x *CreateModelScalingGroupRequest) GetSpec() *ModelScalingGroupSpec {
+	if x != nil {
+		return x.Spec
+	}
+	return nil
+}
+
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 func (x *CreateModelScalingGroupRequest) GetModelName() string {
 	if x != nil {
 		return x.ModelName
@@ -208,6 +338,7 @@ func (x *CreateModelScalingGroupRequest) GetModelName() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 func (x *CreateModelScalingGroupRequest) GetIdentifier() *v11.ModelVersionIdentifier {
 	if x != nil {
 		return x.Identifier
@@ -215,6 +346,7 @@ func (x *CreateModelScalingGroupRequest) GetIdentifier() *v11.ModelVersionIdenti
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 func (x *CreateModelScalingGroupRequest) GetContainerSpec() *ModelContainerSpec {
 	if x != nil {
 		return x.ContainerSpec
@@ -222,6 +354,7 @@ func (x *CreateModelScalingGroupRequest) GetContainerSpec() *ModelContainerSpec 
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 func (x *CreateModelScalingGroupRequest) GetScalingSpec() *v12.ScalingSpec {
 	if x != nil {
 		return x.ScalingSpec
@@ -229,6 +362,7 @@ func (x *CreateModelScalingGroupRequest) GetScalingSpec() *v12.ScalingSpec {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 func (x *CreateModelScalingGroupRequest) GetHandler() string {
 	if x != nil && x.Handler != nil {
 		return *x.Handler
@@ -236,6 +370,7 @@ func (x *CreateModelScalingGroupRequest) GetHandler() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 func (x *CreateModelScalingGroupRequest) GetImage() string {
 	if x != nil && x.Image != nil {
 		return *x.Image
@@ -244,10 +379,13 @@ func (x *CreateModelScalingGroupRequest) GetImage() string {
 }
 
 type CreateModelScalingGroupResponse struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	ScalingGroup  *v12.ScalingGroupResponse `protobuf:"bytes,1,opt,name=scaling_group,json=scalingGroup,proto3" json:"scaling_group,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	ScalingGroup      *v12.ScalingGroupResponse  `protobuf:"bytes,1,opt,name=scaling_group,json=scalingGroup,proto3" json:"scaling_group,omitempty"`
+	ModelScalingGroup *ModelScalingGroup         `protobuf:"bytes,2,opt,name=model_scaling_group,json=modelScalingGroup,proto3" json:"model_scaling_group,omitempty"`
+	CurrentRevision   *ModelScalingGroupRevision `protobuf:"bytes,3,opt,name=current_revision,json=currentRevision,proto3" json:"current_revision,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *CreateModelScalingGroupResponse) Reset() {
@@ -280,9 +418,24 @@ func (*CreateModelScalingGroupResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{2}
 }
 
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 func (x *CreateModelScalingGroupResponse) GetScalingGroup() *v12.ScalingGroupResponse {
 	if x != nil {
 		return x.ScalingGroup
+	}
+	return nil
+}
+
+func (x *CreateModelScalingGroupResponse) GetModelScalingGroup() *ModelScalingGroup {
+	if x != nil {
+		return x.ModelScalingGroup
+	}
+	return nil
+}
+
+func (x *CreateModelScalingGroupResponse) GetCurrentRevision() *ModelScalingGroupRevision {
+	if x != nil {
+		return x.CurrentRevision
 	}
 	return nil
 }
@@ -339,17 +492,810 @@ func (x *ModelVersionSelector) GetIdentifier() *v11.ModelVersionIdentifier {
 	return nil
 }
 
-type ListModelScalingGroupsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional filter for scaling groups belonging to a specific model version
-	ModelVersion  *ModelVersionSelector `protobuf:"bytes,1,opt,name=model_version,json=modelVersion,proto3,oneof" json:"model_version,omitempty"`
+// The immutable model-serving payload captured by a model scaling group
+// revision. The API materializes this into a gRPC-only ScalingGroupSpec.
+type ModelScalingGroupSpec struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ModelVersion  *ModelVersionSelector  `protobuf:"bytes,1,opt,name=model_version,json=modelVersion,proto3" json:"model_version,omitempty"`
+	ContainerSpec *ModelContainerSpec    `protobuf:"bytes,2,opt,name=container_spec,json=containerSpec,proto3" json:"container_spec,omitempty"`
+	ScalingSpec   *v12.ScalingSpec       `protobuf:"bytes,3,opt,name=scaling_spec,json=scalingSpec,proto3" json:"scaling_spec,omitempty"`
+	// Optional dotted path to handler function (default: "model.handler")
+	Handler *string `protobuf:"bytes,4,opt,name=handler,proto3,oneof" json:"handler,omitempty"`
+	// Optional container image URI. When omitted, the model artifact's
+	// model_image is used.
+	Image         *string `protobuf:"bytes,5,opt,name=image,proto3,oneof" json:"image,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *ModelScalingGroupSpec) Reset() {
+	*x = ModelScalingGroupSpec{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelScalingGroupSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelScalingGroupSpec) ProtoMessage() {}
+
+func (x *ModelScalingGroupSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelScalingGroupSpec.ProtoReflect.Descriptor instead.
+func (*ModelScalingGroupSpec) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ModelScalingGroupSpec) GetModelVersion() *ModelVersionSelector {
+	if x != nil {
+		return x.ModelVersion
+	}
+	return nil
+}
+
+func (x *ModelScalingGroupSpec) GetContainerSpec() *ModelContainerSpec {
+	if x != nil {
+		return x.ContainerSpec
+	}
+	return nil
+}
+
+func (x *ModelScalingGroupSpec) GetScalingSpec() *v12.ScalingSpec {
+	if x != nil {
+		return x.ScalingSpec
+	}
+	return nil
+}
+
+func (x *ModelScalingGroupSpec) GetHandler() string {
+	if x != nil && x.Handler != nil {
+		return *x.Handler
+	}
+	return ""
+}
+
+func (x *ModelScalingGroupSpec) GetImage() string {
+	if x != nil && x.Image != nil {
+		return *x.Image
+	}
+	return ""
+}
+
+type ModelScalingGroup struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name              string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	QueueName         string                 `protobuf:"bytes,3,opt,name=queue_name,json=queueName,proto3" json:"queue_name,omitempty"`
+	ModelId           *string                `protobuf:"bytes,4,opt,name=model_id,json=modelId,proto3,oneof" json:"model_id,omitempty"`
+	CreatedBy         *string                `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Status            string                 `protobuf:"bytes,7,opt,name=status,proto3" json:"status,omitempty"`
+	StatusMessage     *string                `protobuf:"bytes,8,opt,name=status_message,json=statusMessage,proto3,oneof" json:"status_message,omitempty"`
+	StatusDetails     *string                `protobuf:"bytes,9,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
+	ReadyReplicas     int32                  `protobuf:"varint,10,opt,name=ready_replicas,json=readyReplicas,proto3" json:"ready_replicas,omitempty"`
+	AvailableReplicas int32                  `protobuf:"varint,11,opt,name=available_replicas,json=availableReplicas,proto3" json:"available_replicas,omitempty"`
+	RevisionId        string                 `protobuf:"bytes,12,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	UpdatedAt         *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	DeletedAt         *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=deleted_at,json=deletedAt,proto3,oneof" json:"deleted_at,omitempty"`
+	WebUrl            *string                `protobuf:"bytes,15,opt,name=web_url,json=webUrl,proto3,oneof" json:"web_url,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ModelScalingGroup) Reset() {
+	*x = ModelScalingGroup{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelScalingGroup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelScalingGroup) ProtoMessage() {}
+
+func (x *ModelScalingGroup) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelScalingGroup.ProtoReflect.Descriptor instead.
+func (*ModelScalingGroup) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ModelScalingGroup) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetQueueName() string {
+	if x != nil {
+		return x.QueueName
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetModelId() string {
+	if x != nil && x.ModelId != nil {
+		return *x.ModelId
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetCreatedBy() string {
+	if x != nil && x.CreatedBy != nil {
+		return *x.CreatedBy
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *ModelScalingGroup) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetStatusMessage() string {
+	if x != nil && x.StatusMessage != nil {
+		return *x.StatusMessage
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetStatusDetails() string {
+	if x != nil && x.StatusDetails != nil {
+		return *x.StatusDetails
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetReadyReplicas() int32 {
+	if x != nil {
+		return x.ReadyReplicas
+	}
+	return 0
+}
+
+func (x *ModelScalingGroup) GetAvailableReplicas() int32 {
+	if x != nil {
+		return x.AvailableReplicas
+	}
+	return 0
+}
+
+func (x *ModelScalingGroup) GetRevisionId() string {
+	if x != nil {
+		return x.RevisionId
+	}
+	return ""
+}
+
+func (x *ModelScalingGroup) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *ModelScalingGroup) GetDeletedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DeletedAt
+	}
+	return nil
+}
+
+func (x *ModelScalingGroup) GetWebUrl() string {
+	if x != nil && x.WebUrl != nil {
+		return *x.WebUrl
+	}
+	return ""
+}
+
+type ModelScalingGroupRevision struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Id                  string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ModelScalingGroupId string                 `protobuf:"bytes,2,opt,name=model_scaling_group_id,json=modelScalingGroupId,proto3" json:"model_scaling_group_id,omitempty"`
+	ModelVersion        int64                  `protobuf:"varint,3,opt,name=model_version,json=modelVersion,proto3" json:"model_version,omitempty"`
+	Spec                *ModelScalingGroupSpec `protobuf:"bytes,4,opt,name=spec,proto3" json:"spec,omitempty"`
+	CreatedBy           *string                `protobuf:"bytes,5,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	CreatedAt           *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *ModelScalingGroupRevision) Reset() {
+	*x = ModelScalingGroupRevision{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelScalingGroupRevision) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelScalingGroupRevision) ProtoMessage() {}
+
+func (x *ModelScalingGroupRevision) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelScalingGroupRevision.ProtoReflect.Descriptor instead.
+func (*ModelScalingGroupRevision) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ModelScalingGroupRevision) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ModelScalingGroupRevision) GetModelScalingGroupId() string {
+	if x != nil {
+		return x.ModelScalingGroupId
+	}
+	return ""
+}
+
+func (x *ModelScalingGroupRevision) GetModelVersion() int64 {
+	if x != nil {
+		return x.ModelVersion
+	}
+	return 0
+}
+
+func (x *ModelScalingGroupRevision) GetSpec() *ModelScalingGroupSpec {
+	if x != nil {
+		return x.Spec
+	}
+	return nil
+}
+
+func (x *ModelScalingGroupRevision) GetCreatedBy() string {
+	if x != nil && x.CreatedBy != nil {
+		return *x.CreatedBy
+	}
+	return ""
+}
+
+func (x *ModelScalingGroupRevision) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+// A single-target serving policy. This release accepts one target at 100%; the
+// repeated shape permits future traffic splitting without replacing Update.
+type ModelScalingGroupTraffic struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Targets       []*ModelScalingGroupTrafficTarget `protobuf:"bytes,1,rep,name=targets,proto3" json:"targets,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ModelScalingGroupTraffic) Reset() {
+	*x = ModelScalingGroupTraffic{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelScalingGroupTraffic) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelScalingGroupTraffic) ProtoMessage() {}
+
+func (x *ModelScalingGroupTraffic) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelScalingGroupTraffic.ProtoReflect.Descriptor instead.
+func (*ModelScalingGroupTraffic) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ModelScalingGroupTraffic) GetTargets() []*ModelScalingGroupTrafficTarget {
+	if x != nil {
+		return x.Targets
+	}
+	return nil
+}
+
+type ModelScalingGroupTrafficTarget struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to RevisionTarget:
+	//
+	//	*ModelScalingGroupTrafficTarget_ModelScalingGroupRevisionId
+	//	*ModelScalingGroupTrafficTarget_LatestRevision
+	RevisionTarget isModelScalingGroupTrafficTarget_RevisionTarget `protobuf_oneof:"revision_target"`
+	Percent        uint32                                          `protobuf:"varint,3,opt,name=percent,proto3" json:"percent,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ModelScalingGroupTrafficTarget) Reset() {
+	*x = ModelScalingGroupTrafficTarget{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ModelScalingGroupTrafficTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ModelScalingGroupTrafficTarget) ProtoMessage() {}
+
+func (x *ModelScalingGroupTrafficTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ModelScalingGroupTrafficTarget.ProtoReflect.Descriptor instead.
+func (*ModelScalingGroupTrafficTarget) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ModelScalingGroupTrafficTarget) GetRevisionTarget() isModelScalingGroupTrafficTarget_RevisionTarget {
+	if x != nil {
+		return x.RevisionTarget
+	}
+	return nil
+}
+
+func (x *ModelScalingGroupTrafficTarget) GetModelScalingGroupRevisionId() string {
+	if x != nil {
+		if x, ok := x.RevisionTarget.(*ModelScalingGroupTrafficTarget_ModelScalingGroupRevisionId); ok {
+			return x.ModelScalingGroupRevisionId
+		}
+	}
+	return ""
+}
+
+func (x *ModelScalingGroupTrafficTarget) GetLatestRevision() *emptypb.Empty {
+	if x != nil {
+		if x, ok := x.RevisionTarget.(*ModelScalingGroupTrafficTarget_LatestRevision); ok {
+			return x.LatestRevision
+		}
+	}
+	return nil
+}
+
+func (x *ModelScalingGroupTrafficTarget) GetPercent() uint32 {
+	if x != nil {
+		return x.Percent
+	}
+	return 0
+}
+
+type isModelScalingGroupTrafficTarget_RevisionTarget interface {
+	isModelScalingGroupTrafficTarget_RevisionTarget()
+}
+
+type ModelScalingGroupTrafficTarget_ModelScalingGroupRevisionId struct {
+	ModelScalingGroupRevisionId string `protobuf:"bytes,1,opt,name=model_scaling_group_revision_id,json=modelScalingGroupRevisionId,proto3,oneof"`
+}
+
+type ModelScalingGroupTrafficTarget_LatestRevision struct {
+	LatestRevision *emptypb.Empty `protobuf:"bytes,2,opt,name=latest_revision,json=latestRevision,proto3,oneof"`
+}
+
+func (*ModelScalingGroupTrafficTarget_ModelScalingGroupRevisionId) isModelScalingGroupTrafficTarget_RevisionTarget() {
+}
+
+func (*ModelScalingGroupTrafficTarget_LatestRevision) isModelScalingGroupTrafficTarget_RevisionTarget() {
+}
+
+// Changes a model scaling group's whole immutable spec, selected traffic
+// target, or both. A spec change appends a revision; traffic-only updates do
+// not.
+type UpdateModelScalingGroupRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to ModelScalingGroupKey:
+	//
+	//	*UpdateModelScalingGroupRequest_ModelScalingGroupId
+	//	*UpdateModelScalingGroupRequest_ModelScalingGroupName
+	ModelScalingGroupKey isUpdateModelScalingGroupRequest_ModelScalingGroupKey `protobuf_oneof:"model_scaling_group_key"`
+	Spec                 *ModelScalingGroupSpec                                `protobuf:"bytes,3,opt,name=spec,proto3" json:"spec,omitempty"`
+	Traffic              *ModelScalingGroupTraffic                             `protobuf:"bytes,4,opt,name=traffic,proto3" json:"traffic,omitempty"`
+	UpdateMask           *fieldmaskpb.FieldMask                                `protobuf:"bytes,5,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *UpdateModelScalingGroupRequest) Reset() {
+	*x = UpdateModelScalingGroupRequest{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateModelScalingGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateModelScalingGroupRequest) ProtoMessage() {}
+
+func (x *UpdateModelScalingGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateModelScalingGroupRequest.ProtoReflect.Descriptor instead.
+func (*UpdateModelScalingGroupRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateModelScalingGroupRequest) GetModelScalingGroupKey() isUpdateModelScalingGroupRequest_ModelScalingGroupKey {
+	if x != nil {
+		return x.ModelScalingGroupKey
+	}
+	return nil
+}
+
+func (x *UpdateModelScalingGroupRequest) GetModelScalingGroupId() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*UpdateModelScalingGroupRequest_ModelScalingGroupId); ok {
+			return x.ModelScalingGroupId
+		}
+	}
+	return ""
+}
+
+func (x *UpdateModelScalingGroupRequest) GetModelScalingGroupName() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*UpdateModelScalingGroupRequest_ModelScalingGroupName); ok {
+			return x.ModelScalingGroupName
+		}
+	}
+	return ""
+}
+
+func (x *UpdateModelScalingGroupRequest) GetSpec() *ModelScalingGroupSpec {
+	if x != nil {
+		return x.Spec
+	}
+	return nil
+}
+
+func (x *UpdateModelScalingGroupRequest) GetTraffic() *ModelScalingGroupTraffic {
+	if x != nil {
+		return x.Traffic
+	}
+	return nil
+}
+
+func (x *UpdateModelScalingGroupRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.UpdateMask
+	}
+	return nil
+}
+
+type isUpdateModelScalingGroupRequest_ModelScalingGroupKey interface {
+	isUpdateModelScalingGroupRequest_ModelScalingGroupKey()
+}
+
+type UpdateModelScalingGroupRequest_ModelScalingGroupId struct {
+	ModelScalingGroupId string `protobuf:"bytes,1,opt,name=model_scaling_group_id,json=modelScalingGroupId,proto3,oneof"`
+}
+
+type UpdateModelScalingGroupRequest_ModelScalingGroupName struct {
+	ModelScalingGroupName string `protobuf:"bytes,2,opt,name=model_scaling_group_name,json=modelScalingGroupName,proto3,oneof"`
+}
+
+func (*UpdateModelScalingGroupRequest_ModelScalingGroupId) isUpdateModelScalingGroupRequest_ModelScalingGroupKey() {
+}
+
+func (*UpdateModelScalingGroupRequest_ModelScalingGroupName) isUpdateModelScalingGroupRequest_ModelScalingGroupKey() {
+}
+
+type UpdateModelScalingGroupResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	ScalingGroup      *v12.ScalingGroupResponse  `protobuf:"bytes,1,opt,name=scaling_group,json=scalingGroup,proto3" json:"scaling_group,omitempty"`
+	ModelScalingGroup *ModelScalingGroup         `protobuf:"bytes,2,opt,name=model_scaling_group,json=modelScalingGroup,proto3" json:"model_scaling_group,omitempty"`
+	CurrentRevision   *ModelScalingGroupRevision `protobuf:"bytes,3,opt,name=current_revision,json=currentRevision,proto3" json:"current_revision,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *UpdateModelScalingGroupResponse) Reset() {
+	*x = UpdateModelScalingGroupResponse{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateModelScalingGroupResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateModelScalingGroupResponse) ProtoMessage() {}
+
+func (x *UpdateModelScalingGroupResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateModelScalingGroupResponse.ProtoReflect.Descriptor instead.
+func (*UpdateModelScalingGroupResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{10}
+}
+
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+func (x *UpdateModelScalingGroupResponse) GetScalingGroup() *v12.ScalingGroupResponse {
+	if x != nil {
+		return x.ScalingGroup
+	}
+	return nil
+}
+
+func (x *UpdateModelScalingGroupResponse) GetModelScalingGroup() *ModelScalingGroup {
+	if x != nil {
+		return x.ModelScalingGroup
+	}
+	return nil
+}
+
+func (x *UpdateModelScalingGroupResponse) GetCurrentRevision() *ModelScalingGroupRevision {
+	if x != nil {
+		return x.CurrentRevision
+	}
+	return nil
+}
+
+type GetModelScalingGroupRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to ModelScalingGroupKey:
+	//
+	//	*GetModelScalingGroupRequest_ModelScalingGroupId
+	//	*GetModelScalingGroupRequest_ModelScalingGroupName
+	ModelScalingGroupKey isGetModelScalingGroupRequest_ModelScalingGroupKey `protobuf_oneof:"model_scaling_group_key"`
+	IncludeDeleted       *bool                                              `protobuf:"varint,3,opt,name=include_deleted,json=includeDeleted,proto3,oneof" json:"include_deleted,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *GetModelScalingGroupRequest) Reset() {
+	*x = GetModelScalingGroupRequest{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetModelScalingGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetModelScalingGroupRequest) ProtoMessage() {}
+
+func (x *GetModelScalingGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetModelScalingGroupRequest.ProtoReflect.Descriptor instead.
+func (*GetModelScalingGroupRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetModelScalingGroupRequest) GetModelScalingGroupKey() isGetModelScalingGroupRequest_ModelScalingGroupKey {
+	if x != nil {
+		return x.ModelScalingGroupKey
+	}
+	return nil
+}
+
+func (x *GetModelScalingGroupRequest) GetModelScalingGroupId() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*GetModelScalingGroupRequest_ModelScalingGroupId); ok {
+			return x.ModelScalingGroupId
+		}
+	}
+	return ""
+}
+
+func (x *GetModelScalingGroupRequest) GetModelScalingGroupName() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*GetModelScalingGroupRequest_ModelScalingGroupName); ok {
+			return x.ModelScalingGroupName
+		}
+	}
+	return ""
+}
+
+func (x *GetModelScalingGroupRequest) GetIncludeDeleted() bool {
+	if x != nil && x.IncludeDeleted != nil {
+		return *x.IncludeDeleted
+	}
+	return false
+}
+
+type isGetModelScalingGroupRequest_ModelScalingGroupKey interface {
+	isGetModelScalingGroupRequest_ModelScalingGroupKey()
+}
+
+type GetModelScalingGroupRequest_ModelScalingGroupId struct {
+	ModelScalingGroupId string `protobuf:"bytes,1,opt,name=model_scaling_group_id,json=modelScalingGroupId,proto3,oneof"`
+}
+
+type GetModelScalingGroupRequest_ModelScalingGroupName struct {
+	ModelScalingGroupName string `protobuf:"bytes,2,opt,name=model_scaling_group_name,json=modelScalingGroupName,proto3,oneof"`
+}
+
+func (*GetModelScalingGroupRequest_ModelScalingGroupId) isGetModelScalingGroupRequest_ModelScalingGroupKey() {
+}
+
+func (*GetModelScalingGroupRequest_ModelScalingGroupName) isGetModelScalingGroupRequest_ModelScalingGroupKey() {
+}
+
+type GetModelScalingGroupResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	ScalingGroup      *v12.ScalingGroupResponse  `protobuf:"bytes,1,opt,name=scaling_group,json=scalingGroup,proto3" json:"scaling_group,omitempty"`
+	ModelScalingGroup *ModelScalingGroup         `protobuf:"bytes,2,opt,name=model_scaling_group,json=modelScalingGroup,proto3" json:"model_scaling_group,omitempty"`
+	CurrentRevision   *ModelScalingGroupRevision `protobuf:"bytes,3,opt,name=current_revision,json=currentRevision,proto3" json:"current_revision,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetModelScalingGroupResponse) Reset() {
+	*x = GetModelScalingGroupResponse{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetModelScalingGroupResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetModelScalingGroupResponse) ProtoMessage() {}
+
+func (x *GetModelScalingGroupResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetModelScalingGroupResponse.ProtoReflect.Descriptor instead.
+func (*GetModelScalingGroupResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{12}
+}
+
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+func (x *GetModelScalingGroupResponse) GetScalingGroup() *v12.ScalingGroupResponse {
+	if x != nil {
+		return x.ScalingGroup
+	}
+	return nil
+}
+
+func (x *GetModelScalingGroupResponse) GetModelScalingGroup() *ModelScalingGroup {
+	if x != nil {
+		return x.ModelScalingGroup
+	}
+	return nil
+}
+
+func (x *GetModelScalingGroupResponse) GetCurrentRevision() *ModelScalingGroupRevision {
+	if x != nil {
+		return x.CurrentRevision
+	}
+	return nil
+}
+
+type ListModelScalingGroupsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional filter for scaling groups belonging to a specific model version
+	ModelVersion   *ModelVersionSelector          `protobuf:"bytes,1,opt,name=model_version,json=modelVersion,proto3,oneof" json:"model_version,omitempty"`
+	Cursor         *string                        `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit          *int32                         `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	IncludeDeleted *bool                          `protobuf:"varint,4,opt,name=include_deleted,json=includeDeleted,proto3,oneof" json:"include_deleted,omitempty"`
+	Filters        *ListModelScalingGroupsFilters `protobuf:"bytes,5,opt,name=filters,proto3" json:"filters,omitempty"`
+	Search         string                         `protobuf:"bytes,6,opt,name=search,proto3" json:"search,omitempty"`
+	SortColumn     ModelScalingGroupSortColumn    `protobuf:"varint,7,opt,name=sort_column,json=sortColumn,proto3,enum=chalk.modeldeployment.v1.ModelScalingGroupSortColumn" json:"sort_column,omitempty"`
+	SortOrder      ModelScalingGroupSortOrder     `protobuf:"varint,8,opt,name=sort_order,json=sortOrder,proto3,enum=chalk.modeldeployment.v1.ModelScalingGroupSortOrder" json:"sort_order,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
 func (x *ListModelScalingGroupsRequest) Reset() {
 	*x = ListModelScalingGroupsRequest{}
-	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -361,7 +1307,7 @@ func (x *ListModelScalingGroupsRequest) String() string {
 func (*ListModelScalingGroupsRequest) ProtoMessage() {}
 
 func (x *ListModelScalingGroupsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -374,7 +1320,7 @@ func (x *ListModelScalingGroupsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelScalingGroupsRequest.ProtoReflect.Descriptor instead.
 func (*ListModelScalingGroupsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListModelScalingGroupsRequest) GetModelVersion() *ModelVersionSelector {
@@ -384,16 +1330,135 @@ func (x *ListModelScalingGroupsRequest) GetModelVersion() *ModelVersionSelector 
 	return nil
 }
 
-type ListModelScalingGroupsResponse struct {
-	state         protoimpl.MessageState      `protogen:"open.v1"`
-	ScalingGroups []*v12.ScalingGroupResponse `protobuf:"bytes,1,rep,name=scaling_groups,json=scalingGroups,proto3" json:"scaling_groups,omitempty"`
+func (x *ListModelScalingGroupsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListModelScalingGroupsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListModelScalingGroupsRequest) GetIncludeDeleted() bool {
+	if x != nil && x.IncludeDeleted != nil {
+		return *x.IncludeDeleted
+	}
+	return false
+}
+
+func (x *ListModelScalingGroupsRequest) GetFilters() *ListModelScalingGroupsFilters {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+func (x *ListModelScalingGroupsRequest) GetSearch() string {
+	if x != nil {
+		return x.Search
+	}
+	return ""
+}
+
+func (x *ListModelScalingGroupsRequest) GetSortColumn() ModelScalingGroupSortColumn {
+	if x != nil {
+		return x.SortColumn
+	}
+	return ModelScalingGroupSortColumn_MODEL_SCALING_GROUP_SORT_COLUMN_UNSPECIFIED
+}
+
+func (x *ListModelScalingGroupsRequest) GetSortOrder() ModelScalingGroupSortOrder {
+	if x != nil {
+		return x.SortOrder
+	}
+	return ModelScalingGroupSortOrder_MODEL_SCALING_GROUP_SORT_ORDER_UNSPECIFIED
+}
+
+type ListModelScalingGroupsFilters struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A model scaling group matches when its status is any of these values.
+	// Empty means all statuses.
+	Statuses []string `protobuf:"bytes,1,rep,name=statuses,proto3" json:"statuses,omitempty"`
+	// Case-sensitive exact match over any container image.
+	Images []string `protobuf:"bytes,2,rep,name=images,proto3" json:"images,omitempty"`
+	// Exact model name, across all versions. Must agree with model_version when set.
+	ModelName     *string `protobuf:"bytes,3,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *ListModelScalingGroupsFilters) Reset() {
+	*x = ListModelScalingGroupsFilters{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListModelScalingGroupsFilters) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListModelScalingGroupsFilters) ProtoMessage() {}
+
+func (x *ListModelScalingGroupsFilters) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListModelScalingGroupsFilters.ProtoReflect.Descriptor instead.
+func (*ListModelScalingGroupsFilters) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListModelScalingGroupsFilters) GetStatuses() []string {
+	if x != nil {
+		return x.Statuses
+	}
+	return nil
+}
+
+func (x *ListModelScalingGroupsFilters) GetImages() []string {
+	if x != nil {
+		return x.Images
+	}
+	return nil
+}
+
+func (x *ListModelScalingGroupsFilters) GetModelName() string {
+	if x != nil && x.ModelName != nil {
+		return *x.ModelName
+	}
+	return ""
+}
+
+type ListModelScalingGroupsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	ScalingGroups []*v12.ScalingGroupResponse `protobuf:"bytes,1,rep,name=scaling_groups,json=scalingGroups,proto3" json:"scaling_groups,omitempty"`
+	NextCursor    *string                     `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	// Index-aligned with scaling_groups.
+	ModelScalingGroups []*ModelScalingGroup `protobuf:"bytes,3,rep,name=model_scaling_groups,json=modelScalingGroups,proto3" json:"model_scaling_groups,omitempty"`
+	// Index-aligned with model_scaling_groups.
+	CurrentRevisions []*ModelScalingGroupRevision `protobuf:"bytes,4,rep,name=current_revisions,json=currentRevisions,proto3" json:"current_revisions,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
 func (x *ListModelScalingGroupsResponse) Reset() {
 	*x = ListModelScalingGroupsResponse{}
-	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -405,7 +1470,7 @@ func (x *ListModelScalingGroupsResponse) String() string {
 func (*ListModelScalingGroupsResponse) ProtoMessage() {}
 
 func (x *ListModelScalingGroupsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -418,9 +1483,10 @@ func (x *ListModelScalingGroupsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelScalingGroupsResponse.ProtoReflect.Descriptor instead.
 func (*ListModelScalingGroupsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{5}
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{15}
 }
 
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
 func (x *ListModelScalingGroupsResponse) GetScalingGroups() []*v12.ScalingGroupResponse {
 	if x != nil {
 		return x.ScalingGroups
@@ -428,9 +1494,497 @@ func (x *ListModelScalingGroupsResponse) GetScalingGroups() []*v12.ScalingGroupR
 	return nil
 }
 
+func (x *ListModelScalingGroupsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListModelScalingGroupsResponse) GetModelScalingGroups() []*ModelScalingGroup {
+	if x != nil {
+		return x.ModelScalingGroups
+	}
+	return nil
+}
+
+func (x *ListModelScalingGroupsResponse) GetCurrentRevisions() []*ModelScalingGroupRevision {
+	if x != nil {
+		return x.CurrentRevisions
+	}
+	return nil
+}
+
+type DeleteModelScalingGroupRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to ModelScalingGroupKey:
+	//
+	//	*DeleteModelScalingGroupRequest_ModelScalingGroupId
+	//	*DeleteModelScalingGroupRequest_ModelScalingGroupName
+	ModelScalingGroupKey isDeleteModelScalingGroupRequest_ModelScalingGroupKey `protobuf_oneof:"model_scaling_group_key"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *DeleteModelScalingGroupRequest) Reset() {
+	*x = DeleteModelScalingGroupRequest{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteModelScalingGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteModelScalingGroupRequest) ProtoMessage() {}
+
+func (x *DeleteModelScalingGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteModelScalingGroupRequest.ProtoReflect.Descriptor instead.
+func (*DeleteModelScalingGroupRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *DeleteModelScalingGroupRequest) GetModelScalingGroupKey() isDeleteModelScalingGroupRequest_ModelScalingGroupKey {
+	if x != nil {
+		return x.ModelScalingGroupKey
+	}
+	return nil
+}
+
+func (x *DeleteModelScalingGroupRequest) GetModelScalingGroupId() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*DeleteModelScalingGroupRequest_ModelScalingGroupId); ok {
+			return x.ModelScalingGroupId
+		}
+	}
+	return ""
+}
+
+func (x *DeleteModelScalingGroupRequest) GetModelScalingGroupName() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*DeleteModelScalingGroupRequest_ModelScalingGroupName); ok {
+			return x.ModelScalingGroupName
+		}
+	}
+	return ""
+}
+
+type isDeleteModelScalingGroupRequest_ModelScalingGroupKey interface {
+	isDeleteModelScalingGroupRequest_ModelScalingGroupKey()
+}
+
+type DeleteModelScalingGroupRequest_ModelScalingGroupId struct {
+	ModelScalingGroupId string `protobuf:"bytes,1,opt,name=model_scaling_group_id,json=modelScalingGroupId,proto3,oneof"`
+}
+
+type DeleteModelScalingGroupRequest_ModelScalingGroupName struct {
+	ModelScalingGroupName string `protobuf:"bytes,2,opt,name=model_scaling_group_name,json=modelScalingGroupName,proto3,oneof"`
+}
+
+func (*DeleteModelScalingGroupRequest_ModelScalingGroupId) isDeleteModelScalingGroupRequest_ModelScalingGroupKey() {
+}
+
+func (*DeleteModelScalingGroupRequest_ModelScalingGroupName) isDeleteModelScalingGroupRequest_ModelScalingGroupKey() {
+}
+
+type DeleteModelScalingGroupResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+	ScalingGroup      *v12.ScalingGroupResponse `protobuf:"bytes,1,opt,name=scaling_group,json=scalingGroup,proto3" json:"scaling_group,omitempty"`
+	ModelScalingGroup *ModelScalingGroup        `protobuf:"bytes,2,opt,name=model_scaling_group,json=modelScalingGroup,proto3" json:"model_scaling_group,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *DeleteModelScalingGroupResponse) Reset() {
+	*x = DeleteModelScalingGroupResponse{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteModelScalingGroupResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteModelScalingGroupResponse) ProtoMessage() {}
+
+func (x *DeleteModelScalingGroupResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteModelScalingGroupResponse.ProtoReflect.Descriptor instead.
+func (*DeleteModelScalingGroupResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{17}
+}
+
+// Deprecated: Marked as deprecated in chalk/modeldeployment/v1/service.proto.
+func (x *DeleteModelScalingGroupResponse) GetScalingGroup() *v12.ScalingGroupResponse {
+	if x != nil {
+		return x.ScalingGroup
+	}
+	return nil
+}
+
+func (x *DeleteModelScalingGroupResponse) GetModelScalingGroup() *ModelScalingGroup {
+	if x != nil {
+		return x.ModelScalingGroup
+	}
+	return nil
+}
+
+type GetModelScalingGroupRevisionRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to ModelScalingGroupKey:
+	//
+	//	*GetModelScalingGroupRevisionRequest_ModelScalingGroupId
+	//	*GetModelScalingGroupRevisionRequest_ModelScalingGroupName
+	ModelScalingGroupKey isGetModelScalingGroupRevisionRequest_ModelScalingGroupKey `protobuf_oneof:"model_scaling_group_key"`
+	RevisionId           string                                                     `protobuf:"bytes,3,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	IncludeDeleted       *bool                                                      `protobuf:"varint,4,opt,name=include_deleted,json=includeDeleted,proto3,oneof" json:"include_deleted,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *GetModelScalingGroupRevisionRequest) Reset() {
+	*x = GetModelScalingGroupRevisionRequest{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetModelScalingGroupRevisionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetModelScalingGroupRevisionRequest) ProtoMessage() {}
+
+func (x *GetModelScalingGroupRevisionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetModelScalingGroupRevisionRequest.ProtoReflect.Descriptor instead.
+func (*GetModelScalingGroupRevisionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetModelScalingGroupRevisionRequest) GetModelScalingGroupKey() isGetModelScalingGroupRevisionRequest_ModelScalingGroupKey {
+	if x != nil {
+		return x.ModelScalingGroupKey
+	}
+	return nil
+}
+
+func (x *GetModelScalingGroupRevisionRequest) GetModelScalingGroupId() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*GetModelScalingGroupRevisionRequest_ModelScalingGroupId); ok {
+			return x.ModelScalingGroupId
+		}
+	}
+	return ""
+}
+
+func (x *GetModelScalingGroupRevisionRequest) GetModelScalingGroupName() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*GetModelScalingGroupRevisionRequest_ModelScalingGroupName); ok {
+			return x.ModelScalingGroupName
+		}
+	}
+	return ""
+}
+
+func (x *GetModelScalingGroupRevisionRequest) GetRevisionId() string {
+	if x != nil {
+		return x.RevisionId
+	}
+	return ""
+}
+
+func (x *GetModelScalingGroupRevisionRequest) GetIncludeDeleted() bool {
+	if x != nil && x.IncludeDeleted != nil {
+		return *x.IncludeDeleted
+	}
+	return false
+}
+
+type isGetModelScalingGroupRevisionRequest_ModelScalingGroupKey interface {
+	isGetModelScalingGroupRevisionRequest_ModelScalingGroupKey()
+}
+
+type GetModelScalingGroupRevisionRequest_ModelScalingGroupId struct {
+	ModelScalingGroupId string `protobuf:"bytes,1,opt,name=model_scaling_group_id,json=modelScalingGroupId,proto3,oneof"`
+}
+
+type GetModelScalingGroupRevisionRequest_ModelScalingGroupName struct {
+	ModelScalingGroupName string `protobuf:"bytes,2,opt,name=model_scaling_group_name,json=modelScalingGroupName,proto3,oneof"`
+}
+
+func (*GetModelScalingGroupRevisionRequest_ModelScalingGroupId) isGetModelScalingGroupRevisionRequest_ModelScalingGroupKey() {
+}
+
+func (*GetModelScalingGroupRevisionRequest_ModelScalingGroupName) isGetModelScalingGroupRevisionRequest_ModelScalingGroupKey() {
+}
+
+type GetModelScalingGroupRevisionResponse struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Revision      *v12.ScalingGroupRevisionResponse `protobuf:"bytes,1,opt,name=revision,proto3" json:"revision,omitempty"`
+	ModelRevision *ModelScalingGroupRevision        `protobuf:"bytes,2,opt,name=model_revision,json=modelRevision,proto3" json:"model_revision,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetModelScalingGroupRevisionResponse) Reset() {
+	*x = GetModelScalingGroupRevisionResponse{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetModelScalingGroupRevisionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetModelScalingGroupRevisionResponse) ProtoMessage() {}
+
+func (x *GetModelScalingGroupRevisionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetModelScalingGroupRevisionResponse.ProtoReflect.Descriptor instead.
+func (*GetModelScalingGroupRevisionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetModelScalingGroupRevisionResponse) GetRevision() *v12.ScalingGroupRevisionResponse {
+	if x != nil {
+		return x.Revision
+	}
+	return nil
+}
+
+func (x *GetModelScalingGroupRevisionResponse) GetModelRevision() *ModelScalingGroupRevision {
+	if x != nil {
+		return x.ModelRevision
+	}
+	return nil
+}
+
+type ListModelScalingGroupRevisionsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to ModelScalingGroupKey:
+	//
+	//	*ListModelScalingGroupRevisionsRequest_ModelScalingGroupId
+	//	*ListModelScalingGroupRevisionsRequest_ModelScalingGroupName
+	ModelScalingGroupKey isListModelScalingGroupRevisionsRequest_ModelScalingGroupKey `protobuf_oneof:"model_scaling_group_key"`
+	Cursor               *string                                                      `protobuf:"bytes,3,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit                *int32                                                       `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	IncludeDeleted       *bool                                                        `protobuf:"varint,5,opt,name=include_deleted,json=includeDeleted,proto3,oneof" json:"include_deleted,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *ListModelScalingGroupRevisionsRequest) Reset() {
+	*x = ListModelScalingGroupRevisionsRequest{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListModelScalingGroupRevisionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListModelScalingGroupRevisionsRequest) ProtoMessage() {}
+
+func (x *ListModelScalingGroupRevisionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListModelScalingGroupRevisionsRequest.ProtoReflect.Descriptor instead.
+func (*ListModelScalingGroupRevisionsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListModelScalingGroupRevisionsRequest) GetModelScalingGroupKey() isListModelScalingGroupRevisionsRequest_ModelScalingGroupKey {
+	if x != nil {
+		return x.ModelScalingGroupKey
+	}
+	return nil
+}
+
+func (x *ListModelScalingGroupRevisionsRequest) GetModelScalingGroupId() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*ListModelScalingGroupRevisionsRequest_ModelScalingGroupId); ok {
+			return x.ModelScalingGroupId
+		}
+	}
+	return ""
+}
+
+func (x *ListModelScalingGroupRevisionsRequest) GetModelScalingGroupName() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*ListModelScalingGroupRevisionsRequest_ModelScalingGroupName); ok {
+			return x.ModelScalingGroupName
+		}
+	}
+	return ""
+}
+
+func (x *ListModelScalingGroupRevisionsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListModelScalingGroupRevisionsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListModelScalingGroupRevisionsRequest) GetIncludeDeleted() bool {
+	if x != nil && x.IncludeDeleted != nil {
+		return *x.IncludeDeleted
+	}
+	return false
+}
+
+type isListModelScalingGroupRevisionsRequest_ModelScalingGroupKey interface {
+	isListModelScalingGroupRevisionsRequest_ModelScalingGroupKey()
+}
+
+type ListModelScalingGroupRevisionsRequest_ModelScalingGroupId struct {
+	ModelScalingGroupId string `protobuf:"bytes,1,opt,name=model_scaling_group_id,json=modelScalingGroupId,proto3,oneof"`
+}
+
+type ListModelScalingGroupRevisionsRequest_ModelScalingGroupName struct {
+	ModelScalingGroupName string `protobuf:"bytes,2,opt,name=model_scaling_group_name,json=modelScalingGroupName,proto3,oneof"`
+}
+
+func (*ListModelScalingGroupRevisionsRequest_ModelScalingGroupId) isListModelScalingGroupRevisionsRequest_ModelScalingGroupKey() {
+}
+
+func (*ListModelScalingGroupRevisionsRequest_ModelScalingGroupName) isListModelScalingGroupRevisionsRequest_ModelScalingGroupKey() {
+}
+
+type ListModelScalingGroupRevisionsResponse struct {
+	state      protoimpl.MessageState              `protogen:"open.v1"`
+	Revisions  []*v12.ScalingGroupRevisionResponse `protobuf:"bytes,1,rep,name=revisions,proto3" json:"revisions,omitempty"`
+	NextCursor *string                             `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	// Index-aligned with revisions.
+	ModelRevisions []*ModelScalingGroupRevision `protobuf:"bytes,3,rep,name=model_revisions,json=modelRevisions,proto3" json:"model_revisions,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ListModelScalingGroupRevisionsResponse) Reset() {
+	*x = ListModelScalingGroupRevisionsResponse{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListModelScalingGroupRevisionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListModelScalingGroupRevisionsResponse) ProtoMessage() {}
+
+func (x *ListModelScalingGroupRevisionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListModelScalingGroupRevisionsResponse.ProtoReflect.Descriptor instead.
+func (*ListModelScalingGroupRevisionsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListModelScalingGroupRevisionsResponse) GetRevisions() []*v12.ScalingGroupRevisionResponse {
+	if x != nil {
+		return x.Revisions
+	}
+	return nil
+}
+
+func (x *ListModelScalingGroupRevisionsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListModelScalingGroupRevisionsResponse) GetModelRevisions() []*ModelScalingGroupRevision {
+	if x != nil {
+		return x.ModelRevisions
+	}
+	return nil
+}
+
 type CallModelRequest struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	ModelVersion *ModelVersionSelector  `protobuf:"bytes,1,opt,name=model_version,json=modelVersion,proto3" json:"model_version,omitempty"`
+	// Optional explicit deployment. Without it, model_version must resolve to
+	// exactly one deployment. With it, model_version verifies the selected revision.
+	//
+	// Types that are valid to be assigned to ModelScalingGroupKey:
+	//
+	//	*CallModelRequest_ModelScalingGroupId
+	//	*CallModelRequest_ModelScalingGroupName
+	ModelScalingGroupKey isCallModelRequest_ModelScalingGroupKey `protobuf_oneof:"model_scaling_group_key"`
 	// Types that are valid to be assigned to Body:
 	//
 	//	*CallModelRequest_RemoteCallRequest
@@ -442,7 +1996,7 @@ type CallModelRequest struct {
 
 func (x *CallModelRequest) Reset() {
 	*x = CallModelRequest{}
-	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[6]
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -454,7 +2008,7 @@ func (x *CallModelRequest) String() string {
 func (*CallModelRequest) ProtoMessage() {}
 
 func (x *CallModelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[6]
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -467,7 +2021,7 @@ func (x *CallModelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CallModelRequest.ProtoReflect.Descriptor instead.
 func (*CallModelRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{6}
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CallModelRequest) GetModelVersion() *ModelVersionSelector {
@@ -475,6 +2029,31 @@ func (x *CallModelRequest) GetModelVersion() *ModelVersionSelector {
 		return x.ModelVersion
 	}
 	return nil
+}
+
+func (x *CallModelRequest) GetModelScalingGroupKey() isCallModelRequest_ModelScalingGroupKey {
+	if x != nil {
+		return x.ModelScalingGroupKey
+	}
+	return nil
+}
+
+func (x *CallModelRequest) GetModelScalingGroupId() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*CallModelRequest_ModelScalingGroupId); ok {
+			return x.ModelScalingGroupId
+		}
+	}
+	return ""
+}
+
+func (x *CallModelRequest) GetModelScalingGroupName() string {
+	if x != nil {
+		if x, ok := x.ModelScalingGroupKey.(*CallModelRequest_ModelScalingGroupName); ok {
+			return x.ModelScalingGroupName
+		}
+	}
+	return ""
 }
 
 func (x *CallModelRequest) GetBody() isCallModelRequest_Body {
@@ -502,6 +2081,22 @@ func (x *CallModelRequest) GetEnqueueRemoteCallRequest() *v13.EnqueueRemoteCallR
 	return nil
 }
 
+type isCallModelRequest_ModelScalingGroupKey interface {
+	isCallModelRequest_ModelScalingGroupKey()
+}
+
+type CallModelRequest_ModelScalingGroupId struct {
+	ModelScalingGroupId string `protobuf:"bytes,4,opt,name=model_scaling_group_id,json=modelScalingGroupId,proto3,oneof"`
+}
+
+type CallModelRequest_ModelScalingGroupName struct {
+	ModelScalingGroupName string `protobuf:"bytes,5,opt,name=model_scaling_group_name,json=modelScalingGroupName,proto3,oneof"`
+}
+
+func (*CallModelRequest_ModelScalingGroupId) isCallModelRequest_ModelScalingGroupKey() {}
+
+func (*CallModelRequest_ModelScalingGroupName) isCallModelRequest_ModelScalingGroupKey() {}
+
 type isCallModelRequest_Body interface {
 	isCallModelRequest_Body()
 }
@@ -512,8 +2107,8 @@ type CallModelRequest_RemoteCallRequest struct {
 }
 
 type CallModelRequest_EnqueueRemoteCallRequest struct {
-	// Asynchronous invocation: enqueues the call on the model-wide function queue.
-	// The server resolves the model name from model_version and returns a call_id;
+	// Asynchronous invocation: enqueues on the selected deployment's queue.
+	// The server resolves the queue from the stored revision and returns a call_id;
 	// poll FunctionQueueMetaService.GetCallResults to observe completion.
 	EnqueueRemoteCallRequest *v13.EnqueueRemoteCallRequest `protobuf:"bytes,3,opt,name=enqueue_remote_call_request,json=enqueueRemoteCallRequest,proto3,oneof"`
 }
@@ -535,7 +2130,7 @@ type CallModelResponse struct {
 
 func (x *CallModelResponse) Reset() {
 	*x = CallModelResponse{}
-	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -547,7 +2142,7 @@ func (x *CallModelResponse) String() string {
 func (*CallModelResponse) ProtoMessage() {}
 
 func (x *CallModelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -560,7 +2155,7 @@ func (x *CallModelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CallModelResponse.ProtoReflect.Descriptor instead.
 func (*CallModelResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{7}
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CallModelResponse) GetBody() isCallModelResponse_Body {
@@ -608,7 +2203,7 @@ var File_chalk_modeldeployment_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/modeldeployment/v1/service.proto\x12\x18chalk.modeldeployment.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a#chalk/models/v1/model_version.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\"\xaa\x06\n" +
+	"&chalk/modeldeployment/v1/service.proto\x12\x18chalk.modeldeployment.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a#chalk/models/v1/model_version.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xae\a\n" +
 	"\x12ModelContainerSpec\x12J\n" +
 	"\x04tags\x18\x01 \x03(\v26.chalk.modeldeployment.v1.ModelContainerSpec.TagsEntryR\x04tags\x12E\n" +
 	"\tresources\x18\x02 \x01(\v2\".chalk.container.v1.ResourceLimitsH\x00R\tresources\x88\x01\x01\x12T\n" +
@@ -619,7 +2214,9 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\vsecret_refs\x18\a \x03(\v2\x1d.chalk.container.v1.SecretRefR\n" +
 	"secretRefs\x12P\n" +
 	"\x0freadiness_probe\x18\b \x01(\v2\".chalk.container.v1.ReadinessProbeH\x03R\x0ereadinessProbe\x88\x01\x01\x12J\n" +
-	"\rstartup_probe\x18\t \x01(\v2 .chalk.container.v1.StartupProbeH\x04R\fstartupProbe\x88\x01\x01\x1a7\n" +
+	"\rstartup_probe\x18\t \x01(\v2 .chalk.container.v1.StartupProbeH\x04R\fstartupProbe\x88\x01\x01\x12f\n" +
+	"\x17chalk_workload_identity\x18\n" +
+	" \x01(\v2).chalk.container.v1.ChalkWorkloadIdentityH\x05R\x15chalkWorkloadIdentity\x88\x01\x01\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a:\n" +
@@ -632,46 +2229,201 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\b_routingB\x11\n" +
 	"\x0f_authenticationB\x12\n" +
 	"\x10_readiness_probeB\x10\n" +
-	"\x0e_startup_probe\"\x88\x03\n" +
+	"\x0e_startup_probeB\x1a\n" +
+	"\x18_chalk_workload_identity\"\xe5\x03\n" +
 	"\x1eCreateModelScalingGroupRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12C\n" +
+	"\x04spec\x18\b \x01(\v2/.chalk.modeldeployment.v1.ModelScalingGroupSpecR\x04spec\x12!\n" +
 	"\n" +
-	"model_name\x18\x02 \x01(\tR\tmodelName\x12G\n" +
+	"model_name\x18\x02 \x01(\tB\x02\x18\x01R\tmodelName\x12K\n" +
 	"\n" +
-	"identifier\x18\x03 \x01(\v2'.chalk.models.v1.ModelVersionIdentifierR\n" +
-	"identifier\x12S\n" +
-	"\x0econtainer_spec\x18\x04 \x01(\v2,.chalk.modeldeployment.v1.ModelContainerSpecR\rcontainerSpec\x12E\n" +
-	"\fscaling_spec\x18\x05 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecR\vscalingSpec\x12\x1d\n" +
-	"\ahandler\x18\x06 \x01(\tH\x00R\ahandler\x88\x01\x01\x12\x19\n" +
-	"\x05image\x18\a \x01(\tH\x01R\x05image\x88\x01\x01B\n" +
+	"identifier\x18\x03 \x01(\v2'.chalk.models.v1.ModelVersionIdentifierB\x02\x18\x01R\n" +
+	"identifier\x12W\n" +
+	"\x0econtainer_spec\x18\x04 \x01(\v2,.chalk.modeldeployment.v1.ModelContainerSpecB\x02\x18\x01R\rcontainerSpec\x12I\n" +
+	"\fscaling_spec\x18\x05 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecB\x02\x18\x01R\vscalingSpec\x12!\n" +
+	"\ahandler\x18\x06 \x01(\tB\x02\x18\x01H\x00R\ahandler\x88\x01\x01\x12\x1d\n" +
+	"\x05image\x18\a \x01(\tB\x02\x18\x01H\x01R\x05image\x88\x01\x01B\n" +
 	"\n" +
 	"\b_handlerB\b\n" +
-	"\x06_image\"s\n" +
-	"\x1fCreateModelScalingGroupResponse\x12P\n" +
-	"\rscaling_group\x18\x01 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\fscalingGroup\"~\n" +
+	"\x06_image\"\xb4\x02\n" +
+	"\x1fCreateModelScalingGroupResponse\x12T\n" +
+	"\rscaling_group\x18\x01 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseB\x02\x18\x01R\fscalingGroup\x12[\n" +
+	"\x13model_scaling_group\x18\x02 \x01(\v2+.chalk.modeldeployment.v1.ModelScalingGroupR\x11modelScalingGroup\x12^\n" +
+	"\x10current_revision\x18\x03 \x01(\v23.chalk.modeldeployment.v1.ModelScalingGroupRevisionR\x0fcurrentRevision\"~\n" +
 	"\x14ModelVersionSelector\x12\x1d\n" +
 	"\n" +
 	"model_name\x18\x01 \x01(\tR\tmodelName\x12G\n" +
 	"\n" +
 	"identifier\x18\x02 \x01(\v2'.chalk.models.v1.ModelVersionIdentifierR\n" +
-	"identifier\"\x8b\x01\n" +
+	"identifier\"\xd8\x02\n" +
+	"\x15ModelScalingGroupSpec\x12S\n" +
+	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorR\fmodelVersion\x12S\n" +
+	"\x0econtainer_spec\x18\x02 \x01(\v2,.chalk.modeldeployment.v1.ModelContainerSpecR\rcontainerSpec\x12E\n" +
+	"\fscaling_spec\x18\x03 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecR\vscalingSpec\x12\x1d\n" +
+	"\ahandler\x18\x04 \x01(\tH\x00R\ahandler\x88\x01\x01\x12\x19\n" +
+	"\x05image\x18\x05 \x01(\tH\x01R\x05image\x88\x01\x01B\n" +
+	"\n" +
+	"\b_handlerB\b\n" +
+	"\x06_image\"\xb2\x05\n" +
+	"\x11ModelScalingGroup\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"queue_name\x18\x03 \x01(\tR\tqueueName\x12\x1e\n" +
+	"\bmodel_id\x18\x04 \x01(\tH\x00R\amodelId\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"created_by\x18\x05 \x01(\tH\x01R\tcreatedBy\x88\x01\x01\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x16\n" +
+	"\x06status\x18\a \x01(\tR\x06status\x12*\n" +
+	"\x0estatus_message\x18\b \x01(\tH\x02R\rstatusMessage\x88\x01\x01\x12*\n" +
+	"\x0estatus_details\x18\t \x01(\tH\x03R\rstatusDetails\x88\x01\x01\x12%\n" +
+	"\x0eready_replicas\x18\n" +
+	" \x01(\x05R\rreadyReplicas\x12-\n" +
+	"\x12available_replicas\x18\v \x01(\x05R\x11availableReplicas\x12\x1f\n" +
+	"\vrevision_id\x18\f \x01(\tR\n" +
+	"revisionId\x129\n" +
+	"\n" +
+	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12>\n" +
+	"\n" +
+	"deleted_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampH\x04R\tdeletedAt\x88\x01\x01\x12\x1c\n" +
+	"\aweb_url\x18\x0f \x01(\tH\x05R\x06webUrl\x88\x01\x01B\v\n" +
+	"\t_model_idB\r\n" +
+	"\v_created_byB\x11\n" +
+	"\x0f_status_messageB\x11\n" +
+	"\x0f_status_detailsB\r\n" +
+	"\v_deleted_atB\n" +
+	"\n" +
+	"\b_web_url\"\xb8\x02\n" +
+	"\x19ModelScalingGroupRevision\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x123\n" +
+	"\x16model_scaling_group_id\x18\x02 \x01(\tR\x13modelScalingGroupId\x12#\n" +
+	"\rmodel_version\x18\x03 \x01(\x03R\fmodelVersion\x12C\n" +
+	"\x04spec\x18\x04 \x01(\v2/.chalk.modeldeployment.v1.ModelScalingGroupSpecR\x04spec\x12\"\n" +
+	"\n" +
+	"created_by\x18\x05 \x01(\tH\x00R\tcreatedBy\x88\x01\x01\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\r\n" +
+	"\v_created_by\"n\n" +
+	"\x18ModelScalingGroupTraffic\x12R\n" +
+	"\atargets\x18\x01 \x03(\v28.chalk.modeldeployment.v1.ModelScalingGroupTrafficTargetR\atargets\"\xd8\x01\n" +
+	"\x1eModelScalingGroupTrafficTarget\x12F\n" +
+	"\x1fmodel_scaling_group_revision_id\x18\x01 \x01(\tH\x00R\x1bmodelScalingGroupRevisionId\x12A\n" +
+	"\x0flatest_revision\x18\x02 \x01(\v2\x16.google.protobuf.EmptyH\x00R\x0elatestRevision\x12\x18\n" +
+	"\apercent\x18\x03 \x01(\rR\apercentB\x11\n" +
+	"\x0frevision_target\"\xfd\x02\n" +
+	"\x1eUpdateModelScalingGroupRequest\x125\n" +
+	"\x16model_scaling_group_id\x18\x01 \x01(\tH\x00R\x13modelScalingGroupId\x129\n" +
+	"\x18model_scaling_group_name\x18\x02 \x01(\tH\x00R\x15modelScalingGroupName\x12C\n" +
+	"\x04spec\x18\x03 \x01(\v2/.chalk.modeldeployment.v1.ModelScalingGroupSpecR\x04spec\x12L\n" +
+	"\atraffic\x18\x04 \x01(\v22.chalk.modeldeployment.v1.ModelScalingGroupTrafficR\atraffic\x12;\n" +
+	"\vupdate_mask\x18\x05 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMaskB\x19\n" +
+	"\x17model_scaling_group_key\"\xb4\x02\n" +
+	"\x1fUpdateModelScalingGroupResponse\x12T\n" +
+	"\rscaling_group\x18\x01 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseB\x02\x18\x01R\fscalingGroup\x12[\n" +
+	"\x13model_scaling_group\x18\x02 \x01(\v2+.chalk.modeldeployment.v1.ModelScalingGroupR\x11modelScalingGroup\x12^\n" +
+	"\x10current_revision\x18\x03 \x01(\v23.chalk.modeldeployment.v1.ModelScalingGroupRevisionR\x0fcurrentRevision\"\xec\x01\n" +
+	"\x1bGetModelScalingGroupRequest\x125\n" +
+	"\x16model_scaling_group_id\x18\x01 \x01(\tH\x00R\x13modelScalingGroupId\x129\n" +
+	"\x18model_scaling_group_name\x18\x02 \x01(\tH\x00R\x15modelScalingGroupName\x12,\n" +
+	"\x0finclude_deleted\x18\x03 \x01(\bH\x01R\x0eincludeDeleted\x88\x01\x01B\x19\n" +
+	"\x17model_scaling_group_keyB\x12\n" +
+	"\x10_include_deleted\"\xb1\x02\n" +
+	"\x1cGetModelScalingGroupResponse\x12T\n" +
+	"\rscaling_group\x18\x01 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseB\x02\x18\x01R\fscalingGroup\x12[\n" +
+	"\x13model_scaling_group\x18\x02 \x01(\v2+.chalk.modeldeployment.v1.ModelScalingGroupR\x11modelScalingGroup\x12^\n" +
+	"\x10current_revision\x18\x03 \x01(\v23.chalk.modeldeployment.v1.ModelScalingGroupRevisionR\x0fcurrentRevision\"\xb2\x04\n" +
 	"\x1dListModelScalingGroupsRequest\x12X\n" +
-	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorH\x00R\fmodelVersion\x88\x01\x01B\x10\n" +
-	"\x0e_model_version\"t\n" +
-	"\x1eListModelScalingGroupsResponse\x12R\n" +
-	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\rscalingGroups\"\xb5\x02\n" +
+	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorH\x00R\fmodelVersion\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x03 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12,\n" +
+	"\x0finclude_deleted\x18\x04 \x01(\bH\x03R\x0eincludeDeleted\x88\x01\x01\x12Q\n" +
+	"\afilters\x18\x05 \x01(\v27.chalk.modeldeployment.v1.ListModelScalingGroupsFiltersR\afilters\x12\x16\n" +
+	"\x06search\x18\x06 \x01(\tR\x06search\x12V\n" +
+	"\vsort_column\x18\a \x01(\x0e25.chalk.modeldeployment.v1.ModelScalingGroupSortColumnR\n" +
+	"sortColumn\x12S\n" +
+	"\n" +
+	"sort_order\x18\b \x01(\x0e24.chalk.modeldeployment.v1.ModelScalingGroupSortOrderR\tsortOrderB\x10\n" +
+	"\x0e_model_versionB\t\n" +
+	"\a_cursorB\b\n" +
+	"\x06_limitB\x12\n" +
+	"\x10_include_deleted\"\x86\x01\n" +
+	"\x1dListModelScalingGroupsFilters\x12\x1a\n" +
+	"\bstatuses\x18\x01 \x03(\tR\bstatuses\x12\x16\n" +
+	"\x06images\x18\x02 \x03(\tR\x06images\x12\"\n" +
+	"\n" +
+	"model_name\x18\x03 \x01(\tH\x00R\tmodelName\x88\x01\x01B\r\n" +
+	"\v_model_name\"\xef\x02\n" +
+	"\x1eListModelScalingGroupsResponse\x12V\n" +
+	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseB\x02\x18\x01R\rscalingGroups\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01\x12]\n" +
+	"\x14model_scaling_groups\x18\x03 \x03(\v2+.chalk.modeldeployment.v1.ModelScalingGroupR\x12modelScalingGroups\x12`\n" +
+	"\x11current_revisions\x18\x04 \x03(\v23.chalk.modeldeployment.v1.ModelScalingGroupRevisionR\x10currentRevisionsB\x0e\n" +
+	"\f_next_cursor\"\xad\x01\n" +
+	"\x1eDeleteModelScalingGroupRequest\x125\n" +
+	"\x16model_scaling_group_id\x18\x01 \x01(\tH\x00R\x13modelScalingGroupId\x129\n" +
+	"\x18model_scaling_group_name\x18\x02 \x01(\tH\x00R\x15modelScalingGroupNameB\x19\n" +
+	"\x17model_scaling_group_key\"\xd4\x01\n" +
+	"\x1fDeleteModelScalingGroupResponse\x12T\n" +
+	"\rscaling_group\x18\x01 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseB\x02\x18\x01R\fscalingGroup\x12[\n" +
+	"\x13model_scaling_group\x18\x02 \x01(\v2+.chalk.modeldeployment.v1.ModelScalingGroupR\x11modelScalingGroup\"\x95\x02\n" +
+	"#GetModelScalingGroupRevisionRequest\x125\n" +
+	"\x16model_scaling_group_id\x18\x01 \x01(\tH\x00R\x13modelScalingGroupId\x129\n" +
+	"\x18model_scaling_group_name\x18\x02 \x01(\tH\x00R\x15modelScalingGroupName\x12\x1f\n" +
+	"\vrevision_id\x18\x03 \x01(\tR\n" +
+	"revisionId\x12,\n" +
+	"\x0finclude_deleted\x18\x04 \x01(\bH\x01R\x0eincludeDeleted\x88\x01\x01B\x19\n" +
+	"\x17model_scaling_group_keyB\x12\n" +
+	"\x10_include_deleted\"\xd3\x01\n" +
+	"$GetModelScalingGroupRevisionResponse\x12O\n" +
+	"\brevision\x18\x01 \x01(\v23.chalk.scalinggroup.v1.ScalingGroupRevisionResponseR\brevision\x12Z\n" +
+	"\x0emodel_revision\x18\x02 \x01(\v23.chalk.modeldeployment.v1.ModelScalingGroupRevisionR\rmodelRevision\"\xc3\x02\n" +
+	"%ListModelScalingGroupRevisionsRequest\x125\n" +
+	"\x16model_scaling_group_id\x18\x01 \x01(\tH\x00R\x13modelScalingGroupId\x129\n" +
+	"\x18model_scaling_group_name\x18\x02 \x01(\tH\x00R\x15modelScalingGroupName\x12\x1b\n" +
+	"\x06cursor\x18\x03 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12,\n" +
+	"\x0finclude_deleted\x18\x05 \x01(\bH\x03R\x0eincludeDeleted\x88\x01\x01B\x19\n" +
+	"\x17model_scaling_group_keyB\t\n" +
+	"\a_cursorB\b\n" +
+	"\x06_limitB\x12\n" +
+	"\x10_include_deleted\"\x8f\x02\n" +
+	"&ListModelScalingGroupRevisionsResponse\x12Q\n" +
+	"\trevisions\x18\x01 \x03(\v23.chalk.scalinggroup.v1.ScalingGroupRevisionResponseR\trevisions\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01\x12\\\n" +
+	"\x0fmodel_revisions\x18\x03 \x03(\v23.chalk.modeldeployment.v1.ModelScalingGroupRevisionR\x0emodelRevisionsB\x0e\n" +
+	"\f_next_cursor\"\xc2\x03\n" +
 	"\x10CallModelRequest\x12S\n" +
-	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorR\fmodelVersion\x12W\n" +
-	"\x13remote_call_request\x18\x02 \x01(\v2%.chalk.runtime.v1.CallFunctionRequestH\x00R\x11remoteCallRequest\x12k\n" +
-	"\x1benqueue_remote_call_request\x18\x03 \x01(\v2*.chalk.runtime.v1.EnqueueRemoteCallRequestH\x00R\x18enqueueRemoteCallRequestB\x06\n" +
+	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorR\fmodelVersion\x125\n" +
+	"\x16model_scaling_group_id\x18\x04 \x01(\tH\x00R\x13modelScalingGroupId\x129\n" +
+	"\x18model_scaling_group_name\x18\x05 \x01(\tH\x00R\x15modelScalingGroupName\x12W\n" +
+	"\x13remote_call_request\x18\x02 \x01(\v2%.chalk.runtime.v1.CallFunctionRequestH\x01R\x11remoteCallRequest\x12k\n" +
+	"\x1benqueue_remote_call_request\x18\x03 \x01(\v2*.chalk.runtime.v1.EnqueueRemoteCallRequestH\x01R\x18enqueueRemoteCallRequestB\x19\n" +
+	"\x17model_scaling_group_keyB\x06\n" +
 	"\x04body\"\xe7\x01\n" +
 	"\x11CallModelResponse\x12Z\n" +
 	"\x14remote_call_response\x18\x01 \x01(\v2&.chalk.runtime.v1.CallFunctionResponseH\x00R\x12remoteCallResponse\x12n\n" +
 	"\x1cenqueue_remote_call_response\x18\x02 \x01(\v2+.chalk.runtime.v1.EnqueueRemoteCallResponseH\x00R\x19enqueueRemoteCallResponseB\x06\n" +
-	"\x04body2\xac\x03\n" +
+	"\x04body*\xae\x01\n" +
+	"\x1bModelScalingGroupSortColumn\x12/\n" +
+	"+MODEL_SCALING_GROUP_SORT_COLUMN_UNSPECIFIED\x10\x00\x12.\n" +
+	"*MODEL_SCALING_GROUP_SORT_COLUMN_CREATED_AT\x10\x01\x12.\n" +
+	"*MODEL_SCALING_GROUP_SORT_COLUMN_UPDATED_AT\x10\x02*\x9d\x01\n" +
+	"\x1aModelScalingGroupSortOrder\x12.\n" +
+	"*MODEL_SCALING_GROUP_SORT_ORDER_UNSPECIFIED\x10\x00\x12'\n" +
+	"#MODEL_SCALING_GROUP_SORT_ORDER_DESC\x10\x01\x12&\n" +
+	"\"MODEL_SCALING_GROUP_SORT_ORDER_ASC\x10\x022\xb5\t\n" +
 	"\x16ModelDeploymentService\x12\x93\x01\n" +
-	"\x17CreateModelScalingGroup\x128.chalk.modeldeployment.v1.CreateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.CreateModelScalingGroupResponse\"\x03\x80}\f\x12\x90\x01\n" +
-	"\x16ListModelScalingGroups\x127.chalk.modeldeployment.v1.ListModelScalingGroupsRequest\x1a8.chalk.modeldeployment.v1.ListModelScalingGroupsResponse\"\x03\x80}\v\x12i\n" +
+	"\x17CreateModelScalingGroup\x128.chalk.modeldeployment.v1.CreateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.CreateModelScalingGroupResponse\"\x03\x80}\f\x12\x93\x01\n" +
+	"\x17UpdateModelScalingGroup\x128.chalk.modeldeployment.v1.UpdateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.UpdateModelScalingGroupResponse\"\x03\x80}\x0e\x12\x8a\x01\n" +
+	"\x14GetModelScalingGroup\x125.chalk.modeldeployment.v1.GetModelScalingGroupRequest\x1a6.chalk.modeldeployment.v1.GetModelScalingGroupResponse\"\x03\x80}\v\x12\x90\x01\n" +
+	"\x16ListModelScalingGroups\x127.chalk.modeldeployment.v1.ListModelScalingGroupsRequest\x1a8.chalk.modeldeployment.v1.ListModelScalingGroupsResponse\"\x03\x80}\v\x12\x93\x01\n" +
+	"\x17DeleteModelScalingGroup\x128.chalk.modeldeployment.v1.DeleteModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.DeleteModelScalingGroupResponse\"\x03\x80}\x0e\x12\xa2\x01\n" +
+	"\x1cGetModelScalingGroupRevision\x12=.chalk.modeldeployment.v1.GetModelScalingGroupRevisionRequest\x1a>.chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse\"\x03\x80}\v\x12\xa8\x01\n" +
+	"\x1eListModelScalingGroupRevisions\x12?.chalk.modeldeployment.v1.ListModelScalingGroupRevisionsRequest\x1a@.chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse\"\x03\x80}\v\x12i\n" +
 	"\tCallModel\x12*.chalk.modeldeployment.v1.CallModelRequest\x1a+.chalk.modeldeployment.v1.CallModelResponse\"\x03\x80}\x0eB\xfb\x01\n" +
 	"\x1ccom.chalk.modeldeployment.v1B\fServiceProtoP\x01ZKgithub.com/chalk-ai/chalk-go/gen/chalk/modeldeployment/v1;modeldeploymentv1\xa2\x02\x03CMX\xaa\x02\x18Chalk.Modeldeployment.V1\xca\x02\x18Chalk\\Modeldeployment\\V1\xe2\x02$Chalk\\Modeldeployment\\V1\\GPBMetadata\xea\x02\x1aChalk::Modeldeployment::V1b\x06proto3"
 
@@ -687,62 +2439,130 @@ func file_chalk_modeldeployment_v1_service_proto_rawDescGZIP() []byte {
 	return file_chalk_modeldeployment_v1_service_proto_rawDescData
 }
 
-var file_chalk_modeldeployment_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_chalk_modeldeployment_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_modeldeployment_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_chalk_modeldeployment_v1_service_proto_goTypes = []any{
-	(*ModelContainerSpec)(nil),              // 0: chalk.modeldeployment.v1.ModelContainerSpec
-	(*CreateModelScalingGroupRequest)(nil),  // 1: chalk.modeldeployment.v1.CreateModelScalingGroupRequest
-	(*CreateModelScalingGroupResponse)(nil), // 2: chalk.modeldeployment.v1.CreateModelScalingGroupResponse
-	(*ModelVersionSelector)(nil),            // 3: chalk.modeldeployment.v1.ModelVersionSelector
-	(*ListModelScalingGroupsRequest)(nil),   // 4: chalk.modeldeployment.v1.ListModelScalingGroupsRequest
-	(*ListModelScalingGroupsResponse)(nil),  // 5: chalk.modeldeployment.v1.ListModelScalingGroupsResponse
-	(*CallModelRequest)(nil),                // 6: chalk.modeldeployment.v1.CallModelRequest
-	(*CallModelResponse)(nil),               // 7: chalk.modeldeployment.v1.CallModelResponse
-	nil,                                     // 8: chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
-	nil,                                     // 9: chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
-	(*v1.ResourceLimits)(nil),               // 10: chalk.container.v1.ResourceLimits
-	(*v1.VolumeMount)(nil),                  // 11: chalk.container.v1.VolumeMount
-	(*v1.SecretRef)(nil),                    // 12: chalk.container.v1.SecretRef
-	(*v1.ReadinessProbe)(nil),               // 13: chalk.container.v1.ReadinessProbe
-	(*v1.StartupProbe)(nil),                 // 14: chalk.container.v1.StartupProbe
-	(*v11.ModelVersionIdentifier)(nil),      // 15: chalk.models.v1.ModelVersionIdentifier
-	(*v12.ScalingSpec)(nil),                 // 16: chalk.scalinggroup.v1.ScalingSpec
-	(*v12.ScalingGroupResponse)(nil),        // 17: chalk.scalinggroup.v1.ScalingGroupResponse
-	(*v13.CallFunctionRequest)(nil),         // 18: chalk.runtime.v1.CallFunctionRequest
-	(*v13.EnqueueRemoteCallRequest)(nil),    // 19: chalk.runtime.v1.EnqueueRemoteCallRequest
-	(*v13.CallFunctionResponse)(nil),        // 20: chalk.runtime.v1.CallFunctionResponse
-	(*v13.EnqueueRemoteCallResponse)(nil),   // 21: chalk.runtime.v1.EnqueueRemoteCallResponse
+	(ModelScalingGroupSortColumn)(0),               // 0: chalk.modeldeployment.v1.ModelScalingGroupSortColumn
+	(ModelScalingGroupSortOrder)(0),                // 1: chalk.modeldeployment.v1.ModelScalingGroupSortOrder
+	(*ModelContainerSpec)(nil),                     // 2: chalk.modeldeployment.v1.ModelContainerSpec
+	(*CreateModelScalingGroupRequest)(nil),         // 3: chalk.modeldeployment.v1.CreateModelScalingGroupRequest
+	(*CreateModelScalingGroupResponse)(nil),        // 4: chalk.modeldeployment.v1.CreateModelScalingGroupResponse
+	(*ModelVersionSelector)(nil),                   // 5: chalk.modeldeployment.v1.ModelVersionSelector
+	(*ModelScalingGroupSpec)(nil),                  // 6: chalk.modeldeployment.v1.ModelScalingGroupSpec
+	(*ModelScalingGroup)(nil),                      // 7: chalk.modeldeployment.v1.ModelScalingGroup
+	(*ModelScalingGroupRevision)(nil),              // 8: chalk.modeldeployment.v1.ModelScalingGroupRevision
+	(*ModelScalingGroupTraffic)(nil),               // 9: chalk.modeldeployment.v1.ModelScalingGroupTraffic
+	(*ModelScalingGroupTrafficTarget)(nil),         // 10: chalk.modeldeployment.v1.ModelScalingGroupTrafficTarget
+	(*UpdateModelScalingGroupRequest)(nil),         // 11: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest
+	(*UpdateModelScalingGroupResponse)(nil),        // 12: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse
+	(*GetModelScalingGroupRequest)(nil),            // 13: chalk.modeldeployment.v1.GetModelScalingGroupRequest
+	(*GetModelScalingGroupResponse)(nil),           // 14: chalk.modeldeployment.v1.GetModelScalingGroupResponse
+	(*ListModelScalingGroupsRequest)(nil),          // 15: chalk.modeldeployment.v1.ListModelScalingGroupsRequest
+	(*ListModelScalingGroupsFilters)(nil),          // 16: chalk.modeldeployment.v1.ListModelScalingGroupsFilters
+	(*ListModelScalingGroupsResponse)(nil),         // 17: chalk.modeldeployment.v1.ListModelScalingGroupsResponse
+	(*DeleteModelScalingGroupRequest)(nil),         // 18: chalk.modeldeployment.v1.DeleteModelScalingGroupRequest
+	(*DeleteModelScalingGroupResponse)(nil),        // 19: chalk.modeldeployment.v1.DeleteModelScalingGroupResponse
+	(*GetModelScalingGroupRevisionRequest)(nil),    // 20: chalk.modeldeployment.v1.GetModelScalingGroupRevisionRequest
+	(*GetModelScalingGroupRevisionResponse)(nil),   // 21: chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse
+	(*ListModelScalingGroupRevisionsRequest)(nil),  // 22: chalk.modeldeployment.v1.ListModelScalingGroupRevisionsRequest
+	(*ListModelScalingGroupRevisionsResponse)(nil), // 23: chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse
+	(*CallModelRequest)(nil),                       // 24: chalk.modeldeployment.v1.CallModelRequest
+	(*CallModelResponse)(nil),                      // 25: chalk.modeldeployment.v1.CallModelResponse
+	nil,                                            // 26: chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
+	nil,                                            // 27: chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
+	(*v1.ResourceLimits)(nil),                      // 28: chalk.container.v1.ResourceLimits
+	(*v1.VolumeMount)(nil),                         // 29: chalk.container.v1.VolumeMount
+	(*v1.SecretRef)(nil),                           // 30: chalk.container.v1.SecretRef
+	(*v1.ReadinessProbe)(nil),                      // 31: chalk.container.v1.ReadinessProbe
+	(*v1.StartupProbe)(nil),                        // 32: chalk.container.v1.StartupProbe
+	(*v1.ChalkWorkloadIdentity)(nil),               // 33: chalk.container.v1.ChalkWorkloadIdentity
+	(*v11.ModelVersionIdentifier)(nil),             // 34: chalk.models.v1.ModelVersionIdentifier
+	(*v12.ScalingSpec)(nil),                        // 35: chalk.scalinggroup.v1.ScalingSpec
+	(*v12.ScalingGroupResponse)(nil),               // 36: chalk.scalinggroup.v1.ScalingGroupResponse
+	(*timestamppb.Timestamp)(nil),                  // 37: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                          // 38: google.protobuf.Empty
+	(*fieldmaskpb.FieldMask)(nil),                  // 39: google.protobuf.FieldMask
+	(*v12.ScalingGroupRevisionResponse)(nil),       // 40: chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	(*v13.CallFunctionRequest)(nil),                // 41: chalk.runtime.v1.CallFunctionRequest
+	(*v13.EnqueueRemoteCallRequest)(nil),           // 42: chalk.runtime.v1.EnqueueRemoteCallRequest
+	(*v13.CallFunctionResponse)(nil),               // 43: chalk.runtime.v1.CallFunctionResponse
+	(*v13.EnqueueRemoteCallResponse)(nil),          // 44: chalk.runtime.v1.EnqueueRemoteCallResponse
 }
 var file_chalk_modeldeployment_v1_service_proto_depIdxs = []int32{
-	8,  // 0: chalk.modeldeployment.v1.ModelContainerSpec.tags:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
-	10, // 1: chalk.modeldeployment.v1.ModelContainerSpec.resources:type_name -> chalk.container.v1.ResourceLimits
-	9,  // 2: chalk.modeldeployment.v1.ModelContainerSpec.env_vars:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
-	11, // 3: chalk.modeldeployment.v1.ModelContainerSpec.volumes:type_name -> chalk.container.v1.VolumeMount
-	12, // 4: chalk.modeldeployment.v1.ModelContainerSpec.secret_refs:type_name -> chalk.container.v1.SecretRef
-	13, // 5: chalk.modeldeployment.v1.ModelContainerSpec.readiness_probe:type_name -> chalk.container.v1.ReadinessProbe
-	14, // 6: chalk.modeldeployment.v1.ModelContainerSpec.startup_probe:type_name -> chalk.container.v1.StartupProbe
-	15, // 7: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
-	0,  // 8: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.container_spec:type_name -> chalk.modeldeployment.v1.ModelContainerSpec
-	16, // 9: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
-	17, // 10: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	15, // 11: chalk.modeldeployment.v1.ModelVersionSelector.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
-	3,  // 12: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
-	17, // 13: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	3,  // 14: chalk.modeldeployment.v1.CallModelRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
-	18, // 15: chalk.modeldeployment.v1.CallModelRequest.remote_call_request:type_name -> chalk.runtime.v1.CallFunctionRequest
-	19, // 16: chalk.modeldeployment.v1.CallModelRequest.enqueue_remote_call_request:type_name -> chalk.runtime.v1.EnqueueRemoteCallRequest
-	20, // 17: chalk.modeldeployment.v1.CallModelResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
-	21, // 18: chalk.modeldeployment.v1.CallModelResponse.enqueue_remote_call_response:type_name -> chalk.runtime.v1.EnqueueRemoteCallResponse
-	1,  // 19: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:input_type -> chalk.modeldeployment.v1.CreateModelScalingGroupRequest
-	4,  // 20: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupsRequest
-	6,  // 21: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:input_type -> chalk.modeldeployment.v1.CallModelRequest
-	2,  // 22: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:output_type -> chalk.modeldeployment.v1.CreateModelScalingGroupResponse
-	5,  // 23: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupsResponse
-	7,  // 24: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:output_type -> chalk.modeldeployment.v1.CallModelResponse
-	22, // [22:25] is the sub-list for method output_type
-	19, // [19:22] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	26, // 0: chalk.modeldeployment.v1.ModelContainerSpec.tags:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
+	28, // 1: chalk.modeldeployment.v1.ModelContainerSpec.resources:type_name -> chalk.container.v1.ResourceLimits
+	27, // 2: chalk.modeldeployment.v1.ModelContainerSpec.env_vars:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
+	29, // 3: chalk.modeldeployment.v1.ModelContainerSpec.volumes:type_name -> chalk.container.v1.VolumeMount
+	30, // 4: chalk.modeldeployment.v1.ModelContainerSpec.secret_refs:type_name -> chalk.container.v1.SecretRef
+	31, // 5: chalk.modeldeployment.v1.ModelContainerSpec.readiness_probe:type_name -> chalk.container.v1.ReadinessProbe
+	32, // 6: chalk.modeldeployment.v1.ModelContainerSpec.startup_probe:type_name -> chalk.container.v1.StartupProbe
+	33, // 7: chalk.modeldeployment.v1.ModelContainerSpec.chalk_workload_identity:type_name -> chalk.container.v1.ChalkWorkloadIdentity
+	6,  // 8: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
+	34, // 9: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
+	2,  // 10: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.container_spec:type_name -> chalk.modeldeployment.v1.ModelContainerSpec
+	35, // 11: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
+	36, // 12: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 13: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	8,  // 14: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	34, // 15: chalk.modeldeployment.v1.ModelVersionSelector.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
+	5,  // 16: chalk.modeldeployment.v1.ModelScalingGroupSpec.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
+	2,  // 17: chalk.modeldeployment.v1.ModelScalingGroupSpec.container_spec:type_name -> chalk.modeldeployment.v1.ModelContainerSpec
+	35, // 18: chalk.modeldeployment.v1.ModelScalingGroupSpec.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
+	37, // 19: chalk.modeldeployment.v1.ModelScalingGroup.created_at:type_name -> google.protobuf.Timestamp
+	37, // 20: chalk.modeldeployment.v1.ModelScalingGroup.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 21: chalk.modeldeployment.v1.ModelScalingGroup.deleted_at:type_name -> google.protobuf.Timestamp
+	6,  // 22: chalk.modeldeployment.v1.ModelScalingGroupRevision.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
+	37, // 23: chalk.modeldeployment.v1.ModelScalingGroupRevision.created_at:type_name -> google.protobuf.Timestamp
+	10, // 24: chalk.modeldeployment.v1.ModelScalingGroupTraffic.targets:type_name -> chalk.modeldeployment.v1.ModelScalingGroupTrafficTarget
+	38, // 25: chalk.modeldeployment.v1.ModelScalingGroupTrafficTarget.latest_revision:type_name -> google.protobuf.Empty
+	6,  // 26: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
+	9,  // 27: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.traffic:type_name -> chalk.modeldeployment.v1.ModelScalingGroupTraffic
+	39, // 28: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	36, // 29: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 30: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	8,  // 31: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	36, // 32: chalk.modeldeployment.v1.GetModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 33: chalk.modeldeployment.v1.GetModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	8,  // 34: chalk.modeldeployment.v1.GetModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	5,  // 35: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
+	16, // 36: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.filters:type_name -> chalk.modeldeployment.v1.ListModelScalingGroupsFilters
+	0,  // 37: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.sort_column:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSortColumn
+	1,  // 38: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.sort_order:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSortOrder
+	36, // 39: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 40: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.model_scaling_groups:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	8,  // 41: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.current_revisions:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	36, // 42: chalk.modeldeployment.v1.DeleteModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 43: chalk.modeldeployment.v1.DeleteModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	40, // 44: chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse.revision:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	8,  // 45: chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse.model_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	40, // 46: chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse.revisions:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	8,  // 47: chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse.model_revisions:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	5,  // 48: chalk.modeldeployment.v1.CallModelRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
+	41, // 49: chalk.modeldeployment.v1.CallModelRequest.remote_call_request:type_name -> chalk.runtime.v1.CallFunctionRequest
+	42, // 50: chalk.modeldeployment.v1.CallModelRequest.enqueue_remote_call_request:type_name -> chalk.runtime.v1.EnqueueRemoteCallRequest
+	43, // 51: chalk.modeldeployment.v1.CallModelResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
+	44, // 52: chalk.modeldeployment.v1.CallModelResponse.enqueue_remote_call_response:type_name -> chalk.runtime.v1.EnqueueRemoteCallResponse
+	3,  // 53: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:input_type -> chalk.modeldeployment.v1.CreateModelScalingGroupRequest
+	11, // 54: chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup:input_type -> chalk.modeldeployment.v1.UpdateModelScalingGroupRequest
+	13, // 55: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup:input_type -> chalk.modeldeployment.v1.GetModelScalingGroupRequest
+	15, // 56: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupsRequest
+	18, // 57: chalk.modeldeployment.v1.ModelDeploymentService.DeleteModelScalingGroup:input_type -> chalk.modeldeployment.v1.DeleteModelScalingGroupRequest
+	20, // 58: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroupRevision:input_type -> chalk.modeldeployment.v1.GetModelScalingGroupRevisionRequest
+	22, // 59: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroupRevisions:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupRevisionsRequest
+	24, // 60: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:input_type -> chalk.modeldeployment.v1.CallModelRequest
+	4,  // 61: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:output_type -> chalk.modeldeployment.v1.CreateModelScalingGroupResponse
+	12, // 62: chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup:output_type -> chalk.modeldeployment.v1.UpdateModelScalingGroupResponse
+	14, // 63: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup:output_type -> chalk.modeldeployment.v1.GetModelScalingGroupResponse
+	17, // 64: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupsResponse
+	19, // 65: chalk.modeldeployment.v1.ModelDeploymentService.DeleteModelScalingGroup:output_type -> chalk.modeldeployment.v1.DeleteModelScalingGroupResponse
+	21, // 66: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroupRevision:output_type -> chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse
+	23, // 67: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroupRevisions:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse
+	25, // 68: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:output_type -> chalk.modeldeployment.v1.CallModelResponse
+	61, // [61:69] is the sub-list for method output_type
+	53, // [53:61] is the sub-list for method input_type
+	53, // [53:53] is the sub-list for extension type_name
+	53, // [53:53] is the sub-list for extension extendee
+	0,  // [0:53] is the sub-list for field type_name
 }
 
 func init() { file_chalk_modeldeployment_v1_service_proto_init() }
@@ -753,11 +2573,43 @@ func file_chalk_modeldeployment_v1_service_proto_init() {
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[4].OneofWrappers = []any{}
-	file_chalk_modeldeployment_v1_service_proto_msgTypes[6].OneofWrappers = []any{
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[8].OneofWrappers = []any{
+		(*ModelScalingGroupTrafficTarget_ModelScalingGroupRevisionId)(nil),
+		(*ModelScalingGroupTrafficTarget_LatestRevision)(nil),
+	}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[9].OneofWrappers = []any{
+		(*UpdateModelScalingGroupRequest_ModelScalingGroupId)(nil),
+		(*UpdateModelScalingGroupRequest_ModelScalingGroupName)(nil),
+	}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[11].OneofWrappers = []any{
+		(*GetModelScalingGroupRequest_ModelScalingGroupId)(nil),
+		(*GetModelScalingGroupRequest_ModelScalingGroupName)(nil),
+	}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[16].OneofWrappers = []any{
+		(*DeleteModelScalingGroupRequest_ModelScalingGroupId)(nil),
+		(*DeleteModelScalingGroupRequest_ModelScalingGroupName)(nil),
+	}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[18].OneofWrappers = []any{
+		(*GetModelScalingGroupRevisionRequest_ModelScalingGroupId)(nil),
+		(*GetModelScalingGroupRevisionRequest_ModelScalingGroupName)(nil),
+	}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[20].OneofWrappers = []any{
+		(*ListModelScalingGroupRevisionsRequest_ModelScalingGroupId)(nil),
+		(*ListModelScalingGroupRevisionsRequest_ModelScalingGroupName)(nil),
+	}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[21].OneofWrappers = []any{}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[22].OneofWrappers = []any{
+		(*CallModelRequest_ModelScalingGroupId)(nil),
+		(*CallModelRequest_ModelScalingGroupName)(nil),
 		(*CallModelRequest_RemoteCallRequest)(nil),
 		(*CallModelRequest_EnqueueRemoteCallRequest)(nil),
 	}
-	file_chalk_modeldeployment_v1_service_proto_msgTypes[7].OneofWrappers = []any{
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[23].OneofWrappers = []any{
 		(*CallModelResponse_RemoteCallResponse)(nil),
 		(*CallModelResponse_EnqueueRemoteCallResponse)(nil),
 	}
@@ -766,13 +2618,14 @@ func file_chalk_modeldeployment_v1_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_modeldeployment_v1_service_proto_rawDesc), len(file_chalk_modeldeployment_v1_service_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   10,
+			NumEnums:      2,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_modeldeployment_v1_service_proto_goTypes,
 		DependencyIndexes: file_chalk_modeldeployment_v1_service_proto_depIdxs,
+		EnumInfos:         file_chalk_modeldeployment_v1_service_proto_enumTypes,
 		MessageInfos:      file_chalk_modeldeployment_v1_service_proto_msgTypes,
 	}.Build()
 	File_chalk_modeldeployment_v1_service_proto = out.File

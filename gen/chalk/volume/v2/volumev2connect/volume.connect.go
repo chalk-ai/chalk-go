@@ -38,6 +38,9 @@ const (
 	VolumeServiceCreateVolumeProcedure = "/chalk.volume.v2.VolumeService/CreateVolume"
 	// VolumeServiceGetVolumeProcedure is the fully-qualified name of the VolumeService's GetVolume RPC.
 	VolumeServiceGetVolumeProcedure = "/chalk.volume.v2.VolumeService/GetVolume"
+	// VolumeServiceGetVolumeCredentialsProcedure is the fully-qualified name of the VolumeService's
+	// GetVolumeCredentials RPC.
+	VolumeServiceGetVolumeCredentialsProcedure = "/chalk.volume.v2.VolumeService/GetVolumeCredentials"
 	// VolumeServiceGetVolumeStatsProcedure is the fully-qualified name of the VolumeService's
 	// GetVolumeStats RPC.
 	VolumeServiceGetVolumeStatsProcedure = "/chalk.volume.v2.VolumeService/GetVolumeStats"
@@ -81,6 +84,7 @@ const (
 type VolumeServiceClient interface {
 	CreateVolume(context.Context, *connect.Request[v2.CreateVolumeRequest]) (*connect.Response[v2.CreateVolumeResponse], error)
 	GetVolume(context.Context, *connect.Request[v2.GetVolumeRequest]) (*connect.Response[v2.GetVolumeResponse], error)
+	GetVolumeCredentials(context.Context, *connect.Request[v2.GetVolumeCredentialsRequest]) (*connect.Response[v2.GetVolumeCredentialsResponse], error)
 	GetVolumeStats(context.Context, *connect.Request[v2.GetVolumeStatsRequest]) (*connect.Response[v2.GetVolumeStatsResponse], error)
 	ListVolumes(context.Context, *connect.Request[v2.ListVolumesRequest]) (*connect.Response[v2.ListVolumesResponse], error)
 	DeleteVolume(context.Context, *connect.Request[v2.DeleteVolumeRequest]) (*connect.Response[v2.DeleteVolumeResponse], error)
@@ -118,6 +122,13 @@ func NewVolumeServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			httpClient,
 			baseURL+VolumeServiceGetVolumeProcedure,
 			connect.WithSchema(volumeServiceMethods.ByName("GetVolume")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getVolumeCredentials: connect.NewClient[v2.GetVolumeCredentialsRequest, v2.GetVolumeCredentialsResponse](
+			httpClient,
+			baseURL+VolumeServiceGetVolumeCredentialsProcedure,
+			connect.WithSchema(volumeServiceMethods.ByName("GetVolumeCredentials")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -219,22 +230,23 @@ func NewVolumeServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // volumeServiceClient implements VolumeServiceClient.
 type volumeServiceClient struct {
-	createVolume       *connect.Client[v2.CreateVolumeRequest, v2.CreateVolumeResponse]
-	getVolume          *connect.Client[v2.GetVolumeRequest, v2.GetVolumeResponse]
-	getVolumeStats     *connect.Client[v2.GetVolumeStatsRequest, v2.GetVolumeStatsResponse]
-	listVolumes        *connect.Client[v2.ListVolumesRequest, v2.ListVolumesResponse]
-	deleteVolume       *connect.Client[v2.DeleteVolumeRequest, v2.DeleteVolumeResponse]
-	listVolumeVersions *connect.Client[v2.ListVolumeVersionsRequest, v2.ListVolumeVersionsResponse]
-	createRef          *connect.Client[v2.CreateRefRequest, v2.CreateRefResponse]
-	listRefs           *connect.Client[v2.ListRefsRequest, v2.ListRefsResponse]
-	deleteRef          *connect.Client[v2.DeleteRefRequest, v2.DeleteRefResponse]
-	commitVersion      *connect.Client[v2.CommitVersionRequest, v2.CommitVersionResponse]
-	getCommitStatus    *connect.Client[v2.GetCommitStatusRequest, v2.GetCommitStatusResponse]
-	allocateInodeRange *connect.Client[v2.AllocateInodeRangeRequest, v2.AllocateInodeRangeResponse]
-	requestUploadURLs  *connect.Client[v2.RequestUploadURLsRequest, v2.RequestUploadURLsResponse]
-	listFiles          *connect.Client[v2.ListFilesRequest, v2.ListFilesResponse]
-	listMountFiles     *connect.Client[v2.ListMountFilesRequest, v2.ListMountFilesResponse]
-	getFile            *connect.Client[v2.GetFileRequest, v2.GetFileResponse]
+	createVolume         *connect.Client[v2.CreateVolumeRequest, v2.CreateVolumeResponse]
+	getVolume            *connect.Client[v2.GetVolumeRequest, v2.GetVolumeResponse]
+	getVolumeCredentials *connect.Client[v2.GetVolumeCredentialsRequest, v2.GetVolumeCredentialsResponse]
+	getVolumeStats       *connect.Client[v2.GetVolumeStatsRequest, v2.GetVolumeStatsResponse]
+	listVolumes          *connect.Client[v2.ListVolumesRequest, v2.ListVolumesResponse]
+	deleteVolume         *connect.Client[v2.DeleteVolumeRequest, v2.DeleteVolumeResponse]
+	listVolumeVersions   *connect.Client[v2.ListVolumeVersionsRequest, v2.ListVolumeVersionsResponse]
+	createRef            *connect.Client[v2.CreateRefRequest, v2.CreateRefResponse]
+	listRefs             *connect.Client[v2.ListRefsRequest, v2.ListRefsResponse]
+	deleteRef            *connect.Client[v2.DeleteRefRequest, v2.DeleteRefResponse]
+	commitVersion        *connect.Client[v2.CommitVersionRequest, v2.CommitVersionResponse]
+	getCommitStatus      *connect.Client[v2.GetCommitStatusRequest, v2.GetCommitStatusResponse]
+	allocateInodeRange   *connect.Client[v2.AllocateInodeRangeRequest, v2.AllocateInodeRangeResponse]
+	requestUploadURLs    *connect.Client[v2.RequestUploadURLsRequest, v2.RequestUploadURLsResponse]
+	listFiles            *connect.Client[v2.ListFilesRequest, v2.ListFilesResponse]
+	listMountFiles       *connect.Client[v2.ListMountFilesRequest, v2.ListMountFilesResponse]
+	getFile              *connect.Client[v2.GetFileRequest, v2.GetFileResponse]
 }
 
 // CreateVolume calls chalk.volume.v2.VolumeService.CreateVolume.
@@ -245,6 +257,11 @@ func (c *volumeServiceClient) CreateVolume(ctx context.Context, req *connect.Req
 // GetVolume calls chalk.volume.v2.VolumeService.GetVolume.
 func (c *volumeServiceClient) GetVolume(ctx context.Context, req *connect.Request[v2.GetVolumeRequest]) (*connect.Response[v2.GetVolumeResponse], error) {
 	return c.getVolume.CallUnary(ctx, req)
+}
+
+// GetVolumeCredentials calls chalk.volume.v2.VolumeService.GetVolumeCredentials.
+func (c *volumeServiceClient) GetVolumeCredentials(ctx context.Context, req *connect.Request[v2.GetVolumeCredentialsRequest]) (*connect.Response[v2.GetVolumeCredentialsResponse], error) {
+	return c.getVolumeCredentials.CallUnary(ctx, req)
 }
 
 // GetVolumeStats calls chalk.volume.v2.VolumeService.GetVolumeStats.
@@ -321,6 +338,7 @@ func (c *volumeServiceClient) GetFile(ctx context.Context, req *connect.Request[
 type VolumeServiceHandler interface {
 	CreateVolume(context.Context, *connect.Request[v2.CreateVolumeRequest]) (*connect.Response[v2.CreateVolumeResponse], error)
 	GetVolume(context.Context, *connect.Request[v2.GetVolumeRequest]) (*connect.Response[v2.GetVolumeResponse], error)
+	GetVolumeCredentials(context.Context, *connect.Request[v2.GetVolumeCredentialsRequest]) (*connect.Response[v2.GetVolumeCredentialsResponse], error)
 	GetVolumeStats(context.Context, *connect.Request[v2.GetVolumeStatsRequest]) (*connect.Response[v2.GetVolumeStatsResponse], error)
 	ListVolumes(context.Context, *connect.Request[v2.ListVolumesRequest]) (*connect.Response[v2.ListVolumesResponse], error)
 	DeleteVolume(context.Context, *connect.Request[v2.DeleteVolumeRequest]) (*connect.Response[v2.DeleteVolumeResponse], error)
@@ -354,6 +372,13 @@ func NewVolumeServiceHandler(svc VolumeServiceHandler, opts ...connect.HandlerOp
 		VolumeServiceGetVolumeProcedure,
 		svc.GetVolume,
 		connect.WithSchema(volumeServiceMethods.ByName("GetVolume")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	volumeServiceGetVolumeCredentialsHandler := connect.NewUnaryHandler(
+		VolumeServiceGetVolumeCredentialsProcedure,
+		svc.GetVolumeCredentials,
+		connect.WithSchema(volumeServiceMethods.ByName("GetVolumeCredentials")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -456,6 +481,8 @@ func NewVolumeServiceHandler(svc VolumeServiceHandler, opts ...connect.HandlerOp
 			volumeServiceCreateVolumeHandler.ServeHTTP(w, r)
 		case VolumeServiceGetVolumeProcedure:
 			volumeServiceGetVolumeHandler.ServeHTTP(w, r)
+		case VolumeServiceGetVolumeCredentialsProcedure:
+			volumeServiceGetVolumeCredentialsHandler.ServeHTTP(w, r)
 		case VolumeServiceGetVolumeStatsProcedure:
 			volumeServiceGetVolumeStatsHandler.ServeHTTP(w, r)
 		case VolumeServiceListVolumesProcedure:
@@ -499,6 +526,10 @@ func (UnimplementedVolumeServiceHandler) CreateVolume(context.Context, *connect.
 
 func (UnimplementedVolumeServiceHandler) GetVolume(context.Context, *connect.Request[v2.GetVolumeRequest]) (*connect.Response[v2.GetVolumeResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.GetVolume is not implemented"))
+}
+
+func (UnimplementedVolumeServiceHandler) GetVolumeCredentials(context.Context, *connect.Request[v2.GetVolumeCredentialsRequest]) (*connect.Response[v2.GetVolumeCredentialsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v2.VolumeService.GetVolumeCredentials is not implemented"))
 }
 
 func (UnimplementedVolumeServiceHandler) GetVolumeStats(context.Context, *connect.Request[v2.GetVolumeStatsRequest]) (*connect.Response[v2.GetVolumeStatsResponse], error) {

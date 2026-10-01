@@ -144,6 +144,8 @@ const (
 	HealthCheckName_HEALTH_CHECK_NAME_DATAPLANE_API_SERVER                   HealthCheckName = 61 // "Dataplane API Server"
 	HealthCheckName_HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL                HealthCheckName = 62 // "Infrastructure Nodepool"
 	HealthCheckName_HEALTH_CHECK_NAME_ONLINE_NODEPOOL                        HealthCheckName = 63 // "Online Nodepool"
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION             HealthCheckName = 64 // "ClickHouse PVC Utilization"
+	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION       HealthCheckName = 65 // "VictoriaMetrics PVC Utilization"
 )
 
 // Enum value maps for HealthCheckName.
@@ -213,6 +215,8 @@ var (
 		61: "HEALTH_CHECK_NAME_DATAPLANE_API_SERVER",
 		62: "HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL",
 		63: "HEALTH_CHECK_NAME_ONLINE_NODEPOOL",
+		64: "HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION",
+		65: "HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION",
 	}
 	HealthCheckName_value = map[string]int32{
 		"HEALTH_CHECK_NAME_UNSPECIFIED":                            0,
@@ -279,6 +283,8 @@ var (
 		"HEALTH_CHECK_NAME_DATAPLANE_API_SERVER":                   61,
 		"HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL":                62,
 		"HEALTH_CHECK_NAME_ONLINE_NODEPOOL":                        63,
+		"HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION":             64,
+		"HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION":       65,
 	}
 )
 
@@ -747,7 +753,7 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\x1fHEALTH_CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16HEALTH_CHECK_STATUS_OK\x10\x01\x12\x1f\n" +
 	"\x1bHEALTH_CHECK_STATUS_FAILING\x10\x02\x12&\n" +
-	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\xfd\x13\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\xe7\x14\n" +
 	"\x0fHealthCheckName\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_HTTP_ENGINE\x10\x01\x12%\n" +
@@ -813,7 +819,9 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\"HEALTH_CHECK_NAME_CLICKHOUSE_USAGE\x10<\x12*\n" +
 	"&HEALTH_CHECK_NAME_DATAPLANE_API_SERVER\x10=\x12-\n" +
 	")HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL\x10>\x12%\n" +
-	"!HEALTH_CHECK_NAME_ONLINE_NODEPOOL\x10?2\xac\x04\n" +
+	"!HEALTH_CHECK_NAME_ONLINE_NODEPOOL\x10?\x120\n" +
+	",HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION\x10@\x126\n" +
+	"2HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION\x10A2\xac\x04\n" +
 	"\rHealthService\x12`\n" +
 	"\vCheckHealth\x12#.chalk.server.v1.CheckHealthRequest\x1a$.chalk.server.v1.CheckHealthResponse\"\x06\x80}\x01\x90\x02\x01\x12Z\n" +
 	"\tGetHealth\x12!.chalk.server.v1.GetHealthRequest\x1a\".chalk.server.v1.GetHealthResponse\"\x06\x80}\x02\x90\x02\x01\x12o\n" +

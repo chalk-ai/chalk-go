@@ -1460,7 +1460,7 @@ type ListScalingGroupsFilters struct {
 	//
 	// Deprecated: Marked as deprecated in chalk/scalinggroup/v1/service.proto.
 	Visibility []ScalingGroupVisibility `protobuf:"varint,2,rep,packed,name=visibility,proto3,enum=chalk.scalinggroup.v1.ScalingGroupVisibility" json:"visibility,omitempty"`
-	// Case-insensitive literal substring match over any container image.
+	// Case-sensitive exact match over any container image.
 	Images        []string `protobuf:"bytes,3,rep,name=images,proto3" json:"images,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
