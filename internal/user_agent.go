@@ -1,8 +1,11 @@
 package internal
 
 import (
+	"context"
 	"runtime/debug"
 	"sync"
+
+	"github.com/chalk-ai/chalk-go/agentsession"
 )
 
 const (
@@ -19,9 +22,11 @@ var (
 	cachedVersion string
 )
 
+// UserAgent is "chalk-go/<version>", plus the coding agent driving this process when one is
+// detected, e.g. "chalk-go/v1.3.13 (agent=codex)".
 func UserAgent() string {
 	userAgentOnce.Do(func() {
-		cachedUserAgent = userAgentPrefix + chalkVersion()
+		cachedUserAgent = agentsession.Detected(context.Background()).UserAgent(userAgentPrefix + chalkVersion())
 	})
 	return cachedUserAgent
 }
