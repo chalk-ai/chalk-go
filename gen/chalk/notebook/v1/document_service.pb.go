@@ -6755,7 +6755,7 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\x1cNOTEBOOK_RUNTIME_STATE_ERROR\x10\x04\x12\"\n" +
 	"\x1eNOTEBOOK_RUNTIME_STATE_STOPPED\x10\x052\xab1\n" +
 	"\x17NotebookDocumentService\x12\xaa\x01\n" +
-	"\x17CreateNotebookShareLink\x121.chalk.notebook.v1.CreateNotebookShareLinkRequest\x1a2.chalk.notebook.v1.CreateNotebookShareLinkResponse\"(\x80}\x0e\x8a\xd3\x0e!\b\x02\x12\x1dCreated a notebook share link\x12\x82\x01\n" +
+	"\x17CreateNotebookShareLink\x121.chalk.notebook.v1.CreateNotebookShareLinkRequest\x1a2.chalk.notebook.v1.CreateNotebookShareLinkResponse\"(\x80}\f\x8a\xd3\x0e!\b\x02\x12\x1dCreated a notebook share link\x12\x82\x01\n" +
 	"\x16ListNotebookShareLinks\x120.chalk.notebook.v1.ListNotebookShareLinksRequest\x1a1.chalk.notebook.v1.ListNotebookShareLinksResponse\"\x03\x80}\v\x12\xaa\x01\n" +
 	"\x17RevokeNotebookShareLink\x121.chalk.notebook.v1.RevokeNotebookShareLinkRequest\x1a2.chalk.notebook.v1.RevokeNotebookShareLinkResponse\"(\x80}\x0e\x8a\xd3\x0e!\b\x02\x12\x1dRevoked a notebook share link\x12\x88\x01\n" +
 	"\x18ResolveNotebookShareLink\x122.chalk.notebook.v1.ResolveNotebookShareLinkRequest\x1a3.chalk.notebook.v1.ResolveNotebookShareLinkResponse\"\x03\x80}%\x12\x7f\n" +

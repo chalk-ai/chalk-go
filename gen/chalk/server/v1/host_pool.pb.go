@@ -111,9 +111,11 @@ type HostPoolSpec struct {
 	ComputeClass *string `protobuf:"bytes,8,opt,name=compute_class,json=computeClass,proto3,oneof" json:"compute_class,omitempty"`
 	// GPU assigned to each host, in the canonical "type:count" form (for example, "nvidia-l4:1").
 	// Empty means a CPU-only host pool.
-	Gpu           string `protobuf:"bytes,9,opt,name=gpu,proto3" json:"gpu,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Gpu string `protobuf:"bytes,9,opt,name=gpu,proto3" json:"gpu,omitempty"`
+	// Overrides the cluster window; omit to inherit.
+	MaintenanceWindow *MaintenanceWindow `protobuf:"bytes,10,opt,name=maintenance_window,json=maintenanceWindow,proto3,oneof" json:"maintenance_window,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *HostPoolSpec) Reset() {
@@ -208,6 +210,13 @@ func (x *HostPoolSpec) GetGpu() string {
 		return x.Gpu
 	}
 	return ""
+}
+
+func (x *HostPoolSpec) GetMaintenanceWindow() *MaintenanceWindow {
+	if x != nil {
+		return x.MaintenanceWindow
+	}
+	return nil
 }
 
 type HostPool struct {
@@ -1603,7 +1612,7 @@ var File_chalk_server_v1_host_pool_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/server/v1/host_pool.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd5\x02\n" +
+	"\x1fchalk/server/v1/host_pool.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a&chalk/server/v1/cloud_components.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc4\x03\n" +
 	"\fHostPoolSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
 	"\tmin_hosts\x18\x02 \x01(\x05R\bminHosts\x12\x1b\n" +
@@ -1613,9 +1622,12 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\x06memory\x18\x06 \x01(\tR\x06memory\x12.\n" +
 	"\x0emachine_family\x18\a \x01(\tB\x02\x18\x01H\x00R\rmachineFamily\x88\x01\x01\x12(\n" +
 	"\rcompute_class\x18\b \x01(\tH\x01R\fcomputeClass\x88\x01\x01\x12\x10\n" +
-	"\x03gpu\x18\t \x01(\tR\x03gpuB\x11\n" +
+	"\x03gpu\x18\t \x01(\tR\x03gpu\x12V\n" +
+	"\x12maintenance_window\x18\n" +
+	" \x01(\v2\".chalk.server.v1.MaintenanceWindowH\x02R\x11maintenanceWindow\x88\x01\x01B\x11\n" +
 	"\x0f_machine_familyB\x10\n" +
-	"\x0e_compute_class\"\xf5\x02\n" +
+	"\x0e_compute_classB\x15\n" +
+	"\x13_maintenance_window\"\xf5\x02\n" +
 	"\bHostPool\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12*\n" +
@@ -1787,65 +1799,67 @@ var file_chalk_server_v1_host_pool_proto_goTypes = []any{
 	(*GetHostPoolCapacityRequest)(nil),        // 22: chalk.server.v1.GetHostPoolCapacityRequest
 	(*GetHostPoolCapacityResponse)(nil),       // 23: chalk.server.v1.GetHostPoolCapacityResponse
 	(*durationpb.Duration)(nil),               // 24: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),             // 25: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),             // 26: google.protobuf.FieldMask
+	(*MaintenanceWindow)(nil),                 // 25: chalk.server.v1.MaintenanceWindow
+	(*timestamppb.Timestamp)(nil),             // 26: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),             // 27: google.protobuf.FieldMask
 }
 var file_chalk_server_v1_host_pool_proto_depIdxs = []int32{
 	24, // 0: chalk.server.v1.HostPoolSpec.idle_timeout:type_name -> google.protobuf.Duration
-	1,  // 1: chalk.server.v1.HostPool.spec:type_name -> chalk.server.v1.HostPoolSpec
-	25, // 2: chalk.server.v1.HostPool.created_at:type_name -> google.protobuf.Timestamp
-	25, // 3: chalk.server.v1.HostPool.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 4: chalk.server.v1.CreateEnvironmentHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
-	2,  // 5: chalk.server.v1.CreateEnvironmentHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
-	1,  // 6: chalk.server.v1.UpdateEnvironmentHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
-	26, // 7: chalk.server.v1.UpdateEnvironmentHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 8: chalk.server.v1.UpdateEnvironmentHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
-	1,  // 9: chalk.server.v1.CreateClusterHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
-	2,  // 10: chalk.server.v1.CreateClusterHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
-	1,  // 11: chalk.server.v1.UpdateClusterHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
-	26, // 12: chalk.server.v1.UpdateClusterHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 13: chalk.server.v1.UpdateClusterHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
-	2,  // 14: chalk.server.v1.GetHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
-	2,  // 15: chalk.server.v1.ListHostPoolsResponse.host_pools:type_name -> chalk.server.v1.HostPool
-	19, // 16: chalk.server.v1.HostCapacity.capacity:type_name -> chalk.server.v1.HostPoolResources
-	19, // 17: chalk.server.v1.HostCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
-	19, // 18: chalk.server.v1.HostCapacity.available:type_name -> chalk.server.v1.HostPoolResources
-	24, // 19: chalk.server.v1.HostPoolCapacity.idle_timeout:type_name -> google.protobuf.Duration
-	0,  // 20: chalk.server.v1.HostPoolCapacity.phase:type_name -> chalk.server.v1.HostPoolPhase
-	25, // 21: chalk.server.v1.HostPoolCapacity.idle_since:type_name -> google.protobuf.Timestamp
-	19, // 22: chalk.server.v1.HostPoolCapacity.ready:type_name -> chalk.server.v1.HostPoolResources
-	19, // 23: chalk.server.v1.HostPoolCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
-	19, // 24: chalk.server.v1.HostPoolCapacity.available:type_name -> chalk.server.v1.HostPoolResources
-	19, // 25: chalk.server.v1.HostPoolCapacity.at_max_scale:type_name -> chalk.server.v1.HostPoolResources
-	19, // 26: chalk.server.v1.HostPoolCapacity.largest_placeable:type_name -> chalk.server.v1.HostPoolResources
-	19, // 27: chalk.server.v1.HostPoolCapacity.largest_placeable_at_max_scale:type_name -> chalk.server.v1.HostPoolResources
-	20, // 28: chalk.server.v1.HostPoolCapacity.hosts:type_name -> chalk.server.v1.HostCapacity
-	21, // 29: chalk.server.v1.GetHostPoolCapacityResponse.host_pools:type_name -> chalk.server.v1.HostPoolCapacity
-	19, // 30: chalk.server.v1.GetHostPoolCapacityResponse.largest_pending_request:type_name -> chalk.server.v1.HostPoolResources
-	25, // 31: chalk.server.v1.GetHostPoolCapacityResponse.observed_at:type_name -> google.protobuf.Timestamp
-	3,  // 32: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:input_type -> chalk.server.v1.CreateEnvironmentHostPoolRequest
-	5,  // 33: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:input_type -> chalk.server.v1.UpdateEnvironmentHostPoolRequest
-	7,  // 34: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:input_type -> chalk.server.v1.DeleteEnvironmentHostPoolRequest
-	9,  // 35: chalk.server.v1.HostPoolService.CreateClusterHostPool:input_type -> chalk.server.v1.CreateClusterHostPoolRequest
-	11, // 36: chalk.server.v1.HostPoolService.UpdateClusterHostPool:input_type -> chalk.server.v1.UpdateClusterHostPoolRequest
-	13, // 37: chalk.server.v1.HostPoolService.DeleteClusterHostPool:input_type -> chalk.server.v1.DeleteClusterHostPoolRequest
-	15, // 38: chalk.server.v1.HostPoolService.GetHostPool:input_type -> chalk.server.v1.GetHostPoolRequest
-	17, // 39: chalk.server.v1.HostPoolService.ListHostPools:input_type -> chalk.server.v1.ListHostPoolsRequest
-	22, // 40: chalk.server.v1.HostPoolService.GetHostPoolCapacity:input_type -> chalk.server.v1.GetHostPoolCapacityRequest
-	4,  // 41: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:output_type -> chalk.server.v1.CreateEnvironmentHostPoolResponse
-	6,  // 42: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:output_type -> chalk.server.v1.UpdateEnvironmentHostPoolResponse
-	8,  // 43: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:output_type -> chalk.server.v1.DeleteEnvironmentHostPoolResponse
-	10, // 44: chalk.server.v1.HostPoolService.CreateClusterHostPool:output_type -> chalk.server.v1.CreateClusterHostPoolResponse
-	12, // 45: chalk.server.v1.HostPoolService.UpdateClusterHostPool:output_type -> chalk.server.v1.UpdateClusterHostPoolResponse
-	14, // 46: chalk.server.v1.HostPoolService.DeleteClusterHostPool:output_type -> chalk.server.v1.DeleteClusterHostPoolResponse
-	16, // 47: chalk.server.v1.HostPoolService.GetHostPool:output_type -> chalk.server.v1.GetHostPoolResponse
-	18, // 48: chalk.server.v1.HostPoolService.ListHostPools:output_type -> chalk.server.v1.ListHostPoolsResponse
-	23, // 49: chalk.server.v1.HostPoolService.GetHostPoolCapacity:output_type -> chalk.server.v1.GetHostPoolCapacityResponse
-	41, // [41:50] is the sub-list for method output_type
-	32, // [32:41] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	25, // 1: chalk.server.v1.HostPoolSpec.maintenance_window:type_name -> chalk.server.v1.MaintenanceWindow
+	1,  // 2: chalk.server.v1.HostPool.spec:type_name -> chalk.server.v1.HostPoolSpec
+	26, // 3: chalk.server.v1.HostPool.created_at:type_name -> google.protobuf.Timestamp
+	26, // 4: chalk.server.v1.HostPool.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 5: chalk.server.v1.CreateEnvironmentHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
+	2,  // 6: chalk.server.v1.CreateEnvironmentHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
+	1,  // 7: chalk.server.v1.UpdateEnvironmentHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
+	27, // 8: chalk.server.v1.UpdateEnvironmentHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 9: chalk.server.v1.UpdateEnvironmentHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
+	1,  // 10: chalk.server.v1.CreateClusterHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
+	2,  // 11: chalk.server.v1.CreateClusterHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
+	1,  // 12: chalk.server.v1.UpdateClusterHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
+	27, // 13: chalk.server.v1.UpdateClusterHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 14: chalk.server.v1.UpdateClusterHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
+	2,  // 15: chalk.server.v1.GetHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
+	2,  // 16: chalk.server.v1.ListHostPoolsResponse.host_pools:type_name -> chalk.server.v1.HostPool
+	19, // 17: chalk.server.v1.HostCapacity.capacity:type_name -> chalk.server.v1.HostPoolResources
+	19, // 18: chalk.server.v1.HostCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
+	19, // 19: chalk.server.v1.HostCapacity.available:type_name -> chalk.server.v1.HostPoolResources
+	24, // 20: chalk.server.v1.HostPoolCapacity.idle_timeout:type_name -> google.protobuf.Duration
+	0,  // 21: chalk.server.v1.HostPoolCapacity.phase:type_name -> chalk.server.v1.HostPoolPhase
+	26, // 22: chalk.server.v1.HostPoolCapacity.idle_since:type_name -> google.protobuf.Timestamp
+	19, // 23: chalk.server.v1.HostPoolCapacity.ready:type_name -> chalk.server.v1.HostPoolResources
+	19, // 24: chalk.server.v1.HostPoolCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
+	19, // 25: chalk.server.v1.HostPoolCapacity.available:type_name -> chalk.server.v1.HostPoolResources
+	19, // 26: chalk.server.v1.HostPoolCapacity.at_max_scale:type_name -> chalk.server.v1.HostPoolResources
+	19, // 27: chalk.server.v1.HostPoolCapacity.largest_placeable:type_name -> chalk.server.v1.HostPoolResources
+	19, // 28: chalk.server.v1.HostPoolCapacity.largest_placeable_at_max_scale:type_name -> chalk.server.v1.HostPoolResources
+	20, // 29: chalk.server.v1.HostPoolCapacity.hosts:type_name -> chalk.server.v1.HostCapacity
+	21, // 30: chalk.server.v1.GetHostPoolCapacityResponse.host_pools:type_name -> chalk.server.v1.HostPoolCapacity
+	19, // 31: chalk.server.v1.GetHostPoolCapacityResponse.largest_pending_request:type_name -> chalk.server.v1.HostPoolResources
+	26, // 32: chalk.server.v1.GetHostPoolCapacityResponse.observed_at:type_name -> google.protobuf.Timestamp
+	3,  // 33: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:input_type -> chalk.server.v1.CreateEnvironmentHostPoolRequest
+	5,  // 34: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:input_type -> chalk.server.v1.UpdateEnvironmentHostPoolRequest
+	7,  // 35: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:input_type -> chalk.server.v1.DeleteEnvironmentHostPoolRequest
+	9,  // 36: chalk.server.v1.HostPoolService.CreateClusterHostPool:input_type -> chalk.server.v1.CreateClusterHostPoolRequest
+	11, // 37: chalk.server.v1.HostPoolService.UpdateClusterHostPool:input_type -> chalk.server.v1.UpdateClusterHostPoolRequest
+	13, // 38: chalk.server.v1.HostPoolService.DeleteClusterHostPool:input_type -> chalk.server.v1.DeleteClusterHostPoolRequest
+	15, // 39: chalk.server.v1.HostPoolService.GetHostPool:input_type -> chalk.server.v1.GetHostPoolRequest
+	17, // 40: chalk.server.v1.HostPoolService.ListHostPools:input_type -> chalk.server.v1.ListHostPoolsRequest
+	22, // 41: chalk.server.v1.HostPoolService.GetHostPoolCapacity:input_type -> chalk.server.v1.GetHostPoolCapacityRequest
+	4,  // 42: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:output_type -> chalk.server.v1.CreateEnvironmentHostPoolResponse
+	6,  // 43: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:output_type -> chalk.server.v1.UpdateEnvironmentHostPoolResponse
+	8,  // 44: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:output_type -> chalk.server.v1.DeleteEnvironmentHostPoolResponse
+	10, // 45: chalk.server.v1.HostPoolService.CreateClusterHostPool:output_type -> chalk.server.v1.CreateClusterHostPoolResponse
+	12, // 46: chalk.server.v1.HostPoolService.UpdateClusterHostPool:output_type -> chalk.server.v1.UpdateClusterHostPoolResponse
+	14, // 47: chalk.server.v1.HostPoolService.DeleteClusterHostPool:output_type -> chalk.server.v1.DeleteClusterHostPoolResponse
+	16, // 48: chalk.server.v1.HostPoolService.GetHostPool:output_type -> chalk.server.v1.GetHostPoolResponse
+	18, // 49: chalk.server.v1.HostPoolService.ListHostPools:output_type -> chalk.server.v1.ListHostPoolsResponse
+	23, // 50: chalk.server.v1.HostPoolService.GetHostPoolCapacity:output_type -> chalk.server.v1.GetHostPoolCapacityResponse
+	42, // [42:51] is the sub-list for method output_type
+	33, // [33:42] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_host_pool_proto_init() }
@@ -1853,6 +1867,7 @@ func file_chalk_server_v1_host_pool_proto_init() {
 	if File_chalk_server_v1_host_pool_proto != nil {
 		return
 	}
+	file_chalk_server_v1_cloud_components_proto_init()
 	file_chalk_server_v1_host_pool_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_host_pool_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_host_pool_proto_msgTypes[16].OneofWrappers = []any{

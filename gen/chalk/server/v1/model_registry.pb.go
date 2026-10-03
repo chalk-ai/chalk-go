@@ -1254,9 +1254,11 @@ type ListModelVersionsFilters struct {
 	// Match versions carrying any of these aliases.
 	Aliases []string `protobuf:"bytes,1,rep,name=aliases,proto3" json:"aliases,omitempty"`
 	// Match versions created by any of these user or service-token ids.
-	AuthorIds     []string `protobuf:"bytes,2,rep,name=author_ids,json=authorIds,proto3" json:"author_ids,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	AuthorIds []string `protobuf:"bytes,2,rep,name=author_ids,json=authorIds,proto3" json:"author_ids,omitempty"`
+	// Match versions associated with any of these model artifacts.
+	ModelArtifactIds []string `protobuf:"bytes,3,rep,name=model_artifact_ids,json=modelArtifactIds,proto3" json:"model_artifact_ids,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ListModelVersionsFilters) Reset() {
@@ -1299,6 +1301,13 @@ func (x *ListModelVersionsFilters) GetAliases() []string {
 func (x *ListModelVersionsFilters) GetAuthorIds() []string {
 	if x != nil {
 		return x.AuthorIds
+	}
+	return nil
+}
+
+func (x *ListModelVersionsFilters) GetModelArtifactIds() []string {
+	if x != nil {
+		return x.ModelArtifactIds
 	}
 	return nil
 }
@@ -3395,11 +3404,12 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"model_name\x18\x02 \x01(\tH\x00R\tmodelNameB\x12\n" +
 	"\x10model_identifier\"C\n" +
 	"\x13DeleteModelResponse\x12,\n" +
-	"\x05model\x18\x01 \x01(\v2\x16.chalk.server.v1.ModelR\x05model\"S\n" +
+	"\x05model\x18\x01 \x01(\v2\x16.chalk.server.v1.ModelR\x05model\"\x81\x01\n" +
 	"\x18ListModelVersionsFilters\x12\x18\n" +
 	"\aaliases\x18\x01 \x03(\tR\aaliases\x12\x1d\n" +
 	"\n" +
-	"author_ids\x18\x02 \x03(\tR\tauthorIds\"\xb2\x02\n" +
+	"author_ids\x18\x02 \x03(\tR\tauthorIds\x12,\n" +
+	"\x12model_artifact_ids\x18\x03 \x03(\tR\x10modelArtifactIds\"\xb2\x02\n" +
 	"\x18ListModelVersionsRequest\x12\"\n" +
 	"\n" +
 	"model_name\x18\x01 \x01(\tH\x00R\tmodelName\x88\x01\x01\x12\x1b\n" +

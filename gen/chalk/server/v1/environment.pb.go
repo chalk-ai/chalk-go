@@ -186,6 +186,12 @@ const (
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_PROFILING    DeploymentBuildProfile = 18
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_NO_PROFILING DeploymentBuildProfile = 19
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_PROFILING    DeploymentBuildProfile = 20
+	// MODERN builds like O3_BAZEL_DEBIAN_NO_PROFILING and also deploys in the "modern"
+	// deployment mode: the unconstrained customer venv isolated from the subprocess
+	// invoker venv, and HTTP served by chalk-http-engine-proxy inside the engine-grpc
+	// pod with the standalone engine scaled to zero. As an environment's default build
+	// profile, it makes every ordinary deploy of that environment modern.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_MODERN DeploymentBuildProfile = 21
 )
 
 // Enum value maps for DeploymentBuildProfile.
@@ -212,6 +218,7 @@ var (
 		18: "DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_PROFILING",
 		19: "DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_NO_PROFILING",
 		20: "DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_PROFILING",
+		21: "DEPLOYMENT_BUILD_PROFILE_MODERN",
 	}
 	DeploymentBuildProfile_value = map[string]int32{
 		"DEPLOYMENT_BUILD_PROFILE_UNSPECIFIED":                  0,
@@ -235,6 +242,7 @@ var (
 		"DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_PROFILING":    18,
 		"DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_NO_PROFILING": 19,
 		"DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_PROFILING":    20,
+		"DEPLOYMENT_BUILD_PROFILE_MODERN":                       21,
 	}
 )
 
@@ -1960,7 +1968,7 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x15VECTOR_DB_KIND_MILVUS\x10\x03\x12\x19\n" +
 	"\x15VECTOR_DB_KIND_VALKEY\x10\x04\x12\x1e\n" +
 	"\x1aVECTOR_DB_KIND_TURBOPUFFER\x10\x05\x12\x1d\n" +
-	"\x19VECTOR_DB_KIND_S3_VECTORS\x10\x06*\xc8\b\n" +
+	"\x19VECTOR_DB_KIND_S3_VECTORS\x10\x06*\xed\b\n" +
 	"\x16DeploymentBuildProfile\x12(\n" +
 	"$DEPLOYMENT_BUILD_PROFILE_UNSPECIFIED\x10\x00\x12,\n" +
 	"(DEPLOYMENT_BUILD_PROFILE_O3_NO_PROFILING\x10\x01\x12)\n" +
@@ -1983,7 +1991,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"5DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_NO_PROFILING\x10\x11\x126\n" +
 	"2DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_PROFILING\x10\x12\x129\n" +
 	"5DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_NO_PROFILING\x10\x13\x126\n" +
-	"2DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_PROFILING\x10\x14*\xc2\x01\n" +
+	"2DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_PROFILING\x10\x14\x12#\n" +
+	"\x1fDEPLOYMENT_BUILD_PROFILE_MODERN\x10\x15*\xc2\x01\n" +
 	"\x16DiscoveredBucketSource\x12(\n" +
 	"$DISCOVERED_BUCKET_SOURCE_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fDISCOVERED_BUCKET_SOURCE_ENGINE\x10\x01\x12+\n" +

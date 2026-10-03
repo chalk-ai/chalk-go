@@ -56,6 +56,9 @@ const (
 	// SandboxResourceServiceListSandboxResourcesProcedure is the fully-qualified name of the
 	// SandboxResourceService's ListSandboxResources RPC.
 	SandboxResourceServiceListSandboxResourcesProcedure = "/chalk.sandbox.v2.SandboxResourceService/ListSandboxResources"
+	// SandboxResourceServiceRecordSandboxResourceProcedure is the fully-qualified name of the
+	// SandboxResourceService's RecordSandboxResource RPC.
+	SandboxResourceServiceRecordSandboxResourceProcedure = "/chalk.sandbox.v2.SandboxResourceService/RecordSandboxResource"
 )
 
 // SandboxServiceClient is a client for the chalk.sandbox.v2.SandboxService service.
@@ -261,6 +264,7 @@ func (UnimplementedSandboxServiceHandler) TerminateSandbox(context.Context, *con
 // SandboxResourceServiceClient is a client for the chalk.sandbox.v2.SandboxResourceService service.
 type SandboxResourceServiceClient interface {
 	ListSandboxResources(context.Context, *connect.Request[v2.ListSandboxResourcesRequest]) (*connect.Response[v2.ListSandboxResourcesResponse], error)
+	RecordSandboxResource(context.Context, *connect.Request[v2.RecordSandboxResourceRequest]) (*connect.Response[v2.RecordSandboxResourceResponse], error)
 }
 
 // NewSandboxResourceServiceClient constructs a client for the
@@ -280,12 +284,19 @@ func NewSandboxResourceServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(sandboxResourceServiceMethods.ByName("ListSandboxResources")),
 			connect.WithClientOptions(opts...),
 		),
+		recordSandboxResource: connect.NewClient[v2.RecordSandboxResourceRequest, v2.RecordSandboxResourceResponse](
+			httpClient,
+			baseURL+SandboxResourceServiceRecordSandboxResourceProcedure,
+			connect.WithSchema(sandboxResourceServiceMethods.ByName("RecordSandboxResource")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // sandboxResourceServiceClient implements SandboxResourceServiceClient.
 type sandboxResourceServiceClient struct {
-	listSandboxResources *connect.Client[v2.ListSandboxResourcesRequest, v2.ListSandboxResourcesResponse]
+	listSandboxResources  *connect.Client[v2.ListSandboxResourcesRequest, v2.ListSandboxResourcesResponse]
+	recordSandboxResource *connect.Client[v2.RecordSandboxResourceRequest, v2.RecordSandboxResourceResponse]
 }
 
 // ListSandboxResources calls chalk.sandbox.v2.SandboxResourceService.ListSandboxResources.
@@ -293,10 +304,16 @@ func (c *sandboxResourceServiceClient) ListSandboxResources(ctx context.Context,
 	return c.listSandboxResources.CallUnary(ctx, req)
 }
 
+// RecordSandboxResource calls chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource.
+func (c *sandboxResourceServiceClient) RecordSandboxResource(ctx context.Context, req *connect.Request[v2.RecordSandboxResourceRequest]) (*connect.Response[v2.RecordSandboxResourceResponse], error) {
+	return c.recordSandboxResource.CallUnary(ctx, req)
+}
+
 // SandboxResourceServiceHandler is an implementation of the chalk.sandbox.v2.SandboxResourceService
 // service.
 type SandboxResourceServiceHandler interface {
 	ListSandboxResources(context.Context, *connect.Request[v2.ListSandboxResourcesRequest]) (*connect.Response[v2.ListSandboxResourcesResponse], error)
+	RecordSandboxResource(context.Context, *connect.Request[v2.RecordSandboxResourceRequest]) (*connect.Response[v2.RecordSandboxResourceResponse], error)
 }
 
 // NewSandboxResourceServiceHandler builds an HTTP handler from the service implementation. It
@@ -312,10 +329,18 @@ func NewSandboxResourceServiceHandler(svc SandboxResourceServiceHandler, opts ..
 		connect.WithSchema(sandboxResourceServiceMethods.ByName("ListSandboxResources")),
 		connect.WithHandlerOptions(opts...),
 	)
+	sandboxResourceServiceRecordSandboxResourceHandler := connect.NewUnaryHandler(
+		SandboxResourceServiceRecordSandboxResourceProcedure,
+		svc.RecordSandboxResource,
+		connect.WithSchema(sandboxResourceServiceMethods.ByName("RecordSandboxResource")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.sandbox.v2.SandboxResourceService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SandboxResourceServiceListSandboxResourcesProcedure:
 			sandboxResourceServiceListSandboxResourcesHandler.ServeHTTP(w, r)
+		case SandboxResourceServiceRecordSandboxResourceProcedure:
+			sandboxResourceServiceRecordSandboxResourceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -327,4 +352,8 @@ type UnimplementedSandboxResourceServiceHandler struct{}
 
 func (UnimplementedSandboxResourceServiceHandler) ListSandboxResources(context.Context, *connect.Request[v2.ListSandboxResourcesRequest]) (*connect.Response[v2.ListSandboxResourcesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxResourceService.ListSandboxResources is not implemented"))
+}
+
+func (UnimplementedSandboxResourceServiceHandler) RecordSandboxResource(context.Context, *connect.Request[v2.RecordSandboxResourceRequest]) (*connect.Response[v2.RecordSandboxResourceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource is not implemented"))
 }

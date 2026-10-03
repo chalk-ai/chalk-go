@@ -442,8 +442,8 @@ func (x *BigQueryOfflineStorageDetails) GetLocation() string {
 
 type GetMetricsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Total bytes of the per-feature observation (feat_*) tables for features present in a
-	// materialized feature view.
+	// Total bytes of the per-feature observation (feat_*) tables of every offline-store feature.
+	// Engines that predate non_mfv_backed_skinny_tables_bytes report only the materialized share.
 	SkinnyTablesBytes *uint64 `protobuf:"varint,1,opt,name=skinny_tables_bytes,json=skinnyTablesBytes,proto3,oneof" json:"skinny_tables_bytes,omitempty"`
 	// All active wide per-namespace feature-view tables, combined.
 	WideTablesBytes *uint64 `protobuf:"varint,2,opt,name=wide_tables_bytes,json=wideTablesBytes,proto3,oneof" json:"wide_tables_bytes,omitempty"`
@@ -467,8 +467,7 @@ type GetMetricsResponse struct {
 	// Active physical configuration identity per namespace. This is metadata for correlating run
 	// history with the current tables; callers should not display the fingerprint itself.
 	NamespaceWideTableConfigFingerprints []*NamespaceWideTableConfigFingerprint `protobuf:"bytes,9,rep,name=namespace_wide_table_config_fingerprints,json=namespaceWideTableConfigFingerprints,proto3" json:"namespace_wide_table_config_fingerprints,omitempty"`
-	// Total bytes of the per-feature observation (feat_*) tables for features not present in a
-	// materialized feature view.
+	// The subset of skinny_tables_bytes for features not present in a materialized feature view.
 	NonMfvBackedSkinnyTablesBytes *uint64 `protobuf:"varint,10,opt,name=non_mfv_backed_skinny_tables_bytes,json=nonMfvBackedSkinnyTablesBytes,proto3,oneof" json:"non_mfv_backed_skinny_tables_bytes,omitempty"`
 	// Bytes of the query_log table. Could include other environments' rows, since every environment
 	// on this dataset/schema writes to it.

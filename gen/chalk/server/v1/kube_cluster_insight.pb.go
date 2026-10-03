@@ -1392,7 +1392,7 @@ const file_chalk_server_v1_kube_cluster_insight_proto_rawDesc = "" +
 	"#KUBE_CLUSTER_METRICS_TIME_RANGE_30D\x10\x042\x93\x04\n" +
 	"\x19KubeClusterInsightService\x12o\n" +
 	"\x10ListKubeClusters\x12(.chalk.server.v1.ListKubeClustersRequest\x1a).chalk.server.v1.ListKubeClustersResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
-	"\x0eGetKubeCluster\x12&.chalk.server.v1.GetKubeClusterRequest\x1a'.chalk.server.v1.GetKubeClusterResponse\"\x06\x80}\x02\x90\x02\x01\x12\x99\x01\n" +
+	"\x0eGetKubeCluster\x12&.chalk.server.v1.GetKubeClusterRequest\x1a'.chalk.server.v1.GetKubeClusterResponse\"\x06\x88}\v\x90\x02\x01\x12\x99\x01\n" +
 	"\x11UpdateKubeCluster\x12).chalk.server.v1.UpdateKubeClusterRequest\x1a*.chalk.server.v1.UpdateKubeClusterResponse\"-\x88}\x1a\x8a\xd3\x0e&\b\x02\x12\"Updated kube cluster configuration\x12~\n" +
 	"\x15GetKubeClusterMetrics\x12-.chalk.server.v1.GetKubeClusterMetricsRequest\x1a..chalk.server.v1.GetKubeClusterMetricsResponse\"\x06\x80}\x02\x90\x02\x01B\xc7\x01\n" +
 	"\x13com.chalk.server.v1B\x17KubeClusterInsightProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"

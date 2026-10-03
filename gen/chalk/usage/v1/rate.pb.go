@@ -181,6 +181,8 @@ type CloudInstanceType struct {
 	// Set only for GCP instance types that back Chalk machine type mappings; empty
 	// means "inherit the cluster's node auto-provisioning default disk type".
 	GkeBootDiskType string `protobuf:"bytes,9,opt,name=gke_boot_disk_type,json=gkeBootDiskType,proto3" json:"gke_boot_disk_type,omitempty"`
+	// Whether this instance type belongs to an older generation that can have reduced performance.
+	OlderGeneration bool `protobuf:"varint,10,opt,name=older_generation,json=olderGeneration,proto3" json:"older_generation,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -278,6 +280,13 @@ func (x *CloudInstanceType) GetGkeBootDiskType() string {
 	return ""
 }
 
+func (x *CloudInstanceType) GetOlderGeneration() bool {
+	if x != nil {
+		return x.OlderGeneration
+	}
+	return false
+}
+
 var File_chalk_usage_v1_rate_proto protoreflect.FileDescriptor
 
 const file_chalk_usage_v1_rate_proto_rawDesc = "" +
@@ -291,7 +300,7 @@ const file_chalk_usage_v1_rate_proto_rawDesc = "" +
 	"\x05cloud\x18\x05 \x01(\x0e2\x1c.chalk.usage.v1.BillingCloudR\x05cloud\x12%\n" +
 	"\x0emachine_family\x18\x06 \x01(\tR\rmachineFamily\x12\x17\n" +
 	"\x04gpus\x18\a \x01(\x01H\x00R\x04gpus\x88\x01\x01B\a\n" +
-	"\x05_gpus\"\xe4\x02\n" +
+	"\x05_gpus\"\x8f\x03\n" +
 	"\x11CloudInstanceType\x12!\n" +
 	"\fmachine_type\x18\x01 \x01(\tR\vmachineType\x12\x12\n" +
 	"\x04cpus\x18\x02 \x01(\x01R\x04cpus\x12\x1b\n" +
@@ -301,7 +310,9 @@ const file_chalk_usage_v1_rate_proto_rawDesc = "" +
 	"\x04gpus\x18\x06 \x01(\x01H\x00R\x04gpus\x88\x01\x01\x12&\n" +
 	"\x0flocal_ssd_count\x18\a \x01(\x05R\rlocalSsdCount\x12)\n" +
 	"\x11local_ssd_size_gb\x18\b \x01(\x05R\x0elocalSsdSizeGb\x12+\n" +
-	"\x12gke_boot_disk_type\x18\t \x01(\tR\x0fgkeBootDiskTypeB\a\n" +
+	"\x12gke_boot_disk_type\x18\t \x01(\tR\x0fgkeBootDiskType\x12)\n" +
+	"\x10older_generation\x18\n" +
+	" \x01(\bR\x0folderGenerationB\a\n" +
 	"\x05_gpus*t\n" +
 	"\fBillingCloud\x12\x1d\n" +
 	"\x19BILLING_CLOUD_UNSPECIFIED\x10\x00\x12\x15\n" +

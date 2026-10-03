@@ -1418,8 +1418,15 @@ type RescoreEvaluationRunRequest struct {
 	// supplies the `output` every scorer reads, so the task is not re-run.
 	EvaluationRunId string           `protobuf:"bytes,1,opt,name=evaluation_run_id,json=evaluationRunId,proto3" json:"evaluation_run_id,omitempty"`
 	Metadata        *structpb.Struct `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// The evaluation to record the new run under, and whose scorers score it.
+	// Defaults to the rescored run's own evaluation. Naming another one is how a
+	// run is scored with scorers it was not created with: create an evaluation
+	// with the new scorers and rescore the run into it. That evaluation must use
+	// the rescored run's dataset revision and task function version, since the
+	// outputs it is credited with are that task's on those rows.
+	EvaluationId  *string `protobuf:"bytes,3,opt,name=evaluation_id,json=evaluationId,proto3,oneof" json:"evaluation_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RescoreEvaluationRunRequest) Reset() {
@@ -1464,6 +1471,13 @@ func (x *RescoreEvaluationRunRequest) GetMetadata() *structpb.Struct {
 		return x.Metadata
 	}
 	return nil
+}
+
+func (x *RescoreEvaluationRunRequest) GetEvaluationId() string {
+	if x != nil && x.EvaluationId != nil {
+		return *x.EvaluationId
+	}
+	return ""
 }
 
 type RescoreEvaluationRunResponse struct {
@@ -2305,10 +2319,12 @@ const file_chalk_evaluation_v1_service_proto_rawDesc = "" +
 	"\revaluation_id\x18\x01 \x01(\tR\fevaluationId\x123\n" +
 	"\bmetadata\x18\x02 \x01(\v2\x17.google.protobuf.StructR\bmetadata\"h\n" +
 	"\x1bCreateEvaluationRunResponse\x12I\n" +
-	"\x0eevaluation_run\x18\x01 \x01(\v2\".chalk.evaluation.v1.EvaluationRunR\revaluationRun\"~\n" +
+	"\x0eevaluation_run\x18\x01 \x01(\v2\".chalk.evaluation.v1.EvaluationRunR\revaluationRun\"\xba\x01\n" +
 	"\x1bRescoreEvaluationRunRequest\x12*\n" +
 	"\x11evaluation_run_id\x18\x01 \x01(\tR\x0fevaluationRunId\x123\n" +
-	"\bmetadata\x18\x02 \x01(\v2\x17.google.protobuf.StructR\bmetadata\"i\n" +
+	"\bmetadata\x18\x02 \x01(\v2\x17.google.protobuf.StructR\bmetadata\x12(\n" +
+	"\revaluation_id\x18\x03 \x01(\tH\x00R\fevaluationId\x88\x01\x01B\x10\n" +
+	"\x0e_evaluation_id\"i\n" +
 	"\x1cRescoreEvaluationRunResponse\x12I\n" +
 	"\x0eevaluation_run\x18\x01 \x01(\v2\".chalk.evaluation.v1.EvaluationRunR\revaluationRun\"E\n" +
 	"\x17GetEvaluationRunRequest\x12*\n" +
@@ -2532,6 +2548,7 @@ func file_chalk_evaluation_v1_service_proto_init() {
 	file_chalk_evaluation_v1_service_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_evaluation_v1_service_proto_msgTypes[19].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[23].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[24].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[29].OneofWrappers = []any{}

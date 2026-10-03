@@ -234,10 +234,6 @@ type NotebookDocumentServiceClient interface {
 	// Reduces one column of a dataframe output chunk to a single value over the
 	// FULL backing artifact (blob-backed Arrow, inline arrow bytes) — used by
 	// single-value elements whose source is larger than the persisted preview.
-	// Share tokens need this to render single-value elements whose source is
-	// larger than the persisted preview. DownloadNotebookDataframe deliberately
-	// does NOT accept share tokens: it is a bulk export of the same data, which a
-	// read-only viewer does not need in order to see the notebook.
 	AggregateNotebookDataframe(context.Context, *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error)
 	// Streams the complete dataframe behind an output chunk for download —
 	// the full backing data, never just the preview rows.
@@ -942,10 +938,6 @@ type NotebookDocumentServiceHandler interface {
 	// Reduces one column of a dataframe output chunk to a single value over the
 	// FULL backing artifact (blob-backed Arrow, inline arrow bytes) — used by
 	// single-value elements whose source is larger than the persisted preview.
-	// Share tokens need this to render single-value elements whose source is
-	// larger than the persisted preview. DownloadNotebookDataframe deliberately
-	// does NOT accept share tokens: it is a bulk export of the same data, which a
-	// read-only viewer does not need in order to see the notebook.
 	AggregateNotebookDataframe(context.Context, *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error)
 	// Streams the complete dataframe behind an output chunk for download —
 	// the full backing data, never just the preview rows.

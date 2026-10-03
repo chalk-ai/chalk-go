@@ -76,8 +76,8 @@ type EvaluationServiceClient interface {
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
 	CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error)
-	// Score a finished run's outputs again with the evaluation's current scorers.
-	// The task is the expensive half of an evaluation and the half you are not
+	// Score a finished run's outputs again, with its own evaluation's scorers or
+	// with another evaluation's over the same dataset revision and task. The task is the expensive half of an evaluation and the half you are not
 	// changing while iterating on scorers, so its outputs are read back out of
 	// the rescored run instead of being recomputed.
 	RescoreEvaluationRun(context.Context, *connect.Request[v1.RescoreEvaluationRunRequest]) (*connect.Response[v1.RescoreEvaluationRunResponse], error)
@@ -253,8 +253,8 @@ type EvaluationServiceHandler interface {
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
 	CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error)
-	// Score a finished run's outputs again with the evaluation's current scorers.
-	// The task is the expensive half of an evaluation and the half you are not
+	// Score a finished run's outputs again, with its own evaluation's scorers or
+	// with another evaluation's over the same dataset revision and task. The task is the expensive half of an evaluation and the half you are not
 	// changing while iterating on scorers, so its outputs are read back out of
 	// the rescored run instead of being recomputed.
 	RescoreEvaluationRun(context.Context, *connect.Request[v1.RescoreEvaluationRunRequest]) (*connect.Response[v1.RescoreEvaluationRunResponse], error)

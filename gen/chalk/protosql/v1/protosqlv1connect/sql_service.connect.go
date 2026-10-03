@@ -63,8 +63,18 @@ const (
 
 // SqlServiceClient is a client for the chalk.protosql.v1.SqlService service.
 type SqlServiceClient interface {
+	// Deprecated: returns UNIMPLEMENTED. Query the offline query's data with ChalkSQL
+	// (ExecuteSqlQuery) and get_dataset_revision / get_dataset_givens instead.
+	//
+	// Deprecated: do not use.
 	GetOfflineQueryInputs(context.Context, *connect.Request[v1.GetOfflineQueryInputsRequest]) (*connect.Response[v1.GetOfflineQueryInputsResponse], error)
+	// Deprecated: returns UNIMPLEMENTED; see GetOfflineQueryInputs.
+	//
+	// Deprecated: do not use.
 	GetOfflineQueryPreview(context.Context, *connect.Request[v1.GetOfflineQueryPreviewRequest]) (*connect.Response[v1.GetOfflineQueryPreviewResponse], error)
+	// Deprecated: returns UNIMPLEMENTED; see GetOfflineQueryInputs.
+	//
+	// Deprecated: do not use.
 	GetOfflineQueryStats(context.Context, *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error)
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	// Execute a SQL query, emitting each chunk of the result as the plan produces it instead of
@@ -174,16 +184,22 @@ type sqlServiceClient struct {
 }
 
 // GetOfflineQueryInputs calls chalk.protosql.v1.SqlService.GetOfflineQueryInputs.
+//
+// Deprecated: do not use.
 func (c *sqlServiceClient) GetOfflineQueryInputs(ctx context.Context, req *connect.Request[v1.GetOfflineQueryInputsRequest]) (*connect.Response[v1.GetOfflineQueryInputsResponse], error) {
 	return c.getOfflineQueryInputs.CallUnary(ctx, req)
 }
 
 // GetOfflineQueryPreview calls chalk.protosql.v1.SqlService.GetOfflineQueryPreview.
+//
+// Deprecated: do not use.
 func (c *sqlServiceClient) GetOfflineQueryPreview(ctx context.Context, req *connect.Request[v1.GetOfflineQueryPreviewRequest]) (*connect.Response[v1.GetOfflineQueryPreviewResponse], error) {
 	return c.getOfflineQueryPreview.CallUnary(ctx, req)
 }
 
 // GetOfflineQueryStats calls chalk.protosql.v1.SqlService.GetOfflineQueryStats.
+//
+// Deprecated: do not use.
 func (c *sqlServiceClient) GetOfflineQueryStats(ctx context.Context, req *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error) {
 	return c.getOfflineQueryStats.CallUnary(ctx, req)
 }
@@ -225,8 +241,18 @@ func (c *sqlServiceClient) GetTables(ctx context.Context, req *connect.Request[v
 
 // SqlServiceHandler is an implementation of the chalk.protosql.v1.SqlService service.
 type SqlServiceHandler interface {
+	// Deprecated: returns UNIMPLEMENTED. Query the offline query's data with ChalkSQL
+	// (ExecuteSqlQuery) and get_dataset_revision / get_dataset_givens instead.
+	//
+	// Deprecated: do not use.
 	GetOfflineQueryInputs(context.Context, *connect.Request[v1.GetOfflineQueryInputsRequest]) (*connect.Response[v1.GetOfflineQueryInputsResponse], error)
+	// Deprecated: returns UNIMPLEMENTED; see GetOfflineQueryInputs.
+	//
+	// Deprecated: do not use.
 	GetOfflineQueryPreview(context.Context, *connect.Request[v1.GetOfflineQueryPreviewRequest]) (*connect.Response[v1.GetOfflineQueryPreviewResponse], error)
+	// Deprecated: returns UNIMPLEMENTED; see GetOfflineQueryInputs.
+	//
+	// Deprecated: do not use.
 	GetOfflineQueryStats(context.Context, *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error)
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	// Execute a SQL query, emitting each chunk of the result as the plan produces it instead of

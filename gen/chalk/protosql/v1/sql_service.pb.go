@@ -320,6 +320,7 @@ func (x *ExecuteSqlResultPersistenceSettings) GetEnabled() bool {
 	return false
 }
 
+// Deprecated: Marked as deprecated in chalk/protosql/v1/sql_service.proto.
 type GetOfflineQueryInputsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Identifier:
@@ -410,6 +411,7 @@ func (*GetOfflineQueryInputsRequest_RevisionId) isGetOfflineQueryInputsRequest_I
 
 func (*GetOfflineQueryInputsRequest_OfflineQueryId) isGetOfflineQueryInputsRequest_Identifier() {}
 
+// Deprecated: Marked as deprecated in chalk/protosql/v1/sql_service.proto.
 type GetOfflineQueryInputsResponse struct {
 	state          protoimpl.MessageState   `protogen:"open.v1"`
 	Response       *ExecuteSqlQueryResponse `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
@@ -462,6 +464,7 @@ func (x *GetOfflineQueryInputsResponse) GetGeneratedQuery() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/protosql/v1/sql_service.proto.
 type GetOfflineQueryPreviewRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Identifier:
@@ -552,6 +555,7 @@ func (*GetOfflineQueryPreviewRequest_RevisionId) isGetOfflineQueryPreviewRequest
 
 func (*GetOfflineQueryPreviewRequest_OfflineQueryId) isGetOfflineQueryPreviewRequest_Identifier() {}
 
+// Deprecated: Marked as deprecated in chalk/protosql/v1/sql_service.proto.
 type GetOfflineQueryPreviewResponse struct {
 	state          protoimpl.MessageState   `protogen:"open.v1"`
 	Response       *ExecuteSqlQueryResponse `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
@@ -604,6 +608,7 @@ func (x *GetOfflineQueryPreviewResponse) GetGeneratedQuery() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/protosql/v1/sql_service.proto.
 type GetOfflineQueryStatsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Identifier:
@@ -694,6 +699,7 @@ func (*GetOfflineQueryStatsRequest_RevisionId) isGetOfflineQueryStatsRequest_Ide
 
 func (*GetOfflineQueryStatsRequest_OfflineQueryId) isGetOfflineQueryStatsRequest_Identifier() {}
 
+// Deprecated: Marked as deprecated in chalk/protosql/v1/sql_service.proto.
 type GetOfflineQueryStatsResponse struct {
 	state          protoimpl.MessageState   `protogen:"open.v1"`
 	Response       *ExecuteSqlQueryResponse `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
@@ -2487,40 +2493,40 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x11_enable_profilingB\t\n" +
 	"\a_branch\"?\n" +
 	"#ExecuteSqlResultPersistenceSettings\x12\x18\n" +
-	"\aenabled\x18\x01 \x01(\bR\aenabled\"\xba\x01\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\"\xbe\x01\n" +
 	"\x1cGetOfflineQueryInputsRequest\x12!\n" +
 	"\vrevision_id\x18\x01 \x01(\tH\x00R\n" +
 	"revisionId\x12*\n" +
 	"\x10offline_query_id\x18\x02 \x01(\tH\x00R\x0eofflineQueryId\x12*\n" +
-	"\x0eresource_group\x18\x03 \x01(\tH\x01R\rresourceGroup\x88\x01\x01B\f\n" +
+	"\x0eresource_group\x18\x03 \x01(\tH\x01R\rresourceGroup\x88\x01\x01:\x02\x18\x01B\f\n" +
 	"\n" +
 	"identifierB\x11\n" +
-	"\x0f_resource_group\"\x90\x01\n" +
+	"\x0f_resource_group\"\x94\x01\n" +
 	"\x1dGetOfflineQueryInputsResponse\x12F\n" +
 	"\bresponse\x18\x01 \x01(\v2*.chalk.protosql.v1.ExecuteSqlQueryResponseR\bresponse\x12'\n" +
-	"\x0fgenerated_query\x18\x02 \x01(\tR\x0egeneratedQuery\"\xbb\x01\n" +
+	"\x0fgenerated_query\x18\x02 \x01(\tR\x0egeneratedQuery:\x02\x18\x01\"\xbf\x01\n" +
 	"\x1dGetOfflineQueryPreviewRequest\x12!\n" +
 	"\vrevision_id\x18\x01 \x01(\tH\x00R\n" +
 	"revisionId\x12*\n" +
 	"\x10offline_query_id\x18\x02 \x01(\tH\x00R\x0eofflineQueryId\x12*\n" +
-	"\x0eresource_group\x18\x03 \x01(\tH\x01R\rresourceGroup\x88\x01\x01B\f\n" +
+	"\x0eresource_group\x18\x03 \x01(\tH\x01R\rresourceGroup\x88\x01\x01:\x02\x18\x01B\f\n" +
 	"\n" +
 	"identifierB\x11\n" +
-	"\x0f_resource_group\"\x91\x01\n" +
+	"\x0f_resource_group\"\x95\x01\n" +
 	"\x1eGetOfflineQueryPreviewResponse\x12F\n" +
 	"\bresponse\x18\x01 \x01(\v2*.chalk.protosql.v1.ExecuteSqlQueryResponseR\bresponse\x12'\n" +
-	"\x0fgenerated_query\x18\x02 \x01(\tR\x0egeneratedQuery\"\xb9\x01\n" +
+	"\x0fgenerated_query\x18\x02 \x01(\tR\x0egeneratedQuery:\x02\x18\x01\"\xbd\x01\n" +
 	"\x1bGetOfflineQueryStatsRequest\x12!\n" +
 	"\vrevision_id\x18\x01 \x01(\tH\x00R\n" +
 	"revisionId\x12*\n" +
 	"\x10offline_query_id\x18\x02 \x01(\tH\x00R\x0eofflineQueryId\x12*\n" +
-	"\x0eresource_group\x18\x03 \x01(\tH\x01R\rresourceGroup\x88\x01\x01B\f\n" +
+	"\x0eresource_group\x18\x03 \x01(\tH\x01R\rresourceGroup\x88\x01\x01:\x02\x18\x01B\f\n" +
 	"\n" +
 	"identifierB\x11\n" +
-	"\x0f_resource_group\"\x8f\x01\n" +
+	"\x0f_resource_group\"\x93\x01\n" +
 	"\x1cGetOfflineQueryStatsResponse\x12F\n" +
 	"\bresponse\x18\x01 \x01(\v2*.chalk.protosql.v1.ExecuteSqlQueryResponseR\bresponse\x12'\n" +
-	"\x0fgenerated_query\x18\x02 \x01(\tR\x0egeneratedQuery\"\xf4\a\n" +
+	"\x0fgenerated_query\x18\x02 \x01(\tR\x0egeneratedQuery:\x02\x18\x01\"\xf4\a\n" +
 	"\x16ExecuteSqlQueryRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12*\n" +
 	"\x0ecorrelation_id\x18\x02 \x01(\tH\x01R\rcorrelationId\x88\x01\x01\x12i\n" +
@@ -2656,12 +2662,12 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x1cExecuteSqlAsyncExecutionMode\x120\n" +
 	",EXECUTE_SQL_ASYNC_EXECUTION_MODE_UNSPECIFIED\x10\x00\x12/\n" +
 	"+EXECUTE_SQL_ASYNC_EXECUTION_MODE_IN_PROCESS\x10\x01\x12*\n" +
-	"&EXECUTE_SQL_ASYNC_EXECUTION_MODE_ASYNC\x10\x022\xfb\b\n" +
+	"&EXECUTE_SQL_ASYNC_EXECUTION_MODE_ASYNC\x10\x022\x85\t\n" +
 	"\n" +
-	"SqlService\x12\x7f\n" +
-	"\x15GetOfflineQueryInputs\x12/.chalk.protosql.v1.GetOfflineQueryInputsRequest\x1a0.chalk.protosql.v1.GetOfflineQueryInputsResponse\"\x03\x80}$\x12\x82\x01\n" +
-	"\x16GetOfflineQueryPreview\x120.chalk.protosql.v1.GetOfflineQueryPreviewRequest\x1a1.chalk.protosql.v1.GetOfflineQueryPreviewResponse\"\x03\x80}$\x12|\n" +
-	"\x14GetOfflineQueryStats\x12..chalk.protosql.v1.GetOfflineQueryStatsRequest\x1a/.chalk.protosql.v1.GetOfflineQueryStatsResponse\"\x03\x80}$\x12m\n" +
+	"SqlService\x12\x82\x01\n" +
+	"\x15GetOfflineQueryInputs\x12/.chalk.protosql.v1.GetOfflineQueryInputsRequest\x1a0.chalk.protosql.v1.GetOfflineQueryInputsResponse\"\x06\x80}$\x88\x02\x01\x12\x85\x01\n" +
+	"\x16GetOfflineQueryPreview\x120.chalk.protosql.v1.GetOfflineQueryPreviewRequest\x1a1.chalk.protosql.v1.GetOfflineQueryPreviewResponse\"\x06\x80}$\x88\x02\x01\x12\x7f\n" +
+	"\x14GetOfflineQueryStats\x12..chalk.protosql.v1.GetOfflineQueryStatsRequest\x1a/.chalk.protosql.v1.GetOfflineQueryStatsResponse\"\x06\x80}$\x88\x02\x01\x12m\n" +
 	"\x0fExecuteSqlQuery\x12).chalk.protosql.v1.ExecuteSqlQueryRequest\x1a*.chalk.protosql.v1.ExecuteSqlQueryResponse\"\x03\x80}\x03\x12\x81\x01\n" +
 	"\x15ExecuteSqlQueryStream\x12/.chalk.protosql.v1.ExecuteSqlQueryStreamRequest\x1a0.chalk.protosql.v1.ExecuteSqlQueryStreamResponse\"\x03\x80}\x030\x01\x12d\n" +
 	"\fPlanSqlQuery\x12&.chalk.protosql.v1.PlanSqlQueryRequest\x1a'.chalk.protosql.v1.PlanSqlQueryResponse\"\x03\x80}\x03\x12d\n" +
