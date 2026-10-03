@@ -112,7 +112,13 @@ type NodeStatusPubSub struct {
 	// Which workload type the node is allowed to run. Allows for cost attribution by workload type and
 	// possibly for tracking separate "categories" of credits which may be billed at different rates.
 	// Examples: "offline", "infrastructure", "" (empty string, default)
-	WorkloadType  string `protobuf:"bytes,26,opt,name=workload_type,json=workloadType,proto3" json:"workload_type,omitempty"`
+	WorkloadType string `protobuf:"bytes,26,opt,name=workload_type,json=workloadType,proto3" json:"workload_type,omitempty"`
+	// chalk.ai/resource-group. Empty for nodes without resource-group attribution.
+	ResourceGroup string `protobuf:"bytes,27,opt,name=resource_group,json=resourceGroup,proto3" json:"resource_group,omitempty"`
+	// chalk.ai/environment-id. Empty for nodes without environment attribution.
+	Environment string `protobuf:"bytes,28,opt,name=environment,proto3" json:"environment,omitempty"`
+	// The component label of the workload that provisions the node.
+	Component     string `protobuf:"bytes,29,opt,name=component,proto3" json:"component,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -322,11 +328,32 @@ func (x *NodeStatusPubSub) GetWorkloadType() string {
 	return ""
 }
 
+func (x *NodeStatusPubSub) GetResourceGroup() string {
+	if x != nil {
+		return x.ResourceGroup
+	}
+	return ""
+}
+
+func (x *NodeStatusPubSub) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *NodeStatusPubSub) GetComponent() string {
+	if x != nil {
+		return x.Component
+	}
+	return ""
+}
+
 var File_chalk_pubsub_v1_node_status_proto protoreflect.FileDescriptor
 
 const file_chalk_pubsub_v1_node_status_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/pubsub/v1/node_status.proto\x12\x0fchalk.pubsub.v1\x1a\x1cgen_bq_schema/bq_field.proto\x1a\x1cgen_bq_schema/bq_table.proto\"\xda\b\n" +
+	"!chalk/pubsub/v1/node_status.proto\x12\x0fchalk.pubsub.v1\x1a\x1cgen_bq_schema/bq_field.proto\x1a\x1cgen_bq_schema/bq_table.proto\"\xc1\t\n" +
 	"\x10NodeStatusPubSub\x12\x12\n" +
 	"\x04team\x18\x01 \x01(\tR\x04team\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
@@ -356,7 +383,10 @@ const file_chalk_pubsub_v1_node_status_proto_rawDesc = "" +
 	"\x12allocatable_memory\x18\x17 \x01(\tR\x11allocatableMemory\x12#\n" +
 	"\rchalk_managed\x18\x18 \x01(\bR\fchalkManaged\x12\x1a\n" +
 	"\bnodepool\x18\x19 \x01(\tR\bnodepool\x12#\n" +
-	"\rworkload_type\x18\x1a \x01(\tR\fworkloadType\x1a9\n" +
+	"\rworkload_type\x18\x1a \x01(\tR\fworkloadType\x12%\n" +
+	"\x0eresource_group\x18\x1b \x01(\tR\rresourceGroup\x12 \n" +
+	"\venvironment\x18\x1c \x01(\tR\venvironment\x12\x1c\n" +
+	"\tcomponent\x18\x1d \x01(\tR\tcomponent\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +

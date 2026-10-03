@@ -362,6 +362,166 @@ func (x *GetAuditLogsResponse) GetNextCursor() string {
 	return ""
 }
 
+type GetTeamAuditLogsRequest struct {
+	state                        protoimpl.MessageState `protogen:"open.v1"`
+	StartTime                    *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
+	EndTime                      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	EndpointFilter               []string               `protobuf:"bytes,3,rep,name=endpoint_filter,json=endpointFilter,proto3" json:"endpoint_filter,omitempty"`
+	Limit                        *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor                       *string                `protobuf:"bytes,5,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	TimestampLowerBoundInclusive *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=timestamp_lower_bound_inclusive,json=timestampLowerBoundInclusive,proto3,oneof" json:"timestamp_lower_bound_inclusive,omitempty"`
+	TimestampUpperBoundExclusive *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=timestamp_upper_bound_exclusive,json=timestampUpperBoundExclusive,proto3,oneof" json:"timestamp_upper_bound_exclusive,omitempty"`
+	AgentIdFilter                *string                `protobuf:"bytes,8,opt,name=agent_id_filter,json=agentIdFilter,proto3,oneof" json:"agent_id_filter,omitempty"`
+	OutcomeFilters               []AuditLogOutcome      `protobuf:"varint,9,rep,packed,name=outcome_filters,json=outcomeFilters,proto3,enum=chalk.server.v1.AuditLogOutcome" json:"outcome_filters,omitempty"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
+}
+
+func (x *GetTeamAuditLogsRequest) Reset() {
+	*x = GetTeamAuditLogsRequest{}
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamAuditLogsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamAuditLogsRequest) ProtoMessage() {}
+
+func (x *GetTeamAuditLogsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamAuditLogsRequest.ProtoReflect.Descriptor instead.
+func (*GetTeamAuditLogsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetTeamAuditLogsRequest) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *GetTeamAuditLogsRequest) GetEndTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTime
+	}
+	return nil
+}
+
+func (x *GetTeamAuditLogsRequest) GetEndpointFilter() []string {
+	if x != nil {
+		return x.EndpointFilter
+	}
+	return nil
+}
+
+func (x *GetTeamAuditLogsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *GetTeamAuditLogsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *GetTeamAuditLogsRequest) GetTimestampLowerBoundInclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TimestampLowerBoundInclusive
+	}
+	return nil
+}
+
+func (x *GetTeamAuditLogsRequest) GetTimestampUpperBoundExclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TimestampUpperBoundExclusive
+	}
+	return nil
+}
+
+func (x *GetTeamAuditLogsRequest) GetAgentIdFilter() string {
+	if x != nil && x.AgentIdFilter != nil {
+		return *x.AgentIdFilter
+	}
+	return ""
+}
+
+func (x *GetTeamAuditLogsRequest) GetOutcomeFilters() []AuditLogOutcome {
+	if x != nil {
+		return x.OutcomeFilters
+	}
+	return nil
+}
+
+type GetTeamAuditLogsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Logs          []*AuditLog            `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty"`
+	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTeamAuditLogsResponse) Reset() {
+	*x = GetTeamAuditLogsResponse{}
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamAuditLogsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamAuditLogsResponse) ProtoMessage() {}
+
+func (x *GetTeamAuditLogsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamAuditLogsResponse.ProtoReflect.Descriptor instead.
+func (*GetTeamAuditLogsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetTeamAuditLogsResponse) GetLogs() []*AuditLog {
+	if x != nil {
+		return x.Logs
+	}
+	return nil
+}
+
+func (x *GetTeamAuditLogsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
 type AuditedEndpointField struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -372,7 +532,7 @@ type AuditedEndpointField struct {
 
 func (x *AuditedEndpointField) Reset() {
 	*x = AuditedEndpointField{}
-	mi := &file_chalk_server_v1_audit_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -384,7 +544,7 @@ func (x *AuditedEndpointField) String() string {
 func (*AuditedEndpointField) ProtoMessage() {}
 
 func (x *AuditedEndpointField) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_audit_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -397,7 +557,7 @@ func (x *AuditedEndpointField) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuditedEndpointField.ProtoReflect.Descriptor instead.
 func (*AuditedEndpointField) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AuditedEndpointField) GetName() string {
@@ -436,7 +596,7 @@ type AuditedEndpoint struct {
 
 func (x *AuditedEndpoint) Reset() {
 	*x = AuditedEndpoint{}
-	mi := &file_chalk_server_v1_audit_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -448,7 +608,7 @@ func (x *AuditedEndpoint) String() string {
 func (*AuditedEndpoint) ProtoMessage() {}
 
 func (x *AuditedEndpoint) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_audit_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -461,7 +621,7 @@ func (x *AuditedEndpoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuditedEndpoint.ProtoReflect.Descriptor instead.
 func (*AuditedEndpoint) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AuditedEndpoint) GetEndpoint() string {
@@ -521,7 +681,7 @@ type GetAuditedEndpointsRequest struct {
 
 func (x *GetAuditedEndpointsRequest) Reset() {
 	*x = GetAuditedEndpointsRequest{}
-	mi := &file_chalk_server_v1_audit_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -533,7 +693,7 @@ func (x *GetAuditedEndpointsRequest) String() string {
 func (*GetAuditedEndpointsRequest) ProtoMessage() {}
 
 func (x *GetAuditedEndpointsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_audit_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -546,7 +706,7 @@ func (x *GetAuditedEndpointsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuditedEndpointsRequest.ProtoReflect.Descriptor instead.
 func (*GetAuditedEndpointsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{7}
 }
 
 type GetAuditedEndpointsResponse struct {
@@ -558,7 +718,7 @@ type GetAuditedEndpointsResponse struct {
 
 func (x *GetAuditedEndpointsResponse) Reset() {
 	*x = GetAuditedEndpointsResponse{}
-	mi := &file_chalk_server_v1_audit_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -570,7 +730,7 @@ func (x *GetAuditedEndpointsResponse) String() string {
 func (*GetAuditedEndpointsResponse) ProtoMessage() {}
 
 func (x *GetAuditedEndpointsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_audit_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -583,10 +743,90 @@ func (x *GetAuditedEndpointsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuditedEndpointsResponse.ProtoReflect.Descriptor instead.
 func (*GetAuditedEndpointsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetAuditedEndpointsResponse) GetEndpoints() []*AuditedEndpoint {
+	if x != nil {
+		return x.Endpoints
+	}
+	return nil
+}
+
+type GetTeamAuditedEndpointsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTeamAuditedEndpointsRequest) Reset() {
+	*x = GetTeamAuditedEndpointsRequest{}
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamAuditedEndpointsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamAuditedEndpointsRequest) ProtoMessage() {}
+
+func (x *GetTeamAuditedEndpointsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamAuditedEndpointsRequest.ProtoReflect.Descriptor instead.
+func (*GetTeamAuditedEndpointsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{9}
+}
+
+type GetTeamAuditedEndpointsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Endpoints     []*AuditedEndpoint     `protobuf:"bytes,1,rep,name=endpoints,proto3" json:"endpoints,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTeamAuditedEndpointsResponse) Reset() {
+	*x = GetTeamAuditedEndpointsResponse{}
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamAuditedEndpointsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamAuditedEndpointsResponse) ProtoMessage() {}
+
+func (x *GetTeamAuditedEndpointsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_audit_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamAuditedEndpointsResponse.ProtoReflect.Descriptor instead.
+func (*GetTeamAuditedEndpointsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_audit_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetTeamAuditedEndpointsResponse) GetEndpoints() []*AuditedEndpoint {
 	if x != nil {
 		return x.Endpoints
 	}
@@ -643,6 +883,29 @@ const file_chalk_server_v1_audit_proto_rawDesc = "" +
 	"\x04logs\x18\x01 \x03(\v2\x19.chalk.server.v1.AuditLogR\x04logs\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"\xcb\x05\n" +
+	"\x17GetTeamAuditLogsRequest\x12>\n" +
+	"\n" +
+	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
+	"\bend_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12'\n" +
+	"\x0fendpoint_filter\x18\x03 \x03(\tR\x0eendpointFilter\x12\x19\n" +
+	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\x05 \x01(\tH\x03R\x06cursor\x88\x01\x01\x12f\n" +
+	"\x1ftimestamp_lower_bound_inclusive\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x04R\x1ctimestampLowerBoundInclusive\x88\x01\x01\x12f\n" +
+	"\x1ftimestamp_upper_bound_exclusive\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x05R\x1ctimestampUpperBoundExclusive\x88\x01\x01\x12+\n" +
+	"\x0fagent_id_filter\x18\b \x01(\tH\x06R\ragentIdFilter\x88\x01\x01\x12I\n" +
+	"\x0foutcome_filters\x18\t \x03(\x0e2 .chalk.server.v1.AuditLogOutcomeR\x0eoutcomeFiltersB\r\n" +
+	"\v_start_timeB\v\n" +
+	"\t_end_timeB\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_cursorB\"\n" +
+	" _timestamp_lower_bound_inclusiveB\"\n" +
+	" _timestamp_upper_bound_exclusiveB\x12\n" +
+	"\x10_agent_id_filter\"\x7f\n" +
+	"\x18GetTeamAuditLogsResponse\x12-\n" +
+	"\x04logs\x18\x01 \x03(\v2\x19.chalk.server.v1.AuditLogR\x04logs\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
 	"\f_next_cursor\">\n" +
 	"\x14AuditedEndpointField\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
@@ -657,14 +920,19 @@ const file_chalk_server_v1_audit_proto_rawDesc = "" +
 	"\x0fresponse_fields\x18\a \x03(\v2%.chalk.server.v1.AuditedEndpointFieldR\x0eresponseFields\"\x1c\n" +
 	"\x1aGetAuditedEndpointsRequest\"]\n" +
 	"\x1bGetAuditedEndpointsResponse\x12>\n" +
+	"\tendpoints\x18\x01 \x03(\v2 .chalk.server.v1.AuditedEndpointR\tendpoints\" \n" +
+	"\x1eGetTeamAuditedEndpointsRequest\"a\n" +
+	"\x1fGetTeamAuditedEndpointsResponse\x12>\n" +
 	"\tendpoints\x18\x01 \x03(\v2 .chalk.server.v1.AuditedEndpointR\tendpoints*k\n" +
 	"\x0fAuditLogOutcome\x12!\n" +
 	"\x1dAUDIT_LOG_OUTCOME_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14AUDIT_LOG_OUTCOME_OK\x10\x01\x12\x1b\n" +
-	"\x17AUDIT_LOG_OUTCOME_ERROR\x10\x022\xe7\x01\n" +
+	"\x17AUDIT_LOG_OUTCOME_ERROR\x10\x022\xdf\x03\n" +
 	"\fAuditService\x12`\n" +
-	"\fGetAuditLogs\x12$.chalk.server.v1.GetAuditLogsRequest\x1a%.chalk.server.v1.GetAuditLogsResponse\"\x03\x80}\x06\x12u\n" +
-	"\x13GetAuditedEndpoints\x12+.chalk.server.v1.GetAuditedEndpointsRequest\x1a,.chalk.server.v1.GetAuditedEndpointsResponse\"\x03\x80}\x06B\xba\x01\n" +
+	"\fGetAuditLogs\x12$.chalk.server.v1.GetAuditLogsRequest\x1a%.chalk.server.v1.GetAuditLogsResponse\"\x03\x80}\x06\x12o\n" +
+	"\x10GetTeamAuditLogs\x12(.chalk.server.v1.GetTeamAuditLogsRequest\x1a).chalk.server.v1.GetTeamAuditLogsResponse\"\x06\x88}\x06\x90\x02\x01\x12u\n" +
+	"\x13GetAuditedEndpoints\x12+.chalk.server.v1.GetAuditedEndpointsRequest\x1a,.chalk.server.v1.GetAuditedEndpointsResponse\"\x03\x80}\x06\x12\x84\x01\n" +
+	"\x17GetTeamAuditedEndpoints\x12/.chalk.server.v1.GetTeamAuditedEndpointsRequest\x1a0.chalk.server.v1.GetTeamAuditedEndpointsResponse\"\x06\x88}\x06\x90\x02\x01B\xba\x01\n" +
 	"\x13com.chalk.server.v1B\n" +
 	"AuditProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -681,51 +949,66 @@ func file_chalk_server_v1_audit_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_audit_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_audit_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_chalk_server_v1_audit_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_chalk_server_v1_audit_proto_goTypes = []any{
-	(AuditLogOutcome)(0),                // 0: chalk.server.v1.AuditLogOutcome
-	(*AuditLog)(nil),                    // 1: chalk.server.v1.AuditLog
-	(*GetAuditLogsRequest)(nil),         // 2: chalk.server.v1.GetAuditLogsRequest
-	(*GetAuditLogsResponse)(nil),        // 3: chalk.server.v1.GetAuditLogsResponse
-	(*AuditedEndpointField)(nil),        // 4: chalk.server.v1.AuditedEndpointField
-	(*AuditedEndpoint)(nil),             // 5: chalk.server.v1.AuditedEndpoint
-	(*GetAuditedEndpointsRequest)(nil),  // 6: chalk.server.v1.GetAuditedEndpointsRequest
-	(*GetAuditedEndpointsResponse)(nil), // 7: chalk.server.v1.GetAuditedEndpointsResponse
-	nil,                                 // 8: chalk.server.v1.AuditLog.RequestEntry
-	nil,                                 // 9: chalk.server.v1.AuditLog.ResponseEntry
-	(*v1.Agent)(nil),                    // 10: chalk.auth.v1.Agent
-	(*timestamppb.Timestamp)(nil),       // 11: google.protobuf.Timestamp
-	(code.Code)(0),                      // 12: google.rpc.Code
-	(v1.AuditLevel)(0),                  // 13: chalk.auth.v1.AuditLevel
-	(*structpb.Value)(nil),              // 14: google.protobuf.Value
+	(AuditLogOutcome)(0),                    // 0: chalk.server.v1.AuditLogOutcome
+	(*AuditLog)(nil),                        // 1: chalk.server.v1.AuditLog
+	(*GetAuditLogsRequest)(nil),             // 2: chalk.server.v1.GetAuditLogsRequest
+	(*GetAuditLogsResponse)(nil),            // 3: chalk.server.v1.GetAuditLogsResponse
+	(*GetTeamAuditLogsRequest)(nil),         // 4: chalk.server.v1.GetTeamAuditLogsRequest
+	(*GetTeamAuditLogsResponse)(nil),        // 5: chalk.server.v1.GetTeamAuditLogsResponse
+	(*AuditedEndpointField)(nil),            // 6: chalk.server.v1.AuditedEndpointField
+	(*AuditedEndpoint)(nil),                 // 7: chalk.server.v1.AuditedEndpoint
+	(*GetAuditedEndpointsRequest)(nil),      // 8: chalk.server.v1.GetAuditedEndpointsRequest
+	(*GetAuditedEndpointsResponse)(nil),     // 9: chalk.server.v1.GetAuditedEndpointsResponse
+	(*GetTeamAuditedEndpointsRequest)(nil),  // 10: chalk.server.v1.GetTeamAuditedEndpointsRequest
+	(*GetTeamAuditedEndpointsResponse)(nil), // 11: chalk.server.v1.GetTeamAuditedEndpointsResponse
+	nil,                                     // 12: chalk.server.v1.AuditLog.RequestEntry
+	nil,                                     // 13: chalk.server.v1.AuditLog.ResponseEntry
+	(*v1.Agent)(nil),                        // 14: chalk.auth.v1.Agent
+	(*timestamppb.Timestamp)(nil),           // 15: google.protobuf.Timestamp
+	(code.Code)(0),                          // 16: google.rpc.Code
+	(v1.AuditLevel)(0),                      // 17: chalk.auth.v1.AuditLevel
+	(*structpb.Value)(nil),                  // 18: google.protobuf.Value
 }
 var file_chalk_server_v1_audit_proto_depIdxs = []int32{
-	10, // 0: chalk.server.v1.AuditLog.agent:type_name -> chalk.auth.v1.Agent
-	11, // 1: chalk.server.v1.AuditLog.at:type_name -> google.protobuf.Timestamp
-	12, // 2: chalk.server.v1.AuditLog.code:type_name -> google.rpc.Code
-	8,  // 3: chalk.server.v1.AuditLog.request:type_name -> chalk.server.v1.AuditLog.RequestEntry
-	9,  // 4: chalk.server.v1.AuditLog.response:type_name -> chalk.server.v1.AuditLog.ResponseEntry
-	11, // 5: chalk.server.v1.GetAuditLogsRequest.start_time:type_name -> google.protobuf.Timestamp
-	11, // 6: chalk.server.v1.GetAuditLogsRequest.end_time:type_name -> google.protobuf.Timestamp
-	11, // 7: chalk.server.v1.GetAuditLogsRequest.timestamp_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
-	11, // 8: chalk.server.v1.GetAuditLogsRequest.timestamp_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	14, // 0: chalk.server.v1.AuditLog.agent:type_name -> chalk.auth.v1.Agent
+	15, // 1: chalk.server.v1.AuditLog.at:type_name -> google.protobuf.Timestamp
+	16, // 2: chalk.server.v1.AuditLog.code:type_name -> google.rpc.Code
+	12, // 3: chalk.server.v1.AuditLog.request:type_name -> chalk.server.v1.AuditLog.RequestEntry
+	13, // 4: chalk.server.v1.AuditLog.response:type_name -> chalk.server.v1.AuditLog.ResponseEntry
+	15, // 5: chalk.server.v1.GetAuditLogsRequest.start_time:type_name -> google.protobuf.Timestamp
+	15, // 6: chalk.server.v1.GetAuditLogsRequest.end_time:type_name -> google.protobuf.Timestamp
+	15, // 7: chalk.server.v1.GetAuditLogsRequest.timestamp_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
+	15, // 8: chalk.server.v1.GetAuditLogsRequest.timestamp_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
 	0,  // 9: chalk.server.v1.GetAuditLogsRequest.outcome_filters:type_name -> chalk.server.v1.AuditLogOutcome
 	1,  // 10: chalk.server.v1.GetAuditLogsResponse.logs:type_name -> chalk.server.v1.AuditLog
-	13, // 11: chalk.server.v1.AuditedEndpoint.level:type_name -> chalk.auth.v1.AuditLevel
-	4,  // 12: chalk.server.v1.AuditedEndpoint.request_fields:type_name -> chalk.server.v1.AuditedEndpointField
-	4,  // 13: chalk.server.v1.AuditedEndpoint.response_fields:type_name -> chalk.server.v1.AuditedEndpointField
-	5,  // 14: chalk.server.v1.GetAuditedEndpointsResponse.endpoints:type_name -> chalk.server.v1.AuditedEndpoint
-	14, // 15: chalk.server.v1.AuditLog.RequestEntry.value:type_name -> google.protobuf.Value
-	14, // 16: chalk.server.v1.AuditLog.ResponseEntry.value:type_name -> google.protobuf.Value
-	2,  // 17: chalk.server.v1.AuditService.GetAuditLogs:input_type -> chalk.server.v1.GetAuditLogsRequest
-	6,  // 18: chalk.server.v1.AuditService.GetAuditedEndpoints:input_type -> chalk.server.v1.GetAuditedEndpointsRequest
-	3,  // 19: chalk.server.v1.AuditService.GetAuditLogs:output_type -> chalk.server.v1.GetAuditLogsResponse
-	7,  // 20: chalk.server.v1.AuditService.GetAuditedEndpoints:output_type -> chalk.server.v1.GetAuditedEndpointsResponse
-	19, // [19:21] is the sub-list for method output_type
-	17, // [17:19] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	15, // 11: chalk.server.v1.GetTeamAuditLogsRequest.start_time:type_name -> google.protobuf.Timestamp
+	15, // 12: chalk.server.v1.GetTeamAuditLogsRequest.end_time:type_name -> google.protobuf.Timestamp
+	15, // 13: chalk.server.v1.GetTeamAuditLogsRequest.timestamp_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
+	15, // 14: chalk.server.v1.GetTeamAuditLogsRequest.timestamp_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	0,  // 15: chalk.server.v1.GetTeamAuditLogsRequest.outcome_filters:type_name -> chalk.server.v1.AuditLogOutcome
+	1,  // 16: chalk.server.v1.GetTeamAuditLogsResponse.logs:type_name -> chalk.server.v1.AuditLog
+	17, // 17: chalk.server.v1.AuditedEndpoint.level:type_name -> chalk.auth.v1.AuditLevel
+	6,  // 18: chalk.server.v1.AuditedEndpoint.request_fields:type_name -> chalk.server.v1.AuditedEndpointField
+	6,  // 19: chalk.server.v1.AuditedEndpoint.response_fields:type_name -> chalk.server.v1.AuditedEndpointField
+	7,  // 20: chalk.server.v1.GetAuditedEndpointsResponse.endpoints:type_name -> chalk.server.v1.AuditedEndpoint
+	7,  // 21: chalk.server.v1.GetTeamAuditedEndpointsResponse.endpoints:type_name -> chalk.server.v1.AuditedEndpoint
+	18, // 22: chalk.server.v1.AuditLog.RequestEntry.value:type_name -> google.protobuf.Value
+	18, // 23: chalk.server.v1.AuditLog.ResponseEntry.value:type_name -> google.protobuf.Value
+	2,  // 24: chalk.server.v1.AuditService.GetAuditLogs:input_type -> chalk.server.v1.GetAuditLogsRequest
+	4,  // 25: chalk.server.v1.AuditService.GetTeamAuditLogs:input_type -> chalk.server.v1.GetTeamAuditLogsRequest
+	8,  // 26: chalk.server.v1.AuditService.GetAuditedEndpoints:input_type -> chalk.server.v1.GetAuditedEndpointsRequest
+	10, // 27: chalk.server.v1.AuditService.GetTeamAuditedEndpoints:input_type -> chalk.server.v1.GetTeamAuditedEndpointsRequest
+	3,  // 28: chalk.server.v1.AuditService.GetAuditLogs:output_type -> chalk.server.v1.GetAuditLogsResponse
+	5,  // 29: chalk.server.v1.AuditService.GetTeamAuditLogs:output_type -> chalk.server.v1.GetTeamAuditLogsResponse
+	9,  // 30: chalk.server.v1.AuditService.GetAuditedEndpoints:output_type -> chalk.server.v1.GetAuditedEndpointsResponse
+	11, // 31: chalk.server.v1.AuditService.GetTeamAuditedEndpoints:output_type -> chalk.server.v1.GetTeamAuditedEndpointsResponse
+	28, // [28:32] is the sub-list for method output_type
+	24, // [24:28] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_audit_proto_init() }
@@ -736,13 +1019,15 @@ func file_chalk_server_v1_audit_proto_init() {
 	file_chalk_server_v1_audit_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_audit_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_audit_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_server_v1_audit_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_server_v1_audit_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_audit_proto_rawDesc), len(file_chalk_server_v1_audit_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

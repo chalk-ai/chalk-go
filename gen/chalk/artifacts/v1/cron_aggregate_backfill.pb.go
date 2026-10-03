@@ -91,9 +91,12 @@ type CronAggregateBackfill struct {
 	// Maximum number of bucket-aligned time-sharded jobs to split each run's window
 	// into; the server's per-shard window-width policy may choose fewer. Unset/1
 	// preserves the single-job behavior.
-	NumShards     *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	NumShards *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
+	// Also write the open bucket on each run, recomputed from its start. Online
+	// targets only.
+	IncludePartialBucket *bool `protobuf:"varint,16,opt,name=include_partial_bucket,json=includePartialBucket,proto3,oneof" json:"include_partial_bucket,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CronAggregateBackfill) Reset() {
@@ -231,11 +234,18 @@ func (x *CronAggregateBackfill) GetNumShards() int32 {
 	return 0
 }
 
+func (x *CronAggregateBackfill) GetIncludePartialBucket() bool {
+	if x != nil && x.IncludePartialBucket != nil {
+		return *x.IncludePartialBucket
+	}
+	return false
+}
+
 var File_chalk_artifacts_v1_cron_aggregate_backfill_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\n" +
-	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x06\n" +
+	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\a\n" +
 	"\x15CronAggregateBackfill\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bschedule\x18\x02 \x01(\tR\bschedule\x12\x1b\n" +
@@ -256,14 +266,16 @@ const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\venvironment\x18\r \x01(\tH\x02R\venvironment\x88\x01\x01\x12f\n" +
 	"\x0fplanner_options\x18\x0e \x03(\v2=.chalk.artifacts.v1.CronAggregateBackfill.PlannerOptionsEntryR\x0eplannerOptions\x12\"\n" +
 	"\n" +
-	"num_shards\x18\x0f \x01(\x05H\x03R\tnumShards\x88\x01\x01\x1aA\n" +
+	"num_shards\x18\x0f \x01(\x05H\x03R\tnumShards\x88\x01\x01\x129\n" +
+	"\x16include_partial_bucket\x18\x10 \x01(\bH\x04R\x14includePartialBucket\x88\x01\x01\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x11\n" +
 	"\x0f_resource_groupB\x14\n" +
 	"\x12_allow_empty_tilesB\x0e\n" +
 	"\f_environmentB\r\n" +
-	"\v_num_shards*\xa4\x01\n" +
+	"\v_num_shardsB\x19\n" +
+	"\x17_include_partial_bucket*\xa4\x01\n" +
 	"\x1bCronAggregateBackfillTarget\x12.\n" +
 	"*CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED\x10\x00\x12)\n" +
 	"%CRON_AGGREGATE_BACKFILL_TARGET_ONLINE\x10\x01\x12*\n" +

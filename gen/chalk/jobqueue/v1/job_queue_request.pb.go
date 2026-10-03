@@ -809,9 +809,11 @@ type AggregationBackfillJobRequest struct {
 	PlannerOptions                 *PlannerOptions        `protobuf:"bytes,19,opt,name=planner_options,json=plannerOptions,proto3,oneof" json:"planner_options,omitempty"`
 	// Split this backfill's window into this many bucket-aligned time-sharded
 	// jobs. Unset/1 preserves the single-job behavior.
-	NumShards     *int32 `protobuf:"varint,20,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	NumShards *int32 `protobuf:"varint,20,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
+	// Cron runs only: also write the open bucket, recomputed from its start.
+	IncludePartialBucket *bool `protobuf:"varint,21,opt,name=include_partial_bucket,json=includePartialBucket,proto3,oneof" json:"include_partial_bucket,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *AggregationBackfillJobRequest) Reset() {
@@ -975,6 +977,13 @@ func (x *AggregationBackfillJobRequest) GetNumShards() int32 {
 		return *x.NumShards
 	}
 	return 0
+}
+
+func (x *AggregationBackfillJobRequest) GetIncludePartialBucket() bool {
+	if x != nil && x.IncludePartialBucket != nil {
+		return *x.IncludePartialBucket
+	}
+	return false
 }
 
 type ChalkSqlRunJobRequest struct {
@@ -5381,7 +5390,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x18ScheduledQueryJobRequest\x12B\n" +
 	"\arequest\x18\x01 \x01(\v2&.chalk.jobqueue.v1.OfflineQueryJobBodyH\x00R\arequest\x12+\n" +
 	"\x10request_filename\x18\x02 \x01(\tH\x00R\x0frequestFilenameB\x11\n" +
-	"\x0frequest_payload\"\xd7\b\n" +
+	"\x0frequest_payload\"\xad\t\n" +
 	"\x1dAggregationBackfillJobRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12$\n" +
 	"\vlower_bound\x18\x02 \x01(\tH\x00R\n" +
@@ -5407,7 +5416,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x15workflow_manifest_uri\x18\x12 \x01(\tH\vR\x13workflowManifestUri\x88\x01\x01\x12O\n" +
 	"\x0fplanner_options\x18\x13 \x01(\v2!.chalk.jobqueue.v1.PlannerOptionsH\fR\x0eplannerOptions\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"num_shards\x18\x14 \x01(\x05H\rR\tnumShards\x88\x01\x01B\x0e\n" +
+	"num_shards\x18\x14 \x01(\x05H\rR\tnumShards\x88\x01\x01\x129\n" +
+	"\x16include_partial_bucket\x18\x15 \x01(\bH\x0eR\x14includePartialBucket\x88\x01\x01B\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\v\n" +
 	"\t_resolverB\x18\n" +
@@ -5421,7 +5431,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\"_scheduled_aggregate_backfill_nameB\x18\n" +
 	"\x16_workflow_manifest_uriB\x12\n" +
 	"\x10_planner_optionsB\r\n" +
-	"\v_num_shards\"\xcf\b\n" +
+	"\v_num_shardsB\x19\n" +
+	"\x17_include_partial_bucket\"\xcf\b\n" +
 	"\x15ChalkSqlRunJobRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12&\n" +
 	"\foperation_id\x18\x02 \x01(\tH\x00R\voperationId\x88\x01\x01\x12*\n" +

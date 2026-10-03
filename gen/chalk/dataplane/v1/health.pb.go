@@ -24,9 +24,11 @@ const (
 type HealthCheckName int32
 
 const (
-	HealthCheckName_HEALTH_CHECK_NAME_UNSPECIFIED      HealthCheckName = 0
-	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE       HealthCheckName = 1
-	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS HealthCheckName = 2
+	HealthCheckName_HEALTH_CHECK_NAME_UNSPECIFIED                      HealthCheckName = 0
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE                       HealthCheckName = 1
+	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS                 HealthCheckName = 2
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION       HealthCheckName = 3
+	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION HealthCheckName = 4
 )
 
 // Enum value maps for HealthCheckName.
@@ -35,11 +37,15 @@ var (
 		0: "HEALTH_CHECK_NAME_UNSPECIFIED",
 		1: "HEALTH_CHECK_NAME_CLICKHOUSE",
 		2: "HEALTH_CHECK_NAME_VICTORIA_METRICS",
+		3: "HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION",
+		4: "HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION",
 	}
 	HealthCheckName_value = map[string]int32{
-		"HEALTH_CHECK_NAME_UNSPECIFIED":      0,
-		"HEALTH_CHECK_NAME_CLICKHOUSE":       1,
-		"HEALTH_CHECK_NAME_VICTORIA_METRICS": 2,
+		"HEALTH_CHECK_NAME_UNSPECIFIED":                      0,
+		"HEALTH_CHECK_NAME_CLICKHOUSE":                       1,
+		"HEALTH_CHECK_NAME_VICTORIA_METRICS":                 2,
+		"HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION":       3,
+		"HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION": 4,
 	}
 )
 
@@ -344,11 +350,13 @@ const file_chalk_dataplane_v1_health_proto_rawDesc = "" +
 	"\n" +
 	"\b_message\"L\n" +
 	"\x11GetHealthResponse\x127\n" +
-	"\x06checks\x18\x01 \x03(\v2\x1f.chalk.dataplane.v1.HealthCheckR\x06checks*~\n" +
+	"\x06checks\x18\x01 \x03(\v2\x1f.chalk.dataplane.v1.HealthCheckR\x06checks*\xe8\x01\n" +
 	"\x0fHealthCheckName\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cHEALTH_CHECK_NAME_CLICKHOUSE\x10\x01\x12&\n" +
-	"\"HEALTH_CHECK_NAME_VICTORIA_METRICS\x10\x02*\x9d\x01\n" +
+	"\"HEALTH_CHECK_NAME_VICTORIA_METRICS\x10\x02\x120\n" +
+	",HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION\x10\x03\x126\n" +
+	"2HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION\x10\x04*\x9d\x01\n" +
 	"\x11HealthCheckStatus\x12#\n" +
 	"\x1fHEALTH_CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16HEALTH_CHECK_STATUS_OK\x10\x01\x12\x1f\n" +

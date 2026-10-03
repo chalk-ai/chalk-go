@@ -278,6 +278,9 @@ const (
 	// BuilderServiceDeleteClusterBackgroundPersistenceProcedure is the fully-qualified name of the
 	// BuilderService's DeleteClusterBackgroundPersistence RPC.
 	BuilderServiceDeleteClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/DeleteClusterBackgroundPersistence"
+	// BuilderServiceGetClusterNodepoolsProcedure is the fully-qualified name of the BuilderService's
+	// GetClusterNodepools RPC.
+	BuilderServiceGetClusterNodepoolsProcedure = "/chalk.server.v1.BuilderService/GetClusterNodepools"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -405,6 +408,7 @@ type BuilderServiceClient interface {
 	ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error)
 	DeleteClusterGateway(context.Context, *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error)
 	DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error)
+	GetClusterNodepools(context.Context, *connect.Request[v1.GetClusterNodepoolsRequest]) (*connect.Response[v1.GetClusterNodepoolsResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -920,6 +924,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("DeleteClusterBackgroundPersistence")),
 			connect.WithClientOptions(opts...),
 		),
+		getClusterNodepools: connect.NewClient[v1.GetClusterNodepoolsRequest, v1.GetClusterNodepoolsResponse](
+			httpClient,
+			baseURL+BuilderServiceGetClusterNodepoolsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterNodepools")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -1006,6 +1017,7 @@ type builderServiceClient struct {
 	resumeClusterBackgroundPersistence          *connect.Client[v1.ResumeClusterBackgroundPersistenceRequest, v1.ResumeClusterBackgroundPersistenceResponse]
 	deleteClusterGateway                        *connect.Client[v1.DeleteClusterGatewayRequest, v1.DeleteClusterGatewayResponse]
 	deleteClusterBackgroundPersistence          *connect.Client[v1.DeleteClusterBackgroundPersistenceRequest, v1.DeleteClusterBackgroundPersistenceResponse]
+	getClusterNodepools                         *connect.Client[v1.GetClusterNodepoolsRequest, v1.GetClusterNodepoolsResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -1448,6 +1460,11 @@ func (c *builderServiceClient) DeleteClusterBackgroundPersistence(ctx context.Co
 	return c.deleteClusterBackgroundPersistence.CallUnary(ctx, req)
 }
 
+// GetClusterNodepools calls chalk.server.v1.BuilderService.GetClusterNodepools.
+func (c *builderServiceClient) GetClusterNodepools(ctx context.Context, req *connect.Request[v1.GetClusterNodepoolsRequest]) (*connect.Response[v1.GetClusterNodepoolsResponse], error) {
+	return c.getClusterNodepools.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -1567,6 +1584,7 @@ type BuilderServiceHandler interface {
 	ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error)
 	DeleteClusterGateway(context.Context, *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error)
 	DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error)
+	GetClusterNodepools(context.Context, *connect.Request[v1.GetClusterNodepoolsRequest]) (*connect.Response[v1.GetClusterNodepoolsResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -2078,6 +2096,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("DeleteClusterBackgroundPersistence")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetClusterNodepoolsHandler := connect.NewUnaryHandler(
+		BuilderServiceGetClusterNodepoolsProcedure,
+		svc.GetClusterNodepools,
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterNodepools")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -2242,6 +2267,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceDeleteClusterGatewayHandler.ServeHTTP(w, r)
 		case BuilderServiceDeleteClusterBackgroundPersistenceProcedure:
 			builderServiceDeleteClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
+		case BuilderServiceGetClusterNodepoolsProcedure:
+			builderServiceGetClusterNodepoolsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -2573,6 +2600,10 @@ func (UnimplementedBuilderServiceHandler) DeleteClusterGateway(context.Context, 
 
 func (UnimplementedBuilderServiceHandler) DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetClusterNodepools(context.Context, *connect.Request[v1.GetClusterNodepoolsRequest]) (*connect.Response[v1.GetClusterNodepoolsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterNodepools is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.

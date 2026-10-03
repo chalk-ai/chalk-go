@@ -83,10 +83,12 @@ func (MonitorType) EnumDescriptor() ([]byte, []int) {
 }
 
 type LogsMonitor struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	QueryString   string                 `protobuf:"bytes,1,opt,name=query_string,json=queryString,proto3" json:"query_string,omitempty"`    // literal or regex matching
-	WindowPeriod  *durationpb.Duration   `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"` // window period to aggregate logs
-	DataSource    string                 `protobuf:"bytes,3,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	QueryString  string                 `protobuf:"bytes,1,opt,name=query_string,json=queryString,proto3" json:"query_string,omitempty"`    // literal or regex matching
+	WindowPeriod *durationpb.Duration   `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"` // window period to aggregate logs
+	// One of "logs", "access_logs", or "kube_events". Monitors created before this
+	// field existed store "", which is interpreted as "logs".
+	DataSource    string `protobuf:"bytes,3,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

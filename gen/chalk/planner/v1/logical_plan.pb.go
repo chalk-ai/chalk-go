@@ -29,38 +29,39 @@ const (
 type LogicalTableNodeType int32
 
 const (
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED            LogicalTableNodeType = 0
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_NAMED_TABLE            LogicalTableNodeType = 1
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TABLE_SCAN             LogicalTableNodeType = 2
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_PROJECTION             LogicalTableNodeType = 3
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_FILTER                 LogicalTableNodeType = 4
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_JOIN                   LogicalTableNodeType = 5
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_JOIN_AS_OF             LogicalTableNodeType = 6
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SEMI_JOIN              LogicalTableNodeType = 7
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_CONCAT                 LogicalTableNodeType = 8
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_LIMIT                  LogicalTableNodeType = 9
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SORT                   LogicalTableNodeType = 10
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TOP_N                  LogicalTableNodeType = 11
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_AGGREGATION            LogicalTableNodeType = 12
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_WINDOW                 LogicalTableNodeType = 13
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_EXPLODE                LogicalTableNodeType = 14
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_PARTITION              LogicalTableNodeType = 15
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNIQUE_ID              LogicalTableNodeType = 16
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_BATCH_UDF              LogicalTableNodeType = 17
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_VALUES                 LogicalTableNodeType = 18
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_RECHUNK                LogicalTableNodeType = 19
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_REPLAY                 LogicalTableNodeType = 20
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SPLIT                  LogicalTableNodeType = 21
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_CONDITIONAL            LogicalTableNodeType = 22
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_ENSURE_DISTINCT        LogicalTableNodeType = 23
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE            LogicalTableNodeType = 24
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TIMELINE_TRACER        LogicalTableNodeType = 25
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER LogicalTableNodeType = 26
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION         LogicalTableNodeType = 27
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER       LogicalTableNodeType = 28
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD   LogicalTableNodeType = 29
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN    LogicalTableNodeType = 30
-	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN      LogicalTableNodeType = 31
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED             LogicalTableNodeType = 0
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_NAMED_TABLE             LogicalTableNodeType = 1
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TABLE_SCAN              LogicalTableNodeType = 2
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_PROJECTION              LogicalTableNodeType = 3
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_FILTER                  LogicalTableNodeType = 4
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_JOIN                    LogicalTableNodeType = 5
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_JOIN_AS_OF              LogicalTableNodeType = 6
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SEMI_JOIN               LogicalTableNodeType = 7
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_CONCAT                  LogicalTableNodeType = 8
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_LIMIT                   LogicalTableNodeType = 9
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SORT                    LogicalTableNodeType = 10
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TOP_N                   LogicalTableNodeType = 11
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_AGGREGATION             LogicalTableNodeType = 12
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_WINDOW                  LogicalTableNodeType = 13
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_EXPLODE                 LogicalTableNodeType = 14
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_PARTITION               LogicalTableNodeType = 15
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNIQUE_ID               LogicalTableNodeType = 16
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_BATCH_UDF               LogicalTableNodeType = 17
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_VALUES                  LogicalTableNodeType = 18
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_RECHUNK                 LogicalTableNodeType = 19
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_REPLAY                  LogicalTableNodeType = 20
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SPLIT                   LogicalTableNodeType = 21
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_CONDITIONAL             LogicalTableNodeType = 22
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_ENSURE_DISTINCT         LogicalTableNodeType = 23
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE             LogicalTableNodeType = 24
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TIMELINE_TRACER         LogicalTableNodeType = 25
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER  LogicalTableNodeType = 26
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION          LogicalTableNodeType = 27
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER        LogicalTableNodeType = 28
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD    LogicalTableNodeType = 29
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN     LogicalTableNodeType = 30
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN       LogicalTableNodeType = 31
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNLOADED_SNOWFLAKE_SCAN LogicalTableNodeType = 32
 )
 
 // Enum value maps for LogicalTableNodeType.
@@ -98,40 +99,42 @@ var (
 		29: "LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD",
 		30: "LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN",
 		31: "LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN",
+		32: "LOGICAL_TABLE_NODE_TYPE_UNLOADED_SNOWFLAKE_SCAN",
 	}
 	LogicalTableNodeType_value = map[string]int32{
-		"LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED":            0,
-		"LOGICAL_TABLE_NODE_TYPE_NAMED_TABLE":            1,
-		"LOGICAL_TABLE_NODE_TYPE_TABLE_SCAN":             2,
-		"LOGICAL_TABLE_NODE_TYPE_PROJECTION":             3,
-		"LOGICAL_TABLE_NODE_TYPE_FILTER":                 4,
-		"LOGICAL_TABLE_NODE_TYPE_JOIN":                   5,
-		"LOGICAL_TABLE_NODE_TYPE_JOIN_AS_OF":             6,
-		"LOGICAL_TABLE_NODE_TYPE_SEMI_JOIN":              7,
-		"LOGICAL_TABLE_NODE_TYPE_CONCAT":                 8,
-		"LOGICAL_TABLE_NODE_TYPE_LIMIT":                  9,
-		"LOGICAL_TABLE_NODE_TYPE_SORT":                   10,
-		"LOGICAL_TABLE_NODE_TYPE_TOP_N":                  11,
-		"LOGICAL_TABLE_NODE_TYPE_AGGREGATION":            12,
-		"LOGICAL_TABLE_NODE_TYPE_WINDOW":                 13,
-		"LOGICAL_TABLE_NODE_TYPE_EXPLODE":                14,
-		"LOGICAL_TABLE_NODE_TYPE_PARTITION":              15,
-		"LOGICAL_TABLE_NODE_TYPE_UNIQUE_ID":              16,
-		"LOGICAL_TABLE_NODE_TYPE_BATCH_UDF":              17,
-		"LOGICAL_TABLE_NODE_TYPE_VALUES":                 18,
-		"LOGICAL_TABLE_NODE_TYPE_RECHUNK":                19,
-		"LOGICAL_TABLE_NODE_TYPE_REPLAY":                 20,
-		"LOGICAL_TABLE_NODE_TYPE_SPLIT":                  21,
-		"LOGICAL_TABLE_NODE_TYPE_CONDITIONAL":            22,
-		"LOGICAL_TABLE_NODE_TYPE_ENSURE_DISTINCT":        23,
-		"LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE":            24,
-		"LOGICAL_TABLE_NODE_TYPE_TIMELINE_TRACER":        25,
-		"LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER": 26,
-		"LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION":         27,
-		"LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER":       28,
-		"LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD":   29,
-		"LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN":    30,
-		"LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN":      31,
+		"LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED":             0,
+		"LOGICAL_TABLE_NODE_TYPE_NAMED_TABLE":             1,
+		"LOGICAL_TABLE_NODE_TYPE_TABLE_SCAN":              2,
+		"LOGICAL_TABLE_NODE_TYPE_PROJECTION":              3,
+		"LOGICAL_TABLE_NODE_TYPE_FILTER":                  4,
+		"LOGICAL_TABLE_NODE_TYPE_JOIN":                    5,
+		"LOGICAL_TABLE_NODE_TYPE_JOIN_AS_OF":              6,
+		"LOGICAL_TABLE_NODE_TYPE_SEMI_JOIN":               7,
+		"LOGICAL_TABLE_NODE_TYPE_CONCAT":                  8,
+		"LOGICAL_TABLE_NODE_TYPE_LIMIT":                   9,
+		"LOGICAL_TABLE_NODE_TYPE_SORT":                    10,
+		"LOGICAL_TABLE_NODE_TYPE_TOP_N":                   11,
+		"LOGICAL_TABLE_NODE_TYPE_AGGREGATION":             12,
+		"LOGICAL_TABLE_NODE_TYPE_WINDOW":                  13,
+		"LOGICAL_TABLE_NODE_TYPE_EXPLODE":                 14,
+		"LOGICAL_TABLE_NODE_TYPE_PARTITION":               15,
+		"LOGICAL_TABLE_NODE_TYPE_UNIQUE_ID":               16,
+		"LOGICAL_TABLE_NODE_TYPE_BATCH_UDF":               17,
+		"LOGICAL_TABLE_NODE_TYPE_VALUES":                  18,
+		"LOGICAL_TABLE_NODE_TYPE_RECHUNK":                 19,
+		"LOGICAL_TABLE_NODE_TYPE_REPLAY":                  20,
+		"LOGICAL_TABLE_NODE_TYPE_SPLIT":                   21,
+		"LOGICAL_TABLE_NODE_TYPE_CONDITIONAL":             22,
+		"LOGICAL_TABLE_NODE_TYPE_ENSURE_DISTINCT":         23,
+		"LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE":             24,
+		"LOGICAL_TABLE_NODE_TYPE_TIMELINE_TRACER":         25,
+		"LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER":  26,
+		"LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION":          27,
+		"LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER":        28,
+		"LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD":    29,
+		"LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN":     30,
+		"LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN":       31,
+		"LOGICAL_TABLE_NODE_TYPE_UNLOADED_SNOWFLAKE_SCAN": 32,
 	}
 )
 
@@ -1060,7 +1063,7 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x10logical_plan_arg\x18\x01 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentB\x02\x18\x01H\x00R\x0elogicalPlanArg\x127\n" +
 	"\x06py_obj\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectB\x02\x18\x01H\x00R\x05pyObj:\x02\x18\x01B\x05\n" +
 	"\x03arg\"\x1c\n" +
-	"\x1aLogicalPlanArgumentNullOpt*\x9c\n" +
+	"\x1aLogicalPlanArgumentNullOpt*\xd1\n" +
 	"\n" +
 	"\x14LogicalTableNodeType\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
@@ -1095,7 +1098,8 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"(LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER\x10\x1c\x120\n" +
 	",LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE_AND_LOAD\x10\x1d\x12/\n" +
 	"+LOGICAL_TABLE_NODE_TYPE_DATASET_STREAM_SCAN\x10\x1e\x12-\n" +
-	")LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN\x10\x1fB\xc7\x01\n" +
+	")LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN\x10\x1f\x123\n" +
+	"/LOGICAL_TABLE_NODE_TYPE_UNLOADED_SNOWFLAKE_SCAN\x10 B\xc7\x01\n" +
 	"\x14com.chalk.planner.v1B\x10LogicalPlanProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

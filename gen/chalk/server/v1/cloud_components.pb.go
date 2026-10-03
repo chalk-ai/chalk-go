@@ -92,6 +92,8 @@ const (
 	MaintenanceWindow_MODE_UNRESTRICTED MaintenanceWindow_Mode = 1
 	// Use the schedule and duration fields below.
 	MaintenanceWindow_MODE_CUSTOM MaintenanceWindow_Mode = 2
+	// Keep the maintenance window closed unless a temporary override is active.
+	MaintenanceWindow_MODE_DISABLED MaintenanceWindow_Mode = 3
 )
 
 // Enum value maps for MaintenanceWindow_Mode.
@@ -100,11 +102,13 @@ var (
 		0: "MODE_UNSPECIFIED",
 		1: "MODE_UNRESTRICTED",
 		2: "MODE_CUSTOM",
+		3: "MODE_DISABLED",
 	}
 	MaintenanceWindow_Mode_value = map[string]int32{
 		"MODE_UNSPECIFIED":  0,
 		"MODE_UNRESTRICTED": 1,
 		"MODE_CUSTOM":       2,
+		"MODE_DISABLED":     3,
 	}
 )
 
@@ -9671,16 +9675,17 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x04spec\x18\x02 \x01(\v20.chalk.server.v1.CloudComponentContainerRegistryR\x04spec\x12\x18\n" +
 	"\amanaged\x18\x03 \x01(\bR\amanaged\x123\n" +
 	"\x13cloud_credential_id\x18\x04 \x01(\tH\x00R\x11cloudCredentialId\x88\x01\x01B\x16\n" +
-	"\x14_cloud_credential_id\"\xbd\x02\n" +
+	"\x14_cloud_credential_id\"\xd0\x02\n" +
 	"\x11MaintenanceWindow\x12;\n" +
 	"\x04mode\x18\x01 \x01(\x0e2'.chalk.server.v1.MaintenanceWindow.ModeR\x04mode\x12\x1a\n" +
 	"\bschedule\x18\x02 \x01(\tR\bschedule\x12\x1a\n" +
 	"\bduration\x18\x03 \x01(\tR\bduration\x12S\n" +
-	"\x15override_active_until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x13overrideActiveUntil\x88\x01\x01\"D\n" +
+	"\x15override_active_until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x13overrideActiveUntil\x88\x01\x01\"W\n" +
 	"\x04Mode\x12\x14\n" +
 	"\x10MODE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11MODE_UNRESTRICTED\x10\x01\x12\x0f\n" +
-	"\vMODE_CUSTOM\x10\x02B\x18\n" +
+	"\vMODE_CUSTOM\x10\x02\x12\x11\n" +
+	"\rMODE_DISABLED\x10\x03B\x18\n" +
 	"\x16_override_active_until\"\xa6\t\n" +
 	"\x15CloudComponentCluster\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
@@ -10163,7 +10168,7 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x1fDeactivateRecoveryClusterTarget\x127.chalk.server.v1.DeactivateRecoveryClusterTargetRequest\x1a8.chalk.server.v1.DeactivateRecoveryClusterTargetResponse\"1\x88}\n" +
 	"\x8a\xd3\x0e'\b\x02\x12#Deactivated recovery cluster target\x90\x02\x02\x12\xb3\x01\n" +
 	"\x1bUpdateCloudComponentCluster\x123.chalk.server.v1.UpdateCloudComponentClusterRequest\x1a4.chalk.server.v1.UpdateCloudComponentClusterResponse\")\x88}\x1a\x8a\xd3\x0e\"\b\x02\x12\x1eUpdate cloud component cluster\x12\x87\x01\n" +
-	"\x18GetCloudComponentCluster\x120.chalk.server.v1.GetCloudComponentClusterRequest\x1a1.chalk.server.v1.GetCloudComponentClusterResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8a\x01\n" +
+	"\x18GetCloudComponentCluster\x120.chalk.server.v1.GetCloudComponentClusterRequest\x1a1.chalk.server.v1.GetCloudComponentClusterResponse\"\x06\x88}\v\x90\x02\x01\x12\x8a\x01\n" +
 	"\x19ListCloudComponentCluster\x121.chalk.server.v1.ListCloudComponentClusterRequest\x1a2.chalk.server.v1.ListCloudComponentClusterResponse\"\x06\x80}\x02\x90\x02\x01\x12\x81\x01\n" +
 	"\x16ListServerlessClusters\x12..chalk.server.v1.ListServerlessClustersRequest\x1a/.chalk.server.v1.ListServerlessClustersResponse\"\x06\x80}\x02\x90\x02\x01\x12\xb4\x01\n" +
 	"\x1bDeleteCloudComponentCluster\x123.chalk.server.v1.DeleteCloudComponentClusterRequest\x1a4.chalk.server.v1.DeleteCloudComponentClusterResponse\"*\x88}\x1a\x8a\xd3\x0e#\b\x02\x12\x1fDeleted cloud component cluster\x12~\n" +
@@ -10192,15 +10197,15 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"%DeleteBindingClusterContainerRegistry\x12=.chalk.server.v1.DeleteBindingClusterContainerRegistryRequest\x1a>.chalk.server.v1.DeleteBindingClusterContainerRegistryResponse\"A\x88}\x1a\x8a\xd3\x0e:\b\x02\x126Deleted binding between cluster and container registry\x12\xc0\x01\n" +
 	"\x1bCreateBindingClusterGateway\x123.chalk.server.v1.CreateBindingClusterGatewayRequest\x1a4.chalk.server.v1.CreateBindingClusterGatewayResponse\"6\x88}\x1a\x8a\xd3\x0e/\b\x02\x12+Created binding between cluster and gateway\x12\x87\x01\n" +
 	"\x18GetBindingClusterGateway\x120.chalk.server.v1.GetBindingClusterGatewayRequest\x1a1.chalk.server.v1.GetBindingClusterGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8a\x01\n" +
-	"\x19ListBindingClusterGateway\x121.chalk.server.v1.ListBindingClusterGatewayRequest\x1a2.chalk.server.v1.ListBindingClusterGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc0\x01\n" +
+	"\x19ListBindingClusterGateway\x121.chalk.server.v1.ListBindingClusterGatewayRequest\x1a2.chalk.server.v1.ListBindingClusterGatewayResponse\"\x06\x88}\v\x90\x02\x01\x12\xc0\x01\n" +
 	"\x1bDeleteBindingClusterGateway\x123.chalk.server.v1.DeleteBindingClusterGatewayRequest\x1a4.chalk.server.v1.DeleteBindingClusterGatewayResponse\"6\x88}\x1a\x8a\xd3\x0e/\b\x02\x12+Deleted binding between cluster and gateway\x12\xcc\x01\n" +
 	"\x1cCreateBindingServicesGateway\x124.chalk.server.v1.CreateBindingServicesGatewayRequest\x1a5.chalk.server.v1.CreateBindingServicesGatewayResponse\"?\x88}\x1a\x8a\xd3\x0e8\b\x02\x124Created binding between cluster and services gateway\x12\x8a\x01\n" +
 	"\x19GetBindingServicesGateway\x121.chalk.server.v1.GetBindingServicesGatewayRequest\x1a2.chalk.server.v1.GetBindingServicesGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8d\x01\n" +
-	"\x1aListBindingServicesGateway\x122.chalk.server.v1.ListBindingServicesGatewayRequest\x1a3.chalk.server.v1.ListBindingServicesGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xcc\x01\n" +
+	"\x1aListBindingServicesGateway\x122.chalk.server.v1.ListBindingServicesGatewayRequest\x1a3.chalk.server.v1.ListBindingServicesGatewayResponse\"\x06\x88}\v\x90\x02\x01\x12\xcc\x01\n" +
 	"\x1cDeleteBindingServicesGateway\x124.chalk.server.v1.DeleteBindingServicesGatewayRequest\x1a5.chalk.server.v1.DeleteBindingServicesGatewayResponse\"?\x88}\x1a\x8a\xd3\x0e8\b\x02\x124Deleted binding between cluster and services gateway\x12\xc8\x01\n" +
 	"\x1bCreateBindingPrivateGateway\x123.chalk.server.v1.CreateBindingPrivateGatewayRequest\x1a4.chalk.server.v1.CreateBindingPrivateGatewayResponse\">\x88}\x1a\x8a\xd3\x0e7\b\x02\x123Created binding between cluster and private gateway\x12\x87\x01\n" +
 	"\x18GetBindingPrivateGateway\x120.chalk.server.v1.GetBindingPrivateGatewayRequest\x1a1.chalk.server.v1.GetBindingPrivateGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8a\x01\n" +
-	"\x19ListBindingPrivateGateway\x121.chalk.server.v1.ListBindingPrivateGatewayRequest\x1a2.chalk.server.v1.ListBindingPrivateGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc8\x01\n" +
+	"\x19ListBindingPrivateGateway\x121.chalk.server.v1.ListBindingPrivateGatewayRequest\x1a2.chalk.server.v1.ListBindingPrivateGatewayResponse\"\x06\x88}\v\x90\x02\x01\x12\xc8\x01\n" +
 	"\x1bDeleteBindingPrivateGateway\x123.chalk.server.v1.DeleteBindingPrivateGatewayRequest\x1a4.chalk.server.v1.DeleteBindingPrivateGatewayResponse\">\x88}\x1a\x8a\xd3\x0e7\b\x02\x123Deleted binding between cluster and private gateway\x12\xa2\x02\n" +
 	"3CreateBindingClusterBackgroundPersistenceDeployment\x12K.chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest\x1aL.chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse\"P\x88}\x1a\x8a\xd3\x0eI\b\x02\x12ECreated binding between cluster and background persistence deployment\x12\xcf\x01\n" +
 	"0GetBindingClusterBackgroundPersistenceDeployment\x12H.chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest\x1aI.chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xd2\x01\n" +
@@ -10212,7 +10217,7 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"'DeleteBindingClusterTelemetryDeployment\x12?.chalk.server.v1.DeleteBindingClusterTelemetryDeploymentRequest\x1a@.chalk.server.v1.DeleteBindingClusterTelemetryDeploymentResponse\"C\x88}\x1a\x8a\xd3\x0e<\b\x02\x128Deleted binding between cluster and telemetry deployment\x12\xd0\x01\n" +
 	"\x1fCreateBindingEnvironmentGateway\x127.chalk.server.v1.CreateBindingEnvironmentGatewayRequest\x1a8.chalk.server.v1.CreateBindingEnvironmentGatewayResponse\":\x88}\x1a\x8a\xd3\x0e3\b\x02\x12/Created binding between environment and gateway\x12\x93\x01\n" +
 	"\x1cGetBindingEnvironmentGateway\x124.chalk.server.v1.GetBindingEnvironmentGatewayRequest\x1a5.chalk.server.v1.GetBindingEnvironmentGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\x96\x01\n" +
-	"\x1dListBindingEnvironmentGateway\x125.chalk.server.v1.ListBindingEnvironmentGatewayRequest\x1a6.chalk.server.v1.ListBindingEnvironmentGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xd0\x01\n" +
+	"\x1dListBindingEnvironmentGateway\x125.chalk.server.v1.ListBindingEnvironmentGatewayRequest\x1a6.chalk.server.v1.ListBindingEnvironmentGatewayResponse\"\x06\x88}\v\x90\x02\x01\x12\xd0\x01\n" +
 	"\x1fDeleteBindingEnvironmentGateway\x127.chalk.server.v1.DeleteBindingEnvironmentGatewayRequest\x1a8.chalk.server.v1.DeleteBindingEnvironmentGatewayResponse\":\x88}\x1a\x8a\xd3\x0e3\b\x02\x12/Deleted binding between environment and gateway\x12\xb2\x02\n" +
 	"7CreateBindingEnvironmentBackgroundPersistenceDeployment\x12O.chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest\x1aP.chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse\"T\x88}\x1a\x8a\xd3\x0eM\b\x02\x12ICreated binding between environment and background persistence deployment\x12\xdb\x01\n" +
 	"4GetBindingEnvironmentBackgroundPersistenceDeployment\x12L.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest\x1aM.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xde\x01\n" +

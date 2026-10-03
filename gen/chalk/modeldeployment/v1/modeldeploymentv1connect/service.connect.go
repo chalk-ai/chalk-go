@@ -36,9 +36,24 @@ const (
 	// ModelDeploymentServiceCreateModelScalingGroupProcedure is the fully-qualified name of the
 	// ModelDeploymentService's CreateModelScalingGroup RPC.
 	ModelDeploymentServiceCreateModelScalingGroupProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/CreateModelScalingGroup"
+	// ModelDeploymentServiceUpdateModelScalingGroupProcedure is the fully-qualified name of the
+	// ModelDeploymentService's UpdateModelScalingGroup RPC.
+	ModelDeploymentServiceUpdateModelScalingGroupProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/UpdateModelScalingGroup"
+	// ModelDeploymentServiceGetModelScalingGroupProcedure is the fully-qualified name of the
+	// ModelDeploymentService's GetModelScalingGroup RPC.
+	ModelDeploymentServiceGetModelScalingGroupProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/GetModelScalingGroup"
 	// ModelDeploymentServiceListModelScalingGroupsProcedure is the fully-qualified name of the
 	// ModelDeploymentService's ListModelScalingGroups RPC.
 	ModelDeploymentServiceListModelScalingGroupsProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/ListModelScalingGroups"
+	// ModelDeploymentServiceDeleteModelScalingGroupProcedure is the fully-qualified name of the
+	// ModelDeploymentService's DeleteModelScalingGroup RPC.
+	ModelDeploymentServiceDeleteModelScalingGroupProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/DeleteModelScalingGroup"
+	// ModelDeploymentServiceGetModelScalingGroupRevisionProcedure is the fully-qualified name of the
+	// ModelDeploymentService's GetModelScalingGroupRevision RPC.
+	ModelDeploymentServiceGetModelScalingGroupRevisionProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/GetModelScalingGroupRevision"
+	// ModelDeploymentServiceListModelScalingGroupRevisionsProcedure is the fully-qualified name of the
+	// ModelDeploymentService's ListModelScalingGroupRevisions RPC.
+	ModelDeploymentServiceListModelScalingGroupRevisionsProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/ListModelScalingGroupRevisions"
 	// ModelDeploymentServiceCallModelProcedure is the fully-qualified name of the
 	// ModelDeploymentService's CallModel RPC.
 	ModelDeploymentServiceCallModelProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/CallModel"
@@ -47,10 +62,20 @@ const (
 // ModelDeploymentServiceClient is a client for the chalk.modeldeployment.v1.ModelDeploymentService
 // service.
 type ModelDeploymentServiceClient interface {
-	// CreateModelScalingGroup creates a scaling group for a model version
+	// Creates a model deployment or appends and selects a revision on redeploy.
 	CreateModelScalingGroup(context.Context, *connect.Request[v1.CreateModelScalingGroupRequest]) (*connect.Response[v1.CreateModelScalingGroupResponse], error)
+	// UpdateModelScalingGroup updates a model scaling group's spec, traffic, or both.
+	UpdateModelScalingGroup(context.Context, *connect.Request[v1.UpdateModelScalingGroupRequest]) (*connect.Response[v1.UpdateModelScalingGroupResponse], error)
+	// GetModelScalingGroup retrieves a model-owned scaling group.
+	GetModelScalingGroup(context.Context, *connect.Request[v1.GetModelScalingGroupRequest]) (*connect.Response[v1.GetModelScalingGroupResponse], error)
 	// ListModelScalingGroups lists model scaling groups, optionally filtered to a model version
 	ListModelScalingGroups(context.Context, *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error)
+	// DeleteModelScalingGroup deletes a model scaling group and its Kubernetes resources.
+	DeleteModelScalingGroup(context.Context, *connect.Request[v1.DeleteModelScalingGroupRequest]) (*connect.Response[v1.DeleteModelScalingGroupResponse], error)
+	// GetModelScalingGroupRevision retrieves one model deployment revision.
+	GetModelScalingGroupRevision(context.Context, *connect.Request[v1.GetModelScalingGroupRevisionRequest]) (*connect.Response[v1.GetModelScalingGroupRevisionResponse], error)
+	// ListModelScalingGroupRevisions lists a model deployment's revisions.
+	ListModelScalingGroupRevisions(context.Context, *connect.Request[v1.ListModelScalingGroupRevisionsRequest]) (*connect.Response[v1.ListModelScalingGroupRevisionsResponse], error)
 	// CallModel synchronously invokes a model scaling group or asynchronously enqueues a model call.
 	CallModel(context.Context, *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error)
 }
@@ -73,10 +98,40 @@ func NewModelDeploymentServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(modelDeploymentServiceMethods.ByName("CreateModelScalingGroup")),
 			connect.WithClientOptions(opts...),
 		),
+		updateModelScalingGroup: connect.NewClient[v1.UpdateModelScalingGroupRequest, v1.UpdateModelScalingGroupResponse](
+			httpClient,
+			baseURL+ModelDeploymentServiceUpdateModelScalingGroupProcedure,
+			connect.WithSchema(modelDeploymentServiceMethods.ByName("UpdateModelScalingGroup")),
+			connect.WithClientOptions(opts...),
+		),
+		getModelScalingGroup: connect.NewClient[v1.GetModelScalingGroupRequest, v1.GetModelScalingGroupResponse](
+			httpClient,
+			baseURL+ModelDeploymentServiceGetModelScalingGroupProcedure,
+			connect.WithSchema(modelDeploymentServiceMethods.ByName("GetModelScalingGroup")),
+			connect.WithClientOptions(opts...),
+		),
 		listModelScalingGroups: connect.NewClient[v1.ListModelScalingGroupsRequest, v1.ListModelScalingGroupsResponse](
 			httpClient,
 			baseURL+ModelDeploymentServiceListModelScalingGroupsProcedure,
 			connect.WithSchema(modelDeploymentServiceMethods.ByName("ListModelScalingGroups")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteModelScalingGroup: connect.NewClient[v1.DeleteModelScalingGroupRequest, v1.DeleteModelScalingGroupResponse](
+			httpClient,
+			baseURL+ModelDeploymentServiceDeleteModelScalingGroupProcedure,
+			connect.WithSchema(modelDeploymentServiceMethods.ByName("DeleteModelScalingGroup")),
+			connect.WithClientOptions(opts...),
+		),
+		getModelScalingGroupRevision: connect.NewClient[v1.GetModelScalingGroupRevisionRequest, v1.GetModelScalingGroupRevisionResponse](
+			httpClient,
+			baseURL+ModelDeploymentServiceGetModelScalingGroupRevisionProcedure,
+			connect.WithSchema(modelDeploymentServiceMethods.ByName("GetModelScalingGroupRevision")),
+			connect.WithClientOptions(opts...),
+		),
+		listModelScalingGroupRevisions: connect.NewClient[v1.ListModelScalingGroupRevisionsRequest, v1.ListModelScalingGroupRevisionsResponse](
+			httpClient,
+			baseURL+ModelDeploymentServiceListModelScalingGroupRevisionsProcedure,
+			connect.WithSchema(modelDeploymentServiceMethods.ByName("ListModelScalingGroupRevisions")),
 			connect.WithClientOptions(opts...),
 		),
 		callModel: connect.NewClient[v1.CallModelRequest, v1.CallModelResponse](
@@ -90,9 +145,14 @@ func NewModelDeploymentServiceClient(httpClient connect.HTTPClient, baseURL stri
 
 // modelDeploymentServiceClient implements ModelDeploymentServiceClient.
 type modelDeploymentServiceClient struct {
-	createModelScalingGroup *connect.Client[v1.CreateModelScalingGroupRequest, v1.CreateModelScalingGroupResponse]
-	listModelScalingGroups  *connect.Client[v1.ListModelScalingGroupsRequest, v1.ListModelScalingGroupsResponse]
-	callModel               *connect.Client[v1.CallModelRequest, v1.CallModelResponse]
+	createModelScalingGroup        *connect.Client[v1.CreateModelScalingGroupRequest, v1.CreateModelScalingGroupResponse]
+	updateModelScalingGroup        *connect.Client[v1.UpdateModelScalingGroupRequest, v1.UpdateModelScalingGroupResponse]
+	getModelScalingGroup           *connect.Client[v1.GetModelScalingGroupRequest, v1.GetModelScalingGroupResponse]
+	listModelScalingGroups         *connect.Client[v1.ListModelScalingGroupsRequest, v1.ListModelScalingGroupsResponse]
+	deleteModelScalingGroup        *connect.Client[v1.DeleteModelScalingGroupRequest, v1.DeleteModelScalingGroupResponse]
+	getModelScalingGroupRevision   *connect.Client[v1.GetModelScalingGroupRevisionRequest, v1.GetModelScalingGroupRevisionResponse]
+	listModelScalingGroupRevisions *connect.Client[v1.ListModelScalingGroupRevisionsRequest, v1.ListModelScalingGroupRevisionsResponse]
+	callModel                      *connect.Client[v1.CallModelRequest, v1.CallModelResponse]
 }
 
 // CreateModelScalingGroup calls
@@ -101,10 +161,39 @@ func (c *modelDeploymentServiceClient) CreateModelScalingGroup(ctx context.Conte
 	return c.createModelScalingGroup.CallUnary(ctx, req)
 }
 
+// UpdateModelScalingGroup calls
+// chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup.
+func (c *modelDeploymentServiceClient) UpdateModelScalingGroup(ctx context.Context, req *connect.Request[v1.UpdateModelScalingGroupRequest]) (*connect.Response[v1.UpdateModelScalingGroupResponse], error) {
+	return c.updateModelScalingGroup.CallUnary(ctx, req)
+}
+
+// GetModelScalingGroup calls chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup.
+func (c *modelDeploymentServiceClient) GetModelScalingGroup(ctx context.Context, req *connect.Request[v1.GetModelScalingGroupRequest]) (*connect.Response[v1.GetModelScalingGroupResponse], error) {
+	return c.getModelScalingGroup.CallUnary(ctx, req)
+}
+
 // ListModelScalingGroups calls
 // chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups.
 func (c *modelDeploymentServiceClient) ListModelScalingGroups(ctx context.Context, req *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error) {
 	return c.listModelScalingGroups.CallUnary(ctx, req)
+}
+
+// DeleteModelScalingGroup calls
+// chalk.modeldeployment.v1.ModelDeploymentService.DeleteModelScalingGroup.
+func (c *modelDeploymentServiceClient) DeleteModelScalingGroup(ctx context.Context, req *connect.Request[v1.DeleteModelScalingGroupRequest]) (*connect.Response[v1.DeleteModelScalingGroupResponse], error) {
+	return c.deleteModelScalingGroup.CallUnary(ctx, req)
+}
+
+// GetModelScalingGroupRevision calls
+// chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroupRevision.
+func (c *modelDeploymentServiceClient) GetModelScalingGroupRevision(ctx context.Context, req *connect.Request[v1.GetModelScalingGroupRevisionRequest]) (*connect.Response[v1.GetModelScalingGroupRevisionResponse], error) {
+	return c.getModelScalingGroupRevision.CallUnary(ctx, req)
+}
+
+// ListModelScalingGroupRevisions calls
+// chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroupRevisions.
+func (c *modelDeploymentServiceClient) ListModelScalingGroupRevisions(ctx context.Context, req *connect.Request[v1.ListModelScalingGroupRevisionsRequest]) (*connect.Response[v1.ListModelScalingGroupRevisionsResponse], error) {
+	return c.listModelScalingGroupRevisions.CallUnary(ctx, req)
 }
 
 // CallModel calls chalk.modeldeployment.v1.ModelDeploymentService.CallModel.
@@ -115,10 +204,20 @@ func (c *modelDeploymentServiceClient) CallModel(ctx context.Context, req *conne
 // ModelDeploymentServiceHandler is an implementation of the
 // chalk.modeldeployment.v1.ModelDeploymentService service.
 type ModelDeploymentServiceHandler interface {
-	// CreateModelScalingGroup creates a scaling group for a model version
+	// Creates a model deployment or appends and selects a revision on redeploy.
 	CreateModelScalingGroup(context.Context, *connect.Request[v1.CreateModelScalingGroupRequest]) (*connect.Response[v1.CreateModelScalingGroupResponse], error)
+	// UpdateModelScalingGroup updates a model scaling group's spec, traffic, or both.
+	UpdateModelScalingGroup(context.Context, *connect.Request[v1.UpdateModelScalingGroupRequest]) (*connect.Response[v1.UpdateModelScalingGroupResponse], error)
+	// GetModelScalingGroup retrieves a model-owned scaling group.
+	GetModelScalingGroup(context.Context, *connect.Request[v1.GetModelScalingGroupRequest]) (*connect.Response[v1.GetModelScalingGroupResponse], error)
 	// ListModelScalingGroups lists model scaling groups, optionally filtered to a model version
 	ListModelScalingGroups(context.Context, *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error)
+	// DeleteModelScalingGroup deletes a model scaling group and its Kubernetes resources.
+	DeleteModelScalingGroup(context.Context, *connect.Request[v1.DeleteModelScalingGroupRequest]) (*connect.Response[v1.DeleteModelScalingGroupResponse], error)
+	// GetModelScalingGroupRevision retrieves one model deployment revision.
+	GetModelScalingGroupRevision(context.Context, *connect.Request[v1.GetModelScalingGroupRevisionRequest]) (*connect.Response[v1.GetModelScalingGroupRevisionResponse], error)
+	// ListModelScalingGroupRevisions lists a model deployment's revisions.
+	ListModelScalingGroupRevisions(context.Context, *connect.Request[v1.ListModelScalingGroupRevisionsRequest]) (*connect.Response[v1.ListModelScalingGroupRevisionsResponse], error)
 	// CallModel synchronously invokes a model scaling group or asynchronously enqueues a model call.
 	CallModel(context.Context, *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error)
 }
@@ -136,10 +235,40 @@ func NewModelDeploymentServiceHandler(svc ModelDeploymentServiceHandler, opts ..
 		connect.WithSchema(modelDeploymentServiceMethods.ByName("CreateModelScalingGroup")),
 		connect.WithHandlerOptions(opts...),
 	)
+	modelDeploymentServiceUpdateModelScalingGroupHandler := connect.NewUnaryHandler(
+		ModelDeploymentServiceUpdateModelScalingGroupProcedure,
+		svc.UpdateModelScalingGroup,
+		connect.WithSchema(modelDeploymentServiceMethods.ByName("UpdateModelScalingGroup")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelDeploymentServiceGetModelScalingGroupHandler := connect.NewUnaryHandler(
+		ModelDeploymentServiceGetModelScalingGroupProcedure,
+		svc.GetModelScalingGroup,
+		connect.WithSchema(modelDeploymentServiceMethods.ByName("GetModelScalingGroup")),
+		connect.WithHandlerOptions(opts...),
+	)
 	modelDeploymentServiceListModelScalingGroupsHandler := connect.NewUnaryHandler(
 		ModelDeploymentServiceListModelScalingGroupsProcedure,
 		svc.ListModelScalingGroups,
 		connect.WithSchema(modelDeploymentServiceMethods.ByName("ListModelScalingGroups")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelDeploymentServiceDeleteModelScalingGroupHandler := connect.NewUnaryHandler(
+		ModelDeploymentServiceDeleteModelScalingGroupProcedure,
+		svc.DeleteModelScalingGroup,
+		connect.WithSchema(modelDeploymentServiceMethods.ByName("DeleteModelScalingGroup")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelDeploymentServiceGetModelScalingGroupRevisionHandler := connect.NewUnaryHandler(
+		ModelDeploymentServiceGetModelScalingGroupRevisionProcedure,
+		svc.GetModelScalingGroupRevision,
+		connect.WithSchema(modelDeploymentServiceMethods.ByName("GetModelScalingGroupRevision")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelDeploymentServiceListModelScalingGroupRevisionsHandler := connect.NewUnaryHandler(
+		ModelDeploymentServiceListModelScalingGroupRevisionsProcedure,
+		svc.ListModelScalingGroupRevisions,
+		connect.WithSchema(modelDeploymentServiceMethods.ByName("ListModelScalingGroupRevisions")),
 		connect.WithHandlerOptions(opts...),
 	)
 	modelDeploymentServiceCallModelHandler := connect.NewUnaryHandler(
@@ -152,8 +281,18 @@ func NewModelDeploymentServiceHandler(svc ModelDeploymentServiceHandler, opts ..
 		switch r.URL.Path {
 		case ModelDeploymentServiceCreateModelScalingGroupProcedure:
 			modelDeploymentServiceCreateModelScalingGroupHandler.ServeHTTP(w, r)
+		case ModelDeploymentServiceUpdateModelScalingGroupProcedure:
+			modelDeploymentServiceUpdateModelScalingGroupHandler.ServeHTTP(w, r)
+		case ModelDeploymentServiceGetModelScalingGroupProcedure:
+			modelDeploymentServiceGetModelScalingGroupHandler.ServeHTTP(w, r)
 		case ModelDeploymentServiceListModelScalingGroupsProcedure:
 			modelDeploymentServiceListModelScalingGroupsHandler.ServeHTTP(w, r)
+		case ModelDeploymentServiceDeleteModelScalingGroupProcedure:
+			modelDeploymentServiceDeleteModelScalingGroupHandler.ServeHTTP(w, r)
+		case ModelDeploymentServiceGetModelScalingGroupRevisionProcedure:
+			modelDeploymentServiceGetModelScalingGroupRevisionHandler.ServeHTTP(w, r)
+		case ModelDeploymentServiceListModelScalingGroupRevisionsProcedure:
+			modelDeploymentServiceListModelScalingGroupRevisionsHandler.ServeHTTP(w, r)
 		case ModelDeploymentServiceCallModelProcedure:
 			modelDeploymentServiceCallModelHandler.ServeHTTP(w, r)
 		default:
@@ -169,8 +308,28 @@ func (UnimplementedModelDeploymentServiceHandler) CreateModelScalingGroup(contex
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup is not implemented"))
 }
 
+func (UnimplementedModelDeploymentServiceHandler) UpdateModelScalingGroup(context.Context, *connect.Request[v1.UpdateModelScalingGroupRequest]) (*connect.Response[v1.UpdateModelScalingGroupResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup is not implemented"))
+}
+
+func (UnimplementedModelDeploymentServiceHandler) GetModelScalingGroup(context.Context, *connect.Request[v1.GetModelScalingGroupRequest]) (*connect.Response[v1.GetModelScalingGroupResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup is not implemented"))
+}
+
 func (UnimplementedModelDeploymentServiceHandler) ListModelScalingGroups(context.Context, *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups is not implemented"))
+}
+
+func (UnimplementedModelDeploymentServiceHandler) DeleteModelScalingGroup(context.Context, *connect.Request[v1.DeleteModelScalingGroupRequest]) (*connect.Response[v1.DeleteModelScalingGroupResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.DeleteModelScalingGroup is not implemented"))
+}
+
+func (UnimplementedModelDeploymentServiceHandler) GetModelScalingGroupRevision(context.Context, *connect.Request[v1.GetModelScalingGroupRevisionRequest]) (*connect.Response[v1.GetModelScalingGroupRevisionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroupRevision is not implemented"))
+}
+
+func (UnimplementedModelDeploymentServiceHandler) ListModelScalingGroupRevisions(context.Context, *connect.Request[v1.ListModelScalingGroupRevisionsRequest]) (*connect.Response[v1.ListModelScalingGroupRevisionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroupRevisions is not implemented"))
 }
 
 func (UnimplementedModelDeploymentServiceHandler) CallModel(context.Context, *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error) {
