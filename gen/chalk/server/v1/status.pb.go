@@ -399,6 +399,50 @@ func (x *HealthCheck) GetMetadata() map[string]string {
 	return nil
 }
 
+type HealthChecksExport struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Healthchecks  []*HealthCheck         `protobuf:"bytes,1,rep,name=healthchecks,proto3" json:"healthchecks,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HealthChecksExport) Reset() {
+	*x = HealthChecksExport{}
+	mi := &file_chalk_server_v1_status_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HealthChecksExport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HealthChecksExport) ProtoMessage() {}
+
+func (x *HealthChecksExport) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_status_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HealthChecksExport.ProtoReflect.Descriptor instead.
+func (*HealthChecksExport) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *HealthChecksExport) GetHealthchecks() []*HealthCheck {
+	if x != nil {
+		return x.Healthchecks
+	}
+	return nil
+}
+
 type HealthCheckFilters struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// All of these fields are optional. If any are specified, they will be AND'd together in a where clause
@@ -412,7 +456,7 @@ type HealthCheckFilters struct {
 
 func (x *HealthCheckFilters) Reset() {
 	*x = HealthCheckFilters{}
-	mi := &file_chalk_server_v1_status_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +468,7 @@ func (x *HealthCheckFilters) String() string {
 func (*HealthCheckFilters) ProtoMessage() {}
 
 func (x *HealthCheckFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_status_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +481,7 @@ func (x *HealthCheckFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckFilters.ProtoReflect.Descriptor instead.
 func (*HealthCheckFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{1}
+	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *HealthCheckFilters) GetName() []string {
@@ -463,7 +507,7 @@ type CheckHealthRequest struct {
 
 func (x *CheckHealthRequest) Reset() {
 	*x = CheckHealthRequest{}
-	mi := &file_chalk_server_v1_status_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -475,7 +519,7 @@ func (x *CheckHealthRequest) String() string {
 func (*CheckHealthRequest) ProtoMessage() {}
 
 func (x *CheckHealthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_status_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -488,7 +532,7 @@ func (x *CheckHealthRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckHealthRequest.ProtoReflect.Descriptor instead.
 func (*CheckHealthRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CheckHealthRequest) GetFilters() *HealthCheckFilters {
@@ -507,7 +551,7 @@ type CheckHealthResponse struct {
 
 func (x *CheckHealthResponse) Reset() {
 	*x = CheckHealthResponse{}
-	mi := &file_chalk_server_v1_status_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -519,7 +563,7 @@ func (x *CheckHealthResponse) String() string {
 func (*CheckHealthResponse) ProtoMessage() {}
 
 func (x *CheckHealthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_status_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -532,7 +576,7 @@ func (x *CheckHealthResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckHealthResponse.ProtoReflect.Descriptor instead.
 func (*CheckHealthResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CheckHealthResponse) GetChecks() []*HealthCheck {
@@ -551,7 +595,7 @@ type GetHealthRequest struct {
 
 func (x *GetHealthRequest) Reset() {
 	*x = GetHealthRequest{}
-	mi := &file_chalk_server_v1_status_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -563,7 +607,7 @@ func (x *GetHealthRequest) String() string {
 func (*GetHealthRequest) ProtoMessage() {}
 
 func (x *GetHealthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_status_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -576,7 +620,7 @@ func (x *GetHealthRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHealthRequest.ProtoReflect.Descriptor instead.
 func (*GetHealthRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetHealthRequest) GetFilters() *HealthCheckFilters {
@@ -595,7 +639,7 @@ type GetHealthResponse struct {
 
 func (x *GetHealthResponse) Reset() {
 	*x = GetHealthResponse{}
-	mi := &file_chalk_server_v1_status_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -607,7 +651,7 @@ func (x *GetHealthResponse) String() string {
 func (*GetHealthResponse) ProtoMessage() {}
 
 func (x *GetHealthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_status_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -620,7 +664,7 @@ func (x *GetHealthResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHealthResponse.ProtoReflect.Descriptor instead.
 func (*GetHealthResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetHealthResponse) GetChecks() []*HealthCheck {
@@ -638,7 +682,7 @@ type GetClusterMetricsRequest struct {
 
 func (x *GetClusterMetricsRequest) Reset() {
 	*x = GetClusterMetricsRequest{}
-	mi := &file_chalk_server_v1_status_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -650,7 +694,7 @@ func (x *GetClusterMetricsRequest) String() string {
 func (*GetClusterMetricsRequest) ProtoMessage() {}
 
 func (x *GetClusterMetricsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_status_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -663,7 +707,7 @@ func (x *GetClusterMetricsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetClusterMetricsRequest.ProtoReflect.Descriptor instead.
 func (*GetClusterMetricsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{7}
 }
 
 type GetClusterMetricsResponse struct {
@@ -675,7 +719,7 @@ type GetClusterMetricsResponse struct {
 
 func (x *GetClusterMetricsResponse) Reset() {
 	*x = GetClusterMetricsResponse{}
-	mi := &file_chalk_server_v1_status_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +731,7 @@ func (x *GetClusterMetricsResponse) String() string {
 func (*GetClusterMetricsResponse) ProtoMessage() {}
 
 func (x *GetClusterMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_status_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_status_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -700,7 +744,7 @@ func (x *GetClusterMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetClusterMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetClusterMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_status_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetClusterMetricsResponse) GetMetrics() string {
@@ -730,7 +774,9 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\n" +
 	"\b_latencyB\f\n" +
 	"\n" +
-	"_kube_data\"d\n" +
+	"_kube_data\"V\n" +
+	"\x12HealthChecksExport\x12@\n" +
+	"\fhealthchecks\x18\x01 \x03(\v2\x1c.chalk.server.v1.HealthCheckR\fhealthchecks\"d\n" +
 	"\x12HealthCheckFilters\x12\x12\n" +
 	"\x04name\x18\x01 \x03(\tR\x04name\x12:\n" +
 	"\x06status\x18\x02 \x03(\x0e2\".chalk.server.v1.HealthCheckStatusR\x06status\"d\n" +
@@ -843,51 +889,53 @@ func file_chalk_server_v1_status_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_status_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_status_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_chalk_server_v1_status_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_chalk_server_v1_status_proto_goTypes = []any{
 	(HealthCheckStatus)(0),              // 0: chalk.server.v1.HealthCheckStatus
 	(HealthCheckName)(0),                // 1: chalk.server.v1.HealthCheckName
 	(*HealthCheck)(nil),                 // 2: chalk.server.v1.HealthCheck
-	(*HealthCheckFilters)(nil),          // 3: chalk.server.v1.HealthCheckFilters
-	(*CheckHealthRequest)(nil),          // 4: chalk.server.v1.CheckHealthRequest
-	(*CheckHealthResponse)(nil),         // 5: chalk.server.v1.CheckHealthResponse
-	(*GetHealthRequest)(nil),            // 6: chalk.server.v1.GetHealthRequest
-	(*GetHealthResponse)(nil),           // 7: chalk.server.v1.GetHealthResponse
-	(*GetClusterMetricsRequest)(nil),    // 8: chalk.server.v1.GetClusterMetricsRequest
-	(*GetClusterMetricsResponse)(nil),   // 9: chalk.server.v1.GetClusterMetricsResponse
-	nil,                                 // 10: chalk.server.v1.HealthCheck.MetadataEntry
-	(*durationpb.Duration)(nil),         // 11: google.protobuf.Duration
-	(*structpb.Struct)(nil),             // 12: google.protobuf.Struct
-	(*GetClusterHealthRequest)(nil),     // 13: chalk.server.v1.GetClusterHealthRequest
-	(*ListClusterDnsZonesRequest)(nil),  // 14: chalk.server.v1.ListClusterDnsZonesRequest
-	(*GetClusterHealthResponse)(nil),    // 15: chalk.server.v1.GetClusterHealthResponse
-	(*ListClusterDnsZonesResponse)(nil), // 16: chalk.server.v1.ListClusterDnsZonesResponse
+	(*HealthChecksExport)(nil),          // 3: chalk.server.v1.HealthChecksExport
+	(*HealthCheckFilters)(nil),          // 4: chalk.server.v1.HealthCheckFilters
+	(*CheckHealthRequest)(nil),          // 5: chalk.server.v1.CheckHealthRequest
+	(*CheckHealthResponse)(nil),         // 6: chalk.server.v1.CheckHealthResponse
+	(*GetHealthRequest)(nil),            // 7: chalk.server.v1.GetHealthRequest
+	(*GetHealthResponse)(nil),           // 8: chalk.server.v1.GetHealthResponse
+	(*GetClusterMetricsRequest)(nil),    // 9: chalk.server.v1.GetClusterMetricsRequest
+	(*GetClusterMetricsResponse)(nil),   // 10: chalk.server.v1.GetClusterMetricsResponse
+	nil,                                 // 11: chalk.server.v1.HealthCheck.MetadataEntry
+	(*durationpb.Duration)(nil),         // 12: google.protobuf.Duration
+	(*structpb.Struct)(nil),             // 13: google.protobuf.Struct
+	(*GetClusterHealthRequest)(nil),     // 14: chalk.server.v1.GetClusterHealthRequest
+	(*ListClusterDnsZonesRequest)(nil),  // 15: chalk.server.v1.ListClusterDnsZonesRequest
+	(*GetClusterHealthResponse)(nil),    // 16: chalk.server.v1.GetClusterHealthResponse
+	(*ListClusterDnsZonesResponse)(nil), // 17: chalk.server.v1.ListClusterDnsZonesResponse
 }
 var file_chalk_server_v1_status_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.HealthCheck.status:type_name -> chalk.server.v1.HealthCheckStatus
-	11, // 1: chalk.server.v1.HealthCheck.latency:type_name -> google.protobuf.Duration
-	12, // 2: chalk.server.v1.HealthCheck.kube_data:type_name -> google.protobuf.Struct
-	10, // 3: chalk.server.v1.HealthCheck.metadata:type_name -> chalk.server.v1.HealthCheck.MetadataEntry
-	0,  // 4: chalk.server.v1.HealthCheckFilters.status:type_name -> chalk.server.v1.HealthCheckStatus
-	3,  // 5: chalk.server.v1.CheckHealthRequest.filters:type_name -> chalk.server.v1.HealthCheckFilters
-	2,  // 6: chalk.server.v1.CheckHealthResponse.checks:type_name -> chalk.server.v1.HealthCheck
-	3,  // 7: chalk.server.v1.GetHealthRequest.filters:type_name -> chalk.server.v1.HealthCheckFilters
-	2,  // 8: chalk.server.v1.GetHealthResponse.checks:type_name -> chalk.server.v1.HealthCheck
-	4,  // 9: chalk.server.v1.HealthService.CheckHealth:input_type -> chalk.server.v1.CheckHealthRequest
-	6,  // 10: chalk.server.v1.HealthService.GetHealth:input_type -> chalk.server.v1.GetHealthRequest
-	13, // 11: chalk.server.v1.HealthService.GetClusterHealth:input_type -> chalk.server.v1.GetClusterHealthRequest
-	14, // 12: chalk.server.v1.HealthService.ListClusterDnsZones:input_type -> chalk.server.v1.ListClusterDnsZonesRequest
-	8,  // 13: chalk.server.v1.HealthService.GetClusterMetrics:input_type -> chalk.server.v1.GetClusterMetricsRequest
-	5,  // 14: chalk.server.v1.HealthService.CheckHealth:output_type -> chalk.server.v1.CheckHealthResponse
-	7,  // 15: chalk.server.v1.HealthService.GetHealth:output_type -> chalk.server.v1.GetHealthResponse
-	15, // 16: chalk.server.v1.HealthService.GetClusterHealth:output_type -> chalk.server.v1.GetClusterHealthResponse
-	16, // 17: chalk.server.v1.HealthService.ListClusterDnsZones:output_type -> chalk.server.v1.ListClusterDnsZonesResponse
-	9,  // 18: chalk.server.v1.HealthService.GetClusterMetrics:output_type -> chalk.server.v1.GetClusterMetricsResponse
-	14, // [14:19] is the sub-list for method output_type
-	9,  // [9:14] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	12, // 1: chalk.server.v1.HealthCheck.latency:type_name -> google.protobuf.Duration
+	13, // 2: chalk.server.v1.HealthCheck.kube_data:type_name -> google.protobuf.Struct
+	11, // 3: chalk.server.v1.HealthCheck.metadata:type_name -> chalk.server.v1.HealthCheck.MetadataEntry
+	2,  // 4: chalk.server.v1.HealthChecksExport.healthchecks:type_name -> chalk.server.v1.HealthCheck
+	0,  // 5: chalk.server.v1.HealthCheckFilters.status:type_name -> chalk.server.v1.HealthCheckStatus
+	4,  // 6: chalk.server.v1.CheckHealthRequest.filters:type_name -> chalk.server.v1.HealthCheckFilters
+	2,  // 7: chalk.server.v1.CheckHealthResponse.checks:type_name -> chalk.server.v1.HealthCheck
+	4,  // 8: chalk.server.v1.GetHealthRequest.filters:type_name -> chalk.server.v1.HealthCheckFilters
+	2,  // 9: chalk.server.v1.GetHealthResponse.checks:type_name -> chalk.server.v1.HealthCheck
+	5,  // 10: chalk.server.v1.HealthService.CheckHealth:input_type -> chalk.server.v1.CheckHealthRequest
+	7,  // 11: chalk.server.v1.HealthService.GetHealth:input_type -> chalk.server.v1.GetHealthRequest
+	14, // 12: chalk.server.v1.HealthService.GetClusterHealth:input_type -> chalk.server.v1.GetClusterHealthRequest
+	15, // 13: chalk.server.v1.HealthService.ListClusterDnsZones:input_type -> chalk.server.v1.ListClusterDnsZonesRequest
+	9,  // 14: chalk.server.v1.HealthService.GetClusterMetrics:input_type -> chalk.server.v1.GetClusterMetricsRequest
+	6,  // 15: chalk.server.v1.HealthService.CheckHealth:output_type -> chalk.server.v1.CheckHealthResponse
+	8,  // 16: chalk.server.v1.HealthService.GetHealth:output_type -> chalk.server.v1.GetHealthResponse
+	16, // 17: chalk.server.v1.HealthService.GetClusterHealth:output_type -> chalk.server.v1.GetClusterHealthResponse
+	17, // 18: chalk.server.v1.HealthService.ListClusterDnsZones:output_type -> chalk.server.v1.ListClusterDnsZonesResponse
+	10, // 19: chalk.server.v1.HealthService.GetClusterMetrics:output_type -> chalk.server.v1.GetClusterMetricsResponse
+	15, // [15:20] is the sub-list for method output_type
+	10, // [10:15] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_status_proto_init() }
@@ -897,15 +945,15 @@ func file_chalk_server_v1_status_proto_init() {
 	}
 	file_chalk_server_v1_kube_cluster_health_proto_init()
 	file_chalk_server_v1_status_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_server_v1_status_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_server_v1_status_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_server_v1_status_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_server_v1_status_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_status_proto_rawDesc), len(file_chalk_server_v1_status_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

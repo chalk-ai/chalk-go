@@ -30,8 +30,10 @@ type AggregateTimeSeriesRule struct {
 	DependentFeatures []string             `protobuf:"bytes,3,rep,name=dependent_features,json=dependentFeatures,proto3" json:"dependent_features,omitempty"`
 	Retention         *durationpb.Duration `protobuf:"bytes,4,opt,name=retention,proto3" json:"retention,omitempty"`
 	DatetimeFeature   string               `protobuf:"bytes,5,opt,name=datetime_feature,json=datetimeFeature,proto3" json:"datetime_feature,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// The tile-manifest materialization_key_hash this rule's lookups read.
+	MaterializationKeyHash string `protobuf:"bytes,6,opt,name=materialization_key_hash,json=materializationKeyHash,proto3" json:"materialization_key_hash,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *AggregateTimeSeriesRule) Reset() {
@@ -99,6 +101,13 @@ func (x *AggregateTimeSeriesRule) GetDatetimeFeature() string {
 	return ""
 }
 
+func (x *AggregateTimeSeriesRule) GetMaterializationKeyHash() string {
+	if x != nil {
+		return x.MaterializationKeyHash
+	}
+	return ""
+}
+
 type AggregateTimeSeries struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
@@ -109,8 +118,12 @@ type AggregateTimeSeries struct {
 	FiltersDescription  string                     `protobuf:"bytes,6,opt,name=filters_description,json=filtersDescription,proto3" json:"filters_description,omitempty"`
 	BucketFeature       string                     `protobuf:"bytes,7,opt,name=bucket_feature,json=bucketFeature,proto3" json:"bucket_feature,omitempty"`
 	AggregateOnFeatures []string                   `protobuf:"bytes,8,rep,name=aggregate_on_features,json=aggregateOnFeatures,proto3" json:"aggregate_on_features,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Features the series' filters read, e.g. `transaction.status` in `_.status == "approved"`.
+	FilterFeatures []string `protobuf:"bytes,9,rep,name=filter_features,json=filterFeatures,proto3" json:"filter_features,omitempty"`
+	// Features read by projections in the aggregated column, e.g. `transaction.fx_rate` in `_.amount * _.fx_rate`.
+	ProjectionFeatures []string `protobuf:"bytes,10,rep,name=projection_features,json=projectionFeatures,proto3" json:"projection_features,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *AggregateTimeSeries) Reset() {
@@ -193,17 +206,32 @@ func (x *AggregateTimeSeries) GetAggregateOnFeatures() []string {
 	return nil
 }
 
+func (x *AggregateTimeSeries) GetFilterFeatures() []string {
+	if x != nil {
+		return x.FilterFeatures
+	}
+	return nil
+}
+
+func (x *AggregateTimeSeries) GetProjectionFeatures() []string {
+	if x != nil {
+		return x.ProjectionFeatures
+	}
+	return nil
+}
+
 var File_chalk_aggregate_v1_timeseries_proto protoreflect.FileDescriptor
 
 const file_chalk_aggregate_v1_timeseries_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/aggregate/v1/timeseries.proto\x12\x12chalk.aggregate.v1\x1a\x1egoogle/protobuf/duration.proto\"\x92\x02\n" +
+	"#chalk/aggregate/v1/timeseries.proto\x12\x12chalk.aggregate.v1\x1a\x1egoogle/protobuf/duration.proto\"\xcc\x02\n" +
 	"\x17AggregateTimeSeriesRule\x12 \n" +
 	"\vaggregation\x18\x01 \x01(\tR\vaggregation\x12B\n" +
 	"\x0fbucket_duration\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x0ebucketDuration\x12-\n" +
 	"\x12dependent_features\x18\x03 \x03(\tR\x11dependentFeatures\x127\n" +
 	"\tretention\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\tretention\x12)\n" +
-	"\x10datetime_feature\x18\x05 \x01(\tR\x0fdatetimeFeature\"\xc4\x02\n" +
+	"\x10datetime_feature\x18\x05 \x01(\tR\x0fdatetimeFeature\x128\n" +
+	"\x18materialization_key_hash\x18\x06 \x01(\tR\x16materializationKeyHash\"\x9e\x03\n" +
 	"\x13AggregateTimeSeries\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12%\n" +
 	"\faggregate_on\x18\x02 \x01(\tB\x02\x18\x01R\vaggregateOn\x12\x19\n" +
@@ -211,7 +239,10 @@ const file_chalk_aggregate_v1_timeseries_proto_rawDesc = "" +
 	"\x05rules\x18\x05 \x03(\v2+.chalk.aggregate.v1.AggregateTimeSeriesRuleR\x05rules\x12/\n" +
 	"\x13filters_description\x18\x06 \x01(\tR\x12filtersDescription\x12%\n" +
 	"\x0ebucket_feature\x18\a \x01(\tR\rbucketFeature\x122\n" +
-	"\x15aggregate_on_features\x18\b \x03(\tR\x13aggregateOnFeaturesB\xd4\x01\n" +
+	"\x15aggregate_on_features\x18\b \x03(\tR\x13aggregateOnFeatures\x12'\n" +
+	"\x0ffilter_features\x18\t \x03(\tR\x0efilterFeatures\x12/\n" +
+	"\x13projection_features\x18\n" +
+	" \x03(\tR\x12projectionFeaturesB\xd4\x01\n" +
 	"\x16com.chalk.aggregate.v1B\x0fTimeseriesProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1;aggregatev1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Aggregate.V1\xca\x02\x12Chalk\\Aggregate\\V1\xe2\x02\x1eChalk\\Aggregate\\V1\\GPBMetadata\xea\x02\x14Chalk::Aggregate::V1b\x06proto3"
 
 var (

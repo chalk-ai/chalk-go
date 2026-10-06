@@ -813,8 +813,10 @@ type GetNodesAndPodsUIRequest struct {
 	Namespace        *string                `protobuf:"bytes,1,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
 	PodLabelSelector *string                `protobuf:"bytes,2,opt,name=pod_label_selector,json=podLabelSelector,proto3,oneof" json:"pod_label_selector,omitempty"`
 	EnvironmentId    *string                `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3,oneof" json:"environment_id,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Overrides the environment cluster for resource-scoped views.
+	ClusterId     *string `protobuf:"bytes,4,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetNodesAndPodsUIRequest) Reset() {
@@ -864,6 +866,13 @@ func (x *GetNodesAndPodsUIRequest) GetPodLabelSelector() string {
 func (x *GetNodesAndPodsUIRequest) GetEnvironmentId() string {
 	if x != nil && x.EnvironmentId != nil {
 		return *x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *GetNodesAndPodsUIRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
 	}
 	return ""
 }
@@ -2843,15 +2852,18 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"\x18PublishNodeUsageResponse\"N\n" +
 	"\x16PublishPodUsageRequest\x124\n" +
 	"\x04pods\x18\x01 \x03(\v2 .chalk.pubsub.v1.PodStatusPubSubR\x04pods\"\x19\n" +
-	"\x17PublishPodUsageResponse\"\xd4\x01\n" +
+	"\x17PublishPodUsageResponse\"\x87\x02\n" +
 	"\x18GetNodesAndPodsUIRequest\x12!\n" +
 	"\tnamespace\x18\x01 \x01(\tH\x00R\tnamespace\x88\x01\x01\x121\n" +
 	"\x12pod_label_selector\x18\x02 \x01(\tH\x01R\x10podLabelSelector\x88\x01\x01\x12*\n" +
-	"\x0eenvironment_id\x18\x03 \x01(\tH\x02R\renvironmentId\x88\x01\x01B\f\n" +
+	"\x0eenvironment_id\x18\x03 \x01(\tH\x02R\renvironmentId\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x04 \x01(\tH\x03R\tclusterId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_namespaceB\x15\n" +
 	"\x13_pod_label_selectorB\x11\n" +
-	"\x0f_environment_id\"\x96\x01\n" +
+	"\x0f_environment_idB\r\n" +
+	"\v_cluster_id\"\x96\x01\n" +
 	"\x19GetNodesAndPodsUIResponse\x12=\n" +
 	"\x05nodes\x18\x01 \x03(\v2'.chalk.kubernetes.v1.KubernetesNodeDataR\x05nodes\x12:\n" +
 	"\x04pods\x18\x02 \x03(\v2&.chalk.kubernetes.v1.KubernetesPodDataR\x04pods\"\x18\n" +

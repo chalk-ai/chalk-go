@@ -49,6 +49,9 @@ const (
 	// SandboxServiceListSandboxesProcedure is the fully-qualified name of the SandboxService's
 	// ListSandboxes RPC.
 	SandboxServiceListSandboxesProcedure = "/chalk.sandbox.v1.SandboxService/ListSandboxes"
+	// CustomImageServiceGetImagePullCredentialsProcedure is the fully-qualified name of the
+	// CustomImageService's GetImagePullCredentials RPC.
+	CustomImageServiceGetImagePullCredentialsProcedure = "/chalk.sandbox.v1.CustomImageService/GetImagePullCredentials"
 	// CustomImageServiceBuildCustomImageProcedure is the fully-qualified name of the
 	// CustomImageService's BuildCustomImage RPC.
 	CustomImageServiceBuildCustomImageProcedure = "/chalk.sandbox.v1.CustomImageService/BuildCustomImage"
@@ -270,6 +273,7 @@ func (UnimplementedSandboxServiceHandler) ListSandboxes(context.Context, *connec
 
 // CustomImageServiceClient is a client for the chalk.sandbox.v1.CustomImageService service.
 type CustomImageServiceClient interface {
+	GetImagePullCredentials(context.Context, *connect.Request[v1.GetImagePullCredentialsRequest]) (*connect.Response[v1.GetImagePullCredentialsResponse], error)
 	// BuildCustomImage builds a container image from a declarative ImageSpec.
 	BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error)
 	// GetCustomImage returns the status of a custom image build by build ID.
@@ -313,6 +317,12 @@ func NewCustomImageServiceClient(httpClient connect.HTTPClient, baseURL string, 
 	baseURL = strings.TrimRight(baseURL, "/")
 	customImageServiceMethods := v1.File_chalk_sandbox_v1_service_proto.Services().ByName("CustomImageService").Methods()
 	return &customImageServiceClient{
+		getImagePullCredentials: connect.NewClient[v1.GetImagePullCredentialsRequest, v1.GetImagePullCredentialsResponse](
+			httpClient,
+			baseURL+CustomImageServiceGetImagePullCredentialsProcedure,
+			connect.WithSchema(customImageServiceMethods.ByName("GetImagePullCredentials")),
+			connect.WithClientOptions(opts...),
+		),
 		buildCustomImage: connect.NewClient[v1.BuildCustomImageRequest, v1.BuildCustomImageResponse](
 			httpClient,
 			baseURL+CustomImageServiceBuildCustomImageProcedure,
@@ -372,6 +382,7 @@ func NewCustomImageServiceClient(httpClient connect.HTTPClient, baseURL string, 
 
 // customImageServiceClient implements CustomImageServiceClient.
 type customImageServiceClient struct {
+	getImagePullCredentials       *connect.Client[v1.GetImagePullCredentialsRequest, v1.GetImagePullCredentialsResponse]
 	buildCustomImage              *connect.Client[v1.BuildCustomImageRequest, v1.BuildCustomImageResponse]
 	getCustomImage                *connect.Client[v1.GetCustomImageRequest, v1.GetCustomImageResponse]
 	getOrBuildCustomImage         *connect.Client[v1.GetOrBuildCustomImageRequest, v1.GetOrBuildCustomImageResponse]
@@ -381,6 +392,11 @@ type customImageServiceClient struct {
 	getCustomImageBuildLogs       *connect.Client[v1.GetCustomImageBuildLogsRequest, v1.GetCustomImageBuildLogsResponse]
 	getCustomImageBuildWorkflow   *connect.Client[v1.GetCustomImageBuildWorkflowRequest, v1.GetCustomImageBuildWorkflowResponse]
 	getCustomImageBuildUsage      *connect.Client[v1.GetCustomImageBuildUsageRequest, v1.GetCustomImageBuildUsageResponse]
+}
+
+// GetImagePullCredentials calls chalk.sandbox.v1.CustomImageService.GetImagePullCredentials.
+func (c *customImageServiceClient) GetImagePullCredentials(ctx context.Context, req *connect.Request[v1.GetImagePullCredentialsRequest]) (*connect.Response[v1.GetImagePullCredentialsResponse], error) {
+	return c.getImagePullCredentials.CallUnary(ctx, req)
 }
 
 // BuildCustomImage calls chalk.sandbox.v1.CustomImageService.BuildCustomImage.
@@ -433,6 +449,7 @@ func (c *customImageServiceClient) GetCustomImageBuildUsage(ctx context.Context,
 // CustomImageServiceHandler is an implementation of the chalk.sandbox.v1.CustomImageService
 // service.
 type CustomImageServiceHandler interface {
+	GetImagePullCredentials(context.Context, *connect.Request[v1.GetImagePullCredentialsRequest]) (*connect.Response[v1.GetImagePullCredentialsResponse], error)
 	// BuildCustomImage builds a container image from a declarative ImageSpec.
 	BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error)
 	// GetCustomImage returns the status of a custom image build by build ID.
@@ -472,6 +489,12 @@ type CustomImageServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewCustomImageServiceHandler(svc CustomImageServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	customImageServiceMethods := v1.File_chalk_sandbox_v1_service_proto.Services().ByName("CustomImageService").Methods()
+	customImageServiceGetImagePullCredentialsHandler := connect.NewUnaryHandler(
+		CustomImageServiceGetImagePullCredentialsProcedure,
+		svc.GetImagePullCredentials,
+		connect.WithSchema(customImageServiceMethods.ByName("GetImagePullCredentials")),
+		connect.WithHandlerOptions(opts...),
+	)
 	customImageServiceBuildCustomImageHandler := connect.NewUnaryHandler(
 		CustomImageServiceBuildCustomImageProcedure,
 		svc.BuildCustomImage,
@@ -528,6 +551,8 @@ func NewCustomImageServiceHandler(svc CustomImageServiceHandler, opts ...connect
 	)
 	return "/chalk.sandbox.v1.CustomImageService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case CustomImageServiceGetImagePullCredentialsProcedure:
+			customImageServiceGetImagePullCredentialsHandler.ServeHTTP(w, r)
 		case CustomImageServiceBuildCustomImageProcedure:
 			customImageServiceBuildCustomImageHandler.ServeHTTP(w, r)
 		case CustomImageServiceGetCustomImageProcedure:
@@ -554,6 +579,10 @@ func NewCustomImageServiceHandler(svc CustomImageServiceHandler, opts ...connect
 
 // UnimplementedCustomImageServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedCustomImageServiceHandler struct{}
+
+func (UnimplementedCustomImageServiceHandler) GetImagePullCredentials(context.Context, *connect.Request[v1.GetImagePullCredentialsRequest]) (*connect.Response[v1.GetImagePullCredentialsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.GetImagePullCredentials is not implemented"))
+}
 
 func (UnimplementedCustomImageServiceHandler) BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.BuildCustomImage is not implemented"))

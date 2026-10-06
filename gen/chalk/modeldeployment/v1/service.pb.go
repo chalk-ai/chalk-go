@@ -1406,7 +1406,10 @@ type ListModelScalingGroupsFilters struct {
 	// Case-sensitive exact match over any container image.
 	Images []string `protobuf:"bytes,2,rep,name=images,proto3" json:"images,omitempty"`
 	// Exact model name, across all versions. Must agree with model_version when set.
-	ModelName     *string `protobuf:"bytes,3,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
+	ModelName *string `protobuf:"bytes,3,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
+	// A model scaling group matches when its creator is any of these IDs.
+	// Empty means all creators.
+	CreatedBy     []string `protobuf:"bytes,4,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1460,6 +1463,13 @@ func (x *ListModelScalingGroupsFilters) GetModelName() string {
 		return *x.ModelName
 	}
 	return ""
+}
+
+func (x *ListModelScalingGroupsFilters) GetCreatedBy() []string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return nil
 }
 
 type ListModelScalingGroupsResponse struct {
@@ -2369,12 +2379,14 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\x0e_model_versionB\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\x12\n" +
-	"\x10_include_deleted\"\x86\x01\n" +
+	"\x10_include_deleted\"\xa5\x01\n" +
 	"\x1dListModelScalingGroupsFilters\x12\x1a\n" +
 	"\bstatuses\x18\x01 \x03(\tR\bstatuses\x12\x16\n" +
 	"\x06images\x18\x02 \x03(\tR\x06images\x12\"\n" +
 	"\n" +
-	"model_name\x18\x03 \x01(\tH\x00R\tmodelName\x88\x01\x01B\r\n" +
+	"model_name\x18\x03 \x01(\tH\x00R\tmodelName\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\x04 \x03(\tR\tcreatedByB\r\n" +
 	"\v_model_name\"\xef\x02\n" +
 	"\x1eListModelScalingGroupsResponse\x12V\n" +
 	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseB\x02\x18\x01R\rscalingGroups\x12$\n" +

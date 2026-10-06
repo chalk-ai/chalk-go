@@ -207,10 +207,12 @@ type GetProjectNavbarCountsResponse struct {
 	NotebookKernels int64 `protobuf:"varint,21,opt,name=notebook_kernels,json=notebookKernels,proto3" json:"notebook_kernels,omitempty"`
 	Images          int64 `protobuf:"varint,22,opt,name=images,proto3" json:"images,omitempty"`
 	// Environment registry models (environment-scoped, not deployment-scoped).
-	Models        int64 `protobuf:"varint,10,opt,name=models,proto3" json:"models,omitempty"`
-	OpenIncidents int64 `protobuf:"varint,11,opt,name=open_incidents,json=openIncidents,proto3" json:"open_incidents,omitempty"`
-	Webhooks      int64 `protobuf:"varint,12,opt,name=webhooks,proto3" json:"webhooks,omitempty"`
-	Integrations  int64 `protobuf:"varint,13,opt,name=integrations,proto3" json:"integrations,omitempty"`
+	Models int64 `protobuf:"varint,10,opt,name=models,proto3" json:"models,omitempty"`
+	// Non-deleted model deployments in the environment, matching the list page.
+	ModelDeployments int64 `protobuf:"varint,24,opt,name=model_deployments,json=modelDeployments,proto3" json:"model_deployments,omitempty"`
+	OpenIncidents    int64 `protobuf:"varint,11,opt,name=open_incidents,json=openIncidents,proto3" json:"open_incidents,omitempty"`
+	Webhooks         int64 `protobuf:"varint,12,opt,name=webhooks,proto3" json:"webhooks,omitempty"`
+	Integrations     int64 `protobuf:"varint,13,opt,name=integrations,proto3" json:"integrations,omitempty"`
 	// 0 when the caller lacks PERMISSION_SECRETS_LIST.
 	Secrets                 int64 `protobuf:"varint,14,opt,name=secrets,proto3" json:"secrets,omitempty"`
 	OfflineStoreConnections int64 `protobuf:"varint,15,opt,name=offline_store_connections,json=offlineStoreConnections,proto3" json:"offline_store_connections,omitempty"`
@@ -351,6 +353,13 @@ func (x *GetProjectNavbarCountsResponse) GetModels() int64 {
 	return 0
 }
 
+func (x *GetProjectNavbarCountsResponse) GetModelDeployments() int64 {
+	if x != nil {
+		return x.ModelDeployments
+	}
+	return 0
+}
+
 func (x *GetProjectNavbarCountsResponse) GetOpenIncidents() int64 {
 	if x != nil {
 		return x.OpenIncidents
@@ -460,7 +469,7 @@ const file_chalk_server_v1_inventory_proto_rawDesc = "" +
 	"\x05_vpcsB\n" +
 	"\n" +
 	"\b_storage\"\x1f\n" +
-	"\x1dGetProjectNavbarCountsRequest\"\xbc\a\n" +
+	"\x1dGetProjectNavbarCountsRequest\"\xe9\a\n" +
 	"\x1eGetProjectNavbarCountsResponse\x12\x1c\n" +
 	"\tresolvers\x18\x01 \x01(\x03R\tresolvers\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x01(\x03R\bfeatures\x12#\n" +
@@ -477,7 +486,8 @@ const file_chalk_server_v1_inventory_proto_rawDesc = "" +
 	"\x10notebook_kernels\x18\x15 \x01(\x03R\x0fnotebookKernels\x12\x16\n" +
 	"\x06images\x18\x16 \x01(\x03R\x06images\x12\x16\n" +
 	"\x06models\x18\n" +
-	" \x01(\x03R\x06models\x12%\n" +
+	" \x01(\x03R\x06models\x12+\n" +
+	"\x11model_deployments\x18\x18 \x01(\x03R\x10modelDeployments\x12%\n" +
 	"\x0eopen_incidents\x18\v \x01(\x03R\ropenIncidents\x12\x1a\n" +
 	"\bwebhooks\x18\f \x01(\x03R\bwebhooks\x12\"\n" +
 	"\fintegrations\x18\r \x01(\x03R\fintegrations\x12\x18\n" +

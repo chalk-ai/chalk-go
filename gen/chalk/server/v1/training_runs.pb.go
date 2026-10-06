@@ -635,6 +635,7 @@ type ListTrainingRunsFilters struct {
 	EndTime       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
 	TrainingRunId *string                `protobuf:"bytes,5,opt,name=training_run_id,json=trainingRunId,proto3,oneof" json:"training_run_id,omitempty"`
 	ExperimentId  *string                `protobuf:"bytes,6,opt,name=experiment_id,json=experimentId,proto3,oneof" json:"experiment_id,omitempty"`
+	CreatedBy     []string               `protobuf:"bytes,7,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -709,6 +710,13 @@ func (x *ListTrainingRunsFilters) GetExperimentId() string {
 		return *x.ExperimentId
 	}
 	return ""
+}
+
+func (x *ListTrainingRunsFilters) GetCreatedBy() []string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return nil
 }
 
 type ListTrainingRunsRequest struct {
@@ -1628,7 +1636,7 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\x0ftraining_run_id\x18\x01 \x01(\tR\rtrainingRunId\"o\n" +
 	"\x16GetTrainingRunResponse\x12D\n" +
 	"\ftraining_run\x18\x01 \x01(\v2\x1c.chalk.server.v1.TrainingRunH\x00R\vtrainingRun\x88\x01\x01B\x0f\n" +
-	"\r_training_run\"\x90\x03\n" +
+	"\r_training_run\"\xaf\x03\n" +
 	"\x17ListTrainingRunsFilters\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12>\n" +
 	"\bstatuses\x18\x02 \x03(\x0e2\".chalk.server.v1.TrainingRunStatusR\bstatuses\x12>\n" +
@@ -1636,7 +1644,9 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\aendTime\x88\x01\x01\x12+\n" +
 	"\x0ftraining_run_id\x18\x05 \x01(\tH\x03R\rtrainingRunId\x88\x01\x01\x12(\n" +
-	"\rexperiment_id\x18\x06 \x01(\tH\x04R\fexperimentId\x88\x01\x01B\a\n" +
+	"\rexperiment_id\x18\x06 \x01(\tH\x04R\fexperimentId\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\a \x03(\tR\tcreatedByB\a\n" +
 	"\x05_nameB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\x12\n" +

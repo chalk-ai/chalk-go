@@ -763,7 +763,9 @@ type ScalingGroupResponse struct {
 	// Additional diagnostic info for status.
 	StatusDetails *string `protobuf:"bytes,14,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
 	// Agent that originally created the scaling group.
-	CreatedBy     *string `protobuf:"bytes,15,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	CreatedBy *string `protobuf:"bytes,15,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	// Cluster where this scaling group is placed.
+	ClusterId     string `protobuf:"bytes,16,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -899,6 +901,13 @@ func (x *ScalingGroupResponse) GetStatusDetails() string {
 func (x *ScalingGroupResponse) GetCreatedBy() string {
 	if x != nil && x.CreatedBy != nil {
 		return *x.CreatedBy
+	}
+	return ""
+}
+
+func (x *ScalingGroupResponse) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
 	}
 	return ""
 }
@@ -1461,7 +1470,10 @@ type ListScalingGroupsFilters struct {
 	// Deprecated: Marked as deprecated in chalk/scalinggroup/v1/service.proto.
 	Visibility []ScalingGroupVisibility `protobuf:"varint,2,rep,packed,name=visibility,proto3,enum=chalk.scalinggroup.v1.ScalingGroupVisibility" json:"visibility,omitempty"`
 	// Case-sensitive exact match over any container image.
-	Images        []string `protobuf:"bytes,3,rep,name=images,proto3" json:"images,omitempty"`
+	Images []string `protobuf:"bytes,3,rep,name=images,proto3" json:"images,omitempty"`
+	// A scaling group matches when its creator is any of these IDs.
+	// Empty means all creators.
+	CreatedBy     []string `protobuf:"bytes,4,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1514,6 +1526,13 @@ func (x *ListScalingGroupsFilters) GetVisibility() []ScalingGroupVisibility {
 func (x *ListScalingGroupsFilters) GetImages() []string {
 	if x != nil {
 		return x.Images
+	}
+	return nil
+}
+
+func (x *ListScalingGroupsFilters) GetCreatedBy() []string {
+	if x != nil {
+		return x.CreatedBy
 	}
 	return nil
 }
@@ -2413,7 +2432,7 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x10desired_replicas\x18\x03 \x01(\x05R\x0fdesiredReplicas\"\xa8\x01\n" +
 	"\x10ScalingGroupSpec\x12M\n" +
 	"\x0econtainer_spec\x18\x01 \x01(\v2&.chalk.container.v1.ChalkContainerSpecR\rcontainerSpec\x12E\n" +
-	"\fscaling_spec\x18\x02 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecR\vscalingSpec\"\xd7\x06\n" +
+	"\fscaling_spec\x18\x02 \x01(\v2\".chalk.scalinggroup.v1.ScalingSpecR\vscalingSpec\"\xf6\x06\n" +
 	"\x14ScalingGroupResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1f\n" +
@@ -2435,7 +2454,9 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\bmetadata\x18\v \x03(\v29.chalk.scalinggroup.v1.ScalingGroupResponse.MetadataEntryR\bmetadata\x12*\n" +
 	"\x0estatus_details\x18\x0e \x01(\tH\x03R\rstatusDetails\x88\x01\x01\x12'\n" +
 	"\n" +
-	"created_by\x18\x0f \x01(\tB\x03\xe0A\x03H\x04R\tcreatedBy\x88\x01\x01\x1aS\n" +
+	"created_by\x18\x0f \x01(\tB\x03\xe0A\x03H\x04R\tcreatedBy\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x10 \x01(\tR\tclusterId\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\x11\n" +
@@ -2488,13 +2509,15 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"sort_order\x18\x06 \x01(\x0e2,.chalk.scalinggroup.v1.ScalingGroupSortOrderR\tsortOrderB\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\x12\n" +
-	"\x10_include_deleted\"\xa1\x01\n" +
+	"\x10_include_deleted\"\xc0\x01\n" +
 	"\x18ListScalingGroupsFilters\x12\x1a\n" +
 	"\bstatuses\x18\x01 \x03(\tR\bstatuses\x12Q\n" +
 	"\n" +
 	"visibility\x18\x02 \x03(\x0e2-.chalk.scalinggroup.v1.ScalingGroupVisibilityB\x02\x18\x01R\n" +
 	"visibility\x12\x16\n" +
-	"\x06images\x18\x03 \x03(\tR\x06images\"\xa5\x01\n" +
+	"\x06images\x18\x03 \x03(\tR\x06images\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\x04 \x03(\tR\tcreatedBy\"\xa5\x01\n" +
 	"\x19ListScalingGroupsResponse\x12R\n" +
 	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\rscalingGroups\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
