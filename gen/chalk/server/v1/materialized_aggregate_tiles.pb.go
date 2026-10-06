@@ -606,7 +606,9 @@ type GetMaterializedAggregateTileFacetValuesRequest struct {
 	// Per-facet cap on returned values, highest count first. Server default is 100 if unset.
 	Limit *int32 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	// Counts reflect this filter, so the caller sees what a further narrowing would yield.
-	Filter        *ListMaterializedAggregateTileTimelinesFilter `protobuf:"bytes,3,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
+	Filter *ListMaterializedAggregateTileTimelinesFilter `protobuf:"bytes,3,opt,name=filter,proto3,oneof" json:"filter,omitempty"`
+	// Case-insensitive substring match on values, applied before `limit`. Unset or empty matches all.
+	ValueSearch   *string `protobuf:"bytes,4,opt,name=value_search,json=valueSearch,proto3,oneof" json:"value_search,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -660,6 +662,13 @@ func (x *GetMaterializedAggregateTileFacetValuesRequest) GetFilter() *ListMateri
 		return x.Filter
 	}
 	return nil
+}
+
+func (x *GetMaterializedAggregateTileFacetValuesRequest) GetValueSearch() string {
+	if x != nil && x.ValueSearch != nil {
+		return *x.ValueSearch
+	}
+	return ""
 }
 
 type TileTimelineFacetValue struct {
@@ -813,13 +822,15 @@ const file_chalk_server_v1_materialized_aggregate_tiles_proto_rawDesc = "" +
 	"facet_type\x18\x03 \x01(\x0e2\x1e.chalk.server.v1.TileFacetTypeR\tfacetType\"+\n" +
 	")GetMaterializedAggregateTileFacetsRequest\"`\n" +
 	"*GetMaterializedAggregateTileFacetsResponse\x122\n" +
-	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.TileFacetR\x06facets\"\xd0\x01\n" +
+	"\x06facets\x18\x01 \x03(\v2\x1a.chalk.server.v1.TileFacetR\x06facets\"\x89\x02\n" +
 	".GetMaterializedAggregateTileFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12Z\n" +
-	"\x06filter\x18\x03 \x01(\v2=.chalk.server.v1.ListMaterializedAggregateTileTimelinesFilterH\x01R\x06filter\x88\x01\x01B\b\n" +
+	"\x06filter\x18\x03 \x01(\v2=.chalk.server.v1.ListMaterializedAggregateTileTimelinesFilterH\x01R\x06filter\x88\x01\x01\x12&\n" +
+	"\fvalue_search\x18\x04 \x01(\tH\x02R\vvalueSearch\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_filter\"X\n" +
+	"\a_filterB\x0f\n" +
+	"\r_value_search\"X\n" +
 	"\x16TileTimelineFacetValue\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\x12\x14\n" +

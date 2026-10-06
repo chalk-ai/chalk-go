@@ -1600,6 +1600,7 @@ type GetTraceRequest struct {
 	OperationId *string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3,oneof" json:"operation_id,omitempty"`
 	// The trace ID that OTEl creates
 	TraceId       *string `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3,oneof" json:"trace_id,omitempty"`
+	ClusterId     *string `protobuf:"bytes,3,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1644,6 +1645,13 @@ func (x *GetTraceRequest) GetOperationId() string {
 func (x *GetTraceRequest) GetTraceId() string {
 	if x != nil && x.TraceId != nil {
 		return *x.TraceId
+	}
+	return ""
+}
+
+func (x *GetTraceRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
 	}
 	return ""
 }
@@ -2762,6 +2770,7 @@ type GetTraceCallGraphRequest struct {
 	Cursor *string `protobuf:"bytes,7,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	// Faceted-search query string, AND-combined with the structured filters above.
 	Query         *string `protobuf:"bytes,8,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	ClusterId     *string `protobuf:"bytes,9,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2848,6 +2857,13 @@ func (x *GetTraceCallGraphRequest) GetCursor() string {
 func (x *GetTraceCallGraphRequest) GetQuery() string {
 	if x != nil && x.Query != nil {
 		return *x.Query
+	}
+	return ""
+}
+
+func (x *GetTraceCallGraphRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
 	}
 	return ""
 }
@@ -3096,6 +3112,7 @@ type ListSpanRequest struct {
 	ResourceAttributeFilters []*AttributeFilter `protobuf:"bytes,14,rep,name=resource_attribute_filters,json=resourceAttributeFilters,proto3" json:"resource_attribute_filters,omitempty"`
 	// Faceted-search query string, AND-combined with the structured filters above.
 	Query         *string `protobuf:"bytes,15,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	ClusterId     *string `protobuf:"bytes,16,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3235,6 +3252,13 @@ func (x *ListSpanRequest) GetQuery() string {
 	return ""
 }
 
+func (x *ListSpanRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
+}
+
 // ListSpanResponse message
 type ListSpanResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -3301,6 +3325,7 @@ type GetSpanLatencyDistributionRequest struct {
 	StartTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
 	// End timestamp for the comparison window. Defaults to a bounded window around the selected spans.
 	EndTime       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	ClusterId     *string                `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3361,6 +3386,13 @@ func (x *GetSpanLatencyDistributionRequest) GetEndTime() *timestamppb.Timestamp 
 		return x.EndTime
 	}
 	return nil
+}
+
+func (x *GetSpanLatencyDistributionRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
 }
 
 // SpanLatencyDistribution returns latency percentiles for spans matching one selected span.
@@ -4942,12 +4974,15 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x05edges\x18\x02 \x03(\v2#.chalk.server.v1.TraceCallGraphEdgeR\x05edges\x12,\n" +
 	"\x12matched_span_count\x18\x03 \x01(\x03R\x10matchedSpanCount\x12.\n" +
 	"\x13matched_trace_count\x18\x04 \x01(\x03R\x11matchedTraceCount\x12*\n" +
-	"\x11total_duration_us\x18\x05 \x01(\x03R\x0ftotalDurationUs\"w\n" +
+	"\x11total_duration_us\x18\x05 \x01(\x03R\x0ftotalDurationUs\"\xaa\x01\n" +
 	"\x0fGetTraceRequest\x12&\n" +
 	"\foperation_id\x18\x01 \x01(\tH\x00R\voperationId\x88\x01\x01\x12\x1e\n" +
-	"\btrace_id\x18\x02 \x01(\tH\x01R\atraceId\x88\x01\x01B\x0f\n" +
+	"\btrace_id\x18\x02 \x01(\tH\x01R\atraceId\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x03 \x01(\tH\x02R\tclusterId\x88\x01\x01B\x0f\n" +
 	"\r_operation_idB\v\n" +
-	"\t_trace_id\"E\n" +
+	"\t_trace_idB\r\n" +
+	"\v_cluster_id\"E\n" +
 	"\x10GetTraceResponse\x121\n" +
 	"\x05trace\x18\x01 \x01(\v2\x1b.chalk.server.v1.ChalkTraceR\x05trace\"\xeb\x02\n" +
 	"\x10ListTraceRequest\x12>\n" +
@@ -5097,7 +5132,7 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x0f_max_span_countB\b\n" +
 	"\x06_query\"Y\n" +
 	"\x1bListTraceAggregatedResponse\x12:\n" +
-	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\x8f\x04\n" +
+	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\xc2\x04\n" +
 	"\x18GetTraceCallGraphRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
@@ -5107,13 +5142,16 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x11attribute_filters\x18\x05 \x03(\v2 .chalk.server.v1.AttributeFilterR\x10attributeFilters\x12^\n" +
 	"\x1aresource_attribute_filters\x18\x06 \x03(\v2 .chalk.server.v1.AttributeFilterR\x18resourceAttributeFilters\x12\x1b\n" +
 	"\x06cursor\x18\a \x01(\tH\x04R\x06cursor\x88\x01\x01\x12\x19\n" +
-	"\x05query\x18\b \x01(\tH\x05R\x05query\x88\x01\x01B\r\n" +
+	"\x05query\x18\b \x01(\tH\x05R\x05query\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\t \x01(\tH\x06R\tclusterId\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\x10\n" +
 	"\x0e_function_nameB\t\n" +
 	"\a_cursorB\b\n" +
-	"\x06_query\"\x91\x01\n" +
+	"\x06_queryB\r\n" +
+	"\v_cluster_id\"\x91\x01\n" +
 	"\x19GetTraceCallGraphResponse\x12>\n" +
 	"\n" +
 	"call_graph\x18\x01 \x01(\v2\x1f.chalk.server.v1.TraceCallGraphR\tcallGraph\x12$\n" +
@@ -5128,7 +5166,7 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x0fAttributeFilter\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x19\n" +
 	"\x05value\x18\x02 \x01(\tH\x00R\x05value\x88\x01\x01B\b\n" +
-	"\x06_value\"\xe2\a\n" +
+	"\x06_value\"\x95\b\n" +
 	"\x0fListSpanRequest\x12\x1e\n" +
 	"\btrace_id\x18\x01 \x01(\tH\x00R\atraceId\x88\x01\x01\x12>\n" +
 	"\n" +
@@ -5149,7 +5187,9 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x11attribute_filters\x18\f \x03(\v2 .chalk.server.v1.AttributeFilterR\x10attributeFilters\x12@\n" +
 	"\tspan_kind\x18\r \x01(\x0e2\x1e.chalk.server.v1.ChalkSpanKindH\vR\bspanKind\x88\x01\x01\x12^\n" +
 	"\x1aresource_attribute_filters\x18\x0e \x03(\v2 .chalk.server.v1.AttributeFilterR\x18resourceAttributeFilters\x12\x19\n" +
-	"\x05query\x18\x0f \x01(\tH\fR\x05query\x88\x01\x01B\v\n" +
+	"\x05query\x18\x0f \x01(\tH\fR\x05query\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x10 \x01(\tH\rR\tclusterId\x88\x01\x01B\v\n" +
 	"\t_trace_idB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
@@ -5163,19 +5203,23 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x10_max_duration_usB\f\n" +
 	"\n" +
 	"_span_kindB\b\n" +
-	"\x06_query\"\x85\x01\n" +
+	"\x06_queryB\r\n" +
+	"\v_cluster_id\"\x85\x01\n" +
 	"\x10ListSpanResponse\x120\n" +
 	"\x05spans\x18\x01 \x03(\v2\x1a.chalk.server.v1.ChalkSpanR\x05spans\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\xf1\x01\n" +
+	"\x10_next_page_token\"\xa4\x02\n" +
 	"!GetSpanLatencyDistributionRequest\x12\x19\n" +
 	"\btrace_id\x18\x01 \x01(\tR\atraceId\x12\x19\n" +
 	"\bspan_ids\x18\x02 \x03(\tR\aspanIds\x12>\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
-	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01B\r\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x05 \x01(\tH\x02R\tclusterId\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
-	"\t_end_time\"\xe7\x05\n" +
+	"\t_end_timeB\r\n" +
+	"\v_cluster_id\"\xe7\x05\n" +
 	"\x17SpanLatencyDistribution\x12\x17\n" +
 	"\aspan_id\x18\x01 \x01(\tR\x06spanId\x12%\n" +
 	"\x0eoperation_name\x18\x02 \x01(\tR\roperationName\x12!\n" +

@@ -649,8 +649,13 @@ type GetSqlQuerySignedUrlsResponse struct {
 	SignedResultUrls []string `protobuf:"bytes,1,rep,name=signed_result_urls,json=signedResultUrls,proto3" json:"signed_result_urls,omitempty"`
 	// Performance summary link(s) for this query.
 	PerformanceSummaryLinks []*ShardPerformanceSummaryLink `protobuf:"bytes,2,rep,name=performance_summary_links,json=performanceSummaryLinks,proto3" json:"performance_summary_links,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// Signed URLs for the query's streaming preview: parquet files holding its leading rows, each
+	// written as soon as it is complete, so they are readable while the query is still running.
+	// Sorted by name, which is the order they were written in. Empty when the query has written no
+	// preview yet or keeps none.
+	SignedPreviewUrls []string `protobuf:"bytes,3,rep,name=signed_preview_urls,json=signedPreviewUrls,proto3" json:"signed_preview_urls,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *GetSqlQuerySignedUrlsResponse) Reset() {
@@ -693,6 +698,13 @@ func (x *GetSqlQuerySignedUrlsResponse) GetSignedResultUrls() []string {
 func (x *GetSqlQuerySignedUrlsResponse) GetPerformanceSummaryLinks() []*ShardPerformanceSummaryLink {
 	if x != nil {
 		return x.PerformanceSummaryLinks
+	}
+	return nil
+}
+
+func (x *GetSqlQuerySignedUrlsResponse) GetSignedPreviewUrls() []string {
+	if x != nil {
+		return x.SignedPreviewUrls
 	}
 	return nil
 }
@@ -784,10 +796,11 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\r_logical_planB\x10\n" +
 	"\x0e_physical_plan\"9\n" +
 	"\x1cGetSqlQuerySignedUrlsRequest\x12\x19\n" +
-	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"\xb7\x01\n" +
+	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"\xe7\x01\n" +
 	"\x1dGetSqlQuerySignedUrlsResponse\x12,\n" +
 	"\x12signed_result_urls\x18\x01 \x03(\tR\x10signedResultUrls\x12h\n" +
-	"\x19performance_summary_links\x18\x02 \x03(\v2,.chalk.server.v1.ShardPerformanceSummaryLinkR\x17performanceSummaryLinks2\xce\x03\n" +
+	"\x19performance_summary_links\x18\x02 \x03(\v2,.chalk.server.v1.ShardPerformanceSummaryLinkR\x17performanceSummaryLinks\x12.\n" +
+	"\x13signed_preview_urls\x18\x03 \x03(\tR\x11signedPreviewUrls2\xce\x03\n" +
 	"\x11SqlQueriesService\x12i\n" +
 	"\x0eListSqlQueries\x12&.chalk.server.v1.ListSqlQueriesRequest\x1a'.chalk.server.v1.ListSqlQueriesResponse\"\x06\x80}$\x90\x02\x01\x12`\n" +
 	"\vGetSqlQuery\x12#.chalk.server.v1.GetSqlQueryRequest\x1a$.chalk.server.v1.GetSqlQueryResponse\"\x06\x80}\x03\x90\x02\x01\x12l\n" +

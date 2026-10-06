@@ -12,6 +12,7 @@ import (
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/container/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -2848,9 +2849,10 @@ func (x *CustomImageBuildSummary) GetBaseImage() string {
 }
 
 type ListCustomImageBuildsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	Limit         *int32                        `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor        *string                       `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Filters       *ListCustomImageBuildsFilters `protobuf:"bytes,3,opt,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2899,6 +2901,58 @@ func (x *ListCustomImageBuildsRequest) GetCursor() string {
 	return ""
 }
 
+func (x *ListCustomImageBuildsRequest) GetFilters() *ListCustomImageBuildsFilters {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+type ListCustomImageBuildsFilters struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Case-sensitive exact match on the content-addressed image ID.
+	ContentHash   *string `protobuf:"bytes,1,opt,name=content_hash,json=contentHash,proto3,oneof" json:"content_hash,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCustomImageBuildsFilters) Reset() {
+	*x = ListCustomImageBuildsFilters{}
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCustomImageBuildsFilters) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCustomImageBuildsFilters) ProtoMessage() {}
+
+func (x *ListCustomImageBuildsFilters) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCustomImageBuildsFilters.ProtoReflect.Descriptor instead.
+func (*ListCustomImageBuildsFilters) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *ListCustomImageBuildsFilters) GetContentHash() string {
+	if x != nil && x.ContentHash != nil {
+		return *x.ContentHash
+	}
+	return ""
+}
+
 type ListCustomImageBuildsResponse struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Builds        []*CustomImageBuildSummary `protobuf:"bytes,1,rep,name=builds,proto3" json:"builds,omitempty"`
@@ -2909,7 +2963,7 @@ type ListCustomImageBuildsResponse struct {
 
 func (x *ListCustomImageBuildsResponse) Reset() {
 	*x = ListCustomImageBuildsResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[41]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2921,7 +2975,7 @@ func (x *ListCustomImageBuildsResponse) String() string {
 func (*ListCustomImageBuildsResponse) ProtoMessage() {}
 
 func (x *ListCustomImageBuildsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[41]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2934,7 +2988,7 @@ func (x *ListCustomImageBuildsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCustomImageBuildsResponse.ProtoReflect.Descriptor instead.
 func (*ListCustomImageBuildsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{41}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ListCustomImageBuildsResponse) GetBuilds() []*CustomImageBuildSummary {
@@ -2968,7 +3022,7 @@ type GetCustomImageBuildRequest struct {
 
 func (x *GetCustomImageBuildRequest) Reset() {
 	*x = GetCustomImageBuildRequest{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[42]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2980,7 +3034,7 @@ func (x *GetCustomImageBuildRequest) String() string {
 func (*GetCustomImageBuildRequest) ProtoMessage() {}
 
 func (x *GetCustomImageBuildRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[42]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2993,7 +3047,7 @@ func (x *GetCustomImageBuildRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCustomImageBuildRequest.ProtoReflect.Descriptor instead.
 func (*GetCustomImageBuildRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{42}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *GetCustomImageBuildRequest) GetIdentifier() isGetCustomImageBuildRequest_Identifier {
@@ -3049,7 +3103,7 @@ type GetCustomImageBuildResponse struct {
 
 func (x *GetCustomImageBuildResponse) Reset() {
 	*x = GetCustomImageBuildResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[43]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3061,7 +3115,7 @@ func (x *GetCustomImageBuildResponse) String() string {
 func (*GetCustomImageBuildResponse) ProtoMessage() {}
 
 func (x *GetCustomImageBuildResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[43]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3074,7 +3128,7 @@ func (x *GetCustomImageBuildResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCustomImageBuildResponse.ProtoReflect.Descriptor instead.
 func (*GetCustomImageBuildResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{43}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *GetCustomImageBuildResponse) GetBuild() *CustomImageBuildSummary {
@@ -3108,7 +3162,7 @@ type GetCustomImageBuildLogsRequest struct {
 
 func (x *GetCustomImageBuildLogsRequest) Reset() {
 	*x = GetCustomImageBuildLogsRequest{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[44]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3120,7 +3174,7 @@ func (x *GetCustomImageBuildLogsRequest) String() string {
 func (*GetCustomImageBuildLogsRequest) ProtoMessage() {}
 
 func (x *GetCustomImageBuildLogsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[44]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3133,7 +3187,7 @@ func (x *GetCustomImageBuildLogsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCustomImageBuildLogsRequest.ProtoReflect.Descriptor instead.
 func (*GetCustomImageBuildLogsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{44}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *GetCustomImageBuildLogsRequest) GetIdentifier() isGetCustomImageBuildLogsRequest_Identifier {
@@ -3215,7 +3269,7 @@ type GetCustomImageBuildLogsResponse struct {
 
 func (x *GetCustomImageBuildLogsResponse) Reset() {
 	*x = GetCustomImageBuildLogsResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[45]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3227,7 +3281,7 @@ func (x *GetCustomImageBuildLogsResponse) String() string {
 func (*GetCustomImageBuildLogsResponse) ProtoMessage() {}
 
 func (x *GetCustomImageBuildLogsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[45]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3240,7 +3294,7 @@ func (x *GetCustomImageBuildLogsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCustomImageBuildLogsResponse.ProtoReflect.Descriptor instead.
 func (*GetCustomImageBuildLogsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{45}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *GetCustomImageBuildLogsResponse) GetLogs() []*v11.LogEntry {
@@ -3270,7 +3324,7 @@ type GetCustomImageBuildWorkflowRequest struct {
 
 func (x *GetCustomImageBuildWorkflowRequest) Reset() {
 	*x = GetCustomImageBuildWorkflowRequest{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[46]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3282,7 +3336,7 @@ func (x *GetCustomImageBuildWorkflowRequest) String() string {
 func (*GetCustomImageBuildWorkflowRequest) ProtoMessage() {}
 
 func (x *GetCustomImageBuildWorkflowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[46]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3295,7 +3349,7 @@ func (x *GetCustomImageBuildWorkflowRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetCustomImageBuildWorkflowRequest.ProtoReflect.Descriptor instead.
 func (*GetCustomImageBuildWorkflowRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{46}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *GetCustomImageBuildWorkflowRequest) GetIdentifier() isGetCustomImageBuildWorkflowRequest_Identifier {
@@ -3352,7 +3406,7 @@ type GetCustomImageBuildWorkflowResponse struct {
 
 func (x *GetCustomImageBuildWorkflowResponse) Reset() {
 	*x = GetCustomImageBuildWorkflowResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[47]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3364,7 +3418,7 @@ func (x *GetCustomImageBuildWorkflowResponse) String() string {
 func (*GetCustomImageBuildWorkflowResponse) ProtoMessage() {}
 
 func (x *GetCustomImageBuildWorkflowResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[47]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3377,7 +3431,7 @@ func (x *GetCustomImageBuildWorkflowResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetCustomImageBuildWorkflowResponse.ProtoReflect.Descriptor instead.
 func (*GetCustomImageBuildWorkflowResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{47}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *GetCustomImageBuildWorkflowResponse) GetWorkflow() *v12.ArgoWorkflow {
@@ -3405,7 +3459,7 @@ type GetCustomImageBuildUsageRequest struct {
 
 func (x *GetCustomImageBuildUsageRequest) Reset() {
 	*x = GetCustomImageBuildUsageRequest{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[48]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3417,7 +3471,7 @@ func (x *GetCustomImageBuildUsageRequest) String() string {
 func (*GetCustomImageBuildUsageRequest) ProtoMessage() {}
 
 func (x *GetCustomImageBuildUsageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[48]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3430,7 +3484,7 @@ func (x *GetCustomImageBuildUsageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCustomImageBuildUsageRequest.ProtoReflect.Descriptor instead.
 func (*GetCustomImageBuildUsageRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{48}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetCustomImageBuildUsageRequest) GetIdentifier() isGetCustomImageBuildUsageRequest_Identifier {
@@ -3492,7 +3546,7 @@ type CustomImageContainerUsage struct {
 
 func (x *CustomImageContainerUsage) Reset() {
 	*x = CustomImageContainerUsage{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[49]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3504,7 +3558,7 @@ func (x *CustomImageContainerUsage) String() string {
 func (*CustomImageContainerUsage) ProtoMessage() {}
 
 func (x *CustomImageContainerUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[49]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3517,7 +3571,7 @@ func (x *CustomImageContainerUsage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CustomImageContainerUsage.ProtoReflect.Descriptor instead.
 func (*CustomImageContainerUsage) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{49}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *CustomImageContainerUsage) GetId() string {
@@ -3557,7 +3611,7 @@ type CustomImageScalingGroupUsage struct {
 
 func (x *CustomImageScalingGroupUsage) Reset() {
 	*x = CustomImageScalingGroupUsage{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[50]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3569,7 +3623,7 @@ func (x *CustomImageScalingGroupUsage) String() string {
 func (*CustomImageScalingGroupUsage) ProtoMessage() {}
 
 func (x *CustomImageScalingGroupUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[50]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3582,7 +3636,7 @@ func (x *CustomImageScalingGroupUsage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CustomImageScalingGroupUsage.ProtoReflect.Descriptor instead.
 func (*CustomImageScalingGroupUsage) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{50}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *CustomImageScalingGroupUsage) GetId() string {
@@ -3623,7 +3677,7 @@ type CustomImageSandboxUsage struct {
 
 func (x *CustomImageSandboxUsage) Reset() {
 	*x = CustomImageSandboxUsage{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[51]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3635,7 +3689,7 @@ func (x *CustomImageSandboxUsage) String() string {
 func (*CustomImageSandboxUsage) ProtoMessage() {}
 
 func (x *CustomImageSandboxUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[51]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3648,7 +3702,7 @@ func (x *CustomImageSandboxUsage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CustomImageSandboxUsage.ProtoReflect.Descriptor instead.
 func (*CustomImageSandboxUsage) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{51}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *CustomImageSandboxUsage) GetId() string {
@@ -3690,7 +3744,7 @@ type GetCustomImageBuildUsageResponse struct {
 
 func (x *GetCustomImageBuildUsageResponse) Reset() {
 	*x = GetCustomImageBuildUsageResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[52]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3702,7 +3756,7 @@ func (x *GetCustomImageBuildUsageResponse) String() string {
 func (*GetCustomImageBuildUsageResponse) ProtoMessage() {}
 
 func (x *GetCustomImageBuildUsageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[52]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3715,7 +3769,7 @@ func (x *GetCustomImageBuildUsageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCustomImageBuildUsageResponse.ProtoReflect.Descriptor instead.
 func (*GetCustomImageBuildUsageResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{52}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{53}
 }
 
 // Deprecated: Marked as deprecated in chalk/sandbox/v1/service.proto.
@@ -3740,11 +3794,124 @@ func (x *GetCustomImageBuildUsageResponse) GetSandboxes() []*CustomImageSandboxU
 	return nil
 }
 
+type GetImagePullCredentialsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Fully qualified image reference to pull.
+	Image         string `protobuf:"bytes,1,opt,name=image,proto3" json:"image,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetImagePullCredentialsRequest) Reset() {
+	*x = GetImagePullCredentialsRequest{}
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetImagePullCredentialsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetImagePullCredentialsRequest) ProtoMessage() {}
+
+func (x *GetImagePullCredentialsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetImagePullCredentialsRequest.ProtoReflect.Descriptor instead.
+func (*GetImagePullCredentialsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *GetImagePullCredentialsRequest) GetImage() string {
+	if x != nil {
+		return x.Image
+	}
+	return ""
+}
+
+type GetImagePullCredentialsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServerAddress string                 `protobuf:"bytes,1,opt,name=server_address,json=serverAddress,proto3" json:"server_address,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetImagePullCredentialsResponse) Reset() {
+	*x = GetImagePullCredentialsResponse{}
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetImagePullCredentialsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetImagePullCredentialsResponse) ProtoMessage() {}
+
+func (x *GetImagePullCredentialsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetImagePullCredentialsResponse.ProtoReflect.Descriptor instead.
+func (*GetImagePullCredentialsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *GetImagePullCredentialsResponse) GetServerAddress() string {
+	if x != nil {
+		return x.ServerAddress
+	}
+	return ""
+}
+
+func (x *GetImagePullCredentialsResponse) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *GetImagePullCredentialsResponse) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *GetImagePullCredentialsResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
 var File_chalk_sandbox_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/sandbox/v1/service.proto\x12\x10chalk.sandbox.v1\x1a\x1cchalk/argo/v1/workflow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x19chalk/common/v1/log.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb3\x02\n" +
+	"\x1echalk/sandbox/v1/service.proto\x12\x10chalk.sandbox.v1\x1a\x1cchalk/argo/v1/workflow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x19chalk/common/v1/log.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb3\x02\n" +
 	"\vExecRequest\x120\n" +
 	"\x04init\x18\x01 \x01(\v2\x1a.chalk.sandbox.v1.ExecInitH\x00R\x04init\x12<\n" +
 	"\n" +
@@ -3993,12 +4160,16 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"base_image\x18\x06 \x01(\tH\x02R\tbaseImage\x88\x01\x01B\v\n" +
 	"\t_build_idB\t\n" +
 	"\a_statusB\r\n" +
-	"\v_base_image\"k\n" +
+	"\v_base_image\"\xb5\x01\n" +
 	"\x1cListCustomImageBuildsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12H\n" +
+	"\afilters\x18\x03 \x01(\v2..chalk.sandbox.v1.ListCustomImageBuildsFiltersR\afiltersB\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursor\"\x98\x01\n" +
+	"\a_cursor\"W\n" +
+	"\x1cListCustomImageBuildsFilters\x12&\n" +
+	"\fcontent_hash\x18\x01 \x01(\tH\x00R\vcontentHash\x88\x01\x01B\x0f\n" +
+	"\r_content_hash\"\x98\x01\n" +
 	"\x1dListCustomImageBuildsResponse\x12A\n" +
 	"\x06builds\x18\x01 \x03(\v2).chalk.sandbox.v1.CustomImageBuildSummaryR\x06builds\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
@@ -4062,16 +4233,24 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"containers\x18\x01 \x03(\v2+.chalk.sandbox.v1.CustomImageContainerUsageB\x02\x18\x01R\n" +
 	"containers\x12U\n" +
 	"\x0escaling_groups\x18\x02 \x03(\v2..chalk.sandbox.v1.CustomImageScalingGroupUsageR\rscalingGroups\x12G\n" +
-	"\tsandboxes\x18\x03 \x03(\v2).chalk.sandbox.v1.CustomImageSandboxUsageR\tsandboxes2\xfc\x03\n" +
+	"\tsandboxes\x18\x03 \x03(\v2).chalk.sandbox.v1.CustomImageSandboxUsageR\tsandboxes\"6\n" +
+	"\x1eGetImagePullCredentialsRequest\x12\x14\n" +
+	"\x05image\x18\x01 \x01(\tR\x05image\"\xc1\x01\n" +
+	"\x1fGetImagePullCredentialsResponse\x12%\n" +
+	"\x0eserver_address\x18\x01 \x01(\tR\rserverAddress\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12 \n" +
+	"\bpassword\x18\x03 \x01(\tB\x04ء'\x01R\bpassword\x129\n" +
+	"\n" +
+	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt2\xfc\x03\n" +
 	"\x0eSandboxService\x12N\n" +
 	"\x04Exec\x12\x1d.chalk.sandbox.v1.ExecRequest\x1a\x1e.chalk.sandbox.v1.ExecResponse\"\x03\x80}\f(\x010\x01\x12e\n" +
 	"\rCreateSandbox\x12&.chalk.sandbox.v1.CreateSandboxRequest\x1a'.chalk.sandbox.v1.CreateSandboxResponse\"\x03\x80}\f\x12n\n" +
 	"\x10TerminateSandbox\x12).chalk.sandbox.v1.TerminateSandboxRequest\x1a*.chalk.sandbox.v1.TerminateSandboxResponse\"\x03\x80}\f\x12\\\n" +
 	"\n" +
 	"GetSandbox\x12#.chalk.sandbox.v1.GetSandboxRequest\x1a$.chalk.sandbox.v1.GetSandboxResponse\"\x03\x80}\v\x12e\n" +
-	"\rListSandboxes\x12&.chalk.sandbox.v1.ListSandboxesRequest\x1a'.chalk.sandbox.v1.ListSandboxesResponse\"\x03\x80}\v2\xd0\n" +
-	"\n" +
-	"\x12CustomImageService\x12\xc5\x01\n" +
+	"\rListSandboxes\x12&.chalk.sandbox.v1.ListSandboxesRequest\x1a'.chalk.sandbox.v1.ListSandboxesResponse\"\x03\x80}\v2\xd6\v\n" +
+	"\x12CustomImageService\x12\x83\x01\n" +
+	"\x17GetImagePullCredentials\x120.chalk.sandbox.v1.GetImagePullCredentialsRequest\x1a1.chalk.sandbox.v1.GetImagePullCredentialsResponse\"\x03\x80}\f\x12\xc5\x01\n" +
 	"\x10BuildCustomImage\x12).chalk.sandbox.v1.BuildCustomImageRequest\x1a*.chalk.sandbox.v1.BuildCustomImageResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
 	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12h\n" +
 	"\x0eGetCustomImage\x12'.chalk.sandbox.v1.GetCustomImageRequest\x1a(.chalk.sandbox.v1.GetCustomImageResponse\"\x03\x80}\v\x12\xd4\x01\n" +
@@ -4098,7 +4277,7 @@ func file_chalk_sandbox_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_sandbox_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_sandbox_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
+var file_chalk_sandbox_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_chalk_sandbox_v1_service_proto_goTypes = []any{
 	(OutputData_Stream)(0),                        // 0: chalk.sandbox.v1.OutputData.Stream
 	(*ExecRequest)(nil),                           // 1: chalk.sandbox.v1.ExecRequest
@@ -4142,26 +4321,29 @@ var file_chalk_sandbox_v1_service_proto_goTypes = []any{
 	(*StreamCustomImageBuildUpdatesResponse)(nil), // 39: chalk.sandbox.v1.StreamCustomImageBuildUpdatesResponse
 	(*CustomImageBuildSummary)(nil),               // 40: chalk.sandbox.v1.CustomImageBuildSummary
 	(*ListCustomImageBuildsRequest)(nil),          // 41: chalk.sandbox.v1.ListCustomImageBuildsRequest
-	(*ListCustomImageBuildsResponse)(nil),         // 42: chalk.sandbox.v1.ListCustomImageBuildsResponse
-	(*GetCustomImageBuildRequest)(nil),            // 43: chalk.sandbox.v1.GetCustomImageBuildRequest
-	(*GetCustomImageBuildResponse)(nil),           // 44: chalk.sandbox.v1.GetCustomImageBuildResponse
-	(*GetCustomImageBuildLogsRequest)(nil),        // 45: chalk.sandbox.v1.GetCustomImageBuildLogsRequest
-	(*GetCustomImageBuildLogsResponse)(nil),       // 46: chalk.sandbox.v1.GetCustomImageBuildLogsResponse
-	(*GetCustomImageBuildWorkflowRequest)(nil),    // 47: chalk.sandbox.v1.GetCustomImageBuildWorkflowRequest
-	(*GetCustomImageBuildWorkflowResponse)(nil),   // 48: chalk.sandbox.v1.GetCustomImageBuildWorkflowResponse
-	(*GetCustomImageBuildUsageRequest)(nil),       // 49: chalk.sandbox.v1.GetCustomImageBuildUsageRequest
-	(*CustomImageContainerUsage)(nil),             // 50: chalk.sandbox.v1.CustomImageContainerUsage
-	(*CustomImageScalingGroupUsage)(nil),          // 51: chalk.sandbox.v1.CustomImageScalingGroupUsage
-	(*CustomImageSandboxUsage)(nil),               // 52: chalk.sandbox.v1.CustomImageSandboxUsage
-	(*GetCustomImageBuildUsageResponse)(nil),      // 53: chalk.sandbox.v1.GetCustomImageBuildUsageResponse
-	nil,                                           // 54: chalk.sandbox.v1.ExecInit.EnvEntry
-	nil,                                           // 55: chalk.sandbox.v1.ImageSpec.EnvEntry
-	nil,                                           // 56: chalk.sandbox.v1.CreateSandboxRequest.EnvEntry
-	(*timestamppb.Timestamp)(nil),                 // 57: google.protobuf.Timestamp
-	(*v1.NetworkPolicy)(nil),                      // 58: chalk.container.v1.NetworkPolicy
-	(v1.RestartPolicy)(0),                         // 59: chalk.container.v1.RestartPolicy
-	(*v11.LogEntry)(nil),                          // 60: chalk.common.v1.LogEntry
-	(*v12.ArgoWorkflow)(nil),                      // 61: chalk.argo.v1.ArgoWorkflow
+	(*ListCustomImageBuildsFilters)(nil),          // 42: chalk.sandbox.v1.ListCustomImageBuildsFilters
+	(*ListCustomImageBuildsResponse)(nil),         // 43: chalk.sandbox.v1.ListCustomImageBuildsResponse
+	(*GetCustomImageBuildRequest)(nil),            // 44: chalk.sandbox.v1.GetCustomImageBuildRequest
+	(*GetCustomImageBuildResponse)(nil),           // 45: chalk.sandbox.v1.GetCustomImageBuildResponse
+	(*GetCustomImageBuildLogsRequest)(nil),        // 46: chalk.sandbox.v1.GetCustomImageBuildLogsRequest
+	(*GetCustomImageBuildLogsResponse)(nil),       // 47: chalk.sandbox.v1.GetCustomImageBuildLogsResponse
+	(*GetCustomImageBuildWorkflowRequest)(nil),    // 48: chalk.sandbox.v1.GetCustomImageBuildWorkflowRequest
+	(*GetCustomImageBuildWorkflowResponse)(nil),   // 49: chalk.sandbox.v1.GetCustomImageBuildWorkflowResponse
+	(*GetCustomImageBuildUsageRequest)(nil),       // 50: chalk.sandbox.v1.GetCustomImageBuildUsageRequest
+	(*CustomImageContainerUsage)(nil),             // 51: chalk.sandbox.v1.CustomImageContainerUsage
+	(*CustomImageScalingGroupUsage)(nil),          // 52: chalk.sandbox.v1.CustomImageScalingGroupUsage
+	(*CustomImageSandboxUsage)(nil),               // 53: chalk.sandbox.v1.CustomImageSandboxUsage
+	(*GetCustomImageBuildUsageResponse)(nil),      // 54: chalk.sandbox.v1.GetCustomImageBuildUsageResponse
+	(*GetImagePullCredentialsRequest)(nil),        // 55: chalk.sandbox.v1.GetImagePullCredentialsRequest
+	(*GetImagePullCredentialsResponse)(nil),       // 56: chalk.sandbox.v1.GetImagePullCredentialsResponse
+	nil,                                           // 57: chalk.sandbox.v1.ExecInit.EnvEntry
+	nil,                                           // 58: chalk.sandbox.v1.ImageSpec.EnvEntry
+	nil,                                           // 59: chalk.sandbox.v1.CreateSandboxRequest.EnvEntry
+	(*timestamppb.Timestamp)(nil),                 // 60: google.protobuf.Timestamp
+	(*v1.NetworkPolicy)(nil),                      // 61: chalk.container.v1.NetworkPolicy
+	(v1.RestartPolicy)(0),                         // 62: chalk.container.v1.RestartPolicy
+	(*v11.LogEntry)(nil),                          // 63: chalk.common.v1.LogEntry
+	(*v12.ArgoWorkflow)(nil),                      // 64: chalk.argo.v1.ArgoWorkflow
 }
 var file_chalk_sandbox_v1_service_proto_depIdxs = []int32{
 	2,  // 0: chalk.sandbox.v1.ExecRequest.init:type_name -> chalk.sandbox.v1.ExecInit
@@ -4169,7 +4351,7 @@ var file_chalk_sandbox_v1_service_proto_depIdxs = []int32{
 	5,  // 2: chalk.sandbox.v1.ExecRequest.stdin_eof:type_name -> chalk.sandbox.v1.StdinEof
 	6,  // 3: chalk.sandbox.v1.ExecRequest.signal:type_name -> chalk.sandbox.v1.ExecSignal
 	7,  // 4: chalk.sandbox.v1.ExecRequest.resize:type_name -> chalk.sandbox.v1.ExecResize
-	54, // 5: chalk.sandbox.v1.ExecInit.env:type_name -> chalk.sandbox.v1.ExecInit.EnvEntry
+	57, // 5: chalk.sandbox.v1.ExecInit.env:type_name -> chalk.sandbox.v1.ExecInit.EnvEntry
 	3,  // 6: chalk.sandbox.v1.ExecInit.pty_info:type_name -> chalk.sandbox.v1.PtyInfo
 	9,  // 7: chalk.sandbox.v1.ExecResponse.process_started:type_name -> chalk.sandbox.v1.ProcessStarted
 	10, // 8: chalk.sandbox.v1.ExecResponse.output_data:type_name -> chalk.sandbox.v1.OutputData
@@ -4177,7 +4359,7 @@ var file_chalk_sandbox_v1_service_proto_depIdxs = []int32{
 	12, // 10: chalk.sandbox.v1.ExecResponse.error:type_name -> chalk.sandbox.v1.ExecError
 	0,  // 11: chalk.sandbox.v1.OutputData.stream:type_name -> chalk.sandbox.v1.OutputData.Stream
 	14, // 12: chalk.sandbox.v1.ImageSpec.steps:type_name -> chalk.sandbox.v1.BuildStep
-	55, // 13: chalk.sandbox.v1.ImageSpec.env:type_name -> chalk.sandbox.v1.ImageSpec.EnvEntry
+	58, // 13: chalk.sandbox.v1.ImageSpec.env:type_name -> chalk.sandbox.v1.ImageSpec.EnvEntry
 	15, // 14: chalk.sandbox.v1.BuildStep.run_commands:type_name -> chalk.sandbox.v1.RunCommandsStep
 	16, // 15: chalk.sandbox.v1.BuildStep.pip_install:type_name -> chalk.sandbox.v1.PipInstallStep
 	19, // 16: chalk.sandbox.v1.BuildStep.add_file:type_name -> chalk.sandbox.v1.AddFileStep
@@ -4187,60 +4369,64 @@ var file_chalk_sandbox_v1_service_proto_depIdxs = []int32{
 	13, // 20: chalk.sandbox.v1.BuildCustomImageRequest.image_spec:type_name -> chalk.sandbox.v1.ImageSpec
 	13, // 21: chalk.sandbox.v1.CreateSandboxRequest.image_spec:type_name -> chalk.sandbox.v1.ImageSpec
 	25, // 22: chalk.sandbox.v1.CreateSandboxRequest.resource_limits:type_name -> chalk.sandbox.v1.ResourceLimits
-	56, // 23: chalk.sandbox.v1.CreateSandboxRequest.env:type_name -> chalk.sandbox.v1.CreateSandboxRequest.EnvEntry
+	59, // 23: chalk.sandbox.v1.CreateSandboxRequest.env:type_name -> chalk.sandbox.v1.CreateSandboxRequest.EnvEntry
 	23, // 24: chalk.sandbox.v1.CreateSandboxRequest.volumes:type_name -> chalk.sandbox.v1.VolumeMount
-	57, // 25: chalk.sandbox.v1.CreateSandboxRequest.knowledge_cutoff:type_name -> google.protobuf.Timestamp
-	58, // 26: chalk.sandbox.v1.CreateSandboxRequest.network_policy:type_name -> chalk.container.v1.NetworkPolicy
-	59, // 27: chalk.sandbox.v1.CreateSandboxRequest.restart_policy:type_name -> chalk.container.v1.RestartPolicy
+	60, // 25: chalk.sandbox.v1.CreateSandboxRequest.knowledge_cutoff:type_name -> google.protobuf.Timestamp
+	61, // 26: chalk.sandbox.v1.CreateSandboxRequest.network_policy:type_name -> chalk.container.v1.NetworkPolicy
+	62, // 27: chalk.sandbox.v1.CreateSandboxRequest.restart_policy:type_name -> chalk.container.v1.RestartPolicy
 	33, // 28: chalk.sandbox.v1.CreateSandboxResponse.sandbox:type_name -> chalk.sandbox.v1.SandboxInfo
 	33, // 29: chalk.sandbox.v1.GetSandboxResponse.sandbox:type_name -> chalk.sandbox.v1.SandboxInfo
 	33, // 30: chalk.sandbox.v1.ListSandboxesResponse.sandboxes:type_name -> chalk.sandbox.v1.SandboxInfo
-	57, // 31: chalk.sandbox.v1.SandboxInfo.knowledge_cutoff:type_name -> google.protobuf.Timestamp
+	60, // 31: chalk.sandbox.v1.SandboxInfo.knowledge_cutoff:type_name -> google.protobuf.Timestamp
 	13, // 32: chalk.sandbox.v1.GetOrBuildCustomImageRequest.image_spec:type_name -> chalk.sandbox.v1.ImageSpec
-	57, // 33: chalk.sandbox.v1.CustomImageBuildSummary.created_at:type_name -> google.protobuf.Timestamp
-	40, // 34: chalk.sandbox.v1.ListCustomImageBuildsResponse.builds:type_name -> chalk.sandbox.v1.CustomImageBuildSummary
-	40, // 35: chalk.sandbox.v1.GetCustomImageBuildResponse.build:type_name -> chalk.sandbox.v1.CustomImageBuildSummary
-	13, // 36: chalk.sandbox.v1.GetCustomImageBuildResponse.image_spec:type_name -> chalk.sandbox.v1.ImageSpec
-	57, // 37: chalk.sandbox.v1.GetCustomImageBuildLogsRequest.start_time:type_name -> google.protobuf.Timestamp
-	57, // 38: chalk.sandbox.v1.GetCustomImageBuildLogsRequest.end_time:type_name -> google.protobuf.Timestamp
-	60, // 39: chalk.sandbox.v1.GetCustomImageBuildLogsResponse.logs:type_name -> chalk.common.v1.LogEntry
-	61, // 40: chalk.sandbox.v1.GetCustomImageBuildWorkflowResponse.workflow:type_name -> chalk.argo.v1.ArgoWorkflow
-	50, // 41: chalk.sandbox.v1.GetCustomImageBuildUsageResponse.containers:type_name -> chalk.sandbox.v1.CustomImageContainerUsage
-	51, // 42: chalk.sandbox.v1.GetCustomImageBuildUsageResponse.scaling_groups:type_name -> chalk.sandbox.v1.CustomImageScalingGroupUsage
-	52, // 43: chalk.sandbox.v1.GetCustomImageBuildUsageResponse.sandboxes:type_name -> chalk.sandbox.v1.CustomImageSandboxUsage
-	1,  // 44: chalk.sandbox.v1.SandboxService.Exec:input_type -> chalk.sandbox.v1.ExecRequest
-	24, // 45: chalk.sandbox.v1.SandboxService.CreateSandbox:input_type -> chalk.sandbox.v1.CreateSandboxRequest
-	27, // 46: chalk.sandbox.v1.SandboxService.TerminateSandbox:input_type -> chalk.sandbox.v1.TerminateSandboxRequest
-	29, // 47: chalk.sandbox.v1.SandboxService.GetSandbox:input_type -> chalk.sandbox.v1.GetSandboxRequest
-	31, // 48: chalk.sandbox.v1.SandboxService.ListSandboxes:input_type -> chalk.sandbox.v1.ListSandboxesRequest
-	21, // 49: chalk.sandbox.v1.CustomImageService.BuildCustomImage:input_type -> chalk.sandbox.v1.BuildCustomImageRequest
-	34, // 50: chalk.sandbox.v1.CustomImageService.GetCustomImage:input_type -> chalk.sandbox.v1.GetCustomImageRequest
-	36, // 51: chalk.sandbox.v1.CustomImageService.GetOrBuildCustomImage:input_type -> chalk.sandbox.v1.GetOrBuildCustomImageRequest
-	38, // 52: chalk.sandbox.v1.CustomImageService.StreamCustomImageBuildUpdates:input_type -> chalk.sandbox.v1.StreamCustomImageBuildUpdatesRequest
-	41, // 53: chalk.sandbox.v1.CustomImageService.ListCustomImageBuilds:input_type -> chalk.sandbox.v1.ListCustomImageBuildsRequest
-	43, // 54: chalk.sandbox.v1.CustomImageService.GetCustomImageBuild:input_type -> chalk.sandbox.v1.GetCustomImageBuildRequest
-	45, // 55: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildLogs:input_type -> chalk.sandbox.v1.GetCustomImageBuildLogsRequest
-	47, // 56: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildWorkflow:input_type -> chalk.sandbox.v1.GetCustomImageBuildWorkflowRequest
-	49, // 57: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildUsage:input_type -> chalk.sandbox.v1.GetCustomImageBuildUsageRequest
-	8,  // 58: chalk.sandbox.v1.SandboxService.Exec:output_type -> chalk.sandbox.v1.ExecResponse
-	26, // 59: chalk.sandbox.v1.SandboxService.CreateSandbox:output_type -> chalk.sandbox.v1.CreateSandboxResponse
-	28, // 60: chalk.sandbox.v1.SandboxService.TerminateSandbox:output_type -> chalk.sandbox.v1.TerminateSandboxResponse
-	30, // 61: chalk.sandbox.v1.SandboxService.GetSandbox:output_type -> chalk.sandbox.v1.GetSandboxResponse
-	32, // 62: chalk.sandbox.v1.SandboxService.ListSandboxes:output_type -> chalk.sandbox.v1.ListSandboxesResponse
-	22, // 63: chalk.sandbox.v1.CustomImageService.BuildCustomImage:output_type -> chalk.sandbox.v1.BuildCustomImageResponse
-	35, // 64: chalk.sandbox.v1.CustomImageService.GetCustomImage:output_type -> chalk.sandbox.v1.GetCustomImageResponse
-	37, // 65: chalk.sandbox.v1.CustomImageService.GetOrBuildCustomImage:output_type -> chalk.sandbox.v1.GetOrBuildCustomImageResponse
-	39, // 66: chalk.sandbox.v1.CustomImageService.StreamCustomImageBuildUpdates:output_type -> chalk.sandbox.v1.StreamCustomImageBuildUpdatesResponse
-	42, // 67: chalk.sandbox.v1.CustomImageService.ListCustomImageBuilds:output_type -> chalk.sandbox.v1.ListCustomImageBuildsResponse
-	44, // 68: chalk.sandbox.v1.CustomImageService.GetCustomImageBuild:output_type -> chalk.sandbox.v1.GetCustomImageBuildResponse
-	46, // 69: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildLogs:output_type -> chalk.sandbox.v1.GetCustomImageBuildLogsResponse
-	48, // 70: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildWorkflow:output_type -> chalk.sandbox.v1.GetCustomImageBuildWorkflowResponse
-	53, // 71: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildUsage:output_type -> chalk.sandbox.v1.GetCustomImageBuildUsageResponse
-	58, // [58:72] is the sub-list for method output_type
-	44, // [44:58] is the sub-list for method input_type
-	44, // [44:44] is the sub-list for extension type_name
-	44, // [44:44] is the sub-list for extension extendee
-	0,  // [0:44] is the sub-list for field type_name
+	60, // 33: chalk.sandbox.v1.CustomImageBuildSummary.created_at:type_name -> google.protobuf.Timestamp
+	42, // 34: chalk.sandbox.v1.ListCustomImageBuildsRequest.filters:type_name -> chalk.sandbox.v1.ListCustomImageBuildsFilters
+	40, // 35: chalk.sandbox.v1.ListCustomImageBuildsResponse.builds:type_name -> chalk.sandbox.v1.CustomImageBuildSummary
+	40, // 36: chalk.sandbox.v1.GetCustomImageBuildResponse.build:type_name -> chalk.sandbox.v1.CustomImageBuildSummary
+	13, // 37: chalk.sandbox.v1.GetCustomImageBuildResponse.image_spec:type_name -> chalk.sandbox.v1.ImageSpec
+	60, // 38: chalk.sandbox.v1.GetCustomImageBuildLogsRequest.start_time:type_name -> google.protobuf.Timestamp
+	60, // 39: chalk.sandbox.v1.GetCustomImageBuildLogsRequest.end_time:type_name -> google.protobuf.Timestamp
+	63, // 40: chalk.sandbox.v1.GetCustomImageBuildLogsResponse.logs:type_name -> chalk.common.v1.LogEntry
+	64, // 41: chalk.sandbox.v1.GetCustomImageBuildWorkflowResponse.workflow:type_name -> chalk.argo.v1.ArgoWorkflow
+	51, // 42: chalk.sandbox.v1.GetCustomImageBuildUsageResponse.containers:type_name -> chalk.sandbox.v1.CustomImageContainerUsage
+	52, // 43: chalk.sandbox.v1.GetCustomImageBuildUsageResponse.scaling_groups:type_name -> chalk.sandbox.v1.CustomImageScalingGroupUsage
+	53, // 44: chalk.sandbox.v1.GetCustomImageBuildUsageResponse.sandboxes:type_name -> chalk.sandbox.v1.CustomImageSandboxUsage
+	60, // 45: chalk.sandbox.v1.GetImagePullCredentialsResponse.expires_at:type_name -> google.protobuf.Timestamp
+	1,  // 46: chalk.sandbox.v1.SandboxService.Exec:input_type -> chalk.sandbox.v1.ExecRequest
+	24, // 47: chalk.sandbox.v1.SandboxService.CreateSandbox:input_type -> chalk.sandbox.v1.CreateSandboxRequest
+	27, // 48: chalk.sandbox.v1.SandboxService.TerminateSandbox:input_type -> chalk.sandbox.v1.TerminateSandboxRequest
+	29, // 49: chalk.sandbox.v1.SandboxService.GetSandbox:input_type -> chalk.sandbox.v1.GetSandboxRequest
+	31, // 50: chalk.sandbox.v1.SandboxService.ListSandboxes:input_type -> chalk.sandbox.v1.ListSandboxesRequest
+	55, // 51: chalk.sandbox.v1.CustomImageService.GetImagePullCredentials:input_type -> chalk.sandbox.v1.GetImagePullCredentialsRequest
+	21, // 52: chalk.sandbox.v1.CustomImageService.BuildCustomImage:input_type -> chalk.sandbox.v1.BuildCustomImageRequest
+	34, // 53: chalk.sandbox.v1.CustomImageService.GetCustomImage:input_type -> chalk.sandbox.v1.GetCustomImageRequest
+	36, // 54: chalk.sandbox.v1.CustomImageService.GetOrBuildCustomImage:input_type -> chalk.sandbox.v1.GetOrBuildCustomImageRequest
+	38, // 55: chalk.sandbox.v1.CustomImageService.StreamCustomImageBuildUpdates:input_type -> chalk.sandbox.v1.StreamCustomImageBuildUpdatesRequest
+	41, // 56: chalk.sandbox.v1.CustomImageService.ListCustomImageBuilds:input_type -> chalk.sandbox.v1.ListCustomImageBuildsRequest
+	44, // 57: chalk.sandbox.v1.CustomImageService.GetCustomImageBuild:input_type -> chalk.sandbox.v1.GetCustomImageBuildRequest
+	46, // 58: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildLogs:input_type -> chalk.sandbox.v1.GetCustomImageBuildLogsRequest
+	48, // 59: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildWorkflow:input_type -> chalk.sandbox.v1.GetCustomImageBuildWorkflowRequest
+	50, // 60: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildUsage:input_type -> chalk.sandbox.v1.GetCustomImageBuildUsageRequest
+	8,  // 61: chalk.sandbox.v1.SandboxService.Exec:output_type -> chalk.sandbox.v1.ExecResponse
+	26, // 62: chalk.sandbox.v1.SandboxService.CreateSandbox:output_type -> chalk.sandbox.v1.CreateSandboxResponse
+	28, // 63: chalk.sandbox.v1.SandboxService.TerminateSandbox:output_type -> chalk.sandbox.v1.TerminateSandboxResponse
+	30, // 64: chalk.sandbox.v1.SandboxService.GetSandbox:output_type -> chalk.sandbox.v1.GetSandboxResponse
+	32, // 65: chalk.sandbox.v1.SandboxService.ListSandboxes:output_type -> chalk.sandbox.v1.ListSandboxesResponse
+	56, // 66: chalk.sandbox.v1.CustomImageService.GetImagePullCredentials:output_type -> chalk.sandbox.v1.GetImagePullCredentialsResponse
+	22, // 67: chalk.sandbox.v1.CustomImageService.BuildCustomImage:output_type -> chalk.sandbox.v1.BuildCustomImageResponse
+	35, // 68: chalk.sandbox.v1.CustomImageService.GetCustomImage:output_type -> chalk.sandbox.v1.GetCustomImageResponse
+	37, // 69: chalk.sandbox.v1.CustomImageService.GetOrBuildCustomImage:output_type -> chalk.sandbox.v1.GetOrBuildCustomImageResponse
+	39, // 70: chalk.sandbox.v1.CustomImageService.StreamCustomImageBuildUpdates:output_type -> chalk.sandbox.v1.StreamCustomImageBuildUpdatesResponse
+	43, // 71: chalk.sandbox.v1.CustomImageService.ListCustomImageBuilds:output_type -> chalk.sandbox.v1.ListCustomImageBuildsResponse
+	45, // 72: chalk.sandbox.v1.CustomImageService.GetCustomImageBuild:output_type -> chalk.sandbox.v1.GetCustomImageBuildResponse
+	47, // 73: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildLogs:output_type -> chalk.sandbox.v1.GetCustomImageBuildLogsResponse
+	49, // 74: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildWorkflow:output_type -> chalk.sandbox.v1.GetCustomImageBuildWorkflowResponse
+	54, // 75: chalk.sandbox.v1.CustomImageService.GetCustomImageBuildUsage:output_type -> chalk.sandbox.v1.GetCustomImageBuildUsageResponse
+	61, // [61:76] is the sub-list for method output_type
+	46, // [46:61] is the sub-list for method input_type
+	46, // [46:46] is the sub-list for extension type_name
+	46, // [46:46] is the sub-list for extension extendee
+	0,  // [0:46] is the sub-list for field type_name
 }
 
 func init() { file_chalk_sandbox_v1_service_proto_init() }
@@ -4296,22 +4482,23 @@ func file_chalk_sandbox_v1_service_proto_init() {
 	file_chalk_sandbox_v1_service_proto_msgTypes[39].OneofWrappers = []any{}
 	file_chalk_sandbox_v1_service_proto_msgTypes[40].OneofWrappers = []any{}
 	file_chalk_sandbox_v1_service_proto_msgTypes[41].OneofWrappers = []any{}
-	file_chalk_sandbox_v1_service_proto_msgTypes[42].OneofWrappers = []any{
+	file_chalk_sandbox_v1_service_proto_msgTypes[42].OneofWrappers = []any{}
+	file_chalk_sandbox_v1_service_proto_msgTypes[43].OneofWrappers = []any{
 		(*GetCustomImageBuildRequest_ContentHash)(nil),
 		(*GetCustomImageBuildRequest_BuildId)(nil),
 	}
-	file_chalk_sandbox_v1_service_proto_msgTypes[43].OneofWrappers = []any{}
-	file_chalk_sandbox_v1_service_proto_msgTypes[44].OneofWrappers = []any{
+	file_chalk_sandbox_v1_service_proto_msgTypes[44].OneofWrappers = []any{}
+	file_chalk_sandbox_v1_service_proto_msgTypes[45].OneofWrappers = []any{
 		(*GetCustomImageBuildLogsRequest_ContentHash)(nil),
 		(*GetCustomImageBuildLogsRequest_BuildId)(nil),
 	}
-	file_chalk_sandbox_v1_service_proto_msgTypes[45].OneofWrappers = []any{}
-	file_chalk_sandbox_v1_service_proto_msgTypes[46].OneofWrappers = []any{
+	file_chalk_sandbox_v1_service_proto_msgTypes[46].OneofWrappers = []any{}
+	file_chalk_sandbox_v1_service_proto_msgTypes[47].OneofWrappers = []any{
 		(*GetCustomImageBuildWorkflowRequest_ContentHash)(nil),
 		(*GetCustomImageBuildWorkflowRequest_BuildId)(nil),
 	}
-	file_chalk_sandbox_v1_service_proto_msgTypes[47].OneofWrappers = []any{}
-	file_chalk_sandbox_v1_service_proto_msgTypes[48].OneofWrappers = []any{
+	file_chalk_sandbox_v1_service_proto_msgTypes[48].OneofWrappers = []any{}
+	file_chalk_sandbox_v1_service_proto_msgTypes[49].OneofWrappers = []any{
 		(*GetCustomImageBuildUsageRequest_ContentHash)(nil),
 		(*GetCustomImageBuildUsageRequest_BuildId)(nil),
 	}
@@ -4321,7 +4508,7 @@ func file_chalk_sandbox_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_sandbox_v1_service_proto_rawDesc), len(file_chalk_sandbox_v1_service_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   56,
+			NumMessages:   59,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

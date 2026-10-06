@@ -13090,9 +13090,11 @@ type GetTelemetryDeploymentRequest struct {
 	//	*GetTelemetryDeploymentRequest_ClusterIdentifier
 	//	*GetTelemetryDeploymentRequest_TelemetryId
 	//	*GetTelemetryDeploymentRequest_ByEnvironment
-	Identifier    isGetTelemetryDeploymentRequest_Identifier `protobuf_oneof:"identifier"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Identifier isGetTelemetryDeploymentRequest_Identifier `protobuf_oneof:"identifier"`
+	// Selects a resource's cluster when identifier is by_environment.
+	ResourceClusterId *string `protobuf:"bytes,6,opt,name=resource_cluster_id,json=resourceClusterId,proto3,oneof" json:"resource_cluster_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *GetTelemetryDeploymentRequest) Reset() {
@@ -13173,6 +13175,13 @@ func (x *GetTelemetryDeploymentRequest) GetByEnvironment() bool {
 		}
 	}
 	return false
+}
+
+func (x *GetTelemetryDeploymentRequest) GetResourceClusterId() string {
+	if x != nil && x.ResourceClusterId != nil {
+		return *x.ResourceClusterId
+	}
+	return ""
 }
 
 type isGetTelemetryDeploymentRequest_Identifier interface {
@@ -13528,6 +13537,7 @@ type UpdateTelemetryDeploymentRequest struct {
 	Spec                  *TelemetryDeploymentSpec `protobuf:"bytes,2,opt,name=spec,proto3,oneof" json:"spec,omitempty"`
 	Suspended             *bool                    `protobuf:"varint,3,opt,name=suspended,proto3,oneof" json:"suspended,omitempty"`
 	UpdateMask            *fieldmaskpb.FieldMask   `protobuf:"bytes,4,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
+	ClusterId             string                   `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -13590,6 +13600,13 @@ func (x *UpdateTelemetryDeploymentRequest) GetUpdateMask() *fieldmaskpb.FieldMas
 	return nil
 }
 
+func (x *UpdateTelemetryDeploymentRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
 type UpdateTelemetryDeploymentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Deployment    *TelemetryDeployment   `protobuf:"bytes,1,opt,name=deployment,proto3" json:"deployment,omitempty"`
@@ -13638,6 +13655,7 @@ type MigrateTelemetryDeploymentRequest struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
 	TelemetryDeploymentId string                 `protobuf:"bytes,1,opt,name=telemetry_deployment_id,json=telemetryDeploymentId,proto3" json:"telemetry_deployment_id,omitempty"`
 	MigrationImage        *string                `protobuf:"bytes,2,opt,name=migration_image,json=migrationImage,proto3,oneof" json:"migration_image,omitempty"`
+	ClusterId             string                 `protobuf:"bytes,3,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -13682,6 +13700,13 @@ func (x *MigrateTelemetryDeploymentRequest) GetTelemetryDeploymentId() string {
 func (x *MigrateTelemetryDeploymentRequest) GetMigrationImage() string {
 	if x != nil && x.MigrationImage != nil {
 		return *x.MigrationImage
+	}
+	return ""
+}
+
+func (x *MigrateTelemetryDeploymentRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
 	}
 	return ""
 }
@@ -20384,18 +20409,20 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12!\n" +
 	"\tnamespace\x18\x02 \x01(\tH\x00R\tnamespace\x88\x01\x01B\f\n" +
 	"\n" +
-	"_namespace\"\xa8\x02\n" +
+	"_namespace\"\xf5\x02\n" +
 	"\x1dGetTelemetryDeploymentRequest\x12!\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\x02\x18\x01R\tclusterId\x12%\n" +
 	"\tnamespace\x18\x02 \x01(\tB\x02\x18\x01H\x01R\tnamespace\x88\x01\x01\x12S\n" +
 	"\x12cluster_identifier\x18\x03 \x01(\v2\".chalk.server.v1.ClusterIdentifierH\x00R\x11clusterIdentifier\x12#\n" +
 	"\ftelemetry_id\x18\x04 \x01(\tH\x00R\vtelemetryId\x12'\n" +
-	"\x0eby_environment\x18\x05 \x01(\bH\x00R\rbyEnvironmentB\f\n" +
+	"\x0eby_environment\x18\x05 \x01(\bH\x00R\rbyEnvironment\x123\n" +
+	"\x13resource_cluster_id\x18\x06 \x01(\tH\x02R\x11resourceClusterId\x88\x01\x01B\f\n" +
 	"\n" +
 	"identifierB\f\n" +
 	"\n" +
-	"_namespace\"f\n" +
+	"_namespaceB\x16\n" +
+	"\x14_resource_cluster_id\"f\n" +
 	"\x1eGetTelemetryDeploymentResponse\x12D\n" +
 	"\n" +
 	"deployment\x18\x01 \x01(\v2$.chalk.server.v1.TelemetryDeploymentR\n" +
@@ -20419,23 +20446,27 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\tnamespace\x18\x02 \x01(\tH\x00R\tnamespace\x88\x01\x01B\f\n" +
 	"\n" +
 	"_namespace\"#\n" +
-	"!DeleteTelemetryDeploymentResponse\"\x94\x02\n" +
+	"!DeleteTelemetryDeploymentResponse\"\xb3\x02\n" +
 	" UpdateTelemetryDeploymentRequest\x126\n" +
 	"\x17telemetry_deployment_id\x18\x01 \x01(\tR\x15telemetryDeploymentId\x12A\n" +
 	"\x04spec\x18\x02 \x01(\v2(.chalk.server.v1.TelemetryDeploymentSpecH\x00R\x04spec\x88\x01\x01\x12!\n" +
 	"\tsuspended\x18\x03 \x01(\bH\x01R\tsuspended\x88\x01\x01\x12;\n" +
 	"\vupdate_mask\x18\x04 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
-	"updateMaskB\a\n" +
+	"updateMask\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x05 \x01(\tR\tclusterIdB\a\n" +
 	"\x05_specB\f\n" +
 	"\n" +
 	"_suspended\"i\n" +
 	"!UpdateTelemetryDeploymentResponse\x12D\n" +
 	"\n" +
 	"deployment\x18\x01 \x01(\v2$.chalk.server.v1.TelemetryDeploymentR\n" +
-	"deployment\"\x9d\x01\n" +
+	"deployment\"\xbc\x01\n" +
 	"!MigrateTelemetryDeploymentRequest\x126\n" +
 	"\x17telemetry_deployment_id\x18\x01 \x01(\tR\x15telemetryDeploymentId\x12,\n" +
-	"\x0fmigration_image\x18\x02 \x01(\tH\x00R\x0emigrationImage\x88\x01\x01B\x12\n" +
+	"\x0fmigration_image\x18\x02 \x01(\tH\x00R\x0emigrationImage\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x03 \x01(\tR\tclusterIdB\x12\n" +
 	"\x10_migration_image\"$\n" +
 	"\"MigrateTelemetryDeploymentResponse\"\x18\n" +
 	"\x16GetSearchConfigRequest\"T\n" +
@@ -21013,7 +21044,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x8a\xd3\x0e3\b\x02\x12/Upserted a chalk machine type fallback override\x12\xcc\x01\n" +
 	"\x1eDeleteChalkMachineTypeOverride\x126.chalk.server.v1.DeleteChalkMachineTypeOverrideRequest\x1a7.chalk.server.v1.DeleteChalkMachineTypeOverrideResponse\"9\x88}\n" +
 	"\x8a\xd3\x0e2\b\x02\x12.Deleted a chalk machine type fallback override\x12\x90\x01\n" +
-	"\x1bGetClusterChalkMachineTypes\x123.chalk.server.v1.GetClusterChalkMachineTypesRequest\x1a4.chalk.server.v1.GetClusterChalkMachineTypesResponse\"\x06\x80}\x02\x90\x02\x01\x12\x83\x01\n" +
+	"\x1bGetClusterChalkMachineTypes\x123.chalk.server.v1.GetClusterChalkMachineTypesRequest\x1a4.chalk.server.v1.GetClusterChalkMachineTypesResponse\"\x06\x88}\v\x90\x02\x01\x12\x83\x01\n" +
 	"\vAddNodepool\x12#.chalk.server.v1.AddNodepoolRequest\x1a$.chalk.server.v1.AddNodepoolResponse\")\x80}\f\x8a\xd3\x0e\"\b\x02\x12\x1eAdded a node pool to a cluster\x12\x8e\x01\n" +
 	"\x0eUpdateNodepool\x12&.chalk.server.v1.UpdateNodepoolRequest\x1a'.chalk.server.v1.UpdateNodepoolResponse\"+\x80}\f\x8a\xd3\x0e$\b\x02\x12 Updated a node pool on a cluster\x12\x90\x01\n" +
 	"\x0eDeleteNodepool\x12&.chalk.server.v1.DeleteNodepoolRequest\x1a'.chalk.server.v1.DeleteNodepoolResponse\"-\x80}\f\x8a\xd3\x0e&\b\x02\x12\"Deleted a node pool from a cluster\x12\x81\x01\n" +
@@ -21029,14 +21060,14 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\n" +
 	"BuildImage\x12\".chalk.server.v1.BuildImageRequest\x1a#.chalk.server.v1.BuildImageResponse\"F\x80}\f\x8a\xd3\x0e?\b\x02\x12;Built an engine image and pushed it to an external registry\x12~\n" +
 	"\x16GetTelemetryDeployment\x12..chalk.server.v1.GetTelemetryDeploymentRequest\x1a/.chalk.server.v1.GetTelemetryDeploymentResponse\"\x03\x80}\v\x12\x87\x01\n" +
-	"\x18ListTelemetryDeployments\x120.chalk.server.v1.ListTelemetryDeploymentsRequest\x1a1.chalk.server.v1.ListTelemetryDeploymentsResponse\"\x06\x80}\x02\x90\x02\x01\x12\xbb\x01\n" +
+	"\x18ListTelemetryDeployments\x120.chalk.server.v1.ListTelemetryDeploymentsRequest\x1a1.chalk.server.v1.ListTelemetryDeploymentsResponse\"\x06\x88}\v\x90\x02\x01\x12\xbb\x01\n" +
 	"\x19CreateTelemetryDeployment\x121.chalk.server.v1.CreateTelemetryDeploymentRequest\x1a2.chalk.server.v1.CreateTelemetryDeploymentResponse\"7\x80}\n" +
 	"\x8a\xd3\x0e0\b\x02\x12,Created a telemetry deployment for a cluster\x12\xbb\x01\n" +
-	"\x19UpdateTelemetryDeployment\x121.chalk.server.v1.UpdateTelemetryDeploymentRequest\x1a2.chalk.server.v1.UpdateTelemetryDeploymentResponse\"7\x80}\n" +
+	"\x19UpdateTelemetryDeployment\x121.chalk.server.v1.UpdateTelemetryDeploymentRequest\x1a2.chalk.server.v1.UpdateTelemetryDeploymentResponse\"7\x88}\n" +
 	"\x8a\xd3\x0e0\b\x02\x12,Updated a telemetry deployment for a cluster\x12\xbc\x01\n" +
 	"\x19DeleteTelemetryDeployment\x121.chalk.server.v1.DeleteTelemetryDeploymentRequest\x1a2.chalk.server.v1.DeleteTelemetryDeploymentResponse\"8\x80}\n" +
 	"\x8a\xd3\x0e1\b\x02\x12-Deleted a telemetry deployment from a cluster\x12\xc8\x01\n" +
-	"\x1aMigrateTelemetryDeployment\x122.chalk.server.v1.MigrateTelemetryDeploymentRequest\x1a3.chalk.server.v1.MigrateTelemetryDeploymentResponse\"A\x80}\n" +
+	"\x1aMigrateTelemetryDeployment\x122.chalk.server.v1.MigrateTelemetryDeploymentRequest\x1a3.chalk.server.v1.MigrateTelemetryDeploymentResponse\"A\x88}\n" +
 	"\x8a\xd3\x0e:\b\x02\x126Migrated a telemetry deployment to a new configuration\x12\x8d\x01\n" +
 	"\x1aGetEnvironmentKubeClusters\x122.chalk.server.v1.GetEnvironmentKubeClustersRequest\x1a3.chalk.server.v1.GetEnvironmentKubeClustersResponse\"\x06\x80}\v\x90\x02\x01\x12\xa9\x01\n" +
 	"\x12SuspendEnvironment\x12*.chalk.server.v1.SuspendEnvironmentRequest\x1a+.chalk.server.v1.SuspendEnvironmentResponse\":\x80}\n" +

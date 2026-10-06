@@ -243,7 +243,9 @@ type DeletePodRequest struct {
 	GracePeriodSeconds *int32 `protobuf:"varint,4,opt,name=grace_period_seconds,json=gracePeriodSeconds,proto3,oneof" json:"grace_period_seconds,omitempty"`
 	// Whether to force delete the pod (sets grace period to 0)
 	// Defaults to false
-	Force         *bool `protobuf:"varint,5,opt,name=force,proto3,oneof" json:"force,omitempty"`
+	Force *bool `protobuf:"varint,5,opt,name=force,proto3,oneof" json:"force,omitempty"`
+	// Cluster containing the pod. Non-environment clusters are not supported by DeletePod yet.
+	ClusterId     *string `protobuf:"bytes,6,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -311,6 +313,13 @@ func (x *DeletePodRequest) GetForce() bool {
 		return *x.Force
 	}
 	return false
+}
+
+func (x *DeletePodRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
 }
 
 type DeletePodResponse struct {
@@ -568,15 +577,18 @@ const file_chalk_kubeops_v1_service_proto_rawDesc = "" +
 	"\x11DrainNodeResponse\x12!\n" +
 	"\fevicted_pods\x18\x01 \x03(\tR\vevictedPods\x12\x1f\n" +
 	"\vfailed_pods\x18\x02 \x03(\tR\n" +
-	"failedPods\"\xe3\x01\n" +
+	"failedPods\"\x96\x02\n" +
 	"\x10DeletePodRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x19\n" +
 	"\bpod_name\x18\x03 \x01(\tR\apodName\x125\n" +
 	"\x14grace_period_seconds\x18\x04 \x01(\x05H\x00R\x12gracePeriodSeconds\x88\x01\x01\x12\x19\n" +
-	"\x05force\x18\x05 \x01(\bH\x01R\x05force\x88\x01\x01B\x17\n" +
+	"\x05force\x18\x05 \x01(\bH\x01R\x05force\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x06 \x01(\tH\x02R\tclusterId\x88\x01\x01B\x17\n" +
 	"\x15_grace_period_secondsB\b\n" +
-	"\x06_force\"\x13\n" +
+	"\x06_forceB\r\n" +
+	"\v_cluster_id\"\x13\n" +
 	"\x11DeletePodResponse\"S\n" +
 	"\x11DeleteNodeRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x12\x1b\n" +

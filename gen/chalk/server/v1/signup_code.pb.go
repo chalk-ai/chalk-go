@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/quota/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -87,6 +88,105 @@ func (SignupCodeStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{0}
 }
 
+// One environment quota a signup code grants. See SignupCode.initial_quotas.
+type SignupCodeQuota struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Resource      *v1.QuotaResource      `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	Limit         *v1.QuotaLimit         `protobuf:"bytes,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SignupCodeQuota) Reset() {
+	*x = SignupCodeQuota{}
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignupCodeQuota) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignupCodeQuota) ProtoMessage() {}
+
+func (x *SignupCodeQuota) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignupCodeQuota.ProtoReflect.Descriptor instead.
+func (*SignupCodeQuota) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *SignupCodeQuota) GetResource() *v1.QuotaResource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+func (x *SignupCodeQuota) GetLimit() *v1.QuotaLimit {
+	if x != nil {
+		return x.Limit
+	}
+	return nil
+}
+
+// Persisted form of SignupCode.initial_quotas, stored as protojson in
+// signup_codes.initial_quotas.
+type SignupCodeQuotaGrant struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Quotas        []*SignupCodeQuota     `protobuf:"bytes,1,rep,name=quotas,proto3" json:"quotas,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SignupCodeQuotaGrant) Reset() {
+	*x = SignupCodeQuotaGrant{}
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignupCodeQuotaGrant) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignupCodeQuotaGrant) ProtoMessage() {}
+
+func (x *SignupCodeQuotaGrant) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignupCodeQuotaGrant.ProtoReflect.Descriptor instead.
+func (*SignupCodeQuotaGrant) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SignupCodeQuotaGrant) GetQuotas() []*SignupCodeQuota {
+	if x != nil {
+		return x.Quotas
+	}
+	return nil
+}
+
 // Everything about a code except the code itself. The plaintext is returned exactly
 // once, from CreateSignupCode, and only its SHA-256 hash is persisted, so there is no
 // RPC that can recover it afterwards.
@@ -110,13 +210,17 @@ type SignupCode struct {
 	// they sign in. Unlike `note`, this is customer-facing, so it is returned by
 	// PreviewSignupCode to an unauthenticated visitor holding the code.
 	InviteMessage string `protobuf:"bytes,13,opt,name=invite_message,json=inviteMessage,proto3" json:"invite_message,omitempty"`
+	// Quota limits applied to every environment created in the team this code buys,
+	// with quota enforcement turned on for those environments. Empty means the
+	// environments get no limits and keep the default enforcement setting.
+	InitialQuotas []*SignupCodeQuota `protobuf:"bytes,14,rep,name=initial_quotas,json=initialQuotas,proto3" json:"initial_quotas,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SignupCode) Reset() {
 	*x = SignupCode{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[0]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -128,7 +232,7 @@ func (x *SignupCode) String() string {
 func (*SignupCode) ProtoMessage() {}
 
 func (x *SignupCode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[0]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -141,7 +245,7 @@ func (x *SignupCode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignupCode.ProtoReflect.Descriptor instead.
 func (*SignupCode) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{0}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SignupCode) GetId() string {
@@ -235,6 +339,13 @@ func (x *SignupCode) GetInviteMessage() string {
 	return ""
 }
 
+func (x *SignupCode) GetInitialQuotas() []*SignupCodeQuota {
+	if x != nil {
+		return x.InitialQuotas
+	}
+	return nil
+}
+
 type CreateSignupCodeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Free-text reminder of who the code is for. Not validated or unique.
@@ -244,13 +355,15 @@ type CreateSignupCodeRequest struct {
 	// Optional greeting for the invite landing page. See SignupCode.invite_message —
 	// this one is shown to the recipient, so keep internal remarks in `note`.
 	InviteMessage string `protobuf:"bytes,3,opt,name=invite_message,json=inviteMessage,proto3" json:"invite_message,omitempty"`
+	// See SignupCode.initial_quotas. Each resource may appear at most once.
+	InitialQuotas []*SignupCodeQuota `protobuf:"bytes,4,rep,name=initial_quotas,json=initialQuotas,proto3" json:"initial_quotas,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateSignupCodeRequest) Reset() {
 	*x = CreateSignupCodeRequest{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -262,7 +375,7 @@ func (x *CreateSignupCodeRequest) String() string {
 func (*CreateSignupCodeRequest) ProtoMessage() {}
 
 func (x *CreateSignupCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -275,7 +388,7 @@ func (x *CreateSignupCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSignupCodeRequest.ProtoReflect.Descriptor instead.
 func (*CreateSignupCodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{1}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateSignupCodeRequest) GetNote() string {
@@ -299,6 +412,13 @@ func (x *CreateSignupCodeRequest) GetInviteMessage() string {
 	return ""
 }
 
+func (x *CreateSignupCodeRequest) GetInitialQuotas() []*SignupCodeQuota {
+	if x != nil {
+		return x.InitialQuotas
+	}
+	return nil
+}
+
 type CreateSignupCodeResponse struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	SignupCode *SignupCode            `protobuf:"bytes,1,opt,name=signup_code,json=signupCode,proto3" json:"signup_code,omitempty"`
@@ -312,7 +432,7 @@ type CreateSignupCodeResponse struct {
 
 func (x *CreateSignupCodeResponse) Reset() {
 	*x = CreateSignupCodeResponse{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -324,7 +444,7 @@ func (x *CreateSignupCodeResponse) String() string {
 func (*CreateSignupCodeResponse) ProtoMessage() {}
 
 func (x *CreateSignupCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -337,7 +457,7 @@ func (x *CreateSignupCodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSignupCodeResponse.ProtoReflect.Descriptor instead.
 func (*CreateSignupCodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateSignupCodeResponse) GetSignupCode() *SignupCode {
@@ -362,7 +482,7 @@ type ListSignupCodesRequest struct {
 
 func (x *ListSignupCodesRequest) Reset() {
 	*x = ListSignupCodesRequest{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -374,7 +494,7 @@ func (x *ListSignupCodesRequest) String() string {
 func (*ListSignupCodesRequest) ProtoMessage() {}
 
 func (x *ListSignupCodesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -387,7 +507,7 @@ func (x *ListSignupCodesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSignupCodesRequest.ProtoReflect.Descriptor instead.
 func (*ListSignupCodesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{5}
 }
 
 type ListSignupCodesResponse struct {
@@ -399,7 +519,7 @@ type ListSignupCodesResponse struct {
 
 func (x *ListSignupCodesResponse) Reset() {
 	*x = ListSignupCodesResponse{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -411,7 +531,7 @@ func (x *ListSignupCodesResponse) String() string {
 func (*ListSignupCodesResponse) ProtoMessage() {}
 
 func (x *ListSignupCodesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -424,7 +544,7 @@ func (x *ListSignupCodesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSignupCodesResponse.ProtoReflect.Descriptor instead.
 func (*ListSignupCodesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListSignupCodesResponse) GetSignupCodes() []*SignupCode {
@@ -443,7 +563,7 @@ type RevokeSignupCodeRequest struct {
 
 func (x *RevokeSignupCodeRequest) Reset() {
 	*x = RevokeSignupCodeRequest{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -455,7 +575,7 @@ func (x *RevokeSignupCodeRequest) String() string {
 func (*RevokeSignupCodeRequest) ProtoMessage() {}
 
 func (x *RevokeSignupCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -468,7 +588,7 @@ func (x *RevokeSignupCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeSignupCodeRequest.ProtoReflect.Descriptor instead.
 func (*RevokeSignupCodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RevokeSignupCodeRequest) GetSignupCodeId() string {
@@ -487,7 +607,7 @@ type RevokeSignupCodeResponse struct {
 
 func (x *RevokeSignupCodeResponse) Reset() {
 	*x = RevokeSignupCodeResponse{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -499,7 +619,7 @@ func (x *RevokeSignupCodeResponse) String() string {
 func (*RevokeSignupCodeResponse) ProtoMessage() {}
 
 func (x *RevokeSignupCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -512,7 +632,7 @@ func (x *RevokeSignupCodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeSignupCodeResponse.ProtoReflect.Descriptor instead.
 func (*RevokeSignupCodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RevokeSignupCodeResponse) GetSignupCode() *SignupCode {
@@ -536,7 +656,7 @@ type RedeemSignupCodeRequest struct {
 
 func (x *RedeemSignupCodeRequest) Reset() {
 	*x = RedeemSignupCodeRequest{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -548,7 +668,7 @@ func (x *RedeemSignupCodeRequest) String() string {
 func (*RedeemSignupCodeRequest) ProtoMessage() {}
 
 func (x *RedeemSignupCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -561,7 +681,7 @@ func (x *RedeemSignupCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RedeemSignupCodeRequest.ProtoReflect.Descriptor instead.
 func (*RedeemSignupCodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RedeemSignupCodeRequest) GetUserId() string {
@@ -586,7 +706,7 @@ type RedeemSignupCodeResponse struct {
 
 func (x *RedeemSignupCodeResponse) Reset() {
 	*x = RedeemSignupCodeResponse{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -598,7 +718,7 @@ func (x *RedeemSignupCodeResponse) String() string {
 func (*RedeemSignupCodeResponse) ProtoMessage() {}
 
 func (x *RedeemSignupCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -611,7 +731,7 @@ func (x *RedeemSignupCodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RedeemSignupCodeResponse.ProtoReflect.Descriptor instead.
 func (*RedeemSignupCodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{10}
 }
 
 type PreviewSignupCodeRequest struct {
@@ -623,7 +743,7 @@ type PreviewSignupCodeRequest struct {
 
 func (x *PreviewSignupCodeRequest) Reset() {
 	*x = PreviewSignupCodeRequest{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -635,7 +755,7 @@ func (x *PreviewSignupCodeRequest) String() string {
 func (*PreviewSignupCodeRequest) ProtoMessage() {}
 
 func (x *PreviewSignupCodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +768,7 @@ func (x *PreviewSignupCodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PreviewSignupCodeRequest.ProtoReflect.Descriptor instead.
 func (*PreviewSignupCodeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *PreviewSignupCodeRequest) GetCode() string {
@@ -673,7 +793,7 @@ type PreviewSignupCodeResponse struct {
 
 func (x *PreviewSignupCodeResponse) Reset() {
 	*x = PreviewSignupCodeResponse{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -685,7 +805,7 @@ func (x *PreviewSignupCodeResponse) String() string {
 func (*PreviewSignupCodeResponse) ProtoMessage() {}
 
 func (x *PreviewSignupCodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -698,7 +818,7 @@ func (x *PreviewSignupCodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PreviewSignupCodeResponse.ProtoReflect.Descriptor instead.
 func (*PreviewSignupCodeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *PreviewSignupCodeResponse) GetRedeemable() bool {
@@ -724,7 +844,7 @@ type GetSignupCodeRedemptionStatusRequest struct {
 
 func (x *GetSignupCodeRedemptionStatusRequest) Reset() {
 	*x = GetSignupCodeRedemptionStatusRequest{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -736,7 +856,7 @@ func (x *GetSignupCodeRedemptionStatusRequest) String() string {
 func (*GetSignupCodeRedemptionStatusRequest) ProtoMessage() {}
 
 func (x *GetSignupCodeRedemptionStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -749,7 +869,7 @@ func (x *GetSignupCodeRedemptionStatusRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetSignupCodeRedemptionStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetSignupCodeRedemptionStatusRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetSignupCodeRedemptionStatusRequest) GetUserId() string {
@@ -770,7 +890,7 @@ type GetSignupCodeRedemptionStatusResponse struct {
 
 func (x *GetSignupCodeRedemptionStatusResponse) Reset() {
 	*x = GetSignupCodeRedemptionStatusResponse{}
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -782,7 +902,7 @@ func (x *GetSignupCodeRedemptionStatusResponse) String() string {
 func (*GetSignupCodeRedemptionStatusResponse) ProtoMessage() {}
 
 func (x *GetSignupCodeRedemptionStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_signup_code_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -795,7 +915,7 @@ func (x *GetSignupCodeRedemptionStatusResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use GetSignupCodeRedemptionStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetSignupCodeRedemptionStatusResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_signup_code_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetSignupCodeRedemptionStatusResponse) GetHasLiveClearance() bool {
@@ -809,7 +929,12 @@ var File_chalk_server_v1_signup_code_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/signup_code.proto\x12\x0fchalk.server.v1\x1a\x1bbuf/validate/validate.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xef\x05\n" +
+	"!chalk/server/v1/signup_code.proto\x12\x0fchalk.server.v1\x1a\x1bbuf/validate/validate.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cchalk/quota/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x01\n" +
+	"\x0fSignupCodeQuota\x12A\n" +
+	"\bresource\x18\x01 \x01(\v2\x1d.chalk.quota.v1.QuotaResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x128\n" +
+	"\x05limit\x18\x02 \x01(\v2\x1a.chalk.quota.v1.QuotaLimitB\x06\xbaH\x03\xc8\x01\x01R\x05limit\"P\n" +
+	"\x14SignupCodeQuotaGrant\x128\n" +
+	"\x06quotas\x18\x01 \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\x06quotas\"\xb8\x06\n" +
 	"\n" +
 	"SignupCode\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
@@ -831,7 +956,8 @@ const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"\vconsumed_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\x05R\n" +
 	"consumedAt\x88\x01\x01\x12\x1c\n" +
 	"\ateam_id\x18\f \x01(\tH\x06R\x06teamId\x88\x01\x01\x12%\n" +
-	"\x0einvite_message\x18\r \x01(\tR\rinviteMessageB\x15\n" +
+	"\x0einvite_message\x18\r \x01(\tR\rinviteMessage\x12G\n" +
+	"\x0einitial_quotas\x18\x0e \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\rinitialQuotasB\x15\n" +
 	"\x13_created_by_user_idB\r\n" +
 	"\v_expires_atB\r\n" +
 	"\v_revoked_atB\x0e\n" +
@@ -839,11 +965,12 @@ const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"\x14_redeemed_by_user_idB\x0e\n" +
 	"\f_consumed_atB\n" +
 	"\n" +
-	"\b_team_id\"\x9e\x01\n" +
+	"\b_team_id\"\xf1\x01\n" +
 	"\x17CreateSignupCodeRequest\x12\x12\n" +
 	"\x04note\x18\x01 \x01(\tR\x04note\x121\n" +
 	"\x12expires_in_seconds\x18\x02 \x01(\x03H\x00R\x10expiresInSeconds\x88\x01\x01\x12%\n" +
-	"\x0einvite_message\x18\x03 \x01(\tR\rinviteMessageB\x15\n" +
+	"\x0einvite_message\x18\x03 \x01(\tR\rinviteMessage\x12Q\n" +
+	"\x0einitial_quotas\x18\x04 \x03(\v2 .chalk.server.v1.SignupCodeQuotaB\b\xbaH\x05\x92\x01\x02\x10 R\rinitialQuotasB\x15\n" +
 	"\x13_expires_in_seconds\"r\n" +
 	"\x18CreateSignupCodeResponse\x12<\n" +
 	"\vsignup_code\x18\x01 \x01(\v2\x1b.chalk.server.v1.SignupCodeR\n" +
@@ -902,51 +1029,60 @@ func file_chalk_server_v1_signup_code_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_signup_code_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_signup_code_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_chalk_server_v1_signup_code_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_server_v1_signup_code_proto_goTypes = []any{
 	(SignupCodeStatus)(0),                         // 0: chalk.server.v1.SignupCodeStatus
-	(*SignupCode)(nil),                            // 1: chalk.server.v1.SignupCode
-	(*CreateSignupCodeRequest)(nil),               // 2: chalk.server.v1.CreateSignupCodeRequest
-	(*CreateSignupCodeResponse)(nil),              // 3: chalk.server.v1.CreateSignupCodeResponse
-	(*ListSignupCodesRequest)(nil),                // 4: chalk.server.v1.ListSignupCodesRequest
-	(*ListSignupCodesResponse)(nil),               // 5: chalk.server.v1.ListSignupCodesResponse
-	(*RevokeSignupCodeRequest)(nil),               // 6: chalk.server.v1.RevokeSignupCodeRequest
-	(*RevokeSignupCodeResponse)(nil),              // 7: chalk.server.v1.RevokeSignupCodeResponse
-	(*RedeemSignupCodeRequest)(nil),               // 8: chalk.server.v1.RedeemSignupCodeRequest
-	(*RedeemSignupCodeResponse)(nil),              // 9: chalk.server.v1.RedeemSignupCodeResponse
-	(*PreviewSignupCodeRequest)(nil),              // 10: chalk.server.v1.PreviewSignupCodeRequest
-	(*PreviewSignupCodeResponse)(nil),             // 11: chalk.server.v1.PreviewSignupCodeResponse
-	(*GetSignupCodeRedemptionStatusRequest)(nil),  // 12: chalk.server.v1.GetSignupCodeRedemptionStatusRequest
-	(*GetSignupCodeRedemptionStatusResponse)(nil), // 13: chalk.server.v1.GetSignupCodeRedemptionStatusResponse
-	(*timestamppb.Timestamp)(nil),                 // 14: google.protobuf.Timestamp
+	(*SignupCodeQuota)(nil),                       // 1: chalk.server.v1.SignupCodeQuota
+	(*SignupCodeQuotaGrant)(nil),                  // 2: chalk.server.v1.SignupCodeQuotaGrant
+	(*SignupCode)(nil),                            // 3: chalk.server.v1.SignupCode
+	(*CreateSignupCodeRequest)(nil),               // 4: chalk.server.v1.CreateSignupCodeRequest
+	(*CreateSignupCodeResponse)(nil),              // 5: chalk.server.v1.CreateSignupCodeResponse
+	(*ListSignupCodesRequest)(nil),                // 6: chalk.server.v1.ListSignupCodesRequest
+	(*ListSignupCodesResponse)(nil),               // 7: chalk.server.v1.ListSignupCodesResponse
+	(*RevokeSignupCodeRequest)(nil),               // 8: chalk.server.v1.RevokeSignupCodeRequest
+	(*RevokeSignupCodeResponse)(nil),              // 9: chalk.server.v1.RevokeSignupCodeResponse
+	(*RedeemSignupCodeRequest)(nil),               // 10: chalk.server.v1.RedeemSignupCodeRequest
+	(*RedeemSignupCodeResponse)(nil),              // 11: chalk.server.v1.RedeemSignupCodeResponse
+	(*PreviewSignupCodeRequest)(nil),              // 12: chalk.server.v1.PreviewSignupCodeRequest
+	(*PreviewSignupCodeResponse)(nil),             // 13: chalk.server.v1.PreviewSignupCodeResponse
+	(*GetSignupCodeRedemptionStatusRequest)(nil),  // 14: chalk.server.v1.GetSignupCodeRedemptionStatusRequest
+	(*GetSignupCodeRedemptionStatusResponse)(nil), // 15: chalk.server.v1.GetSignupCodeRedemptionStatusResponse
+	(*v1.QuotaResource)(nil),                      // 16: chalk.quota.v1.QuotaResource
+	(*v1.QuotaLimit)(nil),                         // 17: chalk.quota.v1.QuotaLimit
+	(*timestamppb.Timestamp)(nil),                 // 18: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_signup_code_proto_depIdxs = []int32{
-	0,  // 0: chalk.server.v1.SignupCode.status:type_name -> chalk.server.v1.SignupCodeStatus
-	14, // 1: chalk.server.v1.SignupCode.created_at:type_name -> google.protobuf.Timestamp
-	14, // 2: chalk.server.v1.SignupCode.expires_at:type_name -> google.protobuf.Timestamp
-	14, // 3: chalk.server.v1.SignupCode.revoked_at:type_name -> google.protobuf.Timestamp
-	14, // 4: chalk.server.v1.SignupCode.redeemed_at:type_name -> google.protobuf.Timestamp
-	14, // 5: chalk.server.v1.SignupCode.consumed_at:type_name -> google.protobuf.Timestamp
-	1,  // 6: chalk.server.v1.CreateSignupCodeResponse.signup_code:type_name -> chalk.server.v1.SignupCode
-	1,  // 7: chalk.server.v1.ListSignupCodesResponse.signup_codes:type_name -> chalk.server.v1.SignupCode
-	1,  // 8: chalk.server.v1.RevokeSignupCodeResponse.signup_code:type_name -> chalk.server.v1.SignupCode
-	2,  // 9: chalk.server.v1.SignupCodeService.CreateSignupCode:input_type -> chalk.server.v1.CreateSignupCodeRequest
-	4,  // 10: chalk.server.v1.SignupCodeService.ListSignupCodes:input_type -> chalk.server.v1.ListSignupCodesRequest
-	6,  // 11: chalk.server.v1.SignupCodeService.RevokeSignupCode:input_type -> chalk.server.v1.RevokeSignupCodeRequest
-	8,  // 12: chalk.server.v1.SignupCodeService.RedeemSignupCode:input_type -> chalk.server.v1.RedeemSignupCodeRequest
-	12, // 13: chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus:input_type -> chalk.server.v1.GetSignupCodeRedemptionStatusRequest
-	10, // 14: chalk.server.v1.SignupCodeService.PreviewSignupCode:input_type -> chalk.server.v1.PreviewSignupCodeRequest
-	3,  // 15: chalk.server.v1.SignupCodeService.CreateSignupCode:output_type -> chalk.server.v1.CreateSignupCodeResponse
-	5,  // 16: chalk.server.v1.SignupCodeService.ListSignupCodes:output_type -> chalk.server.v1.ListSignupCodesResponse
-	7,  // 17: chalk.server.v1.SignupCodeService.RevokeSignupCode:output_type -> chalk.server.v1.RevokeSignupCodeResponse
-	9,  // 18: chalk.server.v1.SignupCodeService.RedeemSignupCode:output_type -> chalk.server.v1.RedeemSignupCodeResponse
-	13, // 19: chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus:output_type -> chalk.server.v1.GetSignupCodeRedemptionStatusResponse
-	11, // 20: chalk.server.v1.SignupCodeService.PreviewSignupCode:output_type -> chalk.server.v1.PreviewSignupCodeResponse
-	15, // [15:21] is the sub-list for method output_type
-	9,  // [9:15] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	16, // 0: chalk.server.v1.SignupCodeQuota.resource:type_name -> chalk.quota.v1.QuotaResource
+	17, // 1: chalk.server.v1.SignupCodeQuota.limit:type_name -> chalk.quota.v1.QuotaLimit
+	1,  // 2: chalk.server.v1.SignupCodeQuotaGrant.quotas:type_name -> chalk.server.v1.SignupCodeQuota
+	0,  // 3: chalk.server.v1.SignupCode.status:type_name -> chalk.server.v1.SignupCodeStatus
+	18, // 4: chalk.server.v1.SignupCode.created_at:type_name -> google.protobuf.Timestamp
+	18, // 5: chalk.server.v1.SignupCode.expires_at:type_name -> google.protobuf.Timestamp
+	18, // 6: chalk.server.v1.SignupCode.revoked_at:type_name -> google.protobuf.Timestamp
+	18, // 7: chalk.server.v1.SignupCode.redeemed_at:type_name -> google.protobuf.Timestamp
+	18, // 8: chalk.server.v1.SignupCode.consumed_at:type_name -> google.protobuf.Timestamp
+	1,  // 9: chalk.server.v1.SignupCode.initial_quotas:type_name -> chalk.server.v1.SignupCodeQuota
+	1,  // 10: chalk.server.v1.CreateSignupCodeRequest.initial_quotas:type_name -> chalk.server.v1.SignupCodeQuota
+	3,  // 11: chalk.server.v1.CreateSignupCodeResponse.signup_code:type_name -> chalk.server.v1.SignupCode
+	3,  // 12: chalk.server.v1.ListSignupCodesResponse.signup_codes:type_name -> chalk.server.v1.SignupCode
+	3,  // 13: chalk.server.v1.RevokeSignupCodeResponse.signup_code:type_name -> chalk.server.v1.SignupCode
+	4,  // 14: chalk.server.v1.SignupCodeService.CreateSignupCode:input_type -> chalk.server.v1.CreateSignupCodeRequest
+	6,  // 15: chalk.server.v1.SignupCodeService.ListSignupCodes:input_type -> chalk.server.v1.ListSignupCodesRequest
+	8,  // 16: chalk.server.v1.SignupCodeService.RevokeSignupCode:input_type -> chalk.server.v1.RevokeSignupCodeRequest
+	10, // 17: chalk.server.v1.SignupCodeService.RedeemSignupCode:input_type -> chalk.server.v1.RedeemSignupCodeRequest
+	14, // 18: chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus:input_type -> chalk.server.v1.GetSignupCodeRedemptionStatusRequest
+	12, // 19: chalk.server.v1.SignupCodeService.PreviewSignupCode:input_type -> chalk.server.v1.PreviewSignupCodeRequest
+	5,  // 20: chalk.server.v1.SignupCodeService.CreateSignupCode:output_type -> chalk.server.v1.CreateSignupCodeResponse
+	7,  // 21: chalk.server.v1.SignupCodeService.ListSignupCodes:output_type -> chalk.server.v1.ListSignupCodesResponse
+	9,  // 22: chalk.server.v1.SignupCodeService.RevokeSignupCode:output_type -> chalk.server.v1.RevokeSignupCodeResponse
+	11, // 23: chalk.server.v1.SignupCodeService.RedeemSignupCode:output_type -> chalk.server.v1.RedeemSignupCodeResponse
+	15, // 24: chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus:output_type -> chalk.server.v1.GetSignupCodeRedemptionStatusResponse
+	13, // 25: chalk.server.v1.SignupCodeService.PreviewSignupCode:output_type -> chalk.server.v1.PreviewSignupCodeResponse
+	20, // [20:26] is the sub-list for method output_type
+	14, // [14:20] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_signup_code_proto_init() }
@@ -954,16 +1090,16 @@ func file_chalk_server_v1_signup_code_proto_init() {
 	if File_chalk_server_v1_signup_code_proto != nil {
 		return
 	}
-	file_chalk_server_v1_signup_code_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_server_v1_signup_code_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_server_v1_signup_code_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_server_v1_signup_code_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_server_v1_signup_code_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_server_v1_signup_code_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_signup_code_proto_rawDesc), len(file_chalk_server_v1_signup_code_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

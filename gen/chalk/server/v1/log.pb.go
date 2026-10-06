@@ -453,11 +453,13 @@ func (x *SearchAccessLogEntriesPageToken) GetNextPageToken() string {
 }
 
 type SearchLogEntriesRequest struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Query         *string                    `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
-	PageToken     *SearchLogEntriesPageToken `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
-	StartTime     *timestamppb.Timestamp     `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp     `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	state     protoimpl.MessageState     `protogen:"open.v1"`
+	Query     *string                    `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	PageToken *SearchLogEntriesPageToken `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	StartTime *timestamppb.Timestamp     `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp     `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// Overrides the environment cluster for resource-scoped views.
+	ClusterId     *string `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -518,6 +520,13 @@ func (x *SearchLogEntriesRequest) GetEndTime() *timestamppb.Timestamp {
 		return x.EndTime
 	}
 	return nil
+}
+
+func (x *SearchLogEntriesRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
 }
 
 type SearchLogEntriesResponse struct {
@@ -590,6 +599,7 @@ type SearchAccessLogEntriesRequest struct {
 	ScalingGroupId *string `protobuf:"bytes,5,opt,name=scaling_group_id,json=scalingGroupId,proto3,oneof" json:"scaling_group_id,omitempty"`
 	// When set, queries the container_access_logs materialized view filtered by this ID.
 	ContainerId   *string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	ClusterId     *string `protobuf:"bytes,7,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -662,6 +672,13 @@ func (x *SearchAccessLogEntriesRequest) GetScalingGroupId() string {
 func (x *SearchAccessLogEntriesRequest) GetContainerId() string {
 	if x != nil && x.ContainerId != nil {
 		return *x.ContainerId
+	}
+	return ""
+}
+
+func (x *SearchAccessLogEntriesRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
 	}
 	return ""
 }
@@ -1005,6 +1022,7 @@ type SearchLogEntriesAggregatedRequest struct {
 	// Non-COUNT is ClickHouse-only, and otel_logs has no numeric column, so only COUNT UNIQUE applies.
 	// Unset group_by → severity.
 	Options       *v1.AggregateOptions `protobuf:"bytes,7,opt,name=options,proto3" json:"options,omitempty"`
+	ClusterId     *string              `protobuf:"bytes,8,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1090,6 +1108,13 @@ func (x *SearchLogEntriesAggregatedRequest) GetOptions() *v1.AggregateOptions {
 	return nil
 }
 
+func (x *SearchLogEntriesAggregatedRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
+}
+
 type SearchLogEntriesAggregatedResponse struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	Chart         *v11.DenseTimeSeriesChart `protobuf:"bytes,1,opt,name=chart,proto3" json:"chart,omitempty"`
@@ -1136,6 +1161,7 @@ func (x *SearchLogEntriesAggregatedResponse) GetChart() *v11.DenseTimeSeriesChar
 
 type GetLogFacetsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     *string                `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1168,6 +1194,13 @@ func (x *GetLogFacetsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetLogFacetsRequest.ProtoReflect.Descriptor instead.
 func (*GetLogFacetsRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetLogFacetsRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
 }
 
 type LogFacet struct {
@@ -1305,6 +1338,7 @@ type GetLogFacetValuesRequest struct {
 	IncludeSyntheticRows *bool `protobuf:"varint,6,opt,name=include_synthetic_rows,json=includeSyntheticRows,proto3,oneof" json:"include_synthetic_rows,omitempty"`
 	// Non-empty → count value combinations across these facets (in order); `path` is ignored. Empty → single-`path`.
 	Facets        []string `protobuf:"bytes,7,rep,name=facets,proto3" json:"facets,omitempty"`
+	ClusterId     *string  `protobuf:"bytes,8,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1386,6 +1420,13 @@ func (x *GetLogFacetValuesRequest) GetFacets() []string {
 		return x.Facets
 	}
 	return nil
+}
+
+func (x *GetLogFacetValuesRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
 }
 
 type LogFacetValue struct {
@@ -1512,6 +1553,7 @@ type SearchAccessLogEntriesAggregatedRequest struct {
 	Limit *int32 `protobuf:"varint,8,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	// Non-COUNT is ClickHouse-only. Unset group_by → status code.
 	Options       *v1.AggregateOptions `protobuf:"bytes,9,opt,name=options,proto3" json:"options,omitempty"`
+	ClusterId     *string              `protobuf:"bytes,10,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1611,6 +1653,13 @@ func (x *SearchAccessLogEntriesAggregatedRequest) GetOptions() *v1.AggregateOpti
 	return nil
 }
 
+func (x *SearchAccessLogEntriesAggregatedRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
+}
+
 type SearchAccessLogEntriesAggregatedResponse struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	Chart         *v11.DenseTimeSeriesChart `protobuf:"bytes,1,opt,name=chart,proto3" json:"chart,omitempty"`
@@ -1657,6 +1706,7 @@ func (x *SearchAccessLogEntriesAggregatedResponse) GetChart() *v11.DenseTimeSeri
 
 type GetAccessLogFacetsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     *string                `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1689,6 +1739,13 @@ func (x *GetAccessLogFacetsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetAccessLogFacetsRequest.ProtoReflect.Descriptor instead.
 func (*GetAccessLogFacetsRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *GetAccessLogFacetsRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
 }
 
 type GetAccessLogFacetsResponse struct {
@@ -1751,6 +1808,7 @@ type GetAccessLogFacetValuesRequest struct {
 	IncludeSyntheticRows *bool `protobuf:"varint,8,opt,name=include_synthetic_rows,json=includeSyntheticRows,proto3,oneof" json:"include_synthetic_rows,omitempty"`
 	// Multi-facet COUNT BY: LogFacet.paths to group by (non-empty → `path` ignored, one `values` per facet per row).
 	Facets        []string `protobuf:"bytes,9,rep,name=facets,proto3" json:"facets,omitempty"`
+	ClusterId     *string  `protobuf:"bytes,10,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1848,6 +1906,13 @@ func (x *GetAccessLogFacetValuesRequest) GetFacets() []string {
 	return nil
 }
 
+func (x *GetAccessLogFacetValuesRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
+}
+
 type GetAccessLogFacetValuesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Values        []*LogFacetValue       `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty"`
@@ -1905,6 +1970,7 @@ type GetAccessLogAggregatesRequest struct {
 	// When set, queries the container_access_logs materialized view filtered by this ID.
 	ContainerId   *string              `protobuf:"bytes,5,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
 	Options       *v1.AggregateOptions `protobuf:"bytes,6,opt,name=options,proto3" json:"options,omitempty"`
+	ClusterId     *string              `protobuf:"bytes,7,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1981,6 +2047,13 @@ func (x *GetAccessLogAggregatesRequest) GetOptions() *v1.AggregateOptions {
 	return nil
 }
 
+func (x *GetAccessLogAggregatesRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
+}
+
 // GetAccessLogAggregatesResponse returns the ranked aggregate table.
 type GetAccessLogAggregatesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2035,6 +2108,7 @@ type GetLogAggregatesRequest struct {
 	// Faceted-search query string; scopes the aggregated logs.
 	Query         *string              `protobuf:"bytes,3,opt,name=query,proto3,oneof" json:"query,omitempty"`
 	Options       *v1.AggregateOptions `protobuf:"bytes,4,opt,name=options,proto3" json:"options,omitempty"`
+	ClusterId     *string              `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2095,6 +2169,13 @@ func (x *GetLogAggregatesRequest) GetOptions() *v1.AggregateOptions {
 		return x.Options
 	}
 	return nil
+}
+
+func (x *GetLogAggregatesRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
 }
 
 // GetLogAggregatesResponse returns the ranked aggregate table.
@@ -2488,22 +2569,25 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x19SearchLogEntriesPageToken\x12&\n" +
 	"\x0fnext_page_token\x18\x01 \x01(\tR\rnextPageToken\"I\n" +
 	"\x1fSearchAccessLogEntriesPageToken\x12&\n" +
-	"\x0fnext_page_token\x18\x01 \x01(\tR\rnextPageToken\"\x8f\x02\n" +
+	"\x0fnext_page_token\x18\x01 \x01(\tR\rnextPageToken\"\xc2\x02\n" +
 	"\x17SearchLogEntriesRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x12N\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\v2*.chalk.server.v1.SearchLogEntriesPageTokenH\x01R\tpageToken\x88\x01\x01\x129\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTimeB\b\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x05 \x01(\tH\x02R\tclusterId\x88\x01\x01B\b\n" +
 	"\x06_queryB\r\n" +
-	"\v_page_token\"\xea\x01\n" +
+	"\v_page_tokenB\r\n" +
+	"\v_cluster_id\"\xea\x01\n" +
 	"\x18SearchLogEntriesResponse\x12:\n" +
 	"\vlog_entries\x18\x01 \x03(\v2\x19.chalk.server.v1.LogEntryR\n" +
 	"logEntries\x12W\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v2*.chalk.server.v1.SearchLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01\x12%\n" +
 	"\x0elogging_client\x18\x03 \x01(\tR\rloggingClientB\x12\n" +
-	"\x10_next_page_token\"\x98\x03\n" +
+	"\x10_next_page_token\"\xcb\x03\n" +
 	"\x1dSearchAccessLogEntriesRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x12T\n" +
 	"\n" +
@@ -2512,11 +2596,14 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12-\n" +
 	"\x10scaling_group_id\x18\x05 \x01(\tH\x02R\x0escalingGroupId\x88\x01\x01\x12&\n" +
-	"\fcontainer_id\x18\x06 \x01(\tH\x03R\vcontainerId\x88\x01\x01B\b\n" +
+	"\fcontainer_id\x18\x06 \x01(\tH\x03R\vcontainerId\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\a \x01(\tH\x04R\tclusterId\x88\x01\x01B\b\n" +
 	"\x06_queryB\r\n" +
 	"\v_page_tokenB\x13\n" +
 	"\x11_scaling_group_idB\x0f\n" +
-	"\r_container_id\"\xe2\x01\n" +
+	"\r_container_idB\r\n" +
+	"\v_cluster_id\"\xe2\x01\n" +
 	"\x1eSearchAccessLogEntriesResponse\x12M\n" +
 	"\x12access_log_entries\x18\x01 \x03(\v2\x1f.chalk.server.v1.AccessLogEntryR\x10accessLogEntries\x12]\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v20.chalk.server.v1.SearchAccessLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
@@ -2552,7 +2639,7 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"$StreamSearchAccessLogEntriesResponse\x12M\n" +
 	"\x12access_log_entries\x18\x01 \x03(\v2\x1f.chalk.server.v1.AccessLogEntryR\x10accessLogEntries\x12]\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v20.chalk.server.v1.SearchAccessLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\x86\x03\n" +
+	"\x10_next_page_token\"\xb9\x03\n" +
 	"!SearchLogEntriesAggregatedRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
 	"\n" +
@@ -2561,12 +2648,18 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12\x1a\n" +
 	"\x06facets\x18\x05 \x03(\tB\x02\x18\x01R\x06facets\x12\x1d\n" +
 	"\x05limit\x18\x06 \x01(\x05B\x02\x18\x01H\x01R\x05limit\x88\x01\x01\x12E\n" +
-	"\aoptions\x18\a \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsR\aoptionsB\b\n" +
+	"\aoptions\x18\a \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsR\aoptions\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\b \x01(\tH\x02R\tclusterId\x88\x01\x01B\b\n" +
 	"\x06_queryB\b\n" +
-	"\x06_limit\"`\n" +
+	"\x06_limitB\r\n" +
+	"\v_cluster_id\"`\n" +
 	"\"SearchLogEntriesAggregatedResponse\x12:\n" +
-	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\x15\n" +
-	"\x13GetLogFacetsRequest\"\xf5\x01\n" +
+	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"H\n" +
+	"\x13GetLogFacetsRequest\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tH\x00R\tclusterId\x88\x01\x01B\r\n" +
+	"\v_cluster_id\"\xf5\x01\n" +
 	"\bLogFacet\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12<\n" +
@@ -2575,7 +2668,7 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\tgroupable\x18\x04 \x01(\bR\tgroupable\x12e\n" +
 	"\x16supported_aggregations\x18\x05 \x03(\x0e2..chalk.searchaggregates.v1.AggregationFunctionR\x15supportedAggregations\"I\n" +
 	"\x14GetLogFacetsResponse\x121\n" +
-	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\xfe\x02\n" +
+	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\xb1\x03\n" +
 	"\x18GetLogFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
@@ -2584,18 +2677,21 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
 	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01\x129\n" +
 	"\x16include_synthetic_rows\x18\x06 \x01(\bH\x04R\x14includeSyntheticRows\x88\x01\x01\x12\x16\n" +
-	"\x06facets\x18\a \x03(\tR\x06facetsB\r\n" +
+	"\x06facets\x18\a \x03(\tR\x06facets\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\b \x01(\tH\x05R\tclusterId\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
 	"\x06_queryB\x19\n" +
-	"\x17_include_synthetic_rows\"S\n" +
+	"\x17_include_synthetic_rowsB\r\n" +
+	"\v_cluster_id\"S\n" +
 	"\rLogFacetValue\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x03R\x05count\x12\x16\n" +
 	"\x06values\x18\x03 \x03(\tR\x06values\"S\n" +
 	"\x19GetLogFacetValuesResponse\x126\n" +
-	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values\"\x89\x04\n" +
+	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values\"\xbc\x04\n" +
 	"'SearchAccessLogEntriesAggregatedRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
 	"\n" +
@@ -2606,16 +2702,23 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\fcontainer_id\x18\x06 \x01(\tH\x02R\vcontainerId\x88\x01\x01\x12\x1a\n" +
 	"\x06facets\x18\a \x03(\tB\x02\x18\x01R\x06facets\x12\x1d\n" +
 	"\x05limit\x18\b \x01(\x05B\x02\x18\x01H\x03R\x05limit\x88\x01\x01\x12E\n" +
-	"\aoptions\x18\t \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsR\aoptionsB\b\n" +
+	"\aoptions\x18\t \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsR\aoptions\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\n" +
+	" \x01(\tH\x04R\tclusterId\x88\x01\x01B\b\n" +
 	"\x06_queryB\x13\n" +
 	"\x11_scaling_group_idB\x0f\n" +
 	"\r_container_idB\b\n" +
-	"\x06_limit\"f\n" +
+	"\x06_limitB\r\n" +
+	"\v_cluster_id\"f\n" +
 	"(SearchAccessLogEntriesAggregatedResponse\x12:\n" +
-	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\x1b\n" +
-	"\x19GetAccessLogFacetsRequest\"O\n" +
+	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"N\n" +
+	"\x19GetAccessLogFacetsRequest\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tH\x00R\tclusterId\x88\x01\x01B\r\n" +
+	"\v_cluster_id\"O\n" +
 	"\x1aGetAccessLogFacetsResponse\x121\n" +
-	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\x81\x04\n" +
+	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\xb4\x04\n" +
 	"\x1eGetAccessLogFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
@@ -2626,16 +2729,20 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x10scaling_group_id\x18\x06 \x01(\tH\x04R\x0escalingGroupId\x88\x01\x01\x12&\n" +
 	"\fcontainer_id\x18\a \x01(\tH\x05R\vcontainerId\x88\x01\x01\x129\n" +
 	"\x16include_synthetic_rows\x18\b \x01(\bH\x06R\x14includeSyntheticRows\x88\x01\x01\x12\x16\n" +
-	"\x06facets\x18\t \x03(\tR\x06facetsB\r\n" +
+	"\x06facets\x18\t \x03(\tR\x06facets\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\n" +
+	" \x01(\tH\aR\tclusterId\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
 	"\x06_queryB\x13\n" +
 	"\x11_scaling_group_idB\x0f\n" +
 	"\r_container_idB\x19\n" +
-	"\x17_include_synthetic_rows\"Y\n" +
+	"\x17_include_synthetic_rowsB\r\n" +
+	"\v_cluster_id\"Y\n" +
 	"\x1fGetAccessLogFacetValuesResponse\x126\n" +
-	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values\"\xa0\x03\n" +
+	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values\"\xd3\x03\n" +
 	"\x1dGetAccessLogAggregatesRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
@@ -2643,23 +2750,29 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x05query\x18\x03 \x01(\tH\x02R\x05query\x88\x01\x01\x12-\n" +
 	"\x10scaling_group_id\x18\x04 \x01(\tH\x03R\x0escalingGroupId\x88\x01\x01\x12&\n" +
 	"\fcontainer_id\x18\x05 \x01(\tH\x04R\vcontainerId\x88\x01\x01\x12E\n" +
-	"\aoptions\x18\x06 \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsR\aoptionsB\r\n" +
+	"\aoptions\x18\x06 \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsR\aoptions\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\a \x01(\tH\x05R\tclusterId\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_queryB\x13\n" +
 	"\x11_scaling_group_idB\x0f\n" +
-	"\r_container_id\"a\n" +
+	"\r_container_idB\r\n" +
+	"\v_cluster_id\"a\n" +
 	"\x1eGetAccessLogAggregatesResponse\x12?\n" +
-	"\x05table\x18\x01 \x01(\v2).chalk.searchaggregates.v1.AggregateTableR\x05table\"\x9d\x02\n" +
+	"\x05table\x18\x01 \x01(\v2).chalk.searchaggregates.v1.AggregateTableR\x05table\"\xd0\x02\n" +
 	"\x17GetLogAggregatesRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
 	"\x05query\x18\x03 \x01(\tH\x02R\x05query\x88\x01\x01\x12E\n" +
-	"\aoptions\x18\x04 \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsR\aoptionsB\r\n" +
+	"\aoptions\x18\x04 \x01(\v2+.chalk.searchaggregates.v1.AggregateOptionsR\aoptions\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x05 \x01(\tH\x03R\tclusterId\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
-	"\x06_query\"[\n" +
+	"\x06_queryB\r\n" +
+	"\v_cluster_id\"[\n" +
 	"\x18GetLogAggregatesResponse\x12?\n" +
 	"\x05table\x18\x01 \x01(\v2).chalk.searchaggregates.v1.AggregateTableR\x05table\"\xe7\x03\n" +
 	"\x11GetLogStatRequest\x12\x19\n" +
@@ -2898,8 +3011,10 @@ func file_chalk_server_v1_log_proto_init() {
 	file_chalk_server_v1_log_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[12].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[22].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[24].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[26].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[28].OneofWrappers = []any{}
