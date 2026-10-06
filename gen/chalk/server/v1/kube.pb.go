@@ -309,6 +309,7 @@ type GetKubernetesEventsRequest struct {
 	Namespace     *string `protobuf:"bytes,2,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
 	LabelSelector *string `protobuf:"bytes,3,opt,name=label_selector,json=labelSelector,proto3,oneof" json:"label_selector,omitempty"`
 	FieldSelector *string `protobuf:"bytes,4,opt,name=field_selector,json=fieldSelector,proto3,oneof" json:"field_selector,omitempty"`
+	ClusterId     *string `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -371,6 +372,13 @@ func (x *GetKubernetesEventsRequest) GetFieldSelector() string {
 	return ""
 }
 
+func (x *GetKubernetesEventsRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
+}
+
 type GetKubernetesEventsResponse struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Events        []*v1.ChalkKubernetesEvent `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
@@ -422,6 +430,7 @@ type GetKubernetesPodLogsRequest struct {
 	PodName     string                 `protobuf:"bytes,3,opt,name=pod_name,json=podName,proto3" json:"pod_name,omitempty"`
 	// Uses kubectl's default-container selection when omitted.
 	ContainerName *string `protobuf:"bytes,4,opt,name=container_name,json=containerName,proto3,oneof" json:"container_name,omitempty"`
+	ClusterId     *string `protobuf:"bytes,5,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -480,6 +489,13 @@ func (x *GetKubernetesPodLogsRequest) GetPodName() string {
 func (x *GetKubernetesPodLogsRequest) GetContainerName() string {
 	if x != nil && x.ContainerName != nil {
 		return *x.ContainerName
+	}
+	return ""
+}
+
+func (x *GetKubernetesPodLogsRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
 	}
 	return ""
 }
@@ -2253,25 +2269,31 @@ const file_chalk_server_v1_kube_proto_rawDesc = "" +
 	"\x0f_container_name\"?\n" +
 	"\x1cGetPodStackTraceDumpResponse\x12\x1f\n" +
 	"\vstack_trace\x18\x01 \x01(\tR\n" +
-	"stackTrace\"\x84\x02\n" +
+	"stackTrace\"\xb7\x02\n" +
 	"\x1aGetKubernetesEventsRequest\x12&\n" +
 	"\fcluster_name\x18\x01 \x01(\tH\x00R\vclusterName\x88\x01\x01\x12!\n" +
 	"\tnamespace\x18\x02 \x01(\tH\x01R\tnamespace\x88\x01\x01\x12*\n" +
 	"\x0elabel_selector\x18\x03 \x01(\tH\x02R\rlabelSelector\x88\x01\x01\x12*\n" +
-	"\x0efield_selector\x18\x04 \x01(\tH\x03R\rfieldSelector\x88\x01\x01B\x0f\n" +
+	"\x0efield_selector\x18\x04 \x01(\tH\x03R\rfieldSelector\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x05 \x01(\tH\x04R\tclusterId\x88\x01\x01B\x0f\n" +
 	"\r_cluster_nameB\f\n" +
 	"\n" +
 	"_namespaceB\x11\n" +
 	"\x0f_label_selectorB\x11\n" +
-	"\x0f_field_selector\"`\n" +
+	"\x0f_field_selectorB\r\n" +
+	"\v_cluster_id\"`\n" +
 	"\x1bGetKubernetesEventsResponse\x12A\n" +
-	"\x06events\x18\x01 \x03(\v2).chalk.kubernetes.v1.ChalkKubernetesEventR\x06events\"\xb8\x01\n" +
+	"\x06events\x18\x01 \x03(\v2).chalk.kubernetes.v1.ChalkKubernetesEventR\x06events\"\xeb\x01\n" +
 	"\x1bGetKubernetesPodLogsRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x19\n" +
 	"\bpod_name\x18\x03 \x01(\tR\apodName\x12*\n" +
-	"\x0econtainer_name\x18\x04 \x01(\tH\x00R\rcontainerName\x88\x01\x01B\x11\n" +
-	"\x0f_container_name\"Y\n" +
+	"\x0econtainer_name\x18\x04 \x01(\tH\x00R\rcontainerName\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x05 \x01(\tH\x01R\tclusterId\x88\x01\x01B\x11\n" +
+	"\x0f_container_nameB\r\n" +
+	"\v_cluster_id\"Y\n" +
 	"\x1cGetKubernetesPodLogsResponse\x12\x12\n" +
 	"\x04logs\x18\x01 \x01(\tR\x04logs\x12%\n" +
 	"\x0econtainer_name\x18\x02 \x01(\tR\rcontainerName\"\x9e\x01\n" +

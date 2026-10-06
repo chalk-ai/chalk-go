@@ -3561,7 +3561,9 @@ type ListExternalFunctionsFilters struct {
 	Visibility []ExternalFunctionVisibility `protobuf:"varint,1,rep,packed,name=visibility,proto3,enum=chalk.externalfunctioncatalog.v1.ExternalFunctionVisibility" json:"visibility,omitempty"`
 	// A function matches when its scaling group's status is any of these values.
 	// Functions whose scaling group can no longer be found have status Unknown.
-	Statuses      []string `protobuf:"bytes,2,rep,name=statuses,proto3" json:"statuses,omitempty"`
+	Statuses []string `protobuf:"bytes,2,rep,name=statuses,proto3" json:"statuses,omitempty"`
+	// A function matches when its creator is any of these agent IDs.
+	CreatedBy     []string `protobuf:"bytes,3,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3607,6 +3609,13 @@ func (x *ListExternalFunctionsFilters) GetVisibility() []ExternalFunctionVisibil
 func (x *ListExternalFunctionsFilters) GetStatuses() []string {
 	if x != nil {
 		return x.Statuses
+	}
+	return nil
+}
+
+func (x *ListExternalFunctionsFilters) GetCreatedBy() []string {
+	if x != nil {
+		return x.CreatedBy
 	}
 	return nil
 }
@@ -4359,12 +4368,14 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\x06_limitB\x18\n" +
 	"\x16_include_scaling_groupB\x1a\n" +
 	"\x18_include_active_scheduleB\x12\n" +
-	"\x10_include_deleted\"\x9c\x01\n" +
+	"\x10_include_deleted\"\xbb\x01\n" +
 	"\x1cListExternalFunctionsFilters\x12`\n" +
 	"\n" +
 	"visibility\x18\x01 \x03(\x0e2<.chalk.externalfunctioncatalog.v1.ExternalFunctionVisibilityB\x02\x18\x01R\n" +
 	"visibility\x12\x1a\n" +
-	"\bstatuses\x18\x02 \x03(\tR\bstatuses\"\xae\x01\n" +
+	"\bstatuses\x18\x02 \x03(\tR\bstatuses\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\x03 \x03(\tR\tcreatedBy\"\xae\x01\n" +
 	"\x1dListExternalFunctionsResponse\x12W\n" +
 	"\tfunctions\x18\x01 \x03(\v29.chalk.externalfunctioncatalog.v1.ExternalFunctionSummaryR\tfunctions\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +

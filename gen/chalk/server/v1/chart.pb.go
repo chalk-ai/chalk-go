@@ -1883,8 +1883,10 @@ type GetChartSnapshotRequest struct {
 	// its value as previous_value. (end-start) compares against the immediately preceding window; a
 	// week/month against the same window one week/month ago.
 	ComparisonLookbackOffset *durationpb.Duration `protobuf:"bytes,9,opt,name=comparison_lookback_offset,json=comparisonLookbackOffset,proto3,oneof" json:"comparison_lookback_offset,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Overrides the environment cluster for resource-scoped views.
+	ClusterId     *string `protobuf:"bytes,10,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetChartSnapshotRequest) Reset() {
@@ -1978,6 +1980,13 @@ func (x *GetChartSnapshotRequest) GetComparisonLookbackOffset() *durationpb.Dura
 		return x.ComparisonLookbackOffset
 	}
 	return nil
+}
+
+func (x *GetChartSnapshotRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
 }
 
 type GetChartSnapshotResponse struct {
@@ -4730,7 +4739,7 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"mql_series\x18\x01 \x03(\tR\tmqlSeries\x12$\n" +
 	"\vmql_formula\x18\x02 \x01(\tH\x00R\n" +
 	"mqlFormula\x88\x01\x01B\x0e\n" +
-	"\f_mql_formula\"\xa3\x06\n" +
+	"\f_mql_formula\"\xd6\x06\n" +
 	"\x17GetChartSnapshotRequest\x12E\n" +
 	"\rmetric_config\x18\x01 \x01(\v2 .chalk.artifacts.v1.MetricConfigR\fmetricConfig\x129\n" +
 	"\n" +
@@ -4741,13 +4750,17 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"\x17return_sql_query_string\x18\x06 \x01(\bH\x02R\x14returnSqlQueryString\x88\x01\x01\x12H\n" +
 	"\x1eexclude_incomplete_last_bucket\x18\a \x01(\bH\x03R\x1bexcludeIncompleteLastBucket\x88\x01\x01\x12R\n" +
 	"\x0fmetrics_backend\x18\b \x01(\x0e2$.chalk.server.v1.ChartMetricsBackendH\x04R\x0emetricsBackend\x88\x01\x01\x12\\\n" +
-	"\x1acomparison_lookback_offset\x18\t \x01(\v2\x19.google.protobuf.DurationH\x05R\x18comparisonLookbackOffset\x88\x01\x01B\x16\n" +
+	"\x1acomparison_lookback_offset\x18\t \x01(\v2\x19.google.protobuf.DurationH\x05R\x18comparisonLookbackOffset\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\n" +
+	" \x01(\tH\x06R\tclusterId\x88\x01\x01B\x16\n" +
 	"\x14_use_start_as_originB\x1b\n" +
 	"\x19_use_sketch_metrics_tableB\x1a\n" +
 	"\x18_return_sql_query_stringB!\n" +
 	"\x1f_exclude_incomplete_last_bucketB\x12\n" +
 	"\x10_metrics_backendB\x1d\n" +
-	"\x1b_comparison_lookback_offset\"\xb6\x03\n" +
+	"\x1b_comparison_lookback_offsetB\r\n" +
+	"\v_cluster_id\"\xb6\x03\n" +
 	"\x18GetChartSnapshotResponse\x12<\n" +
 	"\x06charts\x18\x01 \x03(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x06charts\x125\n" +
 	"\bx_series\x18\x02 \x03(\v2\x1a.google.protobuf.TimestampR\axSeries\x12>\n" +
