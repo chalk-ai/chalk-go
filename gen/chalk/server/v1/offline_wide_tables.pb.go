@@ -1960,11 +1960,11 @@ func (x *GetOfflineWideTableFeatureWatermarksResponse) GetWatermarks() []*Offlin
 // several features to different times, which is what repairing a partial fill needs.
 type OfflineWideTableFeatureWatermarkUpdate struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Feature:
-	//
-	//	*OfflineWideTableFeatureWatermarkUpdate_FeatureFqn
-	//	*OfflineWideTableFeatureWatermarkUpdate_PersistenceKey
-	Feature isOfflineWideTableFeatureWatermarkUpdate_Feature `protobuf_oneof:"feature"`
+	// Resolved to a key against the active graph. A write names features only this way: a key given
+	// verbatim would let a typo create a row no fill reads, and resolving guarantees the row named
+	// is one the view materializes. The delete does accept keys, for rows an earlier configuration
+	// left behind -- removing those is safe in a way that creating them is not.
+	FeatureFqn string `protobuf:"bytes,1,opt,name=feature_fqn,json=featureFqn,proto3" json:"feature_fqn,omitempty"`
 	// Lowering a watermark is the point of this RPC -- it makes the next fill re-read from there --
 	// so nothing here is monotonic, unlike the advance a fill performs.
 	FilledThrough *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=filled_through,json=filledThrough,proto3" json:"filled_through,omitempty"`
@@ -2002,27 +2002,9 @@ func (*OfflineWideTableFeatureWatermarkUpdate) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{25}
 }
 
-func (x *OfflineWideTableFeatureWatermarkUpdate) GetFeature() isOfflineWideTableFeatureWatermarkUpdate_Feature {
-	if x != nil {
-		return x.Feature
-	}
-	return nil
-}
-
 func (x *OfflineWideTableFeatureWatermarkUpdate) GetFeatureFqn() string {
 	if x != nil {
-		if x, ok := x.Feature.(*OfflineWideTableFeatureWatermarkUpdate_FeatureFqn); ok {
-			return x.FeatureFqn
-		}
-	}
-	return ""
-}
-
-func (x *OfflineWideTableFeatureWatermarkUpdate) GetPersistenceKey() string {
-	if x != nil {
-		if x, ok := x.Feature.(*OfflineWideTableFeatureWatermarkUpdate_PersistenceKey); ok {
-			return x.PersistenceKey
-		}
+		return x.FeatureFqn
 	}
 	return ""
 }
@@ -2032,26 +2014,6 @@ func (x *OfflineWideTableFeatureWatermarkUpdate) GetFilledThrough() *timestamppb
 		return x.FilledThrough
 	}
 	return nil
-}
-
-type isOfflineWideTableFeatureWatermarkUpdate_Feature interface {
-	isOfflineWideTableFeatureWatermarkUpdate_Feature()
-}
-
-type OfflineWideTableFeatureWatermarkUpdate_FeatureFqn struct {
-	// Resolved to a key against the active graph. The ordinary spelling.
-	FeatureFqn string `protobuf:"bytes,1,opt,name=feature_fqn,json=featureFqn,proto3,oneof"`
-}
-
-type OfflineWideTableFeatureWatermarkUpdate_PersistenceKey struct {
-	// The key verbatim, for a row no FQN reaches: one an earlier configuration left behind.
-	PersistenceKey string `protobuf:"bytes,2,opt,name=persistence_key,json=persistenceKey,proto3,oneof"`
-}
-
-func (*OfflineWideTableFeatureWatermarkUpdate_FeatureFqn) isOfflineWideTableFeatureWatermarkUpdate_Feature() {
-}
-
-func (*OfflineWideTableFeatureWatermarkUpdate_PersistenceKey) isOfflineWideTableFeatureWatermarkUpdate_Feature() {
 }
 
 type SetOfflineWideTableFeatureWatermarksRequest struct {
@@ -2450,13 +2412,11 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	",GetOfflineWideTableFeatureWatermarksResponse\x12Q\n" +
 	"\n" +
 	"watermarks\x18\x01 \x03(\v21.chalk.server.v1.OfflineWideTableFeatureWatermarkR\n" +
-	"watermarks\"\xc4\x01\n" +
-	"&OfflineWideTableFeatureWatermarkUpdate\x12!\n" +
-	"\vfeature_fqn\x18\x01 \x01(\tH\x00R\n" +
-	"featureFqn\x12)\n" +
-	"\x0fpersistence_key\x18\x02 \x01(\tH\x00R\x0epersistenceKey\x12A\n" +
-	"\x0efilled_through\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\rfilledThroughB\t\n" +
-	"\afeature\"\xe9\x01\n" +
+	"watermarks\"\x8c\x01\n" +
+	"&OfflineWideTableFeatureWatermarkUpdate\x12\x1f\n" +
+	"\vfeature_fqn\x18\x01 \x01(\tR\n" +
+	"featureFqn\x12A\n" +
+	"\x0efilled_through\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\rfilledThrough\"\xe9\x01\n" +
 	"+SetOfflineWideTableFeatureWatermarksRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x122\n" +
 	"\x12config_fingerprint\x18\x02 \x01(\x03H\x00R\x11configFingerprint\x88\x01\x01\x12Q\n" +
@@ -2647,10 +2607,6 @@ func file_chalk_server_v1_offline_wide_tables_proto_init() {
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25].OneofWrappers = []any{
-		(*OfflineWideTableFeatureWatermarkUpdate_FeatureFqn)(nil),
-		(*OfflineWideTableFeatureWatermarkUpdate_PersistenceKey)(nil),
-	}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[26].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[28].OneofWrappers = []any{}
 	type x struct{}
