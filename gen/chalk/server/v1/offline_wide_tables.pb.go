@@ -1748,6 +1748,498 @@ func (x *TriggerOfflineWideTableCompactionResponse) GetOperationId() string {
 	return ""
 }
 
+// How far one materialized feature has been filled into its namespace's wide table.
+type OfflineWideTableFeatureWatermark struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The wide-table configuration this row belongs to. A namespace keeps rows for configurations it
+	// no longer fills, so this is what tells those apart from the live ones.
+	ConfigFingerprint int64 `protobuf:"varint,1,opt,name=config_fingerprint,json=configFingerprint,proto3" json:"config_fingerprint,omitempty"`
+	// Addresses the row. A feature on its first internal version is keyed by its bare FQN; a later
+	// version carries a `~ivN` suffix.
+	PersistenceKey string `protobuf:"bytes,2,opt,name=persistence_key,json=persistenceKey,proto3" json:"persistence_key,omitempty"`
+	// The skinny-table `inserted_at` the fill reached for this feature; its next fill resumes here.
+	FilledThrough *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=filled_through,json=filledThrough,proto3" json:"filled_through,omitempty"`
+	// When a fill last read this feature, whether or not `filled_through` moved. The pair separates
+	// a feature whose source received no new rows from one no fill is reading any more.
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// The feature the key names, with any internal-version suffix removed. Empty when the key does
+	// not resolve to a feature the active graph knows -- a row an earlier configuration left behind
+	// is addressable only by `persistence_key`, which is why a read reports both.
+	FeatureFqn    string `protobuf:"bytes,5,opt,name=feature_fqn,json=featureFqn,proto3" json:"feature_fqn,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OfflineWideTableFeatureWatermark) Reset() {
+	*x = OfflineWideTableFeatureWatermark{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OfflineWideTableFeatureWatermark) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OfflineWideTableFeatureWatermark) ProtoMessage() {}
+
+func (x *OfflineWideTableFeatureWatermark) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OfflineWideTableFeatureWatermark.ProtoReflect.Descriptor instead.
+func (*OfflineWideTableFeatureWatermark) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *OfflineWideTableFeatureWatermark) GetConfigFingerprint() int64 {
+	if x != nil {
+		return x.ConfigFingerprint
+	}
+	return 0
+}
+
+func (x *OfflineWideTableFeatureWatermark) GetPersistenceKey() string {
+	if x != nil {
+		return x.PersistenceKey
+	}
+	return ""
+}
+
+func (x *OfflineWideTableFeatureWatermark) GetFilledThrough() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FilledThrough
+	}
+	return nil
+}
+
+func (x *OfflineWideTableFeatureWatermark) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *OfflineWideTableFeatureWatermark) GetFeatureFqn() string {
+	if x != nil {
+		return x.FeatureFqn
+	}
+	return ""
+}
+
+type GetOfflineWideTableFeatureWatermarksRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Restricts the result to one wide-table configuration. Absent returns every configuration
+	// recorded for the namespace, which is how a caller sees rows an earlier one left behind.
+	ConfigFingerprint *int64 `protobuf:"varint,2,opt,name=config_fingerprint,json=configFingerprint,proto3,oneof" json:"config_fingerprint,omitempty"`
+	// Restricts the result to these keys. Unioned with `feature_fqns`; both empty returns every
+	// feature recorded for the namespace.
+	PersistenceKeys []string `protobuf:"bytes,3,rep,name=persistence_keys,json=persistenceKeys,proto3" json:"persistence_keys,omitempty"`
+	// Restricts the result to these features, each resolved to a key against the active graph.
+	// The ordinary way to name a feature: a key is derived from an FQN by a rule that only the
+	// graph can apply.
+	FeatureFqns   []string `protobuf:"bytes,4,rep,name=feature_fqns,json=featureFqns,proto3" json:"feature_fqns,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksRequest) Reset() {
+	*x = GetOfflineWideTableFeatureWatermarksRequest{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOfflineWideTableFeatureWatermarksRequest) ProtoMessage() {}
+
+func (x *GetOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOfflineWideTableFeatureWatermarksRequest.ProtoReflect.Descriptor instead.
+func (*GetOfflineWideTableFeatureWatermarksRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksRequest) GetConfigFingerprint() int64 {
+	if x != nil && x.ConfigFingerprint != nil {
+		return *x.ConfigFingerprint
+	}
+	return 0
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksRequest) GetPersistenceKeys() []string {
+	if x != nil {
+		return x.PersistenceKeys
+	}
+	return nil
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksRequest) GetFeatureFqns() []string {
+	if x != nil {
+		return x.FeatureFqns
+	}
+	return nil
+}
+
+type GetOfflineWideTableFeatureWatermarksResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Ordered by configuration, then persistence key. A feature the fill has never recorded has no
+	// row and is absent here: it is read from the beginning, which is not a time.
+	Watermarks    []*OfflineWideTableFeatureWatermark `protobuf:"bytes,1,rep,name=watermarks,proto3" json:"watermarks,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksResponse) Reset() {
+	*x = GetOfflineWideTableFeatureWatermarksResponse{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOfflineWideTableFeatureWatermarksResponse) ProtoMessage() {}
+
+func (x *GetOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOfflineWideTableFeatureWatermarksResponse.ProtoReflect.Descriptor instead.
+func (*GetOfflineWideTableFeatureWatermarksResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetOfflineWideTableFeatureWatermarksResponse) GetWatermarks() []*OfflineWideTableFeatureWatermark {
+	if x != nil {
+		return x.Watermarks
+	}
+	return nil
+}
+
+// One feature's new watermark. Named separately per feature so that a single call can rewind
+// several features to different times, which is what repairing a partial fill needs.
+type OfflineWideTableFeatureWatermarkUpdate struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Resolved to a key against the active graph. A write names features only this way: a key given
+	// verbatim would let a typo create a row no fill reads, and resolving guarantees the row named
+	// is one the view materializes. The delete does accept keys, for rows an earlier configuration
+	// left behind -- removing those is safe in a way that creating them is not.
+	FeatureFqn string `protobuf:"bytes,1,opt,name=feature_fqn,json=featureFqn,proto3" json:"feature_fqn,omitempty"`
+	// Lowering a watermark is the point of this RPC -- it makes the next fill re-read from there --
+	// so nothing here is monotonic, unlike the advance a fill performs.
+	FilledThrough *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=filled_through,json=filledThrough,proto3" json:"filled_through,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OfflineWideTableFeatureWatermarkUpdate) Reset() {
+	*x = OfflineWideTableFeatureWatermarkUpdate{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OfflineWideTableFeatureWatermarkUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OfflineWideTableFeatureWatermarkUpdate) ProtoMessage() {}
+
+func (x *OfflineWideTableFeatureWatermarkUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OfflineWideTableFeatureWatermarkUpdate.ProtoReflect.Descriptor instead.
+func (*OfflineWideTableFeatureWatermarkUpdate) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *OfflineWideTableFeatureWatermarkUpdate) GetFeatureFqn() string {
+	if x != nil {
+		return x.FeatureFqn
+	}
+	return ""
+}
+
+func (x *OfflineWideTableFeatureWatermarkUpdate) GetFilledThrough() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FilledThrough
+	}
+	return nil
+}
+
+type SetOfflineWideTableFeatureWatermarksRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Namespace         string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	ConfigFingerprint *int64                 `protobuf:"varint,2,opt,name=config_fingerprint,json=configFingerprint,proto3,oneof" json:"config_fingerprint,omitempty"`
+	// Every write names its features. There is no "all recorded features" form, because a timestamp
+	// has no sensible default to apply to them -- unlike the delete and read above, where an empty
+	// list means the whole namespace. An empty list here is an error, not a no-op. A feature with no
+	// row gains one, which is how a never-filled feature is given a floor.
+	Updates       []*OfflineWideTableFeatureWatermarkUpdate `protobuf:"bytes,3,rep,name=updates,proto3" json:"updates,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetOfflineWideTableFeatureWatermarksRequest) Reset() {
+	*x = SetOfflineWideTableFeatureWatermarksRequest{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetOfflineWideTableFeatureWatermarksRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetOfflineWideTableFeatureWatermarksRequest) ProtoMessage() {}
+
+func (x *SetOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetOfflineWideTableFeatureWatermarksRequest.ProtoReflect.Descriptor instead.
+func (*SetOfflineWideTableFeatureWatermarksRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *SetOfflineWideTableFeatureWatermarksRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *SetOfflineWideTableFeatureWatermarksRequest) GetConfigFingerprint() int64 {
+	if x != nil && x.ConfigFingerprint != nil {
+		return *x.ConfigFingerprint
+	}
+	return 0
+}
+
+func (x *SetOfflineWideTableFeatureWatermarksRequest) GetUpdates() []*OfflineWideTableFeatureWatermarkUpdate {
+	if x != nil {
+		return x.Updates
+	}
+	return nil
+}
+
+type SetOfflineWideTableFeatureWatermarksResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	WatermarksWritten int64                  `protobuf:"varint,1,opt,name=watermarks_written,json=watermarksWritten,proto3" json:"watermarks_written,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *SetOfflineWideTableFeatureWatermarksResponse) Reset() {
+	*x = SetOfflineWideTableFeatureWatermarksResponse{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetOfflineWideTableFeatureWatermarksResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetOfflineWideTableFeatureWatermarksResponse) ProtoMessage() {}
+
+func (x *SetOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetOfflineWideTableFeatureWatermarksResponse.ProtoReflect.Descriptor instead.
+func (*SetOfflineWideTableFeatureWatermarksResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *SetOfflineWideTableFeatureWatermarksResponse) GetWatermarksWritten() int64 {
+	if x != nil {
+		return x.WatermarksWritten
+	}
+	return 0
+}
+
+type DeleteOfflineWideTableFeatureWatermarksRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Keys to delete, unioned with `feature_fqns`. Both empty deletes every feature recorded for the
+	// namespace. Deleting differs from setting an early watermark: the feature returns to having no
+	// recorded progress at all.
+	PersistenceKeys   []string `protobuf:"bytes,2,rep,name=persistence_keys,json=persistenceKeys,proto3" json:"persistence_keys,omitempty"`
+	ConfigFingerprint *int64   `protobuf:"varint,3,opt,name=config_fingerprint,json=configFingerprint,proto3,oneof" json:"config_fingerprint,omitempty"`
+	// Features to delete, each resolved to a key against the active graph.
+	FeatureFqns   []string `protobuf:"bytes,4,rep,name=feature_fqns,json=featureFqns,proto3" json:"feature_fqns,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksRequest) Reset() {
+	*x = DeleteOfflineWideTableFeatureWatermarksRequest{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOfflineWideTableFeatureWatermarksRequest) ProtoMessage() {}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOfflineWideTableFeatureWatermarksRequest.ProtoReflect.Descriptor instead.
+func (*DeleteOfflineWideTableFeatureWatermarksRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksRequest) GetPersistenceKeys() []string {
+	if x != nil {
+		return x.PersistenceKeys
+	}
+	return nil
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksRequest) GetConfigFingerprint() int64 {
+	if x != nil && x.ConfigFingerprint != nil {
+		return *x.ConfigFingerprint
+	}
+	return 0
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksRequest) GetFeatureFqns() []string {
+	if x != nil {
+		return x.FeatureFqns
+	}
+	return nil
+}
+
+type DeleteOfflineWideTableFeatureWatermarksResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	WatermarksDeleted int64                  `protobuf:"varint,1,opt,name=watermarks_deleted,json=watermarksDeleted,proto3" json:"watermarks_deleted,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksResponse) Reset() {
+	*x = DeleteOfflineWideTableFeatureWatermarksResponse{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteOfflineWideTableFeatureWatermarksResponse) ProtoMessage() {}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteOfflineWideTableFeatureWatermarksResponse.ProtoReflect.Descriptor instead.
+func (*DeleteOfflineWideTableFeatureWatermarksResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *DeleteOfflineWideTableFeatureWatermarksResponse) GetWatermarksDeleted() int64 {
+	if x != nil {
+		return x.WatermarksDeleted
+	}
+	return 0
+}
+
 var File_chalk_server_v1_offline_wide_tables_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
@@ -1902,7 +2394,44 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12%\n" +
 	"\x0eresource_group\x18\x02 \x01(\tR\rresourceGroup\"N\n" +
 	")TriggerOfflineWideTableCompactionResponse\x12!\n" +
-	"\foperation_id\x18\x01 \x01(\tR\voperationId*\x95\x01\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId\"\x99\x02\n" +
+	" OfflineWideTableFeatureWatermark\x12-\n" +
+	"\x12config_fingerprint\x18\x01 \x01(\x03R\x11configFingerprint\x12'\n" +
+	"\x0fpersistence_key\x18\x02 \x01(\tR\x0epersistenceKey\x12A\n" +
+	"\x0efilled_through\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\rfilledThrough\x129\n" +
+	"\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1f\n" +
+	"\vfeature_fqn\x18\x05 \x01(\tR\n" +
+	"featureFqn\"\xe4\x01\n" +
+	"+GetOfflineWideTableFeatureWatermarksRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x122\n" +
+	"\x12config_fingerprint\x18\x02 \x01(\x03H\x00R\x11configFingerprint\x88\x01\x01\x12)\n" +
+	"\x10persistence_keys\x18\x03 \x03(\tR\x0fpersistenceKeys\x12!\n" +
+	"\ffeature_fqns\x18\x04 \x03(\tR\vfeatureFqnsB\x15\n" +
+	"\x13_config_fingerprint\"\x81\x01\n" +
+	",GetOfflineWideTableFeatureWatermarksResponse\x12Q\n" +
+	"\n" +
+	"watermarks\x18\x01 \x03(\v21.chalk.server.v1.OfflineWideTableFeatureWatermarkR\n" +
+	"watermarks\"\x8c\x01\n" +
+	"&OfflineWideTableFeatureWatermarkUpdate\x12\x1f\n" +
+	"\vfeature_fqn\x18\x01 \x01(\tR\n" +
+	"featureFqn\x12A\n" +
+	"\x0efilled_through\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\rfilledThrough\"\xe9\x01\n" +
+	"+SetOfflineWideTableFeatureWatermarksRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x122\n" +
+	"\x12config_fingerprint\x18\x02 \x01(\x03H\x00R\x11configFingerprint\x88\x01\x01\x12Q\n" +
+	"\aupdates\x18\x03 \x03(\v27.chalk.server.v1.OfflineWideTableFeatureWatermarkUpdateR\aupdatesB\x15\n" +
+	"\x13_config_fingerprint\"]\n" +
+	",SetOfflineWideTableFeatureWatermarksResponse\x12-\n" +
+	"\x12watermarks_written\x18\x01 \x01(\x03R\x11watermarksWritten\"\xe7\x01\n" +
+	".DeleteOfflineWideTableFeatureWatermarksRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12)\n" +
+	"\x10persistence_keys\x18\x02 \x03(\tR\x0fpersistenceKeys\x122\n" +
+	"\x12config_fingerprint\x18\x03 \x01(\x03H\x00R\x11configFingerprint\x88\x01\x01\x12!\n" +
+	"\ffeature_fqns\x18\x04 \x03(\tR\vfeatureFqnsB\x15\n" +
+	"\x13_config_fingerprint\"`\n" +
+	"/DeleteOfflineWideTableFeatureWatermarksResponse\x12-\n" +
+	"\x12watermarks_deleted\x18\x01 \x01(\x03R\x11watermarksDeleted*\x95\x01\n" +
 	"\x17OfflineWideTableRunKind\x12+\n" +
 	"'OFFLINE_WIDE_TABLE_RUN_KIND_UNSPECIFIED\x10\x00\x12$\n" +
 	" OFFLINE_WIDE_TABLE_RUN_KIND_FILL\x10\x01\x12'\n" +
@@ -1928,14 +2457,17 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"6OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_RUNNING\x10\x02\x12<\n" +
 	"8OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_COMPLETED\x10\x03\x129\n" +
 	"5OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_FAILED\x10\x04\x12C\n" +
-	"?OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_SKIPPED_DISABLED\x10\x052\x9e\a\n" +
+	"?OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_SKIPPED_DISABLED\x10\x052\xab\v\n" +
 	"\x18OfflineWideTablesService\x12\x87\x01\n" +
 	"\x18ListOfflineWideTableRuns\x120.chalk.server.v1.ListOfflineWideTableRunsRequest\x1a1.chalk.server.v1.ListOfflineWideTableRunsResponse\"\x06\x80}\x10\x90\x02\x01\x12\x81\x01\n" +
 	"\x16GetOfflineWideTableRun\x12..chalk.server.v1.GetOfflineWideTableRunRequest\x1a/.chalk.server.v1.GetOfflineWideTableRunResponse\"\x06\x80}\x10\x90\x02\x01\x12\xa8\x01\n" +
 	"\"GetActiveOfflineWideTableSchedules\x12:.chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest\x1a;.chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse\"\t\x80}\x10\x88\x02\x01\x90\x02\x01\x12\x96\x01\n" +
 	"\x1dGetOfflineWideTableNamespaces\x125.chalk.server.v1.GetOfflineWideTableNamespacesRequest\x1a6.chalk.server.v1.GetOfflineWideTableNamespacesResponse\"\x06\x80}\x10\x90\x02\x01\x12\x8d\x01\n" +
 	"\x1bTriggerOfflineWideTableFill\x123.chalk.server.v1.TriggerOfflineWideTableFillRequest\x1a4.chalk.server.v1.TriggerOfflineWideTableFillResponse\"\x03\x80}\x11\x12\x9f\x01\n" +
-	"!TriggerOfflineWideTableCompaction\x129.chalk.server.v1.TriggerOfflineWideTableCompactionRequest\x1a:.chalk.server.v1.TriggerOfflineWideTableCompactionResponse\"\x03\x80}\x11B\xc6\x01\n" +
+	"!TriggerOfflineWideTableCompaction\x129.chalk.server.v1.TriggerOfflineWideTableCompactionRequest\x1a:.chalk.server.v1.TriggerOfflineWideTableCompactionResponse\"\x03\x80}\x11\x12\xab\x01\n" +
+	"$GetOfflineWideTableFeatureWatermarks\x12<.chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest\x1a=.chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse\"\x06\x80}\x10\x90\x02\x01\x12\xa8\x01\n" +
+	"$SetOfflineWideTableFeatureWatermarks\x12<.chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest\x1a=.chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse\"\x03\x80}\x11\x12\xb1\x01\n" +
+	"'DeleteOfflineWideTableFeatureWatermarks\x12?.chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest\x1a@.chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse\"\x03\x80}\x11B\xc6\x01\n" +
 	"\x13com.chalk.server.v1B\x16OfflineWideTablesProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -1951,51 +2483,59 @@ func file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_offline_wide_tables_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_chalk_server_v1_offline_wide_tables_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_chalk_server_v1_offline_wide_tables_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_chalk_server_v1_offline_wide_tables_proto_goTypes = []any{
-	(OfflineWideTableRunKind)(0),                       // 0: chalk.server.v1.OfflineWideTableRunKind
-	(OfflineWideTableRunStatus)(0),                     // 1: chalk.server.v1.OfflineWideTableRunStatus
-	(OfflineWideTableRunSkipReason)(0),                 // 2: chalk.server.v1.OfflineWideTableRunSkipReason
-	(OfflineWideTableRunTriggerKind)(0),                // 3: chalk.server.v1.OfflineWideTableRunTriggerKind
-	(OfflineWideTableCompactionNamespaceStatus)(0),     // 4: chalk.server.v1.OfflineWideTableCompactionNamespaceStatus
-	(*OfflineWideTableCompactionNamespaceResult)(nil),  // 5: chalk.server.v1.OfflineWideTableCompactionNamespaceResult
-	(*OfflineWideTableRun)(nil),                        // 6: chalk.server.v1.OfflineWideTableRun
-	(*ListOfflineWideTableRunsRequest)(nil),            // 7: chalk.server.v1.ListOfflineWideTableRunsRequest
-	(*ListOfflineWideTableRunsResponse)(nil),           // 8: chalk.server.v1.ListOfflineWideTableRunsResponse
-	(*GetOfflineWideTableRunRequest)(nil),              // 9: chalk.server.v1.GetOfflineWideTableRunRequest
-	(*GetOfflineWideTableRunResponse)(nil),             // 10: chalk.server.v1.GetOfflineWideTableRunResponse
-	(*OfflineWideTableSchedule)(nil),                   // 11: chalk.server.v1.OfflineWideTableSchedule
-	(*OfflineWideTableBackpressureStats)(nil),          // 12: chalk.server.v1.OfflineWideTableBackpressureStats
-	(*OfflineWideTableScheduleInfo)(nil),               // 13: chalk.server.v1.OfflineWideTableScheduleInfo
-	(*GetActiveOfflineWideTableSchedulesRequest)(nil),  // 14: chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
-	(*GetActiveOfflineWideTableSchedulesResponse)(nil), // 15: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
-	(*OfflineWideTableFillInfo)(nil),                   // 16: chalk.server.v1.OfflineWideTableFillInfo
-	(*OfflineWideTableCompactionInfo)(nil),             // 17: chalk.server.v1.OfflineWideTableCompactionInfo
-	(*OfflineWideTableNamespaceInfo)(nil),              // 18: chalk.server.v1.OfflineWideTableNamespaceInfo
-	(*OfflineWideTableEnvironmentMaintenanceInfo)(nil), // 19: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
-	(*OfflineWideTableActiveConfiguration)(nil),        // 20: chalk.server.v1.OfflineWideTableActiveConfiguration
-	(*GetOfflineWideTableNamespacesRequest)(nil),       // 21: chalk.server.v1.GetOfflineWideTableNamespacesRequest
-	(*GetOfflineWideTableNamespacesResponse)(nil),      // 22: chalk.server.v1.GetOfflineWideTableNamespacesResponse
-	(*TriggerOfflineWideTableFillRequest)(nil),         // 23: chalk.server.v1.TriggerOfflineWideTableFillRequest
-	(*TriggerOfflineWideTableFillResponse)(nil),        // 24: chalk.server.v1.TriggerOfflineWideTableFillResponse
-	(*TriggerOfflineWideTableCompactionRequest)(nil),   // 25: chalk.server.v1.TriggerOfflineWideTableCompactionRequest
-	(*TriggerOfflineWideTableCompactionResponse)(nil),  // 26: chalk.server.v1.TriggerOfflineWideTableCompactionResponse
-	(*timestamppb.Timestamp)(nil),                      // 27: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                              // 28: google.protobuf.Empty
+	(OfflineWideTableRunKind)(0),                            // 0: chalk.server.v1.OfflineWideTableRunKind
+	(OfflineWideTableRunStatus)(0),                          // 1: chalk.server.v1.OfflineWideTableRunStatus
+	(OfflineWideTableRunSkipReason)(0),                      // 2: chalk.server.v1.OfflineWideTableRunSkipReason
+	(OfflineWideTableRunTriggerKind)(0),                     // 3: chalk.server.v1.OfflineWideTableRunTriggerKind
+	(OfflineWideTableCompactionNamespaceStatus)(0),          // 4: chalk.server.v1.OfflineWideTableCompactionNamespaceStatus
+	(*OfflineWideTableCompactionNamespaceResult)(nil),       // 5: chalk.server.v1.OfflineWideTableCompactionNamespaceResult
+	(*OfflineWideTableRun)(nil),                             // 6: chalk.server.v1.OfflineWideTableRun
+	(*ListOfflineWideTableRunsRequest)(nil),                 // 7: chalk.server.v1.ListOfflineWideTableRunsRequest
+	(*ListOfflineWideTableRunsResponse)(nil),                // 8: chalk.server.v1.ListOfflineWideTableRunsResponse
+	(*GetOfflineWideTableRunRequest)(nil),                   // 9: chalk.server.v1.GetOfflineWideTableRunRequest
+	(*GetOfflineWideTableRunResponse)(nil),                  // 10: chalk.server.v1.GetOfflineWideTableRunResponse
+	(*OfflineWideTableSchedule)(nil),                        // 11: chalk.server.v1.OfflineWideTableSchedule
+	(*OfflineWideTableBackpressureStats)(nil),               // 12: chalk.server.v1.OfflineWideTableBackpressureStats
+	(*OfflineWideTableScheduleInfo)(nil),                    // 13: chalk.server.v1.OfflineWideTableScheduleInfo
+	(*GetActiveOfflineWideTableSchedulesRequest)(nil),       // 14: chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
+	(*GetActiveOfflineWideTableSchedulesResponse)(nil),      // 15: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
+	(*OfflineWideTableFillInfo)(nil),                        // 16: chalk.server.v1.OfflineWideTableFillInfo
+	(*OfflineWideTableCompactionInfo)(nil),                  // 17: chalk.server.v1.OfflineWideTableCompactionInfo
+	(*OfflineWideTableNamespaceInfo)(nil),                   // 18: chalk.server.v1.OfflineWideTableNamespaceInfo
+	(*OfflineWideTableEnvironmentMaintenanceInfo)(nil),      // 19: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
+	(*OfflineWideTableActiveConfiguration)(nil),             // 20: chalk.server.v1.OfflineWideTableActiveConfiguration
+	(*GetOfflineWideTableNamespacesRequest)(nil),            // 21: chalk.server.v1.GetOfflineWideTableNamespacesRequest
+	(*GetOfflineWideTableNamespacesResponse)(nil),           // 22: chalk.server.v1.GetOfflineWideTableNamespacesResponse
+	(*TriggerOfflineWideTableFillRequest)(nil),              // 23: chalk.server.v1.TriggerOfflineWideTableFillRequest
+	(*TriggerOfflineWideTableFillResponse)(nil),             // 24: chalk.server.v1.TriggerOfflineWideTableFillResponse
+	(*TriggerOfflineWideTableCompactionRequest)(nil),        // 25: chalk.server.v1.TriggerOfflineWideTableCompactionRequest
+	(*TriggerOfflineWideTableCompactionResponse)(nil),       // 26: chalk.server.v1.TriggerOfflineWideTableCompactionResponse
+	(*OfflineWideTableFeatureWatermark)(nil),                // 27: chalk.server.v1.OfflineWideTableFeatureWatermark
+	(*GetOfflineWideTableFeatureWatermarksRequest)(nil),     // 28: chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest
+	(*GetOfflineWideTableFeatureWatermarksResponse)(nil),    // 29: chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse
+	(*OfflineWideTableFeatureWatermarkUpdate)(nil),          // 30: chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate
+	(*SetOfflineWideTableFeatureWatermarksRequest)(nil),     // 31: chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest
+	(*SetOfflineWideTableFeatureWatermarksResponse)(nil),    // 32: chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse
+	(*DeleteOfflineWideTableFeatureWatermarksRequest)(nil),  // 33: chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest
+	(*DeleteOfflineWideTableFeatureWatermarksResponse)(nil), // 34: chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse
+	(*timestamppb.Timestamp)(nil),                           // 35: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                                   // 36: google.protobuf.Empty
 }
 var file_chalk_server_v1_offline_wide_tables_proto_depIdxs = []int32{
 	4,  // 0: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.status:type_name -> chalk.server.v1.OfflineWideTableCompactionNamespaceStatus
-	27, // 1: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.created_at:type_name -> google.protobuf.Timestamp
-	27, // 2: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.started_at:type_name -> google.protobuf.Timestamp
-	27, // 3: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.finished_at:type_name -> google.protobuf.Timestamp
+	35, // 1: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.created_at:type_name -> google.protobuf.Timestamp
+	35, // 2: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.started_at:type_name -> google.protobuf.Timestamp
+	35, // 3: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.finished_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: chalk.server.v1.OfflineWideTableRun.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
 	1,  // 5: chalk.server.v1.OfflineWideTableRun.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
-	27, // 6: chalk.server.v1.OfflineWideTableRun.created_at:type_name -> google.protobuf.Timestamp
-	27, // 7: chalk.server.v1.OfflineWideTableRun.started_at:type_name -> google.protobuf.Timestamp
-	27, // 8: chalk.server.v1.OfflineWideTableRun.finished_at:type_name -> google.protobuf.Timestamp
+	35, // 6: chalk.server.v1.OfflineWideTableRun.created_at:type_name -> google.protobuf.Timestamp
+	35, // 7: chalk.server.v1.OfflineWideTableRun.started_at:type_name -> google.protobuf.Timestamp
+	35, // 8: chalk.server.v1.OfflineWideTableRun.finished_at:type_name -> google.protobuf.Timestamp
 	2,  // 9: chalk.server.v1.OfflineWideTableRun.skip_reason:type_name -> chalk.server.v1.OfflineWideTableRunSkipReason
 	3,  // 10: chalk.server.v1.OfflineWideTableRun.trigger_kind:type_name -> chalk.server.v1.OfflineWideTableRunTriggerKind
-	28, // 11: chalk.server.v1.OfflineWideTableRun.environment:type_name -> google.protobuf.Empty
+	36, // 11: chalk.server.v1.OfflineWideTableRun.environment:type_name -> google.protobuf.Empty
 	1,  // 12: chalk.server.v1.ListOfflineWideTableRunsRequest.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
 	0,  // 13: chalk.server.v1.ListOfflineWideTableRunsRequest.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
 	3,  // 14: chalk.server.v1.ListOfflineWideTableRunsRequest.trigger_kind:type_name -> chalk.server.v1.OfflineWideTableRunTriggerKind
@@ -2015,29 +2555,40 @@ var file_chalk_server_v1_offline_wide_tables_proto_depIdxs = []int32{
 	16, // 28: chalk.server.v1.OfflineWideTableNamespaceInfo.fill:type_name -> chalk.server.v1.OfflineWideTableFillInfo
 	17, // 29: chalk.server.v1.OfflineWideTableNamespaceInfo.compaction:type_name -> chalk.server.v1.OfflineWideTableCompactionInfo
 	6,  // 30: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.latest_weekly_run:type_name -> chalk.server.v1.OfflineWideTableRun
-	27, // 31: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.next_weekly_run_at:type_name -> google.protobuf.Timestamp
+	35, // 31: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.next_weekly_run_at:type_name -> google.protobuf.Timestamp
 	20, // 32: chalk.server.v1.GetOfflineWideTableNamespacesRequest.active_configurations:type_name -> chalk.server.v1.OfflineWideTableActiveConfiguration
 	18, // 33: chalk.server.v1.GetOfflineWideTableNamespacesResponse.namespaces:type_name -> chalk.server.v1.OfflineWideTableNamespaceInfo
 	19, // 34: chalk.server.v1.GetOfflineWideTableNamespacesResponse.environment_maintenance:type_name -> chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
-	27, // 35: chalk.server.v1.GetOfflineWideTableNamespacesResponse.latest_completed_fill_at:type_name -> google.protobuf.Timestamp
+	35, // 35: chalk.server.v1.GetOfflineWideTableNamespacesResponse.latest_completed_fill_at:type_name -> google.protobuf.Timestamp
 	6,  // 36: chalk.server.v1.TriggerOfflineWideTableFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
-	7,  // 37: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
-	9,  // 38: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
-	14, // 39: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
-	21, // 40: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:input_type -> chalk.server.v1.GetOfflineWideTableNamespacesRequest
-	23, // 41: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
-	25, // 42: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
-	8,  // 43: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
-	10, // 44: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
-	15, // 45: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
-	22, // 46: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:output_type -> chalk.server.v1.GetOfflineWideTableNamespacesResponse
-	24, // 47: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
-	26, // 48: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
-	43, // [43:49] is the sub-list for method output_type
-	37, // [37:43] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	35, // 37: chalk.server.v1.OfflineWideTableFeatureWatermark.filled_through:type_name -> google.protobuf.Timestamp
+	35, // 38: chalk.server.v1.OfflineWideTableFeatureWatermark.updated_at:type_name -> google.protobuf.Timestamp
+	27, // 39: chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse.watermarks:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermark
+	35, // 40: chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate.filled_through:type_name -> google.protobuf.Timestamp
+	30, // 41: chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest.updates:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate
+	7,  // 42: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
+	9,  // 43: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
+	14, // 44: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
+	21, // 45: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:input_type -> chalk.server.v1.GetOfflineWideTableNamespacesRequest
+	23, // 46: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
+	25, // 47: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
+	28, // 48: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest
+	31, // 49: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest
+	33, // 50: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest
+	8,  // 51: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
+	10, // 52: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
+	15, // 53: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
+	22, // 54: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:output_type -> chalk.server.v1.GetOfflineWideTableNamespacesResponse
+	24, // 55: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
+	26, // 56: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
+	29, // 57: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse
+	32, // 58: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse
+	34, // 59: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse
+	51, // [51:60] is the sub-list for method output_type
+	42, // [42:51] is the sub-list for method input_type
+	42, // [42:42] is the sub-list for extension type_name
+	42, // [42:42] is the sub-list for extension extendee
+	0,  // [0:42] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_wide_tables_proto_init() }
@@ -2055,13 +2606,16 @@ func file_chalk_server_v1_offline_wide_tables_proto_init() {
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[26].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[28].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_offline_wide_tables_proto_rawDesc), len(file_chalk_server_v1_offline_wide_tables_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   22,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

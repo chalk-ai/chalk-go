@@ -51,6 +51,15 @@ const (
 	// OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure is the fully-qualified name of
 	// the OfflineWideTablesService's TriggerOfflineWideTableCompaction RPC.
 	OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure = "/chalk.server.v1.OfflineWideTablesService/TriggerOfflineWideTableCompaction"
+	// OfflineWideTablesServiceGetOfflineWideTableFeatureWatermarksProcedure is the fully-qualified name
+	// of the OfflineWideTablesService's GetOfflineWideTableFeatureWatermarks RPC.
+	OfflineWideTablesServiceGetOfflineWideTableFeatureWatermarksProcedure = "/chalk.server.v1.OfflineWideTablesService/GetOfflineWideTableFeatureWatermarks"
+	// OfflineWideTablesServiceSetOfflineWideTableFeatureWatermarksProcedure is the fully-qualified name
+	// of the OfflineWideTablesService's SetOfflineWideTableFeatureWatermarks RPC.
+	OfflineWideTablesServiceSetOfflineWideTableFeatureWatermarksProcedure = "/chalk.server.v1.OfflineWideTablesService/SetOfflineWideTableFeatureWatermarks"
+	// OfflineWideTablesServiceDeleteOfflineWideTableFeatureWatermarksProcedure is the fully-qualified
+	// name of the OfflineWideTablesService's DeleteOfflineWideTableFeatureWatermarks RPC.
+	OfflineWideTablesServiceDeleteOfflineWideTableFeatureWatermarksProcedure = "/chalk.server.v1.OfflineWideTablesService/DeleteOfflineWideTableFeatureWatermarks"
 )
 
 // OfflineWideTablesServiceClient is a client for the chalk.server.v1.OfflineWideTablesService
@@ -66,6 +75,9 @@ type OfflineWideTablesServiceClient interface {
 	GetOfflineWideTableNamespaces(context.Context, *connect.Request[v1.GetOfflineWideTableNamespacesRequest]) (*connect.Response[v1.GetOfflineWideTableNamespacesResponse], error)
 	TriggerOfflineWideTableFill(context.Context, *connect.Request[v1.TriggerOfflineWideTableFillRequest]) (*connect.Response[v1.TriggerOfflineWideTableFillResponse], error)
 	TriggerOfflineWideTableCompaction(context.Context, *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error)
+	GetOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.GetOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.GetOfflineWideTableFeatureWatermarksResponse], error)
+	SetOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.SetOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.SetOfflineWideTableFeatureWatermarksResponse], error)
+	DeleteOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.DeleteOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.DeleteOfflineWideTableFeatureWatermarksResponse], error)
 }
 
 // NewOfflineWideTablesServiceClient constructs a client for the
@@ -119,17 +131,39 @@ func NewOfflineWideTablesServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithSchema(offlineWideTablesServiceMethods.ByName("TriggerOfflineWideTableCompaction")),
 			connect.WithClientOptions(opts...),
 		),
+		getOfflineWideTableFeatureWatermarks: connect.NewClient[v1.GetOfflineWideTableFeatureWatermarksRequest, v1.GetOfflineWideTableFeatureWatermarksResponse](
+			httpClient,
+			baseURL+OfflineWideTablesServiceGetOfflineWideTableFeatureWatermarksProcedure,
+			connect.WithSchema(offlineWideTablesServiceMethods.ByName("GetOfflineWideTableFeatureWatermarks")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		setOfflineWideTableFeatureWatermarks: connect.NewClient[v1.SetOfflineWideTableFeatureWatermarksRequest, v1.SetOfflineWideTableFeatureWatermarksResponse](
+			httpClient,
+			baseURL+OfflineWideTablesServiceSetOfflineWideTableFeatureWatermarksProcedure,
+			connect.WithSchema(offlineWideTablesServiceMethods.ByName("SetOfflineWideTableFeatureWatermarks")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteOfflineWideTableFeatureWatermarks: connect.NewClient[v1.DeleteOfflineWideTableFeatureWatermarksRequest, v1.DeleteOfflineWideTableFeatureWatermarksResponse](
+			httpClient,
+			baseURL+OfflineWideTablesServiceDeleteOfflineWideTableFeatureWatermarksProcedure,
+			connect.WithSchema(offlineWideTablesServiceMethods.ByName("DeleteOfflineWideTableFeatureWatermarks")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // offlineWideTablesServiceClient implements OfflineWideTablesServiceClient.
 type offlineWideTablesServiceClient struct {
-	listOfflineWideTableRuns           *connect.Client[v1.ListOfflineWideTableRunsRequest, v1.ListOfflineWideTableRunsResponse]
-	getOfflineWideTableRun             *connect.Client[v1.GetOfflineWideTableRunRequest, v1.GetOfflineWideTableRunResponse]
-	getActiveOfflineWideTableSchedules *connect.Client[v1.GetActiveOfflineWideTableSchedulesRequest, v1.GetActiveOfflineWideTableSchedulesResponse]
-	getOfflineWideTableNamespaces      *connect.Client[v1.GetOfflineWideTableNamespacesRequest, v1.GetOfflineWideTableNamespacesResponse]
-	triggerOfflineWideTableFill        *connect.Client[v1.TriggerOfflineWideTableFillRequest, v1.TriggerOfflineWideTableFillResponse]
-	triggerOfflineWideTableCompaction  *connect.Client[v1.TriggerOfflineWideTableCompactionRequest, v1.TriggerOfflineWideTableCompactionResponse]
+	listOfflineWideTableRuns                *connect.Client[v1.ListOfflineWideTableRunsRequest, v1.ListOfflineWideTableRunsResponse]
+	getOfflineWideTableRun                  *connect.Client[v1.GetOfflineWideTableRunRequest, v1.GetOfflineWideTableRunResponse]
+	getActiveOfflineWideTableSchedules      *connect.Client[v1.GetActiveOfflineWideTableSchedulesRequest, v1.GetActiveOfflineWideTableSchedulesResponse]
+	getOfflineWideTableNamespaces           *connect.Client[v1.GetOfflineWideTableNamespacesRequest, v1.GetOfflineWideTableNamespacesResponse]
+	triggerOfflineWideTableFill             *connect.Client[v1.TriggerOfflineWideTableFillRequest, v1.TriggerOfflineWideTableFillResponse]
+	triggerOfflineWideTableCompaction       *connect.Client[v1.TriggerOfflineWideTableCompactionRequest, v1.TriggerOfflineWideTableCompactionResponse]
+	getOfflineWideTableFeatureWatermarks    *connect.Client[v1.GetOfflineWideTableFeatureWatermarksRequest, v1.GetOfflineWideTableFeatureWatermarksResponse]
+	setOfflineWideTableFeatureWatermarks    *connect.Client[v1.SetOfflineWideTableFeatureWatermarksRequest, v1.SetOfflineWideTableFeatureWatermarksResponse]
+	deleteOfflineWideTableFeatureWatermarks *connect.Client[v1.DeleteOfflineWideTableFeatureWatermarksRequest, v1.DeleteOfflineWideTableFeatureWatermarksResponse]
 }
 
 // ListOfflineWideTableRuns calls chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns.
@@ -168,6 +202,24 @@ func (c *offlineWideTablesServiceClient) TriggerOfflineWideTableCompaction(ctx c
 	return c.triggerOfflineWideTableCompaction.CallUnary(ctx, req)
 }
 
+// GetOfflineWideTableFeatureWatermarks calls
+// chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks.
+func (c *offlineWideTablesServiceClient) GetOfflineWideTableFeatureWatermarks(ctx context.Context, req *connect.Request[v1.GetOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.GetOfflineWideTableFeatureWatermarksResponse], error) {
+	return c.getOfflineWideTableFeatureWatermarks.CallUnary(ctx, req)
+}
+
+// SetOfflineWideTableFeatureWatermarks calls
+// chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks.
+func (c *offlineWideTablesServiceClient) SetOfflineWideTableFeatureWatermarks(ctx context.Context, req *connect.Request[v1.SetOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.SetOfflineWideTableFeatureWatermarksResponse], error) {
+	return c.setOfflineWideTableFeatureWatermarks.CallUnary(ctx, req)
+}
+
+// DeleteOfflineWideTableFeatureWatermarks calls
+// chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks.
+func (c *offlineWideTablesServiceClient) DeleteOfflineWideTableFeatureWatermarks(ctx context.Context, req *connect.Request[v1.DeleteOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.DeleteOfflineWideTableFeatureWatermarksResponse], error) {
+	return c.deleteOfflineWideTableFeatureWatermarks.CallUnary(ctx, req)
+}
+
 // OfflineWideTablesServiceHandler is an implementation of the
 // chalk.server.v1.OfflineWideTablesService service.
 type OfflineWideTablesServiceHandler interface {
@@ -181,6 +233,9 @@ type OfflineWideTablesServiceHandler interface {
 	GetOfflineWideTableNamespaces(context.Context, *connect.Request[v1.GetOfflineWideTableNamespacesRequest]) (*connect.Response[v1.GetOfflineWideTableNamespacesResponse], error)
 	TriggerOfflineWideTableFill(context.Context, *connect.Request[v1.TriggerOfflineWideTableFillRequest]) (*connect.Response[v1.TriggerOfflineWideTableFillResponse], error)
 	TriggerOfflineWideTableCompaction(context.Context, *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error)
+	GetOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.GetOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.GetOfflineWideTableFeatureWatermarksResponse], error)
+	SetOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.SetOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.SetOfflineWideTableFeatureWatermarksResponse], error)
+	DeleteOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.DeleteOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.DeleteOfflineWideTableFeatureWatermarksResponse], error)
 }
 
 // NewOfflineWideTablesServiceHandler builds an HTTP handler from the service implementation. It
@@ -230,6 +285,25 @@ func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opt
 		connect.WithSchema(offlineWideTablesServiceMethods.ByName("TriggerOfflineWideTableCompaction")),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineWideTablesServiceGetOfflineWideTableFeatureWatermarksHandler := connect.NewUnaryHandler(
+		OfflineWideTablesServiceGetOfflineWideTableFeatureWatermarksProcedure,
+		svc.GetOfflineWideTableFeatureWatermarks,
+		connect.WithSchema(offlineWideTablesServiceMethods.ByName("GetOfflineWideTableFeatureWatermarks")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineWideTablesServiceSetOfflineWideTableFeatureWatermarksHandler := connect.NewUnaryHandler(
+		OfflineWideTablesServiceSetOfflineWideTableFeatureWatermarksProcedure,
+		svc.SetOfflineWideTableFeatureWatermarks,
+		connect.WithSchema(offlineWideTablesServiceMethods.ByName("SetOfflineWideTableFeatureWatermarks")),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineWideTablesServiceDeleteOfflineWideTableFeatureWatermarksHandler := connect.NewUnaryHandler(
+		OfflineWideTablesServiceDeleteOfflineWideTableFeatureWatermarksProcedure,
+		svc.DeleteOfflineWideTableFeatureWatermarks,
+		connect.WithSchema(offlineWideTablesServiceMethods.ByName("DeleteOfflineWideTableFeatureWatermarks")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OfflineWideTablesService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineWideTablesServiceListOfflineWideTableRunsProcedure:
@@ -244,6 +318,12 @@ func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opt
 			offlineWideTablesServiceTriggerOfflineWideTableFillHandler.ServeHTTP(w, r)
 		case OfflineWideTablesServiceTriggerOfflineWideTableCompactionProcedure:
 			offlineWideTablesServiceTriggerOfflineWideTableCompactionHandler.ServeHTTP(w, r)
+		case OfflineWideTablesServiceGetOfflineWideTableFeatureWatermarksProcedure:
+			offlineWideTablesServiceGetOfflineWideTableFeatureWatermarksHandler.ServeHTTP(w, r)
+		case OfflineWideTablesServiceSetOfflineWideTableFeatureWatermarksProcedure:
+			offlineWideTablesServiceSetOfflineWideTableFeatureWatermarksHandler.ServeHTTP(w, r)
+		case OfflineWideTablesServiceDeleteOfflineWideTableFeatureWatermarksProcedure:
+			offlineWideTablesServiceDeleteOfflineWideTableFeatureWatermarksHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -275,4 +355,16 @@ func (UnimplementedOfflineWideTablesServiceHandler) TriggerOfflineWideTableFill(
 
 func (UnimplementedOfflineWideTablesServiceHandler) TriggerOfflineWideTableCompaction(context.Context, *connect.Request[v1.TriggerOfflineWideTableCompactionRequest]) (*connect.Response[v1.TriggerOfflineWideTableCompactionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction is not implemented"))
+}
+
+func (UnimplementedOfflineWideTablesServiceHandler) GetOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.GetOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.GetOfflineWideTableFeatureWatermarksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks is not implemented"))
+}
+
+func (UnimplementedOfflineWideTablesServiceHandler) SetOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.SetOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.SetOfflineWideTableFeatureWatermarksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks is not implemented"))
+}
+
+func (UnimplementedOfflineWideTablesServiceHandler) DeleteOfflineWideTableFeatureWatermarks(context.Context, *connect.Request[v1.DeleteOfflineWideTableFeatureWatermarksRequest]) (*connect.Response[v1.DeleteOfflineWideTableFeatureWatermarksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks is not implemented"))
 }
