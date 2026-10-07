@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791398321552,
+  "lastUpdate": 1791408686057,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -53524,6 +53524,224 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkUnmarshalBulkHasOnes (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
             "value": 200.3,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "1b7c612baaf839a507d2c58b49edce2aa11f53b4",
+          "message": "Regenerate sandbox protos",
+          "timestamp": "2026-10-07T18:37:05Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/769/commits/1b7c612baaf839a507d2c58b49edce2aa11f53b4"
+        },
+        "date": 1791408685832,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkTracingOff (github.com/chalk-ai/chalk-go)",
+            "value": 57.9,
+            "unit": "ns/op\t       0 B/op\t       0 allocs/op",
+            "extra": "20767155 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingOff (github.com/chalk-ai/chalk-go) - ns/op",
+            "value": 57.9,
+            "unit": "ns/op",
+            "extra": "20767155 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingOff (github.com/chalk-ai/chalk-go) - B/op",
+            "value": 0,
+            "unit": "B/op",
+            "extra": "20767155 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingOff (github.com/chalk-ai/chalk-go) - allocs/op",
+            "value": 0,
+            "unit": "allocs/op",
+            "extra": "20767155 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingDropped (github.com/chalk-ai/chalk-go)",
+            "value": 2665,
+            "unit": "ns/op\t    2072 B/op\t      35 allocs/op",
+            "extra": "438352 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingDropped (github.com/chalk-ai/chalk-go) - ns/op",
+            "value": 2665,
+            "unit": "ns/op",
+            "extra": "438352 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingDropped (github.com/chalk-ai/chalk-go) - B/op",
+            "value": 2072,
+            "unit": "B/op",
+            "extra": "438352 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingDropped (github.com/chalk-ai/chalk-go) - allocs/op",
+            "value": 35,
+            "unit": "allocs/op",
+            "extra": "438352 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingSampled (github.com/chalk-ai/chalk-go)",
+            "value": 11464,
+            "unit": "ns/op\t   10653 B/op\t      58 allocs/op",
+            "extra": "106711 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingSampled (github.com/chalk-ai/chalk-go) - ns/op",
+            "value": 11464,
+            "unit": "ns/op",
+            "extra": "106711 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingSampled (github.com/chalk-ai/chalk-go) - B/op",
+            "value": 10653,
+            "unit": "B/op",
+            "extra": "106711 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkTracingSampled (github.com/chalk-ai/chalk-go) - allocs/op",
+            "value": 58,
+            "unit": "allocs/op",
+            "extra": "106711 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTable (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 0.8096,
+            "unit": "ms/op",
+            "extra": "1418 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 74.7,
+            "unit": "ms/op",
+            "extra": "14 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 36.97,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 233.6,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 335,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 0.03182,
+            "unit": "ms/op",
+            "extra": "53607 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 0.3618,
+            "unit": "ms/op",
+            "extra": "4123 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 51.5,
+            "unit": "ms/op",
+            "extra": "43 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 0.172,
+            "unit": "ms/op",
+            "extra": "8820 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 26.67,
+            "unit": "ms/op",
+            "extra": "84 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesSingle (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 0.228,
+            "unit": "ms/op",
+            "extra": "6884 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesParallel (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 36.87,
+            "unit": "ms/op",
+            "extra": "61 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesSingle (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 0.3983,
+            "unit": "ms/op",
+            "extra": "3796 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesParallel (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 61.95,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesSingle (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 1.231,
+            "unit": "ms/op",
+            "extra": "1273 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesParallel (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 183.4,
+            "unit": "ms/op",
+            "extra": "12 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesSingle (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 0.1049,
+            "unit": "ms/op",
+            "extra": "10000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesParallel (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 16.56,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalHasOnes (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 33.85,
+            "unit": "ms/op",
+            "extra": "80 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneHasOnes (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 16.02,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkHasOnes (github.com/chalk-ai/chalk-go/internal/tests/benchmark)",
+            "value": 189.4,
             "unit": "ms/op",
             "extra": "8 times\n4 procs"
           }
