@@ -1258,21 +1258,23 @@ func (c *volumeClientImpl) CommitPathDeltas(ctx context.Context, volume VolumeRe
 }
 
 func (c *volumeClientImpl) commitPathDeltas(ctx context.Context, volume *volumev2.VolumeRef, upserts []VolumeUploadedFile, removes []*volumev2.PathRemoveDelta, opts VolumeCommitOptions) (*volumev2.CommitStatus, error) {
-	callerOwnsOrdering := opts.CommitID != ""
 	useUploaded := len(upserts)+len(removes) >= VolumeUploadedIntentMinEntries
+	// The intent carries no base, so the server re-applies these whole-file
+	// deltas onto the current tip. Its commit id stays fixed across retries,
+	// which keeps a retry after a lost response idempotent.
+	commitID := opts.CommitID
+	if commitID == "" {
+		commitID = newVolumeCommitID()
+	}
 
 	var intent *volumev2.CommitIntent
 	var err error
 	if useUploaded {
-		commitID := opts.CommitID
-		if commitID == "" {
-			commitID = newVolumeCommitID()
-		}
 		intent, err = c.buildUploadedPathIntent(ctx, volume, commitID, upserts, removes, opts.Ref)
 	} else {
 		intent, err = c.buildPathIntent(ctx, volume, upserts, removes, opts.Ref)
 		if err == nil {
-			intent.CommitId = opts.CommitID
+			intent.CommitId = commitID
 		}
 	}
 	if err != nil {
@@ -1280,30 +1282,8 @@ func (c *volumeClientImpl) commitPathDeltas(ctx context.Context, volume *volumev
 	}
 
 	maxCommitRetries := max(opts.MaxCommitRetries, 1)
-	for attempt := 0; attempt < maxCommitRetries; attempt++ {
-		// Each attempt gets a fresh envelope sharing the delta slices, so a sent
-		// intent is never mutated underneath the RPC layer.
-		attemptIntent := &volumev2.CommitIntent{
-			Volume:                   intent.Volume,
-			CommitId:                 intent.CommitId,
-			Ref:                      intent.Ref,
-			UploadedObjectReferences: intent.UploadedObjectReferences,
-			Author:                   intent.Author,
-			Deltas:                   intent.Deltas,
-		}
-		if !callerOwnsOrdering {
-			base, err := c.tipVersion(ctx, volume, opts.Ref)
-			if err != nil {
-				return nil, err
-			}
-			if !useUploaded {
-				attemptIntent.CommitId = newVolumeCommitID()
-			}
-			versionID, sequenceNumber := base.VersionId, base.SequenceNumber
-			attemptIntent.BaseVersionId = &versionID
-			attemptIntent.BaseSequenceNumber = &sequenceNumber
-		}
-		status, err := c.commitVersion(ctx, attemptIntent)
+	for range maxCommitRetries {
+		status, err := c.commitVersion(ctx, intent)
 		if err != nil {
 			return nil, err
 		}
@@ -1317,25 +1297,6 @@ func (c *volumeClientImpl) commitPathDeltas(ctx context.Context, volume *volumev
 		}
 	}
 	return nil, connect.NewError(connect.CodeAborted, fmt.Errorf("commit rebased %d times without landing", maxCommitRetries))
-}
-
-// tipVersion returns the ref tip, for stamping a commit intent's base.
-func (c *volumeClientImpl) tipVersion(ctx context.Context, volume *volumev2.VolumeRef, ref string) (*volumev2.VersionInfo, error) {
-	var selector *volumev2.VersionSelector
-	if ref != "" {
-		selector = VolumeRefSelector(ref)
-	}
-	res, err := volumeRPC(ctx, c, &volumev2.GetVolumeRequest{Volume: volume, Selector: selector},
-		func(r *volumev2.GetVolumeRequest) *volumev2.VolumeRef { return r.Volume }, true, c.rpc.GetVolume)
-	if err != nil {
-		return nil, err
-	}
-	c.cacheVolumeID(res.GetVolume().GetName(), res.GetVolume().GetVolumeId())
-	version := res.GetVersion()
-	if version == nil {
-		return nil, fmt.Errorf("GetVolume returned no version on the volume tip")
-	}
-	return version, nil
 }
 
 func volumeRefName(ref string) string {
