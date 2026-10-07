@@ -154,13 +154,8 @@ func TestVolumeSlicesCoverRange(t *testing.T) {
 
 func TestVolumeCommitRetriesRebaseAndDedupesRefs(t *testing.T) {
 	t.Parallel()
-	rpc := &fakeVolumeRPC{
-		getVolume: func(context.Context, *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
-			return connect.NewResponse(&volumev2.GetVolumeResponse{
-				Version: &volumev2.VersionInfo{VersionId: 7, SequenceNumber: 11},
-			}), nil
-		},
-	}
+	// No getVolume stub: a commit must not read the tip.
+	rpc := &fakeVolumeRPC{}
 	rpc.commitVersion = func(_ context.Context, req *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
 		rpc.commits = append(rpc.commits, req.Msg.GetIntent())
 		result := volumev2.CommitResult_COMMIT_RESULT_REBASE_REQUIRED
@@ -183,9 +178,9 @@ func TestVolumeCommitRetriesRebaseAndDedupesRefs(t *testing.T) {
 	require.Equal(t, volumev2.CommitResult_COMMIT_RESULT_COMMITTED, status.Result)
 	require.Len(t, rpc.commits, 2)
 	require.NotEmpty(t, rpc.commits[0].CommitId)
-	require.NotEqual(t, rpc.commits[0].CommitId, rpc.commits[1].CommitId)
-	require.Equal(t, uint64(7), rpc.commits[1].GetBaseVersionId())
-	require.Equal(t, uint64(11), rpc.commits[1].GetBaseSequenceNumber())
+	require.Equal(t, rpc.commits[0].CommitId, rpc.commits[1].CommitId)
+	require.Nil(t, rpc.commits[1].BaseVersionId)
+	require.Nil(t, rpc.commits[1].BaseSequenceNumber)
 	require.Equal(t, "chalk:env:agent:test", rpc.commits[1].Author)
 	require.Len(t, rpc.commits[1].UploadedObjectReferences, 1)
 	require.Len(t, rpc.commits[1].GetPathDeltas().Upserts, 2)
