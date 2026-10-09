@@ -42,6 +42,9 @@ const (
 	// BranchServiceGetBranchWithLatestDeploymentProcedure is the fully-qualified name of the
 	// BranchService's GetBranchWithLatestDeployment RPC.
 	BranchServiceGetBranchWithLatestDeploymentProcedure = "/chalk.server.v1.BranchService/GetBranchWithLatestDeployment"
+	// BranchServiceDeleteBranchProcedure is the fully-qualified name of the BranchService's
+	// DeleteBranch RPC.
+	BranchServiceDeleteBranchProcedure = "/chalk.server.v1.BranchService/DeleteBranch"
 	// BranchServiceListBranchWithLatestDeploymentsProcedure is the fully-qualified name of the
 	// BranchService's ListBranchWithLatestDeployments RPC.
 	BranchServiceListBranchWithLatestDeploymentsProcedure = "/chalk.server.v1.BranchService/ListBranchWithLatestDeployments"
@@ -55,6 +58,7 @@ type BranchServiceClient interface {
 	StartBranchDeployment(context.Context, *connect.Request[v1.StartBranchDeploymentRequest]) (*connect.Response[v1.StartBranchDeploymentResponse], error)
 	GetBranchDeploymentState(context.Context, *connect.Request[v1.GetBranchDeploymentStateRequest]) (*connect.Response[v1.GetBranchDeploymentStateResponse], error)
 	GetBranchWithLatestDeployment(context.Context, *connect.Request[v1.GetBranchWithLatestDeploymentRequest]) (*connect.Response[v1.GetBranchWithLatestDeploymentResponse], error)
+	DeleteBranch(context.Context, *connect.Request[v1.DeleteBranchRequest]) (*connect.Response[v1.DeleteBranchResponse], error)
 	ListBranchWithLatestDeployments(context.Context, *connect.Request[v1.ListBranchWithLatestDeploymentsRequest]) (*connect.Response[v1.ListBranchWithLatestDeploymentsResponse], error)
 	GetBranchVenvInstalledPackages(context.Context, *connect.Request[v1.GetBranchVenvInstalledPackagesRequest]) (*connect.Response[v1.GetBranchVenvInstalledPackagesResponse], error)
 }
@@ -88,6 +92,13 @@ func NewBranchServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(branchServiceMethods.ByName("GetBranchWithLatestDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteBranch: connect.NewClient[v1.DeleteBranchRequest, v1.DeleteBranchResponse](
+			httpClient,
+			baseURL+BranchServiceDeleteBranchProcedure,
+			connect.WithSchema(branchServiceMethods.ByName("DeleteBranch")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 		listBranchWithLatestDeployments: connect.NewClient[v1.ListBranchWithLatestDeploymentsRequest, v1.ListBranchWithLatestDeploymentsResponse](
 			httpClient,
 			baseURL+BranchServiceListBranchWithLatestDeploymentsProcedure,
@@ -108,6 +119,7 @@ type branchServiceClient struct {
 	startBranchDeployment           *connect.Client[v1.StartBranchDeploymentRequest, v1.StartBranchDeploymentResponse]
 	getBranchDeploymentState        *connect.Client[v1.GetBranchDeploymentStateRequest, v1.GetBranchDeploymentStateResponse]
 	getBranchWithLatestDeployment   *connect.Client[v1.GetBranchWithLatestDeploymentRequest, v1.GetBranchWithLatestDeploymentResponse]
+	deleteBranch                    *connect.Client[v1.DeleteBranchRequest, v1.DeleteBranchResponse]
 	listBranchWithLatestDeployments *connect.Client[v1.ListBranchWithLatestDeploymentsRequest, v1.ListBranchWithLatestDeploymentsResponse]
 	getBranchVenvInstalledPackages  *connect.Client[v1.GetBranchVenvInstalledPackagesRequest, v1.GetBranchVenvInstalledPackagesResponse]
 }
@@ -127,6 +139,11 @@ func (c *branchServiceClient) GetBranchWithLatestDeployment(ctx context.Context,
 	return c.getBranchWithLatestDeployment.CallUnary(ctx, req)
 }
 
+// DeleteBranch calls chalk.server.v1.BranchService.DeleteBranch.
+func (c *branchServiceClient) DeleteBranch(ctx context.Context, req *connect.Request[v1.DeleteBranchRequest]) (*connect.Response[v1.DeleteBranchResponse], error) {
+	return c.deleteBranch.CallUnary(ctx, req)
+}
+
 // ListBranchWithLatestDeployments calls
 // chalk.server.v1.BranchService.ListBranchWithLatestDeployments.
 func (c *branchServiceClient) ListBranchWithLatestDeployments(ctx context.Context, req *connect.Request[v1.ListBranchWithLatestDeploymentsRequest]) (*connect.Response[v1.ListBranchWithLatestDeploymentsResponse], error) {
@@ -144,6 +161,7 @@ type BranchServiceHandler interface {
 	StartBranchDeployment(context.Context, *connect.Request[v1.StartBranchDeploymentRequest]) (*connect.Response[v1.StartBranchDeploymentResponse], error)
 	GetBranchDeploymentState(context.Context, *connect.Request[v1.GetBranchDeploymentStateRequest]) (*connect.Response[v1.GetBranchDeploymentStateResponse], error)
 	GetBranchWithLatestDeployment(context.Context, *connect.Request[v1.GetBranchWithLatestDeploymentRequest]) (*connect.Response[v1.GetBranchWithLatestDeploymentResponse], error)
+	DeleteBranch(context.Context, *connect.Request[v1.DeleteBranchRequest]) (*connect.Response[v1.DeleteBranchResponse], error)
 	ListBranchWithLatestDeployments(context.Context, *connect.Request[v1.ListBranchWithLatestDeploymentsRequest]) (*connect.Response[v1.ListBranchWithLatestDeploymentsResponse], error)
 	GetBranchVenvInstalledPackages(context.Context, *connect.Request[v1.GetBranchVenvInstalledPackagesRequest]) (*connect.Response[v1.GetBranchVenvInstalledPackagesResponse], error)
 }
@@ -173,6 +191,13 @@ func NewBranchServiceHandler(svc BranchServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(branchServiceMethods.ByName("GetBranchWithLatestDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	branchServiceDeleteBranchHandler := connect.NewUnaryHandler(
+		BranchServiceDeleteBranchProcedure,
+		svc.DeleteBranch,
+		connect.WithSchema(branchServiceMethods.ByName("DeleteBranch")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	branchServiceListBranchWithLatestDeploymentsHandler := connect.NewUnaryHandler(
 		BranchServiceListBranchWithLatestDeploymentsProcedure,
 		svc.ListBranchWithLatestDeployments,
@@ -193,6 +218,8 @@ func NewBranchServiceHandler(svc BranchServiceHandler, opts ...connect.HandlerOp
 			branchServiceGetBranchDeploymentStateHandler.ServeHTTP(w, r)
 		case BranchServiceGetBranchWithLatestDeploymentProcedure:
 			branchServiceGetBranchWithLatestDeploymentHandler.ServeHTTP(w, r)
+		case BranchServiceDeleteBranchProcedure:
+			branchServiceDeleteBranchHandler.ServeHTTP(w, r)
 		case BranchServiceListBranchWithLatestDeploymentsProcedure:
 			branchServiceListBranchWithLatestDeploymentsHandler.ServeHTTP(w, r)
 		case BranchServiceGetBranchVenvInstalledPackagesProcedure:
@@ -216,6 +243,10 @@ func (UnimplementedBranchServiceHandler) GetBranchDeploymentState(context.Contex
 
 func (UnimplementedBranchServiceHandler) GetBranchWithLatestDeployment(context.Context, *connect.Request[v1.GetBranchWithLatestDeploymentRequest]) (*connect.Response[v1.GetBranchWithLatestDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BranchService.GetBranchWithLatestDeployment is not implemented"))
+}
+
+func (UnimplementedBranchServiceHandler) DeleteBranch(context.Context, *connect.Request[v1.DeleteBranchRequest]) (*connect.Response[v1.DeleteBranchResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BranchService.DeleteBranch is not implemented"))
 }
 
 func (UnimplementedBranchServiceHandler) ListBranchWithLatestDeployments(context.Context, *connect.Request[v1.ListBranchWithLatestDeploymentsRequest]) (*connect.Response[v1.ListBranchWithLatestDeploymentsResponse], error) {
