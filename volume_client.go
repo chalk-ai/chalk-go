@@ -159,7 +159,10 @@ type VolumeCommitOptions struct {
 }
 
 // volumeDataSegmentBytes is the default chunk size and pack cap.
-const volumeDataSegmentBytes = 16 * 1024 * 1024
+const volumeDataSegmentBytes = 4 * 1024 * 1024
+
+// volumeMaxObjectBytes is the largest chunk or pack the catalog accepts at commit.
+const volumeMaxObjectBytes = 64 * 1024 * 1024
 
 // VolumeUploadedIntentMinEntries is the delta count at which a commit uploads
 // its deltas as an intent object instead of inlining them.
@@ -650,6 +653,9 @@ func (c *volumeClientImpl) StageFiles(ctx context.Context, volume VolumeRef, fil
 
 // stageFiles uploads files without committing them.
 func (c *volumeClientImpl) stageFiles(ctx context.Context, volume *volumev2.VolumeRef, files []VolumeUploadFile, cfg VolumeUploadConfig, onProgress VolumeProgressFunc, observer VolumeUploadObserver) ([]VolumeUploadedFile, error) {
+	if cfg.ChunkSize > volumeMaxObjectBytes || cfg.MaxPackBytes > volumeMaxObjectBytes {
+		return nil, errors.Newf("chunk size %d and max pack bytes %d must not exceed %d", cfg.ChunkSize, cfg.MaxPackBytes, volumeMaxObjectBytes)
+	}
 	if onProgress == nil {
 		onProgress = func(uint64, bool) {}
 	}

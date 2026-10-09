@@ -414,6 +414,18 @@ func TestVolumeDefaultUploadConfig(t *testing.T) {
 	require.Greater(t, cfg.FileConcurrency, 0)
 }
 
+func TestVolumeUploadRejectsObjectsOverCatalogLimit(t *testing.T) {
+	t.Parallel()
+	client := &volumeClientImpl{}
+	for _, cfg := range []VolumeUploadConfig{
+		{ChunkSize: volumeMaxObjectBytes + 1},
+		{MaxPackBytes: volumeMaxObjectBytes + 1},
+	} {
+		_, err := client.StageFiles(t.Context(), VolumeRef{}, nil, cfg, nil)
+		require.ErrorContains(t, err, "must not exceed")
+	}
+}
+
 func TestVolumeRefSelector(t *testing.T) {
 	t.Parallel()
 	sel := VolumeRefSelector("my-ref")
