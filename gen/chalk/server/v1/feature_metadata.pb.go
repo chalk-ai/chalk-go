@@ -353,6 +353,147 @@ func (x *DeleteFeatureObservationsResponse) GetErrors() []*v1.ChalkError {
 	return nil
 }
 
+// Identifies the fill that materializes one feature view's wide table, optionally narrowed to a
+// single feature within it. The wide-table configuration fingerprint that completes the storage
+// key is resolved from the namespace, so a caller never supplies one.
+type MaterializedFeatureViewFillProgressIdentifier struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	FeatureNamespace string                 `protobuf:"bytes,1,opt,name=feature_namespace,json=featureNamespace,proto3" json:"feature_namespace,omitempty"`
+	// One materialized feature, named either by its feature FQN or by its persistence key. Absent
+	// addresses every feature the view materializes.
+	Feature       *string `protobuf:"bytes,2,opt,name=feature,proto3,oneof" json:"feature,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MaterializedFeatureViewFillProgressIdentifier) Reset() {
+	*x = MaterializedFeatureViewFillProgressIdentifier{}
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MaterializedFeatureViewFillProgressIdentifier) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MaterializedFeatureViewFillProgressIdentifier) ProtoMessage() {}
+
+func (x *MaterializedFeatureViewFillProgressIdentifier) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MaterializedFeatureViewFillProgressIdentifier.ProtoReflect.Descriptor instead.
+func (*MaterializedFeatureViewFillProgressIdentifier) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *MaterializedFeatureViewFillProgressIdentifier) GetFeatureNamespace() string {
+	if x != nil {
+		return x.FeatureNamespace
+	}
+	return ""
+}
+
+func (x *MaterializedFeatureViewFillProgressIdentifier) GetFeature() string {
+	if x != nil && x.Feature != nil {
+		return *x.Feature
+	}
+	return ""
+}
+
+// One materialized feature's progress filling its wide table.
+type MaterializedFeatureViewFeatureProgress struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	PersistenceKey string                 `protobuf:"bytes,1,opt,name=persistence_key,json=persistenceKey,proto3" json:"persistence_key,omitempty"`
+	// `persistence_key` with its internal-version suffix stripped.
+	FeatureFqn string `protobuf:"bytes,2,opt,name=feature_fqn,json=featureFqn,proto3" json:"feature_fqn,omitempty"`
+	// Absent when no fill has recorded progress for this feature. It must be read from the
+	// beginning, which is a different claim from any timestamp, including the epoch.
+	FilledThrough *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=filled_through,json=filledThrough,proto3,oneof" json:"filled_through,omitempty"`
+	// When a fill last read this feature, whether or not `filled_through` moved. This separates a
+	// feature whose source received no new rows from one no fill is reading any more.
+	LastFilledAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=last_filled_at,json=lastFilledAt,proto3,oneof" json:"last_filled_at,omitempty"`
+	// False for a recorded feature the view no longer materializes. Its row is frozen, and only
+	// deletion clears it.
+	Materialized  bool `protobuf:"varint,5,opt,name=materialized,proto3" json:"materialized,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MaterializedFeatureViewFeatureProgress) Reset() {
+	*x = MaterializedFeatureViewFeatureProgress{}
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MaterializedFeatureViewFeatureProgress) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MaterializedFeatureViewFeatureProgress) ProtoMessage() {}
+
+func (x *MaterializedFeatureViewFeatureProgress) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MaterializedFeatureViewFeatureProgress.ProtoReflect.Descriptor instead.
+func (*MaterializedFeatureViewFeatureProgress) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *MaterializedFeatureViewFeatureProgress) GetPersistenceKey() string {
+	if x != nil {
+		return x.PersistenceKey
+	}
+	return ""
+}
+
+func (x *MaterializedFeatureViewFeatureProgress) GetFeatureFqn() string {
+	if x != nil {
+		return x.FeatureFqn
+	}
+	return ""
+}
+
+func (x *MaterializedFeatureViewFeatureProgress) GetFilledThrough() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FilledThrough
+	}
+	return nil
+}
+
+func (x *MaterializedFeatureViewFeatureProgress) GetLastFilledAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastFilledAt
+	}
+	return nil
+}
+
+func (x *MaterializedFeatureViewFeatureProgress) GetMaterialized() bool {
+	if x != nil {
+		return x.Materialized
+	}
+	return false
+}
+
 type GetIncrementalProgressRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Identifier:
@@ -360,6 +501,7 @@ type GetIncrementalProgressRequest struct {
 	//	*GetIncrementalProgressRequest_ResolverFqn
 	//	*GetIncrementalProgressRequest_QueryName
 	//	*GetIncrementalProgressRequest_ScheduledAggregateBackfillName
+	//	*GetIncrementalProgressRequest_MaterializedFeatureViewFill
 	Identifier    isGetIncrementalProgressRequest_Identifier `protobuf_oneof:"identifier"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -367,7 +509,7 @@ type GetIncrementalProgressRequest struct {
 
 func (x *GetIncrementalProgressRequest) Reset() {
 	*x = GetIncrementalProgressRequest{}
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -379,7 +521,7 @@ func (x *GetIncrementalProgressRequest) String() string {
 func (*GetIncrementalProgressRequest) ProtoMessage() {}
 
 func (x *GetIncrementalProgressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -392,7 +534,7 @@ func (x *GetIncrementalProgressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncrementalProgressRequest.ProtoReflect.Descriptor instead.
 func (*GetIncrementalProgressRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetIncrementalProgressRequest) GetIdentifier() isGetIncrementalProgressRequest_Identifier {
@@ -429,6 +571,15 @@ func (x *GetIncrementalProgressRequest) GetScheduledAggregateBackfillName() stri
 	return ""
 }
 
+func (x *GetIncrementalProgressRequest) GetMaterializedFeatureViewFill() *MaterializedFeatureViewFillProgressIdentifier {
+	if x != nil {
+		if x, ok := x.Identifier.(*GetIncrementalProgressRequest_MaterializedFeatureViewFill); ok {
+			return x.MaterializedFeatureViewFill
+		}
+	}
+	return nil
+}
+
 type isGetIncrementalProgressRequest_Identifier interface {
 	isGetIncrementalProgressRequest_Identifier()
 }
@@ -445,11 +596,18 @@ type GetIncrementalProgressRequest_ScheduledAggregateBackfillName struct {
 	ScheduledAggregateBackfillName string `protobuf:"bytes,3,opt,name=scheduled_aggregate_backfill_name,json=scheduledAggregateBackfillName,proto3,oneof"`
 }
 
+type GetIncrementalProgressRequest_MaterializedFeatureViewFill struct {
+	MaterializedFeatureViewFill *MaterializedFeatureViewFillProgressIdentifier `protobuf:"bytes,4,opt,name=materialized_feature_view_fill,json=materializedFeatureViewFill,proto3,oneof"`
+}
+
 func (*GetIncrementalProgressRequest_ResolverFqn) isGetIncrementalProgressRequest_Identifier() {}
 
 func (*GetIncrementalProgressRequest_QueryName) isGetIncrementalProgressRequest_Identifier() {}
 
 func (*GetIncrementalProgressRequest_ScheduledAggregateBackfillName) isGetIncrementalProgressRequest_Identifier() {
+}
+
+func (*GetIncrementalProgressRequest_MaterializedFeatureViewFill) isGetIncrementalProgressRequest_Identifier() {
 }
 
 type GetIncrementalProgressResponse struct {
@@ -463,13 +621,17 @@ type GetIncrementalProgressResponse struct {
 	// Scheduled Aggregate Backfills can have multiple watermarks per named object; we use this field
 	// to carry the watermark result instead of max_ingested_timestamp/last_execution_timestamp
 	AggregateGroups []*ScheduledAggregateBackfillIncrementalProgress `protobuf:"bytes,7,rep,name=aggregate_groups,json=aggregateGroups,proto3" json:"aggregate_groups,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// A materialized feature view holds one watermark per feature; these two fields carry the
+	// result instead of max_ingested_timestamp/last_execution_timestamp.
+	MaterializedFeatures       []*MaterializedFeatureViewFeatureProgress `protobuf:"bytes,8,rep,name=materialized_features,json=materializedFeatures,proto3" json:"materialized_features,omitempty"`
+	WideTableConfigFingerprint *int64                                    `protobuf:"varint,9,opt,name=wide_table_config_fingerprint,json=wideTableConfigFingerprint,proto3,oneof" json:"wide_table_config_fingerprint,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *GetIncrementalProgressResponse) Reset() {
 	*x = GetIncrementalProgressResponse{}
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -481,7 +643,7 @@ func (x *GetIncrementalProgressResponse) String() string {
 func (*GetIncrementalProgressResponse) ProtoMessage() {}
 
 func (x *GetIncrementalProgressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -494,7 +656,7 @@ func (x *GetIncrementalProgressResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncrementalProgressResponse.ProtoReflect.Descriptor instead.
 func (*GetIncrementalProgressResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetIncrementalProgressResponse) GetEnvironmentId() string {
@@ -546,6 +708,20 @@ func (x *GetIncrementalProgressResponse) GetAggregateGroups() []*ScheduledAggreg
 	return nil
 }
 
+func (x *GetIncrementalProgressResponse) GetMaterializedFeatures() []*MaterializedFeatureViewFeatureProgress {
+	if x != nil {
+		return x.MaterializedFeatures
+	}
+	return nil
+}
+
+func (x *GetIncrementalProgressResponse) GetWideTableConfigFingerprint() int64 {
+	if x != nil && x.WideTableConfigFingerprint != nil {
+		return *x.WideTableConfigFingerprint
+	}
+	return 0
+}
+
 type ScheduledAggregateBackfillIncrementalProgress struct {
 	state                  protoimpl.MessageState        `protogen:"open.v1"`
 	Features               []string                      `protobuf:"bytes,1,rep,name=features,proto3" json:"features,omitempty"`
@@ -558,7 +734,7 @@ type ScheduledAggregateBackfillIncrementalProgress struct {
 
 func (x *ScheduledAggregateBackfillIncrementalProgress) Reset() {
 	*x = ScheduledAggregateBackfillIncrementalProgress{}
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -570,7 +746,7 @@ func (x *ScheduledAggregateBackfillIncrementalProgress) String() string {
 func (*ScheduledAggregateBackfillIncrementalProgress) ProtoMessage() {}
 
 func (x *ScheduledAggregateBackfillIncrementalProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -583,7 +759,7 @@ func (x *ScheduledAggregateBackfillIncrementalProgress) ProtoReflect() protorefl
 
 // Deprecated: Use ScheduledAggregateBackfillIncrementalProgress.ProtoReflect.Descriptor instead.
 func (*ScheduledAggregateBackfillIncrementalProgress) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ScheduledAggregateBackfillIncrementalProgress) GetFeatures() []string {
@@ -621,6 +797,7 @@ type SetIncrementalProgressRequest struct {
 	//	*SetIncrementalProgressRequest_ResolverFqn
 	//	*SetIncrementalProgressRequest_QueryName
 	//	*SetIncrementalProgressRequest_ScheduledAggregateBackfillName
+	//	*SetIncrementalProgressRequest_MaterializedFeatureViewFill
 	Identifier             isSetIncrementalProgressRequest_Identifier `protobuf_oneof:"identifier"`
 	MaxIngestedTimestamp   *timestamppb.Timestamp                     `protobuf:"bytes,3,opt,name=max_ingested_timestamp,json=maxIngestedTimestamp,proto3,oneof" json:"max_ingested_timestamp,omitempty"`
 	LastExecutionTimestamp *timestamppb.Timestamp                     `protobuf:"bytes,4,opt,name=last_execution_timestamp,json=lastExecutionTimestamp,proto3,oneof" json:"last_execution_timestamp,omitempty"`
@@ -630,7 +807,7 @@ type SetIncrementalProgressRequest struct {
 
 func (x *SetIncrementalProgressRequest) Reset() {
 	*x = SetIncrementalProgressRequest{}
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -642,7 +819,7 @@ func (x *SetIncrementalProgressRequest) String() string {
 func (*SetIncrementalProgressRequest) ProtoMessage() {}
 
 func (x *SetIncrementalProgressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -655,7 +832,7 @@ func (x *SetIncrementalProgressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetIncrementalProgressRequest.ProtoReflect.Descriptor instead.
 func (*SetIncrementalProgressRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *SetIncrementalProgressRequest) GetIdentifier() isSetIncrementalProgressRequest_Identifier {
@@ -692,6 +869,15 @@ func (x *SetIncrementalProgressRequest) GetScheduledAggregateBackfillName() stri
 	return ""
 }
 
+func (x *SetIncrementalProgressRequest) GetMaterializedFeatureViewFill() *MaterializedFeatureViewFillProgressIdentifier {
+	if x != nil {
+		if x, ok := x.Identifier.(*SetIncrementalProgressRequest_MaterializedFeatureViewFill); ok {
+			return x.MaterializedFeatureViewFill
+		}
+	}
+	return nil
+}
+
 func (x *SetIncrementalProgressRequest) GetMaxIngestedTimestamp() *timestamppb.Timestamp {
 	if x != nil {
 		return x.MaxIngestedTimestamp
@@ -722,11 +908,18 @@ type SetIncrementalProgressRequest_ScheduledAggregateBackfillName struct {
 	ScheduledAggregateBackfillName string `protobuf:"bytes,5,opt,name=scheduled_aggregate_backfill_name,json=scheduledAggregateBackfillName,proto3,oneof"`
 }
 
+type SetIncrementalProgressRequest_MaterializedFeatureViewFill struct {
+	MaterializedFeatureViewFill *MaterializedFeatureViewFillProgressIdentifier `protobuf:"bytes,6,opt,name=materialized_feature_view_fill,json=materializedFeatureViewFill,proto3,oneof"`
+}
+
 func (*SetIncrementalProgressRequest_ResolverFqn) isSetIncrementalProgressRequest_Identifier() {}
 
 func (*SetIncrementalProgressRequest_QueryName) isSetIncrementalProgressRequest_Identifier() {}
 
 func (*SetIncrementalProgressRequest_ScheduledAggregateBackfillName) isSetIncrementalProgressRequest_Identifier() {
+}
+
+func (*SetIncrementalProgressRequest_MaterializedFeatureViewFill) isSetIncrementalProgressRequest_Identifier() {
 }
 
 type SetIncrementalProgressResponse struct {
@@ -737,7 +930,7 @@ type SetIncrementalProgressResponse struct {
 
 func (x *SetIncrementalProgressResponse) Reset() {
 	*x = SetIncrementalProgressResponse{}
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +942,7 @@ func (x *SetIncrementalProgressResponse) String() string {
 func (*SetIncrementalProgressResponse) ProtoMessage() {}
 
 func (x *SetIncrementalProgressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +955,7 @@ func (x *SetIncrementalProgressResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetIncrementalProgressResponse.ProtoReflect.Descriptor instead.
 func (*SetIncrementalProgressResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{12}
 }
 
 type DeleteIncrementalProgressRequest struct {
@@ -772,6 +965,7 @@ type DeleteIncrementalProgressRequest struct {
 	//	*DeleteIncrementalProgressRequest_ResolverFqn
 	//	*DeleteIncrementalProgressRequest_QueryName
 	//	*DeleteIncrementalProgressRequest_ScheduledAggregateBackfillName
+	//	*DeleteIncrementalProgressRequest_MaterializedFeatureViewFill
 	Identifier    isDeleteIncrementalProgressRequest_Identifier `protobuf_oneof:"identifier"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -779,7 +973,7 @@ type DeleteIncrementalProgressRequest struct {
 
 func (x *DeleteIncrementalProgressRequest) Reset() {
 	*x = DeleteIncrementalProgressRequest{}
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -791,7 +985,7 @@ func (x *DeleteIncrementalProgressRequest) String() string {
 func (*DeleteIncrementalProgressRequest) ProtoMessage() {}
 
 func (x *DeleteIncrementalProgressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -804,7 +998,7 @@ func (x *DeleteIncrementalProgressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteIncrementalProgressRequest.ProtoReflect.Descriptor instead.
 func (*DeleteIncrementalProgressRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DeleteIncrementalProgressRequest) GetIdentifier() isDeleteIncrementalProgressRequest_Identifier {
@@ -841,6 +1035,15 @@ func (x *DeleteIncrementalProgressRequest) GetScheduledAggregateBackfillName() s
 	return ""
 }
 
+func (x *DeleteIncrementalProgressRequest) GetMaterializedFeatureViewFill() *MaterializedFeatureViewFillProgressIdentifier {
+	if x != nil {
+		if x, ok := x.Identifier.(*DeleteIncrementalProgressRequest_MaterializedFeatureViewFill); ok {
+			return x.MaterializedFeatureViewFill
+		}
+	}
+	return nil
+}
+
 type isDeleteIncrementalProgressRequest_Identifier interface {
 	isDeleteIncrementalProgressRequest_Identifier()
 }
@@ -857,12 +1060,19 @@ type DeleteIncrementalProgressRequest_ScheduledAggregateBackfillName struct {
 	ScheduledAggregateBackfillName string `protobuf:"bytes,3,opt,name=scheduled_aggregate_backfill_name,json=scheduledAggregateBackfillName,proto3,oneof"`
 }
 
+type DeleteIncrementalProgressRequest_MaterializedFeatureViewFill struct {
+	MaterializedFeatureViewFill *MaterializedFeatureViewFillProgressIdentifier `protobuf:"bytes,4,opt,name=materialized_feature_view_fill,json=materializedFeatureViewFill,proto3,oneof"`
+}
+
 func (*DeleteIncrementalProgressRequest_ResolverFqn) isDeleteIncrementalProgressRequest_Identifier() {
 }
 
 func (*DeleteIncrementalProgressRequest_QueryName) isDeleteIncrementalProgressRequest_Identifier() {}
 
 func (*DeleteIncrementalProgressRequest_ScheduledAggregateBackfillName) isDeleteIncrementalProgressRequest_Identifier() {
+}
+
+func (*DeleteIncrementalProgressRequest_MaterializedFeatureViewFill) isDeleteIncrementalProgressRequest_Identifier() {
 }
 
 type DeleteIncrementalProgressResponse struct {
@@ -873,7 +1083,7 @@ type DeleteIncrementalProgressResponse struct {
 
 func (x *DeleteIncrementalProgressResponse) Reset() {
 	*x = DeleteIncrementalProgressResponse{}
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -885,7 +1095,7 @@ func (x *DeleteIncrementalProgressResponse) String() string {
 func (*DeleteIncrementalProgressResponse) ProtoMessage() {}
 
 func (x *DeleteIncrementalProgressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_feature_metadata_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -898,7 +1108,7 @@ func (x *DeleteIncrementalProgressResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use DeleteIncrementalProgressResponse.ProtoReflect.Descriptor instead.
 func (*DeleteIncrementalProgressResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_feature_metadata_proto_rawDescGZIP(), []int{14}
 }
 
 var File_chalk_server_v1_feature_metadata_proto protoreflect.FileDescriptor
@@ -925,14 +1135,29 @@ const file_chalk_server_v1_feature_metadata_proto_rawDesc = "" +
 	"\rretain_online\x18\x05 \x01(\bR\fretainOnline\x12%\n" +
 	"\x0eretain_offline\x18\x06 \x01(\bR\rretainOffline\"X\n" +
 	"!DeleteFeatureObservationsResponse\x123\n" +
-	"\x06errors\x18\x01 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xc0\x01\n" +
+	"\x06errors\x18\x01 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\x87\x01\n" +
+	"-MaterializedFeatureViewFillProgressIdentifier\x12+\n" +
+	"\x11feature_namespace\x18\x01 \x01(\tR\x10featureNamespace\x12\x1d\n" +
+	"\afeature\x18\x02 \x01(\tH\x00R\afeature\x88\x01\x01B\n" +
+	"\n" +
+	"\b_feature\"\xcb\x02\n" +
+	"&MaterializedFeatureViewFeatureProgress\x12'\n" +
+	"\x0fpersistence_key\x18\x01 \x01(\tR\x0epersistenceKey\x12\x1f\n" +
+	"\vfeature_fqn\x18\x02 \x01(\tR\n" +
+	"featureFqn\x12F\n" +
+	"\x0efilled_through\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\rfilledThrough\x88\x01\x01\x12E\n" +
+	"\x0elast_filled_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\flastFilledAt\x88\x01\x01\x12\"\n" +
+	"\fmaterialized\x18\x05 \x01(\bR\fmaterializedB\x11\n" +
+	"\x0f_filled_throughB\x11\n" +
+	"\x0f_last_filled_at\"\xc8\x02\n" +
 	"\x1dGetIncrementalProgressRequest\x12#\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tH\x00R\vresolverFqn\x12\x1f\n" +
 	"\n" +
 	"query_name\x18\x02 \x01(\tH\x00R\tqueryName\x12K\n" +
-	"!scheduled_aggregate_backfill_name\x18\x03 \x01(\tH\x00R\x1escheduledAggregateBackfillNameB\f\n" +
+	"!scheduled_aggregate_backfill_name\x18\x03 \x01(\tH\x00R\x1escheduledAggregateBackfillName\x12\x85\x01\n" +
+	"\x1ematerialized_feature_view_fill\x18\x04 \x01(\v2>.chalk.server.v1.MaterializedFeatureViewFillProgressIdentifierH\x00R\x1bmaterializedFeatureViewFillB\f\n" +
 	"\n" +
-	"identifier\"\xe8\x04\n" +
+	"identifier\"\xc0\x06\n" +
 	"\x1eGetIncrementalProgressResponse\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12!\n" +
 	"\fresolver_fqn\x18\x02 \x01(\tR\vresolverFqn\x12\"\n" +
@@ -941,35 +1166,40 @@ const file_chalk_server_v1_feature_metadata_proto_rawDesc = "" +
 	"\x16max_ingested_timestamp\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x14maxIngestedTimestamp\x88\x01\x01\x12Y\n" +
 	"\x18last_execution_timestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\x16lastExecutionTimestamp\x88\x01\x01\x12N\n" +
 	"!scheduled_aggregate_backfill_name\x18\x06 \x01(\tH\x03R\x1escheduledAggregateBackfillName\x88\x01\x01\x12i\n" +
-	"\x10aggregate_groups\x18\a \x03(\v2>.chalk.server.v1.ScheduledAggregateBackfillIncrementalProgressR\x0faggregateGroupsB\r\n" +
+	"\x10aggregate_groups\x18\a \x03(\v2>.chalk.server.v1.ScheduledAggregateBackfillIncrementalProgressR\x0faggregateGroups\x12l\n" +
+	"\x15materialized_features\x18\b \x03(\v27.chalk.server.v1.MaterializedFeatureViewFeatureProgressR\x14materializedFeatures\x12F\n" +
+	"\x1dwide_table_config_fingerprint\x18\t \x01(\x03H\x04R\x1awideTableConfigFingerprint\x88\x01\x01B\r\n" +
 	"\v_query_nameB\x19\n" +
 	"\x17_max_ingested_timestampB\x1b\n" +
 	"\x19_last_execution_timestampB$\n" +
-	"\"_scheduled_aggregate_backfill_name\"\x8b\x03\n" +
+	"\"_scheduled_aggregate_backfill_nameB \n" +
+	"\x1e_wide_table_config_fingerprint\"\x8b\x03\n" +
 	"-ScheduledAggregateBackfillIncrementalProgress\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12T\n" +
 	"\x0fstorage_targets\x18\x02 \x03(\x0e2+.chalk.aggregate.v1.AggregateBackfillTargetR\x0estorageTargets\x12U\n" +
 	"\x16max_ingested_timestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x14maxIngestedTimestamp\x88\x01\x01\x12Y\n" +
 	"\x18last_execution_timestamp\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x16lastExecutionTimestamp\x88\x01\x01B\x19\n" +
 	"\x17_max_ingested_timestampB\x1b\n" +
-	"\x19_last_execution_timestamp\"\xaa\x03\n" +
+	"\x19_last_execution_timestamp\"\xb2\x04\n" +
 	"\x1dSetIncrementalProgressRequest\x12#\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tH\x00R\vresolverFqn\x12\x1f\n" +
 	"\n" +
 	"query_name\x18\x02 \x01(\tH\x00R\tqueryName\x12K\n" +
-	"!scheduled_aggregate_backfill_name\x18\x05 \x01(\tH\x00R\x1escheduledAggregateBackfillName\x12U\n" +
+	"!scheduled_aggregate_backfill_name\x18\x05 \x01(\tH\x00R\x1escheduledAggregateBackfillName\x12\x85\x01\n" +
+	"\x1ematerialized_feature_view_fill\x18\x06 \x01(\v2>.chalk.server.v1.MaterializedFeatureViewFillProgressIdentifierH\x00R\x1bmaterializedFeatureViewFill\x12U\n" +
 	"\x16max_ingested_timestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x14maxIngestedTimestamp\x88\x01\x01\x12Y\n" +
 	"\x18last_execution_timestamp\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\x16lastExecutionTimestamp\x88\x01\x01B\f\n" +
 	"\n" +
 	"identifierB\x19\n" +
 	"\x17_max_ingested_timestampB\x1b\n" +
 	"\x19_last_execution_timestamp\" \n" +
-	"\x1eSetIncrementalProgressResponse\"\xc3\x01\n" +
+	"\x1eSetIncrementalProgressResponse\"\xcb\x02\n" +
 	" DeleteIncrementalProgressRequest\x12#\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tH\x00R\vresolverFqn\x12\x1f\n" +
 	"\n" +
 	"query_name\x18\x02 \x01(\tH\x00R\tqueryName\x12K\n" +
-	"!scheduled_aggregate_backfill_name\x18\x03 \x01(\tH\x00R\x1escheduledAggregateBackfillNameB\f\n" +
+	"!scheduled_aggregate_backfill_name\x18\x03 \x01(\tH\x00R\x1escheduledAggregateBackfillName\x12\x85\x01\n" +
+	"\x1ematerialized_feature_view_fill\x18\x04 \x01(\v2>.chalk.server.v1.MaterializedFeatureViewFillProgressIdentifierH\x00R\x1bmaterializedFeatureViewFillB\f\n" +
 	"\n" +
 	"identifier\"#\n" +
 	"!DeleteIncrementalProgressResponse2\x97\x06\n" +
@@ -994,7 +1224,7 @@ func file_chalk_server_v1_feature_metadata_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_feature_metadata_proto_rawDescData
 }
 
-var file_chalk_server_v1_feature_metadata_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_chalk_server_v1_feature_metadata_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_server_v1_feature_metadata_proto_goTypes = []any{
 	(*DropFeatureVersionsRequest)(nil),                    // 0: chalk.server.v1.DropFeatureVersionsRequest
 	(*DropFeatureVersionsResponse)(nil),                   // 1: chalk.server.v1.DropFeatureVersionsResponse
@@ -1002,45 +1232,53 @@ var file_chalk_server_v1_feature_metadata_proto_goTypes = []any{
 	(*FeatureMigrateTypeResponse)(nil),                    // 3: chalk.server.v1.FeatureMigrateTypeResponse
 	(*DeleteFeatureObservationsRequest)(nil),              // 4: chalk.server.v1.DeleteFeatureObservationsRequest
 	(*DeleteFeatureObservationsResponse)(nil),             // 5: chalk.server.v1.DeleteFeatureObservationsResponse
-	(*GetIncrementalProgressRequest)(nil),                 // 6: chalk.server.v1.GetIncrementalProgressRequest
-	(*GetIncrementalProgressResponse)(nil),                // 7: chalk.server.v1.GetIncrementalProgressResponse
-	(*ScheduledAggregateBackfillIncrementalProgress)(nil), // 8: chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress
-	(*SetIncrementalProgressRequest)(nil),                 // 9: chalk.server.v1.SetIncrementalProgressRequest
-	(*SetIncrementalProgressResponse)(nil),                // 10: chalk.server.v1.SetIncrementalProgressResponse
-	(*DeleteIncrementalProgressRequest)(nil),              // 11: chalk.server.v1.DeleteIncrementalProgressRequest
-	(*DeleteIncrementalProgressResponse)(nil),             // 12: chalk.server.v1.DeleteIncrementalProgressResponse
-	(*v1.ChalkError)(nil),                                 // 13: chalk.common.v1.ChalkError
-	(*timestamppb.Timestamp)(nil),                         // 14: google.protobuf.Timestamp
-	(v11.AggregateBackfillTarget)(0),                      // 15: chalk.aggregate.v1.AggregateBackfillTarget
+	(*MaterializedFeatureViewFillProgressIdentifier)(nil), // 6: chalk.server.v1.MaterializedFeatureViewFillProgressIdentifier
+	(*MaterializedFeatureViewFeatureProgress)(nil),        // 7: chalk.server.v1.MaterializedFeatureViewFeatureProgress
+	(*GetIncrementalProgressRequest)(nil),                 // 8: chalk.server.v1.GetIncrementalProgressRequest
+	(*GetIncrementalProgressResponse)(nil),                // 9: chalk.server.v1.GetIncrementalProgressResponse
+	(*ScheduledAggregateBackfillIncrementalProgress)(nil), // 10: chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress
+	(*SetIncrementalProgressRequest)(nil),                 // 11: chalk.server.v1.SetIncrementalProgressRequest
+	(*SetIncrementalProgressResponse)(nil),                // 12: chalk.server.v1.SetIncrementalProgressResponse
+	(*DeleteIncrementalProgressRequest)(nil),              // 13: chalk.server.v1.DeleteIncrementalProgressRequest
+	(*DeleteIncrementalProgressResponse)(nil),             // 14: chalk.server.v1.DeleteIncrementalProgressResponse
+	(*v1.ChalkError)(nil),                                 // 15: chalk.common.v1.ChalkError
+	(*timestamppb.Timestamp)(nil),                         // 16: google.protobuf.Timestamp
+	(v11.AggregateBackfillTarget)(0),                      // 17: chalk.aggregate.v1.AggregateBackfillTarget
 }
 var file_chalk_server_v1_feature_metadata_proto_depIdxs = []int32{
-	13, // 0: chalk.server.v1.FeatureMigrateTypeResponse.errors:type_name -> chalk.common.v1.ChalkError
-	13, // 1: chalk.server.v1.DeleteFeatureObservationsResponse.errors:type_name -> chalk.common.v1.ChalkError
-	14, // 2: chalk.server.v1.GetIncrementalProgressResponse.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
-	14, // 3: chalk.server.v1.GetIncrementalProgressResponse.last_execution_timestamp:type_name -> google.protobuf.Timestamp
-	8,  // 4: chalk.server.v1.GetIncrementalProgressResponse.aggregate_groups:type_name -> chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress
-	15, // 5: chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress.storage_targets:type_name -> chalk.aggregate.v1.AggregateBackfillTarget
-	14, // 6: chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
-	14, // 7: chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress.last_execution_timestamp:type_name -> google.protobuf.Timestamp
-	14, // 8: chalk.server.v1.SetIncrementalProgressRequest.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
-	14, // 9: chalk.server.v1.SetIncrementalProgressRequest.last_execution_timestamp:type_name -> google.protobuf.Timestamp
-	0,  // 10: chalk.server.v1.FeatureMetadataService.DropFeatureVersions:input_type -> chalk.server.v1.DropFeatureVersionsRequest
-	2,  // 11: chalk.server.v1.FeatureMetadataService.FeatureMigrateType:input_type -> chalk.server.v1.FeatureMigrateTypeRequest
-	4,  // 12: chalk.server.v1.FeatureMetadataService.DeleteFeatureObservations:input_type -> chalk.server.v1.DeleteFeatureObservationsRequest
-	6,  // 13: chalk.server.v1.FeatureMetadataService.GetIncrementalProgress:input_type -> chalk.server.v1.GetIncrementalProgressRequest
-	9,  // 14: chalk.server.v1.FeatureMetadataService.SetIncrementalProgress:input_type -> chalk.server.v1.SetIncrementalProgressRequest
-	11, // 15: chalk.server.v1.FeatureMetadataService.DeleteIncrementalProgress:input_type -> chalk.server.v1.DeleteIncrementalProgressRequest
-	1,  // 16: chalk.server.v1.FeatureMetadataService.DropFeatureVersions:output_type -> chalk.server.v1.DropFeatureVersionsResponse
-	3,  // 17: chalk.server.v1.FeatureMetadataService.FeatureMigrateType:output_type -> chalk.server.v1.FeatureMigrateTypeResponse
-	5,  // 18: chalk.server.v1.FeatureMetadataService.DeleteFeatureObservations:output_type -> chalk.server.v1.DeleteFeatureObservationsResponse
-	7,  // 19: chalk.server.v1.FeatureMetadataService.GetIncrementalProgress:output_type -> chalk.server.v1.GetIncrementalProgressResponse
-	10, // 20: chalk.server.v1.FeatureMetadataService.SetIncrementalProgress:output_type -> chalk.server.v1.SetIncrementalProgressResponse
-	12, // 21: chalk.server.v1.FeatureMetadataService.DeleteIncrementalProgress:output_type -> chalk.server.v1.DeleteIncrementalProgressResponse
-	16, // [16:22] is the sub-list for method output_type
-	10, // [10:16] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	15, // 0: chalk.server.v1.FeatureMigrateTypeResponse.errors:type_name -> chalk.common.v1.ChalkError
+	15, // 1: chalk.server.v1.DeleteFeatureObservationsResponse.errors:type_name -> chalk.common.v1.ChalkError
+	16, // 2: chalk.server.v1.MaterializedFeatureViewFeatureProgress.filled_through:type_name -> google.protobuf.Timestamp
+	16, // 3: chalk.server.v1.MaterializedFeatureViewFeatureProgress.last_filled_at:type_name -> google.protobuf.Timestamp
+	6,  // 4: chalk.server.v1.GetIncrementalProgressRequest.materialized_feature_view_fill:type_name -> chalk.server.v1.MaterializedFeatureViewFillProgressIdentifier
+	16, // 5: chalk.server.v1.GetIncrementalProgressResponse.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
+	16, // 6: chalk.server.v1.GetIncrementalProgressResponse.last_execution_timestamp:type_name -> google.protobuf.Timestamp
+	10, // 7: chalk.server.v1.GetIncrementalProgressResponse.aggregate_groups:type_name -> chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress
+	7,  // 8: chalk.server.v1.GetIncrementalProgressResponse.materialized_features:type_name -> chalk.server.v1.MaterializedFeatureViewFeatureProgress
+	17, // 9: chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress.storage_targets:type_name -> chalk.aggregate.v1.AggregateBackfillTarget
+	16, // 10: chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
+	16, // 11: chalk.server.v1.ScheduledAggregateBackfillIncrementalProgress.last_execution_timestamp:type_name -> google.protobuf.Timestamp
+	6,  // 12: chalk.server.v1.SetIncrementalProgressRequest.materialized_feature_view_fill:type_name -> chalk.server.v1.MaterializedFeatureViewFillProgressIdentifier
+	16, // 13: chalk.server.v1.SetIncrementalProgressRequest.max_ingested_timestamp:type_name -> google.protobuf.Timestamp
+	16, // 14: chalk.server.v1.SetIncrementalProgressRequest.last_execution_timestamp:type_name -> google.protobuf.Timestamp
+	6,  // 15: chalk.server.v1.DeleteIncrementalProgressRequest.materialized_feature_view_fill:type_name -> chalk.server.v1.MaterializedFeatureViewFillProgressIdentifier
+	0,  // 16: chalk.server.v1.FeatureMetadataService.DropFeatureVersions:input_type -> chalk.server.v1.DropFeatureVersionsRequest
+	2,  // 17: chalk.server.v1.FeatureMetadataService.FeatureMigrateType:input_type -> chalk.server.v1.FeatureMigrateTypeRequest
+	4,  // 18: chalk.server.v1.FeatureMetadataService.DeleteFeatureObservations:input_type -> chalk.server.v1.DeleteFeatureObservationsRequest
+	8,  // 19: chalk.server.v1.FeatureMetadataService.GetIncrementalProgress:input_type -> chalk.server.v1.GetIncrementalProgressRequest
+	11, // 20: chalk.server.v1.FeatureMetadataService.SetIncrementalProgress:input_type -> chalk.server.v1.SetIncrementalProgressRequest
+	13, // 21: chalk.server.v1.FeatureMetadataService.DeleteIncrementalProgress:input_type -> chalk.server.v1.DeleteIncrementalProgressRequest
+	1,  // 22: chalk.server.v1.FeatureMetadataService.DropFeatureVersions:output_type -> chalk.server.v1.DropFeatureVersionsResponse
+	3,  // 23: chalk.server.v1.FeatureMetadataService.FeatureMigrateType:output_type -> chalk.server.v1.FeatureMigrateTypeResponse
+	5,  // 24: chalk.server.v1.FeatureMetadataService.DeleteFeatureObservations:output_type -> chalk.server.v1.DeleteFeatureObservationsResponse
+	9,  // 25: chalk.server.v1.FeatureMetadataService.GetIncrementalProgress:output_type -> chalk.server.v1.GetIncrementalProgressResponse
+	12, // 26: chalk.server.v1.FeatureMetadataService.SetIncrementalProgress:output_type -> chalk.server.v1.SetIncrementalProgressResponse
+	14, // 27: chalk.server.v1.FeatureMetadataService.DeleteIncrementalProgress:output_type -> chalk.server.v1.DeleteIncrementalProgressResponse
+	22, // [22:28] is the sub-list for method output_type
+	16, // [16:22] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_feature_metadata_proto_init() }
@@ -1048,22 +1286,27 @@ func file_chalk_server_v1_feature_metadata_proto_init() {
 	if File_chalk_server_v1_feature_metadata_proto != nil {
 		return
 	}
-	file_chalk_server_v1_feature_metadata_proto_msgTypes[6].OneofWrappers = []any{
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[8].OneofWrappers = []any{
 		(*GetIncrementalProgressRequest_ResolverFqn)(nil),
 		(*GetIncrementalProgressRequest_QueryName)(nil),
 		(*GetIncrementalProgressRequest_ScheduledAggregateBackfillName)(nil),
+		(*GetIncrementalProgressRequest_MaterializedFeatureViewFill)(nil),
 	}
-	file_chalk_server_v1_feature_metadata_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_server_v1_feature_metadata_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_server_v1_feature_metadata_proto_msgTypes[9].OneofWrappers = []any{
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[11].OneofWrappers = []any{
 		(*SetIncrementalProgressRequest_ResolverFqn)(nil),
 		(*SetIncrementalProgressRequest_QueryName)(nil),
 		(*SetIncrementalProgressRequest_ScheduledAggregateBackfillName)(nil),
+		(*SetIncrementalProgressRequest_MaterializedFeatureViewFill)(nil),
 	}
-	file_chalk_server_v1_feature_metadata_proto_msgTypes[11].OneofWrappers = []any{
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[13].OneofWrappers = []any{
 		(*DeleteIncrementalProgressRequest_ResolverFqn)(nil),
 		(*DeleteIncrementalProgressRequest_QueryName)(nil),
 		(*DeleteIncrementalProgressRequest_ScheduledAggregateBackfillName)(nil),
+		(*DeleteIncrementalProgressRequest_MaterializedFeatureViewFill)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1071,7 +1314,7 @@ func file_chalk_server_v1_feature_metadata_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_feature_metadata_proto_rawDesc), len(file_chalk_server_v1_feature_metadata_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
