@@ -14,6 +14,8 @@ import (
 	"github.com/apache/arrow-go/v18/arrow"
 	"github.com/apache/arrow-go/v18/arrow/array"
 	"github.com/apache/arrow-go/v18/arrow/memory"
+	"github.com/apache/arrow-go/v18/parquet"
+	"github.com/apache/arrow-go/v18/parquet/file"
 	"github.com/apache/arrow-go/v18/parquet/pqarrow"
 	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/config"
@@ -222,6 +224,11 @@ func TestUploadOfflineQueryInputAsTableRequestsAllPartitionURLs(t *testing.T) {
 
 	firstBytes, err := os.ReadFile(firstPath)
 	assert.NoError(t, err)
+	firstParquetReader, err := file.NewParquetReader(bytes.NewReader(firstBytes))
+	assert.NoError(t, err)
+	rootSchemaElement := firstParquetReader.MetaData().FileMetaData.Schema[0]
+	assert.True(t, rootSchemaElement.IsSetRepetitionType())
+	assert.EqualValues(t, parquet.Repetitions.Required, rootSchemaElement.GetRepetitionType())
 	first := readParquetTable(t, firstBytes)
 	defer first.Release()
 	assert.Equal(t, int64(2), first.NumRows())
