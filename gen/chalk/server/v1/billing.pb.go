@@ -808,6 +808,141 @@ func (*PublishPodUsageResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{11}
 }
 
+// ProductAnalyticsEvent is one analytics event as a self-hosted server would
+// publish it to the product analytics Pub/Sub topic: data is the event's
+// Amplitude JSON, and attributes are the Pub/Sub message attributes.
+type ProductAnalyticsEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Data          []byte                 `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	Attributes    map[string]string      `protobuf:"bytes,2,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProductAnalyticsEvent) Reset() {
+	*x = ProductAnalyticsEvent{}
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProductAnalyticsEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProductAnalyticsEvent) ProtoMessage() {}
+
+func (x *ProductAnalyticsEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProductAnalyticsEvent.ProtoReflect.Descriptor instead.
+func (*ProductAnalyticsEvent) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ProductAnalyticsEvent) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *ProductAnalyticsEvent) GetAttributes() map[string]string {
+	if x != nil {
+		return x.Attributes
+	}
+	return nil
+}
+
+type PublishProductAnalyticsEventsRequest struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Events        []*ProductAnalyticsEvent `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishProductAnalyticsEventsRequest) Reset() {
+	*x = PublishProductAnalyticsEventsRequest{}
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishProductAnalyticsEventsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishProductAnalyticsEventsRequest) ProtoMessage() {}
+
+func (x *PublishProductAnalyticsEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishProductAnalyticsEventsRequest.ProtoReflect.Descriptor instead.
+func (*PublishProductAnalyticsEventsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *PublishProductAnalyticsEventsRequest) GetEvents() []*ProductAnalyticsEvent {
+	if x != nil {
+		return x.Events
+	}
+	return nil
+}
+
+type PublishProductAnalyticsEventsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishProductAnalyticsEventsResponse) Reset() {
+	*x = PublishProductAnalyticsEventsResponse{}
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishProductAnalyticsEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishProductAnalyticsEventsResponse) ProtoMessage() {}
+
+func (x *PublishProductAnalyticsEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishProductAnalyticsEventsResponse.ProtoReflect.Descriptor instead.
+func (*PublishProductAnalyticsEventsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{14}
+}
+
 type GetNodesAndPodsUIRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Namespace        *string                `protobuf:"bytes,1,opt,name=namespace,proto3,oneof" json:"namespace,omitempty"`
@@ -821,7 +956,7 @@ type GetNodesAndPodsUIRequest struct {
 
 func (x *GetNodesAndPodsUIRequest) Reset() {
 	*x = GetNodesAndPodsUIRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -833,7 +968,7 @@ func (x *GetNodesAndPodsUIRequest) String() string {
 func (*GetNodesAndPodsUIRequest) ProtoMessage() {}
 
 func (x *GetNodesAndPodsUIRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -846,7 +981,7 @@ func (x *GetNodesAndPodsUIRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodesAndPodsUIRequest.ProtoReflect.Descriptor instead.
 func (*GetNodesAndPodsUIRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetNodesAndPodsUIRequest) GetNamespace() string {
@@ -887,7 +1022,7 @@ type GetNodesAndPodsUIResponse struct {
 
 func (x *GetNodesAndPodsUIResponse) Reset() {
 	*x = GetNodesAndPodsUIResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -899,7 +1034,7 @@ func (x *GetNodesAndPodsUIResponse) String() string {
 func (*GetNodesAndPodsUIResponse) ProtoMessage() {}
 
 func (x *GetNodesAndPodsUIResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -912,7 +1047,7 @@ func (x *GetNodesAndPodsUIResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodesAndPodsUIResponse.ProtoReflect.Descriptor instead.
 func (*GetNodesAndPodsUIResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetNodesAndPodsUIResponse) GetNodes() []*v12.KubernetesNodeData {
@@ -937,7 +1072,7 @@ type SyncUtilizationRequest struct {
 
 func (x *SyncUtilizationRequest) Reset() {
 	*x = SyncUtilizationRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -949,7 +1084,7 @@ func (x *SyncUtilizationRequest) String() string {
 func (*SyncUtilizationRequest) ProtoMessage() {}
 
 func (x *SyncUtilizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -962,7 +1097,7 @@ func (x *SyncUtilizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncUtilizationRequest.ProtoReflect.Descriptor instead.
 func (*SyncUtilizationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{17}
 }
 
 type SyncUtilizationResponse struct {
@@ -973,7 +1108,7 @@ type SyncUtilizationResponse struct {
 
 func (x *SyncUtilizationResponse) Reset() {
 	*x = SyncUtilizationResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -985,7 +1120,7 @@ func (x *SyncUtilizationResponse) String() string {
 func (*SyncUtilizationResponse) ProtoMessage() {}
 
 func (x *SyncUtilizationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -998,7 +1133,7 @@ func (x *SyncUtilizationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncUtilizationResponse.ProtoReflect.Descriptor instead.
 func (*SyncUtilizationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{18}
 }
 
 type GetCreditBundlesRequest struct {
@@ -1009,7 +1144,7 @@ type GetCreditBundlesRequest struct {
 
 func (x *GetCreditBundlesRequest) Reset() {
 	*x = GetCreditBundlesRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1021,7 +1156,7 @@ func (x *GetCreditBundlesRequest) String() string {
 func (*GetCreditBundlesRequest) ProtoMessage() {}
 
 func (x *GetCreditBundlesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1034,7 +1169,7 @@ func (x *GetCreditBundlesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCreditBundlesRequest.ProtoReflect.Descriptor instead.
 func (*GetCreditBundlesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{19}
 }
 
 type GetCreditBundlesResponse struct {
@@ -1046,7 +1181,7 @@ type GetCreditBundlesResponse struct {
 
 func (x *GetCreditBundlesResponse) Reset() {
 	*x = GetCreditBundlesResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1058,7 +1193,7 @@ func (x *GetCreditBundlesResponse) String() string {
 func (*GetCreditBundlesResponse) ProtoMessage() {}
 
 func (x *GetCreditBundlesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1071,7 +1206,7 @@ func (x *GetCreditBundlesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCreditBundlesResponse.ProtoReflect.Descriptor instead.
 func (*GetCreditBundlesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetCreditBundlesResponse) GetBundles() []*CreditBundle {
@@ -1099,7 +1234,7 @@ type CreditBundle struct {
 
 func (x *CreditBundle) Reset() {
 	*x = CreditBundle{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1111,7 +1246,7 @@ func (x *CreditBundle) String() string {
 func (*CreditBundle) ProtoMessage() {}
 
 func (x *CreditBundle) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1124,7 +1259,7 @@ func (x *CreditBundle) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreditBundle.ProtoReflect.Descriptor instead.
 func (*CreditBundle) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CreditBundle) GetBundleId() string {
@@ -1200,7 +1335,7 @@ type BundleWorkloadConsumption struct {
 
 func (x *BundleWorkloadConsumption) Reset() {
 	*x = BundleWorkloadConsumption{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1212,7 +1347,7 @@ func (x *BundleWorkloadConsumption) String() string {
 func (*BundleWorkloadConsumption) ProtoMessage() {}
 
 func (x *BundleWorkloadConsumption) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1225,7 +1360,7 @@ func (x *BundleWorkloadConsumption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BundleWorkloadConsumption.ProtoReflect.Descriptor instead.
 func (*BundleWorkloadConsumption) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *BundleWorkloadConsumption) GetWorkloadType() string {
@@ -1253,7 +1388,7 @@ type GetInstanceUsageRequest struct {
 
 func (x *GetInstanceUsageRequest) Reset() {
 	*x = GetInstanceUsageRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1265,7 +1400,7 @@ func (x *GetInstanceUsageRequest) String() string {
 func (*GetInstanceUsageRequest) ProtoMessage() {}
 
 func (x *GetInstanceUsageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1278,7 +1413,7 @@ func (x *GetInstanceUsageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInstanceUsageRequest.ProtoReflect.Descriptor instead.
 func (*GetInstanceUsageRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetInstanceUsageRequest) GetStartMs() int64 {
@@ -1316,7 +1451,7 @@ type InstanceUsage struct {
 
 func (x *InstanceUsage) Reset() {
 	*x = InstanceUsage{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1328,7 +1463,7 @@ func (x *InstanceUsage) String() string {
 func (*InstanceUsage) ProtoMessage() {}
 
 func (x *InstanceUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1341,7 +1476,7 @@ func (x *InstanceUsage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InstanceUsage.ProtoReflect.Descriptor instead.
 func (*InstanceUsage) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *InstanceUsage) GetClusterName() string {
@@ -1395,7 +1530,7 @@ type GetInstanceUsageResponse struct {
 
 func (x *GetInstanceUsageResponse) Reset() {
 	*x = GetInstanceUsageResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1407,7 +1542,7 @@ func (x *GetInstanceUsageResponse) String() string {
 func (*GetInstanceUsageResponse) ProtoMessage() {}
 
 func (x *GetInstanceUsageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1420,7 +1555,7 @@ func (x *GetInstanceUsageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInstanceUsageResponse.ProtoReflect.Descriptor instead.
 func (*GetInstanceUsageResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetInstanceUsageResponse) GetInstances() []*InstanceUsage {
@@ -1441,7 +1576,7 @@ type GetMaterializedFeatureViewUsageRequest struct {
 
 func (x *GetMaterializedFeatureViewUsageRequest) Reset() {
 	*x = GetMaterializedFeatureViewUsageRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1453,7 +1588,7 @@ func (x *GetMaterializedFeatureViewUsageRequest) String() string {
 func (*GetMaterializedFeatureViewUsageRequest) ProtoMessage() {}
 
 func (x *GetMaterializedFeatureViewUsageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1466,7 +1601,7 @@ func (x *GetMaterializedFeatureViewUsageRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use GetMaterializedFeatureViewUsageRequest.ProtoReflect.Descriptor instead.
 func (*GetMaterializedFeatureViewUsageRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetMaterializedFeatureViewUsageRequest) GetStartMs() int64 {
@@ -1505,7 +1640,7 @@ type MaterializedFeatureViewUsageBucket struct {
 
 func (x *MaterializedFeatureViewUsageBucket) Reset() {
 	*x = MaterializedFeatureViewUsageBucket{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1517,7 +1652,7 @@ func (x *MaterializedFeatureViewUsageBucket) String() string {
 func (*MaterializedFeatureViewUsageBucket) ProtoMessage() {}
 
 func (x *MaterializedFeatureViewUsageBucket) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1530,7 +1665,7 @@ func (x *MaterializedFeatureViewUsageBucket) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use MaterializedFeatureViewUsageBucket.ProtoReflect.Descriptor instead.
 func (*MaterializedFeatureViewUsageBucket) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *MaterializedFeatureViewUsageBucket) GetBucketStartMs() int64 {
@@ -1592,7 +1727,7 @@ type MaterializedFeatureViewUsageEnvironment struct {
 
 func (x *MaterializedFeatureViewUsageEnvironment) Reset() {
 	*x = MaterializedFeatureViewUsageEnvironment{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1604,7 +1739,7 @@ func (x *MaterializedFeatureViewUsageEnvironment) String() string {
 func (*MaterializedFeatureViewUsageEnvironment) ProtoMessage() {}
 
 func (x *MaterializedFeatureViewUsageEnvironment) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1617,7 +1752,7 @@ func (x *MaterializedFeatureViewUsageEnvironment) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use MaterializedFeatureViewUsageEnvironment.ProtoReflect.Descriptor instead.
 func (*MaterializedFeatureViewUsageEnvironment) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *MaterializedFeatureViewUsageEnvironment) GetEnvironmentId() string {
@@ -1647,7 +1782,7 @@ type GetMaterializedFeatureViewUsageResponse struct {
 
 func (x *GetMaterializedFeatureViewUsageResponse) Reset() {
 	*x = GetMaterializedFeatureViewUsageResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1659,7 +1794,7 @@ func (x *GetMaterializedFeatureViewUsageResponse) String() string {
 func (*GetMaterializedFeatureViewUsageResponse) ProtoMessage() {}
 
 func (x *GetMaterializedFeatureViewUsageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1672,7 +1807,7 @@ func (x *GetMaterializedFeatureViewUsageResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GetMaterializedFeatureViewUsageResponse.ProtoReflect.Descriptor instead.
 func (*GetMaterializedFeatureViewUsageResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetMaterializedFeatureViewUsageResponse) GetBuckets() []*MaterializedFeatureViewUsageBucket {
@@ -1737,7 +1872,7 @@ type GetPodTimeRangesRequest struct {
 
 func (x *GetPodTimeRangesRequest) Reset() {
 	*x = GetPodTimeRangesRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1749,7 +1884,7 @@ func (x *GetPodTimeRangesRequest) String() string {
 func (*GetPodTimeRangesRequest) ProtoMessage() {}
 
 func (x *GetPodTimeRangesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1762,7 +1897,7 @@ func (x *GetPodTimeRangesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPodTimeRangesRequest.ProtoReflect.Descriptor instead.
 func (*GetPodTimeRangesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetPodTimeRangesRequest) GetPodNames() []string {
@@ -1838,7 +1973,7 @@ type PodTimeRange struct {
 
 func (x *PodTimeRange) Reset() {
 	*x = PodTimeRange{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1850,7 +1985,7 @@ func (x *PodTimeRange) String() string {
 func (*PodTimeRange) ProtoMessage() {}
 
 func (x *PodTimeRange) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1863,7 +1998,7 @@ func (x *PodTimeRange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PodTimeRange.ProtoReflect.Descriptor instead.
 func (*PodTimeRange) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *PodTimeRange) GetPodName() string {
@@ -1911,7 +2046,7 @@ type GetPodTimeRangesResponse struct {
 
 func (x *GetPodTimeRangesResponse) Reset() {
 	*x = GetPodTimeRangesResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1923,7 +2058,7 @@ func (x *GetPodTimeRangesResponse) String() string {
 func (*GetPodTimeRangesResponse) ProtoMessage() {}
 
 func (x *GetPodTimeRangesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1936,7 +2071,7 @@ func (x *GetPodTimeRangesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPodTimeRangesResponse.ProtoReflect.Descriptor instead.
 func (*GetPodTimeRangesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetPodTimeRangesResponse) GetTimeRanges() []*PodTimeRange {
@@ -1965,7 +2100,7 @@ type GetNodeTimeRangesRequest struct {
 
 func (x *GetNodeTimeRangesRequest) Reset() {
 	*x = GetNodeTimeRangesRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1977,7 +2112,7 @@ func (x *GetNodeTimeRangesRequest) String() string {
 func (*GetNodeTimeRangesRequest) ProtoMessage() {}
 
 func (x *GetNodeTimeRangesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1990,7 +2125,7 @@ func (x *GetNodeTimeRangesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodeTimeRangesRequest.ProtoReflect.Descriptor instead.
 func (*GetNodeTimeRangesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetNodeTimeRangesRequest) GetNodeNames() []string {
@@ -2042,7 +2177,7 @@ type NodeTimeRange struct {
 
 func (x *NodeTimeRange) Reset() {
 	*x = NodeTimeRange{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2054,7 +2189,7 @@ func (x *NodeTimeRange) String() string {
 func (*NodeTimeRange) ProtoMessage() {}
 
 func (x *NodeTimeRange) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2067,7 +2202,7 @@ func (x *NodeTimeRange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeTimeRange.ProtoReflect.Descriptor instead.
 func (*NodeTimeRange) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *NodeTimeRange) GetNodeName() string {
@@ -2108,7 +2243,7 @@ type GetNodeTimeRangesResponse struct {
 
 func (x *GetNodeTimeRangesResponse) Reset() {
 	*x = GetNodeTimeRangesResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2120,7 +2255,7 @@ func (x *GetNodeTimeRangesResponse) String() string {
 func (*GetNodeTimeRangesResponse) ProtoMessage() {}
 
 func (x *GetNodeTimeRangesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2133,7 +2268,7 @@ func (x *GetNodeTimeRangesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodeTimeRangesResponse.ProtoReflect.Descriptor instead.
 func (*GetNodeTimeRangesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetNodeTimeRangesResponse) GetTimeRanges() []*NodeTimeRange {
@@ -2160,7 +2295,7 @@ type GetNodeDetailRequest struct {
 
 func (x *GetNodeDetailRequest) Reset() {
 	*x = GetNodeDetailRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2172,7 +2307,7 @@ func (x *GetNodeDetailRequest) String() string {
 func (*GetNodeDetailRequest) ProtoMessage() {}
 
 func (x *GetNodeDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2185,7 +2320,7 @@ func (x *GetNodeDetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodeDetailRequest.ProtoReflect.Descriptor instead.
 func (*GetNodeDetailRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetNodeDetailRequest) GetClusterName() string {
@@ -2226,7 +2361,7 @@ type NodeDetailInfo struct {
 
 func (x *NodeDetailInfo) Reset() {
 	*x = NodeDetailInfo{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2238,7 +2373,7 @@ func (x *NodeDetailInfo) String() string {
 func (*NodeDetailInfo) ProtoMessage() {}
 
 func (x *NodeDetailInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2251,7 +2386,7 @@ func (x *NodeDetailInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeDetailInfo.ProtoReflect.Descriptor instead.
 func (*NodeDetailInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *NodeDetailInfo) GetNodeName() string {
@@ -2321,7 +2456,7 @@ type NodeDetailPod struct {
 
 func (x *NodeDetailPod) Reset() {
 	*x = NodeDetailPod{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2333,7 +2468,7 @@ func (x *NodeDetailPod) String() string {
 func (*NodeDetailPod) ProtoMessage() {}
 
 func (x *NodeDetailPod) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2346,7 +2481,7 @@ func (x *NodeDetailPod) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeDetailPod.ProtoReflect.Descriptor instead.
 func (*NodeDetailPod) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{35}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *NodeDetailPod) GetPodName() string {
@@ -2423,7 +2558,7 @@ type GetNodeDetailResponse struct {
 
 func (x *GetNodeDetailResponse) Reset() {
 	*x = GetNodeDetailResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2435,7 +2570,7 @@ func (x *GetNodeDetailResponse) String() string {
 func (*GetNodeDetailResponse) ProtoMessage() {}
 
 func (x *GetNodeDetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2448,7 +2583,7 @@ func (x *GetNodeDetailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodeDetailResponse.ProtoReflect.Descriptor instead.
 func (*GetNodeDetailResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{36}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *GetNodeDetailResponse) GetNode() *NodeDetailInfo {
@@ -2482,7 +2617,7 @@ type GetResourceGroupServiceDetailRequest struct {
 
 func (x *GetResourceGroupServiceDetailRequest) Reset() {
 	*x = GetResourceGroupServiceDetailRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2494,7 +2629,7 @@ func (x *GetResourceGroupServiceDetailRequest) String() string {
 func (*GetResourceGroupServiceDetailRequest) ProtoMessage() {}
 
 func (x *GetResourceGroupServiceDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2507,7 +2642,7 @@ func (x *GetResourceGroupServiceDetailRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetResourceGroupServiceDetailRequest.ProtoReflect.Descriptor instead.
 func (*GetResourceGroupServiceDetailRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{37}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *GetResourceGroupServiceDetailRequest) GetServiceKind() string {
@@ -2556,7 +2691,7 @@ type ResourceGroupServicePod struct {
 
 func (x *ResourceGroupServicePod) Reset() {
 	*x = ResourceGroupServicePod{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2568,7 +2703,7 @@ func (x *ResourceGroupServicePod) String() string {
 func (*ResourceGroupServicePod) ProtoMessage() {}
 
 func (x *ResourceGroupServicePod) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2581,7 +2716,7 @@ func (x *ResourceGroupServicePod) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceGroupServicePod.ProtoReflect.Descriptor instead.
 func (*ResourceGroupServicePod) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{38}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ResourceGroupServicePod) GetPodName() string {
@@ -2659,7 +2794,7 @@ type GetResourceGroupServiceDetailResponse struct {
 
 func (x *GetResourceGroupServiceDetailResponse) Reset() {
 	*x = GetResourceGroupServiceDetailResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2671,7 +2806,7 @@ func (x *GetResourceGroupServiceDetailResponse) String() string {
 func (*GetResourceGroupServiceDetailResponse) ProtoMessage() {}
 
 func (x *GetResourceGroupServiceDetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2684,7 +2819,7 @@ func (x *GetResourceGroupServiceDetailResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use GetResourceGroupServiceDetailResponse.ProtoReflect.Descriptor instead.
 func (*GetResourceGroupServiceDetailResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{39}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *GetResourceGroupServiceDetailResponse) GetServiceKind() string {
@@ -2716,7 +2851,7 @@ type CheckSelfHostedLicenseRequest struct {
 
 func (x *CheckSelfHostedLicenseRequest) Reset() {
 	*x = CheckSelfHostedLicenseRequest{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2728,7 +2863,7 @@ func (x *CheckSelfHostedLicenseRequest) String() string {
 func (*CheckSelfHostedLicenseRequest) ProtoMessage() {}
 
 func (x *CheckSelfHostedLicenseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2741,7 +2876,7 @@ func (x *CheckSelfHostedLicenseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckSelfHostedLicenseRequest.ProtoReflect.Descriptor instead.
 func (*CheckSelfHostedLicenseRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{40}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{43}
 }
 
 // CheckSelfHostedLicenseResponse echoes back the license key the caller
@@ -2760,7 +2895,7 @@ type CheckSelfHostedLicenseResponse struct {
 
 func (x *CheckSelfHostedLicenseResponse) Reset() {
 	*x = CheckSelfHostedLicenseResponse{}
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2772,7 +2907,7 @@ func (x *CheckSelfHostedLicenseResponse) String() string {
 func (*CheckSelfHostedLicenseResponse) ProtoMessage() {}
 
 func (x *CheckSelfHostedLicenseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_billing_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_billing_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2785,7 +2920,7 @@ func (x *CheckSelfHostedLicenseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckSelfHostedLicenseResponse.ProtoReflect.Descriptor instead.
 func (*CheckSelfHostedLicenseResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{41}
+	return file_chalk_server_v1_billing_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *CheckSelfHostedLicenseResponse) GetLicenseKeyId() string {
@@ -2852,7 +2987,18 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"\x18PublishNodeUsageResponse\"N\n" +
 	"\x16PublishPodUsageRequest\x124\n" +
 	"\x04pods\x18\x01 \x03(\v2 .chalk.pubsub.v1.PodStatusPubSubR\x04pods\"\x19\n" +
-	"\x17PublishPodUsageResponse\"\x87\x02\n" +
+	"\x17PublishPodUsageResponse\"\xc2\x01\n" +
+	"\x15ProductAnalyticsEvent\x12\x12\n" +
+	"\x04data\x18\x01 \x01(\fR\x04data\x12V\n" +
+	"\n" +
+	"attributes\x18\x02 \x03(\v26.chalk.server.v1.ProductAnalyticsEvent.AttributesEntryR\n" +
+	"attributes\x1a=\n" +
+	"\x0fAttributesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"f\n" +
+	"$PublishProductAnalyticsEventsRequest\x12>\n" +
+	"\x06events\x18\x01 \x03(\v2&.chalk.server.v1.ProductAnalyticsEventR\x06events\"'\n" +
+	"%PublishProductAnalyticsEventsResponse\"\x87\x02\n" +
 	"\x18GetNodesAndPodsUIRequest\x12!\n" +
 	"\tnamespace\x18\x01 \x01(\tH\x00R\tnamespace\x88\x01\x01\x121\n" +
 	"\x12pod_label_selector\x18\x02 \x01(\tH\x01R\x10podLabelSelector\x88\x01\x01\x12*\n" +
@@ -3049,12 +3195,13 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	")MATERIALIZED_FEATURE_VIEW_USAGE_KIND_FILL\x10\x01\x123\n" +
 	"/MATERIALIZED_FEATURE_VIEW_USAGE_KIND_COMPACTION\x10\x02\x128\n" +
 	"4MATERIALIZED_FEATURE_VIEW_USAGE_KIND_WIDE_TABLE_READ\x10\x03\x123\n" +
-	"/MATERIALIZED_FEATURE_VIEW_USAGE_KIND_OTHER_READ\x10\x042\x8d\x10\n" +
+	"/MATERIALIZED_FEATURE_VIEW_USAGE_KIND_OTHER_READ\x10\x042\xa3\x11\n" +
 	"\x0eBillingService\x12r\n" +
 	"\x11GetNodesAndPodsUI\x12).chalk.server.v1.GetNodesAndPodsUIRequest\x1a*.chalk.server.v1.GetNodesAndPodsUIResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
 	"\x0fGetNodesAndPods\x12'.chalk.server.v1.GetNodesAndPodsRequest\x1a(.chalk.server.v1.GetNodesAndPodsResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
 	"\x10PublishNodeUsage\x12(.chalk.server.v1.PublishNodeUsageRequest\x1a).chalk.server.v1.PublishNodeUsageResponse\"\x03\x80}\x01\x12i\n" +
-	"\x0fPublishPodUsage\x12'.chalk.server.v1.PublishPodUsageRequest\x1a(.chalk.server.v1.PublishPodUsageResponse\"\x03\x80}\x01\x12f\n" +
+	"\x0fPublishPodUsage\x12'.chalk.server.v1.PublishPodUsageRequest\x1a(.chalk.server.v1.PublishPodUsageResponse\"\x03\x80}\x01\x12\x93\x01\n" +
+	"\x1dPublishProductAnalyticsEvents\x125.chalk.server.v1.PublishProductAnalyticsEventsRequest\x1a6.chalk.server.v1.PublishProductAnalyticsEventsResponse\"\x03\x80})\x12f\n" +
 	"\rGetUsageChart\x12%.chalk.server.v1.GetUsageChartRequest\x1a&.chalk.server.v1.GetUsageChartResponse\"\x06\x80}\x1c\x90\x02\x01\x12x\n" +
 	"\x13GetUtilizationRates\x12+.chalk.server.v1.GetUtilizationRatesRequest\x1a,.chalk.server.v1.GetUtilizationRatesResponse\"\x06\x80}\x01\x90\x02\x01\x12\x8a\x01\n" +
 	"\x19GetAvailableInstanceTypes\x121.chalk.server.v1.GetAvailableInstanceTypesRequest\x1a2.chalk.server.v1.GetAvailableInstanceTypesResponse\"\x06\x80}\x01\x90\x02\x01\x12x\n" +
@@ -3083,7 +3230,7 @@ func file_chalk_server_v1_billing_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_billing_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chalk_server_v1_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
+var file_chalk_server_v1_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
 var file_chalk_server_v1_billing_proto_goTypes = []any{
 	(UsageChartPeriod)(0),                           // 0: chalk.server.v1.UsageChartPeriod
 	(UsageChartGrouping)(0),                         // 1: chalk.server.v1.UsageChartGrouping
@@ -3101,134 +3248,142 @@ var file_chalk_server_v1_billing_proto_goTypes = []any{
 	(*PublishNodeUsageResponse)(nil),                // 13: chalk.server.v1.PublishNodeUsageResponse
 	(*PublishPodUsageRequest)(nil),                  // 14: chalk.server.v1.PublishPodUsageRequest
 	(*PublishPodUsageResponse)(nil),                 // 15: chalk.server.v1.PublishPodUsageResponse
-	(*GetNodesAndPodsUIRequest)(nil),                // 16: chalk.server.v1.GetNodesAndPodsUIRequest
-	(*GetNodesAndPodsUIResponse)(nil),               // 17: chalk.server.v1.GetNodesAndPodsUIResponse
-	(*SyncUtilizationRequest)(nil),                  // 18: chalk.server.v1.SyncUtilizationRequest
-	(*SyncUtilizationResponse)(nil),                 // 19: chalk.server.v1.SyncUtilizationResponse
-	(*GetCreditBundlesRequest)(nil),                 // 20: chalk.server.v1.GetCreditBundlesRequest
-	(*GetCreditBundlesResponse)(nil),                // 21: chalk.server.v1.GetCreditBundlesResponse
-	(*CreditBundle)(nil),                            // 22: chalk.server.v1.CreditBundle
-	(*BundleWorkloadConsumption)(nil),               // 23: chalk.server.v1.BundleWorkloadConsumption
-	(*GetInstanceUsageRequest)(nil),                 // 24: chalk.server.v1.GetInstanceUsageRequest
-	(*InstanceUsage)(nil),                           // 25: chalk.server.v1.InstanceUsage
-	(*GetInstanceUsageResponse)(nil),                // 26: chalk.server.v1.GetInstanceUsageResponse
-	(*GetMaterializedFeatureViewUsageRequest)(nil),  // 27: chalk.server.v1.GetMaterializedFeatureViewUsageRequest
-	(*MaterializedFeatureViewUsageBucket)(nil),      // 28: chalk.server.v1.MaterializedFeatureViewUsageBucket
-	(*MaterializedFeatureViewUsageEnvironment)(nil), // 29: chalk.server.v1.MaterializedFeatureViewUsageEnvironment
-	(*GetMaterializedFeatureViewUsageResponse)(nil), // 30: chalk.server.v1.GetMaterializedFeatureViewUsageResponse
-	(*GetPodTimeRangesRequest)(nil),                 // 31: chalk.server.v1.GetPodTimeRangesRequest
-	(*PodTimeRange)(nil),                            // 32: chalk.server.v1.PodTimeRange
-	(*GetPodTimeRangesResponse)(nil),                // 33: chalk.server.v1.GetPodTimeRangesResponse
-	(*GetNodeTimeRangesRequest)(nil),                // 34: chalk.server.v1.GetNodeTimeRangesRequest
-	(*NodeTimeRange)(nil),                           // 35: chalk.server.v1.NodeTimeRange
-	(*GetNodeTimeRangesResponse)(nil),               // 36: chalk.server.v1.GetNodeTimeRangesResponse
-	(*GetNodeDetailRequest)(nil),                    // 37: chalk.server.v1.GetNodeDetailRequest
-	(*NodeDetailInfo)(nil),                          // 38: chalk.server.v1.NodeDetailInfo
-	(*NodeDetailPod)(nil),                           // 39: chalk.server.v1.NodeDetailPod
-	(*GetNodeDetailResponse)(nil),                   // 40: chalk.server.v1.GetNodeDetailResponse
-	(*GetResourceGroupServiceDetailRequest)(nil),    // 41: chalk.server.v1.GetResourceGroupServiceDetailRequest
-	(*ResourceGroupServicePod)(nil),                 // 42: chalk.server.v1.ResourceGroupServicePod
-	(*GetResourceGroupServiceDetailResponse)(nil),   // 43: chalk.server.v1.GetResourceGroupServiceDetailResponse
-	(*CheckSelfHostedLicenseRequest)(nil),           // 44: chalk.server.v1.CheckSelfHostedLicenseRequest
-	(*CheckSelfHostedLicenseResponse)(nil),          // 45: chalk.server.v1.CheckSelfHostedLicenseResponse
-	(*Chart)(nil),                                   // 46: chalk.server.v1.Chart
-	(*v1.MachineRate)(nil),                          // 47: chalk.usage.v1.MachineRate
-	(*decimal.Decimal)(nil),                         // 48: google.type.Decimal
-	(*v1.CloudInstanceType)(nil),                    // 49: chalk.usage.v1.CloudInstanceType
-	(*v11.NodeStatusPubSub)(nil),                    // 50: chalk.pubsub.v1.NodeStatusPubSub
-	(*v11.PodStatusPubSub)(nil),                     // 51: chalk.pubsub.v1.PodStatusPubSub
-	(*v12.KubernetesNodeData)(nil),                  // 52: chalk.kubernetes.v1.KubernetesNodeData
-	(*v12.KubernetesPodData)(nil),                   // 53: chalk.kubernetes.v1.KubernetesPodData
-	(*date.Date)(nil),                               // 54: google.type.Date
-	(*timestamppb.Timestamp)(nil),                   // 55: google.protobuf.Timestamp
-	(*GetPodRequestChartsRequest)(nil),              // 56: chalk.server.v1.GetPodRequestChartsRequest
-	(*GetPodRequestChartsResponse)(nil),             // 57: chalk.server.v1.GetPodRequestChartsResponse
+	(*ProductAnalyticsEvent)(nil),                   // 16: chalk.server.v1.ProductAnalyticsEvent
+	(*PublishProductAnalyticsEventsRequest)(nil),    // 17: chalk.server.v1.PublishProductAnalyticsEventsRequest
+	(*PublishProductAnalyticsEventsResponse)(nil),   // 18: chalk.server.v1.PublishProductAnalyticsEventsResponse
+	(*GetNodesAndPodsUIRequest)(nil),                // 19: chalk.server.v1.GetNodesAndPodsUIRequest
+	(*GetNodesAndPodsUIResponse)(nil),               // 20: chalk.server.v1.GetNodesAndPodsUIResponse
+	(*SyncUtilizationRequest)(nil),                  // 21: chalk.server.v1.SyncUtilizationRequest
+	(*SyncUtilizationResponse)(nil),                 // 22: chalk.server.v1.SyncUtilizationResponse
+	(*GetCreditBundlesRequest)(nil),                 // 23: chalk.server.v1.GetCreditBundlesRequest
+	(*GetCreditBundlesResponse)(nil),                // 24: chalk.server.v1.GetCreditBundlesResponse
+	(*CreditBundle)(nil),                            // 25: chalk.server.v1.CreditBundle
+	(*BundleWorkloadConsumption)(nil),               // 26: chalk.server.v1.BundleWorkloadConsumption
+	(*GetInstanceUsageRequest)(nil),                 // 27: chalk.server.v1.GetInstanceUsageRequest
+	(*InstanceUsage)(nil),                           // 28: chalk.server.v1.InstanceUsage
+	(*GetInstanceUsageResponse)(nil),                // 29: chalk.server.v1.GetInstanceUsageResponse
+	(*GetMaterializedFeatureViewUsageRequest)(nil),  // 30: chalk.server.v1.GetMaterializedFeatureViewUsageRequest
+	(*MaterializedFeatureViewUsageBucket)(nil),      // 31: chalk.server.v1.MaterializedFeatureViewUsageBucket
+	(*MaterializedFeatureViewUsageEnvironment)(nil), // 32: chalk.server.v1.MaterializedFeatureViewUsageEnvironment
+	(*GetMaterializedFeatureViewUsageResponse)(nil), // 33: chalk.server.v1.GetMaterializedFeatureViewUsageResponse
+	(*GetPodTimeRangesRequest)(nil),                 // 34: chalk.server.v1.GetPodTimeRangesRequest
+	(*PodTimeRange)(nil),                            // 35: chalk.server.v1.PodTimeRange
+	(*GetPodTimeRangesResponse)(nil),                // 36: chalk.server.v1.GetPodTimeRangesResponse
+	(*GetNodeTimeRangesRequest)(nil),                // 37: chalk.server.v1.GetNodeTimeRangesRequest
+	(*NodeTimeRange)(nil),                           // 38: chalk.server.v1.NodeTimeRange
+	(*GetNodeTimeRangesResponse)(nil),               // 39: chalk.server.v1.GetNodeTimeRangesResponse
+	(*GetNodeDetailRequest)(nil),                    // 40: chalk.server.v1.GetNodeDetailRequest
+	(*NodeDetailInfo)(nil),                          // 41: chalk.server.v1.NodeDetailInfo
+	(*NodeDetailPod)(nil),                           // 42: chalk.server.v1.NodeDetailPod
+	(*GetNodeDetailResponse)(nil),                   // 43: chalk.server.v1.GetNodeDetailResponse
+	(*GetResourceGroupServiceDetailRequest)(nil),    // 44: chalk.server.v1.GetResourceGroupServiceDetailRequest
+	(*ResourceGroupServicePod)(nil),                 // 45: chalk.server.v1.ResourceGroupServicePod
+	(*GetResourceGroupServiceDetailResponse)(nil),   // 46: chalk.server.v1.GetResourceGroupServiceDetailResponse
+	(*CheckSelfHostedLicenseRequest)(nil),           // 47: chalk.server.v1.CheckSelfHostedLicenseRequest
+	(*CheckSelfHostedLicenseResponse)(nil),          // 48: chalk.server.v1.CheckSelfHostedLicenseResponse
+	nil,                                             // 49: chalk.server.v1.ProductAnalyticsEvent.AttributesEntry
+	(*Chart)(nil),                                   // 50: chalk.server.v1.Chart
+	(*v1.MachineRate)(nil),                          // 51: chalk.usage.v1.MachineRate
+	(*decimal.Decimal)(nil),                         // 52: google.type.Decimal
+	(*v1.CloudInstanceType)(nil),                    // 53: chalk.usage.v1.CloudInstanceType
+	(*v11.NodeStatusPubSub)(nil),                    // 54: chalk.pubsub.v1.NodeStatusPubSub
+	(*v11.PodStatusPubSub)(nil),                     // 55: chalk.pubsub.v1.PodStatusPubSub
+	(*v12.KubernetesNodeData)(nil),                  // 56: chalk.kubernetes.v1.KubernetesNodeData
+	(*v12.KubernetesPodData)(nil),                   // 57: chalk.kubernetes.v1.KubernetesPodData
+	(*date.Date)(nil),                               // 58: google.type.Date
+	(*timestamppb.Timestamp)(nil),                   // 59: google.protobuf.Timestamp
+	(*GetPodRequestChartsRequest)(nil),              // 60: chalk.server.v1.GetPodRequestChartsRequest
+	(*GetPodRequestChartsResponse)(nil),             // 61: chalk.server.v1.GetPodRequestChartsResponse
 }
 var file_chalk_server_v1_billing_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.GetUsageChartRequest.period:type_name -> chalk.server.v1.UsageChartPeriod
 	1,  // 1: chalk.server.v1.GetUsageChartRequest.grouping:type_name -> chalk.server.v1.UsageChartGrouping
 	2,  // 2: chalk.server.v1.GetUsageChartRequest.time_range:type_name -> chalk.server.v1.UsageChartTimeRange
-	46, // 3: chalk.server.v1.GetUsageChartResponse.chart:type_name -> chalk.server.v1.Chart
-	47, // 4: chalk.server.v1.GetUtilizationRatesResponse.rates:type_name -> chalk.usage.v1.MachineRate
-	48, // 5: chalk.server.v1.GetUtilizationRatesResponse.sandbox_credits_per_vcpu_hour:type_name -> google.type.Decimal
-	48, // 6: chalk.server.v1.GetUtilizationRatesResponse.sandbox_credits_per_gb_memory_hour:type_name -> google.type.Decimal
-	49, // 7: chalk.server.v1.GetAvailableInstanceTypesResponse.instance_types:type_name -> chalk.usage.v1.CloudInstanceType
-	50, // 8: chalk.server.v1.GetNodesAndPodsResponse.nodes:type_name -> chalk.pubsub.v1.NodeStatusPubSub
-	51, // 9: chalk.server.v1.GetNodesAndPodsResponse.pods:type_name -> chalk.pubsub.v1.PodStatusPubSub
-	50, // 10: chalk.server.v1.PublishNodeUsageRequest.nodes:type_name -> chalk.pubsub.v1.NodeStatusPubSub
-	51, // 11: chalk.server.v1.PublishPodUsageRequest.pods:type_name -> chalk.pubsub.v1.PodStatusPubSub
-	52, // 12: chalk.server.v1.GetNodesAndPodsUIResponse.nodes:type_name -> chalk.kubernetes.v1.KubernetesNodeData
-	53, // 13: chalk.server.v1.GetNodesAndPodsUIResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
-	22, // 14: chalk.server.v1.GetCreditBundlesResponse.bundles:type_name -> chalk.server.v1.CreditBundle
-	54, // 15: chalk.server.v1.CreditBundle.purchase_date:type_name -> google.type.Date
-	54, // 16: chalk.server.v1.CreditBundle.expires_on:type_name -> google.type.Date
-	23, // 17: chalk.server.v1.CreditBundle.consumption_by_workload_type:type_name -> chalk.server.v1.BundleWorkloadConsumption
-	55, // 18: chalk.server.v1.InstanceUsage.start_time:type_name -> google.protobuf.Timestamp
-	55, // 19: chalk.server.v1.InstanceUsage.end_time:type_name -> google.protobuf.Timestamp
-	25, // 20: chalk.server.v1.GetInstanceUsageResponse.instances:type_name -> chalk.server.v1.InstanceUsage
-	3,  // 21: chalk.server.v1.MaterializedFeatureViewUsageBucket.kind:type_name -> chalk.server.v1.MaterializedFeatureViewUsageKind
-	28, // 22: chalk.server.v1.GetMaterializedFeatureViewUsageResponse.buckets:type_name -> chalk.server.v1.MaterializedFeatureViewUsageBucket
-	29, // 23: chalk.server.v1.GetMaterializedFeatureViewUsageResponse.environments:type_name -> chalk.server.v1.MaterializedFeatureViewUsageEnvironment
-	55, // 24: chalk.server.v1.GetPodTimeRangesRequest.start_time:type_name -> google.protobuf.Timestamp
-	55, // 25: chalk.server.v1.GetPodTimeRangesRequest.end_time:type_name -> google.protobuf.Timestamp
-	55, // 26: chalk.server.v1.PodTimeRange.start_time:type_name -> google.protobuf.Timestamp
-	55, // 27: chalk.server.v1.PodTimeRange.end_time:type_name -> google.protobuf.Timestamp
-	32, // 28: chalk.server.v1.GetPodTimeRangesResponse.time_ranges:type_name -> chalk.server.v1.PodTimeRange
-	55, // 29: chalk.server.v1.GetNodeTimeRangesRequest.start_time:type_name -> google.protobuf.Timestamp
-	55, // 30: chalk.server.v1.GetNodeTimeRangesRequest.end_time:type_name -> google.protobuf.Timestamp
-	55, // 31: chalk.server.v1.NodeTimeRange.start_time:type_name -> google.protobuf.Timestamp
-	55, // 32: chalk.server.v1.NodeTimeRange.end_time:type_name -> google.protobuf.Timestamp
-	35, // 33: chalk.server.v1.GetNodeTimeRangesResponse.time_ranges:type_name -> chalk.server.v1.NodeTimeRange
-	55, // 34: chalk.server.v1.NodeDetailInfo.start_time:type_name -> google.protobuf.Timestamp
-	55, // 35: chalk.server.v1.NodeDetailInfo.end_time:type_name -> google.protobuf.Timestamp
-	55, // 36: chalk.server.v1.NodeDetailPod.start_time:type_name -> google.protobuf.Timestamp
-	55, // 37: chalk.server.v1.NodeDetailPod.end_time:type_name -> google.protobuf.Timestamp
-	38, // 38: chalk.server.v1.GetNodeDetailResponse.node:type_name -> chalk.server.v1.NodeDetailInfo
-	39, // 39: chalk.server.v1.GetNodeDetailResponse.pods:type_name -> chalk.server.v1.NodeDetailPod
-	55, // 40: chalk.server.v1.GetResourceGroupServiceDetailRequest.start_time:type_name -> google.protobuf.Timestamp
-	55, // 41: chalk.server.v1.GetResourceGroupServiceDetailRequest.end_time:type_name -> google.protobuf.Timestamp
-	55, // 42: chalk.server.v1.ResourceGroupServicePod.start_time:type_name -> google.protobuf.Timestamp
-	55, // 43: chalk.server.v1.ResourceGroupServicePod.end_time:type_name -> google.protobuf.Timestamp
-	42, // 44: chalk.server.v1.GetResourceGroupServiceDetailResponse.pods:type_name -> chalk.server.v1.ResourceGroupServicePod
-	16, // 45: chalk.server.v1.BillingService.GetNodesAndPodsUI:input_type -> chalk.server.v1.GetNodesAndPodsUIRequest
-	10, // 46: chalk.server.v1.BillingService.GetNodesAndPods:input_type -> chalk.server.v1.GetNodesAndPodsRequest
-	12, // 47: chalk.server.v1.BillingService.PublishNodeUsage:input_type -> chalk.server.v1.PublishNodeUsageRequest
-	14, // 48: chalk.server.v1.BillingService.PublishPodUsage:input_type -> chalk.server.v1.PublishPodUsageRequest
-	4,  // 49: chalk.server.v1.BillingService.GetUsageChart:input_type -> chalk.server.v1.GetUsageChartRequest
-	6,  // 50: chalk.server.v1.BillingService.GetUtilizationRates:input_type -> chalk.server.v1.GetUtilizationRatesRequest
-	8,  // 51: chalk.server.v1.BillingService.GetAvailableInstanceTypes:input_type -> chalk.server.v1.GetAvailableInstanceTypesRequest
-	56, // 52: chalk.server.v1.BillingService.GetPodRequestCharts:input_type -> chalk.server.v1.GetPodRequestChartsRequest
-	18, // 53: chalk.server.v1.BillingService.SyncUtilization:input_type -> chalk.server.v1.SyncUtilizationRequest
-	20, // 54: chalk.server.v1.BillingService.GetCreditBundles:input_type -> chalk.server.v1.GetCreditBundlesRequest
-	24, // 55: chalk.server.v1.BillingService.GetInstanceUsage:input_type -> chalk.server.v1.GetInstanceUsageRequest
-	27, // 56: chalk.server.v1.BillingService.GetMaterializedFeatureViewUsage:input_type -> chalk.server.v1.GetMaterializedFeatureViewUsageRequest
-	31, // 57: chalk.server.v1.BillingService.GetPodTimeRanges:input_type -> chalk.server.v1.GetPodTimeRangesRequest
-	34, // 58: chalk.server.v1.BillingService.GetNodeTimeRanges:input_type -> chalk.server.v1.GetNodeTimeRangesRequest
-	37, // 59: chalk.server.v1.BillingService.GetNodeDetail:input_type -> chalk.server.v1.GetNodeDetailRequest
-	41, // 60: chalk.server.v1.BillingService.GetResourceGroupServiceDetail:input_type -> chalk.server.v1.GetResourceGroupServiceDetailRequest
-	44, // 61: chalk.server.v1.BillingService.CheckSelfHostedLicense:input_type -> chalk.server.v1.CheckSelfHostedLicenseRequest
-	17, // 62: chalk.server.v1.BillingService.GetNodesAndPodsUI:output_type -> chalk.server.v1.GetNodesAndPodsUIResponse
-	11, // 63: chalk.server.v1.BillingService.GetNodesAndPods:output_type -> chalk.server.v1.GetNodesAndPodsResponse
-	13, // 64: chalk.server.v1.BillingService.PublishNodeUsage:output_type -> chalk.server.v1.PublishNodeUsageResponse
-	15, // 65: chalk.server.v1.BillingService.PublishPodUsage:output_type -> chalk.server.v1.PublishPodUsageResponse
-	5,  // 66: chalk.server.v1.BillingService.GetUsageChart:output_type -> chalk.server.v1.GetUsageChartResponse
-	7,  // 67: chalk.server.v1.BillingService.GetUtilizationRates:output_type -> chalk.server.v1.GetUtilizationRatesResponse
-	9,  // 68: chalk.server.v1.BillingService.GetAvailableInstanceTypes:output_type -> chalk.server.v1.GetAvailableInstanceTypesResponse
-	57, // 69: chalk.server.v1.BillingService.GetPodRequestCharts:output_type -> chalk.server.v1.GetPodRequestChartsResponse
-	19, // 70: chalk.server.v1.BillingService.SyncUtilization:output_type -> chalk.server.v1.SyncUtilizationResponse
-	21, // 71: chalk.server.v1.BillingService.GetCreditBundles:output_type -> chalk.server.v1.GetCreditBundlesResponse
-	26, // 72: chalk.server.v1.BillingService.GetInstanceUsage:output_type -> chalk.server.v1.GetInstanceUsageResponse
-	30, // 73: chalk.server.v1.BillingService.GetMaterializedFeatureViewUsage:output_type -> chalk.server.v1.GetMaterializedFeatureViewUsageResponse
-	33, // 74: chalk.server.v1.BillingService.GetPodTimeRanges:output_type -> chalk.server.v1.GetPodTimeRangesResponse
-	36, // 75: chalk.server.v1.BillingService.GetNodeTimeRanges:output_type -> chalk.server.v1.GetNodeTimeRangesResponse
-	40, // 76: chalk.server.v1.BillingService.GetNodeDetail:output_type -> chalk.server.v1.GetNodeDetailResponse
-	43, // 77: chalk.server.v1.BillingService.GetResourceGroupServiceDetail:output_type -> chalk.server.v1.GetResourceGroupServiceDetailResponse
-	45, // 78: chalk.server.v1.BillingService.CheckSelfHostedLicense:output_type -> chalk.server.v1.CheckSelfHostedLicenseResponse
-	62, // [62:79] is the sub-list for method output_type
-	45, // [45:62] is the sub-list for method input_type
-	45, // [45:45] is the sub-list for extension type_name
-	45, // [45:45] is the sub-list for extension extendee
-	0,  // [0:45] is the sub-list for field type_name
+	50, // 3: chalk.server.v1.GetUsageChartResponse.chart:type_name -> chalk.server.v1.Chart
+	51, // 4: chalk.server.v1.GetUtilizationRatesResponse.rates:type_name -> chalk.usage.v1.MachineRate
+	52, // 5: chalk.server.v1.GetUtilizationRatesResponse.sandbox_credits_per_vcpu_hour:type_name -> google.type.Decimal
+	52, // 6: chalk.server.v1.GetUtilizationRatesResponse.sandbox_credits_per_gb_memory_hour:type_name -> google.type.Decimal
+	53, // 7: chalk.server.v1.GetAvailableInstanceTypesResponse.instance_types:type_name -> chalk.usage.v1.CloudInstanceType
+	54, // 8: chalk.server.v1.GetNodesAndPodsResponse.nodes:type_name -> chalk.pubsub.v1.NodeStatusPubSub
+	55, // 9: chalk.server.v1.GetNodesAndPodsResponse.pods:type_name -> chalk.pubsub.v1.PodStatusPubSub
+	54, // 10: chalk.server.v1.PublishNodeUsageRequest.nodes:type_name -> chalk.pubsub.v1.NodeStatusPubSub
+	55, // 11: chalk.server.v1.PublishPodUsageRequest.pods:type_name -> chalk.pubsub.v1.PodStatusPubSub
+	49, // 12: chalk.server.v1.ProductAnalyticsEvent.attributes:type_name -> chalk.server.v1.ProductAnalyticsEvent.AttributesEntry
+	16, // 13: chalk.server.v1.PublishProductAnalyticsEventsRequest.events:type_name -> chalk.server.v1.ProductAnalyticsEvent
+	56, // 14: chalk.server.v1.GetNodesAndPodsUIResponse.nodes:type_name -> chalk.kubernetes.v1.KubernetesNodeData
+	57, // 15: chalk.server.v1.GetNodesAndPodsUIResponse.pods:type_name -> chalk.kubernetes.v1.KubernetesPodData
+	25, // 16: chalk.server.v1.GetCreditBundlesResponse.bundles:type_name -> chalk.server.v1.CreditBundle
+	58, // 17: chalk.server.v1.CreditBundle.purchase_date:type_name -> google.type.Date
+	58, // 18: chalk.server.v1.CreditBundle.expires_on:type_name -> google.type.Date
+	26, // 19: chalk.server.v1.CreditBundle.consumption_by_workload_type:type_name -> chalk.server.v1.BundleWorkloadConsumption
+	59, // 20: chalk.server.v1.InstanceUsage.start_time:type_name -> google.protobuf.Timestamp
+	59, // 21: chalk.server.v1.InstanceUsage.end_time:type_name -> google.protobuf.Timestamp
+	28, // 22: chalk.server.v1.GetInstanceUsageResponse.instances:type_name -> chalk.server.v1.InstanceUsage
+	3,  // 23: chalk.server.v1.MaterializedFeatureViewUsageBucket.kind:type_name -> chalk.server.v1.MaterializedFeatureViewUsageKind
+	31, // 24: chalk.server.v1.GetMaterializedFeatureViewUsageResponse.buckets:type_name -> chalk.server.v1.MaterializedFeatureViewUsageBucket
+	32, // 25: chalk.server.v1.GetMaterializedFeatureViewUsageResponse.environments:type_name -> chalk.server.v1.MaterializedFeatureViewUsageEnvironment
+	59, // 26: chalk.server.v1.GetPodTimeRangesRequest.start_time:type_name -> google.protobuf.Timestamp
+	59, // 27: chalk.server.v1.GetPodTimeRangesRequest.end_time:type_name -> google.protobuf.Timestamp
+	59, // 28: chalk.server.v1.PodTimeRange.start_time:type_name -> google.protobuf.Timestamp
+	59, // 29: chalk.server.v1.PodTimeRange.end_time:type_name -> google.protobuf.Timestamp
+	35, // 30: chalk.server.v1.GetPodTimeRangesResponse.time_ranges:type_name -> chalk.server.v1.PodTimeRange
+	59, // 31: chalk.server.v1.GetNodeTimeRangesRequest.start_time:type_name -> google.protobuf.Timestamp
+	59, // 32: chalk.server.v1.GetNodeTimeRangesRequest.end_time:type_name -> google.protobuf.Timestamp
+	59, // 33: chalk.server.v1.NodeTimeRange.start_time:type_name -> google.protobuf.Timestamp
+	59, // 34: chalk.server.v1.NodeTimeRange.end_time:type_name -> google.protobuf.Timestamp
+	38, // 35: chalk.server.v1.GetNodeTimeRangesResponse.time_ranges:type_name -> chalk.server.v1.NodeTimeRange
+	59, // 36: chalk.server.v1.NodeDetailInfo.start_time:type_name -> google.protobuf.Timestamp
+	59, // 37: chalk.server.v1.NodeDetailInfo.end_time:type_name -> google.protobuf.Timestamp
+	59, // 38: chalk.server.v1.NodeDetailPod.start_time:type_name -> google.protobuf.Timestamp
+	59, // 39: chalk.server.v1.NodeDetailPod.end_time:type_name -> google.protobuf.Timestamp
+	41, // 40: chalk.server.v1.GetNodeDetailResponse.node:type_name -> chalk.server.v1.NodeDetailInfo
+	42, // 41: chalk.server.v1.GetNodeDetailResponse.pods:type_name -> chalk.server.v1.NodeDetailPod
+	59, // 42: chalk.server.v1.GetResourceGroupServiceDetailRequest.start_time:type_name -> google.protobuf.Timestamp
+	59, // 43: chalk.server.v1.GetResourceGroupServiceDetailRequest.end_time:type_name -> google.protobuf.Timestamp
+	59, // 44: chalk.server.v1.ResourceGroupServicePod.start_time:type_name -> google.protobuf.Timestamp
+	59, // 45: chalk.server.v1.ResourceGroupServicePod.end_time:type_name -> google.protobuf.Timestamp
+	45, // 46: chalk.server.v1.GetResourceGroupServiceDetailResponse.pods:type_name -> chalk.server.v1.ResourceGroupServicePod
+	19, // 47: chalk.server.v1.BillingService.GetNodesAndPodsUI:input_type -> chalk.server.v1.GetNodesAndPodsUIRequest
+	10, // 48: chalk.server.v1.BillingService.GetNodesAndPods:input_type -> chalk.server.v1.GetNodesAndPodsRequest
+	12, // 49: chalk.server.v1.BillingService.PublishNodeUsage:input_type -> chalk.server.v1.PublishNodeUsageRequest
+	14, // 50: chalk.server.v1.BillingService.PublishPodUsage:input_type -> chalk.server.v1.PublishPodUsageRequest
+	17, // 51: chalk.server.v1.BillingService.PublishProductAnalyticsEvents:input_type -> chalk.server.v1.PublishProductAnalyticsEventsRequest
+	4,  // 52: chalk.server.v1.BillingService.GetUsageChart:input_type -> chalk.server.v1.GetUsageChartRequest
+	6,  // 53: chalk.server.v1.BillingService.GetUtilizationRates:input_type -> chalk.server.v1.GetUtilizationRatesRequest
+	8,  // 54: chalk.server.v1.BillingService.GetAvailableInstanceTypes:input_type -> chalk.server.v1.GetAvailableInstanceTypesRequest
+	60, // 55: chalk.server.v1.BillingService.GetPodRequestCharts:input_type -> chalk.server.v1.GetPodRequestChartsRequest
+	21, // 56: chalk.server.v1.BillingService.SyncUtilization:input_type -> chalk.server.v1.SyncUtilizationRequest
+	23, // 57: chalk.server.v1.BillingService.GetCreditBundles:input_type -> chalk.server.v1.GetCreditBundlesRequest
+	27, // 58: chalk.server.v1.BillingService.GetInstanceUsage:input_type -> chalk.server.v1.GetInstanceUsageRequest
+	30, // 59: chalk.server.v1.BillingService.GetMaterializedFeatureViewUsage:input_type -> chalk.server.v1.GetMaterializedFeatureViewUsageRequest
+	34, // 60: chalk.server.v1.BillingService.GetPodTimeRanges:input_type -> chalk.server.v1.GetPodTimeRangesRequest
+	37, // 61: chalk.server.v1.BillingService.GetNodeTimeRanges:input_type -> chalk.server.v1.GetNodeTimeRangesRequest
+	40, // 62: chalk.server.v1.BillingService.GetNodeDetail:input_type -> chalk.server.v1.GetNodeDetailRequest
+	44, // 63: chalk.server.v1.BillingService.GetResourceGroupServiceDetail:input_type -> chalk.server.v1.GetResourceGroupServiceDetailRequest
+	47, // 64: chalk.server.v1.BillingService.CheckSelfHostedLicense:input_type -> chalk.server.v1.CheckSelfHostedLicenseRequest
+	20, // 65: chalk.server.v1.BillingService.GetNodesAndPodsUI:output_type -> chalk.server.v1.GetNodesAndPodsUIResponse
+	11, // 66: chalk.server.v1.BillingService.GetNodesAndPods:output_type -> chalk.server.v1.GetNodesAndPodsResponse
+	13, // 67: chalk.server.v1.BillingService.PublishNodeUsage:output_type -> chalk.server.v1.PublishNodeUsageResponse
+	15, // 68: chalk.server.v1.BillingService.PublishPodUsage:output_type -> chalk.server.v1.PublishPodUsageResponse
+	18, // 69: chalk.server.v1.BillingService.PublishProductAnalyticsEvents:output_type -> chalk.server.v1.PublishProductAnalyticsEventsResponse
+	5,  // 70: chalk.server.v1.BillingService.GetUsageChart:output_type -> chalk.server.v1.GetUsageChartResponse
+	7,  // 71: chalk.server.v1.BillingService.GetUtilizationRates:output_type -> chalk.server.v1.GetUtilizationRatesResponse
+	9,  // 72: chalk.server.v1.BillingService.GetAvailableInstanceTypes:output_type -> chalk.server.v1.GetAvailableInstanceTypesResponse
+	61, // 73: chalk.server.v1.BillingService.GetPodRequestCharts:output_type -> chalk.server.v1.GetPodRequestChartsResponse
+	22, // 74: chalk.server.v1.BillingService.SyncUtilization:output_type -> chalk.server.v1.SyncUtilizationResponse
+	24, // 75: chalk.server.v1.BillingService.GetCreditBundles:output_type -> chalk.server.v1.GetCreditBundlesResponse
+	29, // 76: chalk.server.v1.BillingService.GetInstanceUsage:output_type -> chalk.server.v1.GetInstanceUsageResponse
+	33, // 77: chalk.server.v1.BillingService.GetMaterializedFeatureViewUsage:output_type -> chalk.server.v1.GetMaterializedFeatureViewUsageResponse
+	36, // 78: chalk.server.v1.BillingService.GetPodTimeRanges:output_type -> chalk.server.v1.GetPodTimeRangesResponse
+	39, // 79: chalk.server.v1.BillingService.GetNodeTimeRanges:output_type -> chalk.server.v1.GetNodeTimeRangesResponse
+	43, // 80: chalk.server.v1.BillingService.GetNodeDetail:output_type -> chalk.server.v1.GetNodeDetailResponse
+	46, // 81: chalk.server.v1.BillingService.GetResourceGroupServiceDetail:output_type -> chalk.server.v1.GetResourceGroupServiceDetailResponse
+	48, // 82: chalk.server.v1.BillingService.CheckSelfHostedLicense:output_type -> chalk.server.v1.CheckSelfHostedLicenseResponse
+	65, // [65:83] is the sub-list for method output_type
+	47, // [47:65] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_billing_proto_init() }
@@ -3240,19 +3395,19 @@ func file_chalk_server_v1_billing_proto_init() {
 	file_chalk_server_v1_pod_request_proto_init()
 	file_chalk_server_v1_billing_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_billing_proto_msgTypes[6].OneofWrappers = []any{}
-	file_chalk_server_v1_billing_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_server_v1_billing_proto_msgTypes[18].OneofWrappers = []any{}
-	file_chalk_server_v1_billing_proto_msgTypes[20].OneofWrappers = []any{}
-	file_chalk_server_v1_billing_proto_msgTypes[27].OneofWrappers = []any{}
+	file_chalk_server_v1_billing_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_server_v1_billing_proto_msgTypes[21].OneofWrappers = []any{}
+	file_chalk_server_v1_billing_proto_msgTypes[23].OneofWrappers = []any{}
 	file_chalk_server_v1_billing_proto_msgTypes[30].OneofWrappers = []any{}
 	file_chalk_server_v1_billing_proto_msgTypes[33].OneofWrappers = []any{}
+	file_chalk_server_v1_billing_proto_msgTypes[36].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_billing_proto_rawDesc), len(file_chalk_server_v1_billing_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   42,
+			NumMessages:   46,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

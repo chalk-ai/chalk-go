@@ -219,6 +219,17 @@ const (
 	// Per-sandbox usage divided by its configured request, before cross-sandbox aggregation.
 	MetricKind_METRIC_KIND_SANDBOX_CPU_UTILIZATION    MetricKind = 160
 	MetricKind_METRIC_KIND_SANDBOX_MEMORY_UTILIZATION MetricKind = 161
+	// Reward broken out by the reward function that scored it (labelled `rubric`) and by the task
+	// (the environment a rollout came from, labelled `task`). Separate from
+	// METRIC_KIND_MODEL_TRAINING_REWARD so an ungrouped reward chart stays the overall reward.
+	MetricKind_METRIC_KIND_MODEL_TRAINING_RUBRIC_REWARD MetricKind = 162
+	MetricKind_METRIC_KIND_MODEL_TRAINING_TASK_REWARD   MetricKind = 163
+	// VictoriaMetrics storage gauges emitted by the cluster manager. These series
+	// carry both environment_id and kube_cluster_name so endpoints can apply their
+	// own trusted scope while sharing the same metric vocabulary.
+	MetricKind_METRIC_KIND_VICTORIA_METRICS_DISK_USED_BYTES  MetricKind = 164
+	MetricKind_METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES  MetricKind = 165
+	MetricKind_METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES MetricKind = 166
 )
 
 // Enum value maps for MetricKind.
@@ -386,6 +397,11 @@ var (
 		159: "METRIC_KIND_SANDBOX_MEMORY_REQUEST_BYTES",
 		160: "METRIC_KIND_SANDBOX_CPU_UTILIZATION",
 		161: "METRIC_KIND_SANDBOX_MEMORY_UTILIZATION",
+		162: "METRIC_KIND_MODEL_TRAINING_RUBRIC_REWARD",
+		163: "METRIC_KIND_MODEL_TRAINING_TASK_REWARD",
+		164: "METRIC_KIND_VICTORIA_METRICS_DISK_USED_BYTES",
+		165: "METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES",
+		166: "METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -550,6 +566,11 @@ var (
 		"METRIC_KIND_SANDBOX_MEMORY_REQUEST_BYTES":            159,
 		"METRIC_KIND_SANDBOX_CPU_UTILIZATION":                 160,
 		"METRIC_KIND_SANDBOX_MEMORY_UTILIZATION":              161,
+		"METRIC_KIND_MODEL_TRAINING_RUBRIC_REWARD":            162,
+		"METRIC_KIND_MODEL_TRAINING_TASK_REWARD":              163,
+		"METRIC_KIND_VICTORIA_METRICS_DISK_USED_BYTES":        164,
+		"METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES":        165,
+		"METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES":       166,
 	}
 )
 
@@ -648,6 +669,8 @@ const (
 	FilterKind_FILTER_KIND_CONTAINER_CRASH_REASON FilterKind = 46
 	FilterKind_FILTER_KIND_WORKLOAD_RUNTIME       FilterKind = 48
 	FilterKind_FILTER_KIND_WORKLOAD_STATE         FilterKind = 49
+	FilterKind_FILTER_KIND_TRAINING_RUBRIC        FilterKind = 50
+	FilterKind_FILTER_KIND_TRAINING_TASK          FilterKind = 51
 )
 
 // Enum value maps for FilterKind.
@@ -702,6 +725,8 @@ var (
 		46: "FILTER_KIND_CONTAINER_CRASH_REASON",
 		48: "FILTER_KIND_WORKLOAD_RUNTIME",
 		49: "FILTER_KIND_WORKLOAD_STATE",
+		50: "FILTER_KIND_TRAINING_RUBRIC",
+		51: "FILTER_KIND_TRAINING_TASK",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -753,6 +778,8 @@ var (
 		"FILTER_KIND_CONTAINER_CRASH_REASON":     46,
 		"FILTER_KIND_WORKLOAD_RUNTIME":           48,
 		"FILTER_KIND_WORKLOAD_STATE":             49,
+		"FILTER_KIND_TRAINING_RUBRIC":            50,
+		"FILTER_KIND_TRAINING_TASK":              51,
 	}
 )
 
@@ -969,6 +996,8 @@ const (
 	GroupByKind_GROUP_BY_KIND_POD_STATE              GroupByKind = 41
 	GroupByKind_GROUP_BY_KIND_CONTAINER_CRASH_REASON GroupByKind = 42
 	GroupByKind_GROUP_BY_KIND_WORKLOAD_RUNTIME       GroupByKind = 44
+	GroupByKind_GROUP_BY_KIND_TRAINING_RUBRIC        GroupByKind = 46
+	GroupByKind_GROUP_BY_KIND_TRAINING_TASK          GroupByKind = 47
 )
 
 // Enum value maps for GroupByKind.
@@ -1018,6 +1047,8 @@ var (
 		41: "GROUP_BY_KIND_POD_STATE",
 		42: "GROUP_BY_KIND_CONTAINER_CRASH_REASON",
 		44: "GROUP_BY_KIND_WORKLOAD_RUNTIME",
+		46: "GROUP_BY_KIND_TRAINING_RUBRIC",
+		47: "GROUP_BY_KIND_TRAINING_TASK",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":                   0,
@@ -1064,6 +1095,8 @@ var (
 		"GROUP_BY_KIND_POD_STATE":                     41,
 		"GROUP_BY_KIND_CONTAINER_CRASH_REASON":        42,
 		"GROUP_BY_KIND_WORKLOAD_RUNTIME":              44,
+		"GROUP_BY_KIND_TRAINING_RUBRIC":               46,
+		"GROUP_BY_KIND_TRAINING_TASK":                 47,
 	}
 )
 
@@ -2378,7 +2411,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xa15\n" +
+	"_entity_id*\x977\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2543,7 +2576,12 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"%METRIC_KIND_SANDBOX_CPU_REQUEST_CORES\x10\x9e\x01\x12-\n" +
 	"(METRIC_KIND_SANDBOX_MEMORY_REQUEST_BYTES\x10\x9f\x01\x12(\n" +
 	"#METRIC_KIND_SANDBOX_CPU_UTILIZATION\x10\xa0\x01\x12+\n" +
-	"&METRIC_KIND_SANDBOX_MEMORY_UTILIZATION\x10\xa1\x01*\xb7\f\n" +
+	"&METRIC_KIND_SANDBOX_MEMORY_UTILIZATION\x10\xa1\x01\x12-\n" +
+	"(METRIC_KIND_MODEL_TRAINING_RUBRIC_REWARD\x10\xa2\x01\x12+\n" +
+	"&METRIC_KIND_MODEL_TRAINING_TASK_REWARD\x10\xa3\x01\x121\n" +
+	",METRIC_KIND_VICTORIA_METRICS_DISK_USED_BYTES\x10\xa4\x01\x121\n" +
+	",METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES\x10\xa5\x01\x122\n" +
+	"-METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES\x10\xa6\x01*\xf7\f\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2595,7 +2633,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x15FILTER_KIND_POD_STATE\x10-\x12&\n" +
 	"\"FILTER_KIND_CONTAINER_CRASH_REASON\x10.\x12 \n" +
 	"\x1cFILTER_KIND_WORKLOAD_RUNTIME\x100\x12\x1e\n" +
-	"\x1aFILTER_KIND_WORKLOAD_STATE\x101\"\x04\b/\x10/*~\n" +
+	"\x1aFILTER_KIND_WORKLOAD_STATE\x101\x12\x1f\n" +
+	"\x1bFILTER_KIND_TRAINING_RUBRIC\x102\x12\x1d\n" +
+	"\x19FILTER_KIND_TRAINING_TASK\x103\"\x04\b/\x10/*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -2615,7 +2655,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x9a\f\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xde\f\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -2661,7 +2701,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1bGROUP_BY_KIND_ENVOY_CLUSTER\x10(\x12\x1b\n" +
 	"\x17GROUP_BY_KIND_POD_STATE\x10)\x12(\n" +
 	"$GROUP_BY_KIND_CONTAINER_CRASH_REASON\x10*\x12\"\n" +
-	"\x1eGROUP_BY_KIND_WORKLOAD_RUNTIME\x10,\"\x04\b+\x10+\"\x04\b-\x10-*\x81\x03\n" +
+	"\x1eGROUP_BY_KIND_WORKLOAD_RUNTIME\x10,\x12!\n" +
+	"\x1dGROUP_BY_KIND_TRAINING_RUBRIC\x10.\x12\x1f\n" +
+	"\x1bGROUP_BY_KIND_TRAINING_TASK\x10/\"\x04\b+\x10+\"\x04\b-\x10-*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +

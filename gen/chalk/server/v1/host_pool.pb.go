@@ -1088,9 +1088,11 @@ func (x *ListHostPoolsResponse) GetHostPools() []*HostPool {
 
 // A CPU/memory pair. CPU is in whole cores so that fractional requests ("500m") survive.
 type HostPoolResources struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CpuCores      float64                `protobuf:"fixed64,1,opt,name=cpu_cores,json=cpuCores,proto3" json:"cpu_cores,omitempty"`
-	MemoryBytes   int64                  `protobuf:"varint,2,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	CpuCores    float64                `protobuf:"fixed64,1,opt,name=cpu_cores,json=cpuCores,proto3" json:"cpu_cores,omitempty"`
+	MemoryBytes int64                  `protobuf:"varint,2,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
+	// Device counts by advertised accelerator type.
+	Gpus          map[string]int64 `protobuf:"bytes,3,rep,name=gpus,proto3" json:"gpus,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1139,20 +1141,33 @@ func (x *HostPoolResources) GetMemoryBytes() int64 {
 	return 0
 }
 
+func (x *HostPoolResources) GetGpus() map[string]int64 {
+	if x != nil {
+		return x.Gpus
+	}
+	return nil
+}
+
 // One host backing a pool.
 type HostCapacity struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Opaque, and stable for the life of the host.
 	HostId string `protobuf:"bytes,1,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
-	// False while the host is still starting or shutting down; an unready host holds no capacity.
+	// Whether the controller reports that the host accepts placements.
 	Ready bool `protobuf:"varint,2,opt,name=ready,proto3" json:"ready,omitempty"`
 	// Containers placed on this host, across every environment sharing the pool.
 	PlacedContainers int32 `protobuf:"varint,3,opt,name=placed_containers,json=placedContainers,proto3" json:"placed_containers,omitempty"`
-	// The host's configured size. Each host also reserves a small amount (tens of MiB) for the
-	// hypervisor itself, so the last few MiB of memory are not actually placeable.
-	Capacity      *HostPoolResources `protobuf:"bytes,4,opt,name=capacity,proto3" json:"capacity,omitempty"`
-	Allocated     *HostPoolResources `protobuf:"bytes,5,opt,name=allocated,proto3" json:"allocated,omitempty"`
-	Available     *HostPoolResources `protobuf:"bytes,6,opt,name=available,proto3" json:"available,omitempty"`
+	// The host capacity reported by the controller.
+	Capacity        *HostPoolResources     `protobuf:"bytes,4,opt,name=capacity,proto3" json:"capacity,omitempty"`
+	Allocated       *HostPoolResources     `protobuf:"bytes,5,opt,name=allocated,proto3" json:"allocated,omitempty"`
+	Available       *HostPoolResources     `protobuf:"bytes,6,opt,name=available,proto3" json:"available,omitempty"`
+	LastHeartbeatAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=last_heartbeat_at,json=lastHeartbeatAt,proto3" json:"last_heartbeat_at,omitempty"`
+	// Present only for hosts using an external reporting stream.
+	ExternalControlStreamConnected *bool  `protobuf:"varint,8,opt,name=external_control_stream_connected,json=externalControlStreamConnected,proto3,oneof" json:"external_control_stream_connected,omitempty"`
+	UnavailableReason              string `protobuf:"bytes,9,opt,name=unavailable_reason,json=unavailableReason,proto3" json:"unavailable_reason,omitempty"`
+	// Measured use over the last hour, from the hypervisor's own metrics. Unset when the host's
+	// metrics cannot be attributed to it; today only external hosts carry a host label.
+	UsageHistory  *HostUsageHistory `protobuf:"bytes,10,opt,name=usage_history,json=usageHistory,proto3" json:"usage_history,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1229,10 +1244,324 @@ func (x *HostCapacity) GetAvailable() *HostPoolResources {
 	return nil
 }
 
+func (x *HostCapacity) GetLastHeartbeatAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastHeartbeatAt
+	}
+	return nil
+}
+
+func (x *HostCapacity) GetExternalControlStreamConnected() bool {
+	if x != nil && x.ExternalControlStreamConnected != nil {
+		return *x.ExternalControlStreamConnected
+	}
+	return false
+}
+
+func (x *HostCapacity) GetUnavailableReason() string {
+	if x != nil {
+		return x.UnavailableReason
+	}
+	return ""
+}
+
+func (x *HostCapacity) GetUsageHistory() *HostUsageHistory {
+	if x != nil {
+		return x.UsageHistory
+	}
+	return nil
+}
+
+// A share in [0, 1] at one point in time.
+type UtilizationPoint struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ObservedAt    *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=observed_at,json=observedAt,proto3" json:"observed_at,omitempty"`
+	Ratio         float64                `protobuf:"fixed64,2,opt,name=ratio,proto3" json:"ratio,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UtilizationPoint) Reset() {
+	*x = UtilizationPoint{}
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UtilizationPoint) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UtilizationPoint) ProtoMessage() {}
+
+func (x *UtilizationPoint) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UtilizationPoint.ProtoReflect.Descriptor instead.
+func (*UtilizationPoint) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *UtilizationPoint) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *UtilizationPoint) GetRatio() float64 {
+	if x != nil {
+		return x.Ratio
+	}
+	return 0
+}
+
+type UtilizationSeries struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Oldest first, about one point a minute. Missing minutes are omitted, not zero-filled.
+	Points        []*UtilizationPoint `protobuf:"bytes,1,rep,name=points,proto3" json:"points,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UtilizationSeries) Reset() {
+	*x = UtilizationSeries{}
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UtilizationSeries) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UtilizationSeries) ProtoMessage() {}
+
+func (x *UtilizationSeries) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UtilizationSeries.ProtoReflect.Descriptor instead.
+func (*UtilizationSeries) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *UtilizationSeries) GetPoints() []*UtilizationPoint {
+	if x != nil {
+		return x.Points
+	}
+	return nil
+}
+
+// What a host actually used, as opposed to what containers reserved on it.
+type HostUsageHistory struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// CPU busy time over the host's cores.
+	Cpu *UtilizationSeries `protobuf:"bytes,1,opt,name=cpu,proto3" json:"cpu,omitempty"`
+	// Used over total host memory.
+	Memory *UtilizationSeries `protobuf:"bytes,2,opt,name=memory,proto3" json:"memory,omitempty"`
+	// By GPU device index ("0", "1", ...).
+	Gpus          map[string]*GpuUsageHistory `protobuf:"bytes,3,rep,name=gpus,proto3" json:"gpus,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HostUsageHistory) Reset() {
+	*x = HostUsageHistory{}
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HostUsageHistory) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HostUsageHistory) ProtoMessage() {}
+
+func (x *HostUsageHistory) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HostUsageHistory.ProtoReflect.Descriptor instead.
+func (*HostUsageHistory) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *HostUsageHistory) GetCpu() *UtilizationSeries {
+	if x != nil {
+		return x.Cpu
+	}
+	return nil
+}
+
+func (x *HostUsageHistory) GetMemory() *UtilizationSeries {
+	if x != nil {
+		return x.Memory
+	}
+	return nil
+}
+
+func (x *HostUsageHistory) GetGpus() map[string]*GpuUsageHistory {
+	if x != nil {
+		return x.Gpus
+	}
+	return nil
+}
+
+type GpuUsageHistory struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Uuid  string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	// Share of time the GPU's compute was busy.
+	Utilization *UtilizationSeries `protobuf:"bytes,2,opt,name=utilization,proto3" json:"utilization,omitempty"`
+	// Device memory held, over device memory.
+	Memory        *UtilizationSeries `protobuf:"bytes,3,opt,name=memory,proto3" json:"memory,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GpuUsageHistory) Reset() {
+	*x = GpuUsageHistory{}
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GpuUsageHistory) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GpuUsageHistory) ProtoMessage() {}
+
+func (x *GpuUsageHistory) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GpuUsageHistory.ProtoReflect.Descriptor instead.
+func (*GpuUsageHistory) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *GpuUsageHistory) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+func (x *GpuUsageHistory) GetUtilization() *UtilizationSeries {
+	if x != nil {
+		return x.Utilization
+	}
+	return nil
+}
+
+func (x *GpuUsageHistory) GetMemory() *UtilizationSeries {
+	if x != nil {
+		return x.Memory
+	}
+	return nil
+}
+
+// Reserved over accepting capacity, matching HostPoolCapacity.allocated over ready.
+type HostPoolReservationHistory struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Cpu    *UtilizationSeries     `protobuf:"bytes,1,opt,name=cpu,proto3" json:"cpu,omitempty"`
+	Memory *UtilizationSeries     `protobuf:"bytes,2,opt,name=memory,proto3" json:"memory,omitempty"`
+	// By accelerator type.
+	Gpus          map[string]*UtilizationSeries `protobuf:"bytes,3,rep,name=gpus,proto3" json:"gpus,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HostPoolReservationHistory) Reset() {
+	*x = HostPoolReservationHistory{}
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HostPoolReservationHistory) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HostPoolReservationHistory) ProtoMessage() {}
+
+func (x *HostPoolReservationHistory) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HostPoolReservationHistory.ProtoReflect.Descriptor instead.
+func (*HostPoolReservationHistory) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *HostPoolReservationHistory) GetCpu() *UtilizationSeries {
+	if x != nil {
+		return x.Cpu
+	}
+	return nil
+}
+
+func (x *HostPoolReservationHistory) GetMemory() *UtilizationSeries {
+	if x != nil {
+		return x.Memory
+	}
+	return nil
+}
+
+func (x *HostPoolReservationHistory) GetGpus() map[string]*UtilizationSeries {
+	if x != nil {
+		return x.Gpus
+	}
+	return nil
+}
+
 // Observed capacity for one host pool.
 type HostPoolCapacity struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Matches HostPool.id, including for the Chalk-managed default pool.
+	// Matches HostPool.id for managed pools; external pools use their CR name.
 	HostPoolId string `protobuf:"bytes,1,opt,name=host_pool_id,json=hostPoolId,proto3" json:"host_pool_id,omitempty"`
 	Name       string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// True when the pool is defined on the cluster and therefore shared by every environment on it.
@@ -1240,7 +1569,7 @@ type HostPoolCapacity struct {
 	ClusterScoped bool `protobuf:"varint,3,opt,name=cluster_scoped,json=clusterScoped,proto3" json:"cluster_scoped,omitempty"`
 	// True for the implicit pool Chalk manages when no pool has been configured.
 	SystemManaged bool `protobuf:"varint,4,opt,name=system_managed,json=systemManaged,proto3" json:"system_managed,omitempty"`
-	// Scaling configuration currently reconciled into the cluster.
+	// Scaling configuration currently reconciled into the cluster; unused for external pools.
 	MinHosts int32 `protobuf:"varint,5,opt,name=min_hosts,json=minHosts,proto3" json:"min_hosts,omitempty"`
 	MaxHosts int32 `protobuf:"varint,6,opt,name=max_hosts,json=maxHosts,proto3" json:"max_hosts,omitempty"`
 	// How long every host must stay idle before the pool scales back to min_hosts. Unset when
@@ -1266,18 +1595,12 @@ type HostPoolCapacity struct {
 	Ready *HostPoolResources `protobuf:"bytes,16,opt,name=ready,proto3" json:"ready,omitempty"`
 	// Reserved by containers already placed on those hosts.
 	Allocated *HostPoolResources `protobuf:"bytes,17,opt,name=allocated,proto3" json:"allocated,omitempty"`
-	// ready minus allocated. A container must fit entirely on one host, so this is an upper bound on
-	// what can be placed rather than a promise; largest_placeable is the number that decides a
-	// request.
+	// Controller-reported free resources on accepting hosts. A request must fit on one host.
 	Available *HostPoolResources `protobuf:"bytes,18,opt,name=available,proto3" json:"available,omitempty"`
-	// Totals once the pool has scaled out to max_hosts.
+	// Totals once the pool has scaled out to max_hosts. Unset for external pools.
 	AtMaxScale *HostPoolResources `protobuf:"bytes,19,opt,name=at_max_scale,json=atMaxScale,proto3" json:"at_max_scale,omitempty"`
-	// The free capacity of a single host: the emptiest one now, and an entirely fresh one once the
-	// pool has scaled to max_hosts. A container that fits inside largest_placeable is placed
-	// immediately, one that only fits inside largest_placeable_at_max_scale waits for a host to
-	// start, and one that fits in neither is rejected. "Emptiest" ranks by free memory and then free
-	// CPU, so a request shaped differently may still place on some other host; these bounds never
-	// promise more than one host can actually hold.
+	// Free capacity of one host, ranked by memory then CPU. Other hosts may offer different shapes
+	// or GPU types. The scale-out estimate uses configured CPU/memory and does not estimate GPUs.
 	LargestPlaceable           *HostPoolResources `protobuf:"bytes,20,opt,name=largest_placeable,json=largestPlaceable,proto3" json:"largest_placeable,omitempty"`
 	LargestPlaceableAtMaxScale *HostPoolResources `protobuf:"bytes,21,opt,name=largest_placeable_at_max_scale,json=largestPlaceableAtMaxScale,proto3" json:"largest_placeable_at_max_scale,omitempty"`
 	// Containers placed on the pool, across every environment sharing it.
@@ -1285,14 +1608,20 @@ type HostPoolCapacity struct {
 	// Of those, the ones belonging to this environment.
 	PlacedContainersInEnvironment int32 `protobuf:"varint,23,opt,name=placed_containers_in_environment,json=placedContainersInEnvironment,proto3" json:"placed_containers_in_environment,omitempty"`
 	// Per-host detail, ordered by host id.
-	Hosts         []*HostCapacity `protobuf:"bytes,24,rep,name=hosts,proto3" json:"hosts,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Hosts []*HostCapacity `protobuf:"bytes,24,rep,name=hosts,proto3" json:"hosts,omitempty"`
+	// Externally supplied, environment-owned hosts with no managed scaling configuration.
+	External bool `protobuf:"varint,25,opt,name=external,proto3" json:"external,omitempty"`
+	// Controller observation time for capacity.
+	ObservedAt *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=observed_at,json=observedAt,proto3" json:"observed_at,omitempty"`
+	// The last hour of reservations, from the dataplane controller's metrics.
+	ReservationHistory *HostPoolReservationHistory `protobuf:"bytes,27,opt,name=reservation_history,json=reservationHistory,proto3" json:"reservation_history,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *HostPoolCapacity) Reset() {
 	*x = HostPoolCapacity{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1304,7 +1633,7 @@ func (x *HostPoolCapacity) String() string {
 func (*HostPoolCapacity) ProtoMessage() {}
 
 func (x *HostPoolCapacity) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1317,7 +1646,7 @@ func (x *HostPoolCapacity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostPoolCapacity.ProtoReflect.Descriptor instead.
 func (*HostPoolCapacity) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *HostPoolCapacity) GetHostPoolId() string {
@@ -1488,6 +1817,27 @@ func (x *HostPoolCapacity) GetHosts() []*HostCapacity {
 	return nil
 }
 
+func (x *HostPoolCapacity) GetExternal() bool {
+	if x != nil {
+		return x.External
+	}
+	return false
+}
+
+func (x *HostPoolCapacity) GetObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAt
+	}
+	return nil
+}
+
+func (x *HostPoolCapacity) GetReservationHistory() *HostPoolReservationHistory {
+	if x != nil {
+		return x.ReservationHistory
+	}
+	return nil
+}
+
 type GetHostPoolCapacityRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Defaults to the environment the caller is authenticated against.
@@ -1498,7 +1848,7 @@ type GetHostPoolCapacityRequest struct {
 
 func (x *GetHostPoolCapacityRequest) Reset() {
 	*x = GetHostPoolCapacityRequest{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1510,7 +1860,7 @@ func (x *GetHostPoolCapacityRequest) String() string {
 func (*GetHostPoolCapacityRequest) ProtoMessage() {}
 
 func (x *GetHostPoolCapacityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1523,7 +1873,7 @@ func (x *GetHostPoolCapacityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHostPoolCapacityRequest.ProtoReflect.Descriptor instead.
 func (*GetHostPoolCapacityRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetHostPoolCapacityRequest) GetEnvironmentId() string {
@@ -1546,13 +1896,16 @@ type GetHostPoolCapacityResponse struct {
 	// largest_placeable is what says whether the queue can drain.
 	LargestPendingRequest *HostPoolResources     `protobuf:"bytes,3,opt,name=largest_pending_request,json=largestPendingRequest,proto3" json:"largest_pending_request,omitempty"`
 	ObservedAt            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=observed_at,json=observedAt,proto3" json:"observed_at,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// Set when the reservation and usage histories could not be read, for example because the
+	// cluster has no VictoriaMetrics telemetry. The rest of the report is unaffected.
+	HistoryUnavailableReason *string `protobuf:"bytes,5,opt,name=history_unavailable_reason,json=historyUnavailableReason,proto3,oneof" json:"history_unavailable_reason,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *GetHostPoolCapacityResponse) Reset() {
 	*x = GetHostPoolCapacityResponse{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1564,7 +1917,7 @@ func (x *GetHostPoolCapacityResponse) String() string {
 func (*GetHostPoolCapacityResponse) ProtoMessage() {}
 
 func (x *GetHostPoolCapacityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +1930,7 @@ func (x *GetHostPoolCapacityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHostPoolCapacityResponse.ProtoReflect.Descriptor instead.
 func (*GetHostPoolCapacityResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetHostPoolCapacityResponse) GetHostPools() []*HostPoolCapacity {
@@ -1606,6 +1959,13 @@ func (x *GetHostPoolCapacityResponse) GetObservedAt() *timestamppb.Timestamp {
 		return x.ObservedAt
 	}
 	return nil
+}
+
+func (x *GetHostPoolCapacityResponse) GetHistoryUnavailableReason() string {
+	if x != nil && x.HistoryUnavailableReason != nil {
+		return *x.HistoryUnavailableReason
+	}
+	return ""
 }
 
 var File_chalk_server_v1_host_pool_proto protoreflect.FileDescriptor
@@ -1683,17 +2043,52 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\x05scope\"Q\n" +
 	"\x15ListHostPoolsResponse\x128\n" +
 	"\n" +
-	"host_pools\x18\x01 \x03(\v2\x19.chalk.server.v1.HostPoolR\thostPools\"S\n" +
+	"host_pools\x18\x01 \x03(\v2\x19.chalk.server.v1.HostPoolR\thostPools\"\xce\x01\n" +
 	"\x11HostPoolResources\x12\x1b\n" +
 	"\tcpu_cores\x18\x01 \x01(\x01R\bcpuCores\x12!\n" +
-	"\fmemory_bytes\x18\x02 \x01(\x03R\vmemoryBytes\"\xae\x02\n" +
+	"\fmemory_bytes\x18\x02 \x01(\x03R\vmemoryBytes\x12@\n" +
+	"\x04gpus\x18\x03 \x03(\v2,.chalk.server.v1.HostPoolResources.GpusEntryR\x04gpus\x1a7\n" +
+	"\tGpusEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\xe3\x04\n" +
 	"\fHostCapacity\x12\x17\n" +
 	"\ahost_id\x18\x01 \x01(\tR\x06hostId\x12\x14\n" +
 	"\x05ready\x18\x02 \x01(\bR\x05ready\x12+\n" +
 	"\x11placed_containers\x18\x03 \x01(\x05R\x10placedContainers\x12>\n" +
 	"\bcapacity\x18\x04 \x01(\v2\".chalk.server.v1.HostPoolResourcesR\bcapacity\x12@\n" +
 	"\tallocated\x18\x05 \x01(\v2\".chalk.server.v1.HostPoolResourcesR\tallocated\x12@\n" +
-	"\tavailable\x18\x06 \x01(\v2\".chalk.server.v1.HostPoolResourcesR\tavailable\"\xb5\t\n" +
+	"\tavailable\x18\x06 \x01(\v2\".chalk.server.v1.HostPoolResourcesR\tavailable\x12F\n" +
+	"\x11last_heartbeat_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0flastHeartbeatAt\x12N\n" +
+	"!external_control_stream_connected\x18\b \x01(\bH\x00R\x1eexternalControlStreamConnected\x88\x01\x01\x12-\n" +
+	"\x12unavailable_reason\x18\t \x01(\tR\x11unavailableReason\x12F\n" +
+	"\rusage_history\x18\n" +
+	" \x01(\v2!.chalk.server.v1.HostUsageHistoryR\fusageHistoryB$\n" +
+	"\"_external_control_stream_connected\"e\n" +
+	"\x10UtilizationPoint\x12;\n" +
+	"\vobserved_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"observedAt\x12\x14\n" +
+	"\x05ratio\x18\x02 \x01(\x01R\x05ratio\"N\n" +
+	"\x11UtilizationSeries\x129\n" +
+	"\x06points\x18\x01 \x03(\v2!.chalk.server.v1.UtilizationPointR\x06points\"\xa0\x02\n" +
+	"\x10HostUsageHistory\x124\n" +
+	"\x03cpu\x18\x01 \x01(\v2\".chalk.server.v1.UtilizationSeriesR\x03cpu\x12:\n" +
+	"\x06memory\x18\x02 \x01(\v2\".chalk.server.v1.UtilizationSeriesR\x06memory\x12?\n" +
+	"\x04gpus\x18\x03 \x03(\v2+.chalk.server.v1.HostUsageHistory.GpusEntryR\x04gpus\x1aY\n" +
+	"\tGpusEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x126\n" +
+	"\x05value\x18\x02 \x01(\v2 .chalk.server.v1.GpuUsageHistoryR\x05value:\x028\x01\"\xa7\x01\n" +
+	"\x0fGpuUsageHistory\x12\x12\n" +
+	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x12D\n" +
+	"\vutilization\x18\x02 \x01(\v2\".chalk.server.v1.UtilizationSeriesR\vutilization\x12:\n" +
+	"\x06memory\x18\x03 \x01(\v2\".chalk.server.v1.UtilizationSeriesR\x06memory\"\xb6\x02\n" +
+	"\x1aHostPoolReservationHistory\x124\n" +
+	"\x03cpu\x18\x01 \x01(\v2\".chalk.server.v1.UtilizationSeriesR\x03cpu\x12:\n" +
+	"\x06memory\x18\x02 \x01(\v2\".chalk.server.v1.UtilizationSeriesR\x06memory\x12I\n" +
+	"\x04gpus\x18\x03 \x03(\v25.chalk.server.v1.HostPoolReservationHistory.GpusEntryR\x04gpus\x1a[\n" +
+	"\tGpusEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x128\n" +
+	"\x05value\x18\x02 \x01(\v2\".chalk.server.v1.UtilizationSeriesR\x05value:\x028\x01\"\xec\n" +
+	"\n" +
 	"\x10HostPoolCapacity\x12 \n" +
 	"\fhost_pool_id\x18\x01 \x01(\tR\n" +
 	"hostPoolId\x12\x12\n" +
@@ -1724,20 +2119,26 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\x1elargest_placeable_at_max_scale\x18\x15 \x01(\v2\".chalk.server.v1.HostPoolResourcesR\x1alargestPlaceableAtMaxScale\x12+\n" +
 	"\x11placed_containers\x18\x16 \x01(\x05R\x10placedContainers\x12G\n" +
 	" placed_containers_in_environment\x18\x17 \x01(\x05R\x1dplacedContainersInEnvironment\x123\n" +
-	"\x05hosts\x18\x18 \x03(\v2\x1d.chalk.server.v1.HostCapacityR\x05hostsB\n" +
+	"\x05hosts\x18\x18 \x03(\v2\x1d.chalk.server.v1.HostCapacityR\x05hosts\x12\x1a\n" +
+	"\bexternal\x18\x19 \x01(\bR\bexternal\x12;\n" +
+	"\vobserved_at\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"observedAt\x12\\\n" +
+	"\x13reservation_history\x18\x1b \x01(\v2+.chalk.server.v1.HostPoolReservationHistoryR\x12reservationHistoryB\n" +
 	"\n" +
 	"\b_messageB\r\n" +
 	"\v_idle_since\"[\n" +
 	"\x1aGetHostPoolCapacityRequest\x12*\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tH\x00R\renvironmentId\x88\x01\x01B\x11\n" +
-	"\x0f_environment_id\"\xa7\x02\n" +
+	"\x0f_environment_id\"\x89\x03\n" +
 	"\x1bGetHostPoolCapacityResponse\x12@\n" +
 	"\n" +
 	"host_pools\x18\x01 \x03(\v2!.chalk.server.v1.HostPoolCapacityR\thostPools\x12-\n" +
 	"\x12pending_containers\x18\x02 \x01(\x05R\x11pendingContainers\x12Z\n" +
 	"\x17largest_pending_request\x18\x03 \x01(\v2\".chalk.server.v1.HostPoolResourcesR\x15largestPendingRequest\x12;\n" +
 	"\vobserved_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"observedAt*\xde\x01\n" +
+	"observedAt\x12A\n" +
+	"\x1ahistory_unavailable_reason\x18\x05 \x01(\tH\x00R\x18historyUnavailableReason\x88\x01\x01B\x1d\n" +
+	"\x1b_history_unavailable_reason*\xde\x01\n" +
 	"\rHostPoolPhase\x12\x1f\n" +
 	"\x1bHOST_POOL_PHASE_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18HOST_POOL_PHASE_INACTIVE\x10\x01\x12\x1b\n" +
@@ -1772,7 +2173,7 @@ func file_chalk_server_v1_host_pool_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_host_pool_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_host_pool_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_chalk_server_v1_host_pool_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_chalk_server_v1_host_pool_proto_goTypes = []any{
 	(HostPoolPhase)(0),                        // 0: chalk.server.v1.HostPoolPhase
 	(*HostPoolSpec)(nil),                      // 1: chalk.server.v1.HostPoolSpec
@@ -1795,71 +2196,96 @@ var file_chalk_server_v1_host_pool_proto_goTypes = []any{
 	(*ListHostPoolsResponse)(nil),             // 18: chalk.server.v1.ListHostPoolsResponse
 	(*HostPoolResources)(nil),                 // 19: chalk.server.v1.HostPoolResources
 	(*HostCapacity)(nil),                      // 20: chalk.server.v1.HostCapacity
-	(*HostPoolCapacity)(nil),                  // 21: chalk.server.v1.HostPoolCapacity
-	(*GetHostPoolCapacityRequest)(nil),        // 22: chalk.server.v1.GetHostPoolCapacityRequest
-	(*GetHostPoolCapacityResponse)(nil),       // 23: chalk.server.v1.GetHostPoolCapacityResponse
-	(*durationpb.Duration)(nil),               // 24: google.protobuf.Duration
-	(*MaintenanceWindow)(nil),                 // 25: chalk.server.v1.MaintenanceWindow
-	(*timestamppb.Timestamp)(nil),             // 26: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),             // 27: google.protobuf.FieldMask
+	(*UtilizationPoint)(nil),                  // 21: chalk.server.v1.UtilizationPoint
+	(*UtilizationSeries)(nil),                 // 22: chalk.server.v1.UtilizationSeries
+	(*HostUsageHistory)(nil),                  // 23: chalk.server.v1.HostUsageHistory
+	(*GpuUsageHistory)(nil),                   // 24: chalk.server.v1.GpuUsageHistory
+	(*HostPoolReservationHistory)(nil),        // 25: chalk.server.v1.HostPoolReservationHistory
+	(*HostPoolCapacity)(nil),                  // 26: chalk.server.v1.HostPoolCapacity
+	(*GetHostPoolCapacityRequest)(nil),        // 27: chalk.server.v1.GetHostPoolCapacityRequest
+	(*GetHostPoolCapacityResponse)(nil),       // 28: chalk.server.v1.GetHostPoolCapacityResponse
+	nil,                                       // 29: chalk.server.v1.HostPoolResources.GpusEntry
+	nil,                                       // 30: chalk.server.v1.HostUsageHistory.GpusEntry
+	nil,                                       // 31: chalk.server.v1.HostPoolReservationHistory.GpusEntry
+	(*durationpb.Duration)(nil),               // 32: google.protobuf.Duration
+	(*MaintenanceWindow)(nil),                 // 33: chalk.server.v1.MaintenanceWindow
+	(*timestamppb.Timestamp)(nil),             // 34: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),             // 35: google.protobuf.FieldMask
 }
 var file_chalk_server_v1_host_pool_proto_depIdxs = []int32{
-	24, // 0: chalk.server.v1.HostPoolSpec.idle_timeout:type_name -> google.protobuf.Duration
-	25, // 1: chalk.server.v1.HostPoolSpec.maintenance_window:type_name -> chalk.server.v1.MaintenanceWindow
+	32, // 0: chalk.server.v1.HostPoolSpec.idle_timeout:type_name -> google.protobuf.Duration
+	33, // 1: chalk.server.v1.HostPoolSpec.maintenance_window:type_name -> chalk.server.v1.MaintenanceWindow
 	1,  // 2: chalk.server.v1.HostPool.spec:type_name -> chalk.server.v1.HostPoolSpec
-	26, // 3: chalk.server.v1.HostPool.created_at:type_name -> google.protobuf.Timestamp
-	26, // 4: chalk.server.v1.HostPool.updated_at:type_name -> google.protobuf.Timestamp
+	34, // 3: chalk.server.v1.HostPool.created_at:type_name -> google.protobuf.Timestamp
+	34, // 4: chalk.server.v1.HostPool.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 5: chalk.server.v1.CreateEnvironmentHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
 	2,  // 6: chalk.server.v1.CreateEnvironmentHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	1,  // 7: chalk.server.v1.UpdateEnvironmentHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
-	27, // 8: chalk.server.v1.UpdateEnvironmentHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	35, // 8: chalk.server.v1.UpdateEnvironmentHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
 	2,  // 9: chalk.server.v1.UpdateEnvironmentHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	1,  // 10: chalk.server.v1.CreateClusterHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
 	2,  // 11: chalk.server.v1.CreateClusterHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	1,  // 12: chalk.server.v1.UpdateClusterHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
-	27, // 13: chalk.server.v1.UpdateClusterHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	35, // 13: chalk.server.v1.UpdateClusterHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
 	2,  // 14: chalk.server.v1.UpdateClusterHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	2,  // 15: chalk.server.v1.GetHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	2,  // 16: chalk.server.v1.ListHostPoolsResponse.host_pools:type_name -> chalk.server.v1.HostPool
-	19, // 17: chalk.server.v1.HostCapacity.capacity:type_name -> chalk.server.v1.HostPoolResources
-	19, // 18: chalk.server.v1.HostCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
-	19, // 19: chalk.server.v1.HostCapacity.available:type_name -> chalk.server.v1.HostPoolResources
-	24, // 20: chalk.server.v1.HostPoolCapacity.idle_timeout:type_name -> google.protobuf.Duration
-	0,  // 21: chalk.server.v1.HostPoolCapacity.phase:type_name -> chalk.server.v1.HostPoolPhase
-	26, // 22: chalk.server.v1.HostPoolCapacity.idle_since:type_name -> google.protobuf.Timestamp
-	19, // 23: chalk.server.v1.HostPoolCapacity.ready:type_name -> chalk.server.v1.HostPoolResources
-	19, // 24: chalk.server.v1.HostPoolCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
-	19, // 25: chalk.server.v1.HostPoolCapacity.available:type_name -> chalk.server.v1.HostPoolResources
-	19, // 26: chalk.server.v1.HostPoolCapacity.at_max_scale:type_name -> chalk.server.v1.HostPoolResources
-	19, // 27: chalk.server.v1.HostPoolCapacity.largest_placeable:type_name -> chalk.server.v1.HostPoolResources
-	19, // 28: chalk.server.v1.HostPoolCapacity.largest_placeable_at_max_scale:type_name -> chalk.server.v1.HostPoolResources
-	20, // 29: chalk.server.v1.HostPoolCapacity.hosts:type_name -> chalk.server.v1.HostCapacity
-	21, // 30: chalk.server.v1.GetHostPoolCapacityResponse.host_pools:type_name -> chalk.server.v1.HostPoolCapacity
-	19, // 31: chalk.server.v1.GetHostPoolCapacityResponse.largest_pending_request:type_name -> chalk.server.v1.HostPoolResources
-	26, // 32: chalk.server.v1.GetHostPoolCapacityResponse.observed_at:type_name -> google.protobuf.Timestamp
-	3,  // 33: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:input_type -> chalk.server.v1.CreateEnvironmentHostPoolRequest
-	5,  // 34: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:input_type -> chalk.server.v1.UpdateEnvironmentHostPoolRequest
-	7,  // 35: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:input_type -> chalk.server.v1.DeleteEnvironmentHostPoolRequest
-	9,  // 36: chalk.server.v1.HostPoolService.CreateClusterHostPool:input_type -> chalk.server.v1.CreateClusterHostPoolRequest
-	11, // 37: chalk.server.v1.HostPoolService.UpdateClusterHostPool:input_type -> chalk.server.v1.UpdateClusterHostPoolRequest
-	13, // 38: chalk.server.v1.HostPoolService.DeleteClusterHostPool:input_type -> chalk.server.v1.DeleteClusterHostPoolRequest
-	15, // 39: chalk.server.v1.HostPoolService.GetHostPool:input_type -> chalk.server.v1.GetHostPoolRequest
-	17, // 40: chalk.server.v1.HostPoolService.ListHostPools:input_type -> chalk.server.v1.ListHostPoolsRequest
-	22, // 41: chalk.server.v1.HostPoolService.GetHostPoolCapacity:input_type -> chalk.server.v1.GetHostPoolCapacityRequest
-	4,  // 42: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:output_type -> chalk.server.v1.CreateEnvironmentHostPoolResponse
-	6,  // 43: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:output_type -> chalk.server.v1.UpdateEnvironmentHostPoolResponse
-	8,  // 44: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:output_type -> chalk.server.v1.DeleteEnvironmentHostPoolResponse
-	10, // 45: chalk.server.v1.HostPoolService.CreateClusterHostPool:output_type -> chalk.server.v1.CreateClusterHostPoolResponse
-	12, // 46: chalk.server.v1.HostPoolService.UpdateClusterHostPool:output_type -> chalk.server.v1.UpdateClusterHostPoolResponse
-	14, // 47: chalk.server.v1.HostPoolService.DeleteClusterHostPool:output_type -> chalk.server.v1.DeleteClusterHostPoolResponse
-	16, // 48: chalk.server.v1.HostPoolService.GetHostPool:output_type -> chalk.server.v1.GetHostPoolResponse
-	18, // 49: chalk.server.v1.HostPoolService.ListHostPools:output_type -> chalk.server.v1.ListHostPoolsResponse
-	23, // 50: chalk.server.v1.HostPoolService.GetHostPoolCapacity:output_type -> chalk.server.v1.GetHostPoolCapacityResponse
-	42, // [42:51] is the sub-list for method output_type
-	33, // [33:42] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	29, // 17: chalk.server.v1.HostPoolResources.gpus:type_name -> chalk.server.v1.HostPoolResources.GpusEntry
+	19, // 18: chalk.server.v1.HostCapacity.capacity:type_name -> chalk.server.v1.HostPoolResources
+	19, // 19: chalk.server.v1.HostCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
+	19, // 20: chalk.server.v1.HostCapacity.available:type_name -> chalk.server.v1.HostPoolResources
+	34, // 21: chalk.server.v1.HostCapacity.last_heartbeat_at:type_name -> google.protobuf.Timestamp
+	23, // 22: chalk.server.v1.HostCapacity.usage_history:type_name -> chalk.server.v1.HostUsageHistory
+	34, // 23: chalk.server.v1.UtilizationPoint.observed_at:type_name -> google.protobuf.Timestamp
+	21, // 24: chalk.server.v1.UtilizationSeries.points:type_name -> chalk.server.v1.UtilizationPoint
+	22, // 25: chalk.server.v1.HostUsageHistory.cpu:type_name -> chalk.server.v1.UtilizationSeries
+	22, // 26: chalk.server.v1.HostUsageHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
+	30, // 27: chalk.server.v1.HostUsageHistory.gpus:type_name -> chalk.server.v1.HostUsageHistory.GpusEntry
+	22, // 28: chalk.server.v1.GpuUsageHistory.utilization:type_name -> chalk.server.v1.UtilizationSeries
+	22, // 29: chalk.server.v1.GpuUsageHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
+	22, // 30: chalk.server.v1.HostPoolReservationHistory.cpu:type_name -> chalk.server.v1.UtilizationSeries
+	22, // 31: chalk.server.v1.HostPoolReservationHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
+	31, // 32: chalk.server.v1.HostPoolReservationHistory.gpus:type_name -> chalk.server.v1.HostPoolReservationHistory.GpusEntry
+	32, // 33: chalk.server.v1.HostPoolCapacity.idle_timeout:type_name -> google.protobuf.Duration
+	0,  // 34: chalk.server.v1.HostPoolCapacity.phase:type_name -> chalk.server.v1.HostPoolPhase
+	34, // 35: chalk.server.v1.HostPoolCapacity.idle_since:type_name -> google.protobuf.Timestamp
+	19, // 36: chalk.server.v1.HostPoolCapacity.ready:type_name -> chalk.server.v1.HostPoolResources
+	19, // 37: chalk.server.v1.HostPoolCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
+	19, // 38: chalk.server.v1.HostPoolCapacity.available:type_name -> chalk.server.v1.HostPoolResources
+	19, // 39: chalk.server.v1.HostPoolCapacity.at_max_scale:type_name -> chalk.server.v1.HostPoolResources
+	19, // 40: chalk.server.v1.HostPoolCapacity.largest_placeable:type_name -> chalk.server.v1.HostPoolResources
+	19, // 41: chalk.server.v1.HostPoolCapacity.largest_placeable_at_max_scale:type_name -> chalk.server.v1.HostPoolResources
+	20, // 42: chalk.server.v1.HostPoolCapacity.hosts:type_name -> chalk.server.v1.HostCapacity
+	34, // 43: chalk.server.v1.HostPoolCapacity.observed_at:type_name -> google.protobuf.Timestamp
+	25, // 44: chalk.server.v1.HostPoolCapacity.reservation_history:type_name -> chalk.server.v1.HostPoolReservationHistory
+	26, // 45: chalk.server.v1.GetHostPoolCapacityResponse.host_pools:type_name -> chalk.server.v1.HostPoolCapacity
+	19, // 46: chalk.server.v1.GetHostPoolCapacityResponse.largest_pending_request:type_name -> chalk.server.v1.HostPoolResources
+	34, // 47: chalk.server.v1.GetHostPoolCapacityResponse.observed_at:type_name -> google.protobuf.Timestamp
+	24, // 48: chalk.server.v1.HostUsageHistory.GpusEntry.value:type_name -> chalk.server.v1.GpuUsageHistory
+	22, // 49: chalk.server.v1.HostPoolReservationHistory.GpusEntry.value:type_name -> chalk.server.v1.UtilizationSeries
+	3,  // 50: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:input_type -> chalk.server.v1.CreateEnvironmentHostPoolRequest
+	5,  // 51: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:input_type -> chalk.server.v1.UpdateEnvironmentHostPoolRequest
+	7,  // 52: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:input_type -> chalk.server.v1.DeleteEnvironmentHostPoolRequest
+	9,  // 53: chalk.server.v1.HostPoolService.CreateClusterHostPool:input_type -> chalk.server.v1.CreateClusterHostPoolRequest
+	11, // 54: chalk.server.v1.HostPoolService.UpdateClusterHostPool:input_type -> chalk.server.v1.UpdateClusterHostPoolRequest
+	13, // 55: chalk.server.v1.HostPoolService.DeleteClusterHostPool:input_type -> chalk.server.v1.DeleteClusterHostPoolRequest
+	15, // 56: chalk.server.v1.HostPoolService.GetHostPool:input_type -> chalk.server.v1.GetHostPoolRequest
+	17, // 57: chalk.server.v1.HostPoolService.ListHostPools:input_type -> chalk.server.v1.ListHostPoolsRequest
+	27, // 58: chalk.server.v1.HostPoolService.GetHostPoolCapacity:input_type -> chalk.server.v1.GetHostPoolCapacityRequest
+	4,  // 59: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:output_type -> chalk.server.v1.CreateEnvironmentHostPoolResponse
+	6,  // 60: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:output_type -> chalk.server.v1.UpdateEnvironmentHostPoolResponse
+	8,  // 61: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:output_type -> chalk.server.v1.DeleteEnvironmentHostPoolResponse
+	10, // 62: chalk.server.v1.HostPoolService.CreateClusterHostPool:output_type -> chalk.server.v1.CreateClusterHostPoolResponse
+	12, // 63: chalk.server.v1.HostPoolService.UpdateClusterHostPool:output_type -> chalk.server.v1.UpdateClusterHostPoolResponse
+	14, // 64: chalk.server.v1.HostPoolService.DeleteClusterHostPool:output_type -> chalk.server.v1.DeleteClusterHostPoolResponse
+	16, // 65: chalk.server.v1.HostPoolService.GetHostPool:output_type -> chalk.server.v1.GetHostPoolResponse
+	18, // 66: chalk.server.v1.HostPoolService.ListHostPools:output_type -> chalk.server.v1.ListHostPoolsResponse
+	28, // 67: chalk.server.v1.HostPoolService.GetHostPoolCapacity:output_type -> chalk.server.v1.GetHostPoolCapacityResponse
+	59, // [59:68] is the sub-list for method output_type
+	50, // [50:59] is the sub-list for method input_type
+	50, // [50:50] is the sub-list for extension type_name
+	50, // [50:50] is the sub-list for extension extendee
+	0,  // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_host_pool_proto_init() }
@@ -1874,15 +2300,17 @@ func file_chalk_server_v1_host_pool_proto_init() {
 		(*ListHostPoolsRequest_EnvironmentId)(nil),
 		(*ListHostPoolsRequest_ClusterId)(nil),
 	}
-	file_chalk_server_v1_host_pool_proto_msgTypes[20].OneofWrappers = []any{}
-	file_chalk_server_v1_host_pool_proto_msgTypes[21].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[19].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[25].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[26].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[27].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_host_pool_proto_rawDesc), len(file_chalk_server_v1_host_pool_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   23,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

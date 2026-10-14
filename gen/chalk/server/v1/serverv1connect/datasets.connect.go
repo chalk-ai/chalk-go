@@ -78,6 +78,12 @@ const (
 	// DatasetMetadataServiceGetMaterializedAggregateTileFacetValuesProcedure is the fully-qualified
 	// name of the DatasetMetadataService's GetMaterializedAggregateTileFacetValues RPC.
 	DatasetMetadataServiceGetMaterializedAggregateTileFacetValuesProcedure = "/chalk.server.v1.DatasetMetadataService/GetMaterializedAggregateTileFacetValues"
+	// DatasetMetadataServiceGetFeatureMaterializedAggregationsProcedure is the fully-qualified name of
+	// the DatasetMetadataService's GetFeatureMaterializedAggregations RPC.
+	DatasetMetadataServiceGetFeatureMaterializedAggregationsProcedure = "/chalk.server.v1.DatasetMetadataService/GetFeatureMaterializedAggregations"
+	// DatasetMetadataServiceListTileFeatureCoverageProcedure is the fully-qualified name of the
+	// DatasetMetadataService's ListTileFeatureCoverage RPC.
+	DatasetMetadataServiceListTileFeatureCoverageProcedure = "/chalk.server.v1.DatasetMetadataService/ListTileFeatureCoverage"
 	// DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure is the fully-qualified
 	// name of the DatasetMetadataService's ListMaterializedAggregateTilesForTimeline RPC.
 	DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTilesForTimeline"
@@ -146,6 +152,10 @@ type DatasetMetadataServiceClient interface {
 	GetMaterializedAggregateTileFacets(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetsRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetsResponse], error)
 	// Facet values and counts for the TilesTimeline filter menu.
 	GetMaterializedAggregateTileFacetValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetValuesResponse], error)
+	// The active deployment's materialized aggregations that compute or read one feature.
+	GetFeatureMaterializedAggregations(context.Context, *connect.Request[v1.GetFeatureMaterializedAggregationsRequest]) (*connect.Response[v1.GetFeatureMaterializedAggregationsResponse], error)
+	// Gaps per windowed feature with offline tiles, paged by fqn; features with no tiles are omitted.
+	ListTileFeatureCoverage(context.Context, *connect.Request[v1.ListTileFeatureCoverageRequest]) (*connect.Response[v1.ListTileFeatureCoverageResponse], error)
 	// Full tile manifests for one timeline (one materialization_key_hash).
 	ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error)
 	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
@@ -297,6 +307,20 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getFeatureMaterializedAggregations: connect.NewClient[v1.GetFeatureMaterializedAggregationsRequest, v1.GetFeatureMaterializedAggregationsResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetFeatureMaterializedAggregationsProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetFeatureMaterializedAggregations")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listTileFeatureCoverage: connect.NewClient[v1.ListTileFeatureCoverageRequest, v1.ListTileFeatureCoverageResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceListTileFeatureCoverageProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("ListTileFeatureCoverage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		listMaterializedAggregateTilesForTimeline: connect.NewClient[v1.ListMaterializedAggregateTilesForTimelineRequest, v1.ListMaterializedAggregateTilesForTimelineResponse](
 			httpClient,
 			baseURL+DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure,
@@ -397,6 +421,8 @@ type datasetMetadataServiceClient struct {
 	listMaterializedAggregateTileTimelines    *connect.Client[v1.ListMaterializedAggregateTileTimelinesRequest, v1.ListMaterializedAggregateTileTimelinesResponse]
 	getMaterializedAggregateTileFacets        *connect.Client[v1.GetMaterializedAggregateTileFacetsRequest, v1.GetMaterializedAggregateTileFacetsResponse]
 	getMaterializedAggregateTileFacetValues   *connect.Client[v1.GetMaterializedAggregateTileFacetValuesRequest, v1.GetMaterializedAggregateTileFacetValuesResponse]
+	getFeatureMaterializedAggregations        *connect.Client[v1.GetFeatureMaterializedAggregationsRequest, v1.GetFeatureMaterializedAggregationsResponse]
+	listTileFeatureCoverage                   *connect.Client[v1.ListTileFeatureCoverageRequest, v1.ListTileFeatureCoverageResponse]
 	listMaterializedAggregateTilesForTimeline *connect.Client[v1.ListMaterializedAggregateTilesForTimelineRequest, v1.ListMaterializedAggregateTilesForTimelineResponse]
 	listMaterializedAggregateTileFiles        *connect.Client[v1.ListMaterializedAggregateTileFilesRequest, v1.ListMaterializedAggregateTileFilesResponse]
 	getMaterializedAggregateTileRowCountChart *connect.Client[v1.GetMaterializedAggregateTileRowCountChartRequest, v1.GetMaterializedAggregateTileRowCountChartResponse]
@@ -497,6 +523,17 @@ func (c *datasetMetadataServiceClient) GetMaterializedAggregateTileFacetValues(c
 	return c.getMaterializedAggregateTileFacetValues.CallUnary(ctx, req)
 }
 
+// GetFeatureMaterializedAggregations calls
+// chalk.server.v1.DatasetMetadataService.GetFeatureMaterializedAggregations.
+func (c *datasetMetadataServiceClient) GetFeatureMaterializedAggregations(ctx context.Context, req *connect.Request[v1.GetFeatureMaterializedAggregationsRequest]) (*connect.Response[v1.GetFeatureMaterializedAggregationsResponse], error) {
+	return c.getFeatureMaterializedAggregations.CallUnary(ctx, req)
+}
+
+// ListTileFeatureCoverage calls chalk.server.v1.DatasetMetadataService.ListTileFeatureCoverage.
+func (c *datasetMetadataServiceClient) ListTileFeatureCoverage(ctx context.Context, req *connect.Request[v1.ListTileFeatureCoverageRequest]) (*connect.Response[v1.ListTileFeatureCoverageResponse], error) {
+	return c.listTileFeatureCoverage.CallUnary(ctx, req)
+}
+
 // ListMaterializedAggregateTilesForTimeline calls
 // chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline.
 func (c *datasetMetadataServiceClient) ListMaterializedAggregateTilesForTimeline(ctx context.Context, req *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error) {
@@ -594,6 +631,10 @@ type DatasetMetadataServiceHandler interface {
 	GetMaterializedAggregateTileFacets(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetsRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetsResponse], error)
 	// Facet values and counts for the TilesTimeline filter menu.
 	GetMaterializedAggregateTileFacetValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetValuesResponse], error)
+	// The active deployment's materialized aggregations that compute or read one feature.
+	GetFeatureMaterializedAggregations(context.Context, *connect.Request[v1.GetFeatureMaterializedAggregationsRequest]) (*connect.Response[v1.GetFeatureMaterializedAggregationsResponse], error)
+	// Gaps per windowed feature with offline tiles, paged by fqn; features with no tiles are omitted.
+	ListTileFeatureCoverage(context.Context, *connect.Request[v1.ListTileFeatureCoverageRequest]) (*connect.Response[v1.ListTileFeatureCoverageResponse], error)
 	// Full tile manifests for one timeline (one materialization_key_hash).
 	ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error)
 	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
@@ -741,6 +782,20 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceGetFeatureMaterializedAggregationsHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetFeatureMaterializedAggregationsProcedure,
+		svc.GetFeatureMaterializedAggregations,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetFeatureMaterializedAggregations")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceListTileFeatureCoverageHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceListTileFeatureCoverageProcedure,
+		svc.ListTileFeatureCoverage,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("ListTileFeatureCoverage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	datasetMetadataServiceListMaterializedAggregateTilesForTimelineHandler := connect.NewUnaryHandler(
 		DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure,
 		svc.ListMaterializedAggregateTilesForTimeline,
@@ -853,6 +908,10 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceGetMaterializedAggregateTileFacetsHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGetMaterializedAggregateTileFacetValuesProcedure:
 			datasetMetadataServiceGetMaterializedAggregateTileFacetValuesHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetFeatureMaterializedAggregationsProcedure:
+			datasetMetadataServiceGetFeatureMaterializedAggregationsHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceListTileFeatureCoverageProcedure:
+			datasetMetadataServiceListTileFeatureCoverageHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure:
 			datasetMetadataServiceListMaterializedAggregateTilesForTimelineHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure:
@@ -944,6 +1003,14 @@ func (UnimplementedDatasetMetadataServiceHandler) GetMaterializedAggregateTileFa
 
 func (UnimplementedDatasetMetadataServiceHandler) GetMaterializedAggregateTileFacetValues(context.Context, *connect.Request[v1.GetMaterializedAggregateTileFacetValuesRequest]) (*connect.Response[v1.GetMaterializedAggregateTileFacetValuesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileFacetValues is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetFeatureMaterializedAggregations(context.Context, *connect.Request[v1.GetFeatureMaterializedAggregationsRequest]) (*connect.Response[v1.GetFeatureMaterializedAggregationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetFeatureMaterializedAggregations is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) ListTileFeatureCoverage(context.Context, *connect.Request[v1.ListTileFeatureCoverageRequest]) (*connect.Response[v1.ListTileFeatureCoverageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListTileFeatureCoverage is not implemented"))
 }
 
 func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error) {

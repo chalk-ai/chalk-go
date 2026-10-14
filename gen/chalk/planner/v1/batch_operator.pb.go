@@ -118,6 +118,10 @@ const (
 	OperatorType_OPERATOR_TYPE_ICEBERG_TABLE_WRITER                 OperatorType = 78
 	OperatorType_OPERATOR_TYPE_PARQUET_TABLE_WRITER                 OperatorType = 80
 	OperatorType_OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER         OperatorType = 82
+	OperatorType_OPERATOR_TYPE_INPUT_SQL_OPERATOR                   OperatorType = 83
+	OperatorType_OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER       OperatorType = 84
+	OperatorType_OPERATOR_TYPE_DROP_INDEX_COL                       OperatorType = 85
+	OperatorType_OPERATOR_TYPE_RECOVER_INDEX_COL                    OperatorType = 86
 )
 
 // Enum value maps for OperatorType.
@@ -206,6 +210,10 @@ var (
 		78: "OPERATOR_TYPE_ICEBERG_TABLE_WRITER",
 		80: "OPERATOR_TYPE_PARQUET_TABLE_WRITER",
 		82: "OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER",
+		83: "OPERATOR_TYPE_INPUT_SQL_OPERATOR",
+		84: "OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER",
+		85: "OPERATOR_TYPE_DROP_INDEX_COL",
+		86: "OPERATOR_TYPE_RECOVER_INDEX_COL",
 	}
 	OperatorType_value = map[string]int32{
 		"OPERATOR_TYPE_UNSPECIFIED":                                    0,
@@ -291,6 +299,10 @@ var (
 		"OPERATOR_TYPE_ICEBERG_TABLE_WRITER":                           78,
 		"OPERATOR_TYPE_PARQUET_TABLE_WRITER":                           80,
 		"OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER":                   82,
+		"OPERATOR_TYPE_INPUT_SQL_OPERATOR":                             83,
+		"OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER":                 84,
+		"OPERATOR_TYPE_DROP_INDEX_COL":                                 85,
+		"OPERATOR_TYPE_RECOVER_INDEX_COL":                              86,
 	}
 )
 
@@ -2220,7 +2232,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\bbehavior\" \n" +
 	"\x1eResolverRootUnderscoreBehavior\"f\n" +
 	"$StreamResolverRootUnderscoreBehavior\x12>\n" +
-	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\x89\x1b\n" +
+	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xa8\x1c\n" +
 	"\fOperatorType\x12\x1d\n" +
 	"\x19OPERATOR_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
 	"!OPERATOR_TYPE_ADD_CHILD_INDEX_COL\x10\x01\x12\x1f\n" +
@@ -2305,7 +2317,11 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"+OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN\x10M\x12&\n" +
 	"\"OPERATOR_TYPE_ICEBERG_TABLE_WRITER\x10N\x12&\n" +
 	"\"OPERATOR_TYPE_PARQUET_TABLE_WRITER\x10P\x12.\n" +
-	"*OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER\x10RB\xc9\x01\n" +
+	"*OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER\x10R\x12$\n" +
+	" OPERATOR_TYPE_INPUT_SQL_OPERATOR\x10S\x120\n" +
+	",OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER\x10T\x12 \n" +
+	"\x1cOPERATOR_TYPE_DROP_INDEX_COL\x10U\x12#\n" +
+	"\x1fOPERATOR_TYPE_RECOVER_INDEX_COL\x10VB\xc9\x01\n" +
 	"\x14com.chalk.planner.v1B\x12BatchOperatorProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

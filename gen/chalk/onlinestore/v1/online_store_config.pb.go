@@ -311,8 +311,11 @@ type EvictionAllowlist struct {
 	// remove in full: the caller is responsible for having confirmed that no surviving feature reads
 	// the same series.
 	MaterializedAggEvictions []*AggregationInfo `protobuf:"bytes,2,rep,name=materialized_agg_evictions,json=materializedAggEvictions,proto3" json:"materialized_agg_evictions,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Has-many index join persistence keys (same keys as `OnlineStoreInfo.has_many_info`, e.g.
+	// "user.transactions.id") whose index keys are deleted outright.
+	HasManyEvictions []string `protobuf:"bytes,3,rep,name=has_many_evictions,json=hasManyEvictions,proto3" json:"has_many_evictions,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *EvictionAllowlist) Reset() {
@@ -355,6 +358,13 @@ func (x *EvictionAllowlist) GetScalarEvictions() map[string]*ScalarEvictionsForN
 func (x *EvictionAllowlist) GetMaterializedAggEvictions() []*AggregationInfo {
 	if x != nil {
 		return x.MaterializedAggEvictions
+	}
+	return nil
+}
+
+func (x *EvictionAllowlist) GetHasManyEvictions() []string {
+	if x != nil {
+		return x.HasManyEvictions
 	}
 	return nil
 }
@@ -470,10 +480,11 @@ const file_chalk_onlinestore_v1_online_store_config_proto_rawDesc = "" +
 	"\x15aggregate_on_multiple\x18\n" +
 	" \x03(\tR\x13aggregateOnMultiple\"H\n" +
 	"\x1bScalarEvictionsForNamespace\x12)\n" +
-	"\x10persistence_keys\x18\x01 \x03(\tR\x0fpersistenceKeys\"\xd8\x02\n" +
+	"\x10persistence_keys\x18\x01 \x03(\tR\x0fpersistenceKeys\"\x86\x03\n" +
 	"\x11EvictionAllowlist\x12g\n" +
 	"\x10scalar_evictions\x18\x01 \x03(\v2<.chalk.onlinestore.v1.EvictionAllowlist.ScalarEvictionsEntryR\x0fscalarEvictions\x12c\n" +
-	"\x1amaterialized_agg_evictions\x18\x02 \x03(\v2%.chalk.onlinestore.v1.AggregationInfoR\x18materializedAggEvictions\x1au\n" +
+	"\x1amaterialized_agg_evictions\x18\x02 \x03(\v2%.chalk.onlinestore.v1.AggregationInfoR\x18materializedAggEvictions\x12,\n" +
+	"\x12has_many_evictions\x18\x03 \x03(\tR\x10hasManyEvictions\x1au\n" +
 	"\x14ScalarEvictionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12G\n" +
 	"\x05value\x18\x02 \x01(\v21.chalk.onlinestore.v1.ScalarEvictionsForNamespaceR\x05value:\x028\x01\"\x95\x06\n" +
