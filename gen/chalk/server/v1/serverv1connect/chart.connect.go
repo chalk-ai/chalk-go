@@ -60,6 +60,9 @@ const (
 	// ChartsServiceGetChartSnapshotProcedure is the fully-qualified name of the ChartsService's
 	// GetChartSnapshot RPC.
 	ChartsServiceGetChartSnapshotProcedure = "/chalk.server.v1.ChartsService/GetChartSnapshot"
+	// ChartsServiceGetClusterChartSnapshotProcedure is the fully-qualified name of the ChartsService's
+	// GetClusterChartSnapshot RPC.
+	ChartsServiceGetClusterChartSnapshotProcedure = "/chalk.server.v1.ChartsService/GetClusterChartSnapshot"
 	// ChartsServiceGetChartSnapshotByQueryProcedure is the fully-qualified name of the ChartsService's
 	// GetChartSnapshotByQuery RPC.
 	ChartsServiceGetChartSnapshotByQueryProcedure = "/chalk.server.v1.ChartsService/GetChartSnapshotByQuery"
@@ -127,6 +130,9 @@ type ChartsServiceClient interface {
 	CreateChartAnnotation(context.Context, *connect.Request[v1.CreateChartAnnotationRequest]) (*connect.Response[v1.CreateChartAnnotationResponse], error)
 	DeleteChartAnnotation(context.Context, *connect.Request[v1.DeleteChartAnnotationRequest]) (*connect.Response[v1.DeleteChartAnnotationResponse], error)
 	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
+	// Evaluates an allowlisted VictoriaMetrics chart for a cluster owned by the
+	// requesting team. The server resolves both the cluster scope and VM client.
+	GetClusterChartSnapshot(context.Context, *connect.Request[v1.GetClusterChartSnapshotRequest]) (*connect.Response[v1.GetClusterChartSnapshotResponse], error)
 	GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error)
 	UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error)
 	DecompileMetricConfig(context.Context, *connect.Request[v1.DecompileMetricConfigRequest]) (*connect.Response[v1.DecompileMetricConfigResponse], error)
@@ -205,6 +211,13 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			httpClient,
 			baseURL+ChartsServiceGetChartSnapshotProcedure,
 			connect.WithSchema(chartsServiceMethods.ByName("GetChartSnapshot")),
+			connect.WithClientOptions(opts...),
+		),
+		getClusterChartSnapshot: connect.NewClient[v1.GetClusterChartSnapshotRequest, v1.GetClusterChartSnapshotResponse](
+			httpClient,
+			baseURL+ChartsServiceGetClusterChartSnapshotProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("GetClusterChartSnapshot")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getChartSnapshotByQuery: connect.NewClient[v1.GetChartSnapshotByQueryRequest, v1.GetChartSnapshotByQueryResponse](
@@ -299,6 +312,7 @@ type chartsServiceClient struct {
 	createChartAnnotation    *connect.Client[v1.CreateChartAnnotationRequest, v1.CreateChartAnnotationResponse]
 	deleteChartAnnotation    *connect.Client[v1.DeleteChartAnnotationRequest, v1.DeleteChartAnnotationResponse]
 	getChartSnapshot         *connect.Client[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse]
+	getClusterChartSnapshot  *connect.Client[v1.GetClusterChartSnapshotRequest, v1.GetClusterChartSnapshotResponse]
 	getChartSnapshotByQuery  *connect.Client[v1.GetChartSnapshotByQueryRequest, v1.GetChartSnapshotByQueryResponse]
 	updateMetricConfig       *connect.Client[v1.UpdateMetricConfigRequest, v1.UpdateMetricConfigResponse]
 	decompileMetricConfig    *connect.Client[v1.DecompileMetricConfigRequest, v1.DecompileMetricConfigResponse]
@@ -357,6 +371,11 @@ func (c *chartsServiceClient) DeleteChartAnnotation(ctx context.Context, req *co
 // GetChartSnapshot calls chalk.server.v1.ChartsService.GetChartSnapshot.
 func (c *chartsServiceClient) GetChartSnapshot(ctx context.Context, req *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error) {
 	return c.getChartSnapshot.CallUnary(ctx, req)
+}
+
+// GetClusterChartSnapshot calls chalk.server.v1.ChartsService.GetClusterChartSnapshot.
+func (c *chartsServiceClient) GetClusterChartSnapshot(ctx context.Context, req *connect.Request[v1.GetClusterChartSnapshotRequest]) (*connect.Response[v1.GetClusterChartSnapshotResponse], error) {
+	return c.getClusterChartSnapshot.CallUnary(ctx, req)
 }
 
 // GetChartSnapshotByQuery calls chalk.server.v1.ChartsService.GetChartSnapshotByQuery.
@@ -451,6 +470,9 @@ type ChartsServiceHandler interface {
 	CreateChartAnnotation(context.Context, *connect.Request[v1.CreateChartAnnotationRequest]) (*connect.Response[v1.CreateChartAnnotationResponse], error)
 	DeleteChartAnnotation(context.Context, *connect.Request[v1.DeleteChartAnnotationRequest]) (*connect.Response[v1.DeleteChartAnnotationResponse], error)
 	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
+	// Evaluates an allowlisted VictoriaMetrics chart for a cluster owned by the
+	// requesting team. The server resolves both the cluster scope and VM client.
+	GetClusterChartSnapshot(context.Context, *connect.Request[v1.GetClusterChartSnapshotRequest]) (*connect.Response[v1.GetClusterChartSnapshotResponse], error)
 	GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error)
 	UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error)
 	DecompileMetricConfig(context.Context, *connect.Request[v1.DecompileMetricConfigRequest]) (*connect.Response[v1.DecompileMetricConfigResponse], error)
@@ -525,6 +547,13 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 		ChartsServiceGetChartSnapshotProcedure,
 		svc.GetChartSnapshot,
 		connect.WithSchema(chartsServiceMethods.ByName("GetChartSnapshot")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceGetClusterChartSnapshotHandler := connect.NewUnaryHandler(
+		ChartsServiceGetClusterChartSnapshotProcedure,
+		svc.GetClusterChartSnapshot,
+		connect.WithSchema(chartsServiceMethods.ByName("GetClusterChartSnapshot")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	chartsServiceGetChartSnapshotByQueryHandler := connect.NewUnaryHandler(
@@ -625,6 +654,8 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 			chartsServiceDeleteChartAnnotationHandler.ServeHTTP(w, r)
 		case ChartsServiceGetChartSnapshotProcedure:
 			chartsServiceGetChartSnapshotHandler.ServeHTTP(w, r)
+		case ChartsServiceGetClusterChartSnapshotProcedure:
+			chartsServiceGetClusterChartSnapshotHandler.ServeHTTP(w, r)
 		case ChartsServiceGetChartSnapshotByQueryProcedure:
 			chartsServiceGetChartSnapshotByQueryHandler.ServeHTTP(w, r)
 		case ChartsServiceUpdateMetricConfigProcedure:
@@ -694,6 +725,10 @@ func (UnimplementedChartsServiceHandler) DeleteChartAnnotation(context.Context, 
 
 func (UnimplementedChartsServiceHandler) GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetChartSnapshot is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) GetClusterChartSnapshot(context.Context, *connect.Request[v1.GetClusterChartSnapshotRequest]) (*connect.Response[v1.GetClusterChartSnapshotResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetClusterChartSnapshot is not implemented"))
 }
 
 func (UnimplementedChartsServiceHandler) GetChartSnapshotByQuery(context.Context, *connect.Request[v1.GetChartSnapshotByQueryRequest]) (*connect.Response[v1.GetChartSnapshotByQueryResponse], error) {

@@ -76,10 +76,12 @@ type EvaluationServiceClient interface {
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
 	CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error)
-	// Score a finished run's outputs again, with its own evaluation's scorers or
-	// with another evaluation's over the same dataset revision and task. The task is the expensive half of an evaluation and the half you are not
-	// changing while iterating on scorers, so its outputs are read back out of
-	// the rescored run instead of being recomputed.
+	// Score a finished run's rows again, with its own evaluation's task and
+	// scorers or with another evaluation's over the same dataset revision. Only
+	// what changed since that run is called: the task's outputs are read back out
+	// of the rescored run when the evaluation names the same task, and a scorer's
+	// values are copied from it when the run had the same scorer over the same
+	// inputs, except on the rows that scorer failed on.
 	RescoreEvaluationRun(context.Context, *connect.Request[v1.RescoreEvaluationRunRequest]) (*connect.Response[v1.RescoreEvaluationRunResponse], error)
 	GetEvaluationRun(context.Context, *connect.Request[v1.GetEvaluationRunRequest]) (*connect.Response[v1.GetEvaluationRunResponse], error)
 	ListEvaluationRuns(context.Context, *connect.Request[v1.ListEvaluationRunsRequest]) (*connect.Response[v1.ListEvaluationRunsResponse], error)
@@ -253,10 +255,12 @@ type EvaluationServiceHandler interface {
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
 	CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error)
-	// Score a finished run's outputs again, with its own evaluation's scorers or
-	// with another evaluation's over the same dataset revision and task. The task is the expensive half of an evaluation and the half you are not
-	// changing while iterating on scorers, so its outputs are read back out of
-	// the rescored run instead of being recomputed.
+	// Score a finished run's rows again, with its own evaluation's task and
+	// scorers or with another evaluation's over the same dataset revision. Only
+	// what changed since that run is called: the task's outputs are read back out
+	// of the rescored run when the evaluation names the same task, and a scorer's
+	// values are copied from it when the run had the same scorer over the same
+	// inputs, except on the rows that scorer failed on.
 	RescoreEvaluationRun(context.Context, *connect.Request[v1.RescoreEvaluationRunRequest]) (*connect.Response[v1.RescoreEvaluationRunResponse], error)
 	GetEvaluationRun(context.Context, *connect.Request[v1.GetEvaluationRunRequest]) (*connect.Response[v1.GetEvaluationRunResponse], error)
 	ListEvaluationRuns(context.Context, *connect.Request[v1.ListEvaluationRunsRequest]) (*connect.Response[v1.ListEvaluationRunsResponse], error)

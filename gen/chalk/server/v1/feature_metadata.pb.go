@@ -905,7 +905,7 @@ var File_chalk_server_v1_feature_metadata_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_feature_metadata_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/server/v1/feature_metadata.proto\x12\x0fchalk.server.v1\x1a!chalk/aggregate/v1/backfill.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"V\n" +
+	"&chalk/server/v1/feature_metadata.proto\x12\x0fchalk.server.v1\x1a!chalk/aggregate/v1/backfill.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"V\n" +
 	"\x1aDropFeatureVersionsRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\"\x1d\n" +
@@ -972,14 +972,14 @@ const file_chalk_server_v1_feature_metadata_proto_rawDesc = "" +
 	"!scheduled_aggregate_backfill_name\x18\x03 \x01(\tH\x00R\x1escheduledAggregateBackfillNameB\f\n" +
 	"\n" +
 	"identifier\"#\n" +
-	"!DeleteIncrementalProgressResponse2\x97\x06\n" +
+	"!DeleteIncrementalProgressResponse2\xdb\x06\n" +
 	"\x16FeatureMetadataService\x12u\n" +
 	"\x13DropFeatureVersions\x12+.chalk.server.v1.DropFeatureVersionsRequest\x1a,.chalk.server.v1.DropFeatureVersionsResponse\"\x03\x80}\f\x12r\n" +
 	"\x12FeatureMigrateType\x12*.chalk.server.v1.FeatureMigrateTypeRequest\x1a+.chalk.server.v1.FeatureMigrateTypeResponse\"\x03\x80}\f\x12\x87\x01\n" +
 	"\x19DeleteFeatureObservations\x121.chalk.server.v1.DeleteFeatureObservationsRequest\x1a2.chalk.server.v1.DeleteFeatureObservationsResponse\"\x03\x80}\f\x12~\n" +
-	"\x16GetIncrementalProgress\x12..chalk.server.v1.GetIncrementalProgressRequest\x1a/.chalk.server.v1.GetIncrementalProgressResponse\"\x03\x80}\v\x12~\n" +
-	"\x16SetIncrementalProgress\x12..chalk.server.v1.SetIncrementalProgressRequest\x1a/.chalk.server.v1.SetIncrementalProgressResponse\"\x03\x80}\x11\x12\x87\x01\n" +
-	"\x19DeleteIncrementalProgress\x121.chalk.server.v1.DeleteIncrementalProgressRequest\x1a2.chalk.server.v1.DeleteIncrementalProgressResponse\"\x03\x80}\fB\xc4\x01\n" +
+	"\x16GetIncrementalProgress\x12..chalk.server.v1.GetIncrementalProgressRequest\x1a/.chalk.server.v1.GetIncrementalProgressResponse\"\x03\x80}\v\x12\x9e\x01\n" +
+	"\x16SetIncrementalProgress\x12..chalk.server.v1.SetIncrementalProgressRequest\x1a/.chalk.server.v1.SetIncrementalProgressResponse\"#\x80}\x11\x8a\xd3\x0e\x1c\b\x02\x12\x18Set incremental progress\x12\xaa\x01\n" +
+	"\x19DeleteIncrementalProgress\x121.chalk.server.v1.DeleteIncrementalProgressRequest\x1a2.chalk.server.v1.DeleteIncrementalProgressResponse\"&\x80}\f\x8a\xd3\x0e\x1f\b\x02\x12\x1bDelete incremental progressB\xc4\x01\n" +
 	"\x13com.chalk.server.v1B\x14FeatureMetadataProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (

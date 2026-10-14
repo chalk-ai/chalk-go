@@ -32,6 +32,20 @@ const (
 	HealthCheckStatus_HEALTH_CHECK_STATUS_FAILING     HealthCheckStatus = 2
 	// this environment/project is not set up to run this service
 	HealthCheckStatus_HEALTH_CHECK_STATUS_NOT_CONFIGURED HealthCheckStatus = 3
+	// Refines OK: the component works but is not in its intended state, such as an unverified
+	// permission or a resource running near capacity.
+	HealthCheckStatus_HEALTH_CHECK_STATUS_DEGRADED HealthCheckStatus = 4
+	// Refines FAILING: a Chalk-managed workload has running pods, but the check could not talk to it.
+	HealthCheckStatus_HEALTH_CHECK_STATUS_FAILING_RUNNING HealthCheckStatus = 5
+	// Refines FAILING: a component this check depends on is failing, so this one could not be
+	// evaluated. It does not alert, because the failing dependency's own check already does.
+	HealthCheckStatus_HEALTH_CHECK_STATUS_UPSTREAM_FAILING HealthCheckStatus = 6
+	// Refines NOT_CONFIGURED: the component is set up but intentionally stopped, such as a suspended
+	// telemetry deployment or a branch server scaled to zero while idle.
+	HealthCheckStatus_HEALTH_CHECK_STATUS_SCALED_DOWN HealthCheckStatus = 7
+	// Refines NOT_CONFIGURED: the check does not apply to this environment's cloud or cluster
+	// topology. NOT_CONFIGURED itself means an optional feature the check covers is not set up.
+	HealthCheckStatus_HEALTH_CHECK_STATUS_NOT_APPLICABLE HealthCheckStatus = 8
 )
 
 // Enum value maps for HealthCheckStatus.
@@ -41,12 +55,22 @@ var (
 		1: "HEALTH_CHECK_STATUS_OK",
 		2: "HEALTH_CHECK_STATUS_FAILING",
 		3: "HEALTH_CHECK_STATUS_NOT_CONFIGURED",
+		4: "HEALTH_CHECK_STATUS_DEGRADED",
+		5: "HEALTH_CHECK_STATUS_FAILING_RUNNING",
+		6: "HEALTH_CHECK_STATUS_UPSTREAM_FAILING",
+		7: "HEALTH_CHECK_STATUS_SCALED_DOWN",
+		8: "HEALTH_CHECK_STATUS_NOT_APPLICABLE",
 	}
 	HealthCheckStatus_value = map[string]int32{
-		"HEALTH_CHECK_STATUS_UNSPECIFIED":    0,
-		"HEALTH_CHECK_STATUS_OK":             1,
-		"HEALTH_CHECK_STATUS_FAILING":        2,
-		"HEALTH_CHECK_STATUS_NOT_CONFIGURED": 3,
+		"HEALTH_CHECK_STATUS_UNSPECIFIED":      0,
+		"HEALTH_CHECK_STATUS_OK":               1,
+		"HEALTH_CHECK_STATUS_FAILING":          2,
+		"HEALTH_CHECK_STATUS_NOT_CONFIGURED":   3,
+		"HEALTH_CHECK_STATUS_DEGRADED":         4,
+		"HEALTH_CHECK_STATUS_FAILING_RUNNING":  5,
+		"HEALTH_CHECK_STATUS_UPSTREAM_FAILING": 6,
+		"HEALTH_CHECK_STATUS_SCALED_DOWN":      7,
+		"HEALTH_CHECK_STATUS_NOT_APPLICABLE":   8,
 	}
 )
 
@@ -80,72 +104,73 @@ func (HealthCheckStatus) EnumDescriptor() ([]byte, []int) {
 type HealthCheckName int32
 
 const (
-	HealthCheckName_HEALTH_CHECK_NAME_UNSPECIFIED                            HealthCheckName = 0
-	HealthCheckName_HEALTH_CHECK_NAME_HTTP_ENGINE                            HealthCheckName = 1  // "HTTP Engine"
-	HealthCheckName_HEALTH_CHECK_NAME_SPILLING_CONFIG                        HealthCheckName = 2  // "Spilling Config"
-	HealthCheckName_HEALTH_CHECK_NAME_GRPC_ENGINE                            HealthCheckName = 3  // "gRPC Engine"
-	HealthCheckName_HEALTH_CHECK_NAME_API_SERVER                             HealthCheckName = 4  // "API Server"
-	HealthCheckName_HEALTH_CHECK_NAME_KEDA_COMPONENTS                        HealthCheckName = 5  // "KEDA Components"
-	HealthCheckName_HEALTH_CHECK_NAME_FUNCTION_QUEUE                         HealthCheckName = 6  // "Function Queue"
-	HealthCheckName_HEALTH_CHECK_NAME_CERTIFICATE_MANAGER                    HealthCheckName = 7  // "Certificate Manager"
-	HealthCheckName_HEALTH_CHECK_NAME_BRANCH_SERVER                          HealthCheckName = 8  // "Branch Server"
-	HealthCheckName_HEALTH_CHECK_NAME_GRPC_BRANCH_SERVER                     HealthCheckName = 9  // "gRPC Branch Server"
-	HealthCheckName_HEALTH_CHECK_NAME_STREAMING_SERVER                       HealthCheckName = 10 // "Streaming Server"
-	HealthCheckName_HEALTH_CHECK_NAME_AWS_LOAD_BALANCER_CONTROLLER           HealthCheckName = 11 // "AWS Load Balancer Controller"
-	HealthCheckName_HEALTH_CHECK_NAME_PG_CRON                                HealthCheckName = 12 // "pg_cron"
-	HealthCheckName_HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE                 HealthCheckName = 13 // "Background Persistence"
-	HealthCheckName_HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_BUS_CONNECTIONS HealthCheckName = 14 // "Background Persistence Bus Connections"
-	HealthCheckName_HEALTH_CHECK_NAME_LOGGING_CLIENT                         HealthCheckName = 15 // "Logging Client"
-	HealthCheckName_HEALTH_CHECK_NAME_FLUENT_BIT_METRICS                     HealthCheckName = 16 // "Fluent Bit Metrics"
-	HealthCheckName_HEALTH_CHECK_NAME_TELEMETRY_COLLECTORS                   HealthCheckName = 17 // "Telemetry Collectors"
-	HealthCheckName_HEALTH_CHECK_NAME_TELEMETRY_AGGREGATOR                   HealthCheckName = 18 // "Telemetry Aggregator"
-	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE                             HealthCheckName = 19 // "Clickhouse"
-	HealthCheckName_HEALTH_CHECK_NAME_METRICS_TIMESCALE_DB                   HealthCheckName = 20 // "Metrics TimescaleDB"
-	HealthCheckName_HEALTH_CHECK_NAME_METRICS_BACKUPS                        HealthCheckName = 21 // "Metrics Backups"
-	HealthCheckName_HEALTH_CHECK_NAME_AWS_METADATA_SERVER                    HealthCheckName = 22 // "AWS Metadata Server"
-	HealthCheckName_HEALTH_CHECK_NAME_CLOUD_ACCOUNT                          HealthCheckName = 23 // "Cloud Account"
-	HealthCheckName_HEALTH_CHECK_NAME_CLOUD_NETWORKING                       HealthCheckName = 24 // "Cloud Networking"
-	HealthCheckName_HEALTH_CHECK_NAME_PUB_SUB                                HealthCheckName = 25 // "Pub/Sub"
-	HealthCheckName_HEALTH_CHECK_NAME_BASE_IMAGE_CONTAINER_REGISTRY          HealthCheckName = 26 // "Base Image Container Registry"
-	HealthCheckName_HEALTH_CHECK_NAME_PUSH_CONTAINER_REGISTRY                HealthCheckName = 27 // "Push Container Registry"
-	HealthCheckName_HEALTH_CHECK_NAME_SOURCE_BUCKET                          HealthCheckName = 28 // "Source Bucket"
-	HealthCheckName_HEALTH_CHECK_NAME_DATASET_BUCKET                         HealthCheckName = 29 // "Dataset Bucket"
-	HealthCheckName_HEALTH_CHECK_NAME_PLAN_STAGES_BUCKET                     HealthCheckName = 30 // "Plan Stages Bucket"
-	HealthCheckName_HEALTH_CHECK_NAME_ETL_BUCKET                             HealthCheckName = 31 // "ETL Bucket"
-	HealthCheckName_HEALTH_CHECK_NAME_ARGO                                   HealthCheckName = 32 // "Argo"
-	HealthCheckName_HEALTH_CHECK_NAME_KEDA                                   HealthCheckName = 33 // "KEDA"
-	HealthCheckName_HEALTH_CHECK_NAME_KARPENTER                              HealthCheckName = 34 // "Karpenter"
-	HealthCheckName_HEALTH_CHECK_NAME_KUBE_PERMISSIONS                       HealthCheckName = 35 // "Kube Permissions"
-	HealthCheckName_HEALTH_CHECK_NAME_ENVOY_PROXY                            HealthCheckName = 36 // "Envoy Proxy"
-	HealthCheckName_HEALTH_CHECK_NAME_GATEWAY                                HealthCheckName = 37 // "Gateway"
-	HealthCheckName_HEALTH_CHECK_NAME_GATEWAY_DNS                            HealthCheckName = 38 // "Gateway DNS"
-	HealthCheckName_HEALTH_CHECK_NAME_GATEWAY_ROUTABILITY                    HealthCheckName = 39 // "Gateway Routability"
-	HealthCheckName_HEALTH_CHECK_NAME_CNPG                                   HealthCheckName = 40 // "CNPG"
-	HealthCheckName_HEALTH_CHECK_NAME_METRICS_SERVER_CHART                   HealthCheckName = 41 // "Metrics Server Chart"
-	HealthCheckName_HEALTH_CHECK_NAME_KUBERNETES_METRICS                     HealthCheckName = 42 // "Kubernetes Metrics"
-	HealthCheckName_HEALTH_CHECK_NAME_KUBERNETES_PROXY_ADDON                 HealthCheckName = 43 // "Kubernetes Proxy Addon"
-	HealthCheckName_HEALTH_CHECK_NAME_BILLING_SERVICE                        HealthCheckName = 44 // "Billing Service"
-	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_STORE_QUERY_VALUE_PERSISTENCE  HealthCheckName = 45 // "Offline Store Query Value Persistence"
-	HealthCheckName_HEALTH_CHECK_NAME_EXTERNAL_DNS_CHART                     HealthCheckName = 46 // "External DNS Chart"
-	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_STORE                          HealthCheckName = 47 // "Offline Store"
-	HealthCheckName_HEALTH_CHECK_NAME_ONLINE_STORE                           HealthCheckName = 48 // "Online Store"
-	HealthCheckName_HEALTH_CHECK_NAME_S3_CSI_DRIVER                          HealthCheckName = 49 // "S3 CSI Driver"
-	HealthCheckName_HEALTH_CHECK_NAME_CORE_DNS                               HealthCheckName = 50 // "CoreDNS"
-	HealthCheckName_HEALTH_CHECK_NAME_VOLUME_SERVICE                         HealthCheckName = 51 // "Volume Service"
-	HealthCheckName_HEALTH_CHECK_NAME_VPC_CNI                                HealthCheckName = 52 // "VPC CNI"
-	HealthCheckName_HEALTH_CHECK_NAME_EBS_CSI_DRIVER                         HealthCheckName = 53 // "EBS CSI Driver"
-	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS                       HealthCheckName = 54 // "Victoria Metrics"
-	HealthCheckName_HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY             HealthCheckName = 55 // "Container Registry"
-	HealthCheckName_HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS           HealthCheckName = 56 // "Chalk Machine Type Nodepools"
-	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_NODEPOOL                       HealthCheckName = 57 // "Offline Nodepool"
-	HealthCheckName_HEALTH_CHECK_NAME_LLM_ROUTER                             HealthCheckName = 58 // "LLM Router"
-	HealthCheckName_HEALTH_CHECK_NAME_MCP_GATEWAY                            HealthCheckName = 59 // "MCP Gateway"
-	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_USAGE                       HealthCheckName = 60 // clickhouse usage stats
-	HealthCheckName_HEALTH_CHECK_NAME_DATAPLANE_API_SERVER                   HealthCheckName = 61 // "Dataplane API Server"
-	HealthCheckName_HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL                HealthCheckName = 62 // "Infrastructure Nodepool"
-	HealthCheckName_HEALTH_CHECK_NAME_ONLINE_NODEPOOL                        HealthCheckName = 63 // "Online Nodepool"
-	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION             HealthCheckName = 64 // "ClickHouse PVC Utilization"
-	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION       HealthCheckName = 65 // "VictoriaMetrics PVC Utilization"
+	HealthCheckName_HEALTH_CHECK_NAME_UNSPECIFIED                             HealthCheckName = 0
+	HealthCheckName_HEALTH_CHECK_NAME_HTTP_ENGINE                             HealthCheckName = 1  // "HTTP Engine"
+	HealthCheckName_HEALTH_CHECK_NAME_SPILLING_CONFIG                         HealthCheckName = 2  // "Spilling Config"
+	HealthCheckName_HEALTH_CHECK_NAME_GRPC_ENGINE                             HealthCheckName = 3  // "gRPC Engine"
+	HealthCheckName_HEALTH_CHECK_NAME_API_SERVER                              HealthCheckName = 4  // "API Server"
+	HealthCheckName_HEALTH_CHECK_NAME_KEDA_COMPONENTS                         HealthCheckName = 5  // "KEDA Components"
+	HealthCheckName_HEALTH_CHECK_NAME_FUNCTION_QUEUE                          HealthCheckName = 6  // "Function Queue"
+	HealthCheckName_HEALTH_CHECK_NAME_CERTIFICATE_MANAGER                     HealthCheckName = 7  // "Certificate Manager"
+	HealthCheckName_HEALTH_CHECK_NAME_BRANCH_SERVER                           HealthCheckName = 8  // "Branch Server"
+	HealthCheckName_HEALTH_CHECK_NAME_GRPC_BRANCH_SERVER                      HealthCheckName = 9  // "gRPC Branch Server"
+	HealthCheckName_HEALTH_CHECK_NAME_STREAMING_SERVER                        HealthCheckName = 10 // "Streaming Server"
+	HealthCheckName_HEALTH_CHECK_NAME_AWS_LOAD_BALANCER_CONTROLLER            HealthCheckName = 11 // "AWS Load Balancer Controller"
+	HealthCheckName_HEALTH_CHECK_NAME_PG_CRON                                 HealthCheckName = 12 // "pg_cron"
+	HealthCheckName_HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE                  HealthCheckName = 13 // "Background Persistence"
+	HealthCheckName_HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_BUS_CONNECTIONS  HealthCheckName = 14 // "Background Persistence Bus Connections"
+	HealthCheckName_HEALTH_CHECK_NAME_LOGGING_CLIENT                          HealthCheckName = 15 // "Logging Client"
+	HealthCheckName_HEALTH_CHECK_NAME_FLUENT_BIT_METRICS                      HealthCheckName = 16 // "Fluent Bit Metrics"
+	HealthCheckName_HEALTH_CHECK_NAME_TELEMETRY_COLLECTORS                    HealthCheckName = 17 // "Telemetry Collectors"
+	HealthCheckName_HEALTH_CHECK_NAME_TELEMETRY_AGGREGATOR                    HealthCheckName = 18 // "Telemetry Aggregator"
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE                              HealthCheckName = 19 // "Clickhouse"
+	HealthCheckName_HEALTH_CHECK_NAME_METRICS_TIMESCALE_DB                    HealthCheckName = 20 // "Metrics TimescaleDB"
+	HealthCheckName_HEALTH_CHECK_NAME_METRICS_BACKUPS                         HealthCheckName = 21 // "Metrics Backups"
+	HealthCheckName_HEALTH_CHECK_NAME_AWS_METADATA_SERVER                     HealthCheckName = 22 // "AWS Metadata Server"
+	HealthCheckName_HEALTH_CHECK_NAME_CLOUD_ACCOUNT                           HealthCheckName = 23 // "Cloud Account"
+	HealthCheckName_HEALTH_CHECK_NAME_CLOUD_NETWORKING                        HealthCheckName = 24 // "Cloud Networking"
+	HealthCheckName_HEALTH_CHECK_NAME_PUB_SUB                                 HealthCheckName = 25 // "Pub/Sub"
+	HealthCheckName_HEALTH_CHECK_NAME_BASE_IMAGE_CONTAINER_REGISTRY           HealthCheckName = 26 // "Base Image Container Registry"
+	HealthCheckName_HEALTH_CHECK_NAME_PUSH_CONTAINER_REGISTRY                 HealthCheckName = 27 // "Push Container Registry"
+	HealthCheckName_HEALTH_CHECK_NAME_SOURCE_BUCKET                           HealthCheckName = 28 // "Source Bucket"
+	HealthCheckName_HEALTH_CHECK_NAME_DATASET_BUCKET                          HealthCheckName = 29 // "Dataset Bucket"
+	HealthCheckName_HEALTH_CHECK_NAME_PLAN_STAGES_BUCKET                      HealthCheckName = 30 // "Plan Stages Bucket"
+	HealthCheckName_HEALTH_CHECK_NAME_ETL_BUCKET                              HealthCheckName = 31 // "ETL Bucket"
+	HealthCheckName_HEALTH_CHECK_NAME_ARGO                                    HealthCheckName = 32 // "Argo"
+	HealthCheckName_HEALTH_CHECK_NAME_KEDA                                    HealthCheckName = 33 // "KEDA"
+	HealthCheckName_HEALTH_CHECK_NAME_KARPENTER                               HealthCheckName = 34 // "Karpenter"
+	HealthCheckName_HEALTH_CHECK_NAME_KUBE_PERMISSIONS                        HealthCheckName = 35 // "Kube Permissions"
+	HealthCheckName_HEALTH_CHECK_NAME_ENVOY_PROXY                             HealthCheckName = 36 // "Envoy Proxy"
+	HealthCheckName_HEALTH_CHECK_NAME_GATEWAY                                 HealthCheckName = 37 // "Gateway"
+	HealthCheckName_HEALTH_CHECK_NAME_GATEWAY_DNS                             HealthCheckName = 38 // "Gateway DNS"
+	HealthCheckName_HEALTH_CHECK_NAME_GATEWAY_ROUTABILITY                     HealthCheckName = 39 // "Gateway Routability"
+	HealthCheckName_HEALTH_CHECK_NAME_CNPG                                    HealthCheckName = 40 // "CNPG"
+	HealthCheckName_HEALTH_CHECK_NAME_METRICS_SERVER_CHART                    HealthCheckName = 41 // "Metrics Server Chart"
+	HealthCheckName_HEALTH_CHECK_NAME_KUBERNETES_METRICS                      HealthCheckName = 42 // "Kubernetes Metrics"
+	HealthCheckName_HEALTH_CHECK_NAME_KUBERNETES_PROXY_ADDON                  HealthCheckName = 43 // "Kubernetes Proxy Addon"
+	HealthCheckName_HEALTH_CHECK_NAME_BILLING_SERVICE                         HealthCheckName = 44 // "Billing Service"
+	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_STORE_QUERY_VALUE_PERSISTENCE   HealthCheckName = 45 // "Offline Store Query Value Persistence"
+	HealthCheckName_HEALTH_CHECK_NAME_EXTERNAL_DNS_CHART                      HealthCheckName = 46 // "External DNS Chart"
+	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_STORE                           HealthCheckName = 47 // "Offline Store"
+	HealthCheckName_HEALTH_CHECK_NAME_ONLINE_STORE                            HealthCheckName = 48 // "Online Store"
+	HealthCheckName_HEALTH_CHECK_NAME_S3_CSI_DRIVER                           HealthCheckName = 49 // "S3 CSI Driver"
+	HealthCheckName_HEALTH_CHECK_NAME_CORE_DNS                                HealthCheckName = 50 // "CoreDNS"
+	HealthCheckName_HEALTH_CHECK_NAME_VOLUME_SERVICE                          HealthCheckName = 51 // "Volume Service"
+	HealthCheckName_HEALTH_CHECK_NAME_VPC_CNI                                 HealthCheckName = 52 // "VPC CNI"
+	HealthCheckName_HEALTH_CHECK_NAME_EBS_CSI_DRIVER                          HealthCheckName = 53 // "EBS CSI Driver"
+	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS                        HealthCheckName = 54 // "Victoria Metrics"
+	HealthCheckName_HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY              HealthCheckName = 55 // "Container Registry"
+	HealthCheckName_HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS            HealthCheckName = 56 // "Chalk Machine Type Nodepools"
+	HealthCheckName_HEALTH_CHECK_NAME_OFFLINE_NODEPOOL                        HealthCheckName = 57 // "Offline Nodepool"
+	HealthCheckName_HEALTH_CHECK_NAME_LLM_ROUTER                              HealthCheckName = 58 // "LLM Router"
+	HealthCheckName_HEALTH_CHECK_NAME_MCP_GATEWAY                             HealthCheckName = 59 // "MCP Gateway"
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_USAGE                        HealthCheckName = 60 // clickhouse usage stats
+	HealthCheckName_HEALTH_CHECK_NAME_DATAPLANE_API_SERVER                    HealthCheckName = 61 // "Dataplane API Server"
+	HealthCheckName_HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL                 HealthCheckName = 62 // "Infrastructure Nodepool"
+	HealthCheckName_HEALTH_CHECK_NAME_ONLINE_NODEPOOL                         HealthCheckName = 63 // "Online Nodepool"
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION              HealthCheckName = 64 // "ClickHouse PVC Utilization"
+	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION        HealthCheckName = 65 // "VictoriaMetrics PVC Utilization"
+	HealthCheckName_HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION HealthCheckName = 66 // "Background Persistence Disk Utilization"
 )
 
 // Enum value maps for HealthCheckName.
@@ -217,74 +242,76 @@ var (
 		63: "HEALTH_CHECK_NAME_ONLINE_NODEPOOL",
 		64: "HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION",
 		65: "HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION",
+		66: "HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION",
 	}
 	HealthCheckName_value = map[string]int32{
-		"HEALTH_CHECK_NAME_UNSPECIFIED":                            0,
-		"HEALTH_CHECK_NAME_HTTP_ENGINE":                            1,
-		"HEALTH_CHECK_NAME_SPILLING_CONFIG":                        2,
-		"HEALTH_CHECK_NAME_GRPC_ENGINE":                            3,
-		"HEALTH_CHECK_NAME_API_SERVER":                             4,
-		"HEALTH_CHECK_NAME_KEDA_COMPONENTS":                        5,
-		"HEALTH_CHECK_NAME_FUNCTION_QUEUE":                         6,
-		"HEALTH_CHECK_NAME_CERTIFICATE_MANAGER":                    7,
-		"HEALTH_CHECK_NAME_BRANCH_SERVER":                          8,
-		"HEALTH_CHECK_NAME_GRPC_BRANCH_SERVER":                     9,
-		"HEALTH_CHECK_NAME_STREAMING_SERVER":                       10,
-		"HEALTH_CHECK_NAME_AWS_LOAD_BALANCER_CONTROLLER":           11,
-		"HEALTH_CHECK_NAME_PG_CRON":                                12,
-		"HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE":                 13,
-		"HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_BUS_CONNECTIONS": 14,
-		"HEALTH_CHECK_NAME_LOGGING_CLIENT":                         15,
-		"HEALTH_CHECK_NAME_FLUENT_BIT_METRICS":                     16,
-		"HEALTH_CHECK_NAME_TELEMETRY_COLLECTORS":                   17,
-		"HEALTH_CHECK_NAME_TELEMETRY_AGGREGATOR":                   18,
-		"HEALTH_CHECK_NAME_CLICKHOUSE":                             19,
-		"HEALTH_CHECK_NAME_METRICS_TIMESCALE_DB":                   20,
-		"HEALTH_CHECK_NAME_METRICS_BACKUPS":                        21,
-		"HEALTH_CHECK_NAME_AWS_METADATA_SERVER":                    22,
-		"HEALTH_CHECK_NAME_CLOUD_ACCOUNT":                          23,
-		"HEALTH_CHECK_NAME_CLOUD_NETWORKING":                       24,
-		"HEALTH_CHECK_NAME_PUB_SUB":                                25,
-		"HEALTH_CHECK_NAME_BASE_IMAGE_CONTAINER_REGISTRY":          26,
-		"HEALTH_CHECK_NAME_PUSH_CONTAINER_REGISTRY":                27,
-		"HEALTH_CHECK_NAME_SOURCE_BUCKET":                          28,
-		"HEALTH_CHECK_NAME_DATASET_BUCKET":                         29,
-		"HEALTH_CHECK_NAME_PLAN_STAGES_BUCKET":                     30,
-		"HEALTH_CHECK_NAME_ETL_BUCKET":                             31,
-		"HEALTH_CHECK_NAME_ARGO":                                   32,
-		"HEALTH_CHECK_NAME_KEDA":                                   33,
-		"HEALTH_CHECK_NAME_KARPENTER":                              34,
-		"HEALTH_CHECK_NAME_KUBE_PERMISSIONS":                       35,
-		"HEALTH_CHECK_NAME_ENVOY_PROXY":                            36,
-		"HEALTH_CHECK_NAME_GATEWAY":                                37,
-		"HEALTH_CHECK_NAME_GATEWAY_DNS":                            38,
-		"HEALTH_CHECK_NAME_GATEWAY_ROUTABILITY":                    39,
-		"HEALTH_CHECK_NAME_CNPG":                                   40,
-		"HEALTH_CHECK_NAME_METRICS_SERVER_CHART":                   41,
-		"HEALTH_CHECK_NAME_KUBERNETES_METRICS":                     42,
-		"HEALTH_CHECK_NAME_KUBERNETES_PROXY_ADDON":                 43,
-		"HEALTH_CHECK_NAME_BILLING_SERVICE":                        44,
-		"HEALTH_CHECK_NAME_OFFLINE_STORE_QUERY_VALUE_PERSISTENCE":  45,
-		"HEALTH_CHECK_NAME_EXTERNAL_DNS_CHART":                     46,
-		"HEALTH_CHECK_NAME_OFFLINE_STORE":                          47,
-		"HEALTH_CHECK_NAME_ONLINE_STORE":                           48,
-		"HEALTH_CHECK_NAME_S3_CSI_DRIVER":                          49,
-		"HEALTH_CHECK_NAME_CORE_DNS":                               50,
-		"HEALTH_CHECK_NAME_VOLUME_SERVICE":                         51,
-		"HEALTH_CHECK_NAME_VPC_CNI":                                52,
-		"HEALTH_CHECK_NAME_EBS_CSI_DRIVER":                         53,
-		"HEALTH_CHECK_NAME_VICTORIA_METRICS":                       54,
-		"HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY":             55,
-		"HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS":           56,
-		"HEALTH_CHECK_NAME_OFFLINE_NODEPOOL":                       57,
-		"HEALTH_CHECK_NAME_LLM_ROUTER":                             58,
-		"HEALTH_CHECK_NAME_MCP_GATEWAY":                            59,
-		"HEALTH_CHECK_NAME_CLICKHOUSE_USAGE":                       60,
-		"HEALTH_CHECK_NAME_DATAPLANE_API_SERVER":                   61,
-		"HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL":                62,
-		"HEALTH_CHECK_NAME_ONLINE_NODEPOOL":                        63,
-		"HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION":             64,
-		"HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION":       65,
+		"HEALTH_CHECK_NAME_UNSPECIFIED":                             0,
+		"HEALTH_CHECK_NAME_HTTP_ENGINE":                             1,
+		"HEALTH_CHECK_NAME_SPILLING_CONFIG":                         2,
+		"HEALTH_CHECK_NAME_GRPC_ENGINE":                             3,
+		"HEALTH_CHECK_NAME_API_SERVER":                              4,
+		"HEALTH_CHECK_NAME_KEDA_COMPONENTS":                         5,
+		"HEALTH_CHECK_NAME_FUNCTION_QUEUE":                          6,
+		"HEALTH_CHECK_NAME_CERTIFICATE_MANAGER":                     7,
+		"HEALTH_CHECK_NAME_BRANCH_SERVER":                           8,
+		"HEALTH_CHECK_NAME_GRPC_BRANCH_SERVER":                      9,
+		"HEALTH_CHECK_NAME_STREAMING_SERVER":                        10,
+		"HEALTH_CHECK_NAME_AWS_LOAD_BALANCER_CONTROLLER":            11,
+		"HEALTH_CHECK_NAME_PG_CRON":                                 12,
+		"HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE":                  13,
+		"HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_BUS_CONNECTIONS":  14,
+		"HEALTH_CHECK_NAME_LOGGING_CLIENT":                          15,
+		"HEALTH_CHECK_NAME_FLUENT_BIT_METRICS":                      16,
+		"HEALTH_CHECK_NAME_TELEMETRY_COLLECTORS":                    17,
+		"HEALTH_CHECK_NAME_TELEMETRY_AGGREGATOR":                    18,
+		"HEALTH_CHECK_NAME_CLICKHOUSE":                              19,
+		"HEALTH_CHECK_NAME_METRICS_TIMESCALE_DB":                    20,
+		"HEALTH_CHECK_NAME_METRICS_BACKUPS":                         21,
+		"HEALTH_CHECK_NAME_AWS_METADATA_SERVER":                     22,
+		"HEALTH_CHECK_NAME_CLOUD_ACCOUNT":                           23,
+		"HEALTH_CHECK_NAME_CLOUD_NETWORKING":                        24,
+		"HEALTH_CHECK_NAME_PUB_SUB":                                 25,
+		"HEALTH_CHECK_NAME_BASE_IMAGE_CONTAINER_REGISTRY":           26,
+		"HEALTH_CHECK_NAME_PUSH_CONTAINER_REGISTRY":                 27,
+		"HEALTH_CHECK_NAME_SOURCE_BUCKET":                           28,
+		"HEALTH_CHECK_NAME_DATASET_BUCKET":                          29,
+		"HEALTH_CHECK_NAME_PLAN_STAGES_BUCKET":                      30,
+		"HEALTH_CHECK_NAME_ETL_BUCKET":                              31,
+		"HEALTH_CHECK_NAME_ARGO":                                    32,
+		"HEALTH_CHECK_NAME_KEDA":                                    33,
+		"HEALTH_CHECK_NAME_KARPENTER":                               34,
+		"HEALTH_CHECK_NAME_KUBE_PERMISSIONS":                        35,
+		"HEALTH_CHECK_NAME_ENVOY_PROXY":                             36,
+		"HEALTH_CHECK_NAME_GATEWAY":                                 37,
+		"HEALTH_CHECK_NAME_GATEWAY_DNS":                             38,
+		"HEALTH_CHECK_NAME_GATEWAY_ROUTABILITY":                     39,
+		"HEALTH_CHECK_NAME_CNPG":                                    40,
+		"HEALTH_CHECK_NAME_METRICS_SERVER_CHART":                    41,
+		"HEALTH_CHECK_NAME_KUBERNETES_METRICS":                      42,
+		"HEALTH_CHECK_NAME_KUBERNETES_PROXY_ADDON":                  43,
+		"HEALTH_CHECK_NAME_BILLING_SERVICE":                         44,
+		"HEALTH_CHECK_NAME_OFFLINE_STORE_QUERY_VALUE_PERSISTENCE":   45,
+		"HEALTH_CHECK_NAME_EXTERNAL_DNS_CHART":                      46,
+		"HEALTH_CHECK_NAME_OFFLINE_STORE":                           47,
+		"HEALTH_CHECK_NAME_ONLINE_STORE":                            48,
+		"HEALTH_CHECK_NAME_S3_CSI_DRIVER":                           49,
+		"HEALTH_CHECK_NAME_CORE_DNS":                                50,
+		"HEALTH_CHECK_NAME_VOLUME_SERVICE":                          51,
+		"HEALTH_CHECK_NAME_VPC_CNI":                                 52,
+		"HEALTH_CHECK_NAME_EBS_CSI_DRIVER":                          53,
+		"HEALTH_CHECK_NAME_VICTORIA_METRICS":                        54,
+		"HEALTH_CHECK_NAME_COMPUTE_CONTAINER_REGISTRY":              55,
+		"HEALTH_CHECK_NAME_CHALK_MACHINE_TYPE_NODEPOOLS":            56,
+		"HEALTH_CHECK_NAME_OFFLINE_NODEPOOL":                        57,
+		"HEALTH_CHECK_NAME_LLM_ROUTER":                              58,
+		"HEALTH_CHECK_NAME_MCP_GATEWAY":                             59,
+		"HEALTH_CHECK_NAME_CLICKHOUSE_USAGE":                        60,
+		"HEALTH_CHECK_NAME_DATAPLANE_API_SERVER":                    61,
+		"HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL":                 62,
+		"HEALTH_CHECK_NAME_ONLINE_NODEPOOL":                         63,
+		"HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION":              64,
+		"HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION":        65,
+		"HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION": 66,
 	}
 )
 
@@ -794,12 +821,17 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"\x06checks\x18\x01 \x03(\v2\x1c.chalk.server.v1.HealthCheckR\x06checks\"\x1a\n" +
 	"\x18GetClusterMetricsRequest\"5\n" +
 	"\x19GetClusterMetricsResponse\x12\x18\n" +
-	"\ametrics\x18\x01 \x01(\tR\ametrics*\x9d\x01\n" +
+	"\ametrics\x18\x01 \x01(\tR\ametrics*\xdf\x02\n" +
 	"\x11HealthCheckStatus\x12#\n" +
 	"\x1fHEALTH_CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16HEALTH_CHECK_STATUS_OK\x10\x01\x12\x1f\n" +
 	"\x1bHEALTH_CHECK_STATUS_FAILING\x10\x02\x12&\n" +
-	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03*\xe7\x14\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03\x12 \n" +
+	"\x1cHEALTH_CHECK_STATUS_DEGRADED\x10\x04\x12'\n" +
+	"#HEALTH_CHECK_STATUS_FAILING_RUNNING\x10\x05\x12(\n" +
+	"$HEALTH_CHECK_STATUS_UPSTREAM_FAILING\x10\x06\x12#\n" +
+	"\x1fHEALTH_CHECK_STATUS_SCALED_DOWN\x10\a\x12&\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_APPLICABLE\x10\b*\xa6\x15\n" +
 	"\x0fHealthCheckName\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_HTTP_ENGINE\x10\x01\x12%\n" +
@@ -867,7 +899,8 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	")HEALTH_CHECK_NAME_INFRASTRUCTURE_NODEPOOL\x10>\x12%\n" +
 	"!HEALTH_CHECK_NAME_ONLINE_NODEPOOL\x10?\x120\n" +
 	",HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION\x10@\x126\n" +
-	"2HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION\x10A2\xac\x04\n" +
+	"2HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION\x10A\x12=\n" +
+	"9HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION\x10B2\xac\x04\n" +
 	"\rHealthService\x12`\n" +
 	"\vCheckHealth\x12#.chalk.server.v1.CheckHealthRequest\x1a$.chalk.server.v1.CheckHealthResponse\"\x06\x80}\x01\x90\x02\x01\x12Z\n" +
 	"\tGetHealth\x12!.chalk.server.v1.GetHealthRequest\x1a\".chalk.server.v1.GetHealthResponse\"\x06\x80}\x02\x90\x02\x01\x12o\n" +

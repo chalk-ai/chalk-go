@@ -45,6 +45,9 @@ const (
 	// BillingServicePublishPodUsageProcedure is the fully-qualified name of the BillingService's
 	// PublishPodUsage RPC.
 	BillingServicePublishPodUsageProcedure = "/chalk.server.v1.BillingService/PublishPodUsage"
+	// BillingServicePublishProductAnalyticsEventsProcedure is the fully-qualified name of the
+	// BillingService's PublishProductAnalyticsEvents RPC.
+	BillingServicePublishProductAnalyticsEventsProcedure = "/chalk.server.v1.BillingService/PublishProductAnalyticsEvents"
 	// BillingServiceGetUsageChartProcedure is the fully-qualified name of the BillingService's
 	// GetUsageChart RPC.
 	BillingServiceGetUsageChartProcedure = "/chalk.server.v1.BillingService/GetUsageChart"
@@ -102,6 +105,11 @@ type BillingServiceClient interface {
 	PublishNodeUsage(context.Context, *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error)
 	// PublishPodUsage republishes pod usage messages to the billing Pub/Sub topic.
 	PublishPodUsage(context.Context, *connect.Request[v1.PublishPodUsageRequest]) (*connect.Response[v1.PublishPodUsageResponse], error)
+	// PublishProductAnalyticsEvents republishes a self-hosted deployment's
+	// product analytics events to the product analytics Pub/Sub topic. Only a
+	// self-hosted license key may call it; the receiver stamps the key's id and
+	// team onto every event.
+	PublishProductAnalyticsEvents(context.Context, *connect.Request[v1.PublishProductAnalyticsEventsRequest]) (*connect.Response[v1.PublishProductAnalyticsEventsResponse], error)
 	// GetUsageChart shows the Chalk credit usage between a provided start and
 	// end period. The usage can be grouped by UsageChartPeriod for daily or
 	// monthly usage, and by UsageChartGrouping for instance type or cluster usage.
@@ -171,6 +179,12 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BillingServicePublishPodUsageProcedure,
 			connect.WithSchema(billingServiceMethods.ByName("PublishPodUsage")),
+			connect.WithClientOptions(opts...),
+		),
+		publishProductAnalyticsEvents: connect.NewClient[v1.PublishProductAnalyticsEventsRequest, v1.PublishProductAnalyticsEventsResponse](
+			httpClient,
+			baseURL+BillingServicePublishProductAnalyticsEventsProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("PublishProductAnalyticsEvents")),
 			connect.WithClientOptions(opts...),
 		),
 		getUsageChart: connect.NewClient[v1.GetUsageChartRequest, v1.GetUsageChartResponse](
@@ -273,6 +287,7 @@ type billingServiceClient struct {
 	getNodesAndPods                 *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
 	publishNodeUsage                *connect.Client[v1.PublishNodeUsageRequest, v1.PublishNodeUsageResponse]
 	publishPodUsage                 *connect.Client[v1.PublishPodUsageRequest, v1.PublishPodUsageResponse]
+	publishProductAnalyticsEvents   *connect.Client[v1.PublishProductAnalyticsEventsRequest, v1.PublishProductAnalyticsEventsResponse]
 	getUsageChart                   *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
 	getUtilizationRates             *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
 	getAvailableInstanceTypes       *connect.Client[v1.GetAvailableInstanceTypesRequest, v1.GetAvailableInstanceTypesResponse]
@@ -306,6 +321,11 @@ func (c *billingServiceClient) PublishNodeUsage(ctx context.Context, req *connec
 // PublishPodUsage calls chalk.server.v1.BillingService.PublishPodUsage.
 func (c *billingServiceClient) PublishPodUsage(ctx context.Context, req *connect.Request[v1.PublishPodUsageRequest]) (*connect.Response[v1.PublishPodUsageResponse], error) {
 	return c.publishPodUsage.CallUnary(ctx, req)
+}
+
+// PublishProductAnalyticsEvents calls chalk.server.v1.BillingService.PublishProductAnalyticsEvents.
+func (c *billingServiceClient) PublishProductAnalyticsEvents(ctx context.Context, req *connect.Request[v1.PublishProductAnalyticsEventsRequest]) (*connect.Response[v1.PublishProductAnalyticsEventsResponse], error) {
+	return c.publishProductAnalyticsEvents.CallUnary(ctx, req)
 }
 
 // GetUsageChart calls chalk.server.v1.BillingService.GetUsageChart.
@@ -390,6 +410,11 @@ type BillingServiceHandler interface {
 	PublishNodeUsage(context.Context, *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error)
 	// PublishPodUsage republishes pod usage messages to the billing Pub/Sub topic.
 	PublishPodUsage(context.Context, *connect.Request[v1.PublishPodUsageRequest]) (*connect.Response[v1.PublishPodUsageResponse], error)
+	// PublishProductAnalyticsEvents republishes a self-hosted deployment's
+	// product analytics events to the product analytics Pub/Sub topic. Only a
+	// self-hosted license key may call it; the receiver stamps the key's id and
+	// team onto every event.
+	PublishProductAnalyticsEvents(context.Context, *connect.Request[v1.PublishProductAnalyticsEventsRequest]) (*connect.Response[v1.PublishProductAnalyticsEventsResponse], error)
 	// GetUsageChart shows the Chalk credit usage between a provided start and
 	// end period. The usage can be grouped by UsageChartPeriod for daily or
 	// monthly usage, and by UsageChartGrouping for instance type or cluster usage.
@@ -455,6 +480,12 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		BillingServicePublishPodUsageProcedure,
 		svc.PublishPodUsage,
 		connect.WithSchema(billingServiceMethods.ByName("PublishPodUsage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	billingServicePublishProductAnalyticsEventsHandler := connect.NewUnaryHandler(
+		BillingServicePublishProductAnalyticsEventsProcedure,
+		svc.PublishProductAnalyticsEvents,
+		connect.WithSchema(billingServiceMethods.ByName("PublishProductAnalyticsEvents")),
 		connect.WithHandlerOptions(opts...),
 	)
 	billingServiceGetUsageChartHandler := connect.NewUnaryHandler(
@@ -558,6 +589,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServicePublishNodeUsageHandler.ServeHTTP(w, r)
 		case BillingServicePublishPodUsageProcedure:
 			billingServicePublishPodUsageHandler.ServeHTTP(w, r)
+		case BillingServicePublishProductAnalyticsEventsProcedure:
+			billingServicePublishProductAnalyticsEventsHandler.ServeHTTP(w, r)
 		case BillingServiceGetUsageChartProcedure:
 			billingServiceGetUsageChartHandler.ServeHTTP(w, r)
 		case BillingServiceGetUtilizationRatesProcedure:
@@ -607,6 +640,10 @@ func (UnimplementedBillingServiceHandler) PublishNodeUsage(context.Context, *con
 
 func (UnimplementedBillingServiceHandler) PublishPodUsage(context.Context, *connect.Request[v1.PublishPodUsageRequest]) (*connect.Response[v1.PublishPodUsageResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.PublishPodUsage is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) PublishProductAnalyticsEvents(context.Context, *connect.Request[v1.PublishProductAnalyticsEventsRequest]) (*connect.Response[v1.PublishProductAnalyticsEventsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.PublishProductAnalyticsEvents is not implemented"))
 }
 
 func (UnimplementedBillingServiceHandler) GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error) {

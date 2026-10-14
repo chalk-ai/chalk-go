@@ -29,8 +29,10 @@ const (
 type ServiceKind int32
 
 const (
-	ServiceKind_SERVICE_KIND_UNSPECIFIED          ServiceKind = 0
-	ServiceKind_SERVICE_KIND_DATAPLANE_API_SERVER ServiceKind = 1
+	ServiceKind_SERVICE_KIND_UNSPECIFIED              ServiceKind = 0
+	ServiceKind_SERVICE_KIND_DATAPLANE_API_SERVER     ServiceKind = 1
+	ServiceKind_SERVICE_KIND_DATAPLANE_CONTROLLER     ServiceKind = 2
+	ServiceKind_SERVICE_KIND_DATAPLANE_REVERSE_TUNNEL ServiceKind = 3
 )
 
 // Enum value maps for ServiceKind.
@@ -38,10 +40,14 @@ var (
 	ServiceKind_name = map[int32]string{
 		0: "SERVICE_KIND_UNSPECIFIED",
 		1: "SERVICE_KIND_DATAPLANE_API_SERVER",
+		2: "SERVICE_KIND_DATAPLANE_CONTROLLER",
+		3: "SERVICE_KIND_DATAPLANE_REVERSE_TUNNEL",
 	}
 	ServiceKind_value = map[string]int32{
-		"SERVICE_KIND_UNSPECIFIED":          0,
-		"SERVICE_KIND_DATAPLANE_API_SERVER": 1,
+		"SERVICE_KIND_UNSPECIFIED":              0,
+		"SERVICE_KIND_DATAPLANE_API_SERVER":     1,
+		"SERVICE_KIND_DATAPLANE_CONTROLLER":     2,
+		"SERVICE_KIND_DATAPLANE_REVERSE_TUNNEL": 3,
 	}
 )
 
@@ -3745,10 +3751,12 @@ const file_chalk_server_v1_auth_proto_rawDesc = "" +
 	" ListSelfHostedLicenseKeysRequest\x12 \n" +
 	"\ateam_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06teamId\"^\n" +
 	"!ListSelfHostedLicenseKeysResponse\x129\n" +
-	"\x04keys\x18\x01 \x03(\v2%.chalk.server.v1.SelfHostedLicenseKeyR\x04keys*R\n" +
+	"\x04keys\x18\x01 \x03(\v2%.chalk.server.v1.SelfHostedLicenseKeyR\x04keys*\xa4\x01\n" +
 	"\vServiceKind\x12\x1c\n" +
 	"\x18SERVICE_KIND_UNSPECIFIED\x10\x00\x12%\n" +
-	"!SERVICE_KIND_DATAPLANE_API_SERVER\x10\x012\xf6\x1d\n" +
+	"!SERVICE_KIND_DATAPLANE_API_SERVER\x10\x01\x12%\n" +
+	"!SERVICE_KIND_DATAPLANE_CONTROLLER\x10\x02\x12)\n" +
+	"%SERVICE_KIND_DATAPLANE_REVERSE_TUNNEL\x10\x032\xf6\x1d\n" +
 	"\vAuthService\x12\x82\x01\n" +
 	"\bGetToken\x12 .chalk.server.v1.GetTokenRequest\x1a!.chalk.server.v1.GetTokenResponse\"1\x80}\x01\x8a\xd3\x0e*\b\x01\x12&Exchanged client credentials for token\x12\xb7\x01\n" +
 	"\x11CreateLinkSession\x12).chalk.server.v1.CreateLinkSessionRequest\x1a*.chalk.server.v1.CreateLinkSessionResponse\"K\x80}\x01\x8a\xd3\x0eD\b\x01\x12@Initiated a request to link a terminal to the user's credentials\x12f\n" +

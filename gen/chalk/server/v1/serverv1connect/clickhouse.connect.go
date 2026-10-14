@@ -42,15 +42,27 @@ const (
 	// ClickhouseServiceSetClickhouseOtelTtlsProcedure is the fully-qualified name of the
 	// ClickhouseService's SetClickhouseOtelTtls RPC.
 	ClickhouseServiceSetClickhouseOtelTtlsProcedure = "/chalk.server.v1.ClickhouseService/SetClickhouseOtelTtls"
+	// ClickhouseServiceSetClusterClickhouseOtelTtlsProcedure is the fully-qualified name of the
+	// ClickhouseService's SetClusterClickhouseOtelTtls RPC.
+	ClickhouseServiceSetClusterClickhouseOtelTtlsProcedure = "/chalk.server.v1.ClickhouseService/SetClusterClickhouseOtelTtls"
 	// ClickhouseServiceGetClickhouseInfoProcedure is the fully-qualified name of the
 	// ClickhouseService's GetClickhouseInfo RPC.
 	ClickhouseServiceGetClickhouseInfoProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseInfo"
+	// ClickhouseServiceGetClusterClickhouseInfoProcedure is the fully-qualified name of the
+	// ClickhouseService's GetClusterClickhouseInfo RPC.
+	ClickhouseServiceGetClusterClickhouseInfoProcedure = "/chalk.server.v1.ClickhouseService/GetClusterClickhouseInfo"
 	// ClickhouseServiceGetClickhouseRetentionHistoryProcedure is the fully-qualified name of the
 	// ClickhouseService's GetClickhouseRetentionHistory RPC.
 	ClickhouseServiceGetClickhouseRetentionHistoryProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseRetentionHistory"
+	// ClickhouseServiceGetClusterClickhouseRetentionHistoryProcedure is the fully-qualified name of the
+	// ClickhouseService's GetClusterClickhouseRetentionHistory RPC.
+	ClickhouseServiceGetClusterClickhouseRetentionHistoryProcedure = "/chalk.server.v1.ClickhouseService/GetClusterClickhouseRetentionHistory"
 	// ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure is the fully-qualified name of the
 	// ClickhouseService's GetClickhouseAdminDiagnostics RPC.
 	ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseAdminDiagnostics"
+	// ClickhouseServiceGetClusterClickhouseAdminDiagnosticsProcedure is the fully-qualified name of the
+	// ClickhouseService's GetClusterClickhouseAdminDiagnostics RPC.
+	ClickhouseServiceGetClusterClickhouseAdminDiagnosticsProcedure = "/chalk.server.v1.ClickhouseService/GetClusterClickhouseAdminDiagnostics"
 )
 
 // ClickhouseServiceClient is a client for the chalk.server.v1.ClickhouseService service.
@@ -59,14 +71,21 @@ type ClickhouseServiceClient interface {
 	GetClickhouseUri(context.Context, *connect.Request[v1.GetClickhouseUriRequest]) (*connect.Response[v1.GetClickhouseUriResponse], error)
 	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
 	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
+	SetClusterClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClusterClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClusterClickhouseOtelTtlsResponse], error)
 	GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error)
+	// Returns the current ClickHouse storage and health snapshot for an owned cluster.
+	GetClusterClickhouseInfo(context.Context, *connect.Request[v1.GetClusterClickhouseInfoRequest]) (*connect.Response[v1.GetClusterClickhouseInfoResponse], error)
 	// Charts the retention, disk, and server-health gauges the cluster manager
 	// publishes for the environment's telemetry ClickHouse, read from VictoriaMetrics.
 	GetClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error)
+	// Charts the cluster manager's ClickHouse gauges for an owned cluster.
+	// The cluster and environment endpoints intentionally share the same chart contract.
+	GetClusterClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClusterClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClusterClickhouseRetentionHistoryResponse], error)
 	// Returns query-level performance data and physical table configuration.
 	// Keep this separate from GetClickhouseInfo so non-admin readers never receive
 	// normalized query text or operational schema details.
 	GetClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClickhouseAdminDiagnosticsResponse], error)
+	GetClusterClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClusterClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClusterClickhouseAdminDiagnosticsResponse], error)
 }
 
 // NewClickhouseServiceClient constructs a client for the chalk.server.v1.ClickhouseService service.
@@ -100,10 +119,23 @@ func NewClickhouseServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(clickhouseServiceMethods.ByName("SetClickhouseOtelTtls")),
 			connect.WithClientOptions(opts...),
 		),
+		setClusterClickhouseOtelTtls: connect.NewClient[v1.SetClusterClickhouseOtelTtlsRequest, v1.SetClusterClickhouseOtelTtlsResponse](
+			httpClient,
+			baseURL+ClickhouseServiceSetClusterClickhouseOtelTtlsProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("SetClusterClickhouseOtelTtls")),
+			connect.WithClientOptions(opts...),
+		),
 		getClickhouseInfo: connect.NewClient[v1.GetClickhouseInfoRequest, v1.GetClickhouseInfoResponse](
 			httpClient,
 			baseURL+ClickhouseServiceGetClickhouseInfoProcedure,
 			connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseInfo")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getClusterClickhouseInfo: connect.NewClient[v1.GetClusterClickhouseInfoRequest, v1.GetClusterClickhouseInfoResponse](
+			httpClient,
+			baseURL+ClickhouseServiceGetClusterClickhouseInfoProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("GetClusterClickhouseInfo")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -114,10 +146,24 @@ func NewClickhouseServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getClusterClickhouseRetentionHistory: connect.NewClient[v1.GetClusterClickhouseRetentionHistoryRequest, v1.GetClusterClickhouseRetentionHistoryResponse](
+			httpClient,
+			baseURL+ClickhouseServiceGetClusterClickhouseRetentionHistoryProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("GetClusterClickhouseRetentionHistory")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getClickhouseAdminDiagnostics: connect.NewClient[v1.GetClickhouseAdminDiagnosticsRequest, v1.GetClickhouseAdminDiagnosticsResponse](
 			httpClient,
 			baseURL+ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure,
 			connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseAdminDiagnostics")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getClusterClickhouseAdminDiagnostics: connect.NewClient[v1.GetClusterClickhouseAdminDiagnosticsRequest, v1.GetClusterClickhouseAdminDiagnosticsResponse](
+			httpClient,
+			baseURL+ClickhouseServiceGetClusterClickhouseAdminDiagnosticsProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("GetClusterClickhouseAdminDiagnostics")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -126,12 +172,16 @@ func NewClickhouseServiceClient(httpClient connect.HTTPClient, baseURL string, o
 
 // clickhouseServiceClient implements ClickhouseServiceClient.
 type clickhouseServiceClient struct {
-	getClickhouseUri              *connect.Client[v1.GetClickhouseUriRequest, v1.GetClickhouseUriResponse]
-	getClickhouseOtelTtls         *connect.Client[v1.GetClickhouseOtelTtlsRequest, v1.GetClickhouseOtelTtlsResponse]
-	setClickhouseOtelTtls         *connect.Client[v1.SetClickhouseOtelTtlsRequest, v1.SetClickhouseOtelTtlsResponse]
-	getClickhouseInfo             *connect.Client[v1.GetClickhouseInfoRequest, v1.GetClickhouseInfoResponse]
-	getClickhouseRetentionHistory *connect.Client[v1.GetClickhouseRetentionHistoryRequest, v1.GetClickhouseRetentionHistoryResponse]
-	getClickhouseAdminDiagnostics *connect.Client[v1.GetClickhouseAdminDiagnosticsRequest, v1.GetClickhouseAdminDiagnosticsResponse]
+	getClickhouseUri                     *connect.Client[v1.GetClickhouseUriRequest, v1.GetClickhouseUriResponse]
+	getClickhouseOtelTtls                *connect.Client[v1.GetClickhouseOtelTtlsRequest, v1.GetClickhouseOtelTtlsResponse]
+	setClickhouseOtelTtls                *connect.Client[v1.SetClickhouseOtelTtlsRequest, v1.SetClickhouseOtelTtlsResponse]
+	setClusterClickhouseOtelTtls         *connect.Client[v1.SetClusterClickhouseOtelTtlsRequest, v1.SetClusterClickhouseOtelTtlsResponse]
+	getClickhouseInfo                    *connect.Client[v1.GetClickhouseInfoRequest, v1.GetClickhouseInfoResponse]
+	getClusterClickhouseInfo             *connect.Client[v1.GetClusterClickhouseInfoRequest, v1.GetClusterClickhouseInfoResponse]
+	getClickhouseRetentionHistory        *connect.Client[v1.GetClickhouseRetentionHistoryRequest, v1.GetClickhouseRetentionHistoryResponse]
+	getClusterClickhouseRetentionHistory *connect.Client[v1.GetClusterClickhouseRetentionHistoryRequest, v1.GetClusterClickhouseRetentionHistoryResponse]
+	getClickhouseAdminDiagnostics        *connect.Client[v1.GetClickhouseAdminDiagnosticsRequest, v1.GetClickhouseAdminDiagnosticsResponse]
+	getClusterClickhouseAdminDiagnostics *connect.Client[v1.GetClusterClickhouseAdminDiagnosticsRequest, v1.GetClusterClickhouseAdminDiagnosticsResponse]
 }
 
 // GetClickhouseUri calls chalk.server.v1.ClickhouseService.GetClickhouseUri.
@@ -149,9 +199,20 @@ func (c *clickhouseServiceClient) SetClickhouseOtelTtls(ctx context.Context, req
 	return c.setClickhouseOtelTtls.CallUnary(ctx, req)
 }
 
+// SetClusterClickhouseOtelTtls calls
+// chalk.server.v1.ClickhouseService.SetClusterClickhouseOtelTtls.
+func (c *clickhouseServiceClient) SetClusterClickhouseOtelTtls(ctx context.Context, req *connect.Request[v1.SetClusterClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClusterClickhouseOtelTtlsResponse], error) {
+	return c.setClusterClickhouseOtelTtls.CallUnary(ctx, req)
+}
+
 // GetClickhouseInfo calls chalk.server.v1.ClickhouseService.GetClickhouseInfo.
 func (c *clickhouseServiceClient) GetClickhouseInfo(ctx context.Context, req *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error) {
 	return c.getClickhouseInfo.CallUnary(ctx, req)
+}
+
+// GetClusterClickhouseInfo calls chalk.server.v1.ClickhouseService.GetClusterClickhouseInfo.
+func (c *clickhouseServiceClient) GetClusterClickhouseInfo(ctx context.Context, req *connect.Request[v1.GetClusterClickhouseInfoRequest]) (*connect.Response[v1.GetClusterClickhouseInfoResponse], error) {
+	return c.getClusterClickhouseInfo.CallUnary(ctx, req)
 }
 
 // GetClickhouseRetentionHistory calls
@@ -160,10 +221,22 @@ func (c *clickhouseServiceClient) GetClickhouseRetentionHistory(ctx context.Cont
 	return c.getClickhouseRetentionHistory.CallUnary(ctx, req)
 }
 
+// GetClusterClickhouseRetentionHistory calls
+// chalk.server.v1.ClickhouseService.GetClusterClickhouseRetentionHistory.
+func (c *clickhouseServiceClient) GetClusterClickhouseRetentionHistory(ctx context.Context, req *connect.Request[v1.GetClusterClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClusterClickhouseRetentionHistoryResponse], error) {
+	return c.getClusterClickhouseRetentionHistory.CallUnary(ctx, req)
+}
+
 // GetClickhouseAdminDiagnostics calls
 // chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics.
 func (c *clickhouseServiceClient) GetClickhouseAdminDiagnostics(ctx context.Context, req *connect.Request[v1.GetClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClickhouseAdminDiagnosticsResponse], error) {
 	return c.getClickhouseAdminDiagnostics.CallUnary(ctx, req)
+}
+
+// GetClusterClickhouseAdminDiagnostics calls
+// chalk.server.v1.ClickhouseService.GetClusterClickhouseAdminDiagnostics.
+func (c *clickhouseServiceClient) GetClusterClickhouseAdminDiagnostics(ctx context.Context, req *connect.Request[v1.GetClusterClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClusterClickhouseAdminDiagnosticsResponse], error) {
+	return c.getClusterClickhouseAdminDiagnostics.CallUnary(ctx, req)
 }
 
 // ClickhouseServiceHandler is an implementation of the chalk.server.v1.ClickhouseService service.
@@ -172,14 +245,21 @@ type ClickhouseServiceHandler interface {
 	GetClickhouseUri(context.Context, *connect.Request[v1.GetClickhouseUriRequest]) (*connect.Response[v1.GetClickhouseUriResponse], error)
 	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
 	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
+	SetClusterClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClusterClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClusterClickhouseOtelTtlsResponse], error)
 	GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error)
+	// Returns the current ClickHouse storage and health snapshot for an owned cluster.
+	GetClusterClickhouseInfo(context.Context, *connect.Request[v1.GetClusterClickhouseInfoRequest]) (*connect.Response[v1.GetClusterClickhouseInfoResponse], error)
 	// Charts the retention, disk, and server-health gauges the cluster manager
 	// publishes for the environment's telemetry ClickHouse, read from VictoriaMetrics.
 	GetClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error)
+	// Charts the cluster manager's ClickHouse gauges for an owned cluster.
+	// The cluster and environment endpoints intentionally share the same chart contract.
+	GetClusterClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClusterClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClusterClickhouseRetentionHistoryResponse], error)
 	// Returns query-level performance data and physical table configuration.
 	// Keep this separate from GetClickhouseInfo so non-admin readers never receive
 	// normalized query text or operational schema details.
 	GetClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClickhouseAdminDiagnosticsResponse], error)
+	GetClusterClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClusterClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClusterClickhouseAdminDiagnosticsResponse], error)
 }
 
 // NewClickhouseServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -209,10 +289,23 @@ func NewClickhouseServiceHandler(svc ClickhouseServiceHandler, opts ...connect.H
 		connect.WithSchema(clickhouseServiceMethods.ByName("SetClickhouseOtelTtls")),
 		connect.WithHandlerOptions(opts...),
 	)
+	clickhouseServiceSetClusterClickhouseOtelTtlsHandler := connect.NewUnaryHandler(
+		ClickhouseServiceSetClusterClickhouseOtelTtlsProcedure,
+		svc.SetClusterClickhouseOtelTtls,
+		connect.WithSchema(clickhouseServiceMethods.ByName("SetClusterClickhouseOtelTtls")),
+		connect.WithHandlerOptions(opts...),
+	)
 	clickhouseServiceGetClickhouseInfoHandler := connect.NewUnaryHandler(
 		ClickhouseServiceGetClickhouseInfoProcedure,
 		svc.GetClickhouseInfo,
 		connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseInfo")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	clickhouseServiceGetClusterClickhouseInfoHandler := connect.NewUnaryHandler(
+		ClickhouseServiceGetClusterClickhouseInfoProcedure,
+		svc.GetClusterClickhouseInfo,
+		connect.WithSchema(clickhouseServiceMethods.ByName("GetClusterClickhouseInfo")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -223,10 +316,24 @@ func NewClickhouseServiceHandler(svc ClickhouseServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	clickhouseServiceGetClusterClickhouseRetentionHistoryHandler := connect.NewUnaryHandler(
+		ClickhouseServiceGetClusterClickhouseRetentionHistoryProcedure,
+		svc.GetClusterClickhouseRetentionHistory,
+		connect.WithSchema(clickhouseServiceMethods.ByName("GetClusterClickhouseRetentionHistory")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	clickhouseServiceGetClickhouseAdminDiagnosticsHandler := connect.NewUnaryHandler(
 		ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure,
 		svc.GetClickhouseAdminDiagnostics,
 		connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseAdminDiagnostics")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	clickhouseServiceGetClusterClickhouseAdminDiagnosticsHandler := connect.NewUnaryHandler(
+		ClickhouseServiceGetClusterClickhouseAdminDiagnosticsProcedure,
+		svc.GetClusterClickhouseAdminDiagnostics,
+		connect.WithSchema(clickhouseServiceMethods.ByName("GetClusterClickhouseAdminDiagnostics")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -238,12 +345,20 @@ func NewClickhouseServiceHandler(svc ClickhouseServiceHandler, opts ...connect.H
 			clickhouseServiceGetClickhouseOtelTtlsHandler.ServeHTTP(w, r)
 		case ClickhouseServiceSetClickhouseOtelTtlsProcedure:
 			clickhouseServiceSetClickhouseOtelTtlsHandler.ServeHTTP(w, r)
+		case ClickhouseServiceSetClusterClickhouseOtelTtlsProcedure:
+			clickhouseServiceSetClusterClickhouseOtelTtlsHandler.ServeHTTP(w, r)
 		case ClickhouseServiceGetClickhouseInfoProcedure:
 			clickhouseServiceGetClickhouseInfoHandler.ServeHTTP(w, r)
+		case ClickhouseServiceGetClusterClickhouseInfoProcedure:
+			clickhouseServiceGetClusterClickhouseInfoHandler.ServeHTTP(w, r)
 		case ClickhouseServiceGetClickhouseRetentionHistoryProcedure:
 			clickhouseServiceGetClickhouseRetentionHistoryHandler.ServeHTTP(w, r)
+		case ClickhouseServiceGetClusterClickhouseRetentionHistoryProcedure:
+			clickhouseServiceGetClusterClickhouseRetentionHistoryHandler.ServeHTTP(w, r)
 		case ClickhouseServiceGetClickhouseAdminDiagnosticsProcedure:
 			clickhouseServiceGetClickhouseAdminDiagnosticsHandler.ServeHTTP(w, r)
+		case ClickhouseServiceGetClusterClickhouseAdminDiagnosticsProcedure:
+			clickhouseServiceGetClusterClickhouseAdminDiagnosticsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -265,14 +380,30 @@ func (UnimplementedClickhouseServiceHandler) SetClickhouseOtelTtls(context.Conte
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls is not implemented"))
 }
 
+func (UnimplementedClickhouseServiceHandler) SetClusterClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClusterClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClusterClickhouseOtelTtlsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.SetClusterClickhouseOtelTtls is not implemented"))
+}
+
 func (UnimplementedClickhouseServiceHandler) GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseInfo is not implemented"))
+}
+
+func (UnimplementedClickhouseServiceHandler) GetClusterClickhouseInfo(context.Context, *connect.Request[v1.GetClusterClickhouseInfoRequest]) (*connect.Response[v1.GetClusterClickhouseInfoResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClusterClickhouseInfo is not implemented"))
 }
 
 func (UnimplementedClickhouseServiceHandler) GetClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClickhouseRetentionHistoryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseRetentionHistory is not implemented"))
 }
 
+func (UnimplementedClickhouseServiceHandler) GetClusterClickhouseRetentionHistory(context.Context, *connect.Request[v1.GetClusterClickhouseRetentionHistoryRequest]) (*connect.Response[v1.GetClusterClickhouseRetentionHistoryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClusterClickhouseRetentionHistory is not implemented"))
+}
+
 func (UnimplementedClickhouseServiceHandler) GetClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClickhouseAdminDiagnosticsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseAdminDiagnostics is not implemented"))
+}
+
+func (UnimplementedClickhouseServiceHandler) GetClusterClickhouseAdminDiagnostics(context.Context, *connect.Request[v1.GetClusterClickhouseAdminDiagnosticsRequest]) (*connect.Response[v1.GetClusterClickhouseAdminDiagnosticsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClusterClickhouseAdminDiagnostics is not implemented"))
 }

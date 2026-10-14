@@ -24,11 +24,12 @@ const (
 type HealthCheckName int32
 
 const (
-	HealthCheckName_HEALTH_CHECK_NAME_UNSPECIFIED                      HealthCheckName = 0
-	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE                       HealthCheckName = 1
-	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS                 HealthCheckName = 2
-	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION       HealthCheckName = 3
-	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION HealthCheckName = 4
+	HealthCheckName_HEALTH_CHECK_NAME_UNSPECIFIED                             HealthCheckName = 0
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE                              HealthCheckName = 1
+	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS                        HealthCheckName = 2
+	HealthCheckName_HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION              HealthCheckName = 3
+	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION        HealthCheckName = 4
+	HealthCheckName_HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION HealthCheckName = 5
 )
 
 // Enum value maps for HealthCheckName.
@@ -39,13 +40,15 @@ var (
 		2: "HEALTH_CHECK_NAME_VICTORIA_METRICS",
 		3: "HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION",
 		4: "HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION",
+		5: "HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION",
 	}
 	HealthCheckName_value = map[string]int32{
-		"HEALTH_CHECK_NAME_UNSPECIFIED":                      0,
-		"HEALTH_CHECK_NAME_CLICKHOUSE":                       1,
-		"HEALTH_CHECK_NAME_VICTORIA_METRICS":                 2,
-		"HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION":       3,
-		"HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION": 4,
+		"HEALTH_CHECK_NAME_UNSPECIFIED":                             0,
+		"HEALTH_CHECK_NAME_CLICKHOUSE":                              1,
+		"HEALTH_CHECK_NAME_VICTORIA_METRICS":                        2,
+		"HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION":              3,
+		"HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION":        4,
+		"HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION": 5,
 	}
 )
 
@@ -83,6 +86,13 @@ const (
 	HealthCheckStatus_HEALTH_CHECK_STATUS_OK             HealthCheckStatus = 1
 	HealthCheckStatus_HEALTH_CHECK_STATUS_FAILING        HealthCheckStatus = 2
 	HealthCheckStatus_HEALTH_CHECK_STATUS_NOT_CONFIGURED HealthCheckStatus = 3
+	// The API server maps these onto chalk.server.v1.HealthCheckStatus by name, so they mirror the
+	// values and numbers there; see that enum for what each one means.
+	HealthCheckStatus_HEALTH_CHECK_STATUS_DEGRADED         HealthCheckStatus = 4
+	HealthCheckStatus_HEALTH_CHECK_STATUS_FAILING_RUNNING  HealthCheckStatus = 5
+	HealthCheckStatus_HEALTH_CHECK_STATUS_UPSTREAM_FAILING HealthCheckStatus = 6
+	HealthCheckStatus_HEALTH_CHECK_STATUS_SCALED_DOWN      HealthCheckStatus = 7
+	HealthCheckStatus_HEALTH_CHECK_STATUS_NOT_APPLICABLE   HealthCheckStatus = 8
 )
 
 // Enum value maps for HealthCheckStatus.
@@ -92,12 +102,22 @@ var (
 		1: "HEALTH_CHECK_STATUS_OK",
 		2: "HEALTH_CHECK_STATUS_FAILING",
 		3: "HEALTH_CHECK_STATUS_NOT_CONFIGURED",
+		4: "HEALTH_CHECK_STATUS_DEGRADED",
+		5: "HEALTH_CHECK_STATUS_FAILING_RUNNING",
+		6: "HEALTH_CHECK_STATUS_UPSTREAM_FAILING",
+		7: "HEALTH_CHECK_STATUS_SCALED_DOWN",
+		8: "HEALTH_CHECK_STATUS_NOT_APPLICABLE",
 	}
 	HealthCheckStatus_value = map[string]int32{
-		"HEALTH_CHECK_STATUS_UNSPECIFIED":    0,
-		"HEALTH_CHECK_STATUS_OK":             1,
-		"HEALTH_CHECK_STATUS_FAILING":        2,
-		"HEALTH_CHECK_STATUS_NOT_CONFIGURED": 3,
+		"HEALTH_CHECK_STATUS_UNSPECIFIED":      0,
+		"HEALTH_CHECK_STATUS_OK":               1,
+		"HEALTH_CHECK_STATUS_FAILING":          2,
+		"HEALTH_CHECK_STATUS_NOT_CONFIGURED":   3,
+		"HEALTH_CHECK_STATUS_DEGRADED":         4,
+		"HEALTH_CHECK_STATUS_FAILING_RUNNING":  5,
+		"HEALTH_CHECK_STATUS_UPSTREAM_FAILING": 6,
+		"HEALTH_CHECK_STATUS_SCALED_DOWN":      7,
+		"HEALTH_CHECK_STATUS_NOT_APPLICABLE":   8,
 	}
 )
 
@@ -350,18 +370,24 @@ const file_chalk_dataplane_v1_health_proto_rawDesc = "" +
 	"\n" +
 	"\b_message\"L\n" +
 	"\x11GetHealthResponse\x127\n" +
-	"\x06checks\x18\x01 \x03(\v2\x1f.chalk.dataplane.v1.HealthCheckR\x06checks*\xe8\x01\n" +
+	"\x06checks\x18\x01 \x03(\v2\x1f.chalk.dataplane.v1.HealthCheckR\x06checks*\xa7\x02\n" +
 	"\x0fHealthCheckName\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cHEALTH_CHECK_NAME_CLICKHOUSE\x10\x01\x12&\n" +
 	"\"HEALTH_CHECK_NAME_VICTORIA_METRICS\x10\x02\x120\n" +
 	",HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION\x10\x03\x126\n" +
-	"2HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION\x10\x04*\x9d\x01\n" +
+	"2HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION\x10\x04\x12=\n" +
+	"9HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION\x10\x05*\xdf\x02\n" +
 	"\x11HealthCheckStatus\x12#\n" +
 	"\x1fHEALTH_CHECK_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16HEALTH_CHECK_STATUS_OK\x10\x01\x12\x1f\n" +
 	"\x1bHEALTH_CHECK_STATUS_FAILING\x10\x02\x12&\n" +
-	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x032i\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_CONFIGURED\x10\x03\x12 \n" +
+	"\x1cHEALTH_CHECK_STATUS_DEGRADED\x10\x04\x12'\n" +
+	"#HEALTH_CHECK_STATUS_FAILING_RUNNING\x10\x05\x12(\n" +
+	"$HEALTH_CHECK_STATUS_UPSTREAM_FAILING\x10\x06\x12#\n" +
+	"\x1fHEALTH_CHECK_STATUS_SCALED_DOWN\x10\a\x12&\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_APPLICABLE\x10\b2i\n" +
 	"\rHealthService\x12X\n" +
 	"\tGetHealth\x12$.chalk.dataplane.v1.GetHealthRequest\x1a%.chalk.dataplane.v1.GetHealthResponseB\xd0\x01\n" +
 	"\x16com.chalk.dataplane.v1B\vHealthProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/dataplane/v1;dataplanev1\xa2\x02\x03CDX\xaa\x02\x12Chalk.Dataplane.V1\xca\x02\x12Chalk\\Dataplane\\V1\xe2\x02\x1eChalk\\Dataplane\\V1\\GPBMetadata\xea\x02\x14Chalk::Dataplane::V1b\x06proto3"

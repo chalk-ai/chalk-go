@@ -117,6 +117,7 @@ const (
 	Permission_PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW    Permission = 38
 	Permission_PERMISSION_AGENTS_WRITE                     Permission = 39
 	Permission_PERMISSION_AGENTS_READ                      Permission = 40
+	Permission_PERMISSION_BILLING_PUBLISH_ANALYTICS        Permission = 41
 )
 
 // Enum value maps for Permission.
@@ -163,6 +164,7 @@ var (
 		38: "PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW",
 		39: "PERMISSION_AGENTS_WRITE",
 		40: "PERMISSION_AGENTS_READ",
+		41: "PERMISSION_BILLING_PUBLISH_ANALYTICS",
 	}
 	Permission_value = map[string]int32{
 		"PERMISSION_UNSPECIFIED":                      0,
@@ -206,6 +208,7 @@ var (
 		"PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW":    38,
 		"PERMISSION_AGENTS_WRITE":                     39,
 		"PERMISSION_AGENTS_READ":                      40,
+		"PERMISSION_BILLING_PUBLISH_ANALYTICS":        41,
 	}
 )
 
@@ -322,7 +325,7 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*c\n" +
 	"\x13PermissionPrincipal\x12$\n" +
 	" PERMISSION_PRINCIPAL_UNSPECIFIED\x10\x00\x12&\n" +
-	"\"PERMISSION_PRINCIPAL_SERVICE_TOKEN\x10\x01*\x8e%\n" +
+	"\"PERMISSION_PRINCIPAL_SERVICE_TOKEN\x10\x01*\xb7&\n" +
 	"\n" +
 	"Permission\x12R\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x1a6\xca>%Default value -- should never be set.\xd2>\vunspecified\x12O\n" +
@@ -367,7 +370,8 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"'PERMISSION_INTERNAL_RESOURCE_SHARE_VIEW\x10%\x1a\x9f\x01\xca>}Read a single shared resource through a share link. Held only by share-link tokens, never granted to a user or service token.\xd2>\x1cinternal.resource_share_view\x12f\n" +
 	"(PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW\x10&\x1a8\xca>\x15Renew exchange tokens\xd2>\x1dinternal.exchange_token_renew\x12a\n" +
 	"\x17PERMISSION_AGENTS_WRITE\x10'\x1aD\xca>.Create, modify, delete ai provider connections\xd2>\fagents.write\xda>\x01\x01\x12G\n" +
-	"\x16PERMISSION_AGENTS_READ\x10(\x1a+\xca>\x16Use Chalk AI assistant\xd2>\vagents.read\xda>\x01\x01\x1a\xd1\x06\xe2\xa1'\xcc\x06\n" +
+	"\x16PERMISSION_AGENTS_READ\x10(\x1a+\xca>\x16Use Chalk AI assistant\xd2>\vagents.read\xda>\x01\x01\x12\x87\x01\n" +
+	"$PERMISSION_BILLING_PUBLISH_ANALYTICS\x10)\x1a]\xca>>Publish product analytics events from a self-hosted deployment\xd2>\x19billing.publish_analytics\x1a\xf0\x06\xe2\xa1'\xeb\x06\n" +
 	"\x1c\b\x01\x12\x18insecure_unauthenticated\n" +
 	"\x11\b\x02\x12\rauthenticated\n" +
 	"\x10\b\x03\x12\fquery.online\n" +
@@ -409,7 +413,8 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	" \b%\x12\x1cinternal.resource_share_view\n" +
 	"!\b&\x12\x1dinternal.exchange_token_renew\n" +
 	"\x10\b'\x12\fagents.write\n" +
-	"\x0f\b(\x12\vagents.read:D\n" +
+	"\x0f\b(\x12\vagents.read\n" +
+	"\x1d\b)\x12\x19billing.publish_analytics:D\n" +
 	"\vdescription\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\tR\vdescription:6\n" +
 	"\x04slug\x12!.google.protobuf.EnumValueOptions\x18\xea\a \x01(\tR\x04slug:k\n" +
 	"\rassignable_to\x12!.google.protobuf.EnumValueOptions\x18\xeb\a \x03(\x0e2\".chalk.auth.v1.PermissionPrincipalR\fassignableTo:Z\n" +

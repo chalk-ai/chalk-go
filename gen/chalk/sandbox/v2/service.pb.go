@@ -1378,6 +1378,7 @@ type RecordSandboxResourceRequest struct {
 	Kind          SandboxResourceKind    `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.sandbox.v2.SandboxResourceKind" json:"kind,omitempty"`
 	ResourceId    string                 `protobuf:"bytes,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	VersionId     string                 `protobuf:"bytes,3,opt,name=version_id,json=versionId,proto3" json:"version_id,omitempty"`
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1429,6 +1430,13 @@ func (x *RecordSandboxResourceRequest) GetResourceId() string {
 func (x *RecordSandboxResourceRequest) GetVersionId() string {
 	if x != nil {
 		return x.VersionId
+	}
+	return ""
+}
+
+func (x *RecordSandboxResourceRequest) GetName() string {
+	if x != nil {
+		return x.Name
 	}
 	return ""
 }
@@ -1574,13 +1582,14 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"page_token\x18\x04 \x01(\tR\tpageToken\"\x87\x01\n" +
 	"\x1cListSandboxResourcesResponse\x12?\n" +
 	"\tresources\x18\x01 \x03(\v2!.chalk.sandbox.v2.SandboxResourceR\tresources\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x99\x01\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xad\x01\n" +
 	"\x1cRecordSandboxResourceRequest\x129\n" +
 	"\x04kind\x18\x01 \x01(\x0e2%.chalk.sandbox.v2.SandboxResourceKindR\x04kind\x12\x1f\n" +
 	"\vresource_id\x18\x02 \x01(\tR\n" +
 	"resourceId\x12\x1d\n" +
 	"\n" +
-	"version_id\x18\x03 \x01(\tR\tversionId\"\x1f\n" +
+	"version_id\x18\x03 \x01(\tR\tversionId\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\"\x1f\n" +
 	"\x1dRecordSandboxResourceResponse*\x93\x02\n" +
 	"\rSandboxStatus\x12\x1e\n" +
 	"\x1aSANDBOX_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +

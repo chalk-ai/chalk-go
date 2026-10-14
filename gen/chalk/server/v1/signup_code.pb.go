@@ -214,8 +214,14 @@ type SignupCode struct {
 	// with quota enforcement turned on for those environments. Empty means the
 	// environments get no limits and keep the default enforcement setting.
 	InitialQuotas []*SignupCodeQuota `protobuf:"bytes,14,rep,name=initial_quotas,json=initialQuotas,proto3" json:"initial_quotas,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Caller-defined key/value pairs for correlating a code with other systems, e.g. a
+	// campaign or CRM id. Internal like `note`: never returned to the recipient.
+	Metadata map[string]string `protobuf:"bytes,15,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Email of the employee in created_by_user_id, for display. Absent when the code
+	// was minted by a non-user caller, the user was deleted, or has no email.
+	CreatedByEmail *string `protobuf:"bytes,16,opt,name=created_by_email,json=createdByEmail,proto3,oneof" json:"created_by_email,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *SignupCode) Reset() {
@@ -346,6 +352,20 @@ func (x *SignupCode) GetInitialQuotas() []*SignupCodeQuota {
 	return nil
 }
 
+func (x *SignupCode) GetMetadata() map[string]string {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+func (x *SignupCode) GetCreatedByEmail() string {
+	if x != nil && x.CreatedByEmail != nil {
+		return *x.CreatedByEmail
+	}
+	return ""
+}
+
 type CreateSignupCodeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Free-text reminder of who the code is for. Not validated or unique.
@@ -357,6 +377,8 @@ type CreateSignupCodeRequest struct {
 	InviteMessage string `protobuf:"bytes,3,opt,name=invite_message,json=inviteMessage,proto3" json:"invite_message,omitempty"`
 	// See SignupCode.initial_quotas. Each resource may appear at most once.
 	InitialQuotas []*SignupCodeQuota `protobuf:"bytes,4,rep,name=initial_quotas,json=initialQuotas,proto3" json:"initial_quotas,omitempty"`
+	// See SignupCode.metadata.
+	Metadata      map[string]string `protobuf:"bytes,5,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -415,6 +437,13 @@ func (x *CreateSignupCodeRequest) GetInviteMessage() string {
 func (x *CreateSignupCodeRequest) GetInitialQuotas() []*SignupCodeQuota {
 	if x != nil {
 		return x.InitialQuotas
+	}
+	return nil
+}
+
+func (x *CreateSignupCodeRequest) GetMetadata() map[string]string {
+	if x != nil {
+		return x.Metadata
 	}
 	return nil
 }
@@ -934,7 +963,7 @@ const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"\bresource\x18\x01 \x01(\v2\x1d.chalk.quota.v1.QuotaResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x128\n" +
 	"\x05limit\x18\x02 \x01(\v2\x1a.chalk.quota.v1.QuotaLimitB\x06\xbaH\x03\xc8\x01\x01R\x05limit\"P\n" +
 	"\x14SignupCodeQuotaGrant\x128\n" +
-	"\x06quotas\x18\x01 \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\x06quotas\"\xb8\x06\n" +
+	"\x06quotas\x18\x01 \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\x06quotas\"\x80\b\n" +
 	"\n" +
 	"SignupCode\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
@@ -957,7 +986,12 @@ const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"consumedAt\x88\x01\x01\x12\x1c\n" +
 	"\ateam_id\x18\f \x01(\tH\x06R\x06teamId\x88\x01\x01\x12%\n" +
 	"\x0einvite_message\x18\r \x01(\tR\rinviteMessage\x12G\n" +
-	"\x0einitial_quotas\x18\x0e \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\rinitialQuotasB\x15\n" +
+	"\x0einitial_quotas\x18\x0e \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\rinitialQuotas\x12E\n" +
+	"\bmetadata\x18\x0f \x03(\v2).chalk.server.v1.SignupCode.MetadataEntryR\bmetadata\x12-\n" +
+	"\x10created_by_email\x18\x10 \x01(\tH\aR\x0ecreatedByEmail\x88\x01\x01\x1a;\n" +
+	"\rMetadataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
 	"\x13_created_by_user_idB\r\n" +
 	"\v_expires_atB\r\n" +
 	"\v_revoked_atB\x0e\n" +
@@ -965,12 +999,17 @@ const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"\x14_redeemed_by_user_idB\x0e\n" +
 	"\f_consumed_atB\n" +
 	"\n" +
-	"\b_team_id\"\xf1\x01\n" +
+	"\b_team_idB\x13\n" +
+	"\x11_created_by_email\"\x9c\x03\n" +
 	"\x17CreateSignupCodeRequest\x12\x12\n" +
 	"\x04note\x18\x01 \x01(\tR\x04note\x121\n" +
 	"\x12expires_in_seconds\x18\x02 \x01(\x03H\x00R\x10expiresInSeconds\x88\x01\x01\x12%\n" +
 	"\x0einvite_message\x18\x03 \x01(\tR\rinviteMessage\x12Q\n" +
-	"\x0einitial_quotas\x18\x04 \x03(\v2 .chalk.server.v1.SignupCodeQuotaB\b\xbaH\x05\x92\x01\x02\x10 R\rinitialQuotasB\x15\n" +
+	"\x0einitial_quotas\x18\x04 \x03(\v2 .chalk.server.v1.SignupCodeQuotaB\b\xbaH\x05\x92\x01\x02\x10 R\rinitialQuotas\x12l\n" +
+	"\bmetadata\x18\x05 \x03(\v26.chalk.server.v1.CreateSignupCodeRequest.MetadataEntryB\x18\xbaH\x15\x9a\x01\x12\x10@\"\ar\x05\x10\x01\x18\x80\x01*\x05r\x03\x18\x80\bR\bmetadata\x1a;\n" +
+	"\rMetadataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
 	"\x13_expires_in_seconds\"r\n" +
 	"\x18CreateSignupCodeResponse\x12<\n" +
 	"\vsignup_code\x18\x01 \x01(\v2\x1b.chalk.server.v1.SignupCodeR\n" +
@@ -1029,7 +1068,7 @@ func file_chalk_server_v1_signup_code_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_signup_code_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_signup_code_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_server_v1_signup_code_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_chalk_server_v1_signup_code_proto_goTypes = []any{
 	(SignupCodeStatus)(0),                         // 0: chalk.server.v1.SignupCodeStatus
 	(*SignupCodeQuota)(nil),                       // 1: chalk.server.v1.SignupCodeQuota
@@ -1047,42 +1086,46 @@ var file_chalk_server_v1_signup_code_proto_goTypes = []any{
 	(*PreviewSignupCodeResponse)(nil),             // 13: chalk.server.v1.PreviewSignupCodeResponse
 	(*GetSignupCodeRedemptionStatusRequest)(nil),  // 14: chalk.server.v1.GetSignupCodeRedemptionStatusRequest
 	(*GetSignupCodeRedemptionStatusResponse)(nil), // 15: chalk.server.v1.GetSignupCodeRedemptionStatusResponse
-	(*v1.QuotaResource)(nil),                      // 16: chalk.quota.v1.QuotaResource
-	(*v1.QuotaLimit)(nil),                         // 17: chalk.quota.v1.QuotaLimit
-	(*timestamppb.Timestamp)(nil),                 // 18: google.protobuf.Timestamp
+	nil,                           // 16: chalk.server.v1.SignupCode.MetadataEntry
+	nil,                           // 17: chalk.server.v1.CreateSignupCodeRequest.MetadataEntry
+	(*v1.QuotaResource)(nil),      // 18: chalk.quota.v1.QuotaResource
+	(*v1.QuotaLimit)(nil),         // 19: chalk.quota.v1.QuotaLimit
+	(*timestamppb.Timestamp)(nil), // 20: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_signup_code_proto_depIdxs = []int32{
-	16, // 0: chalk.server.v1.SignupCodeQuota.resource:type_name -> chalk.quota.v1.QuotaResource
-	17, // 1: chalk.server.v1.SignupCodeQuota.limit:type_name -> chalk.quota.v1.QuotaLimit
+	18, // 0: chalk.server.v1.SignupCodeQuota.resource:type_name -> chalk.quota.v1.QuotaResource
+	19, // 1: chalk.server.v1.SignupCodeQuota.limit:type_name -> chalk.quota.v1.QuotaLimit
 	1,  // 2: chalk.server.v1.SignupCodeQuotaGrant.quotas:type_name -> chalk.server.v1.SignupCodeQuota
 	0,  // 3: chalk.server.v1.SignupCode.status:type_name -> chalk.server.v1.SignupCodeStatus
-	18, // 4: chalk.server.v1.SignupCode.created_at:type_name -> google.protobuf.Timestamp
-	18, // 5: chalk.server.v1.SignupCode.expires_at:type_name -> google.protobuf.Timestamp
-	18, // 6: chalk.server.v1.SignupCode.revoked_at:type_name -> google.protobuf.Timestamp
-	18, // 7: chalk.server.v1.SignupCode.redeemed_at:type_name -> google.protobuf.Timestamp
-	18, // 8: chalk.server.v1.SignupCode.consumed_at:type_name -> google.protobuf.Timestamp
+	20, // 4: chalk.server.v1.SignupCode.created_at:type_name -> google.protobuf.Timestamp
+	20, // 5: chalk.server.v1.SignupCode.expires_at:type_name -> google.protobuf.Timestamp
+	20, // 6: chalk.server.v1.SignupCode.revoked_at:type_name -> google.protobuf.Timestamp
+	20, // 7: chalk.server.v1.SignupCode.redeemed_at:type_name -> google.protobuf.Timestamp
+	20, // 8: chalk.server.v1.SignupCode.consumed_at:type_name -> google.protobuf.Timestamp
 	1,  // 9: chalk.server.v1.SignupCode.initial_quotas:type_name -> chalk.server.v1.SignupCodeQuota
-	1,  // 10: chalk.server.v1.CreateSignupCodeRequest.initial_quotas:type_name -> chalk.server.v1.SignupCodeQuota
-	3,  // 11: chalk.server.v1.CreateSignupCodeResponse.signup_code:type_name -> chalk.server.v1.SignupCode
-	3,  // 12: chalk.server.v1.ListSignupCodesResponse.signup_codes:type_name -> chalk.server.v1.SignupCode
-	3,  // 13: chalk.server.v1.RevokeSignupCodeResponse.signup_code:type_name -> chalk.server.v1.SignupCode
-	4,  // 14: chalk.server.v1.SignupCodeService.CreateSignupCode:input_type -> chalk.server.v1.CreateSignupCodeRequest
-	6,  // 15: chalk.server.v1.SignupCodeService.ListSignupCodes:input_type -> chalk.server.v1.ListSignupCodesRequest
-	8,  // 16: chalk.server.v1.SignupCodeService.RevokeSignupCode:input_type -> chalk.server.v1.RevokeSignupCodeRequest
-	10, // 17: chalk.server.v1.SignupCodeService.RedeemSignupCode:input_type -> chalk.server.v1.RedeemSignupCodeRequest
-	14, // 18: chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus:input_type -> chalk.server.v1.GetSignupCodeRedemptionStatusRequest
-	12, // 19: chalk.server.v1.SignupCodeService.PreviewSignupCode:input_type -> chalk.server.v1.PreviewSignupCodeRequest
-	5,  // 20: chalk.server.v1.SignupCodeService.CreateSignupCode:output_type -> chalk.server.v1.CreateSignupCodeResponse
-	7,  // 21: chalk.server.v1.SignupCodeService.ListSignupCodes:output_type -> chalk.server.v1.ListSignupCodesResponse
-	9,  // 22: chalk.server.v1.SignupCodeService.RevokeSignupCode:output_type -> chalk.server.v1.RevokeSignupCodeResponse
-	11, // 23: chalk.server.v1.SignupCodeService.RedeemSignupCode:output_type -> chalk.server.v1.RedeemSignupCodeResponse
-	15, // 24: chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus:output_type -> chalk.server.v1.GetSignupCodeRedemptionStatusResponse
-	13, // 25: chalk.server.v1.SignupCodeService.PreviewSignupCode:output_type -> chalk.server.v1.PreviewSignupCodeResponse
-	20, // [20:26] is the sub-list for method output_type
-	14, // [14:20] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	16, // 10: chalk.server.v1.SignupCode.metadata:type_name -> chalk.server.v1.SignupCode.MetadataEntry
+	1,  // 11: chalk.server.v1.CreateSignupCodeRequest.initial_quotas:type_name -> chalk.server.v1.SignupCodeQuota
+	17, // 12: chalk.server.v1.CreateSignupCodeRequest.metadata:type_name -> chalk.server.v1.CreateSignupCodeRequest.MetadataEntry
+	3,  // 13: chalk.server.v1.CreateSignupCodeResponse.signup_code:type_name -> chalk.server.v1.SignupCode
+	3,  // 14: chalk.server.v1.ListSignupCodesResponse.signup_codes:type_name -> chalk.server.v1.SignupCode
+	3,  // 15: chalk.server.v1.RevokeSignupCodeResponse.signup_code:type_name -> chalk.server.v1.SignupCode
+	4,  // 16: chalk.server.v1.SignupCodeService.CreateSignupCode:input_type -> chalk.server.v1.CreateSignupCodeRequest
+	6,  // 17: chalk.server.v1.SignupCodeService.ListSignupCodes:input_type -> chalk.server.v1.ListSignupCodesRequest
+	8,  // 18: chalk.server.v1.SignupCodeService.RevokeSignupCode:input_type -> chalk.server.v1.RevokeSignupCodeRequest
+	10, // 19: chalk.server.v1.SignupCodeService.RedeemSignupCode:input_type -> chalk.server.v1.RedeemSignupCodeRequest
+	14, // 20: chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus:input_type -> chalk.server.v1.GetSignupCodeRedemptionStatusRequest
+	12, // 21: chalk.server.v1.SignupCodeService.PreviewSignupCode:input_type -> chalk.server.v1.PreviewSignupCodeRequest
+	5,  // 22: chalk.server.v1.SignupCodeService.CreateSignupCode:output_type -> chalk.server.v1.CreateSignupCodeResponse
+	7,  // 23: chalk.server.v1.SignupCodeService.ListSignupCodes:output_type -> chalk.server.v1.ListSignupCodesResponse
+	9,  // 24: chalk.server.v1.SignupCodeService.RevokeSignupCode:output_type -> chalk.server.v1.RevokeSignupCodeResponse
+	11, // 25: chalk.server.v1.SignupCodeService.RedeemSignupCode:output_type -> chalk.server.v1.RedeemSignupCodeResponse
+	15, // 26: chalk.server.v1.SignupCodeService.GetSignupCodeRedemptionStatus:output_type -> chalk.server.v1.GetSignupCodeRedemptionStatusResponse
+	13, // 27: chalk.server.v1.SignupCodeService.PreviewSignupCode:output_type -> chalk.server.v1.PreviewSignupCodeResponse
+	22, // [22:28] is the sub-list for method output_type
+	16, // [16:22] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_signup_code_proto_init() }
@@ -1099,7 +1142,7 @@ func file_chalk_server_v1_signup_code_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_signup_code_proto_rawDesc), len(file_chalk_server_v1_signup_code_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

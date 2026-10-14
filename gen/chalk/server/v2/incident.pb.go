@@ -228,7 +228,13 @@ type MonitorIncident struct {
 	//	*MonitorIncident_LogsIncident
 	//	*MonitorIncident_SqlBadRowsIncident
 	//	*MonitorIncident_DataSourceIncident
-	IncidentBody  isMonitorIncident_IncidentBody `protobuf_oneof:"incident_body"`
+	IncidentBody isMonitorIncident_IncidentBody `protobuf_oneof:"incident_body"`
+	// A title describing what failed, set when the incident opened. Unset for incidents opened
+	// before names were recorded.
+	Name *string `protobuf:"bytes,12,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	// Static details of the incident as of when it opened. Unset for incidents opened before
+	// snapshots were recorded.
+	Snapshot      *v1.IncidentSnapshot `protobuf:"bytes,13,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -357,6 +363,20 @@ func (x *MonitorIncident) GetDataSourceIncident() *DataSourceIncidentBody {
 	return nil
 }
 
+func (x *MonitorIncident) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
+	}
+	return ""
+}
+
+func (x *MonitorIncident) GetSnapshot() *v1.IncidentSnapshot {
+	if x != nil {
+		return x.Snapshot
+	}
+	return nil
+}
+
 type isMonitorIncident_IncidentBody interface {
 	isMonitorIncident_IncidentBody()
 }
@@ -401,7 +421,7 @@ const file_chalk_server_v2_incident_proto_rawDesc = "" +
 	"\x17HealthcheckIncidentBody\"\x12\n" +
 	"\x10LogsIncidentBody\"\x18\n" +
 	"\x16SqlBadRowsIncidentBody\"\x18\n" +
-	"\x16DataSourceIncidentBody\"\xf1\x05\n" +
+	"\x16DataSourceIncidentBody\"\xd2\x06\n" +
 	"\x0fMonitorIncident\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -417,10 +437,13 @@ const file_chalk_server_v2_incident_proto_rawDesc = "" +
 	"\rlogs_incident\x18\t \x01(\v2!.chalk.server.v2.LogsIncidentBodyH\x00R\flogsIncident\x12\\\n" +
 	"\x15sql_bad_rows_incident\x18\n" +
 	" \x01(\v2'.chalk.server.v2.SqlBadRowsIncidentBodyH\x00R\x12sqlBadRowsIncident\x12[\n" +
-	"\x14data_source_incident\x18\v \x01(\v2'.chalk.server.v2.DataSourceIncidentBodyH\x00R\x12dataSourceIncidentB\x0f\n" +
+	"\x14data_source_incident\x18\v \x01(\v2'.chalk.server.v2.DataSourceIncidentBodyH\x00R\x12dataSourceIncident\x12\x17\n" +
+	"\x04name\x18\f \x01(\tH\x02R\x04name\x88\x01\x01\x12=\n" +
+	"\bsnapshot\x18\r \x01(\v2!.chalk.server.v1.IncidentSnapshotR\bsnapshotB\x0f\n" +
 	"\rincident_bodyB\f\n" +
 	"\n" +
-	"_closed_atB\xbd\x01\n" +
+	"_closed_atB\a\n" +
+	"\x05_nameB\xbd\x01\n" +
 	"\x13com.chalk.server.v2B\rIncidentProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v2;serverv2\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V2\xca\x02\x0fChalk\\Server\\V2\xe2\x02\x1bChalk\\Server\\V2\\GPBMetadata\xea\x02\x11Chalk::Server::V2b\x06proto3"
 
 var (
@@ -446,22 +469,24 @@ var file_chalk_server_v2_incident_proto_goTypes = []any{
 	(*v1.IncidentGroup)(nil),        // 6: chalk.server.v1.IncidentGroup
 	(*timestamppb.Timestamp)(nil),   // 7: google.protobuf.Timestamp
 	(*v1.IncidentLinkedEntity)(nil), // 8: chalk.server.v1.IncidentLinkedEntity
+	(*v1.IncidentSnapshot)(nil),     // 9: chalk.server.v1.IncidentSnapshot
 }
 var file_chalk_server_v2_incident_proto_depIdxs = []int32{
-	6, // 0: chalk.server.v2.MetricIncidentBody.groups:type_name -> chalk.server.v1.IncidentGroup
-	7, // 1: chalk.server.v2.MonitorIncident.started_at:type_name -> google.protobuf.Timestamp
-	7, // 2: chalk.server.v2.MonitorIncident.closed_at:type_name -> google.protobuf.Timestamp
-	8, // 3: chalk.server.v2.MonitorIncident.linked_entities:type_name -> chalk.server.v1.IncidentLinkedEntity
-	0, // 4: chalk.server.v2.MonitorIncident.metric_incident:type_name -> chalk.server.v2.MetricIncidentBody
-	1, // 5: chalk.server.v2.MonitorIncident.health_incident:type_name -> chalk.server.v2.HealthcheckIncidentBody
-	2, // 6: chalk.server.v2.MonitorIncident.logs_incident:type_name -> chalk.server.v2.LogsIncidentBody
-	3, // 7: chalk.server.v2.MonitorIncident.sql_bad_rows_incident:type_name -> chalk.server.v2.SqlBadRowsIncidentBody
-	4, // 8: chalk.server.v2.MonitorIncident.data_source_incident:type_name -> chalk.server.v2.DataSourceIncidentBody
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	6,  // 0: chalk.server.v2.MetricIncidentBody.groups:type_name -> chalk.server.v1.IncidentGroup
+	7,  // 1: chalk.server.v2.MonitorIncident.started_at:type_name -> google.protobuf.Timestamp
+	7,  // 2: chalk.server.v2.MonitorIncident.closed_at:type_name -> google.protobuf.Timestamp
+	8,  // 3: chalk.server.v2.MonitorIncident.linked_entities:type_name -> chalk.server.v1.IncidentLinkedEntity
+	0,  // 4: chalk.server.v2.MonitorIncident.metric_incident:type_name -> chalk.server.v2.MetricIncidentBody
+	1,  // 5: chalk.server.v2.MonitorIncident.health_incident:type_name -> chalk.server.v2.HealthcheckIncidentBody
+	2,  // 6: chalk.server.v2.MonitorIncident.logs_incident:type_name -> chalk.server.v2.LogsIncidentBody
+	3,  // 7: chalk.server.v2.MonitorIncident.sql_bad_rows_incident:type_name -> chalk.server.v2.SqlBadRowsIncidentBody
+	4,  // 8: chalk.server.v2.MonitorIncident.data_source_incident:type_name -> chalk.server.v2.DataSourceIncidentBody
+	9,  // 9: chalk.server.v2.MonitorIncident.snapshot:type_name -> chalk.server.v1.IncidentSnapshot
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v2_incident_proto_init() }
