@@ -64,6 +64,7 @@ const (
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_UNLOADED_SNOWFLAKE_SCAN LogicalTableNodeType = 32
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_RECURSIVE_CTE           LogicalTableNodeType = 33
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_WORKING_TABLE           LogicalTableNodeType = 34
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_MEMO_GROUP_REF          LogicalTableNodeType = 35
 )
 
 // Enum value maps for LogicalTableNodeType.
@@ -104,6 +105,7 @@ var (
 		32: "LOGICAL_TABLE_NODE_TYPE_UNLOADED_SNOWFLAKE_SCAN",
 		33: "LOGICAL_TABLE_NODE_TYPE_RECURSIVE_CTE",
 		34: "LOGICAL_TABLE_NODE_TYPE_WORKING_TABLE",
+		35: "LOGICAL_TABLE_NODE_TYPE_MEMO_GROUP_REF",
 	}
 	LogicalTableNodeType_value = map[string]int32{
 		"LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED":             0,
@@ -141,6 +143,7 @@ var (
 		"LOGICAL_TABLE_NODE_TYPE_UNLOADED_SNOWFLAKE_SCAN": 32,
 		"LOGICAL_TABLE_NODE_TYPE_RECURSIVE_CTE":           33,
 		"LOGICAL_TABLE_NODE_TYPE_WORKING_TABLE":           34,
+		"LOGICAL_TABLE_NODE_TYPE_MEMO_GROUP_REF":          35,
 	}
 )
 
@@ -1069,7 +1072,7 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x10logical_plan_arg\x18\x01 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentB\x02\x18\x01H\x00R\x0elogicalPlanArg\x127\n" +
 	"\x06py_obj\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectB\x02\x18\x01H\x00R\x05pyObj:\x02\x18\x01B\x05\n" +
 	"\x03arg\"\x1c\n" +
-	"\x1aLogicalPlanArgumentNullOpt*\xa7\v\n" +
+	"\x1aLogicalPlanArgumentNullOpt*\xd3\v\n" +
 	"\x14LogicalTableNodeType\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_NAMED_TABLE\x10\x01\x12&\n" +
@@ -1106,7 +1109,8 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	")LOGICAL_TABLE_NODE_TYPE_UNLOAD_TABLE_SCAN\x10\x1f\x123\n" +
 	"/LOGICAL_TABLE_NODE_TYPE_UNLOADED_SNOWFLAKE_SCAN\x10 \x12)\n" +
 	"%LOGICAL_TABLE_NODE_TYPE_RECURSIVE_CTE\x10!\x12)\n" +
-	"%LOGICAL_TABLE_NODE_TYPE_WORKING_TABLE\x10\"B\xc7\x01\n" +
+	"%LOGICAL_TABLE_NODE_TYPE_WORKING_TABLE\x10\"\x12*\n" +
+	"&LOGICAL_TABLE_NODE_TYPE_MEMO_GROUP_REF\x10#B\xc7\x01\n" +
 	"\x14com.chalk.planner.v1B\x10LogicalPlanProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

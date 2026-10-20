@@ -59,6 +59,9 @@ const (
 	AuthServiceGetUserByAccountProcedure = "/chalk.server.v1.AuthService/GetUserByAccount"
 	// AuthServiceUpdateUserProcedure is the fully-qualified name of the AuthService's UpdateUser RPC.
 	AuthServiceUpdateUserProcedure = "/chalk.server.v1.AuthService/UpdateUser"
+	// AuthServiceUpdateUserProfileProcedure is the fully-qualified name of the AuthService's
+	// UpdateUserProfile RPC.
+	AuthServiceUpdateUserProfileProcedure = "/chalk.server.v1.AuthService/UpdateUserProfile"
 	// AuthServiceLinkAccountProcedure is the fully-qualified name of the AuthService's LinkAccount RPC.
 	AuthServiceLinkAccountProcedure = "/chalk.server.v1.AuthService/LinkAccount"
 	// AuthServiceCreateSessionProcedure is the fully-qualified name of the AuthService's CreateSession
@@ -123,6 +126,7 @@ type AuthServiceClient interface {
 	GetUserByEmail(context.Context, *connect.Request[v1.GetUserByEmailRequest]) (*connect.Response[v1.GetUserByEmailResponse], error)
 	GetUserByAccount(context.Context, *connect.Request[v1.GetUserByAccountRequest]) (*connect.Response[v1.GetUserByAccountResponse], error)
 	UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error)
+	UpdateUserProfile(context.Context, *connect.Request[v1.UpdateUserProfileRequest]) (*connect.Response[v1.UpdateUserProfileResponse], error)
 	LinkAccount(context.Context, *connect.Request[v1.LinkAccountRequest]) (*connect.Response[v1.LinkAccountResponse], error)
 	CreateSession(context.Context, *connect.Request[v1.CreateSessionRequest]) (*connect.Response[v1.CreateSessionResponse], error)
 	GetSessionAndUser(context.Context, *connect.Request[v1.GetSessionAndUserRequest]) (*connect.Response[v1.GetSessionAndUserResponse], error)
@@ -214,6 +218,12 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+AuthServiceUpdateUserProcedure,
 			connect.WithSchema(authServiceMethods.ByName("UpdateUser")),
+			connect.WithClientOptions(opts...),
+		),
+		updateUserProfile: connect.NewClient[v1.UpdateUserProfileRequest, v1.UpdateUserProfileResponse](
+			httpClient,
+			baseURL+AuthServiceUpdateUserProfileProcedure,
+			connect.WithSchema(authServiceMethods.ByName("UpdateUserProfile")),
 			connect.WithClientOptions(opts...),
 		),
 		linkAccount: connect.NewClient[v1.LinkAccountRequest, v1.LinkAccountResponse](
@@ -335,6 +345,7 @@ type authServiceClient struct {
 	getUserByEmail             *connect.Client[v1.GetUserByEmailRequest, v1.GetUserByEmailResponse]
 	getUserByAccount           *connect.Client[v1.GetUserByAccountRequest, v1.GetUserByAccountResponse]
 	updateUser                 *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
+	updateUserProfile          *connect.Client[v1.UpdateUserProfileRequest, v1.UpdateUserProfileResponse]
 	linkAccount                *connect.Client[v1.LinkAccountRequest, v1.LinkAccountResponse]
 	createSession              *connect.Client[v1.CreateSessionRequest, v1.CreateSessionResponse]
 	getSessionAndUser          *connect.Client[v1.GetSessionAndUserRequest, v1.GetSessionAndUserResponse]
@@ -402,6 +413,11 @@ func (c *authServiceClient) GetUserByAccount(ctx context.Context, req *connect.R
 // UpdateUser calls chalk.server.v1.AuthService.UpdateUser.
 func (c *authServiceClient) UpdateUser(ctx context.Context, req *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error) {
 	return c.updateUser.CallUnary(ctx, req)
+}
+
+// UpdateUserProfile calls chalk.server.v1.AuthService.UpdateUserProfile.
+func (c *authServiceClient) UpdateUserProfile(ctx context.Context, req *connect.Request[v1.UpdateUserProfileRequest]) (*connect.Response[v1.UpdateUserProfileResponse], error) {
+	return c.updateUserProfile.CallUnary(ctx, req)
 }
 
 // LinkAccount calls chalk.server.v1.AuthService.LinkAccount.
@@ -501,6 +517,7 @@ type AuthServiceHandler interface {
 	GetUserByEmail(context.Context, *connect.Request[v1.GetUserByEmailRequest]) (*connect.Response[v1.GetUserByEmailResponse], error)
 	GetUserByAccount(context.Context, *connect.Request[v1.GetUserByAccountRequest]) (*connect.Response[v1.GetUserByAccountResponse], error)
 	UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error)
+	UpdateUserProfile(context.Context, *connect.Request[v1.UpdateUserProfileRequest]) (*connect.Response[v1.UpdateUserProfileResponse], error)
 	LinkAccount(context.Context, *connect.Request[v1.LinkAccountRequest]) (*connect.Response[v1.LinkAccountResponse], error)
 	CreateSession(context.Context, *connect.Request[v1.CreateSessionRequest]) (*connect.Response[v1.CreateSessionResponse], error)
 	GetSessionAndUser(context.Context, *connect.Request[v1.GetSessionAndUserRequest]) (*connect.Response[v1.GetSessionAndUserResponse], error)
@@ -588,6 +605,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		AuthServiceUpdateUserProcedure,
 		svc.UpdateUser,
 		connect.WithSchema(authServiceMethods.ByName("UpdateUser")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceUpdateUserProfileHandler := connect.NewUnaryHandler(
+		AuthServiceUpdateUserProfileProcedure,
+		svc.UpdateUserProfile,
+		connect.WithSchema(authServiceMethods.ByName("UpdateUserProfile")),
 		connect.WithHandlerOptions(opts...),
 	)
 	authServiceLinkAccountHandler := connect.NewUnaryHandler(
@@ -716,6 +739,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceGetUserByAccountHandler.ServeHTTP(w, r)
 		case AuthServiceUpdateUserProcedure:
 			authServiceUpdateUserHandler.ServeHTTP(w, r)
+		case AuthServiceUpdateUserProfileProcedure:
+			authServiceUpdateUserProfileHandler.ServeHTTP(w, r)
 		case AuthServiceLinkAccountProcedure:
 			authServiceLinkAccountHandler.ServeHTTP(w, r)
 		case AuthServiceCreateSessionProcedure:
@@ -797,6 +822,10 @@ func (UnimplementedAuthServiceHandler) GetUserByAccount(context.Context, *connec
 
 func (UnimplementedAuthServiceHandler) UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UpdateUser is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) UpdateUserProfile(context.Context, *connect.Request[v1.UpdateUserProfileRequest]) (*connect.Response[v1.UpdateUserProfileResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UpdateUserProfile is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) LinkAccount(context.Context, *connect.Request[v1.LinkAccountRequest]) (*connect.Response[v1.LinkAccountResponse], error) {

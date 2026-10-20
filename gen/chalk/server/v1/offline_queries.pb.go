@@ -1090,28 +1090,35 @@ func (x *OfflineQueryJobQueueStats) GetNotReadyJobs() int32 {
 }
 
 type ListOfflineQueriesRequest struct {
-	state                       protoimpl.MessageState `protogen:"open.v1"`
-	Cursor                      *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Limit                       *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	StartDate                   *string                `protobuf:"bytes,3,opt,name=start_date,json=startDate,proto3,oneof" json:"start_date,omitempty"`
-	EndDate                     *string                `protobuf:"bytes,4,opt,name=end_date,json=endDate,proto3,oneof" json:"end_date,omitempty"`
-	IdFilter                    *string                `protobuf:"bytes,5,opt,name=id_filter,json=idFilter,proto3,oneof" json:"id_filter,omitempty"`
-	AgentIdFilter               *string                `protobuf:"bytes,6,opt,name=agent_id_filter,json=agentIdFilter,proto3,oneof" json:"agent_id_filter,omitempty"`
-	BranchFilter                *string                `protobuf:"bytes,7,opt,name=branch_filter,json=branchFilter,proto3,oneof" json:"branch_filter,omitempty"`
-	KindFilter                  *OfflineQueryKind      `protobuf:"varint,8,opt,name=kind_filter,json=kindFilter,proto3,enum=chalk.server.v1.OfflineQueryKind,oneof" json:"kind_filter,omitempty"`
-	StatusFilter                *OfflineQueryStatus    `protobuf:"varint,9,opt,name=status_filter,json=statusFilter,proto3,enum=chalk.server.v1.OfflineQueryStatus,oneof" json:"status_filter,omitempty"`
-	AggregationBackfillIdFilter *string                `protobuf:"bytes,10,opt,name=aggregation_backfill_id_filter,json=aggregationBackfillIdFilter,proto3,oneof" json:"aggregation_backfill_id_filter,omitempty"`
-	EvaluationRunIdFilter       *string                `protobuf:"bytes,11,opt,name=evaluation_run_id_filter,json=evaluationRunIdFilter,proto3,oneof" json:"evaluation_run_id_filter,omitempty"`
-	QueryName                   *string                `protobuf:"bytes,12,opt,name=query_name,json=queryName,proto3,oneof" json:"query_name,omitempty"`
-	QueryNameVersion            *string                `protobuf:"bytes,13,opt,name=query_name_version,json=queryNameVersion,proto3,oneof" json:"query_name_version,omitempty"`
-	ResourceGroups              []string               `protobuf:"bytes,14,rep,name=resource_groups,json=resourceGroups,proto3" json:"resource_groups,omitempty"`
-	AgentIds                    []string               `protobuf:"bytes,15,rep,name=agent_ids,json=agentIds,proto3" json:"agent_ids,omitempty"`
-	BranchFilters               []string               `protobuf:"bytes,16,rep,name=branch_filters,json=branchFilters,proto3" json:"branch_filters,omitempty"`
-	KindFilters                 []OfflineQueryKind     `protobuf:"varint,17,rep,packed,name=kind_filters,json=kindFilters,proto3,enum=chalk.server.v1.OfflineQueryKind" json:"kind_filters,omitempty"`
-	StatusFilters               []OfflineQueryStatus   `protobuf:"varint,18,rep,packed,name=status_filters,json=statusFilters,proto3,enum=chalk.server.v1.OfflineQueryStatus" json:"status_filters,omitempty"`
-	QueryNames                  []string               `protobuf:"bytes,19,rep,name=query_names,json=queryNames,proto3" json:"query_names,omitempty"`
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Cursor    *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit     *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	StartDate *string                `protobuf:"bytes,3,opt,name=start_date,json=startDate,proto3,oneof" json:"start_date,omitempty"`
+	EndDate   *string                `protobuf:"bytes,4,opt,name=end_date,json=endDate,proto3,oneof" json:"end_date,omitempty"`
+	// Substring match on operation_id or correlation_id; use operation_id_filter or correlation_id_filter.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/offline_queries.proto.
+	IdFilter                    *string              `protobuf:"bytes,5,opt,name=id_filter,json=idFilter,proto3,oneof" json:"id_filter,omitempty"`
+	AgentIdFilter               *string              `protobuf:"bytes,6,opt,name=agent_id_filter,json=agentIdFilter,proto3,oneof" json:"agent_id_filter,omitempty"`
+	BranchFilter                *string              `protobuf:"bytes,7,opt,name=branch_filter,json=branchFilter,proto3,oneof" json:"branch_filter,omitempty"`
+	KindFilter                  *OfflineQueryKind    `protobuf:"varint,8,opt,name=kind_filter,json=kindFilter,proto3,enum=chalk.server.v1.OfflineQueryKind,oneof" json:"kind_filter,omitempty"`
+	StatusFilter                *OfflineQueryStatus  `protobuf:"varint,9,opt,name=status_filter,json=statusFilter,proto3,enum=chalk.server.v1.OfflineQueryStatus,oneof" json:"status_filter,omitempty"`
+	AggregationBackfillIdFilter *string              `protobuf:"bytes,10,opt,name=aggregation_backfill_id_filter,json=aggregationBackfillIdFilter,proto3,oneof" json:"aggregation_backfill_id_filter,omitempty"`
+	EvaluationRunIdFilter       *string              `protobuf:"bytes,11,opt,name=evaluation_run_id_filter,json=evaluationRunIdFilter,proto3,oneof" json:"evaluation_run_id_filter,omitempty"`
+	QueryName                   *string              `protobuf:"bytes,12,opt,name=query_name,json=queryName,proto3,oneof" json:"query_name,omitempty"`
+	QueryNameVersion            *string              `protobuf:"bytes,13,opt,name=query_name_version,json=queryNameVersion,proto3,oneof" json:"query_name_version,omitempty"`
+	ResourceGroups              []string             `protobuf:"bytes,14,rep,name=resource_groups,json=resourceGroups,proto3" json:"resource_groups,omitempty"`
+	AgentIds                    []string             `protobuf:"bytes,15,rep,name=agent_ids,json=agentIds,proto3" json:"agent_ids,omitempty"`
+	BranchFilters               []string             `protobuf:"bytes,16,rep,name=branch_filters,json=branchFilters,proto3" json:"branch_filters,omitempty"`
+	KindFilters                 []OfflineQueryKind   `protobuf:"varint,17,rep,packed,name=kind_filters,json=kindFilters,proto3,enum=chalk.server.v1.OfflineQueryKind" json:"kind_filters,omitempty"`
+	StatusFilters               []OfflineQueryStatus `protobuf:"varint,18,rep,packed,name=status_filters,json=statusFilters,proto3,enum=chalk.server.v1.OfflineQueryStatus" json:"status_filters,omitempty"`
+	QueryNames                  []string             `protobuf:"bytes,19,rep,name=query_names,json=queryNames,proto3" json:"query_names,omitempty"`
+	// Exact match on operation_id.
+	OperationIdFilter *string `protobuf:"bytes,20,opt,name=operation_id_filter,json=operationIdFilter,proto3,oneof" json:"operation_id_filter,omitempty"`
+	// Exact match on correlation_id.
+	CorrelationIdFilter *string `protobuf:"bytes,21,opt,name=correlation_id_filter,json=correlationIdFilter,proto3,oneof" json:"correlation_id_filter,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListOfflineQueriesRequest) Reset() {
@@ -1172,6 +1179,7 @@ func (x *ListOfflineQueriesRequest) GetEndDate() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/offline_queries.proto.
 func (x *ListOfflineQueriesRequest) GetIdFilter() string {
 	if x != nil && x.IdFilter != nil {
 		return *x.IdFilter
@@ -1275,6 +1283,20 @@ func (x *ListOfflineQueriesRequest) GetQueryNames() []string {
 		return x.QueryNames
 	}
 	return nil
+}
+
+func (x *ListOfflineQueriesRequest) GetOperationIdFilter() string {
+	if x != nil && x.OperationIdFilter != nil {
+		return *x.OperationIdFilter
+	}
+	return ""
+}
+
+func (x *ListOfflineQueriesRequest) GetCorrelationIdFilter() string {
+	if x != nil && x.CorrelationIdFilter != nil {
+		return *x.CorrelationIdFilter
+	}
+	return ""
 }
 
 type ListOfflineQueriesResponse struct {
@@ -5059,14 +5081,15 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\rcanceled_jobs\x18\x05 \x01(\x05R\fcanceledJobs\x12%\n" +
 	"\x0escheduled_jobs\x18\x06 \x01(\x05R\rscheduledJobs\x12!\n" +
 	"\fwaiting_jobs\x18\a \x01(\x05R\vwaitingJobs\x12$\n" +
-	"\x0enot_ready_jobs\x18\b \x01(\x05R\fnotReadyJobs\"\x94\t\n" +
+	"\x0enot_ready_jobs\x18\b \x01(\x05R\fnotReadyJobs\"\xb8\n" +
+	"\n" +
 	"\x19ListOfflineQueriesRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"start_date\x18\x03 \x01(\tH\x02R\tstartDate\x88\x01\x01\x12\x1e\n" +
-	"\bend_date\x18\x04 \x01(\tH\x03R\aendDate\x88\x01\x01\x12 \n" +
-	"\tid_filter\x18\x05 \x01(\tH\x04R\bidFilter\x88\x01\x01\x12+\n" +
+	"\bend_date\x18\x04 \x01(\tH\x03R\aendDate\x88\x01\x01\x12$\n" +
+	"\tid_filter\x18\x05 \x01(\tB\x02\x18\x01H\x04R\bidFilter\x88\x01\x01\x12+\n" +
 	"\x0fagent_id_filter\x18\x06 \x01(\tH\x05R\ragentIdFilter\x88\x01\x01\x12(\n" +
 	"\rbranch_filter\x18\a \x01(\tH\x06R\fbranchFilter\x88\x01\x01\x12G\n" +
 	"\vkind_filter\x18\b \x01(\x0e2!.chalk.server.v1.OfflineQueryKindH\aR\n" +
@@ -5085,7 +5108,9 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\fkind_filters\x18\x11 \x03(\x0e2!.chalk.server.v1.OfflineQueryKindR\vkindFilters\x12J\n" +
 	"\x0estatus_filters\x18\x12 \x03(\x0e2#.chalk.server.v1.OfflineQueryStatusR\rstatusFilters\x12\x1f\n" +
 	"\vquery_names\x18\x13 \x03(\tR\n" +
-	"queryNamesB\t\n" +
+	"queryNames\x123\n" +
+	"\x13operation_id_filter\x18\x14 \x01(\tH\rR\x11operationIdFilter\x88\x01\x01\x127\n" +
+	"\x15correlation_id_filter\x18\x15 \x01(\tH\x0eR\x13correlationIdFilter\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\r\n" +
 	"\v_start_dateB\v\n" +
@@ -5099,7 +5124,9 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\x1f_aggregation_backfill_id_filterB\x1b\n" +
 	"\x19_evaluation_run_id_filterB\r\n" +
 	"\v_query_nameB\x15\n" +
-	"\x13_query_name_version\"\x90\x01\n" +
+	"\x13_query_name_versionB\x16\n" +
+	"\x14_operation_id_filterB\x18\n" +
+	"\x16_correlation_id_filter\"\x90\x01\n" +
 	"\x1aListOfflineQueriesResponse\x12J\n" +
 	"\x0foffline_queries\x18\x01 \x03(\v2!.chalk.server.v1.OfflineQueryMetaR\x0eofflineQueries\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +

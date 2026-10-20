@@ -50,6 +50,9 @@ const (
 	// WorkflowOrchestratorServiceGetWorkflowOrchestratorWorkflowHistoryProcedure is the fully-qualified
 	// name of the WorkflowOrchestratorService's GetWorkflowOrchestratorWorkflowHistory RPC.
 	WorkflowOrchestratorServiceGetWorkflowOrchestratorWorkflowHistoryProcedure = "/chalk.server.v1.WorkflowOrchestratorService/GetWorkflowOrchestratorWorkflowHistory"
+	// WorkflowOrchestratorServiceSendWorkflowMessageProcedure is the fully-qualified name of the
+	// WorkflowOrchestratorService's SendWorkflowMessage RPC.
+	WorkflowOrchestratorServiceSendWorkflowMessageProcedure = "/chalk.server.v1.WorkflowOrchestratorService/SendWorkflowMessage"
 )
 
 // WorkflowOrchestratorServiceClient is a client for the chalk.server.v1.WorkflowOrchestratorService
@@ -62,6 +65,11 @@ type WorkflowOrchestratorServiceClient interface {
 	ListWorkflowOrchestratorWorkflows(context.Context, *connect.Request[v1.ListWorkflowOrchestratorWorkflowsRequest]) (*connect.Response[v1.ListWorkflowOrchestratorWorkflowsResponse], error)
 	DescribeWorkflowOrchestratorWorkflow(context.Context, *connect.Request[v1.DescribeWorkflowOrchestratorWorkflowRequest]) (*connect.Response[v1.DescribeWorkflowOrchestratorWorkflowResponse], error)
 	GetWorkflowOrchestratorWorkflowHistory(context.Context, *connect.Request[v1.GetWorkflowOrchestratorWorkflowHistoryRequest]) (*connect.Response[v1.GetWorkflowOrchestratorWorkflowHistoryResponse], error)
+	// Delivers a named message to a running workflow in the caller's environment, for steps
+	// that wait on a person or another system, such as a review that approves or rejects a run.
+	// The workflow receives the payload together with the authenticated sender, which it can use
+	// to decide whose decisions to accept. Fails with NOT_FOUND when the workflow is not running.
+	SendWorkflowMessage(context.Context, *connect.Request[v1.SendWorkflowMessageRequest]) (*connect.Response[v1.SendWorkflowMessageResponse], error)
 }
 
 // NewWorkflowOrchestratorServiceClient constructs a client for the
@@ -106,6 +114,12 @@ func NewWorkflowOrchestratorServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithSchema(workflowOrchestratorServiceMethods.ByName("GetWorkflowOrchestratorWorkflowHistory")),
 			connect.WithClientOptions(opts...),
 		),
+		sendWorkflowMessage: connect.NewClient[v1.SendWorkflowMessageRequest, v1.SendWorkflowMessageResponse](
+			httpClient,
+			baseURL+WorkflowOrchestratorServiceSendWorkflowMessageProcedure,
+			connect.WithSchema(workflowOrchestratorServiceMethods.ByName("SendWorkflowMessage")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -116,6 +130,7 @@ type workflowOrchestratorServiceClient struct {
 	listWorkflowOrchestratorWorkflows        *connect.Client[v1.ListWorkflowOrchestratorWorkflowsRequest, v1.ListWorkflowOrchestratorWorkflowsResponse]
 	describeWorkflowOrchestratorWorkflow     *connect.Client[v1.DescribeWorkflowOrchestratorWorkflowRequest, v1.DescribeWorkflowOrchestratorWorkflowResponse]
 	getWorkflowOrchestratorWorkflowHistory   *connect.Client[v1.GetWorkflowOrchestratorWorkflowHistoryRequest, v1.GetWorkflowOrchestratorWorkflowHistoryResponse]
+	sendWorkflowMessage                      *connect.Client[v1.SendWorkflowMessageRequest, v1.SendWorkflowMessageResponse]
 }
 
 // GetWorkflowOrchestratorConnectionDetails calls
@@ -148,6 +163,11 @@ func (c *workflowOrchestratorServiceClient) GetWorkflowOrchestratorWorkflowHisto
 	return c.getWorkflowOrchestratorWorkflowHistory.CallUnary(ctx, req)
 }
 
+// SendWorkflowMessage calls chalk.server.v1.WorkflowOrchestratorService.SendWorkflowMessage.
+func (c *workflowOrchestratorServiceClient) SendWorkflowMessage(ctx context.Context, req *connect.Request[v1.SendWorkflowMessageRequest]) (*connect.Response[v1.SendWorkflowMessageResponse], error) {
+	return c.sendWorkflowMessage.CallUnary(ctx, req)
+}
+
 // WorkflowOrchestratorServiceHandler is an implementation of the
 // chalk.server.v1.WorkflowOrchestratorService service.
 type WorkflowOrchestratorServiceHandler interface {
@@ -158,6 +178,11 @@ type WorkflowOrchestratorServiceHandler interface {
 	ListWorkflowOrchestratorWorkflows(context.Context, *connect.Request[v1.ListWorkflowOrchestratorWorkflowsRequest]) (*connect.Response[v1.ListWorkflowOrchestratorWorkflowsResponse], error)
 	DescribeWorkflowOrchestratorWorkflow(context.Context, *connect.Request[v1.DescribeWorkflowOrchestratorWorkflowRequest]) (*connect.Response[v1.DescribeWorkflowOrchestratorWorkflowResponse], error)
 	GetWorkflowOrchestratorWorkflowHistory(context.Context, *connect.Request[v1.GetWorkflowOrchestratorWorkflowHistoryRequest]) (*connect.Response[v1.GetWorkflowOrchestratorWorkflowHistoryResponse], error)
+	// Delivers a named message to a running workflow in the caller's environment, for steps
+	// that wait on a person or another system, such as a review that approves or rejects a run.
+	// The workflow receives the payload together with the authenticated sender, which it can use
+	// to decide whose decisions to accept. Fails with NOT_FOUND when the workflow is not running.
+	SendWorkflowMessage(context.Context, *connect.Request[v1.SendWorkflowMessageRequest]) (*connect.Response[v1.SendWorkflowMessageResponse], error)
 }
 
 // NewWorkflowOrchestratorServiceHandler builds an HTTP handler from the service implementation. It
@@ -197,6 +222,12 @@ func NewWorkflowOrchestratorServiceHandler(svc WorkflowOrchestratorServiceHandle
 		connect.WithSchema(workflowOrchestratorServiceMethods.ByName("GetWorkflowOrchestratorWorkflowHistory")),
 		connect.WithHandlerOptions(opts...),
 	)
+	workflowOrchestratorServiceSendWorkflowMessageHandler := connect.NewUnaryHandler(
+		WorkflowOrchestratorServiceSendWorkflowMessageProcedure,
+		svc.SendWorkflowMessage,
+		connect.WithSchema(workflowOrchestratorServiceMethods.ByName("SendWorkflowMessage")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.WorkflowOrchestratorService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case WorkflowOrchestratorServiceGetWorkflowOrchestratorConnectionDetailsProcedure:
@@ -209,6 +240,8 @@ func NewWorkflowOrchestratorServiceHandler(svc WorkflowOrchestratorServiceHandle
 			workflowOrchestratorServiceDescribeWorkflowOrchestratorWorkflowHandler.ServeHTTP(w, r)
 		case WorkflowOrchestratorServiceGetWorkflowOrchestratorWorkflowHistoryProcedure:
 			workflowOrchestratorServiceGetWorkflowOrchestratorWorkflowHistoryHandler.ServeHTTP(w, r)
+		case WorkflowOrchestratorServiceSendWorkflowMessageProcedure:
+			workflowOrchestratorServiceSendWorkflowMessageHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -236,4 +269,8 @@ func (UnimplementedWorkflowOrchestratorServiceHandler) DescribeWorkflowOrchestra
 
 func (UnimplementedWorkflowOrchestratorServiceHandler) GetWorkflowOrchestratorWorkflowHistory(context.Context, *connect.Request[v1.GetWorkflowOrchestratorWorkflowHistoryRequest]) (*connect.Response[v1.GetWorkflowOrchestratorWorkflowHistoryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorWorkflowHistory is not implemented"))
+}
+
+func (UnimplementedWorkflowOrchestratorServiceHandler) SendWorkflowMessage(context.Context, *connect.Request[v1.SendWorkflowMessageRequest]) (*connect.Response[v1.SendWorkflowMessageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WorkflowOrchestratorService.SendWorkflowMessage is not implemented"))
 }

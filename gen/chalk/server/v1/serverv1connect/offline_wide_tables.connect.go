@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// OfflineWideTablesServiceUpdateMaterializedFeatureViewControlProcedure is the fully-qualified name
+	// of the OfflineWideTablesService's UpdateMaterializedFeatureViewControl RPC.
+	OfflineWideTablesServiceUpdateMaterializedFeatureViewControlProcedure = "/chalk.server.v1.OfflineWideTablesService/UpdateMaterializedFeatureViewControl"
 	// OfflineWideTablesServiceListOfflineWideTableRunsProcedure is the fully-qualified name of the
 	// OfflineWideTablesService's ListOfflineWideTableRuns RPC.
 	OfflineWideTablesServiceListOfflineWideTableRunsProcedure = "/chalk.server.v1.OfflineWideTablesService/ListOfflineWideTableRuns"
@@ -68,6 +71,7 @@ const (
 // OfflineWideTablesServiceClient is a client for the chalk.server.v1.OfflineWideTablesService
 // service.
 type OfflineWideTablesServiceClient interface {
+	UpdateMaterializedFeatureViewControl(context.Context, *connect.Request[v1.UpdateMaterializedFeatureViewControlRequest]) (*connect.Response[v1.UpdateMaterializedFeatureViewControlResponse], error)
 	ListOfflineWideTableRuns(context.Context, *connect.Request[v1.ListOfflineWideTableRunsRequest]) (*connect.Response[v1.ListOfflineWideTableRunsResponse], error)
 	GetOfflineWideTableRun(context.Context, *connect.Request[v1.GetOfflineWideTableRunRequest]) (*connect.Response[v1.GetOfflineWideTableRunResponse], error)
 	// Compatibility endpoint for schedule-centric clients. New clients should use
@@ -95,6 +99,13 @@ func NewOfflineWideTablesServiceClient(httpClient connect.HTTPClient, baseURL st
 	baseURL = strings.TrimRight(baseURL, "/")
 	offlineWideTablesServiceMethods := v1.File_chalk_server_v1_offline_wide_tables_proto.Services().ByName("OfflineWideTablesService").Methods()
 	return &offlineWideTablesServiceClient{
+		updateMaterializedFeatureViewControl: connect.NewClient[v1.UpdateMaterializedFeatureViewControlRequest, v1.UpdateMaterializedFeatureViewControlResponse](
+			httpClient,
+			baseURL+OfflineWideTablesServiceUpdateMaterializedFeatureViewControlProcedure,
+			connect.WithSchema(offlineWideTablesServiceMethods.ByName("UpdateMaterializedFeatureViewControl")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 		listOfflineWideTableRuns: connect.NewClient[v1.ListOfflineWideTableRunsRequest, v1.ListOfflineWideTableRunsResponse](
 			httpClient,
 			baseURL+OfflineWideTablesServiceListOfflineWideTableRunsProcedure,
@@ -165,6 +176,7 @@ func NewOfflineWideTablesServiceClient(httpClient connect.HTTPClient, baseURL st
 
 // offlineWideTablesServiceClient implements OfflineWideTablesServiceClient.
 type offlineWideTablesServiceClient struct {
+	updateMaterializedFeatureViewControl    *connect.Client[v1.UpdateMaterializedFeatureViewControlRequest, v1.UpdateMaterializedFeatureViewControlResponse]
 	listOfflineWideTableRuns                *connect.Client[v1.ListOfflineWideTableRunsRequest, v1.ListOfflineWideTableRunsResponse]
 	getOfflineWideTableRun                  *connect.Client[v1.GetOfflineWideTableRunRequest, v1.GetOfflineWideTableRunResponse]
 	getActiveOfflineWideTableSchedules      *connect.Client[v1.GetActiveOfflineWideTableSchedulesRequest, v1.GetActiveOfflineWideTableSchedulesResponse]
@@ -175,6 +187,12 @@ type offlineWideTablesServiceClient struct {
 	getOfflineWideTableFeatureWatermarks    *connect.Client[v1.GetOfflineWideTableFeatureWatermarksRequest, v1.GetOfflineWideTableFeatureWatermarksResponse]
 	setOfflineWideTableFeatureWatermarks    *connect.Client[v1.SetOfflineWideTableFeatureWatermarksRequest, v1.SetOfflineWideTableFeatureWatermarksResponse]
 	deleteOfflineWideTableFeatureWatermarks *connect.Client[v1.DeleteOfflineWideTableFeatureWatermarksRequest, v1.DeleteOfflineWideTableFeatureWatermarksResponse]
+}
+
+// UpdateMaterializedFeatureViewControl calls
+// chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl.
+func (c *offlineWideTablesServiceClient) UpdateMaterializedFeatureViewControl(ctx context.Context, req *connect.Request[v1.UpdateMaterializedFeatureViewControlRequest]) (*connect.Response[v1.UpdateMaterializedFeatureViewControlResponse], error) {
+	return c.updateMaterializedFeatureViewControl.CallUnary(ctx, req)
 }
 
 // ListOfflineWideTableRuns calls chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns.
@@ -240,6 +258,7 @@ func (c *offlineWideTablesServiceClient) DeleteOfflineWideTableFeatureWatermarks
 // OfflineWideTablesServiceHandler is an implementation of the
 // chalk.server.v1.OfflineWideTablesService service.
 type OfflineWideTablesServiceHandler interface {
+	UpdateMaterializedFeatureViewControl(context.Context, *connect.Request[v1.UpdateMaterializedFeatureViewControlRequest]) (*connect.Response[v1.UpdateMaterializedFeatureViewControlResponse], error)
 	ListOfflineWideTableRuns(context.Context, *connect.Request[v1.ListOfflineWideTableRunsRequest]) (*connect.Response[v1.ListOfflineWideTableRunsResponse], error)
 	GetOfflineWideTableRun(context.Context, *connect.Request[v1.GetOfflineWideTableRunRequest]) (*connect.Response[v1.GetOfflineWideTableRunResponse], error)
 	// Compatibility endpoint for schedule-centric clients. New clients should use
@@ -263,6 +282,13 @@ type OfflineWideTablesServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	offlineWideTablesServiceMethods := v1.File_chalk_server_v1_offline_wide_tables_proto.Services().ByName("OfflineWideTablesService").Methods()
+	offlineWideTablesServiceUpdateMaterializedFeatureViewControlHandler := connect.NewUnaryHandler(
+		OfflineWideTablesServiceUpdateMaterializedFeatureViewControlProcedure,
+		svc.UpdateMaterializedFeatureViewControl,
+		connect.WithSchema(offlineWideTablesServiceMethods.ByName("UpdateMaterializedFeatureViewControl")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	offlineWideTablesServiceListOfflineWideTableRunsHandler := connect.NewUnaryHandler(
 		OfflineWideTablesServiceListOfflineWideTableRunsProcedure,
 		svc.ListOfflineWideTableRuns,
@@ -330,6 +356,8 @@ func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opt
 	)
 	return "/chalk.server.v1.OfflineWideTablesService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case OfflineWideTablesServiceUpdateMaterializedFeatureViewControlProcedure:
+			offlineWideTablesServiceUpdateMaterializedFeatureViewControlHandler.ServeHTTP(w, r)
 		case OfflineWideTablesServiceListOfflineWideTableRunsProcedure:
 			offlineWideTablesServiceListOfflineWideTableRunsHandler.ServeHTTP(w, r)
 		case OfflineWideTablesServiceGetOfflineWideTableRunProcedure:
@@ -358,6 +386,10 @@ func NewOfflineWideTablesServiceHandler(svc OfflineWideTablesServiceHandler, opt
 
 // UnimplementedOfflineWideTablesServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedOfflineWideTablesServiceHandler struct{}
+
+func (UnimplementedOfflineWideTablesServiceHandler) UpdateMaterializedFeatureViewControl(context.Context, *connect.Request[v1.UpdateMaterializedFeatureViewControlRequest]) (*connect.Response[v1.UpdateMaterializedFeatureViewControlResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl is not implemented"))
+}
 
 func (UnimplementedOfflineWideTablesServiceHandler) ListOfflineWideTableRuns(context.Context, *connect.Request[v1.ListOfflineWideTableRunsRequest]) (*connect.Response[v1.ListOfflineWideTableRunsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns is not implemented"))

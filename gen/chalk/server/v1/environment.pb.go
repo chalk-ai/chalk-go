@@ -154,34 +154,41 @@ const (
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_PROFILING    DeploymentBuildProfile = 2
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_NO_PROFILING DeploymentBuildProfile = 3
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_PROFILING    DeploymentBuildProfile = 4
-	// _RUST_ variants resolve to the rust-layered engine base images
-	// (chalk-private-engine-image-rust pipeline output, named
-	// engine-base-<py>-rust / engine-base-<py>-o2-rust). They embed the
-	// chalk-engine-grpc and chalk-http-engine-proxy strangler-fig binaries.
+	// Legacy Rust-layered profiles are retained for stored deployments.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_RUST_NO_PROFILING DeploymentBuildProfile = 5
-	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_RUST_PROFILING    DeploymentBuildProfile = 6
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_RUST_PROFILING DeploymentBuildProfile = 6
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_RUST_NO_PROFILING DeploymentBuildProfile = 7
-	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_RUST_PROFILING    DeploymentBuildProfile = 8
-	// _BAZEL_ variants resolve to the bazel-built engine base images,
-	// which are published with a bazel- name prefix (e.g.
-	// bazel-engine-base-312 or bazel-staging-engine-base-312). _BAZEL_RUST_
-	// combines bazel and the rust strangler-fig layering.
-	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_NO_PROFILING      DeploymentBuildProfile = 9
-	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_PROFILING         DeploymentBuildProfile = 10
-	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_NO_PROFILING      DeploymentBuildProfile = 11
-	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_PROFILING         DeploymentBuildProfile = 12
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_RUST_PROFILING DeploymentBuildProfile = 8
+	// Legacy distroless Bazel and Bazel+Rust profiles are retained for stored deployments.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_NO_PROFILING DeploymentBuildProfile = 9
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_PROFILING DeploymentBuildProfile = 10
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_NO_PROFILING DeploymentBuildProfile = 11
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_PROFILING DeploymentBuildProfile = 12
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_RUST_NO_PROFILING DeploymentBuildProfile = 13
-	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_RUST_PROFILING    DeploymentBuildProfile = 14
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_RUST_PROFILING DeploymentBuildProfile = 14
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_RUST_NO_PROFILING DeploymentBuildProfile = 15
-	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_RUST_PROFILING    DeploymentBuildProfile = 16
-	// _BAZEL_DEBIAN_ variants select the Debian-userspace flavor of the
-	// bazel engine base image (bazel-staging-engine-base-312-debian). It
-	// carries the same engine layers as the distroless bazel image on top of
-	// a base with an apt closure mirroring what the non-bazel engine image
-	// ships, so a running pod has a shell, debug tooling, and the headers
-	// customer sdists compile against at deploy time. Only the bazel image
-	// is published in a Debian flavor, so there is no non-bazel _DEBIAN_
-	// variant and no _BAZEL_RUST_DEBIAN_ variant.
+	// Deprecated: Marked as deprecated in chalk/server/v1/environment.proto.
+	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_RUST_PROFILING DeploymentBuildProfile = 16
+	// _BAZEL_DEBIAN_ variants select the Debian-userspace flavor of the Bazel
+	// engine base image (for example, bazel-staging-engine-base-312-debian).
+	// It carries the engine layers on a base with an apt closure mirroring the
+	// non-Bazel engine image, so a running pod has a shell, debug tooling, and
+	// the headers customer sdists compile against at deploy time. The modern
+	// O3 image is published for Python 3.11, 3.12, and 3.13. There is no
+	// non-Bazel _DEBIAN_ variant or _BAZEL_RUST_DEBIAN_ variant.
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_NO_PROFILING DeploymentBuildProfile = 17
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_PROFILING    DeploymentBuildProfile = 18
 	DeploymentBuildProfile_DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_NO_PROFILING DeploymentBuildProfile = 19
@@ -1968,26 +1975,26 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x15VECTOR_DB_KIND_MILVUS\x10\x03\x12\x19\n" +
 	"\x15VECTOR_DB_KIND_VALKEY\x10\x04\x12\x1e\n" +
 	"\x1aVECTOR_DB_KIND_TURBOPUFFER\x10\x05\x12\x1d\n" +
-	"\x19VECTOR_DB_KIND_S3_VECTORS\x10\x06*\xed\b\n" +
+	"\x19VECTOR_DB_KIND_S3_VECTORS\x10\x06*\x9d\t\n" +
 	"\x16DeploymentBuildProfile\x12(\n" +
 	"$DEPLOYMENT_BUILD_PROFILE_UNSPECIFIED\x10\x00\x12,\n" +
 	"(DEPLOYMENT_BUILD_PROFILE_O3_NO_PROFILING\x10\x01\x12)\n" +
 	"%DEPLOYMENT_BUILD_PROFILE_O3_PROFILING\x10\x02\x12,\n" +
 	"(DEPLOYMENT_BUILD_PROFILE_O2_NO_PROFILING\x10\x03\x12)\n" +
-	"%DEPLOYMENT_BUILD_PROFILE_O2_PROFILING\x10\x04\x121\n" +
-	"-DEPLOYMENT_BUILD_PROFILE_O3_RUST_NO_PROFILING\x10\x05\x12.\n" +
-	"*DEPLOYMENT_BUILD_PROFILE_O3_RUST_PROFILING\x10\x06\x121\n" +
-	"-DEPLOYMENT_BUILD_PROFILE_O2_RUST_NO_PROFILING\x10\a\x12.\n" +
-	"*DEPLOYMENT_BUILD_PROFILE_O2_RUST_PROFILING\x10\b\x122\n" +
-	".DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_NO_PROFILING\x10\t\x12/\n" +
+	"%DEPLOYMENT_BUILD_PROFILE_O2_PROFILING\x10\x04\x125\n" +
+	"-DEPLOYMENT_BUILD_PROFILE_O3_RUST_NO_PROFILING\x10\x05\x1a\x02\b\x01\x122\n" +
+	"*DEPLOYMENT_BUILD_PROFILE_O3_RUST_PROFILING\x10\x06\x1a\x02\b\x01\x125\n" +
+	"-DEPLOYMENT_BUILD_PROFILE_O2_RUST_NO_PROFILING\x10\a\x1a\x02\b\x01\x122\n" +
+	"*DEPLOYMENT_BUILD_PROFILE_O2_RUST_PROFILING\x10\b\x1a\x02\b\x01\x126\n" +
+	".DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_NO_PROFILING\x10\t\x1a\x02\b\x01\x123\n" +
 	"+DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_PROFILING\x10\n" +
-	"\x122\n" +
-	".DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_NO_PROFILING\x10\v\x12/\n" +
-	"+DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_PROFILING\x10\f\x127\n" +
-	"3DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_RUST_NO_PROFILING\x10\r\x124\n" +
-	"0DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_RUST_PROFILING\x10\x0e\x127\n" +
-	"3DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_RUST_NO_PROFILING\x10\x0f\x124\n" +
-	"0DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_RUST_PROFILING\x10\x10\x129\n" +
+	"\x1a\x02\b\x01\x126\n" +
+	".DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_NO_PROFILING\x10\v\x1a\x02\b\x01\x123\n" +
+	"+DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_PROFILING\x10\f\x1a\x02\b\x01\x12;\n" +
+	"3DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_RUST_NO_PROFILING\x10\r\x1a\x02\b\x01\x128\n" +
+	"0DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_RUST_PROFILING\x10\x0e\x1a\x02\b\x01\x12;\n" +
+	"3DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_RUST_NO_PROFILING\x10\x0f\x1a\x02\b\x01\x128\n" +
+	"0DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_RUST_PROFILING\x10\x10\x1a\x02\b\x01\x129\n" +
 	"5DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_NO_PROFILING\x10\x11\x126\n" +
 	"2DEPLOYMENT_BUILD_PROFILE_O3_BAZEL_DEBIAN_PROFILING\x10\x12\x129\n" +
 	"5DEPLOYMENT_BUILD_PROFILE_O2_BAZEL_DEBIAN_NO_PROFILING\x10\x13\x126\n" +

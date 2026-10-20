@@ -220,8 +220,10 @@ type SignupCode struct {
 	// Email of the employee in created_by_user_id, for display. Absent when the code
 	// was minted by a non-user caller, the user was deleted, or has no email.
 	CreatedByEmail *string `protobuf:"bytes,16,opt,name=created_by_email,json=createdByEmail,proto3,oneof" json:"created_by_email,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Restricts environment creation for the recipient's team. Fixed at creation.
+	Region        *string `protobuf:"bytes,17,opt,name=region,proto3,oneof" json:"region,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SignupCode) Reset() {
@@ -366,6 +368,13 @@ func (x *SignupCode) GetCreatedByEmail() string {
 	return ""
 }
 
+func (x *SignupCode) GetRegion() string {
+	if x != nil && x.Region != nil {
+		return *x.Region
+	}
+	return ""
+}
+
 type CreateSignupCodeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Free-text reminder of who the code is for. Not validated or unique.
@@ -379,6 +388,7 @@ type CreateSignupCodeRequest struct {
 	InitialQuotas []*SignupCodeQuota `protobuf:"bytes,4,rep,name=initial_quotas,json=initialQuotas,proto3" json:"initial_quotas,omitempty"`
 	// See SignupCode.metadata.
 	Metadata      map[string]string `protobuf:"bytes,5,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Region        *string           `protobuf:"bytes,6,opt,name=region,proto3,oneof" json:"region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -446,6 +456,13 @@ func (x *CreateSignupCodeRequest) GetMetadata() map[string]string {
 		return x.Metadata
 	}
 	return nil
+}
+
+func (x *CreateSignupCodeRequest) GetRegion() string {
+	if x != nil && x.Region != nil {
+		return *x.Region
+	}
+	return ""
 }
 
 type CreateSignupCodeResponse struct {
@@ -963,7 +980,7 @@ const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"\bresource\x18\x01 \x01(\v2\x1d.chalk.quota.v1.QuotaResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x128\n" +
 	"\x05limit\x18\x02 \x01(\v2\x1a.chalk.quota.v1.QuotaLimitB\x06\xbaH\x03\xc8\x01\x01R\x05limit\"P\n" +
 	"\x14SignupCodeQuotaGrant\x128\n" +
-	"\x06quotas\x18\x01 \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\x06quotas\"\x80\b\n" +
+	"\x06quotas\x18\x01 \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\x06quotas\"\xa8\b\n" +
 	"\n" +
 	"SignupCode\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
@@ -988,7 +1005,8 @@ const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"\x0einvite_message\x18\r \x01(\tR\rinviteMessage\x12G\n" +
 	"\x0einitial_quotas\x18\x0e \x03(\v2 .chalk.server.v1.SignupCodeQuotaR\rinitialQuotas\x12E\n" +
 	"\bmetadata\x18\x0f \x03(\v2).chalk.server.v1.SignupCode.MetadataEntryR\bmetadata\x12-\n" +
-	"\x10created_by_email\x18\x10 \x01(\tH\aR\x0ecreatedByEmail\x88\x01\x01\x1a;\n" +
+	"\x10created_by_email\x18\x10 \x01(\tH\aR\x0ecreatedByEmail\x88\x01\x01\x12\x1b\n" +
+	"\x06region\x18\x11 \x01(\tH\bR\x06region\x88\x01\x01\x1a;\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
@@ -1000,17 +1018,20 @@ const file_chalk_server_v1_signup_code_proto_rawDesc = "" +
 	"\f_consumed_atB\n" +
 	"\n" +
 	"\b_team_idB\x13\n" +
-	"\x11_created_by_email\"\x9c\x03\n" +
+	"\x11_created_by_emailB\t\n" +
+	"\a_region\"\xea\x03\n" +
 	"\x17CreateSignupCodeRequest\x12\x12\n" +
 	"\x04note\x18\x01 \x01(\tR\x04note\x121\n" +
 	"\x12expires_in_seconds\x18\x02 \x01(\x03H\x00R\x10expiresInSeconds\x88\x01\x01\x12%\n" +
 	"\x0einvite_message\x18\x03 \x01(\tR\rinviteMessage\x12Q\n" +
 	"\x0einitial_quotas\x18\x04 \x03(\v2 .chalk.server.v1.SignupCodeQuotaB\b\xbaH\x05\x92\x01\x02\x10 R\rinitialQuotas\x12l\n" +
-	"\bmetadata\x18\x05 \x03(\v26.chalk.server.v1.CreateSignupCodeRequest.MetadataEntryB\x18\xbaH\x15\x9a\x01\x12\x10@\"\ar\x05\x10\x01\x18\x80\x01*\x05r\x03\x18\x80\bR\bmetadata\x1a;\n" +
+	"\bmetadata\x18\x05 \x03(\v26.chalk.server.v1.CreateSignupCodeRequest.MetadataEntryB\x18\xbaH\x15\x9a\x01\x12\x10@\"\ar\x05\x10\x01\x18\x80\x01*\x05r\x03\x18\x80\bR\bmetadata\x12A\n" +
+	"\x06region\x18\x06 \x01(\tB$\xbaH!r\x1f\x10\x01\x18\x80\x012\x18^[a-z0-9]+(-[a-z0-9]+)*$H\x01R\x06region\x88\x01\x01\x1a;\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
-	"\x13_expires_in_seconds\"r\n" +
+	"\x13_expires_in_secondsB\t\n" +
+	"\a_region\"r\n" +
 	"\x18CreateSignupCodeResponse\x12<\n" +
 	"\vsignup_code\x18\x01 \x01(\v2\x1b.chalk.server.v1.SignupCodeR\n" +
 	"signupCode\x12\x18\n" +
