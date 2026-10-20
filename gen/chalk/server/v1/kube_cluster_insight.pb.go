@@ -1240,7 +1240,6 @@ type GetKubeClusterMetricsResponse struct {
 	//   - Pod count
 	//   - Container restart count
 	//   - CPU / memory reserved (%)
-	//
 	// Empty when cloud-monitoring credentials are unavailable.
 	Charts []*Chart `protobuf:"bytes,1,rep,name=charts,proto3" json:"charts,omitempty"`
 	// Echoed max_size sum at the time of the call so the frontend can render a

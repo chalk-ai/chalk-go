@@ -2745,14 +2745,14 @@ type FlatLogicalExpr struct {
 	// Collection of "flat" nodes that represent a LogicalExpr DAG. Each node does not nest
 	// other nodes; they refer to one another via the `LogicalExprNodeReference` class.
 	// Concretely:
-	//   - each element of `flat_nodes` must have `this_reference` populated.
-	//   - for each element of `flat_nodes`, its `expr_form` must not be `reference`.
-	//   - if a `flat_nodes` element contains another `LogicalExprNode`, the contained `LogicalExprNode`
-	//     must be of type `reference` - a reference to another node. this is what is meant by "they
-	//     refer to one another via the `LogicalExprNodeReference` class."
-	//   - a node can only reference a node that appears earlier than itself in the `flat_nodes` list.
-	//   - the last element of `flat_nodes` is the root of the expression (it follows from the ordering
-	//     above: children precede parents, so the overall root is emitted last).
+	// - each element of `flat_nodes` must have `this_reference` populated.
+	// - for each element of `flat_nodes`, its `expr_form` must not be `reference`.
+	// - if a `flat_nodes` element contains another `LogicalExprNode`, the contained `LogicalExprNode`
+	//    must be of type `reference` - a reference to another node. this is what is meant by "they
+	//    refer to one another via the `LogicalExprNodeReference` class."
+	// - a node can only reference a node that appears earlier than itself in the `flat_nodes` list.
+	// - the last element of `flat_nodes` is the root of the expression (it follows from the ordering
+	//   above: children precede parents, so the overall root is emitted last).
 	FlatNodes     []*LogicalExprNode `protobuf:"bytes,1,rep,name=flat_nodes,json=flatNodes,proto3" json:"flat_nodes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

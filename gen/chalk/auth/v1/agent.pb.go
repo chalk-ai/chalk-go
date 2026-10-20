@@ -1045,8 +1045,10 @@ func (x *ResourceShareAgent) GetRequiresAuthentication() bool {
 }
 
 type SandboxPrincipal struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Identifies the sandbox's durable lineage group.
+	GroupId       string `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1084,6 +1086,13 @@ func (*SandboxPrincipal) Descriptor() ([]byte, []int) {
 func (x *SandboxPrincipal) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *SandboxPrincipal) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
 	}
 	return ""
 }
@@ -1459,9 +1468,10 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12%\n" +
 	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x127\n" +
 	"\x05scope\x18\x04 \x01(\v2!.chalk.auth.v1.ResourceShareScopeR\x05scope\x127\n" +
-	"\x17requires_authentication\x18\x05 \x01(\bR\x16requiresAuthentication\"\"\n" +
+	"\x17requires_authentication\x18\x05 \x01(\bR\x16requiresAuthentication\"=\n" +
 	"\x10SandboxPrincipal\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xef\x02\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\xef\x02\n" +
 	"\rWorkloadAgent\x12\x17\n" +
 	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12;\n" +

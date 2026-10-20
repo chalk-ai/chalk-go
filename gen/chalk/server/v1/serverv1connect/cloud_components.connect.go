@@ -36,6 +36,9 @@ const (
 	// CloudComponentsServiceCreateCloudComponentVpcProcedure is the fully-qualified name of the
 	// CloudComponentsService's CreateCloudComponentVpc RPC.
 	CloudComponentsServiceCreateCloudComponentVpcProcedure = "/chalk.server.v1.CloudComponentsService/CreateCloudComponentVpc"
+	// CloudComponentsServiceUpdateCloudComponentVpcProcedure is the fully-qualified name of the
+	// CloudComponentsService's UpdateCloudComponentVpc RPC.
+	CloudComponentsServiceUpdateCloudComponentVpcProcedure = "/chalk.server.v1.CloudComponentsService/UpdateCloudComponentVpc"
 	// CloudComponentsServiceGetCloudComponentVpcProcedure is the fully-qualified name of the
 	// CloudComponentsService's GetCloudComponentVpc RPC.
 	CloudComponentsServiceGetCloudComponentVpcProcedure = "/chalk.server.v1.CloudComponentsService/GetCloudComponentVpc"
@@ -241,6 +244,7 @@ const (
 // CloudComponentsServiceClient is a client for the chalk.server.v1.CloudComponentsService service.
 type CloudComponentsServiceClient interface {
 	CreateCloudComponentVpc(context.Context, *connect.Request[v1.CreateCloudComponentVpcRequest]) (*connect.Response[v1.CreateCloudComponentVpcResponse], error)
+	UpdateCloudComponentVpc(context.Context, *connect.Request[v1.UpdateCloudComponentVpcRequest]) (*connect.Response[v1.UpdateCloudComponentVpcResponse], error)
 	GetCloudComponentVpc(context.Context, *connect.Request[v1.GetCloudComponentVpcRequest]) (*connect.Response[v1.GetCloudComponentVpcResponse], error)
 	ListCloudComponentVpc(context.Context, *connect.Request[v1.ListCloudComponentVpcRequest]) (*connect.Response[v1.ListCloudComponentVpcResponse], error)
 	DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error)
@@ -326,6 +330,12 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceCreateCloudComponentVpcProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateCloudComponentVpc")),
+			connect.WithClientOptions(opts...),
+		),
+		updateCloudComponentVpc: connect.NewClient[v1.UpdateCloudComponentVpcRequest, v1.UpdateCloudComponentVpcResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceUpdateCloudComponentVpcProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("UpdateCloudComponentVpc")),
 			connect.WithClientOptions(opts...),
 		),
 		getCloudComponentVpc: connect.NewClient[v1.GetCloudComponentVpcRequest, v1.GetCloudComponentVpcResponse](
@@ -751,6 +761,7 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 // cloudComponentsServiceClient implements CloudComponentsServiceClient.
 type cloudComponentsServiceClient struct {
 	createCloudComponentVpc                                 *connect.Client[v1.CreateCloudComponentVpcRequest, v1.CreateCloudComponentVpcResponse]
+	updateCloudComponentVpc                                 *connect.Client[v1.UpdateCloudComponentVpcRequest, v1.UpdateCloudComponentVpcResponse]
 	getCloudComponentVpc                                    *connect.Client[v1.GetCloudComponentVpcRequest, v1.GetCloudComponentVpcResponse]
 	listCloudComponentVpc                                   *connect.Client[v1.ListCloudComponentVpcRequest, v1.ListCloudComponentVpcResponse]
 	deleteCloudComponentVpc                                 *connect.Client[v1.DeleteCloudComponentVpcRequest, v1.DeleteCloudComponentVpcResponse]
@@ -820,6 +831,11 @@ type cloudComponentsServiceClient struct {
 // CreateCloudComponentVpc calls chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc.
 func (c *cloudComponentsServiceClient) CreateCloudComponentVpc(ctx context.Context, req *connect.Request[v1.CreateCloudComponentVpcRequest]) (*connect.Response[v1.CreateCloudComponentVpcResponse], error) {
 	return c.createCloudComponentVpc.CallUnary(ctx, req)
+}
+
+// UpdateCloudComponentVpc calls chalk.server.v1.CloudComponentsService.UpdateCloudComponentVpc.
+func (c *cloudComponentsServiceClient) UpdateCloudComponentVpc(ctx context.Context, req *connect.Request[v1.UpdateCloudComponentVpcRequest]) (*connect.Response[v1.UpdateCloudComponentVpcResponse], error) {
+	return c.updateCloudComponentVpc.CallUnary(ctx, req)
 }
 
 // GetCloudComponentVpc calls chalk.server.v1.CloudComponentsService.GetCloudComponentVpc.
@@ -1198,6 +1214,7 @@ func (c *cloudComponentsServiceClient) DeleteBindingEnvironmentBackgroundPersist
 // service.
 type CloudComponentsServiceHandler interface {
 	CreateCloudComponentVpc(context.Context, *connect.Request[v1.CreateCloudComponentVpcRequest]) (*connect.Response[v1.CreateCloudComponentVpcResponse], error)
+	UpdateCloudComponentVpc(context.Context, *connect.Request[v1.UpdateCloudComponentVpcRequest]) (*connect.Response[v1.UpdateCloudComponentVpcResponse], error)
 	GetCloudComponentVpc(context.Context, *connect.Request[v1.GetCloudComponentVpcRequest]) (*connect.Response[v1.GetCloudComponentVpcResponse], error)
 	ListCloudComponentVpc(context.Context, *connect.Request[v1.ListCloudComponentVpcRequest]) (*connect.Response[v1.ListCloudComponentVpcResponse], error)
 	DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error)
@@ -1279,6 +1296,12 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceCreateCloudComponentVpcProcedure,
 		svc.CreateCloudComponentVpc,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateCloudComponentVpc")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceUpdateCloudComponentVpcHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceUpdateCloudComponentVpcProcedure,
+		svc.UpdateCloudComponentVpc,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("UpdateCloudComponentVpc")),
 		connect.WithHandlerOptions(opts...),
 	)
 	cloudComponentsServiceGetCloudComponentVpcHandler := connect.NewUnaryHandler(
@@ -1702,6 +1725,8 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		switch r.URL.Path {
 		case CloudComponentsServiceCreateCloudComponentVpcProcedure:
 			cloudComponentsServiceCreateCloudComponentVpcHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceUpdateCloudComponentVpcProcedure:
+			cloudComponentsServiceUpdateCloudComponentVpcHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetCloudComponentVpcProcedure:
 			cloudComponentsServiceGetCloudComponentVpcHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceListCloudComponentVpcProcedure:
@@ -1841,6 +1866,10 @@ type UnimplementedCloudComponentsServiceHandler struct{}
 
 func (UnimplementedCloudComponentsServiceHandler) CreateCloudComponentVpc(context.Context, *connect.Request[v1.CreateCloudComponentVpcRequest]) (*connect.Response[v1.CreateCloudComponentVpcResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) UpdateCloudComponentVpc(context.Context, *connect.Request[v1.UpdateCloudComponentVpcRequest]) (*connect.Response[v1.UpdateCloudComponentVpcResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.UpdateCloudComponentVpc is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) GetCloudComponentVpc(context.Context, *connect.Request[v1.GetCloudComponentVpcRequest]) (*connect.Response[v1.GetCloudComponentVpcResponse], error) {

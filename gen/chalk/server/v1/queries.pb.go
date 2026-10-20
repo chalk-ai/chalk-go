@@ -1589,8 +1589,8 @@ type ListMetaQueryRunsRequest struct {
 	TraceId        *string                `protobuf:"bytes,16,opt,name=trace_id,json=traceId,proto3,oneof" json:"trace_id,omitempty"`
 	ResourceGroup  *string                `protobuf:"bytes,17,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	// When meta_query_name is also set, restrict the runs to the
-	// (meta_query_name, query_name_version) slot. NULL and ” on the
-	// meta_queries column are coalesced to ” to match the way the runtime
+	// (meta_query_name, query_name_version) slot. NULL and '' on the
+	// meta_queries column are coalesced to '' to match the way the runtime
 	// hash treats them. Ignored when meta_query_name is unset.
 	QueryVersion     *string             `protobuf:"bytes,18,opt,name=query_version,json=queryVersion,proto3,oneof" json:"query_version,omitempty"`
 	DeploymentFilter *string             `protobuf:"bytes,19,opt,name=deployment_filter,json=deploymentFilter,proto3,oneof" json:"deployment_filter,omitempty"`

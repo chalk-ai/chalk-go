@@ -27,12 +27,13 @@ const (
 type MonitorType int32
 
 const (
-	MonitorType_MONITOR_TYPE_UNSPECIFIED  MonitorType = 0
-	MonitorType_MONITOR_TYPE_CHART        MonitorType = 1
-	MonitorType_MONITOR_TYPE_LOG          MonitorType = 2
-	MonitorType_MONITOR_TYPE_HEALTHCHECK  MonitorType = 3
-	MonitorType_MONITOR_TYPE_SQL_BAD_ROWS MonitorType = 4
-	MonitorType_MONITOR_TYPE_DATA_SOURCE  MonitorType = 5
+	MonitorType_MONITOR_TYPE_UNSPECIFIED   MonitorType = 0
+	MonitorType_MONITOR_TYPE_CHART         MonitorType = 1
+	MonitorType_MONITOR_TYPE_LOG           MonitorType = 2
+	MonitorType_MONITOR_TYPE_HEALTHCHECK   MonitorType = 3
+	MonitorType_MONITOR_TYPE_SQL_BAD_ROWS  MonitorType = 4
+	MonitorType_MONITOR_TYPE_DATA_SOURCE   MonitorType = 5
+	MonitorType_MONITOR_TYPE_FEATURE_DRIFT MonitorType = 6
 )
 
 // Enum value maps for MonitorType.
@@ -44,14 +45,16 @@ var (
 		3: "MONITOR_TYPE_HEALTHCHECK",
 		4: "MONITOR_TYPE_SQL_BAD_ROWS",
 		5: "MONITOR_TYPE_DATA_SOURCE",
+		6: "MONITOR_TYPE_FEATURE_DRIFT",
 	}
 	MonitorType_value = map[string]int32{
-		"MONITOR_TYPE_UNSPECIFIED":  0,
-		"MONITOR_TYPE_CHART":        1,
-		"MONITOR_TYPE_LOG":          2,
-		"MONITOR_TYPE_HEALTHCHECK":  3,
-		"MONITOR_TYPE_SQL_BAD_ROWS": 4,
-		"MONITOR_TYPE_DATA_SOURCE":  5,
+		"MONITOR_TYPE_UNSPECIFIED":   0,
+		"MONITOR_TYPE_CHART":         1,
+		"MONITOR_TYPE_LOG":           2,
+		"MONITOR_TYPE_HEALTHCHECK":   3,
+		"MONITOR_TYPE_SQL_BAD_ROWS":  4,
+		"MONITOR_TYPE_DATA_SOURCE":   5,
+		"MONITOR_TYPE_FEATURE_DRIFT": 6,
 	}
 )
 
@@ -389,6 +392,489 @@ func (*DataSourceMonitor_IntegrationId) isDataSourceMonitor_Integration() {}
 
 func (*DataSourceMonitor_Name) isDataSourceMonitor_Integration() {}
 
+// Compares the distribution of a feature's observed online values over a
+// trailing window against a baseline distribution, and alerts when the test
+// finds they differ. The test decides that on its own, so the monitor's
+// threshold_kind and threshold_value stay unset; its threshold carries only
+// the alert channels.
+//
+// The baseline and the test are typed oneofs rather than string discriminators:
+// a new baseline source or drift test is a new message carrying its own
+// parameters, and every consumer handles it as an explicit case.
+type FeatureDriftMonitor struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Feature whose observed values are compared against the baseline, e.g. "user.age".
+	FeatureFqn string `protobuf:"bytes,1,opt,name=feature_fqn,json=featureFqn,proto3" json:"feature_fqn,omitempty"`
+	// Length of the trailing window of observed values each evaluation compares.
+	WindowPeriod  *durationpb.Duration  `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	Baseline      *FeatureDriftBaseline `protobuf:"bytes,3,opt,name=baseline,proto3" json:"baseline,omitempty"`
+	Test          *FeatureDriftTest     `protobuf:"bytes,4,opt,name=test,proto3" json:"test,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FeatureDriftMonitor) Reset() {
+	*x = FeatureDriftMonitor{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FeatureDriftMonitor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureDriftMonitor) ProtoMessage() {}
+
+func (x *FeatureDriftMonitor) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureDriftMonitor.ProtoReflect.Descriptor instead.
+func (*FeatureDriftMonitor) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *FeatureDriftMonitor) GetFeatureFqn() string {
+	if x != nil {
+		return x.FeatureFqn
+	}
+	return ""
+}
+
+func (x *FeatureDriftMonitor) GetWindowPeriod() *durationpb.Duration {
+	if x != nil {
+		return x.WindowPeriod
+	}
+	return nil
+}
+
+func (x *FeatureDriftMonitor) GetBaseline() *FeatureDriftBaseline {
+	if x != nil {
+		return x.Baseline
+	}
+	return nil
+}
+
+func (x *FeatureDriftMonitor) GetTest() *FeatureDriftTest {
+	if x != nil {
+		return x.Test
+	}
+	return nil
+}
+
+// The reference distribution observed values are compared against.
+type FeatureDriftBaseline struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Source:
+	//
+	//	*FeatureDriftBaseline_DatasetRevision
+	Source        isFeatureDriftBaseline_Source `protobuf_oneof:"source"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FeatureDriftBaseline) Reset() {
+	*x = FeatureDriftBaseline{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FeatureDriftBaseline) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureDriftBaseline) ProtoMessage() {}
+
+func (x *FeatureDriftBaseline) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureDriftBaseline.ProtoReflect.Descriptor instead.
+func (*FeatureDriftBaseline) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *FeatureDriftBaseline) GetSource() isFeatureDriftBaseline_Source {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *FeatureDriftBaseline) GetDatasetRevision() *DatasetRevisionBaseline {
+	if x != nil {
+		if x, ok := x.Source.(*FeatureDriftBaseline_DatasetRevision); ok {
+			return x.DatasetRevision
+		}
+	}
+	return nil
+}
+
+type isFeatureDriftBaseline_Source interface {
+	isFeatureDriftBaseline_Source()
+}
+
+type FeatureDriftBaseline_DatasetRevision struct {
+	DatasetRevision *DatasetRevisionBaseline `protobuf:"bytes,1,opt,name=dataset_revision,json=datasetRevision,proto3,oneof"`
+}
+
+func (*FeatureDriftBaseline_DatasetRevision) isFeatureDriftBaseline_Source() {}
+
+// Uses the feature statistics an offline query recorded for a dataset revision.
+//
+// Name the dataset with dataset_name. Creating or updating the monitor
+// resolves it to dataset_id, which the monitor evaluates against from then on,
+// so renaming the dataset does not break the monitor.
+type DatasetRevisionBaseline struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The dataset dataset_name resolved to when the monitor was saved. Ignored
+	// on create and update.
+	DatasetId string `protobuf:"bytes,1,opt,name=dataset_id,json=datasetId,proto3" json:"dataset_id,omitempty"`
+	// The dataset's name as of when the monitor was saved. An update that sends
+	// the stored name keeps the stored dataset_id, so a monitor whose dataset
+	// was renamed can still be saved unchanged; any other name is resolved anew.
+	DatasetName string `protobuf:"bytes,3,opt,name=dataset_name,json=datasetName,proto3" json:"dataset_name,omitempty"`
+	// Dataset revision (offline query id) to compare against. When unset, each
+	// evaluation uses the dataset's most recent completed revision that recorded
+	// statistics for the monitored feature.
+	RevisionId    *string `protobuf:"bytes,2,opt,name=revision_id,json=revisionId,proto3,oneof" json:"revision_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DatasetRevisionBaseline) Reset() {
+	*x = DatasetRevisionBaseline{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DatasetRevisionBaseline) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DatasetRevisionBaseline) ProtoMessage() {}
+
+func (x *DatasetRevisionBaseline) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DatasetRevisionBaseline.ProtoReflect.Descriptor instead.
+func (*DatasetRevisionBaseline) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DatasetRevisionBaseline) GetDatasetId() string {
+	if x != nil {
+		return x.DatasetId
+	}
+	return ""
+}
+
+func (x *DatasetRevisionBaseline) GetDatasetName() string {
+	if x != nil {
+		return x.DatasetName
+	}
+	return ""
+}
+
+func (x *DatasetRevisionBaseline) GetRevisionId() string {
+	if x != nil && x.RevisionId != nil {
+		return *x.RevisionId
+	}
+	return ""
+}
+
+// The statistical test that measures drift between the two distributions.
+type FeatureDriftTest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Kind:
+	//
+	//	*FeatureDriftTest_KolmogorovSmirnov
+	Kind          isFeatureDriftTest_Kind `protobuf_oneof:"kind"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FeatureDriftTest) Reset() {
+	*x = FeatureDriftTest{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FeatureDriftTest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureDriftTest) ProtoMessage() {}
+
+func (x *FeatureDriftTest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureDriftTest.ProtoReflect.Descriptor instead.
+func (*FeatureDriftTest) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *FeatureDriftTest) GetKind() isFeatureDriftTest_Kind {
+	if x != nil {
+		return x.Kind
+	}
+	return nil
+}
+
+func (x *FeatureDriftTest) GetKolmogorovSmirnov() *KolmogorovSmirnovTest {
+	if x != nil {
+		if x, ok := x.Kind.(*FeatureDriftTest_KolmogorovSmirnov); ok {
+			return x.KolmogorovSmirnov
+		}
+	}
+	return nil
+}
+
+type isFeatureDriftTest_Kind interface {
+	isFeatureDriftTest_Kind()
+}
+
+type FeatureDriftTest_KolmogorovSmirnov struct {
+	KolmogorovSmirnov *KolmogorovSmirnovTest `protobuf:"bytes,1,opt,name=kolmogorov_smirnov,json=kolmogorovSmirnov,proto3,oneof"`
+}
+
+func (*FeatureDriftTest_KolmogorovSmirnov) isFeatureDriftTest_Kind() {}
+
+// Two-sample Kolmogorov-Smirnov test over numeric feature values. Drift is
+// reported when the KS statistic D = sup|F_baseline - F_observed| exceeds its
+// critical value at the significance level alpha.
+type KolmogorovSmirnovTest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Significance level, strictly between 0 and 1; e.g. 0.05. A smaller alpha
+	// raises the critical value, so only larger distribution shifts alert.
+	Alpha         float64 `protobuf:"fixed64,1,opt,name=alpha,proto3" json:"alpha,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KolmogorovSmirnovTest) Reset() {
+	*x = KolmogorovSmirnovTest{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KolmogorovSmirnovTest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KolmogorovSmirnovTest) ProtoMessage() {}
+
+func (x *KolmogorovSmirnovTest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KolmogorovSmirnovTest.ProtoReflect.Descriptor instead.
+func (*KolmogorovSmirnovTest) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *KolmogorovSmirnovTest) GetAlpha() float64 {
+	if x != nil {
+		return x.Alpha
+	}
+	return 0
+}
+
+// One evaluation of a FeatureDriftMonitor's test over one window.
+type FeatureDriftTestResult struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Whether the test found the window's distribution differs from the baseline.
+	Drifted bool `protobuf:"varint,1,opt,name=drifted,proto3" json:"drifted,omitempty"`
+	// Observations behind the baseline distribution.
+	BaselineSampleCount int64 `protobuf:"varint,2,opt,name=baseline_sample_count,json=baselineSampleCount,proto3" json:"baseline_sample_count,omitempty"`
+	// Observations of the monitored feature within the window.
+	WindowSampleCount int64 `protobuf:"varint,3,opt,name=window_sample_count,json=windowSampleCount,proto3" json:"window_sample_count,omitempty"`
+	// Types that are valid to be assigned to Details:
+	//
+	//	*FeatureDriftTestResult_KolmogorovSmirnov
+	Details       isFeatureDriftTestResult_Details `protobuf_oneof:"details"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FeatureDriftTestResult) Reset() {
+	*x = FeatureDriftTestResult{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FeatureDriftTestResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureDriftTestResult) ProtoMessage() {}
+
+func (x *FeatureDriftTestResult) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureDriftTestResult.ProtoReflect.Descriptor instead.
+func (*FeatureDriftTestResult) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *FeatureDriftTestResult) GetDrifted() bool {
+	if x != nil {
+		return x.Drifted
+	}
+	return false
+}
+
+func (x *FeatureDriftTestResult) GetBaselineSampleCount() int64 {
+	if x != nil {
+		return x.BaselineSampleCount
+	}
+	return 0
+}
+
+func (x *FeatureDriftTestResult) GetWindowSampleCount() int64 {
+	if x != nil {
+		return x.WindowSampleCount
+	}
+	return 0
+}
+
+func (x *FeatureDriftTestResult) GetDetails() isFeatureDriftTestResult_Details {
+	if x != nil {
+		return x.Details
+	}
+	return nil
+}
+
+func (x *FeatureDriftTestResult) GetKolmogorovSmirnov() *KolmogorovSmirnovResult {
+	if x != nil {
+		if x, ok := x.Details.(*FeatureDriftTestResult_KolmogorovSmirnov); ok {
+			return x.KolmogorovSmirnov
+		}
+	}
+	return nil
+}
+
+type isFeatureDriftTestResult_Details interface {
+	isFeatureDriftTestResult_Details()
+}
+
+type FeatureDriftTestResult_KolmogorovSmirnov struct {
+	KolmogorovSmirnov *KolmogorovSmirnovResult `protobuf:"bytes,4,opt,name=kolmogorov_smirnov,json=kolmogorovSmirnov,proto3,oneof"`
+}
+
+func (*FeatureDriftTestResult_KolmogorovSmirnov) isFeatureDriftTestResult_Details() {}
+
+type KolmogorovSmirnovResult struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The KS statistic D.
+	Statistic float64 `protobuf:"fixed64,1,opt,name=statistic,proto3" json:"statistic,omitempty"`
+	// Critical value of D at the test's alpha; drift is reported above it.
+	CriticalValue float64 `protobuf:"fixed64,2,opt,name=critical_value,json=criticalValue,proto3" json:"critical_value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KolmogorovSmirnovResult) Reset() {
+	*x = KolmogorovSmirnovResult{}
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KolmogorovSmirnovResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KolmogorovSmirnovResult) ProtoMessage() {}
+
+func (x *KolmogorovSmirnovResult) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KolmogorovSmirnovResult.ProtoReflect.Descriptor instead.
+func (*KolmogorovSmirnovResult) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *KolmogorovSmirnovResult) GetStatistic() float64 {
+	if x != nil {
+		return x.Statistic
+	}
+	return 0
+}
+
+func (x *KolmogorovSmirnovResult) GetCriticalValue() float64 {
+	if x != nil {
+		return x.CriticalValue
+	}
+	return 0
+}
+
 type AlertChannel struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	EntityKind AlertChannelKind       `protobuf:"varint,1,opt,name=entity_kind,json=entityKind,proto3,enum=chalk.artifacts.v1.AlertChannelKind" json:"entity_kind,omitempty"`
@@ -403,7 +889,7 @@ type AlertChannel struct {
 
 func (x *AlertChannel) Reset() {
 	*x = AlertChannel{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -415,7 +901,7 @@ func (x *AlertChannel) String() string {
 func (*AlertChannel) ProtoMessage() {}
 
 func (x *AlertChannel) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[5]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -428,7 +914,7 @@ func (x *AlertChannel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AlertChannel.ProtoReflect.Descriptor instead.
 func (*AlertChannel) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{5}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AlertChannel) GetEntityKind() AlertChannelKind {
@@ -490,7 +976,7 @@ type Threshold struct {
 
 func (x *Threshold) Reset() {
 	*x = Threshold{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[6]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -502,7 +988,7 @@ func (x *Threshold) String() string {
 func (*Threshold) ProtoMessage() {}
 
 func (x *Threshold) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[6]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -515,7 +1001,7 @@ func (x *Threshold) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Threshold.ProtoReflect.Descriptor instead.
 func (*Threshold) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{6}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Threshold) GetThresholdKind() ThresholdKind {
@@ -556,6 +1042,7 @@ type Monitor struct {
 	//	*Monitor_LogsMonitor
 	//	*Monitor_SqlBadRowsMonitor
 	//	*Monitor_DataSourceMonitor
+	//	*Monitor_FeatureDriftMonitor
 	MonitoredEntity isMonitor_MonitoredEntity `protobuf_oneof:"monitored_entity"`
 	CreatedAt       *timestamppb.Timestamp    `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt       *timestamppb.Timestamp    `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
@@ -566,7 +1053,7 @@ type Monitor struct {
 
 func (x *Monitor) Reset() {
 	*x = Monitor{}
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[7]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -578,7 +1065,7 @@ func (x *Monitor) String() string {
 func (*Monitor) ProtoMessage() {}
 
 func (x *Monitor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[7]
+	mi := &file_chalk_artifacts_v1_monitor_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -591,7 +1078,7 @@ func (x *Monitor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Monitor.ProtoReflect.Descriptor instead.
 func (*Monitor) Descriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{7}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Monitor) GetId() string {
@@ -695,6 +1182,15 @@ func (x *Monitor) GetDataSourceMonitor() *DataSourceMonitor {
 	return nil
 }
 
+func (x *Monitor) GetFeatureDriftMonitor() *FeatureDriftMonitor {
+	if x != nil {
+		if x, ok := x.MonitoredEntity.(*Monitor_FeatureDriftMonitor); ok {
+			return x.FeatureDriftMonitor
+		}
+	}
+	return nil
+}
+
 func (x *Monitor) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -740,6 +1236,10 @@ type Monitor_DataSourceMonitor struct {
 	DataSourceMonitor *DataSourceMonitor `protobuf:"bytes,104,opt,name=data_source_monitor,json=dataSourceMonitor,proto3,oneof"`
 }
 
+type Monitor_FeatureDriftMonitor struct {
+	FeatureDriftMonitor *FeatureDriftMonitor `protobuf:"bytes,105,opt,name=feature_drift_monitor,json=featureDriftMonitor,proto3,oneof"`
+}
+
 func (*Monitor_ChartMonitor) isMonitor_MonitoredEntity() {}
 
 func (*Monitor_HealthcheckMonitor) isMonitor_MonitoredEntity() {}
@@ -749,6 +1249,8 @@ func (*Monitor_LogsMonitor) isMonitor_MonitoredEntity() {}
 func (*Monitor_SqlBadRowsMonitor) isMonitor_MonitoredEntity() {}
 
 func (*Monitor_DataSourceMonitor) isMonitor_MonitoredEntity() {}
+
+func (*Monitor_FeatureDriftMonitor) isMonitor_MonitoredEntity() {}
 
 var File_chalk_artifacts_v1_monitor_proto protoreflect.FileDescriptor
 
@@ -776,7 +1278,37 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\x11DataSourceMonitor\x12'\n" +
 	"\x0eintegration_id\x18\x01 \x01(\tH\x00R\rintegrationId\x12\x14\n" +
 	"\x04name\x18\x02 \x01(\tH\x00R\x04nameB\r\n" +
-	"\vintegration\"\xac\x01\n" +
+	"\vintegration\"\x8a\x02\n" +
+	"\x13FeatureDriftMonitor\x12$\n" +
+	"\vfeature_fqn\x18\x01 \x01(\tB\x03\xe0A\x02R\n" +
+	"featureFqn\x12C\n" +
+	"\rwindow_period\x18\x02 \x01(\v2\x19.google.protobuf.DurationB\x03\xe0A\x02R\fwindowPeriod\x12I\n" +
+	"\bbaseline\x18\x03 \x01(\v2(.chalk.artifacts.v1.FeatureDriftBaselineB\x03\xe0A\x02R\bbaseline\x12=\n" +
+	"\x04test\x18\x04 \x01(\v2$.chalk.artifacts.v1.FeatureDriftTestB\x03\xe0A\x02R\x04test\"z\n" +
+	"\x14FeatureDriftBaseline\x12X\n" +
+	"\x10dataset_revision\x18\x01 \x01(\v2+.chalk.artifacts.v1.DatasetRevisionBaselineH\x00R\x0fdatasetRevisionB\b\n" +
+	"\x06source\"\x9b\x01\n" +
+	"\x17DatasetRevisionBaseline\x12\"\n" +
+	"\n" +
+	"dataset_id\x18\x01 \x01(\tB\x03\xe0A\x03R\tdatasetId\x12&\n" +
+	"\fdataset_name\x18\x03 \x01(\tB\x03\xe0A\x02R\vdatasetName\x12$\n" +
+	"\vrevision_id\x18\x02 \x01(\tH\x00R\n" +
+	"revisionId\x88\x01\x01B\x0e\n" +
+	"\f_revision_id\"v\n" +
+	"\x10FeatureDriftTest\x12Z\n" +
+	"\x12kolmogorov_smirnov\x18\x01 \x01(\v2).chalk.artifacts.v1.KolmogorovSmirnovTestH\x00R\x11kolmogorovSmirnovB\x06\n" +
+	"\x04kind\"2\n" +
+	"\x15KolmogorovSmirnovTest\x12\x19\n" +
+	"\x05alpha\x18\x01 \x01(\x01B\x03\xe0A\x02R\x05alpha\"\xff\x01\n" +
+	"\x16FeatureDriftTestResult\x12\x18\n" +
+	"\adrifted\x18\x01 \x01(\bR\adrifted\x122\n" +
+	"\x15baseline_sample_count\x18\x02 \x01(\x03R\x13baselineSampleCount\x12.\n" +
+	"\x13window_sample_count\x18\x03 \x01(\x03R\x11windowSampleCount\x12\\\n" +
+	"\x12kolmogorov_smirnov\x18\x04 \x01(\v2+.chalk.artifacts.v1.KolmogorovSmirnovResultH\x00R\x11kolmogorovSmirnovB\t\n" +
+	"\adetails\"^\n" +
+	"\x17KolmogorovSmirnovResult\x12\x1c\n" +
+	"\tstatistic\x18\x01 \x01(\x01R\tstatistic\x12%\n" +
+	"\x0ecritical_value\x18\x02 \x01(\x01R\rcriticalValue\"\xac\x01\n" +
 	"\fAlertChannel\x12E\n" +
 	"\ventity_kind\x18\x01 \x01(\x0e2$.chalk.artifacts.v1.AlertChannelKindR\n" +
 	"entityKind\x12\x1d\n" +
@@ -787,7 +1319,7 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\tThreshold\x12H\n" +
 	"\x0ethreshold_kind\x18\x06 \x01(\x0e2!.chalk.artifacts.v1.ThresholdKindR\rthresholdKind\x12'\n" +
 	"\x0fthreshold_value\x18\a \x01(\x02R\x0ethresholdValue\x12G\n" +
-	"\x0ealert_channels\x18\b \x03(\v2 .chalk.artifacts.v1.AlertChannelR\ralertChannels\"\xf0\x06\n" +
+	"\x0ealert_channels\x18\b \x03(\v2 .chalk.artifacts.v1.AlertChannelR\ralertChannels\"\xcf\a\n" +
 	"\aMonitor\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x12\n" +
@@ -801,21 +1333,23 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\x13healthcheck_monitor\x18e \x01(\v2&.chalk.artifacts.v1.HealthcheckMonitorH\x00R\x12healthcheckMonitor\x12D\n" +
 	"\flogs_monitor\x18f \x01(\v2\x1f.chalk.artifacts.v1.LogsMonitorH\x00R\vlogsMonitor\x12X\n" +
 	"\x14sql_bad_rows_monitor\x18g \x01(\v2%.chalk.artifacts.v1.SqlBadRowsMonitorH\x00R\x11sqlBadRowsMonitor\x12W\n" +
-	"\x13data_source_monitor\x18h \x01(\v2%.chalk.artifacts.v1.DataSourceMonitorH\x00R\x11dataSourceMonitor\x12?\n" +
+	"\x13data_source_monitor\x18h \x01(\v2%.chalk.artifacts.v1.DataSourceMonitorH\x00R\x11dataSourceMonitor\x12]\n" +
+	"\x15feature_drift_monitor\x18i \x01(\v2'.chalk.artifacts.v1.FeatureDriftMonitorH\x00R\x13featureDriftMonitor\x12?\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12?\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\x12A\n" +
 	"\vmuted_until\x18\xca\x01 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"mutedUntilB\x12\n" +
-	"\x10monitored_entity*\xb4\x01\n" +
+	"\x10monitored_entity*\xd4\x01\n" +
 	"\vMonitorType\x12\x1c\n" +
 	"\x18MONITOR_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12MONITOR_TYPE_CHART\x10\x01\x12\x14\n" +
 	"\x10MONITOR_TYPE_LOG\x10\x02\x12\x1c\n" +
 	"\x18MONITOR_TYPE_HEALTHCHECK\x10\x03\x12\x1d\n" +
 	"\x19MONITOR_TYPE_SQL_BAD_ROWS\x10\x04\x12\x1c\n" +
-	"\x18MONITOR_TYPE_DATA_SOURCE\x10\x05B\xd1\x01\n" +
+	"\x18MONITOR_TYPE_DATA_SOURCE\x10\x05\x12\x1e\n" +
+	"\x1aMONITOR_TYPE_FEATURE_DRIFT\x10\x06B\xd1\x01\n" +
 	"\x16com.chalk.artifacts.v1B\fMonitorProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (
@@ -831,41 +1365,55 @@ func file_chalk_artifacts_v1_monitor_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_artifacts_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_artifacts_v1_monitor_proto_goTypes = []any{
-	(MonitorType)(0),              // 0: chalk.artifacts.v1.MonitorType
-	(*LogsMonitor)(nil),           // 1: chalk.artifacts.v1.LogsMonitor
-	(*HealthcheckMonitor)(nil),    // 2: chalk.artifacts.v1.HealthcheckMonitor
-	(*ChartMonitor)(nil),          // 3: chalk.artifacts.v1.ChartMonitor
-	(*SqlBadRowsMonitor)(nil),     // 4: chalk.artifacts.v1.SqlBadRowsMonitor
-	(*DataSourceMonitor)(nil),     // 5: chalk.artifacts.v1.DataSourceMonitor
-	(*AlertChannel)(nil),          // 6: chalk.artifacts.v1.AlertChannel
-	(*Threshold)(nil),             // 7: chalk.artifacts.v1.Threshold
-	(*Monitor)(nil),               // 8: chalk.artifacts.v1.Monitor
-	(*durationpb.Duration)(nil),   // 9: google.protobuf.Duration
-	(AlertChannelKind)(0),         // 10: chalk.artifacts.v1.AlertChannelKind
-	(ThresholdKind)(0),            // 11: chalk.artifacts.v1.ThresholdKind
-	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
+	(MonitorType)(0),                // 0: chalk.artifacts.v1.MonitorType
+	(*LogsMonitor)(nil),             // 1: chalk.artifacts.v1.LogsMonitor
+	(*HealthcheckMonitor)(nil),      // 2: chalk.artifacts.v1.HealthcheckMonitor
+	(*ChartMonitor)(nil),            // 3: chalk.artifacts.v1.ChartMonitor
+	(*SqlBadRowsMonitor)(nil),       // 4: chalk.artifacts.v1.SqlBadRowsMonitor
+	(*DataSourceMonitor)(nil),       // 5: chalk.artifacts.v1.DataSourceMonitor
+	(*FeatureDriftMonitor)(nil),     // 6: chalk.artifacts.v1.FeatureDriftMonitor
+	(*FeatureDriftBaseline)(nil),    // 7: chalk.artifacts.v1.FeatureDriftBaseline
+	(*DatasetRevisionBaseline)(nil), // 8: chalk.artifacts.v1.DatasetRevisionBaseline
+	(*FeatureDriftTest)(nil),        // 9: chalk.artifacts.v1.FeatureDriftTest
+	(*KolmogorovSmirnovTest)(nil),   // 10: chalk.artifacts.v1.KolmogorovSmirnovTest
+	(*FeatureDriftTestResult)(nil),  // 11: chalk.artifacts.v1.FeatureDriftTestResult
+	(*KolmogorovSmirnovResult)(nil), // 12: chalk.artifacts.v1.KolmogorovSmirnovResult
+	(*AlertChannel)(nil),            // 13: chalk.artifacts.v1.AlertChannel
+	(*Threshold)(nil),               // 14: chalk.artifacts.v1.Threshold
+	(*Monitor)(nil),                 // 15: chalk.artifacts.v1.Monitor
+	(*durationpb.Duration)(nil),     // 16: google.protobuf.Duration
+	(AlertChannelKind)(0),           // 17: chalk.artifacts.v1.AlertChannelKind
+	(ThresholdKind)(0),              // 18: chalk.artifacts.v1.ThresholdKind
+	(*timestamppb.Timestamp)(nil),   // 19: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_monitor_proto_depIdxs = []int32{
-	9,  // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
-	10, // 1: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
-	11, // 2: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
-	6,  // 3: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
-	7,  // 4: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
-	3,  // 5: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
-	2,  // 6: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
-	1,  // 7: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
-	4,  // 8: chalk.artifacts.v1.Monitor.sql_bad_rows_monitor:type_name -> chalk.artifacts.v1.SqlBadRowsMonitor
-	5,  // 9: chalk.artifacts.v1.Monitor.data_source_monitor:type_name -> chalk.artifacts.v1.DataSourceMonitor
-	12, // 10: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
-	12, // 11: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
-	12, // 12: chalk.artifacts.v1.Monitor.muted_until:type_name -> google.protobuf.Timestamp
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	16, // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
+	16, // 1: chalk.artifacts.v1.FeatureDriftMonitor.window_period:type_name -> google.protobuf.Duration
+	7,  // 2: chalk.artifacts.v1.FeatureDriftMonitor.baseline:type_name -> chalk.artifacts.v1.FeatureDriftBaseline
+	9,  // 3: chalk.artifacts.v1.FeatureDriftMonitor.test:type_name -> chalk.artifacts.v1.FeatureDriftTest
+	8,  // 4: chalk.artifacts.v1.FeatureDriftBaseline.dataset_revision:type_name -> chalk.artifacts.v1.DatasetRevisionBaseline
+	10, // 5: chalk.artifacts.v1.FeatureDriftTest.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovTest
+	12, // 6: chalk.artifacts.v1.FeatureDriftTestResult.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovResult
+	17, // 7: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	18, // 8: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
+	13, // 9: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
+	14, // 10: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
+	3,  // 11: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
+	2,  // 12: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
+	1,  // 13: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
+	4,  // 14: chalk.artifacts.v1.Monitor.sql_bad_rows_monitor:type_name -> chalk.artifacts.v1.SqlBadRowsMonitor
+	5,  // 15: chalk.artifacts.v1.Monitor.data_source_monitor:type_name -> chalk.artifacts.v1.DataSourceMonitor
+	6,  // 16: chalk.artifacts.v1.Monitor.feature_drift_monitor:type_name -> chalk.artifacts.v1.FeatureDriftMonitor
+	19, // 17: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
+	19, // 18: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
+	19, // 19: chalk.artifacts.v1.Monitor.muted_until:type_name -> google.protobuf.Timestamp
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_monitor_proto_init() }
@@ -881,16 +1429,27 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 		(*DataSourceMonitor_IntegrationId)(nil),
 		(*DataSourceMonitor_Name)(nil),
 	}
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[5].OneofWrappers = []any{
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[6].OneofWrappers = []any{
+		(*FeatureDriftBaseline_DatasetRevision)(nil),
+	}
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[8].OneofWrappers = []any{
+		(*FeatureDriftTest_KolmogorovSmirnov)(nil),
+	}
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[10].OneofWrappers = []any{
+		(*FeatureDriftTestResult_KolmogorovSmirnov)(nil),
+	}
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[12].OneofWrappers = []any{
 		(*AlertChannel_EntityId)(nil),
 		(*AlertChannel_EntityName)(nil),
 	}
-	file_chalk_artifacts_v1_monitor_proto_msgTypes[7].OneofWrappers = []any{
+	file_chalk_artifacts_v1_monitor_proto_msgTypes[14].OneofWrappers = []any{
 		(*Monitor_ChartMonitor)(nil),
 		(*Monitor_HealthcheckMonitor)(nil),
 		(*Monitor_LogsMonitor)(nil),
 		(*Monitor_SqlBadRowsMonitor)(nil),
 		(*Monitor_DataSourceMonitor)(nil),
+		(*Monitor_FeatureDriftMonitor)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -898,7 +1457,7 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_monitor_proto_rawDesc), len(file_chalk_artifacts_v1_monitor_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

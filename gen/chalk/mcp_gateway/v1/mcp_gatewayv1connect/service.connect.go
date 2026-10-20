@@ -131,9 +131,10 @@ type McpGatewayServiceClient interface {
 	SimulatePolicy(context.Context, *connect.Request[v1.SimulatePolicyRequest]) (*connect.Response[v1.SimulatePolicyResponse], error)
 	CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error)
 	RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error)
-	// Replays the gateway replica's recent events, then pushes each audited MCP
-	// operation as it is recorded. Events reach only subscribers on the replica
-	// that served the call.
+	// Always fails with UNIMPLEMENTED; poll RecentAudit with `after` instead.
+	// The definition stays so the schema remains wire compatible.
+	//
+	// Deprecated: do not use.
 	StreamAudit(context.Context, *connect.Request[v1.StreamAuditRequest]) (*connect.ServerStreamForClient[v1.StreamAuditResponse], error)
 	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
 	GetPolicy(context.Context, *connect.Request[v1.GetPolicyRequest]) (*connect.Response[v1.GetPolicyResponse], error)
@@ -449,6 +450,8 @@ func (c *mcpGatewayServiceClient) RecentAudit(ctx context.Context, req *connect.
 }
 
 // StreamAudit calls chalk.mcp_gateway.v1.McpGatewayService.StreamAudit.
+//
+// Deprecated: do not use.
 func (c *mcpGatewayServiceClient) StreamAudit(ctx context.Context, req *connect.Request[v1.StreamAuditRequest]) (*connect.ServerStreamForClient[v1.StreamAuditResponse], error) {
 	return c.streamAudit.CallServerStream(ctx, req)
 }
@@ -496,9 +499,10 @@ type McpGatewayServiceHandler interface {
 	SimulatePolicy(context.Context, *connect.Request[v1.SimulatePolicyRequest]) (*connect.Response[v1.SimulatePolicyResponse], error)
 	CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error)
 	RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error)
-	// Replays the gateway replica's recent events, then pushes each audited MCP
-	// operation as it is recorded. Events reach only subscribers on the replica
-	// that served the call.
+	// Always fails with UNIMPLEMENTED; poll RecentAudit with `after` instead.
+	// The definition stays so the schema remains wire compatible.
+	//
+	// Deprecated: do not use.
 	StreamAudit(context.Context, *connect.Request[v1.StreamAuditRequest], *connect.ServerStream[v1.StreamAuditResponse]) error
 	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
 	GetPolicy(context.Context, *connect.Request[v1.GetPolicyRequest]) (*connect.Response[v1.GetPolicyResponse], error)

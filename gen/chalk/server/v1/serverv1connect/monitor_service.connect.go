@@ -57,6 +57,9 @@ const (
 	// MonitorServiceListMonitorsProcedure is the fully-qualified name of the MonitorService's
 	// ListMonitors RPC.
 	MonitorServiceListMonitorsProcedure = "/chalk.server.v1.MonitorService/ListMonitors"
+	// MonitorServicePreviewFeatureDriftMonitorProcedure is the fully-qualified name of the
+	// MonitorService's PreviewFeatureDriftMonitor RPC.
+	MonitorServicePreviewFeatureDriftMonitorProcedure = "/chalk.server.v1.MonitorService/PreviewFeatureDriftMonitor"
 )
 
 // MonitorServiceClient is a client for the chalk.server.v1.MonitorService service.
@@ -69,6 +72,8 @@ type MonitorServiceClient interface {
 	DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error)
 	MuteMonitor(context.Context, *connect.Request[v1.MuteMonitorRequest]) (*connect.Response[v1.MuteMonitorResponse], error)
 	ListMonitors(context.Context, *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error)
+	// Evaluates an unsaved feature drift monitor over a time range.
+	PreviewFeatureDriftMonitor(context.Context, *connect.Request[v1.PreviewFeatureDriftMonitorRequest]) (*connect.Response[v1.PreviewFeatureDriftMonitorResponse], error)
 }
 
 // NewMonitorServiceClient constructs a client for the chalk.server.v1.MonitorService service. By
@@ -130,19 +135,26 @@ func NewMonitorServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(monitorServiceMethods.ByName("ListMonitors")),
 			connect.WithClientOptions(opts...),
 		),
+		previewFeatureDriftMonitor: connect.NewClient[v1.PreviewFeatureDriftMonitorRequest, v1.PreviewFeatureDriftMonitorResponse](
+			httpClient,
+			baseURL+MonitorServicePreviewFeatureDriftMonitorProcedure,
+			connect.WithSchema(monitorServiceMethods.ByName("PreviewFeatureDriftMonitor")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // monitorServiceClient implements MonitorServiceClient.
 type monitorServiceClient struct {
-	getMonitor           *connect.Client[v1.GetMonitorRequest, v1.GetMonitorResponse]
-	getMonitorEvents     *connect.Client[v1.GetMonitorEventsRequest, v1.GetMonitorEventsResponse]
-	getMonitorEvaluation *connect.Client[v1.GetMonitorEvaluationRequest, v1.GetMonitorEvaluationResponse]
-	createMonitor        *connect.Client[v1.CreateMonitorRequest, v1.CreateMonitorResponse]
-	updateMonitor        *connect.Client[v1.UpdateMonitorRequest, v1.UpdateMonitorResponse]
-	deleteMonitor        *connect.Client[v1.DeleteMonitorRequest, v1.DeleteMonitorResponse]
-	muteMonitor          *connect.Client[v1.MuteMonitorRequest, v1.MuteMonitorResponse]
-	listMonitors         *connect.Client[v1.ListMonitorsRequest, v1.ListMonitorsResponse]
+	getMonitor                 *connect.Client[v1.GetMonitorRequest, v1.GetMonitorResponse]
+	getMonitorEvents           *connect.Client[v1.GetMonitorEventsRequest, v1.GetMonitorEventsResponse]
+	getMonitorEvaluation       *connect.Client[v1.GetMonitorEvaluationRequest, v1.GetMonitorEvaluationResponse]
+	createMonitor              *connect.Client[v1.CreateMonitorRequest, v1.CreateMonitorResponse]
+	updateMonitor              *connect.Client[v1.UpdateMonitorRequest, v1.UpdateMonitorResponse]
+	deleteMonitor              *connect.Client[v1.DeleteMonitorRequest, v1.DeleteMonitorResponse]
+	muteMonitor                *connect.Client[v1.MuteMonitorRequest, v1.MuteMonitorResponse]
+	listMonitors               *connect.Client[v1.ListMonitorsRequest, v1.ListMonitorsResponse]
+	previewFeatureDriftMonitor *connect.Client[v1.PreviewFeatureDriftMonitorRequest, v1.PreviewFeatureDriftMonitorResponse]
 }
 
 // GetMonitor calls chalk.server.v1.MonitorService.GetMonitor.
@@ -185,6 +197,11 @@ func (c *monitorServiceClient) ListMonitors(ctx context.Context, req *connect.Re
 	return c.listMonitors.CallUnary(ctx, req)
 }
 
+// PreviewFeatureDriftMonitor calls chalk.server.v1.MonitorService.PreviewFeatureDriftMonitor.
+func (c *monitorServiceClient) PreviewFeatureDriftMonitor(ctx context.Context, req *connect.Request[v1.PreviewFeatureDriftMonitorRequest]) (*connect.Response[v1.PreviewFeatureDriftMonitorResponse], error) {
+	return c.previewFeatureDriftMonitor.CallUnary(ctx, req)
+}
+
 // MonitorServiceHandler is an implementation of the chalk.server.v1.MonitorService service.
 type MonitorServiceHandler interface {
 	GetMonitor(context.Context, *connect.Request[v1.GetMonitorRequest]) (*connect.Response[v1.GetMonitorResponse], error)
@@ -195,6 +212,8 @@ type MonitorServiceHandler interface {
 	DeleteMonitor(context.Context, *connect.Request[v1.DeleteMonitorRequest]) (*connect.Response[v1.DeleteMonitorResponse], error)
 	MuteMonitor(context.Context, *connect.Request[v1.MuteMonitorRequest]) (*connect.Response[v1.MuteMonitorResponse], error)
 	ListMonitors(context.Context, *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error)
+	// Evaluates an unsaved feature drift monitor over a time range.
+	PreviewFeatureDriftMonitor(context.Context, *connect.Request[v1.PreviewFeatureDriftMonitorRequest]) (*connect.Response[v1.PreviewFeatureDriftMonitorResponse], error)
 }
 
 // NewMonitorServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -252,6 +271,12 @@ func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.Handler
 		connect.WithSchema(monitorServiceMethods.ByName("ListMonitors")),
 		connect.WithHandlerOptions(opts...),
 	)
+	monitorServicePreviewFeatureDriftMonitorHandler := connect.NewUnaryHandler(
+		MonitorServicePreviewFeatureDriftMonitorProcedure,
+		svc.PreviewFeatureDriftMonitor,
+		connect.WithSchema(monitorServiceMethods.ByName("PreviewFeatureDriftMonitor")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.MonitorService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case MonitorServiceGetMonitorProcedure:
@@ -270,6 +295,8 @@ func NewMonitorServiceHandler(svc MonitorServiceHandler, opts ...connect.Handler
 			monitorServiceMuteMonitorHandler.ServeHTTP(w, r)
 		case MonitorServiceListMonitorsProcedure:
 			monitorServiceListMonitorsHandler.ServeHTTP(w, r)
+		case MonitorServicePreviewFeatureDriftMonitorProcedure:
+			monitorServicePreviewFeatureDriftMonitorHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -309,4 +336,8 @@ func (UnimplementedMonitorServiceHandler) MuteMonitor(context.Context, *connect.
 
 func (UnimplementedMonitorServiceHandler) ListMonitors(context.Context, *connect.Request[v1.ListMonitorsRequest]) (*connect.Response[v1.ListMonitorsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.ListMonitors is not implemented"))
+}
+
+func (UnimplementedMonitorServiceHandler) PreviewFeatureDriftMonitor(context.Context, *connect.Request[v1.PreviewFeatureDriftMonitorRequest]) (*connect.Response[v1.PreviewFeatureDriftMonitorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitorService.PreviewFeatureDriftMonitor is not implemented"))
 }

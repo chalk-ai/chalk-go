@@ -99,7 +99,7 @@ type AllPlanningInputsProto struct {
 	QueryName           *string                `protobuf:"bytes,6,opt,name=query_name,json=queryName,proto3,oneof" json:"query_name,omitempty"`
 	QueryNameVersion    *string                `protobuf:"bytes,7,opt,name=query_name_version,json=queryNameVersion,proto3,oneof" json:"query_name_version,omitempty"`
 	ConvertedOutputFqns []string               `protobuf:"bytes,8,rep,name=converted_output_fqns,json=convertedOutputFqns,proto3" json:"converted_output_fqns,omitempty"`
-	// repeated OutputUnderscoreFeatureTypeProto output_expressions = 9;
+	//  repeated OutputUnderscoreFeatureTypeProto output_expressions = 9;
 	PkeyFeature                       string                          `protobuf:"bytes,10,opt,name=pkey_feature,json=pkeyFeature,proto3" json:"pkey_feature,omitempty"`
 	Staleness                         map[string]*durationpb.Duration `protobuf:"bytes,11,rep,name=staleness,proto3" json:"staleness,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	ValueMetricsTagByFeatures         []string                        `protobuf:"bytes,12,rep,name=value_metrics_tag_by_features,json=valueMetricsTagByFeatures,proto3" json:"value_metrics_tag_by_features,omitempty"`

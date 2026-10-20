@@ -28,22 +28,26 @@ const (
 	ErrorCode_ERROR_CODE_INTERNAL_SERVER_ERROR_UNSPECIFIED ErrorCode = 0
 	// The query contained features that do not exist
 	ErrorCode_ERROR_CODE_PARSE_FAILED ErrorCode = 1
-	// A resolver was required as part of running the dependency
-	// graph that could not be found.
+	//
+	//A resolver was required as part of running the dependency
+	//graph that could not be found.
 	ErrorCode_ERROR_CODE_RESOLVER_NOT_FOUND ErrorCode = 2
-	// The query is invalid. All supplied features need to be
-	// rooted in the same top-level entity.
+	//
+	//The query is invalid. All supplied features need to be
+	//rooted in the same top-level entity.
 	ErrorCode_ERROR_CODE_INVALID_QUERY ErrorCode = 3
-	// A feature value did not match the expected schema
-	// (e.g. `incompatible type "int"; expected "str"`)
+	//
+	//A feature value did not match the expected schema
+	//(e.g. `incompatible type "int"; expected "str"`)
 	ErrorCode_ERROR_CODE_VALIDATION_FAILED ErrorCode = 4
 	// The resolver for a feature errored.
 	ErrorCode_ERROR_CODE_RESOLVER_FAILED ErrorCode = 5
 	// The resolver for a feature timed out.
 	ErrorCode_ERROR_CODE_RESOLVER_TIMED_OUT ErrorCode = 6
-	// A crash in a resolver that was to produce an input for
-	// the resolver crashed, and so the resolver could not run
-	// crashed, and so the resolver could not run.
+	//
+	//A crash in a resolver that was to produce an input for
+	//the resolver crashed, and so the resolver could not run
+	//crashed, and so the resolver could not run.
 	ErrorCode_ERROR_CODE_UPSTREAM_FAILED ErrorCode = 7
 	// The request was submitted with an invalid authentication header.
 	ErrorCode_ERROR_CODE_UNAUTHENTICATED ErrorCode = 8
@@ -119,18 +123,20 @@ type ErrorCodeCategory int32
 const (
 	// -- DEFAULT VALUE --
 	ErrorCodeCategory_ERROR_CODE_CATEGORY_NETWORK_UNSPECIFIED ErrorCodeCategory = 0
-	// Request errors are raised before execution of your
-	// resolver code. They may occur due to invalid feature
-	// names in the input or a request that cannot be satisfied
-	// by the resolvers you have defined.
+	//
+	//Request errors are raised before execution of your
+	//resolver code. They may occur due to invalid feature
+	//names in the input or a request that cannot be satisfied
+	//by the resolvers you have defined.
 	ErrorCodeCategory_ERROR_CODE_CATEGORY_REQUEST ErrorCodeCategory = 1
-	// Field errors are raised while running a feature resolver
-	// for a particular field. For this type of error, you'll
-	// find a feature and resolver attribute in the error type.
-	// When a feature resolver crashes, you will receive null
-	// value in the response. To differentiate from a resolver
-	// returning a null value and a failure in the resolver,
-	// you need to check the error schema.
+	//
+	//Field errors are raised while running a feature resolver
+	//for a particular field. For this type of error, you'll
+	//find a feature and resolver attribute in the error type.
+	//When a feature resolver crashes, you will receive null
+	//value in the response. To differentiate from a resolver
+	//returning a null value and a failure in the resolver,
+	//you need to check the error schema.
 	ErrorCodeCategory_ERROR_CODE_CATEGORY_FIELD ErrorCodeCategory = 2
 )
 

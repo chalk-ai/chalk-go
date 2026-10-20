@@ -75,28 +75,29 @@ func (x *ResourceRequirements) GetLimits() map[string]string {
 
 type ResourceRequests struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// *
-	// CPU requests: Increasing this will make some Chalk operations that are parallel and CPU-bound faster.
-	// Default unit is physical CPU cores, i.e. "8" means 8 CPU cores, "0.5" means half of a CPU core.
-	// An alternative unit is "millicore", which is one-thousandth of a CPU core, i.e. 500m is half of a CPU core.
-	Cpu *string `protobuf:"bytes,1,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
-	// *
-	// Memory requests: you can use these to give your pod more memory, i.e. to prevent especially large jobs from OOMing.
-	// Default unit is bytes, i.e. 1000000000 is 1 gigabyte of memory.
-	// You can also specify a suffix such as K, M, or G for kilobytes, megabytes, and gigabytes, respectively.
-	// It's also possible to use the power of two equivalents, such as Ki, Mi, and Gi.
-	Memory *string `protobuf:"bytes,2,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
-	// *
-	// Chalk can use this for spilling intermediate state of some large computations, i.e. joins, aggregations, and sorting.
+	//*
+	//CPU requests: Increasing this will make some Chalk operations that are parallel and CPU-bound faster.
+	//Default unit is physical CPU cores, i.e. "8" means 8 CPU cores, "0.5" means half of a CPU core.
+	//An alternative unit is "millicore", which is one-thousandth of a CPU core, i.e. 500m is half of a CPU core.
 	//
-	// Default unit is bytes, i.e. 1000000000 is 1 gigabyte of memory.
-	// You can also specify a suffix such as K, M, or G for kilobytes, megabytes, and gigabytes, respectively.
-	// It's also possible to use the power of two equivalents, such as Ki, Mi, and Gi.
+	Cpu *string `protobuf:"bytes,1,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
+	//*
+	//Memory requests: you can use these to give your pod more memory, i.e. to prevent especially large jobs from OOMing.
+	//Default unit is bytes, i.e. 1000000000 is 1 gigabyte of memory.
+	//You can also specify a suffix such as K, M, or G for kilobytes, megabytes, and gigabytes, respectively.
+	//It's also possible to use the power of two equivalents, such as Ki, Mi, and Gi.
+	Memory *string `protobuf:"bytes,2,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
+	//*
+	//Chalk can use this for spilling intermediate state of some large computations, i.e. joins, aggregations, and sorting.
+	//
+	//Default unit is bytes, i.e. 1000000000 is 1 gigabyte of memory.
+	//You can also specify a suffix such as K, M, or G for kilobytes, megabytes, and gigabytes, respectively.
+	//It's also possible to use the power of two equivalents, such as Ki, Mi, and Gi.
 	EphemeralVolumeSize *string `protobuf:"bytes,3,opt,name=ephemeral_volume_size,json=ephemeralVolumeSize,proto3,oneof" json:"ephemeral_volume_size,omitempty"`
-	// *
-	// Ephemeral storage for miscellaneous file system access.
-	// Should probably not be below 1Gi to ensure there's enough space for the Docker image, etc.
-	// Should also not be too high or else the pod will not be scheduled.
+	//*
+	//Ephemeral storage for miscellaneous file system access.
+	//Should probably not be below 1Gi to ensure there's enough space for the Docker image, etc.
+	//Should also not be too high or else the pod will not be scheduled.
 	EphemeralStorage *string `protobuf:"bytes,4,opt,name=ephemeral_storage,json=ephemeralStorage,proto3,oneof" json:"ephemeral_storage,omitempty"`
 	ResourceGroup    *string `protobuf:"bytes,5,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	unknownFields    protoimpl.UnknownFields

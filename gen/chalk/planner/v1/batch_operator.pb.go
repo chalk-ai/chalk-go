@@ -336,8 +336,8 @@ func (OperatorType) EnumDescriptor() ([]byte, []int) {
 type BatchPlan struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Operators []*BatchOperator       `protobuf:"bytes,1,rep,name=operators,proto3" json:"operators,omitempty"`
-	// Deprecated; use “symbolic_values_v2“. The
-	// “chalk.planner.v1.SymbolicValue“ package is preserved for wire
+	// Deprecated; use ``symbolic_values_v2``. The
+	// ``chalk.planner.v1.SymbolicValue`` package is preserved for wire
 	// compatibility but no longer populated.
 	//
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
@@ -992,7 +992,7 @@ type Argument_FeatureReference struct {
 }
 
 type Argument_SymbolicValue struct {
-	// Deprecated; use “symbolic_value_v2“.
+	// Deprecated; use ``symbolic_value_v2``.
 	//
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 	SymbolicValue *SymbolicValue `protobuf:"bytes,23,opt,name=symbolic_value,json=symbolicValue,proto3,oneof"`
