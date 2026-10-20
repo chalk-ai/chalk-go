@@ -534,14 +534,14 @@ func (x *PyDict) GetDictEntries() []*PyDictEntry {
 
 type DataFrameConstructor struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// / If present, this is a method called on `self_operand`.
-	// / Otherwise, it is a static method on the class itself.
+	/// If present, this is a method called on `self_operand`.
+	/// Otherwise, it is a static method on the class itself.
 	SelfOperand *DataFrameIndex `protobuf:"bytes,1,opt,name=self_operand,json=selfOperand,proto3,oneof" json:"self_operand,omitempty"`
-	// / The name of the function to construct the dataframe object.
+	/// The name of the function to construct the dataframe object.
 	FunctionName string `protobuf:"bytes,2,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
-	// / Positional arguments passed to the function.
+	/// Positional arguments passed to the function.
 	Args *PyList `protobuf:"bytes,3,opt,name=args,proto3" json:"args,omitempty"`
-	// / Keyword arguments passed to the function.
+	/// Keyword arguments passed to the function.
 	Kwargs        *PyDict `protobuf:"bytes,4,opt,name=kwargs,proto3" json:"kwargs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -607,10 +607,10 @@ func (x *DataFrameConstructor) GetKwargs() *PyDict {
 
 type DataFramePlan struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// / A sequence of intermediate constructors used to build this plan.
-	// / Constructors can refer to earlier dataframes in the sequence.
-	// /
-	// / The last constructor is the output of the plan.
+	/// A sequence of intermediate constructors used to build this plan.
+	/// Constructors can refer to earlier dataframes in the sequence.
+	///
+	/// The last constructor is the output of the plan.
 	Constructors  []*DataFrameConstructor `protobuf:"bytes,1,rep,name=constructors,proto3" json:"constructors,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

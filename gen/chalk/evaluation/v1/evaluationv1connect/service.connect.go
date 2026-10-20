@@ -72,6 +72,21 @@ const (
 	// EvaluationServiceArchiveEvaluationRunProcedure is the fully-qualified name of the
 	// EvaluationService's ArchiveEvaluationRun RPC.
 	EvaluationServiceArchiveEvaluationRunProcedure = "/chalk.evaluation.v1.EvaluationService/ArchiveEvaluationRun"
+	// EvaluationServiceCreateOnlineEvaluatorProcedure is the fully-qualified name of the
+	// EvaluationService's CreateOnlineEvaluator RPC.
+	EvaluationServiceCreateOnlineEvaluatorProcedure = "/chalk.evaluation.v1.EvaluationService/CreateOnlineEvaluator"
+	// EvaluationServiceGetOnlineEvaluatorProcedure is the fully-qualified name of the
+	// EvaluationService's GetOnlineEvaluator RPC.
+	EvaluationServiceGetOnlineEvaluatorProcedure = "/chalk.evaluation.v1.EvaluationService/GetOnlineEvaluator"
+	// EvaluationServiceListOnlineEvaluatorsProcedure is the fully-qualified name of the
+	// EvaluationService's ListOnlineEvaluators RPC.
+	EvaluationServiceListOnlineEvaluatorsProcedure = "/chalk.evaluation.v1.EvaluationService/ListOnlineEvaluators"
+	// EvaluationServiceUpdateOnlineEvaluatorProcedure is the fully-qualified name of the
+	// EvaluationService's UpdateOnlineEvaluator RPC.
+	EvaluationServiceUpdateOnlineEvaluatorProcedure = "/chalk.evaluation.v1.EvaluationService/UpdateOnlineEvaluator"
+	// EvaluationServiceDeleteOnlineEvaluatorProcedure is the fully-qualified name of the
+	// EvaluationService's DeleteOnlineEvaluator RPC.
+	EvaluationServiceDeleteOnlineEvaluatorProcedure = "/chalk.evaluation.v1.EvaluationService/DeleteOnlineEvaluator"
 )
 
 // EvaluationServiceClient is a client for the chalk.evaluation.v1.EvaluationService service.
@@ -95,6 +110,11 @@ type EvaluationServiceClient interface {
 	ListEvaluationRuns(context.Context, *connect.Request[v1.ListEvaluationRunsRequest]) (*connect.Response[v1.ListEvaluationRunsResponse], error)
 	SetEvaluationRunBaseline(context.Context, *connect.Request[v1.SetEvaluationRunBaselineRequest]) (*connect.Response[v1.SetEvaluationRunBaselineResponse], error)
 	ArchiveEvaluationRun(context.Context, *connect.Request[v1.ArchiveEvaluationRunRequest]) (*connect.Response[v1.ArchiveEvaluationRunResponse], error)
+	CreateOnlineEvaluator(context.Context, *connect.Request[v1.CreateOnlineEvaluatorRequest]) (*connect.Response[v1.CreateOnlineEvaluatorResponse], error)
+	GetOnlineEvaluator(context.Context, *connect.Request[v1.GetOnlineEvaluatorRequest]) (*connect.Response[v1.GetOnlineEvaluatorResponse], error)
+	ListOnlineEvaluators(context.Context, *connect.Request[v1.ListOnlineEvaluatorsRequest]) (*connect.Response[v1.ListOnlineEvaluatorsResponse], error)
+	UpdateOnlineEvaluator(context.Context, *connect.Request[v1.UpdateOnlineEvaluatorRequest]) (*connect.Response[v1.UpdateOnlineEvaluatorResponse], error)
+	DeleteOnlineEvaluator(context.Context, *connect.Request[v1.DeleteOnlineEvaluatorRequest]) (*connect.Response[v1.DeleteOnlineEvaluatorResponse], error)
 }
 
 // NewEvaluationServiceClient constructs a client for the chalk.evaluation.v1.EvaluationService
@@ -195,6 +215,39 @@ func NewEvaluationServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		createOnlineEvaluator: connect.NewClient[v1.CreateOnlineEvaluatorRequest, v1.CreateOnlineEvaluatorResponse](
+			httpClient,
+			baseURL+EvaluationServiceCreateOnlineEvaluatorProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("CreateOnlineEvaluator")),
+			connect.WithClientOptions(opts...),
+		),
+		getOnlineEvaluator: connect.NewClient[v1.GetOnlineEvaluatorRequest, v1.GetOnlineEvaluatorResponse](
+			httpClient,
+			baseURL+EvaluationServiceGetOnlineEvaluatorProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("GetOnlineEvaluator")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listOnlineEvaluators: connect.NewClient[v1.ListOnlineEvaluatorsRequest, v1.ListOnlineEvaluatorsResponse](
+			httpClient,
+			baseURL+EvaluationServiceListOnlineEvaluatorsProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("ListOnlineEvaluators")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		updateOnlineEvaluator: connect.NewClient[v1.UpdateOnlineEvaluatorRequest, v1.UpdateOnlineEvaluatorResponse](
+			httpClient,
+			baseURL+EvaluationServiceUpdateOnlineEvaluatorProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("UpdateOnlineEvaluator")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteOnlineEvaluator: connect.NewClient[v1.DeleteOnlineEvaluatorRequest, v1.DeleteOnlineEvaluatorResponse](
+			httpClient,
+			baseURL+EvaluationServiceDeleteOnlineEvaluatorProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("DeleteOnlineEvaluator")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -213,6 +266,11 @@ type evaluationServiceClient struct {
 	listEvaluationRuns       *connect.Client[v1.ListEvaluationRunsRequest, v1.ListEvaluationRunsResponse]
 	setEvaluationRunBaseline *connect.Client[v1.SetEvaluationRunBaselineRequest, v1.SetEvaluationRunBaselineResponse]
 	archiveEvaluationRun     *connect.Client[v1.ArchiveEvaluationRunRequest, v1.ArchiveEvaluationRunResponse]
+	createOnlineEvaluator    *connect.Client[v1.CreateOnlineEvaluatorRequest, v1.CreateOnlineEvaluatorResponse]
+	getOnlineEvaluator       *connect.Client[v1.GetOnlineEvaluatorRequest, v1.GetOnlineEvaluatorResponse]
+	listOnlineEvaluators     *connect.Client[v1.ListOnlineEvaluatorsRequest, v1.ListOnlineEvaluatorsResponse]
+	updateOnlineEvaluator    *connect.Client[v1.UpdateOnlineEvaluatorRequest, v1.UpdateOnlineEvaluatorResponse]
+	deleteOnlineEvaluator    *connect.Client[v1.DeleteOnlineEvaluatorRequest, v1.DeleteOnlineEvaluatorResponse]
 }
 
 // CreateEvaluationSuite calls chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite.
@@ -280,6 +338,31 @@ func (c *evaluationServiceClient) ArchiveEvaluationRun(ctx context.Context, req 
 	return c.archiveEvaluationRun.CallUnary(ctx, req)
 }
 
+// CreateOnlineEvaluator calls chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator.
+func (c *evaluationServiceClient) CreateOnlineEvaluator(ctx context.Context, req *connect.Request[v1.CreateOnlineEvaluatorRequest]) (*connect.Response[v1.CreateOnlineEvaluatorResponse], error) {
+	return c.createOnlineEvaluator.CallUnary(ctx, req)
+}
+
+// GetOnlineEvaluator calls chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator.
+func (c *evaluationServiceClient) GetOnlineEvaluator(ctx context.Context, req *connect.Request[v1.GetOnlineEvaluatorRequest]) (*connect.Response[v1.GetOnlineEvaluatorResponse], error) {
+	return c.getOnlineEvaluator.CallUnary(ctx, req)
+}
+
+// ListOnlineEvaluators calls chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators.
+func (c *evaluationServiceClient) ListOnlineEvaluators(ctx context.Context, req *connect.Request[v1.ListOnlineEvaluatorsRequest]) (*connect.Response[v1.ListOnlineEvaluatorsResponse], error) {
+	return c.listOnlineEvaluators.CallUnary(ctx, req)
+}
+
+// UpdateOnlineEvaluator calls chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator.
+func (c *evaluationServiceClient) UpdateOnlineEvaluator(ctx context.Context, req *connect.Request[v1.UpdateOnlineEvaluatorRequest]) (*connect.Response[v1.UpdateOnlineEvaluatorResponse], error) {
+	return c.updateOnlineEvaluator.CallUnary(ctx, req)
+}
+
+// DeleteOnlineEvaluator calls chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator.
+func (c *evaluationServiceClient) DeleteOnlineEvaluator(ctx context.Context, req *connect.Request[v1.DeleteOnlineEvaluatorRequest]) (*connect.Response[v1.DeleteOnlineEvaluatorResponse], error) {
+	return c.deleteOnlineEvaluator.CallUnary(ctx, req)
+}
+
 // EvaluationServiceHandler is an implementation of the chalk.evaluation.v1.EvaluationService
 // service.
 type EvaluationServiceHandler interface {
@@ -302,6 +385,11 @@ type EvaluationServiceHandler interface {
 	ListEvaluationRuns(context.Context, *connect.Request[v1.ListEvaluationRunsRequest]) (*connect.Response[v1.ListEvaluationRunsResponse], error)
 	SetEvaluationRunBaseline(context.Context, *connect.Request[v1.SetEvaluationRunBaselineRequest]) (*connect.Response[v1.SetEvaluationRunBaselineResponse], error)
 	ArchiveEvaluationRun(context.Context, *connect.Request[v1.ArchiveEvaluationRunRequest]) (*connect.Response[v1.ArchiveEvaluationRunResponse], error)
+	CreateOnlineEvaluator(context.Context, *connect.Request[v1.CreateOnlineEvaluatorRequest]) (*connect.Response[v1.CreateOnlineEvaluatorResponse], error)
+	GetOnlineEvaluator(context.Context, *connect.Request[v1.GetOnlineEvaluatorRequest]) (*connect.Response[v1.GetOnlineEvaluatorResponse], error)
+	ListOnlineEvaluators(context.Context, *connect.Request[v1.ListOnlineEvaluatorsRequest]) (*connect.Response[v1.ListOnlineEvaluatorsResponse], error)
+	UpdateOnlineEvaluator(context.Context, *connect.Request[v1.UpdateOnlineEvaluatorRequest]) (*connect.Response[v1.UpdateOnlineEvaluatorResponse], error)
+	DeleteOnlineEvaluator(context.Context, *connect.Request[v1.DeleteOnlineEvaluatorRequest]) (*connect.Response[v1.DeleteOnlineEvaluatorResponse], error)
 }
 
 // NewEvaluationServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -398,6 +486,39 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	evaluationServiceCreateOnlineEvaluatorHandler := connect.NewUnaryHandler(
+		EvaluationServiceCreateOnlineEvaluatorProcedure,
+		svc.CreateOnlineEvaluator,
+		connect.WithSchema(evaluationServiceMethods.ByName("CreateOnlineEvaluator")),
+		connect.WithHandlerOptions(opts...),
+	)
+	evaluationServiceGetOnlineEvaluatorHandler := connect.NewUnaryHandler(
+		EvaluationServiceGetOnlineEvaluatorProcedure,
+		svc.GetOnlineEvaluator,
+		connect.WithSchema(evaluationServiceMethods.ByName("GetOnlineEvaluator")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	evaluationServiceListOnlineEvaluatorsHandler := connect.NewUnaryHandler(
+		EvaluationServiceListOnlineEvaluatorsProcedure,
+		svc.ListOnlineEvaluators,
+		connect.WithSchema(evaluationServiceMethods.ByName("ListOnlineEvaluators")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	evaluationServiceUpdateOnlineEvaluatorHandler := connect.NewUnaryHandler(
+		EvaluationServiceUpdateOnlineEvaluatorProcedure,
+		svc.UpdateOnlineEvaluator,
+		connect.WithSchema(evaluationServiceMethods.ByName("UpdateOnlineEvaluator")),
+		connect.WithHandlerOptions(opts...),
+	)
+	evaluationServiceDeleteOnlineEvaluatorHandler := connect.NewUnaryHandler(
+		EvaluationServiceDeleteOnlineEvaluatorProcedure,
+		svc.DeleteOnlineEvaluator,
+		connect.WithSchema(evaluationServiceMethods.ByName("DeleteOnlineEvaluator")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.evaluation.v1.EvaluationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case EvaluationServiceCreateEvaluationSuiteProcedure:
@@ -426,6 +547,16 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 			evaluationServiceSetEvaluationRunBaselineHandler.ServeHTTP(w, r)
 		case EvaluationServiceArchiveEvaluationRunProcedure:
 			evaluationServiceArchiveEvaluationRunHandler.ServeHTTP(w, r)
+		case EvaluationServiceCreateOnlineEvaluatorProcedure:
+			evaluationServiceCreateOnlineEvaluatorHandler.ServeHTTP(w, r)
+		case EvaluationServiceGetOnlineEvaluatorProcedure:
+			evaluationServiceGetOnlineEvaluatorHandler.ServeHTTP(w, r)
+		case EvaluationServiceListOnlineEvaluatorsProcedure:
+			evaluationServiceListOnlineEvaluatorsHandler.ServeHTTP(w, r)
+		case EvaluationServiceUpdateOnlineEvaluatorProcedure:
+			evaluationServiceUpdateOnlineEvaluatorHandler.ServeHTTP(w, r)
+		case EvaluationServiceDeleteOnlineEvaluatorProcedure:
+			evaluationServiceDeleteOnlineEvaluatorHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -485,4 +616,24 @@ func (UnimplementedEvaluationServiceHandler) SetEvaluationRunBaseline(context.Co
 
 func (UnimplementedEvaluationServiceHandler) ArchiveEvaluationRun(context.Context, *connect.Request[v1.ArchiveEvaluationRunRequest]) (*connect.Response[v1.ArchiveEvaluationRunResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) CreateOnlineEvaluator(context.Context, *connect.Request[v1.CreateOnlineEvaluatorRequest]) (*connect.Response[v1.CreateOnlineEvaluatorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) GetOnlineEvaluator(context.Context, *connect.Request[v1.GetOnlineEvaluatorRequest]) (*connect.Response[v1.GetOnlineEvaluatorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) ListOnlineEvaluators(context.Context, *connect.Request[v1.ListOnlineEvaluatorsRequest]) (*connect.Response[v1.ListOnlineEvaluatorsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) UpdateOnlineEvaluator(context.Context, *connect.Request[v1.UpdateOnlineEvaluatorRequest]) (*connect.Response[v1.UpdateOnlineEvaluatorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) DeleteOnlineEvaluator(context.Context, *connect.Request[v1.DeleteOnlineEvaluatorRequest]) (*connect.Response[v1.DeleteOnlineEvaluatorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator is not implemented"))
 }

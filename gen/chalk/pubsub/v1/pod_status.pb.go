@@ -71,9 +71,9 @@ type PodStatusPubSub struct {
 	// pod.Annotations
 	Annotations map[string]string `protobuf:"bytes,22,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Cluster     string            `protobuf:"bytes,23,opt,name=cluster,proto3" json:"cluster,omitempty"`
-	// // node.UID
+	//  // node.UID
 	Uid string `protobuf:"bytes,24,opt,name=uid,proto3" json:"uid,omitempty"`
-	// // node.Name
+	//  // node.Name
 	Name          string `protobuf:"bytes,25,opt,name=name,proto3" json:"name,omitempty"`
 	Namespace     string `protobuf:"bytes,26,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	unknownFields protoimpl.UnknownFields

@@ -1,0 +1,1 @@
+- Sync generated Go protobuf and Connect bindings with chalk-private dev at 353b87d7864.

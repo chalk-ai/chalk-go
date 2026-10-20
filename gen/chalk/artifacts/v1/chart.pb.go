@@ -207,6 +207,10 @@ const (
 	MetricKind_METRIC_KIND_MODEL_TRAINING_GRAD_NORM       MetricKind = 151
 	MetricKind_METRIC_KIND_MODEL_TRAINING_LEARNING_RATE   MetricKind = 152
 	MetricKind_METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH MetricKind = 153
+	// Divergence between the policy that sampled the rollouts and the policy being trained,
+	// measured on the sampled tokens. Not a KL penalty: it reports how far off-policy an
+	// asynchronous RL step is.
+	MetricKind_METRIC_KIND_MODEL_TRAINING_MISMATCH_KL MetricKind = 169
 	// Sandbox lifecycle metrics combine the available Kubernetes and hypervisor telemetry.
 	MetricKind_METRIC_KIND_SANDBOX_STATE_COUNT     MetricKind = 154
 	MetricKind_METRIC_KIND_SANDBOX_STARTUP_LATENCY MetricKind = 155
@@ -393,6 +397,7 @@ var (
 		151: "METRIC_KIND_MODEL_TRAINING_GRAD_NORM",
 		152: "METRIC_KIND_MODEL_TRAINING_LEARNING_RATE",
 		153: "METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH",
+		169: "METRIC_KIND_MODEL_TRAINING_MISMATCH_KL",
 		154: "METRIC_KIND_SANDBOX_STATE_COUNT",
 		155: "METRIC_KIND_SANDBOX_STARTUP_LATENCY",
 		156: "METRIC_KIND_SANDBOX_MEMORY_USED_BYTES",
@@ -564,6 +569,7 @@ var (
 		"METRIC_KIND_MODEL_TRAINING_GRAD_NORM":                151,
 		"METRIC_KIND_MODEL_TRAINING_LEARNING_RATE":            152,
 		"METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH":          153,
+		"METRIC_KIND_MODEL_TRAINING_MISMATCH_KL":              169,
 		"METRIC_KIND_SANDBOX_STATE_COUNT":                     154,
 		"METRIC_KIND_SANDBOX_STARTUP_LATENCY":                 155,
 		"METRIC_KIND_SANDBOX_MEMORY_USED_BYTES":               156,
@@ -2419,7 +2425,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xda7\n" +
+	"_entity_id*\x878\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2576,7 +2582,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"METRIC_KIND_MODEL_TRAINING_ENTROPY\x10\x96\x01\x12)\n" +
 	"$METRIC_KIND_MODEL_TRAINING_GRAD_NORM\x10\x97\x01\x12-\n" +
 	"(METRIC_KIND_MODEL_TRAINING_LEARNING_RATE\x10\x98\x01\x12/\n" +
-	"*METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH\x10\x99\x01\x12$\n" +
+	"*METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH\x10\x99\x01\x12+\n" +
+	"&METRIC_KIND_MODEL_TRAINING_MISMATCH_KL\x10\xa9\x01\x12$\n" +
 	"\x1fMETRIC_KIND_SANDBOX_STATE_COUNT\x10\x9a\x01\x12(\n" +
 	"#METRIC_KIND_SANDBOX_STARTUP_LATENCY\x10\x9b\x01\x12*\n" +
 	"%METRIC_KIND_SANDBOX_MEMORY_USED_BYTES\x10\x9c\x01\x12(\n" +
