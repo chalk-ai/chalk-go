@@ -440,6 +440,91 @@ func (x *BigQueryOfflineStorageDetails) GetLocation() string {
 	return ""
 }
 
+type OfflineStorageDetails struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// TODO eventually we'll need some way to distinguish different offline stores, such as a name
+	// Currently we don't support multiple offline stores so fine to omit for now
+	//
+	// Types that are valid to be assigned to Details:
+	//
+	//	*OfflineStorageDetails_Snowflake
+	//	*OfflineStorageDetails_Bigquery
+	Details       isOfflineStorageDetails_Details `protobuf_oneof:"details"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OfflineStorageDetails) Reset() {
+	*x = OfflineStorageDetails{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OfflineStorageDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OfflineStorageDetails) ProtoMessage() {}
+
+func (x *OfflineStorageDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OfflineStorageDetails.ProtoReflect.Descriptor instead.
+func (*OfflineStorageDetails) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *OfflineStorageDetails) GetDetails() isOfflineStorageDetails_Details {
+	if x != nil {
+		return x.Details
+	}
+	return nil
+}
+
+func (x *OfflineStorageDetails) GetSnowflake() *SnowflakeOfflineStorageDetails {
+	if x != nil {
+		if x, ok := x.Details.(*OfflineStorageDetails_Snowflake); ok {
+			return x.Snowflake
+		}
+	}
+	return nil
+}
+
+func (x *OfflineStorageDetails) GetBigquery() *BigQueryOfflineStorageDetails {
+	if x != nil {
+		if x, ok := x.Details.(*OfflineStorageDetails_Bigquery); ok {
+			return x.Bigquery
+		}
+	}
+	return nil
+}
+
+type isOfflineStorageDetails_Details interface {
+	isOfflineStorageDetails_Details()
+}
+
+type OfflineStorageDetails_Snowflake struct {
+	Snowflake *SnowflakeOfflineStorageDetails `protobuf:"bytes,1,opt,name=snowflake,proto3,oneof"`
+}
+
+type OfflineStorageDetails_Bigquery struct {
+	Bigquery *BigQueryOfflineStorageDetails `protobuf:"bytes,2,opt,name=bigquery,proto3,oneof"` // IcebergOfflineStorageDetails iceberg = 3;
+}
+
+func (*OfflineStorageDetails_Snowflake) isOfflineStorageDetails_Details() {}
+
+func (*OfflineStorageDetails_Bigquery) isOfflineStorageDetails_Details() {}
+
 type GetMetricsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Total bytes of the per-feature observation (feat_*) tables of every offline-store feature.
@@ -481,7 +566,7 @@ type GetMetricsResponse struct {
 
 func (x *GetMetricsResponse) Reset() {
 	*x = GetMetricsResponse{}
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[7]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -493,7 +578,7 @@ func (x *GetMetricsResponse) String() string {
 func (*GetMetricsResponse) ProtoMessage() {}
 
 func (x *GetMetricsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[7]
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,7 +591,7 @@ func (x *GetMetricsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetricsResponse.ProtoReflect.Descriptor instead.
 func (*GetMetricsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{7}
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetMetricsResponse) GetSkinnyTablesBytes() uint64 {
@@ -620,6 +705,493 @@ func (*GetMetricsResponse_Snowflake) isGetMetricsResponse_Details() {}
 
 func (*GetMetricsResponse_Bigquery) isGetMetricsResponse_Details() {}
 
+// Optional here means the data is not available, to distinguish from the value 0.
+type AggregateOfflineStoreStorageStats struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	SkinnyTablesBytes *uint64                `protobuf:"varint,1,opt,name=skinny_tables_bytes,json=skinnyTablesBytes,proto3,oneof" json:"skinny_tables_bytes,omitempty"`
+	// Subset of the above, bytes attributed to skinny tables not backed by a MaterializedFeatureView
+	NonMfvSkinnyTablesBytes *uint64 `protobuf:"varint,2,opt,name=non_mfv_skinny_tables_bytes,json=nonMfvSkinnyTablesBytes,proto3,oneof" json:"non_mfv_skinny_tables_bytes,omitempty"`
+	WideTablesBytes         *uint64 `protobuf:"varint,3,opt,name=wide_tables_bytes,json=wideTablesBytes,proto3,oneof" json:"wide_tables_bytes,omitempty"`
+	WideMappingTableBytes   *uint64 `protobuf:"varint,4,opt,name=wide_mapping_table_bytes,json=wideMappingTableBytes,proto3,oneof" json:"wide_mapping_table_bytes,omitempty"`
+	QueryLogBytes           *uint64 `protobuf:"varint,5,opt,name=query_log_bytes,json=queryLogBytes,proto3,oneof" json:"query_log_bytes,omitempty"`
+	QueryValuesBytes        *uint64 `protobuf:"varint,6,opt,name=query_values_bytes,json=queryValuesBytes,proto3,oneof" json:"query_values_bytes,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *AggregateOfflineStoreStorageStats) Reset() {
+	*x = AggregateOfflineStoreStorageStats{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AggregateOfflineStoreStorageStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AggregateOfflineStoreStorageStats) ProtoMessage() {}
+
+func (x *AggregateOfflineStoreStorageStats) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AggregateOfflineStoreStorageStats.ProtoReflect.Descriptor instead.
+func (*AggregateOfflineStoreStorageStats) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetSkinnyTablesBytes() uint64 {
+	if x != nil && x.SkinnyTablesBytes != nil {
+		return *x.SkinnyTablesBytes
+	}
+	return 0
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetNonMfvSkinnyTablesBytes() uint64 {
+	if x != nil && x.NonMfvSkinnyTablesBytes != nil {
+		return *x.NonMfvSkinnyTablesBytes
+	}
+	return 0
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetWideTablesBytes() uint64 {
+	if x != nil && x.WideTablesBytes != nil {
+		return *x.WideTablesBytes
+	}
+	return 0
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetWideMappingTableBytes() uint64 {
+	if x != nil && x.WideMappingTableBytes != nil {
+		return *x.WideMappingTableBytes
+	}
+	return 0
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetQueryLogBytes() uint64 {
+	if x != nil && x.QueryLogBytes != nil {
+		return *x.QueryLogBytes
+	}
+	return 0
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetQueryValuesBytes() uint64 {
+	if x != nil && x.QueryValuesBytes != nil {
+		return *x.QueryValuesBytes
+	}
+	return 0
+}
+
+// 'Configuration' info that only changes at chalk apply / can be derived from the proto graph + chalk internal information
+// i.e. you don't have to hit bigquery/snowflake to get this info
+type WideTableConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Actual name of the table in the data warehouse
+	TableName         string  `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
+	FeatureNamespace  *string `protobuf:"bytes,2,opt,name=feature_namespace,json=featureNamespace,proto3,oneof" json:"feature_namespace,omitempty"`
+	ConfigFingerprint *int64  `protobuf:"varint,3,opt,name=config_fingerprint,json=configFingerprint,proto3,oneof" json:"config_fingerprint,omitempty"`
+	FeatureCount      *int64  `protobuf:"varint,4,opt,name=feature_count,json=featureCount,proto3,oneof" json:"feature_count,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *WideTableConfig) Reset() {
+	*x = WideTableConfig{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WideTableConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WideTableConfig) ProtoMessage() {}
+
+func (x *WideTableConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WideTableConfig.ProtoReflect.Descriptor instead.
+func (*WideTableConfig) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *WideTableConfig) GetTableName() string {
+	if x != nil {
+		return x.TableName
+	}
+	return ""
+}
+
+func (x *WideTableConfig) GetFeatureNamespace() string {
+	if x != nil && x.FeatureNamespace != nil {
+		return *x.FeatureNamespace
+	}
+	return ""
+}
+
+func (x *WideTableConfig) GetConfigFingerprint() int64 {
+	if x != nil && x.ConfigFingerprint != nil {
+		return *x.ConfigFingerprint
+	}
+	return 0
+}
+
+func (x *WideTableConfig) GetFeatureCount() int64 {
+	if x != nil && x.FeatureCount != nil {
+		return *x.FeatureCount
+	}
+	return 0
+}
+
+// Information that's owned by the warehouse, i.e. you need to hit Bigquery/Snowflake to get this info
+type WideTableStats struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The physical partitioning column, e.g. "observed_at". Unset when the table has no explicit
+	// partitioning column, including every Snowflake table (automatic micro-partitioning).
+	PartitionedBy *string `protobuf:"bytes,3,opt,name=partitioned_by,json=partitionedBy,proto3,oneof" json:"partitioned_by,omitempty"`
+	// The ordered clustering columns, e.g. ["pkey", "observed_at", "inserted_at"]. Empty when none.
+	ClusteredBy   []string               `protobuf:"bytes,4,rep,name=clustered_by,json=clusteredBy,proto3" json:"clustered_by,omitempty"`
+	SizeBytes     *uint64                `protobuf:"varint,5,opt,name=size_bytes,json=sizeBytes,proto3,oneof" json:"size_bytes,omitempty"`
+	RowCount      *uint64                `protobuf:"varint,6,opt,name=row_count,json=rowCount,proto3,oneof" json:"row_count,omitempty"`
+	MinObservedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=min_observed_at,json=minObservedAt,proto3,oneof" json:"min_observed_at,omitempty"`
+	MaxObservedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=max_observed_at,json=maxObservedAt,proto3,oneof" json:"max_observed_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WideTableStats) Reset() {
+	*x = WideTableStats{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WideTableStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WideTableStats) ProtoMessage() {}
+
+func (x *WideTableStats) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WideTableStats.ProtoReflect.Descriptor instead.
+func (*WideTableStats) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *WideTableStats) GetPartitionedBy() string {
+	if x != nil && x.PartitionedBy != nil {
+		return *x.PartitionedBy
+	}
+	return ""
+}
+
+func (x *WideTableStats) GetClusteredBy() []string {
+	if x != nil {
+		return x.ClusteredBy
+	}
+	return nil
+}
+
+func (x *WideTableStats) GetSizeBytes() uint64 {
+	if x != nil && x.SizeBytes != nil {
+		return *x.SizeBytes
+	}
+	return 0
+}
+
+func (x *WideTableStats) GetRowCount() uint64 {
+	if x != nil && x.RowCount != nil {
+		return *x.RowCount
+	}
+	return 0
+}
+
+func (x *WideTableStats) GetMinObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.MinObservedAt
+	}
+	return nil
+}
+
+func (x *WideTableStats) GetMaxObservedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.MaxObservedAt
+	}
+	return nil
+}
+
+type WideTableInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Config        *WideTableConfig       `protobuf:"bytes,1,opt,name=config,proto3,oneof" json:"config,omitempty"`
+	Stats         *WideTableStats        `protobuf:"bytes,2,opt,name=stats,proto3,oneof" json:"stats,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WideTableInfo) Reset() {
+	*x = WideTableInfo{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WideTableInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WideTableInfo) ProtoMessage() {}
+
+func (x *WideTableInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WideTableInfo.ProtoReflect.Descriptor instead.
+func (*WideTableInfo) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *WideTableInfo) GetConfig() *WideTableConfig {
+	if x != nil {
+		return x.Config
+	}
+	return nil
+}
+
+func (x *WideTableInfo) GetStats() *WideTableStats {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
+type PollMetricsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Which fields to poll
+	// Corresponds to fields in `chalk.engine.v3.GetMetricsResponse`
+	PollMask      *fieldmaskpb.FieldMask `protobuf:"bytes,1,opt,name=poll_mask,json=pollMask,proto3,oneof" json:"poll_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PollMetricsRequest) Reset() {
+	*x = PollMetricsRequest{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PollMetricsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PollMetricsRequest) ProtoMessage() {}
+
+func (x *PollMetricsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PollMetricsRequest.ProtoReflect.Descriptor instead.
+func (*PollMetricsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *PollMetricsRequest) GetPollMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.PollMask
+	}
+	return nil
+}
+
+type PollMetricsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PollMetricsResponse) Reset() {
+	*x = PollMetricsResponse{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PollMetricsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PollMetricsResponse) ProtoMessage() {}
+
+func (x *PollMetricsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PollMetricsResponse.ProtoReflect.Descriptor instead.
+func (*PollMetricsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{14}
+}
+
+type GetMetricsV2Request struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Field mask for which fields are returned in the response. Less important than for PollMetrics
+	// because these should be cheap.
+	ReadMask      *fieldmaskpb.FieldMask `protobuf:"bytes,1,opt,name=read_mask,json=readMask,proto3,oneof" json:"read_mask,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMetricsV2Request) Reset() {
+	*x = GetMetricsV2Request{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMetricsV2Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMetricsV2Request) ProtoMessage() {}
+
+func (x *GetMetricsV2Request) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMetricsV2Request.ProtoReflect.Descriptor instead.
+func (*GetMetricsV2Request) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetMetricsV2Request) GetReadMask() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.ReadMask
+	}
+	return nil
+}
+
+type GetMetricsV2Response struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// We'll probably eventually support multiple offline stores
+	StorageDetails  []*OfflineStorageDetails           `protobuf:"bytes,1,rep,name=storage_details,json=storageDetails,proto3" json:"storage_details,omitempty"`
+	AggregatedStats *AggregateOfflineStoreStorageStats `protobuf:"bytes,2,opt,name=aggregated_stats,json=aggregatedStats,proto3,oneof" json:"aggregated_stats,omitempty"`
+	// Keyed by namespace
+	NamespaceToWideTableInfo map[string]*WideTableInfo `protobuf:"bytes,3,rep,name=namespace_to_wide_table_info,json=namespaceToWideTableInfo,proto3" json:"namespace_to_wide_table_info,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *GetMetricsV2Response) Reset() {
+	*x = GetMetricsV2Response{}
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMetricsV2Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMetricsV2Response) ProtoMessage() {}
+
+func (x *GetMetricsV2Response) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMetricsV2Response.ProtoReflect.Descriptor instead.
+func (*GetMetricsV2Response) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetMetricsV2Response) GetStorageDetails() []*OfflineStorageDetails {
+	if x != nil {
+		return x.StorageDetails
+	}
+	return nil
+}
+
+func (x *GetMetricsV2Response) GetAggregatedStats() *AggregateOfflineStoreStorageStats {
+	if x != nil {
+		return x.AggregatedStats
+	}
+	return nil
+}
+
+func (x *GetMetricsV2Response) GetNamespaceToWideTableInfo() map[string]*WideTableInfo {
+	if x != nil {
+		return x.NamespaceToWideTableInfo
+	}
+	return nil
+}
+
 var File_chalk_engine_v2_offline_store_metrics_proto protoreflect.FileDescriptor
 
 const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
@@ -659,7 +1231,11 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\n" +
 	"dataset_id\x18\x02 \x01(\tR\tdatasetId\x12\x1f\n" +
 	"\blocation\x18\x03 \x01(\tH\x00R\blocation\x88\x01\x01B\v\n" +
-	"\t_location\"\xed\b\n" +
+	"\t_location\"\xc1\x01\n" +
+	"\x15OfflineStorageDetails\x12O\n" +
+	"\tsnowflake\x18\x01 \x01(\v2/.chalk.engine.v2.SnowflakeOfflineStorageDetailsH\x00R\tsnowflake\x12L\n" +
+	"\bbigquery\x18\x02 \x01(\v2..chalk.engine.v2.BigQueryOfflineStorageDetailsH\x00R\bbigqueryB\t\n" +
+	"\adetails\"\xed\b\n" +
 	"\x12GetMetricsResponse\x123\n" +
 	"\x13skinny_tables_bytes\x18\x01 \x01(\x04H\x01R\x11skinnyTablesBytes\x88\x01\x01\x12/\n" +
 	"\x11wide_tables_bytes\x18\x02 \x01(\x04H\x02R\x0fwideTablesBytes\x88\x01\x01\x12<\n" +
@@ -680,7 +1256,65 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\x19_wide_mapping_table_bytesB%\n" +
 	"#_non_mfv_backed_skinny_tables_bytesB\x12\n" +
 	"\x10_query_log_bytesB\x15\n" +
-	"\x13_query_values_bytesB\xc8\x01\n" +
+	"\x13_query_values_bytes\"\x80\x04\n" +
+	"!AggregateOfflineStoreStorageStats\x123\n" +
+	"\x13skinny_tables_bytes\x18\x01 \x01(\x04H\x00R\x11skinnyTablesBytes\x88\x01\x01\x12A\n" +
+	"\x1bnon_mfv_skinny_tables_bytes\x18\x02 \x01(\x04H\x01R\x17nonMfvSkinnyTablesBytes\x88\x01\x01\x12/\n" +
+	"\x11wide_tables_bytes\x18\x03 \x01(\x04H\x02R\x0fwideTablesBytes\x88\x01\x01\x12<\n" +
+	"\x18wide_mapping_table_bytes\x18\x04 \x01(\x04H\x03R\x15wideMappingTableBytes\x88\x01\x01\x12+\n" +
+	"\x0fquery_log_bytes\x18\x05 \x01(\x04H\x04R\rqueryLogBytes\x88\x01\x01\x121\n" +
+	"\x12query_values_bytes\x18\x06 \x01(\x04H\x05R\x10queryValuesBytes\x88\x01\x01B\x16\n" +
+	"\x14_skinny_tables_bytesB\x1e\n" +
+	"\x1c_non_mfv_skinny_tables_bytesB\x14\n" +
+	"\x12_wide_tables_bytesB\x1b\n" +
+	"\x19_wide_mapping_table_bytesB\x12\n" +
+	"\x10_query_log_bytesB\x15\n" +
+	"\x13_query_values_bytes\"\xff\x01\n" +
+	"\x0fWideTableConfig\x12\x1d\n" +
+	"\n" +
+	"table_name\x18\x01 \x01(\tR\ttableName\x120\n" +
+	"\x11feature_namespace\x18\x02 \x01(\tH\x00R\x10featureNamespace\x88\x01\x01\x122\n" +
+	"\x12config_fingerprint\x18\x03 \x01(\x03H\x01R\x11configFingerprint\x88\x01\x01\x12(\n" +
+	"\rfeature_count\x18\x04 \x01(\x03H\x02R\ffeatureCount\x88\x01\x01B\x14\n" +
+	"\x12_feature_namespaceB\x15\n" +
+	"\x13_config_fingerprintB\x10\n" +
+	"\x0e_feature_count\"\x8f\x03\n" +
+	"\x0eWideTableStats\x12*\n" +
+	"\x0epartitioned_by\x18\x03 \x01(\tH\x00R\rpartitionedBy\x88\x01\x01\x12!\n" +
+	"\fclustered_by\x18\x04 \x03(\tR\vclusteredBy\x12\"\n" +
+	"\n" +
+	"size_bytes\x18\x05 \x01(\x04H\x01R\tsizeBytes\x88\x01\x01\x12 \n" +
+	"\trow_count\x18\x06 \x01(\x04H\x02R\browCount\x88\x01\x01\x12G\n" +
+	"\x0fmin_observed_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x03R\rminObservedAt\x88\x01\x01\x12G\n" +
+	"\x0fmax_observed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x04R\rmaxObservedAt\x88\x01\x01B\x11\n" +
+	"\x0f_partitioned_byB\r\n" +
+	"\v_size_bytesB\f\n" +
+	"\n" +
+	"_row_countB\x12\n" +
+	"\x10_min_observed_atB\x12\n" +
+	"\x10_max_observed_at\"\x9f\x01\n" +
+	"\rWideTableInfo\x12=\n" +
+	"\x06config\x18\x01 \x01(\v2 .chalk.engine.v2.WideTableConfigH\x00R\x06config\x88\x01\x01\x12:\n" +
+	"\x05stats\x18\x02 \x01(\v2\x1f.chalk.engine.v2.WideTableStatsH\x01R\x05stats\x88\x01\x01B\t\n" +
+	"\a_configB\b\n" +
+	"\x06_stats\"`\n" +
+	"\x12PollMetricsRequest\x12<\n" +
+	"\tpoll_mask\x18\x01 \x01(\v2\x1a.google.protobuf.FieldMaskH\x00R\bpollMask\x88\x01\x01B\f\n" +
+	"\n" +
+	"_poll_mask\"\x15\n" +
+	"\x13PollMetricsResponse\"a\n" +
+	"\x13GetMetricsV2Request\x12<\n" +
+	"\tread_mask\x18\x01 \x01(\v2\x1a.google.protobuf.FieldMaskH\x00R\breadMask\x88\x01\x01B\f\n" +
+	"\n" +
+	"_read_mask\"\xd3\x03\n" +
+	"\x14GetMetricsV2Response\x12O\n" +
+	"\x0fstorage_details\x18\x01 \x03(\v2&.chalk.engine.v2.OfflineStorageDetailsR\x0estorageDetails\x12b\n" +
+	"\x10aggregated_stats\x18\x02 \x01(\v22.chalk.engine.v2.AggregateOfflineStoreStorageStatsH\x00R\x0faggregatedStats\x88\x01\x01\x12\x83\x01\n" +
+	"\x1cnamespace_to_wide_table_info\x18\x03 \x03(\v2C.chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntryR\x18namespaceToWideTableInfo\x1ak\n" +
+	"\x1dNamespaceToWideTableInfoEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x124\n" +
+	"\x05value\x18\x02 \x01(\v2\x1e.chalk.engine.v2.WideTableInfoR\x05value:\x028\x01B\x13\n" +
+	"\x11_aggregated_statsB\xc8\x01\n" +
 	"\x13com.chalk.engine.v2B\x18OfflineStoreMetricsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/engine/v2;enginev2\xa2\x02\x03CEX\xaa\x02\x0fChalk.Engine.V2\xca\x02\x0fChalk\\Engine\\V2\xe2\x02\x1bChalk\\Engine\\V2\\GPBMetadata\xea\x02\x11Chalk::Engine::V2b\x06proto3"
 
 var (
@@ -695,7 +1329,7 @@ func file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP() []byte {
 	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescData
 }
 
-var file_chalk_engine_v2_offline_store_metrics_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_engine_v2_offline_store_metrics_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_chalk_engine_v2_offline_store_metrics_proto_goTypes = []any{
 	(*GetMetricsRequest)(nil),                   // 0: chalk.engine.v2.GetMetricsRequest
 	(*WideTableLayout)(nil),                     // 1: chalk.engine.v2.WideTableLayout
@@ -704,25 +1338,47 @@ var file_chalk_engine_v2_offline_store_metrics_proto_goTypes = []any{
 	(*NamespaceWideTableConfigFingerprint)(nil), // 4: chalk.engine.v2.NamespaceWideTableConfigFingerprint
 	(*SnowflakeOfflineStorageDetails)(nil),      // 5: chalk.engine.v2.SnowflakeOfflineStorageDetails
 	(*BigQueryOfflineStorageDetails)(nil),       // 6: chalk.engine.v2.BigQueryOfflineStorageDetails
-	(*GetMetricsResponse)(nil),                  // 7: chalk.engine.v2.GetMetricsResponse
-	(*fieldmaskpb.FieldMask)(nil),               // 8: google.protobuf.FieldMask
-	(*timestamppb.Timestamp)(nil),               // 9: google.protobuf.Timestamp
+	(*OfflineStorageDetails)(nil),               // 7: chalk.engine.v2.OfflineStorageDetails
+	(*GetMetricsResponse)(nil),                  // 8: chalk.engine.v2.GetMetricsResponse
+	(*AggregateOfflineStoreStorageStats)(nil),   // 9: chalk.engine.v2.AggregateOfflineStoreStorageStats
+	(*WideTableConfig)(nil),                     // 10: chalk.engine.v2.WideTableConfig
+	(*WideTableStats)(nil),                      // 11: chalk.engine.v2.WideTableStats
+	(*WideTableInfo)(nil),                       // 12: chalk.engine.v2.WideTableInfo
+	(*PollMetricsRequest)(nil),                  // 13: chalk.engine.v2.PollMetricsRequest
+	(*PollMetricsResponse)(nil),                 // 14: chalk.engine.v2.PollMetricsResponse
+	(*GetMetricsV2Request)(nil),                 // 15: chalk.engine.v2.GetMetricsV2Request
+	(*GetMetricsV2Response)(nil),                // 16: chalk.engine.v2.GetMetricsV2Response
+	nil,                                         // 17: chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry
+	(*fieldmaskpb.FieldMask)(nil),               // 18: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),               // 19: google.protobuf.Timestamp
 }
 var file_chalk_engine_v2_offline_store_metrics_proto_depIdxs = []int32{
-	8, // 0: chalk.engine.v2.GetMetricsRequest.read_mask:type_name -> google.protobuf.FieldMask
-	9, // 1: chalk.engine.v2.NamespaceObservedAtRange.min_observed_at:type_name -> google.protobuf.Timestamp
-	9, // 2: chalk.engine.v2.NamespaceObservedAtRange.max_observed_at:type_name -> google.protobuf.Timestamp
-	5, // 3: chalk.engine.v2.GetMetricsResponse.snowflake:type_name -> chalk.engine.v2.SnowflakeOfflineStorageDetails
-	6, // 4: chalk.engine.v2.GetMetricsResponse.bigquery:type_name -> chalk.engine.v2.BigQueryOfflineStorageDetails
-	2, // 5: chalk.engine.v2.GetMetricsResponse.namespace_observed_at_ranges:type_name -> chalk.engine.v2.NamespaceObservedAtRange
-	3, // 6: chalk.engine.v2.GetMetricsResponse.namespace_wide_table_row_counts:type_name -> chalk.engine.v2.NamespaceWideTableRowCount
-	1, // 7: chalk.engine.v2.GetMetricsResponse.wide_table_layouts:type_name -> chalk.engine.v2.WideTableLayout
-	4, // 8: chalk.engine.v2.GetMetricsResponse.namespace_wide_table_config_fingerprints:type_name -> chalk.engine.v2.NamespaceWideTableConfigFingerprint
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	18, // 0: chalk.engine.v2.GetMetricsRequest.read_mask:type_name -> google.protobuf.FieldMask
+	19, // 1: chalk.engine.v2.NamespaceObservedAtRange.min_observed_at:type_name -> google.protobuf.Timestamp
+	19, // 2: chalk.engine.v2.NamespaceObservedAtRange.max_observed_at:type_name -> google.protobuf.Timestamp
+	5,  // 3: chalk.engine.v2.OfflineStorageDetails.snowflake:type_name -> chalk.engine.v2.SnowflakeOfflineStorageDetails
+	6,  // 4: chalk.engine.v2.OfflineStorageDetails.bigquery:type_name -> chalk.engine.v2.BigQueryOfflineStorageDetails
+	5,  // 5: chalk.engine.v2.GetMetricsResponse.snowflake:type_name -> chalk.engine.v2.SnowflakeOfflineStorageDetails
+	6,  // 6: chalk.engine.v2.GetMetricsResponse.bigquery:type_name -> chalk.engine.v2.BigQueryOfflineStorageDetails
+	2,  // 7: chalk.engine.v2.GetMetricsResponse.namespace_observed_at_ranges:type_name -> chalk.engine.v2.NamespaceObservedAtRange
+	3,  // 8: chalk.engine.v2.GetMetricsResponse.namespace_wide_table_row_counts:type_name -> chalk.engine.v2.NamespaceWideTableRowCount
+	1,  // 9: chalk.engine.v2.GetMetricsResponse.wide_table_layouts:type_name -> chalk.engine.v2.WideTableLayout
+	4,  // 10: chalk.engine.v2.GetMetricsResponse.namespace_wide_table_config_fingerprints:type_name -> chalk.engine.v2.NamespaceWideTableConfigFingerprint
+	19, // 11: chalk.engine.v2.WideTableStats.min_observed_at:type_name -> google.protobuf.Timestamp
+	19, // 12: chalk.engine.v2.WideTableStats.max_observed_at:type_name -> google.protobuf.Timestamp
+	10, // 13: chalk.engine.v2.WideTableInfo.config:type_name -> chalk.engine.v2.WideTableConfig
+	11, // 14: chalk.engine.v2.WideTableInfo.stats:type_name -> chalk.engine.v2.WideTableStats
+	18, // 15: chalk.engine.v2.PollMetricsRequest.poll_mask:type_name -> google.protobuf.FieldMask
+	18, // 16: chalk.engine.v2.GetMetricsV2Request.read_mask:type_name -> google.protobuf.FieldMask
+	7,  // 17: chalk.engine.v2.GetMetricsV2Response.storage_details:type_name -> chalk.engine.v2.OfflineStorageDetails
+	9,  // 18: chalk.engine.v2.GetMetricsV2Response.aggregated_stats:type_name -> chalk.engine.v2.AggregateOfflineStoreStorageStats
+	17, // 19: chalk.engine.v2.GetMetricsV2Response.namespace_to_wide_table_info:type_name -> chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry
+	12, // 20: chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry.value:type_name -> chalk.engine.v2.WideTableInfo
+	21, // [21:21] is the sub-list for method output_type
+	21, // [21:21] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chalk_engine_v2_offline_store_metrics_proto_init() }
@@ -737,16 +1393,27 @@ func file_chalk_engine_v2_offline_store_metrics_proto_init() {
 	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[7].OneofWrappers = []any{
+		(*OfflineStorageDetails_Snowflake)(nil),
+		(*OfflineStorageDetails_Bigquery)(nil),
+	}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[8].OneofWrappers = []any{
 		(*GetMetricsResponse_Snowflake)(nil),
 		(*GetMetricsResponse_Bigquery)(nil),
 	}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[12].OneofWrappers = []any{}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_engine_v2_offline_store_metrics_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_engine_v2_offline_store_metrics_proto_rawDesc), len(file_chalk_engine_v2_offline_store_metrics_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

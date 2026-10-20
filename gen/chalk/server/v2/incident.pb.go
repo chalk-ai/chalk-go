@@ -212,6 +212,42 @@ func (*DataSourceIncidentBody) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v2_incident_proto_rawDescGZIP(), []int{4}
 }
 
+type FeatureDriftIncidentBody struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FeatureDriftIncidentBody) Reset() {
+	*x = FeatureDriftIncidentBody{}
+	mi := &file_chalk_server_v2_incident_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FeatureDriftIncidentBody) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FeatureDriftIncidentBody) ProtoMessage() {}
+
+func (x *FeatureDriftIncidentBody) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v2_incident_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FeatureDriftIncidentBody.ProtoReflect.Descriptor instead.
+func (*FeatureDriftIncidentBody) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v2_incident_proto_rawDescGZIP(), []int{5}
+}
+
 // supercedes chalk.server.v1.MetricIncident
 type MonitorIncident struct {
 	state          protoimpl.MessageState     `protogen:"open.v1"`
@@ -228,6 +264,7 @@ type MonitorIncident struct {
 	//	*MonitorIncident_LogsIncident
 	//	*MonitorIncident_SqlBadRowsIncident
 	//	*MonitorIncident_DataSourceIncident
+	//	*MonitorIncident_FeatureDriftIncident
 	IncidentBody isMonitorIncident_IncidentBody `protobuf_oneof:"incident_body"`
 	// A title describing what failed, set when the incident opened. Unset for incidents opened
 	// before names were recorded.
@@ -243,7 +280,7 @@ type MonitorIncident struct {
 
 func (x *MonitorIncident) Reset() {
 	*x = MonitorIncident{}
-	mi := &file_chalk_server_v2_incident_proto_msgTypes[5]
+	mi := &file_chalk_server_v2_incident_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -255,7 +292,7 @@ func (x *MonitorIncident) String() string {
 func (*MonitorIncident) ProtoMessage() {}
 
 func (x *MonitorIncident) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v2_incident_proto_msgTypes[5]
+	mi := &file_chalk_server_v2_incident_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -268,7 +305,7 @@ func (x *MonitorIncident) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MonitorIncident.ProtoReflect.Descriptor instead.
 func (*MonitorIncident) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v2_incident_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v2_incident_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MonitorIncident) GetId() string {
@@ -365,6 +402,15 @@ func (x *MonitorIncident) GetDataSourceIncident() *DataSourceIncidentBody {
 	return nil
 }
 
+func (x *MonitorIncident) GetFeatureDriftIncident() *FeatureDriftIncidentBody {
+	if x != nil {
+		if x, ok := x.IncidentBody.(*MonitorIncident_FeatureDriftIncident); ok {
+			return x.FeatureDriftIncident
+		}
+	}
+	return nil
+}
+
 func (x *MonitorIncident) GetName() string {
 	if x != nil && x.Name != nil {
 		return *x.Name
@@ -410,6 +456,10 @@ type MonitorIncident_DataSourceIncident struct {
 	DataSourceIncident *DataSourceIncidentBody `protobuf:"bytes,11,opt,name=data_source_incident,json=dataSourceIncident,proto3,oneof"`
 }
 
+type MonitorIncident_FeatureDriftIncident struct {
+	FeatureDriftIncident *FeatureDriftIncidentBody `protobuf:"bytes,15,opt,name=feature_drift_incident,json=featureDriftIncident,proto3,oneof"`
+}
+
 func (*MonitorIncident_MetricIncident) isMonitorIncident_IncidentBody() {}
 
 func (*MonitorIncident_HealthIncident) isMonitorIncident_IncidentBody() {}
@@ -419,6 +469,8 @@ func (*MonitorIncident_LogsIncident) isMonitorIncident_IncidentBody() {}
 func (*MonitorIncident_SqlBadRowsIncident) isMonitorIncident_IncidentBody() {}
 
 func (*MonitorIncident_DataSourceIncident) isMonitorIncident_IncidentBody() {}
+
+func (*MonitorIncident_FeatureDriftIncident) isMonitorIncident_IncidentBody() {}
 
 var File_chalk_server_v2_incident_proto protoreflect.FileDescriptor
 
@@ -430,7 +482,8 @@ const file_chalk_server_v2_incident_proto_rawDesc = "" +
 	"\x17HealthcheckIncidentBody\"\x12\n" +
 	"\x10LogsIncidentBody\"\x18\n" +
 	"\x16SqlBadRowsIncidentBody\"\x18\n" +
-	"\x16DataSourceIncidentBody\"\xa4\a\n" +
+	"\x16DataSourceIncidentBody\"\x1a\n" +
+	"\x18FeatureDriftIncidentBody\"\x87\b\n" +
 	"\x0fMonitorIncident\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -446,7 +499,8 @@ const file_chalk_server_v2_incident_proto_rawDesc = "" +
 	"\rlogs_incident\x18\t \x01(\v2!.chalk.server.v2.LogsIncidentBodyH\x00R\flogsIncident\x12\\\n" +
 	"\x15sql_bad_rows_incident\x18\n" +
 	" \x01(\v2'.chalk.server.v2.SqlBadRowsIncidentBodyH\x00R\x12sqlBadRowsIncident\x12[\n" +
-	"\x14data_source_incident\x18\v \x01(\v2'.chalk.server.v2.DataSourceIncidentBodyH\x00R\x12dataSourceIncident\x12\x17\n" +
+	"\x14data_source_incident\x18\v \x01(\v2'.chalk.server.v2.DataSourceIncidentBodyH\x00R\x12dataSourceIncident\x12a\n" +
+	"\x16feature_drift_incident\x18\x0f \x01(\v2).chalk.server.v2.FeatureDriftIncidentBodyH\x00R\x14featureDriftIncident\x12\x17\n" +
 	"\x04name\x18\f \x01(\tH\x02R\x04name\x88\x01\x01\x12=\n" +
 	"\bsnapshot\x18\r \x01(\v2!.chalk.server.v1.IncidentSnapshotR\bsnapshot\x12@\n" +
 	"\varchived_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampH\x03R\n" +
@@ -470,36 +524,38 @@ func file_chalk_server_v2_incident_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v2_incident_proto_rawDescData
 }
 
-var file_chalk_server_v2_incident_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_server_v2_incident_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chalk_server_v2_incident_proto_goTypes = []any{
-	(*MetricIncidentBody)(nil),      // 0: chalk.server.v2.MetricIncidentBody
-	(*HealthcheckIncidentBody)(nil), // 1: chalk.server.v2.HealthcheckIncidentBody
-	(*LogsIncidentBody)(nil),        // 2: chalk.server.v2.LogsIncidentBody
-	(*SqlBadRowsIncidentBody)(nil),  // 3: chalk.server.v2.SqlBadRowsIncidentBody
-	(*DataSourceIncidentBody)(nil),  // 4: chalk.server.v2.DataSourceIncidentBody
-	(*MonitorIncident)(nil),         // 5: chalk.server.v2.MonitorIncident
-	(*v1.IncidentGroup)(nil),        // 6: chalk.server.v1.IncidentGroup
-	(*timestamppb.Timestamp)(nil),   // 7: google.protobuf.Timestamp
-	(*v1.IncidentLinkedEntity)(nil), // 8: chalk.server.v1.IncidentLinkedEntity
-	(*v1.IncidentSnapshot)(nil),     // 9: chalk.server.v1.IncidentSnapshot
+	(*MetricIncidentBody)(nil),       // 0: chalk.server.v2.MetricIncidentBody
+	(*HealthcheckIncidentBody)(nil),  // 1: chalk.server.v2.HealthcheckIncidentBody
+	(*LogsIncidentBody)(nil),         // 2: chalk.server.v2.LogsIncidentBody
+	(*SqlBadRowsIncidentBody)(nil),   // 3: chalk.server.v2.SqlBadRowsIncidentBody
+	(*DataSourceIncidentBody)(nil),   // 4: chalk.server.v2.DataSourceIncidentBody
+	(*FeatureDriftIncidentBody)(nil), // 5: chalk.server.v2.FeatureDriftIncidentBody
+	(*MonitorIncident)(nil),          // 6: chalk.server.v2.MonitorIncident
+	(*v1.IncidentGroup)(nil),         // 7: chalk.server.v1.IncidentGroup
+	(*timestamppb.Timestamp)(nil),    // 8: google.protobuf.Timestamp
+	(*v1.IncidentLinkedEntity)(nil),  // 9: chalk.server.v1.IncidentLinkedEntity
+	(*v1.IncidentSnapshot)(nil),      // 10: chalk.server.v1.IncidentSnapshot
 }
 var file_chalk_server_v2_incident_proto_depIdxs = []int32{
-	6,  // 0: chalk.server.v2.MetricIncidentBody.groups:type_name -> chalk.server.v1.IncidentGroup
-	7,  // 1: chalk.server.v2.MonitorIncident.started_at:type_name -> google.protobuf.Timestamp
-	7,  // 2: chalk.server.v2.MonitorIncident.closed_at:type_name -> google.protobuf.Timestamp
-	8,  // 3: chalk.server.v2.MonitorIncident.linked_entities:type_name -> chalk.server.v1.IncidentLinkedEntity
+	7,  // 0: chalk.server.v2.MetricIncidentBody.groups:type_name -> chalk.server.v1.IncidentGroup
+	8,  // 1: chalk.server.v2.MonitorIncident.started_at:type_name -> google.protobuf.Timestamp
+	8,  // 2: chalk.server.v2.MonitorIncident.closed_at:type_name -> google.protobuf.Timestamp
+	9,  // 3: chalk.server.v2.MonitorIncident.linked_entities:type_name -> chalk.server.v1.IncidentLinkedEntity
 	0,  // 4: chalk.server.v2.MonitorIncident.metric_incident:type_name -> chalk.server.v2.MetricIncidentBody
 	1,  // 5: chalk.server.v2.MonitorIncident.health_incident:type_name -> chalk.server.v2.HealthcheckIncidentBody
 	2,  // 6: chalk.server.v2.MonitorIncident.logs_incident:type_name -> chalk.server.v2.LogsIncidentBody
 	3,  // 7: chalk.server.v2.MonitorIncident.sql_bad_rows_incident:type_name -> chalk.server.v2.SqlBadRowsIncidentBody
 	4,  // 8: chalk.server.v2.MonitorIncident.data_source_incident:type_name -> chalk.server.v2.DataSourceIncidentBody
-	9,  // 9: chalk.server.v2.MonitorIncident.snapshot:type_name -> chalk.server.v1.IncidentSnapshot
-	7,  // 10: chalk.server.v2.MonitorIncident.archived_at:type_name -> google.protobuf.Timestamp
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	5,  // 9: chalk.server.v2.MonitorIncident.feature_drift_incident:type_name -> chalk.server.v2.FeatureDriftIncidentBody
+	10, // 10: chalk.server.v2.MonitorIncident.snapshot:type_name -> chalk.server.v1.IncidentSnapshot
+	8,  // 11: chalk.server.v2.MonitorIncident.archived_at:type_name -> google.protobuf.Timestamp
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v2_incident_proto_init() }
@@ -507,12 +563,13 @@ func file_chalk_server_v2_incident_proto_init() {
 	if File_chalk_server_v2_incident_proto != nil {
 		return
 	}
-	file_chalk_server_v2_incident_proto_msgTypes[5].OneofWrappers = []any{
+	file_chalk_server_v2_incident_proto_msgTypes[6].OneofWrappers = []any{
 		(*MonitorIncident_MetricIncident)(nil),
 		(*MonitorIncident_HealthIncident)(nil),
 		(*MonitorIncident_LogsIncident)(nil),
 		(*MonitorIncident_SqlBadRowsIncident)(nil),
 		(*MonitorIncident_DataSourceIncident)(nil),
+		(*MonitorIncident_FeatureDriftIncident)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -520,7 +577,7 @@ func file_chalk_server_v2_incident_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v2_incident_proto_rawDesc), len(file_chalk_server_v2_incident_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
