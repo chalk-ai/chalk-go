@@ -251,7 +251,8 @@ type AiProviderConnection struct {
 	// and as the lookup handle.
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	// Provider protocol. Supported values are "openai" and "anthropic";
-	// OpenAI-compatible endpoints use "openai" with a host override.
+	// OpenAI-compatible endpoints use "openai" with a host override. "chalk"
+	// marks the Chalk-managed connection; see CreateAiProviderConnectionRequest.
 	Kind string `protobuf:"bytes,4,opt,name=kind,proto3" json:"kind,omitempty"`
 	// Optional base URL override (e.g. an internal LLM router). Empty means
 	// the selected provider SDK uses its default endpoint.
@@ -477,16 +478,22 @@ func (x *AiProviderModelOverrides) GetMaxOutputTokens() int32 {
 	return 0
 }
 
+// With kind "chalk", the request opts the environment into the Chalk-managed
+// connection, which routes through Chalk's cluster-scoped LLM router with a
+// router API key minted for the environment. The server sets every field of
+// that connection, so all other request fields must be empty, and the request
+// returns the existing connection if the environment has already opted in.
 type CreateAiProviderConnectionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Kind  string                 `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
-	Host  string                 `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
+	// Required, except for kind "chalk".
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Kind string `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
+	Host string `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
 	// Required for native OpenAI and Anthropic. OpenAI-compatible endpoints with
 	// a custom host may omit it. The server stores a supplied key as a
 	// platform-internal EnvironmentSecret owned by the new connection.
 	ApiKeyLiteral string `protobuf:"bytes,5,opt,name=api_key_literal,json=apiKeyLiteral,proto3" json:"api_key_literal,omitempty"`
-	// Required default model for this connection.
+	// Required default model for this connection, except for kind "chalk".
 	DefaultModel string `protobuf:"bytes,6,opt,name=default_model,json=defaultModel,proto3" json:"default_model,omitempty"`
 	// Optional request defaults. An empty message inherits every model/provider
 	// default.

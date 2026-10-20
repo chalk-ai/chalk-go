@@ -230,6 +230,10 @@ const (
 	MetricKind_METRIC_KIND_VICTORIA_METRICS_DISK_USED_BYTES  MetricKind = 164
 	MetricKind_METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES  MetricKind = 165
 	MetricKind_METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES MetricKind = 166
+	// Existing query-request counts divided by the aggregation window's duration in seconds.
+	MetricKind_METRIC_KIND_QUERY_RATE MetricKind = 167
+	// Processed stream messages per second, averaged over each aggregation window.
+	MetricKind_METRIC_KIND_STREAM_MESSAGE_RATE MetricKind = 168
 )
 
 // Enum value maps for MetricKind.
@@ -402,6 +406,8 @@ var (
 		164: "METRIC_KIND_VICTORIA_METRICS_DISK_USED_BYTES",
 		165: "METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES",
 		166: "METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES",
+		167: "METRIC_KIND_QUERY_RATE",
+		168: "METRIC_KIND_STREAM_MESSAGE_RATE",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -571,6 +577,8 @@ var (
 		"METRIC_KIND_VICTORIA_METRICS_DISK_USED_BYTES":        164,
 		"METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES":        165,
 		"METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES":       166,
+		"METRIC_KIND_QUERY_RATE":                              167,
+		"METRIC_KIND_STREAM_MESSAGE_RATE":                     168,
 	}
 )
 
@@ -2411,7 +2419,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\x977\n" +
+	"_entity_id*\xda7\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2581,7 +2589,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"&METRIC_KIND_MODEL_TRAINING_TASK_REWARD\x10\xa3\x01\x121\n" +
 	",METRIC_KIND_VICTORIA_METRICS_DISK_USED_BYTES\x10\xa4\x01\x121\n" +
 	",METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES\x10\xa5\x01\x122\n" +
-	"-METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES\x10\xa6\x01*\xf7\f\n" +
+	"-METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES\x10\xa6\x01\x12\x1b\n" +
+	"\x16METRIC_KIND_QUERY_RATE\x10\xa7\x01\x12$\n" +
+	"\x1fMETRIC_KIND_STREAM_MESSAGE_RATE\x10\xa8\x01*\xf7\f\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +

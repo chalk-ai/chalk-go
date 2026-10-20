@@ -236,6 +236,9 @@ const (
 	// BuilderServiceGetTelemetryDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// GetTelemetryDeployment RPC.
 	BuilderServiceGetTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/GetTelemetryDeployment"
+	// BuilderServiceGetTelemetryDeploymentAvailabilityProcedure is the fully-qualified name of the
+	// BuilderService's GetTelemetryDeploymentAvailability RPC.
+	BuilderServiceGetTelemetryDeploymentAvailabilityProcedure = "/chalk.server.v1.BuilderService/GetTelemetryDeploymentAvailability"
 	// BuilderServiceListTelemetryDeploymentsProcedure is the fully-qualified name of the
 	// BuilderService's ListTelemetryDeployments RPC.
 	BuilderServiceListTelemetryDeploymentsProcedure = "/chalk.server.v1.BuilderService/ListTelemetryDeployments"
@@ -394,6 +397,7 @@ type BuilderServiceClient interface {
 	// registries. Creates no deployment: nothing is promoted and no environment state changes.
 	BuildImage(context.Context, *connect.Request[v1.BuildImageRequest]) (*connect.Response[v1.BuildImageResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
+	GetTelemetryDeploymentAvailability(context.Context, *connect.Request[v1.GetTelemetryDeploymentAvailabilityRequest]) (*connect.Response[v1.GetTelemetryDeploymentAvailabilityResponse], error)
 	ListTelemetryDeployments(context.Context, *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
@@ -838,6 +842,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("GetTelemetryDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		getTelemetryDeploymentAvailability: connect.NewClient[v1.GetTelemetryDeploymentAvailabilityRequest, v1.GetTelemetryDeploymentAvailabilityResponse](
+			httpClient,
+			baseURL+BuilderServiceGetTelemetryDeploymentAvailabilityProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetTelemetryDeploymentAvailability")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		listTelemetryDeployments: connect.NewClient[v1.ListTelemetryDeploymentsRequest, v1.ListTelemetryDeploymentsResponse](
 			httpClient,
 			baseURL+BuilderServiceListTelemetryDeploymentsProcedure,
@@ -1003,6 +1014,7 @@ type builderServiceClient struct {
 	prepareDeployment                           *connect.Client[v1.PrepareDeploymentRequest, v1.PrepareDeploymentResponse]
 	buildImage                                  *connect.Client[v1.BuildImageRequest, v1.BuildImageResponse]
 	getTelemetryDeployment                      *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
+	getTelemetryDeploymentAvailability          *connect.Client[v1.GetTelemetryDeploymentAvailabilityRequest, v1.GetTelemetryDeploymentAvailabilityResponse]
 	listTelemetryDeployments                    *connect.Client[v1.ListTelemetryDeploymentsRequest, v1.ListTelemetryDeploymentsResponse]
 	createTelemetryDeployment                   *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
 	updateTelemetryDeployment                   *connect.Client[v1.UpdateTelemetryDeploymentRequest, v1.UpdateTelemetryDeploymentResponse]
@@ -1387,6 +1399,12 @@ func (c *builderServiceClient) GetTelemetryDeployment(ctx context.Context, req *
 	return c.getTelemetryDeployment.CallUnary(ctx, req)
 }
 
+// GetTelemetryDeploymentAvailability calls
+// chalk.server.v1.BuilderService.GetTelemetryDeploymentAvailability.
+func (c *builderServiceClient) GetTelemetryDeploymentAvailability(ctx context.Context, req *connect.Request[v1.GetTelemetryDeploymentAvailabilityRequest]) (*connect.Response[v1.GetTelemetryDeploymentAvailabilityResponse], error) {
+	return c.getTelemetryDeploymentAvailability.CallUnary(ctx, req)
+}
+
 // ListTelemetryDeployments calls chalk.server.v1.BuilderService.ListTelemetryDeployments.
 func (c *builderServiceClient) ListTelemetryDeployments(ctx context.Context, req *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error) {
 	return c.listTelemetryDeployments.CallUnary(ctx, req)
@@ -1570,6 +1588,7 @@ type BuilderServiceHandler interface {
 	// registries. Creates no deployment: nothing is promoted and no environment state changes.
 	BuildImage(context.Context, *connect.Request[v1.BuildImageRequest]) (*connect.Response[v1.BuildImageResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
+	GetTelemetryDeploymentAvailability(context.Context, *connect.Request[v1.GetTelemetryDeploymentAvailabilityRequest]) (*connect.Response[v1.GetTelemetryDeploymentAvailabilityResponse], error)
 	ListTelemetryDeployments(context.Context, *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
@@ -2010,6 +2029,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("GetTelemetryDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetTelemetryDeploymentAvailabilityHandler := connect.NewUnaryHandler(
+		BuilderServiceGetTelemetryDeploymentAvailabilityProcedure,
+		svc.GetTelemetryDeploymentAvailability,
+		connect.WithSchema(builderServiceMethods.ByName("GetTelemetryDeploymentAvailability")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceListTelemetryDeploymentsHandler := connect.NewUnaryHandler(
 		BuilderServiceListTelemetryDeploymentsProcedure,
 		svc.ListTelemetryDeployments,
@@ -2239,6 +2265,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceBuildImageHandler.ServeHTTP(w, r)
 		case BuilderServiceGetTelemetryDeploymentProcedure:
 			builderServiceGetTelemetryDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceGetTelemetryDeploymentAvailabilityProcedure:
+			builderServiceGetTelemetryDeploymentAvailabilityHandler.ServeHTTP(w, r)
 		case BuilderServiceListTelemetryDeploymentsProcedure:
 			builderServiceListTelemetryDeploymentsHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateTelemetryDeploymentProcedure:
@@ -2544,6 +2572,10 @@ func (UnimplementedBuilderServiceHandler) BuildImage(context.Context, *connect.R
 
 func (UnimplementedBuilderServiceHandler) GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetTelemetryDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetTelemetryDeploymentAvailability(context.Context, *connect.Request[v1.GetTelemetryDeploymentAvailabilityRequest]) (*connect.Response[v1.GetTelemetryDeploymentAvailabilityResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetTelemetryDeploymentAvailability is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) ListTelemetryDeployments(context.Context, *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error) {

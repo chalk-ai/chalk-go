@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// HostPoolServiceBatchUpdateHostPoolStatusProcedure is the fully-qualified name of the
+	// HostPoolService's BatchUpdateHostPoolStatus RPC.
+	HostPoolServiceBatchUpdateHostPoolStatusProcedure = "/chalk.server.v1.HostPoolService/BatchUpdateHostPoolStatus"
 	// HostPoolServiceCreateEnvironmentHostPoolProcedure is the fully-qualified name of the
 	// HostPoolService's CreateEnvironmentHostPool RPC.
 	HostPoolServiceCreateEnvironmentHostPoolProcedure = "/chalk.server.v1.HostPoolService/CreateEnvironmentHostPool"
@@ -51,6 +54,9 @@ const (
 	// HostPoolServiceDeleteClusterHostPoolProcedure is the fully-qualified name of the
 	// HostPoolService's DeleteClusterHostPool RPC.
 	HostPoolServiceDeleteClusterHostPoolProcedure = "/chalk.server.v1.HostPoolService/DeleteClusterHostPool"
+	// HostPoolServiceValidateHostPoolConfigurationProcedure is the fully-qualified name of the
+	// HostPoolService's ValidateHostPoolConfiguration RPC.
+	HostPoolServiceValidateHostPoolConfigurationProcedure = "/chalk.server.v1.HostPoolService/ValidateHostPoolConfiguration"
 	// HostPoolServiceGetHostPoolProcedure is the fully-qualified name of the HostPoolService's
 	// GetHostPool RPC.
 	HostPoolServiceGetHostPoolProcedure = "/chalk.server.v1.HostPoolService/GetHostPool"
@@ -64,17 +70,20 @@ const (
 
 // HostPoolServiceClient is a client for the chalk.server.v1.HostPoolService service.
 type HostPoolServiceClient interface {
+	BatchUpdateHostPoolStatus(context.Context, *connect.Request[v1.BatchUpdateHostPoolStatusRequest]) (*connect.Response[v1.BatchUpdateHostPoolStatusResponse], error)
 	CreateEnvironmentHostPool(context.Context, *connect.Request[v1.CreateEnvironmentHostPoolRequest]) (*connect.Response[v1.CreateEnvironmentHostPoolResponse], error)
 	UpdateEnvironmentHostPool(context.Context, *connect.Request[v1.UpdateEnvironmentHostPoolRequest]) (*connect.Response[v1.UpdateEnvironmentHostPoolResponse], error)
 	DeleteEnvironmentHostPool(context.Context, *connect.Request[v1.DeleteEnvironmentHostPoolRequest]) (*connect.Response[v1.DeleteEnvironmentHostPoolResponse], error)
 	CreateClusterHostPool(context.Context, *connect.Request[v1.CreateClusterHostPoolRequest]) (*connect.Response[v1.CreateClusterHostPoolResponse], error)
 	UpdateClusterHostPool(context.Context, *connect.Request[v1.UpdateClusterHostPoolRequest]) (*connect.Response[v1.UpdateClusterHostPoolResponse], error)
 	DeleteClusterHostPool(context.Context, *connect.Request[v1.DeleteClusterHostPoolRequest]) (*connect.Response[v1.DeleteClusterHostPoolResponse], error)
+	// Validates catalog and regional compatibility without creating resources or probing live
+	// capacity. UI option discovery and create/update admission use the same configuration rules.
+	ValidateHostPoolConfiguration(context.Context, *connect.Request[v1.ValidateHostPoolConfigurationRequest]) (*connect.Response[v1.ValidateHostPoolConfigurationResponse], error)
 	GetHostPool(context.Context, *connect.Request[v1.GetHostPoolRequest]) (*connect.Response[v1.GetHostPoolResponse], error)
 	ListHostPools(context.Context, *connect.Request[v1.ListHostPoolsRequest]) (*connect.Response[v1.ListHostPoolsResponse], error)
-	// Reports live host capacity for the environment: what is free now, what a full scale-out would
-	// add, and the scaling configuration that bounds both. Host pools back sandboxes and other
-	// host-compute-class containers, which serverless environments do not use.
+	// Reports the latest controller capacity for an environment, cluster, or all clusters,
+	// with metrics history where available. Cluster and global views require Chalk employee access.
 	GetHostPoolCapacity(context.Context, *connect.Request[v1.GetHostPoolCapacityRequest]) (*connect.Response[v1.GetHostPoolCapacityResponse], error)
 }
 
@@ -89,6 +98,12 @@ func NewHostPoolServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 	baseURL = strings.TrimRight(baseURL, "/")
 	hostPoolServiceMethods := v1.File_chalk_server_v1_host_pool_proto.Services().ByName("HostPoolService").Methods()
 	return &hostPoolServiceClient{
+		batchUpdateHostPoolStatus: connect.NewClient[v1.BatchUpdateHostPoolStatusRequest, v1.BatchUpdateHostPoolStatusResponse](
+			httpClient,
+			baseURL+HostPoolServiceBatchUpdateHostPoolStatusProcedure,
+			connect.WithSchema(hostPoolServiceMethods.ByName("BatchUpdateHostPoolStatus")),
+			connect.WithClientOptions(opts...),
+		),
 		createEnvironmentHostPool: connect.NewClient[v1.CreateEnvironmentHostPoolRequest, v1.CreateEnvironmentHostPoolResponse](
 			httpClient,
 			baseURL+HostPoolServiceCreateEnvironmentHostPoolProcedure,
@@ -125,6 +140,13 @@ func NewHostPoolServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(hostPoolServiceMethods.ByName("DeleteClusterHostPool")),
 			connect.WithClientOptions(opts...),
 		),
+		validateHostPoolConfiguration: connect.NewClient[v1.ValidateHostPoolConfigurationRequest, v1.ValidateHostPoolConfigurationResponse](
+			httpClient,
+			baseURL+HostPoolServiceValidateHostPoolConfigurationProcedure,
+			connect.WithSchema(hostPoolServiceMethods.ByName("ValidateHostPoolConfiguration")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getHostPool: connect.NewClient[v1.GetHostPoolRequest, v1.GetHostPoolResponse](
 			httpClient,
 			baseURL+HostPoolServiceGetHostPoolProcedure,
@@ -151,15 +173,22 @@ func NewHostPoolServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 
 // hostPoolServiceClient implements HostPoolServiceClient.
 type hostPoolServiceClient struct {
-	createEnvironmentHostPool *connect.Client[v1.CreateEnvironmentHostPoolRequest, v1.CreateEnvironmentHostPoolResponse]
-	updateEnvironmentHostPool *connect.Client[v1.UpdateEnvironmentHostPoolRequest, v1.UpdateEnvironmentHostPoolResponse]
-	deleteEnvironmentHostPool *connect.Client[v1.DeleteEnvironmentHostPoolRequest, v1.DeleteEnvironmentHostPoolResponse]
-	createClusterHostPool     *connect.Client[v1.CreateClusterHostPoolRequest, v1.CreateClusterHostPoolResponse]
-	updateClusterHostPool     *connect.Client[v1.UpdateClusterHostPoolRequest, v1.UpdateClusterHostPoolResponse]
-	deleteClusterHostPool     *connect.Client[v1.DeleteClusterHostPoolRequest, v1.DeleteClusterHostPoolResponse]
-	getHostPool               *connect.Client[v1.GetHostPoolRequest, v1.GetHostPoolResponse]
-	listHostPools             *connect.Client[v1.ListHostPoolsRequest, v1.ListHostPoolsResponse]
-	getHostPoolCapacity       *connect.Client[v1.GetHostPoolCapacityRequest, v1.GetHostPoolCapacityResponse]
+	batchUpdateHostPoolStatus     *connect.Client[v1.BatchUpdateHostPoolStatusRequest, v1.BatchUpdateHostPoolStatusResponse]
+	createEnvironmentHostPool     *connect.Client[v1.CreateEnvironmentHostPoolRequest, v1.CreateEnvironmentHostPoolResponse]
+	updateEnvironmentHostPool     *connect.Client[v1.UpdateEnvironmentHostPoolRequest, v1.UpdateEnvironmentHostPoolResponse]
+	deleteEnvironmentHostPool     *connect.Client[v1.DeleteEnvironmentHostPoolRequest, v1.DeleteEnvironmentHostPoolResponse]
+	createClusterHostPool         *connect.Client[v1.CreateClusterHostPoolRequest, v1.CreateClusterHostPoolResponse]
+	updateClusterHostPool         *connect.Client[v1.UpdateClusterHostPoolRequest, v1.UpdateClusterHostPoolResponse]
+	deleteClusterHostPool         *connect.Client[v1.DeleteClusterHostPoolRequest, v1.DeleteClusterHostPoolResponse]
+	validateHostPoolConfiguration *connect.Client[v1.ValidateHostPoolConfigurationRequest, v1.ValidateHostPoolConfigurationResponse]
+	getHostPool                   *connect.Client[v1.GetHostPoolRequest, v1.GetHostPoolResponse]
+	listHostPools                 *connect.Client[v1.ListHostPoolsRequest, v1.ListHostPoolsResponse]
+	getHostPoolCapacity           *connect.Client[v1.GetHostPoolCapacityRequest, v1.GetHostPoolCapacityResponse]
+}
+
+// BatchUpdateHostPoolStatus calls chalk.server.v1.HostPoolService.BatchUpdateHostPoolStatus.
+func (c *hostPoolServiceClient) BatchUpdateHostPoolStatus(ctx context.Context, req *connect.Request[v1.BatchUpdateHostPoolStatusRequest]) (*connect.Response[v1.BatchUpdateHostPoolStatusResponse], error) {
+	return c.batchUpdateHostPoolStatus.CallUnary(ctx, req)
 }
 
 // CreateEnvironmentHostPool calls chalk.server.v1.HostPoolService.CreateEnvironmentHostPool.
@@ -192,6 +221,12 @@ func (c *hostPoolServiceClient) DeleteClusterHostPool(ctx context.Context, req *
 	return c.deleteClusterHostPool.CallUnary(ctx, req)
 }
 
+// ValidateHostPoolConfiguration calls
+// chalk.server.v1.HostPoolService.ValidateHostPoolConfiguration.
+func (c *hostPoolServiceClient) ValidateHostPoolConfiguration(ctx context.Context, req *connect.Request[v1.ValidateHostPoolConfigurationRequest]) (*connect.Response[v1.ValidateHostPoolConfigurationResponse], error) {
+	return c.validateHostPoolConfiguration.CallUnary(ctx, req)
+}
+
 // GetHostPool calls chalk.server.v1.HostPoolService.GetHostPool.
 func (c *hostPoolServiceClient) GetHostPool(ctx context.Context, req *connect.Request[v1.GetHostPoolRequest]) (*connect.Response[v1.GetHostPoolResponse], error) {
 	return c.getHostPool.CallUnary(ctx, req)
@@ -209,17 +244,20 @@ func (c *hostPoolServiceClient) GetHostPoolCapacity(ctx context.Context, req *co
 
 // HostPoolServiceHandler is an implementation of the chalk.server.v1.HostPoolService service.
 type HostPoolServiceHandler interface {
+	BatchUpdateHostPoolStatus(context.Context, *connect.Request[v1.BatchUpdateHostPoolStatusRequest]) (*connect.Response[v1.BatchUpdateHostPoolStatusResponse], error)
 	CreateEnvironmentHostPool(context.Context, *connect.Request[v1.CreateEnvironmentHostPoolRequest]) (*connect.Response[v1.CreateEnvironmentHostPoolResponse], error)
 	UpdateEnvironmentHostPool(context.Context, *connect.Request[v1.UpdateEnvironmentHostPoolRequest]) (*connect.Response[v1.UpdateEnvironmentHostPoolResponse], error)
 	DeleteEnvironmentHostPool(context.Context, *connect.Request[v1.DeleteEnvironmentHostPoolRequest]) (*connect.Response[v1.DeleteEnvironmentHostPoolResponse], error)
 	CreateClusterHostPool(context.Context, *connect.Request[v1.CreateClusterHostPoolRequest]) (*connect.Response[v1.CreateClusterHostPoolResponse], error)
 	UpdateClusterHostPool(context.Context, *connect.Request[v1.UpdateClusterHostPoolRequest]) (*connect.Response[v1.UpdateClusterHostPoolResponse], error)
 	DeleteClusterHostPool(context.Context, *connect.Request[v1.DeleteClusterHostPoolRequest]) (*connect.Response[v1.DeleteClusterHostPoolResponse], error)
+	// Validates catalog and regional compatibility without creating resources or probing live
+	// capacity. UI option discovery and create/update admission use the same configuration rules.
+	ValidateHostPoolConfiguration(context.Context, *connect.Request[v1.ValidateHostPoolConfigurationRequest]) (*connect.Response[v1.ValidateHostPoolConfigurationResponse], error)
 	GetHostPool(context.Context, *connect.Request[v1.GetHostPoolRequest]) (*connect.Response[v1.GetHostPoolResponse], error)
 	ListHostPools(context.Context, *connect.Request[v1.ListHostPoolsRequest]) (*connect.Response[v1.ListHostPoolsResponse], error)
-	// Reports live host capacity for the environment: what is free now, what a full scale-out would
-	// add, and the scaling configuration that bounds both. Host pools back sandboxes and other
-	// host-compute-class containers, which serverless environments do not use.
+	// Reports the latest controller capacity for an environment, cluster, or all clusters,
+	// with metrics history where available. Cluster and global views require Chalk employee access.
 	GetHostPoolCapacity(context.Context, *connect.Request[v1.GetHostPoolCapacityRequest]) (*connect.Response[v1.GetHostPoolCapacityResponse], error)
 }
 
@@ -230,6 +268,12 @@ type HostPoolServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewHostPoolServiceHandler(svc HostPoolServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	hostPoolServiceMethods := v1.File_chalk_server_v1_host_pool_proto.Services().ByName("HostPoolService").Methods()
+	hostPoolServiceBatchUpdateHostPoolStatusHandler := connect.NewUnaryHandler(
+		HostPoolServiceBatchUpdateHostPoolStatusProcedure,
+		svc.BatchUpdateHostPoolStatus,
+		connect.WithSchema(hostPoolServiceMethods.ByName("BatchUpdateHostPoolStatus")),
+		connect.WithHandlerOptions(opts...),
+	)
 	hostPoolServiceCreateEnvironmentHostPoolHandler := connect.NewUnaryHandler(
 		HostPoolServiceCreateEnvironmentHostPoolProcedure,
 		svc.CreateEnvironmentHostPool,
@@ -266,6 +310,13 @@ func NewHostPoolServiceHandler(svc HostPoolServiceHandler, opts ...connect.Handl
 		connect.WithSchema(hostPoolServiceMethods.ByName("DeleteClusterHostPool")),
 		connect.WithHandlerOptions(opts...),
 	)
+	hostPoolServiceValidateHostPoolConfigurationHandler := connect.NewUnaryHandler(
+		HostPoolServiceValidateHostPoolConfigurationProcedure,
+		svc.ValidateHostPoolConfiguration,
+		connect.WithSchema(hostPoolServiceMethods.ByName("ValidateHostPoolConfiguration")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	hostPoolServiceGetHostPoolHandler := connect.NewUnaryHandler(
 		HostPoolServiceGetHostPoolProcedure,
 		svc.GetHostPool,
@@ -289,6 +340,8 @@ func NewHostPoolServiceHandler(svc HostPoolServiceHandler, opts ...connect.Handl
 	)
 	return "/chalk.server.v1.HostPoolService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case HostPoolServiceBatchUpdateHostPoolStatusProcedure:
+			hostPoolServiceBatchUpdateHostPoolStatusHandler.ServeHTTP(w, r)
 		case HostPoolServiceCreateEnvironmentHostPoolProcedure:
 			hostPoolServiceCreateEnvironmentHostPoolHandler.ServeHTTP(w, r)
 		case HostPoolServiceUpdateEnvironmentHostPoolProcedure:
@@ -301,6 +354,8 @@ func NewHostPoolServiceHandler(svc HostPoolServiceHandler, opts ...connect.Handl
 			hostPoolServiceUpdateClusterHostPoolHandler.ServeHTTP(w, r)
 		case HostPoolServiceDeleteClusterHostPoolProcedure:
 			hostPoolServiceDeleteClusterHostPoolHandler.ServeHTTP(w, r)
+		case HostPoolServiceValidateHostPoolConfigurationProcedure:
+			hostPoolServiceValidateHostPoolConfigurationHandler.ServeHTTP(w, r)
 		case HostPoolServiceGetHostPoolProcedure:
 			hostPoolServiceGetHostPoolHandler.ServeHTTP(w, r)
 		case HostPoolServiceListHostPoolsProcedure:
@@ -315,6 +370,10 @@ func NewHostPoolServiceHandler(svc HostPoolServiceHandler, opts ...connect.Handl
 
 // UnimplementedHostPoolServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedHostPoolServiceHandler struct{}
+
+func (UnimplementedHostPoolServiceHandler) BatchUpdateHostPoolStatus(context.Context, *connect.Request[v1.BatchUpdateHostPoolStatusRequest]) (*connect.Response[v1.BatchUpdateHostPoolStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HostPoolService.BatchUpdateHostPoolStatus is not implemented"))
+}
 
 func (UnimplementedHostPoolServiceHandler) CreateEnvironmentHostPool(context.Context, *connect.Request[v1.CreateEnvironmentHostPoolRequest]) (*connect.Response[v1.CreateEnvironmentHostPoolResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HostPoolService.CreateEnvironmentHostPool is not implemented"))
@@ -338,6 +397,10 @@ func (UnimplementedHostPoolServiceHandler) UpdateClusterHostPool(context.Context
 
 func (UnimplementedHostPoolServiceHandler) DeleteClusterHostPool(context.Context, *connect.Request[v1.DeleteClusterHostPoolRequest]) (*connect.Response[v1.DeleteClusterHostPoolResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HostPoolService.DeleteClusterHostPool is not implemented"))
+}
+
+func (UnimplementedHostPoolServiceHandler) ValidateHostPoolConfiguration(context.Context, *connect.Request[v1.ValidateHostPoolConfigurationRequest]) (*connect.Response[v1.ValidateHostPoolConfigurationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HostPoolService.ValidateHostPoolConfiguration is not implemented"))
 }
 
 func (UnimplementedHostPoolServiceHandler) GetHostPool(context.Context, *connect.Request[v1.GetHostPoolRequest]) (*connect.Response[v1.GetHostPoolResponse], error) {

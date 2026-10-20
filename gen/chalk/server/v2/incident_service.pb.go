@@ -117,6 +117,86 @@ func (*CloseIncidentResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{1}
 }
 
+type DeleteIncidentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IncidentId    string                 `protobuf:"bytes,1,opt,name=incident_id,json=incidentId,proto3" json:"incident_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteIncidentRequest) Reset() {
+	*x = DeleteIncidentRequest{}
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteIncidentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteIncidentRequest) ProtoMessage() {}
+
+func (x *DeleteIncidentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteIncidentRequest.ProtoReflect.Descriptor instead.
+func (*DeleteIncidentRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DeleteIncidentRequest) GetIncidentId() string {
+	if x != nil {
+		return x.IncidentId
+	}
+	return ""
+}
+
+type DeleteIncidentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteIncidentResponse) Reset() {
+	*x = DeleteIncidentResponse{}
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteIncidentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteIncidentResponse) ProtoMessage() {}
+
+func (x *DeleteIncidentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteIncidentResponse.ProtoReflect.Descriptor instead.
+func (*DeleteIncidentResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{3}
+}
+
 type GetIncidentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	IncidentId    string                 `protobuf:"bytes,1,opt,name=incident_id,json=incidentId,proto3" json:"incident_id,omitempty"`
@@ -126,7 +206,7 @@ type GetIncidentRequest struct {
 
 func (x *GetIncidentRequest) Reset() {
 	*x = GetIncidentRequest{}
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[2]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -138,7 +218,7 @@ func (x *GetIncidentRequest) String() string {
 func (*GetIncidentRequest) ProtoMessage() {}
 
 func (x *GetIncidentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[2]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -151,7 +231,7 @@ func (x *GetIncidentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncidentRequest.ProtoReflect.Descriptor instead.
 func (*GetIncidentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetIncidentRequest) GetIncidentId() string {
@@ -170,7 +250,7 @@ type GetIncidentResponse struct {
 
 func (x *GetIncidentResponse) Reset() {
 	*x = GetIncidentResponse{}
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[3]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -182,7 +262,7 @@ func (x *GetIncidentResponse) String() string {
 func (*GetIncidentResponse) ProtoMessage() {}
 
 func (x *GetIncidentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[3]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -195,7 +275,7 @@ func (x *GetIncidentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIncidentResponse.ProtoReflect.Descriptor instead.
 func (*GetIncidentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetIncidentResponse) GetIncident() *MonitorIncident {
@@ -214,13 +294,17 @@ type ListIncidentsFilters struct {
 	LinkedEntityIdFilter         *string                `protobuf:"bytes,5,opt,name=linked_entity_id_filter,json=linkedEntityIdFilter,proto3,oneof" json:"linked_entity_id_filter,omitempty"`
 	MonitorIdFilter              *string                `protobuf:"bytes,6,opt,name=monitor_id_filter,json=monitorIdFilter,proto3,oneof" json:"monitor_id_filter,omitempty"`
 	MonitorTypeFilter            *v11.MonitorType       `protobuf:"varint,7,opt,name=monitor_type_filter,json=monitorTypeFilter,proto3,enum=chalk.artifacts.v1.MonitorType,oneof" json:"monitor_type_filter,omitempty"`
-	unknownFields                protoimpl.UnknownFields
-	sizeCache                    protoimpl.SizeCache
+	// Case-insensitive substring match on the incident name. Blank matches every incident.
+	NameSearch *string `protobuf:"bytes,8,opt,name=name_search,json=nameSearch,proto3,oneof" json:"name_search,omitempty"`
+	// Archived (deleted) incidents are omitted unless this is set.
+	IncludeArchived bool `protobuf:"varint,9,opt,name=include_archived,json=includeArchived,proto3" json:"include_archived,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ListIncidentsFilters) Reset() {
 	*x = ListIncidentsFilters{}
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[4]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -232,7 +316,7 @@ func (x *ListIncidentsFilters) String() string {
 func (*ListIncidentsFilters) ProtoMessage() {}
 
 func (x *ListIncidentsFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[4]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -245,7 +329,7 @@ func (x *ListIncidentsFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIncidentsFilters.ProtoReflect.Descriptor instead.
 func (*ListIncidentsFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListIncidentsFilters) GetCreatedAtLowerBoundInclusive() *timestamppb.Timestamp {
@@ -297,6 +381,20 @@ func (x *ListIncidentsFilters) GetMonitorTypeFilter() v11.MonitorType {
 	return v11.MonitorType(0)
 }
 
+func (x *ListIncidentsFilters) GetNameSearch() string {
+	if x != nil && x.NameSearch != nil {
+		return *x.NameSearch
+	}
+	return ""
+}
+
+func (x *ListIncidentsFilters) GetIncludeArchived() bool {
+	if x != nil {
+		return x.IncludeArchived
+	}
+	return false
+}
+
 type ListIncidentsRequest struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Filters *ListIncidentsFilters  `protobuf:"bytes,1,opt,name=filters,proto3,oneof" json:"filters,omitempty"`
@@ -311,7 +409,7 @@ type ListIncidentsRequest struct {
 
 func (x *ListIncidentsRequest) Reset() {
 	*x = ListIncidentsRequest{}
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[5]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -323,7 +421,7 @@ func (x *ListIncidentsRequest) String() string {
 func (*ListIncidentsRequest) ProtoMessage() {}
 
 func (x *ListIncidentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[5]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -336,7 +434,7 @@ func (x *ListIncidentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIncidentsRequest.ProtoReflect.Descriptor instead.
 func (*ListIncidentsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListIncidentsRequest) GetFilters() *ListIncidentsFilters {
@@ -371,7 +469,7 @@ type ListIncidentsResponse struct {
 
 func (x *ListIncidentsResponse) Reset() {
 	*x = ListIncidentsResponse{}
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[6]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -383,7 +481,7 @@ func (x *ListIncidentsResponse) String() string {
 func (*ListIncidentsResponse) ProtoMessage() {}
 
 func (x *ListIncidentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[6]
+	mi := &file_chalk_server_v2_incident_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -396,7 +494,7 @@ func (x *ListIncidentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListIncidentsResponse.ProtoReflect.Descriptor instead.
 func (*ListIncidentsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v2_incident_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListIncidentsResponse) GetIncidents() []*MonitorIncident {
@@ -423,12 +521,16 @@ const file_chalk_server_v2_incident_service_proto_rawDesc = "" +
 	"incidentId\x12C\n" +
 	"\rmute_duration\x18\x02 \x01(\v2\x19.google.protobuf.DurationH\x00R\fmuteDuration\x88\x01\x01B\x10\n" +
 	"\x0e_mute_duration\"\x17\n" +
-	"\x15CloseIncidentResponse\"5\n" +
+	"\x15CloseIncidentResponse\"8\n" +
+	"\x15DeleteIncidentRequest\x12\x1f\n" +
+	"\vincident_id\x18\x01 \x01(\tR\n" +
+	"incidentId\"\x18\n" +
+	"\x16DeleteIncidentResponse\"5\n" +
 	"\x12GetIncidentRequest\x12\x1f\n" +
 	"\vincident_id\x18\x01 \x01(\tR\n" +
 	"incidentId\"S\n" +
 	"\x13GetIncidentResponse\x12<\n" +
-	"\bincident\x18\x01 \x01(\v2 .chalk.server.v2.MonitorIncidentR\bincident\"\x89\x06\n" +
+	"\bincident\x18\x01 \x01(\v2 .chalk.server.v2.MonitorIncidentR\bincident\"\xea\x06\n" +
 	"\x14ListIncidentsFilters\x12g\n" +
 	" created_at_lower_bound_inclusive\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x1ccreatedAtLowerBoundInclusive\x88\x01\x01\x12g\n" +
 	" created_at_upper_bound_exclusive\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x1ccreatedAtUpperBoundExclusive\x88\x01\x01\x12/\n" +
@@ -436,14 +538,18 @@ const file_chalk_server_v2_incident_service_proto_rawDesc = "" +
 	"\x19linked_entity_kind_filter\x18\x04 \x01(\x0e2#.chalk.server.v1.IncidentEntityKindH\x03R\x16linkedEntityKindFilter\x88\x01\x01\x12:\n" +
 	"\x17linked_entity_id_filter\x18\x05 \x01(\tH\x04R\x14linkedEntityIdFilter\x88\x01\x01\x12/\n" +
 	"\x11monitor_id_filter\x18\x06 \x01(\tH\x05R\x0fmonitorIdFilter\x88\x01\x01\x12T\n" +
-	"\x13monitor_type_filter\x18\a \x01(\x0e2\x1f.chalk.artifacts.v1.MonitorTypeH\x06R\x11monitorTypeFilter\x88\x01\x01B#\n" +
+	"\x13monitor_type_filter\x18\a \x01(\x0e2\x1f.chalk.artifacts.v1.MonitorTypeH\x06R\x11monitorTypeFilter\x88\x01\x01\x12$\n" +
+	"\vname_search\x18\b \x01(\tH\aR\n" +
+	"nameSearch\x88\x01\x01\x12)\n" +
+	"\x10include_archived\x18\t \x01(\bR\x0fincludeArchivedB#\n" +
 	"!_created_at_lower_bound_inclusiveB#\n" +
 	"!_created_at_upper_bound_exclusiveB\x14\n" +
 	"\x12_has_closed_filterB\x1c\n" +
 	"\x1a_linked_entity_kind_filterB\x1a\n" +
 	"\x18_linked_entity_id_filterB\x14\n" +
 	"\x12_monitor_id_filterB\x16\n" +
-	"\x14_monitor_type_filter\"\xc0\x01\n" +
+	"\x14_monitor_type_filterB\x0e\n" +
+	"\f_name_search\"\xc0\x01\n" +
 	"\x14ListIncidentsRequest\x12D\n" +
 	"\afilters\x18\x01 \x01(\v2%.chalk.server.v2.ListIncidentsFiltersH\x00R\afilters\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12\"\n" +
@@ -456,11 +562,12 @@ const file_chalk_server_v2_incident_service_proto_rawDesc = "" +
 	"\x15ListIncidentsResponse\x12>\n" +
 	"\tincidents\x18\x01 \x03(\v2 .chalk.server.v2.MonitorIncidentR\tincidents\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token2\xe4\x02\n" +
+	"\x10_next_page_token2\xe8\x03\n" +
 	"\x0fIncidentService\x12f\n" +
 	"\rListIncidents\x12%.chalk.server.v2.ListIncidentsRequest\x1a&.chalk.server.v2.ListIncidentsResponse\"\x06\x80}\x06\x90\x02\x01\x12`\n" +
 	"\vGetIncident\x12#.chalk.server.v2.GetIncidentRequest\x1a$.chalk.server.v2.GetIncidentResponse\"\x06\x80}\x06\x90\x02\x01\x12\x86\x01\n" +
-	"\rCloseIncident\x12%.chalk.server.v2.CloseIncidentRequest\x1a&.chalk.server.v2.CloseIncidentResponse\"&\x80}\x05\x8a\xd3\x0e\x1f\b\x02\x12\x1bManually closed an incidentB\xc4\x01\n" +
+	"\rCloseIncident\x12%.chalk.server.v2.CloseIncidentRequest\x1a&.chalk.server.v2.CloseIncidentResponse\"&\x80}\x05\x8a\xd3\x0e\x1f\b\x02\x12\x1bManually closed an incident\x12\x81\x01\n" +
+	"\x0eDeleteIncident\x12&.chalk.server.v2.DeleteIncidentRequest\x1a'.chalk.server.v2.DeleteIncidentResponse\"\x1e\x80}\x05\x8a\xd3\x0e\x17\b\x02\x12\x13Deleted an incidentB\xc4\x01\n" +
 	"\x13com.chalk.server.v2B\x14IncidentServiceProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v2;serverv2\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V2\xca\x02\x0fChalk\\Server\\V2\xe2\x02\x1bChalk\\Server\\V2\\GPBMetadata\xea\x02\x11Chalk::Server::V2b\x06proto3"
 
 var (
@@ -475,38 +582,42 @@ func file_chalk_server_v2_incident_service_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v2_incident_service_proto_rawDescData
 }
 
-var file_chalk_server_v2_incident_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chalk_server_v2_incident_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chalk_server_v2_incident_service_proto_goTypes = []any{
-	(*CloseIncidentRequest)(nil),  // 0: chalk.server.v2.CloseIncidentRequest
-	(*CloseIncidentResponse)(nil), // 1: chalk.server.v2.CloseIncidentResponse
-	(*GetIncidentRequest)(nil),    // 2: chalk.server.v2.GetIncidentRequest
-	(*GetIncidentResponse)(nil),   // 3: chalk.server.v2.GetIncidentResponse
-	(*ListIncidentsFilters)(nil),  // 4: chalk.server.v2.ListIncidentsFilters
-	(*ListIncidentsRequest)(nil),  // 5: chalk.server.v2.ListIncidentsRequest
-	(*ListIncidentsResponse)(nil), // 6: chalk.server.v2.ListIncidentsResponse
-	(*durationpb.Duration)(nil),   // 7: google.protobuf.Duration
-	(*MonitorIncident)(nil),       // 8: chalk.server.v2.MonitorIncident
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
-	(v1.IncidentEntityKind)(0),    // 10: chalk.server.v1.IncidentEntityKind
-	(v11.MonitorType)(0),          // 11: chalk.artifacts.v1.MonitorType
+	(*CloseIncidentRequest)(nil),   // 0: chalk.server.v2.CloseIncidentRequest
+	(*CloseIncidentResponse)(nil),  // 1: chalk.server.v2.CloseIncidentResponse
+	(*DeleteIncidentRequest)(nil),  // 2: chalk.server.v2.DeleteIncidentRequest
+	(*DeleteIncidentResponse)(nil), // 3: chalk.server.v2.DeleteIncidentResponse
+	(*GetIncidentRequest)(nil),     // 4: chalk.server.v2.GetIncidentRequest
+	(*GetIncidentResponse)(nil),    // 5: chalk.server.v2.GetIncidentResponse
+	(*ListIncidentsFilters)(nil),   // 6: chalk.server.v2.ListIncidentsFilters
+	(*ListIncidentsRequest)(nil),   // 7: chalk.server.v2.ListIncidentsRequest
+	(*ListIncidentsResponse)(nil),  // 8: chalk.server.v2.ListIncidentsResponse
+	(*durationpb.Duration)(nil),    // 9: google.protobuf.Duration
+	(*MonitorIncident)(nil),        // 10: chalk.server.v2.MonitorIncident
+	(*timestamppb.Timestamp)(nil),  // 11: google.protobuf.Timestamp
+	(v1.IncidentEntityKind)(0),     // 12: chalk.server.v1.IncidentEntityKind
+	(v11.MonitorType)(0),           // 13: chalk.artifacts.v1.MonitorType
 }
 var file_chalk_server_v2_incident_service_proto_depIdxs = []int32{
-	7,  // 0: chalk.server.v2.CloseIncidentRequest.mute_duration:type_name -> google.protobuf.Duration
-	8,  // 1: chalk.server.v2.GetIncidentResponse.incident:type_name -> chalk.server.v2.MonitorIncident
-	9,  // 2: chalk.server.v2.ListIncidentsFilters.created_at_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
-	9,  // 3: chalk.server.v2.ListIncidentsFilters.created_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
-	10, // 4: chalk.server.v2.ListIncidentsFilters.linked_entity_kind_filter:type_name -> chalk.server.v1.IncidentEntityKind
-	11, // 5: chalk.server.v2.ListIncidentsFilters.monitor_type_filter:type_name -> chalk.artifacts.v1.MonitorType
-	4,  // 6: chalk.server.v2.ListIncidentsRequest.filters:type_name -> chalk.server.v2.ListIncidentsFilters
-	8,  // 7: chalk.server.v2.ListIncidentsResponse.incidents:type_name -> chalk.server.v2.MonitorIncident
-	5,  // 8: chalk.server.v2.IncidentService.ListIncidents:input_type -> chalk.server.v2.ListIncidentsRequest
-	2,  // 9: chalk.server.v2.IncidentService.GetIncident:input_type -> chalk.server.v2.GetIncidentRequest
+	9,  // 0: chalk.server.v2.CloseIncidentRequest.mute_duration:type_name -> google.protobuf.Duration
+	10, // 1: chalk.server.v2.GetIncidentResponse.incident:type_name -> chalk.server.v2.MonitorIncident
+	11, // 2: chalk.server.v2.ListIncidentsFilters.created_at_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
+	11, // 3: chalk.server.v2.ListIncidentsFilters.created_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	12, // 4: chalk.server.v2.ListIncidentsFilters.linked_entity_kind_filter:type_name -> chalk.server.v1.IncidentEntityKind
+	13, // 5: chalk.server.v2.ListIncidentsFilters.monitor_type_filter:type_name -> chalk.artifacts.v1.MonitorType
+	6,  // 6: chalk.server.v2.ListIncidentsRequest.filters:type_name -> chalk.server.v2.ListIncidentsFilters
+	10, // 7: chalk.server.v2.ListIncidentsResponse.incidents:type_name -> chalk.server.v2.MonitorIncident
+	7,  // 8: chalk.server.v2.IncidentService.ListIncidents:input_type -> chalk.server.v2.ListIncidentsRequest
+	4,  // 9: chalk.server.v2.IncidentService.GetIncident:input_type -> chalk.server.v2.GetIncidentRequest
 	0,  // 10: chalk.server.v2.IncidentService.CloseIncident:input_type -> chalk.server.v2.CloseIncidentRequest
-	6,  // 11: chalk.server.v2.IncidentService.ListIncidents:output_type -> chalk.server.v2.ListIncidentsResponse
-	3,  // 12: chalk.server.v2.IncidentService.GetIncident:output_type -> chalk.server.v2.GetIncidentResponse
-	1,  // 13: chalk.server.v2.IncidentService.CloseIncident:output_type -> chalk.server.v2.CloseIncidentResponse
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
+	2,  // 11: chalk.server.v2.IncidentService.DeleteIncident:input_type -> chalk.server.v2.DeleteIncidentRequest
+	8,  // 12: chalk.server.v2.IncidentService.ListIncidents:output_type -> chalk.server.v2.ListIncidentsResponse
+	5,  // 13: chalk.server.v2.IncidentService.GetIncident:output_type -> chalk.server.v2.GetIncidentResponse
+	1,  // 14: chalk.server.v2.IncidentService.CloseIncident:output_type -> chalk.server.v2.CloseIncidentResponse
+	3,  // 15: chalk.server.v2.IncidentService.DeleteIncident:output_type -> chalk.server.v2.DeleteIncidentResponse
+	12, // [12:16] is the sub-list for method output_type
+	8,  // [8:12] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
 	8,  // [8:8] is the sub-list for extension extendee
 	0,  // [0:8] is the sub-list for field type_name
@@ -519,16 +630,16 @@ func file_chalk_server_v2_incident_service_proto_init() {
 	}
 	file_chalk_server_v2_incident_proto_init()
 	file_chalk_server_v2_incident_service_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_server_v2_incident_service_proto_msgTypes[4].OneofWrappers = []any{}
-	file_chalk_server_v2_incident_service_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_server_v2_incident_service_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_server_v2_incident_service_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_server_v2_incident_service_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v2_incident_service_proto_rawDesc), len(file_chalk_server_v2_incident_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

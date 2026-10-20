@@ -42,6 +42,9 @@ const (
 	// IncidentServiceCloseIncidentProcedure is the fully-qualified name of the IncidentService's
 	// CloseIncident RPC.
 	IncidentServiceCloseIncidentProcedure = "/chalk.server.v2.IncidentService/CloseIncident"
+	// IncidentServiceDeleteIncidentProcedure is the fully-qualified name of the IncidentService's
+	// DeleteIncident RPC.
+	IncidentServiceDeleteIncidentProcedure = "/chalk.server.v2.IncidentService/DeleteIncident"
 )
 
 // IncidentServiceClient is a client for the chalk.server.v2.IncidentService service.
@@ -50,6 +53,10 @@ type IncidentServiceClient interface {
 	GetIncident(context.Context, *connect.Request[v2.GetIncidentRequest]) (*connect.Response[v2.GetIncidentResponse], error)
 	// Resolves an open incident ahead of its monitor doing so, notifying alert channels the same way.
 	CloseIncident(context.Context, *connect.Request[v2.CloseIncidentRequest]) (*connect.Response[v2.CloseIncidentResponse], error)
+	// Deletes an incident by archiving it: ListIncidents omits it unless include_archived is set,
+	// and GetIncident still returns it. An open incident is resolved first, notifying alert
+	// channels the way CloseIncident does. Deleting an archived incident keeps its archived_at.
+	DeleteIncident(context.Context, *connect.Request[v2.DeleteIncidentRequest]) (*connect.Response[v2.DeleteIncidentResponse], error)
 }
 
 // NewIncidentServiceClient constructs a client for the chalk.server.v2.IncidentService service. By
@@ -83,14 +90,21 @@ func NewIncidentServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(incidentServiceMethods.ByName("CloseIncident")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteIncident: connect.NewClient[v2.DeleteIncidentRequest, v2.DeleteIncidentResponse](
+			httpClient,
+			baseURL+IncidentServiceDeleteIncidentProcedure,
+			connect.WithSchema(incidentServiceMethods.ByName("DeleteIncident")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // incidentServiceClient implements IncidentServiceClient.
 type incidentServiceClient struct {
-	listIncidents *connect.Client[v2.ListIncidentsRequest, v2.ListIncidentsResponse]
-	getIncident   *connect.Client[v2.GetIncidentRequest, v2.GetIncidentResponse]
-	closeIncident *connect.Client[v2.CloseIncidentRequest, v2.CloseIncidentResponse]
+	listIncidents  *connect.Client[v2.ListIncidentsRequest, v2.ListIncidentsResponse]
+	getIncident    *connect.Client[v2.GetIncidentRequest, v2.GetIncidentResponse]
+	closeIncident  *connect.Client[v2.CloseIncidentRequest, v2.CloseIncidentResponse]
+	deleteIncident *connect.Client[v2.DeleteIncidentRequest, v2.DeleteIncidentResponse]
 }
 
 // ListIncidents calls chalk.server.v2.IncidentService.ListIncidents.
@@ -108,12 +122,21 @@ func (c *incidentServiceClient) CloseIncident(ctx context.Context, req *connect.
 	return c.closeIncident.CallUnary(ctx, req)
 }
 
+// DeleteIncident calls chalk.server.v2.IncidentService.DeleteIncident.
+func (c *incidentServiceClient) DeleteIncident(ctx context.Context, req *connect.Request[v2.DeleteIncidentRequest]) (*connect.Response[v2.DeleteIncidentResponse], error) {
+	return c.deleteIncident.CallUnary(ctx, req)
+}
+
 // IncidentServiceHandler is an implementation of the chalk.server.v2.IncidentService service.
 type IncidentServiceHandler interface {
 	ListIncidents(context.Context, *connect.Request[v2.ListIncidentsRequest]) (*connect.Response[v2.ListIncidentsResponse], error)
 	GetIncident(context.Context, *connect.Request[v2.GetIncidentRequest]) (*connect.Response[v2.GetIncidentResponse], error)
 	// Resolves an open incident ahead of its monitor doing so, notifying alert channels the same way.
 	CloseIncident(context.Context, *connect.Request[v2.CloseIncidentRequest]) (*connect.Response[v2.CloseIncidentResponse], error)
+	// Deletes an incident by archiving it: ListIncidents omits it unless include_archived is set,
+	// and GetIncident still returns it. An open incident is resolved first, notifying alert
+	// channels the way CloseIncident does. Deleting an archived incident keeps its archived_at.
+	DeleteIncident(context.Context, *connect.Request[v2.DeleteIncidentRequest]) (*connect.Response[v2.DeleteIncidentResponse], error)
 }
 
 // NewIncidentServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -143,6 +166,12 @@ func NewIncidentServiceHandler(svc IncidentServiceHandler, opts ...connect.Handl
 		connect.WithSchema(incidentServiceMethods.ByName("CloseIncident")),
 		connect.WithHandlerOptions(opts...),
 	)
+	incidentServiceDeleteIncidentHandler := connect.NewUnaryHandler(
+		IncidentServiceDeleteIncidentProcedure,
+		svc.DeleteIncident,
+		connect.WithSchema(incidentServiceMethods.ByName("DeleteIncident")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v2.IncidentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case IncidentServiceListIncidentsProcedure:
@@ -151,6 +180,8 @@ func NewIncidentServiceHandler(svc IncidentServiceHandler, opts ...connect.Handl
 			incidentServiceGetIncidentHandler.ServeHTTP(w, r)
 		case IncidentServiceCloseIncidentProcedure:
 			incidentServiceCloseIncidentHandler.ServeHTTP(w, r)
+		case IncidentServiceDeleteIncidentProcedure:
+			incidentServiceDeleteIncidentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -170,4 +201,8 @@ func (UnimplementedIncidentServiceHandler) GetIncident(context.Context, *connect
 
 func (UnimplementedIncidentServiceHandler) CloseIncident(context.Context, *connect.Request[v2.CloseIncidentRequest]) (*connect.Response[v2.CloseIncidentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v2.IncidentService.CloseIncident is not implemented"))
+}
+
+func (UnimplementedIncidentServiceHandler) DeleteIncident(context.Context, *connect.Request[v2.DeleteIncidentRequest]) (*connect.Response[v2.DeleteIncidentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v2.IncidentService.DeleteIncident is not implemented"))
 }

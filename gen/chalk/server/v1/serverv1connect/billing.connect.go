@@ -51,6 +51,15 @@ const (
 	// BillingServiceGetUsageChartProcedure is the fully-qualified name of the BillingService's
 	// GetUsageChart RPC.
 	BillingServiceGetUsageChartProcedure = "/chalk.server.v1.BillingService/GetUsageChart"
+	// BillingServiceGetUsageChartV2Procedure is the fully-qualified name of the BillingService's
+	// GetUsageChartV2 RPC.
+	BillingServiceGetUsageChartV2Procedure = "/chalk.server.v1.BillingService/GetUsageChartV2"
+	// BillingServiceGetUsageFacetsProcedure is the fully-qualified name of the BillingService's
+	// GetUsageFacets RPC.
+	BillingServiceGetUsageFacetsProcedure = "/chalk.server.v1.BillingService/GetUsageFacets"
+	// BillingServiceGetUsageFacetValuesProcedure is the fully-qualified name of the BillingService's
+	// GetUsageFacetValues RPC.
+	BillingServiceGetUsageFacetValuesProcedure = "/chalk.server.v1.BillingService/GetUsageFacetValues"
 	// BillingServiceGetUtilizationRatesProcedure is the fully-qualified name of the BillingService's
 	// GetUtilizationRates RPC.
 	BillingServiceGetUtilizationRatesProcedure = "/chalk.server.v1.BillingService/GetUtilizationRates"
@@ -114,6 +123,12 @@ type BillingServiceClient interface {
 	// end period. The usage can be grouped by UsageChartPeriod for daily or
 	// monthly usage, and by UsageChartGrouping for instance type or cluster usage.
 	GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error)
+	// GetUsageChartV2 buckets Chalk credit usage by period, grouped and filtered by usage facets.
+	GetUsageChartV2(context.Context, *connect.Request[v1.GetUsageChartV2Request]) (*connect.Response[v1.GetUsageChartV2Response], error)
+	// GetUsageFacets lists the columns GetUsageChartV2 can group and filter by.
+	GetUsageFacets(context.Context, *connect.Request[v1.GetUsageFacetsRequest]) (*connect.Response[v1.GetUsageFacetsResponse], error)
+	// GetUsageFacetValues lists a usage facet's values from the team's infrastructure and Chalk's catalogs, alphabetically.
+	GetUsageFacetValues(context.Context, *connect.Request[v1.GetUsageFacetValuesRequest]) (*connect.Response[v1.GetUsageFacetValuesResponse], error)
 	// GetUtilizationRates returns the current utilization rates for all
 	// instance types.
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
@@ -191,6 +206,27 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BillingServiceGetUsageChartProcedure,
 			connect.WithSchema(billingServiceMethods.ByName("GetUsageChart")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getUsageChartV2: connect.NewClient[v1.GetUsageChartV2Request, v1.GetUsageChartV2Response](
+			httpClient,
+			baseURL+BillingServiceGetUsageChartV2Procedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetUsageChartV2")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getUsageFacets: connect.NewClient[v1.GetUsageFacetsRequest, v1.GetUsageFacetsResponse](
+			httpClient,
+			baseURL+BillingServiceGetUsageFacetsProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetUsageFacets")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getUsageFacetValues: connect.NewClient[v1.GetUsageFacetValuesRequest, v1.GetUsageFacetValuesResponse](
+			httpClient,
+			baseURL+BillingServiceGetUsageFacetValuesProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetUsageFacetValues")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -289,6 +325,9 @@ type billingServiceClient struct {
 	publishPodUsage                 *connect.Client[v1.PublishPodUsageRequest, v1.PublishPodUsageResponse]
 	publishProductAnalyticsEvents   *connect.Client[v1.PublishProductAnalyticsEventsRequest, v1.PublishProductAnalyticsEventsResponse]
 	getUsageChart                   *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
+	getUsageChartV2                 *connect.Client[v1.GetUsageChartV2Request, v1.GetUsageChartV2Response]
+	getUsageFacets                  *connect.Client[v1.GetUsageFacetsRequest, v1.GetUsageFacetsResponse]
+	getUsageFacetValues             *connect.Client[v1.GetUsageFacetValuesRequest, v1.GetUsageFacetValuesResponse]
 	getUtilizationRates             *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
 	getAvailableInstanceTypes       *connect.Client[v1.GetAvailableInstanceTypesRequest, v1.GetAvailableInstanceTypesResponse]
 	getPodRequestCharts             *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
@@ -331,6 +370,21 @@ func (c *billingServiceClient) PublishProductAnalyticsEvents(ctx context.Context
 // GetUsageChart calls chalk.server.v1.BillingService.GetUsageChart.
 func (c *billingServiceClient) GetUsageChart(ctx context.Context, req *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error) {
 	return c.getUsageChart.CallUnary(ctx, req)
+}
+
+// GetUsageChartV2 calls chalk.server.v1.BillingService.GetUsageChartV2.
+func (c *billingServiceClient) GetUsageChartV2(ctx context.Context, req *connect.Request[v1.GetUsageChartV2Request]) (*connect.Response[v1.GetUsageChartV2Response], error) {
+	return c.getUsageChartV2.CallUnary(ctx, req)
+}
+
+// GetUsageFacets calls chalk.server.v1.BillingService.GetUsageFacets.
+func (c *billingServiceClient) GetUsageFacets(ctx context.Context, req *connect.Request[v1.GetUsageFacetsRequest]) (*connect.Response[v1.GetUsageFacetsResponse], error) {
+	return c.getUsageFacets.CallUnary(ctx, req)
+}
+
+// GetUsageFacetValues calls chalk.server.v1.BillingService.GetUsageFacetValues.
+func (c *billingServiceClient) GetUsageFacetValues(ctx context.Context, req *connect.Request[v1.GetUsageFacetValuesRequest]) (*connect.Response[v1.GetUsageFacetValuesResponse], error) {
+	return c.getUsageFacetValues.CallUnary(ctx, req)
 }
 
 // GetUtilizationRates calls chalk.server.v1.BillingService.GetUtilizationRates.
@@ -419,6 +473,12 @@ type BillingServiceHandler interface {
 	// end period. The usage can be grouped by UsageChartPeriod for daily or
 	// monthly usage, and by UsageChartGrouping for instance type or cluster usage.
 	GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error)
+	// GetUsageChartV2 buckets Chalk credit usage by period, grouped and filtered by usage facets.
+	GetUsageChartV2(context.Context, *connect.Request[v1.GetUsageChartV2Request]) (*connect.Response[v1.GetUsageChartV2Response], error)
+	// GetUsageFacets lists the columns GetUsageChartV2 can group and filter by.
+	GetUsageFacets(context.Context, *connect.Request[v1.GetUsageFacetsRequest]) (*connect.Response[v1.GetUsageFacetsResponse], error)
+	// GetUsageFacetValues lists a usage facet's values from the team's infrastructure and Chalk's catalogs, alphabetically.
+	GetUsageFacetValues(context.Context, *connect.Request[v1.GetUsageFacetValuesRequest]) (*connect.Response[v1.GetUsageFacetValuesResponse], error)
 	// GetUtilizationRates returns the current utilization rates for all
 	// instance types.
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
@@ -492,6 +552,27 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		BillingServiceGetUsageChartProcedure,
 		svc.GetUsageChart,
 		connect.WithSchema(billingServiceMethods.ByName("GetUsageChart")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	billingServiceGetUsageChartV2Handler := connect.NewUnaryHandler(
+		BillingServiceGetUsageChartV2Procedure,
+		svc.GetUsageChartV2,
+		connect.WithSchema(billingServiceMethods.ByName("GetUsageChartV2")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	billingServiceGetUsageFacetsHandler := connect.NewUnaryHandler(
+		BillingServiceGetUsageFacetsProcedure,
+		svc.GetUsageFacets,
+		connect.WithSchema(billingServiceMethods.ByName("GetUsageFacets")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	billingServiceGetUsageFacetValuesHandler := connect.NewUnaryHandler(
+		BillingServiceGetUsageFacetValuesProcedure,
+		svc.GetUsageFacetValues,
+		connect.WithSchema(billingServiceMethods.ByName("GetUsageFacetValues")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -593,6 +674,12 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServicePublishProductAnalyticsEventsHandler.ServeHTTP(w, r)
 		case BillingServiceGetUsageChartProcedure:
 			billingServiceGetUsageChartHandler.ServeHTTP(w, r)
+		case BillingServiceGetUsageChartV2Procedure:
+			billingServiceGetUsageChartV2Handler.ServeHTTP(w, r)
+		case BillingServiceGetUsageFacetsProcedure:
+			billingServiceGetUsageFacetsHandler.ServeHTTP(w, r)
+		case BillingServiceGetUsageFacetValuesProcedure:
+			billingServiceGetUsageFacetValuesHandler.ServeHTTP(w, r)
 		case BillingServiceGetUtilizationRatesProcedure:
 			billingServiceGetUtilizationRatesHandler.ServeHTTP(w, r)
 		case BillingServiceGetAvailableInstanceTypesProcedure:
@@ -648,6 +735,18 @@ func (UnimplementedBillingServiceHandler) PublishProductAnalyticsEvents(context.
 
 func (UnimplementedBillingServiceHandler) GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetUsageChart is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetUsageChartV2(context.Context, *connect.Request[v1.GetUsageChartV2Request]) (*connect.Response[v1.GetUsageChartV2Response], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetUsageChartV2 is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetUsageFacets(context.Context, *connect.Request[v1.GetUsageFacetsRequest]) (*connect.Response[v1.GetUsageFacetsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetUsageFacets is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetUsageFacetValues(context.Context, *connect.Request[v1.GetUsageFacetValuesRequest]) (*connect.Response[v1.GetUsageFacetValuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetUsageFacetValues is not implemented"))
 }
 
 func (UnimplementedBillingServiceHandler) GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error) {
