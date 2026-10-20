@@ -500,8 +500,12 @@ type DatasetRevisionMeta struct {
 	// (where the client extracts and ships the schema); legacy revisions
 	// produced by offline-query execution leave this unset.
 	OutputArrowSchemaSerialized []byte `protobuf:"bytes,23,opt,name=output_arrow_schema_serialized,json=outputArrowSchemaSerialized,proto3,oneof" json:"output_arrow_schema_serialized,omitempty"`
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	// Features this revision recorded a value distribution for, which a feature
+	// drift monitor can use as its baseline. Populated only by ListDatasetRevisions
+	// with filters.feature_drift_eligible set.
+	FeatureDistributionFqns []string `protobuf:"bytes,24,rep,name=feature_distribution_fqns,json=featureDistributionFqns,proto3" json:"feature_distribution_fqns,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *DatasetRevisionMeta) Reset() {
@@ -693,6 +697,13 @@ func (x *DatasetRevisionMeta) GetArchivedAt() *timestamppb.Timestamp {
 func (x *DatasetRevisionMeta) GetOutputArrowSchemaSerialized() []byte {
 	if x != nil {
 		return x.OutputArrowSchemaSerialized
+	}
+	return nil
+}
+
+func (x *DatasetRevisionMeta) GetFeatureDistributionFqns() []string {
+	if x != nil {
+		return x.FeatureDistributionFqns
 	}
 	return nil
 }
@@ -946,9 +957,13 @@ type ListDatasetsFilters struct {
 	// Which kinds of dataset to include. Empty includes named and anonymous datasets.
 	Kind []DatasetKind `protobuf:"varint,4,rep,packed,name=kind,proto3,enum=chalk.server.v1.DatasetKind" json:"kind,omitempty"`
 	// Restrict the result to these dataset ids. Empty lists the environment catalog.
-	Ids           []string `protobuf:"bytes,5,rep,name=ids,proto3" json:"ids,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Ids []string `protobuf:"bytes,5,rep,name=ids,proto3" json:"ids,omitempty"`
+	// Only datasets with a revision a feature drift monitor can compare against:
+	// completed, unarchived, and with a recorded value distribution for at least
+	// one feature. Only numeric features record a distribution.
+	FeatureDriftEligible *bool `protobuf:"varint,6,opt,name=feature_drift_eligible,json=featureDriftEligible,proto3,oneof" json:"feature_drift_eligible,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ListDatasetsFilters) Reset() {
@@ -1014,6 +1029,13 @@ func (x *ListDatasetsFilters) GetIds() []string {
 		return x.Ids
 	}
 	return nil
+}
+
+func (x *ListDatasetsFilters) GetFeatureDriftEligible() bool {
+	if x != nil && x.FeatureDriftEligible != nil {
+		return *x.FeatureDriftEligible
+	}
+	return false
 }
 
 type ListDatasetsResponse struct {
@@ -1271,9 +1293,13 @@ type ListDatasetRevisionsFilters struct {
 	// Only include revisions created after this time (inclusive).
 	StartTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
 	// Only include revisions created before this time (exclusive).
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	EndTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	// Only revisions a feature drift monitor can compare against: completed,
+	// unarchived, and with a recorded value distribution for at least one
+	// feature. Also populates each revision's feature_distribution_fqns.
+	FeatureDriftEligible *bool `protobuf:"varint,5,opt,name=feature_drift_eligible,json=featureDriftEligible,proto3,oneof" json:"feature_drift_eligible,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ListDatasetRevisionsFilters) Reset() {
@@ -1332,6 +1358,13 @@ func (x *ListDatasetRevisionsFilters) GetEndTime() *timestamppb.Timestamp {
 		return x.EndTime
 	}
 	return nil
+}
+
+func (x *ListDatasetRevisionsFilters) GetFeatureDriftEligible() bool {
+	if x != nil && x.FeatureDriftEligible != nil {
+		return *x.FeatureDriftEligible
+	}
+	return false
 }
 
 type ListDatasetRevisionsResponse struct {
@@ -4395,7 +4428,7 @@ var File_chalk_server_v1_datasets_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/server/v1/datasets.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a$chalk/common/v1/column_profile.proto\x1a#chalk/protosql/v1/sql_service.proto\x1a2chalk/server/v1/materialized_aggregate_tiles.proto\x1a\x1cchalk/volume/v1/volume.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfd\v\n" +
+	"\x1echalk/server/v1/datasets.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a$chalk/common/v1/column_profile.proto\x1a#chalk/protosql/v1/sql_service.proto\x1a2chalk/server/v1/materialized_aggregate_tiles.proto\x1a\x1cchalk/volume/v1/volume.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb9\f\n" +
 	"\x13DatasetRevisionMeta\x12\x1d\n" +
 	"\n" +
 	"numeric_id\x18\x01 \x01(\x03R\tnumericId\x12(\n" +
@@ -4430,7 +4463,8 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"created_at\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampH\x0fR\tcreatedAt\x88\x01\x01\x12@\n" +
 	"\varchived_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampH\x10R\n" +
 	"archivedAt\x88\x01\x01\x12H\n" +
-	"\x1eoutput_arrow_schema_serialized\x18\x17 \x01(\fH\x11R\x1boutputArrowSchemaSerialized\x88\x01\x01B\r\n" +
+	"\x1eoutput_arrow_schema_serialized\x18\x17 \x01(\fH\x11R\x1boutputArrowSchemaSerialized\x88\x01\x01\x12:\n" +
+	"\x19feature_distribution_fqns\x18\x18 \x03(\tR\x17featureDistributionFqnsB\r\n" +
 	"\v_givens_uriB\x11\n" +
 	"\x0f_givens_versionB\r\n" +
 	"\v_output_uriB\x11\n" +
@@ -4484,14 +4518,16 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\n" +
 	"_read_maskB\n" +
 	"\n" +
-	"\b_filters\"\xde\x01\n" +
+	"\b_filters\"\xb4\x02\n" +
 	"\x13ListDatasetsFilters\x12\x1b\n" +
 	"\tagent_ids\x18\x01 \x03(\tR\bagentIds\x12\x1b\n" +
 	"\x06search\x18\x02 \x01(\tH\x00R\x06search\x88\x01\x01\x12>\n" +
 	"\x06status\x18\x03 \x03(\x0e2&.chalk.server.v1.DatasetRevisionStatusR\x06status\x120\n" +
 	"\x04kind\x18\x04 \x03(\x0e2\x1c.chalk.server.v1.DatasetKindR\x04kind\x12\x10\n" +
-	"\x03ids\x18\x05 \x03(\tR\x03idsB\t\n" +
-	"\a_search\"x\n" +
+	"\x03ids\x18\x05 \x03(\tR\x03ids\x129\n" +
+	"\x16feature_drift_eligible\x18\x06 \x01(\bH\x01R\x14featureDriftEligible\x88\x01\x01B\t\n" +
+	"\a_searchB\x19\n" +
+	"\x17_feature_drift_eligible\"x\n" +
 	"\x14ListDatasetsResponse\x128\n" +
 	"\bdatasets\x18\x01 \x03(\v2\x1c.chalk.server.v1.DatasetMetaR\bdatasets\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +
@@ -4516,16 +4552,18 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\n" +
 	"\n" +
-	"\b_filters\"\x97\x02\n" +
+	"\b_filters\"\xed\x02\n" +
 	"\x1bListDatasetRevisionsFilters\x12\x1b\n" +
 	"\tagent_ids\x18\x01 \x03(\tR\bagentIds\x12.\n" +
 	"\x10include_archived\x18\x02 \x01(\bH\x00R\x0fincludeArchived\x88\x01\x01\x12>\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tstartTime\x88\x01\x01\x12:\n" +
-	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\aendTime\x88\x01\x01B\x13\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\aendTime\x88\x01\x01\x129\n" +
+	"\x16feature_drift_eligible\x18\x05 \x01(\bH\x03R\x14featureDriftEligible\x88\x01\x01B\x13\n" +
 	"\x11_include_archivedB\r\n" +
 	"\v_start_timeB\v\n" +
-	"\t_end_time\"\x8a\x01\n" +
+	"\t_end_timeB\x19\n" +
+	"\x17_feature_drift_eligible\"\x8a\x01\n" +
 	"\x1cListDatasetRevisionsResponse\x12B\n" +
 	"\trevisions\x18\x01 \x03(\v2$.chalk.server.v1.DatasetRevisionMetaR\trevisions\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +

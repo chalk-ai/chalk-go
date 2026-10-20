@@ -3324,7 +3324,7 @@ type AuditEvent struct {
 	// even if policy allowed the call; mirrors MCP's `isError`.
 	IsError bool `protobuf:"varint,13,opt,name=is_error,json=isError,proto3" json:"is_error,omitempty"`
 	// Unique id stamped when the event was recorded; the dedupe key for clients
-	// that merge events from RecentAudit and StreamAudit.
+	// that merge RecentAudit pages, including the events a poll re-sends.
 	EventId       string `protobuf:"bytes,14,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3458,10 +3458,19 @@ func (x *AuditEvent) GetEventId() string {
 	return ""
 }
 
+// A page of audited MCP operations, always ordered oldest first. With neither
+// `cursor` nor `after` it returns the newest `limit` events; setting both is
+// INVALID_ARGUMENT. Served from ClickHouse when audit persistence is on (every
+// replica's events), else from the serving replica's in-memory ring buffer.
 type RecentAuditRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Limit *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	// Page backward: events strictly older than this cursor (a previous
+	// response's `next_cursor`).
+	Cursor *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	// Poll forward: the oldest `limit` events strictly newer than this cursor.
+	// Pass the previous response's `poll_cursor`.
+	After         *string `protobuf:"bytes,3,opt,name=after,proto3,oneof" json:"after,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3510,10 +3519,26 @@ func (x *RecentAuditRequest) GetCursor() string {
 	return ""
 }
 
+func (x *RecentAuditRequest) GetAfter() string {
+	if x != nil && x.After != nil {
+		return *x.After
+	}
+	return ""
+}
+
 type RecentAuditResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Events        []*AuditEvent          `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
-	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Events []*AuditEvent          `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
+	// Set when more events remain in the request's direction: pass it back as
+	// `cursor` (older history) or `after` (a poll that hit `limit`), whichever
+	// the request used.
+	NextCursor *string `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	// Set unless the request paged backward with `cursor`: pass it as `after` on
+	// the next poll. It trails the newest returned event by a few seconds so
+	// events that reach storage late (batched writes, other replicas) are still
+	// returned; a poll therefore re-sends recent events, so dedupe on
+	// `event_id`.
+	PollCursor    *string `protobuf:"bytes,3,opt,name=poll_cursor,json=pollCursor,proto3,oneof" json:"poll_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3562,6 +3587,17 @@ func (x *RecentAuditResponse) GetNextCursor() string {
 	return ""
 }
 
+func (x *RecentAuditResponse) GetPollCursor() string {
+	if x != nil && x.PollCursor != nil {
+		return *x.PollCursor
+	}
+	return ""
+}
+
+// Deprecated with the StreamAudit RPC; kept only so the wire schema stays
+// backward compatible.
+//
+// Deprecated: Marked as deprecated in chalk/mcp_gateway/v1/service.proto.
 type StreamAuditRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -3598,9 +3634,9 @@ func (*StreamAuditRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{58}
 }
 
-// Marks that the stream is caught up. Sent once after the replayed backlog and
-// again whenever no event has been sent for a while, so idle proxies keep the
-// stream open.
+// Deprecated with the StreamAudit RPC.
+//
+// Deprecated: Marked as deprecated in chalk/mcp_gateway/v1/service.proto.
 type StreamAuditHeartbeat struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -3637,6 +3673,9 @@ func (*StreamAuditHeartbeat) Descriptor() ([]byte, []int) {
 	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{59}
 }
 
+// Deprecated with the StreamAudit RPC.
+//
+// Deprecated: Marked as deprecated in chalk/mcp_gateway/v1/service.proto.
 type StreamAuditResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Kind:
@@ -4474,23 +4513,28 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x0eargs_truncated\x18\v \x01(\bR\rargsTruncated\x125\n" +
 	"\bduration\x18\f \x01(\v2\x19.google.protobuf.DurationR\bduration\x12\x19\n" +
 	"\bis_error\x18\r \x01(\bR\aisError\x12\x19\n" +
-	"\bevent_id\x18\x0e \x01(\tR\aeventId\"a\n" +
+	"\bevent_id\x18\x0e \x01(\tR\aeventId\"\x86\x01\n" +
 	"\x12RecentAuditRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05after\x18\x03 \x01(\tH\x02R\x05after\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursor\"\x85\x01\n" +
+	"\a_cursorB\b\n" +
+	"\x06_after\"\xbb\x01\n" +
 	"\x13RecentAuditResponse\x128\n" +
 	"\x06events\x18\x01 \x03(\v2 .chalk.mcp_gateway.v1.AuditEventR\x06events\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
-	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\x14\n" +
-	"\x12StreamAuditRequest\"\x16\n" +
-	"\x14StreamAuditHeartbeat\"\xbd\x01\n" +
+	"nextCursor\x88\x01\x01\x12$\n" +
+	"\vpoll_cursor\x18\x03 \x01(\tH\x01R\n" +
+	"pollCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursorB\x0e\n" +
+	"\f_poll_cursor\"\x18\n" +
+	"\x12StreamAuditRequest:\x02\x18\x01\"\x1a\n" +
+	"\x14StreamAuditHeartbeat:\x02\x18\x01\"\xc1\x01\n" +
 	"\x13StreamAuditResponse\x128\n" +
 	"\x05event\x18\x01 \x01(\v2 .chalk.mcp_gateway.v1.AuditEventH\x00R\x05event\x12\x18\n" +
 	"\x06lagged\x18\x02 \x01(\x04H\x00R\x06lagged\x12J\n" +
-	"\theartbeat\x18\x03 \x01(\v2*.chalk.mcp_gateway.v1.StreamAuditHeartbeatH\x00R\theartbeatB\x06\n" +
+	"\theartbeat\x18\x03 \x01(\v2*.chalk.mcp_gateway.v1.StreamAuditHeartbeatH\x00R\theartbeat:\x02\x18\x01B\x06\n" +
 	"\x04kind\"\x89\x01\n" +
 	"\x06Policy\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
@@ -4527,7 +4571,7 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x0ePolicyDecision\x12\x1f\n" +
 	"\x1bPOLICY_DECISION_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15POLICY_DECISION_ALLOW\x10\x01\x12\x18\n" +
-	"\x14POLICY_DECISION_DENY\x10\x022\xa9\x15\n" +
+	"\x14POLICY_DECISION_DENY\x10\x022\xac\x15\n" +
 	"\x11McpGatewayService\x12X\n" +
 	"\x05GetMe\x12\".chalk.mcp_gateway.v1.GetMeRequest\x1a#.chalk.mcp_gateway.v1.GetMeResponse\"\x06\x80}\x02\x90\x02\x01\x12m\n" +
 	"\fListBackends\x12).chalk.mcp_gateway.v1.ListBackendsRequest\x1a*.chalk.mcp_gateway.v1.ListBackendsResponse\"\x06\x80}\x02\x90\x02\x01\x12g\n" +
@@ -4551,8 +4595,8 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\fDeleteServer\x12).chalk.mcp_gateway.v1.DeleteServerRequest\x1a*.chalk.mcp_gateway.v1.DeleteServerResponse\"\x03\x80}\x02\x12p\n" +
 	"\x0eSimulatePolicy\x12+.chalk.mcp_gateway.v1.SimulatePolicyRequest\x1a,.chalk.mcp_gateway.v1.SimulatePolicyResponse\"\x03\x80}\x02\x12j\n" +
 	"\vCheckPolicy\x12(.chalk.mcp_gateway.v1.CheckPolicyRequest\x1a).chalk.mcp_gateway.v1.CheckPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12j\n" +
-	"\vRecentAudit\x12(.chalk.mcp_gateway.v1.RecentAuditRequest\x1a).chalk.mcp_gateway.v1.RecentAuditResponse\"\x06\x80}\x02\x90\x02\x01\x12i\n" +
-	"\vStreamAudit\x12(.chalk.mcp_gateway.v1.StreamAuditRequest\x1a).chalk.mcp_gateway.v1.StreamAuditResponse\"\x03\x80}\x020\x01\x12m\n" +
+	"\vRecentAudit\x12(.chalk.mcp_gateway.v1.RecentAuditRequest\x1a).chalk.mcp_gateway.v1.RecentAuditResponse\"\x06\x80}\x02\x90\x02\x01\x12l\n" +
+	"\vStreamAudit\x12(.chalk.mcp_gateway.v1.StreamAuditRequest\x1a).chalk.mcp_gateway.v1.StreamAuditResponse\"\x06\x80}\x02\x88\x02\x010\x01\x12m\n" +
 	"\fListPolicies\x12).chalk.mcp_gateway.v1.ListPoliciesRequest\x1a*.chalk.mcp_gateway.v1.ListPoliciesResponse\"\x06\x80}\x02\x90\x02\x01\x12d\n" +
 	"\tGetPolicy\x12&.chalk.mcp_gateway.v1.GetPolicyRequest\x1a'.chalk.mcp_gateway.v1.GetPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12a\n" +
 	"\tSetPolicy\x12&.chalk.mcp_gateway.v1.SetPolicyRequest\x1a'.chalk.mcp_gateway.v1.SetPolicyResponse\"\x03\x80}\x02\x12j\n" +
