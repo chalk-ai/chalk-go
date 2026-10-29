@@ -1,0 +1,1 @@
+- Sync generated Go protobuf and Connect bindings with chalk-private dev at 3abb6a34fac, including the bundle usage chart source and billing-model fields.

@@ -91,32 +91,437 @@ type GivensSchema_ScalarGivensBytes struct {
 
 func (*GivensSchema_ScalarGivensBytes) isGivensSchema_EncodedGivensSchema() {}
 
+type SerializedAuxiliaryInfo struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A serialized `chalk.planner.v1.AuxiliaryInfo`.
+	Value         []byte `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SerializedAuxiliaryInfo) Reset() {
+	*x = SerializedAuxiliaryInfo{}
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SerializedAuxiliaryInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SerializedAuxiliaryInfo) ProtoMessage() {}
+
+func (x *SerializedAuxiliaryInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SerializedAuxiliaryInfo.ProtoReflect.Descriptor instead.
+func (*SerializedAuxiliaryInfo) Descriptor() ([]byte, []int) {
+	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SerializedAuxiliaryInfo) GetValue() []byte {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+type SerializedFeatureReferenceId struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A serialized `chalk.planner.v1.FeatureReferenceIdV2`: an ID into `auxiliary_info` that can
+	// refer to any feature except a DataFrameType.
+	Value         []byte `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SerializedFeatureReferenceId) Reset() {
+	*x = SerializedFeatureReferenceId{}
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SerializedFeatureReferenceId) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SerializedFeatureReferenceId) ProtoMessage() {}
+
+func (x *SerializedFeatureReferenceId) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SerializedFeatureReferenceId.ProtoReflect.Descriptor instead.
+func (*SerializedFeatureReferenceId) Descriptor() ([]byte, []int) {
+	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SerializedFeatureReferenceId) GetValue() []byte {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+type SerializedDataFrameTypeId struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A serialized `chalk.planner.v1.DataFrameTypeIdV2`: an ID into `auxiliary_info`.
+	Value         []byte `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SerializedDataFrameTypeId) Reset() {
+	*x = SerializedDataFrameTypeId{}
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SerializedDataFrameTypeId) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SerializedDataFrameTypeId) ProtoMessage() {}
+
+func (x *SerializedDataFrameTypeId) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SerializedDataFrameTypeId.ProtoReflect.Descriptor instead.
+func (*SerializedDataFrameTypeId) Descriptor() ([]byte, []int) {
+	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *SerializedDataFrameTypeId) GetValue() []byte {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+type SerializedFeatureTablesPyArrowSchema struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A serialized `chalk.planner.v1.FeatureTablesPyArrowSchema`.
+	Value         []byte `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SerializedFeatureTablesPyArrowSchema) Reset() {
+	*x = SerializedFeatureTablesPyArrowSchema{}
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SerializedFeatureTablesPyArrowSchema) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SerializedFeatureTablesPyArrowSchema) ProtoMessage() {}
+
+func (x *SerializedFeatureTablesPyArrowSchema) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SerializedFeatureTablesPyArrowSchema.ProtoReflect.Descriptor instead.
+func (*SerializedFeatureTablesPyArrowSchema) Descriptor() ([]byte, []int) {
+	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SerializedFeatureTablesPyArrowSchema) GetValue() []byte {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+type SchemaFeatureType struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to FeatureType:
+	//
+	//	*SchemaFeatureType_NonDf
+	//	*SchemaFeatureType_Df
+	FeatureType   isSchemaFeatureType_FeatureType `protobuf_oneof:"feature_type"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SchemaFeatureType) Reset() {
+	*x = SchemaFeatureType{}
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SchemaFeatureType) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SchemaFeatureType) ProtoMessage() {}
+
+func (x *SchemaFeatureType) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SchemaFeatureType.ProtoReflect.Descriptor instead.
+func (*SchemaFeatureType) Descriptor() ([]byte, []int) {
+	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SchemaFeatureType) GetFeatureType() isSchemaFeatureType_FeatureType {
+	if x != nil {
+		return x.FeatureType
+	}
+	return nil
+}
+
+func (x *SchemaFeatureType) GetNonDf() *SerializedFeatureReferenceId {
+	if x != nil {
+		if x, ok := x.FeatureType.(*SchemaFeatureType_NonDf); ok {
+			return x.NonDf
+		}
+	}
+	return nil
+}
+
+func (x *SchemaFeatureType) GetDf() *SerializedDataFrameTypeId {
+	if x != nil {
+		if x, ok := x.FeatureType.(*SchemaFeatureType_Df); ok {
+			return x.Df
+		}
+	}
+	return nil
+}
+
+type isSchemaFeatureType_FeatureType interface {
+	isSchemaFeatureType_FeatureType()
+}
+
+type SchemaFeatureType_NonDf struct {
+	NonDf *SerializedFeatureReferenceId `protobuf:"bytes,1,opt,name=non_df,json=nonDf,proto3,oneof"`
+}
+
+type SchemaFeatureType_Df struct {
+	Df *SerializedDataFrameTypeId `protobuf:"bytes,2,opt,name=df,proto3,oneof"`
+}
+
+func (*SchemaFeatureType_NonDf) isSchemaFeatureType_FeatureType() {}
+
+func (*SchemaFeatureType_Df) isSchemaFeatureType_FeatureType() {}
+
+type MappedOutputPair struct {
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	Key           *SerializedFeatureReferenceId `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Value         *SerializedFeatureReferenceId `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MappedOutputPair) Reset() {
+	*x = MappedOutputPair{}
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MappedOutputPair) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MappedOutputPair) ProtoMessage() {}
+
+func (x *MappedOutputPair) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MappedOutputPair.ProtoReflect.Descriptor instead.
+func (*MappedOutputPair) Descriptor() ([]byte, []int) {
+	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *MappedOutputPair) GetKey() *SerializedFeatureReferenceId {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *MappedOutputPair) GetValue() *SerializedFeatureReferenceId {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+// The feature-typed inputs of an AllPlanningInputsProto, encoded as IDs into `auxiliary_info`.
+type AuxiliaryFeatureInputs struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The tables the feature IDs in the other fields point into.
+	AuxiliaryInfo       *SerializedAuxiliaryInfo              `protobuf:"bytes,1,opt,name=auxiliary_info,json=auxiliaryInfo,proto3" json:"auxiliary_info,omitempty"`
+	ConvertedOutputs    []*SerializedFeatureReferenceId       `protobuf:"bytes,2,rep,name=converted_outputs,json=convertedOutputs,proto3" json:"converted_outputs,omitempty"`
+	GivensPyarrowSchema *SerializedFeatureTablesPyArrowSchema `protobuf:"bytes,3,opt,name=givens_pyarrow_schema,json=givensPyarrowSchema,proto3" json:"givens_pyarrow_schema,omitempty"`
+	GivensSchema        []*SchemaFeatureType                  `protobuf:"bytes,4,rep,name=givens_schema,json=givensSchema,proto3" json:"givens_schema,omitempty"`
+	MappedOutputs       []*MappedOutputPair                   `protobuf:"bytes,5,rep,name=mapped_outputs,json=mappedOutputs,proto3" json:"mapped_outputs,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *AuxiliaryFeatureInputs) Reset() {
+	*x = AuxiliaryFeatureInputs{}
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuxiliaryFeatureInputs) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuxiliaryFeatureInputs) ProtoMessage() {}
+
+func (x *AuxiliaryFeatureInputs) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuxiliaryFeatureInputs.ProtoReflect.Descriptor instead.
+func (*AuxiliaryFeatureInputs) Descriptor() ([]byte, []int) {
+	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *AuxiliaryFeatureInputs) GetAuxiliaryInfo() *SerializedAuxiliaryInfo {
+	if x != nil {
+		return x.AuxiliaryInfo
+	}
+	return nil
+}
+
+func (x *AuxiliaryFeatureInputs) GetConvertedOutputs() []*SerializedFeatureReferenceId {
+	if x != nil {
+		return x.ConvertedOutputs
+	}
+	return nil
+}
+
+func (x *AuxiliaryFeatureInputs) GetGivensPyarrowSchema() *SerializedFeatureTablesPyArrowSchema {
+	if x != nil {
+		return x.GivensPyarrowSchema
+	}
+	return nil
+}
+
+func (x *AuxiliaryFeatureInputs) GetGivensSchema() []*SchemaFeatureType {
+	if x != nil {
+		return x.GivensSchema
+	}
+	return nil
+}
+
+func (x *AuxiliaryFeatureInputs) GetMappedOutputs() []*MappedOutputPair {
+	if x != nil {
+		return x.MappedOutputs
+	}
+	return nil
+}
+
 type AllPlanningInputsProto struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Context             *v1.OnlineQueryContext `protobuf:"bytes,1,opt,name=context,proto3" json:"context,omitempty"`
-	StorePlanStages     bool                   `protobuf:"varint,4,opt,name=store_plan_stages,json=storePlanStages,proto3" json:"store_plan_stages,omitempty"`
-	Explain             bool                   `protobuf:"varint,5,opt,name=explain,proto3" json:"explain,omitempty"`
-	QueryName           *string                `protobuf:"bytes,6,opt,name=query_name,json=queryName,proto3,oneof" json:"query_name,omitempty"`
-	QueryNameVersion    *string                `protobuf:"bytes,7,opt,name=query_name_version,json=queryNameVersion,proto3,oneof" json:"query_name_version,omitempty"`
-	ConvertedOutputFqns []string               `protobuf:"bytes,8,rep,name=converted_output_fqns,json=convertedOutputFqns,proto3" json:"converted_output_fqns,omitempty"`
-	//  repeated OutputUnderscoreFeatureTypeProto output_expressions = 9;
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Context          *v1.OnlineQueryContext `protobuf:"bytes,1,opt,name=context,proto3" json:"context,omitempty"`
+	StorePlanStages  bool                   `protobuf:"varint,4,opt,name=store_plan_stages,json=storePlanStages,proto3" json:"store_plan_stages,omitempty"`
+	Explain          bool                   `protobuf:"varint,5,opt,name=explain,proto3" json:"explain,omitempty"`
+	QueryName        *string                `protobuf:"bytes,6,opt,name=query_name,json=queryName,proto3,oneof" json:"query_name,omitempty"`
+	QueryNameVersion *string                `protobuf:"bytes,7,opt,name=query_name_version,json=queryNameVersion,proto3,oneof" json:"query_name_version,omitempty"`
+	// repeated OutputUnderscoreFeatureTypeProto output_expressions = 9;
 	PkeyFeature                       string                          `protobuf:"bytes,10,opt,name=pkey_feature,json=pkeyFeature,proto3" json:"pkey_feature,omitempty"`
 	Staleness                         map[string]*durationpb.Duration `protobuf:"bytes,11,rep,name=staleness,proto3" json:"staleness,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	ValueMetricsTagByFeatures         []string                        `protobuf:"bytes,12,rep,name=value_metrics_tag_by_features,json=valueMetricsTagByFeatures,proto3" json:"value_metrics_tag_by_features,omitempty"`
-	ScalarGivensFqns                  []string                        `protobuf:"bytes,13,rep,name=scalar_givens_fqns,json=scalarGivensFqns,proto3" json:"scalar_givens_fqns,omitempty"`
-	GivensSchema                      *GivensSchema                   `protobuf:"bytes,14,opt,name=givens_schema,json=givensSchema,proto3,oneof" json:"givens_schema,omitempty"`
 	PlannerOptions                    map[string]*structpb.Value      `protobuf:"bytes,15,rep,name=planner_options,json=plannerOptions,proto3" json:"planner_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	MappedOutputs                     map[string]string               `protobuf:"bytes,16,rep,name=mapped_outputs,json=mappedOutputs,proto3" json:"mapped_outputs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	GivensAreSingleRow                bool                            `protobuf:"varint,17,opt,name=givens_are_single_row,json=givensAreSingleRow,proto3" json:"givens_are_single_row,omitempty"`
 	UseAlternateDefaultPlannerOptions bool                            `protobuf:"varint,18,opt,name=use_alternate_default_planner_options,json=useAlternateDefaultPlannerOptions,proto3" json:"use_alternate_default_planner_options,omitempty"`
 	CustomerMetaTags                  map[string]string               `protobuf:"bytes,19,rep,name=customer_meta_tags,json=customerMetaTags,proto3" json:"customer_meta_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields                     protoimpl.UnknownFields
-	sizeCache                         protoimpl.SizeCache
+	OutputExpressions                 []*v1.FeatureExpression         `protobuf:"bytes,20,rep,name=output_expressions,json=outputExpressions,proto3" json:"output_expressions,omitempty"`
+	// The feature-typed inputs. Set on every row written with this encoding; its presence is what
+	// tells a reader to ignore the legacy fields below.
+	FeatureInputs *AuxiliaryFeatureInputs `protobuf:"bytes,21,opt,name=feature_inputs,json=featureInputs,proto3" json:"feature_inputs,omitempty"`
+	// Legacy feature-typed inputs: FQNs plus the givens as pyarrow schema bytes. Only rows written
+	// before `feature_inputs` existed set these. Once those rows have expired, delete the legacy
+	// reader and reserve these field numbers and names.
+	//
+	// Deprecated: Marked as deprecated in chalk/enginestorage/v1/adhoc_query.proto.
+	ConvertedOutputFqns []string `protobuf:"bytes,8,rep,name=converted_output_fqns,json=convertedOutputFqns,proto3" json:"converted_output_fqns,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/enginestorage/v1/adhoc_query.proto.
+	ScalarGivensFqns []string `protobuf:"bytes,13,rep,name=scalar_givens_fqns,json=scalarGivensFqns,proto3" json:"scalar_givens_fqns,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/enginestorage/v1/adhoc_query.proto.
+	GivensSchema *GivensSchema `protobuf:"bytes,14,opt,name=givens_schema,json=givensSchema,proto3,oneof" json:"givens_schema,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/enginestorage/v1/adhoc_query.proto.
+	MappedOutputs map[string]string `protobuf:"bytes,16,rep,name=mapped_outputs,json=mappedOutputs,proto3" json:"mapped_outputs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AllPlanningInputsProto) Reset() {
 	*x = AllPlanningInputsProto{}
-	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[1]
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -128,7 +533,7 @@ func (x *AllPlanningInputsProto) String() string {
 func (*AllPlanningInputsProto) ProtoMessage() {}
 
 func (x *AllPlanningInputsProto) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[1]
+	mi := &file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -141,7 +546,7 @@ func (x *AllPlanningInputsProto) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AllPlanningInputsProto.ProtoReflect.Descriptor instead.
 func (*AllPlanningInputsProto) Descriptor() ([]byte, []int) {
-	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{1}
+	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *AllPlanningInputsProto) GetContext() *v1.OnlineQueryContext {
@@ -179,13 +584,6 @@ func (x *AllPlanningInputsProto) GetQueryNameVersion() string {
 	return ""
 }
 
-func (x *AllPlanningInputsProto) GetConvertedOutputFqns() []string {
-	if x != nil {
-		return x.ConvertedOutputFqns
-	}
-	return nil
-}
-
 func (x *AllPlanningInputsProto) GetPkeyFeature() string {
 	if x != nil {
 		return x.PkeyFeature
@@ -207,30 +605,9 @@ func (x *AllPlanningInputsProto) GetValueMetricsTagByFeatures() []string {
 	return nil
 }
 
-func (x *AllPlanningInputsProto) GetScalarGivensFqns() []string {
-	if x != nil {
-		return x.ScalarGivensFqns
-	}
-	return nil
-}
-
-func (x *AllPlanningInputsProto) GetGivensSchema() *GivensSchema {
-	if x != nil {
-		return x.GivensSchema
-	}
-	return nil
-}
-
 func (x *AllPlanningInputsProto) GetPlannerOptions() map[string]*structpb.Value {
 	if x != nil {
 		return x.PlannerOptions
-	}
-	return nil
-}
-
-func (x *AllPlanningInputsProto) GetMappedOutputs() map[string]string {
-	if x != nil {
-		return x.MappedOutputs
 	}
 	return nil
 }
@@ -256,6 +633,52 @@ func (x *AllPlanningInputsProto) GetCustomerMetaTags() map[string]string {
 	return nil
 }
 
+func (x *AllPlanningInputsProto) GetOutputExpressions() []*v1.FeatureExpression {
+	if x != nil {
+		return x.OutputExpressions
+	}
+	return nil
+}
+
+func (x *AllPlanningInputsProto) GetFeatureInputs() *AuxiliaryFeatureInputs {
+	if x != nil {
+		return x.FeatureInputs
+	}
+	return nil
+}
+
+// Deprecated: Marked as deprecated in chalk/enginestorage/v1/adhoc_query.proto.
+func (x *AllPlanningInputsProto) GetConvertedOutputFqns() []string {
+	if x != nil {
+		return x.ConvertedOutputFqns
+	}
+	return nil
+}
+
+// Deprecated: Marked as deprecated in chalk/enginestorage/v1/adhoc_query.proto.
+func (x *AllPlanningInputsProto) GetScalarGivensFqns() []string {
+	if x != nil {
+		return x.ScalarGivensFqns
+	}
+	return nil
+}
+
+// Deprecated: Marked as deprecated in chalk/enginestorage/v1/adhoc_query.proto.
+func (x *AllPlanningInputsProto) GetGivensSchema() *GivensSchema {
+	if x != nil {
+		return x.GivensSchema
+	}
+	return nil
+}
+
+// Deprecated: Marked as deprecated in chalk/enginestorage/v1/adhoc_query.proto.
+func (x *AllPlanningInputsProto) GetMappedOutputs() map[string]string {
+	if x != nil {
+		return x.MappedOutputs
+	}
+	return nil
+}
+
 var File_chalk_enginestorage_v1_adhoc_query_proto protoreflect.FileDescriptor
 
 const file_chalk_enginestorage_v1_adhoc_query_proto_rawDesc = "" +
@@ -263,36 +686,59 @@ const file_chalk_enginestorage_v1_adhoc_query_proto_rawDesc = "" +
 	"(chalk/enginestorage/v1/adhoc_query.proto\x12\x16chalk.enginestorage.v1\x1a\"chalk/common/v1/online_query.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\"Y\n" +
 	"\fGivensSchema\x120\n" +
 	"\x13scalar_givens_bytes\x18\x01 \x01(\fH\x00R\x11scalarGivensBytesB\x17\n" +
-	"\x15encoded_givens_schema\"\xab\v\n" +
+	"\x15encoded_givens_schema\"/\n" +
+	"\x17SerializedAuxiliaryInfo\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\fR\x05value\"4\n" +
+	"\x1cSerializedFeatureReferenceId\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\fR\x05value\"1\n" +
+	"\x19SerializedDataFrameTypeId\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\fR\x05value\"<\n" +
+	"$SerializedFeatureTablesPyArrowSchema\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\fR\x05value\"\xb7\x01\n" +
+	"\x11SchemaFeatureType\x12M\n" +
+	"\x06non_df\x18\x01 \x01(\v24.chalk.enginestorage.v1.SerializedFeatureReferenceIdH\x00R\x05nonDf\x12C\n" +
+	"\x02df\x18\x02 \x01(\v21.chalk.enginestorage.v1.SerializedDataFrameTypeIdH\x00R\x02dfB\x0e\n" +
+	"\ffeature_type\"\xa6\x01\n" +
+	"\x10MappedOutputPair\x12F\n" +
+	"\x03key\x18\x01 \x01(\v24.chalk.enginestorage.v1.SerializedFeatureReferenceIdR\x03key\x12J\n" +
+	"\x05value\x18\x02 \x01(\v24.chalk.enginestorage.v1.SerializedFeatureReferenceIdR\x05value\"\xe6\x03\n" +
+	"\x16AuxiliaryFeatureInputs\x12V\n" +
+	"\x0eauxiliary_info\x18\x01 \x01(\v2/.chalk.enginestorage.v1.SerializedAuxiliaryInfoR\rauxiliaryInfo\x12a\n" +
+	"\x11converted_outputs\x18\x02 \x03(\v24.chalk.enginestorage.v1.SerializedFeatureReferenceIdR\x10convertedOutputs\x12p\n" +
+	"\x15givens_pyarrow_schema\x18\x03 \x01(\v2<.chalk.enginestorage.v1.SerializedFeatureTablesPyArrowSchemaR\x13givensPyarrowSchema\x12N\n" +
+	"\rgivens_schema\x18\x04 \x03(\v2).chalk.enginestorage.v1.SchemaFeatureTypeR\fgivensSchema\x12O\n" +
+	"\x0emapped_outputs\x18\x05 \x03(\v2(.chalk.enginestorage.v1.MappedOutputPairR\rmappedOutputs\"\xe5\f\n" +
 	"\x16AllPlanningInputsProto\x12=\n" +
 	"\acontext\x18\x01 \x01(\v2#.chalk.common.v1.OnlineQueryContextR\acontext\x12*\n" +
 	"\x11store_plan_stages\x18\x04 \x01(\bR\x0fstorePlanStages\x12\x18\n" +
 	"\aexplain\x18\x05 \x01(\bR\aexplain\x12\"\n" +
 	"\n" +
 	"query_name\x18\x06 \x01(\tH\x00R\tqueryName\x88\x01\x01\x121\n" +
-	"\x12query_name_version\x18\a \x01(\tH\x01R\x10queryNameVersion\x88\x01\x01\x122\n" +
-	"\x15converted_output_fqns\x18\b \x03(\tR\x13convertedOutputFqns\x12!\n" +
+	"\x12query_name_version\x18\a \x01(\tH\x01R\x10queryNameVersion\x88\x01\x01\x12!\n" +
 	"\fpkey_feature\x18\n" +
 	" \x01(\tR\vpkeyFeature\x12[\n" +
 	"\tstaleness\x18\v \x03(\v2=.chalk.enginestorage.v1.AllPlanningInputsProto.StalenessEntryR\tstaleness\x12@\n" +
-	"\x1dvalue_metrics_tag_by_features\x18\f \x03(\tR\x19valueMetricsTagByFeatures\x12,\n" +
-	"\x12scalar_givens_fqns\x18\r \x03(\tR\x10scalarGivensFqns\x12N\n" +
-	"\rgivens_schema\x18\x0e \x01(\v2$.chalk.enginestorage.v1.GivensSchemaH\x02R\fgivensSchema\x88\x01\x01\x12k\n" +
-	"\x0fplanner_options\x18\x0f \x03(\v2B.chalk.enginestorage.v1.AllPlanningInputsProto.PlannerOptionsEntryR\x0eplannerOptions\x12h\n" +
-	"\x0emapped_outputs\x18\x10 \x03(\v2A.chalk.enginestorage.v1.AllPlanningInputsProto.MappedOutputsEntryR\rmappedOutputs\x121\n" +
+	"\x1dvalue_metrics_tag_by_features\x18\f \x03(\tR\x19valueMetricsTagByFeatures\x12k\n" +
+	"\x0fplanner_options\x18\x0f \x03(\v2B.chalk.enginestorage.v1.AllPlanningInputsProto.PlannerOptionsEntryR\x0eplannerOptions\x121\n" +
 	"\x15givens_are_single_row\x18\x11 \x01(\bR\x12givensAreSingleRow\x12P\n" +
 	"%use_alternate_default_planner_options\x18\x12 \x01(\bR!useAlternateDefaultPlannerOptions\x12r\n" +
-	"\x12customer_meta_tags\x18\x13 \x03(\v2D.chalk.enginestorage.v1.AllPlanningInputsProto.CustomerMetaTagsEntryR\x10customerMetaTags\x1aW\n" +
+	"\x12customer_meta_tags\x18\x13 \x03(\v2D.chalk.enginestorage.v1.AllPlanningInputsProto.CustomerMetaTagsEntryR\x10customerMetaTags\x12Q\n" +
+	"\x12output_expressions\x18\x14 \x03(\v2\".chalk.common.v1.FeatureExpressionR\x11outputExpressions\x12U\n" +
+	"\x0efeature_inputs\x18\x15 \x01(\v2..chalk.enginestorage.v1.AuxiliaryFeatureInputsR\rfeatureInputs\x126\n" +
+	"\x15converted_output_fqns\x18\b \x03(\tB\x02\x18\x01R\x13convertedOutputFqns\x120\n" +
+	"\x12scalar_givens_fqns\x18\r \x03(\tB\x02\x18\x01R\x10scalarGivensFqns\x12R\n" +
+	"\rgivens_schema\x18\x0e \x01(\v2$.chalk.enginestorage.v1.GivensSchemaB\x02\x18\x01H\x02R\fgivensSchema\x88\x01\x01\x12l\n" +
+	"\x0emapped_outputs\x18\x10 \x03(\v2A.chalk.enginestorage.v1.AllPlanningInputsProto.MappedOutputsEntryB\x02\x18\x01R\rmappedOutputs\x1aW\n" +
 	"\x0eStalenessEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12/\n" +
 	"\x05value\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x05value:\x028\x01\x1aY\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
-	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a@\n" +
-	"\x12MappedOutputsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aC\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1aC\n" +
 	"\x15CustomerMetaTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a@\n" +
+	"\x12MappedOutputsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\r\n" +
 	"\v_query_nameB\x15\n" +
@@ -312,32 +758,51 @@ func file_chalk_enginestorage_v1_adhoc_query_proto_rawDescGZIP() []byte {
 	return file_chalk_enginestorage_v1_adhoc_query_proto_rawDescData
 }
 
-var file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_chalk_enginestorage_v1_adhoc_query_proto_goTypes = []any{
-	(*GivensSchema)(nil),           // 0: chalk.enginestorage.v1.GivensSchema
-	(*AllPlanningInputsProto)(nil), // 1: chalk.enginestorage.v1.AllPlanningInputsProto
-	nil,                            // 2: chalk.enginestorage.v1.AllPlanningInputsProto.StalenessEntry
-	nil,                            // 3: chalk.enginestorage.v1.AllPlanningInputsProto.PlannerOptionsEntry
-	nil,                            // 4: chalk.enginestorage.v1.AllPlanningInputsProto.MappedOutputsEntry
-	nil,                            // 5: chalk.enginestorage.v1.AllPlanningInputsProto.CustomerMetaTagsEntry
-	(*v1.OnlineQueryContext)(nil),  // 6: chalk.common.v1.OnlineQueryContext
-	(*durationpb.Duration)(nil),    // 7: google.protobuf.Duration
-	(*structpb.Value)(nil),         // 8: google.protobuf.Value
+	(*GivensSchema)(nil),                         // 0: chalk.enginestorage.v1.GivensSchema
+	(*SerializedAuxiliaryInfo)(nil),              // 1: chalk.enginestorage.v1.SerializedAuxiliaryInfo
+	(*SerializedFeatureReferenceId)(nil),         // 2: chalk.enginestorage.v1.SerializedFeatureReferenceId
+	(*SerializedDataFrameTypeId)(nil),            // 3: chalk.enginestorage.v1.SerializedDataFrameTypeId
+	(*SerializedFeatureTablesPyArrowSchema)(nil), // 4: chalk.enginestorage.v1.SerializedFeatureTablesPyArrowSchema
+	(*SchemaFeatureType)(nil),                    // 5: chalk.enginestorage.v1.SchemaFeatureType
+	(*MappedOutputPair)(nil),                     // 6: chalk.enginestorage.v1.MappedOutputPair
+	(*AuxiliaryFeatureInputs)(nil),               // 7: chalk.enginestorage.v1.AuxiliaryFeatureInputs
+	(*AllPlanningInputsProto)(nil),               // 8: chalk.enginestorage.v1.AllPlanningInputsProto
+	nil,                                          // 9: chalk.enginestorage.v1.AllPlanningInputsProto.StalenessEntry
+	nil,                                          // 10: chalk.enginestorage.v1.AllPlanningInputsProto.PlannerOptionsEntry
+	nil,                                          // 11: chalk.enginestorage.v1.AllPlanningInputsProto.CustomerMetaTagsEntry
+	nil,                                          // 12: chalk.enginestorage.v1.AllPlanningInputsProto.MappedOutputsEntry
+	(*v1.OnlineQueryContext)(nil),                // 13: chalk.common.v1.OnlineQueryContext
+	(*v1.FeatureExpression)(nil),                 // 14: chalk.common.v1.FeatureExpression
+	(*durationpb.Duration)(nil),                  // 15: google.protobuf.Duration
+	(*structpb.Value)(nil),                       // 16: google.protobuf.Value
 }
 var file_chalk_enginestorage_v1_adhoc_query_proto_depIdxs = []int32{
-	6, // 0: chalk.enginestorage.v1.AllPlanningInputsProto.context:type_name -> chalk.common.v1.OnlineQueryContext
-	2, // 1: chalk.enginestorage.v1.AllPlanningInputsProto.staleness:type_name -> chalk.enginestorage.v1.AllPlanningInputsProto.StalenessEntry
-	0, // 2: chalk.enginestorage.v1.AllPlanningInputsProto.givens_schema:type_name -> chalk.enginestorage.v1.GivensSchema
-	3, // 3: chalk.enginestorage.v1.AllPlanningInputsProto.planner_options:type_name -> chalk.enginestorage.v1.AllPlanningInputsProto.PlannerOptionsEntry
-	4, // 4: chalk.enginestorage.v1.AllPlanningInputsProto.mapped_outputs:type_name -> chalk.enginestorage.v1.AllPlanningInputsProto.MappedOutputsEntry
-	5, // 5: chalk.enginestorage.v1.AllPlanningInputsProto.customer_meta_tags:type_name -> chalk.enginestorage.v1.AllPlanningInputsProto.CustomerMetaTagsEntry
-	7, // 6: chalk.enginestorage.v1.AllPlanningInputsProto.StalenessEntry.value:type_name -> google.protobuf.Duration
-	8, // 7: chalk.enginestorage.v1.AllPlanningInputsProto.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	2,  // 0: chalk.enginestorage.v1.SchemaFeatureType.non_df:type_name -> chalk.enginestorage.v1.SerializedFeatureReferenceId
+	3,  // 1: chalk.enginestorage.v1.SchemaFeatureType.df:type_name -> chalk.enginestorage.v1.SerializedDataFrameTypeId
+	2,  // 2: chalk.enginestorage.v1.MappedOutputPair.key:type_name -> chalk.enginestorage.v1.SerializedFeatureReferenceId
+	2,  // 3: chalk.enginestorage.v1.MappedOutputPair.value:type_name -> chalk.enginestorage.v1.SerializedFeatureReferenceId
+	1,  // 4: chalk.enginestorage.v1.AuxiliaryFeatureInputs.auxiliary_info:type_name -> chalk.enginestorage.v1.SerializedAuxiliaryInfo
+	2,  // 5: chalk.enginestorage.v1.AuxiliaryFeatureInputs.converted_outputs:type_name -> chalk.enginestorage.v1.SerializedFeatureReferenceId
+	4,  // 6: chalk.enginestorage.v1.AuxiliaryFeatureInputs.givens_pyarrow_schema:type_name -> chalk.enginestorage.v1.SerializedFeatureTablesPyArrowSchema
+	5,  // 7: chalk.enginestorage.v1.AuxiliaryFeatureInputs.givens_schema:type_name -> chalk.enginestorage.v1.SchemaFeatureType
+	6,  // 8: chalk.enginestorage.v1.AuxiliaryFeatureInputs.mapped_outputs:type_name -> chalk.enginestorage.v1.MappedOutputPair
+	13, // 9: chalk.enginestorage.v1.AllPlanningInputsProto.context:type_name -> chalk.common.v1.OnlineQueryContext
+	9,  // 10: chalk.enginestorage.v1.AllPlanningInputsProto.staleness:type_name -> chalk.enginestorage.v1.AllPlanningInputsProto.StalenessEntry
+	10, // 11: chalk.enginestorage.v1.AllPlanningInputsProto.planner_options:type_name -> chalk.enginestorage.v1.AllPlanningInputsProto.PlannerOptionsEntry
+	11, // 12: chalk.enginestorage.v1.AllPlanningInputsProto.customer_meta_tags:type_name -> chalk.enginestorage.v1.AllPlanningInputsProto.CustomerMetaTagsEntry
+	14, // 13: chalk.enginestorage.v1.AllPlanningInputsProto.output_expressions:type_name -> chalk.common.v1.FeatureExpression
+	7,  // 14: chalk.enginestorage.v1.AllPlanningInputsProto.feature_inputs:type_name -> chalk.enginestorage.v1.AuxiliaryFeatureInputs
+	0,  // 15: chalk.enginestorage.v1.AllPlanningInputsProto.givens_schema:type_name -> chalk.enginestorage.v1.GivensSchema
+	12, // 16: chalk.enginestorage.v1.AllPlanningInputsProto.mapped_outputs:type_name -> chalk.enginestorage.v1.AllPlanningInputsProto.MappedOutputsEntry
+	15, // 17: chalk.enginestorage.v1.AllPlanningInputsProto.StalenessEntry.value:type_name -> google.protobuf.Duration
+	16, // 18: chalk.enginestorage.v1.AllPlanningInputsProto.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_enginestorage_v1_adhoc_query_proto_init() }
@@ -348,14 +813,18 @@ func file_chalk_enginestorage_v1_adhoc_query_proto_init() {
 	file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[0].OneofWrappers = []any{
 		(*GivensSchema_ScalarGivensBytes)(nil),
 	}
-	file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[5].OneofWrappers = []any{
+		(*SchemaFeatureType_NonDf)(nil),
+		(*SchemaFeatureType_Df)(nil),
+	}
+	file_chalk_enginestorage_v1_adhoc_query_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_enginestorage_v1_adhoc_query_proto_rawDesc), len(file_chalk_enginestorage_v1_adhoc_query_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

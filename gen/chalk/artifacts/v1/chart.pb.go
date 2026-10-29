@@ -685,6 +685,8 @@ const (
 	FilterKind_FILTER_KIND_WORKLOAD_STATE         FilterKind = 49
 	FilterKind_FILTER_KIND_TRAINING_RUBRIC        FilterKind = 50
 	FilterKind_FILTER_KIND_TRAINING_TASK          FilterKind = 51
+	// Canonical GPU workload identity: sandbox container ID or scaling-group ID.
+	FilterKind_FILTER_KIND_WORKLOAD_ID FilterKind = 52
 )
 
 // Enum value maps for FilterKind.
@@ -741,6 +743,7 @@ var (
 		49: "FILTER_KIND_WORKLOAD_STATE",
 		50: "FILTER_KIND_TRAINING_RUBRIC",
 		51: "FILTER_KIND_TRAINING_TASK",
+		52: "FILTER_KIND_WORKLOAD_ID",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -794,6 +797,7 @@ var (
 		"FILTER_KIND_WORKLOAD_STATE":             49,
 		"FILTER_KIND_TRAINING_RUBRIC":            50,
 		"FILTER_KIND_TRAINING_TASK":              51,
+		"FILTER_KIND_WORKLOAD_ID":                52,
 	}
 )
 
@@ -2598,7 +2602,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	",METRIC_KIND_VICTORIA_METRICS_DISK_FREE_BYTES\x10\xa5\x01\x122\n" +
 	"-METRIC_KIND_VICTORIA_METRICS_DISK_TOTAL_BYTES\x10\xa6\x01\x12\x1b\n" +
 	"\x16METRIC_KIND_QUERY_RATE\x10\xa7\x01\x12$\n" +
-	"\x1fMETRIC_KIND_STREAM_MESSAGE_RATE\x10\xa8\x01*\xf7\f\n" +
+	"\x1fMETRIC_KIND_STREAM_MESSAGE_RATE\x10\xa8\x01*\x94\r\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2652,7 +2656,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1cFILTER_KIND_WORKLOAD_RUNTIME\x100\x12\x1e\n" +
 	"\x1aFILTER_KIND_WORKLOAD_STATE\x101\x12\x1f\n" +
 	"\x1bFILTER_KIND_TRAINING_RUBRIC\x102\x12\x1d\n" +
-	"\x19FILTER_KIND_TRAINING_TASK\x103\"\x04\b/\x10/*~\n" +
+	"\x19FILTER_KIND_TRAINING_TASK\x103\x12\x1b\n" +
+	"\x17FILTER_KIND_WORKLOAD_ID\x104\"\x04\b/\x10/*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +

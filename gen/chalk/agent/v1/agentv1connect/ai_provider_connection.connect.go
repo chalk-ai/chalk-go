@@ -52,6 +52,9 @@ const (
 	// AiProviderConnectionServiceListAiProviderConnectionModelsProcedure is the fully-qualified name of
 	// the AiProviderConnectionService's ListAiProviderConnectionModels RPC.
 	AiProviderConnectionServiceListAiProviderConnectionModelsProcedure = "/chalk.agent.v1.AiProviderConnectionService/ListAiProviderConnectionModels"
+	// AiProviderConnectionServiceGetChalkManagedUsageProcedure is the fully-qualified name of the
+	// AiProviderConnectionService's GetChalkManagedUsage RPC.
+	AiProviderConnectionServiceGetChalkManagedUsageProcedure = "/chalk.agent.v1.AiProviderConnectionService/GetChalkManagedUsage"
 )
 
 // AiProviderConnectionServiceClient is a client for the chalk.agent.v1.AiProviderConnectionService
@@ -63,6 +66,12 @@ type AiProviderConnectionServiceClient interface {
 	UpdateAiProviderConnection(context.Context, *connect.Request[v1.UpdateAiProviderConnectionRequest]) (*connect.Response[v1.UpdateAiProviderConnectionResponse], error)
 	DeleteAiProviderConnection(context.Context, *connect.Request[v1.DeleteAiProviderConnectionRequest]) (*connect.Response[v1.DeleteAiProviderConnectionResponse], error)
 	ListAiProviderConnectionModels(context.Context, *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error)
+	// GetChalkManagedUsage reports the token usage of the environment's
+	// Chalk-managed connection, which is served by a router the caller cannot
+	// query directly. It requires the same permission as managing provider
+	// connections, and fails with FailedPrecondition if the environment has not
+	// opted in.
+	GetChalkManagedUsage(context.Context, *connect.Request[v1.GetChalkManagedUsageRequest]) (*connect.Response[v1.GetChalkManagedUsageResponse], error)
 }
 
 // NewAiProviderConnectionServiceClient constructs a client for the
@@ -117,6 +126,13 @@ func NewAiProviderConnectionServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getChalkManagedUsage: connect.NewClient[v1.GetChalkManagedUsageRequest, v1.GetChalkManagedUsageResponse](
+			httpClient,
+			baseURL+AiProviderConnectionServiceGetChalkManagedUsageProcedure,
+			connect.WithSchema(aiProviderConnectionServiceMethods.ByName("GetChalkManagedUsage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -128,6 +144,7 @@ type aiProviderConnectionServiceClient struct {
 	updateAiProviderConnection     *connect.Client[v1.UpdateAiProviderConnectionRequest, v1.UpdateAiProviderConnectionResponse]
 	deleteAiProviderConnection     *connect.Client[v1.DeleteAiProviderConnectionRequest, v1.DeleteAiProviderConnectionResponse]
 	listAiProviderConnectionModels *connect.Client[v1.ListAiProviderConnectionModelsRequest, v1.ListAiProviderConnectionModelsResponse]
+	getChalkManagedUsage           *connect.Client[v1.GetChalkManagedUsageRequest, v1.GetChalkManagedUsageResponse]
 }
 
 // CreateAiProviderConnection calls
@@ -165,6 +182,11 @@ func (c *aiProviderConnectionServiceClient) ListAiProviderConnectionModels(ctx c
 	return c.listAiProviderConnectionModels.CallUnary(ctx, req)
 }
 
+// GetChalkManagedUsage calls chalk.agent.v1.AiProviderConnectionService.GetChalkManagedUsage.
+func (c *aiProviderConnectionServiceClient) GetChalkManagedUsage(ctx context.Context, req *connect.Request[v1.GetChalkManagedUsageRequest]) (*connect.Response[v1.GetChalkManagedUsageResponse], error) {
+	return c.getChalkManagedUsage.CallUnary(ctx, req)
+}
+
 // AiProviderConnectionServiceHandler is an implementation of the
 // chalk.agent.v1.AiProviderConnectionService service.
 type AiProviderConnectionServiceHandler interface {
@@ -174,6 +196,12 @@ type AiProviderConnectionServiceHandler interface {
 	UpdateAiProviderConnection(context.Context, *connect.Request[v1.UpdateAiProviderConnectionRequest]) (*connect.Response[v1.UpdateAiProviderConnectionResponse], error)
 	DeleteAiProviderConnection(context.Context, *connect.Request[v1.DeleteAiProviderConnectionRequest]) (*connect.Response[v1.DeleteAiProviderConnectionResponse], error)
 	ListAiProviderConnectionModels(context.Context, *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error)
+	// GetChalkManagedUsage reports the token usage of the environment's
+	// Chalk-managed connection, which is served by a router the caller cannot
+	// query directly. It requires the same permission as managing provider
+	// connections, and fails with FailedPrecondition if the environment has not
+	// opted in.
+	GetChalkManagedUsage(context.Context, *connect.Request[v1.GetChalkManagedUsageRequest]) (*connect.Response[v1.GetChalkManagedUsageResponse], error)
 }
 
 // NewAiProviderConnectionServiceHandler builds an HTTP handler from the service implementation. It
@@ -224,6 +252,13 @@ func NewAiProviderConnectionServiceHandler(svc AiProviderConnectionServiceHandle
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	aiProviderConnectionServiceGetChalkManagedUsageHandler := connect.NewUnaryHandler(
+		AiProviderConnectionServiceGetChalkManagedUsageProcedure,
+		svc.GetChalkManagedUsage,
+		connect.WithSchema(aiProviderConnectionServiceMethods.ByName("GetChalkManagedUsage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.agent.v1.AiProviderConnectionService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AiProviderConnectionServiceCreateAiProviderConnectionProcedure:
@@ -238,6 +273,8 @@ func NewAiProviderConnectionServiceHandler(svc AiProviderConnectionServiceHandle
 			aiProviderConnectionServiceDeleteAiProviderConnectionHandler.ServeHTTP(w, r)
 		case AiProviderConnectionServiceListAiProviderConnectionModelsProcedure:
 			aiProviderConnectionServiceListAiProviderConnectionModelsHandler.ServeHTTP(w, r)
+		case AiProviderConnectionServiceGetChalkManagedUsageProcedure:
+			aiProviderConnectionServiceGetChalkManagedUsageHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -269,4 +306,8 @@ func (UnimplementedAiProviderConnectionServiceHandler) DeleteAiProviderConnectio
 
 func (UnimplementedAiProviderConnectionServiceHandler) ListAiProviderConnectionModels(context.Context, *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels is not implemented"))
+}
+
+func (UnimplementedAiProviderConnectionServiceHandler) GetChalkManagedUsage(context.Context, *connect.Request[v1.GetChalkManagedUsageRequest]) (*connect.Response[v1.GetChalkManagedUsageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.agent.v1.AiProviderConnectionService.GetChalkManagedUsage is not implemented"))
 }

@@ -45,6 +45,9 @@ const (
 	// DashboardServiceUpdateDashboardProcedure is the fully-qualified name of the DashboardService's
 	// UpdateDashboard RPC.
 	DashboardServiceUpdateDashboardProcedure = "/chalk.server.v1.DashboardService/UpdateDashboard"
+	// DashboardServiceUpdateDashboardSharingProcedure is the fully-qualified name of the
+	// DashboardService's UpdateDashboardSharing RPC.
+	DashboardServiceUpdateDashboardSharingProcedure = "/chalk.server.v1.DashboardService/UpdateDashboardSharing"
 	// DashboardServiceDeleteDashboardProcedure is the fully-qualified name of the DashboardService's
 	// DeleteDashboard RPC.
 	DashboardServiceDeleteDashboardProcedure = "/chalk.server.v1.DashboardService/DeleteDashboard"
@@ -71,6 +74,8 @@ type DashboardServiceClient interface {
 	GetDashboard(context.Context, *connect.Request[v1.GetDashboardRequest]) (*connect.Response[v1.GetDashboardResponse], error)
 	ListDashboards(context.Context, *connect.Request[v1.ListDashboardsRequest]) (*connect.Response[v1.ListDashboardsResponse], error)
 	UpdateDashboard(context.Context, *connect.Request[v1.UpdateDashboardRequest]) (*connect.Response[v1.UpdateDashboardResponse], error)
+	// Owner-only, enforced in the handler; the annotation is just the coarse gate.
+	UpdateDashboardSharing(context.Context, *connect.Request[v1.UpdateDashboardSharingRequest]) (*connect.Response[v1.UpdateDashboardSharingResponse], error)
 	DeleteDashboard(context.Context, *connect.Request[v1.DeleteDashboardRequest]) (*connect.Response[v1.DeleteDashboardResponse], error)
 	ExportDashboard(context.Context, *connect.Request[v1.ExportDashboardRequest]) (*connect.Response[v1.ExportDashboardResponse], error)
 	ImportDashboard(context.Context, *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error)
@@ -112,6 +117,12 @@ func NewDashboardServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			httpClient,
 			baseURL+DashboardServiceUpdateDashboardProcedure,
 			connect.WithSchema(dashboardServiceMethods.ByName("UpdateDashboard")),
+			connect.WithClientOptions(opts...),
+		),
+		updateDashboardSharing: connect.NewClient[v1.UpdateDashboardSharingRequest, v1.UpdateDashboardSharingResponse](
+			httpClient,
+			baseURL+DashboardServiceUpdateDashboardSharingProcedure,
+			connect.WithSchema(dashboardServiceMethods.ByName("UpdateDashboardSharing")),
 			connect.WithClientOptions(opts...),
 		),
 		deleteDashboard: connect.NewClient[v1.DeleteDashboardRequest, v1.DeleteDashboardResponse](
@@ -159,6 +170,7 @@ type dashboardServiceClient struct {
 	getDashboard              *connect.Client[v1.GetDashboardRequest, v1.GetDashboardResponse]
 	listDashboards            *connect.Client[v1.ListDashboardsRequest, v1.ListDashboardsResponse]
 	updateDashboard           *connect.Client[v1.UpdateDashboardRequest, v1.UpdateDashboardResponse]
+	updateDashboardSharing    *connect.Client[v1.UpdateDashboardSharingRequest, v1.UpdateDashboardSharingResponse]
 	deleteDashboard           *connect.Client[v1.DeleteDashboardRequest, v1.DeleteDashboardResponse]
 	exportDashboard           *connect.Client[v1.ExportDashboardRequest, v1.ExportDashboardResponse]
 	importDashboard           *connect.Client[v1.ImportDashboardRequest, v1.ImportDashboardResponse]
@@ -185,6 +197,11 @@ func (c *dashboardServiceClient) ListDashboards(ctx context.Context, req *connec
 // UpdateDashboard calls chalk.server.v1.DashboardService.UpdateDashboard.
 func (c *dashboardServiceClient) UpdateDashboard(ctx context.Context, req *connect.Request[v1.UpdateDashboardRequest]) (*connect.Response[v1.UpdateDashboardResponse], error) {
 	return c.updateDashboard.CallUnary(ctx, req)
+}
+
+// UpdateDashboardSharing calls chalk.server.v1.DashboardService.UpdateDashboardSharing.
+func (c *dashboardServiceClient) UpdateDashboardSharing(ctx context.Context, req *connect.Request[v1.UpdateDashboardSharingRequest]) (*connect.Response[v1.UpdateDashboardSharingResponse], error) {
+	return c.updateDashboardSharing.CallUnary(ctx, req)
 }
 
 // DeleteDashboard calls chalk.server.v1.DashboardService.DeleteDashboard.
@@ -223,6 +240,8 @@ type DashboardServiceHandler interface {
 	GetDashboard(context.Context, *connect.Request[v1.GetDashboardRequest]) (*connect.Response[v1.GetDashboardResponse], error)
 	ListDashboards(context.Context, *connect.Request[v1.ListDashboardsRequest]) (*connect.Response[v1.ListDashboardsResponse], error)
 	UpdateDashboard(context.Context, *connect.Request[v1.UpdateDashboardRequest]) (*connect.Response[v1.UpdateDashboardResponse], error)
+	// Owner-only, enforced in the handler; the annotation is just the coarse gate.
+	UpdateDashboardSharing(context.Context, *connect.Request[v1.UpdateDashboardSharingRequest]) (*connect.Response[v1.UpdateDashboardSharingResponse], error)
 	DeleteDashboard(context.Context, *connect.Request[v1.DeleteDashboardRequest]) (*connect.Response[v1.DeleteDashboardResponse], error)
 	ExportDashboard(context.Context, *connect.Request[v1.ExportDashboardRequest]) (*connect.Response[v1.ExportDashboardResponse], error)
 	ImportDashboard(context.Context, *connect.Request[v1.ImportDashboardRequest]) (*connect.Response[v1.ImportDashboardResponse], error)
@@ -260,6 +279,12 @@ func NewDashboardServiceHandler(svc DashboardServiceHandler, opts ...connect.Han
 		DashboardServiceUpdateDashboardProcedure,
 		svc.UpdateDashboard,
 		connect.WithSchema(dashboardServiceMethods.ByName("UpdateDashboard")),
+		connect.WithHandlerOptions(opts...),
+	)
+	dashboardServiceUpdateDashboardSharingHandler := connect.NewUnaryHandler(
+		DashboardServiceUpdateDashboardSharingProcedure,
+		svc.UpdateDashboardSharing,
+		connect.WithSchema(dashboardServiceMethods.ByName("UpdateDashboardSharing")),
 		connect.WithHandlerOptions(opts...),
 	)
 	dashboardServiceDeleteDashboardHandler := connect.NewUnaryHandler(
@@ -308,6 +333,8 @@ func NewDashboardServiceHandler(svc DashboardServiceHandler, opts ...connect.Han
 			dashboardServiceListDashboardsHandler.ServeHTTP(w, r)
 		case DashboardServiceUpdateDashboardProcedure:
 			dashboardServiceUpdateDashboardHandler.ServeHTTP(w, r)
+		case DashboardServiceUpdateDashboardSharingProcedure:
+			dashboardServiceUpdateDashboardSharingHandler.ServeHTTP(w, r)
 		case DashboardServiceDeleteDashboardProcedure:
 			dashboardServiceDeleteDashboardHandler.ServeHTTP(w, r)
 		case DashboardServiceExportDashboardProcedure:
@@ -343,6 +370,10 @@ func (UnimplementedDashboardServiceHandler) ListDashboards(context.Context, *con
 
 func (UnimplementedDashboardServiceHandler) UpdateDashboard(context.Context, *connect.Request[v1.UpdateDashboardRequest]) (*connect.Response[v1.UpdateDashboardResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.UpdateDashboard is not implemented"))
+}
+
+func (UnimplementedDashboardServiceHandler) UpdateDashboardSharing(context.Context, *connect.Request[v1.UpdateDashboardSharingRequest]) (*connect.Response[v1.UpdateDashboardSharingResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DashboardService.UpdateDashboardSharing is not implemented"))
 }
 
 func (UnimplementedDashboardServiceHandler) DeleteDashboard(context.Context, *connect.Request[v1.DeleteDashboardRequest]) (*connect.Response[v1.DeleteDashboardResponse], error) {

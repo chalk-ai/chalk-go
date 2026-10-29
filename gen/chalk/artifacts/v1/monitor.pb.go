@@ -85,6 +85,62 @@ func (MonitorType) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{0}
 }
 
+type MetricMonitorNullValueBehavior int32
+
+const (
+	// Defaults to IGNORE when no behavior is configured.
+	MetricMonitorNullValueBehavior_METRIC_MONITOR_NULL_VALUE_BEHAVIOR_UNSPECIFIED MetricMonitorNullValueBehavior = 0
+	// A null result fails the monitor check.
+	MetricMonitorNullValueBehavior_METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ALERT MetricMonitorNullValueBehavior = 1
+	// Replace null final MQL results with zero before checking thresholds.
+	MetricMonitorNullValueBehavior_METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ZERO_FILL MetricMonitorNullValueBehavior = 2
+	// Skip null results without opening or resolving incidents.
+	MetricMonitorNullValueBehavior_METRIC_MONITOR_NULL_VALUE_BEHAVIOR_IGNORE MetricMonitorNullValueBehavior = 3
+)
+
+// Enum value maps for MetricMonitorNullValueBehavior.
+var (
+	MetricMonitorNullValueBehavior_name = map[int32]string{
+		0: "METRIC_MONITOR_NULL_VALUE_BEHAVIOR_UNSPECIFIED",
+		1: "METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ALERT",
+		2: "METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ZERO_FILL",
+		3: "METRIC_MONITOR_NULL_VALUE_BEHAVIOR_IGNORE",
+	}
+	MetricMonitorNullValueBehavior_value = map[string]int32{
+		"METRIC_MONITOR_NULL_VALUE_BEHAVIOR_UNSPECIFIED": 0,
+		"METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ALERT":       1,
+		"METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ZERO_FILL":   2,
+		"METRIC_MONITOR_NULL_VALUE_BEHAVIOR_IGNORE":      3,
+	}
+)
+
+func (x MetricMonitorNullValueBehavior) Enum() *MetricMonitorNullValueBehavior {
+	p := new(MetricMonitorNullValueBehavior)
+	*p = x
+	return p
+}
+
+func (x MetricMonitorNullValueBehavior) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MetricMonitorNullValueBehavior) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_artifacts_v1_monitor_proto_enumTypes[1].Descriptor()
+}
+
+func (MetricMonitorNullValueBehavior) Type() protoreflect.EnumType {
+	return &file_chalk_artifacts_v1_monitor_proto_enumTypes[1]
+}
+
+func (x MetricMonitorNullValueBehavior) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MetricMonitorNullValueBehavior.Descriptor instead.
+func (MetricMonitorNullValueBehavior) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{1}
+}
+
 type LogsMonitor struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	QueryString  string                 `protobuf:"bytes,1,opt,name=query_string,json=queryString,proto3" json:"query_string,omitempty"`    // literal or regex matching
@@ -192,11 +248,12 @@ func (x *HealthcheckMonitor) GetHealthcheckName() string {
 }
 
 type ChartMonitor struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SeriesMql     []string               `protobuf:"bytes,1,rep,name=series_mql,json=seriesMql,proto3" json:"series_mql,omitempty"`
-	FormulaMql    *string                `protobuf:"bytes,2,opt,name=formula_mql,json=formulaMql,proto3,oneof" json:"formula_mql,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState         `protogen:"open.v1"`
+	SeriesMql         []string                       `protobuf:"bytes,1,rep,name=series_mql,json=seriesMql,proto3" json:"series_mql,omitempty"`
+	FormulaMql        *string                        `protobuf:"bytes,2,opt,name=formula_mql,json=formulaMql,proto3,oneof" json:"formula_mql,omitempty"`
+	NullValueBehavior MetricMonitorNullValueBehavior `protobuf:"varint,3,opt,name=null_value_behavior,json=nullValueBehavior,proto3,enum=chalk.artifacts.v1.MetricMonitorNullValueBehavior" json:"null_value_behavior,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChartMonitor) Reset() {
@@ -241,6 +298,13 @@ func (x *ChartMonitor) GetFormulaMql() string {
 		return *x.FormulaMql
 	}
 	return ""
+}
+
+func (x *ChartMonitor) GetNullValueBehavior() MetricMonitorNullValueBehavior {
+	if x != nil {
+		return x.NullValueBehavior
+	}
+	return MetricMonitorNullValueBehavior_METRIC_MONITOR_NULL_VALUE_BEHAVIOR_UNSPECIFIED
 }
 
 type SqlBadRowsMonitor struct {
@@ -1263,12 +1327,13 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\vdata_source\x18\x03 \x01(\tR\n" +
 	"dataSource\"?\n" +
 	"\x12HealthcheckMonitor\x12)\n" +
-	"\x10healthcheck_name\x18\x01 \x01(\tR\x0fhealthcheckName\"c\n" +
+	"\x10healthcheck_name\x18\x01 \x01(\tR\x0fhealthcheckName\"\xc7\x01\n" +
 	"\fChartMonitor\x12\x1d\n" +
 	"\n" +
 	"series_mql\x18\x01 \x03(\tR\tseriesMql\x12$\n" +
 	"\vformula_mql\x18\x02 \x01(\tH\x00R\n" +
-	"formulaMql\x88\x01\x01B\x0e\n" +
+	"formulaMql\x88\x01\x01\x12b\n" +
+	"\x13null_value_behavior\x18\x03 \x01(\x0e22.chalk.artifacts.v1.MetricMonitorNullValueBehaviorR\x11nullValueBehaviorB\x0e\n" +
 	"\f_formula_mql\"\x9c\x01\n" +
 	"\x11SqlBadRowsMonitor\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tB\x03\xe0A\x02R\x05query\x12,\n" +
@@ -1349,7 +1414,12 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\x18MONITOR_TYPE_HEALTHCHECK\x10\x03\x12\x1d\n" +
 	"\x19MONITOR_TYPE_SQL_BAD_ROWS\x10\x04\x12\x1c\n" +
 	"\x18MONITOR_TYPE_DATA_SOURCE\x10\x05\x12\x1e\n" +
-	"\x1aMONITOR_TYPE_FEATURE_DRIFT\x10\x06B\xd1\x01\n" +
+	"\x1aMONITOR_TYPE_FEATURE_DRIFT\x10\x06*\xe3\x01\n" +
+	"\x1eMetricMonitorNullValueBehavior\x122\n" +
+	".METRIC_MONITOR_NULL_VALUE_BEHAVIOR_UNSPECIFIED\x10\x00\x12,\n" +
+	"(METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ALERT\x10\x01\x120\n" +
+	",METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ZERO_FILL\x10\x02\x12-\n" +
+	")METRIC_MONITOR_NULL_VALUE_BEHAVIOR_IGNORE\x10\x03B\xd1\x01\n" +
 	"\x16com.chalk.artifacts.v1B\fMonitorProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (
@@ -1364,56 +1434,58 @@ func file_chalk_artifacts_v1_monitor_proto_rawDescGZIP() []byte {
 	return file_chalk_artifacts_v1_monitor_proto_rawDescData
 }
 
-var file_chalk_artifacts_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_artifacts_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_artifacts_v1_monitor_proto_goTypes = []any{
-	(MonitorType)(0),                // 0: chalk.artifacts.v1.MonitorType
-	(*LogsMonitor)(nil),             // 1: chalk.artifacts.v1.LogsMonitor
-	(*HealthcheckMonitor)(nil),      // 2: chalk.artifacts.v1.HealthcheckMonitor
-	(*ChartMonitor)(nil),            // 3: chalk.artifacts.v1.ChartMonitor
-	(*SqlBadRowsMonitor)(nil),       // 4: chalk.artifacts.v1.SqlBadRowsMonitor
-	(*DataSourceMonitor)(nil),       // 5: chalk.artifacts.v1.DataSourceMonitor
-	(*FeatureDriftMonitor)(nil),     // 6: chalk.artifacts.v1.FeatureDriftMonitor
-	(*FeatureDriftBaseline)(nil),    // 7: chalk.artifacts.v1.FeatureDriftBaseline
-	(*DatasetRevisionBaseline)(nil), // 8: chalk.artifacts.v1.DatasetRevisionBaseline
-	(*FeatureDriftTest)(nil),        // 9: chalk.artifacts.v1.FeatureDriftTest
-	(*KolmogorovSmirnovTest)(nil),   // 10: chalk.artifacts.v1.KolmogorovSmirnovTest
-	(*FeatureDriftTestResult)(nil),  // 11: chalk.artifacts.v1.FeatureDriftTestResult
-	(*KolmogorovSmirnovResult)(nil), // 12: chalk.artifacts.v1.KolmogorovSmirnovResult
-	(*AlertChannel)(nil),            // 13: chalk.artifacts.v1.AlertChannel
-	(*Threshold)(nil),               // 14: chalk.artifacts.v1.Threshold
-	(*Monitor)(nil),                 // 15: chalk.artifacts.v1.Monitor
-	(*durationpb.Duration)(nil),     // 16: google.protobuf.Duration
-	(AlertChannelKind)(0),           // 17: chalk.artifacts.v1.AlertChannelKind
-	(ThresholdKind)(0),              // 18: chalk.artifacts.v1.ThresholdKind
-	(*timestamppb.Timestamp)(nil),   // 19: google.protobuf.Timestamp
+	(MonitorType)(0),                    // 0: chalk.artifacts.v1.MonitorType
+	(MetricMonitorNullValueBehavior)(0), // 1: chalk.artifacts.v1.MetricMonitorNullValueBehavior
+	(*LogsMonitor)(nil),                 // 2: chalk.artifacts.v1.LogsMonitor
+	(*HealthcheckMonitor)(nil),          // 3: chalk.artifacts.v1.HealthcheckMonitor
+	(*ChartMonitor)(nil),                // 4: chalk.artifacts.v1.ChartMonitor
+	(*SqlBadRowsMonitor)(nil),           // 5: chalk.artifacts.v1.SqlBadRowsMonitor
+	(*DataSourceMonitor)(nil),           // 6: chalk.artifacts.v1.DataSourceMonitor
+	(*FeatureDriftMonitor)(nil),         // 7: chalk.artifacts.v1.FeatureDriftMonitor
+	(*FeatureDriftBaseline)(nil),        // 8: chalk.artifacts.v1.FeatureDriftBaseline
+	(*DatasetRevisionBaseline)(nil),     // 9: chalk.artifacts.v1.DatasetRevisionBaseline
+	(*FeatureDriftTest)(nil),            // 10: chalk.artifacts.v1.FeatureDriftTest
+	(*KolmogorovSmirnovTest)(nil),       // 11: chalk.artifacts.v1.KolmogorovSmirnovTest
+	(*FeatureDriftTestResult)(nil),      // 12: chalk.artifacts.v1.FeatureDriftTestResult
+	(*KolmogorovSmirnovResult)(nil),     // 13: chalk.artifacts.v1.KolmogorovSmirnovResult
+	(*AlertChannel)(nil),                // 14: chalk.artifacts.v1.AlertChannel
+	(*Threshold)(nil),                   // 15: chalk.artifacts.v1.Threshold
+	(*Monitor)(nil),                     // 16: chalk.artifacts.v1.Monitor
+	(*durationpb.Duration)(nil),         // 17: google.protobuf.Duration
+	(AlertChannelKind)(0),               // 18: chalk.artifacts.v1.AlertChannelKind
+	(ThresholdKind)(0),                  // 19: chalk.artifacts.v1.ThresholdKind
+	(*timestamppb.Timestamp)(nil),       // 20: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_monitor_proto_depIdxs = []int32{
-	16, // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
-	16, // 1: chalk.artifacts.v1.FeatureDriftMonitor.window_period:type_name -> google.protobuf.Duration
-	7,  // 2: chalk.artifacts.v1.FeatureDriftMonitor.baseline:type_name -> chalk.artifacts.v1.FeatureDriftBaseline
-	9,  // 3: chalk.artifacts.v1.FeatureDriftMonitor.test:type_name -> chalk.artifacts.v1.FeatureDriftTest
-	8,  // 4: chalk.artifacts.v1.FeatureDriftBaseline.dataset_revision:type_name -> chalk.artifacts.v1.DatasetRevisionBaseline
-	10, // 5: chalk.artifacts.v1.FeatureDriftTest.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovTest
-	12, // 6: chalk.artifacts.v1.FeatureDriftTestResult.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovResult
-	17, // 7: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
-	18, // 8: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
-	13, // 9: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
-	14, // 10: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
-	3,  // 11: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
-	2,  // 12: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
-	1,  // 13: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
-	4,  // 14: chalk.artifacts.v1.Monitor.sql_bad_rows_monitor:type_name -> chalk.artifacts.v1.SqlBadRowsMonitor
-	5,  // 15: chalk.artifacts.v1.Monitor.data_source_monitor:type_name -> chalk.artifacts.v1.DataSourceMonitor
-	6,  // 16: chalk.artifacts.v1.Monitor.feature_drift_monitor:type_name -> chalk.artifacts.v1.FeatureDriftMonitor
-	19, // 17: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
-	19, // 18: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
-	19, // 19: chalk.artifacts.v1.Monitor.muted_until:type_name -> google.protobuf.Timestamp
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	17, // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
+	1,  // 1: chalk.artifacts.v1.ChartMonitor.null_value_behavior:type_name -> chalk.artifacts.v1.MetricMonitorNullValueBehavior
+	17, // 2: chalk.artifacts.v1.FeatureDriftMonitor.window_period:type_name -> google.protobuf.Duration
+	8,  // 3: chalk.artifacts.v1.FeatureDriftMonitor.baseline:type_name -> chalk.artifacts.v1.FeatureDriftBaseline
+	10, // 4: chalk.artifacts.v1.FeatureDriftMonitor.test:type_name -> chalk.artifacts.v1.FeatureDriftTest
+	9,  // 5: chalk.artifacts.v1.FeatureDriftBaseline.dataset_revision:type_name -> chalk.artifacts.v1.DatasetRevisionBaseline
+	11, // 6: chalk.artifacts.v1.FeatureDriftTest.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovTest
+	13, // 7: chalk.artifacts.v1.FeatureDriftTestResult.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovResult
+	18, // 8: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	19, // 9: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
+	14, // 10: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
+	15, // 11: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
+	4,  // 12: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
+	3,  // 13: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
+	2,  // 14: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
+	5,  // 15: chalk.artifacts.v1.Monitor.sql_bad_rows_monitor:type_name -> chalk.artifacts.v1.SqlBadRowsMonitor
+	6,  // 16: chalk.artifacts.v1.Monitor.data_source_monitor:type_name -> chalk.artifacts.v1.DataSourceMonitor
+	7,  // 17: chalk.artifacts.v1.Monitor.feature_drift_monitor:type_name -> chalk.artifacts.v1.FeatureDriftMonitor
+	20, // 18: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
+	20, // 19: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
+	20, // 20: chalk.artifacts.v1.Monitor.muted_until:type_name -> google.protobuf.Timestamp
+	21, // [21:21] is the sub-list for method output_type
+	21, // [21:21] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_monitor_proto_init() }
@@ -1456,7 +1528,7 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_monitor_proto_rawDesc), len(file_chalk_artifacts_v1_monitor_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,

@@ -482,7 +482,7 @@ type isOfflineQueryInputs_Impl interface {
 }
 
 type OfflineQueryInputs_FeatherInputs struct {
-	//*
+	// *
 	// Should be a feather-compressed table, complete with schema
 	FeatherInputs []byte `protobuf:"bytes,1,opt,name=feather_inputs,json=featherInputs,proto3,oneof"`
 }
@@ -981,11 +981,10 @@ type OfflineQueryRequest struct {
 	SpineSqlQuery *string `protobuf:"bytes,12,opt,name=spine_sql_query,json=spineSqlQuery,proto3,oneof" json:"spine_sql_query,omitempty"`
 	// The maximum number of samples. If None, no limit
 	MaxSamples *int32 `protobuf:"varint,101,opt,name=max_samples,json=maxSamples,proto3,oneof" json:"max_samples,omitempty"`
-	//
-	//The maximum staleness, in seconds, for how old the view on the offline store can be. That is,
-	//data ingested within this interval will not be reflected in this offline query.
-	//Set to ``0`` to ignore the cache. If not specified, it defaults to OFFLINE_QUERY_MAX_CACHE_AGE_SECS
-	//in chalk engine config.
+	// The maximum staleness, in seconds, for how old the view on the offline store can be. That is,
+	// data ingested within this interval will not be reflected in this offline query.
+	// Set to “0“ to ignore the cache. If not specified, it defaults to OFFLINE_QUERY_MAX_CACHE_AGE_SECS
+	// in chalk engine config.
 	MaxCacheAgeSecs *int32 `protobuf:"varint,102,opt,name=max_cache_age_secs,json=maxCacheAgeSecs,proto3,oneof" json:"max_cache_age_secs,omitempty"`
 	// Field is deprecated because we shouldn't have OnlineExplain that differs from OfflineExplain
 	// Use explain2

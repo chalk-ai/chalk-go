@@ -1685,7 +1685,7 @@ const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\x0e_logger_configB\x10\n" +
 	"\x0e_deployment_id2\xdd\t\n" +
 	"\x15StreamingDebugService\x12\x87\x01\n" +
-	"\x17SetStreamingDebugConfig\x122.chalk.streaming.v1.SetStreamingDebugConfigRequest\x1a3.chalk.streaming.v1.SetStreamingDebugConfigResponse\"\x03\x80}\f\x12\x8a\x01\n" +
+	"\x17SetStreamingDebugConfig\x122.chalk.streaming.v1.SetStreamingDebugConfigRequest\x1a3.chalk.streaming.v1.SetStreamingDebugConfigResponse\"\x03\x80}\v\x12\x8a\x01\n" +
 	"\x17GetStreamingDebugConfig\x122.chalk.streaming.v1.GetStreamingDebugConfigRequest\x1a3.chalk.streaming.v1.GetStreamingDebugConfigResponse\"\x06\x80}\v\x90\x02\x01\x12o\n" +
 	"\x0fEnableDebugMode\x12*.chalk.streaming.v1.EnableDebugModeRequest\x1a+.chalk.streaming.v1.EnableDebugModeResponse\"\x03\x80}\f\x12r\n" +
 	"\x10DisableDebugMode\x12+.chalk.streaming.v1.DisableDebugModeRequest\x1a,.chalk.streaming.v1.DisableDebugModeResponse\"\x03\x80}\f\x12{\n" +

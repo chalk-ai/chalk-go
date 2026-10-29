@@ -9,6 +9,7 @@ package agentv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/router/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1258,11 +1259,118 @@ func (x *ListAiProviderConnectionModelsResponse) GetDiscoverySupported() bool {
 	return false
 }
 
+type GetChalkManagedUsageRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Start *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=start,proto3" json:"start,omitempty"`
+	End   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=end,proto3" json:"end,omitempty"`
+	// A duration the router accepts as a usage bucket, such as "1h" or "1d".
+	BucketSize    string `protobuf:"bytes,3,opt,name=bucket_size,json=bucketSize,proto3" json:"bucket_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetChalkManagedUsageRequest) Reset() {
+	*x = GetChalkManagedUsageRequest{}
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetChalkManagedUsageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetChalkManagedUsageRequest) ProtoMessage() {}
+
+func (x *GetChalkManagedUsageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetChalkManagedUsageRequest.ProtoReflect.Descriptor instead.
+func (*GetChalkManagedUsageRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetChalkManagedUsageRequest) GetStart() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Start
+	}
+	return nil
+}
+
+func (x *GetChalkManagedUsageRequest) GetEnd() *timestamppb.Timestamp {
+	if x != nil {
+		return x.End
+	}
+	return nil
+}
+
+func (x *GetChalkManagedUsageRequest) GetBucketSize() string {
+	if x != nil {
+		return x.BucketSize
+	}
+	return ""
+}
+
+type GetChalkManagedUsageResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The environment's Chalk-managed usage per bucket, aggregated across every
+	// router key minted for it.
+	Rows          []*v1.UsageAggregateRow `protobuf:"bytes,1,rep,name=rows,proto3" json:"rows,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetChalkManagedUsageResponse) Reset() {
+	*x = GetChalkManagedUsageResponse{}
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetChalkManagedUsageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetChalkManagedUsageResponse) ProtoMessage() {}
+
+func (x *GetChalkManagedUsageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetChalkManagedUsageResponse.ProtoReflect.Descriptor instead.
+func (*GetChalkManagedUsageResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetChalkManagedUsageResponse) GetRows() []*v1.UsageAggregateRow {
+	if x != nil {
+		return x.Rows
+	}
+	return nil
+}
+
 var File_chalk_agent_v1_ai_provider_connection_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"\n" +
-	"+chalk/agent/v1/ai_provider_connection.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf4\x03\n" +
+	"+chalk/agent/v1/ai_provider_connection.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1bchalk/router/v1/usage.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf4\x03\n" +
 	"\x14AiProviderConnection\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x12\n" +
@@ -1336,7 +1444,14 @@ const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"\x92\x01\n" +
 	"&ListAiProviderConnectionModelsResponse\x127\n" +
 	"\x06models\x18\x01 \x03(\v2\x1f.chalk.agent.v1.AiProviderModelR\x06models\x12/\n" +
-	"\x13discovery_supported\x18\x02 \x01(\bR\x12discoverySupported*\xf4\x01\n" +
+	"\x13discovery_supported\x18\x02 \x01(\bR\x12discoverySupported\"\x9e\x01\n" +
+	"\x1bGetChalkManagedUsageRequest\x120\n" +
+	"\x05start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
+	"\x03end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12\x1f\n" +
+	"\vbucket_size\x18\x03 \x01(\tR\n" +
+	"bucketSize\"V\n" +
+	"\x1cGetChalkManagedUsageResponse\x126\n" +
+	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageAggregateRowR\x04rows*\xf4\x01\n" +
 	"\x0fReasoningEffort\x12 \n" +
 	"\x1cREASONING_EFFORT_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15REASONING_EFFORT_NONE\x10\x01\x12\x1c\n" +
@@ -1358,7 +1473,7 @@ const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"\x1aTEXT_VERBOSITY_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12TEXT_VERBOSITY_LOW\x10\x01\x12\x19\n" +
 	"\x15TEXT_VERBOSITY_MEDIUM\x10\x02\x12\x17\n" +
-	"\x13TEXT_VERBOSITY_HIGH\x10\x032\xb0\a\n" +
+	"\x13TEXT_VERBOSITY_HIGH\x10\x032\xab\b\n" +
 	"\x1bAiProviderConnectionService\x12\xca\x01\n" +
 	"\x1aCreateAiProviderConnection\x121.chalk.agent.v1.CreateAiProviderConnectionRequest\x1a2.chalk.agent.v1.CreateAiProviderConnectionResponse\"E\x80}'\x92\xd3\x0e>\n" +
 	"\x11assistant_enabled\x12)Enables Assistant AI provider management.\x12\x82\x01\n" +
@@ -1366,7 +1481,8 @@ const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"\x19ListAiProviderConnections\x120.chalk.agent.v1.ListAiProviderConnectionsRequest\x1a1.chalk.agent.v1.ListAiProviderConnectionsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8b\x01\n" +
 	"\x1aUpdateAiProviderConnection\x121.chalk.agent.v1.UpdateAiProviderConnectionRequest\x1a2.chalk.agent.v1.UpdateAiProviderConnectionResponse\"\x06\x80}'\x90\x02\x02\x12\x8b\x01\n" +
 	"\x1aDeleteAiProviderConnection\x121.chalk.agent.v1.DeleteAiProviderConnectionRequest\x1a2.chalk.agent.v1.DeleteAiProviderConnectionResponse\"\x06\x80}'\x90\x02\x02\x12\x97\x01\n" +
-	"\x1eListAiProviderConnectionModels\x125.chalk.agent.v1.ListAiProviderConnectionModelsRequest\x1a6.chalk.agent.v1.ListAiProviderConnectionModelsResponse\"\x06\x80}\x02\x90\x02\x01B\xc2\x01\n" +
+	"\x1eListAiProviderConnectionModels\x125.chalk.agent.v1.ListAiProviderConnectionModelsRequest\x1a6.chalk.agent.v1.ListAiProviderConnectionModelsResponse\"\x06\x80}\x02\x90\x02\x01\x12y\n" +
+	"\x14GetChalkManagedUsage\x12+.chalk.agent.v1.GetChalkManagedUsageRequest\x1a,.chalk.agent.v1.GetChalkManagedUsageResponse\"\x06\x80}'\x90\x02\x01B\xc2\x01\n" +
 	"\x12com.chalk.agent.v1B\x19AiProviderConnectionProtoP\x01Z7github.com/chalk-ai/chalk-go/gen/chalk/agent/v1;agentv1\xa2\x02\x03CAX\xaa\x02\x0eChalk.Agent.V1\xca\x02\x0eChalk\\Agent\\V1\xe2\x02\x1aChalk\\Agent\\V1\\GPBMetadata\xea\x02\x10Chalk::Agent::V1b\x06proto3"
 
 var (
@@ -1382,7 +1498,7 @@ func file_chalk_agent_v1_ai_provider_connection_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_agent_v1_ai_provider_connection_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chalk_agent_v1_ai_provider_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_chalk_agent_v1_ai_provider_connection_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_chalk_agent_v1_ai_provider_connection_proto_goTypes = []any{
 	(ReasoningEffort)(0),                           // 0: chalk.agent.v1.ReasoningEffort
 	(ReasoningMode)(0),                             // 1: chalk.agent.v1.ReasoningMode
@@ -1404,11 +1520,14 @@ var file_chalk_agent_v1_ai_provider_connection_proto_goTypes = []any{
 	(*ListAiProviderConnectionModelsRequest)(nil),  // 17: chalk.agent.v1.ListAiProviderConnectionModelsRequest
 	(*AiProviderModel)(nil),                        // 18: chalk.agent.v1.AiProviderModel
 	(*ListAiProviderConnectionModelsResponse)(nil), // 19: chalk.agent.v1.ListAiProviderConnectionModelsResponse
-	(*timestamppb.Timestamp)(nil),                  // 20: google.protobuf.Timestamp
+	(*GetChalkManagedUsageRequest)(nil),            // 20: chalk.agent.v1.GetChalkManagedUsageRequest
+	(*GetChalkManagedUsageResponse)(nil),           // 21: chalk.agent.v1.GetChalkManagedUsageResponse
+	(*timestamppb.Timestamp)(nil),                  // 22: google.protobuf.Timestamp
+	(*v1.UsageAggregateRow)(nil),                   // 23: chalk.router.v1.UsageAggregateRow
 }
 var file_chalk_agent_v1_ai_provider_connection_proto_depIdxs = []int32{
-	20, // 0: chalk.agent.v1.AiProviderConnection.created_at:type_name -> google.protobuf.Timestamp
-	20, // 1: chalk.agent.v1.AiProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
+	22, // 0: chalk.agent.v1.AiProviderConnection.created_at:type_name -> google.protobuf.Timestamp
+	22, // 1: chalk.agent.v1.AiProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
 	5,  // 2: chalk.agent.v1.AiProviderConnection.model_overrides:type_name -> chalk.agent.v1.AiProviderModelOverrides
 	0,  // 3: chalk.agent.v1.AiProviderModelOverrides.reasoning_effort:type_name -> chalk.agent.v1.ReasoningEffort
 	1,  // 4: chalk.agent.v1.AiProviderModelOverrides.reasoning_mode:type_name -> chalk.agent.v1.ReasoningMode
@@ -1422,23 +1541,28 @@ var file_chalk_agent_v1_ai_provider_connection_proto_depIdxs = []int32{
 	4,  // 12: chalk.agent.v1.UpdateAiProviderConnectionResponse.connection:type_name -> chalk.agent.v1.AiProviderConnection
 	16, // 13: chalk.agent.v1.ListAiProviderConnectionModelsRequest.candidate:type_name -> chalk.agent.v1.AiProviderConnectionCandidate
 	18, // 14: chalk.agent.v1.ListAiProviderConnectionModelsResponse.models:type_name -> chalk.agent.v1.AiProviderModel
-	6,  // 15: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:input_type -> chalk.agent.v1.CreateAiProviderConnectionRequest
-	8,  // 16: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:input_type -> chalk.agent.v1.GetAiProviderConnectionRequest
-	10, // 17: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:input_type -> chalk.agent.v1.ListAiProviderConnectionsRequest
-	12, // 18: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:input_type -> chalk.agent.v1.UpdateAiProviderConnectionRequest
-	14, // 19: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:input_type -> chalk.agent.v1.DeleteAiProviderConnectionRequest
-	17, // 20: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:input_type -> chalk.agent.v1.ListAiProviderConnectionModelsRequest
-	7,  // 21: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:output_type -> chalk.agent.v1.CreateAiProviderConnectionResponse
-	9,  // 22: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:output_type -> chalk.agent.v1.GetAiProviderConnectionResponse
-	11, // 23: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:output_type -> chalk.agent.v1.ListAiProviderConnectionsResponse
-	13, // 24: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:output_type -> chalk.agent.v1.UpdateAiProviderConnectionResponse
-	15, // 25: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:output_type -> chalk.agent.v1.DeleteAiProviderConnectionResponse
-	19, // 26: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:output_type -> chalk.agent.v1.ListAiProviderConnectionModelsResponse
-	21, // [21:27] is the sub-list for method output_type
-	15, // [15:21] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	22, // 15: chalk.agent.v1.GetChalkManagedUsageRequest.start:type_name -> google.protobuf.Timestamp
+	22, // 16: chalk.agent.v1.GetChalkManagedUsageRequest.end:type_name -> google.protobuf.Timestamp
+	23, // 17: chalk.agent.v1.GetChalkManagedUsageResponse.rows:type_name -> chalk.router.v1.UsageAggregateRow
+	6,  // 18: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:input_type -> chalk.agent.v1.CreateAiProviderConnectionRequest
+	8,  // 19: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:input_type -> chalk.agent.v1.GetAiProviderConnectionRequest
+	10, // 20: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:input_type -> chalk.agent.v1.ListAiProviderConnectionsRequest
+	12, // 21: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:input_type -> chalk.agent.v1.UpdateAiProviderConnectionRequest
+	14, // 22: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:input_type -> chalk.agent.v1.DeleteAiProviderConnectionRequest
+	17, // 23: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:input_type -> chalk.agent.v1.ListAiProviderConnectionModelsRequest
+	20, // 24: chalk.agent.v1.AiProviderConnectionService.GetChalkManagedUsage:input_type -> chalk.agent.v1.GetChalkManagedUsageRequest
+	7,  // 25: chalk.agent.v1.AiProviderConnectionService.CreateAiProviderConnection:output_type -> chalk.agent.v1.CreateAiProviderConnectionResponse
+	9,  // 26: chalk.agent.v1.AiProviderConnectionService.GetAiProviderConnection:output_type -> chalk.agent.v1.GetAiProviderConnectionResponse
+	11, // 27: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnections:output_type -> chalk.agent.v1.ListAiProviderConnectionsResponse
+	13, // 28: chalk.agent.v1.AiProviderConnectionService.UpdateAiProviderConnection:output_type -> chalk.agent.v1.UpdateAiProviderConnectionResponse
+	15, // 29: chalk.agent.v1.AiProviderConnectionService.DeleteAiProviderConnection:output_type -> chalk.agent.v1.DeleteAiProviderConnectionResponse
+	19, // 30: chalk.agent.v1.AiProviderConnectionService.ListAiProviderConnectionModels:output_type -> chalk.agent.v1.ListAiProviderConnectionModelsResponse
+	21, // 31: chalk.agent.v1.AiProviderConnectionService.GetChalkManagedUsage:output_type -> chalk.agent.v1.GetChalkManagedUsageResponse
+	25, // [25:32] is the sub-list for method output_type
+	18, // [18:25] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_chalk_agent_v1_ai_provider_connection_proto_init() }
@@ -1458,7 +1582,7 @@ func file_chalk_agent_v1_ai_provider_connection_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_agent_v1_ai_provider_connection_proto_rawDesc), len(file_chalk_agent_v1_ai_provider_connection_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   16,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1527,6 +1527,52 @@ func (x *HostPoolResources) GetGpus() map[string]int64 {
 	return nil
 }
 
+// Build identity of an executable.
+type VersionInfo struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Full git commit sha.
+	CommitSha     *string `protobuf:"bytes,1,opt,name=commit_sha,json=commitSha,proto3,oneof" json:"commit_sha,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VersionInfo) Reset() {
+	*x = VersionInfo{}
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VersionInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VersionInfo) ProtoMessage() {}
+
+func (x *VersionInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VersionInfo.ProtoReflect.Descriptor instead.
+func (*VersionInfo) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *VersionInfo) GetCommitSha() string {
+	if x != nil && x.CommitSha != nil {
+		return *x.CommitSha
+	}
+	return ""
+}
+
 // One host backing a pool.
 type HostCapacity struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1546,14 +1592,16 @@ type HostCapacity struct {
 	UnavailableReason              string `protobuf:"bytes,9,opt,name=unavailable_reason,json=unavailableReason,proto3" json:"unavailable_reason,omitempty"`
 	// Measured use over the last hour, from the hypervisor's own metrics. Unset when the host's
 	// metrics cannot be attributed to it; today only external hosts carry a host label.
-	UsageHistory  *HostUsageHistory `protobuf:"bytes,10,opt,name=usage_history,json=usageHistory,proto3" json:"usage_history,omitempty"`
+	UsageHistory *HostUsageHistory `protobuf:"bytes,10,opt,name=usage_history,json=usageHistory,proto3" json:"usage_history,omitempty"`
+	// Build identity reported by the hypervisor.
+	VersionInfo   *VersionInfo `protobuf:"bytes,11,opt,name=version_info,json=versionInfo,proto3" json:"version_info,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *HostCapacity) Reset() {
 	*x = HostCapacity{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1565,7 +1613,7 @@ func (x *HostCapacity) String() string {
 func (*HostCapacity) ProtoMessage() {}
 
 func (x *HostCapacity) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1578,7 +1626,7 @@ func (x *HostCapacity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostCapacity.ProtoReflect.Descriptor instead.
 func (*HostCapacity) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *HostCapacity) GetHostId() string {
@@ -1651,6 +1699,13 @@ func (x *HostCapacity) GetUsageHistory() *HostUsageHistory {
 	return nil
 }
 
+func (x *HostCapacity) GetVersionInfo() *VersionInfo {
+	if x != nil {
+		return x.VersionInfo
+	}
+	return nil
+}
+
 // A share in [0, 1] at one point in time.
 type UtilizationPoint struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1662,7 +1717,7 @@ type UtilizationPoint struct {
 
 func (x *UtilizationPoint) Reset() {
 	*x = UtilizationPoint{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1674,7 +1729,7 @@ func (x *UtilizationPoint) String() string {
 func (*UtilizationPoint) ProtoMessage() {}
 
 func (x *UtilizationPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1687,7 +1742,7 @@ func (x *UtilizationPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UtilizationPoint.ProtoReflect.Descriptor instead.
 func (*UtilizationPoint) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *UtilizationPoint) GetObservedAt() *timestamppb.Timestamp {
@@ -1714,7 +1769,7 @@ type UtilizationSeries struct {
 
 func (x *UtilizationSeries) Reset() {
 	*x = UtilizationSeries{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1726,7 +1781,7 @@ func (x *UtilizationSeries) String() string {
 func (*UtilizationSeries) ProtoMessage() {}
 
 func (x *UtilizationSeries) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1739,7 +1794,7 @@ func (x *UtilizationSeries) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UtilizationSeries.ProtoReflect.Descriptor instead.
 func (*UtilizationSeries) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *UtilizationSeries) GetPoints() []*UtilizationPoint {
@@ -1764,7 +1819,7 @@ type HostUsageHistory struct {
 
 func (x *HostUsageHistory) Reset() {
 	*x = HostUsageHistory{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1776,7 +1831,7 @@ func (x *HostUsageHistory) String() string {
 func (*HostUsageHistory) ProtoMessage() {}
 
 func (x *HostUsageHistory) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1789,7 +1844,7 @@ func (x *HostUsageHistory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostUsageHistory.ProtoReflect.Descriptor instead.
 func (*HostUsageHistory) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *HostUsageHistory) GetCpu() *UtilizationSeries {
@@ -1826,7 +1881,7 @@ type GpuUsageHistory struct {
 
 func (x *GpuUsageHistory) Reset() {
 	*x = GpuUsageHistory{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1838,7 +1893,7 @@ func (x *GpuUsageHistory) String() string {
 func (*GpuUsageHistory) ProtoMessage() {}
 
 func (x *GpuUsageHistory) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1851,7 +1906,7 @@ func (x *GpuUsageHistory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GpuUsageHistory.ProtoReflect.Descriptor instead.
 func (*GpuUsageHistory) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GpuUsageHistory) GetUuid() string {
@@ -1888,7 +1943,7 @@ type HostPoolReservationHistory struct {
 
 func (x *HostPoolReservationHistory) Reset() {
 	*x = HostPoolReservationHistory{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1900,7 +1955,7 @@ func (x *HostPoolReservationHistory) String() string {
 func (*HostPoolReservationHistory) ProtoMessage() {}
 
 func (x *HostPoolReservationHistory) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1913,7 +1968,7 @@ func (x *HostPoolReservationHistory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostPoolReservationHistory.ProtoReflect.Descriptor instead.
 func (*HostPoolReservationHistory) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *HostPoolReservationHistory) GetCpu() *UtilizationSeries {
@@ -2009,7 +2064,7 @@ type HostPoolCapacity struct {
 
 func (x *HostPoolCapacity) Reset() {
 	*x = HostPoolCapacity{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2021,7 +2076,7 @@ func (x *HostPoolCapacity) String() string {
 func (*HostPoolCapacity) ProtoMessage() {}
 
 func (x *HostPoolCapacity) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2034,7 +2089,7 @@ func (x *HostPoolCapacity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostPoolCapacity.ProtoReflect.Descriptor instead.
 func (*HostPoolCapacity) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *HostPoolCapacity) GetHostPoolId() string {
@@ -2288,7 +2343,7 @@ type GetHostPoolCapacityRequest struct {
 
 func (x *GetHostPoolCapacityRequest) Reset() {
 	*x = GetHostPoolCapacityRequest{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2300,7 +2355,7 @@ func (x *GetHostPoolCapacityRequest) String() string {
 func (*GetHostPoolCapacityRequest) ProtoMessage() {}
 
 func (x *GetHostPoolCapacityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2313,7 +2368,7 @@ func (x *GetHostPoolCapacityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHostPoolCapacityRequest.ProtoReflect.Descriptor instead.
 func (*GetHostPoolCapacityRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{31}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/host_pool.proto.
@@ -2349,7 +2404,7 @@ type GetHostPoolCapacityFilters struct {
 
 func (x *GetHostPoolCapacityFilters) Reset() {
 	*x = GetHostPoolCapacityFilters{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2361,7 +2416,7 @@ func (x *GetHostPoolCapacityFilters) String() string {
 func (*GetHostPoolCapacityFilters) ProtoMessage() {}
 
 func (x *GetHostPoolCapacityFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2374,7 +2429,7 @@ func (x *GetHostPoolCapacityFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHostPoolCapacityFilters.ProtoReflect.Descriptor instead.
 func (*GetHostPoolCapacityFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetHostPoolCapacityFilters) GetScope() isGetHostPoolCapacityFilters_Scope {
@@ -2459,7 +2514,7 @@ type GetHostPoolCapacityResponse struct {
 
 func (x *GetHostPoolCapacityResponse) Reset() {
 	*x = GetHostPoolCapacityResponse{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2471,7 +2526,7 @@ func (x *GetHostPoolCapacityResponse) String() string {
 func (*GetHostPoolCapacityResponse) ProtoMessage() {}
 
 func (x *GetHostPoolCapacityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2484,7 +2539,7 @@ func (x *GetHostPoolCapacityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHostPoolCapacityResponse.ProtoReflect.Descriptor instead.
 func (*GetHostPoolCapacityResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetHostPoolCapacityResponse) GetHostPools() []*HostPoolCapacity {
@@ -2533,7 +2588,7 @@ type HostPoolReportedResources struct {
 
 func (x *HostPoolReportedResources) Reset() {
 	*x = HostPoolReportedResources{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2545,7 +2600,7 @@ func (x *HostPoolReportedResources) String() string {
 func (*HostPoolReportedResources) ProtoMessage() {}
 
 func (x *HostPoolReportedResources) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2558,7 +2613,7 @@ func (x *HostPoolReportedResources) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostPoolReportedResources.ProtoReflect.Descriptor instead.
 func (*HostPoolReportedResources) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *HostPoolReportedResources) GetCpuMillicores() int64 {
@@ -2593,13 +2648,15 @@ type HostPoolHostStatus struct {
 	Free                           *HostPoolReportedResources `protobuf:"bytes,7,opt,name=free,proto3" json:"free,omitempty"`
 	LastHeartbeatAt                *timestamppb.Timestamp     `protobuf:"bytes,8,opt,name=last_heartbeat_at,json=lastHeartbeatAt,proto3" json:"last_heartbeat_at,omitempty"`
 	ExternalControlStreamConnected *bool                      `protobuf:"varint,9,opt,name=external_control_stream_connected,json=externalControlStreamConnected,proto3,oneof" json:"external_control_stream_connected,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// Build identity reported by the hypervisor.
+	VersionInfo   *VersionInfo `protobuf:"bytes,10,opt,name=version_info,json=versionInfo,proto3" json:"version_info,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *HostPoolHostStatus) Reset() {
 	*x = HostPoolHostStatus{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2611,7 +2668,7 @@ func (x *HostPoolHostStatus) String() string {
 func (*HostPoolHostStatus) ProtoMessage() {}
 
 func (x *HostPoolHostStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2624,7 +2681,7 @@ func (x *HostPoolHostStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostPoolHostStatus.ProtoReflect.Descriptor instead.
 func (*HostPoolHostStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *HostPoolHostStatus) GetHostId() string {
@@ -2690,6 +2747,13 @@ func (x *HostPoolHostStatus) GetExternalControlStreamConnected() bool {
 	return false
 }
 
+func (x *HostPoolHostStatus) GetVersionInfo() *VersionInfo {
+	if x != nil {
+		return x.VersionInfo
+	}
+	return nil
+}
+
 type HostPoolCapacityStatus struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Resource fields are absent when accounting is unavailable.
@@ -2708,7 +2772,7 @@ type HostPoolCapacityStatus struct {
 
 func (x *HostPoolCapacityStatus) Reset() {
 	*x = HostPoolCapacityStatus{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2720,7 +2784,7 @@ func (x *HostPoolCapacityStatus) String() string {
 func (*HostPoolCapacityStatus) ProtoMessage() {}
 
 func (x *HostPoolCapacityStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2733,7 +2797,7 @@ func (x *HostPoolCapacityStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostPoolCapacityStatus.ProtoReflect.Descriptor instead.
 func (*HostPoolCapacityStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{35}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *HostPoolCapacityStatus) GetUnavailableReason() string {
@@ -2827,7 +2891,7 @@ type HostPoolStatusReport struct {
 
 func (x *HostPoolStatusReport) Reset() {
 	*x = HostPoolStatusReport{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2839,7 +2903,7 @@ func (x *HostPoolStatusReport) String() string {
 func (*HostPoolStatusReport) ProtoMessage() {}
 
 func (x *HostPoolStatusReport) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2852,7 +2916,7 @@ func (x *HostPoolStatusReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostPoolStatusReport.ProtoReflect.Descriptor instead.
 func (*HostPoolStatusReport) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{36}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *HostPoolStatusReport) GetName() string {
@@ -2987,7 +3051,7 @@ type HostPoolStatusUpdate struct {
 
 func (x *HostPoolStatusUpdate) Reset() {
 	*x = HostPoolStatusUpdate{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2999,7 +3063,7 @@ func (x *HostPoolStatusUpdate) String() string {
 func (*HostPoolStatusUpdate) ProtoMessage() {}
 
 func (x *HostPoolStatusUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3012,7 +3076,7 @@ func (x *HostPoolStatusUpdate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HostPoolStatusUpdate.ProtoReflect.Descriptor instead.
 func (*HostPoolStatusUpdate) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{37}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *HostPoolStatusUpdate) GetNamespace() string {
@@ -3057,7 +3121,7 @@ type BatchUpdateHostPoolStatusRequest struct {
 
 func (x *BatchUpdateHostPoolStatusRequest) Reset() {
 	*x = BatchUpdateHostPoolStatusRequest{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3069,7 +3133,7 @@ func (x *BatchUpdateHostPoolStatusRequest) String() string {
 func (*BatchUpdateHostPoolStatusRequest) ProtoMessage() {}
 
 func (x *BatchUpdateHostPoolStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3082,7 +3146,7 @@ func (x *BatchUpdateHostPoolStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchUpdateHostPoolStatusRequest.ProtoReflect.Descriptor instead.
 func (*BatchUpdateHostPoolStatusRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{38}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *BatchUpdateHostPoolStatusRequest) GetNamespace() string {
@@ -3121,7 +3185,7 @@ type BatchUpdateHostPoolStatusResponse struct {
 
 func (x *BatchUpdateHostPoolStatusResponse) Reset() {
 	*x = BatchUpdateHostPoolStatusResponse{}
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3133,7 +3197,7 @@ func (x *BatchUpdateHostPoolStatusResponse) String() string {
 func (*BatchUpdateHostPoolStatusResponse) ProtoMessage() {}
 
 func (x *BatchUpdateHostPoolStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_host_pool_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3146,7 +3210,7 @@ func (x *BatchUpdateHostPoolStatusResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use BatchUpdateHostPoolStatusResponse.ProtoReflect.Descriptor instead.
 func (*BatchUpdateHostPoolStatusResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{39}
+	return file_chalk_server_v1_host_pool_proto_rawDescGZIP(), []int{40}
 }
 
 var File_chalk_server_v1_host_pool_proto protoreflect.FileDescriptor
@@ -3249,7 +3313,11 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\x04gpus\x18\x03 \x03(\v2,.chalk.server.v1.HostPoolResources.GpusEntryR\x04gpus\x1a7\n" +
 	"\tGpusEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\xe3\x04\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"@\n" +
+	"\vVersionInfo\x12\"\n" +
+	"\n" +
+	"commit_sha\x18\x01 \x01(\tH\x00R\tcommitSha\x88\x01\x01B\r\n" +
+	"\v_commit_sha\"\xa4\x05\n" +
 	"\fHostCapacity\x12\x17\n" +
 	"\ahost_id\x18\x01 \x01(\tR\x06hostId\x12\x14\n" +
 	"\x05ready\x18\x02 \x01(\bR\x05ready\x12+\n" +
@@ -3261,7 +3329,8 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"!external_control_stream_connected\x18\b \x01(\bH\x00R\x1eexternalControlStreamConnected\x88\x01\x01\x12-\n" +
 	"\x12unavailable_reason\x18\t \x01(\tR\x11unavailableReason\x12F\n" +
 	"\rusage_history\x18\n" +
-	" \x01(\v2!.chalk.server.v1.HostUsageHistoryR\fusageHistoryB$\n" +
+	" \x01(\v2!.chalk.server.v1.HostUsageHistoryR\fusageHistory\x12?\n" +
+	"\fversion_info\x18\v \x01(\v2\x1c.chalk.server.v1.VersionInfoR\vversionInfoB$\n" +
 	"\"_external_control_stream_connected\"e\n" +
 	"\x10UtilizationPoint\x12;\n" +
 	"\vobserved_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
@@ -3360,7 +3429,7 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\x04gpus\x18\x03 \x03(\v24.chalk.server.v1.HostPoolReportedResources.GpusEntryR\x04gpus\x1a7\n" +
 	"\tGpusEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\xc0\x04\n" +
+	"\x05value\x18\x02 \x01(\x03R\x05value:\x028\x01\"\x81\x05\n" +
 	"\x12HostPoolHostStatus\x12\x17\n" +
 	"\ahost_id\x18\x01 \x01(\tR\x06hostId\x121\n" +
 	"\x14accepting_placements\x18\x02 \x01(\bR\x13acceptingPlacements\x12-\n" +
@@ -3370,7 +3439,9 @@ const file_chalk_server_v1_host_pool_proto_rawDesc = "" +
 	"\breserved\x18\x06 \x01(\v2*.chalk.server.v1.HostPoolReportedResourcesR\breserved\x12>\n" +
 	"\x04free\x18\a \x01(\v2*.chalk.server.v1.HostPoolReportedResourcesR\x04free\x12F\n" +
 	"\x11last_heartbeat_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x0flastHeartbeatAt\x12N\n" +
-	"!external_control_stream_connected\x18\t \x01(\bH\x00R\x1eexternalControlStreamConnected\x88\x01\x01B$\n" +
+	"!external_control_stream_connected\x18\t \x01(\bH\x00R\x1eexternalControlStreamConnected\x88\x01\x01\x12?\n" +
+	"\fversion_info\x18\n" +
+	" \x01(\v2\x1c.chalk.server.v1.VersionInfoR\vversionInfoB$\n" +
 	"\"_external_control_stream_connected\"\xb9\x04\n" +
 	"\x16HostPoolCapacityStatus\x12-\n" +
 	"\x12unavailable_reason\x18\x01 \x01(\tR\x11unavailableReason\x12@\n" +
@@ -3459,7 +3530,7 @@ func file_chalk_server_v1_host_pool_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_host_pool_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_server_v1_host_pool_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
+var file_chalk_server_v1_host_pool_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
 var file_chalk_server_v1_host_pool_proto_goTypes = []any{
 	(HostPoolStorage)(0),                          // 0: chalk.server.v1.HostPoolStorage
 	(HostPoolPendingUpdateType)(0),                // 1: chalk.server.v1.HostPoolPendingUpdateType
@@ -3487,140 +3558,143 @@ var file_chalk_server_v1_host_pool_proto_goTypes = []any{
 	(*ValidateHostPoolConfigurationRequest)(nil),  // 23: chalk.server.v1.ValidateHostPoolConfigurationRequest
 	(*ValidateHostPoolConfigurationResponse)(nil), // 24: chalk.server.v1.ValidateHostPoolConfigurationResponse
 	(*HostPoolResources)(nil),                     // 25: chalk.server.v1.HostPoolResources
-	(*HostCapacity)(nil),                          // 26: chalk.server.v1.HostCapacity
-	(*UtilizationPoint)(nil),                      // 27: chalk.server.v1.UtilizationPoint
-	(*UtilizationSeries)(nil),                     // 28: chalk.server.v1.UtilizationSeries
-	(*HostUsageHistory)(nil),                      // 29: chalk.server.v1.HostUsageHistory
-	(*GpuUsageHistory)(nil),                       // 30: chalk.server.v1.GpuUsageHistory
-	(*HostPoolReservationHistory)(nil),            // 31: chalk.server.v1.HostPoolReservationHistory
-	(*HostPoolCapacity)(nil),                      // 32: chalk.server.v1.HostPoolCapacity
-	(*GetHostPoolCapacityRequest)(nil),            // 33: chalk.server.v1.GetHostPoolCapacityRequest
-	(*GetHostPoolCapacityFilters)(nil),            // 34: chalk.server.v1.GetHostPoolCapacityFilters
-	(*GetHostPoolCapacityResponse)(nil),           // 35: chalk.server.v1.GetHostPoolCapacityResponse
-	(*HostPoolReportedResources)(nil),             // 36: chalk.server.v1.HostPoolReportedResources
-	(*HostPoolHostStatus)(nil),                    // 37: chalk.server.v1.HostPoolHostStatus
-	(*HostPoolCapacityStatus)(nil),                // 38: chalk.server.v1.HostPoolCapacityStatus
-	(*HostPoolStatusReport)(nil),                  // 39: chalk.server.v1.HostPoolStatusReport
-	(*HostPoolStatusUpdate)(nil),                  // 40: chalk.server.v1.HostPoolStatusUpdate
-	(*BatchUpdateHostPoolStatusRequest)(nil),      // 41: chalk.server.v1.BatchUpdateHostPoolStatusRequest
-	(*BatchUpdateHostPoolStatusResponse)(nil),     // 42: chalk.server.v1.BatchUpdateHostPoolStatusResponse
-	nil,                           // 43: chalk.server.v1.HostPoolResources.GpusEntry
-	nil,                           // 44: chalk.server.v1.HostUsageHistory.GpusEntry
-	nil,                           // 45: chalk.server.v1.HostPoolReservationHistory.GpusEntry
-	nil,                           // 46: chalk.server.v1.HostPoolReportedResources.GpusEntry
-	(*durationpb.Duration)(nil),   // 47: google.protobuf.Duration
-	(*MaintenanceWindow)(nil),     // 48: chalk.server.v1.MaintenanceWindow
-	(*timestamppb.Timestamp)(nil), // 49: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil), // 50: google.protobuf.FieldMask
-	(*errdetails.BadRequest_FieldViolation)(nil), // 51: google.rpc.BadRequest.FieldViolation
-	(ClusterClass)(0), // 52: chalk.server.v1.ClusterClass
+	(*VersionInfo)(nil),                           // 26: chalk.server.v1.VersionInfo
+	(*HostCapacity)(nil),                          // 27: chalk.server.v1.HostCapacity
+	(*UtilizationPoint)(nil),                      // 28: chalk.server.v1.UtilizationPoint
+	(*UtilizationSeries)(nil),                     // 29: chalk.server.v1.UtilizationSeries
+	(*HostUsageHistory)(nil),                      // 30: chalk.server.v1.HostUsageHistory
+	(*GpuUsageHistory)(nil),                       // 31: chalk.server.v1.GpuUsageHistory
+	(*HostPoolReservationHistory)(nil),            // 32: chalk.server.v1.HostPoolReservationHistory
+	(*HostPoolCapacity)(nil),                      // 33: chalk.server.v1.HostPoolCapacity
+	(*GetHostPoolCapacityRequest)(nil),            // 34: chalk.server.v1.GetHostPoolCapacityRequest
+	(*GetHostPoolCapacityFilters)(nil),            // 35: chalk.server.v1.GetHostPoolCapacityFilters
+	(*GetHostPoolCapacityResponse)(nil),           // 36: chalk.server.v1.GetHostPoolCapacityResponse
+	(*HostPoolReportedResources)(nil),             // 37: chalk.server.v1.HostPoolReportedResources
+	(*HostPoolHostStatus)(nil),                    // 38: chalk.server.v1.HostPoolHostStatus
+	(*HostPoolCapacityStatus)(nil),                // 39: chalk.server.v1.HostPoolCapacityStatus
+	(*HostPoolStatusReport)(nil),                  // 40: chalk.server.v1.HostPoolStatusReport
+	(*HostPoolStatusUpdate)(nil),                  // 41: chalk.server.v1.HostPoolStatusUpdate
+	(*BatchUpdateHostPoolStatusRequest)(nil),      // 42: chalk.server.v1.BatchUpdateHostPoolStatusRequest
+	(*BatchUpdateHostPoolStatusResponse)(nil),     // 43: chalk.server.v1.BatchUpdateHostPoolStatusResponse
+	nil,                           // 44: chalk.server.v1.HostPoolResources.GpusEntry
+	nil,                           // 45: chalk.server.v1.HostUsageHistory.GpusEntry
+	nil,                           // 46: chalk.server.v1.HostPoolReservationHistory.GpusEntry
+	nil,                           // 47: chalk.server.v1.HostPoolReportedResources.GpusEntry
+	(*durationpb.Duration)(nil),   // 48: google.protobuf.Duration
+	(*MaintenanceWindow)(nil),     // 49: chalk.server.v1.MaintenanceWindow
+	(*timestamppb.Timestamp)(nil), // 50: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil), // 51: google.protobuf.FieldMask
+	(*errdetails.BadRequest_FieldViolation)(nil), // 52: google.rpc.BadRequest.FieldViolation
+	(ClusterClass)(0), // 53: chalk.server.v1.ClusterClass
 }
 var file_chalk_server_v1_host_pool_proto_depIdxs = []int32{
-	47, // 0: chalk.server.v1.HostPoolSpec.idle_timeout:type_name -> google.protobuf.Duration
-	48, // 1: chalk.server.v1.HostPoolSpec.maintenance_window:type_name -> chalk.server.v1.MaintenanceWindow
+	48, // 0: chalk.server.v1.HostPoolSpec.idle_timeout:type_name -> google.protobuf.Duration
+	49, // 1: chalk.server.v1.HostPoolSpec.maintenance_window:type_name -> chalk.server.v1.MaintenanceWindow
 	4,  // 2: chalk.server.v1.HostPoolSpec.storage_config:type_name -> chalk.server.v1.StorageConfig
 	0,  // 3: chalk.server.v1.StorageConfig.storage_type:type_name -> chalk.server.v1.HostPoolStorage
 	1,  // 4: chalk.server.v1.HostPoolPendingUpdate.types:type_name -> chalk.server.v1.HostPoolPendingUpdateType
 	3,  // 5: chalk.server.v1.HostPool.spec:type_name -> chalk.server.v1.HostPoolSpec
-	49, // 6: chalk.server.v1.HostPool.created_at:type_name -> google.protobuf.Timestamp
-	49, // 7: chalk.server.v1.HostPool.updated_at:type_name -> google.protobuf.Timestamp
+	50, // 6: chalk.server.v1.HostPool.created_at:type_name -> google.protobuf.Timestamp
+	50, // 7: chalk.server.v1.HostPool.updated_at:type_name -> google.protobuf.Timestamp
 	5,  // 8: chalk.server.v1.HostPool.pending_update:type_name -> chalk.server.v1.HostPoolPendingUpdate
 	3,  // 9: chalk.server.v1.CreateEnvironmentHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
 	6,  // 10: chalk.server.v1.CreateEnvironmentHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	3,  // 11: chalk.server.v1.UpdateEnvironmentHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
-	50, // 12: chalk.server.v1.UpdateEnvironmentHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	51, // 12: chalk.server.v1.UpdateEnvironmentHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
 	6,  // 13: chalk.server.v1.UpdateEnvironmentHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	3,  // 14: chalk.server.v1.CreateClusterHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
 	6,  // 15: chalk.server.v1.CreateClusterHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	3,  // 16: chalk.server.v1.UpdateClusterHostPoolRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
-	50, // 17: chalk.server.v1.UpdateClusterHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	51, // 17: chalk.server.v1.UpdateClusterHostPoolRequest.update_mask:type_name -> google.protobuf.FieldMask
 	6,  // 18: chalk.server.v1.UpdateClusterHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	6,  // 19: chalk.server.v1.GetHostPoolResponse.host_pool:type_name -> chalk.server.v1.HostPool
 	6,  // 20: chalk.server.v1.ListHostPoolsResponse.host_pools:type_name -> chalk.server.v1.HostPool
 	3,  // 21: chalk.server.v1.ValidateHostPoolConfigurationRequest.spec:type_name -> chalk.server.v1.HostPoolSpec
 	0,  // 22: chalk.server.v1.ValidateHostPoolConfigurationResponse.allowed_storage:type_name -> chalk.server.v1.HostPoolStorage
-	51, // 23: chalk.server.v1.ValidateHostPoolConfigurationResponse.errors:type_name -> google.rpc.BadRequest.FieldViolation
-	43, // 24: chalk.server.v1.HostPoolResources.gpus:type_name -> chalk.server.v1.HostPoolResources.GpusEntry
+	52, // 23: chalk.server.v1.ValidateHostPoolConfigurationResponse.errors:type_name -> google.rpc.BadRequest.FieldViolation
+	44, // 24: chalk.server.v1.HostPoolResources.gpus:type_name -> chalk.server.v1.HostPoolResources.GpusEntry
 	25, // 25: chalk.server.v1.HostCapacity.capacity:type_name -> chalk.server.v1.HostPoolResources
 	25, // 26: chalk.server.v1.HostCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
 	25, // 27: chalk.server.v1.HostCapacity.available:type_name -> chalk.server.v1.HostPoolResources
-	49, // 28: chalk.server.v1.HostCapacity.last_heartbeat_at:type_name -> google.protobuf.Timestamp
-	29, // 29: chalk.server.v1.HostCapacity.usage_history:type_name -> chalk.server.v1.HostUsageHistory
-	49, // 30: chalk.server.v1.UtilizationPoint.observed_at:type_name -> google.protobuf.Timestamp
-	27, // 31: chalk.server.v1.UtilizationSeries.points:type_name -> chalk.server.v1.UtilizationPoint
-	28, // 32: chalk.server.v1.HostUsageHistory.cpu:type_name -> chalk.server.v1.UtilizationSeries
-	28, // 33: chalk.server.v1.HostUsageHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
-	44, // 34: chalk.server.v1.HostUsageHistory.gpus:type_name -> chalk.server.v1.HostUsageHistory.GpusEntry
-	28, // 35: chalk.server.v1.GpuUsageHistory.utilization:type_name -> chalk.server.v1.UtilizationSeries
-	28, // 36: chalk.server.v1.GpuUsageHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
-	28, // 37: chalk.server.v1.HostPoolReservationHistory.cpu:type_name -> chalk.server.v1.UtilizationSeries
-	28, // 38: chalk.server.v1.HostPoolReservationHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
-	45, // 39: chalk.server.v1.HostPoolReservationHistory.gpus:type_name -> chalk.server.v1.HostPoolReservationHistory.GpusEntry
-	47, // 40: chalk.server.v1.HostPoolCapacity.idle_timeout:type_name -> google.protobuf.Duration
-	2,  // 41: chalk.server.v1.HostPoolCapacity.phase:type_name -> chalk.server.v1.HostPoolPhase
-	49, // 42: chalk.server.v1.HostPoolCapacity.idle_since:type_name -> google.protobuf.Timestamp
-	25, // 43: chalk.server.v1.HostPoolCapacity.ready:type_name -> chalk.server.v1.HostPoolResources
-	25, // 44: chalk.server.v1.HostPoolCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
-	25, // 45: chalk.server.v1.HostPoolCapacity.available:type_name -> chalk.server.v1.HostPoolResources
-	25, // 46: chalk.server.v1.HostPoolCapacity.at_max_scale:type_name -> chalk.server.v1.HostPoolResources
-	25, // 47: chalk.server.v1.HostPoolCapacity.largest_placeable:type_name -> chalk.server.v1.HostPoolResources
-	25, // 48: chalk.server.v1.HostPoolCapacity.largest_placeable_at_max_scale:type_name -> chalk.server.v1.HostPoolResources
-	26, // 49: chalk.server.v1.HostPoolCapacity.hosts:type_name -> chalk.server.v1.HostCapacity
-	49, // 50: chalk.server.v1.HostPoolCapacity.observed_at:type_name -> google.protobuf.Timestamp
-	31, // 51: chalk.server.v1.HostPoolCapacity.reservation_history:type_name -> chalk.server.v1.HostPoolReservationHistory
-	25, // 52: chalk.server.v1.HostPoolCapacity.total:type_name -> chalk.server.v1.HostPoolResources
-	25, // 53: chalk.server.v1.HostPoolCapacity.reserved:type_name -> chalk.server.v1.HostPoolResources
-	5,  // 54: chalk.server.v1.HostPoolCapacity.pending_update:type_name -> chalk.server.v1.HostPoolPendingUpdate
-	34, // 55: chalk.server.v1.GetHostPoolCapacityRequest.filters:type_name -> chalk.server.v1.GetHostPoolCapacityFilters
-	52, // 56: chalk.server.v1.GetHostPoolCapacityFilters.cluster_classes:type_name -> chalk.server.v1.ClusterClass
-	32, // 57: chalk.server.v1.GetHostPoolCapacityResponse.host_pools:type_name -> chalk.server.v1.HostPoolCapacity
-	25, // 58: chalk.server.v1.GetHostPoolCapacityResponse.largest_pending_request:type_name -> chalk.server.v1.HostPoolResources
-	49, // 59: chalk.server.v1.GetHostPoolCapacityResponse.observed_at:type_name -> google.protobuf.Timestamp
-	46, // 60: chalk.server.v1.HostPoolReportedResources.gpus:type_name -> chalk.server.v1.HostPoolReportedResources.GpusEntry
-	36, // 61: chalk.server.v1.HostPoolHostStatus.total:type_name -> chalk.server.v1.HostPoolReportedResources
-	36, // 62: chalk.server.v1.HostPoolHostStatus.reserved:type_name -> chalk.server.v1.HostPoolReportedResources
-	36, // 63: chalk.server.v1.HostPoolHostStatus.free:type_name -> chalk.server.v1.HostPoolReportedResources
-	49, // 64: chalk.server.v1.HostPoolHostStatus.last_heartbeat_at:type_name -> google.protobuf.Timestamp
-	36, // 65: chalk.server.v1.HostPoolCapacityStatus.total:type_name -> chalk.server.v1.HostPoolReportedResources
-	36, // 66: chalk.server.v1.HostPoolCapacityStatus.accepting_placements:type_name -> chalk.server.v1.HostPoolReportedResources
-	36, // 67: chalk.server.v1.HostPoolCapacityStatus.reserved:type_name -> chalk.server.v1.HostPoolReportedResources
-	36, // 68: chalk.server.v1.HostPoolCapacityStatus.free:type_name -> chalk.server.v1.HostPoolReportedResources
-	37, // 69: chalk.server.v1.HostPoolCapacityStatus.hosts:type_name -> chalk.server.v1.HostPoolHostStatus
-	49, // 70: chalk.server.v1.HostPoolStatusReport.idle_since:type_name -> google.protobuf.Timestamp
-	38, // 71: chalk.server.v1.HostPoolStatusReport.capacity:type_name -> chalk.server.v1.HostPoolCapacityStatus
-	5,  // 72: chalk.server.v1.HostPoolStatusReport.pending_update:type_name -> chalk.server.v1.HostPoolPendingUpdate
-	39, // 73: chalk.server.v1.HostPoolStatusUpdate.status:type_name -> chalk.server.v1.HostPoolStatusReport
-	49, // 74: chalk.server.v1.BatchUpdateHostPoolStatusRequest.observed_at:type_name -> google.protobuf.Timestamp
-	40, // 75: chalk.server.v1.BatchUpdateHostPoolStatusRequest.updates:type_name -> chalk.server.v1.HostPoolStatusUpdate
-	30, // 76: chalk.server.v1.HostUsageHistory.GpusEntry.value:type_name -> chalk.server.v1.GpuUsageHistory
-	28, // 77: chalk.server.v1.HostPoolReservationHistory.GpusEntry.value:type_name -> chalk.server.v1.UtilizationSeries
-	41, // 78: chalk.server.v1.HostPoolService.BatchUpdateHostPoolStatus:input_type -> chalk.server.v1.BatchUpdateHostPoolStatusRequest
-	7,  // 79: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:input_type -> chalk.server.v1.CreateEnvironmentHostPoolRequest
-	9,  // 80: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:input_type -> chalk.server.v1.UpdateEnvironmentHostPoolRequest
-	11, // 81: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:input_type -> chalk.server.v1.DeleteEnvironmentHostPoolRequest
-	13, // 82: chalk.server.v1.HostPoolService.CreateClusterHostPool:input_type -> chalk.server.v1.CreateClusterHostPoolRequest
-	15, // 83: chalk.server.v1.HostPoolService.UpdateClusterHostPool:input_type -> chalk.server.v1.UpdateClusterHostPoolRequest
-	17, // 84: chalk.server.v1.HostPoolService.DeleteClusterHostPool:input_type -> chalk.server.v1.DeleteClusterHostPoolRequest
-	23, // 85: chalk.server.v1.HostPoolService.ValidateHostPoolConfiguration:input_type -> chalk.server.v1.ValidateHostPoolConfigurationRequest
-	19, // 86: chalk.server.v1.HostPoolService.GetHostPool:input_type -> chalk.server.v1.GetHostPoolRequest
-	21, // 87: chalk.server.v1.HostPoolService.ListHostPools:input_type -> chalk.server.v1.ListHostPoolsRequest
-	33, // 88: chalk.server.v1.HostPoolService.GetHostPoolCapacity:input_type -> chalk.server.v1.GetHostPoolCapacityRequest
-	42, // 89: chalk.server.v1.HostPoolService.BatchUpdateHostPoolStatus:output_type -> chalk.server.v1.BatchUpdateHostPoolStatusResponse
-	8,  // 90: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:output_type -> chalk.server.v1.CreateEnvironmentHostPoolResponse
-	10, // 91: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:output_type -> chalk.server.v1.UpdateEnvironmentHostPoolResponse
-	12, // 92: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:output_type -> chalk.server.v1.DeleteEnvironmentHostPoolResponse
-	14, // 93: chalk.server.v1.HostPoolService.CreateClusterHostPool:output_type -> chalk.server.v1.CreateClusterHostPoolResponse
-	16, // 94: chalk.server.v1.HostPoolService.UpdateClusterHostPool:output_type -> chalk.server.v1.UpdateClusterHostPoolResponse
-	18, // 95: chalk.server.v1.HostPoolService.DeleteClusterHostPool:output_type -> chalk.server.v1.DeleteClusterHostPoolResponse
-	24, // 96: chalk.server.v1.HostPoolService.ValidateHostPoolConfiguration:output_type -> chalk.server.v1.ValidateHostPoolConfigurationResponse
-	20, // 97: chalk.server.v1.HostPoolService.GetHostPool:output_type -> chalk.server.v1.GetHostPoolResponse
-	22, // 98: chalk.server.v1.HostPoolService.ListHostPools:output_type -> chalk.server.v1.ListHostPoolsResponse
-	35, // 99: chalk.server.v1.HostPoolService.GetHostPoolCapacity:output_type -> chalk.server.v1.GetHostPoolCapacityResponse
-	89, // [89:100] is the sub-list for method output_type
-	78, // [78:89] is the sub-list for method input_type
-	78, // [78:78] is the sub-list for extension type_name
-	78, // [78:78] is the sub-list for extension extendee
-	0,  // [0:78] is the sub-list for field type_name
+	50, // 28: chalk.server.v1.HostCapacity.last_heartbeat_at:type_name -> google.protobuf.Timestamp
+	30, // 29: chalk.server.v1.HostCapacity.usage_history:type_name -> chalk.server.v1.HostUsageHistory
+	26, // 30: chalk.server.v1.HostCapacity.version_info:type_name -> chalk.server.v1.VersionInfo
+	50, // 31: chalk.server.v1.UtilizationPoint.observed_at:type_name -> google.protobuf.Timestamp
+	28, // 32: chalk.server.v1.UtilizationSeries.points:type_name -> chalk.server.v1.UtilizationPoint
+	29, // 33: chalk.server.v1.HostUsageHistory.cpu:type_name -> chalk.server.v1.UtilizationSeries
+	29, // 34: chalk.server.v1.HostUsageHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
+	45, // 35: chalk.server.v1.HostUsageHistory.gpus:type_name -> chalk.server.v1.HostUsageHistory.GpusEntry
+	29, // 36: chalk.server.v1.GpuUsageHistory.utilization:type_name -> chalk.server.v1.UtilizationSeries
+	29, // 37: chalk.server.v1.GpuUsageHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
+	29, // 38: chalk.server.v1.HostPoolReservationHistory.cpu:type_name -> chalk.server.v1.UtilizationSeries
+	29, // 39: chalk.server.v1.HostPoolReservationHistory.memory:type_name -> chalk.server.v1.UtilizationSeries
+	46, // 40: chalk.server.v1.HostPoolReservationHistory.gpus:type_name -> chalk.server.v1.HostPoolReservationHistory.GpusEntry
+	48, // 41: chalk.server.v1.HostPoolCapacity.idle_timeout:type_name -> google.protobuf.Duration
+	2,  // 42: chalk.server.v1.HostPoolCapacity.phase:type_name -> chalk.server.v1.HostPoolPhase
+	50, // 43: chalk.server.v1.HostPoolCapacity.idle_since:type_name -> google.protobuf.Timestamp
+	25, // 44: chalk.server.v1.HostPoolCapacity.ready:type_name -> chalk.server.v1.HostPoolResources
+	25, // 45: chalk.server.v1.HostPoolCapacity.allocated:type_name -> chalk.server.v1.HostPoolResources
+	25, // 46: chalk.server.v1.HostPoolCapacity.available:type_name -> chalk.server.v1.HostPoolResources
+	25, // 47: chalk.server.v1.HostPoolCapacity.at_max_scale:type_name -> chalk.server.v1.HostPoolResources
+	25, // 48: chalk.server.v1.HostPoolCapacity.largest_placeable:type_name -> chalk.server.v1.HostPoolResources
+	25, // 49: chalk.server.v1.HostPoolCapacity.largest_placeable_at_max_scale:type_name -> chalk.server.v1.HostPoolResources
+	27, // 50: chalk.server.v1.HostPoolCapacity.hosts:type_name -> chalk.server.v1.HostCapacity
+	50, // 51: chalk.server.v1.HostPoolCapacity.observed_at:type_name -> google.protobuf.Timestamp
+	32, // 52: chalk.server.v1.HostPoolCapacity.reservation_history:type_name -> chalk.server.v1.HostPoolReservationHistory
+	25, // 53: chalk.server.v1.HostPoolCapacity.total:type_name -> chalk.server.v1.HostPoolResources
+	25, // 54: chalk.server.v1.HostPoolCapacity.reserved:type_name -> chalk.server.v1.HostPoolResources
+	5,  // 55: chalk.server.v1.HostPoolCapacity.pending_update:type_name -> chalk.server.v1.HostPoolPendingUpdate
+	35, // 56: chalk.server.v1.GetHostPoolCapacityRequest.filters:type_name -> chalk.server.v1.GetHostPoolCapacityFilters
+	53, // 57: chalk.server.v1.GetHostPoolCapacityFilters.cluster_classes:type_name -> chalk.server.v1.ClusterClass
+	33, // 58: chalk.server.v1.GetHostPoolCapacityResponse.host_pools:type_name -> chalk.server.v1.HostPoolCapacity
+	25, // 59: chalk.server.v1.GetHostPoolCapacityResponse.largest_pending_request:type_name -> chalk.server.v1.HostPoolResources
+	50, // 60: chalk.server.v1.GetHostPoolCapacityResponse.observed_at:type_name -> google.protobuf.Timestamp
+	47, // 61: chalk.server.v1.HostPoolReportedResources.gpus:type_name -> chalk.server.v1.HostPoolReportedResources.GpusEntry
+	37, // 62: chalk.server.v1.HostPoolHostStatus.total:type_name -> chalk.server.v1.HostPoolReportedResources
+	37, // 63: chalk.server.v1.HostPoolHostStatus.reserved:type_name -> chalk.server.v1.HostPoolReportedResources
+	37, // 64: chalk.server.v1.HostPoolHostStatus.free:type_name -> chalk.server.v1.HostPoolReportedResources
+	50, // 65: chalk.server.v1.HostPoolHostStatus.last_heartbeat_at:type_name -> google.protobuf.Timestamp
+	26, // 66: chalk.server.v1.HostPoolHostStatus.version_info:type_name -> chalk.server.v1.VersionInfo
+	37, // 67: chalk.server.v1.HostPoolCapacityStatus.total:type_name -> chalk.server.v1.HostPoolReportedResources
+	37, // 68: chalk.server.v1.HostPoolCapacityStatus.accepting_placements:type_name -> chalk.server.v1.HostPoolReportedResources
+	37, // 69: chalk.server.v1.HostPoolCapacityStatus.reserved:type_name -> chalk.server.v1.HostPoolReportedResources
+	37, // 70: chalk.server.v1.HostPoolCapacityStatus.free:type_name -> chalk.server.v1.HostPoolReportedResources
+	38, // 71: chalk.server.v1.HostPoolCapacityStatus.hosts:type_name -> chalk.server.v1.HostPoolHostStatus
+	50, // 72: chalk.server.v1.HostPoolStatusReport.idle_since:type_name -> google.protobuf.Timestamp
+	39, // 73: chalk.server.v1.HostPoolStatusReport.capacity:type_name -> chalk.server.v1.HostPoolCapacityStatus
+	5,  // 74: chalk.server.v1.HostPoolStatusReport.pending_update:type_name -> chalk.server.v1.HostPoolPendingUpdate
+	40, // 75: chalk.server.v1.HostPoolStatusUpdate.status:type_name -> chalk.server.v1.HostPoolStatusReport
+	50, // 76: chalk.server.v1.BatchUpdateHostPoolStatusRequest.observed_at:type_name -> google.protobuf.Timestamp
+	41, // 77: chalk.server.v1.BatchUpdateHostPoolStatusRequest.updates:type_name -> chalk.server.v1.HostPoolStatusUpdate
+	31, // 78: chalk.server.v1.HostUsageHistory.GpusEntry.value:type_name -> chalk.server.v1.GpuUsageHistory
+	29, // 79: chalk.server.v1.HostPoolReservationHistory.GpusEntry.value:type_name -> chalk.server.v1.UtilizationSeries
+	42, // 80: chalk.server.v1.HostPoolService.BatchUpdateHostPoolStatus:input_type -> chalk.server.v1.BatchUpdateHostPoolStatusRequest
+	7,  // 81: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:input_type -> chalk.server.v1.CreateEnvironmentHostPoolRequest
+	9,  // 82: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:input_type -> chalk.server.v1.UpdateEnvironmentHostPoolRequest
+	11, // 83: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:input_type -> chalk.server.v1.DeleteEnvironmentHostPoolRequest
+	13, // 84: chalk.server.v1.HostPoolService.CreateClusterHostPool:input_type -> chalk.server.v1.CreateClusterHostPoolRequest
+	15, // 85: chalk.server.v1.HostPoolService.UpdateClusterHostPool:input_type -> chalk.server.v1.UpdateClusterHostPoolRequest
+	17, // 86: chalk.server.v1.HostPoolService.DeleteClusterHostPool:input_type -> chalk.server.v1.DeleteClusterHostPoolRequest
+	23, // 87: chalk.server.v1.HostPoolService.ValidateHostPoolConfiguration:input_type -> chalk.server.v1.ValidateHostPoolConfigurationRequest
+	19, // 88: chalk.server.v1.HostPoolService.GetHostPool:input_type -> chalk.server.v1.GetHostPoolRequest
+	21, // 89: chalk.server.v1.HostPoolService.ListHostPools:input_type -> chalk.server.v1.ListHostPoolsRequest
+	34, // 90: chalk.server.v1.HostPoolService.GetHostPoolCapacity:input_type -> chalk.server.v1.GetHostPoolCapacityRequest
+	43, // 91: chalk.server.v1.HostPoolService.BatchUpdateHostPoolStatus:output_type -> chalk.server.v1.BatchUpdateHostPoolStatusResponse
+	8,  // 92: chalk.server.v1.HostPoolService.CreateEnvironmentHostPool:output_type -> chalk.server.v1.CreateEnvironmentHostPoolResponse
+	10, // 93: chalk.server.v1.HostPoolService.UpdateEnvironmentHostPool:output_type -> chalk.server.v1.UpdateEnvironmentHostPoolResponse
+	12, // 94: chalk.server.v1.HostPoolService.DeleteEnvironmentHostPool:output_type -> chalk.server.v1.DeleteEnvironmentHostPoolResponse
+	14, // 95: chalk.server.v1.HostPoolService.CreateClusterHostPool:output_type -> chalk.server.v1.CreateClusterHostPoolResponse
+	16, // 96: chalk.server.v1.HostPoolService.UpdateClusterHostPool:output_type -> chalk.server.v1.UpdateClusterHostPoolResponse
+	18, // 97: chalk.server.v1.HostPoolService.DeleteClusterHostPool:output_type -> chalk.server.v1.DeleteClusterHostPoolResponse
+	24, // 98: chalk.server.v1.HostPoolService.ValidateHostPoolConfiguration:output_type -> chalk.server.v1.ValidateHostPoolConfigurationResponse
+	20, // 99: chalk.server.v1.HostPoolService.GetHostPool:output_type -> chalk.server.v1.GetHostPoolResponse
+	22, // 100: chalk.server.v1.HostPoolService.ListHostPools:output_type -> chalk.server.v1.ListHostPoolsResponse
+	36, // 101: chalk.server.v1.HostPoolService.GetHostPoolCapacity:output_type -> chalk.server.v1.GetHostPoolCapacityResponse
+	91, // [91:102] is the sub-list for method output_type
+	80, // [80:91] is the sub-list for method input_type
+	80, // [80:80] is the sub-list for extension type_name
+	80, // [80:80] is the sub-list for extension extendee
+	0,  // [0:80] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_host_pool_proto_init() }
@@ -3641,24 +3715,25 @@ func file_chalk_server_v1_host_pool_proto_init() {
 		(*ValidateHostPoolConfigurationRequest_ClusterId)(nil),
 	}
 	file_chalk_server_v1_host_pool_proto_msgTypes[23].OneofWrappers = []any{}
-	file_chalk_server_v1_host_pool_proto_msgTypes[29].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[24].OneofWrappers = []any{}
 	file_chalk_server_v1_host_pool_proto_msgTypes[30].OneofWrappers = []any{}
-	file_chalk_server_v1_host_pool_proto_msgTypes[31].OneofWrappers = []any{
+	file_chalk_server_v1_host_pool_proto_msgTypes[31].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[32].OneofWrappers = []any{
 		(*GetHostPoolCapacityFilters_EnvironmentId)(nil),
 		(*GetHostPoolCapacityFilters_ClusterId)(nil),
 		(*GetHostPoolCapacityFilters_Global)(nil),
 	}
-	file_chalk_server_v1_host_pool_proto_msgTypes[32].OneofWrappers = []any{}
-	file_chalk_server_v1_host_pool_proto_msgTypes[34].OneofWrappers = []any{}
-	file_chalk_server_v1_host_pool_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[33].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[35].OneofWrappers = []any{}
 	file_chalk_server_v1_host_pool_proto_msgTypes[37].OneofWrappers = []any{}
+	file_chalk_server_v1_host_pool_proto_msgTypes[38].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_host_pool_proto_rawDesc), len(file_chalk_server_v1_host_pool_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   44,
+			NumMessages:   45,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

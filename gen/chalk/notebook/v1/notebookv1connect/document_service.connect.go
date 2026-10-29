@@ -196,8 +196,8 @@ type NotebookDocumentServiceClient interface {
 	// caller already reacted with that emoji.
 	ToggleNotebookCommentReaction(context.Context, *connect.Request[v1.ToggleNotebookCommentReactionRequest]) (*connect.Response[v1.ToggleNotebookCommentReactionResponse], error)
 	CreateNotebookDocument(context.Context, *connect.Request[v1.CreateNotebookDocumentRequest]) (*connect.Response[v1.CreateNotebookDocumentResponse], error)
-	// internal.resource_share_view is accepted IN ADDITION TO deploy.read, so a
-	// share-link holder reads through the same endpoint as a signed-in user. The
+	// internal.resource_share_view is accepted alongside deploy.read and
+	// notebook.write, so share-link holders use the signed-in read endpoint. The
 	// permission only decides that a share token may call this RPC; the handler
 	// is what confines it to the one notebook the token names.
 	GetNotebookDocument(context.Context, *connect.Request[v1.GetNotebookDocumentRequest]) (*connect.Response[v1.GetNotebookDocumentResponse], error)
@@ -900,8 +900,8 @@ type NotebookDocumentServiceHandler interface {
 	// caller already reacted with that emoji.
 	ToggleNotebookCommentReaction(context.Context, *connect.Request[v1.ToggleNotebookCommentReactionRequest]) (*connect.Response[v1.ToggleNotebookCommentReactionResponse], error)
 	CreateNotebookDocument(context.Context, *connect.Request[v1.CreateNotebookDocumentRequest]) (*connect.Response[v1.CreateNotebookDocumentResponse], error)
-	// internal.resource_share_view is accepted IN ADDITION TO deploy.read, so a
-	// share-link holder reads through the same endpoint as a signed-in user. The
+	// internal.resource_share_view is accepted alongside deploy.read and
+	// notebook.write, so share-link holders use the signed-in read endpoint. The
 	// permission only decides that a share token may call this RPC; the handler
 	// is what confines it to the one notebook the token names.
 	GetNotebookDocument(context.Context, *connect.Request[v1.GetNotebookDocumentRequest]) (*connect.Response[v1.GetNotebookDocumentResponse], error)

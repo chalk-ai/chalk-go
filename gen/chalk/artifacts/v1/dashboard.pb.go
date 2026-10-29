@@ -1660,8 +1660,12 @@ type Dashboard struct {
 	TotalViewCount int64 `protobuf:"varint,11,opt,name=total_view_count,json=totalViewCount,proto3" json:"total_view_count,omitempty"`
 	// The requesting user's most recent open; unset if they have never opened it.
 	ViewerLastViewedAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=viewer_last_viewed_at,json=viewerLastViewedAt,proto3" json:"viewer_last_viewed_at,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Written through Create/UpdateDashboardSharing, so `chalk apply` cannot widen access.
+	Visibility ContentVisibility `protobuf:"varint,14,opt,name=visibility,proto3,enum=chalk.artifacts.v1.ContentVisibility" json:"visibility,omitempty"`
+	// The requesting caller's resolved role, so a listing can gate actions without a second call.
+	ViewerRole    ContentRole `protobuf:"varint,15,opt,name=viewer_role,json=viewerRole,proto3,enum=chalk.artifacts.v1.ContentRole" json:"viewer_role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Dashboard) Reset() {
@@ -1785,11 +1789,25 @@ func (x *Dashboard) GetViewerLastViewedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Dashboard) GetVisibility() ContentVisibility {
+	if x != nil {
+		return x.Visibility
+	}
+	return ContentVisibility_CONTENT_VISIBILITY_UNSPECIFIED
+}
+
+func (x *Dashboard) GetViewerRole() ContentRole {
+	if x != nil {
+		return x.ViewerRole
+	}
+	return ContentRole_CONTENT_ROLE_UNSPECIFIED
+}
+
 var File_chalk_artifacts_v1_dashboard_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/artifacts/v1/dashboard.proto\x12\x12chalk.artifacts.v1\x1a\x1echalk/artifacts/v1/chart.proto\x1a#chalk/artifacts/v1/value_tone.proto\x1a+chalk/searchaggregates/v1/aggregation.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
+	"\"chalk/artifacts/v1/dashboard.proto\x12\x12chalk.artifacts.v1\x1a\x1echalk/artifacts/v1/chart.proto\x1a%chalk/artifacts/v1/contentgrant.proto\x1a#chalk/artifacts/v1/value_tone.proto\x1a+chalk/searchaggregates/v1/aggregation.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"F\n" +
 	"\fGridPosition\x12\f\n" +
 	"\x01x\x18\x01 \x01(\x05R\x01x\x12\f\n" +
 	"\x01y\x18\x02 \x01(\x05R\x01y\x12\f\n" +
@@ -1911,7 +1929,7 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\x17DashboardMarkdownWidget\x12\x18\n" +
 	"\acontent\x18\x01 \x01(\tR\acontent\"3\n" +
 	"\x1bDashboardSectionTitleWidget\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\"\x89\x05\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\"\x9c\x06\n" +
 	"\tDashboard\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\x03R\x02id\x12*\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tB\x03\xe0A\x03R\renvironmentId\x12\x12\n" +
@@ -1930,7 +1948,12 @@ const file_chalk_artifacts_v1_dashboard_proto_rawDesc = "" +
 	"\tread_only\x18\n" +
 	" \x01(\bB\x03\xe0A\x03R\breadOnly\x12-\n" +
 	"\x10total_view_count\x18\v \x01(\x03B\x03\xe0A\x03R\x0etotalViewCount\x12R\n" +
-	"\x15viewer_last_viewed_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\x12viewerLastViewedAtB\x0e\n" +
+	"\x15viewer_last_viewed_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\x12viewerLastViewedAt\x12J\n" +
+	"\n" +
+	"visibility\x18\x0e \x01(\x0e2%.chalk.artifacts.v1.ContentVisibilityB\x03\xe0A\x03R\n" +
+	"visibility\x12E\n" +
+	"\vviewer_role\x18\x0f \x01(\x0e2\x1f.chalk.artifacts.v1.ContentRoleB\x03\xe0A\x03R\n" +
+	"viewerRoleB\x0e\n" +
 	"\f_descriptionB\r\n" +
 	"\v_owner_typeB\v\n" +
 	"\t_owner_id*\xc5\x01\n" +
@@ -1987,6 +2010,8 @@ var file_chalk_artifacts_v1_dashboard_proto_goTypes = []any{
 	(ThresholdKind)(0),                      // 28: chalk.artifacts.v1.ThresholdKind
 	(ValueTone)(0),                          // 29: chalk.artifacts.v1.ValueTone
 	(*timestamppb.Timestamp)(nil),           // 30: google.protobuf.Timestamp
+	(ContentVisibility)(0),                  // 31: chalk.artifacts.v1.ContentVisibility
+	(ContentRole)(0),                        // 32: chalk.artifacts.v1.ContentRole
 }
 var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
 	1,  // 0: chalk.artifacts.v1.DashboardWidget.position:type_name -> chalk.artifacts.v1.GridPosition
@@ -2022,11 +2047,13 @@ var file_chalk_artifacts_v1_dashboard_proto_depIdxs = []int32{
 	30, // 30: chalk.artifacts.v1.Dashboard.created_at:type_name -> google.protobuf.Timestamp
 	30, // 31: chalk.artifacts.v1.Dashboard.updated_at:type_name -> google.protobuf.Timestamp
 	30, // 32: chalk.artifacts.v1.Dashboard.viewer_last_viewed_at:type_name -> google.protobuf.Timestamp
-	33, // [33:33] is the sub-list for method output_type
-	33, // [33:33] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	31, // 33: chalk.artifacts.v1.Dashboard.visibility:type_name -> chalk.artifacts.v1.ContentVisibility
+	32, // 34: chalk.artifacts.v1.Dashboard.viewer_role:type_name -> chalk.artifacts.v1.ContentRole
+	35, // [35:35] is the sub-list for method output_type
+	35, // [35:35] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_dashboard_proto_init() }
@@ -2035,6 +2062,7 @@ func file_chalk_artifacts_v1_dashboard_proto_init() {
 		return
 	}
 	file_chalk_artifacts_v1_chart_proto_init()
+	file_chalk_artifacts_v1_contentgrant_proto_init()
 	file_chalk_artifacts_v1_value_tone_proto_init()
 	file_chalk_artifacts_v1_dashboard_proto_msgTypes[1].OneofWrappers = []any{
 		(*DashboardWidget_DataWidget)(nil),

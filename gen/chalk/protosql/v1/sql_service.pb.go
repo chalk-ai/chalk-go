@@ -779,7 +779,10 @@ type ExecuteSqlQueryRequest struct {
 	// is scanned as a named-table input to the plan, like DataFrameService.ExecutePlan's
 	// `tables`. A name shadows a catalog table of the same name, and a CTE shadows both.
 	// Only inline `feather` payloads are accepted, and only for sync execution.
-	Tables        map[string]*v2.Table `protobuf:"bytes,14,rep,name=tables,proto3" json:"tables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Tables map[string]*v2.Table `protobuf:"bytes,14,rep,name=tables,proto3" json:"tables,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Query-history annotations. Chalk-owned keys use the chalk. prefix, including chalk.origin.
+	// Values do not control query execution.
+	Metadata      map[string]string `protobuf:"bytes,15,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -891,6 +894,13 @@ func (x *ExecuteSqlQueryRequest) GetColumnProfileOptions() *v1.ColumnProfileOpti
 func (x *ExecuteSqlQueryRequest) GetTables() map[string]*v2.Table {
 	if x != nil {
 		return x.Tables
+	}
+	return nil
+}
+
+func (x *ExecuteSqlQueryRequest) GetMetadata() map[string]string {
+	if x != nil {
+		return x.Metadata
 	}
 	return nil
 }
@@ -2526,7 +2536,7 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x0f_resource_group\"\x93\x01\n" +
 	"\x1cGetOfflineQueryStatsResponse\x12F\n" +
 	"\bresponse\x18\x01 \x01(\v2*.chalk.protosql.v1.ExecuteSqlQueryResponseR\bresponse\x12'\n" +
-	"\x0fgenerated_query\x18\x02 \x01(\tR\x0egeneratedQuery:\x02\x18\x01\"\xf4\a\n" +
+	"\x0fgenerated_query\x18\x02 \x01(\tR\x0egeneratedQuery:\x02\x18\x01\"\x86\t\n" +
 	"\x16ExecuteSqlQueryRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12*\n" +
 	"\x0ecorrelation_id\x18\x02 \x01(\tH\x01R\rcorrelationId\x88\x01\x01\x12i\n" +
@@ -2538,13 +2548,17 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\rasync_options\x18\v \x01(\v25.chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptionsH\x00R\fasyncOptions\x12r\n" +
 	"\x13compilation_options\x18\f \x03(\v2A.chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntryR\x12compilationOptions\x12[\n" +
 	"\x16column_profile_options\x18\r \x01(\v2%.chalk.common.v1.ColumnProfileOptionsR\x14columnProfileOptions\x12M\n" +
-	"\x06tables\x18\x0e \x03(\v25.chalk.protosql.v1.ExecuteSqlQueryRequest.TablesEntryR\x06tables\x1a]\n" +
+	"\x06tables\x18\x0e \x03(\v25.chalk.protosql.v1.ExecuteSqlQueryRequest.TablesEntryR\x06tables\x12S\n" +
+	"\bmetadata\x18\x0f \x03(\v27.chalk.protosql.v1.ExecuteSqlQueryRequest.MetadataEntryR\bmetadata\x1a]\n" +
 	"\x17CompilationOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1aQ\n" +
 	"\vTablesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
-	"\x05value\x18\x02 \x01(\v2\x16.chalk.common.v2.TableR\x05value:\x028\x01B\t\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.chalk.common.v2.TableR\x05value:\x028\x01\x1a;\n" +
+	"\rMetadataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\t\n" +
 	"\aoptionsB\x11\n" +
 	"\x0f_correlation_idB\x13\n" +
 	"\x11_max_memory_bytesB\x12\n" +
@@ -2690,7 +2704,7 @@ func file_chalk_protosql_v1_sql_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_protosql_v1_sql_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_protosql_v1_sql_service_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
+var file_chalk_protosql_v1_sql_service_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_chalk_protosql_v1_sql_service_proto_goTypes = []any{
 	(ExecuteSqlAsyncExecutionMode)(0),           // 0: chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
 	(*SqlQueryInfo)(nil),                        // 1: chalk.protosql.v1.SqlQueryInfo
@@ -2731,20 +2745,21 @@ var file_chalk_protosql_v1_sql_service_proto_goTypes = []any{
 	nil,                                         // 36: chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions.EnvOverridesEntry
 	nil,                                         // 37: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry
 	nil,                                         // 38: chalk.protosql.v1.ExecuteSqlQueryRequest.TablesEntry
-	(*timestamppb.Timestamp)(nil),               // 39: google.protobuf.Timestamp
-	(*v1.ResourceRequests)(nil),                 // 40: chalk.common.v1.ResourceRequests
-	(*v1.ColumnProfileOptions)(nil),             // 41: chalk.common.v1.ColumnProfileOptions
-	(*v1.ChalkError)(nil),                       // 42: chalk.common.v1.ChalkError
-	(*v1.ColumnProfile)(nil),                    // 43: chalk.common.v1.ColumnProfile
-	(*structpb.Value)(nil),                      // 44: google.protobuf.Value
-	(*v2.Table)(nil),                            // 45: chalk.common.v2.Table
+	nil,                                         // 39: chalk.protosql.v1.ExecuteSqlQueryRequest.MetadataEntry
+	(*timestamppb.Timestamp)(nil),               // 40: google.protobuf.Timestamp
+	(*v1.ResourceRequests)(nil),                 // 41: chalk.common.v1.ResourceRequests
+	(*v1.ColumnProfileOptions)(nil),             // 42: chalk.common.v1.ColumnProfileOptions
+	(*v1.ChalkError)(nil),                       // 43: chalk.common.v1.ChalkError
+	(*v1.ColumnProfile)(nil),                    // 44: chalk.common.v1.ColumnProfile
+	(*structpb.Value)(nil),                      // 45: google.protobuf.Value
+	(*v2.Table)(nil),                            // 46: chalk.common.v2.Table
 }
 var file_chalk_protosql_v1_sql_service_proto_depIdxs = []int32{
-	39, // 0: chalk.protosql.v1.SqlQueryInfo.created_at:type_name -> google.protobuf.Timestamp
-	39, // 1: chalk.protosql.v1.SqlQueryInfo.finished_at:type_name -> google.protobuf.Timestamp
+	40, // 0: chalk.protosql.v1.SqlQueryInfo.created_at:type_name -> google.protobuf.Timestamp
+	40, // 1: chalk.protosql.v1.SqlQueryInfo.finished_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions.execution_mode:type_name -> chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
 	36, // 3: chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions.env_overrides:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions.EnvOverridesEntry
-	40, // 4: chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions.resources:type_name -> chalk.common.v1.ResourceRequests
+	41, // 4: chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions.resources:type_name -> chalk.common.v1.ResourceRequests
 	15, // 5: chalk.protosql.v1.GetOfflineQueryInputsResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlQueryResponse
 	15, // 6: chalk.protosql.v1.GetOfflineQueryPreviewResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlQueryResponse
 	15, // 7: chalk.protosql.v1.GetOfflineQueryStatsResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlQueryResponse
@@ -2752,61 +2767,62 @@ var file_chalk_protosql_v1_sql_service_proto_depIdxs = []int32{
 	2,  // 9: chalk.protosql.v1.ExecuteSqlQueryRequest.sync_options:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryRequestOptions
 	3,  // 10: chalk.protosql.v1.ExecuteSqlQueryRequest.async_options:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions
 	37, // 11: chalk.protosql.v1.ExecuteSqlQueryRequest.compilation_options:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry
-	41, // 12: chalk.protosql.v1.ExecuteSqlQueryRequest.column_profile_options:type_name -> chalk.common.v1.ColumnProfileOptions
+	42, // 12: chalk.protosql.v1.ExecuteSqlQueryRequest.column_profile_options:type_name -> chalk.common.v1.ColumnProfileOptions
 	38, // 13: chalk.protosql.v1.ExecuteSqlQueryRequest.tables:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest.TablesEntry
-	12, // 14: chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload.signed_output_uris:type_name -> chalk.protosql.v1.SignedOutputUris
-	0,  // 15: chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload.execution_mode:type_name -> chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
-	13, // 16: chalk.protosql.v1.ExecuteSqlQueryResponse.sync_payload:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
-	14, // 17: chalk.protosql.v1.ExecuteSqlQueryResponse.async_payload:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload
-	42, // 18: chalk.protosql.v1.ExecuteSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
-	43, // 19: chalk.protosql.v1.ExecuteSqlQueryResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
-	11, // 20: chalk.protosql.v1.ExecuteSqlQueryStreamRequest.request:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest
-	18, // 21: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.started:type_name -> chalk.protosql.v1.SqlQueryStreamStarted
-	19, // 22: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.chunk:type_name -> chalk.protosql.v1.SqlQueryResultChunk
-	20, // 23: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.completed:type_name -> chalk.protosql.v1.SqlQueryStreamCompleted
-	42, // 24: chalk.protosql.v1.SqlQueryStreamCompleted.errors:type_name -> chalk.common.v1.ChalkError
-	42, // 25: chalk.protosql.v1.PlanSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
-	24, // 26: chalk.protosql.v1.GetDbCatalogsResponse.catalogs:type_name -> chalk.protosql.v1.DbCatalogInfo
-	42, // 27: chalk.protosql.v1.GetDbCatalogsResponse.errors:type_name -> chalk.common.v1.ChalkError
-	42, // 28: chalk.protosql.v1.GetDbSchemasRequest.errors:type_name -> chalk.common.v1.ChalkError
-	27, // 29: chalk.protosql.v1.GetDbSchemasResponse.schemas:type_name -> chalk.protosql.v1.DbSchemaInfo
-	42, // 30: chalk.protosql.v1.GetDbSchemasResponse.errors:type_name -> chalk.common.v1.ChalkError
-	30, // 31: chalk.protosql.v1.GetTablesResponse.tables:type_name -> chalk.protosql.v1.TableInfo
-	42, // 32: chalk.protosql.v1.GetTablesResponse.errors:type_name -> chalk.common.v1.ChalkError
-	42, // 33: chalk.protosql.v1.SqlQueryFailedInfo.errors:type_name -> chalk.common.v1.ChalkError
-	41, // 34: chalk.protosql.v1.PollSqlQueryRequest.column_profile_options:type_name -> chalk.common.v1.ColumnProfileOptions
-	1,  // 35: chalk.protosql.v1.PollSqlQueryResponse.info:type_name -> chalk.protosql.v1.SqlQueryInfo
-	32, // 36: chalk.protosql.v1.PollSqlQueryResponse.progress:type_name -> chalk.protosql.v1.SqlQueryProgressInfo
-	13, // 37: chalk.protosql.v1.PollSqlQueryResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
-	33, // 38: chalk.protosql.v1.PollSqlQueryResponse.failed:type_name -> chalk.protosql.v1.SqlQueryFailedInfo
-	43, // 39: chalk.protosql.v1.PollSqlQueryResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
-	44, // 40: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry.value:type_name -> google.protobuf.Value
-	45, // 41: chalk.protosql.v1.ExecuteSqlQueryRequest.TablesEntry.value:type_name -> chalk.common.v2.Table
-	5,  // 42: chalk.protosql.v1.SqlService.GetOfflineQueryInputs:input_type -> chalk.protosql.v1.GetOfflineQueryInputsRequest
-	7,  // 43: chalk.protosql.v1.SqlService.GetOfflineQueryPreview:input_type -> chalk.protosql.v1.GetOfflineQueryPreviewRequest
-	9,  // 44: chalk.protosql.v1.SqlService.GetOfflineQueryStats:input_type -> chalk.protosql.v1.GetOfflineQueryStatsRequest
-	11, // 45: chalk.protosql.v1.SqlService.ExecuteSqlQuery:input_type -> chalk.protosql.v1.ExecuteSqlQueryRequest
-	16, // 46: chalk.protosql.v1.SqlService.ExecuteSqlQueryStream:input_type -> chalk.protosql.v1.ExecuteSqlQueryStreamRequest
-	21, // 47: chalk.protosql.v1.SqlService.PlanSqlQuery:input_type -> chalk.protosql.v1.PlanSqlQueryRequest
-	34, // 48: chalk.protosql.v1.SqlService.PollSqlQuery:input_type -> chalk.protosql.v1.PollSqlQueryRequest
-	23, // 49: chalk.protosql.v1.SqlService.GetDbCatalogs:input_type -> chalk.protosql.v1.GetDbCatalogsRequest
-	26, // 50: chalk.protosql.v1.SqlService.GetDbSchemas:input_type -> chalk.protosql.v1.GetDbSchemasRequest
-	29, // 51: chalk.protosql.v1.SqlService.GetTables:input_type -> chalk.protosql.v1.GetTablesRequest
-	6,  // 52: chalk.protosql.v1.SqlService.GetOfflineQueryInputs:output_type -> chalk.protosql.v1.GetOfflineQueryInputsResponse
-	8,  // 53: chalk.protosql.v1.SqlService.GetOfflineQueryPreview:output_type -> chalk.protosql.v1.GetOfflineQueryPreviewResponse
-	10, // 54: chalk.protosql.v1.SqlService.GetOfflineQueryStats:output_type -> chalk.protosql.v1.GetOfflineQueryStatsResponse
-	15, // 55: chalk.protosql.v1.SqlService.ExecuteSqlQuery:output_type -> chalk.protosql.v1.ExecuteSqlQueryResponse
-	17, // 56: chalk.protosql.v1.SqlService.ExecuteSqlQueryStream:output_type -> chalk.protosql.v1.ExecuteSqlQueryStreamResponse
-	22, // 57: chalk.protosql.v1.SqlService.PlanSqlQuery:output_type -> chalk.protosql.v1.PlanSqlQueryResponse
-	35, // 58: chalk.protosql.v1.SqlService.PollSqlQuery:output_type -> chalk.protosql.v1.PollSqlQueryResponse
-	25, // 59: chalk.protosql.v1.SqlService.GetDbCatalogs:output_type -> chalk.protosql.v1.GetDbCatalogsResponse
-	28, // 60: chalk.protosql.v1.SqlService.GetDbSchemas:output_type -> chalk.protosql.v1.GetDbSchemasResponse
-	31, // 61: chalk.protosql.v1.SqlService.GetTables:output_type -> chalk.protosql.v1.GetTablesResponse
-	52, // [52:62] is the sub-list for method output_type
-	42, // [42:52] is the sub-list for method input_type
-	42, // [42:42] is the sub-list for extension type_name
-	42, // [42:42] is the sub-list for extension extendee
-	0,  // [0:42] is the sub-list for field type_name
+	39, // 14: chalk.protosql.v1.ExecuteSqlQueryRequest.metadata:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest.MetadataEntry
+	12, // 15: chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload.signed_output_uris:type_name -> chalk.protosql.v1.SignedOutputUris
+	0,  // 16: chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload.execution_mode:type_name -> chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
+	13, // 17: chalk.protosql.v1.ExecuteSqlQueryResponse.sync_payload:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
+	14, // 18: chalk.protosql.v1.ExecuteSqlQueryResponse.async_payload:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload
+	43, // 19: chalk.protosql.v1.ExecuteSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
+	44, // 20: chalk.protosql.v1.ExecuteSqlQueryResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
+	11, // 21: chalk.protosql.v1.ExecuteSqlQueryStreamRequest.request:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest
+	18, // 22: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.started:type_name -> chalk.protosql.v1.SqlQueryStreamStarted
+	19, // 23: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.chunk:type_name -> chalk.protosql.v1.SqlQueryResultChunk
+	20, // 24: chalk.protosql.v1.ExecuteSqlQueryStreamResponse.completed:type_name -> chalk.protosql.v1.SqlQueryStreamCompleted
+	43, // 25: chalk.protosql.v1.SqlQueryStreamCompleted.errors:type_name -> chalk.common.v1.ChalkError
+	43, // 26: chalk.protosql.v1.PlanSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
+	24, // 27: chalk.protosql.v1.GetDbCatalogsResponse.catalogs:type_name -> chalk.protosql.v1.DbCatalogInfo
+	43, // 28: chalk.protosql.v1.GetDbCatalogsResponse.errors:type_name -> chalk.common.v1.ChalkError
+	43, // 29: chalk.protosql.v1.GetDbSchemasRequest.errors:type_name -> chalk.common.v1.ChalkError
+	27, // 30: chalk.protosql.v1.GetDbSchemasResponse.schemas:type_name -> chalk.protosql.v1.DbSchemaInfo
+	43, // 31: chalk.protosql.v1.GetDbSchemasResponse.errors:type_name -> chalk.common.v1.ChalkError
+	30, // 32: chalk.protosql.v1.GetTablesResponse.tables:type_name -> chalk.protosql.v1.TableInfo
+	43, // 33: chalk.protosql.v1.GetTablesResponse.errors:type_name -> chalk.common.v1.ChalkError
+	43, // 34: chalk.protosql.v1.SqlQueryFailedInfo.errors:type_name -> chalk.common.v1.ChalkError
+	42, // 35: chalk.protosql.v1.PollSqlQueryRequest.column_profile_options:type_name -> chalk.common.v1.ColumnProfileOptions
+	1,  // 36: chalk.protosql.v1.PollSqlQueryResponse.info:type_name -> chalk.protosql.v1.SqlQueryInfo
+	32, // 37: chalk.protosql.v1.PollSqlQueryResponse.progress:type_name -> chalk.protosql.v1.SqlQueryProgressInfo
+	13, // 38: chalk.protosql.v1.PollSqlQueryResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
+	33, // 39: chalk.protosql.v1.PollSqlQueryResponse.failed:type_name -> chalk.protosql.v1.SqlQueryFailedInfo
+	44, // 40: chalk.protosql.v1.PollSqlQueryResponse.column_profiles:type_name -> chalk.common.v1.ColumnProfile
+	45, // 41: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry.value:type_name -> google.protobuf.Value
+	46, // 42: chalk.protosql.v1.ExecuteSqlQueryRequest.TablesEntry.value:type_name -> chalk.common.v2.Table
+	5,  // 43: chalk.protosql.v1.SqlService.GetOfflineQueryInputs:input_type -> chalk.protosql.v1.GetOfflineQueryInputsRequest
+	7,  // 44: chalk.protosql.v1.SqlService.GetOfflineQueryPreview:input_type -> chalk.protosql.v1.GetOfflineQueryPreviewRequest
+	9,  // 45: chalk.protosql.v1.SqlService.GetOfflineQueryStats:input_type -> chalk.protosql.v1.GetOfflineQueryStatsRequest
+	11, // 46: chalk.protosql.v1.SqlService.ExecuteSqlQuery:input_type -> chalk.protosql.v1.ExecuteSqlQueryRequest
+	16, // 47: chalk.protosql.v1.SqlService.ExecuteSqlQueryStream:input_type -> chalk.protosql.v1.ExecuteSqlQueryStreamRequest
+	21, // 48: chalk.protosql.v1.SqlService.PlanSqlQuery:input_type -> chalk.protosql.v1.PlanSqlQueryRequest
+	34, // 49: chalk.protosql.v1.SqlService.PollSqlQuery:input_type -> chalk.protosql.v1.PollSqlQueryRequest
+	23, // 50: chalk.protosql.v1.SqlService.GetDbCatalogs:input_type -> chalk.protosql.v1.GetDbCatalogsRequest
+	26, // 51: chalk.protosql.v1.SqlService.GetDbSchemas:input_type -> chalk.protosql.v1.GetDbSchemasRequest
+	29, // 52: chalk.protosql.v1.SqlService.GetTables:input_type -> chalk.protosql.v1.GetTablesRequest
+	6,  // 53: chalk.protosql.v1.SqlService.GetOfflineQueryInputs:output_type -> chalk.protosql.v1.GetOfflineQueryInputsResponse
+	8,  // 54: chalk.protosql.v1.SqlService.GetOfflineQueryPreview:output_type -> chalk.protosql.v1.GetOfflineQueryPreviewResponse
+	10, // 55: chalk.protosql.v1.SqlService.GetOfflineQueryStats:output_type -> chalk.protosql.v1.GetOfflineQueryStatsResponse
+	15, // 56: chalk.protosql.v1.SqlService.ExecuteSqlQuery:output_type -> chalk.protosql.v1.ExecuteSqlQueryResponse
+	17, // 57: chalk.protosql.v1.SqlService.ExecuteSqlQueryStream:output_type -> chalk.protosql.v1.ExecuteSqlQueryStreamResponse
+	22, // 58: chalk.protosql.v1.SqlService.PlanSqlQuery:output_type -> chalk.protosql.v1.PlanSqlQueryResponse
+	35, // 59: chalk.protosql.v1.SqlService.PollSqlQuery:output_type -> chalk.protosql.v1.PollSqlQueryResponse
+	25, // 60: chalk.protosql.v1.SqlService.GetDbCatalogs:output_type -> chalk.protosql.v1.GetDbCatalogsResponse
+	28, // 61: chalk.protosql.v1.SqlService.GetDbSchemas:output_type -> chalk.protosql.v1.GetDbSchemasResponse
+	31, // 62: chalk.protosql.v1.SqlService.GetTables:output_type -> chalk.protosql.v1.GetTablesResponse
+	53, // [53:63] is the sub-list for method output_type
+	43, // [43:53] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_chalk_protosql_v1_sql_service_proto_init() }
@@ -2863,7 +2879,7 @@ func file_chalk_protosql_v1_sql_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_protosql_v1_sql_service_proto_rawDesc), len(file_chalk_protosql_v1_sql_service_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   38,
+			NumMessages:   39,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

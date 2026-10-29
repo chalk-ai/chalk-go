@@ -336,8 +336,8 @@ func (OperatorType) EnumDescriptor() ([]byte, []int) {
 type BatchPlan struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Operators []*BatchOperator       `protobuf:"bytes,1,rep,name=operators,proto3" json:"operators,omitempty"`
-	// Deprecated; use ``symbolic_values_v2``. The
-	// ``chalk.planner.v1.SymbolicValue`` package is preserved for wire
+	// Deprecated; use “symbolic_values_v2“. The
+	// “chalk.planner.v1.SymbolicValue“ package is preserved for wire
 	// compatibility but no longer populated.
 	//
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
@@ -613,6 +613,7 @@ type Argument struct {
 	//	*Argument_UnderscoreParsed
 	//	*Argument_IpcArrowTable
 	//	*Argument_SymbolicValueV2
+	//	*Argument_FeatureTablesPaSchema
 	Arg           isArgument_Arg `protobuf_oneof:"arg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -904,6 +905,15 @@ func (x *Argument) GetSymbolicValueV2() *v1.SymbolicValue {
 	return nil
 }
 
+func (x *Argument) GetFeatureTablesPaSchema() *FeatureTablesPyArrowSchema {
+	if x != nil {
+		if x, ok := x.Arg.(*Argument_FeatureTablesPaSchema); ok {
+			return x.FeatureTablesPaSchema
+		}
+	}
+	return nil
+}
+
 type isArgument_Arg interface {
 	isArgument_Arg()
 }
@@ -992,7 +1002,7 @@ type Argument_FeatureReference struct {
 }
 
 type Argument_SymbolicValue struct {
-	// Deprecated; use ``symbolic_value_v2``.
+	// Deprecated; use “symbolic_value_v2“.
 	//
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 	SymbolicValue *SymbolicValue `protobuf:"bytes,23,opt,name=symbolic_value,json=symbolicValue,proto3,oneof"`
@@ -1026,6 +1036,10 @@ type Argument_IpcArrowTable struct {
 
 type Argument_SymbolicValueV2 struct {
 	SymbolicValueV2 *v1.SymbolicValue `protobuf:"bytes,30,opt,name=symbolic_value_v2,json=symbolicValueV2,proto3,oneof"`
+}
+
+type Argument_FeatureTablesPaSchema struct {
+	FeatureTablesPaSchema *FeatureTablesPyArrowSchema `protobuf:"bytes,31,opt,name=feature_tables_pa_schema,json=featureTablesPaSchema,proto3,oneof"`
 }
 
 func (*Argument_None) isArgument_Arg() {}
@@ -1081,6 +1095,8 @@ func (*Argument_UnderscoreParsed) isArgument_Arg() {}
 func (*Argument_IpcArrowTable) isArgument_Arg() {}
 
 func (*Argument_SymbolicValueV2) isArgument_Arg() {}
+
+func (*Argument_FeatureTablesPaSchema) isArgument_Arg() {}
 
 type BatchPlanArgumentWithAuxiliaryInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2100,7 +2116,7 @@ var File_chalk_planner_v1_batch_operator_proto protoreflect.FileDescriptor
 
 const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/planner/v1/batch_operator.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1achalk/graph/v1/graph.proto\x1a$chalk/planner/v1/feature_types.proto\x1a%chalk/planner/v1/symbolic_value.proto\x1a,chalk/symbolic_value/v1/symbolic_value.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\x03\n" +
+	"%chalk/planner/v1/batch_operator.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1achalk/graph/v1/graph.proto\x1a/chalk/planner/v1/feature_tables_pa_schema.proto\x1a$chalk/planner/v1/feature_types.proto\x1a%chalk/planner/v1/symbolic_value.proto\x1a,chalk/symbolic_value/v1/symbolic_value.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\x03\n" +
 	"\tBatchPlan\x12=\n" +
 	"\toperators\x18\x01 \x03(\v2\x1f.chalk.planner.v1.BatchOperatorR\toperators\x12L\n" +
 	"\x0fsymbolic_values\x18\x02 \x03(\v2\x1f.chalk.planner.v1.SymbolicValueB\x02\x18\x01R\x0esymbolicValues\x12T\n" +
@@ -2121,7 +2137,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x12filter_expressions\x18\x03 \x03(\v2(.chalk.planner.v1.FilterExpressionParsedR\x11filterExpressions:\x02\x18\x01\",\n" +
 	"\tGraphInfo\x12\x1f\n" +
 	"\voperator_id\x18\x01 \x01(\x04R\n" +
-	"operatorId\"\x99\x0e\n" +
+	"operatorId\"\x82\x0f\n" +
 	"\bArgument\x12,\n" +
 	"\x04none\x18\x01 \x01(\v2\x16.chalk.planner.v1.VoidH\x00R\x04none\x12\x1f\n" +
 	"\n" +
@@ -2156,7 +2172,8 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x11feature_ref_id_v2\x18\x1b \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2H\x00R\x0efeatureRefIdV2\x12S\n" +
 	"\x11underscore_parsed\x18\x1c \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdH\x00R\x10underscoreParsed\x12(\n" +
 	"\x0fipc_arrow_table\x18\x1d \x01(\fH\x00R\ripcArrowTable\x12T\n" +
-	"\x11symbolic_value_v2\x18\x1e \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueH\x00R\x0fsymbolicValueV2B\x05\n" +
+	"\x11symbolic_value_v2\x18\x1e \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueH\x00R\x0fsymbolicValueV2\x12g\n" +
+	"\x18feature_tables_pa_schema\x18\x1f \x01(\v2,.chalk.planner.v1.FeatureTablesPyArrowSchemaH\x00R\x15featureTablesPaSchemaB\x05\n" +
 	"\x03arg\"\xa4\x01\n" +
 	"\"BatchPlanArgumentWithAuxiliaryInfo\x126\n" +
 	"\bargument\x18\x01 \x01(\v2\x1a.chalk.planner.v1.ArgumentR\bargument\x12F\n" +
@@ -2363,22 +2380,23 @@ var file_chalk_planner_v1_batch_operator_proto_goTypes = []any{
 	(*RootUnderscoreBehavior)(nil),               // 21: chalk.planner.v1.RootUnderscoreBehavior
 	(*ResolverRootUnderscoreBehavior)(nil),       // 22: chalk.planner.v1.ResolverRootUnderscoreBehavior
 	(*StreamResolverRootUnderscoreBehavior)(nil), // 23: chalk.planner.v1.StreamResolverRootUnderscoreBehavior
-	nil,                           // 24: chalk.planner.v1.BatchOperator.ArgumentsEntry
-	nil,                           // 25: chalk.planner.v1.ArgumentMap.ArgumentsEntry
-	nil,                           // 26: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
-	nil,                           // 27: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
-	(*SymbolicValue)(nil),         // 28: chalk.planner.v1.SymbolicValue
-	(*AuxiliaryInfo)(nil),         // 29: chalk.planner.v1.AuxiliaryInfo
-	(*v1.SymbolicValue)(nil),      // 30: chalk.symbolic_value.v1.SymbolicValue
-	(*timestamppb.Timestamp)(nil), // 31: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 32: google.protobuf.Duration
-	(*v11.FeatureReference)(nil),  // 33: chalk.graph.v1.FeatureReference
-	(*v12.ArrowType)(nil),         // 34: chalk.arrow.v1.ArrowType
-	(*v13.LogicalExprNode)(nil),   // 35: chalk.expression.v1.LogicalExprNode
-	(*DataFrameTypeIdV2)(nil),     // 36: chalk.planner.v1.DataFrameTypeIdV2
-	(*FeatureReferenceIdV2)(nil),  // 37: chalk.planner.v1.FeatureReferenceIdV2
-	(*UnderscoreParsedId)(nil),    // 38: chalk.planner.v1.UnderscoreParsedId
-	(*v11.DataFrameType)(nil),     // 39: chalk.graph.v1.DataFrameType
+	nil,                                // 24: chalk.planner.v1.BatchOperator.ArgumentsEntry
+	nil,                                // 25: chalk.planner.v1.ArgumentMap.ArgumentsEntry
+	nil,                                // 26: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
+	nil,                                // 27: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
+	(*SymbolicValue)(nil),              // 28: chalk.planner.v1.SymbolicValue
+	(*AuxiliaryInfo)(nil),              // 29: chalk.planner.v1.AuxiliaryInfo
+	(*v1.SymbolicValue)(nil),           // 30: chalk.symbolic_value.v1.SymbolicValue
+	(*timestamppb.Timestamp)(nil),      // 31: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),        // 32: google.protobuf.Duration
+	(*v11.FeatureReference)(nil),       // 33: chalk.graph.v1.FeatureReference
+	(*v12.ArrowType)(nil),              // 34: chalk.arrow.v1.ArrowType
+	(*v13.LogicalExprNode)(nil),        // 35: chalk.expression.v1.LogicalExprNode
+	(*DataFrameTypeIdV2)(nil),          // 36: chalk.planner.v1.DataFrameTypeIdV2
+	(*FeatureReferenceIdV2)(nil),       // 37: chalk.planner.v1.FeatureReferenceIdV2
+	(*UnderscoreParsedId)(nil),         // 38: chalk.planner.v1.UnderscoreParsedId
+	(*FeatureTablesPyArrowSchema)(nil), // 39: chalk.planner.v1.FeatureTablesPyArrowSchema
+	(*v11.DataFrameType)(nil),          // 40: chalk.graph.v1.DataFrameType
 }
 var file_chalk_planner_v1_batch_operator_proto_depIdxs = []int32{
 	2,  // 0: chalk.planner.v1.BatchPlan.operators:type_name -> chalk.planner.v1.BatchOperator
@@ -2412,49 +2430,50 @@ var file_chalk_planner_v1_batch_operator_proto_depIdxs = []int32{
 	37, // 28: chalk.planner.v1.Argument.feature_ref_id_v2:type_name -> chalk.planner.v1.FeatureReferenceIdV2
 	38, // 29: chalk.planner.v1.Argument.underscore_parsed:type_name -> chalk.planner.v1.UnderscoreParsedId
 	30, // 30: chalk.planner.v1.Argument.symbolic_value_v2:type_name -> chalk.symbolic_value.v1.SymbolicValue
-	5,  // 31: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo.argument:type_name -> chalk.planner.v1.Argument
-	29, // 32: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo.auxiliary_info:type_name -> chalk.planner.v1.AuxiliaryInfo
-	5,  // 33: chalk.planner.v1.ArgumentMapElement.key:type_name -> chalk.planner.v1.Argument
-	5,  // 34: chalk.planner.v1.ArgumentMapElement.value:type_name -> chalk.planner.v1.Argument
-	25, // 35: chalk.planner.v1.ArgumentMap.arguments:type_name -> chalk.planner.v1.ArgumentMap.ArgumentsEntry
-	5,  // 36: chalk.planner.v1.ArgumentMap.keys:type_name -> chalk.planner.v1.Argument
-	5,  // 37: chalk.planner.v1.ArgumentMap.values:type_name -> chalk.planner.v1.Argument
-	7,  // 38: chalk.planner.v1.ArgumentMap.ordered_arguments:type_name -> chalk.planner.v1.ArgumentMapElement
-	5,  // 39: chalk.planner.v1.ArgumentList.values:type_name -> chalk.planner.v1.Argument
-	26, // 40: chalk.planner.v1.DetachedColumnFeatureType.arguments:type_name -> chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
-	27, // 41: chalk.planner.v1.OutputUnderscoreFeatureType.arguments:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
-	14, // 42: chalk.planner.v1.FilterExpressionParsed.this_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
-	35, // 43: chalk.planner.v1.FilterExpressionParsed.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
-	19, // 44: chalk.planner.v1.FilterExpressionParsed.expr:type_name -> chalk.planner.v1.UnderscoreValue
-	16, // 45: chalk.planner.v1.DataFrameType.this_id:type_name -> chalk.planner.v1.DataFrameTypeId
-	39, // 46: chalk.planner.v1.DataFrameType.df:type_name -> chalk.graph.v1.DataFrameType
-	35, // 47: chalk.planner.v1.DataFrameType.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
-	14, // 48: chalk.planner.v1.DataFrameType.filter_expression_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
-	17, // 49: chalk.planner.v1.DataFrameType.optional_columns:type_name -> chalk.planner.v1.FeatureReference
-	18, // 50: chalk.planner.v1.DataFrameType.optional_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
-	18, // 51: chalk.planner.v1.DataFrameType.required_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
-	18, // 52: chalk.planner.v1.FeatureReference.this_id:type_name -> chalk.planner.v1.FeatureReferenceId
-	33, // 53: chalk.planner.v1.FeatureReference.feature_ref:type_name -> chalk.graph.v1.FeatureReference
-	17, // 54: chalk.planner.v1.FeatureReference.path:type_name -> chalk.planner.v1.FeatureReference
-	18, // 55: chalk.planner.v1.FeatureReference.path_ids:type_name -> chalk.planner.v1.FeatureReferenceId
-	15, // 56: chalk.planner.v1.FeatureReference.df:type_name -> chalk.planner.v1.DataFrameType
-	16, // 57: chalk.planner.v1.FeatureReference.df_id:type_name -> chalk.planner.v1.DataFrameTypeId
-	35, // 58: chalk.planner.v1.UnderscoreValue.original_underscore:type_name -> chalk.expression.v1.LogicalExprNode
-	20, // 59: chalk.planner.v1.UnderscoreValue.codec_info:type_name -> chalk.planner.v1.UnderscoreValueCodecInfo
-	18, // 60: chalk.planner.v1.UnderscoreValueCodecInfo.for_feature:type_name -> chalk.planner.v1.FeatureReferenceId
-	21, // 61: chalk.planner.v1.UnderscoreValueCodecInfo.root_underscore_behavior:type_name -> chalk.planner.v1.RootUnderscoreBehavior
-	22, // 62: chalk.planner.v1.RootUnderscoreBehavior.resolver:type_name -> chalk.planner.v1.ResolverRootUnderscoreBehavior
-	23, // 63: chalk.planner.v1.RootUnderscoreBehavior.stream_resolver:type_name -> chalk.planner.v1.StreamResolverRootUnderscoreBehavior
-	34, // 64: chalk.planner.v1.StreamResolverRootUnderscoreBehavior.message_dtype:type_name -> chalk.arrow.v1.ArrowType
-	5,  // 65: chalk.planner.v1.BatchOperator.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 66: chalk.planner.v1.ArgumentMap.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 67: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 68: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	69, // [69:69] is the sub-list for method output_type
-	69, // [69:69] is the sub-list for method input_type
-	69, // [69:69] is the sub-list for extension type_name
-	69, // [69:69] is the sub-list for extension extendee
-	0,  // [0:69] is the sub-list for field type_name
+	39, // 31: chalk.planner.v1.Argument.feature_tables_pa_schema:type_name -> chalk.planner.v1.FeatureTablesPyArrowSchema
+	5,  // 32: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo.argument:type_name -> chalk.planner.v1.Argument
+	29, // 33: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo.auxiliary_info:type_name -> chalk.planner.v1.AuxiliaryInfo
+	5,  // 34: chalk.planner.v1.ArgumentMapElement.key:type_name -> chalk.planner.v1.Argument
+	5,  // 35: chalk.planner.v1.ArgumentMapElement.value:type_name -> chalk.planner.v1.Argument
+	25, // 36: chalk.planner.v1.ArgumentMap.arguments:type_name -> chalk.planner.v1.ArgumentMap.ArgumentsEntry
+	5,  // 37: chalk.planner.v1.ArgumentMap.keys:type_name -> chalk.planner.v1.Argument
+	5,  // 38: chalk.planner.v1.ArgumentMap.values:type_name -> chalk.planner.v1.Argument
+	7,  // 39: chalk.planner.v1.ArgumentMap.ordered_arguments:type_name -> chalk.planner.v1.ArgumentMapElement
+	5,  // 40: chalk.planner.v1.ArgumentList.values:type_name -> chalk.planner.v1.Argument
+	26, // 41: chalk.planner.v1.DetachedColumnFeatureType.arguments:type_name -> chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
+	27, // 42: chalk.planner.v1.OutputUnderscoreFeatureType.arguments:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
+	14, // 43: chalk.planner.v1.FilterExpressionParsed.this_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
+	35, // 44: chalk.planner.v1.FilterExpressionParsed.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
+	19, // 45: chalk.planner.v1.FilterExpressionParsed.expr:type_name -> chalk.planner.v1.UnderscoreValue
+	16, // 46: chalk.planner.v1.DataFrameType.this_id:type_name -> chalk.planner.v1.DataFrameTypeId
+	40, // 47: chalk.planner.v1.DataFrameType.df:type_name -> chalk.graph.v1.DataFrameType
+	35, // 48: chalk.planner.v1.DataFrameType.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
+	14, // 49: chalk.planner.v1.DataFrameType.filter_expression_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
+	17, // 50: chalk.planner.v1.DataFrameType.optional_columns:type_name -> chalk.planner.v1.FeatureReference
+	18, // 51: chalk.planner.v1.DataFrameType.optional_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
+	18, // 52: chalk.planner.v1.DataFrameType.required_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
+	18, // 53: chalk.planner.v1.FeatureReference.this_id:type_name -> chalk.planner.v1.FeatureReferenceId
+	33, // 54: chalk.planner.v1.FeatureReference.feature_ref:type_name -> chalk.graph.v1.FeatureReference
+	17, // 55: chalk.planner.v1.FeatureReference.path:type_name -> chalk.planner.v1.FeatureReference
+	18, // 56: chalk.planner.v1.FeatureReference.path_ids:type_name -> chalk.planner.v1.FeatureReferenceId
+	15, // 57: chalk.planner.v1.FeatureReference.df:type_name -> chalk.planner.v1.DataFrameType
+	16, // 58: chalk.planner.v1.FeatureReference.df_id:type_name -> chalk.planner.v1.DataFrameTypeId
+	35, // 59: chalk.planner.v1.UnderscoreValue.original_underscore:type_name -> chalk.expression.v1.LogicalExprNode
+	20, // 60: chalk.planner.v1.UnderscoreValue.codec_info:type_name -> chalk.planner.v1.UnderscoreValueCodecInfo
+	18, // 61: chalk.planner.v1.UnderscoreValueCodecInfo.for_feature:type_name -> chalk.planner.v1.FeatureReferenceId
+	21, // 62: chalk.planner.v1.UnderscoreValueCodecInfo.root_underscore_behavior:type_name -> chalk.planner.v1.RootUnderscoreBehavior
+	22, // 63: chalk.planner.v1.RootUnderscoreBehavior.resolver:type_name -> chalk.planner.v1.ResolverRootUnderscoreBehavior
+	23, // 64: chalk.planner.v1.RootUnderscoreBehavior.stream_resolver:type_name -> chalk.planner.v1.StreamResolverRootUnderscoreBehavior
+	34, // 65: chalk.planner.v1.StreamResolverRootUnderscoreBehavior.message_dtype:type_name -> chalk.arrow.v1.ArrowType
+	5,  // 66: chalk.planner.v1.BatchOperator.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	5,  // 67: chalk.planner.v1.ArgumentMap.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	5,  // 68: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	5,  // 69: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	70, // [70:70] is the sub-list for method output_type
+	70, // [70:70] is the sub-list for method input_type
+	70, // [70:70] is the sub-list for extension type_name
+	70, // [70:70] is the sub-list for extension extendee
+	0,  // [0:70] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_batch_operator_proto_init() }
@@ -2462,6 +2481,7 @@ func file_chalk_planner_v1_batch_operator_proto_init() {
 	if File_chalk_planner_v1_batch_operator_proto != nil {
 		return
 	}
+	file_chalk_planner_v1_feature_tables_pa_schema_proto_init()
 	file_chalk_planner_v1_feature_types_proto_init()
 	file_chalk_planner_v1_symbolic_value_proto_init()
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[4].OneofWrappers = []any{
@@ -2492,6 +2512,7 @@ func file_chalk_planner_v1_batch_operator_proto_init() {
 		(*Argument_UnderscoreParsed)(nil),
 		(*Argument_IpcArrowTable)(nil),
 		(*Argument_SymbolicValueV2)(nil),
+		(*Argument_FeatureTablesPaSchema)(nil),
 	}
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[16].OneofWrappers = []any{}

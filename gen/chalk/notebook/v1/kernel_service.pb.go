@@ -25,13 +25,14 @@ const (
 type PythonExecutionOutcome int32
 
 const (
-	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_UNSPECIFIED      PythonExecutionOutcome = 0
-	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_SUCCESS          PythonExecutionOutcome = 1
-	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_ERROR            PythonExecutionOutcome = 2
-	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_TIMEOUT          PythonExecutionOutcome = 3
-	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_INTERRUPTED      PythonExecutionOutcome = 4
-	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_KERNEL_DIED      PythonExecutionOutcome = 5
-	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_KERNEL_RESTARTED PythonExecutionOutcome = 6
+	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_UNSPECIFIED       PythonExecutionOutcome = 0
+	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_SUCCESS           PythonExecutionOutcome = 1
+	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_ERROR             PythonExecutionOutcome = 2
+	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_TIMEOUT           PythonExecutionOutcome = 3
+	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_INTERRUPTED       PythonExecutionOutcome = 4
+	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_KERNEL_DIED       PythonExecutionOutcome = 5
+	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_KERNEL_RESTARTED  PythonExecutionOutcome = 6
+	PythonExecutionOutcome_PYTHON_EXECUTION_OUTCOME_KERNEL_OOM_KILLED PythonExecutionOutcome = 7
 )
 
 // Enum value maps for PythonExecutionOutcome.
@@ -44,15 +45,17 @@ var (
 		4: "PYTHON_EXECUTION_OUTCOME_INTERRUPTED",
 		5: "PYTHON_EXECUTION_OUTCOME_KERNEL_DIED",
 		6: "PYTHON_EXECUTION_OUTCOME_KERNEL_RESTARTED",
+		7: "PYTHON_EXECUTION_OUTCOME_KERNEL_OOM_KILLED",
 	}
 	PythonExecutionOutcome_value = map[string]int32{
-		"PYTHON_EXECUTION_OUTCOME_UNSPECIFIED":      0,
-		"PYTHON_EXECUTION_OUTCOME_SUCCESS":          1,
-		"PYTHON_EXECUTION_OUTCOME_ERROR":            2,
-		"PYTHON_EXECUTION_OUTCOME_TIMEOUT":          3,
-		"PYTHON_EXECUTION_OUTCOME_INTERRUPTED":      4,
-		"PYTHON_EXECUTION_OUTCOME_KERNEL_DIED":      5,
-		"PYTHON_EXECUTION_OUTCOME_KERNEL_RESTARTED": 6,
+		"PYTHON_EXECUTION_OUTCOME_UNSPECIFIED":       0,
+		"PYTHON_EXECUTION_OUTCOME_SUCCESS":           1,
+		"PYTHON_EXECUTION_OUTCOME_ERROR":             2,
+		"PYTHON_EXECUTION_OUTCOME_TIMEOUT":           3,
+		"PYTHON_EXECUTION_OUTCOME_INTERRUPTED":       4,
+		"PYTHON_EXECUTION_OUTCOME_KERNEL_DIED":       5,
+		"PYTHON_EXECUTION_OUTCOME_KERNEL_RESTARTED":  6,
+		"PYTHON_EXECUTION_OUTCOME_KERNEL_OOM_KILLED": 7,
 	}
 )
 
@@ -459,6 +462,437 @@ func (x *PythonExecutionTerminated) GetExecutionCount() int64 {
 	return 0
 }
 
+type StartPythonCellRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Spec  *RunPythonCellSpec     `protobuf:"bytes,1,opt,name=spec,proto3" json:"spec,omitempty"`
+	// Stable idempotency key for this execution. This is usually the cell run ID,
+	// but child operations such as variable exports use their own execution ID
+	// while retaining the parent cell run ID in the spec.
+	ExecutionId   string `protobuf:"bytes,2,opt,name=execution_id,json=executionId,proto3" json:"execution_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartPythonCellRequest) Reset() {
+	*x = StartPythonCellRequest{}
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartPythonCellRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartPythonCellRequest) ProtoMessage() {}
+
+func (x *StartPythonCellRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartPythonCellRequest.ProtoReflect.Descriptor instead.
+func (*StartPythonCellRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *StartPythonCellRequest) GetSpec() *RunPythonCellSpec {
+	if x != nil {
+		return x.Spec
+	}
+	return nil
+}
+
+func (x *StartPythonCellRequest) GetExecutionId() string {
+	if x != nil {
+		return x.ExecutionId
+	}
+	return ""
+}
+
+type StartPythonCellResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Stable execution handle. This matches StartPythonCellRequest.execution_id.
+	ExecutionId   string `protobuf:"bytes,1,opt,name=execution_id,json=executionId,proto3" json:"execution_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartPythonCellResponse) Reset() {
+	*x = StartPythonCellResponse{}
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartPythonCellResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartPythonCellResponse) ProtoMessage() {}
+
+func (x *StartPythonCellResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartPythonCellResponse.ProtoReflect.Descriptor instead.
+func (*StartPythonCellResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StartPythonCellResponse) GetExecutionId() string {
+	if x != nil {
+		return x.ExecutionId
+	}
+	return ""
+}
+
+type PythonCellExecutionEvent struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Monotonically increasing within one execution, starting at 1.
+	Sequence      int64                  `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	Response      *RunPythonCellResponse `protobuf:"bytes,2,opt,name=response,proto3" json:"response,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PythonCellExecutionEvent) Reset() {
+	*x = PythonCellExecutionEvent{}
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PythonCellExecutionEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PythonCellExecutionEvent) ProtoMessage() {}
+
+func (x *PythonCellExecutionEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PythonCellExecutionEvent.ProtoReflect.Descriptor instead.
+func (*PythonCellExecutionEvent) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *PythonCellExecutionEvent) GetSequence() int64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+func (x *PythonCellExecutionEvent) GetResponse() *RunPythonCellResponse {
+	if x != nil {
+		return x.Response
+	}
+	return nil
+}
+
+type StreamPythonCellEventsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Events that were ready when the stream was serviced. Live streams usually
+	// contain one event; replay can batch retained events without delaying delivery.
+	Events        []*PythonCellExecutionEvent `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamPythonCellEventsResponse) Reset() {
+	*x = StreamPythonCellEventsResponse{}
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamPythonCellEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamPythonCellEventsResponse) ProtoMessage() {}
+
+func (x *StreamPythonCellEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamPythonCellEventsResponse.ProtoReflect.Descriptor instead.
+func (*StreamPythonCellEventsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *StreamPythonCellEventsResponse) GetEvents() []*PythonCellExecutionEvent {
+	if x != nil {
+		return x.Events
+	}
+	return nil
+}
+
+type StreamPythonCellEventsRequest struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ExecutionId string                 `protobuf:"bytes,1,opt,name=execution_id,json=executionId,proto3" json:"execution_id,omitempty"`
+	// Replay events whose sequence is greater than this cursor, then continue
+	// streaming new events. Zero starts at the beginning of the retained log.
+	AfterSequence int64 `protobuf:"varint,2,opt,name=after_sequence,json=afterSequence,proto3" json:"after_sequence,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamPythonCellEventsRequest) Reset() {
+	*x = StreamPythonCellEventsRequest{}
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamPythonCellEventsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamPythonCellEventsRequest) ProtoMessage() {}
+
+func (x *StreamPythonCellEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamPythonCellEventsRequest.ProtoReflect.Descriptor instead.
+func (*StreamPythonCellEventsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *StreamPythonCellEventsRequest) GetExecutionId() string {
+	if x != nil {
+		return x.ExecutionId
+	}
+	return ""
+}
+
+func (x *StreamPythonCellEventsRequest) GetAfterSequence() int64 {
+	if x != nil {
+		return x.AfterSequence
+	}
+	return 0
+}
+
+type PythonCellRequestFailure struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PythonCellRequestFailure) Reset() {
+	*x = PythonCellRequestFailure{}
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PythonCellRequestFailure) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PythonCellRequestFailure) ProtoMessage() {}
+
+func (x *PythonCellRequestFailure) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PythonCellRequestFailure.ProtoReflect.Descriptor instead.
+func (*PythonCellRequestFailure) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *PythonCellRequestFailure) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type RespondToPythonCellRequest struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ExecutionId string                 `protobuf:"bytes,1,opt,name=execution_id,json=executionId,proto3" json:"execution_id,omitempty"`
+	RequestId   string                 `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// Types that are valid to be assigned to Response:
+	//
+	//	*RespondToPythonCellRequest_BlobUploadTarget
+	//	*RespondToPythonCellRequest_Failure
+	Response      isRespondToPythonCellRequest_Response `protobuf_oneof:"response"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RespondToPythonCellRequest) Reset() {
+	*x = RespondToPythonCellRequest{}
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RespondToPythonCellRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RespondToPythonCellRequest) ProtoMessage() {}
+
+func (x *RespondToPythonCellRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RespondToPythonCellRequest.ProtoReflect.Descriptor instead.
+func (*RespondToPythonCellRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RespondToPythonCellRequest) GetExecutionId() string {
+	if x != nil {
+		return x.ExecutionId
+	}
+	return ""
+}
+
+func (x *RespondToPythonCellRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *RespondToPythonCellRequest) GetResponse() isRespondToPythonCellRequest_Response {
+	if x != nil {
+		return x.Response
+	}
+	return nil
+}
+
+func (x *RespondToPythonCellRequest) GetBlobUploadTarget() *NotebookBlobUploadTarget {
+	if x != nil {
+		if x, ok := x.Response.(*RespondToPythonCellRequest_BlobUploadTarget); ok {
+			return x.BlobUploadTarget
+		}
+	}
+	return nil
+}
+
+func (x *RespondToPythonCellRequest) GetFailure() *PythonCellRequestFailure {
+	if x != nil {
+		if x, ok := x.Response.(*RespondToPythonCellRequest_Failure); ok {
+			return x.Failure
+		}
+	}
+	return nil
+}
+
+type isRespondToPythonCellRequest_Response interface {
+	isRespondToPythonCellRequest_Response()
+}
+
+type RespondToPythonCellRequest_BlobUploadTarget struct {
+	BlobUploadTarget *NotebookBlobUploadTarget `protobuf:"bytes,3,opt,name=blob_upload_target,json=blobUploadTarget,proto3,oneof"`
+}
+
+type RespondToPythonCellRequest_Failure struct {
+	Failure *PythonCellRequestFailure `protobuf:"bytes,4,opt,name=failure,proto3,oneof"`
+}
+
+func (*RespondToPythonCellRequest_BlobUploadTarget) isRespondToPythonCellRequest_Response() {}
+
+func (*RespondToPythonCellRequest_Failure) isRespondToPythonCellRequest_Response() {}
+
+type RespondToPythonCellResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RespondToPythonCellResponse) Reset() {
+	*x = RespondToPythonCellResponse{}
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RespondToPythonCellResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RespondToPythonCellResponse) ProtoMessage() {}
+
+func (x *RespondToPythonCellResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RespondToPythonCellResponse.ProtoReflect.Descriptor instead.
+func (*RespondToPythonCellResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{10}
+}
+
 type InterruptPythonExecutionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RunId         string                 `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
@@ -470,7 +904,7 @@ type InterruptPythonExecutionRequest struct {
 
 func (x *InterruptPythonExecutionRequest) Reset() {
 	*x = InterruptPythonExecutionRequest{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[3]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -482,7 +916,7 @@ func (x *InterruptPythonExecutionRequest) String() string {
 func (*InterruptPythonExecutionRequest) ProtoMessage() {}
 
 func (x *InterruptPythonExecutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[3]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -495,7 +929,7 @@ func (x *InterruptPythonExecutionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InterruptPythonExecutionRequest.ProtoReflect.Descriptor instead.
 func (*InterruptPythonExecutionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *InterruptPythonExecutionRequest) GetRunId() string {
@@ -528,7 +962,7 @@ type InterruptPythonExecutionResponse struct {
 
 func (x *InterruptPythonExecutionResponse) Reset() {
 	*x = InterruptPythonExecutionResponse{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[4]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -540,7 +974,7 @@ func (x *InterruptPythonExecutionResponse) String() string {
 func (*InterruptPythonExecutionResponse) ProtoMessage() {}
 
 func (x *InterruptPythonExecutionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[4]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -553,7 +987,7 @@ func (x *InterruptPythonExecutionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InterruptPythonExecutionResponse.ProtoReflect.Descriptor instead.
 func (*InterruptPythonExecutionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *InterruptPythonExecutionResponse) GetOutcome() PythonInterruptOutcome {
@@ -571,7 +1005,7 @@ type DescribeKernelSessionRequest struct {
 
 func (x *DescribeKernelSessionRequest) Reset() {
 	*x = DescribeKernelSessionRequest{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[5]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -583,7 +1017,7 @@ func (x *DescribeKernelSessionRequest) String() string {
 func (*DescribeKernelSessionRequest) ProtoMessage() {}
 
 func (x *DescribeKernelSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[5]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -596,7 +1030,7 @@ func (x *DescribeKernelSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DescribeKernelSessionRequest.ProtoReflect.Descriptor instead.
 func (*DescribeKernelSessionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{5}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{13}
 }
 
 type DescribeKernelSessionResponse struct {
@@ -619,7 +1053,7 @@ type DescribeKernelSessionResponse struct {
 
 func (x *DescribeKernelSessionResponse) Reset() {
 	*x = DescribeKernelSessionResponse{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[6]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -631,7 +1065,7 @@ func (x *DescribeKernelSessionResponse) String() string {
 func (*DescribeKernelSessionResponse) ProtoMessage() {}
 
 func (x *DescribeKernelSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[6]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -644,7 +1078,7 @@ func (x *DescribeKernelSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DescribeKernelSessionResponse.ProtoReflect.Descriptor instead.
 func (*DescribeKernelSessionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{6}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *DescribeKernelSessionResponse) GetSessionId() string {
@@ -706,7 +1140,7 @@ type InstalledPackage struct {
 
 func (x *InstalledPackage) Reset() {
 	*x = InstalledPackage{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[7]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +1152,7 @@ func (x *InstalledPackage) String() string {
 func (*InstalledPackage) ProtoMessage() {}
 
 func (x *InstalledPackage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[7]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,7 +1165,7 @@ func (x *InstalledPackage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InstalledPackage.ProtoReflect.Descriptor instead.
 func (*InstalledPackage) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{7}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *InstalledPackage) GetName() string {
@@ -776,7 +1210,7 @@ type KernelBuildInfo struct {
 
 func (x *KernelBuildInfo) Reset() {
 	*x = KernelBuildInfo{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[8]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -788,7 +1222,7 @@ func (x *KernelBuildInfo) String() string {
 func (*KernelBuildInfo) ProtoMessage() {}
 
 func (x *KernelBuildInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[8]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -801,7 +1235,7 @@ func (x *KernelBuildInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KernelBuildInfo.ProtoReflect.Descriptor instead.
 func (*KernelBuildInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{8}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *KernelBuildInfo) GetServerCommit() string {
@@ -833,7 +1267,7 @@ type ListInstalledPackagesRequest struct {
 
 func (x *ListInstalledPackagesRequest) Reset() {
 	*x = ListInstalledPackagesRequest{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[9]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -845,7 +1279,7 @@ func (x *ListInstalledPackagesRequest) String() string {
 func (*ListInstalledPackagesRequest) ProtoMessage() {}
 
 func (x *ListInstalledPackagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[9]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -858,7 +1292,7 @@ func (x *ListInstalledPackagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInstalledPackagesRequest.ProtoReflect.Descriptor instead.
 func (*ListInstalledPackagesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{9}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{17}
 }
 
 type ListInstalledPackagesResponse struct {
@@ -874,7 +1308,7 @@ type ListInstalledPackagesResponse struct {
 
 func (x *ListInstalledPackagesResponse) Reset() {
 	*x = ListInstalledPackagesResponse{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[10]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -886,7 +1320,7 @@ func (x *ListInstalledPackagesResponse) String() string {
 func (*ListInstalledPackagesResponse) ProtoMessage() {}
 
 func (x *ListInstalledPackagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[10]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -899,7 +1333,7 @@ func (x *ListInstalledPackagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInstalledPackagesResponse.ProtoReflect.Descriptor instead.
 func (*ListInstalledPackagesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{10}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListInstalledPackagesResponse) GetPackages() []*InstalledPackage {
@@ -942,7 +1376,7 @@ type NotebookCellSource struct {
 
 func (x *NotebookCellSource) Reset() {
 	*x = NotebookCellSource{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[11]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -954,7 +1388,7 @@ func (x *NotebookCellSource) String() string {
 func (*NotebookCellSource) ProtoMessage() {}
 
 func (x *NotebookCellSource) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[11]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -967,7 +1401,7 @@ func (x *NotebookCellSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookCellSource.ProtoReflect.Descriptor instead.
 func (*NotebookCellSource) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{11}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *NotebookCellSource) GetCellId() string {
@@ -1021,7 +1455,7 @@ type AnalyzeNotebookCellDependenciesRequest struct {
 
 func (x *AnalyzeNotebookCellDependenciesRequest) Reset() {
 	*x = AnalyzeNotebookCellDependenciesRequest{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[12]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1033,7 +1467,7 @@ func (x *AnalyzeNotebookCellDependenciesRequest) String() string {
 func (*AnalyzeNotebookCellDependenciesRequest) ProtoMessage() {}
 
 func (x *AnalyzeNotebookCellDependenciesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[12]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1046,7 +1480,7 @@ func (x *AnalyzeNotebookCellDependenciesRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use AnalyzeNotebookCellDependenciesRequest.ProtoReflect.Descriptor instead.
 func (*AnalyzeNotebookCellDependenciesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *AnalyzeNotebookCellDependenciesRequest) GetCells() []*NotebookCellSource {
@@ -1076,7 +1510,7 @@ type CellDependencyReport struct {
 
 func (x *CellDependencyReport) Reset() {
 	*x = CellDependencyReport{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[13]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1088,7 +1522,7 @@ func (x *CellDependencyReport) String() string {
 func (*CellDependencyReport) ProtoMessage() {}
 
 func (x *CellDependencyReport) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[13]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1101,7 +1535,7 @@ func (x *CellDependencyReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CellDependencyReport.ProtoReflect.Descriptor instead.
 func (*CellDependencyReport) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{13}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CellDependencyReport) GetCellId() string {
@@ -1141,7 +1575,7 @@ type AnalyzeNotebookCellDependenciesResponse struct {
 
 func (x *AnalyzeNotebookCellDependenciesResponse) Reset() {
 	*x = AnalyzeNotebookCellDependenciesResponse{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[14]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1153,7 +1587,7 @@ func (x *AnalyzeNotebookCellDependenciesResponse) String() string {
 func (*AnalyzeNotebookCellDependenciesResponse) ProtoMessage() {}
 
 func (x *AnalyzeNotebookCellDependenciesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[14]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1166,7 +1600,7 @@ func (x *AnalyzeNotebookCellDependenciesResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use AnalyzeNotebookCellDependenciesResponse.ProtoReflect.Descriptor instead.
 func (*AnalyzeNotebookCellDependenciesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{14}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *AnalyzeNotebookCellDependenciesResponse) GetReports() []*CellDependencyReport {
@@ -1189,7 +1623,7 @@ type PlanNotebookRunRequest struct {
 
 func (x *PlanNotebookRunRequest) Reset() {
 	*x = PlanNotebookRunRequest{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[15]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1201,7 +1635,7 @@ func (x *PlanNotebookRunRequest) String() string {
 func (*PlanNotebookRunRequest) ProtoMessage() {}
 
 func (x *PlanNotebookRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[15]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1214,7 +1648,7 @@ func (x *PlanNotebookRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanNotebookRunRequest.ProtoReflect.Descriptor instead.
 func (*PlanNotebookRunRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{15}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *PlanNotebookRunRequest) GetCells() []*NotebookCellSource {
@@ -1250,7 +1684,7 @@ type PlanNotebookRunResponse struct {
 
 func (x *PlanNotebookRunResponse) Reset() {
 	*x = PlanNotebookRunResponse{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[16]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1262,7 +1696,7 @@ func (x *PlanNotebookRunResponse) String() string {
 func (*PlanNotebookRunResponse) ProtoMessage() {}
 
 func (x *PlanNotebookRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[16]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1275,7 +1709,7 @@ func (x *PlanNotebookRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanNotebookRunResponse.ProtoReflect.Descriptor instead.
 func (*PlanNotebookRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{16}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *PlanNotebookRunResponse) GetCellIds() []string {
@@ -1302,7 +1736,7 @@ type NotebookBlobUploadHeader struct {
 
 func (x *NotebookBlobUploadHeader) Reset() {
 	*x = NotebookBlobUploadHeader{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[17]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1314,7 +1748,7 @@ func (x *NotebookBlobUploadHeader) String() string {
 func (*NotebookBlobUploadHeader) ProtoMessage() {}
 
 func (x *NotebookBlobUploadHeader) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[17]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1327,7 +1761,7 @@ func (x *NotebookBlobUploadHeader) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookBlobUploadHeader.ProtoReflect.Descriptor instead.
 func (*NotebookBlobUploadHeader) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{17}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *NotebookBlobUploadHeader) GetName() string {
@@ -1358,7 +1792,7 @@ type NotebookBlobUploadRequest struct {
 
 func (x *NotebookBlobUploadRequest) Reset() {
 	*x = NotebookBlobUploadRequest{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[18]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1370,7 +1804,7 @@ func (x *NotebookBlobUploadRequest) String() string {
 func (*NotebookBlobUploadRequest) ProtoMessage() {}
 
 func (x *NotebookBlobUploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[18]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1383,7 +1817,7 @@ func (x *NotebookBlobUploadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookBlobUploadRequest.ProtoReflect.Descriptor instead.
 func (*NotebookBlobUploadRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{18}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *NotebookBlobUploadRequest) GetRequestId() string {
@@ -1442,7 +1876,7 @@ type NotebookBlobUploadTarget struct {
 
 func (x *NotebookBlobUploadTarget) Reset() {
 	*x = NotebookBlobUploadTarget{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[19]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1454,7 +1888,7 @@ func (x *NotebookBlobUploadTarget) String() string {
 func (*NotebookBlobUploadTarget) ProtoMessage() {}
 
 func (x *NotebookBlobUploadTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[19]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1467,7 +1901,7 @@ func (x *NotebookBlobUploadTarget) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookBlobUploadTarget.ProtoReflect.Descriptor instead.
 func (*NotebookBlobUploadTarget) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{19}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *NotebookBlobUploadTarget) GetRequestId() string {
@@ -1524,7 +1958,7 @@ type NotebookBlobUploadComplete struct {
 
 func (x *NotebookBlobUploadComplete) Reset() {
 	*x = NotebookBlobUploadComplete{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[20]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1536,7 +1970,7 @@ func (x *NotebookBlobUploadComplete) String() string {
 func (*NotebookBlobUploadComplete) ProtoMessage() {}
 
 func (x *NotebookBlobUploadComplete) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[20]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1549,7 +1983,7 @@ func (x *NotebookBlobUploadComplete) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookBlobUploadComplete.ProtoReflect.Descriptor instead.
 func (*NotebookBlobUploadComplete) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{20}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *NotebookBlobUploadComplete) GetRequestId() string {
@@ -1591,7 +2025,7 @@ type NotebookBlobUploadFailed struct {
 
 func (x *NotebookBlobUploadFailed) Reset() {
 	*x = NotebookBlobUploadFailed{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[21]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1603,7 +2037,7 @@ func (x *NotebookBlobUploadFailed) String() string {
 func (*NotebookBlobUploadFailed) ProtoMessage() {}
 
 func (x *NotebookBlobUploadFailed) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[21]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1616,7 +2050,7 @@ func (x *NotebookBlobUploadFailed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookBlobUploadFailed.ProtoReflect.Descriptor instead.
 func (*NotebookBlobUploadFailed) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{21}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *NotebookBlobUploadFailed) GetRequestId() string {
@@ -1653,7 +2087,7 @@ type RunPythonCellRequest struct {
 
 func (x *RunPythonCellRequest) Reset() {
 	*x = RunPythonCellRequest{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[22]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1665,7 +2099,7 @@ func (x *RunPythonCellRequest) String() string {
 func (*RunPythonCellRequest) ProtoMessage() {}
 
 func (x *RunPythonCellRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[22]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1678,7 +2112,7 @@ func (x *RunPythonCellRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunPythonCellRequest.ProtoReflect.Descriptor instead.
 func (*RunPythonCellRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{22}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *RunPythonCellRequest) GetMessage() isRunPythonCellRequest_Message {
@@ -1738,7 +2172,7 @@ type RunPythonCellResponse struct {
 
 func (x *RunPythonCellResponse) Reset() {
 	*x = RunPythonCellResponse{}
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[23]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1750,7 +2184,7 @@ func (x *RunPythonCellResponse) String() string {
 func (*RunPythonCellResponse) ProtoMessage() {}
 
 func (x *RunPythonCellResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[23]
+	mi := &file_chalk_notebook_v1_kernel_service_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1763,7 +2197,7 @@ func (x *RunPythonCellResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunPythonCellResponse.ProtoReflect.Descriptor instead.
 func (*RunPythonCellResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{23}
+	return file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *RunPythonCellResponse) GetMessage() isRunPythonCellResponse_Message {
@@ -1886,7 +2320,31 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"\aoutcome\x18\x03 \x01(\x0e2).chalk.notebook.v1.PythonExecutionOutcomeR\aoutcome\x12\x18\n" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x12!\n" +
 	"\fkernel_epoch\x18\x05 \x01(\tR\vkernelEpoch\x12'\n" +
-	"\x0fexecution_count\x18\x06 \x01(\x03R\x0eexecutionCount\"w\n" +
+	"\x0fexecution_count\x18\x06 \x01(\x03R\x0eexecutionCount\"u\n" +
+	"\x16StartPythonCellRequest\x128\n" +
+	"\x04spec\x18\x01 \x01(\v2$.chalk.notebook.v1.RunPythonCellSpecR\x04spec\x12!\n" +
+	"\fexecution_id\x18\x02 \x01(\tR\vexecutionId\"<\n" +
+	"\x17StartPythonCellResponse\x12!\n" +
+	"\fexecution_id\x18\x01 \x01(\tR\vexecutionId\"|\n" +
+	"\x18PythonCellExecutionEvent\x12\x1a\n" +
+	"\bsequence\x18\x01 \x01(\x03R\bsequence\x12D\n" +
+	"\bresponse\x18\x02 \x01(\v2(.chalk.notebook.v1.RunPythonCellResponseR\bresponse\"e\n" +
+	"\x1eStreamPythonCellEventsResponse\x12C\n" +
+	"\x06events\x18\x01 \x03(\v2+.chalk.notebook.v1.PythonCellExecutionEventR\x06events\"i\n" +
+	"\x1dStreamPythonCellEventsRequest\x12!\n" +
+	"\fexecution_id\x18\x01 \x01(\tR\vexecutionId\x12%\n" +
+	"\x0eafter_sequence\x18\x02 \x01(\x03R\rafterSequence\"4\n" +
+	"\x18PythonCellRequestFailure\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\x90\x02\n" +
+	"\x1aRespondToPythonCellRequest\x12!\n" +
+	"\fexecution_id\x18\x01 \x01(\tR\vexecutionId\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x02 \x01(\tR\trequestId\x12[\n" +
+	"\x12blob_upload_target\x18\x03 \x01(\v2+.chalk.notebook.v1.NotebookBlobUploadTargetH\x00R\x10blobUploadTarget\x12G\n" +
+	"\afailure\x18\x04 \x01(\v2+.chalk.notebook.v1.PythonCellRequestFailureH\x00R\afailureB\n" +
+	"\n" +
+	"\bresponse\"\x1d\n" +
+	"\x1bRespondToPythonCellResponse\"w\n" +
 	"\x1fInterruptPythonExecutionRequest\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x1e\n" +
 	"\vcell_run_id\x18\x02 \x01(\tR\tcellRunId\x12\x1d\n" +
@@ -1984,7 +2442,7 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"\n" +
 	"terminated\x18\x05 \x01(\v2,.chalk.notebook.v1.PythonExecutionTerminatedH\x00R\n" +
 	"terminatedB\t\n" +
-	"\amessage*\xb5\x02\n" +
+	"\amessage*\xe5\x02\n" +
 	"\x16PythonExecutionOutcome\x12(\n" +
 	"$PYTHON_EXECUTION_OUTCOME_UNSPECIFIED\x10\x00\x12$\n" +
 	" PYTHON_EXECUTION_OUTCOME_SUCCESS\x10\x01\x12\"\n" +
@@ -1992,13 +2450,17 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	" PYTHON_EXECUTION_OUTCOME_TIMEOUT\x10\x03\x12(\n" +
 	"$PYTHON_EXECUTION_OUTCOME_INTERRUPTED\x10\x04\x12(\n" +
 	"$PYTHON_EXECUTION_OUTCOME_KERNEL_DIED\x10\x05\x12-\n" +
-	")PYTHON_EXECUTION_OUTCOME_KERNEL_RESTARTED\x10\x06*\xd4\x01\n" +
+	")PYTHON_EXECUTION_OUTCOME_KERNEL_RESTARTED\x10\x06\x12.\n" +
+	"*PYTHON_EXECUTION_OUTCOME_KERNEL_OOM_KILLED\x10\a*\xd4\x01\n" +
 	"\x16PythonInterruptOutcome\x12(\n" +
 	"$PYTHON_INTERRUPT_OUTCOME_UNSPECIFIED\x10\x00\x12(\n" +
 	"$PYTHON_INTERRUPT_OUTCOME_INTERRUPTED\x10\x01\x124\n" +
 	"0PYTHON_INTERRUPT_OUTCOME_NOT_CURRENTLY_EXECUTING\x10\x02\x120\n" +
-	",PYTHON_INTERRUPT_OUTCOME_KERNEL_UNRESPONSIVE\x10\x032\x88\x06\n" +
-	"\x1bNotebookPythonKernelService\x12f\n" +
+	",PYTHON_INTERRUPT_OUTCOME_KERNEL_UNRESPONSIVE\x10\x032\xe9\b\n" +
+	"\x1bNotebookPythonKernelService\x12h\n" +
+	"\x0fStartPythonCell\x12).chalk.notebook.v1.StartPythonCellRequest\x1a*.chalk.notebook.v1.StartPythonCellResponse\x12\x7f\n" +
+	"\x16StreamPythonCellEvents\x120.chalk.notebook.v1.StreamPythonCellEventsRequest\x1a1.chalk.notebook.v1.StreamPythonCellEventsResponse0\x01\x12t\n" +
+	"\x13RespondToPythonCell\x12-.chalk.notebook.v1.RespondToPythonCellRequest\x1a..chalk.notebook.v1.RespondToPythonCellResponse\x12f\n" +
 	"\rRunPythonCell\x12'.chalk.notebook.v1.RunPythonCellRequest\x1a(.chalk.notebook.v1.RunPythonCellResponse(\x010\x01\x12\x83\x01\n" +
 	"\x18InterruptPythonExecution\x122.chalk.notebook.v1.InterruptPythonExecutionRequest\x1a3.chalk.notebook.v1.InterruptPythonExecutionResponse\x12z\n" +
 	"\x15DescribeKernelSession\x12/.chalk.notebook.v1.DescribeKernelSessionRequest\x1a0.chalk.notebook.v1.DescribeKernelSessionResponse\x12z\n" +
@@ -2020,78 +2482,97 @@ func file_chalk_notebook_v1_kernel_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_notebook_v1_kernel_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_notebook_v1_kernel_service_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_chalk_notebook_v1_kernel_service_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
 var file_chalk_notebook_v1_kernel_service_proto_goTypes = []any{
 	(PythonExecutionOutcome)(0),                     // 0: chalk.notebook.v1.PythonExecutionOutcome
 	(PythonInterruptOutcome)(0),                     // 1: chalk.notebook.v1.PythonInterruptOutcome
 	(*NotebookTemplateExpression)(nil),              // 2: chalk.notebook.v1.NotebookTemplateExpression
 	(*RunPythonCellSpec)(nil),                       // 3: chalk.notebook.v1.RunPythonCellSpec
 	(*PythonExecutionTerminated)(nil),               // 4: chalk.notebook.v1.PythonExecutionTerminated
-	(*InterruptPythonExecutionRequest)(nil),         // 5: chalk.notebook.v1.InterruptPythonExecutionRequest
-	(*InterruptPythonExecutionResponse)(nil),        // 6: chalk.notebook.v1.InterruptPythonExecutionResponse
-	(*DescribeKernelSessionRequest)(nil),            // 7: chalk.notebook.v1.DescribeKernelSessionRequest
-	(*DescribeKernelSessionResponse)(nil),           // 8: chalk.notebook.v1.DescribeKernelSessionResponse
-	(*InstalledPackage)(nil),                        // 9: chalk.notebook.v1.InstalledPackage
-	(*KernelBuildInfo)(nil),                         // 10: chalk.notebook.v1.KernelBuildInfo
-	(*ListInstalledPackagesRequest)(nil),            // 11: chalk.notebook.v1.ListInstalledPackagesRequest
-	(*ListInstalledPackagesResponse)(nil),           // 12: chalk.notebook.v1.ListInstalledPackagesResponse
-	(*NotebookCellSource)(nil),                      // 13: chalk.notebook.v1.NotebookCellSource
-	(*AnalyzeNotebookCellDependenciesRequest)(nil),  // 14: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
-	(*CellDependencyReport)(nil),                    // 15: chalk.notebook.v1.CellDependencyReport
-	(*AnalyzeNotebookCellDependenciesResponse)(nil), // 16: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
-	(*PlanNotebookRunRequest)(nil),                  // 17: chalk.notebook.v1.PlanNotebookRunRequest
-	(*PlanNotebookRunResponse)(nil),                 // 18: chalk.notebook.v1.PlanNotebookRunResponse
-	(*NotebookBlobUploadHeader)(nil),                // 19: chalk.notebook.v1.NotebookBlobUploadHeader
-	(*NotebookBlobUploadRequest)(nil),               // 20: chalk.notebook.v1.NotebookBlobUploadRequest
-	(*NotebookBlobUploadTarget)(nil),                // 21: chalk.notebook.v1.NotebookBlobUploadTarget
-	(*NotebookBlobUploadComplete)(nil),              // 22: chalk.notebook.v1.NotebookBlobUploadComplete
-	(*NotebookBlobUploadFailed)(nil),                // 23: chalk.notebook.v1.NotebookBlobUploadFailed
-	(*RunPythonCellRequest)(nil),                    // 24: chalk.notebook.v1.RunPythonCellRequest
-	(*RunPythonCellResponse)(nil),                   // 25: chalk.notebook.v1.RunPythonCellResponse
-	nil,                                             // 26: chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
-	(NotebookRunScope)(0),                           // 27: chalk.notebook.v1.NotebookRunScope
-	(*timestamppb.Timestamp)(nil),                   // 28: google.protobuf.Timestamp
-	(*NotebookRunEvent)(nil),                        // 29: chalk.notebook.v1.NotebookRunEvent
+	(*StartPythonCellRequest)(nil),                  // 5: chalk.notebook.v1.StartPythonCellRequest
+	(*StartPythonCellResponse)(nil),                 // 6: chalk.notebook.v1.StartPythonCellResponse
+	(*PythonCellExecutionEvent)(nil),                // 7: chalk.notebook.v1.PythonCellExecutionEvent
+	(*StreamPythonCellEventsResponse)(nil),          // 8: chalk.notebook.v1.StreamPythonCellEventsResponse
+	(*StreamPythonCellEventsRequest)(nil),           // 9: chalk.notebook.v1.StreamPythonCellEventsRequest
+	(*PythonCellRequestFailure)(nil),                // 10: chalk.notebook.v1.PythonCellRequestFailure
+	(*RespondToPythonCellRequest)(nil),              // 11: chalk.notebook.v1.RespondToPythonCellRequest
+	(*RespondToPythonCellResponse)(nil),             // 12: chalk.notebook.v1.RespondToPythonCellResponse
+	(*InterruptPythonExecutionRequest)(nil),         // 13: chalk.notebook.v1.InterruptPythonExecutionRequest
+	(*InterruptPythonExecutionResponse)(nil),        // 14: chalk.notebook.v1.InterruptPythonExecutionResponse
+	(*DescribeKernelSessionRequest)(nil),            // 15: chalk.notebook.v1.DescribeKernelSessionRequest
+	(*DescribeKernelSessionResponse)(nil),           // 16: chalk.notebook.v1.DescribeKernelSessionResponse
+	(*InstalledPackage)(nil),                        // 17: chalk.notebook.v1.InstalledPackage
+	(*KernelBuildInfo)(nil),                         // 18: chalk.notebook.v1.KernelBuildInfo
+	(*ListInstalledPackagesRequest)(nil),            // 19: chalk.notebook.v1.ListInstalledPackagesRequest
+	(*ListInstalledPackagesResponse)(nil),           // 20: chalk.notebook.v1.ListInstalledPackagesResponse
+	(*NotebookCellSource)(nil),                      // 21: chalk.notebook.v1.NotebookCellSource
+	(*AnalyzeNotebookCellDependenciesRequest)(nil),  // 22: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
+	(*CellDependencyReport)(nil),                    // 23: chalk.notebook.v1.CellDependencyReport
+	(*AnalyzeNotebookCellDependenciesResponse)(nil), // 24: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
+	(*PlanNotebookRunRequest)(nil),                  // 25: chalk.notebook.v1.PlanNotebookRunRequest
+	(*PlanNotebookRunResponse)(nil),                 // 26: chalk.notebook.v1.PlanNotebookRunResponse
+	(*NotebookBlobUploadHeader)(nil),                // 27: chalk.notebook.v1.NotebookBlobUploadHeader
+	(*NotebookBlobUploadRequest)(nil),               // 28: chalk.notebook.v1.NotebookBlobUploadRequest
+	(*NotebookBlobUploadTarget)(nil),                // 29: chalk.notebook.v1.NotebookBlobUploadTarget
+	(*NotebookBlobUploadComplete)(nil),              // 30: chalk.notebook.v1.NotebookBlobUploadComplete
+	(*NotebookBlobUploadFailed)(nil),                // 31: chalk.notebook.v1.NotebookBlobUploadFailed
+	(*RunPythonCellRequest)(nil),                    // 32: chalk.notebook.v1.RunPythonCellRequest
+	(*RunPythonCellResponse)(nil),                   // 33: chalk.notebook.v1.RunPythonCellResponse
+	nil,                                             // 34: chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
+	(NotebookRunScope)(0),                           // 35: chalk.notebook.v1.NotebookRunScope
+	(*timestamppb.Timestamp)(nil),                   // 36: google.protobuf.Timestamp
+	(*NotebookRunEvent)(nil),                        // 37: chalk.notebook.v1.NotebookRunEvent
 }
 var file_chalk_notebook_v1_kernel_service_proto_depIdxs = []int32{
-	26, // 0: chalk.notebook.v1.RunPythonCellSpec.secrets:type_name -> chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
+	34, // 0: chalk.notebook.v1.RunPythonCellSpec.secrets:type_name -> chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
 	2,  // 1: chalk.notebook.v1.RunPythonCellSpec.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
 	0,  // 2: chalk.notebook.v1.PythonExecutionTerminated.outcome:type_name -> chalk.notebook.v1.PythonExecutionOutcome
-	1,  // 3: chalk.notebook.v1.InterruptPythonExecutionResponse.outcome:type_name -> chalk.notebook.v1.PythonInterruptOutcome
-	9,  // 4: chalk.notebook.v1.ListInstalledPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
-	10, // 5: chalk.notebook.v1.ListInstalledPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
-	2,  // 6: chalk.notebook.v1.NotebookCellSource.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
-	13, // 7: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
-	15, // 8: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
-	13, // 9: chalk.notebook.v1.PlanNotebookRunRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
-	27, // 10: chalk.notebook.v1.PlanNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
-	15, // 11: chalk.notebook.v1.PlanNotebookRunResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
-	19, // 12: chalk.notebook.v1.NotebookBlobUploadTarget.headers:type_name -> chalk.notebook.v1.NotebookBlobUploadHeader
-	28, // 13: chalk.notebook.v1.NotebookBlobUploadTarget.expires_at:type_name -> google.protobuf.Timestamp
-	3,  // 14: chalk.notebook.v1.RunPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
-	21, // 15: chalk.notebook.v1.RunPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
-	29, // 16: chalk.notebook.v1.RunPythonCellResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
-	20, // 17: chalk.notebook.v1.RunPythonCellResponse.blob_upload_request:type_name -> chalk.notebook.v1.NotebookBlobUploadRequest
-	22, // 18: chalk.notebook.v1.RunPythonCellResponse.blob_upload_complete:type_name -> chalk.notebook.v1.NotebookBlobUploadComplete
-	23, // 19: chalk.notebook.v1.RunPythonCellResponse.blob_upload_failed:type_name -> chalk.notebook.v1.NotebookBlobUploadFailed
-	4,  // 20: chalk.notebook.v1.RunPythonCellResponse.terminated:type_name -> chalk.notebook.v1.PythonExecutionTerminated
-	24, // 21: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:input_type -> chalk.notebook.v1.RunPythonCellRequest
-	5,  // 22: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:input_type -> chalk.notebook.v1.InterruptPythonExecutionRequest
-	7,  // 23: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:input_type -> chalk.notebook.v1.DescribeKernelSessionRequest
-	11, // 24: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:input_type -> chalk.notebook.v1.ListInstalledPackagesRequest
-	14, // 25: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:input_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
-	17, // 26: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:input_type -> chalk.notebook.v1.PlanNotebookRunRequest
-	25, // 27: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:output_type -> chalk.notebook.v1.RunPythonCellResponse
-	6,  // 28: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:output_type -> chalk.notebook.v1.InterruptPythonExecutionResponse
-	8,  // 29: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:output_type -> chalk.notebook.v1.DescribeKernelSessionResponse
-	12, // 30: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:output_type -> chalk.notebook.v1.ListInstalledPackagesResponse
-	16, // 31: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:output_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
-	18, // 32: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:output_type -> chalk.notebook.v1.PlanNotebookRunResponse
-	27, // [27:33] is the sub-list for method output_type
-	21, // [21:27] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	3,  // 3: chalk.notebook.v1.StartPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
+	33, // 4: chalk.notebook.v1.PythonCellExecutionEvent.response:type_name -> chalk.notebook.v1.RunPythonCellResponse
+	7,  // 5: chalk.notebook.v1.StreamPythonCellEventsResponse.events:type_name -> chalk.notebook.v1.PythonCellExecutionEvent
+	29, // 6: chalk.notebook.v1.RespondToPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
+	10, // 7: chalk.notebook.v1.RespondToPythonCellRequest.failure:type_name -> chalk.notebook.v1.PythonCellRequestFailure
+	1,  // 8: chalk.notebook.v1.InterruptPythonExecutionResponse.outcome:type_name -> chalk.notebook.v1.PythonInterruptOutcome
+	17, // 9: chalk.notebook.v1.ListInstalledPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
+	18, // 10: chalk.notebook.v1.ListInstalledPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
+	2,  // 11: chalk.notebook.v1.NotebookCellSource.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
+	21, // 12: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
+	23, // 13: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
+	21, // 14: chalk.notebook.v1.PlanNotebookRunRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
+	35, // 15: chalk.notebook.v1.PlanNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
+	23, // 16: chalk.notebook.v1.PlanNotebookRunResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
+	27, // 17: chalk.notebook.v1.NotebookBlobUploadTarget.headers:type_name -> chalk.notebook.v1.NotebookBlobUploadHeader
+	36, // 18: chalk.notebook.v1.NotebookBlobUploadTarget.expires_at:type_name -> google.protobuf.Timestamp
+	3,  // 19: chalk.notebook.v1.RunPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
+	29, // 20: chalk.notebook.v1.RunPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
+	37, // 21: chalk.notebook.v1.RunPythonCellResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
+	28, // 22: chalk.notebook.v1.RunPythonCellResponse.blob_upload_request:type_name -> chalk.notebook.v1.NotebookBlobUploadRequest
+	30, // 23: chalk.notebook.v1.RunPythonCellResponse.blob_upload_complete:type_name -> chalk.notebook.v1.NotebookBlobUploadComplete
+	31, // 24: chalk.notebook.v1.RunPythonCellResponse.blob_upload_failed:type_name -> chalk.notebook.v1.NotebookBlobUploadFailed
+	4,  // 25: chalk.notebook.v1.RunPythonCellResponse.terminated:type_name -> chalk.notebook.v1.PythonExecutionTerminated
+	5,  // 26: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:input_type -> chalk.notebook.v1.StartPythonCellRequest
+	9,  // 27: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:input_type -> chalk.notebook.v1.StreamPythonCellEventsRequest
+	11, // 28: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:input_type -> chalk.notebook.v1.RespondToPythonCellRequest
+	32, // 29: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:input_type -> chalk.notebook.v1.RunPythonCellRequest
+	13, // 30: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:input_type -> chalk.notebook.v1.InterruptPythonExecutionRequest
+	15, // 31: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:input_type -> chalk.notebook.v1.DescribeKernelSessionRequest
+	19, // 32: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:input_type -> chalk.notebook.v1.ListInstalledPackagesRequest
+	22, // 33: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:input_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
+	25, // 34: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:input_type -> chalk.notebook.v1.PlanNotebookRunRequest
+	6,  // 35: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:output_type -> chalk.notebook.v1.StartPythonCellResponse
+	8,  // 36: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:output_type -> chalk.notebook.v1.StreamPythonCellEventsResponse
+	12, // 37: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:output_type -> chalk.notebook.v1.RespondToPythonCellResponse
+	33, // 38: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:output_type -> chalk.notebook.v1.RunPythonCellResponse
+	14, // 39: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:output_type -> chalk.notebook.v1.InterruptPythonExecutionResponse
+	16, // 40: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:output_type -> chalk.notebook.v1.DescribeKernelSessionResponse
+	20, // 41: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:output_type -> chalk.notebook.v1.ListInstalledPackagesResponse
+	24, // 42: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:output_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
+	26, // 43: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:output_type -> chalk.notebook.v1.PlanNotebookRunResponse
+	35, // [35:44] is the sub-list for method output_type
+	26, // [26:35] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_kernel_service_proto_init() }
@@ -2101,12 +2582,16 @@ func file_chalk_notebook_v1_kernel_service_proto_init() {
 	}
 	file_chalk_notebook_v1_document_proto_init()
 	file_chalk_notebook_v1_runtime_proto_init()
-	file_chalk_notebook_v1_kernel_service_proto_msgTypes[18].OneofWrappers = []any{}
-	file_chalk_notebook_v1_kernel_service_proto_msgTypes[22].OneofWrappers = []any{
+	file_chalk_notebook_v1_kernel_service_proto_msgTypes[9].OneofWrappers = []any{
+		(*RespondToPythonCellRequest_BlobUploadTarget)(nil),
+		(*RespondToPythonCellRequest_Failure)(nil),
+	}
+	file_chalk_notebook_v1_kernel_service_proto_msgTypes[26].OneofWrappers = []any{}
+	file_chalk_notebook_v1_kernel_service_proto_msgTypes[30].OneofWrappers = []any{
 		(*RunPythonCellRequest_Spec)(nil),
 		(*RunPythonCellRequest_BlobUploadTarget)(nil),
 	}
-	file_chalk_notebook_v1_kernel_service_proto_msgTypes[23].OneofWrappers = []any{
+	file_chalk_notebook_v1_kernel_service_proto_msgTypes[31].OneofWrappers = []any{
 		(*RunPythonCellResponse_Event)(nil),
 		(*RunPythonCellResponse_BlobUploadRequest)(nil),
 		(*RunPythonCellResponse_BlobUploadComplete)(nil),
@@ -2119,7 +2604,7 @@ func file_chalk_notebook_v1_kernel_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_notebook_v1_kernel_service_proto_rawDesc), len(file_chalk_notebook_v1_kernel_service_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   25,
+			NumMessages:   33,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

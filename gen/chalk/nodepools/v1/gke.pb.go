@@ -1408,25 +1408,25 @@ type NodeConfig struct {
 	// Additionally, to avoid ambiguity, keys must not conflict with any other
 	// metadata keys for the project or be one of the reserved keys:
 	//
-	//  - "cluster-location"
-	//  - "cluster-name"
-	//  - "cluster-uid"
-	//  - "configure-sh"
-	//  - "containerd-configure-sh"
-	//  - "enable-os-login"
-	//  - "gci-ensure-gke-docker"
-	//  - "gci-metrics-enabled"
-	//  - "gci-update-strategy"
-	//  - "instance-template"
-	//  - "kube-env"
-	//  - "startup-script"
-	//  - "user-data"
-	//  - "disable-address-manager"
-	//  - "windows-startup-script-ps1"
-	//  - "common-psm1"
-	//  - "k8s-node-setup-psm1"
-	//  - "install-ssh-psm1"
-	//  - "user-profile-psm1"
+	//   - "cluster-location"
+	//   - "cluster-name"
+	//   - "cluster-uid"
+	//   - "configure-sh"
+	//   - "containerd-configure-sh"
+	//   - "enable-os-login"
+	//   - "gci-ensure-gke-docker"
+	//   - "gci-metrics-enabled"
+	//   - "gci-update-strategy"
+	//   - "instance-template"
+	//   - "kube-env"
+	//   - "startup-script"
+	//   - "user-data"
+	//   - "disable-address-manager"
+	//   - "windows-startup-script-ps1"
+	//   - "common-psm1"
+	//   - "k8s-node-setup-psm1"
+	//   - "install-ssh-psm1"
+	//   - "user-profile-psm1"
 	//
 	// Values are free-form strings, and only have meaning as interpreted by
 	// the image running in the instance. The only restriction placed on them is
@@ -1491,7 +1491,6 @@ type NodeConfig struct {
 	// workloads on [sole tenant
 	// nodes](https://cloud.google.com/compute/docs/nodes/sole-tenant-nodes).
 	NodeGroup string `protobuf:"bytes,18,opt,name=node_group,json=nodeGroup,proto3" json:"node_group,omitempty"`
-	//
 	// The Customer Managed Encryption Key used to encrypt the boot disk attached
 	// to each node in the node pool. This should be of the form
 	// projects/[KEY_PROJECT_ID]/locations/[LOCATION]/keyRings/[RING_NAME]/cryptoKeys/[KEY_NAME].

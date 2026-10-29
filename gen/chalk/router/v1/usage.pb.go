@@ -31,6 +31,13 @@ const (
 	UsageDimension_USAGE_DIMENSION_MODEL       UsageDimension = 2
 	UsageDimension_USAGE_DIMENSION_API_KEY     UsageDimension = 3
 	UsageDimension_USAGE_DIMENSION_USAGE_POOL  UsageDimension = 4
+	// The immutable ID of the model route that owned the request's plan, even
+	// when its judge or a fallback chose another connection and model. Rows
+	// without a route group under an empty dimension_value: a direct provider
+	// call, a call the router made on its own behalf (such as a judge
+	// classifier), or a call recorded before routes were tracked on usage, which
+	// may have gone through a route. Empty therefore does not mean "no route".
+	UsageDimension_USAGE_DIMENSION_MODEL_ROUTE UsageDimension = 5
 )
 
 // Enum value maps for UsageDimension.
@@ -41,6 +48,7 @@ var (
 		2: "USAGE_DIMENSION_MODEL",
 		3: "USAGE_DIMENSION_API_KEY",
 		4: "USAGE_DIMENSION_USAGE_POOL",
+		5: "USAGE_DIMENSION_MODEL_ROUTE",
 	}
 	UsageDimension_value = map[string]int32{
 		"USAGE_DIMENSION_UNSPECIFIED": 0,
@@ -48,6 +56,7 @@ var (
 		"USAGE_DIMENSION_MODEL":       2,
 		"USAGE_DIMENSION_API_KEY":     3,
 		"USAGE_DIMENSION_USAGE_POOL":  4,
+		"USAGE_DIMENSION_MODEL_ROUTE": 5,
 	}
 )
 
@@ -85,6 +94,10 @@ type UsageFilters struct {
 	ConnectionIds []string               `protobuf:"bytes,3,rep,name=connection_ids,json=connectionIds,proto3" json:"connection_ids,omitempty"`
 	Models        []string               `protobuf:"bytes,4,rep,name=models,proto3" json:"models,omitempty"`
 	ApiKeyLabels  map[string]string      `protobuf:"bytes,5,rep,name=api_key_labels,json=apiKeyLabels,proto3" json:"api_key_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Model route IDs (not public `chalk/*` names). Matches only calls recorded
+	// with one of these routes; earlier calls through a route have no route ID
+	// and are not matched.
+	ModelRouteIds []string `protobuf:"bytes,6,rep,name=model_route_ids,json=modelRouteIds,proto3" json:"model_route_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -150,6 +163,13 @@ func (x *UsageFilters) GetModels() []string {
 func (x *UsageFilters) GetApiKeyLabels() map[string]string {
 	if x != nil {
 		return x.ApiKeyLabels
+	}
+	return nil
+}
+
+func (x *UsageFilters) GetModelRouteIds() []string {
+	if x != nil {
+		return x.ModelRouteIds
 	}
 	return nil
 }
@@ -463,13 +483,14 @@ var File_chalk_router_v1_usage_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_usage_proto_rawDesc = "" +
 	"\n" +
-	"\x1bchalk/router/v1/usage.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb1\x02\n" +
+	"\x1bchalk/router/v1/usage.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd9\x02\n" +
 	"\fUsageFilters\x12$\n" +
 	"\x0eapi_key_hashes\x18\x01 \x03(\tR\fapiKeyHashes\x12$\n" +
 	"\x0eusage_pool_ids\x18\x02 \x03(\tR\fusagePoolIds\x12%\n" +
 	"\x0econnection_ids\x18\x03 \x03(\tR\rconnectionIds\x12\x16\n" +
 	"\x06models\x18\x04 \x03(\tR\x06models\x12U\n" +
-	"\x0eapi_key_labels\x18\x05 \x03(\v2/.chalk.router.v1.UsageFilters.ApiKeyLabelsEntryR\fapiKeyLabels\x1a?\n" +
+	"\x0eapi_key_labels\x18\x05 \x03(\v2/.chalk.router.v1.UsageFilters.ApiKeyLabelsEntryR\fapiKeyLabels\x12&\n" +
+	"\x0fmodel_route_ids\x18\x06 \x03(\tR\rmodelRouteIds\x1a?\n" +
 	"\x11ApiKeyLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xda\x02\n" +
@@ -500,13 +521,14 @@ const file_chalk_router_v1_usage_proto_rawDesc = "" +
 	"\x13_estimated_cost_usdB\x19\n" +
 	"\x17_unpriced_request_count\"L\n" +
 	"\x12QueryUsageResponse\x126\n" +
-	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageAggregateRowR\x04rows*\xa9\x01\n" +
+	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageAggregateRowR\x04rows*\xca\x01\n" +
 	"\x0eUsageDimension\x12\x1f\n" +
 	"\x1bUSAGE_DIMENSION_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aUSAGE_DIMENSION_CONNECTION\x10\x01\x12\x19\n" +
 	"\x15USAGE_DIMENSION_MODEL\x10\x02\x12\x1b\n" +
 	"\x17USAGE_DIMENSION_API_KEY\x10\x03\x12\x1e\n" +
-	"\x1aUSAGE_DIMENSION_USAGE_POOL\x10\x042m\n" +
+	"\x1aUSAGE_DIMENSION_USAGE_POOL\x10\x04\x12\x1f\n" +
+	"\x1bUSAGE_DIMENSION_MODEL_ROUTE\x10\x052m\n" +
 	"\fUsageService\x12]\n" +
 	"\n" +
 	"QueryUsage\x12\".chalk.router.v1.QueryUsageRequest\x1a#.chalk.router.v1.QueryUsageResponse\"\x06\x80}\x02\x90\x02\x01B\xba\x01\n" +

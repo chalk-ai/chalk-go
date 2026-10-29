@@ -48,6 +48,12 @@ const (
 	// OfflineStoreServiceGetMetricsProcedure is the fully-qualified name of the OfflineStoreService's
 	// GetMetrics RPC.
 	OfflineStoreServiceGetMetricsProcedure = "/chalk.engine.v2.OfflineStoreService/GetMetrics"
+	// OfflineStoreServiceGetMetricsV2Procedure is the fully-qualified name of the OfflineStoreService's
+	// GetMetricsV2 RPC.
+	OfflineStoreServiceGetMetricsV2Procedure = "/chalk.engine.v2.OfflineStoreService/GetMetricsV2"
+	// OfflineStoreServicePollMetricsProcedure is the fully-qualified name of the OfflineStoreService's
+	// PollMetrics RPC.
+	OfflineStoreServicePollMetricsProcedure = "/chalk.engine.v2.OfflineStoreService/PollMetrics"
 )
 
 // OfflineStoreServiceClient is a client for the chalk.engine.v2.OfflineStoreService service.
@@ -57,6 +63,8 @@ type OfflineStoreServiceClient interface {
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v2.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v2.GetFeatureValuesTimeSeriesChartResponse], error)
 	GetFeatureValues(context.Context, *connect.Request[v2.GetFeatureValuesRequest]) (*connect.Response[v2.GetFeatureValuesResponse], error)
 	GetMetrics(context.Context, *connect.Request[v2.GetMetricsRequest]) (*connect.Response[v2.GetMetricsResponse], error)
+	GetMetricsV2(context.Context, *connect.Request[v2.GetMetricsV2Request]) (*connect.Response[v2.GetMetricsV2Response], error)
+	PollMetrics(context.Context, *connect.Request[v2.PollMetricsRequest]) (*connect.Response[v2.PollMetricsResponse], error)
 }
 
 // NewOfflineStoreServiceClient constructs a client for the chalk.engine.v2.OfflineStoreService
@@ -101,6 +109,20 @@ func NewOfflineStoreServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getMetricsV2: connect.NewClient[v2.GetMetricsV2Request, v2.GetMetricsV2Response](
+			httpClient,
+			baseURL+OfflineStoreServiceGetMetricsV2Procedure,
+			connect.WithSchema(offlineStoreServiceMethods.ByName("GetMetricsV2")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		pollMetrics: connect.NewClient[v2.PollMetricsRequest, v2.PollMetricsResponse](
+			httpClient,
+			baseURL+OfflineStoreServicePollMetricsProcedure,
+			connect.WithSchema(offlineStoreServiceMethods.ByName("PollMetrics")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -111,6 +133,8 @@ type offlineStoreServiceClient struct {
 	getFeatureValuesTimeSeriesChart *connect.Client[v2.GetFeatureValuesTimeSeriesChartRequest, v2.GetFeatureValuesTimeSeriesChartResponse]
 	getFeatureValues                *connect.Client[v2.GetFeatureValuesRequest, v2.GetFeatureValuesResponse]
 	getMetrics                      *connect.Client[v2.GetMetricsRequest, v2.GetMetricsResponse]
+	getMetricsV2                    *connect.Client[v2.GetMetricsV2Request, v2.GetMetricsV2Response]
+	pollMetrics                     *connect.Client[v2.PollMetricsRequest, v2.PollMetricsResponse]
 }
 
 // GetQueryLogEntries calls chalk.engine.v2.OfflineStoreService.GetQueryLogEntries.
@@ -139,6 +163,16 @@ func (c *offlineStoreServiceClient) GetMetrics(ctx context.Context, req *connect
 	return c.getMetrics.CallUnary(ctx, req)
 }
 
+// GetMetricsV2 calls chalk.engine.v2.OfflineStoreService.GetMetricsV2.
+func (c *offlineStoreServiceClient) GetMetricsV2(ctx context.Context, req *connect.Request[v2.GetMetricsV2Request]) (*connect.Response[v2.GetMetricsV2Response], error) {
+	return c.getMetricsV2.CallUnary(ctx, req)
+}
+
+// PollMetrics calls chalk.engine.v2.OfflineStoreService.PollMetrics.
+func (c *offlineStoreServiceClient) PollMetrics(ctx context.Context, req *connect.Request[v2.PollMetricsRequest]) (*connect.Response[v2.PollMetricsResponse], error) {
+	return c.pollMetrics.CallUnary(ctx, req)
+}
+
 // OfflineStoreServiceHandler is an implementation of the chalk.engine.v2.OfflineStoreService
 // service.
 type OfflineStoreServiceHandler interface {
@@ -147,6 +181,8 @@ type OfflineStoreServiceHandler interface {
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v2.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v2.GetFeatureValuesTimeSeriesChartResponse], error)
 	GetFeatureValues(context.Context, *connect.Request[v2.GetFeatureValuesRequest]) (*connect.Response[v2.GetFeatureValuesResponse], error)
 	GetMetrics(context.Context, *connect.Request[v2.GetMetricsRequest]) (*connect.Response[v2.GetMetricsResponse], error)
+	GetMetricsV2(context.Context, *connect.Request[v2.GetMetricsV2Request]) (*connect.Response[v2.GetMetricsV2Response], error)
+	PollMetrics(context.Context, *connect.Request[v2.PollMetricsRequest]) (*connect.Response[v2.PollMetricsResponse], error)
 }
 
 // NewOfflineStoreServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -187,6 +223,20 @@ func NewOfflineStoreServiceHandler(svc OfflineStoreServiceHandler, opts ...conne
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineStoreServiceGetMetricsV2Handler := connect.NewUnaryHandler(
+		OfflineStoreServiceGetMetricsV2Procedure,
+		svc.GetMetricsV2,
+		connect.WithSchema(offlineStoreServiceMethods.ByName("GetMetricsV2")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineStoreServicePollMetricsHandler := connect.NewUnaryHandler(
+		OfflineStoreServicePollMetricsProcedure,
+		svc.PollMetrics,
+		connect.WithSchema(offlineStoreServiceMethods.ByName("PollMetrics")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.engine.v2.OfflineStoreService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineStoreServiceGetQueryLogEntriesProcedure:
@@ -199,6 +249,10 @@ func NewOfflineStoreServiceHandler(svc OfflineStoreServiceHandler, opts ...conne
 			offlineStoreServiceGetFeatureValuesHandler.ServeHTTP(w, r)
 		case OfflineStoreServiceGetMetricsProcedure:
 			offlineStoreServiceGetMetricsHandler.ServeHTTP(w, r)
+		case OfflineStoreServiceGetMetricsV2Procedure:
+			offlineStoreServiceGetMetricsV2Handler.ServeHTTP(w, r)
+		case OfflineStoreServicePollMetricsProcedure:
+			offlineStoreServicePollMetricsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -226,4 +280,12 @@ func (UnimplementedOfflineStoreServiceHandler) GetFeatureValues(context.Context,
 
 func (UnimplementedOfflineStoreServiceHandler) GetMetrics(context.Context, *connect.Request[v2.GetMetricsRequest]) (*connect.Response[v2.GetMetricsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v2.OfflineStoreService.GetMetrics is not implemented"))
+}
+
+func (UnimplementedOfflineStoreServiceHandler) GetMetricsV2(context.Context, *connect.Request[v2.GetMetricsV2Request]) (*connect.Response[v2.GetMetricsV2Response], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v2.OfflineStoreService.GetMetricsV2 is not implemented"))
+}
+
+func (UnimplementedOfflineStoreServiceHandler) PollMetrics(context.Context, *connect.Request[v2.PollMetricsRequest]) (*connect.Response[v2.PollMetricsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v2.OfflineStoreService.PollMetrics is not implemented"))
 }

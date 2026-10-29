@@ -26,10 +26,12 @@ const (
 )
 
 type UsagePool struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name      string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Set once the pool is deleted; an archived pool is retained read-only.
+	ArchivedAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -81,6 +83,13 @@ func (x *UsagePool) GetName() string {
 func (x *UsagePool) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *UsagePool) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
 	}
 	return nil
 }
@@ -354,11 +363,13 @@ func (x *UpdateUsagePoolResponse) GetPool() *UsagePool {
 }
 
 type ListUsagePoolsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Limit  *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	// Include archived pools.
+	IncludeArchived *bool `protobuf:"varint,3,opt,name=include_archived,json=includeArchived,proto3,oneof" json:"include_archived,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ListUsagePoolsRequest) Reset() {
@@ -403,6 +414,13 @@ func (x *ListUsagePoolsRequest) GetCursor() string {
 		return *x.Cursor
 	}
 	return ""
+}
+
+func (x *ListUsagePoolsRequest) GetIncludeArchived() bool {
+	if x != nil && x.IncludeArchived != nil {
+		return *x.IncludeArchived
+	}
+	return false
 }
 
 type ListUsagePoolsResponse struct {
@@ -458,8 +476,14 @@ func (x *ListUsagePoolsResponse) GetNextCursor() string {
 }
 
 type GetUsagePoolRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Select a pool in the request environment. A nonempty lookup is required.
+	//
+	// Types that are valid to be assigned to Lookup:
+	//
+	//	*GetUsagePoolRequest_Id
+	//	*GetUsagePoolRequest_Name
+	Lookup        isGetUsagePoolRequest_Lookup `protobuf_oneof:"lookup"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -494,12 +518,48 @@ func (*GetUsagePoolRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_router_v1_usage_pool_proto_rawDescGZIP(), []int{8}
 }
 
+func (x *GetUsagePoolRequest) GetLookup() isGetUsagePoolRequest_Lookup {
+	if x != nil {
+		return x.Lookup
+	}
+	return nil
+}
+
 func (x *GetUsagePoolRequest) GetId() string {
 	if x != nil {
-		return x.Id
+		if x, ok := x.Lookup.(*GetUsagePoolRequest_Id); ok {
+			return x.Id
+		}
 	}
 	return ""
 }
+
+func (x *GetUsagePoolRequest) GetName() string {
+	if x != nil {
+		if x, ok := x.Lookup.(*GetUsagePoolRequest_Name); ok {
+			return x.Name
+		}
+	}
+	return ""
+}
+
+type isGetUsagePoolRequest_Lookup interface {
+	isGetUsagePoolRequest_Lookup()
+}
+
+type GetUsagePoolRequest_Id struct {
+	Id string `protobuf:"bytes,1,opt,name=id,proto3,oneof"`
+}
+
+type GetUsagePoolRequest_Name struct {
+	// Case-sensitive; surrounding whitespace is trimmed by the application.
+	// Resolves the active pool only; find an archived pool by id.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3,oneof"`
+}
+
+func (*GetUsagePoolRequest_Id) isGetUsagePoolRequest_Lookup() {}
+
+func (*GetUsagePoolRequest_Name) isGetUsagePoolRequest_Lookup() {}
 
 type GetUsagePoolResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -637,12 +697,14 @@ var File_chalk_router_v1_usage_pool_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_usage_pool_proto_rawDesc = "" +
 	"\n" +
-	" chalk/router/v1/usage_pool.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a chalk/router/v1/rate_limit.proto\x1a\"chalk/router/v1/usage_budget.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"j\n" +
+	" chalk/router/v1/usage_pool.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a chalk/router/v1/rate_limit.proto\x1a\"chalk/router/v1/usage_budget.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
 	"\tUsagePool\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
 	"\n" +
-	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb6\x01\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12;\n" +
+	"\varchived_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"archivedAt\"\xb6\x01\n" +
 	"\x16CreateUsagePoolRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12A\n" +
 	"\vrate_limits\x18\x02 \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
@@ -662,19 +724,23 @@ const file_chalk_router_v1_usage_pool_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"I\n" +
 	"\x17UpdateUsagePoolResponse\x12.\n" +
-	"\x04pool\x18\x01 \x01(\v2\x1a.chalk.router.v1.UsagePoolR\x04pool\"d\n" +
+	"\x04pool\x18\x01 \x01(\v2\x1a.chalk.router.v1.UsagePoolR\x04pool\"\xa9\x01\n" +
 	"\x15ListUsagePoolsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12.\n" +
+	"\x10include_archived\x18\x03 \x01(\bH\x02R\x0fincludeArchived\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursor\"\x80\x01\n" +
+	"\a_cursorB\x13\n" +
+	"\x11_include_archived\"\x80\x01\n" +
 	"\x16ListUsagePoolsResponse\x120\n" +
 	"\x05pools\x18\x01 \x03(\v2\x1a.chalk.router.v1.UsagePoolR\x05pools\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"%\n" +
-	"\x13GetUsagePoolRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"F\n" +
+	"\f_next_cursor\"G\n" +
+	"\x13GetUsagePoolRequest\x12\x10\n" +
+	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x12\x14\n" +
+	"\x04name\x18\x02 \x01(\tH\x00R\x04nameB\b\n" +
+	"\x06lookup\"F\n" +
 	"\x14GetUsagePoolResponse\x12.\n" +
 	"\x04pool\x18\x01 \x01(\v2\x1a.chalk.router.v1.UsagePoolR\x04pool\"(\n" +
 	"\x16DeleteUsagePoolRequest\x12\x0e\n" +
@@ -723,31 +789,32 @@ var file_chalk_router_v1_usage_pool_proto_goTypes = []any{
 }
 var file_chalk_router_v1_usage_pool_proto_depIdxs = []int32{
 	12, // 0: chalk.router.v1.UsagePool.created_at:type_name -> google.protobuf.Timestamp
-	13, // 1: chalk.router.v1.CreateUsagePoolRequest.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
-	14, // 2: chalk.router.v1.CreateUsagePoolRequest.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
-	0,  // 3: chalk.router.v1.CreateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
-	13, // 4: chalk.router.v1.UpdateUsagePoolOperation.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
-	14, // 5: chalk.router.v1.UpdateUsagePoolOperation.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
-	3,  // 6: chalk.router.v1.UpdateUsagePoolRequest.update:type_name -> chalk.router.v1.UpdateUsagePoolOperation
-	15, // 7: chalk.router.v1.UpdateUsagePoolRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 8: chalk.router.v1.UpdateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
-	0,  // 9: chalk.router.v1.ListUsagePoolsResponse.pools:type_name -> chalk.router.v1.UsagePool
-	0,  // 10: chalk.router.v1.GetUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
-	1,  // 11: chalk.router.v1.UsagePoolService.CreateUsagePool:input_type -> chalk.router.v1.CreateUsagePoolRequest
-	4,  // 12: chalk.router.v1.UsagePoolService.UpdateUsagePool:input_type -> chalk.router.v1.UpdateUsagePoolRequest
-	6,  // 13: chalk.router.v1.UsagePoolService.ListUsagePools:input_type -> chalk.router.v1.ListUsagePoolsRequest
-	8,  // 14: chalk.router.v1.UsagePoolService.GetUsagePool:input_type -> chalk.router.v1.GetUsagePoolRequest
-	10, // 15: chalk.router.v1.UsagePoolService.DeleteUsagePool:input_type -> chalk.router.v1.DeleteUsagePoolRequest
-	2,  // 16: chalk.router.v1.UsagePoolService.CreateUsagePool:output_type -> chalk.router.v1.CreateUsagePoolResponse
-	5,  // 17: chalk.router.v1.UsagePoolService.UpdateUsagePool:output_type -> chalk.router.v1.UpdateUsagePoolResponse
-	7,  // 18: chalk.router.v1.UsagePoolService.ListUsagePools:output_type -> chalk.router.v1.ListUsagePoolsResponse
-	9,  // 19: chalk.router.v1.UsagePoolService.GetUsagePool:output_type -> chalk.router.v1.GetUsagePoolResponse
-	11, // 20: chalk.router.v1.UsagePoolService.DeleteUsagePool:output_type -> chalk.router.v1.DeleteUsagePoolResponse
-	16, // [16:21] is the sub-list for method output_type
-	11, // [11:16] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	12, // 1: chalk.router.v1.UsagePool.archived_at:type_name -> google.protobuf.Timestamp
+	13, // 2: chalk.router.v1.CreateUsagePoolRequest.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	14, // 3: chalk.router.v1.CreateUsagePoolRequest.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
+	0,  // 4: chalk.router.v1.CreateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
+	13, // 5: chalk.router.v1.UpdateUsagePoolOperation.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	14, // 6: chalk.router.v1.UpdateUsagePoolOperation.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
+	3,  // 7: chalk.router.v1.UpdateUsagePoolRequest.update:type_name -> chalk.router.v1.UpdateUsagePoolOperation
+	15, // 8: chalk.router.v1.UpdateUsagePoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 9: chalk.router.v1.UpdateUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
+	0,  // 10: chalk.router.v1.ListUsagePoolsResponse.pools:type_name -> chalk.router.v1.UsagePool
+	0,  // 11: chalk.router.v1.GetUsagePoolResponse.pool:type_name -> chalk.router.v1.UsagePool
+	1,  // 12: chalk.router.v1.UsagePoolService.CreateUsagePool:input_type -> chalk.router.v1.CreateUsagePoolRequest
+	4,  // 13: chalk.router.v1.UsagePoolService.UpdateUsagePool:input_type -> chalk.router.v1.UpdateUsagePoolRequest
+	6,  // 14: chalk.router.v1.UsagePoolService.ListUsagePools:input_type -> chalk.router.v1.ListUsagePoolsRequest
+	8,  // 15: chalk.router.v1.UsagePoolService.GetUsagePool:input_type -> chalk.router.v1.GetUsagePoolRequest
+	10, // 16: chalk.router.v1.UsagePoolService.DeleteUsagePool:input_type -> chalk.router.v1.DeleteUsagePoolRequest
+	2,  // 17: chalk.router.v1.UsagePoolService.CreateUsagePool:output_type -> chalk.router.v1.CreateUsagePoolResponse
+	5,  // 18: chalk.router.v1.UsagePoolService.UpdateUsagePool:output_type -> chalk.router.v1.UpdateUsagePoolResponse
+	7,  // 19: chalk.router.v1.UsagePoolService.ListUsagePools:output_type -> chalk.router.v1.ListUsagePoolsResponse
+	9,  // 20: chalk.router.v1.UsagePoolService.GetUsagePool:output_type -> chalk.router.v1.GetUsagePoolResponse
+	11, // 21: chalk.router.v1.UsagePoolService.DeleteUsagePool:output_type -> chalk.router.v1.DeleteUsagePoolResponse
+	17, // [17:22] is the sub-list for method output_type
+	12, // [12:17] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_usage_pool_proto_init() }
@@ -760,6 +827,10 @@ func file_chalk_router_v1_usage_pool_proto_init() {
 	file_chalk_router_v1_usage_pool_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_router_v1_usage_pool_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_router_v1_usage_pool_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_router_v1_usage_pool_proto_msgTypes[8].OneofWrappers = []any{
+		(*GetUsagePoolRequest_Id)(nil),
+		(*GetUsagePoolRequest_Name)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

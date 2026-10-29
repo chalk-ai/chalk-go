@@ -152,8 +152,11 @@ type ProviderConnection struct {
 	CreatedAt            *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt            *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	DeclaredCapabilities *structpb.Struct       `protobuf:"bytes,11,opt,name=declared_capabilities,json=declaredCapabilities,proto3" json:"declared_capabilities,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Set once the connection is deleted; its credential is purged and the row
+	// is retained read-only.
+	ArchivedAt    *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ProviderConnection) Reset() {
@@ -263,6 +266,13 @@ func (x *ProviderConnection) GetDeclaredCapabilities() *structpb.Struct {
 	return nil
 }
 
+func (x *ProviderConnection) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
 type ProviderConnectionDraft struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProviderKind  string                 `protobuf:"bytes,1,opt,name=provider_kind,json=providerKind,proto3" json:"provider_kind,omitempty"`
@@ -340,11 +350,13 @@ func (x *ProviderConnectionDraft) GetApiKey() string {
 }
 
 type ListProviderConnectionsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Limit  *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	// Include archived connections.
+	IncludeArchived *bool `protobuf:"varint,3,opt,name=include_archived,json=includeArchived,proto3,oneof" json:"include_archived,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ListProviderConnectionsRequest) Reset() {
@@ -389,6 +401,13 @@ func (x *ListProviderConnectionsRequest) GetCursor() string {
 		return *x.Cursor
 	}
 	return ""
+}
+
+func (x *ListProviderConnectionsRequest) GetIncludeArchived() bool {
+	if x != nil && x.IncludeArchived != nil {
+		return *x.IncludeArchived
+	}
+	return false
 }
 
 type ListProviderConnectionsResponse struct {
@@ -1314,7 +1333,7 @@ const file_chalk_router_v1_provider_connection_proto_rawDesc = "" +
 	"unreadable\x12\x1d\n" +
 	"\ahealthy\x18\x03 \x01(\bH\x00R\ahealthy\x88\x01\x01B\n" +
 	"\n" +
-	"\b_healthy\"\x94\x04\n" +
+	"\b_healthy\"\xd1\x04\n" +
 	"\x12ProviderConnection\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
@@ -1329,7 +1348,9 @@ const file_chalk_router_v1_provider_connection_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12L\n" +
-	"\x15declared_capabilities\x18\v \x01(\v2\x17.google.protobuf.StructR\x14declaredCapabilitiesB\v\n" +
+	"\x15declared_capabilities\x18\v \x01(\v2\x17.google.protobuf.StructR\x14declaredCapabilities\x12;\n" +
+	"\varchived_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"archivedAtB\v\n" +
 	"\t_base_urlB\t\n" +
 	"\a_prefix\"\xe9\x01\n" +
 	"\x17ProviderConnectionDraft\x12#\n" +
@@ -1339,12 +1360,14 @@ const file_chalk_router_v1_provider_connection_proto_rawDesc = "" +
 	"\bexposure\x18\x04 \x01(\x0e2\x1f.chalk.router.v1.ExposurePolicyR\bexposure\x12\x17\n" +
 	"\aapi_key\x18\x05 \x01(\tR\x06apiKeyB\v\n" +
 	"\t_base_urlB\t\n" +
-	"\a_prefix\"m\n" +
+	"\a_prefix\"\xb2\x01\n" +
 	"\x1eListProviderConnectionsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12.\n" +
+	"\x10include_archived\x18\x03 \x01(\bH\x02R\x0fincludeArchived\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursor\"\x9e\x01\n" +
+	"\a_cursorB\x13\n" +
+	"\x11_include_archived\"\x9e\x01\n" +
 	"\x1fListProviderConnectionsResponse\x12E\n" +
 	"\vconnections\x18\x01 \x03(\v2#.chalk.router.v1.ProviderConnectionR\vconnections\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
@@ -1484,40 +1507,41 @@ var file_chalk_router_v1_provider_connection_proto_depIdxs = []int32{
 	20, // 2: chalk.router.v1.ProviderConnection.created_at:type_name -> google.protobuf.Timestamp
 	20, // 3: chalk.router.v1.ProviderConnection.updated_at:type_name -> google.protobuf.Timestamp
 	21, // 4: chalk.router.v1.ProviderConnection.declared_capabilities:type_name -> google.protobuf.Struct
-	0,  // 5: chalk.router.v1.ProviderConnectionDraft.exposure:type_name -> chalk.router.v1.ExposurePolicy
-	2,  // 6: chalk.router.v1.ListProviderConnectionsResponse.connections:type_name -> chalk.router.v1.ProviderConnection
-	21, // 7: chalk.router.v1.ProviderConnectionModel.capabilities:type_name -> google.protobuf.Struct
-	7,  // 8: chalk.router.v1.ListProviderConnectionModelsRequest.filters:type_name -> chalk.router.v1.ListProviderConnectionModelsFilters
-	6,  // 9: chalk.router.v1.ListProviderConnectionModelsResponse.models:type_name -> chalk.router.v1.ProviderConnectionModel
-	0,  // 10: chalk.router.v1.CreateProviderConnectionRequest.exposure:type_name -> chalk.router.v1.ExposurePolicy
-	21, // 11: chalk.router.v1.CreateProviderConnectionRequest.declared_capabilities:type_name -> google.protobuf.Struct
-	2,  // 12: chalk.router.v1.CreateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
-	0,  // 13: chalk.router.v1.UpdateProviderConnectionOperation.exposure:type_name -> chalk.router.v1.ExposurePolicy
-	21, // 14: chalk.router.v1.UpdateProviderConnectionOperation.declared_capabilities:type_name -> google.protobuf.Struct
-	12, // 15: chalk.router.v1.UpdateProviderConnectionRequest.update:type_name -> chalk.router.v1.UpdateProviderConnectionOperation
-	22, // 16: chalk.router.v1.UpdateProviderConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 17: chalk.router.v1.UpdateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
-	3,  // 18: chalk.router.v1.SavedProviderConnectionDraft.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
-	3,  // 19: chalk.router.v1.TestProviderConnectionRequest.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
-	17, // 20: chalk.router.v1.TestProviderConnectionRequest.saved_draft:type_name -> chalk.router.v1.SavedProviderConnectionDraft
-	23, // 21: chalk.router.v1.TestProviderConnectionResponse.latency:type_name -> google.protobuf.Duration
-	4,  // 22: chalk.router.v1.ProviderConnectionService.ListProviderConnections:input_type -> chalk.router.v1.ListProviderConnectionsRequest
-	8,  // 23: chalk.router.v1.ProviderConnectionService.ListProviderConnectionModels:input_type -> chalk.router.v1.ListProviderConnectionModelsRequest
-	10, // 24: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:input_type -> chalk.router.v1.CreateProviderConnectionRequest
-	13, // 25: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:input_type -> chalk.router.v1.UpdateProviderConnectionRequest
-	15, // 26: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:input_type -> chalk.router.v1.DeleteProviderConnectionRequest
-	18, // 27: chalk.router.v1.ProviderConnectionService.TestProviderConnection:input_type -> chalk.router.v1.TestProviderConnectionRequest
-	5,  // 28: chalk.router.v1.ProviderConnectionService.ListProviderConnections:output_type -> chalk.router.v1.ListProviderConnectionsResponse
-	9,  // 29: chalk.router.v1.ProviderConnectionService.ListProviderConnectionModels:output_type -> chalk.router.v1.ListProviderConnectionModelsResponse
-	11, // 30: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:output_type -> chalk.router.v1.CreateProviderConnectionResponse
-	14, // 31: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:output_type -> chalk.router.v1.UpdateProviderConnectionResponse
-	16, // 32: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:output_type -> chalk.router.v1.DeleteProviderConnectionResponse
-	19, // 33: chalk.router.v1.ProviderConnectionService.TestProviderConnection:output_type -> chalk.router.v1.TestProviderConnectionResponse
-	28, // [28:34] is the sub-list for method output_type
-	22, // [22:28] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	20, // 5: chalk.router.v1.ProviderConnection.archived_at:type_name -> google.protobuf.Timestamp
+	0,  // 6: chalk.router.v1.ProviderConnectionDraft.exposure:type_name -> chalk.router.v1.ExposurePolicy
+	2,  // 7: chalk.router.v1.ListProviderConnectionsResponse.connections:type_name -> chalk.router.v1.ProviderConnection
+	21, // 8: chalk.router.v1.ProviderConnectionModel.capabilities:type_name -> google.protobuf.Struct
+	7,  // 9: chalk.router.v1.ListProviderConnectionModelsRequest.filters:type_name -> chalk.router.v1.ListProviderConnectionModelsFilters
+	6,  // 10: chalk.router.v1.ListProviderConnectionModelsResponse.models:type_name -> chalk.router.v1.ProviderConnectionModel
+	0,  // 11: chalk.router.v1.CreateProviderConnectionRequest.exposure:type_name -> chalk.router.v1.ExposurePolicy
+	21, // 12: chalk.router.v1.CreateProviderConnectionRequest.declared_capabilities:type_name -> google.protobuf.Struct
+	2,  // 13: chalk.router.v1.CreateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
+	0,  // 14: chalk.router.v1.UpdateProviderConnectionOperation.exposure:type_name -> chalk.router.v1.ExposurePolicy
+	21, // 15: chalk.router.v1.UpdateProviderConnectionOperation.declared_capabilities:type_name -> google.protobuf.Struct
+	12, // 16: chalk.router.v1.UpdateProviderConnectionRequest.update:type_name -> chalk.router.v1.UpdateProviderConnectionOperation
+	22, // 17: chalk.router.v1.UpdateProviderConnectionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 18: chalk.router.v1.UpdateProviderConnectionResponse.connection:type_name -> chalk.router.v1.ProviderConnection
+	3,  // 19: chalk.router.v1.SavedProviderConnectionDraft.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
+	3,  // 20: chalk.router.v1.TestProviderConnectionRequest.draft:type_name -> chalk.router.v1.ProviderConnectionDraft
+	17, // 21: chalk.router.v1.TestProviderConnectionRequest.saved_draft:type_name -> chalk.router.v1.SavedProviderConnectionDraft
+	23, // 22: chalk.router.v1.TestProviderConnectionResponse.latency:type_name -> google.protobuf.Duration
+	4,  // 23: chalk.router.v1.ProviderConnectionService.ListProviderConnections:input_type -> chalk.router.v1.ListProviderConnectionsRequest
+	8,  // 24: chalk.router.v1.ProviderConnectionService.ListProviderConnectionModels:input_type -> chalk.router.v1.ListProviderConnectionModelsRequest
+	10, // 25: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:input_type -> chalk.router.v1.CreateProviderConnectionRequest
+	13, // 26: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:input_type -> chalk.router.v1.UpdateProviderConnectionRequest
+	15, // 27: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:input_type -> chalk.router.v1.DeleteProviderConnectionRequest
+	18, // 28: chalk.router.v1.ProviderConnectionService.TestProviderConnection:input_type -> chalk.router.v1.TestProviderConnectionRequest
+	5,  // 29: chalk.router.v1.ProviderConnectionService.ListProviderConnections:output_type -> chalk.router.v1.ListProviderConnectionsResponse
+	9,  // 30: chalk.router.v1.ProviderConnectionService.ListProviderConnectionModels:output_type -> chalk.router.v1.ListProviderConnectionModelsResponse
+	11, // 31: chalk.router.v1.ProviderConnectionService.CreateProviderConnection:output_type -> chalk.router.v1.CreateProviderConnectionResponse
+	14, // 32: chalk.router.v1.ProviderConnectionService.UpdateProviderConnection:output_type -> chalk.router.v1.UpdateProviderConnectionResponse
+	16, // 33: chalk.router.v1.ProviderConnectionService.DeleteProviderConnection:output_type -> chalk.router.v1.DeleteProviderConnectionResponse
+	19, // 34: chalk.router.v1.ProviderConnectionService.TestProviderConnection:output_type -> chalk.router.v1.TestProviderConnectionResponse
+	29, // [29:35] is the sub-list for method output_type
+	23, // [23:29] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_provider_connection_proto_init() }
