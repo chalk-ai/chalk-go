@@ -24,6 +24,282 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type FnqKubernetesPod struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Name      string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Uid       string                 `protobuf:"bytes,3,opt,name=uid,proto3" json:"uid,omitempty"`
+	// Projected service-account token bound to this pod incarnation.
+	IdentityToken string `protobuf:"bytes,4,opt,name=identity_token,json=identityToken,proto3" json:"identity_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FnqKubernetesPod) Reset() {
+	*x = FnqKubernetesPod{}
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FnqKubernetesPod) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FnqKubernetesPod) ProtoMessage() {}
+
+func (x *FnqKubernetesPod) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FnqKubernetesPod.ProtoReflect.Descriptor instead.
+func (*FnqKubernetesPod) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *FnqKubernetesPod) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *FnqKubernetesPod) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *FnqKubernetesPod) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *FnqKubernetesPod) GetIdentityToken() string {
+	if x != nil {
+		return x.IdentityToken
+	}
+	return ""
+}
+
+type FnqHostContainer struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Namespace    string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	ResourceName string                 `protobuf:"bytes,2,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
+	ResourceUid  string                 `protobuf:"bytes,3,opt,name=resource_uid,json=resourceUid,proto3" json:"resource_uid,omitempty"`
+	// Controller-provisioned proof bound to this ChalkContainer incarnation.
+	IdentityToken string `protobuf:"bytes,4,opt,name=identity_token,json=identityToken,proto3" json:"identity_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FnqHostContainer) Reset() {
+	*x = FnqHostContainer{}
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FnqHostContainer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FnqHostContainer) ProtoMessage() {}
+
+func (x *FnqHostContainer) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FnqHostContainer.ProtoReflect.Descriptor instead.
+func (*FnqHostContainer) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *FnqHostContainer) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *FnqHostContainer) GetResourceName() string {
+	if x != nil {
+		return x.ResourceName
+	}
+	return ""
+}
+
+func (x *FnqHostContainer) GetResourceUid() string {
+	if x != nil {
+		return x.ResourceUid
+	}
+	return ""
+}
+
+func (x *FnqHostContainer) GetIdentityToken() string {
+	if x != nil {
+		return x.IdentityToken
+	}
+	return ""
+}
+
+type RegisterConsumerRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifies one shim process within the replica incarnation.
+	ConsumerId string `protobuf:"bytes,1,opt,name=consumer_id,json=consumerId,proto3" json:"consumer_id,omitempty"`
+	// The server verifies ownership and resolves the runtime destination.
+	//
+	// Types that are valid to be assigned to Replica:
+	//
+	//	*RegisterConsumerRequest_KubernetesPod
+	//	*RegisterConsumerRequest_HostContainer
+	Replica       isRegisterConsumerRequest_Replica `protobuf_oneof:"replica"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterConsumerRequest) Reset() {
+	*x = RegisterConsumerRequest{}
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterConsumerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterConsumerRequest) ProtoMessage() {}
+
+func (x *RegisterConsumerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterConsumerRequest.ProtoReflect.Descriptor instead.
+func (*RegisterConsumerRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RegisterConsumerRequest) GetConsumerId() string {
+	if x != nil {
+		return x.ConsumerId
+	}
+	return ""
+}
+
+func (x *RegisterConsumerRequest) GetReplica() isRegisterConsumerRequest_Replica {
+	if x != nil {
+		return x.Replica
+	}
+	return nil
+}
+
+func (x *RegisterConsumerRequest) GetKubernetesPod() *FnqKubernetesPod {
+	if x != nil {
+		if x, ok := x.Replica.(*RegisterConsumerRequest_KubernetesPod); ok {
+			return x.KubernetesPod
+		}
+	}
+	return nil
+}
+
+func (x *RegisterConsumerRequest) GetHostContainer() *FnqHostContainer {
+	if x != nil {
+		if x, ok := x.Replica.(*RegisterConsumerRequest_HostContainer); ok {
+			return x.HostContainer
+		}
+	}
+	return nil
+}
+
+type isRegisterConsumerRequest_Replica interface {
+	isRegisterConsumerRequest_Replica()
+}
+
+type RegisterConsumerRequest_KubernetesPod struct {
+	KubernetesPod *FnqKubernetesPod `protobuf:"bytes,2,opt,name=kubernetes_pod,json=kubernetesPod,proto3,oneof"`
+}
+
+type RegisterConsumerRequest_HostContainer struct {
+	HostContainer *FnqHostContainer `protobuf:"bytes,3,opt,name=host_container,json=hostContainer,proto3,oneof"`
+}
+
+func (*RegisterConsumerRequest_KubernetesPod) isRegisterConsumerRequest_Replica() {}
+
+func (*RegisterConsumerRequest_HostContainer) isRegisterConsumerRequest_Replica() {}
+
+type RegisterConsumerResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Server-owned identity referenced by acquisition and execution records.
+	ConsumerInstanceId string `protobuf:"bytes,1,opt,name=consumer_instance_id,json=consumerInstanceId,proto3" json:"consumer_instance_id,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *RegisterConsumerResponse) Reset() {
+	*x = RegisterConsumerResponse{}
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterConsumerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterConsumerResponse) ProtoMessage() {}
+
+func (x *RegisterConsumerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterConsumerResponse.ProtoReflect.Descriptor instead.
+func (*RegisterConsumerResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RegisterConsumerResponse) GetConsumerInstanceId() string {
+	if x != nil {
+		return x.ConsumerInstanceId
+	}
+	return ""
+}
+
 type AcquireWorkRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Deployment queue to consume, supplied by the shim's CHALK_FNQ_FUNCTION_NAME.
@@ -36,14 +312,16 @@ type AcquireWorkRequest struct {
 	// How long acquired work remains leased without renewal.
 	LeaseDurationSeconds uint32 `protobuf:"varint,5,opt,name=lease_duration_seconds,json=leaseDurationSeconds,proto3" json:"lease_duration_seconds,omitempty"`
 	// Identifies the shim process across acquisition requests.
-	ConsumerId    string `protobuf:"bytes,6,opt,name=consumer_id,json=consumerId,proto3" json:"consumer_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ConsumerId string `protobuf:"bytes,6,opt,name=consumer_id,json=consumerId,proto3" json:"consumer_id,omitempty"`
+	// Registered replica/process identity for cancellation-aware consumers.
+	ConsumerInstanceId string `protobuf:"bytes,7,opt,name=consumer_instance_id,json=consumerInstanceId,proto3" json:"consumer_instance_id,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *AcquireWorkRequest) Reset() {
 	*x = AcquireWorkRequest{}
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[0]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -55,7 +333,7 @@ func (x *AcquireWorkRequest) String() string {
 func (*AcquireWorkRequest) ProtoMessage() {}
 
 func (x *AcquireWorkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[0]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -68,7 +346,7 @@ func (x *AcquireWorkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcquireWorkRequest.ProtoReflect.Descriptor instead.
 func (*AcquireWorkRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{0}
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AcquireWorkRequest) GetFunctionName() string {
@@ -113,6 +391,93 @@ func (x *AcquireWorkRequest) GetConsumerId() string {
 	return ""
 }
 
+func (x *AcquireWorkRequest) GetConsumerInstanceId() string {
+	if x != nil {
+		return x.ConsumerInstanceId
+	}
+	return ""
+}
+
+type StartWorkRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkHandle    string                 `protobuf:"bytes,1,opt,name=work_handle,json=workHandle,proto3" json:"work_handle,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartWorkRequest) Reset() {
+	*x = StartWorkRequest{}
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartWorkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartWorkRequest) ProtoMessage() {}
+
+func (x *StartWorkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartWorkRequest.ProtoReflect.Descriptor instead.
+func (*StartWorkRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *StartWorkRequest) GetWorkHandle() string {
+	if x != nil {
+		return x.WorkHandle
+	}
+	return ""
+}
+
+type StartWorkResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartWorkResponse) Reset() {
+	*x = StartWorkResponse{}
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartWorkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartWorkResponse) ProtoMessage() {}
+
+func (x *StartWorkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartWorkResponse.ProtoReflect.Descriptor instead.
+func (*StartWorkResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{6}
+}
+
 // A queued call leased to a worker for one execution attempt.
 type FnqWork struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -135,7 +500,7 @@ type FnqWork struct {
 
 func (x *FnqWork) Reset() {
 	*x = FnqWork{}
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[1]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -147,7 +512,7 @@ func (x *FnqWork) String() string {
 func (*FnqWork) ProtoMessage() {}
 
 func (x *FnqWork) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[1]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -160,7 +525,7 @@ func (x *FnqWork) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FnqWork.ProtoReflect.Descriptor instead.
 func (*FnqWork) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{1}
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *FnqWork) GetWorkHandle() string {
@@ -221,7 +586,7 @@ type AcquireWorkResponse struct {
 
 func (x *AcquireWorkResponse) Reset() {
 	*x = AcquireWorkResponse{}
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[2]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +598,7 @@ func (x *AcquireWorkResponse) String() string {
 func (*AcquireWorkResponse) ProtoMessage() {}
 
 func (x *AcquireWorkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[2]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +611,7 @@ func (x *AcquireWorkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcquireWorkResponse.ProtoReflect.Descriptor instead.
 func (*AcquireWorkResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{2}
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *AcquireWorkResponse) GetWork() *FnqWork {
@@ -265,7 +630,7 @@ type RenewWorkRequest struct {
 
 func (x *RenewWorkRequest) Reset() {
 	*x = RenewWorkRequest{}
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[3]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -277,7 +642,7 @@ func (x *RenewWorkRequest) String() string {
 func (*RenewWorkRequest) ProtoMessage() {}
 
 func (x *RenewWorkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[3]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -290,7 +655,7 @@ func (x *RenewWorkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenewWorkRequest.ProtoReflect.Descriptor instead.
 func (*RenewWorkRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{3}
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RenewWorkRequest) GetWorkHandles() []string {
@@ -305,13 +670,16 @@ type RenewWorkResponse struct {
 	// Lease attempts this worker no longer owns and must stop renewing or reporting.
 	LostWorkHandles []string                          `protobuf:"bytes,1,rep,name=lost_work_handles,json=lostWorkHandles,proto3" json:"lost_work_handles,omitempty"`
 	LeaseExpiresAt  map[string]*timestamppb.Timestamp `protobuf:"bytes,2,rep,name=lease_expires_at,json=leaseExpiresAt,proto3" json:"lease_expires_at,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Logically cancelled executions that still hold their concurrency reservation.
+	// Running handlers may finish and must continue renewing until cleanup.
+	CancelledWorkHandles []string `protobuf:"bytes,3,rep,name=cancelled_work_handles,json=cancelledWorkHandles,proto3" json:"cancelled_work_handles,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *RenewWorkResponse) Reset() {
 	*x = RenewWorkResponse{}
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[4]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -323,7 +691,7 @@ func (x *RenewWorkResponse) String() string {
 func (*RenewWorkResponse) ProtoMessage() {}
 
 func (x *RenewWorkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[4]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -336,7 +704,7 @@ func (x *RenewWorkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenewWorkResponse.ProtoReflect.Descriptor instead.
 func (*RenewWorkResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{4}
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RenewWorkResponse) GetLostWorkHandles() []string {
@@ -349,6 +717,13 @@ func (x *RenewWorkResponse) GetLostWorkHandles() []string {
 func (x *RenewWorkResponse) GetLeaseExpiresAt() map[string]*timestamppb.Timestamp {
 	if x != nil {
 		return x.LeaseExpiresAt
+	}
+	return nil
+}
+
+func (x *RenewWorkResponse) GetCancelledWorkHandles() []string {
+	if x != nil {
+		return x.CancelledWorkHandles
 	}
 	return nil
 }
@@ -374,7 +749,7 @@ type ReportResultsRequest struct {
 
 func (x *ReportResultsRequest) Reset() {
 	*x = ReportResultsRequest{}
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[5]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -386,7 +761,7 @@ func (x *ReportResultsRequest) String() string {
 func (*ReportResultsRequest) ProtoMessage() {}
 
 func (x *ReportResultsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[5]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -399,7 +774,7 @@ func (x *ReportResultsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportResultsRequest.ProtoReflect.Descriptor instead.
 func (*ReportResultsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{5}
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ReportResultsRequest) GetWorkHandle() string {
@@ -499,14 +874,17 @@ func (*ReportResultsRequest_Error) isReportResultsRequest_Result() {}
 func (*ReportResultsRequest_Retry) isReportResultsRequest_Result() {}
 
 type ReportResultsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The call is cancelled. Its output is discarded while execution cleanup is
+	// acknowledged, so a running handler can finish without retrying the call.
+	OutputDiscardedCancelled bool `protobuf:"varint,1,opt,name=output_discarded_cancelled,json=outputDiscardedCancelled,proto3" json:"output_discarded_cancelled,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *ReportResultsResponse) Reset() {
 	*x = ReportResultsResponse{}
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[6]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -518,7 +896,7 @@ func (x *ReportResultsResponse) String() string {
 func (*ReportResultsResponse) ProtoMessage() {}
 
 func (x *ReportResultsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[6]
+	mi := &file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -531,14 +909,39 @@ func (x *ReportResultsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportResultsResponse.ProtoReflect.Descriptor instead.
 func (*ReportResultsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{6}
+	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ReportResultsResponse) GetOutputDiscardedCancelled() bool {
+	if x != nil {
+		return x.OutputDiscardedCancelled
+	}
+	return false
 }
 
 var File_chalk_runtime_v1_fnq_consumer_proto protoreflect.FileDescriptor
 
 const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/runtime/v1/fnq_consumer.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf3\x01\n" +
+	"#chalk/runtime/v1/fnq_consumer.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"}\n" +
+	"\x10FnqKubernetesPod\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
+	"\x03uid\x18\x03 \x01(\tR\x03uid\x12%\n" +
+	"\x0eidentity_token\x18\x04 \x01(\tR\ridentityToken\"\x9f\x01\n" +
+	"\x10FnqHostContainer\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12#\n" +
+	"\rresource_name\x18\x02 \x01(\tR\fresourceName\x12!\n" +
+	"\fresource_uid\x18\x03 \x01(\tR\vresourceUid\x12%\n" +
+	"\x0eidentity_token\x18\x04 \x01(\tR\ridentityToken\"\xdf\x01\n" +
+	"\x17RegisterConsumerRequest\x12\x1f\n" +
+	"\vconsumer_id\x18\x01 \x01(\tR\n" +
+	"consumerId\x12K\n" +
+	"\x0ekubernetes_pod\x18\x02 \x01(\v2\".chalk.runtime.v1.FnqKubernetesPodH\x00R\rkubernetesPod\x12K\n" +
+	"\x0ehost_container\x18\x03 \x01(\v2\".chalk.runtime.v1.FnqHostContainerH\x00R\rhostContainerB\t\n" +
+	"\areplica\"L\n" +
+	"\x18RegisterConsumerResponse\x120\n" +
+	"\x14consumer_instance_id\x18\x01 \x01(\tR\x12consumerInstanceId\"\xa5\x02\n" +
 	"\x12AcquireWorkRequest\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12\x1d\n" +
 	"\n" +
@@ -547,7 +950,12 @@ const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\x0emax_concurrent\x18\x04 \x01(\rR\rmaxConcurrent\x124\n" +
 	"\x16lease_duration_seconds\x18\x05 \x01(\rR\x14leaseDurationSeconds\x12\x1f\n" +
 	"\vconsumer_id\x18\x06 \x01(\tR\n" +
-	"consumerId\"\x83\x03\n" +
+	"consumerId\x120\n" +
+	"\x14consumer_instance_id\x18\a \x01(\tR\x12consumerInstanceId\"3\n" +
+	"\x10StartWorkRequest\x12\x1f\n" +
+	"\vwork_handle\x18\x01 \x01(\tR\n" +
+	"workHandle\"\x13\n" +
+	"\x11StartWorkResponse\"\x83\x03\n" +
 	"\aFnqWork\x12\x1f\n" +
 	"\vwork_handle\x18\x01 \x01(\tR\n" +
 	"workHandle\x12\x17\n" +
@@ -563,10 +971,11 @@ const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\x13AcquireWorkResponse\x12-\n" +
 	"\x04work\x18\x01 \x01(\v2\x19.chalk.runtime.v1.FnqWorkR\x04work\"5\n" +
 	"\x10RenewWorkRequest\x12!\n" +
-	"\fwork_handles\x18\x01 \x03(\tR\vworkHandles\"\x81\x02\n" +
+	"\fwork_handles\x18\x01 \x03(\tR\vworkHandles\"\xb7\x02\n" +
 	"\x11RenewWorkResponse\x12*\n" +
 	"\x11lost_work_handles\x18\x01 \x03(\tR\x0flostWorkHandles\x12a\n" +
-	"\x10lease_expires_at\x18\x02 \x03(\v27.chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntryR\x0eleaseExpiresAt\x1a]\n" +
+	"\x10lease_expires_at\x18\x02 \x03(\v27.chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntryR\x0eleaseExpiresAt\x124\n" +
+	"\x16cancelled_work_handles\x18\x03 \x03(\tR\x14cancelledWorkHandles\x1a]\n" +
 	"\x13LeaseExpiresAtEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x120\n" +
 	"\x05value\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05value:\x028\x01\"\xba\x02\n" +
@@ -579,10 +988,13 @@ const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\x03end\x18\x05 \x01(\v2\x16.google.protobuf.EmptyH\x00R\x03end\x127\n" +
 	"\x05error\x18\x06 \x01(\v2\x1f.chalk.common.v1.ChalkExceptionH\x00R\x05error\x12.\n" +
 	"\x05retry\x18\a \x01(\v2\x16.google.protobuf.EmptyH\x00R\x05retryB\b\n" +
-	"\x06result\"\x17\n" +
-	"\x15ReportResultsResponse2\xaa\x02\n" +
-	"\x12FnqConsumerService\x12\\\n" +
+	"\x06result\"U\n" +
+	"\x15ReportResultsResponse\x12<\n" +
+	"\x1aoutput_discarded_cancelled\x18\x01 \x01(\bR\x18outputDiscardedCancelled2\xeb\x03\n" +
+	"\x12FnqConsumerService\x12i\n" +
+	"\x10RegisterConsumer\x12).chalk.runtime.v1.RegisterConsumerRequest\x1a*.chalk.runtime.v1.RegisterConsumerResponse\x12\\\n" +
 	"\vAcquireWork\x12$.chalk.runtime.v1.AcquireWorkRequest\x1a%.chalk.runtime.v1.AcquireWorkResponse0\x01\x12T\n" +
+	"\tStartWork\x12\".chalk.runtime.v1.StartWorkRequest\x1a#.chalk.runtime.v1.StartWorkResponse\x12T\n" +
 	"\tRenewWork\x12\".chalk.runtime.v1.RenewWorkRequest\x1a#.chalk.runtime.v1.RenewWorkResponse\x12`\n" +
 	"\rReportResults\x12&.chalk.runtime.v1.ReportResultsRequest\x1a'.chalk.runtime.v1.ReportResultsResponseB\xc7\x01\n" +
 	"\x14com.chalk.runtime.v1B\x10FnqConsumerProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/runtime/v1;runtimev1\xa2\x02\x03CRX\xaa\x02\x10Chalk.Runtime.V1\xca\x02\x10Chalk\\Runtime\\V1\xe2\x02\x1cChalk\\Runtime\\V1\\GPBMetadata\xea\x02\x12Chalk::Runtime::V1b\x06proto3"
@@ -599,43 +1011,55 @@ func file_chalk_runtime_v1_fnq_consumer_proto_rawDescGZIP() []byte {
 	return file_chalk_runtime_v1_fnq_consumer_proto_rawDescData
 }
 
-var file_chalk_runtime_v1_fnq_consumer_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_chalk_runtime_v1_fnq_consumer_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_runtime_v1_fnq_consumer_proto_goTypes = []any{
-	(*AcquireWorkRequest)(nil),    // 0: chalk.runtime.v1.AcquireWorkRequest
-	(*FnqWork)(nil),               // 1: chalk.runtime.v1.FnqWork
-	(*AcquireWorkResponse)(nil),   // 2: chalk.runtime.v1.AcquireWorkResponse
-	(*RenewWorkRequest)(nil),      // 3: chalk.runtime.v1.RenewWorkRequest
-	(*RenewWorkResponse)(nil),     // 4: chalk.runtime.v1.RenewWorkResponse
-	(*ReportResultsRequest)(nil),  // 5: chalk.runtime.v1.ReportResultsRequest
-	(*ReportResultsResponse)(nil), // 6: chalk.runtime.v1.ReportResultsResponse
-	nil,                           // 7: chalk.runtime.v1.FnqWork.MetadataEntry
-	nil,                           // 8: chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntry
-	(*CallFunctionRequest)(nil),   // 9: chalk.runtime.v1.CallFunctionRequest
-	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),         // 11: google.protobuf.Empty
-	(*v1.ChalkException)(nil),     // 12: chalk.common.v1.ChalkException
+	(*FnqKubernetesPod)(nil),         // 0: chalk.runtime.v1.FnqKubernetesPod
+	(*FnqHostContainer)(nil),         // 1: chalk.runtime.v1.FnqHostContainer
+	(*RegisterConsumerRequest)(nil),  // 2: chalk.runtime.v1.RegisterConsumerRequest
+	(*RegisterConsumerResponse)(nil), // 3: chalk.runtime.v1.RegisterConsumerResponse
+	(*AcquireWorkRequest)(nil),       // 4: chalk.runtime.v1.AcquireWorkRequest
+	(*StartWorkRequest)(nil),         // 5: chalk.runtime.v1.StartWorkRequest
+	(*StartWorkResponse)(nil),        // 6: chalk.runtime.v1.StartWorkResponse
+	(*FnqWork)(nil),                  // 7: chalk.runtime.v1.FnqWork
+	(*AcquireWorkResponse)(nil),      // 8: chalk.runtime.v1.AcquireWorkResponse
+	(*RenewWorkRequest)(nil),         // 9: chalk.runtime.v1.RenewWorkRequest
+	(*RenewWorkResponse)(nil),        // 10: chalk.runtime.v1.RenewWorkResponse
+	(*ReportResultsRequest)(nil),     // 11: chalk.runtime.v1.ReportResultsRequest
+	(*ReportResultsResponse)(nil),    // 12: chalk.runtime.v1.ReportResultsResponse
+	nil,                              // 13: chalk.runtime.v1.FnqWork.MetadataEntry
+	nil,                              // 14: chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntry
+	(*CallFunctionRequest)(nil),      // 15: chalk.runtime.v1.CallFunctionRequest
+	(*timestamppb.Timestamp)(nil),    // 16: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),            // 17: google.protobuf.Empty
+	(*v1.ChalkException)(nil),        // 18: chalk.common.v1.ChalkException
 }
 var file_chalk_runtime_v1_fnq_consumer_proto_depIdxs = []int32{
-	9,  // 0: chalk.runtime.v1.FnqWork.call:type_name -> chalk.runtime.v1.CallFunctionRequest
-	7,  // 1: chalk.runtime.v1.FnqWork.metadata:type_name -> chalk.runtime.v1.FnqWork.MetadataEntry
-	10, // 2: chalk.runtime.v1.FnqWork.lease_expires_at:type_name -> google.protobuf.Timestamp
-	1,  // 3: chalk.runtime.v1.AcquireWorkResponse.work:type_name -> chalk.runtime.v1.FnqWork
-	8,  // 4: chalk.runtime.v1.RenewWorkResponse.lease_expires_at:type_name -> chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntry
-	11, // 5: chalk.runtime.v1.ReportResultsRequest.end:type_name -> google.protobuf.Empty
-	12, // 6: chalk.runtime.v1.ReportResultsRequest.error:type_name -> chalk.common.v1.ChalkException
-	11, // 7: chalk.runtime.v1.ReportResultsRequest.retry:type_name -> google.protobuf.Empty
-	10, // 8: chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntry.value:type_name -> google.protobuf.Timestamp
-	0,  // 9: chalk.runtime.v1.FnqConsumerService.AcquireWork:input_type -> chalk.runtime.v1.AcquireWorkRequest
-	3,  // 10: chalk.runtime.v1.FnqConsumerService.RenewWork:input_type -> chalk.runtime.v1.RenewWorkRequest
-	5,  // 11: chalk.runtime.v1.FnqConsumerService.ReportResults:input_type -> chalk.runtime.v1.ReportResultsRequest
-	2,  // 12: chalk.runtime.v1.FnqConsumerService.AcquireWork:output_type -> chalk.runtime.v1.AcquireWorkResponse
-	4,  // 13: chalk.runtime.v1.FnqConsumerService.RenewWork:output_type -> chalk.runtime.v1.RenewWorkResponse
-	6,  // 14: chalk.runtime.v1.FnqConsumerService.ReportResults:output_type -> chalk.runtime.v1.ReportResultsResponse
-	12, // [12:15] is the sub-list for method output_type
-	9,  // [9:12] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	0,  // 0: chalk.runtime.v1.RegisterConsumerRequest.kubernetes_pod:type_name -> chalk.runtime.v1.FnqKubernetesPod
+	1,  // 1: chalk.runtime.v1.RegisterConsumerRequest.host_container:type_name -> chalk.runtime.v1.FnqHostContainer
+	15, // 2: chalk.runtime.v1.FnqWork.call:type_name -> chalk.runtime.v1.CallFunctionRequest
+	13, // 3: chalk.runtime.v1.FnqWork.metadata:type_name -> chalk.runtime.v1.FnqWork.MetadataEntry
+	16, // 4: chalk.runtime.v1.FnqWork.lease_expires_at:type_name -> google.protobuf.Timestamp
+	7,  // 5: chalk.runtime.v1.AcquireWorkResponse.work:type_name -> chalk.runtime.v1.FnqWork
+	14, // 6: chalk.runtime.v1.RenewWorkResponse.lease_expires_at:type_name -> chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntry
+	17, // 7: chalk.runtime.v1.ReportResultsRequest.end:type_name -> google.protobuf.Empty
+	18, // 8: chalk.runtime.v1.ReportResultsRequest.error:type_name -> chalk.common.v1.ChalkException
+	17, // 9: chalk.runtime.v1.ReportResultsRequest.retry:type_name -> google.protobuf.Empty
+	16, // 10: chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntry.value:type_name -> google.protobuf.Timestamp
+	2,  // 11: chalk.runtime.v1.FnqConsumerService.RegisterConsumer:input_type -> chalk.runtime.v1.RegisterConsumerRequest
+	4,  // 12: chalk.runtime.v1.FnqConsumerService.AcquireWork:input_type -> chalk.runtime.v1.AcquireWorkRequest
+	5,  // 13: chalk.runtime.v1.FnqConsumerService.StartWork:input_type -> chalk.runtime.v1.StartWorkRequest
+	9,  // 14: chalk.runtime.v1.FnqConsumerService.RenewWork:input_type -> chalk.runtime.v1.RenewWorkRequest
+	11, // 15: chalk.runtime.v1.FnqConsumerService.ReportResults:input_type -> chalk.runtime.v1.ReportResultsRequest
+	3,  // 16: chalk.runtime.v1.FnqConsumerService.RegisterConsumer:output_type -> chalk.runtime.v1.RegisterConsumerResponse
+	8,  // 17: chalk.runtime.v1.FnqConsumerService.AcquireWork:output_type -> chalk.runtime.v1.AcquireWorkResponse
+	6,  // 18: chalk.runtime.v1.FnqConsumerService.StartWork:output_type -> chalk.runtime.v1.StartWorkResponse
+	10, // 19: chalk.runtime.v1.FnqConsumerService.RenewWork:output_type -> chalk.runtime.v1.RenewWorkResponse
+	12, // 20: chalk.runtime.v1.FnqConsumerService.ReportResults:output_type -> chalk.runtime.v1.ReportResultsResponse
+	16, // [16:21] is the sub-list for method output_type
+	11, // [11:16] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_chalk_runtime_v1_fnq_consumer_proto_init() }
@@ -644,7 +1068,11 @@ func file_chalk_runtime_v1_fnq_consumer_proto_init() {
 		return
 	}
 	file_chalk_runtime_v1_remote_python_call_proto_init()
-	file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[5].OneofWrappers = []any{
+	file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[2].OneofWrappers = []any{
+		(*RegisterConsumerRequest_KubernetesPod)(nil),
+		(*RegisterConsumerRequest_HostContainer)(nil),
+	}
+	file_chalk_runtime_v1_fnq_consumer_proto_msgTypes[11].OneofWrappers = []any{
 		(*ReportResultsRequest_Chunk)(nil),
 		(*ReportResultsRequest_End)(nil),
 		(*ReportResultsRequest_Error)(nil),
@@ -656,7 +1084,7 @@ func file_chalk_runtime_v1_fnq_consumer_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_runtime_v1_fnq_consumer_proto_rawDesc), len(file_chalk_runtime_v1_fnq_consumer_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
