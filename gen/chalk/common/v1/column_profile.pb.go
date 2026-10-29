@@ -272,12 +272,13 @@ type ColumnProfile struct {
 	// domain, a row cap, or a column type with no producer yet — simply leaves
 	// this empty, and the renderer draws the filled/empty meter alone.
 	Distribution *ColumnProfileDistribution `protobuf:"bytes,2,opt,name=distribution,proto3" json:"distribution,omitempty"`
-	// Rows holding a usable value. Exact.
+	// Legacy summarized-population count, paired with empty_count so their sum
+	// is the row count. Numeric distributions and scalars use finite values;
+	// counts-only fallbacks may carry non-null counts instead. Completeness UIs
+	// must use non_null_count, whose meaning does not depend on profiling success.
 	FilledCount int64 `protobuf:"varint,3,opt,name=filled_count,json=filledCount,proto3" json:"filled_count,omitempty"`
-	// Rows that are null or missing — Snowsight's "empty" — plus, for a numeric
-	// column, rows holding NaN or an infinity: those are not values a
-	// distribution can place, and counting them as filled would make the counts
-	// disagree with the ladder. Exact.
+	// Row count minus filled_count. This can include non-finite numeric values;
+	// it is not a null count. True null count is total rows minus non_null_count.
 	EmptyCount int64 `protobuf:"varint,4,opt,name=empty_count,json=emptyCount,proto3" json:"empty_count,omitempty"`
 	// Exact domain of the column, from `min` / `max` rather than the ladder ends,
 	// so a renderer can anchor an axis on a true bound. Unset when the column
@@ -288,8 +289,14 @@ type ColumnProfile struct {
 	// column popover, and they cost one aggregate each in a pass already being
 	// run. Unset for a column with no summarizable values, and for a
 	// non-numeric one.
-	Sum           *float64 `protobuf:"fixed64,7,opt,name=sum,proto3,oneof" json:"sum,omitempty"`
-	Mean          *float64 `protobuf:"fixed64,8,opt,name=mean,proto3,oneof" json:"mean,omitempty"`
+	Sum  *float64 `protobuf:"fixed64,7,opt,name=sum,proto3,oneof" json:"sum,omitempty"`
+	Mean *float64 `protobuf:"fixed64,8,opt,name=mean,proto3,oneof" json:"mean,omitempty"`
+	// Exact count of non-null values, including NaN and infinities. Unset when
+	// the producer does not record actual nulls.
+	NonNullCount *int64 `protobuf:"varint,9,opt,name=non_null_count,json=nonNullCount,proto3,oneof" json:"non_null_count,omitempty"`
+	// Exact count of numeric zeros. Unset when the producer does not count zeros
+	// or the column is non-numeric; an explicitly populated zero means none.
+	ZeroCount     *int64 `protobuf:"varint,10,opt,name=zero_count,json=zeroCount,proto3,oneof" json:"zero_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -380,6 +387,20 @@ func (x *ColumnProfile) GetMean() float64 {
 	return 0
 }
 
+func (x *ColumnProfile) GetNonNullCount() int64 {
+	if x != nil && x.NonNullCount != nil {
+		return *x.NonNullCount
+	}
+	return 0
+}
+
+func (x *ColumnProfile) GetZeroCount() int64 {
+	if x != nil && x.ZeroCount != nil {
+		return *x.ZeroCount
+	}
+	return 0
+}
+
 var File_chalk_common_v1_column_profile_proto protoreflect.FileDescriptor
 
 const file_chalk_common_v1_column_profile_proto_rawDesc = "" +
@@ -396,7 +417,7 @@ const file_chalk_common_v1_column_profile_proto_rawDesc = "" +
 	"\x06points\x18\x01 \x03(\v2(.chalk.common.v1.ColumnProfilePercentileR\x06points\"n\n" +
 	"\x19ColumnProfileDistribution\x12H\n" +
 	"\x06ladder\x18\x01 \x01(\v2..chalk.common.v1.ColumnProfilePercentileLadderH\x00R\x06ladderB\a\n" +
-	"\x05shape\"\xba\x02\n" +
+	"\x05shape\"\xab\x03\n" +
 	"\rColumnProfile\x12\x16\n" +
 	"\x06column\x18\x01 \x01(\tR\x06column\x12N\n" +
 	"\fdistribution\x18\x02 \x01(\v2*.chalk.common.v1.ColumnProfileDistributionR\fdistribution\x12!\n" +
@@ -406,11 +427,17 @@ const file_chalk_common_v1_column_profile_proto_rawDesc = "" +
 	"\x03min\x18\x05 \x01(\x01H\x00R\x03min\x88\x01\x01\x12\x15\n" +
 	"\x03max\x18\x06 \x01(\x01H\x01R\x03max\x88\x01\x01\x12\x15\n" +
 	"\x03sum\x18\a \x01(\x01H\x02R\x03sum\x88\x01\x01\x12\x17\n" +
-	"\x04mean\x18\b \x01(\x01H\x03R\x04mean\x88\x01\x01B\x06\n" +
+	"\x04mean\x18\b \x01(\x01H\x03R\x04mean\x88\x01\x01\x12)\n" +
+	"\x0enon_null_count\x18\t \x01(\x03H\x04R\fnonNullCount\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"zero_count\x18\n" +
+	" \x01(\x03H\x05R\tzeroCount\x88\x01\x01B\x06\n" +
 	"\x04_minB\x06\n" +
 	"\x04_maxB\x06\n" +
 	"\x04_sumB\a\n" +
-	"\x05_meanB\xc2\x01\n" +
+	"\x05_meanB\x11\n" +
+	"\x0f_non_null_countB\r\n" +
+	"\v_zero_countB\xc2\x01\n" +
 	"\x13com.chalk.common.v1B\x12ColumnProfileProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/common/v1;commonv1\xa2\x02\x03CCX\xaa\x02\x0fChalk.Common.V1\xca\x02\x0fChalk\\Common\\V1\xe2\x02\x1bChalk\\Common\\V1\\GPBMetadata\xea\x02\x11Chalk::Common::V1b\x06proto3"
 
 var (

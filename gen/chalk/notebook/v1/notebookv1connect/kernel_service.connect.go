@@ -34,6 +34,15 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// NotebookPythonKernelServiceStartPythonCellProcedure is the fully-qualified name of the
+	// NotebookPythonKernelService's StartPythonCell RPC.
+	NotebookPythonKernelServiceStartPythonCellProcedure = "/chalk.notebook.v1.NotebookPythonKernelService/StartPythonCell"
+	// NotebookPythonKernelServiceStreamPythonCellEventsProcedure is the fully-qualified name of the
+	// NotebookPythonKernelService's StreamPythonCellEvents RPC.
+	NotebookPythonKernelServiceStreamPythonCellEventsProcedure = "/chalk.notebook.v1.NotebookPythonKernelService/StreamPythonCellEvents"
+	// NotebookPythonKernelServiceRespondToPythonCellProcedure is the fully-qualified name of the
+	// NotebookPythonKernelService's RespondToPythonCell RPC.
+	NotebookPythonKernelServiceRespondToPythonCellProcedure = "/chalk.notebook.v1.NotebookPythonKernelService/RespondToPythonCell"
 	// NotebookPythonKernelServiceRunPythonCellProcedure is the fully-qualified name of the
 	// NotebookPythonKernelService's RunPythonCell RPC.
 	NotebookPythonKernelServiceRunPythonCellProcedure = "/chalk.notebook.v1.NotebookPythonKernelService/RunPythonCell"
@@ -57,6 +66,20 @@ const (
 // NotebookPythonKernelServiceClient is a client for the
 // chalk.notebook.v1.NotebookPythonKernelService service.
 type NotebookPythonKernelServiceClient interface {
+	// Starts an execution independently of the lifetime of this unary request.
+	// execution_id is the idempotency key: retrying the same execution and spec
+	// returns the existing execution instead of enqueueing it twice.
+	StartPythonCell(context.Context, *connect.Request[v1.StartPythonCellRequest]) (*connect.Response[v1.StartPythonCellResponse], error)
+	// Replays retained output after after_sequence, then tails new events until
+	// termination. Clients reconnect with their last sequence after a transport
+	// interruption; disconnecting this stream never cancels kernel execution.
+	StreamPythonCellEvents(context.Context, *connect.Request[v1.StreamPythonCellEventsRequest]) (*connect.ServerStreamForClient[v1.StreamPythonCellEventsResponse], error)
+	// Responds to a kernel request emitted through StreamPythonCellEvents. The
+	// execution and request IDs make delivery retryable and scope deduplication;
+	// failures let the caller reject a request without waiting for a timeout.
+	RespondToPythonCell(context.Context, *connect.Request[v1.RespondToPythonCellRequest]) (*connect.Response[v1.RespondToPythonCellResponse], error)
+	// Legacy connection-coupled execution API. Kept during migration while Go
+	// callers move to StartPythonCell and StreamPythonCellEvents.
 	RunPythonCell(context.Context) *connect.BidiStreamForClient[v1.RunPythonCellRequest, v1.RunPythonCellResponse]
 	InterruptPythonExecution(context.Context, *connect.Request[v1.InterruptPythonExecutionRequest]) (*connect.Response[v1.InterruptPythonExecutionResponse], error)
 	DescribeKernelSession(context.Context, *connect.Request[v1.DescribeKernelSessionRequest]) (*connect.Response[v1.DescribeKernelSessionResponse], error)
@@ -84,6 +107,24 @@ func NewNotebookPythonKernelServiceClient(httpClient connect.HTTPClient, baseURL
 	baseURL = strings.TrimRight(baseURL, "/")
 	notebookPythonKernelServiceMethods := v1.File_chalk_notebook_v1_kernel_service_proto.Services().ByName("NotebookPythonKernelService").Methods()
 	return &notebookPythonKernelServiceClient{
+		startPythonCell: connect.NewClient[v1.StartPythonCellRequest, v1.StartPythonCellResponse](
+			httpClient,
+			baseURL+NotebookPythonKernelServiceStartPythonCellProcedure,
+			connect.WithSchema(notebookPythonKernelServiceMethods.ByName("StartPythonCell")),
+			connect.WithClientOptions(opts...),
+		),
+		streamPythonCellEvents: connect.NewClient[v1.StreamPythonCellEventsRequest, v1.StreamPythonCellEventsResponse](
+			httpClient,
+			baseURL+NotebookPythonKernelServiceStreamPythonCellEventsProcedure,
+			connect.WithSchema(notebookPythonKernelServiceMethods.ByName("StreamPythonCellEvents")),
+			connect.WithClientOptions(opts...),
+		),
+		respondToPythonCell: connect.NewClient[v1.RespondToPythonCellRequest, v1.RespondToPythonCellResponse](
+			httpClient,
+			baseURL+NotebookPythonKernelServiceRespondToPythonCellProcedure,
+			connect.WithSchema(notebookPythonKernelServiceMethods.ByName("RespondToPythonCell")),
+			connect.WithClientOptions(opts...),
+		),
 		runPythonCell: connect.NewClient[v1.RunPythonCellRequest, v1.RunPythonCellResponse](
 			httpClient,
 			baseURL+NotebookPythonKernelServiceRunPythonCellProcedure,
@@ -125,12 +166,31 @@ func NewNotebookPythonKernelServiceClient(httpClient connect.HTTPClient, baseURL
 
 // notebookPythonKernelServiceClient implements NotebookPythonKernelServiceClient.
 type notebookPythonKernelServiceClient struct {
+	startPythonCell                 *connect.Client[v1.StartPythonCellRequest, v1.StartPythonCellResponse]
+	streamPythonCellEvents          *connect.Client[v1.StreamPythonCellEventsRequest, v1.StreamPythonCellEventsResponse]
+	respondToPythonCell             *connect.Client[v1.RespondToPythonCellRequest, v1.RespondToPythonCellResponse]
 	runPythonCell                   *connect.Client[v1.RunPythonCellRequest, v1.RunPythonCellResponse]
 	interruptPythonExecution        *connect.Client[v1.InterruptPythonExecutionRequest, v1.InterruptPythonExecutionResponse]
 	describeKernelSession           *connect.Client[v1.DescribeKernelSessionRequest, v1.DescribeKernelSessionResponse]
 	listInstalledPackages           *connect.Client[v1.ListInstalledPackagesRequest, v1.ListInstalledPackagesResponse]
 	analyzeNotebookCellDependencies *connect.Client[v1.AnalyzeNotebookCellDependenciesRequest, v1.AnalyzeNotebookCellDependenciesResponse]
 	planNotebookRun                 *connect.Client[v1.PlanNotebookRunRequest, v1.PlanNotebookRunResponse]
+}
+
+// StartPythonCell calls chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell.
+func (c *notebookPythonKernelServiceClient) StartPythonCell(ctx context.Context, req *connect.Request[v1.StartPythonCellRequest]) (*connect.Response[v1.StartPythonCellResponse], error) {
+	return c.startPythonCell.CallUnary(ctx, req)
+}
+
+// StreamPythonCellEvents calls
+// chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents.
+func (c *notebookPythonKernelServiceClient) StreamPythonCellEvents(ctx context.Context, req *connect.Request[v1.StreamPythonCellEventsRequest]) (*connect.ServerStreamForClient[v1.StreamPythonCellEventsResponse], error) {
+	return c.streamPythonCellEvents.CallServerStream(ctx, req)
+}
+
+// RespondToPythonCell calls chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell.
+func (c *notebookPythonKernelServiceClient) RespondToPythonCell(ctx context.Context, req *connect.Request[v1.RespondToPythonCellRequest]) (*connect.Response[v1.RespondToPythonCellResponse], error) {
+	return c.respondToPythonCell.CallUnary(ctx, req)
 }
 
 // RunPythonCell calls chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell.
@@ -168,6 +228,20 @@ func (c *notebookPythonKernelServiceClient) PlanNotebookRun(ctx context.Context,
 // NotebookPythonKernelServiceHandler is an implementation of the
 // chalk.notebook.v1.NotebookPythonKernelService service.
 type NotebookPythonKernelServiceHandler interface {
+	// Starts an execution independently of the lifetime of this unary request.
+	// execution_id is the idempotency key: retrying the same execution and spec
+	// returns the existing execution instead of enqueueing it twice.
+	StartPythonCell(context.Context, *connect.Request[v1.StartPythonCellRequest]) (*connect.Response[v1.StartPythonCellResponse], error)
+	// Replays retained output after after_sequence, then tails new events until
+	// termination. Clients reconnect with their last sequence after a transport
+	// interruption; disconnecting this stream never cancels kernel execution.
+	StreamPythonCellEvents(context.Context, *connect.Request[v1.StreamPythonCellEventsRequest], *connect.ServerStream[v1.StreamPythonCellEventsResponse]) error
+	// Responds to a kernel request emitted through StreamPythonCellEvents. The
+	// execution and request IDs make delivery retryable and scope deduplication;
+	// failures let the caller reject a request without waiting for a timeout.
+	RespondToPythonCell(context.Context, *connect.Request[v1.RespondToPythonCellRequest]) (*connect.Response[v1.RespondToPythonCellResponse], error)
+	// Legacy connection-coupled execution API. Kept during migration while Go
+	// callers move to StartPythonCell and StreamPythonCellEvents.
 	RunPythonCell(context.Context, *connect.BidiStream[v1.RunPythonCellRequest, v1.RunPythonCellResponse]) error
 	InterruptPythonExecution(context.Context, *connect.Request[v1.InterruptPythonExecutionRequest]) (*connect.Response[v1.InterruptPythonExecutionResponse], error)
 	DescribeKernelSession(context.Context, *connect.Request[v1.DescribeKernelSessionRequest]) (*connect.Response[v1.DescribeKernelSessionResponse], error)
@@ -190,6 +264,24 @@ type NotebookPythonKernelServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewNotebookPythonKernelServiceHandler(svc NotebookPythonKernelServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	notebookPythonKernelServiceMethods := v1.File_chalk_notebook_v1_kernel_service_proto.Services().ByName("NotebookPythonKernelService").Methods()
+	notebookPythonKernelServiceStartPythonCellHandler := connect.NewUnaryHandler(
+		NotebookPythonKernelServiceStartPythonCellProcedure,
+		svc.StartPythonCell,
+		connect.WithSchema(notebookPythonKernelServiceMethods.ByName("StartPythonCell")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookPythonKernelServiceStreamPythonCellEventsHandler := connect.NewServerStreamHandler(
+		NotebookPythonKernelServiceStreamPythonCellEventsProcedure,
+		svc.StreamPythonCellEvents,
+		connect.WithSchema(notebookPythonKernelServiceMethods.ByName("StreamPythonCellEvents")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookPythonKernelServiceRespondToPythonCellHandler := connect.NewUnaryHandler(
+		NotebookPythonKernelServiceRespondToPythonCellProcedure,
+		svc.RespondToPythonCell,
+		connect.WithSchema(notebookPythonKernelServiceMethods.ByName("RespondToPythonCell")),
+		connect.WithHandlerOptions(opts...),
+	)
 	notebookPythonKernelServiceRunPythonCellHandler := connect.NewBidiStreamHandler(
 		NotebookPythonKernelServiceRunPythonCellProcedure,
 		svc.RunPythonCell,
@@ -228,6 +320,12 @@ func NewNotebookPythonKernelServiceHandler(svc NotebookPythonKernelServiceHandle
 	)
 	return "/chalk.notebook.v1.NotebookPythonKernelService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case NotebookPythonKernelServiceStartPythonCellProcedure:
+			notebookPythonKernelServiceStartPythonCellHandler.ServeHTTP(w, r)
+		case NotebookPythonKernelServiceStreamPythonCellEventsProcedure:
+			notebookPythonKernelServiceStreamPythonCellEventsHandler.ServeHTTP(w, r)
+		case NotebookPythonKernelServiceRespondToPythonCellProcedure:
+			notebookPythonKernelServiceRespondToPythonCellHandler.ServeHTTP(w, r)
 		case NotebookPythonKernelServiceRunPythonCellProcedure:
 			notebookPythonKernelServiceRunPythonCellHandler.ServeHTTP(w, r)
 		case NotebookPythonKernelServiceInterruptPythonExecutionProcedure:
@@ -248,6 +346,18 @@ func NewNotebookPythonKernelServiceHandler(svc NotebookPythonKernelServiceHandle
 
 // UnimplementedNotebookPythonKernelServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedNotebookPythonKernelServiceHandler struct{}
+
+func (UnimplementedNotebookPythonKernelServiceHandler) StartPythonCell(context.Context, *connect.Request[v1.StartPythonCellRequest]) (*connect.Response[v1.StartPythonCellResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell is not implemented"))
+}
+
+func (UnimplementedNotebookPythonKernelServiceHandler) StreamPythonCellEvents(context.Context, *connect.Request[v1.StreamPythonCellEventsRequest], *connect.ServerStream[v1.StreamPythonCellEventsResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents is not implemented"))
+}
+
+func (UnimplementedNotebookPythonKernelServiceHandler) RespondToPythonCell(context.Context, *connect.Request[v1.RespondToPythonCellRequest]) (*connect.Response[v1.RespondToPythonCellResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell is not implemented"))
+}
 
 func (UnimplementedNotebookPythonKernelServiceHandler) RunPythonCell(context.Context, *connect.BidiStream[v1.RunPythonCellRequest, v1.RunPythonCellResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell is not implemented"))

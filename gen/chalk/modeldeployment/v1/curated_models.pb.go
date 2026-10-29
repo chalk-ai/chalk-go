@@ -256,7 +256,9 @@ type DeployCuratedModelRequest struct {
 	// enable_thinking overrides the chat template's reasoning mode (CHALK_ENABLE_THINKING).
 	EnableThinking *bool `protobuf:"varint,7,opt,name=enable_thinking,json=enableThinking,proto3,oneof" json:"enable_thinking,omitempty"`
 	// Max tokens generated per response (CHALK_MAX_TOKENS). Must be > 0 if set.
-	MaxTokens     *int32 `protobuf:"varint,8,opt,name=max_tokens,json=maxTokens,proto3,oneof" json:"max_tokens,omitempty"`
+	MaxTokens *int32 `protobuf:"varint,8,opt,name=max_tokens,json=maxTokens,proto3,oneof" json:"max_tokens,omitempty"`
+	// Compute class for the new scaling group. Unset uses the default K8S class.
+	ComputeClass  *v12.ComputeClass `protobuf:"varint,9,opt,name=compute_class,json=computeClass,proto3,enum=chalk.container.v1.ComputeClass,oneof" json:"compute_class,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -347,6 +349,13 @@ func (x *DeployCuratedModelRequest) GetMaxTokens() int32 {
 	return 0
 }
 
+func (x *DeployCuratedModelRequest) GetComputeClass() v12.ComputeClass {
+	if x != nil && x.ComputeClass != nil {
+		return *x.ComputeClass
+	}
+	return v12.ComputeClass(0)
+}
+
 type DeployCuratedModelResponse struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	ModelArtifact *v1.ModelArtifactSpec     `protobuf:"bytes,1,opt,name=model_artifact,json=modelArtifact,proto3" json:"model_artifact,omitempty"`
@@ -427,7 +436,7 @@ const file_chalk_modeldeployment_v1_curated_models_proto_rawDesc = "" +
 	" \x01(\v2\".chalk.container.v1.ResourceLimitsR\x10defaultResources\"\x1a\n" +
 	"\x18ListCuratedModelsRequest\"[\n" +
 	"\x19ListCuratedModelsResponse\x12>\n" +
-	"\x06models\x18\x01 \x03(\v2&.chalk.modeldeployment.v1.CuratedModelR\x06models\"\xef\x03\n" +
+	"\x06models\x18\x01 \x03(\v2&.chalk.modeldeployment.v1.CuratedModelR\x06models\"\xcd\x04\n" +
 	"\x19DeployCuratedModelRequest\x12(\n" +
 	"\x10curated_model_id\x18\x01 \x01(\tR\x0ecuratedModelId\x12,\n" +
 	"\x12scaling_group_name\x18\x02 \x01(\tR\x10scalingGroupName\x12\x15\n" +
@@ -437,13 +446,15 @@ const file_chalk_modeldeployment_v1_curated_models_proto_rawDesc = "" +
 	"!target_cpu_utilization_percentage\x18\x06 \x01(\x05H\x03R\x1etargetCpuUtilizationPercentage\x88\x01\x01\x12,\n" +
 	"\x0fenable_thinking\x18\a \x01(\bH\x04R\x0eenableThinking\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"max_tokens\x18\b \x01(\x05H\x05R\tmaxTokens\x88\x01\x01B\x06\n" +
+	"max_tokens\x18\b \x01(\x05H\x05R\tmaxTokens\x88\x01\x01\x12J\n" +
+	"\rcompute_class\x18\t \x01(\x0e2 .chalk.container.v1.ComputeClassH\x06R\fcomputeClass\x88\x01\x01B\x06\n" +
 	"\x04_gpuB\x0f\n" +
 	"\r_min_replicasB\x0f\n" +
 	"\r_max_replicasB$\n" +
 	"\"_target_cpu_utilization_percentageB\x12\n" +
 	"\x10_enable_thinkingB\r\n" +
-	"\v_max_tokens\"\xde\x01\n" +
+	"\v_max_tokensB\x10\n" +
+	"\x0e_compute_class\"\xde\x01\n" +
 	"\x1aDeployCuratedModelResponse\x12I\n" +
 	"\x0emodel_artifact\x18\x01 \x01(\v2\".chalk.models.v1.ModelArtifactSpecR\rmodelArtifact\x12#\n" +
 	"\rmodel_version\x18\x02 \x01(\x04R\fmodelVersion\x12P\n" +
@@ -477,25 +488,27 @@ var file_chalk_modeldeployment_v1_curated_models_proto_goTypes = []any{
 	(*v1.ModelSignature)(nil),          // 5: chalk.models.v1.ModelSignature
 	(*v11.ScalingSpec)(nil),            // 6: chalk.scalinggroup.v1.ScalingSpec
 	(*v12.ResourceLimits)(nil),         // 7: chalk.container.v1.ResourceLimits
-	(*v1.ModelArtifactSpec)(nil),       // 8: chalk.models.v1.ModelArtifactSpec
-	(*v11.ScalingGroupResponse)(nil),   // 9: chalk.scalinggroup.v1.ScalingGroupResponse
+	(v12.ComputeClass)(0),              // 8: chalk.container.v1.ComputeClass
+	(*v1.ModelArtifactSpec)(nil),       // 9: chalk.models.v1.ModelArtifactSpec
+	(*v11.ScalingGroupResponse)(nil),   // 10: chalk.scalinggroup.v1.ScalingGroupResponse
 }
 var file_chalk_modeldeployment_v1_curated_models_proto_depIdxs = []int32{
-	5, // 0: chalk.modeldeployment.v1.CuratedModel.default_signature:type_name -> chalk.models.v1.ModelSignature
-	6, // 1: chalk.modeldeployment.v1.CuratedModel.default_scaling:type_name -> chalk.scalinggroup.v1.ScalingSpec
-	7, // 2: chalk.modeldeployment.v1.CuratedModel.default_resources:type_name -> chalk.container.v1.ResourceLimits
-	0, // 3: chalk.modeldeployment.v1.ListCuratedModelsResponse.models:type_name -> chalk.modeldeployment.v1.CuratedModel
-	8, // 4: chalk.modeldeployment.v1.DeployCuratedModelResponse.model_artifact:type_name -> chalk.models.v1.ModelArtifactSpec
-	9, // 5: chalk.modeldeployment.v1.DeployCuratedModelResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	1, // 6: chalk.modeldeployment.v1.CuratedModelService.ListCuratedModels:input_type -> chalk.modeldeployment.v1.ListCuratedModelsRequest
-	3, // 7: chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel:input_type -> chalk.modeldeployment.v1.DeployCuratedModelRequest
-	2, // 8: chalk.modeldeployment.v1.CuratedModelService.ListCuratedModels:output_type -> chalk.modeldeployment.v1.ListCuratedModelsResponse
-	4, // 9: chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel:output_type -> chalk.modeldeployment.v1.DeployCuratedModelResponse
-	8, // [8:10] is the sub-list for method output_type
-	6, // [6:8] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	5,  // 0: chalk.modeldeployment.v1.CuratedModel.default_signature:type_name -> chalk.models.v1.ModelSignature
+	6,  // 1: chalk.modeldeployment.v1.CuratedModel.default_scaling:type_name -> chalk.scalinggroup.v1.ScalingSpec
+	7,  // 2: chalk.modeldeployment.v1.CuratedModel.default_resources:type_name -> chalk.container.v1.ResourceLimits
+	0,  // 3: chalk.modeldeployment.v1.ListCuratedModelsResponse.models:type_name -> chalk.modeldeployment.v1.CuratedModel
+	8,  // 4: chalk.modeldeployment.v1.DeployCuratedModelRequest.compute_class:type_name -> chalk.container.v1.ComputeClass
+	9,  // 5: chalk.modeldeployment.v1.DeployCuratedModelResponse.model_artifact:type_name -> chalk.models.v1.ModelArtifactSpec
+	10, // 6: chalk.modeldeployment.v1.DeployCuratedModelResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	1,  // 7: chalk.modeldeployment.v1.CuratedModelService.ListCuratedModels:input_type -> chalk.modeldeployment.v1.ListCuratedModelsRequest
+	3,  // 8: chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel:input_type -> chalk.modeldeployment.v1.DeployCuratedModelRequest
+	2,  // 9: chalk.modeldeployment.v1.CuratedModelService.ListCuratedModels:output_type -> chalk.modeldeployment.v1.ListCuratedModelsResponse
+	4,  // 10: chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel:output_type -> chalk.modeldeployment.v1.DeployCuratedModelResponse
+	9,  // [9:11] is the sub-list for method output_type
+	7,  // [7:9] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_chalk_modeldeployment_v1_curated_models_proto_init() }

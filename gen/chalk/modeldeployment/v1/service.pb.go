@@ -155,9 +155,12 @@ type ModelContainerSpec struct {
 	// Identity used to access cloud resources from this deployment.
 	ChalkWorkloadIdentity *v1.ChalkWorkloadIdentity `protobuf:"bytes,10,opt,name=chalk_workload_identity,json=chalkWorkloadIdentity,proto3,oneof" json:"chalk_workload_identity,omitempty"`
 	// Where to run the model container. Defaults to K8S (a Kubernetes pod).
-	ComputeClass  *v1.ComputeClass `protobuf:"varint,11,opt,name=compute_class,json=computeClass,proto3,enum=chalk.container.v1.ComputeClass,oneof" json:"compute_class,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ComputeClass *v1.ComputeClass `protobuf:"varint,11,opt,name=compute_class,json=computeClass,proto3,enum=chalk.container.v1.ComputeClass,oneof" json:"compute_class,omitempty"`
+	// Cluster placement for this deployment. Omitted or ENVIRONMENT uses the
+	// environment's cluster; SERVERLESS selects serverless compute.
+	ExecutionTarget *v1.ExecutionTarget `protobuf:"bytes,12,opt,name=execution_target,json=executionTarget,proto3,oneof" json:"execution_target,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ModelContainerSpec) Reset() {
@@ -265,6 +268,13 @@ func (x *ModelContainerSpec) GetComputeClass() v1.ComputeClass {
 		return *x.ComputeClass
 	}
 	return v1.ComputeClass(0)
+}
+
+func (x *ModelContainerSpec) GetExecutionTarget() *v1.ExecutionTarget {
+	if x != nil {
+		return x.ExecutionTarget
+	}
+	return nil
 }
 
 // Creating an existing deployment name redeploys the same model by appending
@@ -1418,7 +1428,10 @@ type ListModelScalingGroupsFilters struct {
 	ModelName *string `protobuf:"bytes,3,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
 	// A model scaling group matches when its creator is any of these IDs.
 	// Empty means all creators.
-	CreatedBy     []string `protobuf:"bytes,4,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	CreatedBy []string `protobuf:"bytes,4,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// Exact, case-sensitive matches against the selected revision's container tags.
+	// Every key/value pair must match. Empty means no tag restriction.
+	Tags          map[string]string `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1477,6 +1490,13 @@ func (x *ListModelScalingGroupsFilters) GetModelName() string {
 func (x *ListModelScalingGroupsFilters) GetCreatedBy() []string {
 	if x != nil {
 		return x.CreatedBy
+	}
+	return nil
+}
+
+func (x *ListModelScalingGroupsFilters) GetTags() map[string]string {
+	if x != nil {
+		return x.Tags
 	}
 	return nil
 }
@@ -2241,7 +2261,7 @@ var File_chalk_modeldeployment_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/modeldeployment/v1/service.proto\x12\x18chalk.modeldeployment.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a.chalk/externalfunctioncatalog/v1/service.proto\x1a#chalk/models/v1/model_version.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\b\n" +
+	"&chalk/modeldeployment/v1/service.proto\x12\x18chalk.modeldeployment.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a.chalk/externalfunctioncatalog/v1/service.proto\x1a#chalk/models/v1/model_version.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf6\b\n" +
 	"\x12ModelContainerSpec\x12J\n" +
 	"\x04tags\x18\x01 \x03(\v26.chalk.modeldeployment.v1.ModelContainerSpec.TagsEntryR\x04tags\x12E\n" +
 	"\tresources\x18\x02 \x01(\v2\".chalk.container.v1.ResourceLimitsH\x00R\tresources\x88\x01\x01\x12T\n" +
@@ -2255,7 +2275,8 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\rstartup_probe\x18\t \x01(\v2 .chalk.container.v1.StartupProbeH\x04R\fstartupProbe\x88\x01\x01\x12f\n" +
 	"\x17chalk_workload_identity\x18\n" +
 	" \x01(\v2).chalk.container.v1.ChalkWorkloadIdentityH\x05R\x15chalkWorkloadIdentity\x88\x01\x01\x12J\n" +
-	"\rcompute_class\x18\v \x01(\x0e2 .chalk.container.v1.ComputeClassH\x06R\fcomputeClass\x88\x01\x01\x1a7\n" +
+	"\rcompute_class\x18\v \x01(\x0e2 .chalk.container.v1.ComputeClassH\x06R\fcomputeClass\x88\x01\x01\x12S\n" +
+	"\x10execution_target\x18\f \x01(\v2#.chalk.container.v1.ExecutionTargetH\aR\x0fexecutionTarget\x88\x01\x01\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a:\n" +
@@ -2270,7 +2291,8 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\x10_readiness_probeB\x10\n" +
 	"\x0e_startup_probeB\x1a\n" +
 	"\x18_chalk_workload_identityB\x10\n" +
-	"\x0e_compute_class\"\xe5\x03\n" +
+	"\x0e_compute_classB\x13\n" +
+	"\x11_execution_target\"\xe5\x03\n" +
 	"\x1eCreateModelScalingGroupRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12C\n" +
 	"\x04spec\x18\b \x01(\v2/.chalk.modeldeployment.v1.ModelScalingGroupSpecR\x04spec\x12!\n" +
@@ -2390,14 +2412,18 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\x0e_model_versionB\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\x12\n" +
-	"\x10_include_deleted\"\xa5\x01\n" +
+	"\x10_include_deleted\"\xb5\x02\n" +
 	"\x1dListModelScalingGroupsFilters\x12\x1a\n" +
 	"\bstatuses\x18\x01 \x03(\tR\bstatuses\x12\x16\n" +
 	"\x06images\x18\x02 \x03(\tR\x06images\x12\"\n" +
 	"\n" +
 	"model_name\x18\x03 \x01(\tH\x00R\tmodelName\x88\x01\x01\x12\x1d\n" +
 	"\n" +
-	"created_by\x18\x04 \x03(\tR\tcreatedByB\r\n" +
+	"created_by\x18\x04 \x03(\tR\tcreatedBy\x12U\n" +
+	"\x04tags\x18\x05 \x03(\v2A.chalk.modeldeployment.v1.ListModelScalingGroupsFilters.TagsEntryR\x04tags\x1a7\n" +
+	"\tTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\r\n" +
 	"\v_model_name\"\xef\x02\n" +
 	"\x1eListModelScalingGroupsResponse\x12V\n" +
 	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseB\x02\x18\x01R\rscalingGroups\x12$\n" +
@@ -2484,7 +2510,7 @@ func file_chalk_modeldeployment_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_modeldeployment_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_modeldeployment_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_chalk_modeldeployment_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_chalk_modeldeployment_v1_service_proto_goTypes = []any{
 	(ModelScalingGroupSortColumn)(0),               // 0: chalk.modeldeployment.v1.ModelScalingGroupSortColumn
 	(ModelScalingGroupSortOrder)(0),                // 1: chalk.modeldeployment.v1.ModelScalingGroupSortOrder
@@ -2514,105 +2540,109 @@ var file_chalk_modeldeployment_v1_service_proto_goTypes = []any{
 	(*CallModelResponse)(nil),                      // 25: chalk.modeldeployment.v1.CallModelResponse
 	nil,                                            // 26: chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
 	nil,                                            // 27: chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
-	(*v1.ResourceLimits)(nil),                      // 28: chalk.container.v1.ResourceLimits
-	(*v1.VolumeMount)(nil),                         // 29: chalk.container.v1.VolumeMount
-	(*v1.SecretRef)(nil),                           // 30: chalk.container.v1.SecretRef
-	(*v1.ReadinessProbe)(nil),                      // 31: chalk.container.v1.ReadinessProbe
-	(*v1.StartupProbe)(nil),                        // 32: chalk.container.v1.StartupProbe
-	(*v1.ChalkWorkloadIdentity)(nil),               // 33: chalk.container.v1.ChalkWorkloadIdentity
-	(v1.ComputeClass)(0),                           // 34: chalk.container.v1.ComputeClass
-	(*v11.ModelVersionIdentifier)(nil),             // 35: chalk.models.v1.ModelVersionIdentifier
-	(*v12.ScalingSpec)(nil),                        // 36: chalk.scalinggroup.v1.ScalingSpec
-	(*v12.ScalingGroupResponse)(nil),               // 37: chalk.scalinggroup.v1.ScalingGroupResponse
-	(*v13.RetryPolicy)(nil),                        // 38: chalk.externalfunctioncatalog.v1.RetryPolicy
-	(*v13.QueuePolicy)(nil),                        // 39: chalk.externalfunctioncatalog.v1.QueuePolicy
-	(*timestamppb.Timestamp)(nil),                  // 40: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                          // 41: google.protobuf.Empty
-	(*fieldmaskpb.FieldMask)(nil),                  // 42: google.protobuf.FieldMask
-	(*v12.ScalingGroupRevisionResponse)(nil),       // 43: chalk.scalinggroup.v1.ScalingGroupRevisionResponse
-	(*v14.CallFunctionRequest)(nil),                // 44: chalk.runtime.v1.CallFunctionRequest
-	(*v14.EnqueueRemoteCallRequest)(nil),           // 45: chalk.runtime.v1.EnqueueRemoteCallRequest
-	(*v14.CallFunctionResponse)(nil),               // 46: chalk.runtime.v1.CallFunctionResponse
-	(*v14.EnqueueRemoteCallResponse)(nil),          // 47: chalk.runtime.v1.EnqueueRemoteCallResponse
+	nil,                                            // 28: chalk.modeldeployment.v1.ListModelScalingGroupsFilters.TagsEntry
+	(*v1.ResourceLimits)(nil),                      // 29: chalk.container.v1.ResourceLimits
+	(*v1.VolumeMount)(nil),                         // 30: chalk.container.v1.VolumeMount
+	(*v1.SecretRef)(nil),                           // 31: chalk.container.v1.SecretRef
+	(*v1.ReadinessProbe)(nil),                      // 32: chalk.container.v1.ReadinessProbe
+	(*v1.StartupProbe)(nil),                        // 33: chalk.container.v1.StartupProbe
+	(*v1.ChalkWorkloadIdentity)(nil),               // 34: chalk.container.v1.ChalkWorkloadIdentity
+	(v1.ComputeClass)(0),                           // 35: chalk.container.v1.ComputeClass
+	(*v1.ExecutionTarget)(nil),                     // 36: chalk.container.v1.ExecutionTarget
+	(*v11.ModelVersionIdentifier)(nil),             // 37: chalk.models.v1.ModelVersionIdentifier
+	(*v12.ScalingSpec)(nil),                        // 38: chalk.scalinggroup.v1.ScalingSpec
+	(*v12.ScalingGroupResponse)(nil),               // 39: chalk.scalinggroup.v1.ScalingGroupResponse
+	(*v13.RetryPolicy)(nil),                        // 40: chalk.externalfunctioncatalog.v1.RetryPolicy
+	(*v13.QueuePolicy)(nil),                        // 41: chalk.externalfunctioncatalog.v1.QueuePolicy
+	(*timestamppb.Timestamp)(nil),                  // 42: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                          // 43: google.protobuf.Empty
+	(*fieldmaskpb.FieldMask)(nil),                  // 44: google.protobuf.FieldMask
+	(*v12.ScalingGroupRevisionResponse)(nil),       // 45: chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	(*v14.CallFunctionRequest)(nil),                // 46: chalk.runtime.v1.CallFunctionRequest
+	(*v14.EnqueueRemoteCallRequest)(nil),           // 47: chalk.runtime.v1.EnqueueRemoteCallRequest
+	(*v14.CallFunctionResponse)(nil),               // 48: chalk.runtime.v1.CallFunctionResponse
+	(*v14.EnqueueRemoteCallResponse)(nil),          // 49: chalk.runtime.v1.EnqueueRemoteCallResponse
 }
 var file_chalk_modeldeployment_v1_service_proto_depIdxs = []int32{
 	26, // 0: chalk.modeldeployment.v1.ModelContainerSpec.tags:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
-	28, // 1: chalk.modeldeployment.v1.ModelContainerSpec.resources:type_name -> chalk.container.v1.ResourceLimits
+	29, // 1: chalk.modeldeployment.v1.ModelContainerSpec.resources:type_name -> chalk.container.v1.ResourceLimits
 	27, // 2: chalk.modeldeployment.v1.ModelContainerSpec.env_vars:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
-	29, // 3: chalk.modeldeployment.v1.ModelContainerSpec.volumes:type_name -> chalk.container.v1.VolumeMount
-	30, // 4: chalk.modeldeployment.v1.ModelContainerSpec.secret_refs:type_name -> chalk.container.v1.SecretRef
-	31, // 5: chalk.modeldeployment.v1.ModelContainerSpec.readiness_probe:type_name -> chalk.container.v1.ReadinessProbe
-	32, // 6: chalk.modeldeployment.v1.ModelContainerSpec.startup_probe:type_name -> chalk.container.v1.StartupProbe
-	33, // 7: chalk.modeldeployment.v1.ModelContainerSpec.chalk_workload_identity:type_name -> chalk.container.v1.ChalkWorkloadIdentity
-	34, // 8: chalk.modeldeployment.v1.ModelContainerSpec.compute_class:type_name -> chalk.container.v1.ComputeClass
-	6,  // 9: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
-	35, // 10: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
-	2,  // 11: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.container_spec:type_name -> chalk.modeldeployment.v1.ModelContainerSpec
-	36, // 12: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
-	37, // 13: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	7,  // 14: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
-	8,  // 15: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
-	35, // 16: chalk.modeldeployment.v1.ModelVersionSelector.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
-	5,  // 17: chalk.modeldeployment.v1.ModelScalingGroupSpec.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
-	2,  // 18: chalk.modeldeployment.v1.ModelScalingGroupSpec.container_spec:type_name -> chalk.modeldeployment.v1.ModelContainerSpec
-	36, // 19: chalk.modeldeployment.v1.ModelScalingGroupSpec.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
-	38, // 20: chalk.modeldeployment.v1.ModelScalingGroupSpec.retry_policy:type_name -> chalk.externalfunctioncatalog.v1.RetryPolicy
-	39, // 21: chalk.modeldeployment.v1.ModelScalingGroupSpec.queue_policy:type_name -> chalk.externalfunctioncatalog.v1.QueuePolicy
-	40, // 22: chalk.modeldeployment.v1.ModelScalingGroup.created_at:type_name -> google.protobuf.Timestamp
-	40, // 23: chalk.modeldeployment.v1.ModelScalingGroup.updated_at:type_name -> google.protobuf.Timestamp
-	40, // 24: chalk.modeldeployment.v1.ModelScalingGroup.deleted_at:type_name -> google.protobuf.Timestamp
-	6,  // 25: chalk.modeldeployment.v1.ModelScalingGroupRevision.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
-	40, // 26: chalk.modeldeployment.v1.ModelScalingGroupRevision.created_at:type_name -> google.protobuf.Timestamp
-	10, // 27: chalk.modeldeployment.v1.ModelScalingGroupTraffic.targets:type_name -> chalk.modeldeployment.v1.ModelScalingGroupTrafficTarget
-	41, // 28: chalk.modeldeployment.v1.ModelScalingGroupTrafficTarget.latest_revision:type_name -> google.protobuf.Empty
-	6,  // 29: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
-	9,  // 30: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.traffic:type_name -> chalk.modeldeployment.v1.ModelScalingGroupTraffic
-	42, // 31: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
-	37, // 32: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	7,  // 33: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
-	8,  // 34: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
-	37, // 35: chalk.modeldeployment.v1.GetModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	7,  // 36: chalk.modeldeployment.v1.GetModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
-	8,  // 37: chalk.modeldeployment.v1.GetModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
-	5,  // 38: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
-	16, // 39: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.filters:type_name -> chalk.modeldeployment.v1.ListModelScalingGroupsFilters
-	0,  // 40: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.sort_column:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSortColumn
-	1,  // 41: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.sort_order:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSortOrder
-	37, // 42: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	7,  // 43: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.model_scaling_groups:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
-	8,  // 44: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.current_revisions:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
-	37, // 45: chalk.modeldeployment.v1.DeleteModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	7,  // 46: chalk.modeldeployment.v1.DeleteModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
-	43, // 47: chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse.revision:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
-	8,  // 48: chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse.model_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
-	43, // 49: chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse.revisions:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
-	8,  // 50: chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse.model_revisions:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
-	5,  // 51: chalk.modeldeployment.v1.CallModelRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
-	44, // 52: chalk.modeldeployment.v1.CallModelRequest.remote_call_request:type_name -> chalk.runtime.v1.CallFunctionRequest
-	45, // 53: chalk.modeldeployment.v1.CallModelRequest.enqueue_remote_call_request:type_name -> chalk.runtime.v1.EnqueueRemoteCallRequest
-	46, // 54: chalk.modeldeployment.v1.CallModelResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
-	47, // 55: chalk.modeldeployment.v1.CallModelResponse.enqueue_remote_call_response:type_name -> chalk.runtime.v1.EnqueueRemoteCallResponse
-	3,  // 56: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:input_type -> chalk.modeldeployment.v1.CreateModelScalingGroupRequest
-	11, // 57: chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup:input_type -> chalk.modeldeployment.v1.UpdateModelScalingGroupRequest
-	13, // 58: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup:input_type -> chalk.modeldeployment.v1.GetModelScalingGroupRequest
-	15, // 59: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupsRequest
-	18, // 60: chalk.modeldeployment.v1.ModelDeploymentService.DeleteModelScalingGroup:input_type -> chalk.modeldeployment.v1.DeleteModelScalingGroupRequest
-	20, // 61: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroupRevision:input_type -> chalk.modeldeployment.v1.GetModelScalingGroupRevisionRequest
-	22, // 62: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroupRevisions:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupRevisionsRequest
-	24, // 63: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:input_type -> chalk.modeldeployment.v1.CallModelRequest
-	4,  // 64: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:output_type -> chalk.modeldeployment.v1.CreateModelScalingGroupResponse
-	12, // 65: chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup:output_type -> chalk.modeldeployment.v1.UpdateModelScalingGroupResponse
-	14, // 66: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup:output_type -> chalk.modeldeployment.v1.GetModelScalingGroupResponse
-	17, // 67: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupsResponse
-	19, // 68: chalk.modeldeployment.v1.ModelDeploymentService.DeleteModelScalingGroup:output_type -> chalk.modeldeployment.v1.DeleteModelScalingGroupResponse
-	21, // 69: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroupRevision:output_type -> chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse
-	23, // 70: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroupRevisions:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse
-	25, // 71: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:output_type -> chalk.modeldeployment.v1.CallModelResponse
-	64, // [64:72] is the sub-list for method output_type
-	56, // [56:64] is the sub-list for method input_type
-	56, // [56:56] is the sub-list for extension type_name
-	56, // [56:56] is the sub-list for extension extendee
-	0,  // [0:56] is the sub-list for field type_name
+	30, // 3: chalk.modeldeployment.v1.ModelContainerSpec.volumes:type_name -> chalk.container.v1.VolumeMount
+	31, // 4: chalk.modeldeployment.v1.ModelContainerSpec.secret_refs:type_name -> chalk.container.v1.SecretRef
+	32, // 5: chalk.modeldeployment.v1.ModelContainerSpec.readiness_probe:type_name -> chalk.container.v1.ReadinessProbe
+	33, // 6: chalk.modeldeployment.v1.ModelContainerSpec.startup_probe:type_name -> chalk.container.v1.StartupProbe
+	34, // 7: chalk.modeldeployment.v1.ModelContainerSpec.chalk_workload_identity:type_name -> chalk.container.v1.ChalkWorkloadIdentity
+	35, // 8: chalk.modeldeployment.v1.ModelContainerSpec.compute_class:type_name -> chalk.container.v1.ComputeClass
+	36, // 9: chalk.modeldeployment.v1.ModelContainerSpec.execution_target:type_name -> chalk.container.v1.ExecutionTarget
+	6,  // 10: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
+	37, // 11: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
+	2,  // 12: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.container_spec:type_name -> chalk.modeldeployment.v1.ModelContainerSpec
+	38, // 13: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
+	39, // 14: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 15: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	8,  // 16: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	37, // 17: chalk.modeldeployment.v1.ModelVersionSelector.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
+	5,  // 18: chalk.modeldeployment.v1.ModelScalingGroupSpec.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
+	2,  // 19: chalk.modeldeployment.v1.ModelScalingGroupSpec.container_spec:type_name -> chalk.modeldeployment.v1.ModelContainerSpec
+	38, // 20: chalk.modeldeployment.v1.ModelScalingGroupSpec.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
+	40, // 21: chalk.modeldeployment.v1.ModelScalingGroupSpec.retry_policy:type_name -> chalk.externalfunctioncatalog.v1.RetryPolicy
+	41, // 22: chalk.modeldeployment.v1.ModelScalingGroupSpec.queue_policy:type_name -> chalk.externalfunctioncatalog.v1.QueuePolicy
+	42, // 23: chalk.modeldeployment.v1.ModelScalingGroup.created_at:type_name -> google.protobuf.Timestamp
+	42, // 24: chalk.modeldeployment.v1.ModelScalingGroup.updated_at:type_name -> google.protobuf.Timestamp
+	42, // 25: chalk.modeldeployment.v1.ModelScalingGroup.deleted_at:type_name -> google.protobuf.Timestamp
+	6,  // 26: chalk.modeldeployment.v1.ModelScalingGroupRevision.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
+	42, // 27: chalk.modeldeployment.v1.ModelScalingGroupRevision.created_at:type_name -> google.protobuf.Timestamp
+	10, // 28: chalk.modeldeployment.v1.ModelScalingGroupTraffic.targets:type_name -> chalk.modeldeployment.v1.ModelScalingGroupTrafficTarget
+	43, // 29: chalk.modeldeployment.v1.ModelScalingGroupTrafficTarget.latest_revision:type_name -> google.protobuf.Empty
+	6,  // 30: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.spec:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSpec
+	9,  // 31: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.traffic:type_name -> chalk.modeldeployment.v1.ModelScalingGroupTraffic
+	44, // 32: chalk.modeldeployment.v1.UpdateModelScalingGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	39, // 33: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 34: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	8,  // 35: chalk.modeldeployment.v1.UpdateModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	39, // 36: chalk.modeldeployment.v1.GetModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 37: chalk.modeldeployment.v1.GetModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	8,  // 38: chalk.modeldeployment.v1.GetModelScalingGroupResponse.current_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	5,  // 39: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
+	16, // 40: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.filters:type_name -> chalk.modeldeployment.v1.ListModelScalingGroupsFilters
+	0,  // 41: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.sort_column:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSortColumn
+	1,  // 42: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.sort_order:type_name -> chalk.modeldeployment.v1.ModelScalingGroupSortOrder
+	28, // 43: chalk.modeldeployment.v1.ListModelScalingGroupsFilters.tags:type_name -> chalk.modeldeployment.v1.ListModelScalingGroupsFilters.TagsEntry
+	39, // 44: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 45: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.model_scaling_groups:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	8,  // 46: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.current_revisions:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	39, // 47: chalk.modeldeployment.v1.DeleteModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	7,  // 48: chalk.modeldeployment.v1.DeleteModelScalingGroupResponse.model_scaling_group:type_name -> chalk.modeldeployment.v1.ModelScalingGroup
+	45, // 49: chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse.revision:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	8,  // 50: chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse.model_revision:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	45, // 51: chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse.revisions:type_name -> chalk.scalinggroup.v1.ScalingGroupRevisionResponse
+	8,  // 52: chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse.model_revisions:type_name -> chalk.modeldeployment.v1.ModelScalingGroupRevision
+	5,  // 53: chalk.modeldeployment.v1.CallModelRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
+	46, // 54: chalk.modeldeployment.v1.CallModelRequest.remote_call_request:type_name -> chalk.runtime.v1.CallFunctionRequest
+	47, // 55: chalk.modeldeployment.v1.CallModelRequest.enqueue_remote_call_request:type_name -> chalk.runtime.v1.EnqueueRemoteCallRequest
+	48, // 56: chalk.modeldeployment.v1.CallModelResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
+	49, // 57: chalk.modeldeployment.v1.CallModelResponse.enqueue_remote_call_response:type_name -> chalk.runtime.v1.EnqueueRemoteCallResponse
+	3,  // 58: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:input_type -> chalk.modeldeployment.v1.CreateModelScalingGroupRequest
+	11, // 59: chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup:input_type -> chalk.modeldeployment.v1.UpdateModelScalingGroupRequest
+	13, // 60: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup:input_type -> chalk.modeldeployment.v1.GetModelScalingGroupRequest
+	15, // 61: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupsRequest
+	18, // 62: chalk.modeldeployment.v1.ModelDeploymentService.DeleteModelScalingGroup:input_type -> chalk.modeldeployment.v1.DeleteModelScalingGroupRequest
+	20, // 63: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroupRevision:input_type -> chalk.modeldeployment.v1.GetModelScalingGroupRevisionRequest
+	22, // 64: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroupRevisions:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupRevisionsRequest
+	24, // 65: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:input_type -> chalk.modeldeployment.v1.CallModelRequest
+	4,  // 66: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:output_type -> chalk.modeldeployment.v1.CreateModelScalingGroupResponse
+	12, // 67: chalk.modeldeployment.v1.ModelDeploymentService.UpdateModelScalingGroup:output_type -> chalk.modeldeployment.v1.UpdateModelScalingGroupResponse
+	14, // 68: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroup:output_type -> chalk.modeldeployment.v1.GetModelScalingGroupResponse
+	17, // 69: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupsResponse
+	19, // 70: chalk.modeldeployment.v1.ModelDeploymentService.DeleteModelScalingGroup:output_type -> chalk.modeldeployment.v1.DeleteModelScalingGroupResponse
+	21, // 71: chalk.modeldeployment.v1.ModelDeploymentService.GetModelScalingGroupRevision:output_type -> chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse
+	23, // 72: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroupRevisions:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse
+	25, // 73: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:output_type -> chalk.modeldeployment.v1.CallModelResponse
+	66, // [66:74] is the sub-list for method output_type
+	58, // [58:66] is the sub-list for method input_type
+	58, // [58:58] is the sub-list for extension type_name
+	58, // [58:58] is the sub-list for extension extendee
+	0,  // [0:58] is the sub-list for field type_name
 }
 
 func init() { file_chalk_modeldeployment_v1_service_proto_init() }
@@ -2669,7 +2699,7 @@ func file_chalk_modeldeployment_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_modeldeployment_v1_service_proto_rawDesc), len(file_chalk_modeldeployment_v1_service_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   26,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

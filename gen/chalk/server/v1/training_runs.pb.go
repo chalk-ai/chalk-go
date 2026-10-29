@@ -401,8 +401,11 @@ type CreateTrainingRunRequest struct {
 	NetworkPolicy *v1.NetworkPolicy `protobuf:"bytes,14,opt,name=network_policy,json=networkPolicy,proto3,oneof" json:"network_policy,omitempty"`
 	// Placement for the training container. Unset uses the environment's cluster.
 	ExecutionTarget *v1.ExecutionTarget `protobuf:"bytes,15,opt,name=execution_target,json=executionTarget,proto3" json:"execution_target,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Command the training container runs. The SDK sets it to match the chalkcompute version installed
+	// in `image`. Empty runs `python -m chalkcompute.training.entrypoint`, which every SDK version provides.
+	Entrypoint    []string `protobuf:"bytes,16,rep,name=entrypoint,proto3" json:"entrypoint,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateTrainingRunRequest) Reset() {
@@ -536,6 +539,13 @@ func (x *CreateTrainingRunRequest) GetNetworkPolicy() *v1.NetworkPolicy {
 func (x *CreateTrainingRunRequest) GetExecutionTarget() *v1.ExecutionTarget {
 	if x != nil {
 		return x.ExecutionTarget
+	}
+	return nil
+}
+
+func (x *CreateTrainingRunRequest) GetEntrypoint() []string {
+	if x != nil {
+		return x.Entrypoint
 	}
 	return nil
 }
@@ -1653,7 +1663,7 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\v_created_byB\x10\n" +
 	"\x0e_experiment_idB\x10\n" +
 	"\x0e_compute_classB\x11\n" +
-	"\x0f_network_policy\"\x87\t\n" +
+	"\x0f_network_policy\"\xa7\t\n" +
 	"\x18CreateTrainingRunRequest\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12:\n" +
 	"\x04data\x18\x02 \x01(\v2&.chalk.server.v1.TrainingRunDataSourceR\x04data\x12/\n" +
@@ -1672,7 +1682,10 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\rexperiment_id\x18\f \x01(\tH\x03R\fexperimentId\x88\x01\x01\x12J\n" +
 	"\rcompute_class\x18\r \x01(\x0e2 .chalk.container.v1.ComputeClassH\x04R\fcomputeClass\x88\x01\x01\x12M\n" +
 	"\x0enetwork_policy\x18\x0e \x01(\v2!.chalk.container.v1.NetworkPolicyH\x05R\rnetworkPolicy\x88\x01\x01\x12N\n" +
-	"\x10execution_target\x18\x0f \x01(\v2#.chalk.container.v1.ExecutionTargetR\x0fexecutionTarget\x1a6\n" +
+	"\x10execution_target\x18\x0f \x01(\v2#.chalk.container.v1.ExecutionTargetR\x0fexecutionTarget\x12\x1e\n" +
+	"\n" +
+	"entrypoint\x18\x10 \x03(\tR\n" +
+	"entrypoint\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aS\n" +

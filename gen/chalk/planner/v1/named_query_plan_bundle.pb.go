@@ -29,6 +29,8 @@ const (
 	SandboxExportProcessingFailureKind_SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSPECIFIED    SandboxExportProcessingFailureKind = 0
 	SandboxExportProcessingFailureKind_SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_DETERMINISTIC  SandboxExportProcessingFailureKind = 1
 	SandboxExportProcessingFailureKind_SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_INFRASTRUCTURE SandboxExportProcessingFailureKind = 2
+	// The graph needs planning capabilities available only in the receiving engine.
+	SandboxExportProcessingFailureKind_SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSUPPORTED SandboxExportProcessingFailureKind = 3
 )
 
 // Enum value maps for SandboxExportProcessingFailureKind.
@@ -37,11 +39,13 @@ var (
 		0: "SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSPECIFIED",
 		1: "SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_DETERMINISTIC",
 		2: "SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_INFRASTRUCTURE",
+		3: "SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSUPPORTED",
 	}
 	SandboxExportProcessingFailureKind_value = map[string]int32{
 		"SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSPECIFIED":    0,
 		"SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_DETERMINISTIC":  1,
 		"SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_INFRASTRUCTURE": 2,
+		"SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSUPPORTED":    3,
 	}
 )
 
@@ -777,11 +781,12 @@ const file_chalk_planner_v1_named_query_plan_bundle_proto_rawDesc = "" +
 	"\n" +
 	"conversion\x18\x02 \x01(\v2/.chalk.planner.v1.SandboxExportConversionResultR\n" +
 	"conversion\x12l\n" +
-	"\x17named_query_preplanning\x18\x03 \x01(\v24.chalk.planner.v1.SandboxNamedQueryPreplanningResultR\x15namedQueryPreplanning*\xd1\x01\n" +
+	"\x17named_query_preplanning\x18\x03 \x01(\v24.chalk.planner.v1.SandboxNamedQueryPreplanningResultR\x15namedQueryPreplanning*\x89\x02\n" +
 	"\"SandboxExportProcessingFailureKind\x126\n" +
 	"2SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSPECIFIED\x10\x00\x128\n" +
 	"4SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_DETERMINISTIC\x10\x01\x129\n" +
-	"5SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_INFRASTRUCTURE\x10\x02B\xd0\x01\n" +
+	"5SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_INFRASTRUCTURE\x10\x02\x126\n" +
+	"2SANDBOX_EXPORT_PROCESSING_FAILURE_KIND_UNSUPPORTED\x10\x03B\xd0\x01\n" +
 	"\x14com.chalk.planner.v1B\x19NamedQueryPlanBundleProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

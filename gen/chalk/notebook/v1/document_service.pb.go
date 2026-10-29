@@ -6886,52 +6886,52 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"#NOTEBOOK_RUNTIME_STATE_PROVISIONING\x10\x02\x12 \n" +
 	"\x1cNOTEBOOK_RUNTIME_STATE_READY\x10\x03\x12 \n" +
 	"\x1cNOTEBOOK_RUNTIME_STATE_ERROR\x10\x04\x12\"\n" +
-	"\x1eNOTEBOOK_RUNTIME_STATE_STOPPED\x10\x052\xab1\n" +
-	"\x17NotebookDocumentService\x12\xaa\x01\n" +
-	"\x17CreateNotebookShareLink\x121.chalk.notebook.v1.CreateNotebookShareLinkRequest\x1a2.chalk.notebook.v1.CreateNotebookShareLinkResponse\"(\x80}\f\x8a\xd3\x0e!\b\x02\x12\x1dCreated a notebook share link\x12\x82\x01\n" +
-	"\x16ListNotebookShareLinks\x120.chalk.notebook.v1.ListNotebookShareLinksRequest\x1a1.chalk.notebook.v1.ListNotebookShareLinksResponse\"\x03\x80}\v\x12\xaa\x01\n" +
-	"\x17RevokeNotebookShareLink\x121.chalk.notebook.v1.RevokeNotebookShareLinkRequest\x1a2.chalk.notebook.v1.RevokeNotebookShareLinkResponse\"(\x80}\x0e\x8a\xd3\x0e!\b\x02\x12\x1dRevoked a notebook share link\x12\x88\x01\n" +
-	"\x18ResolveNotebookShareLink\x122.chalk.notebook.v1.ResolveNotebookShareLinkRequest\x1a3.chalk.notebook.v1.ResolveNotebookShareLinkResponse\"\x03\x80}%\x12\x7f\n" +
-	"\x15CreateNotebookComment\x12/.chalk.notebook.v1.CreateNotebookCommentRequest\x1a0.chalk.notebook.v1.CreateNotebookCommentResponse\"\x03\x80}\f\x12|\n" +
-	"\x14ListNotebookComments\x12..chalk.notebook.v1.ListNotebookCommentsRequest\x1a/.chalk.notebook.v1.ListNotebookCommentsResponse\"\x03\x80}\v\x12\x7f\n" +
-	"\x15DeleteNotebookComment\x12/.chalk.notebook.v1.DeleteNotebookCommentRequest\x1a0.chalk.notebook.v1.DeleteNotebookCommentResponse\"\x03\x80}\x0e\x12\x8e\x01\n" +
-	"\x1aSetNotebookCommentResolved\x124.chalk.notebook.v1.SetNotebookCommentResolvedRequest\x1a5.chalk.notebook.v1.SetNotebookCommentResolvedResponse\"\x03\x80}\f\x12\x97\x01\n" +
-	"\x1dToggleNotebookCommentReaction\x127.chalk.notebook.v1.ToggleNotebookCommentReactionRequest\x1a8.chalk.notebook.v1.ToggleNotebookCommentReactionResponse\"\x03\x80}\f\x12\x82\x01\n" +
-	"\x16CreateNotebookDocument\x120.chalk.notebook.v1.CreateNotebookDocumentRequest\x1a1.chalk.notebook.v1.CreateNotebookDocumentResponse\"\x03\x80}\f\x12}\n" +
-	"\x13GetNotebookDocument\x12-.chalk.notebook.v1.GetNotebookDocumentRequest\x1a..chalk.notebook.v1.GetNotebookDocumentResponse\"\a\x80}\v\x92}\x01%\x12\x7f\n" +
-	"\x15ListNotebookDocuments\x12/.chalk.notebook.v1.ListNotebookDocumentsRequest\x1a0.chalk.notebook.v1.ListNotebookDocumentsResponse\"\x03\x80}\v\x12\x82\x01\n" +
-	"\x16UpdateNotebookDocument\x120.chalk.notebook.v1.UpdateNotebookDocumentRequest\x1a1.chalk.notebook.v1.UpdateNotebookDocumentResponse\"\x03\x80}\x0e\x12s\n" +
-	"\x11EnsureNotebookApp\x12+.chalk.notebook.v1.EnsureNotebookAppRequest\x1a,.chalk.notebook.v1.EnsureNotebookAppResponse\"\x03\x80}\x0e\x12\x82\x01\n" +
-	"\x16DeleteNotebookDocument\x120.chalk.notebook.v1.DeleteNotebookDocumentRequest\x1a1.chalk.notebook.v1.DeleteNotebookDocumentResponse\"\x03\x80}\x0e\x12y\n" +
-	"\x13SetNotebookArchived\x12-.chalk.notebook.v1.SetNotebookArchivedRequest\x1a..chalk.notebook.v1.SetNotebookArchivedResponse\"\x03\x80}\x0e\x12m\n" +
-	"\x0fAddNotebookCell\x12).chalk.notebook.v1.AddNotebookCellRequest\x1a*.chalk.notebook.v1.AddNotebookCellResponse\"\x03\x80}\x0e\x12v\n" +
-	"\x12UpdateNotebookCell\x12,.chalk.notebook.v1.UpdateNotebookCellRequest\x1a-.chalk.notebook.v1.UpdateNotebookCellResponse\"\x03\x80}\x0e\x12v\n" +
-	"\x12DeleteNotebookCell\x12,.chalk.notebook.v1.DeleteNotebookCellRequest\x1a-.chalk.notebook.v1.DeleteNotebookCellResponse\"\x03\x80}\x0e\x12p\n" +
-	"\x10MoveNotebookCell\x12*.chalk.notebook.v1.MoveNotebookCellRequest\x1a+.chalk.notebook.v1.MoveNotebookCellResponse\"\x03\x80}\x0e\x12\x88\x01\n" +
-	"\x18BatchUpdateNotebookCells\x122.chalk.notebook.v1.BatchUpdateNotebookCellsRequest\x1a3.chalk.notebook.v1.BatchUpdateNotebookCellsResponse\"\x03\x80}\x0e\x12p\n" +
-	"\x10StartNotebookRun\x12*.chalk.notebook.v1.StartNotebookRunRequest\x1a+.chalk.notebook.v1.StartNotebookRunResponse\"\x03\x80}\f\x12r\n" +
-	"\x10WatchNotebookRun\x12*.chalk.notebook.v1.WatchNotebookRunRequest\x1a+.chalk.notebook.v1.WatchNotebookRunResponse\"\x03\x80}\v0\x01\x12i\n" +
-	"\rWatchNotebook\x12'.chalk.notebook.v1.WatchNotebookRequest\x1a(.chalk.notebook.v1.WatchNotebookResponse\"\x03\x80}\v0\x01\x12|\n" +
-	"\x14InterruptNotebookRun\x12..chalk.notebook.v1.InterruptNotebookRunRequest\x1a/.chalk.notebook.v1.InterruptNotebookRunResponse\"\x03\x80}\x0e\x12\x89\x01\n" +
-	"\x17ListNotebookCellResults\x121.chalk.notebook.v1.ListNotebookCellResultsRequest\x1a2.chalk.notebook.v1.ListNotebookCellResultsResponse\"\a\x80}\v\x92}\x01%\x12\x92\x01\n" +
-	"\x1aFetchNotebookDataframeRows\x124.chalk.notebook.v1.FetchNotebookDataframeRowsRequest\x1a5.chalk.notebook.v1.FetchNotebookDataframeRowsResponse\"\a\x80}\v\x92}\x01%\x12\x92\x01\n" +
-	"\x1aAggregateNotebookDataframe\x124.chalk.notebook.v1.AggregateNotebookDataframeRequest\x1a5.chalk.notebook.v1.AggregateNotebookDataframeResponse\"\a\x80}\v\x92}\x01%\x12\x8d\x01\n" +
-	"\x19DownloadNotebookDataframe\x123.chalk.notebook.v1.DownloadNotebookDataframeRequest\x1a4.chalk.notebook.v1.DownloadNotebookDataframeResponse\"\x03\x80}\v0\x01\x12\x8e\x01\n" +
-	"\x1aListNotebookCellRunHistory\x124.chalk.notebook.v1.ListNotebookCellRunHistoryRequest\x1a5.chalk.notebook.v1.ListNotebookCellRunHistoryResponse\"\x03\x80}\v\x12\x97\x01\n" +
-	"\x1dListNotebookDocumentRevisions\x127.chalk.notebook.v1.ListNotebookDocumentRevisionsRequest\x1a8.chalk.notebook.v1.ListNotebookDocumentRevisionsResponse\"\x03\x80}\v\x12p\n" +
-	"\x10ListNotebookRuns\x12*.chalk.notebook.v1.ListNotebookRunsRequest\x1a+.chalk.notebook.v1.ListNotebookRunsResponse\"\x03\x80}\v\x12\x7f\n" +
-	"\x15GetNotebookRunDetails\x12/.chalk.notebook.v1.GetNotebookRunDetailsRequest\x1a0.chalk.notebook.v1.GetNotebookRunDetailsResponse\"\x03\x80}\v\x12\x88\x01\n" +
-	"\x18ClearNotebookCellResults\x122.chalk.notebook.v1.ClearNotebookCellResultsRequest\x1a3.chalk.notebook.v1.ClearNotebookCellResultsResponse\"\x03\x80}\x0e\x12\x91\x01\n" +
-	"\x1bGetNotebookSqlCacheSettings\x125.chalk.notebook.v1.GetNotebookSqlCacheSettingsRequest\x1a6.chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse\"\x03\x80}\v\x12\x9a\x01\n" +
+	"\x1eNOTEBOOK_RUNTIME_STATE_STOPPED\x10\x052\xcb2\n" +
+	"\x17NotebookDocumentService\x12\xae\x01\n" +
+	"\x17CreateNotebookShareLink\x121.chalk.notebook.v1.CreateNotebookShareLinkRequest\x1a2.chalk.notebook.v1.CreateNotebookShareLinkResponse\",\x80}\f\x92}\x01*\x8a\xd3\x0e!\b\x02\x12\x1dCreated a notebook share link\x12\x86\x01\n" +
+	"\x16ListNotebookShareLinks\x120.chalk.notebook.v1.ListNotebookShareLinksRequest\x1a1.chalk.notebook.v1.ListNotebookShareLinksResponse\"\a\x80}\v\x92}\x01*\x12\xae\x01\n" +
+	"\x17RevokeNotebookShareLink\x121.chalk.notebook.v1.RevokeNotebookShareLinkRequest\x1a2.chalk.notebook.v1.RevokeNotebookShareLinkResponse\",\x80}\x0e\x92}\x01*\x8a\xd3\x0e!\b\x02\x12\x1dRevoked a notebook share link\x12\x88\x01\n" +
+	"\x18ResolveNotebookShareLink\x122.chalk.notebook.v1.ResolveNotebookShareLinkRequest\x1a3.chalk.notebook.v1.ResolveNotebookShareLinkResponse\"\x03\x80}%\x12\x83\x01\n" +
+	"\x15CreateNotebookComment\x12/.chalk.notebook.v1.CreateNotebookCommentRequest\x1a0.chalk.notebook.v1.CreateNotebookCommentResponse\"\a\x80}\f\x92}\x01*\x12\x80\x01\n" +
+	"\x14ListNotebookComments\x12..chalk.notebook.v1.ListNotebookCommentsRequest\x1a/.chalk.notebook.v1.ListNotebookCommentsResponse\"\a\x80}\v\x92}\x01*\x12\x83\x01\n" +
+	"\x15DeleteNotebookComment\x12/.chalk.notebook.v1.DeleteNotebookCommentRequest\x1a0.chalk.notebook.v1.DeleteNotebookCommentResponse\"\a\x80}\x0e\x92}\x01*\x12\x92\x01\n" +
+	"\x1aSetNotebookCommentResolved\x124.chalk.notebook.v1.SetNotebookCommentResolvedRequest\x1a5.chalk.notebook.v1.SetNotebookCommentResolvedResponse\"\a\x80}\f\x92}\x01*\x12\x9b\x01\n" +
+	"\x1dToggleNotebookCommentReaction\x127.chalk.notebook.v1.ToggleNotebookCommentReactionRequest\x1a8.chalk.notebook.v1.ToggleNotebookCommentReactionResponse\"\a\x80}\f\x92}\x01*\x12\x86\x01\n" +
+	"\x16CreateNotebookDocument\x120.chalk.notebook.v1.CreateNotebookDocumentRequest\x1a1.chalk.notebook.v1.CreateNotebookDocumentResponse\"\a\x80}\f\x92}\x01*\x12~\n" +
+	"\x13GetNotebookDocument\x12-.chalk.notebook.v1.GetNotebookDocumentRequest\x1a..chalk.notebook.v1.GetNotebookDocumentResponse\"\b\x80}\v\x92}\x02*%\x12\x83\x01\n" +
+	"\x15ListNotebookDocuments\x12/.chalk.notebook.v1.ListNotebookDocumentsRequest\x1a0.chalk.notebook.v1.ListNotebookDocumentsResponse\"\a\x80}\v\x92}\x01*\x12\x86\x01\n" +
+	"\x16UpdateNotebookDocument\x120.chalk.notebook.v1.UpdateNotebookDocumentRequest\x1a1.chalk.notebook.v1.UpdateNotebookDocumentResponse\"\a\x80}\x0e\x92}\x01*\x12w\n" +
+	"\x11EnsureNotebookApp\x12+.chalk.notebook.v1.EnsureNotebookAppRequest\x1a,.chalk.notebook.v1.EnsureNotebookAppResponse\"\a\x80}\x0e\x92}\x01*\x12\x86\x01\n" +
+	"\x16DeleteNotebookDocument\x120.chalk.notebook.v1.DeleteNotebookDocumentRequest\x1a1.chalk.notebook.v1.DeleteNotebookDocumentResponse\"\a\x80}\x0e\x92}\x01*\x12}\n" +
+	"\x13SetNotebookArchived\x12-.chalk.notebook.v1.SetNotebookArchivedRequest\x1a..chalk.notebook.v1.SetNotebookArchivedResponse\"\a\x80}\x0e\x92}\x01*\x12q\n" +
+	"\x0fAddNotebookCell\x12).chalk.notebook.v1.AddNotebookCellRequest\x1a*.chalk.notebook.v1.AddNotebookCellResponse\"\a\x80}\x0e\x92}\x01*\x12z\n" +
+	"\x12UpdateNotebookCell\x12,.chalk.notebook.v1.UpdateNotebookCellRequest\x1a-.chalk.notebook.v1.UpdateNotebookCellResponse\"\a\x80}\x0e\x92}\x01*\x12z\n" +
+	"\x12DeleteNotebookCell\x12,.chalk.notebook.v1.DeleteNotebookCellRequest\x1a-.chalk.notebook.v1.DeleteNotebookCellResponse\"\a\x80}\x0e\x92}\x01*\x12t\n" +
+	"\x10MoveNotebookCell\x12*.chalk.notebook.v1.MoveNotebookCellRequest\x1a+.chalk.notebook.v1.MoveNotebookCellResponse\"\a\x80}\x0e\x92}\x01*\x12\x8c\x01\n" +
+	"\x18BatchUpdateNotebookCells\x122.chalk.notebook.v1.BatchUpdateNotebookCellsRequest\x1a3.chalk.notebook.v1.BatchUpdateNotebookCellsResponse\"\a\x80}\x0e\x92}\x01*\x12t\n" +
+	"\x10StartNotebookRun\x12*.chalk.notebook.v1.StartNotebookRunRequest\x1a+.chalk.notebook.v1.StartNotebookRunResponse\"\a\x80}\f\x92}\x01*\x12v\n" +
+	"\x10WatchNotebookRun\x12*.chalk.notebook.v1.WatchNotebookRunRequest\x1a+.chalk.notebook.v1.WatchNotebookRunResponse\"\a\x80}\v\x92}\x01*0\x01\x12m\n" +
+	"\rWatchNotebook\x12'.chalk.notebook.v1.WatchNotebookRequest\x1a(.chalk.notebook.v1.WatchNotebookResponse\"\a\x80}\v\x92}\x01*0\x01\x12\x80\x01\n" +
+	"\x14InterruptNotebookRun\x12..chalk.notebook.v1.InterruptNotebookRunRequest\x1a/.chalk.notebook.v1.InterruptNotebookRunResponse\"\a\x80}\x0e\x92}\x01*\x12\x8a\x01\n" +
+	"\x17ListNotebookCellResults\x121.chalk.notebook.v1.ListNotebookCellResultsRequest\x1a2.chalk.notebook.v1.ListNotebookCellResultsResponse\"\b\x80}\v\x92}\x02*%\x12\x93\x01\n" +
+	"\x1aFetchNotebookDataframeRows\x124.chalk.notebook.v1.FetchNotebookDataframeRowsRequest\x1a5.chalk.notebook.v1.FetchNotebookDataframeRowsResponse\"\b\x80}\v\x92}\x02*%\x12\x93\x01\n" +
+	"\x1aAggregateNotebookDataframe\x124.chalk.notebook.v1.AggregateNotebookDataframeRequest\x1a5.chalk.notebook.v1.AggregateNotebookDataframeResponse\"\b\x80}\v\x92}\x02*%\x12\x91\x01\n" +
+	"\x19DownloadNotebookDataframe\x123.chalk.notebook.v1.DownloadNotebookDataframeRequest\x1a4.chalk.notebook.v1.DownloadNotebookDataframeResponse\"\a\x80}\v\x92}\x01*0\x01\x12\x92\x01\n" +
+	"\x1aListNotebookCellRunHistory\x124.chalk.notebook.v1.ListNotebookCellRunHistoryRequest\x1a5.chalk.notebook.v1.ListNotebookCellRunHistoryResponse\"\a\x80}\v\x92}\x01*\x12\x9b\x01\n" +
+	"\x1dListNotebookDocumentRevisions\x127.chalk.notebook.v1.ListNotebookDocumentRevisionsRequest\x1a8.chalk.notebook.v1.ListNotebookDocumentRevisionsResponse\"\a\x80}\v\x92}\x01*\x12t\n" +
+	"\x10ListNotebookRuns\x12*.chalk.notebook.v1.ListNotebookRunsRequest\x1a+.chalk.notebook.v1.ListNotebookRunsResponse\"\a\x80}\v\x92}\x01*\x12\x83\x01\n" +
+	"\x15GetNotebookRunDetails\x12/.chalk.notebook.v1.GetNotebookRunDetailsRequest\x1a0.chalk.notebook.v1.GetNotebookRunDetailsResponse\"\a\x80}\v\x92}\x01*\x12\x8c\x01\n" +
+	"\x18ClearNotebookCellResults\x122.chalk.notebook.v1.ClearNotebookCellResultsRequest\x1a3.chalk.notebook.v1.ClearNotebookCellResultsResponse\"\a\x80}\x0e\x92}\x01*\x12\x95\x01\n" +
+	"\x1bGetNotebookSqlCacheSettings\x125.chalk.notebook.v1.GetNotebookSqlCacheSettingsRequest\x1a6.chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse\"\a\x80}\v\x92}\x01*\x12\x9a\x01\n" +
 	"\x1eUpdateNotebookSqlCacheSettings\x128.chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest\x1a9.chalk.notebook.v1.UpdateNotebookSqlCacheSettingsResponse\"\x03\x80}\n" +
-	"\x12|\n" +
-	"\x14StartNotebookRuntime\x12..chalk.notebook.v1.StartNotebookRuntimeRequest\x1a/.chalk.notebook.v1.StartNotebookRuntimeResponse\"\x03\x80}\f\x12y\n" +
-	"\x13StopNotebookRuntime\x12-.chalk.notebook.v1.StopNotebookRuntimeRequest\x1a..chalk.notebook.v1.StopNotebookRuntimeResponse\"\x03\x80}\f\x12\x88\x01\n" +
-	"\x18GetNotebookRuntimeStatus\x122.chalk.notebook.v1.GetNotebookRuntimeStatusRequest\x1a3.chalk.notebook.v1.GetNotebookRuntimeStatusResponse\"\x03\x80}\v\x12\x90\x01\n" +
-	"\x1aWatchNotebookRuntimeStatus\x124.chalk.notebook.v1.WatchNotebookRuntimeStatusRequest\x1a5.chalk.notebook.v1.WatchNotebookRuntimeStatusResponse\"\x03\x80}\v0\x01\x12|\n" +
-	"\x14ListNotebookRuntimes\x12..chalk.notebook.v1.ListNotebookRuntimesRequest\x1a/.chalk.notebook.v1.ListNotebookRuntimesResponse\"\x03\x80}\v\x12\x8e\x01\n" +
-	"\x1aListNotebookKernelPackages\x124.chalk.notebook.v1.ListNotebookKernelPackagesRequest\x1a5.chalk.notebook.v1.ListNotebookKernelPackagesResponse\"\x03\x80}\v\x12\x8e\x01\n" +
-	"\x1aGetNotebookDependencyGraph\x124.chalk.notebook.v1.GetNotebookDependencyGraphRequest\x1a5.chalk.notebook.v1.GetNotebookDependencyGraphResponse\"\x03\x80}\v\x12y\n" +
+	"\x12\x80\x01\n" +
+	"\x14StartNotebookRuntime\x12..chalk.notebook.v1.StartNotebookRuntimeRequest\x1a/.chalk.notebook.v1.StartNotebookRuntimeResponse\"\a\x80}\f\x92}\x01*\x12}\n" +
+	"\x13StopNotebookRuntime\x12-.chalk.notebook.v1.StopNotebookRuntimeRequest\x1a..chalk.notebook.v1.StopNotebookRuntimeResponse\"\a\x80}\f\x92}\x01*\x12\x8c\x01\n" +
+	"\x18GetNotebookRuntimeStatus\x122.chalk.notebook.v1.GetNotebookRuntimeStatusRequest\x1a3.chalk.notebook.v1.GetNotebookRuntimeStatusResponse\"\a\x80}\v\x92}\x01*\x12\x94\x01\n" +
+	"\x1aWatchNotebookRuntimeStatus\x124.chalk.notebook.v1.WatchNotebookRuntimeStatusRequest\x1a5.chalk.notebook.v1.WatchNotebookRuntimeStatusResponse\"\a\x80}\v\x92}\x01*0\x01\x12\x80\x01\n" +
+	"\x14ListNotebookRuntimes\x12..chalk.notebook.v1.ListNotebookRuntimesRequest\x1a/.chalk.notebook.v1.ListNotebookRuntimesResponse\"\a\x80}\v\x92}\x01*\x12\x92\x01\n" +
+	"\x1aListNotebookKernelPackages\x124.chalk.notebook.v1.ListNotebookKernelPackagesRequest\x1a5.chalk.notebook.v1.ListNotebookKernelPackagesResponse\"\a\x80}\v\x92}\x01*\x12\x92\x01\n" +
+	"\x1aGetNotebookDependencyGraph\x124.chalk.notebook.v1.GetNotebookDependencyGraphRequest\x1a5.chalk.notebook.v1.GetNotebookDependencyGraphResponse\"\a\x80}\v\x92}\x01*\x12y\n" +
 	"\x13ListNotebookSecrets\x12-.chalk.notebook.v1.ListNotebookSecretsRequest\x1a..chalk.notebook.v1.ListNotebookSecretsResponse\"\x03\x80}\x14\x12\x82\x01\n" +
 	"\x16GetNotebookSecretValue\x120.chalk.notebook.v1.GetNotebookSecretValueRequest\x1a1.chalk.notebook.v1.GetNotebookSecretValueResponse\"\x03\x80}\x13\x12|\n" +
 	"\x14UpsertNotebookSecret\x12..chalk.notebook.v1.UpsertNotebookSecretRequest\x1a/.chalk.notebook.v1.UpsertNotebookSecretResponse\"\x03\x80}\x12\x12|\n" +

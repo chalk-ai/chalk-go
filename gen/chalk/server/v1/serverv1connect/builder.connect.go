@@ -182,6 +182,9 @@ const (
 	// BuilderServiceGetNodepoolsProcedure is the fully-qualified name of the BuilderService's
 	// GetNodepools RPC.
 	BuilderServiceGetNodepoolsProcedure = "/chalk.server.v1.BuilderService/GetNodepools"
+	// BuilderServiceGetServiceProbeDefaultsProcedure is the fully-qualified name of the
+	// BuilderService's GetServiceProbeDefaults RPC.
+	BuilderServiceGetServiceProbeDefaultsProcedure = "/chalk.server.v1.BuilderService/GetServiceProbeDefaults"
 	// BuilderServiceGetAvailableChalkMachineTypesProcedure is the fully-qualified name of the
 	// BuilderService's GetAvailableChalkMachineTypes RPC.
 	BuilderServiceGetAvailableChalkMachineTypesProcedure = "/chalk.server.v1.BuilderService/GetAvailableChalkMachineTypes"
@@ -369,6 +372,7 @@ type BuilderServiceClient interface {
 	GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error)
 	GetBranchServerStatus(context.Context, *connect.Request[v1.GetBranchServerStatusRequest]) (*connect.Response[v1.GetBranchServerStatusResponse], error)
 	GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error)
+	GetServiceProbeDefaults(context.Context, *connect.Request[v1.GetServiceProbeDefaultsRequest]) (*connect.Response[v1.GetServiceProbeDefaultsResponse], error)
 	GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error)
 	// ----- Chalk machine type fallback overrides -----
 	// Override CRUD is team-level (cluster-scoped rows are cross-environment configuration), so
@@ -730,6 +734,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getServiceProbeDefaults: connect.NewClient[v1.GetServiceProbeDefaultsRequest, v1.GetServiceProbeDefaultsResponse](
+			httpClient,
+			baseURL+BuilderServiceGetServiceProbeDefaultsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetServiceProbeDefaults")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getAvailableChalkMachineTypes: connect.NewClient[v1.GetAvailableChalkMachineTypesRequest, v1.GetAvailableChalkMachineTypesResponse](
 			httpClient,
 			baseURL+BuilderServiceGetAvailableChalkMachineTypesProcedure,
@@ -996,6 +1007,7 @@ type builderServiceClient struct {
 	getBranchProfile                            *connect.Client[v1.GetBranchProfileRequest, v1.GetBranchProfileResponse]
 	getBranchServerStatus                       *connect.Client[v1.GetBranchServerStatusRequest, v1.GetBranchServerStatusResponse]
 	getNodepools                                *connect.Client[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse]
+	getServiceProbeDefaults                     *connect.Client[v1.GetServiceProbeDefaultsRequest, v1.GetServiceProbeDefaultsResponse]
 	getAvailableChalkMachineTypes               *connect.Client[v1.GetAvailableChalkMachineTypesRequest, v1.GetAvailableChalkMachineTypesResponse]
 	upsertChalkMachineTypeOverride              *connect.Client[v1.UpsertChalkMachineTypeOverrideRequest, v1.UpsertChalkMachineTypeOverrideResponse]
 	deleteChalkMachineTypeOverride              *connect.Client[v1.DeleteChalkMachineTypeOverrideRequest, v1.DeleteChalkMachineTypeOverrideResponse]
@@ -1298,6 +1310,11 @@ func (c *builderServiceClient) GetNodepools(ctx context.Context, req *connect.Re
 	return c.getNodepools.CallUnary(ctx, req)
 }
 
+// GetServiceProbeDefaults calls chalk.server.v1.BuilderService.GetServiceProbeDefaults.
+func (c *builderServiceClient) GetServiceProbeDefaults(ctx context.Context, req *connect.Request[v1.GetServiceProbeDefaultsRequest]) (*connect.Response[v1.GetServiceProbeDefaultsResponse], error) {
+	return c.getServiceProbeDefaults.CallUnary(ctx, req)
+}
+
 // GetAvailableChalkMachineTypes calls chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes.
 func (c *builderServiceClient) GetAvailableChalkMachineTypes(ctx context.Context, req *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error) {
 	return c.getAvailableChalkMachineTypes.CallUnary(ctx, req)
@@ -1560,6 +1577,7 @@ type BuilderServiceHandler interface {
 	GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error)
 	GetBranchServerStatus(context.Context, *connect.Request[v1.GetBranchServerStatusRequest]) (*connect.Response[v1.GetBranchServerStatusResponse], error)
 	GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error)
+	GetServiceProbeDefaults(context.Context, *connect.Request[v1.GetServiceProbeDefaultsRequest]) (*connect.Response[v1.GetServiceProbeDefaultsResponse], error)
 	GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error)
 	// ----- Chalk machine type fallback overrides -----
 	// Override CRUD is team-level (cluster-scoped rows are cross-environment configuration), so
@@ -1917,6 +1935,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetServiceProbeDefaultsHandler := connect.NewUnaryHandler(
+		BuilderServiceGetServiceProbeDefaultsProcedure,
+		svc.GetServiceProbeDefaults,
+		connect.WithSchema(builderServiceMethods.ByName("GetServiceProbeDefaults")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceGetAvailableChalkMachineTypesHandler := connect.NewUnaryHandler(
 		BuilderServiceGetAvailableChalkMachineTypesProcedure,
 		svc.GetAvailableChalkMachineTypes,
@@ -2229,6 +2254,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetBranchServerStatusHandler.ServeHTTP(w, r)
 		case BuilderServiceGetNodepoolsProcedure:
 			builderServiceGetNodepoolsHandler.ServeHTTP(w, r)
+		case BuilderServiceGetServiceProbeDefaultsProcedure:
+			builderServiceGetServiceProbeDefaultsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetAvailableChalkMachineTypesProcedure:
 			builderServiceGetAvailableChalkMachineTypesHandler.ServeHTTP(w, r)
 		case BuilderServiceUpsertChalkMachineTypeOverrideProcedure:
@@ -2500,6 +2527,10 @@ func (UnimplementedBuilderServiceHandler) GetBranchServerStatus(context.Context,
 
 func (UnimplementedBuilderServiceHandler) GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetNodepools is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetServiceProbeDefaults(context.Context, *connect.Request[v1.GetServiceProbeDefaultsRequest]) (*connect.Response[v1.GetServiceProbeDefaultsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetServiceProbeDefaults is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetAvailableChalkMachineTypes(context.Context, *connect.Request[v1.GetAvailableChalkMachineTypesRequest]) (*connect.Response[v1.GetAvailableChalkMachineTypesResponse], error) {

@@ -896,7 +896,7 @@ func (x *UnknownNode) GetTypeName() string {
 
 type GivensScan struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	/// TODO I think there's some discussion as to how exactly Givens will be implemented
+	// / TODO I think there's some discussion as to how exactly Givens will be implemented
 	// One option is basically a "project" where it lists expected fields, and caller passes in an actual PlanBatch during execution
 	Fields        []*Key `protobuf:"bytes,1,rep,name=fields,proto3" json:"fields,omitempty"`
 	unknownFields protoimpl.UnknownFields

@@ -867,9 +867,11 @@ func (*GetOnlineStoreUsageStatsRequest) Descriptor() ([]byte, []int) {
 }
 
 type GetOnlineStoreUsageStatsResponse struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Stats         []*OnlineStoreUsageStat `protobuf:"bytes,1,rep,name=stats,proto3" json:"stats,omitempty"`
-	CollectedAt   *timestamppb.Timestamp  `protobuf:"bytes,2,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
+	state       protoimpl.MessageState  `protogen:"open.v1"`
+	Stats       []*OnlineStoreUsageStat `protobuf:"bytes,1,rep,name=stats,proto3" json:"stats,omitempty"`
+	CollectedAt *timestamppb.Timestamp  `protobuf:"bytes,2,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
+	// Storage URI of the latest snapshot. Set only for Chalk admins.
+	SnapshotUri   *string `protobuf:"bytes,3,opt,name=snapshot_uri,json=snapshotUri,proto3,oneof" json:"snapshot_uri,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -916,6 +918,13 @@ func (x *GetOnlineStoreUsageStatsResponse) GetCollectedAt() *timestamppb.Timesta
 		return x.CollectedAt
 	}
 	return nil
+}
+
+func (x *GetOnlineStoreUsageStatsResponse) GetSnapshotUri() string {
+	if x != nil && x.SnapshotUri != nil {
+		return *x.SnapshotUri
+	}
+	return ""
 }
 
 type OnlineStoreCleanupStat struct {
@@ -1045,7 +1054,9 @@ type GetOnlineStoreCleanupStatsResponse struct {
 	// ID of the script task that produced this snapshot, if available.
 	ScriptTaskId *string `protobuf:"bytes,3,opt,name=script_task_id,json=scriptTaskId,proto3,oneof" json:"script_task_id,omitempty"`
 	// Start time of the job queue entry that produced this snapshot, if available.
-	JobStartedAt  *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=job_started_at,json=jobStartedAt,proto3,oneof" json:"job_started_at,omitempty"`
+	JobStartedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=job_started_at,json=jobStartedAt,proto3,oneof" json:"job_started_at,omitempty"`
+	// Storage URI of the latest snapshot. Set only for Chalk admins.
+	SnapshotUri   *string `protobuf:"bytes,5,opt,name=snapshot_uri,json=snapshotUri,proto3,oneof" json:"snapshot_uri,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1106,6 +1117,13 @@ func (x *GetOnlineStoreCleanupStatsResponse) GetJobStartedAt() *timestamppb.Time
 		return x.JobStartedAt
 	}
 	return nil
+}
+
+func (x *GetOnlineStoreCleanupStatsResponse) GetSnapshotUri() string {
+	if x != nil && x.SnapshotUri != nil {
+		return *x.SnapshotUri
+	}
+	return ""
 }
 
 type GetDynamoDBMetricsRequest struct {
@@ -1851,10 +1869,12 @@ const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\fentity_count\x18\x03 \x01(\x03R\ventityCount\x12,\n" +
 	"\x12total_memory_bytes\x18\x04 \x01(\x03R\x10totalMemoryBytes\x12;\n" +
 	"\x1atotal_memory_bytes_history\x18\x05 \x03(\x03R\x17totalMemoryBytesHistory\"!\n" +
-	"\x1fGetOnlineStoreUsageStatsRequest\"\x9e\x01\n" +
+	"\x1fGetOnlineStoreUsageStatsRequest\"\xd7\x01\n" +
 	" GetOnlineStoreUsageStatsResponse\x12;\n" +
 	"\x05stats\x18\x01 \x03(\v2%.chalk.server.v1.OnlineStoreUsageStatR\x05stats\x12=\n" +
-	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\xe6\x01\n" +
+	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12&\n" +
+	"\fsnapshot_uri\x18\x03 \x01(\tH\x00R\vsnapshotUri\x88\x01\x01B\x0f\n" +
+	"\r_snapshot_uri\"\xe6\x01\n" +
 	"\x16OnlineStoreCleanupStat\x12\x19\n" +
 	"\bkey_type\x18\x01 \x01(\tR\akeyType\x12\x1f\n" +
 	"\vaction_type\x18\x02 \x01(\tR\n" +
@@ -1863,14 +1883,16 @@ const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\rkeys_affected\x18\x04 \x01(\x03R\fkeysAffected\x12#\n" +
 	"\ritems_removed\x18\x05 \x01(\x03R\fitemsRemoved\x122\n" +
 	"\x15keys_affected_history\x18\x06 \x03(\x03R\x13keysAffectedHistory\"#\n" +
-	"!GetOnlineStoreCleanupStatsRequest\"\xba\x02\n" +
+	"!GetOnlineStoreCleanupStatsRequest\"\xf3\x02\n" +
 	"\"GetOnlineStoreCleanupStatsResponse\x12=\n" +
 	"\x05stats\x18\x01 \x03(\v2'.chalk.server.v1.OnlineStoreCleanupStatR\x05stats\x12=\n" +
 	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12)\n" +
 	"\x0escript_task_id\x18\x03 \x01(\tH\x00R\fscriptTaskId\x88\x01\x01\x12E\n" +
-	"\x0ejob_started_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fjobStartedAt\x88\x01\x01B\x11\n" +
+	"\x0ejob_started_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fjobStartedAt\x88\x01\x01\x12&\n" +
+	"\fsnapshot_uri\x18\x05 \x01(\tH\x02R\vsnapshotUri\x88\x01\x01B\x11\n" +
 	"\x0f_script_task_idB\x11\n" +
-	"\x0f_job_started_at\"]\n" +
+	"\x0f_job_started_atB\x0f\n" +
+	"\r_snapshot_uri\"]\n" +
 	"\x19GetDynamoDBMetricsRequest\x12@\n" +
 	"\n" +
 	"time_range\x18\x01 \x01(\x0e2!.chalk.server.v1.MetricsTimeRangeR\ttimeRange\"L\n" +
@@ -2041,6 +2063,7 @@ func file_chalk_server_v1_online_store_insight_proto_init() {
 		(*GetOnlineStoreConfigResponse_Dynamodb)(nil),
 		(*GetOnlineStoreConfigResponse_Elasticache)(nil),
 	}
+	file_chalk_server_v1_online_store_insight_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_server_v1_online_store_insight_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_server_v1_online_store_insight_proto_msgTypes[18].OneofWrappers = []any{}
 	type x struct{}

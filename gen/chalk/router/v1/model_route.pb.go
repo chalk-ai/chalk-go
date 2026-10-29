@@ -782,8 +782,10 @@ type ModelRoute struct {
 	CreatedAt       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	Routing         *RouteGrid             `protobuf:"bytes,9,opt,name=routing,proto3,oneof" json:"routing,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Set once the route is deleted; an archived route is retained read-only.
+	ArchivedAt    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=archived_at,json=archivedAt,proto3" json:"archived_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ModelRoute) Reset() {
@@ -879,12 +881,21 @@ func (x *ModelRoute) GetRouting() *RouteGrid {
 	return nil
 }
 
+func (x *ModelRoute) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
 type ListModelRoutesFilters struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ConnectionIds []string               `protobuf:"bytes,1,rep,name=connection_ids,json=connectionIds,proto3" json:"connection_ids,omitempty"`
 	Published     *bool                  `protobuf:"varint,2,opt,name=published,proto3,oneof" json:"published,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Include archived routes.
+	IncludeArchived *bool `protobuf:"varint,3,opt,name=include_archived,json=includeArchived,proto3,oneof" json:"include_archived,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ListModelRoutesFilters) Reset() {
@@ -927,6 +938,13 @@ func (x *ListModelRoutesFilters) GetConnectionIds() []string {
 func (x *ListModelRoutesFilters) GetPublished() bool {
 	if x != nil && x.Published != nil {
 		return *x.Published
+	}
+	return false
+}
+
+func (x *ListModelRoutesFilters) GetIncludeArchived() bool {
+	if x != nil && x.IncludeArchived != nil {
+		return *x.IncludeArchived
 	}
 	return false
 }
@@ -1708,7 +1726,7 @@ const file_chalk_router_v1_model_route_proto_rawDesc = "" +
 	"\x0edefault_target\x18\x03 \x01(\v2\x1c.chalk.router.v1.RouteTargetR\rdefaultTarget\x1a]\n" +
 	"\x0eFallbacksEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x125\n" +
-	"\x05value\x18\x02 \x01(\v2\x1f.chalk.router.v1.RouteFallbacksR\x05value:\x028\x01\"\xb2\x03\n" +
+	"\x05value\x18\x02 \x01(\v2\x1f.chalk.router.v1.RouteFallbacksR\x05value:\x028\x01\"\xef\x03\n" +
 	"\n" +
 	"ModelRoute\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12&\n" +
@@ -1723,14 +1741,19 @@ const file_chalk_router_v1_model_route_proto_rawDesc = "" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x129\n" +
-	"\arouting\x18\t \x01(\v2\x1a.chalk.router.v1.RouteGridH\x00R\arouting\x88\x01\x01B\n" +
+	"\arouting\x18\t \x01(\v2\x1a.chalk.router.v1.RouteGridH\x00R\arouting\x88\x01\x01\x12;\n" +
+	"\varchived_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"archivedAtB\n" +
 	"\n" +
-	"\b_routing\"p\n" +
+	"\b_routing\"\xb5\x01\n" +
 	"\x16ListModelRoutesFilters\x12%\n" +
 	"\x0econnection_ids\x18\x01 \x03(\tR\rconnectionIds\x12!\n" +
-	"\tpublished\x18\x02 \x01(\bH\x00R\tpublished\x88\x01\x01B\f\n" +
+	"\tpublished\x18\x02 \x01(\bH\x00R\tpublished\x88\x01\x01\x12.\n" +
+	"\x10include_archived\x18\x03 \x01(\bH\x01R\x0fincludeArchived\x88\x01\x01B\f\n" +
 	"\n" +
-	"_published\"\xa8\x01\n" +
+	"_publishedB\x13\n" +
+	"\x11_include_archived\"\xa8\x01\n" +
 	"\x16ListModelRoutesRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12A\n" +
@@ -1879,36 +1902,37 @@ var file_chalk_router_v1_model_route_proto_depIdxs = []int32{
 	30, // 14: chalk.router.v1.ModelRoute.created_at:type_name -> google.protobuf.Timestamp
 	30, // 15: chalk.router.v1.ModelRoute.updated_at:type_name -> google.protobuf.Timestamp
 	11, // 16: chalk.router.v1.ModelRoute.routing:type_name -> chalk.router.v1.RouteGrid
-	13, // 17: chalk.router.v1.ListModelRoutesRequest.filters:type_name -> chalk.router.v1.ListModelRoutesFilters
-	12, // 18: chalk.router.v1.ListModelRoutesResponse.routes:type_name -> chalk.router.v1.ModelRoute
-	11, // 19: chalk.router.v1.CreateModelRouteRequest.routing:type_name -> chalk.router.v1.RouteGrid
-	12, // 20: chalk.router.v1.CreateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
-	11, // 21: chalk.router.v1.UpdateModelRouteOperation.routing:type_name -> chalk.router.v1.RouteGrid
-	18, // 22: chalk.router.v1.UpdateModelRouteRequest.update:type_name -> chalk.router.v1.UpdateModelRouteOperation
-	31, // 23: chalk.router.v1.UpdateModelRouteRequest.update_mask:type_name -> google.protobuf.FieldMask
-	12, // 24: chalk.router.v1.UpdateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
-	23, // 25: chalk.router.v1.GetRouteJudgeDefaultsResponse.difficulty:type_name -> chalk.router.v1.JudgeOutcomeDefault
-	23, // 26: chalk.router.v1.GetRouteJudgeDefaultsResponse.task:type_name -> chalk.router.v1.JudgeOutcomeDefault
-	7,  // 27: chalk.router.v1.ValidateRouteJudgeBackendRequest.backend:type_name -> chalk.router.v1.RouteJudgeBackend
-	8,  // 28: chalk.router.v1.RouteJudge.OutcomesEntry.value:type_name -> chalk.router.v1.JudgeOutcomeConfig
-	3,  // 29: chalk.router.v1.RouteGrid.FallbacksEntry.value:type_name -> chalk.router.v1.RouteFallbacks
-	24, // 30: chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults:input_type -> chalk.router.v1.GetRouteJudgeDefaultsRequest
-	26, // 31: chalk.router.v1.ModelRouteService.ValidateRouteJudgeBackend:input_type -> chalk.router.v1.ValidateRouteJudgeBackendRequest
-	14, // 32: chalk.router.v1.ModelRouteService.ListModelRoutes:input_type -> chalk.router.v1.ListModelRoutesRequest
-	16, // 33: chalk.router.v1.ModelRouteService.CreateModelRoute:input_type -> chalk.router.v1.CreateModelRouteRequest
-	19, // 34: chalk.router.v1.ModelRouteService.UpdateModelRoute:input_type -> chalk.router.v1.UpdateModelRouteRequest
-	21, // 35: chalk.router.v1.ModelRouteService.DeleteModelRoute:input_type -> chalk.router.v1.DeleteModelRouteRequest
-	25, // 36: chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults:output_type -> chalk.router.v1.GetRouteJudgeDefaultsResponse
-	27, // 37: chalk.router.v1.ModelRouteService.ValidateRouteJudgeBackend:output_type -> chalk.router.v1.ValidateRouteJudgeBackendResponse
-	15, // 38: chalk.router.v1.ModelRouteService.ListModelRoutes:output_type -> chalk.router.v1.ListModelRoutesResponse
-	17, // 39: chalk.router.v1.ModelRouteService.CreateModelRoute:output_type -> chalk.router.v1.CreateModelRouteResponse
-	20, // 40: chalk.router.v1.ModelRouteService.UpdateModelRoute:output_type -> chalk.router.v1.UpdateModelRouteResponse
-	22, // 41: chalk.router.v1.ModelRouteService.DeleteModelRoute:output_type -> chalk.router.v1.DeleteModelRouteResponse
-	36, // [36:42] is the sub-list for method output_type
-	30, // [30:36] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	30, // 17: chalk.router.v1.ModelRoute.archived_at:type_name -> google.protobuf.Timestamp
+	13, // 18: chalk.router.v1.ListModelRoutesRequest.filters:type_name -> chalk.router.v1.ListModelRoutesFilters
+	12, // 19: chalk.router.v1.ListModelRoutesResponse.routes:type_name -> chalk.router.v1.ModelRoute
+	11, // 20: chalk.router.v1.CreateModelRouteRequest.routing:type_name -> chalk.router.v1.RouteGrid
+	12, // 21: chalk.router.v1.CreateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
+	11, // 22: chalk.router.v1.UpdateModelRouteOperation.routing:type_name -> chalk.router.v1.RouteGrid
+	18, // 23: chalk.router.v1.UpdateModelRouteRequest.update:type_name -> chalk.router.v1.UpdateModelRouteOperation
+	31, // 24: chalk.router.v1.UpdateModelRouteRequest.update_mask:type_name -> google.protobuf.FieldMask
+	12, // 25: chalk.router.v1.UpdateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
+	23, // 26: chalk.router.v1.GetRouteJudgeDefaultsResponse.difficulty:type_name -> chalk.router.v1.JudgeOutcomeDefault
+	23, // 27: chalk.router.v1.GetRouteJudgeDefaultsResponse.task:type_name -> chalk.router.v1.JudgeOutcomeDefault
+	7,  // 28: chalk.router.v1.ValidateRouteJudgeBackendRequest.backend:type_name -> chalk.router.v1.RouteJudgeBackend
+	8,  // 29: chalk.router.v1.RouteJudge.OutcomesEntry.value:type_name -> chalk.router.v1.JudgeOutcomeConfig
+	3,  // 30: chalk.router.v1.RouteGrid.FallbacksEntry.value:type_name -> chalk.router.v1.RouteFallbacks
+	24, // 31: chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults:input_type -> chalk.router.v1.GetRouteJudgeDefaultsRequest
+	26, // 32: chalk.router.v1.ModelRouteService.ValidateRouteJudgeBackend:input_type -> chalk.router.v1.ValidateRouteJudgeBackendRequest
+	14, // 33: chalk.router.v1.ModelRouteService.ListModelRoutes:input_type -> chalk.router.v1.ListModelRoutesRequest
+	16, // 34: chalk.router.v1.ModelRouteService.CreateModelRoute:input_type -> chalk.router.v1.CreateModelRouteRequest
+	19, // 35: chalk.router.v1.ModelRouteService.UpdateModelRoute:input_type -> chalk.router.v1.UpdateModelRouteRequest
+	21, // 36: chalk.router.v1.ModelRouteService.DeleteModelRoute:input_type -> chalk.router.v1.DeleteModelRouteRequest
+	25, // 37: chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults:output_type -> chalk.router.v1.GetRouteJudgeDefaultsResponse
+	27, // 38: chalk.router.v1.ModelRouteService.ValidateRouteJudgeBackend:output_type -> chalk.router.v1.ValidateRouteJudgeBackendResponse
+	15, // 39: chalk.router.v1.ModelRouteService.ListModelRoutes:output_type -> chalk.router.v1.ListModelRoutesResponse
+	17, // 40: chalk.router.v1.ModelRouteService.CreateModelRoute:output_type -> chalk.router.v1.CreateModelRouteResponse
+	20, // 41: chalk.router.v1.ModelRouteService.UpdateModelRoute:output_type -> chalk.router.v1.UpdateModelRouteResponse
+	22, // 42: chalk.router.v1.ModelRouteService.DeleteModelRoute:output_type -> chalk.router.v1.DeleteModelRouteResponse
+	37, // [37:43] is the sub-list for method output_type
+	31, // [31:37] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_model_route_proto_init() }

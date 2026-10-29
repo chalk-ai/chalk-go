@@ -297,6 +297,333 @@ func (OfflineWideTableCompactionNamespaceStatus) EnumDescriptor() ([]byte, []int
 	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{4}
 }
 
+// A one-off migration of existing skinny observation tables, run by the offline-store
+// entrypoint. Values mirror chalk_offline_store's MigrationOp.
+type OfflineStoreMigrationOp int32
+
+const (
+	OfflineStoreMigrationOp_OFFLINE_STORE_MIGRATION_OP_UNSPECIFIED OfflineStoreMigrationOp = 0
+	// Set `inserted_at DEFAULT CURRENT_TIMESTAMP()` so loads that omit the column are stamped by
+	// the warehouse. BigQuery only.
+	OfflineStoreMigrationOp_OFFLINE_STORE_MIGRATION_OP_INSERTED_AT_DEFAULT OfflineStoreMigrationOp = 1
+	// Partition skinny tables by day of `inserted_at`, which wide fills read incrementally, once
+	// wide tables serve the reads that filter on `observed_at`.
+	OfflineStoreMigrationOp_OFFLINE_STORE_MIGRATION_OP_REPARTITION_INSERTED_AT OfflineStoreMigrationOp = 2
+	// Partition skinny tables by day of `observed_at`, the creation default; reverses
+	// REPARTITION_INSERTED_AT for namespaces whose skinny tables serve reads again.
+	OfflineStoreMigrationOp_OFFLINE_STORE_MIGRATION_OP_REPARTITION_OBSERVED_AT OfflineStoreMigrationOp = 3
+)
+
+// Enum value maps for OfflineStoreMigrationOp.
+var (
+	OfflineStoreMigrationOp_name = map[int32]string{
+		0: "OFFLINE_STORE_MIGRATION_OP_UNSPECIFIED",
+		1: "OFFLINE_STORE_MIGRATION_OP_INSERTED_AT_DEFAULT",
+		2: "OFFLINE_STORE_MIGRATION_OP_REPARTITION_INSERTED_AT",
+		3: "OFFLINE_STORE_MIGRATION_OP_REPARTITION_OBSERVED_AT",
+	}
+	OfflineStoreMigrationOp_value = map[string]int32{
+		"OFFLINE_STORE_MIGRATION_OP_UNSPECIFIED":             0,
+		"OFFLINE_STORE_MIGRATION_OP_INSERTED_AT_DEFAULT":     1,
+		"OFFLINE_STORE_MIGRATION_OP_REPARTITION_INSERTED_AT": 2,
+		"OFFLINE_STORE_MIGRATION_OP_REPARTITION_OBSERVED_AT": 3,
+	}
+)
+
+func (x OfflineStoreMigrationOp) Enum() *OfflineStoreMigrationOp {
+	p := new(OfflineStoreMigrationOp)
+	*p = x
+	return p
+}
+
+func (x OfflineStoreMigrationOp) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OfflineStoreMigrationOp) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_offline_wide_tables_proto_enumTypes[5].Descriptor()
+}
+
+func (OfflineStoreMigrationOp) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_offline_wide_tables_proto_enumTypes[5]
+}
+
+func (x OfflineStoreMigrationOp) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OfflineStoreMigrationOp.Descriptor instead.
+func (OfflineStoreMigrationOp) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{5}
+}
+
+// Which of a namespace's skinny tables a migration selects.
+type OfflineStoreMigrationFeatureSet int32
+
+const (
+	OfflineStoreMigrationFeatureSet_OFFLINE_STORE_MIGRATION_FEATURE_SET_UNSPECIFIED OfflineStoreMigrationFeatureSet = 0
+	// Tables of features in the namespace's materialized feature view, which wide tables serve.
+	OfflineStoreMigrationFeatureSet_OFFLINE_STORE_MIGRATION_FEATURE_SET_MFV_FEATURES OfflineStoreMigrationFeatureSet = 1
+	// Every skinny table in the namespace.
+	OfflineStoreMigrationFeatureSet_OFFLINE_STORE_MIGRATION_FEATURE_SET_ALL_FEATURES OfflineStoreMigrationFeatureSet = 2
+)
+
+// Enum value maps for OfflineStoreMigrationFeatureSet.
+var (
+	OfflineStoreMigrationFeatureSet_name = map[int32]string{
+		0: "OFFLINE_STORE_MIGRATION_FEATURE_SET_UNSPECIFIED",
+		1: "OFFLINE_STORE_MIGRATION_FEATURE_SET_MFV_FEATURES",
+		2: "OFFLINE_STORE_MIGRATION_FEATURE_SET_ALL_FEATURES",
+	}
+	OfflineStoreMigrationFeatureSet_value = map[string]int32{
+		"OFFLINE_STORE_MIGRATION_FEATURE_SET_UNSPECIFIED":  0,
+		"OFFLINE_STORE_MIGRATION_FEATURE_SET_MFV_FEATURES": 1,
+		"OFFLINE_STORE_MIGRATION_FEATURE_SET_ALL_FEATURES": 2,
+	}
+)
+
+func (x OfflineStoreMigrationFeatureSet) Enum() *OfflineStoreMigrationFeatureSet {
+	p := new(OfflineStoreMigrationFeatureSet)
+	*p = x
+	return p
+}
+
+func (x OfflineStoreMigrationFeatureSet) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OfflineStoreMigrationFeatureSet) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_offline_wide_tables_proto_enumTypes[6].Descriptor()
+}
+
+func (OfflineStoreMigrationFeatureSet) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_offline_wide_tables_proto_enumTypes[6]
+}
+
+func (x OfflineStoreMigrationFeatureSet) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OfflineStoreMigrationFeatureSet.Descriptor instead.
+func (OfflineStoreMigrationFeatureSet) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{6}
+}
+
+// What a Snowflake warehouse reported for a run's statements.
+type SnowflakeWarehouseStats struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Warehouse execution time (EXECUTION_TIME), summed per statement.
+	ExecutionMs int64 `protobuf:"varint,1,opt,name=execution_ms,json=executionMs,proto3" json:"execution_ms,omitempty"`
+	// Estimated warehouse credits in microcredits (1,000,000 = 1 Snowflake credit): EXECUTION_TIME at
+	// the Gen1 standard rate for the warehouse size.
+	EstimatedMicrocredits int64 `protobuf:"varint,2,opt,name=estimated_microcredits,json=estimatedMicrocredits,proto3" json:"estimated_microcredits,omitempty"`
+	// Planning (COMPILATION_TIME), summed per statement. It runs in cloud services, not on the
+	// warehouse, so it is not in estimated_microcredits.
+	PlanningMs int64 `protobuf:"varint,3,opt,name=planning_ms,json=planningMs,proto3" json:"planning_ms,omitempty"`
+	// The session's warehouse (WAREHOUSE_NAME).
+	WarehouseName string `protobuf:"bytes,4,opt,name=warehouse_name,json=warehouseName,proto3" json:"warehouse_name,omitempty"`
+	// The warehouse size as Snowflake spells it, e.g. "X-Small"; empty when no statement ran on the
+	// warehouse.
+	WarehouseSize string `protobuf:"bytes,5,opt,name=warehouse_size,json=warehouseSize,proto3" json:"warehouse_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SnowflakeWarehouseStats) Reset() {
+	*x = SnowflakeWarehouseStats{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SnowflakeWarehouseStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SnowflakeWarehouseStats) ProtoMessage() {}
+
+func (x *SnowflakeWarehouseStats) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SnowflakeWarehouseStats.ProtoReflect.Descriptor instead.
+func (*SnowflakeWarehouseStats) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *SnowflakeWarehouseStats) GetExecutionMs() int64 {
+	if x != nil {
+		return x.ExecutionMs
+	}
+	return 0
+}
+
+func (x *SnowflakeWarehouseStats) GetEstimatedMicrocredits() int64 {
+	if x != nil {
+		return x.EstimatedMicrocredits
+	}
+	return 0
+}
+
+func (x *SnowflakeWarehouseStats) GetPlanningMs() int64 {
+	if x != nil {
+		return x.PlanningMs
+	}
+	return 0
+}
+
+func (x *SnowflakeWarehouseStats) GetWarehouseName() string {
+	if x != nil {
+		return x.WarehouseName
+	}
+	return ""
+}
+
+func (x *SnowflakeWarehouseStats) GetWarehouseSize() string {
+	if x != nil {
+		return x.WarehouseSize
+	}
+	return ""
+}
+
+// What BigQuery reported for a run's jobs.
+type BigQueryWarehouseStats struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Slot time summed across each job's parallel workers.
+	SlotMs        int64 `protobuf:"varint,1,opt,name=slot_ms,json=slotMs,proto3" json:"slot_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BigQueryWarehouseStats) Reset() {
+	*x = BigQueryWarehouseStats{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BigQueryWarehouseStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BigQueryWarehouseStats) ProtoMessage() {}
+
+func (x *BigQueryWarehouseStats) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BigQueryWarehouseStats.ProtoReflect.Descriptor instead.
+func (*BigQueryWarehouseStats) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *BigQueryWarehouseStats) GetSlotMs() int64 {
+	if x != nil {
+		return x.SlotMs
+	}
+	return 0
+}
+
+// What a warehouse reported for a run's statements, in its backend's own measures. The measures are
+// not comparable across backends, so each is its own variant.
+type WarehouseStats struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Details:
+	//
+	//	*WarehouseStats_Snowflake
+	//	*WarehouseStats_Bigquery
+	Details       isWarehouseStats_Details `protobuf_oneof:"details"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WarehouseStats) Reset() {
+	*x = WarehouseStats{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WarehouseStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WarehouseStats) ProtoMessage() {}
+
+func (x *WarehouseStats) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WarehouseStats.ProtoReflect.Descriptor instead.
+func (*WarehouseStats) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *WarehouseStats) GetDetails() isWarehouseStats_Details {
+	if x != nil {
+		return x.Details
+	}
+	return nil
+}
+
+func (x *WarehouseStats) GetSnowflake() *SnowflakeWarehouseStats {
+	if x != nil {
+		if x, ok := x.Details.(*WarehouseStats_Snowflake); ok {
+			return x.Snowflake
+		}
+	}
+	return nil
+}
+
+func (x *WarehouseStats) GetBigquery() *BigQueryWarehouseStats {
+	if x != nil {
+		if x, ok := x.Details.(*WarehouseStats_Bigquery); ok {
+			return x.Bigquery
+		}
+	}
+	return nil
+}
+
+type isWarehouseStats_Details interface {
+	isWarehouseStats_Details()
+}
+
+type WarehouseStats_Snowflake struct {
+	Snowflake *SnowflakeWarehouseStats `protobuf:"bytes,1,opt,name=snowflake,proto3,oneof"`
+}
+
+type WarehouseStats_Bigquery struct {
+	Bigquery *BigQueryWarehouseStats `protobuf:"bytes,2,opt,name=bigquery,proto3,oneof"`
+}
+
+func (*WarehouseStats_Snowflake) isWarehouseStats_Details() {}
+
+func (*WarehouseStats_Bigquery) isWarehouseStats_Details() {}
+
 type OfflineWideTableCompactionNamespaceResult struct {
 	state        protoimpl.MessageState                    `protogen:"open.v1"`
 	ParentRunId  string                                    `protobuf:"bytes,1,opt,name=parent_run_id,json=parentRunId,proto3" json:"parent_run_id,omitempty"`
@@ -316,7 +643,7 @@ type OfflineWideTableCompactionNamespaceResult struct {
 
 func (x *OfflineWideTableCompactionNamespaceResult) Reset() {
 	*x = OfflineWideTableCompactionNamespaceResult{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[0]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +655,7 @@ func (x *OfflineWideTableCompactionNamespaceResult) String() string {
 func (*OfflineWideTableCompactionNamespaceResult) ProtoMessage() {}
 
 func (x *OfflineWideTableCompactionNamespaceResult) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[0]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,7 +668,7 @@ func (x *OfflineWideTableCompactionNamespaceResult) ProtoReflect() protoreflect.
 
 // Deprecated: Use OfflineWideTableCompactionNamespaceResult.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableCompactionNamespaceResult) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{0}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *OfflineWideTableCompactionNamespaceResult) GetParentRunId() string {
@@ -448,21 +775,28 @@ type OfflineWideTableRun struct {
 	// currently active wide tables. May be unset while a queued job has not selected its target.
 	WideTableConfigFingerprint *int64  `protobuf:"varint,18,opt,name=wide_table_config_fingerprint,json=wideTableConfigFingerprint,proto3,oneof" json:"wide_table_config_fingerprint,omitempty"`
 	ResourceGroup              *string `protobuf:"bytes,19,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
-	// Warehouse job cost of a fill run, reported once it succeeds; 0 when the backend does not report
-	// a measure, absent for runs that did not record it. `fill_*` covers the statements that
-	// materialize the fill (every chunk plus the final INSERT for a chunked fill); `hwm_probe_*` covers the
-	// inserted_at watermark probes. Compute is the backend's measure (BigQuery: slot-ms).
-	FillBytesScanned     *int64 `protobuf:"varint,20,opt,name=fill_bytes_scanned,json=fillBytesScanned,proto3,oneof" json:"fill_bytes_scanned,omitempty"`
+	// Warehouse job cost of a fill run, reported once it succeeds; absent for runs that did not record
+	// a measure. `fill_*` covers the statements that materialize the fill (every chunk plus the final
+	// INSERT for a chunked fill); `hwm_probe_*` covers the inserted_at watermark probes.
+	FillBytesScanned *int64 `protobuf:"varint,20,opt,name=fill_bytes_scanned,json=fillBytesScanned,proto3,oneof" json:"fill_bytes_scanned,omitempty"`
+	// Use fill_warehouse_stats: this is its compute time in the backend's own measure.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/offline_wide_tables.proto.
 	FillComputeMs        *int64 `protobuf:"varint,21,opt,name=fill_compute_ms,json=fillComputeMs,proto3,oneof" json:"fill_compute_ms,omitempty"`
 	HwmProbeBytesScanned *int64 `protobuf:"varint,22,opt,name=hwm_probe_bytes_scanned,json=hwmProbeBytesScanned,proto3,oneof" json:"hwm_probe_bytes_scanned,omitempty"`
-	HwmProbeComputeMs    *int64 `protobuf:"varint,23,opt,name=hwm_probe_compute_ms,json=hwmProbeComputeMs,proto3,oneof" json:"hwm_probe_compute_ms,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Use hwm_probe_warehouse_stats: this is its compute time in the backend's own measure.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/offline_wide_tables.proto.
+	HwmProbeComputeMs      *int64          `protobuf:"varint,23,opt,name=hwm_probe_compute_ms,json=hwmProbeComputeMs,proto3,oneof" json:"hwm_probe_compute_ms,omitempty"`
+	FillWarehouseStats     *WarehouseStats `protobuf:"bytes,24,opt,name=fill_warehouse_stats,json=fillWarehouseStats,proto3,oneof" json:"fill_warehouse_stats,omitempty"`
+	HwmProbeWarehouseStats *WarehouseStats `protobuf:"bytes,25,opt,name=hwm_probe_warehouse_stats,json=hwmProbeWarehouseStats,proto3,oneof" json:"hwm_probe_warehouse_stats,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *OfflineWideTableRun) Reset() {
 	*x = OfflineWideTableRun{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -474,7 +808,7 @@ func (x *OfflineWideTableRun) String() string {
 func (*OfflineWideTableRun) ProtoMessage() {}
 
 func (x *OfflineWideTableRun) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -487,7 +821,7 @@ func (x *OfflineWideTableRun) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineWideTableRun.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableRun) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{1}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *OfflineWideTableRun) GetId() string {
@@ -630,6 +964,7 @@ func (x *OfflineWideTableRun) GetFillBytesScanned() int64 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/offline_wide_tables.proto.
 func (x *OfflineWideTableRun) GetFillComputeMs() int64 {
 	if x != nil && x.FillComputeMs != nil {
 		return *x.FillComputeMs
@@ -644,11 +979,26 @@ func (x *OfflineWideTableRun) GetHwmProbeBytesScanned() int64 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/offline_wide_tables.proto.
 func (x *OfflineWideTableRun) GetHwmProbeComputeMs() int64 {
 	if x != nil && x.HwmProbeComputeMs != nil {
 		return *x.HwmProbeComputeMs
 	}
 	return 0
+}
+
+func (x *OfflineWideTableRun) GetFillWarehouseStats() *WarehouseStats {
+	if x != nil {
+		return x.FillWarehouseStats
+	}
+	return nil
+}
+
+func (x *OfflineWideTableRun) GetHwmProbeWarehouseStats() *WarehouseStats {
+	if x != nil {
+		return x.HwmProbeWarehouseStats
+	}
+	return nil
 }
 
 type ListOfflineWideTableRunsRequest struct {
@@ -666,7 +1016,7 @@ type ListOfflineWideTableRunsRequest struct {
 
 func (x *ListOfflineWideTableRunsRequest) Reset() {
 	*x = ListOfflineWideTableRunsRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -678,7 +1028,7 @@ func (x *ListOfflineWideTableRunsRequest) String() string {
 func (*ListOfflineWideTableRunsRequest) ProtoMessage() {}
 
 func (x *ListOfflineWideTableRunsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -691,7 +1041,7 @@ func (x *ListOfflineWideTableRunsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOfflineWideTableRunsRequest.ProtoReflect.Descriptor instead.
 func (*ListOfflineWideTableRunsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListOfflineWideTableRunsRequest) GetCursor() string {
@@ -746,7 +1096,7 @@ type ListOfflineWideTableRunsResponse struct {
 
 func (x *ListOfflineWideTableRunsResponse) Reset() {
 	*x = ListOfflineWideTableRunsResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -758,7 +1108,7 @@ func (x *ListOfflineWideTableRunsResponse) String() string {
 func (*ListOfflineWideTableRunsResponse) ProtoMessage() {}
 
 func (x *ListOfflineWideTableRunsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -771,7 +1121,7 @@ func (x *ListOfflineWideTableRunsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOfflineWideTableRunsResponse.ProtoReflect.Descriptor instead.
 func (*ListOfflineWideTableRunsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListOfflineWideTableRunsResponse) GetRuns() []*OfflineWideTableRun {
@@ -797,7 +1147,7 @@ type GetOfflineWideTableRunRequest struct {
 
 func (x *GetOfflineWideTableRunRequest) Reset() {
 	*x = GetOfflineWideTableRunRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -809,7 +1159,7 @@ func (x *GetOfflineWideTableRunRequest) String() string {
 func (*GetOfflineWideTableRunRequest) ProtoMessage() {}
 
 func (x *GetOfflineWideTableRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -822,7 +1172,7 @@ func (x *GetOfflineWideTableRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOfflineWideTableRunRequest.ProtoReflect.Descriptor instead.
 func (*GetOfflineWideTableRunRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetOfflineWideTableRunRequest) GetRunId() string {
@@ -841,7 +1191,7 @@ type GetOfflineWideTableRunResponse struct {
 
 func (x *GetOfflineWideTableRunResponse) Reset() {
 	*x = GetOfflineWideTableRunResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -853,7 +1203,7 @@ func (x *GetOfflineWideTableRunResponse) String() string {
 func (*GetOfflineWideTableRunResponse) ProtoMessage() {}
 
 func (x *GetOfflineWideTableRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -866,7 +1216,7 @@ func (x *GetOfflineWideTableRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOfflineWideTableRunResponse.ProtoReflect.Descriptor instead.
 func (*GetOfflineWideTableRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetOfflineWideTableRunResponse) GetRun() *OfflineWideTableRun {
@@ -889,7 +1239,7 @@ type OfflineWideTableSchedule struct {
 
 func (x *OfflineWideTableSchedule) Reset() {
 	*x = OfflineWideTableSchedule{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -901,7 +1251,7 @@ func (x *OfflineWideTableSchedule) String() string {
 func (*OfflineWideTableSchedule) ProtoMessage() {}
 
 func (x *OfflineWideTableSchedule) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -914,7 +1264,7 @@ func (x *OfflineWideTableSchedule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineWideTableSchedule.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableSchedule) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *OfflineWideTableSchedule) GetId() string {
@@ -974,7 +1324,7 @@ type OfflineWideTableBackpressureStats struct {
 
 func (x *OfflineWideTableBackpressureStats) Reset() {
 	*x = OfflineWideTableBackpressureStats{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -986,7 +1336,7 @@ func (x *OfflineWideTableBackpressureStats) String() string {
 func (*OfflineWideTableBackpressureStats) ProtoMessage() {}
 
 func (x *OfflineWideTableBackpressureStats) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -999,7 +1349,7 @@ func (x *OfflineWideTableBackpressureStats) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use OfflineWideTableBackpressureStats.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableBackpressureStats) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *OfflineWideTableBackpressureStats) GetIsBehind() bool {
@@ -1044,7 +1394,7 @@ type OfflineWideTableScheduleInfo struct {
 
 func (x *OfflineWideTableScheduleInfo) Reset() {
 	*x = OfflineWideTableScheduleInfo{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1056,7 +1406,7 @@ func (x *OfflineWideTableScheduleInfo) String() string {
 func (*OfflineWideTableScheduleInfo) ProtoMessage() {}
 
 func (x *OfflineWideTableScheduleInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1069,7 +1419,7 @@ func (x *OfflineWideTableScheduleInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineWideTableScheduleInfo.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableScheduleInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *OfflineWideTableScheduleInfo) GetSchedule() *OfflineWideTableSchedule {
@@ -1102,7 +1452,7 @@ type GetActiveOfflineWideTableSchedulesRequest struct {
 
 func (x *GetActiveOfflineWideTableSchedulesRequest) Reset() {
 	*x = GetActiveOfflineWideTableSchedulesRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1114,7 +1464,7 @@ func (x *GetActiveOfflineWideTableSchedulesRequest) String() string {
 func (*GetActiveOfflineWideTableSchedulesRequest) ProtoMessage() {}
 
 func (x *GetActiveOfflineWideTableSchedulesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1127,7 +1477,7 @@ func (x *GetActiveOfflineWideTableSchedulesRequest) ProtoReflect() protoreflect.
 
 // Deprecated: Use GetActiveOfflineWideTableSchedulesRequest.ProtoReflect.Descriptor instead.
 func (*GetActiveOfflineWideTableSchedulesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{12}
 }
 
 // Retained for source and wire compatibility with existing clients.
@@ -1140,7 +1490,7 @@ type GetActiveOfflineWideTableSchedulesResponse struct {
 
 func (x *GetActiveOfflineWideTableSchedulesResponse) Reset() {
 	*x = GetActiveOfflineWideTableSchedulesResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1152,7 +1502,7 @@ func (x *GetActiveOfflineWideTableSchedulesResponse) String() string {
 func (*GetActiveOfflineWideTableSchedulesResponse) ProtoMessage() {}
 
 func (x *GetActiveOfflineWideTableSchedulesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1165,7 +1515,7 @@ func (x *GetActiveOfflineWideTableSchedulesResponse) ProtoReflect() protoreflect
 
 // Deprecated: Use GetActiveOfflineWideTableSchedulesResponse.ProtoReflect.Descriptor instead.
 func (*GetActiveOfflineWideTableSchedulesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetActiveOfflineWideTableSchedulesResponse) GetSchedules() []*OfflineWideTableScheduleInfo {
@@ -1188,7 +1538,7 @@ type OfflineWideTableFillInfo struct {
 
 func (x *OfflineWideTableFillInfo) Reset() {
 	*x = OfflineWideTableFillInfo{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1200,7 +1550,7 @@ func (x *OfflineWideTableFillInfo) String() string {
 func (*OfflineWideTableFillInfo) ProtoMessage() {}
 
 func (x *OfflineWideTableFillInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1213,7 +1563,7 @@ func (x *OfflineWideTableFillInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineWideTableFillInfo.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableFillInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *OfflineWideTableFillInfo) GetSchedule() *OfflineWideTableSchedule {
@@ -1253,7 +1603,7 @@ type OfflineWideTableCompactionInfo struct {
 
 func (x *OfflineWideTableCompactionInfo) Reset() {
 	*x = OfflineWideTableCompactionInfo{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1265,7 +1615,7 @@ func (x *OfflineWideTableCompactionInfo) String() string {
 func (*OfflineWideTableCompactionInfo) ProtoMessage() {}
 
 func (x *OfflineWideTableCompactionInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1278,7 +1628,7 @@ func (x *OfflineWideTableCompactionInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineWideTableCompactionInfo.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableCompactionInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *OfflineWideTableCompactionInfo) GetBackgroundCompactionEnabled() bool {
@@ -1321,7 +1671,7 @@ type OfflineWideTableNamespaceInfo struct {
 
 func (x *OfflineWideTableNamespaceInfo) Reset() {
 	*x = OfflineWideTableNamespaceInfo{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1333,7 +1683,7 @@ func (x *OfflineWideTableNamespaceInfo) String() string {
 func (*OfflineWideTableNamespaceInfo) ProtoMessage() {}
 
 func (x *OfflineWideTableNamespaceInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1346,7 +1696,7 @@ func (x *OfflineWideTableNamespaceInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineWideTableNamespaceInfo.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableNamespaceInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *OfflineWideTableNamespaceInfo) GetNamespace() string {
@@ -1387,7 +1737,7 @@ type OfflineWideTableEnvironmentMaintenanceInfo struct {
 
 func (x *OfflineWideTableEnvironmentMaintenanceInfo) Reset() {
 	*x = OfflineWideTableEnvironmentMaintenanceInfo{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1399,7 +1749,7 @@ func (x *OfflineWideTableEnvironmentMaintenanceInfo) String() string {
 func (*OfflineWideTableEnvironmentMaintenanceInfo) ProtoMessage() {}
 
 func (x *OfflineWideTableEnvironmentMaintenanceInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1412,7 +1762,7 @@ func (x *OfflineWideTableEnvironmentMaintenanceInfo) ProtoReflect() protoreflect
 
 // Deprecated: Use OfflineWideTableEnvironmentMaintenanceInfo.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableEnvironmentMaintenanceInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *OfflineWideTableEnvironmentMaintenanceInfo) GetLatestWeeklyRun() *OfflineWideTableRun {
@@ -1442,7 +1792,7 @@ type OfflineWideTableActiveConfiguration struct {
 
 func (x *OfflineWideTableActiveConfiguration) Reset() {
 	*x = OfflineWideTableActiveConfiguration{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1454,7 +1804,7 @@ func (x *OfflineWideTableActiveConfiguration) String() string {
 func (*OfflineWideTableActiveConfiguration) ProtoMessage() {}
 
 func (x *OfflineWideTableActiveConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1467,7 +1817,7 @@ func (x *OfflineWideTableActiveConfiguration) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use OfflineWideTableActiveConfiguration.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableActiveConfiguration) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *OfflineWideTableActiveConfiguration) GetNamespace() string {
@@ -1498,7 +1848,7 @@ type GetOfflineWideTableNamespacesRequest struct {
 
 func (x *GetOfflineWideTableNamespacesRequest) Reset() {
 	*x = GetOfflineWideTableNamespacesRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1510,7 +1860,7 @@ func (x *GetOfflineWideTableNamespacesRequest) String() string {
 func (*GetOfflineWideTableNamespacesRequest) ProtoMessage() {}
 
 func (x *GetOfflineWideTableNamespacesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1523,7 +1873,7 @@ func (x *GetOfflineWideTableNamespacesRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetOfflineWideTableNamespacesRequest.ProtoReflect.Descriptor instead.
 func (*GetOfflineWideTableNamespacesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetOfflineWideTableNamespacesRequest) GetActiveConfigurations() []*OfflineWideTableActiveConfiguration {
@@ -1547,7 +1897,7 @@ type GetOfflineWideTableNamespacesResponse struct {
 
 func (x *GetOfflineWideTableNamespacesResponse) Reset() {
 	*x = GetOfflineWideTableNamespacesResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1559,7 +1909,7 @@ func (x *GetOfflineWideTableNamespacesResponse) String() string {
 func (*GetOfflineWideTableNamespacesResponse) ProtoMessage() {}
 
 func (x *GetOfflineWideTableNamespacesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1572,7 +1922,7 @@ func (x *GetOfflineWideTableNamespacesResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use GetOfflineWideTableNamespacesResponse.ProtoReflect.Descriptor instead.
 func (*GetOfflineWideTableNamespacesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetOfflineWideTableNamespacesResponse) GetNamespaces() []*OfflineWideTableNamespaceInfo {
@@ -1609,7 +1959,7 @@ type TriggerOfflineWideTableFillRequest struct {
 
 func (x *TriggerOfflineWideTableFillRequest) Reset() {
 	*x = TriggerOfflineWideTableFillRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1621,7 +1971,7 @@ func (x *TriggerOfflineWideTableFillRequest) String() string {
 func (*TriggerOfflineWideTableFillRequest) ProtoMessage() {}
 
 func (x *TriggerOfflineWideTableFillRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1634,7 +1984,7 @@ func (x *TriggerOfflineWideTableFillRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use TriggerOfflineWideTableFillRequest.ProtoReflect.Descriptor instead.
 func (*TriggerOfflineWideTableFillRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *TriggerOfflineWideTableFillRequest) GetNamespace() string {
@@ -1660,7 +2010,7 @@ type TriggerOfflineWideTableFillResponse struct {
 
 func (x *TriggerOfflineWideTableFillResponse) Reset() {
 	*x = TriggerOfflineWideTableFillResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1672,7 +2022,7 @@ func (x *TriggerOfflineWideTableFillResponse) String() string {
 func (*TriggerOfflineWideTableFillResponse) ProtoMessage() {}
 
 func (x *TriggerOfflineWideTableFillResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1685,7 +2035,7 @@ func (x *TriggerOfflineWideTableFillResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use TriggerOfflineWideTableFillResponse.ProtoReflect.Descriptor instead.
 func (*TriggerOfflineWideTableFillResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *TriggerOfflineWideTableFillResponse) GetRun() *OfflineWideTableRun {
@@ -1722,7 +2072,7 @@ type TriggerOfflineWideTableOverrideFillRequest struct {
 
 func (x *TriggerOfflineWideTableOverrideFillRequest) Reset() {
 	*x = TriggerOfflineWideTableOverrideFillRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1734,7 +2084,7 @@ func (x *TriggerOfflineWideTableOverrideFillRequest) String() string {
 func (*TriggerOfflineWideTableOverrideFillRequest) ProtoMessage() {}
 
 func (x *TriggerOfflineWideTableOverrideFillRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1747,7 +2097,7 @@ func (x *TriggerOfflineWideTableOverrideFillRequest) ProtoReflect() protoreflect
 
 // Deprecated: Use TriggerOfflineWideTableOverrideFillRequest.ProtoReflect.Descriptor instead.
 func (*TriggerOfflineWideTableOverrideFillRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *TriggerOfflineWideTableOverrideFillRequest) GetNamespace() string {
@@ -1801,7 +2151,7 @@ type TriggerOfflineWideTableOverrideFillResponse struct {
 
 func (x *TriggerOfflineWideTableOverrideFillResponse) Reset() {
 	*x = TriggerOfflineWideTableOverrideFillResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1813,7 +2163,7 @@ func (x *TriggerOfflineWideTableOverrideFillResponse) String() string {
 func (*TriggerOfflineWideTableOverrideFillResponse) ProtoMessage() {}
 
 func (x *TriggerOfflineWideTableOverrideFillResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1826,7 +2176,7 @@ func (x *TriggerOfflineWideTableOverrideFillResponse) ProtoReflect() protoreflec
 
 // Deprecated: Use TriggerOfflineWideTableOverrideFillResponse.ProtoReflect.Descriptor instead.
 func (*TriggerOfflineWideTableOverrideFillResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *TriggerOfflineWideTableOverrideFillResponse) GetRun() *OfflineWideTableRun {
@@ -1849,7 +2199,7 @@ type TriggerOfflineWideTableCompactionRequest struct {
 
 func (x *TriggerOfflineWideTableCompactionRequest) Reset() {
 	*x = TriggerOfflineWideTableCompactionRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1861,7 +2211,7 @@ func (x *TriggerOfflineWideTableCompactionRequest) String() string {
 func (*TriggerOfflineWideTableCompactionRequest) ProtoMessage() {}
 
 func (x *TriggerOfflineWideTableCompactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1874,7 +2224,7 @@ func (x *TriggerOfflineWideTableCompactionRequest) ProtoReflect() protoreflect.M
 
 // Deprecated: Use TriggerOfflineWideTableCompactionRequest.ProtoReflect.Descriptor instead.
 func (*TriggerOfflineWideTableCompactionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *TriggerOfflineWideTableCompactionRequest) GetNamespace() string {
@@ -1900,7 +2250,7 @@ type TriggerOfflineWideTableCompactionResponse struct {
 
 func (x *TriggerOfflineWideTableCompactionResponse) Reset() {
 	*x = TriggerOfflineWideTableCompactionResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1912,7 +2262,7 @@ func (x *TriggerOfflineWideTableCompactionResponse) String() string {
 func (*TriggerOfflineWideTableCompactionResponse) ProtoMessage() {}
 
 func (x *TriggerOfflineWideTableCompactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1925,12 +2275,275 @@ func (x *TriggerOfflineWideTableCompactionResponse) ProtoReflect() protoreflect.
 
 // Deprecated: Use TriggerOfflineWideTableCompactionResponse.ProtoReflect.Descriptor instead.
 func (*TriggerOfflineWideTableCompactionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *TriggerOfflineWideTableCompactionResponse) GetOperationId() string {
 	if x != nil {
 		return x.OperationId
+	}
+	return ""
+}
+
+type OfflineStoreMigrationNamespaceSelection struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Selecting MFV_FEATURES fails the request for a namespace without a materialized feature view.
+	Features      OfflineStoreMigrationFeatureSet `protobuf:"varint,2,opt,name=features,proto3,enum=chalk.server.v1.OfflineStoreMigrationFeatureSet" json:"features,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OfflineStoreMigrationNamespaceSelection) Reset() {
+	*x = OfflineStoreMigrationNamespaceSelection{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OfflineStoreMigrationNamespaceSelection) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OfflineStoreMigrationNamespaceSelection) ProtoMessage() {}
+
+func (x *OfflineStoreMigrationNamespaceSelection) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OfflineStoreMigrationNamespaceSelection.ProtoReflect.Descriptor instead.
+func (*OfflineStoreMigrationNamespaceSelection) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *OfflineStoreMigrationNamespaceSelection) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *OfflineStoreMigrationNamespaceSelection) GetFeatures() OfflineStoreMigrationFeatureSet {
+	if x != nil {
+		return x.Features
+	}
+	return OfflineStoreMigrationFeatureSet_OFFLINE_STORE_MIGRATION_FEATURE_SET_UNSPECIFIED
+}
+
+// Tables migrated: each namespace's selected tables plus the named tables. Must not be empty.
+type OfflineStoreMigrationTableSelection struct {
+	state      protoimpl.MessageState                     `protogen:"open.v1"`
+	Namespaces []*OfflineStoreMigrationNamespaceSelection `protobuf:"bytes,1,rep,name=namespaces,proto3" json:"namespaces,omitempty"`
+	// Warehouse skinny table names (`feat_...`) as listed in a dry run's report; not feature FQNs.
+	TableNames    []string `protobuf:"bytes,2,rep,name=table_names,json=tableNames,proto3" json:"table_names,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OfflineStoreMigrationTableSelection) Reset() {
+	*x = OfflineStoreMigrationTableSelection{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OfflineStoreMigrationTableSelection) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OfflineStoreMigrationTableSelection) ProtoMessage() {}
+
+func (x *OfflineStoreMigrationTableSelection) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OfflineStoreMigrationTableSelection.ProtoReflect.Descriptor instead.
+func (*OfflineStoreMigrationTableSelection) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *OfflineStoreMigrationTableSelection) GetNamespaces() []*OfflineStoreMigrationNamespaceSelection {
+	if x != nil {
+		return x.Namespaces
+	}
+	return nil
+}
+
+func (x *OfflineStoreMigrationTableSelection) GetTableNames() []string {
+	if x != nil {
+		return x.TableNames
+	}
+	return nil
+}
+
+type TriggerOfflineStoreMigrationRequest struct {
+	state protoimpl.MessageState  `protogen:"open.v1"`
+	Op    OfflineStoreMigrationOp `protobuf:"varint,1,opt,name=op,proto3,enum=chalk.server.v1.OfflineStoreMigrationOp" json:"op,omitempty"`
+	// Perform the pending work; otherwise a dry run that only reports it.
+	Apply bool `protobuf:"varint,2,opt,name=apply,proto3" json:"apply,omitempty"`
+	// Required: there is no implicit "every table".
+	//
+	// Types that are valid to be assigned to Scope:
+	//
+	//	*TriggerOfflineStoreMigrationRequest_AllNamespaces
+	//	*TriggerOfflineStoreMigrationRequest_Selection
+	Scope         isTriggerOfflineStoreMigrationRequest_Scope `protobuf_oneof:"scope"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TriggerOfflineStoreMigrationRequest) Reset() {
+	*x = TriggerOfflineStoreMigrationRequest{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TriggerOfflineStoreMigrationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TriggerOfflineStoreMigrationRequest) ProtoMessage() {}
+
+func (x *TriggerOfflineStoreMigrationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TriggerOfflineStoreMigrationRequest.ProtoReflect.Descriptor instead.
+func (*TriggerOfflineStoreMigrationRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *TriggerOfflineStoreMigrationRequest) GetOp() OfflineStoreMigrationOp {
+	if x != nil {
+		return x.Op
+	}
+	return OfflineStoreMigrationOp_OFFLINE_STORE_MIGRATION_OP_UNSPECIFIED
+}
+
+func (x *TriggerOfflineStoreMigrationRequest) GetApply() bool {
+	if x != nil {
+		return x.Apply
+	}
+	return false
+}
+
+func (x *TriggerOfflineStoreMigrationRequest) GetScope() isTriggerOfflineStoreMigrationRequest_Scope {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
+}
+
+func (x *TriggerOfflineStoreMigrationRequest) GetAllNamespaces() OfflineStoreMigrationFeatureSet {
+	if x != nil {
+		if x, ok := x.Scope.(*TriggerOfflineStoreMigrationRequest_AllNamespaces); ok {
+			return x.AllNamespaces
+		}
+	}
+	return OfflineStoreMigrationFeatureSet_OFFLINE_STORE_MIGRATION_FEATURE_SET_UNSPECIFIED
+}
+
+func (x *TriggerOfflineStoreMigrationRequest) GetSelection() *OfflineStoreMigrationTableSelection {
+	if x != nil {
+		if x, ok := x.Scope.(*TriggerOfflineStoreMigrationRequest_Selection); ok {
+			return x.Selection
+		}
+	}
+	return nil
+}
+
+type isTriggerOfflineStoreMigrationRequest_Scope interface {
+	isTriggerOfflineStoreMigrationRequest_Scope()
+}
+
+type TriggerOfflineStoreMigrationRequest_AllNamespaces struct {
+	// This feature set in every namespace of the active deployment.
+	AllNamespaces OfflineStoreMigrationFeatureSet `protobuf:"varint,3,opt,name=all_namespaces,json=allNamespaces,proto3,enum=chalk.server.v1.OfflineStoreMigrationFeatureSet,oneof"`
+}
+
+type TriggerOfflineStoreMigrationRequest_Selection struct {
+	Selection *OfflineStoreMigrationTableSelection `protobuf:"bytes,4,opt,name=selection,proto3,oneof"`
+}
+
+func (*TriggerOfflineStoreMigrationRequest_AllNamespaces) isTriggerOfflineStoreMigrationRequest_Scope() {
+}
+
+func (*TriggerOfflineStoreMigrationRequest_Selection) isTriggerOfflineStoreMigrationRequest_Scope() {}
+
+type TriggerOfflineStoreMigrationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Kubernetes Job running the migration. Its logs carry the outcome; nothing else is recorded.
+	JobName       string `protobuf:"bytes,1,opt,name=job_name,json=jobName,proto3" json:"job_name,omitempty"`
+	KubeNamespace string `protobuf:"bytes,2,opt,name=kube_namespace,json=kubeNamespace,proto3" json:"kube_namespace,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TriggerOfflineStoreMigrationResponse) Reset() {
+	*x = TriggerOfflineStoreMigrationResponse{}
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TriggerOfflineStoreMigrationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TriggerOfflineStoreMigrationResponse) ProtoMessage() {}
+
+func (x *TriggerOfflineStoreMigrationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TriggerOfflineStoreMigrationResponse.ProtoReflect.Descriptor instead.
+func (*TriggerOfflineStoreMigrationResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *TriggerOfflineStoreMigrationResponse) GetJobName() string {
+	if x != nil {
+		return x.JobName
+	}
+	return ""
+}
+
+func (x *TriggerOfflineStoreMigrationResponse) GetKubeNamespace() string {
+	if x != nil {
+		return x.KubeNamespace
 	}
 	return ""
 }
@@ -1948,7 +2561,7 @@ type MaterializedFeatureViewControl struct {
 
 func (x *MaterializedFeatureViewControl) Reset() {
 	*x = MaterializedFeatureViewControl{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1960,7 +2573,7 @@ func (x *MaterializedFeatureViewControl) String() string {
 func (*MaterializedFeatureViewControl) ProtoMessage() {}
 
 func (x *MaterializedFeatureViewControl) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1973,7 +2586,7 @@ func (x *MaterializedFeatureViewControl) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MaterializedFeatureViewControl.ProtoReflect.Descriptor instead.
 func (*MaterializedFeatureViewControl) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *MaterializedFeatureViewControl) GetName() string {
@@ -2013,7 +2626,7 @@ type UpdateMaterializedFeatureViewControlOperation struct {
 
 func (x *UpdateMaterializedFeatureViewControlOperation) Reset() {
 	*x = UpdateMaterializedFeatureViewControlOperation{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2025,7 +2638,7 @@ func (x *UpdateMaterializedFeatureViewControlOperation) String() string {
 func (*UpdateMaterializedFeatureViewControlOperation) ProtoMessage() {}
 
 func (x *UpdateMaterializedFeatureViewControlOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2038,7 +2651,7 @@ func (x *UpdateMaterializedFeatureViewControlOperation) ProtoReflect() protorefl
 
 // Deprecated: Use UpdateMaterializedFeatureViewControlOperation.ProtoReflect.Descriptor instead.
 func (*UpdateMaterializedFeatureViewControlOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *UpdateMaterializedFeatureViewControlOperation) GetStatus() CronControlStatus {
@@ -2065,7 +2678,7 @@ type UpdateMaterializedFeatureViewControlRequest struct {
 
 func (x *UpdateMaterializedFeatureViewControlRequest) Reset() {
 	*x = UpdateMaterializedFeatureViewControlRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2077,7 +2690,7 @@ func (x *UpdateMaterializedFeatureViewControlRequest) String() string {
 func (*UpdateMaterializedFeatureViewControlRequest) ProtoMessage() {}
 
 func (x *UpdateMaterializedFeatureViewControlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2090,7 +2703,7 @@ func (x *UpdateMaterializedFeatureViewControlRequest) ProtoReflect() protoreflec
 
 // Deprecated: Use UpdateMaterializedFeatureViewControlRequest.ProtoReflect.Descriptor instead.
 func (*UpdateMaterializedFeatureViewControlRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *UpdateMaterializedFeatureViewControlRequest) GetName() string {
@@ -2131,7 +2744,7 @@ type UpdateMaterializedFeatureViewControlResponse struct {
 
 func (x *UpdateMaterializedFeatureViewControlResponse) Reset() {
 	*x = UpdateMaterializedFeatureViewControlResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2143,7 +2756,7 @@ func (x *UpdateMaterializedFeatureViewControlResponse) String() string {
 func (*UpdateMaterializedFeatureViewControlResponse) ProtoMessage() {}
 
 func (x *UpdateMaterializedFeatureViewControlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2156,7 +2769,7 @@ func (x *UpdateMaterializedFeatureViewControlResponse) ProtoReflect() protorefle
 
 // Deprecated: Use UpdateMaterializedFeatureViewControlResponse.ProtoReflect.Descriptor instead.
 func (*UpdateMaterializedFeatureViewControlResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *UpdateMaterializedFeatureViewControlResponse) GetControl() *MaterializedFeatureViewControl {
@@ -2190,7 +2803,7 @@ type OfflineWideTableFeatureWatermark struct {
 
 func (x *OfflineWideTableFeatureWatermark) Reset() {
 	*x = OfflineWideTableFeatureWatermark{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2202,7 +2815,7 @@ func (x *OfflineWideTableFeatureWatermark) String() string {
 func (*OfflineWideTableFeatureWatermark) ProtoMessage() {}
 
 func (x *OfflineWideTableFeatureWatermark) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2215,7 +2828,7 @@ func (x *OfflineWideTableFeatureWatermark) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OfflineWideTableFeatureWatermark.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableFeatureWatermark) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *OfflineWideTableFeatureWatermark) GetConfigFingerprint() int64 {
@@ -2272,7 +2885,7 @@ type GetOfflineWideTableFeatureWatermarksRequest struct {
 
 func (x *GetOfflineWideTableFeatureWatermarksRequest) Reset() {
 	*x = GetOfflineWideTableFeatureWatermarksRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2284,7 +2897,7 @@ func (x *GetOfflineWideTableFeatureWatermarksRequest) String() string {
 func (*GetOfflineWideTableFeatureWatermarksRequest) ProtoMessage() {}
 
 func (x *GetOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2297,7 +2910,7 @@ func (x *GetOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoreflec
 
 // Deprecated: Use GetOfflineWideTableFeatureWatermarksRequest.ProtoReflect.Descriptor instead.
 func (*GetOfflineWideTableFeatureWatermarksRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetOfflineWideTableFeatureWatermarksRequest) GetNamespace() string {
@@ -2339,7 +2952,7 @@ type GetOfflineWideTableFeatureWatermarksResponse struct {
 
 func (x *GetOfflineWideTableFeatureWatermarksResponse) Reset() {
 	*x = GetOfflineWideTableFeatureWatermarksResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2351,7 +2964,7 @@ func (x *GetOfflineWideTableFeatureWatermarksResponse) String() string {
 func (*GetOfflineWideTableFeatureWatermarksResponse) ProtoMessage() {}
 
 func (x *GetOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2364,7 +2977,7 @@ func (x *GetOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protorefle
 
 // Deprecated: Use GetOfflineWideTableFeatureWatermarksResponse.ProtoReflect.Descriptor instead.
 func (*GetOfflineWideTableFeatureWatermarksResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GetOfflineWideTableFeatureWatermarksResponse) GetWatermarks() []*OfflineWideTableFeatureWatermark {
@@ -2392,7 +3005,7 @@ type OfflineWideTableFeatureWatermarkUpdate struct {
 
 func (x *OfflineWideTableFeatureWatermarkUpdate) Reset() {
 	*x = OfflineWideTableFeatureWatermarkUpdate{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2404,7 +3017,7 @@ func (x *OfflineWideTableFeatureWatermarkUpdate) String() string {
 func (*OfflineWideTableFeatureWatermarkUpdate) ProtoMessage() {}
 
 func (x *OfflineWideTableFeatureWatermarkUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2417,7 +3030,7 @@ func (x *OfflineWideTableFeatureWatermarkUpdate) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use OfflineWideTableFeatureWatermarkUpdate.ProtoReflect.Descriptor instead.
 func (*OfflineWideTableFeatureWatermarkUpdate) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *OfflineWideTableFeatureWatermarkUpdate) GetFeatureFqn() string {
@@ -2449,7 +3062,7 @@ type SetOfflineWideTableFeatureWatermarksRequest struct {
 
 func (x *SetOfflineWideTableFeatureWatermarksRequest) Reset() {
 	*x = SetOfflineWideTableFeatureWatermarksRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2461,7 +3074,7 @@ func (x *SetOfflineWideTableFeatureWatermarksRequest) String() string {
 func (*SetOfflineWideTableFeatureWatermarksRequest) ProtoMessage() {}
 
 func (x *SetOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2474,7 +3087,7 @@ func (x *SetOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoreflec
 
 // Deprecated: Use SetOfflineWideTableFeatureWatermarksRequest.ProtoReflect.Descriptor instead.
 func (*SetOfflineWideTableFeatureWatermarksRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *SetOfflineWideTableFeatureWatermarksRequest) GetNamespace() string {
@@ -2507,7 +3120,7 @@ type SetOfflineWideTableFeatureWatermarksResponse struct {
 
 func (x *SetOfflineWideTableFeatureWatermarksResponse) Reset() {
 	*x = SetOfflineWideTableFeatureWatermarksResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2519,7 +3132,7 @@ func (x *SetOfflineWideTableFeatureWatermarksResponse) String() string {
 func (*SetOfflineWideTableFeatureWatermarksResponse) ProtoMessage() {}
 
 func (x *SetOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2532,7 +3145,7 @@ func (x *SetOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protorefle
 
 // Deprecated: Use SetOfflineWideTableFeatureWatermarksResponse.ProtoReflect.Descriptor instead.
 func (*SetOfflineWideTableFeatureWatermarksResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *SetOfflineWideTableFeatureWatermarksResponse) GetWatermarksWritten() int64 {
@@ -2558,7 +3171,7 @@ type DeleteOfflineWideTableFeatureWatermarksRequest struct {
 
 func (x *DeleteOfflineWideTableFeatureWatermarksRequest) Reset() {
 	*x = DeleteOfflineWideTableFeatureWatermarksRequest{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2570,7 +3183,7 @@ func (x *DeleteOfflineWideTableFeatureWatermarksRequest) String() string {
 func (*DeleteOfflineWideTableFeatureWatermarksRequest) ProtoMessage() {}
 
 func (x *DeleteOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2583,7 +3196,7 @@ func (x *DeleteOfflineWideTableFeatureWatermarksRequest) ProtoReflect() protoref
 
 // Deprecated: Use DeleteOfflineWideTableFeatureWatermarksRequest.ProtoReflect.Descriptor instead.
 func (*DeleteOfflineWideTableFeatureWatermarksRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *DeleteOfflineWideTableFeatureWatermarksRequest) GetNamespace() string {
@@ -2623,7 +3236,7 @@ type DeleteOfflineWideTableFeatureWatermarksResponse struct {
 
 func (x *DeleteOfflineWideTableFeatureWatermarksResponse) Reset() {
 	*x = DeleteOfflineWideTableFeatureWatermarksResponse{}
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2635,7 +3248,7 @@ func (x *DeleteOfflineWideTableFeatureWatermarksResponse) String() string {
 func (*DeleteOfflineWideTableFeatureWatermarksResponse) ProtoMessage() {}
 
 func (x *DeleteOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_offline_wide_tables_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2648,7 +3261,7 @@ func (x *DeleteOfflineWideTableFeatureWatermarksResponse) ProtoReflect() protore
 
 // Deprecated: Use DeleteOfflineWideTableFeatureWatermarksResponse.ProtoReflect.Descriptor instead.
 func (*DeleteOfflineWideTableFeatureWatermarksResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{35}
+	return file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *DeleteOfflineWideTableFeatureWatermarksResponse) GetWatermarksDeleted() int64 {
@@ -2662,7 +3275,20 @@ var File_chalk_server_v1_offline_wide_tables_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\n" +
-	")chalk/server/v1/offline_wide_tables.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/graph/v1/graph.proto\x1a)chalk/server/v1/scheduled_query_run.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfb\x04\n" +
+	")chalk/server/v1/offline_wide_tables.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/graph/v1/graph.proto\x1a)chalk/server/v1/scheduled_query_run.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe2\x01\n" +
+	"\x17SnowflakeWarehouseStats\x12!\n" +
+	"\fexecution_ms\x18\x01 \x01(\x03R\vexecutionMs\x125\n" +
+	"\x16estimated_microcredits\x18\x02 \x01(\x03R\x15estimatedMicrocredits\x12\x1f\n" +
+	"\vplanning_ms\x18\x03 \x01(\x03R\n" +
+	"planningMs\x12%\n" +
+	"\x0ewarehouse_name\x18\x04 \x01(\tR\rwarehouseName\x12%\n" +
+	"\x0ewarehouse_size\x18\x05 \x01(\tR\rwarehouseSize\"1\n" +
+	"\x16BigQueryWarehouseStats\x12\x17\n" +
+	"\aslot_ms\x18\x01 \x01(\x03R\x06slotMs\"\xac\x01\n" +
+	"\x0eWarehouseStats\x12H\n" +
+	"\tsnowflake\x18\x01 \x01(\v2(.chalk.server.v1.SnowflakeWarehouseStatsH\x00R\tsnowflake\x12E\n" +
+	"\bbigquery\x18\x02 \x01(\v2'.chalk.server.v1.BigQueryWarehouseStatsH\x00R\bbigqueryB\t\n" +
+	"\adetails\"\xfb\x04\n" +
 	")OfflineWideTableCompactionNamespaceResult\x12\"\n" +
 	"\rparent_run_id\x18\x01 \x01(\tR\vparentRunId\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12R\n" +
@@ -2681,7 +3307,7 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\v_started_atB\x0e\n" +
 	"\f_finished_atB\x0f\n" +
 	"\r_job_queue_idB \n" +
-	"\x1e_wide_table_config_fingerprint\"\xac\f\n" +
+	"\x1e_wide_table_config_fingerprint\"\xa4\x0e\n" +
 	"\x13OfflineWideTableRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12(\n" +
@@ -2710,10 +3336,12 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\x1dwide_table_config_fingerprint\x18\x12 \x01(\x03H\tR\x1awideTableConfigFingerprint\x88\x01\x01\x12*\n" +
 	"\x0eresource_group\x18\x13 \x01(\tH\n" +
 	"R\rresourceGroup\x88\x01\x01\x121\n" +
-	"\x12fill_bytes_scanned\x18\x14 \x01(\x03H\vR\x10fillBytesScanned\x88\x01\x01\x12+\n" +
-	"\x0ffill_compute_ms\x18\x15 \x01(\x03H\fR\rfillComputeMs\x88\x01\x01\x12:\n" +
-	"\x17hwm_probe_bytes_scanned\x18\x16 \x01(\x03H\rR\x14hwmProbeBytesScanned\x88\x01\x01\x124\n" +
-	"\x14hwm_probe_compute_ms\x18\x17 \x01(\x03H\x0eR\x11hwmProbeComputeMs\x88\x01\x01B\x10\n" +
+	"\x12fill_bytes_scanned\x18\x14 \x01(\x03H\vR\x10fillBytesScanned\x88\x01\x01\x12/\n" +
+	"\x0ffill_compute_ms\x18\x15 \x01(\x03B\x02\x18\x01H\fR\rfillComputeMs\x88\x01\x01\x12:\n" +
+	"\x17hwm_probe_bytes_scanned\x18\x16 \x01(\x03H\rR\x14hwmProbeBytesScanned\x88\x01\x01\x128\n" +
+	"\x14hwm_probe_compute_ms\x18\x17 \x01(\x03B\x02\x18\x01H\x0eR\x11hwmProbeComputeMs\x88\x01\x01\x12V\n" +
+	"\x14fill_warehouse_stats\x18\x18 \x01(\v2\x1f.chalk.server.v1.WarehouseStatsH\x0fR\x12fillWarehouseStats\x88\x01\x01\x12_\n" +
+	"\x19hwm_probe_warehouse_stats\x18\x19 \x01(\v2\x1f.chalk.server.v1.WarehouseStatsH\x10R\x16hwmProbeWarehouseStats\x88\x01\x01B\x10\n" +
 	"\x0e_deployment_idB\x1a\n" +
 	"\x18_watermark_before_microsB\x19\n" +
 	"\x17_watermark_after_microsB\x0e\n" +
@@ -2728,7 +3356,9 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\x13_fill_bytes_scannedB\x12\n" +
 	"\x10_fill_compute_msB\x1a\n" +
 	"\x18_hwm_probe_bytes_scannedB\x17\n" +
-	"\x15_hwm_probe_compute_ms\"\x8a\x03\n" +
+	"\x15_hwm_probe_compute_msB\x17\n" +
+	"\x15_fill_warehouse_statsB\x1c\n" +
+	"\x1a_hwm_probe_warehouse_stats\"\x8a\x03\n" +
 	"\x1fListOfflineWideTableRunsRequest\x12\x16\n" +
 	"\x06cursor\x18\x01 \x01(\tR\x06cursor\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12!\n" +
@@ -2833,7 +3463,25 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12%\n" +
 	"\x0eresource_group\x18\x02 \x01(\tR\rresourceGroup\"N\n" +
 	")TriggerOfflineWideTableCompactionResponse\x12!\n" +
-	"\foperation_id\x18\x01 \x01(\tR\voperationId\"\xec\x01\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId\"\x95\x01\n" +
+	"'OfflineStoreMigrationNamespaceSelection\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12L\n" +
+	"\bfeatures\x18\x02 \x01(\x0e20.chalk.server.v1.OfflineStoreMigrationFeatureSetR\bfeatures\"\xa0\x01\n" +
+	"#OfflineStoreMigrationTableSelection\x12X\n" +
+	"\n" +
+	"namespaces\x18\x01 \x03(\v28.chalk.server.v1.OfflineStoreMigrationNamespaceSelectionR\n" +
+	"namespaces\x12\x1f\n" +
+	"\vtable_names\x18\x02 \x03(\tR\n" +
+	"tableNames\"\xaf\x02\n" +
+	"#TriggerOfflineStoreMigrationRequest\x128\n" +
+	"\x02op\x18\x01 \x01(\x0e2(.chalk.server.v1.OfflineStoreMigrationOpR\x02op\x12\x14\n" +
+	"\x05apply\x18\x02 \x01(\bR\x05apply\x12Y\n" +
+	"\x0eall_namespaces\x18\x03 \x01(\x0e20.chalk.server.v1.OfflineStoreMigrationFeatureSetH\x00R\rallNamespaces\x12T\n" +
+	"\tselection\x18\x04 \x01(\v24.chalk.server.v1.OfflineStoreMigrationTableSelectionH\x00R\tselectionB\a\n" +
+	"\x05scope\"h\n" +
+	"$TriggerOfflineStoreMigrationResponse\x12\x19\n" +
+	"\bjob_name\x18\x01 \x01(\tR\ajobName\x12%\n" +
+	"\x0ekube_namespace\x18\x02 \x01(\tR\rkubeNamespace\"\xec\x01\n" +
 	"\x1eMaterializedFeatureViewControl\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12:\n" +
 	"\x06status\x18\x02 \x01(\x0e2\".chalk.server.v1.CronControlStatusR\x06status\x12\x1e\n" +
@@ -2915,7 +3563,16 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"6OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_RUNNING\x10\x02\x12<\n" +
 	"8OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_COMPLETED\x10\x03\x129\n" +
 	"5OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_FAILED\x10\x04\x12C\n" +
-	"?OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_SKIPPED_DISABLED\x10\x052\xd6\x0e\n" +
+	"?OFFLINE_WIDE_TABLE_COMPACTION_NAMESPACE_STATUS_SKIPPED_DISABLED\x10\x05*\xe9\x01\n" +
+	"\x17OfflineStoreMigrationOp\x12*\n" +
+	"&OFFLINE_STORE_MIGRATION_OP_UNSPECIFIED\x10\x00\x122\n" +
+	".OFFLINE_STORE_MIGRATION_OP_INSERTED_AT_DEFAULT\x10\x01\x126\n" +
+	"2OFFLINE_STORE_MIGRATION_OP_REPARTITION_INSERTED_AT\x10\x02\x126\n" +
+	"2OFFLINE_STORE_MIGRATION_OP_REPARTITION_OBSERVED_AT\x10\x03*\xc2\x01\n" +
+	"\x1fOfflineStoreMigrationFeatureSet\x123\n" +
+	"/OFFLINE_STORE_MIGRATION_FEATURE_SET_UNSPECIFIED\x10\x00\x124\n" +
+	"0OFFLINE_STORE_MIGRATION_FEATURE_SET_MFV_FEATURES\x10\x01\x124\n" +
+	"0OFFLINE_STORE_MIGRATION_FEATURE_SET_ALL_FEATURES\x10\x022\xe9\x0f\n" +
 	"\x18OfflineWideTablesService\x12\xab\x01\n" +
 	"$UpdateMaterializedFeatureViewControl\x12<.chalk.server.v1.UpdateMaterializedFeatureViewControlRequest\x1a=.chalk.server.v1.UpdateMaterializedFeatureViewControlResponse\"\x06\x80}\x11\x90\x02\x02\x12\x87\x01\n" +
 	"\x18ListOfflineWideTableRuns\x120.chalk.server.v1.ListOfflineWideTableRunsRequest\x1a1.chalk.server.v1.ListOfflineWideTableRunsResponse\"\x06\x80}\x10\x90\x02\x01\x12\x81\x01\n" +
@@ -2924,7 +3581,8 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\x1dGetOfflineWideTableNamespaces\x125.chalk.server.v1.GetOfflineWideTableNamespacesRequest\x1a6.chalk.server.v1.GetOfflineWideTableNamespacesResponse\"\x06\x80}\x10\x90\x02\x01\x12\x8d\x01\n" +
 	"\x1bTriggerOfflineWideTableFill\x123.chalk.server.v1.TriggerOfflineWideTableFillRequest\x1a4.chalk.server.v1.TriggerOfflineWideTableFillResponse\"\x03\x80}\x11\x12\xa5\x01\n" +
 	"#TriggerOfflineWideTableOverrideFill\x12;.chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest\x1a<.chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse\"\x03\x80}\x1b\x12\x9f\x01\n" +
-	"!TriggerOfflineWideTableCompaction\x129.chalk.server.v1.TriggerOfflineWideTableCompactionRequest\x1a:.chalk.server.v1.TriggerOfflineWideTableCompactionResponse\"\x03\x80}\x11\x12\xab\x01\n" +
+	"!TriggerOfflineWideTableCompaction\x129.chalk.server.v1.TriggerOfflineWideTableCompactionRequest\x1a:.chalk.server.v1.TriggerOfflineWideTableCompactionResponse\"\x03\x80}\x11\x12\x90\x01\n" +
+	"\x1cTriggerOfflineStoreMigration\x124.chalk.server.v1.TriggerOfflineStoreMigrationRequest\x1a5.chalk.server.v1.TriggerOfflineStoreMigrationResponse\"\x03\x80}\x19\x12\xab\x01\n" +
 	"$GetOfflineWideTableFeatureWatermarks\x12<.chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest\x1a=.chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse\"\x06\x80}\x10\x90\x02\x01\x12\xd1\x01\n" +
 	"$SetOfflineWideTableFeatureWatermarks\x12<.chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest\x1a=.chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse\",\x80}\x11\x8a\xd3\x0e%\b\x02\x12!Set wide-table feature watermarks\x12\xdd\x01\n" +
 	"'DeleteOfflineWideTableFeatureWatermarks\x12?.chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest\x1a@.chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse\"/\x80}\x11\x8a\xd3\x0e(\b\x02\x12$Delete wide-table feature watermarksB\xc6\x01\n" +
@@ -2942,139 +3600,159 @@ func file_chalk_server_v1_offline_wide_tables_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_offline_wide_tables_proto_rawDescData
 }
 
-var file_chalk_server_v1_offline_wide_tables_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_chalk_server_v1_offline_wide_tables_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_chalk_server_v1_offline_wide_tables_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_chalk_server_v1_offline_wide_tables_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_chalk_server_v1_offline_wide_tables_proto_goTypes = []any{
 	(OfflineWideTableRunKind)(0),                            // 0: chalk.server.v1.OfflineWideTableRunKind
 	(OfflineWideTableRunStatus)(0),                          // 1: chalk.server.v1.OfflineWideTableRunStatus
 	(OfflineWideTableRunSkipReason)(0),                      // 2: chalk.server.v1.OfflineWideTableRunSkipReason
 	(OfflineWideTableRunTriggerKind)(0),                     // 3: chalk.server.v1.OfflineWideTableRunTriggerKind
 	(OfflineWideTableCompactionNamespaceStatus)(0),          // 4: chalk.server.v1.OfflineWideTableCompactionNamespaceStatus
-	(*OfflineWideTableCompactionNamespaceResult)(nil),       // 5: chalk.server.v1.OfflineWideTableCompactionNamespaceResult
-	(*OfflineWideTableRun)(nil),                             // 6: chalk.server.v1.OfflineWideTableRun
-	(*ListOfflineWideTableRunsRequest)(nil),                 // 7: chalk.server.v1.ListOfflineWideTableRunsRequest
-	(*ListOfflineWideTableRunsResponse)(nil),                // 8: chalk.server.v1.ListOfflineWideTableRunsResponse
-	(*GetOfflineWideTableRunRequest)(nil),                   // 9: chalk.server.v1.GetOfflineWideTableRunRequest
-	(*GetOfflineWideTableRunResponse)(nil),                  // 10: chalk.server.v1.GetOfflineWideTableRunResponse
-	(*OfflineWideTableSchedule)(nil),                        // 11: chalk.server.v1.OfflineWideTableSchedule
-	(*OfflineWideTableBackpressureStats)(nil),               // 12: chalk.server.v1.OfflineWideTableBackpressureStats
-	(*OfflineWideTableScheduleInfo)(nil),                    // 13: chalk.server.v1.OfflineWideTableScheduleInfo
-	(*GetActiveOfflineWideTableSchedulesRequest)(nil),       // 14: chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
-	(*GetActiveOfflineWideTableSchedulesResponse)(nil),      // 15: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
-	(*OfflineWideTableFillInfo)(nil),                        // 16: chalk.server.v1.OfflineWideTableFillInfo
-	(*OfflineWideTableCompactionInfo)(nil),                  // 17: chalk.server.v1.OfflineWideTableCompactionInfo
-	(*OfflineWideTableNamespaceInfo)(nil),                   // 18: chalk.server.v1.OfflineWideTableNamespaceInfo
-	(*OfflineWideTableEnvironmentMaintenanceInfo)(nil),      // 19: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
-	(*OfflineWideTableActiveConfiguration)(nil),             // 20: chalk.server.v1.OfflineWideTableActiveConfiguration
-	(*GetOfflineWideTableNamespacesRequest)(nil),            // 21: chalk.server.v1.GetOfflineWideTableNamespacesRequest
-	(*GetOfflineWideTableNamespacesResponse)(nil),           // 22: chalk.server.v1.GetOfflineWideTableNamespacesResponse
-	(*TriggerOfflineWideTableFillRequest)(nil),              // 23: chalk.server.v1.TriggerOfflineWideTableFillRequest
-	(*TriggerOfflineWideTableFillResponse)(nil),             // 24: chalk.server.v1.TriggerOfflineWideTableFillResponse
-	(*TriggerOfflineWideTableOverrideFillRequest)(nil),      // 25: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest
-	(*TriggerOfflineWideTableOverrideFillResponse)(nil),     // 26: chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse
-	(*TriggerOfflineWideTableCompactionRequest)(nil),        // 27: chalk.server.v1.TriggerOfflineWideTableCompactionRequest
-	(*TriggerOfflineWideTableCompactionResponse)(nil),       // 28: chalk.server.v1.TriggerOfflineWideTableCompactionResponse
-	(*MaterializedFeatureViewControl)(nil),                  // 29: chalk.server.v1.MaterializedFeatureViewControl
-	(*UpdateMaterializedFeatureViewControlOperation)(nil),   // 30: chalk.server.v1.UpdateMaterializedFeatureViewControlOperation
-	(*UpdateMaterializedFeatureViewControlRequest)(nil),     // 31: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest
-	(*UpdateMaterializedFeatureViewControlResponse)(nil),    // 32: chalk.server.v1.UpdateMaterializedFeatureViewControlResponse
-	(*OfflineWideTableFeatureWatermark)(nil),                // 33: chalk.server.v1.OfflineWideTableFeatureWatermark
-	(*GetOfflineWideTableFeatureWatermarksRequest)(nil),     // 34: chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest
-	(*GetOfflineWideTableFeatureWatermarksResponse)(nil),    // 35: chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse
-	(*OfflineWideTableFeatureWatermarkUpdate)(nil),          // 36: chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate
-	(*SetOfflineWideTableFeatureWatermarksRequest)(nil),     // 37: chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest
-	(*SetOfflineWideTableFeatureWatermarksResponse)(nil),    // 38: chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse
-	(*DeleteOfflineWideTableFeatureWatermarksRequest)(nil),  // 39: chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest
-	(*DeleteOfflineWideTableFeatureWatermarksResponse)(nil), // 40: chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse
-	(*timestamppb.Timestamp)(nil),                           // 41: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                                   // 42: google.protobuf.Empty
-	(*v1.MaterializedFeatureView)(nil),                      // 43: chalk.graph.v1.MaterializedFeatureView
-	(CronControlStatus)(0),                                  // 44: chalk.server.v1.CronControlStatus
-	(*fieldmaskpb.FieldMask)(nil),                           // 45: google.protobuf.FieldMask
+	(OfflineStoreMigrationOp)(0),                            // 5: chalk.server.v1.OfflineStoreMigrationOp
+	(OfflineStoreMigrationFeatureSet)(0),                    // 6: chalk.server.v1.OfflineStoreMigrationFeatureSet
+	(*SnowflakeWarehouseStats)(nil),                         // 7: chalk.server.v1.SnowflakeWarehouseStats
+	(*BigQueryWarehouseStats)(nil),                          // 8: chalk.server.v1.BigQueryWarehouseStats
+	(*WarehouseStats)(nil),                                  // 9: chalk.server.v1.WarehouseStats
+	(*OfflineWideTableCompactionNamespaceResult)(nil),       // 10: chalk.server.v1.OfflineWideTableCompactionNamespaceResult
+	(*OfflineWideTableRun)(nil),                             // 11: chalk.server.v1.OfflineWideTableRun
+	(*ListOfflineWideTableRunsRequest)(nil),                 // 12: chalk.server.v1.ListOfflineWideTableRunsRequest
+	(*ListOfflineWideTableRunsResponse)(nil),                // 13: chalk.server.v1.ListOfflineWideTableRunsResponse
+	(*GetOfflineWideTableRunRequest)(nil),                   // 14: chalk.server.v1.GetOfflineWideTableRunRequest
+	(*GetOfflineWideTableRunResponse)(nil),                  // 15: chalk.server.v1.GetOfflineWideTableRunResponse
+	(*OfflineWideTableSchedule)(nil),                        // 16: chalk.server.v1.OfflineWideTableSchedule
+	(*OfflineWideTableBackpressureStats)(nil),               // 17: chalk.server.v1.OfflineWideTableBackpressureStats
+	(*OfflineWideTableScheduleInfo)(nil),                    // 18: chalk.server.v1.OfflineWideTableScheduleInfo
+	(*GetActiveOfflineWideTableSchedulesRequest)(nil),       // 19: chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
+	(*GetActiveOfflineWideTableSchedulesResponse)(nil),      // 20: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
+	(*OfflineWideTableFillInfo)(nil),                        // 21: chalk.server.v1.OfflineWideTableFillInfo
+	(*OfflineWideTableCompactionInfo)(nil),                  // 22: chalk.server.v1.OfflineWideTableCompactionInfo
+	(*OfflineWideTableNamespaceInfo)(nil),                   // 23: chalk.server.v1.OfflineWideTableNamespaceInfo
+	(*OfflineWideTableEnvironmentMaintenanceInfo)(nil),      // 24: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
+	(*OfflineWideTableActiveConfiguration)(nil),             // 25: chalk.server.v1.OfflineWideTableActiveConfiguration
+	(*GetOfflineWideTableNamespacesRequest)(nil),            // 26: chalk.server.v1.GetOfflineWideTableNamespacesRequest
+	(*GetOfflineWideTableNamespacesResponse)(nil),           // 27: chalk.server.v1.GetOfflineWideTableNamespacesResponse
+	(*TriggerOfflineWideTableFillRequest)(nil),              // 28: chalk.server.v1.TriggerOfflineWideTableFillRequest
+	(*TriggerOfflineWideTableFillResponse)(nil),             // 29: chalk.server.v1.TriggerOfflineWideTableFillResponse
+	(*TriggerOfflineWideTableOverrideFillRequest)(nil),      // 30: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest
+	(*TriggerOfflineWideTableOverrideFillResponse)(nil),     // 31: chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse
+	(*TriggerOfflineWideTableCompactionRequest)(nil),        // 32: chalk.server.v1.TriggerOfflineWideTableCompactionRequest
+	(*TriggerOfflineWideTableCompactionResponse)(nil),       // 33: chalk.server.v1.TriggerOfflineWideTableCompactionResponse
+	(*OfflineStoreMigrationNamespaceSelection)(nil),         // 34: chalk.server.v1.OfflineStoreMigrationNamespaceSelection
+	(*OfflineStoreMigrationTableSelection)(nil),             // 35: chalk.server.v1.OfflineStoreMigrationTableSelection
+	(*TriggerOfflineStoreMigrationRequest)(nil),             // 36: chalk.server.v1.TriggerOfflineStoreMigrationRequest
+	(*TriggerOfflineStoreMigrationResponse)(nil),            // 37: chalk.server.v1.TriggerOfflineStoreMigrationResponse
+	(*MaterializedFeatureViewControl)(nil),                  // 38: chalk.server.v1.MaterializedFeatureViewControl
+	(*UpdateMaterializedFeatureViewControlOperation)(nil),   // 39: chalk.server.v1.UpdateMaterializedFeatureViewControlOperation
+	(*UpdateMaterializedFeatureViewControlRequest)(nil),     // 40: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest
+	(*UpdateMaterializedFeatureViewControlResponse)(nil),    // 41: chalk.server.v1.UpdateMaterializedFeatureViewControlResponse
+	(*OfflineWideTableFeatureWatermark)(nil),                // 42: chalk.server.v1.OfflineWideTableFeatureWatermark
+	(*GetOfflineWideTableFeatureWatermarksRequest)(nil),     // 43: chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest
+	(*GetOfflineWideTableFeatureWatermarksResponse)(nil),    // 44: chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse
+	(*OfflineWideTableFeatureWatermarkUpdate)(nil),          // 45: chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate
+	(*SetOfflineWideTableFeatureWatermarksRequest)(nil),     // 46: chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest
+	(*SetOfflineWideTableFeatureWatermarksResponse)(nil),    // 47: chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse
+	(*DeleteOfflineWideTableFeatureWatermarksRequest)(nil),  // 48: chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest
+	(*DeleteOfflineWideTableFeatureWatermarksResponse)(nil), // 49: chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse
+	(*timestamppb.Timestamp)(nil),                           // 50: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                                   // 51: google.protobuf.Empty
+	(*v1.MaterializedFeatureView)(nil),                      // 52: chalk.graph.v1.MaterializedFeatureView
+	(CronControlStatus)(0),                                  // 53: chalk.server.v1.CronControlStatus
+	(*fieldmaskpb.FieldMask)(nil),                           // 54: google.protobuf.FieldMask
 }
 var file_chalk_server_v1_offline_wide_tables_proto_depIdxs = []int32{
-	4,  // 0: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.status:type_name -> chalk.server.v1.OfflineWideTableCompactionNamespaceStatus
-	41, // 1: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.created_at:type_name -> google.protobuf.Timestamp
-	41, // 2: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.started_at:type_name -> google.protobuf.Timestamp
-	41, // 3: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.finished_at:type_name -> google.protobuf.Timestamp
-	0,  // 4: chalk.server.v1.OfflineWideTableRun.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
-	1,  // 5: chalk.server.v1.OfflineWideTableRun.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
-	41, // 6: chalk.server.v1.OfflineWideTableRun.created_at:type_name -> google.protobuf.Timestamp
-	41, // 7: chalk.server.v1.OfflineWideTableRun.started_at:type_name -> google.protobuf.Timestamp
-	41, // 8: chalk.server.v1.OfflineWideTableRun.finished_at:type_name -> google.protobuf.Timestamp
-	2,  // 9: chalk.server.v1.OfflineWideTableRun.skip_reason:type_name -> chalk.server.v1.OfflineWideTableRunSkipReason
-	3,  // 10: chalk.server.v1.OfflineWideTableRun.trigger_kind:type_name -> chalk.server.v1.OfflineWideTableRunTriggerKind
-	42, // 11: chalk.server.v1.OfflineWideTableRun.environment:type_name -> google.protobuf.Empty
-	1,  // 12: chalk.server.v1.ListOfflineWideTableRunsRequest.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
-	0,  // 13: chalk.server.v1.ListOfflineWideTableRunsRequest.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
-	3,  // 14: chalk.server.v1.ListOfflineWideTableRunsRequest.trigger_kind:type_name -> chalk.server.v1.OfflineWideTableRunTriggerKind
-	6,  // 15: chalk.server.v1.ListOfflineWideTableRunsResponse.runs:type_name -> chalk.server.v1.OfflineWideTableRun
-	6,  // 16: chalk.server.v1.GetOfflineWideTableRunResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
-	0,  // 17: chalk.server.v1.OfflineWideTableSchedule.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
-	11, // 18: chalk.server.v1.OfflineWideTableScheduleInfo.schedule:type_name -> chalk.server.v1.OfflineWideTableSchedule
-	6,  // 19: chalk.server.v1.OfflineWideTableScheduleInfo.latest_run:type_name -> chalk.server.v1.OfflineWideTableRun
-	12, // 20: chalk.server.v1.OfflineWideTableScheduleInfo.backpressure_stats:type_name -> chalk.server.v1.OfflineWideTableBackpressureStats
-	13, // 21: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse.schedules:type_name -> chalk.server.v1.OfflineWideTableScheduleInfo
-	11, // 22: chalk.server.v1.OfflineWideTableFillInfo.schedule:type_name -> chalk.server.v1.OfflineWideTableSchedule
-	6,  // 23: chalk.server.v1.OfflineWideTableFillInfo.latest_run:type_name -> chalk.server.v1.OfflineWideTableRun
-	12, // 24: chalk.server.v1.OfflineWideTableFillInfo.backpressure_stats:type_name -> chalk.server.v1.OfflineWideTableBackpressureStats
-	6,  // 25: chalk.server.v1.OfflineWideTableCompactionInfo.latest_manual_run:type_name -> chalk.server.v1.OfflineWideTableRun
-	6,  // 26: chalk.server.v1.OfflineWideTableCompactionInfo.latest_weekly_run:type_name -> chalk.server.v1.OfflineWideTableRun
-	5,  // 27: chalk.server.v1.OfflineWideTableCompactionInfo.latest_weekly_result:type_name -> chalk.server.v1.OfflineWideTableCompactionNamespaceResult
-	16, // 28: chalk.server.v1.OfflineWideTableNamespaceInfo.fill:type_name -> chalk.server.v1.OfflineWideTableFillInfo
-	17, // 29: chalk.server.v1.OfflineWideTableNamespaceInfo.compaction:type_name -> chalk.server.v1.OfflineWideTableCompactionInfo
-	29, // 30: chalk.server.v1.OfflineWideTableNamespaceInfo.control:type_name -> chalk.server.v1.MaterializedFeatureViewControl
-	6,  // 31: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.latest_weekly_run:type_name -> chalk.server.v1.OfflineWideTableRun
-	41, // 32: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.next_weekly_run_at:type_name -> google.protobuf.Timestamp
-	20, // 33: chalk.server.v1.GetOfflineWideTableNamespacesRequest.active_configurations:type_name -> chalk.server.v1.OfflineWideTableActiveConfiguration
-	18, // 34: chalk.server.v1.GetOfflineWideTableNamespacesResponse.namespaces:type_name -> chalk.server.v1.OfflineWideTableNamespaceInfo
-	19, // 35: chalk.server.v1.GetOfflineWideTableNamespacesResponse.environment_maintenance:type_name -> chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
-	41, // 36: chalk.server.v1.GetOfflineWideTableNamespacesResponse.latest_completed_fill_at:type_name -> google.protobuf.Timestamp
-	6,  // 37: chalk.server.v1.TriggerOfflineWideTableFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
-	43, // 38: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.materialized_feature_view:type_name -> chalk.graph.v1.MaterializedFeatureView
-	41, // 39: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.inserted_at_lower_bound_exclusive:type_name -> google.protobuf.Timestamp
-	41, // 40: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.inserted_at_upper_bound_inclusive:type_name -> google.protobuf.Timestamp
-	41, // 41: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.observed_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
-	6,  // 42: chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
-	44, // 43: chalk.server.v1.MaterializedFeatureViewControl.status:type_name -> chalk.server.v1.CronControlStatus
-	41, // 44: chalk.server.v1.MaterializedFeatureViewControl.updated_at:type_name -> google.protobuf.Timestamp
-	44, // 45: chalk.server.v1.UpdateMaterializedFeatureViewControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
-	44, // 46: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.status:type_name -> chalk.server.v1.CronControlStatus
-	45, // 47: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.update_mask:type_name -> google.protobuf.FieldMask
-	30, // 48: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.update:type_name -> chalk.server.v1.UpdateMaterializedFeatureViewControlOperation
-	29, // 49: chalk.server.v1.UpdateMaterializedFeatureViewControlResponse.control:type_name -> chalk.server.v1.MaterializedFeatureViewControl
-	41, // 50: chalk.server.v1.OfflineWideTableFeatureWatermark.filled_through:type_name -> google.protobuf.Timestamp
-	41, // 51: chalk.server.v1.OfflineWideTableFeatureWatermark.updated_at:type_name -> google.protobuf.Timestamp
-	33, // 52: chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse.watermarks:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermark
-	41, // 53: chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate.filled_through:type_name -> google.protobuf.Timestamp
-	36, // 54: chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest.updates:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate
-	31, // 55: chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl:input_type -> chalk.server.v1.UpdateMaterializedFeatureViewControlRequest
-	7,  // 56: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
-	9,  // 57: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
-	14, // 58: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
-	21, // 59: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:input_type -> chalk.server.v1.GetOfflineWideTableNamespacesRequest
-	23, // 60: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
-	25, // 61: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableOverrideFill:input_type -> chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest
-	27, // 62: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
-	34, // 63: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest
-	37, // 64: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest
-	39, // 65: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest
-	32, // 66: chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl:output_type -> chalk.server.v1.UpdateMaterializedFeatureViewControlResponse
-	8,  // 67: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
-	10, // 68: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
-	15, // 69: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
-	22, // 70: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:output_type -> chalk.server.v1.GetOfflineWideTableNamespacesResponse
-	24, // 71: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
-	26, // 72: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableOverrideFill:output_type -> chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse
-	28, // 73: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
-	35, // 74: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse
-	38, // 75: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse
-	40, // 76: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse
-	66, // [66:77] is the sub-list for method output_type
-	55, // [55:66] is the sub-list for method input_type
-	55, // [55:55] is the sub-list for extension type_name
-	55, // [55:55] is the sub-list for extension extendee
-	0,  // [0:55] is the sub-list for field type_name
+	7,  // 0: chalk.server.v1.WarehouseStats.snowflake:type_name -> chalk.server.v1.SnowflakeWarehouseStats
+	8,  // 1: chalk.server.v1.WarehouseStats.bigquery:type_name -> chalk.server.v1.BigQueryWarehouseStats
+	4,  // 2: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.status:type_name -> chalk.server.v1.OfflineWideTableCompactionNamespaceStatus
+	50, // 3: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.created_at:type_name -> google.protobuf.Timestamp
+	50, // 4: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.started_at:type_name -> google.protobuf.Timestamp
+	50, // 5: chalk.server.v1.OfflineWideTableCompactionNamespaceResult.finished_at:type_name -> google.protobuf.Timestamp
+	0,  // 6: chalk.server.v1.OfflineWideTableRun.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
+	1,  // 7: chalk.server.v1.OfflineWideTableRun.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
+	50, // 8: chalk.server.v1.OfflineWideTableRun.created_at:type_name -> google.protobuf.Timestamp
+	50, // 9: chalk.server.v1.OfflineWideTableRun.started_at:type_name -> google.protobuf.Timestamp
+	50, // 10: chalk.server.v1.OfflineWideTableRun.finished_at:type_name -> google.protobuf.Timestamp
+	2,  // 11: chalk.server.v1.OfflineWideTableRun.skip_reason:type_name -> chalk.server.v1.OfflineWideTableRunSkipReason
+	3,  // 12: chalk.server.v1.OfflineWideTableRun.trigger_kind:type_name -> chalk.server.v1.OfflineWideTableRunTriggerKind
+	51, // 13: chalk.server.v1.OfflineWideTableRun.environment:type_name -> google.protobuf.Empty
+	9,  // 14: chalk.server.v1.OfflineWideTableRun.fill_warehouse_stats:type_name -> chalk.server.v1.WarehouseStats
+	9,  // 15: chalk.server.v1.OfflineWideTableRun.hwm_probe_warehouse_stats:type_name -> chalk.server.v1.WarehouseStats
+	1,  // 16: chalk.server.v1.ListOfflineWideTableRunsRequest.status:type_name -> chalk.server.v1.OfflineWideTableRunStatus
+	0,  // 17: chalk.server.v1.ListOfflineWideTableRunsRequest.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
+	3,  // 18: chalk.server.v1.ListOfflineWideTableRunsRequest.trigger_kind:type_name -> chalk.server.v1.OfflineWideTableRunTriggerKind
+	11, // 19: chalk.server.v1.ListOfflineWideTableRunsResponse.runs:type_name -> chalk.server.v1.OfflineWideTableRun
+	11, // 20: chalk.server.v1.GetOfflineWideTableRunResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
+	0,  // 21: chalk.server.v1.OfflineWideTableSchedule.kind:type_name -> chalk.server.v1.OfflineWideTableRunKind
+	16, // 22: chalk.server.v1.OfflineWideTableScheduleInfo.schedule:type_name -> chalk.server.v1.OfflineWideTableSchedule
+	11, // 23: chalk.server.v1.OfflineWideTableScheduleInfo.latest_run:type_name -> chalk.server.v1.OfflineWideTableRun
+	17, // 24: chalk.server.v1.OfflineWideTableScheduleInfo.backpressure_stats:type_name -> chalk.server.v1.OfflineWideTableBackpressureStats
+	18, // 25: chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse.schedules:type_name -> chalk.server.v1.OfflineWideTableScheduleInfo
+	16, // 26: chalk.server.v1.OfflineWideTableFillInfo.schedule:type_name -> chalk.server.v1.OfflineWideTableSchedule
+	11, // 27: chalk.server.v1.OfflineWideTableFillInfo.latest_run:type_name -> chalk.server.v1.OfflineWideTableRun
+	17, // 28: chalk.server.v1.OfflineWideTableFillInfo.backpressure_stats:type_name -> chalk.server.v1.OfflineWideTableBackpressureStats
+	11, // 29: chalk.server.v1.OfflineWideTableCompactionInfo.latest_manual_run:type_name -> chalk.server.v1.OfflineWideTableRun
+	11, // 30: chalk.server.v1.OfflineWideTableCompactionInfo.latest_weekly_run:type_name -> chalk.server.v1.OfflineWideTableRun
+	10, // 31: chalk.server.v1.OfflineWideTableCompactionInfo.latest_weekly_result:type_name -> chalk.server.v1.OfflineWideTableCompactionNamespaceResult
+	21, // 32: chalk.server.v1.OfflineWideTableNamespaceInfo.fill:type_name -> chalk.server.v1.OfflineWideTableFillInfo
+	22, // 33: chalk.server.v1.OfflineWideTableNamespaceInfo.compaction:type_name -> chalk.server.v1.OfflineWideTableCompactionInfo
+	38, // 34: chalk.server.v1.OfflineWideTableNamespaceInfo.control:type_name -> chalk.server.v1.MaterializedFeatureViewControl
+	11, // 35: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.latest_weekly_run:type_name -> chalk.server.v1.OfflineWideTableRun
+	50, // 36: chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo.next_weekly_run_at:type_name -> google.protobuf.Timestamp
+	25, // 37: chalk.server.v1.GetOfflineWideTableNamespacesRequest.active_configurations:type_name -> chalk.server.v1.OfflineWideTableActiveConfiguration
+	23, // 38: chalk.server.v1.GetOfflineWideTableNamespacesResponse.namespaces:type_name -> chalk.server.v1.OfflineWideTableNamespaceInfo
+	24, // 39: chalk.server.v1.GetOfflineWideTableNamespacesResponse.environment_maintenance:type_name -> chalk.server.v1.OfflineWideTableEnvironmentMaintenanceInfo
+	50, // 40: chalk.server.v1.GetOfflineWideTableNamespacesResponse.latest_completed_fill_at:type_name -> google.protobuf.Timestamp
+	11, // 41: chalk.server.v1.TriggerOfflineWideTableFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
+	52, // 42: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.materialized_feature_view:type_name -> chalk.graph.v1.MaterializedFeatureView
+	50, // 43: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.inserted_at_lower_bound_exclusive:type_name -> google.protobuf.Timestamp
+	50, // 44: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.inserted_at_upper_bound_inclusive:type_name -> google.protobuf.Timestamp
+	50, // 45: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.observed_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	11, // 46: chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
+	6,  // 47: chalk.server.v1.OfflineStoreMigrationNamespaceSelection.features:type_name -> chalk.server.v1.OfflineStoreMigrationFeatureSet
+	34, // 48: chalk.server.v1.OfflineStoreMigrationTableSelection.namespaces:type_name -> chalk.server.v1.OfflineStoreMigrationNamespaceSelection
+	5,  // 49: chalk.server.v1.TriggerOfflineStoreMigrationRequest.op:type_name -> chalk.server.v1.OfflineStoreMigrationOp
+	6,  // 50: chalk.server.v1.TriggerOfflineStoreMigrationRequest.all_namespaces:type_name -> chalk.server.v1.OfflineStoreMigrationFeatureSet
+	35, // 51: chalk.server.v1.TriggerOfflineStoreMigrationRequest.selection:type_name -> chalk.server.v1.OfflineStoreMigrationTableSelection
+	53, // 52: chalk.server.v1.MaterializedFeatureViewControl.status:type_name -> chalk.server.v1.CronControlStatus
+	50, // 53: chalk.server.v1.MaterializedFeatureViewControl.updated_at:type_name -> google.protobuf.Timestamp
+	53, // 54: chalk.server.v1.UpdateMaterializedFeatureViewControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
+	53, // 55: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.status:type_name -> chalk.server.v1.CronControlStatus
+	54, // 56: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.update_mask:type_name -> google.protobuf.FieldMask
+	39, // 57: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.update:type_name -> chalk.server.v1.UpdateMaterializedFeatureViewControlOperation
+	38, // 58: chalk.server.v1.UpdateMaterializedFeatureViewControlResponse.control:type_name -> chalk.server.v1.MaterializedFeatureViewControl
+	50, // 59: chalk.server.v1.OfflineWideTableFeatureWatermark.filled_through:type_name -> google.protobuf.Timestamp
+	50, // 60: chalk.server.v1.OfflineWideTableFeatureWatermark.updated_at:type_name -> google.protobuf.Timestamp
+	42, // 61: chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse.watermarks:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermark
+	50, // 62: chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate.filled_through:type_name -> google.protobuf.Timestamp
+	45, // 63: chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest.updates:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate
+	40, // 64: chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl:input_type -> chalk.server.v1.UpdateMaterializedFeatureViewControlRequest
+	12, // 65: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
+	14, // 66: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
+	19, // 67: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
+	26, // 68: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:input_type -> chalk.server.v1.GetOfflineWideTableNamespacesRequest
+	28, // 69: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
+	30, // 70: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableOverrideFill:input_type -> chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest
+	32, // 71: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
+	36, // 72: chalk.server.v1.OfflineWideTablesService.TriggerOfflineStoreMigration:input_type -> chalk.server.v1.TriggerOfflineStoreMigrationRequest
+	43, // 73: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest
+	46, // 74: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest
+	48, // 75: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest
+	41, // 76: chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl:output_type -> chalk.server.v1.UpdateMaterializedFeatureViewControlResponse
+	13, // 77: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
+	15, // 78: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
+	20, // 79: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
+	27, // 80: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:output_type -> chalk.server.v1.GetOfflineWideTableNamespacesResponse
+	29, // 81: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
+	31, // 82: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableOverrideFill:output_type -> chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse
+	33, // 83: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
+	37, // 84: chalk.server.v1.OfflineWideTablesService.TriggerOfflineStoreMigration:output_type -> chalk.server.v1.TriggerOfflineStoreMigrationResponse
+	44, // 85: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse
+	47, // 86: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse
+	49, // 87: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse
+	76, // [76:88] is the sub-list for method output_type
+	64, // [64:76] is the sub-list for method input_type
+	64, // [64:64] is the sub-list for extension type_name
+	64, // [64:64] is the sub-list for extension extendee
+	0,  // [0:64] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_wide_tables_proto_init() }
@@ -3083,29 +3761,37 @@ func file_chalk_server_v1_offline_wide_tables_proto_init() {
 		return
 	}
 	file_chalk_server_v1_scheduled_query_run_proto_init()
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[8].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[2].OneofWrappers = []any{
+		(*WarehouseStats_Snowflake)(nil),
+		(*WarehouseStats_Bigquery)(nil),
+	}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[3].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[11].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[18].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[20].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[24].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29].OneofWrappers = []any{
+		(*TriggerOfflineStoreMigrationRequest_AllNamespaces)(nil),
+		(*TriggerOfflineStoreMigrationRequest_Selection)(nil),
+	}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[31].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[32].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[34].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[39].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[41].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_offline_wide_tables_proto_rawDesc), len(file_chalk_server_v1_offline_wide_tables_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   36,
+			NumEnums:      7,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

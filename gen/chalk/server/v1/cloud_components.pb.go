@@ -3768,7 +3768,7 @@ type UpdateCloudComponentClusterRequest struct {
 	// Optional for compatibility with legacy clients. When present, must be nonempty and
 	// contain only spec.dns_zone (unmanaged clusters), spec.data_plane_redis,
 	// spec.dataplane_controller, spec.maintenance_window, spec.dynamic_config, or a field
-	// nested within one of these sections (for example spec.dynamic_config.hypervisor).
+	// nested within one of these sections (for example spec.dynamic_config.hypervisor.warm_images).
 	// Paths are relative to cluster; each selected field replaces the stored value,
 	// including clearing it when omitted. Output-only and unselected fields are ignored.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -9175,7 +9175,10 @@ func (*DataplaneControllerDynamicConfig) Descriptor() ([]byte, []int) {
 }
 
 type HypervisorDynamicConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Image references every hypervisor keeps pulled and cached. On a cluster this is the customer's
+	// list; go-api adds the deployment's default warm images before delivering it to the dataplane.
+	WarmImages    []string `protobuf:"bytes,1,rep,name=warm_images,json=warmImages,proto3" json:"warm_images,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9208,6 +9211,13 @@ func (x *HypervisorDynamicConfig) ProtoReflect() protoreflect.Message {
 // Deprecated: Use HypervisorDynamicConfig.ProtoReflect.Descriptor instead.
 func (*HypervisorDynamicConfig) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{167}
+}
+
+func (x *HypervisorDynamicConfig) GetWarmImages() []string {
+	if x != nil {
+		return x.WarmImages
+	}
+	return nil
 }
 
 type ListRecoveryClusterTargetsRequest struct {
@@ -10260,8 +10270,10 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"hypervisor\x88\x01\x01B\x17\n" +
 	"\x15_dataplane_controllerB\r\n" +
 	"\v_hypervisor\"\"\n" +
-	" DataplaneControllerDynamicConfig\"\x19\n" +
-	"\x17HypervisorDynamicConfig\"#\n" +
+	" DataplaneControllerDynamicConfig\":\n" +
+	"\x17HypervisorDynamicConfig\x12\x1f\n" +
+	"\vwarm_images\x18\x01 \x03(\tR\n" +
+	"warmImages\"#\n" +
 	"!ListRecoveryClusterTargetsRequest\"\x86\x01\n" +
 	"\"ListRecoveryClusterTargetsResponse\x12`\n" +
 	"\x18recovery_cluster_targets\x18\x01 \x03(\v2&.chalk.server.v1.RecoveryClusterTargetR\x16recoveryClusterTargets\"c\n" +

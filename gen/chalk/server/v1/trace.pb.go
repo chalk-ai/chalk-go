@@ -1599,10 +1599,14 @@ type GetTraceRequest struct {
 	// The operation ID to retrieve the trace for
 	OperationId *string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3,oneof" json:"operation_id,omitempty"`
 	// The trace ID that OTEl creates
-	TraceId       *string `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3,oneof" json:"trace_id,omitempty"`
-	ClusterId     *string `protobuf:"bytes,3,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	TraceId   *string `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3,oneof" json:"trace_id,omitempty"`
+	ClusterId *string `protobuf:"bytes,3,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
+	// Load full AI span content from the environment's bucket. Only spans whose
+	// environment ID exactly matches the authenticated environment are returned.
+	// Missing or invalid referenced content fails the request.
+	IncludeContent bool `protobuf:"varint,4,opt,name=include_content,json=includeContent,proto3" json:"include_content,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetTraceRequest) Reset() {
@@ -1654,6 +1658,13 @@ func (x *GetTraceRequest) GetClusterId() string {
 		return *x.ClusterId
 	}
 	return ""
+}
+
+func (x *GetTraceRequest) GetIncludeContent() bool {
+	if x != nil {
+		return x.IncludeContent
+	}
+	return false
 }
 
 // GetTraceResponse message
@@ -2926,9 +2937,12 @@ type GetSpanRequest struct {
 	// The span ID to retrieve
 	SpanId string `protobuf:"bytes,1,opt,name=span_id,json=spanId,proto3" json:"span_id,omitempty"`
 	// The trace ID that the span belongs to
-	TraceId       string `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	TraceId string `protobuf:"bytes,2,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	// Load full AI span content from the environment's bucket, with the same
+	// strict environment scope and failure semantics as GetTrace.include_content.
+	IncludeContent bool `protobuf:"varint,3,opt,name=include_content,json=includeContent,proto3" json:"include_content,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetSpanRequest) Reset() {
@@ -2973,6 +2987,13 @@ func (x *GetSpanRequest) GetTraceId() string {
 		return x.TraceId
 	}
 	return ""
+}
+
+func (x *GetSpanRequest) GetIncludeContent() bool {
+	if x != nil {
+		return x.IncludeContent
+	}
+	return false
 }
 
 // GetSpanResponse message
@@ -4974,12 +4995,13 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x05edges\x18\x02 \x03(\v2#.chalk.server.v1.TraceCallGraphEdgeR\x05edges\x12,\n" +
 	"\x12matched_span_count\x18\x03 \x01(\x03R\x10matchedSpanCount\x12.\n" +
 	"\x13matched_trace_count\x18\x04 \x01(\x03R\x11matchedTraceCount\x12*\n" +
-	"\x11total_duration_us\x18\x05 \x01(\x03R\x0ftotalDurationUs\"\xaa\x01\n" +
+	"\x11total_duration_us\x18\x05 \x01(\x03R\x0ftotalDurationUs\"\xd3\x01\n" +
 	"\x0fGetTraceRequest\x12&\n" +
 	"\foperation_id\x18\x01 \x01(\tH\x00R\voperationId\x88\x01\x01\x12\x1e\n" +
 	"\btrace_id\x18\x02 \x01(\tH\x01R\atraceId\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"cluster_id\x18\x03 \x01(\tH\x02R\tclusterId\x88\x01\x01B\x0f\n" +
+	"cluster_id\x18\x03 \x01(\tH\x02R\tclusterId\x88\x01\x01\x12'\n" +
+	"\x0finclude_content\x18\x04 \x01(\bR\x0eincludeContentB\x0f\n" +
 	"\r_operation_idB\v\n" +
 	"\t_trace_idB\r\n" +
 	"\v_cluster_id\"E\n" +
@@ -5157,10 +5179,11 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"call_graph\x18\x01 \x01(\v2\x1f.chalk.server.v1.TraceCallGraphR\tcallGraph\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"D\n" +
+	"\f_next_cursor\"m\n" +
 	"\x0eGetSpanRequest\x12\x17\n" +
 	"\aspan_id\x18\x01 \x01(\tR\x06spanId\x12\x19\n" +
-	"\btrace_id\x18\x02 \x01(\tR\atraceId\"A\n" +
+	"\btrace_id\x18\x02 \x01(\tR\atraceId\x12'\n" +
+	"\x0finclude_content\x18\x03 \x01(\bR\x0eincludeContent\"A\n" +
 	"\x0fGetSpanResponse\x12.\n" +
 	"\x04span\x18\x01 \x01(\v2\x1a.chalk.server.v1.ChalkSpanR\x04span\"H\n" +
 	"\x0fAttributeFilter\x12\x10\n" +

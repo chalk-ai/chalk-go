@@ -41,6 +41,7 @@ type DataFrameOperand struct {
 	//	*DataFrameOperand_UnderscoreExpr
 	//	*DataFrameOperand_LibchalkExpr
 	//	*DataFrameOperand_DataSource
+	//	*DataFrameOperand_ValueDouble
 	Operand       isDataFrameOperand_Operand `protobuf_oneof:"operand"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -191,6 +192,15 @@ func (x *DataFrameOperand) GetDataSource() *DataFrameDataSource {
 	return nil
 }
 
+func (x *DataFrameOperand) GetValueDouble() float64 {
+	if x != nil {
+		if x, ok := x.Operand.(*DataFrameOperand_ValueDouble); ok {
+			return x.ValueDouble
+		}
+	}
+	return 0
+}
+
 type isDataFrameOperand_Operand interface {
 	isDataFrameOperand_Operand()
 }
@@ -243,6 +253,10 @@ type DataFrameOperand_DataSource struct {
 	DataSource *DataFrameDataSource `protobuf:"bytes,12,opt,name=data_source,json=dataSource,proto3,oneof"`
 }
 
+type DataFrameOperand_ValueDouble struct {
+	ValueDouble float64 `protobuf:"fixed64,13,opt,name=value_double,json=valueDouble,proto3,oneof"`
+}
+
 func (*DataFrameOperand_ValueString) isDataFrameOperand_Operand() {}
 
 func (*DataFrameOperand_ValueInt) isDataFrameOperand_Operand() {}
@@ -266,6 +280,8 @@ func (*DataFrameOperand_UnderscoreExpr) isDataFrameOperand_Operand() {}
 func (*DataFrameOperand_LibchalkExpr) isDataFrameOperand_Operand() {}
 
 func (*DataFrameOperand_DataSource) isDataFrameOperand_Operand() {}
+
+func (*DataFrameOperand_ValueDouble) isDataFrameOperand_Operand() {}
 
 type DataFrameDataSource struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
@@ -534,14 +550,14 @@ func (x *PyDict) GetDictEntries() []*PyDictEntry {
 
 type DataFrameConstructor struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	/// If present, this is a method called on `self_operand`.
-	/// Otherwise, it is a static method on the class itself.
+	// / If present, this is a method called on `self_operand`.
+	// / Otherwise, it is a static method on the class itself.
 	SelfOperand *DataFrameIndex `protobuf:"bytes,1,opt,name=self_operand,json=selfOperand,proto3,oneof" json:"self_operand,omitempty"`
-	/// The name of the function to construct the dataframe object.
+	// / The name of the function to construct the dataframe object.
 	FunctionName string `protobuf:"bytes,2,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
-	/// Positional arguments passed to the function.
+	// / Positional arguments passed to the function.
 	Args *PyList `protobuf:"bytes,3,opt,name=args,proto3" json:"args,omitempty"`
-	/// Keyword arguments passed to the function.
+	// / Keyword arguments passed to the function.
 	Kwargs        *PyDict `protobuf:"bytes,4,opt,name=kwargs,proto3" json:"kwargs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -607,10 +623,10 @@ func (x *DataFrameConstructor) GetKwargs() *PyDict {
 
 type DataFramePlan struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	/// A sequence of intermediate constructors used to build this plan.
-	/// Constructors can refer to earlier dataframes in the sequence.
-	///
-	/// The last constructor is the output of the plan.
+	// / A sequence of intermediate constructors used to build this plan.
+	// / Constructors can refer to earlier dataframes in the sequence.
+	// /
+	// / The last constructor is the output of the plan.
 	Constructors  []*DataFrameConstructor `protobuf:"bytes,1,rep,name=constructors,proto3" json:"constructors,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -657,7 +673,7 @@ var File_chalk_dataframe_v1_dataframe_proto protoreflect.FileDescriptor
 
 const file_chalk_dataframe_v1_dataframe_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/dataframe/v1/dataframe.proto\x12\x12chalk.dataframe.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1cchalk/graph/v2/sources.proto\"\x80\x06\n" +
+	"\"chalk/dataframe/v1/dataframe.proto\x12\x12chalk.dataframe.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1cchalk/graph/v2/sources.proto\"\xa5\x06\n" +
 	"\x10DataFrameOperand\x12#\n" +
 	"\fvalue_string\x18\x01 \x01(\tH\x00R\vvalueString\x12\x1d\n" +
 	"\tvalue_int\x18\x02 \x01(\x03H\x00R\bvalueInt\x12\x1f\n" +
@@ -677,7 +693,8 @@ const file_chalk_dataframe_v1_dataframe_proto_rawDesc = "" +
 	" \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\x0eunderscoreExpr\x12K\n" +
 	"\rlibchalk_expr\x18\v \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\flibchalkExpr\x12J\n" +
 	"\vdata_source\x18\f \x01(\v2'.chalk.dataframe.v1.DataFrameDataSourceH\x00R\n" +
-	"dataSourceB\t\n" +
+	"dataSource\x12#\n" +
+	"\fvalue_double\x18\r \x01(\x01H\x00R\vvalueDoubleB\t\n" +
 	"\aoperand\"^\n" +
 	"\x13DataFrameDataSource\x12G\n" +
 	"\x0fdatabase_source\x18\x01 \x01(\v2\x1e.chalk.graph.v2.DatabaseSourceR\x0edatabaseSource\">\n" +
@@ -775,6 +792,7 @@ func file_chalk_dataframe_v1_dataframe_proto_init() {
 		(*DataFrameOperand_UnderscoreExpr)(nil),
 		(*DataFrameOperand_LibchalkExpr)(nil),
 		(*DataFrameOperand_DataSource)(nil),
+		(*DataFrameOperand_ValueDouble)(nil),
 	}
 	file_chalk_dataframe_v1_dataframe_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}

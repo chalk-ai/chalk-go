@@ -206,6 +206,58 @@ func (WorkflowOrchestratorTraceSpan_Status) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{4, 1}
 }
 
+type WorkflowOrchestratorLineageEdge_Kind int32
+
+const (
+	WorkflowOrchestratorLineageEdge_KIND_UNSPECIFIED WorkflowOrchestratorLineageEdge_Kind = 0
+	// `from` started `to` as a child workflow.
+	WorkflowOrchestratorLineageEdge_KIND_CHILD WorkflowOrchestratorLineageEdge_Kind = 1
+	// `from` signaled `to` from workflow code (e.g. one agent handing work to
+	// another). Repeated signals with the same label collapse into one edge.
+	WorkflowOrchestratorLineageEdge_KIND_MESSAGE WorkflowOrchestratorLineageEdge_Kind = 2
+)
+
+// Enum value maps for WorkflowOrchestratorLineageEdge_Kind.
+var (
+	WorkflowOrchestratorLineageEdge_Kind_name = map[int32]string{
+		0: "KIND_UNSPECIFIED",
+		1: "KIND_CHILD",
+		2: "KIND_MESSAGE",
+	}
+	WorkflowOrchestratorLineageEdge_Kind_value = map[string]int32{
+		"KIND_UNSPECIFIED": 0,
+		"KIND_CHILD":       1,
+		"KIND_MESSAGE":     2,
+	}
+)
+
+func (x WorkflowOrchestratorLineageEdge_Kind) Enum() *WorkflowOrchestratorLineageEdge_Kind {
+	p := new(WorkflowOrchestratorLineageEdge_Kind)
+	*p = x
+	return p
+}
+
+func (x WorkflowOrchestratorLineageEdge_Kind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (WorkflowOrchestratorLineageEdge_Kind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_workflow_orchestrator_proto_enumTypes[3].Descriptor()
+}
+
+func (WorkflowOrchestratorLineageEdge_Kind) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_workflow_orchestrator_proto_enumTypes[3]
+}
+
+func (x WorkflowOrchestratorLineageEdge_Kind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use WorkflowOrchestratorLineageEdge_Kind.Descriptor instead.
+func (WorkflowOrchestratorLineageEdge_Kind) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{17, 0}
+}
+
 type WorkflowOrchestratorNamespace struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1388,6 +1440,642 @@ func (*SendWorkflowMessageResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{16}
 }
 
+// A directed relationship between two workflow executions in a lineage graph.
+type WorkflowOrchestratorLineageEdge struct {
+	state          protoimpl.MessageState               `protogen:"open.v1"`
+	Kind           WorkflowOrchestratorLineageEdge_Kind `protobuf:"varint,1,opt,name=kind,proto3,enum=chalk.server.v1.WorkflowOrchestratorLineageEdge_Kind" json:"kind,omitempty"`
+	FromWorkflowId string                               `protobuf:"bytes,2,opt,name=from_workflow_id,json=fromWorkflowId,proto3" json:"from_workflow_id,omitempty"`
+	FromRunId      string                               `protobuf:"bytes,3,opt,name=from_run_id,json=fromRunId,proto3" json:"from_run_id,omitempty"`
+	ToWorkflowId   string                               `protobuf:"bytes,4,opt,name=to_workflow_id,json=toWorkflowId,proto3" json:"to_workflow_id,omitempty"`
+	ToRunId        string                               `protobuf:"bytes,5,opt,name=to_run_id,json=toRunId,proto3" json:"to_run_id,omitempty"`
+	// Message edges: the chalk.workflows message name when the signal is a
+	// workflow message, otherwise the Temporal signal name. Empty for children.
+	Label string `protobuf:"bytes,6,opt,name=label,proto3" json:"label,omitempty"`
+	// Message edges: how many signals the edge stands for.
+	Count         int32 `protobuf:"varint,7,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WorkflowOrchestratorLineageEdge) Reset() {
+	*x = WorkflowOrchestratorLineageEdge{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorkflowOrchestratorLineageEdge) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorkflowOrchestratorLineageEdge) ProtoMessage() {}
+
+func (x *WorkflowOrchestratorLineageEdge) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorkflowOrchestratorLineageEdge.ProtoReflect.Descriptor instead.
+func (*WorkflowOrchestratorLineageEdge) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *WorkflowOrchestratorLineageEdge) GetKind() WorkflowOrchestratorLineageEdge_Kind {
+	if x != nil {
+		return x.Kind
+	}
+	return WorkflowOrchestratorLineageEdge_KIND_UNSPECIFIED
+}
+
+func (x *WorkflowOrchestratorLineageEdge) GetFromWorkflowId() string {
+	if x != nil {
+		return x.FromWorkflowId
+	}
+	return ""
+}
+
+func (x *WorkflowOrchestratorLineageEdge) GetFromRunId() string {
+	if x != nil {
+		return x.FromRunId
+	}
+	return ""
+}
+
+func (x *WorkflowOrchestratorLineageEdge) GetToWorkflowId() string {
+	if x != nil {
+		return x.ToWorkflowId
+	}
+	return ""
+}
+
+func (x *WorkflowOrchestratorLineageEdge) GetToRunId() string {
+	if x != nil {
+		return x.ToRunId
+	}
+	return ""
+}
+
+func (x *WorkflowOrchestratorLineageEdge) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *WorkflowOrchestratorLineageEdge) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type GetWorkflowOrchestratorWorkflowLineageRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Any execution in the tree; the lineage is resolved from its root.
+	WorkflowId string `protobuf:"bytes,2,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
+	// Optional; the latest run is used when empty.
+	RunId         string `protobuf:"bytes,3,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageRequest) Reset() {
+	*x = GetWorkflowOrchestratorWorkflowLineageRequest{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkflowOrchestratorWorkflowLineageRequest) ProtoMessage() {}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkflowOrchestratorWorkflowLineageRequest.ProtoReflect.Descriptor instead.
+func (*GetWorkflowOrchestratorWorkflowLineageRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageRequest) GetWorkflowId() string {
+	if x != nil {
+		return x.WorkflowId
+	}
+	return ""
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageRequest) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+type GetWorkflowOrchestratorWorkflowLineageResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	RootWorkflowId string                 `protobuf:"bytes,1,opt,name=root_workflow_id,json=rootWorkflowId,proto3" json:"root_workflow_id,omitempty"`
+	RootRunId      string                 `protobuf:"bytes,2,opt,name=root_run_id,json=rootRunId,proto3" json:"root_run_id,omitempty"`
+	// Every execution sharing the root, the root included.
+	Workflows []*WorkflowOrchestratorExecutionSummary `protobuf:"bytes,3,rep,name=workflows,proto3" json:"workflows,omitempty"`
+	Edges     []*WorkflowOrchestratorLineageEdge      `protobuf:"bytes,4,rep,name=edges,proto3" json:"edges,omitempty"`
+	// True when the tree exceeded the server-side execution cap and workflows
+	// (and edges) cover only part of it.
+	Truncated bool `protobuf:"varint,5,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	// True when message edges were not derived from every execution's history,
+	// because the tree had too many executions or a history was truncated.
+	MessagesIncomplete bool `protobuf:"varint,6,opt,name=messages_incomplete,json=messagesIncomplete,proto3" json:"messages_incomplete,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) Reset() {
+	*x = GetWorkflowOrchestratorWorkflowLineageResponse{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetWorkflowOrchestratorWorkflowLineageResponse) ProtoMessage() {}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetWorkflowOrchestratorWorkflowLineageResponse.ProtoReflect.Descriptor instead.
+func (*GetWorkflowOrchestratorWorkflowLineageResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) GetRootWorkflowId() string {
+	if x != nil {
+		return x.RootWorkflowId
+	}
+	return ""
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) GetRootRunId() string {
+	if x != nil {
+		return x.RootRunId
+	}
+	return ""
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) GetWorkflows() []*WorkflowOrchestratorExecutionSummary {
+	if x != nil {
+		return x.Workflows
+	}
+	return nil
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) GetEdges() []*WorkflowOrchestratorLineageEdge {
+	if x != nil {
+		return x.Edges
+	}
+	return nil
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) GetTruncated() bool {
+	if x != nil {
+		return x.Truncated
+	}
+	return false
+}
+
+func (x *GetWorkflowOrchestratorWorkflowLineageResponse) GetMessagesIncomplete() bool {
+	if x != nil {
+		return x.MessagesIncomplete
+	}
+	return false
+}
+
+type StartWorkflowRunRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name of a workflow the environment's workers serve, e.g. the name of a
+	// `chalk.workflows.workflow` function.
+	WorkflowName string `protobuf:"bytes,1,opt,name=workflow_name,json=workflowName,proto3" json:"workflow_name,omitempty"`
+	// The workflow function's keyword arguments. Empty when unset.
+	Input *structpb.Struct `protobuf:"bytes,2,opt,name=input,proto3" json:"input,omitempty"`
+	// Optional; generated when empty. Fails with ALREADY_EXISTS while a run
+	// with this id is open.
+	WorkflowId string `protobuf:"bytes,3,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
+	// Optional; the queue the caller's deployment's workers poll when empty,
+	// resolved as for GetWorkflowOrchestratorConnectionDetails.
+	TaskQueue     string `protobuf:"bytes,4,opt,name=task_queue,json=taskQueue,proto3" json:"task_queue,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartWorkflowRunRequest) Reset() {
+	*x = StartWorkflowRunRequest{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartWorkflowRunRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartWorkflowRunRequest) ProtoMessage() {}
+
+func (x *StartWorkflowRunRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartWorkflowRunRequest.ProtoReflect.Descriptor instead.
+func (*StartWorkflowRunRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *StartWorkflowRunRequest) GetWorkflowName() string {
+	if x != nil {
+		return x.WorkflowName
+	}
+	return ""
+}
+
+func (x *StartWorkflowRunRequest) GetInput() *structpb.Struct {
+	if x != nil {
+		return x.Input
+	}
+	return nil
+}
+
+func (x *StartWorkflowRunRequest) GetWorkflowId() string {
+	if x != nil {
+		return x.WorkflowId
+	}
+	return ""
+}
+
+func (x *StartWorkflowRunRequest) GetTaskQueue() string {
+	if x != nil {
+		return x.TaskQueue
+	}
+	return ""
+}
+
+type StartWorkflowRunResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkflowId    string                 `protobuf:"bytes,1,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
+	RunId         string                 `protobuf:"bytes,2,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartWorkflowRunResponse) Reset() {
+	*x = StartWorkflowRunResponse{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartWorkflowRunResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartWorkflowRunResponse) ProtoMessage() {}
+
+func (x *StartWorkflowRunResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartWorkflowRunResponse.ProtoReflect.Descriptor instead.
+func (*StartWorkflowRunResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *StartWorkflowRunResponse) GetWorkflowId() string {
+	if x != nil {
+		return x.WorkflowId
+	}
+	return ""
+}
+
+func (x *StartWorkflowRunResponse) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+type ListWorkflowMessagesRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	WorkflowId string                 `protobuf:"bytes,1,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
+	// Optional; the latest run is read when empty.
+	RunId string `protobuf:"bytes,2,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// Optional; only messages with this name are returned.
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// Optional; only messages after this sequence number are returned. Pass the
+	// last sequence a previous call returned to read only newer messages.
+	AfterSequence int64 `protobuf:"varint,4,opt,name=after_sequence,json=afterSequence,proto3" json:"after_sequence,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkflowMessagesRequest) Reset() {
+	*x = ListWorkflowMessagesRequest{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkflowMessagesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkflowMessagesRequest) ProtoMessage() {}
+
+func (x *ListWorkflowMessagesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkflowMessagesRequest.ProtoReflect.Descriptor instead.
+func (*ListWorkflowMessagesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ListWorkflowMessagesRequest) GetWorkflowId() string {
+	if x != nil {
+		return x.WorkflowId
+	}
+	return ""
+}
+
+func (x *ListWorkflowMessagesRequest) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+func (x *ListWorkflowMessagesRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ListWorkflowMessagesRequest) GetAfterSequence() int64 {
+	if x != nil {
+		return x.AfterSequence
+	}
+	return 0
+}
+
+// Who sent a workflow message, as authenticated by the API server.
+type WorkflowMessageSender struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Agent kind in lower case, e.g. "user" or "service_token".
+	Kind string `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	// User id for a user; for a service token, its record id.
+	Id            string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WorkflowMessageSender) Reset() {
+	*x = WorkflowMessageSender{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorkflowMessageSender) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorkflowMessageSender) ProtoMessage() {}
+
+func (x *WorkflowMessageSender) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorkflowMessageSender.ProtoReflect.Descriptor instead.
+func (*WorkflowMessageSender) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *WorkflowMessageSender) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *WorkflowMessageSender) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type WorkflowMessage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Increases with each message a run receives. Not dense: other workflow
+	// activity uses the numbers in between.
+	Sequence int64           `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	Name     string          `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Payload  *structpb.Value `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
+	// Set by the API server for messages sent with SendWorkflowMessage. A
+	// message that reached the workflow by any other route carries whatever
+	// sender its author wrote.
+	Sender        *WorkflowMessageSender `protobuf:"bytes,4,opt,name=sender,proto3" json:"sender,omitempty"`
+	SentAt        *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=sent_at,json=sentAt,proto3" json:"sent_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WorkflowMessage) Reset() {
+	*x = WorkflowMessage{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorkflowMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorkflowMessage) ProtoMessage() {}
+
+func (x *WorkflowMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorkflowMessage.ProtoReflect.Descriptor instead.
+func (*WorkflowMessage) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *WorkflowMessage) GetSequence() int64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+func (x *WorkflowMessage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *WorkflowMessage) GetPayload() *structpb.Value {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *WorkflowMessage) GetSender() *WorkflowMessageSender {
+	if x != nil {
+		return x.Sender
+	}
+	return nil
+}
+
+func (x *WorkflowMessage) GetSentAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SentAt
+	}
+	return nil
+}
+
+type ListWorkflowMessagesResponse struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Messages []*WorkflowMessage     `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`
+	// True when the run's history exceeded the server-side event cap, so
+	// messages delivered after that point are missing.
+	Truncated     bool `protobuf:"varint,2,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkflowMessagesResponse) Reset() {
+	*x = ListWorkflowMessagesResponse{}
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkflowMessagesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkflowMessagesResponse) ProtoMessage() {}
+
+func (x *ListWorkflowMessagesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_workflow_orchestrator_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkflowMessagesResponse.ProtoReflect.Descriptor instead.
+func (*ListWorkflowMessagesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *ListWorkflowMessagesResponse) GetMessages() []*WorkflowMessage {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+func (x *ListWorkflowMessagesResponse) GetTruncated() bool {
+	if x != nil {
+		return x.Truncated
+	}
+	return false
+}
+
 var File_chalk_server_v1_workflow_orchestrator_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_workflow_orchestrator_proto_rawDesc = "" +
@@ -1515,7 +2203,61 @@ const file_chalk_server_v1_workflow_orchestrator_proto_rawDesc = "" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x120\n" +
 	"\apayload\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\apayload\"\x1d\n" +
-	"\x1bSendWorkflowMessageResponse*\xd9\x03\n" +
+	"\x1bSendWorkflowMessageResponse\"\xe4\x02\n" +
+	"\x1fWorkflowOrchestratorLineageEdge\x12I\n" +
+	"\x04kind\x18\x01 \x01(\x0e25.chalk.server.v1.WorkflowOrchestratorLineageEdge.KindR\x04kind\x12(\n" +
+	"\x10from_workflow_id\x18\x02 \x01(\tR\x0efromWorkflowId\x12\x1e\n" +
+	"\vfrom_run_id\x18\x03 \x01(\tR\tfromRunId\x12$\n" +
+	"\x0eto_workflow_id\x18\x04 \x01(\tR\ftoWorkflowId\x12\x1a\n" +
+	"\tto_run_id\x18\x05 \x01(\tR\atoRunId\x12\x14\n" +
+	"\x05label\x18\x06 \x01(\tR\x05label\x12\x14\n" +
+	"\x05count\x18\a \x01(\x05R\x05count\">\n" +
+	"\x04Kind\x12\x14\n" +
+	"\x10KIND_UNSPECIFIED\x10\x00\x12\x0e\n" +
+	"\n" +
+	"KIND_CHILD\x10\x01\x12\x10\n" +
+	"\fKIND_MESSAGE\x10\x02\"\x85\x01\n" +
+	"-GetWorkflowOrchestratorWorkflowLineageRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1f\n" +
+	"\vworkflow_id\x18\x02 \x01(\tR\n" +
+	"workflowId\x12\x15\n" +
+	"\x06run_id\x18\x03 \x01(\tR\x05runId\"\xe6\x02\n" +
+	".GetWorkflowOrchestratorWorkflowLineageResponse\x12(\n" +
+	"\x10root_workflow_id\x18\x01 \x01(\tR\x0erootWorkflowId\x12\x1e\n" +
+	"\vroot_run_id\x18\x02 \x01(\tR\trootRunId\x12S\n" +
+	"\tworkflows\x18\x03 \x03(\v25.chalk.server.v1.WorkflowOrchestratorExecutionSummaryR\tworkflows\x12F\n" +
+	"\x05edges\x18\x04 \x03(\v20.chalk.server.v1.WorkflowOrchestratorLineageEdgeR\x05edges\x12\x1c\n" +
+	"\ttruncated\x18\x05 \x01(\bR\ttruncated\x12/\n" +
+	"\x13messages_incomplete\x18\x06 \x01(\bR\x12messagesIncomplete\"\xad\x01\n" +
+	"\x17StartWorkflowRunRequest\x12#\n" +
+	"\rworkflow_name\x18\x01 \x01(\tR\fworkflowName\x12-\n" +
+	"\x05input\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x05input\x12\x1f\n" +
+	"\vworkflow_id\x18\x03 \x01(\tR\n" +
+	"workflowId\x12\x1d\n" +
+	"\n" +
+	"task_queue\x18\x04 \x01(\tR\ttaskQueue\"R\n" +
+	"\x18StartWorkflowRunResponse\x12\x1f\n" +
+	"\vworkflow_id\x18\x01 \x01(\tR\n" +
+	"workflowId\x12\x15\n" +
+	"\x06run_id\x18\x02 \x01(\tR\x05runId\"\x90\x01\n" +
+	"\x1bListWorkflowMessagesRequest\x12\x1f\n" +
+	"\vworkflow_id\x18\x01 \x01(\tR\n" +
+	"workflowId\x12\x15\n" +
+	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12%\n" +
+	"\x0eafter_sequence\x18\x04 \x01(\x03R\rafterSequence\";\n" +
+	"\x15WorkflowMessageSender\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"\xe8\x01\n" +
+	"\x0fWorkflowMessage\x12\x1a\n" +
+	"\bsequence\x18\x01 \x01(\x03R\bsequence\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x120\n" +
+	"\apayload\x18\x03 \x01(\v2\x16.google.protobuf.ValueR\apayload\x12>\n" +
+	"\x06sender\x18\x04 \x01(\v2&.chalk.server.v1.WorkflowMessageSenderR\x06sender\x123\n" +
+	"\asent_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x06sentAt\"z\n" +
+	"\x1cListWorkflowMessagesResponse\x12<\n" +
+	"\bmessages\x18\x01 \x03(\v2 .chalk.server.v1.WorkflowMessageR\bmessages\x12\x1c\n" +
+	"\ttruncated\x18\x02 \x01(\bR\ttruncated*\xd9\x03\n" +
 	"#WorkflowOrchestratorExecutionStatus\x126\n" +
 	"2WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_UNSPECIFIED\x10\x00\x122\n" +
 	".WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_RUNNING\x10\x01\x124\n" +
@@ -1524,7 +2266,7 @@ const file_chalk_server_v1_workflow_orchestrator_proto_rawDesc = "" +
 	"/WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_CANCELED\x10\x04\x125\n" +
 	"1WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_TERMINATED\x10\x05\x12;\n" +
 	"7WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_CONTINUED_AS_NEW\x10\x06\x124\n" +
-	"0WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_TIMED_OUT\x10\a2\x93\b\n" +
+	"0WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_TIMED_OUT\x10\a2\xca\v\n" +
 	"\x1bWorkflowOrchestratorService\x12\xb4\x01\n" +
 	"(GetWorkflowOrchestratorConnectionDetails\x12@.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest\x1aA.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse\"\x03\x80}\n" +
 	"\x12\xa2\x01\n" +
@@ -1535,8 +2277,12 @@ const file_chalk_server_v1_workflow_orchestrator_proto_rawDesc = "" +
 	"$DescribeWorkflowOrchestratorWorkflow\x12<.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest\x1a=.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse\"\x03\x80}\n" +
 	"\x12\xae\x01\n" +
 	"&GetWorkflowOrchestratorWorkflowHistory\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse\"\x03\x80}\n" +
+	"\x12\xae\x01\n" +
+	"&GetWorkflowOrchestratorWorkflowLineage\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse\"\x03\x80}\n" +
 	"\x12\x99\x01\n" +
-	"\x13SendWorkflowMessage\x12+.chalk.server.v1.SendWorkflowMessageRequest\x1a,.chalk.server.v1.SendWorkflowMessageResponse\"'\x80}\x03\x8a\xd3\x0e \b\x02\x12\x1cSent a message to a workflowB\xc9\x01\n" +
+	"\x13SendWorkflowMessage\x12+.chalk.server.v1.SendWorkflowMessageRequest\x1a,.chalk.server.v1.SendWorkflowMessageResponse\"'\x80}\x03\x8a\xd3\x0e \b\x02\x12\x1cSent a message to a workflow\x12\x86\x01\n" +
+	"\x10StartWorkflowRun\x12(.chalk.server.v1.StartWorkflowRunRequest\x1a).chalk.server.v1.StartWorkflowRunResponse\"\x1d\x80}\x03\x8a\xd3\x0e\x16\b\x02\x12\x12Started a workflow\x12{\n" +
+	"\x14ListWorkflowMessages\x12,.chalk.server.v1.ListWorkflowMessagesRequest\x1a-.chalk.server.v1.ListWorkflowMessagesResponse\"\x06\x80}\x03\x90\x02\x01B\xc9\x01\n" +
 	"\x13com.chalk.server.v1B\x19WorkflowOrchestratorProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -1551,69 +2297,94 @@ func file_chalk_server_v1_workflow_orchestrator_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_workflow_orchestrator_proto_rawDescData
 }
 
-var file_chalk_server_v1_workflow_orchestrator_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_server_v1_workflow_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_chalk_server_v1_workflow_orchestrator_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_chalk_server_v1_workflow_orchestrator_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_chalk_server_v1_workflow_orchestrator_proto_goTypes = []any{
 	(WorkflowOrchestratorExecutionStatus)(0),                 // 0: chalk.server.v1.WorkflowOrchestratorExecutionStatus
 	(WorkflowOrchestratorTraceSpan_Kind)(0),                  // 1: chalk.server.v1.WorkflowOrchestratorTraceSpan.Kind
 	(WorkflowOrchestratorTraceSpan_Status)(0),                // 2: chalk.server.v1.WorkflowOrchestratorTraceSpan.Status
-	(*WorkflowOrchestratorNamespace)(nil),                    // 3: chalk.server.v1.WorkflowOrchestratorNamespace
-	(*WorkflowOrchestratorExecutionSummary)(nil),             // 4: chalk.server.v1.WorkflowOrchestratorExecutionSummary
-	(*WorkflowOrchestratorPendingActivity)(nil),              // 5: chalk.server.v1.WorkflowOrchestratorPendingActivity
-	(*WorkflowOrchestratorHistoryEvent)(nil),                 // 6: chalk.server.v1.WorkflowOrchestratorHistoryEvent
-	(*WorkflowOrchestratorTraceSpan)(nil),                    // 7: chalk.server.v1.WorkflowOrchestratorTraceSpan
-	(*ListWorkflowOrchestratorNamespacesRequest)(nil),        // 8: chalk.server.v1.ListWorkflowOrchestratorNamespacesRequest
-	(*ListWorkflowOrchestratorNamespacesResponse)(nil),       // 9: chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse
-	(*ListWorkflowOrchestratorWorkflowsRequest)(nil),         // 10: chalk.server.v1.ListWorkflowOrchestratorWorkflowsRequest
-	(*ListWorkflowOrchestratorWorkflowsResponse)(nil),        // 11: chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse
-	(*DescribeWorkflowOrchestratorWorkflowRequest)(nil),      // 12: chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest
-	(*DescribeWorkflowOrchestratorWorkflowResponse)(nil),     // 13: chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse
-	(*GetWorkflowOrchestratorWorkflowHistoryRequest)(nil),    // 14: chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest
-	(*GetWorkflowOrchestratorWorkflowHistoryResponse)(nil),   // 15: chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse
-	(*GetWorkflowOrchestratorConnectionDetailsRequest)(nil),  // 16: chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest
-	(*GetWorkflowOrchestratorConnectionDetailsResponse)(nil), // 17: chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse
-	(*SendWorkflowMessageRequest)(nil),                       // 18: chalk.server.v1.SendWorkflowMessageRequest
-	(*SendWorkflowMessageResponse)(nil),                      // 19: chalk.server.v1.SendWorkflowMessageResponse
-	(*timestamppb.Timestamp)(nil),                            // 20: google.protobuf.Timestamp
-	(*structpb.Value)(nil),                                   // 21: google.protobuf.Value
+	(WorkflowOrchestratorLineageEdge_Kind)(0),                // 3: chalk.server.v1.WorkflowOrchestratorLineageEdge.Kind
+	(*WorkflowOrchestratorNamespace)(nil),                    // 4: chalk.server.v1.WorkflowOrchestratorNamespace
+	(*WorkflowOrchestratorExecutionSummary)(nil),             // 5: chalk.server.v1.WorkflowOrchestratorExecutionSummary
+	(*WorkflowOrchestratorPendingActivity)(nil),              // 6: chalk.server.v1.WorkflowOrchestratorPendingActivity
+	(*WorkflowOrchestratorHistoryEvent)(nil),                 // 7: chalk.server.v1.WorkflowOrchestratorHistoryEvent
+	(*WorkflowOrchestratorTraceSpan)(nil),                    // 8: chalk.server.v1.WorkflowOrchestratorTraceSpan
+	(*ListWorkflowOrchestratorNamespacesRequest)(nil),        // 9: chalk.server.v1.ListWorkflowOrchestratorNamespacesRequest
+	(*ListWorkflowOrchestratorNamespacesResponse)(nil),       // 10: chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse
+	(*ListWorkflowOrchestratorWorkflowsRequest)(nil),         // 11: chalk.server.v1.ListWorkflowOrchestratorWorkflowsRequest
+	(*ListWorkflowOrchestratorWorkflowsResponse)(nil),        // 12: chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse
+	(*DescribeWorkflowOrchestratorWorkflowRequest)(nil),      // 13: chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest
+	(*DescribeWorkflowOrchestratorWorkflowResponse)(nil),     // 14: chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse
+	(*GetWorkflowOrchestratorWorkflowHistoryRequest)(nil),    // 15: chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest
+	(*GetWorkflowOrchestratorWorkflowHistoryResponse)(nil),   // 16: chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse
+	(*GetWorkflowOrchestratorConnectionDetailsRequest)(nil),  // 17: chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest
+	(*GetWorkflowOrchestratorConnectionDetailsResponse)(nil), // 18: chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse
+	(*SendWorkflowMessageRequest)(nil),                       // 19: chalk.server.v1.SendWorkflowMessageRequest
+	(*SendWorkflowMessageResponse)(nil),                      // 20: chalk.server.v1.SendWorkflowMessageResponse
+	(*WorkflowOrchestratorLineageEdge)(nil),                  // 21: chalk.server.v1.WorkflowOrchestratorLineageEdge
+	(*GetWorkflowOrchestratorWorkflowLineageRequest)(nil),    // 22: chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageRequest
+	(*GetWorkflowOrchestratorWorkflowLineageResponse)(nil),   // 23: chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse
+	(*StartWorkflowRunRequest)(nil),                          // 24: chalk.server.v1.StartWorkflowRunRequest
+	(*StartWorkflowRunResponse)(nil),                         // 25: chalk.server.v1.StartWorkflowRunResponse
+	(*ListWorkflowMessagesRequest)(nil),                      // 26: chalk.server.v1.ListWorkflowMessagesRequest
+	(*WorkflowMessageSender)(nil),                            // 27: chalk.server.v1.WorkflowMessageSender
+	(*WorkflowMessage)(nil),                                  // 28: chalk.server.v1.WorkflowMessage
+	(*ListWorkflowMessagesResponse)(nil),                     // 29: chalk.server.v1.ListWorkflowMessagesResponse
+	(*timestamppb.Timestamp)(nil),                            // 30: google.protobuf.Timestamp
+	(*structpb.Value)(nil),                                   // 31: google.protobuf.Value
+	(*structpb.Struct)(nil),                                  // 32: google.protobuf.Struct
 }
 var file_chalk_server_v1_workflow_orchestrator_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.WorkflowOrchestratorExecutionSummary.status:type_name -> chalk.server.v1.WorkflowOrchestratorExecutionStatus
-	20, // 1: chalk.server.v1.WorkflowOrchestratorExecutionSummary.start_time:type_name -> google.protobuf.Timestamp
-	20, // 2: chalk.server.v1.WorkflowOrchestratorExecutionSummary.close_time:type_name -> google.protobuf.Timestamp
-	20, // 3: chalk.server.v1.WorkflowOrchestratorPendingActivity.scheduled_time:type_name -> google.protobuf.Timestamp
-	20, // 4: chalk.server.v1.WorkflowOrchestratorPendingActivity.last_started_time:type_name -> google.protobuf.Timestamp
-	20, // 5: chalk.server.v1.WorkflowOrchestratorPendingActivity.last_heartbeat_time:type_name -> google.protobuf.Timestamp
-	20, // 6: chalk.server.v1.WorkflowOrchestratorHistoryEvent.event_time:type_name -> google.protobuf.Timestamp
+	30, // 1: chalk.server.v1.WorkflowOrchestratorExecutionSummary.start_time:type_name -> google.protobuf.Timestamp
+	30, // 2: chalk.server.v1.WorkflowOrchestratorExecutionSummary.close_time:type_name -> google.protobuf.Timestamp
+	30, // 3: chalk.server.v1.WorkflowOrchestratorPendingActivity.scheduled_time:type_name -> google.protobuf.Timestamp
+	30, // 4: chalk.server.v1.WorkflowOrchestratorPendingActivity.last_started_time:type_name -> google.protobuf.Timestamp
+	30, // 5: chalk.server.v1.WorkflowOrchestratorPendingActivity.last_heartbeat_time:type_name -> google.protobuf.Timestamp
+	30, // 6: chalk.server.v1.WorkflowOrchestratorHistoryEvent.event_time:type_name -> google.protobuf.Timestamp
 	1,  // 7: chalk.server.v1.WorkflowOrchestratorTraceSpan.kind:type_name -> chalk.server.v1.WorkflowOrchestratorTraceSpan.Kind
 	2,  // 8: chalk.server.v1.WorkflowOrchestratorTraceSpan.status:type_name -> chalk.server.v1.WorkflowOrchestratorTraceSpan.Status
-	20, // 9: chalk.server.v1.WorkflowOrchestratorTraceSpan.scheduled_time:type_name -> google.protobuf.Timestamp
-	20, // 10: chalk.server.v1.WorkflowOrchestratorTraceSpan.started_time:type_name -> google.protobuf.Timestamp
-	20, // 11: chalk.server.v1.WorkflowOrchestratorTraceSpan.end_time:type_name -> google.protobuf.Timestamp
-	3,  // 12: chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse.namespaces:type_name -> chalk.server.v1.WorkflowOrchestratorNamespace
-	4,  // 13: chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse.workflows:type_name -> chalk.server.v1.WorkflowOrchestratorExecutionSummary
-	4,  // 14: chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse.workflow:type_name -> chalk.server.v1.WorkflowOrchestratorExecutionSummary
-	5,  // 15: chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse.pending_activities:type_name -> chalk.server.v1.WorkflowOrchestratorPendingActivity
-	6,  // 16: chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse.events:type_name -> chalk.server.v1.WorkflowOrchestratorHistoryEvent
-	7,  // 17: chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse.spans:type_name -> chalk.server.v1.WorkflowOrchestratorTraceSpan
-	21, // 18: chalk.server.v1.SendWorkflowMessageRequest.payload:type_name -> google.protobuf.Value
-	16, // 19: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorConnectionDetails:input_type -> chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest
-	8,  // 20: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorNamespaces:input_type -> chalk.server.v1.ListWorkflowOrchestratorNamespacesRequest
-	10, // 21: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorWorkflows:input_type -> chalk.server.v1.ListWorkflowOrchestratorWorkflowsRequest
-	12, // 22: chalk.server.v1.WorkflowOrchestratorService.DescribeWorkflowOrchestratorWorkflow:input_type -> chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest
-	14, // 23: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorWorkflowHistory:input_type -> chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest
-	18, // 24: chalk.server.v1.WorkflowOrchestratorService.SendWorkflowMessage:input_type -> chalk.server.v1.SendWorkflowMessageRequest
-	17, // 25: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorConnectionDetails:output_type -> chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse
-	9,  // 26: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorNamespaces:output_type -> chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse
-	11, // 27: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorWorkflows:output_type -> chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse
-	13, // 28: chalk.server.v1.WorkflowOrchestratorService.DescribeWorkflowOrchestratorWorkflow:output_type -> chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse
-	15, // 29: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorWorkflowHistory:output_type -> chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse
-	19, // 30: chalk.server.v1.WorkflowOrchestratorService.SendWorkflowMessage:output_type -> chalk.server.v1.SendWorkflowMessageResponse
-	25, // [25:31] is the sub-list for method output_type
-	19, // [19:25] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	30, // 9: chalk.server.v1.WorkflowOrchestratorTraceSpan.scheduled_time:type_name -> google.protobuf.Timestamp
+	30, // 10: chalk.server.v1.WorkflowOrchestratorTraceSpan.started_time:type_name -> google.protobuf.Timestamp
+	30, // 11: chalk.server.v1.WorkflowOrchestratorTraceSpan.end_time:type_name -> google.protobuf.Timestamp
+	4,  // 12: chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse.namespaces:type_name -> chalk.server.v1.WorkflowOrchestratorNamespace
+	5,  // 13: chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse.workflows:type_name -> chalk.server.v1.WorkflowOrchestratorExecutionSummary
+	5,  // 14: chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse.workflow:type_name -> chalk.server.v1.WorkflowOrchestratorExecutionSummary
+	6,  // 15: chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse.pending_activities:type_name -> chalk.server.v1.WorkflowOrchestratorPendingActivity
+	7,  // 16: chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse.events:type_name -> chalk.server.v1.WorkflowOrchestratorHistoryEvent
+	8,  // 17: chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse.spans:type_name -> chalk.server.v1.WorkflowOrchestratorTraceSpan
+	31, // 18: chalk.server.v1.SendWorkflowMessageRequest.payload:type_name -> google.protobuf.Value
+	3,  // 19: chalk.server.v1.WorkflowOrchestratorLineageEdge.kind:type_name -> chalk.server.v1.WorkflowOrchestratorLineageEdge.Kind
+	5,  // 20: chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse.workflows:type_name -> chalk.server.v1.WorkflowOrchestratorExecutionSummary
+	21, // 21: chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse.edges:type_name -> chalk.server.v1.WorkflowOrchestratorLineageEdge
+	32, // 22: chalk.server.v1.StartWorkflowRunRequest.input:type_name -> google.protobuf.Struct
+	31, // 23: chalk.server.v1.WorkflowMessage.payload:type_name -> google.protobuf.Value
+	27, // 24: chalk.server.v1.WorkflowMessage.sender:type_name -> chalk.server.v1.WorkflowMessageSender
+	30, // 25: chalk.server.v1.WorkflowMessage.sent_at:type_name -> google.protobuf.Timestamp
+	28, // 26: chalk.server.v1.ListWorkflowMessagesResponse.messages:type_name -> chalk.server.v1.WorkflowMessage
+	17, // 27: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorConnectionDetails:input_type -> chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest
+	9,  // 28: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorNamespaces:input_type -> chalk.server.v1.ListWorkflowOrchestratorNamespacesRequest
+	11, // 29: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorWorkflows:input_type -> chalk.server.v1.ListWorkflowOrchestratorWorkflowsRequest
+	13, // 30: chalk.server.v1.WorkflowOrchestratorService.DescribeWorkflowOrchestratorWorkflow:input_type -> chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest
+	15, // 31: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorWorkflowHistory:input_type -> chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest
+	22, // 32: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorWorkflowLineage:input_type -> chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageRequest
+	19, // 33: chalk.server.v1.WorkflowOrchestratorService.SendWorkflowMessage:input_type -> chalk.server.v1.SendWorkflowMessageRequest
+	24, // 34: chalk.server.v1.WorkflowOrchestratorService.StartWorkflowRun:input_type -> chalk.server.v1.StartWorkflowRunRequest
+	26, // 35: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowMessages:input_type -> chalk.server.v1.ListWorkflowMessagesRequest
+	18, // 36: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorConnectionDetails:output_type -> chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse
+	10, // 37: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorNamespaces:output_type -> chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse
+	12, // 38: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowOrchestratorWorkflows:output_type -> chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse
+	14, // 39: chalk.server.v1.WorkflowOrchestratorService.DescribeWorkflowOrchestratorWorkflow:output_type -> chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse
+	16, // 40: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorWorkflowHistory:output_type -> chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse
+	23, // 41: chalk.server.v1.WorkflowOrchestratorService.GetWorkflowOrchestratorWorkflowLineage:output_type -> chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse
+	20, // 42: chalk.server.v1.WorkflowOrchestratorService.SendWorkflowMessage:output_type -> chalk.server.v1.SendWorkflowMessageResponse
+	25, // 43: chalk.server.v1.WorkflowOrchestratorService.StartWorkflowRun:output_type -> chalk.server.v1.StartWorkflowRunResponse
+	29, // 44: chalk.server.v1.WorkflowOrchestratorService.ListWorkflowMessages:output_type -> chalk.server.v1.ListWorkflowMessagesResponse
+	36, // [36:45] is the sub-list for method output_type
+	27, // [27:36] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_workflow_orchestrator_proto_init() }
@@ -1630,8 +2401,8 @@ func file_chalk_server_v1_workflow_orchestrator_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_workflow_orchestrator_proto_rawDesc), len(file_chalk_server_v1_workflow_orchestrator_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   17,
+			NumEnums:      4,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

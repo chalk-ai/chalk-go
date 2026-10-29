@@ -63,14 +63,16 @@ var File_chalk_engine_v2_offline_store_service_proto protoreflect.FileDescriptor
 const file_chalk_engine_v2_offline_store_service_proto_rawDesc = "" +
 	"\n" +
 	"+chalk/engine/v2/offline_store_service.proto\x12\x0fchalk.engine.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a$chalk/engine/v2/feature_values.proto\x1a*chalk/engine/v2/feature_values_chart.proto\x1a+chalk/engine/v2/offline_store_metrics.proto\x1a\x1fchalk/engine/v2/query_log.proto\x1a\"chalk/engine/v2/query_values.proto\"\x1a\n" +
-	"\x18OfflineStoreServiceDummy2\xda\x04\n" +
+	"\x18OfflineStoreServiceDummy2\xa1\x06\n" +
 	"\x13OfflineStoreService\x12r\n" +
 	"\x12GetQueryLogEntries\x12*.chalk.engine.v2.GetQueryLogEntriesRequest\x1a+.chalk.engine.v2.GetQueryLogEntriesResponse\"\x03\x80}\x04\x12f\n" +
 	"\x0eGetQueryValues\x12&.chalk.engine.v2.GetQueryValuesRequest\x1a'.chalk.engine.v2.GetQueryValuesResponse\"\x03\x80}\x04\x12\x99\x01\n" +
 	"\x1fGetFeatureValuesTimeSeriesChart\x127.chalk.engine.v2.GetFeatureValuesTimeSeriesChartRequest\x1a8.chalk.engine.v2.GetFeatureValuesTimeSeriesChartResponse\"\x03\x80}\x04\x12l\n" +
 	"\x10GetFeatureValues\x12(.chalk.engine.v2.GetFeatureValuesRequest\x1a).chalk.engine.v2.GetFeatureValuesResponse\"\x03\x80}\x04\x12]\n" +
 	"\n" +
-	"GetMetrics\x12\".chalk.engine.v2.GetMetricsRequest\x1a#.chalk.engine.v2.GetMetricsResponse\"\x06\x80}\x04\x90\x02\x01B\xc8\x01\n" +
+	"GetMetrics\x12\".chalk.engine.v2.GetMetricsRequest\x1a#.chalk.engine.v2.GetMetricsResponse\"\x06\x80}\x04\x90\x02\x01\x12c\n" +
+	"\fGetMetricsV2\x12$.chalk.engine.v2.GetMetricsV2Request\x1a%.chalk.engine.v2.GetMetricsV2Response\"\x06\x80}\x04\x90\x02\x01\x12`\n" +
+	"\vPollMetrics\x12#.chalk.engine.v2.PollMetricsRequest\x1a$.chalk.engine.v2.PollMetricsResponse\"\x06\x80}\x04\x90\x02\x01B\xc8\x01\n" +
 	"\x13com.chalk.engine.v2B\x18OfflineStoreServiceProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/engine/v2;enginev2\xa2\x02\x03CEX\xaa\x02\x0fChalk.Engine.V2\xca\x02\x0fChalk\\Engine\\V2\xe2\x02\x1bChalk\\Engine\\V2\\GPBMetadata\xea\x02\x11Chalk::Engine::V2b\x06proto3"
 
 var (
@@ -93,11 +95,15 @@ var file_chalk_engine_v2_offline_store_service_proto_goTypes = []any{
 	(*GetFeatureValuesTimeSeriesChartRequest)(nil),  // 3: chalk.engine.v2.GetFeatureValuesTimeSeriesChartRequest
 	(*GetFeatureValuesRequest)(nil),                 // 4: chalk.engine.v2.GetFeatureValuesRequest
 	(*GetMetricsRequest)(nil),                       // 5: chalk.engine.v2.GetMetricsRequest
-	(*GetQueryLogEntriesResponse)(nil),              // 6: chalk.engine.v2.GetQueryLogEntriesResponse
-	(*GetQueryValuesResponse)(nil),                  // 7: chalk.engine.v2.GetQueryValuesResponse
-	(*GetFeatureValuesTimeSeriesChartResponse)(nil), // 8: chalk.engine.v2.GetFeatureValuesTimeSeriesChartResponse
-	(*GetFeatureValuesResponse)(nil),                // 9: chalk.engine.v2.GetFeatureValuesResponse
-	(*GetMetricsResponse)(nil),                      // 10: chalk.engine.v2.GetMetricsResponse
+	(*GetMetricsV2Request)(nil),                     // 6: chalk.engine.v2.GetMetricsV2Request
+	(*PollMetricsRequest)(nil),                      // 7: chalk.engine.v2.PollMetricsRequest
+	(*GetQueryLogEntriesResponse)(nil),              // 8: chalk.engine.v2.GetQueryLogEntriesResponse
+	(*GetQueryValuesResponse)(nil),                  // 9: chalk.engine.v2.GetQueryValuesResponse
+	(*GetFeatureValuesTimeSeriesChartResponse)(nil), // 10: chalk.engine.v2.GetFeatureValuesTimeSeriesChartResponse
+	(*GetFeatureValuesResponse)(nil),                // 11: chalk.engine.v2.GetFeatureValuesResponse
+	(*GetMetricsResponse)(nil),                      // 12: chalk.engine.v2.GetMetricsResponse
+	(*GetMetricsV2Response)(nil),                    // 13: chalk.engine.v2.GetMetricsV2Response
+	(*PollMetricsResponse)(nil),                     // 14: chalk.engine.v2.PollMetricsResponse
 }
 var file_chalk_engine_v2_offline_store_service_proto_depIdxs = []int32{
 	1,  // 0: chalk.engine.v2.OfflineStoreService.GetQueryLogEntries:input_type -> chalk.engine.v2.GetQueryLogEntriesRequest
@@ -105,13 +111,17 @@ var file_chalk_engine_v2_offline_store_service_proto_depIdxs = []int32{
 	3,  // 2: chalk.engine.v2.OfflineStoreService.GetFeatureValuesTimeSeriesChart:input_type -> chalk.engine.v2.GetFeatureValuesTimeSeriesChartRequest
 	4,  // 3: chalk.engine.v2.OfflineStoreService.GetFeatureValues:input_type -> chalk.engine.v2.GetFeatureValuesRequest
 	5,  // 4: chalk.engine.v2.OfflineStoreService.GetMetrics:input_type -> chalk.engine.v2.GetMetricsRequest
-	6,  // 5: chalk.engine.v2.OfflineStoreService.GetQueryLogEntries:output_type -> chalk.engine.v2.GetQueryLogEntriesResponse
-	7,  // 6: chalk.engine.v2.OfflineStoreService.GetQueryValues:output_type -> chalk.engine.v2.GetQueryValuesResponse
-	8,  // 7: chalk.engine.v2.OfflineStoreService.GetFeatureValuesTimeSeriesChart:output_type -> chalk.engine.v2.GetFeatureValuesTimeSeriesChartResponse
-	9,  // 8: chalk.engine.v2.OfflineStoreService.GetFeatureValues:output_type -> chalk.engine.v2.GetFeatureValuesResponse
-	10, // 9: chalk.engine.v2.OfflineStoreService.GetMetrics:output_type -> chalk.engine.v2.GetMetricsResponse
-	5,  // [5:10] is the sub-list for method output_type
-	0,  // [0:5] is the sub-list for method input_type
+	6,  // 5: chalk.engine.v2.OfflineStoreService.GetMetricsV2:input_type -> chalk.engine.v2.GetMetricsV2Request
+	7,  // 6: chalk.engine.v2.OfflineStoreService.PollMetrics:input_type -> chalk.engine.v2.PollMetricsRequest
+	8,  // 7: chalk.engine.v2.OfflineStoreService.GetQueryLogEntries:output_type -> chalk.engine.v2.GetQueryLogEntriesResponse
+	9,  // 8: chalk.engine.v2.OfflineStoreService.GetQueryValues:output_type -> chalk.engine.v2.GetQueryValuesResponse
+	10, // 9: chalk.engine.v2.OfflineStoreService.GetFeatureValuesTimeSeriesChart:output_type -> chalk.engine.v2.GetFeatureValuesTimeSeriesChartResponse
+	11, // 10: chalk.engine.v2.OfflineStoreService.GetFeatureValues:output_type -> chalk.engine.v2.GetFeatureValuesResponse
+	12, // 11: chalk.engine.v2.OfflineStoreService.GetMetrics:output_type -> chalk.engine.v2.GetMetricsResponse
+	13, // 12: chalk.engine.v2.OfflineStoreService.GetMetricsV2:output_type -> chalk.engine.v2.GetMetricsV2Response
+	14, // 13: chalk.engine.v2.OfflineStoreService.PollMetrics:output_type -> chalk.engine.v2.PollMetricsResponse
+	7,  // [7:14] is the sub-list for method output_type
+	0,  // [0:7] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

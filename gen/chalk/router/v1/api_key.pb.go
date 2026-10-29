@@ -255,19 +255,104 @@ func (x *ApiKeyConnectionScope) GetModels() []string {
 	return nil
 }
 
-// Model routes a key may call, by immutable route id. A grant covers
-// everything the route dispatches to: its default target, judge classifier and
-// outcomes, and its own fallbacks, on any connection.
+// Select one model route by its immutable id or its public model id (for
+// example, chalk/assistant-pro). Public ids are resolved in the key's environment
+// when the permission is written; stored grants and responses use route_id.
+// Deleting and recreating a public id never carries an existing grant over.
+type ApiKeyRouteRef struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Identifier:
+	//
+	//	*ApiKeyRouteRef_RouteId
+	//	*ApiKeyRouteRef_PublicModelId
+	Identifier    isApiKeyRouteRef_Identifier `protobuf_oneof:"identifier"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ApiKeyRouteRef) Reset() {
+	*x = ApiKeyRouteRef{}
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApiKeyRouteRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApiKeyRouteRef) ProtoMessage() {}
+
+func (x *ApiKeyRouteRef) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApiKeyRouteRef.ProtoReflect.Descriptor instead.
+func (*ApiKeyRouteRef) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ApiKeyRouteRef) GetIdentifier() isApiKeyRouteRef_Identifier {
+	if x != nil {
+		return x.Identifier
+	}
+	return nil
+}
+
+func (x *ApiKeyRouteRef) GetRouteId() string {
+	if x != nil {
+		if x, ok := x.Identifier.(*ApiKeyRouteRef_RouteId); ok {
+			return x.RouteId
+		}
+	}
+	return ""
+}
+
+func (x *ApiKeyRouteRef) GetPublicModelId() string {
+	if x != nil {
+		if x, ok := x.Identifier.(*ApiKeyRouteRef_PublicModelId); ok {
+			return x.PublicModelId
+		}
+	}
+	return ""
+}
+
+type isApiKeyRouteRef_Identifier interface {
+	isApiKeyRouteRef_Identifier()
+}
+
+type ApiKeyRouteRef_RouteId struct {
+	RouteId string `protobuf:"bytes,1,opt,name=route_id,json=routeId,proto3,oneof"`
+}
+
+type ApiKeyRouteRef_PublicModelId struct {
+	PublicModelId string `protobuf:"bytes,2,opt,name=public_model_id,json=publicModelId,proto3,oneof"`
+}
+
+func (*ApiKeyRouteRef_RouteId) isApiKeyRouteRef_Identifier() {}
+
+func (*ApiKeyRouteRef_PublicModelId) isApiKeyRouteRef_Identifier() {}
+
+// A grant covers everything the route dispatches to: its default target, judge
+// classifier and outcomes, and its own fallbacks, on any connection.
 type ApiKeyRouteScope struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RouteIds      []string               `protobuf:"bytes,1,rep,name=route_ids,json=routeIds,proto3" json:"route_ids,omitempty"`
+	Refs          []*ApiKeyRouteRef      `protobuf:"bytes,1,rep,name=refs,proto3" json:"refs,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ApiKeyRouteScope) Reset() {
 	*x = ApiKeyRouteScope{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[2]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -279,7 +364,7 @@ func (x *ApiKeyRouteScope) String() string {
 func (*ApiKeyRouteScope) ProtoMessage() {}
 
 func (x *ApiKeyRouteScope) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[2]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -292,12 +377,12 @@ func (x *ApiKeyRouteScope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyRouteScope.ProtoReflect.Descriptor instead.
 func (*ApiKeyRouteScope) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{2}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *ApiKeyRouteScope) GetRouteIds() []string {
+func (x *ApiKeyRouteScope) GetRefs() []*ApiKeyRouteRef {
 	if x != nil {
-		return x.RouteIds
+		return x.Refs
 	}
 	return nil
 }
@@ -330,7 +415,7 @@ type ApiKeyPermission struct {
 
 func (x *ApiKeyPermission) Reset() {
 	*x = ApiKeyPermission{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[3]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -342,7 +427,7 @@ func (x *ApiKeyPermission) String() string {
 func (*ApiKeyPermission) ProtoMessage() {}
 
 func (x *ApiKeyPermission) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[3]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -355,7 +440,7 @@ func (x *ApiKeyPermission) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKeyPermission.ProtoReflect.Descriptor instead.
 func (*ApiKeyPermission) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{3}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{4}
 }
 
 // Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
@@ -429,7 +514,7 @@ type UsageSnapshot struct {
 
 func (x *UsageSnapshot) Reset() {
 	*x = UsageSnapshot{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[4]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -441,7 +526,7 @@ func (x *UsageSnapshot) String() string {
 func (*UsageSnapshot) ProtoMessage() {}
 
 func (x *UsageSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[4]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -454,7 +539,7 @@ func (x *UsageSnapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UsageSnapshot.ProtoReflect.Descriptor instead.
 func (*UsageSnapshot) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{4}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UsageSnapshot) GetPromptTokens() uint64 {
@@ -496,18 +581,23 @@ type ApiKey struct {
 	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
 	DailyTokenBudget *uint64 `protobuf:"varint,7,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
-	CostTags      map[string]string  `protobuf:"bytes,8,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	UsagePoolId   *string            `protobuf:"bytes,9,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
-	KeyPrefix     string             `protobuf:"bytes,10,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"`
-	RateLimits    []*ApiKeyRateLimit `protobuf:"bytes,11,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
-	UsageBudgets  []*UsageBudget     `protobuf:"bytes,12,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
+	CostTags     map[string]string  `protobuf:"bytes,8,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	UsagePoolId  *string            `protobuf:"bytes,9,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	KeyPrefix    string             `protobuf:"bytes,10,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"`
+	RateLimits   []*ApiKeyRateLimit `protobuf:"bytes,11,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	UsageBudgets []*UsageBudget     `protobuf:"bytes,12,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
+	// Set once the key is revoked; a revoked key is retained read-only.
+	RevokedAt *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=revoked_at,json=revokedAt,proto3" json:"revoked_at,omitempty"`
+	// Unset means the key never expires. From this time the key is inactive and
+	// read-only, like a revoked key, and cannot be renewed.
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ApiKey) Reset() {
 	*x = ApiKey{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[5]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -519,7 +609,7 @@ func (x *ApiKey) String() string {
 func (*ApiKey) ProtoMessage() {}
 
 func (x *ApiKey) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[5]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -532,7 +622,7 @@ func (x *ApiKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiKey.ProtoReflect.Descriptor instead.
 func (*ApiKey) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{5}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ApiKey) GetKeyHash() string {
@@ -621,6 +711,20 @@ func (x *ApiKey) GetUsageBudgets() []*UsageBudget {
 	return nil
 }
 
+func (x *ApiKey) GetRevokedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.RevokedAt
+	}
+	return nil
+}
+
+func (x *ApiKey) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
 type CreateKeyRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	Description string                 `protobuf:"bytes,1,opt,name=description,proto3" json:"description,omitempty"`
@@ -629,17 +733,19 @@ type CreateKeyRequest struct {
 	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
 	DailyTokenBudget *uint64 `protobuf:"varint,4,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
-	CostTags      map[string]string  `protobuf:"bytes,5,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	UsagePoolId   *string            `protobuf:"bytes,6,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
-	RateLimits    []*ApiKeyRateLimit `protobuf:"bytes,7,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
-	UsageBudgets  []*UsageBudgetSpec `protobuf:"bytes,8,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
+	CostTags     map[string]string  `protobuf:"bytes,5,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	UsagePoolId  *string            `protobuf:"bytes,6,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
+	RateLimits   []*ApiKeyRateLimit `protobuf:"bytes,7,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	UsageBudgets []*UsageBudgetSpec `protobuf:"bytes,8,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
+	// Must be in the future. Unset means the key never expires.
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateKeyRequest) Reset() {
 	*x = CreateKeyRequest{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[6]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -651,7 +757,7 @@ func (x *CreateKeyRequest) String() string {
 func (*CreateKeyRequest) ProtoMessage() {}
 
 func (x *CreateKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[6]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -664,7 +770,7 @@ func (x *CreateKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateKeyRequest.ProtoReflect.Descriptor instead.
 func (*CreateKeyRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{6}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateKeyRequest) GetDescription() string {
@@ -725,6 +831,13 @@ func (x *CreateKeyRequest) GetUsageBudgets() []*UsageBudgetSpec {
 	return nil
 }
 
+func (x *CreateKeyRequest) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
 type CreateKeyResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Key           *ApiKey                `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
@@ -735,7 +848,7 @@ type CreateKeyResponse struct {
 
 func (x *CreateKeyResponse) Reset() {
 	*x = CreateKeyResponse{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[7]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -747,7 +860,7 @@ func (x *CreateKeyResponse) String() string {
 func (*CreateKeyResponse) ProtoMessage() {}
 
 func (x *CreateKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[7]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -760,7 +873,7 @@ func (x *CreateKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateKeyResponse.ProtoReflect.Descriptor instead.
 func (*CreateKeyResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{7}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateKeyResponse) GetKey() *ApiKey {
@@ -778,16 +891,18 @@ func (x *CreateKeyResponse) GetRawKey() string {
 }
 
 type ListKeysRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Limit  *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	// Include revoked and expired keys.
+	IncludeArchived *bool `protobuf:"varint,3,opt,name=include_archived,json=includeArchived,proto3,oneof" json:"include_archived,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ListKeysRequest) Reset() {
 	*x = ListKeysRequest{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[8]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -799,7 +914,7 @@ func (x *ListKeysRequest) String() string {
 func (*ListKeysRequest) ProtoMessage() {}
 
 func (x *ListKeysRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[8]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -812,7 +927,7 @@ func (x *ListKeysRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListKeysRequest.ProtoReflect.Descriptor instead.
 func (*ListKeysRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{8}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ListKeysRequest) GetLimit() int32 {
@@ -829,6 +944,13 @@ func (x *ListKeysRequest) GetCursor() string {
 	return ""
 }
 
+func (x *ListKeysRequest) GetIncludeArchived() bool {
+	if x != nil && x.IncludeArchived != nil {
+		return *x.IncludeArchived
+	}
+	return false
+}
+
 type ListKeysResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Keys          []*ApiKey              `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
@@ -839,7 +961,7 @@ type ListKeysResponse struct {
 
 func (x *ListKeysResponse) Reset() {
 	*x = ListKeysResponse{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[9]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -851,7 +973,7 @@ func (x *ListKeysResponse) String() string {
 func (*ListKeysResponse) ProtoMessage() {}
 
 func (x *ListKeysResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[9]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -864,7 +986,7 @@ func (x *ListKeysResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListKeysResponse.ProtoReflect.Descriptor instead.
 func (*ListKeysResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{9}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ListKeysResponse) GetKeys() []*ApiKey {
@@ -888,17 +1010,20 @@ type UpdateKeyOperation struct {
 	DailyTokenBudget *uint64 `protobuf:"varint,2,opt,name=daily_token_budget,json=dailyTokenBudget,proto3,oneof" json:"daily_token_budget,omitempty"`
 	UsagePoolId      *string `protobuf:"bytes,3,opt,name=usage_pool_id,json=usagePoolId,proto3,oneof" json:"usage_pool_id,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
-	CostTags      map[string]string  `protobuf:"bytes,4,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Permission    *ApiKeyPermission  `protobuf:"bytes,5,opt,name=permission,proto3,oneof" json:"permission,omitempty"`
-	RateLimits    []*ApiKeyRateLimit `protobuf:"bytes,6,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
-	UsageBudgets  []*UsageBudgetSpec `protobuf:"bytes,7,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
+	CostTags     map[string]string  `protobuf:"bytes,4,rep,name=cost_tags,json=costTags,proto3" json:"cost_tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Permission   *ApiKeyPermission  `protobuf:"bytes,5,opt,name=permission,proto3,oneof" json:"permission,omitempty"`
+	RateLimits   []*ApiKeyRateLimit `protobuf:"bytes,6,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	UsageBudgets []*UsageBudgetSpec `protobuf:"bytes,7,rep,name=usage_budgets,json=usageBudgets,proto3" json:"usage_budgets,omitempty"`
+	// With `expires_at` in the update mask: a future time, or unset to clear.
+	// Only an active key can change its expiry.
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateKeyOperation) Reset() {
 	*x = UpdateKeyOperation{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[10]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -910,7 +1035,7 @@ func (x *UpdateKeyOperation) String() string {
 func (*UpdateKeyOperation) ProtoMessage() {}
 
 func (x *UpdateKeyOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[10]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -923,7 +1048,7 @@ func (x *UpdateKeyOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateKeyOperation.ProtoReflect.Descriptor instead.
 func (*UpdateKeyOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{10}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdateKeyOperation) GetDescription() string {
@@ -977,6 +1102,13 @@ func (x *UpdateKeyOperation) GetUsageBudgets() []*UsageBudgetSpec {
 	return nil
 }
 
+func (x *UpdateKeyOperation) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
 type UpdateKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
@@ -988,7 +1120,7 @@ type UpdateKeyRequest struct {
 
 func (x *UpdateKeyRequest) Reset() {
 	*x = UpdateKeyRequest{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[11]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1000,7 +1132,7 @@ func (x *UpdateKeyRequest) String() string {
 func (*UpdateKeyRequest) ProtoMessage() {}
 
 func (x *UpdateKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[11]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1013,7 +1145,7 @@ func (x *UpdateKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateKeyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateKeyRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{11}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateKeyRequest) GetKey() string {
@@ -1046,7 +1178,7 @@ type UpdateKeyResponse struct {
 
 func (x *UpdateKeyResponse) Reset() {
 	*x = UpdateKeyResponse{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[12]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1058,7 +1190,7 @@ func (x *UpdateKeyResponse) String() string {
 func (*UpdateKeyResponse) ProtoMessage() {}
 
 func (x *UpdateKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[12]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1071,7 +1203,7 @@ func (x *UpdateKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateKeyResponse.ProtoReflect.Descriptor instead.
 func (*UpdateKeyResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{12}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateKeyResponse) GetKey() *ApiKey {
@@ -1090,7 +1222,7 @@ type RevokeKeyRequest struct {
 
 func (x *RevokeKeyRequest) Reset() {
 	*x = RevokeKeyRequest{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[13]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1102,7 +1234,7 @@ func (x *RevokeKeyRequest) String() string {
 func (*RevokeKeyRequest) ProtoMessage() {}
 
 func (x *RevokeKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[13]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1115,7 +1247,7 @@ func (x *RevokeKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeKeyRequest.ProtoReflect.Descriptor instead.
 func (*RevokeKeyRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{13}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RevokeKeyRequest) GetKey() string {
@@ -1134,7 +1266,7 @@ type RevokeKeyResponse struct {
 
 func (x *RevokeKeyResponse) Reset() {
 	*x = RevokeKeyResponse{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[14]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1146,7 +1278,7 @@ func (x *RevokeKeyResponse) String() string {
 func (*RevokeKeyResponse) ProtoMessage() {}
 
 func (x *RevokeKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[14]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1159,7 +1291,7 @@ func (x *RevokeKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeKeyResponse.ProtoReflect.Descriptor instead.
 func (*RevokeKeyResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{14}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RevokeKeyResponse) GetKey() string {
@@ -1178,7 +1310,7 @@ type GetKeyUsageRequest struct {
 
 func (x *GetKeyUsageRequest) Reset() {
 	*x = GetKeyUsageRequest{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[15]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1190,7 +1322,7 @@ func (x *GetKeyUsageRequest) String() string {
 func (*GetKeyUsageRequest) ProtoMessage() {}
 
 func (x *GetKeyUsageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[15]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1203,7 +1335,7 @@ func (x *GetKeyUsageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKeyUsageRequest.ProtoReflect.Descriptor instead.
 func (*GetKeyUsageRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{15}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetKeyUsageRequest) GetKey() string {
@@ -1225,7 +1357,7 @@ type GetKeyUsageResponse struct {
 
 func (x *GetKeyUsageResponse) Reset() {
 	*x = GetKeyUsageResponse{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[16]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1237,7 +1369,7 @@ func (x *GetKeyUsageResponse) String() string {
 func (*GetKeyUsageResponse) ProtoMessage() {}
 
 func (x *GetKeyUsageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[16]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1250,7 +1382,7 @@ func (x *GetKeyUsageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKeyUsageResponse.ProtoReflect.Descriptor instead.
 func (*GetKeyUsageResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{16}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetKeyUsageResponse) GetKey() string {
@@ -1289,7 +1421,7 @@ type ListAllUsageRequest struct {
 
 func (x *ListAllUsageRequest) Reset() {
 	*x = ListAllUsageRequest{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[17]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1301,7 +1433,7 @@ func (x *ListAllUsageRequest) String() string {
 func (*ListAllUsageRequest) ProtoMessage() {}
 
 func (x *ListAllUsageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[17]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1314,7 +1446,7 @@ func (x *ListAllUsageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAllUsageRequest.ProtoReflect.Descriptor instead.
 func (*ListAllUsageRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{17}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{18}
 }
 
 type ListAllUsageResponse struct {
@@ -1326,7 +1458,7 @@ type ListAllUsageResponse struct {
 
 func (x *ListAllUsageResponse) Reset() {
 	*x = ListAllUsageResponse{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[18]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1338,7 +1470,7 @@ func (x *ListAllUsageResponse) String() string {
 func (*ListAllUsageResponse) ProtoMessage() {}
 
 func (x *ListAllUsageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[18]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1351,7 +1483,7 @@ func (x *ListAllUsageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAllUsageResponse.ProtoReflect.Descriptor instead.
 func (*ListAllUsageResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{18}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListAllUsageResponse) GetKeys() []*GetKeyUsageResponse {
@@ -1373,7 +1505,7 @@ type GetUsageHistogramRequest struct {
 
 func (x *GetUsageHistogramRequest) Reset() {
 	*x = GetUsageHistogramRequest{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[19]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1385,7 +1517,7 @@ func (x *GetUsageHistogramRequest) String() string {
 func (*GetUsageHistogramRequest) ProtoMessage() {}
 
 func (x *GetUsageHistogramRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[19]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1398,7 +1530,7 @@ func (x *GetUsageHistogramRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUsageHistogramRequest.ProtoReflect.Descriptor instead.
 func (*GetUsageHistogramRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{19}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetUsageHistogramRequest) GetBucketSize() string {
@@ -1448,7 +1580,7 @@ type UsageHistogramRow struct {
 
 func (x *UsageHistogramRow) Reset() {
 	*x = UsageHistogramRow{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[20]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1460,7 +1592,7 @@ func (x *UsageHistogramRow) String() string {
 func (*UsageHistogramRow) ProtoMessage() {}
 
 func (x *UsageHistogramRow) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[20]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1473,7 +1605,7 @@ func (x *UsageHistogramRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UsageHistogramRow.ProtoReflect.Descriptor instead.
 func (*UsageHistogramRow) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{20}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{21}
 }
 
 // Deprecated: Marked as deprecated in chalk/router/v1/api_key.proto.
@@ -1556,7 +1688,7 @@ type GetUsageHistogramResponse struct {
 
 func (x *GetUsageHistogramResponse) Reset() {
 	*x = GetUsageHistogramResponse{}
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[21]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1568,7 +1700,7 @@ func (x *GetUsageHistogramResponse) String() string {
 func (*GetUsageHistogramResponse) ProtoMessage() {}
 
 func (x *GetUsageHistogramResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_api_key_proto_msgTypes[21]
+	mi := &file_chalk_router_v1_api_key_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1581,7 +1713,7 @@ func (x *GetUsageHistogramResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUsageHistogramResponse.ProtoReflect.Descriptor instead.
 func (*GetUsageHistogramResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{21}
+	return file_chalk_router_v1_api_key_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetUsageHistogramResponse) GetRows() []*UsageHistogramRow {
@@ -1605,9 +1737,14 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x10_max_entry_bytes\"T\n" +
 	"\x15ApiKeyConnectionScope\x12#\n" +
 	"\rconnection_id\x18\x01 \x01(\tR\fconnectionId\x12\x16\n" +
-	"\x06models\x18\x02 \x03(\tR\x06models\"/\n" +
-	"\x10ApiKeyRouteScope\x12\x1b\n" +
-	"\troute_ids\x18\x01 \x03(\tR\brouteIds\"\xf3\x03\n" +
+	"\x06models\x18\x02 \x03(\tR\x06models\"e\n" +
+	"\x0eApiKeyRouteRef\x12\x1b\n" +
+	"\broute_id\x18\x01 \x01(\tH\x00R\arouteId\x12(\n" +
+	"\x0fpublic_model_id\x18\x02 \x01(\tH\x00R\rpublicModelIdB\f\n" +
+	"\n" +
+	"identifier\"G\n" +
+	"\x10ApiKeyRouteScope\x123\n" +
+	"\x04refs\x18\x01 \x03(\v2\x1f.chalk.router.v1.ApiKeyRouteRefR\x04refs\"\xf3\x03\n" +
 	"\x10ApiKeyPermission\x12#\n" +
 	"\bprovider\x18\x01 \x01(\tB\x02\x18\x01H\x00R\bprovider\x88\x01\x01\x12\x1a\n" +
 	"\x06models\x18\x02 \x03(\tB\x02\x18\x01R\x06models\x12,\n" +
@@ -1628,7 +1765,7 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\rprompt_tokens\x18\x01 \x01(\x04R\fpromptTokens\x12+\n" +
 	"\x11completion_tokens\x18\x02 \x01(\x04R\x10completionTokens\x12!\n" +
 	"\ftotal_tokens\x18\x03 \x01(\x04R\vtotalTokens\x12#\n" +
-	"\rrequest_count\x18\x04 \x01(\x04R\frequestCount\"\xa4\x06\n" +
+	"\rrequest_count\x18\x04 \x01(\x04R\frequestCount\"\x9a\a\n" +
 	"\x06ApiKey\x12\x19\n" +
 	"\bkey_hash\x18\x01 \x01(\tR\akeyHash\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x129\n" +
@@ -1647,7 +1784,11 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	" \x01(\tR\tkeyPrefix\x12A\n" +
 	"\vrate_limits\x18\v \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
 	"rateLimits\x12A\n" +
-	"\rusage_budgets\x18\f \x03(\v2\x1c.chalk.router.v1.UsageBudgetR\fusageBudgets\x1a9\n" +
+	"\rusage_budgets\x18\f \x03(\v2\x1c.chalk.router.v1.UsageBudgetR\fusageBudgets\x129\n" +
+	"\n" +
+	"revoked_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\trevokedAt\x129\n" +
+	"\n" +
+	"expires_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
@@ -1655,7 +1796,7 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x15\n" +
 	"\x13_daily_token_budgetB\x10\n" +
-	"\x0e_usage_pool_id\"\x9b\x05\n" +
+	"\x0e_usage_pool_id\"\xd6\x05\n" +
 	"\x10CreateKeyRequest\x12 \n" +
 	"\vdescription\x18\x01 \x01(\tR\vdescription\x12A\n" +
 	"\n" +
@@ -1667,7 +1808,9 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\rusage_pool_id\x18\x06 \x01(\tH\x01R\vusagePoolId\x88\x01\x01\x12A\n" +
 	"\vrate_limits\x18\a \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
 	"rateLimits\x12E\n" +
-	"\rusage_budgets\x18\b \x03(\v2 .chalk.router.v1.UsageBudgetSpecR\fusageBudgets\x1a9\n" +
+	"\rusage_budgets\x18\b \x03(\v2 .chalk.router.v1.UsageBudgetSpecR\fusageBudgets\x129\n" +
+	"\n" +
+	"expires_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
@@ -1678,17 +1821,19 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"\x0e_usage_pool_id\"W\n" +
 	"\x11CreateKeyResponse\x12)\n" +
 	"\x03key\x18\x01 \x01(\v2\x17.chalk.router.v1.ApiKeyR\x03key\x12\x17\n" +
-	"\araw_key\x18\x02 \x01(\tR\x06rawKey\"^\n" +
+	"\araw_key\x18\x02 \x01(\tR\x06rawKey\"\xa3\x01\n" +
 	"\x0fListKeysRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12.\n" +
+	"\x10include_archived\x18\x03 \x01(\bH\x02R\x0fincludeArchived\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursor\"u\n" +
+	"\a_cursorB\x13\n" +
+	"\x11_include_archived\"u\n" +
 	"\x10ListKeysResponse\x12+\n" +
 	"\x04keys\x18\x01 \x03(\v2\x17.chalk.router.v1.ApiKeyR\x04keys\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\xc6\x04\n" +
+	"\f_next_cursor\"\x81\x05\n" +
 	"\x12UpdateKeyOperation\x12%\n" +
 	"\vdescription\x18\x01 \x01(\tH\x00R\vdescription\x88\x01\x01\x125\n" +
 	"\x12daily_token_budget\x18\x02 \x01(\x04B\x02\x18\x01H\x01R\x10dailyTokenBudget\x88\x01\x01\x12'\n" +
@@ -1699,7 +1844,9 @@ const file_chalk_router_v1_api_key_proto_rawDesc = "" +
 	"permission\x88\x01\x01\x12A\n" +
 	"\vrate_limits\x18\x06 \x03(\v2 .chalk.router.v1.ApiKeyRateLimitR\n" +
 	"rateLimits\x12E\n" +
-	"\rusage_budgets\x18\a \x03(\v2 .chalk.router.v1.UsageBudgetSpecR\fusageBudgets\x1a;\n" +
+	"\rusage_budgets\x18\a \x03(\v2 .chalk.router.v1.UsageBudgetSpecR\fusageBudgets\x129\n" +
+	"\n" +
+	"expires_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x1a;\n" +
 	"\rCostTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
@@ -1786,94 +1933,100 @@ func file_chalk_router_v1_api_key_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_router_v1_api_key_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_router_v1_api_key_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_chalk_router_v1_api_key_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_chalk_router_v1_api_key_proto_goTypes = []any{
 	(CacheScope)(0),                   // 0: chalk.router.v1.CacheScope
 	(UsageSource)(0),                  // 1: chalk.router.v1.UsageSource
 	(*CachePolicy)(nil),               // 2: chalk.router.v1.CachePolicy
 	(*ApiKeyConnectionScope)(nil),     // 3: chalk.router.v1.ApiKeyConnectionScope
-	(*ApiKeyRouteScope)(nil),          // 4: chalk.router.v1.ApiKeyRouteScope
-	(*ApiKeyPermission)(nil),          // 5: chalk.router.v1.ApiKeyPermission
-	(*UsageSnapshot)(nil),             // 6: chalk.router.v1.UsageSnapshot
-	(*ApiKey)(nil),                    // 7: chalk.router.v1.ApiKey
-	(*CreateKeyRequest)(nil),          // 8: chalk.router.v1.CreateKeyRequest
-	(*CreateKeyResponse)(nil),         // 9: chalk.router.v1.CreateKeyResponse
-	(*ListKeysRequest)(nil),           // 10: chalk.router.v1.ListKeysRequest
-	(*ListKeysResponse)(nil),          // 11: chalk.router.v1.ListKeysResponse
-	(*UpdateKeyOperation)(nil),        // 12: chalk.router.v1.UpdateKeyOperation
-	(*UpdateKeyRequest)(nil),          // 13: chalk.router.v1.UpdateKeyRequest
-	(*UpdateKeyResponse)(nil),         // 14: chalk.router.v1.UpdateKeyResponse
-	(*RevokeKeyRequest)(nil),          // 15: chalk.router.v1.RevokeKeyRequest
-	(*RevokeKeyResponse)(nil),         // 16: chalk.router.v1.RevokeKeyResponse
-	(*GetKeyUsageRequest)(nil),        // 17: chalk.router.v1.GetKeyUsageRequest
-	(*GetKeyUsageResponse)(nil),       // 18: chalk.router.v1.GetKeyUsageResponse
-	(*ListAllUsageRequest)(nil),       // 19: chalk.router.v1.ListAllUsageRequest
-	(*ListAllUsageResponse)(nil),      // 20: chalk.router.v1.ListAllUsageResponse
-	(*GetUsageHistogramRequest)(nil),  // 21: chalk.router.v1.GetUsageHistogramRequest
-	(*UsageHistogramRow)(nil),         // 22: chalk.router.v1.UsageHistogramRow
-	(*GetUsageHistogramResponse)(nil), // 23: chalk.router.v1.GetUsageHistogramResponse
-	nil,                               // 24: chalk.router.v1.ApiKey.LabelsEntry
-	nil,                               // 25: chalk.router.v1.ApiKey.CostTagsEntry
-	nil,                               // 26: chalk.router.v1.CreateKeyRequest.LabelsEntry
-	nil,                               // 27: chalk.router.v1.CreateKeyRequest.CostTagsEntry
-	nil,                               // 28: chalk.router.v1.UpdateKeyOperation.CostTagsEntry
-	(*timestamppb.Timestamp)(nil),     // 29: google.protobuf.Timestamp
-	(*ApiKeyRateLimit)(nil),           // 30: chalk.router.v1.ApiKeyRateLimit
-	(*UsageBudget)(nil),               // 31: chalk.router.v1.UsageBudget
-	(*UsageBudgetSpec)(nil),           // 32: chalk.router.v1.UsageBudgetSpec
-	(*fieldmaskpb.FieldMask)(nil),     // 33: google.protobuf.FieldMask
+	(*ApiKeyRouteRef)(nil),            // 4: chalk.router.v1.ApiKeyRouteRef
+	(*ApiKeyRouteScope)(nil),          // 5: chalk.router.v1.ApiKeyRouteScope
+	(*ApiKeyPermission)(nil),          // 6: chalk.router.v1.ApiKeyPermission
+	(*UsageSnapshot)(nil),             // 7: chalk.router.v1.UsageSnapshot
+	(*ApiKey)(nil),                    // 8: chalk.router.v1.ApiKey
+	(*CreateKeyRequest)(nil),          // 9: chalk.router.v1.CreateKeyRequest
+	(*CreateKeyResponse)(nil),         // 10: chalk.router.v1.CreateKeyResponse
+	(*ListKeysRequest)(nil),           // 11: chalk.router.v1.ListKeysRequest
+	(*ListKeysResponse)(nil),          // 12: chalk.router.v1.ListKeysResponse
+	(*UpdateKeyOperation)(nil),        // 13: chalk.router.v1.UpdateKeyOperation
+	(*UpdateKeyRequest)(nil),          // 14: chalk.router.v1.UpdateKeyRequest
+	(*UpdateKeyResponse)(nil),         // 15: chalk.router.v1.UpdateKeyResponse
+	(*RevokeKeyRequest)(nil),          // 16: chalk.router.v1.RevokeKeyRequest
+	(*RevokeKeyResponse)(nil),         // 17: chalk.router.v1.RevokeKeyResponse
+	(*GetKeyUsageRequest)(nil),        // 18: chalk.router.v1.GetKeyUsageRequest
+	(*GetKeyUsageResponse)(nil),       // 19: chalk.router.v1.GetKeyUsageResponse
+	(*ListAllUsageRequest)(nil),       // 20: chalk.router.v1.ListAllUsageRequest
+	(*ListAllUsageResponse)(nil),      // 21: chalk.router.v1.ListAllUsageResponse
+	(*GetUsageHistogramRequest)(nil),  // 22: chalk.router.v1.GetUsageHistogramRequest
+	(*UsageHistogramRow)(nil),         // 23: chalk.router.v1.UsageHistogramRow
+	(*GetUsageHistogramResponse)(nil), // 24: chalk.router.v1.GetUsageHistogramResponse
+	nil,                               // 25: chalk.router.v1.ApiKey.LabelsEntry
+	nil,                               // 26: chalk.router.v1.ApiKey.CostTagsEntry
+	nil,                               // 27: chalk.router.v1.CreateKeyRequest.LabelsEntry
+	nil,                               // 28: chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	nil,                               // 29: chalk.router.v1.UpdateKeyOperation.CostTagsEntry
+	(*timestamppb.Timestamp)(nil),     // 30: google.protobuf.Timestamp
+	(*ApiKeyRateLimit)(nil),           // 31: chalk.router.v1.ApiKeyRateLimit
+	(*UsageBudget)(nil),               // 32: chalk.router.v1.UsageBudget
+	(*UsageBudgetSpec)(nil),           // 33: chalk.router.v1.UsageBudgetSpec
+	(*fieldmaskpb.FieldMask)(nil),     // 34: google.protobuf.FieldMask
 }
 var file_chalk_router_v1_api_key_proto_depIdxs = []int32{
 	0,  // 0: chalk.router.v1.CachePolicy.scope:type_name -> chalk.router.v1.CacheScope
-	3,  // 1: chalk.router.v1.ApiKeyPermission.connection_scopes:type_name -> chalk.router.v1.ApiKeyConnectionScope
-	2,  // 2: chalk.router.v1.ApiKeyPermission.cache:type_name -> chalk.router.v1.CachePolicy
-	4,  // 3: chalk.router.v1.ApiKeyPermission.routes:type_name -> chalk.router.v1.ApiKeyRouteScope
-	29, // 4: chalk.router.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
-	5,  // 5: chalk.router.v1.ApiKey.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	24, // 6: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
-	6,  // 7: chalk.router.v1.ApiKey.usage:type_name -> chalk.router.v1.UsageSnapshot
-	25, // 8: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
-	30, // 9: chalk.router.v1.ApiKey.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
-	31, // 10: chalk.router.v1.ApiKey.usage_budgets:type_name -> chalk.router.v1.UsageBudget
-	5,  // 11: chalk.router.v1.CreateKeyRequest.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	26, // 12: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
-	27, // 13: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
-	30, // 14: chalk.router.v1.CreateKeyRequest.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
-	32, // 15: chalk.router.v1.CreateKeyRequest.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
-	7,  // 16: chalk.router.v1.CreateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
-	7,  // 17: chalk.router.v1.ListKeysResponse.keys:type_name -> chalk.router.v1.ApiKey
-	28, // 18: chalk.router.v1.UpdateKeyOperation.cost_tags:type_name -> chalk.router.v1.UpdateKeyOperation.CostTagsEntry
-	5,  // 19: chalk.router.v1.UpdateKeyOperation.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	30, // 20: chalk.router.v1.UpdateKeyOperation.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
-	32, // 21: chalk.router.v1.UpdateKeyOperation.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
-	12, // 22: chalk.router.v1.UpdateKeyRequest.update:type_name -> chalk.router.v1.UpdateKeyOperation
-	33, // 23: chalk.router.v1.UpdateKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
-	7,  // 24: chalk.router.v1.UpdateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
-	6,  // 25: chalk.router.v1.GetKeyUsageResponse.usage:type_name -> chalk.router.v1.UsageSnapshot
-	18, // 26: chalk.router.v1.ListAllUsageResponse.keys:type_name -> chalk.router.v1.GetKeyUsageResponse
-	29, // 27: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
-	29, // 28: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
-	29, // 29: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
-	22, // 30: chalk.router.v1.GetUsageHistogramResponse.rows:type_name -> chalk.router.v1.UsageHistogramRow
-	8,  // 31: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
-	10, // 32: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
-	13, // 33: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
-	15, // 34: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
-	17, // 35: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
-	19, // 36: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
-	21, // 37: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
-	9,  // 38: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
-	11, // 39: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
-	14, // 40: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
-	16, // 41: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
-	18, // 42: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
-	20, // 43: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
-	23, // 44: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
-	38, // [38:45] is the sub-list for method output_type
-	31, // [31:38] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	4,  // 1: chalk.router.v1.ApiKeyRouteScope.refs:type_name -> chalk.router.v1.ApiKeyRouteRef
+	3,  // 2: chalk.router.v1.ApiKeyPermission.connection_scopes:type_name -> chalk.router.v1.ApiKeyConnectionScope
+	2,  // 3: chalk.router.v1.ApiKeyPermission.cache:type_name -> chalk.router.v1.CachePolicy
+	5,  // 4: chalk.router.v1.ApiKeyPermission.routes:type_name -> chalk.router.v1.ApiKeyRouteScope
+	30, // 5: chalk.router.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 6: chalk.router.v1.ApiKey.permission:type_name -> chalk.router.v1.ApiKeyPermission
+	25, // 7: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
+	7,  // 8: chalk.router.v1.ApiKey.usage:type_name -> chalk.router.v1.UsageSnapshot
+	26, // 9: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
+	31, // 10: chalk.router.v1.ApiKey.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	32, // 11: chalk.router.v1.ApiKey.usage_budgets:type_name -> chalk.router.v1.UsageBudget
+	30, // 12: chalk.router.v1.ApiKey.revoked_at:type_name -> google.protobuf.Timestamp
+	30, // 13: chalk.router.v1.ApiKey.expires_at:type_name -> google.protobuf.Timestamp
+	6,  // 14: chalk.router.v1.CreateKeyRequest.permission:type_name -> chalk.router.v1.ApiKeyPermission
+	27, // 15: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
+	28, // 16: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	31, // 17: chalk.router.v1.CreateKeyRequest.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	33, // 18: chalk.router.v1.CreateKeyRequest.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
+	30, // 19: chalk.router.v1.CreateKeyRequest.expires_at:type_name -> google.protobuf.Timestamp
+	8,  // 20: chalk.router.v1.CreateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
+	8,  // 21: chalk.router.v1.ListKeysResponse.keys:type_name -> chalk.router.v1.ApiKey
+	29, // 22: chalk.router.v1.UpdateKeyOperation.cost_tags:type_name -> chalk.router.v1.UpdateKeyOperation.CostTagsEntry
+	6,  // 23: chalk.router.v1.UpdateKeyOperation.permission:type_name -> chalk.router.v1.ApiKeyPermission
+	31, // 24: chalk.router.v1.UpdateKeyOperation.rate_limits:type_name -> chalk.router.v1.ApiKeyRateLimit
+	33, // 25: chalk.router.v1.UpdateKeyOperation.usage_budgets:type_name -> chalk.router.v1.UsageBudgetSpec
+	30, // 26: chalk.router.v1.UpdateKeyOperation.expires_at:type_name -> google.protobuf.Timestamp
+	13, // 27: chalk.router.v1.UpdateKeyRequest.update:type_name -> chalk.router.v1.UpdateKeyOperation
+	34, // 28: chalk.router.v1.UpdateKeyRequest.update_mask:type_name -> google.protobuf.FieldMask
+	8,  // 29: chalk.router.v1.UpdateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
+	7,  // 30: chalk.router.v1.GetKeyUsageResponse.usage:type_name -> chalk.router.v1.UsageSnapshot
+	19, // 31: chalk.router.v1.ListAllUsageResponse.keys:type_name -> chalk.router.v1.GetKeyUsageResponse
+	30, // 32: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
+	30, // 33: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
+	30, // 34: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
+	23, // 35: chalk.router.v1.GetUsageHistogramResponse.rows:type_name -> chalk.router.v1.UsageHistogramRow
+	9,  // 36: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
+	11, // 37: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
+	14, // 38: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
+	16, // 39: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
+	18, // 40: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
+	20, // 41: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
+	22, // 42: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
+	10, // 43: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
+	12, // 44: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
+	15, // 45: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
+	17, // 46: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
+	19, // 47: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
+	21, // 48: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
+	24, // 49: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
+	43, // [43:50] is the sub-list for method output_type
+	36, // [36:43] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_api_key_proto_init() }
@@ -1884,21 +2037,25 @@ func file_chalk_router_v1_api_key_proto_init() {
 	file_chalk_router_v1_rate_limit_proto_init()
 	file_chalk_router_v1_usage_budget_proto_init()
 	file_chalk_router_v1_api_key_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_router_v1_api_key_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_router_v1_api_key_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_router_v1_api_key_proto_msgTypes[2].OneofWrappers = []any{
+		(*ApiKeyRouteRef_RouteId)(nil),
+		(*ApiKeyRouteRef_PublicModelId)(nil),
+	}
+	file_chalk_router_v1_api_key_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_router_v1_api_key_proto_msgTypes[6].OneofWrappers = []any{}
-	file_chalk_router_v1_api_key_proto_msgTypes[8].OneofWrappers = []any{}
+	file_chalk_router_v1_api_key_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_router_v1_api_key_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_router_v1_api_key_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_router_v1_api_key_proto_msgTypes[16].OneofWrappers = []any{}
-	file_chalk_router_v1_api_key_proto_msgTypes[19].OneofWrappers = []any{}
+	file_chalk_router_v1_api_key_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_router_v1_api_key_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_router_v1_api_key_proto_msgTypes[20].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_router_v1_api_key_proto_rawDesc), len(file_chalk_router_v1_api_key_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   27,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
