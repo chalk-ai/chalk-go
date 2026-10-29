@@ -39,9 +39,6 @@ const (
 	// FnqConsumerServiceAcquireWorkProcedure is the fully-qualified name of the FnqConsumerService's
 	// AcquireWork RPC.
 	FnqConsumerServiceAcquireWorkProcedure = "/chalk.runtime.v1.FnqConsumerService/AcquireWork"
-	// FnqConsumerServiceStartWorkProcedure is the fully-qualified name of the FnqConsumerService's
-	// StartWork RPC.
-	FnqConsumerServiceStartWorkProcedure = "/chalk.runtime.v1.FnqConsumerService/StartWork"
 	// FnqConsumerServiceRenewWorkProcedure is the fully-qualified name of the FnqConsumerService's
 	// RenewWork RPC.
 	FnqConsumerServiceRenewWorkProcedure = "/chalk.runtime.v1.FnqConsumerService/RenewWork"
@@ -54,10 +51,9 @@ const (
 type FnqConsumerServiceClient interface {
 	// Register a verified replica incarnation and shim process for work ownership.
 	RegisterConsumer(context.Context, *connect.Request[v1.RegisterConsumerRequest]) (*connect.Response[v1.RegisterConsumerResponse], error)
-	// Lease queued calls for execution by this worker.
+	// Atomically acquire calls for this worker and freeze their verified replica.
+	// Acquired inputs execute even if logical cancellation follows delivery.
 	AcquireWork(context.Context, *connect.Request[v1.AcquireWorkRequest]) (*connect.ServerStreamForClient[v1.AcquireWorkResponse], error)
-	// Authorize handler dispatch. CANCELLED means the handler must not be invoked.
-	StartWork(context.Context, *connect.Request[v1.StartWorkRequest]) (*connect.Response[v1.StartWorkResponse], error)
 	// Keep acquired work assigned to this worker while it executes.
 	RenewWork(context.Context, *connect.Request[v1.RenewWorkRequest]) (*connect.Response[v1.RenewWorkResponse], error)
 	// Report execution output, completion, failure, or a request to retry.
@@ -87,12 +83,6 @@ func NewFnqConsumerServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(fnqConsumerServiceMethods.ByName("AcquireWork")),
 			connect.WithClientOptions(opts...),
 		),
-		startWork: connect.NewClient[v1.StartWorkRequest, v1.StartWorkResponse](
-			httpClient,
-			baseURL+FnqConsumerServiceStartWorkProcedure,
-			connect.WithSchema(fnqConsumerServiceMethods.ByName("StartWork")),
-			connect.WithClientOptions(opts...),
-		),
 		renewWork: connect.NewClient[v1.RenewWorkRequest, v1.RenewWorkResponse](
 			httpClient,
 			baseURL+FnqConsumerServiceRenewWorkProcedure,
@@ -112,7 +102,6 @@ func NewFnqConsumerServiceClient(httpClient connect.HTTPClient, baseURL string, 
 type fnqConsumerServiceClient struct {
 	registerConsumer *connect.Client[v1.RegisterConsumerRequest, v1.RegisterConsumerResponse]
 	acquireWork      *connect.Client[v1.AcquireWorkRequest, v1.AcquireWorkResponse]
-	startWork        *connect.Client[v1.StartWorkRequest, v1.StartWorkResponse]
 	renewWork        *connect.Client[v1.RenewWorkRequest, v1.RenewWorkResponse]
 	reportResults    *connect.Client[v1.ReportResultsRequest, v1.ReportResultsResponse]
 }
@@ -125,11 +114,6 @@ func (c *fnqConsumerServiceClient) RegisterConsumer(ctx context.Context, req *co
 // AcquireWork calls chalk.runtime.v1.FnqConsumerService.AcquireWork.
 func (c *fnqConsumerServiceClient) AcquireWork(ctx context.Context, req *connect.Request[v1.AcquireWorkRequest]) (*connect.ServerStreamForClient[v1.AcquireWorkResponse], error) {
 	return c.acquireWork.CallServerStream(ctx, req)
-}
-
-// StartWork calls chalk.runtime.v1.FnqConsumerService.StartWork.
-func (c *fnqConsumerServiceClient) StartWork(ctx context.Context, req *connect.Request[v1.StartWorkRequest]) (*connect.Response[v1.StartWorkResponse], error) {
-	return c.startWork.CallUnary(ctx, req)
 }
 
 // RenewWork calls chalk.runtime.v1.FnqConsumerService.RenewWork.
@@ -147,10 +131,9 @@ func (c *fnqConsumerServiceClient) ReportResults(ctx context.Context, req *conne
 type FnqConsumerServiceHandler interface {
 	// Register a verified replica incarnation and shim process for work ownership.
 	RegisterConsumer(context.Context, *connect.Request[v1.RegisterConsumerRequest]) (*connect.Response[v1.RegisterConsumerResponse], error)
-	// Lease queued calls for execution by this worker.
+	// Atomically acquire calls for this worker and freeze their verified replica.
+	// Acquired inputs execute even if logical cancellation follows delivery.
 	AcquireWork(context.Context, *connect.Request[v1.AcquireWorkRequest], *connect.ServerStream[v1.AcquireWorkResponse]) error
-	// Authorize handler dispatch. CANCELLED means the handler must not be invoked.
-	StartWork(context.Context, *connect.Request[v1.StartWorkRequest]) (*connect.Response[v1.StartWorkResponse], error)
 	// Keep acquired work assigned to this worker while it executes.
 	RenewWork(context.Context, *connect.Request[v1.RenewWorkRequest]) (*connect.Response[v1.RenewWorkResponse], error)
 	// Report execution output, completion, failure, or a request to retry.
@@ -176,12 +159,6 @@ func NewFnqConsumerServiceHandler(svc FnqConsumerServiceHandler, opts ...connect
 		connect.WithSchema(fnqConsumerServiceMethods.ByName("AcquireWork")),
 		connect.WithHandlerOptions(opts...),
 	)
-	fnqConsumerServiceStartWorkHandler := connect.NewUnaryHandler(
-		FnqConsumerServiceStartWorkProcedure,
-		svc.StartWork,
-		connect.WithSchema(fnqConsumerServiceMethods.ByName("StartWork")),
-		connect.WithHandlerOptions(opts...),
-	)
 	fnqConsumerServiceRenewWorkHandler := connect.NewUnaryHandler(
 		FnqConsumerServiceRenewWorkProcedure,
 		svc.RenewWork,
@@ -200,8 +177,6 @@ func NewFnqConsumerServiceHandler(svc FnqConsumerServiceHandler, opts ...connect
 			fnqConsumerServiceRegisterConsumerHandler.ServeHTTP(w, r)
 		case FnqConsumerServiceAcquireWorkProcedure:
 			fnqConsumerServiceAcquireWorkHandler.ServeHTTP(w, r)
-		case FnqConsumerServiceStartWorkProcedure:
-			fnqConsumerServiceStartWorkHandler.ServeHTTP(w, r)
 		case FnqConsumerServiceRenewWorkProcedure:
 			fnqConsumerServiceRenewWorkHandler.ServeHTTP(w, r)
 		case FnqConsumerServiceReportResultsProcedure:
@@ -221,10 +196,6 @@ func (UnimplementedFnqConsumerServiceHandler) RegisterConsumer(context.Context, 
 
 func (UnimplementedFnqConsumerServiceHandler) AcquireWork(context.Context, *connect.Request[v1.AcquireWorkRequest], *connect.ServerStream[v1.AcquireWorkResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.FnqConsumerService.AcquireWork is not implemented"))
-}
-
-func (UnimplementedFnqConsumerServiceHandler) StartWork(context.Context, *connect.Request[v1.StartWorkRequest]) (*connect.Response[v1.StartWorkResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.FnqConsumerService.StartWork is not implemented"))
 }
 
 func (UnimplementedFnqConsumerServiceHandler) RenewWork(context.Context, *connect.Request[v1.RenewWorkRequest]) (*connect.Response[v1.RenewWorkResponse], error) {
