@@ -8,6 +8,7 @@ package runtimev1
 
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -843,17 +844,17 @@ var File_chalk_runtime_v1_fnq_consumer_proto protoreflect.FileDescriptor
 
 const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/runtime/v1/fnq_consumer.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"}\n" +
+	"#chalk/runtime/v1/fnq_consumer.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x83\x01\n" +
 	"\x10FnqKubernetesPod\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
-	"\x03uid\x18\x03 \x01(\tR\x03uid\x12%\n" +
-	"\x0eidentity_token\x18\x04 \x01(\tR\ridentityToken\"\x9f\x01\n" +
+	"\x03uid\x18\x03 \x01(\tR\x03uid\x12+\n" +
+	"\x0eidentity_token\x18\x04 \x01(\tB\x04ء'\x01R\ridentityToken\"\xa5\x01\n" +
 	"\x10FnqHostContainer\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12#\n" +
 	"\rresource_name\x18\x02 \x01(\tR\fresourceName\x12!\n" +
-	"\fresource_uid\x18\x03 \x01(\tR\vresourceUid\x12%\n" +
-	"\x0eidentity_token\x18\x04 \x01(\tR\ridentityToken\"\xdf\x01\n" +
+	"\fresource_uid\x18\x03 \x01(\tR\vresourceUid\x12+\n" +
+	"\x0eidentity_token\x18\x04 \x01(\tB\x04ء'\x01R\ridentityToken\"\xdf\x01\n" +
 	"\x17RegisterConsumerRequest\x12\x1f\n" +
 	"\vconsumer_id\x18\x01 \x01(\tR\n" +
 	"consumerId\x12K\n" +
