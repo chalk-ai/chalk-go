@@ -1316,7 +1316,7 @@ type CancelRemoteCallRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	CallId string                 `protobuf:"bytes,1,opt,name=call_id,json=callId,proto3" json:"call_id,omitempty"`
 	// Unknown policies fail with INVALID_ARGUMENT. UNSPECIFIED means CANCEL_ONLY.
-	Policy        CancellationPolicy `protobuf:"varint,3,opt,name=policy,proto3,enum=chalk.runtime.v1.CancellationPolicy" json:"policy,omitempty"`
+	Policy        CancellationPolicy `protobuf:"varint,2,opt,name=policy,proto3,enum=chalk.runtime.v1.CancellationPolicy" json:"policy,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2181,7 +2181,7 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\"p\n" +
 	"\x17CancelRemoteCallRequest\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\x12<\n" +
-	"\x06policy\x18\x03 \x01(\x0e2$.chalk.runtime.v1.CancellationPolicyR\x06policy\"V\n" +
+	"\x06policy\x18\x02 \x01(\x0e2$.chalk.runtime.v1.CancellationPolicyR\x06policy\"V\n" +
 	"\x18CancelRemoteCallResponse\x12:\n" +
 	"\x06status\x18\x01 \x01(\x0e2\".chalk.runtime.v1.RemoteCallStatusR\x06status\"\xe3\x01\n" +
 	"\x16PollRemoteCallResponse\x12:\n" +
