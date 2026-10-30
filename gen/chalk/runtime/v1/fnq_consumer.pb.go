@@ -31,7 +31,7 @@ type RegisterConsumerRequest struct {
 	// Identifies one shim process within the replica incarnation.
 	ConsumerId string `protobuf:"bytes,1,opt,name=consumer_id,json=consumerId,proto3" json:"consumer_id,omitempty"`
 	// Projected pod token or controller-provisioned ChalkContainer proof.
-	IdentityToken string `protobuf:"bytes,4,opt,name=identity_token,json=identityToken,proto3" json:"identity_token,omitempty"`
+	IdentityToken string `protobuf:"bytes,2,opt,name=identity_token,json=identityToken,proto3" json:"identity_token,omitempty"`
 	// Registration uses id (resource UID), name, and namespace. The server verifies
 	// ownership and resolves the runtime destination.
 	//
@@ -118,11 +118,11 @@ type isRegisterConsumerRequest_Replica interface {
 }
 
 type RegisterConsumerRequest_KubernetesReplica struct {
-	KubernetesReplica *v1.ScalingGroupReplica `protobuf:"bytes,5,opt,name=kubernetes_replica,json=kubernetesReplica,proto3,oneof"`
+	KubernetesReplica *v1.ScalingGroupReplica `protobuf:"bytes,3,opt,name=kubernetes_replica,json=kubernetesReplica,proto3,oneof"`
 }
 
 type RegisterConsumerRequest_HostReplica struct {
-	HostReplica *v1.ScalingGroupReplica `protobuf:"bytes,6,opt,name=host_replica,json=hostReplica,proto3,oneof"`
+	HostReplica *v1.ScalingGroupReplica `protobuf:"bytes,4,opt,name=host_replica,json=hostReplica,proto3,oneof"`
 }
 
 func (*RegisterConsumerRequest_KubernetesReplica) isRegisterConsumerRequest_Replica() {}
@@ -717,14 +717,14 @@ var File_chalk_runtime_v1_fnq_consumer_proto protoreflect.FileDescriptor
 
 const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/runtime/v1/fnq_consumer.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcc\x02\n" +
+	"#chalk/runtime/v1/fnq_consumer.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x02\n" +
 	"\x17RegisterConsumerRequest\x12\x1f\n" +
 	"\vconsumer_id\x18\x01 \x01(\tR\n" +
 	"consumerId\x12+\n" +
-	"\x0eidentity_token\x18\x04 \x01(\tB\x04ء'\x01R\ridentityToken\x12[\n" +
-	"\x12kubernetes_replica\x18\x05 \x01(\v2*.chalk.scalinggroup.v1.ScalingGroupReplicaH\x00R\x11kubernetesReplica\x12O\n" +
-	"\fhost_replica\x18\x06 \x01(\v2*.chalk.scalinggroup.v1.ScalingGroupReplicaH\x00R\vhostReplicaB\t\n" +
-	"\areplicaJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04R\x0ekubernetes_podR\x0ehost_container\"L\n" +
+	"\x0eidentity_token\x18\x02 \x01(\tB\x04ء'\x01R\ridentityToken\x12[\n" +
+	"\x12kubernetes_replica\x18\x03 \x01(\v2*.chalk.scalinggroup.v1.ScalingGroupReplicaH\x00R\x11kubernetesReplica\x12O\n" +
+	"\fhost_replica\x18\x04 \x01(\v2*.chalk.scalinggroup.v1.ScalingGroupReplicaH\x00R\vhostReplicaB\t\n" +
+	"\areplica\"L\n" +
 	"\x18RegisterConsumerResponse\x120\n" +
 	"\x14consumer_instance_id\x18\x01 \x01(\tR\x12consumerInstanceId\"\xa5\x02\n" +
 	"\x12AcquireWorkRequest\x12#\n" +
