@@ -147,6 +147,8 @@ type AsyncRemoteCallServiceClient interface {
 	// Cancel a call without interrupting running code unless container termination
 	// is requested. List queues return UNIMPLEMENTED. Late results cannot replace
 	// cancellation, and cancellation never schedules another execution attempt.
+	// Success commits cancellation and durably schedules any required termination;
+	// it does not wait for the container to stop or collateral recovery to finish.
 	CancelRemoteCall(context.Context, *connect.Request[v1.CancelRemoteCallRequest]) (*connect.Response[v1.CancelRemoteCallResponse], error)
 	// Submit Arrow chunks containing many logical calls and receive per-call
 	// acknowledgements and results without polling each call ID independently.
@@ -245,6 +247,8 @@ type AsyncRemoteCallServiceHandler interface {
 	// Cancel a call without interrupting running code unless container termination
 	// is requested. List queues return UNIMPLEMENTED. Late results cannot replace
 	// cancellation, and cancellation never schedules another execution attempt.
+	// Success commits cancellation and durably schedules any required termination;
+	// it does not wait for the container to stop or collateral recovery to finish.
 	CancelRemoteCall(context.Context, *connect.Request[v1.CancelRemoteCallRequest]) (*connect.Response[v1.CancelRemoteCallResponse], error)
 	// Submit Arrow chunks containing many logical calls and receive per-call
 	// acknowledgements and results without polling each call ID independently.
