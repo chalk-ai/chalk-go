@@ -90,7 +90,7 @@ func (RemoteCallStatus) EnumDescriptor() ([]byte, []int) {
 type CancellationPolicy int32
 
 const (
-	// Use the deprecated terminate_containers field for compatibility.
+	// Defaults to cancellation without replica termination.
 	CancellationPolicy_CANCELLATION_POLICY_UNSPECIFIED CancellationPolicy = 0
 	// Discard output and outcomes while allowing acquired work to finish.
 	CancellationPolicy_CANCELLATION_POLICY_CANCEL_ONLY CancellationPolicy = 1
@@ -1315,12 +1315,7 @@ func (x *PollRemoteCallRequest) GetCursor() string {
 type CancelRemoteCallRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	CallId string                 `protobuf:"bytes,1,opt,name=call_id,json=callId,proto3" json:"call_id,omitempty"`
-	// Legacy fallback when policy is unspecified. New clients should set policy.
-	//
-	// Deprecated: Marked as deprecated in chalk/runtime/v1/remote_python_call.proto.
-	TerminateContainers bool `protobuf:"varint,2,opt,name=terminate_containers,json=terminateContainers,proto3" json:"terminate_containers,omitempty"`
-	// Unknown policies, or CANCEL_ONLY with terminate_containers=true, fail with
-	// INVALID_ARGUMENT. UNSPECIFIED uses the legacy bool (false means CANCEL_ONLY).
+	// Unknown policies fail with INVALID_ARGUMENT. UNSPECIFIED means CANCEL_ONLY.
 	Policy        CancellationPolicy `protobuf:"varint,3,opt,name=policy,proto3,enum=chalk.runtime.v1.CancellationPolicy" json:"policy,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1361,14 +1356,6 @@ func (x *CancelRemoteCallRequest) GetCallId() string {
 		return x.CallId
 	}
 	return ""
-}
-
-// Deprecated: Marked as deprecated in chalk/runtime/v1/remote_python_call.proto.
-func (x *CancelRemoteCallRequest) GetTerminateContainers() bool {
-	if x != nil {
-		return x.TerminateContainers
-	}
-	return false
 }
 
 func (x *CancelRemoteCallRequest) GetPolicy() CancellationPolicy {
@@ -2191,13 +2178,12 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\bresponse\"H\n" +
 	"\x15PollRemoteCallRequest\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\x12\x16\n" +
-	"\x06cursor\x18\x02 \x01(\tR\x06cursor\"\xa7\x01\n" +
+	"\x06cursor\x18\x02 \x01(\tR\x06cursor\"p\n" +
 	"\x17CancelRemoteCallRequest\x12\x17\n" +
-	"\acall_id\x18\x01 \x01(\tR\x06callId\x125\n" +
-	"\x14terminate_containers\x18\x02 \x01(\bB\x02\x18\x01R\x13terminateContainers\x12<\n" +
-	"\x06policy\x18\x03 \x01(\x0e2$.chalk.runtime.v1.CancellationPolicyR\x06policy\"p\n" +
+	"\acall_id\x18\x01 \x01(\tR\x06callId\x12<\n" +
+	"\x06policy\x18\x03 \x01(\x0e2$.chalk.runtime.v1.CancellationPolicyR\x06policy\"V\n" +
 	"\x18CancelRemoteCallResponse\x12:\n" +
-	"\x06status\x18\x01 \x01(\x0e2\".chalk.runtime.v1.RemoteCallStatusR\x06statusJ\x04\b\x02\x10\x03R\x12termination_status\"\xe3\x01\n" +
+	"\x06status\x18\x01 \x01(\x0e2\".chalk.runtime.v1.RemoteCallStatusR\x06status\"\xe3\x01\n" +
 	"\x16PollRemoteCallResponse\x12:\n" +
 	"\x06status\x18\x01 \x01(\x0e2\".chalk.runtime.v1.RemoteCallStatusR\x06status\x12@\n" +
 	"\aresults\x18\x02 \x03(\v2&.chalk.runtime.v1.CallFunctionResponseR\aresults\x12\x16\n" +
