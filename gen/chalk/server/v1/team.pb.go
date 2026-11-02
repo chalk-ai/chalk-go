@@ -1316,8 +1316,9 @@ type UpdateEnvironmentOperation struct {
 	// routinely carry datasource credentials, so redact from the audit log.
 	AdditionalEnvVars map[string]string `protobuf:"bytes,2,rep,name=additional_env_vars,json=additionalEnvVars,proto3" json:"additional_env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// May embed pip index URLs with tokens in the userinfo.
-	PrivatePipRepositories        *string                         `protobuf:"bytes,3,opt,name=private_pip_repositories,json=privatePipRepositories,proto3,oneof" json:"private_pip_repositories,omitempty"`
-	OnlineStoreKind               *string                         `protobuf:"bytes,12,opt,name=online_store_kind,json=onlineStoreKind,proto3,oneof" json:"online_store_kind,omitempty"`
+	PrivatePipRepositories *string `protobuf:"bytes,3,opt,name=private_pip_repositories,json=privatePipRepositories,proto3,oneof" json:"private_pip_repositories,omitempty"`
+	OnlineStoreKind        *string `protobuf:"bytes,12,opt,name=online_store_kind,json=onlineStoreKind,proto3,oneof" json:"online_store_kind,omitempty"`
+	// Accepts a raw URI or a KMS secret name on writes; reads return the backing KMS name.
 	OnlineStoreSecret             *string                         `protobuf:"bytes,4,opt,name=online_store_secret,json=onlineStoreSecret,proto3,oneof" json:"online_store_secret,omitempty"`
 	FeatureStoreSecret            *string                         `protobuf:"bytes,5,opt,name=feature_store_secret,json=featureStoreSecret,proto3,oneof" json:"feature_store_secret,omitempty"`
 	ServiceUrl                    *string                         `protobuf:"bytes,7,opt,name=service_url,json=serviceUrl,proto3,oneof" json:"service_url,omitempty"`
@@ -5886,15 +5887,15 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x1c_engine_docker_registry_pathB\x1a\n" +
 	"\x18_environment_id_override\"[\n" +
 	"\x19CreateEnvironmentResponse\x12>\n" +
-	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\xac\f\n" +
+	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\xb2\f\n" +
 	"\x1aUpdateEnvironmentOperation\x12\"\n" +
 	"\n" +
 	"is_default\x18\x06 \x01(\bH\x00R\tisDefault\x88\x01\x01\x12/\n" +
 	"\x11specs_config_json\x18\x01 \x01(\tH\x01R\x0fspecsConfigJson\x88\x01\x01\x12x\n" +
 	"\x13additional_env_vars\x18\x02 \x03(\v2B.chalk.server.v1.UpdateEnvironmentOperation.AdditionalEnvVarsEntryB\x04ء'\x01R\x11additionalEnvVars\x12C\n" +
 	"\x18private_pip_repositories\x18\x03 \x01(\tB\x04ء'\x01H\x02R\x16privatePipRepositories\x88\x01\x01\x12/\n" +
-	"\x11online_store_kind\x18\f \x01(\tH\x03R\x0fonlineStoreKind\x88\x01\x01\x123\n" +
-	"\x13online_store_secret\x18\x04 \x01(\tH\x04R\x11onlineStoreSecret\x88\x01\x01\x125\n" +
+	"\x11online_store_kind\x18\f \x01(\tH\x03R\x0fonlineStoreKind\x88\x01\x01\x129\n" +
+	"\x13online_store_secret\x18\x04 \x01(\tB\x04ء'\x01H\x04R\x11onlineStoreSecret\x88\x01\x01\x125\n" +
 	"\x14feature_store_secret\x18\x05 \x01(\tH\x05R\x12featureStoreSecret\x88\x01\x01\x12$\n" +
 	"\vservice_url\x18\a \x01(\tH\x06R\n" +
 	"serviceUrl\x88\x01\x01\x12\"\n" +

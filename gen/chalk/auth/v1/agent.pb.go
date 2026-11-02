@@ -1114,6 +1114,8 @@ type WorkloadAgent struct {
 	// principal is created.
 	FeaturePermissions *FeaturePermissions `protobuf:"bytes,7,opt,name=feature_permissions,json=featurePermissions,proto3" json:"feature_permissions,omitempty"`
 	CustomerClaims     []*CustomClaim      `protobuf:"bytes,8,rep,name=customer_claims,json=customerClaims,proto3" json:"customer_claims,omitempty"`
+	// Immutable workload grants, distinct from customer data-access claims.
+	UserProvidedClaims map[string]string `protobuf:"bytes,9,rep,name=user_provided_claims,json=userProvidedClaims,proto3" json:"user_provided_claims,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1195,6 +1197,13 @@ func (x *WorkloadAgent) GetFeaturePermissions() *FeaturePermissions {
 func (x *WorkloadAgent) GetCustomerClaims() []*CustomClaim {
 	if x != nil {
 		return x.CustomerClaims
+	}
+	return nil
+}
+
+func (x *WorkloadAgent) GetUserProvidedClaims() map[string]string {
+	if x != nil {
+		return x.UserProvidedClaims
 	}
 	return nil
 }
@@ -1471,14 +1480,18 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\x17requires_authentication\x18\x05 \x01(\bR\x16requiresAuthentication\"=\n" +
 	"\x10SandboxPrincipal\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
-	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\xef\x02\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\"\x9e\x04\n" +
 	"\rWorkloadAgent\x12\x17\n" +
 	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12;\n" +
 	"\vpermissions\x18\x03 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\x12;\n" +
 	"\asandbox\x18\x04 \x01(\v2\x1f.chalk.auth.v1.SandboxPrincipalH\x00R\asandbox\x12R\n" +
 	"\x13feature_permissions\x18\a \x01(\v2!.chalk.auth.v1.FeaturePermissionsR\x12featurePermissions\x12C\n" +
-	"\x0fcustomer_claims\x18\b \x03(\v2\x1a.chalk.auth.v1.CustomClaimR\x0ecustomerClaimsB\v\n" +
+	"\x0fcustomer_claims\x18\b \x03(\v2\x1a.chalk.auth.v1.CustomClaimR\x0ecustomerClaims\x12f\n" +
+	"\x14user_provided_claims\x18\t \x03(\v24.chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntryR\x12userProvidedClaims\x1aE\n" +
+	"\x17UserProvidedClaimsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
 	"\tprincipal\"\x9f\x05\n" +
 	"\x05Agent\x12\x1d\n" +
 	"\n" +
@@ -1525,7 +1538,7 @@ func file_chalk_auth_v1_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_auth_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_auth_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_chalk_auth_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_chalk_auth_v1_agent_proto_goTypes = []any{
 	(ExchangeTokenKind)(0),         // 0: chalk.auth.v1.ExchangeTokenKind
 	(AgentKind)(0),                 // 1: chalk.auth.v1.AgentKind
@@ -1546,44 +1559,46 @@ var file_chalk_auth_v1_agent_proto_goTypes = []any{
 	(*WorkloadAgent)(nil),          // 16: chalk.auth.v1.WorkloadAgent
 	(*Agent)(nil),                  // 17: chalk.auth.v1.Agent
 	nil,                            // 18: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry
-	(Permission)(0),                // 19: chalk.auth.v1.Permission
-	(*FeaturePermissions)(nil),     // 20: chalk.auth.v1.FeaturePermissions
+	nil,                            // 19: chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntry
+	(Permission)(0),                // 20: chalk.auth.v1.Permission
+	(*FeaturePermissions)(nil),     // 21: chalk.auth.v1.FeaturePermissions
 }
 var file_chalk_auth_v1_agent_proto_depIdxs = []int32{
-	19, // 0: chalk.auth.v1.EnvironmentPermissions.permissions:type_name -> chalk.auth.v1.Permission
-	20, // 1: chalk.auth.v1.EnvironmentPermissions.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	20, // 0: chalk.auth.v1.EnvironmentPermissions.permissions:type_name -> chalk.auth.v1.Permission
+	21, // 1: chalk.auth.v1.EnvironmentPermissions.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
 	5,  // 2: chalk.auth.v1.EnvironmentPermissions.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	19, // 3: chalk.auth.v1.TeamPermissions.permissions:type_name -> chalk.auth.v1.Permission
+	20, // 3: chalk.auth.v1.TeamPermissions.permissions:type_name -> chalk.auth.v1.Permission
 	18, // 4: chalk.auth.v1.UserAgent.permissions_by_environment:type_name -> chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry
 	3,  // 5: chalk.auth.v1.UserAgent.team_permissions:type_name -> chalk.auth.v1.TeamPermissions
-	19, // 6: chalk.auth.v1.ServiceTokenAgent.permissions:type_name -> chalk.auth.v1.Permission
+	20, // 6: chalk.auth.v1.ServiceTokenAgent.permissions:type_name -> chalk.auth.v1.Permission
 	5,  // 7: chalk.auth.v1.ServiceTokenAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	20, // 8: chalk.auth.v1.ServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	19, // 9: chalk.auth.v1.ServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.Permission
-	19, // 10: chalk.auth.v1.ExchangeTokenDetails.requestable_permissions:type_name -> chalk.auth.v1.Permission
+	21, // 8: chalk.auth.v1.ServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	20, // 9: chalk.auth.v1.ServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.Permission
+	20, // 10: chalk.auth.v1.ExchangeTokenDetails.requestable_permissions:type_name -> chalk.auth.v1.Permission
 	0,  // 11: chalk.auth.v1.ExchangeTokenDetails.kind:type_name -> chalk.auth.v1.ExchangeTokenKind
-	19, // 12: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
+	20, // 12: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
 	9,  // 13: chalk.auth.v1.TenantAgent.exchange_token_details:type_name -> chalk.auth.v1.ExchangeTokenDetails
 	12, // 14: chalk.auth.v1.ResourceShareScope.notebook:type_name -> chalk.auth.v1.NotebookShareScope
 	13, // 15: chalk.auth.v1.ResourceShareAgent.scope:type_name -> chalk.auth.v1.ResourceShareScope
-	19, // 16: chalk.auth.v1.WorkloadAgent.permissions:type_name -> chalk.auth.v1.Permission
+	20, // 16: chalk.auth.v1.WorkloadAgent.permissions:type_name -> chalk.auth.v1.Permission
 	15, // 17: chalk.auth.v1.WorkloadAgent.sandbox:type_name -> chalk.auth.v1.SandboxPrincipal
-	20, // 18: chalk.auth.v1.WorkloadAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	21, // 18: chalk.auth.v1.WorkloadAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
 	5,  // 19: chalk.auth.v1.WorkloadAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	4,  // 20: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
-	6,  // 21: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
-	7,  // 22: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
-	10, // 23: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
-	8,  // 24: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
-	11, // 25: chalk.auth.v1.Agent.self_hosted_license_agent:type_name -> chalk.auth.v1.SelfHostedLicenseAgent
-	14, // 26: chalk.auth.v1.Agent.resource_share_agent:type_name -> chalk.auth.v1.ResourceShareAgent
-	16, // 27: chalk.auth.v1.Agent.workload_agent:type_name -> chalk.auth.v1.WorkloadAgent
-	2,  // 28: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
-	29, // [29:29] is the sub-list for method output_type
-	29, // [29:29] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	19, // 20: chalk.auth.v1.WorkloadAgent.user_provided_claims:type_name -> chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntry
+	4,  // 21: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
+	6,  // 22: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
+	7,  // 23: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
+	10, // 24: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
+	8,  // 25: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
+	11, // 26: chalk.auth.v1.Agent.self_hosted_license_agent:type_name -> chalk.auth.v1.SelfHostedLicenseAgent
+	14, // 27: chalk.auth.v1.Agent.resource_share_agent:type_name -> chalk.auth.v1.ResourceShareAgent
+	16, // 28: chalk.auth.v1.Agent.workload_agent:type_name -> chalk.auth.v1.WorkloadAgent
+	2,  // 29: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
+	30, // [30:30] is the sub-list for method output_type
+	30, // [30:30] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_chalk_auth_v1_agent_proto_init() }
@@ -1616,7 +1631,7 @@ func file_chalk_auth_v1_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_auth_v1_agent_proto_rawDesc), len(file_chalk_auth_v1_agent_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   17,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

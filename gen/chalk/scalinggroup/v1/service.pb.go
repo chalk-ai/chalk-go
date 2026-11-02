@@ -2259,13 +2259,15 @@ func (*ListScalingGroupReplicasRequest_ScalingGroupName) isListScalingGroupRepli
 }
 
 type ScalingGroupReplica struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	Id            string                    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                    `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	RevisionId    string                    `protobuf:"bytes,3,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
-	Status        ScalingGroupReplicaStatus `protobuf:"varint,4,opt,name=status,proto3,enum=chalk.scalinggroup.v1.ScalingGroupReplicaStatus" json:"status,omitempty"`
-	Reason        *string                   `protobuf:"bytes,5,opt,name=reason,proto3,oneof" json:"reason,omitempty"`
-	CreatedAt     *timestamppb.Timestamp    `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state      protoimpl.MessageState    `protogen:"open.v1"`
+	Id         string                    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name       string                    `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	RevisionId string                    `protobuf:"bytes,3,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	Status     ScalingGroupReplicaStatus `protobuf:"varint,4,opt,name=status,proto3,enum=chalk.scalinggroup.v1.ScalingGroupReplicaStatus" json:"status,omitempty"`
+	Reason     *string                   `protobuf:"bytes,5,opt,name=reason,proto3,oneof" json:"reason,omitempty"`
+	CreatedAt  *timestamppb.Timestamp    `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Kubernetes namespace containing the Pod or ChalkContainer resource.
+	Namespace     string `protobuf:"bytes,7,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2340,6 +2342,13 @@ func (x *ScalingGroupReplica) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *ScalingGroupReplica) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
 }
 
 type ListScalingGroupReplicasResponse struct {
@@ -2876,7 +2885,7 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x1fListScalingGroupReplicasRequest\x12*\n" +
 	"\x10scaling_group_id\x18\x01 \x01(\tH\x00R\x0escalingGroupId\x12.\n" +
 	"\x12scaling_group_name\x18\x02 \x01(\tH\x00R\x10scalingGroupNameB\x13\n" +
-	"\x11scaling_group_key\"\x87\x02\n" +
+	"\x11scaling_group_key\"\xa5\x02\n" +
 	"\x13ScalingGroupReplica\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1f\n" +
@@ -2885,7 +2894,8 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x06status\x18\x04 \x01(\x0e20.chalk.scalinggroup.v1.ScalingGroupReplicaStatusR\x06status\x12\x1b\n" +
 	"\x06reason\x18\x05 \x01(\tH\x00R\x06reason\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\t\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1c\n" +
+	"\tnamespace\x18\a \x01(\tR\tnamespaceB\t\n" +
 	"\a_reason\"j\n" +
 	" ListScalingGroupReplicasResponse\x12F\n" +
 	"\breplicas\x18\x01 \x03(\v2*.chalk.scalinggroup.v1.ScalingGroupReplicaR\breplicas\"Y\n" +

@@ -22,6 +22,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Deprecated: Marked as deprecated in chalk/server/v1/manager.proto.
 type GetClusterEnvironmentsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ClusterName   string                 `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
@@ -66,6 +67,7 @@ func (x *GetClusterEnvironmentsRequest) GetClusterName() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/manager.proto.
 type GetClusterEnvironmentsResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	EnvironmentIds []string               `protobuf:"bytes,1,rep,name=environment_ids,json=environmentIds,proto3" json:"environment_ids,omitempty"`
@@ -270,11 +272,11 @@ var File_chalk_server_v1_manager_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_manager_proto_rawDesc = "" +
 	"\n" +
-	"\x1dchalk/server/v1/manager.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\"B\n" +
+	"\x1dchalk/server/v1/manager.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\"F\n" +
 	"\x1dGetClusterEnvironmentsRequest\x12!\n" +
-	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\"I\n" +
+	"\fcluster_name\x18\x01 \x01(\tR\vclusterName:\x02\x18\x01\"M\n" +
 	"\x1eGetClusterEnvironmentsResponse\x12'\n" +
-	"\x0fenvironment_ids\x18\x01 \x03(\tR\x0eenvironmentIds\"\x9a\x01\n" +
+	"\x0fenvironment_ids\x18\x01 \x03(\tR\x0eenvironmentIds:\x02\x18\x01\"\x9a\x01\n" +
 	"\x1fTelemetryTimescaleKubeSecretRef\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12(\n" +
 	"\x10kube_secret_name\x18\x02 \x01(\tR\x0ekubeSecretName\x12&\n" +
@@ -284,9 +286,9 @@ const file_chalk_server_v1_manager_proto_rawDesc = "" +
 	"\x17telemetry_deployment_id\x18\x02 \x01(\tR\x15telemetryDeploymentId\"\x81\x01\n" +
 	",ListTelemetryTimescaleKubeSecretRefsResponse\x12Q\n" +
 	"\vsecret_refs\x18\x01 \x03(\v20.chalk.server.v1.TelemetryTimescaleKubeSecretRefR\n" +
-	"secretRefs2\xc2\x02\n" +
-	"\x0eManagerService\x12\x81\x01\n" +
-	"\x16GetClusterEnvironments\x12..chalk.server.v1.GetClusterEnvironmentsRequest\x1a/.chalk.server.v1.GetClusterEnvironmentsResponse\"\x06\x80}\x02\x90\x02\x01\x12\xab\x01\n" +
+	"secretRefs2\xc5\x02\n" +
+	"\x0eManagerService\x12\x84\x01\n" +
+	"\x16GetClusterEnvironments\x12..chalk.server.v1.GetClusterEnvironmentsRequest\x1a/.chalk.server.v1.GetClusterEnvironmentsResponse\"\t\x80}\x02\x88\x02\x01\x90\x02\x01\x12\xab\x01\n" +
 	"$ListTelemetryTimescaleKubeSecretRefs\x12<.chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsRequest\x1a=.chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsResponse\"\x06\x80}\v\x90\x02\x01B\xbc\x01\n" +
 	"\x13com.chalk.server.v1B\fManagerProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 

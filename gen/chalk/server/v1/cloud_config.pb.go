@@ -631,9 +631,11 @@ func (x *AWSCloudConfig) GetPermissionsBoundaryArn() string {
 }
 
 type GCPCloudConfig struct {
-	state                    protoimpl.MessageState  `protogen:"open.v1"`
-	ProjectId                string                  `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	Region                   string                  `protobuf:"bytes,2,opt,name=region,proto3" json:"region,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	ProjectId string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Region    string                 `protobuf:"bytes,2,opt,name=region,proto3" json:"region,omitempty"`
+	// Output only for cloud credentials. Caller-supplied values are deprecated and ignored;
+	// the account is derived from the authenticated team and API server GCP project.
 	ManagementServiceAccount *string                 `protobuf:"bytes,3,opt,name=management_service_account,json=managementServiceAccount,proto3,oneof" json:"management_service_account,omitempty"`
 	DockerBuildConfig        *DockerBuildConfig      `protobuf:"bytes,4,opt,name=docker_build_config,json=dockerBuildConfig,proto3" json:"docker_build_config,omitempty"`
 	SecretmanagerConfig      *GCPSecretManagerConfig `protobuf:"bytes,5,opt,name=secretmanager_config,json=secretmanagerConfig,proto3" json:"secretmanager_config,omitempty"`

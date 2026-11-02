@@ -410,7 +410,10 @@ type RetryPolicy struct {
 	MaxBackoffMs      *int32                 `protobuf:"varint,4,opt,name=max_backoff_ms,json=maxBackoffMs,proto3,oneof" json:"max_backoff_ms,omitempty"`
 	// Shared-bucket identifier. Functions using the same key share one retry
 	// context. Defaults to the qualified function name if omitted.
-	Key           *string `protobuf:"bytes,5,opt,name=key,proto3,oneof" json:"key,omitempty"`
+	Key *string `protobuf:"bytes,5,opt,name=key,proto3,oneof" json:"key,omitempty"`
+	// Sample each synchronous retry delay uniformly between zero and the capped
+	// backoff delay. Absence preserves the SDK's default jitter behavior.
+	Jitter        *bool `protobuf:"varint,6,opt,name=jitter,proto3,oneof" json:"jitter,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -478,6 +481,13 @@ func (x *RetryPolicy) GetKey() string {
 		return *x.Key
 	}
 	return ""
+}
+
+func (x *RetryPolicy) GetJitter() bool {
+	if x != nil && x.Jitter != nil {
+		return *x.Jitter
+	}
+	return false
 }
 
 // Caps outbound request rate across callers sharing the same key.
@@ -4129,18 +4139,20 @@ var File_chalk_externalfunctioncatalog_v1_service_proto protoreflect.FileDescrip
 
 const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\n" +
-	".chalk/externalfunctioncatalog/v1/service.proto\x12 chalk.externalfunctioncatalog.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a\x1echalk/sandbox/v1/service.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x02\n" +
+	".chalk/externalfunctioncatalog/v1/service.proto\x12 chalk.externalfunctioncatalog.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a\x1echalk/sandbox/v1/service.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc8\x02\n" +
 	"\vRetryPolicy\x12\x1f\n" +
 	"\vmax_retries\x18\x01 \x01(\x05R\n" +
 	"maxRetries\x121\n" +
 	"\x12initial_backoff_ms\x18\x02 \x01(\x05H\x00R\x10initialBackoffMs\x88\x01\x01\x122\n" +
 	"\x12backoff_multiplier\x18\x03 \x01(\x01H\x01R\x11backoffMultiplier\x88\x01\x01\x12)\n" +
 	"\x0emax_backoff_ms\x18\x04 \x01(\x05H\x02R\fmaxBackoffMs\x88\x01\x01\x12\x15\n" +
-	"\x03key\x18\x05 \x01(\tH\x03R\x03key\x88\x01\x01B\x15\n" +
+	"\x03key\x18\x05 \x01(\tH\x03R\x03key\x88\x01\x01\x12\x1b\n" +
+	"\x06jitter\x18\x06 \x01(\bH\x04R\x06jitter\x88\x01\x01B\x15\n" +
 	"\x13_initial_backoff_msB\x15\n" +
 	"\x13_backoff_multiplierB\x11\n" +
 	"\x0f_max_backoff_msB\x06\n" +
-	"\x04_key\"\x86\x01\n" +
+	"\x04_keyB\t\n" +
+	"\a_jitter\"\x86\x01\n" +
 	"\x0fRateLimitPolicy\x12\x12\n" +
 	"\x04rate\x18\x01 \x01(\x05R\x04rate\x12@\n" +
 	"\x03per\x18\x02 \x01(\x0e2..chalk.externalfunctioncatalog.v1.RateLimitPerR\x03per\x12\x15\n" +
