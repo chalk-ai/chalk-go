@@ -3395,7 +3395,11 @@ type ResolverOutput struct {
 	//
 	//	*ResolverOutput_Feature
 	//	*ResolverOutput_Df
-	Annotation    isResolverOutput_Annotation `protobuf_oneof:"annotation"`
+	Annotation isResolverOutput_Annotation `protobuf_oneof:"annotation"`
+	// The has-many feature whose rows the `df` output holds, from `DataFrame[for_relationship(...), ...]`.
+	// It picks which of several has-manys between the same feature classes the resolver fills.
+	// Unset for a `feature` output.
+	Relationship  *FeatureReference `protobuf:"bytes,3,opt,name=relationship,proto3,oneof" json:"relationship,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3451,6 +3455,13 @@ func (x *ResolverOutput) GetDf() *DataFrameType {
 		if x, ok := x.Annotation.(*ResolverOutput_Df); ok {
 			return x.Df
 		}
+	}
+	return nil
+}
+
+func (x *ResolverOutput) GetRelationship() *FeatureReference {
+	if x != nil {
+		return x.Relationship
 	}
 	return nil
 }
@@ -8120,12 +8131,14 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x02df\x18\x02 \x01(\v2\x1d.chalk.graph.v1.DataFrameTypeH\x00R\x02df\x125\n" +
 	"\x05state\x18\x03 \x01(\v2\x1d.chalk.graph.v1.ResolverStateH\x00R\x05stateB\f\n" +
 	"\n" +
-	"annotation\"\x8d\x01\n" +
+	"annotation\"\xe9\x01\n" +
 	"\x0eResolverOutput\x12<\n" +
 	"\afeature\x18\x01 \x01(\v2 .chalk.graph.v1.FeatureReferenceH\x00R\afeature\x12/\n" +
-	"\x02df\x18\x02 \x01(\v2\x1d.chalk.graph.v1.DataFrameTypeH\x00R\x02dfB\f\n" +
+	"\x02df\x18\x02 \x01(\v2\x1d.chalk.graph.v1.DataFrameTypeH\x00R\x02df\x12I\n" +
+	"\frelationship\x18\x03 \x01(\v2 .chalk.graph.v1.FeatureReferenceH\x01R\frelationship\x88\x01\x01B\f\n" +
 	"\n" +
-	"annotation\"\xaa\x01\n" +
+	"annotationB\x0f\n" +
+	"\r_relationship\"\xaa\x01\n" +
 	"\x17ResolverAsSymbolicValue\x12H\n" +
 	"\asuccess\x18\x01 \x01(\v2,.chalk.graph.v1.ResolverSymbolicValueOutputsH\x00R\asuccess\x12;\n" +
 	"\afailure\x18\x02 \x01(\v2\x1f.chalk.graph.v1.ConversionErrorH\x00R\afailureB\b\n" +
@@ -8839,143 +8852,144 @@ var file_chalk_graph_v1_graph_proto_depIdxs = []int32{
 	48,  // 94: chalk.graph.v1.ResolverInput.state:type_name -> chalk.graph.v1.ResolverState
 	21,  // 95: chalk.graph.v1.ResolverOutput.feature:type_name -> chalk.graph.v1.FeatureReference
 	22,  // 96: chalk.graph.v1.ResolverOutput.df:type_name -> chalk.graph.v1.DataFrameType
-	36,  // 97: chalk.graph.v1.ResolverAsSymbolicValue.success:type_name -> chalk.graph.v1.ResolverSymbolicValueOutputs
-	38,  // 98: chalk.graph.v1.ResolverAsSymbolicValue.failure:type_name -> chalk.graph.v1.ConversionError
-	37,  // 99: chalk.graph.v1.ResolverSymbolicValueOutputs.outputs:type_name -> chalk.graph.v1.ResolverOutputSymbolicValue
-	98,  // 100: chalk.graph.v1.ResolverOutputSymbolicValue.root_ref:type_name -> chalk.symbolic_value.v1.SymbolicValue
-	5,   // 101: chalk.graph.v1.Resolver.kind:type_name -> chalk.graph.v1.ResolverKind
-	33,  // 102: chalk.graph.v1.Resolver.inputs:type_name -> chalk.graph.v1.ResolverInput
-	34,  // 103: chalk.graph.v1.Resolver.outputs:type_name -> chalk.graph.v1.ResolverOutput
-	106, // 104: chalk.graph.v1.Resolver.data_sources:type_name -> chalk.graph.v1.DatabaseSourceReference
-	99,  // 105: chalk.graph.v1.Resolver.timeout_duration:type_name -> google.protobuf.Duration
-	71,  // 106: chalk.graph.v1.Resolver.schedule:type_name -> chalk.graph.v1.Schedule
-	102, // 107: chalk.graph.v1.Resolver.when:type_name -> chalk.expression.v1.LogicalExprNode
-	70,  // 108: chalk.graph.v1.Resolver.cron_filter:type_name -> chalk.graph.v1.CronFilterWithFeatureArgs
-	52,  // 109: chalk.graph.v1.Resolver.function:type_name -> chalk.graph.v1.FunctionReference
-	6,   // 110: chalk.graph.v1.Resolver.resource_hint:type_name -> chalk.graph.v1.ResourceHint
-	2,   // 111: chalk.graph.v1.Resolver.accelerate_python:type_name -> chalk.graph.v1.AcceleratePython
-	35,  // 112: chalk.graph.v1.Resolver.converted:type_name -> chalk.graph.v1.ResolverAsSymbolicValue
-	107, // 113: chalk.graph.v1.Resolver.data_sources_v2:type_name -> chalk.graph.v2.DatabaseSourceReference
-	102, // 114: chalk.graph.v1.Resolver.static_operation:type_name -> chalk.expression.v1.LogicalExprNode
-	108, // 115: chalk.graph.v1.Resolver.static_operation_dataframe:type_name -> chalk.dataframe.v1.DataFramePlan
-	66,  // 116: chalk.graph.v1.Resolver.sql_settings:type_name -> chalk.graph.v1.SQLResolverSettings
-	67,  // 117: chalk.graph.v1.Resolver.incremental_settings:type_name -> chalk.graph.v1.IncrementalSettings
-	102, // 118: chalk.graph.v1.Resolver.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	102, // 119: chalk.graph.v1.Resolver.lazyframe_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	33,  // 120: chalk.graph.v1.SinkResolver.inputs:type_name -> chalk.graph.v1.ResolverInput
-	99,  // 121: chalk.graph.v1.SinkResolver.debounce_duration:type_name -> google.protobuf.Duration
-	99,  // 122: chalk.graph.v1.SinkResolver.max_delay_duration:type_name -> google.protobuf.Duration
-	109, // 123: chalk.graph.v1.SinkResolver.stream_source:type_name -> chalk.graph.v1.StreamSourceReference
-	106, // 124: chalk.graph.v1.SinkResolver.database_source:type_name -> chalk.graph.v1.DatabaseSourceReference
-	110, // 125: chalk.graph.v1.SinkResolver.stream_source_v2:type_name -> chalk.graph.v2.StreamSourceReference
-	107, // 126: chalk.graph.v1.SinkResolver.database_source_v2:type_name -> chalk.graph.v2.DatabaseSourceReference
-	99,  // 127: chalk.graph.v1.SinkResolver.timeout_duration:type_name -> google.protobuf.Duration
-	52,  // 128: chalk.graph.v1.SinkResolver.function:type_name -> chalk.graph.v1.FunctionReference
-	102, // 129: chalk.graph.v1.DeduplicationStrategy.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	99,  // 130: chalk.graph.v1.DeduplicationStrategy.window:type_name -> google.protobuf.Duration
-	3,   // 131: chalk.graph.v1.DeduplicationStrategy.deduplication_stage:type_name -> chalk.graph.v1.StreamingDeduplicationStage
-	52,  // 132: chalk.graph.v1.ParseInfo.parse_function:type_name -> chalk.graph.v1.FunctionReference
-	103, // 133: chalk.graph.v1.ParseInfo.parse_function_input_type:type_name -> chalk.arrow.v1.ArrowType
-	103, // 134: chalk.graph.v1.ParseInfo.parse_function_output_type:type_name -> chalk.arrow.v1.ArrowType
-	102, // 135: chalk.graph.v1.ParseInfo.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	102, // 136: chalk.graph.v1.FeatureExpression.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	49,  // 137: chalk.graph.v1.StreamResolver.params:type_name -> chalk.graph.v1.StreamResolverParam
-	34,  // 138: chalk.graph.v1.StreamResolver.outputs:type_name -> chalk.graph.v1.ResolverOutput
-	103, // 139: chalk.graph.v1.StreamResolver.explicit_schema:type_name -> chalk.arrow.v1.ArrowType
-	65,  // 140: chalk.graph.v1.StreamResolver.keys:type_name -> chalk.graph.v1.StreamKey
-	109, // 141: chalk.graph.v1.StreamResolver.source:type_name -> chalk.graph.v1.StreamSourceReference
-	42,  // 142: chalk.graph.v1.StreamResolver.parse_info:type_name -> chalk.graph.v1.ParseInfo
-	10,  // 143: chalk.graph.v1.StreamResolver.mode:type_name -> chalk.graph.v1.WindowMode
-	99,  // 144: chalk.graph.v1.StreamResolver.timeout_duration:type_name -> google.protobuf.Duration
-	52,  // 145: chalk.graph.v1.StreamResolver.function:type_name -> chalk.graph.v1.FunctionReference
-	110, // 146: chalk.graph.v1.StreamResolver.source_v2:type_name -> chalk.graph.v2.StreamSourceReference
-	86,  // 147: chalk.graph.v1.StreamResolver.feature_expressions:type_name -> chalk.graph.v1.StreamResolver.FeatureExpressionsEntry
-	47,  // 148: chalk.graph.v1.StreamResolver.message_producer:type_name -> chalk.graph.v1.StreamResolverMessageProducerParsed
-	4,   // 149: chalk.graph.v1.StreamResolver.message_format:type_name -> chalk.graph.v1.StreamMessageFormat
-	46,  // 150: chalk.graph.v1.StreamResolver.header_filters:type_name -> chalk.graph.v1.StreamHeaderFilter
-	41,  // 151: chalk.graph.v1.StreamResolver.deduplication_strategy:type_name -> chalk.graph.v1.DeduplicationStrategy
-	97,  // 152: chalk.graph.v1.StreamResolver.source_full:type_name -> chalk.graph.v2.StreamSource
-	45,  // 153: chalk.graph.v1.StreamHeaderFilter.equality_check:type_name -> chalk.graph.v1.StreamMessageHeaderEqualityCheck
-	110, // 154: chalk.graph.v1.StreamResolverMessageProducerParsed.send_to:type_name -> chalk.graph.v2.StreamSourceReference
-	87,  // 155: chalk.graph.v1.StreamResolverMessageProducerParsed.transformations:type_name -> chalk.graph.v1.StreamResolverMessageProducerParsed.TransformationsEntry
-	97,  // 156: chalk.graph.v1.StreamResolverMessageProducerParsed.send_to_full:type_name -> chalk.graph.v2.StreamSource
-	104, // 157: chalk.graph.v1.ResolverState.initial:type_name -> chalk.arrow.v1.ScalarValue
-	103, // 158: chalk.graph.v1.ResolverState.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	51,  // 159: chalk.graph.v1.StreamResolverParam.message:type_name -> chalk.graph.v1.StreamResolverParamMessage
-	50,  // 160: chalk.graph.v1.StreamResolverParam.message_window:type_name -> chalk.graph.v1.StreamResolverParamMessageWindow
-	48,  // 161: chalk.graph.v1.StreamResolverParam.state:type_name -> chalk.graph.v1.ResolverState
-	103, // 162: chalk.graph.v1.StreamResolverParamMessageWindow.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	103, // 163: chalk.graph.v1.StreamResolverParamMessage.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	111, // 164: chalk.graph.v1.StreamResolverParamMessage.empty:type_name -> google.protobuf.Empty
-	56,  // 165: chalk.graph.v1.StreamResolverParamMessage.struct:type_name -> chalk.graph.v1.FunctionGlobalCapturedStruct
-	64,  // 166: chalk.graph.v1.StreamResolverParamMessage.proto:type_name -> chalk.graph.v1.FunctionGlobalCapturedProto
-	53,  // 167: chalk.graph.v1.FunctionReference.captured_globals:type_name -> chalk.graph.v1.FunctionReferenceCapturedGlobal
-	54,  // 168: chalk.graph.v1.FunctionReferenceCapturedGlobal.builtin:type_name -> chalk.graph.v1.FunctionGlobalCapturedBuiltin
-	58,  // 169: chalk.graph.v1.FunctionReferenceCapturedGlobal.feature_class:type_name -> chalk.graph.v1.FunctionGlobalCapturedFeatureClass
-	57,  // 170: chalk.graph.v1.FunctionReferenceCapturedGlobal.enum:type_name -> chalk.graph.v1.FunctionGlobalCapturedEnum
-	59,  // 171: chalk.graph.v1.FunctionReferenceCapturedGlobal.module:type_name -> chalk.graph.v1.FunctionGlobalCapturedModule
-	60,  // 172: chalk.graph.v1.FunctionReferenceCapturedGlobal.module_member:type_name -> chalk.graph.v1.FunctionGlobalCapturedModuleMember
-	61,  // 173: chalk.graph.v1.FunctionReferenceCapturedGlobal.function:type_name -> chalk.graph.v1.FunctionGlobalCapturedFunction
-	56,  // 174: chalk.graph.v1.FunctionReferenceCapturedGlobal.struct:type_name -> chalk.graph.v1.FunctionGlobalCapturedStruct
-	55,  // 175: chalk.graph.v1.FunctionReferenceCapturedGlobal.variable:type_name -> chalk.graph.v1.FunctionGlobalCapturedVariable
-	64,  // 176: chalk.graph.v1.FunctionReferenceCapturedGlobal.proto:type_name -> chalk.graph.v1.FunctionGlobalCapturedProto
-	62,  // 177: chalk.graph.v1.FunctionReferenceCapturedGlobal.value_ref:type_name -> chalk.graph.v1.FunctionGlobalCapturedValueRef
-	101, // 178: chalk.graph.v1.FunctionReferenceCapturedGlobal.source_reference:type_name -> chalk.graph.v1.SourceFileReference
-	103, // 179: chalk.graph.v1.FunctionGlobalCapturedStruct.pa_dtype:type_name -> chalk.arrow.v1.ArrowType
-	88,  // 180: chalk.graph.v1.FunctionGlobalCapturedEnum.member_map:type_name -> chalk.graph.v1.FunctionGlobalCapturedEnum.MemberMapEntry
-	103, // 181: chalk.graph.v1.FunctionGlobalCapturedEnum.bases:type_name -> chalk.arrow.v1.ArrowType
-	53,  // 182: chalk.graph.v1.FunctionGlobalCapturedFunction.captured_globals:type_name -> chalk.graph.v1.FunctionReferenceCapturedGlobal
-	53,  // 183: chalk.graph.v1.CapturedGlobalValue.value:type_name -> chalk.graph.v1.FunctionReferenceCapturedGlobal
-	103, // 184: chalk.graph.v1.FunctionGlobalCapturedProto.pa_dtype:type_name -> chalk.arrow.v1.ArrowType
-	21,  // 185: chalk.graph.v1.StreamKey.feature:type_name -> chalk.graph.v1.FeatureReference
-	7,   // 186: chalk.graph.v1.SQLResolverSettings.finalizer:type_name -> chalk.graph.v1.Finalizer
-	67,  // 187: chalk.graph.v1.SQLResolverSettings.incremental_settings:type_name -> chalk.graph.v1.IncrementalSettings
-	89,  // 188: chalk.graph.v1.SQLResolverSettings.fields_root_fqn:type_name -> chalk.graph.v1.SQLResolverSettings.FieldsRootFqnEntry
-	90,  // 189: chalk.graph.v1.SQLResolverSettings.escaped_param_name_to_fqn:type_name -> chalk.graph.v1.SQLResolverSettings.EscapedParamNameToFqnEntry
-	91,  // 190: chalk.graph.v1.SQLResolverSettings.field_types:type_name -> chalk.graph.v1.SQLResolverSettings.FieldTypesEntry
-	112, // 191: chalk.graph.v1.SQLResolverSettings.retry_policy:type_name -> chalk.graph.v1.SQLResolverRetryPolicy
-	99,  // 192: chalk.graph.v1.SQLResolverSettings.max_row_version_lookback:type_name -> google.protobuf.Duration
-	8,   // 193: chalk.graph.v1.IncrementalSettings.mode:type_name -> chalk.graph.v1.IncrementalMode
-	99,  // 194: chalk.graph.v1.IncrementalSettings.lookback_period:type_name -> google.protobuf.Duration
-	9,   // 195: chalk.graph.v1.IncrementalSettings.timestamp_mode:type_name -> chalk.graph.v1.IncrementalTimestampMode
-	67,  // 196: chalk.graph.v1.SQLResolverCommentDict.incremental:type_name -> chalk.graph.v1.IncrementalSettings
-	7,   // 197: chalk.graph.v1.SQLResolverCommentDict.count:type_name -> chalk.graph.v1.Finalizer
-	71,  // 198: chalk.graph.v1.SQLResolverCommentDict.cron:type_name -> chalk.graph.v1.Schedule
-	92,  // 199: chalk.graph.v1.SQLResolverCommentDict.fields:type_name -> chalk.graph.v1.SQLResolverCommentDict.FieldsEntry
-	112, // 200: chalk.graph.v1.SQLResolverCommentDict.retry_policy:type_name -> chalk.graph.v1.SQLResolverRetryPolicy
-	68,  // 201: chalk.graph.v1.SQLResolverInfo.override_comment_dict:type_name -> chalk.graph.v1.SQLResolverCommentDict
-	52,  // 202: chalk.graph.v1.CronFilterWithFeatureArgs.filter:type_name -> chalk.graph.v1.FunctionReference
-	21,  // 203: chalk.graph.v1.CronFilterWithFeatureArgs.args:type_name -> chalk.graph.v1.FeatureReference
-	99,  // 204: chalk.graph.v1.Schedule.duration:type_name -> google.protobuf.Duration
-	52,  // 205: chalk.graph.v1.Schedule.filter:type_name -> chalk.graph.v1.FunctionReference
-	52,  // 206: chalk.graph.v1.Schedule.sample:type_name -> chalk.graph.v1.FunctionReference
-	104, // 207: chalk.graph.v1.FeatureValidation.min_arrow:type_name -> chalk.arrow.v1.ScalarValue
-	104, // 208: chalk.graph.v1.FeatureValidation.max_arrow:type_name -> chalk.arrow.v1.ScalarValue
-	104, // 209: chalk.graph.v1.FeatureValidation.min_length_arrow:type_name -> chalk.arrow.v1.ScalarValue
-	104, // 210: chalk.graph.v1.FeatureValidation.max_length_arrow:type_name -> chalk.arrow.v1.ScalarValue
-	104, // 211: chalk.graph.v1.FeatureValidation.contains:type_name -> chalk.arrow.v1.ScalarValue
-	21,  // 212: chalk.graph.v1.StrictValidation.feature:type_name -> chalk.graph.v1.FeatureReference
-	72,  // 213: chalk.graph.v1.StrictValidation.validations:type_name -> chalk.graph.v1.FeatureValidation
-	61,  // 214: chalk.graph.v1.FeatureEncoder.global_function_reference:type_name -> chalk.graph.v1.FunctionGlobalCapturedFunction
-	61,  // 215: chalk.graph.v1.FeatureDecoder.global_function_reference:type_name -> chalk.graph.v1.FunctionGlobalCapturedFunction
-	77,  // 216: chalk.graph.v1.RichClassType.params:type_name -> chalk.graph.v1.RichClassType
-	77,  // 217: chalk.graph.v1.FeatureRichType.class_type:type_name -> chalk.graph.v1.RichClassType
-	75,  // 218: chalk.graph.v1.FeatureRichTypeInfo.encoder:type_name -> chalk.graph.v1.FeatureEncoder
-	76,  // 219: chalk.graph.v1.FeatureRichTypeInfo.decoder:type_name -> chalk.graph.v1.FeatureDecoder
-	78,  // 220: chalk.graph.v1.FeatureRichTypeInfo.rich_type:type_name -> chalk.graph.v1.FeatureRichType
-	99,  // 221: chalk.graph.v1.LRUCacheConfig.ttl:type_name -> google.protobuf.Duration
-	80,  // 222: chalk.graph.v1.OnlineStoreConfig.lru_cache:type_name -> chalk.graph.v1.LRUCacheConfig
-	101, // 223: chalk.graph.v1.OnlineStoreConfig.source_file_reference:type_name -> chalk.graph.v1.SourceFileReference
-	99,  // 224: chalk.graph.v1.NamedQuery.StalenessEntry.value:type_name -> google.protobuf.Duration
-	18,  // 225: chalk.graph.v1.NamedQuery.ResourceGroupsEntry.value:type_name -> chalk.graph.v1.NamedQueryResourceGroups
-	43,  // 226: chalk.graph.v1.StreamResolver.FeatureExpressionsEntry.value:type_name -> chalk.graph.v1.FeatureExpression
-	43,  // 227: chalk.graph.v1.StreamResolverMessageProducerParsed.TransformationsEntry.value:type_name -> chalk.graph.v1.FeatureExpression
-	104, // 228: chalk.graph.v1.FunctionGlobalCapturedEnum.MemberMapEntry.value:type_name -> chalk.arrow.v1.ScalarValue
-	229, // [229:229] is the sub-list for method output_type
-	229, // [229:229] is the sub-list for method input_type
-	229, // [229:229] is the sub-list for extension type_name
-	229, // [229:229] is the sub-list for extension extendee
-	0,   // [0:229] is the sub-list for field type_name
+	21,  // 97: chalk.graph.v1.ResolverOutput.relationship:type_name -> chalk.graph.v1.FeatureReference
+	36,  // 98: chalk.graph.v1.ResolverAsSymbolicValue.success:type_name -> chalk.graph.v1.ResolverSymbolicValueOutputs
+	38,  // 99: chalk.graph.v1.ResolverAsSymbolicValue.failure:type_name -> chalk.graph.v1.ConversionError
+	37,  // 100: chalk.graph.v1.ResolverSymbolicValueOutputs.outputs:type_name -> chalk.graph.v1.ResolverOutputSymbolicValue
+	98,  // 101: chalk.graph.v1.ResolverOutputSymbolicValue.root_ref:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	5,   // 102: chalk.graph.v1.Resolver.kind:type_name -> chalk.graph.v1.ResolverKind
+	33,  // 103: chalk.graph.v1.Resolver.inputs:type_name -> chalk.graph.v1.ResolverInput
+	34,  // 104: chalk.graph.v1.Resolver.outputs:type_name -> chalk.graph.v1.ResolverOutput
+	106, // 105: chalk.graph.v1.Resolver.data_sources:type_name -> chalk.graph.v1.DatabaseSourceReference
+	99,  // 106: chalk.graph.v1.Resolver.timeout_duration:type_name -> google.protobuf.Duration
+	71,  // 107: chalk.graph.v1.Resolver.schedule:type_name -> chalk.graph.v1.Schedule
+	102, // 108: chalk.graph.v1.Resolver.when:type_name -> chalk.expression.v1.LogicalExprNode
+	70,  // 109: chalk.graph.v1.Resolver.cron_filter:type_name -> chalk.graph.v1.CronFilterWithFeatureArgs
+	52,  // 110: chalk.graph.v1.Resolver.function:type_name -> chalk.graph.v1.FunctionReference
+	6,   // 111: chalk.graph.v1.Resolver.resource_hint:type_name -> chalk.graph.v1.ResourceHint
+	2,   // 112: chalk.graph.v1.Resolver.accelerate_python:type_name -> chalk.graph.v1.AcceleratePython
+	35,  // 113: chalk.graph.v1.Resolver.converted:type_name -> chalk.graph.v1.ResolverAsSymbolicValue
+	107, // 114: chalk.graph.v1.Resolver.data_sources_v2:type_name -> chalk.graph.v2.DatabaseSourceReference
+	102, // 115: chalk.graph.v1.Resolver.static_operation:type_name -> chalk.expression.v1.LogicalExprNode
+	108, // 116: chalk.graph.v1.Resolver.static_operation_dataframe:type_name -> chalk.dataframe.v1.DataFramePlan
+	66,  // 117: chalk.graph.v1.Resolver.sql_settings:type_name -> chalk.graph.v1.SQLResolverSettings
+	67,  // 118: chalk.graph.v1.Resolver.incremental_settings:type_name -> chalk.graph.v1.IncrementalSettings
+	102, // 119: chalk.graph.v1.Resolver.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	102, // 120: chalk.graph.v1.Resolver.lazyframe_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	33,  // 121: chalk.graph.v1.SinkResolver.inputs:type_name -> chalk.graph.v1.ResolverInput
+	99,  // 122: chalk.graph.v1.SinkResolver.debounce_duration:type_name -> google.protobuf.Duration
+	99,  // 123: chalk.graph.v1.SinkResolver.max_delay_duration:type_name -> google.protobuf.Duration
+	109, // 124: chalk.graph.v1.SinkResolver.stream_source:type_name -> chalk.graph.v1.StreamSourceReference
+	106, // 125: chalk.graph.v1.SinkResolver.database_source:type_name -> chalk.graph.v1.DatabaseSourceReference
+	110, // 126: chalk.graph.v1.SinkResolver.stream_source_v2:type_name -> chalk.graph.v2.StreamSourceReference
+	107, // 127: chalk.graph.v1.SinkResolver.database_source_v2:type_name -> chalk.graph.v2.DatabaseSourceReference
+	99,  // 128: chalk.graph.v1.SinkResolver.timeout_duration:type_name -> google.protobuf.Duration
+	52,  // 129: chalk.graph.v1.SinkResolver.function:type_name -> chalk.graph.v1.FunctionReference
+	102, // 130: chalk.graph.v1.DeduplicationStrategy.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	99,  // 131: chalk.graph.v1.DeduplicationStrategy.window:type_name -> google.protobuf.Duration
+	3,   // 132: chalk.graph.v1.DeduplicationStrategy.deduplication_stage:type_name -> chalk.graph.v1.StreamingDeduplicationStage
+	52,  // 133: chalk.graph.v1.ParseInfo.parse_function:type_name -> chalk.graph.v1.FunctionReference
+	103, // 134: chalk.graph.v1.ParseInfo.parse_function_input_type:type_name -> chalk.arrow.v1.ArrowType
+	103, // 135: chalk.graph.v1.ParseInfo.parse_function_output_type:type_name -> chalk.arrow.v1.ArrowType
+	102, // 136: chalk.graph.v1.ParseInfo.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	102, // 137: chalk.graph.v1.FeatureExpression.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	49,  // 138: chalk.graph.v1.StreamResolver.params:type_name -> chalk.graph.v1.StreamResolverParam
+	34,  // 139: chalk.graph.v1.StreamResolver.outputs:type_name -> chalk.graph.v1.ResolverOutput
+	103, // 140: chalk.graph.v1.StreamResolver.explicit_schema:type_name -> chalk.arrow.v1.ArrowType
+	65,  // 141: chalk.graph.v1.StreamResolver.keys:type_name -> chalk.graph.v1.StreamKey
+	109, // 142: chalk.graph.v1.StreamResolver.source:type_name -> chalk.graph.v1.StreamSourceReference
+	42,  // 143: chalk.graph.v1.StreamResolver.parse_info:type_name -> chalk.graph.v1.ParseInfo
+	10,  // 144: chalk.graph.v1.StreamResolver.mode:type_name -> chalk.graph.v1.WindowMode
+	99,  // 145: chalk.graph.v1.StreamResolver.timeout_duration:type_name -> google.protobuf.Duration
+	52,  // 146: chalk.graph.v1.StreamResolver.function:type_name -> chalk.graph.v1.FunctionReference
+	110, // 147: chalk.graph.v1.StreamResolver.source_v2:type_name -> chalk.graph.v2.StreamSourceReference
+	86,  // 148: chalk.graph.v1.StreamResolver.feature_expressions:type_name -> chalk.graph.v1.StreamResolver.FeatureExpressionsEntry
+	47,  // 149: chalk.graph.v1.StreamResolver.message_producer:type_name -> chalk.graph.v1.StreamResolverMessageProducerParsed
+	4,   // 150: chalk.graph.v1.StreamResolver.message_format:type_name -> chalk.graph.v1.StreamMessageFormat
+	46,  // 151: chalk.graph.v1.StreamResolver.header_filters:type_name -> chalk.graph.v1.StreamHeaderFilter
+	41,  // 152: chalk.graph.v1.StreamResolver.deduplication_strategy:type_name -> chalk.graph.v1.DeduplicationStrategy
+	97,  // 153: chalk.graph.v1.StreamResolver.source_full:type_name -> chalk.graph.v2.StreamSource
+	45,  // 154: chalk.graph.v1.StreamHeaderFilter.equality_check:type_name -> chalk.graph.v1.StreamMessageHeaderEqualityCheck
+	110, // 155: chalk.graph.v1.StreamResolverMessageProducerParsed.send_to:type_name -> chalk.graph.v2.StreamSourceReference
+	87,  // 156: chalk.graph.v1.StreamResolverMessageProducerParsed.transformations:type_name -> chalk.graph.v1.StreamResolverMessageProducerParsed.TransformationsEntry
+	97,  // 157: chalk.graph.v1.StreamResolverMessageProducerParsed.send_to_full:type_name -> chalk.graph.v2.StreamSource
+	104, // 158: chalk.graph.v1.ResolverState.initial:type_name -> chalk.arrow.v1.ScalarValue
+	103, // 159: chalk.graph.v1.ResolverState.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	51,  // 160: chalk.graph.v1.StreamResolverParam.message:type_name -> chalk.graph.v1.StreamResolverParamMessage
+	50,  // 161: chalk.graph.v1.StreamResolverParam.message_window:type_name -> chalk.graph.v1.StreamResolverParamMessageWindow
+	48,  // 162: chalk.graph.v1.StreamResolverParam.state:type_name -> chalk.graph.v1.ResolverState
+	103, // 163: chalk.graph.v1.StreamResolverParamMessageWindow.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	103, // 164: chalk.graph.v1.StreamResolverParamMessage.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	111, // 165: chalk.graph.v1.StreamResolverParamMessage.empty:type_name -> google.protobuf.Empty
+	56,  // 166: chalk.graph.v1.StreamResolverParamMessage.struct:type_name -> chalk.graph.v1.FunctionGlobalCapturedStruct
+	64,  // 167: chalk.graph.v1.StreamResolverParamMessage.proto:type_name -> chalk.graph.v1.FunctionGlobalCapturedProto
+	53,  // 168: chalk.graph.v1.FunctionReference.captured_globals:type_name -> chalk.graph.v1.FunctionReferenceCapturedGlobal
+	54,  // 169: chalk.graph.v1.FunctionReferenceCapturedGlobal.builtin:type_name -> chalk.graph.v1.FunctionGlobalCapturedBuiltin
+	58,  // 170: chalk.graph.v1.FunctionReferenceCapturedGlobal.feature_class:type_name -> chalk.graph.v1.FunctionGlobalCapturedFeatureClass
+	57,  // 171: chalk.graph.v1.FunctionReferenceCapturedGlobal.enum:type_name -> chalk.graph.v1.FunctionGlobalCapturedEnum
+	59,  // 172: chalk.graph.v1.FunctionReferenceCapturedGlobal.module:type_name -> chalk.graph.v1.FunctionGlobalCapturedModule
+	60,  // 173: chalk.graph.v1.FunctionReferenceCapturedGlobal.module_member:type_name -> chalk.graph.v1.FunctionGlobalCapturedModuleMember
+	61,  // 174: chalk.graph.v1.FunctionReferenceCapturedGlobal.function:type_name -> chalk.graph.v1.FunctionGlobalCapturedFunction
+	56,  // 175: chalk.graph.v1.FunctionReferenceCapturedGlobal.struct:type_name -> chalk.graph.v1.FunctionGlobalCapturedStruct
+	55,  // 176: chalk.graph.v1.FunctionReferenceCapturedGlobal.variable:type_name -> chalk.graph.v1.FunctionGlobalCapturedVariable
+	64,  // 177: chalk.graph.v1.FunctionReferenceCapturedGlobal.proto:type_name -> chalk.graph.v1.FunctionGlobalCapturedProto
+	62,  // 178: chalk.graph.v1.FunctionReferenceCapturedGlobal.value_ref:type_name -> chalk.graph.v1.FunctionGlobalCapturedValueRef
+	101, // 179: chalk.graph.v1.FunctionReferenceCapturedGlobal.source_reference:type_name -> chalk.graph.v1.SourceFileReference
+	103, // 180: chalk.graph.v1.FunctionGlobalCapturedStruct.pa_dtype:type_name -> chalk.arrow.v1.ArrowType
+	88,  // 181: chalk.graph.v1.FunctionGlobalCapturedEnum.member_map:type_name -> chalk.graph.v1.FunctionGlobalCapturedEnum.MemberMapEntry
+	103, // 182: chalk.graph.v1.FunctionGlobalCapturedEnum.bases:type_name -> chalk.arrow.v1.ArrowType
+	53,  // 183: chalk.graph.v1.FunctionGlobalCapturedFunction.captured_globals:type_name -> chalk.graph.v1.FunctionReferenceCapturedGlobal
+	53,  // 184: chalk.graph.v1.CapturedGlobalValue.value:type_name -> chalk.graph.v1.FunctionReferenceCapturedGlobal
+	103, // 185: chalk.graph.v1.FunctionGlobalCapturedProto.pa_dtype:type_name -> chalk.arrow.v1.ArrowType
+	21,  // 186: chalk.graph.v1.StreamKey.feature:type_name -> chalk.graph.v1.FeatureReference
+	7,   // 187: chalk.graph.v1.SQLResolverSettings.finalizer:type_name -> chalk.graph.v1.Finalizer
+	67,  // 188: chalk.graph.v1.SQLResolverSettings.incremental_settings:type_name -> chalk.graph.v1.IncrementalSettings
+	89,  // 189: chalk.graph.v1.SQLResolverSettings.fields_root_fqn:type_name -> chalk.graph.v1.SQLResolverSettings.FieldsRootFqnEntry
+	90,  // 190: chalk.graph.v1.SQLResolverSettings.escaped_param_name_to_fqn:type_name -> chalk.graph.v1.SQLResolverSettings.EscapedParamNameToFqnEntry
+	91,  // 191: chalk.graph.v1.SQLResolverSettings.field_types:type_name -> chalk.graph.v1.SQLResolverSettings.FieldTypesEntry
+	112, // 192: chalk.graph.v1.SQLResolverSettings.retry_policy:type_name -> chalk.graph.v1.SQLResolverRetryPolicy
+	99,  // 193: chalk.graph.v1.SQLResolverSettings.max_row_version_lookback:type_name -> google.protobuf.Duration
+	8,   // 194: chalk.graph.v1.IncrementalSettings.mode:type_name -> chalk.graph.v1.IncrementalMode
+	99,  // 195: chalk.graph.v1.IncrementalSettings.lookback_period:type_name -> google.protobuf.Duration
+	9,   // 196: chalk.graph.v1.IncrementalSettings.timestamp_mode:type_name -> chalk.graph.v1.IncrementalTimestampMode
+	67,  // 197: chalk.graph.v1.SQLResolverCommentDict.incremental:type_name -> chalk.graph.v1.IncrementalSettings
+	7,   // 198: chalk.graph.v1.SQLResolverCommentDict.count:type_name -> chalk.graph.v1.Finalizer
+	71,  // 199: chalk.graph.v1.SQLResolverCommentDict.cron:type_name -> chalk.graph.v1.Schedule
+	92,  // 200: chalk.graph.v1.SQLResolverCommentDict.fields:type_name -> chalk.graph.v1.SQLResolverCommentDict.FieldsEntry
+	112, // 201: chalk.graph.v1.SQLResolverCommentDict.retry_policy:type_name -> chalk.graph.v1.SQLResolverRetryPolicy
+	68,  // 202: chalk.graph.v1.SQLResolverInfo.override_comment_dict:type_name -> chalk.graph.v1.SQLResolverCommentDict
+	52,  // 203: chalk.graph.v1.CronFilterWithFeatureArgs.filter:type_name -> chalk.graph.v1.FunctionReference
+	21,  // 204: chalk.graph.v1.CronFilterWithFeatureArgs.args:type_name -> chalk.graph.v1.FeatureReference
+	99,  // 205: chalk.graph.v1.Schedule.duration:type_name -> google.protobuf.Duration
+	52,  // 206: chalk.graph.v1.Schedule.filter:type_name -> chalk.graph.v1.FunctionReference
+	52,  // 207: chalk.graph.v1.Schedule.sample:type_name -> chalk.graph.v1.FunctionReference
+	104, // 208: chalk.graph.v1.FeatureValidation.min_arrow:type_name -> chalk.arrow.v1.ScalarValue
+	104, // 209: chalk.graph.v1.FeatureValidation.max_arrow:type_name -> chalk.arrow.v1.ScalarValue
+	104, // 210: chalk.graph.v1.FeatureValidation.min_length_arrow:type_name -> chalk.arrow.v1.ScalarValue
+	104, // 211: chalk.graph.v1.FeatureValidation.max_length_arrow:type_name -> chalk.arrow.v1.ScalarValue
+	104, // 212: chalk.graph.v1.FeatureValidation.contains:type_name -> chalk.arrow.v1.ScalarValue
+	21,  // 213: chalk.graph.v1.StrictValidation.feature:type_name -> chalk.graph.v1.FeatureReference
+	72,  // 214: chalk.graph.v1.StrictValidation.validations:type_name -> chalk.graph.v1.FeatureValidation
+	61,  // 215: chalk.graph.v1.FeatureEncoder.global_function_reference:type_name -> chalk.graph.v1.FunctionGlobalCapturedFunction
+	61,  // 216: chalk.graph.v1.FeatureDecoder.global_function_reference:type_name -> chalk.graph.v1.FunctionGlobalCapturedFunction
+	77,  // 217: chalk.graph.v1.RichClassType.params:type_name -> chalk.graph.v1.RichClassType
+	77,  // 218: chalk.graph.v1.FeatureRichType.class_type:type_name -> chalk.graph.v1.RichClassType
+	75,  // 219: chalk.graph.v1.FeatureRichTypeInfo.encoder:type_name -> chalk.graph.v1.FeatureEncoder
+	76,  // 220: chalk.graph.v1.FeatureRichTypeInfo.decoder:type_name -> chalk.graph.v1.FeatureDecoder
+	78,  // 221: chalk.graph.v1.FeatureRichTypeInfo.rich_type:type_name -> chalk.graph.v1.FeatureRichType
+	99,  // 222: chalk.graph.v1.LRUCacheConfig.ttl:type_name -> google.protobuf.Duration
+	80,  // 223: chalk.graph.v1.OnlineStoreConfig.lru_cache:type_name -> chalk.graph.v1.LRUCacheConfig
+	101, // 224: chalk.graph.v1.OnlineStoreConfig.source_file_reference:type_name -> chalk.graph.v1.SourceFileReference
+	99,  // 225: chalk.graph.v1.NamedQuery.StalenessEntry.value:type_name -> google.protobuf.Duration
+	18,  // 226: chalk.graph.v1.NamedQuery.ResourceGroupsEntry.value:type_name -> chalk.graph.v1.NamedQueryResourceGroups
+	43,  // 227: chalk.graph.v1.StreamResolver.FeatureExpressionsEntry.value:type_name -> chalk.graph.v1.FeatureExpression
+	43,  // 228: chalk.graph.v1.StreamResolverMessageProducerParsed.TransformationsEntry.value:type_name -> chalk.graph.v1.FeatureExpression
+	104, // 229: chalk.graph.v1.FunctionGlobalCapturedEnum.MemberMapEntry.value:type_name -> chalk.arrow.v1.ScalarValue
+	230, // [230:230] is the sub-list for method output_type
+	230, // [230:230] is the sub-list for method input_type
+	230, // [230:230] is the sub-list for extension type_name
+	230, // [230:230] is the sub-list for extension extendee
+	0,   // [0:230] is the sub-list for field type_name
 }
 
 func init() { file_chalk_graph_v1_graph_proto_init() }

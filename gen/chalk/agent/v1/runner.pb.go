@@ -8,7 +8,6 @@ package agentv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
-	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -1322,7 +1321,7 @@ var File_chalk_agent_v1_runner_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\n" +
-	"\x1bchalk/agent/v1/runner.proto\x12\x0echalk.agent.v1\x1a!chalk/agent/v1/conversation.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\"\x8c\x02\n" +
+	"\x1bchalk/agent/v1/runner.proto\x12\x0echalk.agent.v1\x1a!chalk/agent/v1/conversation.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\x8c\x02\n" +
 	"\rSqlDiagnostic\x12\x1d\n" +
 	"\n" +
 	"start_line\x18\x01 \x01(\rR\tstartLine\x12'\n" +
@@ -1411,10 +1410,9 @@ const file_chalk_agent_v1_runner_proto_rawDesc = "" +
 	"\x1dSQL_DIAGNOSTIC_SEVERITY_ERROR\x10\x01\x12#\n" +
 	"\x1fSQL_DIAGNOSTIC_SEVERITY_WARNING\x10\x02\x12'\n" +
 	"#SQL_DIAGNOSTIC_SEVERITY_INFORMATION\x10\x03\x12 \n" +
-	"\x1cSQL_DIAGNOSTIC_SEVERITY_HINT\x10\x042\xe3\x03\n" +
-	"\x12AgentRunnerService\x12\x8a\x01\n" +
-	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"<\x80}(\x92\xd3\x0e5\n" +
-	"\x11assistant_enabled\x12 Enables Assistant conversations.0\x01\x12d\n" +
+	"\x1cSQL_DIAGNOSTIC_SEVERITY_HINT\x10\x042\xa9\x03\n" +
+	"\x12AgentRunnerService\x12Q\n" +
+	"\aRunTurn\x12\x1e.chalk.agent.v1.RunTurnRequest\x1a\x1f.chalk.agent.v1.RunTurnResponse\"\x03\x80}(0\x01\x12d\n" +
 	"\x0eDecideToolCall\x12%.chalk.agent.v1.DecideToolCallRequest\x1a&.chalk.agent.v1.DecideToolCallResponse\"\x03\x80}(\x12R\n" +
 	"\bStopTurn\x12\x1f.chalk.agent.v1.StopTurnRequest\x1a .chalk.agent.v1.StopTurnResponse\"\x03\x80}(\x12\x85\x01\n" +
 	"\x18GenerateInlineCompletion\x12/.chalk.agent.v1.GenerateInlineCompletionRequest\x1a0.chalk.agent.v1.GenerateInlineCompletionResponse\"\x06\x80}(\x90\x02\x01B\xb4\x01\n" +

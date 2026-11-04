@@ -4208,9 +4208,16 @@ type PlannerOptions struct {
 	OfflineQueryTableWriterDeclaredArrowSchema *bool `protobuf:"varint,141,opt,name=offline_query_table_writer_declared_arrow_schema,json=offlineQueryTableWriterDeclaredArrowSchema,proto3,oneof" json:"offline_query_table_writer_declared_arrow_schema,omitempty"`
 	// Which batch planner plans the query: "python", "rust" or "rust-logical". Absent => the
 	// deployment default (CHALK_PLANNER_BACKEND).
-	PlannerBackend *string `protobuf:"bytes,142,opt,name=planner_backend,json=plannerBackend,proto3,oneof" json:"planner_backend,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	PlannerBackend                                           *string `protobuf:"bytes,142,opt,name=planner_backend,json=plannerBackend,proto3,oneof" json:"planner_backend,omitempty"`
+	OfflineSamplerHasManyJoinUseSpineStratAllInRootNamespace *bool   `protobuf:"varint,143,opt,name=offline_sampler_has_many_join_use_spine_strat_all_in_root_namespace,json=offlineSamplerHasManyJoinUseSpineStratAllInRootNamespace,proto3,oneof" json:"offline_sampler_has_many_join_use_spine_strat_all_in_root_namespace,omitempty"`
+	// When set, a has-many count/sum over a trailing window on a has-many time column is lowered
+	// to a sorted sliding window emitted only at input rows.
+	SlidingWindowAggregation *bool `protobuf:"varint,144,opt,name=sliding_window_aggregation,json=slidingWindowAggregation,proto3,oneof" json:"sliding_window_aggregation,omitempty"`
+	// When set, the Rust logical planner runs a scalar resolver with has-many inputs as a native
+	// multi-input invoker UDF instead of a Python batch UDF. Absent => false.
+	NativeHasManyInvokerUdf *bool `protobuf:"varint,145,opt,name=native_has_many_invoker_udf,json=nativeHasManyInvokerUdf,proto3,oneof" json:"native_has_many_invoker_udf,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -5238,6 +5245,27 @@ func (x *PlannerOptions) GetPlannerBackend() string {
 	return ""
 }
 
+func (x *PlannerOptions) GetOfflineSamplerHasManyJoinUseSpineStratAllInRootNamespace() bool {
+	if x != nil && x.OfflineSamplerHasManyJoinUseSpineStratAllInRootNamespace != nil {
+		return *x.OfflineSamplerHasManyJoinUseSpineStratAllInRootNamespace
+	}
+	return false
+}
+
+func (x *PlannerOptions) GetSlidingWindowAggregation() bool {
+	if x != nil && x.SlidingWindowAggregation != nil {
+		return *x.SlidingWindowAggregation
+	}
+	return false
+}
+
+func (x *PlannerOptions) GetNativeHasManyInvokerUdf() bool {
+	if x != nil && x.NativeHasManyInvokerUdf != nil {
+		return *x.NativeHasManyInvokerUdf
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -5944,7 +5972,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xbe~\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"ށ\x01\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -6090,7 +6118,10 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x1etemporal_join_probe_with_local\x18\x8b\x01 \x01(\bH\x8a\x01R\x1atemporalJoinProbeWithLocal\x88\x01\x01\x12B\n" +
 	"\x1aextract_sketch_before_join\x18\x8c\x01 \x01(\bH\x8b\x01R\x17extractSketchBeforeJoin\x88\x01\x01\x12k\n" +
 	"0offline_query_table_writer_declared_arrow_schema\x18\x8d\x01 \x01(\bH\x8c\x01R*offlineQueryTableWriterDeclaredArrowSchema\x88\x01\x01\x12.\n" +
-	"\x0fplanner_backend\x18\x8e\x01 \x01(\tH\x8d\x01R\x0eplannerBackend\x88\x01\x01B\x1e\n" +
+	"\x0fplanner_backend\x18\x8e\x01 \x01(\tH\x8d\x01R\x0eplannerBackend\x88\x01\x01\x12\x8c\x01\n" +
+	"Coffline_sampler_has_many_join_use_spine_strat_all_in_root_namespace\x18\x8f\x01 \x01(\bH\x8e\x01R8offlineSamplerHasManyJoinUseSpineStratAllInRootNamespace\x88\x01\x01\x12C\n" +
+	"\x1asliding_window_aggregation\x18\x90\x01 \x01(\bH\x8f\x01R\x18slidingWindowAggregation\x88\x01\x01\x12C\n" +
+	"\x1bnative_has_many_invoker_udf\x18\x91\x01 \x01(\bH\x90\x01R\x17nativeHasManyInvokerUdf\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -6232,7 +6263,10 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x1f_temporal_join_probe_with_localB\x1d\n" +
 	"\x1b_extract_sketch_before_joinB3\n" +
 	"1_offline_query_table_writer_declared_arrow_schemaB\x12\n" +
-	"\x10_planner_backend\"\xd2\x06\n" +
+	"\x10_planner_backendBF\n" +
+	"D_offline_sampler_has_many_join_use_spine_strat_all_in_root_namespaceB\x1d\n" +
+	"\x1b_sliding_window_aggregationB\x1e\n" +
+	"\x1c_native_has_many_invoker_udf\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

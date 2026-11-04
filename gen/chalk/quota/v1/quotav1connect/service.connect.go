@@ -37,6 +37,9 @@ const (
 	QuotaServiceListQuotasProcedure = "/chalk.quota.v1.QuotaService/ListQuotas"
 	// QuotaServiceGetQuotaProcedure is the fully-qualified name of the QuotaService's GetQuota RPC.
 	QuotaServiceGetQuotaProcedure = "/chalk.quota.v1.QuotaService/GetQuota"
+	// QuotaServiceListGPUTypesProcedure is the fully-qualified name of the QuotaService's ListGPUTypes
+	// RPC.
+	QuotaServiceListGPUTypesProcedure = "/chalk.quota.v1.QuotaService/ListGPUTypes"
 	// QuotaServiceSetQuotaProcedure is the fully-qualified name of the QuotaService's SetQuota RPC.
 	QuotaServiceSetQuotaProcedure = "/chalk.quota.v1.QuotaService/SetQuota"
 	// QuotaServiceClearQuotaProcedure is the fully-qualified name of the QuotaService's ClearQuota RPC.
@@ -50,6 +53,9 @@ const (
 type QuotaServiceClient interface {
 	ListQuotas(context.Context, *connect.Request[v1.ListQuotasRequest]) (*connect.Response[v1.ListQuotasResponse], error)
 	GetQuota(context.Context, *connect.Request[v1.GetQuotaRequest]) (*connect.Response[v1.GetQuotaResponse], error)
+	// Names the GPU types the environment's workloads can be placed on, using the
+	// same hosts as scaling-group GPU validation. Names only, no quantities.
+	ListGPUTypes(context.Context, *connect.Request[v1.ListGPUTypesRequest]) (*connect.Response[v1.ListGPUTypesResponse], error)
 	// Lowering a limit below usage preserves admitted workloads and blocks new
 	// charges until usage falls. Unlimited limits retain the allocation ledger.
 	SetQuota(context.Context, *connect.Request[v1.SetQuotaRequest]) (*connect.Response[v1.SetQuotaResponse], error)
@@ -82,6 +88,12 @@ func NewQuotaServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(quotaServiceMethods.ByName("GetQuota")),
 			connect.WithClientOptions(opts...),
 		),
+		listGPUTypes: connect.NewClient[v1.ListGPUTypesRequest, v1.ListGPUTypesResponse](
+			httpClient,
+			baseURL+QuotaServiceListGPUTypesProcedure,
+			connect.WithSchema(quotaServiceMethods.ByName("ListGPUTypes")),
+			connect.WithClientOptions(opts...),
+		),
 		setQuota: connect.NewClient[v1.SetQuotaRequest, v1.SetQuotaResponse](
 			httpClient,
 			baseURL+QuotaServiceSetQuotaProcedure,
@@ -107,6 +119,7 @@ func NewQuotaServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 type quotaServiceClient struct {
 	listQuotas           *connect.Client[v1.ListQuotasRequest, v1.ListQuotasResponse]
 	getQuota             *connect.Client[v1.GetQuotaRequest, v1.GetQuotaResponse]
+	listGPUTypes         *connect.Client[v1.ListGPUTypesRequest, v1.ListGPUTypesResponse]
 	setQuota             *connect.Client[v1.SetQuotaRequest, v1.SetQuotaResponse]
 	clearQuota           *connect.Client[v1.ClearQuotaRequest, v1.ClearQuotaResponse]
 	requestQuotaIncrease *connect.Client[v1.RequestQuotaIncreaseRequest, v1.RequestQuotaIncreaseResponse]
@@ -120,6 +133,11 @@ func (c *quotaServiceClient) ListQuotas(ctx context.Context, req *connect.Reques
 // GetQuota calls chalk.quota.v1.QuotaService.GetQuota.
 func (c *quotaServiceClient) GetQuota(ctx context.Context, req *connect.Request[v1.GetQuotaRequest]) (*connect.Response[v1.GetQuotaResponse], error) {
 	return c.getQuota.CallUnary(ctx, req)
+}
+
+// ListGPUTypes calls chalk.quota.v1.QuotaService.ListGPUTypes.
+func (c *quotaServiceClient) ListGPUTypes(ctx context.Context, req *connect.Request[v1.ListGPUTypesRequest]) (*connect.Response[v1.ListGPUTypesResponse], error) {
+	return c.listGPUTypes.CallUnary(ctx, req)
 }
 
 // SetQuota calls chalk.quota.v1.QuotaService.SetQuota.
@@ -141,6 +159,9 @@ func (c *quotaServiceClient) RequestQuotaIncrease(ctx context.Context, req *conn
 type QuotaServiceHandler interface {
 	ListQuotas(context.Context, *connect.Request[v1.ListQuotasRequest]) (*connect.Response[v1.ListQuotasResponse], error)
 	GetQuota(context.Context, *connect.Request[v1.GetQuotaRequest]) (*connect.Response[v1.GetQuotaResponse], error)
+	// Names the GPU types the environment's workloads can be placed on, using the
+	// same hosts as scaling-group GPU validation. Names only, no quantities.
+	ListGPUTypes(context.Context, *connect.Request[v1.ListGPUTypesRequest]) (*connect.Response[v1.ListGPUTypesResponse], error)
 	// Lowering a limit below usage preserves admitted workloads and blocks new
 	// charges until usage falls. Unlimited limits retain the allocation ledger.
 	SetQuota(context.Context, *connect.Request[v1.SetQuotaRequest]) (*connect.Response[v1.SetQuotaResponse], error)
@@ -169,6 +190,12 @@ func NewQuotaServiceHandler(svc QuotaServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(quotaServiceMethods.ByName("GetQuota")),
 		connect.WithHandlerOptions(opts...),
 	)
+	quotaServiceListGPUTypesHandler := connect.NewUnaryHandler(
+		QuotaServiceListGPUTypesProcedure,
+		svc.ListGPUTypes,
+		connect.WithSchema(quotaServiceMethods.ByName("ListGPUTypes")),
+		connect.WithHandlerOptions(opts...),
+	)
 	quotaServiceSetQuotaHandler := connect.NewUnaryHandler(
 		QuotaServiceSetQuotaProcedure,
 		svc.SetQuota,
@@ -193,6 +220,8 @@ func NewQuotaServiceHandler(svc QuotaServiceHandler, opts ...connect.HandlerOpti
 			quotaServiceListQuotasHandler.ServeHTTP(w, r)
 		case QuotaServiceGetQuotaProcedure:
 			quotaServiceGetQuotaHandler.ServeHTTP(w, r)
+		case QuotaServiceListGPUTypesProcedure:
+			quotaServiceListGPUTypesHandler.ServeHTTP(w, r)
 		case QuotaServiceSetQuotaProcedure:
 			quotaServiceSetQuotaHandler.ServeHTTP(w, r)
 		case QuotaServiceClearQuotaProcedure:
@@ -214,6 +243,10 @@ func (UnimplementedQuotaServiceHandler) ListQuotas(context.Context, *connect.Req
 
 func (UnimplementedQuotaServiceHandler) GetQuota(context.Context, *connect.Request[v1.GetQuotaRequest]) (*connect.Response[v1.GetQuotaResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.quota.v1.QuotaService.GetQuota is not implemented"))
+}
+
+func (UnimplementedQuotaServiceHandler) ListGPUTypes(context.Context, *connect.Request[v1.ListGPUTypesRequest]) (*connect.Response[v1.ListGPUTypesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.quota.v1.QuotaService.ListGPUTypes is not implemented"))
 }
 
 func (UnimplementedQuotaServiceHandler) SetQuota(context.Context, *connect.Request[v1.SetQuotaRequest]) (*connect.Response[v1.SetQuotaResponse], error) {

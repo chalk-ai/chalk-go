@@ -38,6 +38,12 @@ const (
 	// classifier), or a call recorded before routes were tracked on usage, which
 	// may have gone through a route. Empty therefore does not mean "no route".
 	UsageDimension_USAGE_DIMENSION_MODEL_ROUTE UsageDimension = 5
+	// The caller-supplied end-user tag from the request body (`user` on OpenAI
+	// surfaces, `metadata.user_id` on Anthropic Messages). It is not an
+	// authenticated identity. Rows without a tag group under an empty
+	// dimension_value: a request that sent none, a surface with no standard
+	// end-user field, or a call recorded before end users were tracked on usage.
+	UsageDimension_USAGE_DIMENSION_END_USER UsageDimension = 6
 )
 
 // Enum value maps for UsageDimension.
@@ -49,6 +55,7 @@ var (
 		3: "USAGE_DIMENSION_API_KEY",
 		4: "USAGE_DIMENSION_USAGE_POOL",
 		5: "USAGE_DIMENSION_MODEL_ROUTE",
+		6: "USAGE_DIMENSION_END_USER",
 	}
 	UsageDimension_value = map[string]int32{
 		"USAGE_DIMENSION_UNSPECIFIED": 0,
@@ -57,6 +64,7 @@ var (
 		"USAGE_DIMENSION_API_KEY":     3,
 		"USAGE_DIMENSION_USAGE_POOL":  4,
 		"USAGE_DIMENSION_MODEL_ROUTE": 5,
+		"USAGE_DIMENSION_END_USER":    6,
 	}
 )
 
@@ -98,6 +106,9 @@ type UsageFilters struct {
 	// with one of these routes; earlier calls through a route have no route ID
 	// and are not matched.
 	ModelRouteIds []string `protobuf:"bytes,6,rep,name=model_route_ids,json=modelRouteIds,proto3" json:"model_route_ids,omitempty"`
+	// Caller-supplied end-user tags, matched exactly. Calls without a tag,
+	// including those recorded before end users were tracked, are not matched.
+	EndUserIds    []string `protobuf:"bytes,7,rep,name=end_user_ids,json=endUserIds,proto3" json:"end_user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,6 +181,13 @@ func (x *UsageFilters) GetApiKeyLabels() map[string]string {
 func (x *UsageFilters) GetModelRouteIds() []string {
 	if x != nil {
 		return x.ModelRouteIds
+	}
+	return nil
+}
+
+func (x *UsageFilters) GetEndUserIds() []string {
+	if x != nil {
+		return x.EndUserIds
 	}
 	return nil
 }
@@ -483,14 +501,16 @@ var File_chalk_router_v1_usage_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_usage_proto_rawDesc = "" +
 	"\n" +
-	"\x1bchalk/router/v1/usage.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd9\x02\n" +
+	"\x1bchalk/router/v1/usage.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfb\x02\n" +
 	"\fUsageFilters\x12$\n" +
 	"\x0eapi_key_hashes\x18\x01 \x03(\tR\fapiKeyHashes\x12$\n" +
 	"\x0eusage_pool_ids\x18\x02 \x03(\tR\fusagePoolIds\x12%\n" +
 	"\x0econnection_ids\x18\x03 \x03(\tR\rconnectionIds\x12\x16\n" +
 	"\x06models\x18\x04 \x03(\tR\x06models\x12U\n" +
 	"\x0eapi_key_labels\x18\x05 \x03(\v2/.chalk.router.v1.UsageFilters.ApiKeyLabelsEntryR\fapiKeyLabels\x12&\n" +
-	"\x0fmodel_route_ids\x18\x06 \x03(\tR\rmodelRouteIds\x1a?\n" +
+	"\x0fmodel_route_ids\x18\x06 \x03(\tR\rmodelRouteIds\x12 \n" +
+	"\fend_user_ids\x18\a \x03(\tR\n" +
+	"endUserIds\x1a?\n" +
 	"\x11ApiKeyLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xda\x02\n" +
@@ -521,14 +541,15 @@ const file_chalk_router_v1_usage_proto_rawDesc = "" +
 	"\x13_estimated_cost_usdB\x19\n" +
 	"\x17_unpriced_request_count\"L\n" +
 	"\x12QueryUsageResponse\x126\n" +
-	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageAggregateRowR\x04rows*\xca\x01\n" +
+	"\x04rows\x18\x01 \x03(\v2\".chalk.router.v1.UsageAggregateRowR\x04rows*\xe8\x01\n" +
 	"\x0eUsageDimension\x12\x1f\n" +
 	"\x1bUSAGE_DIMENSION_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aUSAGE_DIMENSION_CONNECTION\x10\x01\x12\x19\n" +
 	"\x15USAGE_DIMENSION_MODEL\x10\x02\x12\x1b\n" +
 	"\x17USAGE_DIMENSION_API_KEY\x10\x03\x12\x1e\n" +
 	"\x1aUSAGE_DIMENSION_USAGE_POOL\x10\x04\x12\x1f\n" +
-	"\x1bUSAGE_DIMENSION_MODEL_ROUTE\x10\x052m\n" +
+	"\x1bUSAGE_DIMENSION_MODEL_ROUTE\x10\x05\x12\x1c\n" +
+	"\x18USAGE_DIMENSION_END_USER\x10\x062m\n" +
 	"\fUsageService\x12]\n" +
 	"\n" +
 	"QueryUsage\x12\".chalk.router.v1.QueryUsageRequest\x1a#.chalk.router.v1.QueryUsageResponse\"\x06\x80}\x02\x90\x02\x01B\xba\x01\n" +

@@ -68,9 +68,9 @@ type AiProviderConnectionServiceClient interface {
 	ListAiProviderConnectionModels(context.Context, *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error)
 	// GetChalkManagedUsage reports the token usage of the environment's
 	// Chalk-managed connection, which is served by a router the caller cannot
-	// query directly. It requires the same permission as managing provider
-	// connections, and fails with FailedPrecondition if the environment has not
-	// opted in.
+	// query directly. Usage remains after the connection is deleted, and is
+	// empty for an environment that has never opted in. It requires the same
+	// permission as managing provider connections.
 	GetChalkManagedUsage(context.Context, *connect.Request[v1.GetChalkManagedUsageRequest]) (*connect.Response[v1.GetChalkManagedUsageResponse], error)
 }
 
@@ -198,9 +198,9 @@ type AiProviderConnectionServiceHandler interface {
 	ListAiProviderConnectionModels(context.Context, *connect.Request[v1.ListAiProviderConnectionModelsRequest]) (*connect.Response[v1.ListAiProviderConnectionModelsResponse], error)
 	// GetChalkManagedUsage reports the token usage of the environment's
 	// Chalk-managed connection, which is served by a router the caller cannot
-	// query directly. It requires the same permission as managing provider
-	// connections, and fails with FailedPrecondition if the environment has not
-	// opted in.
+	// query directly. Usage remains after the connection is deleted, and is
+	// empty for an environment that has never opted in. It requires the same
+	// permission as managing provider connections.
 	GetChalkManagedUsage(context.Context, *connect.Request[v1.GetChalkManagedUsageRequest]) (*connect.Response[v1.GetChalkManagedUsageResponse], error)
 }
 

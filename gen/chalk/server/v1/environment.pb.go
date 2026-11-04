@@ -27,6 +27,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type EnvironmentSuspensionSource int32
+
+const (
+	EnvironmentSuspensionSource_ENVIRONMENT_SUSPENSION_SOURCE_UNSPECIFIED EnvironmentSuspensionSource = 0
+	EnvironmentSuspensionSource_ENVIRONMENT_SUSPENSION_SOURCE_CUSTOMER    EnvironmentSuspensionSource = 1
+	EnvironmentSuspensionSource_ENVIRONMENT_SUSPENSION_SOURCE_ADMIN       EnvironmentSuspensionSource = 2
+)
+
+// Enum value maps for EnvironmentSuspensionSource.
+var (
+	EnvironmentSuspensionSource_name = map[int32]string{
+		0: "ENVIRONMENT_SUSPENSION_SOURCE_UNSPECIFIED",
+		1: "ENVIRONMENT_SUSPENSION_SOURCE_CUSTOMER",
+		2: "ENVIRONMENT_SUSPENSION_SOURCE_ADMIN",
+	}
+	EnvironmentSuspensionSource_value = map[string]int32{
+		"ENVIRONMENT_SUSPENSION_SOURCE_UNSPECIFIED": 0,
+		"ENVIRONMENT_SUSPENSION_SOURCE_CUSTOMER":    1,
+		"ENVIRONMENT_SUSPENSION_SOURCE_ADMIN":       2,
+	}
+)
+
+func (x EnvironmentSuspensionSource) Enum() *EnvironmentSuspensionSource {
+	p := new(EnvironmentSuspensionSource)
+	*p = x
+	return p
+}
+
+func (x EnvironmentSuspensionSource) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EnvironmentSuspensionSource) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_environment_proto_enumTypes[0].Descriptor()
+}
+
+func (EnvironmentSuspensionSource) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_environment_proto_enumTypes[0]
+}
+
+func (x EnvironmentSuspensionSource) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EnvironmentSuspensionSource.Descriptor instead.
+func (EnvironmentSuspensionSource) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{0}
+}
+
 type CloudProviderKind int32
 
 const (
@@ -69,11 +118,11 @@ func (x CloudProviderKind) String() string {
 }
 
 func (CloudProviderKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_environment_proto_enumTypes[0].Descriptor()
+	return file_chalk_server_v1_environment_proto_enumTypes[1].Descriptor()
 }
 
 func (CloudProviderKind) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_environment_proto_enumTypes[0]
+	return &file_chalk_server_v1_environment_proto_enumTypes[1]
 }
 
 func (x CloudProviderKind) Number() protoreflect.EnumNumber {
@@ -82,7 +131,7 @@ func (x CloudProviderKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CloudProviderKind.Descriptor instead.
 func (CloudProviderKind) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{0}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{1}
 }
 
 type VectorDBKind int32
@@ -130,11 +179,11 @@ func (x VectorDBKind) String() string {
 }
 
 func (VectorDBKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_environment_proto_enumTypes[1].Descriptor()
+	return file_chalk_server_v1_environment_proto_enumTypes[2].Descriptor()
 }
 
 func (VectorDBKind) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_environment_proto_enumTypes[1]
+	return &file_chalk_server_v1_environment_proto_enumTypes[2]
 }
 
 func (x VectorDBKind) Number() protoreflect.EnumNumber {
@@ -143,7 +192,7 @@ func (x VectorDBKind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use VectorDBKind.Descriptor instead.
 func (VectorDBKind) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{1}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{2}
 }
 
 type DeploymentBuildProfile int32
@@ -264,11 +313,11 @@ func (x DeploymentBuildProfile) String() string {
 }
 
 func (DeploymentBuildProfile) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_environment_proto_enumTypes[2].Descriptor()
+	return file_chalk_server_v1_environment_proto_enumTypes[3].Descriptor()
 }
 
 func (DeploymentBuildProfile) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_environment_proto_enumTypes[2]
+	return &file_chalk_server_v1_environment_proto_enumTypes[3]
 }
 
 func (x DeploymentBuildProfile) Number() protoreflect.EnumNumber {
@@ -277,7 +326,7 @@ func (x DeploymentBuildProfile) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DeploymentBuildProfile.Descriptor instead.
 func (DeploymentBuildProfile) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{3}
 }
 
 // The plane / subsystem that referenced a bucket. Used to indicate where Chalk
@@ -318,11 +367,11 @@ func (x DiscoveredBucketSource) String() string {
 }
 
 func (DiscoveredBucketSource) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_environment_proto_enumTypes[3].Descriptor()
+	return file_chalk_server_v1_environment_proto_enumTypes[4].Descriptor()
 }
 
 func (DiscoveredBucketSource) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_environment_proto_enumTypes[3]
+	return &file_chalk_server_v1_environment_proto_enumTypes[4]
 }
 
 func (x DiscoveredBucketSource) Number() protoreflect.EnumNumber {
@@ -331,7 +380,7 @@ func (x DiscoveredBucketSource) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DiscoveredBucketSource.Descriptor instead.
 func (DiscoveredBucketSource) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{4}
 }
 
 // Whether a discovered bucket is configured per-environment or shared at the
@@ -371,11 +420,11 @@ func (x DiscoveredBucketScope) String() string {
 }
 
 func (DiscoveredBucketScope) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_environment_proto_enumTypes[4].Descriptor()
+	return file_chalk_server_v1_environment_proto_enumTypes[5].Descriptor()
 }
 
 func (DiscoveredBucketScope) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_environment_proto_enumTypes[4]
+	return &file_chalk_server_v1_environment_proto_enumTypes[5]
 }
 
 func (x DiscoveredBucketScope) Number() protoreflect.EnumNumber {
@@ -384,7 +433,7 @@ func (x DiscoveredBucketScope) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DiscoveredBucketScope.Descriptor instead.
 func (DiscoveredBucketScope) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{5}
 }
 
 // The purpose / role of a bucket within the Chalk deployment. Used so the UI
@@ -449,11 +498,11 @@ func (x DiscoveredBucketRole) String() string {
 }
 
 func (DiscoveredBucketRole) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_server_v1_environment_proto_enumTypes[5].Descriptor()
+	return file_chalk_server_v1_environment_proto_enumTypes[6].Descriptor()
 }
 
 func (DiscoveredBucketRole) Type() protoreflect.EnumType {
-	return &file_chalk_server_v1_environment_proto_enumTypes[5]
+	return &file_chalk_server_v1_environment_proto_enumTypes[6]
 }
 
 func (x DiscoveredBucketRole) Number() protoreflect.EnumNumber {
@@ -462,7 +511,7 @@ func (x DiscoveredBucketRole) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DiscoveredBucketRole.Descriptor instead.
 func (DiscoveredBucketRole) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{6}
 }
 
 type EnvironmentObjectStorageConfig struct {
@@ -548,6 +597,7 @@ type Environment struct {
 	BranchUrl          *string `protobuf:"bytes,8,opt,name=branch_url,json=branchUrl,proto3,oneof" json:"branch_url,omitempty"`
 	OfflineStoreSecret *string `protobuf:"bytes,9,opt,name=offline_store_secret,json=offlineStoreSecret,proto3,oneof" json:"offline_store_secret,omitempty"`
 	// TODO(INF-1082): Make output-only once all callers have migrated.
+	// Accepts a raw URI or a KMS secret name on writes; reads return the backing KMS name.
 	OnlineStoreSecret  *string `protobuf:"bytes,10,opt,name=online_store_secret,json=onlineStoreSecret,proto3,oneof" json:"online_store_secret,omitempty"`
 	FeatureStoreSecret *string `protobuf:"bytes,11,opt,name=feature_store_secret,json=featureStoreSecret,proto3,oneof" json:"feature_store_secret,omitempty"`
 	PostgresSecret     *string `protobuf:"bytes,12,opt,name=postgres_secret,json=postgresSecret,proto3,oneof" json:"postgres_secret,omitempty"`
@@ -616,6 +666,7 @@ type Environment struct {
 	Description                   *string                         `protobuf:"bytes,67,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	DefaultEngineBaseImage        *string                         `protobuf:"bytes,68,opt,name=default_engine_base_image,json=defaultEngineBaseImage,proto3,oneof" json:"default_engine_base_image,omitempty"`
 	DefaultAiProviderConnectionId *string                         `protobuf:"bytes,69,opt,name=default_ai_provider_connection_id,json=defaultAiProviderConnectionId,proto3,oneof" json:"default_ai_provider_connection_id,omitempty"`
+	SuspensionSource              *EnvironmentSuspensionSource    `protobuf:"varint,70,opt,name=suspension_source,json=suspensionSource,proto3,enum=chalk.server.v1.EnvironmentSuspensionSource,oneof" json:"suspension_source,omitempty"`
 	unknownFields                 protoimpl.UnknownFields
 	sizeCache                     protoimpl.SizeCache
 }
@@ -1133,6 +1184,13 @@ func (x *Environment) GetDefaultAiProviderConnectionId() string {
 	return ""
 }
 
+func (x *Environment) GetSuspensionSource() EnvironmentSuspensionSource {
+	if x != nil && x.SuspensionSource != nil {
+		return *x.SuspensionSource
+	}
+	return EnvironmentSuspensionSource_ENVIRONMENT_SUSPENSION_SOURCE_UNSPECIFIED
+}
+
 type CreateEnvironmentV2Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Environment   *Environment           `protobuf:"bytes,1,opt,name=environment,proto3" json:"environment,omitempty"`
@@ -1221,6 +1279,154 @@ func (x *CreateEnvironmentV2Response) GetEnvironment() *Environment {
 	return nil
 }
 
+type SelfServiceCreateTeamAndEnvironmentRequest struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	UserId   string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	TeamName string                 `protobuf:"bytes,2,opt,name=team_name,json=teamName,proto3" json:"team_name,omitempty"`
+	// A browser attempt already bound to this user by the metadata-service caller.
+	SignupLinkAttemptId *string `protobuf:"bytes,3,opt,name=signup_link_attempt_id,json=signupLinkAttemptId,proto3,oneof" json:"signup_link_attempt_id,omitempty"`
+	// Defaults to "default".
+	EnvironmentName *string `protobuf:"bytes,4,opt,name=environment_name,json=environmentName,proto3,oneof" json:"environment_name,omitempty"`
+	// Defaults to the signup grant's restriction, then us-east4 when unrestricted.
+	Region *string `protobuf:"bytes,5,opt,name=region,proto3,oneof" json:"region,omitempty"`
+	// Omit for individual signups; a nonblank company name selects DPA terms.
+	CompanyName   *string `protobuf:"bytes,6,opt,name=company_name,json=companyName,proto3,oneof" json:"company_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) Reset() {
+	*x = SelfServiceCreateTeamAndEnvironmentRequest{}
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SelfServiceCreateTeamAndEnvironmentRequest) ProtoMessage() {}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SelfServiceCreateTeamAndEnvironmentRequest.ProtoReflect.Descriptor instead.
+func (*SelfServiceCreateTeamAndEnvironmentRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) GetTeamName() string {
+	if x != nil {
+		return x.TeamName
+	}
+	return ""
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) GetSignupLinkAttemptId() string {
+	if x != nil && x.SignupLinkAttemptId != nil {
+		return *x.SignupLinkAttemptId
+	}
+	return ""
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) GetEnvironmentName() string {
+	if x != nil && x.EnvironmentName != nil {
+		return *x.EnvironmentName
+	}
+	return ""
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) GetRegion() string {
+	if x != nil && x.Region != nil {
+		return *x.Region
+	}
+	return ""
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentRequest) GetCompanyName() string {
+	if x != nil && x.CompanyName != nil {
+		return *x.CompanyName
+	}
+	return ""
+}
+
+type SelfServiceCreateTeamAndEnvironmentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TeamId        string                 `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	ProjectId     string                 `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	Environment   *Environment           `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentResponse) Reset() {
+	*x = SelfServiceCreateTeamAndEnvironmentResponse{}
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SelfServiceCreateTeamAndEnvironmentResponse) ProtoMessage() {}
+
+func (x *SelfServiceCreateTeamAndEnvironmentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SelfServiceCreateTeamAndEnvironmentResponse.ProtoReflect.Descriptor instead.
+func (*SelfServiceCreateTeamAndEnvironmentResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentResponse) GetTeamId() string {
+	if x != nil {
+		return x.TeamId
+	}
+	return ""
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentResponse) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *SelfServiceCreateTeamAndEnvironmentResponse) GetEnvironment() *Environment {
+	if x != nil {
+		return x.Environment
+	}
+	return nil
+}
+
 type UpdateEnvironmentV2Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Environment   *Environment           `protobuf:"bytes,1,opt,name=environment,proto3" json:"environment,omitempty"`
@@ -1231,7 +1437,7 @@ type UpdateEnvironmentV2Request struct {
 
 func (x *UpdateEnvironmentV2Request) Reset() {
 	*x = UpdateEnvironmentV2Request{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1243,7 +1449,7 @@ func (x *UpdateEnvironmentV2Request) String() string {
 func (*UpdateEnvironmentV2Request) ProtoMessage() {}
 
 func (x *UpdateEnvironmentV2Request) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1256,7 +1462,7 @@ func (x *UpdateEnvironmentV2Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironmentV2Request.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentV2Request) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateEnvironmentV2Request) GetEnvironment() *Environment {
@@ -1283,7 +1489,7 @@ type UpdateEnvironmentV2Response struct {
 
 func (x *UpdateEnvironmentV2Response) Reset() {
 	*x = UpdateEnvironmentV2Response{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1295,7 +1501,7 @@ func (x *UpdateEnvironmentV2Response) String() string {
 func (*UpdateEnvironmentV2Response) ProtoMessage() {}
 
 func (x *UpdateEnvironmentV2Response) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1308,7 +1514,7 @@ func (x *UpdateEnvironmentV2Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironmentV2Response.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironmentV2Response) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpdateEnvironmentV2Response) GetEnvironment() *Environment {
@@ -1338,7 +1544,7 @@ type DeleteEnvironmentRequest struct {
 
 func (x *DeleteEnvironmentRequest) Reset() {
 	*x = DeleteEnvironmentRequest{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1350,7 +1556,7 @@ func (x *DeleteEnvironmentRequest) String() string {
 func (*DeleteEnvironmentRequest) ProtoMessage() {}
 
 func (x *DeleteEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1363,7 +1569,7 @@ func (x *DeleteEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteEnvironmentRequest) GetId() string {
@@ -1388,7 +1594,7 @@ type DeleteEnvironmentResponse struct {
 
 func (x *DeleteEnvironmentResponse) Reset() {
 	*x = DeleteEnvironmentResponse{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1400,7 +1606,7 @@ func (x *DeleteEnvironmentResponse) String() string {
 func (*DeleteEnvironmentResponse) ProtoMessage() {}
 
 func (x *DeleteEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1413,7 +1619,7 @@ func (x *DeleteEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{9}
 }
 
 type SetDefaultEnvironmentRequest struct {
@@ -1425,7 +1631,7 @@ type SetDefaultEnvironmentRequest struct {
 
 func (x *SetDefaultEnvironmentRequest) Reset() {
 	*x = SetDefaultEnvironmentRequest{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1437,7 +1643,7 @@ func (x *SetDefaultEnvironmentRequest) String() string {
 func (*SetDefaultEnvironmentRequest) ProtoMessage() {}
 
 func (x *SetDefaultEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1450,7 +1656,7 @@ func (x *SetDefaultEnvironmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetDefaultEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*SetDefaultEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SetDefaultEnvironmentRequest) GetId() string {
@@ -1468,7 +1674,7 @@ type SetDefaultEnvironmentResponse struct {
 
 func (x *SetDefaultEnvironmentResponse) Reset() {
 	*x = SetDefaultEnvironmentResponse{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1480,7 +1686,7 @@ func (x *SetDefaultEnvironmentResponse) String() string {
 func (*SetDefaultEnvironmentResponse) ProtoMessage() {}
 
 func (x *SetDefaultEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1493,7 +1699,7 @@ func (x *SetDefaultEnvironmentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetDefaultEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*SetDefaultEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{11}
 }
 
 // Probe result for a single capability against a bucket.
@@ -1512,7 +1718,7 @@ type DiscoveredBucketProbe struct {
 
 func (x *DiscoveredBucketProbe) Reset() {
 	*x = DiscoveredBucketProbe{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1524,7 +1730,7 @@ func (x *DiscoveredBucketProbe) String() string {
 func (*DiscoveredBucketProbe) ProtoMessage() {}
 
 func (x *DiscoveredBucketProbe) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1537,7 +1743,7 @@ func (x *DiscoveredBucketProbe) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DiscoveredBucketProbe.ProtoReflect.Descriptor instead.
 func (*DiscoveredBucketProbe) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DiscoveredBucketProbe) GetOk() bool {
@@ -1587,7 +1793,7 @@ type DiscoveredBucket struct {
 
 func (x *DiscoveredBucket) Reset() {
 	*x = DiscoveredBucket{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1599,7 +1805,7 @@ func (x *DiscoveredBucket) String() string {
 func (*DiscoveredBucket) ProtoMessage() {}
 
 func (x *DiscoveredBucket) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1612,7 +1818,7 @@ func (x *DiscoveredBucket) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DiscoveredBucket.ProtoReflect.Descriptor instead.
 func (*DiscoveredBucket) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DiscoveredBucket) GetName() string {
@@ -1683,7 +1889,7 @@ type DiscoverEnvironmentBucketsRequest struct {
 
 func (x *DiscoverEnvironmentBucketsRequest) Reset() {
 	*x = DiscoverEnvironmentBucketsRequest{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1695,7 +1901,7 @@ func (x *DiscoverEnvironmentBucketsRequest) String() string {
 func (*DiscoverEnvironmentBucketsRequest) ProtoMessage() {}
 
 func (x *DiscoverEnvironmentBucketsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1708,7 +1914,7 @@ func (x *DiscoverEnvironmentBucketsRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use DiscoverEnvironmentBucketsRequest.ProtoReflect.Descriptor instead.
 func (*DiscoverEnvironmentBucketsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *DiscoverEnvironmentBucketsRequest) GetSkipProbes() bool {
@@ -1727,7 +1933,7 @@ type DiscoverEnvironmentBucketsResponse struct {
 
 func (x *DiscoverEnvironmentBucketsResponse) Reset() {
 	*x = DiscoverEnvironmentBucketsResponse{}
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1739,7 +1945,7 @@ func (x *DiscoverEnvironmentBucketsResponse) String() string {
 func (*DiscoverEnvironmentBucketsResponse) ProtoMessage() {}
 
 func (x *DiscoverEnvironmentBucketsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_environment_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_environment_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1752,7 +1958,7 @@ func (x *DiscoverEnvironmentBucketsResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DiscoverEnvironmentBucketsResponse.ProtoReflect.Descriptor instead.
 func (*DiscoverEnvironmentBucketsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_environment_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *DiscoverEnvironmentBucketsResponse) GetBuckets() []*DiscoveredBucket {
@@ -1771,7 +1977,7 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x0edataset_bucket\x18\x01 \x01(\tR\rdatasetBucket\x12,\n" +
 	"\x12plan_stages_bucket\x18\x02 \x01(\tR\x10planStagesBucket\x120\n" +
 	"\x14source_bundle_bucket\x18\x03 \x01(\tR\x12sourceBundleBucket\x122\n" +
-	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xd60\n" +
+	"\x15model_registry_bucket\x18\x04 \x01(\tR\x13modelRegistryBucket\"\xd71\n" +
 	"\vEnvironment\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\x05R\x04name\x12\"\n" +
 	"\n" +
@@ -1785,9 +1991,9 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"serviceUrl\x88\x01\x01\x12'\n" +
 	"\n" +
 	"branch_url\x18\b \x01(\tB\x03\xe0A\x03H\x03R\tbranchUrl\x88\x01\x01\x12:\n" +
-	"\x14offline_store_secret\x18\t \x01(\tB\x03\xe0A\x03H\x04R\x12offlineStoreSecret\x88\x01\x01\x123\n" +
+	"\x14offline_store_secret\x18\t \x01(\tB\x03\xe0A\x03H\x04R\x12offlineStoreSecret\x88\x01\x01\x129\n" +
 	"\x13online_store_secret\x18\n" +
-	" \x01(\tH\x05R\x11onlineStoreSecret\x88\x01\x01\x12:\n" +
+	" \x01(\tB\x04ء'\x01H\x05R\x11onlineStoreSecret\x88\x01\x01\x12:\n" +
 	"\x14feature_store_secret\x18\v \x01(\tB\x03\xe0A\x03H\x06R\x12featureStoreSecret\x88\x01\x01\x121\n" +
 	"\x0fpostgres_secret\x18\f \x01(\tB\x03\xe0A\x03H\aR\x0epostgresSecret\x88\x01\x01\x12/\n" +
 	"\x11online_store_kind\x18\r \x01(\tH\bR\x0fonlineStoreKind\x88\x01\x01\x12!\n" +
@@ -1849,7 +2055,8 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x1cprimary_linked_cluster_class\x18B \x01(\x0e2\x1d.chalk.server.v1.ClusterClassB\x03\xe0A\x03R\x19primaryLinkedClusterClass\x12%\n" +
 	"\vdescription\x18C \x01(\tH5R\vdescription\x88\x01\x01\x12>\n" +
 	"\x19default_engine_base_image\x18D \x01(\tH6R\x16defaultEngineBaseImage\x88\x01\x01\x12M\n" +
-	"!default_ai_provider_connection_id\x18E \x01(\tH7R\x1ddefaultAiProviderConnectionId\x88\x01\x01\x1aD\n" +
+	"!default_ai_provider_connection_id\x18E \x01(\tH7R\x1ddefaultAiProviderConnectionId\x88\x01\x01\x12c\n" +
+	"\x11suspension_source\x18F \x01(\x0e2,.chalk.server.v1.EnvironmentSuspensionSourceB\x03\xe0A\x03H8R\x10suspensionSource\x88\x01\x01\x1aD\n" +
 	"\x16AdditionalEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aH\n" +
@@ -1922,11 +2129,28 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x1b_dataplane_db_direct_secretB\x0e\n" +
 	"\f_descriptionB\x1c\n" +
 	"\x1a_default_engine_base_imageB$\n" +
-	"\"_default_ai_provider_connection_id\"\\\n" +
+	"\"_default_ai_provider_connection_idB\x14\n" +
+	"\x12_suspension_source\"\\\n" +
 	"\x1aCreateEnvironmentV2Request\x12>\n" +
 	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"]\n" +
 	"\x1bCreateEnvironmentV2Response\x12>\n" +
-	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\x99\x01\n" +
+	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\xdd\x02\n" +
+	"*SelfServiceCreateTeamAndEnvironmentRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\tteam_name\x18\x02 \x01(\tR\bteamName\x128\n" +
+	"\x16signup_link_attempt_id\x18\x03 \x01(\tH\x00R\x13signupLinkAttemptId\x88\x01\x01\x12.\n" +
+	"\x10environment_name\x18\x04 \x01(\tH\x01R\x0fenvironmentName\x88\x01\x01\x12\x1b\n" +
+	"\x06region\x18\x05 \x01(\tH\x02R\x06region\x88\x01\x01\x12&\n" +
+	"\fcompany_name\x18\x06 \x01(\tH\x03R\vcompanyName\x88\x01\x01B\x19\n" +
+	"\x17_signup_link_attempt_idB\x13\n" +
+	"\x11_environment_nameB\t\n" +
+	"\a_regionB\x0f\n" +
+	"\r_company_name\"\xa5\x01\n" +
+	"+SelfServiceCreateTeamAndEnvironmentResponse\x12\x17\n" +
+	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\x12>\n" +
+	"\venvironment\x18\x03 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\"\x99\x01\n" +
 	"\x1aUpdateEnvironmentV2Request\x12>\n" +
 	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\x12;\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
@@ -1960,7 +2184,11 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\vskip_probes\x18\x01 \x01(\bR\n" +
 	"skipProbes\"a\n" +
 	"\"DiscoverEnvironmentBucketsResponse\x12;\n" +
-	"\abuckets\x18\x01 \x03(\v2!.chalk.server.v1.DiscoveredBucketR\abuckets*\xd1\x01\n" +
+	"\abuckets\x18\x01 \x03(\v2!.chalk.server.v1.DiscoveredBucketR\abuckets*\xa1\x01\n" +
+	"\x1bEnvironmentSuspensionSource\x12-\n" +
+	")ENVIRONMENT_SUSPENSION_SOURCE_UNSPECIFIED\x10\x00\x12*\n" +
+	"&ENVIRONMENT_SUSPENSION_SOURCE_CUSTOMER\x10\x01\x12'\n" +
+	"#ENVIRONMENT_SUSPENSION_SOURCE_ADMIN\x10\x02*\xd1\x01\n" +
 	"\x11CloudProviderKind\x12#\n" +
 	"\x1fCLOUD_PROVIDER_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bCLOUD_PROVIDER_KIND_UNKNOWN\x10\x01\x12\x1b\n" +
@@ -2022,8 +2250,9 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"(DISCOVERED_BUCKET_ROLE_INGESTER_SNAPSHOT\x10\t\x12(\n" +
 	"$DISCOVERED_BUCKET_ROLE_STREAMING_LOG\x10\n" +
 	"\x12 \n" +
-	"\x1cDISCOVERED_BUCKET_ROLE_OTHER\x10\v2\xb4\x06\n" +
-	"\x12EnvironmentService\x12\xa9\x01\n" +
+	"\x1cDISCOVERED_BUCKET_ROLE_OTHER\x10\v2\x9b\b\n" +
+	"\x12EnvironmentService\x12\xe4\x01\n" +
+	"#SelfServiceCreateTeamAndEnvironment\x12;.chalk.server.v1.SelfServiceCreateTeamAndEnvironmentRequest\x1a<.chalk.server.v1.SelfServiceCreateTeamAndEnvironmentResponse\"B\x80}\x1d\x8a\xd3\x0e;\b\x02\x127Created a self-service team and its initial environment\x12\xa9\x01\n" +
 	"\x13CreateEnvironmentV2\x12+.chalk.server.v1.CreateEnvironmentV2Request\x1a,.chalk.server.v1.CreateEnvironmentV2Response\"7\x88} \x8a\xd3\x0e0\b\x02\x12,Created an environment and its configuration\x12\xa3\x01\n" +
 	"\x13UpdateEnvironmentV2\x12+.chalk.server.v1.UpdateEnvironmentV2Request\x1a,.chalk.server.v1.UpdateEnvironmentV2Response\"1\x80} \x8a\xd3\x0e*\b\x02\x12&Updated an environment's configuration\x12\x8d\x01\n" +
 	"\x11DeleteEnvironment\x12).chalk.server.v1.DeleteEnvironmentRequest\x1a*.chalk.server.v1.DeleteEnvironmentResponse\"!\x88} \x8a\xd3\x0e\x1a\b\x02\x12\x16Deleted an environment\x12\xab\x01\n" +
@@ -2043,85 +2272,92 @@ func file_chalk_server_v1_environment_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_environment_proto_rawDescData
 }
 
-var file_chalk_server_v1_environment_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_chalk_server_v1_environment_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_chalk_server_v1_environment_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_chalk_server_v1_environment_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_chalk_server_v1_environment_proto_goTypes = []any{
-	(CloudProviderKind)(0),                     // 0: chalk.server.v1.CloudProviderKind
-	(VectorDBKind)(0),                          // 1: chalk.server.v1.VectorDBKind
-	(DeploymentBuildProfile)(0),                // 2: chalk.server.v1.DeploymentBuildProfile
-	(DiscoveredBucketSource)(0),                // 3: chalk.server.v1.DiscoveredBucketSource
-	(DiscoveredBucketScope)(0),                 // 4: chalk.server.v1.DiscoveredBucketScope
-	(DiscoveredBucketRole)(0),                  // 5: chalk.server.v1.DiscoveredBucketRole
-	(*EnvironmentObjectStorageConfig)(nil),     // 6: chalk.server.v1.EnvironmentObjectStorageConfig
-	(*Environment)(nil),                        // 7: chalk.server.v1.Environment
-	(*CreateEnvironmentV2Request)(nil),         // 8: chalk.server.v1.CreateEnvironmentV2Request
-	(*CreateEnvironmentV2Response)(nil),        // 9: chalk.server.v1.CreateEnvironmentV2Response
-	(*UpdateEnvironmentV2Request)(nil),         // 10: chalk.server.v1.UpdateEnvironmentV2Request
-	(*UpdateEnvironmentV2Response)(nil),        // 11: chalk.server.v1.UpdateEnvironmentV2Response
-	(*DeleteEnvironmentRequest)(nil),           // 12: chalk.server.v1.DeleteEnvironmentRequest
-	(*DeleteEnvironmentResponse)(nil),          // 13: chalk.server.v1.DeleteEnvironmentResponse
-	(*SetDefaultEnvironmentRequest)(nil),       // 14: chalk.server.v1.SetDefaultEnvironmentRequest
-	(*SetDefaultEnvironmentResponse)(nil),      // 15: chalk.server.v1.SetDefaultEnvironmentResponse
-	(*DiscoveredBucketProbe)(nil),              // 16: chalk.server.v1.DiscoveredBucketProbe
-	(*DiscoveredBucket)(nil),                   // 17: chalk.server.v1.DiscoveredBucket
-	(*DiscoverEnvironmentBucketsRequest)(nil),  // 18: chalk.server.v1.DiscoverEnvironmentBucketsRequest
-	(*DiscoverEnvironmentBucketsResponse)(nil), // 19: chalk.server.v1.DiscoverEnvironmentBucketsResponse
-	nil,                           // 20: chalk.server.v1.Environment.AdditionalEnvVarsEntry
-	nil,                           // 21: chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
-	nil,                           // 22: chalk.server.v1.Environment.SpecConfigJsonEntry
-	nil,                           // 23: chalk.server.v1.Environment.InternalMetadataEntry
-	nil,                           // 24: chalk.server.v1.Environment.CustomerMetadataEntry
-	(*CloudConfig)(nil),           // 25: chalk.server.v1.CloudConfig
-	(*timestamppb.Timestamp)(nil), // 26: google.protobuf.Timestamp
-	(ClusterClass)(0),             // 27: chalk.server.v1.ClusterClass
-	(*fieldmaskpb.FieldMask)(nil), // 28: google.protobuf.FieldMask
-	(*v1.FieldChange)(nil),        // 29: chalk.utils.v1.FieldChange
-	(*structpb.Value)(nil),        // 30: google.protobuf.Value
+	(EnvironmentSuspensionSource)(0),                    // 0: chalk.server.v1.EnvironmentSuspensionSource
+	(CloudProviderKind)(0),                              // 1: chalk.server.v1.CloudProviderKind
+	(VectorDBKind)(0),                                   // 2: chalk.server.v1.VectorDBKind
+	(DeploymentBuildProfile)(0),                         // 3: chalk.server.v1.DeploymentBuildProfile
+	(DiscoveredBucketSource)(0),                         // 4: chalk.server.v1.DiscoveredBucketSource
+	(DiscoveredBucketScope)(0),                          // 5: chalk.server.v1.DiscoveredBucketScope
+	(DiscoveredBucketRole)(0),                           // 6: chalk.server.v1.DiscoveredBucketRole
+	(*EnvironmentObjectStorageConfig)(nil),              // 7: chalk.server.v1.EnvironmentObjectStorageConfig
+	(*Environment)(nil),                                 // 8: chalk.server.v1.Environment
+	(*CreateEnvironmentV2Request)(nil),                  // 9: chalk.server.v1.CreateEnvironmentV2Request
+	(*CreateEnvironmentV2Response)(nil),                 // 10: chalk.server.v1.CreateEnvironmentV2Response
+	(*SelfServiceCreateTeamAndEnvironmentRequest)(nil),  // 11: chalk.server.v1.SelfServiceCreateTeamAndEnvironmentRequest
+	(*SelfServiceCreateTeamAndEnvironmentResponse)(nil), // 12: chalk.server.v1.SelfServiceCreateTeamAndEnvironmentResponse
+	(*UpdateEnvironmentV2Request)(nil),                  // 13: chalk.server.v1.UpdateEnvironmentV2Request
+	(*UpdateEnvironmentV2Response)(nil),                 // 14: chalk.server.v1.UpdateEnvironmentV2Response
+	(*DeleteEnvironmentRequest)(nil),                    // 15: chalk.server.v1.DeleteEnvironmentRequest
+	(*DeleteEnvironmentResponse)(nil),                   // 16: chalk.server.v1.DeleteEnvironmentResponse
+	(*SetDefaultEnvironmentRequest)(nil),                // 17: chalk.server.v1.SetDefaultEnvironmentRequest
+	(*SetDefaultEnvironmentResponse)(nil),               // 18: chalk.server.v1.SetDefaultEnvironmentResponse
+	(*DiscoveredBucketProbe)(nil),                       // 19: chalk.server.v1.DiscoveredBucketProbe
+	(*DiscoveredBucket)(nil),                            // 20: chalk.server.v1.DiscoveredBucket
+	(*DiscoverEnvironmentBucketsRequest)(nil),           // 21: chalk.server.v1.DiscoverEnvironmentBucketsRequest
+	(*DiscoverEnvironmentBucketsResponse)(nil),          // 22: chalk.server.v1.DiscoverEnvironmentBucketsResponse
+	nil,                           // 23: chalk.server.v1.Environment.AdditionalEnvVarsEntry
+	nil,                           // 24: chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
+	nil,                           // 25: chalk.server.v1.Environment.SpecConfigJsonEntry
+	nil,                           // 26: chalk.server.v1.Environment.InternalMetadataEntry
+	nil,                           // 27: chalk.server.v1.Environment.CustomerMetadataEntry
+	(*CloudConfig)(nil),           // 28: chalk.server.v1.CloudConfig
+	(*timestamppb.Timestamp)(nil), // 29: google.protobuf.Timestamp
+	(ClusterClass)(0),             // 30: chalk.server.v1.ClusterClass
+	(*fieldmaskpb.FieldMask)(nil), // 31: google.protobuf.FieldMask
+	(*v1.FieldChange)(nil),        // 32: chalk.utils.v1.FieldChange
+	(*structpb.Value)(nil),        // 33: google.protobuf.Value
 }
 var file_chalk_server_v1_environment_proto_depIdxs = []int32{
-	20, // 0: chalk.server.v1.Environment.additional_env_vars:type_name -> chalk.server.v1.Environment.AdditionalEnvVarsEntry
-	21, // 1: chalk.server.v1.Environment.additional_cron_env_vars:type_name -> chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
-	0,  // 2: chalk.server.v1.Environment.cloud_provider:type_name -> chalk.server.v1.CloudProviderKind
-	25, // 3: chalk.server.v1.Environment.cloud_config:type_name -> chalk.server.v1.CloudConfig
-	22, // 4: chalk.server.v1.Environment.spec_config_json:type_name -> chalk.server.v1.Environment.SpecConfigJsonEntry
-	26, // 5: chalk.server.v1.Environment.archived_at:type_name -> google.protobuf.Timestamp
-	6,  // 6: chalk.server.v1.Environment.environment_buckets:type_name -> chalk.server.v1.EnvironmentObjectStorageConfig
-	26, // 7: chalk.server.v1.Environment.suspended_at:type_name -> google.protobuf.Timestamp
-	2,  // 8: chalk.server.v1.Environment.default_build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	1,  // 9: chalk.server.v1.Environment.vector_db_kind:type_name -> chalk.server.v1.VectorDBKind
-	23, // 10: chalk.server.v1.Environment.internal_metadata:type_name -> chalk.server.v1.Environment.InternalMetadataEntry
-	24, // 11: chalk.server.v1.Environment.customer_metadata:type_name -> chalk.server.v1.Environment.CustomerMetadataEntry
-	27, // 12: chalk.server.v1.Environment.primary_linked_cluster_class:type_name -> chalk.server.v1.ClusterClass
-	7,  // 13: chalk.server.v1.CreateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
-	7,  // 14: chalk.server.v1.CreateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
-	7,  // 15: chalk.server.v1.UpdateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
-	28, // 16: chalk.server.v1.UpdateEnvironmentV2Request.update_mask:type_name -> google.protobuf.FieldMask
-	7,  // 17: chalk.server.v1.UpdateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
-	29, // 18: chalk.server.v1.UpdateEnvironmentV2Response.field_changes:type_name -> chalk.utils.v1.FieldChange
-	5,  // 19: chalk.server.v1.DiscoveredBucket.role:type_name -> chalk.server.v1.DiscoveredBucketRole
-	3,  // 20: chalk.server.v1.DiscoveredBucket.source:type_name -> chalk.server.v1.DiscoveredBucketSource
-	16, // 21: chalk.server.v1.DiscoveredBucket.read:type_name -> chalk.server.v1.DiscoveredBucketProbe
-	16, // 22: chalk.server.v1.DiscoveredBucket.write:type_name -> chalk.server.v1.DiscoveredBucketProbe
-	4,  // 23: chalk.server.v1.DiscoveredBucket.scope:type_name -> chalk.server.v1.DiscoveredBucketScope
-	17, // 24: chalk.server.v1.DiscoverEnvironmentBucketsResponse.buckets:type_name -> chalk.server.v1.DiscoveredBucket
-	30, // 25: chalk.server.v1.Environment.SpecConfigJsonEntry.value:type_name -> google.protobuf.Value
-	30, // 26: chalk.server.v1.Environment.InternalMetadataEntry.value:type_name -> google.protobuf.Value
-	30, // 27: chalk.server.v1.Environment.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
-	8,  // 28: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:input_type -> chalk.server.v1.CreateEnvironmentV2Request
-	10, // 29: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:input_type -> chalk.server.v1.UpdateEnvironmentV2Request
-	12, // 30: chalk.server.v1.EnvironmentService.DeleteEnvironment:input_type -> chalk.server.v1.DeleteEnvironmentRequest
-	14, // 31: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:input_type -> chalk.server.v1.SetDefaultEnvironmentRequest
-	18, // 32: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:input_type -> chalk.server.v1.DiscoverEnvironmentBucketsRequest
-	9,  // 33: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:output_type -> chalk.server.v1.CreateEnvironmentV2Response
-	11, // 34: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:output_type -> chalk.server.v1.UpdateEnvironmentV2Response
-	13, // 35: chalk.server.v1.EnvironmentService.DeleteEnvironment:output_type -> chalk.server.v1.DeleteEnvironmentResponse
-	15, // 36: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:output_type -> chalk.server.v1.SetDefaultEnvironmentResponse
-	19, // 37: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:output_type -> chalk.server.v1.DiscoverEnvironmentBucketsResponse
-	33, // [33:38] is the sub-list for method output_type
-	28, // [28:33] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	23, // 0: chalk.server.v1.Environment.additional_env_vars:type_name -> chalk.server.v1.Environment.AdditionalEnvVarsEntry
+	24, // 1: chalk.server.v1.Environment.additional_cron_env_vars:type_name -> chalk.server.v1.Environment.AdditionalCronEnvVarsEntry
+	1,  // 2: chalk.server.v1.Environment.cloud_provider:type_name -> chalk.server.v1.CloudProviderKind
+	28, // 3: chalk.server.v1.Environment.cloud_config:type_name -> chalk.server.v1.CloudConfig
+	25, // 4: chalk.server.v1.Environment.spec_config_json:type_name -> chalk.server.v1.Environment.SpecConfigJsonEntry
+	29, // 5: chalk.server.v1.Environment.archived_at:type_name -> google.protobuf.Timestamp
+	7,  // 6: chalk.server.v1.Environment.environment_buckets:type_name -> chalk.server.v1.EnvironmentObjectStorageConfig
+	29, // 7: chalk.server.v1.Environment.suspended_at:type_name -> google.protobuf.Timestamp
+	3,  // 8: chalk.server.v1.Environment.default_build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	2,  // 9: chalk.server.v1.Environment.vector_db_kind:type_name -> chalk.server.v1.VectorDBKind
+	26, // 10: chalk.server.v1.Environment.internal_metadata:type_name -> chalk.server.v1.Environment.InternalMetadataEntry
+	27, // 11: chalk.server.v1.Environment.customer_metadata:type_name -> chalk.server.v1.Environment.CustomerMetadataEntry
+	30, // 12: chalk.server.v1.Environment.primary_linked_cluster_class:type_name -> chalk.server.v1.ClusterClass
+	0,  // 13: chalk.server.v1.Environment.suspension_source:type_name -> chalk.server.v1.EnvironmentSuspensionSource
+	8,  // 14: chalk.server.v1.CreateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
+	8,  // 15: chalk.server.v1.CreateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
+	8,  // 16: chalk.server.v1.SelfServiceCreateTeamAndEnvironmentResponse.environment:type_name -> chalk.server.v1.Environment
+	8,  // 17: chalk.server.v1.UpdateEnvironmentV2Request.environment:type_name -> chalk.server.v1.Environment
+	31, // 18: chalk.server.v1.UpdateEnvironmentV2Request.update_mask:type_name -> google.protobuf.FieldMask
+	8,  // 19: chalk.server.v1.UpdateEnvironmentV2Response.environment:type_name -> chalk.server.v1.Environment
+	32, // 20: chalk.server.v1.UpdateEnvironmentV2Response.field_changes:type_name -> chalk.utils.v1.FieldChange
+	6,  // 21: chalk.server.v1.DiscoveredBucket.role:type_name -> chalk.server.v1.DiscoveredBucketRole
+	4,  // 22: chalk.server.v1.DiscoveredBucket.source:type_name -> chalk.server.v1.DiscoveredBucketSource
+	19, // 23: chalk.server.v1.DiscoveredBucket.read:type_name -> chalk.server.v1.DiscoveredBucketProbe
+	19, // 24: chalk.server.v1.DiscoveredBucket.write:type_name -> chalk.server.v1.DiscoveredBucketProbe
+	5,  // 25: chalk.server.v1.DiscoveredBucket.scope:type_name -> chalk.server.v1.DiscoveredBucketScope
+	20, // 26: chalk.server.v1.DiscoverEnvironmentBucketsResponse.buckets:type_name -> chalk.server.v1.DiscoveredBucket
+	33, // 27: chalk.server.v1.Environment.SpecConfigJsonEntry.value:type_name -> google.protobuf.Value
+	33, // 28: chalk.server.v1.Environment.InternalMetadataEntry.value:type_name -> google.protobuf.Value
+	33, // 29: chalk.server.v1.Environment.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
+	11, // 30: chalk.server.v1.EnvironmentService.SelfServiceCreateTeamAndEnvironment:input_type -> chalk.server.v1.SelfServiceCreateTeamAndEnvironmentRequest
+	9,  // 31: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:input_type -> chalk.server.v1.CreateEnvironmentV2Request
+	13, // 32: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:input_type -> chalk.server.v1.UpdateEnvironmentV2Request
+	15, // 33: chalk.server.v1.EnvironmentService.DeleteEnvironment:input_type -> chalk.server.v1.DeleteEnvironmentRequest
+	17, // 34: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:input_type -> chalk.server.v1.SetDefaultEnvironmentRequest
+	21, // 35: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:input_type -> chalk.server.v1.DiscoverEnvironmentBucketsRequest
+	12, // 36: chalk.server.v1.EnvironmentService.SelfServiceCreateTeamAndEnvironment:output_type -> chalk.server.v1.SelfServiceCreateTeamAndEnvironmentResponse
+	10, // 37: chalk.server.v1.EnvironmentService.CreateEnvironmentV2:output_type -> chalk.server.v1.CreateEnvironmentV2Response
+	14, // 38: chalk.server.v1.EnvironmentService.UpdateEnvironmentV2:output_type -> chalk.server.v1.UpdateEnvironmentV2Response
+	16, // 39: chalk.server.v1.EnvironmentService.DeleteEnvironment:output_type -> chalk.server.v1.DeleteEnvironmentResponse
+	18, // 40: chalk.server.v1.EnvironmentService.SetDefaultEnvironment:output_type -> chalk.server.v1.SetDefaultEnvironmentResponse
+	22, // 41: chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets:output_type -> chalk.server.v1.DiscoverEnvironmentBucketsResponse
+	36, // [36:42] is the sub-list for method output_type
+	30, // [30:36] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_environment_proto_init() }
@@ -2132,13 +2368,14 @@ func file_chalk_server_v1_environment_proto_init() {
 	file_chalk_server_v1_cloud_config_proto_init()
 	file_chalk_server_v1_cluster_class_proto_init()
 	file_chalk_server_v1_environment_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_server_v1_environment_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_environment_proto_rawDesc), len(file_chalk_server_v1_environment_proto_rawDesc)),
-			NumEnums:      6,
-			NumMessages:   19,
+			NumEnums:      7,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
