@@ -1,0 +1,1 @@
+- Sync generated Go protobuf and Connect bindings with chalk-private dev at 6132c137a6a, including the MCP gateway server fields (`base_url`, `allowed_tools`, `tool_overrides`, `instructions`, `caller_identity`, `advisories`), the OAuth credential fields `token_auth_method`, `resource` and `resource_indicator`, and the `TRANSPORT_OPENAPI` / `TRANSPORT_CHALK_FUNCTION` transports.

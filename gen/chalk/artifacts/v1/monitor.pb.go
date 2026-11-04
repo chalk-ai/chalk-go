@@ -85,6 +85,59 @@ func (MonitorType) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{0}
 }
 
+// How a kube_events monitor counts occurrences Kubernetes reports only as a counter jump between two updates.
+type OccurrenceCountBound int32
+
+const (
+	OccurrenceCountBound_OCCURRENCE_COUNT_BOUND_UNSPECIFIED OccurrenceCountBound = 0 // evaluated as ESTIMATE
+	OccurrenceCountBound_OCCURRENCE_COUNT_BOUND_ESTIMATE    OccurrenceCountBound = 1 // spreads a jump's untimed occurrences evenly over its interval
+	OccurrenceCountBound_OCCURRENCE_COUNT_BOUND_LOWER       OccurrenceCountBound = 2 // only occurrences certainly inside the window
+	OccurrenceCountBound_OCCURRENCE_COUNT_BOUND_UPPER       OccurrenceCountBound = 3 // every occurrence that may be inside the window
+)
+
+// Enum value maps for OccurrenceCountBound.
+var (
+	OccurrenceCountBound_name = map[int32]string{
+		0: "OCCURRENCE_COUNT_BOUND_UNSPECIFIED",
+		1: "OCCURRENCE_COUNT_BOUND_ESTIMATE",
+		2: "OCCURRENCE_COUNT_BOUND_LOWER",
+		3: "OCCURRENCE_COUNT_BOUND_UPPER",
+	}
+	OccurrenceCountBound_value = map[string]int32{
+		"OCCURRENCE_COUNT_BOUND_UNSPECIFIED": 0,
+		"OCCURRENCE_COUNT_BOUND_ESTIMATE":    1,
+		"OCCURRENCE_COUNT_BOUND_LOWER":       2,
+		"OCCURRENCE_COUNT_BOUND_UPPER":       3,
+	}
+)
+
+func (x OccurrenceCountBound) Enum() *OccurrenceCountBound {
+	p := new(OccurrenceCountBound)
+	*p = x
+	return p
+}
+
+func (x OccurrenceCountBound) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OccurrenceCountBound) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_artifacts_v1_monitor_proto_enumTypes[1].Descriptor()
+}
+
+func (OccurrenceCountBound) Type() protoreflect.EnumType {
+	return &file_chalk_artifacts_v1_monitor_proto_enumTypes[1]
+}
+
+func (x OccurrenceCountBound) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OccurrenceCountBound.Descriptor instead.
+func (OccurrenceCountBound) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{1}
+}
+
 type MetricMonitorNullValueBehavior int32
 
 const (
@@ -125,11 +178,11 @@ func (x MetricMonitorNullValueBehavior) String() string {
 }
 
 func (MetricMonitorNullValueBehavior) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_artifacts_v1_monitor_proto_enumTypes[1].Descriptor()
+	return file_chalk_artifacts_v1_monitor_proto_enumTypes[2].Descriptor()
 }
 
 func (MetricMonitorNullValueBehavior) Type() protoreflect.EnumType {
-	return &file_chalk_artifacts_v1_monitor_proto_enumTypes[1]
+	return &file_chalk_artifacts_v1_monitor_proto_enumTypes[2]
 }
 
 func (x MetricMonitorNullValueBehavior) Number() protoreflect.EnumNumber {
@@ -138,7 +191,7 @@ func (x MetricMonitorNullValueBehavior) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use MetricMonitorNullValueBehavior.Descriptor instead.
 func (MetricMonitorNullValueBehavior) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{1}
+	return file_chalk_artifacts_v1_monitor_proto_rawDescGZIP(), []int{2}
 }
 
 type LogsMonitor struct {
@@ -147,9 +200,10 @@ type LogsMonitor struct {
 	WindowPeriod *durationpb.Duration   `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"` // window period to aggregate logs
 	// One of "logs", "access_logs", or "kube_events". Monitors created before this
 	// field existed store "", which is interpreted as "logs".
-	DataSource    string `protobuf:"bytes,3,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	DataSource           string               `protobuf:"bytes,3,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
+	OccurrenceCountBound OccurrenceCountBound `protobuf:"varint,4,opt,name=occurrence_count_bound,json=occurrenceCountBound,proto3,enum=chalk.artifacts.v1.OccurrenceCountBound" json:"occurrence_count_bound,omitempty"` // kube_events only; other sources count exact rows
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *LogsMonitor) Reset() {
@@ -201,6 +255,13 @@ func (x *LogsMonitor) GetDataSource() string {
 		return x.DataSource
 	}
 	return ""
+}
+
+func (x *LogsMonitor) GetOccurrenceCountBound() OccurrenceCountBound {
+	if x != nil {
+		return x.OccurrenceCountBound
+	}
+	return OccurrenceCountBound_OCCURRENCE_COUNT_BOUND_UNSPECIFIED
 }
 
 type HealthcheckMonitor struct {
@@ -1320,12 +1381,13 @@ var File_chalk_artifacts_v1_monitor_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\n" +
-	" chalk/artifacts/v1/monitor.proto\x12\x12chalk.artifacts.v1\x1a&chalk/artifacts/v1/alert_channel.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x91\x01\n" +
+	" chalk/artifacts/v1/monitor.proto\x12\x12chalk.artifacts.v1\x1a&chalk/artifacts/v1/alert_channel.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf1\x01\n" +
 	"\vLogsMonitor\x12!\n" +
 	"\fquery_string\x18\x01 \x01(\tR\vqueryString\x12>\n" +
 	"\rwindow_period\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12\x1f\n" +
 	"\vdata_source\x18\x03 \x01(\tR\n" +
-	"dataSource\"?\n" +
+	"dataSource\x12^\n" +
+	"\x16occurrence_count_bound\x18\x04 \x01(\x0e2(.chalk.artifacts.v1.OccurrenceCountBoundR\x14occurrenceCountBound\"?\n" +
 	"\x12HealthcheckMonitor\x12)\n" +
 	"\x10healthcheck_name\x18\x01 \x01(\tR\x0fhealthcheckName\"\xc7\x01\n" +
 	"\fChartMonitor\x12\x1d\n" +
@@ -1414,7 +1476,12 @@ const file_chalk_artifacts_v1_monitor_proto_rawDesc = "" +
 	"\x18MONITOR_TYPE_HEALTHCHECK\x10\x03\x12\x1d\n" +
 	"\x19MONITOR_TYPE_SQL_BAD_ROWS\x10\x04\x12\x1c\n" +
 	"\x18MONITOR_TYPE_DATA_SOURCE\x10\x05\x12\x1e\n" +
-	"\x1aMONITOR_TYPE_FEATURE_DRIFT\x10\x06*\xe3\x01\n" +
+	"\x1aMONITOR_TYPE_FEATURE_DRIFT\x10\x06*\xa7\x01\n" +
+	"\x14OccurrenceCountBound\x12&\n" +
+	"\"OCCURRENCE_COUNT_BOUND_UNSPECIFIED\x10\x00\x12#\n" +
+	"\x1fOCCURRENCE_COUNT_BOUND_ESTIMATE\x10\x01\x12 \n" +
+	"\x1cOCCURRENCE_COUNT_BOUND_LOWER\x10\x02\x12 \n" +
+	"\x1cOCCURRENCE_COUNT_BOUND_UPPER\x10\x03*\xe3\x01\n" +
 	"\x1eMetricMonitorNullValueBehavior\x122\n" +
 	".METRIC_MONITOR_NULL_VALUE_BEHAVIOR_UNSPECIFIED\x10\x00\x12,\n" +
 	"(METRIC_MONITOR_NULL_VALUE_BEHAVIOR_ALERT\x10\x01\x120\n" +
@@ -1434,58 +1501,60 @@ func file_chalk_artifacts_v1_monitor_proto_rawDescGZIP() []byte {
 	return file_chalk_artifacts_v1_monitor_proto_rawDescData
 }
 
-var file_chalk_artifacts_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_artifacts_v1_monitor_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_chalk_artifacts_v1_monitor_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_artifacts_v1_monitor_proto_goTypes = []any{
 	(MonitorType)(0),                    // 0: chalk.artifacts.v1.MonitorType
-	(MetricMonitorNullValueBehavior)(0), // 1: chalk.artifacts.v1.MetricMonitorNullValueBehavior
-	(*LogsMonitor)(nil),                 // 2: chalk.artifacts.v1.LogsMonitor
-	(*HealthcheckMonitor)(nil),          // 3: chalk.artifacts.v1.HealthcheckMonitor
-	(*ChartMonitor)(nil),                // 4: chalk.artifacts.v1.ChartMonitor
-	(*SqlBadRowsMonitor)(nil),           // 5: chalk.artifacts.v1.SqlBadRowsMonitor
-	(*DataSourceMonitor)(nil),           // 6: chalk.artifacts.v1.DataSourceMonitor
-	(*FeatureDriftMonitor)(nil),         // 7: chalk.artifacts.v1.FeatureDriftMonitor
-	(*FeatureDriftBaseline)(nil),        // 8: chalk.artifacts.v1.FeatureDriftBaseline
-	(*DatasetRevisionBaseline)(nil),     // 9: chalk.artifacts.v1.DatasetRevisionBaseline
-	(*FeatureDriftTest)(nil),            // 10: chalk.artifacts.v1.FeatureDriftTest
-	(*KolmogorovSmirnovTest)(nil),       // 11: chalk.artifacts.v1.KolmogorovSmirnovTest
-	(*FeatureDriftTestResult)(nil),      // 12: chalk.artifacts.v1.FeatureDriftTestResult
-	(*KolmogorovSmirnovResult)(nil),     // 13: chalk.artifacts.v1.KolmogorovSmirnovResult
-	(*AlertChannel)(nil),                // 14: chalk.artifacts.v1.AlertChannel
-	(*Threshold)(nil),                   // 15: chalk.artifacts.v1.Threshold
-	(*Monitor)(nil),                     // 16: chalk.artifacts.v1.Monitor
-	(*durationpb.Duration)(nil),         // 17: google.protobuf.Duration
-	(AlertChannelKind)(0),               // 18: chalk.artifacts.v1.AlertChannelKind
-	(ThresholdKind)(0),                  // 19: chalk.artifacts.v1.ThresholdKind
-	(*timestamppb.Timestamp)(nil),       // 20: google.protobuf.Timestamp
+	(OccurrenceCountBound)(0),           // 1: chalk.artifacts.v1.OccurrenceCountBound
+	(MetricMonitorNullValueBehavior)(0), // 2: chalk.artifacts.v1.MetricMonitorNullValueBehavior
+	(*LogsMonitor)(nil),                 // 3: chalk.artifacts.v1.LogsMonitor
+	(*HealthcheckMonitor)(nil),          // 4: chalk.artifacts.v1.HealthcheckMonitor
+	(*ChartMonitor)(nil),                // 5: chalk.artifacts.v1.ChartMonitor
+	(*SqlBadRowsMonitor)(nil),           // 6: chalk.artifacts.v1.SqlBadRowsMonitor
+	(*DataSourceMonitor)(nil),           // 7: chalk.artifacts.v1.DataSourceMonitor
+	(*FeatureDriftMonitor)(nil),         // 8: chalk.artifacts.v1.FeatureDriftMonitor
+	(*FeatureDriftBaseline)(nil),        // 9: chalk.artifacts.v1.FeatureDriftBaseline
+	(*DatasetRevisionBaseline)(nil),     // 10: chalk.artifacts.v1.DatasetRevisionBaseline
+	(*FeatureDriftTest)(nil),            // 11: chalk.artifacts.v1.FeatureDriftTest
+	(*KolmogorovSmirnovTest)(nil),       // 12: chalk.artifacts.v1.KolmogorovSmirnovTest
+	(*FeatureDriftTestResult)(nil),      // 13: chalk.artifacts.v1.FeatureDriftTestResult
+	(*KolmogorovSmirnovResult)(nil),     // 14: chalk.artifacts.v1.KolmogorovSmirnovResult
+	(*AlertChannel)(nil),                // 15: chalk.artifacts.v1.AlertChannel
+	(*Threshold)(nil),                   // 16: chalk.artifacts.v1.Threshold
+	(*Monitor)(nil),                     // 17: chalk.artifacts.v1.Monitor
+	(*durationpb.Duration)(nil),         // 18: google.protobuf.Duration
+	(AlertChannelKind)(0),               // 19: chalk.artifacts.v1.AlertChannelKind
+	(ThresholdKind)(0),                  // 20: chalk.artifacts.v1.ThresholdKind
+	(*timestamppb.Timestamp)(nil),       // 21: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_monitor_proto_depIdxs = []int32{
-	17, // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
-	1,  // 1: chalk.artifacts.v1.ChartMonitor.null_value_behavior:type_name -> chalk.artifacts.v1.MetricMonitorNullValueBehavior
-	17, // 2: chalk.artifacts.v1.FeatureDriftMonitor.window_period:type_name -> google.protobuf.Duration
-	8,  // 3: chalk.artifacts.v1.FeatureDriftMonitor.baseline:type_name -> chalk.artifacts.v1.FeatureDriftBaseline
-	10, // 4: chalk.artifacts.v1.FeatureDriftMonitor.test:type_name -> chalk.artifacts.v1.FeatureDriftTest
-	9,  // 5: chalk.artifacts.v1.FeatureDriftBaseline.dataset_revision:type_name -> chalk.artifacts.v1.DatasetRevisionBaseline
-	11, // 6: chalk.artifacts.v1.FeatureDriftTest.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovTest
-	13, // 7: chalk.artifacts.v1.FeatureDriftTestResult.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovResult
-	18, // 8: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
-	19, // 9: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
-	14, // 10: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
-	15, // 11: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
-	4,  // 12: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
-	3,  // 13: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
-	2,  // 14: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
-	5,  // 15: chalk.artifacts.v1.Monitor.sql_bad_rows_monitor:type_name -> chalk.artifacts.v1.SqlBadRowsMonitor
-	6,  // 16: chalk.artifacts.v1.Monitor.data_source_monitor:type_name -> chalk.artifacts.v1.DataSourceMonitor
-	7,  // 17: chalk.artifacts.v1.Monitor.feature_drift_monitor:type_name -> chalk.artifacts.v1.FeatureDriftMonitor
-	20, // 18: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
-	20, // 19: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
-	20, // 20: chalk.artifacts.v1.Monitor.muted_until:type_name -> google.protobuf.Timestamp
-	21, // [21:21] is the sub-list for method output_type
-	21, // [21:21] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	18, // 0: chalk.artifacts.v1.LogsMonitor.window_period:type_name -> google.protobuf.Duration
+	1,  // 1: chalk.artifacts.v1.LogsMonitor.occurrence_count_bound:type_name -> chalk.artifacts.v1.OccurrenceCountBound
+	2,  // 2: chalk.artifacts.v1.ChartMonitor.null_value_behavior:type_name -> chalk.artifacts.v1.MetricMonitorNullValueBehavior
+	18, // 3: chalk.artifacts.v1.FeatureDriftMonitor.window_period:type_name -> google.protobuf.Duration
+	9,  // 4: chalk.artifacts.v1.FeatureDriftMonitor.baseline:type_name -> chalk.artifacts.v1.FeatureDriftBaseline
+	11, // 5: chalk.artifacts.v1.FeatureDriftMonitor.test:type_name -> chalk.artifacts.v1.FeatureDriftTest
+	10, // 6: chalk.artifacts.v1.FeatureDriftBaseline.dataset_revision:type_name -> chalk.artifacts.v1.DatasetRevisionBaseline
+	12, // 7: chalk.artifacts.v1.FeatureDriftTest.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovTest
+	14, // 8: chalk.artifacts.v1.FeatureDriftTestResult.kolmogorov_smirnov:type_name -> chalk.artifacts.v1.KolmogorovSmirnovResult
+	19, // 9: chalk.artifacts.v1.AlertChannel.entity_kind:type_name -> chalk.artifacts.v1.AlertChannelKind
+	20, // 10: chalk.artifacts.v1.Threshold.threshold_kind:type_name -> chalk.artifacts.v1.ThresholdKind
+	15, // 11: chalk.artifacts.v1.Threshold.alert_channels:type_name -> chalk.artifacts.v1.AlertChannel
+	16, // 12: chalk.artifacts.v1.Monitor.threshold:type_name -> chalk.artifacts.v1.Threshold
+	5,  // 13: chalk.artifacts.v1.Monitor.chart_monitor:type_name -> chalk.artifacts.v1.ChartMonitor
+	4,  // 14: chalk.artifacts.v1.Monitor.healthcheck_monitor:type_name -> chalk.artifacts.v1.HealthcheckMonitor
+	3,  // 15: chalk.artifacts.v1.Monitor.logs_monitor:type_name -> chalk.artifacts.v1.LogsMonitor
+	6,  // 16: chalk.artifacts.v1.Monitor.sql_bad_rows_monitor:type_name -> chalk.artifacts.v1.SqlBadRowsMonitor
+	7,  // 17: chalk.artifacts.v1.Monitor.data_source_monitor:type_name -> chalk.artifacts.v1.DataSourceMonitor
+	8,  // 18: chalk.artifacts.v1.Monitor.feature_drift_monitor:type_name -> chalk.artifacts.v1.FeatureDriftMonitor
+	21, // 19: chalk.artifacts.v1.Monitor.created_at:type_name -> google.protobuf.Timestamp
+	21, // 20: chalk.artifacts.v1.Monitor.updated_at:type_name -> google.protobuf.Timestamp
+	21, // 21: chalk.artifacts.v1.Monitor.muted_until:type_name -> google.protobuf.Timestamp
+	22, // [22:22] is the sub-list for method output_type
+	22, // [22:22] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_monitor_proto_init() }
@@ -1528,7 +1597,7 @@ func file_chalk_artifacts_v1_monitor_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_monitor_proto_rawDesc), len(file_chalk_artifacts_v1_monitor_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   0,

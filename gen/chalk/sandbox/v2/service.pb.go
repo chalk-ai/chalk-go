@@ -8,6 +8,7 @@ package sandboxv2
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/container/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -274,9 +275,11 @@ type SandboxInfo struct {
 	// Additional diagnostic info for status_message.
 	StatusDetails *string `protobuf:"bytes,11,opt,name=status_details,json=statusDetails,proto3,oneof" json:"status_details,omitempty"`
 	// Cluster where this sandbox is placed.
-	ClusterId     string `protobuf:"bytes,12,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ClusterId string `protobuf:"bytes,12,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Snapshot used at initial creation; unchanged by resume. Absent when not recorded.
+	CreatedFromSnapshotId *string `protobuf:"bytes,13,opt,name=created_from_snapshot_id,json=createdFromSnapshotId,proto3,oneof" json:"created_from_snapshot_id,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *SandboxInfo) Reset() {
@@ -389,6 +392,13 @@ func (x *SandboxInfo) GetStatusDetails() string {
 func (x *SandboxInfo) GetClusterId() string {
 	if x != nil {
 		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *SandboxInfo) GetCreatedFromSnapshotId() string {
+	if x != nil && x.CreatedFromSnapshotId != nil {
+		return *x.CreatedFromSnapshotId
 	}
 	return ""
 }
@@ -618,9 +628,18 @@ type ListSandboxesFilters struct {
 	CreatedBy []string        `protobuf:"bytes,4,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	// Sandboxes whose spec tags include every one of these key/value pairs, e.g.
 	// {"chalk.evaluation.run_id": "<run id>"} for the sandboxes of one evaluation run.
-	Tags          map[string]string `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	//
+	// Deprecated: Marked as deprecated in chalk/sandbox/v2/service.proto.
+	Tags map[string]string `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Matches the current spec.restore_from_snapshot_id, including forks and resumes.
+	// Values are ORed and ANDed with other filters. This is not restore history.
+	RestoreFromSnapshotIds []string `protobuf:"bytes,6,rep,name=restore_from_snapshot_ids,json=restoreFromSnapshotIds,proto3" json:"restore_from_snapshot_ids,omitempty"`
+	// Mutually exclusive with legacy tags; ANDed with other filters.
+	TagFilter *v11.TagFilter `protobuf:"bytes,7,opt,name=tag_filter,json=tagFilter,proto3,oneof" json:"tag_filter,omitempty"`
+	// Sandboxes initially created from any of these snapshots, including after resume.
+	SourceSnapshotIds []string `protobuf:"bytes,8,rep,name=source_snapshot_ids,json=sourceSnapshotIds,proto3" json:"source_snapshot_ids,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ListSandboxesFilters) Reset() {
@@ -682,9 +701,31 @@ func (x *ListSandboxesFilters) GetCreatedBy() []string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/sandbox/v2/service.proto.
 func (x *ListSandboxesFilters) GetTags() map[string]string {
 	if x != nil {
 		return x.Tags
+	}
+	return nil
+}
+
+func (x *ListSandboxesFilters) GetRestoreFromSnapshotIds() []string {
+	if x != nil {
+		return x.RestoreFromSnapshotIds
+	}
+	return nil
+}
+
+func (x *ListSandboxesFilters) GetTagFilter() *v11.TagFilter {
+	if x != nil {
+		return x.TagFilter
+	}
+	return nil
+}
+
+func (x *ListSandboxesFilters) GetSourceSnapshotIds() []string {
+	if x != nil {
+		return x.SourceSnapshotIds
 	}
 	return nil
 }
@@ -1481,7 +1522,7 @@ var File_chalk_sandbox_v2_service_proto protoreflect.FileDescriptor
 
 const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/sandbox/v2/service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\x04\n" +
+	"\x1echalk/sandbox/v2/service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/common/v1/tag_filter.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x05\n" +
 	"\vSandboxInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
@@ -1499,13 +1540,15 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	" \x01(\tH\x03R\tcreatedBy\x88\x01\x01\x12*\n" +
 	"\x0estatus_details\x18\v \x01(\tH\x04R\rstatusDetails\x88\x01\x01\x12\x1d\n" +
 	"\n" +
-	"cluster_id\x18\f \x01(\tR\tclusterIdB\x11\n" +
+	"cluster_id\x18\f \x01(\tR\tclusterId\x12<\n" +
+	"\x18created_from_snapshot_id\x18\r \x01(\tH\x05R\x15createdFromSnapshotId\x88\x01\x01B\x11\n" +
 	"\x0f_status_messageB\x0e\n" +
 	"\f_finished_atB\n" +
 	"\n" +
 	"\b_web_urlB\r\n" +
 	"\v_created_byB\x11\n" +
-	"\x0f_status_details\"\x81\x01\n" +
+	"\x0f_status_detailsB\x1b\n" +
+	"\x19_created_from_snapshot_id\"\x81\x01\n" +
 	"\x14CreateSandboxRequest\x12<\n" +
 	"\x04spec\x18\x01 \x01(\v2&.chalk.container.v1.ChalkContainerSpecH\x00R\x04spec\x12!\n" +
 	"\vsnapshot_id\x18\x02 \x01(\tH\x00R\n" +
@@ -1516,17 +1559,22 @@ const file_chalk_sandbox_v2_service_proto_rawDesc = "" +
 	"\x11GetSandboxRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"M\n" +
 	"\x12GetSandboxResponse\x127\n" +
-	"\asandbox\x18\x01 \x01(\v2\x1d.chalk.sandbox.v2.SandboxInfoR\asandbox\"\xa3\x02\n" +
+	"\asandbox\x18\x01 \x01(\v2\x1d.chalk.sandbox.v2.SandboxInfoR\asandbox\"\xe1\x03\n" +
 	"\x14ListSandboxesFilters\x12\x18\n" +
 	"\x05names\x18\x01 \x03(\tB\x02\x18\x01R\x05names\x12;\n" +
 	"\bstatuses\x18\x02 \x03(\x0e2\x1f.chalk.sandbox.v2.SandboxStatusR\bstatuses\x12\x16\n" +
 	"\x06images\x18\x03 \x03(\tR\x06images\x12\x1d\n" +
 	"\n" +
-	"created_by\x18\x04 \x03(\tR\tcreatedBy\x12D\n" +
-	"\x04tags\x18\x05 \x03(\v20.chalk.sandbox.v2.ListSandboxesFilters.TagsEntryR\x04tags\x1a7\n" +
+	"created_by\x18\x04 \x03(\tR\tcreatedBy\x12H\n" +
+	"\x04tags\x18\x05 \x03(\v20.chalk.sandbox.v2.ListSandboxesFilters.TagsEntryB\x02\x18\x01R\x04tags\x129\n" +
+	"\x19restore_from_snapshot_ids\x18\x06 \x03(\tR\x16restoreFromSnapshotIds\x12>\n" +
+	"\n" +
+	"tag_filter\x18\a \x01(\v2\x1a.chalk.common.v1.TagFilterH\x00R\ttagFilter\x88\x01\x01\x12.\n" +
+	"\x13source_snapshot_ids\x18\b \x03(\tR\x11sourceSnapshotIds\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc6\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\r\n" +
+	"\v_tag_filter\"\xc6\x02\n" +
 	"\x14ListSandboxesRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x16\n" +
@@ -1674,7 +1722,8 @@ var file_chalk_sandbox_v2_service_proto_goTypes = []any{
 	nil,                                   // 24: chalk.sandbox.v2.ListSandboxesFilters.TagsEntry
 	(*v1.ChalkContainerSpec)(nil),         // 25: chalk.container.v1.ChalkContainerSpec
 	(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),           // 27: google.protobuf.Duration
+	(*v11.TagFilter)(nil),                 // 27: chalk.common.v1.TagFilter
+	(*durationpb.Duration)(nil),           // 28: google.protobuf.Duration
 }
 var file_chalk_sandbox_v2_service_proto_depIdxs = []int32{
 	0,  // 0: chalk.sandbox.v2.SandboxInfo.status:type_name -> chalk.sandbox.v2.SandboxStatus
@@ -1686,40 +1735,41 @@ var file_chalk_sandbox_v2_service_proto_depIdxs = []int32{
 	4,  // 6: chalk.sandbox.v2.GetSandboxResponse.sandbox:type_name -> chalk.sandbox.v2.SandboxInfo
 	0,  // 7: chalk.sandbox.v2.ListSandboxesFilters.statuses:type_name -> chalk.sandbox.v2.SandboxStatus
 	24, // 8: chalk.sandbox.v2.ListSandboxesFilters.tags:type_name -> chalk.sandbox.v2.ListSandboxesFilters.TagsEntry
-	9,  // 9: chalk.sandbox.v2.ListSandboxesRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxesFilters
-	1,  // 10: chalk.sandbox.v2.ListSandboxesRequest.sort_column:type_name -> chalk.sandbox.v2.SandboxSortColumn
-	2,  // 11: chalk.sandbox.v2.ListSandboxesRequest.sort_order:type_name -> chalk.sandbox.v2.SandboxSortOrder
-	4,  // 12: chalk.sandbox.v2.ListSandboxesResponse.sandboxes:type_name -> chalk.sandbox.v2.SandboxInfo
-	27, // 13: chalk.sandbox.v2.TerminateSandboxRequest.grace_period:type_name -> google.protobuf.Duration
-	3,  // 14: chalk.sandbox.v2.SandboxResource.kind:type_name -> chalk.sandbox.v2.SandboxResourceKind
-	26, // 15: chalk.sandbox.v2.SandboxResource.created_at:type_name -> google.protobuf.Timestamp
-	3,  // 16: chalk.sandbox.v2.ListSandboxResourcesFilters.kinds:type_name -> chalk.sandbox.v2.SandboxResourceKind
-	26, // 17: chalk.sandbox.v2.ListSandboxResourcesFilters.created_after:type_name -> google.protobuf.Timestamp
-	26, // 18: chalk.sandbox.v2.ListSandboxResourcesFilters.created_before:type_name -> google.protobuf.Timestamp
-	19, // 19: chalk.sandbox.v2.ListSandboxResourcesRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxResourcesFilters
-	18, // 20: chalk.sandbox.v2.ListSandboxResourcesResponse.resources:type_name -> chalk.sandbox.v2.SandboxResource
-	3,  // 21: chalk.sandbox.v2.RecordSandboxResourceRequest.kind:type_name -> chalk.sandbox.v2.SandboxResourceKind
-	5,  // 22: chalk.sandbox.v2.SandboxService.CreateSandbox:input_type -> chalk.sandbox.v2.CreateSandboxRequest
-	7,  // 23: chalk.sandbox.v2.SandboxService.GetSandbox:input_type -> chalk.sandbox.v2.GetSandboxRequest
-	10, // 24: chalk.sandbox.v2.SandboxService.ListSandboxes:input_type -> chalk.sandbox.v2.ListSandboxesRequest
-	12, // 25: chalk.sandbox.v2.SandboxService.SuspendSandbox:input_type -> chalk.sandbox.v2.SuspendSandboxRequest
-	14, // 26: chalk.sandbox.v2.SandboxService.ResumeSandbox:input_type -> chalk.sandbox.v2.ResumeSandboxRequest
-	16, // 27: chalk.sandbox.v2.SandboxService.TerminateSandbox:input_type -> chalk.sandbox.v2.TerminateSandboxRequest
-	20, // 28: chalk.sandbox.v2.SandboxResourceService.ListSandboxResources:input_type -> chalk.sandbox.v2.ListSandboxResourcesRequest
-	22, // 29: chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource:input_type -> chalk.sandbox.v2.RecordSandboxResourceRequest
-	6,  // 30: chalk.sandbox.v2.SandboxService.CreateSandbox:output_type -> chalk.sandbox.v2.CreateSandboxResponse
-	8,  // 31: chalk.sandbox.v2.SandboxService.GetSandbox:output_type -> chalk.sandbox.v2.GetSandboxResponse
-	11, // 32: chalk.sandbox.v2.SandboxService.ListSandboxes:output_type -> chalk.sandbox.v2.ListSandboxesResponse
-	13, // 33: chalk.sandbox.v2.SandboxService.SuspendSandbox:output_type -> chalk.sandbox.v2.SuspendSandboxResponse
-	15, // 34: chalk.sandbox.v2.SandboxService.ResumeSandbox:output_type -> chalk.sandbox.v2.ResumeSandboxResponse
-	17, // 35: chalk.sandbox.v2.SandboxService.TerminateSandbox:output_type -> chalk.sandbox.v2.TerminateSandboxResponse
-	21, // 36: chalk.sandbox.v2.SandboxResourceService.ListSandboxResources:output_type -> chalk.sandbox.v2.ListSandboxResourcesResponse
-	23, // 37: chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource:output_type -> chalk.sandbox.v2.RecordSandboxResourceResponse
-	30, // [30:38] is the sub-list for method output_type
-	22, // [22:30] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	27, // 9: chalk.sandbox.v2.ListSandboxesFilters.tag_filter:type_name -> chalk.common.v1.TagFilter
+	9,  // 10: chalk.sandbox.v2.ListSandboxesRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxesFilters
+	1,  // 11: chalk.sandbox.v2.ListSandboxesRequest.sort_column:type_name -> chalk.sandbox.v2.SandboxSortColumn
+	2,  // 12: chalk.sandbox.v2.ListSandboxesRequest.sort_order:type_name -> chalk.sandbox.v2.SandboxSortOrder
+	4,  // 13: chalk.sandbox.v2.ListSandboxesResponse.sandboxes:type_name -> chalk.sandbox.v2.SandboxInfo
+	28, // 14: chalk.sandbox.v2.TerminateSandboxRequest.grace_period:type_name -> google.protobuf.Duration
+	3,  // 15: chalk.sandbox.v2.SandboxResource.kind:type_name -> chalk.sandbox.v2.SandboxResourceKind
+	26, // 16: chalk.sandbox.v2.SandboxResource.created_at:type_name -> google.protobuf.Timestamp
+	3,  // 17: chalk.sandbox.v2.ListSandboxResourcesFilters.kinds:type_name -> chalk.sandbox.v2.SandboxResourceKind
+	26, // 18: chalk.sandbox.v2.ListSandboxResourcesFilters.created_after:type_name -> google.protobuf.Timestamp
+	26, // 19: chalk.sandbox.v2.ListSandboxResourcesFilters.created_before:type_name -> google.protobuf.Timestamp
+	19, // 20: chalk.sandbox.v2.ListSandboxResourcesRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxResourcesFilters
+	18, // 21: chalk.sandbox.v2.ListSandboxResourcesResponse.resources:type_name -> chalk.sandbox.v2.SandboxResource
+	3,  // 22: chalk.sandbox.v2.RecordSandboxResourceRequest.kind:type_name -> chalk.sandbox.v2.SandboxResourceKind
+	5,  // 23: chalk.sandbox.v2.SandboxService.CreateSandbox:input_type -> chalk.sandbox.v2.CreateSandboxRequest
+	7,  // 24: chalk.sandbox.v2.SandboxService.GetSandbox:input_type -> chalk.sandbox.v2.GetSandboxRequest
+	10, // 25: chalk.sandbox.v2.SandboxService.ListSandboxes:input_type -> chalk.sandbox.v2.ListSandboxesRequest
+	12, // 26: chalk.sandbox.v2.SandboxService.SuspendSandbox:input_type -> chalk.sandbox.v2.SuspendSandboxRequest
+	14, // 27: chalk.sandbox.v2.SandboxService.ResumeSandbox:input_type -> chalk.sandbox.v2.ResumeSandboxRequest
+	16, // 28: chalk.sandbox.v2.SandboxService.TerminateSandbox:input_type -> chalk.sandbox.v2.TerminateSandboxRequest
+	20, // 29: chalk.sandbox.v2.SandboxResourceService.ListSandboxResources:input_type -> chalk.sandbox.v2.ListSandboxResourcesRequest
+	22, // 30: chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource:input_type -> chalk.sandbox.v2.RecordSandboxResourceRequest
+	6,  // 31: chalk.sandbox.v2.SandboxService.CreateSandbox:output_type -> chalk.sandbox.v2.CreateSandboxResponse
+	8,  // 32: chalk.sandbox.v2.SandboxService.GetSandbox:output_type -> chalk.sandbox.v2.GetSandboxResponse
+	11, // 33: chalk.sandbox.v2.SandboxService.ListSandboxes:output_type -> chalk.sandbox.v2.ListSandboxesResponse
+	13, // 34: chalk.sandbox.v2.SandboxService.SuspendSandbox:output_type -> chalk.sandbox.v2.SuspendSandboxResponse
+	15, // 35: chalk.sandbox.v2.SandboxService.ResumeSandbox:output_type -> chalk.sandbox.v2.ResumeSandboxResponse
+	17, // 36: chalk.sandbox.v2.SandboxService.TerminateSandbox:output_type -> chalk.sandbox.v2.TerminateSandboxResponse
+	21, // 37: chalk.sandbox.v2.SandboxResourceService.ListSandboxResources:output_type -> chalk.sandbox.v2.ListSandboxResourcesResponse
+	23, // 38: chalk.sandbox.v2.SandboxResourceService.RecordSandboxResource:output_type -> chalk.sandbox.v2.RecordSandboxResourceResponse
+	31, // [31:39] is the sub-list for method output_type
+	23, // [23:31] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_chalk_sandbox_v2_service_proto_init() }
@@ -1732,6 +1782,7 @@ func file_chalk_sandbox_v2_service_proto_init() {
 		(*CreateSandboxRequest_Spec)(nil),
 		(*CreateSandboxRequest_SnapshotId)(nil),
 	}
+	file_chalk_sandbox_v2_service_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_sandbox_v2_service_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_sandbox_v2_service_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_sandbox_v2_service_proto_msgTypes[12].OneofWrappers = []any{}

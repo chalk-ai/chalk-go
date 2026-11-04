@@ -477,6 +477,252 @@ func (x *BatchOperator) GetArguments() map[string]*Argument {
 	return nil
 }
 
+// What the engine reads off a BatchPlan's operator tree to bind and run the plan, written beside the
+// plan by the planner that built it (the Rust planner) so the engine need not deserialize every
+// operator. Operator ids are the plan's `GraphInfo.operator_id`s; an `Argument` uses the encoding of
+// `BatchOperator.arguments` and resolves against the plan's `auxiliary_info` and `symbolic_values_v2`.
+// "Walk order" is `BatchOperator.walk()`'s.
+type BatchPlanMetadata struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The root operator. Its `schema`, `pyarrow_schema` and `packed_groups_into_structs` arguments
+	// are the layout the plan's output tables unflatten with.
+	RootOperatorId uint64 `protobuf:"varint,1,opt,name=root_operator_id,json=rootOperatorId,proto3" json:"root_operator_id,omitempty"`
+	// The resolvers the plan runs, in `resolvers_from_root_operator`'s order.
+	ResolverFqns []string `protobuf:"bytes,2,rep,name=resolver_fqns,json=resolverFqns,proto3" json:"resolver_fqns,omitempty"`
+	// Every operator's `full_schema`, in walk order, each entry once: a tuple.
+	FullSchemaFeatures *Argument `protobuf:"bytes,3,opt,name=full_schema_features,json=fullSchemaFeatures,proto3" json:"full_schema_features,omitempty"`
+	// The plan's `ValuesPersister`s, in walk order.
+	ValuesPersisters []*ValuesPersisterMetadata `protobuf:"bytes,4,rep,name=values_persisters,json=valuesPersisters,proto3" json:"values_persisters,omitempty"`
+	// The `RuntimeResourceKind` values the plan's operators require, in walk order, each once.
+	RuntimeResourceKinds []string `protobuf:"bytes,5,rep,name=runtime_resource_kinds,json=runtimeResourceKinds,proto3" json:"runtime_resource_kinds,omitempty"`
+	// The plan's `PreloadedTableOperator`s, in walk order. They have no inputs, so the engine
+	// deserializes each on its own to bind the query's manifest input and clean up its spill files.
+	PreloadedTableOperatorIds []uint64 `protobuf:"varint,6,rep,packed,name=preloaded_table_operator_ids,json=preloadedTableOperatorIds,proto3" json:"preloaded_table_operator_ids,omitempty"`
+	// The data sources `iter_plan_datasource_keys` reads, in walk order: a native SQL operator's
+	// selected source, and every other operator's resolvers.
+	DatasourceLineage []*DatasourceLineage `protobuf:"bytes,7,rep,name=datasource_lineage,json=datasourceLineage,proto3" json:"datasource_lineage,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *BatchPlanMetadata) Reset() {
+	*x = BatchPlanMetadata{}
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchPlanMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchPlanMetadata) ProtoMessage() {}
+
+func (x *BatchPlanMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchPlanMetadata.ProtoReflect.Descriptor instead.
+func (*BatchPlanMetadata) Descriptor() ([]byte, []int) {
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BatchPlanMetadata) GetRootOperatorId() uint64 {
+	if x != nil {
+		return x.RootOperatorId
+	}
+	return 0
+}
+
+func (x *BatchPlanMetadata) GetResolverFqns() []string {
+	if x != nil {
+		return x.ResolverFqns
+	}
+	return nil
+}
+
+func (x *BatchPlanMetadata) GetFullSchemaFeatures() *Argument {
+	if x != nil {
+		return x.FullSchemaFeatures
+	}
+	return nil
+}
+
+func (x *BatchPlanMetadata) GetValuesPersisters() []*ValuesPersisterMetadata {
+	if x != nil {
+		return x.ValuesPersisters
+	}
+	return nil
+}
+
+func (x *BatchPlanMetadata) GetRuntimeResourceKinds() []string {
+	if x != nil {
+		return x.RuntimeResourceKinds
+	}
+	return nil
+}
+
+func (x *BatchPlanMetadata) GetPreloadedTableOperatorIds() []uint64 {
+	if x != nil {
+		return x.PreloadedTableOperatorIds
+	}
+	return nil
+}
+
+func (x *BatchPlanMetadata) GetDatasourceLineage() []*DatasourceLineage {
+	if x != nil {
+		return x.DatasourceLineage
+	}
+	return nil
+}
+
+type ValuesPersisterMetadata struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The persister; its own arguments name the table's environment, branch and query.
+	OperatorId uint64 `protobuf:"varint,1,opt,name=operator_id,json=operatorId,proto3" json:"operator_id,omitempty"`
+	// The persistence table's columns (`_get_persistence_table_schema`): bookkeeping columns, then
+	// the persisted features, in order. Empty when the persister writes nothing.
+	Columns       []string `protobuf:"bytes,2,rep,name=columns,proto3" json:"columns,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValuesPersisterMetadata) Reset() {
+	*x = ValuesPersisterMetadata{}
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValuesPersisterMetadata) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValuesPersisterMetadata) ProtoMessage() {}
+
+func (x *ValuesPersisterMetadata) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValuesPersisterMetadata.ProtoReflect.Descriptor instead.
+func (*ValuesPersisterMetadata) Descriptor() ([]byte, []int) {
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ValuesPersisterMetadata) GetOperatorId() uint64 {
+	if x != nil {
+		return x.OperatorId
+	}
+	return 0
+}
+
+func (x *ValuesPersisterMetadata) GetColumns() []string {
+	if x != nil {
+		return x.Columns
+	}
+	return nil
+}
+
+type DatasourceLineage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Source:
+	//
+	//	*DatasourceLineage_NativeSqlSource
+	//	*DatasourceLineage_ResolverFqn
+	Source        isDatasourceLineage_Source `protobuf_oneof:"source"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DatasourceLineage) Reset() {
+	*x = DatasourceLineage{}
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DatasourceLineage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DatasourceLineage) ProtoMessage() {}
+
+func (x *DatasourceLineage) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DatasourceLineage.ProtoReflect.Descriptor instead.
+func (*DatasourceLineage) Descriptor() ([]byte, []int) {
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DatasourceLineage) GetSource() isDatasourceLineage_Source {
+	if x != nil {
+		return x.Source
+	}
+	return nil
+}
+
+func (x *DatasourceLineage) GetNativeSqlSource() string {
+	if x != nil {
+		if x, ok := x.Source.(*DatasourceLineage_NativeSqlSource); ok {
+			return x.NativeSqlSource
+		}
+	}
+	return ""
+}
+
+func (x *DatasourceLineage) GetResolverFqn() string {
+	if x != nil {
+		if x, ok := x.Source.(*DatasourceLineage_ResolverFqn); ok {
+			return x.ResolverFqn
+		}
+	}
+	return ""
+}
+
+type isDatasourceLineage_Source interface {
+	isDatasourceLineage_Source()
+}
+
+type DatasourceLineage_NativeSqlSource struct {
+	// A native SQL operator's `native_sql_inputs.selected_source`, by name.
+	NativeSqlSource string `protobuf:"bytes,1,opt,name=native_sql_source,json=nativeSqlSource,proto3,oneof"`
+}
+
+type DatasourceLineage_ResolverFqn struct {
+	// A resolver of another operator, whose `data_sources` the plan reads.
+	ResolverFqn string `protobuf:"bytes,2,opt,name=resolver_fqn,json=resolverFqn,proto3,oneof"`
+}
+
+func (*DatasourceLineage_NativeSqlSource) isDatasourceLineage_Source() {}
+
+func (*DatasourceLineage_ResolverFqn) isDatasourceLineage_Source() {}
+
 // Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 type FeatureReferenceInfo struct {
 	state             protoimpl.MessageState    `protogen:"open.v1"`
@@ -489,7 +735,7 @@ type FeatureReferenceInfo struct {
 
 func (x *FeatureReferenceInfo) Reset() {
 	*x = FeatureReferenceInfo{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[2]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -501,7 +747,7 @@ func (x *FeatureReferenceInfo) String() string {
 func (*FeatureReferenceInfo) ProtoMessage() {}
 
 func (x *FeatureReferenceInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[2]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -514,7 +760,7 @@ func (x *FeatureReferenceInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FeatureReferenceInfo.ProtoReflect.Descriptor instead.
 func (*FeatureReferenceInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{2}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *FeatureReferenceInfo) GetFeatureRefs() []*FeatureReference {
@@ -547,7 +793,7 @@ type GraphInfo struct {
 
 func (x *GraphInfo) Reset() {
 	*x = GraphInfo{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[3]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -559,7 +805,7 @@ func (x *GraphInfo) String() string {
 func (*GraphInfo) ProtoMessage() {}
 
 func (x *GraphInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[3]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -572,7 +818,7 @@ func (x *GraphInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GraphInfo.ProtoReflect.Descriptor instead.
 func (*GraphInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{3}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GraphInfo) GetOperatorId() uint64 {
@@ -621,7 +867,7 @@ type Argument struct {
 
 func (x *Argument) Reset() {
 	*x = Argument{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[4]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -633,7 +879,7 @@ func (x *Argument) String() string {
 func (*Argument) ProtoMessage() {}
 
 func (x *Argument) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[4]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -646,7 +892,7 @@ func (x *Argument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Argument.ProtoReflect.Descriptor instead.
 func (*Argument) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{4}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Argument) GetArg() isArgument_Arg {
@@ -1108,7 +1354,7 @@ type BatchPlanArgumentWithAuxiliaryInfo struct {
 
 func (x *BatchPlanArgumentWithAuxiliaryInfo) Reset() {
 	*x = BatchPlanArgumentWithAuxiliaryInfo{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[5]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1120,7 +1366,7 @@ func (x *BatchPlanArgumentWithAuxiliaryInfo) String() string {
 func (*BatchPlanArgumentWithAuxiliaryInfo) ProtoMessage() {}
 
 func (x *BatchPlanArgumentWithAuxiliaryInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[5]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1133,7 +1379,7 @@ func (x *BatchPlanArgumentWithAuxiliaryInfo) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use BatchPlanArgumentWithAuxiliaryInfo.ProtoReflect.Descriptor instead.
 func (*BatchPlanArgumentWithAuxiliaryInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{5}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *BatchPlanArgumentWithAuxiliaryInfo) GetArgument() *Argument {
@@ -1160,7 +1406,7 @@ type ArgumentMapElement struct {
 
 func (x *ArgumentMapElement) Reset() {
 	*x = ArgumentMapElement{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[6]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1172,7 +1418,7 @@ func (x *ArgumentMapElement) String() string {
 func (*ArgumentMapElement) ProtoMessage() {}
 
 func (x *ArgumentMapElement) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[6]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1185,7 +1431,7 @@ func (x *ArgumentMapElement) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgumentMapElement.ProtoReflect.Descriptor instead.
 func (*ArgumentMapElement) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{6}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ArgumentMapElement) GetKey() *Argument {
@@ -1217,7 +1463,7 @@ type ArgumentMap struct {
 
 func (x *ArgumentMap) Reset() {
 	*x = ArgumentMap{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[7]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1229,7 +1475,7 @@ func (x *ArgumentMap) String() string {
 func (*ArgumentMap) ProtoMessage() {}
 
 func (x *ArgumentMap) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[7]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1242,7 +1488,7 @@ func (x *ArgumentMap) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgumentMap.ProtoReflect.Descriptor instead.
 func (*ArgumentMap) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{7}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{10}
 }
 
 // Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
@@ -1285,7 +1531,7 @@ type ArgumentList struct {
 
 func (x *ArgumentList) Reset() {
 	*x = ArgumentList{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[8]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1297,7 +1543,7 @@ func (x *ArgumentList) String() string {
 func (*ArgumentList) ProtoMessage() {}
 
 func (x *ArgumentList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[8]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1310,7 +1556,7 @@ func (x *ArgumentList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgumentList.ProtoReflect.Descriptor instead.
 func (*ArgumentList) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{8}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ArgumentList) GetValues() []*Argument {
@@ -1328,7 +1574,7 @@ type Void struct {
 
 func (x *Void) Reset() {
 	*x = Void{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[9]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1340,7 +1586,7 @@ func (x *Void) String() string {
 func (*Void) ProtoMessage() {}
 
 func (x *Void) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[9]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1353,7 +1599,7 @@ func (x *Void) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Void.ProtoReflect.Descriptor instead.
 func (*Void) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{9}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{12}
 }
 
 type DetachedColumnFeatureType struct {
@@ -1365,7 +1611,7 @@ type DetachedColumnFeatureType struct {
 
 func (x *DetachedColumnFeatureType) Reset() {
 	*x = DetachedColumnFeatureType{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[10]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1377,7 +1623,7 @@ func (x *DetachedColumnFeatureType) String() string {
 func (*DetachedColumnFeatureType) ProtoMessage() {}
 
 func (x *DetachedColumnFeatureType) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[10]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1390,7 +1636,7 @@ func (x *DetachedColumnFeatureType) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DetachedColumnFeatureType.ProtoReflect.Descriptor instead.
 func (*DetachedColumnFeatureType) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{10}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DetachedColumnFeatureType) GetArguments() map[string]*Argument {
@@ -1409,7 +1655,7 @@ type OutputUnderscoreFeatureType struct {
 
 func (x *OutputUnderscoreFeatureType) Reset() {
 	*x = OutputUnderscoreFeatureType{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[11]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1421,7 +1667,7 @@ func (x *OutputUnderscoreFeatureType) String() string {
 func (*OutputUnderscoreFeatureType) ProtoMessage() {}
 
 func (x *OutputUnderscoreFeatureType) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[11]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1434,7 +1680,7 @@ func (x *OutputUnderscoreFeatureType) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OutputUnderscoreFeatureType.ProtoReflect.Descriptor instead.
 func (*OutputUnderscoreFeatureType) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{11}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *OutputUnderscoreFeatureType) GetArguments() map[string]*Argument {
@@ -1457,7 +1703,7 @@ type FilterExpressionParsed struct {
 
 func (x *FilterExpressionParsed) Reset() {
 	*x = FilterExpressionParsed{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[12]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1469,7 +1715,7 @@ func (x *FilterExpressionParsed) String() string {
 func (*FilterExpressionParsed) ProtoMessage() {}
 
 func (x *FilterExpressionParsed) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[12]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1482,7 +1728,7 @@ func (x *FilterExpressionParsed) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterExpressionParsed.ProtoReflect.Descriptor instead.
 func (*FilterExpressionParsed) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{12}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *FilterExpressionParsed) GetThisId() *FilterExpressionParsedId {
@@ -1517,7 +1763,7 @@ type FilterExpressionParsedId struct {
 
 func (x *FilterExpressionParsedId) Reset() {
 	*x = FilterExpressionParsedId{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[13]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1529,7 +1775,7 @@ func (x *FilterExpressionParsedId) String() string {
 func (*FilterExpressionParsedId) ProtoMessage() {}
 
 func (x *FilterExpressionParsedId) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[13]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1542,7 +1788,7 @@ func (x *FilterExpressionParsedId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterExpressionParsedId.ProtoReflect.Descriptor instead.
 func (*FilterExpressionParsedId) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{13}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *FilterExpressionParsedId) GetId() uint64 {
@@ -1574,7 +1820,7 @@ type DataFrameType struct {
 
 func (x *DataFrameType) Reset() {
 	*x = DataFrameType{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[14]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1586,7 +1832,7 @@ func (x *DataFrameType) String() string {
 func (*DataFrameType) ProtoMessage() {}
 
 func (x *DataFrameType) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[14]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1599,7 +1845,7 @@ func (x *DataFrameType) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataFrameType.ProtoReflect.Descriptor instead.
 func (*DataFrameType) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{14}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DataFrameType) GetThisId() *DataFrameTypeId {
@@ -1663,7 +1909,7 @@ type DataFrameTypeId struct {
 
 func (x *DataFrameTypeId) Reset() {
 	*x = DataFrameTypeId{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[15]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1675,7 +1921,7 @@ func (x *DataFrameTypeId) String() string {
 func (*DataFrameTypeId) ProtoMessage() {}
 
 func (x *DataFrameTypeId) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[15]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1688,7 +1934,7 @@ func (x *DataFrameTypeId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataFrameTypeId.ProtoReflect.Descriptor instead.
 func (*DataFrameTypeId) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{15}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DataFrameTypeId) GetId() uint64 {
@@ -1719,7 +1965,7 @@ type FeatureReference struct {
 
 func (x *FeatureReference) Reset() {
 	*x = FeatureReference{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[16]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1731,7 +1977,7 @@ func (x *FeatureReference) String() string {
 func (*FeatureReference) ProtoMessage() {}
 
 func (x *FeatureReference) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[16]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1744,7 +1990,7 @@ func (x *FeatureReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FeatureReference.ProtoReflect.Descriptor instead.
 func (*FeatureReference) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{16}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *FeatureReference) GetThisId() *FeatureReferenceId {
@@ -1801,7 +2047,7 @@ type FeatureReferenceId struct {
 
 func (x *FeatureReferenceId) Reset() {
 	*x = FeatureReferenceId{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[17]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1813,7 +2059,7 @@ func (x *FeatureReferenceId) String() string {
 func (*FeatureReferenceId) ProtoMessage() {}
 
 func (x *FeatureReferenceId) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[17]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1826,7 +2072,7 @@ func (x *FeatureReferenceId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FeatureReferenceId.ProtoReflect.Descriptor instead.
 func (*FeatureReferenceId) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{17}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *FeatureReferenceId) GetId() uint64 {
@@ -1847,7 +2093,7 @@ type UnderscoreValue struct {
 
 func (x *UnderscoreValue) Reset() {
 	*x = UnderscoreValue{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[18]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1859,7 +2105,7 @@ func (x *UnderscoreValue) String() string {
 func (*UnderscoreValue) ProtoMessage() {}
 
 func (x *UnderscoreValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[18]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1872,7 +2118,7 @@ func (x *UnderscoreValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnderscoreValue.ProtoReflect.Descriptor instead.
 func (*UnderscoreValue) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{18}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UnderscoreValue) GetOriginalUnderscore() *v13.LogicalExprNode {
@@ -1901,7 +2147,7 @@ type UnderscoreValueCodecInfo struct {
 
 func (x *UnderscoreValueCodecInfo) Reset() {
 	*x = UnderscoreValueCodecInfo{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[19]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1913,7 +2159,7 @@ func (x *UnderscoreValueCodecInfo) String() string {
 func (*UnderscoreValueCodecInfo) ProtoMessage() {}
 
 func (x *UnderscoreValueCodecInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[19]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1926,7 +2172,7 @@ func (x *UnderscoreValueCodecInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnderscoreValueCodecInfo.ProtoReflect.Descriptor instead.
 func (*UnderscoreValueCodecInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{19}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *UnderscoreValueCodecInfo) GetForFeature() *FeatureReferenceId {
@@ -1963,7 +2209,7 @@ type RootUnderscoreBehavior struct {
 
 func (x *RootUnderscoreBehavior) Reset() {
 	*x = RootUnderscoreBehavior{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[20]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1975,7 +2221,7 @@ func (x *RootUnderscoreBehavior) String() string {
 func (*RootUnderscoreBehavior) ProtoMessage() {}
 
 func (x *RootUnderscoreBehavior) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[20]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1988,7 +2234,7 @@ func (x *RootUnderscoreBehavior) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RootUnderscoreBehavior.ProtoReflect.Descriptor instead.
 func (*RootUnderscoreBehavior) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{20}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *RootUnderscoreBehavior) GetBehavior() isRootUnderscoreBehavior_Behavior {
@@ -2040,7 +2286,7 @@ type ResolverRootUnderscoreBehavior struct {
 
 func (x *ResolverRootUnderscoreBehavior) Reset() {
 	*x = ResolverRootUnderscoreBehavior{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[21]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2052,7 +2298,7 @@ func (x *ResolverRootUnderscoreBehavior) String() string {
 func (*ResolverRootUnderscoreBehavior) ProtoMessage() {}
 
 func (x *ResolverRootUnderscoreBehavior) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[21]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2065,7 +2311,7 @@ func (x *ResolverRootUnderscoreBehavior) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolverRootUnderscoreBehavior.ProtoReflect.Descriptor instead.
 func (*ResolverRootUnderscoreBehavior) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{21}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{24}
 }
 
 type StreamResolverRootUnderscoreBehavior struct {
@@ -2077,7 +2323,7 @@ type StreamResolverRootUnderscoreBehavior struct {
 
 func (x *StreamResolverRootUnderscoreBehavior) Reset() {
 	*x = StreamResolverRootUnderscoreBehavior{}
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[22]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2089,7 +2335,7 @@ func (x *StreamResolverRootUnderscoreBehavior) String() string {
 func (*StreamResolverRootUnderscoreBehavior) ProtoMessage() {}
 
 func (x *StreamResolverRootUnderscoreBehavior) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[22]
+	mi := &file_chalk_planner_v1_batch_operator_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2102,7 +2348,7 @@ func (x *StreamResolverRootUnderscoreBehavior) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use StreamResolverRootUnderscoreBehavior.ProtoReflect.Descriptor instead.
 func (*StreamResolverRootUnderscoreBehavior) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{22}
+	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *StreamResolverRootUnderscoreBehavior) GetMessageDtype() *v12.ArrowType {
@@ -2130,7 +2376,23 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\targuments\x18\x03 \x03(\v2..chalk.planner.v1.BatchOperator.ArgumentsEntryR\targuments\x1aX\n" +
 	"\x0eArgumentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x120\n" +
-	"\x05value\x18\x02 \x01(\v2\x1a.chalk.planner.v1.ArgumentR\x05value:\x028\x01\"\x85\x02\n" +
+	"\x05value\x18\x02 \x01(\v2\x1a.chalk.planner.v1.ArgumentR\x05value:\x028\x01\"\xd3\x03\n" +
+	"\x11BatchPlanMetadata\x12(\n" +
+	"\x10root_operator_id\x18\x01 \x01(\x04R\x0erootOperatorId\x12#\n" +
+	"\rresolver_fqns\x18\x02 \x03(\tR\fresolverFqns\x12L\n" +
+	"\x14full_schema_features\x18\x03 \x01(\v2\x1a.chalk.planner.v1.ArgumentR\x12fullSchemaFeatures\x12V\n" +
+	"\x11values_persisters\x18\x04 \x03(\v2).chalk.planner.v1.ValuesPersisterMetadataR\x10valuesPersisters\x124\n" +
+	"\x16runtime_resource_kinds\x18\x05 \x03(\tR\x14runtimeResourceKinds\x12?\n" +
+	"\x1cpreloaded_table_operator_ids\x18\x06 \x03(\x04R\x19preloadedTableOperatorIds\x12R\n" +
+	"\x12datasource_lineage\x18\a \x03(\v2#.chalk.planner.v1.DatasourceLineageR\x11datasourceLineage\"T\n" +
+	"\x17ValuesPersisterMetadata\x12\x1f\n" +
+	"\voperator_id\x18\x01 \x01(\x04R\n" +
+	"operatorId\x12\x18\n" +
+	"\acolumns\x18\x02 \x03(\tR\acolumns\"p\n" +
+	"\x11DatasourceLineage\x12,\n" +
+	"\x11native_sql_source\x18\x01 \x01(\tH\x00R\x0fnativeSqlSource\x12#\n" +
+	"\fresolver_fqn\x18\x02 \x01(\tH\x00R\vresolverFqnB\b\n" +
+	"\x06source\"\x85\x02\n" +
 	"\x14FeatureReferenceInfo\x12E\n" +
 	"\ffeature_refs\x18\x01 \x03(\v2\".chalk.planner.v1.FeatureReferenceR\vfeatureRefs\x12I\n" +
 	"\x10data_frame_types\x18\x02 \x03(\v2\x1f.chalk.planner.v1.DataFrameTypeR\x0edataFrameTypes\x12W\n" +
@@ -2354,126 +2616,132 @@ func file_chalk_planner_v1_batch_operator_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_planner_v1_batch_operator_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_planner_v1_batch_operator_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_chalk_planner_v1_batch_operator_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_chalk_planner_v1_batch_operator_proto_goTypes = []any{
 	(OperatorType)(0),                            // 0: chalk.planner.v1.OperatorType
 	(*BatchPlan)(nil),                            // 1: chalk.planner.v1.BatchPlan
 	(*BatchOperator)(nil),                        // 2: chalk.planner.v1.BatchOperator
-	(*FeatureReferenceInfo)(nil),                 // 3: chalk.planner.v1.FeatureReferenceInfo
-	(*GraphInfo)(nil),                            // 4: chalk.planner.v1.GraphInfo
-	(*Argument)(nil),                             // 5: chalk.planner.v1.Argument
-	(*BatchPlanArgumentWithAuxiliaryInfo)(nil),   // 6: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo
-	(*ArgumentMapElement)(nil),                   // 7: chalk.planner.v1.ArgumentMapElement
-	(*ArgumentMap)(nil),                          // 8: chalk.planner.v1.ArgumentMap
-	(*ArgumentList)(nil),                         // 9: chalk.planner.v1.ArgumentList
-	(*Void)(nil),                                 // 10: chalk.planner.v1.Void
-	(*DetachedColumnFeatureType)(nil),            // 11: chalk.planner.v1.DetachedColumnFeatureType
-	(*OutputUnderscoreFeatureType)(nil),          // 12: chalk.planner.v1.OutputUnderscoreFeatureType
-	(*FilterExpressionParsed)(nil),               // 13: chalk.planner.v1.FilterExpressionParsed
-	(*FilterExpressionParsedId)(nil),             // 14: chalk.planner.v1.FilterExpressionParsedId
-	(*DataFrameType)(nil),                        // 15: chalk.planner.v1.DataFrameType
-	(*DataFrameTypeId)(nil),                      // 16: chalk.planner.v1.DataFrameTypeId
-	(*FeatureReference)(nil),                     // 17: chalk.planner.v1.FeatureReference
-	(*FeatureReferenceId)(nil),                   // 18: chalk.planner.v1.FeatureReferenceId
-	(*UnderscoreValue)(nil),                      // 19: chalk.planner.v1.UnderscoreValue
-	(*UnderscoreValueCodecInfo)(nil),             // 20: chalk.planner.v1.UnderscoreValueCodecInfo
-	(*RootUnderscoreBehavior)(nil),               // 21: chalk.planner.v1.RootUnderscoreBehavior
-	(*ResolverRootUnderscoreBehavior)(nil),       // 22: chalk.planner.v1.ResolverRootUnderscoreBehavior
-	(*StreamResolverRootUnderscoreBehavior)(nil), // 23: chalk.planner.v1.StreamResolverRootUnderscoreBehavior
-	nil,                                // 24: chalk.planner.v1.BatchOperator.ArgumentsEntry
-	nil,                                // 25: chalk.planner.v1.ArgumentMap.ArgumentsEntry
-	nil,                                // 26: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
-	nil,                                // 27: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
-	(*SymbolicValue)(nil),              // 28: chalk.planner.v1.SymbolicValue
-	(*AuxiliaryInfo)(nil),              // 29: chalk.planner.v1.AuxiliaryInfo
-	(*v1.SymbolicValue)(nil),           // 30: chalk.symbolic_value.v1.SymbolicValue
-	(*timestamppb.Timestamp)(nil),      // 31: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),        // 32: google.protobuf.Duration
-	(*v11.FeatureReference)(nil),       // 33: chalk.graph.v1.FeatureReference
-	(*v12.ArrowType)(nil),              // 34: chalk.arrow.v1.ArrowType
-	(*v13.LogicalExprNode)(nil),        // 35: chalk.expression.v1.LogicalExprNode
-	(*DataFrameTypeIdV2)(nil),          // 36: chalk.planner.v1.DataFrameTypeIdV2
-	(*FeatureReferenceIdV2)(nil),       // 37: chalk.planner.v1.FeatureReferenceIdV2
-	(*UnderscoreParsedId)(nil),         // 38: chalk.planner.v1.UnderscoreParsedId
-	(*FeatureTablesPyArrowSchema)(nil), // 39: chalk.planner.v1.FeatureTablesPyArrowSchema
-	(*v11.DataFrameType)(nil),          // 40: chalk.graph.v1.DataFrameType
+	(*BatchPlanMetadata)(nil),                    // 3: chalk.planner.v1.BatchPlanMetadata
+	(*ValuesPersisterMetadata)(nil),              // 4: chalk.planner.v1.ValuesPersisterMetadata
+	(*DatasourceLineage)(nil),                    // 5: chalk.planner.v1.DatasourceLineage
+	(*FeatureReferenceInfo)(nil),                 // 6: chalk.planner.v1.FeatureReferenceInfo
+	(*GraphInfo)(nil),                            // 7: chalk.planner.v1.GraphInfo
+	(*Argument)(nil),                             // 8: chalk.planner.v1.Argument
+	(*BatchPlanArgumentWithAuxiliaryInfo)(nil),   // 9: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo
+	(*ArgumentMapElement)(nil),                   // 10: chalk.planner.v1.ArgumentMapElement
+	(*ArgumentMap)(nil),                          // 11: chalk.planner.v1.ArgumentMap
+	(*ArgumentList)(nil),                         // 12: chalk.planner.v1.ArgumentList
+	(*Void)(nil),                                 // 13: chalk.planner.v1.Void
+	(*DetachedColumnFeatureType)(nil),            // 14: chalk.planner.v1.DetachedColumnFeatureType
+	(*OutputUnderscoreFeatureType)(nil),          // 15: chalk.planner.v1.OutputUnderscoreFeatureType
+	(*FilterExpressionParsed)(nil),               // 16: chalk.planner.v1.FilterExpressionParsed
+	(*FilterExpressionParsedId)(nil),             // 17: chalk.planner.v1.FilterExpressionParsedId
+	(*DataFrameType)(nil),                        // 18: chalk.planner.v1.DataFrameType
+	(*DataFrameTypeId)(nil),                      // 19: chalk.planner.v1.DataFrameTypeId
+	(*FeatureReference)(nil),                     // 20: chalk.planner.v1.FeatureReference
+	(*FeatureReferenceId)(nil),                   // 21: chalk.planner.v1.FeatureReferenceId
+	(*UnderscoreValue)(nil),                      // 22: chalk.planner.v1.UnderscoreValue
+	(*UnderscoreValueCodecInfo)(nil),             // 23: chalk.planner.v1.UnderscoreValueCodecInfo
+	(*RootUnderscoreBehavior)(nil),               // 24: chalk.planner.v1.RootUnderscoreBehavior
+	(*ResolverRootUnderscoreBehavior)(nil),       // 25: chalk.planner.v1.ResolverRootUnderscoreBehavior
+	(*StreamResolverRootUnderscoreBehavior)(nil), // 26: chalk.planner.v1.StreamResolverRootUnderscoreBehavior
+	nil,                                // 27: chalk.planner.v1.BatchOperator.ArgumentsEntry
+	nil,                                // 28: chalk.planner.v1.ArgumentMap.ArgumentsEntry
+	nil,                                // 29: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
+	nil,                                // 30: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
+	(*SymbolicValue)(nil),              // 31: chalk.planner.v1.SymbolicValue
+	(*AuxiliaryInfo)(nil),              // 32: chalk.planner.v1.AuxiliaryInfo
+	(*v1.SymbolicValue)(nil),           // 33: chalk.symbolic_value.v1.SymbolicValue
+	(*timestamppb.Timestamp)(nil),      // 34: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),        // 35: google.protobuf.Duration
+	(*v11.FeatureReference)(nil),       // 36: chalk.graph.v1.FeatureReference
+	(*v12.ArrowType)(nil),              // 37: chalk.arrow.v1.ArrowType
+	(*v13.LogicalExprNode)(nil),        // 38: chalk.expression.v1.LogicalExprNode
+	(*DataFrameTypeIdV2)(nil),          // 39: chalk.planner.v1.DataFrameTypeIdV2
+	(*FeatureReferenceIdV2)(nil),       // 40: chalk.planner.v1.FeatureReferenceIdV2
+	(*UnderscoreParsedId)(nil),         // 41: chalk.planner.v1.UnderscoreParsedId
+	(*FeatureTablesPyArrowSchema)(nil), // 42: chalk.planner.v1.FeatureTablesPyArrowSchema
+	(*v11.DataFrameType)(nil),          // 43: chalk.graph.v1.DataFrameType
 }
 var file_chalk_planner_v1_batch_operator_proto_depIdxs = []int32{
 	2,  // 0: chalk.planner.v1.BatchPlan.operators:type_name -> chalk.planner.v1.BatchOperator
-	28, // 1: chalk.planner.v1.BatchPlan.symbolic_values:type_name -> chalk.planner.v1.SymbolicValue
-	3,  // 2: chalk.planner.v1.BatchPlan.feature_ref_info:type_name -> chalk.planner.v1.FeatureReferenceInfo
-	29, // 3: chalk.planner.v1.BatchPlan.auxiliary_info:type_name -> chalk.planner.v1.AuxiliaryInfo
-	30, // 4: chalk.planner.v1.BatchPlan.symbolic_values_v2:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	31, // 1: chalk.planner.v1.BatchPlan.symbolic_values:type_name -> chalk.planner.v1.SymbolicValue
+	6,  // 2: chalk.planner.v1.BatchPlan.feature_ref_info:type_name -> chalk.planner.v1.FeatureReferenceInfo
+	32, // 3: chalk.planner.v1.BatchPlan.auxiliary_info:type_name -> chalk.planner.v1.AuxiliaryInfo
+	33, // 4: chalk.planner.v1.BatchPlan.symbolic_values_v2:type_name -> chalk.symbolic_value.v1.SymbolicValue
 	0,  // 5: chalk.planner.v1.BatchOperator.operator_type:type_name -> chalk.planner.v1.OperatorType
-	4,  // 6: chalk.planner.v1.BatchOperator.graph_info:type_name -> chalk.planner.v1.GraphInfo
-	24, // 7: chalk.planner.v1.BatchOperator.arguments:type_name -> chalk.planner.v1.BatchOperator.ArgumentsEntry
-	17, // 8: chalk.planner.v1.FeatureReferenceInfo.feature_refs:type_name -> chalk.planner.v1.FeatureReference
-	15, // 9: chalk.planner.v1.FeatureReferenceInfo.data_frame_types:type_name -> chalk.planner.v1.DataFrameType
-	13, // 10: chalk.planner.v1.FeatureReferenceInfo.filter_expressions:type_name -> chalk.planner.v1.FilterExpressionParsed
-	10, // 11: chalk.planner.v1.Argument.none:type_name -> chalk.planner.v1.Void
-	31, // 12: chalk.planner.v1.Argument.timestamp:type_name -> google.protobuf.Timestamp
-	32, // 13: chalk.planner.v1.Argument.duration:type_name -> google.protobuf.Duration
-	33, // 14: chalk.planner.v1.Argument.feature_ref:type_name -> chalk.graph.v1.FeatureReference
-	9,  // 15: chalk.planner.v1.Argument.tuple:type_name -> chalk.planner.v1.ArgumentList
-	8,  // 16: chalk.planner.v1.Argument.submap:type_name -> chalk.planner.v1.ArgumentMap
-	34, // 17: chalk.planner.v1.Argument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	35, // 18: chalk.planner.v1.Argument.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	35, // 19: chalk.planner.v1.Argument.filter_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	11, // 20: chalk.planner.v1.Argument.detached_column_feature_type:type_name -> chalk.planner.v1.DetachedColumnFeatureType
-	12, // 21: chalk.planner.v1.Argument.output_underscore_feature_type:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType
-	15, // 22: chalk.planner.v1.Argument.data_frame_type:type_name -> chalk.planner.v1.DataFrameType
-	17, // 23: chalk.planner.v1.Argument.feature_reference:type_name -> chalk.planner.v1.FeatureReference
-	28, // 24: chalk.planner.v1.Argument.symbolic_value:type_name -> chalk.planner.v1.SymbolicValue
-	16, // 25: chalk.planner.v1.Argument.data_frame_type_id:type_name -> chalk.planner.v1.DataFrameTypeId
-	18, // 26: chalk.planner.v1.Argument.feature_ref_id:type_name -> chalk.planner.v1.FeatureReferenceId
-	36, // 27: chalk.planner.v1.Argument.data_frame_type_id_v2:type_name -> chalk.planner.v1.DataFrameTypeIdV2
-	37, // 28: chalk.planner.v1.Argument.feature_ref_id_v2:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	38, // 29: chalk.planner.v1.Argument.underscore_parsed:type_name -> chalk.planner.v1.UnderscoreParsedId
-	30, // 30: chalk.planner.v1.Argument.symbolic_value_v2:type_name -> chalk.symbolic_value.v1.SymbolicValue
-	39, // 31: chalk.planner.v1.Argument.feature_tables_pa_schema:type_name -> chalk.planner.v1.FeatureTablesPyArrowSchema
-	5,  // 32: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo.argument:type_name -> chalk.planner.v1.Argument
-	29, // 33: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo.auxiliary_info:type_name -> chalk.planner.v1.AuxiliaryInfo
-	5,  // 34: chalk.planner.v1.ArgumentMapElement.key:type_name -> chalk.planner.v1.Argument
-	5,  // 35: chalk.planner.v1.ArgumentMapElement.value:type_name -> chalk.planner.v1.Argument
-	25, // 36: chalk.planner.v1.ArgumentMap.arguments:type_name -> chalk.planner.v1.ArgumentMap.ArgumentsEntry
-	5,  // 37: chalk.planner.v1.ArgumentMap.keys:type_name -> chalk.planner.v1.Argument
-	5,  // 38: chalk.planner.v1.ArgumentMap.values:type_name -> chalk.planner.v1.Argument
-	7,  // 39: chalk.planner.v1.ArgumentMap.ordered_arguments:type_name -> chalk.planner.v1.ArgumentMapElement
-	5,  // 40: chalk.planner.v1.ArgumentList.values:type_name -> chalk.planner.v1.Argument
-	26, // 41: chalk.planner.v1.DetachedColumnFeatureType.arguments:type_name -> chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
-	27, // 42: chalk.planner.v1.OutputUnderscoreFeatureType.arguments:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
-	14, // 43: chalk.planner.v1.FilterExpressionParsed.this_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
-	35, // 44: chalk.planner.v1.FilterExpressionParsed.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
-	19, // 45: chalk.planner.v1.FilterExpressionParsed.expr:type_name -> chalk.planner.v1.UnderscoreValue
-	16, // 46: chalk.planner.v1.DataFrameType.this_id:type_name -> chalk.planner.v1.DataFrameTypeId
-	40, // 47: chalk.planner.v1.DataFrameType.df:type_name -> chalk.graph.v1.DataFrameType
-	35, // 48: chalk.planner.v1.DataFrameType.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
-	14, // 49: chalk.planner.v1.DataFrameType.filter_expression_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
-	17, // 50: chalk.planner.v1.DataFrameType.optional_columns:type_name -> chalk.planner.v1.FeatureReference
-	18, // 51: chalk.planner.v1.DataFrameType.optional_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
-	18, // 52: chalk.planner.v1.DataFrameType.required_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
-	18, // 53: chalk.planner.v1.FeatureReference.this_id:type_name -> chalk.planner.v1.FeatureReferenceId
-	33, // 54: chalk.planner.v1.FeatureReference.feature_ref:type_name -> chalk.graph.v1.FeatureReference
-	17, // 55: chalk.planner.v1.FeatureReference.path:type_name -> chalk.planner.v1.FeatureReference
-	18, // 56: chalk.planner.v1.FeatureReference.path_ids:type_name -> chalk.planner.v1.FeatureReferenceId
-	15, // 57: chalk.planner.v1.FeatureReference.df:type_name -> chalk.planner.v1.DataFrameType
-	16, // 58: chalk.planner.v1.FeatureReference.df_id:type_name -> chalk.planner.v1.DataFrameTypeId
-	35, // 59: chalk.planner.v1.UnderscoreValue.original_underscore:type_name -> chalk.expression.v1.LogicalExprNode
-	20, // 60: chalk.planner.v1.UnderscoreValue.codec_info:type_name -> chalk.planner.v1.UnderscoreValueCodecInfo
-	18, // 61: chalk.planner.v1.UnderscoreValueCodecInfo.for_feature:type_name -> chalk.planner.v1.FeatureReferenceId
-	21, // 62: chalk.planner.v1.UnderscoreValueCodecInfo.root_underscore_behavior:type_name -> chalk.planner.v1.RootUnderscoreBehavior
-	22, // 63: chalk.planner.v1.RootUnderscoreBehavior.resolver:type_name -> chalk.planner.v1.ResolverRootUnderscoreBehavior
-	23, // 64: chalk.planner.v1.RootUnderscoreBehavior.stream_resolver:type_name -> chalk.planner.v1.StreamResolverRootUnderscoreBehavior
-	34, // 65: chalk.planner.v1.StreamResolverRootUnderscoreBehavior.message_dtype:type_name -> chalk.arrow.v1.ArrowType
-	5,  // 66: chalk.planner.v1.BatchOperator.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 67: chalk.planner.v1.ArgumentMap.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 68: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 69: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	70, // [70:70] is the sub-list for method output_type
-	70, // [70:70] is the sub-list for method input_type
-	70, // [70:70] is the sub-list for extension type_name
-	70, // [70:70] is the sub-list for extension extendee
-	0,  // [0:70] is the sub-list for field type_name
+	7,  // 6: chalk.planner.v1.BatchOperator.graph_info:type_name -> chalk.planner.v1.GraphInfo
+	27, // 7: chalk.planner.v1.BatchOperator.arguments:type_name -> chalk.planner.v1.BatchOperator.ArgumentsEntry
+	8,  // 8: chalk.planner.v1.BatchPlanMetadata.full_schema_features:type_name -> chalk.planner.v1.Argument
+	4,  // 9: chalk.planner.v1.BatchPlanMetadata.values_persisters:type_name -> chalk.planner.v1.ValuesPersisterMetadata
+	5,  // 10: chalk.planner.v1.BatchPlanMetadata.datasource_lineage:type_name -> chalk.planner.v1.DatasourceLineage
+	20, // 11: chalk.planner.v1.FeatureReferenceInfo.feature_refs:type_name -> chalk.planner.v1.FeatureReference
+	18, // 12: chalk.planner.v1.FeatureReferenceInfo.data_frame_types:type_name -> chalk.planner.v1.DataFrameType
+	16, // 13: chalk.planner.v1.FeatureReferenceInfo.filter_expressions:type_name -> chalk.planner.v1.FilterExpressionParsed
+	13, // 14: chalk.planner.v1.Argument.none:type_name -> chalk.planner.v1.Void
+	34, // 15: chalk.planner.v1.Argument.timestamp:type_name -> google.protobuf.Timestamp
+	35, // 16: chalk.planner.v1.Argument.duration:type_name -> google.protobuf.Duration
+	36, // 17: chalk.planner.v1.Argument.feature_ref:type_name -> chalk.graph.v1.FeatureReference
+	12, // 18: chalk.planner.v1.Argument.tuple:type_name -> chalk.planner.v1.ArgumentList
+	11, // 19: chalk.planner.v1.Argument.submap:type_name -> chalk.planner.v1.ArgumentMap
+	37, // 20: chalk.planner.v1.Argument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	38, // 21: chalk.planner.v1.Argument.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	38, // 22: chalk.planner.v1.Argument.filter_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	14, // 23: chalk.planner.v1.Argument.detached_column_feature_type:type_name -> chalk.planner.v1.DetachedColumnFeatureType
+	15, // 24: chalk.planner.v1.Argument.output_underscore_feature_type:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType
+	18, // 25: chalk.planner.v1.Argument.data_frame_type:type_name -> chalk.planner.v1.DataFrameType
+	20, // 26: chalk.planner.v1.Argument.feature_reference:type_name -> chalk.planner.v1.FeatureReference
+	31, // 27: chalk.planner.v1.Argument.symbolic_value:type_name -> chalk.planner.v1.SymbolicValue
+	19, // 28: chalk.planner.v1.Argument.data_frame_type_id:type_name -> chalk.planner.v1.DataFrameTypeId
+	21, // 29: chalk.planner.v1.Argument.feature_ref_id:type_name -> chalk.planner.v1.FeatureReferenceId
+	39, // 30: chalk.planner.v1.Argument.data_frame_type_id_v2:type_name -> chalk.planner.v1.DataFrameTypeIdV2
+	40, // 31: chalk.planner.v1.Argument.feature_ref_id_v2:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	41, // 32: chalk.planner.v1.Argument.underscore_parsed:type_name -> chalk.planner.v1.UnderscoreParsedId
+	33, // 33: chalk.planner.v1.Argument.symbolic_value_v2:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	42, // 34: chalk.planner.v1.Argument.feature_tables_pa_schema:type_name -> chalk.planner.v1.FeatureTablesPyArrowSchema
+	8,  // 35: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo.argument:type_name -> chalk.planner.v1.Argument
+	32, // 36: chalk.planner.v1.BatchPlanArgumentWithAuxiliaryInfo.auxiliary_info:type_name -> chalk.planner.v1.AuxiliaryInfo
+	8,  // 37: chalk.planner.v1.ArgumentMapElement.key:type_name -> chalk.planner.v1.Argument
+	8,  // 38: chalk.planner.v1.ArgumentMapElement.value:type_name -> chalk.planner.v1.Argument
+	28, // 39: chalk.planner.v1.ArgumentMap.arguments:type_name -> chalk.planner.v1.ArgumentMap.ArgumentsEntry
+	8,  // 40: chalk.planner.v1.ArgumentMap.keys:type_name -> chalk.planner.v1.Argument
+	8,  // 41: chalk.planner.v1.ArgumentMap.values:type_name -> chalk.planner.v1.Argument
+	10, // 42: chalk.planner.v1.ArgumentMap.ordered_arguments:type_name -> chalk.planner.v1.ArgumentMapElement
+	8,  // 43: chalk.planner.v1.ArgumentList.values:type_name -> chalk.planner.v1.Argument
+	29, // 44: chalk.planner.v1.DetachedColumnFeatureType.arguments:type_name -> chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
+	30, // 45: chalk.planner.v1.OutputUnderscoreFeatureType.arguments:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
+	17, // 46: chalk.planner.v1.FilterExpressionParsed.this_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
+	38, // 47: chalk.planner.v1.FilterExpressionParsed.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
+	22, // 48: chalk.planner.v1.FilterExpressionParsed.expr:type_name -> chalk.planner.v1.UnderscoreValue
+	19, // 49: chalk.planner.v1.DataFrameType.this_id:type_name -> chalk.planner.v1.DataFrameTypeId
+	43, // 50: chalk.planner.v1.DataFrameType.df:type_name -> chalk.graph.v1.DataFrameType
+	38, // 51: chalk.planner.v1.DataFrameType.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
+	17, // 52: chalk.planner.v1.DataFrameType.filter_expression_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
+	20, // 53: chalk.planner.v1.DataFrameType.optional_columns:type_name -> chalk.planner.v1.FeatureReference
+	21, // 54: chalk.planner.v1.DataFrameType.optional_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
+	21, // 55: chalk.planner.v1.DataFrameType.required_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
+	21, // 56: chalk.planner.v1.FeatureReference.this_id:type_name -> chalk.planner.v1.FeatureReferenceId
+	36, // 57: chalk.planner.v1.FeatureReference.feature_ref:type_name -> chalk.graph.v1.FeatureReference
+	20, // 58: chalk.planner.v1.FeatureReference.path:type_name -> chalk.planner.v1.FeatureReference
+	21, // 59: chalk.planner.v1.FeatureReference.path_ids:type_name -> chalk.planner.v1.FeatureReferenceId
+	18, // 60: chalk.planner.v1.FeatureReference.df:type_name -> chalk.planner.v1.DataFrameType
+	19, // 61: chalk.planner.v1.FeatureReference.df_id:type_name -> chalk.planner.v1.DataFrameTypeId
+	38, // 62: chalk.planner.v1.UnderscoreValue.original_underscore:type_name -> chalk.expression.v1.LogicalExprNode
+	23, // 63: chalk.planner.v1.UnderscoreValue.codec_info:type_name -> chalk.planner.v1.UnderscoreValueCodecInfo
+	21, // 64: chalk.planner.v1.UnderscoreValueCodecInfo.for_feature:type_name -> chalk.planner.v1.FeatureReferenceId
+	24, // 65: chalk.planner.v1.UnderscoreValueCodecInfo.root_underscore_behavior:type_name -> chalk.planner.v1.RootUnderscoreBehavior
+	25, // 66: chalk.planner.v1.RootUnderscoreBehavior.resolver:type_name -> chalk.planner.v1.ResolverRootUnderscoreBehavior
+	26, // 67: chalk.planner.v1.RootUnderscoreBehavior.stream_resolver:type_name -> chalk.planner.v1.StreamResolverRootUnderscoreBehavior
+	37, // 68: chalk.planner.v1.StreamResolverRootUnderscoreBehavior.message_dtype:type_name -> chalk.arrow.v1.ArrowType
+	8,  // 69: chalk.planner.v1.BatchOperator.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	8,  // 70: chalk.planner.v1.ArgumentMap.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	8,  // 71: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	8,  // 72: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	73, // [73:73] is the sub-list for method output_type
+	73, // [73:73] is the sub-list for method input_type
+	73, // [73:73] is the sub-list for extension type_name
+	73, // [73:73] is the sub-list for extension extendee
+	0,  // [0:73] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_batch_operator_proto_init() }
@@ -2485,6 +2753,10 @@ func file_chalk_planner_v1_batch_operator_proto_init() {
 	file_chalk_planner_v1_feature_types_proto_init()
 	file_chalk_planner_v1_symbolic_value_proto_init()
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[4].OneofWrappers = []any{
+		(*DatasourceLineage_NativeSqlSource)(nil),
+		(*DatasourceLineage_ResolverFqn)(nil),
+	}
+	file_chalk_planner_v1_batch_operator_proto_msgTypes[7].OneofWrappers = []any{
 		(*Argument_None)(nil),
 		(*Argument_BoolValue)(nil),
 		(*Argument_DoubleValue)(nil),
@@ -2514,10 +2786,10 @@ func file_chalk_planner_v1_batch_operator_proto_init() {
 		(*Argument_SymbolicValueV2)(nil),
 		(*Argument_FeatureTablesPaSchema)(nil),
 	}
-	file_chalk_planner_v1_batch_operator_proto_msgTypes[14].OneofWrappers = []any{}
-	file_chalk_planner_v1_batch_operator_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_planner_v1_batch_operator_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[19].OneofWrappers = []any{}
-	file_chalk_planner_v1_batch_operator_proto_msgTypes[20].OneofWrappers = []any{
+	file_chalk_planner_v1_batch_operator_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_planner_v1_batch_operator_proto_msgTypes[23].OneofWrappers = []any{
 		(*RootUnderscoreBehavior_Resolver)(nil),
 		(*RootUnderscoreBehavior_StreamResolver)(nil),
 	}
@@ -2527,7 +2799,7 @@ func file_chalk_planner_v1_batch_operator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_planner_v1_batch_operator_proto_rawDesc), len(file_chalk_planner_v1_batch_operator_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   27,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

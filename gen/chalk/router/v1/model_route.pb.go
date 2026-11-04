@@ -423,6 +423,72 @@ func (x *DecisionsJudgeBackend) GetTimeoutMs() uint32 {
 	return 0
 }
 
+// Calls a function deployed in this route's environment through the data-plane
+// function queue, as the router's own platform identity. The function accepts
+// one RoutingRequest and returns a configured route label.
+type FunctionClassifierBackend struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deployed function name; the function queue is keyed by name.
+	FunctionName string `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	// Name of the function's sole RoutingRequest parameter.
+	InputName string `protobuf:"bytes,2,opt,name=input_name,json=inputName,proto3" json:"input_name,omitempty"`
+	// Zero means 1000 milliseconds; maximum 30000.
+	TimeoutMs     uint32 `protobuf:"varint,3,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FunctionClassifierBackend) Reset() {
+	*x = FunctionClassifierBackend{}
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FunctionClassifierBackend) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FunctionClassifierBackend) ProtoMessage() {}
+
+func (x *FunctionClassifierBackend) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FunctionClassifierBackend.ProtoReflect.Descriptor instead.
+func (*FunctionClassifierBackend) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *FunctionClassifierBackend) GetFunctionName() string {
+	if x != nil {
+		return x.FunctionName
+	}
+	return ""
+}
+
+func (x *FunctionClassifierBackend) GetInputName() string {
+	if x != nil {
+		return x.InputName
+	}
+	return ""
+}
+
+func (x *FunctionClassifierBackend) GetTimeoutMs() uint32 {
+	if x != nil {
+		return x.TimeoutMs
+	}
+	return 0
+}
+
 type RouteJudgeBackend struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Exactly one backend configuration must be supplied.
@@ -432,6 +498,7 @@ type RouteJudgeBackend struct {
 	//	*RouteJudgeBackend_Heuristic
 	//	*RouteJudgeBackend_Completion
 	//	*RouteJudgeBackend_Decisions
+	//	*RouteJudgeBackend_Function
 	Kind          isRouteJudgeBackend_Kind `protobuf_oneof:"kind"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -439,7 +506,7 @@ type RouteJudgeBackend struct {
 
 func (x *RouteJudgeBackend) Reset() {
 	*x = RouteJudgeBackend{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[4]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -451,7 +518,7 @@ func (x *RouteJudgeBackend) String() string {
 func (*RouteJudgeBackend) ProtoMessage() {}
 
 func (x *RouteJudgeBackend) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[4]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -464,7 +531,7 @@ func (x *RouteJudgeBackend) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteJudgeBackend.ProtoReflect.Descriptor instead.
 func (*RouteJudgeBackend) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{4}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RouteJudgeBackend) GetKind() isRouteJudgeBackend_Kind {
@@ -501,6 +568,15 @@ func (x *RouteJudgeBackend) GetDecisions() *DecisionsJudgeBackend {
 	return nil
 }
 
+func (x *RouteJudgeBackend) GetFunction() *FunctionClassifierBackend {
+	if x != nil {
+		if x, ok := x.Kind.(*RouteJudgeBackend_Function); ok {
+			return x.Function
+		}
+	}
+	return nil
+}
+
 type isRouteJudgeBackend_Kind interface {
 	isRouteJudgeBackend_Kind()
 }
@@ -517,11 +593,17 @@ type RouteJudgeBackend_Decisions struct {
 	Decisions *DecisionsJudgeBackend `protobuf:"bytes,3,opt,name=decisions,proto3,oneof"`
 }
 
+type RouteJudgeBackend_Function struct {
+	Function *FunctionClassifierBackend `protobuf:"bytes,4,opt,name=function,proto3,oneof"`
+}
+
 func (*RouteJudgeBackend_Heuristic) isRouteJudgeBackend_Kind() {}
 
 func (*RouteJudgeBackend_Completion) isRouteJudgeBackend_Kind() {}
 
 func (*RouteJudgeBackend_Decisions) isRouteJudgeBackend_Kind() {}
+
+func (*RouteJudgeBackend_Function) isRouteJudgeBackend_Kind() {}
 
 type JudgeOutcomeConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -537,7 +619,7 @@ type JudgeOutcomeConfig struct {
 
 func (x *JudgeOutcomeConfig) Reset() {
 	*x = JudgeOutcomeConfig{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[5]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -549,7 +631,7 @@ func (x *JudgeOutcomeConfig) String() string {
 func (*JudgeOutcomeConfig) ProtoMessage() {}
 
 func (x *JudgeOutcomeConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[5]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -562,7 +644,7 @@ func (x *JudgeOutcomeConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JudgeOutcomeConfig.ProtoReflect.Descriptor instead.
 func (*JudgeOutcomeConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{5}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *JudgeOutcomeConfig) GetModel() string {
@@ -598,7 +680,7 @@ type RouteJudge struct {
 
 func (x *RouteJudge) Reset() {
 	*x = RouteJudge{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[6]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -610,7 +692,7 @@ func (x *RouteJudge) String() string {
 func (*RouteJudge) ProtoMessage() {}
 
 func (x *RouteJudge) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[6]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -623,7 +705,7 @@ func (x *RouteJudge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteJudge.ProtoReflect.Descriptor instead.
 func (*RouteJudge) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{6}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RouteJudge) GetMode() JudgeMode {
@@ -665,7 +747,7 @@ type RouteTarget struct {
 
 func (x *RouteTarget) Reset() {
 	*x = RouteTarget{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[7]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -677,7 +759,7 @@ func (x *RouteTarget) String() string {
 func (*RouteTarget) ProtoMessage() {}
 
 func (x *RouteTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[7]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -690,7 +772,7 @@ func (x *RouteTarget) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteTarget.ProtoReflect.Descriptor instead.
 func (*RouteTarget) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{7}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RouteTarget) GetConnectionId() string {
@@ -721,7 +803,7 @@ type RouteGrid struct {
 
 func (x *RouteGrid) Reset() {
 	*x = RouteGrid{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[8]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -733,7 +815,7 @@ func (x *RouteGrid) String() string {
 func (*RouteGrid) ProtoMessage() {}
 
 func (x *RouteGrid) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[8]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -746,7 +828,7 @@ func (x *RouteGrid) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteGrid.ProtoReflect.Descriptor instead.
 func (*RouteGrid) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{8}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RouteGrid) GetFallbacks() map[string]*RouteFallbacks {
@@ -790,7 +872,7 @@ type ModelRoute struct {
 
 func (x *ModelRoute) Reset() {
 	*x = ModelRoute{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[9]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -802,7 +884,7 @@ func (x *ModelRoute) String() string {
 func (*ModelRoute) ProtoMessage() {}
 
 func (x *ModelRoute) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[9]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -815,7 +897,7 @@ func (x *ModelRoute) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelRoute.ProtoReflect.Descriptor instead.
 func (*ModelRoute) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{9}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ModelRoute) GetId() string {
@@ -900,7 +982,7 @@ type ListModelRoutesFilters struct {
 
 func (x *ListModelRoutesFilters) Reset() {
 	*x = ListModelRoutesFilters{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[10]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -912,7 +994,7 @@ func (x *ListModelRoutesFilters) String() string {
 func (*ListModelRoutesFilters) ProtoMessage() {}
 
 func (x *ListModelRoutesFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[10]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -925,7 +1007,7 @@ func (x *ListModelRoutesFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelRoutesFilters.ProtoReflect.Descriptor instead.
 func (*ListModelRoutesFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{10}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListModelRoutesFilters) GetConnectionIds() []string {
@@ -960,7 +1042,7 @@ type ListModelRoutesRequest struct {
 
 func (x *ListModelRoutesRequest) Reset() {
 	*x = ListModelRoutesRequest{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[11]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -972,7 +1054,7 @@ func (x *ListModelRoutesRequest) String() string {
 func (*ListModelRoutesRequest) ProtoMessage() {}
 
 func (x *ListModelRoutesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[11]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -985,7 +1067,7 @@ func (x *ListModelRoutesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelRoutesRequest.ProtoReflect.Descriptor instead.
 func (*ListModelRoutesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{11}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListModelRoutesRequest) GetLimit() int32 {
@@ -1019,7 +1101,7 @@ type ListModelRoutesResponse struct {
 
 func (x *ListModelRoutesResponse) Reset() {
 	*x = ListModelRoutesResponse{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[12]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1031,7 +1113,7 @@ func (x *ListModelRoutesResponse) String() string {
 func (*ListModelRoutesResponse) ProtoMessage() {}
 
 func (x *ListModelRoutesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[12]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1044,7 +1126,7 @@ func (x *ListModelRoutesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelRoutesResponse.ProtoReflect.Descriptor instead.
 func (*ListModelRoutesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{12}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListModelRoutesResponse) GetRoutes() []*ModelRoute {
@@ -1075,7 +1157,7 @@ type CreateModelRouteRequest struct {
 
 func (x *CreateModelRouteRequest) Reset() {
 	*x = CreateModelRouteRequest{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[13]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1087,7 +1169,7 @@ func (x *CreateModelRouteRequest) String() string {
 func (*CreateModelRouteRequest) ProtoMessage() {}
 
 func (x *CreateModelRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[13]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1100,7 +1182,7 @@ func (x *CreateModelRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateModelRouteRequest.ProtoReflect.Descriptor instead.
 func (*CreateModelRouteRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{13}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CreateModelRouteRequest) GetPublicModelId() string {
@@ -1147,7 +1229,7 @@ type CreateModelRouteResponse struct {
 
 func (x *CreateModelRouteResponse) Reset() {
 	*x = CreateModelRouteResponse{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[14]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1159,7 +1241,7 @@ func (x *CreateModelRouteResponse) String() string {
 func (*CreateModelRouteResponse) ProtoMessage() {}
 
 func (x *CreateModelRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[14]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1172,7 +1254,7 @@ func (x *CreateModelRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateModelRouteResponse.ProtoReflect.Descriptor instead.
 func (*CreateModelRouteResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{14}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *CreateModelRouteResponse) GetRoute() *ModelRoute {
@@ -1195,7 +1277,7 @@ type UpdateModelRouteOperation struct {
 
 func (x *UpdateModelRouteOperation) Reset() {
 	*x = UpdateModelRouteOperation{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[15]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1207,7 +1289,7 @@ func (x *UpdateModelRouteOperation) String() string {
 func (*UpdateModelRouteOperation) ProtoMessage() {}
 
 func (x *UpdateModelRouteOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[15]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1220,7 +1302,7 @@ func (x *UpdateModelRouteOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateModelRouteOperation.ProtoReflect.Descriptor instead.
 func (*UpdateModelRouteOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{15}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *UpdateModelRouteOperation) GetConnectionId() string {
@@ -1262,7 +1344,7 @@ type UpdateModelRouteRequest struct {
 
 func (x *UpdateModelRouteRequest) Reset() {
 	*x = UpdateModelRouteRequest{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[16]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1274,7 +1356,7 @@ func (x *UpdateModelRouteRequest) String() string {
 func (*UpdateModelRouteRequest) ProtoMessage() {}
 
 func (x *UpdateModelRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[16]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1287,7 +1369,7 @@ func (x *UpdateModelRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateModelRouteRequest.ProtoReflect.Descriptor instead.
 func (*UpdateModelRouteRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{16}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UpdateModelRouteRequest) GetId() string {
@@ -1320,7 +1402,7 @@ type UpdateModelRouteResponse struct {
 
 func (x *UpdateModelRouteResponse) Reset() {
 	*x = UpdateModelRouteResponse{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[17]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1332,7 +1414,7 @@ func (x *UpdateModelRouteResponse) String() string {
 func (*UpdateModelRouteResponse) ProtoMessage() {}
 
 func (x *UpdateModelRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[17]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1345,7 +1427,7 @@ func (x *UpdateModelRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateModelRouteResponse.ProtoReflect.Descriptor instead.
 func (*UpdateModelRouteResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{17}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UpdateModelRouteResponse) GetRoute() *ModelRoute {
@@ -1364,7 +1446,7 @@ type DeleteModelRouteRequest struct {
 
 func (x *DeleteModelRouteRequest) Reset() {
 	*x = DeleteModelRouteRequest{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[18]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1376,7 +1458,7 @@ func (x *DeleteModelRouteRequest) String() string {
 func (*DeleteModelRouteRequest) ProtoMessage() {}
 
 func (x *DeleteModelRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[18]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1389,7 +1471,7 @@ func (x *DeleteModelRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteModelRouteRequest.ProtoReflect.Descriptor instead.
 func (*DeleteModelRouteRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{18}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *DeleteModelRouteRequest) GetId() string {
@@ -1409,7 +1491,7 @@ type DeleteModelRouteResponse struct {
 
 func (x *DeleteModelRouteResponse) Reset() {
 	*x = DeleteModelRouteResponse{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[19]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1421,7 +1503,7 @@ func (x *DeleteModelRouteResponse) String() string {
 func (*DeleteModelRouteResponse) ProtoMessage() {}
 
 func (x *DeleteModelRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[19]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1434,7 +1516,7 @@ func (x *DeleteModelRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteModelRouteResponse.ProtoReflect.Descriptor instead.
 func (*DeleteModelRouteResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{19}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DeleteModelRouteResponse) GetId() string {
@@ -1462,7 +1544,7 @@ type JudgeOutcomeDefault struct {
 
 func (x *JudgeOutcomeDefault) Reset() {
 	*x = JudgeOutcomeDefault{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[20]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1474,7 +1556,7 @@ func (x *JudgeOutcomeDefault) String() string {
 func (*JudgeOutcomeDefault) ProtoMessage() {}
 
 func (x *JudgeOutcomeDefault) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[20]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1487,7 +1569,7 @@ func (x *JudgeOutcomeDefault) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JudgeOutcomeDefault.ProtoReflect.Descriptor instead.
 func (*JudgeOutcomeDefault) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{20}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *JudgeOutcomeDefault) GetLabel() string {
@@ -1512,7 +1594,7 @@ type GetRouteJudgeDefaultsRequest struct {
 
 func (x *GetRouteJudgeDefaultsRequest) Reset() {
 	*x = GetRouteJudgeDefaultsRequest{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[21]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1524,7 +1606,7 @@ func (x *GetRouteJudgeDefaultsRequest) String() string {
 func (*GetRouteJudgeDefaultsRequest) ProtoMessage() {}
 
 func (x *GetRouteJudgeDefaultsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[21]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1537,7 +1619,7 @@ func (x *GetRouteJudgeDefaultsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRouteJudgeDefaultsRequest.ProtoReflect.Descriptor instead.
 func (*GetRouteJudgeDefaultsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{21}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{22}
 }
 
 type GetRouteJudgeDefaultsResponse struct {
@@ -1550,7 +1632,7 @@ type GetRouteJudgeDefaultsResponse struct {
 
 func (x *GetRouteJudgeDefaultsResponse) Reset() {
 	*x = GetRouteJudgeDefaultsResponse{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[22]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1562,7 +1644,7 @@ func (x *GetRouteJudgeDefaultsResponse) String() string {
 func (*GetRouteJudgeDefaultsResponse) ProtoMessage() {}
 
 func (x *GetRouteJudgeDefaultsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[22]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1575,7 +1657,7 @@ func (x *GetRouteJudgeDefaultsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRouteJudgeDefaultsResponse.ProtoReflect.Descriptor instead.
 func (*GetRouteJudgeDefaultsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{22}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetRouteJudgeDefaultsResponse) GetDifficulty() []*JudgeOutcomeDefault {
@@ -1602,7 +1684,7 @@ type ValidateRouteJudgeBackendRequest struct {
 
 func (x *ValidateRouteJudgeBackendRequest) Reset() {
 	*x = ValidateRouteJudgeBackendRequest{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[23]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1614,7 +1696,7 @@ func (x *ValidateRouteJudgeBackendRequest) String() string {
 func (*ValidateRouteJudgeBackendRequest) ProtoMessage() {}
 
 func (x *ValidateRouteJudgeBackendRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[23]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1627,7 +1709,7 @@ func (x *ValidateRouteJudgeBackendRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ValidateRouteJudgeBackendRequest.ProtoReflect.Descriptor instead.
 func (*ValidateRouteJudgeBackendRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{23}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ValidateRouteJudgeBackendRequest) GetBackend() *RouteJudgeBackend {
@@ -1645,7 +1727,7 @@ type ValidateRouteJudgeBackendResponse struct {
 
 func (x *ValidateRouteJudgeBackendResponse) Reset() {
 	*x = ValidateRouteJudgeBackendResponse{}
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[24]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1657,7 +1739,7 @@ func (x *ValidateRouteJudgeBackendResponse) String() string {
 func (*ValidateRouteJudgeBackendResponse) ProtoMessage() {}
 
 func (x *ValidateRouteJudgeBackendResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_model_route_proto_msgTypes[24]
+	mi := &file_chalk_router_v1_model_route_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1670,7 +1752,7 @@ func (x *ValidateRouteJudgeBackendResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ValidateRouteJudgeBackendResponse.ProtoReflect.Descriptor instead.
 func (*ValidateRouteJudgeBackendResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{24}
+	return file_chalk_router_v1_model_route_proto_rawDescGZIP(), []int{25}
 }
 
 var File_chalk_router_v1_model_route_proto protoreflect.FileDescriptor
@@ -1696,13 +1778,20 @@ const file_chalk_router_v1_model_route_proto_rawDesc = "" +
 	"\x15DecisionsJudgeBackend\x124\n" +
 	"\x06target\x18\x01 \x01(\v2\x1c.chalk.router.v1.RouteTargetR\x06target\x12\x1d\n" +
 	"\n" +
-	"timeout_ms\x18\x02 \x01(\rR\ttimeoutMs\"\xf6\x01\n" +
+	"timeout_ms\x18\x02 \x01(\rR\ttimeoutMs\"~\n" +
+	"\x19FunctionClassifierBackend\x12#\n" +
+	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12\x1d\n" +
+	"\n" +
+	"input_name\x18\x02 \x01(\tR\tinputName\x12\x1d\n" +
+	"\n" +
+	"timeout_ms\x18\x03 \x01(\rR\ttimeoutMs\"\xc0\x02\n" +
 	"\x11RouteJudgeBackend\x12F\n" +
 	"\theuristic\x18\x01 \x01(\v2&.chalk.router.v1.HeuristicJudgeBackendH\x00R\theuristic\x12I\n" +
 	"\n" +
 	"completion\x18\x02 \x01(\v2'.chalk.router.v1.CompletionJudgeBackendH\x00R\n" +
 	"completion\x12F\n" +
-	"\tdecisions\x18\x03 \x01(\v2&.chalk.router.v1.DecisionsJudgeBackendH\x00R\tdecisionsB\x06\n" +
+	"\tdecisions\x18\x03 \x01(\v2&.chalk.router.v1.DecisionsJudgeBackendH\x00R\tdecisions\x12H\n" +
+	"\bfunction\x18\x04 \x01(\v2*.chalk.router.v1.FunctionClassifierBackendH\x00R\bfunctionB\x06\n" +
 	"\x04kind\"\x8b\x01\n" +
 	"\x12JudgeOutcomeConfig\x12\x14\n" +
 	"\x05model\x18\x01 \x01(\tR\x05model\x12 \n" +
@@ -1849,7 +1938,7 @@ func file_chalk_router_v1_model_route_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_router_v1_model_route_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_router_v1_model_route_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_chalk_router_v1_model_route_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_chalk_router_v1_model_route_proto_goTypes = []any{
 	(RouteDiagnostic)(0),                      // 0: chalk.router.v1.RouteDiagnostic
 	(JudgeMode)(0),                            // 1: chalk.router.v1.JudgeMode
@@ -1858,81 +1947,83 @@ var file_chalk_router_v1_model_route_proto_goTypes = []any{
 	(*HeuristicJudgeBackend)(nil),             // 4: chalk.router.v1.HeuristicJudgeBackend
 	(*CompletionJudgeBackend)(nil),            // 5: chalk.router.v1.CompletionJudgeBackend
 	(*DecisionsJudgeBackend)(nil),             // 6: chalk.router.v1.DecisionsJudgeBackend
-	(*RouteJudgeBackend)(nil),                 // 7: chalk.router.v1.RouteJudgeBackend
-	(*JudgeOutcomeConfig)(nil),                // 8: chalk.router.v1.JudgeOutcomeConfig
-	(*RouteJudge)(nil),                        // 9: chalk.router.v1.RouteJudge
-	(*RouteTarget)(nil),                       // 10: chalk.router.v1.RouteTarget
-	(*RouteGrid)(nil),                         // 11: chalk.router.v1.RouteGrid
-	(*ModelRoute)(nil),                        // 12: chalk.router.v1.ModelRoute
-	(*ListModelRoutesFilters)(nil),            // 13: chalk.router.v1.ListModelRoutesFilters
-	(*ListModelRoutesRequest)(nil),            // 14: chalk.router.v1.ListModelRoutesRequest
-	(*ListModelRoutesResponse)(nil),           // 15: chalk.router.v1.ListModelRoutesResponse
-	(*CreateModelRouteRequest)(nil),           // 16: chalk.router.v1.CreateModelRouteRequest
-	(*CreateModelRouteResponse)(nil),          // 17: chalk.router.v1.CreateModelRouteResponse
-	(*UpdateModelRouteOperation)(nil),         // 18: chalk.router.v1.UpdateModelRouteOperation
-	(*UpdateModelRouteRequest)(nil),           // 19: chalk.router.v1.UpdateModelRouteRequest
-	(*UpdateModelRouteResponse)(nil),          // 20: chalk.router.v1.UpdateModelRouteResponse
-	(*DeleteModelRouteRequest)(nil),           // 21: chalk.router.v1.DeleteModelRouteRequest
-	(*DeleteModelRouteResponse)(nil),          // 22: chalk.router.v1.DeleteModelRouteResponse
-	(*JudgeOutcomeDefault)(nil),               // 23: chalk.router.v1.JudgeOutcomeDefault
-	(*GetRouteJudgeDefaultsRequest)(nil),      // 24: chalk.router.v1.GetRouteJudgeDefaultsRequest
-	(*GetRouteJudgeDefaultsResponse)(nil),     // 25: chalk.router.v1.GetRouteJudgeDefaultsResponse
-	(*ValidateRouteJudgeBackendRequest)(nil),  // 26: chalk.router.v1.ValidateRouteJudgeBackendRequest
-	(*ValidateRouteJudgeBackendResponse)(nil), // 27: chalk.router.v1.ValidateRouteJudgeBackendResponse
-	nil,                           // 28: chalk.router.v1.RouteJudge.OutcomesEntry
-	nil,                           // 29: chalk.router.v1.RouteGrid.FallbacksEntry
-	(*timestamppb.Timestamp)(nil), // 30: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil), // 31: google.protobuf.FieldMask
+	(*FunctionClassifierBackend)(nil),         // 7: chalk.router.v1.FunctionClassifierBackend
+	(*RouteJudgeBackend)(nil),                 // 8: chalk.router.v1.RouteJudgeBackend
+	(*JudgeOutcomeConfig)(nil),                // 9: chalk.router.v1.JudgeOutcomeConfig
+	(*RouteJudge)(nil),                        // 10: chalk.router.v1.RouteJudge
+	(*RouteTarget)(nil),                       // 11: chalk.router.v1.RouteTarget
+	(*RouteGrid)(nil),                         // 12: chalk.router.v1.RouteGrid
+	(*ModelRoute)(nil),                        // 13: chalk.router.v1.ModelRoute
+	(*ListModelRoutesFilters)(nil),            // 14: chalk.router.v1.ListModelRoutesFilters
+	(*ListModelRoutesRequest)(nil),            // 15: chalk.router.v1.ListModelRoutesRequest
+	(*ListModelRoutesResponse)(nil),           // 16: chalk.router.v1.ListModelRoutesResponse
+	(*CreateModelRouteRequest)(nil),           // 17: chalk.router.v1.CreateModelRouteRequest
+	(*CreateModelRouteResponse)(nil),          // 18: chalk.router.v1.CreateModelRouteResponse
+	(*UpdateModelRouteOperation)(nil),         // 19: chalk.router.v1.UpdateModelRouteOperation
+	(*UpdateModelRouteRequest)(nil),           // 20: chalk.router.v1.UpdateModelRouteRequest
+	(*UpdateModelRouteResponse)(nil),          // 21: chalk.router.v1.UpdateModelRouteResponse
+	(*DeleteModelRouteRequest)(nil),           // 22: chalk.router.v1.DeleteModelRouteRequest
+	(*DeleteModelRouteResponse)(nil),          // 23: chalk.router.v1.DeleteModelRouteResponse
+	(*JudgeOutcomeDefault)(nil),               // 24: chalk.router.v1.JudgeOutcomeDefault
+	(*GetRouteJudgeDefaultsRequest)(nil),      // 25: chalk.router.v1.GetRouteJudgeDefaultsRequest
+	(*GetRouteJudgeDefaultsResponse)(nil),     // 26: chalk.router.v1.GetRouteJudgeDefaultsResponse
+	(*ValidateRouteJudgeBackendRequest)(nil),  // 27: chalk.router.v1.ValidateRouteJudgeBackendRequest
+	(*ValidateRouteJudgeBackendResponse)(nil), // 28: chalk.router.v1.ValidateRouteJudgeBackendResponse
+	nil,                           // 29: chalk.router.v1.RouteJudge.OutcomesEntry
+	nil,                           // 30: chalk.router.v1.RouteGrid.FallbacksEntry
+	(*timestamppb.Timestamp)(nil), // 31: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil), // 32: google.protobuf.FieldMask
 }
 var file_chalk_router_v1_model_route_proto_depIdxs = []int32{
-	10, // 0: chalk.router.v1.CompletionJudgeBackend.target:type_name -> chalk.router.v1.RouteTarget
-	10, // 1: chalk.router.v1.DecisionsJudgeBackend.target:type_name -> chalk.router.v1.RouteTarget
+	11, // 0: chalk.router.v1.CompletionJudgeBackend.target:type_name -> chalk.router.v1.RouteTarget
+	11, // 1: chalk.router.v1.DecisionsJudgeBackend.target:type_name -> chalk.router.v1.RouteTarget
 	4,  // 2: chalk.router.v1.RouteJudgeBackend.heuristic:type_name -> chalk.router.v1.HeuristicJudgeBackend
 	5,  // 3: chalk.router.v1.RouteJudgeBackend.completion:type_name -> chalk.router.v1.CompletionJudgeBackend
 	6,  // 4: chalk.router.v1.RouteJudgeBackend.decisions:type_name -> chalk.router.v1.DecisionsJudgeBackend
-	3,  // 5: chalk.router.v1.JudgeOutcomeConfig.fallbacks:type_name -> chalk.router.v1.RouteFallbacks
-	1,  // 6: chalk.router.v1.RouteJudge.mode:type_name -> chalk.router.v1.JudgeMode
-	2,  // 7: chalk.router.v1.RouteJudge.classification:type_name -> chalk.router.v1.Classification
-	7,  // 8: chalk.router.v1.RouteJudge.backend:type_name -> chalk.router.v1.RouteJudgeBackend
-	28, // 9: chalk.router.v1.RouteJudge.outcomes:type_name -> chalk.router.v1.RouteJudge.OutcomesEntry
-	29, // 10: chalk.router.v1.RouteGrid.fallbacks:type_name -> chalk.router.v1.RouteGrid.FallbacksEntry
-	9,  // 11: chalk.router.v1.RouteGrid.judge:type_name -> chalk.router.v1.RouteJudge
-	10, // 12: chalk.router.v1.RouteGrid.default_target:type_name -> chalk.router.v1.RouteTarget
-	0,  // 13: chalk.router.v1.ModelRoute.diagnostic:type_name -> chalk.router.v1.RouteDiagnostic
-	30, // 14: chalk.router.v1.ModelRoute.created_at:type_name -> google.protobuf.Timestamp
-	30, // 15: chalk.router.v1.ModelRoute.updated_at:type_name -> google.protobuf.Timestamp
-	11, // 16: chalk.router.v1.ModelRoute.routing:type_name -> chalk.router.v1.RouteGrid
-	30, // 17: chalk.router.v1.ModelRoute.archived_at:type_name -> google.protobuf.Timestamp
-	13, // 18: chalk.router.v1.ListModelRoutesRequest.filters:type_name -> chalk.router.v1.ListModelRoutesFilters
-	12, // 19: chalk.router.v1.ListModelRoutesResponse.routes:type_name -> chalk.router.v1.ModelRoute
-	11, // 20: chalk.router.v1.CreateModelRouteRequest.routing:type_name -> chalk.router.v1.RouteGrid
-	12, // 21: chalk.router.v1.CreateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
-	11, // 22: chalk.router.v1.UpdateModelRouteOperation.routing:type_name -> chalk.router.v1.RouteGrid
-	18, // 23: chalk.router.v1.UpdateModelRouteRequest.update:type_name -> chalk.router.v1.UpdateModelRouteOperation
-	31, // 24: chalk.router.v1.UpdateModelRouteRequest.update_mask:type_name -> google.protobuf.FieldMask
-	12, // 25: chalk.router.v1.UpdateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
-	23, // 26: chalk.router.v1.GetRouteJudgeDefaultsResponse.difficulty:type_name -> chalk.router.v1.JudgeOutcomeDefault
-	23, // 27: chalk.router.v1.GetRouteJudgeDefaultsResponse.task:type_name -> chalk.router.v1.JudgeOutcomeDefault
-	7,  // 28: chalk.router.v1.ValidateRouteJudgeBackendRequest.backend:type_name -> chalk.router.v1.RouteJudgeBackend
-	8,  // 29: chalk.router.v1.RouteJudge.OutcomesEntry.value:type_name -> chalk.router.v1.JudgeOutcomeConfig
-	3,  // 30: chalk.router.v1.RouteGrid.FallbacksEntry.value:type_name -> chalk.router.v1.RouteFallbacks
-	24, // 31: chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults:input_type -> chalk.router.v1.GetRouteJudgeDefaultsRequest
-	26, // 32: chalk.router.v1.ModelRouteService.ValidateRouteJudgeBackend:input_type -> chalk.router.v1.ValidateRouteJudgeBackendRequest
-	14, // 33: chalk.router.v1.ModelRouteService.ListModelRoutes:input_type -> chalk.router.v1.ListModelRoutesRequest
-	16, // 34: chalk.router.v1.ModelRouteService.CreateModelRoute:input_type -> chalk.router.v1.CreateModelRouteRequest
-	19, // 35: chalk.router.v1.ModelRouteService.UpdateModelRoute:input_type -> chalk.router.v1.UpdateModelRouteRequest
-	21, // 36: chalk.router.v1.ModelRouteService.DeleteModelRoute:input_type -> chalk.router.v1.DeleteModelRouteRequest
-	25, // 37: chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults:output_type -> chalk.router.v1.GetRouteJudgeDefaultsResponse
-	27, // 38: chalk.router.v1.ModelRouteService.ValidateRouteJudgeBackend:output_type -> chalk.router.v1.ValidateRouteJudgeBackendResponse
-	15, // 39: chalk.router.v1.ModelRouteService.ListModelRoutes:output_type -> chalk.router.v1.ListModelRoutesResponse
-	17, // 40: chalk.router.v1.ModelRouteService.CreateModelRoute:output_type -> chalk.router.v1.CreateModelRouteResponse
-	20, // 41: chalk.router.v1.ModelRouteService.UpdateModelRoute:output_type -> chalk.router.v1.UpdateModelRouteResponse
-	22, // 42: chalk.router.v1.ModelRouteService.DeleteModelRoute:output_type -> chalk.router.v1.DeleteModelRouteResponse
-	37, // [37:43] is the sub-list for method output_type
-	31, // [31:37] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	7,  // 5: chalk.router.v1.RouteJudgeBackend.function:type_name -> chalk.router.v1.FunctionClassifierBackend
+	3,  // 6: chalk.router.v1.JudgeOutcomeConfig.fallbacks:type_name -> chalk.router.v1.RouteFallbacks
+	1,  // 7: chalk.router.v1.RouteJudge.mode:type_name -> chalk.router.v1.JudgeMode
+	2,  // 8: chalk.router.v1.RouteJudge.classification:type_name -> chalk.router.v1.Classification
+	8,  // 9: chalk.router.v1.RouteJudge.backend:type_name -> chalk.router.v1.RouteJudgeBackend
+	29, // 10: chalk.router.v1.RouteJudge.outcomes:type_name -> chalk.router.v1.RouteJudge.OutcomesEntry
+	30, // 11: chalk.router.v1.RouteGrid.fallbacks:type_name -> chalk.router.v1.RouteGrid.FallbacksEntry
+	10, // 12: chalk.router.v1.RouteGrid.judge:type_name -> chalk.router.v1.RouteJudge
+	11, // 13: chalk.router.v1.RouteGrid.default_target:type_name -> chalk.router.v1.RouteTarget
+	0,  // 14: chalk.router.v1.ModelRoute.diagnostic:type_name -> chalk.router.v1.RouteDiagnostic
+	31, // 15: chalk.router.v1.ModelRoute.created_at:type_name -> google.protobuf.Timestamp
+	31, // 16: chalk.router.v1.ModelRoute.updated_at:type_name -> google.protobuf.Timestamp
+	12, // 17: chalk.router.v1.ModelRoute.routing:type_name -> chalk.router.v1.RouteGrid
+	31, // 18: chalk.router.v1.ModelRoute.archived_at:type_name -> google.protobuf.Timestamp
+	14, // 19: chalk.router.v1.ListModelRoutesRequest.filters:type_name -> chalk.router.v1.ListModelRoutesFilters
+	13, // 20: chalk.router.v1.ListModelRoutesResponse.routes:type_name -> chalk.router.v1.ModelRoute
+	12, // 21: chalk.router.v1.CreateModelRouteRequest.routing:type_name -> chalk.router.v1.RouteGrid
+	13, // 22: chalk.router.v1.CreateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
+	12, // 23: chalk.router.v1.UpdateModelRouteOperation.routing:type_name -> chalk.router.v1.RouteGrid
+	19, // 24: chalk.router.v1.UpdateModelRouteRequest.update:type_name -> chalk.router.v1.UpdateModelRouteOperation
+	32, // 25: chalk.router.v1.UpdateModelRouteRequest.update_mask:type_name -> google.protobuf.FieldMask
+	13, // 26: chalk.router.v1.UpdateModelRouteResponse.route:type_name -> chalk.router.v1.ModelRoute
+	24, // 27: chalk.router.v1.GetRouteJudgeDefaultsResponse.difficulty:type_name -> chalk.router.v1.JudgeOutcomeDefault
+	24, // 28: chalk.router.v1.GetRouteJudgeDefaultsResponse.task:type_name -> chalk.router.v1.JudgeOutcomeDefault
+	8,  // 29: chalk.router.v1.ValidateRouteJudgeBackendRequest.backend:type_name -> chalk.router.v1.RouteJudgeBackend
+	9,  // 30: chalk.router.v1.RouteJudge.OutcomesEntry.value:type_name -> chalk.router.v1.JudgeOutcomeConfig
+	3,  // 31: chalk.router.v1.RouteGrid.FallbacksEntry.value:type_name -> chalk.router.v1.RouteFallbacks
+	25, // 32: chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults:input_type -> chalk.router.v1.GetRouteJudgeDefaultsRequest
+	27, // 33: chalk.router.v1.ModelRouteService.ValidateRouteJudgeBackend:input_type -> chalk.router.v1.ValidateRouteJudgeBackendRequest
+	15, // 34: chalk.router.v1.ModelRouteService.ListModelRoutes:input_type -> chalk.router.v1.ListModelRoutesRequest
+	17, // 35: chalk.router.v1.ModelRouteService.CreateModelRoute:input_type -> chalk.router.v1.CreateModelRouteRequest
+	20, // 36: chalk.router.v1.ModelRouteService.UpdateModelRoute:input_type -> chalk.router.v1.UpdateModelRouteRequest
+	22, // 37: chalk.router.v1.ModelRouteService.DeleteModelRoute:input_type -> chalk.router.v1.DeleteModelRouteRequest
+	26, // 38: chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults:output_type -> chalk.router.v1.GetRouteJudgeDefaultsResponse
+	28, // 39: chalk.router.v1.ModelRouteService.ValidateRouteJudgeBackend:output_type -> chalk.router.v1.ValidateRouteJudgeBackendResponse
+	16, // 40: chalk.router.v1.ModelRouteService.ListModelRoutes:output_type -> chalk.router.v1.ListModelRoutesResponse
+	18, // 41: chalk.router.v1.ModelRouteService.CreateModelRoute:output_type -> chalk.router.v1.CreateModelRouteResponse
+	21, // 42: chalk.router.v1.ModelRouteService.UpdateModelRoute:output_type -> chalk.router.v1.UpdateModelRouteResponse
+	23, // 43: chalk.router.v1.ModelRouteService.DeleteModelRoute:output_type -> chalk.router.v1.DeleteModelRouteResponse
+	38, // [38:44] is the sub-list for method output_type
+	32, // [32:38] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_model_route_proto_init() }
@@ -1941,24 +2032,25 @@ func file_chalk_router_v1_model_route_proto_init() {
 		return
 	}
 	file_chalk_router_v1_model_route_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_router_v1_model_route_proto_msgTypes[4].OneofWrappers = []any{
+	file_chalk_router_v1_model_route_proto_msgTypes[5].OneofWrappers = []any{
 		(*RouteJudgeBackend_Heuristic)(nil),
 		(*RouteJudgeBackend_Completion)(nil),
 		(*RouteJudgeBackend_Decisions)(nil),
+		(*RouteJudgeBackend_Function)(nil),
 	}
-	file_chalk_router_v1_model_route_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_router_v1_model_route_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_router_v1_model_route_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_router_v1_model_route_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_router_v1_model_route_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_router_v1_model_route_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_router_v1_model_route_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_router_v1_model_route_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_router_v1_model_route_proto_rawDesc), len(file_chalk_router_v1_model_route_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   27,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

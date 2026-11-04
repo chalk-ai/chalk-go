@@ -88,6 +88,9 @@ const (
 	// AuthServiceSelfServiceCreateTeamProcedure is the fully-qualified name of the AuthService's
 	// SelfServiceCreateTeam RPC.
 	AuthServiceSelfServiceCreateTeamProcedure = "/chalk.server.v1.AuthService/SelfServiceCreateTeam"
+	// AuthServiceGetSelfServiceStatusProcedure is the fully-qualified name of the AuthService's
+	// GetSelfServiceStatus RPC.
+	AuthServiceGetSelfServiceStatusProcedure = "/chalk.server.v1.AuthService/GetSelfServiceStatus"
 	// AuthServiceGetTeamOnboardingStatusProcedure is the fully-qualified name of the AuthService's
 	// GetTeamOnboardingStatus RPC.
 	AuthServiceGetTeamOnboardingStatusProcedure = "/chalk.server.v1.AuthService/GetTeamOnboardingStatus"
@@ -136,6 +139,7 @@ type AuthServiceClient interface {
 	UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error)
 	UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error)
 	SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error)
+	GetSelfServiceStatus(context.Context, *connect.Request[v1.GetSelfServiceStatusRequest]) (*connect.Response[v1.GetSelfServiceStatusResponse], error)
 	GetTeamOnboardingStatus(context.Context, *connect.Request[v1.GetTeamOnboardingStatusRequest]) (*connect.Response[v1.GetTeamOnboardingStatusResponse], error)
 	// Only for use with auto-impersonation
 	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
@@ -280,6 +284,13 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("SelfServiceCreateTeam")),
 			connect.WithClientOptions(opts...),
 		),
+		getSelfServiceStatus: connect.NewClient[v1.GetSelfServiceStatusRequest, v1.GetSelfServiceStatusResponse](
+			httpClient,
+			baseURL+AuthServiceGetSelfServiceStatusProcedure,
+			connect.WithSchema(authServiceMethods.ByName("GetSelfServiceStatus")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getTeamOnboardingStatus: connect.NewClient[v1.GetTeamOnboardingStatusRequest, v1.GetTeamOnboardingStatusResponse](
 			httpClient,
 			baseURL+AuthServiceGetTeamOnboardingStatusProcedure,
@@ -355,6 +366,7 @@ type authServiceClient struct {
 	useVerificationToken       *connect.Client[v1.UseVerificationTokenRequest, v1.UseVerificationTokenResponse]
 	upsertUserByEmail          *connect.Client[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse]
 	selfServiceCreateTeam      *connect.Client[v1.SelfServiceCreateTeamRequest, v1.SelfServiceCreateTeamResponse]
+	getSelfServiceStatus       *connect.Client[v1.GetSelfServiceStatusRequest, v1.GetSelfServiceStatusResponse]
 	getTeamOnboardingStatus    *connect.Client[v1.GetTeamOnboardingStatusRequest, v1.GetTeamOnboardingStatusResponse]
 	getProjectInfo             *connect.Client[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse]
 	getInternalWorkingToken    *connect.Client[v1.GetInternalWorkingTokenRequest, v1.GetInternalWorkingTokenResponse]
@@ -465,6 +477,11 @@ func (c *authServiceClient) SelfServiceCreateTeam(ctx context.Context, req *conn
 	return c.selfServiceCreateTeam.CallUnary(ctx, req)
 }
 
+// GetSelfServiceStatus calls chalk.server.v1.AuthService.GetSelfServiceStatus.
+func (c *authServiceClient) GetSelfServiceStatus(ctx context.Context, req *connect.Request[v1.GetSelfServiceStatusRequest]) (*connect.Response[v1.GetSelfServiceStatusResponse], error) {
+	return c.getSelfServiceStatus.CallUnary(ctx, req)
+}
+
 // GetTeamOnboardingStatus calls chalk.server.v1.AuthService.GetTeamOnboardingStatus.
 func (c *authServiceClient) GetTeamOnboardingStatus(ctx context.Context, req *connect.Request[v1.GetTeamOnboardingStatusRequest]) (*connect.Response[v1.GetTeamOnboardingStatusResponse], error) {
 	return c.getTeamOnboardingStatus.CallUnary(ctx, req)
@@ -527,6 +544,7 @@ type AuthServiceHandler interface {
 	UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error)
 	UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error)
 	SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error)
+	GetSelfServiceStatus(context.Context, *connect.Request[v1.GetSelfServiceStatusRequest]) (*connect.Response[v1.GetSelfServiceStatusResponse], error)
 	GetTeamOnboardingStatus(context.Context, *connect.Request[v1.GetTeamOnboardingStatusRequest]) (*connect.Response[v1.GetTeamOnboardingStatusResponse], error)
 	// Only for use with auto-impersonation
 	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
@@ -667,6 +685,13 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("SelfServiceCreateTeam")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceGetSelfServiceStatusHandler := connect.NewUnaryHandler(
+		AuthServiceGetSelfServiceStatusProcedure,
+		svc.GetSelfServiceStatus,
+		connect.WithSchema(authServiceMethods.ByName("GetSelfServiceStatus")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	authServiceGetTeamOnboardingStatusHandler := connect.NewUnaryHandler(
 		AuthServiceGetTeamOnboardingStatusProcedure,
 		svc.GetTeamOnboardingStatus,
@@ -759,6 +784,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceUpsertUserByEmailHandler.ServeHTTP(w, r)
 		case AuthServiceSelfServiceCreateTeamProcedure:
 			authServiceSelfServiceCreateTeamHandler.ServeHTTP(w, r)
+		case AuthServiceGetSelfServiceStatusProcedure:
+			authServiceGetSelfServiceStatusHandler.ServeHTTP(w, r)
 		case AuthServiceGetTeamOnboardingStatusProcedure:
 			authServiceGetTeamOnboardingStatusHandler.ServeHTTP(w, r)
 		case AuthServiceGetProjectInfoProcedure:
@@ -862,6 +889,10 @@ func (UnimplementedAuthServiceHandler) UpsertUserByEmail(context.Context, *conne
 
 func (UnimplementedAuthServiceHandler) SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.SelfServiceCreateTeam is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) GetSelfServiceStatus(context.Context, *connect.Request[v1.GetSelfServiceStatusRequest]) (*connect.Response[v1.GetSelfServiceStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetSelfServiceStatus is not implemented"))
 }
 
 func (UnimplementedAuthServiceHandler) GetTeamOnboardingStatus(context.Context, *connect.Request[v1.GetTeamOnboardingStatusRequest]) (*connect.Response[v1.GetTeamOnboardingStatusResponse], error) {
