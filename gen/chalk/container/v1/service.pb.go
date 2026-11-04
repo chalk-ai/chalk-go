@@ -32,6 +32,7 @@ const (
 	Runtime_RUNTIME_UNSPECIFIED Runtime = 0
 	Runtime_RUNTIME_GVISOR      Runtime = 1
 	Runtime_RUNTIME_VM          Runtime = 2
+	Runtime_RUNTIME_RUNC        Runtime = 3
 )
 
 // Enum value maps for Runtime.
@@ -40,11 +41,13 @@ var (
 		0: "RUNTIME_UNSPECIFIED",
 		1: "RUNTIME_GVISOR",
 		2: "RUNTIME_VM",
+		3: "RUNTIME_RUNC",
 	}
 	Runtime_value = map[string]int32{
 		"RUNTIME_UNSPECIFIED": 0,
 		"RUNTIME_GVISOR":      1,
 		"RUNTIME_VM":          2,
+		"RUNTIME_RUNC":        3,
 	}
 )
 
@@ -6768,12 +6771,13 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x14HostPlacementOptions\x12%\n" +
 	"\fhost_pool_id\x18\x01 \x01(\tH\x00R\n" +
 	"hostPoolId\x88\x01\x01B\x0f\n" +
-	"\r_host_pool_id*F\n" +
+	"\r_host_pool_id*X\n" +
 	"\aRuntime\x12\x17\n" +
 	"\x13RUNTIME_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eRUNTIME_GVISOR\x10\x01\x12\x0e\n" +
 	"\n" +
-	"RUNTIME_VM\x10\x02*z\n" +
+	"RUNTIME_VM\x10\x02\x12\x10\n" +
+	"\fRUNTIME_RUNC\x10\x03*z\n" +
 	"\x10ExecutionBackend\x12!\n" +
 	"\x1dEXECUTION_BACKEND_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dEXECUTION_BACKEND_ENVIRONMENT\x10\x01\x12 \n" +

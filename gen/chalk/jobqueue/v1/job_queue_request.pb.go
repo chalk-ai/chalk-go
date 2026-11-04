@@ -910,6 +910,7 @@ type AggregationBackfillJobRequest struct {
 	NumShards *int32 `protobuf:"varint,20,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
 	// Cron runs only: also write the open bucket, recomputed from its start.
 	IncludePartialBucket *bool `protobuf:"varint,21,opt,name=include_partial_bucket,json=includePartialBucket,proto3,oneof" json:"include_partial_bucket,omitempty"`
+	StoreOnlineSummaries bool  `protobuf:"varint,22,opt,name=store_online_summaries,json=storeOnlineSummaries,proto3" json:"store_online_summaries,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -1080,6 +1081,13 @@ func (x *AggregationBackfillJobRequest) GetNumShards() int32 {
 func (x *AggregationBackfillJobRequest) GetIncludePartialBucket() bool {
 	if x != nil && x.IncludePartialBucket != nil {
 		return *x.IncludePartialBucket
+	}
+	return false
+}
+
+func (x *AggregationBackfillJobRequest) GetStoreOnlineSummaries() bool {
+	if x != nil {
+		return x.StoreOnlineSummaries
 	}
 	return false
 }
@@ -4216,8 +4224,11 @@ type PlannerOptions struct {
 	// When set, the Rust logical planner runs a scalar resolver with has-many inputs as a native
 	// multi-input invoker UDF instead of a Python batch UDF. Absent => false.
 	NativeHasManyInvokerUdf *bool `protobuf:"varint,145,opt,name=native_has_many_invoker_udf,json=nativeHasManyInvokerUdf,proto3,oneof" json:"native_has_many_invoker_udf,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// Opt in to summary-backed aggregate reads and summary generation during aggregate backfills.
+	// Storage, horizon and write mode are configured on the environment.
+	UseAggregateSummaryTiles *bool `protobuf:"varint,146,opt,name=use_aggregate_summary_tiles,json=useAggregateSummaryTiles,proto3,oneof" json:"use_aggregate_summary_tiles,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -5266,6 +5277,13 @@ func (x *PlannerOptions) GetNativeHasManyInvokerUdf() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetUseAggregateSummaryTiles() bool {
+	if x != nil && x.UseAggregateSummaryTiles != nil {
+		return *x.UseAggregateSummaryTiles
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -5546,7 +5564,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x18ScheduledQueryJobRequest\x12B\n" +
 	"\arequest\x18\x01 \x01(\v2&.chalk.jobqueue.v1.OfflineQueryJobBodyH\x00R\arequest\x12+\n" +
 	"\x10request_filename\x18\x02 \x01(\tH\x00R\x0frequestFilenameB\x11\n" +
-	"\x0frequest_payload\"\xad\t\n" +
+	"\x0frequest_payload\"\xe3\t\n" +
 	"\x1dAggregationBackfillJobRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12$\n" +
 	"\vlower_bound\x18\x02 \x01(\tH\x00R\n" +
@@ -5573,7 +5591,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x0fplanner_options\x18\x13 \x01(\v2!.chalk.jobqueue.v1.PlannerOptionsH\fR\x0eplannerOptions\x88\x01\x01\x12\"\n" +
 	"\n" +
 	"num_shards\x18\x14 \x01(\x05H\rR\tnumShards\x88\x01\x01\x129\n" +
-	"\x16include_partial_bucket\x18\x15 \x01(\bH\x0eR\x14includePartialBucket\x88\x01\x01B\x0e\n" +
+	"\x16include_partial_bucket\x18\x15 \x01(\bH\x0eR\x14includePartialBucket\x88\x01\x01\x124\n" +
+	"\x16store_online_summaries\x18\x16 \x01(\bR\x14storeOnlineSummariesB\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\v\n" +
 	"\t_resolverB\x18\n" +
@@ -5972,7 +5991,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"ށ\x01\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"Ă\x01\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -6121,7 +6140,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x0fplanner_backend\x18\x8e\x01 \x01(\tH\x8d\x01R\x0eplannerBackend\x88\x01\x01\x12\x8c\x01\n" +
 	"Coffline_sampler_has_many_join_use_spine_strat_all_in_root_namespace\x18\x8f\x01 \x01(\bH\x8e\x01R8offlineSamplerHasManyJoinUseSpineStratAllInRootNamespace\x88\x01\x01\x12C\n" +
 	"\x1asliding_window_aggregation\x18\x90\x01 \x01(\bH\x8f\x01R\x18slidingWindowAggregation\x88\x01\x01\x12C\n" +
-	"\x1bnative_has_many_invoker_udf\x18\x91\x01 \x01(\bH\x90\x01R\x17nativeHasManyInvokerUdf\x88\x01\x01B\x1e\n" +
+	"\x1bnative_has_many_invoker_udf\x18\x91\x01 \x01(\bH\x90\x01R\x17nativeHasManyInvokerUdf\x88\x01\x01\x12D\n" +
+	"\x1buse_aggregate_summary_tiles\x18\x92\x01 \x01(\bH\x91\x01R\x18useAggregateSummaryTiles\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -6266,7 +6286,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x10_planner_backendBF\n" +
 	"D_offline_sampler_has_many_join_use_spine_strat_all_in_root_namespaceB\x1d\n" +
 	"\x1b_sliding_window_aggregationB\x1e\n" +
-	"\x1c_native_has_many_invoker_udf\"\xd2\x06\n" +
+	"\x1c_native_has_many_invoker_udfB\x1e\n" +
+	"\x1c_use_aggregate_summary_tiles\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

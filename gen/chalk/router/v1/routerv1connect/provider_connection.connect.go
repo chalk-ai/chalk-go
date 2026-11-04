@@ -34,6 +34,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// ProviderConnectionServiceGetProviderConnectionProcedure is the fully-qualified name of the
+	// ProviderConnectionService's GetProviderConnection RPC.
+	ProviderConnectionServiceGetProviderConnectionProcedure = "/chalk.router.v1.ProviderConnectionService/GetProviderConnection"
 	// ProviderConnectionServiceListProviderConnectionsProcedure is the fully-qualified name of the
 	// ProviderConnectionService's ListProviderConnections RPC.
 	ProviderConnectionServiceListProviderConnectionsProcedure = "/chalk.router.v1.ProviderConnectionService/ListProviderConnections"
@@ -57,6 +60,7 @@ const (
 // ProviderConnectionServiceClient is a client for the chalk.router.v1.ProviderConnectionService
 // service.
 type ProviderConnectionServiceClient interface {
+	GetProviderConnection(context.Context, *connect.Request[v1.GetProviderConnectionRequest]) (*connect.Response[v1.GetProviderConnectionResponse], error)
 	ListProviderConnections(context.Context, *connect.Request[v1.ListProviderConnectionsRequest]) (*connect.Response[v1.ListProviderConnectionsResponse], error)
 	ListProviderConnectionModels(context.Context, *connect.Request[v1.ListProviderConnectionModelsRequest]) (*connect.Response[v1.ListProviderConnectionModelsResponse], error)
 	CreateProviderConnection(context.Context, *connect.Request[v1.CreateProviderConnectionRequest]) (*connect.Response[v1.CreateProviderConnectionResponse], error)
@@ -76,6 +80,12 @@ func NewProviderConnectionServiceClient(httpClient connect.HTTPClient, baseURL s
 	baseURL = strings.TrimRight(baseURL, "/")
 	providerConnectionServiceMethods := v1.File_chalk_router_v1_provider_connection_proto.Services().ByName("ProviderConnectionService").Methods()
 	return &providerConnectionServiceClient{
+		getProviderConnection: connect.NewClient[v1.GetProviderConnectionRequest, v1.GetProviderConnectionResponse](
+			httpClient,
+			baseURL+ProviderConnectionServiceGetProviderConnectionProcedure,
+			connect.WithSchema(providerConnectionServiceMethods.ByName("GetProviderConnection")),
+			connect.WithClientOptions(opts...),
+		),
 		listProviderConnections: connect.NewClient[v1.ListProviderConnectionsRequest, v1.ListProviderConnectionsResponse](
 			httpClient,
 			baseURL+ProviderConnectionServiceListProviderConnectionsProcedure,
@@ -119,12 +129,18 @@ func NewProviderConnectionServiceClient(httpClient connect.HTTPClient, baseURL s
 
 // providerConnectionServiceClient implements ProviderConnectionServiceClient.
 type providerConnectionServiceClient struct {
+	getProviderConnection        *connect.Client[v1.GetProviderConnectionRequest, v1.GetProviderConnectionResponse]
 	listProviderConnections      *connect.Client[v1.ListProviderConnectionsRequest, v1.ListProviderConnectionsResponse]
 	listProviderConnectionModels *connect.Client[v1.ListProviderConnectionModelsRequest, v1.ListProviderConnectionModelsResponse]
 	createProviderConnection     *connect.Client[v1.CreateProviderConnectionRequest, v1.CreateProviderConnectionResponse]
 	updateProviderConnection     *connect.Client[v1.UpdateProviderConnectionRequest, v1.UpdateProviderConnectionResponse]
 	deleteProviderConnection     *connect.Client[v1.DeleteProviderConnectionRequest, v1.DeleteProviderConnectionResponse]
 	testProviderConnection       *connect.Client[v1.TestProviderConnectionRequest, v1.TestProviderConnectionResponse]
+}
+
+// GetProviderConnection calls chalk.router.v1.ProviderConnectionService.GetProviderConnection.
+func (c *providerConnectionServiceClient) GetProviderConnection(ctx context.Context, req *connect.Request[v1.GetProviderConnectionRequest]) (*connect.Response[v1.GetProviderConnectionResponse], error) {
+	return c.getProviderConnection.CallUnary(ctx, req)
 }
 
 // ListProviderConnections calls chalk.router.v1.ProviderConnectionService.ListProviderConnections.
@@ -164,6 +180,7 @@ func (c *providerConnectionServiceClient) TestProviderConnection(ctx context.Con
 // ProviderConnectionServiceHandler is an implementation of the
 // chalk.router.v1.ProviderConnectionService service.
 type ProviderConnectionServiceHandler interface {
+	GetProviderConnection(context.Context, *connect.Request[v1.GetProviderConnectionRequest]) (*connect.Response[v1.GetProviderConnectionResponse], error)
 	ListProviderConnections(context.Context, *connect.Request[v1.ListProviderConnectionsRequest]) (*connect.Response[v1.ListProviderConnectionsResponse], error)
 	ListProviderConnectionModels(context.Context, *connect.Request[v1.ListProviderConnectionModelsRequest]) (*connect.Response[v1.ListProviderConnectionModelsResponse], error)
 	CreateProviderConnection(context.Context, *connect.Request[v1.CreateProviderConnectionRequest]) (*connect.Response[v1.CreateProviderConnectionResponse], error)
@@ -179,6 +196,12 @@ type ProviderConnectionServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewProviderConnectionServiceHandler(svc ProviderConnectionServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	providerConnectionServiceMethods := v1.File_chalk_router_v1_provider_connection_proto.Services().ByName("ProviderConnectionService").Methods()
+	providerConnectionServiceGetProviderConnectionHandler := connect.NewUnaryHandler(
+		ProviderConnectionServiceGetProviderConnectionProcedure,
+		svc.GetProviderConnection,
+		connect.WithSchema(providerConnectionServiceMethods.ByName("GetProviderConnection")),
+		connect.WithHandlerOptions(opts...),
+	)
 	providerConnectionServiceListProviderConnectionsHandler := connect.NewUnaryHandler(
 		ProviderConnectionServiceListProviderConnectionsProcedure,
 		svc.ListProviderConnections,
@@ -219,6 +242,8 @@ func NewProviderConnectionServiceHandler(svc ProviderConnectionServiceHandler, o
 	)
 	return "/chalk.router.v1.ProviderConnectionService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case ProviderConnectionServiceGetProviderConnectionProcedure:
+			providerConnectionServiceGetProviderConnectionHandler.ServeHTTP(w, r)
 		case ProviderConnectionServiceListProviderConnectionsProcedure:
 			providerConnectionServiceListProviderConnectionsHandler.ServeHTTP(w, r)
 		case ProviderConnectionServiceListProviderConnectionModelsProcedure:
@@ -239,6 +264,10 @@ func NewProviderConnectionServiceHandler(svc ProviderConnectionServiceHandler, o
 
 // UnimplementedProviderConnectionServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedProviderConnectionServiceHandler struct{}
+
+func (UnimplementedProviderConnectionServiceHandler) GetProviderConnection(context.Context, *connect.Request[v1.GetProviderConnectionRequest]) (*connect.Response[v1.GetProviderConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ProviderConnectionService.GetProviderConnection is not implemented"))
+}
 
 func (UnimplementedProviderConnectionServiceHandler) ListProviderConnections(context.Context, *connect.Request[v1.ListProviderConnectionsRequest]) (*connect.Response[v1.ListProviderConnectionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ProviderConnectionService.ListProviderConnections is not implemented"))
