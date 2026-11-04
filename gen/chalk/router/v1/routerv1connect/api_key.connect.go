@@ -33,6 +33,8 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// ApiKeyServiceGetKeyProcedure is the fully-qualified name of the ApiKeyService's GetKey RPC.
+	ApiKeyServiceGetKeyProcedure = "/chalk.router.v1.ApiKeyService/GetKey"
 	// ApiKeyServiceCreateKeyProcedure is the fully-qualified name of the ApiKeyService's CreateKey RPC.
 	ApiKeyServiceCreateKeyProcedure = "/chalk.router.v1.ApiKeyService/CreateKey"
 	// ApiKeyServiceListKeysProcedure is the fully-qualified name of the ApiKeyService's ListKeys RPC.
@@ -54,6 +56,7 @@ const (
 
 // ApiKeyServiceClient is a client for the chalk.router.v1.ApiKeyService service.
 type ApiKeyServiceClient interface {
+	GetKey(context.Context, *connect.Request[v1.GetKeyRequest]) (*connect.Response[v1.GetKeyResponse], error)
 	CreateKey(context.Context, *connect.Request[v1.CreateKeyRequest]) (*connect.Response[v1.CreateKeyResponse], error)
 	ListKeys(context.Context, *connect.Request[v1.ListKeysRequest]) (*connect.Response[v1.ListKeysResponse], error)
 	UpdateKey(context.Context, *connect.Request[v1.UpdateKeyRequest]) (*connect.Response[v1.UpdateKeyResponse], error)
@@ -74,6 +77,12 @@ func NewApiKeyServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 	baseURL = strings.TrimRight(baseURL, "/")
 	apiKeyServiceMethods := v1.File_chalk_router_v1_api_key_proto.Services().ByName("ApiKeyService").Methods()
 	return &apiKeyServiceClient{
+		getKey: connect.NewClient[v1.GetKeyRequest, v1.GetKeyResponse](
+			httpClient,
+			baseURL+ApiKeyServiceGetKeyProcedure,
+			connect.WithSchema(apiKeyServiceMethods.ByName("GetKey")),
+			connect.WithClientOptions(opts...),
+		),
 		createKey: connect.NewClient[v1.CreateKeyRequest, v1.CreateKeyResponse](
 			httpClient,
 			baseURL+ApiKeyServiceCreateKeyProcedure,
@@ -125,6 +134,7 @@ func NewApiKeyServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // apiKeyServiceClient implements ApiKeyServiceClient.
 type apiKeyServiceClient struct {
+	getKey            *connect.Client[v1.GetKeyRequest, v1.GetKeyResponse]
 	createKey         *connect.Client[v1.CreateKeyRequest, v1.CreateKeyResponse]
 	listKeys          *connect.Client[v1.ListKeysRequest, v1.ListKeysResponse]
 	updateKey         *connect.Client[v1.UpdateKeyRequest, v1.UpdateKeyResponse]
@@ -132,6 +142,11 @@ type apiKeyServiceClient struct {
 	getKeyUsage       *connect.Client[v1.GetKeyUsageRequest, v1.GetKeyUsageResponse]
 	listAllUsage      *connect.Client[v1.ListAllUsageRequest, v1.ListAllUsageResponse]
 	getUsageHistogram *connect.Client[v1.GetUsageHistogramRequest, v1.GetUsageHistogramResponse]
+}
+
+// GetKey calls chalk.router.v1.ApiKeyService.GetKey.
+func (c *apiKeyServiceClient) GetKey(ctx context.Context, req *connect.Request[v1.GetKeyRequest]) (*connect.Response[v1.GetKeyResponse], error) {
+	return c.getKey.CallUnary(ctx, req)
 }
 
 // CreateKey calls chalk.router.v1.ApiKeyService.CreateKey.
@@ -171,6 +186,7 @@ func (c *apiKeyServiceClient) GetUsageHistogram(ctx context.Context, req *connec
 
 // ApiKeyServiceHandler is an implementation of the chalk.router.v1.ApiKeyService service.
 type ApiKeyServiceHandler interface {
+	GetKey(context.Context, *connect.Request[v1.GetKeyRequest]) (*connect.Response[v1.GetKeyResponse], error)
 	CreateKey(context.Context, *connect.Request[v1.CreateKeyRequest]) (*connect.Response[v1.CreateKeyResponse], error)
 	ListKeys(context.Context, *connect.Request[v1.ListKeysRequest]) (*connect.Response[v1.ListKeysResponse], error)
 	UpdateKey(context.Context, *connect.Request[v1.UpdateKeyRequest]) (*connect.Response[v1.UpdateKeyResponse], error)
@@ -187,6 +203,12 @@ type ApiKeyServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewApiKeyServiceHandler(svc ApiKeyServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	apiKeyServiceMethods := v1.File_chalk_router_v1_api_key_proto.Services().ByName("ApiKeyService").Methods()
+	apiKeyServiceGetKeyHandler := connect.NewUnaryHandler(
+		ApiKeyServiceGetKeyProcedure,
+		svc.GetKey,
+		connect.WithSchema(apiKeyServiceMethods.ByName("GetKey")),
+		connect.WithHandlerOptions(opts...),
+	)
 	apiKeyServiceCreateKeyHandler := connect.NewUnaryHandler(
 		ApiKeyServiceCreateKeyProcedure,
 		svc.CreateKey,
@@ -235,6 +257,8 @@ func NewApiKeyServiceHandler(svc ApiKeyServiceHandler, opts ...connect.HandlerOp
 	)
 	return "/chalk.router.v1.ApiKeyService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case ApiKeyServiceGetKeyProcedure:
+			apiKeyServiceGetKeyHandler.ServeHTTP(w, r)
 		case ApiKeyServiceCreateKeyProcedure:
 			apiKeyServiceCreateKeyHandler.ServeHTTP(w, r)
 		case ApiKeyServiceListKeysProcedure:
@@ -257,6 +281,10 @@ func NewApiKeyServiceHandler(svc ApiKeyServiceHandler, opts ...connect.HandlerOp
 
 // UnimplementedApiKeyServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedApiKeyServiceHandler struct{}
+
+func (UnimplementedApiKeyServiceHandler) GetKey(context.Context, *connect.Request[v1.GetKeyRequest]) (*connect.Response[v1.GetKeyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ApiKeyService.GetKey is not implemented"))
+}
 
 func (UnimplementedApiKeyServiceHandler) CreateKey(context.Context, *connect.Request[v1.CreateKeyRequest]) (*connect.Response[v1.CreateKeyResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ApiKeyService.CreateKey is not implemented"))

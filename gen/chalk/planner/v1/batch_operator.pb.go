@@ -77,51 +77,56 @@ const (
 	OperatorType_OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN  OperatorType = 36
 	OperatorType_OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR OperatorType = 37
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-	OperatorType_OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP             OperatorType = 38
-	OperatorType_OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR             OperatorType = 39
-	OperatorType_OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER                OperatorType = 40
-	OperatorType_OPERATOR_TYPE_OFFLINE_STORE_LOOKUP                 OperatorType = 81
-	OperatorType_OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER           OperatorType = 41
-	OperatorType_OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR              OperatorType = 73
-	OperatorType_OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER              OperatorType = 42
-	OperatorType_OPERATOR_TYPE_ONLINE_VECTOR_SEARCH                 OperatorType = 43
-	OperatorType_OPERATOR_TYPE_OPTIMISTIC_LOAD                      OperatorType = 44
-	OperatorType_OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR           OperatorType = 45
-	OperatorType_OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS             OperatorType = 46
-	OperatorType_OPERATOR_TYPE_PARQUET_WRITER                       OperatorType = 47
-	OperatorType_OPERATOR_TYPE_PRELOADED_TABLE_OPERATOR             OperatorType = 72
-	OperatorType_OPERATOR_TYPE_PROJECT                              OperatorType = 48
-	OperatorType_OPERATOR_TYPE_PROMOTE_SPINE                        OperatorType = 49
-	OperatorType_OPERATOR_TYPE_PUSH_DFTO_RESULT                     OperatorType = 50
-	OperatorType_OPERATOR_TYPE_PUSH_HAS_MANY_TO_RESULT              OperatorType = 51
-	OperatorType_OPERATOR_TYPE_REMOVE_LARGE_LISTS_FROM_SCHEMA       OperatorType = 52
-	OperatorType_OPERATOR_TYPE_RENAME_INDEX_COLUMN_OPERATOR         OperatorType = 53
-	OperatorType_OPERATOR_TYPE_REPLAY                               OperatorType = 54
-	OperatorType_OPERATOR_TYPE_RESULT_BUS_PERSIST_OPERATOR_V2       OperatorType = 55
-	OperatorType_OPERATOR_TYPE_RUN_IN_BACKGROUND                    OperatorType = 56
-	OperatorType_OPERATOR_TYPE_SQLDATAFRAME_RESOLVER_OPERATOR       OperatorType = 57
-	OperatorType_OPERATOR_TYPE_SQLLATERAL_JOIN_RESOLVER_OPERATOR    OperatorType = 58
-	OperatorType_OPERATOR_TYPE_SQLSCALAR_RESOLVER_OPERATOR          OperatorType = 59
-	OperatorType_OPERATOR_TYPE_STATS_COLLECTOR                      OperatorType = 60
-	OperatorType_OPERATOR_TYPE_STREAMING_AGG_WRITE_OPERATOR         OperatorType = 61
-	OperatorType_OPERATOR_TYPE_SUB_PLAN_FILTER                      OperatorType = 62
-	OperatorType_OPERATOR_TYPE_SUB_PLAN_JOIN                        OperatorType = 63
-	OperatorType_OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK         OperatorType = 64
-	OperatorType_OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR OperatorType = 75
-	OperatorType_OPERATOR_TYPE_TABLE_WRITE_OPERATOR                 OperatorType = 79
-	OperatorType_OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR  OperatorType = 65
-	OperatorType_OPERATOR_TYPE_UNION_OPERATOR                       OperatorType = 66
-	OperatorType_OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN               OperatorType = 71
-	OperatorType_OPERATOR_TYPE_VALUES_PERSISTER                     OperatorType = 67
-	OperatorType_OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR              OperatorType = 74
-	OperatorType_OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN        OperatorType = 77
-	OperatorType_OPERATOR_TYPE_ICEBERG_TABLE_WRITER                 OperatorType = 78
-	OperatorType_OPERATOR_TYPE_PARQUET_TABLE_WRITER                 OperatorType = 80
-	OperatorType_OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER         OperatorType = 82
-	OperatorType_OPERATOR_TYPE_INPUT_SQL_OPERATOR                   OperatorType = 83
-	OperatorType_OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER       OperatorType = 84
-	OperatorType_OPERATOR_TYPE_DROP_INDEX_COL                       OperatorType = 85
-	OperatorType_OPERATOR_TYPE_RECOVER_INDEX_COL                    OperatorType = 86
+	OperatorType_OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP              OperatorType = 38
+	OperatorType_OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR              OperatorType = 39
+	OperatorType_OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER                 OperatorType = 40
+	OperatorType_OPERATOR_TYPE_OFFLINE_STORE_LOOKUP                  OperatorType = 81
+	OperatorType_OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER            OperatorType = 41
+	OperatorType_OPERATOR_TYPE_ONLINE_PERSIST_OPERATOR               OperatorType = 73
+	OperatorType_OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER               OperatorType = 42
+	OperatorType_OPERATOR_TYPE_ONLINE_VECTOR_SEARCH                  OperatorType = 43
+	OperatorType_OPERATOR_TYPE_OPTIMISTIC_LOAD                       OperatorType = 44
+	OperatorType_OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR            OperatorType = 45
+	OperatorType_OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS              OperatorType = 46
+	OperatorType_OPERATOR_TYPE_PARQUET_WRITER                        OperatorType = 47
+	OperatorType_OPERATOR_TYPE_PRELOADED_TABLE_OPERATOR              OperatorType = 72
+	OperatorType_OPERATOR_TYPE_PROJECT                               OperatorType = 48
+	OperatorType_OPERATOR_TYPE_PROMOTE_SPINE                         OperatorType = 49
+	OperatorType_OPERATOR_TYPE_PUSH_DFTO_RESULT                      OperatorType = 50
+	OperatorType_OPERATOR_TYPE_PUSH_HAS_MANY_TO_RESULT               OperatorType = 51
+	OperatorType_OPERATOR_TYPE_REMOVE_LARGE_LISTS_FROM_SCHEMA        OperatorType = 52
+	OperatorType_OPERATOR_TYPE_RENAME_INDEX_COLUMN_OPERATOR          OperatorType = 53
+	OperatorType_OPERATOR_TYPE_REPLAY                                OperatorType = 54
+	OperatorType_OPERATOR_TYPE_RESULT_BUS_PERSIST_OPERATOR_V2        OperatorType = 55
+	OperatorType_OPERATOR_TYPE_RUN_IN_BACKGROUND                     OperatorType = 56
+	OperatorType_OPERATOR_TYPE_SQLDATAFRAME_RESOLVER_OPERATOR        OperatorType = 57
+	OperatorType_OPERATOR_TYPE_SQLLATERAL_JOIN_RESOLVER_OPERATOR     OperatorType = 58
+	OperatorType_OPERATOR_TYPE_SQLSCALAR_RESOLVER_OPERATOR           OperatorType = 59
+	OperatorType_OPERATOR_TYPE_STATS_COLLECTOR                       OperatorType = 60
+	OperatorType_OPERATOR_TYPE_STREAMING_AGG_WRITE_OPERATOR          OperatorType = 61
+	OperatorType_OPERATOR_TYPE_SUB_PLAN_FILTER                       OperatorType = 62
+	OperatorType_OPERATOR_TYPE_SUB_PLAN_JOIN                         OperatorType = 63
+	OperatorType_OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK          OperatorType = 64
+	OperatorType_OPERATOR_TYPE_TABLE_WRITE_OFFLINE_PERSIST_OPERATOR  OperatorType = 75
+	OperatorType_OPERATOR_TYPE_TABLE_WRITE_OPERATOR                  OperatorType = 79
+	OperatorType_OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR   OperatorType = 65
+	OperatorType_OPERATOR_TYPE_UNION_OPERATOR                        OperatorType = 66
+	OperatorType_OPERATOR_TYPE_UNLOADED_RESOLVER_SCAN                OperatorType = 71
+	OperatorType_OPERATOR_TYPE_VALUES_PERSISTER                      OperatorType = 67
+	OperatorType_OPERATOR_TYPE_VECTOR_PERSIST_OPERATOR               OperatorType = 74
+	OperatorType_OPERATOR_TYPE_UNPACK_HAS_MANY_STRUCT_COLUMN         OperatorType = 77
+	OperatorType_OPERATOR_TYPE_ICEBERG_TABLE_WRITER                  OperatorType = 78
+	OperatorType_OPERATOR_TYPE_PARQUET_TABLE_WRITER                  OperatorType = 80
+	OperatorType_OPERATOR_TYPE_OFFLINE_QUERY_DATASET_WRITER          OperatorType = 82
+	OperatorType_OPERATOR_TYPE_INPUT_SQL_OPERATOR                    OperatorType = 83
+	OperatorType_OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER        OperatorType = 84
+	OperatorType_OPERATOR_TYPE_DROP_INDEX_COL                        OperatorType = 85
+	OperatorType_OPERATOR_TYPE_RECOVER_INDEX_COL                     OperatorType = 86
+	OperatorType_OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_OPERATOR       OperatorType = 87
+	OperatorType_OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_ENTITY_ITEMS   OperatorType = 88
+	OperatorType_OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_DYNAMO_WRITER  OperatorType = 89
+	OperatorType_OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_STORE_OPERATOR OperatorType = 90
+	OperatorType_OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_JOB_OUTPUT     OperatorType = 91
 )
 
 // Enum value maps for OperatorType.
@@ -214,6 +219,11 @@ var (
 		84: "OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER",
 		85: "OPERATOR_TYPE_DROP_INDEX_COL",
 		86: "OPERATOR_TYPE_RECOVER_INDEX_COL",
+		87: "OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_OPERATOR",
+		88: "OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_ENTITY_ITEMS",
+		89: "OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_DYNAMO_WRITER",
+		90: "OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_STORE_OPERATOR",
+		91: "OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_JOB_OUTPUT",
 	}
 	OperatorType_value = map[string]int32{
 		"OPERATOR_TYPE_UNSPECIFIED":                                    0,
@@ -303,6 +313,11 @@ var (
 		"OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER":                 84,
 		"OPERATOR_TYPE_DROP_INDEX_COL":                                 85,
 		"OPERATOR_TYPE_RECOVER_INDEX_COL":                              86,
+		"OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_OPERATOR":                87,
+		"OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_ENTITY_ITEMS":            88,
+		"OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_DYNAMO_WRITER":           89,
+		"OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_STORE_OPERATOR":          90,
+		"OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_JOB_OUTPUT":              91,
 	}
 )
 
@@ -2511,7 +2526,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\bbehavior\" \n" +
 	"\x1eResolverRootUnderscoreBehavior\"f\n" +
 	"$StreamResolverRootUnderscoreBehavior\x12>\n" +
-	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xa8\x1c\n" +
+	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xb8\x1e\n" +
 	"\fOperatorType\x12\x1d\n" +
 	"\x19OPERATOR_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
 	"!OPERATOR_TYPE_ADD_CHILD_INDEX_COL\x10\x01\x12\x1f\n" +
@@ -2600,7 +2615,12 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	" OPERATOR_TYPE_INPUT_SQL_OPERATOR\x10S\x120\n" +
 	",OPERATOR_TYPE_AGGREGATE_TILE_MANIFEST_WRITER\x10T\x12 \n" +
 	"\x1cOPERATOR_TYPE_DROP_INDEX_COL\x10U\x12#\n" +
-	"\x1fOPERATOR_TYPE_RECOVER_INDEX_COL\x10VB\xc9\x01\n" +
+	"\x1fOPERATOR_TYPE_RECOVER_INDEX_COL\x10V\x121\n" +
+	"-OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_OPERATOR\x10W\x125\n" +
+	"1OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_ENTITY_ITEMS\x10X\x126\n" +
+	"2OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_DYNAMO_WRITER\x10Y\x127\n" +
+	"3OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_STORE_OPERATOR\x10Z\x123\n" +
+	"/OPERATOR_TYPE_AGGREGATE_SUMMARY_TILE_JOB_OUTPUT\x10[B\xc9\x01\n" +
 	"\x14com.chalk.planner.v1B\x12BatchOperatorProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (
