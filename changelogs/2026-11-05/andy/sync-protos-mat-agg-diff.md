@@ -1,0 +1,1 @@
+- sync generated protos from chalk-private dev at `58e8fddb298`: `BuilderService.GetMaterializedAggregateDiff`, `MaterializedAggregateDiff` and `UploadSourceRequest.plan_only`, used by `chalk apply --plan --remote`
