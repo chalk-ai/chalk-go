@@ -2674,8 +2674,9 @@ type EvaluationSuite struct {
 	// Counts across all definitions in the suite, populated by ListEvaluationSuites.
 	EvaluationCount *int64 `protobuf:"varint,7,opt,name=evaluation_count,json=evaluationCount,proto3,oneof" json:"evaluation_count,omitempty"`
 	// Distinct input dataset IDs; revisions of the same dataset count once.
-	DatasetCount  *int64 `protobuf:"varint,8,opt,name=dataset_count,json=datasetCount,proto3,oneof" json:"dataset_count,omitempty"`
-	Description   string `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
+	DatasetCount  *int64            `protobuf:"varint,8,opt,name=dataset_count,json=datasetCount,proto3,oneof" json:"dataset_count,omitempty"`
+	Description   string            `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
+	ArchiveStatus *v1.ArchiveStatus `protobuf:"bytes,10,opt,name=archive_status,json=archiveStatus,proto3,oneof" json:"archive_status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2771,6 +2772,13 @@ func (x *EvaluationSuite) GetDescription() string {
 		return x.Description
 	}
 	return ""
+}
+
+func (x *EvaluationSuite) GetArchiveStatus() *v1.ArchiveStatus {
+	if x != nil {
+		return x.ArchiveStatus
+	}
+	return nil
 }
 
 type CreateEvaluationSuiteRequest struct {
@@ -3026,6 +3034,96 @@ func (x *UpdateEvaluationSuiteResponse) GetSuite() *EvaluationSuite {
 	return nil
 }
 
+// Hides the suite and its evaluations and runs from lists. Datasets and
+// each child's independent archive state are preserved. Default cannot be archived.
+type ArchiveEvaluationSuiteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SuiteId       string                 `protobuf:"bytes,1,opt,name=suite_id,json=suiteId,proto3" json:"suite_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ArchiveEvaluationSuiteRequest) Reset() {
+	*x = ArchiveEvaluationSuiteRequest{}
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ArchiveEvaluationSuiteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArchiveEvaluationSuiteRequest) ProtoMessage() {}
+
+func (x *ArchiveEvaluationSuiteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArchiveEvaluationSuiteRequest.ProtoReflect.Descriptor instead.
+func (*ArchiveEvaluationSuiteRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *ArchiveEvaluationSuiteRequest) GetSuiteId() string {
+	if x != nil {
+		return x.SuiteId
+	}
+	return ""
+}
+
+type ArchiveEvaluationSuiteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Suite         *EvaluationSuite       `protobuf:"bytes,1,opt,name=suite,proto3" json:"suite,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ArchiveEvaluationSuiteResponse) Reset() {
+	*x = ArchiveEvaluationSuiteResponse{}
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ArchiveEvaluationSuiteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArchiveEvaluationSuiteResponse) ProtoMessage() {}
+
+func (x *ArchiveEvaluationSuiteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArchiveEvaluationSuiteResponse.ProtoReflect.Descriptor instead.
+func (*ArchiveEvaluationSuiteResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *ArchiveEvaluationSuiteResponse) GetSuite() *EvaluationSuite {
+	if x != nil {
+		return x.Suite
+	}
+	return nil
+}
+
 type ListEvaluationSuitesRequest struct {
 	state   protoimpl.MessageState       `protogen:"open.v1"`
 	Filters *ListEvaluationSuitesFilters `protobuf:"bytes,1,opt,name=filters,proto3" json:"filters,omitempty"`
@@ -3041,7 +3139,7 @@ type ListEvaluationSuitesRequest struct {
 
 func (x *ListEvaluationSuitesRequest) Reset() {
 	*x = ListEvaluationSuitesRequest{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[44]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3053,7 +3151,7 @@ func (x *ListEvaluationSuitesRequest) String() string {
 func (*ListEvaluationSuitesRequest) ProtoMessage() {}
 
 func (x *ListEvaluationSuitesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[44]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3066,7 +3164,7 @@ func (x *ListEvaluationSuitesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEvaluationSuitesRequest.ProtoReflect.Descriptor instead.
 func (*ListEvaluationSuitesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{44}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ListEvaluationSuitesRequest) GetFilters() *ListEvaluationSuitesFilters {
@@ -3107,7 +3205,7 @@ type ListEvaluationSuitesFilters struct {
 
 func (x *ListEvaluationSuitesFilters) Reset() {
 	*x = ListEvaluationSuitesFilters{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[45]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3119,7 +3217,7 @@ func (x *ListEvaluationSuitesFilters) String() string {
 func (*ListEvaluationSuitesFilters) ProtoMessage() {}
 
 func (x *ListEvaluationSuitesFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[45]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3132,7 +3230,7 @@ func (x *ListEvaluationSuitesFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEvaluationSuitesFilters.ProtoReflect.Descriptor instead.
 func (*ListEvaluationSuitesFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{45}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ListEvaluationSuitesFilters) GetCreatedBy() []string {
@@ -3159,7 +3257,7 @@ type ListEvaluationSuitesResponse struct {
 
 func (x *ListEvaluationSuitesResponse) Reset() {
 	*x = ListEvaluationSuitesResponse{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[46]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3171,7 +3269,7 @@ func (x *ListEvaluationSuitesResponse) String() string {
 func (*ListEvaluationSuitesResponse) ProtoMessage() {}
 
 func (x *ListEvaluationSuitesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[46]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3184,7 +3282,7 @@ func (x *ListEvaluationSuitesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEvaluationSuitesResponse.ProtoReflect.Descriptor instead.
 func (*ListEvaluationSuitesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{46}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ListEvaluationSuitesResponse) GetSuites() []*EvaluationSuite {
@@ -3215,7 +3313,7 @@ type OnlineEvaluatorPredicate struct {
 
 func (x *OnlineEvaluatorPredicate) Reset() {
 	*x = OnlineEvaluatorPredicate{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[47]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3227,7 +3325,7 @@ func (x *OnlineEvaluatorPredicate) String() string {
 func (*OnlineEvaluatorPredicate) ProtoMessage() {}
 
 func (x *OnlineEvaluatorPredicate) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[47]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3240,7 +3338,7 @@ func (x *OnlineEvaluatorPredicate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnlineEvaluatorPredicate.ProtoReflect.Descriptor instead.
 func (*OnlineEvaluatorPredicate) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{47}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *OnlineEvaluatorPredicate) GetSqlExpression() string {
@@ -3268,7 +3366,7 @@ type OnlineEvaluatorScorer struct {
 
 func (x *OnlineEvaluatorScorer) Reset() {
 	*x = OnlineEvaluatorScorer{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[48]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3280,7 +3378,7 @@ func (x *OnlineEvaluatorScorer) String() string {
 func (*OnlineEvaluatorScorer) ProtoMessage() {}
 
 func (x *OnlineEvaluatorScorer) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[48]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3293,7 +3391,7 @@ func (x *OnlineEvaluatorScorer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnlineEvaluatorScorer.ProtoReflect.Descriptor instead.
 func (*OnlineEvaluatorScorer) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{48}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *OnlineEvaluatorScorer) GetName() string {
@@ -3338,7 +3436,7 @@ type OnlineEvaluatorSpec struct {
 
 func (x *OnlineEvaluatorSpec) Reset() {
 	*x = OnlineEvaluatorSpec{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[49]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3350,7 +3448,7 @@ func (x *OnlineEvaluatorSpec) String() string {
 func (*OnlineEvaluatorSpec) ProtoMessage() {}
 
 func (x *OnlineEvaluatorSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[49]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3363,7 +3461,7 @@ func (x *OnlineEvaluatorSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnlineEvaluatorSpec.ProtoReflect.Descriptor instead.
 func (*OnlineEvaluatorSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{49}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *OnlineEvaluatorSpec) GetName() string {
@@ -3434,7 +3532,7 @@ type OnlineEvaluator struct {
 
 func (x *OnlineEvaluator) Reset() {
 	*x = OnlineEvaluator{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[50]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3446,7 +3544,7 @@ func (x *OnlineEvaluator) String() string {
 func (*OnlineEvaluator) ProtoMessage() {}
 
 func (x *OnlineEvaluator) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[50]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3459,7 +3557,7 @@ func (x *OnlineEvaluator) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnlineEvaluator.ProtoReflect.Descriptor instead.
 func (*OnlineEvaluator) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{50}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *OnlineEvaluator) GetId() string {
@@ -3527,7 +3625,7 @@ type CreateOnlineEvaluatorRequest struct {
 
 func (x *CreateOnlineEvaluatorRequest) Reset() {
 	*x = CreateOnlineEvaluatorRequest{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[51]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3539,7 +3637,7 @@ func (x *CreateOnlineEvaluatorRequest) String() string {
 func (*CreateOnlineEvaluatorRequest) ProtoMessage() {}
 
 func (x *CreateOnlineEvaluatorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[51]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3552,7 +3650,7 @@ func (x *CreateOnlineEvaluatorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOnlineEvaluatorRequest.ProtoReflect.Descriptor instead.
 func (*CreateOnlineEvaluatorRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{51}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *CreateOnlineEvaluatorRequest) GetSpec() *OnlineEvaluatorSpec {
@@ -3571,7 +3669,7 @@ type CreateOnlineEvaluatorResponse struct {
 
 func (x *CreateOnlineEvaluatorResponse) Reset() {
 	*x = CreateOnlineEvaluatorResponse{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[52]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3583,7 +3681,7 @@ func (x *CreateOnlineEvaluatorResponse) String() string {
 func (*CreateOnlineEvaluatorResponse) ProtoMessage() {}
 
 func (x *CreateOnlineEvaluatorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[52]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3596,7 +3694,7 @@ func (x *CreateOnlineEvaluatorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOnlineEvaluatorResponse.ProtoReflect.Descriptor instead.
 func (*CreateOnlineEvaluatorResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{52}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *CreateOnlineEvaluatorResponse) GetOnlineEvaluator() *OnlineEvaluator {
@@ -3615,7 +3713,7 @@ type GetOnlineEvaluatorRequest struct {
 
 func (x *GetOnlineEvaluatorRequest) Reset() {
 	*x = GetOnlineEvaluatorRequest{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[53]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3627,7 +3725,7 @@ func (x *GetOnlineEvaluatorRequest) String() string {
 func (*GetOnlineEvaluatorRequest) ProtoMessage() {}
 
 func (x *GetOnlineEvaluatorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[53]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3640,7 +3738,7 @@ func (x *GetOnlineEvaluatorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOnlineEvaluatorRequest.ProtoReflect.Descriptor instead.
 func (*GetOnlineEvaluatorRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{53}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *GetOnlineEvaluatorRequest) GetOnlineEvaluatorId() string {
@@ -3659,7 +3757,7 @@ type GetOnlineEvaluatorResponse struct {
 
 func (x *GetOnlineEvaluatorResponse) Reset() {
 	*x = GetOnlineEvaluatorResponse{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[54]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3671,7 +3769,7 @@ func (x *GetOnlineEvaluatorResponse) String() string {
 func (*GetOnlineEvaluatorResponse) ProtoMessage() {}
 
 func (x *GetOnlineEvaluatorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[54]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3684,7 +3782,7 @@ func (x *GetOnlineEvaluatorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOnlineEvaluatorResponse.ProtoReflect.Descriptor instead.
 func (*GetOnlineEvaluatorResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{54}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *GetOnlineEvaluatorResponse) GetOnlineEvaluator() *OnlineEvaluator {
@@ -3704,7 +3802,7 @@ type ListOnlineEvaluatorsFilters struct {
 
 func (x *ListOnlineEvaluatorsFilters) Reset() {
 	*x = ListOnlineEvaluatorsFilters{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[55]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3716,7 +3814,7 @@ func (x *ListOnlineEvaluatorsFilters) String() string {
 func (*ListOnlineEvaluatorsFilters) ProtoMessage() {}
 
 func (x *ListOnlineEvaluatorsFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[55]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3729,7 +3827,7 @@ func (x *ListOnlineEvaluatorsFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOnlineEvaluatorsFilters.ProtoReflect.Descriptor instead.
 func (*ListOnlineEvaluatorsFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{55}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *ListOnlineEvaluatorsFilters) GetEnabled() bool {
@@ -3750,7 +3848,7 @@ type ListOnlineEvaluatorsRequest struct {
 
 func (x *ListOnlineEvaluatorsRequest) Reset() {
 	*x = ListOnlineEvaluatorsRequest{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[56]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3762,7 +3860,7 @@ func (x *ListOnlineEvaluatorsRequest) String() string {
 func (*ListOnlineEvaluatorsRequest) ProtoMessage() {}
 
 func (x *ListOnlineEvaluatorsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[56]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3775,7 +3873,7 @@ func (x *ListOnlineEvaluatorsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOnlineEvaluatorsRequest.ProtoReflect.Descriptor instead.
 func (*ListOnlineEvaluatorsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{56}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *ListOnlineEvaluatorsRequest) GetCursor() string {
@@ -3809,7 +3907,7 @@ type ListOnlineEvaluatorsResponse struct {
 
 func (x *ListOnlineEvaluatorsResponse) Reset() {
 	*x = ListOnlineEvaluatorsResponse{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[57]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3821,7 +3919,7 @@ func (x *ListOnlineEvaluatorsResponse) String() string {
 func (*ListOnlineEvaluatorsResponse) ProtoMessage() {}
 
 func (x *ListOnlineEvaluatorsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[57]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3834,7 +3932,7 @@ func (x *ListOnlineEvaluatorsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOnlineEvaluatorsResponse.ProtoReflect.Descriptor instead.
 func (*ListOnlineEvaluatorsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{57}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *ListOnlineEvaluatorsResponse) GetOnlineEvaluators() []*OnlineEvaluator {
@@ -3865,7 +3963,7 @@ type UpdateOnlineEvaluatorRequest struct {
 
 func (x *UpdateOnlineEvaluatorRequest) Reset() {
 	*x = UpdateOnlineEvaluatorRequest{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[58]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3877,7 +3975,7 @@ func (x *UpdateOnlineEvaluatorRequest) String() string {
 func (*UpdateOnlineEvaluatorRequest) ProtoMessage() {}
 
 func (x *UpdateOnlineEvaluatorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[58]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3890,7 +3988,7 @@ func (x *UpdateOnlineEvaluatorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOnlineEvaluatorRequest.ProtoReflect.Descriptor instead.
 func (*UpdateOnlineEvaluatorRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{58}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *UpdateOnlineEvaluatorRequest) GetOnlineEvaluatorId() string {
@@ -3923,7 +4021,7 @@ type UpdateOnlineEvaluatorResponse struct {
 
 func (x *UpdateOnlineEvaluatorResponse) Reset() {
 	*x = UpdateOnlineEvaluatorResponse{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[59]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3935,7 +4033,7 @@ func (x *UpdateOnlineEvaluatorResponse) String() string {
 func (*UpdateOnlineEvaluatorResponse) ProtoMessage() {}
 
 func (x *UpdateOnlineEvaluatorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[59]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3948,7 +4046,7 @@ func (x *UpdateOnlineEvaluatorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOnlineEvaluatorResponse.ProtoReflect.Descriptor instead.
 func (*UpdateOnlineEvaluatorResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{59}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *UpdateOnlineEvaluatorResponse) GetOnlineEvaluator() *OnlineEvaluator {
@@ -3967,7 +4065,7 @@ type DeleteOnlineEvaluatorRequest struct {
 
 func (x *DeleteOnlineEvaluatorRequest) Reset() {
 	*x = DeleteOnlineEvaluatorRequest{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[60]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3979,7 +4077,7 @@ func (x *DeleteOnlineEvaluatorRequest) String() string {
 func (*DeleteOnlineEvaluatorRequest) ProtoMessage() {}
 
 func (x *DeleteOnlineEvaluatorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[60]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3992,7 +4090,7 @@ func (x *DeleteOnlineEvaluatorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOnlineEvaluatorRequest.ProtoReflect.Descriptor instead.
 func (*DeleteOnlineEvaluatorRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{60}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *DeleteOnlineEvaluatorRequest) GetOnlineEvaluatorId() string {
@@ -4011,7 +4109,7 @@ type DeleteOnlineEvaluatorResponse struct {
 
 func (x *DeleteOnlineEvaluatorResponse) Reset() {
 	*x = DeleteOnlineEvaluatorResponse{}
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[61]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4023,7 +4121,7 @@ func (x *DeleteOnlineEvaluatorResponse) String() string {
 func (*DeleteOnlineEvaluatorResponse) ProtoMessage() {}
 
 func (x *DeleteOnlineEvaluatorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[61]
+	mi := &file_chalk_evaluation_v1_service_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4036,7 +4134,7 @@ func (x *DeleteOnlineEvaluatorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOnlineEvaluatorResponse.ProtoReflect.Descriptor instead.
 func (*DeleteOnlineEvaluatorResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{61}
+	return file_chalk_evaluation_v1_service_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *DeleteOnlineEvaluatorResponse) GetOnlineEvaluatorId() string {
@@ -4270,7 +4368,7 @@ const file_chalk_evaluation_v1_service_proto_rawDesc = "" +
 	"\x1bArchiveEvaluationRunRequest\x12*\n" +
 	"\x11evaluation_run_id\x18\x01 \x01(\tR\x0fevaluationRunId\"J\n" +
 	"\x1cArchiveEvaluationRunResponse\x12*\n" +
-	"\x11evaluation_run_id\x18\x01 \x01(\tR\x0fevaluationRunId\"\x86\x03\n" +
+	"\x11evaluation_run_id\x18\x01 \x01(\tR\x0fevaluationRunId\"\xe5\x03\n" +
 	"\x0fEvaluationSuite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12%\n" +
@@ -4282,10 +4380,13 @@ const file_chalk_evaluation_v1_service_proto_rawDesc = "" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12.\n" +
 	"\x10evaluation_count\x18\a \x01(\x03H\x01R\x0fevaluationCount\x88\x01\x01\x12(\n" +
 	"\rdataset_count\x18\b \x01(\x03H\x02R\fdatasetCount\x88\x01\x01\x12 \n" +
-	"\vdescription\x18\t \x01(\tR\vdescriptionB\r\n" +
+	"\vdescription\x18\t \x01(\tR\vdescription\x12J\n" +
+	"\x0earchive_status\x18\n" +
+	" \x01(\v2\x1e.chalk.common.v1.ArchiveStatusH\x03R\rarchiveStatus\x88\x01\x01B\r\n" +
 	"\v_created_byB\x13\n" +
 	"\x11_evaluation_countB\x10\n" +
-	"\x0e_dataset_count\"T\n" +
+	"\x0e_dataset_countB\x11\n" +
+	"\x0f_archive_status\"T\n" +
 	"\x1cCreateEvaluationSuiteRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\"[\n" +
@@ -4302,6 +4403,10 @@ const file_chalk_evaluation_v1_service_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"[\n" +
 	"\x1dUpdateEvaluationSuiteResponse\x12:\n" +
+	"\x05suite\x18\x01 \x01(\v2$.chalk.evaluation.v1.EvaluationSuiteR\x05suite\":\n" +
+	"\x1dArchiveEvaluationSuiteRequest\x12\x19\n" +
+	"\bsuite_id\x18\x01 \x01(\tR\asuiteId\"\\\n" +
+	"\x1eArchiveEvaluationSuiteResponse\x12:\n" +
 	"\x05suite\x18\x01 \x01(\v2$.chalk.evaluation.v1.EvaluationSuiteR\x05suite\"\x86\x02\n" +
 	"\x1bListEvaluationSuitesRequest\x12J\n" +
 	"\afilters\x18\x01 \x01(\v20.chalk.evaluation.v1.ListEvaluationSuitesFiltersR\afilters\x125\n" +
@@ -4405,12 +4510,14 @@ const file_chalk_evaluation_v1_service_proto_rawDesc = "" +
 	"\"ONLINE_EVALUATOR_SCOPE_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bONLINE_EVALUATOR_SCOPE_SPAN\x10\x01\x12 \n" +
 	"\x1cONLINE_EVALUATOR_SCOPE_TRACE\x10\x02\x12\"\n" +
-	"\x1eONLINE_EVALUATOR_SCOPE_SESSION\x10\x032\xb1\x1f\n" +
+	"\x1eONLINE_EVALUATOR_SCOPE_SESSION\x10\x032\x82!\n" +
 	"\x11EvaluationService\x12\xc8\x01\n" +
 	"\x15CreateEvaluationSuite\x121.chalk.evaluation.v1.CreateEvaluationSuiteRequest\x1a2.chalk.evaluation.v1.CreateEvaluationSuiteResponse\"H\x80}\x04\x92\xd3\x0eA\n" +
 	"\x13evaluations_enabled\x12*Enables evaluation creation and execution.\x12\xc8\x01\n" +
 	"\x15UpdateEvaluationSuite\x121.chalk.evaluation.v1.UpdateEvaluationSuiteRequest\x1a2.chalk.evaluation.v1.UpdateEvaluationSuiteResponse\"H\x80}\x04\x92\xd3\x0eA\n" +
-	"\x13evaluations_enabled\x12*Enables evaluation creation and execution.\x12\xcc\x01\n" +
+	"\x13evaluations_enabled\x12*Enables evaluation creation and execution.\x12\xce\x01\n" +
+	"\x16ArchiveEvaluationSuite\x122.chalk.evaluation.v1.ArchiveEvaluationSuiteRequest\x1a3.chalk.evaluation.v1.ArchiveEvaluationSuiteResponse\"K\x80}\x04\x92\xd3\x0eA\n" +
+	"\x13evaluations_enabled\x12*Enables evaluation creation and execution.\x90\x02\x02\x12\xcc\x01\n" +
 	"\x14ListEvaluationSuites\x120.chalk.evaluation.v1.ListEvaluationSuitesRequest\x1a1.chalk.evaluation.v1.ListEvaluationSuitesResponse\"O\x80}\x04\x92}\x01$\x92\xd3\x0eA\n" +
 	"\x13evaluations_enabled\x12*Enables evaluation creation and execution.\x90\x02\x02\x12\xb9\x01\n" +
 	"\x10CreateEvaluation\x12,.chalk.evaluation.v1.CreateEvaluationRequest\x1a-.chalk.evaluation.v1.CreateEvaluationResponse\"H\x80}\x04\x92\xd3\x0eA\n" +
@@ -4462,7 +4569,7 @@ func file_chalk_evaluation_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_evaluation_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chalk_evaluation_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 64)
+var file_chalk_evaluation_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 66)
 var file_chalk_evaluation_v1_service_proto_goTypes = []any{
 	(EvaluationRunStatus)(0),                 // 0: chalk.evaluation.v1.EvaluationRunStatus
 	(EvaluationRunExecutionMode)(0),          // 1: chalk.evaluation.v1.EvaluationRunExecutionMode
@@ -4512,30 +4619,32 @@ var file_chalk_evaluation_v1_service_proto_goTypes = []any{
 	(*UpdateEvaluationSuiteOperation)(nil),   // 45: chalk.evaluation.v1.UpdateEvaluationSuiteOperation
 	(*UpdateEvaluationSuiteRequest)(nil),     // 46: chalk.evaluation.v1.UpdateEvaluationSuiteRequest
 	(*UpdateEvaluationSuiteResponse)(nil),    // 47: chalk.evaluation.v1.UpdateEvaluationSuiteResponse
-	(*ListEvaluationSuitesRequest)(nil),      // 48: chalk.evaluation.v1.ListEvaluationSuitesRequest
-	(*ListEvaluationSuitesFilters)(nil),      // 49: chalk.evaluation.v1.ListEvaluationSuitesFilters
-	(*ListEvaluationSuitesResponse)(nil),     // 50: chalk.evaluation.v1.ListEvaluationSuitesResponse
-	(*OnlineEvaluatorPredicate)(nil),         // 51: chalk.evaluation.v1.OnlineEvaluatorPredicate
-	(*OnlineEvaluatorScorer)(nil),            // 52: chalk.evaluation.v1.OnlineEvaluatorScorer
-	(*OnlineEvaluatorSpec)(nil),              // 53: chalk.evaluation.v1.OnlineEvaluatorSpec
-	(*OnlineEvaluator)(nil),                  // 54: chalk.evaluation.v1.OnlineEvaluator
-	(*CreateOnlineEvaluatorRequest)(nil),     // 55: chalk.evaluation.v1.CreateOnlineEvaluatorRequest
-	(*CreateOnlineEvaluatorResponse)(nil),    // 56: chalk.evaluation.v1.CreateOnlineEvaluatorResponse
-	(*GetOnlineEvaluatorRequest)(nil),        // 57: chalk.evaluation.v1.GetOnlineEvaluatorRequest
-	(*GetOnlineEvaluatorResponse)(nil),       // 58: chalk.evaluation.v1.GetOnlineEvaluatorResponse
-	(*ListOnlineEvaluatorsFilters)(nil),      // 59: chalk.evaluation.v1.ListOnlineEvaluatorsFilters
-	(*ListOnlineEvaluatorsRequest)(nil),      // 60: chalk.evaluation.v1.ListOnlineEvaluatorsRequest
-	(*ListOnlineEvaluatorsResponse)(nil),     // 61: chalk.evaluation.v1.ListOnlineEvaluatorsResponse
-	(*UpdateOnlineEvaluatorRequest)(nil),     // 62: chalk.evaluation.v1.UpdateOnlineEvaluatorRequest
-	(*UpdateOnlineEvaluatorResponse)(nil),    // 63: chalk.evaluation.v1.UpdateOnlineEvaluatorResponse
-	(*DeleteOnlineEvaluatorRequest)(nil),     // 64: chalk.evaluation.v1.DeleteOnlineEvaluatorRequest
-	(*DeleteOnlineEvaluatorResponse)(nil),    // 65: chalk.evaluation.v1.DeleteOnlineEvaluatorResponse
-	nil,                                      // 66: chalk.evaluation.v1.EvaluationScoreSummary.MetricsEntry
-	nil,                                      // 67: chalk.evaluation.v1.EvaluationScoreSummary.MetricDistributionsEntry
-	(*timestamppb.Timestamp)(nil),            // 68: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),                  // 69: google.protobuf.Struct
-	(*v1.ArchiveStatus)(nil),                 // 70: chalk.common.v1.ArchiveStatus
-	(*fieldmaskpb.FieldMask)(nil),            // 71: google.protobuf.FieldMask
+	(*ArchiveEvaluationSuiteRequest)(nil),    // 48: chalk.evaluation.v1.ArchiveEvaluationSuiteRequest
+	(*ArchiveEvaluationSuiteResponse)(nil),   // 49: chalk.evaluation.v1.ArchiveEvaluationSuiteResponse
+	(*ListEvaluationSuitesRequest)(nil),      // 50: chalk.evaluation.v1.ListEvaluationSuitesRequest
+	(*ListEvaluationSuitesFilters)(nil),      // 51: chalk.evaluation.v1.ListEvaluationSuitesFilters
+	(*ListEvaluationSuitesResponse)(nil),     // 52: chalk.evaluation.v1.ListEvaluationSuitesResponse
+	(*OnlineEvaluatorPredicate)(nil),         // 53: chalk.evaluation.v1.OnlineEvaluatorPredicate
+	(*OnlineEvaluatorScorer)(nil),            // 54: chalk.evaluation.v1.OnlineEvaluatorScorer
+	(*OnlineEvaluatorSpec)(nil),              // 55: chalk.evaluation.v1.OnlineEvaluatorSpec
+	(*OnlineEvaluator)(nil),                  // 56: chalk.evaluation.v1.OnlineEvaluator
+	(*CreateOnlineEvaluatorRequest)(nil),     // 57: chalk.evaluation.v1.CreateOnlineEvaluatorRequest
+	(*CreateOnlineEvaluatorResponse)(nil),    // 58: chalk.evaluation.v1.CreateOnlineEvaluatorResponse
+	(*GetOnlineEvaluatorRequest)(nil),        // 59: chalk.evaluation.v1.GetOnlineEvaluatorRequest
+	(*GetOnlineEvaluatorResponse)(nil),       // 60: chalk.evaluation.v1.GetOnlineEvaluatorResponse
+	(*ListOnlineEvaluatorsFilters)(nil),      // 61: chalk.evaluation.v1.ListOnlineEvaluatorsFilters
+	(*ListOnlineEvaluatorsRequest)(nil),      // 62: chalk.evaluation.v1.ListOnlineEvaluatorsRequest
+	(*ListOnlineEvaluatorsResponse)(nil),     // 63: chalk.evaluation.v1.ListOnlineEvaluatorsResponse
+	(*UpdateOnlineEvaluatorRequest)(nil),     // 64: chalk.evaluation.v1.UpdateOnlineEvaluatorRequest
+	(*UpdateOnlineEvaluatorResponse)(nil),    // 65: chalk.evaluation.v1.UpdateOnlineEvaluatorResponse
+	(*DeleteOnlineEvaluatorRequest)(nil),     // 66: chalk.evaluation.v1.DeleteOnlineEvaluatorRequest
+	(*DeleteOnlineEvaluatorResponse)(nil),    // 67: chalk.evaluation.v1.DeleteOnlineEvaluatorResponse
+	nil,                                      // 68: chalk.evaluation.v1.EvaluationScoreSummary.MetricsEntry
+	nil,                                      // 69: chalk.evaluation.v1.EvaluationScoreSummary.MetricDistributionsEntry
+	(*timestamppb.Timestamp)(nil),            // 70: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),                  // 71: google.protobuf.Struct
+	(*v1.ArchiveStatus)(nil),                 // 72: chalk.common.v1.ArchiveStatus
+	(*fieldmaskpb.FieldMask)(nil),            // 73: google.protobuf.FieldMask
 }
 var file_chalk_evaluation_v1_service_proto_depIdxs = []int32{
 	4,  // 0: chalk.evaluation.v1.EvaluationScorerSpec.function:type_name -> chalk.evaluation.v1.FunctionScorer
@@ -4546,25 +4655,25 @@ var file_chalk_evaluation_v1_service_proto_depIdxs = []int32{
 	9,  // 5: chalk.evaluation.v1.EvaluationScorerScoreSummary.scorer:type_name -> chalk.evaluation.v1.EvaluationScorer
 	12, // 6: chalk.evaluation.v1.EvaluationScorerScoreSummary.distribution:type_name -> chalk.evaluation.v1.EvaluationValueDistribution
 	11, // 7: chalk.evaluation.v1.EvaluationScoreSummary.scorer_scores:type_name -> chalk.evaluation.v1.EvaluationScorerScoreSummary
-	68, // 8: chalk.evaluation.v1.EvaluationScoreSummary.created_at:type_name -> google.protobuf.Timestamp
-	69, // 9: chalk.evaluation.v1.EvaluationScoreSummary.metadata:type_name -> google.protobuf.Struct
-	66, // 10: chalk.evaluation.v1.EvaluationScoreSummary.metrics:type_name -> chalk.evaluation.v1.EvaluationScoreSummary.MetricsEntry
+	70, // 8: chalk.evaluation.v1.EvaluationScoreSummary.created_at:type_name -> google.protobuf.Timestamp
+	71, // 9: chalk.evaluation.v1.EvaluationScoreSummary.metadata:type_name -> google.protobuf.Struct
+	68, // 10: chalk.evaluation.v1.EvaluationScoreSummary.metrics:type_name -> chalk.evaluation.v1.EvaluationScoreSummary.MetricsEntry
 	12, // 11: chalk.evaluation.v1.EvaluationScoreSummary.score_distribution:type_name -> chalk.evaluation.v1.EvaluationValueDistribution
-	67, // 12: chalk.evaluation.v1.EvaluationScoreSummary.metric_distributions:type_name -> chalk.evaluation.v1.EvaluationScoreSummary.MetricDistributionsEntry
+	69, // 12: chalk.evaluation.v1.EvaluationScoreSummary.metric_distributions:type_name -> chalk.evaluation.v1.EvaluationScoreSummary.MetricDistributionsEntry
 	9,  // 13: chalk.evaluation.v1.Evaluation.scorers:type_name -> chalk.evaluation.v1.EvaluationScorer
-	69, // 14: chalk.evaluation.v1.Evaluation.metadata:type_name -> google.protobuf.Struct
-	68, // 15: chalk.evaluation.v1.Evaluation.created_at:type_name -> google.protobuf.Timestamp
+	71, // 14: chalk.evaluation.v1.Evaluation.metadata:type_name -> google.protobuf.Struct
+	70, // 15: chalk.evaluation.v1.Evaluation.created_at:type_name -> google.protobuf.Timestamp
 	7,  // 16: chalk.evaluation.v1.Evaluation.task_sql_expression:type_name -> chalk.evaluation.v1.SqlExpressionTask
-	70, // 17: chalk.evaluation.v1.Evaluation.archive_status:type_name -> chalk.common.v1.ArchiveStatus
+	72, // 17: chalk.evaluation.v1.Evaluation.archive_status:type_name -> chalk.common.v1.ArchiveStatus
 	0,  // 18: chalk.evaluation.v1.EvaluationRun.status:type_name -> chalk.evaluation.v1.EvaluationRunStatus
-	69, // 19: chalk.evaluation.v1.EvaluationRun.metadata:type_name -> google.protobuf.Struct
-	68, // 20: chalk.evaluation.v1.EvaluationRun.created_at:type_name -> google.protobuf.Timestamp
-	68, // 21: chalk.evaluation.v1.EvaluationRun.started_at:type_name -> google.protobuf.Timestamp
-	68, // 22: chalk.evaluation.v1.EvaluationRun.completed_at:type_name -> google.protobuf.Timestamp
+	71, // 19: chalk.evaluation.v1.EvaluationRun.metadata:type_name -> google.protobuf.Struct
+	70, // 20: chalk.evaluation.v1.EvaluationRun.created_at:type_name -> google.protobuf.Timestamp
+	70, // 21: chalk.evaluation.v1.EvaluationRun.started_at:type_name -> google.protobuf.Timestamp
+	70, // 22: chalk.evaluation.v1.EvaluationRun.completed_at:type_name -> google.protobuf.Timestamp
 	1,  // 23: chalk.evaluation.v1.EvaluationRun.execution_mode:type_name -> chalk.evaluation.v1.EvaluationRunExecutionMode
 	2,  // 24: chalk.evaluation.v1.EvaluationRun.score_summary_status:type_name -> chalk.evaluation.v1.EvaluationScoreSummaryStatus
 	8,  // 25: chalk.evaluation.v1.CreateEvaluationRequest.scorers:type_name -> chalk.evaluation.v1.EvaluationScorerSpec
-	69, // 26: chalk.evaluation.v1.CreateEvaluationRequest.metadata:type_name -> google.protobuf.Struct
+	71, // 26: chalk.evaluation.v1.CreateEvaluationRequest.metadata:type_name -> google.protobuf.Struct
 	7,  // 27: chalk.evaluation.v1.CreateEvaluationRequest.task_sql_expression:type_name -> chalk.evaluation.v1.SqlExpressionTask
 	14, // 28: chalk.evaluation.v1.CreateEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
 	14, // 29: chalk.evaluation.v1.GetEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
@@ -4573,10 +4682,10 @@ var file_chalk_evaluation_v1_service_proto_depIdxs = []int32{
 	13, // 32: chalk.evaluation.v1.ListEvaluationsResponse.score_summaries:type_name -> chalk.evaluation.v1.EvaluationScoreSummary
 	14, // 33: chalk.evaluation.v1.ArchiveEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
 	14, // 34: chalk.evaluation.v1.UnarchiveEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
-	69, // 35: chalk.evaluation.v1.CreateEvaluationRunRequest.metadata:type_name -> google.protobuf.Struct
+	71, // 35: chalk.evaluation.v1.CreateEvaluationRunRequest.metadata:type_name -> google.protobuf.Struct
 	1,  // 36: chalk.evaluation.v1.CreateEvaluationRunRequest.execution_mode:type_name -> chalk.evaluation.v1.EvaluationRunExecutionMode
 	15, // 37: chalk.evaluation.v1.CreateEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
-	69, // 38: chalk.evaluation.v1.RescoreEvaluationRunRequest.metadata:type_name -> google.protobuf.Struct
+	71, // 38: chalk.evaluation.v1.RescoreEvaluationRunRequest.metadata:type_name -> google.protobuf.Struct
 	15, // 39: chalk.evaluation.v1.RescoreEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
 	15, // 40: chalk.evaluation.v1.GetEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
 	13, // 41: chalk.evaluation.v1.GetEvaluationRunResponse.score_summary:type_name -> chalk.evaluation.v1.EvaluationScoreSummary
@@ -4588,74 +4697,78 @@ var file_chalk_evaluation_v1_service_proto_depIdxs = []int32{
 	14, // 47: chalk.evaluation.v1.ListEvaluationRunsResponse.evaluations:type_name -> chalk.evaluation.v1.Evaluation
 	15, // 48: chalk.evaluation.v1.SetEvaluationRunBaselineResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
 	15, // 49: chalk.evaluation.v1.MoveEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
-	68, // 50: chalk.evaluation.v1.EvaluationSuite.created_at:type_name -> google.protobuf.Timestamp
-	42, // 51: chalk.evaluation.v1.CreateEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
-	45, // 52: chalk.evaluation.v1.UpdateEvaluationSuiteRequest.update:type_name -> chalk.evaluation.v1.UpdateEvaluationSuiteOperation
-	71, // 53: chalk.evaluation.v1.UpdateEvaluationSuiteRequest.update_mask:type_name -> google.protobuf.FieldMask
-	42, // 54: chalk.evaluation.v1.UpdateEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
-	49, // 55: chalk.evaluation.v1.ListEvaluationSuitesRequest.filters:type_name -> chalk.evaluation.v1.ListEvaluationSuitesFilters
-	42, // 56: chalk.evaluation.v1.ListEvaluationSuitesResponse.suites:type_name -> chalk.evaluation.v1.EvaluationSuite
-	8,  // 57: chalk.evaluation.v1.OnlineEvaluatorScorer.spec:type_name -> chalk.evaluation.v1.EvaluationScorerSpec
-	52, // 58: chalk.evaluation.v1.OnlineEvaluatorSpec.scorers:type_name -> chalk.evaluation.v1.OnlineEvaluatorScorer
-	51, // 59: chalk.evaluation.v1.OnlineEvaluatorSpec.predicate:type_name -> chalk.evaluation.v1.OnlineEvaluatorPredicate
-	3,  // 60: chalk.evaluation.v1.OnlineEvaluatorSpec.scope:type_name -> chalk.evaluation.v1.OnlineEvaluatorScope
-	69, // 61: chalk.evaluation.v1.OnlineEvaluatorSpec.metadata:type_name -> google.protobuf.Struct
-	53, // 62: chalk.evaluation.v1.OnlineEvaluator.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
-	68, // 63: chalk.evaluation.v1.OnlineEvaluator.created_at:type_name -> google.protobuf.Timestamp
-	68, // 64: chalk.evaluation.v1.OnlineEvaluator.updated_at:type_name -> google.protobuf.Timestamp
-	53, // 65: chalk.evaluation.v1.CreateOnlineEvaluatorRequest.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
-	54, // 66: chalk.evaluation.v1.CreateOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
-	54, // 67: chalk.evaluation.v1.GetOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
-	59, // 68: chalk.evaluation.v1.ListOnlineEvaluatorsRequest.filters:type_name -> chalk.evaluation.v1.ListOnlineEvaluatorsFilters
-	54, // 69: chalk.evaluation.v1.ListOnlineEvaluatorsResponse.online_evaluators:type_name -> chalk.evaluation.v1.OnlineEvaluator
-	53, // 70: chalk.evaluation.v1.UpdateOnlineEvaluatorRequest.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
-	54, // 71: chalk.evaluation.v1.UpdateOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
-	12, // 72: chalk.evaluation.v1.EvaluationScoreSummary.MetricDistributionsEntry.value:type_name -> chalk.evaluation.v1.EvaluationValueDistribution
-	43, // 73: chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite:input_type -> chalk.evaluation.v1.CreateEvaluationSuiteRequest
-	46, // 74: chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite:input_type -> chalk.evaluation.v1.UpdateEvaluationSuiteRequest
-	48, // 75: chalk.evaluation.v1.EvaluationService.ListEvaluationSuites:input_type -> chalk.evaluation.v1.ListEvaluationSuitesRequest
-	16, // 76: chalk.evaluation.v1.EvaluationService.CreateEvaluation:input_type -> chalk.evaluation.v1.CreateEvaluationRequest
-	18, // 77: chalk.evaluation.v1.EvaluationService.GetEvaluation:input_type -> chalk.evaluation.v1.GetEvaluationRequest
-	20, // 78: chalk.evaluation.v1.EvaluationService.ListEvaluations:input_type -> chalk.evaluation.v1.ListEvaluationsRequest
-	23, // 79: chalk.evaluation.v1.EvaluationService.ArchiveEvaluation:input_type -> chalk.evaluation.v1.ArchiveEvaluationRequest
-	25, // 80: chalk.evaluation.v1.EvaluationService.UnarchiveEvaluation:input_type -> chalk.evaluation.v1.UnarchiveEvaluationRequest
-	27, // 81: chalk.evaluation.v1.EvaluationService.CreateEvaluationRun:input_type -> chalk.evaluation.v1.CreateEvaluationRunRequest
-	29, // 82: chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun:input_type -> chalk.evaluation.v1.RescoreEvaluationRunRequest
-	31, // 83: chalk.evaluation.v1.EvaluationService.GetEvaluationRun:input_type -> chalk.evaluation.v1.GetEvaluationRunRequest
-	33, // 84: chalk.evaluation.v1.EvaluationService.ListEvaluationRuns:input_type -> chalk.evaluation.v1.ListEvaluationRunsRequest
-	36, // 85: chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline:input_type -> chalk.evaluation.v1.SetEvaluationRunBaselineRequest
-	38, // 86: chalk.evaluation.v1.EvaluationService.MoveEvaluationRun:input_type -> chalk.evaluation.v1.MoveEvaluationRunRequest
-	40, // 87: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun:input_type -> chalk.evaluation.v1.ArchiveEvaluationRunRequest
-	55, // 88: chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator:input_type -> chalk.evaluation.v1.CreateOnlineEvaluatorRequest
-	57, // 89: chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator:input_type -> chalk.evaluation.v1.GetOnlineEvaluatorRequest
-	60, // 90: chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators:input_type -> chalk.evaluation.v1.ListOnlineEvaluatorsRequest
-	62, // 91: chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator:input_type -> chalk.evaluation.v1.UpdateOnlineEvaluatorRequest
-	64, // 92: chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator:input_type -> chalk.evaluation.v1.DeleteOnlineEvaluatorRequest
-	44, // 93: chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite:output_type -> chalk.evaluation.v1.CreateEvaluationSuiteResponse
-	47, // 94: chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite:output_type -> chalk.evaluation.v1.UpdateEvaluationSuiteResponse
-	50, // 95: chalk.evaluation.v1.EvaluationService.ListEvaluationSuites:output_type -> chalk.evaluation.v1.ListEvaluationSuitesResponse
-	17, // 96: chalk.evaluation.v1.EvaluationService.CreateEvaluation:output_type -> chalk.evaluation.v1.CreateEvaluationResponse
-	19, // 97: chalk.evaluation.v1.EvaluationService.GetEvaluation:output_type -> chalk.evaluation.v1.GetEvaluationResponse
-	22, // 98: chalk.evaluation.v1.EvaluationService.ListEvaluations:output_type -> chalk.evaluation.v1.ListEvaluationsResponse
-	24, // 99: chalk.evaluation.v1.EvaluationService.ArchiveEvaluation:output_type -> chalk.evaluation.v1.ArchiveEvaluationResponse
-	26, // 100: chalk.evaluation.v1.EvaluationService.UnarchiveEvaluation:output_type -> chalk.evaluation.v1.UnarchiveEvaluationResponse
-	28, // 101: chalk.evaluation.v1.EvaluationService.CreateEvaluationRun:output_type -> chalk.evaluation.v1.CreateEvaluationRunResponse
-	30, // 102: chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun:output_type -> chalk.evaluation.v1.RescoreEvaluationRunResponse
-	32, // 103: chalk.evaluation.v1.EvaluationService.GetEvaluationRun:output_type -> chalk.evaluation.v1.GetEvaluationRunResponse
-	35, // 104: chalk.evaluation.v1.EvaluationService.ListEvaluationRuns:output_type -> chalk.evaluation.v1.ListEvaluationRunsResponse
-	37, // 105: chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline:output_type -> chalk.evaluation.v1.SetEvaluationRunBaselineResponse
-	39, // 106: chalk.evaluation.v1.EvaluationService.MoveEvaluationRun:output_type -> chalk.evaluation.v1.MoveEvaluationRunResponse
-	41, // 107: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun:output_type -> chalk.evaluation.v1.ArchiveEvaluationRunResponse
-	56, // 108: chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator:output_type -> chalk.evaluation.v1.CreateOnlineEvaluatorResponse
-	58, // 109: chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator:output_type -> chalk.evaluation.v1.GetOnlineEvaluatorResponse
-	61, // 110: chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators:output_type -> chalk.evaluation.v1.ListOnlineEvaluatorsResponse
-	63, // 111: chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator:output_type -> chalk.evaluation.v1.UpdateOnlineEvaluatorResponse
-	65, // 112: chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator:output_type -> chalk.evaluation.v1.DeleteOnlineEvaluatorResponse
-	93, // [93:113] is the sub-list for method output_type
-	73, // [73:93] is the sub-list for method input_type
-	73, // [73:73] is the sub-list for extension type_name
-	73, // [73:73] is the sub-list for extension extendee
-	0,  // [0:73] is the sub-list for field type_name
+	70, // 50: chalk.evaluation.v1.EvaluationSuite.created_at:type_name -> google.protobuf.Timestamp
+	72, // 51: chalk.evaluation.v1.EvaluationSuite.archive_status:type_name -> chalk.common.v1.ArchiveStatus
+	42, // 52: chalk.evaluation.v1.CreateEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
+	45, // 53: chalk.evaluation.v1.UpdateEvaluationSuiteRequest.update:type_name -> chalk.evaluation.v1.UpdateEvaluationSuiteOperation
+	73, // 54: chalk.evaluation.v1.UpdateEvaluationSuiteRequest.update_mask:type_name -> google.protobuf.FieldMask
+	42, // 55: chalk.evaluation.v1.UpdateEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
+	42, // 56: chalk.evaluation.v1.ArchiveEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
+	51, // 57: chalk.evaluation.v1.ListEvaluationSuitesRequest.filters:type_name -> chalk.evaluation.v1.ListEvaluationSuitesFilters
+	42, // 58: chalk.evaluation.v1.ListEvaluationSuitesResponse.suites:type_name -> chalk.evaluation.v1.EvaluationSuite
+	8,  // 59: chalk.evaluation.v1.OnlineEvaluatorScorer.spec:type_name -> chalk.evaluation.v1.EvaluationScorerSpec
+	54, // 60: chalk.evaluation.v1.OnlineEvaluatorSpec.scorers:type_name -> chalk.evaluation.v1.OnlineEvaluatorScorer
+	53, // 61: chalk.evaluation.v1.OnlineEvaluatorSpec.predicate:type_name -> chalk.evaluation.v1.OnlineEvaluatorPredicate
+	3,  // 62: chalk.evaluation.v1.OnlineEvaluatorSpec.scope:type_name -> chalk.evaluation.v1.OnlineEvaluatorScope
+	71, // 63: chalk.evaluation.v1.OnlineEvaluatorSpec.metadata:type_name -> google.protobuf.Struct
+	55, // 64: chalk.evaluation.v1.OnlineEvaluator.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
+	70, // 65: chalk.evaluation.v1.OnlineEvaluator.created_at:type_name -> google.protobuf.Timestamp
+	70, // 66: chalk.evaluation.v1.OnlineEvaluator.updated_at:type_name -> google.protobuf.Timestamp
+	55, // 67: chalk.evaluation.v1.CreateOnlineEvaluatorRequest.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
+	56, // 68: chalk.evaluation.v1.CreateOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
+	56, // 69: chalk.evaluation.v1.GetOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
+	61, // 70: chalk.evaluation.v1.ListOnlineEvaluatorsRequest.filters:type_name -> chalk.evaluation.v1.ListOnlineEvaluatorsFilters
+	56, // 71: chalk.evaluation.v1.ListOnlineEvaluatorsResponse.online_evaluators:type_name -> chalk.evaluation.v1.OnlineEvaluator
+	55, // 72: chalk.evaluation.v1.UpdateOnlineEvaluatorRequest.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
+	56, // 73: chalk.evaluation.v1.UpdateOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
+	12, // 74: chalk.evaluation.v1.EvaluationScoreSummary.MetricDistributionsEntry.value:type_name -> chalk.evaluation.v1.EvaluationValueDistribution
+	43, // 75: chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite:input_type -> chalk.evaluation.v1.CreateEvaluationSuiteRequest
+	46, // 76: chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite:input_type -> chalk.evaluation.v1.UpdateEvaluationSuiteRequest
+	48, // 77: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationSuite:input_type -> chalk.evaluation.v1.ArchiveEvaluationSuiteRequest
+	50, // 78: chalk.evaluation.v1.EvaluationService.ListEvaluationSuites:input_type -> chalk.evaluation.v1.ListEvaluationSuitesRequest
+	16, // 79: chalk.evaluation.v1.EvaluationService.CreateEvaluation:input_type -> chalk.evaluation.v1.CreateEvaluationRequest
+	18, // 80: chalk.evaluation.v1.EvaluationService.GetEvaluation:input_type -> chalk.evaluation.v1.GetEvaluationRequest
+	20, // 81: chalk.evaluation.v1.EvaluationService.ListEvaluations:input_type -> chalk.evaluation.v1.ListEvaluationsRequest
+	23, // 82: chalk.evaluation.v1.EvaluationService.ArchiveEvaluation:input_type -> chalk.evaluation.v1.ArchiveEvaluationRequest
+	25, // 83: chalk.evaluation.v1.EvaluationService.UnarchiveEvaluation:input_type -> chalk.evaluation.v1.UnarchiveEvaluationRequest
+	27, // 84: chalk.evaluation.v1.EvaluationService.CreateEvaluationRun:input_type -> chalk.evaluation.v1.CreateEvaluationRunRequest
+	29, // 85: chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun:input_type -> chalk.evaluation.v1.RescoreEvaluationRunRequest
+	31, // 86: chalk.evaluation.v1.EvaluationService.GetEvaluationRun:input_type -> chalk.evaluation.v1.GetEvaluationRunRequest
+	33, // 87: chalk.evaluation.v1.EvaluationService.ListEvaluationRuns:input_type -> chalk.evaluation.v1.ListEvaluationRunsRequest
+	36, // 88: chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline:input_type -> chalk.evaluation.v1.SetEvaluationRunBaselineRequest
+	38, // 89: chalk.evaluation.v1.EvaluationService.MoveEvaluationRun:input_type -> chalk.evaluation.v1.MoveEvaluationRunRequest
+	40, // 90: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun:input_type -> chalk.evaluation.v1.ArchiveEvaluationRunRequest
+	57, // 91: chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator:input_type -> chalk.evaluation.v1.CreateOnlineEvaluatorRequest
+	59, // 92: chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator:input_type -> chalk.evaluation.v1.GetOnlineEvaluatorRequest
+	62, // 93: chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators:input_type -> chalk.evaluation.v1.ListOnlineEvaluatorsRequest
+	64, // 94: chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator:input_type -> chalk.evaluation.v1.UpdateOnlineEvaluatorRequest
+	66, // 95: chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator:input_type -> chalk.evaluation.v1.DeleteOnlineEvaluatorRequest
+	44, // 96: chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite:output_type -> chalk.evaluation.v1.CreateEvaluationSuiteResponse
+	47, // 97: chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite:output_type -> chalk.evaluation.v1.UpdateEvaluationSuiteResponse
+	49, // 98: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationSuite:output_type -> chalk.evaluation.v1.ArchiveEvaluationSuiteResponse
+	52, // 99: chalk.evaluation.v1.EvaluationService.ListEvaluationSuites:output_type -> chalk.evaluation.v1.ListEvaluationSuitesResponse
+	17, // 100: chalk.evaluation.v1.EvaluationService.CreateEvaluation:output_type -> chalk.evaluation.v1.CreateEvaluationResponse
+	19, // 101: chalk.evaluation.v1.EvaluationService.GetEvaluation:output_type -> chalk.evaluation.v1.GetEvaluationResponse
+	22, // 102: chalk.evaluation.v1.EvaluationService.ListEvaluations:output_type -> chalk.evaluation.v1.ListEvaluationsResponse
+	24, // 103: chalk.evaluation.v1.EvaluationService.ArchiveEvaluation:output_type -> chalk.evaluation.v1.ArchiveEvaluationResponse
+	26, // 104: chalk.evaluation.v1.EvaluationService.UnarchiveEvaluation:output_type -> chalk.evaluation.v1.UnarchiveEvaluationResponse
+	28, // 105: chalk.evaluation.v1.EvaluationService.CreateEvaluationRun:output_type -> chalk.evaluation.v1.CreateEvaluationRunResponse
+	30, // 106: chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun:output_type -> chalk.evaluation.v1.RescoreEvaluationRunResponse
+	32, // 107: chalk.evaluation.v1.EvaluationService.GetEvaluationRun:output_type -> chalk.evaluation.v1.GetEvaluationRunResponse
+	35, // 108: chalk.evaluation.v1.EvaluationService.ListEvaluationRuns:output_type -> chalk.evaluation.v1.ListEvaluationRunsResponse
+	37, // 109: chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline:output_type -> chalk.evaluation.v1.SetEvaluationRunBaselineResponse
+	39, // 110: chalk.evaluation.v1.EvaluationService.MoveEvaluationRun:output_type -> chalk.evaluation.v1.MoveEvaluationRunResponse
+	41, // 111: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun:output_type -> chalk.evaluation.v1.ArchiveEvaluationRunResponse
+	58, // 112: chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator:output_type -> chalk.evaluation.v1.CreateOnlineEvaluatorResponse
+	60, // 113: chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator:output_type -> chalk.evaluation.v1.GetOnlineEvaluatorResponse
+	63, // 114: chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators:output_type -> chalk.evaluation.v1.ListOnlineEvaluatorsResponse
+	65, // 115: chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator:output_type -> chalk.evaluation.v1.UpdateOnlineEvaluatorResponse
+	67, // 116: chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator:output_type -> chalk.evaluation.v1.DeleteOnlineEvaluatorResponse
+	96, // [96:117] is the sub-list for method output_type
+	75, // [75:96] is the sub-list for method input_type
+	75, // [75:75] is the sub-list for extension type_name
+	75, // [75:75] is the sub-list for extension extendee
+	0,  // [0:75] is the sub-list for field type_name
 }
 
 func init() { file_chalk_evaluation_v1_service_proto_init() }
@@ -4682,21 +4795,21 @@ func file_chalk_evaluation_v1_service_proto_init() {
 	file_chalk_evaluation_v1_service_proto_msgTypes[31].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[38].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[41].OneofWrappers = []any{}
-	file_chalk_evaluation_v1_service_proto_msgTypes[44].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[46].OneofWrappers = []any{}
-	file_chalk_evaluation_v1_service_proto_msgTypes[49].OneofWrappers = []any{}
-	file_chalk_evaluation_v1_service_proto_msgTypes[50].OneofWrappers = []any{}
-	file_chalk_evaluation_v1_service_proto_msgTypes[55].OneofWrappers = []any{}
-	file_chalk_evaluation_v1_service_proto_msgTypes[56].OneofWrappers = []any{}
+	file_chalk_evaluation_v1_service_proto_msgTypes[48].OneofWrappers = []any{}
+	file_chalk_evaluation_v1_service_proto_msgTypes[51].OneofWrappers = []any{}
+	file_chalk_evaluation_v1_service_proto_msgTypes[52].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[57].OneofWrappers = []any{}
 	file_chalk_evaluation_v1_service_proto_msgTypes[58].OneofWrappers = []any{}
+	file_chalk_evaluation_v1_service_proto_msgTypes[59].OneofWrappers = []any{}
+	file_chalk_evaluation_v1_service_proto_msgTypes[60].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_evaluation_v1_service_proto_rawDesc), len(file_chalk_evaluation_v1_service_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   64,
+			NumMessages:   66,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
