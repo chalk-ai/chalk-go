@@ -77,6 +77,9 @@ const (
 	// BuilderServiceGetDeploymentStepsProcedure is the fully-qualified name of the BuilderService's
 	// GetDeploymentSteps RPC.
 	BuilderServiceGetDeploymentStepsProcedure = "/chalk.server.v1.BuilderService/GetDeploymentSteps"
+	// BuilderServiceGetMaterializedAggregateDiffProcedure is the fully-qualified name of the
+	// BuilderService's GetMaterializedAggregateDiff RPC.
+	BuilderServiceGetMaterializedAggregateDiffProcedure = "/chalk.server.v1.BuilderService/GetMaterializedAggregateDiff"
 	// BuilderServiceGetDeploymentLogsProcedure is the fully-qualified name of the BuilderService's
 	// GetDeploymentLogs RPC.
 	BuilderServiceGetDeploymentLogsProcedure = "/chalk.server.v1.BuilderService/GetDeploymentLogs"
@@ -324,6 +327,9 @@ type BuilderServiceClient interface {
 	UploadSource(context.Context, *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error)
 	LintSource(context.Context, *connect.Request[v1.LintSourceRequest]) (*connect.Response[v1.LintSourceResponse], error)
 	GetDeploymentSteps(context.Context, *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error)
+	// The materialized aggregate diff a build's diff step computed (UploadSourceRequest.plan_only,
+	// or the mat_agg_diff_after_build flag).
+	GetMaterializedAggregateDiff(context.Context, *connect.Request[v1.GetMaterializedAggregateDiffRequest]) (*connect.Response[v1.GetMaterializedAggregateDiffResponse], error)
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
@@ -513,6 +519,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceGetDeploymentStepsProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("GetDeploymentSteps")),
+			connect.WithClientOptions(opts...),
+		),
+		getMaterializedAggregateDiff: connect.NewClient[v1.GetMaterializedAggregateDiffRequest, v1.GetMaterializedAggregateDiffResponse](
+			httpClient,
+			baseURL+BuilderServiceGetMaterializedAggregateDiffProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetMaterializedAggregateDiff")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeploymentLogs: connect.NewClient[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse](
@@ -972,6 +984,7 @@ type builderServiceClient struct {
 	uploadSource                                *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
 	lintSource                                  *connect.Client[v1.LintSourceRequest, v1.LintSourceResponse]
 	getDeploymentSteps                          *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
+	getMaterializedAggregateDiff                *connect.Client[v1.GetMaterializedAggregateDiffRequest, v1.GetMaterializedAggregateDiffResponse]
 	getDeploymentLogs                           *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
 	getDeploymentDependencies                   *connect.Client[v1.GetDeploymentDependenciesRequest, v1.GetDeploymentDependenciesResponse]
 	resolveEngineBaseImage                      *connect.Client[v1.ResolveEngineBaseImageRequest, v1.ResolveEngineBaseImageResponse]
@@ -1115,6 +1128,11 @@ func (c *builderServiceClient) LintSource(ctx context.Context, req *connect.Requ
 // GetDeploymentSteps calls chalk.server.v1.BuilderService.GetDeploymentSteps.
 func (c *builderServiceClient) GetDeploymentSteps(ctx context.Context, req *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error) {
 	return c.getDeploymentSteps.CallUnary(ctx, req)
+}
+
+// GetMaterializedAggregateDiff calls chalk.server.v1.BuilderService.GetMaterializedAggregateDiff.
+func (c *builderServiceClient) GetMaterializedAggregateDiff(ctx context.Context, req *connect.Request[v1.GetMaterializedAggregateDiffRequest]) (*connect.Response[v1.GetMaterializedAggregateDiffResponse], error) {
+	return c.getMaterializedAggregateDiff.CallUnary(ctx, req)
 }
 
 // GetDeploymentLogs calls chalk.server.v1.BuilderService.GetDeploymentLogs.
@@ -1529,6 +1547,9 @@ type BuilderServiceHandler interface {
 	UploadSource(context.Context, *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error)
 	LintSource(context.Context, *connect.Request[v1.LintSourceRequest]) (*connect.Response[v1.LintSourceResponse], error)
 	GetDeploymentSteps(context.Context, *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error)
+	// The materialized aggregate diff a build's diff step computed (UploadSourceRequest.plan_only,
+	// or the mat_agg_diff_after_build flag).
+	GetMaterializedAggregateDiff(context.Context, *connect.Request[v1.GetMaterializedAggregateDiffRequest]) (*connect.Response[v1.GetMaterializedAggregateDiffResponse], error)
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
@@ -1714,6 +1735,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceGetDeploymentStepsProcedure,
 		svc.GetDeploymentSteps,
 		connect.WithSchema(builderServiceMethods.ByName("GetDeploymentSteps")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceGetMaterializedAggregateDiffHandler := connect.NewUnaryHandler(
+		BuilderServiceGetMaterializedAggregateDiffProcedure,
+		svc.GetMaterializedAggregateDiff,
+		connect.WithSchema(builderServiceMethods.ByName("GetMaterializedAggregateDiff")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetDeploymentLogsHandler := connect.NewUnaryHandler(
@@ -2184,6 +2211,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceLintSourceHandler.ServeHTTP(w, r)
 		case BuilderServiceGetDeploymentStepsProcedure:
 			builderServiceGetDeploymentStepsHandler.ServeHTTP(w, r)
+		case BuilderServiceGetMaterializedAggregateDiffProcedure:
+			builderServiceGetMaterializedAggregateDiffHandler.ServeHTTP(w, r)
 		case BuilderServiceGetDeploymentLogsProcedure:
 			builderServiceGetDeploymentLogsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetDeploymentDependenciesProcedure:
@@ -2387,6 +2416,10 @@ func (UnimplementedBuilderServiceHandler) LintSource(context.Context, *connect.R
 
 func (UnimplementedBuilderServiceHandler) GetDeploymentSteps(context.Context, *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetDeploymentSteps is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetMaterializedAggregateDiff(context.Context, *connect.Request[v1.GetMaterializedAggregateDiffRequest]) (*connect.Response[v1.GetMaterializedAggregateDiffResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetMaterializedAggregateDiff is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error) {
