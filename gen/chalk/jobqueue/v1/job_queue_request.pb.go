@@ -4314,8 +4314,11 @@ type PlannerOptions struct {
 	// Opt in to summary-backed aggregate reads and summary generation during aggregate backfills.
 	// Storage, horizon and write mode are configured on the environment.
 	UseAggregateSummaryTiles *bool `protobuf:"varint,146,opt,name=use_aggregate_summary_tiles,json=useAggregateSummaryTiles,proto3,oneof" json:"use_aggregate_summary_tiles,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// Run a DataFrame resolver only on the rows whose outputs the online store did not serve,
+	// without should_cache_fallback_on_recompute's offline-store lookup.
+	DataframeResolverSkipCacheHits *bool `protobuf:"varint,147,opt,name=dataframe_resolver_skip_cache_hits,json=dataframeResolverSkipCacheHits,proto3,oneof" json:"dataframe_resolver_skip_cache_hits,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -5371,6 +5374,13 @@ func (x *PlannerOptions) GetUseAggregateSummaryTiles() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetDataframeResolverSkipCacheHits() bool {
+	if x != nil && x.DataframeResolverSkipCacheHits != nil {
+		return *x.DataframeResolverSkipCacheHits
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -6086,7 +6096,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"Ă\x01\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xbe\x83\x01\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -6236,7 +6246,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"Coffline_sampler_has_many_join_use_spine_strat_all_in_root_namespace\x18\x8f\x01 \x01(\bH\x8e\x01R8offlineSamplerHasManyJoinUseSpineStratAllInRootNamespace\x88\x01\x01\x12C\n" +
 	"\x1asliding_window_aggregation\x18\x90\x01 \x01(\bH\x8f\x01R\x18slidingWindowAggregation\x88\x01\x01\x12C\n" +
 	"\x1bnative_has_many_invoker_udf\x18\x91\x01 \x01(\bH\x90\x01R\x17nativeHasManyInvokerUdf\x88\x01\x01\x12D\n" +
-	"\x1buse_aggregate_summary_tiles\x18\x92\x01 \x01(\bH\x91\x01R\x18useAggregateSummaryTiles\x88\x01\x01B\x1e\n" +
+	"\x1buse_aggregate_summary_tiles\x18\x92\x01 \x01(\bH\x91\x01R\x18useAggregateSummaryTiles\x88\x01\x01\x12Q\n" +
+	"\"dataframe_resolver_skip_cache_hits\x18\x93\x01 \x01(\bH\x92\x01R\x1edataframeResolverSkipCacheHits\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -6382,7 +6393,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"D_offline_sampler_has_many_join_use_spine_strat_all_in_root_namespaceB\x1d\n" +
 	"\x1b_sliding_window_aggregationB\x1e\n" +
 	"\x1c_native_has_many_invoker_udfB\x1e\n" +
-	"\x1c_use_aggregate_summary_tiles\"\xd2\x06\n" +
+	"\x1c_use_aggregate_summary_tilesB%\n" +
+	"#_dataframe_resolver_skip_cache_hits\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

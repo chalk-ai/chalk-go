@@ -664,11 +664,15 @@ type ModelArtifactSpec struct {
 	PythonDependencies []string        `protobuf:"bytes,9,rep,name=python_dependencies,json=pythonDependencies,proto3" json:"python_dependencies,omitempty"`
 	PythonVersion      *string         `protobuf:"bytes,10,opt,name=python_version,json=pythonVersion,proto3,oneof" json:"python_version,omitempty"`
 	// Docker image for model serving
-	ModelImage    *string `protobuf:"bytes,11,opt,name=model_image,json=modelImage,proto3,oneof" json:"model_image,omitempty"`
-	ModelVolume   *string `protobuf:"bytes,12,opt,name=model_volume,json=modelVolume,proto3,oneof" json:"model_volume,omitempty"`
-	ImageSpec     []byte  `protobuf:"bytes,13,opt,name=image_spec,json=imageSpec,proto3,oneof" json:"image_spec,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ModelImage  *string `protobuf:"bytes,11,opt,name=model_image,json=modelImage,proto3,oneof" json:"model_image,omitempty"`
+	ModelVolume *string `protobuf:"bytes,12,opt,name=model_volume,json=modelVolume,proto3,oneof" json:"model_volume,omitempty"`
+	ImageSpec   []byte  `protobuf:"bytes,13,opt,name=image_spec,json=imageSpec,proto3,oneof" json:"image_spec,omitempty"`
+	// Immutable ChalkFS snapshot containing model_volume's checkpoint. This is a
+	// volume snapshot id, not a logical weight stream or model registry version.
+	// Absent preserves the existing model_volume mount resolution behavior.
+	ModelVolumeVersionId *uint64 `protobuf:"varint,14,opt,name=model_volume_version_id,json=modelVolumeVersionId,proto3,oneof" json:"model_volume_version_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ModelArtifactSpec) Reset() {
@@ -792,6 +796,13 @@ func (x *ModelArtifactSpec) GetImageSpec() []byte {
 	return nil
 }
 
+func (x *ModelArtifactSpec) GetModelVolumeVersionId() uint64 {
+	if x != nil && x.ModelVolumeVersionId != nil {
+		return *x.ModelVolumeVersionId
+	}
+	return 0
+}
+
 var File_chalk_models_v1_model_artifact_proto protoreflect.FileDescriptor
 
 const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
@@ -828,7 +839,7 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"mount_path\x18\x04 \x01(\tH\x00R\tmountPath\x88\x01\x01\x12\x17\n" +
 	"\x04mode\x18\x05 \x01(\rH\x01R\x04mode\x88\x01\x01B\r\n" +
 	"\v_mount_pathB\a\n" +
-	"\x05_mode\"\xe6\x05\n" +
+	"\x05_mode\"\xbe\x06\n" +
 	"\x11ModelArtifactSpec\x12;\n" +
 	"\vmodel_files\x18\x01 \x03(\v2\x1a.chalk.models.v1.ModelFileR\n" +
 	"modelFiles\x12E\n" +
@@ -848,11 +859,13 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"modelImage\x88\x01\x01\x12&\n" +
 	"\fmodel_volume\x18\f \x01(\tH\x02R\vmodelVolume\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"image_spec\x18\r \x01(\fH\x03R\timageSpec\x88\x01\x01B\x11\n" +
+	"image_spec\x18\r \x01(\fH\x03R\timageSpec\x88\x01\x01\x12:\n" +
+	"\x17model_volume_version_id\x18\x0e \x01(\x04H\x04R\x14modelVolumeVersionId\x88\x01\x01B\x11\n" +
 	"\x0f_python_versionB\x0e\n" +
 	"\f_model_imageB\x0f\n" +
 	"\r_model_volumeB\r\n" +
-	"\v_image_spec*\xd1\x01\n" +
+	"\v_image_specB\x1a\n" +
+	"\x18_model_volume_version_id*\xd1\x01\n" +
 	"\tModelType\x12\x1a\n" +
 	"\x16MODEL_TYPE_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12MODEL_TYPE_PYTORCH\x10\x01\x12\x16\n" +

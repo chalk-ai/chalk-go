@@ -26,6 +26,61 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// How an experiment trains its model.
+type ExperimentMethod int32
+
+const (
+	// GRPO, the method experiments without one recorded use.
+	ExperimentMethod_EXPERIMENT_METHOD_UNSPECIFIED ExperimentMethod = 0
+	ExperimentMethod_EXPERIMENT_METHOD_GRPO        ExperimentMethod = 1
+	// Rejection-sampled supervised fine-tuning on a teacher's outputs: the teacher samples each
+	// training row samples_per_row times, the samples the evaluation's scorers accept become hard
+	// labels, and one training run fine-tunes base_model on them. Iteration 0 holds the teacher's
+	// runs and the training run; the final iteration scores the trained model.
+	ExperimentMethod_EXPERIMENT_METHOD_REJECTION_SAMPLED_SFT ExperimentMethod = 2
+)
+
+// Enum value maps for ExperimentMethod.
+var (
+	ExperimentMethod_name = map[int32]string{
+		0: "EXPERIMENT_METHOD_UNSPECIFIED",
+		1: "EXPERIMENT_METHOD_GRPO",
+		2: "EXPERIMENT_METHOD_REJECTION_SAMPLED_SFT",
+	}
+	ExperimentMethod_value = map[string]int32{
+		"EXPERIMENT_METHOD_UNSPECIFIED":           0,
+		"EXPERIMENT_METHOD_GRPO":                  1,
+		"EXPERIMENT_METHOD_REJECTION_SAMPLED_SFT": 2,
+	}
+)
+
+func (x ExperimentMethod) Enum() *ExperimentMethod {
+	p := new(ExperimentMethod)
+	*p = x
+	return p
+}
+
+func (x ExperimentMethod) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ExperimentMethod) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_evaluation_v1_experiment_proto_enumTypes[0].Descriptor()
+}
+
+func (ExperimentMethod) Type() protoreflect.EnumType {
+	return &file_chalk_evaluation_v1_experiment_proto_enumTypes[0]
+}
+
+func (x ExperimentMethod) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ExperimentMethod.Descriptor instead.
+func (ExperimentMethod) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_evaluation_v1_experiment_proto_rawDescGZIP(), []int{0}
+}
+
 type ExperimentStatus int32
 
 const (
@@ -68,11 +123,11 @@ func (x ExperimentStatus) String() string {
 }
 
 func (ExperimentStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_evaluation_v1_experiment_proto_enumTypes[0].Descriptor()
+	return file_chalk_evaluation_v1_experiment_proto_enumTypes[1].Descriptor()
 }
 
 func (ExperimentStatus) Type() protoreflect.EnumType {
-	return &file_chalk_evaluation_v1_experiment_proto_enumTypes[0]
+	return &file_chalk_evaluation_v1_experiment_proto_enumTypes[1]
 }
 
 func (x ExperimentStatus) Number() protoreflect.EnumNumber {
@@ -81,7 +136,7 @@ func (x ExperimentStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ExperimentStatus.Descriptor instead.
 func (ExperimentStatus) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_experiment_proto_rawDescGZIP(), []int{0}
+	return file_chalk_evaluation_v1_experiment_proto_rawDescGZIP(), []int{1}
 }
 
 type ExperimentPhase int32
@@ -122,11 +177,11 @@ func (x ExperimentPhase) String() string {
 }
 
 func (ExperimentPhase) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_evaluation_v1_experiment_proto_enumTypes[1].Descriptor()
+	return file_chalk_evaluation_v1_experiment_proto_enumTypes[2].Descriptor()
 }
 
 func (ExperimentPhase) Type() protoreflect.EnumType {
-	return &file_chalk_evaluation_v1_experiment_proto_enumTypes[1]
+	return &file_chalk_evaluation_v1_experiment_proto_enumTypes[2]
 }
 
 func (x ExperimentPhase) Number() protoreflect.EnumNumber {
@@ -135,11 +190,11 @@ func (x ExperimentPhase) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ExperimentPhase.Descriptor instead.
 func (ExperimentPhase) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_evaluation_v1_experiment_proto_rawDescGZIP(), []int{1}
+	return file_chalk_evaluation_v1_experiment_proto_rawDescGZIP(), []int{2}
 }
 
-// An experiment post-trains a small model to replace an evaluation's task, using the evaluation's
-// scorers as the reward. Each iteration serves the current policy, runs the evaluation
+// An experiment post-trains a model to replace an evaluation's task, using the evaluation's
+// scorers as the reward. With GRPO, each iteration serves the current policy, runs the evaluation
 // samples_per_row times with it, and takes one GRPO step on the scored trajectories.
 type ExperimentConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -173,8 +228,15 @@ type ExperimentConfig struct {
 	// "*.example.com"); the policy server's host is always allowed in addition. Empty defaults to
 	// Hugging Face's hosts. Must be empty for other compute classes, whose egress is not restricted.
 	TrainerAllowedHosts []string `protobuf:"bytes,14,rep,name=trainer_allowed_hosts,json=trainerAllowedHosts,proto3" json:"trainer_allowed_hosts,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Unset means GRPO. StartExperiment runs only GRPO; experiments of other methods are recorded
+	// by the pipelines that ran them.
+	Method ExperimentMethod `protobuf:"varint,15,opt,name=method,proto3,enum=chalk.evaluation.v1.ExperimentMethod" json:"method,omitempty"`
+	// REJECTION_SAMPLED_SFT: the model whose accepted samples are the training labels.
+	TeacherModel *string `protobuf:"bytes,16,opt,name=teacher_model,json=teacherModel,proto3,oneof" json:"teacher_model,omitempty"`
+	// REJECTION_SAMPLED_SFT: passes the training run makes over the accepted samples.
+	Epochs        *int32 `protobuf:"varint,17,opt,name=epochs,proto3,oneof" json:"epochs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ExperimentConfig) Reset() {
@@ -305,6 +367,27 @@ func (x *ExperimentConfig) GetTrainerAllowedHosts() []string {
 	return nil
 }
 
+func (x *ExperimentConfig) GetMethod() ExperimentMethod {
+	if x != nil {
+		return x.Method
+	}
+	return ExperimentMethod_EXPERIMENT_METHOD_UNSPECIFIED
+}
+
+func (x *ExperimentConfig) GetTeacherModel() string {
+	if x != nil && x.TeacherModel != nil {
+		return *x.TeacherModel
+	}
+	return ""
+}
+
+func (x *ExperimentConfig) GetEpochs() int32 {
+	if x != nil && x.Epochs != nil {
+		return *x.Epochs
+	}
+	return 0
+}
+
 type ExperimentIteration struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Iteration int32                  `protobuf:"varint,1,opt,name=iteration,proto3" json:"iteration,omitempty"`
@@ -322,8 +405,12 @@ type ExperimentIteration struct {
 	// covers every scorer of the evaluation, including ones the reward weights leave out, so the
 	// final iteration can be read scorer by scorer against the evaluation's own runs.
 	ScorerAverageScores map[string]float64 `protobuf:"bytes,9,rep,name=scorer_average_scores,json=scorerAverageScores,proto3" json:"scorer_average_scores,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"fixed64,2,opt,name=value"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// REJECTION_SAMPLED_SFT: teacher samples the iteration's runs generated, and how many of them
+	// the rejection filter kept as training labels.
+	SamplesGenerated *int64 `protobuf:"varint,10,opt,name=samples_generated,json=samplesGenerated,proto3,oneof" json:"samples_generated,omitempty"`
+	SamplesAccepted  *int64 `protobuf:"varint,11,opt,name=samples_accepted,json=samplesAccepted,proto3,oneof" json:"samples_accepted,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ExperimentIteration) Reset() {
@@ -417,6 +504,20 @@ func (x *ExperimentIteration) GetScorerAverageScores() map[string]float64 {
 		return x.ScorerAverageScores
 	}
 	return nil
+}
+
+func (x *ExperimentIteration) GetSamplesGenerated() int64 {
+	if x != nil && x.SamplesGenerated != nil {
+		return *x.SamplesGenerated
+	}
+	return 0
+}
+
+func (x *ExperimentIteration) GetSamplesAccepted() int64 {
+	if x != nil && x.SamplesAccepted != nil {
+		return *x.SamplesAccepted
+	}
+	return 0
 }
 
 type Experiment struct {
@@ -1023,7 +1124,7 @@ var File_chalk_evaluation_v1_experiment_proto protoreflect.FileDescriptor
 
 const file_chalk_evaluation_v1_experiment_proto_rawDesc = "" +
 	"\n" +
-	"$chalk/evaluation/v1/experiment.proto\x12\x13chalk.evaluation.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9f\x06\n" +
+	"$chalk/evaluation/v1/experiment.proto\x12\x13chalk.evaluation.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc2\a\n" +
 	"\x10ExperimentConfig\x12\x1d\n" +
 	"\n" +
 	"base_model\x18\x01 \x01(\tR\tbaseModel\x12\x1e\n" +
@@ -1043,12 +1144,17 @@ const file_chalk_evaluation_v1_experiment_proto_rawDesc = "" +
 	"\x0eadapter_volume\x18\v \x01(\tR\radapterVolume\x123\n" +
 	"\x13model_registry_name\x18\f \x01(\tH\x00R\x11modelRegistryName\x88\x01\x01\x12Y\n" +
 	"\x15trainer_compute_class\x18\r \x01(\x0e2 .chalk.container.v1.ComputeClassH\x01R\x13trainerComputeClass\x88\x01\x01\x122\n" +
-	"\x15trainer_allowed_hosts\x18\x0e \x03(\tR\x13trainerAllowedHosts\x1a@\n" +
+	"\x15trainer_allowed_hosts\x18\x0e \x03(\tR\x13trainerAllowedHosts\x12=\n" +
+	"\x06method\x18\x0f \x01(\x0e2%.chalk.evaluation.v1.ExperimentMethodR\x06method\x12(\n" +
+	"\rteacher_model\x18\x10 \x01(\tH\x02R\fteacherModel\x88\x01\x01\x12\x1b\n" +
+	"\x06epochs\x18\x11 \x01(\x05H\x03R\x06epochs\x88\x01\x01\x1a@\n" +
 	"\x12RewardWeightsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x01R\x05value:\x028\x01B\x16\n" +
 	"\x14_model_registry_nameB\x18\n" +
-	"\x16_trainer_compute_class\"\xf3\x04\n" +
+	"\x16_trainer_compute_classB\x10\n" +
+	"\x0e_teacher_modelB\t\n" +
+	"\a_epochs\"\x80\x06\n" +
 	"\x13ExperimentIteration\x12\x1c\n" +
 	"\titeration\x18\x01 \x01(\x05R\titeration\x12:\n" +
 	"\x05phase\x18\x02 \x01(\x0e2$.chalk.evaluation.v1.ExperimentPhaseR\x05phase\x12!\n" +
@@ -1059,14 +1165,19 @@ const file_chalk_evaluation_v1_experiment_proto_rawDesc = "" +
 	"meanReward\x88\x01\x01\x12&\n" +
 	"\fadapter_name\x18\a \x01(\tH\x02R\vadapterName\x88\x01\x01\x12-\n" +
 	"\x10model_version_id\x18\b \x01(\tH\x03R\x0emodelVersionId\x88\x01\x01\x12u\n" +
-	"\x15scorer_average_scores\x18\t \x03(\v2A.chalk.evaluation.v1.ExperimentIteration.ScorerAverageScoresEntryR\x13scorerAverageScores\x1aF\n" +
+	"\x15scorer_average_scores\x18\t \x03(\v2A.chalk.evaluation.v1.ExperimentIteration.ScorerAverageScoresEntryR\x13scorerAverageScores\x120\n" +
+	"\x11samples_generated\x18\n" +
+	" \x01(\x03H\x04R\x10samplesGenerated\x88\x01\x01\x12.\n" +
+	"\x10samples_accepted\x18\v \x01(\x03H\x05R\x0fsamplesAccepted\x88\x01\x01\x1aF\n" +
 	"\x18ScorerAverageScoresEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\x01R\x05value:\x028\x01B\x12\n" +
 	"\x10_training_run_idB\x0e\n" +
 	"\f_mean_rewardB\x0f\n" +
 	"\r_adapter_nameB\x13\n" +
-	"\x11_model_version_id\"\xf8\x04\n" +
+	"\x11_model_version_idB\x14\n" +
+	"\x12_samples_generatedB\x13\n" +
+	"\x11_samples_accepted\"\xf8\x04\n" +
 	"\n" +
 	"Experiment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12#\n" +
@@ -1122,7 +1233,11 @@ const file_chalk_evaluation_v1_experiment_proto_rawDesc = "" +
 	"\x17RetryExperimentResponse\x12?\n" +
 	"\n" +
 	"experiment\x18\x01 \x01(\v2\x1f.chalk.evaluation.v1.ExperimentR\n" +
-	"experiment*\xd2\x01\n" +
+	"experiment*~\n" +
+	"\x10ExperimentMethod\x12!\n" +
+	"\x1dEXPERIMENT_METHOD_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16EXPERIMENT_METHOD_GRPO\x10\x01\x12+\n" +
+	"'EXPERIMENT_METHOD_REJECTION_SAMPLED_SFT\x10\x02*\xd2\x01\n" +
 	"\x10ExperimentStatus\x12!\n" +
 	"\x1dEXPERIMENT_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19EXPERIMENT_STATUS_PENDING\x10\x01\x12\x1d\n" +
@@ -1161,64 +1276,66 @@ func file_chalk_evaluation_v1_experiment_proto_rawDescGZIP() []byte {
 	return file_chalk_evaluation_v1_experiment_proto_rawDescData
 }
 
-var file_chalk_evaluation_v1_experiment_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_evaluation_v1_experiment_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_chalk_evaluation_v1_experiment_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_evaluation_v1_experiment_proto_goTypes = []any{
-	(ExperimentStatus)(0),            // 0: chalk.evaluation.v1.ExperimentStatus
-	(ExperimentPhase)(0),             // 1: chalk.evaluation.v1.ExperimentPhase
-	(*ExperimentConfig)(nil),         // 2: chalk.evaluation.v1.ExperimentConfig
-	(*ExperimentIteration)(nil),      // 3: chalk.evaluation.v1.ExperimentIteration
-	(*Experiment)(nil),               // 4: chalk.evaluation.v1.Experiment
-	(*StartExperimentRequest)(nil),   // 5: chalk.evaluation.v1.StartExperimentRequest
-	(*StartExperimentResponse)(nil),  // 6: chalk.evaluation.v1.StartExperimentResponse
-	(*GetExperimentRequest)(nil),     // 7: chalk.evaluation.v1.GetExperimentRequest
-	(*GetExperimentResponse)(nil),    // 8: chalk.evaluation.v1.GetExperimentResponse
-	(*ListExperimentsRequest)(nil),   // 9: chalk.evaluation.v1.ListExperimentsRequest
-	(*ListExperimentsResponse)(nil),  // 10: chalk.evaluation.v1.ListExperimentsResponse
-	(*CancelExperimentRequest)(nil),  // 11: chalk.evaluation.v1.CancelExperimentRequest
-	(*CancelExperimentResponse)(nil), // 12: chalk.evaluation.v1.CancelExperimentResponse
-	(*RetryExperimentRequest)(nil),   // 13: chalk.evaluation.v1.RetryExperimentRequest
-	(*RetryExperimentResponse)(nil),  // 14: chalk.evaluation.v1.RetryExperimentResponse
-	nil,                              // 15: chalk.evaluation.v1.ExperimentConfig.RewardWeightsEntry
-	nil,                              // 16: chalk.evaluation.v1.ExperimentIteration.ScorerAverageScoresEntry
-	(v1.ComputeClass)(0),             // 17: chalk.container.v1.ComputeClass
-	(*timestamppb.Timestamp)(nil),    // 18: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),    // 19: google.protobuf.FieldMask
+	(ExperimentMethod)(0),            // 0: chalk.evaluation.v1.ExperimentMethod
+	(ExperimentStatus)(0),            // 1: chalk.evaluation.v1.ExperimentStatus
+	(ExperimentPhase)(0),             // 2: chalk.evaluation.v1.ExperimentPhase
+	(*ExperimentConfig)(nil),         // 3: chalk.evaluation.v1.ExperimentConfig
+	(*ExperimentIteration)(nil),      // 4: chalk.evaluation.v1.ExperimentIteration
+	(*Experiment)(nil),               // 5: chalk.evaluation.v1.Experiment
+	(*StartExperimentRequest)(nil),   // 6: chalk.evaluation.v1.StartExperimentRequest
+	(*StartExperimentResponse)(nil),  // 7: chalk.evaluation.v1.StartExperimentResponse
+	(*GetExperimentRequest)(nil),     // 8: chalk.evaluation.v1.GetExperimentRequest
+	(*GetExperimentResponse)(nil),    // 9: chalk.evaluation.v1.GetExperimentResponse
+	(*ListExperimentsRequest)(nil),   // 10: chalk.evaluation.v1.ListExperimentsRequest
+	(*ListExperimentsResponse)(nil),  // 11: chalk.evaluation.v1.ListExperimentsResponse
+	(*CancelExperimentRequest)(nil),  // 12: chalk.evaluation.v1.CancelExperimentRequest
+	(*CancelExperimentResponse)(nil), // 13: chalk.evaluation.v1.CancelExperimentResponse
+	(*RetryExperimentRequest)(nil),   // 14: chalk.evaluation.v1.RetryExperimentRequest
+	(*RetryExperimentResponse)(nil),  // 15: chalk.evaluation.v1.RetryExperimentResponse
+	nil,                              // 16: chalk.evaluation.v1.ExperimentConfig.RewardWeightsEntry
+	nil,                              // 17: chalk.evaluation.v1.ExperimentIteration.ScorerAverageScoresEntry
+	(v1.ComputeClass)(0),             // 18: chalk.container.v1.ComputeClass
+	(*timestamppb.Timestamp)(nil),    // 19: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),    // 20: google.protobuf.FieldMask
 }
 var file_chalk_evaluation_v1_experiment_proto_depIdxs = []int32{
-	15, // 0: chalk.evaluation.v1.ExperimentConfig.reward_weights:type_name -> chalk.evaluation.v1.ExperimentConfig.RewardWeightsEntry
-	17, // 1: chalk.evaluation.v1.ExperimentConfig.trainer_compute_class:type_name -> chalk.container.v1.ComputeClass
-	1,  // 2: chalk.evaluation.v1.ExperimentIteration.phase:type_name -> chalk.evaluation.v1.ExperimentPhase
-	16, // 3: chalk.evaluation.v1.ExperimentIteration.scorer_average_scores:type_name -> chalk.evaluation.v1.ExperimentIteration.ScorerAverageScoresEntry
-	0,  // 4: chalk.evaluation.v1.Experiment.status:type_name -> chalk.evaluation.v1.ExperimentStatus
-	2,  // 5: chalk.evaluation.v1.Experiment.config:type_name -> chalk.evaluation.v1.ExperimentConfig
-	3,  // 6: chalk.evaluation.v1.Experiment.iterations:type_name -> chalk.evaluation.v1.ExperimentIteration
-	18, // 7: chalk.evaluation.v1.Experiment.created_at:type_name -> google.protobuf.Timestamp
-	18, // 8: chalk.evaluation.v1.Experiment.started_at:type_name -> google.protobuf.Timestamp
-	18, // 9: chalk.evaluation.v1.Experiment.completed_at:type_name -> google.protobuf.Timestamp
-	2,  // 10: chalk.evaluation.v1.StartExperimentRequest.config:type_name -> chalk.evaluation.v1.ExperimentConfig
-	4,  // 11: chalk.evaluation.v1.StartExperimentResponse.experiment:type_name -> chalk.evaluation.v1.Experiment
-	4,  // 12: chalk.evaluation.v1.GetExperimentResponse.experiment:type_name -> chalk.evaluation.v1.Experiment
-	4,  // 13: chalk.evaluation.v1.ListExperimentsResponse.experiments:type_name -> chalk.evaluation.v1.Experiment
-	4,  // 14: chalk.evaluation.v1.CancelExperimentResponse.experiment:type_name -> chalk.evaluation.v1.Experiment
-	2,  // 15: chalk.evaluation.v1.RetryExperimentRequest.config:type_name -> chalk.evaluation.v1.ExperimentConfig
-	19, // 16: chalk.evaluation.v1.RetryExperimentRequest.update_mask:type_name -> google.protobuf.FieldMask
-	4,  // 17: chalk.evaluation.v1.RetryExperimentResponse.experiment:type_name -> chalk.evaluation.v1.Experiment
-	5,  // 18: chalk.evaluation.v1.ExperimentService.StartExperiment:input_type -> chalk.evaluation.v1.StartExperimentRequest
-	7,  // 19: chalk.evaluation.v1.ExperimentService.GetExperiment:input_type -> chalk.evaluation.v1.GetExperimentRequest
-	9,  // 20: chalk.evaluation.v1.ExperimentService.ListExperiments:input_type -> chalk.evaluation.v1.ListExperimentsRequest
-	13, // 21: chalk.evaluation.v1.ExperimentService.RetryExperiment:input_type -> chalk.evaluation.v1.RetryExperimentRequest
-	11, // 22: chalk.evaluation.v1.ExperimentService.CancelExperiment:input_type -> chalk.evaluation.v1.CancelExperimentRequest
-	6,  // 23: chalk.evaluation.v1.ExperimentService.StartExperiment:output_type -> chalk.evaluation.v1.StartExperimentResponse
-	8,  // 24: chalk.evaluation.v1.ExperimentService.GetExperiment:output_type -> chalk.evaluation.v1.GetExperimentResponse
-	10, // 25: chalk.evaluation.v1.ExperimentService.ListExperiments:output_type -> chalk.evaluation.v1.ListExperimentsResponse
-	14, // 26: chalk.evaluation.v1.ExperimentService.RetryExperiment:output_type -> chalk.evaluation.v1.RetryExperimentResponse
-	12, // 27: chalk.evaluation.v1.ExperimentService.CancelExperiment:output_type -> chalk.evaluation.v1.CancelExperimentResponse
-	23, // [23:28] is the sub-list for method output_type
-	18, // [18:23] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	16, // 0: chalk.evaluation.v1.ExperimentConfig.reward_weights:type_name -> chalk.evaluation.v1.ExperimentConfig.RewardWeightsEntry
+	18, // 1: chalk.evaluation.v1.ExperimentConfig.trainer_compute_class:type_name -> chalk.container.v1.ComputeClass
+	0,  // 2: chalk.evaluation.v1.ExperimentConfig.method:type_name -> chalk.evaluation.v1.ExperimentMethod
+	2,  // 3: chalk.evaluation.v1.ExperimentIteration.phase:type_name -> chalk.evaluation.v1.ExperimentPhase
+	17, // 4: chalk.evaluation.v1.ExperimentIteration.scorer_average_scores:type_name -> chalk.evaluation.v1.ExperimentIteration.ScorerAverageScoresEntry
+	1,  // 5: chalk.evaluation.v1.Experiment.status:type_name -> chalk.evaluation.v1.ExperimentStatus
+	3,  // 6: chalk.evaluation.v1.Experiment.config:type_name -> chalk.evaluation.v1.ExperimentConfig
+	4,  // 7: chalk.evaluation.v1.Experiment.iterations:type_name -> chalk.evaluation.v1.ExperimentIteration
+	19, // 8: chalk.evaluation.v1.Experiment.created_at:type_name -> google.protobuf.Timestamp
+	19, // 9: chalk.evaluation.v1.Experiment.started_at:type_name -> google.protobuf.Timestamp
+	19, // 10: chalk.evaluation.v1.Experiment.completed_at:type_name -> google.protobuf.Timestamp
+	3,  // 11: chalk.evaluation.v1.StartExperimentRequest.config:type_name -> chalk.evaluation.v1.ExperimentConfig
+	5,  // 12: chalk.evaluation.v1.StartExperimentResponse.experiment:type_name -> chalk.evaluation.v1.Experiment
+	5,  // 13: chalk.evaluation.v1.GetExperimentResponse.experiment:type_name -> chalk.evaluation.v1.Experiment
+	5,  // 14: chalk.evaluation.v1.ListExperimentsResponse.experiments:type_name -> chalk.evaluation.v1.Experiment
+	5,  // 15: chalk.evaluation.v1.CancelExperimentResponse.experiment:type_name -> chalk.evaluation.v1.Experiment
+	3,  // 16: chalk.evaluation.v1.RetryExperimentRequest.config:type_name -> chalk.evaluation.v1.ExperimentConfig
+	20, // 17: chalk.evaluation.v1.RetryExperimentRequest.update_mask:type_name -> google.protobuf.FieldMask
+	5,  // 18: chalk.evaluation.v1.RetryExperimentResponse.experiment:type_name -> chalk.evaluation.v1.Experiment
+	6,  // 19: chalk.evaluation.v1.ExperimentService.StartExperiment:input_type -> chalk.evaluation.v1.StartExperimentRequest
+	8,  // 20: chalk.evaluation.v1.ExperimentService.GetExperiment:input_type -> chalk.evaluation.v1.GetExperimentRequest
+	10, // 21: chalk.evaluation.v1.ExperimentService.ListExperiments:input_type -> chalk.evaluation.v1.ListExperimentsRequest
+	14, // 22: chalk.evaluation.v1.ExperimentService.RetryExperiment:input_type -> chalk.evaluation.v1.RetryExperimentRequest
+	12, // 23: chalk.evaluation.v1.ExperimentService.CancelExperiment:input_type -> chalk.evaluation.v1.CancelExperimentRequest
+	7,  // 24: chalk.evaluation.v1.ExperimentService.StartExperiment:output_type -> chalk.evaluation.v1.StartExperimentResponse
+	9,  // 25: chalk.evaluation.v1.ExperimentService.GetExperiment:output_type -> chalk.evaluation.v1.GetExperimentResponse
+	11, // 26: chalk.evaluation.v1.ExperimentService.ListExperiments:output_type -> chalk.evaluation.v1.ListExperimentsResponse
+	15, // 27: chalk.evaluation.v1.ExperimentService.RetryExperiment:output_type -> chalk.evaluation.v1.RetryExperimentResponse
+	13, // 28: chalk.evaluation.v1.ExperimentService.CancelExperiment:output_type -> chalk.evaluation.v1.CancelExperimentResponse
+	24, // [24:29] is the sub-list for method output_type
+	19, // [19:24] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_evaluation_v1_experiment_proto_init() }
@@ -1234,7 +1351,7 @@ func file_chalk_evaluation_v1_experiment_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_evaluation_v1_experiment_proto_rawDesc), len(file_chalk_evaluation_v1_experiment_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,

@@ -2263,6 +2263,7 @@ type StartNotebookRunResponse struct {
 	RunId string                 `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	// Cells that will execute, in order, after run-scope expansion.
 	Plan          []*NotebookRunPlanEntry `protobuf:"bytes,2,rep,name=plan,proto3" json:"plan,omitempty"`
+	Kernel        *NotebookRunKernel      `protobuf:"bytes,3,opt,name=kernel,proto3" json:"kernel,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2307,6 +2308,13 @@ func (x *StartNotebookRunResponse) GetRunId() string {
 func (x *StartNotebookRunResponse) GetPlan() []*NotebookRunPlanEntry {
 	if x != nil {
 		return x.Plan
+	}
+	return nil
+}
+
+func (x *StartNotebookRunResponse) GetKernel() *NotebookRunKernel {
+	if x != nil {
+		return x.Kernel
 	}
 	return nil
 }
@@ -3845,7 +3853,8 @@ type NotebookRuntimeStatus struct {
 	MemoryUsageBytes uint64 `protobuf:"varint,6,opt,name=memory_usage_bytes,json=memoryUsageBytes,proto3" json:"memory_usage_bytes,omitempty"`
 	// Last cgroup memory ceiling observed by the heartbeat. Zero when the kernel
 	// is unlimited, unavailable, or has not yet been probed.
-	MemoryLimitBytes uint64 `protobuf:"varint,7,opt,name=memory_limit_bytes,json=memoryLimitBytes,proto3" json:"memory_limit_bytes,omitempty"`
+	MemoryLimitBytes uint64                   `protobuf:"varint,7,opt,name=memory_limit_bytes,json=memoryLimitBytes,proto3" json:"memory_limit_bytes,omitempty"`
+	KernelLifecycle  *NotebookKernelLifecycle `protobuf:"bytes,8,opt,name=kernel_lifecycle,json=kernelLifecycle,proto3" json:"kernel_lifecycle,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -3927,6 +3936,13 @@ func (x *NotebookRuntimeStatus) GetMemoryLimitBytes() uint64 {
 		return x.MemoryLimitBytes
 	}
 	return 0
+}
+
+func (x *NotebookRuntimeStatus) GetKernelLifecycle() *NotebookKernelLifecycle {
+	if x != nil {
+		return x.KernelLifecycle
+	}
+	return nil
 }
 
 type StartNotebookRuntimeRequest struct {
@@ -6517,10 +6533,11 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\x0e_max_staleness\"O\n" +
 	"\x14NotebookRunPlanEntry\x12\x17\n" +
 	"\acell_id\x18\x01 \x01(\tR\x06cellId\x12\x1e\n" +
-	"\vcell_run_id\x18\x02 \x01(\tR\tcellRunId\"n\n" +
+	"\vcell_run_id\x18\x02 \x01(\tR\tcellRunId\"\xac\x01\n" +
 	"\x18StartNotebookRunResponse\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12;\n" +
-	"\x04plan\x18\x02 \x03(\v2'.chalk.notebook.v1.NotebookRunPlanEntryR\x04plan\"\x90\x01\n" +
+	"\x04plan\x18\x02 \x03(\v2'.chalk.notebook.v1.NotebookRunPlanEntryR\x04plan\x12<\n" +
+	"\x06kernel\x18\x03 \x01(\v2$.chalk.notebook.v1.NotebookRunKernelR\x06kernel\"\x90\x01\n" +
 	"\x17WatchNotebookRunRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\x12\x15\n" +
@@ -6642,7 +6659,7 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"%UpdateNotebookSqlCacheSettingsRequest\x12C\n" +
 	"\rmax_staleness\x18\x01 \x01(\v2\x19.google.protobuf.DurationH\x00R\fmaxStaleness\x88\x01\x01B\x10\n" +
 	"\x0e_max_staleness\"(\n" +
-	"&UpdateNotebookSqlCacheSettingsResponse\"\xb4\x02\n" +
+	"&UpdateNotebookSqlCacheSettingsResponse\"\x8b\x03\n" +
 	"\x15NotebookRuntimeStatus\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\x12=\n" +
@@ -6652,7 +6669,8 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"session_id\x18\x04 \x01(\tR\tsessionId\x12\x18\n" +
 	"\amessage\x18\x05 \x01(\tR\amessage\x12,\n" +
 	"\x12memory_usage_bytes\x18\x06 \x01(\x04R\x10memoryUsageBytes\x12,\n" +
-	"\x12memory_limit_bytes\x18\a \x01(\x04R\x10memoryLimitBytes\">\n" +
+	"\x12memory_limit_bytes\x18\a \x01(\x04R\x10memoryLimitBytes\x12U\n" +
+	"\x10kernel_lifecycle\x18\b \x01(\v2*.chalk.notebook.v1.NotebookKernelLifecycleR\x0fkernelLifecycle\">\n" +
 	"\x1bStartNotebookRuntimeRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\"`\n" +
@@ -7073,17 +7091,19 @@ var file_chalk_notebook_v1_document_service_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),                  // 117: google.protobuf.Timestamp
 	(NotebookRunScope)(0),                          // 118: chalk.notebook.v1.NotebookRunScope
 	(*durationpb.Duration)(nil),                    // 119: google.protobuf.Duration
-	(*NotebookRunEvent)(nil),                       // 120: chalk.notebook.v1.NotebookRunEvent
-	(*NotebookCellResult)(nil),                     // 121: chalk.notebook.v1.NotebookCellResult
-	(*NotebookCellRunHistoryEntry)(nil),            // 122: chalk.notebook.v1.NotebookCellRunHistoryEntry
-	(*NotebookRunSummary)(nil),                     // 123: chalk.notebook.v1.NotebookRunSummary
-	(*NotebookDocumentRevision)(nil),               // 124: chalk.notebook.v1.NotebookDocumentRevision
-	(*InstalledPackage)(nil),                       // 125: chalk.notebook.v1.InstalledPackage
-	(*KernelBuildInfo)(nil),                        // 126: chalk.notebook.v1.KernelBuildInfo
-	(*NotebookSecret)(nil),                         // 127: chalk.notebook.v1.NotebookSecret
-	(*NotebookSecretValue)(nil),                    // 128: chalk.notebook.v1.NotebookSecretValue
-	(*v1.SecretConfigValue)(nil),                   // 129: chalk.server.v1.SecretConfigValue
-	(*NotebookShareLink)(nil),                      // 130: chalk.notebook.v1.NotebookShareLink
+	(*NotebookRunKernel)(nil),                      // 120: chalk.notebook.v1.NotebookRunKernel
+	(*NotebookRunEvent)(nil),                       // 121: chalk.notebook.v1.NotebookRunEvent
+	(*NotebookCellResult)(nil),                     // 122: chalk.notebook.v1.NotebookCellResult
+	(*NotebookCellRunHistoryEntry)(nil),            // 123: chalk.notebook.v1.NotebookCellRunHistoryEntry
+	(*NotebookRunSummary)(nil),                     // 124: chalk.notebook.v1.NotebookRunSummary
+	(*NotebookDocumentRevision)(nil),               // 125: chalk.notebook.v1.NotebookDocumentRevision
+	(*NotebookKernelLifecycle)(nil),                // 126: chalk.notebook.v1.NotebookKernelLifecycle
+	(*InstalledPackage)(nil),                       // 127: chalk.notebook.v1.InstalledPackage
+	(*KernelBuildInfo)(nil),                        // 128: chalk.notebook.v1.KernelBuildInfo
+	(*NotebookSecret)(nil),                         // 129: chalk.notebook.v1.NotebookSecret
+	(*NotebookSecretValue)(nil),                    // 130: chalk.notebook.v1.NotebookSecretValue
+	(*v1.SecretConfigValue)(nil),                   // 131: chalk.server.v1.SecretConfigValue
+	(*NotebookShareLink)(nil),                      // 132: chalk.notebook.v1.NotebookShareLink
 }
 var file_chalk_notebook_v1_document_service_proto_depIdxs = []int32{
 	113, // 0: chalk.notebook.v1.CreateNotebookDocumentRequest.document:type_name -> chalk.notebook.v1.NotebookDocument
@@ -7118,148 +7138,150 @@ var file_chalk_notebook_v1_document_service_proto_depIdxs = []int32{
 	118, // 29: chalk.notebook.v1.StartNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
 	119, // 30: chalk.notebook.v1.StartNotebookRunRequest.max_staleness:type_name -> google.protobuf.Duration
 	36,  // 31: chalk.notebook.v1.StartNotebookRunResponse.plan:type_name -> chalk.notebook.v1.NotebookRunPlanEntry
-	120, // 32: chalk.notebook.v1.WatchNotebookRunResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
-	4,   // 33: chalk.notebook.v1.InterruptNotebookRunResponse.outcome:type_name -> chalk.notebook.v1.NotebookInterruptOutcome
-	121, // 34: chalk.notebook.v1.ListNotebookCellResultsResponse.results:type_name -> chalk.notebook.v1.NotebookCellResult
-	122, // 35: chalk.notebook.v1.ListNotebookCellRunHistoryResponse.cell_runs:type_name -> chalk.notebook.v1.NotebookCellRunHistoryEntry
-	123, // 36: chalk.notebook.v1.ListNotebookRunsResponse.runs:type_name -> chalk.notebook.v1.NotebookRunSummary
-	123, // 37: chalk.notebook.v1.GetNotebookRunDetailsResponse.run:type_name -> chalk.notebook.v1.NotebookRunSummary
-	122, // 38: chalk.notebook.v1.GetNotebookRunDetailsResponse.cell_runs:type_name -> chalk.notebook.v1.NotebookCellRunHistoryEntry
-	124, // 39: chalk.notebook.v1.ListNotebookDocumentRevisionsResponse.revisions:type_name -> chalk.notebook.v1.NotebookDocumentRevision
-	5,   // 40: chalk.notebook.v1.AggregateNotebookDataframeRequest.aggregation:type_name -> chalk.notebook.v1.NotebookDataframeAggregation
-	55,  // 41: chalk.notebook.v1.AggregateNotebookDataframeResponse.percentiles:type_name -> chalk.notebook.v1.NotebookDataframePercentile
-	6,   // 42: chalk.notebook.v1.DownloadNotebookDataframeRequest.format:type_name -> chalk.notebook.v1.NotebookDataframeDownloadFormat
-	119, // 43: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse.max_staleness:type_name -> google.protobuf.Duration
-	119, // 44: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse.effective_max_staleness:type_name -> google.protobuf.Duration
-	119, // 45: chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest.max_staleness:type_name -> google.protobuf.Duration
-	7,   // 46: chalk.notebook.v1.NotebookRuntimeStatus.state:type_name -> chalk.notebook.v1.NotebookRuntimeState
-	65,  // 47: chalk.notebook.v1.StartNotebookRuntimeResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	65,  // 48: chalk.notebook.v1.StopNotebookRuntimeResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	65,  // 49: chalk.notebook.v1.GetNotebookRuntimeStatusResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	65,  // 50: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	117, // 51: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse.observed_at:type_name -> google.protobuf.Timestamp
-	65,  // 52: chalk.notebook.v1.NotebookRuntimeSummary.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	117, // 53: chalk.notebook.v1.NotebookRuntimeSummary.created_at:type_name -> google.protobuf.Timestamp
-	74,  // 54: chalk.notebook.v1.ListNotebookRuntimesResponse.runtimes:type_name -> chalk.notebook.v1.NotebookRuntimeSummary
-	125, // 55: chalk.notebook.v1.ListNotebookKernelPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
-	126, // 56: chalk.notebook.v1.ListNotebookKernelPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
-	80,  // 57: chalk.notebook.v1.GetNotebookDependencyGraphResponse.nodes:type_name -> chalk.notebook.v1.DependencyNode
-	81,  // 58: chalk.notebook.v1.GetNotebookDependencyGraphResponse.edges:type_name -> chalk.notebook.v1.DependencyEdge
-	127, // 59: chalk.notebook.v1.ListNotebookSecretsResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
-	128, // 60: chalk.notebook.v1.GetNotebookSecretValueResponse.secret_value:type_name -> chalk.notebook.v1.NotebookSecretValue
-	129, // 61: chalk.notebook.v1.UpsertNotebookSecretRequest.config:type_name -> chalk.server.v1.SecretConfigValue
-	127, // 62: chalk.notebook.v1.UpsertNotebookSecretResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
-	127, // 63: chalk.notebook.v1.DeleteNotebookSecretResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
-	117, // 64: chalk.notebook.v1.NotebookComment.created_at:type_name -> google.protobuf.Timestamp
-	117, // 65: chalk.notebook.v1.NotebookComment.resolved_at:type_name -> google.protobuf.Timestamp
-	92,  // 66: chalk.notebook.v1.NotebookComment.reactions:type_name -> chalk.notebook.v1.NotebookCommentReaction
-	91,  // 67: chalk.notebook.v1.CreateNotebookCommentResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
-	91,  // 68: chalk.notebook.v1.ListNotebookCommentsResponse.comments:type_name -> chalk.notebook.v1.NotebookComment
-	91,  // 69: chalk.notebook.v1.SetNotebookCommentResolvedResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
-	91,  // 70: chalk.notebook.v1.ToggleNotebookCommentReactionResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
-	119, // 71: chalk.notebook.v1.CreateNotebookShareLinkRequest.expires_in:type_name -> google.protobuf.Duration
-	130, // 72: chalk.notebook.v1.CreateNotebookShareLinkResponse.link:type_name -> chalk.notebook.v1.NotebookShareLink
-	130, // 73: chalk.notebook.v1.ListNotebookShareLinksResponse.links:type_name -> chalk.notebook.v1.NotebookShareLink
-	130, // 74: chalk.notebook.v1.RevokeNotebookShareLinkResponse.link:type_name -> chalk.notebook.v1.NotebookShareLink
-	103, // 75: chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink:input_type -> chalk.notebook.v1.CreateNotebookShareLinkRequest
-	105, // 76: chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks:input_type -> chalk.notebook.v1.ListNotebookShareLinksRequest
-	107, // 77: chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink:input_type -> chalk.notebook.v1.RevokeNotebookShareLinkRequest
-	109, // 78: chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink:input_type -> chalk.notebook.v1.ResolveNotebookShareLinkRequest
-	93,  // 79: chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment:input_type -> chalk.notebook.v1.CreateNotebookCommentRequest
-	95,  // 80: chalk.notebook.v1.NotebookDocumentService.ListNotebookComments:input_type -> chalk.notebook.v1.ListNotebookCommentsRequest
-	97,  // 81: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment:input_type -> chalk.notebook.v1.DeleteNotebookCommentRequest
-	99,  // 82: chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved:input_type -> chalk.notebook.v1.SetNotebookCommentResolvedRequest
-	101, // 83: chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction:input_type -> chalk.notebook.v1.ToggleNotebookCommentReactionRequest
-	8,   // 84: chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument:input_type -> chalk.notebook.v1.CreateNotebookDocumentRequest
-	10,  // 85: chalk.notebook.v1.NotebookDocumentService.GetNotebookDocument:input_type -> chalk.notebook.v1.GetNotebookDocumentRequest
-	12,  // 86: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocuments:input_type -> chalk.notebook.v1.ListNotebookDocumentsRequest
-	14,  // 87: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument:input_type -> chalk.notebook.v1.UpdateNotebookDocumentRequest
-	18,  // 88: chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp:input_type -> chalk.notebook.v1.EnsureNotebookAppRequest
-	16,  // 89: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument:input_type -> chalk.notebook.v1.DeleteNotebookDocumentRequest
-	20,  // 90: chalk.notebook.v1.NotebookDocumentService.SetNotebookArchived:input_type -> chalk.notebook.v1.SetNotebookArchivedRequest
-	22,  // 91: chalk.notebook.v1.NotebookDocumentService.AddNotebookCell:input_type -> chalk.notebook.v1.AddNotebookCellRequest
-	27,  // 92: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookCell:input_type -> chalk.notebook.v1.UpdateNotebookCellRequest
-	29,  // 93: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookCell:input_type -> chalk.notebook.v1.DeleteNotebookCellRequest
-	31,  // 94: chalk.notebook.v1.NotebookDocumentService.MoveNotebookCell:input_type -> chalk.notebook.v1.MoveNotebookCellRequest
-	33,  // 95: chalk.notebook.v1.NotebookDocumentService.BatchUpdateNotebookCells:input_type -> chalk.notebook.v1.BatchUpdateNotebookCellsRequest
-	35,  // 96: chalk.notebook.v1.NotebookDocumentService.StartNotebookRun:input_type -> chalk.notebook.v1.StartNotebookRunRequest
-	38,  // 97: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun:input_type -> chalk.notebook.v1.WatchNotebookRunRequest
-	24,  // 98: chalk.notebook.v1.NotebookDocumentService.WatchNotebook:input_type -> chalk.notebook.v1.WatchNotebookRequest
-	40,  // 99: chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun:input_type -> chalk.notebook.v1.InterruptNotebookRunRequest
-	42,  // 100: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellResults:input_type -> chalk.notebook.v1.ListNotebookCellResultsRequest
-	52,  // 101: chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows:input_type -> chalk.notebook.v1.FetchNotebookDataframeRowsRequest
-	54,  // 102: chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe:input_type -> chalk.notebook.v1.AggregateNotebookDataframeRequest
-	57,  // 103: chalk.notebook.v1.NotebookDocumentService.DownloadNotebookDataframe:input_type -> chalk.notebook.v1.DownloadNotebookDataframeRequest
-	44,  // 104: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellRunHistory:input_type -> chalk.notebook.v1.ListNotebookCellRunHistoryRequest
-	50,  // 105: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocumentRevisions:input_type -> chalk.notebook.v1.ListNotebookDocumentRevisionsRequest
-	46,  // 106: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuns:input_type -> chalk.notebook.v1.ListNotebookRunsRequest
-	48,  // 107: chalk.notebook.v1.NotebookDocumentService.GetNotebookRunDetails:input_type -> chalk.notebook.v1.GetNotebookRunDetailsRequest
-	59,  // 108: chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults:input_type -> chalk.notebook.v1.ClearNotebookCellResultsRequest
-	61,  // 109: chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings:input_type -> chalk.notebook.v1.GetNotebookSqlCacheSettingsRequest
-	63,  // 110: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings:input_type -> chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest
-	66,  // 111: chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime:input_type -> chalk.notebook.v1.StartNotebookRuntimeRequest
-	68,  // 112: chalk.notebook.v1.NotebookDocumentService.StopNotebookRuntime:input_type -> chalk.notebook.v1.StopNotebookRuntimeRequest
-	70,  // 113: chalk.notebook.v1.NotebookDocumentService.GetNotebookRuntimeStatus:input_type -> chalk.notebook.v1.GetNotebookRuntimeStatusRequest
-	72,  // 114: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRuntimeStatus:input_type -> chalk.notebook.v1.WatchNotebookRuntimeStatusRequest
-	75,  // 115: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuntimes:input_type -> chalk.notebook.v1.ListNotebookRuntimesRequest
-	77,  // 116: chalk.notebook.v1.NotebookDocumentService.ListNotebookKernelPackages:input_type -> chalk.notebook.v1.ListNotebookKernelPackagesRequest
-	79,  // 117: chalk.notebook.v1.NotebookDocumentService.GetNotebookDependencyGraph:input_type -> chalk.notebook.v1.GetNotebookDependencyGraphRequest
-	83,  // 118: chalk.notebook.v1.NotebookDocumentService.ListNotebookSecrets:input_type -> chalk.notebook.v1.ListNotebookSecretsRequest
-	85,  // 119: chalk.notebook.v1.NotebookDocumentService.GetNotebookSecretValue:input_type -> chalk.notebook.v1.GetNotebookSecretValueRequest
-	87,  // 120: chalk.notebook.v1.NotebookDocumentService.UpsertNotebookSecret:input_type -> chalk.notebook.v1.UpsertNotebookSecretRequest
-	89,  // 121: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookSecret:input_type -> chalk.notebook.v1.DeleteNotebookSecretRequest
-	104, // 122: chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink:output_type -> chalk.notebook.v1.CreateNotebookShareLinkResponse
-	106, // 123: chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks:output_type -> chalk.notebook.v1.ListNotebookShareLinksResponse
-	108, // 124: chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink:output_type -> chalk.notebook.v1.RevokeNotebookShareLinkResponse
-	110, // 125: chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink:output_type -> chalk.notebook.v1.ResolveNotebookShareLinkResponse
-	94,  // 126: chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment:output_type -> chalk.notebook.v1.CreateNotebookCommentResponse
-	96,  // 127: chalk.notebook.v1.NotebookDocumentService.ListNotebookComments:output_type -> chalk.notebook.v1.ListNotebookCommentsResponse
-	98,  // 128: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment:output_type -> chalk.notebook.v1.DeleteNotebookCommentResponse
-	100, // 129: chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved:output_type -> chalk.notebook.v1.SetNotebookCommentResolvedResponse
-	102, // 130: chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction:output_type -> chalk.notebook.v1.ToggleNotebookCommentReactionResponse
-	9,   // 131: chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument:output_type -> chalk.notebook.v1.CreateNotebookDocumentResponse
-	11,  // 132: chalk.notebook.v1.NotebookDocumentService.GetNotebookDocument:output_type -> chalk.notebook.v1.GetNotebookDocumentResponse
-	13,  // 133: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocuments:output_type -> chalk.notebook.v1.ListNotebookDocumentsResponse
-	15,  // 134: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument:output_type -> chalk.notebook.v1.UpdateNotebookDocumentResponse
-	19,  // 135: chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp:output_type -> chalk.notebook.v1.EnsureNotebookAppResponse
-	17,  // 136: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument:output_type -> chalk.notebook.v1.DeleteNotebookDocumentResponse
-	21,  // 137: chalk.notebook.v1.NotebookDocumentService.SetNotebookArchived:output_type -> chalk.notebook.v1.SetNotebookArchivedResponse
-	23,  // 138: chalk.notebook.v1.NotebookDocumentService.AddNotebookCell:output_type -> chalk.notebook.v1.AddNotebookCellResponse
-	28,  // 139: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookCell:output_type -> chalk.notebook.v1.UpdateNotebookCellResponse
-	30,  // 140: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookCell:output_type -> chalk.notebook.v1.DeleteNotebookCellResponse
-	32,  // 141: chalk.notebook.v1.NotebookDocumentService.MoveNotebookCell:output_type -> chalk.notebook.v1.MoveNotebookCellResponse
-	34,  // 142: chalk.notebook.v1.NotebookDocumentService.BatchUpdateNotebookCells:output_type -> chalk.notebook.v1.BatchUpdateNotebookCellsResponse
-	37,  // 143: chalk.notebook.v1.NotebookDocumentService.StartNotebookRun:output_type -> chalk.notebook.v1.StartNotebookRunResponse
-	39,  // 144: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun:output_type -> chalk.notebook.v1.WatchNotebookRunResponse
-	26,  // 145: chalk.notebook.v1.NotebookDocumentService.WatchNotebook:output_type -> chalk.notebook.v1.WatchNotebookResponse
-	41,  // 146: chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun:output_type -> chalk.notebook.v1.InterruptNotebookRunResponse
-	43,  // 147: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellResults:output_type -> chalk.notebook.v1.ListNotebookCellResultsResponse
-	53,  // 148: chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows:output_type -> chalk.notebook.v1.FetchNotebookDataframeRowsResponse
-	56,  // 149: chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe:output_type -> chalk.notebook.v1.AggregateNotebookDataframeResponse
-	58,  // 150: chalk.notebook.v1.NotebookDocumentService.DownloadNotebookDataframe:output_type -> chalk.notebook.v1.DownloadNotebookDataframeResponse
-	45,  // 151: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellRunHistory:output_type -> chalk.notebook.v1.ListNotebookCellRunHistoryResponse
-	51,  // 152: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocumentRevisions:output_type -> chalk.notebook.v1.ListNotebookDocumentRevisionsResponse
-	47,  // 153: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuns:output_type -> chalk.notebook.v1.ListNotebookRunsResponse
-	49,  // 154: chalk.notebook.v1.NotebookDocumentService.GetNotebookRunDetails:output_type -> chalk.notebook.v1.GetNotebookRunDetailsResponse
-	60,  // 155: chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults:output_type -> chalk.notebook.v1.ClearNotebookCellResultsResponse
-	62,  // 156: chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings:output_type -> chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse
-	64,  // 157: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings:output_type -> chalk.notebook.v1.UpdateNotebookSqlCacheSettingsResponse
-	67,  // 158: chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime:output_type -> chalk.notebook.v1.StartNotebookRuntimeResponse
-	69,  // 159: chalk.notebook.v1.NotebookDocumentService.StopNotebookRuntime:output_type -> chalk.notebook.v1.StopNotebookRuntimeResponse
-	71,  // 160: chalk.notebook.v1.NotebookDocumentService.GetNotebookRuntimeStatus:output_type -> chalk.notebook.v1.GetNotebookRuntimeStatusResponse
-	73,  // 161: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRuntimeStatus:output_type -> chalk.notebook.v1.WatchNotebookRuntimeStatusResponse
-	76,  // 162: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuntimes:output_type -> chalk.notebook.v1.ListNotebookRuntimesResponse
-	78,  // 163: chalk.notebook.v1.NotebookDocumentService.ListNotebookKernelPackages:output_type -> chalk.notebook.v1.ListNotebookKernelPackagesResponse
-	82,  // 164: chalk.notebook.v1.NotebookDocumentService.GetNotebookDependencyGraph:output_type -> chalk.notebook.v1.GetNotebookDependencyGraphResponse
-	84,  // 165: chalk.notebook.v1.NotebookDocumentService.ListNotebookSecrets:output_type -> chalk.notebook.v1.ListNotebookSecretsResponse
-	86,  // 166: chalk.notebook.v1.NotebookDocumentService.GetNotebookSecretValue:output_type -> chalk.notebook.v1.GetNotebookSecretValueResponse
-	88,  // 167: chalk.notebook.v1.NotebookDocumentService.UpsertNotebookSecret:output_type -> chalk.notebook.v1.UpsertNotebookSecretResponse
-	90,  // 168: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookSecret:output_type -> chalk.notebook.v1.DeleteNotebookSecretResponse
-	122, // [122:169] is the sub-list for method output_type
-	75,  // [75:122] is the sub-list for method input_type
-	75,  // [75:75] is the sub-list for extension type_name
-	75,  // [75:75] is the sub-list for extension extendee
-	0,   // [0:75] is the sub-list for field type_name
+	120, // 32: chalk.notebook.v1.StartNotebookRunResponse.kernel:type_name -> chalk.notebook.v1.NotebookRunKernel
+	121, // 33: chalk.notebook.v1.WatchNotebookRunResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
+	4,   // 34: chalk.notebook.v1.InterruptNotebookRunResponse.outcome:type_name -> chalk.notebook.v1.NotebookInterruptOutcome
+	122, // 35: chalk.notebook.v1.ListNotebookCellResultsResponse.results:type_name -> chalk.notebook.v1.NotebookCellResult
+	123, // 36: chalk.notebook.v1.ListNotebookCellRunHistoryResponse.cell_runs:type_name -> chalk.notebook.v1.NotebookCellRunHistoryEntry
+	124, // 37: chalk.notebook.v1.ListNotebookRunsResponse.runs:type_name -> chalk.notebook.v1.NotebookRunSummary
+	124, // 38: chalk.notebook.v1.GetNotebookRunDetailsResponse.run:type_name -> chalk.notebook.v1.NotebookRunSummary
+	123, // 39: chalk.notebook.v1.GetNotebookRunDetailsResponse.cell_runs:type_name -> chalk.notebook.v1.NotebookCellRunHistoryEntry
+	125, // 40: chalk.notebook.v1.ListNotebookDocumentRevisionsResponse.revisions:type_name -> chalk.notebook.v1.NotebookDocumentRevision
+	5,   // 41: chalk.notebook.v1.AggregateNotebookDataframeRequest.aggregation:type_name -> chalk.notebook.v1.NotebookDataframeAggregation
+	55,  // 42: chalk.notebook.v1.AggregateNotebookDataframeResponse.percentiles:type_name -> chalk.notebook.v1.NotebookDataframePercentile
+	6,   // 43: chalk.notebook.v1.DownloadNotebookDataframeRequest.format:type_name -> chalk.notebook.v1.NotebookDataframeDownloadFormat
+	119, // 44: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse.max_staleness:type_name -> google.protobuf.Duration
+	119, // 45: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse.effective_max_staleness:type_name -> google.protobuf.Duration
+	119, // 46: chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest.max_staleness:type_name -> google.protobuf.Duration
+	7,   // 47: chalk.notebook.v1.NotebookRuntimeStatus.state:type_name -> chalk.notebook.v1.NotebookRuntimeState
+	126, // 48: chalk.notebook.v1.NotebookRuntimeStatus.kernel_lifecycle:type_name -> chalk.notebook.v1.NotebookKernelLifecycle
+	65,  // 49: chalk.notebook.v1.StartNotebookRuntimeResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	65,  // 50: chalk.notebook.v1.StopNotebookRuntimeResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	65,  // 51: chalk.notebook.v1.GetNotebookRuntimeStatusResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	65,  // 52: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	117, // 53: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse.observed_at:type_name -> google.protobuf.Timestamp
+	65,  // 54: chalk.notebook.v1.NotebookRuntimeSummary.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	117, // 55: chalk.notebook.v1.NotebookRuntimeSummary.created_at:type_name -> google.protobuf.Timestamp
+	74,  // 56: chalk.notebook.v1.ListNotebookRuntimesResponse.runtimes:type_name -> chalk.notebook.v1.NotebookRuntimeSummary
+	127, // 57: chalk.notebook.v1.ListNotebookKernelPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
+	128, // 58: chalk.notebook.v1.ListNotebookKernelPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
+	80,  // 59: chalk.notebook.v1.GetNotebookDependencyGraphResponse.nodes:type_name -> chalk.notebook.v1.DependencyNode
+	81,  // 60: chalk.notebook.v1.GetNotebookDependencyGraphResponse.edges:type_name -> chalk.notebook.v1.DependencyEdge
+	129, // 61: chalk.notebook.v1.ListNotebookSecretsResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
+	130, // 62: chalk.notebook.v1.GetNotebookSecretValueResponse.secret_value:type_name -> chalk.notebook.v1.NotebookSecretValue
+	131, // 63: chalk.notebook.v1.UpsertNotebookSecretRequest.config:type_name -> chalk.server.v1.SecretConfigValue
+	129, // 64: chalk.notebook.v1.UpsertNotebookSecretResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
+	129, // 65: chalk.notebook.v1.DeleteNotebookSecretResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
+	117, // 66: chalk.notebook.v1.NotebookComment.created_at:type_name -> google.protobuf.Timestamp
+	117, // 67: chalk.notebook.v1.NotebookComment.resolved_at:type_name -> google.protobuf.Timestamp
+	92,  // 68: chalk.notebook.v1.NotebookComment.reactions:type_name -> chalk.notebook.v1.NotebookCommentReaction
+	91,  // 69: chalk.notebook.v1.CreateNotebookCommentResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
+	91,  // 70: chalk.notebook.v1.ListNotebookCommentsResponse.comments:type_name -> chalk.notebook.v1.NotebookComment
+	91,  // 71: chalk.notebook.v1.SetNotebookCommentResolvedResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
+	91,  // 72: chalk.notebook.v1.ToggleNotebookCommentReactionResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
+	119, // 73: chalk.notebook.v1.CreateNotebookShareLinkRequest.expires_in:type_name -> google.protobuf.Duration
+	132, // 74: chalk.notebook.v1.CreateNotebookShareLinkResponse.link:type_name -> chalk.notebook.v1.NotebookShareLink
+	132, // 75: chalk.notebook.v1.ListNotebookShareLinksResponse.links:type_name -> chalk.notebook.v1.NotebookShareLink
+	132, // 76: chalk.notebook.v1.RevokeNotebookShareLinkResponse.link:type_name -> chalk.notebook.v1.NotebookShareLink
+	103, // 77: chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink:input_type -> chalk.notebook.v1.CreateNotebookShareLinkRequest
+	105, // 78: chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks:input_type -> chalk.notebook.v1.ListNotebookShareLinksRequest
+	107, // 79: chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink:input_type -> chalk.notebook.v1.RevokeNotebookShareLinkRequest
+	109, // 80: chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink:input_type -> chalk.notebook.v1.ResolveNotebookShareLinkRequest
+	93,  // 81: chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment:input_type -> chalk.notebook.v1.CreateNotebookCommentRequest
+	95,  // 82: chalk.notebook.v1.NotebookDocumentService.ListNotebookComments:input_type -> chalk.notebook.v1.ListNotebookCommentsRequest
+	97,  // 83: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment:input_type -> chalk.notebook.v1.DeleteNotebookCommentRequest
+	99,  // 84: chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved:input_type -> chalk.notebook.v1.SetNotebookCommentResolvedRequest
+	101, // 85: chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction:input_type -> chalk.notebook.v1.ToggleNotebookCommentReactionRequest
+	8,   // 86: chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument:input_type -> chalk.notebook.v1.CreateNotebookDocumentRequest
+	10,  // 87: chalk.notebook.v1.NotebookDocumentService.GetNotebookDocument:input_type -> chalk.notebook.v1.GetNotebookDocumentRequest
+	12,  // 88: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocuments:input_type -> chalk.notebook.v1.ListNotebookDocumentsRequest
+	14,  // 89: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument:input_type -> chalk.notebook.v1.UpdateNotebookDocumentRequest
+	18,  // 90: chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp:input_type -> chalk.notebook.v1.EnsureNotebookAppRequest
+	16,  // 91: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument:input_type -> chalk.notebook.v1.DeleteNotebookDocumentRequest
+	20,  // 92: chalk.notebook.v1.NotebookDocumentService.SetNotebookArchived:input_type -> chalk.notebook.v1.SetNotebookArchivedRequest
+	22,  // 93: chalk.notebook.v1.NotebookDocumentService.AddNotebookCell:input_type -> chalk.notebook.v1.AddNotebookCellRequest
+	27,  // 94: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookCell:input_type -> chalk.notebook.v1.UpdateNotebookCellRequest
+	29,  // 95: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookCell:input_type -> chalk.notebook.v1.DeleteNotebookCellRequest
+	31,  // 96: chalk.notebook.v1.NotebookDocumentService.MoveNotebookCell:input_type -> chalk.notebook.v1.MoveNotebookCellRequest
+	33,  // 97: chalk.notebook.v1.NotebookDocumentService.BatchUpdateNotebookCells:input_type -> chalk.notebook.v1.BatchUpdateNotebookCellsRequest
+	35,  // 98: chalk.notebook.v1.NotebookDocumentService.StartNotebookRun:input_type -> chalk.notebook.v1.StartNotebookRunRequest
+	38,  // 99: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun:input_type -> chalk.notebook.v1.WatchNotebookRunRequest
+	24,  // 100: chalk.notebook.v1.NotebookDocumentService.WatchNotebook:input_type -> chalk.notebook.v1.WatchNotebookRequest
+	40,  // 101: chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun:input_type -> chalk.notebook.v1.InterruptNotebookRunRequest
+	42,  // 102: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellResults:input_type -> chalk.notebook.v1.ListNotebookCellResultsRequest
+	52,  // 103: chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows:input_type -> chalk.notebook.v1.FetchNotebookDataframeRowsRequest
+	54,  // 104: chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe:input_type -> chalk.notebook.v1.AggregateNotebookDataframeRequest
+	57,  // 105: chalk.notebook.v1.NotebookDocumentService.DownloadNotebookDataframe:input_type -> chalk.notebook.v1.DownloadNotebookDataframeRequest
+	44,  // 106: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellRunHistory:input_type -> chalk.notebook.v1.ListNotebookCellRunHistoryRequest
+	50,  // 107: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocumentRevisions:input_type -> chalk.notebook.v1.ListNotebookDocumentRevisionsRequest
+	46,  // 108: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuns:input_type -> chalk.notebook.v1.ListNotebookRunsRequest
+	48,  // 109: chalk.notebook.v1.NotebookDocumentService.GetNotebookRunDetails:input_type -> chalk.notebook.v1.GetNotebookRunDetailsRequest
+	59,  // 110: chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults:input_type -> chalk.notebook.v1.ClearNotebookCellResultsRequest
+	61,  // 111: chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings:input_type -> chalk.notebook.v1.GetNotebookSqlCacheSettingsRequest
+	63,  // 112: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings:input_type -> chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest
+	66,  // 113: chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime:input_type -> chalk.notebook.v1.StartNotebookRuntimeRequest
+	68,  // 114: chalk.notebook.v1.NotebookDocumentService.StopNotebookRuntime:input_type -> chalk.notebook.v1.StopNotebookRuntimeRequest
+	70,  // 115: chalk.notebook.v1.NotebookDocumentService.GetNotebookRuntimeStatus:input_type -> chalk.notebook.v1.GetNotebookRuntimeStatusRequest
+	72,  // 116: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRuntimeStatus:input_type -> chalk.notebook.v1.WatchNotebookRuntimeStatusRequest
+	75,  // 117: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuntimes:input_type -> chalk.notebook.v1.ListNotebookRuntimesRequest
+	77,  // 118: chalk.notebook.v1.NotebookDocumentService.ListNotebookKernelPackages:input_type -> chalk.notebook.v1.ListNotebookKernelPackagesRequest
+	79,  // 119: chalk.notebook.v1.NotebookDocumentService.GetNotebookDependencyGraph:input_type -> chalk.notebook.v1.GetNotebookDependencyGraphRequest
+	83,  // 120: chalk.notebook.v1.NotebookDocumentService.ListNotebookSecrets:input_type -> chalk.notebook.v1.ListNotebookSecretsRequest
+	85,  // 121: chalk.notebook.v1.NotebookDocumentService.GetNotebookSecretValue:input_type -> chalk.notebook.v1.GetNotebookSecretValueRequest
+	87,  // 122: chalk.notebook.v1.NotebookDocumentService.UpsertNotebookSecret:input_type -> chalk.notebook.v1.UpsertNotebookSecretRequest
+	89,  // 123: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookSecret:input_type -> chalk.notebook.v1.DeleteNotebookSecretRequest
+	104, // 124: chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink:output_type -> chalk.notebook.v1.CreateNotebookShareLinkResponse
+	106, // 125: chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks:output_type -> chalk.notebook.v1.ListNotebookShareLinksResponse
+	108, // 126: chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink:output_type -> chalk.notebook.v1.RevokeNotebookShareLinkResponse
+	110, // 127: chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink:output_type -> chalk.notebook.v1.ResolveNotebookShareLinkResponse
+	94,  // 128: chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment:output_type -> chalk.notebook.v1.CreateNotebookCommentResponse
+	96,  // 129: chalk.notebook.v1.NotebookDocumentService.ListNotebookComments:output_type -> chalk.notebook.v1.ListNotebookCommentsResponse
+	98,  // 130: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment:output_type -> chalk.notebook.v1.DeleteNotebookCommentResponse
+	100, // 131: chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved:output_type -> chalk.notebook.v1.SetNotebookCommentResolvedResponse
+	102, // 132: chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction:output_type -> chalk.notebook.v1.ToggleNotebookCommentReactionResponse
+	9,   // 133: chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument:output_type -> chalk.notebook.v1.CreateNotebookDocumentResponse
+	11,  // 134: chalk.notebook.v1.NotebookDocumentService.GetNotebookDocument:output_type -> chalk.notebook.v1.GetNotebookDocumentResponse
+	13,  // 135: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocuments:output_type -> chalk.notebook.v1.ListNotebookDocumentsResponse
+	15,  // 136: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument:output_type -> chalk.notebook.v1.UpdateNotebookDocumentResponse
+	19,  // 137: chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp:output_type -> chalk.notebook.v1.EnsureNotebookAppResponse
+	17,  // 138: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument:output_type -> chalk.notebook.v1.DeleteNotebookDocumentResponse
+	21,  // 139: chalk.notebook.v1.NotebookDocumentService.SetNotebookArchived:output_type -> chalk.notebook.v1.SetNotebookArchivedResponse
+	23,  // 140: chalk.notebook.v1.NotebookDocumentService.AddNotebookCell:output_type -> chalk.notebook.v1.AddNotebookCellResponse
+	28,  // 141: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookCell:output_type -> chalk.notebook.v1.UpdateNotebookCellResponse
+	30,  // 142: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookCell:output_type -> chalk.notebook.v1.DeleteNotebookCellResponse
+	32,  // 143: chalk.notebook.v1.NotebookDocumentService.MoveNotebookCell:output_type -> chalk.notebook.v1.MoveNotebookCellResponse
+	34,  // 144: chalk.notebook.v1.NotebookDocumentService.BatchUpdateNotebookCells:output_type -> chalk.notebook.v1.BatchUpdateNotebookCellsResponse
+	37,  // 145: chalk.notebook.v1.NotebookDocumentService.StartNotebookRun:output_type -> chalk.notebook.v1.StartNotebookRunResponse
+	39,  // 146: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun:output_type -> chalk.notebook.v1.WatchNotebookRunResponse
+	26,  // 147: chalk.notebook.v1.NotebookDocumentService.WatchNotebook:output_type -> chalk.notebook.v1.WatchNotebookResponse
+	41,  // 148: chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun:output_type -> chalk.notebook.v1.InterruptNotebookRunResponse
+	43,  // 149: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellResults:output_type -> chalk.notebook.v1.ListNotebookCellResultsResponse
+	53,  // 150: chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows:output_type -> chalk.notebook.v1.FetchNotebookDataframeRowsResponse
+	56,  // 151: chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe:output_type -> chalk.notebook.v1.AggregateNotebookDataframeResponse
+	58,  // 152: chalk.notebook.v1.NotebookDocumentService.DownloadNotebookDataframe:output_type -> chalk.notebook.v1.DownloadNotebookDataframeResponse
+	45,  // 153: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellRunHistory:output_type -> chalk.notebook.v1.ListNotebookCellRunHistoryResponse
+	51,  // 154: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocumentRevisions:output_type -> chalk.notebook.v1.ListNotebookDocumentRevisionsResponse
+	47,  // 155: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuns:output_type -> chalk.notebook.v1.ListNotebookRunsResponse
+	49,  // 156: chalk.notebook.v1.NotebookDocumentService.GetNotebookRunDetails:output_type -> chalk.notebook.v1.GetNotebookRunDetailsResponse
+	60,  // 157: chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults:output_type -> chalk.notebook.v1.ClearNotebookCellResultsResponse
+	62,  // 158: chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings:output_type -> chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse
+	64,  // 159: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings:output_type -> chalk.notebook.v1.UpdateNotebookSqlCacheSettingsResponse
+	67,  // 160: chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime:output_type -> chalk.notebook.v1.StartNotebookRuntimeResponse
+	69,  // 161: chalk.notebook.v1.NotebookDocumentService.StopNotebookRuntime:output_type -> chalk.notebook.v1.StopNotebookRuntimeResponse
+	71,  // 162: chalk.notebook.v1.NotebookDocumentService.GetNotebookRuntimeStatus:output_type -> chalk.notebook.v1.GetNotebookRuntimeStatusResponse
+	73,  // 163: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRuntimeStatus:output_type -> chalk.notebook.v1.WatchNotebookRuntimeStatusResponse
+	76,  // 164: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuntimes:output_type -> chalk.notebook.v1.ListNotebookRuntimesResponse
+	78,  // 165: chalk.notebook.v1.NotebookDocumentService.ListNotebookKernelPackages:output_type -> chalk.notebook.v1.ListNotebookKernelPackagesResponse
+	82,  // 166: chalk.notebook.v1.NotebookDocumentService.GetNotebookDependencyGraph:output_type -> chalk.notebook.v1.GetNotebookDependencyGraphResponse
+	84,  // 167: chalk.notebook.v1.NotebookDocumentService.ListNotebookSecrets:output_type -> chalk.notebook.v1.ListNotebookSecretsResponse
+	86,  // 168: chalk.notebook.v1.NotebookDocumentService.GetNotebookSecretValue:output_type -> chalk.notebook.v1.GetNotebookSecretValueResponse
+	88,  // 169: chalk.notebook.v1.NotebookDocumentService.UpsertNotebookSecret:output_type -> chalk.notebook.v1.UpsertNotebookSecretResponse
+	90,  // 170: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookSecret:output_type -> chalk.notebook.v1.DeleteNotebookSecretResponse
+	124, // [124:171] is the sub-list for method output_type
+	77,  // [77:124] is the sub-list for method input_type
+	77,  // [77:77] is the sub-list for extension type_name
+	77,  // [77:77] is the sub-list for extension extendee
+	0,   // [0:77] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_document_service_proto_init() }

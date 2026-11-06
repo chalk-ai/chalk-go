@@ -10164,6 +10164,8 @@ type CustomerVectorAggregatorConfig struct {
 	MaxReplicas       *int32                                           `protobuf:"varint,8,opt,name=max_replicas,json=maxReplicas,proto3,oneof" json:"max_replicas,omitempty"`
 	OtlpMetricsExport *CustomerVectorAggregatorOtlpMetricsExportConfig `protobuf:"bytes,9,opt,name=otlp_metrics_export,json=otlpMetricsExport,proto3,oneof" json:"otlp_metrics_export,omitempty"`
 	PrometheusExport  *CustomerVectorAggregatorPrometheusExportConfig  `protobuf:"bytes,10,opt,name=prometheus_export,json=prometheusExport,proto3,oneof" json:"prometheus_export,omitempty"`
+	OtlpLogsExport    *CustomerVectorAggregatorOtlpSignalExportConfig  `protobuf:"bytes,11,opt,name=otlp_logs_export,json=otlpLogsExport,proto3,oneof" json:"otlp_logs_export,omitempty"`
+	OtlpTracesExport  *CustomerVectorAggregatorOtlpSignalExportConfig  `protobuf:"bytes,12,opt,name=otlp_traces_export,json=otlpTracesExport,proto3,oneof" json:"otlp_traces_export,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -10264,6 +10266,20 @@ func (x *CustomerVectorAggregatorConfig) GetOtlpMetricsExport() *CustomerVectorA
 func (x *CustomerVectorAggregatorConfig) GetPrometheusExport() *CustomerVectorAggregatorPrometheusExportConfig {
 	if x != nil {
 		return x.PrometheusExport
+	}
+	return nil
+}
+
+func (x *CustomerVectorAggregatorConfig) GetOtlpLogsExport() *CustomerVectorAggregatorOtlpSignalExportConfig {
+	if x != nil {
+		return x.OtlpLogsExport
+	}
+	return nil
+}
+
+func (x *CustomerVectorAggregatorConfig) GetOtlpTracesExport() *CustomerVectorAggregatorOtlpSignalExportConfig {
+	if x != nil {
+		return x.OtlpTracesExport
 	}
 	return nil
 }
@@ -10423,8 +10439,12 @@ type CustomerCollectorConfig struct {
 	// Controls which signals the customer collector receives from Chalk-managed
 	// collectors. Every signal is enabled when this block or its field is unset.
 	ReceivedSignals *CustomerCollectorReceivedSignalsSpec `protobuf:"bytes,2,opt,name=received_signals,json=receivedSignals,proto3,oneof" json:"received_signals,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Kubernetes resource requests. Unset amounts are omitted from the deployment.
+	Request *KubeResourceConfig `protobuf:"bytes,3,opt,name=request,proto3,oneof" json:"request,omitempty"`
+	// Kubernetes resource limits. Unset amounts are omitted from the deployment.
+	Limit         *KubeResourceConfig `protobuf:"bytes,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CustomerCollectorConfig) Reset() {
@@ -10467,6 +10487,20 @@ func (x *CustomerCollectorConfig) GetConfigYaml() string {
 func (x *CustomerCollectorConfig) GetReceivedSignals() *CustomerCollectorReceivedSignalsSpec {
 	if x != nil {
 		return x.ReceivedSignals
+	}
+	return nil
+}
+
+func (x *CustomerCollectorConfig) GetRequest() *KubeResourceConfig {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+func (x *CustomerCollectorConfig) GetLimit() *KubeResourceConfig {
+	if x != nil {
+		return x.Limit
 	}
 	return nil
 }
@@ -18983,16 +19017,27 @@ type CustomerVectorAggregatorOtlpMetricsExportConfig struct {
 	Enabled *bool `protobuf:"varint,1,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
 	// Required full OTLP/HTTP metrics URL, including the /v1/metrics path.
 	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
-	// Optional ARN for a cloud secret containing the complete Authorization
-	// header value, for example "Bearer <token>". The value is fetched at deploy
-	// time and written into the Kubernetes secret for the customer Vector
-	// aggregator.
+	// Optional ARN for a cloud secret containing the complete value to send
+	// under the header named by header_name, for example "Bearer <token>" for
+	// an Authorization header, or a raw license key for a vendor-specific
+	// header. The value is fetched at deploy time and written into the
+	// Kubernetes secret for the customer Vector aggregator.
 	AuthorizationHeaderSecretArn *string `protobuf:"bytes,3,opt,name=authorization_header_secret_arn,json=authorizationHeaderSecretArn,proto3,oneof" json:"authorization_header_secret_arn,omitempty"`
 	// Optional VRL remap source applied only to the customer OTLP metric export
 	// path, after the customer Vector aggregator metrics remap.
-	RemapVrl      *string `protobuf:"bytes,4,opt,name=remap_vrl,json=remapVrl,proto3,oneof" json:"remap_vrl,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	RemapVrl *string `protobuf:"bytes,4,opt,name=remap_vrl,json=remapVrl,proto3,oneof" json:"remap_vrl,omitempty"`
+	// Optional HTTP header name that authorization_header_secret_arn's value is
+	// sent under. Defaults to "Authorization" when unset. Set this for
+	// OTLP-compatible backends that expect a nonstandard auth header, for
+	// example New Relic's "api-key" header.
+	HeaderName *string `protobuf:"bytes,5,opt,name=header_name,json=headerName,proto3,oneof" json:"header_name,omitempty"`
+	// Optional cloud secret ARN containing a JSON object mapping HTTP header
+	// names to string values, like the customer Prometheus exporter. Values are
+	// stored only in the customer aggregator's Kubernetes Secret. Cannot be set
+	// together with authorization_header_secret_arn or header_name.
+	HeadersSecretArn *string `protobuf:"bytes,6,opt,name=headers_secret_arn,json=headersSecretArn,proto3,oneof" json:"headers_secret_arn,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) Reset() {
@@ -19049,6 +19094,20 @@ func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) GetAuthorizationHeader
 func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) GetRemapVrl() string {
 	if x != nil && x.RemapVrl != nil {
 		return *x.RemapVrl
+	}
+	return ""
+}
+
+func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) GetHeaderName() string {
+	if x != nil && x.HeaderName != nil {
+		return *x.HeaderName
+	}
+	return ""
+}
+
+func (x *CustomerVectorAggregatorOtlpMetricsExportConfig) GetHeadersSecretArn() string {
+	if x != nil && x.HeadersSecretArn != nil {
+		return *x.HeadersSecretArn
 	}
 	return ""
 }
@@ -20045,6 +20104,79 @@ func (x *AiTraceArchiveSpec) GetMinSpanAgeDays() uint32 {
 	return 0
 }
 
+// Independent log or trace export. Unlike the legacy metrics configuration,
+// this exporter requires enabled=true, even when the configuration is present.
+type CustomerVectorAggregatorOtlpSignalExportConfig struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Enabled *bool                  `protobuf:"varint,1,opt,name=enabled,proto3,oneof" json:"enabled,omitempty"`
+	// Complete HTTP ingestion URL. Provider-specific paths are used verbatim.
+	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	// Cloud secret containing a JSON object of HTTP header names and string values.
+	HeadersSecretArn *string `protobuf:"bytes,3,opt,name=headers_secret_arn,json=headersSecretArn,proto3,oneof" json:"headers_secret_arn,omitempty"`
+	// Applied after shared signal VRL and before native-event conversion to OTLP.
+	RemapVrl      *string `protobuf:"bytes,4,opt,name=remap_vrl,json=remapVrl,proto3,oneof" json:"remap_vrl,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CustomerVectorAggregatorOtlpSignalExportConfig) Reset() {
+	*x = CustomerVectorAggregatorOtlpSignalExportConfig{}
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[267]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CustomerVectorAggregatorOtlpSignalExportConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CustomerVectorAggregatorOtlpSignalExportConfig) ProtoMessage() {}
+
+func (x *CustomerVectorAggregatorOtlpSignalExportConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_builder_proto_msgTypes[267]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CustomerVectorAggregatorOtlpSignalExportConfig.ProtoReflect.Descriptor instead.
+func (*CustomerVectorAggregatorOtlpSignalExportConfig) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_builder_proto_rawDescGZIP(), []int{267}
+}
+
+func (x *CustomerVectorAggregatorOtlpSignalExportConfig) GetEnabled() bool {
+	if x != nil && x.Enabled != nil {
+		return *x.Enabled
+	}
+	return false
+}
+
+func (x *CustomerVectorAggregatorOtlpSignalExportConfig) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *CustomerVectorAggregatorOtlpSignalExportConfig) GetHeadersSecretArn() string {
+	if x != nil && x.HeadersSecretArn != nil {
+		return *x.HeadersSecretArn
+	}
+	return ""
+}
+
+func (x *CustomerVectorAggregatorOtlpSignalExportConfig) GetRemapVrl() string {
+	if x != nil && x.RemapVrl != nil {
+		return *x.RemapVrl
+	}
+	return ""
+}
+
 var File_chalk_server_v1_builder_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_builder_proto_rawDesc = "" +
@@ -20999,7 +21131,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\t_protocolB\x0f\n" +
 	"\r_metrics_sinkB\f\n" +
 	"\n" +
-	"_remap_vrl\"\xae\a\n" +
+	"_remap_vrl\"\xbe\t\n" +
 	"\x1eCustomerVectorAggregatorConfig\x12h\n" +
 	"\x0edatadog_export\x18\x01 \x01(\v2<.chalk.server.v1.CustomerVectorAggregatorDatadogExportConfigH\x00R\rdatadogExport\x88\x01\x01\x12\x1f\n" +
 	"\breplicas\x18\x02 \x01(\x05H\x01R\breplicas\x88\x01\x01\x12e\n" +
@@ -21011,7 +21143,10 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\fmax_replicas\x18\b \x01(\x05H\aR\vmaxReplicas\x88\x01\x01\x12u\n" +
 	"\x13otlp_metrics_export\x18\t \x01(\v2@.chalk.server.v1.CustomerVectorAggregatorOtlpMetricsExportConfigH\bR\x11otlpMetricsExport\x88\x01\x01\x12q\n" +
 	"\x11prometheus_export\x18\n" +
-	" \x01(\v2?.chalk.server.v1.CustomerVectorAggregatorPrometheusExportConfigH\tR\x10prometheusExport\x88\x01\x01B\x11\n" +
+	" \x01(\v2?.chalk.server.v1.CustomerVectorAggregatorPrometheusExportConfigH\tR\x10prometheusExport\x88\x01\x01\x12n\n" +
+	"\x10otlp_logs_export\x18\v \x01(\v2?.chalk.server.v1.CustomerVectorAggregatorOtlpSignalExportConfigH\n" +
+	"R\x0eotlpLogsExport\x88\x01\x01\x12r\n" +
+	"\x12otlp_traces_export\x18\f \x01(\v2?.chalk.server.v1.CustomerVectorAggregatorOtlpSignalExportConfigH\vR\x10otlpTracesExport\x88\x01\x01B\x11\n" +
 	"\x0f_datadog_exportB\v\n" +
 	"\t_replicasB\x10\n" +
 	"\x0e_statsd_exportB\x11\n" +
@@ -21022,7 +21157,9 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\b_requestB\x0f\n" +
 	"\r_max_replicasB\x16\n" +
 	"\x14_otlp_metrics_exportB\x14\n" +
-	"\x12_prometheus_export\"\xda\b\n" +
+	"\x12_prometheus_exportB\x13\n" +
+	"\x11_otlp_logs_exportB\x15\n" +
+	"\x13_otlp_traces_export\"\xda\b\n" +
 	"\x0eAggregatorSpec\x12#\n" +
 	"\rimage_version\x18\x01 \x01(\tR\fimageVersion\x12B\n" +
 	"\arequest\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x00R\arequest\x88\x01\x01\x12B\n" +
@@ -21046,12 +21183,17 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x13_metric_aggregationB\x17\n" +
 	"\x15_customer_vector_sinkB\x0f\n" +
 	"\r_max_replicasB\x1b\n" +
-	"\x19_vector_chunk_size_events\"\xb6\x01\n" +
+	"\x19_vector_chunk_size_events\"\xd0\x02\n" +
 	"\x17CustomerCollectorConfig\x12\x1f\n" +
 	"\vconfig_yaml\x18\x01 \x01(\tR\n" +
 	"configYaml\x12e\n" +
-	"\x10received_signals\x18\x02 \x01(\v25.chalk.server.v1.CustomerCollectorReceivedSignalsSpecH\x00R\x0freceivedSignals\x88\x01\x01B\x13\n" +
-	"\x11_received_signals\"\xef\t\n" +
+	"\x10received_signals\x18\x02 \x01(\v25.chalk.server.v1.CustomerCollectorReceivedSignalsSpecH\x00R\x0freceivedSignals\x88\x01\x01\x12B\n" +
+	"\arequest\x18\x03 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x01R\arequest\x88\x01\x01\x12>\n" +
+	"\x05limit\x18\x04 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x02R\x05limit\x88\x01\x01B\x13\n" +
+	"\x11_received_signalsB\n" +
+	"\n" +
+	"\b_requestB\b\n" +
+	"\x06_limit\"\xef\t\n" +
 	"\x18VectorClusterMetricsSpec\x12=\n" +
 	"\x18collector_scrape_enabled\x18\x01 \x01(\bH\x00R\x16collectorScrapeEnabled\x88\x01\x01\x12=\n" +
 	"\x16timescale_sink_enabled\x18\x02 \x01(\bB\x02\x18\x01H\x01R\x14timescaleSinkEnabled\x88\x01\x01\x12N\n" +
@@ -21942,17 +22084,22 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x11_buffer_when_fullB\x1b\n" +
 	"\x19_acknowledgements_enabledB\x16\n" +
 	"\x14_healthcheck_enabledB\x16\n" +
-	"\x14_expire_metrics_secs\"\x8e\x02\n" +
+	"\x14_expire_metrics_secs\"\x8e\x03\n" +
 	"/CustomerVectorAggregatorOtlpMetricsExportConfig\x12\x1d\n" +
 	"\aenabled\x18\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12J\n" +
 	"\x1fauthorization_header_secret_arn\x18\x03 \x01(\tH\x01R\x1cauthorizationHeaderSecretArn\x88\x01\x01\x12 \n" +
-	"\tremap_vrl\x18\x04 \x01(\tH\x02R\bremapVrl\x88\x01\x01B\n" +
+	"\tremap_vrl\x18\x04 \x01(\tH\x02R\bremapVrl\x88\x01\x01\x12$\n" +
+	"\vheader_name\x18\x05 \x01(\tH\x03R\n" +
+	"headerName\x88\x01\x01\x121\n" +
+	"\x12headers_secret_arn\x18\x06 \x01(\tH\x04R\x10headersSecretArn\x88\x01\x01B\n" +
 	"\n" +
 	"\b_enabledB\"\n" +
 	" _authorization_header_secret_arnB\f\n" +
 	"\n" +
-	"_remap_vrl\"\xf1\x01\n" +
+	"_remap_vrlB\x0e\n" +
+	"\f_header_nameB\x15\n" +
+	"\x13_headers_secret_arn\"\xf1\x01\n" +
 	".CustomerVectorAggregatorPrometheusExportConfig\x12\x1d\n" +
 	"\aenabled\x18\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12\x1a\n" +
 	"\bendpoint\x18\x02 \x01(\tR\bendpoint\x121\n" +
@@ -22044,7 +22191,17 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\b_workersB\n" +
 	"\n" +
 	"\b_requestB\x14\n" +
-	"\x12_min_span_age_days*^\n" +
+	"\x12_min_span_age_days\"\xe7\x01\n" +
+	".CustomerVectorAggregatorOtlpSignalExportConfig\x12\x1d\n" +
+	"\aenabled\x18\x01 \x01(\bH\x00R\aenabled\x88\x01\x01\x12\x10\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\x121\n" +
+	"\x12headers_secret_arn\x18\x03 \x01(\tH\x01R\x10headersSecretArn\x88\x01\x01\x12 \n" +
+	"\tremap_vrl\x18\x04 \x01(\tH\x02R\bremapVrl\x88\x01\x01B\n" +
+	"\n" +
+	"\b_enabledB\x15\n" +
+	"\x13_headers_secret_arnB\f\n" +
+	"\n" +
+	"_remap_vrl*^\n" +
 	"\n" +
 	"SourceMode\x12\x1b\n" +
 	"\x17SOURCE_MODE_UNSPECIFIED\x10\x00\x12\x17\n" +
@@ -22288,7 +22445,7 @@ func file_chalk_server_v1_builder_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_builder_proto_enumTypes = make([]protoimpl.EnumInfo, 22)
-var file_chalk_server_v1_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 285)
+var file_chalk_server_v1_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 286)
 var file_chalk_server_v1_builder_proto_goTypes = []any{
 	(SourceMode)(0),                                             // 0: chalk.server.v1.SourceMode
 	(DeploymentBuildStatus)(0),                                  // 1: chalk.server.v1.DeploymentBuildStatus
@@ -22579,82 +22736,83 @@ var file_chalk_server_v1_builder_proto_goTypes = []any{
 	(*GetServiceProbeDefaultsResponse)(nil),                     // 286: chalk.server.v1.GetServiceProbeDefaultsResponse
 	(*AiTraceExportSpec)(nil),                                   // 287: chalk.server.v1.AiTraceExportSpec
 	(*AiTraceArchiveSpec)(nil),                                  // 288: chalk.server.v1.AiTraceArchiveSpec
-	nil,                                                         // 289: chalk.server.v1.RedeployDeploymentRequest.CustomerMetadataEntry
-	nil,                                                         // 290: chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntry
-	nil,                                                         // 291: chalk.server.v1.PrepareDeploymentRequest.CustomerMetadataEntry
-	nil,                                                         // 292: chalk.server.v1.PrepareDeploymentRequest.BuildOptionsEntry
-	nil,                                                         // 293: chalk.server.v1.ClusterTimescaleSpecs.PostgresParametersEntry
-	nil,                                                         // 294: chalk.server.v1.ClusterTimescaleSpecs.NodeSelectorEntry
-	nil,                                                         // 295: chalk.server.v1.ClusterTimescaleSpecs.PgbouncerParametersEntry
-	nil,                                                         // 296: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.NodeSelectorEntry
-	nil,                                                         // 297: chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntry
-	nil,                                                         // 298: chalk.server.v1.EnvoyGatewayProviderConfig.NodeSelectorEntry
-	nil,                                                         // 299: chalk.server.v1.BackgroundPersistenceWriterSpecs.NodeSelectorEntry
-	nil,                                                         // 300: chalk.server.v1.BackgroundPersistenceWriterSpecs.AdditionalEnvVarsEntry
-	nil,                                                         // 301: chalk.server.v1.NodePodMetricsFilter.NodeSelectorEntry
-	nil,                                                         // 302: chalk.server.v1.TraceExportDestination.HeadersEntry
-	nil,                                                         // 303: chalk.server.v1.UpdateEnvironmentVariablesRequest.EnvironmentVariablesEntry
-	nil,                                                         // 304: chalk.server.v1.GetKarpenterInstallationMetadataResponse.DeploymentLabelsEntry
-	nil,                                                         // 305: chalk.server.v1.CreateDeploymentRequest.CustomerMetadataEntry
-	nil,                                                         // 306: chalk.server.v1.CreateDeploymentRequest.BuildOptionsEntry
-	(DeploymentBuildProfile)(0),                                 // 307: chalk.server.v1.DeploymentBuildProfile
-	(*v1.Graph)(nil),                                            // 308: chalk.graph.v1.Graph
-	(*GraphMutation)(nil),                                       // 309: chalk.server.v1.GraphMutation
-	(*v11.ProjectSettings)(nil),                                 // 310: chalk.artifacts.v1.ProjectSettings
-	(*v12.LSP)(nil),                                             // 311: chalk.lsp.v1.LSP
-	(*timestamppb.Timestamp)(nil),                               // 312: google.protobuf.Timestamp
-	(*Deployment)(nil),                                          // 313: chalk.server.v1.Deployment
-	(*LogEntry)(nil),                                            // 314: chalk.server.v1.LogEntry
-	(*fieldmaskpb.FieldMask)(nil),                               // 315: google.protobuf.FieldMask
-	(*v13.FieldChange)(nil),                                     // 316: chalk.utils.v1.FieldChange
-	(*v14.KarpenterNodepool)(nil),                               // 317: chalk.nodepools.v1.KarpenterNodepool
-	(*v14.GKENodePool)(nil),                                     // 318: chalk.nodepools.v1.GKENodePool
-	(v15.BillingCloud)(0),                                       // 319: chalk.usage.v1.BillingCloud
-	(*CloudConfig)(nil),                                         // 320: chalk.server.v1.CloudConfig
+	(*CustomerVectorAggregatorOtlpSignalExportConfig)(nil),      // 289: chalk.server.v1.CustomerVectorAggregatorOtlpSignalExportConfig
+	nil,                           // 290: chalk.server.v1.RedeployDeploymentRequest.CustomerMetadataEntry
+	nil,                           // 291: chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntry
+	nil,                           // 292: chalk.server.v1.PrepareDeploymentRequest.CustomerMetadataEntry
+	nil,                           // 293: chalk.server.v1.PrepareDeploymentRequest.BuildOptionsEntry
+	nil,                           // 294: chalk.server.v1.ClusterTimescaleSpecs.PostgresParametersEntry
+	nil,                           // 295: chalk.server.v1.ClusterTimescaleSpecs.NodeSelectorEntry
+	nil,                           // 296: chalk.server.v1.ClusterTimescaleSpecs.PgbouncerParametersEntry
+	nil,                           // 297: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.NodeSelectorEntry
+	nil,                           // 298: chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntry
+	nil,                           // 299: chalk.server.v1.EnvoyGatewayProviderConfig.NodeSelectorEntry
+	nil,                           // 300: chalk.server.v1.BackgroundPersistenceWriterSpecs.NodeSelectorEntry
+	nil,                           // 301: chalk.server.v1.BackgroundPersistenceWriterSpecs.AdditionalEnvVarsEntry
+	nil,                           // 302: chalk.server.v1.NodePodMetricsFilter.NodeSelectorEntry
+	nil,                           // 303: chalk.server.v1.TraceExportDestination.HeadersEntry
+	nil,                           // 304: chalk.server.v1.UpdateEnvironmentVariablesRequest.EnvironmentVariablesEntry
+	nil,                           // 305: chalk.server.v1.GetKarpenterInstallationMetadataResponse.DeploymentLabelsEntry
+	nil,                           // 306: chalk.server.v1.CreateDeploymentRequest.CustomerMetadataEntry
+	nil,                           // 307: chalk.server.v1.CreateDeploymentRequest.BuildOptionsEntry
+	(DeploymentBuildProfile)(0),   // 308: chalk.server.v1.DeploymentBuildProfile
+	(*v1.Graph)(nil),              // 309: chalk.graph.v1.Graph
+	(*GraphMutation)(nil),         // 310: chalk.server.v1.GraphMutation
+	(*v11.ProjectSettings)(nil),   // 311: chalk.artifacts.v1.ProjectSettings
+	(*v12.LSP)(nil),               // 312: chalk.lsp.v1.LSP
+	(*timestamppb.Timestamp)(nil), // 313: google.protobuf.Timestamp
+	(*Deployment)(nil),            // 314: chalk.server.v1.Deployment
+	(*LogEntry)(nil),              // 315: chalk.server.v1.LogEntry
+	(*fieldmaskpb.FieldMask)(nil), // 316: google.protobuf.FieldMask
+	(*v13.FieldChange)(nil),       // 317: chalk.utils.v1.FieldChange
+	(*v14.KarpenterNodepool)(nil), // 318: chalk.nodepools.v1.KarpenterNodepool
+	(*v14.GKENodePool)(nil),       // 319: chalk.nodepools.v1.GKENodePool
+	(v15.BillingCloud)(0),         // 320: chalk.usage.v1.BillingCloud
+	(*CloudConfig)(nil),           // 321: chalk.server.v1.CloudConfig
 }
 var file_chalk_server_v1_builder_proto_depIdxs = []int32{
 	22,  // 0: chalk.server.v1.ActivateDeploymentRequest.targets:type_name -> chalk.server.v1.ActivateDeploymentTarget
 	22,  // 1: chalk.server.v1.DeployKubeComponentsRequest.targets:type_name -> chalk.server.v1.ActivateDeploymentTarget
-	307, // 2: chalk.server.v1.RebuildDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	308, // 3: chalk.server.v1.RedeployDeploymentRequest.override_graph:type_name -> chalk.graph.v1.Graph
-	307, // 4: chalk.server.v1.RedeployDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	309, // 5: chalk.server.v1.RedeployDeploymentRequest.graph_mutations:type_name -> chalk.server.v1.GraphMutation
-	289, // 6: chalk.server.v1.RedeployDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.RedeployDeploymentRequest.CustomerMetadataEntry
-	290, // 7: chalk.server.v1.RedeployDeploymentRequest.build_options:type_name -> chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntry
+	308, // 2: chalk.server.v1.RebuildDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	309, // 3: chalk.server.v1.RedeployDeploymentRequest.override_graph:type_name -> chalk.graph.v1.Graph
+	308, // 4: chalk.server.v1.RedeployDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	310, // 5: chalk.server.v1.RedeployDeploymentRequest.graph_mutations:type_name -> chalk.server.v1.GraphMutation
+	290, // 6: chalk.server.v1.RedeployDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.RedeployDeploymentRequest.CustomerMetadataEntry
+	291, // 7: chalk.server.v1.RedeployDeploymentRequest.build_options:type_name -> chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntry
 	0,   // 8: chalk.server.v1.PrebuiltEngineImageSource.source_mode:type_name -> chalk.server.v1.SourceMode
-	307, // 9: chalk.server.v1.UploadSourceRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	308, // 9: chalk.server.v1.UploadSourceRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
 	39,  // 10: chalk.server.v1.UploadSourceRequest.prebuilt_image:type_name -> chalk.server.v1.PrebuiltEngineImageSource
 	243, // 11: chalk.server.v1.PrepareDeploymentRequest.requirements:type_name -> chalk.server.v1.RequirementsFile
-	310, // 12: chalk.server.v1.PrepareDeploymentRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
-	291, // 13: chalk.server.v1.PrepareDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.PrepareDeploymentRequest.CustomerMetadataEntry
-	307, // 14: chalk.server.v1.PrepareDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	292, // 15: chalk.server.v1.PrepareDeploymentRequest.build_options:type_name -> chalk.server.v1.PrepareDeploymentRequest.BuildOptionsEntry
-	307, // 16: chalk.server.v1.BuildImageRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	308, // 17: chalk.server.v1.LintSourceResponse.graph:type_name -> chalk.graph.v1.Graph
-	311, // 18: chalk.server.v1.LintSourceResponse.lsp:type_name -> chalk.lsp.v1.LSP
+	311, // 12: chalk.server.v1.PrepareDeploymentRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
+	292, // 13: chalk.server.v1.PrepareDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.PrepareDeploymentRequest.CustomerMetadataEntry
+	308, // 14: chalk.server.v1.PrepareDeploymentRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	293, // 15: chalk.server.v1.PrepareDeploymentRequest.build_options:type_name -> chalk.server.v1.PrepareDeploymentRequest.BuildOptionsEntry
+	308, // 16: chalk.server.v1.BuildImageRequest.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	309, // 17: chalk.server.v1.LintSourceResponse.graph:type_name -> chalk.graph.v1.Graph
+	312, // 18: chalk.server.v1.LintSourceResponse.lsp:type_name -> chalk.lsp.v1.LSP
 	50,  // 19: chalk.server.v1.GetMaterializedAggregateDiffResponse.diff:type_name -> chalk.server.v1.MaterializedAggregateDiff
 	1,   // 20: chalk.server.v1.DeploymentBuildStep.status:type_name -> chalk.server.v1.DeploymentBuildStatus
-	312, // 21: chalk.server.v1.DeploymentBuildStep.start_time:type_name -> google.protobuf.Timestamp
-	312, // 22: chalk.server.v1.DeploymentBuildStep.end_time:type_name -> google.protobuf.Timestamp
+	313, // 21: chalk.server.v1.DeploymentBuildStep.start_time:type_name -> google.protobuf.Timestamp
+	313, // 22: chalk.server.v1.DeploymentBuildStep.end_time:type_name -> google.protobuf.Timestamp
 	52,  // 23: chalk.server.v1.GetDeploymentStepsResponse.steps:type_name -> chalk.server.v1.DeploymentBuildStep
-	313, // 24: chalk.server.v1.GetDeploymentStepsResponse.deployment:type_name -> chalk.server.v1.Deployment
-	314, // 25: chalk.server.v1.GetDeploymentLogsResponse.logs:type_name -> chalk.server.v1.LogEntry
-	307, // 26: chalk.server.v1.GetDeploymentDependenciesResponse.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	312, // 27: chalk.server.v1.EngineBaseImageVariant.created_at:type_name -> google.protobuf.Timestamp
-	312, // 28: chalk.server.v1.EngineBaseImageRelease.created_at:type_name -> google.protobuf.Timestamp
+	314, // 24: chalk.server.v1.GetDeploymentStepsResponse.deployment:type_name -> chalk.server.v1.Deployment
+	315, // 25: chalk.server.v1.GetDeploymentLogsResponse.logs:type_name -> chalk.server.v1.LogEntry
+	308, // 26: chalk.server.v1.GetDeploymentDependenciesResponse.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	313, // 27: chalk.server.v1.EngineBaseImageVariant.created_at:type_name -> google.protobuf.Timestamp
+	313, // 28: chalk.server.v1.EngineBaseImageRelease.created_at:type_name -> google.protobuf.Timestamp
 	61,  // 29: chalk.server.v1.EngineBaseImageRelease.variants:type_name -> chalk.server.v1.EngineBaseImageVariant
 	62,  // 30: chalk.server.v1.ListEngineBaseImagesResponse.releases:type_name -> chalk.server.v1.EngineBaseImageRelease
-	312, // 31: chalk.server.v1.GetClusterTimescaleDBResponse.created_at:type_name -> google.protobuf.Timestamp
-	312, // 32: chalk.server.v1.GetClusterTimescaleDBResponse.updated_at:type_name -> google.protobuf.Timestamp
+	313, // 31: chalk.server.v1.GetClusterTimescaleDBResponse.created_at:type_name -> google.protobuf.Timestamp
+	313, // 32: chalk.server.v1.GetClusterTimescaleDBResponse.updated_at:type_name -> google.protobuf.Timestamp
 	86,  // 33: chalk.server.v1.GetClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
 	65,  // 34: chalk.server.v1.ListClusterTimescaleDBsResponse.cluster_timescale_dbs:type_name -> chalk.server.v1.GetClusterTimescaleDBResponse
-	312, // 35: chalk.server.v1.GetClusterGatewayResponse.created_at:type_name -> google.protobuf.Timestamp
-	312, // 36: chalk.server.v1.GetClusterGatewayResponse.updated_at:type_name -> google.protobuf.Timestamp
+	313, // 35: chalk.server.v1.GetClusterGatewayResponse.created_at:type_name -> google.protobuf.Timestamp
+	313, // 36: chalk.server.v1.GetClusterGatewayResponse.updated_at:type_name -> google.protobuf.Timestamp
 	107, // 37: chalk.server.v1.GetClusterGatewayResponse.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
 	69,  // 38: chalk.server.v1.ListClusterGatewaysResponse.gateways:type_name -> chalk.server.v1.GetClusterGatewayResponse
 	107, // 39: chalk.server.v1.GetClusterGatewayDefaultResponse.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	312, // 40: chalk.server.v1.BackgroundPersistence.created_at:type_name -> google.protobuf.Timestamp
-	312, // 41: chalk.server.v1.BackgroundPersistence.updated_at:type_name -> google.protobuf.Timestamp
+	313, // 40: chalk.server.v1.BackgroundPersistence.created_at:type_name -> google.protobuf.Timestamp
+	313, // 41: chalk.server.v1.BackgroundPersistence.updated_at:type_name -> google.protobuf.Timestamp
 	123, // 42: chalk.server.v1.BackgroundPersistence.specs:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
 	74,  // 43: chalk.server.v1.GetClusterBackgroundPersistenceResponse.background_persistence:type_name -> chalk.server.v1.BackgroundPersistence
 	74,  // 44: chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse.background_persistence_deployments:type_name -> chalk.server.v1.BackgroundPersistence
@@ -22662,35 +22820,35 @@ var file_chalk_server_v1_builder_proto_depIdxs = []int32{
 	86,  // 46: chalk.server.v1.GetClusterTimescaleDefaultResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
 	84,  // 47: chalk.server.v1.ClusterTimescaleSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
 	84,  // 48: chalk.server.v1.ClusterTimescaleSpecs.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	293, // 49: chalk.server.v1.ClusterTimescaleSpecs.postgres_parameters:type_name -> chalk.server.v1.ClusterTimescaleSpecs.PostgresParametersEntry
-	294, // 50: chalk.server.v1.ClusterTimescaleSpecs.node_selector:type_name -> chalk.server.v1.ClusterTimescaleSpecs.NodeSelectorEntry
-	295, // 51: chalk.server.v1.ClusterTimescaleSpecs.pgbouncer_parameters:type_name -> chalk.server.v1.ClusterTimescaleSpecs.PgbouncerParametersEntry
+	294, // 49: chalk.server.v1.ClusterTimescaleSpecs.postgres_parameters:type_name -> chalk.server.v1.ClusterTimescaleSpecs.PostgresParametersEntry
+	295, // 50: chalk.server.v1.ClusterTimescaleSpecs.node_selector:type_name -> chalk.server.v1.ClusterTimescaleSpecs.NodeSelectorEntry
+	296, // 51: chalk.server.v1.ClusterTimescaleSpecs.pgbouncer_parameters:type_name -> chalk.server.v1.ClusterTimescaleSpecs.PgbouncerParametersEntry
 	86,  // 52: chalk.server.v1.CreateClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
 	86,  // 53: chalk.server.v1.UpdateClusterTimescaleDBRequest.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
-	315, // 54: chalk.server.v1.UpdateClusterTimescaleDBRequest.update_mask:type_name -> google.protobuf.FieldMask
+	316, // 54: chalk.server.v1.UpdateClusterTimescaleDBRequest.update_mask:type_name -> google.protobuf.FieldMask
 	86,  // 55: chalk.server.v1.UpdateClusterTimescaleDBResponse.specs:type_name -> chalk.server.v1.ClusterTimescaleSpecs
 	84,  // 56: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
-	296, // 57: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.node_selector:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs.NodeSelectorEntry
+	297, // 57: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.node_selector:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs.NodeSelectorEntry
 	92,  // 58: chalk.server.v1.ClusterWorkflowOrchestratorSpecs.temporal:type_name -> chalk.server.v1.TemporalEngineSpecs
-	312, // 59: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.created_at:type_name -> google.protobuf.Timestamp
-	312, // 60: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.updated_at:type_name -> google.protobuf.Timestamp
+	313, // 59: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.created_at:type_name -> google.protobuf.Timestamp
+	313, // 60: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.updated_at:type_name -> google.protobuf.Timestamp
 	93,  // 61: chalk.server.v1.GetClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
 	93,  // 62: chalk.server.v1.CreateClusterWorkflowOrchestratorRequest.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
 	93,  // 63: chalk.server.v1.CreateClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
 	93,  // 64: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
-	315, // 65: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest.update_mask:type_name -> google.protobuf.FieldMask
+	316, // 65: chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest.update_mask:type_name -> google.protobuf.FieldMask
 	93,  // 66: chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
 	93,  // 67: chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse.specs:type_name -> chalk.server.v1.ClusterWorkflowOrchestratorSpecs
 	107, // 68: chalk.server.v1.CreateClusterGatewayRequest.specs:type_name -> chalk.server.v1.EnvoyGatewaySpecs
 	108, // 69: chalk.server.v1.EnvoyGatewaySpecs.listeners:type_name -> chalk.server.v1.EnvoyGatewayListener
 	111, // 70: chalk.server.v1.EnvoyGatewaySpecs.config:type_name -> chalk.server.v1.GatewayProviderConfig
 	114, // 71: chalk.server.v1.EnvoyGatewaySpecs.tls_certificate:type_name -> chalk.server.v1.TLSCertificateConfig
-	297, // 72: chalk.server.v1.EnvoyGatewaySpecs.service_annotations:type_name -> chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntry
+	298, // 72: chalk.server.v1.EnvoyGatewaySpecs.service_annotations:type_name -> chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntry
 	109, // 73: chalk.server.v1.EnvoyGatewayListener.allowed_routes:type_name -> chalk.server.v1.EnvoyGatewayAllowedRoutes
 	110, // 74: chalk.server.v1.EnvoyGatewayAllowedRoutes.namespaces:type_name -> chalk.server.v1.EnvoyGatewayAllowedNamespaces
 	112, // 75: chalk.server.v1.GatewayProviderConfig.envoy:type_name -> chalk.server.v1.EnvoyGatewayProviderConfig
 	113, // 76: chalk.server.v1.GatewayProviderConfig.gcp:type_name -> chalk.server.v1.GCPGatewayProviderConfig
-	298, // 77: chalk.server.v1.EnvoyGatewayProviderConfig.node_selector:type_name -> chalk.server.v1.EnvoyGatewayProviderConfig.NodeSelectorEntry
+	299, // 77: chalk.server.v1.EnvoyGatewayProviderConfig.node_selector:type_name -> chalk.server.v1.EnvoyGatewayProviderConfig.NodeSelectorEntry
 	277, // 78: chalk.server.v1.EnvoyGatewayProviderConfig.certificate_issuer_ref:type_name -> chalk.server.v1.CertManagerIssuerRef
 	20,  // 79: chalk.server.v1.EnvoyGatewayProviderConfig.traffic_zonal_affinity:type_name -> chalk.server.v1.TrafficZonalAffinity
 	2,   // 80: chalk.server.v1.EnvoyGatewayProviderConfig.machine_size:type_name -> chalk.server.v1.EnvoyGatewayMachineSize
@@ -22700,12 +22858,12 @@ var file_chalk_server_v1_builder_proto_depIdxs = []int32{
 	119, // 84: chalk.server.v1.BackgroundPersistenceWriterSpecs.hpa_specs:type_name -> chalk.server.v1.BackgroundPersistenceWriterHpaSpecs
 	84,  // 85: chalk.server.v1.BackgroundPersistenceWriterSpecs.request:type_name -> chalk.server.v1.KubeResourceConfig
 	84,  // 86: chalk.server.v1.BackgroundPersistenceWriterSpecs.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	299, // 87: chalk.server.v1.BackgroundPersistenceWriterSpecs.node_selector:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs.NodeSelectorEntry
-	300, // 88: chalk.server.v1.BackgroundPersistenceWriterSpecs.additional_env_vars:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs.AdditionalEnvVarsEntry
+	300, // 87: chalk.server.v1.BackgroundPersistenceWriterSpecs.node_selector:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs.NodeSelectorEntry
+	301, // 88: chalk.server.v1.BackgroundPersistenceWriterSpecs.additional_env_vars:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs.AdditionalEnvVarsEntry
 	3,   // 89: chalk.server.v1.BackgroundPersistenceWriterSpecs.chalk_queries_clickhouse_write_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterClickHouseWriteMode
 	3,   // 90: chalk.server.v1.BackgroundPersistenceWriterSpecs.chalk_errors_clickhouse_write_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterClickHouseWriteMode
 	4,   // 91: chalk.server.v1.BackgroundPersistenceWriterSpecs.metrics_emission_mode:type_name -> chalk.server.v1.BackgroundPersistenceWriterMetricsEmissionMode
-	301, // 92: chalk.server.v1.NodePodMetricsFilter.node_selector:type_name -> chalk.server.v1.NodePodMetricsFilter.NodeSelectorEntry
+	302, // 92: chalk.server.v1.NodePodMetricsFilter.node_selector:type_name -> chalk.server.v1.NodePodMetricsFilter.NodeSelectorEntry
 	121, // 93: chalk.server.v1.ClusterManagerConfig.node_pod_metrics_filters:type_name -> chalk.server.v1.NodePodMetricsFilter
 	118, // 94: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.common_persistence_specs:type_name -> chalk.server.v1.BackgroundPersistenceCommonSpecs
 	120, // 95: chalk.server.v1.BackgroundPersistenceDeploymentSpecs.writers:type_name -> chalk.server.v1.BackgroundPersistenceWriterSpecs
@@ -22727,334 +22885,338 @@ var file_chalk_server_v1_builder_proto_depIdxs = []int32{
 	84,  // 111: chalk.server.v1.CustomerVectorAggregatorConfig.request:type_name -> chalk.server.v1.KubeResourceConfig
 	271, // 112: chalk.server.v1.CustomerVectorAggregatorConfig.otlp_metrics_export:type_name -> chalk.server.v1.CustomerVectorAggregatorOtlpMetricsExportConfig
 	272, // 113: chalk.server.v1.CustomerVectorAggregatorConfig.prometheus_export:type_name -> chalk.server.v1.CustomerVectorAggregatorPrometheusExportConfig
-	84,  // 114: chalk.server.v1.AggregatorSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 115: chalk.server.v1.AggregatorSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	126, // 116: chalk.server.v1.AggregatorSpec.vector_click_house_sink:type_name -> chalk.server.v1.VectorAggregatorClickHouseSinkSpec
-	129, // 117: chalk.server.v1.AggregatorSpec.export_to_chalk_datadog:type_name -> chalk.server.v1.VectorAggregatorChalkDatadogExportSpec
-	127, // 118: chalk.server.v1.AggregatorSpec.vector_victoria_metrics_sink:type_name -> chalk.server.v1.VectorAggregatorVictoriaMetricsSinkSpec
-	131, // 119: chalk.server.v1.AggregatorSpec.metric_aggregation:type_name -> chalk.server.v1.VectorAggregatorMetricAggregationSpec
-	128, // 120: chalk.server.v1.AggregatorSpec.customer_vector_sink:type_name -> chalk.server.v1.VectorAggregatorCustomerSinkSpec
-	280, // 121: chalk.server.v1.CustomerCollectorConfig.received_signals:type_name -> chalk.server.v1.CustomerCollectorReceivedSignalsSpec
-	11,  // 122: chalk.server.v1.VectorClusterMetricsSpec.sink_mode:type_name -> chalk.server.v1.VectorClusterMetricsSinkMode
-	151, // 123: chalk.server.v1.VectorClusterMetricsSpec.shadow:type_name -> chalk.server.v1.VectorClusterMetricsShadowSpec
-	152, // 124: chalk.server.v1.VectorClusterMetricsSpec.tables:type_name -> chalk.server.v1.VectorClusterMetricsTablesSpec
-	121, // 125: chalk.server.v1.VectorClusterMetricsSpec.pod_filters:type_name -> chalk.server.v1.NodePodMetricsFilter
-	84,  // 126: chalk.server.v1.TelemetryIngestMetricsSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	19,  // 127: chalk.server.v1.VectorCollectorSinkSpec.request_concurrency_mode:type_name -> chalk.server.v1.VectorCollectorRequestConcurrencyMode
-	143, // 128: chalk.server.v1.VectorStatsdSpec.uds:type_name -> chalk.server.v1.VectorStatsdUdsSpec
-	144, // 129: chalk.server.v1.VectorStatsdSpec.udp:type_name -> chalk.server.v1.VectorStatsdUdpSpec
-	145, // 130: chalk.server.v1.VectorStatsdSpec.aggregator_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
-	10,  // 131: chalk.server.v1.MetricExportDestination.format:type_name -> chalk.server.v1.MetricExportDestinationFormat
-	147, // 132: chalk.server.v1.MetricExportSpec.additional_destinations:type_name -> chalk.server.v1.MetricExportDestination
-	302, // 133: chalk.server.v1.TraceExportDestination.headers:type_name -> chalk.server.v1.TraceExportDestination.HeadersEntry
-	149, // 134: chalk.server.v1.TraceExportSpec.additional_trace_destinations:type_name -> chalk.server.v1.TraceExportDestination
-	12,  // 135: chalk.server.v1.VectorClusterMetricsShadowSpec.output:type_name -> chalk.server.v1.VectorClusterMetricsShadowOutput
-	153, // 136: chalk.server.v1.VectorClusterMetricsShadowSpec.tables:type_name -> chalk.server.v1.VectorClusterMetricsShadowTables
-	84,  // 137: chalk.server.v1.OtelCollectorSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 138: chalk.server.v1.OtelCollectorSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	6,   // 139: chalk.server.v1.OtelCollectorSpec.toleration_mode:type_name -> chalk.server.v1.TelemetryCollectorTolerationMode
-	7,   // 140: chalk.server.v1.OtelCollectorSpec.otel_collector_image:type_name -> chalk.server.v1.OtelCollectorImage
-	132, // 141: chalk.server.v1.OtelCollectorSpec.metric_aggregation:type_name -> chalk.server.v1.VectorCollectorMetricAggregationSpec
-	145, // 142: chalk.server.v1.OtelCollectorSpec.vector_otlp_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
-	145, // 143: chalk.server.v1.OtelCollectorSpec.vector_file_log_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
-	84,  // 144: chalk.server.v1.GpuTelemetrySpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 145: chalk.server.v1.GpuTelemetrySpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	125, // 146: chalk.server.v1.GpuTelemetrySpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
-	84,  // 147: chalk.server.v1.ClickHouseSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 148: chalk.server.v1.ClickHouseSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	85,  // 149: chalk.server.v1.ClickHouseSpec.storage:type_name -> chalk.server.v1.KubePersistentVolumeClaim
-	84,  // 150: chalk.server.v1.VictoriaMetricsSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 151: chalk.server.v1.VictoriaMetricsSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 152: chalk.server.v1.VictoriaMetricsSpec.storage_request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 153: chalk.server.v1.VictoriaMetricsSpec.storage_limit:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 154: chalk.server.v1.VictoriaMetricsSpec.insert_request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 155: chalk.server.v1.VictoriaMetricsSpec.auth_request:type_name -> chalk.server.v1.KubeResourceConfig
-	158, // 156: chalk.server.v1.VictoriaMetricsSpec.datadog_export:type_name -> chalk.server.v1.VictoriaMetricsDatadogExportSpec
-	84,  // 157: chalk.server.v1.VictoriaMetricsDatadogExportSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 158: chalk.server.v1.VictoriaMetricsDatadogExportSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	13,  // 159: chalk.server.v1.PerfettoDaemonSpec.trigger:type_name -> chalk.server.v1.PerfettoTrigger
-	14,  // 160: chalk.server.v1.NetworkInspectorDaemonSpec.trigger:type_name -> chalk.server.v1.NetworkInspectorTrigger
-	84,  // 161: chalk.server.v1.ObservabilityDaemonSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	84,  // 162: chalk.server.v1.ObservabilityDaemonSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
-	168, // 163: chalk.server.v1.ObservabilityDaemonSpec.scheduling:type_name -> chalk.server.v1.ObservabilityDaemonSchedulingSpec
-	159, // 164: chalk.server.v1.ObservabilityDaemonSpec.zombie_killer:type_name -> chalk.server.v1.ZombieKillerSpec
-	160, // 165: chalk.server.v1.ObservabilityDaemonSpec.core_dump_collector:type_name -> chalk.server.v1.CoreDumpCollectorSpec
-	161, // 166: chalk.server.v1.ObservabilityDaemonSpec.py_spy_stack_trace_collector:type_name -> chalk.server.v1.PySpyStackTraceCollectorSpec
-	162, // 167: chalk.server.v1.ObservabilityDaemonSpec.perf_collector:type_name -> chalk.server.v1.PerfCollectorSpec
-	163, // 168: chalk.server.v1.ObservabilityDaemonSpec.perfetto_daemon:type_name -> chalk.server.v1.PerfettoDaemonSpec
-	164, // 169: chalk.server.v1.ObservabilityDaemonSpec.directory_watcher:type_name -> chalk.server.v1.DirectoryWatcherSpec
-	165, // 170: chalk.server.v1.ObservabilityDaemonSpec.streamed_watcher:type_name -> chalk.server.v1.StreamedDirectoryWatcherSpec
-	166, // 171: chalk.server.v1.ObservabilityDaemonSpec.network_inspector_daemon:type_name -> chalk.server.v1.NetworkInspectorDaemonSpec
-	125, // 172: chalk.server.v1.ObservabilityDaemonSchedulingSpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
-	156, // 173: chalk.server.v1.TelemetryDeploymentSpec.click_house:type_name -> chalk.server.v1.ClickHouseSpec
-	154, // 174: chalk.server.v1.TelemetryDeploymentSpec.otel:type_name -> chalk.server.v1.OtelCollectorSpec
-	125, // 175: chalk.server.v1.TelemetryDeploymentSpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
-	139, // 176: chalk.server.v1.TelemetryDeploymentSpec.aggregator:type_name -> chalk.server.v1.AggregatorSpec
-	167, // 177: chalk.server.v1.TelemetryDeploymentSpec.observability_daemons:type_name -> chalk.server.v1.ObservabilityDaemonSpec
-	140, // 178: chalk.server.v1.TelemetryDeploymentSpec.customer_collector:type_name -> chalk.server.v1.CustomerCollectorConfig
-	155, // 179: chalk.server.v1.TelemetryDeploymentSpec.gpu_telemetry:type_name -> chalk.server.v1.GpuTelemetrySpec
-	8,   // 180: chalk.server.v1.TelemetryDeploymentSpec.telemetry_runtime:type_name -> chalk.server.v1.TelemetryRuntime
-	141, // 181: chalk.server.v1.TelemetryDeploymentSpec.vector_cluster_metrics:type_name -> chalk.server.v1.VectorClusterMetricsSpec
-	157, // 182: chalk.server.v1.TelemetryDeploymentSpec.victoria_metrics:type_name -> chalk.server.v1.VictoriaMetricsSpec
-	142, // 183: chalk.server.v1.TelemetryDeploymentSpec.ingest_metrics:type_name -> chalk.server.v1.TelemetryIngestMetricsSpec
-	146, // 184: chalk.server.v1.TelemetryDeploymentSpec.vector_statsd:type_name -> chalk.server.v1.VectorStatsdSpec
-	148, // 185: chalk.server.v1.TelemetryDeploymentSpec.metric_exports:type_name -> chalk.server.v1.MetricExportSpec
-	138, // 186: chalk.server.v1.TelemetryDeploymentSpec.customer_vector_aggregator:type_name -> chalk.server.v1.CustomerVectorAggregatorConfig
-	9,   // 187: chalk.server.v1.TelemetryDeploymentSpec.prometheus_collection_runtime:type_name -> chalk.server.v1.TelemetryPrometheusCollectionRuntime
-	270, // 188: chalk.server.v1.TelemetryDeploymentSpec.vector_pipeline_metrics:type_name -> chalk.server.v1.VectorTelemetryPipelineMetricsSpec
-	150, // 189: chalk.server.v1.TelemetryDeploymentSpec.trace_exports:type_name -> chalk.server.v1.TraceExportSpec
-	287, // 190: chalk.server.v1.TelemetryDeploymentSpec.ai_trace_export:type_name -> chalk.server.v1.AiTraceExportSpec
-	169, // 191: chalk.server.v1.TelemetryDeployment.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
-	312, // 192: chalk.server.v1.TelemetryDeployment.created_at:type_name -> google.protobuf.Timestamp
-	312, // 193: chalk.server.v1.TelemetryDeployment.updated_at:type_name -> google.protobuf.Timestamp
-	312, // 194: chalk.server.v1.TelemetryDeployment.suspended_at:type_name -> google.protobuf.Timestamp
-	171, // 195: chalk.server.v1.GetTelemetryDeploymentRequest.cluster_identifier:type_name -> chalk.server.v1.ClusterIdentifier
-	170, // 196: chalk.server.v1.GetTelemetryDeploymentResponse.deployment:type_name -> chalk.server.v1.TelemetryDeployment
-	170, // 197: chalk.server.v1.ListTelemetryDeploymentsResponse.deployments:type_name -> chalk.server.v1.TelemetryDeployment
-	169, // 198: chalk.server.v1.CreateTelemetryDeploymentRequest.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
-	169, // 199: chalk.server.v1.UpdateTelemetryDeploymentRequest.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
-	315, // 200: chalk.server.v1.UpdateTelemetryDeploymentRequest.update_mask:type_name -> google.protobuf.FieldMask
-	170, // 201: chalk.server.v1.UpdateTelemetryDeploymentResponse.deployment:type_name -> chalk.server.v1.TelemetryDeployment
-	303, // 202: chalk.server.v1.UpdateEnvironmentVariablesRequest.environment_variables:type_name -> chalk.server.v1.UpdateEnvironmentVariablesRequest.EnvironmentVariablesEntry
-	316, // 203: chalk.server.v1.UpdateEnvironmentVariablesResponse.field_changes:type_name -> chalk.utils.v1.FieldChange
-	15,  // 204: chalk.server.v1.StartBranchResponse.state:type_name -> chalk.server.v1.BranchScalingState
-	15,  // 205: chalk.server.v1.ScaleBranchResponse.state:type_name -> chalk.server.v1.BranchScalingState
-	16,  // 206: chalk.server.v1.GetBranchServerStatusResponse.status:type_name -> chalk.server.v1.BranchServerStatus
-	196, // 207: chalk.server.v1.CreateKafkaTopicsRequest.topics:type_name -> chalk.server.v1.KafkaTopic
-	196, // 208: chalk.server.v1.GetKafkaTopicsResponse.topics:type_name -> chalk.server.v1.KafkaTopic
-	317, // 209: chalk.server.v1.GetNodepoolsResponse.karpenter_nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	318, // 210: chalk.server.v1.GetNodepoolsResponse.gke_nodepools:type_name -> chalk.nodepools.v1.GKENodePool
-	317, // 211: chalk.server.v1.GetClusterNodepoolsResponse.karpenter_nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	318, // 212: chalk.server.v1.GetClusterNodepoolsResponse.gke_nodepools:type_name -> chalk.nodepools.v1.GKENodePool
-	319, // 213: chalk.server.v1.ChalkMachineTypeMapping.cloud:type_name -> chalk.usage.v1.BillingCloud
-	205, // 214: chalk.server.v1.ChalkMachineTypeMapping.fallbacks:type_name -> chalk.server.v1.ChalkMachineTypeFallback
-	17,  // 215: chalk.server.v1.ChalkMachineTypeMapping.override_scope:type_name -> chalk.server.v1.ChalkMachineTypeOverrideScope
-	205, // 216: chalk.server.v1.ChalkMachineTypeMapping.default_fallbacks:type_name -> chalk.server.v1.ChalkMachineTypeFallback
-	206, // 217: chalk.server.v1.ChalkMachineTypeMapping.allowed_instance_types:type_name -> chalk.server.v1.ChalkMachineTypeInstanceOption
-	207, // 218: chalk.server.v1.GetAvailableChalkMachineTypesResponse.mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
-	312, // 219: chalk.server.v1.ChalkMachineTypeOverride.created_at:type_name -> google.protobuf.Timestamp
-	312, // 220: chalk.server.v1.ChalkMachineTypeOverride.updated_at:type_name -> google.protobuf.Timestamp
-	210, // 221: chalk.server.v1.UpsertChalkMachineTypeOverrideResponse.override:type_name -> chalk.server.v1.ChalkMachineTypeOverride
-	207, // 222: chalk.server.v1.ClusterEnvironmentChalkMachineTypes.mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
-	210, // 223: chalk.server.v1.GetClusterChalkMachineTypesResponse.overrides:type_name -> chalk.server.v1.ChalkMachineTypeOverride
-	207, // 224: chalk.server.v1.GetClusterChalkMachineTypesResponse.cluster_mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
-	215, // 225: chalk.server.v1.GetClusterChalkMachineTypesResponse.environments:type_name -> chalk.server.v1.ClusterEnvironmentChalkMachineTypes
-	317, // 226: chalk.server.v1.AddNodepoolRequest.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	318, // 227: chalk.server.v1.AddNodepoolRequest.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
-	317, // 228: chalk.server.v1.AddNodepoolResponse.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	318, // 229: chalk.server.v1.AddNodepoolResponse.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
-	318, // 230: chalk.server.v1.UpdateNodepoolRequest.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
-	317, // 231: chalk.server.v1.UpdateNodepoolRequest.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	317, // 232: chalk.server.v1.UpdateNodepoolResponse.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	318, // 233: chalk.server.v1.UpdateNodepoolResponse.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
-	317, // 234: chalk.server.v1.GetKarpenterNodepoolsResponse.nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	317, // 235: chalk.server.v1.AddKarpenterNodepoolRequest.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	317, // 236: chalk.server.v1.AddKarpenterNodepoolResponse.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	317, // 237: chalk.server.v1.UpdateKarpenterNodepoolRequest.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	317, // 238: chalk.server.v1.UpdateKarpenterNodepoolResponse.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
-	304, // 239: chalk.server.v1.GetKarpenterInstallationMetadataResponse.deployment_labels:type_name -> chalk.server.v1.GetKarpenterInstallationMetadataResponse.DeploymentLabelsEntry
-	238, // 240: chalk.server.v1.GetTagWeightsResponse.tags:type_name -> chalk.server.v1.DeploymentTag
-	238, // 241: chalk.server.v1.SetTagWeightsRequest.tags:type_name -> chalk.server.v1.DeploymentTag
-	238, // 242: chalk.server.v1.SetTagWeightsResponse.tags:type_name -> chalk.server.v1.DeploymentTag
-	243, // 243: chalk.server.v1.CreateDeploymentRequest.requirements:type_name -> chalk.server.v1.RequirementsFile
-	310, // 244: chalk.server.v1.CreateDeploymentRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
-	305, // 245: chalk.server.v1.CreateDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.CreateDeploymentRequest.CustomerMetadataEntry
-	306, // 246: chalk.server.v1.CreateDeploymentRequest.build_options:type_name -> chalk.server.v1.CreateDeploymentRequest.BuildOptionsEntry
-	320, // 247: chalk.server.v1.KubernetesCluster.cloud_credentials:type_name -> chalk.server.v1.CloudConfig
-	107, // 248: chalk.server.v1.KubernetesCluster.cluster_gateway:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	123, // 249: chalk.server.v1.KubernetesCluster.cluster_background_persistence:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
-	107, // 250: chalk.server.v1.KubernetesCluster.services_gateway:type_name -> chalk.server.v1.EnvoyGatewaySpecs
-	246, // 251: chalk.server.v1.GetEnvironmentKubeClustersResponse.clusters:type_name -> chalk.server.v1.KubernetesCluster
-	265, // 252: chalk.server.v1.ListStreamingKafkaKedaConfigsResponse.configs:type_name -> chalk.server.v1.StreamingKafkaKedaConfig
-	265, // 253: chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse.config:type_name -> chalk.server.v1.StreamingKafkaKedaConfig
-	310, // 254: chalk.server.v1.ValidateProjectSettingsRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
-	21,  // 255: chalk.server.v1.GetTelemetryDeploymentAvailabilityResponse.status:type_name -> chalk.server.v1.TelemetryDeploymentAvailabilityStatus
-	283, // 256: chalk.server.v1.ServiceProbeDefaults.startup:type_name -> chalk.server.v1.KubernetesProbeTimingDefaults
-	283, // 257: chalk.server.v1.ServiceProbeDefaults.liveness:type_name -> chalk.server.v1.KubernetesProbeTimingDefaults
-	283, // 258: chalk.server.v1.ServiceProbeDefaults.readiness:type_name -> chalk.server.v1.KubernetesProbeTimingDefaults
-	284, // 259: chalk.server.v1.GetServiceProbeDefaultsResponse.services:type_name -> chalk.server.v1.ServiceProbeDefaults
-	84,  // 260: chalk.server.v1.AiTraceExportSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	288, // 261: chalk.server.v1.AiTraceExportSpec.archive:type_name -> chalk.server.v1.AiTraceArchiveSpec
-	84,  // 262: chalk.server.v1.AiTraceArchiveSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	184, // 263: chalk.server.v1.BuilderService.GetSearchConfig:input_type -> chalk.server.v1.GetSearchConfigRequest
-	23,  // 264: chalk.server.v1.BuilderService.ActivateDeployment:input_type -> chalk.server.v1.ActivateDeploymentRequest
-	25,  // 265: chalk.server.v1.BuilderService.IndexDeployment:input_type -> chalk.server.v1.IndexDeploymentRequest
-	27,  // 266: chalk.server.v1.BuilderService.ValidateNamedQueries:input_type -> chalk.server.v1.ValidateNamedQueriesRequest
-	29,  // 267: chalk.server.v1.BuilderService.RunPostIndexValidation:input_type -> chalk.server.v1.RunPostIndexValidationRequest
-	273, // 268: chalk.server.v1.BuilderService.PopulateNamedQueryPlans:input_type -> chalk.server.v1.PopulateNamedQueryPlansRequest
-	275, // 269: chalk.server.v1.BuilderService.PrepareGraphSupplement:input_type -> chalk.server.v1.PrepareGraphSupplementRequest
-	31,  // 270: chalk.server.v1.BuilderService.StartShadowBuildFromDeployment:input_type -> chalk.server.v1.StartShadowBuildFromDeploymentRequest
-	33,  // 271: chalk.server.v1.BuilderService.DeployKubeComponents:input_type -> chalk.server.v1.DeployKubeComponentsRequest
-	35,  // 272: chalk.server.v1.BuilderService.RebuildDeployment:input_type -> chalk.server.v1.RebuildDeploymentRequest
-	37,  // 273: chalk.server.v1.BuilderService.RedeployDeployment:input_type -> chalk.server.v1.RedeployDeploymentRequest
-	40,  // 274: chalk.server.v1.BuilderService.UploadSource:input_type -> chalk.server.v1.UploadSourceRequest
-	46,  // 275: chalk.server.v1.BuilderService.LintSource:input_type -> chalk.server.v1.LintSourceRequest
-	48,  // 276: chalk.server.v1.BuilderService.GetDeploymentSteps:input_type -> chalk.server.v1.GetDeploymentStepsRequest
-	49,  // 277: chalk.server.v1.BuilderService.GetMaterializedAggregateDiff:input_type -> chalk.server.v1.GetMaterializedAggregateDiffRequest
-	54,  // 278: chalk.server.v1.BuilderService.GetDeploymentLogs:input_type -> chalk.server.v1.GetDeploymentLogsRequest
-	56,  // 279: chalk.server.v1.BuilderService.GetDeploymentDependencies:input_type -> chalk.server.v1.GetDeploymentDependenciesRequest
-	58,  // 280: chalk.server.v1.BuilderService.ResolveEngineBaseImage:input_type -> chalk.server.v1.ResolveEngineBaseImageRequest
-	60,  // 281: chalk.server.v1.BuilderService.ListEngineBaseImages:input_type -> chalk.server.v1.ListEngineBaseImagesRequest
-	278, // 282: chalk.server.v1.BuilderService.ValidateProjectSettings:input_type -> chalk.server.v1.ValidateProjectSettingsRequest
-	64,  // 283: chalk.server.v1.BuilderService.GetClusterTimescaleDB:input_type -> chalk.server.v1.GetClusterTimescaleDBRequest
-	66,  // 284: chalk.server.v1.BuilderService.ListClusterTimescaleDBs:input_type -> chalk.server.v1.ListClusterTimescaleDBsRequest
-	68,  // 285: chalk.server.v1.BuilderService.GetClusterGateway:input_type -> chalk.server.v1.GetClusterGatewayRequest
-	70,  // 286: chalk.server.v1.BuilderService.ListClusterGateways:input_type -> chalk.server.v1.ListClusterGatewaysRequest
-	72,  // 287: chalk.server.v1.BuilderService.GetClusterGatewayDefault:input_type -> chalk.server.v1.GetClusterGatewayDefaultRequest
-	75,  // 288: chalk.server.v1.BuilderService.GetClusterBackgroundPersistence:input_type -> chalk.server.v1.GetClusterBackgroundPersistenceRequest
-	77,  // 289: chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments:input_type -> chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsRequest
-	266, // 290: chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs:input_type -> chalk.server.v1.ListStreamingKafkaKedaConfigsRequest
-	79,  // 291: chalk.server.v1.BuilderService.CreateClusterTimescaleDB:input_type -> chalk.server.v1.CreateClusterTimescaleDBRequest
-	88,  // 292: chalk.server.v1.BuilderService.UpdateClusterTimescaleDB:input_type -> chalk.server.v1.UpdateClusterTimescaleDBRequest
-	82,  // 293: chalk.server.v1.BuilderService.GetClusterTimescaleDefault:input_type -> chalk.server.v1.GetClusterTimescaleDefaultRequest
-	80,  // 294: chalk.server.v1.BuilderService.DeleteClusterTimescaleDB:input_type -> chalk.server.v1.DeleteClusterTimescaleDBRequest
-	234, // 295: chalk.server.v1.BuilderService.CreateEnvironmentCloudResources:input_type -> chalk.server.v1.CreateEnvironmentCloudResourcesRequest
-	236, // 296: chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources:input_type -> chalk.server.v1.DeleteEnvironmentCloudResourcesRequest
-	90,  // 297: chalk.server.v1.BuilderService.MigrateClusterTimescaleDB:input_type -> chalk.server.v1.MigrateClusterTimescaleDBRequest
-	94,  // 298: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator:input_type -> chalk.server.v1.GetClusterWorkflowOrchestratorRequest
-	102, // 299: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault:input_type -> chalk.server.v1.GetClusterWorkflowOrchestratorDefaultRequest
-	96,  // 300: chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.CreateClusterWorkflowOrchestratorRequest
-	98,  // 301: chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest
-	100, // 302: chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator:input_type -> chalk.server.v1.DeleteClusterWorkflowOrchestratorRequest
-	104, // 303: chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.MigrateClusterWorkflowOrchestratorRequest
-	106, // 304: chalk.server.v1.BuilderService.CreateClusterGateway:input_type -> chalk.server.v1.CreateClusterGatewayRequest
-	117, // 305: chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence:input_type -> chalk.server.v1.CreateClusterBackgroundPersistenceRequest
-	268, // 306: chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig:input_type -> chalk.server.v1.UpdateStreamingKafkaKedaConfigRequest
-	186, // 307: chalk.server.v1.BuilderService.UpdateEnvironmentVariables:input_type -> chalk.server.v1.UpdateEnvironmentVariablesRequest
-	188, // 308: chalk.server.v1.BuilderService.StartBranch:input_type -> chalk.server.v1.StartBranchRequest
-	190, // 309: chalk.server.v1.BuilderService.ScaleBranch:input_type -> chalk.server.v1.ScaleBranchRequest
-	192, // 310: chalk.server.v1.BuilderService.GetBranchProfile:input_type -> chalk.server.v1.GetBranchProfileRequest
-	194, // 311: chalk.server.v1.BuilderService.GetBranchServerStatus:input_type -> chalk.server.v1.GetBranchServerStatusRequest
-	201, // 312: chalk.server.v1.BuilderService.GetNodepools:input_type -> chalk.server.v1.GetNodepoolsRequest
-	285, // 313: chalk.server.v1.BuilderService.GetServiceProbeDefaults:input_type -> chalk.server.v1.GetServiceProbeDefaultsRequest
-	208, // 314: chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes:input_type -> chalk.server.v1.GetAvailableChalkMachineTypesRequest
-	211, // 315: chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride:input_type -> chalk.server.v1.UpsertChalkMachineTypeOverrideRequest
-	213, // 316: chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride:input_type -> chalk.server.v1.DeleteChalkMachineTypeOverrideRequest
-	216, // 317: chalk.server.v1.BuilderService.GetClusterChalkMachineTypes:input_type -> chalk.server.v1.GetClusterChalkMachineTypesRequest
-	218, // 318: chalk.server.v1.BuilderService.AddNodepool:input_type -> chalk.server.v1.AddNodepoolRequest
-	220, // 319: chalk.server.v1.BuilderService.UpdateNodepool:input_type -> chalk.server.v1.UpdateNodepoolRequest
-	222, // 320: chalk.server.v1.BuilderService.DeleteNodepool:input_type -> chalk.server.v1.DeleteNodepoolRequest
-	224, // 321: chalk.server.v1.BuilderService.GetKarpenterNodepools:input_type -> chalk.server.v1.GetKarpenterNodepoolsRequest
-	226, // 322: chalk.server.v1.BuilderService.AddKarpenterNodepool:input_type -> chalk.server.v1.AddKarpenterNodepoolRequest
-	228, // 323: chalk.server.v1.BuilderService.UpdateKarpenterNodepool:input_type -> chalk.server.v1.UpdateKarpenterNodepoolRequest
-	230, // 324: chalk.server.v1.BuilderService.DeleteKarpenterNodepool:input_type -> chalk.server.v1.DeleteKarpenterNodepoolRequest
-	232, // 325: chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata:input_type -> chalk.server.v1.GetKarpenterInstallationMetadataRequest
-	239, // 326: chalk.server.v1.BuilderService.GetTagWeights:input_type -> chalk.server.v1.GetTagWeightsRequest
-	241, // 327: chalk.server.v1.BuilderService.SetTagWeights:input_type -> chalk.server.v1.SetTagWeightsRequest
-	244, // 328: chalk.server.v1.BuilderService.CreateDeployment:input_type -> chalk.server.v1.CreateDeploymentRequest
-	42,  // 329: chalk.server.v1.BuilderService.PrepareDeployment:input_type -> chalk.server.v1.PrepareDeploymentRequest
-	44,  // 330: chalk.server.v1.BuilderService.BuildImage:input_type -> chalk.server.v1.BuildImageRequest
-	172, // 331: chalk.server.v1.BuilderService.GetTelemetryDeployment:input_type -> chalk.server.v1.GetTelemetryDeploymentRequest
-	281, // 332: chalk.server.v1.BuilderService.GetTelemetryDeploymentAvailability:input_type -> chalk.server.v1.GetTelemetryDeploymentAvailabilityRequest
-	174, // 333: chalk.server.v1.BuilderService.ListTelemetryDeployments:input_type -> chalk.server.v1.ListTelemetryDeploymentsRequest
-	176, // 334: chalk.server.v1.BuilderService.CreateTelemetryDeployment:input_type -> chalk.server.v1.CreateTelemetryDeploymentRequest
-	180, // 335: chalk.server.v1.BuilderService.UpdateTelemetryDeployment:input_type -> chalk.server.v1.UpdateTelemetryDeploymentRequest
-	178, // 336: chalk.server.v1.BuilderService.DeleteTelemetryDeployment:input_type -> chalk.server.v1.DeleteTelemetryDeploymentRequest
-	182, // 337: chalk.server.v1.BuilderService.MigrateTelemetryDeployment:input_type -> chalk.server.v1.MigrateTelemetryDeploymentRequest
-	247, // 338: chalk.server.v1.BuilderService.GetEnvironmentKubeClusters:input_type -> chalk.server.v1.GetEnvironmentKubeClustersRequest
-	249, // 339: chalk.server.v1.BuilderService.SuspendEnvironment:input_type -> chalk.server.v1.SuspendEnvironmentRequest
-	251, // 340: chalk.server.v1.BuilderService.ResumeEnvironment:input_type -> chalk.server.v1.ResumeEnvironmentRequest
-	253, // 341: chalk.server.v1.BuilderService.SuspendClusterGateway:input_type -> chalk.server.v1.SuspendClusterGatewayRequest
-	255, // 342: chalk.server.v1.BuilderService.ResumeClusterGateway:input_type -> chalk.server.v1.ResumeClusterGatewayRequest
-	257, // 343: chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence:input_type -> chalk.server.v1.SuspendClusterBackgroundPersistenceRequest
-	259, // 344: chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence:input_type -> chalk.server.v1.ResumeClusterBackgroundPersistenceRequest
-	261, // 345: chalk.server.v1.BuilderService.DeleteClusterGateway:input_type -> chalk.server.v1.DeleteClusterGatewayRequest
-	263, // 346: chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence:input_type -> chalk.server.v1.DeleteClusterBackgroundPersistenceRequest
-	203, // 347: chalk.server.v1.BuilderService.GetClusterNodepools:input_type -> chalk.server.v1.GetClusterNodepoolsRequest
-	197, // 348: chalk.server.v1.ClusterBuilderService.CreateKafkaTopics:input_type -> chalk.server.v1.CreateKafkaTopicsRequest
-	199, // 349: chalk.server.v1.ClusterBuilderService.GetKafkaTopics:input_type -> chalk.server.v1.GetKafkaTopicsRequest
-	185, // 350: chalk.server.v1.BuilderService.GetSearchConfig:output_type -> chalk.server.v1.GetSearchConfigResponse
-	24,  // 351: chalk.server.v1.BuilderService.ActivateDeployment:output_type -> chalk.server.v1.ActivateDeploymentResponse
-	26,  // 352: chalk.server.v1.BuilderService.IndexDeployment:output_type -> chalk.server.v1.IndexDeploymentResponse
-	28,  // 353: chalk.server.v1.BuilderService.ValidateNamedQueries:output_type -> chalk.server.v1.ValidateNamedQueriesResponse
-	30,  // 354: chalk.server.v1.BuilderService.RunPostIndexValidation:output_type -> chalk.server.v1.RunPostIndexValidationResponse
-	274, // 355: chalk.server.v1.BuilderService.PopulateNamedQueryPlans:output_type -> chalk.server.v1.PopulateNamedQueryPlansResponse
-	276, // 356: chalk.server.v1.BuilderService.PrepareGraphSupplement:output_type -> chalk.server.v1.PrepareGraphSupplementResponse
-	32,  // 357: chalk.server.v1.BuilderService.StartShadowBuildFromDeployment:output_type -> chalk.server.v1.StartShadowBuildFromDeploymentResponse
-	34,  // 358: chalk.server.v1.BuilderService.DeployKubeComponents:output_type -> chalk.server.v1.DeployKubeComponentsResponse
-	36,  // 359: chalk.server.v1.BuilderService.RebuildDeployment:output_type -> chalk.server.v1.RebuildDeploymentResponse
-	38,  // 360: chalk.server.v1.BuilderService.RedeployDeployment:output_type -> chalk.server.v1.RedeployDeploymentResponse
-	41,  // 361: chalk.server.v1.BuilderService.UploadSource:output_type -> chalk.server.v1.UploadSourceResponse
-	47,  // 362: chalk.server.v1.BuilderService.LintSource:output_type -> chalk.server.v1.LintSourceResponse
-	53,  // 363: chalk.server.v1.BuilderService.GetDeploymentSteps:output_type -> chalk.server.v1.GetDeploymentStepsResponse
-	51,  // 364: chalk.server.v1.BuilderService.GetMaterializedAggregateDiff:output_type -> chalk.server.v1.GetMaterializedAggregateDiffResponse
-	55,  // 365: chalk.server.v1.BuilderService.GetDeploymentLogs:output_type -> chalk.server.v1.GetDeploymentLogsResponse
-	57,  // 366: chalk.server.v1.BuilderService.GetDeploymentDependencies:output_type -> chalk.server.v1.GetDeploymentDependenciesResponse
-	59,  // 367: chalk.server.v1.BuilderService.ResolveEngineBaseImage:output_type -> chalk.server.v1.ResolveEngineBaseImageResponse
-	63,  // 368: chalk.server.v1.BuilderService.ListEngineBaseImages:output_type -> chalk.server.v1.ListEngineBaseImagesResponse
-	279, // 369: chalk.server.v1.BuilderService.ValidateProjectSettings:output_type -> chalk.server.v1.ValidateProjectSettingsResponse
-	65,  // 370: chalk.server.v1.BuilderService.GetClusterTimescaleDB:output_type -> chalk.server.v1.GetClusterTimescaleDBResponse
-	67,  // 371: chalk.server.v1.BuilderService.ListClusterTimescaleDBs:output_type -> chalk.server.v1.ListClusterTimescaleDBsResponse
-	69,  // 372: chalk.server.v1.BuilderService.GetClusterGateway:output_type -> chalk.server.v1.GetClusterGatewayResponse
-	71,  // 373: chalk.server.v1.BuilderService.ListClusterGateways:output_type -> chalk.server.v1.ListClusterGatewaysResponse
-	73,  // 374: chalk.server.v1.BuilderService.GetClusterGatewayDefault:output_type -> chalk.server.v1.GetClusterGatewayDefaultResponse
-	76,  // 375: chalk.server.v1.BuilderService.GetClusterBackgroundPersistence:output_type -> chalk.server.v1.GetClusterBackgroundPersistenceResponse
-	78,  // 376: chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments:output_type -> chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse
-	267, // 377: chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs:output_type -> chalk.server.v1.ListStreamingKafkaKedaConfigsResponse
-	87,  // 378: chalk.server.v1.BuilderService.CreateClusterTimescaleDB:output_type -> chalk.server.v1.CreateClusterTimescaleDBResponse
-	89,  // 379: chalk.server.v1.BuilderService.UpdateClusterTimescaleDB:output_type -> chalk.server.v1.UpdateClusterTimescaleDBResponse
-	83,  // 380: chalk.server.v1.BuilderService.GetClusterTimescaleDefault:output_type -> chalk.server.v1.GetClusterTimescaleDefaultResponse
-	81,  // 381: chalk.server.v1.BuilderService.DeleteClusterTimescaleDB:output_type -> chalk.server.v1.DeleteClusterTimescaleDBResponse
-	235, // 382: chalk.server.v1.BuilderService.CreateEnvironmentCloudResources:output_type -> chalk.server.v1.CreateEnvironmentCloudResourcesResponse
-	237, // 383: chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources:output_type -> chalk.server.v1.DeleteEnvironmentCloudResourcesResponse
-	91,  // 384: chalk.server.v1.BuilderService.MigrateClusterTimescaleDB:output_type -> chalk.server.v1.MigrateClusterTimescaleDBResponse
-	95,  // 385: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator:output_type -> chalk.server.v1.GetClusterWorkflowOrchestratorResponse
-	103, // 386: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault:output_type -> chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse
-	97,  // 387: chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.CreateClusterWorkflowOrchestratorResponse
-	99,  // 388: chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse
-	101, // 389: chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator:output_type -> chalk.server.v1.DeleteClusterWorkflowOrchestratorResponse
-	105, // 390: chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.MigrateClusterWorkflowOrchestratorResponse
-	116, // 391: chalk.server.v1.BuilderService.CreateClusterGateway:output_type -> chalk.server.v1.CreateClusterGatewayResponse
-	124, // 392: chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence:output_type -> chalk.server.v1.CreateClusterBackgroundPersistenceResponse
-	269, // 393: chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig:output_type -> chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse
-	187, // 394: chalk.server.v1.BuilderService.UpdateEnvironmentVariables:output_type -> chalk.server.v1.UpdateEnvironmentVariablesResponse
-	189, // 395: chalk.server.v1.BuilderService.StartBranch:output_type -> chalk.server.v1.StartBranchResponse
-	191, // 396: chalk.server.v1.BuilderService.ScaleBranch:output_type -> chalk.server.v1.ScaleBranchResponse
-	193, // 397: chalk.server.v1.BuilderService.GetBranchProfile:output_type -> chalk.server.v1.GetBranchProfileResponse
-	195, // 398: chalk.server.v1.BuilderService.GetBranchServerStatus:output_type -> chalk.server.v1.GetBranchServerStatusResponse
-	202, // 399: chalk.server.v1.BuilderService.GetNodepools:output_type -> chalk.server.v1.GetNodepoolsResponse
-	286, // 400: chalk.server.v1.BuilderService.GetServiceProbeDefaults:output_type -> chalk.server.v1.GetServiceProbeDefaultsResponse
-	209, // 401: chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes:output_type -> chalk.server.v1.GetAvailableChalkMachineTypesResponse
-	212, // 402: chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride:output_type -> chalk.server.v1.UpsertChalkMachineTypeOverrideResponse
-	214, // 403: chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride:output_type -> chalk.server.v1.DeleteChalkMachineTypeOverrideResponse
-	217, // 404: chalk.server.v1.BuilderService.GetClusterChalkMachineTypes:output_type -> chalk.server.v1.GetClusterChalkMachineTypesResponse
-	219, // 405: chalk.server.v1.BuilderService.AddNodepool:output_type -> chalk.server.v1.AddNodepoolResponse
-	221, // 406: chalk.server.v1.BuilderService.UpdateNodepool:output_type -> chalk.server.v1.UpdateNodepoolResponse
-	223, // 407: chalk.server.v1.BuilderService.DeleteNodepool:output_type -> chalk.server.v1.DeleteNodepoolResponse
-	225, // 408: chalk.server.v1.BuilderService.GetKarpenterNodepools:output_type -> chalk.server.v1.GetKarpenterNodepoolsResponse
-	227, // 409: chalk.server.v1.BuilderService.AddKarpenterNodepool:output_type -> chalk.server.v1.AddKarpenterNodepoolResponse
-	229, // 410: chalk.server.v1.BuilderService.UpdateKarpenterNodepool:output_type -> chalk.server.v1.UpdateKarpenterNodepoolResponse
-	231, // 411: chalk.server.v1.BuilderService.DeleteKarpenterNodepool:output_type -> chalk.server.v1.DeleteKarpenterNodepoolResponse
-	233, // 412: chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata:output_type -> chalk.server.v1.GetKarpenterInstallationMetadataResponse
-	240, // 413: chalk.server.v1.BuilderService.GetTagWeights:output_type -> chalk.server.v1.GetTagWeightsResponse
-	242, // 414: chalk.server.v1.BuilderService.SetTagWeights:output_type -> chalk.server.v1.SetTagWeightsResponse
-	245, // 415: chalk.server.v1.BuilderService.CreateDeployment:output_type -> chalk.server.v1.CreateDeploymentResponse
-	43,  // 416: chalk.server.v1.BuilderService.PrepareDeployment:output_type -> chalk.server.v1.PrepareDeploymentResponse
-	45,  // 417: chalk.server.v1.BuilderService.BuildImage:output_type -> chalk.server.v1.BuildImageResponse
-	173, // 418: chalk.server.v1.BuilderService.GetTelemetryDeployment:output_type -> chalk.server.v1.GetTelemetryDeploymentResponse
-	282, // 419: chalk.server.v1.BuilderService.GetTelemetryDeploymentAvailability:output_type -> chalk.server.v1.GetTelemetryDeploymentAvailabilityResponse
-	175, // 420: chalk.server.v1.BuilderService.ListTelemetryDeployments:output_type -> chalk.server.v1.ListTelemetryDeploymentsResponse
-	177, // 421: chalk.server.v1.BuilderService.CreateTelemetryDeployment:output_type -> chalk.server.v1.CreateTelemetryDeploymentResponse
-	181, // 422: chalk.server.v1.BuilderService.UpdateTelemetryDeployment:output_type -> chalk.server.v1.UpdateTelemetryDeploymentResponse
-	179, // 423: chalk.server.v1.BuilderService.DeleteTelemetryDeployment:output_type -> chalk.server.v1.DeleteTelemetryDeploymentResponse
-	183, // 424: chalk.server.v1.BuilderService.MigrateTelemetryDeployment:output_type -> chalk.server.v1.MigrateTelemetryDeploymentResponse
-	248, // 425: chalk.server.v1.BuilderService.GetEnvironmentKubeClusters:output_type -> chalk.server.v1.GetEnvironmentKubeClustersResponse
-	250, // 426: chalk.server.v1.BuilderService.SuspendEnvironment:output_type -> chalk.server.v1.SuspendEnvironmentResponse
-	252, // 427: chalk.server.v1.BuilderService.ResumeEnvironment:output_type -> chalk.server.v1.ResumeEnvironmentResponse
-	254, // 428: chalk.server.v1.BuilderService.SuspendClusterGateway:output_type -> chalk.server.v1.SuspendClusterGatewayResponse
-	256, // 429: chalk.server.v1.BuilderService.ResumeClusterGateway:output_type -> chalk.server.v1.ResumeClusterGatewayResponse
-	258, // 430: chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence:output_type -> chalk.server.v1.SuspendClusterBackgroundPersistenceResponse
-	260, // 431: chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence:output_type -> chalk.server.v1.ResumeClusterBackgroundPersistenceResponse
-	262, // 432: chalk.server.v1.BuilderService.DeleteClusterGateway:output_type -> chalk.server.v1.DeleteClusterGatewayResponse
-	264, // 433: chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence:output_type -> chalk.server.v1.DeleteClusterBackgroundPersistenceResponse
-	204, // 434: chalk.server.v1.BuilderService.GetClusterNodepools:output_type -> chalk.server.v1.GetClusterNodepoolsResponse
-	198, // 435: chalk.server.v1.ClusterBuilderService.CreateKafkaTopics:output_type -> chalk.server.v1.CreateKafkaTopicsResponse
-	200, // 436: chalk.server.v1.ClusterBuilderService.GetKafkaTopics:output_type -> chalk.server.v1.GetKafkaTopicsResponse
-	350, // [350:437] is the sub-list for method output_type
-	263, // [263:350] is the sub-list for method input_type
-	263, // [263:263] is the sub-list for extension type_name
-	263, // [263:263] is the sub-list for extension extendee
-	0,   // [0:263] is the sub-list for field type_name
+	289, // 114: chalk.server.v1.CustomerVectorAggregatorConfig.otlp_logs_export:type_name -> chalk.server.v1.CustomerVectorAggregatorOtlpSignalExportConfig
+	289, // 115: chalk.server.v1.CustomerVectorAggregatorConfig.otlp_traces_export:type_name -> chalk.server.v1.CustomerVectorAggregatorOtlpSignalExportConfig
+	84,  // 116: chalk.server.v1.AggregatorSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 117: chalk.server.v1.AggregatorSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	126, // 118: chalk.server.v1.AggregatorSpec.vector_click_house_sink:type_name -> chalk.server.v1.VectorAggregatorClickHouseSinkSpec
+	129, // 119: chalk.server.v1.AggregatorSpec.export_to_chalk_datadog:type_name -> chalk.server.v1.VectorAggregatorChalkDatadogExportSpec
+	127, // 120: chalk.server.v1.AggregatorSpec.vector_victoria_metrics_sink:type_name -> chalk.server.v1.VectorAggregatorVictoriaMetricsSinkSpec
+	131, // 121: chalk.server.v1.AggregatorSpec.metric_aggregation:type_name -> chalk.server.v1.VectorAggregatorMetricAggregationSpec
+	128, // 122: chalk.server.v1.AggregatorSpec.customer_vector_sink:type_name -> chalk.server.v1.VectorAggregatorCustomerSinkSpec
+	280, // 123: chalk.server.v1.CustomerCollectorConfig.received_signals:type_name -> chalk.server.v1.CustomerCollectorReceivedSignalsSpec
+	84,  // 124: chalk.server.v1.CustomerCollectorConfig.request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 125: chalk.server.v1.CustomerCollectorConfig.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	11,  // 126: chalk.server.v1.VectorClusterMetricsSpec.sink_mode:type_name -> chalk.server.v1.VectorClusterMetricsSinkMode
+	151, // 127: chalk.server.v1.VectorClusterMetricsSpec.shadow:type_name -> chalk.server.v1.VectorClusterMetricsShadowSpec
+	152, // 128: chalk.server.v1.VectorClusterMetricsSpec.tables:type_name -> chalk.server.v1.VectorClusterMetricsTablesSpec
+	121, // 129: chalk.server.v1.VectorClusterMetricsSpec.pod_filters:type_name -> chalk.server.v1.NodePodMetricsFilter
+	84,  // 130: chalk.server.v1.TelemetryIngestMetricsSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	19,  // 131: chalk.server.v1.VectorCollectorSinkSpec.request_concurrency_mode:type_name -> chalk.server.v1.VectorCollectorRequestConcurrencyMode
+	143, // 132: chalk.server.v1.VectorStatsdSpec.uds:type_name -> chalk.server.v1.VectorStatsdUdsSpec
+	144, // 133: chalk.server.v1.VectorStatsdSpec.udp:type_name -> chalk.server.v1.VectorStatsdUdpSpec
+	145, // 134: chalk.server.v1.VectorStatsdSpec.aggregator_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
+	10,  // 135: chalk.server.v1.MetricExportDestination.format:type_name -> chalk.server.v1.MetricExportDestinationFormat
+	147, // 136: chalk.server.v1.MetricExportSpec.additional_destinations:type_name -> chalk.server.v1.MetricExportDestination
+	303, // 137: chalk.server.v1.TraceExportDestination.headers:type_name -> chalk.server.v1.TraceExportDestination.HeadersEntry
+	149, // 138: chalk.server.v1.TraceExportSpec.additional_trace_destinations:type_name -> chalk.server.v1.TraceExportDestination
+	12,  // 139: chalk.server.v1.VectorClusterMetricsShadowSpec.output:type_name -> chalk.server.v1.VectorClusterMetricsShadowOutput
+	153, // 140: chalk.server.v1.VectorClusterMetricsShadowSpec.tables:type_name -> chalk.server.v1.VectorClusterMetricsShadowTables
+	84,  // 141: chalk.server.v1.OtelCollectorSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 142: chalk.server.v1.OtelCollectorSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	6,   // 143: chalk.server.v1.OtelCollectorSpec.toleration_mode:type_name -> chalk.server.v1.TelemetryCollectorTolerationMode
+	7,   // 144: chalk.server.v1.OtelCollectorSpec.otel_collector_image:type_name -> chalk.server.v1.OtelCollectorImage
+	132, // 145: chalk.server.v1.OtelCollectorSpec.metric_aggregation:type_name -> chalk.server.v1.VectorCollectorMetricAggregationSpec
+	145, // 146: chalk.server.v1.OtelCollectorSpec.vector_otlp_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
+	145, // 147: chalk.server.v1.OtelCollectorSpec.vector_file_log_sink:type_name -> chalk.server.v1.VectorCollectorSinkSpec
+	84,  // 148: chalk.server.v1.GpuTelemetrySpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 149: chalk.server.v1.GpuTelemetrySpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	125, // 150: chalk.server.v1.GpuTelemetrySpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
+	84,  // 151: chalk.server.v1.ClickHouseSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 152: chalk.server.v1.ClickHouseSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	85,  // 153: chalk.server.v1.ClickHouseSpec.storage:type_name -> chalk.server.v1.KubePersistentVolumeClaim
+	84,  // 154: chalk.server.v1.VictoriaMetricsSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 155: chalk.server.v1.VictoriaMetricsSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 156: chalk.server.v1.VictoriaMetricsSpec.storage_request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 157: chalk.server.v1.VictoriaMetricsSpec.storage_limit:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 158: chalk.server.v1.VictoriaMetricsSpec.insert_request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 159: chalk.server.v1.VictoriaMetricsSpec.auth_request:type_name -> chalk.server.v1.KubeResourceConfig
+	158, // 160: chalk.server.v1.VictoriaMetricsSpec.datadog_export:type_name -> chalk.server.v1.VictoriaMetricsDatadogExportSpec
+	84,  // 161: chalk.server.v1.VictoriaMetricsDatadogExportSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 162: chalk.server.v1.VictoriaMetricsDatadogExportSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	13,  // 163: chalk.server.v1.PerfettoDaemonSpec.trigger:type_name -> chalk.server.v1.PerfettoTrigger
+	14,  // 164: chalk.server.v1.NetworkInspectorDaemonSpec.trigger:type_name -> chalk.server.v1.NetworkInspectorTrigger
+	84,  // 165: chalk.server.v1.ObservabilityDaemonSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	84,  // 166: chalk.server.v1.ObservabilityDaemonSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	168, // 167: chalk.server.v1.ObservabilityDaemonSpec.scheduling:type_name -> chalk.server.v1.ObservabilityDaemonSchedulingSpec
+	159, // 168: chalk.server.v1.ObservabilityDaemonSpec.zombie_killer:type_name -> chalk.server.v1.ZombieKillerSpec
+	160, // 169: chalk.server.v1.ObservabilityDaemonSpec.core_dump_collector:type_name -> chalk.server.v1.CoreDumpCollectorSpec
+	161, // 170: chalk.server.v1.ObservabilityDaemonSpec.py_spy_stack_trace_collector:type_name -> chalk.server.v1.PySpyStackTraceCollectorSpec
+	162, // 171: chalk.server.v1.ObservabilityDaemonSpec.perf_collector:type_name -> chalk.server.v1.PerfCollectorSpec
+	163, // 172: chalk.server.v1.ObservabilityDaemonSpec.perfetto_daemon:type_name -> chalk.server.v1.PerfettoDaemonSpec
+	164, // 173: chalk.server.v1.ObservabilityDaemonSpec.directory_watcher:type_name -> chalk.server.v1.DirectoryWatcherSpec
+	165, // 174: chalk.server.v1.ObservabilityDaemonSpec.streamed_watcher:type_name -> chalk.server.v1.StreamedDirectoryWatcherSpec
+	166, // 175: chalk.server.v1.ObservabilityDaemonSpec.network_inspector_daemon:type_name -> chalk.server.v1.NetworkInspectorDaemonSpec
+	125, // 176: chalk.server.v1.ObservabilityDaemonSchedulingSpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
+	156, // 177: chalk.server.v1.TelemetryDeploymentSpec.click_house:type_name -> chalk.server.v1.ClickHouseSpec
+	154, // 178: chalk.server.v1.TelemetryDeploymentSpec.otel:type_name -> chalk.server.v1.OtelCollectorSpec
+	125, // 179: chalk.server.v1.TelemetryDeploymentSpec.node_selectors:type_name -> chalk.server.v1.KubeNodeSelector
+	139, // 180: chalk.server.v1.TelemetryDeploymentSpec.aggregator:type_name -> chalk.server.v1.AggregatorSpec
+	167, // 181: chalk.server.v1.TelemetryDeploymentSpec.observability_daemons:type_name -> chalk.server.v1.ObservabilityDaemonSpec
+	140, // 182: chalk.server.v1.TelemetryDeploymentSpec.customer_collector:type_name -> chalk.server.v1.CustomerCollectorConfig
+	155, // 183: chalk.server.v1.TelemetryDeploymentSpec.gpu_telemetry:type_name -> chalk.server.v1.GpuTelemetrySpec
+	8,   // 184: chalk.server.v1.TelemetryDeploymentSpec.telemetry_runtime:type_name -> chalk.server.v1.TelemetryRuntime
+	141, // 185: chalk.server.v1.TelemetryDeploymentSpec.vector_cluster_metrics:type_name -> chalk.server.v1.VectorClusterMetricsSpec
+	157, // 186: chalk.server.v1.TelemetryDeploymentSpec.victoria_metrics:type_name -> chalk.server.v1.VictoriaMetricsSpec
+	142, // 187: chalk.server.v1.TelemetryDeploymentSpec.ingest_metrics:type_name -> chalk.server.v1.TelemetryIngestMetricsSpec
+	146, // 188: chalk.server.v1.TelemetryDeploymentSpec.vector_statsd:type_name -> chalk.server.v1.VectorStatsdSpec
+	148, // 189: chalk.server.v1.TelemetryDeploymentSpec.metric_exports:type_name -> chalk.server.v1.MetricExportSpec
+	138, // 190: chalk.server.v1.TelemetryDeploymentSpec.customer_vector_aggregator:type_name -> chalk.server.v1.CustomerVectorAggregatorConfig
+	9,   // 191: chalk.server.v1.TelemetryDeploymentSpec.prometheus_collection_runtime:type_name -> chalk.server.v1.TelemetryPrometheusCollectionRuntime
+	270, // 192: chalk.server.v1.TelemetryDeploymentSpec.vector_pipeline_metrics:type_name -> chalk.server.v1.VectorTelemetryPipelineMetricsSpec
+	150, // 193: chalk.server.v1.TelemetryDeploymentSpec.trace_exports:type_name -> chalk.server.v1.TraceExportSpec
+	287, // 194: chalk.server.v1.TelemetryDeploymentSpec.ai_trace_export:type_name -> chalk.server.v1.AiTraceExportSpec
+	169, // 195: chalk.server.v1.TelemetryDeployment.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
+	313, // 196: chalk.server.v1.TelemetryDeployment.created_at:type_name -> google.protobuf.Timestamp
+	313, // 197: chalk.server.v1.TelemetryDeployment.updated_at:type_name -> google.protobuf.Timestamp
+	313, // 198: chalk.server.v1.TelemetryDeployment.suspended_at:type_name -> google.protobuf.Timestamp
+	171, // 199: chalk.server.v1.GetTelemetryDeploymentRequest.cluster_identifier:type_name -> chalk.server.v1.ClusterIdentifier
+	170, // 200: chalk.server.v1.GetTelemetryDeploymentResponse.deployment:type_name -> chalk.server.v1.TelemetryDeployment
+	170, // 201: chalk.server.v1.ListTelemetryDeploymentsResponse.deployments:type_name -> chalk.server.v1.TelemetryDeployment
+	169, // 202: chalk.server.v1.CreateTelemetryDeploymentRequest.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
+	169, // 203: chalk.server.v1.UpdateTelemetryDeploymentRequest.spec:type_name -> chalk.server.v1.TelemetryDeploymentSpec
+	316, // 204: chalk.server.v1.UpdateTelemetryDeploymentRequest.update_mask:type_name -> google.protobuf.FieldMask
+	170, // 205: chalk.server.v1.UpdateTelemetryDeploymentResponse.deployment:type_name -> chalk.server.v1.TelemetryDeployment
+	304, // 206: chalk.server.v1.UpdateEnvironmentVariablesRequest.environment_variables:type_name -> chalk.server.v1.UpdateEnvironmentVariablesRequest.EnvironmentVariablesEntry
+	317, // 207: chalk.server.v1.UpdateEnvironmentVariablesResponse.field_changes:type_name -> chalk.utils.v1.FieldChange
+	15,  // 208: chalk.server.v1.StartBranchResponse.state:type_name -> chalk.server.v1.BranchScalingState
+	15,  // 209: chalk.server.v1.ScaleBranchResponse.state:type_name -> chalk.server.v1.BranchScalingState
+	16,  // 210: chalk.server.v1.GetBranchServerStatusResponse.status:type_name -> chalk.server.v1.BranchServerStatus
+	196, // 211: chalk.server.v1.CreateKafkaTopicsRequest.topics:type_name -> chalk.server.v1.KafkaTopic
+	196, // 212: chalk.server.v1.GetKafkaTopicsResponse.topics:type_name -> chalk.server.v1.KafkaTopic
+	318, // 213: chalk.server.v1.GetNodepoolsResponse.karpenter_nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	319, // 214: chalk.server.v1.GetNodepoolsResponse.gke_nodepools:type_name -> chalk.nodepools.v1.GKENodePool
+	318, // 215: chalk.server.v1.GetClusterNodepoolsResponse.karpenter_nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	319, // 216: chalk.server.v1.GetClusterNodepoolsResponse.gke_nodepools:type_name -> chalk.nodepools.v1.GKENodePool
+	320, // 217: chalk.server.v1.ChalkMachineTypeMapping.cloud:type_name -> chalk.usage.v1.BillingCloud
+	205, // 218: chalk.server.v1.ChalkMachineTypeMapping.fallbacks:type_name -> chalk.server.v1.ChalkMachineTypeFallback
+	17,  // 219: chalk.server.v1.ChalkMachineTypeMapping.override_scope:type_name -> chalk.server.v1.ChalkMachineTypeOverrideScope
+	205, // 220: chalk.server.v1.ChalkMachineTypeMapping.default_fallbacks:type_name -> chalk.server.v1.ChalkMachineTypeFallback
+	206, // 221: chalk.server.v1.ChalkMachineTypeMapping.allowed_instance_types:type_name -> chalk.server.v1.ChalkMachineTypeInstanceOption
+	207, // 222: chalk.server.v1.GetAvailableChalkMachineTypesResponse.mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
+	313, // 223: chalk.server.v1.ChalkMachineTypeOverride.created_at:type_name -> google.protobuf.Timestamp
+	313, // 224: chalk.server.v1.ChalkMachineTypeOverride.updated_at:type_name -> google.protobuf.Timestamp
+	210, // 225: chalk.server.v1.UpsertChalkMachineTypeOverrideResponse.override:type_name -> chalk.server.v1.ChalkMachineTypeOverride
+	207, // 226: chalk.server.v1.ClusterEnvironmentChalkMachineTypes.mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
+	210, // 227: chalk.server.v1.GetClusterChalkMachineTypesResponse.overrides:type_name -> chalk.server.v1.ChalkMachineTypeOverride
+	207, // 228: chalk.server.v1.GetClusterChalkMachineTypesResponse.cluster_mappings:type_name -> chalk.server.v1.ChalkMachineTypeMapping
+	215, // 229: chalk.server.v1.GetClusterChalkMachineTypesResponse.environments:type_name -> chalk.server.v1.ClusterEnvironmentChalkMachineTypes
+	318, // 230: chalk.server.v1.AddNodepoolRequest.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	319, // 231: chalk.server.v1.AddNodepoolRequest.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
+	318, // 232: chalk.server.v1.AddNodepoolResponse.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	319, // 233: chalk.server.v1.AddNodepoolResponse.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
+	319, // 234: chalk.server.v1.UpdateNodepoolRequest.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
+	318, // 235: chalk.server.v1.UpdateNodepoolRequest.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	318, // 236: chalk.server.v1.UpdateNodepoolResponse.karpenter_nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	319, // 237: chalk.server.v1.UpdateNodepoolResponse.gke_nodepool:type_name -> chalk.nodepools.v1.GKENodePool
+	318, // 238: chalk.server.v1.GetKarpenterNodepoolsResponse.nodepools:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	318, // 239: chalk.server.v1.AddKarpenterNodepoolRequest.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	318, // 240: chalk.server.v1.AddKarpenterNodepoolResponse.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	318, // 241: chalk.server.v1.UpdateKarpenterNodepoolRequest.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	318, // 242: chalk.server.v1.UpdateKarpenterNodepoolResponse.nodepool:type_name -> chalk.nodepools.v1.KarpenterNodepool
+	305, // 243: chalk.server.v1.GetKarpenterInstallationMetadataResponse.deployment_labels:type_name -> chalk.server.v1.GetKarpenterInstallationMetadataResponse.DeploymentLabelsEntry
+	238, // 244: chalk.server.v1.GetTagWeightsResponse.tags:type_name -> chalk.server.v1.DeploymentTag
+	238, // 245: chalk.server.v1.SetTagWeightsRequest.tags:type_name -> chalk.server.v1.DeploymentTag
+	238, // 246: chalk.server.v1.SetTagWeightsResponse.tags:type_name -> chalk.server.v1.DeploymentTag
+	243, // 247: chalk.server.v1.CreateDeploymentRequest.requirements:type_name -> chalk.server.v1.RequirementsFile
+	311, // 248: chalk.server.v1.CreateDeploymentRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
+	306, // 249: chalk.server.v1.CreateDeploymentRequest.customer_metadata:type_name -> chalk.server.v1.CreateDeploymentRequest.CustomerMetadataEntry
+	307, // 250: chalk.server.v1.CreateDeploymentRequest.build_options:type_name -> chalk.server.v1.CreateDeploymentRequest.BuildOptionsEntry
+	321, // 251: chalk.server.v1.KubernetesCluster.cloud_credentials:type_name -> chalk.server.v1.CloudConfig
+	107, // 252: chalk.server.v1.KubernetesCluster.cluster_gateway:type_name -> chalk.server.v1.EnvoyGatewaySpecs
+	123, // 253: chalk.server.v1.KubernetesCluster.cluster_background_persistence:type_name -> chalk.server.v1.BackgroundPersistenceDeploymentSpecs
+	107, // 254: chalk.server.v1.KubernetesCluster.services_gateway:type_name -> chalk.server.v1.EnvoyGatewaySpecs
+	246, // 255: chalk.server.v1.GetEnvironmentKubeClustersResponse.clusters:type_name -> chalk.server.v1.KubernetesCluster
+	265, // 256: chalk.server.v1.ListStreamingKafkaKedaConfigsResponse.configs:type_name -> chalk.server.v1.StreamingKafkaKedaConfig
+	265, // 257: chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse.config:type_name -> chalk.server.v1.StreamingKafkaKedaConfig
+	311, // 258: chalk.server.v1.ValidateProjectSettingsRequest.project_settings:type_name -> chalk.artifacts.v1.ProjectSettings
+	21,  // 259: chalk.server.v1.GetTelemetryDeploymentAvailabilityResponse.status:type_name -> chalk.server.v1.TelemetryDeploymentAvailabilityStatus
+	283, // 260: chalk.server.v1.ServiceProbeDefaults.startup:type_name -> chalk.server.v1.KubernetesProbeTimingDefaults
+	283, // 261: chalk.server.v1.ServiceProbeDefaults.liveness:type_name -> chalk.server.v1.KubernetesProbeTimingDefaults
+	283, // 262: chalk.server.v1.ServiceProbeDefaults.readiness:type_name -> chalk.server.v1.KubernetesProbeTimingDefaults
+	284, // 263: chalk.server.v1.GetServiceProbeDefaultsResponse.services:type_name -> chalk.server.v1.ServiceProbeDefaults
+	84,  // 264: chalk.server.v1.AiTraceExportSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	288, // 265: chalk.server.v1.AiTraceExportSpec.archive:type_name -> chalk.server.v1.AiTraceArchiveSpec
+	84,  // 266: chalk.server.v1.AiTraceArchiveSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	184, // 267: chalk.server.v1.BuilderService.GetSearchConfig:input_type -> chalk.server.v1.GetSearchConfigRequest
+	23,  // 268: chalk.server.v1.BuilderService.ActivateDeployment:input_type -> chalk.server.v1.ActivateDeploymentRequest
+	25,  // 269: chalk.server.v1.BuilderService.IndexDeployment:input_type -> chalk.server.v1.IndexDeploymentRequest
+	27,  // 270: chalk.server.v1.BuilderService.ValidateNamedQueries:input_type -> chalk.server.v1.ValidateNamedQueriesRequest
+	29,  // 271: chalk.server.v1.BuilderService.RunPostIndexValidation:input_type -> chalk.server.v1.RunPostIndexValidationRequest
+	273, // 272: chalk.server.v1.BuilderService.PopulateNamedQueryPlans:input_type -> chalk.server.v1.PopulateNamedQueryPlansRequest
+	275, // 273: chalk.server.v1.BuilderService.PrepareGraphSupplement:input_type -> chalk.server.v1.PrepareGraphSupplementRequest
+	31,  // 274: chalk.server.v1.BuilderService.StartShadowBuildFromDeployment:input_type -> chalk.server.v1.StartShadowBuildFromDeploymentRequest
+	33,  // 275: chalk.server.v1.BuilderService.DeployKubeComponents:input_type -> chalk.server.v1.DeployKubeComponentsRequest
+	35,  // 276: chalk.server.v1.BuilderService.RebuildDeployment:input_type -> chalk.server.v1.RebuildDeploymentRequest
+	37,  // 277: chalk.server.v1.BuilderService.RedeployDeployment:input_type -> chalk.server.v1.RedeployDeploymentRequest
+	40,  // 278: chalk.server.v1.BuilderService.UploadSource:input_type -> chalk.server.v1.UploadSourceRequest
+	46,  // 279: chalk.server.v1.BuilderService.LintSource:input_type -> chalk.server.v1.LintSourceRequest
+	48,  // 280: chalk.server.v1.BuilderService.GetDeploymentSteps:input_type -> chalk.server.v1.GetDeploymentStepsRequest
+	49,  // 281: chalk.server.v1.BuilderService.GetMaterializedAggregateDiff:input_type -> chalk.server.v1.GetMaterializedAggregateDiffRequest
+	54,  // 282: chalk.server.v1.BuilderService.GetDeploymentLogs:input_type -> chalk.server.v1.GetDeploymentLogsRequest
+	56,  // 283: chalk.server.v1.BuilderService.GetDeploymentDependencies:input_type -> chalk.server.v1.GetDeploymentDependenciesRequest
+	58,  // 284: chalk.server.v1.BuilderService.ResolveEngineBaseImage:input_type -> chalk.server.v1.ResolveEngineBaseImageRequest
+	60,  // 285: chalk.server.v1.BuilderService.ListEngineBaseImages:input_type -> chalk.server.v1.ListEngineBaseImagesRequest
+	278, // 286: chalk.server.v1.BuilderService.ValidateProjectSettings:input_type -> chalk.server.v1.ValidateProjectSettingsRequest
+	64,  // 287: chalk.server.v1.BuilderService.GetClusterTimescaleDB:input_type -> chalk.server.v1.GetClusterTimescaleDBRequest
+	66,  // 288: chalk.server.v1.BuilderService.ListClusterTimescaleDBs:input_type -> chalk.server.v1.ListClusterTimescaleDBsRequest
+	68,  // 289: chalk.server.v1.BuilderService.GetClusterGateway:input_type -> chalk.server.v1.GetClusterGatewayRequest
+	70,  // 290: chalk.server.v1.BuilderService.ListClusterGateways:input_type -> chalk.server.v1.ListClusterGatewaysRequest
+	72,  // 291: chalk.server.v1.BuilderService.GetClusterGatewayDefault:input_type -> chalk.server.v1.GetClusterGatewayDefaultRequest
+	75,  // 292: chalk.server.v1.BuilderService.GetClusterBackgroundPersistence:input_type -> chalk.server.v1.GetClusterBackgroundPersistenceRequest
+	77,  // 293: chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments:input_type -> chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsRequest
+	266, // 294: chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs:input_type -> chalk.server.v1.ListStreamingKafkaKedaConfigsRequest
+	79,  // 295: chalk.server.v1.BuilderService.CreateClusterTimescaleDB:input_type -> chalk.server.v1.CreateClusterTimescaleDBRequest
+	88,  // 296: chalk.server.v1.BuilderService.UpdateClusterTimescaleDB:input_type -> chalk.server.v1.UpdateClusterTimescaleDBRequest
+	82,  // 297: chalk.server.v1.BuilderService.GetClusterTimescaleDefault:input_type -> chalk.server.v1.GetClusterTimescaleDefaultRequest
+	80,  // 298: chalk.server.v1.BuilderService.DeleteClusterTimescaleDB:input_type -> chalk.server.v1.DeleteClusterTimescaleDBRequest
+	234, // 299: chalk.server.v1.BuilderService.CreateEnvironmentCloudResources:input_type -> chalk.server.v1.CreateEnvironmentCloudResourcesRequest
+	236, // 300: chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources:input_type -> chalk.server.v1.DeleteEnvironmentCloudResourcesRequest
+	90,  // 301: chalk.server.v1.BuilderService.MigrateClusterTimescaleDB:input_type -> chalk.server.v1.MigrateClusterTimescaleDBRequest
+	94,  // 302: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator:input_type -> chalk.server.v1.GetClusterWorkflowOrchestratorRequest
+	102, // 303: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault:input_type -> chalk.server.v1.GetClusterWorkflowOrchestratorDefaultRequest
+	96,  // 304: chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.CreateClusterWorkflowOrchestratorRequest
+	98,  // 305: chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest
+	100, // 306: chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator:input_type -> chalk.server.v1.DeleteClusterWorkflowOrchestratorRequest
+	104, // 307: chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator:input_type -> chalk.server.v1.MigrateClusterWorkflowOrchestratorRequest
+	106, // 308: chalk.server.v1.BuilderService.CreateClusterGateway:input_type -> chalk.server.v1.CreateClusterGatewayRequest
+	117, // 309: chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence:input_type -> chalk.server.v1.CreateClusterBackgroundPersistenceRequest
+	268, // 310: chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig:input_type -> chalk.server.v1.UpdateStreamingKafkaKedaConfigRequest
+	186, // 311: chalk.server.v1.BuilderService.UpdateEnvironmentVariables:input_type -> chalk.server.v1.UpdateEnvironmentVariablesRequest
+	188, // 312: chalk.server.v1.BuilderService.StartBranch:input_type -> chalk.server.v1.StartBranchRequest
+	190, // 313: chalk.server.v1.BuilderService.ScaleBranch:input_type -> chalk.server.v1.ScaleBranchRequest
+	192, // 314: chalk.server.v1.BuilderService.GetBranchProfile:input_type -> chalk.server.v1.GetBranchProfileRequest
+	194, // 315: chalk.server.v1.BuilderService.GetBranchServerStatus:input_type -> chalk.server.v1.GetBranchServerStatusRequest
+	201, // 316: chalk.server.v1.BuilderService.GetNodepools:input_type -> chalk.server.v1.GetNodepoolsRequest
+	285, // 317: chalk.server.v1.BuilderService.GetServiceProbeDefaults:input_type -> chalk.server.v1.GetServiceProbeDefaultsRequest
+	208, // 318: chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes:input_type -> chalk.server.v1.GetAvailableChalkMachineTypesRequest
+	211, // 319: chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride:input_type -> chalk.server.v1.UpsertChalkMachineTypeOverrideRequest
+	213, // 320: chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride:input_type -> chalk.server.v1.DeleteChalkMachineTypeOverrideRequest
+	216, // 321: chalk.server.v1.BuilderService.GetClusterChalkMachineTypes:input_type -> chalk.server.v1.GetClusterChalkMachineTypesRequest
+	218, // 322: chalk.server.v1.BuilderService.AddNodepool:input_type -> chalk.server.v1.AddNodepoolRequest
+	220, // 323: chalk.server.v1.BuilderService.UpdateNodepool:input_type -> chalk.server.v1.UpdateNodepoolRequest
+	222, // 324: chalk.server.v1.BuilderService.DeleteNodepool:input_type -> chalk.server.v1.DeleteNodepoolRequest
+	224, // 325: chalk.server.v1.BuilderService.GetKarpenterNodepools:input_type -> chalk.server.v1.GetKarpenterNodepoolsRequest
+	226, // 326: chalk.server.v1.BuilderService.AddKarpenterNodepool:input_type -> chalk.server.v1.AddKarpenterNodepoolRequest
+	228, // 327: chalk.server.v1.BuilderService.UpdateKarpenterNodepool:input_type -> chalk.server.v1.UpdateKarpenterNodepoolRequest
+	230, // 328: chalk.server.v1.BuilderService.DeleteKarpenterNodepool:input_type -> chalk.server.v1.DeleteKarpenterNodepoolRequest
+	232, // 329: chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata:input_type -> chalk.server.v1.GetKarpenterInstallationMetadataRequest
+	239, // 330: chalk.server.v1.BuilderService.GetTagWeights:input_type -> chalk.server.v1.GetTagWeightsRequest
+	241, // 331: chalk.server.v1.BuilderService.SetTagWeights:input_type -> chalk.server.v1.SetTagWeightsRequest
+	244, // 332: chalk.server.v1.BuilderService.CreateDeployment:input_type -> chalk.server.v1.CreateDeploymentRequest
+	42,  // 333: chalk.server.v1.BuilderService.PrepareDeployment:input_type -> chalk.server.v1.PrepareDeploymentRequest
+	44,  // 334: chalk.server.v1.BuilderService.BuildImage:input_type -> chalk.server.v1.BuildImageRequest
+	172, // 335: chalk.server.v1.BuilderService.GetTelemetryDeployment:input_type -> chalk.server.v1.GetTelemetryDeploymentRequest
+	281, // 336: chalk.server.v1.BuilderService.GetTelemetryDeploymentAvailability:input_type -> chalk.server.v1.GetTelemetryDeploymentAvailabilityRequest
+	174, // 337: chalk.server.v1.BuilderService.ListTelemetryDeployments:input_type -> chalk.server.v1.ListTelemetryDeploymentsRequest
+	176, // 338: chalk.server.v1.BuilderService.CreateTelemetryDeployment:input_type -> chalk.server.v1.CreateTelemetryDeploymentRequest
+	180, // 339: chalk.server.v1.BuilderService.UpdateTelemetryDeployment:input_type -> chalk.server.v1.UpdateTelemetryDeploymentRequest
+	178, // 340: chalk.server.v1.BuilderService.DeleteTelemetryDeployment:input_type -> chalk.server.v1.DeleteTelemetryDeploymentRequest
+	182, // 341: chalk.server.v1.BuilderService.MigrateTelemetryDeployment:input_type -> chalk.server.v1.MigrateTelemetryDeploymentRequest
+	247, // 342: chalk.server.v1.BuilderService.GetEnvironmentKubeClusters:input_type -> chalk.server.v1.GetEnvironmentKubeClustersRequest
+	249, // 343: chalk.server.v1.BuilderService.SuspendEnvironment:input_type -> chalk.server.v1.SuspendEnvironmentRequest
+	251, // 344: chalk.server.v1.BuilderService.ResumeEnvironment:input_type -> chalk.server.v1.ResumeEnvironmentRequest
+	253, // 345: chalk.server.v1.BuilderService.SuspendClusterGateway:input_type -> chalk.server.v1.SuspendClusterGatewayRequest
+	255, // 346: chalk.server.v1.BuilderService.ResumeClusterGateway:input_type -> chalk.server.v1.ResumeClusterGatewayRequest
+	257, // 347: chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence:input_type -> chalk.server.v1.SuspendClusterBackgroundPersistenceRequest
+	259, // 348: chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence:input_type -> chalk.server.v1.ResumeClusterBackgroundPersistenceRequest
+	261, // 349: chalk.server.v1.BuilderService.DeleteClusterGateway:input_type -> chalk.server.v1.DeleteClusterGatewayRequest
+	263, // 350: chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence:input_type -> chalk.server.v1.DeleteClusterBackgroundPersistenceRequest
+	203, // 351: chalk.server.v1.BuilderService.GetClusterNodepools:input_type -> chalk.server.v1.GetClusterNodepoolsRequest
+	197, // 352: chalk.server.v1.ClusterBuilderService.CreateKafkaTopics:input_type -> chalk.server.v1.CreateKafkaTopicsRequest
+	199, // 353: chalk.server.v1.ClusterBuilderService.GetKafkaTopics:input_type -> chalk.server.v1.GetKafkaTopicsRequest
+	185, // 354: chalk.server.v1.BuilderService.GetSearchConfig:output_type -> chalk.server.v1.GetSearchConfigResponse
+	24,  // 355: chalk.server.v1.BuilderService.ActivateDeployment:output_type -> chalk.server.v1.ActivateDeploymentResponse
+	26,  // 356: chalk.server.v1.BuilderService.IndexDeployment:output_type -> chalk.server.v1.IndexDeploymentResponse
+	28,  // 357: chalk.server.v1.BuilderService.ValidateNamedQueries:output_type -> chalk.server.v1.ValidateNamedQueriesResponse
+	30,  // 358: chalk.server.v1.BuilderService.RunPostIndexValidation:output_type -> chalk.server.v1.RunPostIndexValidationResponse
+	274, // 359: chalk.server.v1.BuilderService.PopulateNamedQueryPlans:output_type -> chalk.server.v1.PopulateNamedQueryPlansResponse
+	276, // 360: chalk.server.v1.BuilderService.PrepareGraphSupplement:output_type -> chalk.server.v1.PrepareGraphSupplementResponse
+	32,  // 361: chalk.server.v1.BuilderService.StartShadowBuildFromDeployment:output_type -> chalk.server.v1.StartShadowBuildFromDeploymentResponse
+	34,  // 362: chalk.server.v1.BuilderService.DeployKubeComponents:output_type -> chalk.server.v1.DeployKubeComponentsResponse
+	36,  // 363: chalk.server.v1.BuilderService.RebuildDeployment:output_type -> chalk.server.v1.RebuildDeploymentResponse
+	38,  // 364: chalk.server.v1.BuilderService.RedeployDeployment:output_type -> chalk.server.v1.RedeployDeploymentResponse
+	41,  // 365: chalk.server.v1.BuilderService.UploadSource:output_type -> chalk.server.v1.UploadSourceResponse
+	47,  // 366: chalk.server.v1.BuilderService.LintSource:output_type -> chalk.server.v1.LintSourceResponse
+	53,  // 367: chalk.server.v1.BuilderService.GetDeploymentSteps:output_type -> chalk.server.v1.GetDeploymentStepsResponse
+	51,  // 368: chalk.server.v1.BuilderService.GetMaterializedAggregateDiff:output_type -> chalk.server.v1.GetMaterializedAggregateDiffResponse
+	55,  // 369: chalk.server.v1.BuilderService.GetDeploymentLogs:output_type -> chalk.server.v1.GetDeploymentLogsResponse
+	57,  // 370: chalk.server.v1.BuilderService.GetDeploymentDependencies:output_type -> chalk.server.v1.GetDeploymentDependenciesResponse
+	59,  // 371: chalk.server.v1.BuilderService.ResolveEngineBaseImage:output_type -> chalk.server.v1.ResolveEngineBaseImageResponse
+	63,  // 372: chalk.server.v1.BuilderService.ListEngineBaseImages:output_type -> chalk.server.v1.ListEngineBaseImagesResponse
+	279, // 373: chalk.server.v1.BuilderService.ValidateProjectSettings:output_type -> chalk.server.v1.ValidateProjectSettingsResponse
+	65,  // 374: chalk.server.v1.BuilderService.GetClusterTimescaleDB:output_type -> chalk.server.v1.GetClusterTimescaleDBResponse
+	67,  // 375: chalk.server.v1.BuilderService.ListClusterTimescaleDBs:output_type -> chalk.server.v1.ListClusterTimescaleDBsResponse
+	69,  // 376: chalk.server.v1.BuilderService.GetClusterGateway:output_type -> chalk.server.v1.GetClusterGatewayResponse
+	71,  // 377: chalk.server.v1.BuilderService.ListClusterGateways:output_type -> chalk.server.v1.ListClusterGatewaysResponse
+	73,  // 378: chalk.server.v1.BuilderService.GetClusterGatewayDefault:output_type -> chalk.server.v1.GetClusterGatewayDefaultResponse
+	76,  // 379: chalk.server.v1.BuilderService.GetClusterBackgroundPersistence:output_type -> chalk.server.v1.GetClusterBackgroundPersistenceResponse
+	78,  // 380: chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments:output_type -> chalk.server.v1.ListClusterBackgroundPersistenceDeploymentsResponse
+	267, // 381: chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs:output_type -> chalk.server.v1.ListStreamingKafkaKedaConfigsResponse
+	87,  // 382: chalk.server.v1.BuilderService.CreateClusterTimescaleDB:output_type -> chalk.server.v1.CreateClusterTimescaleDBResponse
+	89,  // 383: chalk.server.v1.BuilderService.UpdateClusterTimescaleDB:output_type -> chalk.server.v1.UpdateClusterTimescaleDBResponse
+	83,  // 384: chalk.server.v1.BuilderService.GetClusterTimescaleDefault:output_type -> chalk.server.v1.GetClusterTimescaleDefaultResponse
+	81,  // 385: chalk.server.v1.BuilderService.DeleteClusterTimescaleDB:output_type -> chalk.server.v1.DeleteClusterTimescaleDBResponse
+	235, // 386: chalk.server.v1.BuilderService.CreateEnvironmentCloudResources:output_type -> chalk.server.v1.CreateEnvironmentCloudResourcesResponse
+	237, // 387: chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources:output_type -> chalk.server.v1.DeleteEnvironmentCloudResourcesResponse
+	91,  // 388: chalk.server.v1.BuilderService.MigrateClusterTimescaleDB:output_type -> chalk.server.v1.MigrateClusterTimescaleDBResponse
+	95,  // 389: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestrator:output_type -> chalk.server.v1.GetClusterWorkflowOrchestratorResponse
+	103, // 390: chalk.server.v1.BuilderService.GetClusterWorkflowOrchestratorDefault:output_type -> chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse
+	97,  // 391: chalk.server.v1.BuilderService.CreateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.CreateClusterWorkflowOrchestratorResponse
+	99,  // 392: chalk.server.v1.BuilderService.UpdateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse
+	101, // 393: chalk.server.v1.BuilderService.DeleteClusterWorkflowOrchestrator:output_type -> chalk.server.v1.DeleteClusterWorkflowOrchestratorResponse
+	105, // 394: chalk.server.v1.BuilderService.MigrateClusterWorkflowOrchestrator:output_type -> chalk.server.v1.MigrateClusterWorkflowOrchestratorResponse
+	116, // 395: chalk.server.v1.BuilderService.CreateClusterGateway:output_type -> chalk.server.v1.CreateClusterGatewayResponse
+	124, // 396: chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence:output_type -> chalk.server.v1.CreateClusterBackgroundPersistenceResponse
+	269, // 397: chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig:output_type -> chalk.server.v1.UpdateStreamingKafkaKedaConfigResponse
+	187, // 398: chalk.server.v1.BuilderService.UpdateEnvironmentVariables:output_type -> chalk.server.v1.UpdateEnvironmentVariablesResponse
+	189, // 399: chalk.server.v1.BuilderService.StartBranch:output_type -> chalk.server.v1.StartBranchResponse
+	191, // 400: chalk.server.v1.BuilderService.ScaleBranch:output_type -> chalk.server.v1.ScaleBranchResponse
+	193, // 401: chalk.server.v1.BuilderService.GetBranchProfile:output_type -> chalk.server.v1.GetBranchProfileResponse
+	195, // 402: chalk.server.v1.BuilderService.GetBranchServerStatus:output_type -> chalk.server.v1.GetBranchServerStatusResponse
+	202, // 403: chalk.server.v1.BuilderService.GetNodepools:output_type -> chalk.server.v1.GetNodepoolsResponse
+	286, // 404: chalk.server.v1.BuilderService.GetServiceProbeDefaults:output_type -> chalk.server.v1.GetServiceProbeDefaultsResponse
+	209, // 405: chalk.server.v1.BuilderService.GetAvailableChalkMachineTypes:output_type -> chalk.server.v1.GetAvailableChalkMachineTypesResponse
+	212, // 406: chalk.server.v1.BuilderService.UpsertChalkMachineTypeOverride:output_type -> chalk.server.v1.UpsertChalkMachineTypeOverrideResponse
+	214, // 407: chalk.server.v1.BuilderService.DeleteChalkMachineTypeOverride:output_type -> chalk.server.v1.DeleteChalkMachineTypeOverrideResponse
+	217, // 408: chalk.server.v1.BuilderService.GetClusterChalkMachineTypes:output_type -> chalk.server.v1.GetClusterChalkMachineTypesResponse
+	219, // 409: chalk.server.v1.BuilderService.AddNodepool:output_type -> chalk.server.v1.AddNodepoolResponse
+	221, // 410: chalk.server.v1.BuilderService.UpdateNodepool:output_type -> chalk.server.v1.UpdateNodepoolResponse
+	223, // 411: chalk.server.v1.BuilderService.DeleteNodepool:output_type -> chalk.server.v1.DeleteNodepoolResponse
+	225, // 412: chalk.server.v1.BuilderService.GetKarpenterNodepools:output_type -> chalk.server.v1.GetKarpenterNodepoolsResponse
+	227, // 413: chalk.server.v1.BuilderService.AddKarpenterNodepool:output_type -> chalk.server.v1.AddKarpenterNodepoolResponse
+	229, // 414: chalk.server.v1.BuilderService.UpdateKarpenterNodepool:output_type -> chalk.server.v1.UpdateKarpenterNodepoolResponse
+	231, // 415: chalk.server.v1.BuilderService.DeleteKarpenterNodepool:output_type -> chalk.server.v1.DeleteKarpenterNodepoolResponse
+	233, // 416: chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata:output_type -> chalk.server.v1.GetKarpenterInstallationMetadataResponse
+	240, // 417: chalk.server.v1.BuilderService.GetTagWeights:output_type -> chalk.server.v1.GetTagWeightsResponse
+	242, // 418: chalk.server.v1.BuilderService.SetTagWeights:output_type -> chalk.server.v1.SetTagWeightsResponse
+	245, // 419: chalk.server.v1.BuilderService.CreateDeployment:output_type -> chalk.server.v1.CreateDeploymentResponse
+	43,  // 420: chalk.server.v1.BuilderService.PrepareDeployment:output_type -> chalk.server.v1.PrepareDeploymentResponse
+	45,  // 421: chalk.server.v1.BuilderService.BuildImage:output_type -> chalk.server.v1.BuildImageResponse
+	173, // 422: chalk.server.v1.BuilderService.GetTelemetryDeployment:output_type -> chalk.server.v1.GetTelemetryDeploymentResponse
+	282, // 423: chalk.server.v1.BuilderService.GetTelemetryDeploymentAvailability:output_type -> chalk.server.v1.GetTelemetryDeploymentAvailabilityResponse
+	175, // 424: chalk.server.v1.BuilderService.ListTelemetryDeployments:output_type -> chalk.server.v1.ListTelemetryDeploymentsResponse
+	177, // 425: chalk.server.v1.BuilderService.CreateTelemetryDeployment:output_type -> chalk.server.v1.CreateTelemetryDeploymentResponse
+	181, // 426: chalk.server.v1.BuilderService.UpdateTelemetryDeployment:output_type -> chalk.server.v1.UpdateTelemetryDeploymentResponse
+	179, // 427: chalk.server.v1.BuilderService.DeleteTelemetryDeployment:output_type -> chalk.server.v1.DeleteTelemetryDeploymentResponse
+	183, // 428: chalk.server.v1.BuilderService.MigrateTelemetryDeployment:output_type -> chalk.server.v1.MigrateTelemetryDeploymentResponse
+	248, // 429: chalk.server.v1.BuilderService.GetEnvironmentKubeClusters:output_type -> chalk.server.v1.GetEnvironmentKubeClustersResponse
+	250, // 430: chalk.server.v1.BuilderService.SuspendEnvironment:output_type -> chalk.server.v1.SuspendEnvironmentResponse
+	252, // 431: chalk.server.v1.BuilderService.ResumeEnvironment:output_type -> chalk.server.v1.ResumeEnvironmentResponse
+	254, // 432: chalk.server.v1.BuilderService.SuspendClusterGateway:output_type -> chalk.server.v1.SuspendClusterGatewayResponse
+	256, // 433: chalk.server.v1.BuilderService.ResumeClusterGateway:output_type -> chalk.server.v1.ResumeClusterGatewayResponse
+	258, // 434: chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence:output_type -> chalk.server.v1.SuspendClusterBackgroundPersistenceResponse
+	260, // 435: chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence:output_type -> chalk.server.v1.ResumeClusterBackgroundPersistenceResponse
+	262, // 436: chalk.server.v1.BuilderService.DeleteClusterGateway:output_type -> chalk.server.v1.DeleteClusterGatewayResponse
+	264, // 437: chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence:output_type -> chalk.server.v1.DeleteClusterBackgroundPersistenceResponse
+	204, // 438: chalk.server.v1.BuilderService.GetClusterNodepools:output_type -> chalk.server.v1.GetClusterNodepoolsResponse
+	198, // 439: chalk.server.v1.ClusterBuilderService.CreateKafkaTopics:output_type -> chalk.server.v1.CreateKafkaTopicsResponse
+	200, // 440: chalk.server.v1.ClusterBuilderService.GetKafkaTopics:output_type -> chalk.server.v1.GetKafkaTopicsResponse
+	354, // [354:441] is the sub-list for method output_type
+	267, // [267:354] is the sub-list for method input_type
+	267, // [267:267] is the sub-list for extension type_name
+	267, // [267:267] is the sub-list for extension extendee
+	0,   // [0:267] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_builder_proto_init() }
@@ -23209,13 +23371,14 @@ func file_chalk_server_v1_builder_proto_init() {
 	file_chalk_server_v1_builder_proto_msgTypes[262].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[265].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[266].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[267].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_builder_proto_rawDesc), len(file_chalk_server_v1_builder_proto_rawDesc)),
 			NumEnums:      22,
-			NumMessages:   285,
+			NumMessages:   286,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
