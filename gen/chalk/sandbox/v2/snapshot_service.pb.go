@@ -11,6 +11,8 @@ import (
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/container/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
+	v2 "github.com/chalk-ai/chalk-go/gen/chalk/volume/v2"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -965,11 +967,155 @@ func (*DeleteSandboxSnapshotResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{12}
 }
 
+type GetSnapshotStoreCredentialsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSnapshotStoreCredentialsRequest) Reset() {
+	*x = GetSnapshotStoreCredentialsRequest{}
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSnapshotStoreCredentialsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSnapshotStoreCredentialsRequest) ProtoMessage() {}
+
+func (x *GetSnapshotStoreCredentialsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSnapshotStoreCredentialsRequest.ProtoReflect.Descriptor instead.
+func (*GetSnapshotStoreCredentialsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{13}
+}
+
+// Mirrors chalk.volume.v2.GetVolumeCredentialsResponse.
+type GetSnapshotStoreCredentialsResponse struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Storage *v2.ObjectStoreConfig  `protobuf:"bytes,1,opt,name=storage,proto3" json:"storage,omitempty"`
+	// Reachable object prefixes, `snapshots/<environment_id>/`.
+	Prefixes  []string               `protobuf:"bytes,2,rep,name=prefixes,proto3" json:"prefixes,omitempty"`
+	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// Types that are valid to be assigned to Credentials:
+	//
+	//	*GetSnapshotStoreCredentialsResponse_Aws
+	//	*GetSnapshotStoreCredentialsResponse_Gcp
+	Credentials   isGetSnapshotStoreCredentialsResponse_Credentials `protobuf_oneof:"credentials"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) Reset() {
+	*x = GetSnapshotStoreCredentialsResponse{}
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSnapshotStoreCredentialsResponse) ProtoMessage() {}
+
+func (x *GetSnapshotStoreCredentialsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSnapshotStoreCredentialsResponse.ProtoReflect.Descriptor instead.
+func (*GetSnapshotStoreCredentialsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetStorage() *v2.ObjectStoreConfig {
+	if x != nil {
+		return x.Storage
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetPrefixes() []string {
+	if x != nil {
+		return x.Prefixes
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetCredentials() isGetSnapshotStoreCredentialsResponse_Credentials {
+	if x != nil {
+		return x.Credentials
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetAws() *v2.AwsSessionCredentials {
+	if x != nil {
+		if x, ok := x.Credentials.(*GetSnapshotStoreCredentialsResponse_Aws); ok {
+			return x.Aws
+		}
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetGcp() *v2.GcpAccessToken {
+	if x != nil {
+		if x, ok := x.Credentials.(*GetSnapshotStoreCredentialsResponse_Gcp); ok {
+			return x.Gcp
+		}
+	}
+	return nil
+}
+
+type isGetSnapshotStoreCredentialsResponse_Credentials interface {
+	isGetSnapshotStoreCredentialsResponse_Credentials()
+}
+
+type GetSnapshotStoreCredentialsResponse_Aws struct {
+	Aws *v2.AwsSessionCredentials `protobuf:"bytes,4,opt,name=aws,proto3,oneof"`
+}
+
+type GetSnapshotStoreCredentialsResponse_Gcp struct {
+	Gcp *v2.GcpAccessToken `protobuf:"bytes,5,opt,name=gcp,proto3,oneof"`
+}
+
+func (*GetSnapshotStoreCredentialsResponse_Aws) isGetSnapshotStoreCredentialsResponse_Credentials() {}
+
+func (*GetSnapshotStoreCredentialsResponse_Gcp) isGetSnapshotStoreCredentialsResponse_Credentials() {}
+
 var File_chalk_sandbox_v2_snapshot_service_proto protoreflect.FileDescriptor
 
 const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"\n" +
-	"'chalk/sandbox/v2/snapshot_service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/common/v1/tag_filter.proto\x1a chalk/container/v1/service.proto\x1a/chalk/container/v1/snapshot_compatibility.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Z\n" +
+	"'chalk/sandbox/v2/snapshot_service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/common/v1/tag_filter.proto\x1a chalk/container/v1/service.proto\x1a/chalk/container/v1/snapshot_compatibility.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Z\n" +
 	"\x0eGKEPodSnapshot\x12%\n" +
 	"\x0estorage_bucket\x18\x01 \x01(\tR\rstorageBucket\x12!\n" +
 	"\fstorage_path\x18\x02 \x01(\tR\vstoragePath\"\xa7\x01\n" +
@@ -1038,7 +1184,16 @@ const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"\x1cDeleteSandboxSnapshotRequest\x12\x1f\n" +
 	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
 	"snapshotId\"\x1f\n" +
-	"\x1dDeleteSandboxSnapshotResponse*\xd9\x01\n" +
+	"\x1dDeleteSandboxSnapshotResponse\"$\n" +
+	"\"GetSnapshotStoreCredentialsRequest\"\xc6\x02\n" +
+	"#GetSnapshotStoreCredentialsResponse\x12<\n" +
+	"\astorage\x18\x01 \x01(\v2\".chalk.volume.v2.ObjectStoreConfigR\astorage\x12\x1a\n" +
+	"\bprefixes\x18\x02 \x03(\tR\bprefixes\x129\n" +
+	"\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12@\n" +
+	"\x03aws\x18\x04 \x01(\v2&.chalk.volume.v2.AwsSessionCredentialsB\x04ء'\x01H\x00R\x03aws\x129\n" +
+	"\x03gcp\x18\x05 \x01(\v2\x1f.chalk.volume.v2.GcpAccessTokenB\x04ء'\x01H\x00R\x03gcpB\r\n" +
+	"\vcredentials*\xd9\x01\n" +
 	"\x15SandboxSnapshotStatus\x12'\n" +
 	"#SANDBOX_SNAPSHOT_STATUS_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fSANDBOX_SNAPSHOT_STATUS_PENDING\x10\x01\x12'\n" +
@@ -1051,13 +1206,14 @@ const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"\x18SandboxSnapshotSortOrder\x12+\n" +
 	"'SANDBOX_SNAPSHOT_SORT_ORDER_UNSPECIFIED\x10\x00\x12$\n" +
 	" SANDBOX_SNAPSHOT_SORT_ORDER_DESC\x10\x01\x12#\n" +
-	"\x1fSANDBOX_SNAPSHOT_SORT_ORDER_ASC\x10\x022\xe5\x04\n" +
+	"\x1fSANDBOX_SNAPSHOT_SORT_ORDER_ASC\x10\x022\xfa\x05\n" +
 	"\x16SandboxSnapshotService\x12\xd9\x01\n" +
 	"\x15CreateSandboxSnapshot\x12..chalk.sandbox.v2.CreateSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.CreateSandboxSnapshotResponse\"_\x80}\f\x92\xd3\x0eX\n" +
 	"\x1bcontainer_snapshots_enabled\x129This action is not enabled. Please contact Chalk Support.\x12t\n" +
 	"\x12GetSandboxSnapshot\x12+.chalk.sandbox.v2.GetSandboxSnapshotRequest\x1a,.chalk.sandbox.v2.GetSandboxSnapshotResponse\"\x03\x80}\v\x12z\n" +
 	"\x14ListSandboxSnapshots\x12-.chalk.sandbox.v2.ListSandboxSnapshotsRequest\x1a..chalk.sandbox.v2.ListSandboxSnapshotsResponse\"\x03\x80}\v\x12}\n" +
-	"\x15DeleteSandboxSnapshot\x12..chalk.sandbox.v2.DeleteSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.DeleteSandboxSnapshotResponse\"\x03\x80}\fB\xcb\x01\n" +
+	"\x15DeleteSandboxSnapshot\x12..chalk.sandbox.v2.DeleteSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.DeleteSandboxSnapshotResponse\"\x03\x80}\f\x12\x92\x01\n" +
+	"\x1bGetSnapshotStoreCredentials\x124.chalk.sandbox.v2.GetSnapshotStoreCredentialsRequest\x1a5.chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse\"\x06\x80}\f\x90\x02\x01B\xcb\x01\n" +
 	"\x14com.chalk.sandbox.v2B\x14SnapshotServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v2;sandboxv2\xa2\x02\x03CSX\xaa\x02\x10Chalk.Sandbox.V2\xca\x02\x10Chalk\\Sandbox\\V2\xe2\x02\x1cChalk\\Sandbox\\V2\\GPBMetadata\xea\x02\x12Chalk::Sandbox::V2b\x06proto3"
 
 var (
@@ -1073,59 +1229,70 @@ func file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_sandbox_v2_snapshot_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_sandbox_v2_snapshot_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_chalk_sandbox_v2_snapshot_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_sandbox_v2_snapshot_service_proto_goTypes = []any{
-	(SandboxSnapshotStatus)(0),            // 0: chalk.sandbox.v2.SandboxSnapshotStatus
-	(SandboxSnapshotSortColumn)(0),        // 1: chalk.sandbox.v2.SandboxSnapshotSortColumn
-	(SandboxSnapshotSortOrder)(0),         // 2: chalk.sandbox.v2.SandboxSnapshotSortOrder
-	(*GKEPodSnapshot)(nil),                // 3: chalk.sandbox.v2.GKEPodSnapshot
-	(*HypervisorSnapshot)(nil),            // 4: chalk.sandbox.v2.HypervisorSnapshot
-	(*SandboxSnapshotSpec)(nil),           // 5: chalk.sandbox.v2.SandboxSnapshotSpec
-	(*SandboxSnapshot)(nil),               // 6: chalk.sandbox.v2.SandboxSnapshot
-	(*CreateSandboxSnapshotRequest)(nil),  // 7: chalk.sandbox.v2.CreateSandboxSnapshotRequest
-	(*CreateSandboxSnapshotResponse)(nil), // 8: chalk.sandbox.v2.CreateSandboxSnapshotResponse
-	(*GetSandboxSnapshotRequest)(nil),     // 9: chalk.sandbox.v2.GetSandboxSnapshotRequest
-	(*GetSandboxSnapshotResponse)(nil),    // 10: chalk.sandbox.v2.GetSandboxSnapshotResponse
-	(*ListSandboxSnapshotsFilters)(nil),   // 11: chalk.sandbox.v2.ListSandboxSnapshotsFilters
-	(*ListSandboxSnapshotsRequest)(nil),   // 12: chalk.sandbox.v2.ListSandboxSnapshotsRequest
-	(*ListSandboxSnapshotsResponse)(nil),  // 13: chalk.sandbox.v2.ListSandboxSnapshotsResponse
-	(*DeleteSandboxSnapshotRequest)(nil),  // 14: chalk.sandbox.v2.DeleteSandboxSnapshotRequest
-	(*DeleteSandboxSnapshotResponse)(nil), // 15: chalk.sandbox.v2.DeleteSandboxSnapshotResponse
-	(*v1.SnapshotCompatibility)(nil),      // 16: chalk.container.v1.SnapshotCompatibility
-	(*v1.ChalkContainerSpec)(nil),         // 17: chalk.container.v1.ChalkContainerSpec
-	(*timestamppb.Timestamp)(nil),         // 18: google.protobuf.Timestamp
-	(*v11.TagFilter)(nil),                 // 19: chalk.common.v1.TagFilter
+	(SandboxSnapshotStatus)(0),                  // 0: chalk.sandbox.v2.SandboxSnapshotStatus
+	(SandboxSnapshotSortColumn)(0),              // 1: chalk.sandbox.v2.SandboxSnapshotSortColumn
+	(SandboxSnapshotSortOrder)(0),               // 2: chalk.sandbox.v2.SandboxSnapshotSortOrder
+	(*GKEPodSnapshot)(nil),                      // 3: chalk.sandbox.v2.GKEPodSnapshot
+	(*HypervisorSnapshot)(nil),                  // 4: chalk.sandbox.v2.HypervisorSnapshot
+	(*SandboxSnapshotSpec)(nil),                 // 5: chalk.sandbox.v2.SandboxSnapshotSpec
+	(*SandboxSnapshot)(nil),                     // 6: chalk.sandbox.v2.SandboxSnapshot
+	(*CreateSandboxSnapshotRequest)(nil),        // 7: chalk.sandbox.v2.CreateSandboxSnapshotRequest
+	(*CreateSandboxSnapshotResponse)(nil),       // 8: chalk.sandbox.v2.CreateSandboxSnapshotResponse
+	(*GetSandboxSnapshotRequest)(nil),           // 9: chalk.sandbox.v2.GetSandboxSnapshotRequest
+	(*GetSandboxSnapshotResponse)(nil),          // 10: chalk.sandbox.v2.GetSandboxSnapshotResponse
+	(*ListSandboxSnapshotsFilters)(nil),         // 11: chalk.sandbox.v2.ListSandboxSnapshotsFilters
+	(*ListSandboxSnapshotsRequest)(nil),         // 12: chalk.sandbox.v2.ListSandboxSnapshotsRequest
+	(*ListSandboxSnapshotsResponse)(nil),        // 13: chalk.sandbox.v2.ListSandboxSnapshotsResponse
+	(*DeleteSandboxSnapshotRequest)(nil),        // 14: chalk.sandbox.v2.DeleteSandboxSnapshotRequest
+	(*DeleteSandboxSnapshotResponse)(nil),       // 15: chalk.sandbox.v2.DeleteSandboxSnapshotResponse
+	(*GetSnapshotStoreCredentialsRequest)(nil),  // 16: chalk.sandbox.v2.GetSnapshotStoreCredentialsRequest
+	(*GetSnapshotStoreCredentialsResponse)(nil), // 17: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse
+	(*v1.SnapshotCompatibility)(nil),            // 18: chalk.container.v1.SnapshotCompatibility
+	(*v1.ChalkContainerSpec)(nil),               // 19: chalk.container.v1.ChalkContainerSpec
+	(*timestamppb.Timestamp)(nil),               // 20: google.protobuf.Timestamp
+	(*v11.TagFilter)(nil),                       // 21: chalk.common.v1.TagFilter
+	(*v2.ObjectStoreConfig)(nil),                // 22: chalk.volume.v2.ObjectStoreConfig
+	(*v2.AwsSessionCredentials)(nil),            // 23: chalk.volume.v2.AwsSessionCredentials
+	(*v2.GcpAccessToken)(nil),                   // 24: chalk.volume.v2.GcpAccessToken
 }
 var file_chalk_sandbox_v2_snapshot_service_proto_depIdxs = []int32{
-	16, // 0: chalk.sandbox.v2.HypervisorSnapshot.compatibility:type_name -> chalk.container.v1.SnapshotCompatibility
+	18, // 0: chalk.sandbox.v2.HypervisorSnapshot.compatibility:type_name -> chalk.container.v1.SnapshotCompatibility
 	3,  // 1: chalk.sandbox.v2.SandboxSnapshotSpec.gke_pod_snapshot:type_name -> chalk.sandbox.v2.GKEPodSnapshot
 	4,  // 2: chalk.sandbox.v2.SandboxSnapshotSpec.hypervisor_snapshot:type_name -> chalk.sandbox.v2.HypervisorSnapshot
-	17, // 3: chalk.sandbox.v2.SandboxSnapshot.spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	19, // 3: chalk.sandbox.v2.SandboxSnapshot.spec:type_name -> chalk.container.v1.ChalkContainerSpec
 	5,  // 4: chalk.sandbox.v2.SandboxSnapshot.snapshot_spec:type_name -> chalk.sandbox.v2.SandboxSnapshotSpec
 	0,  // 5: chalk.sandbox.v2.SandboxSnapshot.status:type_name -> chalk.sandbox.v2.SandboxSnapshotStatus
-	18, // 6: chalk.sandbox.v2.SandboxSnapshot.created_at:type_name -> google.protobuf.Timestamp
-	18, // 7: chalk.sandbox.v2.SandboxSnapshot.completed_at:type_name -> google.protobuf.Timestamp
+	20, // 6: chalk.sandbox.v2.SandboxSnapshot.created_at:type_name -> google.protobuf.Timestamp
+	20, // 7: chalk.sandbox.v2.SandboxSnapshot.completed_at:type_name -> google.protobuf.Timestamp
 	6,  // 8: chalk.sandbox.v2.CreateSandboxSnapshotResponse.snapshot:type_name -> chalk.sandbox.v2.SandboxSnapshot
 	6,  // 9: chalk.sandbox.v2.GetSandboxSnapshotResponse.snapshot:type_name -> chalk.sandbox.v2.SandboxSnapshot
 	0,  // 10: chalk.sandbox.v2.ListSandboxSnapshotsFilters.status_values:type_name -> chalk.sandbox.v2.SandboxSnapshotStatus
-	19, // 11: chalk.sandbox.v2.ListSandboxSnapshotsFilters.tag_filter:type_name -> chalk.common.v1.TagFilter
+	21, // 11: chalk.sandbox.v2.ListSandboxSnapshotsFilters.tag_filter:type_name -> chalk.common.v1.TagFilter
 	11, // 12: chalk.sandbox.v2.ListSandboxSnapshotsRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxSnapshotsFilters
 	1,  // 13: chalk.sandbox.v2.ListSandboxSnapshotsRequest.sort_column:type_name -> chalk.sandbox.v2.SandboxSnapshotSortColumn
 	2,  // 14: chalk.sandbox.v2.ListSandboxSnapshotsRequest.sort_order:type_name -> chalk.sandbox.v2.SandboxSnapshotSortOrder
 	6,  // 15: chalk.sandbox.v2.ListSandboxSnapshotsResponse.snapshots:type_name -> chalk.sandbox.v2.SandboxSnapshot
-	7,  // 16: chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot:input_type -> chalk.sandbox.v2.CreateSandboxSnapshotRequest
-	9,  // 17: chalk.sandbox.v2.SandboxSnapshotService.GetSandboxSnapshot:input_type -> chalk.sandbox.v2.GetSandboxSnapshotRequest
-	12, // 18: chalk.sandbox.v2.SandboxSnapshotService.ListSandboxSnapshots:input_type -> chalk.sandbox.v2.ListSandboxSnapshotsRequest
-	14, // 19: chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot:input_type -> chalk.sandbox.v2.DeleteSandboxSnapshotRequest
-	8,  // 20: chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot:output_type -> chalk.sandbox.v2.CreateSandboxSnapshotResponse
-	10, // 21: chalk.sandbox.v2.SandboxSnapshotService.GetSandboxSnapshot:output_type -> chalk.sandbox.v2.GetSandboxSnapshotResponse
-	13, // 22: chalk.sandbox.v2.SandboxSnapshotService.ListSandboxSnapshots:output_type -> chalk.sandbox.v2.ListSandboxSnapshotsResponse
-	15, // 23: chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot:output_type -> chalk.sandbox.v2.DeleteSandboxSnapshotResponse
-	20, // [20:24] is the sub-list for method output_type
-	16, // [16:20] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	22, // 16: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse.storage:type_name -> chalk.volume.v2.ObjectStoreConfig
+	20, // 17: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse.expires_at:type_name -> google.protobuf.Timestamp
+	23, // 18: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse.aws:type_name -> chalk.volume.v2.AwsSessionCredentials
+	24, // 19: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse.gcp:type_name -> chalk.volume.v2.GcpAccessToken
+	7,  // 20: chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot:input_type -> chalk.sandbox.v2.CreateSandboxSnapshotRequest
+	9,  // 21: chalk.sandbox.v2.SandboxSnapshotService.GetSandboxSnapshot:input_type -> chalk.sandbox.v2.GetSandboxSnapshotRequest
+	12, // 22: chalk.sandbox.v2.SandboxSnapshotService.ListSandboxSnapshots:input_type -> chalk.sandbox.v2.ListSandboxSnapshotsRequest
+	14, // 23: chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot:input_type -> chalk.sandbox.v2.DeleteSandboxSnapshotRequest
+	16, // 24: chalk.sandbox.v2.SandboxSnapshotService.GetSnapshotStoreCredentials:input_type -> chalk.sandbox.v2.GetSnapshotStoreCredentialsRequest
+	8,  // 25: chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot:output_type -> chalk.sandbox.v2.CreateSandboxSnapshotResponse
+	10, // 26: chalk.sandbox.v2.SandboxSnapshotService.GetSandboxSnapshot:output_type -> chalk.sandbox.v2.GetSandboxSnapshotResponse
+	13, // 27: chalk.sandbox.v2.SandboxSnapshotService.ListSandboxSnapshots:output_type -> chalk.sandbox.v2.ListSandboxSnapshotsResponse
+	15, // 28: chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot:output_type -> chalk.sandbox.v2.DeleteSandboxSnapshotResponse
+	17, // 29: chalk.sandbox.v2.SandboxSnapshotService.GetSnapshotStoreCredentials:output_type -> chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse
+	25, // [25:30] is the sub-list for method output_type
+	20, // [20:25] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_chalk_sandbox_v2_snapshot_service_proto_init() }
@@ -1141,13 +1308,17 @@ func file_chalk_sandbox_v2_snapshot_service_proto_init() {
 	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[14].OneofWrappers = []any{
+		(*GetSnapshotStoreCredentialsResponse_Aws)(nil),
+		(*GetSnapshotStoreCredentialsResponse_Gcp)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_sandbox_v2_snapshot_service_proto_rawDesc), len(file_chalk_sandbox_v2_snapshot_service_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

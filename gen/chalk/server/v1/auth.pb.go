@@ -3998,7 +3998,7 @@ const file_chalk_server_v1_auth_proto_rawDesc = "" +
 	"\bGetToken\x12 .chalk.server.v1.GetTokenRequest\x1a!.chalk.server.v1.GetTokenResponse\"1\x80}\x01\x8a\xd3\x0e*\b\x01\x12&Exchanged client credentials for token\x12\xb7\x01\n" +
 	"\x11CreateLinkSession\x12).chalk.server.v1.CreateLinkSessionRequest\x1a*.chalk.server.v1.CreateLinkSessionResponse\"K\x80}\x01\x8a\xd3\x0eD\b\x01\x12@Initiated a request to link a terminal to the user's credentials\x12f\n" +
 	"\x0eGetLinkSession\x12&.chalk.server.v1.GetLinkSessionRequest\x1a'.chalk.server.v1.GetLinkSessionResponse\"\x03\x80}\x01\x12\xc2\x01\n" +
-	"\x11UpdateLinkSession\x12).chalk.server.v1.UpdateLinkSessionRequest\x1a*.chalk.server.v1.UpdateLinkSessionResponse\"V\x80}\x01\x8a\xd3\x0eO\b\x01\x12KPassed credentials from a user's terminal to the web to establish a session\x12\xa3\x01\n" +
+	"\x11UpdateLinkSession\x12).chalk.server.v1.UpdateLinkSessionRequest\x1a*.chalk.server.v1.UpdateLinkSessionResponse\"V\x80}\x1d\x8a\xd3\x0eO\b\x01\x12KPassed credentials from a user's terminal to the web to establish a session\x12\xa3\x01\n" +
 	"\x10CheckTeamInvites\x12(.chalk.server.v1.CheckTeamInvitesRequest\x1a).chalk.server.v1.CheckTeamInvitesResponse\":\x80}\x1d\x8a\xd3\x0e3\b\x01\x12/Checked whether a user has pending team invites\x12w\n" +
 	"\n" +
 	"CreateUser\x12\".chalk.server.v1.CreateUserRequest\x1a#.chalk.server.v1.CreateUserResponse\" \x80}\x1d\x8a\xd3\x0e\x19\b\x01\x12\x15Created a user record\x12\x87\x01\n" +

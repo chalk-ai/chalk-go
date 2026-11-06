@@ -558,8 +558,10 @@ type SnapshotHostCapabilities struct {
 	// revalidate this generation and the selected devices before restore.
 	InventoryGeneration string                          `protobuf:"bytes,8,opt,name=inventory_generation,json=inventoryGeneration,proto3" json:"inventory_generation,omitempty"`
 	GpuBackends         []*SnapshotGpuBackendCapability `protobuf:"bytes,9,rep,name=gpu_backends,json=gpuBackends,proto3" json:"gpu_backends,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Runtime class for CPU-only VM snapshot restores on this host; empty if not advertised.
+	VmRuntimeClass string `protobuf:"bytes,10,opt,name=vm_runtime_class,json=vmRuntimeClass,proto3" json:"vm_runtime_class,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *SnapshotHostCapabilities) Reset() {
@@ -653,6 +655,13 @@ func (x *SnapshotHostCapabilities) GetGpuBackends() []*SnapshotGpuBackendCapabil
 		return x.GpuBackends
 	}
 	return nil
+}
+
+func (x *SnapshotHostCapabilities) GetVmRuntimeClass() string {
+	if x != nil {
+		return x.VmRuntimeClass
+	}
+	return ""
 }
 
 type SnapshotGpuBackendCapability struct {
@@ -1179,7 +1188,7 @@ const file_chalk_container_v1_snapshot_compatibility_proto_rawDesc = "" +
 	"\n" +
 	"machine_id\x18\x02 \x01(\tR\tmachineId\x12\x17\n" +
 	"\aboot_id\x18\x03 \x01(\tR\x06bootId\x121\n" +
-	"\x14inventory_generation\x18\x04 \x01(\tR\x13inventoryGeneration\"\xc6\x04\n" +
+	"\x14inventory_generation\x18\x04 \x01(\tR\x13inventoryGeneration\"\xf0\x04\n" +
 	"\x18SnapshotHostCapabilities\x12:\n" +
 	"\x19supported_schema_versions\x18\x01 \x03(\rR\x17supportedSchemaVersions\x12J\n" +
 	"\fmachine_type\x18\x02 \x01(\v2'.chalk.container.v1.SnapshotMachineTypeR\vmachineType\x12\x1b\n" +
@@ -1191,7 +1200,9 @@ const file_chalk_container_v1_snapshot_compatibility_proto_rawDesc = "" +
 	"\n" +
 	"peer_links\x18\a \x03(\v2'.chalk.container.v1.SnapshotGpuPeerLinkR\tpeerLinks\x121\n" +
 	"\x14inventory_generation\x18\b \x01(\tR\x13inventoryGeneration\x12S\n" +
-	"\fgpu_backends\x18\t \x03(\v20.chalk.container.v1.SnapshotGpuBackendCapabilityR\vgpuBackends\"\x87\x02\n" +
+	"\fgpu_backends\x18\t \x03(\v20.chalk.container.v1.SnapshotGpuBackendCapabilityR\vgpuBackends\x12(\n" +
+	"\x10vm_runtime_class\x18\n" +
+	" \x01(\tR\x0evmRuntimeClass\"\x87\x02\n" +
 	"\x1cSnapshotGpuBackendCapability\x12@\n" +
 	"\abackend\x18\x01 \x01(\x0e2&.chalk.container.v1.SnapshotGpuBackendR\abackend\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\rR\aversion\x12\x18\n" +

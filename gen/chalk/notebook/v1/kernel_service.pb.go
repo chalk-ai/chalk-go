@@ -1047,8 +1047,10 @@ type DescribeKernelSessionResponse struct {
 	// Memory ceiling for the kernel container's cgroup. Zero when unlimited or
 	// unavailable (for example, a local development kernel on macOS).
 	MemoryLimitBytes uint64 `protobuf:"varint,7,opt,name=memory_limit_bytes,json=memoryLimitBytes,proto3" json:"memory_limit_bytes,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Start of the current interpreter lifetime, paired with kernel_epoch.
+	StartedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DescribeKernelSessionResponse) Reset() {
@@ -1128,6 +1130,13 @@ func (x *DescribeKernelSessionResponse) GetMemoryLimitBytes() uint64 {
 		return x.MemoryLimitBytes
 	}
 	return 0
+}
+
+func (x *DescribeKernelSessionResponse) GetStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartedAt
+	}
+	return nil
 }
 
 type InstalledPackage struct {
@@ -2352,7 +2361,7 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"session_id\x18\x03 \x01(\tR\tsessionId\"g\n" +
 	" InterruptPythonExecutionResponse\x12C\n" +
 	"\aoutcome\x18\x01 \x01(\x0e2).chalk.notebook.v1.PythonInterruptOutcomeR\aoutcome\"\x1e\n" +
-	"\x1cDescribeKernelSessionRequest\"\xbd\x02\n" +
+	"\x1cDescribeKernelSessionRequest\"\xf8\x02\n" +
 	"\x1dDescribeKernelSessionResponse\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12!\n" +
@@ -2361,7 +2370,9 @@ const file_chalk_notebook_v1_kernel_service_proto_rawDesc = "" +
 	"\x10executing_run_id\x18\x04 \x01(\tR\x0eexecutingRunId\x121\n" +
 	"\x15executing_cell_run_id\x18\x05 \x01(\tR\x12executingCellRunId\x12,\n" +
 	"\x12memory_usage_bytes\x18\x06 \x01(\x04R\x10memoryUsageBytes\x12,\n" +
-	"\x12memory_limit_bytes\x18\a \x01(\x04R\x10memoryLimitBytes\"@\n" +
+	"\x12memory_limit_bytes\x18\a \x01(\x04R\x10memoryLimitBytes\x129\n" +
+	"\n" +
+	"started_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\"@\n" +
 	"\x10InstalledPackage\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\"\x8a\x01\n" +
@@ -2519,8 +2530,8 @@ var file_chalk_notebook_v1_kernel_service_proto_goTypes = []any{
 	(*RunPythonCellRequest)(nil),                    // 32: chalk.notebook.v1.RunPythonCellRequest
 	(*RunPythonCellResponse)(nil),                   // 33: chalk.notebook.v1.RunPythonCellResponse
 	nil,                                             // 34: chalk.notebook.v1.RunPythonCellSpec.SecretsEntry
-	(NotebookRunScope)(0),                           // 35: chalk.notebook.v1.NotebookRunScope
-	(*timestamppb.Timestamp)(nil),                   // 36: google.protobuf.Timestamp
+	(*timestamppb.Timestamp)(nil),                   // 35: google.protobuf.Timestamp
+	(NotebookRunScope)(0),                           // 36: chalk.notebook.v1.NotebookRunScope
 	(*NotebookRunEvent)(nil),                        // 37: chalk.notebook.v1.NotebookRunEvent
 }
 var file_chalk_notebook_v1_kernel_service_proto_depIdxs = []int32{
@@ -2533,46 +2544,47 @@ var file_chalk_notebook_v1_kernel_service_proto_depIdxs = []int32{
 	29, // 6: chalk.notebook.v1.RespondToPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
 	10, // 7: chalk.notebook.v1.RespondToPythonCellRequest.failure:type_name -> chalk.notebook.v1.PythonCellRequestFailure
 	1,  // 8: chalk.notebook.v1.InterruptPythonExecutionResponse.outcome:type_name -> chalk.notebook.v1.PythonInterruptOutcome
-	17, // 9: chalk.notebook.v1.ListInstalledPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
-	18, // 10: chalk.notebook.v1.ListInstalledPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
-	2,  // 11: chalk.notebook.v1.NotebookCellSource.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
-	21, // 12: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
-	23, // 13: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
-	21, // 14: chalk.notebook.v1.PlanNotebookRunRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
-	35, // 15: chalk.notebook.v1.PlanNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
-	23, // 16: chalk.notebook.v1.PlanNotebookRunResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
-	27, // 17: chalk.notebook.v1.NotebookBlobUploadTarget.headers:type_name -> chalk.notebook.v1.NotebookBlobUploadHeader
-	36, // 18: chalk.notebook.v1.NotebookBlobUploadTarget.expires_at:type_name -> google.protobuf.Timestamp
-	3,  // 19: chalk.notebook.v1.RunPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
-	29, // 20: chalk.notebook.v1.RunPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
-	37, // 21: chalk.notebook.v1.RunPythonCellResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
-	28, // 22: chalk.notebook.v1.RunPythonCellResponse.blob_upload_request:type_name -> chalk.notebook.v1.NotebookBlobUploadRequest
-	30, // 23: chalk.notebook.v1.RunPythonCellResponse.blob_upload_complete:type_name -> chalk.notebook.v1.NotebookBlobUploadComplete
-	31, // 24: chalk.notebook.v1.RunPythonCellResponse.blob_upload_failed:type_name -> chalk.notebook.v1.NotebookBlobUploadFailed
-	4,  // 25: chalk.notebook.v1.RunPythonCellResponse.terminated:type_name -> chalk.notebook.v1.PythonExecutionTerminated
-	5,  // 26: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:input_type -> chalk.notebook.v1.StartPythonCellRequest
-	9,  // 27: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:input_type -> chalk.notebook.v1.StreamPythonCellEventsRequest
-	11, // 28: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:input_type -> chalk.notebook.v1.RespondToPythonCellRequest
-	32, // 29: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:input_type -> chalk.notebook.v1.RunPythonCellRequest
-	13, // 30: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:input_type -> chalk.notebook.v1.InterruptPythonExecutionRequest
-	15, // 31: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:input_type -> chalk.notebook.v1.DescribeKernelSessionRequest
-	19, // 32: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:input_type -> chalk.notebook.v1.ListInstalledPackagesRequest
-	22, // 33: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:input_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
-	25, // 34: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:input_type -> chalk.notebook.v1.PlanNotebookRunRequest
-	6,  // 35: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:output_type -> chalk.notebook.v1.StartPythonCellResponse
-	8,  // 36: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:output_type -> chalk.notebook.v1.StreamPythonCellEventsResponse
-	12, // 37: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:output_type -> chalk.notebook.v1.RespondToPythonCellResponse
-	33, // 38: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:output_type -> chalk.notebook.v1.RunPythonCellResponse
-	14, // 39: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:output_type -> chalk.notebook.v1.InterruptPythonExecutionResponse
-	16, // 40: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:output_type -> chalk.notebook.v1.DescribeKernelSessionResponse
-	20, // 41: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:output_type -> chalk.notebook.v1.ListInstalledPackagesResponse
-	24, // 42: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:output_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
-	26, // 43: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:output_type -> chalk.notebook.v1.PlanNotebookRunResponse
-	35, // [35:44] is the sub-list for method output_type
-	26, // [26:35] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	35, // 9: chalk.notebook.v1.DescribeKernelSessionResponse.started_at:type_name -> google.protobuf.Timestamp
+	17, // 10: chalk.notebook.v1.ListInstalledPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
+	18, // 11: chalk.notebook.v1.ListInstalledPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
+	2,  // 12: chalk.notebook.v1.NotebookCellSource.template_expressions:type_name -> chalk.notebook.v1.NotebookTemplateExpression
+	21, // 13: chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
+	23, // 14: chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
+	21, // 15: chalk.notebook.v1.PlanNotebookRunRequest.cells:type_name -> chalk.notebook.v1.NotebookCellSource
+	36, // 16: chalk.notebook.v1.PlanNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
+	23, // 17: chalk.notebook.v1.PlanNotebookRunResponse.reports:type_name -> chalk.notebook.v1.CellDependencyReport
+	27, // 18: chalk.notebook.v1.NotebookBlobUploadTarget.headers:type_name -> chalk.notebook.v1.NotebookBlobUploadHeader
+	35, // 19: chalk.notebook.v1.NotebookBlobUploadTarget.expires_at:type_name -> google.protobuf.Timestamp
+	3,  // 20: chalk.notebook.v1.RunPythonCellRequest.spec:type_name -> chalk.notebook.v1.RunPythonCellSpec
+	29, // 21: chalk.notebook.v1.RunPythonCellRequest.blob_upload_target:type_name -> chalk.notebook.v1.NotebookBlobUploadTarget
+	37, // 22: chalk.notebook.v1.RunPythonCellResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
+	28, // 23: chalk.notebook.v1.RunPythonCellResponse.blob_upload_request:type_name -> chalk.notebook.v1.NotebookBlobUploadRequest
+	30, // 24: chalk.notebook.v1.RunPythonCellResponse.blob_upload_complete:type_name -> chalk.notebook.v1.NotebookBlobUploadComplete
+	31, // 25: chalk.notebook.v1.RunPythonCellResponse.blob_upload_failed:type_name -> chalk.notebook.v1.NotebookBlobUploadFailed
+	4,  // 26: chalk.notebook.v1.RunPythonCellResponse.terminated:type_name -> chalk.notebook.v1.PythonExecutionTerminated
+	5,  // 27: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:input_type -> chalk.notebook.v1.StartPythonCellRequest
+	9,  // 28: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:input_type -> chalk.notebook.v1.StreamPythonCellEventsRequest
+	11, // 29: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:input_type -> chalk.notebook.v1.RespondToPythonCellRequest
+	32, // 30: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:input_type -> chalk.notebook.v1.RunPythonCellRequest
+	13, // 31: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:input_type -> chalk.notebook.v1.InterruptPythonExecutionRequest
+	15, // 32: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:input_type -> chalk.notebook.v1.DescribeKernelSessionRequest
+	19, // 33: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:input_type -> chalk.notebook.v1.ListInstalledPackagesRequest
+	22, // 34: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:input_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesRequest
+	25, // 35: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:input_type -> chalk.notebook.v1.PlanNotebookRunRequest
+	6,  // 36: chalk.notebook.v1.NotebookPythonKernelService.StartPythonCell:output_type -> chalk.notebook.v1.StartPythonCellResponse
+	8,  // 37: chalk.notebook.v1.NotebookPythonKernelService.StreamPythonCellEvents:output_type -> chalk.notebook.v1.StreamPythonCellEventsResponse
+	12, // 38: chalk.notebook.v1.NotebookPythonKernelService.RespondToPythonCell:output_type -> chalk.notebook.v1.RespondToPythonCellResponse
+	33, // 39: chalk.notebook.v1.NotebookPythonKernelService.RunPythonCell:output_type -> chalk.notebook.v1.RunPythonCellResponse
+	14, // 40: chalk.notebook.v1.NotebookPythonKernelService.InterruptPythonExecution:output_type -> chalk.notebook.v1.InterruptPythonExecutionResponse
+	16, // 41: chalk.notebook.v1.NotebookPythonKernelService.DescribeKernelSession:output_type -> chalk.notebook.v1.DescribeKernelSessionResponse
+	20, // 42: chalk.notebook.v1.NotebookPythonKernelService.ListInstalledPackages:output_type -> chalk.notebook.v1.ListInstalledPackagesResponse
+	24, // 43: chalk.notebook.v1.NotebookPythonKernelService.AnalyzeNotebookCellDependencies:output_type -> chalk.notebook.v1.AnalyzeNotebookCellDependenciesResponse
+	26, // 44: chalk.notebook.v1.NotebookPythonKernelService.PlanNotebookRun:output_type -> chalk.notebook.v1.PlanNotebookRunResponse
+	36, // [36:45] is the sub-list for method output_type
+	27, // [27:36] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_kernel_service_proto_init() }
