@@ -149,6 +149,15 @@ const (
 	// TeamServiceDeleteScimGroupUsersProcedure is the fully-qualified name of the TeamService's
 	// DeleteScimGroupUsers RPC.
 	TeamServiceDeleteScimGroupUsersProcedure = "/chalk.server.v1.TeamService/DeleteScimGroupUsers"
+	// TeamServiceCreateScimGroupProcedure is the fully-qualified name of the TeamService's
+	// CreateScimGroup RPC.
+	TeamServiceCreateScimGroupProcedure = "/chalk.server.v1.TeamService/CreateScimGroup"
+	// TeamServiceAddScimGroupMembersProcedure is the fully-qualified name of the TeamService's
+	// AddScimGroupMembers RPC.
+	TeamServiceAddScimGroupMembersProcedure = "/chalk.server.v1.TeamService/AddScimGroupMembers"
+	// TeamServiceRemoveScimGroupMembersProcedure is the fully-qualified name of the TeamService's
+	// RemoveScimGroupMembers RPC.
+	TeamServiceRemoveScimGroupMembersProcedure = "/chalk.server.v1.TeamService/RemoveScimGroupMembers"
 	// TeamServiceCreateCustomRoleProcedure is the fully-qualified name of the TeamService's
 	// CreateCustomRole RPC.
 	TeamServiceCreateCustomRoleProcedure = "/chalk.server.v1.TeamService/CreateCustomRole"
@@ -213,6 +222,13 @@ type TeamServiceClient interface {
 	AssignScimGroupEnvironmentRole(context.Context, *connect.Request[v1.AssignScimGroupEnvironmentRoleRequest]) (*connect.Response[v1.AssignScimGroupEnvironmentRoleResponse], error)
 	DeleteScimGroup(context.Context, *connect.Request[v1.DeleteScimGroupRequest]) (*connect.Response[v1.DeleteScimGroupResponse], error)
 	DeleteScimGroupUsers(context.Context, *connect.Request[v1.DeleteScimGroupUsersRequest]) (*connect.Response[v1.DeleteScimGroupUsersResponse], error)
+	// Creates a group by hand on a team that does not provision groups through
+	// SCIM. Requires the manual_scim_groups_enabled team flag.
+	CreateScimGroup(context.Context, *connect.Request[v1.CreateScimGroupRequest]) (*connect.Response[v1.CreateScimGroupResponse], error)
+	// Adds team members to a group by hand. Same preconditions as CreateScimGroup.
+	AddScimGroupMembers(context.Context, *connect.Request[v1.AddScimGroupMembersRequest]) (*connect.Response[v1.AddScimGroupMembersResponse], error)
+	// Removes members from a group by hand. Same preconditions as CreateScimGroup.
+	RemoveScimGroupMembers(context.Context, *connect.Request[v1.RemoveScimGroupMembersRequest]) (*connect.Response[v1.RemoveScimGroupMembersResponse], error)
 	CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error)
 	DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error)
 	UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error)
@@ -479,6 +495,24 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("DeleteScimGroupUsers")),
 			connect.WithClientOptions(opts...),
 		),
+		createScimGroup: connect.NewClient[v1.CreateScimGroupRequest, v1.CreateScimGroupResponse](
+			httpClient,
+			baseURL+TeamServiceCreateScimGroupProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("CreateScimGroup")),
+			connect.WithClientOptions(opts...),
+		),
+		addScimGroupMembers: connect.NewClient[v1.AddScimGroupMembersRequest, v1.AddScimGroupMembersResponse](
+			httpClient,
+			baseURL+TeamServiceAddScimGroupMembersProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("AddScimGroupMembers")),
+			connect.WithClientOptions(opts...),
+		),
+		removeScimGroupMembers: connect.NewClient[v1.RemoveScimGroupMembersRequest, v1.RemoveScimGroupMembersResponse](
+			httpClient,
+			baseURL+TeamServiceRemoveScimGroupMembersProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("RemoveScimGroupMembers")),
+			connect.WithClientOptions(opts...),
+		),
 		createCustomRole: connect.NewClient[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse](
 			httpClient,
 			baseURL+TeamServiceCreateCustomRoleProcedure,
@@ -549,6 +583,9 @@ type teamServiceClient struct {
 	assignScimGroupEnvironmentRole *connect.Client[v1.AssignScimGroupEnvironmentRoleRequest, v1.AssignScimGroupEnvironmentRoleResponse]
 	deleteScimGroup                *connect.Client[v1.DeleteScimGroupRequest, v1.DeleteScimGroupResponse]
 	deleteScimGroupUsers           *connect.Client[v1.DeleteScimGroupUsersRequest, v1.DeleteScimGroupUsersResponse]
+	createScimGroup                *connect.Client[v1.CreateScimGroupRequest, v1.CreateScimGroupResponse]
+	addScimGroupMembers            *connect.Client[v1.AddScimGroupMembersRequest, v1.AddScimGroupMembersResponse]
+	removeScimGroupMembers         *connect.Client[v1.RemoveScimGroupMembersRequest, v1.RemoveScimGroupMembersResponse]
 	createCustomRole               *connect.Client[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse]
 	deleteCustomRole               *connect.Client[v1.DeleteCustomRoleRequest, v1.DeleteCustomRoleResponse]
 	updateCustomRole               *connect.Client[v1.UpdateCustomRoleRequest, v1.UpdateCustomRoleResponse]
@@ -755,6 +792,21 @@ func (c *teamServiceClient) DeleteScimGroupUsers(ctx context.Context, req *conne
 	return c.deleteScimGroupUsers.CallUnary(ctx, req)
 }
 
+// CreateScimGroup calls chalk.server.v1.TeamService.CreateScimGroup.
+func (c *teamServiceClient) CreateScimGroup(ctx context.Context, req *connect.Request[v1.CreateScimGroupRequest]) (*connect.Response[v1.CreateScimGroupResponse], error) {
+	return c.createScimGroup.CallUnary(ctx, req)
+}
+
+// AddScimGroupMembers calls chalk.server.v1.TeamService.AddScimGroupMembers.
+func (c *teamServiceClient) AddScimGroupMembers(ctx context.Context, req *connect.Request[v1.AddScimGroupMembersRequest]) (*connect.Response[v1.AddScimGroupMembersResponse], error) {
+	return c.addScimGroupMembers.CallUnary(ctx, req)
+}
+
+// RemoveScimGroupMembers calls chalk.server.v1.TeamService.RemoveScimGroupMembers.
+func (c *teamServiceClient) RemoveScimGroupMembers(ctx context.Context, req *connect.Request[v1.RemoveScimGroupMembersRequest]) (*connect.Response[v1.RemoveScimGroupMembersResponse], error) {
+	return c.removeScimGroupMembers.CallUnary(ctx, req)
+}
+
 // CreateCustomRole calls chalk.server.v1.TeamService.CreateCustomRole.
 func (c *teamServiceClient) CreateCustomRole(ctx context.Context, req *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error) {
 	return c.createCustomRole.CallUnary(ctx, req)
@@ -826,6 +878,13 @@ type TeamServiceHandler interface {
 	AssignScimGroupEnvironmentRole(context.Context, *connect.Request[v1.AssignScimGroupEnvironmentRoleRequest]) (*connect.Response[v1.AssignScimGroupEnvironmentRoleResponse], error)
 	DeleteScimGroup(context.Context, *connect.Request[v1.DeleteScimGroupRequest]) (*connect.Response[v1.DeleteScimGroupResponse], error)
 	DeleteScimGroupUsers(context.Context, *connect.Request[v1.DeleteScimGroupUsersRequest]) (*connect.Response[v1.DeleteScimGroupUsersResponse], error)
+	// Creates a group by hand on a team that does not provision groups through
+	// SCIM. Requires the manual_scim_groups_enabled team flag.
+	CreateScimGroup(context.Context, *connect.Request[v1.CreateScimGroupRequest]) (*connect.Response[v1.CreateScimGroupResponse], error)
+	// Adds team members to a group by hand. Same preconditions as CreateScimGroup.
+	AddScimGroupMembers(context.Context, *connect.Request[v1.AddScimGroupMembersRequest]) (*connect.Response[v1.AddScimGroupMembersResponse], error)
+	// Removes members from a group by hand. Same preconditions as CreateScimGroup.
+	RemoveScimGroupMembers(context.Context, *connect.Request[v1.RemoveScimGroupMembersRequest]) (*connect.Response[v1.RemoveScimGroupMembersResponse], error)
 	CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error)
 	DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error)
 	UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error)
@@ -1088,6 +1147,24 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("DeleteScimGroupUsers")),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceCreateScimGroupHandler := connect.NewUnaryHandler(
+		TeamServiceCreateScimGroupProcedure,
+		svc.CreateScimGroup,
+		connect.WithSchema(teamServiceMethods.ByName("CreateScimGroup")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceAddScimGroupMembersHandler := connect.NewUnaryHandler(
+		TeamServiceAddScimGroupMembersProcedure,
+		svc.AddScimGroupMembers,
+		connect.WithSchema(teamServiceMethods.ByName("AddScimGroupMembers")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceRemoveScimGroupMembersHandler := connect.NewUnaryHandler(
+		TeamServiceRemoveScimGroupMembersProcedure,
+		svc.RemoveScimGroupMembers,
+		connect.WithSchema(teamServiceMethods.ByName("RemoveScimGroupMembers")),
+		connect.WithHandlerOptions(opts...),
+	)
 	teamServiceCreateCustomRoleHandler := connect.NewUnaryHandler(
 		TeamServiceCreateCustomRoleProcedure,
 		svc.CreateCustomRole,
@@ -1195,6 +1272,12 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceDeleteScimGroupHandler.ServeHTTP(w, r)
 		case TeamServiceDeleteScimGroupUsersProcedure:
 			teamServiceDeleteScimGroupUsersHandler.ServeHTTP(w, r)
+		case TeamServiceCreateScimGroupProcedure:
+			teamServiceCreateScimGroupHandler.ServeHTTP(w, r)
+		case TeamServiceAddScimGroupMembersProcedure:
+			teamServiceAddScimGroupMembersHandler.ServeHTTP(w, r)
+		case TeamServiceRemoveScimGroupMembersProcedure:
+			teamServiceRemoveScimGroupMembersHandler.ServeHTTP(w, r)
 		case TeamServiceCreateCustomRoleProcedure:
 			teamServiceCreateCustomRoleHandler.ServeHTTP(w, r)
 		case TeamServiceDeleteCustomRoleProcedure:
@@ -1370,6 +1453,18 @@ func (UnimplementedTeamServiceHandler) DeleteScimGroup(context.Context, *connect
 
 func (UnimplementedTeamServiceHandler) DeleteScimGroupUsers(context.Context, *connect.Request[v1.DeleteScimGroupUsersRequest]) (*connect.Response[v1.DeleteScimGroupUsersResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.DeleteScimGroupUsers is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) CreateScimGroup(context.Context, *connect.Request[v1.CreateScimGroupRequest]) (*connect.Response[v1.CreateScimGroupResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateScimGroup is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) AddScimGroupMembers(context.Context, *connect.Request[v1.AddScimGroupMembersRequest]) (*connect.Response[v1.AddScimGroupMembersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.AddScimGroupMembers is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) RemoveScimGroupMembers(context.Context, *connect.Request[v1.RemoveScimGroupMembersRequest]) (*connect.Response[v1.RemoveScimGroupMembersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.RemoveScimGroupMembers is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error) {

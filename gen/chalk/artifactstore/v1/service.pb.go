@@ -1931,15 +1931,15 @@ const file_chalk_artifactstore_v1_service_proto_rawDesc = "" +
 	"\x1bARTIFACT_STATUS_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eARTIFACT_STATUS_PENDING_UPLOAD\x10\x01\x12\x1c\n" +
 	"\x18ARTIFACT_STATUS_UPLOADED\x10\x02\x12\x1a\n" +
-	"\x16ARTIFACT_STATUS_FAILED\x10\x032\xf3\x06\n" +
-	"\x0fArtifactService\x12t\n" +
-	"\x0eCreateArtifact\x12-.chalk.artifactstore.v1.CreateArtifactRequest\x1a..chalk.artifactstore.v1.CreateArtifactResponse\"\x03\x80}\f\x12\x86\x01\n" +
-	"\x14CreateArtifactUpload\x123.chalk.artifactstore.v1.CreateArtifactUploadRequest\x1a4.chalk.artifactstore.v1.CreateArtifactUploadResponse\"\x03\x80}\f\x12\x8c\x01\n" +
-	"\x16FinalizeArtifactUpload\x125.chalk.artifactstore.v1.FinalizeArtifactUploadRequest\x1a6.chalk.artifactstore.v1.FinalizeArtifactUploadResponse\"\x03\x80}\f\x12k\n" +
-	"\vGetArtifact\x12*.chalk.artifactstore.v1.GetArtifactRequest\x1a+.chalk.artifactstore.v1.GetArtifactResponse\"\x03\x80}\v\x12q\n" +
-	"\rListArtifacts\x12,.chalk.artifactstore.v1.ListArtifactsRequest\x1a-.chalk.artifactstore.v1.ListArtifactsResponse\"\x03\x80}\v\x12|\n" +
-	"\x10DownloadArtifact\x12/.chalk.artifactstore.v1.DownloadArtifactRequest\x1a0.chalk.artifactstore.v1.DownloadArtifactResponse\"\x03\x80}\v0\x01\x12t\n" +
-	"\x0eDeleteArtifact\x12-.chalk.artifactstore.v1.DeleteArtifactRequest\x1a..chalk.artifactstore.v1.DeleteArtifactResponse\"\x03\x80}\fB\xed\x01\n" +
+	"\x16ARTIFACT_STATUS_FAILED\x10\x032\x90\a\n" +
+	"\x0fArtifactService\x12x\n" +
+	"\x0eCreateArtifact\x12-.chalk.artifactstore.v1.CreateArtifactRequest\x1a..chalk.artifactstore.v1.CreateArtifactResponse\"\a\x80},\x92}\x01\f\x12\x8a\x01\n" +
+	"\x14CreateArtifactUpload\x123.chalk.artifactstore.v1.CreateArtifactUploadRequest\x1a4.chalk.artifactstore.v1.CreateArtifactUploadResponse\"\a\x80},\x92}\x01\f\x12\x90\x01\n" +
+	"\x16FinalizeArtifactUpload\x125.chalk.artifactstore.v1.FinalizeArtifactUploadRequest\x1a6.chalk.artifactstore.v1.FinalizeArtifactUploadResponse\"\a\x80},\x92}\x01\f\x12o\n" +
+	"\vGetArtifact\x12*.chalk.artifactstore.v1.GetArtifactRequest\x1a+.chalk.artifactstore.v1.GetArtifactResponse\"\a\x80}+\x92}\x01\v\x12u\n" +
+	"\rListArtifacts\x12,.chalk.artifactstore.v1.ListArtifactsRequest\x1a-.chalk.artifactstore.v1.ListArtifactsResponse\"\a\x80}+\x92}\x01\v\x12\x80\x01\n" +
+	"\x10DownloadArtifact\x12/.chalk.artifactstore.v1.DownloadArtifactRequest\x1a0.chalk.artifactstore.v1.DownloadArtifactResponse\"\a\x80}+\x92}\x01\v0\x01\x12x\n" +
+	"\x0eDeleteArtifact\x12-.chalk.artifactstore.v1.DeleteArtifactRequest\x1a..chalk.artifactstore.v1.DeleteArtifactResponse\"\a\x80},\x92}\x01\fB\xed\x01\n" +
 	"\x1acom.chalk.artifactstore.v1B\fServiceProtoP\x01ZGgithub.com/chalk-ai/chalk-go/gen/chalk/artifactstore/v1;artifactstorev1\xa2\x02\x03CAX\xaa\x02\x16Chalk.Artifactstore.V1\xca\x02\x16Chalk\\Artifactstore\\V1\xe2\x02\"Chalk\\Artifactstore\\V1\\GPBMetadata\xea\x02\x18Chalk::Artifactstore::V1b\x06proto3"
 
 var (

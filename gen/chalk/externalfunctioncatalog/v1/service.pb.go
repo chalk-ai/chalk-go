@@ -4812,27 +4812,36 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"-EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_FAILED\x10\x04\x123\n" +
 	"/EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_CANCELED\x10\x05\x124\n" +
 	"0EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_NOT_READY\x10\x06\x122\n" +
-	".EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_WAITING\x10\a2\xb1\x17\n" +
-	"\x1eExternalFunctionCatalogService\x12\xf7\x01\n" +
-	"\x16EnsureExternalFunction\x12?.chalk.externalfunctioncatalog.v1.EnsureExternalFunctionRequest\x1a@.chalk.externalfunctioncatalog.v1.EnsureExternalFunctionResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xf7\x01\n" +
-	"\x16CreateExternalFunction\x12?.chalk.externalfunctioncatalog.v1.CreateExternalFunctionRequest\x1a@.chalk.externalfunctioncatalog.v1.CreateExternalFunctionResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xf7\x01\n" +
-	"\x16UpdateExternalFunction\x12?.chalk.externalfunctioncatalog.v1.UpdateExternalFunctionRequest\x1a@.chalk.externalfunctioncatalog.v1.UpdateExternalFunctionResponse\"Z\x80}\x0e\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\x9a\x01\n" +
-	"\x13GetExternalFunction\x12<.chalk.externalfunctioncatalog.v1.GetExternalFunctionRequest\x1a=.chalk.externalfunctioncatalog.v1.GetExternalFunctionResponse\"\x06\x80}\v\x90\x02\x01\x12\xa0\x01\n" +
-	"\x15ListExternalFunctions\x12>.chalk.externalfunctioncatalog.v1.ListExternalFunctionsRequest\x1a?.chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse\"\x06\x80}\v\x90\x02\x01\x12\xa3\x01\n" +
-	"\x16DeleteExternalFunction\x12?.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionRequest\x1a@.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionResponse\"\x06\x80}\x0e\x90\x02\x02\x12\xc4\x01\n" +
-	"!ListExternalFunctionScheduledRuns\x12J.chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsRequest\x1aK.chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsResponse\"\x06\x80}\v\x90\x02\x01\x12\x9a\x01\n" +
-	"\x14CallExternalFunction\x12=.chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest\x1a>.chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse\"\x03\x80}\x0e\x12\xb5\x01\n" +
-	"\x1cDescribeExternalFunctionJson\x12E.chalk.externalfunctioncatalog.v1.DescribeExternalFunctionJsonRequest\x1aF.chalk.externalfunctioncatalog.v1.DescribeExternalFunctionJsonResponse\"\x06\x80}\v\x90\x02\x01\x12\xa6\x01\n" +
-	"\x18CallExternalFunctionJson\x12A.chalk.externalfunctioncatalog.v1.CallExternalFunctionJsonRequest\x1aB.chalk.externalfunctioncatalog.v1.CallExternalFunctionJsonResponse\"\x03\x80}\x0e\x12\x8c\x02\n" +
-	"\x1dCreateExternalFunctionVersion\x12F.chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest\x1aG.chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xaf\x01\n" +
-	"\x1aGetExternalFunctionVersion\x12C.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest\x1aD.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse\"\x06\x80}\v\x90\x02\x01\x12\xc1\x01\n" +
-	" GetExternalFunctionVersionSource\x12I.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionSourceRequest\x1aJ.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionSourceResponse\"\x06\x80}\v\x90\x02\x01\x12\xb5\x01\n" +
-	"\x1cListExternalFunctionVersions\x12E.chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsRequest\x1aF.chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse\"\x06\x80}\v\x90\x02\x01\x12\xb8\x01\n" +
-	"\x1dDeleteExternalFunctionVersion\x12F.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest\x1aG.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionResponse\"\x06\x80}\x0e\x88\x02\x01B\xb3\x02\n" +
+	".EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_WAITING\x10\a2\xed\x17\n" +
+	"\x1eExternalFunctionCatalogService\x12\xfb\x01\n" +
+	"\x16EnsureExternalFunction\x12?.chalk.externalfunctioncatalog.v1.EnsureExternalFunctionRequest\x1a@.chalk.externalfunctioncatalog.v1.EnsureExternalFunctionResponse\"^\x80}.\x92}\x01\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xfb\x01\n" +
+	"\x16CreateExternalFunction\x12?.chalk.externalfunctioncatalog.v1.CreateExternalFunctionRequest\x1a@.chalk.externalfunctioncatalog.v1.CreateExternalFunctionResponse\"^\x80}.\x92}\x01\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xfb\x01\n" +
+	"\x16UpdateExternalFunction\x12?.chalk.externalfunctioncatalog.v1.UpdateExternalFunctionRequest\x1a@.chalk.externalfunctioncatalog.v1.UpdateExternalFunctionResponse\"^\x80}.\x92}\x01\x0e\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\x9e\x01\n" +
+	"\x13GetExternalFunction\x12<.chalk.externalfunctioncatalog.v1.GetExternalFunctionRequest\x1a=.chalk.externalfunctioncatalog.v1.GetExternalFunctionResponse\"\n" +
+	"\x80}-\x92}\x01\v\x90\x02\x01\x12\xa4\x01\n" +
+	"\x15ListExternalFunctions\x12>.chalk.externalfunctioncatalog.v1.ListExternalFunctionsRequest\x1a?.chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse\"\n" +
+	"\x80}-\x92}\x01\v\x90\x02\x01\x12\xa7\x01\n" +
+	"\x16DeleteExternalFunction\x12?.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionRequest\x1a@.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionResponse\"\n" +
+	"\x80}.\x92}\x01\x0e\x90\x02\x02\x12\xc8\x01\n" +
+	"!ListExternalFunctionScheduledRuns\x12J.chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsRequest\x1aK.chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsResponse\"\n" +
+	"\x80}-\x92}\x01\v\x90\x02\x01\x12\x9e\x01\n" +
+	"\x14CallExternalFunction\x12=.chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest\x1a>.chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse\"\a\x80}/\x92}\x01\x0e\x12\xb9\x01\n" +
+	"\x1cDescribeExternalFunctionJson\x12E.chalk.externalfunctioncatalog.v1.DescribeExternalFunctionJsonRequest\x1aF.chalk.externalfunctioncatalog.v1.DescribeExternalFunctionJsonResponse\"\n" +
+	"\x80}-\x92}\x01\v\x90\x02\x01\x12\xaa\x01\n" +
+	"\x18CallExternalFunctionJson\x12A.chalk.externalfunctioncatalog.v1.CallExternalFunctionJsonRequest\x1aB.chalk.externalfunctioncatalog.v1.CallExternalFunctionJsonResponse\"\a\x80}/\x92}\x01\x0e\x12\x90\x02\n" +
+	"\x1dCreateExternalFunctionVersion\x12F.chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest\x1aG.chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse\"^\x80}.\x92}\x01\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xb3\x01\n" +
+	"\x1aGetExternalFunctionVersion\x12C.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest\x1aD.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse\"\n" +
+	"\x80}-\x92}\x01\v\x90\x02\x01\x12\xc5\x01\n" +
+	" GetExternalFunctionVersionSource\x12I.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionSourceRequest\x1aJ.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionSourceResponse\"\n" +
+	"\x80}-\x92}\x01\v\x90\x02\x01\x12\xb9\x01\n" +
+	"\x1cListExternalFunctionVersions\x12E.chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsRequest\x1aF.chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse\"\n" +
+	"\x80}-\x92}\x01\v\x90\x02\x01\x12\xbc\x01\n" +
+	"\x1dDeleteExternalFunctionVersion\x12F.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest\x1aG.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionResponse\"\n" +
+	"\x80}.\x92}\x01\x0e\x88\x02\x01B\xb3\x02\n" +
 	"$com.chalk.externalfunctioncatalog.v1B\fServiceProtoP\x01Z[github.com/chalk-ai/chalk-go/gen/chalk/externalfunctioncatalog/v1;externalfunctioncatalogv1\xa2\x02\x03CEX\xaa\x02 Chalk.Externalfunctioncatalog.V1\xca\x02 Chalk\\Externalfunctioncatalog\\V1\xe2\x02,Chalk\\Externalfunctioncatalog\\V1\\GPBMetadata\xea\x02\"Chalk::Externalfunctioncatalog::V1b\x06proto3"
 
 var (

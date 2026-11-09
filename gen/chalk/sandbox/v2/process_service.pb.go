@@ -1917,13 +1917,13 @@ const file_chalk_sandbox_v2_process_service_proto_rawDesc = "" +
 	"\x15PROCESS_STATE_RUNNING\x10\x01\x12\x18\n" +
 	"\x14PROCESS_STATE_EXITED\x10\x02\x12\x18\n" +
 	"\x14PROCESS_STATE_FAILED\x10\x03\x12\x1b\n" +
-	"\x17PROCESS_STATE_TIMED_OUT\x10\x042\x9f\x03\n" +
-	"\x15SandboxProcessService\x12_\n" +
-	"\vExecCommand\x12$.chalk.sandbox.v2.ExecCommandRequest\x1a%.chalk.sandbox.v2.ExecCommandResponse\"\x03\x80}\x0e\x12c\n" +
-	"\vOpenSession\x12$.chalk.sandbox.v2.OpenSessionRequest\x1a%.chalk.sandbox.v2.OpenSessionResponse\"\x03\x80}\x0e(\x010\x01\x12\\\n" +
+	"\x17PROCESS_STATE_TIMED_OUT\x10\x042\xaf\x03\n" +
+	"\x15SandboxProcessService\x12c\n" +
+	"\vExecCommand\x12$.chalk.sandbox.v2.ExecCommandRequest\x1a%.chalk.sandbox.v2.ExecCommandResponse\"\a\x80}=\x92}\x01\x0e\x12g\n" +
+	"\vOpenSession\x12$.chalk.sandbox.v2.OpenSessionRequest\x1a%.chalk.sandbox.v2.OpenSessionResponse\"\a\x80}=\x92}\x01\x0e(\x010\x01\x12`\n" +
 	"\n" +
-	"GetSession\x12#.chalk.sandbox.v2.GetSessionRequest\x1a$.chalk.sandbox.v2.GetSessionResponse\"\x03\x80}\v\x12b\n" +
-	"\fListSessions\x12%.chalk.sandbox.v2.ListSessionsRequest\x1a&.chalk.sandbox.v2.ListSessionsResponse\"\x03\x80}\vB\xca\x01\n" +
+	"GetSession\x12#.chalk.sandbox.v2.GetSessionRequest\x1a$.chalk.sandbox.v2.GetSessionResponse\"\a\x80};\x92}\x01\v\x12f\n" +
+	"\fListSessions\x12%.chalk.sandbox.v2.ListSessionsRequest\x1a&.chalk.sandbox.v2.ListSessionsResponse\"\a\x80};\x92}\x01\vB\xca\x01\n" +
 	"\x14com.chalk.sandbox.v2B\x13ProcessServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v2;sandboxv2\xa2\x02\x03CSX\xaa\x02\x10Chalk.Sandbox.V2\xca\x02\x10Chalk\\Sandbox\\V2\xe2\x02\x1cChalk\\Sandbox\\V2\\GPBMetadata\xea\x02\x12Chalk::Sandbox::V2b\x06proto3"
 
 var (

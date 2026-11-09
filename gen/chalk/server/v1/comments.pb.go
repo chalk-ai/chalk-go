@@ -789,13 +789,13 @@ const file_chalk_server_v1_comments_proto_rawDesc = "" +
 	"comment_id\x18\x01 \x01(\tR\tcommentId\x12\x14\n" +
 	"\x05emoji\x18\x02 \x01(\tR\x05emoji\"S\n" +
 	"\x1dToggleCommentReactionResponse\x122\n" +
-	"\acomment\x18\x01 \x01(\v2\x18.chalk.server.v1.CommentR\acomment2\xae\x04\n" +
-	"\x0fCommentsService\x12c\n" +
-	"\rCreateComment\x12%.chalk.server.v1.CreateCommentRequest\x1a&.chalk.server.v1.CreateCommentResponse\"\x03\x80}\f\x12`\n" +
-	"\fListComments\x12$.chalk.server.v1.ListCommentsRequest\x1a%.chalk.server.v1.ListCommentsResponse\"\x03\x80}\v\x12c\n" +
-	"\rDeleteComment\x12%.chalk.server.v1.DeleteCommentRequest\x1a&.chalk.server.v1.DeleteCommentResponse\"\x03\x80}\f\x12r\n" +
-	"\x12SetCommentResolved\x12*.chalk.server.v1.SetCommentResolvedRequest\x1a+.chalk.server.v1.SetCommentResolvedResponse\"\x03\x80}\f\x12{\n" +
-	"\x15ToggleCommentReaction\x12-.chalk.server.v1.ToggleCommentReactionRequest\x1a..chalk.server.v1.ToggleCommentReactionResponse\"\x03\x80}\fB\xbd\x01\n" +
+	"\acomment\x18\x01 \x01(\v2\x18.chalk.server.v1.CommentR\acomment2\xc2\x04\n" +
+	"\x0fCommentsService\x12g\n" +
+	"\rCreateComment\x12%.chalk.server.v1.CreateCommentRequest\x1a&.chalk.server.v1.CreateCommentResponse\"\a\x80}9\x92}\x01\f\x12d\n" +
+	"\fListComments\x12$.chalk.server.v1.ListCommentsRequest\x1a%.chalk.server.v1.ListCommentsResponse\"\a\x80}7\x92}\x01\v\x12g\n" +
+	"\rDeleteComment\x12%.chalk.server.v1.DeleteCommentRequest\x1a&.chalk.server.v1.DeleteCommentResponse\"\a\x80}9\x92}\x01\f\x12v\n" +
+	"\x12SetCommentResolved\x12*.chalk.server.v1.SetCommentResolvedRequest\x1a+.chalk.server.v1.SetCommentResolvedResponse\"\a\x80}9\x92}\x01\f\x12\x7f\n" +
+	"\x15ToggleCommentReaction\x12-.chalk.server.v1.ToggleCommentReactionRequest\x1a..chalk.server.v1.ToggleCommentReactionResponse\"\a\x80}9\x92}\x01\fB\xbd\x01\n" +
 	"\x13com.chalk.server.v1B\rCommentsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (

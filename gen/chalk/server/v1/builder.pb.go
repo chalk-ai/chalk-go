@@ -22356,8 +22356,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x12\x96\x01\n" +
 	"\x1eGetClusterWorkflowOrchestrator\x126.chalk.server.v1.GetClusterWorkflowOrchestratorRequest\x1a7.chalk.server.v1.GetClusterWorkflowOrchestratorResponse\"\x03\x80}\v\x12\xab\x01\n" +
 	"%GetClusterWorkflowOrchestratorDefault\x12=.chalk.server.v1.GetClusterWorkflowOrchestratorDefaultRequest\x1a>.chalk.server.v1.GetClusterWorkflowOrchestratorDefaultResponse\"\x03\x80}\v\x12\xd8\x01\n" +
-	"!CreateClusterWorkflowOrchestrator\x129.chalk.server.v1.CreateClusterWorkflowOrchestratorRequest\x1a:.chalk.server.v1.CreateClusterWorkflowOrchestratorResponse\"<\x80}\n" +
-	"\x8a\xd3\x0e5\b\x02\x121Created a Workflow Orchestrator Engine deployment\x12\xdd\x01\n" +
+	"!CreateClusterWorkflowOrchestrator\x129.chalk.server.v1.CreateClusterWorkflowOrchestratorRequest\x1a:.chalk.server.v1.CreateClusterWorkflowOrchestratorResponse\"<\x80}\f\x8a\xd3\x0e5\b\x02\x121Created a Workflow Orchestrator Engine deployment\x12\xdd\x01\n" +
 	"!UpdateClusterWorkflowOrchestrator\x129.chalk.server.v1.UpdateClusterWorkflowOrchestratorRequest\x1a:.chalk.server.v1.UpdateClusterWorkflowOrchestratorResponse\"A\x80}\n" +
 	"\x8a\xd3\x0e:\b\x02\x126Updated the Workflow Orchestrator Engine configuration\x12\xda\x01\n" +
 	"!DeleteClusterWorkflowOrchestrator\x129.chalk.server.v1.DeleteClusterWorkflowOrchestratorRequest\x1a:.chalk.server.v1.DeleteClusterWorkflowOrchestratorResponse\">\x80}\n" +

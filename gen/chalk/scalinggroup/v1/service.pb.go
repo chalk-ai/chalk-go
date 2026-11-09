@@ -366,8 +366,10 @@ type ScalingSpec struct {
 	CronScalingTrigger         *CronScalingTrigger               `protobuf:"bytes,8,opt,name=cron_scaling_trigger,json=cronScalingTrigger,proto3,oneof" json:"cron_scaling_trigger,omitempty"`
 	ScaleFromZeroRequestPolicy ScaleFromZeroRequestPolicy        `protobuf:"varint,9,opt,name=scale_from_zero_request_policy,json=scaleFromZeroRequestPolicy,proto3,enum=chalk.scalinggroup.v1.ScaleFromZeroRequestPolicy" json:"scale_from_zero_request_policy,omitempty"`
 	TaskQueueTrigger           *TaskQueueScalingTrigger          `protobuf:"bytes,10,opt,name=task_queue_trigger,json=taskQueueTrigger,proto3,oneof" json:"task_queue_trigger,omitempty"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	// Pod's Kubernetes terminationGracePeriodSeconds, distinct from shutdown_delay_seconds (unset: Kubernetes default)
+	TerminationGracePeriodSeconds *int32 `protobuf:"varint,11,opt,name=termination_grace_period_seconds,json=terminationGracePeriodSeconds,proto3,oneof" json:"termination_grace_period_seconds,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *ScalingSpec) Reset() {
@@ -468,6 +470,13 @@ func (x *ScalingSpec) GetTaskQueueTrigger() *TaskQueueScalingTrigger {
 		return x.TaskQueueTrigger
 	}
 	return nil
+}
+
+func (x *ScalingSpec) GetTerminationGracePeriodSeconds() int32 {
+	if x != nil && x.TerminationGracePeriodSeconds != nil {
+		return *x.TerminationGracePeriodSeconds
+	}
+	return 0
 }
 
 type FunctionQueueDepthScalingTrigger struct {
@@ -2708,7 +2717,7 @@ var File_chalk_scalinggroup_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/scalinggroup/v1/service.proto\x12\x15chalk.scalinggroup.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/common/v1/tag_filter.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf8\a\n" +
+	"#chalk/scalinggroup/v1/service.proto\x12\x15chalk.scalinggroup.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/common/v1/tag_filter.proto\x1a chalk/container/v1/service.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xeb\b\n" +
 	"\vScalingSpec\x12!\n" +
 	"\fmin_replicas\x18\x01 \x01(\x05R\vminReplicas\x12!\n" +
 	"\fmax_replicas\x18\x02 \x01(\x05R\vmaxReplicas\x12N\n" +
@@ -2720,14 +2729,16 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"\x14cron_scaling_trigger\x18\b \x01(\v2).chalk.scalinggroup.v1.CronScalingTriggerH\x05R\x12cronScalingTrigger\x88\x01\x01\x12u\n" +
 	"\x1escale_from_zero_request_policy\x18\t \x01(\x0e21.chalk.scalinggroup.v1.ScaleFromZeroRequestPolicyR\x1ascaleFromZeroRequestPolicy\x12a\n" +
 	"\x12task_queue_trigger\x18\n" +
-	" \x01(\v2..chalk.scalinggroup.v1.TaskQueueScalingTriggerH\x06R\x10taskQueueTrigger\x88\x01\x01B$\n" +
+	" \x01(\v2..chalk.scalinggroup.v1.TaskQueueScalingTriggerH\x06R\x10taskQueueTrigger\x88\x01\x01\x12L\n" +
+	" termination_grace_period_seconds\x18\v \x01(\x05H\aR\x1dterminationGracePeriodSeconds\x88\x01\x01B$\n" +
 	"\"_target_cpu_utilization_percentageB\x19\n" +
 	"\x17_shutdown_delay_secondsB\x11\n" +
 	"\x0f_window_secondsB\x1f\n" +
 	"\x1d_function_queue_depth_triggerB\x1a\n" +
 	"\x18_gpu_utilization_triggerB\x17\n" +
 	"\x15_cron_scaling_triggerB\x15\n" +
-	"\x13_task_queue_trigger\"\xca\x01\n" +
+	"\x13_task_queue_triggerB#\n" +
+	"!_termination_grace_period_seconds\"\xca\x01\n" +
 	" FunctionQueueDepthScalingTrigger\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12,\n" +
 	"\x12target_queue_depth\x18\x02 \x01(\x05R\x10targetQueueDepth\x12S\n" +
@@ -2972,18 +2983,18 @@ const file_chalk_scalinggroup_v1_service_proto_rawDesc = "" +
 	"(SCALING_GROUP_REPLICA_STATUS_TERMINATING\x10\x06\x12+\n" +
 	"'SCALING_GROUP_REPLICA_STATUS_TERMINATED\x10\a\x12&\n" +
 	"\"SCALING_GROUP_REPLICA_STATUS_ERROR\x10\b\x12(\n" +
-	"$SCALING_GROUP_REPLICA_STATUS_UNKNOWN\x10\t2\x9b\v\n" +
-	"\x1aScalingGroupManagerService\x12\xd5\x01\n" +
-	"\x12CreateScalingGroup\x120.chalk.scalinggroup.v1.CreateScalingGroupRequest\x1a1.chalk.scalinggroup.v1.CreateScalingGroupResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xd5\x01\n" +
-	"\x12UpdateScalingGroup\x120.chalk.scalinggroup.v1.UpdateScalingGroupRequest\x1a1.chalk.scalinggroup.v1.UpdateScalingGroupResponse\"Z\x80}\x0e\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12u\n" +
-	"\x0fGetScalingGroup\x12-.chalk.scalinggroup.v1.GetScalingGroupRequest\x1a..chalk.scalinggroup.v1.GetScalingGroupResponse\"\x03\x80}\v\x12{\n" +
-	"\x11ListScalingGroups\x12/.chalk.scalinggroup.v1.ListScalingGroupsRequest\x1a0.chalk.scalinggroup.v1.ListScalingGroupsResponse\"\x03\x80}\v\x12\x90\x01\n" +
-	"\x18ListScalingGroupReplicas\x126.chalk.scalinggroup.v1.ListScalingGroupReplicasRequest\x1a7.chalk.scalinggroup.v1.ListScalingGroupReplicasResponse\"\x03\x80}\v\x12~\n" +
-	"\x12DeleteScalingGroup\x120.chalk.scalinggroup.v1.DeleteScalingGroupRequest\x1a1.chalk.scalinggroup.v1.DeleteScalingGroupResponse\"\x03\x80}\x0e\x12\x8d\x01\n" +
-	"\x17GetScalingGroupRevision\x125.chalk.scalinggroup.v1.GetScalingGroupRevisionRequest\x1a6.chalk.scalinggroup.v1.GetScalingGroupRevisionResponse\"\x03\x80}\v\x12\x93\x01\n" +
-	"\x19ListScalingGroupRevisions\x127.chalk.scalinggroup.v1.ListScalingGroupRevisionsRequest\x1a8.chalk.scalinggroup.v1.ListScalingGroupRevisionsResponse\"\x03\x80}\v\x12\x9f\x01\n" +
+	"$SCALING_GROUP_REPLICA_STATUS_UNKNOWN\x10\t2\xbc\v\n" +
+	"\x1aScalingGroupManagerService\x12\xd9\x01\n" +
+	"\x12CreateScalingGroup\x120.chalk.scalinggroup.v1.CreateScalingGroupRequest\x1a1.chalk.scalinggroup.v1.CreateScalingGroupResponse\"^\x80}?\x92}\x01\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xd9\x01\n" +
+	"\x12UpdateScalingGroup\x120.chalk.scalinggroup.v1.UpdateScalingGroupRequest\x1a1.chalk.scalinggroup.v1.UpdateScalingGroupResponse\"^\x80}?\x92}\x01\x0e\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12y\n" +
+	"\x0fGetScalingGroup\x12-.chalk.scalinggroup.v1.GetScalingGroupRequest\x1a..chalk.scalinggroup.v1.GetScalingGroupResponse\"\a\x80}>\x92}\x01\v\x12\x7f\n" +
+	"\x11ListScalingGroups\x12/.chalk.scalinggroup.v1.ListScalingGroupsRequest\x1a0.chalk.scalinggroup.v1.ListScalingGroupsResponse\"\a\x80}>\x92}\x01\v\x12\x94\x01\n" +
+	"\x18ListScalingGroupReplicas\x126.chalk.scalinggroup.v1.ListScalingGroupReplicasRequest\x1a7.chalk.scalinggroup.v1.ListScalingGroupReplicasResponse\"\a\x80}>\x92}\x01\v\x12\x82\x01\n" +
+	"\x12DeleteScalingGroup\x120.chalk.scalinggroup.v1.DeleteScalingGroupRequest\x1a1.chalk.scalinggroup.v1.DeleteScalingGroupResponse\"\a\x80}?\x92}\x01\x0e\x12\x91\x01\n" +
+	"\x17GetScalingGroupRevision\x125.chalk.scalinggroup.v1.GetScalingGroupRevisionRequest\x1a6.chalk.scalinggroup.v1.GetScalingGroupRevisionResponse\"\a\x80}>\x92}\x01\v\x12\x97\x01\n" +
+	"\x19ListScalingGroupRevisions\x127.chalk.scalinggroup.v1.ListScalingGroupRevisionsRequest\x1a8.chalk.scalinggroup.v1.ListScalingGroupRevisionsResponse\"\a\x80}>\x92}\x01\v\x12\x9f\x01\n" +
 	"\x1dBatchUpdateScalingGroupStatus\x12;.chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusRequest\x1a<.chalk.scalinggroup.v1.BatchUpdateScalingGroupStatusResponse\"\x03\x80}!B\xe6\x01\n" +
 	"\x19com.chalk.scalinggroup.v1B\fServiceProtoP\x01ZEgithub.com/chalk-ai/chalk-go/gen/chalk/scalinggroup/v1;scalinggroupv1\xa2\x02\x03CSX\xaa\x02\x15Chalk.Scalinggroup.V1\xca\x02\x15Chalk\\Scalinggroup\\V1\xe2\x02!Chalk\\Scalinggroup\\V1\\GPBMetadata\xea\x02\x17Chalk::Scalinggroup::V1b\x06proto3"
 

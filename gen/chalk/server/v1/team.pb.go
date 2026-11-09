@@ -5102,6 +5102,288 @@ func (x *DeleteScimGroupUsersResponse) GetScimGroup() *ScimGroup {
 	return nil
 }
 
+type CreateScimGroupRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Display       string                 `protobuf:"bytes,1,opt,name=display,proto3" json:"display,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateScimGroupRequest) Reset() {
+	*x = CreateScimGroupRequest{}
+	mi := &file_chalk_server_v1_team_proto_msgTypes[93]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateScimGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateScimGroupRequest) ProtoMessage() {}
+
+func (x *CreateScimGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_team_proto_msgTypes[93]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateScimGroupRequest.ProtoReflect.Descriptor instead.
+func (*CreateScimGroupRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{93}
+}
+
+func (x *CreateScimGroupRequest) GetDisplay() string {
+	if x != nil {
+		return x.Display
+	}
+	return ""
+}
+
+type CreateScimGroupResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScimGroup     *ScimGroup             `protobuf:"bytes,1,opt,name=scim_group,json=scimGroup,proto3" json:"scim_group,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateScimGroupResponse) Reset() {
+	*x = CreateScimGroupResponse{}
+	mi := &file_chalk_server_v1_team_proto_msgTypes[94]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateScimGroupResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateScimGroupResponse) ProtoMessage() {}
+
+func (x *CreateScimGroupResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_team_proto_msgTypes[94]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateScimGroupResponse.ProtoReflect.Descriptor instead.
+func (*CreateScimGroupResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{94}
+}
+
+func (x *CreateScimGroupResponse) GetScimGroup() *ScimGroup {
+	if x != nil {
+		return x.ScimGroup
+	}
+	return nil
+}
+
+type AddScimGroupMembersRequest struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	GroupId string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	// Users on the caller's team. Users already in the group are left as they are.
+	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddScimGroupMembersRequest) Reset() {
+	*x = AddScimGroupMembersRequest{}
+	mi := &file_chalk_server_v1_team_proto_msgTypes[95]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddScimGroupMembersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddScimGroupMembersRequest) ProtoMessage() {}
+
+func (x *AddScimGroupMembersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_team_proto_msgTypes[95]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddScimGroupMembersRequest.ProtoReflect.Descriptor instead.
+func (*AddScimGroupMembersRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{95}
+}
+
+func (x *AddScimGroupMembersRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *AddScimGroupMembersRequest) GetUserIds() []string {
+	if x != nil {
+		return x.UserIds
+	}
+	return nil
+}
+
+type AddScimGroupMembersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScimGroup     *ScimGroup             `protobuf:"bytes,1,opt,name=scim_group,json=scimGroup,proto3" json:"scim_group,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddScimGroupMembersResponse) Reset() {
+	*x = AddScimGroupMembersResponse{}
+	mi := &file_chalk_server_v1_team_proto_msgTypes[96]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddScimGroupMembersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddScimGroupMembersResponse) ProtoMessage() {}
+
+func (x *AddScimGroupMembersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_team_proto_msgTypes[96]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddScimGroupMembersResponse.ProtoReflect.Descriptor instead.
+func (*AddScimGroupMembersResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{96}
+}
+
+func (x *AddScimGroupMembersResponse) GetScimGroup() *ScimGroup {
+	if x != nil {
+		return x.ScimGroup
+	}
+	return nil
+}
+
+type RemoveScimGroupMembersRequest struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	GroupId string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	// Users not in the group are ignored.
+	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveScimGroupMembersRequest) Reset() {
+	*x = RemoveScimGroupMembersRequest{}
+	mi := &file_chalk_server_v1_team_proto_msgTypes[97]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveScimGroupMembersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveScimGroupMembersRequest) ProtoMessage() {}
+
+func (x *RemoveScimGroupMembersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_team_proto_msgTypes[97]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveScimGroupMembersRequest.ProtoReflect.Descriptor instead.
+func (*RemoveScimGroupMembersRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{97}
+}
+
+func (x *RemoveScimGroupMembersRequest) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *RemoveScimGroupMembersRequest) GetUserIds() []string {
+	if x != nil {
+		return x.UserIds
+	}
+	return nil
+}
+
+type RemoveScimGroupMembersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScimGroup     *ScimGroup             `protobuf:"bytes,1,opt,name=scim_group,json=scimGroup,proto3" json:"scim_group,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveScimGroupMembersResponse) Reset() {
+	*x = RemoveScimGroupMembersResponse{}
+	mi := &file_chalk_server_v1_team_proto_msgTypes[98]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveScimGroupMembersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveScimGroupMembersResponse) ProtoMessage() {}
+
+func (x *RemoveScimGroupMembersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_team_proto_msgTypes[98]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveScimGroupMembersResponse.ProtoReflect.Descriptor instead.
+func (*RemoveScimGroupMembersResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{98}
+}
+
+func (x *RemoveScimGroupMembersResponse) GetScimGroup() *ScimGroup {
+	if x != nil {
+		return x.ScimGroup
+	}
+	return nil
+}
+
 type CreateVectorDBConfigurationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The environment ID to configure
@@ -5116,7 +5398,7 @@ type CreateVectorDBConfigurationRequest struct {
 
 func (x *CreateVectorDBConfigurationRequest) Reset() {
 	*x = CreateVectorDBConfigurationRequest{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[93]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5128,7 +5410,7 @@ func (x *CreateVectorDBConfigurationRequest) String() string {
 func (*CreateVectorDBConfigurationRequest) ProtoMessage() {}
 
 func (x *CreateVectorDBConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[93]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5141,7 +5423,7 @@ func (x *CreateVectorDBConfigurationRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use CreateVectorDBConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*CreateVectorDBConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{93}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{99}
 }
 
 func (x *CreateVectorDBConfigurationRequest) GetEnvironmentId() string {
@@ -5174,7 +5456,7 @@ type CreateVectorDBConfigurationResponse struct {
 
 func (x *CreateVectorDBConfigurationResponse) Reset() {
 	*x = CreateVectorDBConfigurationResponse{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[94]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5186,7 +5468,7 @@ func (x *CreateVectorDBConfigurationResponse) String() string {
 func (*CreateVectorDBConfigurationResponse) ProtoMessage() {}
 
 func (x *CreateVectorDBConfigurationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[94]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5199,7 +5481,7 @@ func (x *CreateVectorDBConfigurationResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use CreateVectorDBConfigurationResponse.ProtoReflect.Descriptor instead.
 func (*CreateVectorDBConfigurationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{94}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{100}
 }
 
 func (x *CreateVectorDBConfigurationResponse) GetEnvironment() *Environment {
@@ -5220,7 +5502,7 @@ type CreateCustomRoleRequest struct {
 
 func (x *CreateCustomRoleRequest) Reset() {
 	*x = CreateCustomRoleRequest{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[95]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5232,7 +5514,7 @@ func (x *CreateCustomRoleRequest) String() string {
 func (*CreateCustomRoleRequest) ProtoMessage() {}
 
 func (x *CreateCustomRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[95]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5245,7 +5527,7 @@ func (x *CreateCustomRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCustomRoleRequest.ProtoReflect.Descriptor instead.
 func (*CreateCustomRoleRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{95}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{101}
 }
 
 func (x *CreateCustomRoleRequest) GetName() string {
@@ -5282,7 +5564,7 @@ type CreateCustomRoleResponse struct {
 
 func (x *CreateCustomRoleResponse) Reset() {
 	*x = CreateCustomRoleResponse{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[96]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5294,7 +5576,7 @@ func (x *CreateCustomRoleResponse) String() string {
 func (*CreateCustomRoleResponse) ProtoMessage() {}
 
 func (x *CreateCustomRoleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[96]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5307,7 +5589,7 @@ func (x *CreateCustomRoleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCustomRoleResponse.ProtoReflect.Descriptor instead.
 func (*CreateCustomRoleResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{96}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{102}
 }
 
 func (x *CreateCustomRoleResponse) GetId() string {
@@ -5354,7 +5636,7 @@ type DeleteCustomRoleRequest struct {
 
 func (x *DeleteCustomRoleRequest) Reset() {
 	*x = DeleteCustomRoleRequest{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[97]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5366,7 +5648,7 @@ func (x *DeleteCustomRoleRequest) String() string {
 func (*DeleteCustomRoleRequest) ProtoMessage() {}
 
 func (x *DeleteCustomRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[97]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5379,7 +5661,7 @@ func (x *DeleteCustomRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteCustomRoleRequest.ProtoReflect.Descriptor instead.
 func (*DeleteCustomRoleRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{97}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{103}
 }
 
 func (x *DeleteCustomRoleRequest) GetRoleId() string {
@@ -5397,7 +5679,7 @@ type DeleteCustomRoleResponse struct {
 
 func (x *DeleteCustomRoleResponse) Reset() {
 	*x = DeleteCustomRoleResponse{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[98]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[104]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5409,7 +5691,7 @@ func (x *DeleteCustomRoleResponse) String() string {
 func (*DeleteCustomRoleResponse) ProtoMessage() {}
 
 func (x *DeleteCustomRoleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[98]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[104]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5422,7 +5704,7 @@ func (x *DeleteCustomRoleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteCustomRoleResponse.ProtoReflect.Descriptor instead.
 func (*DeleteCustomRoleResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{98}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{104}
 }
 
 type UpdateCustomRoleRequest struct {
@@ -5437,7 +5719,7 @@ type UpdateCustomRoleRequest struct {
 
 func (x *UpdateCustomRoleRequest) Reset() {
 	*x = UpdateCustomRoleRequest{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[99]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[105]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5449,7 +5731,7 @@ func (x *UpdateCustomRoleRequest) String() string {
 func (*UpdateCustomRoleRequest) ProtoMessage() {}
 
 func (x *UpdateCustomRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[99]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[105]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5462,7 +5744,7 @@ func (x *UpdateCustomRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCustomRoleRequest.ProtoReflect.Descriptor instead.
 func (*UpdateCustomRoleRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{99}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{105}
 }
 
 func (x *UpdateCustomRoleRequest) GetRoleId() string {
@@ -5506,7 +5788,7 @@ type UpdateCustomRoleResponse struct {
 
 func (x *UpdateCustomRoleResponse) Reset() {
 	*x = UpdateCustomRoleResponse{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[100]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[106]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5518,7 +5800,7 @@ func (x *UpdateCustomRoleResponse) String() string {
 func (*UpdateCustomRoleResponse) ProtoMessage() {}
 
 func (x *UpdateCustomRoleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[100]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[106]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5531,7 +5813,7 @@ func (x *UpdateCustomRoleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateCustomRoleResponse.ProtoReflect.Descriptor instead.
 func (*UpdateCustomRoleResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{100}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{106}
 }
 
 func (x *UpdateCustomRoleResponse) GetId() string {
@@ -5578,7 +5860,7 @@ type GetPermissionsForEnvironmentRequest struct {
 
 func (x *GetPermissionsForEnvironmentRequest) Reset() {
 	*x = GetPermissionsForEnvironmentRequest{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[101]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[107]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5590,7 +5872,7 @@ func (x *GetPermissionsForEnvironmentRequest) String() string {
 func (*GetPermissionsForEnvironmentRequest) ProtoMessage() {}
 
 func (x *GetPermissionsForEnvironmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[101]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[107]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5603,7 +5885,7 @@ func (x *GetPermissionsForEnvironmentRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetPermissionsForEnvironmentRequest.ProtoReflect.Descriptor instead.
 func (*GetPermissionsForEnvironmentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{101}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{107}
 }
 
 func (x *GetPermissionsForEnvironmentRequest) GetEnvironmentId() string {
@@ -5623,7 +5905,7 @@ type GetPermissionsForEnvironmentResponse struct {
 
 func (x *GetPermissionsForEnvironmentResponse) Reset() {
 	*x = GetPermissionsForEnvironmentResponse{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[102]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[108]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5635,7 +5917,7 @@ func (x *GetPermissionsForEnvironmentResponse) String() string {
 func (*GetPermissionsForEnvironmentResponse) ProtoMessage() {}
 
 func (x *GetPermissionsForEnvironmentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[102]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[108]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5648,7 +5930,7 @@ func (x *GetPermissionsForEnvironmentResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetPermissionsForEnvironmentResponse.ProtoReflect.Descriptor instead.
 func (*GetPermissionsForEnvironmentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{102}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{108}
 }
 
 func (x *GetPermissionsForEnvironmentResponse) GetPermissions() []v1.Permission {
@@ -5674,7 +5956,7 @@ type GetProjectRequest struct {
 
 func (x *GetProjectRequest) Reset() {
 	*x = GetProjectRequest{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[103]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[109]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5686,7 +5968,7 @@ func (x *GetProjectRequest) String() string {
 func (*GetProjectRequest) ProtoMessage() {}
 
 func (x *GetProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[103]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[109]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5699,7 +5981,7 @@ func (x *GetProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectRequest.ProtoReflect.Descriptor instead.
 func (*GetProjectRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{103}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{109}
 }
 
 func (x *GetProjectRequest) GetProjectId() string {
@@ -5724,7 +6006,7 @@ type ProjectDescription struct {
 
 func (x *ProjectDescription) Reset() {
 	*x = ProjectDescription{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[104]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[110]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5736,7 +6018,7 @@ func (x *ProjectDescription) String() string {
 func (*ProjectDescription) ProtoMessage() {}
 
 func (x *ProjectDescription) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[104]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[110]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5749,7 +6031,7 @@ func (x *ProjectDescription) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectDescription.ProtoReflect.Descriptor instead.
 func (*ProjectDescription) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{104}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{110}
 }
 
 func (x *ProjectDescription) GetId() string {
@@ -5810,7 +6092,7 @@ type GetProjectResponse struct {
 
 func (x *GetProjectResponse) Reset() {
 	*x = GetProjectResponse{}
-	mi := &file_chalk_server_v1_team_proto_msgTypes[105]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[111]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5822,7 +6104,7 @@ func (x *GetProjectResponse) String() string {
 func (*GetProjectResponse) ProtoMessage() {}
 
 func (x *GetProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[105]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[111]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5835,7 +6117,7 @@ func (x *GetProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProjectResponse.ProtoReflect.Descriptor instead.
 func (*GetProjectResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{105}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{111}
 }
 
 func (x *GetProjectResponse) GetProject() *ProjectDescription {
@@ -6245,6 +6527,24 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\bgroup_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\agroupId\"Y\n" +
 	"\x1cDeleteScimGroupUsersResponse\x129\n" +
 	"\n" +
+	"scim_group\x18\x01 \x01(\v2\x1a.chalk.server.v1.ScimGroupR\tscimGroup\">\n" +
+	"\x16CreateScimGroupRequest\x12$\n" +
+	"\adisplay\x18\x01 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\x02R\adisplay\"T\n" +
+	"\x17CreateScimGroupResponse\x129\n" +
+	"\n" +
+	"scim_group\x18\x01 \x01(\v2\x1a.chalk.server.v1.ScimGroupR\tscimGroup\"p\n" +
+	"\x1aAddScimGroupMembersRequest\x12\"\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\agroupId\x12.\n" +
+	"\buser_ids\x18\x02 \x03(\tB\x13\xbaH\x10\x92\x01\r\b\x01\x10\xe8\a\x18\x01\"\x04r\x02\x10\x01R\auserIds\"X\n" +
+	"\x1bAddScimGroupMembersResponse\x129\n" +
+	"\n" +
+	"scim_group\x18\x01 \x01(\v2\x1a.chalk.server.v1.ScimGroupR\tscimGroup\"s\n" +
+	"\x1dRemoveScimGroupMembersRequest\x12\"\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\agroupId\x12.\n" +
+	"\buser_ids\x18\x02 \x03(\tB\x13\xbaH\x10\x92\x01\r\b\x01\x10\xe8\a\x18\x01\"\x04r\x02\x10\x01R\auserIds\"[\n" +
+	"\x1eRemoveScimGroupMembersResponse\x129\n" +
+	"\n" +
 	"scim_group\x18\x01 \x01(\v2\x1a.chalk.server.v1.ScimGroupR\tscimGroup\"\xba\x01\n" +
 	"\"CreateVectorDBConfigurationRequest\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12(\n" +
@@ -6311,7 +6611,7 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x0fTeamAccountType\x12!\n" +
 	"\x1dTEAM_ACCOUNT_TYPE_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cTEAM_ACCOUNT_TYPE_INDIVIDUAL\x10\x01\x12\x1e\n" +
-	"\x1aTEAM_ACCOUNT_TYPE_BUSINESS\x10\x022\xf41\n" +
+	"\x1aTEAM_ACCOUNT_TYPE_BUSINESS\x10\x022\xcb5\n" +
 	"\vTeamService\x12Q\n" +
 	"\x06GetEnv\x12\x1e.chalk.server.v1.GetEnvRequest\x1a\x1f.chalk.server.v1.GetEnvResponse\"\x06\x80}\v\x90\x02\x01\x12\x84\x01\n" +
 	"\x17GetEnvIncludingArchived\x12/.chalk.server.v1.GetEnvIncludingArchivedRequest\x1a0.chalk.server.v1.GetEnvIncludingArchivedResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
@@ -6358,6 +6658,12 @@ const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\x8a\xd3\x0e\x18\b\x02\x12\x14Deleted a SCIM group\x12\x9f\x01\n" +
 	"\x14DeleteScimGroupUsers\x12,.chalk.server.v1.DeleteScimGroupUsersRequest\x1a-.chalk.server.v1.DeleteScimGroupUsersResponse\"*\x80}\n" +
 	"\x8a\xd3\x0e#\b\x02\x12\x1fDeleted users from a SCIM group\x12\x89\x01\n" +
+	"\x0fCreateScimGroup\x12'.chalk.server.v1.CreateScimGroupRequest\x1a(.chalk.server.v1.CreateScimGroupResponse\"#\x80}\n" +
+	"\x8a\xd3\x0e\x1c\b\x02\x12\x18Created a group manually\x12\x9c\x01\n" +
+	"\x13AddScimGroupMembers\x12+.chalk.server.v1.AddScimGroupMembersRequest\x1a,.chalk.server.v1.AddScimGroupMembersResponse\"*\x80}\n" +
+	"\x8a\xd3\x0e#\b\x02\x12\x1fAdded users to a group manually\x12\xa9\x01\n" +
+	"\x16RemoveScimGroupMembers\x12..chalk.server.v1.RemoveScimGroupMembersRequest\x1a/.chalk.server.v1.RemoveScimGroupMembersResponse\".\x80}\n" +
+	"\x8a\xd3\x0e'\b\x02\x12#Removed users from a group manually\x12\x89\x01\n" +
 	"\x10CreateCustomRole\x12(.chalk.server.v1.CreateCustomRoleRequest\x1a).chalk.server.v1.CreateCustomRoleResponse\" \x80}\n" +
 	"\x8a\xd3\x0e\x19\b\x02\x12\x15Created a custom role\x12\x89\x01\n" +
 	"\x10DeleteCustomRole\x12(.chalk.server.v1.DeleteCustomRoleRequest\x1a).chalk.server.v1.DeleteCustomRoleResponse\" \x80}\n" +
@@ -6381,7 +6687,7 @@ func file_chalk_server_v1_team_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_team_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_team_proto_msgTypes = make([]protoimpl.MessageInfo, 118)
+var file_chalk_server_v1_team_proto_msgTypes = make([]protoimpl.MessageInfo, 124)
 var file_chalk_server_v1_team_proto_goTypes = []any{
 	(TeamCreationType)(0),                          // 0: chalk.server.v1.TeamCreationType
 	(TeamAccountType)(0),                           // 1: chalk.server.v1.TeamAccountType
@@ -6478,116 +6784,122 @@ var file_chalk_server_v1_team_proto_goTypes = []any{
 	(*DeleteScimGroupResponse)(nil),                // 92: chalk.server.v1.DeleteScimGroupResponse
 	(*DeleteScimGroupUsersRequest)(nil),            // 93: chalk.server.v1.DeleteScimGroupUsersRequest
 	(*DeleteScimGroupUsersResponse)(nil),           // 94: chalk.server.v1.DeleteScimGroupUsersResponse
-	(*CreateVectorDBConfigurationRequest)(nil),     // 95: chalk.server.v1.CreateVectorDBConfigurationRequest
-	(*CreateVectorDBConfigurationResponse)(nil),    // 96: chalk.server.v1.CreateVectorDBConfigurationResponse
-	(*CreateCustomRoleRequest)(nil),                // 97: chalk.server.v1.CreateCustomRoleRequest
-	(*CreateCustomRoleResponse)(nil),               // 98: chalk.server.v1.CreateCustomRoleResponse
-	(*DeleteCustomRoleRequest)(nil),                // 99: chalk.server.v1.DeleteCustomRoleRequest
-	(*DeleteCustomRoleResponse)(nil),               // 100: chalk.server.v1.DeleteCustomRoleResponse
-	(*UpdateCustomRoleRequest)(nil),                // 101: chalk.server.v1.UpdateCustomRoleRequest
-	(*UpdateCustomRoleResponse)(nil),               // 102: chalk.server.v1.UpdateCustomRoleResponse
-	(*GetPermissionsForEnvironmentRequest)(nil),    // 103: chalk.server.v1.GetPermissionsForEnvironmentRequest
-	(*GetPermissionsForEnvironmentResponse)(nil),   // 104: chalk.server.v1.GetPermissionsForEnvironmentResponse
-	(*GetProjectRequest)(nil),                      // 105: chalk.server.v1.GetProjectRequest
-	(*ProjectDescription)(nil),                     // 106: chalk.server.v1.ProjectDescription
-	(*GetProjectResponse)(nil),                     // 107: chalk.server.v1.GetProjectResponse
-	nil,                                            // 108: chalk.server.v1.Team.SpecConfigJsonEntry
-	nil,                                            // 109: chalk.server.v1.Team.InternalMetadataEntry
-	nil,                                            // 110: chalk.server.v1.Team.CustomerMetadataEntry
-	nil,                                            // 111: chalk.server.v1.Project.InternalMetadataEntry
-	nil,                                            // 112: chalk.server.v1.Project.CustomerMetadataEntry
-	nil,                                            // 113: chalk.server.v1.UpdateEnvironmentOperation.AdditionalEnvVarsEntry
-	nil,                                            // 114: chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry
-	nil,                                            // 115: chalk.server.v1.CreateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry
-	nil,                                            // 116: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry
-	nil,                                            // 117: chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry
-	nil,                                            // 118: chalk.server.v1.ProjectDescription.InternalMetadataEntry
-	nil,                                            // 119: chalk.server.v1.ProjectDescription.CustomerMetadataEntry
-	(*Environment)(nil),                            // 120: chalk.server.v1.Environment
-	(*v1.Agent)(nil),                               // 121: chalk.auth.v1.Agent
-	(*v1.DisplayAgent)(nil),                        // 122: chalk.auth.v1.DisplayAgent
-	(*fieldmaskpb.FieldMask)(nil),                  // 123: google.protobuf.FieldMask
-	(*EnvironmentObjectStorageConfig)(nil),         // 124: chalk.server.v1.EnvironmentObjectStorageConfig
-	(DeploymentBuildProfile)(0),                    // 125: chalk.server.v1.DeploymentBuildProfile
-	(*v11.FieldChange)(nil),                        // 126: chalk.utils.v1.FieldChange
-	(v1.Permission)(0),                             // 127: chalk.auth.v1.Permission
-	(*v1.CustomClaim)(nil),                         // 128: chalk.auth.v1.CustomClaim
-	(v1.FeaturePermission)(0),                      // 129: chalk.auth.v1.FeaturePermission
-	(*v1.ServiceTokenAgent)(nil),                   // 130: chalk.auth.v1.ServiceTokenAgent
-	(*v1.DisplayServiceTokenAgent)(nil),            // 131: chalk.auth.v1.DisplayServiceTokenAgent
-	(*v1.FeaturePermissions)(nil),                  // 132: chalk.auth.v1.FeaturePermissions
-	(*timestamppb.Timestamp)(nil),                  // 133: google.protobuf.Timestamp
-	(VectorDBKind)(0),                              // 134: chalk.server.v1.VectorDBKind
-	(*structpb.Value)(nil),                         // 135: google.protobuf.Value
+	(*CreateScimGroupRequest)(nil),                 // 95: chalk.server.v1.CreateScimGroupRequest
+	(*CreateScimGroupResponse)(nil),                // 96: chalk.server.v1.CreateScimGroupResponse
+	(*AddScimGroupMembersRequest)(nil),             // 97: chalk.server.v1.AddScimGroupMembersRequest
+	(*AddScimGroupMembersResponse)(nil),            // 98: chalk.server.v1.AddScimGroupMembersResponse
+	(*RemoveScimGroupMembersRequest)(nil),          // 99: chalk.server.v1.RemoveScimGroupMembersRequest
+	(*RemoveScimGroupMembersResponse)(nil),         // 100: chalk.server.v1.RemoveScimGroupMembersResponse
+	(*CreateVectorDBConfigurationRequest)(nil),     // 101: chalk.server.v1.CreateVectorDBConfigurationRequest
+	(*CreateVectorDBConfigurationResponse)(nil),    // 102: chalk.server.v1.CreateVectorDBConfigurationResponse
+	(*CreateCustomRoleRequest)(nil),                // 103: chalk.server.v1.CreateCustomRoleRequest
+	(*CreateCustomRoleResponse)(nil),               // 104: chalk.server.v1.CreateCustomRoleResponse
+	(*DeleteCustomRoleRequest)(nil),                // 105: chalk.server.v1.DeleteCustomRoleRequest
+	(*DeleteCustomRoleResponse)(nil),               // 106: chalk.server.v1.DeleteCustomRoleResponse
+	(*UpdateCustomRoleRequest)(nil),                // 107: chalk.server.v1.UpdateCustomRoleRequest
+	(*UpdateCustomRoleResponse)(nil),               // 108: chalk.server.v1.UpdateCustomRoleResponse
+	(*GetPermissionsForEnvironmentRequest)(nil),    // 109: chalk.server.v1.GetPermissionsForEnvironmentRequest
+	(*GetPermissionsForEnvironmentResponse)(nil),   // 110: chalk.server.v1.GetPermissionsForEnvironmentResponse
+	(*GetProjectRequest)(nil),                      // 111: chalk.server.v1.GetProjectRequest
+	(*ProjectDescription)(nil),                     // 112: chalk.server.v1.ProjectDescription
+	(*GetProjectResponse)(nil),                     // 113: chalk.server.v1.GetProjectResponse
+	nil,                                            // 114: chalk.server.v1.Team.SpecConfigJsonEntry
+	nil,                                            // 115: chalk.server.v1.Team.InternalMetadataEntry
+	nil,                                            // 116: chalk.server.v1.Team.CustomerMetadataEntry
+	nil,                                            // 117: chalk.server.v1.Project.InternalMetadataEntry
+	nil,                                            // 118: chalk.server.v1.Project.CustomerMetadataEntry
+	nil,                                            // 119: chalk.server.v1.UpdateEnvironmentOperation.AdditionalEnvVarsEntry
+	nil,                                            // 120: chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry
+	nil,                                            // 121: chalk.server.v1.CreateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry
+	nil,                                            // 122: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry
+	nil,                                            // 123: chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry
+	nil,                                            // 124: chalk.server.v1.ProjectDescription.InternalMetadataEntry
+	nil,                                            // 125: chalk.server.v1.ProjectDescription.CustomerMetadataEntry
+	(*Environment)(nil),                            // 126: chalk.server.v1.Environment
+	(*v1.Agent)(nil),                               // 127: chalk.auth.v1.Agent
+	(*v1.DisplayAgent)(nil),                        // 128: chalk.auth.v1.DisplayAgent
+	(*fieldmaskpb.FieldMask)(nil),                  // 129: google.protobuf.FieldMask
+	(*EnvironmentObjectStorageConfig)(nil),         // 130: chalk.server.v1.EnvironmentObjectStorageConfig
+	(DeploymentBuildProfile)(0),                    // 131: chalk.server.v1.DeploymentBuildProfile
+	(*v11.FieldChange)(nil),                        // 132: chalk.utils.v1.FieldChange
+	(v1.Permission)(0),                             // 133: chalk.auth.v1.Permission
+	(*v1.CustomClaim)(nil),                         // 134: chalk.auth.v1.CustomClaim
+	(v1.FeaturePermission)(0),                      // 135: chalk.auth.v1.FeaturePermission
+	(*v1.ServiceTokenAgent)(nil),                   // 136: chalk.auth.v1.ServiceTokenAgent
+	(*v1.DisplayServiceTokenAgent)(nil),            // 137: chalk.auth.v1.DisplayServiceTokenAgent
+	(*v1.FeaturePermissions)(nil),                  // 138: chalk.auth.v1.FeaturePermissions
+	(*timestamppb.Timestamp)(nil),                  // 139: google.protobuf.Timestamp
+	(VectorDBKind)(0),                              // 140: chalk.server.v1.VectorDBKind
+	(*structpb.Value)(nil),                         // 141: google.protobuf.Value
 }
 var file_chalk_server_v1_team_proto_depIdxs = []int32{
-	120, // 0: chalk.server.v1.GetEnvResponse.environment:type_name -> chalk.server.v1.Environment
-	120, // 1: chalk.server.v1.GetEnvIncludingArchivedResponse.environment:type_name -> chalk.server.v1.Environment
-	120, // 2: chalk.server.v1.GetEnvironmentsResponse.environments:type_name -> chalk.server.v1.Environment
-	121, // 3: chalk.server.v1.GetAgentResponse.agent:type_name -> chalk.auth.v1.Agent
-	122, // 4: chalk.server.v1.GetDisplayAgentResponse.agent:type_name -> chalk.auth.v1.DisplayAgent
+	126, // 0: chalk.server.v1.GetEnvResponse.environment:type_name -> chalk.server.v1.Environment
+	126, // 1: chalk.server.v1.GetEnvIncludingArchivedResponse.environment:type_name -> chalk.server.v1.Environment
+	126, // 2: chalk.server.v1.GetEnvironmentsResponse.environments:type_name -> chalk.server.v1.Environment
+	127, // 3: chalk.server.v1.GetAgentResponse.agent:type_name -> chalk.auth.v1.Agent
+	128, // 4: chalk.server.v1.GetDisplayAgentResponse.agent:type_name -> chalk.auth.v1.DisplayAgent
 	13,  // 5: chalk.server.v1.Team.projects:type_name -> chalk.server.v1.Project
-	108, // 6: chalk.server.v1.Team.spec_config_json:type_name -> chalk.server.v1.Team.SpecConfigJsonEntry
-	109, // 7: chalk.server.v1.Team.internal_metadata:type_name -> chalk.server.v1.Team.InternalMetadataEntry
-	110, // 8: chalk.server.v1.Team.customer_metadata:type_name -> chalk.server.v1.Team.CustomerMetadataEntry
+	114, // 6: chalk.server.v1.Team.spec_config_json:type_name -> chalk.server.v1.Team.SpecConfigJsonEntry
+	115, // 7: chalk.server.v1.Team.internal_metadata:type_name -> chalk.server.v1.Team.InternalMetadataEntry
+	116, // 8: chalk.server.v1.Team.customer_metadata:type_name -> chalk.server.v1.Team.CustomerMetadataEntry
 	0,   // 9: chalk.server.v1.Team.team_creation_type:type_name -> chalk.server.v1.TeamCreationType
 	1,   // 10: chalk.server.v1.Team.account_type:type_name -> chalk.server.v1.TeamAccountType
-	120, // 11: chalk.server.v1.Project.environments:type_name -> chalk.server.v1.Environment
-	111, // 12: chalk.server.v1.Project.internal_metadata:type_name -> chalk.server.v1.Project.InternalMetadataEntry
-	112, // 13: chalk.server.v1.Project.customer_metadata:type_name -> chalk.server.v1.Project.CustomerMetadataEntry
+	126, // 11: chalk.server.v1.Project.environments:type_name -> chalk.server.v1.Environment
+	117, // 12: chalk.server.v1.Project.internal_metadata:type_name -> chalk.server.v1.Project.InternalMetadataEntry
+	118, // 13: chalk.server.v1.Project.customer_metadata:type_name -> chalk.server.v1.Project.CustomerMetadataEntry
 	12,  // 14: chalk.server.v1.CreateTeamResponse.team:type_name -> chalk.server.v1.Team
 	13,  // 15: chalk.server.v1.CreateProjectResponse.project:type_name -> chalk.server.v1.Project
 	18,  // 16: chalk.server.v1.UpdateProjectRequest.update:type_name -> chalk.server.v1.UpdateProjectOperation
-	123, // 17: chalk.server.v1.UpdateProjectRequest.update_mask:type_name -> google.protobuf.FieldMask
+	129, // 17: chalk.server.v1.UpdateProjectRequest.update_mask:type_name -> google.protobuf.FieldMask
 	13,  // 18: chalk.server.v1.UpdateProjectResponse.project:type_name -> chalk.server.v1.Project
-	120, // 19: chalk.server.v1.CreateEnvironmentResponse.environment:type_name -> chalk.server.v1.Environment
-	113, // 20: chalk.server.v1.UpdateEnvironmentOperation.additional_env_vars:type_name -> chalk.server.v1.UpdateEnvironmentOperation.AdditionalEnvVarsEntry
-	124, // 21: chalk.server.v1.UpdateEnvironmentOperation.environment_buckets:type_name -> chalk.server.v1.EnvironmentObjectStorageConfig
-	125, // 22: chalk.server.v1.UpdateEnvironmentOperation.default_build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	126, // 19: chalk.server.v1.CreateEnvironmentResponse.environment:type_name -> chalk.server.v1.Environment
+	119, // 20: chalk.server.v1.UpdateEnvironmentOperation.additional_env_vars:type_name -> chalk.server.v1.UpdateEnvironmentOperation.AdditionalEnvVarsEntry
+	130, // 21: chalk.server.v1.UpdateEnvironmentOperation.environment_buckets:type_name -> chalk.server.v1.EnvironmentObjectStorageConfig
+	131, // 22: chalk.server.v1.UpdateEnvironmentOperation.default_build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
 	25,  // 23: chalk.server.v1.UpdateEnvironmentRequest.update:type_name -> chalk.server.v1.UpdateEnvironmentOperation
-	123, // 24: chalk.server.v1.UpdateEnvironmentRequest.update_mask:type_name -> google.protobuf.FieldMask
-	120, // 25: chalk.server.v1.UpdateEnvironmentResponse.environment:type_name -> chalk.server.v1.Environment
-	126, // 26: chalk.server.v1.UpdateEnvironmentResponse.field_changes:type_name -> chalk.utils.v1.FieldChange
+	129, // 24: chalk.server.v1.UpdateEnvironmentRequest.update_mask:type_name -> google.protobuf.FieldMask
+	126, // 25: chalk.server.v1.UpdateEnvironmentResponse.environment:type_name -> chalk.server.v1.Environment
+	132, // 26: chalk.server.v1.UpdateEnvironmentResponse.field_changes:type_name -> chalk.utils.v1.FieldChange
 	12,  // 27: chalk.server.v1.GetTeamResponse.team:type_name -> chalk.server.v1.Team
-	127, // 28: chalk.server.v1.CreateServiceTokenRequest.permissions:type_name -> chalk.auth.v1.Permission
-	128, // 29: chalk.server.v1.CreateServiceTokenRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	114, // 30: chalk.server.v1.CreateServiceTokenRequest.feature_tag_to_permission:type_name -> chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry
-	129, // 31: chalk.server.v1.CreateServiceTokenRequest.default_permission:type_name -> chalk.auth.v1.FeaturePermission
-	127, // 32: chalk.server.v1.CreateServiceTokenRequest.team_permissions:type_name -> chalk.auth.v1.Permission
-	130, // 33: chalk.server.v1.CreateServiceTokenResponse.agent:type_name -> chalk.auth.v1.ServiceTokenAgent
-	127, // 34: chalk.server.v1.CreateServiceTokenTeamScopedRequest.team_permissions:type_name -> chalk.auth.v1.Permission
-	128, // 35: chalk.server.v1.CreateServiceTokenTeamScopedRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	115, // 36: chalk.server.v1.CreateServiceTokenTeamScopedRequest.feature_tag_to_permission:type_name -> chalk.server.v1.CreateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry
-	129, // 37: chalk.server.v1.CreateServiceTokenTeamScopedRequest.default_permission:type_name -> chalk.auth.v1.FeaturePermission
-	130, // 38: chalk.server.v1.CreateServiceTokenTeamScopedResponse.agent:type_name -> chalk.auth.v1.ServiceTokenAgent
-	127, // 39: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.team_permissions:type_name -> chalk.auth.v1.Permission
-	128, // 40: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	116, // 41: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.feature_tag_to_permission:type_name -> chalk.server.v1.UpdateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry
-	129, // 42: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.default_permission:type_name -> chalk.auth.v1.FeaturePermission
-	131, // 43: chalk.server.v1.UpdateServiceTokenTeamScopedResponse.agent:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
-	131, // 44: chalk.server.v1.ListServiceTokensTeamScopedResponse.agents:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
-	127, // 45: chalk.server.v1.PermissionDescription.id:type_name -> chalk.auth.v1.Permission
-	127, // 46: chalk.server.v1.RoleDescription.permissions:type_name -> chalk.auth.v1.Permission
-	132, // 47: chalk.server.v1.RoleDescription.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	133, // 28: chalk.server.v1.CreateServiceTokenRequest.permissions:type_name -> chalk.auth.v1.Permission
+	134, // 29: chalk.server.v1.CreateServiceTokenRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	120, // 30: chalk.server.v1.CreateServiceTokenRequest.feature_tag_to_permission:type_name -> chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry
+	135, // 31: chalk.server.v1.CreateServiceTokenRequest.default_permission:type_name -> chalk.auth.v1.FeaturePermission
+	133, // 32: chalk.server.v1.CreateServiceTokenRequest.team_permissions:type_name -> chalk.auth.v1.Permission
+	136, // 33: chalk.server.v1.CreateServiceTokenResponse.agent:type_name -> chalk.auth.v1.ServiceTokenAgent
+	133, // 34: chalk.server.v1.CreateServiceTokenTeamScopedRequest.team_permissions:type_name -> chalk.auth.v1.Permission
+	134, // 35: chalk.server.v1.CreateServiceTokenTeamScopedRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	121, // 36: chalk.server.v1.CreateServiceTokenTeamScopedRequest.feature_tag_to_permission:type_name -> chalk.server.v1.CreateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry
+	135, // 37: chalk.server.v1.CreateServiceTokenTeamScopedRequest.default_permission:type_name -> chalk.auth.v1.FeaturePermission
+	136, // 38: chalk.server.v1.CreateServiceTokenTeamScopedResponse.agent:type_name -> chalk.auth.v1.ServiceTokenAgent
+	133, // 39: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.team_permissions:type_name -> chalk.auth.v1.Permission
+	134, // 40: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	122, // 41: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.feature_tag_to_permission:type_name -> chalk.server.v1.UpdateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry
+	135, // 42: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.default_permission:type_name -> chalk.auth.v1.FeaturePermission
+	137, // 43: chalk.server.v1.UpdateServiceTokenTeamScopedResponse.agent:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
+	137, // 44: chalk.server.v1.ListServiceTokensTeamScopedResponse.agents:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
+	133, // 45: chalk.server.v1.PermissionDescription.id:type_name -> chalk.auth.v1.Permission
+	133, // 46: chalk.server.v1.RoleDescription.permissions:type_name -> chalk.auth.v1.Permission
+	138, // 47: chalk.server.v1.RoleDescription.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
 	42,  // 48: chalk.server.v1.GetAvailablePermissionsResponse.permissions:type_name -> chalk.server.v1.PermissionDescription
 	43,  // 49: chalk.server.v1.GetAvailablePermissionsResponse.roles:type_name -> chalk.server.v1.RoleDescription
-	127, // 50: chalk.server.v1.GetAvailablePermissionsResponse.available_service_token_permissions:type_name -> chalk.auth.v1.Permission
-	132, // 51: chalk.server.v1.UpsertFeaturePermissionsRequest.permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	132, // 52: chalk.server.v1.UpsertFeaturePermissionsResponse.permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	131, // 53: chalk.server.v1.ListServiceTokensResponse.agents:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
-	127, // 54: chalk.server.v1.UpdateServiceTokenRequest.permissions:type_name -> chalk.auth.v1.Permission
-	128, // 55: chalk.server.v1.UpdateServiceTokenRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	117, // 56: chalk.server.v1.UpdateServiceTokenRequest.feature_tag_to_permission:type_name -> chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry
-	129, // 57: chalk.server.v1.UpdateServiceTokenRequest.default_permission:type_name -> chalk.auth.v1.FeaturePermission
-	127, // 58: chalk.server.v1.UpdateServiceTokenRequest.team_permissions:type_name -> chalk.auth.v1.Permission
-	131, // 59: chalk.server.v1.UpdateServiceTokenResponse.agent:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
-	133, // 60: chalk.server.v1.TeamInvite.created_at:type_name -> google.protobuf.Timestamp
+	133, // 50: chalk.server.v1.GetAvailablePermissionsResponse.available_service_token_permissions:type_name -> chalk.auth.v1.Permission
+	138, // 51: chalk.server.v1.UpsertFeaturePermissionsRequest.permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	138, // 52: chalk.server.v1.UpsertFeaturePermissionsResponse.permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	137, // 53: chalk.server.v1.ListServiceTokensResponse.agents:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
+	133, // 54: chalk.server.v1.UpdateServiceTokenRequest.permissions:type_name -> chalk.auth.v1.Permission
+	134, // 55: chalk.server.v1.UpdateServiceTokenRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	123, // 56: chalk.server.v1.UpdateServiceTokenRequest.feature_tag_to_permission:type_name -> chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry
+	135, // 57: chalk.server.v1.UpdateServiceTokenRequest.default_permission:type_name -> chalk.auth.v1.FeaturePermission
+	133, // 58: chalk.server.v1.UpdateServiceTokenRequest.team_permissions:type_name -> chalk.auth.v1.Permission
+	137, // 59: chalk.server.v1.UpdateServiceTokenResponse.agent:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
+	139, // 60: chalk.server.v1.TeamInvite.created_at:type_name -> google.protobuf.Timestamp
 	60,  // 61: chalk.server.v1.ListTeamInvitesResponse.invites:type_name -> chalk.server.v1.TeamInvite
 	65,  // 62: chalk.server.v1.UserPermissions.user_roles:type_name -> chalk.server.v1.UserRoleAssignment
-	127, // 63: chalk.server.v1.UserPermissions.user_permissions:type_name -> chalk.auth.v1.Permission
+	133, // 63: chalk.server.v1.UserPermissions.user_permissions:type_name -> chalk.auth.v1.Permission
 	65,  // 64: chalk.server.v1.UserTeamPermissions.user_roles:type_name -> chalk.server.v1.UserRoleAssignment
-	127, // 65: chalk.server.v1.UserTeamPermissions.user_permissions:type_name -> chalk.auth.v1.Permission
-	133, // 66: chalk.server.v1.User.deactivated_at:type_name -> google.protobuf.Timestamp
+	133, // 65: chalk.server.v1.UserTeamPermissions.user_permissions:type_name -> chalk.auth.v1.Permission
+	139, // 66: chalk.server.v1.User.deactivated_at:type_name -> google.protobuf.Timestamp
 	70,  // 67: chalk.server.v1.ListTeamMembersRequest.filters:type_name -> chalk.server.v1.ListTeamMembersFilters
 	68,  // 68: chalk.server.v1.ListTeamMembersResponse.members:type_name -> chalk.server.v1.User
 	64,  // 69: chalk.server.v1.EnvironmentPermissions.scim_roles:type_name -> chalk.server.v1.ScimGroupRoleAssignment
@@ -6599,121 +6911,130 @@ var file_chalk_server_v1_team_proto_depIdxs = []int32{
 	68,  // 75: chalk.server.v1.GetTeamPermissionsResponse.team_members:type_name -> chalk.server.v1.User
 	74,  // 76: chalk.server.v1.GetTeamPermissionsResponse.team_permissions:type_name -> chalk.server.v1.TeamPermissions
 	63,  // 77: chalk.server.v1.DeleteScimGroupUsersResponse.scim_group:type_name -> chalk.server.v1.ScimGroup
-	134, // 78: chalk.server.v1.CreateVectorDBConfigurationRequest.vector_db_kind:type_name -> chalk.server.v1.VectorDBKind
-	120, // 79: chalk.server.v1.CreateVectorDBConfigurationResponse.environment:type_name -> chalk.server.v1.Environment
-	127, // 80: chalk.server.v1.CreateCustomRoleRequest.permissions:type_name -> chalk.auth.v1.Permission
-	133, // 81: chalk.server.v1.CreateCustomRoleResponse.created_at:type_name -> google.protobuf.Timestamp
-	127, // 82: chalk.server.v1.UpdateCustomRoleRequest.permissions:type_name -> chalk.auth.v1.Permission
-	133, // 83: chalk.server.v1.UpdateCustomRoleResponse.updated_at:type_name -> google.protobuf.Timestamp
-	127, // 84: chalk.server.v1.GetPermissionsForEnvironmentResponse.permissions:type_name -> chalk.auth.v1.Permission
-	43,  // 85: chalk.server.v1.GetPermissionsForEnvironmentResponse.roles:type_name -> chalk.server.v1.RoleDescription
-	118, // 86: chalk.server.v1.ProjectDescription.internal_metadata:type_name -> chalk.server.v1.ProjectDescription.InternalMetadataEntry
-	119, // 87: chalk.server.v1.ProjectDescription.customer_metadata:type_name -> chalk.server.v1.ProjectDescription.CustomerMetadataEntry
-	106, // 88: chalk.server.v1.GetProjectResponse.project:type_name -> chalk.server.v1.ProjectDescription
-	135, // 89: chalk.server.v1.Team.SpecConfigJsonEntry.value:type_name -> google.protobuf.Value
-	135, // 90: chalk.server.v1.Team.InternalMetadataEntry.value:type_name -> google.protobuf.Value
-	135, // 91: chalk.server.v1.Team.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
-	135, // 92: chalk.server.v1.Project.InternalMetadataEntry.value:type_name -> google.protobuf.Value
-	135, // 93: chalk.server.v1.Project.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
-	129, // 94: chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
-	129, // 95: chalk.server.v1.CreateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
-	129, // 96: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
-	129, // 97: chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
-	135, // 98: chalk.server.v1.ProjectDescription.InternalMetadataEntry.value:type_name -> google.protobuf.Value
-	135, // 99: chalk.server.v1.ProjectDescription.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
-	2,   // 100: chalk.server.v1.TeamService.GetEnv:input_type -> chalk.server.v1.GetEnvRequest
-	4,   // 101: chalk.server.v1.TeamService.GetEnvIncludingArchived:input_type -> chalk.server.v1.GetEnvIncludingArchivedRequest
-	6,   // 102: chalk.server.v1.TeamService.GetEnvironments:input_type -> chalk.server.v1.GetEnvironmentsRequest
-	8,   // 103: chalk.server.v1.TeamService.GetAgent:input_type -> chalk.server.v1.GetAgentRequest
-	10,  // 104: chalk.server.v1.TeamService.GetDisplayAgent:input_type -> chalk.server.v1.GetDisplayAgentRequest
-	28,  // 105: chalk.server.v1.TeamService.GetTeam:input_type -> chalk.server.v1.GetTeamRequest
-	14,  // 106: chalk.server.v1.TeamService.CreateTeam:input_type -> chalk.server.v1.CreateTeamRequest
-	16,  // 107: chalk.server.v1.TeamService.CreateProject:input_type -> chalk.server.v1.CreateProjectRequest
-	19,  // 108: chalk.server.v1.TeamService.UpdateProject:input_type -> chalk.server.v1.UpdateProjectRequest
-	21,  // 109: chalk.server.v1.TeamService.ArchiveProject:input_type -> chalk.server.v1.ArchiveProjectRequest
-	23,  // 110: chalk.server.v1.TeamService.CreateEnvironment:input_type -> chalk.server.v1.CreateEnvironmentRequest
-	26,  // 111: chalk.server.v1.TeamService.UpdateEnvironment:input_type -> chalk.server.v1.UpdateEnvironmentRequest
-	95,  // 112: chalk.server.v1.TeamService.CreateVectorDBConfiguration:input_type -> chalk.server.v1.CreateVectorDBConfigurationRequest
-	44,  // 113: chalk.server.v1.TeamService.GetAvailablePermissions:input_type -> chalk.server.v1.GetAvailablePermissionsRequest
-	30,  // 114: chalk.server.v1.TeamService.CreateServiceToken:input_type -> chalk.server.v1.CreateServiceTokenRequest
-	32,  // 115: chalk.server.v1.TeamService.CreateServiceTokenTeamScoped:input_type -> chalk.server.v1.CreateServiceTokenTeamScopedRequest
-	34,  // 116: chalk.server.v1.TeamService.UpdateServiceTokenTeamScoped:input_type -> chalk.server.v1.UpdateServiceTokenTeamScopedRequest
-	36,  // 117: chalk.server.v1.TeamService.DeleteServiceTokenTeamScoped:input_type -> chalk.server.v1.DeleteServiceTokenTeamScopedRequest
-	38,  // 118: chalk.server.v1.TeamService.ListServiceTokensTeamScoped:input_type -> chalk.server.v1.ListServiceTokensTeamScopedRequest
-	40,  // 119: chalk.server.v1.TeamService.DeleteServiceToken:input_type -> chalk.server.v1.DeleteServiceTokenRequest
-	48,  // 120: chalk.server.v1.TeamService.ListServiceTokens:input_type -> chalk.server.v1.ListServiceTokensRequest
-	50,  // 121: chalk.server.v1.TeamService.UpdateServiceToken:input_type -> chalk.server.v1.UpdateServiceTokenRequest
-	54,  // 122: chalk.server.v1.TeamService.InviteTeamMember:input_type -> chalk.server.v1.InviteTeamMemberRequest
-	56,  // 123: chalk.server.v1.TeamService.InviteTeamMemberWithTeamRole:input_type -> chalk.server.v1.InviteTeamMemberWithTeamRoleRequest
-	58,  // 124: chalk.server.v1.TeamService.ExpireTeamInvite:input_type -> chalk.server.v1.ExpireTeamInviteRequest
-	61,  // 125: chalk.server.v1.TeamService.ListTeamInvites:input_type -> chalk.server.v1.ListTeamInvitesRequest
-	71,  // 126: chalk.server.v1.TeamService.ListTeamMembers:input_type -> chalk.server.v1.ListTeamMembersRequest
-	46,  // 127: chalk.server.v1.TeamService.UpsertFeaturePermissions:input_type -> chalk.server.v1.UpsertFeaturePermissionsRequest
-	52,  // 128: chalk.server.v1.TeamService.UpdateScimGroupSettings:input_type -> chalk.server.v1.UpdateScimGroupSettingsRequest
-	75,  // 129: chalk.server.v1.TeamService.GetTeamPermissions:input_type -> chalk.server.v1.GetTeamPermissionsRequest
-	103, // 130: chalk.server.v1.TeamService.GetPermissionsForEnvironment:input_type -> chalk.server.v1.GetPermissionsForEnvironmentRequest
-	77,  // 131: chalk.server.v1.TeamService.ArchiveEnvironment:input_type -> chalk.server.v1.ArchiveEnvironmentRequest
-	79,  // 132: chalk.server.v1.TeamService.DeleteSelfSignupTeam:input_type -> chalk.server.v1.DeleteSelfSignupTeamRequest
-	81,  // 133: chalk.server.v1.TeamService.DeactivateUser:input_type -> chalk.server.v1.DeactivateUserRequest
-	83,  // 134: chalk.server.v1.TeamService.ReactivateUser:input_type -> chalk.server.v1.ReactivateUserRequest
-	85,  // 135: chalk.server.v1.TeamService.AssignTeamRole:input_type -> chalk.server.v1.AssignTeamRoleRequest
-	87,  // 136: chalk.server.v1.TeamService.AssignEnvironmentRole:input_type -> chalk.server.v1.AssignEnvironmentRoleRequest
-	89,  // 137: chalk.server.v1.TeamService.AssignScimGroupEnvironmentRole:input_type -> chalk.server.v1.AssignScimGroupEnvironmentRoleRequest
-	91,  // 138: chalk.server.v1.TeamService.DeleteScimGroup:input_type -> chalk.server.v1.DeleteScimGroupRequest
-	93,  // 139: chalk.server.v1.TeamService.DeleteScimGroupUsers:input_type -> chalk.server.v1.DeleteScimGroupUsersRequest
-	97,  // 140: chalk.server.v1.TeamService.CreateCustomRole:input_type -> chalk.server.v1.CreateCustomRoleRequest
-	99,  // 141: chalk.server.v1.TeamService.DeleteCustomRole:input_type -> chalk.server.v1.DeleteCustomRoleRequest
-	101, // 142: chalk.server.v1.TeamService.UpdateCustomRole:input_type -> chalk.server.v1.UpdateCustomRoleRequest
-	105, // 143: chalk.server.v1.TeamService.GetProject:input_type -> chalk.server.v1.GetProjectRequest
-	3,   // 144: chalk.server.v1.TeamService.GetEnv:output_type -> chalk.server.v1.GetEnvResponse
-	5,   // 145: chalk.server.v1.TeamService.GetEnvIncludingArchived:output_type -> chalk.server.v1.GetEnvIncludingArchivedResponse
-	7,   // 146: chalk.server.v1.TeamService.GetEnvironments:output_type -> chalk.server.v1.GetEnvironmentsResponse
-	9,   // 147: chalk.server.v1.TeamService.GetAgent:output_type -> chalk.server.v1.GetAgentResponse
-	11,  // 148: chalk.server.v1.TeamService.GetDisplayAgent:output_type -> chalk.server.v1.GetDisplayAgentResponse
-	29,  // 149: chalk.server.v1.TeamService.GetTeam:output_type -> chalk.server.v1.GetTeamResponse
-	15,  // 150: chalk.server.v1.TeamService.CreateTeam:output_type -> chalk.server.v1.CreateTeamResponse
-	17,  // 151: chalk.server.v1.TeamService.CreateProject:output_type -> chalk.server.v1.CreateProjectResponse
-	20,  // 152: chalk.server.v1.TeamService.UpdateProject:output_type -> chalk.server.v1.UpdateProjectResponse
-	22,  // 153: chalk.server.v1.TeamService.ArchiveProject:output_type -> chalk.server.v1.ArchiveProjectResponse
-	24,  // 154: chalk.server.v1.TeamService.CreateEnvironment:output_type -> chalk.server.v1.CreateEnvironmentResponse
-	27,  // 155: chalk.server.v1.TeamService.UpdateEnvironment:output_type -> chalk.server.v1.UpdateEnvironmentResponse
-	96,  // 156: chalk.server.v1.TeamService.CreateVectorDBConfiguration:output_type -> chalk.server.v1.CreateVectorDBConfigurationResponse
-	45,  // 157: chalk.server.v1.TeamService.GetAvailablePermissions:output_type -> chalk.server.v1.GetAvailablePermissionsResponse
-	31,  // 158: chalk.server.v1.TeamService.CreateServiceToken:output_type -> chalk.server.v1.CreateServiceTokenResponse
-	33,  // 159: chalk.server.v1.TeamService.CreateServiceTokenTeamScoped:output_type -> chalk.server.v1.CreateServiceTokenTeamScopedResponse
-	35,  // 160: chalk.server.v1.TeamService.UpdateServiceTokenTeamScoped:output_type -> chalk.server.v1.UpdateServiceTokenTeamScopedResponse
-	37,  // 161: chalk.server.v1.TeamService.DeleteServiceTokenTeamScoped:output_type -> chalk.server.v1.DeleteServiceTokenTeamScopedResponse
-	39,  // 162: chalk.server.v1.TeamService.ListServiceTokensTeamScoped:output_type -> chalk.server.v1.ListServiceTokensTeamScopedResponse
-	41,  // 163: chalk.server.v1.TeamService.DeleteServiceToken:output_type -> chalk.server.v1.DeleteServiceTokenResponse
-	49,  // 164: chalk.server.v1.TeamService.ListServiceTokens:output_type -> chalk.server.v1.ListServiceTokensResponse
-	51,  // 165: chalk.server.v1.TeamService.UpdateServiceToken:output_type -> chalk.server.v1.UpdateServiceTokenResponse
-	55,  // 166: chalk.server.v1.TeamService.InviteTeamMember:output_type -> chalk.server.v1.InviteTeamMemberResponse
-	57,  // 167: chalk.server.v1.TeamService.InviteTeamMemberWithTeamRole:output_type -> chalk.server.v1.InviteTeamMemberWithTeamRoleResponse
-	59,  // 168: chalk.server.v1.TeamService.ExpireTeamInvite:output_type -> chalk.server.v1.ExpireTeamInviteResponse
-	62,  // 169: chalk.server.v1.TeamService.ListTeamInvites:output_type -> chalk.server.v1.ListTeamInvitesResponse
-	72,  // 170: chalk.server.v1.TeamService.ListTeamMembers:output_type -> chalk.server.v1.ListTeamMembersResponse
-	47,  // 171: chalk.server.v1.TeamService.UpsertFeaturePermissions:output_type -> chalk.server.v1.UpsertFeaturePermissionsResponse
-	53,  // 172: chalk.server.v1.TeamService.UpdateScimGroupSettings:output_type -> chalk.server.v1.UpdateScimGroupSettingsResponse
-	76,  // 173: chalk.server.v1.TeamService.GetTeamPermissions:output_type -> chalk.server.v1.GetTeamPermissionsResponse
-	104, // 174: chalk.server.v1.TeamService.GetPermissionsForEnvironment:output_type -> chalk.server.v1.GetPermissionsForEnvironmentResponse
-	78,  // 175: chalk.server.v1.TeamService.ArchiveEnvironment:output_type -> chalk.server.v1.ArchiveEnvironmentResponse
-	80,  // 176: chalk.server.v1.TeamService.DeleteSelfSignupTeam:output_type -> chalk.server.v1.DeleteSelfSignupTeamResponse
-	82,  // 177: chalk.server.v1.TeamService.DeactivateUser:output_type -> chalk.server.v1.DeactivateUserResponse
-	84,  // 178: chalk.server.v1.TeamService.ReactivateUser:output_type -> chalk.server.v1.ReactivateUserResponse
-	86,  // 179: chalk.server.v1.TeamService.AssignTeamRole:output_type -> chalk.server.v1.AssignTeamRoleResponse
-	88,  // 180: chalk.server.v1.TeamService.AssignEnvironmentRole:output_type -> chalk.server.v1.AssignEnvironmentRoleResponse
-	90,  // 181: chalk.server.v1.TeamService.AssignScimGroupEnvironmentRole:output_type -> chalk.server.v1.AssignScimGroupEnvironmentRoleResponse
-	92,  // 182: chalk.server.v1.TeamService.DeleteScimGroup:output_type -> chalk.server.v1.DeleteScimGroupResponse
-	94,  // 183: chalk.server.v1.TeamService.DeleteScimGroupUsers:output_type -> chalk.server.v1.DeleteScimGroupUsersResponse
-	98,  // 184: chalk.server.v1.TeamService.CreateCustomRole:output_type -> chalk.server.v1.CreateCustomRoleResponse
-	100, // 185: chalk.server.v1.TeamService.DeleteCustomRole:output_type -> chalk.server.v1.DeleteCustomRoleResponse
-	102, // 186: chalk.server.v1.TeamService.UpdateCustomRole:output_type -> chalk.server.v1.UpdateCustomRoleResponse
-	107, // 187: chalk.server.v1.TeamService.GetProject:output_type -> chalk.server.v1.GetProjectResponse
-	144, // [144:188] is the sub-list for method output_type
-	100, // [100:144] is the sub-list for method input_type
-	100, // [100:100] is the sub-list for extension type_name
-	100, // [100:100] is the sub-list for extension extendee
-	0,   // [0:100] is the sub-list for field type_name
+	63,  // 78: chalk.server.v1.CreateScimGroupResponse.scim_group:type_name -> chalk.server.v1.ScimGroup
+	63,  // 79: chalk.server.v1.AddScimGroupMembersResponse.scim_group:type_name -> chalk.server.v1.ScimGroup
+	63,  // 80: chalk.server.v1.RemoveScimGroupMembersResponse.scim_group:type_name -> chalk.server.v1.ScimGroup
+	140, // 81: chalk.server.v1.CreateVectorDBConfigurationRequest.vector_db_kind:type_name -> chalk.server.v1.VectorDBKind
+	126, // 82: chalk.server.v1.CreateVectorDBConfigurationResponse.environment:type_name -> chalk.server.v1.Environment
+	133, // 83: chalk.server.v1.CreateCustomRoleRequest.permissions:type_name -> chalk.auth.v1.Permission
+	139, // 84: chalk.server.v1.CreateCustomRoleResponse.created_at:type_name -> google.protobuf.Timestamp
+	133, // 85: chalk.server.v1.UpdateCustomRoleRequest.permissions:type_name -> chalk.auth.v1.Permission
+	139, // 86: chalk.server.v1.UpdateCustomRoleResponse.updated_at:type_name -> google.protobuf.Timestamp
+	133, // 87: chalk.server.v1.GetPermissionsForEnvironmentResponse.permissions:type_name -> chalk.auth.v1.Permission
+	43,  // 88: chalk.server.v1.GetPermissionsForEnvironmentResponse.roles:type_name -> chalk.server.v1.RoleDescription
+	124, // 89: chalk.server.v1.ProjectDescription.internal_metadata:type_name -> chalk.server.v1.ProjectDescription.InternalMetadataEntry
+	125, // 90: chalk.server.v1.ProjectDescription.customer_metadata:type_name -> chalk.server.v1.ProjectDescription.CustomerMetadataEntry
+	112, // 91: chalk.server.v1.GetProjectResponse.project:type_name -> chalk.server.v1.ProjectDescription
+	141, // 92: chalk.server.v1.Team.SpecConfigJsonEntry.value:type_name -> google.protobuf.Value
+	141, // 93: chalk.server.v1.Team.InternalMetadataEntry.value:type_name -> google.protobuf.Value
+	141, // 94: chalk.server.v1.Team.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
+	141, // 95: chalk.server.v1.Project.InternalMetadataEntry.value:type_name -> google.protobuf.Value
+	141, // 96: chalk.server.v1.Project.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
+	135, // 97: chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
+	135, // 98: chalk.server.v1.CreateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
+	135, // 99: chalk.server.v1.UpdateServiceTokenTeamScopedRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
+	135, // 100: chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
+	141, // 101: chalk.server.v1.ProjectDescription.InternalMetadataEntry.value:type_name -> google.protobuf.Value
+	141, // 102: chalk.server.v1.ProjectDescription.CustomerMetadataEntry.value:type_name -> google.protobuf.Value
+	2,   // 103: chalk.server.v1.TeamService.GetEnv:input_type -> chalk.server.v1.GetEnvRequest
+	4,   // 104: chalk.server.v1.TeamService.GetEnvIncludingArchived:input_type -> chalk.server.v1.GetEnvIncludingArchivedRequest
+	6,   // 105: chalk.server.v1.TeamService.GetEnvironments:input_type -> chalk.server.v1.GetEnvironmentsRequest
+	8,   // 106: chalk.server.v1.TeamService.GetAgent:input_type -> chalk.server.v1.GetAgentRequest
+	10,  // 107: chalk.server.v1.TeamService.GetDisplayAgent:input_type -> chalk.server.v1.GetDisplayAgentRequest
+	28,  // 108: chalk.server.v1.TeamService.GetTeam:input_type -> chalk.server.v1.GetTeamRequest
+	14,  // 109: chalk.server.v1.TeamService.CreateTeam:input_type -> chalk.server.v1.CreateTeamRequest
+	16,  // 110: chalk.server.v1.TeamService.CreateProject:input_type -> chalk.server.v1.CreateProjectRequest
+	19,  // 111: chalk.server.v1.TeamService.UpdateProject:input_type -> chalk.server.v1.UpdateProjectRequest
+	21,  // 112: chalk.server.v1.TeamService.ArchiveProject:input_type -> chalk.server.v1.ArchiveProjectRequest
+	23,  // 113: chalk.server.v1.TeamService.CreateEnvironment:input_type -> chalk.server.v1.CreateEnvironmentRequest
+	26,  // 114: chalk.server.v1.TeamService.UpdateEnvironment:input_type -> chalk.server.v1.UpdateEnvironmentRequest
+	101, // 115: chalk.server.v1.TeamService.CreateVectorDBConfiguration:input_type -> chalk.server.v1.CreateVectorDBConfigurationRequest
+	44,  // 116: chalk.server.v1.TeamService.GetAvailablePermissions:input_type -> chalk.server.v1.GetAvailablePermissionsRequest
+	30,  // 117: chalk.server.v1.TeamService.CreateServiceToken:input_type -> chalk.server.v1.CreateServiceTokenRequest
+	32,  // 118: chalk.server.v1.TeamService.CreateServiceTokenTeamScoped:input_type -> chalk.server.v1.CreateServiceTokenTeamScopedRequest
+	34,  // 119: chalk.server.v1.TeamService.UpdateServiceTokenTeamScoped:input_type -> chalk.server.v1.UpdateServiceTokenTeamScopedRequest
+	36,  // 120: chalk.server.v1.TeamService.DeleteServiceTokenTeamScoped:input_type -> chalk.server.v1.DeleteServiceTokenTeamScopedRequest
+	38,  // 121: chalk.server.v1.TeamService.ListServiceTokensTeamScoped:input_type -> chalk.server.v1.ListServiceTokensTeamScopedRequest
+	40,  // 122: chalk.server.v1.TeamService.DeleteServiceToken:input_type -> chalk.server.v1.DeleteServiceTokenRequest
+	48,  // 123: chalk.server.v1.TeamService.ListServiceTokens:input_type -> chalk.server.v1.ListServiceTokensRequest
+	50,  // 124: chalk.server.v1.TeamService.UpdateServiceToken:input_type -> chalk.server.v1.UpdateServiceTokenRequest
+	54,  // 125: chalk.server.v1.TeamService.InviteTeamMember:input_type -> chalk.server.v1.InviteTeamMemberRequest
+	56,  // 126: chalk.server.v1.TeamService.InviteTeamMemberWithTeamRole:input_type -> chalk.server.v1.InviteTeamMemberWithTeamRoleRequest
+	58,  // 127: chalk.server.v1.TeamService.ExpireTeamInvite:input_type -> chalk.server.v1.ExpireTeamInviteRequest
+	61,  // 128: chalk.server.v1.TeamService.ListTeamInvites:input_type -> chalk.server.v1.ListTeamInvitesRequest
+	71,  // 129: chalk.server.v1.TeamService.ListTeamMembers:input_type -> chalk.server.v1.ListTeamMembersRequest
+	46,  // 130: chalk.server.v1.TeamService.UpsertFeaturePermissions:input_type -> chalk.server.v1.UpsertFeaturePermissionsRequest
+	52,  // 131: chalk.server.v1.TeamService.UpdateScimGroupSettings:input_type -> chalk.server.v1.UpdateScimGroupSettingsRequest
+	75,  // 132: chalk.server.v1.TeamService.GetTeamPermissions:input_type -> chalk.server.v1.GetTeamPermissionsRequest
+	109, // 133: chalk.server.v1.TeamService.GetPermissionsForEnvironment:input_type -> chalk.server.v1.GetPermissionsForEnvironmentRequest
+	77,  // 134: chalk.server.v1.TeamService.ArchiveEnvironment:input_type -> chalk.server.v1.ArchiveEnvironmentRequest
+	79,  // 135: chalk.server.v1.TeamService.DeleteSelfSignupTeam:input_type -> chalk.server.v1.DeleteSelfSignupTeamRequest
+	81,  // 136: chalk.server.v1.TeamService.DeactivateUser:input_type -> chalk.server.v1.DeactivateUserRequest
+	83,  // 137: chalk.server.v1.TeamService.ReactivateUser:input_type -> chalk.server.v1.ReactivateUserRequest
+	85,  // 138: chalk.server.v1.TeamService.AssignTeamRole:input_type -> chalk.server.v1.AssignTeamRoleRequest
+	87,  // 139: chalk.server.v1.TeamService.AssignEnvironmentRole:input_type -> chalk.server.v1.AssignEnvironmentRoleRequest
+	89,  // 140: chalk.server.v1.TeamService.AssignScimGroupEnvironmentRole:input_type -> chalk.server.v1.AssignScimGroupEnvironmentRoleRequest
+	91,  // 141: chalk.server.v1.TeamService.DeleteScimGroup:input_type -> chalk.server.v1.DeleteScimGroupRequest
+	93,  // 142: chalk.server.v1.TeamService.DeleteScimGroupUsers:input_type -> chalk.server.v1.DeleteScimGroupUsersRequest
+	95,  // 143: chalk.server.v1.TeamService.CreateScimGroup:input_type -> chalk.server.v1.CreateScimGroupRequest
+	97,  // 144: chalk.server.v1.TeamService.AddScimGroupMembers:input_type -> chalk.server.v1.AddScimGroupMembersRequest
+	99,  // 145: chalk.server.v1.TeamService.RemoveScimGroupMembers:input_type -> chalk.server.v1.RemoveScimGroupMembersRequest
+	103, // 146: chalk.server.v1.TeamService.CreateCustomRole:input_type -> chalk.server.v1.CreateCustomRoleRequest
+	105, // 147: chalk.server.v1.TeamService.DeleteCustomRole:input_type -> chalk.server.v1.DeleteCustomRoleRequest
+	107, // 148: chalk.server.v1.TeamService.UpdateCustomRole:input_type -> chalk.server.v1.UpdateCustomRoleRequest
+	111, // 149: chalk.server.v1.TeamService.GetProject:input_type -> chalk.server.v1.GetProjectRequest
+	3,   // 150: chalk.server.v1.TeamService.GetEnv:output_type -> chalk.server.v1.GetEnvResponse
+	5,   // 151: chalk.server.v1.TeamService.GetEnvIncludingArchived:output_type -> chalk.server.v1.GetEnvIncludingArchivedResponse
+	7,   // 152: chalk.server.v1.TeamService.GetEnvironments:output_type -> chalk.server.v1.GetEnvironmentsResponse
+	9,   // 153: chalk.server.v1.TeamService.GetAgent:output_type -> chalk.server.v1.GetAgentResponse
+	11,  // 154: chalk.server.v1.TeamService.GetDisplayAgent:output_type -> chalk.server.v1.GetDisplayAgentResponse
+	29,  // 155: chalk.server.v1.TeamService.GetTeam:output_type -> chalk.server.v1.GetTeamResponse
+	15,  // 156: chalk.server.v1.TeamService.CreateTeam:output_type -> chalk.server.v1.CreateTeamResponse
+	17,  // 157: chalk.server.v1.TeamService.CreateProject:output_type -> chalk.server.v1.CreateProjectResponse
+	20,  // 158: chalk.server.v1.TeamService.UpdateProject:output_type -> chalk.server.v1.UpdateProjectResponse
+	22,  // 159: chalk.server.v1.TeamService.ArchiveProject:output_type -> chalk.server.v1.ArchiveProjectResponse
+	24,  // 160: chalk.server.v1.TeamService.CreateEnvironment:output_type -> chalk.server.v1.CreateEnvironmentResponse
+	27,  // 161: chalk.server.v1.TeamService.UpdateEnvironment:output_type -> chalk.server.v1.UpdateEnvironmentResponse
+	102, // 162: chalk.server.v1.TeamService.CreateVectorDBConfiguration:output_type -> chalk.server.v1.CreateVectorDBConfigurationResponse
+	45,  // 163: chalk.server.v1.TeamService.GetAvailablePermissions:output_type -> chalk.server.v1.GetAvailablePermissionsResponse
+	31,  // 164: chalk.server.v1.TeamService.CreateServiceToken:output_type -> chalk.server.v1.CreateServiceTokenResponse
+	33,  // 165: chalk.server.v1.TeamService.CreateServiceTokenTeamScoped:output_type -> chalk.server.v1.CreateServiceTokenTeamScopedResponse
+	35,  // 166: chalk.server.v1.TeamService.UpdateServiceTokenTeamScoped:output_type -> chalk.server.v1.UpdateServiceTokenTeamScopedResponse
+	37,  // 167: chalk.server.v1.TeamService.DeleteServiceTokenTeamScoped:output_type -> chalk.server.v1.DeleteServiceTokenTeamScopedResponse
+	39,  // 168: chalk.server.v1.TeamService.ListServiceTokensTeamScoped:output_type -> chalk.server.v1.ListServiceTokensTeamScopedResponse
+	41,  // 169: chalk.server.v1.TeamService.DeleteServiceToken:output_type -> chalk.server.v1.DeleteServiceTokenResponse
+	49,  // 170: chalk.server.v1.TeamService.ListServiceTokens:output_type -> chalk.server.v1.ListServiceTokensResponse
+	51,  // 171: chalk.server.v1.TeamService.UpdateServiceToken:output_type -> chalk.server.v1.UpdateServiceTokenResponse
+	55,  // 172: chalk.server.v1.TeamService.InviteTeamMember:output_type -> chalk.server.v1.InviteTeamMemberResponse
+	57,  // 173: chalk.server.v1.TeamService.InviteTeamMemberWithTeamRole:output_type -> chalk.server.v1.InviteTeamMemberWithTeamRoleResponse
+	59,  // 174: chalk.server.v1.TeamService.ExpireTeamInvite:output_type -> chalk.server.v1.ExpireTeamInviteResponse
+	62,  // 175: chalk.server.v1.TeamService.ListTeamInvites:output_type -> chalk.server.v1.ListTeamInvitesResponse
+	72,  // 176: chalk.server.v1.TeamService.ListTeamMembers:output_type -> chalk.server.v1.ListTeamMembersResponse
+	47,  // 177: chalk.server.v1.TeamService.UpsertFeaturePermissions:output_type -> chalk.server.v1.UpsertFeaturePermissionsResponse
+	53,  // 178: chalk.server.v1.TeamService.UpdateScimGroupSettings:output_type -> chalk.server.v1.UpdateScimGroupSettingsResponse
+	76,  // 179: chalk.server.v1.TeamService.GetTeamPermissions:output_type -> chalk.server.v1.GetTeamPermissionsResponse
+	110, // 180: chalk.server.v1.TeamService.GetPermissionsForEnvironment:output_type -> chalk.server.v1.GetPermissionsForEnvironmentResponse
+	78,  // 181: chalk.server.v1.TeamService.ArchiveEnvironment:output_type -> chalk.server.v1.ArchiveEnvironmentResponse
+	80,  // 182: chalk.server.v1.TeamService.DeleteSelfSignupTeam:output_type -> chalk.server.v1.DeleteSelfSignupTeamResponse
+	82,  // 183: chalk.server.v1.TeamService.DeactivateUser:output_type -> chalk.server.v1.DeactivateUserResponse
+	84,  // 184: chalk.server.v1.TeamService.ReactivateUser:output_type -> chalk.server.v1.ReactivateUserResponse
+	86,  // 185: chalk.server.v1.TeamService.AssignTeamRole:output_type -> chalk.server.v1.AssignTeamRoleResponse
+	88,  // 186: chalk.server.v1.TeamService.AssignEnvironmentRole:output_type -> chalk.server.v1.AssignEnvironmentRoleResponse
+	90,  // 187: chalk.server.v1.TeamService.AssignScimGroupEnvironmentRole:output_type -> chalk.server.v1.AssignScimGroupEnvironmentRoleResponse
+	92,  // 188: chalk.server.v1.TeamService.DeleteScimGroup:output_type -> chalk.server.v1.DeleteScimGroupResponse
+	94,  // 189: chalk.server.v1.TeamService.DeleteScimGroupUsers:output_type -> chalk.server.v1.DeleteScimGroupUsersResponse
+	96,  // 190: chalk.server.v1.TeamService.CreateScimGroup:output_type -> chalk.server.v1.CreateScimGroupResponse
+	98,  // 191: chalk.server.v1.TeamService.AddScimGroupMembers:output_type -> chalk.server.v1.AddScimGroupMembersResponse
+	100, // 192: chalk.server.v1.TeamService.RemoveScimGroupMembers:output_type -> chalk.server.v1.RemoveScimGroupMembersResponse
+	104, // 193: chalk.server.v1.TeamService.CreateCustomRole:output_type -> chalk.server.v1.CreateCustomRoleResponse
+	106, // 194: chalk.server.v1.TeamService.DeleteCustomRole:output_type -> chalk.server.v1.DeleteCustomRoleResponse
+	108, // 195: chalk.server.v1.TeamService.UpdateCustomRole:output_type -> chalk.server.v1.UpdateCustomRoleResponse
+	113, // 196: chalk.server.v1.TeamService.GetProject:output_type -> chalk.server.v1.GetProjectResponse
+	150, // [150:197] is the sub-list for method output_type
+	103, // [103:150] is the sub-list for method input_type
+	103, // [103:103] is the sub-list for extension type_name
+	103, // [103:103] is the sub-list for extension extendee
+	0,   // [0:103] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_team_proto_init() }
@@ -6737,14 +7058,14 @@ func file_chalk_server_v1_team_proto_init() {
 	file_chalk_server_v1_team_proto_msgTypes[69].OneofWrappers = []any{}
 	file_chalk_server_v1_team_proto_msgTypes[70].OneofWrappers = []any{}
 	file_chalk_server_v1_team_proto_msgTypes[74].OneofWrappers = []any{}
-	file_chalk_server_v1_team_proto_msgTypes[104].OneofWrappers = []any{}
+	file_chalk_server_v1_team_proto_msgTypes[110].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_team_proto_rawDesc), len(file_chalk_server_v1_team_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   118,
+			NumMessages:   124,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

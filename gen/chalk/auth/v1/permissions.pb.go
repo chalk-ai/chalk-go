@@ -119,6 +119,33 @@ const (
 	Permission_PERMISSION_AGENTS_READ                      Permission = 40
 	Permission_PERMISSION_BILLING_PUBLISH_ANALYTICS        Permission = 41
 	Permission_PERMISSION_NOTEBOOK_WRITE                   Permission = 42
+	Permission_PERMISSION_ARTIFACT_READ                    Permission = 43
+	Permission_PERMISSION_ARTIFACT_MANAGE                  Permission = 44
+	Permission_PERMISSION_FUNCTION_READ                    Permission = 45
+	Permission_PERMISSION_FUNCTION_MANAGE                  Permission = 46
+	Permission_PERMISSION_FUNCTION_CALL                    Permission = 47
+	Permission_PERMISSION_IMAGE_READ                       Permission = 48
+	Permission_PERMISSION_IMAGE_BUILD                      Permission = 49
+	Permission_PERMISSION_MODEL_REGISTRY_READ              Permission = 50
+	Permission_PERMISSION_MODEL_REGISTRY_MANAGE            Permission = 51
+	Permission_PERMISSION_MODEL_DEPLOYMENT_READ            Permission = 52
+	Permission_PERMISSION_MODEL_DEPLOYMENT_MANAGE          Permission = 53
+	Permission_PERMISSION_MODEL_DEPLOYMENT_CALL            Permission = 54
+	Permission_PERMISSION_NOTEBOOK_READ                    Permission = 55
+	Permission_PERMISSION_NOTEBOOK_MANAGE                  Permission = 56
+	Permission_PERMISSION_NOTEBOOK_COMMENT                 Permission = 57
+	Permission_PERMISSION_NOTEBOOK_SHARE                   Permission = 58
+	Permission_PERMISSION_SANDBOX_READ                     Permission = 59
+	Permission_PERMISSION_SANDBOX_MANAGE                   Permission = 60
+	Permission_PERMISSION_SANDBOX_CONNECT                  Permission = 61
+	Permission_PERMISSION_SCALING_GROUP_READ               Permission = 62
+	Permission_PERMISSION_SCALING_GROUP_MANAGE             Permission = 63
+	Permission_PERMISSION_VOLUME_VIEW                      Permission = 64
+	Permission_PERMISSION_VOLUME_READ                      Permission = 65
+	Permission_PERMISSION_VOLUME_WRITE                     Permission = 66
+	Permission_PERMISSION_VOLUME_MANAGE                    Permission = 67
+	Permission_PERMISSION_TRAINING_READ                    Permission = 68
+	Permission_PERMISSION_TRAINING_MANAGE                  Permission = 69
 )
 
 // Enum value maps for Permission.
@@ -167,6 +194,33 @@ var (
 		40: "PERMISSION_AGENTS_READ",
 		41: "PERMISSION_BILLING_PUBLISH_ANALYTICS",
 		42: "PERMISSION_NOTEBOOK_WRITE",
+		43: "PERMISSION_ARTIFACT_READ",
+		44: "PERMISSION_ARTIFACT_MANAGE",
+		45: "PERMISSION_FUNCTION_READ",
+		46: "PERMISSION_FUNCTION_MANAGE",
+		47: "PERMISSION_FUNCTION_CALL",
+		48: "PERMISSION_IMAGE_READ",
+		49: "PERMISSION_IMAGE_BUILD",
+		50: "PERMISSION_MODEL_REGISTRY_READ",
+		51: "PERMISSION_MODEL_REGISTRY_MANAGE",
+		52: "PERMISSION_MODEL_DEPLOYMENT_READ",
+		53: "PERMISSION_MODEL_DEPLOYMENT_MANAGE",
+		54: "PERMISSION_MODEL_DEPLOYMENT_CALL",
+		55: "PERMISSION_NOTEBOOK_READ",
+		56: "PERMISSION_NOTEBOOK_MANAGE",
+		57: "PERMISSION_NOTEBOOK_COMMENT",
+		58: "PERMISSION_NOTEBOOK_SHARE",
+		59: "PERMISSION_SANDBOX_READ",
+		60: "PERMISSION_SANDBOX_MANAGE",
+		61: "PERMISSION_SANDBOX_CONNECT",
+		62: "PERMISSION_SCALING_GROUP_READ",
+		63: "PERMISSION_SCALING_GROUP_MANAGE",
+		64: "PERMISSION_VOLUME_VIEW",
+		65: "PERMISSION_VOLUME_READ",
+		66: "PERMISSION_VOLUME_WRITE",
+		67: "PERMISSION_VOLUME_MANAGE",
+		68: "PERMISSION_TRAINING_READ",
+		69: "PERMISSION_TRAINING_MANAGE",
 	}
 	Permission_value = map[string]int32{
 		"PERMISSION_UNSPECIFIED":                      0,
@@ -212,6 +266,33 @@ var (
 		"PERMISSION_AGENTS_READ":                      40,
 		"PERMISSION_BILLING_PUBLISH_ANALYTICS":        41,
 		"PERMISSION_NOTEBOOK_WRITE":                   42,
+		"PERMISSION_ARTIFACT_READ":                    43,
+		"PERMISSION_ARTIFACT_MANAGE":                  44,
+		"PERMISSION_FUNCTION_READ":                    45,
+		"PERMISSION_FUNCTION_MANAGE":                  46,
+		"PERMISSION_FUNCTION_CALL":                    47,
+		"PERMISSION_IMAGE_READ":                       48,
+		"PERMISSION_IMAGE_BUILD":                      49,
+		"PERMISSION_MODEL_REGISTRY_READ":              50,
+		"PERMISSION_MODEL_REGISTRY_MANAGE":            51,
+		"PERMISSION_MODEL_DEPLOYMENT_READ":            52,
+		"PERMISSION_MODEL_DEPLOYMENT_MANAGE":          53,
+		"PERMISSION_MODEL_DEPLOYMENT_CALL":            54,
+		"PERMISSION_NOTEBOOK_READ":                    55,
+		"PERMISSION_NOTEBOOK_MANAGE":                  56,
+		"PERMISSION_NOTEBOOK_COMMENT":                 57,
+		"PERMISSION_NOTEBOOK_SHARE":                   58,
+		"PERMISSION_SANDBOX_READ":                     59,
+		"PERMISSION_SANDBOX_MANAGE":                   60,
+		"PERMISSION_SANDBOX_CONNECT":                  61,
+		"PERMISSION_SCALING_GROUP_READ":               62,
+		"PERMISSION_SCALING_GROUP_MANAGE":             63,
+		"PERMISSION_VOLUME_VIEW":                      64,
+		"PERMISSION_VOLUME_READ":                      65,
+		"PERMISSION_VOLUME_WRITE":                     66,
+		"PERMISSION_VOLUME_MANAGE":                    67,
+		"PERMISSION_TRAINING_READ":                    68,
+		"PERMISSION_TRAINING_MANAGE":                  69,
 	}
 )
 
@@ -328,7 +409,7 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*c\n" +
 	"\x13PermissionPrincipal\x12$\n" +
 	" PERMISSION_PRINCIPAL_UNSPECIFIED\x10\x00\x12&\n" +
-	"\"PERMISSION_PRINCIPAL_SERVICE_TOKEN\x10\x01*\xaa'\n" +
+	"\"PERMISSION_PRINCIPAL_SERVICE_TOKEN\x10\x01*\xf5A\n" +
 	"\n" +
 	"Permission\x12R\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x1a6\xca>%Default value -- should never be set.\xd2>\vunspecified\x12O\n" +
@@ -374,8 +455,36 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"(PERMISSION_INTERNAL_EXCHANGE_TOKEN_RENEW\x10&\x1a8\xca>\x15Renew exchange tokens\xd2>\x1dinternal.exchange_token_renew\x12a\n" +
 	"\x17PERMISSION_AGENTS_WRITE\x10'\x1aD\xca>.Create, modify, delete ai provider connections\xd2>\fagents.write\xda>\x01\x01\x12G\n" +
 	"\x16PERMISSION_AGENTS_READ\x10(\x1a+\xca>\x16Use Chalk AI assistant\xd2>\vagents.read\xda>\x01\x01\x12\x87\x01\n" +
-	"$PERMISSION_BILLING_PUBLISH_ANALYTICS\x10)\x1a]\xca>>Publish product analytics events from a self-hosted deployment\xd2>\x19billing.publish_analytics\x12]\n" +
-	"\x19PERMISSION_NOTEBOOK_WRITE\x10*\x1a>\xca>&Create, read, edit, and run notebooks.\xd2>\x0enotebook.write\xda>\x01\x01\x1a\x84\a\xe2\xa1'\xff\x06\n" +
+	"$PERMISSION_BILLING_PUBLISH_ANALYTICS\x10)\x1a]\xca>>Publish product analytics events from a self-hosted deployment\xd2>\x19billing.publish_analytics\x12N\n" +
+	"\x19PERMISSION_NOTEBOOK_WRITE\x10*\x1a/\xca>\x17Edit and run notebooks.\xd2>\x0enotebook.write\xda>\x01\x01\x12Q\n" +
+	"\x18PERMISSION_ARTIFACT_READ\x10+\x1a3\xca>\x1cList and download artifacts.\xd2>\rartifact.read\xda>\x01\x01\x12`\n" +
+	"\x1aPERMISSION_ARTIFACT_MANAGE\x10,\x1a@\xca>'Upload, finalize, and delete artifacts.\xd2>\x0fartifact.manage\xda>\x01\x01\x12}\n" +
+	"\x18PERMISSION_FUNCTION_READ\x10-\x1a_\xca>HView functions, versions, source code, scheduled runs, and recent calls.\xd2>\rfunction.read\xda>\x01\x01\x12t\n" +
+	"\x1aPERMISSION_FUNCTION_MANAGE\x10.\x1aT\xca>;Create, update, and delete functions and function versions.\xd2>\x0ffunction.manage\xda>\x01\x01\x12D\n" +
+	"\x18PERMISSION_FUNCTION_CALL\x10/\x1a&\xca>\x0fCall functions.\xd2>\rfunction.call\xda>\x01\x01\x12s\n" +
+	"\x15PERMISSION_IMAGE_READ\x100\x1aX\xca>DView images, builds, and build logs, and get image pull credentials.\xd2>\n" +
+	"image.read\xda>\x01\x01\x12>\n" +
+	"\x16PERMISSION_IMAGE_BUILD\x101\x1a\"\xca>\rBuild images.\xd2>\vimage.build\xda>\x01\x01\x12v\n" +
+	"\x1ePERMISSION_MODEL_REGISTRY_READ\x102\x1aR\xca>5View the model registry and download model artifacts.\xd2>\x13model_registry.read\xda>\x01\x01\x12\x8b\x01\n" +
+	" PERMISSION_MODEL_REGISTRY_MANAGE\x103\x1ae\xca>FRegister, update, and delete models, versions, aliases, and artifacts.\xd2>\x15model_registry.manage\xda>\x01\x01\x12o\n" +
+	" PERMISSION_MODEL_DEPLOYMENT_READ\x104\x1aI\xca>*View model deployments and curated models.\xd2>\x15model_deployment.read\xda>\x01\x01\x12k\n" +
+	"\"PERMISSION_MODEL_DEPLOYMENT_MANAGE\x105\x1aC\xca>\"Deploy, update, and delete models.\xd2>\x17model_deployment.manage\xda>\x01\x01\x12Z\n" +
+	" PERMISSION_MODEL_DEPLOYMENT_CALL\x106\x1a4\xca>\x15Call deployed models.\xd2>\x15model_deployment.call\xda>\x01\x01\x12f\n" +
+	"\x18PERMISSION_NOTEBOOK_READ\x107\x1aH\xca>1Read notebooks, results, revisions, and comments.\xd2>\rnotebook.read\xda>\x01\x01\x12\x8a\x01\n" +
+	"\x1aPERMISSION_NOTEBOOK_MANAGE\x108\x1aj\xca>QCreate, archive, and delete notebooks, and manage notebook settings and runtimes.\xd2>\x0fnotebook.manage\xda>\x01\x01\x12P\n" +
+	"\x1bPERMISSION_NOTEBOOK_COMMENT\x109\x1a/\xca>\x15Comment on notebooks.\xd2>\x10notebook.comment\xda>\x01\x01\x12^\n" +
+	"\x19PERMISSION_NOTEBOOK_SHARE\x10:\x1a?\xca>'Create and revoke notebook share links.\xd2>\x0enotebook.share\xda>\x01\x01\x12[\n" +
+	"\x17PERMISSION_SANDBOX_READ\x10;\x1a>\xca>(View sandboxes, snapshots, and sessions.\xd2>\fsandbox.read\xda>\x01\x01\x12~\n" +
+	"\x19PERMISSION_SANDBOX_MANAGE\x10<\x1a_\xca>GCreate, suspend, resume, and terminate sandboxes, and manage snapshots.\xd2>\x0esandbox.manage\xda>\x01\x01\x12z\n" +
+	"\x1aPERMISSION_SANDBOX_CONNECT\x10=\x1aZ\xca>AExecute commands, open sessions, and transfer files in sandboxes.\xd2>\x0fsandbox.connect\xda>\x01\x01\x12l\n" +
+	"\x1dPERMISSION_SCALING_GROUP_READ\x10>\x1aI\xca>-View scaling groups, replicas, and revisions.\xd2>\x12scaling_group.read\xda>\x01\x01\x12m\n" +
+	"\x1fPERMISSION_SCALING_GROUP_MANAGE\x10?\x1aH\xca>*Create, update, and delete scaling groups.\xd2>\x14scaling_group.manage\xda>\x01\x01\x12Z\n" +
+	"\x16PERMISSION_VOLUME_VIEW\x10@\x1a>\xca>)View volume metadata, refs, and versions.\xd2>\vvolume.view\xda>\x01\x01\x12h\n" +
+	"\x16PERMISSION_VOLUME_READ\x10A\x1aL\xca>7Read volume files and get read-only volume credentials.\xd2>\vvolume.read\xda>\x01\x01\x12h\n" +
+	"\x17PERMISSION_VOLUME_WRITE\x10B\x1aK\xca>5Write volume files, commit versions, and manage refs.\xd2>\fvolume.write\xda>\x01\x01\x12O\n" +
+	"\x18PERMISSION_VOLUME_MANAGE\x10C\x1a1\xca>\x1aCreate and delete volumes.\xd2>\rvolume.manage\xda>\x01\x01\x12f\n" +
+	"\x18PERMISSION_TRAINING_READ\x10D\x1aH\xca>1View training runs, checkpoints, and experiments.\xd2>\rtraining.read\xda>\x01\x01\x12t\n" +
+	"\x1aPERMISSION_TRAINING_MANAGE\x10E\x1aT\xca>;Start, cancel, and report on training runs and experiments.\xd2>\x0ftraining.manage\xda>\x01\x01\x1a\xbd\v\xe2\xa1'\xb8\v\n" +
 	"\x1c\b\x01\x12\x18insecure_unauthenticated\n" +
 	"\x11\b\x02\x12\rauthenticated\n" +
 	"\x10\b\x03\x12\fquery.online\n" +
@@ -419,7 +528,35 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x10\b'\x12\fagents.write\n" +
 	"\x0f\b(\x12\vagents.read\n" +
 	"\x1d\b)\x12\x19billing.publish_analytics\n" +
-	"\x12\b*\x12\x0enotebook.write:D\n" +
+	"\x12\b*\x12\x0enotebook.write\n" +
+	"\x11\b+\x12\rartifact.read\n" +
+	"\x13\b,\x12\x0fartifact.manage\n" +
+	"\x11\b-\x12\rfunction.read\n" +
+	"\x13\b.\x12\x0ffunction.manage\n" +
+	"\x11\b/\x12\rfunction.call\n" +
+	"\x0e\b0\x12\n" +
+	"image.read\n" +
+	"\x0f\b1\x12\vimage.build\n" +
+	"\x17\b2\x12\x13model_registry.read\n" +
+	"\x19\b3\x12\x15model_registry.manage\n" +
+	"\x19\b4\x12\x15model_deployment.read\n" +
+	"\x1b\b5\x12\x17model_deployment.manage\n" +
+	"\x19\b6\x12\x15model_deployment.call\n" +
+	"\x11\b7\x12\rnotebook.read\n" +
+	"\x13\b8\x12\x0fnotebook.manage\n" +
+	"\x14\b9\x12\x10notebook.comment\n" +
+	"\x12\b:\x12\x0enotebook.share\n" +
+	"\x10\b;\x12\fsandbox.read\n" +
+	"\x12\b<\x12\x0esandbox.manage\n" +
+	"\x13\b=\x12\x0fsandbox.connect\n" +
+	"\x16\b>\x12\x12scaling_group.read\n" +
+	"\x18\b?\x12\x14scaling_group.manage\n" +
+	"\x0f\b@\x12\vvolume.view\n" +
+	"\x0f\bA\x12\vvolume.read\n" +
+	"\x10\bB\x12\fvolume.write\n" +
+	"\x11\bC\x12\rvolume.manage\n" +
+	"\x11\bD\x12\rtraining.read\n" +
+	"\x13\bE\x12\x0ftraining.manage:D\n" +
 	"\vdescription\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\tR\vdescription:6\n" +
 	"\x04slug\x12!.google.protobuf.EnumValueOptions\x18\xea\a \x01(\tR\x04slug:k\n" +
 	"\rassignable_to\x12!.google.protobuf.EnumValueOptions\x18\xeb\a \x03(\x0e2\".chalk.auth.v1.PermissionPrincipalR\fassignableTo:Z\n" +

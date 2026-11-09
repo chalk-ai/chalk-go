@@ -1249,18 +1249,18 @@ const file_chalk_evaluation_v1_experiment_proto_rawDesc = "" +
 	"\x1cEXPERIMENT_PHASE_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18EXPERIMENT_PHASE_ROLLOUT\x10\x01\x12\x1d\n" +
 	"\x19EXPERIMENT_PHASE_TRAINING\x10\x02\x12\x19\n" +
-	"\x15EXPERIMENT_PHASE_DONE\x10\x032\x99\n" +
+	"\x15EXPERIMENT_PHASE_DONE\x10\x032\xa7\n" +
 	"\n" +
-	"\x11ExperimentService\x12\xfc\x01\n" +
-	"\x0fStartExperiment\x12+.chalk.evaluation.v1.StartExperimentRequest\x1a,.chalk.evaluation.v1.StartExperimentResponse\"\x8d\x01\x80}\x04\x92\xd3\x0e\x85\x01\n" +
-	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.\x12\xfd\x01\n" +
-	"\rGetExperiment\x12).chalk.evaluation.v1.GetExperimentRequest\x1a*.chalk.evaluation.v1.GetExperimentResponse\"\x94\x01\x80}\x04\x92}\x01$\x92\xd3\x0e\x85\x01\n" +
-	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.\x90\x02\x01\x12\x83\x02\n" +
-	"\x0fListExperiments\x12+.chalk.evaluation.v1.ListExperimentsRequest\x1a,.chalk.evaluation.v1.ListExperimentsResponse\"\x94\x01\x80}\x04\x92}\x01$\x92\xd3\x0e\x85\x01\n" +
-	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.\x90\x02\x01\x12\xfc\x01\n" +
-	"\x0fRetryExperiment\x12+.chalk.evaluation.v1.RetryExperimentRequest\x1a,.chalk.evaluation.v1.RetryExperimentResponse\"\x8d\x01\x80}\x04\x92\xd3\x0e\x85\x01\n" +
-	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.\x12\xff\x01\n" +
-	"\x10CancelExperiment\x12,.chalk.evaluation.v1.CancelExperimentRequest\x1a-.chalk.evaluation.v1.CancelExperimentResponse\"\x8d\x01\x80}\x04\x92\xd3\x0e\x85\x01\n" +
+	"\x11ExperimentService\x12\x80\x02\n" +
+	"\x0fStartExperiment\x12+.chalk.evaluation.v1.StartExperimentRequest\x1a,.chalk.evaluation.v1.StartExperimentResponse\"\x91\x01\x80}E\x92}\x01\x04\x92\xd3\x0e\x85\x01\n" +
+	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.\x12\xfe\x01\n" +
+	"\rGetExperiment\x12).chalk.evaluation.v1.GetExperimentRequest\x1a*.chalk.evaluation.v1.GetExperimentResponse\"\x95\x01\x80}D\x92}\x02\x04$\x92\xd3\x0e\x85\x01\n" +
+	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.\x90\x02\x01\x12\x84\x02\n" +
+	"\x0fListExperiments\x12+.chalk.evaluation.v1.ListExperimentsRequest\x1a,.chalk.evaluation.v1.ListExperimentsResponse\"\x95\x01\x80}D\x92}\x02\x04$\x92\xd3\x0e\x85\x01\n" +
+	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.\x90\x02\x01\x12\x80\x02\n" +
+	"\x0fRetryExperiment\x12+.chalk.evaluation.v1.RetryExperimentRequest\x1a,.chalk.evaluation.v1.RetryExperimentResponse\"\x91\x01\x80}E\x92}\x01\x04\x92\xd3\x0e\x85\x01\n" +
+	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.\x12\x83\x02\n" +
+	"\x10CancelExperiment\x12,.chalk.evaluation.v1.CancelExperimentRequest\x1a-.chalk.evaluation.v1.CancelExperimentResponse\"\x91\x01\x80}E\x92}\x01\x04\x92\xd3\x0e\x85\x01\n" +
 	" evaluation_post_training_enabled\x12aEnables experiments: training a model on an evaluation's task and judging it with the evaluation.B\xdb\x01\n" +
 	"\x17com.chalk.evaluation.v1B\x0fExperimentProtoP\x01ZAgithub.com/chalk-ai/chalk-go/gen/chalk/evaluation/v1;evaluationv1\xa2\x02\x03CEX\xaa\x02\x13Chalk.Evaluation.V1\xca\x02\x13Chalk\\Evaluation\\V1\xe2\x02\x1fChalk\\Evaluation\\V1\\GPBMetadata\xea\x02\x15Chalk::Evaluation::V1b\x06proto3"
 
