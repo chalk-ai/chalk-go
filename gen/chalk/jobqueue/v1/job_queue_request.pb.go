@@ -4317,8 +4317,15 @@ type PlannerOptions struct {
 	// Run a DataFrame resolver only on the rows whose outputs the online store did not serve,
 	// without should_cache_fallback_on_recompute's offline-store lookup.
 	DataframeResolverSkipCacheHits *bool `protobuf:"varint,147,opt,name=dataframe_resolver_skip_cache_hits,json=dataframeResolverSkipCacheHits,proto3,oneof" json:"dataframe_resolver_skip_cache_hits,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// When set, an offline-store read split into several statements stages its spine once and every
+	// statement reads that table, instead of each staging its own copy. Absent => the deployment
+	// default (CHALK_PLANNER_SHARE_STAGED_SPINE).
+	ShareStagedSpine *bool `protobuf:"varint,149,opt,name=share_staged_spine,json=shareStagedSpine,proto3,oneof" json:"share_staged_spine,omitempty"`
+	// Summarize an aggregate backfill run's requests that share a summary cutoff in one summary job,
+	// staged into one DynamoDB table instead of one per entity row family. Absent => false.
+	CoalesceSummaryTileTables *bool `protobuf:"varint,150,opt,name=coalesce_summary_tile_tables,json=coalesceSummaryTileTables,proto3,oneof" json:"coalesce_summary_tile_tables,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -5381,6 +5388,20 @@ func (x *PlannerOptions) GetDataframeResolverSkipCacheHits() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetShareStagedSpine() bool {
+	if x != nil && x.ShareStagedSpine != nil {
+		return *x.ShareStagedSpine
+	}
+	return false
+}
+
+func (x *PlannerOptions) GetCoalesceSummaryTileTables() bool {
+	if x != nil && x.CoalesceSummaryTileTables != nil {
+		return *x.CoalesceSummaryTileTables
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -6096,7 +6117,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xbe\x83\x01\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\xf3\x84\x01\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -6247,7 +6268,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x1asliding_window_aggregation\x18\x90\x01 \x01(\bH\x8f\x01R\x18slidingWindowAggregation\x88\x01\x01\x12C\n" +
 	"\x1bnative_has_many_invoker_udf\x18\x91\x01 \x01(\bH\x90\x01R\x17nativeHasManyInvokerUdf\x88\x01\x01\x12D\n" +
 	"\x1buse_aggregate_summary_tiles\x18\x92\x01 \x01(\bH\x91\x01R\x18useAggregateSummaryTiles\x88\x01\x01\x12Q\n" +
-	"\"dataframe_resolver_skip_cache_hits\x18\x93\x01 \x01(\bH\x92\x01R\x1edataframeResolverSkipCacheHits\x88\x01\x01B\x1e\n" +
+	"\"dataframe_resolver_skip_cache_hits\x18\x93\x01 \x01(\bH\x92\x01R\x1edataframeResolverSkipCacheHits\x88\x01\x01\x123\n" +
+	"\x12share_staged_spine\x18\x95\x01 \x01(\bH\x93\x01R\x10shareStagedSpine\x88\x01\x01\x12F\n" +
+	"\x1ccoalesce_summary_tile_tables\x18\x96\x01 \x01(\bH\x94\x01R\x19coalesceSummaryTileTables\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -6394,7 +6417,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x1b_sliding_window_aggregationB\x1e\n" +
 	"\x1c_native_has_many_invoker_udfB\x1e\n" +
 	"\x1c_use_aggregate_summary_tilesB%\n" +
-	"#_dataframe_resolver_skip_cache_hits\"\xd2\x06\n" +
+	"#_dataframe_resolver_skip_cache_hitsB\x15\n" +
+	"\x13_share_staged_spineB\x1f\n" +
+	"\x1d_coalesce_summary_tile_tables\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

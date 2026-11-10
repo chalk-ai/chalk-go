@@ -1206,13 +1206,13 @@ const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"\x18SandboxSnapshotSortOrder\x12+\n" +
 	"'SANDBOX_SNAPSHOT_SORT_ORDER_UNSPECIFIED\x10\x00\x12$\n" +
 	" SANDBOX_SNAPSHOT_SORT_ORDER_DESC\x10\x01\x12#\n" +
-	"\x1fSANDBOX_SNAPSHOT_SORT_ORDER_ASC\x10\x022\xfa\x05\n" +
-	"\x16SandboxSnapshotService\x12\xd9\x01\n" +
-	"\x15CreateSandboxSnapshot\x12..chalk.sandbox.v2.CreateSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.CreateSandboxSnapshotResponse\"_\x80}\f\x92\xd3\x0eX\n" +
-	"\x1bcontainer_snapshots_enabled\x129This action is not enabled. Please contact Chalk Support.\x12t\n" +
-	"\x12GetSandboxSnapshot\x12+.chalk.sandbox.v2.GetSandboxSnapshotRequest\x1a,.chalk.sandbox.v2.GetSandboxSnapshotResponse\"\x03\x80}\v\x12z\n" +
-	"\x14ListSandboxSnapshots\x12-.chalk.sandbox.v2.ListSandboxSnapshotsRequest\x1a..chalk.sandbox.v2.ListSandboxSnapshotsResponse\"\x03\x80}\v\x12}\n" +
-	"\x15DeleteSandboxSnapshot\x12..chalk.sandbox.v2.DeleteSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.DeleteSandboxSnapshotResponse\"\x03\x80}\f\x12\x92\x01\n" +
+	"\x1fSANDBOX_SNAPSHOT_SORT_ORDER_ASC\x10\x022\x8b\x06\n" +
+	"\x16SandboxSnapshotService\x12\xdd\x01\n" +
+	"\x15CreateSandboxSnapshot\x12..chalk.sandbox.v2.CreateSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.CreateSandboxSnapshotResponse\"c\x80}<\x92}\x01\f\x92\xd3\x0eX\n" +
+	"\x1bcontainer_snapshots_enabled\x129This action is not enabled. Please contact Chalk Support.\x12x\n" +
+	"\x12GetSandboxSnapshot\x12+.chalk.sandbox.v2.GetSandboxSnapshotRequest\x1a,.chalk.sandbox.v2.GetSandboxSnapshotResponse\"\a\x80};\x92}\x01\v\x12~\n" +
+	"\x14ListSandboxSnapshots\x12-.chalk.sandbox.v2.ListSandboxSnapshotsRequest\x1a..chalk.sandbox.v2.ListSandboxSnapshotsResponse\"\a\x80};\x92}\x01\v\x12\x81\x01\n" +
+	"\x15DeleteSandboxSnapshot\x12..chalk.sandbox.v2.DeleteSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.DeleteSandboxSnapshotResponse\"\a\x80}<\x92}\x01\f\x12\x92\x01\n" +
 	"\x1bGetSnapshotStoreCredentials\x124.chalk.sandbox.v2.GetSnapshotStoreCredentialsRequest\x1a5.chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse\"\x06\x80}\f\x90\x02\x01B\xcb\x01\n" +
 	"\x14com.chalk.sandbox.v2B\x14SnapshotServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v2;sandboxv2\xa2\x02\x03CSX\xaa\x02\x10Chalk.Sandbox.V2\xca\x02\x10Chalk\\Sandbox\\V2\xe2\x02\x1cChalk\\Sandbox\\V2\\GPBMetadata\xea\x02\x12Chalk::Sandbox::V2b\x06proto3"
 

@@ -1522,21 +1522,26 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"\x1bGetObjectDownloadUriRequest\x12*\n" +
 	"\x11storage_object_id\x18\x01 \x01(\tR\x0fstorageObjectId\"N\n" +
 	"\x1cGetObjectDownloadUriResponse\x12.\n" +
-	"\x13signed_download_uri\x18\x01 \x01(\tR\x11signedDownloadUri2\x90\x02\n" +
-	"\x1dDataPlaneObjectStorageService\x12r\n" +
-	"\x12GetObjectUploadUri\x12*.chalk.volume.v1.GetObjectUploadUriRequest\x1a+.chalk.volume.v1.GetObjectUploadUriResponse\"\x03\x80}\f\x12{\n" +
-	"\x14GetObjectDownloadUri\x12,.chalk.volume.v1.GetObjectDownloadUriRequest\x1a-.chalk.volume.v1.GetObjectDownloadUriResponse\"\x06\x80}\v\x90\x02\x012\xca\x06\n" +
-	"\rVolumeService\x12\xb7\x01\n" +
-	"\fCreateVolume\x12$.chalk.volume.v1.CreateVolumeRequest\x1a%.chalk.volume.v1.CreateVolumeResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12Z\n" +
-	"\tGetVolume\x12!.chalk.volume.v1.GetVolumeRequest\x1a\".chalk.volume.v1.GetVolumeResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
-	"\vListVolumes\x12#.chalk.volume.v1.ListVolumesRequest\x1a$.chalk.volume.v1.ListVolumesResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
-	"\fDeleteVolume\x12$.chalk.volume.v1.DeleteVolumeRequest\x1a%.chalk.volume.v1.DeleteVolumeResponse\"\x03\x80}\x0e\x12Z\n" +
-	"\tListFiles\x12!.chalk.volume.v1.ListFilesRequest\x1a\".chalk.volume.v1.ListFilesResponse\"\x06\x80}\v\x90\x02\x01\x12T\n" +
-	"\aGetFile\x12\x1f.chalk.volume.v1.GetFileRequest\x1a .chalk.volume.v1.GetFileResponse\"\x06\x80}\v\x90\x02\x01\x12Q\n" +
-	"\aPutFile\x12\x1f.chalk.volume.v1.PutFileRequest\x1a .chalk.volume.v1.PutFileResponse\"\x03\x80}\f\x12Z\n" +
+	"\x13signed_download_uri\x18\x01 \x01(\tR\x11signedDownloadUri2\x98\x02\n" +
+	"\x1dDataPlaneObjectStorageService\x12v\n" +
+	"\x12GetObjectUploadUri\x12*.chalk.volume.v1.GetObjectUploadUriRequest\x1a+.chalk.volume.v1.GetObjectUploadUriResponse\"\a\x80}B\x92}\x01\f\x12\x7f\n" +
+	"\x14GetObjectDownloadUri\x12,.chalk.volume.v1.GetObjectDownloadUriRequest\x1a-.chalk.volume.v1.GetObjectDownloadUriResponse\"\n" +
+	"\x80}A\x92}\x01\v\x90\x02\x012\xea\x06\n" +
+	"\rVolumeService\x12\xbb\x01\n" +
+	"\fCreateVolume\x12$.chalk.volume.v1.CreateVolumeRequest\x1a%.chalk.volume.v1.CreateVolumeResponse\"^\x80}C\x92}\x01\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12^\n" +
+	"\tGetVolume\x12!.chalk.volume.v1.GetVolumeRequest\x1a\".chalk.volume.v1.GetVolumeResponse\"\n" +
+	"\x80}@\x92}\x01\v\x90\x02\x01\x12d\n" +
+	"\vListVolumes\x12#.chalk.volume.v1.ListVolumesRequest\x1a$.chalk.volume.v1.ListVolumesResponse\"\n" +
+	"\x80}@\x92}\x01\v\x90\x02\x01\x12d\n" +
+	"\fDeleteVolume\x12$.chalk.volume.v1.DeleteVolumeRequest\x1a%.chalk.volume.v1.DeleteVolumeResponse\"\a\x80}C\x92}\x01\x0e\x12^\n" +
+	"\tListFiles\x12!.chalk.volume.v1.ListFilesRequest\x1a\".chalk.volume.v1.ListFilesResponse\"\n" +
+	"\x80}A\x92}\x01\v\x90\x02\x01\x12X\n" +
+	"\aGetFile\x12\x1f.chalk.volume.v1.GetFileRequest\x1a .chalk.volume.v1.GetFileResponse\"\n" +
+	"\x80}A\x92}\x01\v\x90\x02\x01\x12U\n" +
+	"\aPutFile\x12\x1f.chalk.volume.v1.PutFileRequest\x1a .chalk.volume.v1.PutFileResponse\"\a\x80}B\x92}\x01\f\x12^\n" +
 	"\n" +
-	"RemoveFile\x12\".chalk.volume.v1.RemoveFileRequest\x1a#.chalk.volume.v1.RemoveFileResponse\"\x03\x80}\x0eB\xbb\x01\n" +
+	"RemoveFile\x12\".chalk.volume.v1.RemoveFileRequest\x1a#.chalk.volume.v1.RemoveFileResponse\"\a\x80}B\x92}\x01\x0eB\xbb\x01\n" +
 	"\x13com.chalk.volume.v1B\vVolumeProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/volume/v1;volumev1\xa2\x02\x03CVX\xaa\x02\x0fChalk.Volume.V1\xca\x02\x0fChalk\\Volume\\V1\xe2\x02\x1bChalk\\Volume\\V1\\GPBMetadata\xea\x02\x11Chalk::Volume::V1b\x06proto3"
 
 var (

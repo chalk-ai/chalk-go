@@ -2823,8 +2823,14 @@ func (x *GetProjectInfoResponse) GetProject() *ProjectInfo {
 type GetInternalWorkingTokenRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	RequestedPermissions []v1.Permission        `protobuf:"varint,1,rep,packed,name=requested_permissions,json=requestedPermissions,proto3,enum=chalk.auth.v1.Permission" json:"requested_permissions,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Lifetime of the issued working token, honored only when the exchange token
+	// carries max_working_token_lifetime (scaling groups with a termination grace
+	// period): the server issues the smallest of this, that cap and 2 hours.
+	// Otherwise it is ignored and the per-kind default applies. A non-positive
+	// value is rejected, as is any request from a sandbox caller.
+	RequestedLifetime *durationpb.Duration `protobuf:"bytes,2,opt,name=requested_lifetime,json=requestedLifetime,proto3,oneof" json:"requested_lifetime,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *GetInternalWorkingTokenRequest) Reset() {
@@ -2860,6 +2866,13 @@ func (*GetInternalWorkingTokenRequest) Descriptor() ([]byte, []int) {
 func (x *GetInternalWorkingTokenRequest) GetRequestedPermissions() []v1.Permission {
 	if x != nil {
 		return x.RequestedPermissions
+	}
+	return nil
+}
+
+func (x *GetInternalWorkingTokenRequest) GetRequestedLifetime() *durationpb.Duration {
+	if x != nil {
+		return x.RequestedLifetime
 	}
 	return nil
 }
@@ -3909,9 +3922,11 @@ const file_chalk_server_v1_auth_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x17\n" +
 	"\ateam_id\x18\x03 \x01(\tR\x06teamId\"P\n" +
 	"\x16GetProjectInfoResponse\x126\n" +
-	"\aproject\x18\x01 \x01(\v2\x1c.chalk.server.v1.ProjectInfoR\aproject\"p\n" +
+	"\aproject\x18\x01 \x01(\v2\x1c.chalk.server.v1.ProjectInfoR\aproject\"\xd6\x01\n" +
 	"\x1eGetInternalWorkingTokenRequest\x12N\n" +
-	"\x15requested_permissions\x18\x01 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x14requestedPermissions\"\x9b\b\n" +
+	"\x15requested_permissions\x18\x01 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x14requestedPermissions\x12M\n" +
+	"\x12requested_lifetime\x18\x02 \x01(\v2\x19.google.protobuf.DurationH\x00R\x11requestedLifetime\x88\x01\x01B\x15\n" +
+	"\x13_requested_lifetime\"\x9b\b\n" +
 	"\x1fGetInternalWorkingTokenResponse\x12'\n" +
 	"\faccess_token\x18\x01 \x01(\tB\x04ء'\x01R\vaccessToken\x129\n" +
 	"\n" +
@@ -4166,85 +4181,86 @@ var file_chalk_server_v1_auth_proto_depIdxs = []int32{
 	70, // 35: chalk.server.v1.GetTokenResponse.service_prefixes:type_name -> chalk.server.v1.GetTokenResponse.ServicePrefixesEntry
 	49, // 36: chalk.server.v1.GetProjectInfoResponse.project:type_name -> chalk.server.v1.ProjectInfo
 	78, // 37: chalk.server.v1.GetInternalWorkingTokenRequest.requested_permissions:type_name -> chalk.auth.v1.Permission
-	76, // 38: chalk.server.v1.GetInternalWorkingTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	71, // 39: chalk.server.v1.GetInternalWorkingTokenResponse.engines:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnginesEntry
-	72, // 40: chalk.server.v1.GetInternalWorkingTokenResponse.grpc_engines:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.GrpcEnginesEntry
-	73, // 41: chalk.server.v1.GetInternalWorkingTokenResponse.environment_id_to_name:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnvironmentIdToNameEntry
-	74, // 42: chalk.server.v1.GetInternalWorkingTokenResponse.environment_id_to_authority:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnvironmentIdToAuthorityEntry
-	75, // 43: chalk.server.v1.GetInternalWorkingTokenResponse.service_prefixes:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.ServicePrefixesEntry
-	76, // 44: chalk.server.v1.RenewInternalExchangeTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	76, // 45: chalk.server.v1.GetWorkloadIdentityTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
-	76, // 46: chalk.server.v1.SelfHostedLicenseKey.created_at:type_name -> google.protobuf.Timestamp
-	76, // 47: chalk.server.v1.SelfHostedLicenseKey.expires_at:type_name -> google.protobuf.Timestamp
-	76, // 48: chalk.server.v1.SelfHostedLicenseKey.revoked_at:type_name -> google.protobuf.Timestamp
-	76, // 49: chalk.server.v1.CreateSelfHostedLicenseKeyRequest.expires_at:type_name -> google.protobuf.Timestamp
-	57, // 50: chalk.server.v1.CreateSelfHostedLicenseKeyResponse.key:type_name -> chalk.server.v1.SelfHostedLicenseKey
-	57, // 51: chalk.server.v1.RevokeSelfHostedLicenseKeyResponse.key:type_name -> chalk.server.v1.SelfHostedLicenseKey
-	57, // 52: chalk.server.v1.ListSelfHostedLicenseKeysResponse.keys:type_name -> chalk.server.v1.SelfHostedLicenseKey
-	1,  // 53: chalk.server.v1.UpdateUserProfileResponse.user:type_name -> chalk.server.v1.AdapterUser
-	44, // 54: chalk.server.v1.AuthService.GetToken:input_type -> chalk.server.v1.GetTokenRequest
-	79, // 55: chalk.server.v1.AuthService.CreateLinkSession:input_type -> chalk.server.v1.CreateLinkSessionRequest
-	80, // 56: chalk.server.v1.AuthService.GetLinkSession:input_type -> chalk.server.v1.GetLinkSessionRequest
-	46, // 57: chalk.server.v1.AuthService.UpdateLinkSession:input_type -> chalk.server.v1.UpdateLinkSessionRequest
-	8,  // 58: chalk.server.v1.AuthService.CheckTeamInvites:input_type -> chalk.server.v1.CheckTeamInvitesRequest
-	10, // 59: chalk.server.v1.AuthService.CreateUser:input_type -> chalk.server.v1.CreateUserRequest
-	11, // 60: chalk.server.v1.AuthService.GetUserById:input_type -> chalk.server.v1.GetUserByIdRequest
-	12, // 61: chalk.server.v1.AuthService.GetUserByEmail:input_type -> chalk.server.v1.GetUserByEmailRequest
-	13, // 62: chalk.server.v1.AuthService.GetUserByAccount:input_type -> chalk.server.v1.GetUserByAccountRequest
-	15, // 63: chalk.server.v1.AuthService.UpdateUser:input_type -> chalk.server.v1.UpdateUserRequest
-	64, // 64: chalk.server.v1.AuthService.UpdateUserProfile:input_type -> chalk.server.v1.UpdateUserProfileRequest
-	16, // 65: chalk.server.v1.AuthService.LinkAccount:input_type -> chalk.server.v1.LinkAccountRequest
-	17, // 66: chalk.server.v1.AuthService.CreateSession:input_type -> chalk.server.v1.CreateSessionRequest
-	18, // 67: chalk.server.v1.AuthService.GetSessionAndUser:input_type -> chalk.server.v1.GetSessionAndUserRequest
-	20, // 68: chalk.server.v1.AuthService.UpdateSession:input_type -> chalk.server.v1.UpdateSessionRequest
-	21, // 69: chalk.server.v1.AuthService.DeleteSession:input_type -> chalk.server.v1.DeleteSessionRequest
-	22, // 70: chalk.server.v1.AuthService.CreateVerificationToken:input_type -> chalk.server.v1.CreateVerificationTokenRequest
-	23, // 71: chalk.server.v1.AuthService.UseVerificationToken:input_type -> chalk.server.v1.UseVerificationTokenRequest
-	25, // 72: chalk.server.v1.AuthService.UpsertUserByEmail:input_type -> chalk.server.v1.UpsertUserByEmailRequest
-	38, // 73: chalk.server.v1.AuthService.SelfServiceCreateTeam:input_type -> chalk.server.v1.SelfServiceCreateTeamRequest
-	40, // 74: chalk.server.v1.AuthService.GetSelfServiceStatus:input_type -> chalk.server.v1.GetSelfServiceStatusRequest
-	42, // 75: chalk.server.v1.AuthService.GetTeamOnboardingStatus:input_type -> chalk.server.v1.GetTeamOnboardingStatusRequest
-	48, // 76: chalk.server.v1.AuthService.GetProjectInfo:input_type -> chalk.server.v1.GetProjectInfoRequest
-	51, // 77: chalk.server.v1.AuthService.GetInternalWorkingToken:input_type -> chalk.server.v1.GetInternalWorkingTokenRequest
-	53, // 78: chalk.server.v1.AuthService.RenewInternalExchangeToken:input_type -> chalk.server.v1.RenewInternalExchangeTokenRequest
-	55, // 79: chalk.server.v1.AuthService.GetWorkloadIdentityToken:input_type -> chalk.server.v1.GetWorkloadIdentityTokenRequest
-	58, // 80: chalk.server.v1.AuthService.CreateSelfHostedLicenseKey:input_type -> chalk.server.v1.CreateSelfHostedLicenseKeyRequest
-	60, // 81: chalk.server.v1.AuthService.RevokeSelfHostedLicenseKey:input_type -> chalk.server.v1.RevokeSelfHostedLicenseKeyRequest
-	62, // 82: chalk.server.v1.AuthService.ListSelfHostedLicenseKeys:input_type -> chalk.server.v1.ListSelfHostedLicenseKeysRequest
-	45, // 83: chalk.server.v1.AuthService.GetToken:output_type -> chalk.server.v1.GetTokenResponse
-	81, // 84: chalk.server.v1.AuthService.CreateLinkSession:output_type -> chalk.server.v1.CreateLinkSessionResponse
-	82, // 85: chalk.server.v1.AuthService.GetLinkSession:output_type -> chalk.server.v1.GetLinkSessionResponse
-	47, // 86: chalk.server.v1.AuthService.UpdateLinkSession:output_type -> chalk.server.v1.UpdateLinkSessionResponse
-	9,  // 87: chalk.server.v1.AuthService.CheckTeamInvites:output_type -> chalk.server.v1.CheckTeamInvitesResponse
-	26, // 88: chalk.server.v1.AuthService.CreateUser:output_type -> chalk.server.v1.CreateUserResponse
-	27, // 89: chalk.server.v1.AuthService.GetUserById:output_type -> chalk.server.v1.GetUserByIdResponse
-	28, // 90: chalk.server.v1.AuthService.GetUserByEmail:output_type -> chalk.server.v1.GetUserByEmailResponse
-	29, // 91: chalk.server.v1.AuthService.GetUserByAccount:output_type -> chalk.server.v1.GetUserByAccountResponse
-	30, // 92: chalk.server.v1.AuthService.UpdateUser:output_type -> chalk.server.v1.UpdateUserResponse
-	65, // 93: chalk.server.v1.AuthService.UpdateUserProfile:output_type -> chalk.server.v1.UpdateUserProfileResponse
-	31, // 94: chalk.server.v1.AuthService.LinkAccount:output_type -> chalk.server.v1.LinkAccountResponse
-	32, // 95: chalk.server.v1.AuthService.CreateSession:output_type -> chalk.server.v1.CreateSessionResponse
-	19, // 96: chalk.server.v1.AuthService.GetSessionAndUser:output_type -> chalk.server.v1.GetSessionAndUserResponse
-	33, // 97: chalk.server.v1.AuthService.UpdateSession:output_type -> chalk.server.v1.UpdateSessionResponse
-	34, // 98: chalk.server.v1.AuthService.DeleteSession:output_type -> chalk.server.v1.DeleteSessionResponse
-	35, // 99: chalk.server.v1.AuthService.CreateVerificationToken:output_type -> chalk.server.v1.CreateVerificationTokenResponse
-	36, // 100: chalk.server.v1.AuthService.UseVerificationToken:output_type -> chalk.server.v1.UseVerificationTokenResponse
-	37, // 101: chalk.server.v1.AuthService.UpsertUserByEmail:output_type -> chalk.server.v1.UpsertUserByEmailResponse
-	39, // 102: chalk.server.v1.AuthService.SelfServiceCreateTeam:output_type -> chalk.server.v1.SelfServiceCreateTeamResponse
-	41, // 103: chalk.server.v1.AuthService.GetSelfServiceStatus:output_type -> chalk.server.v1.GetSelfServiceStatusResponse
-	43, // 104: chalk.server.v1.AuthService.GetTeamOnboardingStatus:output_type -> chalk.server.v1.GetTeamOnboardingStatusResponse
-	50, // 105: chalk.server.v1.AuthService.GetProjectInfo:output_type -> chalk.server.v1.GetProjectInfoResponse
-	52, // 106: chalk.server.v1.AuthService.GetInternalWorkingToken:output_type -> chalk.server.v1.GetInternalWorkingTokenResponse
-	54, // 107: chalk.server.v1.AuthService.RenewInternalExchangeToken:output_type -> chalk.server.v1.RenewInternalExchangeTokenResponse
-	56, // 108: chalk.server.v1.AuthService.GetWorkloadIdentityToken:output_type -> chalk.server.v1.GetWorkloadIdentityTokenResponse
-	59, // 109: chalk.server.v1.AuthService.CreateSelfHostedLicenseKey:output_type -> chalk.server.v1.CreateSelfHostedLicenseKeyResponse
-	61, // 110: chalk.server.v1.AuthService.RevokeSelfHostedLicenseKey:output_type -> chalk.server.v1.RevokeSelfHostedLicenseKeyResponse
-	63, // 111: chalk.server.v1.AuthService.ListSelfHostedLicenseKeys:output_type -> chalk.server.v1.ListSelfHostedLicenseKeysResponse
-	83, // [83:112] is the sub-list for method output_type
-	54, // [54:83] is the sub-list for method input_type
-	54, // [54:54] is the sub-list for extension type_name
-	54, // [54:54] is the sub-list for extension extendee
-	0,  // [0:54] is the sub-list for field type_name
+	77, // 38: chalk.server.v1.GetInternalWorkingTokenRequest.requested_lifetime:type_name -> google.protobuf.Duration
+	76, // 39: chalk.server.v1.GetInternalWorkingTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
+	71, // 40: chalk.server.v1.GetInternalWorkingTokenResponse.engines:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnginesEntry
+	72, // 41: chalk.server.v1.GetInternalWorkingTokenResponse.grpc_engines:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.GrpcEnginesEntry
+	73, // 42: chalk.server.v1.GetInternalWorkingTokenResponse.environment_id_to_name:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnvironmentIdToNameEntry
+	74, // 43: chalk.server.v1.GetInternalWorkingTokenResponse.environment_id_to_authority:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.EnvironmentIdToAuthorityEntry
+	75, // 44: chalk.server.v1.GetInternalWorkingTokenResponse.service_prefixes:type_name -> chalk.server.v1.GetInternalWorkingTokenResponse.ServicePrefixesEntry
+	76, // 45: chalk.server.v1.RenewInternalExchangeTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
+	76, // 46: chalk.server.v1.GetWorkloadIdentityTokenResponse.expires_at:type_name -> google.protobuf.Timestamp
+	76, // 47: chalk.server.v1.SelfHostedLicenseKey.created_at:type_name -> google.protobuf.Timestamp
+	76, // 48: chalk.server.v1.SelfHostedLicenseKey.expires_at:type_name -> google.protobuf.Timestamp
+	76, // 49: chalk.server.v1.SelfHostedLicenseKey.revoked_at:type_name -> google.protobuf.Timestamp
+	76, // 50: chalk.server.v1.CreateSelfHostedLicenseKeyRequest.expires_at:type_name -> google.protobuf.Timestamp
+	57, // 51: chalk.server.v1.CreateSelfHostedLicenseKeyResponse.key:type_name -> chalk.server.v1.SelfHostedLicenseKey
+	57, // 52: chalk.server.v1.RevokeSelfHostedLicenseKeyResponse.key:type_name -> chalk.server.v1.SelfHostedLicenseKey
+	57, // 53: chalk.server.v1.ListSelfHostedLicenseKeysResponse.keys:type_name -> chalk.server.v1.SelfHostedLicenseKey
+	1,  // 54: chalk.server.v1.UpdateUserProfileResponse.user:type_name -> chalk.server.v1.AdapterUser
+	44, // 55: chalk.server.v1.AuthService.GetToken:input_type -> chalk.server.v1.GetTokenRequest
+	79, // 56: chalk.server.v1.AuthService.CreateLinkSession:input_type -> chalk.server.v1.CreateLinkSessionRequest
+	80, // 57: chalk.server.v1.AuthService.GetLinkSession:input_type -> chalk.server.v1.GetLinkSessionRequest
+	46, // 58: chalk.server.v1.AuthService.UpdateLinkSession:input_type -> chalk.server.v1.UpdateLinkSessionRequest
+	8,  // 59: chalk.server.v1.AuthService.CheckTeamInvites:input_type -> chalk.server.v1.CheckTeamInvitesRequest
+	10, // 60: chalk.server.v1.AuthService.CreateUser:input_type -> chalk.server.v1.CreateUserRequest
+	11, // 61: chalk.server.v1.AuthService.GetUserById:input_type -> chalk.server.v1.GetUserByIdRequest
+	12, // 62: chalk.server.v1.AuthService.GetUserByEmail:input_type -> chalk.server.v1.GetUserByEmailRequest
+	13, // 63: chalk.server.v1.AuthService.GetUserByAccount:input_type -> chalk.server.v1.GetUserByAccountRequest
+	15, // 64: chalk.server.v1.AuthService.UpdateUser:input_type -> chalk.server.v1.UpdateUserRequest
+	64, // 65: chalk.server.v1.AuthService.UpdateUserProfile:input_type -> chalk.server.v1.UpdateUserProfileRequest
+	16, // 66: chalk.server.v1.AuthService.LinkAccount:input_type -> chalk.server.v1.LinkAccountRequest
+	17, // 67: chalk.server.v1.AuthService.CreateSession:input_type -> chalk.server.v1.CreateSessionRequest
+	18, // 68: chalk.server.v1.AuthService.GetSessionAndUser:input_type -> chalk.server.v1.GetSessionAndUserRequest
+	20, // 69: chalk.server.v1.AuthService.UpdateSession:input_type -> chalk.server.v1.UpdateSessionRequest
+	21, // 70: chalk.server.v1.AuthService.DeleteSession:input_type -> chalk.server.v1.DeleteSessionRequest
+	22, // 71: chalk.server.v1.AuthService.CreateVerificationToken:input_type -> chalk.server.v1.CreateVerificationTokenRequest
+	23, // 72: chalk.server.v1.AuthService.UseVerificationToken:input_type -> chalk.server.v1.UseVerificationTokenRequest
+	25, // 73: chalk.server.v1.AuthService.UpsertUserByEmail:input_type -> chalk.server.v1.UpsertUserByEmailRequest
+	38, // 74: chalk.server.v1.AuthService.SelfServiceCreateTeam:input_type -> chalk.server.v1.SelfServiceCreateTeamRequest
+	40, // 75: chalk.server.v1.AuthService.GetSelfServiceStatus:input_type -> chalk.server.v1.GetSelfServiceStatusRequest
+	42, // 76: chalk.server.v1.AuthService.GetTeamOnboardingStatus:input_type -> chalk.server.v1.GetTeamOnboardingStatusRequest
+	48, // 77: chalk.server.v1.AuthService.GetProjectInfo:input_type -> chalk.server.v1.GetProjectInfoRequest
+	51, // 78: chalk.server.v1.AuthService.GetInternalWorkingToken:input_type -> chalk.server.v1.GetInternalWorkingTokenRequest
+	53, // 79: chalk.server.v1.AuthService.RenewInternalExchangeToken:input_type -> chalk.server.v1.RenewInternalExchangeTokenRequest
+	55, // 80: chalk.server.v1.AuthService.GetWorkloadIdentityToken:input_type -> chalk.server.v1.GetWorkloadIdentityTokenRequest
+	58, // 81: chalk.server.v1.AuthService.CreateSelfHostedLicenseKey:input_type -> chalk.server.v1.CreateSelfHostedLicenseKeyRequest
+	60, // 82: chalk.server.v1.AuthService.RevokeSelfHostedLicenseKey:input_type -> chalk.server.v1.RevokeSelfHostedLicenseKeyRequest
+	62, // 83: chalk.server.v1.AuthService.ListSelfHostedLicenseKeys:input_type -> chalk.server.v1.ListSelfHostedLicenseKeysRequest
+	45, // 84: chalk.server.v1.AuthService.GetToken:output_type -> chalk.server.v1.GetTokenResponse
+	81, // 85: chalk.server.v1.AuthService.CreateLinkSession:output_type -> chalk.server.v1.CreateLinkSessionResponse
+	82, // 86: chalk.server.v1.AuthService.GetLinkSession:output_type -> chalk.server.v1.GetLinkSessionResponse
+	47, // 87: chalk.server.v1.AuthService.UpdateLinkSession:output_type -> chalk.server.v1.UpdateLinkSessionResponse
+	9,  // 88: chalk.server.v1.AuthService.CheckTeamInvites:output_type -> chalk.server.v1.CheckTeamInvitesResponse
+	26, // 89: chalk.server.v1.AuthService.CreateUser:output_type -> chalk.server.v1.CreateUserResponse
+	27, // 90: chalk.server.v1.AuthService.GetUserById:output_type -> chalk.server.v1.GetUserByIdResponse
+	28, // 91: chalk.server.v1.AuthService.GetUserByEmail:output_type -> chalk.server.v1.GetUserByEmailResponse
+	29, // 92: chalk.server.v1.AuthService.GetUserByAccount:output_type -> chalk.server.v1.GetUserByAccountResponse
+	30, // 93: chalk.server.v1.AuthService.UpdateUser:output_type -> chalk.server.v1.UpdateUserResponse
+	65, // 94: chalk.server.v1.AuthService.UpdateUserProfile:output_type -> chalk.server.v1.UpdateUserProfileResponse
+	31, // 95: chalk.server.v1.AuthService.LinkAccount:output_type -> chalk.server.v1.LinkAccountResponse
+	32, // 96: chalk.server.v1.AuthService.CreateSession:output_type -> chalk.server.v1.CreateSessionResponse
+	19, // 97: chalk.server.v1.AuthService.GetSessionAndUser:output_type -> chalk.server.v1.GetSessionAndUserResponse
+	33, // 98: chalk.server.v1.AuthService.UpdateSession:output_type -> chalk.server.v1.UpdateSessionResponse
+	34, // 99: chalk.server.v1.AuthService.DeleteSession:output_type -> chalk.server.v1.DeleteSessionResponse
+	35, // 100: chalk.server.v1.AuthService.CreateVerificationToken:output_type -> chalk.server.v1.CreateVerificationTokenResponse
+	36, // 101: chalk.server.v1.AuthService.UseVerificationToken:output_type -> chalk.server.v1.UseVerificationTokenResponse
+	37, // 102: chalk.server.v1.AuthService.UpsertUserByEmail:output_type -> chalk.server.v1.UpsertUserByEmailResponse
+	39, // 103: chalk.server.v1.AuthService.SelfServiceCreateTeam:output_type -> chalk.server.v1.SelfServiceCreateTeamResponse
+	41, // 104: chalk.server.v1.AuthService.GetSelfServiceStatus:output_type -> chalk.server.v1.GetSelfServiceStatusResponse
+	43, // 105: chalk.server.v1.AuthService.GetTeamOnboardingStatus:output_type -> chalk.server.v1.GetTeamOnboardingStatusResponse
+	50, // 106: chalk.server.v1.AuthService.GetProjectInfo:output_type -> chalk.server.v1.GetProjectInfoResponse
+	52, // 107: chalk.server.v1.AuthService.GetInternalWorkingToken:output_type -> chalk.server.v1.GetInternalWorkingTokenResponse
+	54, // 108: chalk.server.v1.AuthService.RenewInternalExchangeToken:output_type -> chalk.server.v1.RenewInternalExchangeTokenResponse
+	56, // 109: chalk.server.v1.AuthService.GetWorkloadIdentityToken:output_type -> chalk.server.v1.GetWorkloadIdentityTokenResponse
+	59, // 110: chalk.server.v1.AuthService.CreateSelfHostedLicenseKey:output_type -> chalk.server.v1.CreateSelfHostedLicenseKeyResponse
+	61, // 111: chalk.server.v1.AuthService.RevokeSelfHostedLicenseKey:output_type -> chalk.server.v1.RevokeSelfHostedLicenseKeyResponse
+	63, // 112: chalk.server.v1.AuthService.ListSelfHostedLicenseKeys:output_type -> chalk.server.v1.ListSelfHostedLicenseKeysResponse
+	84, // [84:113] is the sub-list for method output_type
+	55, // [55:84] is the sub-list for method input_type
+	55, // [55:55] is the sub-list for extension type_name
+	55, // [55:55] is the sub-list for extension extendee
+	0,  // [0:55] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_auth_proto_init() }
@@ -4271,6 +4287,7 @@ func file_chalk_server_v1_auth_proto_init() {
 	file_chalk_server_v1_auth_proto_msgTypes[37].OneofWrappers = []any{}
 	file_chalk_server_v1_auth_proto_msgTypes[43].OneofWrappers = []any{}
 	file_chalk_server_v1_auth_proto_msgTypes[44].OneofWrappers = []any{}
+	file_chalk_server_v1_auth_proto_msgTypes[50].OneofWrappers = []any{}
 	file_chalk_server_v1_auth_proto_msgTypes[56].OneofWrappers = []any{}
 	file_chalk_server_v1_auth_proto_msgTypes[57].OneofWrappers = []any{}
 	file_chalk_server_v1_auth_proto_msgTypes[63].OneofWrappers = []any{}

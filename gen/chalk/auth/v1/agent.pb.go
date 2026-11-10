@@ -9,6 +9,7 @@ package authv1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -620,8 +621,12 @@ type ExchangeTokenDetails struct {
 	Subject                string                 `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
 	EnvironmentId          string                 `protobuf:"bytes,4,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	Kind                   ExchangeTokenKind      `protobuf:"varint,5,opt,name=kind,proto3,enum=chalk.auth.v1.ExchangeTokenKind" json:"kind,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Set only on seeds for scaling groups with a termination grace period. Caps
+	// GetInternalWorkingTokenRequest.requested_lifetime; when absent, requested
+	// lifetimes are ignored.
+	MaxWorkingTokenLifetime *durationpb.Duration `protobuf:"bytes,6,opt,name=max_working_token_lifetime,json=maxWorkingTokenLifetime,proto3" json:"max_working_token_lifetime,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *ExchangeTokenDetails) Reset() {
@@ -687,6 +692,13 @@ func (x *ExchangeTokenDetails) GetKind() ExchangeTokenKind {
 		return x.Kind
 	}
 	return ExchangeTokenKind_EXCHANGE_TOKEN_KIND_UNSPECIFIED
+}
+
+func (x *ExchangeTokenDetails) GetMaxWorkingTokenLifetime() *durationpb.Duration {
+	if x != nil {
+		return x.MaxWorkingTokenLifetime
+	}
+	return nil
 }
 
 type TenantAgent struct {
@@ -1410,7 +1422,7 @@ var File_chalk_auth_v1_agent_proto protoreflect.FileDescriptor
 
 const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19chalk/auth/v1/agent.proto\x12\rchalk.auth.v1\x1a%chalk/auth/v1/featurepermission.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\xee\x01\n" +
+	"\x19chalk/auth/v1/agent.proto\x12\rchalk.auth.v1\x1a%chalk/auth/v1/featurepermission.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\"\xee\x01\n" +
 	"\x16EnvironmentPermissions\x12;\n" +
 	"\vpermissions\x18\x02 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\x12R\n" +
 	"\x13feature_permissions\x18\x03 \x01(\v2!.chalk.auth.v1.FeaturePermissionsR\x12featurePermissions\x12C\n" +
@@ -1447,13 +1459,14 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"project_id\x18\x03 \x01(\tR\tprojectId\x12%\n" +
 	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\x12\"\n" +
 	"\fimpersonated\x18\x05 \x01(\bR\fimpersonated\"\x16\n" +
-	"\x14MetadataServiceAgent\"\x8e\x02\n" +
+	"\x14MetadataServiceAgent\"\xe6\x02\n" +
 	"\x14ExchangeTokenDetails\x12R\n" +
 	"\x17requestable_permissions\x18\x01 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x16requestablePermissions\x12+\n" +
 	"\x11generation_number\x18\x02 \x01(\x05R\x10generationNumber\x12\x18\n" +
 	"\asubject\x18\x03 \x01(\tR\asubject\x12%\n" +
 	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\x124\n" +
-	"\x04kind\x18\x05 \x01(\x0e2 .chalk.auth.v1.ExchangeTokenKindR\x04kind\"\xa4\x02\n" +
+	"\x04kind\x18\x05 \x01(\x0e2 .chalk.auth.v1.ExchangeTokenKindR\x04kind\x12V\n" +
+	"\x1amax_working_token_lifetime\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x17maxWorkingTokenLifetime\"\xa4\x02\n" +
 	"\vTenantAgent\x12\x17\n" +
 	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12;\n" +
 	"\vpermissions\x18\x02 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\x12%\n" +
@@ -1562,6 +1575,7 @@ var file_chalk_auth_v1_agent_proto_goTypes = []any{
 	nil,                            // 19: chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntry
 	(Permission)(0),                // 20: chalk.auth.v1.Permission
 	(*FeaturePermissions)(nil),     // 21: chalk.auth.v1.FeaturePermissions
+	(*durationpb.Duration)(nil),    // 22: google.protobuf.Duration
 }
 var file_chalk_auth_v1_agent_proto_depIdxs = []int32{
 	20, // 0: chalk.auth.v1.EnvironmentPermissions.permissions:type_name -> chalk.auth.v1.Permission
@@ -1576,29 +1590,30 @@ var file_chalk_auth_v1_agent_proto_depIdxs = []int32{
 	20, // 9: chalk.auth.v1.ServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.Permission
 	20, // 10: chalk.auth.v1.ExchangeTokenDetails.requestable_permissions:type_name -> chalk.auth.v1.Permission
 	0,  // 11: chalk.auth.v1.ExchangeTokenDetails.kind:type_name -> chalk.auth.v1.ExchangeTokenKind
-	20, // 12: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
-	9,  // 13: chalk.auth.v1.TenantAgent.exchange_token_details:type_name -> chalk.auth.v1.ExchangeTokenDetails
-	12, // 14: chalk.auth.v1.ResourceShareScope.notebook:type_name -> chalk.auth.v1.NotebookShareScope
-	13, // 15: chalk.auth.v1.ResourceShareAgent.scope:type_name -> chalk.auth.v1.ResourceShareScope
-	20, // 16: chalk.auth.v1.WorkloadAgent.permissions:type_name -> chalk.auth.v1.Permission
-	15, // 17: chalk.auth.v1.WorkloadAgent.sandbox:type_name -> chalk.auth.v1.SandboxPrincipal
-	21, // 18: chalk.auth.v1.WorkloadAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	5,  // 19: chalk.auth.v1.WorkloadAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	19, // 20: chalk.auth.v1.WorkloadAgent.user_provided_claims:type_name -> chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntry
-	4,  // 21: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
-	6,  // 22: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
-	7,  // 23: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
-	10, // 24: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
-	8,  // 25: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
-	11, // 26: chalk.auth.v1.Agent.self_hosted_license_agent:type_name -> chalk.auth.v1.SelfHostedLicenseAgent
-	14, // 27: chalk.auth.v1.Agent.resource_share_agent:type_name -> chalk.auth.v1.ResourceShareAgent
-	16, // 28: chalk.auth.v1.Agent.workload_agent:type_name -> chalk.auth.v1.WorkloadAgent
-	2,  // 29: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
-	30, // [30:30] is the sub-list for method output_type
-	30, // [30:30] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	22, // 12: chalk.auth.v1.ExchangeTokenDetails.max_working_token_lifetime:type_name -> google.protobuf.Duration
+	20, // 13: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
+	9,  // 14: chalk.auth.v1.TenantAgent.exchange_token_details:type_name -> chalk.auth.v1.ExchangeTokenDetails
+	12, // 15: chalk.auth.v1.ResourceShareScope.notebook:type_name -> chalk.auth.v1.NotebookShareScope
+	13, // 16: chalk.auth.v1.ResourceShareAgent.scope:type_name -> chalk.auth.v1.ResourceShareScope
+	20, // 17: chalk.auth.v1.WorkloadAgent.permissions:type_name -> chalk.auth.v1.Permission
+	15, // 18: chalk.auth.v1.WorkloadAgent.sandbox:type_name -> chalk.auth.v1.SandboxPrincipal
+	21, // 19: chalk.auth.v1.WorkloadAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	5,  // 20: chalk.auth.v1.WorkloadAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	19, // 21: chalk.auth.v1.WorkloadAgent.user_provided_claims:type_name -> chalk.auth.v1.WorkloadAgent.UserProvidedClaimsEntry
+	4,  // 22: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
+	6,  // 23: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
+	7,  // 24: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
+	10, // 25: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
+	8,  // 26: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
+	11, // 27: chalk.auth.v1.Agent.self_hosted_license_agent:type_name -> chalk.auth.v1.SelfHostedLicenseAgent
+	14, // 28: chalk.auth.v1.Agent.resource_share_agent:type_name -> chalk.auth.v1.ResourceShareAgent
+	16, // 29: chalk.auth.v1.Agent.workload_agent:type_name -> chalk.auth.v1.WorkloadAgent
+	2,  // 30: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
+	31, // [31:31] is the sub-list for method output_type
+	31, // [31:31] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_chalk_auth_v1_agent_proto_init() }
