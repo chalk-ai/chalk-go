@@ -1207,9 +1207,11 @@ func (*ListAiProviderConnectionModelsRequest_Candidate) isListAiProviderConnecti
 }
 
 type AiProviderModel struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Provider-published release date in UTC YYYY-MM-DD form; absent when unknown.
+	ReleaseDate   *string `protobuf:"bytes,3,opt,name=release_date,json=releaseDate,proto3,oneof" json:"release_date,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1254,6 +1256,13 @@ func (x *AiProviderModel) GetId() string {
 func (x *AiProviderModel) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *AiProviderModel) GetReleaseDate() string {
+	if x != nil && x.ReleaseDate != nil {
+		return *x.ReleaseDate
 	}
 	return ""
 }
@@ -1507,10 +1516,12 @@ const file_chalk_agent_v1_ai_provider_connection_proto_rawDesc = "" +
 	"%ListAiProviderConnectionModelsRequest\x12%\n" +
 	"\rconnection_id\x18\x01 \x01(\tH\x00R\fconnectionId\x12M\n" +
 	"\tcandidate\x18\x02 \x01(\v2-.chalk.agent.v1.AiProviderConnectionCandidateH\x00R\tcandidateB\b\n" +
-	"\x06source\"5\n" +
+	"\x06source\"n\n" +
 	"\x0fAiProviderModel\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x92\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12&\n" +
+	"\frelease_date\x18\x03 \x01(\tH\x00R\vreleaseDate\x88\x01\x01B\x0f\n" +
+	"\r_release_date\"\x92\x01\n" +
 	"&ListAiProviderConnectionModelsResponse\x127\n" +
 	"\x06models\x18\x01 \x03(\v2\x1f.chalk.agent.v1.AiProviderModelR\x06models\x12/\n" +
 	"\x13discovery_supported\x18\x02 \x01(\bR\x12discoverySupported\"\x87\x02\n" +
@@ -1652,6 +1663,7 @@ func file_chalk_agent_v1_ai_provider_connection_proto_init() {
 		(*ListAiProviderConnectionModelsRequest_ConnectionId)(nil),
 		(*ListAiProviderConnectionModelsRequest_Candidate)(nil),
 	}
+	file_chalk_agent_v1_ai_provider_connection_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

@@ -2501,16 +2501,16 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\x1aModelScalingGroupSortOrder\x12.\n" +
 	"*MODEL_SCALING_GROUP_SORT_ORDER_UNSPECIFIED\x10\x00\x12'\n" +
 	"#MODEL_SCALING_GROUP_SORT_ORDER_DESC\x10\x01\x12&\n" +
-	"\"MODEL_SCALING_GROUP_SORT_ORDER_ASC\x10\x022\xb5\t\n" +
-	"\x16ModelDeploymentService\x12\x93\x01\n" +
-	"\x17CreateModelScalingGroup\x128.chalk.modeldeployment.v1.CreateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.CreateModelScalingGroupResponse\"\x03\x80}\f\x12\x93\x01\n" +
-	"\x17UpdateModelScalingGroup\x128.chalk.modeldeployment.v1.UpdateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.UpdateModelScalingGroupResponse\"\x03\x80}\x0e\x12\x8a\x01\n" +
-	"\x14GetModelScalingGroup\x125.chalk.modeldeployment.v1.GetModelScalingGroupRequest\x1a6.chalk.modeldeployment.v1.GetModelScalingGroupResponse\"\x03\x80}\v\x12\x90\x01\n" +
-	"\x16ListModelScalingGroups\x127.chalk.modeldeployment.v1.ListModelScalingGroupsRequest\x1a8.chalk.modeldeployment.v1.ListModelScalingGroupsResponse\"\x03\x80}\v\x12\x93\x01\n" +
-	"\x17DeleteModelScalingGroup\x128.chalk.modeldeployment.v1.DeleteModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.DeleteModelScalingGroupResponse\"\x03\x80}\x0e\x12\xa2\x01\n" +
-	"\x1cGetModelScalingGroupRevision\x12=.chalk.modeldeployment.v1.GetModelScalingGroupRevisionRequest\x1a>.chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse\"\x03\x80}\v\x12\xa8\x01\n" +
-	"\x1eListModelScalingGroupRevisions\x12?.chalk.modeldeployment.v1.ListModelScalingGroupRevisionsRequest\x1a@.chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse\"\x03\x80}\v\x12i\n" +
-	"\tCallModel\x12*.chalk.modeldeployment.v1.CallModelRequest\x1a+.chalk.modeldeployment.v1.CallModelResponse\"\x03\x80}\x0eB\xfb\x01\n" +
+	"\"MODEL_SCALING_GROUP_SORT_ORDER_ASC\x10\x022\xd5\t\n" +
+	"\x16ModelDeploymentService\x12\x97\x01\n" +
+	"\x17CreateModelScalingGroup\x128.chalk.modeldeployment.v1.CreateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.CreateModelScalingGroupResponse\"\a\x80}5\x92}\x01\f\x12\x97\x01\n" +
+	"\x17UpdateModelScalingGroup\x128.chalk.modeldeployment.v1.UpdateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.UpdateModelScalingGroupResponse\"\a\x80}5\x92}\x01\x0e\x12\x8e\x01\n" +
+	"\x14GetModelScalingGroup\x125.chalk.modeldeployment.v1.GetModelScalingGroupRequest\x1a6.chalk.modeldeployment.v1.GetModelScalingGroupResponse\"\a\x80}4\x92}\x01\v\x12\x94\x01\n" +
+	"\x16ListModelScalingGroups\x127.chalk.modeldeployment.v1.ListModelScalingGroupsRequest\x1a8.chalk.modeldeployment.v1.ListModelScalingGroupsResponse\"\a\x80}4\x92}\x01\v\x12\x97\x01\n" +
+	"\x17DeleteModelScalingGroup\x128.chalk.modeldeployment.v1.DeleteModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.DeleteModelScalingGroupResponse\"\a\x80}5\x92}\x01\x0e\x12\xa6\x01\n" +
+	"\x1cGetModelScalingGroupRevision\x12=.chalk.modeldeployment.v1.GetModelScalingGroupRevisionRequest\x1a>.chalk.modeldeployment.v1.GetModelScalingGroupRevisionResponse\"\a\x80}4\x92}\x01\v\x12\xac\x01\n" +
+	"\x1eListModelScalingGroupRevisions\x12?.chalk.modeldeployment.v1.ListModelScalingGroupRevisionsRequest\x1a@.chalk.modeldeployment.v1.ListModelScalingGroupRevisionsResponse\"\a\x80}4\x92}\x01\v\x12m\n" +
+	"\tCallModel\x12*.chalk.modeldeployment.v1.CallModelRequest\x1a+.chalk.modeldeployment.v1.CallModelResponse\"\a\x80}6\x92}\x01\x0eB\xfb\x01\n" +
 	"\x1ccom.chalk.modeldeployment.v1B\fServiceProtoP\x01ZKgithub.com/chalk-ai/chalk-go/gen/chalk/modeldeployment/v1;modeldeploymentv1\xa2\x02\x03CMX\xaa\x02\x18Chalk.Modeldeployment.V1\xca\x02\x18Chalk\\Modeldeployment\\V1\xe2\x02$Chalk\\Modeldeployment\\V1\\GPBMetadata\xea\x02\x1aChalk::Modeldeployment::V1b\x06proto3"
 
 var (

@@ -1801,17 +1801,22 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\x1bTRAINING_RUN_STATUS_WORKING\x10\x02\x12!\n" +
 	"\x1dTRAINING_RUN_STATUS_COMPLETED\x10\x03\x12\x1e\n" +
 	"\x1aTRAINING_RUN_STATUS_FAILED\x10\x04\x12 \n" +
-	"\x1cTRAINING_RUN_STATUS_CANCELED\x10\x052\xa8\b\n" +
-	"\x12TrainingRunService\x12o\n" +
-	"\x11CreateTrainingRun\x12).chalk.server.v1.CreateTrainingRunRequest\x1a*.chalk.server.v1.CreateTrainingRunResponse\"\x03\x80}\x04\x12i\n" +
-	"\x0eGetTrainingRun\x12&.chalk.server.v1.GetTrainingRunRequest\x1a'.chalk.server.v1.GetTrainingRunResponse\"\x06\x80}\v\x90\x02\x01\x12o\n" +
-	"\x10ListTrainingRuns\x12(.chalk.server.v1.ListTrainingRunsRequest\x1a).chalk.server.v1.ListTrainingRunsResponse\"\x06\x80}\v\x90\x02\x01\x12o\n" +
-	"\x11UpdateTrainingRun\x12).chalk.server.v1.UpdateTrainingRunRequest\x1a*.chalk.server.v1.UpdateTrainingRunResponse\"\x03\x80}\x04\x12r\n" +
-	"\x11CancelTrainingRun\x12).chalk.server.v1.CancelTrainingRunRequest\x1a*.chalk.server.v1.CancelTrainingRunResponse\"\x06\x80}\x04\x90\x02\x02\x12{\n" +
-	"\x15CheckpointTrainingRun\x12-.chalk.server.v1.CheckpointTrainingRunRequest\x1a..chalk.server.v1.CheckpointTrainingRunResponse\"\x03\x80}\x04\x12x\n" +
-	"\x13GetLatestCheckpoint\x12+.chalk.server.v1.GetLatestCheckpointRequest\x1a,.chalk.server.v1.GetLatestCheckpointResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
-	"\x0fListCheckpoints\x12'.chalk.server.v1.ListCheckpointsRequest\x1a(.chalk.server.v1.ListCheckpointsResponse\"\x06\x80}\v\x90\x02\x01\x12{\n" +
-	"\x15ReportTrainingMetrics\x12-.chalk.server.v1.ReportTrainingMetricsRequest\x1a..chalk.server.v1.ReportTrainingMetricsResponse\"\x03\x80}\x04B\xc1\x01\n" +
+	"\x1cTRAINING_RUN_STATUS_CANCELED\x10\x052\xcc\b\n" +
+	"\x12TrainingRunService\x12s\n" +
+	"\x11CreateTrainingRun\x12).chalk.server.v1.CreateTrainingRunRequest\x1a*.chalk.server.v1.CreateTrainingRunResponse\"\a\x80}E\x92}\x01\x04\x12m\n" +
+	"\x0eGetTrainingRun\x12&.chalk.server.v1.GetTrainingRunRequest\x1a'.chalk.server.v1.GetTrainingRunResponse\"\n" +
+	"\x80}D\x92}\x01\v\x90\x02\x01\x12s\n" +
+	"\x10ListTrainingRuns\x12(.chalk.server.v1.ListTrainingRunsRequest\x1a).chalk.server.v1.ListTrainingRunsResponse\"\n" +
+	"\x80}D\x92}\x01\v\x90\x02\x01\x12s\n" +
+	"\x11UpdateTrainingRun\x12).chalk.server.v1.UpdateTrainingRunRequest\x1a*.chalk.server.v1.UpdateTrainingRunResponse\"\a\x80}E\x92}\x01\x04\x12v\n" +
+	"\x11CancelTrainingRun\x12).chalk.server.v1.CancelTrainingRunRequest\x1a*.chalk.server.v1.CancelTrainingRunResponse\"\n" +
+	"\x80}E\x92}\x01\x04\x90\x02\x02\x12\x7f\n" +
+	"\x15CheckpointTrainingRun\x12-.chalk.server.v1.CheckpointTrainingRunRequest\x1a..chalk.server.v1.CheckpointTrainingRunResponse\"\a\x80}E\x92}\x01\x04\x12|\n" +
+	"\x13GetLatestCheckpoint\x12+.chalk.server.v1.GetLatestCheckpointRequest\x1a,.chalk.server.v1.GetLatestCheckpointResponse\"\n" +
+	"\x80}D\x92}\x01\v\x90\x02\x01\x12p\n" +
+	"\x0fListCheckpoints\x12'.chalk.server.v1.ListCheckpointsRequest\x1a(.chalk.server.v1.ListCheckpointsResponse\"\n" +
+	"\x80}D\x92}\x01\v\x90\x02\x01\x12\x7f\n" +
+	"\x15ReportTrainingMetrics\x12-.chalk.server.v1.ReportTrainingMetricsRequest\x1a..chalk.server.v1.ReportTrainingMetricsResponse\"\a\x80}E\x92}\x01\x04B\xc1\x01\n" +
 	"\x13com.chalk.server.v1B\x11TrainingRunsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (

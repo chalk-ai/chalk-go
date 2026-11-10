@@ -266,7 +266,7 @@ const file_chalk_tcpproxy_v1_service_proto_rawDesc = "" +
 	"\x06closed\x18\x03 \x01(\bR\x06closedB\b\n" +
 	"\x06_error2f\n" +
 	"\x0fTCPProxyService\x12S\n" +
-	"\x05Proxy\x12\x1f.chalk.tcpproxy.v1.ProxyRequest\x1a .chalk.tcpproxy.v1.ProxyResponse\"\x03\x80}\x0e(\x010\x01B\xca\x01\n" +
+	"\x05Proxy\x12\x1f.chalk.tcpproxy.v1.ProxyRequest\x1a .chalk.tcpproxy.v1.ProxyResponse\"\x03\x80}\x1b(\x010\x01B\xca\x01\n" +
 	"\x15com.chalk.tcpproxy.v1B\fServiceProtoP\x01Z=github.com/chalk-ai/chalk-go/gen/chalk/tcpproxy/v1;tcpproxyv1\xa2\x02\x03CTX\xaa\x02\x11Chalk.Tcpproxy.V1\xca\x02\x11Chalk\\Tcpproxy\\V1\xe2\x02\x1dChalk\\Tcpproxy\\V1\\GPBMetadata\xea\x02\x13Chalk::Tcpproxy::V1b\x06proto3"
 
 var (

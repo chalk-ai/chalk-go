@@ -2252,11 +2252,11 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\x10CancelRemoteCall\x12).chalk.runtime.v1.CancelRemoteCallRequest\x1a*.chalk.runtime.v1.CancelRemoteCallResponse\"\x00\x12~\n" +
 	"\x15StreamRemoteCallBatch\x12..chalk.runtime.v1.StreamRemoteCallBatchRequest\x1a/.chalk.runtime.v1.StreamRemoteCallBatchResponse\"\x00(\x010\x01\x12Y\n" +
 	"\n" +
-	"PurgeQueue\x12#.chalk.runtime.v1.PurgeQueueRequest\x1a$.chalk.runtime.v1.PurgeQueueResponse\"\x002\xd2\x02\n" +
-	"\x18FunctionQueueMetaService\x12h\n" +
-	"\x0eGetRecentCalls\x12'.chalk.runtime.v1.GetRecentCallsRequest\x1a(.chalk.runtime.v1.GetRecentCallsResponse\"\x03\x80}\x03\x12h\n" +
-	"\x0eGetCallResults\x12'.chalk.runtime.v1.GetCallResultsRequest\x1a(.chalk.runtime.v1.GetCallResultsResponse\"\x03\x80}\x03\x12b\n" +
-	"\fGetCallCount\x12%.chalk.runtime.v1.GetCallCountRequest\x1a&.chalk.runtime.v1.GetCallCountResponse\"\x03\x80}\x03B\xcc\x01\n" +
+	"PurgeQueue\x12#.chalk.runtime.v1.PurgeQueueRequest\x1a$.chalk.runtime.v1.PurgeQueueResponse\"\x002\xde\x02\n" +
+	"\x18FunctionQueueMetaService\x12l\n" +
+	"\x0eGetRecentCalls\x12'.chalk.runtime.v1.GetRecentCallsRequest\x1a(.chalk.runtime.v1.GetRecentCallsResponse\"\a\x80}-\x92}\x01\x03\x12l\n" +
+	"\x0eGetCallResults\x12'.chalk.runtime.v1.GetCallResultsRequest\x1a(.chalk.runtime.v1.GetCallResultsResponse\"\a\x80}-\x92}\x01\x03\x12f\n" +
+	"\fGetCallCount\x12%.chalk.runtime.v1.GetCallCountRequest\x1a&.chalk.runtime.v1.GetCallCountResponse\"\a\x80}-\x92}\x01\x03B\xcc\x01\n" +
 	"\x14com.chalk.runtime.v1B\x15RemotePythonCallProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/runtime/v1;runtimev1\xa2\x02\x03CRX\xaa\x02\x10Chalk.Runtime.V1\xca\x02\x10Chalk\\Runtime\\V1\xe2\x02\x1cChalk\\Runtime\\V1\\GPBMetadata\xea\x02\x12Chalk::Runtime::V1b\x06proto3"
 
 var (
