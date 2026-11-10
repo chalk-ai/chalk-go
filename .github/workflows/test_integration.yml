@@ -1,6 +1,8 @@
 name: Integration Test (fraud-template)
 
-on: push
+on:
+  push:
+    branches-ignore: ['wip/**']
 
 jobs:
   test_integration:
