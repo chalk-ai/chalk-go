@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// SandboxSnapshotServiceStartSandboxSnapshotProcedure is the fully-qualified name of the
+	// SandboxSnapshotService's StartSandboxSnapshot RPC.
+	SandboxSnapshotServiceStartSandboxSnapshotProcedure = "/chalk.sandbox.v2.SandboxSnapshotService/StartSandboxSnapshot"
 	// SandboxSnapshotServiceCreateSandboxSnapshotProcedure is the fully-qualified name of the
 	// SandboxSnapshotService's CreateSandboxSnapshot RPC.
 	SandboxSnapshotServiceCreateSandboxSnapshotProcedure = "/chalk.sandbox.v2.SandboxSnapshotService/CreateSandboxSnapshot"
@@ -52,6 +55,9 @@ const (
 
 // SandboxSnapshotServiceClient is a client for the chalk.sandbox.v2.SandboxSnapshotService service.
 type SandboxSnapshotServiceClient interface {
+	// Additive async entry point. Older servers reject this method as unimplemented
+	// rather than silently ignoring an async option on the synchronous method.
+	StartSandboxSnapshot(context.Context, *connect.Request[v2.StartSandboxSnapshotRequest]) (*connect.Response[v2.StartSandboxSnapshotResponse], error)
 	CreateSandboxSnapshot(context.Context, *connect.Request[v2.CreateSandboxSnapshotRequest]) (*connect.Response[v2.CreateSandboxSnapshotResponse], error)
 	GetSandboxSnapshot(context.Context, *connect.Request[v2.GetSandboxSnapshotRequest]) (*connect.Response[v2.GetSandboxSnapshotResponse], error)
 	ListSandboxSnapshots(context.Context, *connect.Request[v2.ListSandboxSnapshotsRequest]) (*connect.Response[v2.ListSandboxSnapshotsResponse], error)
@@ -71,6 +77,12 @@ func NewSandboxSnapshotServiceClient(httpClient connect.HTTPClient, baseURL stri
 	baseURL = strings.TrimRight(baseURL, "/")
 	sandboxSnapshotServiceMethods := v2.File_chalk_sandbox_v2_snapshot_service_proto.Services().ByName("SandboxSnapshotService").Methods()
 	return &sandboxSnapshotServiceClient{
+		startSandboxSnapshot: connect.NewClient[v2.StartSandboxSnapshotRequest, v2.StartSandboxSnapshotResponse](
+			httpClient,
+			baseURL+SandboxSnapshotServiceStartSandboxSnapshotProcedure,
+			connect.WithSchema(sandboxSnapshotServiceMethods.ByName("StartSandboxSnapshot")),
+			connect.WithClientOptions(opts...),
+		),
 		createSandboxSnapshot: connect.NewClient[v2.CreateSandboxSnapshotRequest, v2.CreateSandboxSnapshotResponse](
 			httpClient,
 			baseURL+SandboxSnapshotServiceCreateSandboxSnapshotProcedure,
@@ -107,11 +119,17 @@ func NewSandboxSnapshotServiceClient(httpClient connect.HTTPClient, baseURL stri
 
 // sandboxSnapshotServiceClient implements SandboxSnapshotServiceClient.
 type sandboxSnapshotServiceClient struct {
+	startSandboxSnapshot        *connect.Client[v2.StartSandboxSnapshotRequest, v2.StartSandboxSnapshotResponse]
 	createSandboxSnapshot       *connect.Client[v2.CreateSandboxSnapshotRequest, v2.CreateSandboxSnapshotResponse]
 	getSandboxSnapshot          *connect.Client[v2.GetSandboxSnapshotRequest, v2.GetSandboxSnapshotResponse]
 	listSandboxSnapshots        *connect.Client[v2.ListSandboxSnapshotsRequest, v2.ListSandboxSnapshotsResponse]
 	deleteSandboxSnapshot       *connect.Client[v2.DeleteSandboxSnapshotRequest, v2.DeleteSandboxSnapshotResponse]
 	getSnapshotStoreCredentials *connect.Client[v2.GetSnapshotStoreCredentialsRequest, v2.GetSnapshotStoreCredentialsResponse]
+}
+
+// StartSandboxSnapshot calls chalk.sandbox.v2.SandboxSnapshotService.StartSandboxSnapshot.
+func (c *sandboxSnapshotServiceClient) StartSandboxSnapshot(ctx context.Context, req *connect.Request[v2.StartSandboxSnapshotRequest]) (*connect.Response[v2.StartSandboxSnapshotResponse], error) {
+	return c.startSandboxSnapshot.CallUnary(ctx, req)
 }
 
 // CreateSandboxSnapshot calls chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot.
@@ -143,6 +161,9 @@ func (c *sandboxSnapshotServiceClient) GetSnapshotStoreCredentials(ctx context.C
 // SandboxSnapshotServiceHandler is an implementation of the chalk.sandbox.v2.SandboxSnapshotService
 // service.
 type SandboxSnapshotServiceHandler interface {
+	// Additive async entry point. Older servers reject this method as unimplemented
+	// rather than silently ignoring an async option on the synchronous method.
+	StartSandboxSnapshot(context.Context, *connect.Request[v2.StartSandboxSnapshotRequest]) (*connect.Response[v2.StartSandboxSnapshotResponse], error)
 	CreateSandboxSnapshot(context.Context, *connect.Request[v2.CreateSandboxSnapshotRequest]) (*connect.Response[v2.CreateSandboxSnapshotResponse], error)
 	GetSandboxSnapshot(context.Context, *connect.Request[v2.GetSandboxSnapshotRequest]) (*connect.Response[v2.GetSandboxSnapshotResponse], error)
 	ListSandboxSnapshots(context.Context, *connect.Request[v2.ListSandboxSnapshotsRequest]) (*connect.Response[v2.ListSandboxSnapshotsResponse], error)
@@ -158,6 +179,12 @@ type SandboxSnapshotServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewSandboxSnapshotServiceHandler(svc SandboxSnapshotServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	sandboxSnapshotServiceMethods := v2.File_chalk_sandbox_v2_snapshot_service_proto.Services().ByName("SandboxSnapshotService").Methods()
+	sandboxSnapshotServiceStartSandboxSnapshotHandler := connect.NewUnaryHandler(
+		SandboxSnapshotServiceStartSandboxSnapshotProcedure,
+		svc.StartSandboxSnapshot,
+		connect.WithSchema(sandboxSnapshotServiceMethods.ByName("StartSandboxSnapshot")),
+		connect.WithHandlerOptions(opts...),
+	)
 	sandboxSnapshotServiceCreateSandboxSnapshotHandler := connect.NewUnaryHandler(
 		SandboxSnapshotServiceCreateSandboxSnapshotProcedure,
 		svc.CreateSandboxSnapshot,
@@ -191,6 +218,8 @@ func NewSandboxSnapshotServiceHandler(svc SandboxSnapshotServiceHandler, opts ..
 	)
 	return "/chalk.sandbox.v2.SandboxSnapshotService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case SandboxSnapshotServiceStartSandboxSnapshotProcedure:
+			sandboxSnapshotServiceStartSandboxSnapshotHandler.ServeHTTP(w, r)
 		case SandboxSnapshotServiceCreateSandboxSnapshotProcedure:
 			sandboxSnapshotServiceCreateSandboxSnapshotHandler.ServeHTTP(w, r)
 		case SandboxSnapshotServiceGetSandboxSnapshotProcedure:
@@ -209,6 +238,10 @@ func NewSandboxSnapshotServiceHandler(svc SandboxSnapshotServiceHandler, opts ..
 
 // UnimplementedSandboxSnapshotServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSandboxSnapshotServiceHandler struct{}
+
+func (UnimplementedSandboxSnapshotServiceHandler) StartSandboxSnapshot(context.Context, *connect.Request[v2.StartSandboxSnapshotRequest]) (*connect.Response[v2.StartSandboxSnapshotResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxSnapshotService.StartSandboxSnapshot is not implemented"))
+}
 
 func (UnimplementedSandboxSnapshotServiceHandler) CreateSandboxSnapshot(context.Context, *connect.Request[v2.CreateSandboxSnapshotRequest]) (*connect.Response[v2.CreateSandboxSnapshotResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot is not implemented"))
