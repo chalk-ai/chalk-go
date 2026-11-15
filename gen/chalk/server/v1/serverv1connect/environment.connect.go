@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// EnvironmentServiceSelfServiceCreateTeamAndEnvironmentProcedure is the fully-qualified name of the
+	// EnvironmentService's SelfServiceCreateTeamAndEnvironment RPC.
+	EnvironmentServiceSelfServiceCreateTeamAndEnvironmentProcedure = "/chalk.server.v1.EnvironmentService/SelfServiceCreateTeamAndEnvironment"
 	// EnvironmentServiceCreateEnvironmentV2Procedure is the fully-qualified name of the
 	// EnvironmentService's CreateEnvironmentV2 RPC.
 	EnvironmentServiceCreateEnvironmentV2Procedure = "/chalk.server.v1.EnvironmentService/CreateEnvironmentV2"
@@ -52,6 +55,7 @@ const (
 
 // EnvironmentServiceClient is a client for the chalk.server.v1.EnvironmentService service.
 type EnvironmentServiceClient interface {
+	SelfServiceCreateTeamAndEnvironment(context.Context, *connect.Request[v1.SelfServiceCreateTeamAndEnvironmentRequest]) (*connect.Response[v1.SelfServiceCreateTeamAndEnvironmentResponse], error)
 	CreateEnvironmentV2(context.Context, *connect.Request[v1.CreateEnvironmentV2Request]) (*connect.Response[v1.CreateEnvironmentV2Response], error)
 	UpdateEnvironmentV2(context.Context, *connect.Request[v1.UpdateEnvironmentV2Request]) (*connect.Response[v1.UpdateEnvironmentV2Response], error)
 	DeleteEnvironment(context.Context, *connect.Request[v1.DeleteEnvironmentRequest]) (*connect.Response[v1.DeleteEnvironmentResponse], error)
@@ -70,6 +74,12 @@ func NewEnvironmentServiceClient(httpClient connect.HTTPClient, baseURL string, 
 	baseURL = strings.TrimRight(baseURL, "/")
 	environmentServiceMethods := v1.File_chalk_server_v1_environment_proto.Services().ByName("EnvironmentService").Methods()
 	return &environmentServiceClient{
+		selfServiceCreateTeamAndEnvironment: connect.NewClient[v1.SelfServiceCreateTeamAndEnvironmentRequest, v1.SelfServiceCreateTeamAndEnvironmentResponse](
+			httpClient,
+			baseURL+EnvironmentServiceSelfServiceCreateTeamAndEnvironmentProcedure,
+			connect.WithSchema(environmentServiceMethods.ByName("SelfServiceCreateTeamAndEnvironment")),
+			connect.WithClientOptions(opts...),
+		),
 		createEnvironmentV2: connect.NewClient[v1.CreateEnvironmentV2Request, v1.CreateEnvironmentV2Response](
 			httpClient,
 			baseURL+EnvironmentServiceCreateEnvironmentV2Procedure,
@@ -106,11 +116,18 @@ func NewEnvironmentServiceClient(httpClient connect.HTTPClient, baseURL string, 
 
 // environmentServiceClient implements EnvironmentServiceClient.
 type environmentServiceClient struct {
-	createEnvironmentV2        *connect.Client[v1.CreateEnvironmentV2Request, v1.CreateEnvironmentV2Response]
-	updateEnvironmentV2        *connect.Client[v1.UpdateEnvironmentV2Request, v1.UpdateEnvironmentV2Response]
-	deleteEnvironment          *connect.Client[v1.DeleteEnvironmentRequest, v1.DeleteEnvironmentResponse]
-	setDefaultEnvironment      *connect.Client[v1.SetDefaultEnvironmentRequest, v1.SetDefaultEnvironmentResponse]
-	discoverEnvironmentBuckets *connect.Client[v1.DiscoverEnvironmentBucketsRequest, v1.DiscoverEnvironmentBucketsResponse]
+	selfServiceCreateTeamAndEnvironment *connect.Client[v1.SelfServiceCreateTeamAndEnvironmentRequest, v1.SelfServiceCreateTeamAndEnvironmentResponse]
+	createEnvironmentV2                 *connect.Client[v1.CreateEnvironmentV2Request, v1.CreateEnvironmentV2Response]
+	updateEnvironmentV2                 *connect.Client[v1.UpdateEnvironmentV2Request, v1.UpdateEnvironmentV2Response]
+	deleteEnvironment                   *connect.Client[v1.DeleteEnvironmentRequest, v1.DeleteEnvironmentResponse]
+	setDefaultEnvironment               *connect.Client[v1.SetDefaultEnvironmentRequest, v1.SetDefaultEnvironmentResponse]
+	discoverEnvironmentBuckets          *connect.Client[v1.DiscoverEnvironmentBucketsRequest, v1.DiscoverEnvironmentBucketsResponse]
+}
+
+// SelfServiceCreateTeamAndEnvironment calls
+// chalk.server.v1.EnvironmentService.SelfServiceCreateTeamAndEnvironment.
+func (c *environmentServiceClient) SelfServiceCreateTeamAndEnvironment(ctx context.Context, req *connect.Request[v1.SelfServiceCreateTeamAndEnvironmentRequest]) (*connect.Response[v1.SelfServiceCreateTeamAndEnvironmentResponse], error) {
+	return c.selfServiceCreateTeamAndEnvironment.CallUnary(ctx, req)
 }
 
 // CreateEnvironmentV2 calls chalk.server.v1.EnvironmentService.CreateEnvironmentV2.
@@ -140,6 +157,7 @@ func (c *environmentServiceClient) DiscoverEnvironmentBuckets(ctx context.Contex
 
 // EnvironmentServiceHandler is an implementation of the chalk.server.v1.EnvironmentService service.
 type EnvironmentServiceHandler interface {
+	SelfServiceCreateTeamAndEnvironment(context.Context, *connect.Request[v1.SelfServiceCreateTeamAndEnvironmentRequest]) (*connect.Response[v1.SelfServiceCreateTeamAndEnvironmentResponse], error)
 	CreateEnvironmentV2(context.Context, *connect.Request[v1.CreateEnvironmentV2Request]) (*connect.Response[v1.CreateEnvironmentV2Response], error)
 	UpdateEnvironmentV2(context.Context, *connect.Request[v1.UpdateEnvironmentV2Request]) (*connect.Response[v1.UpdateEnvironmentV2Response], error)
 	DeleteEnvironment(context.Context, *connect.Request[v1.DeleteEnvironmentRequest]) (*connect.Response[v1.DeleteEnvironmentResponse], error)
@@ -154,6 +172,12 @@ type EnvironmentServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewEnvironmentServiceHandler(svc EnvironmentServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	environmentServiceMethods := v1.File_chalk_server_v1_environment_proto.Services().ByName("EnvironmentService").Methods()
+	environmentServiceSelfServiceCreateTeamAndEnvironmentHandler := connect.NewUnaryHandler(
+		EnvironmentServiceSelfServiceCreateTeamAndEnvironmentProcedure,
+		svc.SelfServiceCreateTeamAndEnvironment,
+		connect.WithSchema(environmentServiceMethods.ByName("SelfServiceCreateTeamAndEnvironment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	environmentServiceCreateEnvironmentV2Handler := connect.NewUnaryHandler(
 		EnvironmentServiceCreateEnvironmentV2Procedure,
 		svc.CreateEnvironmentV2,
@@ -187,6 +211,8 @@ func NewEnvironmentServiceHandler(svc EnvironmentServiceHandler, opts ...connect
 	)
 	return "/chalk.server.v1.EnvironmentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case EnvironmentServiceSelfServiceCreateTeamAndEnvironmentProcedure:
+			environmentServiceSelfServiceCreateTeamAndEnvironmentHandler.ServeHTTP(w, r)
 		case EnvironmentServiceCreateEnvironmentV2Procedure:
 			environmentServiceCreateEnvironmentV2Handler.ServeHTTP(w, r)
 		case EnvironmentServiceUpdateEnvironmentV2Procedure:
@@ -205,6 +231,10 @@ func NewEnvironmentServiceHandler(svc EnvironmentServiceHandler, opts ...connect
 
 // UnimplementedEnvironmentServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedEnvironmentServiceHandler struct{}
+
+func (UnimplementedEnvironmentServiceHandler) SelfServiceCreateTeamAndEnvironment(context.Context, *connect.Request[v1.SelfServiceCreateTeamAndEnvironmentRequest]) (*connect.Response[v1.SelfServiceCreateTeamAndEnvironmentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.EnvironmentService.SelfServiceCreateTeamAndEnvironment is not implemented"))
+}
 
 func (UnimplementedEnvironmentServiceHandler) CreateEnvironmentV2(context.Context, *connect.Request[v1.CreateEnvironmentV2Request]) (*connect.Response[v1.CreateEnvironmentV2Response], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.EnvironmentService.CreateEnvironmentV2 is not implemented"))

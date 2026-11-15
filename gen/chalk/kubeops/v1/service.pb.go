@@ -605,11 +605,11 @@ const file_chalk_kubeops_v1_service_proto_rawDesc = "" +
 	"\x18WORKLOAD_KIND_DEPLOYMENT\x10\x01\x12\x1e\n" +
 	"\x1aWORKLOAD_KIND_STATEFUL_SET\x10\x022\x8e\x03\n" +
 	"\x0eKubeOpsService\x12Y\n" +
-	"\tDrainNode\x12\".chalk.kubeops.v1.DrainNodeRequest\x1a#.chalk.kubeops.v1.DrainNodeResponse\"\x03\x80}\x0e\x12Y\n" +
-	"\tDeletePod\x12\".chalk.kubeops.v1.DeletePodRequest\x1a#.chalk.kubeops.v1.DeletePodResponse\"\x03\x80}\x0e\x12\\\n" +
+	"\tDrainNode\x12\".chalk.kubeops.v1.DrainNodeRequest\x1a#.chalk.kubeops.v1.DrainNodeResponse\"\x03\x80}\x1b\x12Y\n" +
+	"\tDeletePod\x12\".chalk.kubeops.v1.DeletePodRequest\x1a#.chalk.kubeops.v1.DeletePodResponse\"\x03\x80}\x1b\x12\\\n" +
 	"\n" +
-	"DeleteNode\x12#.chalk.kubeops.v1.DeleteNodeRequest\x1a$.chalk.kubeops.v1.DeleteNodeResponse\"\x03\x80}\x0e\x12h\n" +
-	"\x0eRolloutRestart\x12'.chalk.kubeops.v1.RolloutRestartRequest\x1a(.chalk.kubeops.v1.RolloutRestartResponse\"\x03\x80}\x0eB\xc3\x01\n" +
+	"DeleteNode\x12#.chalk.kubeops.v1.DeleteNodeRequest\x1a$.chalk.kubeops.v1.DeleteNodeResponse\"\x03\x80}\x1b\x12h\n" +
+	"\x0eRolloutRestart\x12'.chalk.kubeops.v1.RolloutRestartRequest\x1a(.chalk.kubeops.v1.RolloutRestartResponse\"\x03\x80}\x1bB\xc3\x01\n" +
 	"\x14com.chalk.kubeops.v1B\fServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/kubeops/v1;kubeopsv1\xa2\x02\x03CKX\xaa\x02\x10Chalk.Kubeops.V1\xca\x02\x10Chalk\\Kubeops\\V1\xe2\x02\x1cChalk\\Kubeops\\V1\\GPBMetadata\xea\x02\x12Chalk::Kubeops::V1b\x06proto3"
 
 var (

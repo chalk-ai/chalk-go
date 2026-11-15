@@ -4311,27 +4311,27 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt*\x81\x01\n" +
 	"\x1aCustomImageBaseImageSource\x12.\n" +
 	"*CUSTOM_IMAGE_BASE_IMAGE_SOURCE_UNSPECIFIED\x10\x00\x123\n" +
-	"/CUSTOM_IMAGE_BASE_IMAGE_SOURCE_NOTEBOOK_RUNTIME\x10\x012\xfc\x03\n" +
-	"\x0eSandboxService\x12N\n" +
-	"\x04Exec\x12\x1d.chalk.sandbox.v1.ExecRequest\x1a\x1e.chalk.sandbox.v1.ExecResponse\"\x03\x80}\f(\x010\x01\x12e\n" +
-	"\rCreateSandbox\x12&.chalk.sandbox.v1.CreateSandboxRequest\x1a'.chalk.sandbox.v1.CreateSandboxResponse\"\x03\x80}\f\x12n\n" +
-	"\x10TerminateSandbox\x12).chalk.sandbox.v1.TerminateSandboxRequest\x1a*.chalk.sandbox.v1.TerminateSandboxResponse\"\x03\x80}\f\x12\\\n" +
+	"/CUSTOM_IMAGE_BASE_IMAGE_SOURCE_NOTEBOOK_RUNTIME\x10\x012\x90\x04\n" +
+	"\x0eSandboxService\x12R\n" +
+	"\x04Exec\x12\x1d.chalk.sandbox.v1.ExecRequest\x1a\x1e.chalk.sandbox.v1.ExecResponse\"\a\x80}=\x92}\x01\f(\x010\x01\x12i\n" +
+	"\rCreateSandbox\x12&.chalk.sandbox.v1.CreateSandboxRequest\x1a'.chalk.sandbox.v1.CreateSandboxResponse\"\a\x80}<\x92}\x01\f\x12r\n" +
+	"\x10TerminateSandbox\x12).chalk.sandbox.v1.TerminateSandboxRequest\x1a*.chalk.sandbox.v1.TerminateSandboxResponse\"\a\x80}<\x92}\x01\f\x12`\n" +
 	"\n" +
-	"GetSandbox\x12#.chalk.sandbox.v1.GetSandboxRequest\x1a$.chalk.sandbox.v1.GetSandboxResponse\"\x03\x80}\v\x12e\n" +
-	"\rListSandboxes\x12&.chalk.sandbox.v1.ListSandboxesRequest\x1a'.chalk.sandbox.v1.ListSandboxesResponse\"\x03\x80}\v2\xd6\v\n" +
-	"\x12CustomImageService\x12\x83\x01\n" +
-	"\x17GetImagePullCredentials\x120.chalk.sandbox.v1.GetImagePullCredentialsRequest\x1a1.chalk.sandbox.v1.GetImagePullCredentialsResponse\"\x03\x80}\f\x12\xc5\x01\n" +
-	"\x10BuildCustomImage\x12).chalk.sandbox.v1.BuildCustomImageRequest\x1a*.chalk.sandbox.v1.BuildCustomImageResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12h\n" +
-	"\x0eGetCustomImage\x12'.chalk.sandbox.v1.GetCustomImageRequest\x1a(.chalk.sandbox.v1.GetCustomImageResponse\"\x03\x80}\v\x12\xd4\x01\n" +
-	"\x15GetOrBuildCustomImage\x12..chalk.sandbox.v1.GetOrBuildCustomImageRequest\x1a/.chalk.sandbox.v1.GetOrBuildCustomImageResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\x97\x01\n" +
-	"\x1dStreamCustomImageBuildUpdates\x126.chalk.sandbox.v1.StreamCustomImageBuildUpdatesRequest\x1a7.chalk.sandbox.v1.StreamCustomImageBuildUpdatesResponse\"\x03\x80}\v0\x01\x12}\n" +
-	"\x15ListCustomImageBuilds\x12..chalk.sandbox.v1.ListCustomImageBuildsRequest\x1a/.chalk.sandbox.v1.ListCustomImageBuildsResponse\"\x03\x80}\v\x12w\n" +
-	"\x13GetCustomImageBuild\x12,.chalk.sandbox.v1.GetCustomImageBuildRequest\x1a-.chalk.sandbox.v1.GetCustomImageBuildResponse\"\x03\x80}\v\x12\x83\x01\n" +
-	"\x17GetCustomImageBuildLogs\x120.chalk.sandbox.v1.GetCustomImageBuildLogsRequest\x1a1.chalk.sandbox.v1.GetCustomImageBuildLogsResponse\"\x03\x80}\v\x12\x8f\x01\n" +
-	"\x1bGetCustomImageBuildWorkflow\x124.chalk.sandbox.v1.GetCustomImageBuildWorkflowRequest\x1a5.chalk.sandbox.v1.GetCustomImageBuildWorkflowResponse\"\x03\x80}\v\x12\x86\x01\n" +
-	"\x18GetCustomImageBuildUsage\x121.chalk.sandbox.v1.GetCustomImageBuildUsageRequest\x1a2.chalk.sandbox.v1.GetCustomImageBuildUsageResponse\"\x03\x80}\vB\xc3\x01\n" +
+	"GetSandbox\x12#.chalk.sandbox.v1.GetSandboxRequest\x1a$.chalk.sandbox.v1.GetSandboxResponse\"\a\x80};\x92}\x01\v\x12i\n" +
+	"\rListSandboxes\x12&.chalk.sandbox.v1.ListSandboxesRequest\x1a'.chalk.sandbox.v1.ListSandboxesResponse\"\a\x80};\x92}\x01\v2\xff\v\n" +
+	"\x12CustomImageService\x12\x87\x01\n" +
+	"\x17GetImagePullCredentials\x120.chalk.sandbox.v1.GetImagePullCredentialsRequest\x1a1.chalk.sandbox.v1.GetImagePullCredentialsResponse\"\a\x80}0\x92}\x01\f\x12\xc9\x01\n" +
+	"\x10BuildCustomImage\x12).chalk.sandbox.v1.BuildCustomImageRequest\x1a*.chalk.sandbox.v1.BuildCustomImageResponse\"^\x80}1\x92}\x01\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12l\n" +
+	"\x0eGetCustomImage\x12'.chalk.sandbox.v1.GetCustomImageRequest\x1a(.chalk.sandbox.v1.GetCustomImageResponse\"\a\x80}0\x92}\x01\v\x12\xd8\x01\n" +
+	"\x15GetOrBuildCustomImage\x12..chalk.sandbox.v1.GetOrBuildCustomImageRequest\x1a/.chalk.sandbox.v1.GetOrBuildCustomImageResponse\"^\x80}1\x92}\x01\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\x9b\x01\n" +
+	"\x1dStreamCustomImageBuildUpdates\x126.chalk.sandbox.v1.StreamCustomImageBuildUpdatesRequest\x1a7.chalk.sandbox.v1.StreamCustomImageBuildUpdatesResponse\"\a\x80}0\x92}\x01\v0\x01\x12\x81\x01\n" +
+	"\x15ListCustomImageBuilds\x12..chalk.sandbox.v1.ListCustomImageBuildsRequest\x1a/.chalk.sandbox.v1.ListCustomImageBuildsResponse\"\a\x80}0\x92}\x01\v\x12{\n" +
+	"\x13GetCustomImageBuild\x12,.chalk.sandbox.v1.GetCustomImageBuildRequest\x1a-.chalk.sandbox.v1.GetCustomImageBuildResponse\"\a\x80}0\x92}\x01\v\x12\x87\x01\n" +
+	"\x17GetCustomImageBuildLogs\x120.chalk.sandbox.v1.GetCustomImageBuildLogsRequest\x1a1.chalk.sandbox.v1.GetCustomImageBuildLogsResponse\"\a\x80}0\x92}\x01\v\x12\x93\x01\n" +
+	"\x1bGetCustomImageBuildWorkflow\x124.chalk.sandbox.v1.GetCustomImageBuildWorkflowRequest\x1a5.chalk.sandbox.v1.GetCustomImageBuildWorkflowResponse\"\a\x80}0\x92}\x01\v\x12\x8a\x01\n" +
+	"\x18GetCustomImageBuildUsage\x121.chalk.sandbox.v1.GetCustomImageBuildUsageRequest\x1a2.chalk.sandbox.v1.GetCustomImageBuildUsageResponse\"\a\x80}0\x92}\x01\vB\xc3\x01\n" +
 	"\x14com.chalk.sandbox.v1B\fServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v1;sandboxv1\xa2\x02\x03CSX\xaa\x02\x10Chalk.Sandbox.V1\xca\x02\x10Chalk\\Sandbox\\V1\xe2\x02\x1cChalk\\Sandbox\\V1\\GPBMetadata\xea\x02\x12Chalk::Sandbox::V1b\x06proto3"
 
 var (

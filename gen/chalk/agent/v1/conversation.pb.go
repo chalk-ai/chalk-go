@@ -8,7 +8,6 @@ package agentv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
-	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -3392,7 +3391,7 @@ var File_chalk_agent_v1_conversation_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/agent/v1/conversation.proto\x12\x0echalk.agent.v1\x1a#chalk/agent/v1/agent_template.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb7\x05\n" +
+	"!chalk/agent/v1/conversation.proto\x12\x0echalk.agent.v1\x1a#chalk/agent/v1/agent_template.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb7\x05\n" +
 	"\x11AgentConversation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x17\n" +
@@ -3673,10 +3672,9 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\x12ForkProviderSource\x12$\n" +
 	" FORK_PROVIDER_SOURCE_UNSPECIFIED\x10\x00\x12%\n" +
 	"!FORK_PROVIDER_SOURCE_CONVERSATION\x10\x01\x12,\n" +
-	"(FORK_PROVIDER_SOURCE_ENVIRONMENT_DEFAULT\x10\x022\xe0\x11\n" +
-	"\x18AgentConversationService\x12\xa9\x01\n" +
-	"\x12CreateConversation\x12).chalk.agent.v1.CreateConversationRequest\x1a*.chalk.agent.v1.CreateConversationResponse\"<\x80}(\x92\xd3\x0e5\n" +
-	"\x11assistant_enabled\x12 Enables Assistant conversations.\x12j\n" +
+	"(FORK_PROVIDER_SOURCE_ENVIRONMENT_DEFAULT\x10\x022\xa6\x11\n" +
+	"\x18AgentConversationService\x12p\n" +
+	"\x12CreateConversation\x12).chalk.agent.v1.CreateConversationRequest\x1a*.chalk.agent.v1.CreateConversationResponse\"\x03\x80}(\x12j\n" +
 	"\x0fGetConversation\x12&.chalk.agent.v1.GetConversationRequest\x1a'.chalk.agent.v1.GetConversationResponse\"\x06\x80}(\x90\x02\x01\x12\x88\x01\n" +
 	"\x19GetConversationForkFamily\x120.chalk.agent.v1.GetConversationForkFamilyRequest\x1a1.chalk.agent.v1.GetConversationForkFamilyResponse\"\x06\x80}(\x90\x02\x01\x12p\n" +
 	"\x11ListConversations\x12(.chalk.agent.v1.ListConversationsRequest\x1a).chalk.agent.v1.ListConversationsResponse\"\x06\x80}(\x90\x02\x01\x12s\n" +

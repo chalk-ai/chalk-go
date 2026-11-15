@@ -748,9 +748,9 @@ const file_chalk_sandbox_v1_runtime_service_proto_rawDesc = "" +
 	"\"PYTHON_EXECUTION_OUTCOME_SUCCEEDED\x10\x01\x12#\n" +
 	"\x1fPYTHON_EXECUTION_OUTCOME_FAILED\x10\x02\x12&\n" +
 	"\"PYTHON_EXECUTION_OUTCOME_TIMED_OUT\x10\x03\x12(\n" +
-	"$PYTHON_EXECUTION_OUTCOME_INTERRUPTED\x10\x042\x82\x01\n" +
-	"\x15SandboxRuntimeService\x12i\n" +
-	"\rExecutePython\x12&.chalk.sandbox.v1.ExecutePythonRequest\x1a'.chalk.sandbox.v1.ExecutePythonResponse\"\x03\x80}\f(\x010\x01B\xca\x01\n" +
+	"$PYTHON_EXECUTION_OUTCOME_INTERRUPTED\x10\x042\x86\x01\n" +
+	"\x15SandboxRuntimeService\x12m\n" +
+	"\rExecutePython\x12&.chalk.sandbox.v1.ExecutePythonRequest\x1a'.chalk.sandbox.v1.ExecutePythonResponse\"\a\x80}=\x92}\x01\f(\x010\x01B\xca\x01\n" +
 	"\x14com.chalk.sandbox.v1B\x13RuntimeServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v1;sandboxv1\xa2\x02\x03CSX\xaa\x02\x10Chalk.Sandbox.V1\xca\x02\x10Chalk\\Sandbox\\V1\xe2\x02\x1cChalk\\Sandbox\\V1\\GPBMetadata\xea\x02\x12Chalk::Sandbox::V1b\x06proto3"
 
 var (

@@ -8,8 +8,10 @@ package sandboxv2
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/container/v1"
-	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
+	v2 "github.com/chalk-ai/chalk-go/gen/chalk/volume/v2"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -80,6 +82,72 @@ func (SandboxSnapshotStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{0}
 }
 
+// Capture progress is separate from readiness: only COMPLETED snapshots can restore.
+type SandboxSnapshotPhase int32
+
+const (
+	SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_UNSPECIFIED   SandboxSnapshotPhase = 0
+	SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_PENDING       SandboxSnapshotPhase = 1
+	SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_CHECKPOINTING SandboxSnapshotPhase = 2
+	SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_UPLOADING     SandboxSnapshotPhase = 3
+	SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_PUBLISHING    SandboxSnapshotPhase = 4
+	SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_COMPLETED     SandboxSnapshotPhase = 5
+	SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_FAILED        SandboxSnapshotPhase = 6
+	// Capture outcome requires reconciliation; submitting another capture is unsafe.
+	SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_RECOVERY_REQUIRED SandboxSnapshotPhase = 7
+)
+
+// Enum value maps for SandboxSnapshotPhase.
+var (
+	SandboxSnapshotPhase_name = map[int32]string{
+		0: "SANDBOX_SNAPSHOT_PHASE_UNSPECIFIED",
+		1: "SANDBOX_SNAPSHOT_PHASE_PENDING",
+		2: "SANDBOX_SNAPSHOT_PHASE_CHECKPOINTING",
+		3: "SANDBOX_SNAPSHOT_PHASE_UPLOADING",
+		4: "SANDBOX_SNAPSHOT_PHASE_PUBLISHING",
+		5: "SANDBOX_SNAPSHOT_PHASE_COMPLETED",
+		6: "SANDBOX_SNAPSHOT_PHASE_FAILED",
+		7: "SANDBOX_SNAPSHOT_PHASE_RECOVERY_REQUIRED",
+	}
+	SandboxSnapshotPhase_value = map[string]int32{
+		"SANDBOX_SNAPSHOT_PHASE_UNSPECIFIED":       0,
+		"SANDBOX_SNAPSHOT_PHASE_PENDING":           1,
+		"SANDBOX_SNAPSHOT_PHASE_CHECKPOINTING":     2,
+		"SANDBOX_SNAPSHOT_PHASE_UPLOADING":         3,
+		"SANDBOX_SNAPSHOT_PHASE_PUBLISHING":        4,
+		"SANDBOX_SNAPSHOT_PHASE_COMPLETED":         5,
+		"SANDBOX_SNAPSHOT_PHASE_FAILED":            6,
+		"SANDBOX_SNAPSHOT_PHASE_RECOVERY_REQUIRED": 7,
+	}
+)
+
+func (x SandboxSnapshotPhase) Enum() *SandboxSnapshotPhase {
+	p := new(SandboxSnapshotPhase)
+	*p = x
+	return p
+}
+
+func (x SandboxSnapshotPhase) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SandboxSnapshotPhase) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[1].Descriptor()
+}
+
+func (SandboxSnapshotPhase) Type() protoreflect.EnumType {
+	return &file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[1]
+}
+
+func (x SandboxSnapshotPhase) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SandboxSnapshotPhase.Descriptor instead.
+func (SandboxSnapshotPhase) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{1}
+}
+
 type SandboxSnapshotSortColumn int32
 
 const (
@@ -110,11 +178,11 @@ func (x SandboxSnapshotSortColumn) String() string {
 }
 
 func (SandboxSnapshotSortColumn) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[1].Descriptor()
+	return file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[2].Descriptor()
 }
 
 func (SandboxSnapshotSortColumn) Type() protoreflect.EnumType {
-	return &file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[1]
+	return &file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[2]
 }
 
 func (x SandboxSnapshotSortColumn) Number() protoreflect.EnumNumber {
@@ -123,7 +191,7 @@ func (x SandboxSnapshotSortColumn) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SandboxSnapshotSortColumn.Descriptor instead.
 func (SandboxSnapshotSortColumn) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{1}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{2}
 }
 
 type SandboxSnapshotSortOrder int32
@@ -159,11 +227,11 @@ func (x SandboxSnapshotSortOrder) String() string {
 }
 
 func (SandboxSnapshotSortOrder) Descriptor() protoreflect.EnumDescriptor {
-	return file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[2].Descriptor()
+	return file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[3].Descriptor()
 }
 
 func (SandboxSnapshotSortOrder) Type() protoreflect.EnumType {
-	return &file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[2]
+	return &file_chalk_sandbox_v2_snapshot_service_proto_enumTypes[3]
 }
 
 func (x SandboxSnapshotSortOrder) Number() protoreflect.EnumNumber {
@@ -172,7 +240,77 @@ func (x SandboxSnapshotSortOrder) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SandboxSnapshotSortOrder.Descriptor instead.
 func (SandboxSnapshotSortOrder) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{2}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{3}
+}
+
+type SandboxSnapshotProgress struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Phase SandboxSnapshotPhase   `protobuf:"varint,1,opt,name=phase,proto3,enum=chalk.sandbox.v2.SandboxSnapshotPhase" json:"phase,omitempty"`
+	// Bytes processed by the upload pipeline; these may be buffered or in flight.
+	// Only COMPLETED proves durable upload. Zero total means the total is not yet known.
+	BytesCompleted uint64                 `protobuf:"varint,2,opt,name=bytes_completed,json=bytesCompleted,proto3" json:"bytes_completed,omitempty"`
+	BytesTotal     uint64                 `protobuf:"varint,3,opt,name=bytes_total,json=bytesTotal,proto3" json:"bytes_total,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SandboxSnapshotProgress) Reset() {
+	*x = SandboxSnapshotProgress{}
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SandboxSnapshotProgress) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SandboxSnapshotProgress) ProtoMessage() {}
+
+func (x *SandboxSnapshotProgress) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SandboxSnapshotProgress.ProtoReflect.Descriptor instead.
+func (*SandboxSnapshotProgress) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *SandboxSnapshotProgress) GetPhase() SandboxSnapshotPhase {
+	if x != nil {
+		return x.Phase
+	}
+	return SandboxSnapshotPhase_SANDBOX_SNAPSHOT_PHASE_UNSPECIFIED
+}
+
+func (x *SandboxSnapshotProgress) GetBytesCompleted() uint64 {
+	if x != nil {
+		return x.BytesCompleted
+	}
+	return 0
+}
+
+func (x *SandboxSnapshotProgress) GetBytesTotal() uint64 {
+	if x != nil {
+		return x.BytesTotal
+	}
+	return 0
+}
+
+func (x *SandboxSnapshotProgress) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
 }
 
 // GKEPodSnapshot captures GKE-specific pod snapshot configuration.
@@ -187,7 +325,7 @@ type GKEPodSnapshot struct {
 
 func (x *GKEPodSnapshot) Reset() {
 	*x = GKEPodSnapshot{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[0]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -199,7 +337,7 @@ func (x *GKEPodSnapshot) String() string {
 func (*GKEPodSnapshot) ProtoMessage() {}
 
 func (x *GKEPodSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[0]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -212,7 +350,7 @@ func (x *GKEPodSnapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GKEPodSnapshot.ProtoReflect.Descriptor instead.
 func (*GKEPodSnapshot) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{0}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GKEPodSnapshot) GetStorageBucket() string {
@@ -238,7 +376,7 @@ type HypervisorSnapshot struct {
 	// URI of the snapshot directory, including its scheme and any configured prefix.
 	// The manifest is at "<storage_uri>/manifest.pb" and images are under "<storage_uri>/image/".
 	StorageUri string `protobuf:"bytes,1,opt,name=storage_uri,json=storageUri,proto3" json:"storage_uri,omitempty"`
-	// Id the hypervisor minted for this snapshot. Restore is driven by this id: the daemon
+	// Stable capture id assigned by the control plane or hypervisor. Restore uses this id: the daemon
 	// resolves it against its own store root, so an in-place resume needs nothing else.
 	SnapshotId string `protobuf:"bytes,2,opt,name=snapshot_id,json=snapshotId,proto3" json:"snapshot_id,omitempty"`
 	// Authoritative capture metadata copied from the hypervisor manifest.
@@ -250,7 +388,7 @@ type HypervisorSnapshot struct {
 
 func (x *HypervisorSnapshot) Reset() {
 	*x = HypervisorSnapshot{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[1]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -262,7 +400,7 @@ func (x *HypervisorSnapshot) String() string {
 func (*HypervisorSnapshot) ProtoMessage() {}
 
 func (x *HypervisorSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[1]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -275,7 +413,7 @@ func (x *HypervisorSnapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HypervisorSnapshot.ProtoReflect.Descriptor instead.
 func (*HypervisorSnapshot) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{1}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *HypervisorSnapshot) GetStorageUri() string {
@@ -312,7 +450,7 @@ type SandboxSnapshotSpec struct {
 
 func (x *SandboxSnapshotSpec) Reset() {
 	*x = SandboxSnapshotSpec{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[2]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -324,7 +462,7 @@ func (x *SandboxSnapshotSpec) String() string {
 func (*SandboxSnapshotSpec) ProtoMessage() {}
 
 func (x *SandboxSnapshotSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[2]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -337,7 +475,7 @@ func (x *SandboxSnapshotSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SandboxSnapshotSpec.ProtoReflect.Descriptor instead.
 func (*SandboxSnapshotSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{2}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SandboxSnapshotSpec) GetSpec() isSandboxSnapshotSpec_Spec {
@@ -392,13 +530,15 @@ type SandboxSnapshot struct {
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	CompletedAt   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=completed_at,json=completedAt,proto3,oneof" json:"completed_at,omitempty"`
 	CreatedBy     *string                `protobuf:"bytes,9,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	// Absent for snapshots created before asynchronous capture was supported.
+	Progress      *SandboxSnapshotProgress `protobuf:"bytes,10,opt,name=progress,proto3" json:"progress,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SandboxSnapshot) Reset() {
 	*x = SandboxSnapshot{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[3]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -410,7 +550,7 @@ func (x *SandboxSnapshot) String() string {
 func (*SandboxSnapshot) ProtoMessage() {}
 
 func (x *SandboxSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[3]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,7 +563,7 @@ func (x *SandboxSnapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SandboxSnapshot.ProtoReflect.Descriptor instead.
 func (*SandboxSnapshot) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SandboxSnapshot) GetId() string {
@@ -489,6 +629,115 @@ func (x *SandboxSnapshot) GetCreatedBy() string {
 	return ""
 }
 
+func (x *SandboxSnapshot) GetProgress() *SandboxSnapshotProgress {
+	if x != nil {
+		return x.Progress
+	}
+	return nil
+}
+
+// Submits durable capture work and returns without waiting for checkpointing or upload.
+// Read the returned snapshot with GetSandboxSnapshot until its status is terminal.
+// Disconnecting or timing out a local wait does not cancel accepted capture work.
+type StartSandboxSnapshotRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	SandboxId string                 `protobuf:"bytes,1,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
+	// Required, opaque key scoped to the authenticated environment. Repeating the same
+	// key and input returns the same snapshot; a different input is rejected. Retrying
+	// after an uncertain submission must reuse this key, never start another capture.
+	IdempotencyKey string `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *StartSandboxSnapshotRequest) Reset() {
+	*x = StartSandboxSnapshotRequest{}
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartSandboxSnapshotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartSandboxSnapshotRequest) ProtoMessage() {}
+
+func (x *StartSandboxSnapshotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartSandboxSnapshotRequest.ProtoReflect.Descriptor instead.
+func (*StartSandboxSnapshotRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *StartSandboxSnapshotRequest) GetSandboxId() string {
+	if x != nil {
+		return x.SandboxId
+	}
+	return ""
+}
+
+func (x *StartSandboxSnapshotRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+type StartSandboxSnapshotResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Snapshot      *SandboxSnapshot       `protobuf:"bytes,1,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartSandboxSnapshotResponse) Reset() {
+	*x = StartSandboxSnapshotResponse{}
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartSandboxSnapshotResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartSandboxSnapshotResponse) ProtoMessage() {}
+
+func (x *StartSandboxSnapshotResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartSandboxSnapshotResponse.ProtoReflect.Descriptor instead.
+func (*StartSandboxSnapshotResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *StartSandboxSnapshotResponse) GetSnapshot() *SandboxSnapshot {
+	if x != nil {
+		return x.Snapshot
+	}
+	return nil
+}
+
 type CreateSandboxSnapshotRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SandboxId     string                 `protobuf:"bytes,1,opt,name=sandbox_id,json=sandboxId,proto3" json:"sandbox_id,omitempty"`
@@ -498,7 +747,7 @@ type CreateSandboxSnapshotRequest struct {
 
 func (x *CreateSandboxSnapshotRequest) Reset() {
 	*x = CreateSandboxSnapshotRequest{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[4]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -510,7 +759,7 @@ func (x *CreateSandboxSnapshotRequest) String() string {
 func (*CreateSandboxSnapshotRequest) ProtoMessage() {}
 
 func (x *CreateSandboxSnapshotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[4]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -523,7 +772,7 @@ func (x *CreateSandboxSnapshotRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSandboxSnapshotRequest.ProtoReflect.Descriptor instead.
 func (*CreateSandboxSnapshotRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateSandboxSnapshotRequest) GetSandboxId() string {
@@ -542,7 +791,7 @@ type CreateSandboxSnapshotResponse struct {
 
 func (x *CreateSandboxSnapshotResponse) Reset() {
 	*x = CreateSandboxSnapshotResponse{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[5]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -554,7 +803,7 @@ func (x *CreateSandboxSnapshotResponse) String() string {
 func (*CreateSandboxSnapshotResponse) ProtoMessage() {}
 
 func (x *CreateSandboxSnapshotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[5]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -567,7 +816,7 @@ func (x *CreateSandboxSnapshotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSandboxSnapshotResponse.ProtoReflect.Descriptor instead.
 func (*CreateSandboxSnapshotResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{5}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateSandboxSnapshotResponse) GetSnapshot() *SandboxSnapshot {
@@ -586,7 +835,7 @@ type GetSandboxSnapshotRequest struct {
 
 func (x *GetSandboxSnapshotRequest) Reset() {
 	*x = GetSandboxSnapshotRequest{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[6]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -598,7 +847,7 @@ func (x *GetSandboxSnapshotRequest) String() string {
 func (*GetSandboxSnapshotRequest) ProtoMessage() {}
 
 func (x *GetSandboxSnapshotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[6]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -611,7 +860,7 @@ func (x *GetSandboxSnapshotRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSandboxSnapshotRequest.ProtoReflect.Descriptor instead.
 func (*GetSandboxSnapshotRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{6}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetSandboxSnapshotRequest) GetSnapshotId() string {
@@ -630,7 +879,7 @@ type GetSandboxSnapshotResponse struct {
 
 func (x *GetSandboxSnapshotResponse) Reset() {
 	*x = GetSandboxSnapshotResponse{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[7]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -642,7 +891,7 @@ func (x *GetSandboxSnapshotResponse) String() string {
 func (*GetSandboxSnapshotResponse) ProtoMessage() {}
 
 func (x *GetSandboxSnapshotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[7]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -655,7 +904,7 @@ func (x *GetSandboxSnapshotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSandboxSnapshotResponse.ProtoReflect.Descriptor instead.
 func (*GetSandboxSnapshotResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{7}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetSandboxSnapshotResponse) GetSnapshot() *SandboxSnapshot {
@@ -666,16 +915,23 @@ func (x *GetSandboxSnapshotResponse) GetSnapshot() *SandboxSnapshot {
 }
 
 type ListSandboxSnapshotsFilters struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SandboxIds    []string               `protobuf:"bytes,1,rep,name=sandbox_ids,json=sandboxIds,proto3" json:"sandbox_ids,omitempty"`
-	Statuses      []string               `protobuf:"bytes,2,rep,name=statuses,proto3" json:"statuses,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	SandboxIds []string               `protobuf:"bytes,1,rep,name=sandbox_ids,json=sandboxIds,proto3" json:"sandbox_ids,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/sandbox/v2/snapshot_service.proto.
+	Statuses []string `protobuf:"bytes,2,rep,name=statuses,proto3" json:"statuses,omitempty"`
+	// Mutually exclusive with legacy statuses. Empty means all statuses.
+	StatusValues []SandboxSnapshotStatus `protobuf:"varint,3,rep,packed,name=status_values,json=statusValues,proto3,enum=chalk.sandbox.v2.SandboxSnapshotStatus" json:"status_values,omitempty"`
+	// User or service-token IDs. Empty means all creators.
+	CreatedBy []string `protobuf:"bytes,4,rep,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	// Matches captured sandbox spec tags; ANDed with other filters.
+	TagFilter     *v11.TagFilter `protobuf:"bytes,5,opt,name=tag_filter,json=tagFilter,proto3,oneof" json:"tag_filter,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSandboxSnapshotsFilters) Reset() {
 	*x = ListSandboxSnapshotsFilters{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[8]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +943,7 @@ func (x *ListSandboxSnapshotsFilters) String() string {
 func (*ListSandboxSnapshotsFilters) ProtoMessage() {}
 
 func (x *ListSandboxSnapshotsFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[8]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -700,7 +956,7 @@ func (x *ListSandboxSnapshotsFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSandboxSnapshotsFilters.ProtoReflect.Descriptor instead.
 func (*ListSandboxSnapshotsFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{8}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListSandboxSnapshotsFilters) GetSandboxIds() []string {
@@ -710,6 +966,7 @@ func (x *ListSandboxSnapshotsFilters) GetSandboxIds() []string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/sandbox/v2/snapshot_service.proto.
 func (x *ListSandboxSnapshotsFilters) GetStatuses() []string {
 	if x != nil {
 		return x.Statuses
@@ -717,10 +974,33 @@ func (x *ListSandboxSnapshotsFilters) GetStatuses() []string {
 	return nil
 }
 
+func (x *ListSandboxSnapshotsFilters) GetStatusValues() []SandboxSnapshotStatus {
+	if x != nil {
+		return x.StatusValues
+	}
+	return nil
+}
+
+func (x *ListSandboxSnapshotsFilters) GetCreatedBy() []string {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return nil
+}
+
+func (x *ListSandboxSnapshotsFilters) GetTagFilter() *v11.TagFilter {
+	if x != nil {
+		return x.TagFilter
+	}
+	return nil
+}
+
 type ListSandboxSnapshotsRequest struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	Limit         *int32                       `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor        *string                      `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Limit  *int32                 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	// Case-insensitive literal substring match on snapshot and source sandbox IDs.
+	// Creator identity is filtered exclusively through filters.created_by.
 	Search        string                       `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
 	Filters       *ListSandboxSnapshotsFilters `protobuf:"bytes,4,opt,name=filters,proto3" json:"filters,omitempty"`
 	SortColumn    SandboxSnapshotSortColumn    `protobuf:"varint,5,opt,name=sort_column,json=sortColumn,proto3,enum=chalk.sandbox.v2.SandboxSnapshotSortColumn" json:"sort_column,omitempty"`
@@ -731,7 +1011,7 @@ type ListSandboxSnapshotsRequest struct {
 
 func (x *ListSandboxSnapshotsRequest) Reset() {
 	*x = ListSandboxSnapshotsRequest{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[9]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -743,7 +1023,7 @@ func (x *ListSandboxSnapshotsRequest) String() string {
 func (*ListSandboxSnapshotsRequest) ProtoMessage() {}
 
 func (x *ListSandboxSnapshotsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[9]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -756,7 +1036,7 @@ func (x *ListSandboxSnapshotsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSandboxSnapshotsRequest.ProtoReflect.Descriptor instead.
 func (*ListSandboxSnapshotsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{9}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListSandboxSnapshotsRequest) GetLimit() int32 {
@@ -811,7 +1091,7 @@ type ListSandboxSnapshotsResponse struct {
 
 func (x *ListSandboxSnapshotsResponse) Reset() {
 	*x = ListSandboxSnapshotsResponse{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[10]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -823,7 +1103,7 @@ func (x *ListSandboxSnapshotsResponse) String() string {
 func (*ListSandboxSnapshotsResponse) ProtoMessage() {}
 
 func (x *ListSandboxSnapshotsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[10]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -836,7 +1116,7 @@ func (x *ListSandboxSnapshotsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSandboxSnapshotsResponse.ProtoReflect.Descriptor instead.
 func (*ListSandboxSnapshotsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{10}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListSandboxSnapshotsResponse) GetSnapshots() []*SandboxSnapshot {
@@ -862,7 +1142,7 @@ type DeleteSandboxSnapshotRequest struct {
 
 func (x *DeleteSandboxSnapshotRequest) Reset() {
 	*x = DeleteSandboxSnapshotRequest{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[11]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -874,7 +1154,7 @@ func (x *DeleteSandboxSnapshotRequest) String() string {
 func (*DeleteSandboxSnapshotRequest) ProtoMessage() {}
 
 func (x *DeleteSandboxSnapshotRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[11]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -887,7 +1167,7 @@ func (x *DeleteSandboxSnapshotRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSandboxSnapshotRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSandboxSnapshotRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{11}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *DeleteSandboxSnapshotRequest) GetSnapshotId() string {
@@ -905,7 +1185,7 @@ type DeleteSandboxSnapshotResponse struct {
 
 func (x *DeleteSandboxSnapshotResponse) Reset() {
 	*x = DeleteSandboxSnapshotResponse{}
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[12]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -917,7 +1197,7 @@ func (x *DeleteSandboxSnapshotResponse) String() string {
 func (*DeleteSandboxSnapshotResponse) ProtoMessage() {}
 
 func (x *DeleteSandboxSnapshotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[12]
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -930,14 +1210,165 @@ func (x *DeleteSandboxSnapshotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSandboxSnapshotResponse.ProtoReflect.Descriptor instead.
 func (*DeleteSandboxSnapshotResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{15}
 }
+
+type GetSnapshotStoreCredentialsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSnapshotStoreCredentialsRequest) Reset() {
+	*x = GetSnapshotStoreCredentialsRequest{}
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSnapshotStoreCredentialsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSnapshotStoreCredentialsRequest) ProtoMessage() {}
+
+func (x *GetSnapshotStoreCredentialsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSnapshotStoreCredentialsRequest.ProtoReflect.Descriptor instead.
+func (*GetSnapshotStoreCredentialsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{16}
+}
+
+// Mirrors chalk.volume.v2.GetVolumeCredentialsResponse.
+type GetSnapshotStoreCredentialsResponse struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Storage *v2.ObjectStoreConfig  `protobuf:"bytes,1,opt,name=storage,proto3" json:"storage,omitempty"`
+	// Reachable object prefixes, `snapshots/<environment_id>/`.
+	Prefixes  []string               `protobuf:"bytes,2,rep,name=prefixes,proto3" json:"prefixes,omitempty"`
+	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// Types that are valid to be assigned to Credentials:
+	//
+	//	*GetSnapshotStoreCredentialsResponse_Aws
+	//	*GetSnapshotStoreCredentialsResponse_Gcp
+	Credentials   isGetSnapshotStoreCredentialsResponse_Credentials `protobuf_oneof:"credentials"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) Reset() {
+	*x = GetSnapshotStoreCredentialsResponse{}
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSnapshotStoreCredentialsResponse) ProtoMessage() {}
+
+func (x *GetSnapshotStoreCredentialsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSnapshotStoreCredentialsResponse.ProtoReflect.Descriptor instead.
+func (*GetSnapshotStoreCredentialsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetStorage() *v2.ObjectStoreConfig {
+	if x != nil {
+		return x.Storage
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetPrefixes() []string {
+	if x != nil {
+		return x.Prefixes
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetCredentials() isGetSnapshotStoreCredentialsResponse_Credentials {
+	if x != nil {
+		return x.Credentials
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetAws() *v2.AwsSessionCredentials {
+	if x != nil {
+		if x, ok := x.Credentials.(*GetSnapshotStoreCredentialsResponse_Aws); ok {
+			return x.Aws
+		}
+	}
+	return nil
+}
+
+func (x *GetSnapshotStoreCredentialsResponse) GetGcp() *v2.GcpAccessToken {
+	if x != nil {
+		if x, ok := x.Credentials.(*GetSnapshotStoreCredentialsResponse_Gcp); ok {
+			return x.Gcp
+		}
+	}
+	return nil
+}
+
+type isGetSnapshotStoreCredentialsResponse_Credentials interface {
+	isGetSnapshotStoreCredentialsResponse_Credentials()
+}
+
+type GetSnapshotStoreCredentialsResponse_Aws struct {
+	Aws *v2.AwsSessionCredentials `protobuf:"bytes,4,opt,name=aws,proto3,oneof"`
+}
+
+type GetSnapshotStoreCredentialsResponse_Gcp struct {
+	Gcp *v2.GcpAccessToken `protobuf:"bytes,5,opt,name=gcp,proto3,oneof"`
+}
+
+func (*GetSnapshotStoreCredentialsResponse_Aws) isGetSnapshotStoreCredentialsResponse_Credentials() {}
+
+func (*GetSnapshotStoreCredentialsResponse_Gcp) isGetSnapshotStoreCredentialsResponse_Credentials() {}
 
 var File_chalk_sandbox_v2_snapshot_service_proto protoreflect.FileDescriptor
 
 const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"\n" +
-	"'chalk/sandbox/v2/snapshot_service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a/chalk/container/v1/snapshot_compatibility.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Z\n" +
+	"'chalk/sandbox/v2/snapshot_service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/common/v1/tag_filter.proto\x1a chalk/container/v1/service.proto\x1a/chalk/container/v1/snapshot_compatibility.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdc\x01\n" +
+	"\x17SandboxSnapshotProgress\x12<\n" +
+	"\x05phase\x18\x01 \x01(\x0e2&.chalk.sandbox.v2.SandboxSnapshotPhaseR\x05phase\x12'\n" +
+	"\x0fbytes_completed\x18\x02 \x01(\x04R\x0ebytesCompleted\x12\x1f\n" +
+	"\vbytes_total\x18\x03 \x01(\x04R\n" +
+	"bytesTotal\x129\n" +
+	"\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"Z\n" +
 	"\x0eGKEPodSnapshot\x12%\n" +
 	"\x0estorage_bucket\x18\x01 \x01(\tR\rstorageBucket\x12!\n" +
 	"\fstorage_path\x18\x02 \x01(\tR\vstoragePath\"\xa7\x01\n" +
@@ -950,7 +1381,7 @@ const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"\x13SandboxSnapshotSpec\x12L\n" +
 	"\x10gke_pod_snapshot\x18\x01 \x01(\v2 .chalk.sandbox.v2.GKEPodSnapshotH\x00R\x0egkePodSnapshot\x12W\n" +
 	"\x13hypervisor_snapshot\x18\x02 \x01(\v2$.chalk.sandbox.v2.HypervisorSnapshotH\x00R\x12hypervisorSnapshotB\x06\n" +
-	"\x04spec\"\x8b\x04\n" +
+	"\x04spec\"\xd2\x04\n" +
 	"\x0fSandboxSnapshot\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -963,10 +1394,18 @@ const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12B\n" +
 	"\fcompleted_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x01R\vcompletedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"created_by\x18\t \x01(\tH\x02R\tcreatedBy\x88\x01\x01B\x11\n" +
+	"created_by\x18\t \x01(\tH\x02R\tcreatedBy\x88\x01\x01\x12E\n" +
+	"\bprogress\x18\n" +
+	" \x01(\v2).chalk.sandbox.v2.SandboxSnapshotProgressR\bprogressB\x11\n" +
 	"\x0f_status_messageB\x0f\n" +
 	"\r_completed_atB\r\n" +
-	"\v_created_by\"=\n" +
+	"\v_created_by\"e\n" +
+	"\x1bStartSandboxSnapshotRequest\x12\x1d\n" +
+	"\n" +
+	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\x12'\n" +
+	"\x0fidempotency_key\x18\x02 \x01(\tR\x0eidempotencyKey\"]\n" +
+	"\x1cStartSandboxSnapshotResponse\x12=\n" +
+	"\bsnapshot\x18\x01 \x01(\v2!.chalk.sandbox.v2.SandboxSnapshotR\bsnapshot\"=\n" +
 	"\x1cCreateSandboxSnapshotRequest\x12\x1d\n" +
 	"\n" +
 	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\"^\n" +
@@ -976,11 +1415,17 @@ const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
 	"snapshotId\"[\n" +
 	"\x1aGetSandboxSnapshotResponse\x12=\n" +
-	"\bsnapshot\x18\x01 \x01(\v2!.chalk.sandbox.v2.SandboxSnapshotR\bsnapshot\"Z\n" +
+	"\bsnapshot\x18\x01 \x01(\v2!.chalk.sandbox.v2.SandboxSnapshotR\bsnapshot\"\x9a\x02\n" +
 	"\x1bListSandboxSnapshotsFilters\x12\x1f\n" +
 	"\vsandbox_ids\x18\x01 \x03(\tR\n" +
-	"sandboxIds\x12\x1a\n" +
-	"\bstatuses\x18\x02 \x03(\tR\bstatuses\"\xe4\x02\n" +
+	"sandboxIds\x12\x1e\n" +
+	"\bstatuses\x18\x02 \x03(\tB\x02\x18\x01R\bstatuses\x12L\n" +
+	"\rstatus_values\x18\x03 \x03(\x0e2'.chalk.sandbox.v2.SandboxSnapshotStatusR\fstatusValues\x12\x1d\n" +
+	"\n" +
+	"created_by\x18\x04 \x03(\tR\tcreatedBy\x12>\n" +
+	"\n" +
+	"tag_filter\x18\x05 \x01(\v2\x1a.chalk.common.v1.TagFilterH\x00R\ttagFilter\x88\x01\x01B\r\n" +
+	"\v_tag_filter\"\xe4\x02\n" +
 	"\x1bListSandboxSnapshotsRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x16\n" +
@@ -1000,26 +1445,45 @@ const file_chalk_sandbox_v2_snapshot_service_proto_rawDesc = "" +
 	"\x1cDeleteSandboxSnapshotRequest\x12\x1f\n" +
 	"\vsnapshot_id\x18\x01 \x01(\tR\n" +
 	"snapshotId\"\x1f\n" +
-	"\x1dDeleteSandboxSnapshotResponse*\xd9\x01\n" +
+	"\x1dDeleteSandboxSnapshotResponse\"$\n" +
+	"\"GetSnapshotStoreCredentialsRequest\"\xc6\x02\n" +
+	"#GetSnapshotStoreCredentialsResponse\x12<\n" +
+	"\astorage\x18\x01 \x01(\v2\".chalk.volume.v2.ObjectStoreConfigR\astorage\x12\x1a\n" +
+	"\bprefixes\x18\x02 \x03(\tR\bprefixes\x129\n" +
+	"\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12@\n" +
+	"\x03aws\x18\x04 \x01(\v2&.chalk.volume.v2.AwsSessionCredentialsB\x04ء'\x01H\x00R\x03aws\x129\n" +
+	"\x03gcp\x18\x05 \x01(\v2\x1f.chalk.volume.v2.GcpAccessTokenB\x04ء'\x01H\x00R\x03gcpB\r\n" +
+	"\vcredentials*\xd9\x01\n" +
 	"\x15SandboxSnapshotStatus\x12'\n" +
 	"#SANDBOX_SNAPSHOT_STATUS_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fSANDBOX_SNAPSHOT_STATUS_PENDING\x10\x01\x12'\n" +
 	"#SANDBOX_SNAPSHOT_STATUS_IN_PROGRESS\x10\x02\x12%\n" +
 	"!SANDBOX_SNAPSHOT_STATUS_COMPLETED\x10\x03\x12\"\n" +
-	"\x1eSANDBOX_SNAPSHOT_STATUS_FAILED\x10\x04*v\n" +
+	"\x1eSANDBOX_SNAPSHOT_STATUS_FAILED\x10\x04*\xd0\x02\n" +
+	"\x14SandboxSnapshotPhase\x12&\n" +
+	"\"SANDBOX_SNAPSHOT_PHASE_UNSPECIFIED\x10\x00\x12\"\n" +
+	"\x1eSANDBOX_SNAPSHOT_PHASE_PENDING\x10\x01\x12(\n" +
+	"$SANDBOX_SNAPSHOT_PHASE_CHECKPOINTING\x10\x02\x12$\n" +
+	" SANDBOX_SNAPSHOT_PHASE_UPLOADING\x10\x03\x12%\n" +
+	"!SANDBOX_SNAPSHOT_PHASE_PUBLISHING\x10\x04\x12$\n" +
+	" SANDBOX_SNAPSHOT_PHASE_COMPLETED\x10\x05\x12!\n" +
+	"\x1dSANDBOX_SNAPSHOT_PHASE_FAILED\x10\x06\x12,\n" +
+	"(SANDBOX_SNAPSHOT_PHASE_RECOVERY_REQUIRED\x10\a*v\n" +
 	"\x19SandboxSnapshotSortColumn\x12,\n" +
 	"(SANDBOX_SNAPSHOT_SORT_COLUMN_UNSPECIFIED\x10\x00\x12+\n" +
 	"'SANDBOX_SNAPSHOT_SORT_COLUMN_CREATED_AT\x10\x01*\x92\x01\n" +
 	"\x18SandboxSnapshotSortOrder\x12+\n" +
 	"'SANDBOX_SNAPSHOT_SORT_ORDER_UNSPECIFIED\x10\x00\x12$\n" +
 	" SANDBOX_SNAPSHOT_SORT_ORDER_DESC\x10\x01\x12#\n" +
-	"\x1fSANDBOX_SNAPSHOT_SORT_ORDER_ASC\x10\x022\xe5\x04\n" +
-	"\x16SandboxSnapshotService\x12\xd9\x01\n" +
-	"\x15CreateSandboxSnapshot\x12..chalk.sandbox.v2.CreateSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.CreateSandboxSnapshotResponse\"_\x80}\f\x92\xd3\x0eX\n" +
-	"\x1bcontainer_snapshots_enabled\x129This action is not enabled. Please contact Chalk Support.\x12t\n" +
-	"\x12GetSandboxSnapshot\x12+.chalk.sandbox.v2.GetSandboxSnapshotRequest\x1a,.chalk.sandbox.v2.GetSandboxSnapshotResponse\"\x03\x80}\v\x12z\n" +
-	"\x14ListSandboxSnapshots\x12-.chalk.sandbox.v2.ListSandboxSnapshotsRequest\x1a..chalk.sandbox.v2.ListSandboxSnapshotsResponse\"\x03\x80}\v\x12}\n" +
-	"\x15DeleteSandboxSnapshot\x12..chalk.sandbox.v2.DeleteSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.DeleteSandboxSnapshotResponse\"\x03\x80}\fB\xcb\x01\n" +
+	"\x1fSANDBOX_SNAPSHOT_SORT_ORDER_ASC\x10\x022\xaf\x06\n" +
+	"\x16SandboxSnapshotService\x12~\n" +
+	"\x14StartSandboxSnapshot\x12-.chalk.sandbox.v2.StartSandboxSnapshotRequest\x1a..chalk.sandbox.v2.StartSandboxSnapshotResponse\"\a\x80}<\x92}\x01\f\x12\x81\x01\n" +
+	"\x15CreateSandboxSnapshot\x12..chalk.sandbox.v2.CreateSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.CreateSandboxSnapshotResponse\"\a\x80}<\x92}\x01\f\x12x\n" +
+	"\x12GetSandboxSnapshot\x12+.chalk.sandbox.v2.GetSandboxSnapshotRequest\x1a,.chalk.sandbox.v2.GetSandboxSnapshotResponse\"\a\x80};\x92}\x01\v\x12~\n" +
+	"\x14ListSandboxSnapshots\x12-.chalk.sandbox.v2.ListSandboxSnapshotsRequest\x1a..chalk.sandbox.v2.ListSandboxSnapshotsResponse\"\a\x80};\x92}\x01\v\x12\x81\x01\n" +
+	"\x15DeleteSandboxSnapshot\x12..chalk.sandbox.v2.DeleteSandboxSnapshotRequest\x1a/.chalk.sandbox.v2.DeleteSandboxSnapshotResponse\"\a\x80}<\x92}\x01\f\x12\x92\x01\n" +
+	"\x1bGetSnapshotStoreCredentials\x124.chalk.sandbox.v2.GetSnapshotStoreCredentialsRequest\x1a5.chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse\"\x06\x80}\f\x90\x02\x01B\xcb\x01\n" +
 	"\x14com.chalk.sandbox.v2B\x14SnapshotServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v2;sandboxv2\xa2\x02\x03CSX\xaa\x02\x10Chalk.Sandbox.V2\xca\x02\x10Chalk\\Sandbox\\V2\xe2\x02\x1cChalk\\Sandbox\\V2\\GPBMetadata\xea\x02\x12Chalk::Sandbox::V2b\x06proto3"
 
 var (
@@ -1034,57 +1498,81 @@ func file_chalk_sandbox_v2_snapshot_service_proto_rawDescGZIP() []byte {
 	return file_chalk_sandbox_v2_snapshot_service_proto_rawDescData
 }
 
-var file_chalk_sandbox_v2_snapshot_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_sandbox_v2_snapshot_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_chalk_sandbox_v2_snapshot_service_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_chalk_sandbox_v2_snapshot_service_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_chalk_sandbox_v2_snapshot_service_proto_goTypes = []any{
-	(SandboxSnapshotStatus)(0),            // 0: chalk.sandbox.v2.SandboxSnapshotStatus
-	(SandboxSnapshotSortColumn)(0),        // 1: chalk.sandbox.v2.SandboxSnapshotSortColumn
-	(SandboxSnapshotSortOrder)(0),         // 2: chalk.sandbox.v2.SandboxSnapshotSortOrder
-	(*GKEPodSnapshot)(nil),                // 3: chalk.sandbox.v2.GKEPodSnapshot
-	(*HypervisorSnapshot)(nil),            // 4: chalk.sandbox.v2.HypervisorSnapshot
-	(*SandboxSnapshotSpec)(nil),           // 5: chalk.sandbox.v2.SandboxSnapshotSpec
-	(*SandboxSnapshot)(nil),               // 6: chalk.sandbox.v2.SandboxSnapshot
-	(*CreateSandboxSnapshotRequest)(nil),  // 7: chalk.sandbox.v2.CreateSandboxSnapshotRequest
-	(*CreateSandboxSnapshotResponse)(nil), // 8: chalk.sandbox.v2.CreateSandboxSnapshotResponse
-	(*GetSandboxSnapshotRequest)(nil),     // 9: chalk.sandbox.v2.GetSandboxSnapshotRequest
-	(*GetSandboxSnapshotResponse)(nil),    // 10: chalk.sandbox.v2.GetSandboxSnapshotResponse
-	(*ListSandboxSnapshotsFilters)(nil),   // 11: chalk.sandbox.v2.ListSandboxSnapshotsFilters
-	(*ListSandboxSnapshotsRequest)(nil),   // 12: chalk.sandbox.v2.ListSandboxSnapshotsRequest
-	(*ListSandboxSnapshotsResponse)(nil),  // 13: chalk.sandbox.v2.ListSandboxSnapshotsResponse
-	(*DeleteSandboxSnapshotRequest)(nil),  // 14: chalk.sandbox.v2.DeleteSandboxSnapshotRequest
-	(*DeleteSandboxSnapshotResponse)(nil), // 15: chalk.sandbox.v2.DeleteSandboxSnapshotResponse
-	(*v1.SnapshotCompatibility)(nil),      // 16: chalk.container.v1.SnapshotCompatibility
-	(*v1.ChalkContainerSpec)(nil),         // 17: chalk.container.v1.ChalkContainerSpec
-	(*timestamppb.Timestamp)(nil),         // 18: google.protobuf.Timestamp
+	(SandboxSnapshotStatus)(0),                  // 0: chalk.sandbox.v2.SandboxSnapshotStatus
+	(SandboxSnapshotPhase)(0),                   // 1: chalk.sandbox.v2.SandboxSnapshotPhase
+	(SandboxSnapshotSortColumn)(0),              // 2: chalk.sandbox.v2.SandboxSnapshotSortColumn
+	(SandboxSnapshotSortOrder)(0),               // 3: chalk.sandbox.v2.SandboxSnapshotSortOrder
+	(*SandboxSnapshotProgress)(nil),             // 4: chalk.sandbox.v2.SandboxSnapshotProgress
+	(*GKEPodSnapshot)(nil),                      // 5: chalk.sandbox.v2.GKEPodSnapshot
+	(*HypervisorSnapshot)(nil),                  // 6: chalk.sandbox.v2.HypervisorSnapshot
+	(*SandboxSnapshotSpec)(nil),                 // 7: chalk.sandbox.v2.SandboxSnapshotSpec
+	(*SandboxSnapshot)(nil),                     // 8: chalk.sandbox.v2.SandboxSnapshot
+	(*StartSandboxSnapshotRequest)(nil),         // 9: chalk.sandbox.v2.StartSandboxSnapshotRequest
+	(*StartSandboxSnapshotResponse)(nil),        // 10: chalk.sandbox.v2.StartSandboxSnapshotResponse
+	(*CreateSandboxSnapshotRequest)(nil),        // 11: chalk.sandbox.v2.CreateSandboxSnapshotRequest
+	(*CreateSandboxSnapshotResponse)(nil),       // 12: chalk.sandbox.v2.CreateSandboxSnapshotResponse
+	(*GetSandboxSnapshotRequest)(nil),           // 13: chalk.sandbox.v2.GetSandboxSnapshotRequest
+	(*GetSandboxSnapshotResponse)(nil),          // 14: chalk.sandbox.v2.GetSandboxSnapshotResponse
+	(*ListSandboxSnapshotsFilters)(nil),         // 15: chalk.sandbox.v2.ListSandboxSnapshotsFilters
+	(*ListSandboxSnapshotsRequest)(nil),         // 16: chalk.sandbox.v2.ListSandboxSnapshotsRequest
+	(*ListSandboxSnapshotsResponse)(nil),        // 17: chalk.sandbox.v2.ListSandboxSnapshotsResponse
+	(*DeleteSandboxSnapshotRequest)(nil),        // 18: chalk.sandbox.v2.DeleteSandboxSnapshotRequest
+	(*DeleteSandboxSnapshotResponse)(nil),       // 19: chalk.sandbox.v2.DeleteSandboxSnapshotResponse
+	(*GetSnapshotStoreCredentialsRequest)(nil),  // 20: chalk.sandbox.v2.GetSnapshotStoreCredentialsRequest
+	(*GetSnapshotStoreCredentialsResponse)(nil), // 21: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse
+	(*timestamppb.Timestamp)(nil),               // 22: google.protobuf.Timestamp
+	(*v1.SnapshotCompatibility)(nil),            // 23: chalk.container.v1.SnapshotCompatibility
+	(*v1.ChalkContainerSpec)(nil),               // 24: chalk.container.v1.ChalkContainerSpec
+	(*v11.TagFilter)(nil),                       // 25: chalk.common.v1.TagFilter
+	(*v2.ObjectStoreConfig)(nil),                // 26: chalk.volume.v2.ObjectStoreConfig
+	(*v2.AwsSessionCredentials)(nil),            // 27: chalk.volume.v2.AwsSessionCredentials
+	(*v2.GcpAccessToken)(nil),                   // 28: chalk.volume.v2.GcpAccessToken
 }
 var file_chalk_sandbox_v2_snapshot_service_proto_depIdxs = []int32{
-	16, // 0: chalk.sandbox.v2.HypervisorSnapshot.compatibility:type_name -> chalk.container.v1.SnapshotCompatibility
-	3,  // 1: chalk.sandbox.v2.SandboxSnapshotSpec.gke_pod_snapshot:type_name -> chalk.sandbox.v2.GKEPodSnapshot
-	4,  // 2: chalk.sandbox.v2.SandboxSnapshotSpec.hypervisor_snapshot:type_name -> chalk.sandbox.v2.HypervisorSnapshot
-	17, // 3: chalk.sandbox.v2.SandboxSnapshot.spec:type_name -> chalk.container.v1.ChalkContainerSpec
-	5,  // 4: chalk.sandbox.v2.SandboxSnapshot.snapshot_spec:type_name -> chalk.sandbox.v2.SandboxSnapshotSpec
-	0,  // 5: chalk.sandbox.v2.SandboxSnapshot.status:type_name -> chalk.sandbox.v2.SandboxSnapshotStatus
-	18, // 6: chalk.sandbox.v2.SandboxSnapshot.created_at:type_name -> google.protobuf.Timestamp
-	18, // 7: chalk.sandbox.v2.SandboxSnapshot.completed_at:type_name -> google.protobuf.Timestamp
-	6,  // 8: chalk.sandbox.v2.CreateSandboxSnapshotResponse.snapshot:type_name -> chalk.sandbox.v2.SandboxSnapshot
-	6,  // 9: chalk.sandbox.v2.GetSandboxSnapshotResponse.snapshot:type_name -> chalk.sandbox.v2.SandboxSnapshot
-	11, // 10: chalk.sandbox.v2.ListSandboxSnapshotsRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxSnapshotsFilters
-	1,  // 11: chalk.sandbox.v2.ListSandboxSnapshotsRequest.sort_column:type_name -> chalk.sandbox.v2.SandboxSnapshotSortColumn
-	2,  // 12: chalk.sandbox.v2.ListSandboxSnapshotsRequest.sort_order:type_name -> chalk.sandbox.v2.SandboxSnapshotSortOrder
-	6,  // 13: chalk.sandbox.v2.ListSandboxSnapshotsResponse.snapshots:type_name -> chalk.sandbox.v2.SandboxSnapshot
-	7,  // 14: chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot:input_type -> chalk.sandbox.v2.CreateSandboxSnapshotRequest
-	9,  // 15: chalk.sandbox.v2.SandboxSnapshotService.GetSandboxSnapshot:input_type -> chalk.sandbox.v2.GetSandboxSnapshotRequest
-	12, // 16: chalk.sandbox.v2.SandboxSnapshotService.ListSandboxSnapshots:input_type -> chalk.sandbox.v2.ListSandboxSnapshotsRequest
-	14, // 17: chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot:input_type -> chalk.sandbox.v2.DeleteSandboxSnapshotRequest
-	8,  // 18: chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot:output_type -> chalk.sandbox.v2.CreateSandboxSnapshotResponse
-	10, // 19: chalk.sandbox.v2.SandboxSnapshotService.GetSandboxSnapshot:output_type -> chalk.sandbox.v2.GetSandboxSnapshotResponse
-	13, // 20: chalk.sandbox.v2.SandboxSnapshotService.ListSandboxSnapshots:output_type -> chalk.sandbox.v2.ListSandboxSnapshotsResponse
-	15, // 21: chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot:output_type -> chalk.sandbox.v2.DeleteSandboxSnapshotResponse
-	18, // [18:22] is the sub-list for method output_type
-	14, // [14:18] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	1,  // 0: chalk.sandbox.v2.SandboxSnapshotProgress.phase:type_name -> chalk.sandbox.v2.SandboxSnapshotPhase
+	22, // 1: chalk.sandbox.v2.SandboxSnapshotProgress.updated_at:type_name -> google.protobuf.Timestamp
+	23, // 2: chalk.sandbox.v2.HypervisorSnapshot.compatibility:type_name -> chalk.container.v1.SnapshotCompatibility
+	5,  // 3: chalk.sandbox.v2.SandboxSnapshotSpec.gke_pod_snapshot:type_name -> chalk.sandbox.v2.GKEPodSnapshot
+	6,  // 4: chalk.sandbox.v2.SandboxSnapshotSpec.hypervisor_snapshot:type_name -> chalk.sandbox.v2.HypervisorSnapshot
+	24, // 5: chalk.sandbox.v2.SandboxSnapshot.spec:type_name -> chalk.container.v1.ChalkContainerSpec
+	7,  // 6: chalk.sandbox.v2.SandboxSnapshot.snapshot_spec:type_name -> chalk.sandbox.v2.SandboxSnapshotSpec
+	0,  // 7: chalk.sandbox.v2.SandboxSnapshot.status:type_name -> chalk.sandbox.v2.SandboxSnapshotStatus
+	22, // 8: chalk.sandbox.v2.SandboxSnapshot.created_at:type_name -> google.protobuf.Timestamp
+	22, // 9: chalk.sandbox.v2.SandboxSnapshot.completed_at:type_name -> google.protobuf.Timestamp
+	4,  // 10: chalk.sandbox.v2.SandboxSnapshot.progress:type_name -> chalk.sandbox.v2.SandboxSnapshotProgress
+	8,  // 11: chalk.sandbox.v2.StartSandboxSnapshotResponse.snapshot:type_name -> chalk.sandbox.v2.SandboxSnapshot
+	8,  // 12: chalk.sandbox.v2.CreateSandboxSnapshotResponse.snapshot:type_name -> chalk.sandbox.v2.SandboxSnapshot
+	8,  // 13: chalk.sandbox.v2.GetSandboxSnapshotResponse.snapshot:type_name -> chalk.sandbox.v2.SandboxSnapshot
+	0,  // 14: chalk.sandbox.v2.ListSandboxSnapshotsFilters.status_values:type_name -> chalk.sandbox.v2.SandboxSnapshotStatus
+	25, // 15: chalk.sandbox.v2.ListSandboxSnapshotsFilters.tag_filter:type_name -> chalk.common.v1.TagFilter
+	15, // 16: chalk.sandbox.v2.ListSandboxSnapshotsRequest.filters:type_name -> chalk.sandbox.v2.ListSandboxSnapshotsFilters
+	2,  // 17: chalk.sandbox.v2.ListSandboxSnapshotsRequest.sort_column:type_name -> chalk.sandbox.v2.SandboxSnapshotSortColumn
+	3,  // 18: chalk.sandbox.v2.ListSandboxSnapshotsRequest.sort_order:type_name -> chalk.sandbox.v2.SandboxSnapshotSortOrder
+	8,  // 19: chalk.sandbox.v2.ListSandboxSnapshotsResponse.snapshots:type_name -> chalk.sandbox.v2.SandboxSnapshot
+	26, // 20: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse.storage:type_name -> chalk.volume.v2.ObjectStoreConfig
+	22, // 21: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse.expires_at:type_name -> google.protobuf.Timestamp
+	27, // 22: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse.aws:type_name -> chalk.volume.v2.AwsSessionCredentials
+	28, // 23: chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse.gcp:type_name -> chalk.volume.v2.GcpAccessToken
+	9,  // 24: chalk.sandbox.v2.SandboxSnapshotService.StartSandboxSnapshot:input_type -> chalk.sandbox.v2.StartSandboxSnapshotRequest
+	11, // 25: chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot:input_type -> chalk.sandbox.v2.CreateSandboxSnapshotRequest
+	13, // 26: chalk.sandbox.v2.SandboxSnapshotService.GetSandboxSnapshot:input_type -> chalk.sandbox.v2.GetSandboxSnapshotRequest
+	16, // 27: chalk.sandbox.v2.SandboxSnapshotService.ListSandboxSnapshots:input_type -> chalk.sandbox.v2.ListSandboxSnapshotsRequest
+	18, // 28: chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot:input_type -> chalk.sandbox.v2.DeleteSandboxSnapshotRequest
+	20, // 29: chalk.sandbox.v2.SandboxSnapshotService.GetSnapshotStoreCredentials:input_type -> chalk.sandbox.v2.GetSnapshotStoreCredentialsRequest
+	10, // 30: chalk.sandbox.v2.SandboxSnapshotService.StartSandboxSnapshot:output_type -> chalk.sandbox.v2.StartSandboxSnapshotResponse
+	12, // 31: chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot:output_type -> chalk.sandbox.v2.CreateSandboxSnapshotResponse
+	14, // 32: chalk.sandbox.v2.SandboxSnapshotService.GetSandboxSnapshot:output_type -> chalk.sandbox.v2.GetSandboxSnapshotResponse
+	17, // 33: chalk.sandbox.v2.SandboxSnapshotService.ListSandboxSnapshots:output_type -> chalk.sandbox.v2.ListSandboxSnapshotsResponse
+	19, // 34: chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot:output_type -> chalk.sandbox.v2.DeleteSandboxSnapshotResponse
+	21, // 35: chalk.sandbox.v2.SandboxSnapshotService.GetSnapshotStoreCredentials:output_type -> chalk.sandbox.v2.GetSnapshotStoreCredentialsResponse
+	30, // [30:36] is the sub-list for method output_type
+	24, // [24:30] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_chalk_sandbox_v2_snapshot_service_proto_init() }
@@ -1092,20 +1580,25 @@ func file_chalk_sandbox_v2_snapshot_service_proto_init() {
 	if File_chalk_sandbox_v2_snapshot_service_proto != nil {
 		return
 	}
-	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[2].OneofWrappers = []any{
+	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[3].OneofWrappers = []any{
 		(*SandboxSnapshotSpec_GkePodSnapshot)(nil),
 		(*SandboxSnapshotSpec_HypervisorSnapshot)(nil),
 	}
-	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[9].OneofWrappers = []any{}
-	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[12].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_sandbox_v2_snapshot_service_proto_msgTypes[17].OneofWrappers = []any{
+		(*GetSnapshotStoreCredentialsResponse_Aws)(nil),
+		(*GetSnapshotStoreCredentialsResponse_Gcp)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_sandbox_v2_snapshot_service_proto_rawDesc), len(file_chalk_sandbox_v2_snapshot_service_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   13,
+			NumEnums:      4,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

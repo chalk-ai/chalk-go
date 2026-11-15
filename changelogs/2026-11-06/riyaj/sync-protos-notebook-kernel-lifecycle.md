@@ -1,0 +1,1 @@
+- sync generated protos from chalk-private dev at `3e61b6c0654`: notebook kernel lifecycle (`NotebookKernelLifecycle` on runtime status, `NotebookKernelRecycleReason`, and the run's `NotebookRunKernel` as `kernel` on run events, cell results, run summaries and `StartNotebookRunResponse`), used by `chalk notebook kernel status` and `chalk notebook run`

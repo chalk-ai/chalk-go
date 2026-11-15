@@ -5860,26 +5860,37 @@ const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"\n" +
 	"VolumeKind\x12\x1b\n" +
 	"\x17VOLUME_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
-	"\x17VOLUME_KIND_SOURCE_CODE\x10\x012\xab\x0e\n" +
-	"\rVolumeService\x12\xb7\x01\n" +
-	"\fCreateVolume\x12$.chalk.volume.v2.CreateVolumeRequest\x1a%.chalk.volume.v2.CreateVolumeResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12Z\n" +
-	"\tGetVolume\x12!.chalk.volume.v2.GetVolumeRequest\x1a\".chalk.volume.v2.GetVolumeResponse\"\x06\x80}\v\x90\x02\x01\x12{\n" +
-	"\x14GetVolumeCredentials\x12,.chalk.volume.v2.GetVolumeCredentialsRequest\x1a-.chalk.volume.v2.GetVolumeCredentialsResponse\"\x06\x80}\v\x90\x02\x01\x12i\n" +
-	"\x0eGetVolumeStats\x12&.chalk.volume.v2.GetVolumeStatsRequest\x1a'.chalk.volume.v2.GetVolumeStatsResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
-	"\vListVolumes\x12#.chalk.volume.v2.ListVolumesRequest\x1a$.chalk.volume.v2.ListVolumesResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
-	"\fDeleteVolume\x12$.chalk.volume.v2.DeleteVolumeRequest\x1a%.chalk.volume.v2.DeleteVolumeResponse\"\x03\x80}\x0e\x12u\n" +
-	"\x12ListVolumeVersions\x12*.chalk.volume.v2.ListVolumeVersionsRequest\x1a+.chalk.volume.v2.ListVolumeVersionsResponse\"\x06\x80}\v\x90\x02\x01\x12W\n" +
-	"\tCreateRef\x12!.chalk.volume.v2.CreateRefRequest\x1a\".chalk.volume.v2.CreateRefResponse\"\x03\x80}\f\x12W\n" +
-	"\bListRefs\x12 .chalk.volume.v2.ListRefsRequest\x1a!.chalk.volume.v2.ListRefsResponse\"\x06\x80}\v\x90\x02\x01\x12W\n" +
-	"\tDeleteRef\x12!.chalk.volume.v2.DeleteRefRequest\x1a\".chalk.volume.v2.DeleteRefResponse\"\x03\x80}\x0e\x12c\n" +
-	"\rCommitVersion\x12%.chalk.volume.v2.CommitVersionRequest\x1a&.chalk.volume.v2.CommitVersionResponse\"\x03\x80}\f\x12l\n" +
-	"\x0fGetCommitStatus\x12'.chalk.volume.v2.GetCommitStatusRequest\x1a(.chalk.volume.v2.GetCommitStatusResponse\"\x06\x80}\v\x90\x02\x01\x12r\n" +
-	"\x12AllocateInodeRange\x12*.chalk.volume.v2.AllocateInodeRangeRequest\x1a+.chalk.volume.v2.AllocateInodeRangeResponse\"\x03\x80}\f\x12r\n" +
-	"\x11RequestUploadURLs\x12).chalk.volume.v2.RequestUploadURLsRequest\x1a*.chalk.volume.v2.RequestUploadURLsResponse\"\x06\x80}\f\x90\x02\x01\x12Z\n" +
-	"\tListFiles\x12!.chalk.volume.v2.ListFilesRequest\x1a\".chalk.volume.v2.ListFilesResponse\"\x06\x80}\v\x90\x02\x01\x12i\n" +
-	"\x0eListMountFiles\x12&.chalk.volume.v2.ListMountFilesRequest\x1a'.chalk.volume.v2.ListMountFilesResponse\"\x06\x80}\v\x90\x02\x01\x12T\n" +
-	"\aGetFile\x12\x1f.chalk.volume.v2.GetFileRequest\x1a .chalk.volume.v2.GetFileResponse\"\x06\x80}\v\x90\x02\x01B\xbb\x01\n" +
+	"\x17VOLUME_KIND_SOURCE_CODE\x10\x012\xef\x0e\n" +
+	"\rVolumeService\x12\xbb\x01\n" +
+	"\fCreateVolume\x12$.chalk.volume.v2.CreateVolumeRequest\x1a%.chalk.volume.v2.CreateVolumeResponse\"^\x80}C\x92}\x01\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12^\n" +
+	"\tGetVolume\x12!.chalk.volume.v2.GetVolumeRequest\x1a\".chalk.volume.v2.GetVolumeResponse\"\n" +
+	"\x80}@\x92}\x01\v\x90\x02\x01\x12\x7f\n" +
+	"\x14GetVolumeCredentials\x12,.chalk.volume.v2.GetVolumeCredentialsRequest\x1a-.chalk.volume.v2.GetVolumeCredentialsResponse\"\n" +
+	"\x80}A\x92}\x01\v\x90\x02\x01\x12m\n" +
+	"\x0eGetVolumeStats\x12&.chalk.volume.v2.GetVolumeStatsRequest\x1a'.chalk.volume.v2.GetVolumeStatsResponse\"\n" +
+	"\x80}@\x92}\x01\v\x90\x02\x01\x12d\n" +
+	"\vListVolumes\x12#.chalk.volume.v2.ListVolumesRequest\x1a$.chalk.volume.v2.ListVolumesResponse\"\n" +
+	"\x80}@\x92}\x01\v\x90\x02\x01\x12d\n" +
+	"\fDeleteVolume\x12$.chalk.volume.v2.DeleteVolumeRequest\x1a%.chalk.volume.v2.DeleteVolumeResponse\"\a\x80}C\x92}\x01\x0e\x12y\n" +
+	"\x12ListVolumeVersions\x12*.chalk.volume.v2.ListVolumeVersionsRequest\x1a+.chalk.volume.v2.ListVolumeVersionsResponse\"\n" +
+	"\x80}@\x92}\x01\v\x90\x02\x01\x12[\n" +
+	"\tCreateRef\x12!.chalk.volume.v2.CreateRefRequest\x1a\".chalk.volume.v2.CreateRefResponse\"\a\x80}B\x92}\x01\f\x12[\n" +
+	"\bListRefs\x12 .chalk.volume.v2.ListRefsRequest\x1a!.chalk.volume.v2.ListRefsResponse\"\n" +
+	"\x80}@\x92}\x01\v\x90\x02\x01\x12[\n" +
+	"\tDeleteRef\x12!.chalk.volume.v2.DeleteRefRequest\x1a\".chalk.volume.v2.DeleteRefResponse\"\a\x80}B\x92}\x01\x0e\x12g\n" +
+	"\rCommitVersion\x12%.chalk.volume.v2.CommitVersionRequest\x1a&.chalk.volume.v2.CommitVersionResponse\"\a\x80}B\x92}\x01\f\x12p\n" +
+	"\x0fGetCommitStatus\x12'.chalk.volume.v2.GetCommitStatusRequest\x1a(.chalk.volume.v2.GetCommitStatusResponse\"\n" +
+	"\x80}@\x92}\x01\v\x90\x02\x01\x12v\n" +
+	"\x12AllocateInodeRange\x12*.chalk.volume.v2.AllocateInodeRangeRequest\x1a+.chalk.volume.v2.AllocateInodeRangeResponse\"\a\x80}B\x92}\x01\f\x12v\n" +
+	"\x11RequestUploadURLs\x12).chalk.volume.v2.RequestUploadURLsRequest\x1a*.chalk.volume.v2.RequestUploadURLsResponse\"\n" +
+	"\x80}B\x92}\x01\f\x90\x02\x01\x12^\n" +
+	"\tListFiles\x12!.chalk.volume.v2.ListFilesRequest\x1a\".chalk.volume.v2.ListFilesResponse\"\n" +
+	"\x80}A\x92}\x01\v\x90\x02\x01\x12m\n" +
+	"\x0eListMountFiles\x12&.chalk.volume.v2.ListMountFilesRequest\x1a'.chalk.volume.v2.ListMountFilesResponse\"\n" +
+	"\x80}A\x92}\x01\v\x90\x02\x01\x12X\n" +
+	"\aGetFile\x12\x1f.chalk.volume.v2.GetFileRequest\x1a .chalk.volume.v2.GetFileResponse\"\n" +
+	"\x80}A\x92}\x01\v\x90\x02\x01B\xbb\x01\n" +
 	"\x13com.chalk.volume.v2B\vVolumeProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/volume/v2;volumev2\xa2\x02\x03CVX\xaa\x02\x0fChalk.Volume.V2\xca\x02\x0fChalk\\Volume\\V2\xe2\x02\x1bChalk\\Volume\\V2\\GPBMetadata\xea\x02\x11Chalk::Volume::V2b\x06proto3"
 
 var (

@@ -58,6 +58,12 @@ const (
 	// ExternalFunctionCatalogServiceCallExternalFunctionProcedure is the fully-qualified name of the
 	// ExternalFunctionCatalogService's CallExternalFunction RPC.
 	ExternalFunctionCatalogServiceCallExternalFunctionProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/CallExternalFunction"
+	// ExternalFunctionCatalogServiceDescribeExternalFunctionJsonProcedure is the fully-qualified name
+	// of the ExternalFunctionCatalogService's DescribeExternalFunctionJson RPC.
+	ExternalFunctionCatalogServiceDescribeExternalFunctionJsonProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/DescribeExternalFunctionJson"
+	// ExternalFunctionCatalogServiceCallExternalFunctionJsonProcedure is the fully-qualified name of
+	// the ExternalFunctionCatalogService's CallExternalFunctionJson RPC.
+	ExternalFunctionCatalogServiceCallExternalFunctionJsonProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/CallExternalFunctionJson"
 	// ExternalFunctionCatalogServiceCreateExternalFunctionVersionProcedure is the fully-qualified name
 	// of the ExternalFunctionCatalogService's CreateExternalFunctionVersion RPC.
 	ExternalFunctionCatalogServiceCreateExternalFunctionVersionProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/CreateExternalFunctionVersion"
@@ -89,6 +95,12 @@ type ExternalFunctionCatalogServiceClient interface {
 	DeleteExternalFunction(context.Context, *connect.Request[v1.DeleteExternalFunctionRequest]) (*connect.Response[v1.DeleteExternalFunctionResponse], error)
 	ListExternalFunctionScheduledRuns(context.Context, *connect.Request[v1.ListExternalFunctionScheduledRunsRequest]) (*connect.Response[v1.ListExternalFunctionScheduledRunsResponse], error)
 	CallExternalFunction(context.Context, *connect.Request[v1.CallExternalFunctionRequest]) (*connect.Response[v1.CallExternalFunctionResponse], error)
+	// JSON-shaped counterpart of GetExternalFunctionVersion for callers that
+	// expose functions as JSON tools (e.g. the MCP gateway).
+	DescribeExternalFunctionJson(context.Context, *connect.Request[v1.DescribeExternalFunctionJsonRequest]) (*connect.Response[v1.DescribeExternalFunctionJsonResponse], error)
+	// JSON-shaped counterpart of CallExternalFunction: encodes `args` into the
+	// version's input Arrow schema and decodes the output feather stream.
+	CallExternalFunctionJson(context.Context, *connect.Request[v1.CallExternalFunctionJsonRequest]) (*connect.Response[v1.CallExternalFunctionJsonResponse], error)
 	// Legacy compatibility RPC. New callers should use CreateExternalFunction
 	// for the initial resource and UpdateExternalFunction with `spec` for every
 	// later version. This remains intentionally available for shipped clients.
@@ -167,6 +179,19 @@ func NewExternalFunctionCatalogServiceClient(httpClient connect.HTTPClient, base
 			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("CallExternalFunction")),
 			connect.WithClientOptions(opts...),
 		),
+		describeExternalFunctionJson: connect.NewClient[v1.DescribeExternalFunctionJsonRequest, v1.DescribeExternalFunctionJsonResponse](
+			httpClient,
+			baseURL+ExternalFunctionCatalogServiceDescribeExternalFunctionJsonProcedure,
+			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("DescribeExternalFunctionJson")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		callExternalFunctionJson: connect.NewClient[v1.CallExternalFunctionJsonRequest, v1.CallExternalFunctionJsonResponse](
+			httpClient,
+			baseURL+ExternalFunctionCatalogServiceCallExternalFunctionJsonProcedure,
+			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("CallExternalFunctionJson")),
+			connect.WithClientOptions(opts...),
+		),
 		createExternalFunctionVersion: connect.NewClient[v1.CreateExternalFunctionVersionRequest, v1.CreateExternalFunctionVersionResponse](
 			httpClient,
 			baseURL+ExternalFunctionCatalogServiceCreateExternalFunctionVersionProcedure,
@@ -213,6 +238,8 @@ type externalFunctionCatalogServiceClient struct {
 	deleteExternalFunction            *connect.Client[v1.DeleteExternalFunctionRequest, v1.DeleteExternalFunctionResponse]
 	listExternalFunctionScheduledRuns *connect.Client[v1.ListExternalFunctionScheduledRunsRequest, v1.ListExternalFunctionScheduledRunsResponse]
 	callExternalFunction              *connect.Client[v1.CallExternalFunctionRequest, v1.CallExternalFunctionResponse]
+	describeExternalFunctionJson      *connect.Client[v1.DescribeExternalFunctionJsonRequest, v1.DescribeExternalFunctionJsonResponse]
+	callExternalFunctionJson          *connect.Client[v1.CallExternalFunctionJsonRequest, v1.CallExternalFunctionJsonResponse]
 	createExternalFunctionVersion     *connect.Client[v1.CreateExternalFunctionVersionRequest, v1.CreateExternalFunctionVersionResponse]
 	getExternalFunctionVersion        *connect.Client[v1.GetExternalFunctionVersionRequest, v1.GetExternalFunctionVersionResponse]
 	getExternalFunctionVersionSource  *connect.Client[v1.GetExternalFunctionVersionSourceRequest, v1.GetExternalFunctionVersionSourceResponse]
@@ -268,6 +295,18 @@ func (c *externalFunctionCatalogServiceClient) CallExternalFunction(ctx context.
 	return c.callExternalFunction.CallUnary(ctx, req)
 }
 
+// DescribeExternalFunctionJson calls
+// chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.DescribeExternalFunctionJson.
+func (c *externalFunctionCatalogServiceClient) DescribeExternalFunctionJson(ctx context.Context, req *connect.Request[v1.DescribeExternalFunctionJsonRequest]) (*connect.Response[v1.DescribeExternalFunctionJsonResponse], error) {
+	return c.describeExternalFunctionJson.CallUnary(ctx, req)
+}
+
+// CallExternalFunctionJson calls
+// chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunctionJson.
+func (c *externalFunctionCatalogServiceClient) CallExternalFunctionJson(ctx context.Context, req *connect.Request[v1.CallExternalFunctionJsonRequest]) (*connect.Response[v1.CallExternalFunctionJsonResponse], error) {
+	return c.callExternalFunctionJson.CallUnary(ctx, req)
+}
+
 // CreateExternalFunctionVersion calls
 // chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CreateExternalFunctionVersion.
 func (c *externalFunctionCatalogServiceClient) CreateExternalFunctionVersion(ctx context.Context, req *connect.Request[v1.CreateExternalFunctionVersionRequest]) (*connect.Response[v1.CreateExternalFunctionVersionResponse], error) {
@@ -314,6 +353,12 @@ type ExternalFunctionCatalogServiceHandler interface {
 	DeleteExternalFunction(context.Context, *connect.Request[v1.DeleteExternalFunctionRequest]) (*connect.Response[v1.DeleteExternalFunctionResponse], error)
 	ListExternalFunctionScheduledRuns(context.Context, *connect.Request[v1.ListExternalFunctionScheduledRunsRequest]) (*connect.Response[v1.ListExternalFunctionScheduledRunsResponse], error)
 	CallExternalFunction(context.Context, *connect.Request[v1.CallExternalFunctionRequest]) (*connect.Response[v1.CallExternalFunctionResponse], error)
+	// JSON-shaped counterpart of GetExternalFunctionVersion for callers that
+	// expose functions as JSON tools (e.g. the MCP gateway).
+	DescribeExternalFunctionJson(context.Context, *connect.Request[v1.DescribeExternalFunctionJsonRequest]) (*connect.Response[v1.DescribeExternalFunctionJsonResponse], error)
+	// JSON-shaped counterpart of CallExternalFunction: encodes `args` into the
+	// version's input Arrow schema and decodes the output feather stream.
+	CallExternalFunctionJson(context.Context, *connect.Request[v1.CallExternalFunctionJsonRequest]) (*connect.Response[v1.CallExternalFunctionJsonResponse], error)
 	// Legacy compatibility RPC. New callers should use CreateExternalFunction
 	// for the initial resource and UpdateExternalFunction with `spec` for every
 	// later version. This remains intentionally available for shipped clients.
@@ -387,6 +432,19 @@ func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogService
 		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("CallExternalFunction")),
 		connect.WithHandlerOptions(opts...),
 	)
+	externalFunctionCatalogServiceDescribeExternalFunctionJsonHandler := connect.NewUnaryHandler(
+		ExternalFunctionCatalogServiceDescribeExternalFunctionJsonProcedure,
+		svc.DescribeExternalFunctionJson,
+		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("DescribeExternalFunctionJson")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	externalFunctionCatalogServiceCallExternalFunctionJsonHandler := connect.NewUnaryHandler(
+		ExternalFunctionCatalogServiceCallExternalFunctionJsonProcedure,
+		svc.CallExternalFunctionJson,
+		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("CallExternalFunctionJson")),
+		connect.WithHandlerOptions(opts...),
+	)
 	externalFunctionCatalogServiceCreateExternalFunctionVersionHandler := connect.NewUnaryHandler(
 		ExternalFunctionCatalogServiceCreateExternalFunctionVersionProcedure,
 		svc.CreateExternalFunctionVersion,
@@ -438,6 +496,10 @@ func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogService
 			externalFunctionCatalogServiceListExternalFunctionScheduledRunsHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceCallExternalFunctionProcedure:
 			externalFunctionCatalogServiceCallExternalFunctionHandler.ServeHTTP(w, r)
+		case ExternalFunctionCatalogServiceDescribeExternalFunctionJsonProcedure:
+			externalFunctionCatalogServiceDescribeExternalFunctionJsonHandler.ServeHTTP(w, r)
+		case ExternalFunctionCatalogServiceCallExternalFunctionJsonProcedure:
+			externalFunctionCatalogServiceCallExternalFunctionJsonHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceCreateExternalFunctionVersionProcedure:
 			externalFunctionCatalogServiceCreateExternalFunctionVersionHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceGetExternalFunctionVersionProcedure:
@@ -487,6 +549,14 @@ func (UnimplementedExternalFunctionCatalogServiceHandler) ListExternalFunctionSc
 
 func (UnimplementedExternalFunctionCatalogServiceHandler) CallExternalFunction(context.Context, *connect.Request[v1.CallExternalFunctionRequest]) (*connect.Response[v1.CallExternalFunctionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunction is not implemented"))
+}
+
+func (UnimplementedExternalFunctionCatalogServiceHandler) DescribeExternalFunctionJson(context.Context, *connect.Request[v1.DescribeExternalFunctionJsonRequest]) (*connect.Response[v1.DescribeExternalFunctionJsonResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.DescribeExternalFunctionJson is not implemented"))
+}
+
+func (UnimplementedExternalFunctionCatalogServiceHandler) CallExternalFunctionJson(context.Context, *connect.Request[v1.CallExternalFunctionJsonRequest]) (*connect.Response[v1.CallExternalFunctionJsonResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunctionJson is not implemented"))
 }
 
 func (UnimplementedExternalFunctionCatalogServiceHandler) CreateExternalFunctionVersion(context.Context, *connect.Request[v1.CreateExternalFunctionVersionRequest]) (*connect.Response[v1.CreateExternalFunctionVersionResponse], error) {

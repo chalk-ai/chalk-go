@@ -39,6 +39,9 @@ const (
 	// EvaluationServiceUpdateEvaluationSuiteProcedure is the fully-qualified name of the
 	// EvaluationService's UpdateEvaluationSuite RPC.
 	EvaluationServiceUpdateEvaluationSuiteProcedure = "/chalk.evaluation.v1.EvaluationService/UpdateEvaluationSuite"
+	// EvaluationServiceArchiveEvaluationSuiteProcedure is the fully-qualified name of the
+	// EvaluationService's ArchiveEvaluationSuite RPC.
+	EvaluationServiceArchiveEvaluationSuiteProcedure = "/chalk.evaluation.v1.EvaluationService/ArchiveEvaluationSuite"
 	// EvaluationServiceListEvaluationSuitesProcedure is the fully-qualified name of the
 	// EvaluationService's ListEvaluationSuites RPC.
 	EvaluationServiceListEvaluationSuitesProcedure = "/chalk.evaluation.v1.EvaluationService/ListEvaluationSuites"
@@ -51,6 +54,9 @@ const (
 	// EvaluationServiceListEvaluationsProcedure is the fully-qualified name of the EvaluationService's
 	// ListEvaluations RPC.
 	EvaluationServiceListEvaluationsProcedure = "/chalk.evaluation.v1.EvaluationService/ListEvaluations"
+	// EvaluationServiceSetEvaluationWorldViewerProcedure is the fully-qualified name of the
+	// EvaluationService's SetEvaluationWorldViewer RPC.
+	EvaluationServiceSetEvaluationWorldViewerProcedure = "/chalk.evaluation.v1.EvaluationService/SetEvaluationWorldViewer"
 	// EvaluationServiceArchiveEvaluationProcedure is the fully-qualified name of the
 	// EvaluationService's ArchiveEvaluation RPC.
 	EvaluationServiceArchiveEvaluationProcedure = "/chalk.evaluation.v1.EvaluationService/ArchiveEvaluation"
@@ -99,10 +105,14 @@ const (
 type EvaluationServiceClient interface {
 	CreateEvaluationSuite(context.Context, *connect.Request[v1.CreateEvaluationSuiteRequest]) (*connect.Response[v1.CreateEvaluationSuiteResponse], error)
 	UpdateEvaluationSuite(context.Context, *connect.Request[v1.UpdateEvaluationSuiteRequest]) (*connect.Response[v1.UpdateEvaluationSuiteResponse], error)
+	ArchiveEvaluationSuite(context.Context, *connect.Request[v1.ArchiveEvaluationSuiteRequest]) (*connect.Response[v1.ArchiveEvaluationSuiteResponse], error)
 	ListEvaluationSuites(context.Context, *connect.Request[v1.ListEvaluationSuitesRequest]) (*connect.Response[v1.ListEvaluationSuitesResponse], error)
 	CreateEvaluation(context.Context, *connect.Request[v1.CreateEvaluationRequest]) (*connect.Response[v1.CreateEvaluationResponse], error)
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
+	// Sets or clears an evaluation's world viewer. The rest of an evaluation is
+	// immutable; the world viewer only changes how the dashboard presents it.
+	SetEvaluationWorldViewer(context.Context, *connect.Request[v1.SetEvaluationWorldViewerRequest]) (*connect.Response[v1.SetEvaluationWorldViewerResponse], error)
 	ArchiveEvaluation(context.Context, *connect.Request[v1.ArchiveEvaluationRequest]) (*connect.Response[v1.ArchiveEvaluationResponse], error)
 	UnarchiveEvaluation(context.Context, *connect.Request[v1.UnarchiveEvaluationRequest]) (*connect.Response[v1.UnarchiveEvaluationResponse], error)
 	CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error)
@@ -148,6 +158,13 @@ func NewEvaluationServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(evaluationServiceMethods.ByName("UpdateEvaluationSuite")),
 			connect.WithClientOptions(opts...),
 		),
+		archiveEvaluationSuite: connect.NewClient[v1.ArchiveEvaluationSuiteRequest, v1.ArchiveEvaluationSuiteResponse](
+			httpClient,
+			baseURL+EvaluationServiceArchiveEvaluationSuiteProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("ArchiveEvaluationSuite")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 		listEvaluationSuites: connect.NewClient[v1.ListEvaluationSuitesRequest, v1.ListEvaluationSuitesResponse](
 			httpClient,
 			baseURL+EvaluationServiceListEvaluationSuitesProcedure,
@@ -173,6 +190,13 @@ func NewEvaluationServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			baseURL+EvaluationServiceListEvaluationsProcedure,
 			connect.WithSchema(evaluationServiceMethods.ByName("ListEvaluations")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		setEvaluationWorldViewer: connect.NewClient[v1.SetEvaluationWorldViewerRequest, v1.SetEvaluationWorldViewerResponse](
+			httpClient,
+			baseURL+EvaluationServiceSetEvaluationWorldViewerProcedure,
+			connect.WithSchema(evaluationServiceMethods.ByName("SetEvaluationWorldViewer")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		archiveEvaluation: connect.NewClient[v1.ArchiveEvaluationRequest, v1.ArchiveEvaluationResponse](
@@ -276,10 +300,12 @@ func NewEvaluationServiceClient(httpClient connect.HTTPClient, baseURL string, o
 type evaluationServiceClient struct {
 	createEvaluationSuite    *connect.Client[v1.CreateEvaluationSuiteRequest, v1.CreateEvaluationSuiteResponse]
 	updateEvaluationSuite    *connect.Client[v1.UpdateEvaluationSuiteRequest, v1.UpdateEvaluationSuiteResponse]
+	archiveEvaluationSuite   *connect.Client[v1.ArchiveEvaluationSuiteRequest, v1.ArchiveEvaluationSuiteResponse]
 	listEvaluationSuites     *connect.Client[v1.ListEvaluationSuitesRequest, v1.ListEvaluationSuitesResponse]
 	createEvaluation         *connect.Client[v1.CreateEvaluationRequest, v1.CreateEvaluationResponse]
 	getEvaluation            *connect.Client[v1.GetEvaluationRequest, v1.GetEvaluationResponse]
 	listEvaluations          *connect.Client[v1.ListEvaluationsRequest, v1.ListEvaluationsResponse]
+	setEvaluationWorldViewer *connect.Client[v1.SetEvaluationWorldViewerRequest, v1.SetEvaluationWorldViewerResponse]
 	archiveEvaluation        *connect.Client[v1.ArchiveEvaluationRequest, v1.ArchiveEvaluationResponse]
 	unarchiveEvaluation      *connect.Client[v1.UnarchiveEvaluationRequest, v1.UnarchiveEvaluationResponse]
 	createEvaluationRun      *connect.Client[v1.CreateEvaluationRunRequest, v1.CreateEvaluationRunResponse]
@@ -306,6 +332,11 @@ func (c *evaluationServiceClient) UpdateEvaluationSuite(ctx context.Context, req
 	return c.updateEvaluationSuite.CallUnary(ctx, req)
 }
 
+// ArchiveEvaluationSuite calls chalk.evaluation.v1.EvaluationService.ArchiveEvaluationSuite.
+func (c *evaluationServiceClient) ArchiveEvaluationSuite(ctx context.Context, req *connect.Request[v1.ArchiveEvaluationSuiteRequest]) (*connect.Response[v1.ArchiveEvaluationSuiteResponse], error) {
+	return c.archiveEvaluationSuite.CallUnary(ctx, req)
+}
+
 // ListEvaluationSuites calls chalk.evaluation.v1.EvaluationService.ListEvaluationSuites.
 func (c *evaluationServiceClient) ListEvaluationSuites(ctx context.Context, req *connect.Request[v1.ListEvaluationSuitesRequest]) (*connect.Response[v1.ListEvaluationSuitesResponse], error) {
 	return c.listEvaluationSuites.CallUnary(ctx, req)
@@ -324,6 +355,11 @@ func (c *evaluationServiceClient) GetEvaluation(ctx context.Context, req *connec
 // ListEvaluations calls chalk.evaluation.v1.EvaluationService.ListEvaluations.
 func (c *evaluationServiceClient) ListEvaluations(ctx context.Context, req *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error) {
 	return c.listEvaluations.CallUnary(ctx, req)
+}
+
+// SetEvaluationWorldViewer calls chalk.evaluation.v1.EvaluationService.SetEvaluationWorldViewer.
+func (c *evaluationServiceClient) SetEvaluationWorldViewer(ctx context.Context, req *connect.Request[v1.SetEvaluationWorldViewerRequest]) (*connect.Response[v1.SetEvaluationWorldViewerResponse], error) {
+	return c.setEvaluationWorldViewer.CallUnary(ctx, req)
 }
 
 // ArchiveEvaluation calls chalk.evaluation.v1.EvaluationService.ArchiveEvaluation.
@@ -401,10 +437,14 @@ func (c *evaluationServiceClient) DeleteOnlineEvaluator(ctx context.Context, req
 type EvaluationServiceHandler interface {
 	CreateEvaluationSuite(context.Context, *connect.Request[v1.CreateEvaluationSuiteRequest]) (*connect.Response[v1.CreateEvaluationSuiteResponse], error)
 	UpdateEvaluationSuite(context.Context, *connect.Request[v1.UpdateEvaluationSuiteRequest]) (*connect.Response[v1.UpdateEvaluationSuiteResponse], error)
+	ArchiveEvaluationSuite(context.Context, *connect.Request[v1.ArchiveEvaluationSuiteRequest]) (*connect.Response[v1.ArchiveEvaluationSuiteResponse], error)
 	ListEvaluationSuites(context.Context, *connect.Request[v1.ListEvaluationSuitesRequest]) (*connect.Response[v1.ListEvaluationSuitesResponse], error)
 	CreateEvaluation(context.Context, *connect.Request[v1.CreateEvaluationRequest]) (*connect.Response[v1.CreateEvaluationResponse], error)
 	GetEvaluation(context.Context, *connect.Request[v1.GetEvaluationRequest]) (*connect.Response[v1.GetEvaluationResponse], error)
 	ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error)
+	// Sets or clears an evaluation's world viewer. The rest of an evaluation is
+	// immutable; the world viewer only changes how the dashboard presents it.
+	SetEvaluationWorldViewer(context.Context, *connect.Request[v1.SetEvaluationWorldViewerRequest]) (*connect.Response[v1.SetEvaluationWorldViewerResponse], error)
 	ArchiveEvaluation(context.Context, *connect.Request[v1.ArchiveEvaluationRequest]) (*connect.Response[v1.ArchiveEvaluationResponse], error)
 	UnarchiveEvaluation(context.Context, *connect.Request[v1.UnarchiveEvaluationRequest]) (*connect.Response[v1.UnarchiveEvaluationResponse], error)
 	CreateEvaluationRun(context.Context, *connect.Request[v1.CreateEvaluationRunRequest]) (*connect.Response[v1.CreateEvaluationRunResponse], error)
@@ -446,6 +486,13 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 		connect.WithSchema(evaluationServiceMethods.ByName("UpdateEvaluationSuite")),
 		connect.WithHandlerOptions(opts...),
 	)
+	evaluationServiceArchiveEvaluationSuiteHandler := connect.NewUnaryHandler(
+		EvaluationServiceArchiveEvaluationSuiteProcedure,
+		svc.ArchiveEvaluationSuite,
+		connect.WithSchema(evaluationServiceMethods.ByName("ArchiveEvaluationSuite")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	evaluationServiceListEvaluationSuitesHandler := connect.NewUnaryHandler(
 		EvaluationServiceListEvaluationSuitesProcedure,
 		svc.ListEvaluationSuites,
@@ -471,6 +518,13 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 		svc.ListEvaluations,
 		connect.WithSchema(evaluationServiceMethods.ByName("ListEvaluations")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	evaluationServiceSetEvaluationWorldViewerHandler := connect.NewUnaryHandler(
+		EvaluationServiceSetEvaluationWorldViewerProcedure,
+		svc.SetEvaluationWorldViewer,
+		connect.WithSchema(evaluationServiceMethods.ByName("SetEvaluationWorldViewer")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	evaluationServiceArchiveEvaluationHandler := connect.NewUnaryHandler(
@@ -573,6 +627,8 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 			evaluationServiceCreateEvaluationSuiteHandler.ServeHTTP(w, r)
 		case EvaluationServiceUpdateEvaluationSuiteProcedure:
 			evaluationServiceUpdateEvaluationSuiteHandler.ServeHTTP(w, r)
+		case EvaluationServiceArchiveEvaluationSuiteProcedure:
+			evaluationServiceArchiveEvaluationSuiteHandler.ServeHTTP(w, r)
 		case EvaluationServiceListEvaluationSuitesProcedure:
 			evaluationServiceListEvaluationSuitesHandler.ServeHTTP(w, r)
 		case EvaluationServiceCreateEvaluationProcedure:
@@ -581,6 +637,8 @@ func NewEvaluationServiceHandler(svc EvaluationServiceHandler, opts ...connect.H
 			evaluationServiceGetEvaluationHandler.ServeHTTP(w, r)
 		case EvaluationServiceListEvaluationsProcedure:
 			evaluationServiceListEvaluationsHandler.ServeHTTP(w, r)
+		case EvaluationServiceSetEvaluationWorldViewerProcedure:
+			evaluationServiceSetEvaluationWorldViewerHandler.ServeHTTP(w, r)
 		case EvaluationServiceArchiveEvaluationProcedure:
 			evaluationServiceArchiveEvaluationHandler.ServeHTTP(w, r)
 		case EvaluationServiceUnarchiveEvaluationProcedure:
@@ -626,6 +684,10 @@ func (UnimplementedEvaluationServiceHandler) UpdateEvaluationSuite(context.Conte
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite is not implemented"))
 }
 
+func (UnimplementedEvaluationServiceHandler) ArchiveEvaluationSuite(context.Context, *connect.Request[v1.ArchiveEvaluationSuiteRequest]) (*connect.Response[v1.ArchiveEvaluationSuiteResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.ArchiveEvaluationSuite is not implemented"))
+}
+
 func (UnimplementedEvaluationServiceHandler) ListEvaluationSuites(context.Context, *connect.Request[v1.ListEvaluationSuitesRequest]) (*connect.Response[v1.ListEvaluationSuitesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.ListEvaluationSuites is not implemented"))
 }
@@ -640,6 +702,10 @@ func (UnimplementedEvaluationServiceHandler) GetEvaluation(context.Context, *con
 
 func (UnimplementedEvaluationServiceHandler) ListEvaluations(context.Context, *connect.Request[v1.ListEvaluationsRequest]) (*connect.Response[v1.ListEvaluationsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.ListEvaluations is not implemented"))
+}
+
+func (UnimplementedEvaluationServiceHandler) SetEvaluationWorldViewer(context.Context, *connect.Request[v1.SetEvaluationWorldViewerRequest]) (*connect.Response[v1.SetEvaluationWorldViewerResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.evaluation.v1.EvaluationService.SetEvaluationWorldViewer is not implemented"))
 }
 
 func (UnimplementedEvaluationServiceHandler) ArchiveEvaluation(context.Context, *connect.Request[v1.ArchiveEvaluationRequest]) (*connect.Response[v1.ArchiveEvaluationResponse], error) {

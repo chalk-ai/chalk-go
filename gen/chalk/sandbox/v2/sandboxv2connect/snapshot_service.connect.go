@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// SandboxSnapshotServiceStartSandboxSnapshotProcedure is the fully-qualified name of the
+	// SandboxSnapshotService's StartSandboxSnapshot RPC.
+	SandboxSnapshotServiceStartSandboxSnapshotProcedure = "/chalk.sandbox.v2.SandboxSnapshotService/StartSandboxSnapshot"
 	// SandboxSnapshotServiceCreateSandboxSnapshotProcedure is the fully-qualified name of the
 	// SandboxSnapshotService's CreateSandboxSnapshot RPC.
 	SandboxSnapshotServiceCreateSandboxSnapshotProcedure = "/chalk.sandbox.v2.SandboxSnapshotService/CreateSandboxSnapshot"
@@ -45,14 +48,22 @@ const (
 	// SandboxSnapshotServiceDeleteSandboxSnapshotProcedure is the fully-qualified name of the
 	// SandboxSnapshotService's DeleteSandboxSnapshot RPC.
 	SandboxSnapshotServiceDeleteSandboxSnapshotProcedure = "/chalk.sandbox.v2.SandboxSnapshotService/DeleteSandboxSnapshot"
+	// SandboxSnapshotServiceGetSnapshotStoreCredentialsProcedure is the fully-qualified name of the
+	// SandboxSnapshotService's GetSnapshotStoreCredentials RPC.
+	SandboxSnapshotServiceGetSnapshotStoreCredentialsProcedure = "/chalk.sandbox.v2.SandboxSnapshotService/GetSnapshotStoreCredentials"
 )
 
 // SandboxSnapshotServiceClient is a client for the chalk.sandbox.v2.SandboxSnapshotService service.
 type SandboxSnapshotServiceClient interface {
+	// Additive async entry point. Older servers reject this method as unimplemented
+	// rather than silently ignoring an async option on the synchronous method.
+	StartSandboxSnapshot(context.Context, *connect.Request[v2.StartSandboxSnapshotRequest]) (*connect.Response[v2.StartSandboxSnapshotResponse], error)
 	CreateSandboxSnapshot(context.Context, *connect.Request[v2.CreateSandboxSnapshotRequest]) (*connect.Response[v2.CreateSandboxSnapshotResponse], error)
 	GetSandboxSnapshot(context.Context, *connect.Request[v2.GetSandboxSnapshotRequest]) (*connect.Response[v2.GetSandboxSnapshotResponse], error)
 	ListSandboxSnapshots(context.Context, *connect.Request[v2.ListSandboxSnapshotsRequest]) (*connect.Response[v2.ListSandboxSnapshotsResponse], error)
 	DeleteSandboxSnapshot(context.Context, *connect.Request[v2.DeleteSandboxSnapshotRequest]) (*connect.Response[v2.DeleteSandboxSnapshotResponse], error)
+	// Served by the dataplane API server for the authenticated environment.
+	GetSnapshotStoreCredentials(context.Context, *connect.Request[v2.GetSnapshotStoreCredentialsRequest]) (*connect.Response[v2.GetSnapshotStoreCredentialsResponse], error)
 }
 
 // NewSandboxSnapshotServiceClient constructs a client for the
@@ -66,6 +77,12 @@ func NewSandboxSnapshotServiceClient(httpClient connect.HTTPClient, baseURL stri
 	baseURL = strings.TrimRight(baseURL, "/")
 	sandboxSnapshotServiceMethods := v2.File_chalk_sandbox_v2_snapshot_service_proto.Services().ByName("SandboxSnapshotService").Methods()
 	return &sandboxSnapshotServiceClient{
+		startSandboxSnapshot: connect.NewClient[v2.StartSandboxSnapshotRequest, v2.StartSandboxSnapshotResponse](
+			httpClient,
+			baseURL+SandboxSnapshotServiceStartSandboxSnapshotProcedure,
+			connect.WithSchema(sandboxSnapshotServiceMethods.ByName("StartSandboxSnapshot")),
+			connect.WithClientOptions(opts...),
+		),
 		createSandboxSnapshot: connect.NewClient[v2.CreateSandboxSnapshotRequest, v2.CreateSandboxSnapshotResponse](
 			httpClient,
 			baseURL+SandboxSnapshotServiceCreateSandboxSnapshotProcedure,
@@ -90,15 +107,29 @@ func NewSandboxSnapshotServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(sandboxSnapshotServiceMethods.ByName("DeleteSandboxSnapshot")),
 			connect.WithClientOptions(opts...),
 		),
+		getSnapshotStoreCredentials: connect.NewClient[v2.GetSnapshotStoreCredentialsRequest, v2.GetSnapshotStoreCredentialsResponse](
+			httpClient,
+			baseURL+SandboxSnapshotServiceGetSnapshotStoreCredentialsProcedure,
+			connect.WithSchema(sandboxSnapshotServiceMethods.ByName("GetSnapshotStoreCredentials")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // sandboxSnapshotServiceClient implements SandboxSnapshotServiceClient.
 type sandboxSnapshotServiceClient struct {
-	createSandboxSnapshot *connect.Client[v2.CreateSandboxSnapshotRequest, v2.CreateSandboxSnapshotResponse]
-	getSandboxSnapshot    *connect.Client[v2.GetSandboxSnapshotRequest, v2.GetSandboxSnapshotResponse]
-	listSandboxSnapshots  *connect.Client[v2.ListSandboxSnapshotsRequest, v2.ListSandboxSnapshotsResponse]
-	deleteSandboxSnapshot *connect.Client[v2.DeleteSandboxSnapshotRequest, v2.DeleteSandboxSnapshotResponse]
+	startSandboxSnapshot        *connect.Client[v2.StartSandboxSnapshotRequest, v2.StartSandboxSnapshotResponse]
+	createSandboxSnapshot       *connect.Client[v2.CreateSandboxSnapshotRequest, v2.CreateSandboxSnapshotResponse]
+	getSandboxSnapshot          *connect.Client[v2.GetSandboxSnapshotRequest, v2.GetSandboxSnapshotResponse]
+	listSandboxSnapshots        *connect.Client[v2.ListSandboxSnapshotsRequest, v2.ListSandboxSnapshotsResponse]
+	deleteSandboxSnapshot       *connect.Client[v2.DeleteSandboxSnapshotRequest, v2.DeleteSandboxSnapshotResponse]
+	getSnapshotStoreCredentials *connect.Client[v2.GetSnapshotStoreCredentialsRequest, v2.GetSnapshotStoreCredentialsResponse]
+}
+
+// StartSandboxSnapshot calls chalk.sandbox.v2.SandboxSnapshotService.StartSandboxSnapshot.
+func (c *sandboxSnapshotServiceClient) StartSandboxSnapshot(ctx context.Context, req *connect.Request[v2.StartSandboxSnapshotRequest]) (*connect.Response[v2.StartSandboxSnapshotResponse], error) {
+	return c.startSandboxSnapshot.CallUnary(ctx, req)
 }
 
 // CreateSandboxSnapshot calls chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot.
@@ -121,13 +152,24 @@ func (c *sandboxSnapshotServiceClient) DeleteSandboxSnapshot(ctx context.Context
 	return c.deleteSandboxSnapshot.CallUnary(ctx, req)
 }
 
+// GetSnapshotStoreCredentials calls
+// chalk.sandbox.v2.SandboxSnapshotService.GetSnapshotStoreCredentials.
+func (c *sandboxSnapshotServiceClient) GetSnapshotStoreCredentials(ctx context.Context, req *connect.Request[v2.GetSnapshotStoreCredentialsRequest]) (*connect.Response[v2.GetSnapshotStoreCredentialsResponse], error) {
+	return c.getSnapshotStoreCredentials.CallUnary(ctx, req)
+}
+
 // SandboxSnapshotServiceHandler is an implementation of the chalk.sandbox.v2.SandboxSnapshotService
 // service.
 type SandboxSnapshotServiceHandler interface {
+	// Additive async entry point. Older servers reject this method as unimplemented
+	// rather than silently ignoring an async option on the synchronous method.
+	StartSandboxSnapshot(context.Context, *connect.Request[v2.StartSandboxSnapshotRequest]) (*connect.Response[v2.StartSandboxSnapshotResponse], error)
 	CreateSandboxSnapshot(context.Context, *connect.Request[v2.CreateSandboxSnapshotRequest]) (*connect.Response[v2.CreateSandboxSnapshotResponse], error)
 	GetSandboxSnapshot(context.Context, *connect.Request[v2.GetSandboxSnapshotRequest]) (*connect.Response[v2.GetSandboxSnapshotResponse], error)
 	ListSandboxSnapshots(context.Context, *connect.Request[v2.ListSandboxSnapshotsRequest]) (*connect.Response[v2.ListSandboxSnapshotsResponse], error)
 	DeleteSandboxSnapshot(context.Context, *connect.Request[v2.DeleteSandboxSnapshotRequest]) (*connect.Response[v2.DeleteSandboxSnapshotResponse], error)
+	// Served by the dataplane API server for the authenticated environment.
+	GetSnapshotStoreCredentials(context.Context, *connect.Request[v2.GetSnapshotStoreCredentialsRequest]) (*connect.Response[v2.GetSnapshotStoreCredentialsResponse], error)
 }
 
 // NewSandboxSnapshotServiceHandler builds an HTTP handler from the service implementation. It
@@ -137,6 +179,12 @@ type SandboxSnapshotServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewSandboxSnapshotServiceHandler(svc SandboxSnapshotServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	sandboxSnapshotServiceMethods := v2.File_chalk_sandbox_v2_snapshot_service_proto.Services().ByName("SandboxSnapshotService").Methods()
+	sandboxSnapshotServiceStartSandboxSnapshotHandler := connect.NewUnaryHandler(
+		SandboxSnapshotServiceStartSandboxSnapshotProcedure,
+		svc.StartSandboxSnapshot,
+		connect.WithSchema(sandboxSnapshotServiceMethods.ByName("StartSandboxSnapshot")),
+		connect.WithHandlerOptions(opts...),
+	)
 	sandboxSnapshotServiceCreateSandboxSnapshotHandler := connect.NewUnaryHandler(
 		SandboxSnapshotServiceCreateSandboxSnapshotProcedure,
 		svc.CreateSandboxSnapshot,
@@ -161,8 +209,17 @@ func NewSandboxSnapshotServiceHandler(svc SandboxSnapshotServiceHandler, opts ..
 		connect.WithSchema(sandboxSnapshotServiceMethods.ByName("DeleteSandboxSnapshot")),
 		connect.WithHandlerOptions(opts...),
 	)
+	sandboxSnapshotServiceGetSnapshotStoreCredentialsHandler := connect.NewUnaryHandler(
+		SandboxSnapshotServiceGetSnapshotStoreCredentialsProcedure,
+		svc.GetSnapshotStoreCredentials,
+		connect.WithSchema(sandboxSnapshotServiceMethods.ByName("GetSnapshotStoreCredentials")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.sandbox.v2.SandboxSnapshotService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case SandboxSnapshotServiceStartSandboxSnapshotProcedure:
+			sandboxSnapshotServiceStartSandboxSnapshotHandler.ServeHTTP(w, r)
 		case SandboxSnapshotServiceCreateSandboxSnapshotProcedure:
 			sandboxSnapshotServiceCreateSandboxSnapshotHandler.ServeHTTP(w, r)
 		case SandboxSnapshotServiceGetSandboxSnapshotProcedure:
@@ -171,6 +228,8 @@ func NewSandboxSnapshotServiceHandler(svc SandboxSnapshotServiceHandler, opts ..
 			sandboxSnapshotServiceListSandboxSnapshotsHandler.ServeHTTP(w, r)
 		case SandboxSnapshotServiceDeleteSandboxSnapshotProcedure:
 			sandboxSnapshotServiceDeleteSandboxSnapshotHandler.ServeHTTP(w, r)
+		case SandboxSnapshotServiceGetSnapshotStoreCredentialsProcedure:
+			sandboxSnapshotServiceGetSnapshotStoreCredentialsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -179,6 +238,10 @@ func NewSandboxSnapshotServiceHandler(svc SandboxSnapshotServiceHandler, opts ..
 
 // UnimplementedSandboxSnapshotServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSandboxSnapshotServiceHandler struct{}
+
+func (UnimplementedSandboxSnapshotServiceHandler) StartSandboxSnapshot(context.Context, *connect.Request[v2.StartSandboxSnapshotRequest]) (*connect.Response[v2.StartSandboxSnapshotResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxSnapshotService.StartSandboxSnapshot is not implemented"))
+}
 
 func (UnimplementedSandboxSnapshotServiceHandler) CreateSandboxSnapshot(context.Context, *connect.Request[v2.CreateSandboxSnapshotRequest]) (*connect.Response[v2.CreateSandboxSnapshotResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxSnapshotService.CreateSandboxSnapshot is not implemented"))
@@ -194,4 +257,8 @@ func (UnimplementedSandboxSnapshotServiceHandler) ListSandboxSnapshots(context.C
 
 func (UnimplementedSandboxSnapshotServiceHandler) DeleteSandboxSnapshot(context.Context, *connect.Request[v2.DeleteSandboxSnapshotRequest]) (*connect.Response[v2.DeleteSandboxSnapshotResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxSnapshotService.DeleteSandboxSnapshot is not implemented"))
+}
+
+func (UnimplementedSandboxSnapshotServiceHandler) GetSnapshotStoreCredentials(context.Context, *connect.Request[v2.GetSnapshotStoreCredentialsRequest]) (*connect.Response[v2.GetSnapshotStoreCredentialsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v2.SandboxSnapshotService.GetSnapshotStoreCredentials is not implemented"))
 }

@@ -1642,6 +1642,13 @@ type ScalarValue_TimestampValue struct {
 }
 
 type ScalarValue_Date_64Value struct {
+	// Days since the UNIX epoch, NOT the milliseconds that Arrow's Date64
+	// stores in-memory. Arrow requires that the Date64 value is a multiple of
+	// 86_400_000 (the number of milliseconds in a day) so this representation
+	// is not lossy.
+	//
+	// All consumers are expected to convert this value faithfully between the
+	// representation that Arrow uses by multiplying/dividing as necessary.
 	Date_64Value int64 `protobuf:"varint,7,opt,name=date_64_value,json=date64Value,proto3,oneof"`
 }
 

@@ -571,6 +571,87 @@ func (x *GetQuotaResponse) GetQuota() *Quota {
 	return nil
 }
 
+type ListGPUTypesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGPUTypesRequest) Reset() {
+	*x = ListGPUTypesRequest{}
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGPUTypesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGPUTypesRequest) ProtoMessage() {}
+
+func (x *ListGPUTypesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGPUTypesRequest.ProtoReflect.Descriptor instead.
+func (*ListGPUTypesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{7}
+}
+
+// Type names only: counts, free capacity and host details are never exposed.
+type ListGPUTypesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GpuTypes      []string               `protobuf:"bytes,1,rep,name=gpu_types,json=gpuTypes,proto3" json:"gpu_types,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListGPUTypesResponse) Reset() {
+	*x = ListGPUTypesResponse{}
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListGPUTypesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListGPUTypesResponse) ProtoMessage() {}
+
+func (x *ListGPUTypesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListGPUTypesResponse.ProtoReflect.Descriptor instead.
+func (*ListGPUTypesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListGPUTypesResponse) GetGpuTypes() []string {
+	if x != nil {
+		return x.GpuTypes
+	}
+	return nil
+}
+
 type SetQuotaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Resource      *QuotaResource         `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
@@ -581,7 +662,7 @@ type SetQuotaRequest struct {
 
 func (x *SetQuotaRequest) Reset() {
 	*x = SetQuotaRequest{}
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -593,7 +674,7 @@ func (x *SetQuotaRequest) String() string {
 func (*SetQuotaRequest) ProtoMessage() {}
 
 func (x *SetQuotaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -606,7 +687,7 @@ func (x *SetQuotaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetQuotaRequest.ProtoReflect.Descriptor instead.
 func (*SetQuotaRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{7}
+	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SetQuotaRequest) GetResource() *QuotaResource {
@@ -632,7 +713,7 @@ type SetQuotaResponse struct {
 
 func (x *SetQuotaResponse) Reset() {
 	*x = SetQuotaResponse{}
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[8]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -644,7 +725,7 @@ func (x *SetQuotaResponse) String() string {
 func (*SetQuotaResponse) ProtoMessage() {}
 
 func (x *SetQuotaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[8]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -657,7 +738,7 @@ func (x *SetQuotaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetQuotaResponse.ProtoReflect.Descriptor instead.
 func (*SetQuotaResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{8}
+	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SetQuotaResponse) GetQuota() *Quota {
@@ -676,7 +757,7 @@ type ClearQuotaRequest struct {
 
 func (x *ClearQuotaRequest) Reset() {
 	*x = ClearQuotaRequest{}
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[9]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -688,7 +769,7 @@ func (x *ClearQuotaRequest) String() string {
 func (*ClearQuotaRequest) ProtoMessage() {}
 
 func (x *ClearQuotaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[9]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -701,7 +782,7 @@ func (x *ClearQuotaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClearQuotaRequest.ProtoReflect.Descriptor instead.
 func (*ClearQuotaRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{9}
+	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ClearQuotaRequest) GetResource() *QuotaResource {
@@ -719,7 +800,7 @@ type ClearQuotaResponse struct {
 
 func (x *ClearQuotaResponse) Reset() {
 	*x = ClearQuotaResponse{}
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[10]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -731,7 +812,7 @@ func (x *ClearQuotaResponse) String() string {
 func (*ClearQuotaResponse) ProtoMessage() {}
 
 func (x *ClearQuotaResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[10]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -744,7 +825,7 @@ func (x *ClearQuotaResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClearQuotaResponse.ProtoReflect.Descriptor instead.
 func (*ClearQuotaResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{10}
+	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{12}
 }
 
 type RequestQuotaIncreaseRequest struct {
@@ -758,7 +839,7 @@ type RequestQuotaIncreaseRequest struct {
 
 func (x *RequestQuotaIncreaseRequest) Reset() {
 	*x = RequestQuotaIncreaseRequest{}
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[11]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -770,7 +851,7 @@ func (x *RequestQuotaIncreaseRequest) String() string {
 func (*RequestQuotaIncreaseRequest) ProtoMessage() {}
 
 func (x *RequestQuotaIncreaseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[11]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -783,7 +864,7 @@ func (x *RequestQuotaIncreaseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestQuotaIncreaseRequest.ProtoReflect.Descriptor instead.
 func (*RequestQuotaIncreaseRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{11}
+	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RequestQuotaIncreaseRequest) GetResource() *QuotaResource {
@@ -815,7 +896,7 @@ type RequestQuotaIncreaseResponse struct {
 
 func (x *RequestQuotaIncreaseResponse) Reset() {
 	*x = RequestQuotaIncreaseResponse{}
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[12]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -827,7 +908,7 @@ func (x *RequestQuotaIncreaseResponse) String() string {
 func (*RequestQuotaIncreaseResponse) ProtoMessage() {}
 
 func (x *RequestQuotaIncreaseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_quota_v1_service_proto_msgTypes[12]
+	mi := &file_chalk_quota_v1_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -840,7 +921,7 @@ func (x *RequestQuotaIncreaseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestQuotaIncreaseResponse.ProtoReflect.Descriptor instead.
 func (*RequestQuotaIncreaseResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_quota_v1_service_proto_rawDescGZIP(), []int{14}
 }
 
 var File_chalk_quota_v1_service_proto protoreflect.FileDescriptor
@@ -879,7 +960,10 @@ const file_chalk_quota_v1_service_proto_rawDesc = "" +
 	"\bresource\x18\x01 \x01(\v2\x1d.chalk.quota.v1.QuotaResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\"Y\n" +
 	"\x10GetQuotaResponse\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12+\n" +
-	"\x05quota\x18\x02 \x01(\v2\x15.chalk.quota.v1.QuotaR\x05quota\"\x8e\x01\n" +
+	"\x05quota\x18\x02 \x01(\v2\x15.chalk.quota.v1.QuotaR\x05quota\"\x15\n" +
+	"\x13ListGPUTypesRequest\"3\n" +
+	"\x14ListGPUTypesResponse\x12\x1b\n" +
+	"\tgpu_types\x18\x01 \x03(\tR\bgpuTypes\"\x8e\x01\n" +
 	"\x0fSetQuotaRequest\x12A\n" +
 	"\bresource\x18\x01 \x01(\v2\x1d.chalk.quota.v1.QuotaResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x128\n" +
 	"\x05limit\x18\x02 \x01(\v2\x1a.chalk.quota.v1.QuotaLimitB\x06\xbaH\x03\xc8\x01\x01R\x05limit\"?\n" +
@@ -911,11 +995,12 @@ const file_chalk_quota_v1_service_proto_rawDesc = "" +
 	"!QUOTA_WORKLOAD_KIND_SCALING_GROUP\x10\x02\x12 \n" +
 	"\x1cQUOTA_WORKLOAD_KIND_FUNCTION\x10\x03\x12(\n" +
 	"$QUOTA_WORKLOAD_KIND_MODEL_DEPLOYMENT\x10\x04\x12 \n" +
-	"\x1cQUOTA_WORKLOAD_KIND_NOTEBOOK\x10\x052\xaf\x04\n" +
+	"\x1cQUOTA_WORKLOAD_KIND_NOTEBOOK\x10\x052\x8f\x05\n" +
 	"\fQuotaService\x12X\n" +
 	"\n" +
 	"ListQuotas\x12!.chalk.quota.v1.ListQuotasRequest\x1a\".chalk.quota.v1.ListQuotasResponse\"\x03\x80}\v\x12R\n" +
-	"\bGetQuota\x12\x1f.chalk.quota.v1.GetQuotaRequest\x1a .chalk.quota.v1.GetQuotaResponse\"\x03\x80}\v\x12e\n" +
+	"\bGetQuota\x12\x1f.chalk.quota.v1.GetQuotaRequest\x1a .chalk.quota.v1.GetQuotaResponse\"\x03\x80}\v\x12^\n" +
+	"\fListGPUTypes\x12#.chalk.quota.v1.ListGPUTypesRequest\x1a$.chalk.quota.v1.ListGPUTypesResponse\"\x03\x80}\v\x12e\n" +
 	"\bSetQuota\x12\x1f.chalk.quota.v1.SetQuotaRequest\x1a .chalk.quota.v1.SetQuotaResponse\"\x16\x80}\x1b\x8a\xd3\x0e\x0f\b\x02\x12\vSet a quota\x12o\n" +
 	"\n" +
 	"ClearQuota\x12!.chalk.quota.v1.ClearQuotaRequest\x1a\".chalk.quota.v1.ClearQuotaResponse\"\x1a\x80}\x1b\x8a\xd3\x0e\x13\b\x02\x12\x0fRemoved a quota\x12\x98\x01\n" +
@@ -935,7 +1020,7 @@ func file_chalk_quota_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_quota_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_quota_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_chalk_quota_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_quota_v1_service_proto_goTypes = []any{
 	(QuotaResourceKind)(0),               // 0: chalk.quota.v1.QuotaResourceKind
 	(QuotaWorkloadKind)(0),               // 1: chalk.quota.v1.QuotaWorkloadKind
@@ -946,19 +1031,21 @@ var file_chalk_quota_v1_service_proto_goTypes = []any{
 	(*ListQuotasResponse)(nil),           // 6: chalk.quota.v1.ListQuotasResponse
 	(*GetQuotaRequest)(nil),              // 7: chalk.quota.v1.GetQuotaRequest
 	(*GetQuotaResponse)(nil),             // 8: chalk.quota.v1.GetQuotaResponse
-	(*SetQuotaRequest)(nil),              // 9: chalk.quota.v1.SetQuotaRequest
-	(*SetQuotaResponse)(nil),             // 10: chalk.quota.v1.SetQuotaResponse
-	(*ClearQuotaRequest)(nil),            // 11: chalk.quota.v1.ClearQuotaRequest
-	(*ClearQuotaResponse)(nil),           // 12: chalk.quota.v1.ClearQuotaResponse
-	(*RequestQuotaIncreaseRequest)(nil),  // 13: chalk.quota.v1.RequestQuotaIncreaseRequest
-	(*RequestQuotaIncreaseResponse)(nil), // 14: chalk.quota.v1.RequestQuotaIncreaseResponse
-	(*timestamppb.Timestamp)(nil),        // 15: google.protobuf.Timestamp
+	(*ListGPUTypesRequest)(nil),          // 9: chalk.quota.v1.ListGPUTypesRequest
+	(*ListGPUTypesResponse)(nil),         // 10: chalk.quota.v1.ListGPUTypesResponse
+	(*SetQuotaRequest)(nil),              // 11: chalk.quota.v1.SetQuotaRequest
+	(*SetQuotaResponse)(nil),             // 12: chalk.quota.v1.SetQuotaResponse
+	(*ClearQuotaRequest)(nil),            // 13: chalk.quota.v1.ClearQuotaRequest
+	(*ClearQuotaResponse)(nil),           // 14: chalk.quota.v1.ClearQuotaResponse
+	(*RequestQuotaIncreaseRequest)(nil),  // 15: chalk.quota.v1.RequestQuotaIncreaseRequest
+	(*RequestQuotaIncreaseResponse)(nil), // 16: chalk.quota.v1.RequestQuotaIncreaseResponse
+	(*timestamppb.Timestamp)(nil),        // 17: google.protobuf.Timestamp
 }
 var file_chalk_quota_v1_service_proto_depIdxs = []int32{
 	0,  // 0: chalk.quota.v1.QuotaResource.kind:type_name -> chalk.quota.v1.QuotaResourceKind
 	2,  // 1: chalk.quota.v1.Quota.resource:type_name -> chalk.quota.v1.QuotaResource
 	3,  // 2: chalk.quota.v1.Quota.limit:type_name -> chalk.quota.v1.QuotaLimit
-	15, // 3: chalk.quota.v1.Quota.updated_at:type_name -> google.protobuf.Timestamp
+	17, // 3: chalk.quota.v1.Quota.updated_at:type_name -> google.protobuf.Timestamp
 	4,  // 4: chalk.quota.v1.ListQuotasResponse.quotas:type_name -> chalk.quota.v1.Quota
 	2,  // 5: chalk.quota.v1.GetQuotaRequest.resource:type_name -> chalk.quota.v1.QuotaResource
 	4,  // 6: chalk.quota.v1.GetQuotaResponse.quota:type_name -> chalk.quota.v1.Quota
@@ -970,16 +1057,18 @@ var file_chalk_quota_v1_service_proto_depIdxs = []int32{
 	3,  // 12: chalk.quota.v1.RequestQuotaIncreaseRequest.requested_limit:type_name -> chalk.quota.v1.QuotaLimit
 	5,  // 13: chalk.quota.v1.QuotaService.ListQuotas:input_type -> chalk.quota.v1.ListQuotasRequest
 	7,  // 14: chalk.quota.v1.QuotaService.GetQuota:input_type -> chalk.quota.v1.GetQuotaRequest
-	9,  // 15: chalk.quota.v1.QuotaService.SetQuota:input_type -> chalk.quota.v1.SetQuotaRequest
-	11, // 16: chalk.quota.v1.QuotaService.ClearQuota:input_type -> chalk.quota.v1.ClearQuotaRequest
-	13, // 17: chalk.quota.v1.QuotaService.RequestQuotaIncrease:input_type -> chalk.quota.v1.RequestQuotaIncreaseRequest
-	6,  // 18: chalk.quota.v1.QuotaService.ListQuotas:output_type -> chalk.quota.v1.ListQuotasResponse
-	8,  // 19: chalk.quota.v1.QuotaService.GetQuota:output_type -> chalk.quota.v1.GetQuotaResponse
-	10, // 20: chalk.quota.v1.QuotaService.SetQuota:output_type -> chalk.quota.v1.SetQuotaResponse
-	12, // 21: chalk.quota.v1.QuotaService.ClearQuota:output_type -> chalk.quota.v1.ClearQuotaResponse
-	14, // 22: chalk.quota.v1.QuotaService.RequestQuotaIncrease:output_type -> chalk.quota.v1.RequestQuotaIncreaseResponse
-	18, // [18:23] is the sub-list for method output_type
-	13, // [13:18] is the sub-list for method input_type
+	9,  // 15: chalk.quota.v1.QuotaService.ListGPUTypes:input_type -> chalk.quota.v1.ListGPUTypesRequest
+	11, // 16: chalk.quota.v1.QuotaService.SetQuota:input_type -> chalk.quota.v1.SetQuotaRequest
+	13, // 17: chalk.quota.v1.QuotaService.ClearQuota:input_type -> chalk.quota.v1.ClearQuotaRequest
+	15, // 18: chalk.quota.v1.QuotaService.RequestQuotaIncrease:input_type -> chalk.quota.v1.RequestQuotaIncreaseRequest
+	6,  // 19: chalk.quota.v1.QuotaService.ListQuotas:output_type -> chalk.quota.v1.ListQuotasResponse
+	8,  // 20: chalk.quota.v1.QuotaService.GetQuota:output_type -> chalk.quota.v1.GetQuotaResponse
+	10, // 21: chalk.quota.v1.QuotaService.ListGPUTypes:output_type -> chalk.quota.v1.ListGPUTypesResponse
+	12, // 22: chalk.quota.v1.QuotaService.SetQuota:output_type -> chalk.quota.v1.SetQuotaResponse
+	14, // 23: chalk.quota.v1.QuotaService.ClearQuota:output_type -> chalk.quota.v1.ClearQuotaResponse
+	16, // 24: chalk.quota.v1.QuotaService.RequestQuotaIncrease:output_type -> chalk.quota.v1.RequestQuotaIncreaseResponse
+	19, // [19:25] is the sub-list for method output_type
+	13, // [13:19] is the sub-list for method input_type
 	13, // [13:13] is the sub-list for extension type_name
 	13, // [13:13] is the sub-list for extension extendee
 	0,  // [0:13] is the sub-list for field type_name
@@ -1001,7 +1090,7 @@ func file_chalk_quota_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_quota_v1_service_proto_rawDesc), len(file_chalk_quota_v1_service_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

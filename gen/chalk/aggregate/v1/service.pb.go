@@ -750,9 +750,11 @@ type CreateAggregateBackfillJobRequest struct {
 	InputSql            *string                `protobuf:"bytes,14,opt,name=input_sql,json=inputSql,proto3,oneof" json:"input_sql,omitempty"`
 	// Split this backfill's window into this many bucket-aligned time-sharded
 	// jobs. Unset/1 preserves the single-job behavior.
-	NumShards     *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	NumShards *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
+	// Publish online summaries without implicitly writing ordinary online buckets.
+	StoreOnlineSummaries bool `protobuf:"varint,16,opt,name=store_online_summaries,json=storeOnlineSummaries,proto3" json:"store_online_summaries,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CreateAggregateBackfillJobRequest) Reset() {
@@ -890,6 +892,13 @@ func (x *CreateAggregateBackfillJobRequest) GetNumShards() int32 {
 	return 0
 }
 
+func (x *CreateAggregateBackfillJobRequest) GetStoreOnlineSummaries() bool {
+	if x != nil {
+		return x.StoreOnlineSummaries
+	}
+	return false
+}
+
 type CreateAggregateBackfillJobResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	JobId         string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
@@ -962,8 +971,8 @@ type CreateAggregateBackfillV2Request struct {
 	Tags       []string               `protobuf:"bytes,6,rep,name=tags,proto3" json:"tags,omitempty"`
 	Exact      bool                   `protobuf:"varint,7,opt,name=exact,proto3" json:"exact,omitempty"`
 	// How to run it, applied identically to every job produced by the plan.
-	// Storage targets: both unset means online only, and both explicitly false is a test
-	// run that computes tiles and writes them only to the job's dataset.
+	// Without another selected target, an unset store_online defaults to true.
+	// All resolved targets false requests a dataset-only test run.
 	StoreOnline     *bool   `protobuf:"varint,8,opt,name=store_online,json=storeOnline,proto3,oneof" json:"store_online,omitempty"`
 	StoreOffline    *bool   `protobuf:"varint,9,opt,name=store_offline,json=storeOffline,proto3,oneof" json:"store_offline,omitempty"`
 	AllowEmptyTiles *bool   `protobuf:"varint,10,opt,name=allow_empty_tiles,json=allowEmptyTiles,proto3,oneof" json:"allow_empty_tiles,omitempty"`
@@ -976,9 +985,11 @@ type CreateAggregateBackfillV2Request struct {
 	Mode           AggregateBackfillMode `protobuf:"varint,14,opt,name=mode,proto3,enum=chalk.aggregate.v1.AggregateBackfillMode" json:"mode,omitempty"`
 	// Split each planned sub-backfill's window into this many bucket-aligned
 	// time-sharded jobs. Unset/1 preserves the single-job behavior.
-	NumShards     *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	NumShards *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
+	// Publish online summaries without implicitly writing ordinary online buckets.
+	StoreOnlineSummaries bool `protobuf:"varint,16,opt,name=store_online_summaries,json=storeOnlineSummaries,proto3" json:"store_online_summaries,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CreateAggregateBackfillV2Request) Reset() {
@@ -1116,6 +1127,13 @@ func (x *CreateAggregateBackfillV2Request) GetNumShards() int32 {
 	return 0
 }
 
+func (x *CreateAggregateBackfillV2Request) GetStoreOnlineSummaries() bool {
+	if x != nil {
+		return x.StoreOnlineSummaries
+	}
+	return false
+}
+
 type CreateAggregateBackfillV2Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Absent in plan mode. There is one aggregate_backfill_jobs row per aggregate backfill
@@ -1217,7 +1235,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"latest_job\x18\x02 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobR\tlatestJob\"\x9b\x01\n" +
 	"'GetActiveCronAggregateBackfillsResponse\x12p\n" +
-	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\x8d\a\n" +
+	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\xc3\a\n" +
 	"!CreateAggregateBackfillJobRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12@\n" +
 	"\vlower_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
@@ -1239,7 +1257,8 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\tinput_sql\x18\x0e \x01(\tH\n" +
 	"R\binputSql\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"num_shards\x18\x0f \x01(\x05H\vR\tnumShards\x88\x01\x01B\x0e\n" +
+	"num_shards\x18\x0f \x01(\x05H\vR\tnumShards\x88\x01\x01\x124\n" +
+	"\x16store_online_summaries\x18\x10 \x01(\bR\x14storeOnlineSummariesB\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\v\n" +
 	"\t_resolverB\x11\n" +
@@ -1256,7 +1275,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\"CreateAggregateBackfillJobResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x123\n" +
-	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xb8\a\n" +
+	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xee\a\n" +
 	" CreateAggregateBackfillV2Request\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12\x1f\n" +
 	"\bresolver\x18\x02 \x01(\tH\x00R\bresolver\x88\x01\x01\x12 \n" +
@@ -1276,7 +1295,8 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\x0fplanner_options\x18\r \x03(\v2H.chalk.aggregate.v1.CreateAggregateBackfillV2Request.PlannerOptionsEntryR\x0eplannerOptions\x12=\n" +
 	"\x04mode\x18\x0e \x01(\x0e2).chalk.aggregate.v1.AggregateBackfillModeR\x04mode\x12\"\n" +
 	"\n" +
-	"num_shards\x18\x0f \x01(\x05H\bR\tnumShards\x88\x01\x01\x1aA\n" +
+	"num_shards\x18\x0f \x01(\x05H\bR\tnumShards\x88\x01\x01\x124\n" +
+	"\x16store_online_summaries\x18\x10 \x01(\bR\x14storeOnlineSummaries\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +

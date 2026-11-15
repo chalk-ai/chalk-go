@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// ModelRouteServiceGetModelRouteProcedure is the fully-qualified name of the ModelRouteService's
+	// GetModelRoute RPC.
+	ModelRouteServiceGetModelRouteProcedure = "/chalk.router.v1.ModelRouteService/GetModelRoute"
 	// ModelRouteServiceGetRouteJudgeDefaultsProcedure is the fully-qualified name of the
 	// ModelRouteService's GetRouteJudgeDefaults RPC.
 	ModelRouteServiceGetRouteJudgeDefaultsProcedure = "/chalk.router.v1.ModelRouteService/GetRouteJudgeDefaults"
@@ -55,6 +58,7 @@ const (
 
 // ModelRouteServiceClient is a client for the chalk.router.v1.ModelRouteService service.
 type ModelRouteServiceClient interface {
+	GetModelRoute(context.Context, *connect.Request[v1.GetModelRouteRequest]) (*connect.Response[v1.GetModelRouteResponse], error)
 	GetRouteJudgeDefaults(context.Context, *connect.Request[v1.GetRouteJudgeDefaultsRequest]) (*connect.Response[v1.GetRouteJudgeDefaultsResponse], error)
 	ValidateRouteJudgeBackend(context.Context, *connect.Request[v1.ValidateRouteJudgeBackendRequest]) (*connect.Response[v1.ValidateRouteJudgeBackendResponse], error)
 	ListModelRoutes(context.Context, *connect.Request[v1.ListModelRoutesRequest]) (*connect.Response[v1.ListModelRoutesResponse], error)
@@ -74,6 +78,12 @@ func NewModelRouteServiceClient(httpClient connect.HTTPClient, baseURL string, o
 	baseURL = strings.TrimRight(baseURL, "/")
 	modelRouteServiceMethods := v1.File_chalk_router_v1_model_route_proto.Services().ByName("ModelRouteService").Methods()
 	return &modelRouteServiceClient{
+		getModelRoute: connect.NewClient[v1.GetModelRouteRequest, v1.GetModelRouteResponse](
+			httpClient,
+			baseURL+ModelRouteServiceGetModelRouteProcedure,
+			connect.WithSchema(modelRouteServiceMethods.ByName("GetModelRoute")),
+			connect.WithClientOptions(opts...),
+		),
 		getRouteJudgeDefaults: connect.NewClient[v1.GetRouteJudgeDefaultsRequest, v1.GetRouteJudgeDefaultsResponse](
 			httpClient,
 			baseURL+ModelRouteServiceGetRouteJudgeDefaultsProcedure,
@@ -118,12 +128,18 @@ func NewModelRouteServiceClient(httpClient connect.HTTPClient, baseURL string, o
 
 // modelRouteServiceClient implements ModelRouteServiceClient.
 type modelRouteServiceClient struct {
+	getModelRoute             *connect.Client[v1.GetModelRouteRequest, v1.GetModelRouteResponse]
 	getRouteJudgeDefaults     *connect.Client[v1.GetRouteJudgeDefaultsRequest, v1.GetRouteJudgeDefaultsResponse]
 	validateRouteJudgeBackend *connect.Client[v1.ValidateRouteJudgeBackendRequest, v1.ValidateRouteJudgeBackendResponse]
 	listModelRoutes           *connect.Client[v1.ListModelRoutesRequest, v1.ListModelRoutesResponse]
 	createModelRoute          *connect.Client[v1.CreateModelRouteRequest, v1.CreateModelRouteResponse]
 	updateModelRoute          *connect.Client[v1.UpdateModelRouteRequest, v1.UpdateModelRouteResponse]
 	deleteModelRoute          *connect.Client[v1.DeleteModelRouteRequest, v1.DeleteModelRouteResponse]
+}
+
+// GetModelRoute calls chalk.router.v1.ModelRouteService.GetModelRoute.
+func (c *modelRouteServiceClient) GetModelRoute(ctx context.Context, req *connect.Request[v1.GetModelRouteRequest]) (*connect.Response[v1.GetModelRouteResponse], error) {
+	return c.getModelRoute.CallUnary(ctx, req)
 }
 
 // GetRouteJudgeDefaults calls chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults.
@@ -158,6 +174,7 @@ func (c *modelRouteServiceClient) DeleteModelRoute(ctx context.Context, req *con
 
 // ModelRouteServiceHandler is an implementation of the chalk.router.v1.ModelRouteService service.
 type ModelRouteServiceHandler interface {
+	GetModelRoute(context.Context, *connect.Request[v1.GetModelRouteRequest]) (*connect.Response[v1.GetModelRouteResponse], error)
 	GetRouteJudgeDefaults(context.Context, *connect.Request[v1.GetRouteJudgeDefaultsRequest]) (*connect.Response[v1.GetRouteJudgeDefaultsResponse], error)
 	ValidateRouteJudgeBackend(context.Context, *connect.Request[v1.ValidateRouteJudgeBackendRequest]) (*connect.Response[v1.ValidateRouteJudgeBackendResponse], error)
 	ListModelRoutes(context.Context, *connect.Request[v1.ListModelRoutesRequest]) (*connect.Response[v1.ListModelRoutesResponse], error)
@@ -173,6 +190,12 @@ type ModelRouteServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewModelRouteServiceHandler(svc ModelRouteServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	modelRouteServiceMethods := v1.File_chalk_router_v1_model_route_proto.Services().ByName("ModelRouteService").Methods()
+	modelRouteServiceGetModelRouteHandler := connect.NewUnaryHandler(
+		ModelRouteServiceGetModelRouteProcedure,
+		svc.GetModelRoute,
+		connect.WithSchema(modelRouteServiceMethods.ByName("GetModelRoute")),
+		connect.WithHandlerOptions(opts...),
+	)
 	modelRouteServiceGetRouteJudgeDefaultsHandler := connect.NewUnaryHandler(
 		ModelRouteServiceGetRouteJudgeDefaultsProcedure,
 		svc.GetRouteJudgeDefaults,
@@ -214,6 +237,8 @@ func NewModelRouteServiceHandler(svc ModelRouteServiceHandler, opts ...connect.H
 	)
 	return "/chalk.router.v1.ModelRouteService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case ModelRouteServiceGetModelRouteProcedure:
+			modelRouteServiceGetModelRouteHandler.ServeHTTP(w, r)
 		case ModelRouteServiceGetRouteJudgeDefaultsProcedure:
 			modelRouteServiceGetRouteJudgeDefaultsHandler.ServeHTTP(w, r)
 		case ModelRouteServiceValidateRouteJudgeBackendProcedure:
@@ -234,6 +259,10 @@ func NewModelRouteServiceHandler(svc ModelRouteServiceHandler, opts ...connect.H
 
 // UnimplementedModelRouteServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedModelRouteServiceHandler struct{}
+
+func (UnimplementedModelRouteServiceHandler) GetModelRoute(context.Context, *connect.Request[v1.GetModelRouteRequest]) (*connect.Response[v1.GetModelRouteResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ModelRouteService.GetModelRoute is not implemented"))
+}
 
 func (UnimplementedModelRouteServiceHandler) GetRouteJudgeDefaults(context.Context, *connect.Request[v1.GetRouteJudgeDefaultsRequest]) (*connect.Response[v1.GetRouteJudgeDefaultsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.ModelRouteService.GetRouteJudgeDefaults is not implemented"))

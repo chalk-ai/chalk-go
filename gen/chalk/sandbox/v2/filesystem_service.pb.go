@@ -465,11 +465,11 @@ const file_chalk_sandbox_v2_filesystem_service_proto_rawDesc = "" +
 	"#FILESYSTEM_ERROR_RESOURCE_EXHAUSTED\x10\x05\x12(\n" +
 	"$FILESYSTEM_ERROR_FAILED_PRECONDITION\x10\x06\x12\x1d\n" +
 	"\x19FILESYSTEM_ERROR_INTERNAL\x10\a\x12\x1f\n" +
-	"\x1bFILESYSTEM_ERROR_UNVERIFIED\x10\b2\xe0\x01\n" +
-	"\x18SandboxFilesystemService\x12^\n" +
+	"\x1bFILESYSTEM_ERROR_UNVERIFIED\x10\b2\xe8\x01\n" +
+	"\x18SandboxFilesystemService\x12b\n" +
 	"\n" +
-	"UploadFile\x12#.chalk.sandbox.v2.UploadFileRequest\x1a$.chalk.sandbox.v2.UploadFileResponse\"\x03\x80}\x0e(\x01\x12d\n" +
-	"\fDownloadFile\x12%.chalk.sandbox.v2.DownloadFileRequest\x1a&.chalk.sandbox.v2.DownloadFileResponse\"\x03\x80}\x0e0\x01B\xcd\x01\n" +
+	"UploadFile\x12#.chalk.sandbox.v2.UploadFileRequest\x1a$.chalk.sandbox.v2.UploadFileResponse\"\a\x80}=\x92}\x01\x0e(\x01\x12h\n" +
+	"\fDownloadFile\x12%.chalk.sandbox.v2.DownloadFileRequest\x1a&.chalk.sandbox.v2.DownloadFileResponse\"\a\x80}=\x92}\x01\x0e0\x01B\xcd\x01\n" +
 	"\x14com.chalk.sandbox.v2B\x16FilesystemServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v2;sandboxv2\xa2\x02\x03CSX\xaa\x02\x10Chalk.Sandbox.V2\xca\x02\x10Chalk\\Sandbox\\V2\xe2\x02\x1cChalk\\Sandbox\\V2\\GPBMetadata\xea\x02\x12Chalk::Sandbox::V2b\x06proto3"
 
 var (

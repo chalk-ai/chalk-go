@@ -1620,9 +1620,11 @@ func (x *PlanSqlQueryRequest) GetQuery() string {
 }
 
 type PlanSqlQueryResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	LogicalPlan   string                 `protobuf:"bytes,1,opt,name=logical_plan,json=logicalPlan,proto3" json:"logical_plan,omitempty"`
-	Errors        []*v1.ChalkError       `protobuf:"bytes,5,rep,name=errors,proto3" json:"errors,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	LogicalPlan string                 `protobuf:"bytes,1,opt,name=logical_plan,json=logicalPlan,proto3" json:"logical_plan,omitempty"`
+	// Interactive plan graph in the same format as GetSqlQueryPlan.query_plan_json.
+	QueryPlanJson *string          `protobuf:"bytes,2,opt,name=query_plan_json,json=queryPlanJson,proto3,oneof" json:"query_plan_json,omitempty"`
+	Errors        []*v1.ChalkError `protobuf:"bytes,5,rep,name=errors,proto3" json:"errors,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1660,6 +1662,13 @@ func (*PlanSqlQueryResponse) Descriptor() ([]byte, []int) {
 func (x *PlanSqlQueryResponse) GetLogicalPlan() string {
 	if x != nil {
 		return x.LogicalPlan
+	}
+	return ""
+}
+
+func (x *PlanSqlQueryResponse) GetQueryPlanJson() string {
+	if x != nil && x.QueryPlanJson != nil {
+		return *x.QueryPlanJson
 	}
 	return ""
 }
@@ -2607,10 +2616,12 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"total_rows\x18\x03 \x01(\x03R\ttotalRowsB\x16\n" +
 	"\x14_performance_summary\"+\n" +
 	"\x13PlanSqlQueryRequest\x12\x14\n" +
-	"\x05query\x18\x01 \x01(\tR\x05query\"n\n" +
+	"\x05query\x18\x01 \x01(\tR\x05query\"\xaf\x01\n" +
 	"\x14PlanSqlQueryResponse\x12!\n" +
-	"\flogical_plan\x18\x01 \x01(\tR\vlogicalPlan\x123\n" +
-	"\x06errors\x18\x05 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\x16\n" +
+	"\flogical_plan\x18\x01 \x01(\tR\vlogicalPlan\x12+\n" +
+	"\x0fquery_plan_json\x18\x02 \x01(\tH\x00R\rqueryPlanJson\x88\x01\x01\x123\n" +
+	"\x06errors\x18\x05 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errorsB\x12\n" +
+	"\x10_query_plan_json\"\x16\n" +
 	"\x14GetDbCatalogsRequest\"\xde\x01\n" +
 	"\rDbCatalogInfo\x12!\n" +
 	"\fcatalog_name\x18\x01 \x01(\tR\vcatalogName\x12!\n" +
@@ -2864,6 +2875,7 @@ func file_chalk_protosql_v1_sql_service_proto_init() {
 		(*ExecuteSqlQueryStreamResponse_Completed)(nil),
 	}
 	file_chalk_protosql_v1_sql_service_proto_msgTypes[19].OneofWrappers = []any{}
+	file_chalk_protosql_v1_sql_service_proto_msgTypes[21].OneofWrappers = []any{}
 	file_chalk_protosql_v1_sql_service_proto_msgTypes[23].OneofWrappers = []any{}
 	file_chalk_protosql_v1_sql_service_proto_msgTypes[25].OneofWrappers = []any{}
 	file_chalk_protosql_v1_sql_service_proto_msgTypes[28].OneofWrappers = []any{}

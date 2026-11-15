@@ -28,6 +28,8 @@ const (
 	CronAggregateBackfillTarget_CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED CronAggregateBackfillTarget = 0
 	CronAggregateBackfillTarget_CRON_AGGREGATE_BACKFILL_TARGET_ONLINE      CronAggregateBackfillTarget = 1
 	CronAggregateBackfillTarget_CRON_AGGREGATE_BACKFILL_TARGET_OFFLINE     CronAggregateBackfillTarget = 2
+	// Publish compact online aggregate summaries.
+	CronAggregateBackfillTarget_CRON_AGGREGATE_BACKFILL_TARGET_ONLINE_SUMMARIES CronAggregateBackfillTarget = 3
 )
 
 // Enum value maps for CronAggregateBackfillTarget.
@@ -36,11 +38,13 @@ var (
 		0: "CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED",
 		1: "CRON_AGGREGATE_BACKFILL_TARGET_ONLINE",
 		2: "CRON_AGGREGATE_BACKFILL_TARGET_OFFLINE",
+		3: "CRON_AGGREGATE_BACKFILL_TARGET_ONLINE_SUMMARIES",
 	}
 	CronAggregateBackfillTarget_value = map[string]int32{
-		"CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED": 0,
-		"CRON_AGGREGATE_BACKFILL_TARGET_ONLINE":      1,
-		"CRON_AGGREGATE_BACKFILL_TARGET_OFFLINE":     2,
+		"CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED":      0,
+		"CRON_AGGREGATE_BACKFILL_TARGET_ONLINE":           1,
+		"CRON_AGGREGATE_BACKFILL_TARGET_OFFLINE":          2,
+		"CRON_AGGREGATE_BACKFILL_TARGET_ONLINE_SUMMARIES": 3,
 	}
 )
 
@@ -275,11 +279,12 @@ const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\x12_allow_empty_tilesB\x0e\n" +
 	"\f_environmentB\r\n" +
 	"\v_num_shardsB\x19\n" +
-	"\x17_include_partial_bucket*\xa4\x01\n" +
+	"\x17_include_partial_bucket*\xd9\x01\n" +
 	"\x1bCronAggregateBackfillTarget\x12.\n" +
 	"*CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED\x10\x00\x12)\n" +
 	"%CRON_AGGREGATE_BACKFILL_TARGET_ONLINE\x10\x01\x12*\n" +
-	"&CRON_AGGREGATE_BACKFILL_TARGET_OFFLINE\x10\x02B\xdf\x01\n" +
+	"&CRON_AGGREGATE_BACKFILL_TARGET_OFFLINE\x10\x02\x123\n" +
+	"/CRON_AGGREGATE_BACKFILL_TARGET_ONLINE_SUMMARIES\x10\x03B\xdf\x01\n" +
 	"\x16com.chalk.artifacts.v1B\x1aCronAggregateBackfillProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (

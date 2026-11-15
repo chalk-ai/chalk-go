@@ -458,11 +458,11 @@ const file_chalk_modeldeployment_v1_curated_models_proto_rawDesc = "" +
 	"\x1aDeployCuratedModelResponse\x12I\n" +
 	"\x0emodel_artifact\x18\x01 \x01(\v2\".chalk.models.v1.ModelArtifactSpecR\rmodelArtifact\x12#\n" +
 	"\rmodel_version\x18\x02 \x01(\x04R\fmodelVersion\x12P\n" +
-	"\rscaling_group\x18\x03 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\fscalingGroup2\xce\x03\n" +
-	"\x13CuratedModelService\x12\xd8\x01\n" +
-	"\x11ListCuratedModels\x122.chalk.modeldeployment.v1.ListCuratedModelsRequest\x1a3.chalk.modeldeployment.v1.ListCuratedModelsResponse\"Z\x80}\v\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xdb\x01\n" +
-	"\x12DeployCuratedModel\x123.chalk.modeldeployment.v1.DeployCuratedModelRequest\x1a4.chalk.modeldeployment.v1.DeployCuratedModelResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
+	"\rscaling_group\x18\x03 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\fscalingGroup2\xd6\x03\n" +
+	"\x13CuratedModelService\x12\xdc\x01\n" +
+	"\x11ListCuratedModels\x122.chalk.modeldeployment.v1.ListCuratedModelsRequest\x1a3.chalk.modeldeployment.v1.ListCuratedModelsResponse\"^\x80}4\x92}\x01\v\x92\xd3\x0eS\n" +
+	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xdf\x01\n" +
+	"\x12DeployCuratedModel\x123.chalk.modeldeployment.v1.DeployCuratedModelRequest\x1a4.chalk.modeldeployment.v1.DeployCuratedModelResponse\"^\x80}5\x92}\x01\f\x92\xd3\x0eS\n" +
 	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.B\x81\x02\n" +
 	"\x1ccom.chalk.modeldeployment.v1B\x12CuratedModelsProtoP\x01ZKgithub.com/chalk-ai/chalk-go/gen/chalk/modeldeployment/v1;modeldeploymentv1\xa2\x02\x03CMX\xaa\x02\x18Chalk.Modeldeployment.V1\xca\x02\x18Chalk\\Modeldeployment\\V1\xe2\x02$Chalk\\Modeldeployment\\V1\\GPBMetadata\xea\x02\x1aChalk::Modeldeployment::V1b\x06proto3"
 

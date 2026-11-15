@@ -162,6 +162,7 @@ type DisplayUserAgent struct {
 	Email                    string                           `protobuf:"bytes,7,opt,name=email,proto3" json:"email,omitempty"`
 	TeamName                 string                           `protobuf:"bytes,8,opt,name=team_name,json=teamName,proto3" json:"team_name,omitempty"`
 	CustomerClaims           []*DisplayCustomClaim            `protobuf:"bytes,9,rep,name=customer_claims,json=customerClaims,proto3" json:"customer_claims,omitempty"`
+	TeamPermissions          []*DisplayPermission             `protobuf:"bytes,10,rep,name=team_permissions,json=teamPermissions,proto3" json:"team_permissions,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -256,6 +257,13 @@ func (x *DisplayUserAgent) GetTeamName() string {
 func (x *DisplayUserAgent) GetCustomerClaims() []*DisplayCustomClaim {
 	if x != nil {
 		return x.CustomerClaims
+	}
+	return nil
+}
+
+func (x *DisplayUserAgent) GetTeamPermissions() []*DisplayPermission {
+	if x != nil {
+		return x.TeamPermissions
 	}
 	return nil
 }
@@ -778,7 +786,7 @@ const file_chalk_auth_v1_displayagent_proto_rawDesc = "" +
 	"\n" +
 	"project_id\x18\x03 \x01(\tR\tprojectId\x12!\n" +
 	"\fproject_name\x18\x04 \x01(\tR\vprojectName\x12B\n" +
-	"\vpermissions\x18\x05 \x03(\v2 .chalk.auth.v1.DisplayPermissionR\vpermissions\"\x88\x03\n" +
+	"\vpermissions\x18\x05 \x03(\v2 .chalk.auth.v1.DisplayPermissionR\vpermissions\"\xd5\x03\n" +
 	"\x10DisplayUserAgent\x12\x1f\n" +
 	"\tclient_id\x18\x01 \x01(\tB\x02\x18\x01R\bclientId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x17\n" +
@@ -788,7 +796,9 @@ const file_chalk_auth_v1_displayagent_proto_rawDesc = "" +
 	"\x04name\x18\x06 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\a \x01(\tR\x05email\x12\x1b\n" +
 	"\tteam_name\x18\b \x01(\tR\bteamName\x12J\n" +
-	"\x0fcustomer_claims\x18\t \x03(\v2!.chalk.auth.v1.DisplayCustomClaimR\x0ecustomerClaims\">\n" +
+	"\x0fcustomer_claims\x18\t \x03(\v2!.chalk.auth.v1.DisplayCustomClaimR\x0ecustomerClaims\x12K\n" +
+	"\x10team_permissions\x18\n" +
+	" \x03(\v2 .chalk.auth.v1.DisplayPermissionR\x0fteamPermissions\">\n" +
 	"\x12DisplayCustomClaim\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x16\n" +
 	"\x06values\x18\x02 \x03(\tR\x06values\"\x91\x05\n" +
@@ -864,21 +874,22 @@ var file_chalk_auth_v1_displayagent_proto_depIdxs = []int32{
 	0,  // 1: chalk.auth.v1.DisplayEnvironmentPermissions.permissions:type_name -> chalk.auth.v1.DisplayPermission
 	1,  // 2: chalk.auth.v1.DisplayUserAgent.permissions_by_environment:type_name -> chalk.auth.v1.DisplayEnvironmentPermissions
 	3,  // 3: chalk.auth.v1.DisplayUserAgent.customer_claims:type_name -> chalk.auth.v1.DisplayCustomClaim
-	0,  // 4: chalk.auth.v1.DisplayServiceTokenAgent.permissions:type_name -> chalk.auth.v1.DisplayPermission
-	3,  // 5: chalk.auth.v1.DisplayServiceTokenAgent.customer_claims:type_name -> chalk.auth.v1.DisplayCustomClaim
-	10, // 6: chalk.auth.v1.DisplayServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	11, // 7: chalk.auth.v1.DisplayServiceTokenAgent.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 8: chalk.auth.v1.DisplayServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.DisplayPermission
-	2,  // 9: chalk.auth.v1.DisplayAgent.user_agent:type_name -> chalk.auth.v1.DisplayUserAgent
-	4,  // 10: chalk.auth.v1.DisplayAgent.service_token_agent:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
-	5,  // 11: chalk.auth.v1.DisplayAgent.engine_agent:type_name -> chalk.auth.v1.DisplayEngineAgent
-	6,  // 12: chalk.auth.v1.DisplayAgent.tenant_agent:type_name -> chalk.auth.v1.DisplayTenantAgent
-	7,  // 13: chalk.auth.v1.DisplayAgent.metadata_service_agent:type_name -> chalk.auth.v1.DisplayMetadataServiceAgent
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	0,  // 4: chalk.auth.v1.DisplayUserAgent.team_permissions:type_name -> chalk.auth.v1.DisplayPermission
+	0,  // 5: chalk.auth.v1.DisplayServiceTokenAgent.permissions:type_name -> chalk.auth.v1.DisplayPermission
+	3,  // 6: chalk.auth.v1.DisplayServiceTokenAgent.customer_claims:type_name -> chalk.auth.v1.DisplayCustomClaim
+	10, // 7: chalk.auth.v1.DisplayServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	11, // 8: chalk.auth.v1.DisplayServiceTokenAgent.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 9: chalk.auth.v1.DisplayServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.DisplayPermission
+	2,  // 10: chalk.auth.v1.DisplayAgent.user_agent:type_name -> chalk.auth.v1.DisplayUserAgent
+	4,  // 11: chalk.auth.v1.DisplayAgent.service_token_agent:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
+	5,  // 12: chalk.auth.v1.DisplayAgent.engine_agent:type_name -> chalk.auth.v1.DisplayEngineAgent
+	6,  // 13: chalk.auth.v1.DisplayAgent.tenant_agent:type_name -> chalk.auth.v1.DisplayTenantAgent
+	7,  // 14: chalk.auth.v1.DisplayAgent.metadata_service_agent:type_name -> chalk.auth.v1.DisplayMetadataServiceAgent
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_chalk_auth_v1_displayagent_proto_init() }

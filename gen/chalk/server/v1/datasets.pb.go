@@ -3945,8 +3945,11 @@ func (x *DeleteMaterializedAggregateTileResponse) GetId() int64 {
 }
 
 type GetDatasetRevisionPreviewRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RevisionId    string                 `protobuf:"bytes,1,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	RevisionId string                 `protobuf:"bytes,1,opt,name=revision_id,json=revisionId,proto3" json:"revision_id,omitempty"`
+	// Return only stored, asynchronously computed profiles and their status. Skips
+	// output rows and legacy engine summaries; profiles may be empty until ready.
+	ProfilesOnly  bool `protobuf:"varint,2,opt,name=profiles_only,json=profilesOnly,proto3" json:"profiles_only,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3986,6 +3989,13 @@ func (x *GetDatasetRevisionPreviewRequest) GetRevisionId() string {
 		return x.RevisionId
 	}
 	return ""
+}
+
+func (x *GetDatasetRevisionPreviewRequest) GetProfilesOnly() bool {
+	if x != nil {
+		return x.ProfilesOnly
+	}
+	return false
 }
 
 type GetDatasetRevisionPreviewResponse struct {
@@ -4799,10 +4809,11 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"&DeleteMaterializedAggregateTileRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"9\n" +
 	"'DeleteMaterializedAggregateTileResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"C\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"h\n" +
 	" GetDatasetRevisionPreviewRequest\x12\x1f\n" +
 	"\vrevision_id\x18\x01 \x01(\tR\n" +
-	"revisionId\"\xab\x02\n" +
+	"revisionId\x12#\n" +
+	"\rprofiles_only\x18\x02 \x01(\bR\fprofilesOnly\"\xab\x02\n" +
 	"!GetDatasetRevisionPreviewResponse\x12=\n" +
 	"\x0eoutput_preview\x18\x01 \x01(\v2\x16.google.protobuf.ValueR\routputPreview\x120\n" +
 	"\asummary\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\asummary\x12G\n" +

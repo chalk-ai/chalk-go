@@ -233,8 +233,10 @@ type DeleteFeatureObservationsRequest struct {
 	PrimaryKeys   []string               `protobuf:"bytes,4,rep,name=primary_keys,json=primaryKeys,proto3" json:"primary_keys,omitempty"`
 	RetainOnline  bool                   `protobuf:"varint,5,opt,name=retain_online,json=retainOnline,proto3" json:"retain_online,omitempty"`
 	RetainOffline bool                   `protobuf:"varint,6,opt,name=retain_offline,json=retainOffline,proto3" json:"retain_offline,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Unset/true keeps materialized aggregate buckets; false also deletes them (not with features/tags).
+	RetainMaterializedAggregates *bool `protobuf:"varint,7,opt,name=retain_materialized_aggregates,json=retainMaterializedAggregates,proto3,oneof" json:"retain_materialized_aggregates,omitempty"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *DeleteFeatureObservationsRequest) Reset() {
@@ -309,11 +311,20 @@ func (x *DeleteFeatureObservationsRequest) GetRetainOffline() bool {
 	return false
 }
 
+func (x *DeleteFeatureObservationsRequest) GetRetainMaterializedAggregates() bool {
+	if x != nil && x.RetainMaterializedAggregates != nil {
+		return *x.RetainMaterializedAggregates
+	}
+	return false
+}
+
 type DeleteFeatureObservationsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Errors        []*v1.ChalkError       `protobuf:"bytes,1,rep,name=errors,proto3" json:"errors,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Errors []*v1.ChalkError       `protobuf:"bytes,1,rep,name=errors,proto3" json:"errors,omitempty"`
+	// Online store entries removed when `retain_materialized_aggregates` is false; unset otherwise.
+	MaterializedAggregateKeysDeleted *int64 `protobuf:"varint,2,opt,name=materialized_aggregate_keys_deleted,json=materializedAggregateKeysDeleted,proto3,oneof" json:"materialized_aggregate_keys_deleted,omitempty"`
+	unknownFields                    protoimpl.UnknownFields
+	sizeCache                        protoimpl.SizeCache
 }
 
 func (x *DeleteFeatureObservationsResponse) Reset() {
@@ -351,6 +362,13 @@ func (x *DeleteFeatureObservationsResponse) GetErrors() []*v1.ChalkError {
 		return x.Errors
 	}
 	return nil
+}
+
+func (x *DeleteFeatureObservationsResponse) GetMaterializedAggregateKeysDeleted() int64 {
+	if x != nil && x.MaterializedAggregateKeysDeleted != nil {
+		return *x.MaterializedAggregateKeysDeleted
+	}
+	return 0
 }
 
 type GetIncrementalProgressRequest struct {
@@ -916,16 +934,20 @@ const file_chalk_server_v1_feature_metadata_proto_rawDesc = "" +
 	"\rretain_online\x18\x03 \x01(\bR\fretainOnline\x12%\n" +
 	"\x0eretain_offline\x18\x04 \x01(\bR\rretainOffline\"Q\n" +
 	"\x1aFeatureMigrateTypeResponse\x123\n" +
-	"\x06errors\x18\x01 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xdf\x01\n" +
+	"\x06errors\x18\x01 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xcd\x02\n" +
 	" DeleteFeatureObservationsRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x12\x12\n" +
 	"\x04tags\x18\x03 \x03(\tR\x04tags\x12!\n" +
 	"\fprimary_keys\x18\x04 \x03(\tR\vprimaryKeys\x12#\n" +
 	"\rretain_online\x18\x05 \x01(\bR\fretainOnline\x12%\n" +
-	"\x0eretain_offline\x18\x06 \x01(\bR\rretainOffline\"X\n" +
+	"\x0eretain_offline\x18\x06 \x01(\bR\rretainOffline\x12I\n" +
+	"\x1eretain_materialized_aggregates\x18\a \x01(\bH\x00R\x1cretainMaterializedAggregates\x88\x01\x01B!\n" +
+	"\x1f_retain_materialized_aggregates\"\xd4\x01\n" +
 	"!DeleteFeatureObservationsResponse\x123\n" +
-	"\x06errors\x18\x01 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xc0\x01\n" +
+	"\x06errors\x18\x01 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\x12R\n" +
+	"#materialized_aggregate_keys_deleted\x18\x02 \x01(\x03H\x00R materializedAggregateKeysDeleted\x88\x01\x01B&\n" +
+	"$_materialized_aggregate_keys_deleted\"\xc0\x01\n" +
 	"\x1dGetIncrementalProgressRequest\x12#\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tH\x00R\vresolverFqn\x12\x1f\n" +
 	"\n" +
@@ -1048,6 +1070,8 @@ func file_chalk_server_v1_feature_metadata_proto_init() {
 	if File_chalk_server_v1_feature_metadata_proto != nil {
 		return
 	}
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_server_v1_feature_metadata_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_server_v1_feature_metadata_proto_msgTypes[6].OneofWrappers = []any{
 		(*GetIncrementalProgressRequest_ResolverFqn)(nil),
 		(*GetIncrementalProgressRequest_QueryName)(nil),

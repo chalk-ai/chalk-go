@@ -43,7 +43,7 @@ const (
 
 // ManagerServiceClient is a client for the chalk.server.v1.ManagerService service.
 type ManagerServiceClient interface {
-	// If any checks fail, this request fails.
+	// Deprecated: do not use.
 	GetClusterEnvironments(context.Context, *connect.Request[v1.GetClusterEnvironmentsRequest]) (*connect.Response[v1.GetClusterEnvironmentsResponse], error)
 	ListTelemetryTimescaleKubeSecretRefs(context.Context, *connect.Request[v1.ListTelemetryTimescaleKubeSecretRefsRequest]) (*connect.Response[v1.ListTelemetryTimescaleKubeSecretRefsResponse], error)
 }
@@ -83,6 +83,8 @@ type managerServiceClient struct {
 }
 
 // GetClusterEnvironments calls chalk.server.v1.ManagerService.GetClusterEnvironments.
+//
+// Deprecated: do not use.
 func (c *managerServiceClient) GetClusterEnvironments(ctx context.Context, req *connect.Request[v1.GetClusterEnvironmentsRequest]) (*connect.Response[v1.GetClusterEnvironmentsResponse], error) {
 	return c.getClusterEnvironments.CallUnary(ctx, req)
 }
@@ -95,7 +97,7 @@ func (c *managerServiceClient) ListTelemetryTimescaleKubeSecretRefs(ctx context.
 
 // ManagerServiceHandler is an implementation of the chalk.server.v1.ManagerService service.
 type ManagerServiceHandler interface {
-	// If any checks fail, this request fails.
+	// Deprecated: do not use.
 	GetClusterEnvironments(context.Context, *connect.Request[v1.GetClusterEnvironmentsRequest]) (*connect.Response[v1.GetClusterEnvironmentsResponse], error)
 	ListTelemetryTimescaleKubeSecretRefs(context.Context, *connect.Request[v1.ListTelemetryTimescaleKubeSecretRefsRequest]) (*connect.Response[v1.ListTelemetryTimescaleKubeSecretRefsResponse], error)
 }

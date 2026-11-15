@@ -1727,7 +1727,10 @@ type ListTraceRequest struct {
 	// Filter by span name (operation name)
 	SpanName *string `protobuf:"bytes,5,opt,name=span_name,json=spanName,proto3,oneof" json:"span_name,omitempty"`
 	// Page token for pagination (returned from previous ListTrace call)
-	PageToken     *string `protobuf:"bytes,6,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	PageToken *string `protobuf:"bytes,6,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	// Read only archived traces. Cannot be combined with service_name or span_name.
+	// Unfiltered lists also include archives when their time window reaches archived data.
+	ArchivedOnly  *bool `protobuf:"varint,7,opt,name=archived_only,json=archivedOnly,proto3,oneof" json:"archived_only,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1802,6 +1805,13 @@ func (x *ListTraceRequest) GetPageToken() string {
 		return *x.PageToken
 	}
 	return ""
+}
+
+func (x *ListTraceRequest) GetArchivedOnly() bool {
+	if x != nil && x.ArchivedOnly != nil {
+		return *x.ArchivedOnly
+	}
+	return false
 }
 
 // ListTraceResponse message
@@ -1896,7 +1906,11 @@ type SearchTraceSummariesRequest struct {
 	// Faceted-search query string, AND-combined with the structured filters above.
 	Query *string `protobuf:"bytes,16,opt,name=query,proto3,oneof" json:"query,omitempty"`
 	// Filter by agent session ids. A trace matches if its session id is listed here.
-	SessionIds    []string `protobuf:"bytes,17,rep,name=session_ids,json=sessionIds,proto3" json:"session_ids,omitempty"`
+	SessionIds []string `protobuf:"bytes,17,rep,name=session_ids,json=sessionIds,proto3" json:"session_ids,omitempty"`
+	// Read only archived traces, using the persistent archive index. Supports time,
+	// trace_ids and session_ids filters; other search filters require live spans.
+	// Unfiltered lists also include archives when their time window reaches archived data.
+	ArchivedOnly  *bool `protobuf:"varint,18,opt,name=archived_only,json=archivedOnly,proto3,oneof" json:"archived_only,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2048,6 +2062,13 @@ func (x *SearchTraceSummariesRequest) GetSessionIds() []string {
 		return x.SessionIds
 	}
 	return nil
+}
+
+func (x *SearchTraceSummariesRequest) GetArchivedOnly() bool {
+	if x != nil && x.ArchivedOnly != nil {
+		return *x.ArchivedOnly
+	}
+	return false
 }
 
 // SearchTraceSummariesResponse message
@@ -5006,7 +5027,7 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\t_trace_idB\r\n" +
 	"\v_cluster_id\"E\n" +
 	"\x10GetTraceResponse\x121\n" +
-	"\x05trace\x18\x01 \x01(\v2\x1b.chalk.server.v1.ChalkTraceR\x05trace\"\xeb\x02\n" +
+	"\x05trace\x18\x01 \x01(\v2\x1b.chalk.server.v1.ChalkTraceR\x05trace\"\xa7\x03\n" +
 	"\x10ListTraceRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
@@ -5015,18 +5036,20 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\fservice_name\x18\x04 \x01(\tH\x03R\vserviceName\x88\x01\x01\x12 \n" +
 	"\tspan_name\x18\x05 \x01(\tH\x04R\bspanName\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"page_token\x18\x06 \x01(\tH\x05R\tpageToken\x88\x01\x01B\r\n" +
+	"page_token\x18\x06 \x01(\tH\x05R\tpageToken\x88\x01\x01\x12(\n" +
+	"\rarchived_only\x18\a \x01(\bH\x06R\farchivedOnly\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\x0f\n" +
 	"\r_service_nameB\f\n" +
 	"\n" +
 	"_span_nameB\r\n" +
-	"\v_page_token\"\x89\x01\n" +
+	"\v_page_tokenB\x10\n" +
+	"\x0e_archived_only\"\x89\x01\n" +
 	"\x11ListTraceResponse\x123\n" +
 	"\x06traces\x18\x01 \x03(\v2\x1b.chalk.server.v1.ChalkTraceR\x06traces\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\x98\b\n" +
+	"\x10_next_page_token\"\xd4\b\n" +
 	"\x1bSearchTraceSummariesRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
@@ -5048,7 +5071,8 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x0froot_span_names\x18\x0f \x03(\tR\rrootSpanNames\x12\x19\n" +
 	"\x05query\x18\x10 \x01(\tH\bR\x05query\x88\x01\x01\x12\x1f\n" +
 	"\vsession_ids\x18\x11 \x03(\tR\n" +
-	"sessionIdsB\r\n" +
+	"sessionIds\x12(\n" +
+	"\rarchived_only\x18\x12 \x01(\bH\tR\farchivedOnly\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\r\n" +
@@ -5057,7 +5081,8 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x10_max_duration_usB\x11\n" +
 	"\x0f_min_span_countB\x11\n" +
 	"\x0f_max_span_countB\b\n" +
-	"\x06_query\"\xac\x01\n" +
+	"\x06_queryB\x10\n" +
+	"\x0e_archived_only\"\xac\x01\n" +
 	"\x1cSearchTraceSummariesResponse\x12K\n" +
 	"\x0ftrace_summaries\x18\x01 \x03(\v2\".chalk.server.v1.ChalkTraceSummaryR\x0etraceSummaries\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +

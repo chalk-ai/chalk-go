@@ -96,6 +96,8 @@ const (
 	AggregateBackfillTarget_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED AggregateBackfillTarget = 0
 	AggregateBackfillTarget_AGGREGATE_BACKFILL_TARGET_ONLINE      AggregateBackfillTarget = 1
 	AggregateBackfillTarget_AGGREGATE_BACKFILL_TARGET_OFFLINE     AggregateBackfillTarget = 2
+	// Publish compact online aggregate summaries.
+	AggregateBackfillTarget_AGGREGATE_BACKFILL_TARGET_ONLINE_SUMMARIES AggregateBackfillTarget = 3
 )
 
 // Enum value maps for AggregateBackfillTarget.
@@ -104,11 +106,13 @@ var (
 		0: "AGGREGATE_BACKFILL_TARGET_UNSPECIFIED",
 		1: "AGGREGATE_BACKFILL_TARGET_ONLINE",
 		2: "AGGREGATE_BACKFILL_TARGET_OFFLINE",
+		3: "AGGREGATE_BACKFILL_TARGET_ONLINE_SUMMARIES",
 	}
 	AggregateBackfillTarget_value = map[string]int32{
-		"AGGREGATE_BACKFILL_TARGET_UNSPECIFIED": 0,
-		"AGGREGATE_BACKFILL_TARGET_ONLINE":      1,
-		"AGGREGATE_BACKFILL_TARGET_OFFLINE":     2,
+		"AGGREGATE_BACKFILL_TARGET_UNSPECIFIED":      0,
+		"AGGREGATE_BACKFILL_TARGET_ONLINE":           1,
+		"AGGREGATE_BACKFILL_TARGET_OFFLINE":          2,
+		"AGGREGATE_BACKFILL_TARGET_ONLINE_SUMMARIES": 3,
 	}
 )
 
@@ -897,11 +901,12 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"!AGGREGATE_BACKFILL_STATUS_WORKING\x10\x05\x12'\n" +
 	"#AGGREGATE_BACKFILL_STATUS_COMPLETED\x10\x06\x12$\n" +
 	" AGGREGATE_BACKFILL_STATUS_FAILED\x10\a\x12&\n" +
-	"\"AGGREGATE_BACKFILL_STATUS_CANCELED\x10\b*\x91\x01\n" +
+	"\"AGGREGATE_BACKFILL_STATUS_CANCELED\x10\b*\xc1\x01\n" +
 	"\x17AggregateBackfillTarget\x12)\n" +
 	"%AGGREGATE_BACKFILL_TARGET_UNSPECIFIED\x10\x00\x12$\n" +
 	" AGGREGATE_BACKFILL_TARGET_ONLINE\x10\x01\x12%\n" +
-	"!AGGREGATE_BACKFILL_TARGET_OFFLINE\x10\x02B\xd2\x01\n" +
+	"!AGGREGATE_BACKFILL_TARGET_OFFLINE\x10\x02\x12.\n" +
+	"*AGGREGATE_BACKFILL_TARGET_ONLINE_SUMMARIES\x10\x03B\xd2\x01\n" +
 	"\x16com.chalk.aggregate.v1B\rBackfillProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1;aggregatev1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Aggregate.V1\xca\x02\x12Chalk\\Aggregate\\V1\xe2\x02\x1eChalk\\Aggregate\\V1\\GPBMetadata\xea\x02\x14Chalk::Aggregate::V1b\x06proto3"
 
 var (

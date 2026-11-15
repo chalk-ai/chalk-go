@@ -394,7 +394,7 @@ const file_chalk_remotetty_v1_service_proto_rawDesc = "" +
 	"\x06closed\x18\x03 \x01(\bR\x06closedB\b\n" +
 	"\x06_error2\x84\x01\n" +
 	"\x10RemoteTTYService\x12p\n" +
-	"\x0eCreateDebugTTY\x12).chalk.remotetty.v1.CreateDebugTTYRequest\x1a*.chalk.remotetty.v1.CreateDebugTTYResponse\"\x03\x80}\v(\x010\x01B\xd1\x01\n" +
+	"\x0eCreateDebugTTY\x12).chalk.remotetty.v1.CreateDebugTTYRequest\x1a*.chalk.remotetty.v1.CreateDebugTTYResponse\"\x03\x80}\x1b(\x010\x01B\xd1\x01\n" +
 	"\x16com.chalk.remotetty.v1B\fServiceProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/remotetty/v1;remotettyv1\xa2\x02\x03CRX\xaa\x02\x12Chalk.Remotetty.V1\xca\x02\x12Chalk\\Remotetty\\V1\xe2\x02\x1eChalk\\Remotetty\\V1\\GPBMetadata\xea\x02\x14Chalk::Remotetty::V1b\x06proto3"
 
 var (

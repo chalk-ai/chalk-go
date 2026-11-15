@@ -2268,21 +2268,15 @@ const file_chalk_server_v1_workflow_orchestrator_proto_rawDesc = "" +
 	"7WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_CONTINUED_AS_NEW\x10\x06\x124\n" +
 	"0WORKFLOW_ORCHESTRATOR_EXECUTION_STATUS_TIMED_OUT\x10\a2\xca\v\n" +
 	"\x1bWorkflowOrchestratorService\x12\xb4\x01\n" +
-	"(GetWorkflowOrchestratorConnectionDetails\x12@.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest\x1aA.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse\"\x03\x80}\n" +
-	"\x12\xa2\x01\n" +
-	"\"ListWorkflowOrchestratorNamespaces\x12:.chalk.server.v1.ListWorkflowOrchestratorNamespacesRequest\x1a;.chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse\"\x03\x80}\n" +
-	"\x12\x9f\x01\n" +
-	"!ListWorkflowOrchestratorWorkflows\x129.chalk.server.v1.ListWorkflowOrchestratorWorkflowsRequest\x1a:.chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse\"\x03\x80}\n" +
-	"\x12\xa8\x01\n" +
-	"$DescribeWorkflowOrchestratorWorkflow\x12<.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest\x1a=.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse\"\x03\x80}\n" +
-	"\x12\xae\x01\n" +
-	"&GetWorkflowOrchestratorWorkflowHistory\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse\"\x03\x80}\n" +
-	"\x12\xae\x01\n" +
-	"&GetWorkflowOrchestratorWorkflowLineage\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse\"\x03\x80}\n" +
-	"\x12\x99\x01\n" +
-	"\x13SendWorkflowMessage\x12+.chalk.server.v1.SendWorkflowMessageRequest\x1a,.chalk.server.v1.SendWorkflowMessageResponse\"'\x80}\x03\x8a\xd3\x0e \b\x02\x12\x1cSent a message to a workflow\x12\x86\x01\n" +
-	"\x10StartWorkflowRun\x12(.chalk.server.v1.StartWorkflowRunRequest\x1a).chalk.server.v1.StartWorkflowRunResponse\"\x1d\x80}\x03\x8a\xd3\x0e\x16\b\x02\x12\x12Started a workflow\x12{\n" +
-	"\x14ListWorkflowMessages\x12,.chalk.server.v1.ListWorkflowMessagesRequest\x1a-.chalk.server.v1.ListWorkflowMessagesResponse\"\x06\x80}\x03\x90\x02\x01B\xc9\x01\n" +
+	"(GetWorkflowOrchestratorConnectionDetails\x12@.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsRequest\x1aA.chalk.server.v1.GetWorkflowOrchestratorConnectionDetailsResponse\"\x03\x80}\x0e\x12\xa2\x01\n" +
+	"\"ListWorkflowOrchestratorNamespaces\x12:.chalk.server.v1.ListWorkflowOrchestratorNamespacesRequest\x1a;.chalk.server.v1.ListWorkflowOrchestratorNamespacesResponse\"\x03\x80}\v\x12\x9f\x01\n" +
+	"!ListWorkflowOrchestratorWorkflows\x129.chalk.server.v1.ListWorkflowOrchestratorWorkflowsRequest\x1a:.chalk.server.v1.ListWorkflowOrchestratorWorkflowsResponse\"\x03\x80}\v\x12\xa8\x01\n" +
+	"$DescribeWorkflowOrchestratorWorkflow\x12<.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowRequest\x1a=.chalk.server.v1.DescribeWorkflowOrchestratorWorkflowResponse\"\x03\x80}\v\x12\xae\x01\n" +
+	"&GetWorkflowOrchestratorWorkflowHistory\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowHistoryResponse\"\x03\x80}\v\x12\xae\x01\n" +
+	"&GetWorkflowOrchestratorWorkflowLineage\x12>.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageRequest\x1a?.chalk.server.v1.GetWorkflowOrchestratorWorkflowLineageResponse\"\x03\x80}\v\x12\x99\x01\n" +
+	"\x13SendWorkflowMessage\x12+.chalk.server.v1.SendWorkflowMessageRequest\x1a,.chalk.server.v1.SendWorkflowMessageResponse\"'\x80}\x0e\x8a\xd3\x0e \b\x02\x12\x1cSent a message to a workflow\x12\x86\x01\n" +
+	"\x10StartWorkflowRun\x12(.chalk.server.v1.StartWorkflowRunRequest\x1a).chalk.server.v1.StartWorkflowRunResponse\"\x1d\x80}\x0e\x8a\xd3\x0e\x16\b\x02\x12\x12Started a workflow\x12{\n" +
+	"\x14ListWorkflowMessages\x12,.chalk.server.v1.ListWorkflowMessagesRequest\x1a-.chalk.server.v1.ListWorkflowMessagesResponse\"\x06\x80}\v\x90\x02\x01B\xc9\x01\n" +
 	"\x13com.chalk.server.v1B\x19WorkflowOrchestratorProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
