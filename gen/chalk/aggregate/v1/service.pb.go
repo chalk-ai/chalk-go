@@ -988,6 +988,22 @@ type CreateAggregateBackfillV2Request struct {
 	NumShards *int32 `protobuf:"varint,15,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
 	// Publish online summaries without implicitly writing ordinary online buckets.
 	StoreOnlineSummaries bool `protobuf:"varint,16,opt,name=store_online_summaries,json=storeOnlineSummaries,proto3" json:"store_online_summaries,omitempty"`
+	// Run every job of this backfill -- planner, tile shards, summary shards and finalize -- on the
+	// environment's engine image with this tag instead of the active deployment's, as an offline
+	// query's override_target_image_tag does. On the job queue each job gets its own pod of that
+	// image, so the environment must allow ad-hoc override-image pods.
+	OverrideTargetImageTag *string `protobuf:"bytes,17,opt,name=override_target_image_tag,json=overrideTargetImageTag,proto3,oneof" json:"override_target_image_tag,omitempty"`
+	// Run the whole backfill as one metaplanner (batch) job whose engine entrypoint plans the run
+	// and fans out every sub-backfill, as an offline query's use_metaplanner does. Cross-job
+	// planner options such as coalesce_summary_tile_tables take effect only on this path.
+	// true requires the job queue; false keeps unsharded backfills off it and rejects num_shards,
+	// which needs it; unset leaves the choice to the server.
+	UseMetaplanner *bool `protobuf:"varint,18,opt,name=use_metaplanner,json=useMetaplanner,proto3,oneof" json:"use_metaplanner,omitempty"`
+	// Also write the buckets from the start of the bucket holding upper_bound up to it, recomputed
+	// from that bucket's start. Offline tiles and online summaries stop at that bucket start, and
+	// the buckets after it are written to the online store only, even with store_online off, so a
+	// summary-backed read is complete as of upper_bound.
+	IncludePartialBucket *bool `protobuf:"varint,19,opt,name=include_partial_bucket,json=includePartialBucket,proto3,oneof" json:"include_partial_bucket,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -1134,6 +1150,27 @@ func (x *CreateAggregateBackfillV2Request) GetStoreOnlineSummaries() bool {
 	return false
 }
 
+func (x *CreateAggregateBackfillV2Request) GetOverrideTargetImageTag() string {
+	if x != nil && x.OverrideTargetImageTag != nil {
+		return *x.OverrideTargetImageTag
+	}
+	return ""
+}
+
+func (x *CreateAggregateBackfillV2Request) GetUseMetaplanner() bool {
+	if x != nil && x.UseMetaplanner != nil {
+		return *x.UseMetaplanner
+	}
+	return false
+}
+
+func (x *CreateAggregateBackfillV2Request) GetIncludePartialBucket() bool {
+	if x != nil && x.IncludePartialBucket != nil {
+		return *x.IncludePartialBucket
+	}
+	return false
+}
+
 type CreateAggregateBackfillV2Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Absent in plan mode. There is one aggregate_backfill_jobs row per aggregate backfill
@@ -1275,7 +1312,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\"CreateAggregateBackfillJobResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x123\n" +
-	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xee\a\n" +
+	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\xe4\t\n" +
 	" CreateAggregateBackfillV2Request\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12\x1f\n" +
 	"\bresolver\x18\x02 \x01(\tH\x00R\bresolver\x88\x01\x01\x12 \n" +
@@ -1296,7 +1333,11 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\x04mode\x18\x0e \x01(\x0e2).chalk.aggregate.v1.AggregateBackfillModeR\x04mode\x12\"\n" +
 	"\n" +
 	"num_shards\x18\x0f \x01(\x05H\bR\tnumShards\x88\x01\x01\x124\n" +
-	"\x16store_online_summaries\x18\x10 \x01(\bR\x14storeOnlineSummaries\x1aA\n" +
+	"\x16store_online_summaries\x18\x10 \x01(\bR\x14storeOnlineSummaries\x12>\n" +
+	"\x19override_target_image_tag\x18\x11 \x01(\tH\tR\x16overrideTargetImageTag\x88\x01\x01\x12,\n" +
+	"\x0fuse_metaplanner\x18\x12 \x01(\bH\n" +
+	"R\x0euseMetaplanner\x88\x01\x01\x129\n" +
+	"\x16include_partial_bucket\x18\x13 \x01(\bH\vR\x14includePartialBucket\x88\x01\x01\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
@@ -1309,7 +1350,10 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\x0e_store_offlineB\x14\n" +
 	"\x12_allow_empty_tilesB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
-	"\v_num_shards\"\xc8\x01\n" +
+	"\v_num_shardsB\x1c\n" +
+	"\x1a_override_target_image_tagB\x12\n" +
+	"\x10_use_metaplannerB\x19\n" +
+	"\x17_include_partial_bucket\"\xc8\x01\n" +
 	"!CreateAggregateBackfillV2Response\x12?\n" +
 	"\x03job\x18\x01 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobH\x00R\x03job\x88\x01\x01\x12Z\n" +
 	"\rsub_backfills\x18\x02 \x03(\v25.chalk.aggregate.v1.AggregateBackfillWithCostEstimateR\fsubBackfillsB\x06\n" +
