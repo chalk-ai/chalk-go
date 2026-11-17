@@ -1006,22 +1006,22 @@ const file_chalk_server_v1_environment_secrets_proto_rawDesc = "" +
 	"\vSecretScope\x124\n" +
 	"\x04type\x18\x01 \x01(\x0e2 .chalk.server.v1.SecretScopeTypeR\x04type\x12\x15\n" +
 	"\x03ref\x18\x02 \x01(\tH\x00R\x03ref\x88\x01\x01B\x06\n" +
-	"\x04_ref\"n\n" +
+	"\x04_ref\"t\n" +
 	"\vSecretValue\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\x125\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\x05value\x18\x02 \x01(\tB\x04ء'\x01R\x05value\x125\n" +
 	"\x06source\x18\x03 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06source\"]\n" +
 	"\x11SecretConfigValue\x12 \n" +
 	"\aliteral\x18\x01 \x01(\tB\x04ء'\x01H\x00R\aliteral\x12\x1d\n" +
 	"\tsecret_id\x18\x02 \x01(\tH\x00R\bsecretIdB\a\n" +
-	"\x05value\"\xe9\x01\n" +
+	"\x05value\"\xef\x01\n" +
 	"\x0fSecretWithValue\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
 	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1b\n" +
-	"\tfull_name\x18\x04 \x01(\tR\bfullName\x12\x19\n" +
-	"\x05value\x18\x05 \x01(\tH\x00R\x05value\x88\x01\x01\x125\n" +
+	"\tfull_name\x18\x04 \x01(\tR\bfullName\x12\x1f\n" +
+	"\x05value\x18\x05 \x01(\tB\x04ء'\x01H\x00R\x05value\x88\x01\x01\x125\n" +
 	"\x06source\x18\x06 \x01(\x0e2\x1d.chalk.server.v1.SecretSourceR\x06sourceB\b\n" +
 	"\x06_value\";\n" +
 	"\x12ListSecretsRequest\x12%\n" +
@@ -1047,9 +1047,9 @@ const file_chalk_server_v1_environment_secrets_proto_rawDesc = "" +
 	"\x06_scope\"I\n" +
 	"\x14DeleteSecretResponse\x121\n" +
 	"\asecrets\x18\x01 \x03(\v2\x17.chalk.server.v1.SecretR\asecrets\"\x1b\n" +
-	"\x19GetAllSecretValuesRequest\"\xa8\x01\n" +
-	"\x1aGetAllSecretValuesResponse\x12O\n" +
-	"\x06values\x18\x01 \x03(\v27.chalk.server.v1.GetAllSecretValuesResponse.ValuesEntryR\x06values\x1a9\n" +
+	"\x19GetAllSecretValuesRequest\"\xae\x01\n" +
+	"\x1aGetAllSecretValuesResponse\x12U\n" +
+	"\x06values\x18\x01 \x03(\v27.chalk.server.v1.GetAllSecretValuesResponse.ValuesEntryB\x04ء'\x01R\x06values\x1a9\n" +
 	"\vValuesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xdb\x01\n" +

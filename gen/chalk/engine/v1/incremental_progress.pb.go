@@ -27,12 +27,14 @@ const (
 // Partially mirrors chalk.jobqueue.v1.AggregationBackfillJobRequest, but only carries fields
 // needed to derive the aggregate backfill HWM identifiers. The unneeded fields are removed but reserved
 type AggregateBackfillIncrementalProgressRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Features      []string               `protobuf:"bytes,1,rep,name=features,proto3" json:"features,omitempty"`
-	StoreOffline  bool                   `protobuf:"varint,5,opt,name=store_offline,json=storeOffline,proto3" json:"store_offline,omitempty"`
-	StoreOnline   *bool                  `protobuf:"varint,10,opt,name=store_online,json=storeOnline,proto3,oneof" json:"store_online,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Features     []string               `protobuf:"bytes,1,rep,name=features,proto3" json:"features,omitempty"`
+	StoreOffline bool                   `protobuf:"varint,5,opt,name=store_offline,json=storeOffline,proto3" json:"store_offline,omitempty"`
+	StoreOnline  *bool                  `protobuf:"varint,10,opt,name=store_online,json=storeOnline,proto3,oneof" json:"store_online,omitempty"`
+	// A summary backfill's online-only companion, whose watermark is kept apart from the summary run's.
+	SummaryHorizonCompanion bool `protobuf:"varint,12,opt,name=summary_horizon_companion,json=summaryHorizonCompanion,proto3" json:"summary_horizon_companion,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *AggregateBackfillIncrementalProgressRequest) Reset() {
@@ -82,6 +84,13 @@ func (x *AggregateBackfillIncrementalProgressRequest) GetStoreOffline() bool {
 func (x *AggregateBackfillIncrementalProgressRequest) GetStoreOnline() bool {
 	if x != nil && x.StoreOnline != nil {
 		return *x.StoreOnline
+	}
+	return false
+}
+
+func (x *AggregateBackfillIncrementalProgressRequest) GetSummaryHorizonCompanion() bool {
+	if x != nil {
+		return x.SummaryHorizonCompanion
 	}
 	return false
 }
@@ -771,12 +780,13 @@ var File_chalk_engine_v1_incremental_progress_proto protoreflect.FileDescriptor
 
 const file_chalk_engine_v1_incremental_progress_proto_rawDesc = "" +
 	"\n" +
-	"*chalk/engine/v1/incremental_progress.proto\x12\x0fchalk.engine.v1\x1a!chalk/aggregate/v1/backfill.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb9\x01\n" +
+	"*chalk/engine/v1/incremental_progress.proto\x12\x0fchalk.engine.v1\x1a!chalk/aggregate/v1/backfill.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf5\x01\n" +
 	"+AggregateBackfillIncrementalProgressRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12#\n" +
 	"\rstore_offline\x18\x05 \x01(\bR\fstoreOffline\x12&\n" +
 	"\fstore_online\x18\n" +
-	" \x01(\bH\x00R\vstoreOnline\x88\x01\x01B\x0f\n" +
+	" \x01(\bH\x00R\vstoreOnline\x88\x01\x01\x12:\n" +
+	"\x19summary_horizon_companion\x18\f \x01(\bR\x17summaryHorizonCompanionB\x0f\n" +
 	"\r_store_onlineJ\x04\b\x02\x10\x05J\x04\b\x06\x10\n" +
 	"J\x04\b\v\x10\f\"\x99\x01\n" +
 	".AggregateBackfillIncrementalProgressIdentifier\x12g\n" +

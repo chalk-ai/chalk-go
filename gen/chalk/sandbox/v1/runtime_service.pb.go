@@ -9,6 +9,7 @@ package sandboxv1
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/artifactstore/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -697,7 +698,7 @@ var File_chalk_sandbox_v1_runtime_service_proto protoreflect.FileDescriptor
 
 const file_chalk_sandbox_v1_runtime_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/sandbox/v1/runtime_service.proto\x12\x10chalk.sandbox.v1\x1a$chalk/artifactstore/v1/service.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\xa6\x01\n" +
+	"&chalk/sandbox/v1/runtime_service.proto\x12\x10chalk.sandbox.v1\x1a$chalk/artifactstore/v1/service.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\"\xa6\x01\n" +
 	"\x14ExecutePythonRequest\x129\n" +
 	"\x04spec\x18\x01 \x01(\v2#.chalk.sandbox.v1.ExecutePythonSpecH\x00R\x04spec\x12H\n" +
 	"\tinterrupt\x18\x02 \x01(\v2(.chalk.sandbox.v1.ExecutePythonInterruptH\x00R\tinterruptB\t\n" +
@@ -726,10 +727,10 @@ const file_chalk_sandbox_v1_runtime_service_proto_rawDesc = "" +
 	"\tcompleted\x18\x04 \x01(\v2*.chalk.sandbox.v1.PythonExecutionCompletedH\x00R\tcompletedB\t\n" +
 	"\amessage\";\n" +
 	"\x16PythonExecutionStarted\x12!\n" +
-	"\fexecution_id\x18\x01 \x01(\tR\vexecutionId\"\xa9\x01\n" +
+	"\fexecution_id\x18\x01 \x01(\tR\vexecutionId\"\xaf\x01\n" +
 	"\fPythonOutput\x12=\n" +
-	"\x06stream\x18\x01 \x01(\x0e2%.chalk.sandbox.v1.PythonOutput.StreamR\x06stream\x12\x12\n" +
-	"\x04data\x18\x02 \x01(\fR\x04data\"F\n" +
+	"\x06stream\x18\x01 \x01(\x0e2%.chalk.sandbox.v1.PythonOutput.StreamR\x06stream\x12\x18\n" +
+	"\x04data\x18\x02 \x01(\fB\x04ء'\x01R\x04data\"F\n" +
 	"\x06Stream\x12\x16\n" +
 	"\x12STREAM_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTREAM_STDOUT\x10\x01\x12\x11\n" +

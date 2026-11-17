@@ -48,8 +48,14 @@ const (
 	// SqlServiceExecuteSqlQueryStreamProcedure is the fully-qualified name of the SqlService's
 	// ExecuteSqlQueryStream RPC.
 	SqlServiceExecuteSqlQueryStreamProcedure = "/chalk.protosql.v1.SqlService/ExecuteSqlQueryStream"
+	// SqlServiceReadSqlQueryResultsProcedure is the fully-qualified name of the SqlService's
+	// ReadSqlQueryResults RPC.
+	SqlServiceReadSqlQueryResultsProcedure = "/chalk.protosql.v1.SqlService/ReadSqlQueryResults"
 	// SqlServicePlanSqlQueryProcedure is the fully-qualified name of the SqlService's PlanSqlQuery RPC.
 	SqlServicePlanSqlQueryProcedure = "/chalk.protosql.v1.SqlService/PlanSqlQuery"
+	// SqlServiceCancelSqlQueryProcedure is the fully-qualified name of the SqlService's CancelSqlQuery
+	// RPC.
+	SqlServiceCancelSqlQueryProcedure = "/chalk.protosql.v1.SqlService/CancelSqlQuery"
 	// SqlServicePollSqlQueryProcedure is the fully-qualified name of the SqlService's PollSqlQuery RPC.
 	SqlServicePollSqlQueryProcedure = "/chalk.protosql.v1.SqlService/PollSqlQuery"
 	// SqlServiceGetDbCatalogsProcedure is the fully-qualified name of the SqlService's GetDbCatalogs
@@ -77,17 +83,13 @@ type SqlServiceClient interface {
 	// Deprecated: do not use.
 	GetOfflineQueryStats(context.Context, *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error)
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
-	// Execute a SQL query, emitting each chunk of the result as the plan produces it instead of
-	// gathering the whole result first. Same request as ExecuteSqlQuery and the same execution;
-	// only the delivery differs, so a query whose leading rows are cheap becomes visible while
-	// its expensive tail is still running.
-	//
-	// Rows are streamed, never persisted, and never profiled: async_options,
-	// persistence_settings.enabled and column_profile_options.enabled are each rejected, since
-	// each of them replaces the plan's row output with something else (an operation id to poll,
-	// a write summary, an aggregation over the whole result). Use ExecuteSqlQuery for those.
+	// Execute a persisted query and stream committed-partition availability. A sync
+	// reader owns execution and disconnecting cancels it. Async execution is owned by
+	// its existing job and survives the reader. Fetch rows through ReadSqlQueryResults.
 	ExecuteSqlQueryStream(context.Context, *connect.Request[v1.ExecuteSqlQueryStreamRequest]) (*connect.ServerStreamForClient[v1.ExecuteSqlQueryStreamResponse], error)
+	ReadSqlQueryResults(context.Context, *connect.Request[v1.ReadSqlQueryResultsRequest]) (*connect.Response[v1.ReadSqlQueryResultsResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
+	CancelSqlQuery(context.Context, *connect.Request[v1.CancelSqlQueryRequest]) (*connect.Response[v1.CancelSqlQueryResponse], error)
 	// Poll for the status and results of an asynchronous SQL query
 	PollSqlQuery(context.Context, *connect.Request[v1.PollSqlQueryRequest]) (*connect.Response[v1.PollSqlQueryResponse], error)
 	GetDbCatalogs(context.Context, *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error)
@@ -136,10 +138,22 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(sqlServiceMethods.ByName("ExecuteSqlQueryStream")),
 			connect.WithClientOptions(opts...),
 		),
+		readSqlQueryResults: connect.NewClient[v1.ReadSqlQueryResultsRequest, v1.ReadSqlQueryResultsResponse](
+			httpClient,
+			baseURL+SqlServiceReadSqlQueryResultsProcedure,
+			connect.WithSchema(sqlServiceMethods.ByName("ReadSqlQueryResults")),
+			connect.WithClientOptions(opts...),
+		),
 		planSqlQuery: connect.NewClient[v1.PlanSqlQueryRequest, v1.PlanSqlQueryResponse](
 			httpClient,
 			baseURL+SqlServicePlanSqlQueryProcedure,
 			connect.WithSchema(sqlServiceMethods.ByName("PlanSqlQuery")),
+			connect.WithClientOptions(opts...),
+		),
+		cancelSqlQuery: connect.NewClient[v1.CancelSqlQueryRequest, v1.CancelSqlQueryResponse](
+			httpClient,
+			baseURL+SqlServiceCancelSqlQueryProcedure,
+			connect.WithSchema(sqlServiceMethods.ByName("CancelSqlQuery")),
 			connect.WithClientOptions(opts...),
 		),
 		pollSqlQuery: connect.NewClient[v1.PollSqlQueryRequest, v1.PollSqlQueryResponse](
@@ -176,7 +190,9 @@ type sqlServiceClient struct {
 	getOfflineQueryStats   *connect.Client[v1.GetOfflineQueryStatsRequest, v1.GetOfflineQueryStatsResponse]
 	executeSqlQuery        *connect.Client[v1.ExecuteSqlQueryRequest, v1.ExecuteSqlQueryResponse]
 	executeSqlQueryStream  *connect.Client[v1.ExecuteSqlQueryStreamRequest, v1.ExecuteSqlQueryStreamResponse]
+	readSqlQueryResults    *connect.Client[v1.ReadSqlQueryResultsRequest, v1.ReadSqlQueryResultsResponse]
 	planSqlQuery           *connect.Client[v1.PlanSqlQueryRequest, v1.PlanSqlQueryResponse]
+	cancelSqlQuery         *connect.Client[v1.CancelSqlQueryRequest, v1.CancelSqlQueryResponse]
 	pollSqlQuery           *connect.Client[v1.PollSqlQueryRequest, v1.PollSqlQueryResponse]
 	getDbCatalogs          *connect.Client[v1.GetDbCatalogsRequest, v1.GetDbCatalogsResponse]
 	getDbSchemas           *connect.Client[v1.GetDbSchemasRequest, v1.GetDbSchemasResponse]
@@ -214,9 +230,19 @@ func (c *sqlServiceClient) ExecuteSqlQueryStream(ctx context.Context, req *conne
 	return c.executeSqlQueryStream.CallServerStream(ctx, req)
 }
 
+// ReadSqlQueryResults calls chalk.protosql.v1.SqlService.ReadSqlQueryResults.
+func (c *sqlServiceClient) ReadSqlQueryResults(ctx context.Context, req *connect.Request[v1.ReadSqlQueryResultsRequest]) (*connect.Response[v1.ReadSqlQueryResultsResponse], error) {
+	return c.readSqlQueryResults.CallUnary(ctx, req)
+}
+
 // PlanSqlQuery calls chalk.protosql.v1.SqlService.PlanSqlQuery.
 func (c *sqlServiceClient) PlanSqlQuery(ctx context.Context, req *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error) {
 	return c.planSqlQuery.CallUnary(ctx, req)
+}
+
+// CancelSqlQuery calls chalk.protosql.v1.SqlService.CancelSqlQuery.
+func (c *sqlServiceClient) CancelSqlQuery(ctx context.Context, req *connect.Request[v1.CancelSqlQueryRequest]) (*connect.Response[v1.CancelSqlQueryResponse], error) {
+	return c.cancelSqlQuery.CallUnary(ctx, req)
 }
 
 // PollSqlQuery calls chalk.protosql.v1.SqlService.PollSqlQuery.
@@ -255,17 +281,13 @@ type SqlServiceHandler interface {
 	// Deprecated: do not use.
 	GetOfflineQueryStats(context.Context, *connect.Request[v1.GetOfflineQueryStatsRequest]) (*connect.Response[v1.GetOfflineQueryStatsResponse], error)
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
-	// Execute a SQL query, emitting each chunk of the result as the plan produces it instead of
-	// gathering the whole result first. Same request as ExecuteSqlQuery and the same execution;
-	// only the delivery differs, so a query whose leading rows are cheap becomes visible while
-	// its expensive tail is still running.
-	//
-	// Rows are streamed, never persisted, and never profiled: async_options,
-	// persistence_settings.enabled and column_profile_options.enabled are each rejected, since
-	// each of them replaces the plan's row output with something else (an operation id to poll,
-	// a write summary, an aggregation over the whole result). Use ExecuteSqlQuery for those.
+	// Execute a persisted query and stream committed-partition availability. A sync
+	// reader owns execution and disconnecting cancels it. Async execution is owned by
+	// its existing job and survives the reader. Fetch rows through ReadSqlQueryResults.
 	ExecuteSqlQueryStream(context.Context, *connect.Request[v1.ExecuteSqlQueryStreamRequest], *connect.ServerStream[v1.ExecuteSqlQueryStreamResponse]) error
+	ReadSqlQueryResults(context.Context, *connect.Request[v1.ReadSqlQueryResultsRequest]) (*connect.Response[v1.ReadSqlQueryResultsResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
+	CancelSqlQuery(context.Context, *connect.Request[v1.CancelSqlQueryRequest]) (*connect.Response[v1.CancelSqlQueryResponse], error)
 	// Poll for the status and results of an asynchronous SQL query
 	PollSqlQuery(context.Context, *connect.Request[v1.PollSqlQueryRequest]) (*connect.Response[v1.PollSqlQueryResponse], error)
 	GetDbCatalogs(context.Context, *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error)
@@ -310,10 +332,22 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(sqlServiceMethods.ByName("ExecuteSqlQueryStream")),
 		connect.WithHandlerOptions(opts...),
 	)
+	sqlServiceReadSqlQueryResultsHandler := connect.NewUnaryHandler(
+		SqlServiceReadSqlQueryResultsProcedure,
+		svc.ReadSqlQueryResults,
+		connect.WithSchema(sqlServiceMethods.ByName("ReadSqlQueryResults")),
+		connect.WithHandlerOptions(opts...),
+	)
 	sqlServicePlanSqlQueryHandler := connect.NewUnaryHandler(
 		SqlServicePlanSqlQueryProcedure,
 		svc.PlanSqlQuery,
 		connect.WithSchema(sqlServiceMethods.ByName("PlanSqlQuery")),
+		connect.WithHandlerOptions(opts...),
+	)
+	sqlServiceCancelSqlQueryHandler := connect.NewUnaryHandler(
+		SqlServiceCancelSqlQueryProcedure,
+		svc.CancelSqlQuery,
+		connect.WithSchema(sqlServiceMethods.ByName("CancelSqlQuery")),
 		connect.WithHandlerOptions(opts...),
 	)
 	sqlServicePollSqlQueryHandler := connect.NewUnaryHandler(
@@ -352,8 +386,12 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 			sqlServiceExecuteSqlQueryHandler.ServeHTTP(w, r)
 		case SqlServiceExecuteSqlQueryStreamProcedure:
 			sqlServiceExecuteSqlQueryStreamHandler.ServeHTTP(w, r)
+		case SqlServiceReadSqlQueryResultsProcedure:
+			sqlServiceReadSqlQueryResultsHandler.ServeHTTP(w, r)
 		case SqlServicePlanSqlQueryProcedure:
 			sqlServicePlanSqlQueryHandler.ServeHTTP(w, r)
+		case SqlServiceCancelSqlQueryProcedure:
+			sqlServiceCancelSqlQueryHandler.ServeHTTP(w, r)
 		case SqlServicePollSqlQueryProcedure:
 			sqlServicePollSqlQueryHandler.ServeHTTP(w, r)
 		case SqlServiceGetDbCatalogsProcedure:
@@ -391,8 +429,16 @@ func (UnimplementedSqlServiceHandler) ExecuteSqlQueryStream(context.Context, *co
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.ExecuteSqlQueryStream is not implemented"))
 }
 
+func (UnimplementedSqlServiceHandler) ReadSqlQueryResults(context.Context, *connect.Request[v1.ReadSqlQueryResultsRequest]) (*connect.Response[v1.ReadSqlQueryResultsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.ReadSqlQueryResults is not implemented"))
+}
+
 func (UnimplementedSqlServiceHandler) PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.PlanSqlQuery is not implemented"))
+}
+
+func (UnimplementedSqlServiceHandler) CancelSqlQuery(context.Context, *connect.Request[v1.CancelSqlQueryRequest]) (*connect.Response[v1.CancelSqlQueryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.CancelSqlQuery is not implemented"))
 }
 
 func (UnimplementedSqlServiceHandler) PollSqlQuery(context.Context, *connect.Request[v1.PollSqlQueryRequest]) (*connect.Response[v1.PollSqlQueryResponse], error) {

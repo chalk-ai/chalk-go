@@ -356,10 +356,11 @@ const file_chalk_router_v1_fallback_policy_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"W\n" +
 	"\x1cUpdateFallbackPolicyResponse\x127\n" +
-	"\x06policy\x18\x01 \x01(\v2\x1f.chalk.router.v1.FallbackPolicyR\x06policy2\x85\x02\n" +
-	"\x15FallbackPolicyService\x12r\n" +
-	"\x11GetFallbackPolicy\x12).chalk.router.v1.GetFallbackPolicyRequest\x1a*.chalk.router.v1.GetFallbackPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12x\n" +
-	"\x14UpdateFallbackPolicy\x12,.chalk.router.v1.UpdateFallbackPolicyRequest\x1a-.chalk.router.v1.UpdateFallbackPolicyResponse\"\x03\x80}\x02B\xc3\x01\n" +
+	"\x06policy\x18\x01 \x01(\v2\x1f.chalk.router.v1.FallbackPolicyR\x06policy2\x8d\x02\n" +
+	"\x15FallbackPolicyService\x12v\n" +
+	"\x11GetFallbackPolicy\x12).chalk.router.v1.GetFallbackPolicyRequest\x1a*.chalk.router.v1.GetFallbackPolicyResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12|\n" +
+	"\x14UpdateFallbackPolicy\x12,.chalk.router.v1.UpdateFallbackPolicyRequest\x1a-.chalk.router.v1.UpdateFallbackPolicyResponse\"\a\x80}L\x92}\x01\x02B\xc3\x01\n" +
 	"\x13com.chalk.router.v1B\x13FallbackPolicyProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
 var (

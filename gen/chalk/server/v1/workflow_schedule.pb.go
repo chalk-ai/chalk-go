@@ -1870,15 +1870,18 @@ const file_chalk_server_v1_workflow_schedule_proto_rawDesc = "" +
 	"%WORKFLOW_SCHEDULE_RUN_STATUS_CANCELED\x10\t\x12*\n" +
 	"&WORKFLOW_SCHEDULE_RUN_STATUS_TIMED_OUT\x10\n" +
 	"\x12+\n" +
-	"'WORKFLOW_SCHEDULE_RUN_STATUS_TERMINATED\x10\v2\xb8\b\n" +
-	"\x17WorkflowScheduleService\x12\xa1\x01\n" +
-	"\x16CreateWorkflowSchedule\x12..chalk.server.v1.CreateWorkflowScheduleRequest\x1a/.chalk.server.v1.CreateWorkflowScheduleResponse\"&\x80}\f\x8a\xd3\x0e\x1f\b\x02\x12\x1bCreated a workflow schedule\x12x\n" +
-	"\x13GetWorkflowSchedule\x12+.chalk.server.v1.GetWorkflowScheduleRequest\x1a,.chalk.server.v1.GetWorkflowScheduleResponse\"\x06\x80}\x10\x90\x02\x01\x12~\n" +
-	"\x15ListWorkflowSchedules\x12-.chalk.server.v1.ListWorkflowSchedulesRequest\x1a..chalk.server.v1.ListWorkflowSchedulesResponse\"\x06\x80}\x10\x90\x02\x01\x12\xa4\x01\n" +
-	"\x16UpdateWorkflowSchedule\x12..chalk.server.v1.UpdateWorkflowScheduleRequest\x1a/.chalk.server.v1.UpdateWorkflowScheduleResponse\")\x80}\f\x8a\xd3\x0e\x1f\b\x02\x12\x1bUpdated a workflow schedule\x90\x02\x02\x12\xa4\x01\n" +
-	"\x16DeleteWorkflowSchedule\x12..chalk.server.v1.DeleteWorkflowScheduleRequest\x1a/.chalk.server.v1.DeleteWorkflowScheduleResponse\")\x80}\f\x8a\xd3\x0e\x1f\b\x02\x12\x1bDeleted a workflow schedule\x90\x02\x02\x12\xa6\x01\n" +
-	"\x17TriggerWorkflowSchedule\x12/.chalk.server.v1.TriggerWorkflowScheduleRequest\x1a0.chalk.server.v1.TriggerWorkflowScheduleResponse\"(\x80}\f\x8a\xd3\x0e!\b\x02\x12\x1dTriggered a workflow schedule\x12\x87\x01\n" +
-	"\x18ListWorkflowScheduleRuns\x120.chalk.server.v1.ListWorkflowScheduleRunsRequest\x1a1.chalk.server.v1.ListWorkflowScheduleRunsResponse\"\x06\x80}\x10\x90\x02\x01B\xc5\x01\n" +
+	"'WORKFLOW_SCHEDULE_RUN_STATUS_TERMINATED\x10\v2\xd5\b\n" +
+	"\x17WorkflowScheduleService\x12\xa5\x01\n" +
+	"\x16CreateWorkflowSchedule\x12..chalk.server.v1.CreateWorkflowScheduleRequest\x1a/.chalk.server.v1.CreateWorkflowScheduleResponse\"*\x80}H\x92}\x01\f\x8a\xd3\x0e\x1f\b\x02\x12\x1bCreated a workflow schedule\x12|\n" +
+	"\x13GetWorkflowSchedule\x12+.chalk.server.v1.GetWorkflowScheduleRequest\x1a,.chalk.server.v1.GetWorkflowScheduleResponse\"\n" +
+	"\x80}F\x92}\x01\x10\x90\x02\x01\x12\x82\x01\n" +
+	"\x15ListWorkflowSchedules\x12-.chalk.server.v1.ListWorkflowSchedulesRequest\x1a..chalk.server.v1.ListWorkflowSchedulesResponse\"\n" +
+	"\x80}F\x92}\x01\x10\x90\x02\x01\x12\xa8\x01\n" +
+	"\x16UpdateWorkflowSchedule\x12..chalk.server.v1.UpdateWorkflowScheduleRequest\x1a/.chalk.server.v1.UpdateWorkflowScheduleResponse\"-\x80}H\x92}\x01\f\x8a\xd3\x0e\x1f\b\x02\x12\x1bUpdated a workflow schedule\x90\x02\x02\x12\xa8\x01\n" +
+	"\x16DeleteWorkflowSchedule\x12..chalk.server.v1.DeleteWorkflowScheduleRequest\x1a/.chalk.server.v1.DeleteWorkflowScheduleResponse\"-\x80}H\x92}\x01\f\x8a\xd3\x0e\x1f\b\x02\x12\x1bDeleted a workflow schedule\x90\x02\x02\x12\xaa\x01\n" +
+	"\x17TriggerWorkflowSchedule\x12/.chalk.server.v1.TriggerWorkflowScheduleRequest\x1a0.chalk.server.v1.TriggerWorkflowScheduleResponse\",\x80}G\x92}\x01\f\x8a\xd3\x0e!\b\x02\x12\x1dTriggered a workflow schedule\x12\x8b\x01\n" +
+	"\x18ListWorkflowScheduleRuns\x120.chalk.server.v1.ListWorkflowScheduleRunsRequest\x1a1.chalk.server.v1.ListWorkflowScheduleRunsResponse\"\n" +
+	"\x80}F\x92}\x01\x10\x90\x02\x01B\xc5\x01\n" +
 	"\x13com.chalk.server.v1B\x15WorkflowScheduleProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (

@@ -1083,8 +1083,10 @@ type EvaluationRun struct {
 	// Overrides the definition's suite for this run; unset runs inherit it.
 	SuiteId            *string                      `protobuf:"bytes,17,opt,name=suite_id,json=suiteId,proto3,oneof" json:"suite_id,omitempty"`
 	ScoreSummaryStatus EvaluationScoreSummaryStatus `protobuf:"varint,18,opt,name=score_summary_status,json=scoreSummaryStatus,proto3,enum=chalk.evaluation.v1.EvaluationScoreSummaryStatus" json:"score_summary_status,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Status of the run's LLM and telemetry metrics, which workflow-mode runs save after the scores.
+	MetricSummaryStatus EvaluationScoreSummaryStatus `protobuf:"varint,19,opt,name=metric_summary_status,json=metricSummaryStatus,proto3,enum=chalk.evaluation.v1.EvaluationScoreSummaryStatus" json:"metric_summary_status,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *EvaluationRun) Reset() {
@@ -1239,6 +1241,13 @@ func (x *EvaluationRun) GetSuiteId() string {
 func (x *EvaluationRun) GetScoreSummaryStatus() EvaluationScoreSummaryStatus {
 	if x != nil {
 		return x.ScoreSummaryStatus
+	}
+	return EvaluationScoreSummaryStatus_EVALUATION_SCORE_SUMMARY_STATUS_UNSPECIFIED
+}
+
+func (x *EvaluationRun) GetMetricSummaryStatus() EvaluationScoreSummaryStatus {
+	if x != nil {
+		return x.MetricSummaryStatus
 	}
 	return EvaluationScoreSummaryStatus_EVALUATION_SCORE_SUMMARY_STATUS_UNSPECIFIED
 }
@@ -4683,7 +4692,7 @@ const file_chalk_evaluation_v1_service_proto_rawDesc = "" +
 	"\x0earchive_status\x18\x0e \x01(\v2\x1e.chalk.common.v1.ArchiveStatusH\x01R\rarchiveStatus\x88\x01\x01\x12M\n" +
 	"\fworld_viewer\x18\x0f \x01(\v2*.chalk.evaluation.v1.EvaluationWorldViewerR\vworldViewerB\r\n" +
 	"\v_created_byB\x11\n" +
-	"\x0f_archive_status\"\xb4\b\n" +
+	"\x0f_archive_status\"\x9b\t\n" +
 	"\rEvaluationRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12%\n" +
@@ -4708,7 +4717,8 @@ const file_chalk_evaluation_v1_service_proto_rawDesc = "" +
 	"\fsql_query_id\x18\x10 \x01(\tH\x06R\n" +
 	"sqlQueryId\x88\x01\x01\x12\x1e\n" +
 	"\bsuite_id\x18\x11 \x01(\tH\aR\asuiteId\x88\x01\x01\x12c\n" +
-	"\x14score_summary_status\x18\x12 \x01(\x0e21.chalk.evaluation.v1.EvaluationScoreSummaryStatusR\x12scoreSummaryStatusB\r\n" +
+	"\x14score_summary_status\x18\x12 \x01(\x0e21.chalk.evaluation.v1.EvaluationScoreSummaryStatusR\x12scoreSummaryStatus\x12e\n" +
+	"\x15metric_summary_status\x18\x13 \x01(\x0e21.chalk.evaluation.v1.EvaluationScoreSummaryStatusR\x13metricSummaryStatusB\r\n" +
 	"\v_created_byB\r\n" +
 	"\v_started_atB\x0f\n" +
 	"\r_completed_atB\x14\n" +
@@ -5166,116 +5176,117 @@ var file_chalk_evaluation_v1_service_proto_depIdxs = []int32{
 	76,  // 23: chalk.evaluation.v1.EvaluationRun.completed_at:type_name -> google.protobuf.Timestamp
 	1,   // 24: chalk.evaluation.v1.EvaluationRun.execution_mode:type_name -> chalk.evaluation.v1.EvaluationRunExecutionMode
 	2,   // 25: chalk.evaluation.v1.EvaluationRun.score_summary_status:type_name -> chalk.evaluation.v1.EvaluationScoreSummaryStatus
-	8,   // 26: chalk.evaluation.v1.CreateEvaluationRequest.scorers:type_name -> chalk.evaluation.v1.EvaluationScorerSpec
-	77,  // 27: chalk.evaluation.v1.CreateEvaluationRequest.metadata:type_name -> google.protobuf.Struct
-	7,   // 28: chalk.evaluation.v1.CreateEvaluationRequest.task_sql_expression:type_name -> chalk.evaluation.v1.SqlExpressionTask
-	46,  // 29: chalk.evaluation.v1.CreateEvaluationRequest.world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
-	14,  // 30: chalk.evaluation.v1.CreateEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
-	14,  // 31: chalk.evaluation.v1.GetEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
-	21,  // 32: chalk.evaluation.v1.ListEvaluationsRequest.filters:type_name -> chalk.evaluation.v1.ListEvaluationsFilters
-	14,  // 33: chalk.evaluation.v1.ListEvaluationsResponse.evaluations:type_name -> chalk.evaluation.v1.Evaluation
-	13,  // 34: chalk.evaluation.v1.ListEvaluationsResponse.score_summaries:type_name -> chalk.evaluation.v1.EvaluationScoreSummary
-	46,  // 35: chalk.evaluation.v1.SetEvaluationWorldViewerRequest.world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
-	14,  // 36: chalk.evaluation.v1.SetEvaluationWorldViewerResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
-	14,  // 37: chalk.evaluation.v1.ArchiveEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
-	14,  // 38: chalk.evaluation.v1.UnarchiveEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
-	77,  // 39: chalk.evaluation.v1.CreateEvaluationRunRequest.metadata:type_name -> google.protobuf.Struct
-	1,   // 40: chalk.evaluation.v1.CreateEvaluationRunRequest.execution_mode:type_name -> chalk.evaluation.v1.EvaluationRunExecutionMode
-	15,  // 41: chalk.evaluation.v1.CreateEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
-	77,  // 42: chalk.evaluation.v1.RescoreEvaluationRunRequest.metadata:type_name -> google.protobuf.Struct
-	15,  // 43: chalk.evaluation.v1.RescoreEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
-	15,  // 44: chalk.evaluation.v1.GetEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
-	13,  // 45: chalk.evaluation.v1.GetEvaluationRunResponse.score_summary:type_name -> chalk.evaluation.v1.EvaluationScoreSummary
-	36,  // 46: chalk.evaluation.v1.ListEvaluationRunsRequest.filters:type_name -> chalk.evaluation.v1.ListEvaluationRunsFilters
-	0,   // 47: chalk.evaluation.v1.ListEvaluationRunsFilters.statuses:type_name -> chalk.evaluation.v1.EvaluationRunStatus
-	0,   // 48: chalk.evaluation.v1.ListEvaluationRunsFilters.excluded_statuses:type_name -> chalk.evaluation.v1.EvaluationRunStatus
-	15,  // 49: chalk.evaluation.v1.ListEvaluationRunsResponse.evaluation_runs:type_name -> chalk.evaluation.v1.EvaluationRun
-	13,  // 50: chalk.evaluation.v1.ListEvaluationRunsResponse.score_summaries:type_name -> chalk.evaluation.v1.EvaluationScoreSummary
-	14,  // 51: chalk.evaluation.v1.ListEvaluationRunsResponse.evaluations:type_name -> chalk.evaluation.v1.Evaluation
-	15,  // 52: chalk.evaluation.v1.SetEvaluationRunBaselineResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
-	15,  // 53: chalk.evaluation.v1.MoveEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
-	45,  // 54: chalk.evaluation.v1.EvaluationTaskRenderer.scaling_group:type_name -> chalk.evaluation.v1.EvaluationTaskRendererScalingGroup
-	47,  // 55: chalk.evaluation.v1.EvaluationWorldViewer.scaling_group:type_name -> chalk.evaluation.v1.EvaluationWorldViewerScalingGroup
-	76,  // 56: chalk.evaluation.v1.EvaluationSuite.created_at:type_name -> google.protobuf.Timestamp
-	78,  // 57: chalk.evaluation.v1.EvaluationSuite.archive_status:type_name -> chalk.common.v1.ArchiveStatus
-	44,  // 58: chalk.evaluation.v1.EvaluationSuite.default_task_renderer:type_name -> chalk.evaluation.v1.EvaluationTaskRenderer
-	46,  // 59: chalk.evaluation.v1.EvaluationSuite.default_world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
-	44,  // 60: chalk.evaluation.v1.CreateEvaluationSuiteRequest.default_task_renderer:type_name -> chalk.evaluation.v1.EvaluationTaskRenderer
-	46,  // 61: chalk.evaluation.v1.CreateEvaluationSuiteRequest.default_world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
-	48,  // 62: chalk.evaluation.v1.CreateEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
-	44,  // 63: chalk.evaluation.v1.UpdateEvaluationSuiteOperation.default_task_renderer:type_name -> chalk.evaluation.v1.EvaluationTaskRenderer
-	46,  // 64: chalk.evaluation.v1.UpdateEvaluationSuiteOperation.default_world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
-	51,  // 65: chalk.evaluation.v1.UpdateEvaluationSuiteRequest.update:type_name -> chalk.evaluation.v1.UpdateEvaluationSuiteOperation
-	79,  // 66: chalk.evaluation.v1.UpdateEvaluationSuiteRequest.update_mask:type_name -> google.protobuf.FieldMask
-	48,  // 67: chalk.evaluation.v1.UpdateEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
-	48,  // 68: chalk.evaluation.v1.ArchiveEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
-	57,  // 69: chalk.evaluation.v1.ListEvaluationSuitesRequest.filters:type_name -> chalk.evaluation.v1.ListEvaluationSuitesFilters
-	48,  // 70: chalk.evaluation.v1.ListEvaluationSuitesResponse.suites:type_name -> chalk.evaluation.v1.EvaluationSuite
-	8,   // 71: chalk.evaluation.v1.OnlineEvaluatorScorer.spec:type_name -> chalk.evaluation.v1.EvaluationScorerSpec
-	60,  // 72: chalk.evaluation.v1.OnlineEvaluatorSpec.scorers:type_name -> chalk.evaluation.v1.OnlineEvaluatorScorer
-	59,  // 73: chalk.evaluation.v1.OnlineEvaluatorSpec.predicate:type_name -> chalk.evaluation.v1.OnlineEvaluatorPredicate
-	3,   // 74: chalk.evaluation.v1.OnlineEvaluatorSpec.scope:type_name -> chalk.evaluation.v1.OnlineEvaluatorScope
-	77,  // 75: chalk.evaluation.v1.OnlineEvaluatorSpec.metadata:type_name -> google.protobuf.Struct
-	61,  // 76: chalk.evaluation.v1.OnlineEvaluator.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
-	76,  // 77: chalk.evaluation.v1.OnlineEvaluator.created_at:type_name -> google.protobuf.Timestamp
-	76,  // 78: chalk.evaluation.v1.OnlineEvaluator.updated_at:type_name -> google.protobuf.Timestamp
-	61,  // 79: chalk.evaluation.v1.CreateOnlineEvaluatorRequest.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
-	62,  // 80: chalk.evaluation.v1.CreateOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
-	62,  // 81: chalk.evaluation.v1.GetOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
-	67,  // 82: chalk.evaluation.v1.ListOnlineEvaluatorsRequest.filters:type_name -> chalk.evaluation.v1.ListOnlineEvaluatorsFilters
-	62,  // 83: chalk.evaluation.v1.ListOnlineEvaluatorsResponse.online_evaluators:type_name -> chalk.evaluation.v1.OnlineEvaluator
-	61,  // 84: chalk.evaluation.v1.UpdateOnlineEvaluatorRequest.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
-	62,  // 85: chalk.evaluation.v1.UpdateOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
-	12,  // 86: chalk.evaluation.v1.EvaluationScoreSummary.MetricDistributionsEntry.value:type_name -> chalk.evaluation.v1.EvaluationValueDistribution
-	49,  // 87: chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite:input_type -> chalk.evaluation.v1.CreateEvaluationSuiteRequest
-	52,  // 88: chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite:input_type -> chalk.evaluation.v1.UpdateEvaluationSuiteRequest
-	54,  // 89: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationSuite:input_type -> chalk.evaluation.v1.ArchiveEvaluationSuiteRequest
-	56,  // 90: chalk.evaluation.v1.EvaluationService.ListEvaluationSuites:input_type -> chalk.evaluation.v1.ListEvaluationSuitesRequest
-	16,  // 91: chalk.evaluation.v1.EvaluationService.CreateEvaluation:input_type -> chalk.evaluation.v1.CreateEvaluationRequest
-	18,  // 92: chalk.evaluation.v1.EvaluationService.GetEvaluation:input_type -> chalk.evaluation.v1.GetEvaluationRequest
-	20,  // 93: chalk.evaluation.v1.EvaluationService.ListEvaluations:input_type -> chalk.evaluation.v1.ListEvaluationsRequest
-	23,  // 94: chalk.evaluation.v1.EvaluationService.SetEvaluationWorldViewer:input_type -> chalk.evaluation.v1.SetEvaluationWorldViewerRequest
-	25,  // 95: chalk.evaluation.v1.EvaluationService.ArchiveEvaluation:input_type -> chalk.evaluation.v1.ArchiveEvaluationRequest
-	27,  // 96: chalk.evaluation.v1.EvaluationService.UnarchiveEvaluation:input_type -> chalk.evaluation.v1.UnarchiveEvaluationRequest
-	29,  // 97: chalk.evaluation.v1.EvaluationService.CreateEvaluationRun:input_type -> chalk.evaluation.v1.CreateEvaluationRunRequest
-	31,  // 98: chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun:input_type -> chalk.evaluation.v1.RescoreEvaluationRunRequest
-	33,  // 99: chalk.evaluation.v1.EvaluationService.GetEvaluationRun:input_type -> chalk.evaluation.v1.GetEvaluationRunRequest
-	35,  // 100: chalk.evaluation.v1.EvaluationService.ListEvaluationRuns:input_type -> chalk.evaluation.v1.ListEvaluationRunsRequest
-	38,  // 101: chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline:input_type -> chalk.evaluation.v1.SetEvaluationRunBaselineRequest
-	40,  // 102: chalk.evaluation.v1.EvaluationService.MoveEvaluationRun:input_type -> chalk.evaluation.v1.MoveEvaluationRunRequest
-	42,  // 103: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun:input_type -> chalk.evaluation.v1.ArchiveEvaluationRunRequest
-	63,  // 104: chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator:input_type -> chalk.evaluation.v1.CreateOnlineEvaluatorRequest
-	65,  // 105: chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator:input_type -> chalk.evaluation.v1.GetOnlineEvaluatorRequest
-	68,  // 106: chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators:input_type -> chalk.evaluation.v1.ListOnlineEvaluatorsRequest
-	70,  // 107: chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator:input_type -> chalk.evaluation.v1.UpdateOnlineEvaluatorRequest
-	72,  // 108: chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator:input_type -> chalk.evaluation.v1.DeleteOnlineEvaluatorRequest
-	50,  // 109: chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite:output_type -> chalk.evaluation.v1.CreateEvaluationSuiteResponse
-	53,  // 110: chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite:output_type -> chalk.evaluation.v1.UpdateEvaluationSuiteResponse
-	55,  // 111: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationSuite:output_type -> chalk.evaluation.v1.ArchiveEvaluationSuiteResponse
-	58,  // 112: chalk.evaluation.v1.EvaluationService.ListEvaluationSuites:output_type -> chalk.evaluation.v1.ListEvaluationSuitesResponse
-	17,  // 113: chalk.evaluation.v1.EvaluationService.CreateEvaluation:output_type -> chalk.evaluation.v1.CreateEvaluationResponse
-	19,  // 114: chalk.evaluation.v1.EvaluationService.GetEvaluation:output_type -> chalk.evaluation.v1.GetEvaluationResponse
-	22,  // 115: chalk.evaluation.v1.EvaluationService.ListEvaluations:output_type -> chalk.evaluation.v1.ListEvaluationsResponse
-	24,  // 116: chalk.evaluation.v1.EvaluationService.SetEvaluationWorldViewer:output_type -> chalk.evaluation.v1.SetEvaluationWorldViewerResponse
-	26,  // 117: chalk.evaluation.v1.EvaluationService.ArchiveEvaluation:output_type -> chalk.evaluation.v1.ArchiveEvaluationResponse
-	28,  // 118: chalk.evaluation.v1.EvaluationService.UnarchiveEvaluation:output_type -> chalk.evaluation.v1.UnarchiveEvaluationResponse
-	30,  // 119: chalk.evaluation.v1.EvaluationService.CreateEvaluationRun:output_type -> chalk.evaluation.v1.CreateEvaluationRunResponse
-	32,  // 120: chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun:output_type -> chalk.evaluation.v1.RescoreEvaluationRunResponse
-	34,  // 121: chalk.evaluation.v1.EvaluationService.GetEvaluationRun:output_type -> chalk.evaluation.v1.GetEvaluationRunResponse
-	37,  // 122: chalk.evaluation.v1.EvaluationService.ListEvaluationRuns:output_type -> chalk.evaluation.v1.ListEvaluationRunsResponse
-	39,  // 123: chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline:output_type -> chalk.evaluation.v1.SetEvaluationRunBaselineResponse
-	41,  // 124: chalk.evaluation.v1.EvaluationService.MoveEvaluationRun:output_type -> chalk.evaluation.v1.MoveEvaluationRunResponse
-	43,  // 125: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun:output_type -> chalk.evaluation.v1.ArchiveEvaluationRunResponse
-	64,  // 126: chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator:output_type -> chalk.evaluation.v1.CreateOnlineEvaluatorResponse
-	66,  // 127: chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator:output_type -> chalk.evaluation.v1.GetOnlineEvaluatorResponse
-	69,  // 128: chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators:output_type -> chalk.evaluation.v1.ListOnlineEvaluatorsResponse
-	71,  // 129: chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator:output_type -> chalk.evaluation.v1.UpdateOnlineEvaluatorResponse
-	73,  // 130: chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator:output_type -> chalk.evaluation.v1.DeleteOnlineEvaluatorResponse
-	109, // [109:131] is the sub-list for method output_type
-	87,  // [87:109] is the sub-list for method input_type
-	87,  // [87:87] is the sub-list for extension type_name
-	87,  // [87:87] is the sub-list for extension extendee
-	0,   // [0:87] is the sub-list for field type_name
+	2,   // 26: chalk.evaluation.v1.EvaluationRun.metric_summary_status:type_name -> chalk.evaluation.v1.EvaluationScoreSummaryStatus
+	8,   // 27: chalk.evaluation.v1.CreateEvaluationRequest.scorers:type_name -> chalk.evaluation.v1.EvaluationScorerSpec
+	77,  // 28: chalk.evaluation.v1.CreateEvaluationRequest.metadata:type_name -> google.protobuf.Struct
+	7,   // 29: chalk.evaluation.v1.CreateEvaluationRequest.task_sql_expression:type_name -> chalk.evaluation.v1.SqlExpressionTask
+	46,  // 30: chalk.evaluation.v1.CreateEvaluationRequest.world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
+	14,  // 31: chalk.evaluation.v1.CreateEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
+	14,  // 32: chalk.evaluation.v1.GetEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
+	21,  // 33: chalk.evaluation.v1.ListEvaluationsRequest.filters:type_name -> chalk.evaluation.v1.ListEvaluationsFilters
+	14,  // 34: chalk.evaluation.v1.ListEvaluationsResponse.evaluations:type_name -> chalk.evaluation.v1.Evaluation
+	13,  // 35: chalk.evaluation.v1.ListEvaluationsResponse.score_summaries:type_name -> chalk.evaluation.v1.EvaluationScoreSummary
+	46,  // 36: chalk.evaluation.v1.SetEvaluationWorldViewerRequest.world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
+	14,  // 37: chalk.evaluation.v1.SetEvaluationWorldViewerResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
+	14,  // 38: chalk.evaluation.v1.ArchiveEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
+	14,  // 39: chalk.evaluation.v1.UnarchiveEvaluationResponse.evaluation:type_name -> chalk.evaluation.v1.Evaluation
+	77,  // 40: chalk.evaluation.v1.CreateEvaluationRunRequest.metadata:type_name -> google.protobuf.Struct
+	1,   // 41: chalk.evaluation.v1.CreateEvaluationRunRequest.execution_mode:type_name -> chalk.evaluation.v1.EvaluationRunExecutionMode
+	15,  // 42: chalk.evaluation.v1.CreateEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
+	77,  // 43: chalk.evaluation.v1.RescoreEvaluationRunRequest.metadata:type_name -> google.protobuf.Struct
+	15,  // 44: chalk.evaluation.v1.RescoreEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
+	15,  // 45: chalk.evaluation.v1.GetEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
+	13,  // 46: chalk.evaluation.v1.GetEvaluationRunResponse.score_summary:type_name -> chalk.evaluation.v1.EvaluationScoreSummary
+	36,  // 47: chalk.evaluation.v1.ListEvaluationRunsRequest.filters:type_name -> chalk.evaluation.v1.ListEvaluationRunsFilters
+	0,   // 48: chalk.evaluation.v1.ListEvaluationRunsFilters.statuses:type_name -> chalk.evaluation.v1.EvaluationRunStatus
+	0,   // 49: chalk.evaluation.v1.ListEvaluationRunsFilters.excluded_statuses:type_name -> chalk.evaluation.v1.EvaluationRunStatus
+	15,  // 50: chalk.evaluation.v1.ListEvaluationRunsResponse.evaluation_runs:type_name -> chalk.evaluation.v1.EvaluationRun
+	13,  // 51: chalk.evaluation.v1.ListEvaluationRunsResponse.score_summaries:type_name -> chalk.evaluation.v1.EvaluationScoreSummary
+	14,  // 52: chalk.evaluation.v1.ListEvaluationRunsResponse.evaluations:type_name -> chalk.evaluation.v1.Evaluation
+	15,  // 53: chalk.evaluation.v1.SetEvaluationRunBaselineResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
+	15,  // 54: chalk.evaluation.v1.MoveEvaluationRunResponse.evaluation_run:type_name -> chalk.evaluation.v1.EvaluationRun
+	45,  // 55: chalk.evaluation.v1.EvaluationTaskRenderer.scaling_group:type_name -> chalk.evaluation.v1.EvaluationTaskRendererScalingGroup
+	47,  // 56: chalk.evaluation.v1.EvaluationWorldViewer.scaling_group:type_name -> chalk.evaluation.v1.EvaluationWorldViewerScalingGroup
+	76,  // 57: chalk.evaluation.v1.EvaluationSuite.created_at:type_name -> google.protobuf.Timestamp
+	78,  // 58: chalk.evaluation.v1.EvaluationSuite.archive_status:type_name -> chalk.common.v1.ArchiveStatus
+	44,  // 59: chalk.evaluation.v1.EvaluationSuite.default_task_renderer:type_name -> chalk.evaluation.v1.EvaluationTaskRenderer
+	46,  // 60: chalk.evaluation.v1.EvaluationSuite.default_world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
+	44,  // 61: chalk.evaluation.v1.CreateEvaluationSuiteRequest.default_task_renderer:type_name -> chalk.evaluation.v1.EvaluationTaskRenderer
+	46,  // 62: chalk.evaluation.v1.CreateEvaluationSuiteRequest.default_world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
+	48,  // 63: chalk.evaluation.v1.CreateEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
+	44,  // 64: chalk.evaluation.v1.UpdateEvaluationSuiteOperation.default_task_renderer:type_name -> chalk.evaluation.v1.EvaluationTaskRenderer
+	46,  // 65: chalk.evaluation.v1.UpdateEvaluationSuiteOperation.default_world_viewer:type_name -> chalk.evaluation.v1.EvaluationWorldViewer
+	51,  // 66: chalk.evaluation.v1.UpdateEvaluationSuiteRequest.update:type_name -> chalk.evaluation.v1.UpdateEvaluationSuiteOperation
+	79,  // 67: chalk.evaluation.v1.UpdateEvaluationSuiteRequest.update_mask:type_name -> google.protobuf.FieldMask
+	48,  // 68: chalk.evaluation.v1.UpdateEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
+	48,  // 69: chalk.evaluation.v1.ArchiveEvaluationSuiteResponse.suite:type_name -> chalk.evaluation.v1.EvaluationSuite
+	57,  // 70: chalk.evaluation.v1.ListEvaluationSuitesRequest.filters:type_name -> chalk.evaluation.v1.ListEvaluationSuitesFilters
+	48,  // 71: chalk.evaluation.v1.ListEvaluationSuitesResponse.suites:type_name -> chalk.evaluation.v1.EvaluationSuite
+	8,   // 72: chalk.evaluation.v1.OnlineEvaluatorScorer.spec:type_name -> chalk.evaluation.v1.EvaluationScorerSpec
+	60,  // 73: chalk.evaluation.v1.OnlineEvaluatorSpec.scorers:type_name -> chalk.evaluation.v1.OnlineEvaluatorScorer
+	59,  // 74: chalk.evaluation.v1.OnlineEvaluatorSpec.predicate:type_name -> chalk.evaluation.v1.OnlineEvaluatorPredicate
+	3,   // 75: chalk.evaluation.v1.OnlineEvaluatorSpec.scope:type_name -> chalk.evaluation.v1.OnlineEvaluatorScope
+	77,  // 76: chalk.evaluation.v1.OnlineEvaluatorSpec.metadata:type_name -> google.protobuf.Struct
+	61,  // 77: chalk.evaluation.v1.OnlineEvaluator.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
+	76,  // 78: chalk.evaluation.v1.OnlineEvaluator.created_at:type_name -> google.protobuf.Timestamp
+	76,  // 79: chalk.evaluation.v1.OnlineEvaluator.updated_at:type_name -> google.protobuf.Timestamp
+	61,  // 80: chalk.evaluation.v1.CreateOnlineEvaluatorRequest.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
+	62,  // 81: chalk.evaluation.v1.CreateOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
+	62,  // 82: chalk.evaluation.v1.GetOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
+	67,  // 83: chalk.evaluation.v1.ListOnlineEvaluatorsRequest.filters:type_name -> chalk.evaluation.v1.ListOnlineEvaluatorsFilters
+	62,  // 84: chalk.evaluation.v1.ListOnlineEvaluatorsResponse.online_evaluators:type_name -> chalk.evaluation.v1.OnlineEvaluator
+	61,  // 85: chalk.evaluation.v1.UpdateOnlineEvaluatorRequest.spec:type_name -> chalk.evaluation.v1.OnlineEvaluatorSpec
+	62,  // 86: chalk.evaluation.v1.UpdateOnlineEvaluatorResponse.online_evaluator:type_name -> chalk.evaluation.v1.OnlineEvaluator
+	12,  // 87: chalk.evaluation.v1.EvaluationScoreSummary.MetricDistributionsEntry.value:type_name -> chalk.evaluation.v1.EvaluationValueDistribution
+	49,  // 88: chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite:input_type -> chalk.evaluation.v1.CreateEvaluationSuiteRequest
+	52,  // 89: chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite:input_type -> chalk.evaluation.v1.UpdateEvaluationSuiteRequest
+	54,  // 90: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationSuite:input_type -> chalk.evaluation.v1.ArchiveEvaluationSuiteRequest
+	56,  // 91: chalk.evaluation.v1.EvaluationService.ListEvaluationSuites:input_type -> chalk.evaluation.v1.ListEvaluationSuitesRequest
+	16,  // 92: chalk.evaluation.v1.EvaluationService.CreateEvaluation:input_type -> chalk.evaluation.v1.CreateEvaluationRequest
+	18,  // 93: chalk.evaluation.v1.EvaluationService.GetEvaluation:input_type -> chalk.evaluation.v1.GetEvaluationRequest
+	20,  // 94: chalk.evaluation.v1.EvaluationService.ListEvaluations:input_type -> chalk.evaluation.v1.ListEvaluationsRequest
+	23,  // 95: chalk.evaluation.v1.EvaluationService.SetEvaluationWorldViewer:input_type -> chalk.evaluation.v1.SetEvaluationWorldViewerRequest
+	25,  // 96: chalk.evaluation.v1.EvaluationService.ArchiveEvaluation:input_type -> chalk.evaluation.v1.ArchiveEvaluationRequest
+	27,  // 97: chalk.evaluation.v1.EvaluationService.UnarchiveEvaluation:input_type -> chalk.evaluation.v1.UnarchiveEvaluationRequest
+	29,  // 98: chalk.evaluation.v1.EvaluationService.CreateEvaluationRun:input_type -> chalk.evaluation.v1.CreateEvaluationRunRequest
+	31,  // 99: chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun:input_type -> chalk.evaluation.v1.RescoreEvaluationRunRequest
+	33,  // 100: chalk.evaluation.v1.EvaluationService.GetEvaluationRun:input_type -> chalk.evaluation.v1.GetEvaluationRunRequest
+	35,  // 101: chalk.evaluation.v1.EvaluationService.ListEvaluationRuns:input_type -> chalk.evaluation.v1.ListEvaluationRunsRequest
+	38,  // 102: chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline:input_type -> chalk.evaluation.v1.SetEvaluationRunBaselineRequest
+	40,  // 103: chalk.evaluation.v1.EvaluationService.MoveEvaluationRun:input_type -> chalk.evaluation.v1.MoveEvaluationRunRequest
+	42,  // 104: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun:input_type -> chalk.evaluation.v1.ArchiveEvaluationRunRequest
+	63,  // 105: chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator:input_type -> chalk.evaluation.v1.CreateOnlineEvaluatorRequest
+	65,  // 106: chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator:input_type -> chalk.evaluation.v1.GetOnlineEvaluatorRequest
+	68,  // 107: chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators:input_type -> chalk.evaluation.v1.ListOnlineEvaluatorsRequest
+	70,  // 108: chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator:input_type -> chalk.evaluation.v1.UpdateOnlineEvaluatorRequest
+	72,  // 109: chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator:input_type -> chalk.evaluation.v1.DeleteOnlineEvaluatorRequest
+	50,  // 110: chalk.evaluation.v1.EvaluationService.CreateEvaluationSuite:output_type -> chalk.evaluation.v1.CreateEvaluationSuiteResponse
+	53,  // 111: chalk.evaluation.v1.EvaluationService.UpdateEvaluationSuite:output_type -> chalk.evaluation.v1.UpdateEvaluationSuiteResponse
+	55,  // 112: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationSuite:output_type -> chalk.evaluation.v1.ArchiveEvaluationSuiteResponse
+	58,  // 113: chalk.evaluation.v1.EvaluationService.ListEvaluationSuites:output_type -> chalk.evaluation.v1.ListEvaluationSuitesResponse
+	17,  // 114: chalk.evaluation.v1.EvaluationService.CreateEvaluation:output_type -> chalk.evaluation.v1.CreateEvaluationResponse
+	19,  // 115: chalk.evaluation.v1.EvaluationService.GetEvaluation:output_type -> chalk.evaluation.v1.GetEvaluationResponse
+	22,  // 116: chalk.evaluation.v1.EvaluationService.ListEvaluations:output_type -> chalk.evaluation.v1.ListEvaluationsResponse
+	24,  // 117: chalk.evaluation.v1.EvaluationService.SetEvaluationWorldViewer:output_type -> chalk.evaluation.v1.SetEvaluationWorldViewerResponse
+	26,  // 118: chalk.evaluation.v1.EvaluationService.ArchiveEvaluation:output_type -> chalk.evaluation.v1.ArchiveEvaluationResponse
+	28,  // 119: chalk.evaluation.v1.EvaluationService.UnarchiveEvaluation:output_type -> chalk.evaluation.v1.UnarchiveEvaluationResponse
+	30,  // 120: chalk.evaluation.v1.EvaluationService.CreateEvaluationRun:output_type -> chalk.evaluation.v1.CreateEvaluationRunResponse
+	32,  // 121: chalk.evaluation.v1.EvaluationService.RescoreEvaluationRun:output_type -> chalk.evaluation.v1.RescoreEvaluationRunResponse
+	34,  // 122: chalk.evaluation.v1.EvaluationService.GetEvaluationRun:output_type -> chalk.evaluation.v1.GetEvaluationRunResponse
+	37,  // 123: chalk.evaluation.v1.EvaluationService.ListEvaluationRuns:output_type -> chalk.evaluation.v1.ListEvaluationRunsResponse
+	39,  // 124: chalk.evaluation.v1.EvaluationService.SetEvaluationRunBaseline:output_type -> chalk.evaluation.v1.SetEvaluationRunBaselineResponse
+	41,  // 125: chalk.evaluation.v1.EvaluationService.MoveEvaluationRun:output_type -> chalk.evaluation.v1.MoveEvaluationRunResponse
+	43,  // 126: chalk.evaluation.v1.EvaluationService.ArchiveEvaluationRun:output_type -> chalk.evaluation.v1.ArchiveEvaluationRunResponse
+	64,  // 127: chalk.evaluation.v1.EvaluationService.CreateOnlineEvaluator:output_type -> chalk.evaluation.v1.CreateOnlineEvaluatorResponse
+	66,  // 128: chalk.evaluation.v1.EvaluationService.GetOnlineEvaluator:output_type -> chalk.evaluation.v1.GetOnlineEvaluatorResponse
+	69,  // 129: chalk.evaluation.v1.EvaluationService.ListOnlineEvaluators:output_type -> chalk.evaluation.v1.ListOnlineEvaluatorsResponse
+	71,  // 130: chalk.evaluation.v1.EvaluationService.UpdateOnlineEvaluator:output_type -> chalk.evaluation.v1.UpdateOnlineEvaluatorResponse
+	73,  // 131: chalk.evaluation.v1.EvaluationService.DeleteOnlineEvaluator:output_type -> chalk.evaluation.v1.DeleteOnlineEvaluatorResponse
+	110, // [110:132] is the sub-list for method output_type
+	88,  // [88:110] is the sub-list for method input_type
+	88,  // [88:88] is the sub-list for extension type_name
+	88,  // [88:88] is the sub-list for extension extendee
+	0,   // [0:88] is the sub-list for field type_name
 }
 
 func init() { file_chalk_evaluation_v1_service_proto_init() }

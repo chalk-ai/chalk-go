@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/chart/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -328,7 +329,7 @@ var File_chalk_server_v1_parquet_chart_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_parquet_chart_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/server/v1/parquet_chart.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a\x1echalk/chart/v1/histogram.proto\"\xd8\x02\n" +
+	"#chalk/server/v1/parquet_chart.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a\x1echalk/chart/v1/histogram.proto\x1a\x1echalk/utils/v1/sensitive.proto\"\xd8\x02\n" +
 	"\x13ParquetColumnConfig\x12)\n" +
 	"\x10timestamp_column\x18\x01 \x01(\tR\x0ftimestampColumn\x12#\n" +
 	"\rvalue_columns\x18\x02 \x03(\tR\fvalueColumns\x12(\n" +
@@ -336,9 +337,9 @@ const file_chalk_server_v1_parquet_chart_proto_rawDesc = "" +
 	"\x19bucket_lower_bound_column\x18\x04 \x01(\tR\x16bucketLowerBoundColumn\x129\n" +
 	"\x19bucket_upper_bound_column\x18\x05 \x01(\tR\x16bucketUpperBoundColumn\x12!\n" +
 	"\fcount_column\x18\x06 \x01(\tR\vcountColumn\x12.\n" +
-	"\x13bucket_label_column\x18\a \x01(\tR\x11bucketLabelColumn\"\xe3\x01\n" +
-	"\x19RenderParquetChartRequest\x12\x1f\n" +
-	"\vsigned_uris\x18\x01 \x03(\tR\n" +
+	"\x13bucket_label_column\x18\a \x01(\tR\x11bucketLabelColumn\"\xe9\x01\n" +
+	"\x19RenderParquetChartRequest\x12%\n" +
+	"\vsigned_uris\x18\x01 \x03(\tB\x04ء'\x01R\n" +
 	"signedUris\x125\n" +
 	"\x04mode\x18\x02 \x01(\x0e2!.chalk.server.v1.ParquetChartModeR\x04mode\x12I\n" +
 	"\rcolumn_config\x18\x03 \x01(\v2$.chalk.server.v1.ParquetColumnConfigR\fcolumnConfig\x12\x19\n" +

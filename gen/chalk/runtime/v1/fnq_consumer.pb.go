@@ -12,6 +12,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
@@ -536,7 +537,9 @@ type ReportResultsRequest struct {
 	//	*ReportResultsRequest_End
 	//	*ReportResultsRequest_Error
 	//	*ReportResultsRequest_Retry
-	Result        isReportResultsRequest_Result `protobuf_oneof:"result"`
+	Result isReportResultsRequest_Result `protobuf_oneof:"result"`
+	// Worker-measured call duration; present only on terminal end/error reports.
+	CallDuration  *durationpb.Duration `protobuf:"bytes,8,opt,name=call_duration,json=callDuration,proto3" json:"call_duration,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -635,6 +638,13 @@ func (x *ReportResultsRequest) GetRetry() *emptypb.Empty {
 	return nil
 }
 
+func (x *ReportResultsRequest) GetCallDuration() *durationpb.Duration {
+	if x != nil {
+		return x.CallDuration
+	}
+	return nil
+}
+
 type isReportResultsRequest_Result interface {
 	isReportResultsRequest_Result()
 }
@@ -717,7 +727,7 @@ var File_chalk_runtime_v1_fnq_consumer_proto protoreflect.FileDescriptor
 
 const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/runtime/v1/fnq_consumer.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x02\n" +
+	"#chalk/runtime/v1/fnq_consumer.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x02\n" +
 	"\x17RegisterConsumerRequest\x12\x1f\n" +
 	"\vconsumer_id\x18\x01 \x01(\tR\n" +
 	"consumerId\x12+\n" +
@@ -759,7 +769,7 @@ const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\x16cancelled_work_handles\x18\x03 \x03(\tR\x14cancelledWorkHandles\x1a]\n" +
 	"\x13LeaseExpiresAtEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x120\n" +
-	"\x05value\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05value:\x028\x01\"\xba\x02\n" +
+	"\x05value\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05value:\x028\x01\"\xfa\x02\n" +
 	"\x14ReportResultsRequest\x12\x1f\n" +
 	"\vwork_handle\x18\x01 \x01(\tR\n" +
 	"workHandle\x12\x1a\n" +
@@ -768,7 +778,8 @@ const file_chalk_runtime_v1_fnq_consumer_proto_rawDesc = "" +
 	"\x05chunk\x18\x04 \x01(\fH\x00R\x05chunk\x12*\n" +
 	"\x03end\x18\x05 \x01(\v2\x16.google.protobuf.EmptyH\x00R\x03end\x127\n" +
 	"\x05error\x18\x06 \x01(\v2\x1f.chalk.common.v1.ChalkExceptionH\x00R\x05error\x12.\n" +
-	"\x05retry\x18\a \x01(\v2\x16.google.protobuf.EmptyH\x00R\x05retryB\b\n" +
+	"\x05retry\x18\a \x01(\v2\x16.google.protobuf.EmptyH\x00R\x05retry\x12>\n" +
+	"\rcall_duration\x18\b \x01(\v2\x19.google.protobuf.DurationR\fcallDurationB\b\n" +
 	"\x06result\"U\n" +
 	"\x15ReportResultsResponse\x12<\n" +
 	"\x1aoutput_discarded_cancelled\x18\x01 \x01(\bR\x18outputDiscardedCancelled2\x95\x03\n" +
@@ -809,6 +820,7 @@ var file_chalk_runtime_v1_fnq_consumer_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),    // 13: google.protobuf.Timestamp
 	(*emptypb.Empty)(nil),            // 14: google.protobuf.Empty
 	(*v11.ChalkException)(nil),       // 15: chalk.common.v1.ChalkException
+	(*durationpb.Duration)(nil),      // 16: google.protobuf.Duration
 }
 var file_chalk_runtime_v1_fnq_consumer_proto_depIdxs = []int32{
 	11, // 0: chalk.runtime.v1.RegisterConsumerRequest.kubernetes_replica:type_name -> chalk.scalinggroup.v1.ScalingGroupReplica
@@ -821,20 +833,21 @@ var file_chalk_runtime_v1_fnq_consumer_proto_depIdxs = []int32{
 	14, // 7: chalk.runtime.v1.ReportResultsRequest.end:type_name -> google.protobuf.Empty
 	15, // 8: chalk.runtime.v1.ReportResultsRequest.error:type_name -> chalk.common.v1.ChalkException
 	14, // 9: chalk.runtime.v1.ReportResultsRequest.retry:type_name -> google.protobuf.Empty
-	13, // 10: chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntry.value:type_name -> google.protobuf.Timestamp
-	0,  // 11: chalk.runtime.v1.FnqConsumerService.RegisterConsumer:input_type -> chalk.runtime.v1.RegisterConsumerRequest
-	2,  // 12: chalk.runtime.v1.FnqConsumerService.AcquireWork:input_type -> chalk.runtime.v1.AcquireWorkRequest
-	5,  // 13: chalk.runtime.v1.FnqConsumerService.RenewWork:input_type -> chalk.runtime.v1.RenewWorkRequest
-	7,  // 14: chalk.runtime.v1.FnqConsumerService.ReportResults:input_type -> chalk.runtime.v1.ReportResultsRequest
-	1,  // 15: chalk.runtime.v1.FnqConsumerService.RegisterConsumer:output_type -> chalk.runtime.v1.RegisterConsumerResponse
-	4,  // 16: chalk.runtime.v1.FnqConsumerService.AcquireWork:output_type -> chalk.runtime.v1.AcquireWorkResponse
-	6,  // 17: chalk.runtime.v1.FnqConsumerService.RenewWork:output_type -> chalk.runtime.v1.RenewWorkResponse
-	8,  // 18: chalk.runtime.v1.FnqConsumerService.ReportResults:output_type -> chalk.runtime.v1.ReportResultsResponse
-	15, // [15:19] is the sub-list for method output_type
-	11, // [11:15] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	16, // 10: chalk.runtime.v1.ReportResultsRequest.call_duration:type_name -> google.protobuf.Duration
+	13, // 11: chalk.runtime.v1.RenewWorkResponse.LeaseExpiresAtEntry.value:type_name -> google.protobuf.Timestamp
+	0,  // 12: chalk.runtime.v1.FnqConsumerService.RegisterConsumer:input_type -> chalk.runtime.v1.RegisterConsumerRequest
+	2,  // 13: chalk.runtime.v1.FnqConsumerService.AcquireWork:input_type -> chalk.runtime.v1.AcquireWorkRequest
+	5,  // 14: chalk.runtime.v1.FnqConsumerService.RenewWork:input_type -> chalk.runtime.v1.RenewWorkRequest
+	7,  // 15: chalk.runtime.v1.FnqConsumerService.ReportResults:input_type -> chalk.runtime.v1.ReportResultsRequest
+	1,  // 16: chalk.runtime.v1.FnqConsumerService.RegisterConsumer:output_type -> chalk.runtime.v1.RegisterConsumerResponse
+	4,  // 17: chalk.runtime.v1.FnqConsumerService.AcquireWork:output_type -> chalk.runtime.v1.AcquireWorkResponse
+	6,  // 18: chalk.runtime.v1.FnqConsumerService.RenewWork:output_type -> chalk.runtime.v1.RenewWorkResponse
+	8,  // 19: chalk.runtime.v1.FnqConsumerService.ReportResults:output_type -> chalk.runtime.v1.ReportResultsResponse
+	16, // [16:20] is the sub-list for method output_type
+	12, // [12:16] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_chalk_runtime_v1_fnq_consumer_proto_init() }

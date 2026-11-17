@@ -8,6 +8,7 @@ package routerv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -213,13 +214,15 @@ func (x *ListTelemetryExportersResponse) GetExporters() []*TelemetryExporter {
 }
 
 type UpsertTelemetryExporterOperation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	ExporterType  string                 `protobuf:"bytes,3,opt,name=exporter_type,json=exporterType,proto3" json:"exporter_type,omitempty"`
-	ConfigJson    string                 `protobuf:"bytes,4,opt,name=config_json,json=configJson,proto3" json:"config_json,omitempty"`
-	Enabled       bool                   `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	ApiKey        *string                `protobuf:"bytes,6,opt,name=api_key,json=apiKey,proto3,oneof" json:"api_key,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Id           string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name         string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	ExporterType string                 `protobuf:"bytes,3,opt,name=exporter_type,json=exporterType,proto3" json:"exporter_type,omitempty"`
+	ConfigJson   string                 `protobuf:"bytes,4,opt,name=config_json,json=configJson,proto3" json:"config_json,omitempty"`
+	Enabled      bool                   `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// Braintrust API key or a JSON object of OTLP headers. Omit to preserve the
+	// stored credential; an explicit "{}" clears OTLP headers.
+	ApiKey        *string `protobuf:"bytes,6,opt,name=api_key,json=apiKey,proto3,oneof" json:"api_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -580,12 +583,12 @@ var File_chalk_router_v1_telemetry_settings_proto protoreflect.FileDescriptor
 
 const file_chalk_router_v1_telemetry_settings_proto_rawDesc = "" +
 	"\n" +
-	"(chalk/router/v1/telemetry_settings.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xca\x02\n" +
+	"(chalk/router/v1/telemetry_settings.proto\x12\x0fchalk.router.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd0\x02\n" +
 	"\x11TelemetryExporter\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
-	"\rexporter_type\x18\x03 \x01(\tR\fexporterType\x12\x1f\n" +
-	"\vconfig_json\x18\x04 \x01(\tR\n" +
+	"\rexporter_type\x18\x03 \x01(\tR\fexporterType\x12%\n" +
+	"\vconfig_json\x18\x04 \x01(\tB\x04ء'\x01R\n" +
 	"configJson\x12\x18\n" +
 	"\aenabled\x18\x05 \x01(\bR\aenabled\x12\x1e\n" +
 	"\vapi_key_set\x18\x06 \x01(\bR\tapiKeySet\x129\n" +
@@ -596,15 +599,15 @@ const file_chalk_router_v1_telemetry_settings_proto_rawDesc = "" +
 	"\tread_only\x18\t \x01(\bR\breadOnly\"\x1f\n" +
 	"\x1dListTelemetryExportersRequest\"b\n" +
 	"\x1eListTelemetryExportersResponse\x12@\n" +
-	"\texporters\x18\x01 \x03(\v2\".chalk.router.v1.TelemetryExporterR\texporters\"\xd0\x01\n" +
+	"\texporters\x18\x01 \x03(\v2\".chalk.router.v1.TelemetryExporterR\texporters\"\xdc\x01\n" +
 	" UpsertTelemetryExporterOperation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
-	"\rexporter_type\x18\x03 \x01(\tR\fexporterType\x12\x1f\n" +
-	"\vconfig_json\x18\x04 \x01(\tR\n" +
+	"\rexporter_type\x18\x03 \x01(\tR\fexporterType\x12%\n" +
+	"\vconfig_json\x18\x04 \x01(\tB\x04ء'\x01R\n" +
 	"configJson\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\x12\x1c\n" +
-	"\aapi_key\x18\x06 \x01(\tH\x00R\x06apiKey\x88\x01\x01B\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\x12\"\n" +
+	"\aapi_key\x18\x06 \x01(\tB\x04ء'\x01H\x00R\x06apiKey\x88\x01\x01B\n" +
 	"\n" +
 	"\b_api_key\"o\n" +
 	"\x1eUpsertTelemetryExporterRequest\x12M\n" +
@@ -623,12 +626,13 @@ const file_chalk_router_v1_telemetry_settings_proto_rawDesc = "" +
 	"\alatency\x18\x03 \x01(\v2\x19.google.protobuf.DurationH\x01R\alatency\x88\x01\x01B\b\n" +
 	"\x06_errorB\n" +
 	"\n" +
-	"\b_latency2\xa3\x04\n" +
-	"\x18TelemetrySettingsService\x12\x81\x01\n" +
-	"\x16ListTelemetryExporters\x12..chalk.router.v1.ListTelemetryExportersRequest\x1a/.chalk.router.v1.ListTelemetryExportersResponse\"\x06\x80}\x02\x90\x02\x01\x12\x81\x01\n" +
-	"\x17UpsertTelemetryExporter\x12/.chalk.router.v1.UpsertTelemetryExporterRequest\x1a0.chalk.router.v1.UpsertTelemetryExporterResponse\"\x03\x80}\x02\x12\x81\x01\n" +
-	"\x17DeleteTelemetryExporter\x12/.chalk.router.v1.DeleteTelemetryExporterRequest\x1a0.chalk.router.v1.DeleteTelemetryExporterResponse\"\x03\x80}\x02\x12{\n" +
-	"\x15TestTelemetryExporter\x12-.chalk.router.v1.TestTelemetryExporterRequest\x1a..chalk.router.v1.TestTelemetryExporterResponse\"\x03\x80}\x02B\xc6\x01\n" +
+	"\b_latency2\xb3\x04\n" +
+	"\x18TelemetrySettingsService\x12\x85\x01\n" +
+	"\x16ListTelemetryExporters\x12..chalk.router.v1.ListTelemetryExportersRequest\x1a/.chalk.router.v1.ListTelemetryExportersResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12\x85\x01\n" +
+	"\x17UpsertTelemetryExporter\x12/.chalk.router.v1.UpsertTelemetryExporterRequest\x1a0.chalk.router.v1.UpsertTelemetryExporterResponse\"\a\x80}L\x92}\x01\x02\x12\x85\x01\n" +
+	"\x17DeleteTelemetryExporter\x12/.chalk.router.v1.DeleteTelemetryExporterRequest\x1a0.chalk.router.v1.DeleteTelemetryExporterResponse\"\a\x80}L\x92}\x01\x02\x12\x7f\n" +
+	"\x15TestTelemetryExporter\x12-.chalk.router.v1.TestTelemetryExporterRequest\x1a..chalk.router.v1.TestTelemetryExporterResponse\"\a\x80}L\x92}\x01\x02B\xc6\x01\n" +
 	"\x13com.chalk.router.v1B\x16TelemetrySettingsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
 var (

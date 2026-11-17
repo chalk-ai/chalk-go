@@ -11,6 +11,7 @@ import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -1640,6 +1641,10 @@ type FunctionCallInfo struct {
 	MaxAttempts *uint64 `protobuf:"varint,8,opt,name=max_attempts,json=maxAttempts,proto3,oneof" json:"max_attempts,omitempty"`
 	// When the latest authorized attempt was dispatched to a worker.
 	LastAttemptAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=last_attempt_at,json=lastAttemptAt,proto3" json:"last_attempt_at,omitempty"`
+	// Initial Stream queue wait; absent before delivery or when unavailable.
+	QueueDuration *durationpb.Duration `protobuf:"bytes,11,opt,name=queue_duration,json=queueDuration,proto3" json:"queue_duration,omitempty"`
+	// Final-attempt worker processing time, including batching wait; matches the call duration metric.
+	CallDuration  *durationpb.Duration `protobuf:"bytes,12,opt,name=call_duration,json=callDuration,proto3" json:"call_duration,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1733,6 +1738,20 @@ func (x *FunctionCallInfo) GetMaxAttempts() uint64 {
 func (x *FunctionCallInfo) GetLastAttemptAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.LastAttemptAt
+	}
+	return nil
+}
+
+func (x *FunctionCallInfo) GetQueueDuration() *durationpb.Duration {
+	if x != nil {
+		return x.QueueDuration
+	}
+	return nil
+}
+
+func (x *FunctionCallInfo) GetCallDuration() *durationpb.Duration {
+	if x != nil {
+		return x.CallDuration
 	}
 	return nil
 }
@@ -2103,7 +2122,7 @@ var File_chalk_runtime_v1_remote_python_call_proto protoreflect.FileDescriptor
 
 const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\n" +
-	")chalk/runtime/v1/remote_python_call.proto\x12\x10chalk.runtime.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"P\n" +
+	")chalk/runtime/v1/remote_python_call.proto\x12\x10chalk.runtime.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"P\n" +
 	"\x13CallFunctionRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\x0efeather_stream\x18\x02 \x01(\fR\rfeatherStream\"=\n" +
@@ -2197,7 +2216,7 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\x19items_removed_by_function\x18\x01 \x03(\v2@.chalk.runtime.v1.PurgeQueueResponse.ItemsRemovedByFunctionEntryR\x16itemsRemovedByFunction\x1aI\n" +
 	"\x1bItemsRemovedByFunctionEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x01\"\xc4\x03\n" +
+	"\x05value\x18\x02 \x01(\x04R\x05value:\x028\x01\"\xda\x04\n" +
 	"\x10FunctionCallInfo\x12\x17\n" +
 	"\acall_id\x18\x01 \x01(\tR\x06callId\x12#\n" +
 	"\rfunction_name\x18\x02 \x01(\tR\ffunctionName\x12;\n" +
@@ -2208,9 +2227,12 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\btrace_id\x18\x06 \x01(\tR\atraceId\x12(\n" +
 	"\rattempt_count\x18\a \x01(\x04H\x00R\fattemptCount\x88\x01\x01\x12&\n" +
 	"\fmax_attempts\x18\b \x01(\x04H\x01R\vmaxAttempts\x88\x01\x01\x12B\n" +
-	"\x0flast_attempt_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\rlastAttemptAtB\x10\n" +
+	"\x0flast_attempt_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\rlastAttemptAt\x12@\n" +
+	"\x0equeue_duration\x18\v \x01(\v2\x19.google.protobuf.DurationR\rqueueDuration\x12>\n" +
+	"\rcall_duration\x18\f \x01(\v2\x19.google.protobuf.DurationR\fcallDurationB\x10\n" +
 	"\x0e_attempt_countB\x0f\n" +
-	"\r_max_attempts\"q\n" +
+	"\r_max_attemptsJ\x04\b\n" +
+	"\x10\vR\fcompleted_at\"q\n" +
 	"\x15GetRecentCallsRequest\x12#\n" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\rR\x05limit\x12\x1d\n" +
@@ -2255,7 +2277,7 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"PurgeQueue\x12#.chalk.runtime.v1.PurgeQueueRequest\x1a$.chalk.runtime.v1.PurgeQueueResponse\"\x002\xde\x02\n" +
 	"\x18FunctionQueueMetaService\x12l\n" +
 	"\x0eGetRecentCalls\x12'.chalk.runtime.v1.GetRecentCallsRequest\x1a(.chalk.runtime.v1.GetRecentCallsResponse\"\a\x80}-\x92}\x01\x03\x12l\n" +
-	"\x0eGetCallResults\x12'.chalk.runtime.v1.GetCallResultsRequest\x1a(.chalk.runtime.v1.GetCallResultsResponse\"\a\x80}-\x92}\x01\x03\x12f\n" +
+	"\x0eGetCallResults\x12'.chalk.runtime.v1.GetCallResultsRequest\x1a(.chalk.runtime.v1.GetCallResultsResponse\"\a\x80}/\x92}\x01\x03\x12f\n" +
 	"\fGetCallCount\x12%.chalk.runtime.v1.GetCallCountRequest\x1a&.chalk.runtime.v1.GetCallCountResponse\"\a\x80}-\x92}\x01\x03B\xcc\x01\n" +
 	"\x14com.chalk.runtime.v1B\x15RemotePythonCallProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/runtime/v1;runtimev1\xa2\x02\x03CRX\xaa\x02\x10Chalk.Runtime.V1\xca\x02\x10Chalk\\Runtime\\V1\xe2\x02\x1cChalk\\Runtime\\V1\\GPBMetadata\xea\x02\x12Chalk::Runtime::V1b\x06proto3"
 
@@ -2310,6 +2332,7 @@ var file_chalk_runtime_v1_remote_python_call_proto_goTypes = []any{
 	nil,                                     // 33: chalk.runtime.v1.PurgeQueueResponse.ItemsRemovedByFunctionEntry
 	(*v1.ChalkError)(nil),                   // 34: chalk.common.v1.ChalkError
 	(*timestamppb.Timestamp)(nil),           // 35: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),             // 36: google.protobuf.Duration
 }
 var file_chalk_runtime_v1_remote_python_call_proto_depIdxs = []int32{
 	4,  // 0: chalk.runtime.v1.EnqueueRemoteCallRequest.args:type_name -> chalk.runtime.v1.RemoteCallArgs
@@ -2336,32 +2359,34 @@ var file_chalk_runtime_v1_remote_python_call_proto_depIdxs = []int32{
 	35, // 21: chalk.runtime.v1.FunctionCallInfo.enqueued_at:type_name -> google.protobuf.Timestamp
 	0,  // 22: chalk.runtime.v1.FunctionCallInfo.status:type_name -> chalk.runtime.v1.RemoteCallStatus
 	35, // 23: chalk.runtime.v1.FunctionCallInfo.last_attempt_at:type_name -> google.protobuf.Timestamp
-	25, // 24: chalk.runtime.v1.GetRecentCallsResponse.calls:type_name -> chalk.runtime.v1.FunctionCallInfo
-	22, // 25: chalk.runtime.v1.CallResult.response:type_name -> chalk.runtime.v1.PollRemoteCallResponse
-	29, // 26: chalk.runtime.v1.GetCallResultsResponse.results:type_name -> chalk.runtime.v1.CallResult
-	2,  // 27: chalk.runtime.v1.RemoteCallService.CallFunction:input_type -> chalk.runtime.v1.CallFunctionRequest
-	5,  // 28: chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall:input_type -> chalk.runtime.v1.EnqueueRemoteCallRequest
-	19, // 29: chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall:input_type -> chalk.runtime.v1.PollRemoteCallRequest
-	20, // 30: chalk.runtime.v1.AsyncRemoteCallService.CancelRemoteCall:input_type -> chalk.runtime.v1.CancelRemoteCallRequest
-	11, // 31: chalk.runtime.v1.AsyncRemoteCallService.StreamRemoteCallBatch:input_type -> chalk.runtime.v1.StreamRemoteCallBatchRequest
-	23, // 32: chalk.runtime.v1.AsyncRemoteCallService.PurgeQueue:input_type -> chalk.runtime.v1.PurgeQueueRequest
-	26, // 33: chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls:input_type -> chalk.runtime.v1.GetRecentCallsRequest
-	28, // 34: chalk.runtime.v1.FunctionQueueMetaService.GetCallResults:input_type -> chalk.runtime.v1.GetCallResultsRequest
-	31, // 35: chalk.runtime.v1.FunctionQueueMetaService.GetCallCount:input_type -> chalk.runtime.v1.GetCallCountRequest
-	3,  // 36: chalk.runtime.v1.RemoteCallService.CallFunction:output_type -> chalk.runtime.v1.CallFunctionResponse
-	6,  // 37: chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall:output_type -> chalk.runtime.v1.EnqueueRemoteCallResponse
-	22, // 38: chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall:output_type -> chalk.runtime.v1.PollRemoteCallResponse
-	21, // 39: chalk.runtime.v1.AsyncRemoteCallService.CancelRemoteCall:output_type -> chalk.runtime.v1.CancelRemoteCallResponse
-	18, // 40: chalk.runtime.v1.AsyncRemoteCallService.StreamRemoteCallBatch:output_type -> chalk.runtime.v1.StreamRemoteCallBatchResponse
-	24, // 41: chalk.runtime.v1.AsyncRemoteCallService.PurgeQueue:output_type -> chalk.runtime.v1.PurgeQueueResponse
-	27, // 42: chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls:output_type -> chalk.runtime.v1.GetRecentCallsResponse
-	30, // 43: chalk.runtime.v1.FunctionQueueMetaService.GetCallResults:output_type -> chalk.runtime.v1.GetCallResultsResponse
-	32, // 44: chalk.runtime.v1.FunctionQueueMetaService.GetCallCount:output_type -> chalk.runtime.v1.GetCallCountResponse
-	36, // [36:45] is the sub-list for method output_type
-	27, // [27:36] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	36, // 24: chalk.runtime.v1.FunctionCallInfo.queue_duration:type_name -> google.protobuf.Duration
+	36, // 25: chalk.runtime.v1.FunctionCallInfo.call_duration:type_name -> google.protobuf.Duration
+	25, // 26: chalk.runtime.v1.GetRecentCallsResponse.calls:type_name -> chalk.runtime.v1.FunctionCallInfo
+	22, // 27: chalk.runtime.v1.CallResult.response:type_name -> chalk.runtime.v1.PollRemoteCallResponse
+	29, // 28: chalk.runtime.v1.GetCallResultsResponse.results:type_name -> chalk.runtime.v1.CallResult
+	2,  // 29: chalk.runtime.v1.RemoteCallService.CallFunction:input_type -> chalk.runtime.v1.CallFunctionRequest
+	5,  // 30: chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall:input_type -> chalk.runtime.v1.EnqueueRemoteCallRequest
+	19, // 31: chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall:input_type -> chalk.runtime.v1.PollRemoteCallRequest
+	20, // 32: chalk.runtime.v1.AsyncRemoteCallService.CancelRemoteCall:input_type -> chalk.runtime.v1.CancelRemoteCallRequest
+	11, // 33: chalk.runtime.v1.AsyncRemoteCallService.StreamRemoteCallBatch:input_type -> chalk.runtime.v1.StreamRemoteCallBatchRequest
+	23, // 34: chalk.runtime.v1.AsyncRemoteCallService.PurgeQueue:input_type -> chalk.runtime.v1.PurgeQueueRequest
+	26, // 35: chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls:input_type -> chalk.runtime.v1.GetRecentCallsRequest
+	28, // 36: chalk.runtime.v1.FunctionQueueMetaService.GetCallResults:input_type -> chalk.runtime.v1.GetCallResultsRequest
+	31, // 37: chalk.runtime.v1.FunctionQueueMetaService.GetCallCount:input_type -> chalk.runtime.v1.GetCallCountRequest
+	3,  // 38: chalk.runtime.v1.RemoteCallService.CallFunction:output_type -> chalk.runtime.v1.CallFunctionResponse
+	6,  // 39: chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall:output_type -> chalk.runtime.v1.EnqueueRemoteCallResponse
+	22, // 40: chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall:output_type -> chalk.runtime.v1.PollRemoteCallResponse
+	21, // 41: chalk.runtime.v1.AsyncRemoteCallService.CancelRemoteCall:output_type -> chalk.runtime.v1.CancelRemoteCallResponse
+	18, // 42: chalk.runtime.v1.AsyncRemoteCallService.StreamRemoteCallBatch:output_type -> chalk.runtime.v1.StreamRemoteCallBatchResponse
+	24, // 43: chalk.runtime.v1.AsyncRemoteCallService.PurgeQueue:output_type -> chalk.runtime.v1.PurgeQueueResponse
+	27, // 44: chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls:output_type -> chalk.runtime.v1.GetRecentCallsResponse
+	30, // 45: chalk.runtime.v1.FunctionQueueMetaService.GetCallResults:output_type -> chalk.runtime.v1.GetCallResultsResponse
+	32, // 46: chalk.runtime.v1.FunctionQueueMetaService.GetCallCount:output_type -> chalk.runtime.v1.GetCallCountResponse
+	38, // [38:47] is the sub-list for method output_type
+	29, // [29:38] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_chalk_runtime_v1_remote_python_call_proto_init() }

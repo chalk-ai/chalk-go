@@ -48,6 +48,8 @@ const (
 	IntegrationKind_INTEGRATION_KIND_TRINO       IntegrationKind = 18
 	IntegrationKind_INTEGRATION_KIND_MSSQL       IntegrationKind = 19
 	IntegrationKind_INTEGRATION_KIND_HUGGINGFACE IntegrationKind = 20
+	// A Turbopuffer account, served as a vector store datasource: each namespace is a ChalkSQL table.
+	IntegrationKind_INTEGRATION_KIND_TURBOPUFFER IntegrationKind = 21
 )
 
 // Enum value maps for IntegrationKind.
@@ -74,6 +76,7 @@ var (
 		18: "INTEGRATION_KIND_TRINO",
 		19: "INTEGRATION_KIND_MSSQL",
 		20: "INTEGRATION_KIND_HUGGINGFACE",
+		21: "INTEGRATION_KIND_TURBOPUFFER",
 	}
 	IntegrationKind_value = map[string]int32{
 		"INTEGRATION_KIND_UNSPECIFIED": 0,
@@ -97,6 +100,7 @@ var (
 		"INTEGRATION_KIND_TRINO":       18,
 		"INTEGRATION_KIND_MSSQL":       19,
 		"INTEGRATION_KIND_HUGGINGFACE": 20,
+		"INTEGRATION_KIND_TURBOPUFFER": 21,
 	}
 )
 
@@ -2483,7 +2487,7 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	" ListSnowflakeNamedStagesResponse\x12<\n" +
 	"\x06stages\x18\x01 \x03(\v2$.chalk.server.v1.SnowflakeNamedStageR\x06stages\x12\x1c\n" +
 	"\ttruncated\x18\x02 \x01(\bR\ttruncated\x12e\n" +
-	"\x14storage_integrations\x18\x03 \x03(\v22.chalk.server.v1.SnowflakeUnloadStorageIntegrationR\x13storageIntegrations*\x89\x05\n" +
+	"\x14storage_integrations\x18\x03 \x03(\v22.chalk.server.v1.SnowflakeUnloadStorageIntegrationR\x13storageIntegrations*\xab\x05\n" +
 	"\x0fIntegrationKind\x12 \n" +
 	"\x1cINTEGRATION_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17INTEGRATION_KIND_ATHENA\x10\x01\x12\x18\n" +
@@ -2506,7 +2510,8 @@ const file_chalk_server_v1_integrations_proto_rawDesc = "" +
 	"\x18INTEGRATION_KIND_SPANNER\x10\x11\x12\x1a\n" +
 	"\x16INTEGRATION_KIND_TRINO\x10\x12\x12\x1a\n" +
 	"\x16INTEGRATION_KIND_MSSQL\x10\x13\x12 \n" +
-	"\x1cINTEGRATION_KIND_HUGGINGFACE\x10\x14*\xc0\x01\n" +
+	"\x1cINTEGRATION_KIND_HUGGINGFACE\x10\x14\x12 \n" +
+	"\x1cINTEGRATION_KIND_TURBOPUFFER\x10\x15*\xc0\x01\n" +
 	"\x16IntegrationWarningCode\x12(\n" +
 	"$INTEGRATION_WARNING_CODE_UNSPECIFIED\x10\x00\x12<\n" +
 	"8INTEGRATION_WARNING_CODE_SNOWFLAKE_UNLOAD_NOT_CONFIGURED\x10\x01\x12>\n" +

@@ -501,10 +501,11 @@ const file_chalk_router_v1_background_response_proto_rawDesc = "" +
 	"\x1aBackgroundResponseStopMode\x12-\n" +
 	")BACKGROUND_RESPONSE_STOP_MODE_UNSPECIFIED\x10\x00\x12(\n" +
 	"$BACKGROUND_RESPONSE_STOP_MODE_CANCEL\x10\x01\x12)\n" +
-	"%BACKGROUND_RESPONSE_STOP_MODE_ABANDON\x10\x022\xa2\x02\n" +
-	"\x19BackgroundResponseService\x12\x84\x01\n" +
-	"\x17ListBackgroundResponses\x12/.chalk.router.v1.ListBackgroundResponsesRequest\x1a0.chalk.router.v1.ListBackgroundResponsesResponse\"\x06\x80}\x02\x90\x02\x01\x12~\n" +
-	"\x16StopBackgroundResponse\x12..chalk.router.v1.StopBackgroundResponseRequest\x1a/.chalk.router.v1.StopBackgroundResponseResponse\"\x03\x80}\x02B\xc7\x01\n" +
+	"%BACKGROUND_RESPONSE_STOP_MODE_ABANDON\x10\x022\xab\x02\n" +
+	"\x19BackgroundResponseService\x12\x88\x01\n" +
+	"\x17ListBackgroundResponses\x12/.chalk.router.v1.ListBackgroundResponsesRequest\x1a0.chalk.router.v1.ListBackgroundResponsesResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12\x82\x01\n" +
+	"\x16StopBackgroundResponse\x12..chalk.router.v1.StopBackgroundResponseRequest\x1a/.chalk.router.v1.StopBackgroundResponseResponse\"\a\x80}L\x92}\x01\x02B\xc7\x01\n" +
 	"\x13com.chalk.router.v1B\x17BackgroundResponseProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
 var (

@@ -97,6 +97,67 @@ func (QueryStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_common_v1_query_status_proto_rawDescGZIP(), []int{0}
 }
 
+// Why a query or job was canceled, independently of the requesting agent.
+// Missing/unspecified reasons include historical records and older engine writers.
+type CancellationReason int32
+
+const (
+	CancellationReason_CANCELLATION_REASON_UNSPECIFIED CancellationReason = 0
+	// An explicit cancellation request, including requests made with a service token.
+	CancellationReason_CANCELLATION_REASON_MANUAL            CancellationReason = 1
+	CancellationReason_CANCELLATION_REASON_UPSTREAM_FAILED   CancellationReason = 2
+	CancellationReason_CANCELLATION_REASON_UPSTREAM_CANCELED CancellationReason = 3
+	CancellationReason_CANCELLATION_REASON_SCHEDULE_SKIPPED  CancellationReason = 4
+	CancellationReason_CANCELLATION_REASON_SCHEDULER_CLEANUP CancellationReason = 5
+)
+
+// Enum value maps for CancellationReason.
+var (
+	CancellationReason_name = map[int32]string{
+		0: "CANCELLATION_REASON_UNSPECIFIED",
+		1: "CANCELLATION_REASON_MANUAL",
+		2: "CANCELLATION_REASON_UPSTREAM_FAILED",
+		3: "CANCELLATION_REASON_UPSTREAM_CANCELED",
+		4: "CANCELLATION_REASON_SCHEDULE_SKIPPED",
+		5: "CANCELLATION_REASON_SCHEDULER_CLEANUP",
+	}
+	CancellationReason_value = map[string]int32{
+		"CANCELLATION_REASON_UNSPECIFIED":       0,
+		"CANCELLATION_REASON_MANUAL":            1,
+		"CANCELLATION_REASON_UPSTREAM_FAILED":   2,
+		"CANCELLATION_REASON_UPSTREAM_CANCELED": 3,
+		"CANCELLATION_REASON_SCHEDULE_SKIPPED":  4,
+		"CANCELLATION_REASON_SCHEDULER_CLEANUP": 5,
+	}
+)
+
+func (x CancellationReason) Enum() *CancellationReason {
+	p := new(CancellationReason)
+	*p = x
+	return p
+}
+
+func (x CancellationReason) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CancellationReason) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_common_v1_query_status_proto_enumTypes[1].Descriptor()
+}
+
+func (CancellationReason) Type() protoreflect.EnumType {
+	return &file_chalk_common_v1_query_status_proto_enumTypes[1]
+}
+
+func (x CancellationReason) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CancellationReason.Descriptor instead.
+func (CancellationReason) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_common_v1_query_status_proto_rawDescGZIP(), []int{1}
+}
+
 var File_chalk_common_v1_query_status_proto protoreflect.FileDescriptor
 
 const file_chalk_common_v1_query_status_proto_rawDesc = "" +
@@ -111,7 +172,14 @@ const file_chalk_common_v1_query_status_proto_rawDesc = "" +
 	"\x14QUERY_STATUS_EXPIRED\x10\x05\x12\x1a\n" +
 	"\x16QUERY_STATUS_CANCELLED\x10\x06\x12\x1b\n" +
 	"\x17QUERY_STATUS_SUCCESSFUL\x10\a\x120\n" +
-	",QUERY_STATUS_SUCCESSFUL_WITH_NONFATAL_ERRORS\x10\bB\xc0\x01\n" +
+	",QUERY_STATUS_SUCCESSFUL_WITH_NONFATAL_ERRORS\x10\b*\x82\x02\n" +
+	"\x12CancellationReason\x12#\n" +
+	"\x1fCANCELLATION_REASON_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aCANCELLATION_REASON_MANUAL\x10\x01\x12'\n" +
+	"#CANCELLATION_REASON_UPSTREAM_FAILED\x10\x02\x12)\n" +
+	"%CANCELLATION_REASON_UPSTREAM_CANCELED\x10\x03\x12(\n" +
+	"$CANCELLATION_REASON_SCHEDULE_SKIPPED\x10\x04\x12)\n" +
+	"%CANCELLATION_REASON_SCHEDULER_CLEANUP\x10\x05B\xc0\x01\n" +
 	"\x13com.chalk.common.v1B\x10QueryStatusProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/common/v1;commonv1\xa2\x02\x03CCX\xaa\x02\x0fChalk.Common.V1\xca\x02\x0fChalk\\Common\\V1\xe2\x02\x1bChalk\\Common\\V1\\GPBMetadata\xea\x02\x11Chalk::Common::V1b\x06proto3"
 
 var (
@@ -126,9 +194,10 @@ func file_chalk_common_v1_query_status_proto_rawDescGZIP() []byte {
 	return file_chalk_common_v1_query_status_proto_rawDescData
 }
 
-var file_chalk_common_v1_query_status_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_common_v1_query_status_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_common_v1_query_status_proto_goTypes = []any{
-	(QueryStatus)(0), // 0: chalk.common.v1.QueryStatus
+	(QueryStatus)(0),        // 0: chalk.common.v1.QueryStatus
+	(CancellationReason)(0), // 1: chalk.common.v1.CancellationReason
 }
 var file_chalk_common_v1_query_status_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -148,7 +217,7 @@ func file_chalk_common_v1_query_status_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_common_v1_query_status_proto_rawDesc), len(file_chalk_common_v1_query_status_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

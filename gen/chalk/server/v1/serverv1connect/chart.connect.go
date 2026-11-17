@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// ChartsServiceGetOfflineStorageHistoryProcedure is the fully-qualified name of the ChartsService's
+	// GetOfflineStorageHistory RPC.
+	ChartsServiceGetOfflineStorageHistoryProcedure = "/chalk.server.v1.ChartsService/GetOfflineStorageHistory"
 	// ChartsServiceListRawMetricsProcedure is the fully-qualified name of the ChartsService's
 	// ListRawMetrics RPC.
 	ChartsServiceListRawMetricsProcedure = "/chalk.server.v1.ChartsService/ListRawMetrics"
@@ -105,6 +108,7 @@ const (
 
 // ChartsServiceClient is a client for the chalk.server.v1.ChartsService service.
 type ChartsServiceClient interface {
+	GetOfflineStorageHistory(context.Context, *connect.Request[v1.GetOfflineStorageHistoryRequest]) (*connect.Response[v1.GetOfflineStorageHistoryResponse], error)
 	// The three introspection RPCs below expose the raw VictoriaMetrics series
 	// behind an environment's charts. VM series names and labels are an internal
 	// implementation detail rather than a stable customer-facing surface, but the
@@ -159,6 +163,13 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 	baseURL = strings.TrimRight(baseURL, "/")
 	chartsServiceMethods := v1.File_chalk_server_v1_chart_proto.Services().ByName("ChartsService").Methods()
 	return &chartsServiceClient{
+		getOfflineStorageHistory: connect.NewClient[v1.GetOfflineStorageHistoryRequest, v1.GetOfflineStorageHistoryResponse](
+			httpClient,
+			baseURL+ChartsServiceGetOfflineStorageHistoryProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("GetOfflineStorageHistory")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		listRawMetrics: connect.NewClient[v1.ListRawMetricsRequest, v1.ListRawMetricsResponse](
 			httpClient,
 			baseURL+ChartsServiceListRawMetricsProcedure,
@@ -303,6 +314,7 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // chartsServiceClient implements ChartsServiceClient.
 type chartsServiceClient struct {
+	getOfflineStorageHistory *connect.Client[v1.GetOfflineStorageHistoryRequest, v1.GetOfflineStorageHistoryResponse]
 	listRawMetrics           *connect.Client[v1.ListRawMetricsRequest, v1.ListRawMetricsResponse]
 	getRawMetricLabelNames   *connect.Client[v1.GetRawMetricLabelNamesRequest, v1.GetRawMetricLabelNamesResponse]
 	getRawMetricLabelValues  *connect.Client[v1.GetRawMetricLabelValuesRequest, v1.GetRawMetricLabelValuesResponse]
@@ -326,6 +338,11 @@ type chartsServiceClient struct {
 	getMetricOptions         *connect.Client[v1.GetMetricOptionsRequest, v1.GetMetricOptionsResponse]
 	getFormulaOptions        *connect.Client[v1.GetFormulaOptionsRequest, v1.GetFormulaOptionsResponse]
 	listChartsWithCronAlerts *connect.Client[v1.ListChartsWithCronAlertsRequest, v1.ListChartsWithCronAlertsResponse]
+}
+
+// GetOfflineStorageHistory calls chalk.server.v1.ChartsService.GetOfflineStorageHistory.
+func (c *chartsServiceClient) GetOfflineStorageHistory(ctx context.Context, req *connect.Request[v1.GetOfflineStorageHistoryRequest]) (*connect.Response[v1.GetOfflineStorageHistoryResponse], error) {
+	return c.getOfflineStorageHistory.CallUnary(ctx, req)
 }
 
 // ListRawMetrics calls chalk.server.v1.ChartsService.ListRawMetrics.
@@ -445,6 +462,7 @@ func (c *chartsServiceClient) ListChartsWithCronAlerts(ctx context.Context, req 
 
 // ChartsServiceHandler is an implementation of the chalk.server.v1.ChartsService service.
 type ChartsServiceHandler interface {
+	GetOfflineStorageHistory(context.Context, *connect.Request[v1.GetOfflineStorageHistoryRequest]) (*connect.Response[v1.GetOfflineStorageHistoryResponse], error)
 	// The three introspection RPCs below expose the raw VictoriaMetrics series
 	// behind an environment's charts. VM series names and labels are an internal
 	// implementation detail rather than a stable customer-facing surface, but the
@@ -495,6 +513,13 @@ type ChartsServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	chartsServiceMethods := v1.File_chalk_server_v1_chart_proto.Services().ByName("ChartsService").Methods()
+	chartsServiceGetOfflineStorageHistoryHandler := connect.NewUnaryHandler(
+		ChartsServiceGetOfflineStorageHistoryProcedure,
+		svc.GetOfflineStorageHistory,
+		connect.WithSchema(chartsServiceMethods.ByName("GetOfflineStorageHistory")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	chartsServiceListRawMetricsHandler := connect.NewUnaryHandler(
 		ChartsServiceListRawMetricsProcedure,
 		svc.ListRawMetrics,
@@ -636,6 +661,8 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 	)
 	return "/chalk.server.v1.ChartsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case ChartsServiceGetOfflineStorageHistoryProcedure:
+			chartsServiceGetOfflineStorageHistoryHandler.ServeHTTP(w, r)
 		case ChartsServiceListRawMetricsProcedure:
 			chartsServiceListRawMetricsHandler.ServeHTTP(w, r)
 		case ChartsServiceGetRawMetricLabelNamesProcedure:
@@ -690,6 +717,10 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 
 // UnimplementedChartsServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedChartsServiceHandler struct{}
+
+func (UnimplementedChartsServiceHandler) GetOfflineStorageHistory(context.Context, *connect.Request[v1.GetOfflineStorageHistoryRequest]) (*connect.Response[v1.GetOfflineStorageHistoryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetOfflineStorageHistory is not implemented"))
+}
 
 func (UnimplementedChartsServiceHandler) ListRawMetrics(context.Context, *connect.Request[v1.ListRawMetricsRequest]) (*connect.Response[v1.ListRawMetricsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.ListRawMetrics is not implemented"))

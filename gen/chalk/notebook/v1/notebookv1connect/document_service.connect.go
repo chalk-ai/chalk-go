@@ -114,6 +114,15 @@ const (
 	// NotebookDocumentServiceFetchNotebookDataframeRowsProcedure is the fully-qualified name of the
 	// NotebookDocumentService's FetchNotebookDataframeRows RPC.
 	NotebookDocumentServiceFetchNotebookDataframeRowsProcedure = "/chalk.notebook.v1.NotebookDocumentService/FetchNotebookDataframeRows"
+	// NotebookDocumentServiceGetNotebookVariableMaterializationProcedure is the fully-qualified name of
+	// the NotebookDocumentService's GetNotebookVariableMaterialization RPC.
+	NotebookDocumentServiceGetNotebookVariableMaterializationProcedure = "/chalk.notebook.v1.NotebookDocumentService/GetNotebookVariableMaterialization"
+	// NotebookDocumentServiceMaterializeNotebookKernelVariableProcedure is the fully-qualified name of
+	// the NotebookDocumentService's MaterializeNotebookKernelVariable RPC.
+	NotebookDocumentServiceMaterializeNotebookKernelVariableProcedure = "/chalk.notebook.v1.NotebookDocumentService/MaterializeNotebookKernelVariable"
+	// NotebookDocumentServiceListNotebookDataframeDistinctValuesProcedure is the fully-qualified name
+	// of the NotebookDocumentService's ListNotebookDataframeDistinctValues RPC.
+	NotebookDocumentServiceListNotebookDataframeDistinctValuesProcedure = "/chalk.notebook.v1.NotebookDocumentService/ListNotebookDataframeDistinctValues"
 	// NotebookDocumentServiceAggregateNotebookDataframeProcedure is the fully-qualified name of the
 	// NotebookDocumentService's AggregateNotebookDataframe RPC.
 	NotebookDocumentServiceAggregateNotebookDataframeProcedure = "/chalk.notebook.v1.NotebookDocumentService/AggregateNotebookDataframe"
@@ -181,6 +190,7 @@ const (
 type NotebookDocumentServiceClient interface {
 	// Mints a share link. The response carries the only copy of the secret URL.
 	CreateNotebookShareLink(context.Context, *connect.Request[v1.CreateNotebookShareLinkRequest]) (*connect.Response[v1.CreateNotebookShareLinkResponse], error)
+	// Listing returns link metadata only; URLs are returned once, at creation.
 	ListNotebookShareLinks(context.Context, *connect.Request[v1.ListNotebookShareLinksRequest]) (*connect.Response[v1.ListNotebookShareLinksResponse], error)
 	RevokeNotebookShareLink(context.Context, *connect.Request[v1.RevokeNotebookShareLinkRequest]) (*connect.Response[v1.RevokeNotebookShareLinkResponse], error)
 	// The share-link viewer's entry point: exchanges the token in the request
@@ -231,6 +241,16 @@ type NotebookDocumentServiceClient interface {
 	// Arrow artifacts, inline previews, SQL results), beyond the persisted
 	// preview rows.
 	FetchNotebookDataframeRows(context.Context, *connect.Request[v1.FetchNotebookDataframeRowsRequest]) (*connect.Response[v1.FetchNotebookDataframeRowsResponse], error)
+	// Looks up an already-uploaded dataframe-variable artifact without
+	// consulting or mutating the live kernel.
+	GetNotebookVariableMaterialization(context.Context, *connect.Request[v1.GetNotebookVariableMaterializationRequest]) (*connect.Response[v1.GetNotebookVariableMaterializationResponse], error)
+	// Silently exports one dataframe variable from the current kernel into a
+	// temporary full-data artifact. Materialization is on demand: merely
+	// inspecting the kernel namespace never uploads every variable.
+	MaterializeNotebookKernelVariable(context.Context, *connect.Request[v1.MaterializeNotebookKernelVariableRequest]) (*connect.Response[v1.MaterializeNotebookKernelVariableResponse], error)
+	// Returns a bounded, searchable page of distinct value/label pairs from the
+	// complete dataframe artifact rather than its persisted preview.
+	ListNotebookDataframeDistinctValues(context.Context, *connect.Request[v1.ListNotebookDataframeDistinctValuesRequest]) (*connect.Response[v1.ListNotebookDataframeDistinctValuesResponse], error)
 	// Reduces one column of a dataframe output chunk to a single value over the
 	// FULL backing artifact (blob-backed Arrow, inline arrow bytes) — used by
 	// single-value elements whose source is larger than the persisted preview.
@@ -455,6 +475,24 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 			connect.WithSchema(notebookDocumentServiceMethods.ByName("FetchNotebookDataframeRows")),
 			connect.WithClientOptions(opts...),
 		),
+		getNotebookVariableMaterialization: connect.NewClient[v1.GetNotebookVariableMaterializationRequest, v1.GetNotebookVariableMaterializationResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceGetNotebookVariableMaterializationProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("GetNotebookVariableMaterialization")),
+			connect.WithClientOptions(opts...),
+		),
+		materializeNotebookKernelVariable: connect.NewClient[v1.MaterializeNotebookKernelVariableRequest, v1.MaterializeNotebookKernelVariableResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceMaterializeNotebookKernelVariableProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("MaterializeNotebookKernelVariable")),
+			connect.WithClientOptions(opts...),
+		),
+		listNotebookDataframeDistinctValues: connect.NewClient[v1.ListNotebookDataframeDistinctValuesRequest, v1.ListNotebookDataframeDistinctValuesResponse](
+			httpClient,
+			baseURL+NotebookDocumentServiceListNotebookDataframeDistinctValuesProcedure,
+			connect.WithSchema(notebookDocumentServiceMethods.ByName("ListNotebookDataframeDistinctValues")),
+			connect.WithClientOptions(opts...),
+		),
 		aggregateNotebookDataframe: connect.NewClient[v1.AggregateNotebookDataframeRequest, v1.AggregateNotebookDataframeResponse](
 			httpClient,
 			baseURL+NotebookDocumentServiceAggregateNotebookDataframeProcedure,
@@ -580,53 +618,56 @@ func NewNotebookDocumentServiceClient(httpClient connect.HTTPClient, baseURL str
 
 // notebookDocumentServiceClient implements NotebookDocumentServiceClient.
 type notebookDocumentServiceClient struct {
-	createNotebookShareLink        *connect.Client[v1.CreateNotebookShareLinkRequest, v1.CreateNotebookShareLinkResponse]
-	listNotebookShareLinks         *connect.Client[v1.ListNotebookShareLinksRequest, v1.ListNotebookShareLinksResponse]
-	revokeNotebookShareLink        *connect.Client[v1.RevokeNotebookShareLinkRequest, v1.RevokeNotebookShareLinkResponse]
-	resolveNotebookShareLink       *connect.Client[v1.ResolveNotebookShareLinkRequest, v1.ResolveNotebookShareLinkResponse]
-	createNotebookComment          *connect.Client[v1.CreateNotebookCommentRequest, v1.CreateNotebookCommentResponse]
-	listNotebookComments           *connect.Client[v1.ListNotebookCommentsRequest, v1.ListNotebookCommentsResponse]
-	deleteNotebookComment          *connect.Client[v1.DeleteNotebookCommentRequest, v1.DeleteNotebookCommentResponse]
-	setNotebookCommentResolved     *connect.Client[v1.SetNotebookCommentResolvedRequest, v1.SetNotebookCommentResolvedResponse]
-	toggleNotebookCommentReaction  *connect.Client[v1.ToggleNotebookCommentReactionRequest, v1.ToggleNotebookCommentReactionResponse]
-	createNotebookDocument         *connect.Client[v1.CreateNotebookDocumentRequest, v1.CreateNotebookDocumentResponse]
-	getNotebookDocument            *connect.Client[v1.GetNotebookDocumentRequest, v1.GetNotebookDocumentResponse]
-	listNotebookDocuments          *connect.Client[v1.ListNotebookDocumentsRequest, v1.ListNotebookDocumentsResponse]
-	updateNotebookDocument         *connect.Client[v1.UpdateNotebookDocumentRequest, v1.UpdateNotebookDocumentResponse]
-	ensureNotebookApp              *connect.Client[v1.EnsureNotebookAppRequest, v1.EnsureNotebookAppResponse]
-	deleteNotebookDocument         *connect.Client[v1.DeleteNotebookDocumentRequest, v1.DeleteNotebookDocumentResponse]
-	setNotebookArchived            *connect.Client[v1.SetNotebookArchivedRequest, v1.SetNotebookArchivedResponse]
-	addNotebookCell                *connect.Client[v1.AddNotebookCellRequest, v1.AddNotebookCellResponse]
-	updateNotebookCell             *connect.Client[v1.UpdateNotebookCellRequest, v1.UpdateNotebookCellResponse]
-	deleteNotebookCell             *connect.Client[v1.DeleteNotebookCellRequest, v1.DeleteNotebookCellResponse]
-	moveNotebookCell               *connect.Client[v1.MoveNotebookCellRequest, v1.MoveNotebookCellResponse]
-	batchUpdateNotebookCells       *connect.Client[v1.BatchUpdateNotebookCellsRequest, v1.BatchUpdateNotebookCellsResponse]
-	startNotebookRun               *connect.Client[v1.StartNotebookRunRequest, v1.StartNotebookRunResponse]
-	watchNotebookRun               *connect.Client[v1.WatchNotebookRunRequest, v1.WatchNotebookRunResponse]
-	watchNotebook                  *connect.Client[v1.WatchNotebookRequest, v1.WatchNotebookResponse]
-	interruptNotebookRun           *connect.Client[v1.InterruptNotebookRunRequest, v1.InterruptNotebookRunResponse]
-	listNotebookCellResults        *connect.Client[v1.ListNotebookCellResultsRequest, v1.ListNotebookCellResultsResponse]
-	fetchNotebookDataframeRows     *connect.Client[v1.FetchNotebookDataframeRowsRequest, v1.FetchNotebookDataframeRowsResponse]
-	aggregateNotebookDataframe     *connect.Client[v1.AggregateNotebookDataframeRequest, v1.AggregateNotebookDataframeResponse]
-	downloadNotebookDataframe      *connect.Client[v1.DownloadNotebookDataframeRequest, v1.DownloadNotebookDataframeResponse]
-	listNotebookCellRunHistory     *connect.Client[v1.ListNotebookCellRunHistoryRequest, v1.ListNotebookCellRunHistoryResponse]
-	listNotebookDocumentRevisions  *connect.Client[v1.ListNotebookDocumentRevisionsRequest, v1.ListNotebookDocumentRevisionsResponse]
-	listNotebookRuns               *connect.Client[v1.ListNotebookRunsRequest, v1.ListNotebookRunsResponse]
-	getNotebookRunDetails          *connect.Client[v1.GetNotebookRunDetailsRequest, v1.GetNotebookRunDetailsResponse]
-	clearNotebookCellResults       *connect.Client[v1.ClearNotebookCellResultsRequest, v1.ClearNotebookCellResultsResponse]
-	getNotebookSqlCacheSettings    *connect.Client[v1.GetNotebookSqlCacheSettingsRequest, v1.GetNotebookSqlCacheSettingsResponse]
-	updateNotebookSqlCacheSettings *connect.Client[v1.UpdateNotebookSqlCacheSettingsRequest, v1.UpdateNotebookSqlCacheSettingsResponse]
-	startNotebookRuntime           *connect.Client[v1.StartNotebookRuntimeRequest, v1.StartNotebookRuntimeResponse]
-	stopNotebookRuntime            *connect.Client[v1.StopNotebookRuntimeRequest, v1.StopNotebookRuntimeResponse]
-	getNotebookRuntimeStatus       *connect.Client[v1.GetNotebookRuntimeStatusRequest, v1.GetNotebookRuntimeStatusResponse]
-	watchNotebookRuntimeStatus     *connect.Client[v1.WatchNotebookRuntimeStatusRequest, v1.WatchNotebookRuntimeStatusResponse]
-	listNotebookRuntimes           *connect.Client[v1.ListNotebookRuntimesRequest, v1.ListNotebookRuntimesResponse]
-	listNotebookKernelPackages     *connect.Client[v1.ListNotebookKernelPackagesRequest, v1.ListNotebookKernelPackagesResponse]
-	getNotebookDependencyGraph     *connect.Client[v1.GetNotebookDependencyGraphRequest, v1.GetNotebookDependencyGraphResponse]
-	listNotebookSecrets            *connect.Client[v1.ListNotebookSecretsRequest, v1.ListNotebookSecretsResponse]
-	getNotebookSecretValue         *connect.Client[v1.GetNotebookSecretValueRequest, v1.GetNotebookSecretValueResponse]
-	upsertNotebookSecret           *connect.Client[v1.UpsertNotebookSecretRequest, v1.UpsertNotebookSecretResponse]
-	deleteNotebookSecret           *connect.Client[v1.DeleteNotebookSecretRequest, v1.DeleteNotebookSecretResponse]
+	createNotebookShareLink             *connect.Client[v1.CreateNotebookShareLinkRequest, v1.CreateNotebookShareLinkResponse]
+	listNotebookShareLinks              *connect.Client[v1.ListNotebookShareLinksRequest, v1.ListNotebookShareLinksResponse]
+	revokeNotebookShareLink             *connect.Client[v1.RevokeNotebookShareLinkRequest, v1.RevokeNotebookShareLinkResponse]
+	resolveNotebookShareLink            *connect.Client[v1.ResolveNotebookShareLinkRequest, v1.ResolveNotebookShareLinkResponse]
+	createNotebookComment               *connect.Client[v1.CreateNotebookCommentRequest, v1.CreateNotebookCommentResponse]
+	listNotebookComments                *connect.Client[v1.ListNotebookCommentsRequest, v1.ListNotebookCommentsResponse]
+	deleteNotebookComment               *connect.Client[v1.DeleteNotebookCommentRequest, v1.DeleteNotebookCommentResponse]
+	setNotebookCommentResolved          *connect.Client[v1.SetNotebookCommentResolvedRequest, v1.SetNotebookCommentResolvedResponse]
+	toggleNotebookCommentReaction       *connect.Client[v1.ToggleNotebookCommentReactionRequest, v1.ToggleNotebookCommentReactionResponse]
+	createNotebookDocument              *connect.Client[v1.CreateNotebookDocumentRequest, v1.CreateNotebookDocumentResponse]
+	getNotebookDocument                 *connect.Client[v1.GetNotebookDocumentRequest, v1.GetNotebookDocumentResponse]
+	listNotebookDocuments               *connect.Client[v1.ListNotebookDocumentsRequest, v1.ListNotebookDocumentsResponse]
+	updateNotebookDocument              *connect.Client[v1.UpdateNotebookDocumentRequest, v1.UpdateNotebookDocumentResponse]
+	ensureNotebookApp                   *connect.Client[v1.EnsureNotebookAppRequest, v1.EnsureNotebookAppResponse]
+	deleteNotebookDocument              *connect.Client[v1.DeleteNotebookDocumentRequest, v1.DeleteNotebookDocumentResponse]
+	setNotebookArchived                 *connect.Client[v1.SetNotebookArchivedRequest, v1.SetNotebookArchivedResponse]
+	addNotebookCell                     *connect.Client[v1.AddNotebookCellRequest, v1.AddNotebookCellResponse]
+	updateNotebookCell                  *connect.Client[v1.UpdateNotebookCellRequest, v1.UpdateNotebookCellResponse]
+	deleteNotebookCell                  *connect.Client[v1.DeleteNotebookCellRequest, v1.DeleteNotebookCellResponse]
+	moveNotebookCell                    *connect.Client[v1.MoveNotebookCellRequest, v1.MoveNotebookCellResponse]
+	batchUpdateNotebookCells            *connect.Client[v1.BatchUpdateNotebookCellsRequest, v1.BatchUpdateNotebookCellsResponse]
+	startNotebookRun                    *connect.Client[v1.StartNotebookRunRequest, v1.StartNotebookRunResponse]
+	watchNotebookRun                    *connect.Client[v1.WatchNotebookRunRequest, v1.WatchNotebookRunResponse]
+	watchNotebook                       *connect.Client[v1.WatchNotebookRequest, v1.WatchNotebookResponse]
+	interruptNotebookRun                *connect.Client[v1.InterruptNotebookRunRequest, v1.InterruptNotebookRunResponse]
+	listNotebookCellResults             *connect.Client[v1.ListNotebookCellResultsRequest, v1.ListNotebookCellResultsResponse]
+	fetchNotebookDataframeRows          *connect.Client[v1.FetchNotebookDataframeRowsRequest, v1.FetchNotebookDataframeRowsResponse]
+	getNotebookVariableMaterialization  *connect.Client[v1.GetNotebookVariableMaterializationRequest, v1.GetNotebookVariableMaterializationResponse]
+	materializeNotebookKernelVariable   *connect.Client[v1.MaterializeNotebookKernelVariableRequest, v1.MaterializeNotebookKernelVariableResponse]
+	listNotebookDataframeDistinctValues *connect.Client[v1.ListNotebookDataframeDistinctValuesRequest, v1.ListNotebookDataframeDistinctValuesResponse]
+	aggregateNotebookDataframe          *connect.Client[v1.AggregateNotebookDataframeRequest, v1.AggregateNotebookDataframeResponse]
+	downloadNotebookDataframe           *connect.Client[v1.DownloadNotebookDataframeRequest, v1.DownloadNotebookDataframeResponse]
+	listNotebookCellRunHistory          *connect.Client[v1.ListNotebookCellRunHistoryRequest, v1.ListNotebookCellRunHistoryResponse]
+	listNotebookDocumentRevisions       *connect.Client[v1.ListNotebookDocumentRevisionsRequest, v1.ListNotebookDocumentRevisionsResponse]
+	listNotebookRuns                    *connect.Client[v1.ListNotebookRunsRequest, v1.ListNotebookRunsResponse]
+	getNotebookRunDetails               *connect.Client[v1.GetNotebookRunDetailsRequest, v1.GetNotebookRunDetailsResponse]
+	clearNotebookCellResults            *connect.Client[v1.ClearNotebookCellResultsRequest, v1.ClearNotebookCellResultsResponse]
+	getNotebookSqlCacheSettings         *connect.Client[v1.GetNotebookSqlCacheSettingsRequest, v1.GetNotebookSqlCacheSettingsResponse]
+	updateNotebookSqlCacheSettings      *connect.Client[v1.UpdateNotebookSqlCacheSettingsRequest, v1.UpdateNotebookSqlCacheSettingsResponse]
+	startNotebookRuntime                *connect.Client[v1.StartNotebookRuntimeRequest, v1.StartNotebookRuntimeResponse]
+	stopNotebookRuntime                 *connect.Client[v1.StopNotebookRuntimeRequest, v1.StopNotebookRuntimeResponse]
+	getNotebookRuntimeStatus            *connect.Client[v1.GetNotebookRuntimeStatusRequest, v1.GetNotebookRuntimeStatusResponse]
+	watchNotebookRuntimeStatus          *connect.Client[v1.WatchNotebookRuntimeStatusRequest, v1.WatchNotebookRuntimeStatusResponse]
+	listNotebookRuntimes                *connect.Client[v1.ListNotebookRuntimesRequest, v1.ListNotebookRuntimesResponse]
+	listNotebookKernelPackages          *connect.Client[v1.ListNotebookKernelPackagesRequest, v1.ListNotebookKernelPackagesResponse]
+	getNotebookDependencyGraph          *connect.Client[v1.GetNotebookDependencyGraphRequest, v1.GetNotebookDependencyGraphResponse]
+	listNotebookSecrets                 *connect.Client[v1.ListNotebookSecretsRequest, v1.ListNotebookSecretsResponse]
+	getNotebookSecretValue              *connect.Client[v1.GetNotebookSecretValueRequest, v1.GetNotebookSecretValueResponse]
+	upsertNotebookSecret                *connect.Client[v1.UpsertNotebookSecretRequest, v1.UpsertNotebookSecretResponse]
+	deleteNotebookSecret                *connect.Client[v1.DeleteNotebookSecretRequest, v1.DeleteNotebookSecretResponse]
 }
 
 // CreateNotebookShareLink calls chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink.
@@ -769,6 +810,24 @@ func (c *notebookDocumentServiceClient) FetchNotebookDataframeRows(ctx context.C
 	return c.fetchNotebookDataframeRows.CallUnary(ctx, req)
 }
 
+// GetNotebookVariableMaterialization calls
+// chalk.notebook.v1.NotebookDocumentService.GetNotebookVariableMaterialization.
+func (c *notebookDocumentServiceClient) GetNotebookVariableMaterialization(ctx context.Context, req *connect.Request[v1.GetNotebookVariableMaterializationRequest]) (*connect.Response[v1.GetNotebookVariableMaterializationResponse], error) {
+	return c.getNotebookVariableMaterialization.CallUnary(ctx, req)
+}
+
+// MaterializeNotebookKernelVariable calls
+// chalk.notebook.v1.NotebookDocumentService.MaterializeNotebookKernelVariable.
+func (c *notebookDocumentServiceClient) MaterializeNotebookKernelVariable(ctx context.Context, req *connect.Request[v1.MaterializeNotebookKernelVariableRequest]) (*connect.Response[v1.MaterializeNotebookKernelVariableResponse], error) {
+	return c.materializeNotebookKernelVariable.CallUnary(ctx, req)
+}
+
+// ListNotebookDataframeDistinctValues calls
+// chalk.notebook.v1.NotebookDocumentService.ListNotebookDataframeDistinctValues.
+func (c *notebookDocumentServiceClient) ListNotebookDataframeDistinctValues(ctx context.Context, req *connect.Request[v1.ListNotebookDataframeDistinctValuesRequest]) (*connect.Response[v1.ListNotebookDataframeDistinctValuesResponse], error) {
+	return c.listNotebookDataframeDistinctValues.CallUnary(ctx, req)
+}
+
 // AggregateNotebookDataframe calls
 // chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe.
 func (c *notebookDocumentServiceClient) AggregateNotebookDataframe(ctx context.Context, req *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error) {
@@ -885,6 +944,7 @@ func (c *notebookDocumentServiceClient) DeleteNotebookSecret(ctx context.Context
 type NotebookDocumentServiceHandler interface {
 	// Mints a share link. The response carries the only copy of the secret URL.
 	CreateNotebookShareLink(context.Context, *connect.Request[v1.CreateNotebookShareLinkRequest]) (*connect.Response[v1.CreateNotebookShareLinkResponse], error)
+	// Listing returns link metadata only; URLs are returned once, at creation.
 	ListNotebookShareLinks(context.Context, *connect.Request[v1.ListNotebookShareLinksRequest]) (*connect.Response[v1.ListNotebookShareLinksResponse], error)
 	RevokeNotebookShareLink(context.Context, *connect.Request[v1.RevokeNotebookShareLinkRequest]) (*connect.Response[v1.RevokeNotebookShareLinkResponse], error)
 	// The share-link viewer's entry point: exchanges the token in the request
@@ -935,6 +995,16 @@ type NotebookDocumentServiceHandler interface {
 	// Arrow artifacts, inline previews, SQL results), beyond the persisted
 	// preview rows.
 	FetchNotebookDataframeRows(context.Context, *connect.Request[v1.FetchNotebookDataframeRowsRequest]) (*connect.Response[v1.FetchNotebookDataframeRowsResponse], error)
+	// Looks up an already-uploaded dataframe-variable artifact without
+	// consulting or mutating the live kernel.
+	GetNotebookVariableMaterialization(context.Context, *connect.Request[v1.GetNotebookVariableMaterializationRequest]) (*connect.Response[v1.GetNotebookVariableMaterializationResponse], error)
+	// Silently exports one dataframe variable from the current kernel into a
+	// temporary full-data artifact. Materialization is on demand: merely
+	// inspecting the kernel namespace never uploads every variable.
+	MaterializeNotebookKernelVariable(context.Context, *connect.Request[v1.MaterializeNotebookKernelVariableRequest]) (*connect.Response[v1.MaterializeNotebookKernelVariableResponse], error)
+	// Returns a bounded, searchable page of distinct value/label pairs from the
+	// complete dataframe artifact rather than its persisted preview.
+	ListNotebookDataframeDistinctValues(context.Context, *connect.Request[v1.ListNotebookDataframeDistinctValuesRequest]) (*connect.Response[v1.ListNotebookDataframeDistinctValuesResponse], error)
 	// Reduces one column of a dataframe output chunk to a single value over the
 	// FULL backing artifact (blob-backed Arrow, inline arrow bytes) — used by
 	// single-value elements whose source is larger than the persisted preview.
@@ -1155,6 +1225,24 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 		connect.WithSchema(notebookDocumentServiceMethods.ByName("FetchNotebookDataframeRows")),
 		connect.WithHandlerOptions(opts...),
 	)
+	notebookDocumentServiceGetNotebookVariableMaterializationHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceGetNotebookVariableMaterializationProcedure,
+		svc.GetNotebookVariableMaterialization,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("GetNotebookVariableMaterialization")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceMaterializeNotebookKernelVariableHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceMaterializeNotebookKernelVariableProcedure,
+		svc.MaterializeNotebookKernelVariable,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("MaterializeNotebookKernelVariable")),
+		connect.WithHandlerOptions(opts...),
+	)
+	notebookDocumentServiceListNotebookDataframeDistinctValuesHandler := connect.NewUnaryHandler(
+		NotebookDocumentServiceListNotebookDataframeDistinctValuesProcedure,
+		svc.ListNotebookDataframeDistinctValues,
+		connect.WithSchema(notebookDocumentServiceMethods.ByName("ListNotebookDataframeDistinctValues")),
+		connect.WithHandlerOptions(opts...),
+	)
 	notebookDocumentServiceAggregateNotebookDataframeHandler := connect.NewUnaryHandler(
 		NotebookDocumentServiceAggregateNotebookDataframeProcedure,
 		svc.AggregateNotebookDataframe,
@@ -1331,6 +1419,12 @@ func NewNotebookDocumentServiceHandler(svc NotebookDocumentServiceHandler, opts 
 			notebookDocumentServiceListNotebookCellResultsHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceFetchNotebookDataframeRowsProcedure:
 			notebookDocumentServiceFetchNotebookDataframeRowsHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceGetNotebookVariableMaterializationProcedure:
+			notebookDocumentServiceGetNotebookVariableMaterializationHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceMaterializeNotebookKernelVariableProcedure:
+			notebookDocumentServiceMaterializeNotebookKernelVariableHandler.ServeHTTP(w, r)
+		case NotebookDocumentServiceListNotebookDataframeDistinctValuesProcedure:
+			notebookDocumentServiceListNotebookDataframeDistinctValuesHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceAggregateNotebookDataframeProcedure:
 			notebookDocumentServiceAggregateNotebookDataframeHandler.ServeHTTP(w, r)
 		case NotebookDocumentServiceDownloadNotebookDataframeProcedure:
@@ -1486,6 +1580,18 @@ func (UnimplementedNotebookDocumentServiceHandler) ListNotebookCellResults(conte
 
 func (UnimplementedNotebookDocumentServiceHandler) FetchNotebookDataframeRows(context.Context, *connect.Request[v1.FetchNotebookDataframeRowsRequest]) (*connect.Response[v1.FetchNotebookDataframeRowsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) GetNotebookVariableMaterialization(context.Context, *connect.Request[v1.GetNotebookVariableMaterializationRequest]) (*connect.Response[v1.GetNotebookVariableMaterializationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.GetNotebookVariableMaterialization is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) MaterializeNotebookKernelVariable(context.Context, *connect.Request[v1.MaterializeNotebookKernelVariableRequest]) (*connect.Response[v1.MaterializeNotebookKernelVariableResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.MaterializeNotebookKernelVariable is not implemented"))
+}
+
+func (UnimplementedNotebookDocumentServiceHandler) ListNotebookDataframeDistinctValues(context.Context, *connect.Request[v1.ListNotebookDataframeDistinctValuesRequest]) (*connect.Response[v1.ListNotebookDataframeDistinctValuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookDocumentService.ListNotebookDataframeDistinctValues is not implemented"))
 }
 
 func (UnimplementedNotebookDocumentServiceHandler) AggregateNotebookDataframe(context.Context, *connect.Request[v1.AggregateNotebookDataframeRequest]) (*connect.Response[v1.AggregateNotebookDataframeResponse], error) {

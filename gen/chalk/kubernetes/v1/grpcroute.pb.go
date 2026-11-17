@@ -7,6 +7,7 @@
 package kubernetesv1
 
 import (
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -477,7 +478,7 @@ var File_chalk_kubernetes_v1_grpcroute_proto protoreflect.FileDescriptor
 
 const file_chalk_kubernetes_v1_grpcroute_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/kubernetes/v1/grpcroute.proto\x12\x13chalk.kubernetes.v1\x1a chalk/kubernetes/v1/routes.proto\"\x90\x01\n" +
+	"#chalk/kubernetes/v1/grpcroute.proto\x12\x13chalk.kubernetes.v1\x1a chalk/kubernetes/v1/routes.proto\x1a\x1echalk/utils/v1/sensitive.proto\"\x90\x01\n" +
 	"\x19KubernetesGRPCMethodMatch\x12\x17\n" +
 	"\x04type\x18\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x12\x1d\n" +
 	"\aservice\x18\x02 \x01(\tH\x01R\aservice\x88\x01\x01\x12\x1b\n" +
@@ -485,11 +486,11 @@ const file_chalk_kubernetes_v1_grpcroute_proto_rawDesc = "" +
 	"\x05_typeB\n" +
 	"\n" +
 	"\b_serviceB\t\n" +
-	"\a_method\"g\n" +
+	"\a_method\"m\n" +
 	"\x19KubernetesGRPCHeaderMatch\x12\x17\n" +
 	"\x04type\x18\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x03 \x01(\tR\x05valueB\a\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\x05value\x18\x03 \x01(\tB\x04ء'\x01R\x05valueB\a\n" +
 	"\x05_type\"\xbc\x01\n" +
 	"\x18KubernetesGRPCRouteMatch\x12K\n" +
 	"\x06method\x18\x01 \x01(\v2..chalk.kubernetes.v1.KubernetesGRPCMethodMatchH\x00R\x06method\x88\x01\x01\x12H\n" +

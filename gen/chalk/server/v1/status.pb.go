@@ -172,6 +172,7 @@ const (
 	HealthCheckName_HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION        HealthCheckName = 65 // "VictoriaMetrics PVC Utilization"
 	HealthCheckName_HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION HealthCheckName = 66 // "Background Persistence Disk Utilization"
 	HealthCheckName_HEALTH_CHECK_NAME_KUBERNETES_NODE_VERSIONS                HealthCheckName = 67 // "Kubernetes Node Versions"
+	HealthCheckName_HEALTH_CHECK_NAME_WORKFLOW_ORCHESTRATOR                   HealthCheckName = 68 // "Workflow Orchestrator"
 )
 
 // Enum value maps for HealthCheckName.
@@ -245,6 +246,7 @@ var (
 		65: "HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION",
 		66: "HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION",
 		67: "HEALTH_CHECK_NAME_KUBERNETES_NODE_VERSIONS",
+		68: "HEALTH_CHECK_NAME_WORKFLOW_ORCHESTRATOR",
 	}
 	HealthCheckName_value = map[string]int32{
 		"HEALTH_CHECK_NAME_UNSPECIFIED":                             0,
@@ -315,6 +317,7 @@ var (
 		"HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION":        65,
 		"HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION": 66,
 		"HEALTH_CHECK_NAME_KUBERNETES_NODE_VERSIONS":                67,
+		"HEALTH_CHECK_NAME_WORKFLOW_ORCHESTRATOR":                   68,
 	}
 )
 
@@ -834,7 +837,7 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	"#HEALTH_CHECK_STATUS_FAILING_RUNNING\x10\x05\x12(\n" +
 	"$HEALTH_CHECK_STATUS_UPSTREAM_FAILING\x10\x06\x12#\n" +
 	"\x1fHEALTH_CHECK_STATUS_SCALED_DOWN\x10\a\x12&\n" +
-	"\"HEALTH_CHECK_STATUS_NOT_APPLICABLE\x10\b*\xd6\x15\n" +
+	"\"HEALTH_CHECK_STATUS_NOT_APPLICABLE\x10\b*\x83\x16\n" +
 	"\x0fHealthCheckName\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dHEALTH_CHECK_NAME_HTTP_ENGINE\x10\x01\x12%\n" +
@@ -904,7 +907,8 @@ const file_chalk_server_v1_status_proto_rawDesc = "" +
 	",HEALTH_CHECK_NAME_CLICKHOUSE_PVC_UTILIZATION\x10@\x126\n" +
 	"2HEALTH_CHECK_NAME_VICTORIA_METRICS_PVC_UTILIZATION\x10A\x12=\n" +
 	"9HEALTH_CHECK_NAME_BACKGROUND_PERSISTENCE_DISK_UTILIZATION\x10B\x12.\n" +
-	"*HEALTH_CHECK_NAME_KUBERNETES_NODE_VERSIONS\x10C2\xac\x04\n" +
+	"*HEALTH_CHECK_NAME_KUBERNETES_NODE_VERSIONS\x10C\x12+\n" +
+	"'HEALTH_CHECK_NAME_WORKFLOW_ORCHESTRATOR\x10D2\xac\x04\n" +
 	"\rHealthService\x12`\n" +
 	"\vCheckHealth\x12#.chalk.server.v1.CheckHealthRequest\x1a$.chalk.server.v1.CheckHealthResponse\"\x06\x80}\x01\x90\x02\x01\x12Z\n" +
 	"\tGetHealth\x12!.chalk.server.v1.GetHealthRequest\x1a\".chalk.server.v1.GetHealthResponse\"\x06\x80}\x02\x90\x02\x01\x12o\n" +

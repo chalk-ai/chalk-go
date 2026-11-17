@@ -9,6 +9,7 @@ package volumev1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -1440,7 +1441,7 @@ var File_chalk_volume_v1_volume_proto protoreflect.FileDescriptor
 
 const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/volume/v1/volume.proto\x12\x0fchalk.volume.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"[\n" +
+	"\x1cchalk/volume/v1/volume.proto\x12\x0fchalk.volume.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"[\n" +
 	"\n" +
 	"VolumeInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x129\n" +
@@ -1480,10 +1481,10 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"volumeName\x12\x12\n" +
 	"\x04path\x18\x02 \x01(\tR\x04path\x12)\n" +
 	"\x0eget_signed_uri\x18\x03 \x01(\bH\x00R\fgetSignedUri\x88\x01\x01B\x11\n" +
-	"\x0f_get_signed_uri\"d\n" +
+	"\x0f_get_signed_uri\"j\n" +
 	"\x0fGetFileResponse\x12\x14\n" +
-	"\x04data\x18\x01 \x01(\fH\x00R\x04data\x120\n" +
-	"\x13signed_download_uri\x18\x02 \x01(\tH\x00R\x11signedDownloadUriB\t\n" +
+	"\x04data\x18\x01 \x01(\fH\x00R\x04data\x126\n" +
+	"\x13signed_download_uri\x18\x02 \x01(\tB\x04ء'\x01H\x00R\x11signedDownloadUriB\t\n" +
 	"\acontent\"\x94\x01\n" +
 	"\x0ePutFileRequest\x12\x1f\n" +
 	"\vvolume_name\x18\x01 \x01(\tR\n" +
@@ -1501,17 +1502,17 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"\x19GetObjectUploadUriRequest\x12!\n" +
 	"\fcontent_size\x18\x01 \x01(\x03R\vcontentSize\x12\x12\n" +
 	"\x04hash\x18\x02 \x01(\tR\x04hash\x12\x1b\n" +
-	"\tpart_size\x18\x03 \x01(\x03R\bpartSize\"?\n" +
-	"\x0fMultipartUpload\x12,\n" +
-	"\x12signed_upload_uris\x18\x01 \x03(\tR\x10signedUploadUris\"=\n" +
-	"\x0fResumableUpload\x12*\n" +
-	"\x11signed_upload_uri\x18\x01 \x01(\tR\x0fsignedUploadUri\"\x7f\n" +
-	"\x10AzureBlockUpload\x12&\n" +
-	"\x0fsigned_blob_uri\x18\x01 \x01(\tR\rsignedBlobUri\x12&\n" +
+	"\tpart_size\x18\x03 \x01(\x03R\bpartSize\"E\n" +
+	"\x0fMultipartUpload\x122\n" +
+	"\x12signed_upload_uris\x18\x01 \x03(\tB\x04ء'\x01R\x10signedUploadUris\"C\n" +
+	"\x0fResumableUpload\x120\n" +
+	"\x11signed_upload_uri\x18\x01 \x01(\tB\x04ء'\x01R\x0fsignedUploadUri\"\x85\x01\n" +
+	"\x10AzureBlockUpload\x12,\n" +
+	"\x0fsigned_blob_uri\x18\x01 \x01(\tB\x04ء'\x01R\rsignedBlobUri\x12&\n" +
 	"\x0fblock_id_prefix\x18\x02 \x01(\tR\rblockIdPrefix\x12\x1b\n" +
-	"\tpart_size\x18\x03 \x01(\x03R\bpartSize\":\n" +
-	"\fDirectUpload\x12*\n" +
-	"\x11signed_upload_uri\x18\x01 \x01(\tR\x0fsignedUploadUri\"\x9c\x02\n" +
+	"\tpart_size\x18\x03 \x01(\x03R\bpartSize\"@\n" +
+	"\fDirectUpload\x120\n" +
+	"\x11signed_upload_uri\x18\x01 \x01(\tB\x04ء'\x01R\x0fsignedUploadUri\"\x9c\x02\n" +
 	"\x1aGetObjectUploadUriResponse\x12*\n" +
 	"\x11storage_object_id\x18\x01 \x01(\tR\x0fstorageObjectId\x12@\n" +
 	"\tmultipart\x18\x02 \x01(\v2 .chalk.volume.v1.MultipartUploadH\x00R\tmultipart\x12@\n" +
@@ -1520,9 +1521,9 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"azureBlockB\b\n" +
 	"\x06upload\"I\n" +
 	"\x1bGetObjectDownloadUriRequest\x12*\n" +
-	"\x11storage_object_id\x18\x01 \x01(\tR\x0fstorageObjectId\"N\n" +
-	"\x1cGetObjectDownloadUriResponse\x12.\n" +
-	"\x13signed_download_uri\x18\x01 \x01(\tR\x11signedDownloadUri2\x98\x02\n" +
+	"\x11storage_object_id\x18\x01 \x01(\tR\x0fstorageObjectId\"T\n" +
+	"\x1cGetObjectDownloadUriResponse\x124\n" +
+	"\x13signed_download_uri\x18\x01 \x01(\tB\x04ء'\x01R\x11signedDownloadUri2\x98\x02\n" +
 	"\x1dDataPlaneObjectStorageService\x12v\n" +
 	"\x12GetObjectUploadUri\x12*.chalk.volume.v1.GetObjectUploadUriRequest\x1a+.chalk.volume.v1.GetObjectUploadUriResponse\"\a\x80}B\x92}\x01\f\x12\x7f\n" +
 	"\x14GetObjectDownloadUri\x12,.chalk.volume.v1.GetObjectDownloadUriRequest\x1a-.chalk.volume.v1.GetObjectDownloadUriResponse\"\n" +

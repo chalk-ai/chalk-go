@@ -697,10 +697,11 @@ const file_chalk_router_v1_sampling_policy_proto_rawDesc = "" +
 	"\x15OUTCOME_COMPARATOR_GT\x10\x03\x12\x19\n" +
 	"\x15OUTCOME_COMPARATOR_LT\x10\x04\x12\x1a\n" +
 	"\x16OUTCOME_COMPARATOR_GTE\x10\x05\x12\x1a\n" +
-	"\x16OUTCOME_COMPARATOR_LTE\x10\x062\x85\x02\n" +
-	"\x15SamplingPolicyService\x12r\n" +
-	"\x11GetSamplingPolicy\x12).chalk.router.v1.GetSamplingPolicyRequest\x1a*.chalk.router.v1.GetSamplingPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12x\n" +
-	"\x14UpdateSamplingPolicy\x12,.chalk.router.v1.UpdateSamplingPolicyRequest\x1a-.chalk.router.v1.UpdateSamplingPolicyResponse\"\x03\x80}\x02B\xc3\x01\n" +
+	"\x16OUTCOME_COMPARATOR_LTE\x10\x062\x8d\x02\n" +
+	"\x15SamplingPolicyService\x12v\n" +
+	"\x11GetSamplingPolicy\x12).chalk.router.v1.GetSamplingPolicyRequest\x1a*.chalk.router.v1.GetSamplingPolicyResponse\"\n" +
+	"\x80}K\x92}\x01\x02\x90\x02\x01\x12|\n" +
+	"\x14UpdateSamplingPolicy\x12,.chalk.router.v1.UpdateSamplingPolicyRequest\x1a-.chalk.router.v1.UpdateSamplingPolicyResponse\"\a\x80}L\x92}\x01\x02B\xc3\x01\n" +
 	"\x13com.chalk.router.v1B\x13SamplingPolicyProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/router/v1;routerv1\xa2\x02\x03CRX\xaa\x02\x0fChalk.Router.V1\xca\x02\x0fChalk\\Router\\V1\xe2\x02\x1bChalk\\Router\\V1\\GPBMetadata\xea\x02\x11Chalk::Router::V1b\x06proto3"
 
 var (

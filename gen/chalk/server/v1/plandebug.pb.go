@@ -8,6 +8,7 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -636,7 +637,7 @@ var File_chalk_server_v1_plandebug_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_plandebug_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/server/v1/plandebug.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"^\n" +
+	"\x1fchalk/server/v1/plandebug.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"^\n" +
 	"\x18GetQueryPlanStageRequest\x12\x1f\n" +
 	"\voperator_id\x18\x01 \x01(\tR\n" +
 	"operatorId\x12!\n" +
@@ -665,12 +666,12 @@ const file_chalk_server_v1_plandebug_proto_rawDesc = "" +
 	"$GetQueryPlanStageDownloadLinkRequest\x12\x1f\n" +
 	"\voperator_id\x18\x01 \x01(\tR\n" +
 	"operatorId\x12!\n" +
-	"\foperation_id\x18\x02 \x01(\tR\voperationId\"\x9b\x02\n" +
-	"%GetQueryPlanStageDownloadLinkResponse\x12\"\n" +
+	"\foperation_id\x18\x02 \x01(\tR\voperationId\"\xa7\x02\n" +
+	"%GetQueryPlanStageDownloadLinkResponse\x12(\n" +
 	"\n" +
-	"signed_url\x18\x01 \x01(\tH\x00R\tsignedUrl\x88\x01\x01\x12;\n" +
+	"signed_url\x18\x01 \x01(\tB\x04ء'\x01H\x00R\tsignedUrl\x88\x01\x01\x12A\n" +
 	"\n" +
-	"group_urls\x18\x02 \x01(\v2\x17.google.protobuf.StructH\x01R\tgroupUrls\x88\x01\x01\x12\x19\n" +
+	"group_urls\x18\x02 \x01(\v2\x17.google.protobuf.StructB\x04ء'\x01H\x01R\tgroupUrls\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\x03 \x01(\tH\x02R\x05error\x88\x01\x01\x12?\n" +
 	"\n" +
 	"expiration\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\n" +
@@ -683,9 +684,9 @@ const file_chalk_server_v1_plandebug_proto_rawDesc = "" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12\x1f\n" +
 	"\voperator_id\x18\x02 \x01(\tR\n" +
 	"operatorId\x12!\n" +
-	"\fresolver_fqn\x18\x03 \x01(\tR\vresolverFqn\"\xbc\x01\n" +
-	"1GetQueryPlanStageResolverInputScalarLinksResponse\x12\x12\n" +
-	"\x04urls\x18\x01 \x03(\tR\x04urls\x12\x19\n" +
+	"\fresolver_fqn\x18\x03 \x01(\tR\vresolverFqn\"\xc2\x01\n" +
+	"1GetQueryPlanStageResolverInputScalarLinksResponse\x12\x18\n" +
+	"\x04urls\x18\x01 \x03(\tB\x04ء'\x01R\x04urls\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01\x12?\n" +
 	"\n" +
 	"expiration\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
@@ -697,9 +698,9 @@ const file_chalk_server_v1_plandebug_proto_rawDesc = "" +
 	"\voperator_id\x18\x02 \x01(\tR\n" +
 	"operatorId\x12!\n" +
 	"\fresolver_fqn\x18\x03 \x01(\tR\vresolverFqn\x12#\n" +
-	"\rargument_name\x18\x04 \x01(\tR\fargumentName\"\xbf\x01\n" +
-	"4GetQueryPlanStageResolverInputDataframeLinksResponse\x12\x12\n" +
-	"\x04urls\x18\x01 \x03(\tR\x04urls\x12\x19\n" +
+	"\rargument_name\x18\x04 \x01(\tR\fargumentName\"\xc5\x01\n" +
+	"4GetQueryPlanStageResolverInputDataframeLinksResponse\x12\x18\n" +
+	"\x04urls\x18\x01 \x03(\tB\x04ء'\x01R\x04urls\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01\x12?\n" +
 	"\n" +
 	"expiration\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +

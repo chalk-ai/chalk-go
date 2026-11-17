@@ -2193,8 +2193,13 @@ type TriggerOfflineWideTableCompactionRequest struct {
 	// NOTE: If empty, uses the resource group specified in the MaterializedFeatureView definition in the proto graph.
 	// empty does NOT mean "default resource group"
 	ResourceGroup string `protobuf:"bytes,2,opt,name=resource_group,json=resourceGroup,proto3" json:"resource_group,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Narrow the run to uncompacted rows with observed_at in [lower, upper). Unset on one side
+	// reaches the edge of the uncompacted data; unset on both compacts as usual. Must be before
+	// observed_at_upper_bound_exclusive when both are set.
+	ObservedAtLowerBoundInclusive *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=observed_at_lower_bound_inclusive,json=observedAtLowerBoundInclusive,proto3,oneof" json:"observed_at_lower_bound_inclusive,omitempty"`
+	ObservedAtUpperBoundExclusive *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=observed_at_upper_bound_exclusive,json=observedAtUpperBoundExclusive,proto3,oneof" json:"observed_at_upper_bound_exclusive,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *TriggerOfflineWideTableCompactionRequest) Reset() {
@@ -2239,6 +2244,20 @@ func (x *TriggerOfflineWideTableCompactionRequest) GetResourceGroup() string {
 		return x.ResourceGroup
 	}
 	return ""
+}
+
+func (x *TriggerOfflineWideTableCompactionRequest) GetObservedAtLowerBoundInclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAtLowerBoundInclusive
+	}
+	return nil
+}
+
+func (x *TriggerOfflineWideTableCompactionRequest) GetObservedAtUpperBoundExclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ObservedAtUpperBoundExclusive
+	}
+	return nil
 }
 
 type TriggerOfflineWideTableCompactionResponse struct {
@@ -2550,13 +2569,17 @@ func (x *TriggerOfflineStoreMigrationResponse) GetKubeNamespace() string {
 
 type MaterializedFeatureViewControl struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Namespace whose scheduled MFV fills share this control.
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Status        CronControlStatus      `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.server.v1.CronControlStatus" json:"status,omitempty"`
-	AgentId       *string                `protobuf:"bytes,3,opt,name=agent_id,json=agentId,proto3,oneof" json:"agent_id,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Namespace whose scheduled MFV work this control pauses.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Pauses the namespace's scheduled fills.
+	Status    CronControlStatus      `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.server.v1.CronControlStatus" json:"status,omitempty"`
+	AgentId   *string                `protobuf:"bytes,3,opt,name=agent_id,json=agentId,proto3,oneof" json:"agent_id,omitempty"`
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
+	// Pauses the namespace's scheduled compaction: the weekly fan-out enqueues no run for it.
+	// Manual compaction still runs.
+	CompactionStatus CronControlStatus `protobuf:"varint,5,opt,name=compaction_status,json=compactionStatus,proto3,enum=chalk.server.v1.CronControlStatus" json:"compaction_status,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *MaterializedFeatureViewControl) Reset() {
@@ -2617,11 +2640,19 @@ func (x *MaterializedFeatureViewControl) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *MaterializedFeatureViewControl) GetCompactionStatus() CronControlStatus {
+	if x != nil {
+		return x.CompactionStatus
+	}
+	return CronControlStatus_CRON_CONTROL_STATUS_UNSPECIFIED
+}
+
 type UpdateMaterializedFeatureViewControlOperation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        *CronControlStatus     `protobuf:"varint,1,opt,name=status,proto3,enum=chalk.server.v1.CronControlStatus,oneof" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Status           *CronControlStatus     `protobuf:"varint,1,opt,name=status,proto3,enum=chalk.server.v1.CronControlStatus,oneof" json:"status,omitempty"`
+	CompactionStatus *CronControlStatus     `protobuf:"varint,2,opt,name=compaction_status,json=compactionStatus,proto3,enum=chalk.server.v1.CronControlStatus,oneof" json:"compaction_status,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *UpdateMaterializedFeatureViewControlOperation) Reset() {
@@ -2661,15 +2692,23 @@ func (x *UpdateMaterializedFeatureViewControlOperation) GetStatus() CronControlS
 	return CronControlStatus_CRON_CONTROL_STATUS_UNSPECIFIED
 }
 
+func (x *UpdateMaterializedFeatureViewControlOperation) GetCompactionStatus() CronControlStatus {
+	if x != nil && x.CompactionStatus != nil {
+		return *x.CompactionStatus
+	}
+	return CronControlStatus_CRON_CONTROL_STATUS_UNSPECIFIED
+}
+
 type UpdateMaterializedFeatureViewControlRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Namespace whose scheduled MFV fills share this control.
+	// Namespace whose scheduled MFV work this control pauses.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Unused. Set update.status and include "status" in update_mask instead.
 	//
 	// Deprecated: Marked as deprecated in chalk/server/v1/offline_wide_tables.proto.
 	Status CronControlStatus `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.server.v1.CronControlStatus" json:"status,omitempty"`
-	// Required non-empty mask, relative to update (for example, "status").
+	// Required non-empty mask, relative to update: "status", "compaction_status", or both.
+	// Unmasked fields keep their value. Only PAUSE pauses; any other value runs as PLAY.
 	UpdateMask    *fieldmaskpb.FieldMask                         `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	Update        *UpdateMaterializedFeatureViewControlOperation `protobuf:"bytes,4,opt,name=update,proto3" json:"update,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -3458,10 +3497,14 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\"_inserted_at_upper_bound_inclusiveB$\n" +
 	"\"_observed_at_upper_bound_exclusive\"e\n" +
 	"+TriggerOfflineWideTableOverrideFillResponse\x126\n" +
-	"\x03run\x18\x01 \x01(\v2$.chalk.server.v1.OfflineWideTableRunR\x03run\"o\n" +
+	"\x03run\x18\x01 \x01(\v2$.chalk.server.v1.OfflineWideTableRunR\x03run\"\x91\x03\n" +
 	"(TriggerOfflineWideTableCompactionRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12%\n" +
-	"\x0eresource_group\x18\x02 \x01(\tR\rresourceGroup\"N\n" +
+	"\x0eresource_group\x18\x02 \x01(\tR\rresourceGroup\x12i\n" +
+	"!observed_at_lower_bound_inclusive\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x1dobservedAtLowerBoundInclusive\x88\x01\x01\x12i\n" +
+	"!observed_at_upper_bound_exclusive\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x1dobservedAtUpperBoundExclusive\x88\x01\x01B$\n" +
+	"\"_observed_at_lower_bound_inclusiveB$\n" +
+	"\"_observed_at_upper_bound_exclusive\"N\n" +
 	")TriggerOfflineWideTableCompactionResponse\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\"\x95\x01\n" +
 	"'OfflineStoreMigrationNamespaceSelection\x12\x1c\n" +
@@ -3481,18 +3524,21 @@ const file_chalk_server_v1_offline_wide_tables_proto_rawDesc = "" +
 	"\x05scope\"h\n" +
 	"$TriggerOfflineStoreMigrationResponse\x12\x19\n" +
 	"\bjob_name\x18\x01 \x01(\tR\ajobName\x12%\n" +
-	"\x0ekube_namespace\x18\x02 \x01(\tR\rkubeNamespace\"\xec\x01\n" +
+	"\x0ekube_namespace\x18\x02 \x01(\tR\rkubeNamespace\"\xbd\x02\n" +
 	"\x1eMaterializedFeatureViewControl\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12:\n" +
 	"\x06status\x18\x02 \x01(\x0e2\".chalk.server.v1.CronControlStatusR\x06status\x12\x1e\n" +
 	"\bagent_id\x18\x03 \x01(\tH\x00R\aagentId\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\v\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01\x12O\n" +
+	"\x11compaction_status\x18\x05 \x01(\x0e2\".chalk.server.v1.CronControlStatusR\x10compactionStatusB\v\n" +
 	"\t_agent_idB\r\n" +
-	"\v_updated_at\"{\n" +
+	"\v_updated_at\"\xe7\x01\n" +
 	"-UpdateMaterializedFeatureViewControlOperation\x12?\n" +
-	"\x06status\x18\x01 \x01(\x0e2\".chalk.server.v1.CronControlStatusH\x00R\x06status\x88\x01\x01B\t\n" +
-	"\a_status\"\x96\x02\n" +
+	"\x06status\x18\x01 \x01(\x0e2\".chalk.server.v1.CronControlStatusH\x00R\x06status\x88\x01\x01\x12T\n" +
+	"\x11compaction_status\x18\x02 \x01(\x0e2\".chalk.server.v1.CronControlStatusH\x01R\x10compactionStatus\x88\x01\x01B\t\n" +
+	"\a_statusB\x14\n" +
+	"\x12_compaction_status\"\x96\x02\n" +
 	"+UpdateMaterializedFeatureViewControlRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12>\n" +
 	"\x06status\x18\x02 \x01(\x0e2\".chalk.server.v1.CronControlStatusB\x02\x18\x01R\x06status\x12;\n" +
@@ -3707,52 +3753,56 @@ var file_chalk_server_v1_offline_wide_tables_proto_depIdxs = []int32{
 	50, // 44: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.inserted_at_upper_bound_inclusive:type_name -> google.protobuf.Timestamp
 	50, // 45: chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest.observed_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
 	11, // 46: chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse.run:type_name -> chalk.server.v1.OfflineWideTableRun
-	6,  // 47: chalk.server.v1.OfflineStoreMigrationNamespaceSelection.features:type_name -> chalk.server.v1.OfflineStoreMigrationFeatureSet
-	34, // 48: chalk.server.v1.OfflineStoreMigrationTableSelection.namespaces:type_name -> chalk.server.v1.OfflineStoreMigrationNamespaceSelection
-	5,  // 49: chalk.server.v1.TriggerOfflineStoreMigrationRequest.op:type_name -> chalk.server.v1.OfflineStoreMigrationOp
-	6,  // 50: chalk.server.v1.TriggerOfflineStoreMigrationRequest.all_namespaces:type_name -> chalk.server.v1.OfflineStoreMigrationFeatureSet
-	35, // 51: chalk.server.v1.TriggerOfflineStoreMigrationRequest.selection:type_name -> chalk.server.v1.OfflineStoreMigrationTableSelection
-	53, // 52: chalk.server.v1.MaterializedFeatureViewControl.status:type_name -> chalk.server.v1.CronControlStatus
-	50, // 53: chalk.server.v1.MaterializedFeatureViewControl.updated_at:type_name -> google.protobuf.Timestamp
-	53, // 54: chalk.server.v1.UpdateMaterializedFeatureViewControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
-	53, // 55: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.status:type_name -> chalk.server.v1.CronControlStatus
-	54, // 56: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.update_mask:type_name -> google.protobuf.FieldMask
-	39, // 57: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.update:type_name -> chalk.server.v1.UpdateMaterializedFeatureViewControlOperation
-	38, // 58: chalk.server.v1.UpdateMaterializedFeatureViewControlResponse.control:type_name -> chalk.server.v1.MaterializedFeatureViewControl
-	50, // 59: chalk.server.v1.OfflineWideTableFeatureWatermark.filled_through:type_name -> google.protobuf.Timestamp
-	50, // 60: chalk.server.v1.OfflineWideTableFeatureWatermark.updated_at:type_name -> google.protobuf.Timestamp
-	42, // 61: chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse.watermarks:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermark
-	50, // 62: chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate.filled_through:type_name -> google.protobuf.Timestamp
-	45, // 63: chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest.updates:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate
-	40, // 64: chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl:input_type -> chalk.server.v1.UpdateMaterializedFeatureViewControlRequest
-	12, // 65: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
-	14, // 66: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
-	19, // 67: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
-	26, // 68: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:input_type -> chalk.server.v1.GetOfflineWideTableNamespacesRequest
-	28, // 69: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
-	30, // 70: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableOverrideFill:input_type -> chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest
-	32, // 71: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
-	36, // 72: chalk.server.v1.OfflineWideTablesService.TriggerOfflineStoreMigration:input_type -> chalk.server.v1.TriggerOfflineStoreMigrationRequest
-	43, // 73: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest
-	46, // 74: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest
-	48, // 75: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest
-	41, // 76: chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl:output_type -> chalk.server.v1.UpdateMaterializedFeatureViewControlResponse
-	13, // 77: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
-	15, // 78: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
-	20, // 79: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
-	27, // 80: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:output_type -> chalk.server.v1.GetOfflineWideTableNamespacesResponse
-	29, // 81: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
-	31, // 82: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableOverrideFill:output_type -> chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse
-	33, // 83: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
-	37, // 84: chalk.server.v1.OfflineWideTablesService.TriggerOfflineStoreMigration:output_type -> chalk.server.v1.TriggerOfflineStoreMigrationResponse
-	44, // 85: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse
-	47, // 86: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse
-	49, // 87: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse
-	76, // [76:88] is the sub-list for method output_type
-	64, // [64:76] is the sub-list for method input_type
-	64, // [64:64] is the sub-list for extension type_name
-	64, // [64:64] is the sub-list for extension extendee
-	0,  // [0:64] is the sub-list for field type_name
+	50, // 47: chalk.server.v1.TriggerOfflineWideTableCompactionRequest.observed_at_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
+	50, // 48: chalk.server.v1.TriggerOfflineWideTableCompactionRequest.observed_at_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	6,  // 49: chalk.server.v1.OfflineStoreMigrationNamespaceSelection.features:type_name -> chalk.server.v1.OfflineStoreMigrationFeatureSet
+	34, // 50: chalk.server.v1.OfflineStoreMigrationTableSelection.namespaces:type_name -> chalk.server.v1.OfflineStoreMigrationNamespaceSelection
+	5,  // 51: chalk.server.v1.TriggerOfflineStoreMigrationRequest.op:type_name -> chalk.server.v1.OfflineStoreMigrationOp
+	6,  // 52: chalk.server.v1.TriggerOfflineStoreMigrationRequest.all_namespaces:type_name -> chalk.server.v1.OfflineStoreMigrationFeatureSet
+	35, // 53: chalk.server.v1.TriggerOfflineStoreMigrationRequest.selection:type_name -> chalk.server.v1.OfflineStoreMigrationTableSelection
+	53, // 54: chalk.server.v1.MaterializedFeatureViewControl.status:type_name -> chalk.server.v1.CronControlStatus
+	50, // 55: chalk.server.v1.MaterializedFeatureViewControl.updated_at:type_name -> google.protobuf.Timestamp
+	53, // 56: chalk.server.v1.MaterializedFeatureViewControl.compaction_status:type_name -> chalk.server.v1.CronControlStatus
+	53, // 57: chalk.server.v1.UpdateMaterializedFeatureViewControlOperation.status:type_name -> chalk.server.v1.CronControlStatus
+	53, // 58: chalk.server.v1.UpdateMaterializedFeatureViewControlOperation.compaction_status:type_name -> chalk.server.v1.CronControlStatus
+	53, // 59: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.status:type_name -> chalk.server.v1.CronControlStatus
+	54, // 60: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.update_mask:type_name -> google.protobuf.FieldMask
+	39, // 61: chalk.server.v1.UpdateMaterializedFeatureViewControlRequest.update:type_name -> chalk.server.v1.UpdateMaterializedFeatureViewControlOperation
+	38, // 62: chalk.server.v1.UpdateMaterializedFeatureViewControlResponse.control:type_name -> chalk.server.v1.MaterializedFeatureViewControl
+	50, // 63: chalk.server.v1.OfflineWideTableFeatureWatermark.filled_through:type_name -> google.protobuf.Timestamp
+	50, // 64: chalk.server.v1.OfflineWideTableFeatureWatermark.updated_at:type_name -> google.protobuf.Timestamp
+	42, // 65: chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse.watermarks:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermark
+	50, // 66: chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate.filled_through:type_name -> google.protobuf.Timestamp
+	45, // 67: chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest.updates:type_name -> chalk.server.v1.OfflineWideTableFeatureWatermarkUpdate
+	40, // 68: chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl:input_type -> chalk.server.v1.UpdateMaterializedFeatureViewControlRequest
+	12, // 69: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:input_type -> chalk.server.v1.ListOfflineWideTableRunsRequest
+	14, // 70: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:input_type -> chalk.server.v1.GetOfflineWideTableRunRequest
+	19, // 71: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:input_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesRequest
+	26, // 72: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:input_type -> chalk.server.v1.GetOfflineWideTableNamespacesRequest
+	28, // 73: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:input_type -> chalk.server.v1.TriggerOfflineWideTableFillRequest
+	30, // 74: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableOverrideFill:input_type -> chalk.server.v1.TriggerOfflineWideTableOverrideFillRequest
+	32, // 75: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:input_type -> chalk.server.v1.TriggerOfflineWideTableCompactionRequest
+	36, // 76: chalk.server.v1.OfflineWideTablesService.TriggerOfflineStoreMigration:input_type -> chalk.server.v1.TriggerOfflineStoreMigrationRequest
+	43, // 77: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksRequest
+	46, // 78: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksRequest
+	48, // 79: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:input_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksRequest
+	41, // 80: chalk.server.v1.OfflineWideTablesService.UpdateMaterializedFeatureViewControl:output_type -> chalk.server.v1.UpdateMaterializedFeatureViewControlResponse
+	13, // 81: chalk.server.v1.OfflineWideTablesService.ListOfflineWideTableRuns:output_type -> chalk.server.v1.ListOfflineWideTableRunsResponse
+	15, // 82: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableRun:output_type -> chalk.server.v1.GetOfflineWideTableRunResponse
+	20, // 83: chalk.server.v1.OfflineWideTablesService.GetActiveOfflineWideTableSchedules:output_type -> chalk.server.v1.GetActiveOfflineWideTableSchedulesResponse
+	27, // 84: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableNamespaces:output_type -> chalk.server.v1.GetOfflineWideTableNamespacesResponse
+	29, // 85: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableFill:output_type -> chalk.server.v1.TriggerOfflineWideTableFillResponse
+	31, // 86: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableOverrideFill:output_type -> chalk.server.v1.TriggerOfflineWideTableOverrideFillResponse
+	33, // 87: chalk.server.v1.OfflineWideTablesService.TriggerOfflineWideTableCompaction:output_type -> chalk.server.v1.TriggerOfflineWideTableCompactionResponse
+	37, // 88: chalk.server.v1.OfflineWideTablesService.TriggerOfflineStoreMigration:output_type -> chalk.server.v1.TriggerOfflineStoreMigrationResponse
+	44, // 89: chalk.server.v1.OfflineWideTablesService.GetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.GetOfflineWideTableFeatureWatermarksResponse
+	47, // 90: chalk.server.v1.OfflineWideTablesService.SetOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.SetOfflineWideTableFeatureWatermarksResponse
+	49, // 91: chalk.server.v1.OfflineWideTablesService.DeleteOfflineWideTableFeatureWatermarks:output_type -> chalk.server.v1.DeleteOfflineWideTableFeatureWatermarksResponse
+	80, // [80:92] is the sub-list for method output_type
+	68, // [68:80] is the sub-list for method input_type
+	68, // [68:68] is the sub-list for extension type_name
+	68, // [68:68] is the sub-list for extension extendee
+	0,  // [0:68] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_wide_tables_proto_init() }
@@ -3776,6 +3826,7 @@ func file_chalk_server_v1_offline_wide_tables_proto_init() {
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[18].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[20].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[23].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[25].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_wide_tables_proto_msgTypes[29].OneofWrappers = []any{
 		(*TriggerOfflineStoreMigrationRequest_AllNamespaces)(nil),
 		(*TriggerOfflineStoreMigrationRequest_Selection)(nil),

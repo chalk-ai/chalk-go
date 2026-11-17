@@ -9,6 +9,7 @@ package serverv1
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -363,8 +364,10 @@ func (x *GetBranchWithLatestDeploymentResponse) GetBranchWithLatestDeployment() 
 }
 
 type DeleteBranchRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/branches.proto.
+	Name          string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Names         []string `protobuf:"bytes,2,rep,name=names,proto3" json:"names,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -399,11 +402,19 @@ func (*DeleteBranchRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_branches_proto_rawDescGZIP(), []int{6}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/branches.proto.
 func (x *DeleteBranchRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *DeleteBranchRequest) GetNames() []string {
+	if x != nil {
+		return x.Names
+	}
+	return nil
 }
 
 type DeleteBranchResponse struct {
@@ -969,7 +980,7 @@ var File_chalk_server_v1_branches_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_branches_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/server/v1/branches.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/server/v1/deployment.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x92\x01\n" +
+	"\x1echalk/server/v1/branches.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/server/v1/deployment.proto\x1a\x1achalk/utils/v1/large.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x92\x01\n" +
 	"\x06Branch\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
@@ -993,9 +1004,10 @@ const file_chalk_server_v1_branches_proto_rawDesc = "" +
 	"$GetBranchWithLatestDeploymentRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x97\x01\n" +
 	"%GetBranchWithLatestDeploymentResponse\x12n\n" +
-	"\x1dbranch_with_latest_deployment\x18\x01 \x01(\v2+.chalk.server.v1.BranchWithLatestDeploymentR\x1abranchWithLatestDeployment\")\n" +
-	"\x13DeleteBranchRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"\x16\n" +
+	"\x1dbranch_with_latest_deployment\x18\x01 \x01(\v2+.chalk.server.v1.BranchWithLatestDeploymentR\x1abranchWithLatestDeployment\"C\n" +
+	"\x13DeleteBranchRequest\x12\x16\n" +
+	"\x04name\x18\x01 \x01(\tB\x02\x18\x01R\x04name\x12\x14\n" +
+	"\x05names\x18\x02 \x03(\tR\x05names\"\x16\n" +
 	"\x14DeleteBranchResponse\"\xc4\x01\n" +
 	"&ListBranchWithLatestDeploymentsFilters\x12(\n" +
 	"\rsearch_string\x18\x01 \x01(\tH\x00R\fsearchString\x88\x01\x01\x12=\n" +
@@ -1027,11 +1039,11 @@ const file_chalk_server_v1_branches_proto_rawDesc = "" +
 	"\x15venv_packages_by_name\x18\x01 \x03(\v2O.chalk.server.v1.GetBranchVenvInstalledPackagesResponse.VenvPackagesByNameEntryR\x12venvPackagesByName\x1ad\n" +
 	"\x17VenvPackagesByNameEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x123\n" +
-	"\x05value\x18\x02 \x01(\v2\x1d.chalk.server.v1.VenvPackagesR\x05value:\x028\x01\"Y\n" +
+	"\x05value\x18\x02 \x01(\v2\x1d.chalk.server.v1.VenvPackagesR\x05value:\x028\x01\"_\n" +
 	"\x1cStartBranchDeploymentRequest\x12\x1f\n" +
 	"\vbranch_name\x18\x01 \x01(\tR\n" +
-	"branchName\x12\x18\n" +
-	"\aarchive\x18\x02 \x01(\fR\aarchive\"\x8d\x01\n" +
+	"branchName\x12\x1e\n" +
+	"\aarchive\x18\x02 \x01(\fB\x04\xe8\xa1'\x01R\aarchive\"\x8d\x01\n" +
 	"\x1dStartBranchDeploymentResponse\x12;\n" +
 	"\n" +
 	"deployment\x18\x01 \x01(\v2\x1b.chalk.server.v1.DeploymentR\n" +

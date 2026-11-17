@@ -8,9 +8,9 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
-	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/models/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -3324,7 +3324,7 @@ var File_chalk_server_v1_model_registry_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\n" +
-	"$chalk/server/v1/model_registry.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a*chalk/graph/v1/source_file_reference.proto\x1a$chalk/models/v1/model_artifact.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x04\n" +
+	"$chalk/server/v1/model_registry.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a*chalk/graph/v1/source_file_reference.proto\x1a$chalk/models/v1/model_artifact.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x04\n" +
 	"\rModelArtifact\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04path\x18\x02 \x01(\tR\x04path\x126\n" +
@@ -3541,9 +3541,9 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\rmodel_version\x18\x01 \x01(\v2\x1d.chalk.server.v1.ModelVersionR\fmodelVersion\"B\n" +
 	"!GetModelArtifactUploadUrlsRequest\x12\x1d\n" +
 	"\n" +
-	"file_names\x18\x01 \x03(\tR\tfileNames\"\xf5\x01\n" +
-	"\"GetModelArtifactUploadUrlsResponse\x12d\n" +
-	"\vupload_urls\x18\x01 \x03(\v2C.chalk.server.v1.GetModelArtifactUploadUrlsResponse.UploadUrlsEntryR\n" +
+	"file_names\x18\x01 \x03(\tR\tfileNames\"\xfb\x01\n" +
+	"\"GetModelArtifactUploadUrlsResponse\x12j\n" +
+	"\vupload_urls\x18\x01 \x03(\v2C.chalk.server.v1.GetModelArtifactUploadUrlsResponse.UploadUrlsEntryB\x04ء'\x01R\n" +
 	"uploadUrls\x12*\n" +
 	"\x11model_artifact_id\x18\x02 \x01(\tR\x0fmodelArtifactId\x1a=\n" +
 	"\x0fUploadUrlsEntry\x12\x10\n" +
@@ -3552,13 +3552,13 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\x1cDownloadModelArtifactRequest\x12L\n" +
 	"\x11model_version_key\x18\x01 \x01(\v2 .chalk.server.v1.ModelVersionKeyR\x0fmodelVersionKey\x12/\n" +
 	"\x11model_artifact_id\x18\x02 \x01(\tH\x00R\x0fmodelArtifactId\x88\x01\x01B\x14\n" +
-	"\x12_model_artifact_id\"\xcd\x01\n" +
-	"\x1dDownloadModelArtifactResponse\x12\x14\n" +
-	"\x03uri\x18\x01 \x01(\tB\x02\x18\x01R\x03uri\x12E\n" +
-	"\x0emodel_artifact\x18\x02 \x01(\v2\x1e.chalk.server.v1.ModelArtifactR\rmodelArtifact\x12\x1d\n" +
+	"\x12_model_artifact_id\"\xdd\x01\n" +
+	"\x1dDownloadModelArtifactResponse\x12\x18\n" +
+	"\x03uri\x18\x01 \x01(\tB\x06ء'\x01\x18\x01R\x03uri\x12E\n" +
+	"\x0emodel_artifact\x18\x02 \x01(\v2\x1e.chalk.server.v1.ModelArtifactR\rmodelArtifact\x12#\n" +
 	"\n" +
-	"model_urls\x18\x03 \x03(\tR\tmodelUrls\x120\n" +
-	"\x14additional_file_urls\x18\x04 \x03(\tR\x12additionalFileUrls\"\xfc\x01\n" +
+	"model_urls\x18\x03 \x03(\tB\x04ء'\x01R\tmodelUrls\x126\n" +
+	"\x14additional_file_urls\x18\x04 \x03(\tB\x04ء'\x01R\x12additionalFileUrls\"\xfc\x01\n" +
 	"\x19GetModelReferencesRequest\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x12\"\n" +
 	"\n" +
@@ -3664,40 +3664,34 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\x10ListModelsStatus\x12\"\n" +
 	"\x1eLIST_MODELS_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19LIST_MODELS_STATUS_ACTIVE\x10\x01\x12\x1e\n" +
-	"\x1aLIST_MODELS_STATUS_DELETED\x10\x022\xfd\x16\n" +
+	"\x1aLIST_MODELS_STATUS_DELETED\x10\x022\xe8\x10\n" +
 	"\x14ModelRegistryService\x12a\n" +
 	"\n" +
 	"ListModels\x12\".chalk.server.v1.ListModelsRequest\x1a#.chalk.server.v1.ListModelsResponse\"\n" +
 	"\x80}2\x92}\x01\v\x90\x02\x01\x12[\n" +
 	"\bGetModel\x12 .chalk.server.v1.GetModelRequest\x1a!.chalk.server.v1.GetModelResponse\"\n" +
-	"\x80}2\x92}\x01\v\x90\x02\x01\x12\xb8\x01\n" +
-	"\vCreateModel\x12#.chalk.server.v1.CreateModelRequest\x1a$.chalk.server.v1.CreateModelResponse\"^\x80}3\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xb8\x01\n" +
-	"\vUpdateModel\x12#.chalk.server.v1.UpdateModelRequest\x1a$.chalk.server.v1.UpdateModelResponse\"^\x80}3\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xbb\x01\n" +
-	"\vDeleteModel\x12#.chalk.server.v1.DeleteModelRequest\x1a$.chalk.server.v1.DeleteModelResponse\"a\x80}3\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x90\x02\x02\x12v\n" +
+	"\x80}2\x92}\x01\v\x90\x02\x01\x12a\n" +
+	"\vCreateModel\x12#.chalk.server.v1.CreateModelRequest\x1a$.chalk.server.v1.CreateModelResponse\"\a\x80}3\x92}\x01\f\x12a\n" +
+	"\vUpdateModel\x12#.chalk.server.v1.UpdateModelRequest\x1a$.chalk.server.v1.UpdateModelResponse\"\a\x80}3\x92}\x01\f\x12d\n" +
+	"\vDeleteModel\x12#.chalk.server.v1.DeleteModelRequest\x1a$.chalk.server.v1.DeleteModelResponse\"\n" +
+	"\x80}3\x92}\x01\f\x90\x02\x02\x12v\n" +
 	"\x11ListModelVersions\x12).chalk.server.v1.ListModelVersionsRequest\x1a*.chalk.server.v1.ListModelVersionsResponse\"\n" +
 	"\x80}2\x92}\x01\v\x90\x02\x01\x12p\n" +
 	"\x0fGetModelVersion\x12'.chalk.server.v1.GetModelVersionRequest\x1a(.chalk.server.v1.GetModelVersionResponse\"\n" +
-	"\x80}2\x92}\x01\v\x90\x02\x01\x12\xcd\x01\n" +
-	"\x12CreateModelVersion\x12*.chalk.server.v1.CreateModelVersionRequest\x1a+.chalk.server.v1.CreateModelVersionResponse\"^\x80}3\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xd0\x01\n" +
-	"\x13CreateModelArtifact\x12+.chalk.server.v1.CreateModelArtifactRequest\x1a,.chalk.server.v1.CreateModelArtifactResponse\"^\x80}3\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xf1\x01\n" +
-	"\x1eCreateModelVersionFromArtifact\x126.chalk.server.v1.CreateModelVersionFromArtifactRequest\x1a7.chalk.server.v1.CreateModelVersionFromArtifactResponse\"^\x80}3\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12v\n" +
-	"\x12UpdateModelVersion\x12*.chalk.server.v1.UpdateModelVersionRequest\x1a+.chalk.server.v1.UpdateModelVersionResponse\"\a\x80}3\x92}\x01\f\x12\xd0\x01\n" +
-	"\x12DeleteModelVersion\x12*.chalk.server.v1.DeleteModelVersionRequest\x1a+.chalk.server.v1.DeleteModelVersionResponse\"a\x80}3\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x90\x02\x02\x12\xd9\x01\n" +
-	"\x15DownloadModelArtifact\x12-.chalk.server.v1.DownloadModelArtifactRequest\x1a..chalk.server.v1.DownloadModelArtifactResponse\"a\x80}2\x92}\x01\v\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x90\x02\x01\x12y\n" +
+	"\x80}2\x92}\x01\v\x90\x02\x01\x12v\n" +
+	"\x12CreateModelVersion\x12*.chalk.server.v1.CreateModelVersionRequest\x1a+.chalk.server.v1.CreateModelVersionResponse\"\a\x80}3\x92}\x01\f\x12y\n" +
+	"\x13CreateModelArtifact\x12+.chalk.server.v1.CreateModelArtifactRequest\x1a,.chalk.server.v1.CreateModelArtifactResponse\"\a\x80}3\x92}\x01\f\x12\x9a\x01\n" +
+	"\x1eCreateModelVersionFromArtifact\x126.chalk.server.v1.CreateModelVersionFromArtifactRequest\x1a7.chalk.server.v1.CreateModelVersionFromArtifactResponse\"\a\x80}3\x92}\x01\f\x12v\n" +
+	"\x12UpdateModelVersion\x12*.chalk.server.v1.UpdateModelVersionRequest\x1a+.chalk.server.v1.UpdateModelVersionResponse\"\a\x80}3\x92}\x01\f\x12y\n" +
+	"\x12DeleteModelVersion\x12*.chalk.server.v1.DeleteModelVersionRequest\x1a+.chalk.server.v1.DeleteModelVersionResponse\"\n" +
+	"\x80}3\x92}\x01\f\x90\x02\x02\x12\x82\x01\n" +
+	"\x15DownloadModelArtifact\x12-.chalk.server.v1.DownloadModelArtifactRequest\x1a..chalk.server.v1.DownloadModelArtifactResponse\"\n" +
+	"\x80}2\x92}\x01\v\x90\x02\x01\x12y\n" +
 	"\x12GetModelReferences\x12*.chalk.server.v1.GetModelReferencesRequest\x1a+.chalk.server.v1.GetModelReferencesResponse\"\n" +
 	"\x80}2\x92}\x01\v\x90\x02\x01\x12v\n" +
 	"\x11GetModelReference\x12).chalk.server.v1.GetModelReferenceRequest\x1a*.chalk.server.v1.GetModelReferenceResponse\"\n" +
-	"\x80}2\x92}\x01\v\x90\x02\x01\x12\xe5\x01\n" +
-	"\x1aGetModelArtifactUploadUrls\x122.chalk.server.v1.GetModelArtifactUploadUrlsRequest\x1a3.chalk.server.v1.GetModelArtifactUploadUrlsResponse\"^\x80}3\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12y\n" +
+	"\x80}2\x92}\x01\v\x90\x02\x01\x12\x8e\x01\n" +
+	"\x1aGetModelArtifactUploadUrls\x122.chalk.server.v1.GetModelArtifactUploadUrlsRequest\x1a3.chalk.server.v1.GetModelArtifactUploadUrlsResponse\"\a\x80}3\x92}\x01\f\x12y\n" +
 	"\x12ListModelArtifacts\x12*.chalk.server.v1.ListModelArtifactsRequest\x1a+.chalk.server.v1.ListModelArtifactsResponse\"\n" +
 	"\x80}2\x92}\x01\v\x90\x02\x01\x12s\n" +
 	"\x10GetModelArtifact\x12(.chalk.server.v1.GetModelArtifactRequest\x1a).chalk.server.v1.GetModelArtifactResponse\"\n" +

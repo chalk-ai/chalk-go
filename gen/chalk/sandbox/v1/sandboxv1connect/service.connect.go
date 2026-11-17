@@ -67,6 +67,9 @@ const (
 	// CustomImageServiceListCustomImageBuildsProcedure is the fully-qualified name of the
 	// CustomImageService's ListCustomImageBuilds RPC.
 	CustomImageServiceListCustomImageBuildsProcedure = "/chalk.sandbox.v1.CustomImageService/ListCustomImageBuilds"
+	// CustomImageServiceListImageFacetsProcedure is the fully-qualified name of the
+	// CustomImageService's ListImageFacets RPC.
+	CustomImageServiceListImageFacetsProcedure = "/chalk.sandbox.v1.CustomImageService/ListImageFacets"
 	// CustomImageServiceGetCustomImageBuildProcedure is the fully-qualified name of the
 	// CustomImageService's GetCustomImageBuild RPC.
 	CustomImageServiceGetCustomImageBuildProcedure = "/chalk.sandbox.v1.CustomImageService/GetCustomImageBuild"
@@ -287,6 +290,8 @@ type CustomImageServiceClient interface {
 	// ListCustomImageBuilds lists the custom images the calling environment
 	// references (from the per-environment custom_image_refs index), newest first.
 	ListCustomImageBuilds(context.Context, *connect.Request[v1.ListCustomImageBuildsRequest]) (*connect.Response[v1.ListCustomImageBuildsResponse], error)
+	// ListImageFacets lists the available filters for the calling environment's images.
+	ListImageFacets(context.Context, *connect.Request[v1.ListImageFacetsRequest]) (*connect.Response[v1.ListImageFacetsResponse], error)
 	// GetCustomImageBuild returns a single referenced build, addressed by content
 	// hash or build ID and authorized against the calling environment.
 	GetCustomImageBuild(context.Context, *connect.Request[v1.GetCustomImageBuildRequest]) (*connect.Response[v1.GetCustomImageBuildResponse], error)
@@ -353,6 +358,12 @@ func NewCustomImageServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(customImageServiceMethods.ByName("ListCustomImageBuilds")),
 			connect.WithClientOptions(opts...),
 		),
+		listImageFacets: connect.NewClient[v1.ListImageFacetsRequest, v1.ListImageFacetsResponse](
+			httpClient,
+			baseURL+CustomImageServiceListImageFacetsProcedure,
+			connect.WithSchema(customImageServiceMethods.ByName("ListImageFacets")),
+			connect.WithClientOptions(opts...),
+		),
 		getCustomImageBuild: connect.NewClient[v1.GetCustomImageBuildRequest, v1.GetCustomImageBuildResponse](
 			httpClient,
 			baseURL+CustomImageServiceGetCustomImageBuildProcedure,
@@ -388,6 +399,7 @@ type customImageServiceClient struct {
 	getOrBuildCustomImage         *connect.Client[v1.GetOrBuildCustomImageRequest, v1.GetOrBuildCustomImageResponse]
 	streamCustomImageBuildUpdates *connect.Client[v1.StreamCustomImageBuildUpdatesRequest, v1.StreamCustomImageBuildUpdatesResponse]
 	listCustomImageBuilds         *connect.Client[v1.ListCustomImageBuildsRequest, v1.ListCustomImageBuildsResponse]
+	listImageFacets               *connect.Client[v1.ListImageFacetsRequest, v1.ListImageFacetsResponse]
 	getCustomImageBuild           *connect.Client[v1.GetCustomImageBuildRequest, v1.GetCustomImageBuildResponse]
 	getCustomImageBuildLogs       *connect.Client[v1.GetCustomImageBuildLogsRequest, v1.GetCustomImageBuildLogsResponse]
 	getCustomImageBuildWorkflow   *connect.Client[v1.GetCustomImageBuildWorkflowRequest, v1.GetCustomImageBuildWorkflowResponse]
@@ -423,6 +435,11 @@ func (c *customImageServiceClient) StreamCustomImageBuildUpdates(ctx context.Con
 // ListCustomImageBuilds calls chalk.sandbox.v1.CustomImageService.ListCustomImageBuilds.
 func (c *customImageServiceClient) ListCustomImageBuilds(ctx context.Context, req *connect.Request[v1.ListCustomImageBuildsRequest]) (*connect.Response[v1.ListCustomImageBuildsResponse], error) {
 	return c.listCustomImageBuilds.CallUnary(ctx, req)
+}
+
+// ListImageFacets calls chalk.sandbox.v1.CustomImageService.ListImageFacets.
+func (c *customImageServiceClient) ListImageFacets(ctx context.Context, req *connect.Request[v1.ListImageFacetsRequest]) (*connect.Response[v1.ListImageFacetsResponse], error) {
+	return c.listImageFacets.CallUnary(ctx, req)
 }
 
 // GetCustomImageBuild calls chalk.sandbox.v1.CustomImageService.GetCustomImageBuild.
@@ -463,6 +480,8 @@ type CustomImageServiceHandler interface {
 	// ListCustomImageBuilds lists the custom images the calling environment
 	// references (from the per-environment custom_image_refs index), newest first.
 	ListCustomImageBuilds(context.Context, *connect.Request[v1.ListCustomImageBuildsRequest]) (*connect.Response[v1.ListCustomImageBuildsResponse], error)
+	// ListImageFacets lists the available filters for the calling environment's images.
+	ListImageFacets(context.Context, *connect.Request[v1.ListImageFacetsRequest]) (*connect.Response[v1.ListImageFacetsResponse], error)
 	// GetCustomImageBuild returns a single referenced build, addressed by content
 	// hash or build ID and authorized against the calling environment.
 	GetCustomImageBuild(context.Context, *connect.Request[v1.GetCustomImageBuildRequest]) (*connect.Response[v1.GetCustomImageBuildResponse], error)
@@ -525,6 +544,12 @@ func NewCustomImageServiceHandler(svc CustomImageServiceHandler, opts ...connect
 		connect.WithSchema(customImageServiceMethods.ByName("ListCustomImageBuilds")),
 		connect.WithHandlerOptions(opts...),
 	)
+	customImageServiceListImageFacetsHandler := connect.NewUnaryHandler(
+		CustomImageServiceListImageFacetsProcedure,
+		svc.ListImageFacets,
+		connect.WithSchema(customImageServiceMethods.ByName("ListImageFacets")),
+		connect.WithHandlerOptions(opts...),
+	)
 	customImageServiceGetCustomImageBuildHandler := connect.NewUnaryHandler(
 		CustomImageServiceGetCustomImageBuildProcedure,
 		svc.GetCustomImageBuild,
@@ -563,6 +588,8 @@ func NewCustomImageServiceHandler(svc CustomImageServiceHandler, opts ...connect
 			customImageServiceStreamCustomImageBuildUpdatesHandler.ServeHTTP(w, r)
 		case CustomImageServiceListCustomImageBuildsProcedure:
 			customImageServiceListCustomImageBuildsHandler.ServeHTTP(w, r)
+		case CustomImageServiceListImageFacetsProcedure:
+			customImageServiceListImageFacetsHandler.ServeHTTP(w, r)
 		case CustomImageServiceGetCustomImageBuildProcedure:
 			customImageServiceGetCustomImageBuildHandler.ServeHTTP(w, r)
 		case CustomImageServiceGetCustomImageBuildLogsProcedure:
@@ -602,6 +629,10 @@ func (UnimplementedCustomImageServiceHandler) StreamCustomImageBuildUpdates(cont
 
 func (UnimplementedCustomImageServiceHandler) ListCustomImageBuilds(context.Context, *connect.Request[v1.ListCustomImageBuildsRequest]) (*connect.Response[v1.ListCustomImageBuildsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.ListCustomImageBuilds is not implemented"))
+}
+
+func (UnimplementedCustomImageServiceHandler) ListImageFacets(context.Context, *connect.Request[v1.ListImageFacetsRequest]) (*connect.Response[v1.ListImageFacetsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.ListImageFacets is not implemented"))
 }
 
 func (UnimplementedCustomImageServiceHandler) GetCustomImageBuild(context.Context, *connect.Request[v1.GetCustomImageBuildRequest]) (*connect.Response[v1.GetCustomImageBuildResponse], error) {

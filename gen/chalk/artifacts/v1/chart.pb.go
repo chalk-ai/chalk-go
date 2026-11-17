@@ -211,6 +211,14 @@ const (
 	// measured on the sampled tokens. Not a KL penalty: it reports how far off-policy an
 	// asynchronous RL step is.
 	MetricKind_METRIC_KIND_MODEL_TRAINING_MISMATCH_KL MetricKind = 169
+	// Policy-gradient signal diagnostics for group-relative methods such as GRPO.
+	// Standard deviation of the advantages a training step was computed from.
+	MetricKind_METRIC_KIND_MODEL_TRAINING_ADVANTAGE_STD MetricKind = 172
+	// Fraction of rollout groups whose rollouts all earned the same reward, so their advantages
+	// are zero and they contribute no gradient.
+	MetricKind_METRIC_KIND_MODEL_TRAINING_ZERO_ADVANTAGE_RATIO MetricKind = 173
+	// Fraction of sampled completions cut off by the token limit before the model finished.
+	MetricKind_METRIC_KIND_MODEL_TRAINING_TRUNCATED_RATIO MetricKind = 174
 	// Sandbox lifecycle metrics combine the available Kubernetes and hypervisor telemetry.
 	MetricKind_METRIC_KIND_SANDBOX_STATE_COUNT     MetricKind = 154
 	MetricKind_METRIC_KIND_SANDBOX_STARTUP_LATENCY MetricKind = 155
@@ -402,6 +410,9 @@ var (
 		152: "METRIC_KIND_MODEL_TRAINING_LEARNING_RATE",
 		153: "METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH",
 		169: "METRIC_KIND_MODEL_TRAINING_MISMATCH_KL",
+		172: "METRIC_KIND_MODEL_TRAINING_ADVANTAGE_STD",
+		173: "METRIC_KIND_MODEL_TRAINING_ZERO_ADVANTAGE_RATIO",
+		174: "METRIC_KIND_MODEL_TRAINING_TRUNCATED_RATIO",
 		154: "METRIC_KIND_SANDBOX_STATE_COUNT",
 		155: "METRIC_KIND_SANDBOX_STARTUP_LATENCY",
 		156: "METRIC_KIND_SANDBOX_MEMORY_USED_BYTES",
@@ -576,6 +587,9 @@ var (
 		"METRIC_KIND_MODEL_TRAINING_LEARNING_RATE":            152,
 		"METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH":          153,
 		"METRIC_KIND_MODEL_TRAINING_MISMATCH_KL":              169,
+		"METRIC_KIND_MODEL_TRAINING_ADVANTAGE_STD":            172,
+		"METRIC_KIND_MODEL_TRAINING_ZERO_ADVANTAGE_RATIO":     173,
+		"METRIC_KIND_MODEL_TRAINING_TRUNCATED_RATIO":          174,
 		"METRIC_KIND_SANDBOX_STATE_COUNT":                     154,
 		"METRIC_KIND_SANDBOX_STARTUP_LATENCY":                 155,
 		"METRIC_KIND_SANDBOX_MEMORY_USED_BYTES":               156,
@@ -695,6 +709,8 @@ const (
 	FilterKind_FILTER_KIND_TRAINING_TASK          FilterKind = 51
 	// Canonical GPU workload identity: sandbox container ID or scaling-group ID.
 	FilterKind_FILTER_KIND_WORKLOAD_ID FilterKind = 52
+	// Named-query version the engine tags query counters with (`query_name_version`).
+	FilterKind_FILTER_KIND_QUERY_NAME_VERSION FilterKind = 53
 )
 
 // Enum value maps for FilterKind.
@@ -752,6 +768,7 @@ var (
 		50: "FILTER_KIND_TRAINING_RUBRIC",
 		51: "FILTER_KIND_TRAINING_TASK",
 		52: "FILTER_KIND_WORKLOAD_ID",
+		53: "FILTER_KIND_QUERY_NAME_VERSION",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":                0,
@@ -806,6 +823,7 @@ var (
 		"FILTER_KIND_TRAINING_RUBRIC":            50,
 		"FILTER_KIND_TRAINING_TASK":              51,
 		"FILTER_KIND_WORKLOAD_ID":                52,
+		"FILTER_KIND_QUERY_NAME_VERSION":         53,
 	}
 )
 
@@ -1024,6 +1042,8 @@ const (
 	GroupByKind_GROUP_BY_KIND_WORKLOAD_RUNTIME       GroupByKind = 44
 	GroupByKind_GROUP_BY_KIND_TRAINING_RUBRIC        GroupByKind = 46
 	GroupByKind_GROUP_BY_KIND_TRAINING_TASK          GroupByKind = 47
+	// See FILTER_KIND_QUERY_NAME_VERSION.
+	GroupByKind_GROUP_BY_KIND_QUERY_NAME_VERSION GroupByKind = 48
 )
 
 // Enum value maps for GroupByKind.
@@ -1075,6 +1095,7 @@ var (
 		44: "GROUP_BY_KIND_WORKLOAD_RUNTIME",
 		46: "GROUP_BY_KIND_TRAINING_RUBRIC",
 		47: "GROUP_BY_KIND_TRAINING_TASK",
+		48: "GROUP_BY_KIND_QUERY_NAME_VERSION",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":                   0,
@@ -1123,6 +1144,7 @@ var (
 		"GROUP_BY_KIND_WORKLOAD_RUNTIME":              44,
 		"GROUP_BY_KIND_TRAINING_RUBRIC":               46,
 		"GROUP_BY_KIND_TRAINING_TASK":                 47,
+		"GROUP_BY_KIND_QUERY_NAME_VERSION":            48,
 	}
 )
 
@@ -2437,7 +2459,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\xe18\n" +
+	"_entity_id*\xf79\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -2595,7 +2617,10 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"$METRIC_KIND_MODEL_TRAINING_GRAD_NORM\x10\x97\x01\x12-\n" +
 	"(METRIC_KIND_MODEL_TRAINING_LEARNING_RATE\x10\x98\x01\x12/\n" +
 	"*METRIC_KIND_MODEL_TRAINING_RESPONSE_LENGTH\x10\x99\x01\x12+\n" +
-	"&METRIC_KIND_MODEL_TRAINING_MISMATCH_KL\x10\xa9\x01\x12$\n" +
+	"&METRIC_KIND_MODEL_TRAINING_MISMATCH_KL\x10\xa9\x01\x12-\n" +
+	"(METRIC_KIND_MODEL_TRAINING_ADVANTAGE_STD\x10\xac\x01\x124\n" +
+	"/METRIC_KIND_MODEL_TRAINING_ZERO_ADVANTAGE_RATIO\x10\xad\x01\x12/\n" +
+	"*METRIC_KIND_MODEL_TRAINING_TRUNCATED_RATIO\x10\xae\x01\x12$\n" +
 	"\x1fMETRIC_KIND_SANDBOX_STATE_COUNT\x10\x9a\x01\x12(\n" +
 	"#METRIC_KIND_SANDBOX_STARTUP_LATENCY\x10\x9b\x01\x12*\n" +
 	"%METRIC_KIND_SANDBOX_MEMORY_USED_BYTES\x10\x9c\x01\x12(\n" +
@@ -2612,7 +2637,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x16METRIC_KIND_QUERY_RATE\x10\xa7\x01\x12$\n" +
 	"\x1fMETRIC_KIND_STREAM_MESSAGE_RATE\x10\xa8\x01\x12-\n" +
 	"(METRIC_KIND_FUNCTION_CALL_QUEUE_DURATION\x10\xaa\x01\x12)\n" +
-	"$METRIC_KIND_STREAM_DLQ_MESSAGES_SENT\x10\xab\x01*\x94\r\n" +
+	"$METRIC_KIND_STREAM_DLQ_MESSAGES_SENT\x10\xab\x01*\xb8\r\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -2667,7 +2692,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1aFILTER_KIND_WORKLOAD_STATE\x101\x12\x1f\n" +
 	"\x1bFILTER_KIND_TRAINING_RUBRIC\x102\x12\x1d\n" +
 	"\x19FILTER_KIND_TRAINING_TASK\x103\x12\x1b\n" +
-	"\x17FILTER_KIND_WORKLOAD_ID\x104\"\x04\b/\x10/*~\n" +
+	"\x17FILTER_KIND_WORKLOAD_ID\x104\x12\"\n" +
+	"\x1eFILTER_KIND_QUERY_NAME_VERSION\x105\"\x04\b/\x10/*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -2687,7 +2713,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xde\f\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x84\r\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -2735,7 +2761,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"$GROUP_BY_KIND_CONTAINER_CRASH_REASON\x10*\x12\"\n" +
 	"\x1eGROUP_BY_KIND_WORKLOAD_RUNTIME\x10,\x12!\n" +
 	"\x1dGROUP_BY_KIND_TRAINING_RUBRIC\x10.\x12\x1f\n" +
-	"\x1bGROUP_BY_KIND_TRAINING_TASK\x10/\"\x04\b+\x10+\"\x04\b-\x10-*\x81\x03\n" +
+	"\x1bGROUP_BY_KIND_TRAINING_TASK\x10/\x12$\n" +
+	" GROUP_BY_KIND_QUERY_NAME_VERSION\x100\"\x04\b+\x10+\"\x04\b-\x10-*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +

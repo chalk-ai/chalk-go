@@ -1282,9 +1282,9 @@ var File_chalk_server_v1_sso_proto protoreflect.FileDescriptor
 const file_chalk_server_v1_sso_proto_rawDesc = "" +
 	"\n" +
 	"\x19chalk/server/v1/sso.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\"\x18\n" +
-	"\x16CreateScimTokenRequest\"/\n" +
-	"\x17CreateScimTokenResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"\xa6\x01\n" +
+	"\x16CreateScimTokenRequest\"5\n" +
+	"\x17CreateScimTokenResponse\x12\x1a\n" +
+	"\x05token\x18\x01 \x01(\tB\x04ء'\x01R\x05token\"\xa6\x01\n" +
 	"\x0eSsoEmailDomain\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12!\n" +

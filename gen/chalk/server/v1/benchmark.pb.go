@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -1389,7 +1390,7 @@ var File_chalk_server_v1_benchmark_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/server/v1/benchmark.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/common/v1/online_query.proto\x1a\x1dchalk/server/v1/builder.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"6\n" +
+	"\x1fchalk/server/v1/benchmark.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\"chalk/common/v1/online_query.proto\x1a\x1dchalk/server/v1/builder.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"6\n" +
 	"\rInputFeatures\x12%\n" +
 	"\x0einput_features\x18\x01 \x03(\tR\rinputFeatures\"n\n" +
 	"\x11NamedQueryRequest\x12\x1d\n" +
@@ -1485,18 +1486,18 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"inputFiles\"e\n" +
 	"\x1dGetInputFileUploadUrlsRequest\x12D\n" +
 	"\vinput_files\x18\x01 \x03(\v2#.chalk.server.v1.BenchmarkInputFileR\n" +
-	"inputFiles\"G\n" +
-	"\x1eGetInputFileUploadUrlsResponse\x12%\n" +
-	"\x0epresigned_urls\x18\x01 \x03(\tR\rpresignedUrls\"8\n" +
+	"inputFiles\"M\n" +
+	"\x1eGetInputFileUploadUrlsResponse\x12+\n" +
+	"\x0epresigned_urls\x18\x01 \x03(\tB\x04ء'\x01R\rpresignedUrls\"8\n" +
 	"\x1eGetAvailableResultFilesRequest\x12\x16\n" +
 	"\x06prefix\x18\x01 \x01(\tR\x06prefix\"i\n" +
 	"\x1fGetAvailableResultFilesResponse\x12F\n" +
 	"\fresult_files\x18\x01 \x03(\v2#.chalk.server.v1.BenchmarkInputFileR\vresultFiles\"9\n" +
 	"\x18GetResultFileUrlsRequest\x12\x1d\n" +
 	"\n" +
-	"file_names\x18\x01 \x03(\tR\tfileNames\"B\n" +
-	"\x19GetResultFileUrlsResponse\x12%\n" +
-	"\x0epresigned_urls\x18\x01 \x03(\tR\rpresignedUrls\"&\n" +
+	"file_names\x18\x01 \x03(\tR\tfileNames\"H\n" +
+	"\x19GetResultFileUrlsResponse\x12+\n" +
+	"\x0epresigned_urls\x18\x01 \x03(\tB\x04ء'\x01R\rpresignedUrls\"&\n" +
 	"\x14KillBenchmarkRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x17\n" +
 	"\x15KillBenchmarkResponse*\xe8\x01\n" +

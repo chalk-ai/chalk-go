@@ -9,6 +9,7 @@ package notebookv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -999,9 +1000,11 @@ func (x *UpdateNotebookDocumentResponse) GetDocument() *NotebookDocument {
 }
 
 type DeleteNotebookDocumentRequest struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	NotebookId         string                 `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
-	ExpectedRevisionId *string                `protobuf:"bytes,2,opt,name=expected_revision_id,json=expectedRevisionId,proto3,oneof" json:"expected_revision_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/notebook/v1/document_service.proto.
+	NotebookId         string   `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	ExpectedRevisionId *string  `protobuf:"bytes,2,opt,name=expected_revision_id,json=expectedRevisionId,proto3,oneof" json:"expected_revision_id,omitempty"`
+	NotebookIds        []string `protobuf:"bytes,3,rep,name=notebook_ids,json=notebookIds,proto3" json:"notebook_ids,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1036,6 +1039,7 @@ func (*DeleteNotebookDocumentRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{8}
 }
 
+// Deprecated: Marked as deprecated in chalk/notebook/v1/document_service.proto.
 func (x *DeleteNotebookDocumentRequest) GetNotebookId() string {
 	if x != nil {
 		return x.NotebookId
@@ -1048,6 +1052,13 @@ func (x *DeleteNotebookDocumentRequest) GetExpectedRevisionId() string {
 		return *x.ExpectedRevisionId
 	}
 	return ""
+}
+
+func (x *DeleteNotebookDocumentRequest) GetNotebookIds() []string {
+	if x != nil {
+		return x.NotebookIds
+	}
+	return nil
 }
 
 type DeleteNotebookDocumentResponse struct {
@@ -1178,10 +1189,12 @@ func (x *EnsureNotebookAppResponse) GetDashboardId() string {
 }
 
 type SetNotebookArchivedRequest struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	NotebookId         string                 `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
-	Archived           bool                   `protobuf:"varint,2,opt,name=archived,proto3" json:"archived,omitempty"`
-	ExpectedRevisionId string                 `protobuf:"bytes,3,opt,name=expected_revision_id,json=expectedRevisionId,proto3" json:"expected_revision_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/notebook/v1/document_service.proto.
+	NotebookId         string   `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	Archived           bool     `protobuf:"varint,2,opt,name=archived,proto3" json:"archived,omitempty"`
+	ExpectedRevisionId string   `protobuf:"bytes,3,opt,name=expected_revision_id,json=expectedRevisionId,proto3" json:"expected_revision_id,omitempty"`
+	NotebookIds        []string `protobuf:"bytes,4,rep,name=notebook_ids,json=notebookIds,proto3" json:"notebook_ids,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1216,6 +1229,7 @@ func (*SetNotebookArchivedRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{12}
 }
 
+// Deprecated: Marked as deprecated in chalk/notebook/v1/document_service.proto.
 func (x *SetNotebookArchivedRequest) GetNotebookId() string {
 	if x != nil {
 		return x.NotebookId
@@ -1235,6 +1249,13 @@ func (x *SetNotebookArchivedRequest) GetExpectedRevisionId() string {
 		return x.ExpectedRevisionId
 	}
 	return ""
+}
+
+func (x *SetNotebookArchivedRequest) GetNotebookIds() []string {
+	if x != nil {
+		return x.NotebookIds
+	}
+	return nil
 }
 
 type SetNotebookArchivedResponse struct {
@@ -3082,7 +3103,10 @@ type FetchNotebookDataframeRowsRequest struct {
 	ChunkId string `protobuf:"bytes,2,opt,name=chunk_id,json=chunkId,proto3" json:"chunk_id,omitempty"`
 	Offset  int64  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
 	// Server clamps to its configured maximum page size.
-	Limit         int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	// On-demand materialization returned by MaterializeNotebookKernelVariable.
+	// Exactly one of chunk_id or blob_id must be set.
+	BlobId        string `protobuf:"bytes,5,opt,name=blob_id,json=blobId,proto3" json:"blob_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3143,6 +3167,13 @@ func (x *FetchNotebookDataframeRowsRequest) GetLimit() int32 {
 		return x.Limit
 	}
 	return 0
+}
+
+func (x *FetchNotebookDataframeRowsRequest) GetBlobId() string {
+	if x != nil {
+		return x.BlobId
+	}
+	return ""
 }
 
 type FetchNotebookDataframeRowsResponse struct {
@@ -3243,7 +3274,10 @@ type AggregateNotebookDataframeRequest struct {
 	Aggregation NotebookDataframeAggregation `protobuf:"varint,4,opt,name=aggregation,proto3,enum=chalk.notebook.v1.NotebookDataframeAggregation" json:"aggregation,omitempty"`
 	// AGGREGATION_PERCENTILE only: the rank in 0-100 (95 for p95). Ignored by
 	// every other aggregation.
-	Percentile    float64 `protobuf:"fixed64,5,opt,name=percentile,proto3" json:"percentile,omitempty"`
+	Percentile float64 `protobuf:"fixed64,5,opt,name=percentile,proto3" json:"percentile,omitempty"`
+	// On-demand materialization returned by MaterializeNotebookKernelVariable.
+	// Exactly one of chunk_id or blob_id must be set.
+	BlobId        string `protobuf:"bytes,6,opt,name=blob_id,json=blobId,proto3" json:"blob_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3313,6 +3347,435 @@ func (x *AggregateNotebookDataframeRequest) GetPercentile() float64 {
 	return 0
 }
 
+func (x *AggregateNotebookDataframeRequest) GetBlobId() string {
+	if x != nil {
+		return x.BlobId
+	}
+	return ""
+}
+
+type MaterializeNotebookKernelVariableRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	NotebookId string                 `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	// VARIABLES output chunk that advertised this dataframe. Its identity ties
+	// the materialization to the kernel snapshot the client is rendering.
+	VariableSnapshotChunkId string `protobuf:"bytes,2,opt,name=variable_snapshot_chunk_id,json=variableSnapshotChunkId,proto3" json:"variable_snapshot_chunk_id,omitempty"`
+	VariableName            string `protobuf:"bytes,3,opt,name=variable_name,json=variableName,proto3" json:"variable_name,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *MaterializeNotebookKernelVariableRequest) Reset() {
+	*x = MaterializeNotebookKernelVariableRequest{}
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MaterializeNotebookKernelVariableRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MaterializeNotebookKernelVariableRequest) ProtoMessage() {}
+
+func (x *MaterializeNotebookKernelVariableRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MaterializeNotebookKernelVariableRequest.ProtoReflect.Descriptor instead.
+func (*MaterializeNotebookKernelVariableRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *MaterializeNotebookKernelVariableRequest) GetNotebookId() string {
+	if x != nil {
+		return x.NotebookId
+	}
+	return ""
+}
+
+func (x *MaterializeNotebookKernelVariableRequest) GetVariableSnapshotChunkId() string {
+	if x != nil {
+		return x.VariableSnapshotChunkId
+	}
+	return ""
+}
+
+func (x *MaterializeNotebookKernelVariableRequest) GetVariableName() string {
+	if x != nil {
+		return x.VariableName
+	}
+	return ""
+}
+
+type GetNotebookVariableMaterializationRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	NotebookId string                 `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	// VARIABLES output chunk that advertised this dataframe. Its identity ties
+	// the persisted artifact to the kernel snapshot the client is rendering.
+	VariableSnapshotChunkId string `protobuf:"bytes,2,opt,name=variable_snapshot_chunk_id,json=variableSnapshotChunkId,proto3" json:"variable_snapshot_chunk_id,omitempty"`
+	VariableName            string `protobuf:"bytes,3,opt,name=variable_name,json=variableName,proto3" json:"variable_name,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *GetNotebookVariableMaterializationRequest) Reset() {
+	*x = GetNotebookVariableMaterializationRequest{}
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetNotebookVariableMaterializationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetNotebookVariableMaterializationRequest) ProtoMessage() {}
+
+func (x *GetNotebookVariableMaterializationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetNotebookVariableMaterializationRequest.ProtoReflect.Descriptor instead.
+func (*GetNotebookVariableMaterializationRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *GetNotebookVariableMaterializationRequest) GetNotebookId() string {
+	if x != nil {
+		return x.NotebookId
+	}
+	return ""
+}
+
+func (x *GetNotebookVariableMaterializationRequest) GetVariableSnapshotChunkId() string {
+	if x != nil {
+		return x.VariableSnapshotChunkId
+	}
+	return ""
+}
+
+func (x *GetNotebookVariableMaterializationRequest) GetVariableName() string {
+	if x != nil {
+		return x.VariableName
+	}
+	return ""
+}
+
+type GetNotebookVariableMaterializationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Empty when this snapshot has not been materialized.
+	BlobId        string `protobuf:"bytes,1,opt,name=blob_id,json=blobId,proto3" json:"blob_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetNotebookVariableMaterializationResponse) Reset() {
+	*x = GetNotebookVariableMaterializationResponse{}
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetNotebookVariableMaterializationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetNotebookVariableMaterializationResponse) ProtoMessage() {}
+
+func (x *GetNotebookVariableMaterializationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetNotebookVariableMaterializationResponse.ProtoReflect.Descriptor instead.
+func (*GetNotebookVariableMaterializationResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *GetNotebookVariableMaterializationResponse) GetBlobId() string {
+	if x != nil {
+		return x.BlobId
+	}
+	return ""
+}
+
+type MaterializeNotebookKernelVariableResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Uploaded full-data artifact accepted by the dataframe row, aggregate, and
+	// distinct-value RPCs through their blob_id fields.
+	BlobId        string `protobuf:"bytes,1,opt,name=blob_id,json=blobId,proto3" json:"blob_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MaterializeNotebookKernelVariableResponse) Reset() {
+	*x = MaterializeNotebookKernelVariableResponse{}
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MaterializeNotebookKernelVariableResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MaterializeNotebookKernelVariableResponse) ProtoMessage() {}
+
+func (x *MaterializeNotebookKernelVariableResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MaterializeNotebookKernelVariableResponse.ProtoReflect.Descriptor instead.
+func (*MaterializeNotebookKernelVariableResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *MaterializeNotebookKernelVariableResponse) GetBlobId() string {
+	if x != nil {
+		return x.BlobId
+	}
+	return ""
+}
+
+type NotebookDataframeDistinctValue struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotebookDataframeDistinctValue) Reset() {
+	*x = NotebookDataframeDistinctValue{}
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotebookDataframeDistinctValue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotebookDataframeDistinctValue) ProtoMessage() {}
+
+func (x *NotebookDataframeDistinctValue) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotebookDataframeDistinctValue.ProtoReflect.Descriptor instead.
+func (*NotebookDataframeDistinctValue) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *NotebookDataframeDistinctValue) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+func (x *NotebookDataframeDistinctValue) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+type ListNotebookDataframeDistinctValuesRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	NotebookId string                 `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
+	// Exactly one of chunk_id or blob_id must be set.
+	ChunkId     string `protobuf:"bytes,2,opt,name=chunk_id,json=chunkId,proto3" json:"chunk_id,omitempty"`
+	BlobId      string `protobuf:"bytes,3,opt,name=blob_id,json=blobId,proto3" json:"blob_id,omitempty"`
+	ValueColumn string `protobuf:"bytes,4,opt,name=value_column,json=valueColumn,proto3" json:"value_column,omitempty"`
+	// Empty means value_column.
+	DisplayColumn string `protobuf:"bytes,5,opt,name=display_column,json=displayColumn,proto3" json:"display_column,omitempty"`
+	// Case-insensitive substring match over value and label.
+	Search        string  `protobuf:"bytes,6,opt,name=search,proto3" json:"search,omitempty"`
+	Limit         *int32  `protobuf:"varint,7,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor        *string `protobuf:"bytes,8,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) Reset() {
+	*x = ListNotebookDataframeDistinctValuesRequest{}
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListNotebookDataframeDistinctValuesRequest) ProtoMessage() {}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListNotebookDataframeDistinctValuesRequest.ProtoReflect.Descriptor instead.
+func (*ListNotebookDataframeDistinctValuesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) GetNotebookId() string {
+	if x != nil {
+		return x.NotebookId
+	}
+	return ""
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) GetChunkId() string {
+	if x != nil {
+		return x.ChunkId
+	}
+	return ""
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) GetBlobId() string {
+	if x != nil {
+		return x.BlobId
+	}
+	return ""
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) GetValueColumn() string {
+	if x != nil {
+		return x.ValueColumn
+	}
+	return ""
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) GetDisplayColumn() string {
+	if x != nil {
+		return x.DisplayColumn
+	}
+	return ""
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) GetSearch() string {
+	if x != nil {
+		return x.Search
+	}
+	return ""
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+func (x *ListNotebookDataframeDistinctValuesRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+type ListNotebookDataframeDistinctValuesResponse struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Values        []*NotebookDataframeDistinctValue `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty"`
+	NextCursor    *string                           `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListNotebookDataframeDistinctValuesResponse) Reset() {
+	*x = ListNotebookDataframeDistinctValuesResponse{}
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListNotebookDataframeDistinctValuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListNotebookDataframeDistinctValuesResponse) ProtoMessage() {}
+
+func (x *ListNotebookDataframeDistinctValuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListNotebookDataframeDistinctValuesResponse.ProtoReflect.Descriptor instead.
+func (*ListNotebookDataframeDistinctValuesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{53}
+}
+
+func (x *ListNotebookDataframeDistinctValuesResponse) GetValues() []*NotebookDataframeDistinctValue {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+func (x *ListNotebookDataframeDistinctValuesResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
 // One percentile of an aggregated column. Percentiles arrive as a set because a
 // client showing p95 also offers the neighbouring ranks on hover, and the server
 // has the sorted column in hand anyway — a request per rank would re-read the
@@ -3328,7 +3791,7 @@ type NotebookDataframePercentile struct {
 
 func (x *NotebookDataframePercentile) Reset() {
 	*x = NotebookDataframePercentile{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[47]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3340,7 +3803,7 @@ func (x *NotebookDataframePercentile) String() string {
 func (*NotebookDataframePercentile) ProtoMessage() {}
 
 func (x *NotebookDataframePercentile) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[47]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3353,7 +3816,7 @@ func (x *NotebookDataframePercentile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookDataframePercentile.ProtoReflect.Descriptor instead.
 func (*NotebookDataframePercentile) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{47}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *NotebookDataframePercentile) GetPercentile() float64 {
@@ -3390,7 +3853,7 @@ type AggregateNotebookDataframeResponse struct {
 
 func (x *AggregateNotebookDataframeResponse) Reset() {
 	*x = AggregateNotebookDataframeResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[48]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3402,7 +3865,7 @@ func (x *AggregateNotebookDataframeResponse) String() string {
 func (*AggregateNotebookDataframeResponse) ProtoMessage() {}
 
 func (x *AggregateNotebookDataframeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[48]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3415,7 +3878,7 @@ func (x *AggregateNotebookDataframeResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AggregateNotebookDataframeResponse.ProtoReflect.Descriptor instead.
 func (*AggregateNotebookDataframeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{48}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *AggregateNotebookDataframeResponse) GetNumberValue() float64 {
@@ -3458,7 +3921,7 @@ type DownloadNotebookDataframeRequest struct {
 
 func (x *DownloadNotebookDataframeRequest) Reset() {
 	*x = DownloadNotebookDataframeRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[49]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3470,7 +3933,7 @@ func (x *DownloadNotebookDataframeRequest) String() string {
 func (*DownloadNotebookDataframeRequest) ProtoMessage() {}
 
 func (x *DownloadNotebookDataframeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[49]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3483,7 +3946,7 @@ func (x *DownloadNotebookDataframeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadNotebookDataframeRequest.ProtoReflect.Descriptor instead.
 func (*DownloadNotebookDataframeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{49}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *DownloadNotebookDataframeRequest) GetNotebookId() string {
@@ -3520,7 +3983,7 @@ type DownloadNotebookDataframeResponse struct {
 
 func (x *DownloadNotebookDataframeResponse) Reset() {
 	*x = DownloadNotebookDataframeResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[50]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3532,7 +3995,7 @@ func (x *DownloadNotebookDataframeResponse) String() string {
 func (*DownloadNotebookDataframeResponse) ProtoMessage() {}
 
 func (x *DownloadNotebookDataframeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[50]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3545,7 +4008,7 @@ func (x *DownloadNotebookDataframeResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use DownloadNotebookDataframeResponse.ProtoReflect.Descriptor instead.
 func (*DownloadNotebookDataframeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{50}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *DownloadNotebookDataframeResponse) GetData() []byte {
@@ -3579,7 +4042,7 @@ type ClearNotebookCellResultsRequest struct {
 
 func (x *ClearNotebookCellResultsRequest) Reset() {
 	*x = ClearNotebookCellResultsRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[51]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3591,7 +4054,7 @@ func (x *ClearNotebookCellResultsRequest) String() string {
 func (*ClearNotebookCellResultsRequest) ProtoMessage() {}
 
 func (x *ClearNotebookCellResultsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[51]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3604,7 +4067,7 @@ func (x *ClearNotebookCellResultsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClearNotebookCellResultsRequest.ProtoReflect.Descriptor instead.
 func (*ClearNotebookCellResultsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{51}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *ClearNotebookCellResultsRequest) GetNotebookId() string {
@@ -3629,7 +4092,7 @@ type ClearNotebookCellResultsResponse struct {
 
 func (x *ClearNotebookCellResultsResponse) Reset() {
 	*x = ClearNotebookCellResultsResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[52]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3641,7 +4104,7 @@ func (x *ClearNotebookCellResultsResponse) String() string {
 func (*ClearNotebookCellResultsResponse) ProtoMessage() {}
 
 func (x *ClearNotebookCellResultsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[52]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3654,7 +4117,7 @@ func (x *ClearNotebookCellResultsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClearNotebookCellResultsResponse.ProtoReflect.Descriptor instead.
 func (*ClearNotebookCellResultsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{52}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{59}
 }
 
 // Environment is resolved from request headers, as elsewhere in this service.
@@ -3669,7 +4132,7 @@ type GetNotebookSqlCacheSettingsRequest struct {
 
 func (x *GetNotebookSqlCacheSettingsRequest) Reset() {
 	*x = GetNotebookSqlCacheSettingsRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[53]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3681,7 +4144,7 @@ func (x *GetNotebookSqlCacheSettingsRequest) String() string {
 func (*GetNotebookSqlCacheSettingsRequest) ProtoMessage() {}
 
 func (x *GetNotebookSqlCacheSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[53]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3694,7 +4157,7 @@ func (x *GetNotebookSqlCacheSettingsRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetNotebookSqlCacheSettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetNotebookSqlCacheSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{53}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{60}
 }
 
 type GetNotebookSqlCacheSettingsResponse struct {
@@ -3709,7 +4172,7 @@ type GetNotebookSqlCacheSettingsResponse struct {
 
 func (x *GetNotebookSqlCacheSettingsResponse) Reset() {
 	*x = GetNotebookSqlCacheSettingsResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[54]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3721,7 +4184,7 @@ func (x *GetNotebookSqlCacheSettingsResponse) String() string {
 func (*GetNotebookSqlCacheSettingsResponse) ProtoMessage() {}
 
 func (x *GetNotebookSqlCacheSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[54]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3734,7 +4197,7 @@ func (x *GetNotebookSqlCacheSettingsResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetNotebookSqlCacheSettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetNotebookSqlCacheSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{54}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *GetNotebookSqlCacheSettingsResponse) GetMaxStaleness() *durationpb.Duration {
@@ -3763,7 +4226,7 @@ type UpdateNotebookSqlCacheSettingsRequest struct {
 
 func (x *UpdateNotebookSqlCacheSettingsRequest) Reset() {
 	*x = UpdateNotebookSqlCacheSettingsRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[55]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3775,7 +4238,7 @@ func (x *UpdateNotebookSqlCacheSettingsRequest) String() string {
 func (*UpdateNotebookSqlCacheSettingsRequest) ProtoMessage() {}
 
 func (x *UpdateNotebookSqlCacheSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[55]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3788,7 +4251,7 @@ func (x *UpdateNotebookSqlCacheSettingsRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use UpdateNotebookSqlCacheSettingsRequest.ProtoReflect.Descriptor instead.
 func (*UpdateNotebookSqlCacheSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{55}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *UpdateNotebookSqlCacheSettingsRequest) GetMaxStaleness() *durationpb.Duration {
@@ -3806,7 +4269,7 @@ type UpdateNotebookSqlCacheSettingsResponse struct {
 
 func (x *UpdateNotebookSqlCacheSettingsResponse) Reset() {
 	*x = UpdateNotebookSqlCacheSettingsResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[56]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3818,7 +4281,7 @@ func (x *UpdateNotebookSqlCacheSettingsResponse) String() string {
 func (*UpdateNotebookSqlCacheSettingsResponse) ProtoMessage() {}
 
 func (x *UpdateNotebookSqlCacheSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[56]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3831,7 +4294,7 @@ func (x *UpdateNotebookSqlCacheSettingsResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use UpdateNotebookSqlCacheSettingsResponse.ProtoReflect.Descriptor instead.
 func (*UpdateNotebookSqlCacheSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{56}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{63}
 }
 
 type NotebookRuntimeStatus struct {
@@ -3861,7 +4324,7 @@ type NotebookRuntimeStatus struct {
 
 func (x *NotebookRuntimeStatus) Reset() {
 	*x = NotebookRuntimeStatus{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[57]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3873,7 +4336,7 @@ func (x *NotebookRuntimeStatus) String() string {
 func (*NotebookRuntimeStatus) ProtoMessage() {}
 
 func (x *NotebookRuntimeStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[57]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3886,7 +4349,7 @@ func (x *NotebookRuntimeStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookRuntimeStatus.ProtoReflect.Descriptor instead.
 func (*NotebookRuntimeStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{57}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *NotebookRuntimeStatus) GetNotebookId() string {
@@ -3954,7 +4417,7 @@ type StartNotebookRuntimeRequest struct {
 
 func (x *StartNotebookRuntimeRequest) Reset() {
 	*x = StartNotebookRuntimeRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[58]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3966,7 +4429,7 @@ func (x *StartNotebookRuntimeRequest) String() string {
 func (*StartNotebookRuntimeRequest) ProtoMessage() {}
 
 func (x *StartNotebookRuntimeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[58]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3979,7 +4442,7 @@ func (x *StartNotebookRuntimeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartNotebookRuntimeRequest.ProtoReflect.Descriptor instead.
 func (*StartNotebookRuntimeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{58}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *StartNotebookRuntimeRequest) GetNotebookId() string {
@@ -3998,7 +4461,7 @@ type StartNotebookRuntimeResponse struct {
 
 func (x *StartNotebookRuntimeResponse) Reset() {
 	*x = StartNotebookRuntimeResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[59]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4010,7 +4473,7 @@ func (x *StartNotebookRuntimeResponse) String() string {
 func (*StartNotebookRuntimeResponse) ProtoMessage() {}
 
 func (x *StartNotebookRuntimeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[59]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4023,7 +4486,7 @@ func (x *StartNotebookRuntimeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartNotebookRuntimeResponse.ProtoReflect.Descriptor instead.
 func (*StartNotebookRuntimeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{59}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *StartNotebookRuntimeResponse) GetStatus() *NotebookRuntimeStatus {
@@ -4042,7 +4505,7 @@ type StopNotebookRuntimeRequest struct {
 
 func (x *StopNotebookRuntimeRequest) Reset() {
 	*x = StopNotebookRuntimeRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[60]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4054,7 +4517,7 @@ func (x *StopNotebookRuntimeRequest) String() string {
 func (*StopNotebookRuntimeRequest) ProtoMessage() {}
 
 func (x *StopNotebookRuntimeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[60]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4067,7 +4530,7 @@ func (x *StopNotebookRuntimeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopNotebookRuntimeRequest.ProtoReflect.Descriptor instead.
 func (*StopNotebookRuntimeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{60}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *StopNotebookRuntimeRequest) GetNotebookId() string {
@@ -4086,7 +4549,7 @@ type StopNotebookRuntimeResponse struct {
 
 func (x *StopNotebookRuntimeResponse) Reset() {
 	*x = StopNotebookRuntimeResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[61]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4098,7 +4561,7 @@ func (x *StopNotebookRuntimeResponse) String() string {
 func (*StopNotebookRuntimeResponse) ProtoMessage() {}
 
 func (x *StopNotebookRuntimeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[61]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4111,7 +4574,7 @@ func (x *StopNotebookRuntimeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopNotebookRuntimeResponse.ProtoReflect.Descriptor instead.
 func (*StopNotebookRuntimeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{61}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *StopNotebookRuntimeResponse) GetStatus() *NotebookRuntimeStatus {
@@ -4130,7 +4593,7 @@ type GetNotebookRuntimeStatusRequest struct {
 
 func (x *GetNotebookRuntimeStatusRequest) Reset() {
 	*x = GetNotebookRuntimeStatusRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[62]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4142,7 +4605,7 @@ func (x *GetNotebookRuntimeStatusRequest) String() string {
 func (*GetNotebookRuntimeStatusRequest) ProtoMessage() {}
 
 func (x *GetNotebookRuntimeStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[62]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4155,7 +4618,7 @@ func (x *GetNotebookRuntimeStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNotebookRuntimeStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetNotebookRuntimeStatusRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{62}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *GetNotebookRuntimeStatusRequest) GetNotebookId() string {
@@ -4174,7 +4637,7 @@ type GetNotebookRuntimeStatusResponse struct {
 
 func (x *GetNotebookRuntimeStatusResponse) Reset() {
 	*x = GetNotebookRuntimeStatusResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[63]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4186,7 +4649,7 @@ func (x *GetNotebookRuntimeStatusResponse) String() string {
 func (*GetNotebookRuntimeStatusResponse) ProtoMessage() {}
 
 func (x *GetNotebookRuntimeStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[63]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4199,7 +4662,7 @@ func (x *GetNotebookRuntimeStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNotebookRuntimeStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetNotebookRuntimeStatusResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{63}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *GetNotebookRuntimeStatusResponse) GetStatus() *NotebookRuntimeStatus {
@@ -4218,7 +4681,7 @@ type WatchNotebookRuntimeStatusRequest struct {
 
 func (x *WatchNotebookRuntimeStatusRequest) Reset() {
 	*x = WatchNotebookRuntimeStatusRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[64]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4230,7 +4693,7 @@ func (x *WatchNotebookRuntimeStatusRequest) String() string {
 func (*WatchNotebookRuntimeStatusRequest) ProtoMessage() {}
 
 func (x *WatchNotebookRuntimeStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[64]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4243,7 +4706,7 @@ func (x *WatchNotebookRuntimeStatusRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use WatchNotebookRuntimeStatusRequest.ProtoReflect.Descriptor instead.
 func (*WatchNotebookRuntimeStatusRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{64}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *WatchNotebookRuntimeStatusRequest) GetNotebookId() string {
@@ -4268,7 +4731,7 @@ type WatchNotebookRuntimeStatusResponse struct {
 
 func (x *WatchNotebookRuntimeStatusResponse) Reset() {
 	*x = WatchNotebookRuntimeStatusResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[65]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4280,7 +4743,7 @@ func (x *WatchNotebookRuntimeStatusResponse) String() string {
 func (*WatchNotebookRuntimeStatusResponse) ProtoMessage() {}
 
 func (x *WatchNotebookRuntimeStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[65]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4293,7 +4756,7 @@ func (x *WatchNotebookRuntimeStatusResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use WatchNotebookRuntimeStatusResponse.ProtoReflect.Descriptor instead.
 func (*WatchNotebookRuntimeStatusResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{65}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *WatchNotebookRuntimeStatusResponse) GetStatus() *NotebookRuntimeStatus {
@@ -4329,7 +4792,7 @@ type NotebookRuntimeSummary struct {
 
 func (x *NotebookRuntimeSummary) Reset() {
 	*x = NotebookRuntimeSummary{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[66]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4341,7 +4804,7 @@ func (x *NotebookRuntimeSummary) String() string {
 func (*NotebookRuntimeSummary) ProtoMessage() {}
 
 func (x *NotebookRuntimeSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[66]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4354,7 +4817,7 @@ func (x *NotebookRuntimeSummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookRuntimeSummary.ProtoReflect.Descriptor instead.
 func (*NotebookRuntimeSummary) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{66}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *NotebookRuntimeSummary) GetStatus() *NotebookRuntimeStatus {
@@ -4393,7 +4856,7 @@ type ListNotebookRuntimesRequest struct {
 
 func (x *ListNotebookRuntimesRequest) Reset() {
 	*x = ListNotebookRuntimesRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[67]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4405,7 +4868,7 @@ func (x *ListNotebookRuntimesRequest) String() string {
 func (*ListNotebookRuntimesRequest) ProtoMessage() {}
 
 func (x *ListNotebookRuntimesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[67]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4418,7 +4881,7 @@ func (x *ListNotebookRuntimesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookRuntimesRequest.ProtoReflect.Descriptor instead.
 func (*ListNotebookRuntimesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{67}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{74}
 }
 
 type ListNotebookRuntimesResponse struct {
@@ -4432,7 +4895,7 @@ type ListNotebookRuntimesResponse struct {
 
 func (x *ListNotebookRuntimesResponse) Reset() {
 	*x = ListNotebookRuntimesResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[68]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4444,7 +4907,7 @@ func (x *ListNotebookRuntimesResponse) String() string {
 func (*ListNotebookRuntimesResponse) ProtoMessage() {}
 
 func (x *ListNotebookRuntimesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[68]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4457,7 +4920,7 @@ func (x *ListNotebookRuntimesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookRuntimesResponse.ProtoReflect.Descriptor instead.
 func (*ListNotebookRuntimesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{68}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *ListNotebookRuntimesResponse) GetRuntimes() []*NotebookRuntimeSummary {
@@ -4476,7 +4939,7 @@ type ListNotebookKernelPackagesRequest struct {
 
 func (x *ListNotebookKernelPackagesRequest) Reset() {
 	*x = ListNotebookKernelPackagesRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[69]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4488,7 +4951,7 @@ func (x *ListNotebookKernelPackagesRequest) String() string {
 func (*ListNotebookKernelPackagesRequest) ProtoMessage() {}
 
 func (x *ListNotebookKernelPackagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[69]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4501,7 +4964,7 @@ func (x *ListNotebookKernelPackagesRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListNotebookKernelPackagesRequest.ProtoReflect.Descriptor instead.
 func (*ListNotebookKernelPackagesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{69}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *ListNotebookKernelPackagesRequest) GetNotebookId() string {
@@ -4518,14 +4981,18 @@ type ListNotebookKernelPackagesResponse struct {
 	// Build identity of the kernel, passed through from its own response. Lets the
 	// settings drawer answer "which build am I on" beside the package list rather
 	// than requiring a cell that imports libchalk and prints __version__.
-	Build         *KernelBuildInfo `protobuf:"bytes,2,opt,name=build,proto3" json:"build,omitempty"`
+	Build *KernelBuildInfo `protobuf:"bytes,2,opt,name=build,proto3" json:"build,omitempty"`
+	// READY means packages are available, including a valid empty list;
+	// PROVISIONING means wait; NONE/STOPPED mean no running kernel.
+	// Failures are returned as RPC errors.
+	State         NotebookRuntimeState `protobuf:"varint,3,opt,name=state,proto3,enum=chalk.notebook.v1.NotebookRuntimeState" json:"state,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListNotebookKernelPackagesResponse) Reset() {
 	*x = ListNotebookKernelPackagesResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[70]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4537,7 +5004,7 @@ func (x *ListNotebookKernelPackagesResponse) String() string {
 func (*ListNotebookKernelPackagesResponse) ProtoMessage() {}
 
 func (x *ListNotebookKernelPackagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[70]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4550,7 +5017,7 @@ func (x *ListNotebookKernelPackagesResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListNotebookKernelPackagesResponse.ProtoReflect.Descriptor instead.
 func (*ListNotebookKernelPackagesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{70}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *ListNotebookKernelPackagesResponse) GetPackages() []*InstalledPackage {
@@ -4567,6 +5034,13 @@ func (x *ListNotebookKernelPackagesResponse) GetBuild() *KernelBuildInfo {
 	return nil
 }
 
+func (x *ListNotebookKernelPackagesResponse) GetState() NotebookRuntimeState {
+	if x != nil {
+		return x.State
+	}
+	return NotebookRuntimeState_NOTEBOOK_RUNTIME_STATE_UNSPECIFIED
+}
+
 type GetNotebookDependencyGraphRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NotebookId    string                 `protobuf:"bytes,1,opt,name=notebook_id,json=notebookId,proto3" json:"notebook_id,omitempty"`
@@ -4576,7 +5050,7 @@ type GetNotebookDependencyGraphRequest struct {
 
 func (x *GetNotebookDependencyGraphRequest) Reset() {
 	*x = GetNotebookDependencyGraphRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[71]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4588,7 +5062,7 @@ func (x *GetNotebookDependencyGraphRequest) String() string {
 func (*GetNotebookDependencyGraphRequest) ProtoMessage() {}
 
 func (x *GetNotebookDependencyGraphRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[71]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4601,7 +5075,7 @@ func (x *GetNotebookDependencyGraphRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetNotebookDependencyGraphRequest.ProtoReflect.Descriptor instead.
 func (*GetNotebookDependencyGraphRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{71}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *GetNotebookDependencyGraphRequest) GetNotebookId() string {
@@ -4627,7 +5101,7 @@ type DependencyNode struct {
 
 func (x *DependencyNode) Reset() {
 	*x = DependencyNode{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[72]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4639,7 +5113,7 @@ func (x *DependencyNode) String() string {
 func (*DependencyNode) ProtoMessage() {}
 
 func (x *DependencyNode) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[72]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4652,7 +5126,7 @@ func (x *DependencyNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DependencyNode.ProtoReflect.Descriptor instead.
 func (*DependencyNode) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{72}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *DependencyNode) GetCellId() string {
@@ -4690,7 +5164,7 @@ type DependencyEdge struct {
 
 func (x *DependencyEdge) Reset() {
 	*x = DependencyEdge{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[73]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4702,7 +5176,7 @@ func (x *DependencyEdge) String() string {
 func (*DependencyEdge) ProtoMessage() {}
 
 func (x *DependencyEdge) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[73]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4715,7 +5189,7 @@ func (x *DependencyEdge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DependencyEdge.ProtoReflect.Descriptor instead.
 func (*DependencyEdge) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{73}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *DependencyEdge) GetFromCellId() string {
@@ -4754,7 +5228,7 @@ type GetNotebookDependencyGraphResponse struct {
 
 func (x *GetNotebookDependencyGraphResponse) Reset() {
 	*x = GetNotebookDependencyGraphResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[74]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4766,7 +5240,7 @@ func (x *GetNotebookDependencyGraphResponse) String() string {
 func (*GetNotebookDependencyGraphResponse) ProtoMessage() {}
 
 func (x *GetNotebookDependencyGraphResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[74]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4779,7 +5253,7 @@ func (x *GetNotebookDependencyGraphResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetNotebookDependencyGraphResponse.ProtoReflect.Descriptor instead.
 func (*GetNotebookDependencyGraphResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{74}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *GetNotebookDependencyGraphResponse) GetNodes() []*DependencyNode {
@@ -4805,7 +5279,7 @@ type ListNotebookSecretsRequest struct {
 
 func (x *ListNotebookSecretsRequest) Reset() {
 	*x = ListNotebookSecretsRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[75]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4817,7 +5291,7 @@ func (x *ListNotebookSecretsRequest) String() string {
 func (*ListNotebookSecretsRequest) ProtoMessage() {}
 
 func (x *ListNotebookSecretsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[75]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4830,7 +5304,7 @@ func (x *ListNotebookSecretsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookSecretsRequest.ProtoReflect.Descriptor instead.
 func (*ListNotebookSecretsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{75}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *ListNotebookSecretsRequest) GetNotebookId() string {
@@ -4849,7 +5323,7 @@ type ListNotebookSecretsResponse struct {
 
 func (x *ListNotebookSecretsResponse) Reset() {
 	*x = ListNotebookSecretsResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[76]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4861,7 +5335,7 @@ func (x *ListNotebookSecretsResponse) String() string {
 func (*ListNotebookSecretsResponse) ProtoMessage() {}
 
 func (x *ListNotebookSecretsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[76]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4874,7 +5348,7 @@ func (x *ListNotebookSecretsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookSecretsResponse.ProtoReflect.Descriptor instead.
 func (*ListNotebookSecretsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{76}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *ListNotebookSecretsResponse) GetSecrets() []*NotebookSecret {
@@ -4894,7 +5368,7 @@ type GetNotebookSecretValueRequest struct {
 
 func (x *GetNotebookSecretValueRequest) Reset() {
 	*x = GetNotebookSecretValueRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[77]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4906,7 +5380,7 @@ func (x *GetNotebookSecretValueRequest) String() string {
 func (*GetNotebookSecretValueRequest) ProtoMessage() {}
 
 func (x *GetNotebookSecretValueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[77]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4919,7 +5393,7 @@ func (x *GetNotebookSecretValueRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNotebookSecretValueRequest.ProtoReflect.Descriptor instead.
 func (*GetNotebookSecretValueRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{77}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *GetNotebookSecretValueRequest) GetNotebookId() string {
@@ -4945,7 +5419,7 @@ type GetNotebookSecretValueResponse struct {
 
 func (x *GetNotebookSecretValueResponse) Reset() {
 	*x = GetNotebookSecretValueResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[78]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4957,7 +5431,7 @@ func (x *GetNotebookSecretValueResponse) String() string {
 func (*GetNotebookSecretValueResponse) ProtoMessage() {}
 
 func (x *GetNotebookSecretValueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[78]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4970,7 +5444,7 @@ func (x *GetNotebookSecretValueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNotebookSecretValueResponse.ProtoReflect.Descriptor instead.
 func (*GetNotebookSecretValueResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{78}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *GetNotebookSecretValueResponse) GetSecretValue() *NotebookSecretValue {
@@ -4992,7 +5466,7 @@ type UpsertNotebookSecretRequest struct {
 
 func (x *UpsertNotebookSecretRequest) Reset() {
 	*x = UpsertNotebookSecretRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[79]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5004,7 +5478,7 @@ func (x *UpsertNotebookSecretRequest) String() string {
 func (*UpsertNotebookSecretRequest) ProtoMessage() {}
 
 func (x *UpsertNotebookSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[79]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5017,7 +5491,7 @@ func (x *UpsertNotebookSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertNotebookSecretRequest.ProtoReflect.Descriptor instead.
 func (*UpsertNotebookSecretRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{79}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{86}
 }
 
 func (x *UpsertNotebookSecretRequest) GetNotebookId() string {
@@ -5057,7 +5531,7 @@ type UpsertNotebookSecretResponse struct {
 
 func (x *UpsertNotebookSecretResponse) Reset() {
 	*x = UpsertNotebookSecretResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[80]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5069,7 +5543,7 @@ func (x *UpsertNotebookSecretResponse) String() string {
 func (*UpsertNotebookSecretResponse) ProtoMessage() {}
 
 func (x *UpsertNotebookSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[80]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5082,7 +5556,7 @@ func (x *UpsertNotebookSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertNotebookSecretResponse.ProtoReflect.Descriptor instead.
 func (*UpsertNotebookSecretResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{80}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *UpsertNotebookSecretResponse) GetSecrets() []*NotebookSecret {
@@ -5102,7 +5576,7 @@ type DeleteNotebookSecretRequest struct {
 
 func (x *DeleteNotebookSecretRequest) Reset() {
 	*x = DeleteNotebookSecretRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[81]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5114,7 +5588,7 @@ func (x *DeleteNotebookSecretRequest) String() string {
 func (*DeleteNotebookSecretRequest) ProtoMessage() {}
 
 func (x *DeleteNotebookSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[81]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5127,7 +5601,7 @@ func (x *DeleteNotebookSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteNotebookSecretRequest.ProtoReflect.Descriptor instead.
 func (*DeleteNotebookSecretRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{81}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *DeleteNotebookSecretRequest) GetNotebookId() string {
@@ -5153,7 +5627,7 @@ type DeleteNotebookSecretResponse struct {
 
 func (x *DeleteNotebookSecretResponse) Reset() {
 	*x = DeleteNotebookSecretResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[82]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5165,7 +5639,7 @@ func (x *DeleteNotebookSecretResponse) String() string {
 func (*DeleteNotebookSecretResponse) ProtoMessage() {}
 
 func (x *DeleteNotebookSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[82]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5178,7 +5652,7 @@ func (x *DeleteNotebookSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteNotebookSecretResponse.ProtoReflect.Descriptor instead.
 func (*DeleteNotebookSecretResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{82}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{89}
 }
 
 func (x *DeleteNotebookSecretResponse) GetSecrets() []*NotebookSecret {
@@ -5214,7 +5688,7 @@ type NotebookComment struct {
 
 func (x *NotebookComment) Reset() {
 	*x = NotebookComment{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[83]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5226,7 +5700,7 @@ func (x *NotebookComment) String() string {
 func (*NotebookComment) ProtoMessage() {}
 
 func (x *NotebookComment) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[83]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5239,7 +5713,7 @@ func (x *NotebookComment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookComment.ProtoReflect.Descriptor instead.
 func (*NotebookComment) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{83}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *NotebookComment) GetId() string {
@@ -5316,7 +5790,7 @@ type NotebookCommentReaction struct {
 
 func (x *NotebookCommentReaction) Reset() {
 	*x = NotebookCommentReaction{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[84]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5328,7 +5802,7 @@ func (x *NotebookCommentReaction) String() string {
 func (*NotebookCommentReaction) ProtoMessage() {}
 
 func (x *NotebookCommentReaction) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[84]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5341,7 +5815,7 @@ func (x *NotebookCommentReaction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotebookCommentReaction.ProtoReflect.Descriptor instead.
 func (*NotebookCommentReaction) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{84}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{91}
 }
 
 func (x *NotebookCommentReaction) GetEmoji() string {
@@ -5373,7 +5847,7 @@ type CreateNotebookCommentRequest struct {
 
 func (x *CreateNotebookCommentRequest) Reset() {
 	*x = CreateNotebookCommentRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[85]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5385,7 +5859,7 @@ func (x *CreateNotebookCommentRequest) String() string {
 func (*CreateNotebookCommentRequest) ProtoMessage() {}
 
 func (x *CreateNotebookCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[85]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5398,7 +5872,7 @@ func (x *CreateNotebookCommentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateNotebookCommentRequest.ProtoReflect.Descriptor instead.
 func (*CreateNotebookCommentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{85}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *CreateNotebookCommentRequest) GetNotebookId() string {
@@ -5438,7 +5912,7 @@ type CreateNotebookCommentResponse struct {
 
 func (x *CreateNotebookCommentResponse) Reset() {
 	*x = CreateNotebookCommentResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[86]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5450,7 +5924,7 @@ func (x *CreateNotebookCommentResponse) String() string {
 func (*CreateNotebookCommentResponse) ProtoMessage() {}
 
 func (x *CreateNotebookCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[86]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5463,7 +5937,7 @@ func (x *CreateNotebookCommentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateNotebookCommentResponse.ProtoReflect.Descriptor instead.
 func (*CreateNotebookCommentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{86}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{93}
 }
 
 func (x *CreateNotebookCommentResponse) GetComment() *NotebookComment {
@@ -5482,7 +5956,7 @@ type ListNotebookCommentsRequest struct {
 
 func (x *ListNotebookCommentsRequest) Reset() {
 	*x = ListNotebookCommentsRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[87]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5494,7 +5968,7 @@ func (x *ListNotebookCommentsRequest) String() string {
 func (*ListNotebookCommentsRequest) ProtoMessage() {}
 
 func (x *ListNotebookCommentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[87]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5507,7 +5981,7 @@ func (x *ListNotebookCommentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookCommentsRequest.ProtoReflect.Descriptor instead.
 func (*ListNotebookCommentsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{87}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{94}
 }
 
 func (x *ListNotebookCommentsRequest) GetNotebookId() string {
@@ -5527,7 +6001,7 @@ type ListNotebookCommentsResponse struct {
 
 func (x *ListNotebookCommentsResponse) Reset() {
 	*x = ListNotebookCommentsResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[88]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5539,7 +6013,7 @@ func (x *ListNotebookCommentsResponse) String() string {
 func (*ListNotebookCommentsResponse) ProtoMessage() {}
 
 func (x *ListNotebookCommentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[88]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5552,7 +6026,7 @@ func (x *ListNotebookCommentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookCommentsResponse.ProtoReflect.Descriptor instead.
 func (*ListNotebookCommentsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{88}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{95}
 }
 
 func (x *ListNotebookCommentsResponse) GetComments() []*NotebookComment {
@@ -5572,7 +6046,7 @@ type DeleteNotebookCommentRequest struct {
 
 func (x *DeleteNotebookCommentRequest) Reset() {
 	*x = DeleteNotebookCommentRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[89]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5584,7 +6058,7 @@ func (x *DeleteNotebookCommentRequest) String() string {
 func (*DeleteNotebookCommentRequest) ProtoMessage() {}
 
 func (x *DeleteNotebookCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[89]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5597,7 +6071,7 @@ func (x *DeleteNotebookCommentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteNotebookCommentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteNotebookCommentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{89}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{96}
 }
 
 func (x *DeleteNotebookCommentRequest) GetNotebookId() string {
@@ -5622,7 +6096,7 @@ type DeleteNotebookCommentResponse struct {
 
 func (x *DeleteNotebookCommentResponse) Reset() {
 	*x = DeleteNotebookCommentResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[90]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5634,7 +6108,7 @@ func (x *DeleteNotebookCommentResponse) String() string {
 func (*DeleteNotebookCommentResponse) ProtoMessage() {}
 
 func (x *DeleteNotebookCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[90]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5647,7 +6121,7 @@ func (x *DeleteNotebookCommentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteNotebookCommentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteNotebookCommentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{90}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{97}
 }
 
 type SetNotebookCommentResolvedRequest struct {
@@ -5662,7 +6136,7 @@ type SetNotebookCommentResolvedRequest struct {
 
 func (x *SetNotebookCommentResolvedRequest) Reset() {
 	*x = SetNotebookCommentResolvedRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[91]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5674,7 +6148,7 @@ func (x *SetNotebookCommentResolvedRequest) String() string {
 func (*SetNotebookCommentResolvedRequest) ProtoMessage() {}
 
 func (x *SetNotebookCommentResolvedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[91]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5687,7 +6161,7 @@ func (x *SetNotebookCommentResolvedRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use SetNotebookCommentResolvedRequest.ProtoReflect.Descriptor instead.
 func (*SetNotebookCommentResolvedRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{91}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{98}
 }
 
 func (x *SetNotebookCommentResolvedRequest) GetNotebookId() string {
@@ -5720,7 +6194,7 @@ type SetNotebookCommentResolvedResponse struct {
 
 func (x *SetNotebookCommentResolvedResponse) Reset() {
 	*x = SetNotebookCommentResolvedResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[92]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5732,7 +6206,7 @@ func (x *SetNotebookCommentResolvedResponse) String() string {
 func (*SetNotebookCommentResolvedResponse) ProtoMessage() {}
 
 func (x *SetNotebookCommentResolvedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[92]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5745,7 +6219,7 @@ func (x *SetNotebookCommentResolvedResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use SetNotebookCommentResolvedResponse.ProtoReflect.Descriptor instead.
 func (*SetNotebookCommentResolvedResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{92}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{99}
 }
 
 func (x *SetNotebookCommentResolvedResponse) GetComment() *NotebookComment {
@@ -5767,7 +6241,7 @@ type ToggleNotebookCommentReactionRequest struct {
 
 func (x *ToggleNotebookCommentReactionRequest) Reset() {
 	*x = ToggleNotebookCommentReactionRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[93]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5779,7 +6253,7 @@ func (x *ToggleNotebookCommentReactionRequest) String() string {
 func (*ToggleNotebookCommentReactionRequest) ProtoMessage() {}
 
 func (x *ToggleNotebookCommentReactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[93]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5792,7 +6266,7 @@ func (x *ToggleNotebookCommentReactionRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ToggleNotebookCommentReactionRequest.ProtoReflect.Descriptor instead.
 func (*ToggleNotebookCommentReactionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{93}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{100}
 }
 
 func (x *ToggleNotebookCommentReactionRequest) GetNotebookId() string {
@@ -5825,7 +6299,7 @@ type ToggleNotebookCommentReactionResponse struct {
 
 func (x *ToggleNotebookCommentReactionResponse) Reset() {
 	*x = ToggleNotebookCommentReactionResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[94]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5837,7 +6311,7 @@ func (x *ToggleNotebookCommentReactionResponse) String() string {
 func (*ToggleNotebookCommentReactionResponse) ProtoMessage() {}
 
 func (x *ToggleNotebookCommentReactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[94]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5850,7 +6324,7 @@ func (x *ToggleNotebookCommentReactionResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ToggleNotebookCommentReactionResponse.ProtoReflect.Descriptor instead.
 func (*ToggleNotebookCommentReactionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{94}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{101}
 }
 
 func (x *ToggleNotebookCommentReactionResponse) GetComment() *NotebookComment {
@@ -5878,7 +6352,7 @@ type CreateNotebookShareLinkRequest struct {
 
 func (x *CreateNotebookShareLinkRequest) Reset() {
 	*x = CreateNotebookShareLinkRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[95]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5890,7 +6364,7 @@ func (x *CreateNotebookShareLinkRequest) String() string {
 func (*CreateNotebookShareLinkRequest) ProtoMessage() {}
 
 func (x *CreateNotebookShareLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[95]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5903,7 +6377,7 @@ func (x *CreateNotebookShareLinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateNotebookShareLinkRequest.ProtoReflect.Descriptor instead.
 func (*CreateNotebookShareLinkRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{95}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{102}
 }
 
 func (x *CreateNotebookShareLinkRequest) GetNotebookId() string {
@@ -5945,7 +6419,7 @@ type CreateNotebookShareLinkResponse struct {
 
 func (x *CreateNotebookShareLinkResponse) Reset() {
 	*x = CreateNotebookShareLinkResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[96]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5957,7 +6431,7 @@ func (x *CreateNotebookShareLinkResponse) String() string {
 func (*CreateNotebookShareLinkResponse) ProtoMessage() {}
 
 func (x *CreateNotebookShareLinkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[96]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5970,7 +6444,7 @@ func (x *CreateNotebookShareLinkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateNotebookShareLinkResponse.ProtoReflect.Descriptor instead.
 func (*CreateNotebookShareLinkResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{96}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{103}
 }
 
 func (x *CreateNotebookShareLinkResponse) GetLink() *NotebookShareLink {
@@ -5991,7 +6465,7 @@ type ListNotebookShareLinksRequest struct {
 
 func (x *ListNotebookShareLinksRequest) Reset() {
 	*x = ListNotebookShareLinksRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[97]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[104]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6003,7 +6477,7 @@ func (x *ListNotebookShareLinksRequest) String() string {
 func (*ListNotebookShareLinksRequest) ProtoMessage() {}
 
 func (x *ListNotebookShareLinksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[97]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[104]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6016,7 +6490,7 @@ func (x *ListNotebookShareLinksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookShareLinksRequest.ProtoReflect.Descriptor instead.
 func (*ListNotebookShareLinksRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{97}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{104}
 }
 
 func (x *ListNotebookShareLinksRequest) GetNotebookId() string {
@@ -6042,7 +6516,7 @@ type ListNotebookShareLinksResponse struct {
 
 func (x *ListNotebookShareLinksResponse) Reset() {
 	*x = ListNotebookShareLinksResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[98]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[105]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6054,7 +6528,7 @@ func (x *ListNotebookShareLinksResponse) String() string {
 func (*ListNotebookShareLinksResponse) ProtoMessage() {}
 
 func (x *ListNotebookShareLinksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[98]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[105]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6067,7 +6541,7 @@ func (x *ListNotebookShareLinksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookShareLinksResponse.ProtoReflect.Descriptor instead.
 func (*ListNotebookShareLinksResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{98}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{105}
 }
 
 func (x *ListNotebookShareLinksResponse) GetLinks() []*NotebookShareLink {
@@ -6087,7 +6561,7 @@ type RevokeNotebookShareLinkRequest struct {
 
 func (x *RevokeNotebookShareLinkRequest) Reset() {
 	*x = RevokeNotebookShareLinkRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[99]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[106]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6099,7 +6573,7 @@ func (x *RevokeNotebookShareLinkRequest) String() string {
 func (*RevokeNotebookShareLinkRequest) ProtoMessage() {}
 
 func (x *RevokeNotebookShareLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[99]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[106]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6112,7 +6586,7 @@ func (x *RevokeNotebookShareLinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeNotebookShareLinkRequest.ProtoReflect.Descriptor instead.
 func (*RevokeNotebookShareLinkRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{99}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{106}
 }
 
 func (x *RevokeNotebookShareLinkRequest) GetNotebookId() string {
@@ -6138,7 +6612,7 @@ type RevokeNotebookShareLinkResponse struct {
 
 func (x *RevokeNotebookShareLinkResponse) Reset() {
 	*x = RevokeNotebookShareLinkResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[100]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[107]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6150,7 +6624,7 @@ func (x *RevokeNotebookShareLinkResponse) String() string {
 func (*RevokeNotebookShareLinkResponse) ProtoMessage() {}
 
 func (x *RevokeNotebookShareLinkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[100]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[107]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6163,7 +6637,7 @@ func (x *RevokeNotebookShareLinkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeNotebookShareLinkResponse.ProtoReflect.Descriptor instead.
 func (*RevokeNotebookShareLinkResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{100}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{107}
 }
 
 func (x *RevokeNotebookShareLinkResponse) GetLink() *NotebookShareLink {
@@ -6183,7 +6657,7 @@ type ResolveNotebookShareLinkRequest struct {
 
 func (x *ResolveNotebookShareLinkRequest) Reset() {
 	*x = ResolveNotebookShareLinkRequest{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[101]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[108]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6195,7 +6669,7 @@ func (x *ResolveNotebookShareLinkRequest) String() string {
 func (*ResolveNotebookShareLinkRequest) ProtoMessage() {}
 
 func (x *ResolveNotebookShareLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[101]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[108]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6208,7 +6682,7 @@ func (x *ResolveNotebookShareLinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveNotebookShareLinkRequest.ProtoReflect.Descriptor instead.
 func (*ResolveNotebookShareLinkRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{101}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{108}
 }
 
 type ResolveNotebookShareLinkResponse struct {
@@ -6222,7 +6696,7 @@ type ResolveNotebookShareLinkResponse struct {
 
 func (x *ResolveNotebookShareLinkResponse) Reset() {
 	*x = ResolveNotebookShareLinkResponse{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[102]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[109]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6234,7 +6708,7 @@ func (x *ResolveNotebookShareLinkResponse) String() string {
 func (*ResolveNotebookShareLinkResponse) ProtoMessage() {}
 
 func (x *ResolveNotebookShareLinkResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[102]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[109]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6247,7 +6721,7 @@ func (x *ResolveNotebookShareLinkResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveNotebookShareLinkResponse.ProtoReflect.Descriptor instead.
 func (*ResolveNotebookShareLinkResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{102}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{109}
 }
 
 func (x *ResolveNotebookShareLinkResponse) GetNotebookId() string {
@@ -6289,7 +6763,7 @@ type ListNotebookDocumentsFilters struct {
 
 func (x *ListNotebookDocumentsFilters) Reset() {
 	*x = ListNotebookDocumentsFilters{}
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[103]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[110]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6301,7 +6775,7 @@ func (x *ListNotebookDocumentsFilters) String() string {
 func (*ListNotebookDocumentsFilters) ProtoMessage() {}
 
 func (x *ListNotebookDocumentsFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[103]
+	mi := &file_chalk_notebook_v1_document_service_proto_msgTypes[110]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6314,7 +6788,7 @@ func (x *ListNotebookDocumentsFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNotebookDocumentsFilters.ProtoReflect.Descriptor instead.
 func (*ListNotebookDocumentsFilters) Descriptor() ([]byte, []int) {
-	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{103}
+	return file_chalk_notebook_v1_document_service_proto_rawDescGZIP(), []int{110}
 }
 
 func (x *ListNotebookDocumentsFilters) GetFavoritesOnly() bool {
@@ -6370,7 +6844,7 @@ var File_chalk_notebook_v1_document_service_proto protoreflect.FileDescriptor
 
 const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\n" +
-	"(chalk/notebook/v1/document_service.proto\x12\x11chalk.notebook.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/notebook/v1/document.proto\x1a&chalk/notebook/v1/kernel_service.proto\x1a\x1fchalk/notebook/v1/runtime.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
+	"(chalk/notebook/v1/document_service.proto\x12\x11chalk.notebook.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/notebook/v1/document.proto\x1a&chalk/notebook/v1/kernel_service.proto\x1a\x1fchalk/notebook/v1/runtime.proto\x1a)chalk/server/v1/environment_secrets.proto\x1a\x1achalk/utils/v1/large.proto\x1a\x1egoogle/protobuf/duration.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
 	"\x1dCreateNotebookDocumentRequest\x12?\n" +
 	"\bdocument\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookDocumentR\bdocument\x12/\n" +
 	"\x11client_request_id\x18\x02 \x01(\tH\x00R\x0fclientRequestId\x88\x01\x01B\x14\n" +
@@ -6420,23 +6894,25 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\x14expected_revision_id\x18\x03 \x01(\tH\x00R\x12expectedRevisionId\x88\x01\x01B\x17\n" +
 	"\x15_expected_revision_id\"a\n" +
 	"\x1eUpdateNotebookDocumentResponse\x12?\n" +
-	"\bdocument\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookDocumentR\bdocument\"\x90\x01\n" +
-	"\x1dDeleteNotebookDocumentRequest\x12\x1f\n" +
-	"\vnotebook_id\x18\x01 \x01(\tR\n" +
+	"\bdocument\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookDocumentR\bdocument\"\xb7\x01\n" +
+	"\x1dDeleteNotebookDocumentRequest\x12#\n" +
+	"\vnotebook_id\x18\x01 \x01(\tB\x02\x18\x01R\n" +
 	"notebookId\x125\n" +
-	"\x14expected_revision_id\x18\x02 \x01(\tH\x00R\x12expectedRevisionId\x88\x01\x01B\x17\n" +
+	"\x14expected_revision_id\x18\x02 \x01(\tH\x00R\x12expectedRevisionId\x88\x01\x01\x12!\n" +
+	"\fnotebook_ids\x18\x03 \x03(\tR\vnotebookIdsB\x17\n" +
 	"\x15_expected_revision_id\" \n" +
 	"\x1eDeleteNotebookDocumentResponse\";\n" +
 	"\x18EnsureNotebookAppRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\">\n" +
 	"\x19EnsureNotebookAppResponse\x12!\n" +
-	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\"\x8b\x01\n" +
-	"\x1aSetNotebookArchivedRequest\x12\x1f\n" +
-	"\vnotebook_id\x18\x01 \x01(\tR\n" +
+	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\"\xb2\x01\n" +
+	"\x1aSetNotebookArchivedRequest\x12#\n" +
+	"\vnotebook_id\x18\x01 \x01(\tB\x02\x18\x01R\n" +
 	"notebookId\x12\x1a\n" +
 	"\barchived\x18\x02 \x01(\bR\barchived\x120\n" +
-	"\x14expected_revision_id\x18\x03 \x01(\tR\x12expectedRevisionId\"^\n" +
+	"\x14expected_revision_id\x18\x03 \x01(\tR\x12expectedRevisionId\x12!\n" +
+	"\fnotebook_ids\x18\x04 \x03(\tR\vnotebookIds\"^\n" +
 	"\x1bSetNotebookArchivedResponse\x12?\n" +
 	"\bnotebook\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookDocumentR\bnotebook\"\xb7\x02\n" +
 	"\x16AddNotebookCellRequest\x12\x1f\n" +
@@ -6501,11 +6977,11 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\x0e_after_cell_idB\x17\n" +
 	"\x15_expected_revision_id\"[\n" +
 	"\x18MoveNotebookCellResponse\x12?\n" +
-	"\bdocument\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookDocumentR\bdocument\"\xca\x04\n" +
+	"\bdocument\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookDocumentR\bdocument\"\xd0\x04\n" +
 	"\x1fBatchUpdateNotebookCellsRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
-	"notebookId\x125\n" +
-	"\x05cells\x18\x02 \x03(\v2\x1f.chalk.notebook.v1.NotebookCellR\x05cells\x12(\n" +
+	"notebookId\x12;\n" +
+	"\x05cells\x18\x02 \x03(\v2\x1f.chalk.notebook.v1.NotebookCellB\x04\xe8\xa1'\x01R\x05cells\x12(\n" +
 	"\x10deleted_cell_ids\x18\x03 \x03(\tR\x0edeletedCellIds\x12\x1d\n" +
 	"\n" +
 	"cell_order\x18\x04 \x03(\tR\tcellOrder\x125\n" +
@@ -6603,19 +7079,20 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\trevisions\x18\x01 \x03(\v2+.chalk.notebook.v1.NotebookDocumentRevisionR\trevisions\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\x8d\x01\n" +
+	"\f_next_cursor\"\xa6\x01\n" +
 	"!FetchNotebookDataframeRowsRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\x12\x19\n" +
 	"\bchunk_id\x18\x02 \x01(\tR\achunkId\x12\x16\n" +
 	"\x06offset\x18\x03 \x01(\x03R\x06offset\x12\x14\n" +
-	"\x05limit\x18\x04 \x01(\x05R\x05limit\"\x9e\x01\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x17\n" +
+	"\ablob_id\x18\x05 \x01(\tR\x06blobId\"\x9e\x01\n" +
 	"\"FetchNotebookDataframeRowsResponse\x12\x1d\n" +
 	"\tarrow_ipc\x18\x01 \x01(\fH\x00R\barrowIpc\x12\x1d\n" +
 	"\n" +
 	"total_rows\x18\x02 \x01(\x03R\ttotalRows\x12/\n" +
 	"\x13supports_pagination\x18\x03 \x01(\bR\x12supportsPaginationB\t\n" +
-	"\apayload\"\xea\x01\n" +
+	"\apayload\"\x83\x02\n" +
 	"!AggregateNotebookDataframeRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\x12\x19\n" +
@@ -6624,7 +7101,42 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\vaggregation\x18\x04 \x01(\x0e2/.chalk.notebook.v1.NotebookDataframeAggregationR\vaggregation\x12\x1e\n" +
 	"\n" +
 	"percentile\x18\x05 \x01(\x01R\n" +
-	"percentile\"S\n" +
+	"percentile\x12\x17\n" +
+	"\ablob_id\x18\x06 \x01(\tR\x06blobId\"\xad\x01\n" +
+	"(MaterializeNotebookKernelVariableRequest\x12\x1f\n" +
+	"\vnotebook_id\x18\x01 \x01(\tR\n" +
+	"notebookId\x12;\n" +
+	"\x1avariable_snapshot_chunk_id\x18\x02 \x01(\tR\x17variableSnapshotChunkId\x12#\n" +
+	"\rvariable_name\x18\x03 \x01(\tR\fvariableName\"\xae\x01\n" +
+	")GetNotebookVariableMaterializationRequest\x12\x1f\n" +
+	"\vnotebook_id\x18\x01 \x01(\tR\n" +
+	"notebookId\x12;\n" +
+	"\x1avariable_snapshot_chunk_id\x18\x02 \x01(\tR\x17variableSnapshotChunkId\x12#\n" +
+	"\rvariable_name\x18\x03 \x01(\tR\fvariableName\"E\n" +
+	"*GetNotebookVariableMaterializationResponse\x12\x17\n" +
+	"\ablob_id\x18\x01 \x01(\tR\x06blobId\"D\n" +
+	")MaterializeNotebookKernelVariableResponse\x12\x17\n" +
+	"\ablob_id\x18\x01 \x01(\tR\x06blobId\"L\n" +
+	"\x1eNotebookDataframeDistinctValue\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
+	"\x05label\x18\x02 \x01(\tR\x05label\"\xb0\x02\n" +
+	"*ListNotebookDataframeDistinctValuesRequest\x12\x1f\n" +
+	"\vnotebook_id\x18\x01 \x01(\tR\n" +
+	"notebookId\x12\x19\n" +
+	"\bchunk_id\x18\x02 \x01(\tR\achunkId\x12\x17\n" +
+	"\ablob_id\x18\x03 \x01(\tR\x06blobId\x12!\n" +
+	"\fvalue_column\x18\x04 \x01(\tR\vvalueColumn\x12%\n" +
+	"\x0edisplay_column\x18\x05 \x01(\tR\rdisplayColumn\x12\x16\n" +
+	"\x06search\x18\x06 \x01(\tR\x06search\x12\x19\n" +
+	"\x05limit\x18\a \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\b \x01(\tH\x01R\x06cursor\x88\x01\x01B\b\n" +
+	"\x06_limitB\t\n" +
+	"\a_cursor\"\xae\x01\n" +
+	"+ListNotebookDataframeDistinctValuesResponse\x12I\n" +
+	"\x06values\x18\x01 \x03(\v21.chalk.notebook.v1.NotebookDataframeDistinctValueR\x06values\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"S\n" +
 	"\x1bNotebookDataframePercentile\x12\x1e\n" +
 	"\n" +
 	"percentile\x18\x01 \x01(\x01R\n" +
@@ -6704,10 +7216,11 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\bruntimes\x18\x01 \x03(\v2).chalk.notebook.v1.NotebookRuntimeSummaryR\bruntimes\"D\n" +
 	"!ListNotebookKernelPackagesRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
-	"notebookId\"\x9f\x01\n" +
+	"notebookId\"\xde\x01\n" +
 	"\"ListNotebookKernelPackagesResponse\x12?\n" +
 	"\bpackages\x18\x01 \x03(\v2#.chalk.notebook.v1.InstalledPackageR\bpackages\x128\n" +
-	"\x05build\x18\x02 \x01(\v2\".chalk.notebook.v1.KernelBuildInfoR\x05build\"D\n" +
+	"\x05build\x18\x02 \x01(\v2\".chalk.notebook.v1.KernelBuildInfoR\x05build\x12=\n" +
+	"\x05state\x18\x03 \x01(\x0e2'.chalk.notebook.v1.NotebookRuntimeStateR\x05state\"D\n" +
 	"!GetNotebookDependencyGraphRequest\x12\x1f\n" +
 	"\vnotebook_id\x18\x01 \x01(\tR\n" +
 	"notebookId\"Z\n" +
@@ -6904,10 +7417,10 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"#NOTEBOOK_RUNTIME_STATE_PROVISIONING\x10\x02\x12 \n" +
 	"\x1cNOTEBOOK_RUNTIME_STATE_READY\x10\x03\x12 \n" +
 	"\x1cNOTEBOOK_RUNTIME_STATE_ERROR\x10\x04\x12\"\n" +
-	"\x1eNOTEBOOK_RUNTIME_STATE_STOPPED\x10\x052\xeb2\n" +
+	"\x1eNOTEBOOK_RUNTIME_STATE_STOPPED\x10\x052\xf66\n" +
 	"\x17NotebookDocumentService\x12\xaf\x01\n" +
 	"\x17CreateNotebookShareLink\x121.chalk.notebook.v1.CreateNotebookShareLinkRequest\x1a2.chalk.notebook.v1.CreateNotebookShareLinkResponse\"-\x80}:\x92}\x02\f*\x8a\xd3\x0e!\b\x02\x12\x1dCreated a notebook share link\x12\x87\x01\n" +
-	"\x16ListNotebookShareLinks\x120.chalk.notebook.v1.ListNotebookShareLinksRequest\x1a1.chalk.notebook.v1.ListNotebookShareLinksResponse\"\b\x80}:\x92}\x02\v*\x12\xaf\x01\n" +
+	"\x16ListNotebookShareLinks\x120.chalk.notebook.v1.ListNotebookShareLinksRequest\x1a1.chalk.notebook.v1.ListNotebookShareLinksResponse\"\b\x80}7\x92}\x02\v*\x12\xaf\x01\n" +
 	"\x17RevokeNotebookShareLink\x121.chalk.notebook.v1.RevokeNotebookShareLinkRequest\x1a2.chalk.notebook.v1.RevokeNotebookShareLinkResponse\"-\x80}:\x92}\x02\x0e*\x8a\xd3\x0e!\b\x02\x12\x1dRevoked a notebook share link\x12\x88\x01\n" +
 	"\x18ResolveNotebookShareLink\x122.chalk.notebook.v1.ResolveNotebookShareLinkRequest\x1a3.chalk.notebook.v1.ResolveNotebookShareLinkResponse\"\x03\x80}%\x12\x84\x01\n" +
 	"\x15CreateNotebookComment\x12/.chalk.notebook.v1.CreateNotebookCommentRequest\x1a0.chalk.notebook.v1.CreateNotebookCommentResponse\"\b\x80}9\x92}\x02\f*\x12\x81\x01\n" +
@@ -6932,7 +7445,10 @@ const file_chalk_notebook_v1_document_service_proto_rawDesc = "" +
 	"\rWatchNotebook\x12'.chalk.notebook.v1.WatchNotebookRequest\x1a(.chalk.notebook.v1.WatchNotebookResponse\"\b\x80}7\x92}\x02\v*0\x01\x12\x80\x01\n" +
 	"\x14InterruptNotebookRun\x12..chalk.notebook.v1.InterruptNotebookRunRequest\x1a/.chalk.notebook.v1.InterruptNotebookRunResponse\"\a\x80}*\x92}\x01\x0e\x12\x8b\x01\n" +
 	"\x17ListNotebookCellResults\x121.chalk.notebook.v1.ListNotebookCellResultsRequest\x1a2.chalk.notebook.v1.ListNotebookCellResultsResponse\"\t\x80}7\x92}\x03\v*%\x12\x94\x01\n" +
-	"\x1aFetchNotebookDataframeRows\x124.chalk.notebook.v1.FetchNotebookDataframeRowsRequest\x1a5.chalk.notebook.v1.FetchNotebookDataframeRowsResponse\"\t\x80}7\x92}\x03\v*%\x12\x94\x01\n" +
+	"\x1aFetchNotebookDataframeRows\x124.chalk.notebook.v1.FetchNotebookDataframeRowsRequest\x1a5.chalk.notebook.v1.FetchNotebookDataframeRowsResponse\"\t\x80}7\x92}\x03\v*%\x12\xac\x01\n" +
+	"\"GetNotebookVariableMaterialization\x12<.chalk.notebook.v1.GetNotebookVariableMaterializationRequest\x1a=.chalk.notebook.v1.GetNotebookVariableMaterializationResponse\"\t\x80}7\x92}\x03\v*%\x12\xa7\x01\n" +
+	"!MaterializeNotebookKernelVariable\x12;.chalk.notebook.v1.MaterializeNotebookKernelVariableRequest\x1a<.chalk.notebook.v1.MaterializeNotebookKernelVariableResponse\"\a\x80}*\x92}\x01\x0e\x12\xaf\x01\n" +
+	"#ListNotebookDataframeDistinctValues\x12=.chalk.notebook.v1.ListNotebookDataframeDistinctValuesRequest\x1a>.chalk.notebook.v1.ListNotebookDataframeDistinctValuesResponse\"\t\x80}7\x92}\x03\v*%\x12\x94\x01\n" +
 	"\x1aAggregateNotebookDataframe\x124.chalk.notebook.v1.AggregateNotebookDataframeRequest\x1a5.chalk.notebook.v1.AggregateNotebookDataframeResponse\"\t\x80}7\x92}\x03\v*%\x12\x92\x01\n" +
 	"\x19DownloadNotebookDataframe\x123.chalk.notebook.v1.DownloadNotebookDataframeRequest\x1a4.chalk.notebook.v1.DownloadNotebookDataframeResponse\"\b\x80}7\x92}\x02\v*0\x01\x12\x93\x01\n" +
 	"\x1aListNotebookCellRunHistory\x124.chalk.notebook.v1.ListNotebookCellRunHistoryRequest\x1a5.chalk.notebook.v1.ListNotebookCellRunHistoryResponse\"\b\x80}7\x92}\x02\v*\x12\x9c\x01\n" +
@@ -6969,319 +7485,334 @@ func file_chalk_notebook_v1_document_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_notebook_v1_document_service_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
-var file_chalk_notebook_v1_document_service_proto_msgTypes = make([]protoimpl.MessageInfo, 105)
+var file_chalk_notebook_v1_document_service_proto_msgTypes = make([]protoimpl.MessageInfo, 112)
 var file_chalk_notebook_v1_document_service_proto_goTypes = []any{
-	(NotebookDocumentSortColumn)(0),                // 0: chalk.notebook.v1.NotebookDocumentSortColumn
-	(NotebookDocumentSortOrder)(0),                 // 1: chalk.notebook.v1.NotebookDocumentSortOrder
-	(NotebookWatchEventType)(0),                    // 2: chalk.notebook.v1.NotebookWatchEventType
-	(NotebookCellConflictResolution)(0),            // 3: chalk.notebook.v1.NotebookCellConflictResolution
-	(NotebookInterruptOutcome)(0),                  // 4: chalk.notebook.v1.NotebookInterruptOutcome
-	(NotebookDataframeAggregation)(0),              // 5: chalk.notebook.v1.NotebookDataframeAggregation
-	(NotebookDataframeDownloadFormat)(0),           // 6: chalk.notebook.v1.NotebookDataframeDownloadFormat
-	(NotebookRuntimeState)(0),                      // 7: chalk.notebook.v1.NotebookRuntimeState
-	(*CreateNotebookDocumentRequest)(nil),          // 8: chalk.notebook.v1.CreateNotebookDocumentRequest
-	(*CreateNotebookDocumentResponse)(nil),         // 9: chalk.notebook.v1.CreateNotebookDocumentResponse
-	(*GetNotebookDocumentRequest)(nil),             // 10: chalk.notebook.v1.GetNotebookDocumentRequest
-	(*GetNotebookDocumentResponse)(nil),            // 11: chalk.notebook.v1.GetNotebookDocumentResponse
-	(*ListNotebookDocumentsRequest)(nil),           // 12: chalk.notebook.v1.ListNotebookDocumentsRequest
-	(*ListNotebookDocumentsResponse)(nil),          // 13: chalk.notebook.v1.ListNotebookDocumentsResponse
-	(*UpdateNotebookDocumentRequest)(nil),          // 14: chalk.notebook.v1.UpdateNotebookDocumentRequest
-	(*UpdateNotebookDocumentResponse)(nil),         // 15: chalk.notebook.v1.UpdateNotebookDocumentResponse
-	(*DeleteNotebookDocumentRequest)(nil),          // 16: chalk.notebook.v1.DeleteNotebookDocumentRequest
-	(*DeleteNotebookDocumentResponse)(nil),         // 17: chalk.notebook.v1.DeleteNotebookDocumentResponse
-	(*EnsureNotebookAppRequest)(nil),               // 18: chalk.notebook.v1.EnsureNotebookAppRequest
-	(*EnsureNotebookAppResponse)(nil),              // 19: chalk.notebook.v1.EnsureNotebookAppResponse
-	(*SetNotebookArchivedRequest)(nil),             // 20: chalk.notebook.v1.SetNotebookArchivedRequest
-	(*SetNotebookArchivedResponse)(nil),            // 21: chalk.notebook.v1.SetNotebookArchivedResponse
-	(*AddNotebookCellRequest)(nil),                 // 22: chalk.notebook.v1.AddNotebookCellRequest
-	(*AddNotebookCellResponse)(nil),                // 23: chalk.notebook.v1.AddNotebookCellResponse
-	(*WatchNotebookRequest)(nil),                   // 24: chalk.notebook.v1.WatchNotebookRequest
-	(*WatchNotebookEvent)(nil),                     // 25: chalk.notebook.v1.WatchNotebookEvent
-	(*WatchNotebookResponse)(nil),                  // 26: chalk.notebook.v1.WatchNotebookResponse
-	(*UpdateNotebookCellRequest)(nil),              // 27: chalk.notebook.v1.UpdateNotebookCellRequest
-	(*UpdateNotebookCellResponse)(nil),             // 28: chalk.notebook.v1.UpdateNotebookCellResponse
-	(*DeleteNotebookCellRequest)(nil),              // 29: chalk.notebook.v1.DeleteNotebookCellRequest
-	(*DeleteNotebookCellResponse)(nil),             // 30: chalk.notebook.v1.DeleteNotebookCellResponse
-	(*MoveNotebookCellRequest)(nil),                // 31: chalk.notebook.v1.MoveNotebookCellRequest
-	(*MoveNotebookCellResponse)(nil),               // 32: chalk.notebook.v1.MoveNotebookCellResponse
-	(*BatchUpdateNotebookCellsRequest)(nil),        // 33: chalk.notebook.v1.BatchUpdateNotebookCellsRequest
-	(*BatchUpdateNotebookCellsResponse)(nil),       // 34: chalk.notebook.v1.BatchUpdateNotebookCellsResponse
-	(*StartNotebookRunRequest)(nil),                // 35: chalk.notebook.v1.StartNotebookRunRequest
-	(*NotebookRunPlanEntry)(nil),                   // 36: chalk.notebook.v1.NotebookRunPlanEntry
-	(*StartNotebookRunResponse)(nil),               // 37: chalk.notebook.v1.StartNotebookRunResponse
-	(*WatchNotebookRunRequest)(nil),                // 38: chalk.notebook.v1.WatchNotebookRunRequest
-	(*WatchNotebookRunResponse)(nil),               // 39: chalk.notebook.v1.WatchNotebookRunResponse
-	(*InterruptNotebookRunRequest)(nil),            // 40: chalk.notebook.v1.InterruptNotebookRunRequest
-	(*InterruptNotebookRunResponse)(nil),           // 41: chalk.notebook.v1.InterruptNotebookRunResponse
-	(*ListNotebookCellResultsRequest)(nil),         // 42: chalk.notebook.v1.ListNotebookCellResultsRequest
-	(*ListNotebookCellResultsResponse)(nil),        // 43: chalk.notebook.v1.ListNotebookCellResultsResponse
-	(*ListNotebookCellRunHistoryRequest)(nil),      // 44: chalk.notebook.v1.ListNotebookCellRunHistoryRequest
-	(*ListNotebookCellRunHistoryResponse)(nil),     // 45: chalk.notebook.v1.ListNotebookCellRunHistoryResponse
-	(*ListNotebookRunsRequest)(nil),                // 46: chalk.notebook.v1.ListNotebookRunsRequest
-	(*ListNotebookRunsResponse)(nil),               // 47: chalk.notebook.v1.ListNotebookRunsResponse
-	(*GetNotebookRunDetailsRequest)(nil),           // 48: chalk.notebook.v1.GetNotebookRunDetailsRequest
-	(*GetNotebookRunDetailsResponse)(nil),          // 49: chalk.notebook.v1.GetNotebookRunDetailsResponse
-	(*ListNotebookDocumentRevisionsRequest)(nil),   // 50: chalk.notebook.v1.ListNotebookDocumentRevisionsRequest
-	(*ListNotebookDocumentRevisionsResponse)(nil),  // 51: chalk.notebook.v1.ListNotebookDocumentRevisionsResponse
-	(*FetchNotebookDataframeRowsRequest)(nil),      // 52: chalk.notebook.v1.FetchNotebookDataframeRowsRequest
-	(*FetchNotebookDataframeRowsResponse)(nil),     // 53: chalk.notebook.v1.FetchNotebookDataframeRowsResponse
-	(*AggregateNotebookDataframeRequest)(nil),      // 54: chalk.notebook.v1.AggregateNotebookDataframeRequest
-	(*NotebookDataframePercentile)(nil),            // 55: chalk.notebook.v1.NotebookDataframePercentile
-	(*AggregateNotebookDataframeResponse)(nil),     // 56: chalk.notebook.v1.AggregateNotebookDataframeResponse
-	(*DownloadNotebookDataframeRequest)(nil),       // 57: chalk.notebook.v1.DownloadNotebookDataframeRequest
-	(*DownloadNotebookDataframeResponse)(nil),      // 58: chalk.notebook.v1.DownloadNotebookDataframeResponse
-	(*ClearNotebookCellResultsRequest)(nil),        // 59: chalk.notebook.v1.ClearNotebookCellResultsRequest
-	(*ClearNotebookCellResultsResponse)(nil),       // 60: chalk.notebook.v1.ClearNotebookCellResultsResponse
-	(*GetNotebookSqlCacheSettingsRequest)(nil),     // 61: chalk.notebook.v1.GetNotebookSqlCacheSettingsRequest
-	(*GetNotebookSqlCacheSettingsResponse)(nil),    // 62: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse
-	(*UpdateNotebookSqlCacheSettingsRequest)(nil),  // 63: chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest
-	(*UpdateNotebookSqlCacheSettingsResponse)(nil), // 64: chalk.notebook.v1.UpdateNotebookSqlCacheSettingsResponse
-	(*NotebookRuntimeStatus)(nil),                  // 65: chalk.notebook.v1.NotebookRuntimeStatus
-	(*StartNotebookRuntimeRequest)(nil),            // 66: chalk.notebook.v1.StartNotebookRuntimeRequest
-	(*StartNotebookRuntimeResponse)(nil),           // 67: chalk.notebook.v1.StartNotebookRuntimeResponse
-	(*StopNotebookRuntimeRequest)(nil),             // 68: chalk.notebook.v1.StopNotebookRuntimeRequest
-	(*StopNotebookRuntimeResponse)(nil),            // 69: chalk.notebook.v1.StopNotebookRuntimeResponse
-	(*GetNotebookRuntimeStatusRequest)(nil),        // 70: chalk.notebook.v1.GetNotebookRuntimeStatusRequest
-	(*GetNotebookRuntimeStatusResponse)(nil),       // 71: chalk.notebook.v1.GetNotebookRuntimeStatusResponse
-	(*WatchNotebookRuntimeStatusRequest)(nil),      // 72: chalk.notebook.v1.WatchNotebookRuntimeStatusRequest
-	(*WatchNotebookRuntimeStatusResponse)(nil),     // 73: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse
-	(*NotebookRuntimeSummary)(nil),                 // 74: chalk.notebook.v1.NotebookRuntimeSummary
-	(*ListNotebookRuntimesRequest)(nil),            // 75: chalk.notebook.v1.ListNotebookRuntimesRequest
-	(*ListNotebookRuntimesResponse)(nil),           // 76: chalk.notebook.v1.ListNotebookRuntimesResponse
-	(*ListNotebookKernelPackagesRequest)(nil),      // 77: chalk.notebook.v1.ListNotebookKernelPackagesRequest
-	(*ListNotebookKernelPackagesResponse)(nil),     // 78: chalk.notebook.v1.ListNotebookKernelPackagesResponse
-	(*GetNotebookDependencyGraphRequest)(nil),      // 79: chalk.notebook.v1.GetNotebookDependencyGraphRequest
-	(*DependencyNode)(nil),                         // 80: chalk.notebook.v1.DependencyNode
-	(*DependencyEdge)(nil),                         // 81: chalk.notebook.v1.DependencyEdge
-	(*GetNotebookDependencyGraphResponse)(nil),     // 82: chalk.notebook.v1.GetNotebookDependencyGraphResponse
-	(*ListNotebookSecretsRequest)(nil),             // 83: chalk.notebook.v1.ListNotebookSecretsRequest
-	(*ListNotebookSecretsResponse)(nil),            // 84: chalk.notebook.v1.ListNotebookSecretsResponse
-	(*GetNotebookSecretValueRequest)(nil),          // 85: chalk.notebook.v1.GetNotebookSecretValueRequest
-	(*GetNotebookSecretValueResponse)(nil),         // 86: chalk.notebook.v1.GetNotebookSecretValueResponse
-	(*UpsertNotebookSecretRequest)(nil),            // 87: chalk.notebook.v1.UpsertNotebookSecretRequest
-	(*UpsertNotebookSecretResponse)(nil),           // 88: chalk.notebook.v1.UpsertNotebookSecretResponse
-	(*DeleteNotebookSecretRequest)(nil),            // 89: chalk.notebook.v1.DeleteNotebookSecretRequest
-	(*DeleteNotebookSecretResponse)(nil),           // 90: chalk.notebook.v1.DeleteNotebookSecretResponse
-	(*NotebookComment)(nil),                        // 91: chalk.notebook.v1.NotebookComment
-	(*NotebookCommentReaction)(nil),                // 92: chalk.notebook.v1.NotebookCommentReaction
-	(*CreateNotebookCommentRequest)(nil),           // 93: chalk.notebook.v1.CreateNotebookCommentRequest
-	(*CreateNotebookCommentResponse)(nil),          // 94: chalk.notebook.v1.CreateNotebookCommentResponse
-	(*ListNotebookCommentsRequest)(nil),            // 95: chalk.notebook.v1.ListNotebookCommentsRequest
-	(*ListNotebookCommentsResponse)(nil),           // 96: chalk.notebook.v1.ListNotebookCommentsResponse
-	(*DeleteNotebookCommentRequest)(nil),           // 97: chalk.notebook.v1.DeleteNotebookCommentRequest
-	(*DeleteNotebookCommentResponse)(nil),          // 98: chalk.notebook.v1.DeleteNotebookCommentResponse
-	(*SetNotebookCommentResolvedRequest)(nil),      // 99: chalk.notebook.v1.SetNotebookCommentResolvedRequest
-	(*SetNotebookCommentResolvedResponse)(nil),     // 100: chalk.notebook.v1.SetNotebookCommentResolvedResponse
-	(*ToggleNotebookCommentReactionRequest)(nil),   // 101: chalk.notebook.v1.ToggleNotebookCommentReactionRequest
-	(*ToggleNotebookCommentReactionResponse)(nil),  // 102: chalk.notebook.v1.ToggleNotebookCommentReactionResponse
-	(*CreateNotebookShareLinkRequest)(nil),         // 103: chalk.notebook.v1.CreateNotebookShareLinkRequest
-	(*CreateNotebookShareLinkResponse)(nil),        // 104: chalk.notebook.v1.CreateNotebookShareLinkResponse
-	(*ListNotebookShareLinksRequest)(nil),          // 105: chalk.notebook.v1.ListNotebookShareLinksRequest
-	(*ListNotebookShareLinksResponse)(nil),         // 106: chalk.notebook.v1.ListNotebookShareLinksResponse
-	(*RevokeNotebookShareLinkRequest)(nil),         // 107: chalk.notebook.v1.RevokeNotebookShareLinkRequest
-	(*RevokeNotebookShareLinkResponse)(nil),        // 108: chalk.notebook.v1.RevokeNotebookShareLinkResponse
-	(*ResolveNotebookShareLinkRequest)(nil),        // 109: chalk.notebook.v1.ResolveNotebookShareLinkRequest
-	(*ResolveNotebookShareLinkResponse)(nil),       // 110: chalk.notebook.v1.ResolveNotebookShareLinkResponse
-	(*ListNotebookDocumentsFilters)(nil),           // 111: chalk.notebook.v1.ListNotebookDocumentsFilters
-	nil,                                            // 112: chalk.notebook.v1.BatchUpdateNotebookCellsRequest.ExpectedCellRevisionIdsEntry
-	(*NotebookDocument)(nil),                       // 113: chalk.notebook.v1.NotebookDocument
-	(*fieldmaskpb.FieldMask)(nil),                  // 114: google.protobuf.FieldMask
-	(*NotebookCell)(nil),                           // 115: chalk.notebook.v1.NotebookCell
-	(NotebookRunStatus)(0),                         // 116: chalk.notebook.v1.NotebookRunStatus
-	(*timestamppb.Timestamp)(nil),                  // 117: google.protobuf.Timestamp
-	(NotebookRunScope)(0),                          // 118: chalk.notebook.v1.NotebookRunScope
-	(*durationpb.Duration)(nil),                    // 119: google.protobuf.Duration
-	(*NotebookRunKernel)(nil),                      // 120: chalk.notebook.v1.NotebookRunKernel
-	(*NotebookRunEvent)(nil),                       // 121: chalk.notebook.v1.NotebookRunEvent
-	(*NotebookCellResult)(nil),                     // 122: chalk.notebook.v1.NotebookCellResult
-	(*NotebookCellRunHistoryEntry)(nil),            // 123: chalk.notebook.v1.NotebookCellRunHistoryEntry
-	(*NotebookRunSummary)(nil),                     // 124: chalk.notebook.v1.NotebookRunSummary
-	(*NotebookDocumentRevision)(nil),               // 125: chalk.notebook.v1.NotebookDocumentRevision
-	(*NotebookKernelLifecycle)(nil),                // 126: chalk.notebook.v1.NotebookKernelLifecycle
-	(*InstalledPackage)(nil),                       // 127: chalk.notebook.v1.InstalledPackage
-	(*KernelBuildInfo)(nil),                        // 128: chalk.notebook.v1.KernelBuildInfo
-	(*NotebookSecret)(nil),                         // 129: chalk.notebook.v1.NotebookSecret
-	(*NotebookSecretValue)(nil),                    // 130: chalk.notebook.v1.NotebookSecretValue
-	(*v1.SecretConfigValue)(nil),                   // 131: chalk.server.v1.SecretConfigValue
-	(*NotebookShareLink)(nil),                      // 132: chalk.notebook.v1.NotebookShareLink
+	(NotebookDocumentSortColumn)(0),                     // 0: chalk.notebook.v1.NotebookDocumentSortColumn
+	(NotebookDocumentSortOrder)(0),                      // 1: chalk.notebook.v1.NotebookDocumentSortOrder
+	(NotebookWatchEventType)(0),                         // 2: chalk.notebook.v1.NotebookWatchEventType
+	(NotebookCellConflictResolution)(0),                 // 3: chalk.notebook.v1.NotebookCellConflictResolution
+	(NotebookInterruptOutcome)(0),                       // 4: chalk.notebook.v1.NotebookInterruptOutcome
+	(NotebookDataframeAggregation)(0),                   // 5: chalk.notebook.v1.NotebookDataframeAggregation
+	(NotebookDataframeDownloadFormat)(0),                // 6: chalk.notebook.v1.NotebookDataframeDownloadFormat
+	(NotebookRuntimeState)(0),                           // 7: chalk.notebook.v1.NotebookRuntimeState
+	(*CreateNotebookDocumentRequest)(nil),               // 8: chalk.notebook.v1.CreateNotebookDocumentRequest
+	(*CreateNotebookDocumentResponse)(nil),              // 9: chalk.notebook.v1.CreateNotebookDocumentResponse
+	(*GetNotebookDocumentRequest)(nil),                  // 10: chalk.notebook.v1.GetNotebookDocumentRequest
+	(*GetNotebookDocumentResponse)(nil),                 // 11: chalk.notebook.v1.GetNotebookDocumentResponse
+	(*ListNotebookDocumentsRequest)(nil),                // 12: chalk.notebook.v1.ListNotebookDocumentsRequest
+	(*ListNotebookDocumentsResponse)(nil),               // 13: chalk.notebook.v1.ListNotebookDocumentsResponse
+	(*UpdateNotebookDocumentRequest)(nil),               // 14: chalk.notebook.v1.UpdateNotebookDocumentRequest
+	(*UpdateNotebookDocumentResponse)(nil),              // 15: chalk.notebook.v1.UpdateNotebookDocumentResponse
+	(*DeleteNotebookDocumentRequest)(nil),               // 16: chalk.notebook.v1.DeleteNotebookDocumentRequest
+	(*DeleteNotebookDocumentResponse)(nil),              // 17: chalk.notebook.v1.DeleteNotebookDocumentResponse
+	(*EnsureNotebookAppRequest)(nil),                    // 18: chalk.notebook.v1.EnsureNotebookAppRequest
+	(*EnsureNotebookAppResponse)(nil),                   // 19: chalk.notebook.v1.EnsureNotebookAppResponse
+	(*SetNotebookArchivedRequest)(nil),                  // 20: chalk.notebook.v1.SetNotebookArchivedRequest
+	(*SetNotebookArchivedResponse)(nil),                 // 21: chalk.notebook.v1.SetNotebookArchivedResponse
+	(*AddNotebookCellRequest)(nil),                      // 22: chalk.notebook.v1.AddNotebookCellRequest
+	(*AddNotebookCellResponse)(nil),                     // 23: chalk.notebook.v1.AddNotebookCellResponse
+	(*WatchNotebookRequest)(nil),                        // 24: chalk.notebook.v1.WatchNotebookRequest
+	(*WatchNotebookEvent)(nil),                          // 25: chalk.notebook.v1.WatchNotebookEvent
+	(*WatchNotebookResponse)(nil),                       // 26: chalk.notebook.v1.WatchNotebookResponse
+	(*UpdateNotebookCellRequest)(nil),                   // 27: chalk.notebook.v1.UpdateNotebookCellRequest
+	(*UpdateNotebookCellResponse)(nil),                  // 28: chalk.notebook.v1.UpdateNotebookCellResponse
+	(*DeleteNotebookCellRequest)(nil),                   // 29: chalk.notebook.v1.DeleteNotebookCellRequest
+	(*DeleteNotebookCellResponse)(nil),                  // 30: chalk.notebook.v1.DeleteNotebookCellResponse
+	(*MoveNotebookCellRequest)(nil),                     // 31: chalk.notebook.v1.MoveNotebookCellRequest
+	(*MoveNotebookCellResponse)(nil),                    // 32: chalk.notebook.v1.MoveNotebookCellResponse
+	(*BatchUpdateNotebookCellsRequest)(nil),             // 33: chalk.notebook.v1.BatchUpdateNotebookCellsRequest
+	(*BatchUpdateNotebookCellsResponse)(nil),            // 34: chalk.notebook.v1.BatchUpdateNotebookCellsResponse
+	(*StartNotebookRunRequest)(nil),                     // 35: chalk.notebook.v1.StartNotebookRunRequest
+	(*NotebookRunPlanEntry)(nil),                        // 36: chalk.notebook.v1.NotebookRunPlanEntry
+	(*StartNotebookRunResponse)(nil),                    // 37: chalk.notebook.v1.StartNotebookRunResponse
+	(*WatchNotebookRunRequest)(nil),                     // 38: chalk.notebook.v1.WatchNotebookRunRequest
+	(*WatchNotebookRunResponse)(nil),                    // 39: chalk.notebook.v1.WatchNotebookRunResponse
+	(*InterruptNotebookRunRequest)(nil),                 // 40: chalk.notebook.v1.InterruptNotebookRunRequest
+	(*InterruptNotebookRunResponse)(nil),                // 41: chalk.notebook.v1.InterruptNotebookRunResponse
+	(*ListNotebookCellResultsRequest)(nil),              // 42: chalk.notebook.v1.ListNotebookCellResultsRequest
+	(*ListNotebookCellResultsResponse)(nil),             // 43: chalk.notebook.v1.ListNotebookCellResultsResponse
+	(*ListNotebookCellRunHistoryRequest)(nil),           // 44: chalk.notebook.v1.ListNotebookCellRunHistoryRequest
+	(*ListNotebookCellRunHistoryResponse)(nil),          // 45: chalk.notebook.v1.ListNotebookCellRunHistoryResponse
+	(*ListNotebookRunsRequest)(nil),                     // 46: chalk.notebook.v1.ListNotebookRunsRequest
+	(*ListNotebookRunsResponse)(nil),                    // 47: chalk.notebook.v1.ListNotebookRunsResponse
+	(*GetNotebookRunDetailsRequest)(nil),                // 48: chalk.notebook.v1.GetNotebookRunDetailsRequest
+	(*GetNotebookRunDetailsResponse)(nil),               // 49: chalk.notebook.v1.GetNotebookRunDetailsResponse
+	(*ListNotebookDocumentRevisionsRequest)(nil),        // 50: chalk.notebook.v1.ListNotebookDocumentRevisionsRequest
+	(*ListNotebookDocumentRevisionsResponse)(nil),       // 51: chalk.notebook.v1.ListNotebookDocumentRevisionsResponse
+	(*FetchNotebookDataframeRowsRequest)(nil),           // 52: chalk.notebook.v1.FetchNotebookDataframeRowsRequest
+	(*FetchNotebookDataframeRowsResponse)(nil),          // 53: chalk.notebook.v1.FetchNotebookDataframeRowsResponse
+	(*AggregateNotebookDataframeRequest)(nil),           // 54: chalk.notebook.v1.AggregateNotebookDataframeRequest
+	(*MaterializeNotebookKernelVariableRequest)(nil),    // 55: chalk.notebook.v1.MaterializeNotebookKernelVariableRequest
+	(*GetNotebookVariableMaterializationRequest)(nil),   // 56: chalk.notebook.v1.GetNotebookVariableMaterializationRequest
+	(*GetNotebookVariableMaterializationResponse)(nil),  // 57: chalk.notebook.v1.GetNotebookVariableMaterializationResponse
+	(*MaterializeNotebookKernelVariableResponse)(nil),   // 58: chalk.notebook.v1.MaterializeNotebookKernelVariableResponse
+	(*NotebookDataframeDistinctValue)(nil),              // 59: chalk.notebook.v1.NotebookDataframeDistinctValue
+	(*ListNotebookDataframeDistinctValuesRequest)(nil),  // 60: chalk.notebook.v1.ListNotebookDataframeDistinctValuesRequest
+	(*ListNotebookDataframeDistinctValuesResponse)(nil), // 61: chalk.notebook.v1.ListNotebookDataframeDistinctValuesResponse
+	(*NotebookDataframePercentile)(nil),                 // 62: chalk.notebook.v1.NotebookDataframePercentile
+	(*AggregateNotebookDataframeResponse)(nil),          // 63: chalk.notebook.v1.AggregateNotebookDataframeResponse
+	(*DownloadNotebookDataframeRequest)(nil),            // 64: chalk.notebook.v1.DownloadNotebookDataframeRequest
+	(*DownloadNotebookDataframeResponse)(nil),           // 65: chalk.notebook.v1.DownloadNotebookDataframeResponse
+	(*ClearNotebookCellResultsRequest)(nil),             // 66: chalk.notebook.v1.ClearNotebookCellResultsRequest
+	(*ClearNotebookCellResultsResponse)(nil),            // 67: chalk.notebook.v1.ClearNotebookCellResultsResponse
+	(*GetNotebookSqlCacheSettingsRequest)(nil),          // 68: chalk.notebook.v1.GetNotebookSqlCacheSettingsRequest
+	(*GetNotebookSqlCacheSettingsResponse)(nil),         // 69: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse
+	(*UpdateNotebookSqlCacheSettingsRequest)(nil),       // 70: chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest
+	(*UpdateNotebookSqlCacheSettingsResponse)(nil),      // 71: chalk.notebook.v1.UpdateNotebookSqlCacheSettingsResponse
+	(*NotebookRuntimeStatus)(nil),                       // 72: chalk.notebook.v1.NotebookRuntimeStatus
+	(*StartNotebookRuntimeRequest)(nil),                 // 73: chalk.notebook.v1.StartNotebookRuntimeRequest
+	(*StartNotebookRuntimeResponse)(nil),                // 74: chalk.notebook.v1.StartNotebookRuntimeResponse
+	(*StopNotebookRuntimeRequest)(nil),                  // 75: chalk.notebook.v1.StopNotebookRuntimeRequest
+	(*StopNotebookRuntimeResponse)(nil),                 // 76: chalk.notebook.v1.StopNotebookRuntimeResponse
+	(*GetNotebookRuntimeStatusRequest)(nil),             // 77: chalk.notebook.v1.GetNotebookRuntimeStatusRequest
+	(*GetNotebookRuntimeStatusResponse)(nil),            // 78: chalk.notebook.v1.GetNotebookRuntimeStatusResponse
+	(*WatchNotebookRuntimeStatusRequest)(nil),           // 79: chalk.notebook.v1.WatchNotebookRuntimeStatusRequest
+	(*WatchNotebookRuntimeStatusResponse)(nil),          // 80: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse
+	(*NotebookRuntimeSummary)(nil),                      // 81: chalk.notebook.v1.NotebookRuntimeSummary
+	(*ListNotebookRuntimesRequest)(nil),                 // 82: chalk.notebook.v1.ListNotebookRuntimesRequest
+	(*ListNotebookRuntimesResponse)(nil),                // 83: chalk.notebook.v1.ListNotebookRuntimesResponse
+	(*ListNotebookKernelPackagesRequest)(nil),           // 84: chalk.notebook.v1.ListNotebookKernelPackagesRequest
+	(*ListNotebookKernelPackagesResponse)(nil),          // 85: chalk.notebook.v1.ListNotebookKernelPackagesResponse
+	(*GetNotebookDependencyGraphRequest)(nil),           // 86: chalk.notebook.v1.GetNotebookDependencyGraphRequest
+	(*DependencyNode)(nil),                              // 87: chalk.notebook.v1.DependencyNode
+	(*DependencyEdge)(nil),                              // 88: chalk.notebook.v1.DependencyEdge
+	(*GetNotebookDependencyGraphResponse)(nil),          // 89: chalk.notebook.v1.GetNotebookDependencyGraphResponse
+	(*ListNotebookSecretsRequest)(nil),                  // 90: chalk.notebook.v1.ListNotebookSecretsRequest
+	(*ListNotebookSecretsResponse)(nil),                 // 91: chalk.notebook.v1.ListNotebookSecretsResponse
+	(*GetNotebookSecretValueRequest)(nil),               // 92: chalk.notebook.v1.GetNotebookSecretValueRequest
+	(*GetNotebookSecretValueResponse)(nil),              // 93: chalk.notebook.v1.GetNotebookSecretValueResponse
+	(*UpsertNotebookSecretRequest)(nil),                 // 94: chalk.notebook.v1.UpsertNotebookSecretRequest
+	(*UpsertNotebookSecretResponse)(nil),                // 95: chalk.notebook.v1.UpsertNotebookSecretResponse
+	(*DeleteNotebookSecretRequest)(nil),                 // 96: chalk.notebook.v1.DeleteNotebookSecretRequest
+	(*DeleteNotebookSecretResponse)(nil),                // 97: chalk.notebook.v1.DeleteNotebookSecretResponse
+	(*NotebookComment)(nil),                             // 98: chalk.notebook.v1.NotebookComment
+	(*NotebookCommentReaction)(nil),                     // 99: chalk.notebook.v1.NotebookCommentReaction
+	(*CreateNotebookCommentRequest)(nil),                // 100: chalk.notebook.v1.CreateNotebookCommentRequest
+	(*CreateNotebookCommentResponse)(nil),               // 101: chalk.notebook.v1.CreateNotebookCommentResponse
+	(*ListNotebookCommentsRequest)(nil),                 // 102: chalk.notebook.v1.ListNotebookCommentsRequest
+	(*ListNotebookCommentsResponse)(nil),                // 103: chalk.notebook.v1.ListNotebookCommentsResponse
+	(*DeleteNotebookCommentRequest)(nil),                // 104: chalk.notebook.v1.DeleteNotebookCommentRequest
+	(*DeleteNotebookCommentResponse)(nil),               // 105: chalk.notebook.v1.DeleteNotebookCommentResponse
+	(*SetNotebookCommentResolvedRequest)(nil),           // 106: chalk.notebook.v1.SetNotebookCommentResolvedRequest
+	(*SetNotebookCommentResolvedResponse)(nil),          // 107: chalk.notebook.v1.SetNotebookCommentResolvedResponse
+	(*ToggleNotebookCommentReactionRequest)(nil),        // 108: chalk.notebook.v1.ToggleNotebookCommentReactionRequest
+	(*ToggleNotebookCommentReactionResponse)(nil),       // 109: chalk.notebook.v1.ToggleNotebookCommentReactionResponse
+	(*CreateNotebookShareLinkRequest)(nil),              // 110: chalk.notebook.v1.CreateNotebookShareLinkRequest
+	(*CreateNotebookShareLinkResponse)(nil),             // 111: chalk.notebook.v1.CreateNotebookShareLinkResponse
+	(*ListNotebookShareLinksRequest)(nil),               // 112: chalk.notebook.v1.ListNotebookShareLinksRequest
+	(*ListNotebookShareLinksResponse)(nil),              // 113: chalk.notebook.v1.ListNotebookShareLinksResponse
+	(*RevokeNotebookShareLinkRequest)(nil),              // 114: chalk.notebook.v1.RevokeNotebookShareLinkRequest
+	(*RevokeNotebookShareLinkResponse)(nil),             // 115: chalk.notebook.v1.RevokeNotebookShareLinkResponse
+	(*ResolveNotebookShareLinkRequest)(nil),             // 116: chalk.notebook.v1.ResolveNotebookShareLinkRequest
+	(*ResolveNotebookShareLinkResponse)(nil),            // 117: chalk.notebook.v1.ResolveNotebookShareLinkResponse
+	(*ListNotebookDocumentsFilters)(nil),                // 118: chalk.notebook.v1.ListNotebookDocumentsFilters
+	nil,                                                 // 119: chalk.notebook.v1.BatchUpdateNotebookCellsRequest.ExpectedCellRevisionIdsEntry
+	(*NotebookDocument)(nil),                            // 120: chalk.notebook.v1.NotebookDocument
+	(*fieldmaskpb.FieldMask)(nil),                       // 121: google.protobuf.FieldMask
+	(*NotebookCell)(nil),                                // 122: chalk.notebook.v1.NotebookCell
+	(NotebookRunStatus)(0),                              // 123: chalk.notebook.v1.NotebookRunStatus
+	(*timestamppb.Timestamp)(nil),                       // 124: google.protobuf.Timestamp
+	(NotebookRunScope)(0),                               // 125: chalk.notebook.v1.NotebookRunScope
+	(*durationpb.Duration)(nil),                         // 126: google.protobuf.Duration
+	(*NotebookRunKernel)(nil),                           // 127: chalk.notebook.v1.NotebookRunKernel
+	(*NotebookRunEvent)(nil),                            // 128: chalk.notebook.v1.NotebookRunEvent
+	(*NotebookCellResult)(nil),                          // 129: chalk.notebook.v1.NotebookCellResult
+	(*NotebookCellRunHistoryEntry)(nil),                 // 130: chalk.notebook.v1.NotebookCellRunHistoryEntry
+	(*NotebookRunSummary)(nil),                          // 131: chalk.notebook.v1.NotebookRunSummary
+	(*NotebookDocumentRevision)(nil),                    // 132: chalk.notebook.v1.NotebookDocumentRevision
+	(*NotebookKernelLifecycle)(nil),                     // 133: chalk.notebook.v1.NotebookKernelLifecycle
+	(*InstalledPackage)(nil),                            // 134: chalk.notebook.v1.InstalledPackage
+	(*KernelBuildInfo)(nil),                             // 135: chalk.notebook.v1.KernelBuildInfo
+	(*NotebookSecret)(nil),                              // 136: chalk.notebook.v1.NotebookSecret
+	(*NotebookSecretValue)(nil),                         // 137: chalk.notebook.v1.NotebookSecretValue
+	(*v1.SecretConfigValue)(nil),                        // 138: chalk.server.v1.SecretConfigValue
+	(*NotebookShareLink)(nil),                           // 139: chalk.notebook.v1.NotebookShareLink
 }
 var file_chalk_notebook_v1_document_service_proto_depIdxs = []int32{
-	113, // 0: chalk.notebook.v1.CreateNotebookDocumentRequest.document:type_name -> chalk.notebook.v1.NotebookDocument
-	113, // 1: chalk.notebook.v1.CreateNotebookDocumentResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
-	113, // 2: chalk.notebook.v1.GetNotebookDocumentResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
+	120, // 0: chalk.notebook.v1.CreateNotebookDocumentRequest.document:type_name -> chalk.notebook.v1.NotebookDocument
+	120, // 1: chalk.notebook.v1.CreateNotebookDocumentResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
+	120, // 2: chalk.notebook.v1.GetNotebookDocumentResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
 	0,   // 3: chalk.notebook.v1.ListNotebookDocumentsRequest.sort_column:type_name -> chalk.notebook.v1.NotebookDocumentSortColumn
 	1,   // 4: chalk.notebook.v1.ListNotebookDocumentsRequest.sort_order:type_name -> chalk.notebook.v1.NotebookDocumentSortOrder
-	111, // 5: chalk.notebook.v1.ListNotebookDocumentsRequest.filters:type_name -> chalk.notebook.v1.ListNotebookDocumentsFilters
-	113, // 6: chalk.notebook.v1.ListNotebookDocumentsResponse.documents:type_name -> chalk.notebook.v1.NotebookDocument
-	113, // 7: chalk.notebook.v1.UpdateNotebookDocumentRequest.document:type_name -> chalk.notebook.v1.NotebookDocument
-	114, // 8: chalk.notebook.v1.UpdateNotebookDocumentRequest.update_mask:type_name -> google.protobuf.FieldMask
-	113, // 9: chalk.notebook.v1.UpdateNotebookDocumentResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
-	113, // 10: chalk.notebook.v1.SetNotebookArchivedResponse.notebook:type_name -> chalk.notebook.v1.NotebookDocument
-	115, // 11: chalk.notebook.v1.AddNotebookCellRequest.cell:type_name -> chalk.notebook.v1.NotebookCell
-	113, // 12: chalk.notebook.v1.AddNotebookCellResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
-	115, // 13: chalk.notebook.v1.AddNotebookCellResponse.cell:type_name -> chalk.notebook.v1.NotebookCell
+	118, // 5: chalk.notebook.v1.ListNotebookDocumentsRequest.filters:type_name -> chalk.notebook.v1.ListNotebookDocumentsFilters
+	120, // 6: chalk.notebook.v1.ListNotebookDocumentsResponse.documents:type_name -> chalk.notebook.v1.NotebookDocument
+	120, // 7: chalk.notebook.v1.UpdateNotebookDocumentRequest.document:type_name -> chalk.notebook.v1.NotebookDocument
+	121, // 8: chalk.notebook.v1.UpdateNotebookDocumentRequest.update_mask:type_name -> google.protobuf.FieldMask
+	120, // 9: chalk.notebook.v1.UpdateNotebookDocumentResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
+	120, // 10: chalk.notebook.v1.SetNotebookArchivedResponse.notebook:type_name -> chalk.notebook.v1.NotebookDocument
+	122, // 11: chalk.notebook.v1.AddNotebookCellRequest.cell:type_name -> chalk.notebook.v1.NotebookCell
+	120, // 12: chalk.notebook.v1.AddNotebookCellResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
+	122, // 13: chalk.notebook.v1.AddNotebookCellResponse.cell:type_name -> chalk.notebook.v1.NotebookCell
 	2,   // 14: chalk.notebook.v1.WatchNotebookEvent.event_type:type_name -> chalk.notebook.v1.NotebookWatchEventType
-	116, // 15: chalk.notebook.v1.WatchNotebookEvent.run_status:type_name -> chalk.notebook.v1.NotebookRunStatus
-	117, // 16: chalk.notebook.v1.WatchNotebookEvent.observed_at:type_name -> google.protobuf.Timestamp
+	123, // 15: chalk.notebook.v1.WatchNotebookEvent.run_status:type_name -> chalk.notebook.v1.NotebookRunStatus
+	124, // 16: chalk.notebook.v1.WatchNotebookEvent.observed_at:type_name -> google.protobuf.Timestamp
 	25,  // 17: chalk.notebook.v1.WatchNotebookResponse.event:type_name -> chalk.notebook.v1.WatchNotebookEvent
-	115, // 18: chalk.notebook.v1.UpdateNotebookCellRequest.cell:type_name -> chalk.notebook.v1.NotebookCell
-	114, // 19: chalk.notebook.v1.UpdateNotebookCellRequest.update_mask:type_name -> google.protobuf.FieldMask
+	122, // 18: chalk.notebook.v1.UpdateNotebookCellRequest.cell:type_name -> chalk.notebook.v1.NotebookCell
+	121, // 19: chalk.notebook.v1.UpdateNotebookCellRequest.update_mask:type_name -> google.protobuf.FieldMask
 	3,   // 20: chalk.notebook.v1.UpdateNotebookCellRequest.on_cell_conflict:type_name -> chalk.notebook.v1.NotebookCellConflictResolution
-	113, // 21: chalk.notebook.v1.UpdateNotebookCellResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
-	115, // 22: chalk.notebook.v1.UpdateNotebookCellResponse.cell:type_name -> chalk.notebook.v1.NotebookCell
-	113, // 23: chalk.notebook.v1.DeleteNotebookCellResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
-	113, // 24: chalk.notebook.v1.MoveNotebookCellResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
-	115, // 25: chalk.notebook.v1.BatchUpdateNotebookCellsRequest.cells:type_name -> chalk.notebook.v1.NotebookCell
-	112, // 26: chalk.notebook.v1.BatchUpdateNotebookCellsRequest.expected_cell_revision_ids:type_name -> chalk.notebook.v1.BatchUpdateNotebookCellsRequest.ExpectedCellRevisionIdsEntry
+	120, // 21: chalk.notebook.v1.UpdateNotebookCellResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
+	122, // 22: chalk.notebook.v1.UpdateNotebookCellResponse.cell:type_name -> chalk.notebook.v1.NotebookCell
+	120, // 23: chalk.notebook.v1.DeleteNotebookCellResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
+	120, // 24: chalk.notebook.v1.MoveNotebookCellResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
+	122, // 25: chalk.notebook.v1.BatchUpdateNotebookCellsRequest.cells:type_name -> chalk.notebook.v1.NotebookCell
+	119, // 26: chalk.notebook.v1.BatchUpdateNotebookCellsRequest.expected_cell_revision_ids:type_name -> chalk.notebook.v1.BatchUpdateNotebookCellsRequest.ExpectedCellRevisionIdsEntry
 	3,   // 27: chalk.notebook.v1.BatchUpdateNotebookCellsRequest.on_cell_conflict:type_name -> chalk.notebook.v1.NotebookCellConflictResolution
-	113, // 28: chalk.notebook.v1.BatchUpdateNotebookCellsResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
-	118, // 29: chalk.notebook.v1.StartNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
-	119, // 30: chalk.notebook.v1.StartNotebookRunRequest.max_staleness:type_name -> google.protobuf.Duration
+	120, // 28: chalk.notebook.v1.BatchUpdateNotebookCellsResponse.document:type_name -> chalk.notebook.v1.NotebookDocument
+	125, // 29: chalk.notebook.v1.StartNotebookRunRequest.run_scope:type_name -> chalk.notebook.v1.NotebookRunScope
+	126, // 30: chalk.notebook.v1.StartNotebookRunRequest.max_staleness:type_name -> google.protobuf.Duration
 	36,  // 31: chalk.notebook.v1.StartNotebookRunResponse.plan:type_name -> chalk.notebook.v1.NotebookRunPlanEntry
-	120, // 32: chalk.notebook.v1.StartNotebookRunResponse.kernel:type_name -> chalk.notebook.v1.NotebookRunKernel
-	121, // 33: chalk.notebook.v1.WatchNotebookRunResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
+	127, // 32: chalk.notebook.v1.StartNotebookRunResponse.kernel:type_name -> chalk.notebook.v1.NotebookRunKernel
+	128, // 33: chalk.notebook.v1.WatchNotebookRunResponse.event:type_name -> chalk.notebook.v1.NotebookRunEvent
 	4,   // 34: chalk.notebook.v1.InterruptNotebookRunResponse.outcome:type_name -> chalk.notebook.v1.NotebookInterruptOutcome
-	122, // 35: chalk.notebook.v1.ListNotebookCellResultsResponse.results:type_name -> chalk.notebook.v1.NotebookCellResult
-	123, // 36: chalk.notebook.v1.ListNotebookCellRunHistoryResponse.cell_runs:type_name -> chalk.notebook.v1.NotebookCellRunHistoryEntry
-	124, // 37: chalk.notebook.v1.ListNotebookRunsResponse.runs:type_name -> chalk.notebook.v1.NotebookRunSummary
-	124, // 38: chalk.notebook.v1.GetNotebookRunDetailsResponse.run:type_name -> chalk.notebook.v1.NotebookRunSummary
-	123, // 39: chalk.notebook.v1.GetNotebookRunDetailsResponse.cell_runs:type_name -> chalk.notebook.v1.NotebookCellRunHistoryEntry
-	125, // 40: chalk.notebook.v1.ListNotebookDocumentRevisionsResponse.revisions:type_name -> chalk.notebook.v1.NotebookDocumentRevision
+	129, // 35: chalk.notebook.v1.ListNotebookCellResultsResponse.results:type_name -> chalk.notebook.v1.NotebookCellResult
+	130, // 36: chalk.notebook.v1.ListNotebookCellRunHistoryResponse.cell_runs:type_name -> chalk.notebook.v1.NotebookCellRunHistoryEntry
+	131, // 37: chalk.notebook.v1.ListNotebookRunsResponse.runs:type_name -> chalk.notebook.v1.NotebookRunSummary
+	131, // 38: chalk.notebook.v1.GetNotebookRunDetailsResponse.run:type_name -> chalk.notebook.v1.NotebookRunSummary
+	130, // 39: chalk.notebook.v1.GetNotebookRunDetailsResponse.cell_runs:type_name -> chalk.notebook.v1.NotebookCellRunHistoryEntry
+	132, // 40: chalk.notebook.v1.ListNotebookDocumentRevisionsResponse.revisions:type_name -> chalk.notebook.v1.NotebookDocumentRevision
 	5,   // 41: chalk.notebook.v1.AggregateNotebookDataframeRequest.aggregation:type_name -> chalk.notebook.v1.NotebookDataframeAggregation
-	55,  // 42: chalk.notebook.v1.AggregateNotebookDataframeResponse.percentiles:type_name -> chalk.notebook.v1.NotebookDataframePercentile
-	6,   // 43: chalk.notebook.v1.DownloadNotebookDataframeRequest.format:type_name -> chalk.notebook.v1.NotebookDataframeDownloadFormat
-	119, // 44: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse.max_staleness:type_name -> google.protobuf.Duration
-	119, // 45: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse.effective_max_staleness:type_name -> google.protobuf.Duration
-	119, // 46: chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest.max_staleness:type_name -> google.protobuf.Duration
-	7,   // 47: chalk.notebook.v1.NotebookRuntimeStatus.state:type_name -> chalk.notebook.v1.NotebookRuntimeState
-	126, // 48: chalk.notebook.v1.NotebookRuntimeStatus.kernel_lifecycle:type_name -> chalk.notebook.v1.NotebookKernelLifecycle
-	65,  // 49: chalk.notebook.v1.StartNotebookRuntimeResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	65,  // 50: chalk.notebook.v1.StopNotebookRuntimeResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	65,  // 51: chalk.notebook.v1.GetNotebookRuntimeStatusResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	65,  // 52: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	117, // 53: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse.observed_at:type_name -> google.protobuf.Timestamp
-	65,  // 54: chalk.notebook.v1.NotebookRuntimeSummary.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
-	117, // 55: chalk.notebook.v1.NotebookRuntimeSummary.created_at:type_name -> google.protobuf.Timestamp
-	74,  // 56: chalk.notebook.v1.ListNotebookRuntimesResponse.runtimes:type_name -> chalk.notebook.v1.NotebookRuntimeSummary
-	127, // 57: chalk.notebook.v1.ListNotebookKernelPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
-	128, // 58: chalk.notebook.v1.ListNotebookKernelPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
-	80,  // 59: chalk.notebook.v1.GetNotebookDependencyGraphResponse.nodes:type_name -> chalk.notebook.v1.DependencyNode
-	81,  // 60: chalk.notebook.v1.GetNotebookDependencyGraphResponse.edges:type_name -> chalk.notebook.v1.DependencyEdge
-	129, // 61: chalk.notebook.v1.ListNotebookSecretsResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
-	130, // 62: chalk.notebook.v1.GetNotebookSecretValueResponse.secret_value:type_name -> chalk.notebook.v1.NotebookSecretValue
-	131, // 63: chalk.notebook.v1.UpsertNotebookSecretRequest.config:type_name -> chalk.server.v1.SecretConfigValue
-	129, // 64: chalk.notebook.v1.UpsertNotebookSecretResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
-	129, // 65: chalk.notebook.v1.DeleteNotebookSecretResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
-	117, // 66: chalk.notebook.v1.NotebookComment.created_at:type_name -> google.protobuf.Timestamp
-	117, // 67: chalk.notebook.v1.NotebookComment.resolved_at:type_name -> google.protobuf.Timestamp
-	92,  // 68: chalk.notebook.v1.NotebookComment.reactions:type_name -> chalk.notebook.v1.NotebookCommentReaction
-	91,  // 69: chalk.notebook.v1.CreateNotebookCommentResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
-	91,  // 70: chalk.notebook.v1.ListNotebookCommentsResponse.comments:type_name -> chalk.notebook.v1.NotebookComment
-	91,  // 71: chalk.notebook.v1.SetNotebookCommentResolvedResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
-	91,  // 72: chalk.notebook.v1.ToggleNotebookCommentReactionResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
-	119, // 73: chalk.notebook.v1.CreateNotebookShareLinkRequest.expires_in:type_name -> google.protobuf.Duration
-	132, // 74: chalk.notebook.v1.CreateNotebookShareLinkResponse.link:type_name -> chalk.notebook.v1.NotebookShareLink
-	132, // 75: chalk.notebook.v1.ListNotebookShareLinksResponse.links:type_name -> chalk.notebook.v1.NotebookShareLink
-	132, // 76: chalk.notebook.v1.RevokeNotebookShareLinkResponse.link:type_name -> chalk.notebook.v1.NotebookShareLink
-	103, // 77: chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink:input_type -> chalk.notebook.v1.CreateNotebookShareLinkRequest
-	105, // 78: chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks:input_type -> chalk.notebook.v1.ListNotebookShareLinksRequest
-	107, // 79: chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink:input_type -> chalk.notebook.v1.RevokeNotebookShareLinkRequest
-	109, // 80: chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink:input_type -> chalk.notebook.v1.ResolveNotebookShareLinkRequest
-	93,  // 81: chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment:input_type -> chalk.notebook.v1.CreateNotebookCommentRequest
-	95,  // 82: chalk.notebook.v1.NotebookDocumentService.ListNotebookComments:input_type -> chalk.notebook.v1.ListNotebookCommentsRequest
-	97,  // 83: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment:input_type -> chalk.notebook.v1.DeleteNotebookCommentRequest
-	99,  // 84: chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved:input_type -> chalk.notebook.v1.SetNotebookCommentResolvedRequest
-	101, // 85: chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction:input_type -> chalk.notebook.v1.ToggleNotebookCommentReactionRequest
-	8,   // 86: chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument:input_type -> chalk.notebook.v1.CreateNotebookDocumentRequest
-	10,  // 87: chalk.notebook.v1.NotebookDocumentService.GetNotebookDocument:input_type -> chalk.notebook.v1.GetNotebookDocumentRequest
-	12,  // 88: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocuments:input_type -> chalk.notebook.v1.ListNotebookDocumentsRequest
-	14,  // 89: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument:input_type -> chalk.notebook.v1.UpdateNotebookDocumentRequest
-	18,  // 90: chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp:input_type -> chalk.notebook.v1.EnsureNotebookAppRequest
-	16,  // 91: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument:input_type -> chalk.notebook.v1.DeleteNotebookDocumentRequest
-	20,  // 92: chalk.notebook.v1.NotebookDocumentService.SetNotebookArchived:input_type -> chalk.notebook.v1.SetNotebookArchivedRequest
-	22,  // 93: chalk.notebook.v1.NotebookDocumentService.AddNotebookCell:input_type -> chalk.notebook.v1.AddNotebookCellRequest
-	27,  // 94: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookCell:input_type -> chalk.notebook.v1.UpdateNotebookCellRequest
-	29,  // 95: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookCell:input_type -> chalk.notebook.v1.DeleteNotebookCellRequest
-	31,  // 96: chalk.notebook.v1.NotebookDocumentService.MoveNotebookCell:input_type -> chalk.notebook.v1.MoveNotebookCellRequest
-	33,  // 97: chalk.notebook.v1.NotebookDocumentService.BatchUpdateNotebookCells:input_type -> chalk.notebook.v1.BatchUpdateNotebookCellsRequest
-	35,  // 98: chalk.notebook.v1.NotebookDocumentService.StartNotebookRun:input_type -> chalk.notebook.v1.StartNotebookRunRequest
-	38,  // 99: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun:input_type -> chalk.notebook.v1.WatchNotebookRunRequest
-	24,  // 100: chalk.notebook.v1.NotebookDocumentService.WatchNotebook:input_type -> chalk.notebook.v1.WatchNotebookRequest
-	40,  // 101: chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun:input_type -> chalk.notebook.v1.InterruptNotebookRunRequest
-	42,  // 102: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellResults:input_type -> chalk.notebook.v1.ListNotebookCellResultsRequest
-	52,  // 103: chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows:input_type -> chalk.notebook.v1.FetchNotebookDataframeRowsRequest
-	54,  // 104: chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe:input_type -> chalk.notebook.v1.AggregateNotebookDataframeRequest
-	57,  // 105: chalk.notebook.v1.NotebookDocumentService.DownloadNotebookDataframe:input_type -> chalk.notebook.v1.DownloadNotebookDataframeRequest
-	44,  // 106: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellRunHistory:input_type -> chalk.notebook.v1.ListNotebookCellRunHistoryRequest
-	50,  // 107: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocumentRevisions:input_type -> chalk.notebook.v1.ListNotebookDocumentRevisionsRequest
-	46,  // 108: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuns:input_type -> chalk.notebook.v1.ListNotebookRunsRequest
-	48,  // 109: chalk.notebook.v1.NotebookDocumentService.GetNotebookRunDetails:input_type -> chalk.notebook.v1.GetNotebookRunDetailsRequest
-	59,  // 110: chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults:input_type -> chalk.notebook.v1.ClearNotebookCellResultsRequest
-	61,  // 111: chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings:input_type -> chalk.notebook.v1.GetNotebookSqlCacheSettingsRequest
-	63,  // 112: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings:input_type -> chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest
-	66,  // 113: chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime:input_type -> chalk.notebook.v1.StartNotebookRuntimeRequest
-	68,  // 114: chalk.notebook.v1.NotebookDocumentService.StopNotebookRuntime:input_type -> chalk.notebook.v1.StopNotebookRuntimeRequest
-	70,  // 115: chalk.notebook.v1.NotebookDocumentService.GetNotebookRuntimeStatus:input_type -> chalk.notebook.v1.GetNotebookRuntimeStatusRequest
-	72,  // 116: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRuntimeStatus:input_type -> chalk.notebook.v1.WatchNotebookRuntimeStatusRequest
-	75,  // 117: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuntimes:input_type -> chalk.notebook.v1.ListNotebookRuntimesRequest
-	77,  // 118: chalk.notebook.v1.NotebookDocumentService.ListNotebookKernelPackages:input_type -> chalk.notebook.v1.ListNotebookKernelPackagesRequest
-	79,  // 119: chalk.notebook.v1.NotebookDocumentService.GetNotebookDependencyGraph:input_type -> chalk.notebook.v1.GetNotebookDependencyGraphRequest
-	83,  // 120: chalk.notebook.v1.NotebookDocumentService.ListNotebookSecrets:input_type -> chalk.notebook.v1.ListNotebookSecretsRequest
-	85,  // 121: chalk.notebook.v1.NotebookDocumentService.GetNotebookSecretValue:input_type -> chalk.notebook.v1.GetNotebookSecretValueRequest
-	87,  // 122: chalk.notebook.v1.NotebookDocumentService.UpsertNotebookSecret:input_type -> chalk.notebook.v1.UpsertNotebookSecretRequest
-	89,  // 123: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookSecret:input_type -> chalk.notebook.v1.DeleteNotebookSecretRequest
-	104, // 124: chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink:output_type -> chalk.notebook.v1.CreateNotebookShareLinkResponse
-	106, // 125: chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks:output_type -> chalk.notebook.v1.ListNotebookShareLinksResponse
-	108, // 126: chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink:output_type -> chalk.notebook.v1.RevokeNotebookShareLinkResponse
-	110, // 127: chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink:output_type -> chalk.notebook.v1.ResolveNotebookShareLinkResponse
-	94,  // 128: chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment:output_type -> chalk.notebook.v1.CreateNotebookCommentResponse
-	96,  // 129: chalk.notebook.v1.NotebookDocumentService.ListNotebookComments:output_type -> chalk.notebook.v1.ListNotebookCommentsResponse
-	98,  // 130: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment:output_type -> chalk.notebook.v1.DeleteNotebookCommentResponse
-	100, // 131: chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved:output_type -> chalk.notebook.v1.SetNotebookCommentResolvedResponse
-	102, // 132: chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction:output_type -> chalk.notebook.v1.ToggleNotebookCommentReactionResponse
-	9,   // 133: chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument:output_type -> chalk.notebook.v1.CreateNotebookDocumentResponse
-	11,  // 134: chalk.notebook.v1.NotebookDocumentService.GetNotebookDocument:output_type -> chalk.notebook.v1.GetNotebookDocumentResponse
-	13,  // 135: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocuments:output_type -> chalk.notebook.v1.ListNotebookDocumentsResponse
-	15,  // 136: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument:output_type -> chalk.notebook.v1.UpdateNotebookDocumentResponse
-	19,  // 137: chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp:output_type -> chalk.notebook.v1.EnsureNotebookAppResponse
-	17,  // 138: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument:output_type -> chalk.notebook.v1.DeleteNotebookDocumentResponse
-	21,  // 139: chalk.notebook.v1.NotebookDocumentService.SetNotebookArchived:output_type -> chalk.notebook.v1.SetNotebookArchivedResponse
-	23,  // 140: chalk.notebook.v1.NotebookDocumentService.AddNotebookCell:output_type -> chalk.notebook.v1.AddNotebookCellResponse
-	28,  // 141: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookCell:output_type -> chalk.notebook.v1.UpdateNotebookCellResponse
-	30,  // 142: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookCell:output_type -> chalk.notebook.v1.DeleteNotebookCellResponse
-	32,  // 143: chalk.notebook.v1.NotebookDocumentService.MoveNotebookCell:output_type -> chalk.notebook.v1.MoveNotebookCellResponse
-	34,  // 144: chalk.notebook.v1.NotebookDocumentService.BatchUpdateNotebookCells:output_type -> chalk.notebook.v1.BatchUpdateNotebookCellsResponse
-	37,  // 145: chalk.notebook.v1.NotebookDocumentService.StartNotebookRun:output_type -> chalk.notebook.v1.StartNotebookRunResponse
-	39,  // 146: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun:output_type -> chalk.notebook.v1.WatchNotebookRunResponse
-	26,  // 147: chalk.notebook.v1.NotebookDocumentService.WatchNotebook:output_type -> chalk.notebook.v1.WatchNotebookResponse
-	41,  // 148: chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun:output_type -> chalk.notebook.v1.InterruptNotebookRunResponse
-	43,  // 149: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellResults:output_type -> chalk.notebook.v1.ListNotebookCellResultsResponse
-	53,  // 150: chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows:output_type -> chalk.notebook.v1.FetchNotebookDataframeRowsResponse
-	56,  // 151: chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe:output_type -> chalk.notebook.v1.AggregateNotebookDataframeResponse
-	58,  // 152: chalk.notebook.v1.NotebookDocumentService.DownloadNotebookDataframe:output_type -> chalk.notebook.v1.DownloadNotebookDataframeResponse
-	45,  // 153: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellRunHistory:output_type -> chalk.notebook.v1.ListNotebookCellRunHistoryResponse
-	51,  // 154: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocumentRevisions:output_type -> chalk.notebook.v1.ListNotebookDocumentRevisionsResponse
-	47,  // 155: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuns:output_type -> chalk.notebook.v1.ListNotebookRunsResponse
-	49,  // 156: chalk.notebook.v1.NotebookDocumentService.GetNotebookRunDetails:output_type -> chalk.notebook.v1.GetNotebookRunDetailsResponse
-	60,  // 157: chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults:output_type -> chalk.notebook.v1.ClearNotebookCellResultsResponse
-	62,  // 158: chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings:output_type -> chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse
-	64,  // 159: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings:output_type -> chalk.notebook.v1.UpdateNotebookSqlCacheSettingsResponse
-	67,  // 160: chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime:output_type -> chalk.notebook.v1.StartNotebookRuntimeResponse
-	69,  // 161: chalk.notebook.v1.NotebookDocumentService.StopNotebookRuntime:output_type -> chalk.notebook.v1.StopNotebookRuntimeResponse
-	71,  // 162: chalk.notebook.v1.NotebookDocumentService.GetNotebookRuntimeStatus:output_type -> chalk.notebook.v1.GetNotebookRuntimeStatusResponse
-	73,  // 163: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRuntimeStatus:output_type -> chalk.notebook.v1.WatchNotebookRuntimeStatusResponse
-	76,  // 164: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuntimes:output_type -> chalk.notebook.v1.ListNotebookRuntimesResponse
-	78,  // 165: chalk.notebook.v1.NotebookDocumentService.ListNotebookKernelPackages:output_type -> chalk.notebook.v1.ListNotebookKernelPackagesResponse
-	82,  // 166: chalk.notebook.v1.NotebookDocumentService.GetNotebookDependencyGraph:output_type -> chalk.notebook.v1.GetNotebookDependencyGraphResponse
-	84,  // 167: chalk.notebook.v1.NotebookDocumentService.ListNotebookSecrets:output_type -> chalk.notebook.v1.ListNotebookSecretsResponse
-	86,  // 168: chalk.notebook.v1.NotebookDocumentService.GetNotebookSecretValue:output_type -> chalk.notebook.v1.GetNotebookSecretValueResponse
-	88,  // 169: chalk.notebook.v1.NotebookDocumentService.UpsertNotebookSecret:output_type -> chalk.notebook.v1.UpsertNotebookSecretResponse
-	90,  // 170: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookSecret:output_type -> chalk.notebook.v1.DeleteNotebookSecretResponse
-	124, // [124:171] is the sub-list for method output_type
-	77,  // [77:124] is the sub-list for method input_type
-	77,  // [77:77] is the sub-list for extension type_name
-	77,  // [77:77] is the sub-list for extension extendee
-	0,   // [0:77] is the sub-list for field type_name
+	59,  // 42: chalk.notebook.v1.ListNotebookDataframeDistinctValuesResponse.values:type_name -> chalk.notebook.v1.NotebookDataframeDistinctValue
+	62,  // 43: chalk.notebook.v1.AggregateNotebookDataframeResponse.percentiles:type_name -> chalk.notebook.v1.NotebookDataframePercentile
+	6,   // 44: chalk.notebook.v1.DownloadNotebookDataframeRequest.format:type_name -> chalk.notebook.v1.NotebookDataframeDownloadFormat
+	126, // 45: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse.max_staleness:type_name -> google.protobuf.Duration
+	126, // 46: chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse.effective_max_staleness:type_name -> google.protobuf.Duration
+	126, // 47: chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest.max_staleness:type_name -> google.protobuf.Duration
+	7,   // 48: chalk.notebook.v1.NotebookRuntimeStatus.state:type_name -> chalk.notebook.v1.NotebookRuntimeState
+	133, // 49: chalk.notebook.v1.NotebookRuntimeStatus.kernel_lifecycle:type_name -> chalk.notebook.v1.NotebookKernelLifecycle
+	72,  // 50: chalk.notebook.v1.StartNotebookRuntimeResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	72,  // 51: chalk.notebook.v1.StopNotebookRuntimeResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	72,  // 52: chalk.notebook.v1.GetNotebookRuntimeStatusResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	72,  // 53: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	124, // 54: chalk.notebook.v1.WatchNotebookRuntimeStatusResponse.observed_at:type_name -> google.protobuf.Timestamp
+	72,  // 55: chalk.notebook.v1.NotebookRuntimeSummary.status:type_name -> chalk.notebook.v1.NotebookRuntimeStatus
+	124, // 56: chalk.notebook.v1.NotebookRuntimeSummary.created_at:type_name -> google.protobuf.Timestamp
+	81,  // 57: chalk.notebook.v1.ListNotebookRuntimesResponse.runtimes:type_name -> chalk.notebook.v1.NotebookRuntimeSummary
+	134, // 58: chalk.notebook.v1.ListNotebookKernelPackagesResponse.packages:type_name -> chalk.notebook.v1.InstalledPackage
+	135, // 59: chalk.notebook.v1.ListNotebookKernelPackagesResponse.build:type_name -> chalk.notebook.v1.KernelBuildInfo
+	7,   // 60: chalk.notebook.v1.ListNotebookKernelPackagesResponse.state:type_name -> chalk.notebook.v1.NotebookRuntimeState
+	87,  // 61: chalk.notebook.v1.GetNotebookDependencyGraphResponse.nodes:type_name -> chalk.notebook.v1.DependencyNode
+	88,  // 62: chalk.notebook.v1.GetNotebookDependencyGraphResponse.edges:type_name -> chalk.notebook.v1.DependencyEdge
+	136, // 63: chalk.notebook.v1.ListNotebookSecretsResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
+	137, // 64: chalk.notebook.v1.GetNotebookSecretValueResponse.secret_value:type_name -> chalk.notebook.v1.NotebookSecretValue
+	138, // 65: chalk.notebook.v1.UpsertNotebookSecretRequest.config:type_name -> chalk.server.v1.SecretConfigValue
+	136, // 66: chalk.notebook.v1.UpsertNotebookSecretResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
+	136, // 67: chalk.notebook.v1.DeleteNotebookSecretResponse.secrets:type_name -> chalk.notebook.v1.NotebookSecret
+	124, // 68: chalk.notebook.v1.NotebookComment.created_at:type_name -> google.protobuf.Timestamp
+	124, // 69: chalk.notebook.v1.NotebookComment.resolved_at:type_name -> google.protobuf.Timestamp
+	99,  // 70: chalk.notebook.v1.NotebookComment.reactions:type_name -> chalk.notebook.v1.NotebookCommentReaction
+	98,  // 71: chalk.notebook.v1.CreateNotebookCommentResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
+	98,  // 72: chalk.notebook.v1.ListNotebookCommentsResponse.comments:type_name -> chalk.notebook.v1.NotebookComment
+	98,  // 73: chalk.notebook.v1.SetNotebookCommentResolvedResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
+	98,  // 74: chalk.notebook.v1.ToggleNotebookCommentReactionResponse.comment:type_name -> chalk.notebook.v1.NotebookComment
+	126, // 75: chalk.notebook.v1.CreateNotebookShareLinkRequest.expires_in:type_name -> google.protobuf.Duration
+	139, // 76: chalk.notebook.v1.CreateNotebookShareLinkResponse.link:type_name -> chalk.notebook.v1.NotebookShareLink
+	139, // 77: chalk.notebook.v1.ListNotebookShareLinksResponse.links:type_name -> chalk.notebook.v1.NotebookShareLink
+	139, // 78: chalk.notebook.v1.RevokeNotebookShareLinkResponse.link:type_name -> chalk.notebook.v1.NotebookShareLink
+	110, // 79: chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink:input_type -> chalk.notebook.v1.CreateNotebookShareLinkRequest
+	112, // 80: chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks:input_type -> chalk.notebook.v1.ListNotebookShareLinksRequest
+	114, // 81: chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink:input_type -> chalk.notebook.v1.RevokeNotebookShareLinkRequest
+	116, // 82: chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink:input_type -> chalk.notebook.v1.ResolveNotebookShareLinkRequest
+	100, // 83: chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment:input_type -> chalk.notebook.v1.CreateNotebookCommentRequest
+	102, // 84: chalk.notebook.v1.NotebookDocumentService.ListNotebookComments:input_type -> chalk.notebook.v1.ListNotebookCommentsRequest
+	104, // 85: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment:input_type -> chalk.notebook.v1.DeleteNotebookCommentRequest
+	106, // 86: chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved:input_type -> chalk.notebook.v1.SetNotebookCommentResolvedRequest
+	108, // 87: chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction:input_type -> chalk.notebook.v1.ToggleNotebookCommentReactionRequest
+	8,   // 88: chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument:input_type -> chalk.notebook.v1.CreateNotebookDocumentRequest
+	10,  // 89: chalk.notebook.v1.NotebookDocumentService.GetNotebookDocument:input_type -> chalk.notebook.v1.GetNotebookDocumentRequest
+	12,  // 90: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocuments:input_type -> chalk.notebook.v1.ListNotebookDocumentsRequest
+	14,  // 91: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument:input_type -> chalk.notebook.v1.UpdateNotebookDocumentRequest
+	18,  // 92: chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp:input_type -> chalk.notebook.v1.EnsureNotebookAppRequest
+	16,  // 93: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument:input_type -> chalk.notebook.v1.DeleteNotebookDocumentRequest
+	20,  // 94: chalk.notebook.v1.NotebookDocumentService.SetNotebookArchived:input_type -> chalk.notebook.v1.SetNotebookArchivedRequest
+	22,  // 95: chalk.notebook.v1.NotebookDocumentService.AddNotebookCell:input_type -> chalk.notebook.v1.AddNotebookCellRequest
+	27,  // 96: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookCell:input_type -> chalk.notebook.v1.UpdateNotebookCellRequest
+	29,  // 97: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookCell:input_type -> chalk.notebook.v1.DeleteNotebookCellRequest
+	31,  // 98: chalk.notebook.v1.NotebookDocumentService.MoveNotebookCell:input_type -> chalk.notebook.v1.MoveNotebookCellRequest
+	33,  // 99: chalk.notebook.v1.NotebookDocumentService.BatchUpdateNotebookCells:input_type -> chalk.notebook.v1.BatchUpdateNotebookCellsRequest
+	35,  // 100: chalk.notebook.v1.NotebookDocumentService.StartNotebookRun:input_type -> chalk.notebook.v1.StartNotebookRunRequest
+	38,  // 101: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun:input_type -> chalk.notebook.v1.WatchNotebookRunRequest
+	24,  // 102: chalk.notebook.v1.NotebookDocumentService.WatchNotebook:input_type -> chalk.notebook.v1.WatchNotebookRequest
+	40,  // 103: chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun:input_type -> chalk.notebook.v1.InterruptNotebookRunRequest
+	42,  // 104: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellResults:input_type -> chalk.notebook.v1.ListNotebookCellResultsRequest
+	52,  // 105: chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows:input_type -> chalk.notebook.v1.FetchNotebookDataframeRowsRequest
+	56,  // 106: chalk.notebook.v1.NotebookDocumentService.GetNotebookVariableMaterialization:input_type -> chalk.notebook.v1.GetNotebookVariableMaterializationRequest
+	55,  // 107: chalk.notebook.v1.NotebookDocumentService.MaterializeNotebookKernelVariable:input_type -> chalk.notebook.v1.MaterializeNotebookKernelVariableRequest
+	60,  // 108: chalk.notebook.v1.NotebookDocumentService.ListNotebookDataframeDistinctValues:input_type -> chalk.notebook.v1.ListNotebookDataframeDistinctValuesRequest
+	54,  // 109: chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe:input_type -> chalk.notebook.v1.AggregateNotebookDataframeRequest
+	64,  // 110: chalk.notebook.v1.NotebookDocumentService.DownloadNotebookDataframe:input_type -> chalk.notebook.v1.DownloadNotebookDataframeRequest
+	44,  // 111: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellRunHistory:input_type -> chalk.notebook.v1.ListNotebookCellRunHistoryRequest
+	50,  // 112: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocumentRevisions:input_type -> chalk.notebook.v1.ListNotebookDocumentRevisionsRequest
+	46,  // 113: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuns:input_type -> chalk.notebook.v1.ListNotebookRunsRequest
+	48,  // 114: chalk.notebook.v1.NotebookDocumentService.GetNotebookRunDetails:input_type -> chalk.notebook.v1.GetNotebookRunDetailsRequest
+	66,  // 115: chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults:input_type -> chalk.notebook.v1.ClearNotebookCellResultsRequest
+	68,  // 116: chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings:input_type -> chalk.notebook.v1.GetNotebookSqlCacheSettingsRequest
+	70,  // 117: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings:input_type -> chalk.notebook.v1.UpdateNotebookSqlCacheSettingsRequest
+	73,  // 118: chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime:input_type -> chalk.notebook.v1.StartNotebookRuntimeRequest
+	75,  // 119: chalk.notebook.v1.NotebookDocumentService.StopNotebookRuntime:input_type -> chalk.notebook.v1.StopNotebookRuntimeRequest
+	77,  // 120: chalk.notebook.v1.NotebookDocumentService.GetNotebookRuntimeStatus:input_type -> chalk.notebook.v1.GetNotebookRuntimeStatusRequest
+	79,  // 121: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRuntimeStatus:input_type -> chalk.notebook.v1.WatchNotebookRuntimeStatusRequest
+	82,  // 122: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuntimes:input_type -> chalk.notebook.v1.ListNotebookRuntimesRequest
+	84,  // 123: chalk.notebook.v1.NotebookDocumentService.ListNotebookKernelPackages:input_type -> chalk.notebook.v1.ListNotebookKernelPackagesRequest
+	86,  // 124: chalk.notebook.v1.NotebookDocumentService.GetNotebookDependencyGraph:input_type -> chalk.notebook.v1.GetNotebookDependencyGraphRequest
+	90,  // 125: chalk.notebook.v1.NotebookDocumentService.ListNotebookSecrets:input_type -> chalk.notebook.v1.ListNotebookSecretsRequest
+	92,  // 126: chalk.notebook.v1.NotebookDocumentService.GetNotebookSecretValue:input_type -> chalk.notebook.v1.GetNotebookSecretValueRequest
+	94,  // 127: chalk.notebook.v1.NotebookDocumentService.UpsertNotebookSecret:input_type -> chalk.notebook.v1.UpsertNotebookSecretRequest
+	96,  // 128: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookSecret:input_type -> chalk.notebook.v1.DeleteNotebookSecretRequest
+	111, // 129: chalk.notebook.v1.NotebookDocumentService.CreateNotebookShareLink:output_type -> chalk.notebook.v1.CreateNotebookShareLinkResponse
+	113, // 130: chalk.notebook.v1.NotebookDocumentService.ListNotebookShareLinks:output_type -> chalk.notebook.v1.ListNotebookShareLinksResponse
+	115, // 131: chalk.notebook.v1.NotebookDocumentService.RevokeNotebookShareLink:output_type -> chalk.notebook.v1.RevokeNotebookShareLinkResponse
+	117, // 132: chalk.notebook.v1.NotebookDocumentService.ResolveNotebookShareLink:output_type -> chalk.notebook.v1.ResolveNotebookShareLinkResponse
+	101, // 133: chalk.notebook.v1.NotebookDocumentService.CreateNotebookComment:output_type -> chalk.notebook.v1.CreateNotebookCommentResponse
+	103, // 134: chalk.notebook.v1.NotebookDocumentService.ListNotebookComments:output_type -> chalk.notebook.v1.ListNotebookCommentsResponse
+	105, // 135: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookComment:output_type -> chalk.notebook.v1.DeleteNotebookCommentResponse
+	107, // 136: chalk.notebook.v1.NotebookDocumentService.SetNotebookCommentResolved:output_type -> chalk.notebook.v1.SetNotebookCommentResolvedResponse
+	109, // 137: chalk.notebook.v1.NotebookDocumentService.ToggleNotebookCommentReaction:output_type -> chalk.notebook.v1.ToggleNotebookCommentReactionResponse
+	9,   // 138: chalk.notebook.v1.NotebookDocumentService.CreateNotebookDocument:output_type -> chalk.notebook.v1.CreateNotebookDocumentResponse
+	11,  // 139: chalk.notebook.v1.NotebookDocumentService.GetNotebookDocument:output_type -> chalk.notebook.v1.GetNotebookDocumentResponse
+	13,  // 140: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocuments:output_type -> chalk.notebook.v1.ListNotebookDocumentsResponse
+	15,  // 141: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookDocument:output_type -> chalk.notebook.v1.UpdateNotebookDocumentResponse
+	19,  // 142: chalk.notebook.v1.NotebookDocumentService.EnsureNotebookApp:output_type -> chalk.notebook.v1.EnsureNotebookAppResponse
+	17,  // 143: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookDocument:output_type -> chalk.notebook.v1.DeleteNotebookDocumentResponse
+	21,  // 144: chalk.notebook.v1.NotebookDocumentService.SetNotebookArchived:output_type -> chalk.notebook.v1.SetNotebookArchivedResponse
+	23,  // 145: chalk.notebook.v1.NotebookDocumentService.AddNotebookCell:output_type -> chalk.notebook.v1.AddNotebookCellResponse
+	28,  // 146: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookCell:output_type -> chalk.notebook.v1.UpdateNotebookCellResponse
+	30,  // 147: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookCell:output_type -> chalk.notebook.v1.DeleteNotebookCellResponse
+	32,  // 148: chalk.notebook.v1.NotebookDocumentService.MoveNotebookCell:output_type -> chalk.notebook.v1.MoveNotebookCellResponse
+	34,  // 149: chalk.notebook.v1.NotebookDocumentService.BatchUpdateNotebookCells:output_type -> chalk.notebook.v1.BatchUpdateNotebookCellsResponse
+	37,  // 150: chalk.notebook.v1.NotebookDocumentService.StartNotebookRun:output_type -> chalk.notebook.v1.StartNotebookRunResponse
+	39,  // 151: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRun:output_type -> chalk.notebook.v1.WatchNotebookRunResponse
+	26,  // 152: chalk.notebook.v1.NotebookDocumentService.WatchNotebook:output_type -> chalk.notebook.v1.WatchNotebookResponse
+	41,  // 153: chalk.notebook.v1.NotebookDocumentService.InterruptNotebookRun:output_type -> chalk.notebook.v1.InterruptNotebookRunResponse
+	43,  // 154: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellResults:output_type -> chalk.notebook.v1.ListNotebookCellResultsResponse
+	53,  // 155: chalk.notebook.v1.NotebookDocumentService.FetchNotebookDataframeRows:output_type -> chalk.notebook.v1.FetchNotebookDataframeRowsResponse
+	57,  // 156: chalk.notebook.v1.NotebookDocumentService.GetNotebookVariableMaterialization:output_type -> chalk.notebook.v1.GetNotebookVariableMaterializationResponse
+	58,  // 157: chalk.notebook.v1.NotebookDocumentService.MaterializeNotebookKernelVariable:output_type -> chalk.notebook.v1.MaterializeNotebookKernelVariableResponse
+	61,  // 158: chalk.notebook.v1.NotebookDocumentService.ListNotebookDataframeDistinctValues:output_type -> chalk.notebook.v1.ListNotebookDataframeDistinctValuesResponse
+	63,  // 159: chalk.notebook.v1.NotebookDocumentService.AggregateNotebookDataframe:output_type -> chalk.notebook.v1.AggregateNotebookDataframeResponse
+	65,  // 160: chalk.notebook.v1.NotebookDocumentService.DownloadNotebookDataframe:output_type -> chalk.notebook.v1.DownloadNotebookDataframeResponse
+	45,  // 161: chalk.notebook.v1.NotebookDocumentService.ListNotebookCellRunHistory:output_type -> chalk.notebook.v1.ListNotebookCellRunHistoryResponse
+	51,  // 162: chalk.notebook.v1.NotebookDocumentService.ListNotebookDocumentRevisions:output_type -> chalk.notebook.v1.ListNotebookDocumentRevisionsResponse
+	47,  // 163: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuns:output_type -> chalk.notebook.v1.ListNotebookRunsResponse
+	49,  // 164: chalk.notebook.v1.NotebookDocumentService.GetNotebookRunDetails:output_type -> chalk.notebook.v1.GetNotebookRunDetailsResponse
+	67,  // 165: chalk.notebook.v1.NotebookDocumentService.ClearNotebookCellResults:output_type -> chalk.notebook.v1.ClearNotebookCellResultsResponse
+	69,  // 166: chalk.notebook.v1.NotebookDocumentService.GetNotebookSqlCacheSettings:output_type -> chalk.notebook.v1.GetNotebookSqlCacheSettingsResponse
+	71,  // 167: chalk.notebook.v1.NotebookDocumentService.UpdateNotebookSqlCacheSettings:output_type -> chalk.notebook.v1.UpdateNotebookSqlCacheSettingsResponse
+	74,  // 168: chalk.notebook.v1.NotebookDocumentService.StartNotebookRuntime:output_type -> chalk.notebook.v1.StartNotebookRuntimeResponse
+	76,  // 169: chalk.notebook.v1.NotebookDocumentService.StopNotebookRuntime:output_type -> chalk.notebook.v1.StopNotebookRuntimeResponse
+	78,  // 170: chalk.notebook.v1.NotebookDocumentService.GetNotebookRuntimeStatus:output_type -> chalk.notebook.v1.GetNotebookRuntimeStatusResponse
+	80,  // 171: chalk.notebook.v1.NotebookDocumentService.WatchNotebookRuntimeStatus:output_type -> chalk.notebook.v1.WatchNotebookRuntimeStatusResponse
+	83,  // 172: chalk.notebook.v1.NotebookDocumentService.ListNotebookRuntimes:output_type -> chalk.notebook.v1.ListNotebookRuntimesResponse
+	85,  // 173: chalk.notebook.v1.NotebookDocumentService.ListNotebookKernelPackages:output_type -> chalk.notebook.v1.ListNotebookKernelPackagesResponse
+	89,  // 174: chalk.notebook.v1.NotebookDocumentService.GetNotebookDependencyGraph:output_type -> chalk.notebook.v1.GetNotebookDependencyGraphResponse
+	91,  // 175: chalk.notebook.v1.NotebookDocumentService.ListNotebookSecrets:output_type -> chalk.notebook.v1.ListNotebookSecretsResponse
+	93,  // 176: chalk.notebook.v1.NotebookDocumentService.GetNotebookSecretValue:output_type -> chalk.notebook.v1.GetNotebookSecretValueResponse
+	95,  // 177: chalk.notebook.v1.NotebookDocumentService.UpsertNotebookSecret:output_type -> chalk.notebook.v1.UpsertNotebookSecretResponse
+	97,  // 178: chalk.notebook.v1.NotebookDocumentService.DeleteNotebookSecret:output_type -> chalk.notebook.v1.DeleteNotebookSecretResponse
+	129, // [129:179] is the sub-list for method output_type
+	79,  // [79:129] is the sub-list for method input_type
+	79,  // [79:79] is the sub-list for extension type_name
+	79,  // [79:79] is the sub-list for extension extendee
+	0,   // [0:79] is the sub-list for field type_name
 }
 
 func init() { file_chalk_notebook_v1_document_service_proto_init() }
@@ -7315,22 +7846,24 @@ func file_chalk_notebook_v1_document_service_proto_init() {
 	file_chalk_notebook_v1_document_service_proto_msgTypes[45].OneofWrappers = []any{
 		(*FetchNotebookDataframeRowsResponse_ArrowIpc)(nil),
 	}
-	file_chalk_notebook_v1_document_service_proto_msgTypes[48].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_service_proto_msgTypes[54].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[52].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[53].OneofWrappers = []any{}
 	file_chalk_notebook_v1_document_service_proto_msgTypes[55].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_service_proto_msgTypes[78].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_service_proto_msgTypes[79].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_service_proto_msgTypes[83].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[61].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[62].OneofWrappers = []any{}
 	file_chalk_notebook_v1_document_service_proto_msgTypes[85].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_service_proto_msgTypes[95].OneofWrappers = []any{}
-	file_chalk_notebook_v1_document_service_proto_msgTypes[103].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[86].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[90].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[92].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[102].OneofWrappers = []any{}
+	file_chalk_notebook_v1_document_service_proto_msgTypes[110].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_notebook_v1_document_service_proto_rawDesc), len(file_chalk_notebook_v1_document_service_proto_rawDesc)),
 			NumEnums:      8,
-			NumMessages:   105,
+			NumMessages:   112,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

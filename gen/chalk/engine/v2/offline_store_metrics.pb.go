@@ -257,6 +257,12 @@ func (x *NamespaceWideTableRowCount) GetRowCountEstimate() uint64 {
 }
 
 // The mapping-catalog configuration currently active for one graph namespace.
+//
+// Deprecated: do not use. GetMetricsV2 reports the same fingerprint in each namespace's
+// `WideTableInfo.config`. Do not remove: engines and metadata planes that predate GetMetricsV2
+// still send it, and the frontend falls back to GetMetrics for them.
+//
+// Deprecated: Marked as deprecated in chalk/engine/v2/offline_store_metrics.proto.
 type NamespaceWideTableConfigFingerprint struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
@@ -551,6 +557,11 @@ type GetMetricsResponse struct {
 	WideTableLayouts []*WideTableLayout `protobuf:"bytes,8,rep,name=wide_table_layouts,json=wideTableLayouts,proto3" json:"wide_table_layouts,omitempty"`
 	// Active physical configuration identity per namespace. This is metadata for correlating run
 	// history with the current tables; callers should not display the fingerprint itself.
+	//
+	// Deprecated: do not use; read GetMetricsV2's `WideTableInfo.config` instead. Do not remove:
+	// engines and metadata planes that predate GetMetricsV2 still populate it.
+	//
+	// Deprecated: Marked as deprecated in chalk/engine/v2/offline_store_metrics.proto.
 	NamespaceWideTableConfigFingerprints []*NamespaceWideTableConfigFingerprint `protobuf:"bytes,9,rep,name=namespace_wide_table_config_fingerprints,json=namespaceWideTableConfigFingerprints,proto3" json:"namespace_wide_table_config_fingerprints,omitempty"`
 	// The subset of skinny_tables_bytes for features not present in a materialized feature view.
 	NonMfvBackedSkinnyTablesBytes *uint64 `protobuf:"varint,10,opt,name=non_mfv_backed_skinny_tables_bytes,json=nonMfvBackedSkinnyTablesBytes,proto3,oneof" json:"non_mfv_backed_skinny_tables_bytes,omitempty"`
@@ -661,6 +672,7 @@ func (x *GetMetricsResponse) GetWideTableLayouts() []*WideTableLayout {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/engine/v2/offline_store_metrics.proto.
 func (x *GetMetricsResponse) GetNamespaceWideTableConfigFingerprints() []*NamespaceWideTableConfigFingerprint {
 	if x != nil {
 		return x.NamespaceWideTableConfigFingerprints
@@ -715,8 +727,15 @@ type AggregateOfflineStoreStorageStats struct {
 	WideMappingTableBytes   *uint64 `protobuf:"varint,4,opt,name=wide_mapping_table_bytes,json=wideMappingTableBytes,proto3,oneof" json:"wide_mapping_table_bytes,omitempty"`
 	QueryLogBytes           *uint64 `protobuf:"varint,5,opt,name=query_log_bytes,json=queryLogBytes,proto3,oneof" json:"query_log_bytes,omitempty"`
 	QueryValuesBytes        *uint64 `protobuf:"varint,6,opt,name=query_values_bytes,json=queryValuesBytes,proto3,oneof" json:"query_values_bytes,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// Successful collection start times, not telemetry export or API fetch times.
+	// Absent on engines that do not publish collection clocks.
+	SkinnyTablesCollectedAt       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=skinny_tables_collected_at,json=skinnyTablesCollectedAt,proto3,oneof" json:"skinny_tables_collected_at,omitempty"`
+	NonMfvSkinnyTablesCollectedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=non_mfv_skinny_tables_collected_at,json=nonMfvSkinnyTablesCollectedAt,proto3,oneof" json:"non_mfv_skinny_tables_collected_at,omitempty"`
+	WideMappingTableCollectedAt   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=wide_mapping_table_collected_at,json=wideMappingTableCollectedAt,proto3,oneof" json:"wide_mapping_table_collected_at,omitempty"`
+	QueryLogCollectedAt           *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=query_log_collected_at,json=queryLogCollectedAt,proto3,oneof" json:"query_log_collected_at,omitempty"`
+	QueryValuesCollectedAt        *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=query_values_collected_at,json=queryValuesCollectedAt,proto3,oneof" json:"query_values_collected_at,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *AggregateOfflineStoreStorageStats) Reset() {
@@ -791,17 +810,64 @@ func (x *AggregateOfflineStoreStorageStats) GetQueryValuesBytes() uint64 {
 	return 0
 }
 
+func (x *AggregateOfflineStoreStorageStats) GetSkinnyTablesCollectedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SkinnyTablesCollectedAt
+	}
+	return nil
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetNonMfvSkinnyTablesCollectedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.NonMfvSkinnyTablesCollectedAt
+	}
+	return nil
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetWideMappingTableCollectedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.WideMappingTableCollectedAt
+	}
+	return nil
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetQueryLogCollectedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.QueryLogCollectedAt
+	}
+	return nil
+}
+
+func (x *AggregateOfflineStoreStorageStats) GetQueryValuesCollectedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.QueryValuesCollectedAt
+	}
+	return nil
+}
+
 // 'Configuration' info that only changes at chalk apply / can be derived from the proto graph + chalk internal information
 // i.e. you don't have to hit bigquery/snowflake to get this info
 type WideTableConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Actual name of the table in the data warehouse
-	TableName         string  `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
-	FeatureNamespace  *string `protobuf:"bytes,2,opt,name=feature_namespace,json=featureNamespace,proto3,oneof" json:"feature_namespace,omitempty"`
-	ConfigFingerprint *int64  `protobuf:"varint,3,opt,name=config_fingerprint,json=configFingerprint,proto3,oneof" json:"config_fingerprint,omitempty"`
-	FeatureCount      *int64  `protobuf:"varint,4,opt,name=feature_count,json=featureCount,proto3,oneof" json:"feature_count,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	TableName        string  `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
+	FeatureNamespace *string `protobuf:"bytes,2,opt,name=feature_namespace,json=featureNamespace,proto3,oneof" json:"feature_namespace,omitempty"`
+	// The nonnegative mapping-owned fingerprint. -1 represents a primary-key-only namespace with
+	// no physical wide tables. Unset while a wide-table configuration has not been reconciled yet.
+	ConfigFingerprint *int64 `protobuf:"varint,3,opt,name=config_fingerprint,json=configFingerprint,proto3,oneof" json:"config_fingerprint,omitempty"`
+	// Features the namespace's materialized feature view materializes, honoring its `features`
+	// selection and excluding the primary key. Counted once per name: every version of a feature
+	// counts as one. Owned by the offline store, so it holds for every backend. Unset when reported
+	// by an engine that predates the count.
+	FeatureCount *int64 `protobuf:"varint,4,opt,name=feature_count,json=featureCount,proto3,oneof" json:"feature_count,omitempty"`
+	// Offline-eligible features the namespace has, counted like `feature_count`. Unset when reported
+	// by an engine that predates the count.
+	NamespaceFeatureCount *int64 `protobuf:"varint,5,opt,name=namespace_feature_count,json=namespaceFeatureCount,proto3,oneof" json:"namespace_feature_count,omitempty"`
+	// Physical wide-table shards by size: how many shards hold each column count, i.e. {50: 5, 13: 1}
+	// means 5 shards of 50 columns and 1 shard of 13. Empty until the namespace is reconciled.
+	ShardSizes    map[uint32]uint32 `protobuf:"bytes,6,rep,name=shard_sizes,json=shardSizes,proto3" json:"shard_sizes,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *WideTableConfig) Reset() {
@@ -862,6 +928,20 @@ func (x *WideTableConfig) GetFeatureCount() int64 {
 	return 0
 }
 
+func (x *WideTableConfig) GetNamespaceFeatureCount() int64 {
+	if x != nil && x.NamespaceFeatureCount != nil {
+		return *x.NamespaceFeatureCount
+	}
+	return 0
+}
+
+func (x *WideTableConfig) GetShardSizes() map[uint32]uint32 {
+	if x != nil {
+		return x.ShardSizes
+	}
+	return nil
+}
+
 // Information that's owned by the warehouse, i.e. you need to hit Bigquery/Snowflake to get this info
 type WideTableStats struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -874,8 +954,11 @@ type WideTableStats struct {
 	RowCount      *uint64                `protobuf:"varint,6,opt,name=row_count,json=rowCount,proto3,oneof" json:"row_count,omitempty"`
 	MinObservedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=min_observed_at,json=minObservedAt,proto3,oneof" json:"min_observed_at,omitempty"`
 	MaxObservedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=max_observed_at,json=maxObservedAt,proto3,oneof" json:"max_observed_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Successful size collection start time.
+	// Absent on engines that do not publish collection clocks.
+	SizeCollectedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=size_collected_at,json=sizeCollectedAt,proto3,oneof" json:"size_collected_at,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *WideTableStats) Reset() {
@@ -946,6 +1029,13 @@ func (x *WideTableStats) GetMinObservedAt() *timestamppb.Timestamp {
 func (x *WideTableStats) GetMaxObservedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.MaxObservedAt
+	}
+	return nil
+}
+
+func (x *WideTableStats) GetSizeCollectedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SizeCollectedAt
 	}
 	return nil
 }
@@ -1215,10 +1305,10 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\x1aNamespaceWideTableRowCount\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x121\n" +
 	"\x12row_count_estimate\x18\x02 \x01(\x04H\x00R\x10rowCountEstimate\x88\x01\x01B\x15\n" +
-	"\x13_row_count_estimate\"\x8e\x01\n" +
+	"\x13_row_count_estimate\"\x92\x01\n" +
 	"#NamespaceWideTableConfigFingerprint\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x122\n" +
-	"\x12config_fingerprint\x18\x02 \x01(\x03H\x00R\x11configFingerprint\x88\x01\x01B\x15\n" +
+	"\x12config_fingerprint\x18\x02 \x01(\x03H\x00R\x11configFingerprint\x88\x01\x01:\x02\x18\x01B\x15\n" +
 	"\x13_config_fingerprint\"\x8c\x01\n" +
 	"\x1eSnowflakeOfflineStorageDetails\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\tR\aaccount\x12\x1c\n" +
@@ -1235,7 +1325,7 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\x15OfflineStorageDetails\x12O\n" +
 	"\tsnowflake\x18\x01 \x01(\v2/.chalk.engine.v2.SnowflakeOfflineStorageDetailsH\x00R\tsnowflake\x12L\n" +
 	"\bbigquery\x18\x02 \x01(\v2..chalk.engine.v2.BigQueryOfflineStorageDetailsH\x00R\bbigqueryB\t\n" +
-	"\adetails\"\xed\b\n" +
+	"\adetails\"\xf1\b\n" +
 	"\x12GetMetricsResponse\x123\n" +
 	"\x13skinny_tables_bytes\x18\x01 \x01(\x04H\x01R\x11skinnyTablesBytes\x88\x01\x01\x12/\n" +
 	"\x11wide_tables_bytes\x18\x02 \x01(\x04H\x02R\x0fwideTablesBytes\x88\x01\x01\x12<\n" +
@@ -1244,8 +1334,8 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\bbigquery\x18\x05 \x01(\v2..chalk.engine.v2.BigQueryOfflineStorageDetailsH\x00R\bbigquery\x12j\n" +
 	"\x1cnamespace_observed_at_ranges\x18\x06 \x03(\v2).chalk.engine.v2.NamespaceObservedAtRangeR\x19namespaceObservedAtRanges\x12q\n" +
 	"\x1fnamespace_wide_table_row_counts\x18\a \x03(\v2+.chalk.engine.v2.NamespaceWideTableRowCountR\x1bnamespaceWideTableRowCounts\x12N\n" +
-	"\x12wide_table_layouts\x18\b \x03(\v2 .chalk.engine.v2.WideTableLayoutR\x10wideTableLayouts\x12\x8c\x01\n" +
-	"(namespace_wide_table_config_fingerprints\x18\t \x03(\v24.chalk.engine.v2.NamespaceWideTableConfigFingerprintR$namespaceWideTableConfigFingerprints\x12N\n" +
+	"\x12wide_table_layouts\x18\b \x03(\v2 .chalk.engine.v2.WideTableLayoutR\x10wideTableLayouts\x12\x90\x01\n" +
+	"(namespace_wide_table_config_fingerprints\x18\t \x03(\v24.chalk.engine.v2.NamespaceWideTableConfigFingerprintB\x02\x18\x01R$namespaceWideTableConfigFingerprints\x12N\n" +
 	"\"non_mfv_backed_skinny_tables_bytes\x18\n" +
 	" \x01(\x04H\x04R\x1dnonMfvBackedSkinnyTablesBytes\x88\x01\x01\x12+\n" +
 	"\x0fquery_log_bytes\x18\v \x01(\x04H\x05R\rqueryLogBytes\x88\x01\x01\x121\n" +
@@ -1256,29 +1346,48 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"\x19_wide_mapping_table_bytesB%\n" +
 	"#_non_mfv_backed_skinny_tables_bytesB\x12\n" +
 	"\x10_query_log_bytesB\x15\n" +
-	"\x13_query_values_bytes\"\x80\x04\n" +
+	"\x13_query_values_bytes\"\x86\t\n" +
 	"!AggregateOfflineStoreStorageStats\x123\n" +
 	"\x13skinny_tables_bytes\x18\x01 \x01(\x04H\x00R\x11skinnyTablesBytes\x88\x01\x01\x12A\n" +
 	"\x1bnon_mfv_skinny_tables_bytes\x18\x02 \x01(\x04H\x01R\x17nonMfvSkinnyTablesBytes\x88\x01\x01\x12/\n" +
 	"\x11wide_tables_bytes\x18\x03 \x01(\x04H\x02R\x0fwideTablesBytes\x88\x01\x01\x12<\n" +
 	"\x18wide_mapping_table_bytes\x18\x04 \x01(\x04H\x03R\x15wideMappingTableBytes\x88\x01\x01\x12+\n" +
 	"\x0fquery_log_bytes\x18\x05 \x01(\x04H\x04R\rqueryLogBytes\x88\x01\x01\x121\n" +
-	"\x12query_values_bytes\x18\x06 \x01(\x04H\x05R\x10queryValuesBytes\x88\x01\x01B\x16\n" +
+	"\x12query_values_bytes\x18\x06 \x01(\x04H\x05R\x10queryValuesBytes\x88\x01\x01\x12\\\n" +
+	"\x1askinny_tables_collected_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x06R\x17skinnyTablesCollectedAt\x88\x01\x01\x12j\n" +
+	"\"non_mfv_skinny_tables_collected_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\aR\x1dnonMfvSkinnyTablesCollectedAt\x88\x01\x01\x12e\n" +
+	"\x1fwide_mapping_table_collected_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\bR\x1bwideMappingTableCollectedAt\x88\x01\x01\x12T\n" +
+	"\x16query_log_collected_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\tR\x13queryLogCollectedAt\x88\x01\x01\x12Z\n" +
+	"\x19query_values_collected_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\n" +
+	"R\x16queryValuesCollectedAt\x88\x01\x01B\x16\n" +
 	"\x14_skinny_tables_bytesB\x1e\n" +
 	"\x1c_non_mfv_skinny_tables_bytesB\x14\n" +
 	"\x12_wide_tables_bytesB\x1b\n" +
 	"\x19_wide_mapping_table_bytesB\x12\n" +
 	"\x10_query_log_bytesB\x15\n" +
-	"\x13_query_values_bytes\"\xff\x01\n" +
+	"\x13_query_values_bytesB\x1d\n" +
+	"\x1b_skinny_tables_collected_atB%\n" +
+	"#_non_mfv_skinny_tables_collected_atB\"\n" +
+	" _wide_mapping_table_collected_atB\x19\n" +
+	"\x17_query_log_collected_atB\x1c\n" +
+	"\x1a_query_values_collected_at\"\xea\x03\n" +
 	"\x0fWideTableConfig\x12\x1d\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tR\ttableName\x120\n" +
 	"\x11feature_namespace\x18\x02 \x01(\tH\x00R\x10featureNamespace\x88\x01\x01\x122\n" +
 	"\x12config_fingerprint\x18\x03 \x01(\x03H\x01R\x11configFingerprint\x88\x01\x01\x12(\n" +
-	"\rfeature_count\x18\x04 \x01(\x03H\x02R\ffeatureCount\x88\x01\x01B\x14\n" +
+	"\rfeature_count\x18\x04 \x01(\x03H\x02R\ffeatureCount\x88\x01\x01\x12;\n" +
+	"\x17namespace_feature_count\x18\x05 \x01(\x03H\x03R\x15namespaceFeatureCount\x88\x01\x01\x12Q\n" +
+	"\vshard_sizes\x18\x06 \x03(\v20.chalk.engine.v2.WideTableConfig.ShardSizesEntryR\n" +
+	"shardSizes\x1a=\n" +
+	"\x0fShardSizesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\rR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01B\x14\n" +
 	"\x12_feature_namespaceB\x15\n" +
 	"\x13_config_fingerprintB\x10\n" +
-	"\x0e_feature_count\"\x8f\x03\n" +
+	"\x0e_feature_countB\x1a\n" +
+	"\x18_namespace_feature_count\"\xcc\x04\n" +
 	"\x0eWideTableStats\x12*\n" +
 	"\x0epartitioned_by\x18\x03 \x01(\tH\x00R\rpartitionedBy\x88\x01\x01\x12!\n" +
 	"\fclustered_by\x18\x04 \x03(\tR\vclusteredBy\x12\"\n" +
@@ -1286,13 +1395,16 @@ const file_chalk_engine_v2_offline_store_metrics_proto_rawDesc = "" +
 	"size_bytes\x18\x05 \x01(\x04H\x01R\tsizeBytes\x88\x01\x01\x12 \n" +
 	"\trow_count\x18\x06 \x01(\x04H\x02R\browCount\x88\x01\x01\x12G\n" +
 	"\x0fmin_observed_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x03R\rminObservedAt\x88\x01\x01\x12G\n" +
-	"\x0fmax_observed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x04R\rmaxObservedAt\x88\x01\x01B\x11\n" +
+	"\x0fmax_observed_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x04R\rmaxObservedAt\x88\x01\x01\x12K\n" +
+	"\x11size_collected_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x05R\x0fsizeCollectedAt\x88\x01\x01B\x11\n" +
 	"\x0f_partitioned_byB\r\n" +
 	"\v_size_bytesB\f\n" +
 	"\n" +
 	"_row_countB\x12\n" +
 	"\x10_min_observed_atB\x12\n" +
-	"\x10_max_observed_at\"\x9f\x01\n" +
+	"\x10_max_observed_atB\x14\n" +
+	"\x12_size_collected_atJ\x04\b\n" +
+	"\x10\rR\x16row_count_collected_atR\x1cmin_observed_at_collected_atR\x1cmax_observed_at_collected_at\"\x9f\x01\n" +
 	"\rWideTableInfo\x12=\n" +
 	"\x06config\x18\x01 \x01(\v2 .chalk.engine.v2.WideTableConfigH\x00R\x06config\x88\x01\x01\x12:\n" +
 	"\x05stats\x18\x02 \x01(\v2\x1f.chalk.engine.v2.WideTableStatsH\x01R\x05stats\x88\x01\x01B\t\n" +
@@ -1329,7 +1441,7 @@ func file_chalk_engine_v2_offline_store_metrics_proto_rawDescGZIP() []byte {
 	return file_chalk_engine_v2_offline_store_metrics_proto_rawDescData
 }
 
-var file_chalk_engine_v2_offline_store_metrics_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_chalk_engine_v2_offline_store_metrics_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chalk_engine_v2_offline_store_metrics_proto_goTypes = []any{
 	(*GetMetricsRequest)(nil),                   // 0: chalk.engine.v2.GetMetricsRequest
 	(*WideTableLayout)(nil),                     // 1: chalk.engine.v2.WideTableLayout
@@ -1348,14 +1460,15 @@ var file_chalk_engine_v2_offline_store_metrics_proto_goTypes = []any{
 	(*PollMetricsResponse)(nil),                 // 14: chalk.engine.v2.PollMetricsResponse
 	(*GetMetricsV2Request)(nil),                 // 15: chalk.engine.v2.GetMetricsV2Request
 	(*GetMetricsV2Response)(nil),                // 16: chalk.engine.v2.GetMetricsV2Response
-	nil,                                         // 17: chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry
-	(*fieldmaskpb.FieldMask)(nil),               // 18: google.protobuf.FieldMask
-	(*timestamppb.Timestamp)(nil),               // 19: google.protobuf.Timestamp
+	nil,                                         // 17: chalk.engine.v2.WideTableConfig.ShardSizesEntry
+	nil,                                         // 18: chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry
+	(*fieldmaskpb.FieldMask)(nil),               // 19: google.protobuf.FieldMask
+	(*timestamppb.Timestamp)(nil),               // 20: google.protobuf.Timestamp
 }
 var file_chalk_engine_v2_offline_store_metrics_proto_depIdxs = []int32{
-	18, // 0: chalk.engine.v2.GetMetricsRequest.read_mask:type_name -> google.protobuf.FieldMask
-	19, // 1: chalk.engine.v2.NamespaceObservedAtRange.min_observed_at:type_name -> google.protobuf.Timestamp
-	19, // 2: chalk.engine.v2.NamespaceObservedAtRange.max_observed_at:type_name -> google.protobuf.Timestamp
+	19, // 0: chalk.engine.v2.GetMetricsRequest.read_mask:type_name -> google.protobuf.FieldMask
+	20, // 1: chalk.engine.v2.NamespaceObservedAtRange.min_observed_at:type_name -> google.protobuf.Timestamp
+	20, // 2: chalk.engine.v2.NamespaceObservedAtRange.max_observed_at:type_name -> google.protobuf.Timestamp
 	5,  // 3: chalk.engine.v2.OfflineStorageDetails.snowflake:type_name -> chalk.engine.v2.SnowflakeOfflineStorageDetails
 	6,  // 4: chalk.engine.v2.OfflineStorageDetails.bigquery:type_name -> chalk.engine.v2.BigQueryOfflineStorageDetails
 	5,  // 5: chalk.engine.v2.GetMetricsResponse.snowflake:type_name -> chalk.engine.v2.SnowflakeOfflineStorageDetails
@@ -1364,21 +1477,28 @@ var file_chalk_engine_v2_offline_store_metrics_proto_depIdxs = []int32{
 	3,  // 8: chalk.engine.v2.GetMetricsResponse.namespace_wide_table_row_counts:type_name -> chalk.engine.v2.NamespaceWideTableRowCount
 	1,  // 9: chalk.engine.v2.GetMetricsResponse.wide_table_layouts:type_name -> chalk.engine.v2.WideTableLayout
 	4,  // 10: chalk.engine.v2.GetMetricsResponse.namespace_wide_table_config_fingerprints:type_name -> chalk.engine.v2.NamespaceWideTableConfigFingerprint
-	19, // 11: chalk.engine.v2.WideTableStats.min_observed_at:type_name -> google.protobuf.Timestamp
-	19, // 12: chalk.engine.v2.WideTableStats.max_observed_at:type_name -> google.protobuf.Timestamp
-	10, // 13: chalk.engine.v2.WideTableInfo.config:type_name -> chalk.engine.v2.WideTableConfig
-	11, // 14: chalk.engine.v2.WideTableInfo.stats:type_name -> chalk.engine.v2.WideTableStats
-	18, // 15: chalk.engine.v2.PollMetricsRequest.poll_mask:type_name -> google.protobuf.FieldMask
-	18, // 16: chalk.engine.v2.GetMetricsV2Request.read_mask:type_name -> google.protobuf.FieldMask
-	7,  // 17: chalk.engine.v2.GetMetricsV2Response.storage_details:type_name -> chalk.engine.v2.OfflineStorageDetails
-	9,  // 18: chalk.engine.v2.GetMetricsV2Response.aggregated_stats:type_name -> chalk.engine.v2.AggregateOfflineStoreStorageStats
-	17, // 19: chalk.engine.v2.GetMetricsV2Response.namespace_to_wide_table_info:type_name -> chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry
-	12, // 20: chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry.value:type_name -> chalk.engine.v2.WideTableInfo
-	21, // [21:21] is the sub-list for method output_type
-	21, // [21:21] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	20, // 11: chalk.engine.v2.AggregateOfflineStoreStorageStats.skinny_tables_collected_at:type_name -> google.protobuf.Timestamp
+	20, // 12: chalk.engine.v2.AggregateOfflineStoreStorageStats.non_mfv_skinny_tables_collected_at:type_name -> google.protobuf.Timestamp
+	20, // 13: chalk.engine.v2.AggregateOfflineStoreStorageStats.wide_mapping_table_collected_at:type_name -> google.protobuf.Timestamp
+	20, // 14: chalk.engine.v2.AggregateOfflineStoreStorageStats.query_log_collected_at:type_name -> google.protobuf.Timestamp
+	20, // 15: chalk.engine.v2.AggregateOfflineStoreStorageStats.query_values_collected_at:type_name -> google.protobuf.Timestamp
+	17, // 16: chalk.engine.v2.WideTableConfig.shard_sizes:type_name -> chalk.engine.v2.WideTableConfig.ShardSizesEntry
+	20, // 17: chalk.engine.v2.WideTableStats.min_observed_at:type_name -> google.protobuf.Timestamp
+	20, // 18: chalk.engine.v2.WideTableStats.max_observed_at:type_name -> google.protobuf.Timestamp
+	20, // 19: chalk.engine.v2.WideTableStats.size_collected_at:type_name -> google.protobuf.Timestamp
+	10, // 20: chalk.engine.v2.WideTableInfo.config:type_name -> chalk.engine.v2.WideTableConfig
+	11, // 21: chalk.engine.v2.WideTableInfo.stats:type_name -> chalk.engine.v2.WideTableStats
+	19, // 22: chalk.engine.v2.PollMetricsRequest.poll_mask:type_name -> google.protobuf.FieldMask
+	19, // 23: chalk.engine.v2.GetMetricsV2Request.read_mask:type_name -> google.protobuf.FieldMask
+	7,  // 24: chalk.engine.v2.GetMetricsV2Response.storage_details:type_name -> chalk.engine.v2.OfflineStorageDetails
+	9,  // 25: chalk.engine.v2.GetMetricsV2Response.aggregated_stats:type_name -> chalk.engine.v2.AggregateOfflineStoreStorageStats
+	18, // 26: chalk.engine.v2.GetMetricsV2Response.namespace_to_wide_table_info:type_name -> chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry
+	12, // 27: chalk.engine.v2.GetMetricsV2Response.NamespaceToWideTableInfoEntry.value:type_name -> chalk.engine.v2.WideTableInfo
+	28, // [28:28] is the sub-list for method output_type
+	28, // [28:28] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_chalk_engine_v2_offline_store_metrics_proto_init() }
@@ -1413,7 +1533,7 @@ func file_chalk_engine_v2_offline_store_metrics_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_engine_v2_offline_store_metrics_proto_rawDesc), len(file_chalk_engine_v2_offline_store_metrics_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

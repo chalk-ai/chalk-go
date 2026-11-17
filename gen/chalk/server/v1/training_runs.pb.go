@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/container/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	v2 "github.com/chalk-ai/chalk-go/gen/chalk/volume/v2"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -92,6 +93,7 @@ type TrainingRunDataSource struct {
 	//	*TrainingRunDataSource_DatasetName
 	//	*TrainingRunDataSource_S3Uri
 	//	*TrainingRunDataSource_InputSql
+	//	*TrainingRunDataSource_DatasetRevisionId
 	Source        isTrainingRunDataSource_Source `protobuf_oneof:"source"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -161,6 +163,15 @@ func (x *TrainingRunDataSource) GetInputSql() string {
 	return ""
 }
 
+func (x *TrainingRunDataSource) GetDatasetRevisionId() string {
+	if x != nil {
+		if x, ok := x.Source.(*TrainingRunDataSource_DatasetRevisionId); ok {
+			return x.DatasetRevisionId
+		}
+	}
+	return ""
+}
+
 type isTrainingRunDataSource_Source interface {
 	isTrainingRunDataSource_Source()
 }
@@ -177,11 +188,17 @@ type TrainingRunDataSource_InputSql struct {
 	InputSql string `protobuf:"bytes,3,opt,name=input_sql,json=inputSql,proto3,oneof"`
 }
 
+type TrainingRunDataSource_DatasetRevisionId struct {
+	DatasetRevisionId string `protobuf:"bytes,4,opt,name=dataset_revision_id,json=datasetRevisionId,proto3,oneof"`
+}
+
 func (*TrainingRunDataSource_DatasetName) isTrainingRunDataSource_Source() {}
 
 func (*TrainingRunDataSource_S3Uri) isTrainingRunDataSource_Source() {}
 
 func (*TrainingRunDataSource_InputSql) isTrainingRunDataSource_Source() {}
+
+func (*TrainingRunDataSource_DatasetRevisionId) isTrainingRunDataSource_Source() {}
 
 type TrainingRun struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
@@ -1618,11 +1635,12 @@ var File_chalk_server_v1_training_runs_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/server/v1/training_runs.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a$chalk/server/v1/model_registry.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"~\n" +
+	"#chalk/server/v1/training_runs.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a$chalk/server/v1/model_registry.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cchalk/volume/v2/volume.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb0\x01\n" +
 	"\x15TrainingRunDataSource\x12#\n" +
 	"\fdataset_name\x18\x01 \x01(\tH\x00R\vdatasetName\x12\x17\n" +
 	"\x06s3_uri\x18\x02 \x01(\tH\x00R\x05s3Uri\x12\x1d\n" +
-	"\tinput_sql\x18\x03 \x01(\tH\x00R\binputSqlB\b\n" +
+	"\tinput_sql\x18\x03 \x01(\tH\x00R\binputSql\x120\n" +
+	"\x13dataset_revision_id\x18\x04 \x01(\tH\x00R\x11datasetRevisionIdB\b\n" +
 	"\x06source\"\x97\n" +
 	"\n" +
 	"\vTrainingRun\x12\x0e\n" +
@@ -1758,10 +1776,10 @@ const file_chalk_server_v1_training_runs_proto_rawDesc = "" +
 	"\bmetadata\x18\x04 \x03(\v2;.chalk.server.v1.CheckpointTrainingRunRequest.MetadataEntryR\bmetadata\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
-	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xeb\x01\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xf1\x01\n" +
 	"\x1dCheckpointTrainingRunResponse\x12*\n" +
-	"\x11model_artifact_id\x18\x01 \x01(\tR\x0fmodelArtifactId\x12_\n" +
-	"\vupload_urls\x18\x02 \x03(\v2>.chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntryR\n" +
+	"\x11model_artifact_id\x18\x01 \x01(\tR\x0fmodelArtifactId\x12e\n" +
+	"\vupload_urls\x18\x02 \x03(\v2>.chalk.server.v1.CheckpointTrainingRunResponse.UploadUrlsEntryB\x04ء'\x01R\n" +
 	"uploadUrls\x1a=\n" +
 	"\x0fUploadUrlsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -1962,6 +1980,7 @@ func file_chalk_server_v1_training_runs_proto_init() {
 		(*TrainingRunDataSource_DatasetName)(nil),
 		(*TrainingRunDataSource_S3Uri)(nil),
 		(*TrainingRunDataSource_InputSql)(nil),
+		(*TrainingRunDataSource_DatasetRevisionId)(nil),
 	}
 	file_chalk_server_v1_training_runs_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_training_runs_proto_msgTypes[2].OneofWrappers = []any{}

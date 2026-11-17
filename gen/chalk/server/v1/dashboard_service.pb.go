@@ -974,8 +974,10 @@ func (x *UpdateDashboardSharingResponse) GetSharing() *v1.ContentSharing {
 }
 
 type DeleteDashboardRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DashboardId   string                 `protobuf:"bytes,1,opt,name=dashboard_id,json=dashboardId,proto3" json:"dashboard_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/dashboard_service.proto.
+	DashboardId   string   `protobuf:"bytes,1,opt,name=dashboard_id,json=dashboardId,proto3" json:"dashboard_id,omitempty"`
+	DashboardIds  []string `protobuf:"bytes,2,rep,name=dashboard_ids,json=dashboardIds,proto3" json:"dashboard_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1010,11 +1012,19 @@ func (*DeleteDashboardRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_dashboard_service_proto_rawDescGZIP(), []int{12}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/dashboard_service.proto.
 func (x *DeleteDashboardRequest) GetDashboardId() string {
 	if x != nil {
 		return x.DashboardId
 	}
 	return ""
+}
+
+func (x *DeleteDashboardRequest) GetDashboardIds() []string {
+	if x != nil {
+		return x.DashboardIds
+	}
+	return nil
 }
 
 type DeleteDashboardResponse struct {
@@ -1617,9 +1627,10 @@ const file_chalk_server_v1_dashboard_service_proto_rawDesc = "" +
 	"\x06grants\x18\x03 \x01(\v2$.chalk.artifacts.v1.ContentGrantListR\x06grantsB\r\n" +
 	"\v_visibility\"^\n" +
 	"\x1eUpdateDashboardSharingResponse\x12<\n" +
-	"\asharing\x18\x01 \x01(\v2\".chalk.artifacts.v1.ContentSharingR\asharing\";\n" +
-	"\x16DeleteDashboardRequest\x12!\n" +
-	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\"\x19\n" +
+	"\asharing\x18\x01 \x01(\v2\".chalk.artifacts.v1.ContentSharingR\asharing\"d\n" +
+	"\x16DeleteDashboardRequest\x12%\n" +
+	"\fdashboard_id\x18\x01 \x01(\tB\x02\x18\x01R\vdashboardId\x12#\n" +
+	"\rdashboard_ids\x18\x02 \x03(\tR\fdashboardIds\"\x19\n" +
 	"\x17DeleteDashboardResponse\"\\\n" +
 	"\x16ExportDashboardRequest\x12!\n" +
 	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\x12\x1f\n" +

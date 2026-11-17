@@ -57,6 +57,9 @@ const (
 	// AggregateServiceCreateAggregateBackfillV2Procedure is the fully-qualified name of the
 	// AggregateService's CreateAggregateBackfillV2 RPC.
 	AggregateServiceCreateAggregateBackfillV2Procedure = "/chalk.aggregate.v1.AggregateService/CreateAggregateBackfillV2"
+	// AggregateServiceBackfillTileSeriesGapsProcedure is the fully-qualified name of the
+	// AggregateService's BackfillTileSeriesGaps RPC.
+	AggregateServiceBackfillTileSeriesGapsProcedure = "/chalk.aggregate.v1.AggregateService/BackfillTileSeriesGaps"
 )
 
 // AggregateServiceClient is a client for the chalk.aggregate.v1.AggregateService service.
@@ -89,6 +92,8 @@ type AggregateServiceClient interface {
 	// plan-then-create-each-sub-backfill loop that PlanAggregateBackfill plus
 	// CreateAggregateBackfillJob require.
 	CreateAggregateBackfillV2(context.Context, *connect.Request[v1.CreateAggregateBackfillV2Request]) (*connect.Response[v1.CreateAggregateBackfillV2Response], error)
+	// Fills offline tile series gaps by hash, rewriting every series the gap's features write over its range, empty tiles allowed.
+	BackfillTileSeriesGaps(context.Context, *connect.Request[v1.BackfillTileSeriesGapsRequest]) (*connect.Response[v1.BackfillTileSeriesGapsResponse], error)
 }
 
 // NewAggregateServiceClient constructs a client for the chalk.aggregate.v1.AggregateService
@@ -156,6 +161,12 @@ func NewAggregateServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(aggregateServiceMethods.ByName("CreateAggregateBackfillV2")),
 			connect.WithClientOptions(opts...),
 		),
+		backfillTileSeriesGaps: connect.NewClient[v1.BackfillTileSeriesGapsRequest, v1.BackfillTileSeriesGapsResponse](
+			httpClient,
+			baseURL+AggregateServiceBackfillTileSeriesGapsProcedure,
+			connect.WithSchema(aggregateServiceMethods.ByName("BackfillTileSeriesGaps")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -169,6 +180,7 @@ type aggregateServiceClient struct {
 	getActiveCronAggregateBackfills *connect.Client[v1.GetActiveCronAggregateBackfillsRequest, v1.GetActiveCronAggregateBackfillsResponse]
 	createAggregateBackfillJob      *connect.Client[v1.CreateAggregateBackfillJobRequest, v1.CreateAggregateBackfillJobResponse]
 	createAggregateBackfillV2       *connect.Client[v1.CreateAggregateBackfillV2Request, v1.CreateAggregateBackfillV2Response]
+	backfillTileSeriesGaps          *connect.Client[v1.BackfillTileSeriesGapsRequest, v1.BackfillTileSeriesGapsResponse]
 }
 
 // PlanAggregateBackfill calls chalk.aggregate.v1.AggregateService.PlanAggregateBackfill.
@@ -212,6 +224,11 @@ func (c *aggregateServiceClient) CreateAggregateBackfillV2(ctx context.Context, 
 	return c.createAggregateBackfillV2.CallUnary(ctx, req)
 }
 
+// BackfillTileSeriesGaps calls chalk.aggregate.v1.AggregateService.BackfillTileSeriesGaps.
+func (c *aggregateServiceClient) BackfillTileSeriesGaps(ctx context.Context, req *connect.Request[v1.BackfillTileSeriesGapsRequest]) (*connect.Response[v1.BackfillTileSeriesGapsResponse], error) {
+	return c.backfillTileSeriesGaps.CallUnary(ctx, req)
+}
+
 // AggregateServiceHandler is an implementation of the chalk.aggregate.v1.AggregateService service.
 type AggregateServiceHandler interface {
 	// PlanAggregateBackfill determines the estimated resources needed to backfill
@@ -242,6 +259,8 @@ type AggregateServiceHandler interface {
 	// plan-then-create-each-sub-backfill loop that PlanAggregateBackfill plus
 	// CreateAggregateBackfillJob require.
 	CreateAggregateBackfillV2(context.Context, *connect.Request[v1.CreateAggregateBackfillV2Request]) (*connect.Response[v1.CreateAggregateBackfillV2Response], error)
+	// Fills offline tile series gaps by hash, rewriting every series the gap's features write over its range, empty tiles allowed.
+	BackfillTileSeriesGaps(context.Context, *connect.Request[v1.BackfillTileSeriesGapsRequest]) (*connect.Response[v1.BackfillTileSeriesGapsResponse], error)
 }
 
 // NewAggregateServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -305,6 +324,12 @@ func NewAggregateServiceHandler(svc AggregateServiceHandler, opts ...connect.Han
 		connect.WithSchema(aggregateServiceMethods.ByName("CreateAggregateBackfillV2")),
 		connect.WithHandlerOptions(opts...),
 	)
+	aggregateServiceBackfillTileSeriesGapsHandler := connect.NewUnaryHandler(
+		AggregateServiceBackfillTileSeriesGapsProcedure,
+		svc.BackfillTileSeriesGaps,
+		connect.WithSchema(aggregateServiceMethods.ByName("BackfillTileSeriesGaps")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.aggregate.v1.AggregateService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AggregateServicePlanAggregateBackfillProcedure:
@@ -323,6 +348,8 @@ func NewAggregateServiceHandler(svc AggregateServiceHandler, opts ...connect.Han
 			aggregateServiceCreateAggregateBackfillJobHandler.ServeHTTP(w, r)
 		case AggregateServiceCreateAggregateBackfillV2Procedure:
 			aggregateServiceCreateAggregateBackfillV2Handler.ServeHTTP(w, r)
+		case AggregateServiceBackfillTileSeriesGapsProcedure:
+			aggregateServiceBackfillTileSeriesGapsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -362,4 +389,8 @@ func (UnimplementedAggregateServiceHandler) CreateAggregateBackfillJob(context.C
 
 func (UnimplementedAggregateServiceHandler) CreateAggregateBackfillV2(context.Context, *connect.Request[v1.CreateAggregateBackfillV2Request]) (*connect.Response[v1.CreateAggregateBackfillV2Response], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.aggregate.v1.AggregateService.CreateAggregateBackfillV2 is not implemented"))
+}
+
+func (UnimplementedAggregateServiceHandler) BackfillTileSeriesGaps(context.Context, *connect.Request[v1.BackfillTileSeriesGapsRequest]) (*connect.Response[v1.BackfillTileSeriesGapsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.aggregate.v1.AggregateService.BackfillTileSeriesGaps is not implemented"))
 }

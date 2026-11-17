@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -169,14 +170,14 @@ var File_chalk_server_v1_http_engine_proxy_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_http_engine_proxy_proto_rawDesc = "" +
 	"\n" +
-	"'chalk/server/v1/http_engine_proxy.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a&chalk/common/v1/dataset_response.proto\x1a#chalk/common/v1/offline_query.proto\"_\n" +
+	"'chalk/server/v1/http_engine_proxy.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a&chalk/common/v1/dataset_response.proto\x1a#chalk/common/v1/offline_query.proto\x1a\x1echalk/utils/v1/sensitive.proto\"_\n" +
 	"\x19CreateOfflineQueryRequest\x12>\n" +
-	"\arequest\x18\x01 \x01(\v2$.chalk.common.v1.OfflineQueryRequestR\arequest:\x02\x18\x01\"\xd5\x02\n" +
+	"\arequest\x18\x01 \x01(\v2$.chalk.common.v1.OfflineQueryRequestR\arequest:\x02\x18\x01\"\xd9\x02\n" +
 	"\x1aCreateOfflineQueryResponse\x12#\n" +
 	"\vis_finished\x18\x01 \x01(\bB\x02\x18\x01R\n" +
 	"isFinished\x12\x1c\n" +
-	"\aversion\x18\x02 \x01(\x05B\x02\x18\x01R\aversion\x12\x16\n" +
-	"\x04urls\x18\x03 \x03(\tB\x02\x18\x01R\x04urls\x127\n" +
+	"\aversion\x18\x02 \x01(\x05B\x02\x18\x01R\aversion\x12\x1a\n" +
+	"\x04urls\x18\x03 \x03(\tB\x06ء'\x01\x18\x01R\x04urls\x127\n" +
 	"\x06errors\x18\x04 \x03(\v2\x1b.chalk.common.v1.ChalkErrorB\x02\x18\x01R\x06errors\x12F\n" +
 	"\acolumns\x18\x05 \x01(\v2#.chalk.common.v1.ColumnMetadataListB\x02\x18\x01H\x00R\acolumns\x88\x01\x01\x12K\n" +
 	"\x10dataset_response\x18\x06 \x01(\v2 .chalk.common.v1.DatasetResponseR\x0fdatasetResponse:\x02\x18\x01B\n" +

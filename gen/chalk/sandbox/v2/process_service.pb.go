@@ -8,6 +8,7 @@ package sandboxv2
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -1768,16 +1769,16 @@ var File_chalk_sandbox_v2_process_service_proto protoreflect.FileDescriptor
 
 const file_chalk_sandbox_v2_process_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/sandbox/v2/process_service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\"\x81\x03\n" +
+	"&chalk/sandbox/v2/process_service.proto\x12\x10chalk.sandbox.v2\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\"\x93\x03\n" +
 	"\x12ExecCommandRequest\x12\x1d\n" +
 	"\n" +
-	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\x12\x18\n" +
-	"\acommand\x18\x02 \x01(\tR\acommand\x12\x12\n" +
-	"\x04args\x18\x03 \x03(\tR\x04args\x12\x1d\n" +
+	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\x12\x1e\n" +
+	"\acommand\x18\x02 \x01(\tB\x04ء'\x01R\acommand\x12\x18\n" +
+	"\x04args\x18\x03 \x03(\tB\x04ء'\x01R\x04args\x12\x1d\n" +
 	"\aworkdir\x18\x04 \x01(\tH\x00R\aworkdir\x88\x01\x01\x12L\n" +
 	"\benv_vars\x18\x05 \x03(\v21.chalk.sandbox.v2.ExecCommandRequest.EnvVarsEntryR\aenvVars\x128\n" +
-	"\atimeout\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\atimeout\x88\x01\x01\x12\x19\n" +
-	"\x05stdin\x18\a \x01(\fH\x02R\x05stdin\x88\x01\x01\x1a:\n" +
+	"\atimeout\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\atimeout\x88\x01\x01\x12\x1f\n" +
+	"\x05stdin\x18\a \x01(\fB\x04ء'\x01H\x02R\x05stdin\x88\x01\x01\x1a:\n" +
 	"\fEnvVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\n" +
@@ -1785,23 +1786,23 @@ const file_chalk_sandbox_v2_process_service_proto_rawDesc = "" +
 	"\b_workdirB\n" +
 	"\n" +
 	"\b_timeoutB\b\n" +
-	"\x06_stdin\"b\n" +
-	"\x13ExecCommandResponse\x12\x16\n" +
-	"\x06stdout\x18\x01 \x01(\fR\x06stdout\x12\x16\n" +
-	"\x06stderr\x18\x02 \x01(\fR\x06stderr\x12\x1b\n" +
+	"\x06_stdin\"n\n" +
+	"\x13ExecCommandResponse\x12\x1c\n" +
+	"\x06stdout\x18\x01 \x01(\fB\x04ء'\x01R\x06stdout\x12\x1c\n" +
+	"\x06stderr\x18\x02 \x01(\fB\x04ء'\x01R\x06stderr\x12\x1b\n" +
 	"\texit_code\x18\x03 \x01(\x05R\bexitCode\"1\n" +
 	"\aPtyInfo\x12\x12\n" +
 	"\x04cols\x18\x01 \x01(\rR\x04cols\x12\x12\n" +
 	"\x04rows\x18\x02 \x01(\rR\x04rows\"3\n" +
 	"\tResizePty\x12\x12\n" +
 	"\x04cols\x18\x01 \x01(\rR\x04cols\x12\x12\n" +
-	"\x04rows\x18\x02 \x01(\rR\x04rows\"\x94\x03\n" +
+	"\x04rows\x18\x02 \x01(\rR\x04rows\"\xa0\x03\n" +
 	"\n" +
 	"NewProcess\x12\x1d\n" +
 	"\n" +
-	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\x12\x18\n" +
-	"\acommand\x18\x02 \x01(\tR\acommand\x12\x12\n" +
-	"\x04args\x18\x03 \x03(\tR\x04args\x12\x1d\n" +
+	"sandbox_id\x18\x01 \x01(\tR\tsandboxId\x12\x1e\n" +
+	"\acommand\x18\x02 \x01(\tB\x04ء'\x01R\acommand\x12\x18\n" +
+	"\x04args\x18\x03 \x03(\tB\x04ء'\x01R\x04args\x12\x1d\n" +
 	"\aworkdir\x18\x04 \x01(\tH\x00R\aworkdir\x88\x01\x01\x12D\n" +
 	"\benv_vars\x18\x05 \x03(\v2).chalk.sandbox.v2.NewProcess.EnvVarsEntryR\aenvVars\x128\n" +
 	"\atimeout\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\atimeout\x88\x01\x01\x129\n" +
@@ -1828,18 +1829,18 @@ const file_chalk_sandbox_v2_process_service_proto_rawDesc = "" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"\x0f\n" +
 	"\rDetachSession\"\x11\n" +
-	"\x0fSessionDetached\"\x1f\n" +
-	"\tStdinData\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data\"\n" +
+	"\x0fSessionDetached\"%\n" +
+	"\tStdinData\x12\x18\n" +
+	"\x04data\x18\x01 \x01(\fB\x04ء'\x01R\x04data\"\n" +
 	"\n" +
 	"\bStdinEof\"'\n" +
 	"\rSessionSignal\x12\x16\n" +
 	"\x06signal\x18\x01 \x01(\x05R\x06signal\"\x12\n" +
-	"\x10GetProcessStatus\"\xbc\x01\n" +
+	"\x10GetProcessStatus\"\xc2\x01\n" +
 	"\n" +
 	"OutputData\x12;\n" +
-	"\x06stream\x18\x01 \x01(\x0e2#.chalk.sandbox.v2.OutputData.StreamR\x06stream\x12\x12\n" +
-	"\x04data\x18\x02 \x01(\fR\x04data\"]\n" +
+	"\x06stream\x18\x01 \x01(\x0e2#.chalk.sandbox.v2.OutputData.StreamR\x06stream\x12\x18\n" +
+	"\x04data\x18\x02 \x01(\fB\x04ء'\x01R\x04data\"]\n" +
 	"\x06Stream\x12\x16\n" +
 	"\x12STREAM_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTREAM_STDOUT\x10\x01\x12\x11\n" +

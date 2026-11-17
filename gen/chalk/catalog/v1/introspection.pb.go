@@ -24,6 +24,107 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type CatalogDiscoveryIssue_Component int32
+
+const (
+	CatalogDiscoveryIssue_COMPONENT_UNSPECIFIED  CatalogDiscoveryIssue_Component = 0
+	CatalogDiscoveryIssue_COMPONENT_ARROW_SCHEMA CatalogDiscoveryIssue_Component = 1
+	CatalogDiscoveryIssue_COMPONENT_CONSTRAINTS  CatalogDiscoveryIssue_Component = 2
+	CatalogDiscoveryIssue_COMPONENT_STATISTICS   CatalogDiscoveryIssue_Component = 3
+)
+
+// Enum value maps for CatalogDiscoveryIssue_Component.
+var (
+	CatalogDiscoveryIssue_Component_name = map[int32]string{
+		0: "COMPONENT_UNSPECIFIED",
+		1: "COMPONENT_ARROW_SCHEMA",
+		2: "COMPONENT_CONSTRAINTS",
+		3: "COMPONENT_STATISTICS",
+	}
+	CatalogDiscoveryIssue_Component_value = map[string]int32{
+		"COMPONENT_UNSPECIFIED":  0,
+		"COMPONENT_ARROW_SCHEMA": 1,
+		"COMPONENT_CONSTRAINTS":  2,
+		"COMPONENT_STATISTICS":   3,
+	}
+)
+
+func (x CatalogDiscoveryIssue_Component) Enum() *CatalogDiscoveryIssue_Component {
+	p := new(CatalogDiscoveryIssue_Component)
+	*p = x
+	return p
+}
+
+func (x CatalogDiscoveryIssue_Component) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CatalogDiscoveryIssue_Component) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_catalog_v1_introspection_proto_enumTypes[0].Descriptor()
+}
+
+func (CatalogDiscoveryIssue_Component) Type() protoreflect.EnumType {
+	return &file_chalk_catalog_v1_introspection_proto_enumTypes[0]
+}
+
+func (x CatalogDiscoveryIssue_Component) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CatalogDiscoveryIssue_Component.Descriptor instead.
+func (CatalogDiscoveryIssue_Component) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_catalog_v1_introspection_proto_rawDescGZIP(), []int{4, 0}
+}
+
+type CatalogDiscoveryIssue_Kind int32
+
+const (
+	CatalogDiscoveryIssue_KIND_UNSPECIFIED CatalogDiscoveryIssue_Kind = 0
+	CatalogDiscoveryIssue_KIND_FAILED      CatalogDiscoveryIssue_Kind = 1
+	CatalogDiscoveryIssue_KIND_SKIPPED     CatalogDiscoveryIssue_Kind = 2
+)
+
+// Enum value maps for CatalogDiscoveryIssue_Kind.
+var (
+	CatalogDiscoveryIssue_Kind_name = map[int32]string{
+		0: "KIND_UNSPECIFIED",
+		1: "KIND_FAILED",
+		2: "KIND_SKIPPED",
+	}
+	CatalogDiscoveryIssue_Kind_value = map[string]int32{
+		"KIND_UNSPECIFIED": 0,
+		"KIND_FAILED":      1,
+		"KIND_SKIPPED":     2,
+	}
+)
+
+func (x CatalogDiscoveryIssue_Kind) Enum() *CatalogDiscoveryIssue_Kind {
+	p := new(CatalogDiscoveryIssue_Kind)
+	*p = x
+	return p
+}
+
+func (x CatalogDiscoveryIssue_Kind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CatalogDiscoveryIssue_Kind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_catalog_v1_introspection_proto_enumTypes[1].Descriptor()
+}
+
+func (CatalogDiscoveryIssue_Kind) Type() protoreflect.EnumType {
+	return &file_chalk_catalog_v1_introspection_proto_enumTypes[1]
+}
+
+func (x CatalogDiscoveryIssue_Kind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CatalogDiscoveryIssue_Kind.Descriptor instead.
+func (CatalogDiscoveryIssue_Kind) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_catalog_v1_introspection_proto_rawDescGZIP(), []int{4, 1}
+}
+
 type GetSourceSnapshotRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	Source *SourceRef             `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
@@ -242,6 +343,133 @@ func (x *RelationStatisticsUpdate) GetStatistics() *RelationStatistics {
 	return nil
 }
 
+// A limitation observed during this census, rather than evidence that metadata is absent.
+type CatalogDiscoveryIssue struct {
+	state     protoimpl.MessageState          `protogen:"open.v1"`
+	Component CatalogDiscoveryIssue_Component `protobuf:"varint,1,opt,name=component,proto3,enum=chalk.catalog.v1.CatalogDiscoveryIssue_Component" json:"component,omitempty"`
+	Kind      CatalogDiscoveryIssue_Kind      `protobuf:"varint,2,opt,name=kind,proto3,enum=chalk.catalog.v1.CatalogDiscoveryIssue_Kind" json:"kind,omitempty"`
+	// Set for a relation-specific issue; absent for a source-wide metadata query.
+	Relation      *EntityName `protobuf:"bytes,3,opt,name=relation,proto3" json:"relation,omitempty"`
+	Message       string      `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CatalogDiscoveryIssue) Reset() {
+	*x = CatalogDiscoveryIssue{}
+	mi := &file_chalk_catalog_v1_introspection_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CatalogDiscoveryIssue) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CatalogDiscoveryIssue) ProtoMessage() {}
+
+func (x *CatalogDiscoveryIssue) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_catalog_v1_introspection_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CatalogDiscoveryIssue.ProtoReflect.Descriptor instead.
+func (*CatalogDiscoveryIssue) Descriptor() ([]byte, []int) {
+	return file_chalk_catalog_v1_introspection_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CatalogDiscoveryIssue) GetComponent() CatalogDiscoveryIssue_Component {
+	if x != nil {
+		return x.Component
+	}
+	return CatalogDiscoveryIssue_COMPONENT_UNSPECIFIED
+}
+
+func (x *CatalogDiscoveryIssue) GetKind() CatalogDiscoveryIssue_Kind {
+	if x != nil {
+		return x.Kind
+	}
+	return CatalogDiscoveryIssue_KIND_UNSPECIFIED
+}
+
+func (x *CatalogDiscoveryIssue) GetRelation() *EntityName {
+	if x != nil {
+		return x.Relation
+	}
+	return nil
+}
+
+func (x *CatalogDiscoveryIssue) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type CatalogDiscoveryReport struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// All attempted field-type, constraint, and statistics discovery succeeded and
+	// no schema probe was skipped. This does
+	// not assert provider support for every constraint or statistic, or visibility
+	// beyond the source credentials' permissions. Empty successful queries mean
+	// no metadata was reported; failed queries are represented in issues.
+	Complete      bool                     `protobuf:"varint,1,opt,name=complete,proto3" json:"complete,omitempty"`
+	Issues        []*CatalogDiscoveryIssue `protobuf:"bytes,2,rep,name=issues,proto3" json:"issues,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CatalogDiscoveryReport) Reset() {
+	*x = CatalogDiscoveryReport{}
+	mi := &file_chalk_catalog_v1_introspection_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CatalogDiscoveryReport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CatalogDiscoveryReport) ProtoMessage() {}
+
+func (x *CatalogDiscoveryReport) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_catalog_v1_introspection_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CatalogDiscoveryReport.ProtoReflect.Descriptor instead.
+func (*CatalogDiscoveryReport) Descriptor() ([]byte, []int) {
+	return file_chalk_catalog_v1_introspection_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CatalogDiscoveryReport) GetComplete() bool {
+	if x != nil {
+		return x.Complete
+	}
+	return false
+}
+
+func (x *CatalogDiscoveryReport) GetIssues() []*CatalogDiscoveryIssue {
+	if x != nil {
+		return x.Issues
+	}
+	return nil
+}
+
 type GetSourceSnapshotResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Namespace and relation upserts, ready for CatalogService.SyncSourceSnapshot.
@@ -254,14 +482,18 @@ type GetSourceSnapshotResponse struct {
 	CensusedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=censused_at,json=censusedAt,proto3" json:"censused_at,omitempty"`
 	// True when the API server served a stored census instead of asking the
 	// engine for a live one (only possible when the request set max_staleness).
-	FromCache     bool `protobuf:"varint,4,opt,name=from_cache,json=fromCache,proto3" json:"from_cache,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	FromCache bool `protobuf:"varint,4,opt,name=from_cache,json=fromCache,proto3" json:"from_cache,omitempty"`
+	// Present for reporting-capable engines, including cached/asynchronous results.
+	// Absence means completeness is unknown (an older engine or stored census).
+	// Partial discovery still returns the entities and statistics that succeeded.
+	DiscoveryReport *CatalogDiscoveryReport `protobuf:"bytes,5,opt,name=discovery_report,json=discoveryReport,proto3" json:"discovery_report,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetSourceSnapshotResponse) Reset() {
 	*x = GetSourceSnapshotResponse{}
-	mi := &file_chalk_catalog_v1_introspection_proto_msgTypes[4]
+	mi := &file_chalk_catalog_v1_introspection_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -273,7 +505,7 @@ func (x *GetSourceSnapshotResponse) String() string {
 func (*GetSourceSnapshotResponse) ProtoMessage() {}
 
 func (x *GetSourceSnapshotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_catalog_v1_introspection_proto_msgTypes[4]
+	mi := &file_chalk_catalog_v1_introspection_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -286,7 +518,7 @@ func (x *GetSourceSnapshotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSourceSnapshotResponse.ProtoReflect.Descriptor instead.
 func (*GetSourceSnapshotResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_catalog_v1_introspection_proto_rawDescGZIP(), []int{4}
+	return file_chalk_catalog_v1_introspection_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetSourceSnapshotResponse) GetEntities() []*EntityUpsert {
@@ -317,6 +549,13 @@ func (x *GetSourceSnapshotResponse) GetFromCache() bool {
 	return false
 }
 
+func (x *GetSourceSnapshotResponse) GetDiscoveryReport() *CatalogDiscoveryReport {
+	if x != nil {
+		return x.DiscoveryReport
+	}
+	return nil
+}
+
 var File_chalk_catalog_v1_introspection_proto protoreflect.FileDescriptor
 
 const file_chalk_catalog_v1_introspection_proto_rawDesc = "" +
@@ -337,7 +576,24 @@ const file_chalk_catalog_v1_introspection_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\v2\x1c.chalk.catalog.v1.EntityNameR\x04name\x12D\n" +
 	"\n" +
 	"statistics\x18\x02 \x01(\v2$.chalk.catalog.v1.RelationStatisticsR\n" +
-	"statistics\"\xff\x01\n" +
+	"statistics\"\xb8\x03\n" +
+	"\x15CatalogDiscoveryIssue\x12O\n" +
+	"\tcomponent\x18\x01 \x01(\x0e21.chalk.catalog.v1.CatalogDiscoveryIssue.ComponentR\tcomponent\x12@\n" +
+	"\x04kind\x18\x02 \x01(\x0e2,.chalk.catalog.v1.CatalogDiscoveryIssue.KindR\x04kind\x128\n" +
+	"\brelation\x18\x03 \x01(\v2\x1c.chalk.catalog.v1.EntityNameR\brelation\x12\x18\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\"w\n" +
+	"\tComponent\x12\x19\n" +
+	"\x15COMPONENT_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16COMPONENT_ARROW_SCHEMA\x10\x01\x12\x19\n" +
+	"\x15COMPONENT_CONSTRAINTS\x10\x02\x12\x18\n" +
+	"\x14COMPONENT_STATISTICS\x10\x03\"?\n" +
+	"\x04Kind\x12\x14\n" +
+	"\x10KIND_UNSPECIFIED\x10\x00\x12\x0f\n" +
+	"\vKIND_FAILED\x10\x01\x12\x10\n" +
+	"\fKIND_SKIPPED\x10\x02\"u\n" +
+	"\x16CatalogDiscoveryReport\x12\x1a\n" +
+	"\bcomplete\x18\x01 \x01(\bR\bcomplete\x12?\n" +
+	"\x06issues\x18\x02 \x03(\v2'.chalk.catalog.v1.CatalogDiscoveryIssueR\x06issues\"\xd4\x02\n" +
 	"\x19GetSourceSnapshotResponse\x12:\n" +
 	"\bentities\x18\x01 \x03(\v2\x1e.chalk.catalog.v1.EntityUpsertR\bentities\x12J\n" +
 	"\n" +
@@ -346,7 +602,8 @@ const file_chalk_catalog_v1_introspection_proto_rawDesc = "" +
 	"\vcensused_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"censusedAt\x12\x1d\n" +
 	"\n" +
-	"from_cache\x18\x04 \x01(\bR\tfromCache2\xbc\x03\n" +
+	"from_cache\x18\x04 \x01(\bR\tfromCache\x12S\n" +
+	"\x10discovery_report\x18\x05 \x01(\v2(.chalk.catalog.v1.CatalogDiscoveryReportR\x0fdiscoveryReport2\xbc\x03\n" +
 	"\x1bCatalogIntrospectionService\x12t\n" +
 	"\x11GetSourceSnapshot\x12*.chalk.catalog.v1.GetSourceSnapshotRequest\x1a+.chalk.catalog.v1.GetSourceSnapshotResponse\"\x06\x80}\v\x90\x02\x01\x12\xb0\x01\n" +
 	"\x15RefreshSourceSnapshot\x12..chalk.catalog.v1.RefreshSourceSnapshotRequest\x1a/.chalk.catalog.v1.RefreshSourceSnapshotResponse\"6\x80}\f\x8a\xd3\x0e/\b\x01\x12+Enqueued an asynchronous data source census\x12t\n" +
@@ -365,42 +622,52 @@ func file_chalk_catalog_v1_introspection_proto_rawDescGZIP() []byte {
 	return file_chalk_catalog_v1_introspection_proto_rawDescData
 }
 
-var file_chalk_catalog_v1_introspection_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chalk_catalog_v1_introspection_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_catalog_v1_introspection_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chalk_catalog_v1_introspection_proto_goTypes = []any{
-	(*GetSourceSnapshotRequest)(nil),      // 0: chalk.catalog.v1.GetSourceSnapshotRequest
-	(*RefreshSourceSnapshotRequest)(nil),  // 1: chalk.catalog.v1.RefreshSourceSnapshotRequest
-	(*RefreshSourceSnapshotResponse)(nil), // 2: chalk.catalog.v1.RefreshSourceSnapshotResponse
-	(*RelationStatisticsUpdate)(nil),      // 3: chalk.catalog.v1.RelationStatisticsUpdate
-	(*GetSourceSnapshotResponse)(nil),     // 4: chalk.catalog.v1.GetSourceSnapshotResponse
-	(*SourceRef)(nil),                     // 5: chalk.catalog.v1.SourceRef
-	(*durationpb.Duration)(nil),           // 6: google.protobuf.Duration
-	(*EntityName)(nil),                    // 7: chalk.catalog.v1.EntityName
-	(*RelationStatistics)(nil),            // 8: chalk.catalog.v1.RelationStatistics
-	(*EntityUpsert)(nil),                  // 9: chalk.catalog.v1.EntityUpsert
-	(*timestamppb.Timestamp)(nil),         // 10: google.protobuf.Timestamp
-	(*AnalyzeSqlLineageRequest)(nil),      // 11: chalk.catalog.v1.AnalyzeSqlLineageRequest
-	(*AnalyzeSqlLineageResponse)(nil),     // 12: chalk.catalog.v1.AnalyzeSqlLineageResponse
+	(CatalogDiscoveryIssue_Component)(0),  // 0: chalk.catalog.v1.CatalogDiscoveryIssue.Component
+	(CatalogDiscoveryIssue_Kind)(0),       // 1: chalk.catalog.v1.CatalogDiscoveryIssue.Kind
+	(*GetSourceSnapshotRequest)(nil),      // 2: chalk.catalog.v1.GetSourceSnapshotRequest
+	(*RefreshSourceSnapshotRequest)(nil),  // 3: chalk.catalog.v1.RefreshSourceSnapshotRequest
+	(*RefreshSourceSnapshotResponse)(nil), // 4: chalk.catalog.v1.RefreshSourceSnapshotResponse
+	(*RelationStatisticsUpdate)(nil),      // 5: chalk.catalog.v1.RelationStatisticsUpdate
+	(*CatalogDiscoveryIssue)(nil),         // 6: chalk.catalog.v1.CatalogDiscoveryIssue
+	(*CatalogDiscoveryReport)(nil),        // 7: chalk.catalog.v1.CatalogDiscoveryReport
+	(*GetSourceSnapshotResponse)(nil),     // 8: chalk.catalog.v1.GetSourceSnapshotResponse
+	(*SourceRef)(nil),                     // 9: chalk.catalog.v1.SourceRef
+	(*durationpb.Duration)(nil),           // 10: google.protobuf.Duration
+	(*EntityName)(nil),                    // 11: chalk.catalog.v1.EntityName
+	(*RelationStatistics)(nil),            // 12: chalk.catalog.v1.RelationStatistics
+	(*EntityUpsert)(nil),                  // 13: chalk.catalog.v1.EntityUpsert
+	(*timestamppb.Timestamp)(nil),         // 14: google.protobuf.Timestamp
+	(*AnalyzeSqlLineageRequest)(nil),      // 15: chalk.catalog.v1.AnalyzeSqlLineageRequest
+	(*AnalyzeSqlLineageResponse)(nil),     // 16: chalk.catalog.v1.AnalyzeSqlLineageResponse
 }
 var file_chalk_catalog_v1_introspection_proto_depIdxs = []int32{
-	5,  // 0: chalk.catalog.v1.GetSourceSnapshotRequest.source:type_name -> chalk.catalog.v1.SourceRef
-	6,  // 1: chalk.catalog.v1.GetSourceSnapshotRequest.max_staleness:type_name -> google.protobuf.Duration
-	5,  // 2: chalk.catalog.v1.RefreshSourceSnapshotRequest.source:type_name -> chalk.catalog.v1.SourceRef
-	7,  // 3: chalk.catalog.v1.RelationStatisticsUpdate.name:type_name -> chalk.catalog.v1.EntityName
-	8,  // 4: chalk.catalog.v1.RelationStatisticsUpdate.statistics:type_name -> chalk.catalog.v1.RelationStatistics
-	9,  // 5: chalk.catalog.v1.GetSourceSnapshotResponse.entities:type_name -> chalk.catalog.v1.EntityUpsert
-	3,  // 6: chalk.catalog.v1.GetSourceSnapshotResponse.statistics:type_name -> chalk.catalog.v1.RelationStatisticsUpdate
-	10, // 7: chalk.catalog.v1.GetSourceSnapshotResponse.censused_at:type_name -> google.protobuf.Timestamp
-	0,  // 8: chalk.catalog.v1.CatalogIntrospectionService.GetSourceSnapshot:input_type -> chalk.catalog.v1.GetSourceSnapshotRequest
-	1,  // 9: chalk.catalog.v1.CatalogIntrospectionService.RefreshSourceSnapshot:input_type -> chalk.catalog.v1.RefreshSourceSnapshotRequest
-	11, // 10: chalk.catalog.v1.CatalogIntrospectionService.AnalyzeSqlLineage:input_type -> chalk.catalog.v1.AnalyzeSqlLineageRequest
-	4,  // 11: chalk.catalog.v1.CatalogIntrospectionService.GetSourceSnapshot:output_type -> chalk.catalog.v1.GetSourceSnapshotResponse
-	2,  // 12: chalk.catalog.v1.CatalogIntrospectionService.RefreshSourceSnapshot:output_type -> chalk.catalog.v1.RefreshSourceSnapshotResponse
-	12, // 13: chalk.catalog.v1.CatalogIntrospectionService.AnalyzeSqlLineage:output_type -> chalk.catalog.v1.AnalyzeSqlLineageResponse
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	9,  // 0: chalk.catalog.v1.GetSourceSnapshotRequest.source:type_name -> chalk.catalog.v1.SourceRef
+	10, // 1: chalk.catalog.v1.GetSourceSnapshotRequest.max_staleness:type_name -> google.protobuf.Duration
+	9,  // 2: chalk.catalog.v1.RefreshSourceSnapshotRequest.source:type_name -> chalk.catalog.v1.SourceRef
+	11, // 3: chalk.catalog.v1.RelationStatisticsUpdate.name:type_name -> chalk.catalog.v1.EntityName
+	12, // 4: chalk.catalog.v1.RelationStatisticsUpdate.statistics:type_name -> chalk.catalog.v1.RelationStatistics
+	0,  // 5: chalk.catalog.v1.CatalogDiscoveryIssue.component:type_name -> chalk.catalog.v1.CatalogDiscoveryIssue.Component
+	1,  // 6: chalk.catalog.v1.CatalogDiscoveryIssue.kind:type_name -> chalk.catalog.v1.CatalogDiscoveryIssue.Kind
+	11, // 7: chalk.catalog.v1.CatalogDiscoveryIssue.relation:type_name -> chalk.catalog.v1.EntityName
+	6,  // 8: chalk.catalog.v1.CatalogDiscoveryReport.issues:type_name -> chalk.catalog.v1.CatalogDiscoveryIssue
+	13, // 9: chalk.catalog.v1.GetSourceSnapshotResponse.entities:type_name -> chalk.catalog.v1.EntityUpsert
+	5,  // 10: chalk.catalog.v1.GetSourceSnapshotResponse.statistics:type_name -> chalk.catalog.v1.RelationStatisticsUpdate
+	14, // 11: chalk.catalog.v1.GetSourceSnapshotResponse.censused_at:type_name -> google.protobuf.Timestamp
+	7,  // 12: chalk.catalog.v1.GetSourceSnapshotResponse.discovery_report:type_name -> chalk.catalog.v1.CatalogDiscoveryReport
+	2,  // 13: chalk.catalog.v1.CatalogIntrospectionService.GetSourceSnapshot:input_type -> chalk.catalog.v1.GetSourceSnapshotRequest
+	3,  // 14: chalk.catalog.v1.CatalogIntrospectionService.RefreshSourceSnapshot:input_type -> chalk.catalog.v1.RefreshSourceSnapshotRequest
+	15, // 15: chalk.catalog.v1.CatalogIntrospectionService.AnalyzeSqlLineage:input_type -> chalk.catalog.v1.AnalyzeSqlLineageRequest
+	8,  // 16: chalk.catalog.v1.CatalogIntrospectionService.GetSourceSnapshot:output_type -> chalk.catalog.v1.GetSourceSnapshotResponse
+	4,  // 17: chalk.catalog.v1.CatalogIntrospectionService.RefreshSourceSnapshot:output_type -> chalk.catalog.v1.RefreshSourceSnapshotResponse
+	16, // 18: chalk.catalog.v1.CatalogIntrospectionService.AnalyzeSqlLineage:output_type -> chalk.catalog.v1.AnalyzeSqlLineageResponse
+	16, // [16:19] is the sub-list for method output_type
+	13, // [13:16] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_chalk_catalog_v1_introspection_proto_init() }
@@ -418,13 +685,14 @@ func file_chalk_catalog_v1_introspection_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_catalog_v1_introspection_proto_rawDesc), len(file_chalk_catalog_v1_introspection_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   5,
+			NumEnums:      2,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_catalog_v1_introspection_proto_goTypes,
 		DependencyIndexes: file_chalk_catalog_v1_introspection_proto_depIdxs,
+		EnumInfos:         file_chalk_catalog_v1_introspection_proto_enumTypes,
 		MessageInfos:      file_chalk_catalog_v1_introspection_proto_msgTypes,
 	}.Build()
 	File_chalk_catalog_v1_introspection_proto = out.File

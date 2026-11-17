@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -663,7 +664,7 @@ var File_chalk_server_v1_query_benchmarks_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_query_benchmarks_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/server/v1/query_benchmarks.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe2\x04\n" +
+	"&chalk/server/v1/query_benchmarks.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe2\x04\n" +
 	"\x14QueryBenchmarkConfig\x12I\n" +
 	"\x06inputs\x18\x01 \x03(\v21.chalk.server.v1.QueryBenchmarkConfig.InputsEntryR\x06inputs\x12\x18\n" +
 	"\aoutputs\x18\x02 \x03(\tR\aoutputs\x12\x12\n" +
@@ -681,14 +682,14 @@ const file_chalk_server_v1_query_benchmarks_proto_rawDesc = "" +
 	"\x12_warmup_iterationsB\x13\n" +
 	"\x11_duration_secondsB\f\n" +
 	"\n" +
-	"_sample_hz\"\x88\x02\n" +
-	"\x17QueryBenchmarkArtifacts\x12$\n" +
-	"\vsummary_url\x18\x01 \x01(\tH\x00R\n" +
-	"summaryUrl\x88\x01\x01\x12*\n" +
-	"\x0eflamegraph_url\x18\x02 \x01(\tH\x01R\rflamegraphUrl\x88\x01\x01\x12/\n" +
-	"\x11folded_stacks_url\x18\x03 \x01(\tH\x02R\x0ffoldedStacksUrl\x88\x01\x01\x12\"\n" +
+	"_sample_hz\"\xa0\x02\n" +
+	"\x17QueryBenchmarkArtifacts\x12*\n" +
+	"\vsummary_url\x18\x01 \x01(\tB\x04ء'\x01H\x00R\n" +
+	"summaryUrl\x88\x01\x01\x120\n" +
+	"\x0eflamegraph_url\x18\x02 \x01(\tB\x04ء'\x01H\x01R\rflamegraphUrl\x88\x01\x01\x125\n" +
+	"\x11folded_stacks_url\x18\x03 \x01(\tB\x04ء'\x01H\x02R\x0ffoldedStacksUrl\x88\x01\x01\x12(\n" +
 	"\n" +
-	"report_url\x18\x04 \x01(\tH\x03R\treportUrl\x88\x01\x01B\x0e\n" +
+	"report_url\x18\x04 \x01(\tB\x04ء'\x01H\x03R\treportUrl\x88\x01\x01B\x0e\n" +
 	"\f_summary_urlB\x11\n" +
 	"\x0f_flamegraph_urlB\x14\n" +
 	"\x12_folded_stacks_urlB\r\n" +

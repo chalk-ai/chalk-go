@@ -8,6 +8,7 @@ package artifactstorev1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -1803,7 +1804,7 @@ var File_chalk_artifactstore_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_artifactstore_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"$chalk/artifactstore/v1/service.proto\x12\x16chalk.artifactstore.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"j\n" +
+	"$chalk/artifactstore/v1/service.proto\x12\x16chalk.artifactstore.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"j\n" +
 	"\x0eArtifactOrigin\x12N\n" +
 	"\fsandbox_exec\x18\x01 \x01(\v2).chalk.artifactstore.v1.SandboxExecOriginH\x00R\vsandboxExecB\b\n" +
 	"\x06origin\"U\n" +
@@ -1867,14 +1868,14 @@ const file_chalk_artifactstore_v1_service_proto_rawDesc = "" +
 	"\x12expected_byte_size\x18\x02 \x01(\x03H\x00R\x10expectedByteSize\x88\x01\x01\x12;\n" +
 	"\x17expected_content_sha256\x18\x03 \x01(\tH\x01R\x15expectedContentSha256\x88\x01\x01B\x15\n" +
 	"\x13_expected_byte_sizeB\x1a\n" +
-	"\x18_expected_content_sha256\"@\n" +
+	"\x18_expected_content_sha256\"F\n" +
 	"\x14ArtifactUploadHeader\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"\x96\x02\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\x05value\x18\x02 \x01(\tB\x04ء'\x01R\x05value\"\x9c\x02\n" +
 	"\x1cCreateArtifactUploadResponse\x12<\n" +
-	"\bartifact\x18\x01 \x01(\v2 .chalk.artifactstore.v1.ArtifactR\bartifact\x12\x1d\n" +
+	"\bartifact\x18\x01 \x01(\v2 .chalk.artifactstore.v1.ArtifactR\bartifact\x12#\n" +
 	"\n" +
-	"upload_url\x18\x02 \x01(\tR\tuploadUrl\x12\x16\n" +
+	"upload_url\x18\x02 \x01(\tB\x04ء'\x01R\tuploadUrl\x12\x16\n" +
 	"\x06method\x18\x03 \x01(\tR\x06method\x12F\n" +
 	"\aheaders\x18\x04 \x03(\v2,.chalk.artifactstore.v1.ArtifactUploadHeaderR\aheaders\x129\n" +
 	"\n" +

@@ -146,6 +146,16 @@ const (
 	Permission_PERMISSION_VOLUME_MANAGE                    Permission = 67
 	Permission_PERMISSION_TRAINING_READ                    Permission = 68
 	Permission_PERMISSION_TRAINING_MANAGE                  Permission = 69
+	Permission_PERMISSION_WORKFLOW_READ                    Permission = 70
+	Permission_PERMISSION_WORKFLOW_RUN                     Permission = 71
+	Permission_PERMISSION_WORKFLOW_MANAGE                  Permission = 72
+	Permission_PERMISSION_MCP_GATEWAY_READ                 Permission = 73
+	Permission_PERMISSION_MCP_GATEWAY_MANAGE               Permission = 74
+	Permission_PERMISSION_MODEL_GATEWAY_READ               Permission = 75
+	Permission_PERMISSION_MODEL_GATEWAY_MANAGE             Permission = 76
+	Permission_PERMISSION_MCP_GATEWAY_CALL                 Permission = 77
+	Permission_PERMISSION_IMAGE_PULL                       Permission = 78
+	Permission_PERMISSION_HOST_REGISTER                    Permission = 79
 )
 
 // Enum value maps for Permission.
@@ -221,6 +231,16 @@ var (
 		67: "PERMISSION_VOLUME_MANAGE",
 		68: "PERMISSION_TRAINING_READ",
 		69: "PERMISSION_TRAINING_MANAGE",
+		70: "PERMISSION_WORKFLOW_READ",
+		71: "PERMISSION_WORKFLOW_RUN",
+		72: "PERMISSION_WORKFLOW_MANAGE",
+		73: "PERMISSION_MCP_GATEWAY_READ",
+		74: "PERMISSION_MCP_GATEWAY_MANAGE",
+		75: "PERMISSION_MODEL_GATEWAY_READ",
+		76: "PERMISSION_MODEL_GATEWAY_MANAGE",
+		77: "PERMISSION_MCP_GATEWAY_CALL",
+		78: "PERMISSION_IMAGE_PULL",
+		79: "PERMISSION_HOST_REGISTER",
 	}
 	Permission_value = map[string]int32{
 		"PERMISSION_UNSPECIFIED":                      0,
@@ -293,6 +313,16 @@ var (
 		"PERMISSION_VOLUME_MANAGE":                    67,
 		"PERMISSION_TRAINING_READ":                    68,
 		"PERMISSION_TRAINING_MANAGE":                  69,
+		"PERMISSION_WORKFLOW_READ":                    70,
+		"PERMISSION_WORKFLOW_RUN":                     71,
+		"PERMISSION_WORKFLOW_MANAGE":                  72,
+		"PERMISSION_MCP_GATEWAY_READ":                 73,
+		"PERMISSION_MCP_GATEWAY_MANAGE":               74,
+		"PERMISSION_MODEL_GATEWAY_READ":               75,
+		"PERMISSION_MODEL_GATEWAY_MANAGE":             76,
+		"PERMISSION_MCP_GATEWAY_CALL":                 77,
+		"PERMISSION_IMAGE_PULL":                       78,
+		"PERMISSION_HOST_REGISTER":                    79,
 	}
 )
 
@@ -409,7 +439,7 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*c\n" +
 	"\x13PermissionPrincipal\x12$\n" +
 	" PERMISSION_PRINCIPAL_UNSPECIFIED\x10\x00\x12&\n" +
-	"\"PERMISSION_PRINCIPAL_SERVICE_TOKEN\x10\x01*\xf5A\n" +
+	"\"PERMISSION_PRINCIPAL_SERVICE_TOKEN\x10\x01*\xfbM\n" +
 	"\n" +
 	"Permission\x12R\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x1a6\xca>%Default value -- should never be set.\xd2>\vunspecified\x12O\n" +
@@ -458,11 +488,11 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"$PERMISSION_BILLING_PUBLISH_ANALYTICS\x10)\x1a]\xca>>Publish product analytics events from a self-hosted deployment\xd2>\x19billing.publish_analytics\x12N\n" +
 	"\x19PERMISSION_NOTEBOOK_WRITE\x10*\x1a/\xca>\x17Edit and run notebooks.\xd2>\x0enotebook.write\xda>\x01\x01\x12Q\n" +
 	"\x18PERMISSION_ARTIFACT_READ\x10+\x1a3\xca>\x1cList and download artifacts.\xd2>\rartifact.read\xda>\x01\x01\x12`\n" +
-	"\x1aPERMISSION_ARTIFACT_MANAGE\x10,\x1a@\xca>'Upload, finalize, and delete artifacts.\xd2>\x0fartifact.manage\xda>\x01\x01\x12}\n" +
-	"\x18PERMISSION_FUNCTION_READ\x10-\x1a_\xca>HView functions, versions, source code, scheduled runs, and recent calls.\xd2>\rfunction.read\xda>\x01\x01\x12t\n" +
-	"\x1aPERMISSION_FUNCTION_MANAGE\x10.\x1aT\xca>;Create, update, and delete functions and function versions.\xd2>\x0ffunction.manage\xda>\x01\x01\x12D\n" +
-	"\x18PERMISSION_FUNCTION_CALL\x10/\x1a&\xca>\x0fCall functions.\xd2>\rfunction.call\xda>\x01\x01\x12s\n" +
-	"\x15PERMISSION_IMAGE_READ\x100\x1aX\xca>DView images, builds, and build logs, and get image pull credentials.\xd2>\n" +
+	"\x1aPERMISSION_ARTIFACT_MANAGE\x10,\x1a@\xca>'Upload, finalize, and delete artifacts.\xd2>\x0fartifact.manage\xda>\x01\x01\x12\x84\x01\n" +
+	"\x18PERMISSION_FUNCTION_READ\x10-\x1af\xca>OView functions, versions, source code, scheduled runs, and recent call history.\xd2>\rfunction.read\xda>\x01\x01\x12t\n" +
+	"\x1aPERMISSION_FUNCTION_MANAGE\x10.\x1aT\xca>;Create, update, and delete functions and function versions.\xd2>\x0ffunction.manage\xda>\x01\x01\x12Z\n" +
+	"\x18PERMISSION_FUNCTION_CALL\x10/\x1a<\xca>%Call functions and read call results.\xd2>\rfunction.call\xda>\x01\x01\x12S\n" +
+	"\x15PERMISSION_IMAGE_READ\x100\x1a8\xca>$View images, builds, and build logs.\xd2>\n" +
 	"image.read\xda>\x01\x01\x12>\n" +
 	"\x16PERMISSION_IMAGE_BUILD\x101\x1a\"\xca>\rBuild images.\xd2>\vimage.build\xda>\x01\x01\x12v\n" +
 	"\x1ePERMISSION_MODEL_REGISTRY_READ\x102\x1aR\xca>5View the model registry and download model artifacts.\xd2>\x13model_registry.read\xda>\x01\x01\x12\x8b\x01\n" +
@@ -484,7 +514,18 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x17PERMISSION_VOLUME_WRITE\x10B\x1aK\xca>5Write volume files, commit versions, and manage refs.\xd2>\fvolume.write\xda>\x01\x01\x12O\n" +
 	"\x18PERMISSION_VOLUME_MANAGE\x10C\x1a1\xca>\x1aCreate and delete volumes.\xd2>\rvolume.manage\xda>\x01\x01\x12f\n" +
 	"\x18PERMISSION_TRAINING_READ\x10D\x1aH\xca>1View training runs, checkpoints, and experiments.\xd2>\rtraining.read\xda>\x01\x01\x12t\n" +
-	"\x1aPERMISSION_TRAINING_MANAGE\x10E\x1aT\xca>;Start, cancel, and report on training runs and experiments.\xd2>\x0ftraining.manage\xda>\x01\x01\x1a\xbd\v\xe2\xa1'\xb8\v\n" +
+	"\x1aPERMISSION_TRAINING_MANAGE\x10E\x1aT\xca>;Start, cancel, and report on training runs and experiments.\xd2>\x0ftraining.manage\xda>\x01\x01\x12\x81\x01\n" +
+	"\x18PERMISSION_WORKFLOW_READ\x10F\x1ac\xca>LView workflows, their history and messages, and workflow schedules and runs.\xd2>\rworkflow.read\xda>\x01\x01\x12\x7f\n" +
+	"\x17PERMISSION_WORKFLOW_RUN\x10G\x1ab\xca>LStart workflow runs, send workflow messages, and trigger workflow schedules.\xd2>\fworkflow.run\xda>\x01\x01\x12g\n" +
+	"\x1aPERMISSION_WORKFLOW_MANAGE\x10H\x1aG\xca>.Create, update, and delete workflow schedules.\xd2>\x0fworkflow.manage\xda>\x01\x01\x12\x82\x01\n" +
+	"\x1bPERMISSION_MCP_GATEWAY_READ\x10I\x1aa\xca>GView MCP gateway servers, policies, agents, tool belts, and audit logs.\xd2>\x10mcp_gateway.read\xda>\x01\x01\x12\x90\x01\n" +
+	"\x1dPERMISSION_MCP_GATEWAY_MANAGE\x10J\x1am\xca>QCreate, update, and delete MCP gateway servers, policies, agents, and tool belts.\xd2>\x12mcp_gateway.manage\xda>\x01\x01\x12\x94\x01\n" +
+	"\x1dPERMISSION_MODEL_GATEWAY_READ\x10K\x1aq\xca>UView model gateway routes, connections, policies, limits, and usage, and call models.\xd2>\x12model_gateway.read\xda>\x01\x01\x12\xaa\x01\n" +
+	"\x1fPERMISSION_MODEL_GATEWAY_MANAGE\x10L\x1a\x84\x01\xca>fManage model gateway API keys, provider connections, routes, policies, limits, budgets, and telemetry.\xd2>\x14model_gateway.manage\xda>\x01\x01\x12\xa0\x01\n" +
+	"\x1bPERMISSION_MCP_GATEWAY_CALL\x10M\x1a\x7f\xca>eCall MCP gateway tools, resources, and prompts, check and simulate policies, and link OAuth accounts.\xd2>\x10mcp_gateway.call\xda>\x01\x01\x12[\n" +
+	"\x15PERMISSION_IMAGE_PULL\x10N\x1a@\xca>,Get registry credentials for pulling images.\xd2>\n" +
+	"image.pull\xda>\x01\x01\x12i\n" +
+	"\x18PERMISSION_HOST_REGISTER\x10O\x1aK\xca>4Register external hosts to provide compute capacity.\xd2>\rhost.register\xda>\x01\x01\x1a\x90\r\xe2\xa1'\x8b\r\n" +
 	"\x1c\b\x01\x12\x18insecure_unauthenticated\n" +
 	"\x11\b\x02\x12\rauthenticated\n" +
 	"\x10\b\x03\x12\fquery.online\n" +
@@ -556,7 +597,18 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x10\bB\x12\fvolume.write\n" +
 	"\x11\bC\x12\rvolume.manage\n" +
 	"\x11\bD\x12\rtraining.read\n" +
-	"\x13\bE\x12\x0ftraining.manage:D\n" +
+	"\x13\bE\x12\x0ftraining.manage\n" +
+	"\x11\bF\x12\rworkflow.read\n" +
+	"\x10\bG\x12\fworkflow.run\n" +
+	"\x13\bH\x12\x0fworkflow.manage\n" +
+	"\x14\bI\x12\x10mcp_gateway.read\n" +
+	"\x16\bJ\x12\x12mcp_gateway.manage\n" +
+	"\x16\bK\x12\x12model_gateway.read\n" +
+	"\x18\bL\x12\x14model_gateway.manage\n" +
+	"\x14\bM\x12\x10mcp_gateway.call\n" +
+	"\x0e\bN\x12\n" +
+	"image.pull\n" +
+	"\x11\bO\x12\rhost.register:D\n" +
 	"\vdescription\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\tR\vdescription:6\n" +
 	"\x04slug\x12!.google.protobuf.EnumValueOptions\x18\xea\a \x01(\tR\x04slug:k\n" +
 	"\rassignable_to\x12!.google.protobuf.EnumValueOptions\x18\xeb\a \x03(\x0e2\".chalk.auth.v1.PermissionPrincipalR\fassignableTo:Z\n" +

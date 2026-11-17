@@ -9,6 +9,7 @@ package containerv1
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -6252,7 +6253,7 @@ var File_chalk_container_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\n" +
-	" chalk/container/v1/service.proto\x12\x12chalk.container.v1\x1a\x19chalk/auth/v1/agent.proto\x1a%chalk/auth/v1/featurepermission.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a/chalk/container/v1/snapshot_compatibility.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"v\n" +
+	" chalk/container/v1/service.proto\x12\x12chalk.container.v1\x1a\x19chalk/auth/v1/agent.proto\x1a%chalk/auth/v1/featurepermission.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a/chalk/container/v1/snapshot_compatibility.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"v\n" +
 	"\x0eResourceLimits\x12\x15\n" +
 	"\x03cpu\x18\x01 \x01(\tH\x00R\x03cpu\x88\x01\x01\x12\x1b\n" +
 	"\x06memory\x18\x02 \x01(\tH\x01R\x06memory\x88\x01\x01\x12\x15\n" +
@@ -6411,21 +6412,21 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\vforward_url\x18\x03 \x01(\tH\x01R\n" +
 	"forwardUrl\x88\x01\x01B\b\n" +
 	"\x06_matchB\x0e\n" +
-	"\f_forward_url\"\xc7\x02\n" +
-	"\x12NetworkTransformer\x12M\n" +
-	"\aheaders\x18\x01 \x03(\v23.chalk.container.v1.NetworkTransformer.HeadersEntryR\aheaders\x12c\n" +
+	"\f_forward_url\"\xcd\x02\n" +
+	"\x12NetworkTransformer\x12S\n" +
+	"\aheaders\x18\x01 \x03(\v23.chalk.container.v1.NetworkTransformer.HeadersEntryB\x04ء'\x01R\aheaders\x12c\n" +
 	"\x0fheaders_secrets\x18\x02 \x03(\v2:.chalk.container.v1.NetworkTransformer.HeadersSecretsEntryR\x0eheadersSecrets\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13HeadersSecretsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x99\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9f\x02\n" +
 	"\x12NetworkPolicyMatch\x12A\n" +
 	"\x04path\x18\x01 \x01(\v2(.chalk.container.v1.NetworkPolicyMatcherH\x00R\x04path\x88\x01\x01\x12\x16\n" +
 	"\x06method\x18\x02 \x03(\tR\x06method\x12S\n" +
-	"\fquery_string\x18\x03 \x03(\v20.chalk.container.v1.NetworkPolicyKeyValueMatcherR\vqueryString\x12J\n" +
-	"\aheaders\x18\x04 \x03(\v20.chalk.container.v1.NetworkPolicyKeyValueMatcherR\aheadersB\a\n" +
+	"\fquery_string\x18\x03 \x03(\v20.chalk.container.v1.NetworkPolicyKeyValueMatcherR\vqueryString\x12P\n" +
+	"\aheaders\x18\x04 \x03(\v20.chalk.container.v1.NetworkPolicyKeyValueMatcherB\x04ء'\x01R\aheadersB\a\n" +
 	"\x05_path\"\xb6\x01\n" +
 	"\x1cNetworkPolicyKeyValueMatcher\x12?\n" +
 	"\x03key\x18\x01 \x01(\v2(.chalk.container.v1.NetworkPolicyMatcherH\x00R\x03key\x88\x01\x01\x12C\n" +
@@ -6446,7 +6447,7 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"statusCode\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\x03 \x01(\tH\x01R\x05error\x88\x01\x01B\x0e\n" +
 	"\f_status_codeB\b\n" +
-	"\x06_error\"\x9f\b\n" +
+	"\x06_error\"\xa3\b\n" +
 	"\x11ContainerResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -6458,9 +6459,9 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"stopped_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tstoppedAt\x88\x01\x01\x12\x19\n" +
 	"\bpod_name\x18\b \x01(\tR\apodName\x12\x1c\n" +
-	"\aweb_url\x18\t \x01(\tH\x02R\x06webUrl\x88\x01\x01\x12/\n" +
+	"\aweb_url\x18\t \x01(\tH\x02R\x06webUrl\x88\x01\x01\x123\n" +
 	"\x0fssh_private_key\x18\n" +
-	" \x01(\tB\x02\x18\x01H\x03R\rsshPrivateKey\x88\x01\x01\x12*\n" +
+	" \x01(\tB\x06ء'\x01\x18\x01H\x03R\rsshPrivateKey\x88\x01\x01\x12*\n" +
 	"\fssh_username\x18\v \x01(\tB\x02\x18\x01H\x04R\vsshUsername\x88\x01\x01\x12\"\n" +
 	"\bssh_host\x18\f \x01(\tB\x02\x18\x01H\x05R\asshHost\x88\x01\x01\x12\"\n" +
 	"\bssh_port\x18\r \x01(\x05B\x02\x18\x01H\x06R\asshPort\x88\x01\x01\x12G\n" +
@@ -6528,21 +6529,21 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"containers\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\xd7\x01\n" +
+	"\f_next_cursor\"\xe3\x01\n" +
 	"\x12ExecCommandRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x18\n" +
-	"\acommand\x18\x03 \x03(\tR\acommand\x128\n" +
-	"\atimeout\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x02R\atimeout\x88\x01\x01\x12\x19\n" +
-	"\x05stdin\x18\x05 \x01(\fH\x03R\x05stdin\x88\x01\x01B\x05\n" +
+	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x1e\n" +
+	"\acommand\x18\x03 \x03(\tB\x04ء'\x01R\acommand\x128\n" +
+	"\atimeout\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x02R\atimeout\x88\x01\x01\x12\x1f\n" +
+	"\x05stdin\x18\x05 \x01(\fB\x04ء'\x01H\x03R\x05stdin\x88\x01\x01B\x05\n" +
 	"\x03_idB\a\n" +
 	"\x05_nameB\n" +
 	"\n" +
 	"\b_timeoutB\b\n" +
-	"\x06_stdin\"b\n" +
-	"\x13ExecCommandResponse\x12\x16\n" +
-	"\x06stdout\x18\x01 \x01(\fR\x06stdout\x12\x16\n" +
-	"\x06stderr\x18\x02 \x01(\fR\x06stderr\x12\x1b\n" +
+	"\x06_stdin\"n\n" +
+	"\x13ExecCommandResponse\x12\x1c\n" +
+	"\x06stdout\x18\x01 \x01(\fB\x04ء'\x01R\x06stdout\x12\x1c\n" +
+	"\x06stderr\x18\x02 \x01(\fB\x04ء'\x01R\x06stderr\x12\x1b\n" +
 	"\texit_code\x18\x03 \x01(\x05R\bexitCode\"\xc0\x04\n" +
 	"\x0eSessionRequest\x12A\n" +
 	"\vnew_process\x18\x01 \x01(\v2\x1e.chalk.container.v1.NewProcessH\x00R\n" +
@@ -6569,12 +6570,12 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x05event\"<\n" +
 	"\fSessionError\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xfe\x02\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x8a\x03\n" +
 	"\n" +
 	"NewProcess\x12!\n" +
-	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12\x18\n" +
-	"\acommand\x18\x02 \x01(\tR\acommand\x12\x12\n" +
-	"\x04args\x18\x03 \x03(\tR\x04args\x12\x1d\n" +
+	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12\x1e\n" +
+	"\acommand\x18\x02 \x01(\tB\x04ء'\x01R\acommand\x12\x18\n" +
+	"\x04args\x18\x03 \x03(\tB\x04ء'\x01R\x04args\x12\x1d\n" +
 	"\aworkdir\x18\x04 \x01(\tH\x00R\aworkdir\x88\x01\x01\x129\n" +
 	"\x03env\x18\x05 \x03(\v2'.chalk.container.v1.NewProcess.EnvEntryR\x03env\x12&\n" +
 	"\ftimeout_secs\x18\x06 \x01(\x04H\x01R\vtimeoutSecs\x88\x01\x01\x12;\n" +
@@ -6599,17 +6600,17 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"\x0f\n" +
 	"\rDetachSession\"\x11\n" +
-	"\x0fSessionDetached\"\x1f\n" +
-	"\tStdinData\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data\"\n" +
+	"\x0fSessionDetached\"%\n" +
+	"\tStdinData\x12\x18\n" +
+	"\x04data\x18\x01 \x01(\fB\x04ء'\x01R\x04data\"\n" +
 	"\n" +
 	"\bStdinEof\"'\n" +
 	"\rSessionSignal\x12\x16\n" +
-	"\x06signal\x18\x01 \x01(\x05R\x06signal\"\xbe\x01\n" +
+	"\x06signal\x18\x01 \x01(\x05R\x06signal\"\xc4\x01\n" +
 	"\n" +
 	"OutputData\x12=\n" +
-	"\x06stream\x18\x01 \x01(\x0e2%.chalk.container.v1.OutputData.StreamR\x06stream\x12\x12\n" +
-	"\x04data\x18\x02 \x01(\fR\x04data\"]\n" +
+	"\x06stream\x18\x01 \x01(\x0e2%.chalk.container.v1.OutputData.StreamR\x06stream\x12\x18\n" +
+	"\x04data\x18\x02 \x01(\fB\x04ء'\x01R\x04data\"]\n" +
 	"\x06Stream\x12\x16\n" +
 	"\x12STREAM_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTREAM_STDOUT\x10\x01\x12\x11\n" +
@@ -6729,9 +6730,9 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\tsnapshots\x18\x01 \x03(\v2%.chalk.container.v1.ContainerSnapshotR\tsnapshots\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"z\n" +
-	"\x11ContainerTTYInput\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data\x12F\n" +
+	"\f_next_cursor\"\x80\x01\n" +
+	"\x11ContainerTTYInput\x12\x18\n" +
+	"\x04data\x18\x01 \x01(\fB\x04ء'\x01R\x04data\x12F\n" +
 	"\x06resize\x18\x02 \x01(\v2).chalk.container.v1.ContainerTerminalSizeH\x00R\x06resize\x88\x01\x01B\t\n" +
 	"\a_resize\"?\n" +
 	"\x15ContainerTerminalSize\x12\x12\n" +
@@ -6740,15 +6741,15 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x1eCreateContainerDebugTTYRequest\x12U\n" +
 	"\finit_request\x18\x01 \x01(\v20.chalk.container.v1.ContainerDebugTTYInitRequestH\x00R\vinitRequest\x12=\n" +
 	"\x05input\x18\x02 \x01(\v2%.chalk.container.v1.ContainerTTYInputH\x00R\x05inputB\t\n" +
-	"\amessage\"v\n" +
+	"\amessage\"|\n" +
 	"\x1cContainerDebugTTYInitRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x18\n" +
-	"\acommand\x18\x03 \x03(\tR\acommandB\x05\n" +
+	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x1e\n" +
+	"\acommand\x18\x03 \x03(\tB\x04ء'\x01R\acommandB\x05\n" +
 	"\x03_idB\a\n" +
-	"\x05_name\"r\n" +
-	"\x1fCreateContainerDebugTTYResponse\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data\x12\x19\n" +
+	"\x05_name\"x\n" +
+	"\x1fCreateContainerDebugTTYResponse\x12\x18\n" +
+	"\x04data\x18\x01 \x01(\fB\x04ء'\x01R\x04data\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01\x12\x16\n" +
 	"\x06closed\x18\x03 \x01(\bR\x06closedB\b\n" +
 	"\x06_error\"\xf1\x01\n" +

@@ -26,6 +26,106 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Engine used by Chalk's model-independent live serving runtime.
+type ServingEngine int32
+
+const (
+	ServingEngine_SERVING_ENGINE_UNSPECIFIED ServingEngine = 0
+	ServingEngine_SERVING_ENGINE_VLLM        ServingEngine = 1
+	ServingEngine_SERVING_ENGINE_SGLANG      ServingEngine = 2
+)
+
+// Enum value maps for ServingEngine.
+var (
+	ServingEngine_name = map[int32]string{
+		0: "SERVING_ENGINE_UNSPECIFIED",
+		1: "SERVING_ENGINE_VLLM",
+		2: "SERVING_ENGINE_SGLANG",
+	}
+	ServingEngine_value = map[string]int32{
+		"SERVING_ENGINE_UNSPECIFIED": 0,
+		"SERVING_ENGINE_VLLM":        1,
+		"SERVING_ENGINE_SGLANG":      2,
+	}
+)
+
+func (x ServingEngine) Enum() *ServingEngine {
+	p := new(ServingEngine)
+	*p = x
+	return p
+}
+
+func (x ServingEngine) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ServingEngine) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_modeldeployment_v1_curated_models_proto_enumTypes[0].Descriptor()
+}
+
+func (ServingEngine) Type() protoreflect.EnumType {
+	return &file_chalk_modeldeployment_v1_curated_models_proto_enumTypes[0]
+}
+
+func (x ServingEngine) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ServingEngine.Descriptor instead.
+func (ServingEngine) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_curated_models_proto_rawDescGZIP(), []int{0}
+}
+
+// Framework userspace and device family supported by a serving image.
+type ServingAccelerator int32
+
+const (
+	ServingAccelerator_SERVING_ACCELERATOR_UNSPECIFIED ServingAccelerator = 0
+	ServingAccelerator_SERVING_ACCELERATOR_CUDA        ServingAccelerator = 1
+	ServingAccelerator_SERVING_ACCELERATOR_ROCM        ServingAccelerator = 2
+)
+
+// Enum value maps for ServingAccelerator.
+var (
+	ServingAccelerator_name = map[int32]string{
+		0: "SERVING_ACCELERATOR_UNSPECIFIED",
+		1: "SERVING_ACCELERATOR_CUDA",
+		2: "SERVING_ACCELERATOR_ROCM",
+	}
+	ServingAccelerator_value = map[string]int32{
+		"SERVING_ACCELERATOR_UNSPECIFIED": 0,
+		"SERVING_ACCELERATOR_CUDA":        1,
+		"SERVING_ACCELERATOR_ROCM":        2,
+	}
+)
+
+func (x ServingAccelerator) Enum() *ServingAccelerator {
+	p := new(ServingAccelerator)
+	*p = x
+	return p
+}
+
+func (x ServingAccelerator) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ServingAccelerator) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_modeldeployment_v1_curated_models_proto_enumTypes[1].Descriptor()
+}
+
+func (ServingAccelerator) Type() protoreflect.EnumType {
+	return &file_chalk_modeldeployment_v1_curated_models_proto_enumTypes[1]
+}
+
+func (x ServingAccelerator) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ServingAccelerator.Descriptor instead.
+func (ServingAccelerator) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_curated_models_proto_rawDescGZIP(), []int{1}
+}
+
 // CuratedModel describes one entry in the Chalk-managed catalog of prepackaged
 // open-source models that customers can deploy with a single click.
 type CuratedModel struct {
@@ -416,6 +516,121 @@ func (x *DeployCuratedModelResponse) GetScalingGroup() *v11.ScalingGroupResponse
 	return nil
 }
 
+type ResolveServingRuntimeImageRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Both selectors are required; UNSPECIFIED is rejected.
+	Engine        ServingEngine      `protobuf:"varint,1,opt,name=engine,proto3,enum=chalk.modeldeployment.v1.ServingEngine" json:"engine,omitempty"`
+	Accelerator   ServingAccelerator `protobuf:"varint,2,opt,name=accelerator,proto3,enum=chalk.modeldeployment.v1.ServingAccelerator" json:"accelerator,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResolveServingRuntimeImageRequest) Reset() {
+	*x = ResolveServingRuntimeImageRequest{}
+	mi := &file_chalk_modeldeployment_v1_curated_models_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResolveServingRuntimeImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResolveServingRuntimeImageRequest) ProtoMessage() {}
+
+func (x *ResolveServingRuntimeImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_curated_models_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResolveServingRuntimeImageRequest.ProtoReflect.Descriptor instead.
+func (*ResolveServingRuntimeImageRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_curated_models_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ResolveServingRuntimeImageRequest) GetEngine() ServingEngine {
+	if x != nil {
+		return x.Engine
+	}
+	return ServingEngine_SERVING_ENGINE_UNSPECIFIED
+}
+
+func (x *ResolveServingRuntimeImageRequest) GetAccelerator() ServingAccelerator {
+	if x != nil {
+		return x.Accelerator
+	}
+	return ServingAccelerator_SERVING_ACCELERATOR_UNSPECIFIED
+}
+
+type ResolveServingRuntimeImageResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Chalk-built registry image pinned to an immutable sha256 digest. The registry
+	// matches the authenticated environment's cloud, as with curated model images.
+	ImageRef      string             `protobuf:"bytes,1,opt,name=image_ref,json=imageRef,proto3" json:"image_ref,omitempty"`
+	Engine        ServingEngine      `protobuf:"varint,2,opt,name=engine,proto3,enum=chalk.modeldeployment.v1.ServingEngine" json:"engine,omitempty"`
+	Accelerator   ServingAccelerator `protobuf:"varint,3,opt,name=accelerator,proto3,enum=chalk.modeldeployment.v1.ServingAccelerator" json:"accelerator,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResolveServingRuntimeImageResponse) Reset() {
+	*x = ResolveServingRuntimeImageResponse{}
+	mi := &file_chalk_modeldeployment_v1_curated_models_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResolveServingRuntimeImageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResolveServingRuntimeImageResponse) ProtoMessage() {}
+
+func (x *ResolveServingRuntimeImageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_curated_models_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResolveServingRuntimeImageResponse.ProtoReflect.Descriptor instead.
+func (*ResolveServingRuntimeImageResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_curated_models_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ResolveServingRuntimeImageResponse) GetImageRef() string {
+	if x != nil {
+		return x.ImageRef
+	}
+	return ""
+}
+
+func (x *ResolveServingRuntimeImageResponse) GetEngine() ServingEngine {
+	if x != nil {
+		return x.Engine
+	}
+	return ServingEngine_SERVING_ENGINE_UNSPECIFIED
+}
+
+func (x *ResolveServingRuntimeImageResponse) GetAccelerator() ServingAccelerator {
+	if x != nil {
+		return x.Accelerator
+	}
+	return ServingAccelerator_SERVING_ACCELERATOR_UNSPECIFIED
+}
+
 var File_chalk_modeldeployment_v1_curated_models_proto protoreflect.FileDescriptor
 
 const file_chalk_modeldeployment_v1_curated_models_proto_rawDesc = "" +
@@ -458,12 +673,29 @@ const file_chalk_modeldeployment_v1_curated_models_proto_rawDesc = "" +
 	"\x1aDeployCuratedModelResponse\x12I\n" +
 	"\x0emodel_artifact\x18\x01 \x01(\v2\".chalk.models.v1.ModelArtifactSpecR\rmodelArtifact\x12#\n" +
 	"\rmodel_version\x18\x02 \x01(\x04R\fmodelVersion\x12P\n" +
-	"\rscaling_group\x18\x03 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\fscalingGroup2\xd6\x03\n" +
-	"\x13CuratedModelService\x12\xdc\x01\n" +
-	"\x11ListCuratedModels\x122.chalk.modeldeployment.v1.ListCuratedModelsRequest\x1a3.chalk.modeldeployment.v1.ListCuratedModelsResponse\"^\x80}4\x92}\x01\v\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xdf\x01\n" +
+	"\rscaling_group\x18\x03 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\fscalingGroup\"\xb4\x01\n" +
+	"!ResolveServingRuntimeImageRequest\x12?\n" +
+	"\x06engine\x18\x01 \x01(\x0e2'.chalk.modeldeployment.v1.ServingEngineR\x06engine\x12N\n" +
+	"\vaccelerator\x18\x02 \x01(\x0e2,.chalk.modeldeployment.v1.ServingAcceleratorR\vaccelerator\"\xd2\x01\n" +
+	"\"ResolveServingRuntimeImageResponse\x12\x1b\n" +
+	"\timage_ref\x18\x01 \x01(\tR\bimageRef\x12?\n" +
+	"\x06engine\x18\x02 \x01(\x0e2'.chalk.modeldeployment.v1.ServingEngineR\x06engine\x12N\n" +
+	"\vaccelerator\x18\x03 \x01(\x0e2,.chalk.modeldeployment.v1.ServingAcceleratorR\vaccelerator*c\n" +
+	"\rServingEngine\x12\x1e\n" +
+	"\x1aSERVING_ENGINE_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13SERVING_ENGINE_VLLM\x10\x01\x12\x19\n" +
+	"\x15SERVING_ENGINE_SGLANG\x10\x02*u\n" +
+	"\x12ServingAccelerator\x12#\n" +
+	"\x1fSERVING_ACCELERATOR_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18SERVING_ACCELERATOR_CUDA\x10\x01\x12\x1c\n" +
+	"\x18SERVING_ACCELERATOR_ROCM\x10\x022\xff\x02\n" +
+	"\x13CuratedModelService\x12\x85\x01\n" +
+	"\x11ListCuratedModels\x122.chalk.modeldeployment.v1.ListCuratedModelsRequest\x1a3.chalk.modeldeployment.v1.ListCuratedModelsResponse\"\a\x80}4\x92}\x01\v\x12\xdf\x01\n" +
 	"\x12DeployCuratedModel\x123.chalk.modeldeployment.v1.DeployCuratedModelRequest\x1a4.chalk.modeldeployment.v1.DeployCuratedModelResponse\"^\x80}5\x92}\x01\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.B\x81\x02\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.2\x8d\x02\n" +
+	"\x15ServingRuntimeService\x12\xf3\x01\n" +
+	"\x1aResolveServingRuntimeImage\x12;.chalk.modeldeployment.v1.ResolveServingRuntimeImageRequest\x1a<.chalk.modeldeployment.v1.ResolveServingRuntimeImageResponse\"Z\x80}\v\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.B\x81\x02\n" +
 	"\x1ccom.chalk.modeldeployment.v1B\x12CuratedModelsProtoP\x01ZKgithub.com/chalk-ai/chalk-go/gen/chalk/modeldeployment/v1;modeldeploymentv1\xa2\x02\x03CMX\xaa\x02\x18Chalk.Modeldeployment.V1\xca\x02\x18Chalk\\Modeldeployment\\V1\xe2\x02$Chalk\\Modeldeployment\\V1\\GPBMetadata\xea\x02\x1aChalk::Modeldeployment::V1b\x06proto3"
 
 var (
@@ -478,37 +710,48 @@ func file_chalk_modeldeployment_v1_curated_models_proto_rawDescGZIP() []byte {
 	return file_chalk_modeldeployment_v1_curated_models_proto_rawDescData
 }
 
-var file_chalk_modeldeployment_v1_curated_models_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chalk_modeldeployment_v1_curated_models_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_modeldeployment_v1_curated_models_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chalk_modeldeployment_v1_curated_models_proto_goTypes = []any{
-	(*CuratedModel)(nil),               // 0: chalk.modeldeployment.v1.CuratedModel
-	(*ListCuratedModelsRequest)(nil),   // 1: chalk.modeldeployment.v1.ListCuratedModelsRequest
-	(*ListCuratedModelsResponse)(nil),  // 2: chalk.modeldeployment.v1.ListCuratedModelsResponse
-	(*DeployCuratedModelRequest)(nil),  // 3: chalk.modeldeployment.v1.DeployCuratedModelRequest
-	(*DeployCuratedModelResponse)(nil), // 4: chalk.modeldeployment.v1.DeployCuratedModelResponse
-	(*v1.ModelSignature)(nil),          // 5: chalk.models.v1.ModelSignature
-	(*v11.ScalingSpec)(nil),            // 6: chalk.scalinggroup.v1.ScalingSpec
-	(*v12.ResourceLimits)(nil),         // 7: chalk.container.v1.ResourceLimits
-	(v12.ComputeClass)(0),              // 8: chalk.container.v1.ComputeClass
-	(*v1.ModelArtifactSpec)(nil),       // 9: chalk.models.v1.ModelArtifactSpec
-	(*v11.ScalingGroupResponse)(nil),   // 10: chalk.scalinggroup.v1.ScalingGroupResponse
+	(ServingEngine)(0),                         // 0: chalk.modeldeployment.v1.ServingEngine
+	(ServingAccelerator)(0),                    // 1: chalk.modeldeployment.v1.ServingAccelerator
+	(*CuratedModel)(nil),                       // 2: chalk.modeldeployment.v1.CuratedModel
+	(*ListCuratedModelsRequest)(nil),           // 3: chalk.modeldeployment.v1.ListCuratedModelsRequest
+	(*ListCuratedModelsResponse)(nil),          // 4: chalk.modeldeployment.v1.ListCuratedModelsResponse
+	(*DeployCuratedModelRequest)(nil),          // 5: chalk.modeldeployment.v1.DeployCuratedModelRequest
+	(*DeployCuratedModelResponse)(nil),         // 6: chalk.modeldeployment.v1.DeployCuratedModelResponse
+	(*ResolveServingRuntimeImageRequest)(nil),  // 7: chalk.modeldeployment.v1.ResolveServingRuntimeImageRequest
+	(*ResolveServingRuntimeImageResponse)(nil), // 8: chalk.modeldeployment.v1.ResolveServingRuntimeImageResponse
+	(*v1.ModelSignature)(nil),                  // 9: chalk.models.v1.ModelSignature
+	(*v11.ScalingSpec)(nil),                    // 10: chalk.scalinggroup.v1.ScalingSpec
+	(*v12.ResourceLimits)(nil),                 // 11: chalk.container.v1.ResourceLimits
+	(v12.ComputeClass)(0),                      // 12: chalk.container.v1.ComputeClass
+	(*v1.ModelArtifactSpec)(nil),               // 13: chalk.models.v1.ModelArtifactSpec
+	(*v11.ScalingGroupResponse)(nil),           // 14: chalk.scalinggroup.v1.ScalingGroupResponse
 }
 var file_chalk_modeldeployment_v1_curated_models_proto_depIdxs = []int32{
-	5,  // 0: chalk.modeldeployment.v1.CuratedModel.default_signature:type_name -> chalk.models.v1.ModelSignature
-	6,  // 1: chalk.modeldeployment.v1.CuratedModel.default_scaling:type_name -> chalk.scalinggroup.v1.ScalingSpec
-	7,  // 2: chalk.modeldeployment.v1.CuratedModel.default_resources:type_name -> chalk.container.v1.ResourceLimits
-	0,  // 3: chalk.modeldeployment.v1.ListCuratedModelsResponse.models:type_name -> chalk.modeldeployment.v1.CuratedModel
-	8,  // 4: chalk.modeldeployment.v1.DeployCuratedModelRequest.compute_class:type_name -> chalk.container.v1.ComputeClass
-	9,  // 5: chalk.modeldeployment.v1.DeployCuratedModelResponse.model_artifact:type_name -> chalk.models.v1.ModelArtifactSpec
-	10, // 6: chalk.modeldeployment.v1.DeployCuratedModelResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	1,  // 7: chalk.modeldeployment.v1.CuratedModelService.ListCuratedModels:input_type -> chalk.modeldeployment.v1.ListCuratedModelsRequest
-	3,  // 8: chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel:input_type -> chalk.modeldeployment.v1.DeployCuratedModelRequest
-	2,  // 9: chalk.modeldeployment.v1.CuratedModelService.ListCuratedModels:output_type -> chalk.modeldeployment.v1.ListCuratedModelsResponse
-	4,  // 10: chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel:output_type -> chalk.modeldeployment.v1.DeployCuratedModelResponse
-	9,  // [9:11] is the sub-list for method output_type
-	7,  // [7:9] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	9,  // 0: chalk.modeldeployment.v1.CuratedModel.default_signature:type_name -> chalk.models.v1.ModelSignature
+	10, // 1: chalk.modeldeployment.v1.CuratedModel.default_scaling:type_name -> chalk.scalinggroup.v1.ScalingSpec
+	11, // 2: chalk.modeldeployment.v1.CuratedModel.default_resources:type_name -> chalk.container.v1.ResourceLimits
+	2,  // 3: chalk.modeldeployment.v1.ListCuratedModelsResponse.models:type_name -> chalk.modeldeployment.v1.CuratedModel
+	12, // 4: chalk.modeldeployment.v1.DeployCuratedModelRequest.compute_class:type_name -> chalk.container.v1.ComputeClass
+	13, // 5: chalk.modeldeployment.v1.DeployCuratedModelResponse.model_artifact:type_name -> chalk.models.v1.ModelArtifactSpec
+	14, // 6: chalk.modeldeployment.v1.DeployCuratedModelResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	0,  // 7: chalk.modeldeployment.v1.ResolveServingRuntimeImageRequest.engine:type_name -> chalk.modeldeployment.v1.ServingEngine
+	1,  // 8: chalk.modeldeployment.v1.ResolveServingRuntimeImageRequest.accelerator:type_name -> chalk.modeldeployment.v1.ServingAccelerator
+	0,  // 9: chalk.modeldeployment.v1.ResolveServingRuntimeImageResponse.engine:type_name -> chalk.modeldeployment.v1.ServingEngine
+	1,  // 10: chalk.modeldeployment.v1.ResolveServingRuntimeImageResponse.accelerator:type_name -> chalk.modeldeployment.v1.ServingAccelerator
+	3,  // 11: chalk.modeldeployment.v1.CuratedModelService.ListCuratedModels:input_type -> chalk.modeldeployment.v1.ListCuratedModelsRequest
+	5,  // 12: chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel:input_type -> chalk.modeldeployment.v1.DeployCuratedModelRequest
+	7,  // 13: chalk.modeldeployment.v1.ServingRuntimeService.ResolveServingRuntimeImage:input_type -> chalk.modeldeployment.v1.ResolveServingRuntimeImageRequest
+	4,  // 14: chalk.modeldeployment.v1.CuratedModelService.ListCuratedModels:output_type -> chalk.modeldeployment.v1.ListCuratedModelsResponse
+	6,  // 15: chalk.modeldeployment.v1.CuratedModelService.DeployCuratedModel:output_type -> chalk.modeldeployment.v1.DeployCuratedModelResponse
+	8,  // 16: chalk.modeldeployment.v1.ServingRuntimeService.ResolveServingRuntimeImage:output_type -> chalk.modeldeployment.v1.ResolveServingRuntimeImageResponse
+	14, // [14:17] is the sub-list for method output_type
+	11, // [11:14] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_chalk_modeldeployment_v1_curated_models_proto_init() }
@@ -522,13 +765,14 @@ func file_chalk_modeldeployment_v1_curated_models_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_modeldeployment_v1_curated_models_proto_rawDesc), len(file_chalk_modeldeployment_v1_curated_models_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   5,
+			NumEnums:      2,
+			NumMessages:   7,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_chalk_modeldeployment_v1_curated_models_proto_goTypes,
 		DependencyIndexes: file_chalk_modeldeployment_v1_curated_models_proto_depIdxs,
+		EnumInfos:         file_chalk_modeldeployment_v1_curated_models_proto_enumTypes,
 		MessageInfos:      file_chalk_modeldeployment_v1_curated_models_proto_msgTypes,
 	}.Build()
 	File_chalk_modeldeployment_v1_curated_models_proto = out.File

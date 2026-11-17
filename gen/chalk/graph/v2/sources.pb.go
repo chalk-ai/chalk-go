@@ -7,6 +7,7 @@
 package graphv2
 
 import (
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -377,7 +378,7 @@ var File_chalk_graph_v2_sources_proto protoreflect.FileDescriptor
 
 const file_chalk_graph_v2_sources_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/graph/v2/sources.proto\x12\x0echalk.graph.v2\x1a\x1cgoogle/protobuf/struct.proto\"N\n" +
+	"\x1cchalk/graph/v2/sources.proto\x12\x0echalk.graph.v2\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1cgoogle/protobuf/struct.proto\"N\n" +
 	"\x17DatabaseSourceReference\x12\x1f\n" +
 	"\vsource_type\x18\x01 \x01(\tR\n" +
 	"sourceType\x12\x12\n" +
@@ -409,9 +410,9 @@ const file_chalk_graph_v2_sources_proto_rawDesc = "" +
 	"\aoptions\x18\x03 \x03(\v2).chalk.graph.v2.StreamSource.OptionsEntryR\aoptions\x1aR\n" +
 	"\fOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
-	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\x91\x01\n" +
-	"\rSourceSecrets\x12D\n" +
-	"\asecrets\x18\x01 \x03(\v2*.chalk.graph.v2.SourceSecrets.SecretsEntryR\asecrets\x1a:\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\x97\x01\n" +
+	"\rSourceSecrets\x12J\n" +
+	"\asecrets\x18\x01 \x03(\v2*.chalk.graph.v2.SourceSecrets.SecretsEntryB\x04ء'\x01R\asecrets\x1a:\n" +
 	"\fSecretsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\xb5\x01\n" +

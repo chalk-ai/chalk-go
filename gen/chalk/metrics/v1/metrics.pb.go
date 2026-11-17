@@ -977,8 +977,12 @@ type Metric struct {
 	AggregationType *Metrics1ProtoAggregationType    `protobuf:"varint,17,opt,name=aggregation_type,json=aggregationType,proto3,enum=chalk.metrics.v1.Metrics1ProtoAggregationType,oneof" json:"aggregation_type,omitempty"`
 	Tag6            *Metrics1ProtoRepresentationTag6 `protobuf:"varint,18,opt,name=tag6,proto3,enum=chalk.metrics.v1.Metrics1ProtoRepresentationTag6,oneof" json:"tag6,omitempty"`
 	Tag7            *Metrics1ProtoRepresentationTag7 `protobuf:"varint,19,opt,name=tag7,proto3,enum=chalk.metrics.v1.Metrics1ProtoRepresentationTag7,oneof" json:"tag7,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// The environment's project and team. Numeric rows store them in metrics1's project_id and
+	// team_id columns; a producer that leaves them unset gets placeholders there.
+	ProjectId     *string `protobuf:"bytes,20,opt,name=project_id,json=projectId,proto3,oneof" json:"project_id,omitempty"`
+	TeamId        *string `protobuf:"bytes,21,opt,name=team_id,json=teamId,proto3,oneof" json:"team_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Metric) Reset() {
@@ -1155,6 +1159,20 @@ func (x *Metric) GetTag7() Metrics1ProtoRepresentationTag7 {
 	return Metrics1ProtoRepresentationTag7_METRICS1_PROTO_REPRESENTATION_TAG7_UNSPECIFIED
 }
 
+func (x *Metric) GetProjectId() string {
+	if x != nil && x.ProjectId != nil {
+		return *x.ProjectId
+	}
+	return ""
+}
+
+func (x *Metric) GetTeamId() string {
+	if x != nil && x.TeamId != nil {
+		return *x.TeamId
+	}
+	return ""
+}
+
 type isMetric_Value interface {
 	isMetric_Value()
 }
@@ -1268,8 +1286,7 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"statistics\x18\x02 \x01(\v2\".chalk.metrics.v1.MetricStatisticsR\n" +
 	"statistics\"%\n" +
 	"\rNumericMetric\x12\x14\n" +
-	"\x05value\x18\x01 \x01(\x01R\x05value\"\xaf\n" +
-	"\n" +
+	"\x05value\x18\x01 \x01(\x01R\x05value\"\x8c\v\n" +
 	"\x06Metric\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\x03H\x01R\x02id\x88\x01\x01\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12#\n" +
@@ -1293,7 +1310,10 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"\x10aggregation_type\x18\x11 \x01(\x0e2..chalk.metrics.v1.Metrics1ProtoAggregationTypeH\tR\x0faggregationType\x88\x01\x01\x12J\n" +
 	"\x04tag6\x18\x12 \x01(\x0e21.chalk.metrics.v1.Metrics1ProtoRepresentationTag6H\n" +
 	"R\x04tag6\x88\x01\x01\x12J\n" +
-	"\x04tag7\x18\x13 \x01(\x0e21.chalk.metrics.v1.Metrics1ProtoRepresentationTag7H\vR\x04tag7\x88\x01\x01B\a\n" +
+	"\x04tag7\x18\x13 \x01(\x0e21.chalk.metrics.v1.Metrics1ProtoRepresentationTag7H\vR\x04tag7\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"project_id\x18\x14 \x01(\tH\fR\tprojectId\x88\x01\x01\x12\x1c\n" +
+	"\ateam_id\x18\x15 \x01(\tH\rR\x06teamId\x88\x01\x01B\a\n" +
 	"\x05valueB\x05\n" +
 	"\x03_idB\x0f\n" +
 	"\r_operation_idB\x11\n" +
@@ -1305,7 +1325,10 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"\x05_tag5B\x13\n" +
 	"\x11_aggregation_typeB\a\n" +
 	"\x05_tag6B\a\n" +
-	"\x05_tag7\"\x9b\x01\n" +
+	"\x05_tag7B\r\n" +
+	"\v_project_idB\n" +
+	"\n" +
+	"\b_team_id\"\x9b\x01\n" +
 	"\x10MetricStatistics\x12\x10\n" +
 	"\x03min\x18\x01 \x01(\x01R\x03min\x12\x10\n" +
 	"\x03max\x18\x02 \x01(\x01R\x03max\x12\x14\n" +
